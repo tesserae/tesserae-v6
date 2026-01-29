@@ -52,3 +52,6 @@ backend/embeddings/
 
 # Attached assets (user uploads during development)
 attached_assets/
+
+# Private drafts
+docs/ARTICLE_METHODS_DRAFT.md
