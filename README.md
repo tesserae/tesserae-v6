@@ -101,9 +101,9 @@ Texts use the `.tess` format with section tags:
 
 **V6 Creator**: [Neil Coffee](https://www.buffalo.edu/cas/english/faculty/faculty_directory.host.html/content/shared/cas/english/faculty-staff/faculty/coffee.detail.html) (University at Buffalo)
 
-**V3 Lead Developer**: [Chris Forstall](https://mta.ca/directory/chris-forstall) (Mount Allison University)
+**V6 Collaborator**: [Walter Scheirer](https://www.wjscheirer.com/) (University of Notre Dame)
 
-**V5 Collaborator**: [Walter Scheirer](https://www.wjscheirer.com/) (University of Notre Dame)
+**V3 Lead Developer**: [Chris Forstall](https://mta.ca/directory/chris-forstall) (Mount Allison University)
 
 ## License
 

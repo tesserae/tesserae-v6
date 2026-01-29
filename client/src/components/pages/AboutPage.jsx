@@ -73,7 +73,7 @@ export default function AboutPage() {
               Walter Scheirer
             </a>{' '}
             (University of Notre Dame) is a long-term collaborator on the Tesserae project, 
-            contributing to the development of V5 and ongoing research directions.
+            contributing to the development of V5 and V6 and ongoing research directions.
           </p>
           <p className="text-gray-700 mb-4">
             <a 
