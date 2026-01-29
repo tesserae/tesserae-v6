@@ -98,9 +98,7 @@ Texts use the `.tess` format with section tags:
 
 ## Credits
 
-**V6 Creator**: [Neil Coffee](https://www.buffalo.edu/cas/english/faculty/faculty_directory.host.html/content/shared/cas/english/faculty-staff/faculty/coffee.detail.html) (University at Buffalo)
-
-**V6 Collaborator**: [Walter Scheirer](https://www.wjscheirer.com/) (University of Notre Dame)
+Tesserae is a collaboration between [Neil Coffee](https://www.buffalo.edu/cas/english/faculty/faculty_directory.host.html/content/shared/cas/english/faculty-staff/faculty/coffee.detail.html) (University at Buffalo) and [Walter Scheirer](https://www.wjscheirer.com/) (University of Notre Dame). Neil created V6 and the team collaborates on its ongoing development.
 
 **V3 Lead Developer**: [Chris Forstall](https://mta.ca/directory/chris-forstall) (Mount Allison University)
 

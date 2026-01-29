@@ -44,26 +44,16 @@ export default function AboutPage() {
             (University at Buffalo) using <strong>Replit Agent</strong>, an AI-assisted development platform.
           </p>
           <p className="text-gray-700 mb-4">
-            Tesserae is a joint project of the{' '}
+            Tesserae is a collaboration between{' '}
             <a 
-              href="https://arts-sciences.buffalo.edu/classics.html" 
+              href="https://www.buffalo.edu/cas/english/faculty/faculty_directory.host.html/content/shared/cas/english/faculty-staff/faculty/coffee.detail.html" 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-amber-600 hover:underline font-semibold"
             >
-              University at Buffalo, SUNY Department of Classics
+              Neil Coffee
             </a>{' '}
-            and the{' '}
-            <a 
-              href="https://cse.nd.edu/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-amber-600 hover:underline font-semibold"
-            >
-              University of Notre Dame Department of Computer Science and Engineering
-            </a>.
-          </p>
-          <p className="text-gray-700 mb-4">
+            (University at Buffalo) and{' '}
             <a 
               href="https://engineering.nd.edu/faculty/walter-scheirer/" 
               target="_blank" 
@@ -72,8 +62,7 @@ export default function AboutPage() {
             >
               Walter Scheirer
             </a>{' '}
-            (University of Notre Dame) is a long-term collaborator on the Tesserae project, 
-            contributing to the development of V5 and V6 and ongoing research directions.
+            (University of Notre Dame). Neil created V6 and the team collaborates on its ongoing development.
           </p>
           <p className="text-gray-700 mb-4">
             <a 
