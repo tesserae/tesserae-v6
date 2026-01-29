@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<head>
+		<author>Claudianus</author>
+		<title>epigramma</title>
+		<resp>
+			<institution>Università degli Studi di Udine</institution>
+			<institution>Università "Ca' Foscari" di Venezia</institution>
+			<orgName>Pedecerto. Digital Latin Metre <link>https://www.pedecerto.eu</link></orgName>
+			<persName>Emanuela Colombi</persName>
+			<persName>Luca Mondin</persName>
+			<persName>Luigi Tessarolo</persName>
+			<persName>Andrea Bacianini</persName>
+		</resp>
+		<rights>
+			<licence>https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode</licence>
+		</rights>
+	</head>
+	<body>
+		<line name="1" meter="H" pattern="SDSS">
+			<word sy="1A" wb="CM">In</word>
+			<word sy="1T2A" wb="CM">ripa</word>
+			<word sy="2b2c" wb="DI">lepus</word>
+			<word sy="3A" wb="CM">est:</word>
+			<word sy="3T4A" wb="CM">nixu</word>
+			<word sy="4T5A5b5c" wb="DI">contenditur</word>
+			<word sy="6A6X">arcus</word>
+		</line>
+		<line name="2" meter="P" pattern="DD-|DD-">
+			<word sy="1A1b1c" wb="DI">Ocius</word>
+			<word sy="2A" wb="CM">et</word>
+			<word sy="2b2c3A" wb="CM">celeri</word>
+			<word sy="4A4b" wb="CF">missa</word>
+			<word sy="4c5A5b" wb="CF">sagitta</word>
+			<word sy="5c6X">manu.</word>
+		</line>
+		<line name="3" meter="H" pattern="DSSS">
+			<word sy="1A1b" wb="CF">Forte</word>
+			<word sy="1c2A" wb="CM">salit</word>
+			<word sy="2T3A" wb="CM">piscis,</word>
+			<word sy="3T4A" wb="CM">Progne</word>
+			<word sy="4T5A5b5c" wb="DI">praeteruolat.</word>
+			<word sy="6A6X">haerent</word>
+		</line>
+		<line name="4" meter="P" pattern="SS-|DD-">
+			<word sy="1A" wb="CM">Tres</word>
+			<word sy="1T" mf="SY">uno</word>
+			<word sy="2A" wb="CM">in</word>
+			<word sy="2T3A" wb="CM">telo:</word>
+			<word sy="4A4b" wb="CF">piscis,</word>
+			<word sy="4c5A5b" wb="CF">hirundo,</word>
+			<word sy="5c6X">lepus.</word>
+		</line>
+		<line name="" meter="">
+			<word></word>
+		</line>
+	</body>
+</document>

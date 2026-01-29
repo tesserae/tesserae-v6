@@ -1,0 +1,730 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<head>
+		<author>Seneca</author>
+		<title>apocolocyntosis</title>
+		<resp>
+			<institution>Università degli Studi di Udine</institution>
+			<institution>Università "Ca' Foscari" di Venezia</institution>
+			<orgName>Pedecerto. Digital Latin Metre <link>https://www.pedecerto.eu</link></orgName>
+			<persName>Emanuela Colombi</persName>
+			<persName>Luca Mondin</persName>
+			<persName>Luigi Tessarolo</persName>
+			<persName>Andrea Bacianini</persName>
+		</resp>
+		<rights>
+			<licence>https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode</licence>
+		</rights>
+	</head>
+	<body>
+		<division title="2">
+			<line name="1" meter="H" pattern="SDDS">
+				<word sy="1A" wb="CM">Iam</word>
+				<word sy="1T2A" wb="CM">Phoebus</word>
+				<word sy="2b2c3A3b" wb="CF">breuiore</word>
+				<word sy="3c4A" wb="CM">uia</word>
+				<word sy="4T5A5b5c" wb="DI">contraxerat</word>
+				<word sy="6A6X">ortum</word>
+			</line>
+			<line name="2" meter="H" pattern="DSSS">
+				<word sy="1A1b" wb="CF">Lucis</word>
+				<word sy="1c" wb="DI">et</word>
+				<word sy="2A2T3A" wb="CM">obscuri</word>
+				<word sy="3T4A4T" wb="DI">crescebant</word>
+				<word sy="5A5b5c" wb="DI">tempora</word>
+				<word sy="6A6X">Somni;</word>
+			</line>
+			<line name="3" meter="H" pattern="DSSS">
+				<word sy="1A1b" wb="CF">Iamque</word>
+				<word sy="1c2A" wb="CM">suum</word>
+				<word sy="2T3A" wb="CM">uictrix</word>
+				<word sy="3T4A4T" wb="DI">augebat</word>
+				<word sy="5A5b5c" wb="DI">Cynthia</word>
+				<word sy="6A6X">regnum,</word>
+			</line>
+			<line name="4" meter="H" pattern="SDSS">
+				<word sy="1A" wb="CM">Et</word>
+				<word sy="1T2A2b" wb="CF">deformis</word>
+				<word sy="2c3A" wb="CM">Hiemps</word>
+				<word sy="3T4A" wb="CM">gratos</word>
+				<word sy="4T5A5b" wb="CF">carpebat</word>
+				<word sy="5c6A6X">honores</word>
+			</line>
+			<line name="5" meter="H" pattern="DSSD">
+				<word sy="1A1b1c" wb="DI">Diuitis</word>
+				<word sy="2A2T3A" wb="CM">Autumni,</word>
+				<word sy="3T4A4b" wb="CF">iussoque</word>
+				<word sy="4c5A5b5c" wb="DI">senescere</word>
+				<word sy="6A6X">Baccho</word>
+			</line>
+			<line name="6" meter="H" pattern="SSSS">
+				<word sy="1A1T2A" wb="CM">Carpebat</word>
+				<word sy="2T3A" wb="CM">raras</word>
+				<word sy="3T4A" wb="CM">serus</word>
+				<word sy="4T5A5b5c" wb="DI">uindemitor</word>
+				<word sy="6A6X">uuas.</word>
+			</line>
+			<line name="7" meter="H" pattern="DSSS">
+				<word sy="1A" wb="CM">Iam</word>
+				<word sy="1b1c2A" wb="CM">medium</word>
+				<word sy="2T3A" wb="CM">curru</word>
+				<word sy="3T4A" wb="CM">Phoebus</word>
+				<word sy="4T5A5b5c" wb="DI">diuiserat</word>
+				<word sy="6A6X">orbem</word>
+			</line>
+			<line name="8" meter="H" pattern="DSSD">
+				<word sy="1A" wb="CM">Et</word>
+				<word sy="1b1c2A" wb="CM">propior</word>
+				<word sy="2T3A" wb="CM">nocti</word>
+				<word sy="3T4A" wb="CM">fessas</word>
+				<word sy="4b4c5A5b" wb="CF">quatiebat</word>
+				<word sy="5c6A6X">habenas,</word>
+			</line>
+			<line name="9" meter="H" pattern="SSSS">
+				<word sy="1A1T2A" wb="CM">Obliquo</word>
+				<word sy="2T3A" wb="CM">flexam</word>
+				<word sy="3T4A4T" wb="DI">deducens</word>
+				<word sy="5A5b5c" wb="DI">tramite</word>
+				<word sy="6A6X">lucem.</word>
+			</line>
+			<line name="" meter="">
+				<word></word>
+			</line>
+		</division>
+		<division title="4">
+			<line name="1" meter="H" pattern="DSSS">
+				<word sy="1A" wb="CM">Haec</word>
+				<word sy="1b1c" wb="DI">ait</word>
+				<word sy="2A" wb="CM">et</word>
+				<word sy="2T3A" wb="CM">turpi</word>
+				<word sy="3T4A4T" wb="DI">conuoluens</word>
+				<word sy="5A5b5c" wb="DI">stamina</word>
+				<word sy="6A6X">fuso</word>
+			</line>
+			<line name="2" meter="H" pattern="SDSD">
+				<word sy="1A1T2A" wb="CM">Abrupit</word>
+				<word sy="2b2c3A" wb="CM">stolidae</word>
+				<word sy="3T4A4b4c" wb="DI">regalia</word>
+				<word sy="5A5b5c" wb="DI">tempora</word>
+				<word sy="6A6X">uitae.</word>
+			</line>
+			<line name="3" meter="H" pattern="DDDS">
+				<word sy="1A" wb="CM">At</word>
+				<word sy="1b1c2A" wb="CM">Lachesis</word>
+				<word sy="2b2c3A3b" wb="CF">redimita</word>
+				<word sy="3c4A" wb="CM">comas,</word>
+				<word sy="4T5A5b" wb="CF">ornata</word>
+				<word sy="5c6A6X">capillos,</word>
+			</line>
+			<line name="4" meter="H" pattern="DSSS">
+				<word sy="1A1b1c2A" wb="CM">Pieria</word>
+				<word sy="2T3A" wb="CM">crinem</word>
+				<word sy="3T4A" wb="CM">lauro</word>
+				<word sy="4T5A5b" wb="CF">frontemque</word>
+				<word sy="5c6A6X">coronans,</word>
+			</line>
+			<line name="5" meter="H" pattern="DDSD">
+				<word sy="1A1b1c" wb="DI">Candida</word>
+				<word sy="2A" wb="CM">de</word>
+				<word sy="2b2c3A" wb="CM">niueo</word>
+				<word sy="3T4A4b4c" wb="DI">subtemina</word>
+				<word sy="5A5b5c" wb="DI">uellere</word>
+				<word sy="6A6X">sumit</word>
+			</line>
+			<line name="6" meter="H" pattern="SDDS">
+				<word sy="1A1T2A" wb="CM">Felici</word>
+				<word sy="2b2c3A3b" wb="CF">moderanda</word>
+				<word sy="3c4A" wb="CM">manu,</word>
+				<word sy="4T" wb="DI">quae</word>
+				<word sy="5A5b" wb="CF">ducta</word>
+				<word sy="5c6A6X">colorem</word>
+			</line>
+			<line name="7" meter="H" pattern="SDSS">
+				<word sy="1A1T2A2b" wb="CF">Assumpsere</word>
+				<word sy="2c3A" wb="CM">nouum.</word>
+				<word sy="3T4A4T" wb="DI">mirantur</word>
+				<word sy="5A5b" wb="CF">pensa</word>
+				<word sy="5c6A6X">sorores:</word>
+			</line>
+			<line name="8" meter="H" pattern="SSDS">
+				<word sy="1A1T2A" wb="CM">Mutatur</word>
+				<word sy="2T3A" wb="CM">uilis</word>
+				<word sy="3b3c4A4T" wb="DI">pretioso</word>
+				<word sy="5A5b" wb="CF">lana</word>
+				<word sy="5c6A6X">metallo,</word>
+			</line>
+			<line name="9" meter="H" pattern="DSSS">
+				<word sy="1A1b1c" wb="DI">Aurea</word>
+				<word sy="2A2T3A" wb="CM">formoso</word>
+				<word sy="3T4A4T" wb="DI">descendunt</word>
+				<word sy="5A5b5c" wb="DI">saecula</word>
+				<word sy="6A6X">filo.</word>
+			</line>
+			<line name="10" meter="H" pattern="DSSD">
+				<word sy="1A" wb="CM">Nec</word>
+				<word sy="1b1c" wb="DI">modus</word>
+				<word sy="2A" wb="CM">est</word>
+				<word sy="2T3A" wb="CM">illis:</word>
+				<word sy="3T4A4b4c" wb="DI">felicia</word>
+				<word sy="5A5b5c" wb="DI">uellera</word>
+				<word sy="6A6X">ducunt</word>
+			</line>
+			<line name="11" meter="H" pattern="SSDS">
+				<word sy="1A" wb="CM">Et</word>
+				<word sy="1T2A" wb="CM">gaudent</word>
+				<word sy="2T3A3b" wb="CF">implere</word>
+				<word sy="3c4A" wb="CM">manus:</word>
+				<word sy="4T" wb="DI">sunt</word>
+				<word sy="5A5b5c" wb="DI">dulcia</word>
+				<word sy="6A6X">pensa.</word>
+			</line>
+			<line name="12" meter="H" pattern="DSDS">
+				<word sy="1A1b" wb="CF">Sponte</word>
+				<word sy="1c2A" wb="CM">sua</word>
+				<word sy="2T3A3b" wb="CF">festinat</word>
+				<word sy="3c4A" wb="CM">opus</word>
+				<word sy="4T5A5b" wb="CF">nulloque</word>
+				<word sy="5c6A6X">labore</word>
+			</line>
+			<line name="13" meter="H" pattern="DSSS">
+				<word sy="1A1b1c" wb="DI">Mollia</word>
+				<word sy="2A2T3A" wb="CM">contorto</word>
+				<word sy="3T4A4T" wb="DI">descendunt</word>
+				<word sy="5A5b5c" wb="DI">stamina</word>
+				<word sy="6A6X">fuso:</word>
+			</line>
+			<line name="14" meter="H" pattern="SSSS">
+				<word sy="1A1T" wb="DI">Vincunt</word>
+				<word sy="2A2T3A" wb="CM">Tithoni,</word>
+				<word sy="3T4A" wb="CM">uincunt</word>
+				<word sy="4T" wb="DI">et</word>
+				<word sy="5A5b5c" wb="DI">Nestoris</word>
+				<word sy="6A6X">annos.</word>
+			</line>
+			<line name="15" meter="H" pattern="DSDS">
+				<word sy="1A1b" wb="CF">Phoebus</word>
+				<word sy="1c2A" wb="CM">adest</word>
+				<word sy="2T3A3b" wb="CF">cantuque</word>
+				<word sy="3c4A" wb="CM">iuuat</word>
+				<word sy="4T5A5b" wb="CF">gaudetque</word>
+				<word sy="5c6A6X">futuris</word>
+			</line>
+			<line name="16" meter="H" pattern="SSDS">
+				<word sy="1A" wb="CM">Et</word>
+				<word sy="1T2A" wb="CM">laetus</word>
+				<word sy="2T" wb="DI">nunc</word>
+				<word sy="3A3b" wb="CF">plectra</word>
+				<word sy="3c4A" wb="CM">mouet,</word>
+				<word sy="4T" wb="DI">nunc</word>
+				<word sy="5A5b" wb="CF">pensa</word>
+				<word sy="5c6A6X">ministrat.</word>
+			</line>
+			<line name="17" meter="H" pattern="DSSS">
+				<word sy="1A1b1c" wb="DI">Detinet</word>
+				<word sy="2A2T3A" wb="CM">intentas</word>
+				<word sy="3T4A" wb="CM">cantu</word>
+				<word sy="4T5A5b" wb="CF">fallitque</word>
+				<word sy="5c6A6X">laborem.</word>
+			</line>
+			<line name="18" meter="H" pattern="DDSD">
+				<word sy="1A1b" wb="CF">Dumque</word>
+				<word sy="1c2A" wb="CM">nimis</word>
+				<word sy="2b2c3A" wb="CM">citharam</word>
+				<word sy="3T4A4b4c" wb="DI">fraternaque</word>
+				<word sy="5A5b5c" wb="DI">carmina</word>
+				<word sy="6A6X">laudant,</word>
+			</line>
+			<line name="19" meter="H" pattern="DSDS">
+				<word sy="1A" wb="CM">Plus</word>
+				<word sy="1b1c2A" wb="CM">solito</word>
+				<word sy="2T3A3b" wb="CF">neuere</word>
+				<word sy="3c4A" wb="CM">manus</word>
+				<word sy="4T5A5b5c" wb="DI">humanaque</word>
+				<word sy="6A6X">fata</word>
+			</line>
+			<line name="20" meter="H" pattern="SSDS">
+				<word sy="1A1T2A" wb="CM">Laudatum</word>
+				<word sy="2T3A3b" wb="CF">transcendit</word>
+				<word sy="3c4A" wb="CM">opus.</word>
+				<word sy="4T" wb="DI">"ne</word>
+				<word sy="5A5b5c" wb="DI">demite,</word>
+				<word sy="6A6X">Parcae"</word>
+			</line>
+			<line name="21" meter="H" pattern="DSSS">
+				<word sy="1A1b" wb="CF">Phoebus</word>
+				<word sy="1c2A" wb="CM">ait</word>
+				<word sy="2T3A" wb="CM">"uincat</word>
+				<word sy="3T4A4T" wb="DI">mortalis</word>
+				<word sy="5A5b5c" wb="DI">tempora</word>
+				<word sy="6A6X">uitae</word>
+			</line>
+			<line name="22" meter="H" pattern="DDSD">
+				<word sy="1A1b" wb="CF">Ille</word>
+				<word sy="1c2A" wb="CM">mihi</word>
+				<word sy="2b2c3A" wb="CM">similis</word>
+				<word sy="3T4A" wb="CM">uultu</word>
+				<word sy="4b4c5A5b" wb="CF">similisque</word>
+				<word sy="5c6A6X">decore</word>
+			</line>
+			<line name="23" meter="H" pattern="SSDS">
+				<word sy="1A" wb="CM">Nec</word>
+				<word sy="1T2A" wb="CM">cantu</word>
+				<word sy="2T" wb="DI">nec</word>
+				<word sy="3A3b" wb="CF">uoce</word>
+				<word sy="3c4A" wb="CM">minor.</word>
+				<word sy="4T5A5b5c" wb="DI">felicia</word>
+				<word sy="6A6X">lassis</word>
+			</line>
+			<line name="24" meter="H" pattern="DSSD">
+				<word sy="1A1b1c" wb="DI">Saecula</word>
+				<word sy="2A2T3A" wb="CM">praestabit</word>
+				<word sy="3T4A4b" wb="CF">legumque</word>
+				<word sy="4c5A5b5c" wb="DI">silentia</word>
+				<word sy="6A6X">rumpet.</word>
+			</line>
+			<line name="25" meter="H" pattern="SDDD">
+				<word sy="1A1T" wb="DI">Qualis</word>
+				<word sy="2A2b2c3A" wb="CM">discutiens</word>
+				<word sy="3b3c4A4b4c" wb="DI">fugientia</word>
+				<word sy="5A5b5c" wb="DI">Lucifer</word>
+				<word sy="6A6X">astra</word>
+			</line>
+			<line name="26" meter="H" pattern="SSDD">
+				<word sy="1A" wb="CM">Aut</word>
+				<word sy="1T2A" wb="CM">qualis</word>
+				<word sy="2T3A" wb="CM">surgit</word>
+				<word sy="3b3c4A4b4c" wb="DI">redeuntibus</word>
+				<word sy="5A5b5c" wb="DI">Hesperus</word>
+				<word sy="6A6X">astris,</word>
+			</line>
+			<line name="27" meter="H" pattern="SSDS">
+				<word sy="1A1T" wb="DI">Qualis,</word>
+				<word sy="2A" wb="CM">cum</word>
+				<word sy="2T3A" wb="CM">primum</word>
+				<word sy="3b3c4A" wb="CM">tenebris</word>
+				<word sy="4T5A5b" wb="CF">Aurora</word>
+				<word sy="5c6A6X">solutis</word>
+			</line>
+			<line name="28" meter="H" pattern="SDDS">
+				<word sy="1A1T2A" wb="CM">Induxit</word>
+				<word sy="2b2c3A3b" wb="CF">rubicunda</word>
+				<word sy="3c4A" wb="CM">diem,</word>
+				<word sy="4T" wb="DI">Sol</word>
+				<word sy="5A5b5c" wb="DI">aspicit</word>
+				<word sy="6A6X">orbem</word>
+			</line>
+			<line name="29" meter="H" pattern="DSSD">
+				<word sy="1A1b1c" wb="DI">Lucidus</word>
+				<word sy="2A" wb="CM">et</word>
+				<word sy="2T3A" wb="CM">primos</word>
+				<word sy="3T" wb="DI">a</word>
+				<word sy="4A4b4c" wb="DI">carcere</word>
+				<word sy="5A5b5c" wb="DI">concitat</word>
+				<word sy="6A6X">axes:</word>
+			</line>
+			<line name="30" meter="H" pattern="SDSS">
+				<word sy="1A1T" wb="DI">Talis</word>
+				<word sy="2A2b" wb="CF">Caesar</word>
+				<word sy="2c3A" wb="CM">adest,</word>
+				<word sy="3T4A" wb="CM">talem</word>
+				<word sy="4T" wb="DI">iam</word>
+				<word sy="5A5b" wb="CF">Roma</word>
+				<word sy="5c6A6X">Neronem</word>
+			</line>
+			<line name="31" meter="H" pattern="DSDS">
+				<word sy="1A1b1c2A" wb="CM">Aspiciet.</word>
+				<word sy="2T3A" wb="CM">flagrat</word>
+				<word sy="3b3c4A" wb="CM">nitidus</word>
+				<word sy="4T5A5b" wb="CF">fulgore</word>
+				<word sy="5c6A6X">remisso</word>
+			</line>
+			<line name="32" meter="H" pattern="DSSS">
+				<word sy="1A1b" wb="CF">Vultus</word>
+				<word sy="1c" wb="DI">et</word>
+				<word sy="2A2T3A" wb="CM">affuso</word>
+				<word sy="3T4A" wb="CM">ceruix</word>
+				<word sy="4T5A5b" wb="CF">formosa</word>
+				<word sy="5c6A6X">capillo."</word>
+			</line>
+			<line name="" meter="">
+				<word></word>
+			</line>
+		</division>
+		<division title="7">
+			<line name="1" meter="G">
+				<word>Exprome</word>
+				<word>propere</word>
+				<word>sede</word>
+				<word>qua</word>
+				<word>genitus</word>
+				<word>cluas,</word>
+			</line>
+			<line name="2" meter="G">
+				<word>Hoc</word>
+				<word>ne</word>
+				<word>peremptus</word>
+				<word>stipite</word>
+				<word>ad</word>
+				<word>terram</word>
+				<word>accidas:</word>
+			</line>
+			<line name="3" meter="G">
+				<word>Haec</word>
+				<word>claua</word>
+				<word>reges</word>
+				<word>saepe</word>
+				<word>mactauit</word>
+				<word>feros.</word>
+			</line>
+			<line name="4" meter="G">
+				<word>Quid</word>
+				<word>nunc</word>
+				<word>profatu</word>
+				<word>uocis</word>
+				<word>incerto</word>
+				<word>sonas?</word>
+			</line>
+			<line name="5" meter="G">
+				<word>Quae</word>
+				<word>patria,</word>
+				<word>quae</word>
+				<word>gens</word>
+				<word>mobile</word>
+				<word>eduxit</word>
+				<word>caput?</word>
+			</line>
+			<line name="6" meter="G">
+				<word>Edissere.</word>
+				<word>equidem</word>
+				<word>regna</word>
+				<word>tergemini</word>
+				<word>petens</word>
+			</line>
+			<line name="7" meter="G">
+				<word>Longinqua</word>
+				<word>regis,</word>
+				<word>unde</word>
+				<word>ab</word>
+				<word>Hesperio</word>
+				<word>mari</word>
+			</line>
+			<line name="8" meter="G">
+				<word>Inachiam</word>
+				<word>ad</word>
+				<word>urbem</word>
+				<word>nobile</word>
+				<word>aduexi</word>
+				<word>pecus,</word>
+			</line>
+			<line name="9" meter="G">
+				<word>Vidi</word>
+				<word>duobus</word>
+				<word>imminens</word>
+				<word>fluuiis</word>
+				<word>iugum,</word>
+			</line>
+			<line name="10" meter="G">
+				<word>Quod</word>
+				<word>Phoebus</word>
+				<word>ortu</word>
+				<word>semper</word>
+				<word>obuerso</word>
+				<word>uidet,</word>
+			</line>
+			<line name="11" meter="G">
+				<word>Vbi</word>
+				<word>Rhodanus</word>
+				<word>ingens</word>
+				<word>amne</word>
+				<word>praerapido</word>
+				<word>fluit</word>
+			</line>
+			<line name="12" meter="G">
+				<word>Ararque,</word>
+				<word>dubitans</word>
+				<word>quo</word>
+				<word>suos</word>
+				<word>cursus</word>
+				<word>agat,</word>
+			</line>
+			<line name="13" meter="G">
+				<word>Tacitus</word>
+				<word>quietis</word>
+				<word>alluit</word>
+				<word>ripas</word>
+				<word>uadis:</word>
+			</line>
+			<line name="14" meter="G">
+				<word>Estne</word>
+				<word>illa</word>
+				<word>tellus</word>
+				<word>spiritus</word>
+				<word>altrix</word>
+				<word>tui?</word>
+			</line>
+			<line name="" meter="">
+				<word></word>
+			</line>
+		</division>
+		<division title="12">
+			<line name="1" meter="Y">
+				<word>"Fundite</word>
+				<word>fletus,</word>
+				<word>edite</word>
+				<word>planctus,</word>
+			</line>
+			<line name="2" meter="Y">
+				<word>Resonet</word>
+				<word>tristi</word>
+				<word>clamore</word>
+				<word>forum:</word>
+			</line>
+			<line name="3" meter="Y">
+				<word>Cecidit</word>
+				<word>pulchre</word>
+				<word>cordatus</word>
+				<word>homo,</word>
+			</line>
+			<line name="4" meter="Y">
+				<word>Quo</word>
+				<word>non</word>
+				<word>alius</word>
+				<word>fuit</word>
+				<word>in</word>
+				<word>toto</word>
+			</line>
+			<line name="5" meter="Y">
+				<word>Fortior</word>
+				<word>orbe.</word>
+			</line>
+			<line name="6" meter="Y">
+				<word>Ille</word>
+				<word>citato</word>
+				<word>uincere</word>
+				<word>cursu</word>
+			</line>
+			<line name="7" meter="Y">
+				<word>Poterat</word>
+				<word>Celeres,</word>
+				<word>ille</word>
+				<word>rebelles</word>
+			</line>
+			<line name="8" meter="Y">
+				<word>Fundere</word>
+				<word>Parthos</word>
+				<word>leuibusque</word>
+				<word>sequi</word>
+			</line>
+			<line name="9" meter="Y">
+				<word>Persida</word>
+				<word>telis,</word>
+				<word>certaque</word>
+				<word>manu</word>
+			</line>
+			<line name="10" meter="Y">
+				<word>Tendere</word>
+				<word>neruum</word>
+				<word>qui</word>
+				<word>praecipites</word>
+			</line>
+			<line name="11" meter="Y">
+				<word>Vulnere</word>
+				<word>paruo</word>
+				<word>figeret</word>
+				<word>hostes</word>
+			</line>
+			<line name="12" meter="Y">
+				<word>Pictaque</word>
+				<word>Medi</word>
+				<word>terga</word>
+				<word>fugacis.</word>
+			</line>
+			<line name="13" meter="Y">
+				<word>Ille</word>
+				<word>Britannos</word>
+				<word>ultra</word>
+				<word>noti</word>
+			</line>
+			<line name="14" meter="Y">
+				<word>Litora</word>
+				<word>ponti</word>
+			</line>
+			<line name="15" meter="Y">
+				<word>Et</word>
+				<word>caeruleos</word>
+				<word>scuta</word>
+				<word>Brigantas</word>
+			</line>
+			<line name="16" meter="Y">
+				<word>Dare</word>
+				<word>Romuleis</word>
+				<word>colla</word>
+				<word>catenis</word>
+			</line>
+			<line name="17" meter="Y">
+				<word>Iussit</word>
+				<word>et</word>
+				<word>ipsum</word>
+				<word>noua</word>
+				<word>Romanae</word>
+			</line>
+			<line name="18" meter="Y">
+				<word>Iura</word>
+				<word>securis</word>
+				<word>tremere</word>
+				<word>Oceanum.</word>
+			</line>
+			<line name="19" meter="Y">
+				<word>Deflete</word>
+				<word>uirum</word>
+				<word>quo</word>
+				<word>non</word>
+				<word>alius</word>
+			</line>
+			<line name="20" meter="Y">
+				<word>Potuit</word>
+				<word>citius</word>
+				<word>discere</word>
+				<word>causas,</word>
+			</line>
+			<line name="21" meter="Y">
+				<word>Vna</word>
+				<word>tantum</word>
+				<word>parte</word>
+				<word>audita,</word>
+			</line>
+			<line name="22" meter="Y">
+				<word>Saepe</word>
+				<word>neutra.</word>
+				<word>quis</word>
+				<word>nunc</word>
+				<word>iudex</word>
+			</line>
+			<line name="23" meter="Y">
+				<word>Toto</word>
+				<word>lites</word>
+				<word>audiet</word>
+				<word>anno?</word>
+			</line>
+			<line name="24" meter="Y">
+				<word>Tibi</word>
+				<word>iam</word>
+				<word>cedet</word>
+				<word>sede</word>
+				<word>relicta,</word>
+			</line>
+			<line name="25" meter="Y">
+				<word>Qui</word>
+				<word>dat</word>
+				<word>populo</word>
+				<word>iura</word>
+				<word>silenti,</word>
+			</line>
+			<line name="26" meter="Y">
+				<word>Cretaea</word>
+				<word>tenens</word>
+				<word>oppida</word>
+				<word>centum.</word>
+			</line>
+			<line name="27" meter="Y">
+				<word>Caedite</word>
+				<word>maestis</word>
+				<word>pectora</word>
+				<word>palmis,</word>
+			</line>
+			<line name="28" meter="Y">
+				<word>O</word>
+				<word>causidici,</word>
+				<word>uenale</word>
+				<word>genus,</word>
+			</line>
+			<line name="29" meter="Y">
+				<word>Vosque</word>
+				<word>poetae</word>
+				<word>lugete</word>
+				<word>noui,</word>
+			</line>
+			<line name="30" meter="Y">
+				<word>Vosque</word>
+				<word>in</word>
+				<word>primis</word>
+				<word>qui</word>
+				<word>concusso</word>
+			</line>
+			<line name="31" meter="Y">
+				<word>Magna</word>
+				<word>parastis</word>
+				<word>lucra</word>
+				<word>fritillo."</word>
+			</line>
+			<line name="" meter="">
+				<word></word>
+			</line>
+		</division>
+		<division title="15">
+			<line name="1" meter="H" pattern="DSDD">
+				<word sy="1A" wb="CM">Nam</word>
+				<word sy="1b1c2A" wb="CM">quotiens</word>
+				<word sy="2T3A3b" wb="CF">missurus</word>
+				<word sy="3c4A" wb="CM">erat</word>
+				<word sy="4b4c5A5b" wb="CF">resonante</word>
+				<word sy="5c6A6X">fritillo,</word>
+			</line>
+			<line name="2" meter="H" pattern="DSDS">
+				<word sy="1A1b1c" wb="DI">Vtraque</word>
+				<word sy="2A2T3A" wb="CM">subducto</word>
+				<word sy="3b3c4A4T" wb="DI">fugiebat</word>
+				<word sy="5A5b5c" wb="DI">tessera</word>
+				<word sy="6A6X">fundo;</word>
+			</line>
+			<line name="3" meter="H" pattern="DSSS">
+				<word sy="1A1b" wb="CF">Cumque</word>
+				<word sy="1c2A2T3A" wb="CM">recollectos</word>
+				<word sy="3T4A4T" wb="DI">auderet</word>
+				<word sy="5A5b5c" wb="DI">mittere</word>
+				<word sy="6A6X">talos,</word>
+			</line>
+			<line name="4" meter="H" pattern="SDSS">
+				<word sy="1A1T2A" wb="CM">Lusuro</word>
+				<word sy="2b2c3A" wb="CM">similis</word>
+				<word sy="3T4A" wb="CM">semper</word>
+				<word sy="4T5A5b" wb="CF">semperque</word>
+				<word sy="5c6A6X">petenti,</word>
+			</line>
+			<line name="5" meter="H" pattern="SDDD">
+				<word sy="1A1T2A2b" wb="CF">Decepere</word>
+				<word sy="2c3A" wb="CM">fidem:</word>
+				<word sy="3b3c4A" wb="CM">refugit</word>
+				<word sy="4b4c5A5b" wb="CF">digitosque</word>
+				<word sy="5c" wb="DI">per</word>
+				<word sy="6A6X">ipsos</word>
+			</line>
+			<line name="6" meter="H" pattern="SDSD">
+				<word sy="1A1T" wb="DI">Fallax</word>
+				<word sy="2A2b2c3A" wb="CM">assiduo</word>
+				<word sy="3T4A4b4c" wb="DI">dilabitur</word>
+				<word sy="5A5b5c" wb="DI">alea</word>
+				<word sy="6A6X">furto.</word>
+			</line>
+			<line name="7" meter="H" pattern="SSSS">
+				<word sy="1A" wb="CM">Sic,</word>
+				<word sy="1T" wb="DI">cum</word>
+				<word sy="2A" wb="CM">iam</word>
+				<word sy="2T3A" wb="CM">summi</word>
+				<word sy="3T4A4T" wb="DI">tanguntur</word>
+				<word sy="5A5b5c" wb="DI">culmina</word>
+				<word sy="6A6X">montis,</word>
+			</line>
+			<line name="8" meter="H" pattern="DDSS">
+				<word sy="1A1b1c" wb="DI">Irrita</word>
+				<word sy="2A2b2c3A" wb="CM">Sisyphio</word>
+				<word sy="3T4A4T" wb="DI">uoluuntur</word>
+				<word sy="5A5b5c" wb="DI">pondera</word>
+				<word sy="6A6X">collo.</word>
+			</line>
+			<line name="" meter="">
+				<word></word>
+			</line>
+		</division>
+	</body>
+</document>

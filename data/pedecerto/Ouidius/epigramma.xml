@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<head>
+		<author>Ouidius</author>
+		<title>epigramma</title>
+		<resp>
+			<institution>Università degli Studi di Udine</institution>
+			<institution>Università "Ca' Foscari" di Venezia</institution>
+			<orgName>Pedecerto. Digital Latin Metre <link>https://www.pedecerto.eu</link></orgName>
+			<persName>Emanuela Colombi</persName>
+			<persName>Luca Mondin</persName>
+			<persName>Luigi Tessarolo</persName>
+			<persName>Andrea Bacianini</persName>
+		</resp>
+		<rights>
+			<licence>https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode</licence>
+		</rights>
+	</head>
+	<body>
+		<line name="1" meter="H" pattern="DSDS">
+			<word sy="1A" wb="CM">Qui</word>
+			<word sy="1b1c" wb="DI">modo</word>
+			<word sy="2A2T3A" wb="CM">Nasonis</word>
+			<word sy="3b3c4A4T" wb="DI">fueramus</word>
+			<word sy="5A5b" wb="CF">quinque</word>
+			<word sy="5c6A6X">libelli,</word>
+		</line>
+		<line name="2" meter="P" pattern="DS-|DD-">
+			<word sy="1A" wb="CM">Tres</word>
+			<word sy="1b1c" wb="DI">sumus:</word>
+			<word sy="2A" wb="CM">hoc</word>
+			<word sy="2T3A" wb="CM">illi</word>
+			<word sy="4A4b4c" wb="DI">praetulit</word>
+			<word sy="5A5b" wb="CF">auctor</word>
+			<word sy="5c6X">opus</word>
+		</line>
+		<line name="3" meter="H" pattern="SDSS">
+			<word sy="1A" wb="CM">Vt</word>
+			<word sy="1T" wb="DI">iam</word>
+			<word sy="2A2b" wb="CF">nulla</word>
+			<word sy="2c3A" wb="CM">tibi</word>
+			<word sy="3T" wb="DI">nos</word>
+			<word sy="4A" wb="CM">sit</word>
+			<word sy="4T5A5b" wb="CF">legisse</word>
+			<word sy="5c6A6X">uoluptas,</word>
+		</line>
+		<line name="4" meter="P" pattern="DS-|DD-">
+			<word sy="1A" wb="CM">At</word>
+			<word sy="1b1c2A" wb="CM">leuior</word>
+			<word sy="2T3A" wb="CM">demptis</word>
+			<word sy="4A4b" wb="CF">poena</word>
+			<word sy="4c5A5b" wb="CF">duobus</word>
+			<word sy="5c6X">erit.</word>
+		</line>
+		<line name="" meter="">
+			<word></word>
+		</line>
+	</body>
+</document>

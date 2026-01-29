@@ -39,13 +39,12 @@ node_modules/
 .npm
 *.tsbuildinfo
 
-# Large data directories (excluded from GitHub)
-# Total ~4.7GB - too large for GitHub, share separately
-# See docs/DATA_FILES_REFERENCE.md for complete list and instructions
-texts/
-data/
-cache/
-backend/embeddings/
+# TEMPORARILY REMOVED FOR FULL DOWNLOAD
+# Large data directories - will restore after download
+# texts/
+# data/
+# cache/
+# backend/embeddings/
 
 # Private/local files
 .private/

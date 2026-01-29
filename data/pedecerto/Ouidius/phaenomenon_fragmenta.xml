@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<head>
+		<author>Ouidius</author>
+		<title>phaenomenon fragmenta</title>
+		<resp>
+			<institution>Università degli Studi di Udine</institution>
+			<institution>Università "Ca' Foscari" di Venezia</institution>
+			<orgName>Pedecerto. Digital Latin Metre <link>https://www.pedecerto.eu</link></orgName>
+			<persName>Emanuela Colombi</persName>
+			<persName>Luca Mondin</persName>
+			<persName>Luigi Tessarolo</persName>
+			<persName>Andrea Bacianini</persName>
+		</resp>
+		<rights>
+			<licence>https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode</licence>
+		</rights>
+	</head>
+	<body>
+		<division title="1">
+			<line name="1" meter="H" pattern="DDSD">
+				<word sy="1A1b1c" wb="DI">Pliades</word>
+				<word sy="2A2b" wb="CF">ante</word>
+				<word sy="2c3A" wb="CM">genus</word>
+				<word sy="3T4A" wb="CM">septem</word>
+				<word sy="4b4c5A5b" wb="CF">radiare</word>
+				<word sy="5c6A6X">feruntur,</word>
+			</line>
+			<line name="2" meter="H" pattern="DSDS">
+				<word sy="1A" wb="CM">Sed</word>
+				<word sy="1b1c" wb="DI">tamen</word>
+				<word sy="2A2T3A" wb="CM">apparet</word>
+				<word sy="3b" wb="CF">sub</word>
+				<word sy="3c4A4T" wb="DI">opaca</word>
+				<word sy="5A5b5c" wb="DI">septima</word>
+				<word sy="6A6X">nube.</word>
+			</line>
+			<line name="" meter="">
+				<word></word>
+			</line>
+		</division>
+		<division title="2">
+			<line name="1" meter="H" pattern="DSDD">
+				<word sy="1A" wb="CM">Tot</word>
+				<word sy="1b1c2A" wb="CM">numero</word>
+				<word sy="2T3A3b" wb="CF">talique</word>
+				<word sy="3c4A" wb="CM">deus</word>
+				<word sy="4b4c5A5b" wb="CF">simulacra</word>
+				<word sy="5c6A6X">figura</word>
+			</line>
+			<line name="2" meter="H" pattern="DSSS">
+				<word sy="1A1b1c2A" wb="CM">Imposuit</word>
+				<word sy="2T3A" wb="CM">caelo</word>
+				<word sy="3T" mf="SY">perque</word>
+				<word sy="4A4T" wb="DI">atras</word>
+				<word sy="5A5b" wb="CF">sparsa</word>
+				<word sy="5c6A6X">tenebras</word>
+			</line>
+			<line name="3" meter="H" pattern="DSSD">
+				<word sy="1A1b" wb="CF">Clara</word>
+				<word sy="1c2A2T3A" wb="CM">pruinosae</word>
+				<word sy="3T4A" wb="CM">iussit</word>
+				<word sy="4b4c" wb="DI">dare</word>
+				<word sy="5A5b5c" wb="DI">lumina</word>
+				<word sy="6A6X">nocti.</word>
+			</line>
+			<line name="" meter="">
+				<word></word>
+			</line>
+		</division>
+		<division title="3">
+			<line name="1" meter="H" pattern="not scanned">
+				<word>&lt;&gt;</word>
+			</line>
+			<line name="2" meter="P" pattern="DS-|DD-">
+				<word sy="1A1b" wb="CF">Larte</word>
+				<word sy="1c2A" wb="CM">ferox</word>
+				<word sy="2T3A" wb="CM">caeso</word>
+				<word sy="4A4b" wb="CF">Cossus</word>
+				<word sy="4c5A5b" wb="CF">opima</word>
+				<word sy="5c6X">tulit</word>
+			</line>
+			<line name="" meter="">
+				<word></word>
+			</line>
+		</division>
+		<division title="4">
+			<line name="1" meter="H" pattern="not scanned">
+				<word>&lt;&gt;</word>
+			</line>
+			<line name="2" meter="P" pattern="DS-|DD-">
+				<word sy="1A" wb="CM">Cur</word>
+				<word sy="1b1c" wb="DI">ego</word>
+				<word sy="2A" wb="CM">non</word>
+				<word sy="2T3A" wb="CM">dicam,</word>
+				<word sy="4A4b4c" wb="DI">Furia,</word>
+				<word sy="5A" wb="CM">te</word>
+				<word sy="5b5c6X">furiam?</word>
+			</line>
+			<line name="" meter="">
+				<word></word>
+			</line>
+		</division>
+		<division title="5">
+			<line name="1" meter="F">
+				<word>At</word>
+				<word>si</word>
+				<word>contuleris</word>
+				<word>eam,</word>
+				<word>lacaenae</word>
+			</line>
+			<line name="2" meter="F">
+				<word>Conspectu</word>
+				<word>melioris</word>
+				<word>obruatur</word>
+			</line>
+			<line name="" meter="">
+				<word></word>
+			</line>
+		</division>
+		<division title="7">
+			<line name="1" meter="V">
+				<word>Bis</word>
+				<word>rapitur</word>
+				<word>uixitque</word>
+				<word>tibi</word>
+				<word>semel</word>
+			</line>
+			<line name="" meter="">
+				<word></word>
+			</line>
+		</division>
+		<division title="8">
+			<line name="1" meter="H" pattern="not scanned">
+				<word>Currus</word>
+				<word>crystallo</word>
+				<word>lucidus</word>
+				<word>albo</word>
+			</line>
+			<line name="" meter="">
+				<word></word>
+			</line>
+		</division>
+		<division title="9">
+			<line name="1" meter="H" pattern="not scanned">
+				<word>Innumerosque</word>
+				<word>uehes</word>
+			</line>
+			<line name="" meter="">
+				<word></word>
+			</line>
+		</division>
+		<division title="10">
+			<line name="1" meter="H" pattern="not scanned">
+				<word>Nymphaeque</word>
+				<word>salaces</word>
+			</line>
+			<line name="" meter="">
+				<word></word>
+			</line>
+		</division>
+		<division title="11">
+			<line name="1" meter="H" pattern="not scanned">
+				<word>Viscere</word>
+				<word>diuiso</word>
+			</line>
+			<line name="" meter="">
+				<word></word>
+			</line>
+		</division>
+		<division title="17">
+			<line name="1" meter="V">
+				<word>uino&lt;eo&gt;</word>
+				<word>bonoeo</word>
+			</line>
+			<line name="" meter="">
+				<word></word>
+			</line>
+		</division>
+	</body>
+</document>

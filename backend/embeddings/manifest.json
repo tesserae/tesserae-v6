@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "model": "bowphs/SPhilBerta",
+  "english_model": "all-MiniLM-L6-v2",
+  "texts": {
+    "texts/la/vergil.aeneid.tess": {
+      "language": "la",
+      "n_lines": 9896,
+      "embedding_dim": 768,
+      "file": "vergil.aeneid.npy",
+      "created": "2026-01-20T23:33:30.015880"
+    },
+    "texts/la/lucan.bellum_civile.tess": {
+      "language": "la",
+      "n_lines": 8061,
+      "embedding_dim": 768,
+      "file": "lucan.bellum_civile.npy",
+      "created": "2026-01-20T23:37:13.893559"
+    }
+  },
+  "stats": {
+    "total_texts": 2,
+    "total_lines": 17957,
+    "last_updated": "2026-01-20T23:37:13.894751"
+  }
+}

@@ -1,0 +1,8500 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<head>
+		<author>Seneca</author>
+		<title>Oedipus</title>
+		<resp>
+			<institution>Università degli Studi di Udine</institution>
+			<institution>Università "Ca' Foscari" di Venezia</institution>
+			<orgName>Pedecerto. Digital Latin Metre <link>https://www.pedecerto.eu</link></orgName>
+			<persName>Emanuela Colombi</persName>
+			<persName>Luca Mondin</persName>
+			<persName>Luigi Tessarolo</persName>
+			<persName>Andrea Bacianini</persName>
+		</resp>
+		<rights>
+			<licence>https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode</licence>
+		</rights>
+	</head>
+	<body>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="1" meter="G">
+			<word>Iam</word>
+			<word>nocte</word>
+			<word>Titan</word>
+			<word>dubius</word>
+			<word>expulsa</word>
+			<word>redit</word>
+		</line>
+		<line name="2" meter="G">
+			<word>Et</word>
+			<word>nube</word>
+			<word>maestum</word>
+			<word>squalida</word>
+			<word>exoritur</word>
+			<word>iubar,</word>
+		</line>
+		<line name="3" meter="G">
+			<word>Lumenque</word>
+			<word>flamma</word>
+			<word>triste</word>
+			<word>luctifica</word>
+			<word>gerens</word>
+		</line>
+		<line name="4" meter="G">
+			<word>Prospiciet</word>
+			<word>auida</word>
+			<word>peste</word>
+			<word>solatas</word>
+			<word>domos,</word>
+		</line>
+		<line name="5" meter="G">
+			<word>Stragemque</word>
+			<word>quam</word>
+			<word>nox</word>
+			<word>fecit</word>
+			<word>ostendet</word>
+			<word>dies.</word>
+		</line>
+		<line name="6" meter="G">
+			<word>Quisquamne</word>
+			<word>regno</word>
+			<word>gaudet?</word>
+			<word>o</word>
+			<word>fallax</word>
+			<word>bonum,</word>
+		</line>
+		<line name="7" meter="G">
+			<word>Quantum</word>
+			<word>malorum</word>
+			<word>fronte</word>
+			<word>quam</word>
+			<word>blanda</word>
+			<word>tegis!</word>
+		</line>
+		<line name="8" meter="G">
+			<word>Vt</word>
+			<word>alta</word>
+			<word>uentos</word>
+			<word>semper</word>
+			<word>excipiunt</word>
+			<word>iuga</word>
+		</line>
+		<line name="9" meter="G">
+			<word>Rupemque</word>
+			<word>saxis</word>
+			<word>uasta</word>
+			<word>dirimentem</word>
+			<word>freta</word>
+		</line>
+		<line name="10" meter="G">
+			<word>Quamuis</word>
+			<word>quieti</word>
+			<word>uerberat</word>
+			<word>fluctus</word>
+			<word>maris,</word>
+		</line>
+		<line name="11" meter="G">
+			<word>Imperia</word>
+			<word>sic</word>
+			<word>excelsa</word>
+			<word>Fortunae</word>
+			<word>obiacent.</word>
+		</line>
+		<line name="12" meter="G">
+			<word>Quam</word>
+			<word>bene</word>
+			<word>parentis</word>
+			<word>sceptra</word>
+			<word>Polybi</word>
+			<word>fugeram!</word>
+		</line>
+		<line name="13" meter="G">
+			<word>Curis</word>
+			<word>solutus</word>
+			<word>exul,</word>
+			<word>intrepidus</word>
+			<word>uagans</word>
+		</line>
+		<line name="14" meter="G">
+			<word>(Caelum</word>
+			<word>deosque</word>
+			<word>testor)</word>
+			<word>in</word>
+			<word>regnum</word>
+			<word>incidi;</word>
+		</line>
+		<line name="15" meter="G">
+			<word>Infanda</word>
+			<word>timeo:</word>
+			<word>ne</word>
+			<word>mea</word>
+			<word>genitor</word>
+			<word>manu</word>
+		</line>
+		<line name="16" meter="G">
+			<word>Perimatur;</word>
+			<word>hoc</word>
+			<word>me</word>
+			<word>Delphicae</word>
+			<word>laurus</word>
+			<word>monent,</word>
+		</line>
+		<line name="17" meter="G">
+			<word>Aliudque</word>
+			<word>nobis</word>
+			<word>maius</word>
+			<word>indicunt</word>
+			<word>scelus.</word>
+		</line>
+		<line name="18" meter="G">
+			<word>Est</word>
+			<word>maius</word>
+			<word>aliquod</word>
+			<word>patre</word>
+			<word>mactato</word>
+			<word>nefas?</word>
+		</line>
+		<line name="19" meter="G">
+			<word>Pro</word>
+			<word>misera</word>
+			<word>pietas</word>
+			<word>(eloqui</word>
+			<word>fatum</word>
+			<word>pudet),</word>
+		</line>
+		<line name="20" meter="G">
+			<word>Thalamos</word>
+			<word>parentis</word>
+			<word>Phoebus</word>
+			<word>et</word>
+			<word>diros</word>
+			<word>toros</word>
+		</line>
+		<line name="21" meter="G">
+			<word>Gnato</word>
+			<word>minatur</word>
+			<word>impia</word>
+			<word>incestos</word>
+			<word>face.</word>
+		</line>
+		<line name="22" meter="G">
+			<word>Hic</word>
+			<word>me</word>
+			<word>paternis</word>
+			<word>expulit</word>
+			<word>regnis</word>
+			<word>timor,</word>
+		</line>
+		<line name="23" meter="G">
+			<word>Hoc</word>
+			<word>ego</word>
+			<word>penates</word>
+			<word>profugus</word>
+			<word>excessi</word>
+			<word>meos:</word>
+		</line>
+		<line name="24" meter="G">
+			<word>Parum</word>
+			<word>ipse</word>
+			<word>fidens</word>
+			<word>mihimet</word>
+			<word>in</word>
+			<word>tuto</word>
+			<word>tua,</word>
+		</line>
+		<line name="25" meter="G">
+			<word>Natura,</word>
+			<word>posui</word>
+			<word>iura.</word>
+			<word>cum</word>
+			<word>magna</word>
+			<word>horreas,</word>
+		</line>
+		<line name="26" meter="G">
+			<word>Quod</word>
+			<word>posse</word>
+			<word>fieri</word>
+			<word>non</word>
+			<word>putes</word>
+			<word>metuas</word>
+			<word>tamen:</word>
+		</line>
+		<line name="27" meter="G">
+			<word>Cuncta</word>
+			<word>expauesco</word>
+			<word>meque</word>
+			<word>non</word>
+			<word>credo</word>
+			<word>mihi.</word>
+		</line>
+		<line name="28" meter="G">
+			<word>Iam</word>
+			<word>iam</word>
+			<word>aliquid</word>
+			<word>in</word>
+			<word>nos</word>
+			<word>fata</word>
+			<word>moliri</word>
+			<word>parant.</word>
+		</line>
+		<line name="29" meter="G">
+			<word>Nam</word>
+			<word>quid</word>
+			<word>rear</word>
+			<word>quod</word>
+			<word>ista</word>
+			<word>Cadmeae</word>
+			<word>lues</word>
+		</line>
+		<line name="30" meter="G">
+			<word>Infesta</word>
+			<word>genti</word>
+			<word>strage</word>
+			<word>tam</word>
+			<word>late</word>
+			<word>edita</word>
+		</line>
+		<line name="31" meter="G">
+			<word>Mihi</word>
+			<word>parcit</word>
+			<word>uni?</word>
+			<word>cui</word>
+			<word>reseruamur</word>
+			<word>malo?</word>
+		</line>
+		<line name="32" meter="G">
+			<word>Inter</word>
+			<word>ruinas</word>
+			<word>urbis</word>
+			<word>et</word>
+			<word>semper</word>
+			<word>nouis</word>
+		</line>
+		<line name="33" meter="G">
+			<word>Deflenda</word>
+			<word>lacrimis</word>
+			<word>funera</word>
+			<word>ac</word>
+			<word>populi</word>
+			<word>struem</word>
+		</line>
+		<line name="34" meter="G">
+			<word>Incolumis</word>
+			<word>asto</word>
+			<word>-</word>
+			<word>scilicet</word>
+			<word>Phoebi</word>
+			<word>reus.</word>
+		</line>
+		<line name="35" meter="G">
+			<word>Sperare</word>
+			<word>poteras</word>
+			<word>sceleribus</word>
+			<word>tantis</word>
+			<word>dari</word>
+		</line>
+		<line name="36" meter="G">
+			<word>Regnum</word>
+			<word>salubre?</word>
+			<word>fecimus</word>
+			<word>caelum</word>
+			<word>nocens.</word>
+		</line>
+		<line name="37" meter="G">
+			<word>Non</word>
+			<word>aura</word>
+			<word>gelido</word>
+			<word>lenis</word>
+			<word>afflatu</word>
+			<word>fouet</word>
+		</line>
+		<line name="38" meter="G">
+			<word>Anhela</word>
+			<word>flammis</word>
+			<word>corda,</word>
+			<word>non</word>
+			<word>Zephyri</word>
+			<word>leues</word>
+		</line>
+		<line name="39" meter="G">
+			<word>Spirant,</word>
+			<word>sed</word>
+			<word>ignes</word>
+			<word>auget</word>
+			<word>aestiferi</word>
+			<word>canis</word>
+		</line>
+		<line name="40" meter="G">
+			<word>Titan,</word>
+			<word>leonis</word>
+			<word>terga</word>
+			<word>Nemeaei</word>
+			<word>premens.</word>
+		</line>
+		<line name="41" meter="G">
+			<word>Deseruit</word>
+			<word>amnes</word>
+			<word>umor</word>
+			<word>atque</word>
+			<word>herbas</word>
+			<word>color</word>
+		</line>
+		<line name="42" meter="G">
+			<word>Aretque</word>
+			<word>Dirce,</word>
+			<word>tenuis</word>
+			<word>Ismenos</word>
+			<word>fluit</word>
+		</line>
+		<line name="43" meter="G">
+			<word>Et</word>
+			<word>tinguit</word>
+			<word>inopi</word>
+			<word>nuda</word>
+			<word>uix</word>
+			<word>unda</word>
+			<word>uada.</word>
+		</line>
+		<line name="44" meter="G">
+			<word>Obscura</word>
+			<word>caelo</word>
+			<word>labitur</word>
+			<word>Phoebi</word>
+			<word>soror,</word>
+		</line>
+		<line name="45" meter="G">
+			<word>Tristisque</word>
+			<word>mundus</word>
+			<word>nubilo</word>
+			<word>pallet</word>
+			<word>nouo.</word>
+		</line>
+		<line name="46" meter="G">
+			<word>Nullum</word>
+			<word>serenis</word>
+			<word>noctibus</word>
+			<word>sidus</word>
+			<word>micat,</word>
+		</line>
+		<line name="47" meter="G">
+			<word>Sed</word>
+			<word>grauis</word>
+			<word>et</word>
+			<word>ater</word>
+			<word>incubat</word>
+			<word>terris</word>
+			<word>uapor:</word>
+		</line>
+		<line name="48" meter="G">
+			<word>Obtexit</word>
+			<word>arces</word>
+			<word>caelitum</word>
+			<word>ac</word>
+			<word>summas</word>
+			<word>domos</word>
+		</line>
+		<line name="49" meter="G">
+			<word>Inferna</word>
+			<word>facies.</word>
+			<word>denegat</word>
+			<word>fructum</word>
+			<word>Ceres</word>
+		</line>
+		<line name="50" meter="G">
+			<word>Adulta,</word>
+			<word>et</word>
+			<word>altis</word>
+			<word>flaua</word>
+			<word>cum</word>
+			<word>spicis</word>
+			<word>tremat,</word>
+		</line>
+		<line name="51" meter="G">
+			<word>Arente</word>
+			<word>culmo</word>
+			<word>sterilis</word>
+			<word>emoritur</word>
+			<word>seges.</word>
+		</line>
+		<line name="52" meter="G">
+			<word>Nec</word>
+			<word>ulla</word>
+			<word>pars</word>
+			<word>immunis</word>
+			<word>exitio</word>
+			<word>uacat,</word>
+		</line>
+		<line name="53" meter="G">
+			<word>Sed</word>
+			<word>omnis</word>
+			<word>aetas</word>
+			<word>pariter</word>
+			<word>et</word>
+			<word>sexus</word>
+			<word>ruit,</word>
+		</line>
+		<line name="54" meter="G">
+			<word>Iuuenesque</word>
+			<word>senibus</word>
+			<word>iungit</word>
+			<word>et</word>
+			<word>gnatis</word>
+			<word>patres</word>
+		</line>
+		<line name="55" meter="G">
+			<word>Funesta</word>
+			<word>pestis,</word>
+			<word>una</word>
+			<word>fax</word>
+			<word>thalamos</word>
+			<word>cremat,</word>
+		</line>
+		<line name="56" meter="G">
+			<word>Fletuque</word>
+			<word>acerbo</word>
+			<word>funera</word>
+			<word>et</word>
+			<word>questu</word>
+			<word>carent.</word>
+		</line>
+		<line name="57" meter="G">
+			<word>Quin</word>
+			<word>ipsa</word>
+			<word>tanti</word>
+			<word>peruicax</word>
+			<word>clades</word>
+			<word>mali</word>
+		</line>
+		<line name="58" meter="G">
+			<word>Siccauit</word>
+			<word>oculos,</word>
+			<word>quodque</word>
+			<word>in</word>
+			<word>extremis</word>
+			<word>solet,</word>
+		</line>
+		<line name="59" meter="G">
+			<word>Periere</word>
+			<word>lacrimae.</word>
+			<word>portat</word>
+			<word>hunc</word>
+			<word>aeger</word>
+			<word>parens</word>
+		</line>
+		<line name="60" meter="G">
+			<word>Supremum</word>
+			<word>ad</word>
+			<word>ignem,</word>
+			<word>mater</word>
+			<word>hunc</word>
+			<word>amens</word>
+			<word>gerit</word>
+		</line>
+		<line name="61" meter="G">
+			<word>Properatque</word>
+			<word>ut</word>
+			<word>alium</word>
+			<word>repetat</word>
+			<word>in</word>
+			<word>eundem</word>
+			<word>rogum.</word>
+		</line>
+		<line name="62" meter="G">
+			<word>Quin</word>
+			<word>luctu</word>
+			<word>in</word>
+			<word>ipso</word>
+			<word>luctus</word>
+			<word>exoritur</word>
+			<word>nouus,</word>
+		</line>
+		<line name="63" meter="G">
+			<word>Suaeque</word>
+			<word>circa</word>
+			<word>funus</word>
+			<word>exequiae</word>
+			<word>cadunt.</word>
+		</line>
+		<line name="64" meter="G">
+			<word>Tum</word>
+			<word>propria</word>
+			<word>flammis</word>
+			<word>corpora</word>
+			<word>alienis</word>
+			<word>cremant;</word>
+		</line>
+		<line name="65" meter="G">
+			<word>Diripitur</word>
+			<word>ignis:</word>
+			<word>nullus</word>
+			<word>est</word>
+			<word>miseris</word>
+			<word>pudor.</word>
+		</line>
+		<line name="66" meter="G">
+			<word>Non</word>
+			<word>ossa</word>
+			<word>tumuli</word>
+			<word>lecta</word>
+			<word>discreti</word>
+			<word>tegunt:</word>
+		</line>
+		<line name="67" meter="G">
+			<word>Arsisse</word>
+			<word>satis</word>
+			<word>est</word>
+			<word>-</word>
+			<word>pars</word>
+			<word>quota</word>
+			<word>in</word>
+			<word>cineres</word>
+			<word>abit?</word>
+		</line>
+		<line name="68" meter="G">
+			<word>Dest</word>
+			<word>terra</word>
+			<word>tumulis,</word>
+			<word>iam</word>
+			<word>rogos</word>
+			<word>siluae</word>
+			<word>negant.</word>
+		</line>
+		<line name="69" meter="G">
+			<word>Non</word>
+			<word>uota,</word>
+			<word>non</word>
+			<word>ars</word>
+			<word>ulla</word>
+			<word>correptos</word>
+			<word>leuat:</word>
+		</line>
+		<line name="70" meter="G">
+			<word>Cadunt</word>
+			<word>medentes,</word>
+			<word>morbus</word>
+			<word>auxilium</word>
+			<word>trahit.</word>
+		</line>
+		<line name="71" meter="G">
+			<word>Adfusus</word>
+			<word>aris</word>
+			<word>supplices</word>
+			<word>tendo</word>
+			<word>manus</word>
+		</line>
+		<line name="72" meter="G">
+			<word>Matura</word>
+			<word>poscens</word>
+			<word>fata,</word>
+			<word>praecurram</word>
+			<word>ut</word>
+			<word>prior</word>
+		</line>
+		<line name="73" meter="G">
+			<word>Patriam</word>
+			<word>ruentem</word>
+			<word>neue</word>
+			<word>post</word>
+			<word>omnis</word>
+			<word>cadam</word>
+		</line>
+		<line name="74" meter="G">
+			<word>Fiamque</word>
+			<word>regni</word>
+			<word>funus</word>
+			<word>extremum</word>
+			<word>mei.</word>
+		</line>
+		<line name="75" meter="G">
+			<word>O</word>
+			<word>saeua</word>
+			<word>nimium</word>
+			<word>numina,</word>
+			<word>o</word>
+			<word>fatum</word>
+			<word>graue!</word>
+		</line>
+		<line name="76" meter="G">
+			<word>Negatur</word>
+			<word>uni</word>
+			<word>nempe</word>
+			<word>in</word>
+			<word>hoc</word>
+			<word>populo</word>
+			<word>mihi</word>
+		</line>
+		<line name="77" meter="G">
+			<word>Mors</word>
+			<word>tam</word>
+			<word>parata?</word>
+			<word>sperne</word>
+			<word>letali</word>
+			<word>manu</word>
+		</line>
+		<line name="78" meter="G">
+			<word>Contacta</word>
+			<word>regna,</word>
+			<word>linque</word>
+			<word>lacrimas,</word>
+			<word>funera,</word>
+		</line>
+		<line name="79" meter="G">
+			<word>Tabifica</word>
+			<word>caeli</word>
+			<word>uitia</word>
+			<word>quae</word>
+			<word>tecum</word>
+			<word>inuehis</word>
+		</line>
+		<line name="80" meter="G">
+			<word>Infaustus</word>
+			<word>hospes,</word>
+			<word>profuge</word>
+			<word>iamdudum</word>
+			<word>ocius</word>
+			<word>-</word>
+		</line>
+		<line name="81" meter="G">
+			<word>Vel</word>
+			<word>ad</word>
+			<word>parentes.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Iocasta</word>
+		</line>
+		<line name="81" meter="G">
+			<word>Quid</word>
+			<word>iuuat,</word>
+			<word>coniunx,</word>
+			<word>mala</word>
+		</line>
+		<line name="82" meter="G">
+			<word>Grauare</word>
+			<word>questu?</word>
+			<word>regium</word>
+			<word>hoc</word>
+			<word>ipsum</word>
+			<word>reor:</word>
+		</line>
+		<line name="83" meter="G">
+			<word>Aduersa</word>
+			<word>capere,</word>
+			<word>quoque</word>
+			<word>sit</word>
+			<word>dubius</word>
+			<word>magis</word>
+		</line>
+		<line name="84" meter="G">
+			<word>Status</word>
+			<word>et</word>
+			<word>cadentis</word>
+			<word>imperi</word>
+			<word>moles</word>
+			<word>labet,</word>
+		</line>
+		<line name="85" meter="G">
+			<word>Hoc</word>
+			<word>stare</word>
+			<word>certo</word>
+			<word>pressius</word>
+			<word>fortem</word>
+			<word>gradu:</word>
+		</line>
+		<line name="86" meter="G">
+			<word>Haud</word>
+			<word>est</word>
+			<word>uirile</word>
+			<word>terga</word>
+			<word>Fortunae</word>
+			<word>dare.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="87" meter="G">
+			<word>Abest</word>
+			<word>pauoris</word>
+			<word>crimen</word>
+			<word>ac</word>
+			<word>probrum</word>
+			<word>procul,</word>
+		</line>
+		<line name="88" meter="G">
+			<word>Virtusque</word>
+			<word>nostra</word>
+			<word>nescit</word>
+			<word>ignauos</word>
+			<word>metus:</word>
+		</line>
+		<line name="89" meter="G">
+			<word>Si</word>
+			<word>tela</word>
+			<word>contra</word>
+			<word>stricta,</word>
+			<word>si</word>
+			<word>uis</word>
+			<word>horrida</word>
+		</line>
+		<line name="90" meter="G">
+			<word>Mauortis</word>
+			<word>in</word>
+			<word>me</word>
+			<word>rueret</word>
+			<word>-</word>
+			<word>aduersus</word>
+			<word>feros</word>
+		</line>
+		<line name="91" meter="G">
+			<word>Audax</word>
+			<word>Gigantas</word>
+			<word>obuias</word>
+			<word>ferrem</word>
+			<word>manus.</word>
+		</line>
+		<line name="92" meter="G">
+			<word>Nec</word>
+			<word>Sphinga</word>
+			<word>caecis</word>
+			<word>uerba</word>
+			<word>nectentem</word>
+			<word>modis</word>
+		</line>
+		<line name="93" meter="G">
+			<word>Fugi:</word>
+			<word>cruentos</word>
+			<word>uatis</word>
+			<word>infandae</word>
+			<word>tuli</word>
+		</line>
+		<line name="94" meter="G">
+			<word>Rictus</word>
+			<word>et</word>
+			<word>albens</word>
+			<word>ossibus</word>
+			<word>sparsis</word>
+			<word>solum;</word>
+		</line>
+		<line name="95" meter="G">
+			<word>Cumque</word>
+			<word>e</word>
+			<word>superna</word>
+			<word>rupe</word>
+			<word>iam</word>
+			<word>praedae</word>
+			<word>imminens</word>
+		</line>
+		<line name="96" meter="G">
+			<word>Aptaret</word>
+			<word>alas</word>
+			<word>uerbera</word>
+			<word>et</word>
+			<word>caudae</word>
+			<word>mouens</word>
+		</line>
+		<line name="97" meter="G">
+			<word>Saeui</word>
+			<word>leonis</word>
+			<word>more</word>
+			<word>conciperet</word>
+			<word>minas,</word>
+		</line>
+		<line name="98" meter="G">
+			<word>Carmen</word>
+			<word>poposci:</word>
+			<word>sonuit</word>
+			<word>horrendum</word>
+			<word>insuper,</word>
+		</line>
+		<line name="99" meter="G">
+			<word>Crepuere</word>
+			<word>malae,</word>
+			<word>saxaque</word>
+			<word>impatiens</word>
+			<word>morae</word>
+		</line>
+		<line name="100" meter="G">
+			<word>Reuulsit</word>
+			<word>unguis</word>
+			<word>uiscera</word>
+			<word>expectans</word>
+			<word>mea;</word>
+		</line>
+		<line name="101" meter="G">
+			<word>Nodosa</word>
+			<word>sortis</word>
+			<word>uerba</word>
+			<word>et</word>
+			<word>implexos</word>
+			<word>dolos</word>
+		</line>
+		<line name="102" meter="G">
+			<word>Ac</word>
+			<word>triste</word>
+			<word>carmen</word>
+			<word>alitis</word>
+			<word>solui</word>
+			<word>ferae.</word>
+		</line>
+		<line name="103" meter="G">
+			<word>Quid</word>
+			<word>sera</word>
+			<word>mortis</word>
+			<word>uota</word>
+			<word>nunc</word>
+			<word>demens</word>
+			<word>facis?</word>
+		</line>
+		<line name="104" meter="G">
+			<word>Licuit</word>
+			<word>perire.</word>
+			<word>laudis</word>
+			<word>hoc</word>
+			<word>pretium</word>
+			<word>tibi</word>
+		</line>
+		<line name="105" meter="G">
+			<word>Sceptrum</word>
+			<word>et</word>
+			<word>peremptae</word>
+			<word>Sphingis</word>
+			<word>haec</word>
+			<word>merces</word>
+			<word>datur.</word>
+		</line>
+		<line name="106" meter="G">
+			<word>Ille,</word>
+			<word>ille</word>
+			<word>dirus</word>
+			<word>callidi</word>
+			<word>monstri</word>
+			<word>cinis</word>
+		</line>
+		<line name="107" meter="G">
+			<word>In</word>
+			<word>nos</word>
+			<word>rebellat,</word>
+			<word>illa</word>
+			<word>nunc</word>
+			<word>Thebas</word>
+			<word>lues</word>
+		</line>
+		<line name="108" meter="G">
+			<word>Perempta</word>
+			<word>perdit.</word>
+			<word>Vna</word>
+			<word>iam</word>
+			<word>superest</word>
+			<word>salus,</word>
+		</line>
+		<line name="109" meter="G">
+			<word>Si</word>
+			<word>quam</word>
+			<word>salutis</word>
+			<word>Phoebus</word>
+			<word>ostendat</word>
+			<word>uiam.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Chorus</word>
+		</line>
+		<line name="110" meter="S2">
+			<word>Occidis,</word>
+			<word>Cadmi</word>
+			<word>generosa</word>
+			<word>proles,</word>
+		</line>
+		<line name="111" meter="S2">
+			<word>Vrbe</word>
+			<word>cum</word>
+			<word>tota;</word>
+			<word>uiduas</word>
+			<word>colonis</word>
+		</line>
+		<line name="112" meter="S2">
+			<word>Respicis</word>
+			<word>terras,</word>
+			<word>miseranda</word>
+			<word>Thebe.</word>
+		</line>
+		<line name="113" meter="S2">
+			<word>Carpitur</word>
+			<word>leto</word>
+			<word>tuus</word>
+			<word>ille,</word>
+			<word>Bacche,</word>
+		</line>
+		<line name="114" meter="S2">
+			<word>Miles,</word>
+			<word>extremos</word>
+			<word>comes</word>
+			<word>usque</word>
+			<word>ad</word>
+			<word>Indos,</word>
+		</line>
+		<line name="115" meter="S2">
+			<word>Ausus</word>
+			<word>Eois</word>
+			<word>equitare</word>
+			<word>campis</word>
+		</line>
+		<line name="116" meter="S2">
+			<word>Figere</word>
+			<word>et</word>
+			<word>mundo</word>
+			<word>tua</word>
+			<word>signa</word>
+			<word>primo:</word>
+		</line>
+		<line name="117" meter="S2">
+			<word>Cinnami</word>
+			<word>siluis</word>
+			<word>Arabas</word>
+			<word>beatos</word>
+		</line>
+		<line name="118" meter="S2">
+			<word>Vidit</word>
+			<word>et</word>
+			<word>uersas</word>
+			<word>equitis</word>
+			<word>sagittas,</word>
+		</line>
+		<line name="119" meter="S2">
+			<word>Terga</word>
+			<word>fallacis</word>
+			<word>metuenda</word>
+			<word>Parthi;</word>
+		</line>
+		<line name="120" meter="S2">
+			<word>Litus</word>
+			<word>intrauit</word>
+			<word>pelagi</word>
+			<word>rubentis:</word>
+		</line>
+		<line name="121" meter="S2">
+			<word>Promit</word>
+			<word>hinc</word>
+			<word>ortus</word>
+			<word>aperitque</word>
+			<word>lucem</word>
+		</line>
+		<line name="122" meter="S2">
+			<word>Phoebus</word>
+			<word>et</word>
+			<word>flamma</word>
+			<word>propiore</word>
+			<word>nudos</word>
+		</line>
+		<line name="123" meter="A">
+			<word>Inficit</word>
+			<word>Indos.</word>
+		</line>
+		<line name="124" meter="S2">
+			<word>Stirpis</word>
+			<word>inuictae</word>
+			<word>genus</word>
+			<word>interimus,</word>
+		</line>
+		<line name="125" meter="S2">
+			<word>Labimur</word>
+			<word>saeuo</word>
+			<word>rapiente</word>
+			<word>fato;</word>
+		</line>
+		<line name="126" meter="S2">
+			<word>Ducitur</word>
+			<word>semper</word>
+			<word>noua</word>
+			<word>pompa</word>
+			<word>Morti:</word>
+		</line>
+		<line name="127" meter="S2">
+			<word>Longus</word>
+			<word>ad</word>
+			<word>manes</word>
+			<word>properatur</word>
+			<word>ordo</word>
+		</line>
+		<line name="128" meter="S2">
+			<word>Agminis</word>
+			<word>maesti,</word>
+			<word>seriesque</word>
+			<word>tristis</word>
+		</line>
+		<line name="129" meter="S2">
+			<word>Haeret</word>
+			<word>et</word>
+			<word>turbae</word>
+			<word>tumulos</word>
+			<word>petenti</word>
+		</line>
+		<line name="130" meter="S2">
+			<word>Non</word>
+			<word>satis</word>
+			<word>septem</word>
+			<word>patuere</word>
+			<word>portae.</word>
+		</line>
+		<line name="131" meter="S2">
+			<word>Stat</word>
+			<word>grauis</word>
+			<word>strages</word>
+			<word>premiturque</word>
+			<word>iuncto</word>
+		</line>
+		<line name="132" meter="A">
+			<word>Funere</word>
+			<word>funus.</word>
+		</line>
+		<line name="133" meter="S2">
+			<word>Prima</word>
+			<word>uis</word>
+			<word>tardas</word>
+			<word>tetigit</word>
+			<word>bidentes:</word>
+		</line>
+		<line name="134" meter="S2">
+			<word>Laniger</word>
+			<word>pingues</word>
+			<word>male</word>
+			<word>carpsit</word>
+			<word>herbas;</word>
+		</line>
+		<line name="135" meter="S2">
+			<word>Colla</word>
+			<word>tacturus</word>
+			<word>steterat</word>
+			<word>sacerdos:</word>
+		</line>
+		<line name="136" meter="S2">
+			<word>Dum</word>
+			<word>manus</word>
+			<word>certum</word>
+			<word>parat</word>
+			<word>alta</word>
+			<word>uulnus,</word>
+		</line>
+		<line name="137" meter="S2">
+			<word>Aureo</word>
+			<word>taurus</word>
+			<word>rutilante</word>
+			<word>cornu</word>
+		</line>
+		<line name="138" meter="S2">
+			<word>Labitur</word>
+			<word>segnis;</word>
+			<word>patuit</word>
+			<word>sub</word>
+			<word>ictu</word>
+		</line>
+		<line name="139" meter="S2">
+			<word>Ponderis</word>
+			<word>uasti</word>
+			<word>resoluta</word>
+			<word>ceruix:</word>
+		</line>
+		<line name="140" meter="S2">
+			<word>Nec</word>
+			<word>cruor,</word>
+			<word>ferrum</word>
+			<word>maculauit</word>
+			<word>atra</word>
+		</line>
+		<line name="141" meter="S2">
+			<word>Turpis</word>
+			<word>e</word>
+			<word>plaga</word>
+			<word>sanies</word>
+			<word>profusa.</word>
+		</line>
+		<line name="142" meter="S2">
+			<word>Segnior</word>
+			<word>cursu</word>
+			<word>sonipes</word>
+			<word>in</word>
+			<word>ipso</word>
+		</line>
+		<line name="143" meter="S2">
+			<word>Concidit</word>
+			<word>gyro</word>
+			<word>dominumque</word>
+			<word>prono</word>
+		</line>
+		<line name="144" meter="A">
+			<word>Prodidit</word>
+			<word>armo.</word>
+		</line>
+		<line name="145" meter="S">
+			<word>Incubant</word>
+			<word>agris</word>
+			<word>pecudes</word>
+			<word>relictae;</word>
+		</line>
+		<line name="146" meter="S">
+			<word>Taurus</word>
+			<word>armento</word>
+			<word>pereunte</word>
+			<word>marcet:</word>
+		</line>
+		<line name="147" meter="S">
+			<word>Deficit</word>
+			<word>pastor</word>
+			<word>grege</word>
+			<word>deminuto</word>
+		</line>
+		<line name="148" meter="S">
+			<word>Tabidos</word>
+			<word>inter</word>
+			<word>moriens</word>
+			<word>iuuencos.</word>
+		</line>
+		<line name="149" meter="S">
+			<word>Non</word>
+			<word>lupos</word>
+			<word>cerui</word>
+			<word>metuunt</word>
+			<word>rapaces,</word>
+		</line>
+		<line name="150" meter="S">
+			<word>Cessat</word>
+			<word>irati</word>
+			<word>fremitus</word>
+			<word>leonis,</word>
+		</line>
+		<line name="151" meter="S">
+			<word>Nulla</word>
+			<word>uillosis</word>
+			<word>feritas</word>
+			<word>in</word>
+			<word>ursis;</word>
+		</line>
+		<line name="152" meter="S">
+			<word>Perdidit</word>
+			<word>pestem</word>
+			<word>latebrosa</word>
+			<word>serpens:</word>
+		</line>
+		<line name="153" meter="S">
+			<word>Aret</word>
+			<word>et</word>
+			<word>sicco</word>
+			<word>moritur</word>
+			<word>ueneno.</word>
+		</line>
+		<line name="154" meter="Y">
+			<word>Non</word>
+			<word>silua</word>
+			<word>sua</word>
+			<word>decorata</word>
+			<word>coma</word>
+		</line>
+		<line name="155" meter="Y">
+			<word>Fundit</word>
+			<word>opacis</word>
+			<word>montibus</word>
+			<word>umbras,</word>
+		</line>
+		<line name="156" meter="Y">
+			<word>Non</word>
+			<word>rura</word>
+			<word>uirent</word>
+			<word>ubere</word>
+			<word>glebae,</word>
+		</line>
+		<line name="157" meter="Y">
+			<word>Non</word>
+			<word>plena</word>
+			<word>suo</word>
+			<word>uitis</word>
+			<word>Iaccho</word>
+		</line>
+		<line name="158" meter="Y">
+			<word>Bracchia</word>
+			<word>curuat:</word>
+		</line>
+		<line name="159" meter="Y">
+			<word>Omnia</word>
+			<word>nostrum</word>
+			<word>sensere</word>
+			<word>malum.</word>
+		</line>
+		<line name="160" meter="Y">
+			<word>Rupere</word>
+			<word>Erebi</word>
+			<word>claustra</word>
+			<word>profundi</word>
+		</line>
+		<line name="161" meter="Y">
+			<word>Turba</word>
+			<word>sororum</word>
+			<word>face</word>
+			<word>Tartarea</word>
+		</line>
+		<line name="162" meter="Y">
+			<word>Phlegethonque</word>
+			<word>sua</word>
+			<word>motam</word>
+			<word>ripa</word>
+		</line>
+		<line name="163" meter="Y">
+			<word>Miscuit</word>
+			<word>undis</word>
+			<word>Styga</word>
+			<word>Sidoniis.</word>
+		</line>
+		<line name="164" meter="Y">
+			<word>Mors</word>
+			<word>atra</word>
+			<word>auidos</word>
+			<word>oris</word>
+			<word>hiatus</word>
+		</line>
+		<line name="165" meter="Y">
+			<word>Pandit</word>
+			<word>et</word>
+			<word>omnis</word>
+			<word>explicat</word>
+			<word>alas;</word>
+		</line>
+		<line name="166" meter="Y">
+			<word>Quique</word>
+			<word>capaci</word>
+			<word>turbida</word>
+			<word>cumba</word>
+		</line>
+		<line name="166bis" meter="Y">
+			<word>Flumina</word>
+			<word>seruat</word>
+		</line>
+		<line name="167" meter="Y">
+			<word>Durus</word>
+			<word>senio</word>
+			<word>nauita</word>
+			<word>crudo,</word>
+		</line>
+		<line name="168" meter="Y">
+			<word>Vix</word>
+			<word>assiduo</word>
+			<word>bracchia</word>
+			<word>conto</word>
+		</line>
+		<line name="169" meter="Y">
+			<word>Lassata</word>
+			<word>refert,</word>
+		</line>
+		<line name="170" meter="Y">
+			<word>Fessus</word>
+			<word>turbam</word>
+			<word>uectare</word>
+			<word>nouam.</word>
+		</line>
+		<line name="171" meter="Y">
+			<word>Quin</word>
+			<word>Taenarii</word>
+			<word>uincula</word>
+			<word>ferri</word>
+		</line>
+		<line name="172" meter="Y">
+			<word>Rupisse</word>
+			<word>canem</word>
+			<word>fama</word>
+			<word>et</word>
+			<word>nostris</word>
+		</line>
+		<line name="173" meter="Y">
+			<word>Errare</word>
+			<word>locis,</word>
+			<word>mugisse</word>
+			<word>solum,</word>
+		</line>
+		<line name="174" meter="Y">
+			<word>Vaga</word>
+			<word>per</word>
+			<word>lucos</word>
+			<word>*</word>
+			<word>*</word>
+			<word>*</word>
+		</line>
+		<line name="175" meter="Y">
+			<word>Simulacra</word>
+			<word>uirum</word>
+			<word>maiora</word>
+			<word>uiris,</word>
+		</line>
+		<line name="176" meter="Y">
+			<word>Bis</word>
+			<word>Cadmeum</word>
+			<word>niue</word>
+			<word>discussa</word>
+		</line>
+		<line name="176bis" meter="Y">
+			<word>Tremuisse</word>
+			<word>nemus,</word>
+		</line>
+		<line name="177" meter="Y">
+			<word>Bis</word>
+			<word>turbatam</word>
+			<word>sanguine</word>
+			<word>Dircen,</word>
+		</line>
+		<line name="178" meter="Y">
+			<word>Nocte</word>
+			<word>silenti</word>
+			<word>*</word>
+			<word>*</word>
+			<word>*</word>
+		</line>
+		<line name="179" meter="Y">
+			<word>Amphionios</word>
+			<word>ululasse</word>
+			<word>canes.</word>
+		</line>
+		<line name="180" meter="Y">
+			<word>O</word>
+			<word>dira</word>
+			<word>noui</word>
+			<word>facies</word>
+			<word>leti</word>
+		</line>
+		<line name="181" meter="Y">
+			<word>Grauior</word>
+			<word>leto:</word>
+		</line>
+		<line name="182" meter="Y">
+			<word>Piger</word>
+			<word>ignauos</word>
+			<word>alligat</word>
+			<word>artus</word>
+		</line>
+		<line name="183" meter="Y">
+			<word>Languor,</word>
+			<word>et</word>
+			<word>aegro</word>
+			<word>rubor</word>
+			<word>in</word>
+			<word>uultu,</word>
+		</line>
+		<line name="184" meter="Y">
+			<word>Maculaeque</word>
+			<word>cutem</word>
+			<word>sparsere</word>
+			<word>leues.</word>
+		</line>
+		<line name="185" meter="Y">
+			<word>Tum</word>
+			<word>uapor</word>
+			<word>ipsam</word>
+			<word>corporis</word>
+			<word>arcem</word>
+		</line>
+		<line name="185bis" meter="Y">
+			<word>Flammeus</word>
+			<word>urit</word>
+		</line>
+		<line name="186" meter="Y">
+			<word>Multoque</word>
+			<word>genas</word>
+			<word>sanguine</word>
+			<word>tendit,</word>
+		</line>
+		<line name="187a, 188b" meter="Y">
+			<word>Oculique</word>
+			<word>rigent,</word>
+			<word>resonant</word>
+			<word>aures</word>
+		</line>
+		<line name="189" meter="Y">
+			<word>Stillatque</word>
+			<word>niger</word>
+			<word>naris</word>
+			<word>aduncae</word>
+		</line>
+		<line name="190" meter="Y">
+			<word>Cruor</word>
+			<word>et</word>
+			<word>uenas</word>
+			<word>rumpit</word>
+			<word>hiantes;</word>
+		</line>
+		<line name="191" meter="Y">
+			<word>Intima</word>
+			<word>creber</word>
+			<word>uiscera</word>
+			<word>quassat</word>
+		</line>
+		<line name="192a" meter="Y">
+			<word>Gemitus</word>
+			<word>stridens</word>
+		</line>
+		<line name="187b, 188a" meter="Y">
+			<word>Et</word>
+			<word>sacer</word>
+			<word>ignis</word>
+			<word>pascitur</word>
+			<word>artus.</word>
+		</line>
+		<line name="192b, 193a" meter="Y">
+			<word>Iamque</word>
+			<word>amplexu</word>
+			<word>frigida</word>
+			<word>presso</word>
+		</line>
+		<line name="193b" meter="Y">
+			<word>Saxa</word>
+			<word>fatigant;</word>
+		</line>
+		<line name="194" meter="Y">
+			<word>Quos</word>
+			<word>liberior</word>
+			<word>domus</word>
+			<word>elato</word>
+		</line>
+		<line name="195" meter="Y">
+			<word>Custode</word>
+			<word>sinit,</word>
+			<word>petitis</word>
+			<word>fontes</word>
+		</line>
+		<line name="196" meter="Y">
+			<word>Aliturque</word>
+			<word>sitis</word>
+			<word>latice</word>
+			<word>ingesto.</word>
+		</line>
+		<line name="197" meter="Y">
+			<word>Prostrata</word>
+			<word>iacet</word>
+			<word>turba</word>
+			<word>per</word>
+			<word>aras</word>
+		</line>
+		<line name="197bis" meter="Y">
+			<word>Oratque</word>
+			<word>mori:</word>
+		</line>
+		<line name="198" meter="Y">
+			<word>Solum</word>
+			<word>hoc</word>
+			<word>faciles</word>
+			<word>tribuere</word>
+			<word>dei.</word>
+		</line>
+		<line name="199" meter="Y">
+			<word>Delubra</word>
+			<word>petunt,</word>
+			<word>haut</word>
+			<word>ut</word>
+			<word>uoto</word>
+		</line>
+		<line name="200" meter="Y">
+			<word>Numina</word>
+			<word>placent,</word>
+		</line>
+		<line name="201" meter="Y">
+			<word>Sed</word>
+			<word>iuuat</word>
+			<word>ipsos</word>
+			<word>satiare</word>
+			<word>deos.</word>
+		</line>
+		<line name="202" meter="G">
+			<word>Quisnam</word>
+			<word>ille</word>
+			<word>propero</word>
+			<word>regiam</word>
+			<word>gressu</word>
+			<word>petit?</word>
+		</line>
+		<line name="203" meter="G">
+			<word>Adestne</word>
+			<word>clarus</word>
+			<word>sanguine</word>
+			<word>ac</word>
+			<word>factis</word>
+			<word>Creo</word>
+		</line>
+		<line name="204" meter="G">
+			<word>An</word>
+			<word>aeger</word>
+			<word>animus</word>
+			<word>falsa</word>
+			<word>pro</word>
+			<word>ueris</word>
+			<word>uidet?</word>
+		</line>
+		<line name="205" meter="G">
+			<word>Adest</word>
+			<word>petitus</word>
+			<word>omnibus</word>
+			<word>uotis</word>
+			<word>Creo.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="206" meter="G">
+			<word>Horrore</word>
+			<word>quatior,</word>
+			<word>fata</word>
+			<word>quo</word>
+			<word>uergant</word>
+			<word>timens,</word>
+		</line>
+		<line name="207" meter="G">
+			<word>Trepidumque</word>
+			<word>gemino</word>
+			<word>pectus</word>
+			<word>affectu</word>
+			<word>labat:</word>
+		</line>
+		<line name="208" meter="G">
+			<word>Vbi</word>
+			<word>laeta</word>
+			<word>duris</word>
+			<word>mixta</word>
+			<word>in</word>
+			<word>ambiguo</word>
+			<word>iacent,</word>
+		</line>
+		<line name="209" meter="G">
+			<word>Incertus</word>
+			<word>animus</word>
+			<word>scire</word>
+			<word>cum</word>
+			<word>cupiat</word>
+			<word>timet.</word>
+		</line>
+		<line name="210" meter="G">
+			<word>Germane</word>
+			<word>nostrae</word>
+			<word>coniugis,</word>
+			<word>fessis</word>
+			<word>opem</word>
+		</line>
+		<line name="211" meter="G">
+			<word>Si</word>
+			<word>quam</word>
+			<word>reportas,</word>
+			<word>uoce</word>
+			<word>properata</word>
+			<word>edoce.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Creo</word>
+		</line>
+		<line name="212" meter="G">
+			<word>Responsa</word>
+			<word>dubia</word>
+			<word>sorte</word>
+			<word>perplexa</word>
+			<word>iacent.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="213" meter="G">
+			<word>Dubiam</word>
+			<word>salutem</word>
+			<word>qui</word>
+			<word>dat</word>
+			<word>adflictis</word>
+			<word>negat.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Creo</word>
+		</line>
+		<line name="214" meter="G">
+			<word>Ambage</word>
+			<word>flexa</word>
+			<word>Delphico</word>
+			<word>mos</word>
+			<word>est</word>
+			<word>deo</word>
+		</line>
+		<line name="215" meter="G">
+			<word>Arcana</word>
+			<word>tegere.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="215" meter="G">
+			<word>Fare,</word>
+			<word>sit</word>
+			<word>dubium</word>
+			<word>licet:</word>
+		</line>
+		<line name="216" meter="G">
+			<word>Ambigua</word>
+			<word>soli</word>
+			<word>noscere</word>
+			<word>Oedipodae</word>
+			<word>datur.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Creo</word>
+		</line>
+		<line name="217" meter="G">
+			<word>Caedem</word>
+			<word>expiari</word>
+			<word>regiam</word>
+			<word>exilio</word>
+			<word>deus</word>
+		</line>
+		<line name="218" meter="G">
+			<word>Et</word>
+			<word>interemptum</word>
+			<word>Laium</word>
+			<word>ulcisci</word>
+			<word>iubet:</word>
+		</line>
+		<line name="219" meter="G">
+			<word>Non</word>
+			<word>ante</word>
+			<word>caelo</word>
+			<word>lucidus</word>
+			<word>curret</word>
+			<word>dies</word>
+		</line>
+		<line name="220" meter="G">
+			<word>Haustusque</word>
+			<word>tutos</word>
+			<word>aetheris</word>
+			<word>puri</word>
+			<word>dabit.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="221" meter="G">
+			<word>Et</word>
+			<word>quis</word>
+			<word>peremptor</word>
+			<word>incluti</word>
+			<word>regis</word>
+			<word>fuit?</word>
+		</line>
+		<line name="222" meter="G">
+			<word>Quem</word>
+			<word>memoret</word>
+			<word>ede</word>
+			<word>Phoebus,</word>
+			<word>ut</word>
+			<word>poenas</word>
+			<word>luat.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Creo</word>
+		</line>
+		<line name="223" meter="T">
+			<word>Sit,</word>
+			<word>precor,</word>
+			<word>dixisse</word>
+			<word>tutum</word>
+			<word>uisu</word>
+			<word>et</word>
+			<word>auditu</word>
+			<word>horrida;</word>
+		</line>
+		<line name="224" meter="T">
+			<word>Torpor</word>
+			<word>insedit</word>
+			<word>per</word>
+			<word>artus,</word>
+			<word>frigidus</word>
+			<word>sanguis</word>
+			<word>coit.</word>
+		</line>
+		<line name="225" meter="T">
+			<word>Vt</word>
+			<word>sacrata</word>
+			<word>templa</word>
+			<word>Phoebi</word>
+			<word>supplici</word>
+			<word>intraui</word>
+			<word>pede</word>
+		</line>
+		<line name="226" meter="T">
+			<word>Et</word>
+			<word>pias</word>
+			<word>numen</word>
+			<word>precatus</word>
+			<word>rite</word>
+			<word>summisi</word>
+			<word>manus,</word>
+		</line>
+		<line name="227" meter="T">
+			<word>Gemina</word>
+			<word>Parnasi</word>
+			<word>niualis</word>
+			<word>arx</word>
+			<word>trucem</word>
+			<word>fremitum</word>
+			<word>dedit;</word>
+		</line>
+		<line name="228" meter="T">
+			<word>Imminens</word>
+			<word>Phoebea</word>
+			<word>laurus</word>
+			<word>tremuit</word>
+			<word>et</word>
+			<word>mouit</word>
+			<word>domum</word>
+		</line>
+		<line name="229" meter="T">
+			<word>Ac</word>
+			<word>repente</word>
+			<word>sancta</word>
+			<word>fontis</word>
+			<word>lympha</word>
+			<word>Castalii</word>
+			<word>stetit.</word>
+		</line>
+		<line name="230" meter="T">
+			<word>Incipit</word>
+			<word>Letoa</word>
+			<word>uates</word>
+			<word>spargere</word>
+			<word>horrentes</word>
+			<word>comas</word>
+		</line>
+		<line name="231" meter="T">
+			<word>Et</word>
+			<word>pati</word>
+			<word>commota</word>
+			<word>Phoebum;</word>
+			<word>contigit</word>
+			<word>nondum</word>
+			<word>specum,</word>
+		</line>
+		<line name="232" meter="T">
+			<word>Emicat</word>
+			<word>uasto</word>
+			<word>fragore</word>
+			<word>maior</word>
+			<word>humano</word>
+			<word>sonus:</word>
+		</line>
+		<line name="233" meter="H" pattern="DSDS">
+			<word sy="1A1b1c" wb="DI">'Mitia</word>
+			<word sy="2A2T3A" wb="CM">Cadmeis</word>
+			<word sy="3b3c4A4T" wb="DI">remeabunt</word>
+			<word sy="5A5b5c" wb="DI">sidera</word>
+			<word sy="6A6X">Thebis,</word>
+		</line>
+		<line name="234" meter="H" pattern="DSSD">
+			<word sy="1A" wb="CM">Si</word>
+			<word sy="1b1c2A" wb="CM">profugus</word>
+			<word sy="2T3A" wb="CM">Dircen</word>
+			<word sy="3T4A4b4c" wb="DI">Ismenida</word>
+			<word sy="5A5b5c" wb="DI">liquerit</word>
+			<word sy="6A6X">hospes</word>
+		</line>
+		<line name="235" meter="H" pattern="SDSS">
+			<word sy="1A1T" wb="DI">Regis</word>
+			<word sy="2A2b" wb="CF">caede</word>
+			<word sy="2c3A" wb="CM">nocens,</word>
+			<word sy="3T4A" wb="CM">Phoebo</word>
+			<word sy="4T" wb="DI">iam</word>
+			<word sy="5A5b" wb="CF">notus</word>
+			<word sy="5c" wb="DI">et</word>
+			<word sy="6A6X">infans.</word>
+		</line>
+		<line name="236" meter="H" pattern="DDDS">
+			<word sy="1A" wb="CM">Nec</word>
+			<word sy="1b1c" wb="DI">tibi</word>
+			<word sy="2A2b" wb="CF">longa</word>
+			<word sy="2c3A" wb="CM">manent</word>
+			<word sy="3b3c4A4T" wb="DI">sceleratae</word>
+			<word sy="5A5b5c" wb="DI">gaudia</word>
+			<word sy="6A6X">caedis:</word>
+		</line>
+		<line name="237" meter="H" pattern="SDSD">
+			<word sy="1A1T" wb="DI">Tecum</word>
+			<word sy="2A2b" wb="CF">bella</word>
+			<word sy="2c3A" wb="CM">geres,</word>
+			<word sy="3T4A" wb="CM">natis</word>
+			<word sy="4b4c" wb="DI">quoque</word>
+			<word sy="5A5b" wb="CF">bella</word>
+			<word sy="5c6A6X">relinques,</word>
+		</line>
+		<line name="238" meter="H" pattern="SSDD">
+			<word sy="1A1T" wb="DI">Turpis</word>
+			<word sy="2A2T3A" wb="CM">maternos</word>
+			<word sy="3b3c4A" wb="CM">iterum</word>
+			<word sy="4b4c5A5b" wb="CF">reuolutus</word>
+			<word sy="5c" wb="DI">in</word>
+			<word sy="6A6X">ortus.'</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="239" meter="G">
+			<word>Quod</word>
+			<word>facere</word>
+			<word>monitu</word>
+			<word>caelitum</word>
+			<word>iussus</word>
+			<word>paro,</word>
+		</line>
+		<line name="240" meter="G">
+			<word>Functi</word>
+			<word>cineribus</word>
+			<word>regis</word>
+			<word>hoc</word>
+			<word>decuit</word>
+			<word>dari,</word>
+		</line>
+		<line name="241" meter="G">
+			<word>Ne</word>
+			<word>sancta</word>
+			<word>quisquam</word>
+			<word>sceptra</word>
+			<word>uiolaret</word>
+			<word>dolo.</word>
+		</line>
+		<line name="242" meter="G">
+			<word>Regi</word>
+			<word>tuenda</word>
+			<word>maxime</word>
+			<word>regum</word>
+			<word>est</word>
+			<word>salus:</word>
+		</line>
+		<line name="243" meter="G">
+			<word>Quaerit</word>
+			<word>peremptum</word>
+			<word>nemo</word>
+			<word>quem</word>
+			<word>incolumem</word>
+			<word>timet.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Creo</word>
+		</line>
+		<line name="244" meter="G">
+			<word>Curam</word>
+			<word>perempti</word>
+			<word>maior</word>
+			<word>excussit</word>
+			<word>timor.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="245" meter="G">
+			<word>Pium</word>
+			<word>prohibuit</word>
+			<word>ullus</word>
+			<word>officium</word>
+			<word>metus?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Creo</word>
+		</line>
+		<line name="246" meter="G">
+			<word>Prohibent</word>
+			<word>nefandi</word>
+			<word>carminis</word>
+			<word>tristes</word>
+			<word>minae.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="247" meter="G">
+			<word>Nunc</word>
+			<word>expietur</word>
+			<word>numinum</word>
+			<word>imperio</word>
+			<word>scelus.</word>
+		</line>
+		<line name="248" meter="G">
+			<word>Quisquis</word>
+			<word>deorum</word>
+			<word>regna</word>
+			<word>placatus</word>
+			<word>uides:</word>
+		</line>
+		<line name="249" meter="G">
+			<word>Tu,</word>
+			<word>tu</word>
+			<word>penes</word>
+			<word>quem</word>
+			<word>iura</word>
+			<word>praecipitis</word>
+			<word>poli,</word>
+		</line>
+		<line name="250" meter="G">
+			<word>Tuque,</word>
+			<word>o</word>
+			<word>sereni</word>
+			<word>maximum</word>
+			<word>mundi</word>
+			<word>decus,</word>
+		</line>
+		<line name="251" meter="G">
+			<word>Bis</word>
+			<word>sena</word>
+			<word>cursu</word>
+			<word>signa</word>
+			<word>qui</word>
+			<word>uario</word>
+			<word>legis,</word>
+		</line>
+		<line name="252" meter="G">
+			<word>Qui</word>
+			<word>tarda</word>
+			<word>celeri</word>
+			<word>saecula</word>
+			<word>euoluis</word>
+			<word>rota,</word>
+		</line>
+		<line name="253" meter="G">
+			<word>Sororque</word>
+			<word>fratri</word>
+			<word>semper</word>
+			<word>occurrens</word>
+			<word>tuo,</word>
+		</line>
+		<line name="254" meter="G">
+			<word>Noctiuaga</word>
+			<word>Phoebe,</word>
+			<word>quique</word>
+			<word>uentorum</word>
+			<word>potens</word>
+		</line>
+		<line name="255" meter="G">
+			<word>Aequor</word>
+			<word>per</word>
+			<word>altum</word>
+			<word>caerulos</word>
+			<word>currus</word>
+			<word>agis,</word>
+		</line>
+		<line name="256" meter="G">
+			<word>Et</word>
+			<word>qui</word>
+			<word>carentis</word>
+			<word>luce</word>
+			<word>disponis</word>
+			<word>domos,</word>
+		</line>
+		<line name="257" meter="G">
+			<word>Adeste:</word>
+			<word>cuius</word>
+			<word>Laius</word>
+			<word>dextra</word>
+			<word>occidit,</word>
+		</line>
+		<line name="258" meter="G">
+			<word>Hunc</word>
+			<word>non</word>
+			<word>quieta</word>
+			<word>tecta,</word>
+			<word>non</word>
+			<word>fidi</word>
+			<word>lares,</word>
+		</line>
+		<line name="259" meter="G">
+			<word>Non</word>
+			<word>hospitalis</word>
+			<word>exulem</word>
+			<word>tellus</word>
+			<word>ferat:</word>
+		</line>
+		<line name="260" meter="G">
+			<word>Thalamis</word>
+			<word>pudendis</word>
+			<word>doleat</word>
+			<word>et</word>
+			<word>prole</word>
+			<word>impia;</word>
+		</line>
+		<line name="261" meter="G">
+			<word>Hic</word>
+			<word>et</word>
+			<word>parentem</word>
+			<word>dextera</word>
+			<word>perimat</word>
+			<word>sua,</word>
+		</line>
+		<line name="262" meter="G">
+			<word>Faciatque</word>
+			<word>(num</word>
+			<word>quid</word>
+			<word>grauius</word>
+			<word>optari</word>
+			<word>potest?)</word>
+		</line>
+		<line name="263" meter="G">
+			<word>Quidquid</word>
+			<word>ego</word>
+			<word>fugi.</word>
+			<word>Non</word>
+			<word>erit</word>
+			<word>ueniae</word>
+			<word>locus:</word>
+		</line>
+		<line name="264" meter="G">
+			<word>Per</word>
+			<word>regna</word>
+			<word>iuro</word>
+			<word>quaeque</word>
+			<word>nunc</word>
+			<word>hospes</word>
+			<word>gero</word>
+		</line>
+		<line name="265" meter="G">
+			<word>Et</word>
+			<word>quae</word>
+			<word>reliqui</word>
+			<word>perque</word>
+			<word>penetrales</word>
+			<word>deos,</word>
+		</line>
+		<line name="266" meter="G">
+			<word>Per</word>
+			<word>te,</word>
+			<word>pater</word>
+			<word>Neptune,</word>
+			<word>qui</word>
+			<word>fluctu</word>
+			<word>leui</word>
+		</line>
+		<line name="267" meter="G">
+			<word>Vtrimque</word>
+			<word>nostro</word>
+			<word>geminus</word>
+			<word>alludis</word>
+			<word>solo;</word>
+		</line>
+		<line name="268" meter="G">
+			<word>Et</word>
+			<word>ipse</word>
+			<word>nostris</word>
+			<word>uocibus</word>
+			<word>testis</word>
+			<word>ueni,</word>
+		</line>
+		<line name="269" meter="G">
+			<word>Fatidica</word>
+			<word>uatis</word>
+			<word>ora</word>
+			<word>Cirrhaeae</word>
+			<word>mouens:</word>
+		</line>
+		<line name="270" meter="G">
+			<word>Ita</word>
+			<word>molle</word>
+			<word>senium</word>
+			<word>ducat</word>
+			<word>et</word>
+			<word>summum</word>
+			<word>diem</word>
+		</line>
+		<line name="271" meter="G">
+			<word>Securus</word>
+			<word>alto</word>
+			<word>reddat</word>
+			<word>in</word>
+			<word>solio</word>
+			<word>parens</word>
+		</line>
+		<line name="272" meter="G">
+			<word>Solasque</word>
+			<word>Merope</word>
+			<word>nouerit</word>
+			<word>Polybi</word>
+			<word>faces,</word>
+		</line>
+		<line name="273" meter="G">
+			<word>Vt</word>
+			<word>nulla</word>
+			<word>sontem</word>
+			<word>gratia</word>
+			<word>eripiet</word>
+			<word>mihi.</word>
+		</line>
+		<line name="274" meter="G">
+			<word>Sed</word>
+			<word>quo</word>
+			<word>nefandum</word>
+			<word>facinus</word>
+			<word>admissum</word>
+			<word>loco</word>
+			<word>est,</word>
+		</line>
+		<line name="275" meter="G">
+			<word>Memorate:</word>
+			<word>aperto</word>
+			<word>Marte</word>
+			<word>an</word>
+			<word>insidiis</word>
+			<word>iacet?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Creo</word>
+		</line>
+		<line name="276" meter="G">
+			<word>Frondifera</word>
+			<word>sanctae</word>
+			<word>nemora</word>
+			<word>Castaliae</word>
+			<word>petens</word>
+		</line>
+		<line name="277" meter="G">
+			<word>Calcauit</word>
+			<word>artis</word>
+			<word>obsitum</word>
+			<word>dumis</word>
+			<word>iter,</word>
+		</line>
+		<line name="278" meter="G">
+			<word>Trigemina</word>
+			<word>qua</word>
+			<word>se</word>
+			<word>spargit</word>
+			<word>in</word>
+			<word>campos</word>
+			<word>uia.</word>
+		</line>
+		<line name="279" meter="G">
+			<word>Secat</word>
+			<word>una</word>
+			<word>gratum</word>
+			<word>Phocidos</word>
+			<word>Baccho</word>
+			<word>solum,</word>
+		</line>
+		<line name="280" meter="G">
+			<word>Vnde</word>
+			<word>altus</word>
+			<word>arua</word>
+			<word>deserit,</word>
+			<word>caelum</word>
+			<word>petens,</word>
+		</line>
+		<line name="281" meter="G">
+			<word>Clementer</word>
+			<word>acto</word>
+			<word>colle</word>
+			<word>Parnasos</word>
+			<word>biceps;</word>
+		</line>
+		<line name="282" meter="G">
+			<word>At</word>
+			<word>una</word>
+			<word>bimaris</word>
+			<word>Sisyphi</word>
+			<word>terras</word>
+			<word>adit</word>
+		</line>
+		<line name="283" meter="G">
+			<word>Olenia</word>
+			<word>in</word>
+			<word>arua;</word>
+			<word>tertius</word>
+			<word>trames</word>
+			<word>caua</word>
+		</line>
+		<line name="284" meter="G">
+			<word>Conualle</word>
+			<word>serpens</word>
+			<word>tangit</word>
+			<word>errantes</word>
+			<word>aquas</word>
+		</line>
+		<line name="285" meter="G">
+			<word>Gelidumque</word>
+			<word>dirimit</word>
+			<word>amnis</word>
+			<word>Olmii</word>
+			<word>uadum:</word>
+		</line>
+		<line name="286" meter="G">
+			<word>Hic</word>
+			<word>pace</word>
+			<word>fretum</word>
+			<word>subita</word>
+			<word>praedonum</word>
+			<word>manus</word>
+		</line>
+		<line name="287" meter="G">
+			<word>Aggressa</word>
+			<word>ferro</word>
+			<word>facinus</word>
+			<word>occultum</word>
+			<word>tulit.</word>
+		</line>
+		<line name="288" meter="G">
+			<word>In</word>
+			<word>tempore</word>
+			<word>ipso</word>
+			<word>sorte</word>
+			<word>Phoebea</word>
+			<word>excitus</word>
+		</line>
+		<line name="289" meter="G">
+			<word>Tiresia</word>
+			<word>tremulo</word>
+			<word>tardus</word>
+			<word>accelerat</word>
+			<word>genu</word>
+		</line>
+		<line name="290" meter="G">
+			<word>Comesque</word>
+			<word>Manto</word>
+			<word>luce</word>
+			<word>uiduatum</word>
+			<word>trahens.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="291" meter="G">
+			<word>Sacrate</word>
+			<word>diuis,</word>
+			<word>proximum</word>
+			<word>Phoebo</word>
+			<word>caput,</word>
+		</line>
+		<line name="292" meter="G">
+			<word>Responsa</word>
+			<word>solue;</word>
+			<word>fare,</word>
+			<word>quem</word>
+			<word>poenae</word>
+			<word>petant.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Tiresia</word>
+		</line>
+		<line name="293" meter="G">
+			<word>Quod</word>
+			<word>tarda</word>
+			<word>fatu</word>
+			<word>est</word>
+			<word>lingua,</word>
+			<word>quod</word>
+			<word>quaerit</word>
+			<word>moras</word>
+		</line>
+		<line name="294" meter="G">
+			<word>Haut</word>
+			<word>te</word>
+			<word>quidem,</word>
+			<word>magnanime,</word>
+			<word>mirari</word>
+			<word>addecet:</word>
+		</line>
+		<line name="295" meter="G">
+			<word>Visu</word>
+			<word>carenti</word>
+			<word>magna</word>
+			<word>pars</word>
+			<word>ueri</word>
+			<word>patet.</word>
+		</line>
+		<line name="296" meter="G">
+			<word>Sed</word>
+			<word>quo</word>
+			<word>uocat</word>
+			<word>me</word>
+			<word>patria,</word>
+			<word>quo</word>
+			<word>Phoebus,</word>
+			<word>sequar:</word>
+		</line>
+		<line name="297" meter="G">
+			<word>Fata</word>
+			<word>eruantur;</word>
+			<word>si</word>
+			<word>foret</word>
+			<word>uiridis</word>
+			<word>mihi</word>
+		</line>
+		<line name="298" meter="G">
+			<word>Calidusque</word>
+			<word>sanguis,</word>
+			<word>pectore</word>
+			<word>exciperem</word>
+			<word>deum.</word>
+		</line>
+		<line name="299" meter="G">
+			<word>Appellite</word>
+			<word>aris</word>
+			<word>candidum</word>
+			<word>tergo</word>
+			<word>bouem</word>
+		</line>
+		<line name="300" meter="G">
+			<word>Curuoque</word>
+			<word>numquam</word>
+			<word>colla</word>
+			<word>depressam</word>
+			<word>iugo.</word>
+		</line>
+		<line name="301" meter="G">
+			<word>Tu</word>
+			<word>lucis</word>
+			<word>inopem,</word>
+			<word>gnata,</word>
+			<word>genitorem</word>
+			<word>regens</word>
+		</line>
+		<line name="302" meter="G">
+			<word>Manifesta</word>
+			<word>sacri</word>
+			<word>signa</word>
+			<word>fatidici</word>
+			<word>refer.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Manto</word>
+		</line>
+		<line name="303" meter="G">
+			<word>Opima</word>
+			<word>sanctas</word>
+			<word>uictima</word>
+			<word>ante</word>
+			<word>aras</word>
+			<word>stetit.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Tiresia</word>
+		</line>
+		<line name="304" meter="G">
+			<word>In</word>
+			<word>uota</word>
+			<word>superos</word>
+			<word>uoce</word>
+			<word>sollemni</word>
+			<word>uoca</word>
+		</line>
+		<line name="305" meter="G">
+			<word>Arasque</word>
+			<word>dono</word>
+			<word>turis</word>
+			<word>Eoi</word>
+			<word>extrue.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Manto</word>
+		</line>
+		<line name="306" meter="G">
+			<word>Iam</word>
+			<word>tura</word>
+			<word>sacris</word>
+			<word>caelitum</word>
+			<word>ingessi</word>
+			<word>focis.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Tiresia</word>
+		</line>
+		<line name="307" meter="G">
+			<word>Quid</word>
+			<word>flamma?</word>
+			<word>largas</word>
+			<word>iamne</word>
+			<word>comprendit</word>
+			<word>dapes?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Manto</word>
+		</line>
+		<line name="308" meter="G">
+			<word>Subito</word>
+			<word>refulsit</word>
+			<word>lumine</word>
+			<word>et</word>
+			<word>subito</word>
+			<word>occidit.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Tiresia</word>
+		</line>
+		<line name="309" meter="G">
+			<word>Vtrumne</word>
+			<word>clarus</word>
+			<word>ignis</word>
+			<word>et</word>
+			<word>nitidus</word>
+			<word>stetit</word>
+		</line>
+		<line name="310" meter="G">
+			<word>Rectusque</word>
+			<word>purum</word>
+			<word>uerticem</word>
+			<word>caelo</word>
+			<word>tulit</word>
+		</line>
+		<line name="311" meter="G">
+			<word>Et</word>
+			<word>summam</word>
+			<word>in</word>
+			<word>auras</word>
+			<word>fusus</word>
+			<word>explicuit</word>
+			<word>comam?</word>
+		</line>
+		<line name="312" meter="G">
+			<word>An</word>
+			<word>latera</word>
+			<word>circa</word>
+			<word>serpit</word>
+			<word>incertus</word>
+			<word>uiae</word>
+		</line>
+		<line name="313" meter="G">
+			<word>Et</word>
+			<word>fluctuante</word>
+			<word>turbidus</word>
+			<word>fumo</word>
+			<word>labat?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Manto</word>
+		</line>
+		<line name="314" meter="G">
+			<word>Non</word>
+			<word>una</word>
+			<word>facies</word>
+			<word>mobilis</word>
+			<word>flammae</word>
+			<word>fuit:</word>
+		</line>
+		<line name="315" meter="G">
+			<word>Imbrifera</word>
+			<word>qualis</word>
+			<word>implicat</word>
+			<word>uarios</word>
+			<word>sibi</word>
+		</line>
+		<line name="316" meter="G">
+			<word>Iris</word>
+			<word>colores,</word>
+			<word>parte</word>
+			<word>quae</word>
+			<word>magna</word>
+			<word>poli</word>
+		</line>
+		<line name="317" meter="G">
+			<word>Curuata</word>
+			<word>picto</word>
+			<word>nuntiat</word>
+			<word>nimbos</word>
+			<word>sinu</word>
+		</line>
+		<line name="318" meter="G">
+			<word>(Quis</word>
+			<word>desit</word>
+			<word>illi</word>
+			<word>quiue</word>
+			<word>sit</word>
+			<word>dubites</word>
+			<word>color),</word>
+		</line>
+		<line name="319" meter="G">
+			<word>Caerulea</word>
+			<word>fuluis</word>
+			<word>mixta</word>
+			<word>oberrauit</word>
+			<word>notis,</word>
+		</line>
+		<line name="320" meter="G">
+			<word>Sanguinea</word>
+			<word>rursus;</word>
+			<word>ultima</word>
+			<word>in</word>
+			<word>tenebras</word>
+			<word>abit.</word>
+		</line>
+		<line name="321" meter="G">
+			<word>Sed</word>
+			<word>ecce</word>
+			<word>pugnax</word>
+			<word>ignis</word>
+			<word>in</word>
+			<word>partes</word>
+			<word>duas</word>
+		</line>
+		<line name="322" meter="G">
+			<word>Discedit</word>
+			<word>et</word>
+			<word>se</word>
+			<word>scindit</word>
+			<word>unius</word>
+			<word>sacri</word>
+		</line>
+		<line name="323" meter="G">
+			<word>Discors</word>
+			<word>fauilla</word>
+			<word>-</word>
+			<word>genitor,</word>
+			<word>horresco</word>
+			<word>intuens:</word>
+		</line>
+		<line name="324" meter="G">
+			<word>Libata</word>
+			<word>Bacchi</word>
+			<word>dona</word>
+			<word>permutat</word>
+			<word>cruor</word>
+		</line>
+		<line name="325" meter="G">
+			<word>Ambitque</word>
+			<word>densus</word>
+			<word>regium</word>
+			<word>fumus</word>
+			<word>caput</word>
+		</line>
+		<line name="326" meter="G">
+			<word>Ipsosque</word>
+			<word>circa</word>
+			<word>spissior</word>
+			<word>uultus</word>
+			<word>sedet</word>
+		</line>
+		<line name="327" meter="G">
+			<word>Et</word>
+			<word>nube</word>
+			<word>densa</word>
+			<word>sordidam</word>
+			<word>lucem</word>
+			<word>abdidit.</word>
+		</line>
+		<line name="328" meter="G">
+			<word>Quid</word>
+			<word>sit,</word>
+			<word>parens,</word>
+			<word>effare.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Tiresia</word>
+		</line>
+		<line name="328" meter="G">
+			<word>Quid</word>
+			<word>fari</word>
+			<word>queam</word>
+		</line>
+		<line name="329" meter="G">
+			<word>Inter</word>
+			<word>tumultus</word>
+			<word>mentis</word>
+			<word>attonitae</word>
+			<word>uagus?</word>
+		</line>
+		<line name="330" meter="G">
+			<word>Quidnam</word>
+			<word>loquar?</word>
+			<word>sunt</word>
+			<word>dira,</word>
+			<word>sed</word>
+			<word>in</word>
+			<word>alto</word>
+			<word>mala;</word>
+		</line>
+		<line name="331" meter="G">
+			<word>Solet</word>
+			<word>ira</word>
+			<word>certis</word>
+			<word>numinum</word>
+			<word>ostendi</word>
+			<word>notis:</word>
+		</line>
+		<line name="332" meter="G">
+			<word>Quid</word>
+			<word>istud</word>
+			<word>est</word>
+			<word>quod</word>
+			<word>esse</word>
+			<word>prolatum</word>
+			<word>uolunt</word>
+		</line>
+		<line name="333" meter="G">
+			<word>Iterumque</word>
+			<word>nolunt</word>
+			<word>et</word>
+			<word>truces</word>
+			<word>iras</word>
+			<word>tegunt?</word>
+		</line>
+		<line name="334" meter="G">
+			<word>Pudet</word>
+			<word>deos</word>
+			<word>nescioquid.</word>
+			<word>Huc</word>
+			<word>propere</word>
+			<word>admoue</word>
+		</line>
+		<line name="335" meter="G">
+			<word>Et</word>
+			<word>sparge</word>
+			<word>salsa</word>
+			<word>colla</word>
+			<word>taurorum</word>
+			<word>mola.</word>
+		</line>
+		<line name="336" meter="G">
+			<word>Placidone</word>
+			<word>uultu</word>
+			<word>sacra</word>
+			<word>et</word>
+			<word>admotas</word>
+			<word>manus</word>
+		</line>
+		<line name="337" meter="G">
+			<word>Patiuntur?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Manto</word>
+		</line>
+		<line name="337" meter="G">
+			<word>Altum</word>
+			<word>taurus</word>
+			<word>attollens</word>
+			<word>caput</word>
+		</line>
+		<line name="338" meter="G">
+			<word>Primos</word>
+			<word>ad</word>
+			<word>ortus</word>
+			<word>positus</word>
+			<word>expauit</word>
+			<word>diem</word>
+		</line>
+		<line name="339" meter="G">
+			<word>Trepidusque</word>
+			<word>uultum</word>
+			<word>obliquat</word>
+			<word>et</word>
+			<word>radios</word>
+			<word>fugit.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Tiresia</word>
+		</line>
+		<line name="340" meter="G">
+			<word>Vnone</word>
+			<word>terram</word>
+			<word>uulnere</word>
+			<word>afflicti</word>
+			<word>petunt?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Manto</word>
+		</line>
+		<line name="341" meter="G">
+			<word>Iuuenca</word>
+			<word>ferro</word>
+			<word>semet</word>
+			<word>opposito</word>
+			<word>induit</word>
+		</line>
+		<line name="342" meter="G">
+			<word>Et</word>
+			<word>uulnere</word>
+			<word>uno</word>
+			<word>cecidit,</word>
+			<word>at</word>
+			<word>taurus</word>
+			<word>duos</word>
+		</line>
+		<line name="343" meter="G">
+			<word>Perpessus</word>
+			<word>ictus</word>
+			<word>huc</word>
+			<word>et</word>
+			<word>huc</word>
+			<word>dubius</word>
+			<word>ruit</word>
+		</line>
+		<line name="344" meter="G">
+			<word>Animamque</word>
+			<word>fessus</word>
+			<word>uix</word>
+			<word>reluctantem</word>
+			<word>exprimit.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Tiresia</word>
+		</line>
+		<line name="345" meter="G">
+			<word>Vtrum</word>
+			<word>citatus</word>
+			<word>uulnere</word>
+			<word>angusto</word>
+			<word>micat</word>
+		</line>
+		<line name="346" meter="G">
+			<word>An</word>
+			<word>lentus</word>
+			<word>altas</word>
+			<word>irrigat</word>
+			<word>plagas</word>
+			<word>cruor?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Manto</word>
+		</line>
+		<line name="347" meter="G">
+			<word>Huius</word>
+			<word>per</word>
+			<word>ipsam</word>
+			<word>qua</word>
+			<word>patet</word>
+			<word>pectus</word>
+			<word>uiam</word>
+		</line>
+		<line name="348" meter="G">
+			<word>Effusus</word>
+			<word>amnis,</word>
+			<word>huius</word>
+			<word>exiguo</word>
+			<word>graues</word>
+		</line>
+		<line name="349" meter="G">
+			<word>Maculantur</word>
+			<word>ictus</word>
+			<word>imbre;</word>
+			<word>sed</word>
+			<word>uersus</word>
+			<word>retro</word>
+		</line>
+		<line name="350" meter="G">
+			<word>Per</word>
+			<word>ora</word>
+			<word>multus</word>
+			<word>sanguis</word>
+			<word>atque</word>
+			<word>oculos</word>
+			<word>redit.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Tiresia</word>
+		</line>
+		<line name="351" meter="G">
+			<word>Infausta</word>
+			<word>magnos</word>
+			<word>sacra</word>
+			<word>terrores</word>
+			<word>cient.</word>
+		</line>
+		<line name="352" meter="G">
+			<word>Sed</word>
+			<word>ede</word>
+			<word>certas</word>
+			<word>uiscerum</word>
+			<word>nobis</word>
+			<word>notas.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Manto</word>
+		</line>
+		<line name="353" meter="G">
+			<word>Genitor,</word>
+			<word>quid</word>
+			<word>hoc</word>
+			<word>est?</word>
+			<word>non</word>
+			<word>leui</word>
+			<word>motu,</word>
+			<word>ut</word>
+			<word>solent,</word>
+		</line>
+		<line name="354" meter="G">
+			<word>Agitata</word>
+			<word>trepidant</word>
+			<word>exta,</word>
+			<word>sed</word>
+			<word>totas</word>
+			<word>manus</word>
+		</line>
+		<line name="355" meter="G">
+			<word>Quatiunt</word>
+			<word>nouusque</word>
+			<word>prosilit</word>
+			<word>uenis</word>
+			<word>cruor.</word>
+		</line>
+		<line name="356" meter="G">
+			<word>Cor</word>
+			<word>marcet</word>
+			<word>aegrum</word>
+			<word>penitus</word>
+			<word>ac</word>
+			<word>mersum</word>
+			<word>latet</word>
+		</line>
+		<line name="357" meter="G">
+			<word>Liuentque</word>
+			<word>uenae;</word>
+			<word>magna</word>
+			<word>pars</word>
+			<word>fibris</word>
+			<word>abest</word>
+		</line>
+		<line name="358" meter="G">
+			<word>Et</word>
+			<word>felle</word>
+			<word>nigro</word>
+			<word>tabidum</word>
+			<word>spumat</word>
+			<word>iecur,</word>
+		</line>
+		<line name="359" meter="G">
+			<word>Ac</word>
+			<word>(semper</word>
+			<word>omen</word>
+			<word>unico</word>
+			<word>imperio</word>
+			<word>graue)</word>
+		</line>
+		<line name="360" meter="G">
+			<word>En</word>
+			<word>capita</word>
+			<word>paribus</word>
+			<word>bina</word>
+			<word>consurgunt</word>
+			<word>toris;</word>
+		</line>
+		<line name="361" meter="G">
+			<word>Sed</word>
+			<word>utrumque</word>
+			<word>caesum</word>
+			<word>tenuis</word>
+			<word>abscondit</word>
+			<word>caput</word>
+		</line>
+		<line name="362" meter="G">
+			<word>Membrana</word>
+			<word>latebram</word>
+			<word>rebus</word>
+			<word>occultis</word>
+			<word>negans.</word>
+		</line>
+		<line name="363" meter="G">
+			<word>Hostile</word>
+			<word>ualido</word>
+			<word>robore</word>
+			<word>insurgit</word>
+			<word>latus</word>
+		</line>
+		<line name="364" meter="G">
+			<word>Septemque</word>
+			<word>uenas</word>
+			<word>tendit;</word>
+			<word>has</word>
+			<word>omnis</word>
+			<word>retro</word>
+		</line>
+		<line name="365" meter="G">
+			<word>Prohibens</word>
+			<word>reuerti</word>
+			<word>limes</word>
+			<word>oblicus</word>
+			<word>secat.</word>
+		</line>
+		<line name="366" meter="G">
+			<word>Mutatus</word>
+			<word>ordo</word>
+			<word>est,</word>
+			<word>sede</word>
+			<word>nil</word>
+			<word>propria</word>
+			<word>iacet,</word>
+		</line>
+		<line name="367" meter="G">
+			<word>Sed</word>
+			<word>acta</word>
+			<word>retro</word>
+			<word>cuncta:</word>
+			<word>non</word>
+			<word>animae</word>
+			<word>capax</word>
+		</line>
+		<line name="368" meter="G">
+			<word>In</word>
+			<word>parte</word>
+			<word>dextra</word>
+			<word>pulmo</word>
+			<word>sanguineus</word>
+			<word>iacet,</word>
+		</line>
+		<line name="369" meter="G">
+			<word>Non</word>
+			<word>laeua</word>
+			<word>cordi</word>
+			<word>regio,</word>
+			<word>non</word>
+			<word>molli</word>
+			<word>ambitu</word>
+		</line>
+		<line name="370" meter="G">
+			<word>Omenta</word>
+			<word>pingues</word>
+			<word>uisceri</word>
+			<word>obtendunt</word>
+			<word>sinus:</word>
+		</line>
+		<line name="371" meter="G">
+			<word>Natura</word>
+			<word>uersa</word>
+			<word>est;</word>
+			<word>nulla</word>
+			<word>lex</word>
+			<word>utero</word>
+			<word>manet.</word>
+		</line>
+		<line name="372" meter="G">
+			<word>Scrutemur,</word>
+			<word>unde</word>
+			<word>tantus</word>
+			<word>hic</word>
+			<word>extis</word>
+			<word>rigor.</word>
+		</line>
+		<line name="373" meter="G">
+			<word>Quod</word>
+			<word>hoc</word>
+			<word>nefas?</word>
+			<word>conceptus</word>
+			<word>innuptae</word>
+			<word>bouis,</word>
+		</line>
+		<line name="374" meter="G">
+			<word>Nec</word>
+			<word>more</word>
+			<word>solito</word>
+			<word>positus</word>
+			<word>alieno</word>
+			<word>in</word>
+			<word>loco,</word>
+		</line>
+		<line name="375" meter="G">
+			<word>Implet</word>
+			<word>parentem;</word>
+			<word>membra</word>
+			<word>cum</word>
+			<word>gemitu</word>
+			<word>mouet,</word>
+		</line>
+		<line name="376" meter="G">
+			<word>Rigore</word>
+			<word>tremulo</word>
+			<word>debiles</word>
+			<word>artus</word>
+			<word>micant;</word>
+		</line>
+		<line name="377" meter="G">
+			<word>Infecit</word>
+			<word>atras</word>
+			<word>liuidus</word>
+			<word>fibras</word>
+			<word>cruor</word>
+		</line>
+		<line name="378" meter="G">
+			<word>Temptantque</word>
+			<word>turpes</word>
+			<word>mobilem</word>
+			<word>trunci</word>
+			<word>gradum,</word>
+		</line>
+		<line name="379" meter="G">
+			<word>Et</word>
+			<word>inane</word>
+			<word>surgit</word>
+			<word>corpus</word>
+			<word>ac</word>
+			<word>sacros</word>
+			<word>petit</word>
+		</line>
+		<line name="380" meter="G">
+			<word>Cornu</word>
+			<word>ministros;</word>
+			<word>uiscera</word>
+			<word>effugiunt</word>
+			<word>manum.</word>
+		</line>
+		<line name="381" meter="G">
+			<word>Neque</word>
+			<word>ista,</word>
+			<word>quae</word>
+			<word>te</word>
+			<word>pepulit,</word>
+			<word>armenti</word>
+			<word>grauis</word>
+		</line>
+		<line name="382" meter="G">
+			<word>Vox</word>
+			<word>est</word>
+			<word>nec</word>
+			<word>usquam</word>
+			<word>territi</word>
+			<word>resonant</word>
+			<word>greges:</word>
+		</line>
+		<line name="383" meter="G">
+			<word>Immugit</word>
+			<word>aris</word>
+			<word>ignis</word>
+			<word>et</word>
+			<word>trepidant</word>
+			<word>foci.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="384" meter="G">
+			<word>Quid</word>
+			<word>ista</word>
+			<word>sacri</word>
+			<word>signa</word>
+			<word>terrifici</word>
+			<word>ferant,</word>
+		</line>
+		<line name="385" meter="G">
+			<word>Exprome;</word>
+			<word>uoces</word>
+			<word>aure</word>
+			<word>non</word>
+			<word>timida</word>
+			<word>hauriam:</word>
+		</line>
+		<line name="386" meter="G">
+			<word>Solent</word>
+			<word>suprema</word>
+			<word>facere</word>
+			<word>securos</word>
+			<word>mala.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Ti</word>
+		</line>
+		<line name="387" meter="G">
+			<word>His</word>
+			<word>inuidebis</word>
+			<word>quibus</word>
+			<word>opem</word>
+			<word>quaeris</word>
+			<word>malis.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="388" meter="G">
+			<word>Memora</word>
+			<word>quod</word>
+			<word>unum</word>
+			<word>scire</word>
+			<word>caelicolae</word>
+			<word>uolunt,</word>
+		</line>
+		<line name="389" meter="G">
+			<word>Contaminarit</word>
+			<word>rege</word>
+			<word>quis</word>
+			<word>caeso</word>
+			<word>manus.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Tiresia</word>
+		</line>
+		<line name="390" meter="G">
+			<word>Nec</word>
+			<word>alta</word>
+			<word>caeli</word>
+			<word>quae</word>
+			<word>leui</word>
+			<word>pinna</word>
+			<word>secant</word>
+		</line>
+		<line name="391" meter="G">
+			<word>Nec</word>
+			<word>fibra</word>
+			<word>uiuis</word>
+			<word>rapta</word>
+			<word>pectoribus</word>
+			<word>potest</word>
+		</line>
+		<line name="392" meter="G">
+			<word>Ciere</word>
+			<word>nomen;</word>
+			<word>alia</word>
+			<word>temptanda</word>
+			<word>est</word>
+			<word>uia:</word>
+		</line>
+		<line name="393" meter="G">
+			<word>Ipse</word>
+			<word>euocandus</word>
+			<word>noctis</word>
+			<word>aeternae</word>
+			<word>plagis,</word>
+		</line>
+		<line name="394" meter="G">
+			<word>Emissus</word>
+			<word>Erebo</word>
+			<word>ut</word>
+			<word>caedis</word>
+			<word>auctorem</word>
+			<word>indicet.</word>
+		</line>
+		<line name="395" meter="G">
+			<word>Reseranda</word>
+			<word>tellus,</word>
+			<word>Ditis</word>
+			<word>implacabile</word>
+		</line>
+		<line name="396" meter="G">
+			<word>Numen</word>
+			<word>precandum,</word>
+			<word>populus</word>
+			<word>infernae</word>
+			<word>Stygis</word>
+		</line>
+		<line name="397" meter="G">
+			<word>Huc</word>
+			<word>extrahendus:</word>
+			<word>ede</word>
+			<word>cui</word>
+			<word>mandes</word>
+			<word>sacrum;</word>
+		</line>
+		<line name="398" meter="G">
+			<word>Nam</word>
+			<word>te,</word>
+			<word>penes</word>
+			<word>quem</word>
+			<word>summa</word>
+			<word>regnorum,</word>
+			<word>nefas</word>
+		</line>
+		<line name="399" meter="G">
+			<word>Inuisere</word>
+			<word>umbras.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="399" meter="G">
+			<word>Te,</word>
+			<word>Creo,</word>
+			<word>hic</word>
+			<word>poscit</word>
+			<word>labor,</word>
+		</line>
+		<line name="400" meter="G">
+			<word>Ad</word>
+			<word>quem</word>
+			<word>secundum</word>
+			<word>regna</word>
+			<word>respiciunt</word>
+			<word>mea.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Tiresia</word>
+		</line>
+		<line name="401" meter="G">
+			<word>Dum</word>
+			<word>nos</word>
+			<word>profundae</word>
+			<word>claustra</word>
+			<word>laxamus</word>
+			<word>Stygis,</word>
+		</line>
+		<line name="402" meter="G">
+			<word>Populare</word>
+			<word>Bacchi</word>
+			<word>laudibus</word>
+			<word>carmen</word>
+			<word>sonet.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Chorus</word>
+		</line>
+		<line name="403" meter="H" pattern="SDDS">
+			<word sy="1A1T2A" wb="CM">Effusam</word>
+			<word sy="2b2c3A3b" wb="CF">redimite</word>
+			<word sy="3c4A" wb="CM">comam</word>
+			<word sy="4T5A5b" wb="CF">nutante</word>
+			<word sy="5c6A6X">corymbo,</word>
+		</line>
+		<line name="404" meter="H" pattern="DSSS">
+			<word sy="1A1b1c" wb="DI">Mollia</word>
+			<word sy="2A2T3A" wb="CM">Nysaeis</word>
+			<word sy="3T4A4T" wb="DI">armatus</word>
+			<word sy="5A5b5c" wb="DI">bracchia</word>
+			<word sy="6A6X">thyrsis,</word>
+		</line>
+		<line name="405" meter="S">
+			<word>Lucidum</word>
+			<word>caeli</word>
+			<word>decus.</word>
+			<word>huc</word>
+			<word>ades</word>
+		</line>
+		<line name="406" meter="O">
+			<word>Votis,</word>
+			<word>quae</word>
+			<word>tibi</word>
+			<word>nobiles</word>
+		</line>
+		<line name="407" meter="O">
+			<word>Thebae,</word>
+			<word>Bacche,</word>
+			<word>tuae</word>
+		</line>
+		<line name="407bis" meter="O">
+			<word>Palmis</word>
+			<word>supplicibus</word>
+			<word>ferunt.</word>
+		</line>
+		<line name="408" meter="D">
+			<word>Huc</word>
+			<word>aduerte</word>
+			<word>fauens</word>
+			<word>uirgineum</word>
+			<word>caput,</word>
+		</line>
+		<line name="409" meter="D">
+			<word>Vultu</word>
+			<word>sidereo</word>
+			<word>discute</word>
+			<word>nubila</word>
+		</line>
+		<line name="410" meter="O">
+			<word>Et</word>
+			<word>tristes</word>
+			<word>Erebi</word>
+			<word>minas</word>
+		</line>
+		<line name="411" meter="V">
+			<word>Auidumque</word>
+			<word>fatum.</word>
+		</line>
+		<line name="412" meter="V">
+			<word>Te</word>
+			<word>decet</word>
+			<word>cingi</word>
+			<word>comam</word>
+			<word>floribus</word>
+			<word>uernis,</word>
+		</line>
+		<line name="413" meter="S">
+			<word>Te</word>
+			<word>caput</word>
+			<word>Tyria</word>
+			<word>cohibere</word>
+			<word>mitra</word>
+		</line>
+		<line name="414" meter="V">
+			<word>Hederaue</word>
+			<word>mollem</word>
+		</line>
+		<line name="415" meter="L">
+			<word>Bacifera</word>
+			<word>religare</word>
+			<word>frontem,</word>
+		</line>
+		<line name="416" meter="S2">
+			<word>Spargere</word>
+			<word>effusos</word>
+			<word>sine</word>
+			<word>lege</word>
+			<word>crines,</word>
+		</line>
+		<line name="417" meter="S2">
+			<word>Rursus</word>
+			<word>adducto</word>
+			<word>reuocare</word>
+			<word>nodo,</word>
+		</line>
+		<line name="418" meter="S2">
+			<word>Qualis</word>
+			<word>iratam</word>
+			<word>metuens</word>
+			<word>nouercam</word>
+		</line>
+		<line name="419" meter="S2">
+			<word>Creueras</word>
+			<word>falsos</word>
+			<word>imitatus</word>
+			<word>artus,</word>
+		</line>
+		<line name="420" meter="S2">
+			<word>Crine</word>
+			<word>flauenti</word>
+			<word>simulata</word>
+			<word>uirgo,</word>
+		</line>
+		<line name="421" meter="S2">
+			<word>Lutea</word>
+			<word>uestem</word>
+			<word>retinente</word>
+			<word>zona:</word>
+		</line>
+		<line name="422" meter="S2">
+			<word>Inde</word>
+			<word>tam</word>
+			<word>molles</word>
+			<word>placuere</word>
+			<word>cultus</word>
+		</line>
+		<line name="423" meter="S2">
+			<word>Et</word>
+			<word>sinus</word>
+			<word>laxi</word>
+			<word>fluidumque</word>
+			<word>syrma.</word>
+		</line>
+		<line name="424" meter="S2">
+			<word>Vidit</word>
+			<word>aurato</word>
+			<word>residere</word>
+			<word>curru</word>
+		</line>
+		<line name="425" meter="S2">
+			<word>Veste</word>
+			<word>cum</word>
+			<word>longa</word>
+			<word>regere</word>
+			<word>et</word>
+			<word>leones</word>
+		</line>
+		<line name="426" meter="S2">
+			<word>Omnis</word>
+			<word>Eoae</word>
+			<word>plaga</word>
+			<word>uasta</word>
+			<word>terrae,</word>
+		</line>
+		<line name="427" meter="S2">
+			<word>Qui</word>
+			<word>bibit</word>
+			<word>Gangen</word>
+			<word>niueumque</word>
+			<word>quisquis</word>
+		</line>
+		<line name="428" meter="A">
+			<word>Frangit</word>
+			<word>Araxen.</word>
+		</line>
+		<line name="429" meter="H" pattern="DSDS">
+			<word sy="1A" wb="CM">Te</word>
+			<word sy="1b1c2A" wb="CM">senior</word>
+			<word sy="2T3A" wb="CM">turpi</word>
+			<word sy="3b3c4A" wb="CM">sequitur</word>
+			<word sy="4T5A5b" wb="CF">Silenus</word>
+			<word sy="5c6A6X">asello,</word>
+		</line>
+		<line name="430" meter="H" pattern="DDDS">
+			<word sy="1A1b1c" wb="DI">Turgida</word>
+			<word sy="2A2b2c3A" wb="CM">pampineis</word>
+			<word sy="3b3c4A4T" wb="DI">redimitus</word>
+			<word sy="5A5b5c" wb="DI">tempora</word>
+			<word sy="6A6X">sertis;</word>
+		</line>
+		<line name="431" meter="H" pattern="DSSS">
+			<word sy="1A1b1c" wb="DI">Condita</word>
+			<word sy="2A2T3A" wb="CM">lasciui</word>
+			<word sy="3T4A4T" wb="DI">deducunt</word>
+			<word sy="5A5b5c" wb="DI">orgia</word>
+			<word sy="6A6X">mystae.</word>
+		</line>
+		<line name="432" meter="Y">
+			<word>Te</word>
+			<word>Bassaridum</word>
+			<word>comitata</word>
+			<word>cohors</word>
+		</line>
+		<line name="433" meter="Y">
+			<word>Nunc</word>
+			<word>Edono</word>
+			<word>pede</word>
+			<word>pulsauit</word>
+		</line>
+		<line name="434" meter="Y">
+			<word>Sola</word>
+			<word>Pangaeo,</word>
+		</line>
+		<line name="435" meter="Y">
+			<word>Nunc</word>
+			<word>Threicio</word>
+			<word>uertice</word>
+			<word>Pindi;</word>
+		</line>
+		<line name="436" meter="Y">
+			<word>Nunc</word>
+			<word>Cadmeas</word>
+			<word>inter</word>
+			<word>matres</word>
+		</line>
+		<line name="436bis" meter="Y">
+			<word>Impia</word>
+			<word>maenas</word>
+		</line>
+		<line name="437" meter="Y">
+			<word>Comes</word>
+			<word>Ogygio</word>
+			<word>uenit</word>
+			<word>Iaccho,</word>
+		</line>
+		<line name="438" meter="Y">
+			<word>Nebride</word>
+			<word>sacra</word>
+			<word>praecincta</word>
+			<word>latus.</word>
+		</line>
+		<line name="439" meter="Y">
+			<word>Tibi</word>
+			<word>commotae</word>
+			<word>pectora</word>
+			<word>matres</word>
+		</line>
+		<line name="440" meter="Y">
+			<word>Fudere</word>
+			<word>comam</word>
+		</line>
+		<line name="441" meter="Y">
+			<word>Thyrsumque</word>
+			<word>leuem</word>
+			<word>uibrante</word>
+			<word>manu</word>
+		</line>
+		<line name="441bis" meter="Y">
+			<word>*</word>
+			<word>*</word>
+			<word>*</word>
+			<word>*</word>
+			<word>*</word>
+		</line>
+		<line name="442" meter="Y">
+			<word>Iam</word>
+			<word>post</word>
+			<word>laceros</word>
+			<word>Pentheos</word>
+			<word>artus</word>
+		</line>
+		<line name="443" meter="Y">
+			<word>Thyades</word>
+			<word>oestro</word>
+			<word>membra</word>
+			<word>remissae</word>
+		</line>
+		<line name="444" meter="Y">
+			<word>Velut</word>
+			<word>ignotum</word>
+			<word>uidere</word>
+			<word>nefas.</word>
+		</line>
+		<line name="445" meter="H" pattern="SDDS">
+			<word sy="1A1T" wb="DI">Ponti</word>
+			<word sy="2A2b" wb="CF">regna</word>
+			<word sy="2c3A" wb="CM">tenet</word>
+			<word sy="3b3c4A" wb="CM">nitidi</word>
+			<word sy="4T5A5b5c" wb="DI">matertera</word>
+			<word sy="6A6X">Bacchi</word>
+		</line>
+		<line name="446" meter="H" pattern="DDSD">
+			<word sy="1A1b1c2A2b" wb="CF">Nereidumque</word>
+			<word sy="2c3A" wb="CM">choris</word>
+			<word sy="3T4A4b4c" wb="DI">Cadmeia</word>
+			<word sy="5A5b5c" wb="DI">cingitur</word>
+			<word sy="6A6X">Ino;</word>
+		</line>
+		<line name="447" meter="H" pattern="DSSD">
+			<word sy="1A" wb="CM">Ius</word>
+			<word sy="1b1c" wb="DI">habet</word>
+			<word sy="2A" wb="CM">in</word>
+			<word sy="2T3A" wb="CM">fluctus</word>
+			<word sy="3T4A" wb="CM">magni</word>
+			<word sy="4b4c" wb="DI">puer</word>
+			<word sy="5A5b5c" wb="DI">aduena</word>
+			<word sy="6A6X">ponti,</word>
+		</line>
+		<line name="448" meter="H" pattern="SSSS">
+			<word sy="1A1T2A" wb="CM">Cognatus</word>
+			<word sy="2T3A" wb="CM">Bacchi,</word>
+			<word sy="3T4A" wb="CM">numen</word>
+			<word sy="4T" wb="DI">non</word>
+			<word sy="5A5b" wb="CF">uile</word>
+			<word sy="5c6A6X">Palaemon.</word>
+		</line>
+		<line name="449" meter="V">
+			<word>Te</word>
+			<word>Tyrrhena,</word>
+			<word>puer,</word>
+			<word>rapuit</word>
+			<word>manus,</word>
+		</line>
+		<line name="450" meter="V">
+			<word>Et</word>
+			<word>tumidum</word>
+			<word>Nereus</word>
+			<word>posuit</word>
+			<word>mare,</word>
+		</line>
+		<line name="451" meter="V">
+			<word>Caerula</word>
+			<word>cum</word>
+			<word>pratis</word>
+			<word>mutat</word>
+			<word>freta:</word>
+		</line>
+		<line name="452" meter="V">
+			<word>Hinc</word>
+			<word>uerno</word>
+			<word>platanus</word>
+			<word>folio</word>
+			<word>uiret</word>
+		</line>
+		<line name="453" meter="V">
+			<word>Et</word>
+			<word>Phoebo</word>
+			<word>laurus</word>
+			<word>carum</word>
+			<word>nemus;</word>
+		</line>
+		<line name="454" meter="V">
+			<word>Garrula</word>
+			<word>per</word>
+			<word>ramos</word>
+			<word>auis</word>
+			<word>obstrepit;</word>
+		</line>
+		<line name="455" meter="V">
+			<word>Viuaces</word>
+			<word>hederas</word>
+			<word>remus</word>
+			<word>tenet,</word>
+		</line>
+		<line name="456" meter="V">
+			<word>Summa</word>
+			<word>ligat</word>
+			<word>uitis</word>
+			<word>carchesia.</word>
+		</line>
+		<line name="457" meter="V">
+			<word>Idaeus</word>
+			<word>prora</word>
+			<word>fremuit</word>
+			<word>leo,</word>
+		</line>
+		<line name="458" meter="V">
+			<word>Tigris</word>
+			<word>puppe</word>
+			<word>sedet</word>
+			<word>Gangetica.</word>
+		</line>
+		<line name="459" meter="V">
+			<word>Tum</word>
+			<word>pirata</word>
+			<word>freto</word>
+			<word>pauidus</word>
+			<word>natat,</word>
+		</line>
+		<line name="460" meter="V">
+			<word>Et</word>
+			<word>noua</word>
+			<word>demersos</word>
+			<word>facies</word>
+			<word>habet:</word>
+		</line>
+		<line name="461" meter="V">
+			<word>Bracchia</word>
+			<word>prima</word>
+			<word>cadunt</word>
+			<word>praedonibus</word>
+		</line>
+		<line name="462" meter="V">
+			<word>Inlisumque</word>
+			<word>utero</word>
+			<word>pectus</word>
+			<word>coit,</word>
+		</line>
+		<line name="463" meter="V">
+			<word>Paruula</word>
+			<word>dependet</word>
+			<word>lateri</word>
+			<word>manus,</word>
+		</line>
+		<line name="464" meter="V">
+			<word>Et</word>
+			<word>dorso</word>
+			<word>fluctum</word>
+			<word>curuo</word>
+			<word>subit,</word>
+		</line>
+		<line name="465" meter="V">
+			<word>Lunata</word>
+			<word>scindit</word>
+			<word>cauda</word>
+			<word>mare:</word>
+		</line>
+		<line name="466" meter="V">
+			<word>Et</word>
+			<word>sequitur</word>
+			<word>curuus</word>
+			<word>fugientia</word>
+		</line>
+		<line name="466bis" meter="V">
+			<word>Carbasa</word>
+			<word>delphin.</word>
+		</line>
+		<line name="467" meter="H" pattern="DSSS">
+			<word sy="1A1b1c" wb="DI">Diuite</word>
+			<word sy="2A2T3A" wb="CM">Pactolos</word>
+			<word sy="3T4A" wb="CM">uexit</word>
+			<word sy="4T" wb="DI">te</word>
+			<word sy="5A5b5c" wb="DI">Lydius</word>
+			<word sy="6A6X">unda,</word>
+		</line>
+		<line name="468" meter="H" pattern="DSSS">
+			<word sy="1A1b1c" wb="DI">Aurea</word>
+			<word sy="2A2T3A" wb="CM">torrenti</word>
+			<word sy="3T4A4T" wb="DI">deducens</word>
+			<word sy="5A5b5c" wb="DI">flumina</word>
+			<word sy="6A6X">ripa;</word>
+		</line>
+		<line name="469" meter="H" pattern="SSSD">
+			<word sy="1A1T2A" wb="CM">Laxauit</word>
+			<word sy="2T3A" wb="CM">uictos</word>
+			<word sy="3T4A" wb="CM">arcus</word>
+			<word sy="4b4c5A5b" wb="CF">Geticasque</word>
+			<word sy="5c6A6X">sagittas</word>
+		</line>
+		<line name="470" meter="H" pattern="DDSD">
+			<word sy="1A1b1c" wb="DI">Lactea</word>
+			<word sy="2A2b2c3A" wb="CM">Massagetes</word>
+			<word sy="3T" wb="DI">qui</word>
+			<word sy="4A4b4c" wb="DI">pocula</word>
+			<word sy="5A5b5c" wb="DI">sanguine</word>
+			<word sy="6A6X">miscet;</word>
+		</line>
+		<line name="471" meter="H" pattern="DDSS">
+			<word sy="1A1b" wb="CF">Regna</word>
+			<word sy="1c2A2b2c3A" wb="CM">securigeri</word>
+			<word sy="3T4A" wb="CM">Bacchum</word>
+			<word sy="4T5A5b" wb="CF">sensere</word>
+			<word sy="5c6A6X">Lycurgi,</word>
+		</line>
+		<line name="472" meter="V">
+			<word>Sensere</word>
+			<word>terrae</word>
+			<word>†</word>
+			<word>Zalacum</word>
+			<word>feroces</word>
+		</line>
+		<line name="473" meter="V">
+			<word>Et</word>
+			<word>quos</word>
+			<word>uicinus</word>
+			<word>Boreas</word>
+			<word>ferit</word>
+		</line>
+		<line name="474" meter="O">
+			<word>Arua</word>
+			<word>mutantes</word>
+			<word>quasque</word>
+			<word>Maeotis</word>
+		</line>
+		<line name="475" meter="O">
+			<word>Alluit</word>
+			<word>gentes</word>
+			<word>frigido</word>
+			<word>fluctu</word>
+		</line>
+		<line name="476" meter="V">
+			<word>Quasque</word>
+			<word>despectat</word>
+			<word>uertice</word>
+			<word>e</word>
+			<word>summo</word>
+		</line>
+		<line name="477" meter="S">
+			<word>Sidus</word>
+			<word>Arcadium</word>
+			<word>geminumque</word>
+			<word>plaustrum.</word>
+		</line>
+		<line name="478" meter="S">
+			<word>Ille</word>
+			<word>dispersos</word>
+			<word>domuit</word>
+			<word>Gelonos,</word>
+		</line>
+		<line name="479" meter="S">
+			<word>Arma</word>
+			<word>detraxit</word>
+			<word>trucibus</word>
+			<word>puellis:</word>
+		</line>
+		<line name="480" meter="S">
+			<word>Ore</word>
+			<word>deiecto</word>
+			<word>petiere</word>
+			<word>terram</word>
+		</line>
+		<line name="481" meter="O">
+			<word>Thermodontiacae</word>
+			<word>cateruae,</word>
+		</line>
+		<line name="482" meter="O">
+			<word>Positisque</word>
+			<word>tandem</word>
+			<word>leuibus</word>
+			<word>sagittis</word>
+		</line>
+		<line name="483" meter="V">
+			<word>Maenades</word>
+			<word>factae.</word>
+		</line>
+		<line name="484" meter="O">
+			<word>Sacer</word>
+			<word>Cithaeron</word>
+			<word>sanguine</word>
+			<word>undauit</word>
+		</line>
+		<line name="485" meter="O">
+			<word>Ophioniaque</word>
+			<word>caede;</word>
+		</line>
+		<line name="486" meter="S">
+			<word>Proetides</word>
+			<word>siluas</word>
+			<word>petiere,</word>
+			<word>et</word>
+			<word>Argos</word>
+		</line>
+		<line name="487" meter="O">
+			<word>Praesente</word>
+			<word>Bacchum</word>
+			<word>coluit</word>
+			<word>nouerca.</word>
+		</line>
+		<line name="488" meter="S">
+			<word>Naxos</word>
+			<word>Aegaeo</word>
+			<word>redimita</word>
+			<word>ponto</word>
+		</line>
+		<line name="489" meter="O">
+			<word>Tradidit</word>
+			<word>thalamis</word>
+			<word>uirginem</word>
+			<word>relictam</word>
+		</line>
+		<line name="490" meter="O">
+			<word>Meliore</word>
+			<word>pensans</word>
+			<word>damna</word>
+			<word>marito:</word>
+		</line>
+		<line name="491" meter="V">
+			<word>Pumice</word>
+			<word>ex</word>
+			<word>sicco</word>
+		</line>
+		<line name="492" meter="O">
+			<word>Fluxit</word>
+			<word>Nyctelius</word>
+			<word>latex;</word>
+		</line>
+		<line name="493" meter="S">
+			<word>Garruli</word>
+			<word>gramen</word>
+			<word>secuere</word>
+			<word>riui,</word>
+		</line>
+		<line name="494" meter="S">
+			<word>Conbibit</word>
+			<word>dulces</word>
+			<word>humus</word>
+			<word>alta</word>
+			<word>sucos</word>
+		</line>
+		<line name="495" meter="V">
+			<word>Niueique</word>
+			<word>lactis</word>
+			<word>candidos</word>
+			<word>fontes</word>
+		</line>
+		<line name="496" meter="L">
+			<word>Et</word>
+			<word>mixta</word>
+			<word>odoro</word>
+			<word>Lesbia</word>
+			<word>cum</word>
+			<word>thymo.</word>
+		</line>
+		<line name="497" meter="S">
+			<word>Ducitur</word>
+			<word>magno</word>
+			<word>noua</word>
+			<word>nupta</word>
+			<word>caelo:</word>
+		</line>
+		<line name="498" meter="V">
+			<word>Sollemne</word>
+			<word>Phoebus</word>
+		</line>
+		<line name="499" meter="S">
+			<word>Carmen</word>
+			<word>infusis</word>
+			<word>humero</word>
+			<word>capillis</word>
+		</line>
+		<line name="500" meter="O">
+			<word>Cantat</word>
+			<word>et</word>
+			<word>geminus</word>
+			<word>Cupido</word>
+		</line>
+		<line name="500bis" meter="V">
+			<word>Concutit</word>
+			<word>taedas;</word>
+		</line>
+		<line name="501" meter="D">
+			<word>Telum</word>
+			<word>deposuit</word>
+			<word>Iuppiter</word>
+			<word>igneum</word>
+		</line>
+		<line name="502" meter="O">
+			<word>Conditque</word>
+			<word>Baccho</word>
+			<word>ueniente</word>
+			<word>fulmen.</word>
+		</line>
+		<line name="503" meter="H" pattern="DSSS">
+			<word sy="1A1b1c" wb="DI">Lucida</word>
+			<word sy="2A" wb="CM">dum</word>
+			<word sy="2T3A" wb="CM">current</word>
+			<word sy="3T4A4T" wb="DI">annosi</word>
+			<word sy="5A5b5c" wb="DI">sidera</word>
+			<word sy="6A6X">mundi,</word>
+		</line>
+		<line name="504" meter="H" pattern="DSSD">
+			<word sy="1A1b1c2A" wb="CM">Oceanus</word>
+			<word sy="2T3A" wb="CM">clausum</word>
+			<word sy="3T" wb="DI">dum</word>
+			<word sy="4A4b4c" wb="DI">fluctibus</word>
+			<word sy="5A5b5c" wb="DI">ambiet</word>
+			<word sy="6A6X">orbem</word>
+		</line>
+		<line name="505" meter="H" pattern="DSSD">
+			<word sy="1A1b1c" wb="DI">Lunaque</word>
+			<word sy="2A2T3A" wb="CM">dimissos</word>
+			<word sy="3T" wb="DI">dum</word>
+			<word sy="4A4b" wb="CF">plena</word>
+			<word sy="4c5A5b5c" wb="DI">recolliget</word>
+			<word sy="6A6X">ignes,</word>
+		</line>
+		<line name="506" meter="H" pattern="SSSS">
+			<word sy="1A" wb="CM">Dum</word>
+			<word sy="1T2A2T3A" wb="CM">matutinos</word>
+			<word sy="3T4A4T" wb="DI">praedicet</word>
+			<word sy="5A5b5c" wb="DI">Lucifer</word>
+			<word sy="6A6X">ortus</word>
+		</line>
+		<line name="507" meter="H" pattern="DDSD">
+			<word sy="1A1b1c" wb="DI">Altaque</word>
+			<word sy="2A2b2c3A" wb="CM">caeruleum</word>
+			<word sy="3T" wb="DI">dum</word>
+			<word sy="4A4b4c" wb="DI">Nerea</word>
+			<word sy="5A5b5c" wb="DI">nesciet</word>
+			<word sy="6A6X">Arctos,</word>
+		</line>
+		<line name="508" meter="H" pattern="DSDD">
+			<word sy="1A1b1c" wb="DI">Candida</word>
+			<word sy="2A2T3A" wb="CM">formosi</word>
+			<word sy="3b3c4A4b4c" wb="DI">uenerabimur</word>
+			<word sy="5A5b" wb="CF">ora</word>
+			<word sy="5c6A6X">Lyaei.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="509" meter="G">
+			<word>Etsi</word>
+			<word>ipse</word>
+			<word>uultus</word>
+			<word>flebiles</word>
+			<word>praefert</word>
+			<word>notas,</word>
+		</line>
+		<line name="510" meter="G">
+			<word>Exprome</word>
+			<word>cuius</word>
+			<word>capite</word>
+			<word>placemus</word>
+			<word>deos.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Creo</word>
+		</line>
+		<line name="511" meter="G">
+			<word>Fari</word>
+			<word>iubes</word>
+			<word>tacere</word>
+			<word>quae</word>
+			<word>suadet</word>
+			<word>metus.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="512" meter="G">
+			<word>Si</word>
+			<word>te</word>
+			<word>ruentes</word>
+			<word>non</word>
+			<word>satis</word>
+			<word>Thebae</word>
+			<word>mouent,</word>
+		</line>
+		<line name="513" meter="G">
+			<word>At</word>
+			<word>sceptra</word>
+			<word>moueant</word>
+			<word>lapsa</word>
+			<word>cognatae</word>
+			<word>domus.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Creo</word>
+		</line>
+		<line name="514" meter="G">
+			<word>Nescisse</word>
+			<word>cupies</word>
+			<word>nosse</word>
+			<word>quae</word>
+			<word>nimium</word>
+			<word>expetis.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="515" meter="G">
+			<word>Iners</word>
+			<word>malorum</word>
+			<word>remedium</word>
+			<word>ignorantia</word>
+			<word>est.</word>
+		</line>
+		<line name="516" meter="G">
+			<word>Itane</word>
+			<word>et</word>
+			<word>salutis</word>
+			<word>publicae</word>
+			<word>indicium</word>
+			<word>obrues?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Creo</word>
+		</line>
+		<line name="517" meter="G">
+			<word>Vbi</word>
+			<word>turpis</word>
+			<word>est</word>
+			<word>medicina,</word>
+			<word>sanari</word>
+			<word>piget.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="518" meter="G">
+			<word>Audita</word>
+			<word>fare,</word>
+			<word>uel</word>
+			<word>malo</word>
+			<word>domitus</word>
+			<word>graui</word>
+		</line>
+		<line name="519" meter="G">
+			<word>Quid</word>
+			<word>arma</word>
+			<word>possint</word>
+			<word>regis</word>
+			<word>irati</word>
+			<word>scies.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Creo</word>
+		</line>
+		<line name="520" meter="G">
+			<word>Odere</word>
+			<word>reges</word>
+			<word>dicta</word>
+			<word>quae</word>
+			<word>dici</word>
+			<word>iubent.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="521" meter="G">
+			<word>Mitteris</word>
+			<word>Erebo</word>
+			<word>uile</word>
+			<word>pro</word>
+			<word>cunctis</word>
+			<word>caput,</word>
+		</line>
+		<line name="522" meter="G">
+			<word>Arcana</word>
+			<word>sacri</word>
+			<word>uoce</word>
+			<word>ni</word>
+			<word>retegis</word>
+			<word>tua.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Creo</word>
+		</line>
+		<line name="523" meter="G">
+			<word>Tacere</word>
+			<word>liceat.</word>
+			<word>ulla</word>
+			<word>libertas</word>
+			<word>minor</word>
+		</line>
+		<line name="524" meter="G">
+			<word>A</word>
+			<word>rege</word>
+			<word>petitur?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="524" meter="G">
+			<word>Saepe</word>
+			<word>uel</word>
+			<word>lingua</word>
+			<word>magis</word>
+		</line>
+		<line name="525" meter="G">
+			<word>Regi</word>
+			<word>atque</word>
+			<word>regno</word>
+			<word>muta</word>
+			<word>libertas</word>
+			<word>obest.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Creo</word>
+		</line>
+		<line name="526" meter="G">
+			<word>Vbi</word>
+			<word>non</word>
+			<word>licet</word>
+			<word>tacere,</word>
+			<word>quid</word>
+			<word>cuiquam</word>
+			<word>licet?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="527" meter="G">
+			<word>Imperia</word>
+			<word>soluit</word>
+			<word>qui</word>
+			<word>tacet</word>
+			<word>iussus</word>
+			<word>loqui.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Creo</word>
+		</line>
+		<line name="528" meter="G">
+			<word>Coacta</word>
+			<word>uerba</word>
+			<word>placidus</word>
+			<word>accipias</word>
+			<word>precor.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="529" meter="G">
+			<word>Vlline</word>
+			<word>poena</word>
+			<word>uocis</word>
+			<word>expressae</word>
+			<word>fuit?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Creo</word>
+		</line>
+		<line name="530" meter="G">
+			<word>Est</word>
+			<word>procul</word>
+			<word>ab</word>
+			<word>urbe</word>
+			<word>lucus</word>
+			<word>ilicibus</word>
+			<word>niger</word>
+		</line>
+		<line name="531" meter="G">
+			<word>Dircaea</word>
+			<word>circa</word>
+			<word>uallis</word>
+			<word>inriguae</word>
+			<word>loca.</word>
+		</line>
+		<line name="532" meter="G">
+			<word>Cupressus</word>
+			<word>altis</word>
+			<word>exerens</word>
+			<word>siluis</word>
+			<word>caput</word>
+		</line>
+		<line name="533" meter="G">
+			<word>Virente</word>
+			<word>semper</word>
+			<word>alligat</word>
+			<word>trunco</word>
+			<word>nemus,</word>
+		</line>
+		<line name="534" meter="G">
+			<word>Curuosque</word>
+			<word>tendit</word>
+			<word>quercus</word>
+			<word>et</word>
+			<word>putres</word>
+			<word>situ</word>
+		</line>
+		<line name="535" meter="G">
+			<word>Annosa</word>
+			<word>ramos:</word>
+			<word>huius</word>
+			<word>abrupit</word>
+			<word>latus</word>
+		</line>
+		<line name="536" meter="G">
+			<word>Edax</word>
+			<word>uetustas;</word>
+			<word>illa,</word>
+			<word>iam</word>
+			<word>fessa</word>
+			<word>cadens</word>
+		</line>
+		<line name="537" meter="G">
+			<word>Radice,</word>
+			<word>fulta</word>
+			<word>pendet</word>
+			<word>aliena</word>
+			<word>trabe.</word>
+		</line>
+		<line name="537bis" meter="G">
+			<word>*</word>
+			<word>*</word>
+			<word>*</word>
+			<word>*</word>
+			<word>*</word>
+			<word>*</word>
+		</line>
+		<line name="538" meter="G">
+			<word>Amara</word>
+			<word>bacas</word>
+			<word>laurus</word>
+			<word>et</word>
+			<word>tiliae</word>
+			<word>leues</word>
+		</line>
+		<line name="539" meter="G">
+			<word>Et</word>
+			<word>Paphia</word>
+			<word>myrtus</word>
+			<word>et</word>
+			<word>per</word>
+			<word>immensum</word>
+			<word>mare</word>
+		</line>
+		<line name="540" meter="G">
+			<word>Motura</word>
+			<word>remos</word>
+			<word>alnus</word>
+			<word>et</word>
+			<word>Phoebo</word>
+			<word>obuia</word>
+		</line>
+		<line name="541" meter="G">
+			<word>Enode</word>
+			<word>Zephyris</word>
+			<word>pinus</word>
+			<word>opponens</word>
+			<word>latus.</word>
+		</line>
+		<line name="542" meter="G">
+			<word>Medio</word>
+			<word>stat</word>
+			<word>ingens</word>
+			<word>arbor</word>
+			<word>atque</word>
+			<word>umbra</word>
+			<word>graui</word>
+		</line>
+		<line name="543" meter="G">
+			<word>Siluas</word>
+			<word>minores</word>
+			<word>urguet</word>
+			<word>et</word>
+			<word>magno</word>
+			<word>ambitu</word>
+		</line>
+		<line name="544" meter="G">
+			<word>Diffusa</word>
+			<word>ramos</word>
+			<word>una</word>
+			<word>defendit</word>
+			<word>nemus.</word>
+		</line>
+		<line name="545" meter="G">
+			<word>Tristis</word>
+			<word>sub</word>
+			<word>illa,</word>
+			<word>lucis</word>
+			<word>et</word>
+			<word>Phoebi</word>
+			<word>inscius,</word>
+		</line>
+		<line name="546" meter="G">
+			<word>Restagnat</word>
+			<word>umor</word>
+			<word>frigore</word>
+			<word>aeterno</word>
+			<word>rigens;</word>
+		</line>
+		<line name="547" meter="G">
+			<word>Limosa</word>
+			<word>pigrum</word>
+			<word>circumit</word>
+			<word>fontem</word>
+			<word>palus.</word>
+		</line>
+		<line name="548" meter="G">
+			<word>Huc</word>
+			<word>ut</word>
+			<word>sacerdos</word>
+			<word>intulit</word>
+			<word>senior</word>
+			<word>gradum,</word>
+		</line>
+		<line name="549a" meter="G">
+			<word>Haut</word>
+			<word>est</word>
+			<word>moratus:</word>
+			<word>*</word>
+			<word>*</word>
+			<word>*</word>
+			<word>*</word>
+		</line>
+		<line name="549b" meter="G">
+			<word>*</word>
+			<word>*</word>
+			<word>*</word>
+			<word>praestitit</word>
+			<word>noctem</word>
+			<word>locus.</word>
+		</line>
+		<line name="550" meter="G">
+			<word>Tum</word>
+			<word>effossa</word>
+			<word>tellus,</word>
+			<word>et</word>
+			<word>super</word>
+			<word>rapti</word>
+			<word>rogis</word>
+		</line>
+		<line name="551" meter="G">
+			<word>Iaciuntur</word>
+			<word>ignes.</word>
+			<word>ipse</word>
+			<word>funesto</word>
+			<word>integit</word>
+		</line>
+		<line name="552" meter="G">
+			<word>Vates</word>
+			<word>amictu</word>
+			<word>corpus</word>
+			<word>et</word>
+			<word>frondem</word>
+			<word>quatit;</word>
+		</line>
+		<line name="554" meter="G">
+			<word>Squalente</word>
+			<word>cultu</word>
+			<word>maestus</word>
+			<word>ingreditur</word>
+			<word>senex,</word>
+		</line>
+		<line name="553" meter="G">
+			<word>Lugubris</word>
+			<word>imos</word>
+			<word>palla</word>
+			<word>perfundit</word>
+			<word>pedes,</word>
+		</line>
+		<line name="555" meter="G">
+			<word>Mortifera</word>
+			<word>canam</word>
+			<word>taxus</word>
+			<word>adstringit</word>
+			<word>comam.</word>
+		</line>
+		<line name="556" meter="G">
+			<word>Nigro</word>
+			<word>bidentes</word>
+			<word>uellere</word>
+			<word>atque</word>
+			<word>atrae</word>
+			<word>boues</word>
+		</line>
+		<line name="557" meter="G">
+			<word>Antro</word>
+			<word>trahuntur.</word>
+			<word>flamma</word>
+			<word>praedatur</word>
+			<word>dapes</word>
+		</line>
+		<line name="558" meter="G">
+			<word>Viuumque</word>
+			<word>trepidat</word>
+			<word>igne</word>
+			<word>ferali</word>
+			<word>pecus.</word>
+		</line>
+		<line name="559" meter="G">
+			<word>Vocat</word>
+			<word>inde</word>
+			<word>manes</word>
+			<word>teque</word>
+			<word>qui</word>
+			<word>manes</word>
+			<word>regis</word>
+		</line>
+		<line name="560" meter="G">
+			<word>Et</word>
+			<word>obsidentem</word>
+			<word>claustra</word>
+			<word>Lethaei</word>
+			<word>lacus,</word>
+		</line>
+		<line name="561" meter="G">
+			<word>Carmenque</word>
+			<word>magicum</word>
+			<word>uoluit</word>
+			<word>et</word>
+			<word>rabido</word>
+			<word>minax</word>
+		</line>
+		<line name="562" meter="G">
+			<word>Decantat</word>
+			<word>ore</word>
+			<word>quidquid</word>
+			<word>aut</word>
+			<word>placat</word>
+			<word>leues</word>
+		</line>
+		<line name="563" meter="G">
+			<word>Aut</word>
+			<word>cogit</word>
+			<word>umbras;</word>
+			<word>sanguinem</word>
+			<word>libat</word>
+			<word>focis</word>
+		</line>
+		<line name="564" meter="G">
+			<word>Solidasque</word>
+			<word>pecudes</word>
+			<word>urit</word>
+			<word>et</word>
+			<word>multo</word>
+			<word>specum</word>
+		</line>
+		<line name="565" meter="G">
+			<word>Saturat</word>
+			<word>cruore;</word>
+			<word>libat</word>
+			<word>et</word>
+			<word>niueum</word>
+			<word>insuper</word>
+		</line>
+		<line name="566" meter="G">
+			<word>Lactis</word>
+			<word>liquorem,</word>
+			<word>fundit</word>
+			<word>et</word>
+			<word>Bacchum</word>
+			<word>manu</word>
+		</line>
+		<line name="567" meter="G">
+			<word>Laeua</word>
+			<word>canitque</word>
+			<word>rursus</word>
+			<word>ac</word>
+			<word>terram</word>
+			<word>intuens</word>
+		</line>
+		<line name="568" meter="G">
+			<word>Grauiore</word>
+			<word>manes</word>
+			<word>uoce</word>
+			<word>et</word>
+			<word>attonita</word>
+			<word>citat.</word>
+		</line>
+		<line name="569" meter="G">
+			<word>Latrauit</word>
+			<word>Hecates</word>
+			<word>turba;</word>
+			<word>ter</word>
+			<word>ualles</word>
+			<word>cauae</word>
+		</line>
+		<line name="570" meter="G">
+			<word>Sonuere</word>
+			<word>maestum,</word>
+			<word>tota</word>
+			<word>succusso</word>
+			<word>solo</word>
+		</line>
+		<line name="571" meter="G">
+			<word>Pulsata</word>
+			<word>tellus.</word>
+			<word>'audior'</word>
+			<word>uates</word>
+			<word>ait,</word>
+		</line>
+		<line name="572" meter="G">
+			<word>'Rata</word>
+			<word>uerba</word>
+			<word>fudi:</word>
+			<word>rumpitur</word>
+			<word>caecum</word>
+			<word>chaos</word>
+		</line>
+		<line name="573" meter="G">
+			<word>Iterque</word>
+			<word>populis</word>
+			<word>Ditis</word>
+			<word>ad</word>
+			<word>superos</word>
+			<word>datur.'</word>
+		</line>
+		<line name="574" meter="G">
+			<word>Subsedit</word>
+			<word>omnis</word>
+			<word>silua</word>
+			<word>et</word>
+			<word>erexit</word>
+			<word>comas,</word>
+		</line>
+		<line name="575" meter="G">
+			<word>Duxere</word>
+			<word>rimas</word>
+			<word>robora</word>
+			<word>et</word>
+			<word>totum</word>
+			<word>nemus</word>
+		</line>
+		<line name="576" meter="G">
+			<word>Concussit</word>
+			<word>horror,</word>
+			<word>terra</word>
+			<word>se</word>
+			<word>retro</word>
+			<word>dedit</word>
+		</line>
+		<line name="577" meter="G">
+			<word>Gemuitque</word>
+			<word>penitus:</word>
+			<word>siue</word>
+			<word>temptari</word>
+			<word>abditum</word>
+		</line>
+		<line name="578" meter="G">
+			<word>Acheron</word>
+			<word>profundum</word>
+			<word>mente</word>
+			<word>non</word>
+			<word>aequa</word>
+			<word>tulit,</word>
+		</line>
+		<line name="579" meter="G">
+			<word>Siue</word>
+			<word>ipsa</word>
+			<word>tellus,</word>
+			<word>ut</word>
+			<word>daret</word>
+			<word>functis</word>
+			<word>uiam,</word>
+		</line>
+		<line name="580" meter="G">
+			<word>Compage</word>
+			<word>rupta</word>
+			<word>sonuit,</word>
+			<word>aut</word>
+			<word>ira</word>
+			<word>furens</word>
+		</line>
+		<line name="581" meter="G">
+			<word>Triceps</word>
+			<word>catenas</word>
+			<word>Cerberus</word>
+			<word>mouit</word>
+			<word>graues.</word>
+		</line>
+		<line name="582" meter="G">
+			<word>Subito</word>
+			<word>dehiscit</word>
+			<word>terra</word>
+			<word>et</word>
+			<word>immenso</word>
+			<word>sinu</word>
+		</line>
+		<line name="583" meter="G">
+			<word>Laxata</word>
+			<word>patuit</word>
+			<word>-</word>
+			<word>ipse</word>
+			<word>pallentes</word>
+			<word>deos</word>
+		</line>
+		<line name="584" meter="G">
+			<word>Vidi</word>
+			<word>inter</word>
+			<word>umbras,</word>
+			<word>ipse</word>
+			<word>torpentes</word>
+			<word>lacus</word>
+		</line>
+		<line name="585" meter="G">
+			<word>Noctemque</word>
+			<word>ueram;</word>
+			<word>gelidus</word>
+			<word>in</word>
+			<word>uenis</word>
+			<word>stetit</word>
+		</line>
+		<line name="586" meter="G">
+			<word>Haesitque</word>
+			<word>sanguis.</word>
+			<word>saeua</word>
+			<word>prosiluit</word>
+			<word>cohors</word>
+		</line>
+		<line name="587" meter="G">
+			<word>Et</word>
+			<word>stetit</word>
+			<word>in</word>
+			<word>armis</word>
+			<word>omne</word>
+			<word>uipereum</word>
+			<word>genus,</word>
+		</line>
+		<line name="588" meter="G">
+			<word>Fratrum</word>
+			<word>cateruae</word>
+			<word>dente</word>
+			<word>Dircaeo</word>
+			<word>satae.</word>
+		</line>
+		<line name="590" meter="G">
+			<word>Tum</word>
+			<word>torua</word>
+			<word>Erinys</word>
+			<word>sonuit</word>
+			<word>et</word>
+			<word>caecus</word>
+			<word>Furor</word>
+		</line>
+		<line name="591" meter="G">
+			<word>Horrorque</word>
+			<word>et</word>
+			<word>una</word>
+			<word>quidquid</word>
+			<word>aeternae</word>
+			<word>creant</word>
+		</line>
+		<line name="592" meter="G">
+			<word>Celantque</word>
+			<word>tenebrae:</word>
+			<word>Luctus</word>
+			<word>auellens</word>
+			<word>comam</word>
+		</line>
+		<line name="593" meter="G">
+			<word>Aegreque</word>
+			<word>lassum</word>
+			<word>sustinens</word>
+			<word>Morbus</word>
+			<word>caput,</word>
+		</line>
+		<line name="594" meter="G">
+			<word>Grauis</word>
+			<word>Senectus</word>
+			<word>sibimet</word>
+			<word>et</word>
+			<word>pendens</word>
+			<word>Metus</word>
+		</line>
+		<line name="589" meter="G">
+			<word>Auidumque</word>
+			<word>populi</word>
+			<word>Pestis</word>
+			<word>Ogygii</word>
+			<word>malum</word>
+			<word>-</word>
+		</line>
+		<line name="595" meter="G">
+			<word>Nos</word>
+			<word>liquit</word>
+			<word>animus;</word>
+			<word>ipsa</word>
+			<word>quae</word>
+			<word>ritus</word>
+			<word>senis</word>
+		</line>
+		<line name="596" meter="G">
+			<word>Artesque</word>
+			<word>norat</word>
+			<word>stupuit.</word>
+			<word>Intrepidus</word>
+			<word>parens</word>
+		</line>
+		<line name="597" meter="G">
+			<word>Audaxque</word>
+			<word>damno</word>
+			<word>conuocat</word>
+			<word>Ditis</word>
+			<word>feri</word>
+		</line>
+		<line name="598" meter="G">
+			<word>Exsangue</word>
+			<word>uulgus:</word>
+			<word>ilico,</word>
+			<word>ut</word>
+			<word>nebulae</word>
+			<word>leues,</word>
+		</line>
+		<line name="599" meter="G">
+			<word>Volitant</word>
+			<word>et</word>
+			<word>auras</word>
+			<word>libero</word>
+			<word>caelo</word>
+			<word>trahunt.</word>
+		</line>
+		<line name="600" meter="G">
+			<word>Non</word>
+			<word>tot</word>
+			<word>caducas</word>
+			<word>educat</word>
+			<word>frondes</word>
+			<word>Eryx</word>
+		</line>
+		<line name="601" meter="G">
+			<word>Nec</word>
+			<word>uere</word>
+			<word>flores</word>
+			<word>Hybla</word>
+			<word>tot</word>
+			<word>medio</word>
+			<word>creat,</word>
+		</line>
+		<line name="602" meter="G">
+			<word>Cum</word>
+			<word>examen</word>
+			<word>arto</word>
+			<word>nectitur</word>
+			<word>densum</word>
+			<word>globo,</word>
+		</line>
+		<line name="603" meter="G">
+			<word>Fluctusque</word>
+			<word>non</word>
+			<word>tot</word>
+			<word>frangit</word>
+			<word>Ionium</word>
+			<word>mare,</word>
+		</line>
+		<line name="604" meter="G">
+			<word>Nec</word>
+			<word>tanta</word>
+			<word>gelidi</word>
+			<word>Strymonis</word>
+			<word>fugiens</word>
+			<word>minas</word>
+		</line>
+		<line name="605" meter="G">
+			<word>Permutat</word>
+			<word>hiemes</word>
+			<word>ales</word>
+			<word>et</word>
+			<word>caelum</word>
+			<word>secans</word>
+		</line>
+		<line name="606" meter="G">
+			<word>Tepente</word>
+			<word>Nilo</word>
+			<word>pensat</word>
+			<word>Arctoas</word>
+			<word>niues,</word>
+		</line>
+		<line name="607" meter="G">
+			<word>Quot</word>
+			<word>ille</word>
+			<word>populos</word>
+			<word>uatis</word>
+			<word>eduxit</word>
+			<word>sonus.</word>
+		</line>
+		<line name="608" meter="G">
+			<word>Pauide</word>
+			<word>latebras</word>
+			<word>nemoris</word>
+			<word>umbrosi</word>
+			<word>petunt</word>
+		</line>
+		<line name="609" meter="G">
+			<word>Animae</word>
+			<word>trementes:</word>
+			<word>primus</word>
+			<word>emergit</word>
+			<word>solo,</word>
+		</line>
+		<line name="610" meter="G">
+			<word>Dextra</word>
+			<word>ferocem</word>
+			<word>cornibus</word>
+			<word>taurum</word>
+			<word>premens,</word>
+		</line>
+		<line name="611" meter="G">
+			<word>Zethus,</word>
+			<word>manuque</word>
+			<word>sustinet</word>
+			<word>laeua</word>
+			<word>chelyn</word>
+		</line>
+		<line name="612" meter="G">
+			<word>Qui</word>
+			<word>saxa</word>
+			<word>dulci</word>
+			<word>traxit</word>
+			<word>Amphion</word>
+			<word>sono,</word>
+		</line>
+		<line name="613" meter="G">
+			<word>Interque</word>
+			<word>natos</word>
+			<word>Tantalis</word>
+			<word>tandem</word>
+			<word>suos</word>
+		</line>
+		<line name="614" meter="G">
+			<word>Tuto</word>
+			<word>superba</word>
+			<word>fert</word>
+			<word>caput</word>
+			<word>fastu</word>
+			<word>graue</word>
+		</line>
+		<line name="615" meter="G">
+			<word>Et</word>
+			<word>numerat</word>
+			<word>umbras.</word>
+			<word>peior</word>
+			<word>hac</word>
+			<word>genetrix</word>
+			<word>adest</word>
+		</line>
+		<line name="616" meter="G">
+			<word>Furibunda</word>
+			<word>Agaue,</word>
+			<word>tota</word>
+			<word>quam</word>
+			<word>sequitur</word>
+			<word>manus</word>
+		</line>
+		<line name="617" meter="G">
+			<word>Partita</word>
+			<word>regem:</word>
+			<word>sequitur</word>
+			<word>et</word>
+			<word>Bacchas</word>
+			<word>lacer</word>
+		</line>
+		<line name="618" meter="G">
+			<word>Pentheus</word>
+			<word>tenetque</word>
+			<word>saeuus</word>
+			<word>etiamnunc</word>
+			<word>minas.</word>
+		</line>
+		<line name="619" meter="G">
+			<word>Tandem</word>
+			<word>uocatus</word>
+			<word>saepe</word>
+			<word>pudibundum</word>
+			<word>extulit</word>
+		</line>
+		<line name="620" meter="G">
+			<word>Caput</word>
+			<word>atque</word>
+			<word>ab</word>
+			<word>omni</word>
+			<word>dissidet</word>
+			<word>turba</word>
+			<word>procul</word>
+		</line>
+		<line name="621" meter="G">
+			<word>Celatque</word>
+			<word>semet</word>
+			<word>(instat</word>
+			<word>et</word>
+			<word>Stygias</word>
+			<word>preces</word>
+		</line>
+		<line name="622" meter="G">
+			<word>Geminat</word>
+			<word>sacerdos,</word>
+			<word>donec</word>
+			<word>in</word>
+			<word>apertum</word>
+			<word>efferat</word>
+		</line>
+		<line name="623" meter="G">
+			<word>Vultus</word>
+			<word>opertos)</word>
+			<word>Laius</word>
+			<word>-</word>
+			<word>fari</word>
+			<word>horreo:</word>
+		</line>
+		<line name="624" meter="G">
+			<word>Stetit</word>
+			<word>per</word>
+			<word>artus</word>
+			<word>sanguine</word>
+			<word>effuso</word>
+			<word>horridus,</word>
+		</line>
+		<line name="625" meter="G">
+			<word>Paedore</word>
+			<word>foedo</word>
+			<word>squalidam</word>
+			<word>obtentus</word>
+			<word>comam,</word>
+		</line>
+		<line name="626" meter="G">
+			<word>Et</word>
+			<word>ore</word>
+			<word>rabido</word>
+			<word>fatur:</word>
+			<word>'O</word>
+			<word>Cadmi</word>
+			<word>effera,</word>
+		</line>
+		<line name="627" meter="G">
+			<word>Cruore</word>
+			<word>semper</word>
+			<word>laeta</word>
+			<word>cognato</word>
+			<word>domus,</word>
+		</line>
+		<line name="628" meter="G">
+			<word>Vibrate</word>
+			<word>thyrsos,</word>
+			<word>enthea</word>
+			<word>gnatos</word>
+			<word>manu</word>
+		</line>
+		<line name="629" meter="G">
+			<word>Lacerate</word>
+			<word>potius</word>
+			<word>-</word>
+			<word>maximum</word>
+			<word>Thebis</word>
+			<word>scelus</word>
+		</line>
+		<line name="630" meter="G">
+			<word>Maternus</word>
+			<word>amor</word>
+			<word>est.</word>
+			<word>patria,</word>
+			<word>non</word>
+			<word>ira</word>
+			<word>deum,</word>
+		</line>
+		<line name="631" meter="G">
+			<word>Sed</word>
+			<word>scelere</word>
+			<word>raperis:</word>
+			<word>non</word>
+			<word>graui</word>
+			<word>flatu</word>
+			<word>tibi</word>
+		</line>
+		<line name="632" meter="G">
+			<word>Luctificus</word>
+			<word>Auster</word>
+			<word>nec</word>
+			<word>parum</word>
+			<word>pluuio</word>
+			<word>aethere</word>
+		</line>
+		<line name="633" meter="G">
+			<word>Satiata</word>
+			<word>tellus</word>
+			<word>halitu</word>
+			<word>sicco</word>
+			<word>nocet,</word>
+		</line>
+		<line name="634" meter="G">
+			<word>Sed</word>
+			<word>rex</word>
+			<word>cruentus,</word>
+			<word>pretia</word>
+			<word>qui</word>
+			<word>saeuae</word>
+			<word>necis</word>
+		</line>
+		<line name="635" meter="G">
+			<word>Sceptra</word>
+			<word>et</word>
+			<word>nefandos</word>
+			<word>occupat</word>
+			<word>thalamos</word>
+			<word>patris</word>
+		</line>
+		<line name="636" meter="G">
+			<word>[Inuisa</word>
+			<word>proles:</word>
+			<word>sed</word>
+			<word>tamen</word>
+			<word>peior</word>
+			<word>parens</word>
+		</line>
+		<line name="637" meter="G">
+			<word>Quam</word>
+			<word>gnatus,</word>
+			<word>utero</word>
+			<word>rursus</word>
+			<word>infausto</word>
+			<word>grauis]</word>
+		</line>
+		<line name="638" meter="G">
+			<word>Egitque</word>
+			<word>in</word>
+			<word>ortus</word>
+			<word>semet</word>
+			<word>et</word>
+			<word>matri</word>
+			<word>impios</word>
+		</line>
+		<line name="639" meter="G">
+			<word>Fetus</word>
+			<word>regessit,</word>
+			<word>quique</word>
+			<word>uix</word>
+			<word>mos</word>
+			<word>est</word>
+			<word>feris,</word>
+		</line>
+		<line name="640" meter="G">
+			<word>Fratres</word>
+			<word>sibi</word>
+			<word>ipse</word>
+			<word>genuit</word>
+			<word>-</word>
+			<word>implicitum</word>
+			<word>malum</word>
+		</line>
+		<line name="641" meter="G">
+			<word>Magisque</word>
+			<word>monstrum</word>
+			<word>Sphinge</word>
+			<word>perplexum</word>
+			<word>sua.</word>
+		</line>
+		<line name="642" meter="G">
+			<word>Te,</word>
+			<word>te</word>
+			<word>cruenta</word>
+			<word>sceptra</word>
+			<word>qui</word>
+			<word>dextra</word>
+			<word>geris,</word>
+		</line>
+		<line name="643" meter="G">
+			<word>Te</word>
+			<word>pater</word>
+			<word>inultus</word>
+			<word>urbe</word>
+			<word>cum</word>
+			<word>tota</word>
+			<word>petam</word>
+		</line>
+		<line name="644" meter="G">
+			<word>Et</word>
+			<word>mecum</word>
+			<word>Erinyn</word>
+			<word>pronubam</word>
+			<word>thalami</word>
+			<word>traham,</word>
+		</line>
+		<line name="645" meter="G">
+			<word>Traham</word>
+			<word>sonantis</word>
+			<word>uerbera,</word>
+			<word>incestam</word>
+			<word>domum</word>
+		</line>
+		<line name="646" meter="G">
+			<word>Vertam</word>
+			<word>et</word>
+			<word>penates</word>
+			<word>impio</word>
+			<word>Marte</word>
+			<word>obteram.</word>
+		</line>
+		<line name="647" meter="G">
+			<word>Proinde</word>
+			<word>pulsum</word>
+			<word>finibus</word>
+			<word>regem</word>
+			<word>ocius</word>
+		</line>
+		<line name="648" meter="G">
+			<word>Agite</word>
+			<word>exulem</word>
+			<word>quocumque;</word>
+			<word>funesto</word>
+			<word>gradu</word>
+		</line>
+		<line name="649" meter="G">
+			<word>Solum</word>
+			<word>relinquat:</word>
+			<word>uere</word>
+			<word>florifero</word>
+			<word>uirens</word>
+		</line>
+		<line name="650" meter="G">
+			<word>Reparabit</word>
+			<word>herbas;</word>
+			<word>spiritus</word>
+			<word>puros</word>
+			<word>dabit</word>
+		</line>
+		<line name="651" meter="G">
+			<word>Vitalis</word>
+			<word>aura,</word>
+			<word>ueniet</word>
+			<word>et</word>
+			<word>siluis</word>
+			<word>decor;</word>
+		</line>
+		<line name="652" meter="G">
+			<word>Letum</word>
+			<word>Luesque,</word>
+			<word>Mors</word>
+			<word>Labor</word>
+			<word>Tabes</word>
+			<word>Dolor,</word>
+		</line>
+		<line name="653" meter="G">
+			<word>Comitatus</word>
+			<word>illo</word>
+			<word>dignus,</word>
+			<word>excedent</word>
+			<word>simul;</word>
+		</line>
+		<line name="654" meter="G">
+			<word>Et</word>
+			<word>ipse</word>
+			<word>rapidis</word>
+			<word>gressibus</word>
+			<word>sedes</word>
+			<word>uolet</word>
+		</line>
+		<line name="655" meter="G">
+			<word>Effugere</word>
+			<word>nostras,</word>
+			<word>sed</word>
+			<word>graues</word>
+			<word>pedibus</word>
+			<word>moras</word>
+		</line>
+		<line name="656" meter="G">
+			<word>Addam</word>
+			<word>et</word>
+			<word>tenebo:</word>
+			<word>reptet</word>
+			<word>incertus</word>
+			<word>uiae,</word>
+		</line>
+		<line name="657" meter="G">
+			<word>Baculo</word>
+			<word>senili</word>
+			<word>triste</word>
+			<word>praetemptans</word>
+			<word>iter:</word>
+		</line>
+		<line name="658" meter="G">
+			<word>Eripite</word>
+			<word>terras,</word>
+			<word>auferam</word>
+			<word>caelum</word>
+			<word>pater.'</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="659" meter="G">
+			<word>Et</word>
+			<word>ossa</word>
+			<word>et</word>
+			<word>artus</word>
+			<word>gelidus</word>
+			<word>inuasit</word>
+			<word>tremor:</word>
+		</line>
+		<line name="660" meter="G">
+			<word>Quidquid</word>
+			<word>timebam</word>
+			<word>facere</word>
+			<word>fecisse</word>
+			<word>arguor</word>
+			<word>-</word>
+		</line>
+		<line name="661" meter="G">
+			<word>Tori</word>
+			<word>iugalis</word>
+			<word>abnuit</word>
+			<word>Merope</word>
+			<word>nefas</word>
+		</line>
+		<line name="662" meter="G">
+			<word>Sociata</word>
+			<word>Polybo;</word>
+			<word>sospes</word>
+			<word>absoluit</word>
+			<word>manus</word>
+		</line>
+		<line name="663" meter="G">
+			<word>Polybus</word>
+			<word>meas:</word>
+			<word>uterque</word>
+			<word>defendit</word>
+			<word>parens</word>
+		</line>
+		<line name="664" meter="G">
+			<word>Caedem</word>
+			<word>stuprumque.</word>
+			<word>quis</word>
+			<word>locus</word>
+			<word>culpae</word>
+			<word>est</word>
+			<word>super?</word>
+		</line>
+		<line name="665" meter="G">
+			<word>Multo</word>
+			<word>ante</word>
+			<word>Thebae</word>
+			<word>Laium</word>
+			<word>amissum</word>
+			<word>gemunt,</word>
+		</line>
+		<line name="666" meter="G">
+			<word>Boeota</word>
+			<word>gressu</word>
+			<word>quam</word>
+			<word>meo</word>
+			<word>tetigi</word>
+			<word>loca.</word>
+		</line>
+		<line name="667" meter="G">
+			<word>Falsusne</word>
+			<word>senior</word>
+			<word>an</word>
+			<word>deus</word>
+			<word>Thebis</word>
+			<word>grauis?</word>
+		</line>
+		<line name="668" meter="G">
+			<word>Iam</word>
+			<word>iam</word>
+			<word>tenemus</word>
+			<word>callidi</word>
+			<word>socios</word>
+			<word>doli:</word>
+		</line>
+		<line name="669" meter="G">
+			<word>Mentitur</word>
+			<word>ista</word>
+			<word>praeferens</word>
+			<word>fraudi</word>
+			<word>deos</word>
+		</line>
+		<line name="670" meter="G">
+			<word>Vates,</word>
+			<word>tibique</word>
+			<word>sceptra</word>
+			<word>despondet</word>
+			<word>mea.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Creo</word>
+		</line>
+		<line name="671" meter="G">
+			<word>Egone</word>
+			<word>ut</word>
+			<word>sororem</word>
+			<word>regia</word>
+			<word>expelli</word>
+			<word>uelim?</word>
+		</line>
+		<line name="672" meter="G">
+			<word>Si</word>
+			<word>me</word>
+			<word>fides</word>
+			<word>sacrata</word>
+			<word>cognati</word>
+			<word>laris</word>
+		</line>
+		<line name="673" meter="G">
+			<word>Non</word>
+			<word>contineret</word>
+			<word>in</word>
+			<word>meo</word>
+			<word>certum</word>
+			<word>statu,</word>
+		</line>
+		<line name="674" meter="G">
+			<word>Tamen</word>
+			<word>ipsa</word>
+			<word>me</word>
+			<word>fortuna</word>
+			<word>terreret</word>
+			<word>nimis</word>
+		</line>
+		<line name="675" meter="G">
+			<word>Sollicita</word>
+			<word>semper.</word>
+			<word>liceat</word>
+			<word>hoc</word>
+			<word>tuto</word>
+			<word>tibi</word>
+		</line>
+		<line name="676" meter="G">
+			<word>Exuere</word>
+			<word>pondus</word>
+			<word>nec</word>
+			<word>recedentem</word>
+			<word>opprimat:</word>
+		</line>
+		<line name="677" meter="G">
+			<word>Iam</word>
+			<word>te</word>
+			<word>minore</word>
+			<word>tutior</word>
+			<word>pones</word>
+			<word>loco.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="678" meter="G">
+			<word>Hortaris</word>
+			<word>etiam,</word>
+			<word>sponte</word>
+			<word>deponam</word>
+			<word>ut</word>
+			<word>mea</word>
+		</line>
+		<line name="679" meter="G">
+			<word>Tam</word>
+			<word>grauia</word>
+			<word>regna?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Creo</word>
+		</line>
+		<line name="679" meter="G">
+			<word>Suadeam</word>
+			<word>hoc</word>
+			<word>illis</word>
+			<word>ego,</word>
+		</line>
+		<line name="680" meter="G">
+			<word>In</word>
+			<word>utrumque</word>
+			<word>quis</word>
+			<word>est</word>
+			<word>liber</word>
+			<word>etiamnunc</word>
+			<word>status:</word>
+		</line>
+		<line name="681" meter="G">
+			<word>Tibi</word>
+			<word>iam</word>
+			<word>necesse</word>
+			<word>est</word>
+			<word>ferre</word>
+			<word>fortunam</word>
+			<word>tuam.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="682" meter="G">
+			<word>Certissima</word>
+			<word>est</word>
+			<word>regnare</word>
+			<word>cupienti</word>
+			<word>uia</word>
+		</line>
+		<line name="683" meter="G">
+			<word>Laudare</word>
+			<word>modica</word>
+			<word>et</word>
+			<word>otium</word>
+			<word>ac</word>
+			<word>somnum</word>
+			<word>loqui;</word>
+		</line>
+		<line name="684" meter="G">
+			<word>Ab</word>
+			<word>inquieto</word>
+			<word>saepe</word>
+			<word>simulatur</word>
+			<word>quies.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Creo</word>
+		</line>
+		<line name="685" meter="G">
+			<word>Parumne</word>
+			<word>me</word>
+			<word>tam</word>
+			<word>longa</word>
+			<word>defendit</word>
+			<word>fides?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="686" meter="G">
+			<word>Aditum</word>
+			<word>nocendi</word>
+			<word>perfido</word>
+			<word>praestat</word>
+			<word>fides.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Creo</word>
+		</line>
+		<line name="687" meter="G">
+			<word>Solutus</word>
+			<word>onere</word>
+			<word>regio</word>
+			<word>regni</word>
+			<word>bonis</word>
+		</line>
+		<line name="688" meter="G">
+			<word>Fruor</word>
+			<word>domusque</word>
+			<word>ciuium</word>
+			<word>coetu</word>
+			<word>uiget,</word>
+		</line>
+		<line name="689" meter="G">
+			<word>Nec</word>
+			<word>ulla</word>
+			<word>uicibus</word>
+			<word>surgit</word>
+			<word>alternis</word>
+			<word>dies</word>
+		</line>
+		<line name="690" meter="G">
+			<word>Qua</word>
+			<word>non</word>
+			<word>propinqui</word>
+			<word>munera</word>
+			<word>ad</word>
+			<word>nostros</word>
+			<word>lares</word>
+		</line>
+		<line name="691" meter="G">
+			<word>Sceptri</word>
+			<word>redundent;</word>
+			<word>cultus,</word>
+			<word>opulentae</word>
+			<word>dapes,</word>
+		</line>
+		<line name="692" meter="G">
+			<word>Donata</word>
+			<word>multis</word>
+			<word>gratia</word>
+			<word>nostra</word>
+			<word>salus:</word>
+		</line>
+		<line name="693" meter="G">
+			<word>Quid</word>
+			<word>tam</word>
+			<word>beatae</word>
+			<word>desse</word>
+			<word>fortunae</word>
+			<word>rear?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="694" meter="G">
+			<word>Quod</word>
+			<word>dest:</word>
+			<word>secunda</word>
+			<word>non</word>
+			<word>habent</word>
+			<word>umquam</word>
+			<word>modum.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Creo</word>
+		</line>
+		<line name="695" meter="G">
+			<word>Incognita</word>
+			<word>igitur</word>
+			<word>ut</word>
+			<word>nocens</word>
+			<word>causa</word>
+			<word>cadam?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="696" meter="G">
+			<word>Num</word>
+			<word>ratio</word>
+			<word>uobis</word>
+			<word>reddita</word>
+			<word>est</word>
+			<word>uitae</word>
+			<word>meae?</word>
+		</line>
+		<line name="697" meter="G">
+			<word>Num</word>
+			<word>audita</word>
+			<word>causa</word>
+			<word>est</word>
+			<word>nostra</word>
+			<word>Tiresiae?</word>
+			<word>tamen</word>
+		</line>
+		<line name="698" meter="G">
+			<word>Sontes</word>
+			<word>uidemur.</word>
+			<word>facitis</word>
+			<word>exemplum:</word>
+			<word>sequor.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Creo</word>
+		</line>
+		<line name="699" meter="G">
+			<word>Quid</word>
+			<word>si</word>
+			<word>innocens</word>
+			<word>sum?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="699" meter="G">
+			<word>Dubia</word>
+			<word>pro</word>
+			<word>certis</word>
+			<word>solent</word>
+		</line>
+		<line name="700" meter="G">
+			<word>Timere</word>
+			<word>reges.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Creo</word>
+		</line>
+		<line name="700" meter="G">
+			<word>Qui</word>
+			<word>pauet</word>
+			<word>uanos</word>
+			<word>metus,</word>
+		</line>
+		<line name="701" meter="G">
+			<word>Veros</word>
+			<word>meretur.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="701" meter="G">
+			<word>Quisquis</word>
+			<word>in</word>
+			<word>culpa</word>
+			<word>fuit,</word>
+		</line>
+		<line name="702" meter="G">
+			<word>Dimissus</word>
+			<word>odit:</word>
+			<word>omne</word>
+			<word>quod</word>
+			<word>dubium</word>
+			<word>est</word>
+			<word>cadat.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Creo</word>
+		</line>
+		<line name="703" meter="G">
+			<word>Sic</word>
+			<word>odia</word>
+			<word>fiunt.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="703" meter="G">
+			<word>Odia</word>
+			<word>qui</word>
+			<word>nimium</word>
+			<word>timet</word>
+		</line>
+		<line name="704" meter="G">
+			<word>Regnare</word>
+			<word>nescit:</word>
+			<word>regna</word>
+			<word>custodit</word>
+			<word>metus.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Creo</word>
+		</line>
+		<line name="705" meter="G">
+			<word>Qui</word>
+			<word>sceptra</word>
+			<word>duro</word>
+			<word>saeuus</word>
+			<word>imperio</word>
+			<word>gerit,</word>
+		</line>
+		<line name="706" meter="G">
+			<word>Timet</word>
+			<word>timentis:</word>
+			<word>metus</word>
+			<word>in</word>
+			<word>auctorem</word>
+			<word>redit.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="707" meter="G">
+			<word>Seruate</word>
+			<word>sontem</word>
+			<word>saxeo</word>
+			<word>inclusum</word>
+			<word>specu.</word>
+		</line>
+		<line name="708" meter="G">
+			<word>Ipse</word>
+			<word>ad</word>
+			<word>penates</word>
+			<word>regios</word>
+			<word>referam</word>
+			<word>gradum.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Chorus</word>
+		</line>
+		<line name="709" meter="Y">
+			<word>Non</word>
+			<word>tu</word>
+			<word>tantis</word>
+			<word>causa</word>
+			<word>periclis,</word>
+		</line>
+		<line name="710" meter="O">
+			<word>Non</word>
+			<word>haec</word>
+			<word>Labdacidas</word>
+			<word>petunt</word>
+		</line>
+		<line name="711" meter="O">
+			<word>Fata,</word>
+			<word>sed</word>
+			<word>ueteres</word>
+			<word>deum</word>
+		</line>
+		<line name="712" meter="L">
+			<word>Irae</word>
+			<word>secuntur:</word>
+			<word>Castalium</word>
+			<word>nemus</word>
+		</line>
+		<line name="713" meter="D">
+			<word>Vmbram</word>
+			<word>Sidonio</word>
+			<word>praebuit</word>
+			<word>hospiti</word>
+		</line>
+		<line name="714" meter="O">
+			<word>Lauitque</word>
+			<word>Dirce</word>
+			<word>Tyrios</word>
+			<word>colonos,</word>
+		</line>
+		<line name="715" meter="D">
+			<word>Vt</word>
+			<word>primum</word>
+			<word>magni</word>
+			<word>natus</word>
+			<word>Agenoris,</word>
+		</line>
+		<line name="716" meter="L">
+			<word>Fessus</word>
+			<word>per</word>
+			<word>orbem</word>
+			<word>furta</word>
+			<word>sequi</word>
+			<word>Iouis,</word>
+		</line>
+		<line name="717" meter="D">
+			<word>Sub</word>
+			<word>nostra</word>
+			<word>pauidus</word>
+			<word>constitit</word>
+			<word>arbore</word>
+		</line>
+		<line name="718" meter="O">
+			<word>Praedonem</word>
+			<word>uenerans</word>
+			<word>suum,</word>
+		</line>
+		<line name="718bis" meter="V">
+			<word>Monituque</word>
+			<word>Phoebi</word>
+		</line>
+		<line name="719" meter="S">
+			<word>Iussus</word>
+			<word>erranti</word>
+			<word>comes</word>
+			<word>ire</word>
+			<word>uaccae,</word>
+		</line>
+		<line name="720" meter="V">
+			<word>Quam</word>
+			<word>non</word>
+			<word>flexerat</word>
+		</line>
+		<line name="721" meter="S">
+			<word>Vomer</word>
+			<word>aut</word>
+			<word>tardi</word>
+			<word>iuga</word>
+			<word>curua</word>
+			<word>plaustri,</word>
+		</line>
+		<line name="722" meter="O">
+			<word>Deseruit</word>
+			<word>fugas</word>
+			<word>nomenque</word>
+			<word>genti</word>
+		</line>
+		<line name="723" meter="L">
+			<word>Inauspicata</word>
+			<word>de</word>
+			<word>boue</word>
+			<word>tradidit.</word>
+		</line>
+		<line name="724" meter="S">
+			<word>Tempore</word>
+			<word>ex</word>
+			<word>illo</word>
+			<word>noua</word>
+			<word>monstra</word>
+			<word>semper</word>
+		</line>
+		<line name="725" meter="V">
+			<word>Protulit</word>
+			<word>tellus:</word>
+		</line>
+		<line name="726" meter="L">
+			<word>Aut</word>
+			<word>anguis</word>
+			<word>imis</word>
+			<word>uallibus</word>
+			<word>editus</word>
+		</line>
+		<line name="727" meter="L">
+			<word>Annosa</word>
+			<word>circa</word>
+			<word>robora</word>
+			<word>sibilat</word>
+		</line>
+		<line name="727bis" meter="V">
+			<word>Superatque</word>
+			<word>pinus,</word>
+		</line>
+		<line name="728" meter="D">
+			<word>Supra</word>
+			<word>Chaonias</word>
+			<word>celsior</word>
+			<word>arbores</word>
+		</line>
+		<line name="729" meter="O">
+			<word>Erexit</word>
+			<word>caeruleum</word>
+			<word>caput,</word>
+		</line>
+		<line name="730" meter="D">
+			<word>Cum</word>
+			<word>maiore</word>
+			<word>sui</word>
+			<word>parte</word>
+			<word>recumberet;</word>
+		</line>
+		<line name="731" meter="V">
+			<word>Aut</word>
+			<word>feta</word>
+			<word>tellus</word>
+			<word>impio</word>
+			<word>partu</word>
+		</line>
+		<line name="731bis" meter="V">
+			<word>Effudit</word>
+			<word>arma:</word>
+		</line>
+		<line name="732" meter="V">
+			<word>Sonuit</word>
+			<word>reflexo</word>
+			<word>classicum</word>
+			<word>cornu</word>
+		</line>
+		<line name="733" meter="V">
+			<word>Lituusque</word>
+			<word>adunco</word>
+			<word>stridulos</word>
+			<word>cantus</word>
+		</line>
+		<line name="734" meter="V">
+			<word>Elisit</word>
+			<word>aere</word>
+		</line>
+		<line name="734bis" meter="V">
+			<word>*</word>
+			<word>*</word>
+			<word>*</word>
+			<word>*</word>
+			<word>*</word>
+		</line>
+		<line name="735" meter="O">
+			<word>Non</word>
+			<word>ante</word>
+			<word>linguas</word>
+			<word>agiles</word>
+			<word>et</word>
+			<word>ora</word>
+		</line>
+		<line name="736" meter="S">
+			<word>Vocis</word>
+			<word>ignotae</word>
+			<word>clamore</word>
+			<word>primum</word>
+		</line>
+		<line name="737" meter="V">
+			<word>Hostico</word>
+			<word>experti.</word>
+		</line>
+		<line name="738" meter="Y">
+			<word>Agmina</word>
+			<word>campos</word>
+			<word>cognata</word>
+			<word>tenent,</word>
+		</line>
+		<line name="739" meter="Y">
+			<word>Dignaque</word>
+			<word>iacto</word>
+			<word>semine</word>
+			<word>proles</word>
+		</line>
+		<line name="740" meter="Y">
+			<word>Vno</word>
+			<word>aetatem</word>
+			<word>permensa</word>
+			<word>die</word>
+		</line>
+		<line name="741" meter="Y">
+			<word>Post</word>
+			<word>Luciferi</word>
+			<word>nata</word>
+			<word>meatus</word>
+		</line>
+		<line name="742" meter="Y">
+			<word>Ante</word>
+			<word>Hesperios</word>
+			<word>occidit</word>
+			<word>ortus.</word>
+		</line>
+		<line name="743" meter="Y">
+			<word>Horret</word>
+			<word>tantis</word>
+			<word>aduena</word>
+			<word>monstris</word>
+		</line>
+		<line name="744" meter="Y">
+			<word>Populique</word>
+			<word>timet</word>
+			<word>bella</word>
+			<word>recentis,</word>
+		</line>
+		<line name="745" meter="Y">
+			<word>Donec</word>
+			<word>cecidit</word>
+			<word>saeua</word>
+			<word>iuuentus</word>
+		</line>
+		<line name="746" meter="Y">
+			<word>Genetrixque</word>
+			<word>suo</word>
+			<word>reddi</word>
+			<word>gremio</word>
+		</line>
+		<line name="747" meter="Y">
+			<word>Modo</word>
+			<word>productos</word>
+			<word>uidit</word>
+			<word>alumnos</word>
+			<word>-</word>
+		</line>
+		<line name="748" meter="Y">
+			<word>Hac</word>
+			<word>transierit</word>
+			<word>ciuile</word>
+			<word>nefas!</word>
+		</line>
+		<line name="749" meter="Y">
+			<word>Illa</word>
+			<word>Herculeae</word>
+			<word>norint</word>
+			<word>Thebae</word>
+		</line>
+		<line name="750" meter="Y">
+			<word>Proelia</word>
+			<word>fratrum.</word>
+		</line>
+		<line name="751" meter="Y">
+			<word>Quid?</word>
+			<word>Cadmei</word>
+			<word>fata</word>
+			<word>nepotis,</word>
+		</line>
+		<line name="752" meter="Y">
+			<word>Cum</word>
+			<word>uiuacis</word>
+			<word>cornua</word>
+			<word>cerui</word>
+		</line>
+		<line name="753" meter="Y">
+			<word>Frontem</word>
+			<word>ramis</word>
+			<word>texere</word>
+			<word>nouis</word>
+		</line>
+		<line name="754" meter="Y">
+			<word>Dominumque</word>
+			<word>canes</word>
+			<word>egere</word>
+			<word>suum?</word>
+		</line>
+		<line name="755" meter="Y">
+			<word>Praeceps</word>
+			<word>siluas</word>
+			<word>montesque</word>
+			<word>fugit</word>
+		</line>
+		<line name="756" meter="Y">
+			<word>Citus</word>
+			<word>Actaeon</word>
+			<word>agilique</word>
+			<word>magis</word>
+		</line>
+		<line name="757" meter="Y">
+			<word>Pede</word>
+			<word>per</word>
+			<word>saltus</word>
+			<word>ac</word>
+			<word>saxa</word>
+			<word>uagus</word>
+		</line>
+		<line name="758" meter="Y">
+			<word>Metuit</word>
+			<word>motas</word>
+			<word>zephyris</word>
+			<word>plumas</word>
+		</line>
+		<line name="759" meter="Y">
+			<word>Et</word>
+			<word>quae</word>
+			<word>posuit</word>
+			<word>retia</word>
+			<word>uitat</word>
+			<word>-</word>
+		</line>
+		<line name="760" meter="Y">
+			<word>Donec</word>
+			<word>placidi</word>
+			<word>fontis</word>
+			<word>in</word>
+			<word>unda</word>
+		</line>
+		<line name="761" meter="Y">
+			<word>Cornua</word>
+			<word>uidit</word>
+			<word>uultusque</word>
+			<word>feros,</word>
+		</line>
+		<line name="762" meter="Y">
+			<word>Vbi</word>
+			<word>uirgineos</word>
+			<word>fouerat</word>
+			<word>artus</word>
+		</line>
+		<line name="763" meter="Y">
+			<word>Nimium</word>
+			<word>saeui</word>
+			<word>diua</word>
+			<word>pudoris.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="764" meter="G">
+			<word>Curas</word>
+			<word>reuoluit</word>
+			<word>animus</word>
+			<word>et</word>
+			<word>repetit</word>
+			<word>metus.</word>
+		</line>
+		<line name="765" meter="G">
+			<word>Obisse</word>
+			<word>nostro</word>
+			<word>Laium</word>
+			<word>scelere</word>
+			<word>autumant</word>
+		</line>
+		<line name="766" meter="G">
+			<word>Superi</word>
+			<word>inferique,</word>
+			<word>sed</word>
+			<word>animus</word>
+			<word>contra</word>
+			<word>innocens</word>
+		</line>
+		<line name="767" meter="G">
+			<word>Sibique</word>
+			<word>melius</word>
+			<word>quam</word>
+			<word>deis</word>
+			<word>notus</word>
+			<word>negat.</word>
+		</line>
+		<line name="768" meter="G">
+			<word>Redit</word>
+			<word>memoria</word>
+			<word>tenue</word>
+			<word>per</word>
+			<word>uestigium,</word>
+		</line>
+		<line name="769" meter="G">
+			<word>Cecidisse</word>
+			<word>nostri</word>
+			<word>stipitis</word>
+			<word>pulsu</word>
+			<word>obuium</word>
+		</line>
+		<line name="770" meter="G">
+			<word>Datumque</word>
+			<word>Diti,</word>
+			<word>cum</word>
+			<word>prior</word>
+			<word>iuuenem</word>
+			<word>senex</word>
+		</line>
+		<line name="771" meter="G">
+			<word>Curru</word>
+			<word>superbus</word>
+			<word>pelleret,</word>
+			<word>Thebis</word>
+			<word>procul</word>
+		</line>
+		<line name="772" meter="G">
+			<word>Phocaea</word>
+			<word>trifidas</word>
+			<word>regio</word>
+			<word>qua</word>
+			<word>scindit</word>
+			<word>uias.</word>
+		</line>
+		<line name="773" meter="G">
+			<word>Vnanima</word>
+			<word>coniunx,</word>
+			<word>explica</word>
+			<word>errores,</word>
+			<word>precor:</word>
+		</line>
+		<line name="774" meter="G">
+			<word>Quae</word>
+			<word>spatia</word>
+			<word>moriens</word>
+			<word>Laius</word>
+			<word>uitae</word>
+			<word>tulit?</word>
+		</line>
+		<line name="775" meter="G">
+			<word>Primone</word>
+			<word>in</word>
+			<word>aeuo</word>
+			<word>uiridis</word>
+			<word>an</word>
+			<word>fracto</word>
+			<word>occidit?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Iocasta</word>
+		</line>
+		<line name="776" meter="G">
+			<word>Inter</word>
+			<word>senem</word>
+			<word>iuuenemque,</word>
+			<word>sed</word>
+			<word>propior</word>
+			<word>seni.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="777" meter="G">
+			<word>Frequensne</word>
+			<word>turba</word>
+			<word>regium</word>
+			<word>cinxit</word>
+			<word>latus?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Iocasta</word>
+		</line>
+		<line name="778" meter="G">
+			<word>Plures</word>
+			<word>fefellit</word>
+			<word>error</word>
+			<word>ancipitis</word>
+			<word>uiae,</word>
+		</line>
+		<line name="779" meter="G">
+			<word>Paucos</word>
+			<word>fidelis</word>
+			<word>curribus</word>
+			<word>iunxit</word>
+			<word>labor.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="780" meter="G">
+			<word>Aliquisne</word>
+			<word>cecidit</word>
+			<word>regio</word>
+			<word>fato</word>
+			<word>comes?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Iocasta</word>
+		</line>
+		<line name="781" meter="G">
+			<word>Vnum</word>
+			<word>fides</word>
+			<word>uirtusque</word>
+			<word>consortem</word>
+			<word>addidit.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="782" meter="G">
+			<word>Teneo</word>
+			<word>nocentem:</word>
+			<word>conuenit</word>
+			<word>numerus,</word>
+			<word>locus</word>
+			<word>-</word>
+		</line>
+		<line name="783" meter="G">
+			<word>Sed</word>
+			<word>tempus</word>
+			<word>adde.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Iocasta</word>
+		</line>
+		<line name="783" meter="G">
+			<word>Decima</word>
+			<word>iam</word>
+			<word>metitur</word>
+			<word>seges.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Senex</word>
+			<word>Corinthius</word>
+		</line>
+		<line name="784" meter="G">
+			<word>Corinthius</word>
+			<word>te</word>
+			<word>populus</word>
+			<word>in</word>
+			<word>regnum</word>
+			<word>uocat</word>
+		</line>
+		<line name="785" meter="G">
+			<word>Patrium:</word>
+			<word>quietem</word>
+			<word>Polybus</word>
+			<word>aeternam</word>
+			<word>obtinet.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="786" meter="G">
+			<word>Vt</word>
+			<word>undique</word>
+			<word>in</word>
+			<word>me</word>
+			<word>saeua</word>
+			<word>Fortuna</word>
+			<word>irruit!</word>
+		</line>
+		<line name="787" meter="G">
+			<word>Edissere</word>
+			<word>agedum,</word>
+			<word>quo</word>
+			<word>cadat</word>
+			<word>fato</word>
+			<word>parens.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Senex</word>
+		</line>
+		<line name="788" meter="G">
+			<word>Animam</word>
+			<word>senilem</word>
+			<word>mollis</word>
+			<word>exsoluit</word>
+			<word>sopor.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="789" meter="G">
+			<word>Genitor</word>
+			<word>sine</word>
+			<word>ulla</word>
+			<word>caede</word>
+			<word>defunctus</word>
+			<word>iacet:</word>
+		</line>
+		<line name="790" meter="G">
+			<word>Testor,</word>
+			<word>licet</word>
+			<word>iam</word>
+			<word>tollere</word>
+			<word>ad</word>
+			<word>caelum</word>
+			<word>pie</word>
+		</line>
+		<line name="791" meter="G">
+			<word>Puras</word>
+			<word>nec</word>
+			<word>ulla</word>
+			<word>scelera</word>
+			<word>metuentes</word>
+			<word>manus.</word>
+		</line>
+		<line name="792" meter="G">
+			<word>Sed</word>
+			<word>pars</word>
+			<word>magis</word>
+			<word>metuenda</word>
+			<word>fatorum</word>
+			<word>manet.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Senex</word>
+		</line>
+		<line name="793" meter="G">
+			<word>Omnem</word>
+			<word>paterna</word>
+			<word>regna</word>
+			<word>discutient</word>
+			<word>metum.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="794" meter="G">
+			<word>Repetam</word>
+			<word>paterna</word>
+			<word>regna;</word>
+			<word>sed</word>
+			<word>matrem</word>
+			<word>horreo.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Senex</word>
+		</line>
+		<line name="795" meter="G">
+			<word>Metuis</word>
+			<word>parentem,</word>
+			<word>quae</word>
+			<word>tuum</word>
+			<word>reditum</word>
+			<word>expetens</word>
+		</line>
+		<line name="796" meter="G">
+			<word>Sollicita</word>
+			<word>pendet?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="796" meter="G">
+			<word>Ipsa</word>
+			<word>me</word>
+			<word>pietas</word>
+			<word>fugat.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Senex</word>
+		</line>
+		<line name="797" meter="G">
+			<word>Viduam</word>
+			<word>relinques?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="797" meter="G">
+			<word>Tangis</word>
+			<word>en</word>
+			<word>ipsos</word>
+			<word>metus.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Senex</word>
+		</line>
+		<line name="798" meter="G">
+			<word>Effare</word>
+			<word>mersus</word>
+			<word>quis</word>
+			<word>premat</word>
+			<word>mentem</word>
+			<word>timor;</word>
+		</line>
+		<line name="799" meter="G">
+			<word>Praestare</word>
+			<word>tacitam</word>
+			<word>regibus</word>
+			<word>soleo</word>
+			<word>fidem.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="800" meter="G">
+			<word>Conubia</word>
+			<word>matris</word>
+			<word>Delphico</word>
+			<word>monitu</word>
+			<word>tremo.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Senex</word>
+		</line>
+		<line name="801" meter="G">
+			<word>Timere</word>
+			<word>uana</word>
+			<word>desine</word>
+			<word>et</word>
+			<word>turpes</word>
+			<word>metus</word>
+		</line>
+		<line name="802" meter="G">
+			<word>Depone.</word>
+			<word>Merope</word>
+			<word>uera</word>
+			<word>non</word>
+			<word>fuerat</word>
+			<word>parens.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="803" meter="G">
+			<word>Quod</word>
+			<word>subditiui</word>
+			<word>praemium</word>
+			<word>gnati</word>
+			<word>petit?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Senex</word>
+		</line>
+		<line name="804" meter="G">
+			<word>Regum</word>
+			<word>superbam</word>
+			<word>liberi</word>
+			<word>astringunt</word>
+			<word>fidem.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="805" meter="G">
+			<word>Secreta</word>
+			<word>thalami</word>
+			<word>fare</word>
+			<word>quo</word>
+			<word>excipias</word>
+			<word>modo.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Senex</word>
+		</line>
+		<line name="806" meter="G">
+			<word>Hae</word>
+			<word>te</word>
+			<word>parenti</word>
+			<word>paruulum</word>
+			<word>tradunt</word>
+			<word>manus.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="807" meter="G">
+			<word>Tu</word>
+			<word>me</word>
+			<word>parenti</word>
+			<word>tradis;</word>
+			<word>at</word>
+			<word>quis</word>
+			<word>me</word>
+			<word>tibi?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Senex</word>
+		</line>
+		<line name="808" meter="G">
+			<word>Pastor</word>
+			<word>niuoso</word>
+			<word>sub</word>
+			<word>Cithaeronis</word>
+			<word>iugo.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="809" meter="G">
+			<word>In</word>
+			<word>illa</word>
+			<word>temet</word>
+			<word>nemora</word>
+			<word>quis</word>
+			<word>casus</word>
+			<word>tulit?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Senex</word>
+		</line>
+		<line name="810" meter="G">
+			<word>Illo</word>
+			<word>sequebar</word>
+			<word>monte</word>
+			<word>cornigeros</word>
+			<word>greges.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="811" meter="G">
+			<word>Nunc</word>
+			<word>adice</word>
+			<word>certas</word>
+			<word>corporis</word>
+			<word>nostri</word>
+			<word>notas.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Senex</word>
+		</line>
+		<line name="812" meter="G">
+			<word>Forata</word>
+			<word>ferro</word>
+			<word>gesseras</word>
+			<word>uestigia,</word>
+		</line>
+		<line name="813" meter="G">
+			<word>Tumore</word>
+			<word>nactus</word>
+			<word>nomen</word>
+			<word>ac</word>
+			<word>uitio</word>
+			<word>pedum.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="814" meter="G">
+			<word>Quis</word>
+			<word>fuerit</word>
+			<word>ille</word>
+			<word>qui</word>
+			<word>meum</word>
+			<word>dono</word>
+			<word>dedit</word>
+		</line>
+		<line name="815" meter="G">
+			<word>Corpus</word>
+			<word>requiro.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Senex</word>
+		</line>
+		<line name="815" meter="G">
+			<word>Regios</word>
+			<word>pauit</word>
+			<word>greges;</word>
+		</line>
+		<line name="816" meter="G">
+			<word>Minor</word>
+			<word>sub</word>
+			<word>illo</word>
+			<word>turba</word>
+			<word>pastorum</word>
+			<word>fuit.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="817" meter="G">
+			<word>Eloquere</word>
+			<word>nomen.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Senex</word>
+		</line>
+		<line name="817" meter="G">
+			<word>Prima</word>
+			<word>languescit</word>
+			<word>senum</word>
+		</line>
+		<line name="818" meter="G">
+			<word>Memoria</word>
+			<word>longo</word>
+			<word>lassa</word>
+			<word>sublabens</word>
+			<word>situ.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="819" meter="G">
+			<word>Potesne</word>
+			<word>facie</word>
+			<word>noscere</word>
+			<word>ac</word>
+			<word>uultu</word>
+			<word>uirum?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Senex</word>
+		</line>
+		<line name="820" meter="G">
+			<word>Fortasse</word>
+			<word>noscam:</word>
+			<word>saepe</word>
+			<word>iam</word>
+			<word>spatio</word>
+			<word>obrutam</word>
+		</line>
+		<line name="821" meter="G">
+			<word>Leuis</word>
+			<word>exoletam</word>
+			<word>memoriam</word>
+			<word>reuocat</word>
+			<word>nota.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="822" meter="G">
+			<word>Ad</word>
+			<word>sacra</word>
+			<word>et</word>
+			<word>aras</word>
+			<word>omne</word>
+			<word>compulsum</word>
+			<word>pecus</word>
+		</line>
+		<line name="823" meter="G">
+			<word>Duces</word>
+			<word>sequuntur:</word>
+			<word>ite,</word>
+			<word>propere</word>
+			<word>accersite,</word>
+		</line>
+		<line name="824" meter="G">
+			<word>Famuli,</word>
+			<word>penes</word>
+			<word>quem</word>
+			<word>summa</word>
+			<word>consistit</word>
+			<word>gregum.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Iocasta</word>
+		</line>
+		<line name="825" meter="G">
+			<word>Siue</word>
+			<word>ista</word>
+			<word>ratio</word>
+			<word>siue</word>
+			<word>fortuna</word>
+			<word>occulit,</word>
+		</line>
+		<line name="826" meter="G">
+			<word>Latere</word>
+			<word>semper</word>
+			<word>patere</word>
+			<word>quod</word>
+			<word>latuit</word>
+			<word>diu:</word>
+		</line>
+		<line name="827" meter="G">
+			<word>Saepe</word>
+			<word>eruentis</word>
+			<word>ueritas</word>
+			<word>patuit</word>
+			<word>malo.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="828" meter="G">
+			<word>Malum</word>
+			<word>timeri</word>
+			<word>maius</word>
+			<word>his</word>
+			<word>aliquod</word>
+			<word>potest?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Iocasta</word>
+		</line>
+		<line name="829" meter="G">
+			<word>Magnum</word>
+			<word>esse</word>
+			<word>magna</word>
+			<word>mole</word>
+			<word>quod</word>
+			<word>petitur</word>
+			<word>scias:</word>
+		</line>
+		<line name="830" meter="G">
+			<word>Concurrit</word>
+			<word>illinc</word>
+			<word>publica,</word>
+			<word>hinc</word>
+			<word>regis</word>
+			<word>salus,</word>
+		</line>
+		<line name="831" meter="G">
+			<word>Vtrimque</word>
+			<word>paria;</word>
+			<word>contine</word>
+			<word>medias</word>
+			<word>manus:</word>
+		</line>
+		<line name="832" meter="G">
+			<word>Vt</word>
+			<word>nil</word>
+			<word>lacessas,</word>
+			<word>ipsa</word>
+			<word>se</word>
+			<word>fata</word>
+			<word>explicant.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="833" meter="G">
+			<word>Non</word>
+			<word>expedit</word>
+			<word>concutere</word>
+			<word>felicem</word>
+			<word>statum:</word>
+		</line>
+		<line name="834" meter="G">
+			<word>Tuto</word>
+			<word>mouetur</word>
+			<word>quidquid</word>
+			<word>extremo</word>
+			<word>in</word>
+			<word>loco</word>
+			<word>est.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Iocasta</word>
+		</line>
+		<line name="835" meter="G">
+			<word>Nobilius</word>
+			<word>aliquid</word>
+			<word>genere</word>
+			<word>regali</word>
+			<word>appetis?</word>
+		</line>
+		<line name="836" meter="G">
+			<word>Ne</word>
+			<word>te</word>
+			<word>parentis</word>
+			<word>pigeat</word>
+			<word>inuenti</word>
+			<word>uide.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="837" meter="G">
+			<word>Vel</word>
+			<word>paenitendi</word>
+			<word>sanguinis</word>
+			<word>quaeram</word>
+			<word>fidem:</word>
+		</line>
+		<line name="838" meter="G">
+			<word>Sic</word>
+			<word>nosse</word>
+			<word>certum</word>
+			<word>est.</word>
+			<word>-</word>
+			<word>Ecce</word>
+			<word>grandaeuus</word>
+			<word>senex,</word>
+		</line>
+		<line name="839" meter="G">
+			<word>Arbitria</word>
+			<word>sub</word>
+			<word>quo</word>
+			<word>regii</word>
+			<word>fuerant</word>
+			<word>gregis,</word>
+		</line>
+		<line name="" meter="X">
+			<word>Phorbas</word>
+		</line>
+		<line name="840" meter="G">
+			<word>Refersne</word>
+			<word>nomen</word>
+			<word>aut</word>
+			<word>uultum</word>
+			<word>senis?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Senex</word>
+		</line>
+		<line name="841" meter="G">
+			<word>Adridet</word>
+			<word>animo</word>
+			<word>forma;</word>
+			<word>nec</word>
+			<word>notus</word>
+			<word>satis,</word>
+		</line>
+		<line name="842" meter="G">
+			<word>Nec</word>
+			<word>rursus</word>
+			<word>iste</word>
+			<word>uultus</word>
+			<word>ignotus</word>
+			<word>mihi.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="843" meter="G">
+			<word>Regnum</word>
+			<word>optinente</word>
+			<word>Laio</word>
+			<word>famulus</word>
+			<word>greges</word>
+		</line>
+		<line name="844" meter="G">
+			<word>Agitasti</word>
+			<word>opimos</word>
+			<word>sub</word>
+			<word>Cithaeronis</word>
+			<word>plaga?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Phorbas</word>
+		</line>
+		<line name="845" meter="G">
+			<word>Laetus</word>
+			<word>Cithaeron</word>
+			<word>pabulo</word>
+			<word>semper</word>
+			<word>nouo</word>
+		</line>
+		<line name="846" meter="G">
+			<word>Aestiua</word>
+			<word>nostro</word>
+			<word>prata</word>
+			<word>summittit</word>
+			<word>gregi.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Senex</word>
+		</line>
+		<line name="847" meter="G">
+			<word>Noscisne</word>
+			<word>memet?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Phorbas</word>
+		</line>
+		<line name="847" meter="G">
+			<word>Dubitat</word>
+			<word>anceps</word>
+			<word>memoria.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="848" meter="G">
+			<word>Huic</word>
+			<word>aliquis</word>
+			<word>a</word>
+			<word>te</word>
+			<word>traditur</word>
+			<word>quondam</word>
+			<word>puer?</word>
+		</line>
+		<line name="849" meter="G">
+			<word>Effare.</word>
+			<word>dubitas?</word>
+			<word>cur</word>
+			<word>genas</word>
+			<word>mutat</word>
+			<word>color?</word>
+		</line>
+		<line name="850" meter="G">
+			<word>Quid</word>
+			<word>uerba</word>
+			<word>quaeris?</word>
+			<word>ueritas</word>
+			<word>odit</word>
+			<word>moras.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Phorbas</word>
+		</line>
+		<line name="851" meter="G">
+			<word>Obducta</word>
+			<word>longo</word>
+			<word>temporum</word>
+			<word>tractu</word>
+			<word>moues.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="852" meter="G">
+			<word>Fatere,</word>
+			<word>ne</word>
+			<word>te</word>
+			<word>cogat</word>
+			<word>ad</word>
+			<word>uerum</word>
+			<word>dolor.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Phorbas</word>
+		</line>
+		<line name="853" meter="G">
+			<word>Inutile</word>
+			<word>isti</word>
+			<word>munus</word>
+			<word>infantem</word>
+			<word>dedi:</word>
+		</line>
+		<line name="854" meter="G">
+			<word>Non</word>
+			<word>potuit</word>
+			<word>ille</word>
+			<word>luce,</word>
+			<word>non</word>
+			<word>caelo</word>
+			<word>frui.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Senex</word>
+		</line>
+		<line name="855" meter="G">
+			<word>Procul</word>
+			<word>sit</word>
+			<word>omen;</word>
+			<word>uiuit</word>
+			<word>et</word>
+			<word>uiuat</word>
+			<word>precor.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="856" meter="G">
+			<word>Superesse</word>
+			<word>quare</word>
+			<word>traditum</word>
+			<word>infantem</word>
+			<word>negas?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Phorbas</word>
+		</line>
+		<line name="857" meter="G">
+			<word>Ferrum</word>
+			<word>per</word>
+			<word>ambos</word>
+			<word>tenue</word>
+			<word>transactum</word>
+			<word>pedes</word>
+		</line>
+		<line name="858" meter="G">
+			<word>Ligabat</word>
+			<word>artus,</word>
+			<word>uulneri</word>
+			<word>innatus</word>
+			<word>tumor</word>
+		</line>
+		<line name="859" meter="G">
+			<word>Puerile</word>
+			<word>foeda</word>
+			<word>corpus</word>
+			<word>urebat</word>
+			<word>lue.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="860" meter="G">
+			<word>Quid</word>
+			<word>quaeris</word>
+			<word>ultra?</word>
+			<word>fata</word>
+			<word>iam</word>
+			<word>accedunt</word>
+			<word>prope.</word>
+			<word>-</word>
+		</line>
+		<line name="861" meter="G">
+			<word>Quis</word>
+			<word>fuerit</word>
+			<word>infans</word>
+			<word>edoce.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Phorbas</word>
+		</line>
+		<line name="861" meter="G">
+			<word>Prohibet</word>
+			<word>fides.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="862" meter="G">
+			<word>Huc</word>
+			<word>aliquis</word>
+			<word>ignem!</word>
+			<word>flamma</word>
+			<word>iam</word>
+			<word>excutiet</word>
+			<word>fidem.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Phorbas</word>
+		</line>
+		<line name="863" meter="G">
+			<word>Per</word>
+			<word>tam</word>
+			<word>cruentas</word>
+			<word>uera</word>
+			<word>quaerentur</word>
+			<word>uias?</word>
+		</line>
+		<line name="864" meter="G">
+			<word>Ignosce</word>
+			<word>quaeso.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="864" meter="G">
+			<word>Si</word>
+			<word>ferus</word>
+			<word>uideor</word>
+			<word>tibi</word>
+		</line>
+		<line name="865" meter="G">
+			<word>Et</word>
+			<word>impotens,</word>
+			<word>parata</word>
+			<word>uindicta</word>
+			<word>in</word>
+			<word>manu</word>
+			<word>est:</word>
+		</line>
+		<line name="866" meter="G">
+			<word>Dic</word>
+			<word>uera:</word>
+			<word>quisnam?</word>
+			<word>quoue</word>
+			<word>generatus</word>
+			<word>patre?</word>
+		</line>
+		<line name="867" meter="G">
+			<word>Qua</word>
+			<word>matre</word>
+			<word>genitus?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Phorbas</word>
+		</line>
+		<line name="867" meter="G">
+			<word>Coniuge</word>
+			<word>est</word>
+			<word>genitus</word>
+			<word>tua.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="868" meter="G">
+			<word>Oe.</word>
+			<word>Dehisce,</word>
+			<word>tellus,</word>
+			<word>tuque</word>
+			<word>tenebrarum</word>
+			<word>potens,</word>
+		</line>
+		<line name="869" meter="G">
+			<word>In</word>
+			<word>Tartara</word>
+			<word>ima,</word>
+			<word>rector</word>
+			<word>umbrarum,</word>
+			<word>rape</word>
+		</line>
+		<line name="870" meter="G">
+			<word>Retro</word>
+			<word>reuersas</word>
+			<word>generis</word>
+			<word>ac</word>
+			<word>stirpis</word>
+			<word>uices.</word>
+		</line>
+		<line name="871" meter="G">
+			<word>Congerite,</word>
+			<word>ciues,</word>
+			<word>saxa</word>
+			<word>in</word>
+			<word>infandum</word>
+			<word>caput,</word>
+		</line>
+		<line name="872" meter="G">
+			<word>Mactate</word>
+			<word>telis:</word>
+			<word>me</word>
+			<word>petat</word>
+			<word>ferro</word>
+			<word>parens,</word>
+		</line>
+		<line name="873" meter="G">
+			<word>Me</word>
+			<word>gnatus,</word>
+			<word>in</word>
+			<word>me</word>
+			<word>coniuges</word>
+			<word>arment</word>
+			<word>manus</word>
+		</line>
+		<line name="874" meter="G">
+			<word>Fratresque,</word>
+			<word>et</word>
+			<word>aeger</word>
+			<word>populus</word>
+			<word>ereptos</word>
+			<word>rogis</word>
+		</line>
+		<line name="875" meter="G">
+			<word>Iaculetur</word>
+			<word>ignes.</word>
+			<word>saeculi</word>
+			<word>crimen</word>
+			<word>uagor,</word>
+		</line>
+		<line name="876" meter="G">
+			<word>Odium</word>
+			<word>deorum,</word>
+			<word>iuris</word>
+			<word>exitium</word>
+			<word>sacri,</word>
+		</line>
+		<line name="877" meter="G">
+			<word>Qua</word>
+			<word>luce</word>
+			<word>primum</word>
+			<word>spiritus</word>
+			<word>hausi</word>
+			<word>rudes</word>
+		</line>
+		<line name="878" meter="G">
+			<word>Iam</word>
+			<word>morte</word>
+			<word>dignus.</word>
+			<word>redde</word>
+			<word>nunc</word>
+			<word>animos</word>
+			<word>pares,</word>
+		</line>
+		<line name="879" meter="G">
+			<word>Nunc</word>
+			<word>aliquid</word>
+			<word>aude</word>
+			<word>sceleribus</word>
+			<word>dignum</word>
+			<word>tuis.</word>
+			<word>-</word>
+		</line>
+		<line name="880" meter="G">
+			<word>I,</word>
+			<word>perge,</word>
+			<word>propero</word>
+			<word>regiam</word>
+			<word>gressu</word>
+			<word>pete:</word>
+		</line>
+		<line name="881" meter="G">
+			<word>Gratare</word>
+			<word>matri</word>
+			<word>liberis</word>
+			<word>auctam</word>
+			<word>domum.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Chorus</word>
+		</line>
+		<line name="882" meter="O">
+			<word>Fata</word>
+			<word>si</word>
+			<word>liceat</word>
+			<word>mihi</word>
+		</line>
+		<line name="883" meter="O">
+			<word>Fingere</word>
+			<word>arbitrio</word>
+			<word>meo,</word>
+		</line>
+		<line name="884" meter="O">
+			<word>Temperem</word>
+			<word>Zephyro</word>
+			<word>leui</word>
+		</line>
+		<line name="885" meter="O">
+			<word>Vela,</word>
+			<word>ne</word>
+			<word>pressae</word>
+			<word>graui</word>
+		</line>
+		<line name="886" meter="O">
+			<word>Spiritu</word>
+			<word>antennae</word>
+			<word>tremant:</word>
+		</line>
+		<line name="887" meter="O">
+			<word>Lenis</word>
+			<word>et</word>
+			<word>modice</word>
+			<word>fluens</word>
+		</line>
+		<line name="888" meter="O">
+			<word>Aura</word>
+			<word>nec</word>
+			<word>uergens</word>
+			<word>latus</word>
+		</line>
+		<line name="889" meter="O">
+			<word>Ducat</word>
+			<word>intrepidam</word>
+			<word>ratem;</word>
+		</line>
+		<line name="890" meter="O">
+			<word>Tuta</word>
+			<word>me</word>
+			<word>media</word>
+			<word>uehat</word>
+		</line>
+		<line name="891" meter="O">
+			<word>Vita</word>
+			<word>decurrens</word>
+			<word>uia.</word>
+		</line>
+		<line name="892" meter="O">
+			<word>Gnosium</word>
+			<word>regem</word>
+			<word>timens</word>
+		</line>
+		<line name="893" meter="O">
+			<word>Astra</word>
+			<word>dum</word>
+			<word>demens</word>
+			<word>petit</word>
+		</line>
+		<line name="894" meter="O">
+			<word>Artibus</word>
+			<word>fisus</word>
+			<word>nouis</word>
+		</line>
+		<line name="895" meter="O">
+			<word>Certat</word>
+			<word>et</word>
+			<word>ueras</word>
+			<word>aues</word>
+		</line>
+		<line name="896" meter="O">
+			<word>Vincere</word>
+			<word>ac</word>
+			<word>falsis</word>
+			<word>nimis</word>
+		</line>
+		<line name="897" meter="O">
+			<word>Imperat</word>
+			<word>pinnis</word>
+			<word>puer,</word>
+		</line>
+		<line name="898" meter="O">
+			<word>Nomen</word>
+			<word>eripuit</word>
+			<word>freto.</word>
+		</line>
+		<line name="899" meter="O">
+			<word>Callidus</word>
+			<word>medium</word>
+			<word>senex</word>
+		</line>
+		<line name="900" meter="O">
+			<word>Daedalus</word>
+			<word>librans</word>
+			<word>iter</word>
+		</line>
+		<line name="901" meter="O">
+			<word>Nube</word>
+			<word>sub</word>
+			<word>media</word>
+			<word>stetit</word>
+		</line>
+		<line name="902" meter="O">
+			<word>Alitem</word>
+			<word>expectans</word>
+			<word>suum</word>
+		</line>
+		<line name="903" meter="O">
+			<word>(Qualis</word>
+			<word>accipitris</word>
+			<word>minas</word>
+		</line>
+		<line name="904" meter="O">
+			<word>Fugit</word>
+			<word>et</word>
+			<word>sparsos</word>
+			<word>metu</word>
+		</line>
+		<line name="905" meter="O">
+			<word>Conligit</word>
+			<word>fetus</word>
+			<word>auis),</word>
+		</line>
+		<line name="906" meter="O">
+			<word>Donec</word>
+			<word>in</word>
+			<word>ponto</word>
+			<word>manus</word>
+		</line>
+		<line name="907" meter="O">
+			<word>Mouit</word>
+			<word>implicitas</word>
+			<word>puer.</word>
+		</line>
+		<line name="908" meter="O">
+			<word>[Comes</word>
+			<word>audacis</word>
+			<word>uiae]</word>
+		</line>
+		<line name="909" meter="O">
+			<word>Quidquid</word>
+			<word>excessit</word>
+			<word>modum</word>
+		</line>
+		<line name="910" meter="O">
+			<word>Pendet</word>
+			<word>instabili</word>
+			<word>loco.</word>
+		</line>
+		<line name="911" meter="O">
+			<word>Sed</word>
+			<word>quid</word>
+			<word>hoc?</word>
+			<word>postes</word>
+			<word>sonant,</word>
+		</line>
+		<line name="912" meter="O">
+			<word>Maestus</word>
+			<word>et</word>
+			<word>famulus</word>
+			<word>manu</word>
+		</line>
+		<line name="913" meter="O">
+			<word>Regius</word>
+			<word>quassat</word>
+			<word>caput.</word>
+			<word>-</word>
+		</line>
+		<line name="914" meter="O">
+			<word>Ede</word>
+			<word>quid</word>
+			<word>portes</word>
+			<word>noui.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Nuntius</word>
+		</line>
+		<line name="915" meter="G">
+			<word>Praedicta</word>
+			<word>postquam</word>
+			<word>fata</word>
+			<word>et</word>
+			<word>infandum</word>
+			<word>genus</word>
+		</line>
+		<line name="916" meter="G">
+			<word>Deprendit</word>
+			<word>ac</word>
+			<word>se</word>
+			<word>scelere</word>
+			<word>conuictum</word>
+			<word>Oedipus</word>
+		</line>
+		<line name="917" meter="G">
+			<word>Damnauit</word>
+			<word>ipse,</word>
+			<word>regiam</word>
+			<word>infestus</word>
+			<word>petens</word>
+		</line>
+		<line name="918" meter="G">
+			<word>Inuisa</word>
+			<word>propero</word>
+			<word>tecta</word>
+			<word>penetrauit</word>
+			<word>gradu,</word>
+		</line>
+		<line name="919" meter="G">
+			<word>Qualis</word>
+			<word>per</word>
+			<word>arua</word>
+			<word>Libycus</word>
+			<word>insanit</word>
+			<word>leo,</word>
+		</line>
+		<line name="920" meter="G">
+			<word>Fuluam</word>
+			<word>minaci</word>
+			<word>fronte</word>
+			<word>concutiens</word>
+			<word>iubam;</word>
+		</line>
+		<line name="921" meter="G">
+			<word>Vultus</word>
+			<word>furore</word>
+			<word>toruus</word>
+			<word>atque</word>
+			<word>oculi</word>
+			<word>truces,</word>
+		</line>
+		<line name="922" meter="G">
+			<word>Gemitus</word>
+			<word>et</word>
+			<word>altum</word>
+			<word>murmur,</word>
+			<word>et</word>
+			<word>gelidus</word>
+			<word>uolat</word>
+		</line>
+		<line name="923" meter="G">
+			<word>Sudor</word>
+			<word>per</word>
+			<word>artus,</word>
+			<word>spumat</word>
+			<word>et</word>
+			<word>uoluit</word>
+			<word>minas</word>
+		</line>
+		<line name="924" meter="G">
+			<word>Ac</word>
+			<word>mersus</word>
+			<word>alte</word>
+			<word>magnus</word>
+			<word>exundat</word>
+			<word>dolor.</word>
+		</line>
+		<line name="925" meter="G">
+			<word>Secum</word>
+			<word>ipse</word>
+			<word>saeuus</word>
+			<word>grande</word>
+			<word>nescioquid</word>
+			<word>parat</word>
+		</line>
+		<line name="926" meter="G">
+			<word>Suisque</word>
+			<word>fatis</word>
+			<word>simile.</word>
+			<word>'quid</word>
+			<word>poenas</word>
+			<word>moror?'</word>
+		</line>
+		<line name="927" meter="G">
+			<word>Ait</word>
+			<word>'hoc</word>
+			<word>scelestum</word>
+			<word>pectus</word>
+			<word>aut</word>
+			<word>ferro</word>
+			<word>petat</word>
+		</line>
+		<line name="928" meter="G">
+			<word>Aut</word>
+			<word>feruido</word>
+			<word>aliquis</word>
+			<word>igne</word>
+			<word>uel</word>
+			<word>saxo</word>
+			<word>domet.</word>
+		</line>
+		<line name="929" meter="G">
+			<word>Quae</word>
+			<word>tigris</word>
+			<word>aut</word>
+			<word>quae</word>
+			<word>saeua</word>
+			<word>uisceribus</word>
+			<word>meis</word>
+		</line>
+		<line name="930" meter="G">
+			<word>Incurret</word>
+			<word>ales?</word>
+			<word>ipse</word>
+			<word>tu</word>
+			<word>scelerum</word>
+			<word>capax,</word>
+		</line>
+		<line name="931" meter="G">
+			<word>Sacer</word>
+			<word>Cithaeron,</word>
+			<word>uel</word>
+			<word>feras</word>
+			<word>in</word>
+			<word>me</word>
+			<word>tuis</word>
+		</line>
+		<line name="932" meter="G">
+			<word>Emitte</word>
+			<word>siluis,</word>
+			<word>mitte</word>
+			<word>uel</word>
+			<word>rabidos</word>
+			<word>canes</word>
+			<word>-</word>
+		</line>
+		<line name="933" meter="G">
+			<word>Nunc</word>
+			<word>redde</word>
+			<word>Agauen.</word>
+			<word>anime,</word>
+			<word>quid</word>
+			<word>mortem</word>
+			<word>times?</word>
+		</line>
+		<line name="934" meter="G">
+			<word>Mors</word>
+			<word>innocentem</word>
+			<word>sola</word>
+			<word>Fortunae</word>
+			<word>eripit.'</word>
+		</line>
+		<line name="935" meter="G">
+			<word>Haec</word>
+			<word>fatus</word>
+			<word>aptat</word>
+			<word>impiam</word>
+			<word>capulo</word>
+			<word>manum</word>
+		</line>
+		<line name="936" meter="G">
+			<word>Ensemque</word>
+			<word>ducit.</word>
+			<word>'itane?</word>
+			<word>tam</word>
+			<word>magnis</word>
+			<word>breues</word>
+		</line>
+		<line name="937" meter="G">
+			<word>Poenas</word>
+			<word>sceleribus</word>
+			<word>soluis</word>
+			<word>atque</word>
+			<word>uno</word>
+			<word>omnia</word>
+		</line>
+		<line name="938" meter="G">
+			<word>Pensabis</word>
+			<word>ictu?</word>
+			<word>moreris:</word>
+			<word>hoc</word>
+			<word>patri</word>
+			<word>sat</word>
+			<word>est;</word>
+		</line>
+		<line name="939" meter="G">
+			<word>Quid</word>
+			<word>deinde</word>
+			<word>matri,</word>
+			<word>quid</word>
+			<word>male</word>
+			<word>in</word>
+			<word>lucem</word>
+			<word>editis</word>
+		</line>
+		<line name="940" meter="G">
+			<word>Gnatis,</word>
+			<word>quid</word>
+			<word>ipsi,</word>
+			<word>quae</word>
+			<word>tuum</word>
+			<word>magna</word>
+			<word>luit</word>
+		</line>
+		<line name="941" meter="G">
+			<word>Scelus</word>
+			<word>ruina,</word>
+			<word>flebili</word>
+			<word>patriae</word>
+			<word>dabis?</word>
+		</line>
+		<line name="942" meter="G">
+			<word>Soluendo</word>
+			<word>non</word>
+			<word>es:</word>
+			<word>illa</word>
+			<word>quae</word>
+			<word>leges</word>
+			<word>ratas</word>
+		</line>
+		<line name="943" meter="G">
+			<word>Natura</word>
+			<word>in</word>
+			<word>uno</word>
+			<word>uertit</word>
+			<word>Oedipoda,</word>
+			<word>nouos</word>
+		</line>
+		<line name="944" meter="G">
+			<word>Commenta</word>
+			<word>partus,</word>
+			<word>supplicis</word>
+			<word>eadem</word>
+			<word>meis</word>
+		</line>
+		<line name="945" meter="G">
+			<word>Nouetur.</word>
+			<word>iterum</word>
+			<word>uiuere</word>
+			<word>atque</word>
+			<word>iterum</word>
+			<word>mori</word>
+		</line>
+		<line name="946" meter="G">
+			<word>Liceat,</word>
+			<word>renasci</word>
+			<word>semper</word>
+			<word>ut</word>
+			<word>totiens</word>
+			<word>noua</word>
+		</line>
+		<line name="947" meter="G">
+			<word>Supplicia</word>
+			<word>pendas</word>
+			<word>-</word>
+			<word>utere</word>
+			<word>ingenio,</word>
+			<word>miser:</word>
+		</line>
+		<line name="948" meter="G">
+			<word>Quod</word>
+			<word>saepe</word>
+			<word>fieri</word>
+			<word>non</word>
+			<word>potest</word>
+			<word>fiat</word>
+			<word>diu;</word>
+		</line>
+		<line name="949" meter="G">
+			<word>Mors</word>
+			<word>eligatur</word>
+			<word>longa.</word>
+			<word>quaeratur</word>
+			<word>uia</word>
+		</line>
+		<line name="950" meter="G">
+			<word>Qua</word>
+			<word>nec</word>
+			<word>sepultis</word>
+			<word>mixtus</word>
+			<word>et</word>
+			<word>uiuis</word>
+			<word>tamen</word>
+		</line>
+		<line name="951" meter="G">
+			<word>Exemptus</word>
+			<word>erres:</word>
+			<word>morere,</word>
+			<word>sed</word>
+			<word>citra</word>
+			<word>patrem.</word>
+		</line>
+		<line name="952" meter="G">
+			<word>Cunctaris,</word>
+			<word>anime?</word>
+			<word>subitus</word>
+			<word>en</word>
+			<word>uultus</word>
+			<word>grauat</word>
+		</line>
+		<line name="953" meter="G">
+			<word>Profusus</word>
+			<word>imber</word>
+			<word>ac</word>
+			<word>rigat</word>
+			<word>fletu</word>
+			<word>genas</word>
+			<word>-</word>
+		</line>
+		<line name="954" meter="G">
+			<word>Et</word>
+			<word>flere</word>
+			<word>satis</word>
+			<word>est?</word>
+			<word>hactenus</word>
+			<word>fundent</word>
+			<word>leuem</word>
+		</line>
+		<line name="955" meter="G">
+			<word>Oculi</word>
+			<word>liquorem?</word>
+			<word>sedibus</word>
+			<word>pulsi</word>
+			<word>suis</word>
+		</line>
+		<line name="956" meter="G">
+			<word>Lacrimas</word>
+			<word>sequantur:</word>
+			<word>hi</word>
+			<word>maritales</word>
+			<word>statim</word>
+		</line>
+		<line name="957" meter="G">
+			<word>Fodiantur</word>
+			<word>oculi.'</word>
+			<word>Dixit</word>
+			<word>atque</word>
+			<word>ira</word>
+			<word>furit:</word>
+		</line>
+		<line name="958" meter="G">
+			<word>Ardent</word>
+			<word>minaces</word>
+			<word>igne</word>
+			<word>truculento</word>
+			<word>genae</word>
+		</line>
+		<line name="959" meter="G">
+			<word>Oculique</word>
+			<word>uix</word>
+			<word>se</word>
+			<word>sedibus</word>
+			<word>retinent</word>
+			<word>suis;</word>
+		</line>
+		<line name="960" meter="G">
+			<word>Violentus</word>
+			<word>audax</word>
+			<word>uultus,</word>
+			<word>iratus</word>
+			<word>ferox</word>
+		</line>
+		<line name="961" meter="G">
+			<word>Iamiam</word>
+			<word>eruentis;</word>
+			<word>gemuit</word>
+			<word>et</word>
+			<word>dirum</word>
+			<word>fremens</word>
+		</line>
+		<line name="962" meter="G">
+			<word>Manus</word>
+			<word>in</word>
+			<word>ora</word>
+			<word>torsit.</word>
+			<word>at</word>
+			<word>contra</word>
+			<word>truces</word>
+		</line>
+		<line name="963" meter="G">
+			<word>Oculi</word>
+			<word>steterunt</word>
+			<word>et</word>
+			<word>suam</word>
+			<word>intenti</word>
+			<word>manum</word>
+		</line>
+		<line name="964" meter="G">
+			<word>Vltro</word>
+			<word>insecuntur,</word>
+			<word>uulneri</word>
+			<word>occurrunt</word>
+			<word>suo.</word>
+		</line>
+		<line name="965" meter="G">
+			<word>Scrutatur</word>
+			<word>auidus</word>
+			<word>manibus</word>
+			<word>uncis</word>
+			<word>lumina,</word>
+		</line>
+		<line name="966" meter="G">
+			<word>Radice</word>
+			<word>ab</word>
+			<word>ima</word>
+			<word>funditus</word>
+			<word>uulsos</word>
+			<word>simul</word>
+		</line>
+		<line name="967" meter="G">
+			<word>Euoluit</word>
+			<word>orbes;</word>
+			<word>haeret</word>
+			<word>in</word>
+			<word>uacuo</word>
+			<word>manus</word>
+		</line>
+		<line name="968" meter="G">
+			<word>Et</word>
+			<word>fixa</word>
+			<word>penitus</word>
+			<word>unguibus</word>
+			<word>lacerat</word>
+			<word>cauos</word>
+		</line>
+		<line name="969" meter="G">
+			<word>Alte</word>
+			<word>recessus</word>
+			<word>luminum</word>
+			<word>et</word>
+			<word>inanes</word>
+			<word>sinus</word>
+		</line>
+		<line name="970" meter="G">
+			<word>Saeuitque</word>
+			<word>frustra</word>
+			<word>plusque</word>
+			<word>quam</word>
+			<word>satis</word>
+			<word>est</word>
+			<word>furit.</word>
+		</line>
+		<line name="971" meter="G">
+			<word>Tantum</word>
+			<word>est</word>
+			<word>periclum</word>
+			<word>lucis?</word>
+			<word>attollit</word>
+			<word>caput</word>
+		</line>
+		<line name="972" meter="G">
+			<word>Cauisque</word>
+			<word>lustrans</word>
+			<word>orbibus</word>
+			<word>caeli</word>
+			<word>plagas</word>
+		</line>
+		<line name="973" meter="G">
+			<word>Noctem</word>
+			<word>experitur.</word>
+			<word>quidquid</word>
+			<word>effossis</word>
+			<word>male</word>
+		</line>
+		<line name="974" meter="G">
+			<word>Dependet</word>
+			<word>oculis</word>
+			<word>rumpit,</word>
+			<word>et</word>
+			<word>uictor</word>
+			<word>deos</word>
+		</line>
+		<line name="975" meter="G">
+			<word>Conclamat</word>
+			<word>omnis:</word>
+			<word>'parcite</word>
+			<word>en</word>
+			<word>patriae,</word>
+			<word>precor:</word>
+		</line>
+		<line name="976" meter="G">
+			<word>Iam</word>
+			<word>iusta</word>
+			<word>feci,</word>
+			<word>debitas</word>
+			<word>poenas</word>
+			<word>tuli;</word>
+		</line>
+		<line name="977" meter="G">
+			<word>Inuenta</word>
+			<word>thalamis</word>
+			<word>digna</word>
+			<word>nox</word>
+			<word>tandem</word>
+			<word>meis.'</word>
+		</line>
+		<line name="978" meter="G">
+			<word>Rigat</word>
+			<word>ora</word>
+			<word>foedus</word>
+			<word>imber</word>
+			<word>et</word>
+			<word>lacerum</word>
+			<word>caput</word>
+		</line>
+		<line name="979" meter="G">
+			<word>Largum</word>
+			<word>reuulsis</word>
+			<word>sanguinem</word>
+			<word>uenis</word>
+			<word>uomit.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Chorus</word>
+		</line>
+		<line name="980" meter="Y">
+			<word>Fatis</word>
+			<word>agimur:</word>
+			<word>cedite</word>
+			<word>fatis;</word>
+		</line>
+		<line name="981" meter="Y">
+			<word>Non</word>
+			<word>sollicitae</word>
+			<word>possunt</word>
+			<word>curae</word>
+		</line>
+		<line name="982" meter="Y">
+			<word>Mutare</word>
+			<word>rati</word>
+			<word>stamina</word>
+			<word>fusi.</word>
+		</line>
+		<line name="983" meter="Y">
+			<word>Quidquid</word>
+			<word>patimur</word>
+			<word>mortale</word>
+			<word>genus,</word>
+		</line>
+		<line name="984" meter="Y">
+			<word>Quidquid</word>
+			<word>facimus</word>
+			<word>uenit</word>
+			<word>ex</word>
+			<word>alto,</word>
+		</line>
+		<line name="985" meter="Y">
+			<word>Seruatque</word>
+			<word>suae</word>
+			<word>decreta</word>
+			<word>colus</word>
+		</line>
+		<line name="986" meter="Y">
+			<word>Lachesis</word>
+			<word>dura</word>
+			<word>reuoluta</word>
+			<word>manu.</word>
+		</line>
+		<line name="987" meter="Y">
+			<word>Omnia</word>
+			<word>certo</word>
+			<word>tramite</word>
+			<word>uadunt</word>
+		</line>
+		<line name="988" meter="Y">
+			<word>Primusque</word>
+			<word>dies</word>
+			<word>dedit</word>
+			<word>extremum:</word>
+		</line>
+		<line name="989" meter="Y">
+			<word>Non</word>
+			<word>illa</word>
+			<word>deo</word>
+			<word>uertisse</word>
+			<word>licet,</word>
+		</line>
+		<line name="990" meter="Y">
+			<word>Quae</word>
+			<word>nexa</word>
+			<word>suis</word>
+			<word>currunt</word>
+			<word>causis.</word>
+		</line>
+		<line name="991" meter="Y">
+			<word>It</word>
+			<word>cuique</word>
+			<word>ratus</word>
+			<word>prece</word>
+			<word>non</word>
+			<word>ulla</word>
+		</line>
+		<line name="991bis" meter="Y">
+			<word>Mobilis</word>
+			<word>ordo:</word>
+		</line>
+		<line name="992" meter="Y">
+			<word>Multis</word>
+			<word>ipsum</word>
+			<word>metuisse</word>
+			<word>nocet,</word>
+		</line>
+		<line name="993" meter="Y">
+			<word>Multi</word>
+			<word>ad</word>
+			<word>fatum</word>
+			<word>uenere</word>
+			<word>suum</word>
+		</line>
+		<line name="994" meter="Y">
+			<word>Dum</word>
+			<word>fata</word>
+			<word>timent.</word>
+		</line>
+		<line name="995" meter="Y">
+			<word>Sonuere</word>
+			<word>fores</word>
+			<word>atque</word>
+			<word>ipse</word>
+			<word>suum</word>
+		</line>
+		<line name="996" meter="Y">
+			<word>Duce</word>
+			<word>non</word>
+			<word>ullo</word>
+			<word>molitur</word>
+			<word>iter</word>
+		</line>
+		<line name="997" meter="Y">
+			<word>Luminis</word>
+			<word>orbus.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="998" meter="G">
+			<word>Bene</word>
+			<word>habet,</word>
+			<word>peractum</word>
+			<word>est:</word>
+			<word>iusta</word>
+			<word>persolui</word>
+			<word>patri.</word>
+		</line>
+		<line name="999" meter="G">
+			<word>Iuuant</word>
+			<word>tenebrae.</word>
+			<word>quis</word>
+			<word>deus</word>
+			<word>tandem</word>
+			<word>mihi</word>
+		</line>
+		<line name="1000" meter="G">
+			<word>Placatus</word>
+			<word>atra</word>
+			<word>nube</word>
+			<word>perfundit</word>
+			<word>caput?</word>
+		</line>
+		<line name="1001" meter="G">
+			<word>Quis</word>
+			<word>scelera</word>
+			<word>donat?</word>
+			<word>conscium</word>
+			<word>euasi</word>
+			<word>diem.</word>
+		</line>
+		<line name="1002" meter="G">
+			<word>Nil,</word>
+			<word>parricida,</word>
+			<word>dexterae</word>
+			<word>debes</word>
+			<word>tuae:</word>
+		</line>
+		<line name="1003" meter="G">
+			<word>Lux</word>
+			<word>te</word>
+			<word>refugit.</word>
+			<word>uultus</word>
+			<word>Oedipodam</word>
+			<word>hic</word>
+			<word>decet.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Chorus</word>
+		</line>
+		<line name="1004" meter="G">
+			<word>En</word>
+			<word>ecce,</word>
+			<word>rapido</word>
+			<word>saeua</word>
+			<word>prosiluit</word>
+			<word>gradu</word>
+		</line>
+		<line name="1005" meter="G">
+			<word>Iocasta</word>
+			<word>uaecors,</word>
+			<word>qualis</word>
+			<word>attonita</word>
+			<word>et</word>
+			<word>furens</word>
+		</line>
+		<line name="1006" meter="G">
+			<word>Cadmea</word>
+			<word>mater</word>
+			<word>abstulit</word>
+			<word>gnato</word>
+			<word>caput</word>
+		</line>
+		<line name="1007" meter="G">
+			<word>Sensitue</word>
+			<word>raptum.</word>
+			<word>dubitat</word>
+			<word>afflictum</word>
+			<word>alloqui,</word>
+		</line>
+		<line name="1008" meter="G">
+			<word>Cupit</word>
+			<word>pauetque.</word>
+			<word>iam</word>
+			<word>malis</word>
+			<word>cessit</word>
+			<word>pudor,</word>
+		</line>
+		<line name="1009" meter="G">
+			<word>Sed</word>
+			<word>haeret</word>
+			<word>ore</word>
+			<word>prima</word>
+			<word>uox.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Iocasta</word>
+		</line>
+		<line name="1009" meter="G">
+			<word>Quid</word>
+			<word>te</word>
+			<word>uocem?</word>
+		</line>
+		<line name="1010" meter="G">
+			<word>Gnatumne?</word>
+			<word>dubitas?</word>
+			<word>gnatus</word>
+			<word>es:</word>
+			<word>gnatum</word>
+			<word>pudet;</word>
+		</line>
+		<line name="1011" meter="G">
+			<word>Inuite</word>
+			<word>loquere</word>
+			<word>gnate</word>
+			<word>-</word>
+			<word>quo</word>
+			<word>auertis</word>
+			<word>caput</word>
+		</line>
+		<line name="1012" meter="G">
+			<word>Vacuosque</word>
+			<word>uultus?</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="1012" meter="G">
+			<word>Quis</word>
+			<word>frui</word>
+			<word>tenebris</word>
+			<word>uetat?</word>
+		</line>
+		<line name="1013" meter="G">
+			<word>Quis</word>
+			<word>reddit</word>
+			<word>oculos?</word>
+			<word>matris,</word>
+			<word>en</word>
+			<word>matris</word>
+			<word>sonus!</word>
+		</line>
+		<line name="1014" meter="G">
+			<word>Perdidimus</word>
+			<word>operam.</word>
+			<word>congredi</word>
+			<word>fas</word>
+			<word>amplius</word>
+		</line>
+		<line name="1015" meter="G">
+			<word>Haut</word>
+			<word>est</word>
+			<word>nefandos.</word>
+			<word>diuidat</word>
+			<word>uastum</word>
+			<word>mare</word>
+		</line>
+		<line name="1016" meter="G">
+			<word>Dirimatque</word>
+			<word>tellus</word>
+			<word>abdita</word>
+			<word>et</word>
+			<word>quisquis</word>
+			<word>sub</word>
+			<word>hoc</word>
+		</line>
+		<line name="1017" meter="G">
+			<word>In</word>
+			<word>alia</word>
+			<word>uersus</word>
+			<word>sidera</word>
+			<word>ac</word>
+			<word>solem</word>
+			<word>auium</word>
+		</line>
+		<line name="1018" meter="G">
+			<word>Dependet</word>
+			<word>orbis</word>
+			<word>alterum</word>
+			<word>ex</word>
+			<word>nobis</word>
+			<word>ferat.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Iocasta</word>
+		</line>
+		<line name="1019" meter="G">
+			<word>Fati</word>
+			<word>ista</word>
+			<word>culpa</word>
+			<word>est:</word>
+			<word>nemo</word>
+			<word>fit</word>
+			<word>fato</word>
+			<word>nocens.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="1020" meter="G">
+			<word>Iam</word>
+			<word>parce</word>
+			<word>uerbis,</word>
+			<word>mater,</word>
+			<word>et</word>
+			<word>parce</word>
+			<word>auribus:</word>
+		</line>
+		<line name="1021" meter="G">
+			<word>Per</word>
+			<word>has</word>
+			<word>reliquias</word>
+			<word>corporis</word>
+			<word>trunci</word>
+			<word>precor,</word>
+		</line>
+		<line name="1022" meter="G">
+			<word>Per</word>
+			<word>inauspicatum</word>
+			<word>sanguinis</word>
+			<word>pignus</word>
+			<word>mei,</word>
+		</line>
+		<line name="1023" meter="G">
+			<word>Per</word>
+			<word>omne</word>
+			<word>nostri</word>
+			<word>nominis</word>
+			<word>fas</word>
+			<word>ac</word>
+			<word>nefas.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Iocasta</word>
+		</line>
+		<line name="1024" meter="G">
+			<word>Quid,</word>
+			<word>anime,</word>
+			<word>torpes?</word>
+			<word>socia</word>
+			<word>cur</word>
+			<word>scelerum</word>
+			<word>dare</word>
+		</line>
+		<line name="1025" meter="G">
+			<word>Poenas</word>
+			<word>recusas?</word>
+			<word>omne</word>
+			<word>confusum</word>
+			<word>perit,</word>
+		</line>
+		<line name="1026" meter="G">
+			<word>Incesta,</word>
+			<word>per</word>
+			<word>te</word>
+			<word>iuris</word>
+			<word>humani</word>
+			<word>decus:</word>
+		</line>
+		<line name="1027" meter="G">
+			<word>Morere</word>
+			<word>et</word>
+			<word>nefastum</word>
+			<word>spiritum</word>
+			<word>ferro</word>
+			<word>exige.</word>
+		</line>
+		<line name="1028" meter="G">
+			<word>Non</word>
+			<word>si</word>
+			<word>ipse</word>
+			<word>mundum</word>
+			<word>concitans</word>
+			<word>diuum</word>
+			<word>sator</word>
+		</line>
+		<line name="1029" meter="G">
+			<word>Corusca</word>
+			<word>saeua</word>
+			<word>tela</word>
+			<word>iaculetur</word>
+			<word>manu,</word>
+		</line>
+		<line name="1030" meter="G">
+			<word>Vmquam</word>
+			<word>rependam</word>
+			<word>sceleribus</word>
+			<word>poenas</word>
+			<word>pares</word>
+		</line>
+		<line name="1031" meter="G">
+			<word>Mater</word>
+			<word>nefanda.</word>
+			<word>mors</word>
+			<word>placet:</word>
+			<word>mortis</word>
+			<word>uia</word>
+		</line>
+		<line name="1032" meter="G">
+			<word>Quaeratur.</word>
+			<word>-</word>
+			<word>Agedum,</word>
+			<word>commoda</word>
+			<word>matri</word>
+			<word>manum,</word>
+		</line>
+		<line name="1033" meter="G">
+			<word>Si</word>
+			<word>parricida</word>
+			<word>es.</word>
+			<word>restat</word>
+			<word>hoc</word>
+			<word>operi</word>
+			<word>ultimum:</word>
+		</line>
+		<line name="1034" meter="G">
+			<word>Rapiatur</word>
+			<word>ensis;</word>
+			<word>hoc</word>
+			<word>iacet</word>
+			<word>ferro</word>
+			<word>meus</word>
+		</line>
+		<line name="1035" meter="G">
+			<word>Coniunx</word>
+			<word>-</word>
+			<word>quid</word>
+			<word>illum</word>
+			<word>nomine</word>
+			<word>haud</word>
+			<word>uero</word>
+			<word>uocas?</word>
+		</line>
+		<line name="1036" meter="G">
+			<word>Socer</word>
+			<word>est.</word>
+			<word>utrumne</word>
+			<word>pectori</word>
+			<word>infigam</word>
+			<word>meo</word>
+		</line>
+		<line name="1037" meter="G">
+			<word>Telum</word>
+			<word>an</word>
+			<word>patenti</word>
+			<word>conditum</word>
+			<word>iugulo</word>
+			<word>inprimam?</word>
+		</line>
+		<line name="1038" meter="G">
+			<word>Eligere</word>
+			<word>nescis</word>
+			<word>uulnus:</word>
+			<word>hunc,</word>
+			<word>dextra,</word>
+			<word>hunc</word>
+			<word>pete</word>
+		</line>
+		<line name="1039" meter="G">
+			<word>Vterum</word>
+			<word>capacem,</word>
+			<word>qui</word>
+			<word>uirum</word>
+			<word>et</word>
+			<word>gnatos</word>
+			<word>tulit.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Chorus</word>
+		</line>
+		<line name="1040" meter="G">
+			<word>Iacet</word>
+			<word>perempta.</word>
+			<word>uulneri</word>
+			<word>immoritur</word>
+			<word>manus</word>
+		</line>
+		<line name="1041" meter="G">
+			<word>Ferrumque</word>
+			<word>secum</word>
+			<word>nimius</word>
+			<word>eiecit</word>
+			<word>cruor.</word>
+		</line>
+		<line name="" meter="X">
+			<word>Oedipus</word>
+		</line>
+		<line name="1042" meter="G">
+			<word>Fatidice</word>
+			<word>te,</word>
+			<word>te</word>
+			<word>praesidem</word>
+			<word>ueri</word>
+			<word>deum</word>
+		</line>
+		<line name="1043" meter="G">
+			<word>Compello:</word>
+			<word>solum</word>
+			<word>debui</word>
+			<word>fatis</word>
+			<word>patrem;</word>
+		</line>
+		<line name="1044" meter="G">
+			<word>Bis</word>
+			<word>parricida</word>
+			<word>plusque</word>
+			<word>quam</word>
+			<word>timui</word>
+			<word>nocens</word>
+		</line>
+		<line name="1045" meter="G">
+			<word>Matrem</word>
+			<word>peremi:</word>
+			<word>scelere</word>
+			<word>confecta</word>
+			<word>est</word>
+			<word>meo.</word>
+		</line>
+		<line name="1046" meter="G">
+			<word>O</word>
+			<word>Phoebe</word>
+			<word>mendax,</word>
+			<word>fata</word>
+			<word>superaui</word>
+			<word>impia.</word>
+		</line>
+		<line name="1047" meter="G">
+			<word>Pauitante</word>
+			<word>gressu</word>
+			<word>sequere</word>
+			<word>fallentes</word>
+			<word>uias;</word>
+		</line>
+		<line name="1048" meter="G">
+			<word>Suspensa</word>
+			<word>plantis</word>
+			<word>efferens</word>
+			<word>uestigia</word>
+		</line>
+		<line name="1049" meter="G">
+			<word>Caecam</word>
+			<word>tremente</word>
+			<word>dextera</word>
+			<word>noctem</word>
+			<word>rege.</word>
+		</line>
+		<line name="1050" meter="G">
+			<word>Ingredere</word>
+			<word>praeceps,</word>
+			<word>lubricos</word>
+			<word>ponens</word>
+			<word>gradus,</word>
+		</line>
+		<line name="1051" meter="G">
+			<word>I</word>
+			<word>profuge</word>
+			<word>uade</word>
+			<word>-</word>
+			<word>siste,</word>
+			<word>ne</word>
+			<word>in</word>
+			<word>matrem</word>
+			<word>incidas.</word>
+		</line>
+		<line name="1052" meter="G">
+			<word>Quicumque</word>
+			<word>fessi</word>
+			<word>corpore</word>
+			<word>et</word>
+			<word>morbo</word>
+			<word>graues</word>
+		</line>
+		<line name="1053" meter="G">
+			<word>Semanima</word>
+			<word>trahitis</word>
+			<word>pectora,</word>
+			<word>en</word>
+			<word>fugio,</word>
+			<word>exeo:</word>
+		</line>
+		<line name="1054" meter="G">
+			<word>Releuate</word>
+			<word>colla.</word>
+			<word>mitior</word>
+			<word>caeli</word>
+			<word>status</word>
+		</line>
+		<line name="1055" meter="G">
+			<word>Posterga</word>
+			<word>sequitur:</word>
+			<word>quisquis</word>
+			<word>exilem</word>
+			<word>iacens</word>
+		</line>
+		<line name="1056" meter="G">
+			<word>Animam</word>
+			<word>retentat,</word>
+			<word>uiuidos</word>
+			<word>haustus</word>
+			<word>leuis</word>
+		</line>
+		<line name="1057" meter="G">
+			<word>Concipiat.</word>
+			<word>ite,</word>
+			<word>ferte</word>
+			<word>depositis</word>
+			<word>opem:</word>
+		</line>
+		<line name="1058" meter="G">
+			<word>Mortifera</word>
+			<word>mecum</word>
+			<word>uitia</word>
+			<word>terrarum</word>
+			<word>extraho.</word>
+		</line>
+		<line name="1059" meter="G">
+			<word>Violenta</word>
+			<word>Fata</word>
+			<word>et</word>
+			<word>horridus</word>
+			<word>Morbi</word>
+			<word>tremor,</word>
+		</line>
+		<line name="1060" meter="G">
+			<word>Maciesque</word>
+			<word>et</word>
+			<word>atra</word>
+			<word>Pestis</word>
+			<word>et</word>
+			<word>rabidus</word>
+			<word>Dolor,</word>
+		</line>
+		<line name="1061" meter="G">
+			<word>Mecum</word>
+			<word>ite,</word>
+			<word>mecum.</word>
+			<word>ducibus</word>
+			<word>his</word>
+			<word>uti</word>
+			<word>libet.</word>
+		</line>
+	</body>
+</document>
