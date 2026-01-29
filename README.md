@@ -52,7 +52,6 @@ See [docs/DEVELOPER.md](docs/DEVELOPER.md) for setup instructions.
 
 - [API Reference](docs/API.md) - REST API endpoints
 - [Developer Guide](docs/DEVELOPER.md) - Setup and architecture
-- [ROADMAP.md](ROADMAP.md) - Development phases and status
 
 ## Project Structure
 
