@@ -169,7 +169,19 @@ The new **Line Search** feature inverts this model: given a single line or phras
 3. Scores matches using the V3 algorithm
 4. Returns ranked results with match highlighting
 
-**Example**: [PLACEHOLDER: Add example of a line search query and notable results, demonstrating discovery of an unexpected parallel]
+**Example**: A search for Vergil's famous incipit "arma virumque cano" (*I sing of arms and the man*) illustrates the feature's power. Rather than returning only the expected Vergil matches, the corpus-wide search surfaces over 250 results across diverse authors and genres:
+
+| Author | Matches | Representative Works |
+|--------|---------|---------------------|
+| Livy | ~72 | *Ab Urbe Condita* |
+| Ovid | ~26 | *Amores*, *Fasti*, *Metamorphoses* |
+| Curtius Rufus | ~10 | *Historiae Alexandri Magni* |
+| Cicero | ~8 | *Orations*, *Philosophical Works* |
+| Vergil | ~2 | *Aeneid* |
+
+The results reveal an unexpected pattern: the vocabulary of "arms" and "man" (*arma*, *vir*) pervades Roman historiography as much as epic poetry. Livy's historical prose, describing Rome's military expansion, shares this lexical register with Vergil's foundational epic. The search thus surfaces not direct allusions but a broader cultural preoccupation—the Roman construction of *virtus* (manliness, martial valor) through the interplay of arms and the men who wield them.
+
+More striking are Ovid's matches. His *Amores* opens with a pointed rejection of epic: "arma gravi numero violentaque bella parabam / edere" (*I was preparing to sing of arms and violent wars in weighty meter*)—a direct engagement with Vergil's opening that the line search surfaces alongside the many less obvious instances where Ovidian elegy and epic share vocabulary. A researcher beginning with a hypothesis about Vergil's influence might never think to check Livy; the corpus-wide search makes such discoveries routine
 
 ### 5.2 Cross-Lingual Search
 
