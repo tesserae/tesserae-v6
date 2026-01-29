@@ -1,0 +1,4511 @@
+{
+  "_description": "Text provenance tracking - records source information for corpus texts",
+  "_format": {
+    "text_id": {
+      "source": "Repository/collection name",
+      "source_url": "URL to source",
+      "original_id": "Original identifier (CTS URN, filename, etc.)",
+      "date_added": "ISO date when added to corpus",
+      "license": "License information"
+    }
+  },
+  "sources": {
+    "tesserae_original": {
+      "name": "Tesserae Project",
+      "url": "https://tesserae.caset.buffalo.edu/",
+      "description": "Original Tesserae corpus curated by the Tesserae Project team"
+    },
+    "csel": {
+      "name": "CSEL - Corpus Scriptorum Ecclesiasticorum Latinorum",
+      "url": "https://github.com/OpenGreekAndLatin/csel-dev",
+      "description": "Vienna Academy critical editions of Latin Church Fathers via OGL Project"
+    },
+    "perseus": {
+      "name": "Perseus Digital Library",
+      "url": "https://www.perseus.tufts.edu/",
+      "description": "Open-access classical texts from Tufts University"
+    },
+    "latin_library": {
+      "name": "The Latin Library",
+      "url": "https://thelatinlibrary.com/",
+      "description": "Community-curated Latin text archive"
+    },
+    "first1k_greek": {
+      "name": "First1KGreek",
+      "url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+      "description": "First Thousand Years of Greek literary texts via OGL Project"
+    },
+    "mqdq": {
+      "name": "Musisque Deoque",
+      "url": "http://www.mqdq.it/",
+      "description": "Metrical database of Latin poetry"
+    }
+  },
+  "texts": {
+    "adamnan.de_locis_santis": {
+      "source": "csel",
+      "original_id": "stoa0007.stoa002.opp-lat1.xml",
+      "author": "Adamnan",
+      "title": "De Locis Santis",
+      "date_added": "2026-01-21T22:30:58.721952",
+      "language": "la"
+    },
+    "ambrose.apologia_altera_prophetae_david": {
+      "source": "csel",
+      "original_id": "stoa0022.stoa014.opp-lat1.xml",
+      "author": "Ambrose",
+      "title": "Apologia Altera Prophetae David",
+      "date_added": "2026-01-21T22:30:58.747218",
+      "language": "la"
+    },
+    "ambrose.apologia_prophetae_david_ad_theodosium_a": {
+      "source": "csel",
+      "original_id": "stoa0022.stoa015.opp-lat1.xml",
+      "author": "Ambrose",
+      "title": "Apologia Prophetae David Ad Theodosium Augustum",
+      "date_added": "2026-01-21T22:30:58.771974",
+      "language": "la"
+    },
+    "ambrose.de_benedictionibus_patriarcharum_liber_u": {
+      "source": "csel",
+      "original_id": "stoa0022.stoa019.opp-lat1.xml",
+      "author": "Ambrose",
+      "title": "De Benedictionibus Patriarcharum Liber Unus",
+      "date_added": "2026-01-21T22:30:58.818967",
+      "language": "la"
+    },
+    "ambrose.de_cain_et_abel": {
+      "source": "csel",
+      "original_id": "stoa0022.stoa021.opp-lat1.xml",
+      "author": "Ambrose",
+      "title": "De Cain et Abel",
+      "date_added": "2026-01-21T22:30:58.865108",
+      "language": "la"
+    },
+    "ambrose.de_joseph": {
+      "source": "csel",
+      "original_id": "stoa0022.stoa035.opp-lat1.xml",
+      "author": "Ambrose",
+      "title": "De Joseph",
+      "date_added": "2026-01-21T22:30:59.543283",
+      "language": "la"
+    },
+    "ambrose.explanatio_psalmorum_xii": {
+      "source": "csel",
+      "original_id": "stoa0022.stoa048.opp-lat1.xml",
+      "author": "Ambrose",
+      "title": "Explanatio Psalmorum XII",
+      "date_added": "2026-01-21T22:31:00.550301",
+      "language": "la"
+    },
+    "ambrose.expositio_psalmi_cxviii": {
+      "source": "csel",
+      "original_id": "stoa0022.stoa052.opp-lat1.xml",
+      "author": "Ambrose",
+      "title": "Expositio Psalmi CXVIII",
+      "date_added": "2026-01-21T22:31:00.888721",
+      "language": "la"
+    },
+    "ambrose.exameron": {
+      "source": "csel",
+      "original_id": "stoa0022.stoa054.opp-lat1.xml",
+      "author": "Ambrose",
+      "title": "Exameron",
+      "date_added": "2026-01-21T22:31:01.031718",
+      "language": "la"
+    },
+    "ambrosiaster.pseudo_augustini_quaestiones_veteris_et": {
+      "source": "csel",
+      "original_id": "stoa0022a.stoa001.opp-lat1.xml",
+      "author": "Ambrosiaster",
+      "title": "Pseudo-Augustini Quaestiones Veteris et Novi Testamenti CXXVII",
+      "date_added": "2026-01-21T22:31:01.204320",
+      "language": "la"
+    },
+    "anonymous_pilgrim_of_piacenza.itinerarium": {
+      "source": "csel",
+      "original_id": "stoa0028e.stoa001.opp-lat1.xml",
+      "author": "Anonymous pilgrim of Piacenza",
+      "title": "Itinerarium",
+      "date_added": "2026-01-21T22:31:01.286798",
+      "language": "la"
+    },
+    "arnobius_of_sicca.adversus_nationes_libri_vii": {
+      "source": "csel",
+      "original_id": "stoa0034.stoa001.opp-lat1.xml",
+      "author": "Arnobius of Sicca",
+      "title": "Adversus nationes Libri VII",
+      "date_added": "2026-01-21T22:31:01.568795",
+      "language": "la"
+    },
+    "augustine.confessiones": {
+      "source": "csel",
+      "original_id": "stoa0040.stoa001.opp-lat1.xml",
+      "author": "Augustine",
+      "title": "Confessiones",
+      "date_added": "2026-01-21T22:31:01.734033",
+      "language": "la"
+    },
+    "augustine.contra_cresconium": {
+      "source": "csel",
+      "original_id": "stoa0040.stoa019.opp-lat1.xml",
+      "author": "Augustine",
+      "title": "Contra Cresconium",
+      "date_added": "2026-01-21T22:31:02.211873",
+      "language": "la"
+    },
+    "augustine.epistula_ad_catholicos_de_secta_donatist": {
+      "source": "csel",
+      "original_id": "stoa0040.stoa020.opp-lat1.xml",
+      "author": "Augustine",
+      "title": "Epistula ad Catholicos de Secta Donatistarum",
+      "date_added": "2026-01-21T22:31:02.249114",
+      "language": "la"
+    },
+    "augustine.contra_duas_epistulas_pelegianorum": {
+      "source": "csel",
+      "original_id": "stoa0040.stoa021.opp-lat1.xml",
+      "author": "Augustine",
+      "title": "Contra Duas Epistulas Pelegianorum",
+      "date_added": "2026-01-21T22:31:02.304879",
+      "language": "la"
+    },
+    "augustine.contra_secundinem": {
+      "source": "csel",
+      "original_id": "stoa0040.stoa031.opp-lat1.xml",
+      "author": "Augustine",
+      "title": "Contra Secundinem",
+      "date_added": "2026-01-21T22:31:02.408220",
+      "language": "la"
+    },
+    "augustine.de_conjugiis_adulterinis": {
+      "source": "csel",
+      "original_id": "stoa0040.stoa036.opp-lat1.xml",
+      "author": "Augustine",
+      "title": "De Conjugiis Adulterinis",
+      "date_added": "2026-01-21T22:31:02.470200",
+      "language": "la"
+    },
+    "augustine.de_cura_pro_mortuis_gerenda_ad_paulinum": {
+      "source": "csel",
+      "original_id": "stoa0040.stoa037c.opp-lat1.xml",
+      "author": "Augustine",
+      "title": "De Cura pro Mortuis Gerenda ad Paulinum Episcopum",
+      "date_added": "2026-01-21T22:31:02.525243",
+      "language": "la"
+    },
+    "augustine.de_diuinatione_daemonum": {
+      "source": "csel",
+      "original_id": "stoa0040.stoa038a.opp-lat1.xml",
+      "author": "Augustine",
+      "title": "De diuinatione daemonum",
+      "date_added": "2026-01-21T22:31:02.539684",
+      "language": "la"
+    },
+    "augustine.du_duabus_animabus": {
+      "source": "csel",
+      "original_id": "stoa0040.stoa040.opp-lat1.xml",
+      "author": "Augustine",
+      "title": "Du Duabus Animabus",
+      "date_added": "2026-01-21T22:31:02.568189",
+      "language": "la"
+    },
+    "augustine.de_genesi_ad_litteram_imperfectus_liber": {
+      "source": "csel",
+      "original_id": "stoa0040.stoa042.opp-lat1.xml",
+      "author": "Augustine",
+      "title": "De Genesi Ad Litteram Imperfectus Liber",
+      "date_added": "2026-01-21T22:31:02.597694",
+      "language": "la"
+    },
+    "augustine.de_gratia_christ": {
+      "source": "csel",
+      "original_id": "stoa0040.stoa046.opp-lat1.xml",
+      "author": "Augustine",
+      "title": "De Gratia Christ",
+      "date_added": "2026-01-21T22:31:02.649542",
+      "language": "la"
+    },
+    "unknown.corpus_scriptorum_ecclesiasticorum_latin": {
+      "source": "csel",
+      "original_id": "stoa0040.stoa054.opp-lat2.xml",
+      "author": "Unknown",
+      "title": "Corpus Scriptorum Ecclesiasticorum Latinorum (CSEL)",
+      "date_added": "2026-01-21T22:31:02.683297",
+      "language": "la"
+    },
+    "augustine.de_peccatorum_meritis_et_remissione_et_d": {
+      "source": "csel",
+      "original_id": "stoa0040.stoa057.opp-lat1.xml",
+      "author": "Augustine",
+      "title": "De Peccatorum Meritis et Remissione et de Baptismo Parvulorum",
+      "date_added": "2026-01-21T22:31:02.759063",
+      "language": "la"
+    },
+    "augustine.de_utilitate_credendi": {
+      "source": "csel",
+      "original_id": "stoa0040.stoa064.opp-lat1.xml",
+      "author": "Augustine",
+      "title": "De Utilitate Credendi",
+      "date_added": "2026-01-21T22:31:03.060949",
+      "language": "la"
+    },
+    "augustine.gesta_cum_emerito_donatistarum_episcopum": {
+      "source": "csel",
+      "original_id": "stoa0040.stoa066c.opp-lat1.xml",
+      "author": "Augustine",
+      "title": "Gesta cum Emerito Donatistarum Episcopum",
+      "date_added": "2026-01-21T22:31:03.074260",
+      "language": "la"
+    },
+    "augustine.retractationum": {
+      "source": "csel",
+      "original_id": "stoa0040.stoa077.opp-lat1.xml",
+      "author": "Augustine",
+      "title": "Retractationum",
+      "date_added": "2026-01-21T22:31:03.237125",
+      "language": "la"
+    },
+    "augustine.liber_qui_appellatur_speculum": {
+      "source": "csel",
+      "original_id": "stoa0040.stoa080.opp-lat1.xml",
+      "author": "Augustine",
+      "title": "Liber qui appellatur Speculum",
+      "date_added": "2026-01-21T22:31:03.341298",
+      "language": "la"
+    },
+    "augustine.liber_de_divinis_scripturis_sive_speculu": {
+      "source": "csel",
+      "original_id": "stoa0040.stoa080a.opp-lat1.xml",
+      "author": "Augustine",
+      "title": "Liber de Divinis Scripturis sive Speculum quod fertur S. Augustini",
+      "date_added": "2026-01-21T22:31:03.458911",
+      "language": "la"
+    },
+    "catholic_church_pope.epistulae_imperatorum_pontificum_aliorum": {
+      "source": "csel",
+      "original_id": "stoa0045a.stoa001.opp-lat1.xml",
+      "author": "Catholic Church. Pope.",
+      "title": "Epistulae imperatorum pontificum aliorum",
+      "date_added": "2026-01-21T22:31:03.816851",
+      "language": "la"
+    },
+    "bede_the_venerable.de_locis_santis": {
+      "source": "csel",
+      "original_id": "stoa0054.stoa001a.opp-lat1.xml",
+      "author": "Bede the Venerable",
+      "title": "De Locis Santis",
+      "date_added": "2026-01-21T22:31:03.842306",
+      "language": "la"
+    },
+    "boethius.de_consolatione_philosophiae": {
+      "source": "csel",
+      "original_id": "stoa0058.stoa001.opp-lat3.xml",
+      "author": "Boethius",
+      "title": "De consolatione philosophiae",
+      "date_added": "2026-01-21T22:31:04.200688",
+      "language": "la"
+    },
+    "boethius.commentaria_in_porphyrium_a_se_translatu": {
+      "source": "csel",
+      "original_id": "stoa0058.stoa007.opp-lat2.xml",
+      "author": "Boethius",
+      "title": "Commentaria in Porphyrium A Se Translatum (editio prima)",
+      "date_added": "2026-01-21T22:31:04.245210",
+      "language": "la"
+    },
+    "john_cassian.conlationes_patrum_collationibus_selecti": {
+      "source": "csel",
+      "original_id": "stoa0076c.stoa001.opp-lat2.xml",
+      "author": "John Cassian",
+      "title": "Conlationes Patrum (Collationibus). Selections.",
+      "date_added": "2026-01-21T22:31:04.572296",
+      "language": "la"
+    },
+    "john_cassian.de_incarnatione_domini_contra_nestorum": {
+      "source": "csel",
+      "original_id": "stoa0076c.stoa003.opp-lat1.xml",
+      "author": "John Cassian",
+      "title": "De Incarnatione Domini Contra Nestorum",
+      "date_added": "2026-01-21T22:31:04.712068",
+      "language": "la"
+    },
+    "claudianus_mamertus.de_statu_animae": {
+      "source": "csel",
+      "original_id": "stoa0089a.stoa001.opp-lat1.xml",
+      "author": "Claudianus Mamertus",
+      "title": "De Statu Animae",
+      "date_added": "2026-01-21T22:31:04.773585",
+      "language": "la"
+    },
+    "claudianus_mamertus.epistolae": {
+      "source": "csel",
+      "original_id": "stoa0089a.stoa002.opp-lat1.xml",
+      "author": "Claudianus Mamertus",
+      "title": "Epistolae",
+      "date_added": "2026-01-21T22:31:04.782177",
+      "language": "la"
+    },
+    "commodianus.instructiones": {
+      "source": "csel",
+      "original_id": "stoa0096.stoa003.opp-lat2.xml",
+      "author": "Commodianus",
+      "title": "Instructiones",
+      "date_added": "2026-01-21T22:31:04.824401",
+      "language": "la"
+    },
+    "cyprian_saint.ad_donatum": {
+      "source": "csel",
+      "original_id": "stoa0104a.stoa001.opp-lat1.xml",
+      "author": "Cyprian, Saint",
+      "title": "Ad Donatum",
+      "date_added": "2026-01-21T22:31:04.852690",
+      "language": "la"
+    },
+    "cyprian_saint.ad_demetrianum": {
+      "source": "csel",
+      "original_id": "stoa0104a.stoa002.opp-lat1.xml",
+      "author": "Cyprian, Saint",
+      "title": "Ad Demetrianum",
+      "date_added": "2026-01-21T22:31:04.864825",
+      "language": "la"
+    },
+    "cyprian_saint.de_bono_patientiae": {
+      "source": "csel",
+      "original_id": "stoa0104a.stoa003.opp-lat1.xml",
+      "author": "Cyprian, Saint",
+      "title": "De Bono Patientiae",
+      "date_added": "2026-01-21T22:31:04.876562",
+      "language": "la"
+    },
+    "cyprian_saint.de_disciplina_et_habitu_virginum_liber": {
+      "source": "csel",
+      "original_id": "stoa0104a.stoa004.opp-lat1.xml",
+      "author": "Cyprian, Saint",
+      "title": "De Disciplina et Habitu Virginum Liber",
+      "date_added": "2026-01-21T22:31:04.908231",
+      "language": "la"
+    },
+    "cyprian_saint.de_exhortatione_martyrii": {
+      "source": "csel",
+      "original_id": "stoa0104a.stoa005.opp-lat1.xml",
+      "author": "Cyprian, Saint",
+      "title": "De Exhortatione Martyrii",
+      "date_added": "2026-01-21T22:31:04.935286",
+      "language": "la"
+    },
+    "cyprian_saint.quod_idola_dii_non_sint": {
+      "source": "csel",
+      "original_id": "stoa0104a.stoa006.opp-lat1.xml",
+      "author": "Cyprian, Saint",
+      "title": "Quod Idola Dii non sint",
+      "date_added": "2026-01-21T22:31:04.948868",
+      "language": "la"
+    },
+    "cyprian_saint.de_lapsis": {
+      "source": "csel",
+      "original_id": "stoa0104a.stoa007.opp-lat1.xml",
+      "author": "Cyprian, Saint",
+      "title": "De Lapsis",
+      "date_added": "2026-01-21T22:31:04.963672",
+      "language": "la"
+    },
+    "cyprian_saint.de_mortalite": {
+      "source": "csel",
+      "original_id": "stoa0104a.stoa008.opp-lat1.xml",
+      "author": "Cyprian, Saint",
+      "title": "De Mortalite",
+      "date_added": "2026-01-21T22:31:04.974268",
+      "language": "la"
+    },
+    "cyprian_saint.de_opere_et_eleemosynis": {
+      "source": "csel",
+      "original_id": "stoa0104a.stoa009.opp-lat1.xml",
+      "author": "Cyprian, Saint",
+      "title": "De Opere et Eleemosynis",
+      "date_added": "2026-01-21T22:31:04.987080",
+      "language": "la"
+    },
+    "cyprian_saint.de_unitate_ecclesiae_catholicae_liber": {
+      "source": "csel",
+      "original_id": "stoa0104a.stoa010.opp-lat1.xml",
+      "author": "Cyprian, Saint",
+      "title": "De Unitate Ecclesiae Catholicae Liber",
+      "date_added": "2026-01-21T22:31:05.025766",
+      "language": "la"
+    },
+    "cyprian_saint.de_zelo_et_livore": {
+      "source": "csel",
+      "original_id": "stoa0104a.stoa011.opp-lat1.xml",
+      "author": "Cyprian, Saint",
+      "title": "De Zelo et Livore",
+      "date_added": "2026-01-21T22:31:05.035587",
+      "language": "la"
+    },
+    "cyprian_saint.epistulae": {
+      "source": "csel",
+      "original_id": "stoa0104a.stoa012.opp-lat1.xml",
+      "author": "Cyprian, Saint",
+      "title": "Epistulae",
+      "date_added": "2026-01-21T22:31:05.220692",
+      "language": "la"
+    },
+    "cyprian_saint.sententiae_episcoporum": {
+      "source": "csel",
+      "original_id": "stoa0104a.stoa013.opp-lat1.xml",
+      "author": "Cyprian, Saint",
+      "title": "Sententiae Episcoporum",
+      "date_added": "2026-01-21T22:31:15.608029",
+      "language": "la"
+    },
+    "cyprian_saint.testimoniorum_libri_tres_adversus_judaeo": {
+      "source": "csel",
+      "original_id": "stoa0104a.stoa014.opp-lat1.xml",
+      "author": "Cyprian, Saint",
+      "title": "Testimoniorum Libri Tres adversus Judaeos",
+      "date_added": "2026-01-21T22:31:15.662867",
+      "language": "la"
+    },
+    "cyprian_saint.de_dominica_oratione": {
+      "source": "csel",
+      "original_id": "stoa0104a.stoa015.opp-lat1.xml",
+      "author": "Cyprian, Saint",
+      "title": "De Dominica Oratione",
+      "date_added": "2026-01-21T22:31:15.678963",
+      "language": "la"
+    },
+    "pseudo_cyprian.ad_novatianum": {
+      "source": "csel",
+      "original_id": "stoa0104p.stoa001.opp-lat1.xml",
+      "author": "Pseudo-Cyprian",
+      "title": "Ad Novatianum",
+      "date_added": "2026-01-21T22:31:15.712542",
+      "language": "la"
+    },
+    "pseudo_cyprian.ad_vigilium_de_iudaica_incredulitate": {
+      "source": "csel",
+      "original_id": "stoa0104p.stoa002.opp-lat1.xml",
+      "author": "Pseudo-Cyprian",
+      "title": "Ad Vigilium de Iudaica Incredulitate",
+      "date_added": "2026-01-21T22:31:15.724786",
+      "language": "la"
+    },
+    "pseudo_cyprian.carmina": {
+      "source": "csel",
+      "original_id": "stoa0104p.stoa003.opp-lat2.xml",
+      "author": "Pseudo-Cyprian",
+      "title": "Carmina",
+      "date_added": "2026-01-21T22:31:15.745075",
+      "language": "la"
+    },
+    "pseudo_cyprian.de_disciplina_et_bono_pudicitiae": {
+      "source": "csel",
+      "original_id": "stoa0104p.stoa005.opp-lat1.xml",
+      "author": "Pseudo-Cyprian",
+      "title": "De Disciplina et bono pudicitiae",
+      "date_added": "2026-01-21T22:31:15.755976",
+      "language": "la"
+    },
+    "pseudo_cyprian.de_duplici_martyrio": {
+      "source": "csel",
+      "original_id": "stoa0104p.stoa006.opp-lat1.xml",
+      "author": "Pseudo-Cyprian",
+      "title": "De duplici Martyrio",
+      "date_added": "2026-01-21T22:31:15.771298",
+      "language": "la"
+    },
+    "pseudo_cyprian.de_laude_martyrii": {
+      "source": "csel",
+      "original_id": "stoa0104p.stoa007.opp-lat1.xml",
+      "author": "Pseudo-Cyprian",
+      "title": "De Laude Martyrii",
+      "date_added": "2026-01-21T22:31:15.784335",
+      "language": "la"
+    },
+    "pseudo_cyprian.de_montibus_sina_et_sion_adversus_judaeo": {
+      "source": "csel",
+      "original_id": "stoa0104p.stoa008.opp-lat1.xml",
+      "author": "Pseudo-Cyprian",
+      "title": "De montibus Sina et Sion, adversus Judaeos",
+      "date_added": "2026-01-21T22:31:15.793592",
+      "language": "la"
+    },
+    "pseudo_cyprian.de_pascha_computus": {
+      "source": "csel",
+      "original_id": "stoa0104p.stoa009.opp-lat1.xml",
+      "author": "Pseudo-Cyprian",
+      "title": "De Pascha Computus",
+      "date_added": "2026-01-21T22:31:15.809714",
+      "language": "la"
+    },
+    "pseudo_cyprian.de_rebaptismate": {
+      "source": "csel",
+      "original_id": "stoa0104p.stoa010.opp-lat1.xml",
+      "author": "Pseudo-Cyprian",
+      "title": "De Rebaptismate",
+      "date_added": "2026-01-21T22:31:15.821457",
+      "language": "la"
+    },
+    "pseudo_cyprian.de_singularitate_clericorum": {
+      "source": "csel",
+      "original_id": "stoa0104p.stoa011.opp-lat1.xml",
+      "author": "Pseudo-Cyprian",
+      "title": "De Singularitate clericorum",
+      "date_added": "2026-01-21T22:31:15.839847",
+      "language": "la"
+    },
+    "pseudo_cyprian.de_spectaculis_liber": {
+      "source": "csel",
+      "original_id": "stoa0104p.stoa013.opp-lat1.xml",
+      "author": "Pseudo-Cyprian",
+      "title": "De Spectaculis Liber",
+      "date_added": "2026-01-21T22:31:15.848512",
+      "language": "la"
+    },
+    "pseudo_cyprian.de_xii_abusionibus_saeculi": {
+      "source": "csel",
+      "original_id": "stoa0104p.stoa014.opp-lat1.xml",
+      "author": "Pseudo-Cyprian",
+      "title": "De XII Abusionibus saeculi",
+      "date_added": "2026-01-21T22:31:15.946972",
+      "language": "la"
+    },
+    "pseudo_cyprian.oratio_ii": {
+      "source": "csel",
+      "original_id": "stoa0104p.stoa015.opp-lat1.xml",
+      "author": "Pseudo-Cyprian",
+      "title": "Oratio II",
+      "date_added": "2026-01-21T22:31:16.158826",
+      "language": "la"
+    },
+    "pseudo_cyprian.epistulae": {
+      "source": "csel",
+      "original_id": "stoa0104p.stoa016.opp-lat1.xml",
+      "author": "Pseudo-Cyprian",
+      "title": "Epistulae",
+      "date_added": "2026-01-21T22:31:16.168528",
+      "language": "la"
+    },
+    "pseudo_cyprian.liber_de_aleatoribus": {
+      "source": "csel",
+      "original_id": "stoa0104p.stoa018.opp-lat1.xml",
+      "author": "Pseudo-Cyprian",
+      "title": "Liber de Aleatoribus",
+      "date_added": "2026-01-21T22:31:16.185386",
+      "language": "la"
+    },
+    "pseudo_cyprian.oratio_i": {
+      "source": "csel",
+      "original_id": "stoa0104p.stoa019.opp-lat1.xml",
+      "author": "Pseudo-Cyprian",
+      "title": "Oratio I",
+      "date_added": "2026-01-21T22:31:16.200564",
+      "language": "la"
+    },
+    "pseudo_cyprian.adversus_judaeos": {
+      "source": "csel",
+      "original_id": "stoa0104p.stoa020.opp-lat1.xml",
+      "author": "Pseudo-Cyprian",
+      "title": "Adversus Judaeos",
+      "date_added": "2026-01-21T22:31:16.209099",
+      "language": "la"
+    },
+    "anonymous.s_silviae_peregrinatio": {
+      "source": "csel",
+      "original_id": "stoa0111.stoa001.opp-lat3.xml",
+      "author": "Anonymous",
+      "title": "S. Silviae Peregrinatio",
+      "date_added": "2026-01-21T22:31:16.265221",
+      "language": "la"
+    },
+    "magnus_felix_ennodius.benedictio_cerei_i": {
+      "source": "csel",
+      "original_id": "stoa0114a.stoa001.opp-lat1.xml",
+      "author": "Magnus Felix Ennodius",
+      "title": "Benedictio Cerei (I)",
+      "date_added": "2026-01-21T22:31:16.371416",
+      "language": "la"
+    },
+    "magnus_felix_ennodius.benedictio_cerei_ii": {
+      "source": "csel",
+      "original_id": "stoa0114a.stoa002.opp-lat1.xml",
+      "author": "Magnus Felix Ennodius",
+      "title": "Benedictio Cerei II",
+      "date_added": "2026-01-21T22:31:16.376866",
+      "language": "la"
+    },
+    "magnus_felix_ennodius.carmina": {
+      "source": "csel",
+      "original_id": "stoa0114a.stoa003.opp-lat1.xml",
+      "author": "Magnus Felix Ennodius",
+      "title": "Carmina",
+      "date_added": "2026-01-21T22:31:16.470948",
+      "language": "la"
+    },
+    "magnus_felix_ennodius.dictiones": {
+      "source": "csel",
+      "original_id": "stoa0114a.stoa004.opp-lat1.xml",
+      "author": "Magnus Felix Ennodius",
+      "title": "Dictiones",
+      "date_added": "2026-01-21T22:31:16.509678",
+      "language": "la"
+    },
+    "magnus_felix_ennodius.de_vita_beati_antoni_monachi": {
+      "source": "csel",
+      "original_id": "stoa0114a.stoa005.opp-lat1.xml",
+      "author": "Magnus Felix Ennodius",
+      "title": "De Vita Beati Antoni Monachi",
+      "date_added": "2026-01-21T22:31:16.518935",
+      "language": "la"
+    },
+    "magnus_felix_ennodius.panegyricus_theodorico_regi_dictus": {
+      "source": "csel",
+      "original_id": "stoa0114a.stoa006.opp-lat2.xml",
+      "author": "Magnus Felix Ennodius",
+      "title": "Panegyricus Theodorico Regi Dictus",
+      "date_added": "2026-01-21T22:31:16.532018",
+      "language": "la"
+    },
+    "magnus_felix_ennodius.ennodius_ambrosio_et_beato": {
+      "source": "csel",
+      "original_id": "stoa0114a.stoa007.opp-lat1.xml",
+      "author": "Magnus Felix Ennodius",
+      "title": "Ennodius Ambrosio et Beato",
+      "date_added": "2026-01-21T22:31:16.539339",
+      "language": "la"
+    },
+    "magnus_felix_ennodius.epistulae": {
+      "source": "csel",
+      "original_id": "stoa0114a.stoa008.opp-lat1.xml",
+      "author": "Magnus Felix Ennodius",
+      "title": "Epistulae",
+      "date_added": "2026-01-21T22:31:16.874845",
+      "language": "la"
+    },
+    "magnus_felix_ennodius.eucharisticum_de_vita_sua": {
+      "source": "csel",
+      "original_id": "stoa0114a.stoa011.opp-lat1.xml",
+      "author": "Magnus Felix Ennodius",
+      "title": "Eucharisticum de Vita Sua",
+      "date_added": "2026-01-21T22:31:16.887941",
+      "language": "la"
+    },
+    "magnus_felix_ennodius.libellus_adversus_eos_qui_contra_synodum": {
+      "source": "csel",
+      "original_id": "stoa0114a.stoa012.opp-lat1.xml",
+      "author": "Magnus Felix Ennodius",
+      "title": "Libellus Adversus eos qui contra Synodum Scribere Praesumpserunt",
+      "date_added": "2026-01-21T22:31:16.904853",
+      "language": "la"
+    },
+    "magnus_felix_ennodius.petitorium_quo_absolutus_est_gerontius_p": {
+      "source": "csel",
+      "original_id": "stoa0114a.stoa013.opp-lat1.xml",
+      "author": "Magnus Felix Ennodius",
+      "title": "Petitorium quo Absolutus est Gerontius Puer Agapiti",
+      "date_added": "2026-01-21T22:31:16.911793",
+      "language": "la"
+    },
+    "magnus_felix_ennodius.praeceptum_quando_iussi_sunt_omnes_episc": {
+      "source": "csel",
+      "original_id": "stoa0114a.stoa014.opp-lat1.xml",
+      "author": "Magnus Felix Ennodius",
+      "title": "Praeceptum Quando Iussi Sunt Omnes Episcopi Cellulanos Habere",
+      "date_added": "2026-01-21T22:31:16.925440",
+      "language": "la"
+    },
+    "magnus_felix_ennodius.vita_epiphanii": {
+      "source": "csel",
+      "original_id": "stoa0114a.stoa015.opp-lat1.xml",
+      "author": "Magnus Felix Ennodius",
+      "title": "Vita Epiphanii",
+      "date_added": "2026-01-21T22:31:16.945866",
+      "language": "la"
+    },
+    "eucherius_of_lyon.de_laude_heremi": {
+      "source": "csel",
+      "original_id": "stoa0117.stoa001.opp-lat1.xml",
+      "author": "Eucherius of Lyon",
+      "title": "De Laude Heremi",
+      "date_added": "2026-01-21T22:31:16.958638",
+      "language": "la"
+    },
+    "eucherius_of_lyon.formulae_spiritalis_intellegentiae": {
+      "source": "csel",
+      "original_id": "stoa0117.stoa002.opp-lat1.xml",
+      "author": "Eucherius of Lyon",
+      "title": "Formulae Spiritalis Intellegentiae",
+      "date_added": "2026-01-21T22:31:16.989314",
+      "language": "la"
+    },
+    "eucherius_of_lyon.instructiones": {
+      "source": "csel",
+      "original_id": "stoa0117.stoa003.opp-lat1.xml",
+      "author": "Eucherius of Lyon",
+      "title": "Instructiones",
+      "date_added": "2026-01-21T22:31:17.030133",
+      "language": "la"
+    },
+    "eucherius_of_lyon.unknown": {
+      "source": "csel",
+      "original_id": "stoa0117.stoa004.opp-lat1.xml",
+      "author": "Eucherius of Lyon",
+      "title": "Unknown",
+      "date_added": "2026-01-21T22:31:17.038703",
+      "language": "la"
+    },
+    "pseudo_eucherius.de_situ_hierusolimitanae_urbis_atque_ips": {
+      "source": "csel",
+      "original_id": "stoa0117p.stoa001.opp-lat1.xml",
+      "author": "Pseudo-Eucherius",
+      "title": "De Situ Hierusolimitanae Urbis Atque Ipsius Judaeae",
+      "date_added": "2026-01-21T22:31:17.050868",
+      "language": "la"
+    },
+    "eugippius.excerpta_ex_operibus_augustini": {
+      "source": "csel",
+      "original_id": "stoa0119.stoa003.opp-lat1.xml",
+      "author": "Eugippius",
+      "title": "Excerpta ex Operibus Augustini",
+      "date_added": "2026-01-21T22:31:17.490316",
+      "language": "la"
+    },
+    "evagrius_monachus.altercatio_legis_inter_simonem_iudaeum_e": {
+      "source": "csel",
+      "original_id": "stoa0120c.stoa001.opp-lat1.xml",
+      "author": "Evagrius Monachus",
+      "title": "Altercatio Legis inter Simonem Iudaeum et Theophilum Christianum",
+      "date_added": "2026-01-21T22:31:17.554018",
+      "language": "la"
+    },
+    "evodius_bishop_of_uzalis.de_fide_contra_manicheos": {
+      "source": "csel",
+      "original_id": "stoa0120d.stoa001.opp-lat1.xml",
+      "author": "Evodius, Bishop of Uzalis",
+      "title": "De fide Contra Manicheos",
+      "date_added": "2026-01-21T22:31:17.587429",
+      "language": "la"
+    },
+    "faustus_of_riez.de_gratia_libri_duo": {
+      "source": "csel",
+      "original_id": "stoa0121g.stoa001.opp-lat1.xml",
+      "author": "Faustus of Riez",
+      "title": "De Gratia Libri Duo",
+      "date_added": "2026-01-21T22:31:17.623914",
+      "language": "la"
+    },
+    "faustus_of_riez.de_spiritu_sancto_libri_duo": {
+      "source": "csel",
+      "original_id": "stoa0121g.stoa002.opp-lat1.xml",
+      "author": "Faustus of Riez",
+      "title": "De Spiritu Sancto Libri Duo",
+      "date_added": "2026-01-21T22:31:17.646825",
+      "language": "la"
+    },
+    "faustus_of_riez.epistulae": {
+      "source": "csel",
+      "original_id": "stoa0121g.stoa003.opp-lat2.xml",
+      "author": "Faustus of Riez",
+      "title": "Epistulae",
+      "date_added": "2026-01-21T22:31:17.669238",
+      "language": "la"
+    },
+    "faustus_of_riez.sermones": {
+      "source": "csel",
+      "original_id": "stoa0121g.stoa004.opp-lat1.xml",
+      "author": "Faustus of Riez",
+      "title": "Sermones",
+      "date_added": "2026-01-21T22:31:17.711746",
+      "language": "la"
+    },
+    "faustus_of_riez.de_ratione_fidei": {
+      "source": "csel",
+      "original_id": "stoa0121g.stoa005.opp-lat1.xml",
+      "author": "Faustus of Riez",
+      "title": "De Ratione Fidei",
+      "date_added": "2026-01-21T22:31:17.720507",
+      "language": "la"
+    },
+    "philastrius.diversarum_hereseon_liber": {
+      "source": "csel",
+      "original_id": "stoa0122a.stoa001.opp-lat1.xml",
+      "author": "Philastrius",
+      "title": "Diversarum hereseon liber",
+      "date_added": "2026-01-21T22:31:17.780289",
+      "language": "la"
+    },
+    "julius_firmicus_maternus.de_errore_profanarum_religionum": {
+      "source": "csel",
+      "original_id": "stoa0123a.stoa001.opp-lat1.xml",
+      "author": "Julius Firmicus Maternus",
+      "title": "De errore profanarum religionum",
+      "date_added": "2026-01-21T22:31:17.811399",
+      "language": "la"
+    },
+    "hilary_saint_bishop_of_poitiers.tractatus_super_psalmos": {
+      "source": "csel",
+      "original_id": "stoa0149b.stoa001.opp-lat1.xml",
+      "author": "Hilary, Saint, Bishop of Poitiers",
+      "title": "Tractatus super psalmos",
+      "date_added": "2026-01-21T22:31:18.247938",
+      "language": "la"
+    },
+    "hilary_saint_bishop_of_poitiers.collectanea_antiariana_parisina": {
+      "source": "csel",
+      "original_id": "stoa0149b.stoa002.opp-lat1.xml",
+      "author": "Hilary, Saint, Bishop of Poitiers",
+      "title": "Collectanea Antiariana Parisina",
+      "date_added": "2026-01-21T22:31:18.376342",
+      "language": "la"
+    },
+    "hilary_saint_bishop_of_poitiers.fragmenta_minora": {
+      "source": "csel",
+      "original_id": "stoa0149b.stoa003.opp-lat1.xml",
+      "author": "Hilary, Saint, Bishop of Poitiers",
+      "title": "Fragmenta Minora",
+      "date_added": "2026-01-21T22:31:18.389429",
+      "language": "la"
+    },
+    "hilary_saint_bishop_of_poitiers.hymni": {
+      "source": "csel",
+      "original_id": "stoa0149b.stoa004.opp-lat1.xml",
+      "author": "Hilary, Saint, Bishop of Poitiers",
+      "title": "Hymni",
+      "date_added": "2026-01-21T22:31:18.400575",
+      "language": "la"
+    },
+    "hilary_saint_bishop_of_poitiers.liber_ad_constantium_imperatorem": {
+      "source": "csel",
+      "original_id": "stoa0149b.stoa005.opp-lat1.xml",
+      "author": "Hilary, Saint, Bishop of Poitiers",
+      "title": "Liber ad Constantium Imperatorem",
+      "date_added": "2026-01-21T22:31:18.409946",
+      "language": "la"
+    },
+    "hilary_saint_bishop_of_poitiers.libri_tres_adversum_valentem_et_ursacium": {
+      "source": "csel",
+      "original_id": "stoa0149b.stoa006.opp-lat1.xml",
+      "author": "Hilary, Saint, Bishop of Poitiers",
+      "title": "Libri tres adversum Valentem et Ursacium",
+      "date_added": "2026-01-21T22:31:18.416964",
+      "language": "la"
+    },
+    "hilary_saint_bishop_of_poitiers.oratio_synodi_sardicensis_ad_constantium": {
+      "source": "csel",
+      "original_id": "stoa0149b.stoa007.opp-lat1.xml",
+      "author": "Hilary, Saint, Bishop of Poitiers",
+      "title": "Oratio Synodi Sardicensis ad Constantium Imperatorem",
+      "date_added": "2026-01-21T22:31:18.425598",
+      "language": "la"
+    },
+    "hilary_saint_bishop_of_poitiers.spuria": {
+      "source": "csel",
+      "original_id": "stoa0149b.stoa008.opp-lat1.xml",
+      "author": "Hilary, Saint, Bishop of Poitiers",
+      "title": "Spuria",
+      "date_added": "2026-01-21T22:31:18.438248",
+      "language": "la"
+    },
+    "hilary_saint_bishop_of_poitiers.tractatus_mysteriorum": {
+      "source": "csel",
+      "original_id": "stoa0149b.stoa009.opp-lat1.xml",
+      "author": "Hilary, Saint, Bishop of Poitiers",
+      "title": "Tractatus mysteriorum",
+      "date_added": "2026-01-21T22:31:18.462027",
+      "language": "la"
+    },
+    "hilary_saint_archbishop_of_arles.epistulae_ad_eucherium": {
+      "source": "csel",
+      "original_id": "stoa0149c.stoa001.opp-lat1.xml",
+      "author": "Hilary, Saint, Archbishop of Arles",
+      "title": "Epistulae ad Eucherium",
+      "date_added": "2026-01-21T22:31:18.469586",
+      "language": "la"
+    },
+    "jerome_saint.epistulae": {
+      "source": "csel",
+      "original_id": "stoa0162.stoa004.opp-lat1.xml",
+      "author": "Jerome, Saint",
+      "title": "Epistulae",
+      "date_added": "2026-01-21T22:31:19.308968",
+      "language": "la"
+    },
+    "jerome_saint.in_hieremiam_prophetam_libri_sex": {
+      "source": "csel",
+      "original_id": "stoa0162.stoa024.opp-lat1.xml",
+      "author": "Jerome, Saint",
+      "title": "In Hieremiam Prophetam Libri Sex",
+      "date_added": "2026-01-21T22:31:19.631665",
+      "language": "la"
+    },
+    "juvencus_caius_vettius_aquilinus.evangeliorum_libri_quattuor": {
+      "source": "csel",
+      "original_id": "stoa0169a.stoa002.opp-lat2.xml",
+      "author": "Juvencus, Caius Vettius Aquilinus",
+      "title": "Evangeliorum libri quattuor",
+      "date_added": "2026-01-21T22:31:19.692934",
+      "language": "la"
+    },
+    "lactantius.fragmenta": {
+      "source": "csel",
+      "original_id": "stoa0171.stoa010.opp-lat1.xml",
+      "author": "Lactantius",
+      "title": "Fragmenta",
+      "date_added": "2026-01-21T22:31:19.813520",
+      "language": "la"
+    },
+    "lucifer_bishop_of_cagliari.de_non_conveniendo_cum_haereticis": {
+      "source": "csel",
+      "original_id": "stoa0180a.stoa001.opp-lat1.xml",
+      "author": "Lucifer, Bishop of Cagliari",
+      "title": "De Non Conveniendo Cum Haereticis",
+      "date_added": "2026-01-21T22:31:19.826591",
+      "language": "la"
+    },
+    "lucifer_bishop_of_cagliari.de_non_parcendo_in_deum_delinquentibus": {
+      "source": "csel",
+      "original_id": "stoa0180a.stoa002.opp-lat1.xml",
+      "author": "Lucifer, Bishop of Cagliari",
+      "title": "De non parcendo in deum delinquentibus",
+      "date_added": "2026-01-21T22:31:19.846459",
+      "language": "la"
+    },
+    "lucifer_bishop_of_cagliari.de_regibus_apostaticis": {
+      "source": "csel",
+      "original_id": "stoa0180a.stoa003.opp-lat1.xml",
+      "author": "Lucifer, Bishop of Cagliari",
+      "title": "De Regibus Apostaticis",
+      "date_added": "2026-01-21T22:31:19.857110",
+      "language": "la"
+    },
+    "lucifer_bishop_of_cagliari.epistulae": {
+      "source": "csel",
+      "original_id": "stoa0180a.stoa005.opp-lat1.xml",
+      "author": "Lucifer, Bishop of Cagliari",
+      "title": "Epistulae",
+      "date_added": "2026-01-21T22:31:19.869844",
+      "language": "la"
+    },
+    "lucifer_bishop_of_cagliari.moriendum_esse_pro_dei_filio": {
+      "source": "csel",
+      "original_id": "stoa0180a.stoa006.opp-lat1.xml",
+      "author": "Lucifer, Bishop of Cagliari",
+      "title": "Moriendum esse pro dei filio",
+      "date_added": "2026-01-21T22:31:19.880854",
+      "language": "la"
+    },
+    "optatus_saint_bishop_of_mileve.s_optati_milevitani_libri_vii": {
+      "source": "csel",
+      "original_id": "stoa0215a.stoa001.opp-lat1.xml",
+      "author": "Optatus, Saint, Bishop of Mileve",
+      "title": "S. Optati Milevitani libri VII",
+      "date_added": "2026-01-21T22:31:19.933938",
+      "language": "la"
+    },
+    "optatus_saint_bishop_of_mileve.appendix_decem_monumentorum_veterum": {
+      "source": "csel",
+      "original_id": "stoa0215a.stoa002.opp-lat1.xml",
+      "author": "Optatus, Saint, Bishop of Mileve",
+      "title": "Appendix Decem Monumentorum Veterum",
+      "date_added": "2026-01-21T22:31:19.949256",
+      "language": "la"
+    },
+    "orientius_saint.commonitorium": {
+      "source": "csel",
+      "original_id": "stoa0215b.stoa001.opp-lat1.xml",
+      "author": "Orientius, Saint",
+      "title": "Commonitorium",
+      "date_added": "2026-01-21T22:31:19.960663",
+      "language": "la"
+    },
+    "orientius_saint.carmina": {
+      "source": "csel",
+      "original_id": "stoa0215b.stoa002.opp-lat1.xml",
+      "author": "Orientius, Saint",
+      "title": "Carmina",
+      "date_added": "2026-01-21T22:31:19.966608",
+      "language": "la"
+    },
+    "orosius_paulus.historiae_adversum_paganos": {
+      "source": "csel",
+      "original_id": "stoa0215c.stoa001.opp-lat1.xml",
+      "author": "Orosius, Paulus",
+      "title": "Historiae Adversum Paganos",
+      "date_added": "2026-01-21T22:31:20.232262",
+      "language": "la"
+    },
+    "orosius_paulus.liber_apologeticus": {
+      "source": "csel",
+      "original_id": "stoa0215c.stoa002.opp-lat1.xml",
+      "author": "Orosius, Paulus",
+      "title": "Liber Apologeticus",
+      "date_added": "2026-01-21T22:31:20.276879",
+      "language": "la"
+    },
+    "orosius_paulus.commenitorium_orosii_ad_augustinum_de_er": {
+      "source": "csel",
+      "original_id": "stoa0215c.stoa003.opp-lat1.xml",
+      "author": "Orosius, Paulus",
+      "title": "Commenitorium Orosii ad Augustinum de Errore Priscillianistarum et Origenistarum",
+      "date_added": "2026-01-21T22:31:20.284674",
+      "language": "la"
+    },
+    "paul_the_apostle_saint.epigramma": {
+      "source": "csel",
+      "original_id": "stoa0222a.stoa001.opp-lat1.xml",
+      "author": "Paul, the Apostle, Saint",
+      "title": "Epigramma",
+      "date_added": "2026-01-21T22:31:20.291449",
+      "language": "la"
+    },
+    "paulinus_of_pella.eucharisticus": {
+      "source": "csel",
+      "original_id": "stoa0223a.stoa001.opp-lat2.xml",
+      "author": "Paulinus of Pella",
+      "title": "Eucharisticus",
+      "date_added": "2026-01-21T22:31:20.366275",
+      "language": "la"
+    },
+    "paulinus_petricordiae.de_vita_sancti_martini": {
+      "source": "csel",
+      "original_id": "stoa0224b.stoa001.opp-lat1.xml",
+      "author": "Paulinus Petricordiae",
+      "title": "De Vita Sancti Martini",
+      "date_added": "2026-01-21T22:31:20.407136",
+      "language": "la"
+    },
+    "petrus_diaconus.de_locis_santis": {
+      "source": "csel",
+      "original_id": "stoa0227b.stoa001.opp-lat1.xml",
+      "author": "Petrus Diaconus",
+      "title": "De Locis Santis",
+      "date_added": "2026-01-21T22:31:20.423648",
+      "language": "la"
+    },
+    "pontius_diaconus.vita_caecilii_cypriani": {
+      "source": "csel",
+      "original_id": "stoa0233d.stoa001.opp-lat1.xml",
+      "author": "Pontius Diaconus",
+      "title": "Vita Caecilii Cypriani",
+      "date_added": "2026-01-21T22:31:20.432143",
+      "language": "la"
+    },
+    "pontius_diaconus.acta_proconsularia": {
+      "source": "csel",
+      "original_id": "stoa0233d.stoa002.opp-lat1.xml",
+      "author": "Pontius Diaconus",
+      "title": "Acta Proconsularia",
+      "date_added": "2026-01-21T22:31:20.436834",
+      "language": "la"
+    },
+    "priscillian_bishop_of_avila.canones_in_pauli_apostoli_epistula_canon": {
+      "source": "csel",
+      "original_id": "stoa0234e.stoa001.opp-lat1.xml",
+      "author": "Priscillian, Bishop of Avila",
+      "title": "Canones (In Pauli Apostoli Epistula Canones A Peregrino Episcopo)",
+      "date_added": "2026-01-21T22:31:20.451049",
+      "language": "la"
+    },
+    "priscillian_bishop_of_avila.tractatus_undecim": {
+      "source": "csel",
+      "original_id": "stoa0234e.stoa002.opp-lat1.xml",
+      "author": "Priscillian, Bishop of Avila",
+      "title": "Tractatus Undecim",
+      "date_added": "2026-01-21T22:31:20.481301",
+      "language": "la"
+    },
+    "proba_active_4th_century.cento": {
+      "source": "csel",
+      "original_id": "stoa0234f.stoa001.opp-lat1.xml",
+      "author": "Proba, active 4th century",
+      "title": "Cento",
+      "date_added": "2026-01-21T22:31:20.500043",
+      "language": "la"
+    },
+    "remigius_of_auxerre.expositione_in_paschale_carmen": {
+      "source": "csel",
+      "original_id": "stoa0241d.stoa002.opp-lat1.xml",
+      "author": "Remigius of Auxerre",
+      "title": "Expositione in Paschale Carmen",
+      "date_added": "2026-01-21T22:31:20.613861",
+      "language": "la"
+    },
+    "rufinus_of_aquileia.interpretatio_orationum_gregorii_nazianz": {
+      "source": "csel",
+      "original_id": "stoa0244d.stoa005.opp-lat1.xml",
+      "author": "Rufinus of Aquileia",
+      "title": "Interpretatio Orationum Gregorii Nazianzeni",
+      "date_added": "2026-01-21T22:31:20.673541",
+      "language": "la"
+    },
+    "ruricius_i_bishop_of_limoges.epistulae": {
+      "source": "csel",
+      "original_id": "stoa0245a.stoa001.opp-lat1.xml",
+      "author": "Ruricius I, Bishop of Limoges",
+      "title": "Epistulae",
+      "date_added": "2026-01-21T22:31:20.744827",
+      "language": "la"
+    },
+    "rusticus_presbyter.epistula_ad_eucherium_lugdunensem": {
+      "source": "csel",
+      "original_id": "stoa0245c.stoa001.opp-lat1.xml",
+      "author": "Rusticus Presbyter",
+      "title": "Epistula ad Eucherium Lugdunensem\u200f",
+      "date_added": "2026-01-21T22:31:20.759379",
+      "language": "la"
+    },
+    "salvian_of_marseilles.de_gubernatione_dei": {
+      "source": "csel",
+      "original_id": "stoa0249a.stoa002.opp-lat1.xml",
+      "author": "Salvian of Marseilles",
+      "title": "De Gubernatione Dei",
+      "date_added": "2026-01-21T22:31:20.869289",
+      "language": "la"
+    },
+    "salvian_of_marseilles.epistulae_selections": {
+      "source": "csel",
+      "original_id": "stoa0249a.stoa003.opp-lat1.xml",
+      "author": "Salvian of Marseilles",
+      "title": "Epistulae. Selections.",
+      "date_added": "2026-01-21T22:31:20.893500",
+      "language": "la"
+    },
+    "salvian_of_marseilles.epistulae": {
+      "source": "csel",
+      "original_id": "stoa0249a.stoa003.opp-lat2.xml",
+      "author": "Salvian of Marseilles",
+      "title": "Epistulae",
+      "date_added": "2026-01-21T22:31:20.914606",
+      "language": "la"
+    },
+    "salvian_of_marseilles.ad_ecclesiam_libri_iiii": {
+      "source": "csel",
+      "original_id": "stoa0249a.stoa004.opp-lat1.xml",
+      "author": "Salvian of Marseilles",
+      "title": "Ad Ecclesiam Libri IIII",
+      "date_added": "2026-01-21T22:31:20.977243",
+      "language": "la"
+    },
+    "secundinus_manichaeus.epistula_secundini_ad_augustinum": {
+      "source": "csel",
+      "original_id": "stoa0251.stoa001.opp-lat1.xml",
+      "author": "Secundinus Manichaeus",
+      "title": "Epistula Secundini ad Augustinum",
+      "date_added": "2026-01-21T22:31:20.990922",
+      "language": "la"
+    },
+    "sedulius.hymnus_ii_a_solis_ortus_cardine": {
+      "source": "csel",
+      "original_id": "stoa0252.stoa001.opp-lat1.xml",
+      "author": "Sedulius",
+      "title": "Hymnus II. (A solis ortus cardine)",
+      "date_added": "2026-01-21T22:31:21.006507",
+      "language": "la"
+    },
+    "sedulius.carmina_ad_sedulium_spectantia": {
+      "source": "csel",
+      "original_id": "stoa0252.stoa003.opp-lat2.xml",
+      "author": "Sedulius",
+      "title": "Carmina ad Sedulium Spectantia",
+      "date_added": "2026-01-21T22:31:21.058803",
+      "language": "la"
+    },
+    "sedulius.epistola_ad_macedonium": {
+      "source": "csel",
+      "original_id": "stoa0252.stoa006.opp-lat1.xml",
+      "author": "Sedulius",
+      "title": "Epistola ad Macedonium",
+      "date_added": "2026-01-21T22:31:21.078215",
+      "language": "la"
+    },
+    "sedulius.epistola_ad_macedonium_altera": {
+      "source": "csel",
+      "original_id": "stoa0252.stoa006.opp-lat2.xml",
+      "author": "Sedulius",
+      "title": "Epistola ad Macedonium (altera)",
+      "date_added": "2026-01-21T22:31:21.091009",
+      "language": "la"
+    },
+    "sedulius.hymnus_i": {
+      "source": "csel",
+      "original_id": "stoa0252.stoa007.opp-lat1.xml",
+      "author": "Sedulius",
+      "title": "Hymnus I",
+      "date_added": "2026-01-21T22:31:21.107443",
+      "language": "la"
+    },
+    "sedulius.opus_paschale": {
+      "source": "csel",
+      "original_id": "stoa0252.stoa008.opp-lat1.xml",
+      "author": "Sedulius",
+      "title": "Opus Paschale",
+      "date_added": "2026-01-21T22:31:21.208260",
+      "language": "la"
+    },
+    "severus_sulpicius.chronica": {
+      "source": "csel",
+      "original_id": "stoa0270.stoa001.opp-lat1.xml",
+      "author": "Severus, Sulpicius",
+      "title": "Chronica",
+      "date_added": "2026-01-21T22:31:21.287446",
+      "language": "la"
+    },
+    "severus_sulpicius.vita_sancti_martini": {
+      "source": "csel",
+      "original_id": "stoa0270.stoa002.opp-lat2.xml",
+      "author": "Severus, Sulpicius",
+      "title": "Vita Sancti Martini",
+      "date_added": "2026-01-21T22:31:21.311040",
+      "language": "la"
+    },
+    "severus_sulpicius.dialogi": {
+      "source": "csel",
+      "original_id": "stoa0270.stoa003.opp-lat2.xml",
+      "author": "Severus, Sulpicius",
+      "title": "Dialogi",
+      "date_added": "2026-01-21T22:31:21.358439",
+      "language": "la"
+    },
+    "severus_sulpicius.epistulae_tres": {
+      "source": "csel",
+      "original_id": "stoa0270.stoa005.opp-lat1.xml",
+      "author": "Severus, Sulpicius",
+      "title": "Epistulae (Tres)",
+      "date_added": "2026-01-21T22:31:21.421579",
+      "language": "la"
+    },
+    "pseudo_severus_sulpicius.epistolae_septem": {
+      "source": "csel",
+      "original_id": "stoa0270p.stoa001.opp-lat1.xml",
+      "author": "Pseudo-Severus, Sulpicius",
+      "title": "Epistolae Septem",
+      "date_added": "2026-01-21T22:31:21.443750",
+      "language": "la"
+    },
+    "tertullian.ad_nationes_libri_duo": {
+      "source": "csel",
+      "original_id": "stoa0275.stoa002.opp-lat2.xml",
+      "author": "Tertullian",
+      "title": "Ad Nationes Libri Duo",
+      "date_added": "2026-01-21T22:31:21.514864",
+      "language": "la"
+    },
+    "tertullian.adversus_praxean": {
+      "source": "csel",
+      "original_id": "stoa0275.stoa007.opp-lat2.xml",
+      "author": "Tertullian",
+      "title": "Adversus Praxean",
+      "date_added": "2026-01-21T22:31:21.591157",
+      "language": "la"
+    },
+    "tertullian.de_ieiunio_adversus_psychicos": {
+      "source": "csel",
+      "original_id": "stoa0275.stoa018.opp-lat2.xml",
+      "author": "Tertullian",
+      "title": "De Ieiunio Adversus Psychicos",
+      "date_added": "2026-01-21T22:31:21.658475",
+      "language": "la"
+    },
+    "tertullian.scorpiace": {
+      "source": "csel",
+      "original_id": "stoa0275.stoa030.opp-lat2.xml",
+      "author": "Tertullian",
+      "title": "Scorpiace",
+      "date_added": "2026-01-21T22:31:21.758984",
+      "language": "la"
+    },
+    "pseudo_tertullian.adversus_omnes_haereses": {
+      "source": "csel",
+      "original_id": "stoa0276.stoa003.opp-lat2.xml",
+      "author": "Pseudo-Tertullian",
+      "title": "Adversus Omnes Haereses",
+      "date_added": "2026-01-21T22:31:21.776762",
+      "language": "la"
+    },
+    "theodosius.de_situ_terrae_sanctae": {
+      "source": "csel",
+      "original_id": "stoa0278a.stoa001.opp-lat1.xml",
+      "author": "Theodosius",
+      "title": "De Situ Terrae Sanctae",
+      "date_added": "2026-01-21T22:31:21.962338",
+      "language": "la"
+    },
+    "victor_claudius_marius.alethia": {
+      "source": "csel",
+      "original_id": "stoa0292b.stoa001.opp-lat1.xml",
+      "author": "Victor, Claudius Marius",
+      "title": "Alethia",
+      "date_added": "2026-01-21T22:31:22.012344",
+      "language": "la"
+    },
+    "victor_claudius_marius.commentariorum_in_genesim_libri_tres": {
+      "source": "csel",
+      "original_id": "stoa0292b.stoa001.opp-lat2.xml",
+      "author": "Victor, Claudius Marius",
+      "title": "Commentariorum In Genesim Libri Tres",
+      "date_added": "2026-01-21T22:31:22.052563",
+      "language": "la"
+    },
+    "victor_vitensis.historia_persecutionis_africanae_provinc": {
+      "source": "csel",
+      "original_id": "stoa0292d.stoa001.opp-lat1.xml",
+      "author": "Victor Vitensis",
+      "title": "Historia persecutionis Africanae provinciae",
+      "date_added": "2026-01-21T22:31:22.109012",
+      "language": "la"
+    },
+    "victorinus_saint_bishop_of_poetovio.commentarii_in_apocalypsin": {
+      "source": "csel",
+      "original_id": "stoa0292e.stoa001.opp-lat1.xml",
+      "author": "Victorinus, Saint, Bishop of Poetovio",
+      "title": "Commentarii in Apocalypsin",
+      "date_added": "2026-01-21T22:31:22.157196",
+      "language": "la"
+    },
+    "pseudo_victor_vitensis.passio_septem_monachorum": {
+      "source": "csel",
+      "original_id": "stoa0292p.stoa001.opp-lat1.xml",
+      "author": "Pseudo-Victor Vitensis",
+      "title": "Passio septem monachorum",
+      "date_added": "2026-01-21T22:31:22.172236",
+      "language": "la"
+    },
+    "pseudo_victor_vitensis.notitia_provinciarum_et_civitatum_africa": {
+      "source": "csel",
+      "original_id": "stoa0292p.stoa002.opp-lat1.xml",
+      "author": "Pseudo-Victor Vitensis",
+      "title": "Notitia Provinciarum et Civitatum Africae",
+      "date_added": "2026-01-21T22:31:22.184111",
+      "language": "la"
+    },
+    "anonymous.itinerarium_hierosolymitanum": {
+      "source": "csel",
+      "original_id": "stoa0329.stoa001.opp-lat1.xml",
+      "author": "Anonymous",
+      "title": "Itinerarium Hierosolymitanum",
+      "date_added": "2026-01-21T22:31:22.202269",
+      "language": "la"
+    },
+    "anonymous.breviarius_de_hierosolyma": {
+      "source": "csel",
+      "original_id": "stoa0329c.stoa001.opp-lat1.xml",
+      "author": "Anonymous",
+      "title": "Breviarius de Hierosolyma",
+      "date_added": "2026-01-21T22:31:22.220778",
+      "language": "la"
+    },
+    "flavius_josephus.de_iudaeorum_vetustate_sive_contra_apion": {
+      "source": "csel",
+      "original_id": "tlg0526.tlg003.opp-lat1.xml",
+      "author": "Flavius Josephus",
+      "title": "De Iudaeorum Vetustate sive Contra Apionem",
+      "date_added": "2026-01-21T22:31:22.345007",
+      "language": "la"
+    }
+  },
+  ".isaias.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:hebrewlit:heb0001.heb010.1st1K-eng1",
+    "author": "",
+    "title": "Isaias",
+    "added_date": "2026-01-22"
+  },
+  "pseudoaristotle.de_mundo.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:stoa0033a.tlg028.1st1K-grc1",
+    "author": "pseudo-Aristotle",
+    "title": "De mundo",
+    "added_date": "2026-01-22"
+  },
+  "pseudoaristotle.de_spiritu.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:stoa0033a.tlg043.1st1K-grc1",
+    "author": "pseudo-Aristotle",
+    "title": "De spiritu",
+    "added_date": "2026-01-22"
+  },
+  "eutropius.breviarium_historiae_romanae.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:stoa0121.stoa001.opp-grc1",
+    "author": "Eutropius",
+    "title": "Breviarium historiae romanae",
+    "added_date": "2026-01-22"
+  },
+  "euripides.fragmenta.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0006.tlg020.1st1K-grc1",
+    "author": "Euripides",
+    "title": "Fragmenta",
+    "added_date": "2026-01-22"
+  },
+  "plutarch.\u03c0\u03b1\u03c1\u03bf\u03b9\u03bc\u03af\u03b1\u03b9_\u03b1\u1f37\u03c2_\u1f00\u03bb\u03b5\u03be\u03b1\u03bd\u03b4\u03c1\u03b5\u1fd6\u03c2_\u1f10\u03c7\u03c1\u1ff6\u03bd\u03c4\u03bf.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0007.tlg146.1st1K-grc1",
+    "author": "Plutarch",
+    "title": "\u03a0\u03b1\u03c1\u03bf\u03b9\u03bc\u03af\u03b1\u03b9 \u03b1\u1f37\u03c2 \u1f08\u03bb\u03b5\u03be\u03b1\u03bd\u03b4\u03c1\u03b5\u1fd6\u03c2 \u1f10\u03c7\u03c1\u1ff6\u03bd\u03c4\u03bf",
+    "added_date": "2026-01-22"
+  },
+  "herodian.ab_excessu_divi_marci.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0015.tlg001.1st1K-grc1",
+    "author": "Herodian",
+    "title": "Ab excessu divi Marci",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.on_the_creation_of_the_world.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg001.1st1K-eng1",
+    "author": "Philo Judaeus",
+    "title": "On the Creation of the World",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.de_opificio_mundi.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg001.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "De opificio mundi",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.legum_allegoriarum_libri_iiii.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg002.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "Legum allegoriarum libri i\u2011iii",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.de_cherubim.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg003.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "De Cherubim",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.de_sacrificiis_abelis_et_caini.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg004.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "De sacrificiis Abelis et Caini",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.quod_deterius_potiori_insidiari_soleat.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg005.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "Quod deterius potiori insidiari soleat",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.de_posteritate_caini.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg006.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "De Posteritate Caini",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.de_gigantibus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg007.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "De gigantibus",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.de_agricultura.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg009.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "De agricultura",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.de_plantatione.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg010.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "De plantatione",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.on_drunkenness.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg011.1st1K-eng1",
+    "author": "Philo Judaeus",
+    "title": "On Drunkenness",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.de_ebrietate.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg011.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "De ebrietate",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.on_sobriety.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg012.1st1K-eng1",
+    "author": "Philo Judaeus",
+    "title": "On Sobriety",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.de_sobrietate.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg012.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "De sobrietate",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.de_confusione_linguarum.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg013.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "De confusione linguarum",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.de_migratione_abrahami.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg014.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "De migratione Abrahami",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.quis_rerum_divinarum_heres_sit.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg015.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "Quis rerum divinarum heres sit",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.de_congressu_eruditionis_gratia.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg016.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "De congressu eruditionis gratia",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.on_fugitives.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg017.1st1K-eng1",
+    "author": "Philo Judaeus",
+    "title": "On Fugitives",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.de_fuga_et_inventione.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg017.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "De fuga et inventione",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.de_mutatione_nominum.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg018.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "De mutatione nominum",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.de_somniis_lib_iii.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg019.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "De somniis (lib. i\u2011ii)",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.de_abrahamo.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg020.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "De Abrahamo",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.de_josepho.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg021.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "De Josepho",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.de_vita_mosis_lib_iii.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg022.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "De vita Mosis (lib. i\u2011ii)",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.de_decalogo.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg023.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "De decalogo",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.de_specialibus_legibus_lib_iiv.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg024.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "De specialibus legibus (lib. i\u2011iv)",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.on_three_virtues_that_is_to_say_on_courage_humanit.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg025.1st1K-eng1",
+    "author": "Philo Judaeus",
+    "title": "On Three Virtues, that is to say, on Courage, Humanity, and Repentance",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.de_virtutibus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg025.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "De virtutibus",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.on_rewards_and_punishments.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg026.1st1K-eng1",
+    "author": "Philo Judaeus",
+    "title": "On Rewards and Punishments",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.de_praemiis_et_poenis_et_de_exsecrationibus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg026.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "De praemiis et poenis et De exsecrationibus",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.to_prove_that_every_man_who_is_virtuous_is_also_fr.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg027.1st1K-eng1",
+    "author": "Philo Judaeus",
+    "title": "To Prove that every Man who is virtuous is also free",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.de_aeternitate_mundi.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg029.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "De aeternitate mundi",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.in_flaccum.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg030.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "In Flaccum",
+    "added_date": "2026-01-22"
+  },
+  "philo_judaeus.legatio_ad_gaium.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0018.tlg031.1st1K-grc1",
+    "author": "Philo Judaeus",
+    "title": "Legatio Ad Gaium",
+    "added_date": "2026-01-22"
+  },
+  "aeschines_sp.\u1f10\u03c0\u03b9\u03c3\u03c4\u03bf\u03bb\u03b1\u03af.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0026.tlg004.1st1K-grc1",
+    "author": "Aeschines [Sp.]",
+    "title": "\u1f18\u03c0\u03b9\u03c3\u03c4\u03bf\u03bb\u03b1\u03af",
+    "added_date": "2026-01-22"
+  },
+  ".01.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0031.tlg002.INTF-grc1",
+    "author": "",
+    "title": "01",
+    "added_date": "2026-01-22"
+  },
+  "anacharsis.epistulae.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0037.tlg001.1st1K-grc1",
+    "author": "Anacharsis",
+    "title": "Epistulae",
+    "added_date": "2026-01-22"
+  },
+  "chionis_epistulae.epistulae.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0041.tlg001.1st1K-grc1",
+    "author": "Chionis Epistulae",
+    "title": "Epistulae",
+    "added_date": "2026-01-22"
+  },
+  "artaxerxis_epistulae.epistulae.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0045.tlg001.1st1K-grc1",
+    "author": "Artaxerxis Epistulae",
+    "title": "Epistulae",
+    "added_date": "2026-01-22"
+  },
+  "niciae_epistula.epistula.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0046.tlg001.1st1K-grc1",
+    "author": "Niciae Epistula",
+    "title": "Epistula",
+    "added_date": "2026-01-22"
+  },
+  "philip_ii_king_of_macedonia.epistulae.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0048.tlg001.1st1K-grc1",
+    "author": "Philip II, King of Macedonia",
+    "title": "Epistulae",
+    "added_date": "2026-01-22"
+  },
+  "phalaridis_epistulae.epistulae.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0053.tlg001.1st1K-grc1",
+    "author": "Phalaridis Epistulae",
+    "title": "Epistulae",
+    "added_date": "2026-01-22"
+  },
+  "themistocles.epistulae.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0055.tlg001.1st1K-grc1",
+    "author": "Themistocles",
+    "title": "Epistulae",
+    "added_date": "2026-01-22"
+  },
+  "galen.adhortatio_ad_artes_addiscendas.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg001.1st1K-grc1",
+    "author": "Galen",
+    "title": "Adhortatio ad artes addiscendas",
+    "added_date": "2026-01-22"
+  },
+  "galen.protrepticus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg001.1st1K-grc2",
+    "author": "Galen",
+    "title": "Protrepticus",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_optima_doctrina.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg002.1st1K-grc1",
+    "author": "Galen",
+    "title": "De optima doctrina",
+    "added_date": "2026-01-22"
+  },
+  "galen.quod_optimus_medicus_sit_quoque_philosophus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg003.1st1K-grc1",
+    "author": "Galen",
+    "title": "Quod optimus medicus sit quoque philosophus",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_sectis_ad_eos_qui_introducuntur.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg004.1st1K-grc1",
+    "author": "Galen",
+    "title": "De sectis ad eos qui introducuntur",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_constitutione_artis_medicae_ad_patrophilum.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg006.1st1K-grc1",
+    "author": "Galen",
+    "title": "De constitutione artis medicae ad Patrophilum",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_elementis_ex_hippocrate.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg008.1st1K-grc1",
+    "author": "Galen",
+    "title": "De elementis ex Hippocrate",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_temperamentis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg009.1st1K-grc1",
+    "author": "Galen",
+    "title": "De temperamentis",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_naturalibus_facultatibus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg010.1st1K-grc1",
+    "author": "Galen",
+    "title": "De naturalibus facultatibus",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_anatomicis_administrationibus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg011.1st1K-grc1",
+    "author": "Galen",
+    "title": "De anatomicis administrationibus",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_ossibus_ad_tirones.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg012.1st1K-grc1",
+    "author": "Galen",
+    "title": "De ossibus ad tirones",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_venarum_arteriarumque_dissectione.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg013.1st1K-grc1",
+    "author": "Galen",
+    "title": "De venarum arteriarumque dissectione",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_nervorum_dissectione.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg014.1st1K-grc1",
+    "author": "Galen",
+    "title": "De nervorum dissectione",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_instrumento_odoratus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg015.1st1K-grc1",
+    "author": "Galen",
+    "title": "De instrumento odoratus",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_uteri_dissectione.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg016.1st1K-grc1",
+    "author": "Galen",
+    "title": "De uteri dissectione",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_usu_partium_corporis_humani_ixi.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg017.1st1K-grc1",
+    "author": "Galen",
+    "title": "De usu partium corporis humani I-XI",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_motu_musculorum.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg018.1st1K-grc1",
+    "author": "Galen",
+    "title": "De motu musculorum",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_victu_attenuante.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg019.1st1K-grc1",
+    "author": "Galen",
+    "title": "De victu attenuante",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_utilitate_respirationis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg020.1st1K-grc1",
+    "author": "Galen",
+    "title": "De utilitate respirationis",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_semine.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg021.1st1K-grc1",
+    "author": "Galen",
+    "title": "De semine",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_foetuum_formatione.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg022.1st1K-grc1",
+    "author": "Galen",
+    "title": "De foetuum formatione",
+    "added_date": "2026-01-22"
+  },
+  "galen.an_in_arteriis_sanguis_contineatur.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg023.1st1K-grc1",
+    "author": "Galen",
+    "title": "An in arteriis sanguis contineatur",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_bono_habitu.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg025.1st1K-grc1",
+    "author": "Galen",
+    "title": "De bono habitu",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_propriorum_animi_cuiuslibet_affectuum_dignotion.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg028.1st1K-grc1",
+    "author": "Galen",
+    "title": "De propriorum animi cuiuslibet affectuum dignotione et curatione",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_atra_bile.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg030.1st1K-grc1",
+    "author": "Galen",
+    "title": "De atra bile",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_placitis_hippocratis_et_platonis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg032.1st1K-grc1",
+    "author": "Galen",
+    "title": "De placitis Hippocratis et Platonis",
+    "added_date": "2026-01-22"
+  },
+  "galen.thrasybulus_sive_utrum_medicinae_sit_an_gymnastica.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg033.1st1K-grc1",
+    "author": "Galen",
+    "title": "Thrasybulus sive utrum medicinae sit an gymnasticae hygieine",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_parvae_pilae_exercitio.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg034.1st1K-grc1",
+    "author": "Galen",
+    "title": "De parvae pilae exercitio",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_venereis_ap_oribasium.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg035.1st1K-grc3",
+    "author": "Galen",
+    "title": "De venereis (ap. Oribasium)",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_sanitate_tuenda.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg036.1st1K-grc1",
+    "author": "Galen",
+    "title": "De sanitate tuenda",
+    "added_date": "2026-01-22"
+  },
+  "galen.\u03c0\u03b5\u03c1\u1f76_\u03c4\u1ff6\u03bd_\u1f10\u03bd_\u03c4\u03b1\u1fd6\u03c2_\u03c4\u03c1\u03bf\u03c6\u03b1\u1fd6\u03c2_\u03b4\u03c5\u03bd\u03ac\u03bc\u03b5\u03c9\u03bd.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg037.1st1K-grc1",
+    "author": "Galen",
+    "title": "\u03a0\u03b5\u03c1\u1f76 \u03c4\u1ff6\u03bd \u1f10\u03bd \u03c4\u03b1\u1fd6\u03c2 \u03c4\u03c1\u03bf\u03c6\u03b1\u1fd6\u03c2 \u03b4\u03c5\u03bd\u03ac\u03bc\u03b5\u03c9\u03bd",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_rebus_boni_malique_suci.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg038.1st1K-grc1",
+    "author": "Galen",
+    "title": "De rebus boni malique suci",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_ptisana.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg039.1st1K-grc1",
+    "author": "Galen",
+    "title": "De ptisana",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_dignotione_ex_insomniis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg040.1st1K-grc1",
+    "author": "Galen",
+    "title": "De dignotione ex insomniis",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_morborum_differentiis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg041.1st1K-grc1",
+    "author": "Galen",
+    "title": "De morborum differentiis",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_causis_morborum.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg042.1st1K-grc1",
+    "author": "Galen",
+    "title": "De causis morborum",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_symptomatum_differentiis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg043.1st1K-grc1",
+    "author": "Galen",
+    "title": "De symptomatum differentiis",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_totius_morbi_temporibus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg047.1st1K-grc1",
+    "author": "Galen",
+    "title": "De totius morbi temporibus",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_typis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg048.1st1K-grc1",
+    "author": "Galen",
+    "title": "De typis",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_plenitudine.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg050.1st1K-grc1",
+    "author": "Galen",
+    "title": "De plenitudine",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_tremore_palpitatione_convulsione_et_rigore.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg051.1st1K-grc1",
+    "author": "Galen",
+    "title": "De tremore, palpitatione, convulsione et rigore",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_comate_secundum_hippocratem.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg052.1st1K-grc1",
+    "author": "Galen",
+    "title": "De comate secundum Hippocratem",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_marcore.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg053.1st1K-grc1",
+    "author": "Galen",
+    "title": "De marcore",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_tumoribus_praeter_naturam.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg054.1st1K-grc1",
+    "author": "Galen",
+    "title": "De tumoribus praeter naturam",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_inaequali_intemperie.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg055.1st1K-grc1",
+    "author": "Galen",
+    "title": "De inaequali intemperie",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_difficultate_respirationis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg056.1st1K-grc1",
+    "author": "Galen",
+    "title": "De difficultate respirationis",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_locis_affectis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg057.1st1K-grc1",
+    "author": "Galen",
+    "title": "De locis affectis",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_pulsibus_ad_tirones.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg058.1st1K-grc1",
+    "author": "Galen",
+    "title": "De pulsibus ad tirones",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_dignoscendis_pulsibus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg060.1st1K-grc1",
+    "author": "Galen",
+    "title": "De dignoscendis pulsibus",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_praesagitione_ex_pulsibus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg062.1st1K-grc1",
+    "author": "Galen",
+    "title": "De praesagitione ex pulsibus",
+    "added_date": "2026-01-22"
+  },
+  "galen.synopsis_librorum_suorum_de_pulsibus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg063.1st1K-grc1",
+    "author": "Galen",
+    "title": "Synopsis librorum suorum de pulsibus",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_crisibus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg064.1st1K-grc1",
+    "author": "Galen",
+    "title": "De crisibus",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_diebus_decretoriis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg065.1st1K-grc1",
+    "author": "Galen",
+    "title": "De diebus decretoriis",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_methodo_medendi.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg066.1st1K-grc1",
+    "author": "Galen",
+    "title": "De methodo medendi",
+    "added_date": "2026-01-22"
+  },
+  "galen.ad_glauconem_de_methodo_medendi.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg067.1st1K-grc1",
+    "author": "Galen",
+    "title": "Ad Glauconem de methodo medendi",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_venae_sectione_adversus_erasistratum.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg068.1st1K-grc1",
+    "author": "Galen",
+    "title": "De venae sectione adversus Erasistratum",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_curandi_ratione_per_venae_sectionem.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg070.1st1K-grc1",
+    "author": "Galen",
+    "title": "De curandi ratione per venae sectionem",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_hirudinibus_revulsione_cucurbitula_incisione_et.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg071.1st1K-grc1",
+    "author": "Galen",
+    "title": "De hirudinibus, revulsione, cucurbitula, incisione et scarificatione",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_purgantium_medicamentorum_facultate.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg072.1st1K-grc1",
+    "author": "Galen",
+    "title": "De purgantium medicamentorum facultate",
+    "added_date": "2026-01-22"
+  },
+  "galen.quos_quibus_catharticis_medicamentis_et_quando_pur.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg073.1st1K-grc1",
+    "author": "Galen",
+    "title": "Quos quibus catharticis medicamentis et quando purgare oporteat",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_simplicium_medicamentorum_temperamentis_ac_facu.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg075.1st1K-grc1",
+    "author": "Galen",
+    "title": "De simplicium medicamentorum temperamentis ac facultatibus I-VI",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_compositione_medicamentorum_secundum_locos_ivi.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg076.1st1K-grc1",
+    "author": "Galen",
+    "title": "De compositione medicamentorum secundum locos I-VI",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_antidotis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg078.1st1K-grc1",
+    "author": "Galen",
+    "title": "De antidotis",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_theriaca_ad_pisonem.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg079.1st1K-grc1",
+    "author": "Galen",
+    "title": "De theriaca ad Pisonem",
+    "added_date": "2026-01-22"
+  },
+  "galen.institutio_logica.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg081.1st1K-grc1",
+    "author": "Galen",
+    "title": "Institutio logica",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_sophismatis_seu_captionibus_penes_dictionem.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg082.1st1K-grc1",
+    "author": "Galen",
+    "title": "De sophismatis seu captionibus penes dictionem",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_praenotione_ad_epigenem.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg083.1st1K-grc1",
+    "author": "Galen",
+    "title": "De praenotione ad Epigenem",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_substantia_facultatum_naturalium_fragmentum.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg084.1st1K-grc1",
+    "author": "Galen",
+    "title": "De substantia facultatum naturalium fragmentum",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_humero_iis_modis_prolapso_quos_hippocrates_non_.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg096.1st1K-grc1",
+    "author": "Galen",
+    "title": "De Humero iis Modis Prolapso quos Hippocrates non Vidit",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_consuetudinibus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg103.1st1K-grc1",
+    "author": "Galen",
+    "title": "De consuetudinibus",
+    "added_date": "2026-01-22"
+  },
+  "galen.de_experientia_medica.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0057.tlg107.1st1K-grc1",
+    "author": "Galen",
+    "title": "De experientia medica",
+    "added_date": "2026-01-22"
+  },
+  "pseudolucian.\u03bb\u03bf\u03cd\u03ba\u03b9\u03bf\u03c2_\u1f22_\u1f44\u03bd\u03bf\u03c2.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0061.tlg001.1st1K-grc1",
+    "author": "Pseudo-Lucian",
+    "title": "\u039b\u03bf\u03cd\u03ba\u03b9\u03bf\u03c2 \u1f22 \u1f4c\u03bd\u03bf\u03c2",
+    "added_date": "2026-01-22"
+  },
+  "pseudolucian.\u1f14\u03c1\u03c9\u03c4\u03b5\u03c2.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0061.tlg002.1st1K-grc1",
+    "author": "Pseudo-Lucian",
+    "title": "\u1f1c\u03c1\u03c9\u03c4\u03b5\u03c2",
+    "added_date": "2026-01-22"
+  },
+  "pseudolucian.\u03b4\u03b7\u03bc\u03bf\u03c3\u03b8\u03ad\u03bd\u03bf\u03c5\u03c2_\u1f10\u03b3\u03ba\u03ce\u03bc\u03b9\u03bf\u03bd.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0061.tlg003.1st1K-grc1",
+    "author": "Pseudo-Lucian",
+    "title": "\u0394\u03b7\u03bc\u03bf\u03c3\u03b8\u03ad\u03bd\u03bf\u03c5\u03c2 \u1f18\u03b3\u03ba\u03ce\u03bc\u03b9\u03bf\u03bd",
+    "added_date": "2026-01-22"
+  },
+  "pseudolucian.\u1f00\u03bb\u03ba\u03c5\u03ce\u03bd.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0061.tlg004.1st1K-grc1",
+    "author": "Pseudo-Lucian",
+    "title": "\u1f08\u03bb\u03ba\u03c5\u03ce\u03bd",
+    "added_date": "2026-01-22"
+  },
+  "pseudolucian.\u03ba\u03c5\u03bd\u03b9\u03ba\u03cc\u03c2.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0061.tlg006.1st1K-grc1",
+    "author": "Pseudo-Lucian",
+    "title": "\u039a\u03c5\u03bd\u03b9\u03ba\u03cc\u03c2",
+    "added_date": "2026-01-22"
+  },
+  "pseudolucian.\u03c6\u03b9\u03bb\u03cc\u03c0\u03b1\u03c4\u03c1\u03b9\u03c2_\u1f22_\u03b4\u03b9\u03b4\u03b1\u03c3\u03ba\u03cc\u03bc\u03b5\u03bd\u03bf\u03c2.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0061.tlg007.1st1K-grc1",
+    "author": "Pseudo-Lucian",
+    "title": "\u03a6\u03b9\u03bb\u03cc\u03c0\u03b1\u03c4\u03c1\u03b9\u03c2 \u1f22 \u0394\u03b9\u03b4\u03b1\u03c3\u03ba\u03cc\u03bc\u03b5\u03bd\u03bf\u03c2",
+    "added_date": "2026-01-22"
+  },
+  "pseudolucian.\u03c7\u03b1\u03c1\u03af\u03b4\u03b7\u03bc\u03bf\u03c2_\u1f22_\u03c0\u03b5\u03c1\u1f76_\u03ba\u03ac\u03bb\u03bb\u03bf\u03c5\u03c2.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0061.tlg008.1st1K-grc1",
+    "author": "Pseudo-Lucian",
+    "title": "\u03a7\u03b1\u03c1\u03af\u03b4\u03b7\u03bc\u03bf\u03c2 \u1f22 \u03a0\u03b5\u03c1\u1f76 \u039a\u03ac\u03bb\u03bb\u03bf\u03c5\u03c2",
+    "added_date": "2026-01-22"
+  },
+  "hanno.periplus_hannonis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0064.tlg001.1st1K-grc1",
+    "author": "Hanno",
+    "title": "Periplus Hannonis",
+    "added_date": "2026-01-22"
+  },
+  "scylax_of_caranda.periplus_scylacis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0065.tlg001.1st1K-grc1",
+    "author": "Scylax of Caranda",
+    "title": "Periplus Scylacis",
+    "added_date": "2026-01-22"
+  },
+  "pseudo_dicaearchus_messeniushe.dicaearchi_ut_fertur_potius_vero_athenaei_descript.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0066.tlg001.1st1K-grc1",
+    "author": "Pseudo Dicaearchus Messenius,Heraclides, criticus",
+    "title": "Dicaearchi, ut fertur, potius vero Athenaei Descriptionis                     Graeciae Fragmenta tria",
+    "added_date": "2026-01-22"
+  },
+  "agatharchides.ex_agatharchidis_de_maris_erythraeo_libri_excerpta.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0067.tlg001.1st1K-grc1",
+    "author": "Agatharchides",
+    "title": "Ex Agatharchidis De Maris Erythraeo Libri Excerpta",
+    "added_date": "2026-01-22"
+  },
+  "pseudoscymnus.scymni_chii_ut_fertur_periegesis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0068.tlg001.1st1K-grc1",
+    "author": "Pseudo-Scymnus",
+    "title": "Scymni Chii, ut fertur, Periegesis",
+    "added_date": "2026-01-22"
+  },
+  "dionysius_calliphontis.dionysii_calliphontis_filii_descriptio_graeciae.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0069.tlg001.1st1K-grc1",
+    "author": "Dionysius Calliphontis",
+    "title": "Dionysii Calliphontis filii Descriptio Graeciae",
+    "added_date": "2026-01-22"
+  },
+  "isidore_of_charax.mansiones_parthicae.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0070.tlg001.1st1K-grc1",
+    "author": "Isidore of Charax",
+    "title": "Mansiones Parthicae",
+    "added_date": "2026-01-22"
+  },
+  "pseudoarrianus.anonymi_arriani_ut_fertur_periplus_maris_erythraei.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0071.tlg001.1st1K-grc1",
+    "author": "Pseudo-Arrianus",
+    "title": "Anonymi (Arriani, ut fertur) periplus maris Erythraei",
+    "added_date": "2026-01-22"
+  },
+  "pseudoarrianus.anonymi_arriani_ut_fertur_periplus_ponti_euxini.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0075.tlg001.1st1K-grc1",
+    "author": "Pseudo-Arrianus",
+    "title": "Anonymi (Arriani, ut fertur) periplus ponti Euxini",
+    "added_date": "2026-01-22"
+  },
+  "anonymous.stadiasmus_magni_maris.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0077.tlg001.1st1K-grc1",
+    "author": "Anonymous",
+    "title": "Stadiasmus Magni Maris",
+    "added_date": "2026-01-22"
+  },
+  "dionysius_of_halicarnassus.de_demosthenis_dictione.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0081.tlg006.1st1K-grc1",
+    "author": "Dionysius of Halicarnassus",
+    "title": "De Demosthenis dictione",
+    "added_date": "2026-01-22"
+  },
+  "dionysius_of_halicarnassus.de_compositione_verborum_epitome.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0081.tlg013.1st1K-grc1",
+    "author": "Dionysius of Halicarnassus",
+    "title": "De compositione verborum (epitome)",
+    "added_date": "2026-01-22"
+  },
+  "dionysius_of_halicarnasus.de_imitatione_fragmenta.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0081.tlg014.1st1K-grc1",
+    "author": "Dionysius of Halicarnasus",
+    "title": "De imitatione (fragmenta)",
+    "added_date": "2026-01-22"
+  },
+  "dionysius_of_halicarnasus.ars_rhetorica.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0081.tlg016.1st1K-grc1",
+    "author": "Dionysius of Halicarnasus",
+    "title": "Ars Rhetorica",
+    "added_date": "2026-01-22"
+  },
+  "apollonius_dyscolus.\u03c0\u03b5\u03c1\u1f76_\u1f00\u03bd\u03c4\u03c9\u03bd\u03c5\u03bc\u03af\u03b1\u03c2.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0082.tlg001.1st1K-grc1",
+    "author": "Apollonius Dyscolus",
+    "title": "\u03a0\u03b5\u03c1\u1f76 \u1f00\u03bd\u03c4\u03c9\u03bd\u03c5\u03bc\u03af\u03b1\u03c2",
+    "added_date": "2026-01-22"
+  },
+  "aeschylus.\u1f31\u03ba\u03ad\u03c4\u03b9\u03b4\u03b5\u03c2.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0085.tlg001.1st1K-grc1",
+    "author": "Aeschylus",
+    "title": "\u1f39\u03ba\u03ad\u03c4\u03b9\u03b4\u03b5\u03c2",
+    "added_date": "2026-01-22"
+  },
+  "aeschylus.\u03c0\u03ad\u03c1\u03c3\u03b1\u03b9.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0085.tlg002.1st1K-grc1",
+    "author": "Aeschylus",
+    "title": "\u03a0\u03ad\u03c1\u03c3\u03b1\u03b9",
+    "added_date": "2026-01-22"
+  },
+  "aeschylus.\u03c0\u03c1\u03bf\u03bc\u03b7\u03b8\u03b5\u1f7a\u03c2_\u03b4\u03b5\u03c3\u03bc\u03ce\u03c4\u03b7\u03c2.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0085.tlg003.1st1K-grc1",
+    "author": "Aeschylus",
+    "title": "\u03a0\u03c1\u03bf\u03bc\u03b7\u03b8\u03b5\u1f7a\u03c2 \u0394\u03b5\u03c3\u03bc\u03ce\u03c4\u03b7\u03c2",
+    "added_date": "2026-01-22"
+  },
+  "aeschylus.\u1f11\u03c0\u03c4\u1f70_\u1f10\u03c0\u1f76_\u03b8\u03ae\u03b2\u03b1\u03c2.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0085.tlg004.1st1K-grc1",
+    "author": "Aeschylus",
+    "title": "\u1f19\u03c0\u03c4\u1f70 \u1f10\u03c0\u1f76 \u0398\u03ae\u03b2\u03b1\u03c2",
+    "added_date": "2026-01-22"
+  },
+  "aeschylus.\u1f00\u03b3\u03b1\u03bc\u03ad\u03bc\u03bd\u03c9\u03bd.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0085.tlg005.1st1K-grc1",
+    "author": "Aeschylus",
+    "title": "\u1f08\u03b3\u03b1\u03bc\u03ad\u03bc\u03bd\u03c9\u03bd",
+    "added_date": "2026-01-22"
+  },
+  "aeschylus.\u03c7\u03bf\u03b7\u03c6\u00f3\u03c1o\u03b9.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0085.tlg006.1st1K-grc1",
+    "author": "Aeschylus",
+    "title": "\u03a7\u03bf\u03b7\u03c6\u00f3\u03c1o\u03b9",
+    "added_date": "2026-01-22"
+  },
+  "aeschylus.\u03b5\u1f50\u03bc\u03b5\u03bd\u03af\u03b4\u03b5\u03c2.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0085.tlg007.1st1K-grc1",
+    "author": "Aeschylus",
+    "title": "\u0395\u1f50\u03bc\u03b5\u03bd\u03af\u03b4\u03b5\u03c2",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.analytica_priora.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg001.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "Analytica priora",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.de_anima.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg002.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "De anima",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.res_publica_atheniensium.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg003.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "Res Publica Atheniensium",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.fragmenta_deperditae_partis_primae.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg003.1st1K-grc2",
+    "author": "Aristotle",
+    "title": "Fragmenta Deperditae Partis Primae",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.\u1f10\u03ba_\u03c4\u03bf\u1fe6_\u03c0\u03b5\u03c1\u1f76_\u1f00\u03ba\u03bf\u03c5\u03c3\u03c4\u1ff6\u03bd.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg004.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "\u1f18\u03ba \u03c4\u03bf\u1fe6 \u03c0\u03b5\u03c1\u1f76 \u1f00\u03ba\u03bf\u03c5\u03c3\u03c4\u1ff6\u03bd",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.de_caelo.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg005.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "De caelo",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.categoriae.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg006.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "Categoriae",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.\u03c0\u03b5\u03c1\u03af_\u03c7\u03c1\u03c9\u03bc\u03ac\u03c4\u03c9\u03bd.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg007.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "\u03a0\u03b5\u03c1\u03af \u03c7\u03c1\u03c9\u03bc\u03ac\u03c4\u03c9\u03bd",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.de_divinatione_per_somnum.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg008.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "De divinatione per somnum",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.epistulae.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg011.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "Epistulae",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.de_generatione_animalium.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg012.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "De Generatione Animalium",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.de_insomniis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg016.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "De insomniis",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.de_interpretatione.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg017.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "De interpretatione",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.de_iuventute_et_senectute_de_vita_et_morte.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg018.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "De iuventute et senectute, De vita et morte",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.de_longitudine_et_brevitate_vitae.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg020.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "De longitudine et brevitate vitae",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.magna_moralia.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg022.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "Magna Moralia",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.\u03bc\u03b7\u03c7\u03b1\u03bd\u03b9\u03ba\u03ac.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg023.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "\u039c\u03b7\u03c7\u03b1\u03bd\u03b9\u03ba\u03ac",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.de_memoria_et_reminiscentia.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg024.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "De memoria et reminiscentia",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.meteorologica.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg026.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "Meteorologica",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.de_partibus_animalium.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg030.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "De partibus animalium",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.physica.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg031.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "Physica",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.\u03c6\u03c5\u03c3\u03b9\u03bf\u03b3\u03bd\u03c9\u03bc\u03bf\u03bd\u03b9\u03ba\u03ac.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg032.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "\u03a6\u03c5\u03c3\u03b9\u03bf\u03b3\u03bd\u03c9\u03bc\u03bf\u03bd\u03b9\u03ba\u03ac",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.\u03b1\u03c1\u03b9\u03c3\u03c4\u03bf\u03c4\u03ad\u03bb\u03bf\u03c5\u03c2_\u03c6\u03c5\u03c3\u03b9\u03ba\u03ac_\u03c0\u03c1\u03bf\u03b2\u03bb\u03ae\u03bc\u03b1\u03c4\u03b1_\u03ba\u03b1\u03c4_\u03b5\u1f36\u03b4\u03bf\u03c2_\u03c3\u03c5\u03bd\u03b1\u03b3\u03ce\u03b3\u03b7\u03c2.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg036.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "\u1fbf\u0391\u03c1\u03b9\u03c3\u03c4\u03bf\u03c4\u03ad\u03bb\u03bf\u03c5\u03c2 \u03c6\u03c5\u03c3\u03b9\u03ba\u03ac \u03c0\u03c1\u03bf\u03b2\u03bb\u03ae\u03bc\u03b1\u03c4\u03b1 \u03ba\u03b1\u03c4\u1fbf \u03b5\u1f36\u03b4\u03bf\u03c2 \u03c3\u03c5\u03bd\u03b1\u03b3\u03ce\u03b3\u03b7\u03c2",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.de_respiratione.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg037.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "De respiratione",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.de_sophisticis_elenchis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg040.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "De sophisticis elenchis",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.de_sensu_et_sensibilibus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg041.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "De sensu et sensibilibus",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.de_somno_et_vigilia.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg042.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "De somno et vigilia",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.topica.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg044.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "Topica",
+    "added_date": "2026-01-22"
+  },
+  "aristotle.divisiones_aristoteleae.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0086.tlg048.1st1K-grc1",
+    "author": "Aristotle",
+    "title": "Divisiones Aristoteleae",
+    "added_date": "2026-01-22"
+  },
+  "aelius_herodianus.\u03c0\u03b5\u03c1\u03b9_\u03ba\u03b1\u03b8\u03bf\u03bb\u03b9\u03ba\u03b7\u03c2_\u03c0\u03c1\u03bf\u03c3\u1ff3\u03b4\u03b9\u03b1\u03c2.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0087.tlg001.1st1K-grc1",
+    "author": "Aelius Herodianus",
+    "title": "\u03a0\u03b5\u03c1\u03b9 \u039a\u03b1\u03b8\u03bf\u03bb\u03b9\u03ba\u03b7\u03c2 \u03a0\u03c1\u03bf\u03c3\u1ff3\u03b4\u03b9\u03b1\u03c2",
+    "added_date": "2026-01-22"
+  },
+  "aelius_herodianus.\u03c0\u03b5\u03c1\u1f76_\u1f10\u03b3\u03ba\u03bb\u03b9\u03bd\u03bf\u03bc\u03ad\u03bd\u03c9\u03bd.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0087.tlg002.1st1K-grc1",
+    "author": "Aelius Herodianus",
+    "title": "\u03a0\u03b5\u03c1\u1f76 \u1f10\u03b3\u03ba\u03bb\u03b9\u03bd\u03bf\u03bc\u03ad\u03bd\u03c9\u03bd",
+    "added_date": "2026-01-22"
+  },
+  "herodianus.\u03c3\u03c5\u03bc\u03c0\u03cc\u03c3\u03b9\u03bf\u03bd.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0087.tlg030.1st1K-grc1",
+    "author": "Herodianus",
+    "title": "\u03a3\u03c5\u03bc\u03c0\u03cc\u03c3\u03b9\u03bf\u03bd",
+    "added_date": "2026-01-22"
+  },
+  "aristoxenus.elementa_harmonica.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0088.tlg001.1st1K-grc1",
+    "author": "Aristoxenus",
+    "title": "Elementa Harmonica",
+    "added_date": "2026-01-22"
+  },
+  "agathemerus.geographiae_informatio.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0090.tlg001.opp-eng1",
+    "author": "Agathemerus",
+    "title": "Geographiae Informatio",
+    "added_date": "2026-01-22"
+  },
+  "anonymous.geographiae_expositio_compendiaria.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0092.tlg001.1st1K-grc1",
+    "author": "Anonymous",
+    "title": "Geographiae expositio compendiaria",
+    "added_date": "2026-01-22"
+  },
+  "theophrastus.concerning_odours.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0093.ogl001.1st1K-grc1",
+    "author": "Theophrastus",
+    "title": "Concerning Odours",
+    "added_date": "2026-01-22"
+  },
+  "theophrastus.enquiry_into_plants.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0093.ogl002.1st1K-grc1",
+    "author": "Theophrastus",
+    "title": "Enquiry into Plants",
+    "added_date": "2026-01-22"
+  },
+  "theophrastus.\u03c0\u03b5\u03c1\u1f76_\u03c6\u03c5\u03c4\u1ff6\u03bd_\u03b1\u1f30\u03c4\u03b9\u1ff6\u03bd.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0093.tlg002.1st1K-grc1",
+    "author": "Theophrastus",
+    "title": "\u03a0\u03b5\u03c1\u1f76 \u03c6\u03c5\u03c4\u1ff6\u03bd \u03b1\u1f30\u03c4\u03b9\u1ff6\u03bd",
+    "added_date": "2026-01-22"
+  },
+  "theophrastus.de_sensu_et_sensibilibus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0093.tlg003.1st1K-grc1",
+    "author": "Theophrastus",
+    "title": "De sensu et sensibilibus",
+    "added_date": "2026-01-22"
+  },
+  "theophrastus.de_lapidibus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0093.tlg004.1st1K-grc1",
+    "author": "Theophrastus",
+    "title": "De lapidibus",
+    "added_date": "2026-01-22"
+  },
+  "theophrastus.\u03c0\u03b5\u03c1\u03af_\u1f40\u03c3\u03bc\u03ce\u03bd.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0093.tlg010x01.1st1K-grc1",
+    "author": "Theophrastus",
+    "title": "\u03a0\u03b5\u03c1\u03af \u1f48\u03c3\u03bc\u03ce\u03bd",
+    "added_date": "2026-01-22"
+  },
+  "theophrastus.fragmenta_varia_13190.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0093.tlg010x09.1st1K-grc1",
+    "author": "Theophrastus",
+    "title": "Fragmenta varia (13-190)",
+    "added_date": "2026-01-22"
+  },
+  "pseudoplutarch.on_the_naming_of_rivers_mountains_and_things_found.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0094.tlg001.1st1K-eng1",
+    "author": "Pseudo-Plutarch",
+    "title": "On the Naming of Rivers, Mountains, and Things Found in Them",
+    "added_date": "2026-01-22"
+  },
+  "pseudoplutarch.de_fluviis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0094.tlg001.1st1K-grc1",
+    "author": "Pseudo-Plutarch",
+    "title": "De Fluviis",
+    "added_date": "2026-01-22"
+  },
+  "aesop.\u03b1\u03b9\u03c3\u03ce\u03c0\u03b5\u03b9\u03c9\u03bd_\u03bc\u03cd\u03b8\u03c9\u03bd_\u03c3\u03c5\u03bd\u03b1\u03b3\u03c9\u03b3\u03ae.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0096.tlg002.1st1K-grc1",
+    "author": "Aesop",
+    "title": "\u0391\u03b9\u03c3\u03ce\u03c0\u03b5\u03b9\u03c9\u03bd \u03bc\u03cd\u03b8\u03c9\u03bd \u03c3\u03c5\u03bd\u03b1\u03b3\u03c9\u03b3\u03ae",
+    "added_date": "2026-01-22"
+  },
+  "aesop.fabulae.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0096.tlg002.opp-grc3",
+    "author": "Aesop",
+    "title": "Fabulae",
+    "added_date": "2026-01-22"
+  },
+  "diogenianus_of_heraclea.\u03c0\u03b1\u03c1\u03bf\u03b9\u03bc\u03af\u03b1\u03b9_\u03b4\u03b7\u03bc\u03ce\u03b4\u03b5\u03b9\u03c2_\u1f10\u03ba_\u03c4\u1fc6\u03c2_\u03b4\u03b9\u03bf\u03b3\u03b5\u03bd\u03b9\u03b1\u03bd\u03bf\u1fe6_\u03c3\u03c5\u03bd\u03b1\u03b3\u03c9\u03b3\u1fc6\u03c2_e_.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0097.tlg001.1st1K-grc1",
+    "author": "Diogenianus of Heraclea",
+    "title": "\u03a0\u03b1\u03c1\u03bf\u03b9\u03bc\u03af\u03b1\u03b9 \u03b4\u03b7\u03bc\u03ce\u03b4\u03b5\u03b9\u03c2 \u1f10\u03ba \u03c4\u1fc6\u03c2 \u0394\u03b9\u03bf\u03b3\u03b5\u03bd\u03b9\u03b1\u03bd\u03bf\u1fe6 \u03c3\u03c5\u03bd\u03b1\u03b3\u03c9\u03b3\u1fc6\u03c2 (e cod. Mazarinco)",
+    "added_date": "2026-01-22"
+  },
+  "zenobius_sophista.\u1f10\u03c0\u03b9\u03c4\u03bf\u03bc\u1f74_\u1f10\u03ba_\u03c4\u1ff6\u03bd_\u03c4\u03b1\u03c1\u03c1\u03b1\u03af\u03bf\u03c5_\u03ba\u03b1\u1f76_\u03b4\u03b9\u03b4\u03cd\u03bc\u03bf\u03c5_\u03c0\u03b1\u03c1\u03bf\u03b9\u03bc\u03b9\u1ff6\u03bd_\u03c3\u03c5\u03bd\u03c4.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0098.tlg001.1st1K-grc1",
+    "author": "Zenobius Sophista",
+    "title": "\u1f18\u03c0\u03b9\u03c4\u03bf\u03bc\u1f74 \u1f10\u03ba \u03c4\u1ff6\u03bd \u03a4\u03b1\u03c1\u03c1\u03b1\u03af\u03bf\u03c5 \u03ba\u03b1\u1f76 \u0394\u03b9\u03b4\u03cd\u03bc\u03bf\u03c5 \u03c0\u03b1\u03c1\u03bf\u03b9\u03bc\u03b9\u1ff6\u03bd \u03c3\u03c5\u03bd\u03c4\u03b5\u03b8\u03b5\u1fd6\u03c3\u03b1 \u03ba\u03b1\u03c4\u1f70 \u03c3\u03c4\u03bf\u03b9\u03c7\u03b5\u1fd6\u03bf\u03bd",
+    "added_date": "2026-01-22"
+  },
+  "strabo.strabonis_geographiae_chrestomathia_geographia_sel.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0099.tlg004.1st1K-grc1",
+    "author": "Strabo",
+    "title": "Strabonis Geographiae Chrestomathia,             Geographia. Selections Chrestomathia",
+    "added_date": "2026-01-22"
+  },
+  "anonymous.acts_of_john.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0317.tlg001.1st1K-eng1",
+    "author": "Anonymous",
+    "title": "Acts of John",
+    "added_date": "2026-01-22"
+  },
+  "acta_joannis.acta_joannis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0317.tlg001.1st1K-grc1",
+    "author": "Acta Joannis",
+    "title": "Acta Joannis",
+    "added_date": "2026-01-22"
+  },
+  "critias.fragmenta.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0319.tlg004.1st1K-grc1",
+    "author": "Critias",
+    "title": "Fragmenta",
+    "added_date": "2026-01-22"
+  },
+  "didymus_alexandrinus.mensurae_marmorum_ac_lignorum.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0357.tlg001.1st1K-grc1",
+    "author": "Didymus Alexandrinus",
+    "title": "Mensurae marmorum ac lignorum",
+    "added_date": "2026-01-22"
+  },
+  "nicomachus_of_gerasa.\u1f00\u03c1\u03b9\u03b8\u03bc\u03b7\u03c4\u03b9\u03ba\u1f74_\u03b5\u1f30\u03c3\u03b1\u03b3\u03c9\u03b3\u03ae.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0358.tlg001.1st1K-grc1",
+    "author": "Nicomachus of Gerasa",
+    "title": "\u1f08\u03c1\u03b9\u03b8\u03bc\u03b7\u03c4\u03b9\u03ba\u1f74 \u03b5\u1f30\u03c3\u03b1\u03b3\u03c9\u03b3\u03ae",
+    "added_date": "2026-01-22"
+  },
+  "nicomachus_of_gerasa.\u1f10\u03b3\u03c7\u03b5\u03b9\u03c1\u03af\u03b4\u03b9\u03bf\u03bd_\u1f01\u03c1\u03bc\u03bf\u03bd\u03b9\u03ba\u1fc6\u03c2.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0358.tlg002.1st1K-grc1",
+    "author": "Nicomachus of Gerasa",
+    "title": "\u1f18\u03b3\u03c7\u03b5\u03b9\u03c1\u03af\u03b4\u03b9\u03bf\u03bd \u1f01\u03c1\u03bc\u03bf\u03bd\u03b9\u03ba\u1fc6\u03c2",
+    "added_date": "2026-01-22"
+  },
+  "nicomachus_of_gerasa.excerpta.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0358.tlg004.1st1K-grc1",
+    "author": "Nicomachus of Gerasa",
+    "title": "Excerpta",
+    "added_date": "2026-01-22"
+  },
+  "nicomachus_of_gerasa.problemata_arithmetica.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0358.tlg005.1st1K-grc1",
+    "author": "Nicomachus of Gerasa",
+    "title": "Problemata arithmetica",
+    "added_date": "2026-01-22"
+  },
+  "cleonides.\u03b5\u1f30\u03c3\u03b1\u03b3\u03c9\u03b3\u1f74_\u1f01\u03c1\u03bc\u03bf\u03bd\u03b9\u03ba\u03ae.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0361.tlg001.1st1K-grc1",
+    "author": "Cleonides",
+    "title": "\u0395\u1f30\u03c3\u03b1\u03b3\u03c9\u03b3\u1f74 \u1f01\u03c1\u03bc\u03bf\u03bd\u03b9\u03ba\u03ae",
+    "added_date": "2026-01-22"
+  },
+  "carmina_delphis_inventa.carmina_delphis_inventa.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0362.tlg001.1st1K-grc1",
+    "author": "Carmina Delphis Inventa",
+    "title": "Carmina Delphis Inventa",
+    "added_date": "2026-01-22"
+  },
+  "claudius_ptolemaeus.\u03bc\u03b1\u03b8\u03b7\u03bc\u03b1\u03c4\u03b9\u03ba\u1f74_\u03c3\u03cd\u03bd\u03c4\u03b1\u03be\u03b9\u03c2.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0363.tlg001.1st1K-grc1",
+    "author": "Claudius Ptolemaeus",
+    "title": "\u039c\u03b1\u03b8\u03b7\u03bc\u03b1\u03c4\u03b9\u03ba\u1f74 \u03a3\u03cd\u03bd\u03c4\u03b1\u03be\u03b9\u03c2",
+    "added_date": "2026-01-22"
+  },
+  "claudius_ptolemaeus.apotelesmatica_tetrabiblos.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0363.tlg007.1st1K-grc1",
+    "author": "Claudius Ptolemaeus",
+    "title": "Apotelesmatica (= Tetrabiblos)",
+    "added_date": "2026-01-22"
+  },
+  "claudius_ptolemaeus.musica.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0363.tlg011.1st1K-grc1",
+    "author": "Claudius Ptolemaeus",
+    "title": "Musica",
+    "added_date": "2026-01-22"
+  },
+  "epicharmus.fragmenta.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0521.tlg008.1st1K-grc1",
+    "author": "Epicharmus",
+    "title": "Fragmenta",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.paralipomenon_i_sive_chronicon_i.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg015.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Paralipomenon I sive Chronicon I",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.esdras_a.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg017.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Esdras A",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.esther.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg019.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Esther",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.judith.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg020.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Judith",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.tobias.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg021.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Tobias",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.machabaeorum_i.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg023.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Machabaeorum i",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.psalmi.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg027.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Psalmi",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.odae.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg028.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Odae",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.proverbia.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg029.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Proverbia",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.canticum.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg031.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Canticum",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.job.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg032.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Job",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.sapientia_salomonis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg033.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Sapientia Salomonis",
+    "added_date": "2026-01-22"
+  },
+  ".ecclesiasticus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg034.1st1K-grc1",
+    "author": "",
+    "title": "Ecclesiasticus",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.osee.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg036.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Osee",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.amos.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg037.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Amos",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.michaeas.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg038.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Michaeas",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.joel.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg039.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Joel",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.abdias.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg040.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Abdias",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.jonas.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg041.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Jonas",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.nahum.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg042.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Nahum",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.habacuc.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg043.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Habacuc",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.sophonias.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg044.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Sophonias",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.aggaeus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg045.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Aggaeus",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.zacharias.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg046.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Zacharias",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.malachias.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg047.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Malachias",
+    "added_date": "2026-01-22"
+  },
+  ".notes_on_isaias.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg048.1st1K-eng1",
+    "author": "",
+    "title": "Notes on Isaias",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.isaias.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg048.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Isaias",
+    "added_date": "2026-01-22"
+  },
+  ".index_i_to_isaias.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg048.1st1K-mul1",
+    "author": "",
+    "title": "Index I to Isaias",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.jeremias.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg049.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Jeremias",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.baruch.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg050.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Baruch",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.threni_seu_lamentationes.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg051.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Threni seu Lamentationes",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.epistula_jeremiae.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg052.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Epistula Jeremiae",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.ezechiel.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg053.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Ezechiel",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.susanna_translatio_graeca.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg054.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Susanna (translatio Graeca)",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.daniel_translatio_graeca.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg056.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Daniel (translatio Graeca)",
+    "added_date": "2026-01-22"
+  },
+  "septuaginta.bel_et_draco_translatio_graeca.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0527.tlg058.1st1K-grc1",
+    "author": "Septuaginta",
+    "title": "Bel et Draco (translatio Graeca)",
+    "added_date": "2026-01-22"
+  },
+  "arius_didymus.liber_de_philosophorum_sectis_epitome_ap_stobaeum.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0529.tlg002.1st1K-grc1",
+    "author": "Arius Didymus",
+    "title": "Liber de philosophorum sectis (epitome ap. Stobaeum)",
+    "added_date": "2026-01-22"
+  },
+  "pseudogalen.de_fasciis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0530.tlg005.1st1K-grc1",
+    "author": "Pseudo-Galen",
+    "title": "De fasciis",
+    "added_date": "2026-01-22"
+  },
+  "pseudogalen.ad_gaurum_quomodo_animetur_fetus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0530.tlg006.1st1K-grc1",
+    "author": "Pseudo-Galen",
+    "title": "Ad Gaurum quomodo animetur fetus",
+    "added_date": "2026-01-22"
+  },
+  "pseudogalen.introductio_seu_medicus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0530.tlg012.1st1K-grc1",
+    "author": "Pseudo-Galen",
+    "title": "Introductio seu medicus",
+    "added_date": "2026-01-22"
+  },
+  "pseudogalen.de_remediis_parabilibus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0530.tlg029.1st1K-grc1",
+    "author": "Pseudo-Galen",
+    "title": "De remediis parabilibus",
+    "added_date": "2026-01-22"
+  },
+  "pseudogalen.de_theriaca_ad_pamphilianum.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0530.tlg032.1st1K-grc1",
+    "author": "Pseudo-Galen",
+    "title": "De theriaca ad Pamphilianum",
+    "added_date": "2026-01-22"
+  },
+  "pseudogalen.de_optima_secta_ad_thrasybulum.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0530.tlg043.1st1K-grc1",
+    "author": "Pseudo-Galen",
+    "title": "De optima secta ad Thrasybulum",
+    "added_date": "2026-01-22"
+  },
+  "callimachus.aetia.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0533.tlg006.1st1K-grc1",
+    "author": "Callimachus",
+    "title": "Aetia",
+    "added_date": "2026-01-22"
+  },
+  "callimachus.iambi.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0533.tlg007.1st1K-grc1",
+    "author": "Callimachus",
+    "title": "Iambi",
+    "added_date": "2026-01-22"
+  },
+  "callimachus.hecala.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0533.tlg009.1st1K-grc1",
+    "author": "Callimachus",
+    "title": "Hecala",
+    "added_date": "2026-01-22"
+  },
+  "epicurus.epistula_ad_herodotum.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0537.tlg010.1st1K-grc1",
+    "author": "Epicurus",
+    "title": "Epistula ad Herodotum",
+    "added_date": "2026-01-22"
+  },
+  "epicurus.ratae_sententiae.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0537.tlg013.1st1K-grc1",
+    "author": "Epicurus",
+    "title": "Ratae Sententiae",
+    "added_date": "2026-01-22"
+  },
+  "epicurus.gnomologium_vaticanum_epicureum.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0537.tlg014.1st1K-grc1",
+    "author": "Epicurus",
+    "title": "Gnomologium Vaticanum Epicureum",
+    "added_date": "2026-01-22"
+  },
+  "pseudomenander.sententiae_corresponds_to_version_men_ar_i_greek.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:nbn:de:tlg0541.tlg042.1st1K-grc1",
+    "author": "pseudo-Menander",
+    "title": "Sententiae (corresponds to version Men Ar I) (Greek)",
+    "added_date": "2026-01-22"
+  },
+  "pseudomenander.sententiae_corresponds_to_version_men_ar_ii_greek.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:nbn:de:tlg0541.tlg042.1st1K-grc2",
+    "author": "pseudo-Menander",
+    "title": "Sententiae (corresponds to version Men ar II) (Greek)",
+    "added_date": "2026-01-22"
+  },
+  "sextus_empiricus.pyrrhoniae_hypotyposes.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0544.tlg001.1st1K-grc1",
+    "author": "Sextus Empiricus",
+    "title": "Pyrrhoniae hypotyposes",
+    "added_date": "2026-01-22"
+  },
+  "sextus_empiricus.adversus_mathematicos.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0544.tlg002.1st1K-grc1",
+    "author": "Sextus Empiricus",
+    "title": "Adversus mathematicos",
+    "added_date": "2026-01-22"
+  },
+  "aelian.\u1f00\u03c0\u03bf\u03c3\u03c0\u03b1\u03c3\u03bc\u03ac\u03c4\u03b9\u03b1.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0545.tlg004.1st1K-grc1",
+    "author": "Aelian",
+    "title": "\u1f08\u03c0\u03bf\u03c3\u03c0\u03b1\u03c3\u03bc\u03ac\u03c4\u03b9\u03b1",
+    "added_date": "2026-01-22"
+  },
+  "apollonius_of_perga.conica.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0550.tlg001.1st1K-grc1",
+    "author": "Apollonius of Perga",
+    "title": "Conica",
+    "added_date": "2026-01-22"
+  },
+  "archim\u00e8de.de_sphaera_et_cylindro.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0552.tlg001.1st1K-grc1",
+    "author": "Archim\u00e8de",
+    "title": "De sphaera et cylindro",
+    "added_date": "2026-01-22"
+  },
+  "archim\u00e8de.dimensio_circuli.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0552.tlg002.1st1K-grc1",
+    "author": "Archim\u00e8de",
+    "title": "Dimensio circuli",
+    "added_date": "2026-01-22"
+  },
+  "archim\u00e8de.de_conoidibus_et_sphaeroidibus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0552.tlg003.1st1K-grc1",
+    "author": "Archim\u00e8de",
+    "title": "De conoidibus et sphaeroidibus",
+    "added_date": "2026-01-22"
+  },
+  "archim\u00e8de.de_lineis_spiralibus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0552.tlg004.1st1K-grc1",
+    "author": "Archim\u00e8de",
+    "title": "De lineis spiralibus",
+    "added_date": "2026-01-22"
+  },
+  "archim\u00e8de.de_planorum_aequilibriis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0552.tlg005.1st1K-grc1",
+    "author": "Archim\u00e8de",
+    "title": "De planorum aequilibriis",
+    "added_date": "2026-01-22"
+  },
+  "archim\u00e8de.arenarius.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0552.tlg006.1st1K-grc1",
+    "author": "Archim\u00e8de",
+    "title": "Arenarius",
+    "added_date": "2026-01-22"
+  },
+  "archim\u00e8de.quadratura_parabolae.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0552.tlg007.1st1K-grc1",
+    "author": "Archim\u00e8de",
+    "title": "Quadratura parabolae",
+    "added_date": "2026-01-22"
+  },
+  "archim\u00e8de.de_corporibus_fluitantibus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0552.tlg008.1st1K-grc1",
+    "author": "Archim\u00e8de",
+    "title": "De corporibus fluitantibus",
+    "added_date": "2026-01-22"
+  },
+  "archim\u00e8de.ad_eratosthenem_methodus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0552.tlg010.1st1K-grc1",
+    "author": "Archim\u00e8de",
+    "title": "Ad Eratosthenem methodus",
+    "added_date": "2026-01-22"
+  },
+  "archim\u00e8de.liber_assumptorum.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0552.tlg011.1st1K-grc1",
+    "author": "Archim\u00e8de",
+    "title": "Liber assumptorum",
+    "added_date": "2026-01-22"
+  },
+  "archim\u00e8de.problema_bovinum.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0552.tlg012.1st1K-grc1",
+    "author": "Archim\u00e8de",
+    "title": "Problema bovinum",
+    "added_date": "2026-01-22"
+  },
+  "archimedes.fragmenta.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0552.tlg013.1st1K-grc1",
+    "author": "Archimedes",
+    "title": "Fragmenta",
+    "added_date": "2026-01-22"
+  },
+  "artemidorus.onirocriticon.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0553.tlg001.1st1K-grc1",
+    "author": "Artemidorus",
+    "title": "Onirocriticon",
+    "added_date": "2026-01-22"
+  },
+  "clement_of_alexandria.protrepticus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0555.tlg001.1st1K-grc1",
+    "author": "Clement of Alexandria",
+    "title": "Protrepticus",
+    "added_date": "2026-01-22"
+  },
+  "clement_of_alexandria.paedagogus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0555.tlg002.1st1K-grc1",
+    "author": "Clement of Alexandria",
+    "title": "Paedagogus",
+    "added_date": "2026-01-22"
+  },
+  "clement_of_alexandria.eclogae_propheticae.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0555.tlg005.1st1K-grc1",
+    "author": "Clement of Alexandria",
+    "title": "Eclogae propheticae",
+    "added_date": "2026-01-22"
+  },
+  "clement_of_alexandria.quis_dives_salvetur.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0555.tlg006.1st1K-grc1",
+    "author": "Clement of Alexandria",
+    "title": "Quis dives salvetur",
+    "added_date": "2026-01-22"
+  },
+  "clement_of_alexandria.excerpta_ex_theodoto.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0555.tlg007.1st1K-grc1",
+    "author": "Clement of Alexandria",
+    "title": "Excerpta ex Theodoto",
+    "added_date": "2026-01-22"
+  },
+  "epictetus.gnomologium_epicteteum_e_stobaei_libris_34.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0557.tlg005.1st1K-grc1",
+    "author": "Epictetus",
+    "title": "Gnomologium Epicteteum (e Stobaei libris 3\u20114)",
+    "added_date": "2026-01-22"
+  },
+  "hero_of_alexandria.pneumatica.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0559.tlg001.1st1K-grc1",
+    "author": "Hero of Alexandria",
+    "title": "Pneumatica",
+    "added_date": "2026-01-22"
+  },
+  "hero_of_alexandria.de_automatis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0559.tlg002.1st1K-grc1",
+    "author": "Hero of Alexandria",
+    "title": "De automatis",
+    "added_date": "2026-01-22"
+  },
+  "hero_of_alexandria.mechanicorum_fragmenta.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0559.tlg004.1st1K-grc1",
+    "author": "Hero of Alexandria",
+    "title": "Mechanicorum fragmenta",
+    "added_date": "2026-01-22"
+  },
+  "hero_of_alexandria.catoptrica.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0559.tlg005.1st1K-grc1",
+    "author": "Hero of Alexandria",
+    "title": "Catoptrica",
+    "added_date": "2026-01-22"
+  },
+  "hero_of_alexandria.metrica.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0559.tlg006.1st1K-grc1",
+    "author": "Hero of Alexandria",
+    "title": "Metrica",
+    "added_date": "2026-01-22"
+  },
+  "hero_of_alexandria.dioptra.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0559.tlg007.1st1K-grc1",
+    "author": "Hero of Alexandria",
+    "title": "Dioptra",
+    "added_date": "2026-01-22"
+  },
+  "hero_of_alexandria.stereometrica.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0559.tlg010.1st1K-grc1",
+    "author": "Hero of Alexandria",
+    "title": "Stereometrica",
+    "added_date": "2026-01-22"
+  },
+  "hero_of_alexandria.de_mensuris.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0559.tlg011.1st1K-grc1",
+    "author": "Hero of Alexandria",
+    "title": "De mensuris",
+    "added_date": "2026-01-22"
+  },
+  "hero_of_alexandria.belopoeica.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0559.tlg012.1st1K-grc1",
+    "author": "Hero of Alexandria",
+    "title": "Belopoeica",
+    "added_date": "2026-01-22"
+  },
+  "hero_of_alexandria.geodaesia_sp.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0559.tlg015.1st1K-grc1",
+    "author": "Hero of Alexandria",
+    "title": "Geodaesia [Sp.]",
+    "added_date": "2026-01-22"
+  },
+  "heronis_alexandrini.liber_geeponicus_sp.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0559.tlg016.1st1K-grc1",
+    "author": "Heronis Alexandrini",
+    "title": "Liber geeponicus [Sp.]",
+    "added_date": "2026-01-22"
+  },
+  "maximus_of_tyre.dialexeis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0563.tlg001.1st1K-grc1",
+    "author": "Maximus of Tyre",
+    "title": "Dialexeis",
+    "added_date": "2026-01-22"
+  },
+  "rufus_of_ephesus.de_renum_et_vesicae_affectionibus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0564.tlg001.1st1K-grc1",
+    "author": "Rufus of Ephesus",
+    "title": "De renum et vesicae affectionibus",
+    "added_date": "2026-01-22"
+  },
+  "soranus.gynaeciorum_libri_iv.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0565.tlg001.1st1K-grc1",
+    "author": "Soranus",
+    "title": "Gynaeciorum Libri IV",
+    "added_date": "2026-01-22"
+  },
+  "soranus.de_signis_fracturarum.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0565.tlg002.1st1K-grc1",
+    "author": "Soranus",
+    "title": "De signis Fracturarum",
+    "added_date": "2026-01-22"
+  },
+  "soranus.de_fasciis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0565.tlg003.1st1K-grc1",
+    "author": "Soranus",
+    "title": "De Fasciis",
+    "added_date": "2026-01-22"
+  },
+  "soranus.vita_hippocratis_secundum_soranum.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0565.tlg004.1st1K-grc1",
+    "author": "Soranus",
+    "title": "Vita Hippocratis Secundum Soranum",
+    "added_date": "2026-01-22"
+  },
+  "gaius_romanus.fragmenta.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0572.tlg001.1st1K-grc1",
+    "author": "Gaius Romanus",
+    "title": "Fragmenta",
+    "added_date": "2026-01-22"
+  },
+  "orphica.fragmenta.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0579.tlg010.1st1K-grc1",
+    "author": "Orphica",
+    "title": "Fragmenta",
+    "added_date": "2026-01-22"
+  },
+  "paradoxographus_florentinus.mirabilia_de_aquis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0580.tlg001.1st1K-grc1",
+    "author": "Paradoxographus Florentinus",
+    "title": "Mirabilia de aquis",
+    "added_date": "2026-01-22"
+  },
+  "antisthenes.\u03b1\u1f34\u03b1\u03c2.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0591.1st1K001.1st1K-grc1",
+    "author": "Antisthenes",
+    "title": "\u0391\u1f34\u03b1\u03c2",
+    "added_date": "2026-01-22"
+  },
+  "antisthenes.\u1f40\u03b4\u03c5\u03c3\u03c3\u03b5\u03cd\u03c2.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0591.1st1K002.1st1K-grc1",
+    "author": "Antisthenes",
+    "title": "\u1f48\u03b4\u03c5\u03c3\u03c3\u03b5\u03cd\u03c2",
+    "added_date": "2026-01-22"
+  },
+  "hermogenes.progymnasmata_dub.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0592.tlg001.1st1K-grc1",
+    "author": "Hermogenes",
+    "title": "Progymnasmata [Dub.]",
+    "added_date": "2026-01-22"
+  },
+  "hermogenes.\u03c0\u03b5\u03c1\u1f76_\u03c4\u1ff6\u03bd_\u03c3\u03c4\u03ac\u03c3\u03b5\u03c9\u03bd.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0592.tlg002.1st1K-grc1",
+    "author": "Hermogenes",
+    "title": "\u03a0\u03b5\u03c1\u1f76 \u03c4\u1ff6\u03bd \u03c3\u03c4\u03ac\u03c3\u03b5\u03c9\u03bd",
+    "added_date": "2026-01-22"
+  },
+  "gorgias_of_leontini.\u1f11\u03bb\u03ad\u03bd\u03b7\u03c2_\u1f10\u03b3\u03ba\u03ce\u03bc\u03b9\u03bf\u03bd.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0593.1st1K001.1st1K-grc1",
+    "author": "Gorgias of Leontini",
+    "title": "\u1f19\u03bb\u03ad\u03bd\u03b7\u03c2 \u1f10\u03b3\u03ba\u03ce\u03bc\u03b9\u03bf\u03bd",
+    "added_date": "2026-01-22"
+  },
+  "gorgias_of_leontini.\u1f51\u03c0\u03ad\u03c1_\u03c0\u03b1\u03bb\u03b1\u03bc\u03ae\u03b4\u03bf\u03c5\u03c2_\u1f00\u03c0\u03bf\u03bb\u03bf\u03b3\u03af\u03b1.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0593.1st1K002.1st1K-grc1",
+    "author": "Gorgias of Leontini",
+    "title": "\u1f59\u03c0\u03ad\u03c1 \u03a0\u03b1\u03bb\u03b1\u03bc\u03ae\u03b4\u03bf\u03c5\u03c2 \u1f00\u03c0\u03bf\u03bb\u03bf\u03b3\u03af\u03b1",
+    "added_date": "2026-01-22"
+  },
+  "rufus_soph.ars_rhetorica.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0606.tlg001.1st1K-grc1",
+    "author": "Rufus Soph.",
+    "title": "Ars rhetorica",
+    "added_date": "2026-01-22"
+  },
+  "aelius_theon.progymnasmata.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0607.tlg001.1st1K-grc1",
+    "author": "Aelius Theon",
+    "title": "Progymnasmata",
+    "added_date": "2026-01-22"
+  },
+  "tryphon_i_grammaticus.\u03c0\u03b5\u03c1\u1f76_\u03c4\u03c1\u03cc\u03c0\u03c9\u03bd.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0609.tlg001.1st1K-grc1",
+    "author": "Tryphon I Grammaticus",
+    "title": "\u03a0\u03b5\u03c1\u1f76 \u03c4\u03c1\u03cc\u03c0\u03c9\u03bd",
+    "added_date": "2026-01-22"
+  },
+  "alcidamas.\u03c0\u03b5\u03c1\u1f76_\u03c3\u03bf\u03c6\u03b9\u03c3\u03c4\u1ff6\u03bd.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0610.perseus002.perseus-grc1",
+    "author": "Alcidamas",
+    "title": "\u03a0\u03b5\u03c1\u1f76 \u03a3\u03bf\u03c6\u03b9\u03c3\u03c4\u1ff6\u03bd",
+    "added_date": "2026-01-22"
+  },
+  "alcidamas.\u1f40\u03b4\u03c5\u03c3\u03c3\u03b5\u03cd\u03c2.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0610.tlg001.1st1K-grc1",
+    "author": "Alcidamas",
+    "title": "\u1f48\u03b4\u03c5\u03c3\u03c3\u03b5\u03cd\u03c2",
+    "added_date": "2026-01-22"
+  },
+  "babrius.fabulae_aesopeae.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0614.tlg001.1st1K-grc1",
+    "author": "Babrius",
+    "title": "Fabulae Aesopeae",
+    "added_date": "2026-01-22"
+  },
+  "aspasius.in_ethica_nicomachea_paraphrasis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0615.tlg001.1st1K-grc1",
+    "author": "Aspasius",
+    "title": "In Ethica Nicomachea paraphrasis",
+    "added_date": "2026-01-22"
+  },
+  "polyaenus.strategemata.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0616.tlg001.1st1K-grc1",
+    "author": "Polyaenus",
+    "title": "Strategemata",
+    "added_date": "2026-01-22"
+  },
+  "polyaenus.excerpta_polyaeni.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0616.tlg002.1st1K-grc1",
+    "author": "Polyaenus",
+    "title": "Excerpta Polyaeni",
+    "added_date": "2026-01-22"
+  },
+  "archytas_of_tarentum.fragmenta.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0620.tlg002.1st1K-grc1",
+    "author": "Archytas of Tarentum",
+    "title": "Fragmenta",
+    "added_date": "2026-01-22"
+  },
+  "cratetis_epistulae.epistulae.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0623.tlg001.1st1K-grc1",
+    "author": "Cratetis Epistulae",
+    "title": "Epistulae",
+    "added_date": "2026-01-22"
+  },
+  "heraclitus_of_ephesus.fragmenta.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0626.tlg002.1st1K-grc1",
+    "author": "Heraclitus of Ephesus",
+    "title": "Fragmenta",
+    "added_date": "2026-01-22"
+  },
+  "hippocrates.de_aere_aquis_locis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0627.tlg002.1st1K-grc1",
+    "author": "Hippocrates",
+    "title": "De aere, aquis, locis",
+    "added_date": "2026-01-22"
+  },
+  "hippocrates.prognosticon.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0627.tlg003.1st1K-grc1",
+    "author": "Hippocrates",
+    "title": "Prognosticon",
+    "added_date": "2026-01-22"
+  },
+  "hippocrates.de_diaeta_in_morbis_acutis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0627.tlg004.1st1K-grc1",
+    "author": "Hippocrates",
+    "title": "De diaeta in morbis acutis",
+    "added_date": "2026-01-22"
+  },
+  "hippocrates.epidemiarum.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0627.tlg006.1st1K-grc1",
+    "author": "Hippocrates",
+    "title": "Epidemiarum",
+    "added_date": "2026-01-22"
+  },
+  "hippocrates.de_capitis_vulneribus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0627.tlg007.1st1K-grc1",
+    "author": "Hippocrates",
+    "title": "De capitis vulneribus",
+    "added_date": "2026-01-22"
+  },
+  "hippocrates.de_officina_medici.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0627.tlg008.1st1K-grc1",
+    "author": "Hippocrates",
+    "title": "De officina medici",
+    "added_date": "2026-01-22"
+  },
+  "hippocrates.de_fracturis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0627.tlg009.1st1K-grc1",
+    "author": "Hippocrates",
+    "title": "De fracturis",
+    "added_date": "2026-01-22"
+  },
+  "hippocrates.de_articulis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0627.tlg010.1st1K-grc1",
+    "author": "Hippocrates",
+    "title": "De articulis",
+    "added_date": "2026-01-22"
+  },
+  "hippocrates.vectiarius.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0627.tlg011.1st1K-grc1",
+    "author": "Hippocrates",
+    "title": "Vectiarius",
+    "added_date": "2026-01-22"
+  },
+  "hippocrates.aphorismi.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0627.tlg012.1st1K-grc1",
+    "author": "Hippocrates",
+    "title": "Aphorismi",
+    "added_date": "2026-01-22"
+  },
+  "hippocrates.de_humoribus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0627.tlg015.1st1K-grc1",
+    "author": "Hippocrates",
+    "title": "De humoribus",
+    "added_date": "2026-01-22"
+  },
+  "hippocrates.prorrheticon_i.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0627.tlg016.1st1K-grc1",
+    "author": "Hippocrates",
+    "title": "Prorrheticon I",
+    "added_date": "2026-01-22"
+  },
+  "hippocrates.coa_praesagia.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0627.tlg017.1st1K-grc1",
+    "author": "Hippocrates",
+    "title": "Coa praesagia",
+    "added_date": "2026-01-22"
+  },
+  "hippocrates.de_arte.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0627.tlg018.1st1K-grc1",
+    "author": "Hippocrates",
+    "title": "De arte",
+    "added_date": "2026-01-22"
+  },
+  "hippocrates.de_natura_hominis.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0627.tlg019.1st1K-grc1",
+    "author": "Hippocrates",
+    "title": "De natura hominis",
+    "added_date": "2026-01-22"
+  },
+  "hippocrates.de_salubri_diaeta.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0627.tlg020.1st1K-grc1",
+    "author": "Hippocrates",
+    "title": "De salubri diaeta",
+    "added_date": "2026-01-22"
+  },
+  "hippocrates.de_flatibus.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0627.tlg021.1st1K-grc1",
+    "author": "Hippocrates",
+    "title": "De flatibus",
+    "added_date": "2026-01-22"
+  },
+  "hippocrates.de_liquidorum_usu.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0627.tlg022.1st1K-grc1",
+    "author": "Hippocrates",
+    "title": "De liquidorum usu",
+    "added_date": "2026-01-22"
+  },
+  "hippocrates.de_genitura.tess": {
+    "source": "first1k_greek",
+    "source_name": "First1KGreek - Open Greek and Latin Project",
+    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+    "urn": "urn:cts:greekLit:tlg0627.tlg024a.1st1K-grc1",
+    "author": "Hippocrates",
+    "title": "De genitura",
+    "added_date": "2026-01-22"
+  }
+}

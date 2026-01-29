@@ -1,0 +1,113 @@
+{
+  "_description": "Corpus expansion status and ingestion history",
+  "_last_updated": "2026-01-22",
+  "summary": {
+    "total_texts": {
+      "la": 1444,
+      "grc": 655,
+      "en": 14
+    }
+  },
+  "ingestion_history": [
+    {
+      "date": "2026-01-21",
+      "source": "csel-dev",
+      "source_name": "CSEL - Corpus Scriptorum Ecclesiasticorum Latinorum",
+      "source_url": "https://github.com/OpenGreekAndLatin/csel-dev",
+      "description": "Vienna Academy critical editions of Latin Church Fathers via OGL Project",
+      "language": "la",
+      "files_in_repository": 271,
+      "files_processed": 256,
+      "files_failed": 15,
+      "already_in_corpus": 137,
+      "new_texts_added": 119,
+      "notes": "15 files failed due to no extractable text content (metadata-only XML files). 137 texts were already present from original Tesserae corpus or other sources.",
+      "embeddings_computed": true,
+      "sample_texts_added": [
+        "adamnan.de_locis_santis",
+        "ambrose.explanatio_psalmorum_xii",
+        "ambrose.expositio_psalmi_cxviii",
+        "ambrosiaster.pseudo_augustini_quaestiones_veteris_et",
+        "augustine.confessiones",
+        "augustine.de_civitate_dei (multiple parts)",
+        "cassian.collationes",
+        "eucherius.formulae_spiritalis_intelligentiae",
+        "hilary_of_poitiers.tractatus_super_psalmos"
+      ]
+    },
+    {
+      "date": "2026-01-22",
+      "source": "first1k_greek",
+      "source_name": "First1KGreek - Open Greek and Latin Project",
+      "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+      "description": "Classical Greek texts from Homer to 250 CE",
+      "language": "grc",
+      "files_in_catalog": 20,
+      "files_processed": 20,
+      "new_texts_added": 13,
+      "duplicates_skipped": 5,
+      "errors": 2,
+      "notes": "Incremental download via GitHub raw URLs",
+      "embeddings_computed": true
+    },
+    {
+      "date": "2026-01-22",
+      "source": "first1k_greek",
+      "source_name": "First1KGreek - Open Greek and Latin Project",
+      "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+      "description": "Classical Greek texts from Homer to 250 CE",
+      "language": "grc",
+      "files_in_catalog": 300,
+      "files_processed": 300,
+      "new_texts_added": 178,
+      "duplicates_skipped": 117,
+      "errors": 5,
+      "notes": "Incremental download via GitHub raw URLs",
+      "embeddings_computed": true
+    },
+    {
+      "date": "2026-01-22",
+      "source": "first1k_greek",
+      "source_name": "First1KGreek - Open Greek and Latin Project",
+      "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
+      "description": "Classical Greek texts from Homer to 250 CE",
+      "language": "grc",
+      "files_in_catalog": 500,
+      "files_processed": 500,
+      "new_texts_added": 154,
+      "duplicates_skipped": 325,
+      "errors": 21,
+      "notes": "Incremental download via GitHub raw URLs",
+      "embeddings_computed": true
+    }
+  ],
+  "pending_actions": [
+    {
+      "action": "phase_2_ingestion",
+      "scope": "First1KGreek repository",
+      "priority": "low",
+      "notes": "Byzantine Greek texts - would expand Greek corpus significantly"
+    }
+  ],
+  "known_sources": {
+    "tesserae_original": {
+      "coverage": "complete",
+      "texts": "~1200 classical Latin/Greek/English",
+      "notes": "Original Tesserae Project curated corpus"
+    },
+    "csel": {
+      "coverage": "94% (256/271 files)",
+      "texts": "119 new + 137 already present",
+      "notes": "Latin Church Fathers - Augustine, Ambrose, Jerome, etc."
+    },
+    "first1k_greek": {
+      "coverage": "partial (~345 texts ingested)",
+      "texts": "345 new + 310 original corpus",
+      "notes": "Classical Greek texts from Homer to 250 CE. More texts available for continued ingestion."
+    },
+    "patrologia_latina": {
+      "coverage": "not yet ingested",
+      "notes": "Additional Patristic texts available"
+    }
+  }
+}

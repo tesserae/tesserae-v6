@@ -1,0 +1,54 @@
+# Replit agent memory and project planning (private)
+replit.md
+ROADMAP.md
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.env
+.venv
+env/
+venv/
+ENV/
+.pyc
+*.pyo
+.cache/
+.pytest_cache/
+.mypy_cache/
+*.db
+
+# Node.js
+node_modules/
+.npm
+*.tsbuildinfo
+
+# Large data directories (excluded from GitHub)
+# Total ~4.7GB - too large for GitHub, share separately
+# See docs/DATA_FILES_REFERENCE.md for complete list and instructions
+texts/
+data/
+cache/
+backend/embeddings/
+
+# Private/local files
+.private/
+
+# Attached assets (user uploads during development)
+attached_assets/

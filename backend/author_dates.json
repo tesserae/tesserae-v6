@@ -1,0 +1,1603 @@
+{
+  "la": {
+    "ennius": {
+      "year": -169,
+      "note": "d. 169 BCE",
+      "era": "Republic"
+    },
+    "plautus": {
+      "year": -184,
+      "note": "d. 184 BCE",
+      "era": "Republic"
+    },
+    "terence": {
+      "year": -159,
+      "note": "d. 159 BCE",
+      "era": "Republic"
+    },
+    "cato_the_elder": {
+      "year": -149,
+      "note": "d. 149 BCE",
+      "era": "Republic"
+    },
+    "lucretius": {
+      "year": -55,
+      "note": "d. c. 55 BCE",
+      "era": "Republic"
+    },
+    "cicero": {
+      "year": -43,
+      "note": "d. 43 BCE",
+      "era": "Republic"
+    },
+    "q_cicero": {
+      "year": -43,
+      "note": "d. 43 BCE",
+      "era": "Republic"
+    },
+    "cicero_pseudo": {
+      "year": -43,
+      "note": "attr. Cicero",
+      "era": "Republic"
+    },
+    "catullus": {
+      "year": -54,
+      "note": "d. c. 54 BCE",
+      "era": "Republic"
+    },
+    "caesar": {
+      "year": -44,
+      "note": "d. 44 BCE",
+      "era": "Republic"
+    },
+    "caesar_augustus": {
+      "year": 14,
+      "note": "d. 14 CE",
+      "era": "Augustan"
+    },
+    "nepos": {
+      "year": -24,
+      "note": "d. c. 24 BCE",
+      "era": "Republic"
+    },
+    "sallust": {
+      "year": -35,
+      "note": "d. 35 BCE",
+      "era": "Republic"
+    },
+    "vergil": {
+      "year": -19,
+      "note": "d. 19 BCE",
+      "era": "Augustan"
+    },
+    "vergil_pseudo": {
+      "year": -19,
+      "note": "attr. Vergil",
+      "era": "Augustan"
+    },
+    "horace": {
+      "year": -8,
+      "note": "d. 8 BCE",
+      "era": "Augustan"
+    },
+    "tibullus": {
+      "year": -19,
+      "note": "d. 19 BCE",
+      "era": "Augustan"
+    },
+    "propertius": {
+      "year": -15,
+      "note": "d. c. 15 BCE",
+      "era": "Augustan"
+    },
+    "ovid": {
+      "year": 17,
+      "note": "d. 17/18 CE",
+      "era": "Augustan"
+    },
+    "ouidius": {
+      "year": 17,
+      "note": "d. 17/18 CE",
+      "era": "Augustan"
+    },
+    "livy": {
+      "year": 17,
+      "note": "d. 17 CE",
+      "era": "Augustan"
+    },
+    "vitruvius": {
+      "year": -15,
+      "note": "fl. c. 15 BCE",
+      "era": "Augustan"
+    },
+    "manilius": {
+      "year": 14,
+      "note": "fl. c. 14 CE",
+      "era": "Augustan"
+    },
+    "phaedrus": {
+      "year": 50,
+      "note": "fl. c. 50 CE",
+      "era": "Early Imperial"
+    },
+    "seneca_the_elder": {
+      "year": 40,
+      "note": "d. c. 40 CE",
+      "era": "Early Imperial"
+    },
+    "seneca": {
+      "year": 65,
+      "note": "d. 65 CE",
+      "era": "Early Imperial"
+    },
+    "celsus": {
+      "year": 40,
+      "note": "fl. c. 40 CE",
+      "era": "Early Imperial"
+    },
+    "columella": {
+      "year": 70,
+      "note": "fl. c. 70 CE",
+      "era": "Early Imperial"
+    },
+    "persius": {
+      "year": 62,
+      "note": "d. 62 CE",
+      "era": "Early Imperial"
+    },
+    "lucan": {
+      "year": 65,
+      "note": "d. 65 CE",
+      "era": "Early Imperial"
+    },
+    "petronius": {
+      "year": 66,
+      "note": "d. 66 CE",
+      "era": "Early Imperial"
+    },
+    "pliny_the_elder": {
+      "year": 79,
+      "note": "d. 79 CE",
+      "era": "Early Imperial"
+    },
+    "pliny_the_younger": {
+      "year": 113,
+      "note": "d. c. 113 CE",
+      "era": "Early Imperial"
+    },
+    "quintilian": {
+      "year": 100,
+      "note": "d. c. 100 CE",
+      "era": "Early Imperial"
+    },
+    "quintilian_pseudo": {
+      "year": 100,
+      "note": "attr. Quintilian",
+      "era": "Early Imperial"
+    },
+    "martial": {
+      "year": 104,
+      "note": "d. c. 104 CE",
+      "era": "Early Imperial"
+    },
+    "martialis": {
+      "year": 104,
+      "note": "d. c. 104 CE",
+      "era": "Early Imperial"
+    },
+    "silius_italicus": {
+      "year": 101,
+      "note": "d. 101 CE",
+      "era": "Early Imperial"
+    },
+    "italicus": {
+      "year": 101,
+      "note": "d. 101 CE",
+      "era": "Early Imperial"
+    },
+    "statius": {
+      "year": 96,
+      "note": "d. c. 96 CE",
+      "era": "Early Imperial"
+    },
+    "valerius_flaccus": {
+      "year": 90,
+      "note": "d. c. 90 CE",
+      "era": "Early Imperial"
+    },
+    "valerius_maximus": {
+      "year": 31,
+      "note": "fl. c. 31 CE",
+      "era": "Early Imperial"
+    },
+    "curtius_rufus": {
+      "year": 50,
+      "note": "fl. c. 50 CE",
+      "era": "Early Imperial"
+    },
+    "juvenal": {
+      "year": 130,
+      "note": "d. c. 130 CE",
+      "era": "Early Imperial"
+    },
+    "tacitus": {
+      "year": 120,
+      "note": "d. c. 120 CE",
+      "era": "Early Imperial"
+    },
+    "suetonius": {
+      "year": 140,
+      "note": "d. c. 140 CE",
+      "era": "Early Imperial"
+    },
+    "gellius": {
+      "year": 180,
+      "note": "fl. c. 180 CE",
+      "era": "Later Imperial"
+    },
+    "apuleius": {
+      "year": 170,
+      "note": "fl. c. 170 CE",
+      "era": "Later Imperial"
+    },
+    "marcus_mincuius_felix": {
+      "year": 250,
+      "note": "fl. c. 250 CE",
+      "era": "Later Imperial"
+    },
+    "minucius_felix": {
+      "year": 250,
+      "note": "fl. c. 250 CE",
+      "era": "Late Antique"
+    },
+    "tertullian": {
+      "year": 240,
+      "note": "d. c. 240 CE",
+      "era": "Late Antique"
+    },
+    "tertullian_pseudo": {
+      "year": 220,
+      "note": "attr. Tertullian",
+      "era": "Later Imperial"
+    },
+    "cyprian": {
+      "year": 258,
+      "note": "d. 258 CE",
+      "era": "Late Antique"
+    },
+    "cyprian_pseudo": {
+      "year": 258,
+      "note": "attr. Cyprian",
+      "era": "Later Imperial"
+    },
+    "cyprianus_cordubensis": {
+      "year": 258,
+      "note": "fl. 3rd c. CE",
+      "era": "Later Imperial"
+    },
+    "commodian": {
+      "year": 260,
+      "note": "fl. c. 260 CE",
+      "era": "Later Imperial"
+    },
+    "arnobius": {
+      "year": 330,
+      "note": "d. c. 330 CE",
+      "era": "Late Antique"
+    },
+    "arnobius_advesus_nationes": {
+      "year": 300,
+      "note": "fl. c. 300 CE",
+      "era": "Later Imperial"
+    },
+    "lactantius": {
+      "year": 325,
+      "note": "d. c. 325 CE",
+      "era": "Late Antique"
+    },
+    "lactantius_placidus": {
+      "year": 500,
+      "note": "fl. c. 500 CE",
+      "era": "Late Antique"
+    },
+    "juvencus": {
+      "year": 330,
+      "note": "fl. c. 330 CE",
+      "era": "Later Imperial"
+    },
+    "iulius_firmicus_maternus": {
+      "year": 350,
+      "note": "fl. c. 350 CE",
+      "era": "Later Imperial"
+    },
+    "favonius": {
+      "year": 360,
+      "note": "fl. c. 360 CE",
+      "era": "Later Imperial"
+    },
+    "hilary_of_poitiers": {
+      "year": 367,
+      "note": "d. 367 CE",
+      "era": "Late Antique"
+    },
+    "hilary_of_poitiers_pseudo": {
+      "year": 367,
+      "note": "attr. Hilary",
+      "era": "Later Imperial"
+    },
+    "ammianus": {
+      "year": 395,
+      "note": "d. c. 395 CE",
+      "era": "Late Antique"
+    },
+    "ambrose": {
+      "year": 397,
+      "note": "d. 397 CE",
+      "era": "Late Antique"
+    },
+    "aurelius_victor": {
+      "year": 390,
+      "note": "fl. c. 390 CE",
+      "era": "Late Antique"
+    },
+    "rufius_festus": {
+      "year": 380,
+      "note": "fl. c. 380 CE",
+      "era": "Late Antique"
+    },
+    "eutropius": {
+      "year": 390,
+      "note": "fl. c. 370 CE",
+      "era": "Late Antique"
+    },
+    "ausonius": {
+      "year": 395,
+      "note": "d. c. 395 CE",
+      "era": "Late Antique"
+    },
+    "claudian": {
+      "year": 404,
+      "note": "d. c. 404 CE",
+      "era": "Late Antique"
+    },
+    "claudius_mamertinus": {
+      "year": 362,
+      "note": "fl. 362 CE",
+      "era": "Later Imperial"
+    },
+    "prudentius": {
+      "year": 413,
+      "note": "d. c. 413 CE",
+      "era": "Late Antique"
+    },
+    "paulinus_of_nola": {
+      "year": 431,
+      "note": "d. 431 CE",
+      "era": "Late Antique"
+    },
+    "jerome": {
+      "year": 420,
+      "note": "d. 420 CE",
+      "era": "Late Antique"
+    },
+    "rufinus": {
+      "year": 411,
+      "note": "d. 411 CE",
+      "era": "Late Antique"
+    },
+    "john_cassian": {
+      "year": 435,
+      "note": "d. c. 435 CE",
+      "era": "Late Antique"
+    },
+    "augustine": {
+      "year": 430,
+      "note": "d. 430 CE",
+      "era": "Late Antique"
+    },
+    "augustine_pseudo": {
+      "year": 430,
+      "note": "attr. Augustine",
+      "era": "Late Antique"
+    },
+    "sulpicius_severus": {
+      "year": 425,
+      "note": "d. c. 425 CE",
+      "era": "Late Antique"
+    },
+    "sulpicius_severus_pseudo": {
+      "year": 425,
+      "note": "attr. Sulpicius",
+      "era": "Late Antique"
+    },
+    "paulus_orosius": {
+      "year": 420,
+      "note": "fl. c. 420 CE",
+      "era": "Late Antique"
+    },
+    "macrobius": {
+      "year": 430,
+      "note": "fl. c. 430 CE",
+      "era": "Late Antique"
+    },
+    "servius_honoratus": {
+      "year": 420,
+      "note": "fl. c. 420 CE",
+      "era": "Late Antique"
+    },
+    "priscian": {
+      "year": 530,
+      "note": "fl. c. 530 CE",
+      "era": "Late Antique"
+    },
+    "priscillian": {
+      "year": 385,
+      "note": "d. 385 CE",
+      "era": "Late Antique"
+    },
+    "sedulius": {
+      "year": 450,
+      "note": "fl. c. 450 CE",
+      "era": "Late Antique"
+    },
+    "maximianus": {
+      "year": 540,
+      "note": "fl. c. 540 CE",
+      "era": "Late Antique"
+    },
+    "dracontius": {
+      "year": 500,
+      "note": "fl. c. 500 CE",
+      "era": "Late Antique"
+    },
+    "salvianus": {
+      "year": 480,
+      "note": "d. c. 480 CE",
+      "era": "Late Antique"
+    },
+    "avitus_of_vienne": {
+      "year": 518,
+      "note": "d. 518 CE",
+      "era": "Late Antique"
+    },
+    "boethius": {
+      "year": 524,
+      "note": "d. 524 CE",
+      "era": "Late Antique"
+    },
+    "ennodius": {
+      "year": 521,
+      "note": "d. 521 CE",
+      "era": "Late Antique"
+    },
+    "rutilius": {
+      "year": 417,
+      "note": "fl. 417 CE",
+      "era": "Late Antique"
+    },
+    "optatian": {
+      "year": 335,
+      "note": "fl. c. 325 CE",
+      "era": "Later Imperial"
+    },
+    "cyprianus_gallus": {
+      "year": 425,
+      "note": "fl. 5th c. CE",
+      "era": "Late Antique"
+    },
+    "vitensis": {
+      "year": 489,
+      "note": "fl. c. 489 CE",
+      "era": "Late Antique"
+    },
+    "vitensis_pseudo": {
+      "year": 489,
+      "note": "attr. Victor",
+      "era": "Late Antique"
+    },
+    "eugippius": {
+      "year": 535,
+      "note": "d. c. 535 CE",
+      "era": "Late Antique"
+    },
+    "corippus": {
+      "year": 570,
+      "note": "fl. c. 570 CE",
+      "era": "Late Antique"
+    },
+    "victorinus": {
+      "year": 303,
+      "note": "d. c. 303 CE",
+      "era": "Later Imperial"
+    },
+    "hegesippus_pseudo": {
+      "year": 375,
+      "note": "fl. c. 375 CE",
+      "era": "Late Antique"
+    },
+    "scriptores_historiae_augustae": {
+      "year": 400,
+      "note": "fl. c. 400 CE",
+      "era": "Late Antique"
+    },
+    "evodius": {
+      "year": 424,
+      "note": "d. c. 424 CE",
+      "era": "Late Antique"
+    },
+    "secundinus": {
+      "year": 440,
+      "note": "fl. c. 440 CE",
+      "era": "Late Antique"
+    },
+    "adamnan": {
+      "year": 704,
+      "note": "d. 704 CE",
+      "era": "Early Medieval"
+    },
+    "ambrosiaster": {
+      "year": 380,
+      "note": "fl. c. 380 CE",
+      "era": "Late Antique"
+    },
+    "anonymous_pilgrim_of_piacenza": {
+      "year": 570,
+      "note": "fl. c. 570 CE",
+      "era": "Late Antique"
+    },
+    "arnobius_of_sicca": {
+      "year": 330,
+      "note": "d. c. 330 CE",
+      "era": "Later Imperial"
+    },
+    "bede_the_venerable": {
+      "year": 735,
+      "note": "d. 735 CE",
+      "era": "Early Medieval"
+    },
+    "catholic_church_pope": {
+      "year": 450,
+      "note": "Various dates",
+      "era": "Late Antique"
+    },
+    "claudianus_mamertus": {
+      "year": 474,
+      "note": "d. 474 CE",
+      "era": "Late Antique"
+    },
+    "commodianus": {
+      "year": 260,
+      "note": "fl. c. 260 CE",
+      "era": "Later Imperial"
+    },
+    "cyprian_saint": {
+      "year": 258,
+      "note": "d. 258 CE",
+      "era": "Later Imperial"
+    },
+    "eucherius_of_lyon": {
+      "year": 449,
+      "note": "d. c. 449 CE",
+      "era": "Late Antique"
+    },
+    "evagrius_monachus": {
+      "year": 400,
+      "note": "fl. c. 400 CE",
+      "era": "Late Antique"
+    },
+    "evodius_bishop_of_uzalis": {
+      "year": 424,
+      "note": "d. c. 424 CE",
+      "era": "Late Antique"
+    },
+    "faustus_of_riez": {
+      "year": 495,
+      "note": "d. c. 495 CE",
+      "era": "Late Antique"
+    },
+    "flavius_josephus": {
+      "year": 100,
+      "note": "d. c. 100 CE (trans.)",
+      "era": "Early Imperial"
+    },
+    "hilary_saint_archbishop_of_arles": {
+      "year": 449,
+      "note": "d. 449 CE",
+      "era": "Late Antique"
+    },
+    "julius_honorius": {
+      "year": 500,
+      "note": "fl. c. 500 CE",
+      "era": "Late Antique"
+    },
+    "lactantius_author": {
+      "year": 325,
+      "note": "d. c. 325 CE",
+      "era": "Later Imperial"
+    },
+    "paulinus_saint_bishop_of_nola": {
+      "year": 431,
+      "note": "d. 431 CE",
+      "era": "Late Antique"
+    },
+    "pelagius": {
+      "year": 420,
+      "note": "d. c. 420 CE",
+      "era": "Late Antique"
+    },
+    "priscillian_bishop_of_avila": {
+      "year": 385,
+      "note": "d. 385 CE",
+      "era": "Late Antique"
+    },
+    "pseudo_cyprian": {
+      "year": 300,
+      "note": "3rd-4th c. CE",
+      "era": "Later Imperial"
+    },
+    "pseudo_eucherius": {
+      "year": 500,
+      "note": "5th-6th c. CE",
+      "era": "Late Antique"
+    },
+    "pseudo_severus_sulpicius": {
+      "year": 450,
+      "note": "5th c. CE",
+      "era": "Late Antique"
+    },
+    "pseudo_tertullian": {
+      "year": 250,
+      "note": "3rd c. CE",
+      "era": "Later Imperial"
+    },
+    "pseudo_victor_vitensis": {
+      "year": 500,
+      "note": "5th-6th c. CE",
+      "era": "Late Antique"
+    },
+    "remigius_of_auxerre": {
+      "year": 908,
+      "note": "d. 908 CE",
+      "era": "Early Medieval"
+    },
+    "rufinus_of_aquileia": {
+      "year": 411,
+      "note": "d. 411 CE",
+      "era": "Late Antique"
+    },
+    "ruricius_i_bishop_of_limoges": {
+      "year": 510,
+      "note": "d. c. 510 CE",
+      "era": "Late Antique"
+    },
+    "rusticus_presbyter": {
+      "year": 500,
+      "note": "fl. c. 500 CE",
+      "era": "Late Antique"
+    },
+    "salvian_of_marseilles": {
+      "year": 480,
+      "note": "d. c. 480 CE",
+      "era": "Late Antique"
+    },
+    "secundinus_manichaeus": {
+      "year": 440,
+      "note": "fl. c. 440 CE",
+      "era": "Late Antique"
+    },
+    "severus_sulpicius": {
+      "year": 425,
+      "note": "d. c. 425 CE",
+      "era": "Late Antique"
+    },
+    "theodosius": {
+      "year": 530,
+      "note": "fl. c. 530 CE",
+      "era": "Late Antique"
+    },
+    "victor_claudius_marius": {
+      "year": 460,
+      "note": "fl. c. 460 CE",
+      "era": "Late Antique"
+    },
+    "victor_vitensis": {
+      "year": 489,
+      "note": "fl. c. 489 CE",
+      "era": "Late Antique"
+    },
+    "victorinus_saint_bishop_of_poetovio": {
+      "year": 303,
+      "note": "d. c. 303 CE",
+      "era": "Later Imperial"
+    },
+    "anonymous": {
+      "year": null,
+      "note": "Unknown date",
+      "era": "Unknown"
+    },
+    "antoninus_placentinus": {
+      "year": 570,
+      "note": "fl. c. 570 CE",
+      "era": "Late Antique"
+    },
+    "lactantius_pseudo": {
+      "year": 325,
+      "note": "attr. Lactantius",
+      "era": "Late Antique"
+    },
+    "hilarius": {
+      "year": 367,
+      "note": "d. 367 CE",
+      "era": "Late Antique"
+    },
+    "cyprianus": {
+      "year": 258,
+      "note": "d. 258 CE",
+      "era": "Late Antique"
+    },
+    "tertullianus": {
+      "year": 240,
+      "note": "d. c. 240 CE",
+      "era": "Late Antique"
+    },
+    "fulgentius": {
+      "year": 533,
+      "note": "d. 533 CE",
+      "era": "Late Antique"
+    },
+    "cassiodorus": {
+      "year": 580,
+      "note": "d. c. 580 CE",
+      "era": "Late Antique"
+    },
+    "gregory_the_great": {
+      "year": 604,
+      "note": "d. 604 CE",
+      "era": "Early Medieval"
+    },
+    "gregorius_magnus": {
+      "year": 604,
+      "note": "d. 604 CE",
+      "era": "Early Medieval"
+    },
+    "isidore_of_seville": {
+      "year": 636,
+      "note": "d. 636 CE",
+      "era": "Early Medieval"
+    },
+    "isidorus": {
+      "year": 636,
+      "note": "d. 636 CE",
+      "era": "Early Medieval"
+    },
+    "venantius_fortunatus": {
+      "year": 600,
+      "note": "d. c. 600 CE",
+      "era": "Late Antique"
+    },
+    "prosper_of_aquitaine": {
+      "year": 455,
+      "note": "d. c. 455 CE",
+      "era": "Late Antique"
+    },
+    "orientius": {
+      "year": 450,
+      "note": "fl. c. 450 CE",
+      "era": "Late Antique"
+    },
+    "bede": {
+      "year": 735,
+      "note": "d. 735 CE",
+      "era": "Early Medieval"
+    },
+    "alcuin": {
+      "year": 804,
+      "note": "d. 804 CE",
+      "era": "Carolingian"
+    },
+    "paulus_diaconus": {
+      "year": 799,
+      "note": "d. c. 799 CE",
+      "era": "Carolingian"
+    },
+    "paulinus_of_aquileia": {
+      "year": 802,
+      "note": "d. 802 CE",
+      "era": "Carolingian"
+    },
+    "petrus_of_pisa": {
+      "year": 799,
+      "note": "d. c. 799 CE",
+      "era": "Carolingian"
+    },
+    "angilbert_carmina": {
+      "year": 814,
+      "note": "d. 814 CE",
+      "era": "Carolingian"
+    },
+    "angilbertus_miles": {
+      "year": 814,
+      "note": "d. 814 CE",
+      "era": "Carolingian"
+    },
+    "angilbert_versus": {
+      "year": 814,
+      "note": "d. 814 CE",
+      "era": "Carolingian"
+    },
+    "theodulf_of_orleans": {
+      "year": 821,
+      "note": "d. 821 CE",
+      "era": "Carolingian"
+    },
+    "thedulf_of_orleans": {
+      "year": 821,
+      "note": "d. 821 CE",
+      "era": "Carolingian"
+    },
+    "einhardus": {
+      "year": 840,
+      "note": "d. 840 CE",
+      "era": "Carolingian"
+    },
+    "ermoldus_nigellus": {
+      "year": 838,
+      "note": "fl. c. 828 CE",
+      "era": "Carolingian"
+    },
+    "hrabanus": {
+      "year": 856,
+      "note": "d. 856 CE",
+      "era": "Carolingian"
+    },
+    "walahfrid_strabo": {
+      "year": 849,
+      "note": "d. 849 CE",
+      "era": "Carolingian"
+    },
+    "walafrid_strabo": {
+      "year": 849,
+      "note": "d. 849 CE",
+      "era": "Carolingian"
+    },
+    "sedulius_scotus": {
+      "year": 860,
+      "note": "fl. c. 860 CE",
+      "era": "Carolingian"
+    },
+    "lupus_servatus": {
+      "year": 862,
+      "note": "d. c. 862 CE",
+      "era": "Carolingian"
+    },
+    "paschasius_radbertus": {
+      "year": 865,
+      "note": "d. c. 865 CE",
+      "era": "Carolingian"
+    },
+    "john_scotus_eriugena": {
+      "year": 877,
+      "note": "d. c. 877 CE",
+      "era": "Carolingian"
+    },
+    "hincmar": {
+      "year": 882,
+      "note": "d. 882 CE",
+      "era": "Carolingian"
+    },
+    "nithardus": {
+      "year": 844,
+      "note": "d. 844 CE",
+      "era": "Carolingian"
+    },
+    "florus_of_lyon": {
+      "year": 860,
+      "note": "d. c. 860 CE",
+      "era": "Carolingian"
+    },
+    "amalarius": {
+      "year": 850,
+      "note": "d. c. 850 CE",
+      "era": "Carolingian"
+    },
+    "smaragdus": {
+      "year": 840,
+      "note": "d. c. 840 CE",
+      "era": "Carolingian"
+    },
+    "dicuil": {
+      "year": 825,
+      "note": "fl. c. 825 CE",
+      "era": "Carolingian"
+    },
+    "moduin": {
+      "year": 843,
+      "note": "d. 843 CE",
+      "era": "Carolingian"
+    },
+    "hibernicus_exul": {
+      "year": 800,
+      "note": "fl. c. 800 CE",
+      "era": "Carolingian"
+    },
+    "fardulfus": {
+      "year": 806,
+      "note": "d. 806 CE",
+      "era": "Carolingian"
+    },
+    "engelmodus": {
+      "year": 860,
+      "note": "fl. c. 860 CE",
+      "era": "Carolingian"
+    },
+    "godescalcus_saxus": {
+      "year": 869,
+      "note": "d. 869 CE",
+      "era": "Carolingian"
+    },
+    "ermenricus_elwagensis": {
+      "year": 874,
+      "note": "d. c. 874 CE",
+      "era": "Carolingian"
+    },
+    "bernowinus": {
+      "year": 860,
+      "note": "fl. c. 860 CE",
+      "era": "Carolingian"
+    },
+    "audradus_modicus": {
+      "year": 853,
+      "note": "fl. c. 853 CE",
+      "era": "Carolingian"
+    },
+    "lios_monocus": {
+      "year": 850,
+      "note": "fl. c. 850 CE",
+      "era": "Carolingian"
+    },
+    "sigloardus_remensis": {
+      "year": 870,
+      "note": "fl. c. 870 CE",
+      "era": "Carolingian"
+    },
+    "gerwardus": {
+      "year": 860,
+      "note": "fl. c. 860 CE",
+      "era": "Carolingian"
+    },
+    "candidus_of_fulda": {
+      "year": 845,
+      "note": "d. c. 845 CE",
+      "era": "Carolingian"
+    },
+    "wandalbert": {
+      "year": 870,
+      "note": "fl. c. 870 CE",
+      "era": "Carolingian"
+    },
+    "wandalbertus": {
+      "year": 870,
+      "note": "fl. c. 870 CE",
+      "era": "Carolingian"
+    },
+    "micon_of_saint_riquier": {
+      "year": 865,
+      "note": "fl. c. 865 CE",
+      "era": "Carolingian"
+    },
+    "milo_of_saint_amand": {
+      "year": 872,
+      "note": "d. 872 CE",
+      "era": "Carolingian"
+    },
+    "poeta_saxo": {
+      "year": 890,
+      "note": "fl. c. 890 CE",
+      "era": "Carolingian"
+    },
+    "agius_of_corvey": {
+      "year": 876,
+      "note": "fl. c. 876 CE",
+      "era": "Carolingian"
+    },
+    "paulus_albarus": {
+      "year": 861,
+      "note": "d. 861 CE",
+      "era": "Carolingian"
+    },
+    "bertharius_of_monte_cassino": {
+      "year": 883,
+      "note": "d. 883 CE",
+      "era": "Carolingian"
+    },
+    "erchempert": {
+      "year": 900,
+      "note": "fl. c. 900 CE",
+      "era": "Carolingian"
+    },
+    "aimoin_of_saint_germain": {
+      "year": 889,
+      "note": "fl. c. 889 CE",
+      "era": "Carolingian"
+    },
+    "aethelwulf": {
+      "year": 860,
+      "note": "fl. c. 860 CE",
+      "era": "Carolingian"
+    },
+    "vulfinus_diensis": {
+      "year": 900,
+      "note": "fl. c. 900 CE",
+      "era": "Carolingian"
+    },
+    "johannes_hymonides": {
+      "year": 880,
+      "note": "d. c. 880 CE",
+      "era": "Carolingian"
+    },
+    "agnellus_ravennatis": {
+      "year": 846,
+      "note": "d. c. 846 CE",
+      "era": "Carolingian"
+    },
+    "dhuoda": {
+      "year": 843,
+      "note": "fl. 843 CE",
+      "era": "Carolingian"
+    },
+    "hildebert_of_lavardin": {
+      "year": 1133,
+      "note": "d. 1133 CE",
+      "era": "Medieval"
+    },
+    "marbodus_redonensis": {
+      "year": 1123,
+      "note": "d. 1123 CE",
+      "era": "Medieval"
+    },
+    "fulcher_of_chartres": {
+      "year": 1127,
+      "note": "d. c. 1127 CE",
+      "era": "Medieval"
+    },
+    "giraldus_floriacensis": {
+      "year": 1100,
+      "note": "fl. c. 1100 CE",
+      "era": "Medieval"
+    },
+    "william_of_tyre": {
+      "year": 1186,
+      "note": "d. c. 1186 CE",
+      "era": "Medieval"
+    },
+    "petrus_riga": {
+      "year": 1209,
+      "note": "d. 1209 CE",
+      "era": "Medieval"
+    },
+    "dante": {
+      "year": 1321,
+      "note": "d. 1321 CE",
+      "era": "Medieval"
+    },
+    "salutati": {
+      "year": 1406,
+      "note": "d. 1406 CE",
+      "era": "Renaissance"
+    },
+    "maffeo_veggio": {
+      "year": 1458,
+      "note": "d. 1458 CE",
+      "era": "Renaissance"
+    },
+    "giovanni_aurelio_augurelli": {
+      "year": 1524,
+      "note": "d. 1524 CE",
+      "era": "Renaissance"
+    },
+    "eobanus": {
+      "year": 1540,
+      "note": "d. 1540 CE",
+      "era": "Renaissance"
+    },
+    "polignac": {
+      "year": 1741,
+      "note": "d. 1741 CE",
+      "era": "Modern"
+    },
+    "descartes": {
+      "year": 1650,
+      "note": "d. 1650 CE",
+      "era": "Modern"
+    },
+    "florus": {
+      "year": 140,
+      "note": "fl. c. 140 CE",
+      "era": "Early Imperial"
+    },
+    "anonymi": {
+      "year": null,
+      "note": "Unknown date",
+      "era": "Unknown"
+    },
+    "anonymus": {
+      "year": null,
+      "note": "Unknown date",
+      "era": "Unknown"
+    },
+    "test": {
+      "year": null,
+      "note": "Test file",
+      "era": "Unknown"
+    },
+    "glass": {
+      "year": null,
+      "note": "Unknown date",
+      "era": "Unknown"
+    },
+    "couplet_et_alii": {
+      "year": null,
+      "note": "Unknown date",
+      "era": "Unknown"
+    },
+    "aristotle": {
+      "year": 1250,
+      "era": "Medieval",
+      "note": "Greek philosopher (d. 322 BCE); Latin translations primarily 12th-13th c."
+    }
+  },
+  "grc": {
+    "homer": {
+      "year": -750,
+      "note": "fl. c. 750 BCE",
+      "era": "Archaic"
+    },
+    "hesiod": {
+      "year": -700,
+      "note": "fl. c. 700 BCE",
+      "era": "Archaic"
+    },
+    "sappho": {
+      "year": -570,
+      "note": "fl. c. 570 BCE",
+      "era": "Archaic"
+    },
+    "aeschylus": {
+      "year": -456,
+      "note": "d. 456 BCE",
+      "era": "Classical"
+    },
+    "pindar": {
+      "year": -438,
+      "note": "d. 438 BCE",
+      "era": "Classical"
+    },
+    "bacchylides": {
+      "year": -450,
+      "note": "fl. c. 450 BCE",
+      "era": "Classical"
+    },
+    "sophocles": {
+      "year": -406,
+      "note": "d. 406 BCE",
+      "era": "Classical"
+    },
+    "euripides": {
+      "year": -406,
+      "note": "d. 406 BCE",
+      "era": "Classical"
+    },
+    "aristophanes": {
+      "year": -386,
+      "note": "d. c. 386 BCE",
+      "era": "Classical"
+    },
+    "herodotus": {
+      "year": -425,
+      "note": "d. c. 425 BCE",
+      "era": "Classical"
+    },
+    "thucydides": {
+      "year": -400,
+      "note": "d. c. 400 BCE",
+      "era": "Classical"
+    },
+    "hippocrates": {
+      "year": -370,
+      "note": "d. c. 370 BCE",
+      "era": "Classical"
+    },
+    "plato": {
+      "year": -348,
+      "note": "d. 348 BCE",
+      "era": "Classical"
+    },
+    "xenophon": {
+      "year": -354,
+      "note": "d. c. 354 BCE",
+      "era": "Classical"
+    },
+    "isocrates": {
+      "year": -338,
+      "note": "d. 338 BCE",
+      "era": "Classical"
+    },
+    "demosthenes": {
+      "year": -322,
+      "note": "d. 322 BCE",
+      "era": "Classical"
+    },
+    "aeschines": {
+      "year": -314,
+      "note": "d. c. 314 BCE",
+      "era": "Classical"
+    },
+    "lycurgus": {
+      "year": -324,
+      "note": "d. 324 BCE",
+      "era": "Classical"
+    },
+    "dinarchus": {
+      "year": -290,
+      "note": "d. c. 290 BCE",
+      "era": "Hellenistic"
+    },
+    "demades": {
+      "year": -319,
+      "note": "d. 319 BCE",
+      "era": "Classical"
+    },
+    "aristotle": {
+      "year": -322,
+      "note": "d. 322 BCE",
+      "era": "Classical"
+    },
+    "theophrastus": {
+      "year": -287,
+      "note": "d. 287 BCE",
+      "era": "Hellenistic"
+    },
+    "euclid": {
+      "year": -270,
+      "note": "fl. c. 300 BCE",
+      "era": "Hellenistic"
+    },
+    "apollonius": {
+      "year": -215,
+      "note": "fl. c. 250 BCE",
+      "era": "Hellenistic"
+    },
+    "callimachus": {
+      "year": -240,
+      "note": "d. c. 240 BCE",
+      "era": "Hellenistic"
+    },
+    "theocritus": {
+      "year": -260,
+      "note": "fl. c. 270 BCE",
+      "era": "Hellenistic"
+    },
+    "apollodorus": {
+      "year": -120,
+      "note": "fl. c. 120 BCE",
+      "era": "Hellenistic"
+    },
+    "polybius": {
+      "year": -118,
+      "note": "d. c. 118 BCE",
+      "era": "Hellenistic"
+    },
+    "strabo": {
+      "year": 24,
+      "note": "d. c. 24 CE",
+      "era": "Early Imperial"
+    },
+    "plutarch": {
+      "year": 120,
+      "note": "d. c. 120 CE",
+      "era": "Early Imperial"
+    },
+    "epictetus": {
+      "year": 135,
+      "note": "d. c. 135 CE",
+      "era": "Early Imperial"
+    },
+    "lucian": {
+      "year": 180,
+      "note": "d. c. 180 CE",
+      "era": "Early Imperial"
+    },
+    "pausanias": {
+      "year": 180,
+      "note": "fl. c. 150 CE",
+      "era": "Early Imperial"
+    },
+    "aelius_aristides": {
+      "year": 181,
+      "note": "d. 181 CE",
+      "era": "Early Imperial"
+    },
+    "aelian": {
+      "year": 235,
+      "note": "d. c. 235 CE",
+      "era": "Late Imperial"
+    },
+    "oppian": {
+      "year": 180,
+      "note": "fl. c. 180 CE",
+      "era": "Early Imperial"
+    },
+    "achilles_tatius": {
+      "year": 200,
+      "note": "fl. c. 2nd cent. CE",
+      "era": "Early Imperial"
+    },
+    "colluthus": {
+      "year": 500,
+      "note": "fl. c. 500 CE",
+      "era": "Late Imperial"
+    },
+    "aesop": {
+      "year": -560,
+      "note": "fl. c. 6th cent. BCE",
+      "era": "Archaic"
+    },
+    "archimedes": {
+      "year": -212,
+      "note": "d. 212 BCE",
+      "era": "Hellenistic"
+    },
+    "archimède": {
+      "year": -212,
+      "note": "d. 212 BCE",
+      "era": "Hellenistic"
+    },
+    "lucian": {
+      "year": 180,
+      "note": "d. c. 180 CE",
+      "era": "Early Imperial"
+    },
+    "galen": {
+      "year": 210,
+      "note": "d. c. 210 CE",
+      "era": "Early Imperial"
+    },
+    "hippocrates": {
+      "year": -370,
+      "note": "d. c. 370 BCE",
+      "era": "Classical"
+    },
+    "aeschines": {
+      "year": -314,
+      "note": "d. c. 314 BCE",
+      "era": "Classical"
+    },
+    "aeschines_sp": {
+      "year": -314,
+      "note": "attr. Aeschines",
+      "era": "Classical"
+    },
+    "aelian": {
+      "year": 235,
+      "note": "d. c. 235 CE",
+      "era": "Early Imperial"
+    },
+    "aelius_aristides": {
+      "year": 181,
+      "note": "d. c. 181 CE",
+      "era": "Early Imperial"
+    },
+    "apollonius_dyscolus": {
+      "year": 180,
+      "note": "fl. 2nd cent. CE",
+      "era": "Early Imperial"
+    },
+    "apollonius_of_perga": {
+      "year": -190,
+      "note": "fl. c. 200 BCE",
+      "era": "Hellenistic"
+    },
+    "athenaeus": {
+      "year": 200,
+      "note": "fl. c. 200 CE",
+      "era": "Early Imperial"
+    },
+    "diogenes_laertius": {
+      "year": 250,
+      "note": "fl. c. 3rd cent. CE",
+      "era": "Early Imperial"
+    },
+    "epictetus": {
+      "year": 135,
+      "note": "d. c. 135 CE",
+      "era": "Early Imperial"
+    },
+    "longus": {
+      "year": 200,
+      "note": "fl. c. 2nd cent. CE",
+      "era": "Early Imperial"
+    },
+    "pausanias": {
+      "year": 180,
+      "note": "fl. c. 2nd cent. CE",
+      "era": "Early Imperial"
+    },
+    "philo_judaeus": {
+      "year": 50,
+      "note": "d. c. 50 CE",
+      "era": "Early Imperial"
+    },
+    "josephus": {
+      "year": 100,
+      "note": "d. c. 100 CE",
+      "era": "Early Imperial"
+    },
+    "hero_of_alexandria": {
+      "year": 70,
+      "note": "fl. c. 1st cent. CE",
+      "era": "Early Imperial"
+    },
+    "pseudolucian": {
+      "year": 200,
+      "note": "attr. Lucian",
+      "era": "Early Imperial"
+    },
+    "pseudogalen": {
+      "year": 210,
+      "note": "attr. Galen",
+      "era": "Early Imperial"
+    },
+    "theophrastus": {
+      "year": -287,
+      "note": "d. c. 287 BCE",
+      "era": "Hellenistic"
+    },
+    "nicomachus_of_gerasa": {
+      "year": 120,
+      "note": "fl. c. 100 CE",
+      "era": "Early Imperial"
+    },
+    "clement_of_alexandria": {
+      "year": 215,
+      "note": "d. c. 215 CE",
+      "era": "Early Imperial"
+    },
+    "soranus": {
+      "year": 130,
+      "note": "fl. c. 2nd cent. CE",
+      "era": "Early Imperial"
+    },
+    "claudius_ptolemaeus": {
+      "year": 170,
+      "note": "d. c. 170 CE",
+      "era": "Early Imperial"
+    },
+    "epicurus": {
+      "year": -270,
+      "note": "d. 270 BCE",
+      "era": "Hellenistic"
+    },
+    "dinarchus": {
+      "year": -290,
+      "note": "d. c. 290 BCE",
+      "era": "Classical"
+    },
+    "septuaginta": {
+      "year": -250,
+      "note": "c. 3rd cent. BCE",
+      "era": "Hellenistic"
+    }
+  },
+  "en": {
+    "chaucer": {
+      "year": 1400,
+      "note": "d. 1400",
+      "era": "Medieval"
+    },
+    "shakespeare": {
+      "year": 1616,
+      "note": "d. 1616",
+      "era": "Renaissance"
+    },
+    "milton": {
+      "year": 1674,
+      "note": "d. 1674",
+      "era": "Renaissance"
+    },
+    "dryden": {
+      "year": 1700,
+      "note": "d. 1700",
+      "era": "Restoration"
+    },
+    "pope": {
+      "year": 1744,
+      "note": "d. 1744",
+      "era": "Augustan"
+    },
+    "johnson": {
+      "year": 1784,
+      "note": "d. 1784",
+      "era": "Augustan"
+    },
+    "wordsworth": {
+      "year": 1850,
+      "note": "d. 1850",
+      "era": "Romantic"
+    },
+    "keats": {
+      "year": 1821,
+      "note": "d. 1821",
+      "era": "Romantic"
+    },
+    "shelley": {
+      "year": 1822,
+      "note": "d. 1822",
+      "era": "Romantic"
+    },
+    "byron": {
+      "year": 1824,
+      "note": "d. 1824",
+      "era": "Romantic"
+    },
+    "tennyson": {
+      "year": 1892,
+      "note": "d. 1892",
+      "era": "Victorian"
+    },
+    "browning": {
+      "year": 1889,
+      "note": "d. 1889",
+      "era": "Victorian"
+    },
+    "arnold": {
+      "year": 1888,
+      "note": "d. 1888",
+      "era": "Victorian"
+    },
+    "swinburne": {
+      "year": 1909,
+      "note": "d. 1909",
+      "era": "Victorian"
+    },
+    "yeats": {
+      "year": 1939,
+      "note": "d. 1939",
+      "era": "Modern"
+    },
+    "eliot": {
+      "year": 1965,
+      "note": "d. 1965",
+      "era": "Modern"
+    },
+    "pound": {
+      "year": 1972,
+      "note": "d. 1972",
+      "era": "Modern"
+    },
+    "auden": {
+      "year": 1973,
+      "note": "d. 1973",
+      "era": "Modern"
+    },
+    "carroll": {
+      "year": 1898,
+      "note": "d. 1898",
+      "era": "Victorian"
+    },
+    "cowper": {
+      "year": 1800,
+      "note": "d. 1800",
+      "era": "Romantic"
+    },
+    "swift": {
+      "year": 1745,
+      "note": "d. 1745",
+      "era": "Neoclassical"
+    },
+    "world_english_bible": {
+      "year": 2000,
+      "note": "Published 2000",
+      "era": "Modern"
+    }
+  }
+}

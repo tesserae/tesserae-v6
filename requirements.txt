@@ -1,0 +1,12 @@
+flask==3.0.0
+flask-cors==4.0.0
+nltk==3.8.1
+psycopg2-binary==2.9.9
+rapidfuzz==3.6.1
+numpy>=1.24.0
+latinwordnet==0.3.1
+requests==2.31.0
+flask-dance
+flask-login
+Flask-SQLAlchemy
+PyJWT
