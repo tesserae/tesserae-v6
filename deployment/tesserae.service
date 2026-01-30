@@ -1,0 +1,23 @@
+[Unit]
+Description=Tesserae V6 Intertextual Analysis Platform
+Documentation=https://tesserae.caset.buffalo.edu
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=ncoffee
+Group=ncoffee
+WorkingDirectory=/home/ncoffee/tesserae-v6/Tesserae-V6
+
+EnvironmentFile=/home/ncoffee/tesserae-v6/Tesserae-V6/.env
+
+ExecStart=/home/ncoffee/.local/bin/python main.py
+
+Restart=always
+RestartSec=10
+
+StandardOutput=append:/var/log/tesserae/tesserae.log
+StandardError=append:/var/log/tesserae/tesserae.log
+
+[Install]
+WantedBy=multi-user.target
