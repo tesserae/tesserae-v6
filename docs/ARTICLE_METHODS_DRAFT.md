@@ -171,28 +171,59 @@ The new **Line Search** feature inverts this model: given a single line or phras
 
 #### 5.1.1 Measuring Originality: Vergil's "Arma virumque cano"
 
-A search for Vergil's famous incipit "arma virumque cano" (*I sing of arms and the man*) illustrates how line search can illuminate both the conceptual resources an author was working with and the degree of their transformation. The corpus-wide search surfaces over 250 results across diverse authors and genres, revealing that the vocabulary of "arms" and "man" (*arma*, *vir*) pervaded Roman discourse long before Vergil.
+A search for Vergil's famous incipit "arma virumque cano" (*I sing of arms and the man*) illustrates how line search can illuminate both the conceptual resources an author was working with and the degree of their transformation.
+
+**Search Parameters and Results**
+
+Using the default line search configuration (match type: lemma; language: Latin; maximum results: 500), a query for "arma virumque cano" completed in 0.49 seconds and returned **261 results** spanning fifteen centuries of Latin literature. The distribution by era reveals a striking pattern:
+
+| Era | Poetry | Prose | Total |
+|-----|--------|-------|-------|
+| Republic (pre-Augustan) | — | 11 | 11 |
+| Augustan | 32 | 72 | 104 |
+| Early Imperial | 5 | 15 | 20 |
+| Late Antique | 14 | 22 | 36 |
+| Medieval/Carolingian | 3 | — | 3 |
+| Renaissance | 87 | — | 87 |
+
+The breakdown by author further sharpens the picture:
+
+| Author | Matches | Period | Type |
+|--------|---------|--------|------|
+| Eobanus Hessus | 86 | Renaissance (1540) | Poetry |
+| Livy | 72 | Augustan | Prose |
+| Ovid | 28 | Augustan | Poetry |
+| Cicero | 10 | Republic | Prose |
+| Curtius Rufus | 10 | Early Imperial | Prose |
 
 **Prose Precedents: What Vergil Had to Work With**
 
-Among the highest-scoring prose matches is Livy 5.36.5, describing the Gauls' defiant reply to Roman ambassadors:
+The 11 Republic-era matches—all from prose—reveal the conceptual material available to Vergil before he composed the *Aeneid*. Particularly striking is Cicero's *Philippicae* 12.9, delivered in 43 BCE (before Vergil began writing), where he describes Gaul's military support for Decimus Brutus:
 
-> *cum illi se in armis ius ferre et omnia fortium virorum esse ferociter dicerent*
-> "when they [the Gauls] fiercely declared that they carried law in arms and all things belonged to strong men"
+> *Gallia D. Bruti nutum ipsum, ne dicam imperium, secuta armis, viris, pecunia belli principia firmavit*
+> "Gaul, following the very nod of Decimus Brutus—not to say his command—with **arms**, **men**, and money, established the beginnings of war."
 
-This passage encapsulates the conceptual collocation Vergil would transform: *arma* (arms), *vir* (man), and the assertion that arms define what belongs to whom. Yet Livy's prose context—barbarian arrogance, a diplomatic insult—is worlds away from Vergil's epic claim. The search reveals that the lexical raw material existed in historical prose, discussing real wars and real men, but not arranged as programmatic epic statement, not in verse, not as a declaration of poetic intent.
+The collocation *armis, viris* appears repeatedly in Cicero's political oratory, describing the instruments of civil conflict: "armis, equis, viris" (*Philippicae* 8.21), "armis, viris, terrore" (*Pro Caecina* 11.33). Cornelius Nepos, writing his *Lives* in the same period, uses identical language to describe Hamilcar's conquest of Spain: "equis, armis, viris, pecunia totam locupletavit Africam" (*Hamilcar* 4.1)—"with horses, **arms**, **men**, and money he enriched all Africa."
 
-The contrast measures Vergil's originality. He took a collocation embedded in Roman military-historical discourse—arms and men, the instruments and agents of empire—and elevated it to the opening declaration of Latin epic, fusing Homeric precedent (the *Iliad*'s wrath, the *Odyssey*'s man) with Roman identity. The prose precedents show us the vocabulary was available; Vergil's achievement was the recombination.
+These prose precedents reveal that the vocabulary of *arma* and *vir* already formed a natural collocation in Roman discourse about military power. But the contexts—political invective, historical chronicle—are worlds away from Vergil's programmatic epic statement. The prose writers use these words to describe the *means* of warfare; Vergil transforms them into the *subject* of poetry, fusing Homeric precedent (the *Iliad*'s wrath, the *Odyssey*'s man) with Roman imperial identity.
+
+The contrast measures Vergil's originality. The lexical raw material existed in political and historical prose; Vergil's achievement was the recombination into a poetic declaration that would echo for millennia.
 
 **Neo-Latin Reception: Eobanus Hessus and the Vergilian Legacy**
 
-At the other end of the temporal spectrum, the line search reveals an extraordinary concentration of matches in the work of Helius Eobanus Hessus (1488–1540), the German humanist poet hailed as the foremost Latin poet of his age. His 1540 Latin translation of Homer's *Iliad*—the first complete verse translation of a Homeric epic into Latin—generated over 700 matches for "arma virum" vocabulary in our corpus.
+At the other end of the temporal spectrum, the line search reveals an extraordinary concentration of matches in the work of Helius Eobanus Hessus (1488–1540), the German humanist poet hailed as the foremost Latin poet of his age. His 1540 Latin translation of Homer's *Iliad*—the first complete verse translation of a Homeric epic into Latin—generated **86 matches** in the search results.
+
+To put this in perspective: Eobanus's single work produces nearly **three times as many matches** as all of Ovid's corpus combined (86 vs. 28), and more matches than any other individual author except Livy's massive *Ab Urbe Condita*. Sample matches demonstrate the density of Vergilian vocabulary:
+
+> *Dirimet arma virum* (Iliad 2.546) — "will separate the **arms** of the **man**"
+> *Armis atque viris gravibus* (Iliad 2.702) — "with **arms** and mighty **men**"
+> *vir acer in armis* (Iliad 2.942) — "a fierce **man** in **arms**"
 
 This abundance is no accident. As Massimo Cè has argued in his study of Eobanus's translation practice, the *Homeri Ilias* was "programmatically anachronistic," deliberately filtering Homer through Vergilian Latin (Cè, "An Untimely Iliad: Eoban, Virgil, and a Belated First in the History of Homeric Translation," Society for Classical Studies). Writing in dactylic hexameters steeped in Vergilian diction, Eobanus created what amounts to a Renaissance Latin *Iliad* that reads as if Homer had written in the language of the *Aeneid*.
 
-The critical edition by Harry Vredeveld (*The Poetic Works of Helius Eobanus Hessus*, Medieval & Renaissance Texts & Studies, 5 vols.) enables detailed study of how this sixteenth-century German humanist channeled classical epic. The line search makes visible what close reading might miss: the sheer density of Vergilian vocabulary in Eobanus's Homer, with *arma* and *vir* recurring hundreds of times across twenty-four books of translated battle narrative.
+The critical edition by Harry Vredeveld (*The Poetic Works of Helius Eobanus Hessus*, Medieval & Renaissance Texts & Studies, 5 vols.) enables detailed study of how this sixteenth-century German humanist channeled classical epic. The line search makes visible what close reading might miss: the sheer density of Vergilian vocabulary in Eobanus's Homer, with *arma* and *vir* recurring dozens of times across twenty-four books of translated battle narrative.
 
-This case illustrates how line search can reveal patterns of reception across fifteen centuries. Vergil's opening claimed "arms and the man" for Roman epic; Eobanus's translation returned Homer to the Latin tradition through that same Vergilian lens, demonstrating how a Renaissance humanist understood the *Iliad* as fundamentally compatible with—even dependent upon—the epic vocabulary Vergil had made canonical.
+This case illustrates how line search can reveal patterns of reception across fifteen centuries. Vergil's opening claimed "arms and the man" for Roman epic; Eobanus's translation returned Homer to the Latin tradition through that same Vergilian lens. The quantitative evidence—86 matches from a single Renaissance translation—demonstrates how a sixteenth-century German humanist understood the *Iliad* as fundamentally compatible with, even dependent upon, the epic vocabulary Vergil had made canonical.
 
 #### 5.1.2 Discovering the Unstudied: Line Search and Lesser-Known Passages
 
