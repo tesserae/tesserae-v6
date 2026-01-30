@@ -169,19 +169,43 @@ The new **Line Search** feature inverts this model: given a single line or phras
 3. Scores matches using the V3 algorithm
 4. Returns ranked results with match highlighting
 
-**Example**: A search for Vergil's famous incipit "arma virumque cano" (*I sing of arms and the man*) illustrates the feature's power. Rather than returning only the expected Vergil matches, the corpus-wide search surfaces over 250 results across diverse authors and genres:
+#### 5.1.1 Measuring Originality: Vergil's "Arma virumque cano"
 
-| Author | Matches | Representative Works |
-|--------|---------|---------------------|
-| Livy | ~72 | *Ab Urbe Condita* |
-| Ovid | ~26 | *Amores*, *Fasti*, *Metamorphoses* |
-| Curtius Rufus | ~10 | *Historiae Alexandri Magni* |
-| Cicero | ~8 | *Orations*, *Philosophical Works* |
-| Vergil | ~2 | *Aeneid* |
+A search for Vergil's famous incipit "arma virumque cano" (*I sing of arms and the man*) illustrates how line search can illuminate both the conceptual resources an author was working with and the degree of their transformation. The corpus-wide search surfaces over 250 results across diverse authors and genres, revealing that the vocabulary of "arms" and "man" (*arma*, *vir*) pervaded Roman discourse long before Vergil.
 
-The results reveal an unexpected pattern: the vocabulary of "arms" and "man" (*arma*, *vir*) pervades Roman historiography as much as epic poetry. Livy's historical prose, describing Rome's military expansion, shares this lexical register with Vergil's foundational epic. The search thus surfaces not direct allusions but a broader cultural preoccupation—the Roman construction of *virtus* (manliness, martial valor) through the interplay of arms and the men who wield them.
+**Prose Precedents: What Vergil Had to Work With**
 
-More striking are Ovid's matches. His *Amores* opens with a pointed rejection of epic: "arma gravi numero violentaque bella parabam / edere" (*I was preparing to sing of arms and violent wars in weighty meter*)—a direct engagement with Vergil's opening that the line search surfaces alongside the many less obvious instances where Ovidian elegy and epic share vocabulary. A researcher beginning with a hypothesis about Vergil's influence might never think to check Livy; the corpus-wide search makes such discoveries routine
+Among the highest-scoring prose matches is Livy 5.36.5, describing the Gauls' defiant reply to Roman ambassadors:
+
+> *cum illi se in armis ius ferre et omnia fortium virorum esse ferociter dicerent*
+> "when they [the Gauls] fiercely declared that they carried law in arms and all things belonged to strong men"
+
+This passage encapsulates the conceptual collocation Vergil would transform: *arma* (arms), *vir* (man), and the assertion that arms define what belongs to whom. Yet Livy's prose context—barbarian arrogance, a diplomatic insult—is worlds away from Vergil's epic claim. The search reveals that the lexical raw material existed in historical prose, discussing real wars and real men, but not arranged as programmatic epic statement, not in verse, not as a declaration of poetic intent.
+
+The contrast measures Vergil's originality. He took a collocation embedded in Roman military-historical discourse—arms and men, the instruments and agents of empire—and elevated it to the opening declaration of Latin epic, fusing Homeric precedent (the *Iliad*'s wrath, the *Odyssey*'s man) with Roman identity. The prose precedents show us the vocabulary was available; Vergil's achievement was the recombination.
+
+**Neo-Latin Reception: Eobanus Hessus and the Vergilian Legacy**
+
+At the other end of the temporal spectrum, the line search reveals an extraordinary concentration of matches in the work of Helius Eobanus Hessus (1488–1540), the German humanist poet hailed as the foremost Latin poet of his age. His 1540 Latin translation of Homer's *Iliad*—the first complete verse translation of a Homeric epic into Latin—generated over 700 matches for "arma virum" vocabulary in our corpus.
+
+This abundance is no accident. As Massimo Cè has argued in his study of Eobanus's translation practice, the *Homeri Ilias* was "programmatically anachronistic," deliberately filtering Homer through Vergilian Latin (Cè, "An Untimely Iliad: Eoban, Virgil, and a Belated First in the History of Homeric Translation," Society for Classical Studies). Writing in dactylic hexameters steeped in Vergilian diction, Eobanus created what amounts to a Renaissance Latin *Iliad* that reads as if Homer had written in the language of the *Aeneid*.
+
+The critical edition by Harry Vredeveld (*The Poetic Works of Helius Eobanus Hessus*, Medieval & Renaissance Texts & Studies, 5 vols.) enables detailed study of how this sixteenth-century German humanist channeled classical epic. The line search makes visible what close reading might miss: the sheer density of Vergilian vocabulary in Eobanus's Homer, with *arma* and *vir* recurring hundreds of times across twenty-four books of translated battle narrative.
+
+This case illustrates how line search can reveal patterns of reception across fifteen centuries. Vergil's opening claimed "arms and the man" for Roman epic; Eobanus's translation returned Homer to the Latin tradition through that same Vergilian lens, demonstrating how a Renaissance humanist understood the *Iliad* as fundamentally compatible with—even dependent upon—the epic vocabulary Vergil had made canonical.
+
+#### 5.1.2 Discovering the Unstudied: Line Search and Lesser-Known Passages
+
+The power of corpus-wide search becomes most apparent when applied to lines that have received less scholarly attention. While "arma virumque cano" has been analyzed for centuries, the vast majority of Latin poetry remains understudied relative to its potential significance.
+
+Consider Aeneid 3.56–57, Vergil's famous exclamation on the death of Polydorus:
+
+> *Quid non mortalia pectora cogis, / auri sacra fames?*
+> "To what do you not compel mortal hearts, accursed hunger for gold?"
+
+A line search reveals this sententious phrase echoing across later Latin literature in contexts ranging from Senecan tragedy to patristic moralizing. The corpus traces how a two-line Vergilian aside became a touchstone for discussions of greed, expanding our understanding of the *Aeneid*'s reception beyond its narrative highlights.
+
+Such discoveries—passages that resonate more widely than their canonical status might suggest—illustrate the exploratory power of line search. A researcher need not have a prior hypothesis about which lines matter; the corpus itself reveals patterns of influence and reception that close reading, constrained by finite scholarly attention, might never uncover
 
 ### 5.2 Cross-Lingual Search
 
