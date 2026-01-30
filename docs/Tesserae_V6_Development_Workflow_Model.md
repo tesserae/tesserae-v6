@@ -97,10 +97,88 @@ Establish that **only you** handle corpus/index changes. Students work on code o
 
 ---
 
+## Production Server (Marvin) vs Development (Replit)
+
+With Tesserae deployed on the university server (Marvin), you now have two active instances. Here's how to keep them in sync:
+
+### Server Roles
+
+| Server | Role | Purpose |
+|--------|------|---------|
+| **Marvin** (UB CASET) | Production | Live users, authoritative corpus, public access |
+| **Replit** | Development | Code development, AI assistance, testing |
+
+### What Lives Where
+
+| Type | Marvin (Production) | Replit (Development) | Syncs via Git? |
+|------|---------------------|----------------------|----------------|
+| **Code** | Pulled from GitHub | Pushed to GitHub | ✅ Yes |
+| **Texts (.tess files)** | Source of truth | Copy for testing | ❌ No |
+| **Generated indexes** | Rebuilt after text changes | Rebuilt after text changes | ❌ No |
+| **Embeddings** | Rebuilt when needed | Pre-built | ❌ No |
+| **Database** | Separate Postgres | Separate Postgres | ❌ No |
+
+### Code Deployment Flow
+
+```
+Replit (develop) → GitHub (sync) → Marvin (git pull)
+```
+
+**Step by step:**
+1. Make code changes in Replit
+2. Push to GitHub (Git panel or shell)
+3. SSH to Marvin and run: `cd ~/tesserae-v6/Tesserae-V6 && git pull`
+4. Restart the service: `sudo systemctl restart tesserae`
+
+### Corpus Management Rules
+
+**Marvin is the source of truth for the corpus.** This prevents data divergence.
+
+| Scenario | Action |
+|----------|--------|
+| Adding new texts | Add to Marvin only; copy to Replit if needed for testing |
+| Rebuilding indexes | Do on each server independently after adding texts |
+| Student adds a text | They submit to you; you add to Marvin |
+| Testing with new text | Add temporarily to Replit; don't push to production until verified |
+
+### When to Regenerate Indexes
+
+After adding or modifying texts on either server, rebuild the affected indexes via the Admin panel:
+- **Inverted Index** — Required for phrase search
+- **Embeddings** — Required for semantic search
+- **Bigram Cache** — Required for rare word pairs search
+- **Frequency Cache** — Required for scoring
+
+These can be rebuilt independently; you don't need to regenerate everything for a single new text.
+
+### Quick Reference: Marvin Commands
+
+```bash
+# SSH to Marvin (requires VPN)
+ssh ncoffee@marvin.caset.buffalo.edu
+
+# Pull latest code
+cd ~/tesserae-v6/Tesserae-V6
+git pull origin main
+
+# Restart the service
+sudo systemctl restart tesserae
+
+# Check status
+sudo systemctl status tesserae
+
+# View logs
+tail -f /var/log/tesserae/tesserae.log
+```
+
+---
+
 ## Summary
 
 GitHub acts as the "central hub" where code meets:
 - You **push** FROM Replit TO GitHub
-- You **pull** FROM GitHub TO Replit
-- Students interact only via GitHub (never touch your Replit directly)
+- You **pull** FROM GitHub TO Replit (or Marvin)
+- Students interact only via GitHub (never touch your Replit or Marvin directly)
 - Data files stay local and unchanged during code syncs
+- **Marvin is the production server** — the authoritative source for the corpus
+- **Replit is development** — for code changes with AI assistance
