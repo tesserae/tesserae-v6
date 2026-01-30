@@ -418,6 +418,12 @@ def legacy_frontend():
     legacy_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend')
     return send_from_directory(legacy_path, 'index.html')
 
+@app.route('/static/downloads/<path:filename>')
+def serve_downloads(filename):
+    """Serve downloadable files from static/downloads/"""
+    downloads_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'downloads')
+    return send_from_directory(downloads_path, filename)
+
 @app.errorhandler(404)
 def page_not_found(e):
     """Handle 404 errors by serving the SPA for client-side routing"""
