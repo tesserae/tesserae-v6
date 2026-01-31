@@ -136,7 +136,11 @@ except Exception as e:
 # AUTHENTICATION SETUP
 # =============================================================================
 from backend.replit_auth import init_auth, get_current_user_info
-init_auth(app)
+if os.environ.get('REPL_ID'):
+    init_auth(app)
+    print("Replit authentication initialized")
+else:
+    print("Replit auth not available (REPL_ID not set) - authentication disabled")
 
 # =============================================================================
 # CORE PROCESSING COMPONENTS
@@ -462,7 +466,8 @@ def page_not_found(e):
 def get_auth_user():
     """Get current logged-in user info"""
     user_info = get_current_user_info()
-    return jsonify({'user': user_info})
+    auth_enabled = bool(os.environ.get('REPL_ID'))
+    return jsonify({'user': user_info, 'auth_enabled': auth_enabled})
 
 @api_route('/auth/saved-searches')
 def get_saved_searches():

@@ -8,16 +8,22 @@ const Header = ({ user, setUser }) => {
   const [orcidNameInput, setOrcidNameInput] = useState('');
   const [orcidLinking, setOrcidLinking] = useState(false);
   const [orcidError, setOrcidError] = useState(null);
+  const [authEnabled, setAuthEnabled] = useState(true);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
     fetchAuthStatus()
       .then(data => {
+        if (data.auth_enabled !== undefined) {
+          setAuthEnabled(data.auth_enabled);
+        }
         if (data.authenticated) {
           setUser(data.user);
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        setAuthEnabled(false);
+      });
   }, [setUser]);
 
   useEffect(() => {
@@ -159,7 +165,7 @@ const Header = ({ user, setUser }) => {
                   </div>
                 )}
               </div>
-            ) : (
+            ) : authEnabled ? (
               <a 
                 href="/api/auth/login" 
                 className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded text-sm"
@@ -169,7 +175,7 @@ const Header = ({ user, setUser }) => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
               </a>
-            )}
+            ) : null}
           </div>
         </div>
       </header>
