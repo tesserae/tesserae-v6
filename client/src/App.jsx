@@ -201,13 +201,18 @@ function App() {
     const tabChanged = prevActiveTabRef.current !== null && prevActiveTabRef.current !== activeTab;
     prevActiveTabRef.current = activeTab;
     
-    // Clear results when tab changes
+    // Clear results AND text selections when tab changes
     if (tabChanged) {
       clearResults();
       setCorpusSearchResults(null);
       setCorpusSearchQuery(null);
       setCorpusSearchElapsed(0);
       setShowCorpusSearch(false);
+      // Clear text selections so defaults can be applied for new language
+      setSourceAuthor('');
+      setSourceText('');
+      setTargetAuthor('');
+      setTargetText('');
     }
     
     // Corpus is ready when not loading and has data
