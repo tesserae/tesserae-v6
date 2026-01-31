@@ -224,8 +224,8 @@ function App() {
     if (shouldSetDefaults) {
       let defaultSourceId, defaultTargetId;
       if (activeTab === 'grc') {
-        defaultSourceId = 'homer.iliad.part.1.tess';
-        defaultTargetId = 'apollonius_rhodius.argonautica.part.1.tess';
+        defaultSourceId = 'homer.iliad.tess';
+        defaultTargetId = 'apollonius_rhodius.argonautica.tess';
       } else if (activeTab === 'en') {
         defaultSourceId = 'shakespeare.hamlet.tess';
         defaultTargetId = 'cowper.task.tess';
