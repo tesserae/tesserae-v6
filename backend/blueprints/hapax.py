@@ -612,17 +612,22 @@ def init_hapax_blueprint(texts_dir, text_processor, author_dates):
 
 
 _line_text_cache = {}
+_LINE_TEXT_CACHE_MAX_SIZE = 20
 
 def get_line_text_from_file(text_id, language, ref):
     """
     Look up the actual line text from a .tess file given text_id and ref.
-    Uses caching to avoid re-reading files for multiple lookups.
+    Uses bounded LRU-style caching to avoid memory issues.
     """
     global _line_text_cache
     
     cache_key = f"{language}/{text_id}"
     
     if cache_key not in _line_text_cache:
+        if len(_line_text_cache) >= _LINE_TEXT_CACHE_MAX_SIZE:
+            oldest_key = next(iter(_line_text_cache))
+            del _line_text_cache[oldest_key]
+        
         text_path = os.path.join(_texts_dir, language, text_id)
         if not os.path.exists(text_path):
             return None
@@ -634,11 +639,11 @@ def get_line_text_from_file(text_id, language, ref):
                     line = line.strip()
                     if not line or line.startswith('#'):
                         continue
-                    if '>' in line:
-                        parts = line.split('>', 1)
-                        if len(parts) == 2:
-                            line_ref = parts[0].strip().lstrip('<')
-                            line_text = parts[1].strip()
+                    if line.startswith('<') and '>' in line:
+                        tag_end = line.index('>')
+                        line_ref = line[1:tag_end].strip()
+                        line_text = line[tag_end + 1:].strip()
+                        if line_ref:
                             lines_by_ref[line_ref] = line_text
             _line_text_cache[cache_key] = lines_by_ref
         except Exception as e:
@@ -646,15 +651,7 @@ def get_line_text_from_file(text_id, language, ref):
             _line_text_cache[cache_key] = {}
     
     lines = _line_text_cache.get(cache_key, {})
-    
-    if ref in lines:
-        return lines[ref]
-    
-    for cached_ref, text in lines.items():
-        if ref in cached_ref or cached_ref in ref:
-            return text
-    
-    return None
+    return lines.get(ref, '')
 
 
 def get_rare_words_from_cache(language, max_occurrences=10):
