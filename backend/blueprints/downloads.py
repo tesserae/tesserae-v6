@@ -27,7 +27,7 @@ def create_zip_from_directory(directory, prefix=''):
     memory_file.seek(0)
     return memory_file
 
-@downloads_bp.route('/api/downloads/texts/<language>')
+@downloads_bp.route('/downloads/texts/<language>')
 def download_texts(language):
     """Download all texts for a language as a zip file"""
     if language not in ['la', 'grc', 'en']:
@@ -48,7 +48,7 @@ def download_texts(language):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@downloads_bp.route('/api/downloads/embeddings/<language>')
+@downloads_bp.route('/downloads/embeddings/<language>')
 def download_embeddings(language):
     """Download all embeddings for a language as a zip file"""
     if language not in ['la', 'grc']:
@@ -69,7 +69,7 @@ def download_embeddings(language):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@downloads_bp.route('/api/downloads/dictionary')
+@downloads_bp.route('/downloads/dictionary')
 def download_dictionary():
     """Download the Greek-Latin synonym dictionary"""
     try:
@@ -94,7 +94,7 @@ def download_dictionary():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@downloads_bp.route('/api/downloads/compute-script')
+@downloads_bp.route('/downloads/compute-script')
 def download_compute_script():
     """Download the embedding computation script"""
     script_content = '''#!/usr/bin/env python3
@@ -202,7 +202,7 @@ if __name__ == '__main__':
         headers={'Content-Disposition': 'attachment; filename=compute_embeddings.py'}
     )
 
-@downloads_bp.route('/api/downloads/info')
+@downloads_bp.route('/downloads/info')
 def download_info():
     """Get information about available downloads"""
     info = {
