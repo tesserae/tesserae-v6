@@ -208,7 +208,7 @@ ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', '')
 AUTHOR_DATES = {}
 author_dates_path = os.path.join(os.path.dirname(__file__), 'author_dates.json')
 if os.path.exists(author_dates_path):
-    with open(author_dates_path, 'r') as f:
+    with open(author_dates_path, 'r', encoding='utf-8') as f:
         AUTHOR_DATES = json.load(f)
 
 
