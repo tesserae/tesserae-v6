@@ -469,16 +469,11 @@ class Matcher:
         
         # Build trigram index for target tokens → target unit indices
         # This allows O(1) lookup of candidate lines sharing similar trigrams
-        def get_trigrams(token):
-            token = token.lower()
-            if len(token) < 3:
-                return set()
-            return {token[i:i+3] for i in range(len(token) - 2)}
-        
+        # Uses feature_extractor's existing get_trigrams method
         trigram_to_targets = defaultdict(set)
         for tgt_idx, tgt_tokens in enumerate(tgt_token_lists):
             for token in tgt_tokens:
-                for trigram in get_trigrams(token):
+                for trigram in feature_extractor.get_trigrams(token):
                     trigram_to_targets[trigram].add(tgt_idx)
         
         print(f"[EDIT_DISTANCE] Built trigram index with {len(trigram_to_targets)} unique trigrams")
@@ -501,7 +496,7 @@ class Matcher:
             # Find candidate targets that share trigrams with source tokens
             candidate_targets = Counter()
             for token in src_tokens:
-                for trigram in get_trigrams(token):
+                for trigram in feature_extractor.get_trigrams(token):
                     for tgt_idx in trigram_to_targets.get(trigram, []):
                         candidate_targets[tgt_idx] += 1
             
