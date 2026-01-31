@@ -213,12 +213,14 @@ function App() {
       setSourceText('');
       setTargetAuthor('');
       setTargetText('');
+      // Reset corpus tracking so defaults will be applied when new corpus loads
+      corpusLoadedForTabRef.current = null;
+      // Exit early - let the next render cycle apply defaults with new corpus data
+      return;
     }
     
-    // Corpus is ready when not loading and has data FOR THE CURRENT TAB
-    // (corpus items have a 'language' property - check it matches activeTab)
-    const corpusMatchesTab = corpus.length > 0 && corpus[0]?.language === activeTab;
-    const corpusReady = !corpusLoading && corpusMatchesTab;
+    // Corpus is ready when not loading and has data
+    const corpusReady = !corpusLoading && corpus.length > 0;
     const corpusJustLoaded = corpusReady && corpusLoadedForTabRef.current !== activeTab;
     
     if (corpusJustLoaded) {
