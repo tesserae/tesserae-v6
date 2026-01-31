@@ -418,9 +418,12 @@ class Matcher:
         """
         Find matches based on edit distance (fuzzy string matching).
         Like Filum from QCL: finds phrases with multiple fuzzy word matches.
+        Uses trigram-based candidate filtering to avoid O(n²) full comparison.
         Requires min_matches (default 2) fuzzy word pairs per match.
         """
         import time
+        from collections import defaultdict
+        
         settings = settings or {}
         min_similarity = settings.get('min_edit_similarity', 0.7)
         min_matches = settings.get('min_matches', 2)
@@ -430,15 +433,9 @@ class Matcher:
         
         num_source = len(source_units)
         num_target = len(target_units)
-        total_comparisons = num_source * num_target
         
-        print(f"[EDIT_DISTANCE] source_units={num_source}, target_units={num_target}, total_comparisons={total_comparisons}")
+        print(f"[EDIT_DISTANCE] source_units={num_source}, target_units={num_target}")
         print(f"[EDIT_DISTANCE] stoplist_size={stoplist_size}")
-        
-        MAX_COMPARISONS = 5_000_000
-        if total_comparisons > MAX_COMPARISONS:
-            print(f"[EDIT_DISTANCE] WARNING: {total_comparisons:,} comparisons exceeds limit of {MAX_COMPARISONS:,}")
-            raise ValueError(f"Edit distance search too large: {num_source:,} x {num_target:,} = {total_comparisons:,} comparisons. Try using individual books instead of complete texts, or use lemma matching.")
         
         # Build stoplist from token frequencies if stoplist_size > 0
         stop_words = set()
@@ -453,33 +450,73 @@ class Matcher:
                     if len(token) >= 3:
                         token_freq[normalize_greek(token)] += 1
             
-            # Take top N most frequent tokens as stopwords
             most_common = token_freq.most_common(stoplist_size)
             stop_words = set(word for word, count in most_common)
-            print(f"[EDIT_DISTANCE] Built stoplist with {len(stop_words)} words. Top 10: {list(stop_words)[:10]}")
+            print(f"[EDIT_DISTANCE] Built stoplist with {len(stop_words)} words")
+        
+        # Pre-process: extract tokens for each unit
+        src_token_lists = []
+        for unit in source_units:
+            tokens = [t for t in unit.get('tokens', []) 
+                     if len(t) >= 3 and normalize_greek(t) not in stop_words]
+            src_token_lists.append(tokens)
+        
+        tgt_token_lists = []
+        for unit in target_units:
+            tokens = [t for t in unit.get('tokens', []) 
+                     if len(t) >= 3 and normalize_greek(t) not in stop_words]
+            tgt_token_lists.append(tokens)
+        
+        # Build trigram index for target tokens → target unit indices
+        # This allows O(1) lookup of candidate lines sharing similar trigrams
+        def get_trigrams(token):
+            token = token.lower()
+            if len(token) < 3:
+                return set()
+            return {token[i:i+3] for i in range(len(token) - 2)}
+        
+        trigram_to_targets = defaultdict(set)
+        for tgt_idx, tgt_tokens in enumerate(tgt_token_lists):
+            for token in tgt_tokens:
+                for trigram in get_trigrams(token):
+                    trigram_to_targets[trigram].add(tgt_idx)
+        
+        print(f"[EDIT_DISTANCE] Built trigram index with {len(trigram_to_targets)} unique trigrams")
         
         matches = []
         start_time = time.time()
         last_progress = 0
+        comparisons_made = 0
         
-        for src_idx, src_unit in enumerate(source_units):
-            progress = int((src_idx / num_source) * 100)
-            if progress >= last_progress + 10:
-                elapsed = time.time() - start_time
-                print(f"[EDIT_DISTANCE] Progress: {progress}% ({src_idx}/{num_source} source units) - {elapsed:.1f}s elapsed")
-                last_progress = progress
-            
-            src_tokens = [t for t in src_unit.get('tokens', []) 
-                         if len(t) >= 3 and normalize_greek(t) not in stop_words]
+        for src_idx, src_tokens in enumerate(src_token_lists):
             if not src_tokens:
                 continue
             
+            progress = int((src_idx / num_source) * 100)
+            if progress >= last_progress + 10:
+                elapsed = time.time() - start_time
+                print(f"[EDIT_DISTANCE] Progress: {progress}% ({src_idx}/{num_source}) - {elapsed:.1f}s, {comparisons_made:,} comparisons")
+                last_progress = progress
+            
+            # Find candidate targets that share trigrams with source tokens
+            candidate_targets = Counter()
+            for token in src_tokens:
+                for trigram in get_trigrams(token):
+                    for tgt_idx in trigram_to_targets.get(trigram, []):
+                        candidate_targets[tgt_idx] += 1
+            
+            # Only compare with targets that share at least 2 trigrams (rough filter)
+            min_shared_trigrams = 2
+            filtered_candidates = [tgt_idx for tgt_idx, count in candidate_targets.items() 
+                                  if count >= min_shared_trigrams]
+            
             src_candidates = []
-            for tgt_idx, tgt_unit in enumerate(target_units):
-                tgt_tokens = [t for t in tgt_unit.get('tokens', []) 
-                             if len(t) >= 3 and normalize_greek(t) not in stop_words]
+            for tgt_idx in filtered_candidates:
+                tgt_tokens = tgt_token_lists[tgt_idx]
                 if not tgt_tokens:
                     continue
+                
+                comparisons_made += 1
                 
                 fuzzy_matches = feature_extractor.find_fuzzy_matches(
                     src_tokens, tgt_tokens, threshold=int(min_similarity * 100)
@@ -504,6 +541,9 @@ class Matcher:
                     'num_matches': num_pairs,
                     'fuzzy_matches': fuzzy_matches[:8]
                 })
+        
+        elapsed = time.time() - start_time
+        print(f"[EDIT_DISTANCE] Complete: {comparisons_made:,} comparisons in {elapsed:.1f}s (vs {num_source * num_target:,} full)")
         
         matches.sort(key=lambda x: (x.get('num_matches', 0), x.get('edit_score', 0)), reverse=True)
         
