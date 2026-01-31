@@ -23,7 +23,7 @@ from backend.bigram_frequency import (
 
 logger = get_logger('admin')
 
-admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
+admin_bp = Blueprint('admin', __name__)
 
 _admin_password = None
 _author_dates = None

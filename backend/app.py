@@ -404,7 +404,9 @@ init_batch_blueprint(
 # Register blueprints with environment-based URL prefix
 # On Marvin: no prefix (Apache handles /api)
 # On Replit: /api prefix added here
-app.register_blueprint(admin_bp, url_prefix=API_PREFIX or None)
+# Note: admin_bp has its own /admin prefix, so we combine them
+admin_prefix = f"{API_PREFIX}/admin" if API_PREFIX else "/admin"
+app.register_blueprint(admin_bp, url_prefix=admin_prefix)
 app.register_blueprint(search_bp, url_prefix=API_PREFIX or None)
 app.register_blueprint(corpus_bp, url_prefix=API_PREFIX or None)
 app.register_blueprint(intertext_bp, url_prefix=API_PREFIX or None)
