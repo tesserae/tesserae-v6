@@ -1,14 +1,26 @@
 import { useState, useEffect, useRef } from 'react';
 import { fetchAuthStatus } from '../../utils/api';
 
+const API_BASE = '/api';
+
 const Header = ({ user, setUser }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showOrcidModal, setShowOrcidModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [orcidInput, setOrcidInput] = useState('');
   const [orcidNameInput, setOrcidNameInput] = useState('');
   const [orcidLinking, setOrcidLinking] = useState(false);
   const [orcidError, setOrcidError] = useState(null);
   const [authEnabled, setAuthEnabled] = useState(true);
+  const [authType, setAuthType] = useState('replit');
+  const [isRegister, setIsRegister] = useState(false);
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginConfirmPassword, setLoginConfirmPassword] = useState('');
+  const [loginFirstName, setLoginFirstName] = useState('');
+  const [loginLastName, setLoginLastName] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -16,6 +28,9 @@ const Header = ({ user, setUser }) => {
       .then(data => {
         if (data.auth_enabled !== undefined) {
           setAuthEnabled(data.auth_enabled);
+        }
+        if (data.auth_type) {
+          setAuthType(data.auth_type);
         }
         if (data.authenticated) {
           setUser(data.user);
@@ -77,6 +92,65 @@ const Header = ({ user, setUser }) => {
       }
     } catch (e) {
       alert('Failed to unlink ORCID');
+    }
+  };
+
+  const handlePasswordLogin = async (e) => {
+    e.preventDefault();
+    setLoginError('');
+    setLoginLoading(true);
+
+    if (isRegister && loginPassword !== loginConfirmPassword) {
+      setLoginError('Passwords do not match');
+      setLoginLoading(false);
+      return;
+    }
+
+    try {
+      const endpoint = isRegister ? '/auth/register' : '/auth/login';
+      const body = isRegister 
+        ? { email: loginEmail, password: loginPassword, first_name: loginFirstName, last_name: loginLastName }
+        : { email: loginEmail, password: loginPassword };
+
+      const response = await fetch(`${API_BASE}${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        const userData = data.user;
+        userData.name = userData.orcid_name || `${userData.first_name || ''} ${userData.last_name || ''}`.trim() || 'Account';
+        setUser(userData);
+        setShowLoginModal(false);
+        resetLoginForm();
+      } else {
+        setLoginError(data.error || 'Authentication failed');
+      }
+    } catch (err) {
+      setLoginError('Failed to connect to server');
+    }
+
+    setLoginLoading(false);
+  };
+
+  const resetLoginForm = () => {
+    setLoginEmail('');
+    setLoginPassword('');
+    setLoginConfirmPassword('');
+    setLoginFirstName('');
+    setLoginLastName('');
+    setLoginError('');
+    setIsRegister(false);
+  };
+
+  const handleSignInClick = () => {
+    if (authType === 'password') {
+      setShowLoginModal(true);
+    } else {
+      window.location.href = '/api/auth/login';
     }
   };
 
@@ -166,15 +240,15 @@ const Header = ({ user, setUser }) => {
                 )}
               </div>
             ) : authEnabled ? (
-              <a 
-                href="/api/auth/login" 
+              <button 
+                onClick={handleSignInClick}
                 className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded text-sm"
               >
                 <span>Sign in</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
-              </a>
+              </button>
             ) : null}
           </div>
         </div>
@@ -239,6 +313,118 @@ const Header = ({ user, setUser }) => {
                   {orcidLinking ? 'Linking...' : 'Link ORCID'}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showLoginModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold text-gray-900">
+                {isRegister ? 'Create Account' : 'Sign In'}
+              </h3>
+              <button
+                onClick={() => { setShowLoginModal(false); resetLoginForm(); }}
+                className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+              >
+                &times;
+              </button>
+            </div>
+            
+            <p className="text-sm text-gray-600 mb-4">
+              {isRegister ? 'Join Tesserae to save and share discoveries' : 'Welcome back to Tesserae'}
+            </p>
+            
+            <form onSubmit={handlePasswordLogin} className="space-y-3">
+              {isRegister && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                    <input
+                      type="text"
+                      value={loginFirstName}
+                      onChange={(e) => setLoginFirstName(e.target.value)}
+                      className="w-full border rounded px-3 py-2 text-sm"
+                      placeholder="First"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                    <input
+                      type="text"
+                      value={loginLastName}
+                      onChange={(e) => setLoginLastName(e.target.value)}
+                      className="w-full border rounded px-3 py-2 text-sm"
+                      placeholder="Last"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input
+                  type="email"
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  required
+                  className="w-full border rounded px-3 py-2 text-sm"
+                  placeholder="your@email.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <input
+                  type="password"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  className="w-full border rounded px-3 py-2 text-sm"
+                  placeholder={isRegister ? 'At least 8 characters' : 'Your password'}
+                />
+              </div>
+
+              {isRegister && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                  <input
+                    type="password"
+                    value={loginConfirmPassword}
+                    onChange={(e) => setLoginConfirmPassword(e.target.value)}
+                    required
+                    minLength={8}
+                    className="w-full border rounded px-3 py-2 text-sm"
+                    placeholder="Confirm your password"
+                  />
+                </div>
+              )}
+
+              {loginError && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
+                  {loginError}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loginLoading}
+                className="w-full bg-gradient-to-r from-red-700 to-orange-600 text-white py-2 rounded font-medium hover:from-red-800 hover:to-orange-700 disabled:opacity-50"
+              >
+                {loginLoading ? 'Please wait...' : (isRegister ? 'Create Account' : 'Sign In')}
+              </button>
+            </form>
+
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => { setIsRegister(!isRegister); setLoginError(''); }}
+                className="text-red-700 hover:text-red-800 text-sm"
+              >
+                {isRegister ? 'Already have an account? Sign in' : "Don't have an account? Create one"}
+              </button>
             </div>
           </div>
         </div>

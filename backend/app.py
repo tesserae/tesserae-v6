@@ -135,12 +135,20 @@ except Exception as e:
 # =============================================================================
 # AUTHENTICATION SETUP
 # =============================================================================
-from backend.replit_auth import init_auth, get_current_user_info
-if os.environ.get('REPL_ID'):
+DEPLOYMENT_ENV = os.environ.get('DEPLOYMENT_ENV', 'replit')
+AUTH_TYPE = 'replit' if DEPLOYMENT_ENV == 'replit' else 'password'
+
+if DEPLOYMENT_ENV == 'replit' and os.environ.get('REPL_ID'):
+    from backend.replit_auth import init_auth, get_current_user_info
     init_auth(app)
     print("Replit authentication initialized")
+elif DEPLOYMENT_ENV == 'marvin':
+    from backend.marvin_auth import init_marvin_auth, get_current_user_info
+    init_marvin_auth(app)
+    print("Marvin password authentication initialized")
 else:
-    print("Replit auth not available (REPL_ID not set) - authentication disabled")
+    from backend.replit_auth import get_current_user_info
+    print("Auth disabled - no REPL_ID in Replit mode")
 
 # =============================================================================
 # CORE PROCESSING COMPONENTS
@@ -466,8 +474,14 @@ def page_not_found(e):
 def get_auth_user():
     """Get current logged-in user info"""
     user_info = get_current_user_info()
-    auth_enabled = bool(os.environ.get('REPL_ID'))
-    return jsonify({'user': user_info, 'auth_enabled': auth_enabled})
+    deployment_env = os.environ.get('DEPLOYMENT_ENV', 'replit')
+    if deployment_env == 'replit':
+        auth_enabled = bool(os.environ.get('REPL_ID'))
+        auth_type = 'replit'
+    else:
+        auth_enabled = True
+        auth_type = 'password'
+    return jsonify({'user': user_info, 'auth_enabled': auth_enabled, 'auth_type': auth_type})
 
 @api_route('/auth/saved-searches')
 def get_saved_searches():
