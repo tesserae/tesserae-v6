@@ -420,6 +420,7 @@ class Matcher:
         Like Filum from QCL: finds phrases with multiple fuzzy word matches.
         Requires min_matches (default 2) fuzzy word pairs per match.
         """
+        import time
         settings = settings or {}
         min_similarity = settings.get('min_edit_similarity', 0.7)
         min_matches = settings.get('min_matches', 2)
@@ -427,7 +428,17 @@ class Matcher:
         top_n_per_source = settings.get('edit_top_n', 10)
         stoplist_size = settings.get('stoplist_size', 0)
         
+        num_source = len(source_units)
+        num_target = len(target_units)
+        total_comparisons = num_source * num_target
+        
+        print(f"[EDIT_DISTANCE] source_units={num_source}, target_units={num_target}, total_comparisons={total_comparisons}")
         print(f"[EDIT_DISTANCE] stoplist_size={stoplist_size}")
+        
+        MAX_COMPARISONS = 5_000_000
+        if total_comparisons > MAX_COMPARISONS:
+            print(f"[EDIT_DISTANCE] WARNING: {total_comparisons:,} comparisons exceeds limit of {MAX_COMPARISONS:,}")
+            raise ValueError(f"Edit distance search too large: {num_source:,} x {num_target:,} = {total_comparisons:,} comparisons. Try using individual books instead of complete texts, or use lemma matching.")
         
         # Build stoplist from token frequencies if stoplist_size > 0
         stop_words = set()
@@ -448,9 +459,16 @@ class Matcher:
             print(f"[EDIT_DISTANCE] Built stoplist with {len(stop_words)} words. Top 10: {list(stop_words)[:10]}")
         
         matches = []
+        start_time = time.time()
+        last_progress = 0
         
         for src_idx, src_unit in enumerate(source_units):
-            # Filter tokens: length >= 3 AND not in stoplist
+            progress = int((src_idx / num_source) * 100)
+            if progress >= last_progress + 10:
+                elapsed = time.time() - start_time
+                print(f"[EDIT_DISTANCE] Progress: {progress}% ({src_idx}/{num_source} source units) - {elapsed:.1f}s elapsed")
+                last_progress = progress
+            
             src_tokens = [t for t in src_unit.get('tokens', []) 
                          if len(t) >= 3 and normalize_greek(t) not in stop_words]
             if not src_tokens:
