@@ -335,10 +335,24 @@ python -c "from cltk.data.fetch import FetchCorpus; FetchCorpus('grc').import_co
 
 ## Updating the Application
 
+### Pre-Update Checks
+
+Before deploying code updates, run this check to prevent API routing issues:
+
+```bash
+# Check for hardcoded /api prefixes in blueprints - should return nothing
+grep "url_prefix='/api" backend/blueprints/*.py
+```
+
+If this returns any matches, those blueprints need fixing. The `/api` prefix is added automatically by `app.py` - blueprints should not duplicate it.
+
+### Update Steps
+
 1. Back up your database
-2. Extract new code (preserve your data directories)
-3. Update Python packages: `pip install -r requirements.txt`
-4. Restart the service: `sudo systemctl restart tesserae`
+2. Run pre-update checks (above)
+3. Extract new code (preserve your data directories)
+4. Update Python packages: `pip install -r requirements.txt`
+5. Restart the service: `sudo systemctl restart tesserae`
 
 ## Contact
 
