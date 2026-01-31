@@ -38,9 +38,17 @@ const SearchResults = ({
   const sortedResults = useMemo(() => {
     if (!Array.isArray(results)) return [];
     return [...results].sort((a, b) => {
-      if (sortBy === 'score') return (b.score || 0) - (a.score || 0);
-      if (sortBy === 'source_locus') return (a.source_locus || '').localeCompare(b.source_locus || '', undefined, { numeric: true });
-      if (sortBy === 'target_locus') return (a.target_locus || '').localeCompare(b.target_locus || '', undefined, { numeric: true });
+      if (sortBy === 'score') return (b.score || b.overall_score || 0) - (a.score || a.overall_score || 0);
+      if (sortBy === 'source_locus') {
+        const aLoc = a.source_locus || a.source?.ref || '';
+        const bLoc = b.source_locus || b.source?.ref || '';
+        return aLoc.localeCompare(bLoc, undefined, { numeric: true });
+      }
+      if (sortBy === 'target_locus') {
+        const aLoc = a.target_locus || a.target?.ref || '';
+        const bLoc = b.target_locus || b.target?.ref || '';
+        return aLoc.localeCompare(bLoc, undefined, { numeric: true });
+      }
       return 0;
     });
   }, [results, sortBy]);
