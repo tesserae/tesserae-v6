@@ -611,6 +611,52 @@ def init_hapax_blueprint(texts_dir, text_processor, author_dates):
     _author_dates = author_dates
 
 
+_line_text_cache = {}
+
+def get_line_text_from_file(text_id, language, ref):
+    """
+    Look up the actual line text from a .tess file given text_id and ref.
+    Uses caching to avoid re-reading files for multiple lookups.
+    """
+    global _line_text_cache
+    
+    cache_key = f"{language}/{text_id}"
+    
+    if cache_key not in _line_text_cache:
+        text_path = os.path.join(_texts_dir, language, text_id)
+        if not os.path.exists(text_path):
+            return None
+        
+        try:
+            lines_by_ref = {}
+            with open(text_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith('#'):
+                        continue
+                    if '>' in line:
+                        parts = line.split('>', 1)
+                        if len(parts) == 2:
+                            line_ref = parts[0].strip().lstrip('<')
+                            line_text = parts[1].strip()
+                            lines_by_ref[line_ref] = line_text
+            _line_text_cache[cache_key] = lines_by_ref
+        except Exception as e:
+            logger.error(f"Error reading text file {text_path}: {e}")
+            _line_text_cache[cache_key] = {}
+    
+    lines = _line_text_cache.get(cache_key, {})
+    
+    if ref in lines:
+        return lines[ref]
+    
+    for cached_ref, text in lines.items():
+        if ref in cached_ref or cached_ref in ref:
+            return text
+    
+    return None
+
+
 def get_rare_words_from_cache(language, max_occurrences=10):
     """Get lemmas with corpus frequency between 1 and max_occurrences"""
     cached = load_frequency_cache(language)
@@ -663,11 +709,13 @@ def lookup_lemma_locations(lemma, language):
             parts = filename.replace('.tess', '').split('.') if filename else ['unknown']
             author = parts[0] if parts else 'unknown'
             work_title = '.'.join(parts[1:]) if len(parts) > 1 else parts[0]
+            line_text = get_line_text_from_file(filename, language, ref)
             locations.append({
                 'text_id': filename,
                 'author': author.replace('_', ' ').title(),
                 'work': work_title.replace('_', ' ').title(),
                 'ref': ref,
+                'text': line_text or '',
                 'positions': json.loads(positions_json) if positions_json else []
             })
     except Exception as e:
