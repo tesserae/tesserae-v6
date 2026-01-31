@@ -42,7 +42,7 @@ logger = get_logger('search')
 # =============================================================================
 # BLUEPRINT SETUP
 # =============================================================================
-search_bp = Blueprint('search', __name__, url_prefix='/api')
+search_bp = Blueprint('search', __name__)
 
 # Module-level references to shared components (injected via init_search_blueprint)
 _matcher = None       # Matcher: Finds parallel passages between texts

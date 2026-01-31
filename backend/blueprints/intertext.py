@@ -14,7 +14,7 @@ from backend.logging_config import get_logger
 
 logger = get_logger(__name__)
 
-intertext_bp = Blueprint('intertext', __name__, url_prefix='/api/intertexts')
+intertext_bp = Blueprint('intertext', __name__, url_prefix='/intertexts')
 
 
 @intertext_bp.route('', methods=['GET'])

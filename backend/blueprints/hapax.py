@@ -99,7 +99,7 @@ def get_dictionary_form(lemma_key, language):
     
     return lemma_key
 
-hapax_bp = Blueprint('hapax', __name__, url_prefix='/api')
+hapax_bp = Blueprint('hapax', __name__)
 
 _texts_dir = None
 _text_processor = None

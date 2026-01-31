@@ -14,7 +14,7 @@ from backend.models import db, BatchJob, TextConnection, CompositeParallel
 
 logger = get_logger('batch')
 
-batch_bp = Blueprint('batch', __name__, url_prefix='/api/batch')
+batch_bp = Blueprint('batch', __name__, url_prefix='/batch')
 
 _composite_scorer = None
 _matcher = None

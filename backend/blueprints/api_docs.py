@@ -4,7 +4,7 @@ Serves public API documentation at /api/docs
 """
 from flask import Blueprint, jsonify, render_template_string
 
-api_docs_bp = Blueprint('api_docs', __name__, url_prefix='/api')
+api_docs_bp = Blueprint('api_docs', __name__)
 
 API_DOCUMENTATION = {
     "title": "Tesserae V6 API",

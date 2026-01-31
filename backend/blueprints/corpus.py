@@ -38,7 +38,7 @@ def load_provenance():
             return json.load(f)
     return {"sources": {}, "texts": {}}
 
-corpus_bp = Blueprint('corpus', __name__, url_prefix='/api')
+corpus_bp = Blueprint('corpus', __name__)
 
 _texts_dir = None
 _text_processor = None
