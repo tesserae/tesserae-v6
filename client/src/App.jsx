@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Header, Navigation } from './components/layout';
 import { SearchModeToggle, TextSelector, SearchSettings, SearchResults, LineSearch, CrossLingualSearch, WildcardSearch, SavedSearches, CorpusSearchResults } from './components/search';
 import RareResultsDisplay from './components/search/RareResultsDisplay';
@@ -417,15 +417,6 @@ function App() {
     }
   }, [registerPending, activeTab, registerScore, registerNotes]);
 
-  const sortedResults = useMemo(() => {
-    if (!Array.isArray(results)) return [];
-    return [...results].sort((a, b) => {
-      if (sortBy === 'score') return (b.score || 0) - (a.score || 0);
-      if (sortBy === 'source_locus') return (a.source_locus || '').localeCompare(b.source_locus || '', undefined, { numeric: true });
-      if (sortBy === 'target_locus') return (a.target_locus || '').localeCompare(b.target_locus || '', undefined, { numeric: true });
-      return 0;
-    });
-  }, [results, sortBy]);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -574,7 +565,7 @@ function App() {
                   />
                 ) : (
                   <SearchResults
-                    results={sortedResults}
+                    results={results}
                     loading={searchLoading}
                     error={searchError}
                     displayLimit={displayLimit}

@@ -476,5 +476,5 @@ npm run build
 ### Search Results Sorting Fix
 
 - **Problem:** Sort dropdown (by Source/Target location) wasn't updating results reactively
-- **Solution:** Wrapped `sortedResults` in `useMemo` with `[results, sortBy]` dependencies
-- **Files:** `client/src/App.jsx`
+- **Solution:** Moved sorting logic into SearchResults component using `useMemo` with `[results, sortBy]` dependencies, ensuring component re-renders when sort option changes
+- **Files:** `client/src/components/search/SearchResults.jsx`

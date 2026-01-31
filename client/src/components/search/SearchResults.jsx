@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { Button, LoadingSpinner } from '../common';
 import { formatReference } from '../../utils/formatting';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
@@ -33,6 +33,17 @@ const SearchResults = ({
   const [distributionChartView, setDistributionChartView] = useState('target');
   const [chartFilter, setChartFilter] = useState(null);
   const chartRef = useRef(null);
+
+  // Sort results based on sortBy prop
+  const sortedResults = useMemo(() => {
+    if (!Array.isArray(results)) return [];
+    return [...results].sort((a, b) => {
+      if (sortBy === 'score') return (b.score || 0) - (a.score || 0);
+      if (sortBy === 'source_locus') return (a.source_locus || '').localeCompare(b.source_locus || '', undefined, { numeric: true });
+      if (sortBy === 'target_locus') return (a.target_locus || '').localeCompare(b.target_locus || '', undefined, { numeric: true });
+      return 0;
+    });
+  }, [results, sortBy]);
 
   const toggleExpand = (index) => {
     setExpandedResults(prev => ({
@@ -335,7 +346,7 @@ const SearchResults = ({
   }
 
   const filteredResults = chartFilter 
-    ? results.filter(r => {
+    ? sortedResults.filter(r => {
         const locus = chartFilter.view === 'source' 
           ? (r.source_locus || r.source?.ref || '') 
           : (r.target_locus || r.target?.ref || '');
@@ -345,7 +356,7 @@ const SearchResults = ({
         const book = bookMatch ? `Book ${bookMatch[1]}` : 'Other';
         return book === chartFilter.book;
       })
-    : results;
+    : sortedResults;
 
   const displayedResults = filteredResults.slice(0, displayLimit);
 
