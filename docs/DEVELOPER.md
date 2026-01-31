@@ -472,3 +472,9 @@ npm run build
 - **Components:** Registration, login, logout with bcrypt password hashing
 - **Requires on Marvin:** `password_hash` column in users table, `SESSION_SECRET` environment variable
 - **Files:** `backend/marvin_auth.py`, `backend/app.py`, `client/src/components/layout/Header.jsx`
+
+### Search Results Sorting Fix
+
+- **Problem:** Sort dropdown (by Source/Target location) wasn't updating results reactively
+- **Solution:** Wrapped `sortedResults` in `useMemo` with `[results, sortBy]` dependencies
+- **Files:** `client/src/App.jsx`
