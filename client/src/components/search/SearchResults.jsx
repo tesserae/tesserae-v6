@@ -488,7 +488,7 @@ const SearchResults = ({
                 </span>
               )}
               <div className="flex-1"></div>
-              {r.match_basis !== 'semantic' && onCorpusSearch && (
+              {r.match_basis !== 'semantic' && r.match_basis !== 'edit_distance' && onCorpusSearch && (
                 <Button 
                   variant="tertiary" 
                   size="sm"
