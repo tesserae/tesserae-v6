@@ -215,8 +215,10 @@ function App() {
       setTargetText('');
     }
     
-    // Corpus is ready when not loading and has data
-    const corpusReady = !corpusLoading && corpus.length > 0;
+    // Corpus is ready when not loading and has data FOR THE CURRENT TAB
+    // (corpus items have a 'language' property - check it matches activeTab)
+    const corpusMatchesTab = corpus.length > 0 && corpus[0]?.language === activeTab;
+    const corpusReady = !corpusLoading && corpusMatchesTab;
     const corpusJustLoaded = corpusReady && corpusLoadedForTabRef.current !== activeTab;
     
     if (corpusJustLoaded) {
