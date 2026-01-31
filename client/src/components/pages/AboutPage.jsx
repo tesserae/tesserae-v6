@@ -80,7 +80,7 @@ export default function AboutPage() {
             Graduate Tesserae Fellows have been at the core of the project from its inception. In chronological 
             order from the beginning of the project in 2008, they are (UB = U. Buffalo graduate student, 
             ND = Notre Dame graduate student): Poornima Shakthi (UB), Roelant Ossewarde (UB), Chris Forstall (UB), 
-            James Gawley (UB), Jeffery Kinnison (ND), Tessa Little (UB), John James (UB), Abby Swenor (ND).
+            James Gawley (UB), Jeffery Kinnison (ND), Tessa Little (UB), Nozomu Okuda (UB), Joseph Miller (UB), John James (UB), Abby Swenor (ND).
           </p>
           <div className="text-sm text-gray-700 space-y-2">
             <p><strong>Built upon:</strong></p>
