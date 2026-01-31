@@ -175,6 +175,29 @@ const DownloadsPage = () => {
                   XLSX
                 </a>
               </div>
+              <div className="p-2 bg-gray-50 rounded">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="font-medium">Valerius Flaccus Argonautica 1 vs Latin Epic</span>
+                    <span className="text-gray-500 ml-2">(945 intertexts)</span>
+                  </div>
+                  <a href="/static/downloads/benchmarks/vf_intertext_dataset_2.0.tab" 
+                     className="px-3 py-1 bg-red-700 text-white rounded hover:bg-red-800 text-xs">
+                    TAB
+                  </a>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Dexter et al. (2023). References to Vergil's Aeneid, Ovid's Metamorphoses, Lucan's Bellum Civile, 
+                  and Statius' Thebaid from Kleywegt, Spaltenstein, and Zissos commentaries.
+                  {' '}<a href="https://openhumanitiesdata.metajnl.com/articles/10.5334/johd.153" 
+                     target="_blank" rel="noopener noreferrer"
+                     className="text-red-600 hover:underline">Article</a>
+                  {' | '}
+                  <a href="https://doi.org/10.7910/DVN/S6RD4M" 
+                     target="_blank" rel="noopener noreferrer"
+                     className="text-red-600 hover:underline">Dataset</a>
+                </p>
+              </div>
             </div>
           </div>
 
