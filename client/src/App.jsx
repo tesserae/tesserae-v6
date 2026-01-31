@@ -193,9 +193,9 @@ function App() {
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // Track previous activeTab and corpus language to detect when to apply defaults
+  // Track previous activeTab and corpus loading state to detect when to apply defaults
   const prevActiveTabRef = useRef(null);
-  const corpusLanguageRef = useRef(null);
+  const corpusLoadedForTabRef = useRef(null);
   
   useEffect(() => {
     const tabChanged = prevActiveTabRef.current !== null && prevActiveTabRef.current !== activeTab;
@@ -210,16 +210,16 @@ function App() {
       setShowCorpusSearch(false);
     }
     
-    // Check if corpus matches the active tab (corpus[0] has the language)
-    const corpusMatchesTab = corpus.length > 0 && corpus[0]?.language === activeTab;
-    const corpusJustLoaded = corpusMatchesTab && corpusLanguageRef.current !== activeTab;
+    // Corpus is ready when not loading and has data
+    const corpusReady = !corpusLoading && corpus.length > 0;
+    const corpusJustLoaded = corpusReady && corpusLoadedForTabRef.current !== activeTab;
     
     if (corpusJustLoaded) {
-      corpusLanguageRef.current = activeTab;
+      corpusLoadedForTabRef.current = activeTab;
     }
     
     // Set defaults when corpus loads for current tab OR when selections are empty
-    const shouldSetDefaults = corpusMatchesTab && (corpusJustLoaded || !sourceText || !targetText);
+    const shouldSetDefaults = corpusReady && (corpusJustLoaded || !sourceText || !targetText);
     
     if (shouldSetDefaults) {
       let defaultSourceId, defaultTargetId;
@@ -246,7 +246,7 @@ function App() {
         setTargetText(defaultTarget.id);
       }
     }
-  }, [activeTab, corpus, sourceText, targetText, clearResults]);
+  }, [activeTab, corpus, corpusLoading, sourceText, targetText, clearResults]);
 
   useEffect(() => {
     clearResults();
