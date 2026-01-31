@@ -58,7 +58,16 @@ export const useSearch = () => {
       if (isCrossLingual) {
         data = await searchTexts(params, abortController.current.signal);
       } else {
-        data = await searchTextsStream(params, handleProgress, abortController.current.signal);
+        try {
+          data = await searchTextsStream(params, handleProgress, abortController.current.signal);
+        } catch (streamErr) {
+          if (streamErr.message && streamErr.message.includes('405')) {
+            setProgressText('Streaming not available, using standard search...');
+            data = await searchTexts(params, abortController.current.signal);
+          } else {
+            throw streamErr;
+          }
+        }
       }
       
       setResults(data.results || []);
