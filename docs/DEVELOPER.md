@@ -436,3 +436,39 @@ npm run build
 - Python: Follow PEP 8
 - JavaScript: Use ESLint configuration
 - Commits: Use conventional commit messages
+
+---
+
+## Recent Technical Changes (January 2026)
+
+### Edit Distance Matching Optimization
+
+- **Problem:** Edit distance search was O(n²), comparing every token pair. For large texts like Aeneid vs Pharsalia (~10k × ~8k = 80M comparisons), this caused timeouts.
+- **Solution:** Trigram-based candidate filtering using `feature_extractor.get_trigrams()`
+- **Algorithm:**
+  1. Pre-compute trigrams for all target tokens (e.g., "arma" → {"arm", "rma"})
+  2. Build inverted index: trigram → set of target indices
+  3. For each source token, only compare against targets sharing ≥1 trigram
+  4. Filter further by length difference before computing Levenshtein distance
+- **Result:** Reduced comparisons from ~80M to ~13M (84% reduction), completing in ~2 minutes
+- **Limitation:** Corpus-wide edit distance search not yet supported; "Search Corpus" button hidden for edit_distance results
+- **Files:** `backend/matcher.py`, `client/src/components/search/SearchResults.jsx`
+
+### Rare Words Search Text Display Fix
+
+- **Problem:** Rare Words search results showed line references but not actual text
+- **Solution:** Added `get_line_text_from_file()` helper to read text from .tess files
+- **Files:** `backend/blueprints/hapax.py`
+
+### Admin Blueprint Routing Fix
+
+- **Problem:** Admin routes had hardcoded `/api` prefix that duplicated with Marvin's Apache WSGIScriptAlias
+- **Solution:** Routes now use `API_PREFIX` variable based on `DEPLOYMENT_ENV` environment variable
+- **Files:** `backend/blueprints/admin.py`, `backend/app.py`
+
+### Password Authentication for Marvin
+
+- **Feature:** Email/password login for Marvin deployment (Replit uses OpenID Connect)
+- **Components:** Registration, login, logout with bcrypt password hashing
+- **Requires on Marvin:** `password_hash` column in users table, `SESSION_SECRET` environment variable
+- **Files:** `backend/marvin_auth.py`, `backend/app.py`, `client/src/components/layout/Header.jsx`
