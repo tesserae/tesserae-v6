@@ -43,7 +43,7 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
           >
             <option value="lemma">Dictionary Form (Lemma)</option>
             <option value="exact">Exact Match</option>
-            <option value="semantic" disabled>AI Semantic (Coming Soon)</option>
+            <option value="semantic">AI Semantic</option>
             <option value="sound">Sound Matching (slower)</option>
             <option value="edit_distance">Edit Distance (slower)</option>
           </select>
