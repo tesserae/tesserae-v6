@@ -304,6 +304,24 @@ CHANNEL_ORDER = [
     "edit_distance",  # slowest (~3.5 min), CPU-bound multiprocessing
 ]
 
+# Channels that require language-specific resources. Channels not listed
+# here run for all languages (lemma, lemma_min1, exact, semantic, rare_word).
+# If a channel's required resource is missing for the search language, it is
+# skipped and not counted in the "N channels" progress message.
+CHANNEL_LANGUAGE_SUPPORT = {
+    "dictionary":    {"la", "grc"},      # Latin/Greek synonym pairs only
+    "sound":         {"la", "grc"},      # character trigram matching designed for Latin/Greek
+    "edit_distance": {"la", "grc"},      # Levenshtein designed for Latin/Greek morphology
+    "syntax":        {"la", "grc"},      # requires syntax DB (syntax_latin.db / syntax_greek.db)
+}
+
+
+def get_channels_for_language(language):
+    """Return the list of channels that are meaningful for a given language."""
+    return [ch for ch in CHANNEL_ORDER
+            if ch not in CHANNEL_LANGUAGE_SUPPORT
+            or language in CHANNEL_LANGUAGE_SUPPORT[ch]]
+
 # Channel configurations (match the evaluation study)
 CHANNEL_CONFIGS = {
     "lemma": {
@@ -2327,9 +2345,10 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
                 c[k] = user_settings[k]
         configs[name] = c
 
-    # --- Pass 1: Line-level (all channels, fast-first order) ---
+    # --- Pass 1: Line-level (language-appropriate channels, fast-first order) ---
     line_channel_results = {}
-    line_channels = [ch for ch in CHANNEL_ORDER if ch in configs]
+    available_channels = get_channels_for_language(language)
+    line_channels = [ch for ch in available_channels if ch in configs]
     total_line = len(line_channels)
 
     for i, ch_name in enumerate(line_channels):
@@ -2380,6 +2399,7 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
                 "results": top,
                 "total_results": len(fused),
                 "channels_done": list(line_channel_results.keys()),
+                "channels_total": total_line,
                 "phase": "line",
             })
 
@@ -2454,7 +2474,8 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
     source_windows = make_window_units(source_units)
     target_windows = make_window_units(target_units)
     window_channel_results = {}
-    window_channels = [ch for ch in WINDOW_CHANNELS if ch in configs]
+    window_channels = [ch for ch in WINDOW_CHANNELS if ch in configs
+                       and ch in available_channels]
     total_window = len(window_channels)
 
     for i, ch_name in enumerate(window_channels):
@@ -2545,8 +2566,9 @@ def run_fusion_search(source_units, target_units, matcher, scorer,
             c["language"] = language
         configs[name] = c
 
-    # --- Pass 1: Line-level (all channels) ---
-    line_channels = [ch for ch in ALL_CHANNELS if ch in configs]
+    # --- Pass 1: Line-level (language-appropriate channels) ---
+    available_channels = get_channels_for_language(language)
+    line_channels = [ch for ch in available_channels if ch in configs]
 
     line_channel_results = _run_channels_sequential(
         line_channels, configs, source_units, target_units,
@@ -2615,7 +2637,8 @@ def run_fusion_search(source_units, target_units, matcher, scorer,
     # --- Pass 2: Window-level (lexical channels only) ---
     # Only lexical channels benefit from windowing — see module docstring
     # for the channel-appropriate granularity rationale.
-    window_channels = [ch for ch in WINDOW_CHANNELS if ch in configs]
+    window_channels = [ch for ch in WINDOW_CHANNELS if ch in configs
+                       and ch in available_channels]
 
     source_windows = make_window_units(source_units)
     target_windows = make_window_units(target_units)

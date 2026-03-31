@@ -1,14 +1,14 @@
 """
 Tesserae V6 — Fusion Search Blueprint
 
-Exposes the 9-channel weighted fusion search as a streaming API endpoint.
+Exposes multi-channel weighted fusion search as a streaming API endpoint.
 Uses the core logic in backend/fusion.py, which was ported from the
 evaluation scripts (Config D: 90.7% recall on benchmark pairs).
 
 Endpoint:
     POST /api/search-fusion  — SSE stream with progressive results
 
-Progressive streaming: instead of waiting for all 9 channels to complete,
+Progressive streaming: instead of waiting for all channels to complete,
 the endpoint yields intermediate fused results after each channel finishes.
 Fast channels (lemma, exact) run first, so users see results within seconds.
 """
@@ -49,7 +49,7 @@ def init_fusion_blueprint(matcher, scorer, text_processor, texts_dir,
 
 @fusion_bp.route('/search-fusion', methods=['POST'])
 def search_fusion_stream():
-    """9-channel weighted fusion search with progressive SSE streaming.
+    """Multi-channel weighted fusion search with progressive SSE streaming.
 
     SSE event types:
         progress     — status text for the loading spinner
@@ -199,7 +199,7 @@ def search_fusion_stream():
                     })
 
                 elif event_type == "intermediate":
-                    yield f"data: {json.dumps({'type': 'intermediate', 'results': evt_data['results'], 'total_matches': evt_data['total_results'], 'channels_done': evt_data['channels_done'], 'channels_total': 9, 'phase': evt_data['phase'], 'elapsed': round(time.time() - start_time, 1)})}\n\n"
+                    yield f"data: {json.dumps({'type': 'intermediate', 'results': evt_data['results'], 'total_matches': evt_data['total_results'], 'channels_done': evt_data['channels_done'], 'channels_total': evt_data.get('channels_total', 9), 'phase': evt_data['phase'], 'elapsed': round(time.time() - start_time, 1)})}\n\n"
 
                 elif event_type == "complete":
                     final_results = evt_data["results"]

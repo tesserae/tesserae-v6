@@ -34,29 +34,32 @@ def send_notification(subject, body, notification_type='general'):
         logger.info(f"No notification emails configured - skipping {notification_type} notification")
         return False
     
-    smtp_host = os.environ.get('SMTP_HOST', '')
-    smtp_port = int(os.environ.get('SMTP_PORT', '587'))
+    smtp_host = os.environ.get('SMTP_HOST', 'localhost')
+    smtp_port = int(os.environ.get('SMTP_PORT', '25'))
     smtp_user = os.environ.get('SMTP_USER', '')
     smtp_password = os.environ.get('SMTP_PASSWORD', '')
-    from_email = os.environ.get('SMTP_FROM', smtp_user or 'noreply@tesserae.app')
-    
-    if not smtp_host or not smtp_user:
+    smtp_use_tls = os.environ.get('SMTP_USE_TLS', '').lower() in ('1', 'true', 'yes')
+    from_email = os.environ.get('SMTP_FROM', smtp_user or 'noreply@tesserae.caset.buffalo.edu')
+
+    if not smtp_host:
         logger.info(f"SMTP not configured - notification logged instead: {subject}")
         logger.info(f"Would send to: {', '.join(emails)}")
         logger.info(f"Body: {body[:200]}...")
         return True
-    
+
     try:
         msg = MIMEMultipart()
         msg['From'] = from_email
         msg['To'] = ', '.join(emails)
         msg['Subject'] = f"[Tesserae] {subject}"
-        
+
         msg.attach(MIMEText(body, 'plain'))
-        
+
         with smtplib.SMTP(smtp_host, smtp_port) as server:
-            server.starttls()
-            server.login(smtp_user, smtp_password)
+            if smtp_use_tls:
+                server.starttls()
+            if smtp_user and smtp_password:
+                server.login(smtp_user, smtp_password)
             server.sendmail(from_email, emails, msg.as_string())
         
         logger.info(f"Notification sent to {len(emails)} recipients: {subject}")
