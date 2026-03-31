@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { STOPLIST_INFO } from '../../data/stoplists';
 
-export default function HelpPage() {
+export default function HelpPage({ user }) {
   const [activeSection, setActiveSection] = useState('getting-started');
   const [requestName, setRequestName] = useState('');
   const [requestEmail, setRequestEmail] = useState('');
@@ -31,6 +31,21 @@ export default function HelpPage() {
   const [formatterRawText, setFormatterRawText] = useState('');
   const [formatterOutput, setFormatterOutput] = useState('');
   const [formatterCopied, setFormatterCopied] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    const derivedName = user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim();
+
+    if (!requestName && derivedName) {
+      setRequestName(derivedName);
+    }
+    if (!requestEmail && user.email) {
+      setRequestEmail(user.email);
+    }
+  }, [user, requestName, requestEmail]);
 
   const formatToTess = () => {
     if (!formatterAuthor.trim() || !formatterWork.trim() || !formatterRawText.trim()) {

@@ -141,12 +141,13 @@ except Exception as e:
 # =============================================================================
 # AUTHENTICATION SETUP
 # =============================================================================
-if os.environ.get('DEPLOYMENT_ENV') == 'marvin':
-    from backend.marvin_auth import init_marvin_auth, get_current_user_info
-    init_marvin_auth(app)
-else:
-    from backend.replit_auth import init_auth, get_current_user_info
-    init_auth(app)
+from backend.marvin_auth import (
+    init_marvin_auth,
+    get_current_user_info,
+    update_user_orcid,
+    unlink_user_orcid,
+)
+init_marvin_auth(app)
 
 # =============================================================================
 # CORE PROCESSING COMPONENTS
@@ -589,7 +590,14 @@ def page_not_found(e):
 def get_auth_user():
     """Get current logged-in user info"""
     user_info = get_current_user_info()
-    return jsonify({'user': user_info})
+    auth_type = 'password'
+    self_registration_enabled = os.environ.get('DISABLE_SELF_REGISTER', 'false').lower() not in ('true', '1', 'yes')
+    return jsonify({
+        'user': user_info,
+        'auth_enabled': True,
+        'auth_type': auth_type,
+        'self_registration_enabled': self_registration_enabled,
+    })
 
 @api_route('/auth/saved-searches')
 def get_saved_searches():
@@ -682,7 +690,6 @@ def link_orcid():
     orcid_pattern = re.compile(r'^\d{4}-\d{4}-\d{4}-\d{3}[\dX]$')
     if not orcid_pattern.match(orcid):
         return jsonify({'error': 'Invalid ORCID format. Expected: 0000-0000-0000-0000'}), 400
-    from backend.replit_auth import update_user_orcid
     if update_user_orcid(current_user.id, orcid, orcid_name):
         return jsonify({'success': True, 'user': get_current_user_info()})
     return jsonify({'error': 'Failed to update ORCID'}), 500
@@ -692,7 +699,6 @@ def unlink_orcid():
     """Remove ORCID from user account"""
     if not current_user.is_authenticated:
         return jsonify({'error': 'Not logged in'}), 401
-    from backend.replit_auth import unlink_user_orcid
     if unlink_user_orcid(current_user.id):
         return jsonify({'success': True, 'user': get_current_user_info()})
     return jsonify({'error': 'Failed to unlink ORCID'}), 500

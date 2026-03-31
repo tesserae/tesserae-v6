@@ -10,10 +10,11 @@ import json
 import time
 import threading
 from collections import defaultdict
+from sqlalchemy import text
 
 from backend.db_utils import get_db_cursor
 from werkzeug.security import check_password_hash, generate_password_hash
-from backend.models import User, db
+from backend.models import User, OAuth, SavedSearch, SavedIntertext, Intertext, db
 from backend.logging_config import get_logger
 from backend.utils import get_text_metadata, get_override, set_override, safe_listdir
 from backend.lemma_cache import (
@@ -472,31 +473,37 @@ def get_users():
 
 
 @admin_bp.route('/users', methods=['POST'])
-def create_admin_user():
-    """Create an admin user (SUPER_ADMIN only)."""
+def create_user():
+    """Create a user account (admin only; admin-role assignment needs SUPER_ADMIN)."""
     if not check_admin_auth():
+        logger.warning("Create user denied: unauthorized session")
         return jsonify({'error': 'Unauthorized'}), 401
 
     admin_roles = [_normalize_role_name(r) for r in (session.get('admin_roles') or [])]
-    if 'SUPER_ADMIN' not in admin_roles:
-        return jsonify({'error': 'SUPER_ADMIN required'}), 403
 
     data = request.get_json() or {}
     email = (data.get('email') or '').strip().lower()
     password = data.get('password') or ''
     first_name = (data.get('first_name') or '').strip()
     last_name = (data.get('last_name') or '').strip()
-    role_name = (data.get('role') or 'ADMIN').strip().upper()
+    role_name = (data.get('role') or 'USER').strip().upper()
 
-    if role_name not in ('ADMIN', 'SUPER_ADMIN'):
+    if role_name not in ('USER', 'ADMIN', 'SUPER_ADMIN'):
+        logger.warning(f"Create user rejected: invalid role={role_name} by={get_admin_username()}")
         return jsonify({'error': 'Invalid role'}), 400
+    if role_name in ('ADMIN', 'SUPER_ADMIN') and 'SUPER_ADMIN' not in admin_roles:
+        logger.warning(f"Create user denied: insufficient privileges for role={role_name} by={get_admin_username()}")
+        return jsonify({'error': 'SUPER_ADMIN required'}), 403
     if not email or not password or not first_name or not last_name:
+        logger.warning(f"Create user rejected: missing required fields by={get_admin_username()} email={email or 'unknown'}")
         return jsonify({'error': 'Email, password, first name, and last name are required'}), 400
     if len(password) < 8:
+        logger.warning(f"Create user rejected: weak password by={get_admin_username()} email={email}")
         return jsonify({'error': 'Password must be at least 8 characters'}), 400
 
     existing = User.query.filter(User.email.ilike(email)).first()
     if existing:
+        logger.info(f"Create user duplicate blocked by={get_admin_username()} email={email}")
         return jsonify({'error': 'User already exists'}), 400
 
     user = User()
@@ -507,35 +514,90 @@ def create_admin_user():
     user.last_name = last_name
     user.must_reset_password = True
 
-    db.session.add(user)
-    db.session.commit()
-
     role_id = _get_role_id(role_name)
     if not role_id:
+        logger.error(f"Create user failed: role id not found role={role_name} by={get_admin_username()}")
         return jsonify({'error': 'Role not found'}), 404
 
     try:
-        with get_db_cursor() as cur:
-            cur.execute(
+        db.session.add(user)
+        db.session.flush()
+        db.session.execute(
+            text(
                 """
                 INSERT INTO user_roles (user_id, role_id, assigned_at, assigned_by)
-                VALUES (%s, %s, NOW(), %s)
+                VALUES (:user_id, :role_id, NOW(), :assigned_by)
                 ON CONFLICT (user_id, role_id) DO NOTHING
-                """,
-                (user.id, role_id, get_admin_username()),
-            )
+                """
+            ),
+            {
+                'user_id': user.id,
+                'role_id': role_id,
+                'assigned_by': get_admin_username(),
+            },
+        )
+        db.session.commit()
+        logger.info(f"User created by={get_admin_username()} user_id={user.id} email={user.email} role={role_name}")
         log_admin_action('admin_user_created', 'user', user.id, {'role': role_name})
     except Exception as e:
+        db.session.rollback()
         logger.error(f"Failed to assign role: {e}")
         return jsonify({'error': 'Failed to assign role'}), 500
 
     return jsonify({'success': True, 'user_id': user.id, 'role': role_name})
 
 
+@admin_bp.route('/users/<user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    """Delete a user account (admin only)."""
+    if not check_admin_auth():
+        logger.warning(f"Delete user denied: unauthorized session target_user={user_id}")
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    current_admin_user_id = session.get('admin_user_id')
+    if current_admin_user_id and str(current_admin_user_id) == str(user_id):
+        logger.warning(f"Delete user blocked: self-delete attempt by={get_admin_username()} user_id={user_id}")
+        return jsonify({'error': 'Cannot delete the currently logged-in admin account'}), 400
+
+    user = User.query.get(user_id)
+    if not user:
+        logger.info(f"Delete user: target not found by={get_admin_username()} user_id={user_id}")
+        return jsonify({'error': 'User not found'}), 404
+
+    target_roles = _get_user_roles(user_id)
+    if 'SUPER_ADMIN' in target_roles and _count_super_admins() <= 2:
+        logger.warning(f"Delete user blocked: last SUPER_ADMIN protection by={get_admin_username()} user_id={user_id}")
+        return jsonify({'error': 'Cannot delete one of the last two SUPER_ADMIN accounts'}), 400
+
+    try:
+        # Preserve public repository rows by removing user linkage before delete.
+        Intertext.query.filter_by(submitter_id=user_id).update(
+            {'submitter_id': None},
+            synchronize_session=False,
+        )
+        SavedIntertext.query.filter_by(user_id=user_id).delete(synchronize_session=False)
+        SavedSearch.query.filter_by(user_id=user_id).delete(synchronize_session=False)
+        OAuth.query.filter_by(user_id=user_id).delete(synchronize_session=False)
+        db.session.execute(
+            text("DELETE FROM user_roles WHERE user_id = :user_id"),
+            {'user_id': user_id},
+        )
+        db.session.delete(user)
+        db.session.commit()
+        logger.info(f"User deleted by={get_admin_username()} user_id={user_id} email={user.email} roles={target_roles}")
+        log_admin_action('user_deleted', 'user', user_id, {'email': user.email, 'roles': target_roles})
+        return jsonify({'success': True, 'message': 'User deleted'})
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Failed to delete user {user_id}: {e}")
+        return jsonify({'error': 'Failed to delete user'}), 500
+
+
 @admin_bp.route('/users/<user_id>/roles', methods=['POST'])
 def update_user_roles(user_id):
     """Assign or remove a role for a user (admin only)."""
     if not check_admin_auth():
+        logger.warning(f"Role update denied: unauthorized session target_user={user_id}")
         return jsonify({'error': 'Unauthorized'}), 401
 
     data = request.get_json() or {}
@@ -543,13 +605,23 @@ def update_user_roles(user_id):
     action = (data.get('action') or '').strip().lower()
 
     if role_name not in ('USER', 'ADMIN', 'SUPER_ADMIN'):
+        logger.warning(f"Role update rejected: invalid role={role_name} by={get_admin_username()} target_user={user_id}")
         return jsonify({'error': 'Invalid role'}), 400
     if action not in ('add', 'remove'):
+        logger.warning(f"Role update rejected: invalid action={action} by={get_admin_username()} target_user={user_id}")
         return jsonify({'error': 'Invalid action'}), 400
 
     admin_roles = [_normalize_role_name(r) for r in (session.get('admin_roles') or [])]
     if role_name in ('ADMIN', 'SUPER_ADMIN') and 'SUPER_ADMIN' not in admin_roles:
+        logger.warning(f"Role update denied: insufficient privileges by={get_admin_username()} role={role_name} target_user={user_id}")
         return jsonify({'error': 'SUPER_ADMIN required'}), 403
+
+    target_roles = _get_user_roles(user_id)
+    effective_target_roles = target_roles if target_roles else ['USER']
+    target_is_user_only = len(effective_target_roles) == 1 and effective_target_roles[0] == 'USER'
+    if target_is_user_only and role_name in ('ADMIN', 'SUPER_ADMIN'):
+        logger.warning(f"Role update blocked: USER-only protection by={get_admin_username()} role={role_name} target_user={user_id}")
+        return jsonify({'error': 'USER accounts cannot be promoted or demoted to admin roles via this page'}), 403
 
     role_id = _get_role_id(role_name)
     if not role_id:
