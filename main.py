@@ -35,6 +35,17 @@ if __name__ == '__main__':
     print("=" * 50)
 
     debug_mode = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'
+    ssl_mode = os.environ.get('TESSERAE_SSL', '').strip().lower()
+    ssl_cert = os.environ.get('TESSERAE_SSL_CERT', '').strip()
+    ssl_key = os.environ.get('TESSERAE_SSL_KEY', '').strip()
+    ssl_context = None
+
+    if ssl_mode == 'adhoc':
+        ssl_context = 'adhoc'
+        print("HTTPS enabled with an adhoc development certificate")
+    elif ssl_cert and ssl_key:
+        ssl_context = (ssl_cert, ssl_key)
+        print(f"HTTPS enabled with certificate {ssl_cert}")
 
     try:
         start_cache_init()
@@ -42,7 +53,14 @@ if __name__ == '__main__':
     except Exception as e:
         print(f"Warning: Cache init failed (non-fatal): {e}")
 
-    print(f"Starting Flask server on 0.0.0.0:{port}...")
+    scheme = 'https' if ssl_context else 'http'
+    print(f"Starting Flask server on {scheme}://0.0.0.0:{port}...")
     sys.stdout.flush()
 
-    app.run(host='0.0.0.0', port=port, debug=debug_mode, threaded=True)
+    app.run(
+        host='0.0.0.0',
+        port=port,
+        debug=debug_mode,
+        threaded=True,
+        ssl_context=ssl_context,
+    )
