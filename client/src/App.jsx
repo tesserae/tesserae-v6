@@ -136,6 +136,7 @@ function App() {
   const [registerPending, setRegisterPending] = useState(null);
   const [registerScore, setRegisterScore] = useState(0);
   const [registerNotes, setRegisterNotes] = useState('');
+  const [registerVisibility, setRegisterVisibility] = useState('private');
   
   const [corpusSearchResults, setCorpusSearchResults] = useState(null);
   const [corpusSearchLoading, setCorpusSearchLoading] = useState(false);
@@ -360,10 +361,20 @@ function App() {
   }, [sourceText, targetText, activeTab, settings, searchMode, search]);
 
   const handleRegister = useCallback((result) => {
+    if (!user) {
+      window.dispatchEvent(new CustomEvent('open-public-auth-modal', {
+        detail: {
+          mode: 'login',
+          message: 'Need to sign in to add to repository',
+        }
+      }));
+      return;
+    }
     setRegisterPending(result);
     setRegisterScore(0);
+    setRegisterVisibility('private');
     setShowRegisterModal(true);
-  }, []);
+  }, [user]);
 
   const handleCorpusSearch = useCallback(async (result) => {
     let lemmas;
@@ -430,6 +441,10 @@ function App() {
 
   const handleSubmitRegister = useCallback(async () => {
     if (!registerPending) return;
+    if (!Number.isInteger(registerScore) || registerScore < 1 || registerScore > 5) {
+      alert('Please select a star rating before saving.');
+      return;
+    }
     try {
       const sourceLocus = registerPending.source_locus || registerPending.source?.ref || '';
       const sourceText = registerPending.source_text || registerPending.source_snippet || registerPending.source?.text || '';
@@ -442,26 +457,31 @@ function App() {
         typeof w === 'object' ? (w.lemma || w.word || '') : w
       ).filter(Boolean);
 
-      const res = await fetch('/api/intertexts', {
+      const res = await fetch('/api/intertexts/my', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           source: {
             text_id: sourceTextId,
+            author: registerPending.source_author || registerPending.source?.author || '',
+            work: registerPending.source_work || registerPending.source?.work || '',
             reference: sourceLocus,
             snippet: sourceText,
             language: activeTab
           },
           target: {
             text_id: targetTextId,
+            author: registerPending.target_author || registerPending.target?.author || '',
+            work: registerPending.target_work || registerPending.target?.work || '',
             reference: targetLocus,
             snippet: targetText,
             language: activeTab
           },
           matched_lemmas: matchedLemmas,
           tesserae_score: registerPending.score || registerPending.overall_score || 0,
-          user_score: registerScore,
-          notes: registerNotes.trim().slice(0, 500)
+          intertext_score: registerScore,
+          notes: registerNotes.trim().slice(0, 500),
+          share_to_public: registerVisibility === 'public',
         })
       });
       
@@ -475,13 +495,14 @@ function App() {
       setRegisterPending(null);
       setRegisterScore(0);
       setRegisterNotes('');
+      setRegisterVisibility('private');
       setPageType('repository');
       window.history.pushState({}, '', '/repository');
     } catch (err) {
       console.error('Failed to register intertext:', err);
       alert('Failed to register intertext: ' + err.message);
     }
-  }, [registerPending, activeTab, registerScore, registerNotes]);
+  }, [registerPending, activeTab, registerScore, registerNotes, registerVisibility]);
 
 
   return (
@@ -499,7 +520,7 @@ function App() {
         window.history.pushState({}, '', '/');
       }} />
       <Navigation 
-        pageType={pageType} 
+        pageType={pageType}
         setPageType={setPageType}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -793,8 +814,14 @@ function App() {
 
       <Modal
         isOpen={showRegisterModal}
-        onClose={() => { setShowRegisterModal(false); setRegisterPending(null); setRegisterNotes(''); }}
-        title="Register Intertext"
+        onClose={() => {
+          setShowRegisterModal(false);
+          setRegisterPending(null);
+          setRegisterScore(0);
+          setRegisterNotes('');
+          setRegisterVisibility('private');
+        }}
+        title="Save Parallel"
       >
         {registerPending && (() => {
           const sourceLocus = registerPending.source_locus || registerPending.source?.ref || '';
@@ -804,7 +831,7 @@ function App() {
           return (
           <div className="space-y-4">
             <p className="text-gray-600">
-              Register this parallel to the Intertext Repository for future reference and sharing.
+              Save this parallel to your repository, with the option to keep it private or make it public.
             </p>
             <div className="bg-gray-50 p-4 rounded">
               <div className="text-sm text-gray-500 mb-1">Source</div>
@@ -815,21 +842,53 @@ function App() {
               <div className="text-sm text-gray-700 mt-1">{targetText?.substring(0, 100)}{targetText?.length > 100 ? '...' : ''}</div>
             </div>
             <div className="mt-4">
-              <div className="text-sm text-gray-600 mb-2">Rate this parallel (optional):</div>
+              <div className="text-sm text-gray-600 mb-2">Visibility:</div>
+              <div className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1">
+                <button
+                  type="button"
+                  onClick={() => setRegisterVisibility('private')}
+                  className={`px-3 py-1.5 text-sm rounded ${
+                    registerVisibility === 'private'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  Private
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRegisterVisibility('public')}
+                  className={`px-3 py-1.5 text-sm rounded ${
+                    registerVisibility === 'public'
+                      ? 'bg-white text-red-700 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  Make Public
+                </button>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                {registerVisibility === 'public'
+                  ? 'This parallel will appear in the public repository and stay in your personal repository.'
+                  : 'This parallel will only appear in your personal repository.'}
+              </p>
+            </div>
+            <div className="mt-4">
+              <div className="text-sm text-gray-600 mb-2">Rate this parallel:</div>
               <div className="flex gap-1">
                 {[1,2,3,4,5].map(star => (
                   <button
                     key={star}
                     type="button"
-                    onClick={() => setRegisterScore(star === registerScore ? 0 : star)}
+                    onClick={() => setRegisterScore(star)}
                     className={`text-2xl ${star <= registerScore ? 'text-yellow-500' : 'text-gray-300'} hover:text-yellow-400 transition-colors`}
                   >
                     ★
                   </button>
                 ))}
-                {registerScore > 0 && (
-                  <span className="ml-2 text-sm text-gray-500 self-center">{registerScore}/5</span>
-                )}
+                <span className="ml-2 text-sm text-gray-500 self-center">
+                  {registerScore > 0 ? `${registerScore}/5` : 'Required'}
+                </span>
               </div>
             </div>
             <div className="mt-4">
@@ -850,16 +909,23 @@ function App() {
             </div>
             <div className="flex gap-3 justify-end">
               <button
-                onClick={() => { setShowRegisterModal(false); setRegisterPending(null); setRegisterScore(0); setRegisterNotes(''); }}
+                onClick={() => {
+                  setShowRegisterModal(false);
+                  setRegisterPending(null);
+                  setRegisterScore(0);
+                  setRegisterNotes('');
+                  setRegisterVisibility('private');
+                }}
                 className="px-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded hover:bg-gray-200"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSubmitRegister}
-                className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800"
+                disabled={registerScore < 1}
+                className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Register
+                Save Parallel
               </button>
             </div>
           </div>
