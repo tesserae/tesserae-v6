@@ -7,7 +7,7 @@ const roleLabel = (role) => {
   return value.replace(/_/g, ' ');
 };
 
-export default function UsersTab({ authHeaders, isSuperAdmin = false }) {
+export default function UsersTab({ authHeaders, isAdmin = false, isSuperAdmin = false, currentAdminUserId = null }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [users, setUsers] = useState([]);
@@ -19,7 +19,7 @@ export default function UsersTab({ authHeaders, isSuperAdmin = false }) {
   const [createFirstName, setCreateFirstName] = useState('');
   const [createLastName, setCreateLastName] = useState('');
   const [createPassword, setCreatePassword] = useState('');
-  const [createRole, setCreateRole] = useState('ADMIN');
+  const [createRole, setCreateRole] = useState('USER');
   const [createError, setCreateError] = useState(null);
   const [createSuccess, setCreateSuccess] = useState(null);
 
@@ -51,7 +51,7 @@ export default function UsersTab({ authHeaders, isSuperAdmin = false }) {
     }
   };
 
-  const handleCreateAdmin = async (e) => {
+  const handleCreateUser = async (e) => {
     e.preventDefault();
     setCreateError(null);
     setCreateSuccess(null);
@@ -75,18 +75,18 @@ export default function UsersTab({ authHeaders, isSuperAdmin = false }) {
 
       const payload = await res.json();
       if (!res.ok || payload.error) {
-        throw new Error(payload.error || 'Failed to create admin user.');
+        throw new Error(payload.error || 'Failed to create user.');
       }
 
-      setCreateSuccess('Admin user created. They must reset their password on first login.');
+      setCreateSuccess(`User created with role ${payload.role}. They must reset their password on first login.`);
       setCreateEmail('');
       setCreateFirstName('');
       setCreateLastName('');
       setCreatePassword('');
-      setCreateRole('ADMIN');
+      setCreateRole('USER');
       await loadUsers();
     } catch (err) {
-      setCreateError(err.message || 'Failed to create admin user.');
+      setCreateError(err.message || 'Failed to create user.');
     }
   };
 
@@ -144,6 +144,34 @@ export default function UsersTab({ authHeaders, isSuperAdmin = false }) {
     }
   };
 
+  const deleteUser = async (userId, email) => {
+    setActionError(null);
+    setActionSuccess(null);
+    if (!window.confirm(`Delete user ${email || userId}? This cannot be undone.`)) {
+      return;
+    }
+    setBusyUserId(userId);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          ...authHeaders
+        },
+        credentials: 'include'
+      });
+      const payload = await res.json();
+      if (!res.ok || payload.error) {
+        throw new Error(payload.error || 'Failed to delete user.');
+      }
+      setUsers((prev) => prev.filter((u) => u.id !== userId));
+      setActionSuccess(payload.message || 'User deleted.');
+    } catch (err) {
+      setActionError(err.message || 'Failed to delete user.');
+    } finally {
+      setBusyUserId(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="text-sm text-gray-500">Loading users...</div>
@@ -154,9 +182,9 @@ export default function UsersTab({ authHeaders, isSuperAdmin = false }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">User Roles</h3>
+          <h3 className="text-lg font-semibold text-gray-900">Users & Roles</h3>
           <p className="text-sm text-gray-500">
-            Promote or demote users. SUPER_ADMIN changes should be performed sparingly.
+            Manage user accounts. Admin role changes remain restricted.
           </p>
         </div>
         <button
@@ -185,13 +213,13 @@ export default function UsersTab({ authHeaders, isSuperAdmin = false }) {
         </div>
       )}
 
-      {isSuperAdmin && (
+      {isAdmin && (
         <div className="bg-gray-50 border border-gray-200 rounded p-4">
-          <h4 className="text-sm font-semibold text-gray-900 mb-2">Create Admin User</h4>
+          <h4 className="text-sm font-semibold text-gray-900 mb-2">Create User</h4>
           <p className="text-xs text-gray-500 mb-3">
             Required fields: first name, last name, email, and password.
           </p>
-          <form onSubmit={handleCreateAdmin} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <form onSubmit={handleCreateUser} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <input
               type="text"
               className="border rounded px-3 py-2 text-sm"
@@ -230,14 +258,15 @@ export default function UsersTab({ authHeaders, isSuperAdmin = false }) {
               value={createRole}
               onChange={(e) => setCreateRole(e.target.value)}
             >
-              <option value="ADMIN">ADMIN</option>
-              <option value="SUPER_ADMIN">SUPER_ADMIN</option>
+              <option value="USER">USER</option>
+              {isSuperAdmin && <option value="ADMIN">ADMIN</option>}
+              {isSuperAdmin && <option value="SUPER_ADMIN">SUPER_ADMIN</option>}
             </select>
             <button
               type="submit"
               className="bg-red-700 text-white rounded px-3 py-2 text-sm hover:bg-red-800"
             >
-              Create Admin
+              Create User
             </button>
           </form>
           {createError && (
@@ -270,7 +299,9 @@ export default function UsersTab({ authHeaders, isSuperAdmin = false }) {
             {users.map(user => {
               const userRoles = Array.isArray(user.roles) ? user.roles : [];
               const normalizedRoles = userRoles.map(r => (typeof r === 'string' ? r : r.name)).filter(Boolean);
-              const hasRole = (roleName) => normalizedRoles.includes(roleName);
+              const effectiveRoles = normalizedRoles.length > 0 ? normalizedRoles : ['USER'];
+              const hasRole = (roleName) => effectiveRoles.includes(roleName);
+              const isUserOnly = effectiveRoles.length === 1 && effectiveRoles[0] === 'USER';
 
               return (
                 <tr key={user.id} className="border-b">
@@ -279,39 +310,58 @@ export default function UsersTab({ authHeaders, isSuperAdmin = false }) {
                   </td>
                   <td className="py-3 pr-4 text-gray-700">{user.email}</td>
                   <td className="py-3 pr-4 text-gray-700">
-                    {normalizedRoles.length
-                      ? normalizedRoles.map(roleLabel).join(', ')
-                      : 'USER'}
+                    {effectiveRoles.map(roleLabel).join(', ')}
                   </td>
                   <td className="py-3 pr-4">
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 items-center">
+                      {isSuperAdmin ? (
+                        isUserOnly ? (
+                          <span className="text-xs text-gray-500">
+                            Role changes restricted for USER accounts
+                          </span>
+                        ) : (
+                          <>
+                            <button
+                              disabled={busyUserId === user.id || hasRole('ADMIN')}
+                              onClick={() => submitRoleChange(user.id, 'ADMIN', 'add')}
+                              className="text-xs px-2 py-1 rounded bg-blue-50 text-blue-700 border border-blue-200 disabled:opacity-50"
+                            >
+                              Promote to ADMIN
+                            </button>
+                            <button
+                              disabled={busyUserId === user.id || hasRole('SUPER_ADMIN')}
+                              onClick={() => submitRoleChange(user.id, 'SUPER_ADMIN', 'add')}
+                              className="text-xs px-2 py-1 rounded bg-purple-50 text-purple-700 border border-purple-200 disabled:opacity-50"
+                            >
+                              Promote to SUPER_ADMIN
+                            </button>
+                            <button
+                              disabled={busyUserId === user.id || !hasRole('ADMIN')}
+                              onClick={() => submitRoleChange(user.id, 'ADMIN', 'remove')}
+                              className="text-xs px-2 py-1 rounded bg-amber-50 text-amber-700 border border-amber-200 disabled:opacity-50"
+                            >
+                              Demote ADMIN
+                            </button>
+                            <button
+                              disabled={busyUserId === user.id || !hasRole('SUPER_ADMIN')}
+                              onClick={() => submitRoleChange(user.id, 'SUPER_ADMIN', 'remove')}
+                              className="text-xs px-2 py-1 rounded bg-red-50 text-red-700 border border-red-200 disabled:opacity-50"
+                            >
+                              Demote SUPER_ADMIN
+                            </button>
+                          </>
+                        )
+                      ) : (
+                        <span className="text-xs text-gray-500">
+                          Role updates require SUPER_ADMIN
+                        </span>
+                      )}
                       <button
-                        disabled={busyUserId === user.id || hasRole('ADMIN')}
-                        onClick={() => submitRoleChange(user.id, 'ADMIN', 'add')}
-                        className="text-xs px-2 py-1 rounded bg-blue-50 text-blue-700 border border-blue-200 disabled:opacity-50"
-                      >
-                        Promote to ADMIN
-                      </button>
-                      <button
-                        disabled={busyUserId === user.id || hasRole('SUPER_ADMIN')}
-                        onClick={() => submitRoleChange(user.id, 'SUPER_ADMIN', 'add')}
-                        className="text-xs px-2 py-1 rounded bg-purple-50 text-purple-700 border border-purple-200 disabled:opacity-50"
-                      >
-                        Promote to SUPER_ADMIN
-                      </button>
-                      <button
-                        disabled={busyUserId === user.id || !hasRole('ADMIN')}
-                        onClick={() => submitRoleChange(user.id, 'ADMIN', 'remove')}
-                        className="text-xs px-2 py-1 rounded bg-amber-50 text-amber-700 border border-amber-200 disabled:opacity-50"
-                      >
-                        Demote ADMIN
-                      </button>
-                      <button
-                        disabled={busyUserId === user.id || !hasRole('SUPER_ADMIN')}
-                        onClick={() => submitRoleChange(user.id, 'SUPER_ADMIN', 'remove')}
+                        disabled={busyUserId === user.id || String(currentAdminUserId || '') === String(user.id)}
+                        onClick={() => deleteUser(user.id, user.email)}
                         className="text-xs px-2 py-1 rounded bg-red-50 text-red-700 border border-red-200 disabled:opacity-50"
                       >
-                        Demote SUPER_ADMIN
+                        {String(currentAdminUserId || '') === String(user.id) ? 'Current account' : 'Delete User'}
                       </button>
                     </div>
                   </td>

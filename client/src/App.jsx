@@ -75,6 +75,8 @@ const buildShareableUrl = (sourceText, targetText, sourceAuthor, targetAuthor, l
 
 function App() {
   const [user, setUser] = useState(null);
+  const [adminSessionActive, setAdminSessionActive] = useState(false);
+  const [adminSessionChecked, setAdminSessionChecked] = useState(false);
   const [pageType, setPageType] = useState(() => {
     const path = window.location.pathname;
     return pathToPageType[path] || 'search';
@@ -185,6 +187,39 @@ function App() {
   }, []);
 
   useEffect(() => {
+    let mounted = true;
+
+    const checkAdminSession = async () => {
+      try {
+        const res = await fetch('/api/admin/me', { credentials: 'include' });
+        if (mounted) {
+          setAdminSessionActive(res.ok);
+          setAdminSessionChecked(true);
+        }
+      } catch (_err) {
+        if (mounted) {
+          setAdminSessionActive(false);
+          setAdminSessionChecked(true);
+        }
+      }
+    };
+
+    const handleAdminAuthChanged = () => {
+      checkAdminSession();
+    };
+
+    checkAdminSession();
+    window.addEventListener('focus', handleAdminAuthChanged);
+    window.addEventListener('admin-auth-changed', handleAdminAuthChanged);
+
+    return () => {
+      mounted = false;
+      window.removeEventListener('focus', handleAdminAuthChanged);
+      window.removeEventListener('admin-auth-changed', handleAdminAuthChanged);
+    };
+  }, []);
+
+  useEffect(() => {
     const urlParams = parseSearchParams();
     if (urlParams.lang && ['la', 'grc', 'en', 'cross'].includes(urlParams.lang)) {
       setActiveTab(urlParams.lang);
@@ -212,12 +247,44 @@ function App() {
   }, [pageType]);
 
   useEffect(() => {
+    if (adminSessionChecked && adminSessionActive && pageType !== 'admin') {
+      setPageType('admin');
+    }
+  }, [adminSessionChecked, adminSessionActive, pageType]);
+
+  useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname;
-      setPageType(pathToPageType[path] || 'search');
+      if (adminSessionChecked && adminSessionActive) {
+        setPageType('admin');
+      } else {
+        setPageType(pathToPageType[path] || 'search');
+      }
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
+  }, [adminSessionChecked, adminSessionActive]);
+
+  const setPageTypeWithGuard = useCallback((nextPageType) => {
+    if (adminSessionChecked && adminSessionActive && nextPageType !== 'admin') {
+      setPageType('admin');
+      return;
+    }
+    setPageType(nextPageType);
+  }, [adminSessionChecked, adminSessionActive]);
+
+  const appLockedToAdmin = adminSessionChecked && adminSessionActive;
+
+  const handleAdminSessionLogout = useCallback(async () => {
+    try {
+      await fetch('/api/admin/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (_err) {}
+    window.dispatchEvent(new Event('admin-auth-changed'));
+    setPageType('search');
+    window.history.pushState({}, '', '/');
   }, []);
 
   // Track previous activeTab and corpus loading state to detect when to apply defaults
@@ -487,7 +554,12 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-100">
       <Header user={user} setUser={setUser} onLogoClick={() => {
-        setPageType('search');
+        if (appLockedToAdmin) {
+          setPageType('admin');
+          window.history.pushState({}, '', '/admin');
+          return;
+        }
+        setPageTypeWithGuard('search');
         setActiveTab('la');
         setSourceAuthor('');
         setSourceText('');
@@ -499,10 +571,12 @@ function App() {
         window.history.pushState({}, '', '/');
       }} />
       <Navigation 
-        pageType={pageType} 
-        setPageType={setPageType}
+        pageType={appLockedToAdmin ? 'admin' : pageType}
+        setPageType={setPageTypeWithGuard}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        lockedToAdmin={appLockedToAdmin}
+        onAdminLogout={handleAdminSessionLogout}
         onLanguageReset={() => {
           setSourceAuthor('');
           setSourceText('');
@@ -515,6 +589,10 @@ function App() {
       />
       
       <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6">
+        {appLockedToAdmin ? (
+          <AdminPanel />
+        ) : (
+          <>
         {pageType === 'search' && activeTab !== 'cross' && (
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-4 sm:p-6">
@@ -751,7 +829,7 @@ function App() {
         )}
 
         {pageType === 'about' && (
-          <AboutPage onNavigate={setPageType} />
+          <AboutPage onNavigate={setPageTypeWithGuard} />
         )}
 
         {pageType === 'text-credits' && (
@@ -771,11 +849,11 @@ function App() {
         )}
 
         {pageType === 'research' && (
-          <ResearchPage setPageType={setPageType} />
+          <ResearchPage setPageType={setPageTypeWithGuard} />
         )}
 
         {pageType === 'blog-archive' && (
-          <BlogArchivePage setPageType={setPageType} />
+          <BlogArchivePage setPageType={setPageTypeWithGuard} />
         )}
 
         {pageType === 'admin' && (
@@ -788,6 +866,8 @@ function App() {
 
         {pageType === 'register-test' && (
           <RegisterUserTestPage setUser={setUser} />
+        )}
+          </>
         )}
       </main>
 

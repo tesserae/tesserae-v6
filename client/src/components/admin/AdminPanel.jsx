@@ -11,7 +11,6 @@ import MetadataTab from './tabs/MetadataTab';
 import RequestsTab from './tabs/RequestsTab';
 import UsersTab from './tabs/UsersTab';
 import GenreClassificationTab from './tabs/GenreClassificationTab';
-import DictionaryReviewTab from './tabs/DictionaryReviewTab';
 
 const normalizeRole = (role) => (role || '').toString().trim().toUpperCase();
 
@@ -24,6 +23,7 @@ export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState('requests');
   const [loading, setLoading] = useState(false);
   const [adminRoles, setAdminRoles] = useState([]);
+  const [adminUserId, setAdminUserId] = useState(null);
   const [mustResetPassword, setMustResetPassword] = useState(false);
   const [resetCurrent, setResetCurrent] = useState('');
   const [resetNext, setResetNext] = useState('');
@@ -64,10 +64,12 @@ export default function AdminPanel() {
         setMustResetPassword(Boolean(data.must_reset_password));
         setResetError('');
         setResetSuccess('');
+        window.dispatchEvent(new Event('admin-auth-changed'));
         try {
           const meRes = await fetch('/api/admin/me', { credentials: 'include' });
           if (meRes.ok) {
             const meData = await meRes.json();
+            setAdminUserId(meData.user_id || null);
             const meRoles = Array.isArray(meData.roles)
               ? meData.roles.map(normalizeRole).filter(Boolean)
               : [];
@@ -141,6 +143,7 @@ export default function AdminPanel() {
     } catch (_ignored) {}
     setIsAuthenticated(false);
     setAdminRoles([]);
+    setAdminUserId(null);
     setMustResetPassword(false);
     setResetCurrent('');
     setResetNext('');
@@ -148,6 +151,7 @@ export default function AdminPanel() {
     setResetError('');
     setResetSuccess('');
     setShowChangePassword(false);
+    window.dispatchEvent(new Event('admin-auth-changed'));
   };
 
   const loadAdminData = async () => {
@@ -325,7 +329,7 @@ export default function AdminPanel() {
         <div className="bg-white rounded-lg shadow">
           <div className="border-b">
             <nav className="flex overflow-x-auto">
-              {['requests', 'feedback', 'users', 'sources', 'metadata', 'dictionary', 'cache', 'stats', 'analytics', 'audit', 'settings', 'genres'].map(tab => (
+              {['requests', 'feedback', 'users', 'sources', 'metadata', 'cache', 'stats', 'analytics', 'audit', 'settings', 'genres'].map(tab => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -338,7 +342,6 @@ export default function AdminPanel() {
                   {tab === 'requests' ? 'Requests' :
                    tab === 'feedback' ? 'Feedback' :
                    tab === 'genres' ? 'Genres' :
-                   tab === 'dictionary' ? 'Dictionary' :
                    tab === 'users' ? 'Users' :
                    tab === 'sources' ? 'Sources' :
                    tab === 'metadata' ? 'Metadata' :
@@ -364,16 +367,17 @@ export default function AdminPanel() {
             <FeedbackTab feedback={feedback} onRefresh={loadAdminData} />
           )}
 
-            {activeTab === 'dictionary' && (
-              <DictionaryReviewTab />
-            )}
-
             {activeTab === 'genres' && (
               <GenreClassificationTab />
             )}
 
             {activeTab === 'users' && (
-              <UsersTab authHeaders={{}} isSuperAdmin={adminRoles.map(normalizeRole).includes('SUPER_ADMIN')} />
+              <UsersTab
+                authHeaders={{}}
+                isAdmin={adminRoles.map(normalizeRole).some((r) => r === 'ADMIN' || r === 'SUPER_ADMIN')}
+                isSuperAdmin={adminRoles.map(normalizeRole).includes('SUPER_ADMIN')}
+                currentAdminUserId={adminUserId}
+              />
             )}
 
             {activeTab === 'sources' && (
