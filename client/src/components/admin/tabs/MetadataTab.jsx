@@ -245,7 +245,7 @@ export default function MetadataTab({ authHeaders }) {
                         {text.text_type}
                       </span>
                     </td>
-                    <td className="px-2 py-1.5 text-gray-600">{text.year ? (text.year < 0 ? `${Math.abs(text.year)} BCE` : `${text.year} CE`) : '—'}</td>
+                    <td className="px-2 py-1.5 text-gray-600">{text.year != null ? (text.year < 0 ? `${Math.abs(text.year)} BCE` : `${text.year} CE`) : '—'}</td>
                     <td className="px-2 py-1.5 text-gray-600 truncate" title={text.era}>{text.era || '—'}</td>
                     <td className="px-2 py-1.5">
                       {text.has_override ? (

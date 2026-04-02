@@ -9,7 +9,13 @@ import json
 from pathlib import Path
 
 from backend.logging_config import get_logger
-from backend.utils import get_text_metadata, build_text_hierarchy, safe_listdir
+from backend.utils import (
+    get_text_metadata,
+    build_text_hierarchy,
+    safe_listdir,
+    enrich_metadata_with_author_dates,
+    normalize_author_date_key,
+)
 from backend.frequency_cache import get_corpus_frequencies, recalculate_language_frequencies
 
 logger = get_logger('corpus')
@@ -18,16 +24,19 @@ PROVENANCE_FILE = Path(__file__).parent.parent / "text_provenance.json"
 AUTHOR_DATES_FILE = Path(__file__).parent.parent / "author_dates.json"
 
 _author_dates_cache = None
+_author_dates_mtime = None
 
 def get_author_dates():
     """Load and cache author dates."""
-    global _author_dates_cache
-    if _author_dates_cache is None:
+    global _author_dates_cache, _author_dates_mtime
+    current_mtime = AUTHOR_DATES_FILE.stat().st_mtime if AUTHOR_DATES_FILE.exists() else None
+    if _author_dates_cache is None or _author_dates_mtime != current_mtime:
         if AUTHOR_DATES_FILE.exists():
             with open(AUTHOR_DATES_FILE, 'r', encoding='utf-8') as f:
                 _author_dates_cache = json.load(f)
         else:
             _author_dates_cache = {}
+        _author_dates_mtime = current_mtime
     return _author_dates_cache
 
 
@@ -74,17 +83,7 @@ def get_texts():
         if filename.endswith('.tess'):
             metadata = get_text_metadata(os.path.join(lang_dir, filename))
             metadata['language'] = language
-            author_key = metadata.get('author_key', '').lower()
-            if 'year' not in metadata:
-                if author_key in author_dates:
-                    metadata['year'] = author_dates[author_key].get('year')
-                else:
-                    metadata['year'] = None
-            if 'era' not in metadata:
-                if author_key in author_dates:
-                    metadata['era'] = author_dates[author_key].get('era')
-                else:
-                    metadata['era'] = None
+            enrich_metadata_with_author_dates(metadata, author_dates)
             texts.append(metadata)
     
     texts.sort(key=lambda x: (x['author'], x['title']))
@@ -108,17 +107,7 @@ def get_authors():
         if filename.endswith('.tess'):
             metadata = get_text_metadata(os.path.join(lang_dir, filename))
             metadata['language'] = language
-            author_key = metadata.get('author_key', '').lower()
-            if 'year' not in metadata:
-                if author_key in author_dates:
-                    metadata['year'] = author_dates[author_key].get('year')
-                else:
-                    metadata['year'] = None
-            if 'era' not in metadata:
-                if author_key in author_dates:
-                    metadata['era'] = author_dates[author_key].get('era')
-                else:
-                    metadata['era'] = None
+            enrich_metadata_with_author_dates(metadata, author_dates)
             author = metadata['author']
             if author not in authors:
                 authors[author] = {'works': [], 'year': metadata.get('year'), 'era': metadata.get('era')}
@@ -202,17 +191,7 @@ def get_texts_hierarchy():
     for filename in safe_listdir(lang_dir):
         if filename.endswith('.tess'):
             metadata = get_text_metadata(os.path.join(lang_dir, filename))
-            author_key = metadata.get('author_key', '').lower()
-            if 'year' not in metadata:
-                if author_key in author_dates:
-                    metadata['year'] = author_dates[author_key].get('year')
-                else:
-                    metadata['year'] = None
-            if 'era' not in metadata:
-                if author_key in author_dates:
-                    metadata['era'] = author_dates[author_key].get('era')
-                else:
-                    metadata['era'] = None
+            enrich_metadata_with_author_dates(metadata, author_dates)
             texts.append(metadata)
     
     hierarchy = build_text_hierarchy(texts)
@@ -235,8 +214,8 @@ def get_texts_hierarchy():
         result.append({
             'author_key': author_key,
             'author': author_data['author'],
-            'year': author_year,
-            'era': author_era,
+            'year': author_year if author_year is not None else author_dates.get(normalize_author_date_key(author_key), {}).get('year'),
+            'era': author_era or author_dates.get(normalize_author_date_key(author_key), {}).get('era'),
             'works': works
         })
     
