@@ -933,33 +933,41 @@ def _update_text_provenance(text_id, author, title, language):
 
 
 def _add_to_text_sources(author, work, e_source, e_source_url, print_source, added_by):
-    """Append a new entry to backend/text_sources.json for the Sources page."""
+    """Upsert a source entry in backend/text_sources.json for the Sources page."""
     if not any([e_source, print_source, added_by]):
         return
     try:
-        sources_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'text_sources.json')
-        
-        if os.path.exists(sources_path):
-            with open(sources_path, 'r', encoding='utf-8') as f:
-                sources = json.load(f)
-        else:
-            sources = []
-        
-        sources.append({
+        sources = _load_sources()
+
+        normalized_author = (author or '').strip().lower()
+        normalized_work = (work or '').strip().lower()
+        replacement = {
             'author': author or '',
             'work': work or '',
             'e_source': e_source or '',
             'e_source_url': e_source_url or '',
             'print_source': print_source or '',
             'added_by': added_by or ''
-        })
-        
-        sources.sort(key=lambda x: (x.get('author', '').lower(), x.get('work', '').lower()))
-        
-        with open(sources_path, 'w', encoding='utf-8') as f:
-            json.dump(sources, f, indent=2, ensure_ascii=False)
-        
-        logger.info(f"Added {author} - {work} to text_sources.json")
+        }
+
+        deduped_sources = []
+        matched_existing = False
+        for existing in sources:
+            existing_author = (existing.get('author') or '').strip().lower()
+            existing_work = (existing.get('work') or '').strip().lower()
+            if existing_author == normalized_author and existing_work == normalized_work:
+                if not matched_existing:
+                    deduped_sources.append(replacement)
+                    matched_existing = True
+                continue
+            deduped_sources.append(existing)
+
+        if not matched_existing:
+            deduped_sources.append(replacement)
+
+        _save_sources(deduped_sources)
+
+        logger.info(f"Upserted {author} - {work} in text_sources.json")
     except Exception as e:
         logger.error(f"Failed to update text_sources.json: {e}")
 
