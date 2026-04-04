@@ -134,7 +134,7 @@ const DownloadsPage = () => {
               <div className="p-2 bg-gray-50 rounded">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
-                    <span className="font-medium">Lucan BC 1 vs Vergil Aeneid - Gold Pairs</span>
+                    <span className="font-medium">Lucan BC 1 vs Vergil Aeneid - Evaluation Pairs</span>
                     <span className="text-gray-500 ml-2">(213 parallels)</span>
                   </div>
                   <div className="flex gap-2">
@@ -214,7 +214,7 @@ const DownloadsPage = () => {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
                     <span className="font-medium">Valerius Flaccus Argonautica 1 vs Latin Epic</span>
-                    <span className="text-gray-500 ml-2">(521 gold pairs)</span>
+                    <span className="text-gray-500 ml-2">(521 evaluation pairs)</span>
                   </div>
                   <div className="flex gap-2">
                     <a href="/static/downloads/benchmarks/vf_benchmark.csv"
@@ -352,10 +352,10 @@ const DownloadsPage = () => {
       </div>
 
       <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">V6 Gold Standard Benchmark Subsets</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">V6 Benchmark Evaluation Subsets</h3>
         <p className="text-sm text-gray-600 mb-4">
-          Machine-readable gold subsets extracted from the scholarly benchmark sets above. Each file
-          contains the parallel passages used for V6 recall evaluation, with provenance metadata.
+          Machine-readable evaluation subsets extracted from the scholarly benchmark sets above. Each file
+          contains the commentary-attested parallel passages used for V6 recall evaluation, with provenance metadata.
           Available as CSV (with comment header) and JSON.
         </p>
 
@@ -502,7 +502,7 @@ const DownloadsPage = () => {
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
                   Parent: Hunter (1989) <em>Argonautica Book III</em> commentary.
-                  All 448 entries included; 121 are types 4-5 (strong parallels) used as the gold standard.
+                  All 448 entries included; 121 are types 4-5 (strong parallels) used as the evaluation standard.
                 </p>
               </div>
             </div>
@@ -558,7 +558,7 @@ const DownloadsPage = () => {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">V6 Evaluation Results</h3>
         <p className="text-sm text-gray-600 mb-4">
           Ranked fusion search results used in the V6 evaluation article. Each CSV contains all scored pairs
-          with rank, references, text, fused score, channel details, and matched words. Gold-standard pairs
+          with rank, references, text, fused score, channel details, and matched words. Benchmark pairs
           are annotated where applicable. Companion data for Coffee et al. (forthcoming).
         </p>
 
@@ -566,7 +566,7 @@ const DownloadsPage = () => {
           <div>
             <h4 className="font-medium text-gray-800 mb-2">Latin Benchmarks</h4>
             <p className="text-xs text-gray-500 mb-2">
-              Full ranked output with gold annotations. Recall: 792/862 (91.9%) across 5 benchmarks.
+              Full ranked output with benchmark annotations. Recall: 792/862 (91.9%) across 5 benchmarks.
             </p>
             <div className="space-y-2 text-sm">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 bg-gray-50 rounded">
@@ -649,7 +649,7 @@ const DownloadsPage = () => {
             <div className="space-y-2 text-sm">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 bg-gray-50 rounded">
                 <div>
-                  <span className="font-medium">Knauer Aeneid 1 vs Iliad — Gold Summary</span>
+                  <span className="font-medium">Knauer Aeneid 1 vs Iliad — Benchmark Summary</span>
                   <span className="text-gray-500 ml-2">(412 pairs, per-target-line ranks)</span>
                 </div>
                 <a href="/static/downloads/evaluation/knauer_gold_summary.csv"
