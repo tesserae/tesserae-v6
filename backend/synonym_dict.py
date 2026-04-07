@@ -360,6 +360,41 @@ if os.path.exists(_PERSEUS_ADDITIONS_PATH):
             _perseus_count += 1
     logger.info(f"Loaded {_perseus_count} Perseus Greek-Latin additions into CURATED_GREEK_LATIN (total: {len(CURATED_GREEK_LATIN)} entries)")
 
+
+def load_accepted_review_entries():
+    """Load accepted entries from the dictionary_review DB table into CURATED_GREEK_LATIN.
+
+    Called at startup and on-demand when admin clicks 'Reload dictionary'.
+    Safe to call multiple times — merges without duplicating.
+    """
+    try:
+        from backend.db import get_db_cursor
+        count = 0
+        with get_db_cursor(commit=False) as cur:
+            cur.execute(
+                "SELECT greek_lemma, latin_lemma FROM dictionary_review WHERE status = 'accepted'"
+            )
+            for row in cur.fetchall():
+                greek_raw, latin_raw = row[0], row[1]
+                greek_norm = _normalize_greek(greek_raw).replace('ς', 'σ')
+                latin_word = latin_raw.strip().lower().replace('v', 'u')
+                if greek_norm in CURATED_GREEK_LATIN:
+                    if latin_word not in CURATED_GREEK_LATIN[greek_norm]:
+                        CURATED_GREEK_LATIN[greek_norm].append(latin_word)
+                else:
+                    CURATED_GREEK_LATIN[greek_norm] = [latin_word]
+                count += 1
+        logger.info(f"Loaded {count} accepted review entries into CURATED_GREEK_LATIN (total: {len(CURATED_GREEK_LATIN)} entries)")
+        return count
+    except Exception as e:
+        logger.warning(f"Could not load accepted review entries: {e}")
+        return 0
+
+
+# Load accepted entries from DB at startup
+load_accepted_review_entries()
+
+
 CURATED_LATIN = {
     "bellum": ["bellum", "proelium", "pugna", "certamen", "acies"],
     "rex": ["rex", "tyrannus", "dominus", "princeps", "imperator"],
