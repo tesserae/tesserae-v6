@@ -6,7 +6,7 @@ import { Modal, LoadingSpinner } from './components/common';
 import { CorpusBrowser, RareWordsExplorer } from './components/corpus';
 import { Repository } from './components/repository';
 import { AdminPanel } from './components/admin';
-import { AboutPage, HelpPage, DownloadsPage, PrivacyPage, ResearchPage, BlogArchivePage, RegisterUserTestPage } from './components/pages';
+import { AboutPage, HelpPage, DownloadsPage, PrivacyPage, ResearchPage, BlogArchivePage } from './components/pages';
 import TextCredits from './components/about/TextCredits';
 import VisualizationsPage from './components/pages/VisualizationsPage';
 import { useCorpus, useSearch } from './hooks';
@@ -26,8 +26,7 @@ const pathToPageType = {
   '/research': 'research',
   '/blog-archive': 'blog-archive',
   '/text-credits': 'text-credits',
-  '/admin': 'admin',
-  '/register-test': 'register-test'
+  '/admin': 'admin'
 };
 
 const pageTypeToPath = {
@@ -43,8 +42,7 @@ const pageTypeToPath = {
   'privacy': '/privacy',
   'research': '/research',
   'text-credits': '/text-credits',
-  'admin': '/admin',
-  'register-test': '/register-test'
+  'admin': '/admin'
 };
 
 const parseSearchParams = () => {
@@ -786,9 +784,6 @@ function App() {
           <VisualizationsPage />
         )}
 
-        {pageType === 'register-test' && (
-          <RegisterUserTestPage setUser={setUser} />
-        )}
       </main>
 
       <Modal
