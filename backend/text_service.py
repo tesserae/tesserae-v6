@@ -9,6 +9,7 @@ from abc import ABC, abstractmethod
 
 from backend.logging_config import get_logger
 from backend.lemma_cache import get_cached_units, save_cached_units, get_file_hash
+from backend.utils import resolve_text_path
 
 logger = get_logger('text_service')
 
@@ -97,36 +98,43 @@ class TextProcessingService:
         Returns:
             List of processed text units
         """
-        filepath = os.path.join(self.texts_dir, language, text_id)
+        filepath = resolve_text_path(self.texts_dir, language, text_id)
+        if not filepath:
+            logger.warning(f"Text file not found: {language}/{text_id}")
+            return []
+
+        # Use the resolved basename as the canonical cache identity so that
+        # NFC vs NFD variants of the same filename always hit the same entry
+        resolved_id = os.path.basename(filepath)
         cache_key = f"{filepath}:{language}:{unit_type}"
-        
+
         cached = self.cache.get(cache_key)
         if cached is not None:
             return cached
-        
-        file_cached = get_cached_units(text_id, language)
+
+        file_cached = get_cached_units(resolved_id, language)
         if file_cached:
             units_key = 'units_phrase' if unit_type == 'phrase' else 'units_line'
             units = file_cached.get(units_key)
             if units is not None:
                 self.cache.set(cache_key, units)
                 return units
-        
+
         units = self.text_processor.process_file(filepath, language, unit_type)
         self.cache.set(cache_key, units)
-        
+
         try:
             file_hash = get_file_hash(filepath)
-            existing = get_cached_units(text_id, language)
+            existing = get_cached_units(resolved_id, language)
             if unit_type == 'line':
                 phrase_units = existing.get('units_phrase') if existing else None
-                save_cached_units(text_id, language, units, phrase_units, file_hash)
+                save_cached_units(resolved_id, language, units, phrase_units, file_hash)
             else:
                 line_units = existing.get('units_line') if existing else None
-                save_cached_units(text_id, language, line_units, units, file_hash)
+                save_cached_units(resolved_id, language, line_units, units, file_hash)
         except Exception as e:
-            logger.warning(f"Failed to save cached units for {text_id}: {e}")
-        
+            logger.warning(f"Failed to save cached units for {resolved_id}: {e}")
+
         return units
     
     def clear_cache(self) -> int:
@@ -136,10 +144,10 @@ class TextProcessingService:
         logger.info(f"Cleared {size} cached entries")
         return size
     
-    def get_text_path(self, text_id: str, language: str) -> str:
-        """Get full path for a text file"""
-        return os.path.join(self.texts_dir, language, text_id)
-    
+    def get_text_path(self, text_id: str, language: str) -> Optional[str]:
+        """Get full path for a text file, handling Unicode normalization mismatches."""
+        return resolve_text_path(self.texts_dir, language, text_id)
+
     def text_exists(self, text_id: str, language: str) -> bool:
         """Check if a text file exists"""
-        return os.path.exists(self.get_text_path(text_id, language))
+        return self.get_text_path(text_id, language) is not None

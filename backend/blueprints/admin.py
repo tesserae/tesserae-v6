@@ -15,7 +15,7 @@ from backend.db_utils import get_db_cursor
 from werkzeug.security import check_password_hash, generate_password_hash
 from backend.models import User, db
 from backend.logging_config import get_logger
-from backend.utils import get_text_metadata, get_override, set_override, safe_listdir
+from backend.utils import get_text_metadata, get_override, set_override, safe_listdir, resolve_text_path
 from backend.lemma_cache import (
     rebuild_lemma_cache, get_cache_stats as get_lemma_cache_stats,
     clear_lemma_cache
@@ -1851,19 +1851,21 @@ def get_text_metadata_admin(text_id):
     
     try:
         filepath = None
-        for lang in ['la', 'grc', 'en']:
-            candidate = os.path.join(_texts_dir, lang, text_id)
-            if os.path.exists(candidate):
+        lang = None
+        for l in ['la', 'grc', 'en']:
+            candidate = resolve_text_path(_texts_dir, l, text_id)
+            if candidate:
                 filepath = candidate
+                lang = l
                 break
-        
+
         if not filepath:
             return jsonify({'error': 'Text not found'}), 404
-        
+
         metadata = get_text_metadata(filepath)
         metadata['language'] = lang
         override = get_override(text_id)
-        
+
         return jsonify({
             'metadata': metadata,
             'override': override,
@@ -1882,15 +1884,15 @@ def update_text_metadata(text_id):
     
     try:
         filepath = None
-        for lang in ['la', 'grc', 'en']:
-            candidate = os.path.join(_texts_dir, lang, text_id)
-            if os.path.exists(candidate):
+        for l in ['la', 'grc', 'en']:
+            candidate = resolve_text_path(_texts_dir, l, text_id)
+            if candidate:
                 filepath = candidate
                 break
-        
+
         if not filepath:
             return jsonify({'error': 'Text not found'}), 404
-        
+
         data = request.get_json() or {}
         allowed_fields = {'text_type', 'display_author', 'display_work', 'year', 'era', 'notes'}
         fields = {k: v for k, v in data.items() if k in allowed_fields}

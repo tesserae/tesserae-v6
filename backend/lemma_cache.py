@@ -6,6 +6,7 @@ import os
 import json
 import hashlib
 from datetime import datetime
+from backend.utils import resolve_text_path
 
 CACHE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'cache', 'lemmas')
 TEXTS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts')
@@ -30,8 +31,8 @@ def get_cached_units(text_id, language):
     if not os.path.exists(cache_path):
         return None
     
-    text_path = os.path.join(TEXTS_DIR, language, text_id)
-    if not os.path.exists(text_path):
+    text_path = resolve_text_path(TEXTS_DIR, language, text_id)
+    if not text_path:
         return None
     
     try:

@@ -63,7 +63,9 @@ def natural_sort_key(s):
 from backend.text_processor import TextProcessor
 from backend.matcher import Matcher
 from backend.scorer import Scorer
-from backend.utils import get_text_metadata, build_text_hierarchy, clean_cts_reference
+from backend.utils import (
+    get_text_metadata, build_text_hierarchy, clean_cts_reference, resolve_text_path
+)
 from backend.cache import (
     get_cached_results, save_cached_results, 
     get_cache_stats, clear_cache
@@ -168,31 +170,37 @@ processed_cache = {}
 
 def get_processed_units(text_id, language, unit_type, text_processor):
     """Get processed units, using file-based lemma cache when available"""
-    filepath = os.path.join(TEXTS_DIR, language, text_id)
+    filepath = resolve_text_path(TEXTS_DIR, language, text_id)
+    if not filepath:
+        raise FileNotFoundError(f"Text file not found: {text_id}")
+
+    # Use the resolved basename as the canonical cache identity so that
+    # NFC vs NFD variants of the same filename always hit the same entry
+    resolved_id = os.path.basename(filepath)
     cache_key = f"{filepath}:{language}:{unit_type}"
-    
+
     if cache_key in processed_cache:
         return processed_cache[cache_key]
-    
-    cached = get_cached_units(text_id, language)
+
+    cached = get_cached_units(resolved_id, language)
     if cached:
         units_key = 'units_phrase' if unit_type == 'phrase' else 'units_line'
         if units_key in cached:
             units = cached[units_key]
             processed_cache[cache_key] = units
             return units
-    
+
     units = text_processor.process_file(filepath, language, unit_type)
     processed_cache[cache_key] = units
-    
+
     try:
         file_hash = get_file_hash(filepath)
         units_line = units if unit_type == 'line' else text_processor.process_file(filepath, language, 'line')
         units_phrase = units if unit_type == 'phrase' else text_processor.process_file(filepath, language, 'phrase')
-        save_cached_units(text_id, language, units_line, units_phrase, file_hash)
+        save_cached_units(resolved_id, language, units_line, units_phrase, file_hash)
     except Exception:
         pass
-    
+
     return units
 
 
@@ -927,9 +935,8 @@ def _deduplicate_and_normalize(results):
 
 def _resolve_line_text(source_text_id, line_ref, language):
     """Look up a line's text from its .tess file using the reference tag."""
-    lang_dir = os.path.join(TEXTS_DIR, language)
-    source_path = os.path.join(lang_dir, source_text_id)
-    if os.path.exists(source_path):
+    source_path = resolve_text_path(TEXTS_DIR, language, source_text_id)
+    if source_path:
         with open(source_path, 'r', encoding='utf-8') as f:
             for file_line in f:
                 file_line = file_line.strip()
@@ -1076,11 +1083,10 @@ def search():
         if not source_id or not target_id:
             return jsonify({"error": "Please select both source and target texts"})
         
-        lang_dir = os.path.join(TEXTS_DIR, language)
-        source_path = os.path.join(lang_dir, source_id)
-        target_path = os.path.join(lang_dir, target_id)
+        source_path = resolve_text_path(TEXTS_DIR, language, source_id)
+        target_path = resolve_text_path(TEXTS_DIR, language, target_id)
         
-        if not os.path.exists(source_path) or not os.path.exists(target_path):
+        if not source_path or not target_path:
             return jsonify({"error": "Text files not found"})
         
         settings['language'] = language
@@ -1251,10 +1257,9 @@ def get_stats():
 def get_text_content(text_id):
     """Get the full content of a text file"""
     language = request.args.get('language', 'la')
-    lang_dir = os.path.join(TEXTS_DIR, language)
-    filepath = os.path.join(lang_dir, text_id)
+    filepath = resolve_text_path(TEXTS_DIR, language, text_id)
     
-    if not os.path.exists(filepath):
+    if not filepath:
         return jsonify({'error': 'Text not found'}), 404
     
     try:
@@ -1295,16 +1300,14 @@ def get_text_lines(text_id):
     
     if not language:
         for lang in ['la', 'grc', 'en']:
-            lang_dir = os.path.join(TEXTS_DIR, lang)
-            filepath = os.path.join(lang_dir, text_id)
-            if os.path.exists(filepath):
+            filepath = resolve_text_path(TEXTS_DIR, lang, text_id)
+            if filepath:
                 language = lang
                 break
     
-    lang_dir = os.path.join(TEXTS_DIR, language) if language else TEXTS_DIR
-    filepath = os.path.join(lang_dir, text_id)
+    filepath = resolve_text_path(TEXTS_DIR, language, text_id)
     
-    if not os.path.exists(filepath):
+    if not filepath:
         return jsonify({'error': 'Text not found', 'lines': []}), 404
     
     try:
@@ -1560,8 +1563,8 @@ def line_search():
                     text_candidates[filename].append((ref, matching_lemmas, positions))
                 
                 for filename, matches in text_candidates.items():
-                    filepath = os.path.join(lang_dir, filename)
-                    if not os.path.exists(filepath):
+                    filepath = resolve_text_path(TEXTS_DIR, language, filename)
+                    if not filepath:
                         continue
                     
                     metadata = get_text_metadata(filepath)
@@ -2071,7 +2074,9 @@ def corpus_search():
             text_matches[filename].append((ref, matching_lemmas, positions))
         
         for filename, refs_data in text_matches.items():
-            filepath = os.path.join(TEXTS_DIR, language, filename)
+            filepath = resolve_text_path(TEXTS_DIR, language, filename)
+            if not filepath:
+                continue
             if not os.path.exists(filepath):
                 continue
             metadata = get_text_metadata(filepath)
