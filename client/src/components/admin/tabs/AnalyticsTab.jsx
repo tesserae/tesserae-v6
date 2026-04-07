@@ -1,9 +1,100 @@
 import { LANG_NAMES } from '../adminConstants';
 
+function exportAnalyticsCSV(analytics) {
+  const lines = [];
+  const today = new Date().toISOString().split('T')[0];
+
+  lines.push('TESSERAE V6 — USER ANALYTICS EXPORT');
+  lines.push(`Exported: ${today}`);
+  lines.push('');
+
+  lines.push('SUMMARY');
+  lines.push('Metric,Value');
+  lines.push(`Total Searches,${analytics.total_searches || 0}`);
+  lines.push(`Unique Users,${analytics.unique_users || 'N/A'}`);
+  const todayCount = analytics.per_day?.find(d => d.date === today)?.count || 0;
+  lines.push(`Searches Today,${todayCount}`);
+  lines.push('');
+
+  if (analytics.by_type?.length) {
+    lines.push('SEARCHES BY TYPE');
+    lines.push('Type,Count');
+    analytics.by_type.forEach(item => lines.push(`${item.type},${item.count}`));
+    lines.push('');
+  }
+
+  if (analytics.by_language?.length) {
+    lines.push('SEARCHES BY LANGUAGE');
+    lines.push('Language,Count');
+    analytics.by_language.forEach(item =>
+      lines.push(`${LANG_NAMES[item.language] || item.language},${item.count}`)
+    );
+    lines.push('');
+  }
+
+  if (analytics.top_sources?.length) {
+    lines.push('TOP SOURCE TEXTS');
+    lines.push('Text,Count');
+    analytics.top_sources.forEach(item =>
+      lines.push(`"${item.text.replace(/"/g, '""')}",${item.count}`)
+    );
+    lines.push('');
+  }
+
+  if (analytics.top_targets?.length) {
+    lines.push('TOP TARGET TEXTS');
+    lines.push('Text,Count');
+    analytics.top_targets.forEach(item =>
+      lines.push(`"${item.text.replace(/"/g, '""')}",${item.count}`)
+    );
+    lines.push('');
+  }
+
+  if (analytics.per_day?.length) {
+    lines.push('DAILY SEARCH ACTIVITY');
+    lines.push('Date,Count');
+    analytics.per_day.forEach(item => lines.push(`${item.date},${item.count}`));
+    lines.push('');
+  }
+
+  if (analytics.top_countries?.length) {
+    lines.push('TOP COUNTRIES');
+    lines.push('Country,Count');
+    analytics.top_countries.forEach(item => lines.push(`${item.country},${item.count}`));
+    lines.push('');
+  }
+
+  if (analytics.top_cities?.length) {
+    lines.push('TOP CITIES');
+    lines.push('City,Country,Count');
+    analytics.top_cities.forEach(item =>
+      lines.push(`"${item.city}","${item.country || ''}",${item.count}`)
+    );
+  }
+
+  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `tesserae_analytics_${today}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function AnalyticsTab({ analytics }) {
   return (
     <div className="space-y-6">
-      <h3 className="font-medium text-gray-900">User Analytics</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="font-medium text-gray-900">User Analytics</h3>
+        {analytics && (
+          <button
+            onClick={() => exportAnalyticsCSV(analytics)}
+            className="px-3 py-1.5 text-xs bg-gray-100 text-gray-700 rounded border border-gray-300 hover:bg-gray-200"
+          >
+            Export CSV
+          </button>
+        )}
+      </div>
       {analytics ? (
         <>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

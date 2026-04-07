@@ -4,4 +4,3 @@ export { default as DownloadsPage } from './DownloadsPage';
 export { default as PrivacyPage } from './PrivacyPage';
 export { default as ResearchPage } from './ResearchPage';
 export { default as BlogArchivePage } from './BlogArchivePage';
-export { default as RegisterUserTestPage } from './RegisterUserTestPage';

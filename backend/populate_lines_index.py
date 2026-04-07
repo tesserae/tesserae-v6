@@ -16,6 +16,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from backend.inverted_index import INDEX_DIR, ensure_lines_table
 from backend.text_processor import TextProcessor
+from backend.utils import resolve_text_path
 
 TEXTS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts')
 
@@ -62,9 +63,9 @@ def populate_lines(language='la', batch_size=100):
     start_time = time.time()
     
     for i, (text_id, filename) in enumerate(texts):
-        filepath = os.path.join(TEXTS_DIR, language, filename)
+        filepath = resolve_text_path(TEXTS_DIR, language, filename)
         
-        if not os.path.exists(filepath):
+        if not filepath:
             print(f"  Skipping {filename} (file not found)")
             continue
         

@@ -1,0 +1,1026 @@
+[
+  {
+    "source_ref": "stat. ach. 1.14",
+    "target_ref": "verg. aen. 12.827",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;R-S;U",
+    "auth_count": 3,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.22",
+    "target_ref": "stat. theb. 5.620",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;N",
+    "auth_count": 2,
+    "note": "praesagia somni"
+  },
+  {
+    "source_ref": "stat. ach. 1.23",
+    "target_ref": "verg. aen. 2.602",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "R-S;U",
+    "auth_count": 2,
+    "note": "(culpatus Paris)"
+  },
+  {
+    "source_ref": "stat. ach. 1.32",
+    "target_ref": "stat. theb. 1.491",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;U",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.32",
+    "target_ref": "ovid. met. 11.221",
+    "target_work": "ovid.metamorphoses.tess",
+    "auth": "N;R-S",
+    "auth_count": 2,
+    "note": "prophétie de Protée"
+  },
+  {
+    "source_ref": "stat. ach. 1.34",
+    "target_ref": "ovid. met. 13.182",
+    "target_work": "ovid.metamorphoses.tess",
+    "auth": "D;N;U",
+    "auth_count": 3,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.40",
+    "target_ref": "stat. theb. 2.656",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;N;U",
+    "auth_count": 3,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.40",
+    "target_ref": "ovid. met. 12.210",
+    "target_work": "ovid.metamorphoses.tess",
+    "auth": "D;R-S",
+    "auth_count": 2,
+    "note": "pour l'histoire de la battaille entre les Lapithes et les Centaures"
+  },
+  {
+    "source_ref": "stat. ach. 1.43",
+    "target_ref": "verg. aen. 7.309",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;N;R-S;U",
+    "auth_count": 4,
+    "note": "potui infelix"
+  },
+  {
+    "source_ref": "stat. ach. 1.43",
+    "target_ref": "stat. theb. 9.377",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;N;U",
+    "auth_count": 3,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.45",
+    "target_ref": "verg. aen. 7.362",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;R-S;U",
+    "auth_count": 3,
+    "note": "Pâris"
+  },
+  {
+    "source_ref": "stat. ach. 1.46",
+    "target_ref": "verg. aen. 7.300",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "R-S;U",
+    "auth_count": 2,
+    "note": "un seul écho verbal mais les vv 44-46 font allusion à Verg Aen 7 299-300 (Junon se plaint de ne pas avoir réussi à bloquer les Troyens malgré les obstacles qu'elle a dressé contre eux)"
+  },
+  {
+    "source_ref": "stat. ach. 1.47",
+    "target_ref": "verg. aen. 1.135",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "N;U",
+    "auth_count": 2,
+    "note": "quos ego- sed (même aposiopèse)"
+  },
+  {
+    "source_ref": "stat. ach. 1.47",
+    "target_ref": "stat. theb. 8.60",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;U",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.49",
+    "target_ref": "verg. aen. 5.796",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;N;R-S;U",
+    "auth_count": 4,
+    "note": "contexte semblable"
+  },
+  {
+    "source_ref": "stat. ach. 1.49",
+    "target_ref": "verg. aen. 9.157",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;R-S;U",
+    "auth_count": 3,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.49",
+    "target_ref": "stat. theb. 9.215",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;N;R-S;U",
+    "auth_count": 4,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.49",
+    "target_ref": "stat. theb. 10.47",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;N;R-S;U",
+    "auth_count": 4,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.49",
+    "target_ref": "stat. theb. 12.161",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;U",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.49",
+    "target_ref": "ovid. met. 2.509",
+    "target_work": "ovid.metamorphoses.tess",
+    "auth": "R-S;U",
+    "auth_count": 2,
+    "note": "Tethys et Océan"
+  },
+  {
+    "source_ref": "stat. ach. 1.50",
+    "target_ref": "verg. aen. 1.65",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "R-S;U",
+    "auth_count": 2,
+    "note": "(Junon à Eole même place métrique)"
+  },
+  {
+    "source_ref": "stat. ach. 1.50",
+    "target_ref": "verg. aen. 7.280",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "N;U",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.52",
+    "target_ref": "verg. aen. 5.816",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;R-S;U",
+    "auth_count": 3,
+    "note": "cortège de Neptune (après la prière de Vénus au dieu) mais inversion des scènes: dans Ach on a d'abord la description ensuite la tirade de la déesse"
+  },
+  {
+    "source_ref": "stat. ach. 1.53",
+    "target_ref": "ovid. met. 3.318",
+    "target_work": "ovid.metamorphoses.tess",
+    "auth": "N;R-S",
+    "auth_count": 2,
+    "note": "Iovem diffusum nectare (sens différent 'égayé par le nectar') p 162 \\cette image introduit une note d'ironie légèrement irrrévérencieuse\\\" MAIS il y a plus : le contexte du passage des met est celui de la diatribe sur qui jouit plus hommes ou femmes: pour résoudre la question Jupiter et Junon s'adressent à Tyrésias qui a été successivement homme et femme --\""
+  },
+  {
+    "source_ref": "stat. ach. 1.55",
+    "target_ref": "verg. aen. 5.822",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "N;U",
+    "auth_count": 2,
+    "note": "immania cete"
+  },
+  {
+    "source_ref": "stat. ach. 1.55",
+    "target_ref": "ovid. met. 15.386",
+    "target_work": "ovid.metamorphoses.tess",
+    "auth": "D;R-S",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.57",
+    "target_ref": "stat. theb. 9.418",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;U",
+    "auth_count": 2,
+    "note": "Ismenus"
+  },
+  {
+    "source_ref": "stat. ach. 1.59",
+    "target_ref": "stat. theb. 9.438",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;R-S;U",
+    "auth_count": 3,
+    "note": "pas attesté avant"
+  },
+  {
+    "source_ref": "stat. ach. 1.60",
+    "target_ref": "stat. theb. 2.46",
+    "target_work": "statius.thebaid.tess",
+    "auth": "N;R-S;U",
+    "auth_count": 3,
+    "note": "description des chevaux de Neptune"
+  },
+  {
+    "source_ref": "stat. ach. 1.61",
+    "target_ref": "ovid. met. 11.202",
+    "target_work": "ovid.metamorphoses.tess",
+    "auth": "N;R-S;U",
+    "auth_count": 3,
+    "note": "Neptune 'tridentigero tumidi genitore profundi'"
+  },
+  {
+    "source_ref": "stat. ach. 1.61",
+    "target_ref": "verg. aen. 1.65",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "N;R-S",
+    "auth_count": 2,
+    "note": "(requête de Junon à Eole) \\Modèle structurel et thématique avec quelques échos verbaux\\\" p 163\""
+  },
+  {
+    "source_ref": "stat. ach. 1.65",
+    "target_ref": "ovid. met. 7.1",
+    "target_work": "ovid.metamorphoses.tess",
+    "auth": "D;N;U",
+    "auth_count": 3,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.65",
+    "target_ref": "ovid. met. 13.24",
+    "target_work": "ovid.metamorphoses.tess",
+    "auth": "D;N;U",
+    "auth_count": 3,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.68",
+    "target_ref": "verg. aen. 4.409",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;N;R-S",
+    "auth_count": 3,
+    "note": "quosve dabas gemitus Ici ce sont les pleurs de Didon (causés indirectement par le rapt d'Hélène car: rapt --"
+  },
+  {
+    "source_ref": "stat. ach. 1.69",
+    "target_ref": "verg. aen. 5.70",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;N",
+    "auth_count": 2,
+    "note": "praemia palmae cf apparat"
+  },
+  {
+    "source_ref": "stat. ach. 1.71",
+    "target_ref": "stat. theb. 3.518",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;U",
+    "auth_count": 2,
+    "note": "aussi pour les Argonautes"
+  },
+  {
+    "source_ref": "stat. ach. 1.72",
+    "target_ref": "verg. aen. 1.69",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "N;R-S;U",
+    "auth_count": 3,
+    "note": "obrue puppes"
+  },
+  {
+    "source_ref": "stat. ach. 1.72",
+    "target_ref": "verg. aen. 4.318",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;U",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.73",
+    "target_ref": "verg. aen. 2.602",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;R-S",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.77",
+    "target_ref": "stat. theb. 7.481",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;N;U",
+    "auth_count": 3,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.77",
+    "target_ref": "stat. theb. 11.418",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;N;R-S;U",
+    "auth_count": 4,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.77",
+    "target_ref": "verg. aen. 12.606",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;N;R-S;U",
+    "auth_count": 4,
+    "note": "laniata genas; réaction de Lavinia à la nouvelle du suicide de sa mère"
+  },
+  {
+    "source_ref": "stat. ach. 1.78",
+    "target_ref": "verg. aen. 5.819",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "R-S;U",
+    "auth_count": 2,
+    "note": "caeruleo curru (de Neptune)"
+  },
+  {
+    "source_ref": "stat. ach. 1.79",
+    "target_ref": "verg. aen. 2.147",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;N;R-S;U",
+    "auth_count": 4,
+    "note": "dictisque ita fatur amicis (Priam s'adresse à Sinon); dictisque ita amicis"
+  },
+  {
+    "source_ref": "stat. ach. 1.79",
+    "target_ref": "stat. theb. 3.178",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;N;U",
+    "auth_count": 3,
+    "note": "dictis mulcebat [epic/statian language no allusion but perhaps an echo of 1 79 ~ Theb 3 294?]"
+  },
+  {
+    "source_ref": "stat. ach. 1.79",
+    "target_ref": "stat. theb. 3.294",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;N;U",
+    "auth_count": 3,
+    "note": "hémistiche identique (situation semblable: Mars ve calmer par ses mots Vénus); dictisque ita mulcet amicis"
+  },
+  {
+    "source_ref": "stat. ach. 1.79",
+    "target_ref": "verg. aen. 5.770",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;R-S;U",
+    "auth_count": 3,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.79",
+    "target_ref": "verg. aen. 5.816",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "R-S;U",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.79",
+    "target_ref": "verg. aen. 8.126",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;R-S;U",
+    "auth_count": 3,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.79",
+    "target_ref": "verg. aen. 10.466",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;R-S",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.81",
+    "target_ref": "verg. aen. 1.39",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "R-S;U",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.81",
+    "target_ref": "stat. theb. 2.169",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;R-S;U",
+    "auth_count": 3,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.81",
+    "target_ref": "stat. theb. 5.179",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;N;R-S;U",
+    "auth_count": 4,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.81",
+    "target_ref": "stat. theb. 9.254",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;R-S;U",
+    "auth_count": 3,
+    "note": "pas en début de vers"
+  },
+  {
+    "source_ref": "stat. ach. 1.82",
+    "target_ref": "verg. aen. 10.90",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "N;R-S;U",
+    "auth_count": 3,
+    "note": "Assemblée des dieux discussion entre Vénus et Junon référence au rapt qui soulève l'Europe contre l'Asie et réponse de Jupiter cf Aen 1 113 fata viam invenient cf Ach 1 410 et 730"
+  },
+  {
+    "source_ref": "stat. ach. 1.84",
+    "target_ref": "verg. aen. 4.47",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;R-S;U",
+    "auth_count": 3,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.84",
+    "target_ref": "stat. theb. 2.460",
+    "target_work": "statius.thebaid.tess",
+    "auth": "N;R-S",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.86",
+    "target_ref": "stat. theb. 9.257",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;R-S;U",
+    "auth_count": 3,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.89",
+    "target_ref": "ovid. met. 12.587",
+    "target_work": "ovid.metamorphoses.tess",
+    "auth": "D;R-S;U",
+    "auth_count": 3,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.92",
+    "target_ref": "verg. aen. 1.66",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;R-S;U",
+    "auth_count": 3,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.92",
+    "target_ref": "verg. aen. 1.103",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;U",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.94",
+    "target_ref": "verg. aen. 2.762",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;N;U",
+    "auth_count": 3,
+    "note": "dirus Ulixes (formulaic epithet)"
+  },
+  {
+    "source_ref": "stat. ach. 1.95",
+    "target_ref": "stat. theb. 4.68",
+    "target_work": "statius.thebaid.tess",
+    "auth": "N;U",
+    "auth_count": 2,
+    "note": "demisso vultu"
+  },
+  {
+    "source_ref": "stat. ach. 1.99",
+    "target_ref": "verg. aen. 2.792",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "N;R-S",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.101",
+    "target_ref": "stat. theb. 5.112",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;N;U",
+    "auth_count": 3,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.101",
+    "target_ref": "ovid. met. 11.229",
+    "target_work": "ovid.metamorphoses.tess",
+    "auth": "D;R-S",
+    "auth_count": 2,
+    "note": "description de l'antre où se consomme l'union de Thétis et Pélée"
+  },
+  {
+    "source_ref": "stat. ach. 1.107",
+    "target_ref": "stat. theb. 10.83",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;N;R-S;U",
+    "auth_count": 4,
+    "note": "? Iris/arc en ciel; longo suspenditur arcu"
+  },
+  {
+    "source_ref": "stat. ach. 1.108",
+    "target_ref": "ovid. met. 11.235",
+    "target_work": "ovid.metamorphoses.tess",
+    "auth": "D;R-S;U",
+    "auth_count": 3,
+    "note": "\\l'idée globale vient sans doute d'Ovide à propos justement de la grotte de Thétis\\\" p 170 mais pas d'intertextualité verbale\"; est specus in medio natura factus an arte ambiguum magis arte tamen; mais pas d'intertextualité verbale"
+  },
+  {
+    "source_ref": "stat. ach. 1.111",
+    "target_ref": "verg. aen. 6.286",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;R-S;U",
+    "auth_count": 3,
+    "note": "centauri in foribus stabulant"
+  },
+  {
+    "source_ref": "stat. ach. 1.111",
+    "target_ref": "ovid. met. 8.554",
+    "target_work": "ovid.metamorphoses.tess",
+    "auth": "N;U",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.115",
+    "target_ref": "verg. aen. 7.20",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;N;R-S",
+    "auth_count": 3,
+    "note": "terga ferarum"
+  },
+  {
+    "source_ref": "stat. ach. 1.117",
+    "target_ref": "stat. theb. 12.503",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;U",
+    "auth_count": 2,
+    "note": "animantibus aegris"
+  },
+  {
+    "source_ref": "stat. ach. 1.119",
+    "target_ref": "stat. theb. 10.496",
+    "target_work": "statius.thebaid.tess",
+    "auth": "N;R-S;U",
+    "auth_count": 3,
+    "note": "formulaire"
+  },
+  {
+    "source_ref": "stat. ach. 1.119",
+    "target_ref": "verg. aen. 11.423",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "N;R-S",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.123",
+    "target_ref": "verg. aen. 8.596",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "N;R-S;U",
+    "auth_count": 3,
+    "note": "intertextualité verbale et sonore"
+  },
+  {
+    "source_ref": "stat. ach. 1.123",
+    "target_ref": "stat. theb. 12.656",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;N;R-S;U",
+    "auth_count": 4,
+    "note": "déplacement hostile contre Thèbes"
+  },
+  {
+    "source_ref": "stat. ach. 1.124",
+    "target_ref": "ovid. met. 10.112",
+    "target_work": "ovid.metamorphoses.tess",
+    "auth": "N;U",
+    "auth_count": 2,
+    "note": "bijoux autour du cou d'un cerf ? cf v 111 late patentibus altas umbras /Ach 1 111; bijoux autour du cou d'un cerf ? cf v 111 late patentibus altas"
+  },
+  {
+    "source_ref": "stat. ach. 1.125",
+    "target_ref": "verg. aen. 8.359",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "R-S;U",
+    "auth_count": 2,
+    "note": "Evandre accuille Enée dans sa demeure"
+  },
+  {
+    "source_ref": "stat. ach. 1.133",
+    "target_ref": "stat. theb. 9.654",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;N;U",
+    "auth_count": 3,
+    "note": "même rejet Contexte: Atalante prie Diane pour sauver son fils Parthénopée Diane apprend d'Apollon que la mort du jeune est inévitable (analogie de situation avec Ach )"
+  },
+  {
+    "source_ref": "stat. ach. 1.135",
+    "target_ref": "verg. aen. 4.493",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;R-S",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.135",
+    "target_ref": "verg. aen. 4.497",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;U",
+    "auth_count": 2,
+    "note": "intertextualité verbale et sonore (iuvat/iubet et cf mss ); abolere nefandi cuncta viri monumenta iuvat"
+  },
+  {
+    "source_ref": "stat. ach. 1.135",
+    "target_ref": "verg. aen. 4.500",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;U",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.136",
+    "target_ref": "verg. aen. 4.480",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;U",
+    "auth_count": 2,
+    "note": "Oceani finem iuxta solemque cadentem; variation sur le même thème"
+  },
+  {
+    "source_ref": "stat. ach. 1.136",
+    "target_ref": "ovid. met. 11.249",
+    "target_work": "ovid.metamorphoses.tess",
+    "auth": "D;N;R-S",
+    "auth_count": 3,
+    "note": "même personnage; même personnage (prédiction à Pélée de ses noces avec Thétis)"
+  },
+  {
+    "source_ref": "stat. ach. 1.137",
+    "target_ref": "verg. aen. 4.480",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;R-S;U",
+    "auth_count": 3,
+    "note": "finem Oceani ultimus locus"
+  },
+  {
+    "source_ref": "stat. ach. 1.140",
+    "target_ref": "stat. theb. 2.163",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;N;R-S;U",
+    "auth_count": 4,
+    "note": "longum enumerare"
+  },
+  {
+    "source_ref": "stat. ach. 1.141",
+    "target_ref": "stat. theb. 1.578",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;N;R-S;U",
+    "auth_count": 4,
+    "note": "contexte semblable; contexte semblable synonyme (donasset/dedisset)"
+  },
+  {
+    "source_ref": "stat. ach. 1.147",
+    "target_ref": "stat. theb. 9.662",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;R-S;U",
+    "auth_count": 3,
+    "note": "Apollon parlant à Diane de ses propre oracles; nec te de dubiis fraterna oracula fallunt; Apollon parlant à Diane de ses propres oracles"
+  },
+  {
+    "source_ref": "stat. ach. 1.148",
+    "target_ref": "stat. theb. 6.756",
+    "target_work": "statius.thebaid.tess",
+    "auth": "R-S;U",
+    "auth_count": 2,
+    "note": "Alcidamas Intertextualité verbale faible (Verg 9 annos; Stat 11 annos/; Stat 6 /robur annos/); Alcidamas 11 34-35"
+  },
+  {
+    "source_ref": "stat. ach. 1.148",
+    "target_ref": "verg. aen. 9.311",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "R-S;U",
+    "auth_count": 2,
+    "note": "Ascagne"
+  },
+  {
+    "source_ref": "stat. ach. 1.148",
+    "target_ref": "stat. theb. 9.716",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;N;R-S;U",
+    "auth_count": 4,
+    "note": "de Parthénopée; festina virtus"
+  },
+  {
+    "source_ref": "stat. ach. 1.151",
+    "target_ref": "verg. aen. 9.644",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;N;R-S",
+    "auth_count": 3,
+    "note": "Apollon dit cela de Iule à cause de sa valeur guerrière; nec te Troia capit"
+  },
+  {
+    "source_ref": "stat. ach. 1.156",
+    "target_ref": "stat. theb. 3.517",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;N;R-S;U",
+    "auth_count": 4,
+    "note": "Amphiaraüs parle de l'époque où il était sur l'Argo et faisait part de ses présages et des signes qu'il apercevait; prima cum pube virentem semideos inter pinus me Thessala reges duceret; prima cum pube virentem / semideos inter pinus me Thessala reges duceret"
+  },
+  {
+    "source_ref": "stat. ach. 1.158",
+    "target_ref": "stat. theb. 4.517",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;N;R-S;U",
+    "auth_count": 4,
+    "note": "aposiopèse; sed taceo"
+  },
+  {
+    "source_ref": "stat. ach. 1.158",
+    "target_ref": "verg. aen. 12.447",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;R-S",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.159",
+    "target_ref": "stat. theb. 9.710",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;N;R-S;U",
+    "auth_count": 4,
+    "note": "Parthénopée; sudore et pulvere (Parthénopée au combat)"
+  },
+  {
+    "source_ref": "stat. ach. 1.163",
+    "target_ref": "ovid. met. 12.291",
+    "target_work": "ovid.metamorphoses.tess",
+    "auth": "R-S;U",
+    "auth_count": 2,
+    "note": "avec variation du mot déterminé par prima"
+  },
+  {
+    "source_ref": "stat. ach. 1.164",
+    "target_ref": "stat. theb. 6.396",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;U",
+    "auth_count": 2,
+    "note": "face lumina surgunt; des chevaux ?"
+  },
+  {
+    "source_ref": "stat. ach. 1.165",
+    "target_ref": "verg. aen. 4.143",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;N;R-S;U",
+    "auth_count": 4,
+    "note": "pas de similitude de détail mais de contexte; Enée qui part chasser est comparé à Apollon qui revient de la chasse en Lycie et joue de la lyre; qualis ubi hibernam Lyciam desert ac Delum maternam invisit Apollo instauratque choros"
+  },
+  {
+    "source_ref": "stat. ach. 1.167",
+    "target_ref": "ovid. met. 14.653",
+    "target_work": "ovid.metamorphoses.tess",
+    "auth": "N;U",
+    "auth_count": 2,
+    "note": "référence à la beauté de la nymphe Pomone dont Vertumne est épris (histoire semblable à celle de Thétis et Pélée mais ici c'est Vertumne qui peut changer de forme)"
+  },
+  {
+    "source_ref": "stat. ach. 1.171",
+    "target_ref": "verg. aen. 9.648",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "N;R-S",
+    "auth_count": 2,
+    "note": "Butès écuyer d'Anchise"
+  },
+  {
+    "source_ref": "stat. ach. 1.176",
+    "target_ref": "stat. theb. 7.296",
+    "target_work": "statius.thebaid.tess",
+    "auth": "N;R-S;U",
+    "auth_count": 3,
+    "note": "père et fils semblables dans Stace (et acception différente de la iunctura); sens différent"
+  },
+  {
+    "source_ref": "stat. ach. 1.181",
+    "target_ref": "stat. theb. 2.36",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;R-S",
+    "auth_count": 2,
+    "note": "pour une étoile"
+  },
+  {
+    "source_ref": "stat. ach. 1.181",
+    "target_ref": "stat. theb. 10.136",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;N;R-S",
+    "auth_count": 3,
+    "note": "Iris; iubar excitat; obtusum multo iubar excitat imbri"
+  },
+  {
+    "source_ref": "stat. ach. 1.184",
+    "target_ref": "verg. aen. 5.92",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;N;R-S;U",
+    "auth_count": 4,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.186",
+    "target_ref": "stat. theb. 9.603",
+    "target_work": "statius.thebaid.tess",
+    "auth": "N;U",
+    "auth_count": 2,
+    "note": "solantia curas"
+  },
+  {
+    "source_ref": "stat. ach. 1.188",
+    "target_ref": "stat. theb. 12.546",
+    "target_work": "statius.thebaid.tess",
+    "auth": "N;R-S;U",
+    "auth_count": 3,
+    "note": "même rejet (Thésée); maxima laudis semina"
+  },
+  {
+    "source_ref": "stat. ach. 1.189",
+    "target_ref": "verg. aen. 8.288",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "R-S;U",
+    "auth_count": 2,
+    "note": "pour Junon par rapport à Hercule; Junon"
+  },
+  {
+    "source_ref": "stat. ach. 1.189",
+    "target_ref": "ovid. met. 9.15",
+    "target_work": "ovid.metamorphoses.tess",
+    "auth": "N;R-S;U",
+    "auth_count": 3,
+    "note": "formulation quasi identique (référent là aussi l'Alcide)"
+  },
+  {
+    "source_ref": "stat. ach. 1.190",
+    "target_ref": "verg. aen. 5.69",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "N;R-S",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.192",
+    "target_ref": "stat. theb. 12.668",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;U",
+    "auth_count": 2,
+    "note": "lutte avec le Minotaure intertextualité verbale limitée (brachia iuvenci)"
+  },
+  {
+    "source_ref": "stat. ach. 1.197",
+    "target_ref": "ovid. met. 4.596",
+    "target_work": "ovid.metamorphoses.tess",
+    "auth": "D;N;R-S",
+    "auth_count": 3,
+    "note": "p 182 \\ réalisme psychologique familier dans la manière alexandrine\\\"\"; assuetque colla petebat"
+  },
+  {
+    "source_ref": "stat. ach. 1.283",
+    "target_ref": "verg. aen. 9.77",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "N;R-S",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.295",
+    "target_ref": "stat. theb. 4.379",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;N",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.299",
+    "target_ref": "stat. theb. 8.518",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;N;R-S",
+    "auth_count": 3,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.300",
+    "target_ref": "stat. theb. 11.408",
+    "target_work": "statius.thebaid.tess",
+    "auth": "N;R-S",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.302",
+    "target_ref": "stat. theb. 7.342",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;N;R-S",
+    "auth_count": 3,
+    "note": "même iunctura"
+  },
+  {
+    "source_ref": "stat. ach. 1.303",
+    "target_ref": "ovid. met. 2.410",
+    "target_work": "ovid.metamorphoses.tess",
+    "auth": "D;N;R-S",
+    "auth_count": 3,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.308",
+    "target_ref": "verg. aen. 12.67",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "D;R-S",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.309",
+    "target_ref": "stat. theb. 1.537",
+    "target_work": "statius.thebaid.tess",
+    "auth": "N;R-S",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.313",
+    "target_ref": "stat. theb. 12.601",
+    "target_work": "statius.thebaid.tess",
+    "auth": "N;R-S",
+    "auth_count": 2,
+    "note": "variantes de verg georg 3 219-241"
+  },
+  {
+    "source_ref": "stat. ach. 1.314",
+    "target_ref": "stat. theb. 9.117",
+    "target_work": "statius.thebaid.tess",
+    "auth": "D;N;R-S",
+    "auth_count": 3,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.318",
+    "target_ref": "verg. aen. 11.459",
+    "target_work": "vergil.aeneid.tess",
+    "auth": "N;U",
+    "auth_count": 2,
+    "note": "Immo ait o cives arrepto tempore Turnus"
+  },
+  {
+    "source_ref": "stat. ach. 1.320",
+    "target_ref": "stat. theb. 5.261",
+    "target_work": "statius.thebaid.tess",
+    "auth": "N;U",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.326",
+    "target_ref": "stat. theb. 6.482",
+    "target_work": "statius.thebaid.tess",
+    "auth": "N;U",
+    "auth_count": 2,
+    "note": "et colla rigentia tendunt"
+  },
+  {
+    "source_ref": "stat. ach. 1.330",
+    "target_ref": "ovid. met. 10.593",
+    "target_work": "ovid.metamorphoses.tess",
+    "auth": "N;U",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.560",
+    "target_ref": "ovid. met. 7.360",
+    "target_work": "ovid.metamorphoses.tess",
+    "auth": "N;R-S",
+    "auth_count": 2,
+    "note": null
+  },
+  {
+    "source_ref": "stat. ach. 1.609",
+    "target_ref": "ovid. met. 10.113",
+    "target_work": "ovid.metamorphoses.tess",
+    "auth": "N;R-S",
+    "auth_count": 2,
+    "note": null
+  }
+]

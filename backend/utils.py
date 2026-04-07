@@ -5,12 +5,92 @@ import os
 import re
 import json
 import logging
+import unicodedata
 
 logger = logging.getLogger(__name__)
 
 OVERRIDES_PATH = os.path.join(os.path.dirname(__file__), 'text_metadata_overrides.json')
+PROVENANCE_PATH = os.path.join(os.path.dirname(__file__), 'text_provenance.json')
+
 _overrides_cache = None
 _overrides_mtime = 0
+_provenance_cache = None
+_provenance_mtime = 0
+
+def load_provenance(force_reload=False):
+    """Load text provenance data from JSON with caching."""
+    global _provenance_cache, _provenance_mtime
+    try:
+        if not os.path.exists(PROVENANCE_PATH):
+            return {"sources": {}, "texts": {}}
+            
+        mtime = os.path.getmtime(PROVENANCE_PATH)
+        if not force_reload and _provenance_cache is not None and mtime == _provenance_mtime:
+            return _provenance_cache
+            
+        with open(PROVENANCE_PATH, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            
+        # Ensure the structure is correct
+        # If it's a flat dict with text keys, or if it has 'sources' but not 'texts'
+        if "texts" not in data:
+            # We want to keep all top-level keys EXCEPT 'sources' and metadata keys
+            texts_dict = {k: v for k, v in data.items() if k not in ("sources", "_description", "_format")}
+            data = {"sources": data.get("sources", {}), "texts": texts_dict}
+
+        # Pre-build a normalized (NFC) index for O(1) fallback lookups
+        norm_index = {}
+        for k, v in data["texts"].items():
+            norm_index.setdefault(unicodedata.normalize('NFC', k), v)
+        data["_norm_index"] = norm_index
+
+        _provenance_cache = data
+        _provenance_mtime = mtime
+        return _provenance_cache
+    except Exception as e:
+        logger.warning(f"Could not load text provenance: {e}")
+        return {"sources": {}, "texts": {}}
+
+def resolve_text_path(texts_dir, language, text_id):
+    """Resolve a text file path, handling Unicode normalization mismatches.
+
+    Guards against directory traversal by ensuring the resolved path stays
+    within texts_dir/language. Returns the real path string or None.
+    """
+    base_dir = os.path.realpath(texts_dir)
+    lang_dir = os.path.realpath(os.path.join(base_dir, language))
+
+    # Reject traversal outside texts_dir
+    try:
+        if os.path.commonpath([base_dir, lang_dir]) != base_dir:
+            return None
+    except ValueError:
+        return None
+
+    if not os.path.isdir(lang_dir):
+        return None
+
+    # 1. Try direct match, validating resolved path stays inside lang_dir
+    direct_path = os.path.realpath(os.path.join(lang_dir, text_id))
+    try:
+        if os.path.commonpath([lang_dir, direct_path]) != lang_dir:
+            return None
+    except ValueError:
+        return None
+    if os.path.exists(direct_path):
+        return direct_path
+
+    # 2. Try normalized match (NFC)
+    # Browsers often send NFC, but the filesystem may store filenames in NFD
+    target_norm = unicodedata.normalize('NFC', text_id)
+    try:
+        for filename in os.listdir(lang_dir):
+            if unicodedata.normalize('NFC', filename) == target_norm:
+                return os.path.join(lang_dir, filename)
+    except OSError:
+        pass
+
+    return None
 
 def load_metadata_overrides(force_reload=False):
     global _overrides_cache, _overrides_mtime
@@ -469,6 +549,20 @@ def get_text_metadata(filepath):
         title = work
     
     text_type = detect_text_type(filename, filepath=filepath)
+    
+    # Get provenance info using the pre-built NFC index for O(1) lookup
+    provenance_data = load_provenance()
+    texts_prov = provenance_data.get('texts', {})
+    norm_index = provenance_data.get('_norm_index', {})
+    filename_norm = unicodedata.normalize('NFC', filename)
+    provenance = texts_prov.get(filename) or norm_index.get(filename_norm, {})
+    
+    if provenance:
+        if 'author' in provenance:
+            author = provenance['author']
+        if 'title' in provenance:
+            title = provenance['title'] or title
+            work = title # For display consistency
     
     override = get_override(filename)
     if 'display_author' in override:

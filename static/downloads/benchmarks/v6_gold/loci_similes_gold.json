@@ -1,0 +1,4212 @@
+[
+  {
+    "source_ref": "jer. ep. 21.2.4",
+    "target_ref": "verg. ecl. 4.60",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.eclogues",
+    "ls_id": 0,
+    "ls_query_citation": "<hier. epist. 21.2.5.1>",
+    "ls_corpus_citation": "<verg. ecl. 4.60.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 117.6.4",
+    "target_ref": "verg. aen. 6.848",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 1,
+    "ls_query_citation": "<hier. epist. 117.7.1.1>",
+    "ls_corpus_citation": "<verg. aen. 6.847.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 66.10.2",
+    "target_ref": "verg. aen. 7.112",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 2,
+    "ls_query_citation": "<hier. epist. 66.11.1.2>",
+    "ls_corpus_citation": "<verg. aen. 7.112.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 53.7.2",
+    "target_ref": "verg. ecl. 4.6",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.eclogues",
+    "ls_id": 3,
+    "ls_query_citation": "<hier. epist. 53.7.3.1>",
+    "ls_corpus_citation": "<verg. ecl. 4.6.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 106.47.1",
+    "target_ref": "verg. ecl. 8.62",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.eclogues",
+    "ls_id": 4,
+    "ls_query_citation": "<hier. epist. 52.9.3.2>",
+    "ls_corpus_citation": "<verg. ecl. 8.62.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 49.19.4",
+    "target_ref": "verg. ecl. 8.73",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.eclogues",
+    "ls_id": 5,
+    "ls_query_citation": "<hier. epist. 49.19.5.2>",
+    "ls_corpus_citation": "<verg. ecl. 8.73.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 52.1.1",
+    "target_ref": "verg. ecl. 9.51",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.eclogues",
+    "ls_id": 6,
+    "ls_query_citation": "<hier. epist. 52.1.2.3>",
+    "ls_corpus_citation": "<verg. ecl. 9.50.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 52.1.1",
+    "target_ref": "verg. ecl. 9.53",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.eclogues",
+    "ls_id": 7,
+    "ls_query_citation": "<hier. epist. 52.1.2.3>",
+    "ls_corpus_citation": "<verg. ecl. 9.53.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 105.3.2",
+    "target_ref": "verg. ecl. 9.51",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.eclogues",
+    "ls_id": 8,
+    "ls_query_citation": "<hier. epist. 105.3.3.1>",
+    "ls_corpus_citation": "<verg. ecl. 9.50.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 105.3.2",
+    "target_ref": "verg. ecl. 9.53",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.eclogues",
+    "ls_id": 9,
+    "ls_query_citation": "<hier. epist. 105.3.3.2>",
+    "ls_corpus_citation": "<verg. ecl. 9.53.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 130.16.2",
+    "target_ref": "verg. ecl. 4.60",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.eclogues",
+    "ls_id": 10,
+    "ls_query_citation": "<hier. epist. 130.16.3.4>",
+    "ls_corpus_citation": "<verg. ecl. 4.60.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 125.11.2",
+    "target_ref": "verg. g. 1.104",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.georgics",
+    "ls_id": 11,
+    "ls_query_citation": "<hier. epist. 125.11.3.1>",
+    "ls_corpus_citation": "<verg. georg. 1.104.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 125.11.2",
+    "target_ref": "verg. g. 1.110",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.georgics",
+    "ls_id": 12,
+    "ls_query_citation": "<hier. epist. 125.11.3.1>",
+    "ls_corpus_citation": "<verg. georg. 1.109.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 133.3.3",
+    "target_ref": "verg. g. 2.326",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.georgics",
+    "ls_id": 13,
+    "ls_query_citation": "<hier. epist. 133.3.4.1>",
+    "ls_corpus_citation": "<verg. georg. 2.325.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 52.1.1",
+    "target_ref": "verg. g. 2.483",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.georgics",
+    "ls_id": 14,
+    "ls_query_citation": "<hier. epist. 52.1.2.2>",
+    "ls_corpus_citation": "<verg. georg. 2.483.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 140.10.1",
+    "target_ref": "verg. g. 3.285",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.georgics",
+    "ls_id": 15,
+    "ls_query_citation": "<hier. epist. 140.10.2.2>",
+    "ls_corpus_citation": "<verg. georg. 3.284.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 1.15.2",
+    "target_ref": "verg. g. 4.147",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.georgics",
+    "ls_id": 16,
+    "ls_query_citation": "<hier. epist. 1.15.3.1>",
+    "ls_corpus_citation": "<verg. georg. 4.147.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 79.6.1",
+    "target_ref": "verg. g. 4.84",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.georgics",
+    "ls_id": 17,
+    "ls_query_citation": "<hier. epist. 79.6.2.1>",
+    "ls_corpus_citation": "<verg. georg. 4.82.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 60.14.3",
+    "target_ref": "verg. g. 3.66",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.georgics",
+    "ls_id": 18,
+    "ls_query_citation": "<hier. epist. 60.14.4.1>",
+    "ls_corpus_citation": "<verg. georg. 3.66.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 58.11.1",
+    "target_ref": "verg. g. 3.66",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.georgics",
+    "ls_id": 19,
+    "ls_query_citation": "<hier. epist. 58.11.2.5>",
+    "ls_corpus_citation": "<verg. georg. 3.66.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 121.10.4",
+    "target_ref": "verg. g. 2.257",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.georgics",
+    "ls_id": 20,
+    "ls_query_citation": "<hier. epist. 121.10.5.1>",
+    "ls_corpus_citation": "<verg. georg. 2.256.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 20.5.1",
+    "target_ref": "verg. aen. 1.38",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 22,
+    "ls_query_citation": "<hier. epist. 20.5.2.2>",
+    "ls_corpus_citation": "<verg. aen. 1.37.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 108.7.1",
+    "target_ref": "verg. aen. 1.171",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 23,
+    "ls_query_citation": "<hier. epist. 108.7.2.1>",
+    "ls_corpus_citation": "<verg. aen. 1.170.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 108.3.4",
+    "target_ref": "verg. aen. 1.287",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 24,
+    "ls_query_citation": "<hier. epist. 108.4.1.2>",
+    "ls_corpus_citation": "<verg. aen. 1.286.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 66.3.2",
+    "target_ref": "verg. aen. 1.362",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 25,
+    "ls_query_citation": "<hier. epist. 66.3.3.1>",
+    "ls_corpus_citation": "<verg. aen. 1.361.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 118.7.3",
+    "target_ref": "verg. aen. 1.362",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 26,
+    "ls_query_citation": "<hier. epist. 118.7.4.1>",
+    "ls_corpus_citation": "<verg. aen. 1.361.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 122.4.2",
+    "target_ref": "verg. aen. 1.362",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 27,
+    "ls_query_citation": "<hier. epist. 122.4.3.5>",
+    "ls_corpus_citation": "<verg. aen. 1.361.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 17.1.1",
+    "target_ref": "verg. aen. 1.539",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 28,
+    "ls_query_citation": "<hier. epist. 17.2.1.1>",
+    "ls_corpus_citation": "<verg. aen. 1.539.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 17.1.1",
+    "target_ref": "verg. aen. 1.539",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 29,
+    "ls_query_citation": "<hier. epist. 17.2.1.2>",
+    "ls_corpus_citation": "<verg. aen. 1.539.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 17.1.1",
+    "target_ref": "verg. aen. 1.541",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 31,
+    "ls_query_citation": "<hier. epist. 17.2.1.4>",
+    "ls_corpus_citation": "<verg. aen. 1.540.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 53.7.2",
+    "target_ref": "verg. aen. 1.666",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 32,
+    "ls_query_citation": "<hier. epist. 53.7.3.1>",
+    "ls_corpus_citation": "<verg. aen. 1.664.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 127.12.2",
+    "target_ref": "verg. aen. 2.361",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 33,
+    "ls_query_citation": "<hier. epist. 127.12.3.1>",
+    "ls_corpus_citation": "<verg. aen. 2.361.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 127.12.2",
+    "target_ref": "verg. aen. 2.363",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 34,
+    "ls_query_citation": "<hier. epist. 127.12.3.2>",
+    "ls_corpus_citation": "<verg. aen. 2.363.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 60.16.2",
+    "target_ref": "verg. aen. 2.367",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 35,
+    "ls_query_citation": "<hier. epist. 60.16.3.2>",
+    "ls_corpus_citation": "<verg. aen. 2.366.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 127.12.2",
+    "target_ref": "verg. aen. 2.367",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 36,
+    "ls_query_citation": "<hier. epist. 127.12.3.2>",
+    "ls_corpus_citation": "<verg. aen. 2.366.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 53.7.2",
+    "target_ref": "verg. aen. 2.650",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 37,
+    "ls_query_citation": "<hier. epist. 53.7.3.1>",
+    "ls_corpus_citation": "<verg. aen. 2.649.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 106.56.2",
+    "target_ref": "verg. aen. 2.755",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 38,
+    "ls_query_citation": "<hier. epist. 106.57.1.3>",
+    "ls_corpus_citation": "<verg. aen. 2.755.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 130.5.4",
+    "target_ref": "verg. aen. 2.774",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 39,
+    "ls_query_citation": "<hier. epist. 130.5.5.3>",
+    "ls_corpus_citation": "<verg. aen. 2.774.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 106.56.2",
+    "target_ref": "verg. aen. 3.30",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 40,
+    "ls_query_citation": "<hier. epist. 106.57.1.3>",
+    "ls_corpus_citation": "<verg. aen. 3.29.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 130.5.4",
+    "target_ref": "verg. aen. 2.774",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 41,
+    "ls_query_citation": "<hier. epist. 130.5.5.3>",
+    "ls_corpus_citation": "<verg. aen. 3.46.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 108.7.1",
+    "target_ref": "verg. aen. 3.127",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 42,
+    "ls_query_citation": "<hier. epist. 108.7.2.1>",
+    "ls_corpus_citation": "<verg. aen. 3.124.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 108.7.1",
+    "target_ref": "verg. aen. 3.127",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 43,
+    "ls_query_citation": "<hier. epist. 108.7.2.2>",
+    "ls_corpus_citation": "<verg. aen. 3.124.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 1.1.1",
+    "target_ref": "verg. aen. 3.192",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 44,
+    "ls_query_citation": "<hier. epist. 1.2.1.4>",
+    "ls_corpus_citation": "<verg. aen. 3.192.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 3.2.3",
+    "target_ref": "verg. aen. 3.192",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 45,
+    "ls_query_citation": "<hier. epist. 3.3.1.1>",
+    "ls_corpus_citation": "<verg. aen. 3.192.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 97.1.2",
+    "target_ref": "verg. aen. 3.426",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 46,
+    "ls_query_citation": "<hier. epist. 97.1.3.2>",
+    "ls_corpus_citation": "<verg. aen. 3.426.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 130.7.11",
+    "target_ref": "verg. aen. 3.433",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 47,
+    "ls_query_citation": "<hier. epist. 130.7.12.1>",
+    "ls_corpus_citation": "<verg. aen. 3.433.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 52.5.2",
+    "target_ref": "verg. aen. 3.433",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 48,
+    "ls_query_citation": "<hier. epist. 52.5.3.1>",
+    "ls_corpus_citation": "<verg. aen. 3.433.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 79.6.1",
+    "target_ref": "verg. aen. 3.490",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 49,
+    "ls_query_citation": "<hier. epist. 79.6.2.1>",
+    "ls_corpus_citation": "<verg. aen. 3.490.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 106.56.2",
+    "target_ref": "verg. aen. 3.655",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 50,
+    "ls_query_citation": "<hier. epist. 106.57.1.3>",
+    "ls_corpus_citation": "<verg. aen. 3.654.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 79.7.7",
+    "target_ref": "verg. aen. 4.28",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 51,
+    "ls_query_citation": "<hier. epist. 79.7.8.1>",
+    "ls_corpus_citation": "<verg. aen. 4.28.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 54.4.3",
+    "target_ref": "verg. aen. 4.33",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 52,
+    "ls_query_citation": "<hier. epist. 54.5.1.2>",
+    "ls_corpus_citation": "<verg. aen. 4.31.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 123.12.5",
+    "target_ref": "verg. aen. 4.33",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 53,
+    "ls_query_citation": "<hier. epist. 123.13.1.1>",
+    "ls_corpus_citation": "<verg. aen. 4.31.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 123.12.5",
+    "target_ref": "verg. aen. 4.34",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 54,
+    "ls_query_citation": "<hier. epist. 123.13.1.2>",
+    "ls_corpus_citation": "<verg. aen. 4.34.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 126.2.1",
+    "target_ref": "verg. aen. 4.40",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 55,
+    "ls_query_citation": "<hier. epist. 126.2.2.1>",
+    "ls_corpus_citation": "<verg. aen. 4.40.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 129.4.2",
+    "target_ref": "verg. aen. 4.40",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 56,
+    "ls_query_citation": "<hier. epist. 129.4.3.1>",
+    "ls_corpus_citation": "<verg. aen. 4.40.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 125.7.1",
+    "target_ref": "verg. aen. 4.67",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 57,
+    "ls_query_citation": "<hier. epist. 125.7.2.1>",
+    "ls_corpus_citation": "<verg. aen. 4.66.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 39.7.3",
+    "target_ref": "verg. aen. 4.336",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 58,
+    "ls_query_citation": "<hier. epist. 39.8.1.1>",
+    "ls_corpus_citation": "<verg. aen. 4.333.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 123.12.5",
+    "target_ref": "verg. aen. 4.549",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 59,
+    "ls_query_citation": "<hier. epist. 123.13.1.3>",
+    "ls_corpus_citation": "<verg. aen. 4.548.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 123.12.5",
+    "target_ref": "verg. aen. 4.550",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 60,
+    "ls_query_citation": "<hier. epist. 123.13.1.4>",
+    "ls_corpus_citation": "<verg. aen. 4.550.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 1.5.2",
+    "target_ref": "verg. aen. 4.552",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 61,
+    "ls_query_citation": "<hier. epist. 123.13.1.5>",
+    "ls_corpus_citation": "<verg. aen. 4.552.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 3.2.3",
+    "target_ref": "verg. aen. 5.8",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 62,
+    "ls_query_citation": "<hier. epist. 3.3.1.1>",
+    "ls_corpus_citation": "<verg. aen. 5.8.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 49.20.1",
+    "target_ref": "verg. aen. 5.214",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 63,
+    "ls_query_citation": "<hier. epist. 49.20.2.4>",
+    "ls_corpus_citation": "<verg. aen. 5.213.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 127.12.3",
+    "target_ref": "verg. aen. 6.264",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 64,
+    "ls_query_citation": "<hier. epist. 127.13.1.1>",
+    "ls_corpus_citation": "<verg. aen. 6.264.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 40.1.3",
+    "target_ref": "verg. aen. 6.494",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 65,
+    "ls_query_citation": "<hier. epist. 40.2.1.4>",
+    "ls_corpus_citation": "<verg. aen. 6.494.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 66.5.1",
+    "target_ref": "verg. aen. 6.625",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 66,
+    "ls_query_citation": "<hier. epist. 66.5.2.1>",
+    "ls_corpus_citation": "<verg. aen. 6.625.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 77.6.3",
+    "target_ref": "verg. aen. 6.625",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 67,
+    "ls_query_citation": "<hier. epist. 60.16.5.3>",
+    "ls_corpus_citation": "<verg. aen. 6.625.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 77.6.3",
+    "target_ref": "verg. aen. 6.625",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 68,
+    "ls_query_citation": "<hier. epist. 77.6.4.2>",
+    "ls_corpus_citation": "<verg. aen. 6.625.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 77.6.3",
+    "target_ref": "verg. aen. 6.625",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 69,
+    "ls_query_citation": "<hier. epist. 123.16.4.4>",
+    "ls_corpus_citation": "<verg. aen. 6.625.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 133.1.3",
+    "target_ref": "verg. aen. 6.733",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 70,
+    "ls_query_citation": "<hier. epist. 133.1.4.2>",
+    "ls_corpus_citation": "<verg. aen. 6.733.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 77.2.2",
+    "target_ref": "verg. aen. 6.846",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 71,
+    "ls_query_citation": "<hier. epist. 77.2.3.1>",
+    "ls_corpus_citation": "<verg. aen. 6.845.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 14.4.1",
+    "target_ref": "verg. aen. 7.335",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 72,
+    "ls_query_citation": "<hier. epist. 14.4.2.1>",
+    "ls_corpus_citation": "<verg. aen. 7.335.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 54.14.1",
+    "target_ref": "verg. aen. 7.420",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 73,
+    "ls_query_citation": "<hier. epist. 54.14.2.2>",
+    "ls_corpus_citation": "<verg. aen. 7.415.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 77.11.1",
+    "target_ref": "verg. aen. 8.287",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 74,
+    "ls_query_citation": "<hier. epist. 77.11.2.4>",
+    "ls_corpus_citation": "<verg. aen. 8.285.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 107.13.2",
+    "target_ref": "verg. aen. 8.516",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 75,
+    "ls_query_citation": "<hier. epist. 107.13.3.2>",
+    "ls_corpus_citation": "<verg. aen. 8.514.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 60.3.4",
+    "target_ref": "verg. aen. 8.723",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 76,
+    "ls_query_citation": "<hier. epist. 60.4.1.2>",
+    "ls_corpus_citation": "<verg. aen. 8.720.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 123.15.2",
+    "target_ref": "verg. aen. 8.724",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 77,
+    "ls_query_citation": "<hier. epist. 123.15.3.2>",
+    "ls_corpus_citation": "<verg. aen. 8.724.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 130.7.7",
+    "target_ref": "verg. aen. 10.79",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 79,
+    "ls_query_citation": "<hier. epist. 130.7.8.1>",
+    "ls_corpus_citation": "<verg. aen. 10.79.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 140.10.1",
+    "target_ref": "verg. aen. 10.861",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 80,
+    "ls_query_citation": "<hier. epist. 140.10.2.2>",
+    "ls_corpus_citation": "<verg. aen. 10.861.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 77.11.1",
+    "target_ref": "verg. aen. 11.139",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 81,
+    "ls_query_citation": "<hier. epist. 77.11.2.2>",
+    "ls_corpus_citation": "<verg. aen. 11.139.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 84.3.4",
+    "target_ref": "verg. aen. 11.284",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 82,
+    "ls_query_citation": "<hier. epist. 84.3.5.3>",
+    "ls_corpus_citation": "<verg. aen. 11.282.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 50.4.1",
+    "target_ref": "verg. aen. 11.284",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 83,
+    "ls_query_citation": "<hier. epist. 50.4.2.6>",
+    "ls_corpus_citation": "<verg. aen. 11.282.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 49.12.2",
+    "target_ref": "verg. aen. 11.374",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 84,
+    "ls_query_citation": "<hier. epist. 49.12.3.1>",
+    "ls_corpus_citation": "<verg. aen. 11.373.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 50.5.4",
+    "target_ref": "verg. aen. 12.50",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 85,
+    "ls_query_citation": "<hier. epist. 50.5.5.2>",
+    "ls_corpus_citation": "<verg. aen. 12.50.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 14.3.2",
+    "target_ref": "verg. aen. 12.56",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 86,
+    "ls_query_citation": "<hier. epist. 14.3.3.1>",
+    "ls_corpus_citation": "<verg. aen. 12.56.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 58.1.2",
+    "target_ref": "verg. aen. 12.603",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 87,
+    "ls_query_citation": "<hier. epist. 58.1.3.3>",
+    "ls_corpus_citation": "<verg. aen. 12.598.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 1.10.1",
+    "target_ref": "verg. aen. 12.609",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 88,
+    "ls_query_citation": "<hier. epist. 1.10.2.1>",
+    "ls_corpus_citation": "<verg. aen. 12.609.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 1.5.1",
+    "target_ref": "verg. aen. 1.92",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 89,
+    "ls_query_citation": "<hier. epist. 1.5.2.1>",
+    "ls_corpus_citation": "<verg. aen. 1.92.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 64.2.2",
+    "target_ref": "verg. aen. 1.673",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 90,
+    "ls_query_citation": "<hier. epist. 64.2.3.4>",
+    "ls_corpus_citation": "<verg. aen. 1.673.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 60.16.1",
+    "target_ref": "verg. aen. 2.10",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 91,
+    "ls_query_citation": "<hier. epist. 60.16.2.1>",
+    "ls_corpus_citation": "<verg. aen. 2.10.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 1.8.2",
+    "target_ref": "verg. aen. 3.570",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 92,
+    "ls_query_citation": "<hier. epist. 1.9.1.1>",
+    "ls_corpus_citation": "<verg. aen. 3.570.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 60.19.1",
+    "target_ref": "verg. aen. 4.67",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 93,
+    "ls_query_citation": "<hier. epist. 60.19.2.4>",
+    "ls_corpus_citation": "<verg. aen. 4.66.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 106.56.2",
+    "target_ref": "verg. aen. 4.181",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 94,
+    "ls_query_citation": "<hier. epist. 106.57.1.3>",
+    "ls_corpus_citation": "<verg. aen. 4.178.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 130.5.4",
+    "target_ref": "verg. aen. 4.280",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 95,
+    "ls_query_citation": "<hier. epist. 130.5.5.3>",
+    "ls_corpus_citation": "<verg. aen. 4.279.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 22.35.2",
+    "target_ref": "verg. aen. 4.443",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 96,
+    "ls_query_citation": "<hier. epist. 22.35.3.2>",
+    "ls_corpus_citation": "<verg. aen. 4.441.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 60.13.2",
+    "target_ref": "verg. aen. 4.443",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 97,
+    "ls_query_citation": "<hier. epist. 60.13.3.1>",
+    "ls_corpus_citation": "<verg. aen. 4.441.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 1.1.1",
+    "target_ref": "verg. aen. 5.8",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 98,
+    "ls_query_citation": "<hier. epist. 1.2.1.4>",
+    "ls_corpus_citation": "<verg. aen. 5.8.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 107.11.1",
+    "target_ref": "verg. aen. 5.743",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 99,
+    "ls_query_citation": "<hier. epist. 107.11.2.2>",
+    "ls_corpus_citation": "<verg. aen. 5.742.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 117.10.2",
+    "target_ref": "verg. aen. 5.743",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 100,
+    "ls_query_citation": "<hier. epist. 117.11.1.3>",
+    "ls_corpus_citation": "<verg. aen. 5.742.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 49.21.3",
+    "target_ref": "verg. aen. 6.434",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 101,
+    "ls_query_citation": "<hier. epist. 49.21.4.2>",
+    "ls_corpus_citation": "<verg. aen. 6.434.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 77.6.1",
+    "target_ref": "verg. aen. 6.494",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 102,
+    "ls_query_citation": "<hier. epist. 77.6.2.1>",
+    "ls_corpus_citation": "<verg. aen. 6.494.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 108.13.3",
+    "target_ref": "verg. aen. 7.19",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 103,
+    "ls_query_citation": "<hier. epist. 108.13.4.5>",
+    "ls_corpus_citation": "<verg. aen. 7.15.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 66.10.2",
+    "target_ref": "verg. aen. 7.437",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 104,
+    "ls_query_citation": "<hier. epist. 66.11.1.2>",
+    "ls_corpus_citation": "<verg. aen. 7.436.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 129.2.6",
+    "target_ref": "verg. aen. 7.801",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 105,
+    "ls_query_citation": "<hier. epist. 129.2.7.2>",
+    "ls_corpus_citation": "<verg. aen. 7.793.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 14.6.2",
+    "target_ref": "verg. aen. 8.86",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 106,
+    "ls_query_citation": "<hier. epist. 14.6.3.2>",
+    "ls_corpus_citation": "<verg. aen. 8.86.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 66.1.1",
+    "target_ref": "verg. aen. 8.407",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 107,
+    "ls_query_citation": "<hier. epist. 66.1.2.1>",
+    "ls_corpus_citation": "<verg. aen. 8.407.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 107.11.1",
+    "target_ref": "verg. aen. 8.407",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 108,
+    "ls_query_citation": "<hier. epist. 107.11.2.2>",
+    "ls_corpus_citation": "<verg. aen. 8.407.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 117.10.2",
+    "target_ref": "verg. aen. 8.407",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 109,
+    "ls_query_citation": "<hier. epist. 117.11.1.3>",
+    "ls_corpus_citation": "<verg. aen. 8.407.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 65.19.3",
+    "target_ref": "verg. aen. 10.817",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 110,
+    "ls_query_citation": "<hier. epist. 65.19.4.3>",
+    "ls_corpus_citation": "<verg. aen. 10.817.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 129.2.6",
+    "target_ref": "verg. aen. 11.316",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 111,
+    "ls_query_citation": "<hier. epist. 129.2.7.2>",
+    "ls_corpus_citation": "<verg. aen. 11.316.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 130.5.4",
+    "target_ref": "verg. aen. 4.280",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 112,
+    "ls_query_citation": "<hier. epist. 130.5.5.3>",
+    "ls_corpus_citation": "<verg. aen. 12.867.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 14.1.3",
+    "target_ref": "verg. aen. 10.513",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 113,
+    "ls_query_citation": "<hier. epist. 14.2.1.7>",
+    "ls_corpus_citation": "<verg. aen. 10.513.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 130.3.1",
+    "target_ref": "verg. aen. 11.159",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 114,
+    "ls_query_citation": "<hier. epist. 130.3.2.3>",
+    "ls_corpus_citation": "<verg. aen. 11.158.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 22.7.4",
+    "target_ref": "verg. aen. 11.284",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 115,
+    "ls_query_citation": "<hier. epist. 22.8.1.3>",
+    "ls_corpus_citation": "<verg. aen. 11.282.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 57.11.4",
+    "target_ref": "verg. aen. 2.65",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 116,
+    "ls_query_citation": "<hier. epist. 57.12.1.1>",
+    "ls_corpus_citation": "<verg. aen. 2.65.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 22.30.4",
+    "target_ref": "verg. aen. 12.66",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 117,
+    "ls_query_citation": "<hier. epist. 22.30.5.4>",
+    "ls_corpus_citation": "<verg. aen. 12.63.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 14.3.1",
+    "target_ref": "verg. aen. 2.678",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 118,
+    "ls_query_citation": "<hier. epist. 14.3.2.4>",
+    "ls_corpus_citation": "<verg. aen. 2.677.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 22.30.5",
+    "target_ref": "verg. aen. 3.177",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 119,
+    "ls_query_citation": "<hier. epist. 22.30.6.1>",
+    "ls_corpus_citation": "<verg. aen. 3.171.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 2.0.3",
+    "target_ref": "verg. aen. 3.192",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 120,
+    "ls_query_citation": "<hier. epist. 2.0.4.1>",
+    "ls_corpus_citation": "<verg. aen. 3.192.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 7.3.2",
+    "target_ref": "verg. aen. 4.297",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 121,
+    "ls_query_citation": "<hier. epist. 7.4.1.3>",
+    "ls_corpus_citation": "<verg. aen. 4.297.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 30.13.2",
+    "target_ref": "verg. aen. 4.297",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 122,
+    "ls_query_citation": "<hier. epist. 30.14.1.1>",
+    "ls_corpus_citation": "<verg. aen. 4.297.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 49.21.4",
+    "target_ref": "verg. aen. 4.297",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 123,
+    "ls_query_citation": "<hier. epist. 50.1.1.1>",
+    "ls_corpus_citation": "<verg. aen. 4.297.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 54.13.4",
+    "target_ref": "verg. aen. 4.297",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 124,
+    "ls_query_citation": "<hier. epist. 54.13.5.1>",
+    "ls_corpus_citation": "<verg. aen. 4.297.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 130.7.14",
+    "target_ref": "verg. aen. 4.297",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 125,
+    "ls_query_citation": "<hier. epist. 130.8.1.1>",
+    "ls_corpus_citation": "<verg. aen. 4.297.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 123.7.1",
+    "target_ref": "verg. aen. 4.35",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 126,
+    "ls_query_citation": "<hier. epist. 123.7.2.1>",
+    "ls_corpus_citation": "<verg. aen. 4.35.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 14.3.1",
+    "target_ref": "verg. aen. 4.365",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 127,
+    "ls_query_citation": "<hier. epist. 14.3.2.1>",
+    "ls_corpus_citation": "<verg. aen. 4.365.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 66.1.1",
+    "target_ref": "verg. aen. 4.365",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 128,
+    "ls_query_citation": "<hier. epist. 66.1.2.1>",
+    "ls_corpus_citation": "<verg. aen. 4.365.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 22.35.2",
+    "target_ref": "verg. aen. 4.448",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 129,
+    "ls_query_citation": "<hier. epist. 22.35.3.2>",
+    "ls_corpus_citation": "<verg. aen. 4.447.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 2.0.3",
+    "target_ref": "verg. aen. 5.8",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 130,
+    "ls_query_citation": "<hier. epist. 2.0.4.1>",
+    "ls_corpus_citation": "<verg. aen. 5.8.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 1.1.1",
+    "target_ref": "verg. aen. 5.8",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 131,
+    "ls_query_citation": "<hier. epist. 1.2.1.4>",
+    "ls_corpus_citation": "<verg. aen. 5.8.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 102.2.1",
+    "target_ref": "verg. aen. 5.368",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 132,
+    "ls_query_citation": "<hier. epist. 102.2.2.2>",
+    "ls_corpus_citation": "<verg. aen. 5.368.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 107.13.6",
+    "target_ref": "verg. aen. 6.625",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 133,
+    "ls_query_citation": "<hier. epist. 108.1.1.1>",
+    "ls_corpus_citation": "<verg. aen. 6.625.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 117.6.4",
+    "target_ref": "verg. aen. 6.848",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 134,
+    "ls_query_citation": "<hier. epist. 117.7.1.1>",
+    "ls_corpus_citation": "<verg. aen. 6.847.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 66.10.2",
+    "target_ref": "verg. aen. 7.112",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 135,
+    "ls_query_citation": "<hier. epist. 66.11.1.2>",
+    "ls_corpus_citation": "<verg. aen. 7.112.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 52.1.1",
+    "target_ref": "verg. aen. 7.420",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 136,
+    "ls_query_citation": "<hier. epist. 52.1.2.2>",
+    "ls_corpus_citation": "<verg. aen. 7.415.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 147.1.7",
+    "target_ref": "verg. aen. 7.626",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 137,
+    "ls_query_citation": "<hier. epist. 147.2.1.3>",
+    "ls_corpus_citation": "<verg. aen. 7.626.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 82.5.1",
+    "target_ref": "verg. aen. 7.808",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 138,
+    "ls_query_citation": "<hier. epist. 82.5.2.4>",
+    "ls_corpus_citation": "<verg. aen. 7.808.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 22.6.5",
+    "target_ref": "verg. aen. 8.390",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 139,
+    "ls_query_citation": "<hier. epist. 22.6.6.2>",
+    "ls_corpus_citation": "<verg. aen. 8.388.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 1.3.3",
+    "target_ref": "verg. aen. 9.495",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.aeneid",
+    "ls_id": 140,
+    "ls_query_citation": "<hier. epist. 1.3.4.2>",
+    "ls_corpus_citation": "<verg. aen. 9.495.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 46.10.1",
+    "target_ref": "verg. ecl. 1.65",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.eclogues",
+    "ls_id": 141,
+    "ls_query_citation": "<hier. epist. 46.10.2.2>",
+    "ls_corpus_citation": "<verg. ecl. 1.65.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 22.30.2",
+    "target_ref": "verg. ecl. 3.102",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.eclogues",
+    "ls_id": 142,
+    "ls_query_citation": "<hier. epist. 22.30.3.1>",
+    "ls_corpus_citation": "<verg. ecl. 3.102.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 107.4.7",
+    "target_ref": "verg. ecl. 4.60",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.eclogues",
+    "ls_id": 143,
+    "ls_query_citation": "<hier. epist. 107.4.8.2>",
+    "ls_corpus_citation": "<verg. ecl. 4.60.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 21.2.4",
+    "target_ref": "verg. ecl. 4.60",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.eclogues",
+    "ls_id": 144,
+    "ls_query_citation": "<hier. epist. 21.2.5.1>",
+    "ls_corpus_citation": "<verg. ecl. 4.60.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 58.8.2",
+    "target_ref": "verg. ecl. 6.64",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.eclogues",
+    "ls_id": 145,
+    "ls_query_citation": "<hier. epist. 58.8.3.1>",
+    "ls_corpus_citation": "<verg. ecl. 6.64.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 130.7.7",
+    "target_ref": "verg. ecl. 6.74",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.eclogues",
+    "ls_id": 146,
+    "ls_query_citation": "<hier. epist. 130.7.8.2>",
+    "ls_corpus_citation": "<verg. ecl. 6.73.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 120.10.11",
+    "target_ref": "verg. ecl. 8.80",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.eclogues",
+    "ls_id": 147,
+    "ls_query_citation": "<hier. epist. 120.10.12.2>",
+    "ls_corpus_citation": "<verg. ecl. 8.80.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 60.12.2",
+    "target_ref": "verg. g. 1.111",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.georgics",
+    "ls_id": 148,
+    "ls_query_citation": "<hier. epist. 60.12.3.2>",
+    "ls_corpus_citation": "<verg. georg. 1.111.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 121.10.4",
+    "target_ref": "verg. g. 2.257",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.georgics",
+    "ls_id": 149,
+    "ls_query_citation": "<hier. epist. 121.10.5.1>",
+    "ls_corpus_citation": "<verg. georg. 2.256.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 46.12.2",
+    "target_ref": "verg. g. 2.403",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.georgics",
+    "ls_id": 150,
+    "ls_query_citation": "<hier. epist. 46.12.3.2>",
+    "ls_corpus_citation": "<verg. georg. 2.403.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 46.12.2",
+    "target_ref": "verg. g. 2.416",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.georgics",
+    "ls_id": 151,
+    "ls_query_citation": "<hier. epist. 46.12.3.2>",
+    "ls_corpus_citation": "<verg. georg. 2.416.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 66.4.3",
+    "target_ref": "verg. g. 2.461",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.georgics",
+    "ls_id": 152,
+    "ls_query_citation": "<hier. epist. 66.5.1.3>",
+    "ls_corpus_citation": "<verg. georg. 2.461.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 14.3.6",
+    "target_ref": "verg. g. 2.467",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.georgics",
+    "ls_id": 153,
+    "ls_query_citation": "<hier. epist. 14.4.1.4>",
+    "ls_corpus_citation": "<verg. georg. 2.467.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 3.4.3",
+    "target_ref": "verg. g. 3.260",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.georgics",
+    "ls_id": 154,
+    "ls_query_citation": "<hier. epist. 3.4.4.1>",
+    "ls_corpus_citation": "<verg. georg. 3.259.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 52.1.1",
+    "target_ref": "verg. g. 3.55",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.georgics",
+    "ls_id": 155,
+    "ls_query_citation": "<hier. epist. 52.1.2.2>",
+    "ls_corpus_citation": "<verg. georg. 3.51.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 54.13.4",
+    "target_ref": "verg. g. 4.84",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.georgics",
+    "ls_id": 156,
+    "ls_query_citation": "<hier. epist. 54.13.5.2>",
+    "ls_corpus_citation": "<verg. georg. 4.82.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 107.13.3",
+    "target_ref": "verg. g. 4.84",
+    "source_work": "jerome.epistulae",
+    "target_work": "vergil.georgics",
+    "ls_id": 157,
+    "ls_query_citation": "<hier. epist. 107.13.4.2>",
+    "ls_corpus_citation": "<verg. georg. 4.82.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jerome. in_hier.prophetam. 2.23.1",
+    "target_ref": "verg. aen. 1.416",
+    "source_work": "jerome.in_hieremiam_prophetam",
+    "target_work": "vergil.aeneid",
+    "ls_id": 217,
+    "ls_query_citation": "<hier. in ier. 0726c.5>",
+    "ls_corpus_citation": "<verg. aen. 1.415.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jerome. in_hier.prophetam. 1.77.1",
+    "target_ref": "verg. aen. 1.135",
+    "source_work": "jerome.in_hieremiam_prophetam",
+    "target_work": "vergil.aeneid",
+    "ls_id": 218,
+    "ls_query_citation": "<hier. in ier. 0709a.3>",
+    "ls_corpus_citation": "<verg. aen. 1.135.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jerome. in_hier.prophetam. 4.4.2",
+    "target_ref": "verg. aen. 1.607",
+    "source_work": "jerome.in_hieremiam_prophetam",
+    "target_work": "vergil.aeneid",
+    "ls_id": 219,
+    "ls_query_citation": "<hier. in ier. 0797c.4>",
+    "ls_corpus_citation": "<verg. aen. 1.607.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jerome. in_hier.prophetam. 2.86.5",
+    "target_ref": "verg. aen. 3.118",
+    "source_work": "jerome.in_hieremiam_prophetam",
+    "target_work": "vergil.aeneid",
+    "ls_id": 220,
+    "ls_query_citation": "<hier. in ier. 0747b.6>",
+    "ls_corpus_citation": "<verg. aen. 3.117.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jerome. in_hier.prophetam. 2.100.2",
+    "target_ref": "verg. g. 1.129",
+    "source_work": "jerome.in_hieremiam_prophetam",
+    "target_work": "vergil.georgics",
+    "ls_id": 221,
+    "ls_query_citation": "<hier. in ier. 0753b.2>",
+    "ls_corpus_citation": "<verg. georg. 1.129.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jerome. in_hier.prophetam. 3.24.3",
+    "target_ref": "verg. g. 3.280",
+    "source_work": "jerome.in_hieremiam_prophetam",
+    "target_work": "vergil.georgics",
+    "ls_id": 222,
+    "ls_query_citation": "<hier. in ier. 0769b.2>",
+    "ls_corpus_citation": "<verg. georg. 3.280.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jerome. in_hier.prophetam. 4.4.2",
+    "target_ref": "verg. ecl. 1.60",
+    "source_work": "jerome.in_hieremiam_prophetam",
+    "target_work": "vergil.eclogues",
+    "ls_id": 223,
+    "ls_query_citation": "<hier. in ier. 0797c.3>",
+    "ls_corpus_citation": "<verg. ecl. 1.60.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jerome. in_hier.prophetam. 2.10.1",
+    "target_ref": "verg. ecl. 1.80",
+    "source_work": "jerome.in_hieremiam_prophetam",
+    "target_work": "vergil.eclogues",
+    "ls_id": 224,
+    "ls_query_citation": "<hier. in ier. 0722a.6>",
+    "ls_corpus_citation": "<verg. ecl. 1.80.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jerome. in_hier.prophetam. 2.100.2",
+    "target_ref": "verg. ecl. 3.89",
+    "source_work": "jerome.in_hieremiam_prophetam",
+    "target_work": "vergil.eclogues",
+    "ls_id": 225,
+    "ls_query_citation": "<hier. in ier. 0753b.1>",
+    "ls_corpus_citation": "<verg. ecl. 3.89.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jerome. in_hier.prophetam. 4.4.2",
+    "target_ref": "verg. ecl. 5.76",
+    "source_work": "jerome.in_hieremiam_prophetam",
+    "target_work": "vergil.eclogues",
+    "ls_id": 226,
+    "ls_query_citation": "<hier. in ier. 0797c.4>",
+    "ls_corpus_citation": "<verg. ecl. 5.76.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 27.2.2",
+    "target_ref": "hor. a.p. 22",
+    "source_work": "jerome.epistulae",
+    "target_work": "horace.ars_poetica",
+    "ls_id": 255,
+    "ls_query_citation": "<hier. epist. 27.3.1.1>",
+    "ls_corpus_citation": "<hor. ars. 21.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 57.5.4",
+    "target_ref": "hor. a.p. 135",
+    "source_work": "jerome.epistulae",
+    "target_work": "horace.ars_poetica",
+    "ls_id": 257,
+    "ls_query_citation": "<hier. epist. 57.5.5.1>",
+    "ls_corpus_citation": "<hor. ars. 127.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 10.1.2",
+    "target_ref": "hor. a.p. 143",
+    "source_work": "jerome.epistulae",
+    "target_work": "horace.ars_poetica",
+    "ls_id": 259,
+    "ls_query_citation": "<hier. epist. 10.2.1.1>",
+    "ls_corpus_citation": "<hor. ars. 142.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 84.8.1",
+    "target_ref": "hor. a.p. 358",
+    "source_work": "jerome.epistulae",
+    "target_work": "horace.ars_poetica",
+    "ls_id": 260,
+    "ls_query_citation": "<hier. epist. 84.8.2.4>",
+    "ls_corpus_citation": "<hor. ars. 353.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 48.1.1",
+    "target_ref": "hor. a.p. 388",
+    "source_work": "jerome.epistulae",
+    "target_work": "horace.ars_poetica",
+    "ls_id": 261,
+    "ls_query_citation": "<hier. epist. 48.2.1.3>",
+    "ls_corpus_citation": "<hor. ars. 386.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 6.2.1",
+    "target_ref": "hor. od. 3.3.8",
+    "source_work": "jerome.epistulae",
+    "target_work": "horace.odes",
+    "ls_id": 263,
+    "ls_query_citation": "<hier. epist. 6.2.2.2>",
+    "ls_corpus_citation": "<hor. carm. 3.3.7.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 118.2.3",
+    "target_ref": "hor. od. 3.3.8",
+    "source_work": "jerome.epistulae",
+    "target_work": "horace.odes",
+    "ls_id": 264,
+    "ls_query_citation": "<hier. epist. 118.2.4.2>",
+    "ls_corpus_citation": "<hor. carm. 3.3.7.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 130.7.2",
+    "target_ref": "hor. od. 3.3.8",
+    "source_work": "jerome.epistulae",
+    "target_work": "horace.odes",
+    "ls_id": 265,
+    "ls_query_citation": "<hier. epist. 130.7.3.1>",
+    "ls_corpus_citation": "<hor. carm. 3.3.7.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 108.32.1",
+    "target_ref": "hor. od. 3.30.3",
+    "source_work": "jerome.epistulae",
+    "target_work": "horace.odes",
+    "ls_id": 266,
+    "ls_query_citation": "<hier. epist. 108.33.1.3>",
+    "ls_corpus_citation": "<hor. carm. 3.30.1.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 60.15.4",
+    "target_ref": "hor. od. 2.10.10",
+    "source_work": "jerome.epistulae",
+    "target_work": "horace.odes",
+    "ls_id": 267,
+    "ls_query_citation": "<hier. epist. 60.16.1.2>",
+    "ls_corpus_citation": "<hor. carm. 2.10.8.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 108.17.3",
+    "target_ref": "hor. od. 2.10.10",
+    "source_work": "jerome.epistulae",
+    "target_work": "horace.odes",
+    "ls_id": 268,
+    "ls_query_citation": "<hier. epist. 108.18.1.1>",
+    "ls_corpus_citation": "<hor. carm. 2.10.8.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 53.6.1",
+    "target_ref": "hor. ep. 2.1.115",
+    "source_work": "jerome.epistulae",
+    "target_work": "horace.epistles",
+    "ls_id": 280,
+    "ls_query_citation": "<hier. epist. 53.6.2.3>",
+    "ls_corpus_citation": "<hor. epist. 2.1.110.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 53.6.2",
+    "target_ref": "hor. ep. 2.1.115",
+    "source_work": "jerome.epistulae",
+    "target_work": "horace.epistles",
+    "ls_id": 281,
+    "ls_query_citation": "<hier. epist. 53.7.1.1>",
+    "ls_corpus_citation": "<hor. epist. 2.1.110.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 107.4.5",
+    "target_ref": "hor. ep. 1.2.65",
+    "source_work": "jerome.epistulae",
+    "target_work": "horace.epistles",
+    "ls_id": 282,
+    "ls_query_citation": "<hier. epist. 107.4.6.5>",
+    "ls_corpus_citation": "<hor. epist. 1.2.63.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 6.1.2",
+    "target_ref": "hor. s. 1.3.1",
+    "source_work": "jerome.epistulae",
+    "target_work": "horace.satires",
+    "ls_id": 284,
+    "ls_query_citation": "<hier. epist. 6.2.1.3>",
+    "ls_corpus_citation": "<hor. sat. 1.3.1.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 79.9.3",
+    "target_ref": "hor. s. 1.3.68",
+    "source_work": "jerome.epistulae",
+    "target_work": "horace.satires",
+    "ls_id": 285,
+    "ls_query_citation": "<hier. epist. 79.9.4.1>",
+    "ls_corpus_citation": "<hor. sat. 1.3.67.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 133.1.3",
+    "target_ref": "hor. s. 1.3.68",
+    "source_work": "jerome.epistulae",
+    "target_work": "horace.satires",
+    "ls_id": 286,
+    "ls_query_citation": "<hier. epist. 133.1.4.4>",
+    "ls_corpus_citation": "<hor. sat. 1.3.67.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 58.11.1",
+    "target_ref": "hor. s. 1.9.60",
+    "source_work": "jerome.epistulae",
+    "target_work": "horace.satires",
+    "ls_id": 291,
+    "ls_query_citation": "<hier. epist. 58.11.2.3>",
+    "ls_corpus_citation": "<hor. sat. 1.9.59.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 74.6.1",
+    "target_ref": "hor. s. 1.10.72",
+    "source_work": "jerome.epistulae",
+    "target_work": "horace.satires",
+    "ls_id": 294,
+    "ls_query_citation": "<hier. epist. 74.6.2.2>",
+    "ls_corpus_citation": "<hor. sat. 1.10.71.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 22.27.3",
+    "target_ref": "hor. s. 1.3.68",
+    "source_work": "jerome.epistulae",
+    "target_work": "horace.satires",
+    "ls_id": 295,
+    "ls_query_citation": "<hier. epist. 22.27.4.4>",
+    "ls_corpus_citation": "<hor. sat. 1.3.67.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 14.9.3",
+    "target_ref": "cic. tusc. 4.33",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.tusculanae_disputationes",
+    "ls_id": 300,
+    "ls_query_citation": "<hier. epist. 14.10.1.1>",
+    "ls_corpus_citation": "<cic. tusc. 4.33.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 7.4.2",
+    "target_ref": "cic. tusc. 3.31",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.tusculanae_disputationes",
+    "ls_id": 301,
+    "ls_query_citation": "<hier. epist. 7.5.1.2>",
+    "ls_corpus_citation": "<cic. tusc. 3.31.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 45.7.1",
+    "target_ref": "Cic. Acad. 1.18",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.academica",
+    "ls_id": 302,
+    "ls_query_citation": "<hier. epist. 46.1.1.2>",
+    "ls_corpus_citation": "<cic. ac. 1.18.4>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 58.7.1",
+    "target_ref": "Cic. Acad. 1.18",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.academica",
+    "ls_id": 303,
+    "ls_query_citation": "<hier. epist. 58.7.2.5>",
+    "ls_corpus_citation": "<cic. ac. 1.18.4>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 123.2.2",
+    "target_ref": "Cic. Acad. 1.31",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.academica",
+    "ls_id": 304,
+    "ls_query_citation": "<hier. epist. 123.3.1.1>",
+    "ls_corpus_citation": "<cic. ac. 2.58.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 107.9.1",
+    "target_ref": "Cic. Acad. 1.31",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.academica",
+    "ls_id": 305,
+    "ls_query_citation": "<hier. epist. 107.9.2.3>",
+    "ls_corpus_citation": "<cic. ac. 2.58.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 53.8.19",
+    "target_ref": "Cic. Acad. 1.16",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.academica",
+    "ls_id": 306,
+    "ls_query_citation": "<hier. epist. 53.9.1.4>",
+    "ls_corpus_citation": "<cic. ac. 2.74.5>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 121.1.0",
+    "target_ref": "Cic. Acad. 1.16",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.academica",
+    "ls_id": 307,
+    "ls_query_citation": "<hier. epist. 57.12.4.2>",
+    "ls_corpus_citation": "<cic. ac. 2.74.5>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 69.2.3",
+    "target_ref": "Cic. Acad. 1.31",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.academica",
+    "ls_id": 311,
+    "ls_query_citation": "<hier. epist. 69.2.4.2>",
+    "ls_corpus_citation": "<cic. ac. 2.98.4>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 85.1.1",
+    "target_ref": "cic. att. 1.12.4",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.letters_to_atticus",
+    "ls_id": 312,
+    "ls_query_citation": "<hier. epist. 85.1.2.2>",
+    "ls_corpus_citation": "<cic. att. 1.12.4.4>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 117.11.3",
+    "target_ref": "cic. att. 1.12.4",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.letters_to_atticus",
+    "ls_id": 313,
+    "ls_query_citation": "<hier. epist. 117.12.1.1>",
+    "ls_corpus_citation": "<cic. att. 1.12.4.4>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 74.6.1",
+    "target_ref": "cic. att. 1.12.4",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.letters_to_atticus",
+    "ls_id": 314,
+    "ls_query_citation": "<hier. epist. 74.6.2.2>",
+    "ls_corpus_citation": "<cic. att. 1.12.4.4>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 85.1.1",
+    "target_ref": "cic. att. 12.1.2",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.letters_to_atticus",
+    "ls_id": 315,
+    "ls_query_citation": "<hier. epist. 85.1.2.2>",
+    "ls_corpus_citation": "<cic. att. 12.1.2.5>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 117.11.3",
+    "target_ref": "cic. att. 12.1.2",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.letters_to_atticus",
+    "ls_id": 316,
+    "ls_query_citation": "<hier. epist. 117.12.1.1>",
+    "ls_corpus_citation": "<cic. att. 12.1.2.5>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 74.6.1",
+    "target_ref": "cic. att. 12.1.2",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.letters_to_atticus",
+    "ls_id": 317,
+    "ls_query_citation": "<hier. epist. 74.6.2.2>",
+    "ls_corpus_citation": "<cic. att. 12.1.2.5>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 123.2.2",
+    "target_ref": "cic. att. 13.20.4",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.letters_to_atticus",
+    "ls_id": 318,
+    "ls_query_citation": "<hier. epist. 123.3.1.1>",
+    "ls_corpus_citation": "<cic. att. 13.20.4.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 75.1.4",
+    "target_ref": "cic. att. 13.45.2",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.letters_to_atticus",
+    "ls_id": 319,
+    "ls_query_citation": "<hier. epist. 75.2.1.1>",
+    "ls_corpus_citation": "<cic. att. 13.45.2.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 7.1.1",
+    "target_ref": "cic. brut. 3",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.brutus",
+    "ls_id": 320,
+    "ls_query_citation": "<hier. epist. 7.1.2.1>",
+    "ls_corpus_citation": "<cic. brut. 3.10>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 130.6.3",
+    "target_ref": "cic. brut. 3",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.brutus",
+    "ls_id": 321,
+    "ls_query_citation": "<hier. epist. 130.6.4.1>",
+    "ls_corpus_citation": "<cic. brut. 3.10>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 50.2.2",
+    "target_ref": "cic. brut. 50",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.brutus",
+    "ls_id": 322,
+    "ls_query_citation": "<hier. epist. 50.2.3.1>",
+    "ls_corpus_citation": "<cic. brut. 50.6>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 47.1.1",
+    "target_ref": "cic. brut. 75",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.brutus",
+    "ls_id": 323,
+    "ls_query_citation": "<hier. epist. 47.1.2.1>",
+    "ls_corpus_citation": "<cic. brut. 75.13>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 98.22.3",
+    "target_ref": "cic. catil. 1.1",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.in_catilinam",
+    "ls_id": 324,
+    "ls_query_citation": "<hier. epist. 98.22.4.1>",
+    "ls_corpus_citation": "<cic. catil. 1.1.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 105.3.1",
+    "target_ref": "cic. sen. 10",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_senectute",
+    "ls_id": 326,
+    "ls_query_citation": "<hier. epist. 105.3.2.2>",
+    "ls_corpus_citation": "<cic. cato 10.6>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 52.3.4",
+    "target_ref": "cic. sen. 13",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_senectute",
+    "ls_id": 327,
+    "ls_query_citation": "<hier. epist. 52.3.5.1>",
+    "ls_corpus_citation": "<cic. cato 13.4>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 52.3.5",
+    "target_ref": "cic. sen. 22",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_senectute",
+    "ls_id": 328,
+    "ls_query_citation": "<hier. epist. 52.3.6.1>",
+    "ls_corpus_citation": "<cic. cato 22.4>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 52.3.5",
+    "target_ref": "cic. sen. 22",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_senectute",
+    "ls_id": 329,
+    "ls_query_citation": "<hier. epist. 52.3.6.2>",
+    "ls_corpus_citation": "<cic. cato 22.5>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 52.3.4",
+    "target_ref": "cic. sen. 23",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_senectute",
+    "ls_id": 330,
+    "ls_query_citation": "<hier. epist. 52.3.5.1>",
+    "ls_corpus_citation": "<cic. cato 23.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 140.16.2",
+    "target_ref": "cic. sen. 24",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_senectute",
+    "ls_id": 331,
+    "ls_query_citation": "<hier. epist. 140.16.3.4>",
+    "ls_corpus_citation": "<cic. cato 24.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 52.3.5",
+    "target_ref": "cic. sen. 26",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_senectute",
+    "ls_id": 333,
+    "ls_query_citation": "<hier. epist. 52.3.6.3>",
+    "ls_corpus_citation": "<cic. cato 26.4>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 52.3.5",
+    "target_ref": "cic. sen. 31",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_senectute",
+    "ls_id": 334,
+    "ls_query_citation": "<hier. epist. 52.3.6.4>",
+    "ls_corpus_citation": "<cic. cato 31.3>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 46.1.2",
+    "target_ref": "cic. sen. 31",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_senectute",
+    "ls_id": 335,
+    "ls_query_citation": "<hier. epist. 46.1.3.1>",
+    "ls_corpus_citation": "<cic. cato 31.3>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 52.12.2",
+    "target_ref": "cic. clu. 105",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.pro_a_cluentio",
+    "ls_id": 336,
+    "ls_query_citation": "<hier. epist. 52.13.1.1>",
+    "ls_corpus_citation": "<cic. cluent. 105.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 106.40.1",
+    "target_ref": "cic. orat. 1.132",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_oratore",
+    "ls_id": 337,
+    "ls_query_citation": "<hier. epist. 69.8.7.4>",
+    "ls_corpus_citation": "<cic. de orat. 1.132.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 1.1.1",
+    "target_ref": "cic. orat. 1.174",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_oratore",
+    "ls_id": 338,
+    "ls_query_citation": "<hier. epist. 1.2.1.3>",
+    "ls_corpus_citation": "<cic. de orat. 1.174.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 48.4.3",
+    "target_ref": "cic. orat. 1.206",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_oratore",
+    "ls_id": 339,
+    "ls_query_citation": "<hier. epist. 49.1.1.4>",
+    "ls_corpus_citation": "<cic. de orat. 1.205.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 35.1.2",
+    "target_ref": "cic. orat. 1.32",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_oratore",
+    "ls_id": 340,
+    "ls_query_citation": "<hier. epist. 35.1.3.3>",
+    "ls_corpus_citation": "<cic. de orat. 1.32.3>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 35.1.2",
+    "target_ref": "cic. orat. 1.33",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_oratore",
+    "ls_id": 341,
+    "ls_query_citation": "<hier. epist. 35.1.3.3>",
+    "ls_corpus_citation": "<cic. de orat. 1.33.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 40.2.2",
+    "target_ref": "cic. orat. 1.41",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_oratore",
+    "ls_id": 342,
+    "ls_query_citation": "<hier. epist. 40.2.3.1>",
+    "ls_corpus_citation": "<cic. de orat. 1.41.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 85.3.1",
+    "target_ref": "cic. orat. 2.117",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_oratore",
+    "ls_id": 343,
+    "ls_query_citation": "<hier. epist. 85.3.2.2>",
+    "ls_corpus_citation": "<cic. de orat. 2.117.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 75.1.4",
+    "target_ref": "cic. orat. 2.186",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_oratore",
+    "ls_id": 344,
+    "ls_query_citation": "<hier. epist. 75.2.1.1>",
+    "ls_corpus_citation": "<cic. de orat. 2.186.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 82.1.1",
+    "target_ref": "cic. orat. 2.186",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_oratore",
+    "ls_id": 345,
+    "ls_query_citation": "<hier. epist. 82.1.2.2>",
+    "ls_corpus_citation": "<cic. de orat. 2.186.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 126.3.1",
+    "target_ref": "cic. orat. 2.186",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_oratore",
+    "ls_id": 346,
+    "ls_query_citation": "<hier. epist. 127.1.1.2>",
+    "ls_corpus_citation": "<cic. de orat. 2.186.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 45.7.1",
+    "target_ref": "cic. orat. 2.233",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_oratore",
+    "ls_id": 347,
+    "ls_query_citation": "<hier. epist. 46.1.1.2>",
+    "ls_corpus_citation": "<cic. de orat. 2.233.4>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 48.4.3",
+    "target_ref": "cic. orat. 2.99",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_oratore",
+    "ls_id": 348,
+    "ls_query_citation": "<hier. epist. 49.1.1.4>",
+    "ls_corpus_citation": "<cic. de orat. 2.99.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 60.12.3",
+    "target_ref": "cic. orat. 3.127",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_oratore",
+    "ls_id": 349,
+    "ls_query_citation": "<hier. epist. 60.12.4.1>",
+    "ls_corpus_citation": "<cic. de orat. 3.126.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 53.2.1",
+    "target_ref": "cic. orat. 3.213",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_oratore",
+    "ls_id": 350,
+    "ls_query_citation": "<hier. epist. 53.2.2.2>",
+    "ls_corpus_citation": "<cic. de orat. 3.213.3>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 53.2.2",
+    "target_ref": "cic. orat. 3.213",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_oratore",
+    "ls_id": 351,
+    "ls_query_citation": "<hier. epist. 53.2.2.3>",
+    "ls_corpus_citation": "<cic. de orat. 3.213.3>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 58.7.2",
+    "target_ref": "cic. orat. 3.3",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_oratore",
+    "ls_id": 352,
+    "ls_query_citation": "<hier. epist. 58.8.1.2>",
+    "ls_corpus_citation": "<cic. de orat. 3.3.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 125.5.2",
+    "target_ref": "cic. orat. 3.36",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_oratore",
+    "ls_id": 353,
+    "ls_query_citation": "<hier. epist. 125.6.1.1>",
+    "ls_corpus_citation": "<cic. de orat. 3.36.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 52.7.2",
+    "target_ref": "cic. orat. 3.4",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_oratore",
+    "ls_id": 354,
+    "ls_query_citation": "<hier. epist. 52.7.3.3>",
+    "ls_corpus_citation": "<cic. de orat. 3.4.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 10.1.2",
+    "target_ref": "cic. orat. 3.91",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_oratore",
+    "ls_id": 355,
+    "ls_query_citation": "<hier. epist. 10.2.1.1>",
+    "ls_corpus_citation": "<cic. de orat. 3.90.4>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 15.5.2",
+    "target_ref": "cic. orat. 3.91",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_oratore",
+    "ls_id": 356,
+    "ls_query_citation": "<hier. epist. 16.1.1.2>",
+    "ls_corpus_citation": "<cic. de orat. 3.90.4>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 52.3.9",
+    "target_ref": "cic. orat. 3.91",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_oratore",
+    "ls_id": 357,
+    "ls_query_citation": "<hier. epist. 52.4.1.1>",
+    "ls_corpus_citation": "<cic. de orat. 3.90.4>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 58.3.5",
+    "target_ref": "cic. orat. 3.91",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_oratore",
+    "ls_id": 358,
+    "ls_query_citation": "<hier. epist. 58.4.1.1>",
+    "ls_corpus_citation": "<cic. de orat. 3.90.4>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 5.3.1",
+    "target_ref": "cic. div. 2.146",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_divinatione",
+    "ls_id": 359,
+    "ls_query_citation": "<hier. epist. 6.1.1.2>",
+    "ls_corpus_citation": "<cic. div. 2.146.9>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 46.9.1",
+    "target_ref": "cic. div. cae. 39",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.divinatio_in_q_caecilium",
+    "ls_id": 360,
+    "ls_query_citation": "<hier. epist. 46.9.2.1>",
+    "ls_corpus_citation": "<cic. div. in caec. 39.3>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 85.2.1",
+    "target_ref": "cic. fam. 7.27.1",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.epistulae_ad_familiares",
+    "ls_id": 361,
+    "ls_query_citation": "<hier. epist. 85.3.1.1>",
+    "ls_corpus_citation": "<cic. fam. 7.27.1.8>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 45.7.1",
+    "target_ref": "cic. fam. 9.18.3",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.epistulae_ad_familiares",
+    "ls_id": 362,
+    "ls_query_citation": "<hier. epist. 46.1.1.2>",
+    "ls_corpus_citation": "<cic. fam. 9.18.3.4>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 82.11.5",
+    "target_ref": "cic. fam. 6.3.4",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.epistulae_ad_familiares",
+    "ls_id": 363,
+    "ls_query_citation": "<hier. epist. 84.4.1.5>",
+    "ls_corpus_citation": "<cic. fam. 9.3.1.9>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 118.3.2",
+    "target_ref": "cic. fin. 3.53",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_finibus_bonorum_et_malorum",
+    "ls_id": 364,
+    "ls_query_citation": "<hier. epist. 118.3.3.1>",
+    "ls_corpus_citation": "<cic. fin. 3.53.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 66.2.2",
+    "target_ref": "cic. fin. 5.67",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_finibus_bonorum_et_malorum",
+    "ls_id": 365,
+    "ls_query_citation": "<hier. epist. 66.3.1.2>",
+    "ls_corpus_citation": "<cic. fin. 5.67.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 78.39.1",
+    "target_ref": "cic. fin. 5.67",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_finibus_bonorum_et_malorum",
+    "ls_id": 366,
+    "ls_query_citation": "<hier. epist. 78.39.2.2>",
+    "ls_corpus_citation": "<cic. fin. 5.67.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 76.2.1",
+    "target_ref": "cic. fin. 5.87",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_finibus_bonorum_et_malorum",
+    "ls_id": 367,
+    "ls_query_citation": "<hier. epist. 76.2.2.1>",
+    "ls_corpus_citation": "<cic. fin. 5.87.9>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 7.4.2",
+    "target_ref": "cic. fin. 5.92",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_finibus_bonorum_et_malorum",
+    "ls_id": 368,
+    "ls_query_citation": "<hier. epist. 7.5.1.2>",
+    "ls_corpus_citation": "<cic. fin. 5.92.4>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 130.13.1",
+    "target_ref": "cic. fin. 5.92",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_finibus_bonorum_et_malorum",
+    "ls_id": 369,
+    "ls_query_citation": "<hier. epist. 130.13.2.1>",
+    "ls_corpus_citation": "<cic. fin. 5.92.4>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 10.2.3",
+    "target_ref": "cic. flac.  57",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.pro_l_flacco",
+    "ls_id": 370,
+    "ls_query_citation": "<hier. epist. 10.3.1.1>",
+    "ls_corpus_citation": "<cic. flacc.  57.8>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 52.17.1",
+    "target_ref": "cic. man. 37",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_imperio_cn_pompei",
+    "ls_id": 371,
+    "ls_query_citation": "<hier. epist. 52.17.2.4>",
+    "ls_corpus_citation": "<cic. manil. 37.3>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 7.6.3",
+    "target_ref": "cic. inv. 1.2",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_inventione",
+    "ls_id": 372,
+    "ls_query_citation": "<hier. epist. 8.0.1.4>",
+    "ls_corpus_citation": "<cic. inv. 1.2.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 71.1.4",
+    "target_ref": "cic. amicit. 101",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_amicitia",
+    "ls_id": 373,
+    "ls_query_citation": "<hier. epist. 71.2.1.1>",
+    "ls_corpus_citation": "<cic. lael. 101.3>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 18A.11.3",
+    "target_ref": "cic. mil. 100",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.pro_milone",
+    "ls_id": 374,
+    "ls_query_citation": "<hier. epist. 18a.12.1.3>",
+    "ls_corpus_citation": "<cic. mil. 100.4>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 126.2.1",
+    "target_ref": "cic. mil. 11",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.pro_milone",
+    "ls_id": 375,
+    "ls_query_citation": "<hier. epist. 126.2.2.2>",
+    "ls_corpus_citation": "<cic. mil. 11.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 58.2.2",
+    "target_ref": "cic. mur. 12",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.pro_murena",
+    "ls_id": 376,
+    "ls_query_citation": "<hier. epist. 58.2.3.1>",
+    "ls_corpus_citation": "<cic. mur. 12.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 119.10.14",
+    "target_ref": "cic. nat. 1.10",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_natura_deorum",
+    "ls_id": 377,
+    "ls_query_citation": "<hier. epist. 119.11.1.2>",
+    "ls_corpus_citation": "<cic. nat. deor. 1.10.3>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 125.16.1",
+    "target_ref": "cic. off. 1.131",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_officiis",
+    "ls_id": 378,
+    "ls_query_citation": "<hier. epist. 125.16.2.1>",
+    "ls_corpus_citation": "<cic. off. 1.131.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 82.3.1",
+    "target_ref": "cic. off. 2.23",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_officiis",
+    "ls_id": 379,
+    "ls_query_citation": "<hier. epist. 82.3.2.1>",
+    "ls_corpus_citation": "<cic. off. 2.23.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 78.39.1",
+    "target_ref": "cic. off. 2.35",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_officiis",
+    "ls_id": 380,
+    "ls_query_citation": "<hier. epist. 78.39.2.2>",
+    "ls_corpus_citation": "<cic. off. 2.35.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 66.2.2",
+    "target_ref": "cic. off. 2.35",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_officiis",
+    "ls_id": 381,
+    "ls_query_citation": "<hier. epist. 66.3.1.2>",
+    "ls_corpus_citation": "<cic. off. 2.35.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 133.1.2",
+    "target_ref": "cic. off. 3.26",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_officiis",
+    "ls_id": 382,
+    "ls_query_citation": "<hier. epist. 133.1.3.2>",
+    "ls_corpus_citation": "<cic. off. 3.26.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 57.5.2",
+    "target_ref": "cic. opt. 5",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_optimo_genere_oratorum",
+    "ls_id": 383,
+    "ls_query_citation": "<hier. epist. 57.5.3.2>",
+    "ls_corpus_citation": "<cic. opt. gen. 5.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 57.5.2",
+    "target_ref": "cic. opt. 5",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_optimo_genere_oratorum",
+    "ls_id": 384,
+    "ls_query_citation": "<hier. epist. 57.5.3.3>",
+    "ls_corpus_citation": "<cic. opt. gen. 5.3>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 57.5.3",
+    "target_ref": "cic. opt. 7",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.de_optimo_genere_oratorum",
+    "ls_id": 386,
+    "ls_query_citation": "<hier. epist. 57.5.4.1>",
+    "ls_corpus_citation": "<cic. opt. gen. 7.10>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 46.1.2",
+    "target_ref": "cic. orator. 32",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.orator",
+    "ls_id": 387,
+    "ls_query_citation": "<hier. epist. 46.1.3.1>",
+    "ls_corpus_citation": "<cic. orat. 32.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 22.39.4",
+    "target_ref": "cic. orator. 33",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.orator",
+    "ls_id": 388,
+    "ls_query_citation": "<hier. epist. 22.40.1.1>",
+    "ls_corpus_citation": "<cic. orat. 33.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 52.7.5",
+    "target_ref": "cic. orator. 47",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.orator",
+    "ls_id": 389,
+    "ls_query_citation": "<hier. epist. 52.8.1.2>",
+    "ls_corpus_citation": "<cic. orat. 47.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 127.7.2",
+    "target_ref": "cic. orator. 70",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.orator",
+    "ls_id": 390,
+    "ls_query_citation": "<hier. epist. 127.7.3.1>",
+    "ls_corpus_citation": "<cic. orat. 70.4>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 137.0.3",
+    "target_ref": "cic. phil. 2.30",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.philippicae",
+    "ls_id": 391,
+    "ls_query_citation": "<hier. epist. 54.6.3.1>",
+    "ls_corpus_citation": "<cic. phil. 2.30.3>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 57.12.2",
+    "target_ref": "cic. phil. 2.43",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.philippicae",
+    "ls_id": 392,
+    "ls_query_citation": "<hier. epist. 57.12.3.5>",
+    "ls_corpus_citation": "<cic. phil. 2.43.3>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 123.16.3",
+    "target_ref": "cic. phil. 2.64",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.philippicae",
+    "ls_id": 393,
+    "ls_query_citation": "<hier. epist. 123.16.4.5>",
+    "ls_corpus_citation": "<cic. phil. 2.64.4>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 17.3.1",
+    "target_ref": "cic. roscio. 150",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.pro_s_roscio",
+    "ls_id": 394,
+    "ls_query_citation": "<hier. epist. 17.3.2.4>",
+    "ls_corpus_citation": "<cic. s.rosc. 150.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 121.8.6",
+    "target_ref": "cic. roscio. 70",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.pro_s_roscio",
+    "ls_id": 395,
+    "ls_query_citation": "<hier. epist. 121.8.7.4>",
+    "ls_corpus_citation": "<cic. s.rosc. 70.5>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 130.16.5",
+    "target_ref": "cic. roscio. 70",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.pro_s_roscio",
+    "ls_id": 396,
+    "ls_query_citation": "<hier. epist. 130.16.6.1>",
+    "ls_corpus_citation": "<cic. s.rosc. 70.3>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 108.3.3",
+    "target_ref": "cic. tusc. 1.109",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.tusculanae_disputationes",
+    "ls_id": 397,
+    "ls_query_citation": "<hier. epist. 108.3.4.3>",
+    "ls_corpus_citation": "<cic. tusc. 1.109.8>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 7.6.3",
+    "target_ref": "cic. tusc. 1.27",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.tusculanae_disputationes",
+    "ls_id": 398,
+    "ls_query_citation": "<hier. epist. 8.0.1.4>",
+    "ls_corpus_citation": "<cic. tusc. 1.26.4>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 57.12.3",
+    "target_ref": "cic. tusc. 1.52",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.tusculanae_disputationes",
+    "ls_id": 399,
+    "ls_query_citation": "<hier. epist. 57.12.4.3>",
+    "ls_corpus_citation": "<cic. tusc. 1.52.3>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 60.14.1",
+    "target_ref": "cic. tusc. 1.74",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.tusculanae_disputationes",
+    "ls_id": 400,
+    "ls_query_citation": "<hier. epist. 60.14.2.1>",
+    "ls_corpus_citation": "<cic. tusc. 1.74.3>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 127.5.4",
+    "target_ref": "cic. tusc. 1.74",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.tusculanae_disputationes",
+    "ls_id": 401,
+    "ls_query_citation": "<hier. epist. 127.6.1.1>",
+    "ls_corpus_citation": "<cic. tusc. 1.74.3>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 130.13.1",
+    "target_ref": "cic. tusc. 3.31",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.tusculanae_disputationes",
+    "ls_id": 403,
+    "ls_query_citation": "<hier. epist. 130.13.2.1>",
+    "ls_corpus_citation": "<cic. tusc. 3.31.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 60.4.2",
+    "target_ref": "cic. tusc. 3.58",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.tusculanae_disputationes",
+    "ls_id": 404,
+    "ls_query_citation": "<hier. epist. 60.5.1.7>",
+    "ls_corpus_citation": "<cic. tusc. 3.58.3>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 60.14.3",
+    "target_ref": "cic. tusc. 3.63",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.tusculanae_disputationes",
+    "ls_id": 405,
+    "ls_query_citation": "<hier. epist. 60.14.4.3>",
+    "ls_corpus_citation": "<cic. tusc. 3.63.7>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 133.1.1",
+    "target_ref": "cic. tusc. 4.10",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.tusculanae_disputationes",
+    "ls_id": 406,
+    "ls_query_citation": "<hier. epist. 133.1.2.2>",
+    "ls_corpus_citation": "<cic. tusc. 4.10.3>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 133.1.1",
+    "target_ref": "cic. tusc. 4.11",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.tusculanae_disputationes",
+    "ls_id": 407,
+    "ls_query_citation": "<hier. epist. 133.1.2.2>",
+    "ls_corpus_citation": "<cic. tusc. 4.11.4>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 125.13.2",
+    "target_ref": "cic. tusc. 4.74",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.tusculanae_disputationes",
+    "ls_id": 408,
+    "ls_query_citation": "<hier. epist. 125.14.1.1>",
+    "ls_corpus_citation": "<cic. tusc. 4.73.8>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 76.2.1",
+    "target_ref": "cic. tusc. 5.114",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.tusculanae_disputationes",
+    "ls_id": 409,
+    "ls_query_citation": "<hier. epist. 76.2.2.1>",
+    "ls_corpus_citation": "<cic. tusc. 5.114.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 54.2.1",
+    "target_ref": "cic. ver. 2.1.40",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.divinatio_in_c_verrem",
+    "ls_id": 410,
+    "ls_query_citation": "<hier. epist. 54.2.2.1>",
+    "ls_corpus_citation": "<cic. verr. 2.1.40.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "jer. ep. 130.7.7",
+    "target_ref": "cic. ver. 2.5.146",
+    "source_work": "jerome.epistulae",
+    "target_work": "cicero.divinatio_in_c_verrem",
+    "ls_id": 411,
+    "ls_query_citation": "<hier. epist. 130.7.8.2>",
+    "ls_corpus_citation": "<cic. verr. 2.5.146.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 5.17.18",
+    "target_ref": "hor. od. 1.22.2",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "horace.odes",
+    "ls_id": 412,
+    "ls_query_citation": "<lact. inst. 5.17.18.1>",
+    "ls_corpus_citation": "<hor. carm. 1.22.1.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 5.13.16",
+    "target_ref": "hor. od. 3.3.1",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "horace.odes",
+    "ls_id": 413,
+    "ls_query_citation": "<lact. inst. 5.13.16.1>",
+    "ls_corpus_citation": "<hor. carm. 3.3.1.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 6.5.12",
+    "target_ref": "hor. ep. 1.1.41",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "horace.epistles",
+    "ls_id": 414,
+    "ls_query_citation": "<lact. inst. 6.5.12.1>",
+    "ls_corpus_citation": "<hor. epist. 1.1.40.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 2.4.1",
+    "target_ref": "hor. s. 1.8.1",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "horace.satires",
+    "ls_id": 415,
+    "ls_query_citation": "<lact. inst. 2.4.1.2>",
+    "ls_corpus_citation": "<hor. sat. 1.7.35.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 2.4.1",
+    "target_ref": "hor. s. 1.8.7",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "horace.satires",
+    "ls_id": 416,
+    "ls_query_citation": "<lact. inst. 2.4.1.3>",
+    "ls_corpus_citation": "<hor. sat. 1.8.3.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lact. de_ira. 10.16",
+    "target_ref": "lucr. de_r. 1.160",
+    "source_work": "lactantius.de_ira_dei",
+    "target_work": "lucretius.de_rerum_natura",
+    "ls_id": 417,
+    "ls_query_citation": "<lact. ira 10.16.2>",
+    "ls_corpus_citation": "<lucr. 1.158.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lact. de_ira. 8.1",
+    "target_ref": "lucr. de_r. 1.48",
+    "source_work": "lactantius.de_ira_dei",
+    "target_work": "lucretius.de_rerum_natura",
+    "ls_id": 418,
+    "ls_query_citation": "<lact. ira 8.1.1>",
+    "ls_corpus_citation": "<lucr. 2.648.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lact. opificio. 19.3",
+    "target_ref": "lucr. de_r. 2.992",
+    "source_work": "lactantius.de_opificio_dei",
+    "target_work": "lucretius.de_rerum_natura",
+    "ls_id": 419,
+    "ls_query_citation": "<lact. opif. 19.3.1>",
+    "ls_corpus_citation": "<lucr. 2.994.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 6.10.7",
+    "target_ref": "lucr. de_r. 2.992",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "lucretius.de_rerum_natura",
+    "ls_id": 420,
+    "ls_query_citation": "<lact. inst. 6.10.7.1>",
+    "ls_corpus_citation": "<lucr. 2.994.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 7.12.5",
+    "target_ref": "lucr. de_r. 2.999",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "lucretius.de_rerum_natura",
+    "ls_id": 421,
+    "ls_query_citation": "<lact. inst. 7.12.5.1>",
+    "ls_corpus_citation": "<lucr. 2.1002.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 7.12.26",
+    "target_ref": "lucr. de_r. 3.614",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "lucretius.de_rerum_natura",
+    "ls_id": 423,
+    "ls_query_citation": "<lact. inst. 7.12.26.1>",
+    "ls_corpus_citation": "<lucr. 3.612.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 3.18.6",
+    "target_ref": "lucr. de_r. 3.1041",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "lucretius.de_rerum_natura",
+    "ls_id": 424,
+    "ls_query_citation": "<lact. inst. 3.18.6.1>",
+    "ls_corpus_citation": "<lucr. 3.1038.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 3.17.28",
+    "target_ref": "lucr. de_r. 3.1043",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "lucretius.de_rerum_natura",
+    "ls_id": 425,
+    "ls_query_citation": "<lact. inst. 3.17.28.2>",
+    "ls_corpus_citation": "<lucr. 3.1041.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 3.14.2",
+    "target_ref": "lucr. de_r. 5.6",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "lucretius.de_rerum_natura",
+    "ls_id": 426,
+    "ls_query_citation": "<lact. inst. 3.14.2.1>",
+    "ls_corpus_citation": "<lucr. 5.5.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 3.14.3",
+    "target_ref": "lucr. de_r. 5.7",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "lucretius.de_rerum_natura",
+    "ls_id": 427,
+    "ls_query_citation": "<lact. inst. 3.14.2.2>",
+    "ls_corpus_citation": "<lucr. 5.6.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 3.14.4",
+    "target_ref": "lucr. de_r. 5.49",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "lucretius.de_rerum_natura",
+    "ls_id": 428,
+    "ls_query_citation": "<lact. inst. 3.14.4.1>",
+    "ls_corpus_citation": "<lucr. 5.48.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 7.3.13",
+    "target_ref": "lucr. de_r. 5.160",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "lucretius.de_rerum_natura",
+    "ls_id": 429,
+    "ls_query_citation": "<lact. inst. 7.3.13.4>",
+    "ls_corpus_citation": "<lucr. 5.155.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 7.3.13",
+    "target_ref": "lucr. de_r. 5.167",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "lucretius.de_rerum_natura",
+    "ls_id": 430,
+    "ls_query_citation": "<lact. inst. 7.3.13.5>",
+    "ls_corpus_citation": "<lucr. 5.165.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lact. opificio. 3.2",
+    "target_ref": "lucr. de_r. 5.222",
+    "source_work": "lactantius.de_opificio_dei",
+    "target_work": "lucretius.de_rerum_natura",
+    "ls_id": 431,
+    "ls_query_citation": "<lact. opif. 3.2.1>",
+    "ls_corpus_citation": "<lucr. 5.221.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 3.16.14",
+    "target_ref": "lucr. de_r. 5.337",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "lucretius.de_rerum_natura",
+    "ls_id": 432,
+    "ls_query_citation": "<lact. inst. 3.16.14.1>",
+    "ls_corpus_citation": "<lucr. 5.331.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 2.11.1",
+    "target_ref": "lucr. de_r. 5.807",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "lucretius.de_rerum_natura",
+    "ls_id": 433,
+    "ls_query_citation": "<lact. inst. 2.11.1.1>",
+    "ls_corpus_citation": "<lucr. 5.806.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 2.3.11",
+    "target_ref": "lucr. de_r. 5.1199",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "lucretius.de_rerum_natura",
+    "ls_id": 434,
+    "ls_query_citation": "<lact. inst. 2.3.11.1>",
+    "ls_corpus_citation": "<lucr. 5.1197.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 7.27.6",
+    "target_ref": "lucr. de_r. 6.27",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "lucretius.de_rerum_natura",
+    "ls_id": 435,
+    "ls_query_citation": "<lact. inst. 7.27.6.1>",
+    "ls_corpus_citation": "<lucr. 6.23.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 2.3.10",
+    "target_ref": "lucr. de_r. 6.50",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "lucretius.de_rerum_natura",
+    "ls_id": 436,
+    "ls_query_citation": "<lact. inst. 2.3.10.2>",
+    "ls_corpus_citation": "<lucr. 6.53.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lact. epitome. 20.4",
+    "target_ref": "lucr. de_r. 6.50",
+    "source_work": "lactantius.epitome_divinarum_institutionum",
+    "target_work": "lucretius.de_rerum_natura",
+    "ls_id": 437,
+    "ls_query_citation": "<lact. epit. 20.4.2>",
+    "ls_corpus_citation": "<lucr. 6.53.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.13.6",
+    "target_ref": "ov. fast. 1.233",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "ovid.fasti",
+    "ls_id": 438,
+    "ls_query_citation": "<lact. inst. 1.13.6.2>",
+    "ls_corpus_citation": "<ov. fast. 1.233.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.13.7",
+    "target_ref": "ov. fast. 1.239",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "ovid.fasti",
+    "ls_id": 439,
+    "ls_query_citation": "<lact. inst. 1.13.7.1>",
+    "ls_corpus_citation": "<ov. fast. 1.239.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.21.30",
+    "target_ref": "ov. fast. 1.385",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "ovid.fasti",
+    "ls_id": 440,
+    "ls_query_citation": "<lact. inst. 1.21.30.3>",
+    "ls_corpus_citation": "<ov. fast. 1.385.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.21.40",
+    "target_ref": "ov. fast. 4.208",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "ovid.fasti",
+    "ls_id": 441,
+    "ls_query_citation": "<lact. inst. 1.21.40.1>",
+    "ls_corpus_citation": "<ov. fast. 4.207.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.21.40",
+    "target_ref": "ov. fast. 4.209",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "ovid.fasti",
+    "ls_id": 442,
+    "ls_query_citation": "<lact. inst. 1.21.40.2>",
+    "ls_corpus_citation": "<ov. fast. 4.209.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.21.40",
+    "target_ref": "ov. fast. 4.214",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "ovid.fasti",
+    "ls_id": 443,
+    "ls_query_citation": "<lact. inst. 1.21.40.3>",
+    "ls_corpus_citation": "<ov. fast. 4.211.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.21.40",
+    "target_ref": "ov. fast. 4.214",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "ovid.fasti",
+    "ls_id": 444,
+    "ls_query_citation": "<lact. inst. 1.21.40.4>",
+    "ls_corpus_citation": "<ov. fast. 4.211.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lact. epitome. 18.11",
+    "target_ref": "ov. fast. 4.214",
+    "source_work": "lactantius.epitome_divinarum_institutionum",
+    "target_work": "ovid.fasti",
+    "ls_id": 445,
+    "ls_query_citation": "<lact. epit. 18.11.2>",
+    "ls_corpus_citation": "<ov. fast. 4.211.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.21.9",
+    "target_ref": "ov. fast. 5.621",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "ovid.fasti",
+    "ls_id": 446,
+    "ls_query_citation": "<lact. inst. 1.21.9.1>",
+    "ls_corpus_citation": "<ov. fast. 5.621.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.21.8",
+    "target_ref": "ov. fast. 5.629",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "ovid.fasti",
+    "ls_id": 447,
+    "ls_query_citation": "<lact. inst. 1.21.8.1>",
+    "ls_corpus_citation": "<ov. fast. 5.627.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.21.8",
+    "target_ref": "ov. fast. 5.629",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "ovid.fasti",
+    "ls_id": 448,
+    "ls_query_citation": "<lact. inst. 1.21.8.2>",
+    "ls_corpus_citation": "<ov. fast. 5.627.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.12.6",
+    "target_ref": "ov. fast. 6.291",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "ovid.fasti",
+    "ls_id": 449,
+    "ls_query_citation": "<lact. inst. 1.12.6.1>",
+    "ls_corpus_citation": "<ov. fast. 6.291.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.12.6",
+    "target_ref": "ov. fast. 6.293",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "ovid.fasti",
+    "ls_id": 450,
+    "ls_query_citation": "<lact. inst. 1.12.6.2>",
+    "ls_corpus_citation": "<ov. fast. 6.293.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 2.5.1",
+    "target_ref": "ov. met. 1.43",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "ovid.metamorphoses",
+    "ls_id": 451,
+    "ls_query_citation": "<lact. inst. 2.5.1.1>",
+    "ls_corpus_citation": "<ov. met. 1.43.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 2.8.64",
+    "target_ref": "ov. met. 1.77",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "ovid.metamorphoses",
+    "ls_id": 452,
+    "ls_query_citation": "<lact. inst. 2.8.64.2>",
+    "ls_corpus_citation": "<ov. met. 1.76.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 2.5.2",
+    "target_ref": "ov. met. 1.78",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "ovid.metamorphoses",
+    "ls_id": 453,
+    "ls_query_citation": "<lact. inst. 2.5.2.1>",
+    "ls_corpus_citation": "<ov. met. 1.78.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 2.1.15",
+    "target_ref": "ov. met. 1.86",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "ovid.metamorphoses",
+    "ls_id": 454,
+    "ls_query_citation": "<lact. inst. 2.1.15.2>",
+    "ls_corpus_citation": "<ov. met. 1.84.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.16.12",
+    "target_ref": "ov. met. 1.173",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "ovid.metamorphoses",
+    "ls_id": 455,
+    "ls_query_citation": "<lact. inst. 1.16.12.1>",
+    "ls_corpus_citation": "<ov. met. 1.171.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lact. de_ira. 23.6",
+    "target_ref": "ov. met. 1.254",
+    "source_work": "lactantius.de_ira_dei",
+    "target_work": "ovid.metamorphoses",
+    "ls_id": 456,
+    "ls_query_citation": "<lact. ira 23.6.1>",
+    "ls_corpus_citation": "<ov. met. 1.253.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 2.9.20",
+    "target_ref": "ov. met. 1.432",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "ovid.metamorphoses",
+    "ls_id": 457,
+    "ls_query_citation": "<lact. inst. 2.9.20.1>",
+    "ls_corpus_citation": "<ov. met. 1.430.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 2.9.20",
+    "target_ref": "ov. met. 1.432",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "ovid.metamorphoses",
+    "ls_id": 458,
+    "ls_query_citation": "<lact. inst. 2.9.20.2>",
+    "ls_corpus_citation": "<ov. met. 1.430.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lact. de_ira. 20.2",
+    "target_ref": "ov. met. 3.136",
+    "source_work": "lactantius.de_ira_dei",
+    "target_work": "ovid.metamorphoses",
+    "ls_id": 459,
+    "ls_query_citation": "<lact. ira 20.2.2>",
+    "ls_corpus_citation": "<ov. met. 3.135.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 2.6.14",
+    "target_ref": "prop. 4.1.11",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "propertius.elegies",
+    "ls_id": 460,
+    "ls_query_citation": "<lact. inst. 2.6.14.3>",
+    "ls_corpus_citation": "<prop. 4.1.11.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 2.6.14",
+    "target_ref": "prop. 4.1.13",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "propertius.elegies",
+    "ls_id": 461,
+    "ls_query_citation": "<lact. inst. 2.6.14.2>",
+    "ls_corpus_citation": "<prop. 4.1.13.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 2.6.14",
+    "target_ref": "prop. 4.1.14",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "propertius.elegies",
+    "ls_id": 462,
+    "ls_query_citation": "<lact. inst. 2.6.14.2>",
+    "ls_corpus_citation": "<prop. 4.1.14.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 2.16.18",
+    "target_ref": "verg. aen. 1.19",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 463,
+    "ls_query_citation": "<lact. inst. 2.16.18.1>",
+    "ls_corpus_citation": "<verg. aen. 1.19.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 5.10.3",
+    "target_ref": "verg. aen. 1.544",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 464,
+    "ls_query_citation": "<lact. inst. 5.10.3.1>",
+    "ls_corpus_citation": "<verg. aen. 1.544.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lact. opificio. 1.4",
+    "target_ref": "verg. aen. 1.603",
+    "source_work": "lactantius.de_opificio_dei",
+    "target_work": "vergil.aeneid",
+    "ls_id": 465,
+    "ls_query_citation": "<lact. opif. 1.4.1>",
+    "ls_corpus_citation": "<verg. aen. 1.603.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lact. de_mort. 33.8",
+    "target_ref": "verg. aen. 2.220",
+    "source_work": "lactantius.de_mortibus_persecutorum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 466,
+    "ls_query_citation": "<lact. mort. pers. 33.8.2>",
+    "ls_corpus_citation": "<verg. aen. 2.220.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lact. de_mort. 33.8",
+    "target_ref": "verg. aen. 2.223",
+    "source_work": "lactantius.de_mortibus_persecutorum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 467,
+    "ls_query_citation": "<lact. mort. pers. 33.8.2>",
+    "ls_corpus_citation": "<verg. aen. 2.223.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 5.9.4",
+    "target_ref": "verg. aen. 2.355",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 468,
+    "ls_query_citation": "<lact. inst. 5.9.4.2>",
+    "ls_corpus_citation": "<verg. aen. 2.354.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 5.11.5",
+    "target_ref": "verg. aen. 2.367",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 469,
+    "ls_query_citation": "<lact. inst. 5.11.5.1>",
+    "ls_corpus_citation": "<verg. aen. 2.366.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 7.20.11",
+    "target_ref": "verg. aen. 2.793",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 470,
+    "ls_query_citation": "<lact. inst. 7.20.11.2>",
+    "ls_corpus_citation": "<verg. aen. 2.793.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 5.19.19",
+    "target_ref": "verg. aen. 3.111",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 471,
+    "ls_query_citation": "<lact. inst. 5.19.19.2>",
+    "ls_corpus_citation": "<verg. aen. 3.111.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lact. de_mort. 12.1",
+    "target_ref": "verg. aen. 4.170",
+    "source_work": "lactantius.de_mortibus_persecutorum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 472,
+    "ls_query_citation": "<lact. mort. pers. 12.1.2>",
+    "ls_corpus_citation": "<verg. aen. 4.169.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 7.27.16",
+    "target_ref": "verg. aen. 4.336",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 473,
+    "ls_query_citation": "<lact. inst. 7.27.16.1>",
+    "ls_corpus_citation": "<verg. aen. 4.333.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "lact. opificio. 8.8",
+    "target_ref": "verg. aen. 4.356",
+    "source_work": "lactantius.de_opificio_dei",
+    "target_work": "vergil.aeneid",
+    "ls_id": 474,
+    "ls_query_citation": "<lact. opif. 8.8.1>",
+    "ls_corpus_citation": "<verg. aen. 4.356.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lact. de_ira. 7.11",
+    "target_ref": "verg. aen. 4.404",
+    "source_work": "lactantius.de_ira_dei",
+    "target_work": "vergil.aeneid",
+    "ls_id": 475,
+    "ls_query_citation": "<lact. ira 7.11.1>",
+    "ls_corpus_citation": "<verg. aen. 4.402.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.15.12",
+    "target_ref": "verg. aen. 5.58",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 476,
+    "ls_query_citation": "<lact. inst. 1.15.12.2>",
+    "ls_corpus_citation": "<verg. aen. 5.58.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 6.24.10",
+    "target_ref": "verg. aen. 6.127",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 477,
+    "ls_query_citation": "<lact. inst. 6.24.10.1>",
+    "ls_corpus_citation": "<verg. aen. 6.125.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 7.22.3",
+    "target_ref": "verg. aen. 6.264",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 478,
+    "ls_query_citation": "<lact. inst. 7.22.3.1>",
+    "ls_corpus_citation": "<verg. aen. 6.264.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 6.4.1",
+    "target_ref": "verg. aen. 6.541",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 479,
+    "ls_query_citation": "<lact. inst. 6.4.1.1>",
+    "ls_corpus_citation": "<verg. aen. 6.541.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lact. de_mort. 16.2",
+    "target_ref": "verg. aen. 6.625",
+    "source_work": "lactantius.de_mortibus_persecutorum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 480,
+    "ls_query_citation": "<lact. mort. pers. 16.2.1>",
+    "ls_corpus_citation": "<verg. aen. 6.625.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 7.20.11",
+    "target_ref": "verg. aen. 6.700",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 481,
+    "ls_query_citation": "<lact. inst. 7.20.11.2>",
+    "ls_corpus_citation": "<verg. aen. 6.700.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 7.22.17",
+    "target_ref": "verg. aen. 6.719",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 482,
+    "ls_query_citation": "<lact. inst. 7.22.17.1>",
+    "ls_corpus_citation": "<verg. aen. 6.718.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 7.22.17",
+    "target_ref": "verg. aen. 6.721",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 483,
+    "ls_query_citation": "<lact. inst. 7.22.17.2>",
+    "ls_corpus_citation": "<verg. aen. 6.721.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lact. de_ira. 11.5",
+    "target_ref": "verg. aen. 6.727",
+    "source_work": "lactantius.de_ira_dei",
+    "target_work": "vergil.aeneid",
+    "ls_id": 484,
+    "ls_query_citation": "<lact. ira 11.4.2>",
+    "ls_corpus_citation": "<verg. aen. 6.724.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.5.11",
+    "target_ref": "verg. aen. 6.727",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 485,
+    "ls_query_citation": "<lact. inst. 1.5.11.1>",
+    "ls_corpus_citation": "<verg. aen. 6.724.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 7.3.5",
+    "target_ref": "verg. aen. 6.727",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 486,
+    "ls_query_citation": "<lact. inst. 7.3.5.1>",
+    "ls_corpus_citation": "<verg. aen. 6.724.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 7.20.10",
+    "target_ref": "verg. aen. 6.736",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 487,
+    "ls_query_citation": "<lact. inst. 7.20.10.1>",
+    "ls_corpus_citation": "<verg. aen. 6.735.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 7.20.10",
+    "target_ref": "verg. aen. 6.741",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 488,
+    "ls_query_citation": "<lact. inst. 7.20.10.2>",
+    "ls_corpus_citation": "<verg. aen. 6.739.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 7.22.7",
+    "target_ref": "verg. aen. 6.748",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 489,
+    "ls_query_citation": "<lact. inst. 7.22.7.1>",
+    "ls_corpus_citation": "<verg. aen. 6.748.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.13.13",
+    "target_ref": "verg. aen. 6.791",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 490,
+    "ls_query_citation": "<lact. inst. 1.13.13.2>",
+    "ls_corpus_citation": "<verg. aen. 6.791.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.15.12",
+    "target_ref": "verg. aen. 7.133",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 491,
+    "ls_query_citation": "<lact. inst. 1.15.12.1>",
+    "ls_corpus_citation": "<verg. aen. 7.133.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.19.3",
+    "target_ref": "verg. aen. 7.770",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 492,
+    "ls_query_citation": "<lact. inst. 1.19.3.1>",
+    "ls_corpus_citation": "<verg. aen. 7.770.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.17.15",
+    "target_ref": "verg. aen. 7.776",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 493,
+    "ls_query_citation": "<lact. inst. 1.17.15.1>",
+    "ls_corpus_citation": "<verg. aen. 7.774.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.11.20",
+    "target_ref": "verg. aen. 7.789",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 494,
+    "ls_query_citation": "<lact. inst. 1.11.20.1>",
+    "ls_corpus_citation": "<verg. aen. 7.789.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 4.28.15",
+    "target_ref": "verg. aen. 8.186",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 495,
+    "ls_query_citation": "<lact. inst. 4.28.15.1>",
+    "ls_corpus_citation": "<verg. aen. 8.185.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 5.5.9",
+    "target_ref": "verg. aen. 8.320",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 496,
+    "ls_query_citation": "<lact. inst. 5.5.9.1>",
+    "ls_corpus_citation": "<verg. aen. 8.319.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.13.9",
+    "target_ref": "verg. aen. 8.321",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 497,
+    "ls_query_citation": "<lact. inst. 1.13.9.1>",
+    "ls_corpus_citation": "<verg. aen. 8.321.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.13.12",
+    "target_ref": "verg. aen. 8.324",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 498,
+    "ls_query_citation": "<lact. inst. 1.13.12.2>",
+    "ls_corpus_citation": "<verg. aen. 8.324.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.13.12",
+    "target_ref": "verg. aen. 8.326",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 499,
+    "ls_query_citation": "<lact. inst. 1.13.12.2>",
+    "ls_corpus_citation": "<verg. aen. 8.325.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 5.5.12",
+    "target_ref": "verg. aen. 8.326",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 500,
+    "ls_query_citation": "<lact. inst. 5.5.12.2>",
+    "ls_corpus_citation": "<verg. aen. 8.325.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 5.10.5",
+    "target_ref": "verg. aen. 10.518",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 502,
+    "ls_query_citation": "<lact. inst. 5.10.5.3>",
+    "ls_corpus_citation": "<verg. aen. 10.517.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 5.10.8",
+    "target_ref": "verg. aen. 10.524",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 503,
+    "ls_query_citation": "<lact. inst. 5.10.8.2>",
+    "ls_corpus_citation": "<verg. aen. 10.524.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lact. de_mort. 44.6",
+    "target_ref": "verg. aen. 10.755",
+    "source_work": "lactantius.de_mortibus_persecutorum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 504,
+    "ls_query_citation": "<lact. mort. pers. 44.6.3>",
+    "ls_corpus_citation": "<verg. aen. 10.755.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 5.10.3",
+    "target_ref": "verg. aen. 11.81",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 505,
+    "ls_query_citation": "<lact. inst. 5.10.3.2>",
+    "ls_corpus_citation": "<verg. aen. 11.81.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 5.10.6",
+    "target_ref": "verg. aen. 11.111",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 506,
+    "ls_query_citation": "<lact. inst. 5.10.6.1>",
+    "ls_corpus_citation": "<verg. aen. 11.111.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 2.8.2",
+    "target_ref": "verg. aen. 11.361",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 507,
+    "ls_query_citation": "<lact. inst. 2.8.2.1>",
+    "ls_corpus_citation": "<verg. aen. 11.360.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 5.11.5",
+    "target_ref": "verg. aen. 11.646",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 508,
+    "ls_query_citation": "<lact. inst. 5.11.5.1>",
+    "ls_corpus_citation": "<verg. aen. 11.646.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.11.12",
+    "target_ref": "verg. aen. 12.817",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 509,
+    "ls_query_citation": "<lact. inst. 1.11.12.1>",
+    "ls_corpus_citation": "<verg. aen. 12.816.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 5.5.6",
+    "target_ref": "verg. g. 1.126",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.georgics",
+    "ls_id": 510,
+    "ls_query_citation": "<lact. inst. 5.5.5.3>",
+    "ls_corpus_citation": "<verg. georg. 1.125.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 5.5.10",
+    "target_ref": "verg. g. 1.129",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.georgics",
+    "ls_id": 511,
+    "ls_query_citation": "<lact. inst. 5.5.10.2>",
+    "ls_corpus_citation": "<verg. georg. 1.129.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lact. de_ira. 13.5",
+    "target_ref": "verg. g. 1.289",
+    "source_work": "lactantius.de_ira_dei",
+    "target_work": "vergil.georgics",
+    "ls_id": 512,
+    "ls_query_citation": "<lact. ira 13.5.1>",
+    "ls_corpus_citation": "<verg. georg. 1.289.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lact. de_mort. 16.2",
+    "target_ref": "verg. g. 2.44",
+    "source_work": "lactantius.de_mortibus_persecutorum",
+    "target_work": "vergil.georgics",
+    "ls_id": 513,
+    "ls_query_citation": "<lact. mort. pers. 16.2.1>",
+    "ls_corpus_citation": "<verg. georg. 2.39.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.5.19",
+    "target_ref": "verg. g. 2.326",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.georgics",
+    "ls_id": 514,
+    "ls_query_citation": "<lact. inst. 1.5.19.1>",
+    "ls_corpus_citation": "<verg. georg. 2.325.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 2.10.16",
+    "target_ref": "verg. g. 2.336",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.georgics",
+    "ls_id": 515,
+    "ls_query_citation": "<lact. inst. 2.10.16.3>",
+    "ls_corpus_citation": "<verg. georg. 2.336.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.13.12",
+    "target_ref": "verg. g. 2.537",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.georgics",
+    "ls_id": 516,
+    "ls_query_citation": "<lact. inst. 1.13.12.1>",
+    "ls_corpus_citation": "<verg. georg. 2.536.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 4.27.3",
+    "target_ref": "verg. g. 3.489",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.georgics",
+    "ls_id": 517,
+    "ls_query_citation": "<lact. inst. 4.27.3.2>",
+    "ls_corpus_citation": "<verg. georg. 3.489.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lact. de_mort. 33.4",
+    "target_ref": "verg. g. 3.548",
+    "source_work": "lactantius.de_mortibus_persecutorum",
+    "target_work": "vergil.georgics",
+    "ls_id": 518,
+    "ls_query_citation": "<lact. mort. pers. 33.4.2>",
+    "ls_corpus_citation": "<verg. georg. 3.548.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lact. epitome. 2.4",
+    "target_ref": "verg. g. 4.67",
+    "source_work": "lactantius.epitome_divinarum_institutionum",
+    "target_work": "vergil.georgics",
+    "ls_id": 519,
+    "ls_query_citation": "<lact. epit. 2.4.1>",
+    "ls_corpus_citation": "<verg. georg. 4.67.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 2.4.4",
+    "target_ref": "verg. g. 4.110",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.georgics",
+    "ls_id": 520,
+    "ls_query_citation": "<lact. inst. 2.4.4.1>",
+    "ls_corpus_citation": "<verg. georg. 4.109.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lact. de_ira. 7.11",
+    "target_ref": "verg. g. 4.154",
+    "source_work": "lactantius.de_ira_dei",
+    "target_work": "vergil.georgics",
+    "ls_id": 521,
+    "ls_query_citation": "<lact. ira 7.11.1>",
+    "ls_corpus_citation": "<verg. georg. 4.153.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.8.8",
+    "target_ref": "verg. g. 4.200",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.georgics",
+    "ls_id": 522,
+    "ls_query_citation": "<lact. inst. 1.8.8.2>",
+    "ls_corpus_citation": "<verg. georg. 4.200.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.5.12",
+    "target_ref": "verg. g. 4.219",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.georgics",
+    "ls_id": 523,
+    "ls_query_citation": "<lact. inst. 1.5.12.1>",
+    "ls_corpus_citation": "<verg. georg. 4.219.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.5.12",
+    "target_ref": "verg. g. 4.226",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.georgics",
+    "ls_id": 524,
+    "ls_query_citation": "<lact. inst. 1.5.12.1>",
+    "ls_corpus_citation": "<verg. georg. 4.223.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 7.24.11",
+    "target_ref": "verg. ecl. 4.21",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.eclogues",
+    "ls_id": 525,
+    "ls_query_citation": "<lact. inst. 7.24.11.5>",
+    "ls_corpus_citation": "<verg. ecl. 4.21.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 7.24.11",
+    "target_ref": "verg. ecl. 4.27",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.eclogues",
+    "ls_id": 526,
+    "ls_query_citation": "<lact. inst. 7.24.11.3>",
+    "ls_corpus_citation": "<verg. ecl. 4.26.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 7.24.11",
+    "target_ref": "verg. ecl. 4.37",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.eclogues",
+    "ls_id": 527,
+    "ls_query_citation": "<lact. inst. 7.24.11.1>",
+    "ls_corpus_citation": "<verg. ecl. 4.37.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 7.24.11",
+    "target_ref": "verg. ecl. 4.41",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.eclogues",
+    "ls_id": 528,
+    "ls_query_citation": "<lact. inst. 7.24.11.2>",
+    "ls_corpus_citation": "<verg. ecl. 4.40.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 7.24.11",
+    "target_ref": "verg. ecl. 4.41",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.eclogues",
+    "ls_id": 529,
+    "ls_query_citation": "<lact. inst. 7.24.11.4>",
+    "ls_corpus_citation": "<verg. ecl. 4.40.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 7.24.11",
+    "target_ref": "verg. ecl. 4.43",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.eclogues",
+    "ls_id": 530,
+    "ls_query_citation": "<lact. inst. 7.24.11.4>",
+    "ls_corpus_citation": "<verg. ecl. 4.43.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.5.12",
+    "target_ref": "verg. ecl. 4.50",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.eclogues",
+    "ls_id": 531,
+    "ls_query_citation": "<lact. inst. 1.5.12.1>",
+    "ls_corpus_citation": "<verg. ecl. 4.50.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.16.3",
+    "target_ref": "lucr. de_r. 1.931",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "lucretius.de_rerum_natura",
+    "ls_id": 532,
+    "ls_query_citation": "<lact. inst. 1.16.3.1>",
+    "ls_corpus_citation": "<lucr. 1.928.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.16.3",
+    "target_ref": "lucr. de_r. 1.931",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "lucretius.de_rerum_natura",
+    "ls_id": 533,
+    "ls_query_citation": "<lact. inst. 1.16.3.1>",
+    "ls_corpus_citation": "<lucr. 4.2.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 6.18.6",
+    "target_ref": "lucr. de_r. 6.1148",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "lucretius.de_rerum_natura",
+    "ls_id": 534,
+    "ls_query_citation": "<lact. inst. 6.18.6.1>",
+    "ls_corpus_citation": "<lucr. 6.1146.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.13.6",
+    "target_ref": "ov. fast. 1.233",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "ovid.fasti",
+    "ls_id": 535,
+    "ls_query_citation": "<lact. inst. 1.13.6.1>",
+    "ls_corpus_citation": "<ov. fast. 1.233.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lact. opificio. 1.6",
+    "target_ref": "verg. aen. 3.433",
+    "source_work": "lactantius.de_opificio_dei",
+    "target_work": "vergil.aeneid",
+    "ls_id": 536,
+    "ls_query_citation": "<lact. opif. 1.5.2>",
+    "ls_corpus_citation": "<verg. aen. 3.433.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 2.17.2",
+    "target_ref": "verg. aen. 4.463",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 537,
+    "ls_query_citation": "<lact. inst. 2.17.2.1>",
+    "ls_corpus_citation": "<verg. aen. 4.460.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lact. epitome. 19.3",
+    "target_ref": "verg. aen. 7.135",
+    "source_work": "lactantius.epitome_divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 538,
+    "ls_query_citation": "<lact. epit. 19.3.1>",
+    "ls_corpus_citation": "<verg. aen. 7.134.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 1.17.15",
+    "target_ref": "verg. aen. 7.765",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 539,
+    "ls_query_citation": "<lact. inst. 1.17.15.1>",
+    "ls_corpus_citation": "<verg. aen. 7.765.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lact. epitome. 16.4",
+    "target_ref": "verg. aen. 9.447",
+    "source_work": "lactantius.epitome_divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 540,
+    "ls_query_citation": "<lact. epit. 16.4.1>",
+    "ls_corpus_citation": "<verg. aen. 9.446.2>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 4.15.21",
+    "target_ref": "verg. aen. 4.177",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 541,
+    "ls_query_citation": "<lact. inst. 4.15.21.1>",
+    "ls_corpus_citation": "<verg. aen. 10.763.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 5.10.8",
+    "target_ref": "verg. aen. 11.107",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.aeneid",
+    "ls_id": 542,
+    "ls_query_citation": "<lact. inst. 5.10.8.1>",
+    "ls_corpus_citation": "<verg. aen. 11.106.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 7.1.14",
+    "target_ref": "verg. g. 3.242",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.georgics",
+    "ls_id": 543,
+    "ls_query_citation": "<lact. inst. 7.1.14.1>",
+    "ls_corpus_citation": "<verg. georg. 3.242.1>",
+    "type": 4
+  },
+  {
+    "source_ref": "lactantius. div_inst. 4.10.7",
+    "target_ref": "verg. g. 4.361",
+    "source_work": "lactantius.divinarum_institutionum",
+    "target_work": "vergil.georgics",
+    "ls_id": 544,
+    "ls_query_citation": "<lact. inst. 4.10.7.1>",
+    "ls_corpus_citation": "<verg. georg. 4.360.1>",
+    "type": 4
+  }
+]

@@ -17,6 +17,7 @@ from flask import Blueprint, request, Response
 from flask_login import current_user
 import os
 import json
+from backend.utils import resolve_text_path
 import time
 
 from backend.logging_config import get_logger
@@ -92,11 +93,11 @@ def search_fusion_stream():
                 yield f"data: {json.dumps({'type': 'error', 'message': 'Please select both source and target texts'})}\n\n"
                 return
 
-            lang_dir = os.path.join(_texts_dir, language)
-            source_path = os.path.join(lang_dir, source_id)
-            target_path = os.path.join(lang_dir, target_id)
+            # Path resolution
+            source_path = resolve_text_path(_texts_dir, language, source_id)
+            target_path = resolve_text_path(_texts_dir, language, target_id)
 
-            if not os.path.exists(source_path) or not os.path.exists(target_path):
+            if not source_path or not target_path:
                 yield f"data: {json.dumps({'type': 'error', 'message': 'Text files not found'})}\n\n"
                 return
 
