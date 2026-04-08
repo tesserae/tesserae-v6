@@ -24,6 +24,8 @@ const Navigation = ({
   activeTab, 
   setActiveTab,
   onLanguageReset,
+  lockedToAdmin = false,
+  onAdminLogout,
   showDownloads = false,
   setShowDownloads
 }) => {
@@ -33,6 +35,34 @@ const Navigation = ({
     }
     setActiveTab(tabCode);
   };
+
+  if (lockedToAdmin) {
+    return (
+      <nav className="bg-gray-50 border-b sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setPageType('admin')}
+              className="px-3 py-2 font-medium text-sm border-b-2 border-red-700 text-red-700"
+            >
+              Admin Panel
+            </button>
+            <div className="text-xs text-gray-600 flex items-center gap-1">
+              <span>Admin session active. Public tabs are restricted until</span>
+              <button
+                onClick={onAdminLogout}
+                className="text-red-700 hover:text-red-800 underline"
+              >
+                logout
+              </button>
+              <span>.</span>
+            </div>
+          </div>
+        </div>
+      </nav>
+    );
+  }
+
   return (
     <nav className="bg-gray-50 border-b sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-3 sm:px-6">

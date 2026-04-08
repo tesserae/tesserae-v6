@@ -13,6 +13,8 @@ const Header = ({ user, setUser, onLogoClick }) => {
   const [orcidError, setOrcidError] = useState(null);
   const [authEnabled, setAuthEnabled] = useState(true);
   const [authType, setAuthType] = useState('replit');
+  const [adminSessionActive, setAdminSessionActive] = useState(false);
+  const [adminSessionChecked, setAdminSessionChecked] = useState(false);
   const [selfRegistrationEnabled, setSelfRegistrationEnabled] = useState(true);
   const [isRegister, setIsRegister] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
@@ -50,6 +52,39 @@ const Header = ({ user, setUser, onLogoClick }) => {
         setAuthEnabled(false);
       });
   }, [setUser]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const checkAdminSession = async () => {
+      try {
+        const res = await fetch('/api/admin/me', { credentials: 'include' });
+        if (mounted) {
+          setAdminSessionActive(res.ok);
+          setAdminSessionChecked(true);
+        }
+      } catch (_err) {
+        if (mounted) {
+          setAdminSessionActive(false);
+          setAdminSessionChecked(true);
+        }
+      }
+    };
+
+    const handleAdminAuthChanged = () => {
+      checkAdminSession();
+    };
+
+    checkAdminSession();
+    window.addEventListener('focus', handleAdminAuthChanged);
+    window.addEventListener('admin-auth-changed', handleAdminAuthChanged);
+
+    return () => {
+      mounted = false;
+      window.removeEventListener('focus', handleAdminAuthChanged);
+      window.removeEventListener('admin-auth-changed', handleAdminAuthChanged);
+    };
+  }, []);
 
   useEffect(() => {
     const handleOpenAuthModal = (event) => {
@@ -345,7 +380,7 @@ const Header = ({ user, setUser, onLogoClick }) => {
                   </div>
                 )}
               </div>
-            ) : authEnabled ? (
+            ) : authEnabled && adminSessionChecked && !adminSessionActive ? (
               <button
                 onClick={handleSignInClick}
                 className="px-4 py-2 bg-white text-red-700 rounded font-medium hover:bg-orange-50 text-sm"

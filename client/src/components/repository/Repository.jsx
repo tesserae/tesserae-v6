@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { LoadingSpinner, Modal } from '../common';
 
 /**
@@ -93,18 +93,42 @@ function formatCitation(author, work, reference) {
   return reference || '';
 }
 
+function normalizeRepositoryItem(item, { publicEntry = false } = {}) {
+  const source = item.source || {};
+  const target = item.target || {};
+  const sourceLanguage = source.language || item.source_language || item.language || 'la';
+  const targetLanguage = target.language || item.target_language || sourceLanguage;
+  const derivedLanguage = item.language || sourceLanguage || targetLanguage || 'la';
+  const isPublic = item.is_public ?? item.shared_to_public ?? publicEntry;
+
+  return {
+    ...item,
+    source,
+    target,
+    language: derivedLanguage,
+    source_locus: source.reference || item.source_locus || '',
+    target_locus: target.reference || item.target_locus || '',
+    source_text: source.snippet || item.source_text || '',
+    target_text: target.snippet || item.target_text || '',
+    score: item.score ?? item.tesserae_score ?? 0,
+    scholar_score: item.scholar_score ?? item.intertext_score ?? item.user_score ?? 0,
+    status: item.status || (isPublic ? 'shared' : 'private'),
+    is_public: isPublic,
+  };
+}
+
 export default function Repository({ user }) {
-  const [intertexts, setIntertexts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState({ language: 'all', status: 'all' });
   const [sortBy, setSortBy] = useState('created_at');
   const [sortOrder, setSortOrder] = useState('desc');
   const [displayLimit, setDisplayLimit] = useState(50);
-  const [stats, setStats] = useState(null);
-  const [viewMode, setViewMode] = useState('browse');
+  const [viewMode, setViewMode] = useState(user ? 'my' : 'public');
+  const [publicIntertexts, setPublicIntertexts] = useState([]);
   const [myIntertexts, setMyIntertexts] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
+  const [editingScope, setEditingScope] = useState('saved');
   const [newIntertext, setNewIntertext] = useState({
     source_locus: '',
     source_text: '',
@@ -113,7 +137,7 @@ export default function Repository({ user }) {
     language: 'la',
     notes: '',
     scholar_score: 0,
-    is_public: true,
+    is_public: false,
     matched_words: ''
   });
   const [expandedAuthors, setExpandedAuthors] = useState({});
@@ -158,52 +182,56 @@ export default function Repository({ user }) {
     setExpandedFormsCache(newCache);
   }, [expandedFormsCache]);
 
-  useEffect(() => {
-    loadIntertexts();
-    loadStats();
-  }, []);
-
-  useEffect(() => {
-    if (user && viewMode === 'my') {
-      loadMyIntertexts();
-    } else if (viewMode === 'browse' || viewMode === 'byWork') {
-      loadIntertexts();
-    }
-  }, [user, viewMode]);
-
-  const loadIntertexts = async () => {
+  const loadPublicIntertexts = useCallback(async () => {
     setLoading(true);
     try {
       const res = await fetch('/api/intertexts');
+      if (!res.ok) {
+        throw new Error('Failed to load public repository');
+      }
       const data = await res.json();
-      const items = data.intertexts || [];
-      setIntertexts(items);
+      const items = (data.intertexts || []).map((item) => normalizeRepositoryItem(item, { publicEntry: true }));
+      setPublicIntertexts(items);
       await loadExpandedFormsForItems(items);
     } catch (err) {
-      console.error('Failed to load intertexts:', err);
+      console.error('Failed to load public intertexts:', err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  };
+  }, [loadExpandedFormsForItems]);
 
-  const loadMyIntertexts = async () => {
+  const loadMyIntertexts = useCallback(async () => {
+    setLoading(true);
     try {
       const res = await fetch('/api/intertexts/my');
+      if (!res.ok) {
+        throw new Error('Failed to load repository');
+      }
       const data = await res.json();
-      setMyIntertexts(data.intertexts || []);
+      const items = (data.intertexts || []).map((item) => normalizeRepositoryItem(item));
+      setMyIntertexts(items);
+      await loadExpandedFormsForItems(items);
     } catch (err) {
       console.error('Failed to load my intertexts:', err);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [loadExpandedFormsForItems]);
 
-  const loadStats = async () => {
-    try {
-      const res = await fetch('/api/intertexts/stats');
-      const data = await res.json();
-      setStats(data);
-    } catch (err) {
-      console.error('Failed to load repository stats:', err);
+  useEffect(() => {
+    loadPublicIntertexts();
+  }, [loadPublicIntertexts]);
+
+  useEffect(() => {
+    if (user) {
+      loadMyIntertexts();
+      return;
     }
-  };
+    setMyIntertexts([]);
+    if (viewMode !== 'public') {
+      setViewMode('public');
+    }
+  }, [user, viewMode, loadMyIntertexts]);
 
   const getFormsForItem = (item) => {
     const lemmas = item.matched_lemmas || [];
@@ -213,16 +241,33 @@ export default function Repository({ user }) {
   };
 
   const handleAddIntertext = async () => {
+    if (!Number.isInteger(newIntertext.scholar_score) || newIntertext.scholar_score < 1 || newIntertext.scholar_score > 5) {
+      alert('Please select a star rating before adding an intertext.');
+      return;
+    }
     try {
       const payload = {
-        ...newIntertext,
-        matched_tokens: newIntertext.matched_words 
-          ? newIntertext.matched_words.split(',').map(w => w.trim()).filter(Boolean)
-          : []
+        source: {
+          text_id: newIntertext.source_locus.trim() || `manual-source-${Date.now()}`,
+          reference: newIntertext.source_locus.trim(),
+          snippet: newIntertext.source_text.trim(),
+          language: newIntertext.language,
+        },
+        target: {
+          text_id: newIntertext.target_locus.trim() || `manual-target-${Date.now()}`,
+          reference: newIntertext.target_locus.trim(),
+          snippet: newIntertext.target_text.trim(),
+          language: newIntertext.language,
+        },
+        matched_tokens: newIntertext.matched_words
+          ? newIntertext.matched_words.split(',').map((w) => w.trim()).filter(Boolean)
+          : [],
+        intertext_score: newIntertext.scholar_score,
+        notes: newIntertext.notes.trim(),
+        share_to_public: newIntertext.is_public,
       };
-      delete payload.matched_words;
-      
-      const res = await fetch('/api/intertexts', {
+
+      const res = await fetch('/api/intertexts/my', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -231,11 +276,10 @@ export default function Repository({ user }) {
       setShowAddModal(false);
       setNewIntertext({
         source_locus: '', source_text: '', target_locus: '', target_text: '',
-        language: 'la', notes: '', scholar_score: 0, is_public: true, matched_words: ''
+        language: 'la', notes: '', scholar_score: 0, is_public: false, matched_words: ''
       });
-      loadIntertexts();
-      if (user) loadMyIntertexts();
-      loadStats();
+      loadMyIntertexts();
+      loadPublicIntertexts();
     } catch (err) {
       alert('Failed to add intertext: ' + err.message);
     }
@@ -243,34 +287,118 @@ export default function Repository({ user }) {
 
   const handleUpdateIntertext = async (id, updates) => {
     try {
-      const res = await fetch(`/api/intertexts/${id}`, {
+      const payload = { ...updates };
+      if ('scholar_score' in payload) {
+        payload.intertext_score = payload.scholar_score;
+        delete payload.scholar_score;
+      }
+      if ('is_public' in payload) {
+        payload.shared_to_public = payload.is_public;
+        delete payload.is_public;
+      }
+
+      const res = await fetch(`/api/intertexts/my/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates)
+        body: JSON.stringify(payload)
       });
       if (!res.ok) throw new Error('Failed to update');
-      if (viewMode === 'my') loadMyIntertexts();
-      else loadIntertexts();
+      loadMyIntertexts();
+      loadPublicIntertexts();
     } catch (err) {
       alert('Update failed: ' + err.message);
     }
   };
 
+  const handleUpdatePublicIntertext = async (id, updates) => {
+    try {
+      const payload = {};
+      if ('notes' in updates) {
+        payload.notes = updates.notes;
+      }
+      if ('scholar_score' in updates) {
+        payload.user_score = updates.scholar_score;
+      }
+
+      const res = await fetch(`/api/intertexts/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('Failed to update');
+      loadMyIntertexts();
+      loadPublicIntertexts();
+    } catch (err) {
+      alert('Update failed: ' + err.message);
+    }
+  };
+
+  const openEditModal = (item, scope = 'saved') => {
+    setEditingScope(scope);
+    setEditingItem({
+      ...item,
+      notes: item.notes || '',
+      scholar_score: item.scholar_score || 0,
+      is_public: item.is_public !== false,
+    });
+  };
+
+  const handleSaveEditedIntertext = async () => {
+    if (!editingItem) return;
+    if (!Number.isInteger(editingItem.scholar_score) || editingItem.scholar_score < 1 || editingItem.scholar_score > 5) {
+      alert('Please select a star rating before saving changes.');
+      return;
+    }
+
+    if (editingScope === 'public') {
+      await handleUpdatePublicIntertext(editingItem.id, {
+        notes: editingItem.notes || '',
+        scholar_score: editingItem.scholar_score,
+      });
+    } else {
+      await handleUpdateIntertext(editingItem.id, {
+        notes: editingItem.notes || '',
+        scholar_score: editingItem.scholar_score,
+        is_public: editingItem.is_public !== false,
+      });
+    }
+    setEditingItem(null);
+    setEditingScope('saved');
+  };
+
   const handleDeleteIntertext = async (id) => {
     if (!confirm('Delete this intertext?')) return;
     try {
-      await fetch(`/api/intertexts/${id}`, { method: 'DELETE' });
-      if (viewMode === 'my') loadMyIntertexts();
-      else loadIntertexts();
-      loadStats();
+      const res = await fetch(`/api/intertexts/my/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete');
+      loadMyIntertexts();
+      loadPublicIntertexts();
     } catch (err) {
       alert('Delete failed');
     }
   };
 
-  const filteredIntertexts = (viewMode === 'my' ? myIntertexts : intertexts).filter(item => {
+  const handleDeletePublicIntertext = async (id) => {
+    if (!confirm('Delete this public intertext?')) return;
+    try {
+      const res = await fetch(`/api/intertexts/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete');
+      loadMyIntertexts();
+      loadPublicIntertexts();
+    } catch (err) {
+      alert('Delete failed');
+    }
+  };
+
+  const isPublicView = viewMode === 'public';
+  const repositoryItems = isPublicView ? publicIntertexts : myIntertexts;
+
+  const filteredIntertexts = repositoryItems.filter(item => {
     if (filter.language !== 'all' && item.language !== filter.language) return false;
-    if (filter.status !== 'all' && item.status !== filter.status) return false;
+    if (!isPublicView) {
+      if (filter.status === 'shared' && !item.is_public) return false;
+      if (filter.status === 'private' && item.is_public) return false;
+    }
     return true;
   });
 
@@ -285,13 +413,22 @@ export default function Repository({ user }) {
     }
     return sortOrder === 'desc' ? -cmp : cmp;
   });
+  const personalStats = {
+    total: myIntertexts.length,
+    shared: myIntertexts.filter((item) => item.is_public).length,
+  };
+
+  const publicStats = {
+    total: publicIntertexts.length,
+    withNotes: publicIntertexts.filter((item) => item.notes).length,
+  };
 
   const groupedByWork = (() => {
     const groups = {};
     filteredIntertexts.forEach(item => {
       const lang = item.language || 'la';
-      const author = item.source_author || item.source_locus?.split(',')[0]?.trim() || 'Unknown';
-      const work = item.source_work || item.source_locus?.split(',')[1]?.trim() || 'Unknown';
+      const author = item.source?.author || item.source_author || item.source_locus?.split(',')[0]?.trim() || 'Unknown';
+      const work = item.source?.work || item.source_work || item.source_locus?.split(',')[1]?.trim() || 'Unknown';
       
       if (!groups[lang]) groups[lang] = {};
       if (!groups[lang][author]) groups[lang][author] = {};
@@ -314,14 +451,14 @@ export default function Repository({ user }) {
   const langNames = { la: 'Latin', grc: 'Greek', en: 'English', cross: 'Greek-Latin' };
 
   const exportCSV = useCallback(() => {
-    const headers = ['Source', 'Target', 'Language', 'Score', 'Scholar Score', 'Status', 'Notes', 'Created'];
+    const headers = ['Source', 'Target', 'Language', 'Match Score', 'Your Rating', 'Visibility', 'Notes', 'Created'];
     const rows = sortedIntertexts.map(item => [
       item.source_locus || '',
       item.target_locus || '',
       item.language || '',
       item.score || '',
       item.scholar_score || '',
-      item.status || '',
+      item.is_public ? 'shared' : 'private',
       (item.notes || '').replace(/"/g, '""'),
       item.created_at || ''
     ]);
@@ -359,20 +496,35 @@ export default function Repository({ user }) {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">Intertext Repository</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            {isPublicView ? 'Public Repository' : 'My Repository'}
+          </h2>
           <p className="text-sm text-gray-500 mt-1">
-            Browse and manage discovered textual parallels
+            {isPublicView
+              ? 'Browse parallels that users chose to make publicly visible.'
+              : 'Review and manage the parallels you have saved with your own comments and ratings'}
           </p>
         </div>
-        {stats && (
+        {isPublicView ? (
           <div className="flex gap-4 text-sm">
             <div className="text-center">
-              <div className="text-2xl font-bold text-red-700">{stats.total || 0}</div>
-              <div className="text-gray-500">Total</div>
+              <div className="text-2xl font-bold text-red-700">{publicStats.total}</div>
+              <div className="text-gray-500">Visible</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-amber-600">{stats.flagged || 0}</div>
-              <div className="text-gray-500">Flagged</div>
+              <div className="text-2xl font-bold text-amber-600">{publicStats.withNotes}</div>
+              <div className="text-gray-500">With Notes</div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex gap-4 text-sm">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-red-700">{personalStats.total}</div>
+              <div className="text-gray-500">Saved</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-amber-600">{personalStats.shared}</div>
+              <div className="text-gray-500">Shared</div>
             </div>
           </div>
         )}
@@ -382,24 +534,26 @@ export default function Repository({ user }) {
         <div className="flex flex-wrap gap-4 items-center justify-between">
           <div className="flex gap-2">
             <button
-              onClick={() => setViewMode('browse')}
-              className={`px-4 py-2 rounded text-sm ${viewMode === 'browse' ? 'bg-red-700 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+              onClick={() => setViewMode('public')}
+              className={`px-4 py-2 rounded text-sm ${viewMode === 'public' ? 'bg-red-700 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
             >
-              List View
-            </button>
-            <button
-              onClick={() => setViewMode('byWork')}
-              className={`px-4 py-2 rounded text-sm ${viewMode === 'byWork' ? 'bg-red-700 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-            >
-              By Work
+              Public Repository
             </button>
             {user && (
-              <button
-                onClick={() => setViewMode('my')}
-                className={`px-4 py-2 rounded text-sm ${viewMode === 'my' ? 'bg-red-700 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
-              >
-                My Intertexts
-              </button>
+              <>
+                <button
+                  onClick={() => setViewMode('my')}
+                  className={`px-4 py-2 rounded text-sm ${viewMode === 'my' ? 'bg-red-700 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                >
+                  My Saved
+                </button>
+                <button
+                  onClick={() => setViewMode('byWork')}
+                  className={`px-4 py-2 rounded text-sm ${viewMode === 'byWork' ? 'bg-red-700 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                >
+                  By Work
+                </button>
+              </>
             )}
           </div>
           <div className="flex gap-3 flex-wrap">
@@ -414,14 +568,17 @@ export default function Repository({ user }) {
               <option value="en">English</option>
               <option value="cross">Greek-Latin</option>
             </select>
-            <select
-              value={filter.status}
-              onChange={e => setFilter({ ...filter, status: e.target.value })}
-              className="border rounded px-3 py-2 text-sm"
-            >
-              <option value="all">All Entries</option>
-              <option value="flagged">Flagged Only</option>
-            </select>
+            {!isPublicView && (
+              <select
+                value={filter.status}
+                onChange={e => setFilter({ ...filter, status: e.target.value })}
+                className="border rounded px-3 py-2 text-sm"
+              >
+                <option value="all">All Entries</option>
+                <option value="private">Private Only</option>
+                <option value="shared">Shared Publicly</option>
+              </select>
+            )}
             <select
               value={sortBy}
               onChange={e => setSortBy(e.target.value)}
@@ -429,7 +586,7 @@ export default function Repository({ user }) {
             >
               <option value="created_at">Date</option>
               <option value="score">Match Score</option>
-              <option value="scholar_score">Scholar Score</option>
+              <option value="scholar_score">Your Rating</option>
             </select>
             <button
               onClick={exportCSV}
@@ -437,7 +594,15 @@ export default function Repository({ user }) {
             >
               Export CSV
             </button>
-            {user && (
+            {!user && (
+              <button
+                onClick={() => window.dispatchEvent(new CustomEvent('open-public-auth-modal', { detail: { mode: 'login' } }))}
+                className="px-3 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm"
+              >
+                Sign In To Save
+              </button>
+            )}
+            {user && !isPublicView && (
               <button
                 onClick={() => setShowAddModal(true)}
                 className="px-3 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm"
@@ -451,8 +616,10 @@ export default function Repository({ user }) {
 
       {filteredIntertexts.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
-          {viewMode === 'my' 
-            ? "You haven't saved any intertexts yet. Run a search and click 'Register' to save parallels."
+          {isPublicView
+            ? 'No public intertexts found matching your filters.'
+            : viewMode === 'my'
+            ? "You haven't saved any intertexts yet. Run a search and click 'Register' to save a parallel with your notes and rating."
             : "No intertexts found matching your filters."
           }
         </div>
@@ -504,9 +671,9 @@ export default function Repository({ user }) {
                                   <div key={item.id || i} className="px-4 py-3 bg-white hover:bg-gray-50 border-b border-gray-100">
                                     <div className="flex items-start justify-between gap-2 mb-2">
                                       <div className="flex items-center gap-2 flex-wrap">
-                                        {item.status === 'flagged' && (
-                                          <span className="text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-700">flagged</span>
-                                        )}
+                                        <span className={`text-xs px-2 py-0.5 rounded ${item.is_public ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
+                                          {item.is_public ? 'shared' : 'private'}
+                                        </span>
                                         <span className="text-xs text-gray-400">
                                           Score: {item.score?.toFixed?.(2) || item.score || '-'}
                                         </span>
@@ -514,16 +681,6 @@ export default function Repository({ user }) {
                                           <span className="text-xs text-amber-600">{'★'.repeat(item.scholar_score)}</span>
                                         )}
                                       </div>
-                                      {user && (
-                                        <button
-                                          onClick={() => handleUpdateIntertext(item.id, { status: item.status === 'flagged' ? 'confirmed' : 'flagged' })}
-                                          className={`text-xs px-2 py-0.5 rounded ${
-                                            item.status === 'flagged' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-500'
-                                          }`}
-                                        >
-                                          {item.status === 'flagged' ? '⚑' : '⚐'}
-                                        </button>
-                                      )}
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
                                       <div className="bg-gray-50 p-2 rounded">
@@ -562,14 +719,17 @@ export default function Repository({ user }) {
           <div className="divide-y divide-gray-200">
             {sortedIntertexts.slice(0, displayLimit).map((item, i) => (
               <div key={item.id || i} className="p-4 hover:bg-gray-50">
+                {(() => {
+                  const canDeletePublicItem = isPublicView && user && item.submitter_id && String(item.submitter_id) === String(user.id);
+                  const canEditPublicItem = canDeletePublicItem;
+                  const canEditSavedItem = viewMode === 'my' && user;
+                  return (
                 <div className="flex items-start justify-between gap-4 mb-2">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      {item.status === 'flagged' && (
-                        <span className="text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-700">
-                          flagged
-                        </span>
-                      )}
+                      <span className={`text-xs px-2 py-0.5 rounded ${item.is_public ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
+                        {item.is_public ? 'shared' : 'private'}
+                      </span>
                       <span className="text-xs text-gray-500">
                         {(() => {
                           const lang = item.language || item.source?.language || 'en';
@@ -587,9 +747,6 @@ export default function Repository({ user }) {
                       {item.scholar_score > 0 && (
                         <StarRating value={item.scholar_score} readOnly />
                       )}
-                      {item.is_public === false && (
-                        <span className="text-xs px-2 py-0.5 rounded bg-gray-200 text-gray-600">Private</span>
-                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -598,23 +755,10 @@ export default function Repository({ user }) {
                         {new Date(item.created_at).toLocaleDateString()}
                       </span>
                     )}
-                    {user && (
-                      <button
-                        onClick={() => handleUpdateIntertext(item.id, { status: item.status === 'flagged' ? 'confirmed' : 'flagged' })}
-                        className={`text-xs px-2 py-1 rounded ${
-                          item.status === 'flagged' 
-                            ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' 
-                            : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                        }`}
-                        title={item.status === 'flagged' ? 'Remove flag' : 'Flag as problematic'}
-                      >
-                        {item.status === 'flagged' ? '⚑ Unflag' : '⚐ Flag'}
-                      </button>
-                    )}
-                    {viewMode === 'my' && user && (
+                    {canEditSavedItem && (
                       <div className="flex gap-1">
                         <button
-                          onClick={() => setEditingItem(item)}
+                          onClick={() => openEditModal(item, 'saved')}
                           className="text-xs px-2 py-1 bg-gray-100 rounded hover:bg-gray-200"
                         >
                           Edit
@@ -627,8 +771,26 @@ export default function Repository({ user }) {
                         </button>
                       </div>
                     )}
+                    {canEditPublicItem && (
+                      <button
+                        onClick={() => openEditModal(item, 'public')}
+                        className="text-xs px-2 py-1 bg-gray-100 rounded hover:bg-gray-200"
+                      >
+                        Edit
+                      </button>
+                    )}
+                    {canDeletePublicItem && (
+                      <button
+                        onClick={() => handleDeletePublicIntertext(item.id)}
+                        className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200"
+                      >
+                        Delete
+                      </button>
+                    )}
                   </div>
                 </div>
+                  );
+                })()}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="bg-gray-50 p-3 rounded">
                     <div className="text-xs text-red-600 mb-1 font-medium">
@@ -684,7 +846,7 @@ export default function Repository({ user }) {
       )}
 
       {showAddModal && (
-        <Modal onClose={() => setShowAddModal(false)} title="Add Manual Intertext">
+        <Modal isOpen={showAddModal} onClose={() => setShowAddModal(false)} title="Add Manual Intertext">
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -741,11 +903,14 @@ export default function Repository({ user }) {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Scholar Score</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Your Rating</label>
                 <StarRating 
                   value={newIntertext.scholar_score} 
                   onChange={score => setNewIntertext({...newIntertext, scholar_score: score})}
                 />
+                <p className="text-xs text-gray-400 mt-1">
+                  {newIntertext.scholar_score > 0 ? `${newIntertext.scholar_score}/5 selected` : 'Required'}
+                </p>
               </div>
             </div>
             <div>
@@ -783,7 +948,7 @@ export default function Repository({ user }) {
                 checked={newIntertext.is_public}
                 onChange={e => setNewIntertext({...newIntertext, is_public: e.target.checked})}
               />
-              <label htmlFor="is_public" className="text-sm text-gray-700">Make this intertext public</label>
+              <label htmlFor="is_public" className="text-sm text-gray-700">Share this intertext publicly</label>
             </div>
             <div className="flex justify-end gap-2 pt-4">
               <button
@@ -794,7 +959,7 @@ export default function Repository({ user }) {
               </button>
               <button
                 onClick={handleAddIntertext}
-                disabled={!newIntertext.source_locus || !newIntertext.target_locus}
+                disabled={!newIntertext.source_locus || !newIntertext.target_locus || newIntertext.scholar_score < 1}
                 className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 disabled:opacity-50"
               >
                 Add Intertext
@@ -805,17 +970,65 @@ export default function Repository({ user }) {
       )}
 
       {editingItem && (
-        <Modal onClose={() => setEditingItem(null)} title="Edit Intertext">
+        <Modal isOpen={Boolean(editingItem)} onClose={() => {
+          setEditingItem(null);
+          setEditingScope('saved');
+        }} title="Edit Intertext">
           <div className="space-y-4">
+            <div className="bg-gray-50 p-4 rounded">
+              <div className="text-sm text-gray-500 mb-1">Source</div>
+              <div className="font-medium text-red-700">{editingItem.source?.reference || editingItem.source_locus}</div>
+              <div className="text-sm text-gray-700 mt-1">
+                {(editingItem.source?.snippet || editingItem.source_text || '').substring(0, 140)}
+                {(editingItem.source?.snippet || editingItem.source_text || '').length > 140 ? '...' : ''}
+              </div>
+              <div className="text-sm text-gray-500 mt-3 mb-1">Target</div>
+              <div className="font-medium text-amber-600">{editingItem.target?.reference || editingItem.target_locus}</div>
+              <div className="text-sm text-gray-700 mt-1">
+                {(editingItem.target?.snippet || editingItem.target_text || '').substring(0, 140)}
+                {(editingItem.target?.snippet || editingItem.target_text || '').length > 140 ? '...' : ''}
+              </div>
+            </div>
+            {editingScope === 'saved' && (
+              <div>
+                <div className="text-sm text-gray-600 mb-2">Visibility:</div>
+                <div className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1">
+                  <button
+                    type="button"
+                    onClick={() => setEditingItem({ ...editingItem, is_public: false })}
+                    className={`px-3 py-1.5 text-sm rounded ${
+                      editingItem.is_public === false
+                        ? 'bg-white text-gray-900 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-800'
+                    }`}
+                  >
+                    Private
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingItem({ ...editingItem, is_public: true })}
+                    className={`px-3 py-1.5 text-sm rounded ${
+                      editingItem.is_public !== false
+                        ? 'bg-white text-red-700 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-800'
+                    }`}
+                  >
+                    Make Public
+                  </button>
+                </div>
+              </div>
+            )}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Scholar Score</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Your Rating</label>
               <StarRating 
                 value={editingItem.scholar_score || 0} 
                 onChange={score => {
-                  handleUpdateIntertext(editingItem.id, { scholar_score: score });
                   setEditingItem({...editingItem, scholar_score: score});
                 }}
               />
+              <p className="text-xs text-gray-400 mt-1">
+                {editingItem.scholar_score > 0 ? `${editingItem.scholar_score}/5 selected` : 'Required'}
+              </p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -833,31 +1046,20 @@ export default function Repository({ user }) {
                 className="w-full border rounded px-3 py-2 text-sm"
               />
             </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="edit_is_public"
-                checked={editingItem.is_public !== false}
-                onChange={e => {
-                  handleUpdateIntertext(editingItem.id, { is_public: e.target.checked });
-                  setEditingItem({...editingItem, is_public: e.target.checked});
-                }}
-              />
-              <label htmlFor="edit_is_public" className="text-sm text-gray-700">Public (visible to others)</label>
-            </div>
             <div className="flex justify-end gap-2 pt-4">
               <button
-                onClick={() => setEditingItem(null)}
+                onClick={() => {
+                  setEditingItem(null);
+                  setEditingScope('saved');
+                }}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800"
               >
                 Cancel
               </button>
               <button
-                onClick={() => {
-                  handleUpdateIntertext(editingItem.id, { notes: editingItem.notes });
-                  setEditingItem(null);
-                }}
-                className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800"
+                onClick={handleSaveEditedIntertext}
+                disabled={editingItem.scholar_score < 1}
+                className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Save Changes
               </button>
