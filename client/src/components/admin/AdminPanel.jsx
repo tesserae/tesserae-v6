@@ -11,6 +11,7 @@ import MetadataTab from './tabs/MetadataTab';
 import RequestsTab from './tabs/RequestsTab';
 import UsersTab from './tabs/UsersTab';
 import GenreClassificationTab from './tabs/GenreClassificationTab';
+import DictionaryReviewTab from './tabs/DictionaryReviewTab';
 
 const normalizeRole = (role) => (role || '').toString().trim().toUpperCase();
 
@@ -329,7 +330,7 @@ export default function AdminPanel() {
         <div className="bg-white rounded-lg shadow">
           <div className="border-b">
             <nav className="flex overflow-x-auto">
-              {['requests', 'feedback', 'users', 'sources', 'metadata', 'cache', 'stats', 'analytics', 'audit', 'settings', 'genres'].map(tab => (
+              {['requests', 'feedback', 'users', 'sources', 'metadata', 'dictionary', 'cache', 'stats', 'analytics', 'audit', 'settings', 'genres'].map(tab => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -342,6 +343,7 @@ export default function AdminPanel() {
                   {tab === 'requests' ? 'Requests' :
                    tab === 'feedback' ? 'Feedback' :
                    tab === 'genres' ? 'Genres' :
+                   tab === 'dictionary' ? 'Dictionary' :
                    tab === 'users' ? 'Users' :
                    tab === 'sources' ? 'Sources' :
                    tab === 'metadata' ? 'Metadata' :
@@ -366,6 +368,10 @@ export default function AdminPanel() {
           {activeTab === 'feedback' && (
             <FeedbackTab feedback={feedback} onRefresh={loadAdminData} />
           )}
+
+            {activeTab === 'dictionary' && (
+              <DictionaryReviewTab />
+            )}
 
             {activeTab === 'genres' && (
               <GenreClassificationTab />
