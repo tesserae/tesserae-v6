@@ -1,0 +1,1280 @@
+[
+  {
+    "source_ref": "luc. 1.1",
+    "target_ref": "verg. aen. 1.6",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.1",
+    "target_ref": "verg. aen. 1.97",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.1",
+    "target_ref": "verg. aen. 1.453",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.1",
+    "target_ref": "verg. aen. 3.539",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.1",
+    "target_ref": "verg. aen. 5.58",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.1",
+    "target_ref": "verg. aen. 7.41",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.1",
+    "target_ref": "verg. aen. 12.526",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.1",
+    "target_ref": "verg. aen. 12.579",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.2",
+    "target_ref": "verg. aen. 1.1",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.2",
+    "target_ref": "verg. aen. 6.852",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.3",
+    "target_ref": "verg. aen. 6.833",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.4",
+    "target_ref": "verg. aen. 11.313",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.5",
+    "target_ref": "verg. aen. 12.528",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.6",
+    "target_ref": "verg. aen. 4.628",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.7",
+    "target_ref": "verg. aen. 6.826",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.8",
+    "target_ref": "verg. aen. 2.42",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.8",
+    "target_ref": "verg. aen. 5.670",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.8",
+    "target_ref": "verg. aen. 7.461",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.8",
+    "target_ref": "verg. aen. 11.732",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.8",
+    "target_ref": "verg. aen. 12.5",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.8",
+    "target_ref": "verg. aen. 12.313",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.11",
+    "target_ref": "verg. aen. 6.328",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.12",
+    "target_ref": "verg. aen. 8.714",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.13",
+    "target_ref": "verg. aen. 6.828",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.21",
+    "target_ref": "verg. aen. 6.24",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.21",
+    "target_ref": "verg. aen. 12.572",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.22",
+    "target_ref": "verg. aen. 4.231",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.24",
+    "target_ref": "verg. aen. 1.5",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.24",
+    "target_ref": "verg. aen. 1.29",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.24",
+    "target_ref": "verg. aen. 2.489",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.25",
+    "target_ref": "verg. aen. 8.355",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.27",
+    "target_ref": "verg. aen. 1.578",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.28",
+    "target_ref": "verg. aen. 7.60",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.28",
+    "target_ref": "verg. aen. 8.348",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.28",
+    "target_ref": "verg. aen. 9.381",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.29",
+    "target_ref": "verg. aen. 11.379",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.33",
+    "target_ref": "verg. aen. 3.395",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.33",
+    "target_ref": "verg. aen. 10.113",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.34",
+    "target_ref": "verg. aen. 7.297",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.38",
+    "target_ref": "verg. aen. 7.317",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.60",
+    "target_ref": "verg. aen. 1.291",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.60",
+    "target_ref": "verg. aen. 1.542",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.61",
+    "target_ref": "verg. aen. 1.294",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.62",
+    "target_ref": "verg. aen. 7.610",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.62",
+    "target_ref": "verg. aen. 7.622",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.63",
+    "target_ref": "verg. aen. 4.530",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.63",
+    "target_ref": "verg. aen. 9.276",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.67",
+    "target_ref": "verg. aen. 1.8",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.68",
+    "target_ref": "verg. aen. 7.45",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.80",
+    "target_ref": "verg. aen. 12.633",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.81",
+    "target_ref": "verg. aen. 2.783",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.84",
+    "target_ref": "verg. aen. 11.361",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.87",
+    "target_ref": "verg. aen. 9.354",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.97",
+    "target_ref": "verg. aen. 8.342",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.103",
+    "target_ref": "verg. aen. 1.295",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.109",
+    "target_ref": "verg. aen. 1.234",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.109",
+    "target_ref": "verg. aen. 4.229",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.109",
+    "target_ref": "verg. aen. 9.750",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.110",
+    "target_ref": "verg. aen. 7.258",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.112",
+    "target_ref": "verg. aen. 7.71",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.112",
+    "target_ref": "verg. aen. 7.322",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.114",
+    "target_ref": "verg. aen. 3.337",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.114",
+    "target_ref": "verg. aen. 4.225",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.129",
+    "target_ref": "verg. aen. 1.475",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.132",
+    "target_ref": "verg. aen. 6.816",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.134",
+    "target_ref": "verg. aen. 12.424",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.135",
+    "target_ref": "verg. aen. 7.412",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.135",
+    "target_ref": "verg. aen. 11.223",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.136",
+    "target_ref": "verg. aen. 3.680",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.136",
+    "target_ref": "verg. aen. 4.441",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.136",
+    "target_ref": "verg. aen. 9.681",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.137",
+    "target_ref": "verg. aen. 10.423",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.137",
+    "target_ref": "verg. aen. 11.5",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.138",
+    "target_ref": "verg. aen. 4.445",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.138",
+    "target_ref": "verg. aen. 11.6",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.140",
+    "target_ref": "verg. aen. 4.441",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.141",
+    "target_ref": "verg. aen. 2.629",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.141",
+    "target_ref": "verg. aen. 8.42",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.157",
+    "target_ref": "verg. aen. 12.454",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.163",
+    "target_ref": "verg. aen. 3.21",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.178",
+    "target_ref": "verg. aen. 6.622",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.185",
+    "target_ref": "verg. aen. 9.293",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.185",
+    "target_ref": "verg. aen. 10.821",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.186",
+    "target_ref": "verg. aen. 2.270",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.186",
+    "target_ref": "verg. aen. 5.722",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.188",
+    "target_ref": "verg. aen. 2.277",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.190",
+    "target_ref": "verg. aen. 2.288",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.190",
+    "target_ref": "verg. aen. 9.781",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.191",
+    "target_ref": "verg. aen. 2.668",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.193",
+    "target_ref": "verg. aen. 2.774",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.193",
+    "target_ref": "verg. aen. 3.48",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.195",
+    "target_ref": "verg. aen. 2.294",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.195",
+    "target_ref": "verg. aen. 3.159",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.195",
+    "target_ref": "verg. aen. 5.632",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.196",
+    "target_ref": "verg. aen. 3.148",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.205",
+    "target_ref": "verg. aen. 9.792",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.205",
+    "target_ref": "verg. aen. 12.4",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.224",
+    "target_ref": "verg. aen. 3.171",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.224",
+    "target_ref": "verg. aen. 4.355",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.225",
+    "target_ref": "verg. aen. 12.202",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.226",
+    "target_ref": "verg. aen. 4.624",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.226",
+    "target_ref": "verg. aen. 12.435",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.227",
+    "target_ref": "verg. aen. 12.79",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.230",
+    "target_ref": "verg. aen. 12.856",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.233",
+    "target_ref": "verg. aen. 4.169",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.237",
+    "target_ref": "verg. aen. 2.313",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.237",
+    "target_ref": "verg. aen. 11.192",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.238",
+    "target_ref": "verg. aen. 7.633",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.244",
+    "target_ref": "verg. aen. 12.94",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.245",
+    "target_ref": "verg. aen. 8.587",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.248",
+    "target_ref": "verg. aen. 1.437",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.256",
+    "target_ref": "verg. aen. 6.542",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.263",
+    "target_ref": "verg. aen. 9.717",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.269",
+    "target_ref": "verg. aen. 6.621",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.286",
+    "target_ref": "verg. aen. 2.95",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.286",
+    "target_ref": "verg. aen. 11.793",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.290",
+    "target_ref": "verg. aen. 6.831",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.294",
+    "target_ref": "verg. aen. 11.492",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.297",
+    "target_ref": "verg. aen. 8.4",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.299",
+    "target_ref": "verg. aen. 1.198",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.303",
+    "target_ref": "verg. aen. 11.447",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.311",
+    "target_ref": "verg. aen. 7.46",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.327",
+    "target_ref": "verg. aen. 3.645",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.328",
+    "target_ref": "verg. aen. 3.646",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.331",
+    "target_ref": "verg. aen. 9.63",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.345",
+    "target_ref": "verg. aen. 3.85",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.345",
+    "target_ref": "verg. aen. 5.715",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.354",
+    "target_ref": "verg. aen. 1.202",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.355",
+    "target_ref": "verg. aen. 7.461",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.359",
+    "target_ref": "verg. aen. 8.572",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.359",
+    "target_ref": "verg. aen. 2.279",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.363",
+    "target_ref": "verg. aen. 4.336",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.363",
+    "target_ref": "verg. aen. 5.395",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.363",
+    "target_ref": "verg. aen. 9.422",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.366",
+    "target_ref": "verg. aen. 12.646",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.367",
+    "target_ref": "verg. aen. 4.41",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.376",
+    "target_ref": "verg. aen. 9.347",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.376",
+    "target_ref": "verg. aen. 11.266",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.376",
+    "target_ref": "verg. aen. 12.950",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.388",
+    "target_ref": "verg. aen. 2.334",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.388",
+    "target_ref": "verg. aen. 4.665",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.388",
+    "target_ref": "verg. aen. 5.14",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.388",
+    "target_ref": "verg. aen. 5.451",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.388",
+    "target_ref": "verg. aen. 8.595",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.388",
+    "target_ref": "verg. aen. 9.664",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.388",
+    "target_ref": "verg. aen. 11.192",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.388",
+    "target_ref": "verg. aen. 12.409",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.399",
+    "target_ref": "verg. aen. 6.319",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.405",
+    "target_ref": "verg. aen. 6.830",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.417",
+    "target_ref": "verg. aen. 1.742",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.420",
+    "target_ref": "verg. aen. 3.16",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.447",
+    "target_ref": "verg. aen. 6.481",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.447",
+    "target_ref": "verg. aen. 9.446",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.450",
+    "target_ref": "verg. aen. 11.347",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.454",
+    "target_ref": "verg. aen. 8.243",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.456",
+    "target_ref": "verg. aen. 6.726",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.457",
+    "target_ref": "verg. aen. 6.745",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.460",
+    "target_ref": "verg. aen. 8.648",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.465",
+    "target_ref": "verg. aen. 10.13",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.469",
+    "target_ref": "verg. aen. 4.173",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.472",
+    "target_ref": "verg. aen. 4.183",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.472",
+    "target_ref": "verg. aen. 4.189",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.491",
+    "target_ref": "verg. aen. 2.796",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.493",
+    "target_ref": "verg. aen. 11.142",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.495",
+    "target_ref": "verg. aen. 4.300",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.496",
+    "target_ref": "verg. aen. 2.354",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.504",
+    "target_ref": "verg. aen. 2.635",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.504",
+    "target_ref": "verg. aen. 2.651",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.504",
+    "target_ref": "verg. aen. 2.657",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.504",
+    "target_ref": "verg. aen. 2.673",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.504",
+    "target_ref": "verg. aen. 2.707",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.504",
+    "target_ref": "verg. aen. 2.747",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.504",
+    "target_ref": "verg. aen. 3.11",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.504",
+    "target_ref": "verg. aen. 4.597",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.507",
+    "target_ref": "verg. aen. 2.673",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.519",
+    "target_ref": "verg. aen. 12.697",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.520",
+    "target_ref": "verg. aen. 2.360",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.524",
+    "target_ref": "verg. aen. 2.309",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.524",
+    "target_ref": "verg. aen. 3.375",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.547",
+    "target_ref": "verg. aen. 3.418",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.548",
+    "target_ref": "verg. aen. 5.257",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.549",
+    "target_ref": "verg. aen. 2.296",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.556",
+    "target_ref": "verg. aen. 2.284",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.565",
+    "target_ref": "verg. aen. 8.700",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.573",
+    "target_ref": "verg. aen. 7.397",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.576",
+    "target_ref": "verg. aen. 8.292",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.581",
+    "target_ref": "verg. aen. 2.114",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.584",
+    "target_ref": "verg. aen. 3.368",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.584",
+    "target_ref": "verg. aen. 4.57",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.588",
+    "target_ref": "verg. aen. 3.361",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.606",
+    "target_ref": "verg. aen. 10.177",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.616",
+    "target_ref": "verg. aen. 4.462",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.628",
+    "target_ref": "verg. aen. 5.276",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.635",
+    "target_ref": "verg. aen. 3.36",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.635",
+    "target_ref": "verg. aen. 4.12",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.635",
+    "target_ref": "verg. aen. 4.556",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.635",
+    "target_ref": "verg. aen. 7.259",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.637",
+    "target_ref": "verg. aen. 6.99",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.669",
+    "target_ref": "verg. aen. 1.241",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.673",
+    "target_ref": "verg. aen. 2.199",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.674",
+    "target_ref": "verg. aen. 4.300",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.676",
+    "target_ref": "verg. aen. 4.68",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.676",
+    "target_ref": "verg. aen. 4.666",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.676",
+    "target_ref": "verg. aen. 7.377",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.676",
+    "target_ref": "verg. aen. 10.41",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.677",
+    "target_ref": "verg. aen. 6.48",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.678",
+    "target_ref": "verg. aen. 4.110",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.678",
+    "target_ref": "verg. aen. 10.670",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.681",
+    "target_ref": "verg. aen. 6.57",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.681",
+    "target_ref": "verg. aen. 10.432",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.685",
+    "target_ref": "verg. aen. 2.554",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.695",
+    "target_ref": "verg. aen. 3.716",
+    "type": 4,
+    "target_work": "vergil.aeneid"
+  },
+  {
+    "source_ref": "luc. 1.695",
+    "target_ref": "verg. aen. 6.102",
+    "type": 5,
+    "target_work": "vergil.aeneid"
+  }
+]

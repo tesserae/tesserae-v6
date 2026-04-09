@@ -134,7 +134,7 @@ const DownloadsPage = () => {
               <div className="p-2 bg-gray-50 rounded">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
-                    <span className="font-medium">Lucan BC 1 vs Vergil Aeneid - Gold Pairs</span>
+                    <span className="font-medium">Lucan BC 1 vs Vergil Aeneid - Evaluation Pairs</span>
                     <span className="text-gray-500 ml-2">(213 parallels)</span>
                   </div>
                   <div className="flex gap-2">
@@ -214,7 +214,7 @@ const DownloadsPage = () => {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
                     <span className="font-medium">Valerius Flaccus Argonautica 1 vs Latin Epic</span>
-                    <span className="text-gray-500 ml-2">(521 gold pairs)</span>
+                    <span className="text-gray-500 ml-2">(521 evaluation pairs)</span>
                   </div>
                   <div className="flex gap-2">
                     <a href="/static/downloads/benchmarks/vf_benchmark.csv"
@@ -345,8 +345,211 @@ const DownloadsPage = () => {
 
         <div className="mt-4 pt-4 border-t border-gray-200">
           <p className="text-xs text-gray-500">
-            <strong>Bibliography:</strong> Hunter (1989) <em>Apollonius of Rhodes: Argonautica Book III</em>; 
+            <strong>Bibliography:</strong> Hunter (1989) <em>Apollonius of Rhodes: Argonautica Book III</em>;
             Knauer (1964) <em>Die Aeneis und Homer</em>; Neils (2001) <em>Vergil's Aeneid and the Argonautica</em>.
+          </p>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">V6 Benchmark Evaluation Subsets</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Machine-readable evaluation subsets extracted from the scholarly benchmark sets above. Each file
+          contains the commentary-attested parallel passages used for V6 recall evaluation, with provenance metadata.
+          Available as CSV (with comment header) and JSON.
+        </p>
+
+        <div className="space-y-4">
+          <div>
+            <h4 className="font-medium text-gray-800 mb-2">Latin to Latin</h4>
+            <div className="space-y-2 text-sm">
+              <div className="p-2 bg-gray-50 rounded">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <span className="font-medium">Lucan BC 1 vs Vergil Aeneid</span>
+                    <span className="text-gray-500 ml-2">(213 pairs, types 4-5)</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <a href="/static/downloads/benchmarks/v6_gold/lucan_vergil_gold.csv"
+                       target="_blank" rel="noopener noreferrer"
+                       className="px-3 py-1 bg-red-700 text-white rounded hover:bg-red-800 text-xs self-start sm:self-auto whitespace-nowrap">
+                      CSV
+                    </a>
+                    <a href="/static/downloads/benchmarks/v6_gold/lucan_vergil_gold.json"
+                       target="_blank" rel="noopener noreferrer"
+                       className="px-3 py-1 bg-red-700 text-white rounded hover:bg-red-800 text-xs self-start sm:self-auto whitespace-nowrap">
+                      JSON
+                    </a>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Parent:{' '}
+                  <a href="/static/downloads/benchmarks/bench41.txt"
+                     target="_blank" rel="noopener noreferrer"
+                     className="text-red-600 hover:underline">bench41.txt</a>
+                  {' '}(3,410 entries). Commentators: Roche, Wick/Viansino, Haskins, Teubner-Braun.
+                </p>
+              </div>
+
+              <div className="p-2 bg-gray-50 rounded">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <span className="font-medium">VF Argonautica 1 vs Vergil Aeneid</span>
+                    <span className="text-gray-500 ml-2">(521 pairs, commentary-attested)</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <a href="/static/downloads/benchmarks/v6_gold/vf_vergil_gold.csv"
+                       target="_blank" rel="noopener noreferrer"
+                       className="px-3 py-1 bg-red-700 text-white rounded hover:bg-red-800 text-xs self-start sm:self-auto whitespace-nowrap">
+                      CSV
+                    </a>
+                    <a href="/static/downloads/benchmarks/v6_gold/vf_vergil_gold.json"
+                       target="_blank" rel="noopener noreferrer"
+                       className="px-3 py-1 bg-red-700 text-white rounded hover:bg-red-800 text-xs self-start sm:self-auto whitespace-nowrap">
+                      JSON
+                    </a>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Parent:{' '}
+                  <a href="https://doi.org/10.7910/DVN/S6RD4M"
+                     target="_blank" rel="noopener noreferrer"
+                     className="text-red-600 hover:underline">Dexter et al. 2024 dataset</a>
+                  {' '}(945 entries). Commentators: Kleywegt, Zissos, Spaltenstein.
+                </p>
+              </div>
+
+              <div className="p-2 bg-gray-50 rounded">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <span className="font-medium">Achilleid vs Vergil, Ovid Met, Thebaid</span>
+                    <span className="text-gray-500 ml-2">(128 pairs, 2+ commentators)</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <a href="/static/downloads/benchmarks/v6_gold/achilleid_gold.csv"
+                       target="_blank" rel="noopener noreferrer"
+                       className="px-3 py-1 bg-red-700 text-white rounded hover:bg-red-800 text-xs self-start sm:self-auto whitespace-nowrap">
+                      CSV
+                    </a>
+                    <a href="/static/downloads/benchmarks/v6_gold/achilleid_gold.json"
+                       target="_blank" rel="noopener noreferrer"
+                       className="px-3 py-1 bg-red-700 text-white rounded hover:bg-red-800 text-xs self-start sm:self-auto whitespace-nowrap">
+                      JSON
+                    </a>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Parent:{' '}
+                  <a href="/static/downloads/benchmarks/Stat.Achilleid1.benchmark.xlsx"
+                     target="_blank" rel="noopener noreferrer"
+                     className="text-red-600 hover:underline">Geneva 2015 seminar dataset</a>
+                  {' '}(904 entries). Commentators: Dilke, Nuzzo, Ripoll-Soubiran, Uccellini.
+                  53 vs Vergil, 23 vs Ovid Met, 52 vs Thebaid.
+                </p>
+              </div>
+
+              <div className="p-2 bg-gray-50 rounded">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <span className="font-medium">Jerome/Lactantius vs Classical Authors</span>
+                    <span className="text-gray-500 ml-2">(421 pairs, type 4)</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <a href="/static/downloads/benchmarks/v6_gold/loci_similes_gold.csv"
+                       target="_blank" rel="noopener noreferrer"
+                       className="px-3 py-1 bg-red-700 text-white rounded hover:bg-red-800 text-xs self-start sm:self-auto whitespace-nowrap">
+                      CSV
+                    </a>
+                    <a href="/static/downloads/benchmarks/v6_gold/loci_similes_gold.json"
+                       target="_blank" rel="noopener noreferrer"
+                       className="px-3 py-1 bg-red-700 text-white rounded hover:bg-red-800 text-xs self-start sm:self-auto whitespace-nowrap">
+                      JSON
+                    </a>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Parent:{' '}
+                  <a href="https://huggingface.co/datasets/Heidelberg-NLP/loci-similes"
+                     target="_blank" rel="noopener noreferrer"
+                     className="text-red-600 hover:underline">Schelb et al. 2026 loci similes</a>.
+                  Jerome Epistulae, Lactantius Divinae Institutiones, and others vs classical Latin.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="font-medium text-gray-800 mb-2">Greek to Greek</h4>
+            <div className="space-y-2 text-sm">
+              <div className="p-2 bg-gray-50 rounded">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <span className="font-medium">Apollonius Argonautica 3 vs Homer</span>
+                    <span className="text-gray-500 ml-2">(448 pairs; 121 type 4+5)</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <a href="/static/downloads/benchmarks/v6_gold/apollonius_homer_gold.csv"
+                       target="_blank" rel="noopener noreferrer"
+                       className="px-3 py-1 bg-red-700 text-white rounded hover:bg-red-800 text-xs self-start sm:self-auto whitespace-nowrap">
+                      CSV
+                    </a>
+                    <a href="/static/downloads/benchmarks/v6_gold/apollonius_homer_gold.json"
+                       target="_blank" rel="noopener noreferrer"
+                       className="px-3 py-1 bg-red-700 text-white rounded hover:bg-red-800 text-xs self-start sm:self-auto whitespace-nowrap">
+                      JSON
+                    </a>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Parent: Hunter (1989) <em>Argonautica Book III</em> commentary.
+                  All 448 entries included; 121 are types 4-5 (strong parallels) used as the evaluation standard.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="font-medium text-gray-800 mb-2">Cross-Lingual (Greek to Latin)</h4>
+            <div className="space-y-2 text-sm">
+              <div className="p-2 bg-gray-50 rounded">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <span className="font-medium">Knauer Aeneid 1 vs Homer Iliad</span>
+                    <span className="text-gray-500 ml-2">(412 pairs)</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <a href="/static/downloads/benchmarks/v6_gold/knauer_aeneid1_iliad_gold.csv"
+                       target="_blank" rel="noopener noreferrer"
+                       className="px-3 py-1 bg-red-700 text-white rounded hover:bg-red-800 text-xs self-start sm:self-auto whitespace-nowrap">
+                      CSV
+                    </a>
+                    <a href="/static/downloads/benchmarks/v6_gold/knauer_aeneid1_iliad_gold.json"
+                       target="_blank" rel="noopener noreferrer"
+                       className="px-3 py-1 bg-red-700 text-white rounded hover:bg-red-800 text-xs self-start sm:self-auto whitespace-nowrap">
+                      JSON
+                    </a>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Parent:{' '}
+                  <a href="/static/downloads/benchmarks/Verg.Aeneid1-Iliad.benchmark.xlsx"
+                     target="_blank" rel="noopener noreferrer"
+                     className="text-red-600 hover:underline">Knauer (1964) catalog</a>.
+                  Vergil Aeneid Book 1 vs Homer Iliad. Includes source/target text where available.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <p className="text-xs text-gray-500">
+            <strong>Format:</strong> CSV files include a comment header (lines starting with #) with provenance metadata.
+            JSON files are flat arrays of objects. See{' '}
+            <a href="https://github.com/tesserae/tesserae-v6/blob/main/evaluation/benchmarks/BENCHMARK_METHODOLOGY.md"
+               target="_blank" rel="noopener noreferrer"
+               className="text-red-600 hover:underline">BENCHMARK_METHODOLOGY.md</a>
+            {' '}for full documentation.
           </p>
         </div>
       </div>
@@ -355,7 +558,7 @@ const DownloadsPage = () => {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">V6 Evaluation Results</h3>
         <p className="text-sm text-gray-600 mb-4">
           Ranked fusion search results used in the V6 evaluation article. Each CSV contains all scored pairs
-          with rank, references, text, fused score, channel details, and matched words. Gold-standard pairs
+          with rank, references, text, fused score, channel details, and matched words. Benchmark pairs
           are annotated where applicable. Companion data for Coffee et al. (forthcoming).
         </p>
 
@@ -363,7 +566,7 @@ const DownloadsPage = () => {
           <div>
             <h4 className="font-medium text-gray-800 mb-2">Latin Benchmarks</h4>
             <p className="text-xs text-gray-500 mb-2">
-              Full ranked output with gold annotations. Recall: 792/862 (91.9%) across 5 benchmarks.
+              Full ranked output with benchmark annotations. Recall: 792/862 (91.9%) across 5 benchmarks.
             </p>
             <div className="space-y-2 text-sm">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 bg-gray-50 rounded">
@@ -446,7 +649,7 @@ const DownloadsPage = () => {
             <div className="space-y-2 text-sm">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 bg-gray-50 rounded">
                 <div>
-                  <span className="font-medium">Knauer Aeneid 1 vs Iliad — Gold Summary</span>
+                  <span className="font-medium">Knauer Aeneid 1 vs Iliad — Benchmark Summary</span>
                   <span className="text-gray-500 ml-2">(412 pairs, per-target-line ranks)</span>
                 </div>
                 <a href="/static/downloads/evaluation/knauer_gold_summary.csv"

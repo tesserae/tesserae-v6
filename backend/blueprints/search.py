@@ -31,6 +31,7 @@ from flask_login import current_user
 import os
 import json
 import time
+from backend.utils import resolve_text_path
 
 from backend.logging_config import get_logger
 from backend.services import get_user_location, log_search
@@ -107,18 +108,20 @@ def _parse_search_request(data):
     if not source_id or not target_id:
         raise ValueError('Please select both source and target texts')
 
+    # Language/Path resolution
     match_type = settings.get('match_type', 'lemma')
     is_crosslingual = match_type in ('semantic_cross', 'dictionary_cross', 'crosslingual_fusion')
 
     if is_crosslingual:
-        source_path = os.path.join(_texts_dir, source_language, source_id)
-        target_path = os.path.join(_texts_dir, target_language, target_id)
+        source_language = data.get('source_language', 'la')
+        target_language = data.get('target_language', 'la')
+        source_path = resolve_text_path(_texts_dir, source_language, source_id)
+        target_path = resolve_text_path(_texts_dir, target_language, target_id)
     else:
-        lang_dir = os.path.join(_texts_dir, language)
-        source_path = os.path.join(lang_dir, source_id)
-        target_path = os.path.join(lang_dir, target_id)
+        source_path = resolve_text_path(_texts_dir, language, source_id)
+        target_path = resolve_text_path(_texts_dir, language, target_id)
 
-    if not os.path.exists(source_path) or not os.path.exists(target_path):
+    if not source_path or not target_path:
         raise FileNotFoundError('Text files not found')
 
     settings['language'] = language

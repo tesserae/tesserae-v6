@@ -18,7 +18,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
 
 from backend.logging_config import get_logger
-from backend.utils import get_text_metadata, detect_text_type
+from backend.utils import get_text_metadata, detect_text_type, resolve_text_path
 
 logger = get_logger('wildcard_search')
 
@@ -544,8 +544,12 @@ def wildcard_search(
         }
     
     if target_text:
-        files_to_search = [target_text] if target_text.endswith('.tess') else [f"{target_text}.tess"]
-        files_to_search = [f for f in files_to_search if os.path.exists(os.path.join(lang_dir, f))]
+        # Try with and without .tess suffix to match existing UI behaviour,
+        # while resolve_text_path() handles Unicode normalization mismatches
+        candidate = target_text if target_text.endswith('.tess') else f"{target_text}.tess"
+        source_path = resolve_text_path(TEXTS_DIR, language, candidate) or \
+                      resolve_text_path(TEXTS_DIR, language, target_text)
+        files_to_search = [os.path.basename(source_path)] if source_path else []
     else:
         files_to_search = [f for f in os.listdir(lang_dir) if f.endswith('.tess')]
     

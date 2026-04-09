@@ -46,7 +46,7 @@
       "description": "Greek syntax parses (650 texts, UD annotations for syntax channel)",
       "size_bytes": 1013972992,
       "size_human": "967 MB",
-      "sha256": "bd4fd42da7f35719b76b091e95f2fef52f9290dc6a30e667a7547f9348c050ec",
+      "sha256": "a8b43ea11fa01fb618d30906bd7113315dae83259620bc4b20a3ec9043e95c8a",
       "required": true,
       "rebuild_instructions": "Run: python scripts/build_greek_syntax_db.py"
     },

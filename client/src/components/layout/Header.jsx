@@ -12,6 +12,7 @@ const Header = ({ user, setUser, onLogoClick }) => {
   const [orcidLinking, setOrcidLinking] = useState(false);
   const [orcidError, setOrcidError] = useState(null);
   const [authEnabled, setAuthEnabled] = useState(true);
+  const [authType, setAuthType] = useState('replit');
   const [adminSessionActive, setAdminSessionActive] = useState(false);
   const [adminSessionChecked, setAdminSessionChecked] = useState(false);
   const [selfRegistrationEnabled, setSelfRegistrationEnabled] = useState(true);
@@ -36,6 +37,9 @@ const Header = ({ user, setUser, onLogoClick }) => {
       .then(data => {
         if (data.auth_enabled !== undefined) {
           setAuthEnabled(data.auth_enabled);
+        }
+        if (data.auth_type) {
+          setAuthType(data.auth_type);
         }
         if (data.self_registration_enabled !== undefined) {
           setSelfRegistrationEnabled(Boolean(data.self_registration_enabled));
@@ -205,7 +209,11 @@ const Header = ({ user, setUser, onLogoClick }) => {
 
   const handleSignInClick = () => {
     setAuthPromptMessage('');
-    setShowLoginModal(true);
+    if (authType === 'password') {
+      setShowLoginModal(true);
+    } else {
+      window.location.href = '/api/auth/login';
+    }
   };
 
   const handlePasswordReset = async (e) => {
@@ -453,9 +461,7 @@ const Header = ({ user, setUser, onLogoClick }) => {
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-gray-900">
-                {isRegister
-                  ? 'Create Account'
-                  : (authPromptMessage || 'Sign In')}
+                {isRegister ? 'Create Account' : (authPromptMessage || 'Sign In')}
               </h3>
               <button
                 onClick={() => { setShowLoginModal(false); resetLoginForm(); }}
@@ -469,9 +475,14 @@ const Header = ({ user, setUser, onLogoClick }) => {
               {isRegister
                 ? 'Join Tesserae to save and share discoveries'
                 : (authPromptMessage
-                  ? 'Use your Tesserae account to save this parallel to your repository.'
+                  ? 'Use your Tesserae account to continue.'
                   : 'Welcome back to Tesserae')}
             </p>
+            {!isRegister && (
+              <div className="bg-amber-50 border border-amber-200 text-amber-700 px-3 py-2 rounded text-xs mb-3">
+                If your account was bootstrapped, you may be required to reset your password after signing in.
+              </div>
+            )}
             <form onSubmit={handlePasswordLogin} className="space-y-3">
               {isRegister && (
                 <div className="grid grid-cols-2 gap-3">
