@@ -24,6 +24,7 @@ export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState('requests');
   const [loading, setLoading] = useState(false);
   const [adminRoles, setAdminRoles] = useState([]);
+  const [adminUserId, setAdminUserId] = useState(null);
   const [mustResetPassword, setMustResetPassword] = useState(false);
   const [resetCurrent, setResetCurrent] = useState('');
   const [resetNext, setResetNext] = useState('');
@@ -64,10 +65,12 @@ export default function AdminPanel() {
         setMustResetPassword(Boolean(data.must_reset_password));
         setResetError('');
         setResetSuccess('');
+        window.dispatchEvent(new Event('admin-auth-changed'));
         try {
           const meRes = await fetch('/api/admin/me', { credentials: 'include' });
           if (meRes.ok) {
             const meData = await meRes.json();
+            setAdminUserId(meData.user_id || null);
             const meRoles = Array.isArray(meData.roles)
               ? meData.roles.map(normalizeRole).filter(Boolean)
               : [];
@@ -141,6 +144,7 @@ export default function AdminPanel() {
     } catch (_ignored) {}
     setIsAuthenticated(false);
     setAdminRoles([]);
+    setAdminUserId(null);
     setMustResetPassword(false);
     setResetCurrent('');
     setResetNext('');
@@ -148,6 +152,7 @@ export default function AdminPanel() {
     setResetError('');
     setResetSuccess('');
     setShowChangePassword(false);
+    window.dispatchEvent(new Event('admin-auth-changed'));
   };
 
   const loadAdminData = async () => {
@@ -373,7 +378,12 @@ export default function AdminPanel() {
             )}
 
             {activeTab === 'users' && (
-              <UsersTab authHeaders={{}} isSuperAdmin={adminRoles.map(normalizeRole).includes('SUPER_ADMIN')} />
+              <UsersTab
+                authHeaders={{}}
+                isAdmin={adminRoles.map(normalizeRole).some((r) => r === 'ADMIN' || r === 'SUPER_ADMIN')}
+                isSuperAdmin={adminRoles.map(normalizeRole).includes('SUPER_ADMIN')}
+                currentAdminUserId={adminUserId}
+              />
             )}
 
             {activeTab === 'sources' && (

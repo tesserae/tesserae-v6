@@ -17,6 +17,151 @@ logger = get_logger(__name__)
 intertext_bp = Blueprint('intertext', __name__, url_prefix='/intertexts')
 
 
+def _parse_json_list(raw_value):
+    if not raw_value:
+        return []
+    try:
+        return json.loads(raw_value)
+    except (TypeError, ValueError):
+        return []
+
+
+def _serialize_public_intertext(it):
+    return {
+        'id': it.id,
+        'source': {
+            'text_id': it.source_text_id,
+            'author': it.source_author,
+            'work': it.source_work,
+            'reference': it.source_reference,
+            'snippet': it.source_snippet,
+            'language': it.source_language
+        },
+        'target': {
+            'text_id': it.target_text_id,
+            'author': it.target_author,
+            'work': it.target_work,
+            'reference': it.target_reference,
+            'snippet': it.target_snippet,
+            'language': it.target_language
+        },
+        'matched_lemmas': _parse_json_list(it.matched_lemmas),
+        'matched_tokens': _parse_json_list(it.matched_tokens),
+        'tesserae_score': it.tesserae_score,
+        'user_score': it.user_score,
+        'submitter_id': it.submitter_id,
+        'submitter': {
+            'name': it.submitter_name or '',
+            'email': it.submitter_email or '',
+            'institution': it.submitter_institution or '',
+            'orcid': it.submitter_orcid or ''
+        },
+        'notes': it.notes,
+        'tags': _parse_json_list(it.tags),
+        'status': it.status,
+        'created_at': it.created_at.isoformat() if it.created_at else None
+    }
+
+
+def _serialize_saved_intertext(it):
+    return {
+        'id': it.id,
+        'source': {
+            'text_id': it.source_text_id,
+            'author': it.source_author,
+            'work': it.source_work,
+            'reference': it.source_reference,
+            'snippet': it.source_snippet,
+            'language': it.source_language
+        },
+        'target': {
+            'text_id': it.target_text_id,
+            'author': it.target_author,
+            'work': it.target_work,
+            'reference': it.target_reference,
+            'snippet': it.target_snippet,
+            'language': it.target_language
+        },
+        'matched_lemmas': _parse_json_list(it.matched_lemmas),
+        'matched_tokens': _parse_json_list(it.matched_tokens),
+        'tesserae_score': it.tesserae_score,
+        'intertext_score': it.intertext_score,
+        'notes': it.notes,
+        'tags': _parse_json_list(it.tags),
+        'shared_to_public': it.shared_to_public,
+        'public_intertext_id': it.public_intertext_id,
+        'created_at': it.created_at.isoformat() if it.created_at else None
+    }
+
+
+def _build_public_intertext(source, target, data, submitter):
+    user_name = f"{submitter.first_name or ''} {submitter.last_name or ''}".strip() or submitter.email
+    return Intertext(
+        source_text_id=source.get('text_id', ''),
+        source_author=source.get('author', ''),
+        source_work=source.get('work', ''),
+        source_reference=source.get('reference', ''),
+        source_snippet=source.get('snippet', ''),
+        source_language=source.get('language', 'la'),
+        target_text_id=target.get('text_id', ''),
+        target_author=target.get('author', ''),
+        target_work=target.get('work', ''),
+        target_reference=target.get('reference', ''),
+        target_snippet=target.get('snippet', ''),
+        target_language=target.get('language', 'la'),
+        matched_lemmas=json.dumps(data.get('matched_lemmas', [])),
+        matched_tokens=json.dumps(data.get('matched_tokens', [])),
+        tesserae_score=data.get('tesserae_score', 0.0),
+        user_score=data.get('intertext_score', data.get('user_score', 0)),
+        submitter_id=submitter.id,
+        submitter_name=user_name,
+        submitter_email=submitter.email or '',
+        submitter_institution=submitter.institution or '',
+        submitter_orcid=submitter.orcid or '',
+        notes=data.get('notes', ''),
+        tags=json.dumps(data.get('tags', [])),
+        status='pending',
+        created_at=datetime.now()
+    )
+
+
+def _sync_public_intertext(public_it, saved_it, submitter):
+    """Keep an existing public intertext aligned with the saved copy."""
+    user_name = f"{submitter.first_name or ''} {submitter.last_name or ''}".strip() or submitter.email
+    public_it.source_text_id = saved_it.source_text_id
+    public_it.source_author = saved_it.source_author
+    public_it.source_work = saved_it.source_work
+    public_it.source_reference = saved_it.source_reference
+    public_it.source_snippet = saved_it.source_snippet
+    public_it.source_language = saved_it.source_language
+    public_it.target_text_id = saved_it.target_text_id
+    public_it.target_author = saved_it.target_author
+    public_it.target_work = saved_it.target_work
+    public_it.target_reference = saved_it.target_reference
+    public_it.target_snippet = saved_it.target_snippet
+    public_it.target_language = saved_it.target_language
+    public_it.matched_lemmas = saved_it.matched_lemmas
+    public_it.matched_tokens = saved_it.matched_tokens
+    public_it.tesserae_score = saved_it.tesserae_score
+    public_it.user_score = saved_it.intertext_score
+    public_it.submitter_id = submitter.id
+    public_it.submitter_name = user_name
+    public_it.submitter_email = submitter.email or ''
+    public_it.submitter_institution = submitter.institution or ''
+    public_it.submitter_orcid = submitter.orcid or ''
+    public_it.notes = saved_it.notes
+    public_it.tags = saved_it.tags
+
+
+def _delete_public_copy(saved_it):
+    if not saved_it.public_intertext_id:
+        return
+    public_it = Intertext.query.get(saved_it.public_intertext_id)
+    if public_it:
+        db.session.delete(public_it)
+    saved_it.public_intertext_id = None
+
+
 @intertext_bp.route('', methods=['GET'])
 def list_intertexts():
     """List all intertexts with optional filtering"""
@@ -45,42 +190,7 @@ def list_intertexts():
         query = query.order_by(Intertext.created_at.desc())
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
         
-        intertexts = []
-        for it in pagination.items:
-            intertexts.append({
-                'id': it.id,
-                'source': {
-                    'text_id': it.source_text_id,
-                    'author': it.source_author,
-                    'work': it.source_work,
-                    'reference': it.source_reference,
-                    'snippet': it.source_snippet,
-                    'language': it.source_language
-                },
-                'target': {
-                    'text_id': it.target_text_id,
-                    'author': it.target_author,
-                    'work': it.target_work,
-                    'reference': it.target_reference,
-                    'snippet': it.target_snippet,
-                    'language': it.target_language
-                },
-                'matched_lemmas': json.loads(it.matched_lemmas) if it.matched_lemmas else [],
-                'matched_tokens': json.loads(it.matched_tokens) if it.matched_tokens else [],
-                'tesserae_score': it.tesserae_score,
-                'user_score': it.user_score,
-                'submitter_id': it.submitter_id,
-                'submitter': {
-                    'name': it.submitter_name or '',
-                    'email': it.submitter_email or '',
-                    'institution': it.submitter_institution or '',
-                    'orcid': it.submitter_orcid or ''
-                },
-                'notes': it.notes,
-                'tags': json.loads(it.tags) if it.tags else [],
-                'status': it.status,
-                'created_at': it.created_at.isoformat() if it.created_at else None
-            })
+        intertexts = [_serialize_public_intertext(it) for it in pagination.items]
         
         return jsonify({
             'intertexts': intertexts,
@@ -161,40 +271,7 @@ def get_intertext(intertext_id):
         if not it:
             return jsonify({'error': 'Intertext not found'}), 404
         
-        return jsonify({
-            'id': it.id,
-            'source': {
-                'text_id': it.source_text_id,
-                'author': it.source_author,
-                'work': it.source_work,
-                'reference': it.source_reference,
-                'snippet': it.source_snippet,
-                'language': it.source_language
-            },
-            'target': {
-                'text_id': it.target_text_id,
-                'author': it.target_author,
-                'work': it.target_work,
-                'reference': it.target_reference,
-                'snippet': it.target_snippet,
-                'language': it.target_language
-            },
-            'matched_lemmas': json.loads(it.matched_lemmas) if it.matched_lemmas else [],
-            'matched_tokens': json.loads(it.matched_tokens) if it.matched_tokens else [],
-            'tesserae_score': it.tesserae_score,
-            'user_score': it.user_score,
-            'submitter_id': it.submitter_id,
-            'submitter': {
-                'name': it.submitter_name or '',
-                'email': it.submitter_email or '',
-                'institution': it.submitter_institution or '',
-                'orcid': it.submitter_orcid or ''
-            },
-            'notes': it.notes,
-            'tags': json.loads(it.tags) if it.tags else [],
-            'status': it.status,
-            'created_at': it.created_at.isoformat() if it.created_at else None
-        })
+        return jsonify(_serialize_public_intertext(it))
     except Exception as e:
         logger.error(f"Failed to get intertext: {e}")
         return jsonify({'error': str(e)}), 500
@@ -274,7 +351,11 @@ def delete_intertext(intertext_id):
         
         if it.submitter_id != current_user.id:
             return jsonify({'error': 'Only the submitter can delete this intertext'}), 403
-        
+
+        for saved_copy in list(it.saved_copies):
+            saved_copy.shared_to_public = False
+            saved_copy.public_intertext_id = None
+
         db.session.delete(it)
         db.session.commit()
         return jsonify({'success': True})
@@ -400,36 +481,7 @@ def list_my_intertexts():
         query = query.order_by(SavedIntertext.created_at.desc())
         pagination = query.paginate(page=page, per_page=per_page, error_out=False)
         
-        intertexts = []
-        for it in pagination.items:
-            intertexts.append({
-                'id': it.id,
-                'source': {
-                    'text_id': it.source_text_id,
-                    'author': it.source_author,
-                    'work': it.source_work,
-                    'reference': it.source_reference,
-                    'snippet': it.source_snippet,
-                    'language': it.source_language
-                },
-                'target': {
-                    'text_id': it.target_text_id,
-                    'author': it.target_author,
-                    'work': it.target_work,
-                    'reference': it.target_reference,
-                    'snippet': it.target_snippet,
-                    'language': it.target_language
-                },
-                'matched_lemmas': json.loads(it.matched_lemmas) if it.matched_lemmas else [],
-                'matched_tokens': json.loads(it.matched_tokens) if it.matched_tokens else [],
-                'tesserae_score': it.tesserae_score,
-                'intertext_score': it.intertext_score,
-                'notes': it.notes,
-                'tags': json.loads(it.tags) if it.tags else [],
-                'shared_to_public': it.shared_to_public,
-                'public_intertext_id': it.public_intertext_id,
-                'created_at': it.created_at.isoformat() if it.created_at else None
-            })
+        intertexts = [_serialize_saved_intertext(it) for it in pagination.items]
         
         return jsonify({
             'intertexts': intertexts,
@@ -439,6 +491,85 @@ def list_my_intertexts():
         })
     except Exception as e:
         logger.error(f"Failed to list personal intertexts: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@intertext_bp.route('/my/<int:saved_id>', methods=['PATCH'])
+def update_saved_intertext(saved_id):
+    """Update a saved intertext in the user's personal collection."""
+    try:
+        if not current_user.is_authenticated:
+            return jsonify({'error': 'Login required'}), 401
+
+        saved_it = SavedIntertext.query.get(saved_id)
+        if not saved_it:
+            return jsonify({'error': 'Saved intertext not found'}), 404
+        if saved_it.user_id != current_user.id:
+            return jsonify({'error': 'Not authorized'}), 403
+
+        data = request.get_json() or {}
+
+        if 'notes' in data:
+            saved_it.notes = (data.get('notes') or '').strip()[:500]
+        if 'tags' in data:
+            saved_it.tags = json.dumps(data.get('tags') or [])
+        if 'intertext_score' in data:
+            score = data.get('intertext_score')
+            if not isinstance(score, int) or score < 1 or score > 5:
+                return jsonify({'error': 'Valid intertext_score (1-5) required'}), 400
+            saved_it.intertext_score = score
+        if 'shared_to_public' in data:
+            should_share = bool(data.get('shared_to_public'))
+            if should_share and not saved_it.shared_to_public:
+                public_it = _build_public_intertext(
+                    {
+                        'text_id': saved_it.source_text_id,
+                        'author': saved_it.source_author,
+                        'work': saved_it.source_work,
+                        'reference': saved_it.source_reference,
+                        'snippet': saved_it.source_snippet,
+                        'language': saved_it.source_language,
+                    },
+                    {
+                        'text_id': saved_it.target_text_id,
+                        'author': saved_it.target_author,
+                        'work': saved_it.target_work,
+                        'reference': saved_it.target_reference,
+                        'snippet': saved_it.target_snippet,
+                        'language': saved_it.target_language,
+                    },
+                    {
+                        'matched_lemmas': _parse_json_list(saved_it.matched_lemmas),
+                        'matched_tokens': _parse_json_list(saved_it.matched_tokens),
+                        'tesserae_score': saved_it.tesserae_score,
+                        'intertext_score': saved_it.intertext_score,
+                        'notes': saved_it.notes or '',
+                        'tags': _parse_json_list(saved_it.tags),
+                    },
+                    current_user,
+                )
+                db.session.add(public_it)
+                db.session.flush()
+                saved_it.shared_to_public = True
+                saved_it.public_intertext_id = public_it.id
+            elif should_share and saved_it.shared_to_public and saved_it.public_intertext_id:
+                public_it = Intertext.query.get(saved_it.public_intertext_id)
+                if public_it:
+                    _sync_public_intertext(public_it, saved_it, current_user)
+            elif not should_share:
+                _delete_public_copy(saved_it)
+                saved_it.shared_to_public = False
+
+        if saved_it.shared_to_public and saved_it.public_intertext_id:
+            public_it = Intertext.query.get(saved_it.public_intertext_id)
+            if public_it:
+                _sync_public_intertext(public_it, saved_it, current_user)
+
+        db.session.commit()
+        return jsonify({'success': True, 'intertext': _serialize_saved_intertext(saved_it)})
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Failed to update saved intertext: {e}")
         return jsonify({'error': str(e)}), 500
 
 
@@ -455,14 +586,14 @@ def save_personal_intertext():
         
         source = data.get('source', {})
         target = data.get('target', {})
-        intertext_score = data.get('intertext_score')
+        intertext_score = data.get('intertext_score', 0)
         
         if not source.get('text_id') or not target.get('text_id'):
             return jsonify({'error': 'Source and target text_id required'}), 400
-        if intertext_score is None or intertext_score not in [1, 2, 3, 4, 5]:
+        if not isinstance(intertext_score, int) or intertext_score < 1 or intertext_score > 5:
             return jsonify({'error': 'Valid intertext_score (1-5) required'}), 400
-        
-        share_to_public = data.get('share_to_public', current_user.share_to_public_default)
+
+        share_to_public = bool(data.get('share_to_public', False))
         
         saved_it = SavedIntertext(
             user_id=current_user.id,
@@ -490,34 +621,7 @@ def save_personal_intertext():
         
         public_intertext_id = None
         if share_to_public:
-            user_name = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
-            public_it = Intertext(
-                source_text_id=source.get('text_id', ''),
-                source_author=source.get('author', ''),
-                source_work=source.get('work', ''),
-                source_reference=source.get('reference', ''),
-                source_snippet=source.get('snippet', ''),
-                source_language=source.get('language', 'la'),
-                target_text_id=target.get('text_id', ''),
-                target_author=target.get('author', ''),
-                target_work=target.get('work', ''),
-                target_reference=target.get('reference', ''),
-                target_snippet=target.get('snippet', ''),
-                target_language=target.get('language', 'la'),
-                matched_lemmas=json.dumps(data.get('matched_lemmas', [])),
-                matched_tokens=json.dumps(data.get('matched_tokens', [])),
-                tesserae_score=data.get('tesserae_score', 0.0),
-                user_score=intertext_score,
-                submitter_id=current_user.id,
-                submitter_name=user_name,
-                submitter_email=current_user.email or '',
-                submitter_institution=current_user.institution or '',
-                submitter_orcid=current_user.orcid or '',
-                notes=data.get('notes', ''),
-                tags=json.dumps(data.get('tags', [])),
-                status='pending',
-                created_at=datetime.now()
-            )
+            public_it = _build_public_intertext(source, target, data, current_user)
             db.session.add(public_it)
             db.session.flush()
             public_intertext_id = public_it.id
@@ -555,33 +659,32 @@ def share_saved_intertext(saved_id):
         if saved_it.shared_to_public:
             return jsonify({'error': 'Already shared publicly'}), 400
         
-        user_name = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
-        public_it = Intertext(
-            source_text_id=saved_it.source_text_id,
-            source_author=saved_it.source_author,
-            source_work=saved_it.source_work,
-            source_reference=saved_it.source_reference,
-            source_snippet=saved_it.source_snippet,
-            source_language=saved_it.source_language,
-            target_text_id=saved_it.target_text_id,
-            target_author=saved_it.target_author,
-            target_work=saved_it.target_work,
-            target_reference=saved_it.target_reference,
-            target_snippet=saved_it.target_snippet,
-            target_language=saved_it.target_language,
-            matched_lemmas=saved_it.matched_lemmas,
-            matched_tokens=saved_it.matched_tokens,
-            tesserae_score=saved_it.tesserae_score,
-            user_score=saved_it.intertext_score,
-            submitter_id=current_user.id,
-            submitter_name=user_name,
-            submitter_email=current_user.email or '',
-            submitter_institution=current_user.institution or '',
-            submitter_orcid=current_user.orcid or '',
-            notes=saved_it.notes,
-            tags=saved_it.tags,
-            status='pending',
-            created_at=datetime.now()
+        public_it = _build_public_intertext(
+            {
+                'text_id': saved_it.source_text_id,
+                'author': saved_it.source_author,
+                'work': saved_it.source_work,
+                'reference': saved_it.source_reference,
+                'snippet': saved_it.source_snippet,
+                'language': saved_it.source_language,
+            },
+            {
+                'text_id': saved_it.target_text_id,
+                'author': saved_it.target_author,
+                'work': saved_it.target_work,
+                'reference': saved_it.target_reference,
+                'snippet': saved_it.target_snippet,
+                'language': saved_it.target_language,
+            },
+            {
+                'matched_lemmas': _parse_json_list(saved_it.matched_lemmas),
+                'matched_tokens': _parse_json_list(saved_it.matched_tokens),
+                'tesserae_score': saved_it.tesserae_score,
+                'intertext_score': saved_it.intertext_score,
+                'notes': saved_it.notes or '',
+                'tags': _parse_json_list(saved_it.tags),
+            },
+            current_user,
         )
         db.session.add(public_it)
         db.session.flush()
@@ -615,7 +718,8 @@ def delete_saved_intertext(saved_id):
             return jsonify({'error': 'Saved intertext not found'}), 404
         if saved_it.user_id != current_user.id:
             return jsonify({'error': 'Not authorized'}), 403
-        
+
+        _delete_public_copy(saved_it)
         db.session.delete(saved_it)
         db.session.commit()
         

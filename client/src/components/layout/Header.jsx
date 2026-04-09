@@ -13,6 +13,9 @@ const Header = ({ user, setUser, onLogoClick }) => {
   const [orcidError, setOrcidError] = useState(null);
   const [authEnabled, setAuthEnabled] = useState(true);
   const [authType, setAuthType] = useState('replit');
+  const [adminSessionActive, setAdminSessionActive] = useState(false);
+  const [adminSessionChecked, setAdminSessionChecked] = useState(false);
+  const [selfRegistrationEnabled, setSelfRegistrationEnabled] = useState(true);
   const [isRegister, setIsRegister] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
@@ -26,6 +29,7 @@ const Header = ({ user, setUser, onLogoClick }) => {
   const [resetConfirmPassword, setResetConfirmPassword] = useState('');
   const [resetError, setResetError] = useState('');
   const [resetLoading, setResetLoading] = useState(false);
+  const [authPromptMessage, setAuthPromptMessage] = useState('');
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -37,6 +41,9 @@ const Header = ({ user, setUser, onLogoClick }) => {
         if (data.auth_type) {
           setAuthType(data.auth_type);
         }
+        if (data.self_registration_enabled !== undefined) {
+          setSelfRegistrationEnabled(Boolean(data.self_registration_enabled));
+        }
         if (data.authenticated) {
           setUser(data.user);
         }
@@ -45,6 +52,51 @@ const Header = ({ user, setUser, onLogoClick }) => {
         setAuthEnabled(false);
       });
   }, [setUser]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const checkAdminSession = async () => {
+      try {
+        const res = await fetch('/api/admin/me', { credentials: 'include' });
+        if (mounted) {
+          setAdminSessionActive(res.ok);
+          setAdminSessionChecked(true);
+        }
+      } catch (_err) {
+        if (mounted) {
+          setAdminSessionActive(false);
+          setAdminSessionChecked(true);
+        }
+      }
+    };
+
+    const handleAdminAuthChanged = () => {
+      checkAdminSession();
+    };
+
+    checkAdminSession();
+    window.addEventListener('focus', handleAdminAuthChanged);
+    window.addEventListener('admin-auth-changed', handleAdminAuthChanged);
+
+    return () => {
+      mounted = false;
+      window.removeEventListener('focus', handleAdminAuthChanged);
+      window.removeEventListener('admin-auth-changed', handleAdminAuthChanged);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleOpenAuthModal = (event) => {
+      setShowLoginModal(true);
+      setIsRegister(event?.detail?.mode === 'register');
+      setAuthPromptMessage(event?.detail?.message || '');
+      setLoginError('');
+    };
+
+    window.addEventListener('open-public-auth-modal', handleOpenAuthModal);
+    return () => window.removeEventListener('open-public-auth-modal', handleOpenAuthModal);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -152,9 +204,11 @@ const Header = ({ user, setUser, onLogoClick }) => {
     setLoginLastName('');
     setLoginError('');
     setIsRegister(false);
+    setAuthPromptMessage('');
   };
 
   const handleSignInClick = () => {
+    setAuthPromptMessage('');
     if (authType === 'password') {
       setShowLoginModal(true);
     } else {
@@ -262,7 +316,7 @@ const Header = ({ user, setUser, onLogoClick }) => {
                   <div className="absolute right-0 mt-2 w-56 sm:w-64 bg-white rounded-lg shadow-lg border z-50">
                     <div className="p-3 border-b">
                       <p className="font-medium text-gray-900">{user.name || user.orcid_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Account'}</p>
-                      <p className="text-xs text-gray-500">{user.email || 'Signed in with Replit'}</p>
+                      <p className="text-xs text-gray-500">{user.email || 'Signed in'}</p>
                       {(isSuperAdmin || isAdmin) && (
                         <div className="mt-2 flex flex-wrap gap-1">
                           {isSuperAdmin && (
@@ -326,6 +380,13 @@ const Header = ({ user, setUser, onLogoClick }) => {
                   </div>
                 )}
               </div>
+            ) : authEnabled && adminSessionChecked && !adminSessionActive ? (
+              <button
+                onClick={handleSignInClick}
+                className="px-4 py-2 bg-white text-red-700 rounded font-medium hover:bg-orange-50 text-sm"
+              >
+                Sign In
+              </button>
             ) : null}
           </div>
         </div>
@@ -400,7 +461,7 @@ const Header = ({ user, setUser, onLogoClick }) => {
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-gray-900">
-                {isRegister ? 'Create Account' : 'Sign In'}
+                {isRegister ? 'Create Account' : (authPromptMessage || 'Sign In')}
               </h3>
               <button
                 onClick={() => { setShowLoginModal(false); resetLoginForm(); }}
@@ -411,7 +472,11 @@ const Header = ({ user, setUser, onLogoClick }) => {
             </div>
             
             <p className="text-sm text-gray-600 mb-4">
-              {isRegister ? 'Join Tesserae to save and share discoveries' : 'Welcome back to Tesserae'}
+              {isRegister
+                ? 'Join Tesserae to save and share discoveries'
+                : (authPromptMessage
+                  ? 'Use your Tesserae account to continue.'
+                  : 'Welcome back to Tesserae')}
             </p>
             {!isRegister && (
               <div className="bg-amber-50 border border-amber-200 text-amber-700 px-3 py-2 rounded text-xs mb-3">
@@ -466,8 +531,13 @@ const Header = ({ user, setUser, onLogoClick }) => {
                   required
                   minLength={8}
                   className="w-full border rounded px-3 py-2 text-sm"
-                  placeholder={isRegister ? 'At least 8 characters' : 'Your password'}
+                  placeholder={isRegister ? 'Min 8, upper/lower/number/special' : 'Your password'}
                 />
+                {isRegister && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Must include at least one uppercase letter, one lowercase letter, one number, and one special character.
+                  </p>
+                )}
               </div>
 
               {isRegister && (
@@ -496,17 +566,21 @@ const Header = ({ user, setUser, onLogoClick }) => {
                 disabled={loginLoading}
                 className="w-full bg-gradient-to-r from-red-700 to-orange-600 text-white py-2 rounded font-medium hover:from-red-800 hover:to-orange-700 disabled:opacity-50"
               >
-                {loginLoading ? 'Please wait...' : (isRegister ? 'Create Account' : 'Sign In')}
+                {loginLoading ? 'Please wait...' : (isRegister ? 'Create Account' : (authPromptMessage ? 'Continue' : 'Sign In'))}
               </button>
             </form>
 
             <div className="mt-4 text-center">
-              <button
-                onClick={() => { setIsRegister(!isRegister); setLoginError(''); }}
-                className="text-red-700 hover:text-red-800 text-sm"
-              >
-                {isRegister ? 'Already have an account? Sign in' : "Don't have an account? Create one"}
-              </button>
+              {selfRegistrationEnabled ? (
+                <button
+                  onClick={() => { setIsRegister(!isRegister); setLoginError(''); }}
+                  className="text-red-700 hover:text-red-800 text-sm"
+                >
+                  {isRegister ? 'Already have an account? Sign in' : "Don't have an account? Create one"}
+                </button>
+              ) : (
+                <p className="text-xs text-gray-500">Self-registration is currently disabled.</p>
+              )}
             </div>
           </div>
         </div>

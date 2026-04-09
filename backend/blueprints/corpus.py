@@ -15,12 +15,13 @@ from backend.utils import (
     safe_listdir,
     enrich_metadata_with_author_dates,
     normalize_author_date_key,
+    load_provenance,
+    resolve_text_path,
 )
 from backend.frequency_cache import get_corpus_frequencies, recalculate_language_frequencies
 
 logger = get_logger('corpus')
 
-PROVENANCE_FILE = Path(__file__).parent.parent / "text_provenance.json"
 AUTHOR_DATES_FILE = Path(__file__).parent.parent / "author_dates.json"
 
 _author_dates_cache = None
@@ -40,12 +41,6 @@ def get_author_dates():
     return _author_dates_cache
 
 
-def load_provenance():
-    """Load text provenance data."""
-    if PROVENANCE_FILE.exists():
-        with open(PROVENANCE_FILE, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    return {"sources": {}, "texts": {}}
 
 corpus_bp = Blueprint('corpus', __name__)
 
@@ -228,9 +223,9 @@ def get_text_content(text_id):
     language = request.args.get('language', 'la')
     unit_type = request.args.get('unit_type', 'line')
     
-    filepath = os.path.join(_texts_dir, language, text_id)
+    filepath = resolve_text_path(_texts_dir, language, text_id)
     
-    if not os.path.exists(filepath):
+    if not filepath:
         return jsonify({'error': 'Text not found'}), 404
     
     try:

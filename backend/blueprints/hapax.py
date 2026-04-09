@@ -32,6 +32,7 @@ from backend.logging_config import get_logger
 from backend.frequency_cache import load_frequency_cache
 from backend.inverted_index import get_connection
 from backend.text_processor import get_latin_lemma_table, get_greek_lemma_table
+from backend.utils import resolve_text_path
 
 logger = get_logger('hapax')
 
@@ -96,9 +97,8 @@ def _parse_search_params(data):
 def _resolve_text_path(text_id, language):
     """Build the filesystem path for a text and verify it exists.
     Returns the full path string, or raises FileNotFoundError."""
-    lang_dir = os.path.join(_texts_dir, language)
-    text_path = os.path.join(lang_dir, text_id)
-    if not os.path.exists(text_path):
+    text_path = resolve_text_path(_texts_dir, language, text_id)
+    if not text_path:
         raise FileNotFoundError(f'Text not found: {text_id}')
     return text_path
 
@@ -614,8 +614,8 @@ def get_original_word_form(text_id, ref, position, language):
     if cache_key in _line_cache:
         tokens = _line_cache[cache_key]
     else:
-        text_path = os.path.join(_texts_dir, language, text_id)
-        if not os.path.exists(text_path):
+        text_path = resolve_text_path(_texts_dir, language, text_id)
+        if not text_path:
             return None
         
         try:
@@ -934,10 +934,10 @@ def get_line_text_from_file(text_id, language, ref):
             oldest_key = next(iter(_line_text_cache))
             del _line_text_cache[oldest_key]
         
-        text_path = os.path.join(_texts_dir, language, text_id)
-        if not os.path.exists(text_path):
+        text_path = resolve_text_path(_texts_dir, language, text_id)
+        if not text_path:
             return None
-        
+
         try:
             lines_by_ref = {}
             with open(text_path, 'r', encoding='utf-8') as f:
@@ -1104,8 +1104,8 @@ def lookup_lemma_locations(lemma, language):
 
 def get_text_lemmas(text_id, language):
     """Get all lemmas from a specific text"""
-    text_path = os.path.join(_texts_dir, language, text_id)
-    if not os.path.exists(text_path):
+    text_path = resolve_text_path(_texts_dir, language, text_id)
+    if not text_path:
         return set()
     
     try:
