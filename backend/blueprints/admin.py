@@ -16,7 +16,15 @@ from backend.db_utils import get_db_cursor
 from werkzeug.security import check_password_hash, generate_password_hash
 from backend.models import User, OAuth, SavedSearch, SavedIntertext, Intertext, db
 from backend.logging_config import get_logger
-from backend.utils import get_text_metadata, get_override, set_override, safe_listdir, resolve_text_path
+from backend.utils import (
+    get_text_metadata,
+    get_override,
+    set_override,
+    safe_listdir,
+    normalize_author_date_key,
+    enrich_metadata_with_author_dates,
+    resolve_text_path,
+)
 from backend.lemma_cache import (
     rebuild_lemma_cache, get_cache_stats as get_lemma_cache_stats,
     clear_lemma_cache
@@ -863,7 +871,7 @@ def approve_and_add_text(request_id):
         _update_text_provenance(text_id, author, work, language)
         
         # Step 8: Save author era/year to author_dates.json if provided
-        author_key = safe_author.replace('.', '_').replace('-', '_')
+        author_key = normalize_author_date_key(safe_author)
         is_new_author = not (_author_dates and 
                             language in _author_dates and 
                             author_key in _author_dates[language])
@@ -998,33 +1006,41 @@ def _update_text_provenance(text_id, author, title, language):
 
 
 def _add_to_text_sources(author, work, e_source, e_source_url, print_source, added_by):
-    """Append a new entry to backend/text_sources.json for the Sources page."""
+    """Upsert a source entry in backend/text_sources.json for the Sources page."""
     if not any([e_source, print_source, added_by]):
         return
     try:
-        sources_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'text_sources.json')
-        
-        if os.path.exists(sources_path):
-            with open(sources_path, 'r', encoding='utf-8') as f:
-                sources = json.load(f)
-        else:
-            sources = []
-        
-        sources.append({
+        sources = _load_sources()
+
+        normalized_author = (author or '').strip().lower()
+        normalized_work = (work or '').strip().lower()
+        replacement = {
             'author': author or '',
             'work': work or '',
             'e_source': e_source or '',
             'e_source_url': e_source_url or '',
             'print_source': print_source or '',
             'added_by': added_by or ''
-        })
-        
-        sources.sort(key=lambda x: (x.get('author', '').lower(), x.get('work', '').lower()))
-        
-        with open(sources_path, 'w', encoding='utf-8') as f:
-            json.dump(sources, f, indent=2, ensure_ascii=False)
-        
-        logger.info(f"Added {author} - {work} to text_sources.json")
+        }
+
+        deduped_sources = []
+        matched_existing = False
+        for existing in sources:
+            existing_author = (existing.get('author') or '').strip().lower()
+            existing_work = (existing.get('work') or '').strip().lower()
+            if existing_author == normalized_author and existing_work == normalized_work:
+                if not matched_existing:
+                    deduped_sources.append(replacement)
+                    matched_existing = True
+                continue
+            deduped_sources.append(existing)
+
+        if not matched_existing:
+            deduped_sources.append(replacement)
+
+        _save_sources(deduped_sources)
+
+        logger.info(f"Upserted {author} - {work} in text_sources.json")
     except Exception as e:
         logger.error(f"Failed to update text_sources.json: {e}")
 
@@ -1179,6 +1195,7 @@ def update_author_date(language, author_key):
     year = data.get('year')
     era = data.get('era', 'Unknown')
     note = data.get('note', '')
+    author_key = normalize_author_date_key(author_key)
     
     if language not in _author_dates:
         _author_dates[language] = {}
@@ -1201,6 +1218,7 @@ def delete_author_date(language, author_key):
     global _author_dates
     if not check_admin_auth():
         return jsonify({'error': 'Unauthorized'}), 401
+    author_key = normalize_author_date_key(author_key)
     
     if language in _author_dates and author_key in _author_dates[language]:
         del _author_dates[language][author_key]
@@ -1891,17 +1909,7 @@ def get_corpus_texts_for_admin():
                 metadata = get_text_metadata(filepath)
                 metadata['language'] = lang
                 
-                author_key = metadata.get('author_key', '').lower()
-                if 'year' not in metadata:
-                    if author_key in author_dates:
-                        metadata['year'] = author_dates[author_key].get('year')
-                    else:
-                        metadata['year'] = None
-                if 'era' not in metadata:
-                    if author_key in author_dates:
-                        metadata['era'] = author_dates[author_key].get('era')
-                    else:
-                        metadata['era'] = None
+                enrich_metadata_with_author_dates(metadata, author_dates)
                 
                 override = get_override(filename)
                 metadata['override'] = override if override else None
@@ -1936,6 +1944,8 @@ def get_text_metadata_admin(text_id):
 
         metadata = get_text_metadata(filepath)
         metadata['language'] = lang
+        author_dates = (_author_dates or {}).get(lang, {})
+        enrich_metadata_with_author_dates(metadata, author_dates)
         override = get_override(text_id)
 
         return jsonify({

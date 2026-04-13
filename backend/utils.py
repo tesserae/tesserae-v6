@@ -126,6 +126,33 @@ def get_override(text_id):
     overrides = load_metadata_overrides()
     return overrides.get(text_id, {})
 
+
+def normalize_author_date_key(value):
+    """Normalize author keys used in author_dates.json lookups."""
+    return (value or '').strip().lower().replace(' ', '_').replace('.', '_').replace('-', '_')
+
+
+def enrich_metadata_with_author_dates(metadata, author_dates):
+    """Fill year/era from author_dates when they are not already set on metadata."""
+    if metadata is None:
+        return metadata
+
+    author_key = metadata.get('author_key', '')
+    normalized_author_key = normalize_author_date_key(author_key)
+    author_info = (
+        author_dates.get(author_key)
+        or author_dates.get(author_key.lower())
+        or author_dates.get(normalized_author_key)
+        or {}
+    )
+
+    if 'year' not in metadata:
+        metadata['year'] = author_info.get('year')
+    if 'era' not in metadata:
+        metadata['era'] = author_info.get('era')
+
+    return metadata
+
 def set_override(text_id, fields):
     overrides = load_metadata_overrides()
     if not fields or all(v == '' or v is None for v in fields.values()):
