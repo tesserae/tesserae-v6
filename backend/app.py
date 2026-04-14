@@ -117,7 +117,11 @@ def api_route(path, **kwargs):
 
 
 # Application configuration
-app.secret_key = os.environ.get("SESSION_SECRET")
+session_secret = os.environ.get("SESSION_SECRET")
+if not session_secret and DIRECT_SERVER:
+    session_secret = "tesserae-dev-session-secret"
+    app_logger.warning("SESSION_SECRET not set; using development fallback secret.")
+app.secret_key = session_secret
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # Handle proxy headers
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0  # Disable caching for development
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")

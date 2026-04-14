@@ -64,24 +64,34 @@ fi
 
 if [ "$SSL_MODE" = "https" ]; then
   mkdir -p "$CERT_DIR"
+  if ! command -v openssl >/dev/null 2>&1; then
+    echo "Error: openssl is required to generate HTTPS certificates."
+    exit 1
+  fi
+
+  LAN_IP="$(
+    ifconfig | awk '/inet / {print $2}' | \
+      grep -E '^(10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|192\.168\.)' | \
+      head -n 1
+  )"
+  SAN_ENTRIES="IP:127.0.0.1,DNS:localhost"
+  CERT_CN="localhost"
+  if [ -n "${LAN_IP:-}" ]; then
+    SAN_ENTRIES="IP:${LAN_IP},${SAN_ENTRIES}"
+    CERT_CN="$LAN_IP"
+  fi
+
+  NEED_CERT_REGEN=0
   if [ ! -f "$CERT_CRT" ] || [ ! -f "$CERT_KEY" ]; then
-    if ! command -v openssl >/dev/null 2>&1; then
-      echo "Error: openssl is required to generate HTTPS certificates."
-      exit 1
+    NEED_CERT_REGEN=1
+  elif [ -n "${LAN_IP:-}" ]; then
+    if ! openssl x509 -in "$CERT_CRT" -noout -ext subjectAltName 2>/dev/null | grep -q "IP Address:${LAN_IP}"; then
+      echo "==> Existing HTTPS certificate does not match current LAN IP ${LAN_IP}; regenerating"
+      NEED_CERT_REGEN=1
     fi
+  fi
 
-    LAN_IP="$(
-      ifconfig | awk '/inet / {print $2}' | \
-        grep -E '^(10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|192\.168\.)' | \
-        head -n 1
-    )"
-    SAN_ENTRIES="IP:127.0.0.1,DNS:localhost"
-    CERT_CN="localhost"
-    if [ -n "${LAN_IP:-}" ]; then
-      SAN_ENTRIES="IP:${LAN_IP},${SAN_ENTRIES}"
-      CERT_CN="$LAN_IP"
-    fi
-
+  if [ "$NEED_CERT_REGEN" = "1" ]; then
     echo "==> Generating self-signed HTTPS certificate"
     openssl req -x509 -nodes -newkey rsa:2048 \
       -keyout "$CERT_KEY" \
