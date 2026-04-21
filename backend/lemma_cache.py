@@ -5,6 +5,7 @@ Pre-computes and caches lemmatized text units for faster searches
 import os
 import json
 import hashlib
+import unicodedata
 from datetime import datetime
 from backend.utils import resolve_text_path
 
@@ -20,15 +21,56 @@ def get_file_hash(filepath):
     with open(filepath, 'rb') as f:
         return hashlib.md5(f.read()).hexdigest()
 
-def get_cache_path(text_id, language):
-    """Get path to cached lemma file"""
+def _is_ascii(text):
+    """Return True when text can be safely used in ASCII-only environments."""
+    try:
+        text.encode('ascii')
+        return True
+    except UnicodeEncodeError:
+        return False
+
+def _legacy_cache_path(text_id, language):
+    """Get the pre-v2 cache path that used the raw text ID in the filename."""
     safe_id = text_id.replace('/', '_').replace('.tess', '')
     return os.path.join(CACHE_DIR, language, f"{safe_id}.json")
+
+def get_cache_path(text_id, language):
+    """Get an ASCII-safe path to a cached lemma file.
+
+    The cache filename must stay ASCII-only because some production WSGI
+    environments expose an ASCII filesystem locale. Hashing the normalized
+    text ID keeps filenames stable across NFC/NFD variants and avoids Unicode
+    encode errors for Greek work IDs.
+    """
+    normalized_id = unicodedata.normalize('NFC', text_id)
+    stem = normalized_id.replace('/', '_').replace('.tess', '')
+    digest = hashlib.md5(normalized_id.encode('utf-8')).hexdigest()
+
+    ascii_hint = ''.join(
+        c if c.isalnum() or c in '._-' else '_'
+        for c in stem
+        if ord(c) < 128
+    ).strip('._-')
+    if not ascii_hint:
+        ascii_hint = 'text'
+
+    filename = f"{ascii_hint[:64]}-{digest}.json"
+    return os.path.join(CACHE_DIR, language, filename)
 
 def get_cached_units(text_id, language):
     """Load pre-computed units from cache if available and valid"""
     cache_path = get_cache_path(text_id, language)
-    if not os.path.exists(cache_path):
+    if os.path.exists(cache_path):
+        candidate_paths = [cache_path]
+    elif _is_ascii(text_id):
+        # Preserve existing cache hits for ASCII-only text IDs created before
+        # the ASCII-safe hashed naming scheme.
+        legacy_path = _legacy_cache_path(text_id, language)
+        candidate_paths = [legacy_path] if os.path.exists(legacy_path) else []
+    else:
+        candidate_paths = []
+
+    if not candidate_paths:
         return None
     
     text_path = resolve_text_path(TEXTS_DIR, language, text_id)
@@ -36,14 +78,13 @@ def get_cached_units(text_id, language):
         return None
     
     try:
-        with open(cache_path, 'r', encoding='utf-8') as f:
-            cached = json.load(f)
-        
         current_hash = get_file_hash(text_path)
-        if cached.get('file_hash') != current_hash:
-            return None
-        
-        return cached
+        for candidate_path in candidate_paths:
+            with open(candidate_path, 'r', encoding='utf-8') as f:
+                cached = json.load(f)
+            if cached.get('file_hash') == current_hash:
+                return cached
+        return None
     except (json.JSONDecodeError, IOError):
         return None
 
