@@ -60,6 +60,9 @@ def search_fusion_stream():
     """
     data = request.get_json()
 
+    req_user_id = current_user.id if current_user and current_user.is_authenticated else None
+    req_city, req_country = get_user_location()
+
     def generate():
         slot = None
         try:
@@ -121,6 +124,11 @@ def search_fusion_stream():
                 })
                 display = cached_results[:max_results] if max_results > 0 else cached_results
                 meta = cached_meta or {}
+                
+                # Log the cached search
+                log_search('fusion_search', language, source_id, target_id, None,
+                           'fusion', len(cached_results), True, req_user_id, req_city, req_country)
+                           
                 yield f"data: {json.dumps({'type': 'complete', 'results': display, 'total_matches': len(cached_results), 'source_lines': meta.get('source_lines', 0), 'target_lines': meta.get('target_lines', 0), 'elapsed_time': round(time.time() - start_time, 2), 'cached': True, 'fusion': True})}\n\n"
                 return
 
@@ -217,12 +225,8 @@ def search_fusion_stream():
             )
 
             # Log the search
-            user_id = (current_user.id
-                       if current_user and current_user.is_authenticated
-                       else None)
-            city, country = get_user_location()
             log_search('fusion_search', language, source_id, target_id, None,
-                       'fusion', len(final_results), False, user_id, city, country)
+                       'fusion', len(final_results), False, req_user_id, req_city, req_country)
 
             elapsed_time = round(time.time() - start_time, 2)
 
