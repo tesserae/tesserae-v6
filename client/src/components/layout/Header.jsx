@@ -380,7 +380,7 @@ const Header = ({ user, setUser, onLogoClick }) => {
                   </div>
                 )}
               </div>
-            ) : authEnabled && adminSessionChecked && !adminSessionActive ? (
+            ) : authEnabled && adminSessionChecked ? (
               <button
                 onClick={handleSignInClick}
                 className="px-4 py-2 bg-white text-red-700 rounded font-medium hover:bg-orange-50 text-sm"
