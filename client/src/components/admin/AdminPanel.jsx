@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { LoadingSpinner } from '../common';
 import StatsTab from './tabs/StatsTab';
 import FeedbackTab from './tabs/FeedbackTab';
@@ -43,7 +43,6 @@ export default function AdminPanel() {
   const [loadError, setLoadError] = useState(null);
   const [bigramStats, setBigramStats] = useState({});
 
-  // Re-hydrate admin session on page refresh so user doesn't have to log in again
   useEffect(() => {
     const checkSession = async () => {
       try {
@@ -53,12 +52,14 @@ export default function AdminPanel() {
           const meRoles = Array.isArray(meData.roles)
             ? meData.roles.map(normalizeRole).filter(Boolean)
             : [];
+          
           if (meRoles.length > 0) {
             setIsAuthenticated(true);
             setAdminRoles(meRoles);
             setAdminUserId(meData.user_id || null);
             setMustResetPassword(Boolean(meData.must_reset_password));
             window.dispatchEvent(new Event('admin-auth-changed'));
+            
             if (!meData.must_reset_password) {
               loadAdminData();
             }
@@ -70,6 +71,26 @@ export default function AdminPanel() {
     };
     checkSession();
   }, []);
+
+  useEffect(() => {
+    let interval;
+    if (isAuthenticated && !mustResetPassword && activeTab === 'analytics') {
+      interval = setInterval(async () => {
+        try {
+          const res = await fetch('/api/admin/analytics', { credentials: 'include' });
+          if (res.ok) {
+            const data = await res.json();
+            setAnalytics(data);
+          }
+        } catch (err) {
+          console.error('Failed to poll analytics:', err);
+        }
+      }, 5000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isAuthenticated, mustResetPassword, activeTab]);
 
   const handleLogin = async () => {
     setAuthError('');
@@ -448,9 +469,9 @@ export default function AdminPanel() {
 
             {activeTab === 'repository' && (
               <div className="p-4 bg-gray-50 min-h-[600px] rounded-lg">
-                <Repository
-                  user={{ id: adminUserId, role: adminRoles.includes('SUPER_ADMIN') ? 'SUPER_ADMIN' : 'ADMIN' }}
-                  isAdmin={true}
+                <Repository 
+                  user={{ id: adminUserId, role: adminRoles.includes('SUPER_ADMIN') ? 'SUPER_ADMIN' : 'ADMIN' }} 
+                  isAdmin={true} 
                 />
               </div>
             )}

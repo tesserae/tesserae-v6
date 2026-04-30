@@ -1,100 +1,9 @@
 import { LANG_NAMES } from '../adminConstants';
 
-function exportAnalyticsCSV(analytics) {
-  const lines = [];
-  const today = new Date().toISOString().split('T')[0];
-
-  lines.push('TESSERAE V6 — USER ANALYTICS EXPORT');
-  lines.push(`Exported: ${today}`);
-  lines.push('');
-
-  lines.push('SUMMARY');
-  lines.push('Metric,Value');
-  lines.push(`Total Searches,${analytics.total_searches || 0}`);
-  lines.push(`Unique Users,${analytics.unique_users || 'N/A'}`);
-  const todayCount = analytics.per_day?.find(d => d.date === today)?.count || 0;
-  lines.push(`Searches Today,${todayCount}`);
-  lines.push('');
-
-  if (analytics.by_type?.length) {
-    lines.push('SEARCHES BY TYPE');
-    lines.push('Type,Count');
-    analytics.by_type.forEach(item => lines.push(`${item.type},${item.count}`));
-    lines.push('');
-  }
-
-  if (analytics.by_language?.length) {
-    lines.push('SEARCHES BY LANGUAGE');
-    lines.push('Language,Count');
-    analytics.by_language.forEach(item =>
-      lines.push(`${LANG_NAMES[item.language] || item.language},${item.count}`)
-    );
-    lines.push('');
-  }
-
-  if (analytics.top_sources?.length) {
-    lines.push('TOP SOURCE TEXTS');
-    lines.push('Text,Count');
-    analytics.top_sources.forEach(item =>
-      lines.push(`"${item.text.replace(/"/g, '""')}",${item.count}`)
-    );
-    lines.push('');
-  }
-
-  if (analytics.top_targets?.length) {
-    lines.push('TOP TARGET TEXTS');
-    lines.push('Text,Count');
-    analytics.top_targets.forEach(item =>
-      lines.push(`"${item.text.replace(/"/g, '""')}",${item.count}`)
-    );
-    lines.push('');
-  }
-
-  if (analytics.per_day?.length) {
-    lines.push('DAILY SEARCH ACTIVITY');
-    lines.push('Date,Count');
-    analytics.per_day.forEach(item => lines.push(`${item.date},${item.count}`));
-    lines.push('');
-  }
-
-  if (analytics.top_countries?.length) {
-    lines.push('TOP COUNTRIES');
-    lines.push('Country,Count');
-    analytics.top_countries.forEach(item => lines.push(`${item.country},${item.count}`));
-    lines.push('');
-  }
-
-  if (analytics.top_cities?.length) {
-    lines.push('TOP CITIES');
-    lines.push('City,Country,Count');
-    analytics.top_cities.forEach(item =>
-      lines.push(`"${item.city}","${item.country || ''}",${item.count}`)
-    );
-  }
-
-  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `tesserae_analytics_${today}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
 export default function AnalyticsTab({ analytics }) {
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="font-medium text-gray-900">User Analytics</h3>
-        {analytics && (
-          <button
-            onClick={() => exportAnalyticsCSV(analytics)}
-            className="px-3 py-1.5 text-xs bg-gray-100 text-gray-700 rounded border border-gray-300 hover:bg-gray-200"
-          >
-            Export CSV
-          </button>
-        )}
-      </div>
+      <h3 className="font-medium text-gray-900">User Analytics</h3>
       {analytics ? (
         <>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -105,12 +14,14 @@ export default function AnalyticsTab({ analytics }) {
             <div className="bg-amber-50 p-4 rounded">
               <div className="text-sm text-gray-600">Searches Today</div>
               <div className="text-2xl font-bold text-gray-900">
-                {analytics.per_day?.find(d => d.date === new Date().toISOString().split('T')[0])?.count || 0}
+                {/* FIX: use analytics.searches_today — backend sends it as a top-level field,
+                    not inside per_day. The old per_day?.find() always returned 0. */}
+                {analytics.searches_today ?? 0}
               </div>
             </div>
             <div className="bg-amber-50 p-4 rounded">
               <div className="text-sm text-gray-600">Unique Users</div>
-              <div className="text-2xl font-bold text-gray-900">{analytics.unique_users || 'N/A'}</div>
+              <div className="text-2xl font-bold text-gray-900">{analytics.unique_users ?? 0}</div>
             </div>
           </div>
 
@@ -118,23 +29,27 @@ export default function AnalyticsTab({ analytics }) {
             <div>
               <h4 className="text-sm font-medium text-gray-700 mb-2">Searches by Type</h4>
               <div className="bg-gray-50 rounded p-3 space-y-2">
-                {analytics.by_type?.map(item => (
-                  <div key={item.type} className="flex justify-between text-sm">
-                    <span className="text-gray-600">{item.type}</span>
-                    <span className="font-medium">{item.count}</span>
-                  </div>
-                )) || <p className="text-gray-500 text-sm">No data</p>}
+                {analytics.by_type?.length > 0
+                  ? analytics.by_type.map(item => (
+                    <div key={item.type} className="flex justify-between text-sm">
+                      <span className="text-gray-600">{item.type}</span>
+                      <span className="font-medium">{item.count}</span>
+                    </div>
+                  ))
+                  : <p className="text-gray-500 text-sm">No data</p>}
               </div>
             </div>
             <div>
               <h4 className="text-sm font-medium text-gray-700 mb-2">Searches by Language</h4>
               <div className="bg-gray-50 rounded p-3 space-y-2">
-                {analytics.by_language?.map(item => (
-                  <div key={item.language} className="flex justify-between text-sm">
-                    <span className="text-gray-600">{LANG_NAMES[item.language] || item.language}</span>
-                    <span className="font-medium">{item.count}</span>
-                  </div>
-                )) || <p className="text-gray-500 text-sm">No data</p>}
+                {analytics.by_language?.length > 0
+                  ? analytics.by_language.map(item => (
+                    <div key={item.language} className="flex justify-between text-sm">
+                      <span className="text-gray-600">{LANG_NAMES[item.language] || item.language}</span>
+                      <span className="font-medium">{item.count}</span>
+                    </div>
+                  ))
+                  : <p className="text-gray-500 text-sm">No data</p>}
               </div>
             </div>
           </div>
@@ -143,23 +58,27 @@ export default function AnalyticsTab({ analytics }) {
             <div>
               <h4 className="text-sm font-medium text-gray-700 mb-2">Top Source Texts</h4>
               <div className="bg-gray-50 rounded p-3 space-y-2 max-h-48 overflow-y-auto">
-                {analytics.top_sources?.map((item, i) => (
-                  <div key={i} className="flex justify-between text-sm">
-                    <span className="text-gray-600 truncate max-w-[200px]" title={item.text}>{item.text}</span>
-                    <span className="font-medium">{item.count}</span>
-                  </div>
-                )) || <p className="text-gray-500 text-sm">No data</p>}
+                {analytics.top_sources?.length > 0
+                  ? analytics.top_sources.map((item, i) => (
+                    <div key={i} className="flex justify-between text-sm">
+                      <span className="text-gray-600 truncate max-w-[200px]" title={item.text}>{item.text}</span>
+                      <span className="font-medium">{item.count}</span>
+                    </div>
+                  ))
+                  : <p className="text-gray-500 text-sm">No data</p>}
               </div>
             </div>
             <div>
               <h4 className="text-sm font-medium text-gray-700 mb-2">Top Target Texts</h4>
               <div className="bg-gray-50 rounded p-3 space-y-2 max-h-48 overflow-y-auto">
-                {analytics.top_targets?.map((item, i) => (
-                  <div key={i} className="flex justify-between text-sm">
-                    <span className="text-gray-600 truncate max-w-[200px]" title={item.text}>{item.text}</span>
-                    <span className="font-medium">{item.count}</span>
-                  </div>
-                )) || <p className="text-gray-500 text-sm">No data</p>}
+                {analytics.top_targets?.length > 0
+                  ? analytics.top_targets.map((item, i) => (
+                    <div key={i} className="flex justify-between text-sm">
+                      <span className="text-gray-600 truncate max-w-[200px]" title={item.text}>{item.text}</span>
+                      <span className="font-medium">{item.count}</span>
+                    </div>
+                  ))
+                  : <p className="text-gray-500 text-sm">No data</p>}
               </div>
             </div>
           </div>
@@ -182,6 +101,8 @@ export default function AnalyticsTab({ analytics }) {
             </div>
           </div>
 
+
+
           <div className="border-t pt-6">
             <h4 className="text-sm font-medium text-gray-700 mb-4">Geographic Distribution</h4>
 
@@ -191,23 +112,27 @@ export default function AnalyticsTab({ analytics }) {
                   <div>
                     <h5 className="text-xs font-medium text-gray-500 uppercase mb-2">Top Countries</h5>
                     <div className="bg-gray-50 rounded p-3 space-y-2">
-                      {analytics.top_countries?.map((item, i) => (
-                        <div key={i} className="flex justify-between text-sm">
-                          <span className="text-gray-600">{item.country}</span>
-                          <span className="font-medium">{item.count}</span>
-                        </div>
-                      )) || <p className="text-gray-500 text-sm">No data</p>}
+                      {analytics.top_countries?.length > 0
+                        ? analytics.top_countries.map((item, i) => (
+                          <div key={i} className="flex justify-between text-sm">
+                            <span className="text-gray-600">{item.country}</span>
+                            <span className="font-medium">{item.count}</span>
+                          </div>
+                        ))
+                        : <p className="text-gray-500 text-sm">No data</p>}
                     </div>
                   </div>
                   <div>
                     <h5 className="text-xs font-medium text-gray-500 uppercase mb-2">Top Cities</h5>
                     <div className="bg-gray-50 rounded p-3 space-y-2 max-h-48 overflow-y-auto">
-                      {analytics.top_cities?.map((item, i) => (
-                        <div key={i} className="flex justify-between text-sm">
-                          <span className="text-gray-600">{item.city}{item.country ? `, ${item.country}` : ''}</span>
-                          <span className="font-medium">{item.count}</span>
-                        </div>
-                      )) || <p className="text-gray-500 text-sm">No data</p>}
+                      {analytics.top_cities?.length > 0
+                        ? analytics.top_cities.map((item, i) => (
+                          <div key={i} className="flex justify-between text-sm">
+                            <span className="text-gray-600">{item.city}{item.country ? `, ${item.country}` : ''}</span>
+                            <span className="font-medium">{item.count}</span>
+                          </div>
+                        ))
+                        : <p className="text-gray-500 text-sm">No data</p>}
                     </div>
                   </div>
                 </div>
@@ -230,11 +155,7 @@ export default function AnalyticsTab({ analytics }) {
                               >
                                 <div
                                   className="rounded-full bg-red-500 flex items-center justify-center text-white text-xs font-bold shadow-lg transition-transform hover:scale-110"
-                                  style={{
-                                    width: size,
-                                    height: size,
-                                    opacity: opacity
-                                  }}
+                                  style={{ width: size, height: size, opacity: opacity }}
                                 >
                                   {city.count}
                                 </div>

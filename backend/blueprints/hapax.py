@@ -25,6 +25,7 @@ Uses:
 # IMPORTS
 # =============================================================================
 from flask import Blueprint, jsonify, request
+from flask_login import current_user
 import os
 import json
 
@@ -33,6 +34,7 @@ from backend.frequency_cache import load_frequency_cache
 from backend.inverted_index import get_connection
 from backend.text_processor import get_latin_lemma_table, get_greek_lemma_table
 from backend.utils import resolve_text_path
+from backend.services import log_search, get_user_location
 
 logger = get_logger('hapax')
 
@@ -1702,6 +1704,11 @@ def hapax_search():
 
         results.sort(key=lambda x: (x['corpus_count'], x['lemma']))
 
+        req_user_id = current_user.id if current_user and current_user.is_authenticated else None
+        req_city, req_country = get_user_location()
+        log_search('Rare Words', language, source_id, target_id, None,
+                   'rare_words', len(results), False, req_user_id, req_city, req_country)
+
         return jsonify({
             'source': source_id,
             'target': target_id,
@@ -1934,6 +1941,11 @@ def rare_bigram_search():
         results.sort(key=lambda x: -x['rarity'])
         results = results[:limit]
         
+        req_user_id = current_user.id if current_user and current_user.is_authenticated else None
+        req_city, req_country = get_user_location()
+        log_search('Rare Pairs', language, source_id, target_id, None,
+                   'rare_pairs', len(results), False, req_user_id, req_city, req_country)
+
         return jsonify({
             'source': source_id,
             'target': target_id,
