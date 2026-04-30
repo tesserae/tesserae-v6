@@ -316,23 +316,43 @@ def update_intertext(intertext_id):
 
 @intertext_bp.route('/<int:intertext_id>', methods=['PATCH'])
 def flag_intertext(intertext_id):
-    """Flag an intertext for review - anyone can flag"""
+    """Flag/unflag an intertext - requires authentication.
+    Flagging: any logged-in user.
+    Unflagging (confirmed/pending): admins only."""
     try:
+        # Require authentication for all flag operations
+        user_id = current_user.id if current_user.is_authenticated else session.get('admin_user_id')
+        if not user_id:
+            return jsonify({'error': 'Login required to flag intertexts'}), 401
+
         it = Intertext.query.get(intertext_id)
         if not it:
             return jsonify({'error': 'Intertext not found'}), 404
-        
+
         data = request.get_json()
         if not data or not isinstance(data, dict):
             return jsonify({'error': 'Invalid request body'}), 400
-            
+
         new_status = data.get('status')
         if new_status == 'flagged':
+            # Any authenticated user can flag
             it.status = 'flagged'
             db.session.commit()
             return jsonify({'success': True})
         elif new_status in ('confirmed', 'pending'):
-            # Allow unflagging: any authenticated user can remove a flag
+            # Only admins can unflag
+            admin_roles = session.get('admin_roles', [])
+            is_admin = ('ADMIN' in admin_roles or 'SUPER_ADMIN' in admin_roles)
+            if not is_admin and current_user.is_authenticated:
+                from sqlalchemy import text as sql_text
+                result = db.session.execute(
+                    sql_text("SELECT r.name FROM roles r JOIN user_roles ur ON ur.role_id = r.id WHERE ur.user_id = :uid"),
+                    {'uid': current_user.id}
+                )
+                roles = [row[0] for row in result.fetchall()]
+                is_admin = 'ADMIN' in roles or 'SUPER_ADMIN' in roles
+            if not is_admin:
+                return jsonify({'error': 'Only admins can unflag intertexts'}), 403
             it.status = new_status
             db.session.commit()
             return jsonify({'success': True})
