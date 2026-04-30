@@ -1113,9 +1113,15 @@ def search():
             display_results = cached_results[:max_results] if max_results > 0 else cached_results
             user_id = current_user.id if current_user and current_user.is_authenticated else None
             city, country = get_user_location()
-            log_search('text_comparison', language, source_id, target_id, None, 
-                      settings.get('match_type', 'lemma'), len(cached_results), True, user_id,
-                      city, country)
+            match_type_raw = settings.get('match_type', 'lemma')
+            match_labels = {
+                'lemma': 'Dictionary Form (Lemma)', 'exact': 'Exact Match',
+                'semantic': 'AI Semantic', 'v3_synonyms': 'Dictionary (V3 Synonyms)',
+                'synonyms': 'Dictionary (V3 Synonyms)', 'sound': 'Sound Matching',
+                'edit_distance': 'Edit Distance'
+            }
+            log_search(match_labels.get(match_type_raw, 'Dictionary Form (Lemma)'), language, source_id, target_id, None, 
+                      match_type_raw, len(cached_results), True, user_id, city, country)
             meta = cached_meta or {}
             return jsonify({
                 "results": display_results,
@@ -1178,9 +1184,15 @@ def search():
         
         user_id = current_user.id if current_user and current_user.is_authenticated else None
         city, country = get_user_location()
-        log_search('text_comparison', language, source_id, target_id, None,
-                  settings.get('match_type', 'lemma'), len(scored_results), False, user_id,
-                  city, country)
+        match_type_raw = settings.get('match_type', 'lemma')
+        match_labels = {
+            'lemma': 'Dictionary Form (Lemma)', 'exact': 'Exact Match',
+            'semantic': 'AI Semantic', 'v3_synonyms': 'Dictionary (V3 Synonyms)',
+            'synonyms': 'Dictionary (V3 Synonyms)', 'sound': 'Sound Matching',
+            'edit_distance': 'Edit Distance'
+        }
+        log_search(match_labels.get(match_type_raw, 'Dictionary Form (Lemma)'), language, source_id, target_id, None,
+                  match_type_raw, len(scored_results), False, user_id, city, country)
         
         return jsonify({
             "results": display_results,
@@ -2007,7 +2019,7 @@ def line_search_parallel():
         
         user_id = current_user.id if current_user and current_user.is_authenticated else None
         city, country = get_user_location()
-        log_search('line_search', language, source_text_id, None, line_text,
+        log_search('Line Search', language, source_text_id, None, line_text,
                   match_type, len(all_results), False, user_id, city, country)
         
         return jsonify({

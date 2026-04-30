@@ -129,6 +129,8 @@ export default function Repository({ user, isAdmin = false }) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [editingScope, setEditingScope] = useState('saved');
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [deleteError, setDeleteError] = useState('');
   const [newIntertext, setNewIntertext] = useState({
     source_locus: '',
     source_text: '',
@@ -370,7 +372,7 @@ export default function Repository({ user, isAdmin = false }) {
   };
 
   const handleDeleteIntertext = async (id) => {
-    if (!confirm('Delete this intertext?')) return;
+    setDeleteError('');
     try {
       const res = await fetch(`/api/intertexts/my/${id}`, { 
         method: 'DELETE',
@@ -379,13 +381,14 @@ export default function Repository({ user, isAdmin = false }) {
       if (!res.ok) throw new Error('Failed to delete');
       loadMyIntertexts();
       loadPublicIntertexts();
+      setItemToDelete(null);
     } catch (err) {
-      alert('Delete failed');
+      setDeleteError('Delete failed. You may not have permission.');
     }
   };
 
   const handleDeletePublicIntertext = async (id) => {
-    if (!confirm('Delete this public intertext?')) return;
+    setDeleteError('');
     try {
       const res = await fetch(`/api/intertexts/${id}`, { 
         method: 'DELETE',
@@ -394,8 +397,9 @@ export default function Repository({ user, isAdmin = false }) {
       if (!res.ok) throw new Error('Failed to delete');
       loadMyIntertexts();
       loadPublicIntertexts();
+      setItemToDelete(null);
     } catch (err) {
-      alert('Delete failed');
+      setDeleteError('Delete failed. You may not have permission.');
     }
   };
 
@@ -771,6 +775,7 @@ export default function Repository({ user, isAdmin = false }) {
                         {new Date(item.created_at).toLocaleDateString()}
                       </span>
                     )}
+                    {isPublicView && (
                     <button
                       onClick={async () => {
                         try {
@@ -793,6 +798,7 @@ export default function Repository({ user, isAdmin = false }) {
                     >
                       {item.status === 'flagged' ? '⚑ Unflag' : '⚐ Flag'}
                     </button>
+                    )}
                     {canEditSavedItem && (
                       <div className="flex gap-1">
                         <button
@@ -802,7 +808,7 @@ export default function Repository({ user, isAdmin = false }) {
                           Edit
                         </button>
                         <button
-                          onClick={() => handleDeleteIntertext(item.id)}
+                          onClick={() => { setDeleteError(''); setItemToDelete({ id: item.id, type: 'saved' }); }}
                           className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200"
                         >
                           Delete
@@ -819,7 +825,7 @@ export default function Repository({ user, isAdmin = false }) {
                     )}
                     {canDeletePublicItem && (
                       <button
-                        onClick={() => handleDeletePublicIntertext(item.id)}
+                        onClick={() => { setDeleteError(''); setItemToDelete({ id: item.id, type: 'public' }); }}
                         className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200"
                       >
                         Delete
@@ -1093,6 +1099,29 @@ export default function Repository({ user, isAdmin = false }) {
                 className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Save Changes
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {itemToDelete && (
+        <Modal isOpen={!!itemToDelete} onClose={() => setItemToDelete(null)} title="Confirm Deletion">
+          <div className="p-4">
+            <p className="text-gray-700">Are you sure you want to delete this intertext? This action cannot be undone.</p>
+            {deleteError && <div className="mt-4 text-sm text-red-600 bg-red-50 p-2 rounded">{deleteError}</div>}
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={() => setItemToDelete(null)}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => itemToDelete.type === 'public' ? handleDeletePublicIntertext(itemToDelete.id) : handleDeleteIntertext(itemToDelete.id)}
+                className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm"
+              >
+                Confirm Delete
               </button>
             </div>
           </div>

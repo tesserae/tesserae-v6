@@ -1590,7 +1590,7 @@ def get_analytics():
             searches_today = today_row[0] if today_row else 0
             
             cur.execute('''
-                SELECT COUNT(*) FROM users
+                SELECT COUNT(DISTINCT user_id) FROM search_logs WHERE user_id IS NOT NULL
             ''')
             users_row = cur.fetchone()
             unique_users = users_row[0] if users_row else 0
