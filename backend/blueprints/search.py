@@ -188,7 +188,7 @@ def _run_matcher(match_type, source_units, target_units, settings, corpus_freque
 
 
 def _finalize_results(scored_results, source_units, target_units, stoplist_size,
-                      settings, source_id, target_id, language, cached=False):
+                      settings, source_id, target_id, language, req_user_id, req_city, req_country, cached=False):
     """Cache results, log the search, and build the response dict."""
     if not cached:
         metadata = {
@@ -201,11 +201,16 @@ def _finalize_results(scored_results, source_units, target_units, stoplist_size,
     max_results = settings.get('max_results', 0)
     display_results = scored_results[:max_results] if max_results > 0 else scored_results
 
-    user_id = current_user.id if current_user and current_user.is_authenticated else None
-    city, country = get_user_location()
-    log_search('text_comparison', language, source_id, target_id, None,
-               settings.get('match_type', 'lemma'), len(scored_results), cached, user_id,
-               city, country)
+    match_type_raw = settings.get('match_type', 'lemma')
+    match_labels = {
+        'lemma': 'Dictionary Form (Lemma)', 'exact': 'Exact Match',
+        'semantic': 'AI Semantic', 'v3_synonyms': 'Dictionary (V3 Synonyms)',
+        'synonyms': 'Dictionary (V3 Synonyms)', 'sound': 'Sound Matching',
+        'edit_distance': 'Edit Distance'
+    }
+    log_search(match_labels.get(match_type_raw, 'Dictionary Form (Lemma)'), language, source_id, target_id, None,
+               match_type_raw, len(scored_results), cached, req_user_id,
+               req_city, req_country)
 
     return {
         "results": display_results,
@@ -292,8 +297,11 @@ def _handle_dictionary_cross(params, source_units, target_units, settings):
             'match_basis': 'dictionary_cross'
         })
 
+    req_user_id = current_user.id if current_user and current_user.is_authenticated else None
+    req_city, req_country = get_user_location()
+
     return jsonify(_finalize_results(scored_results, source_units, target_units,
-                                      stoplist_size, settings, source_id, target_id, language))
+                                      0, settings, source_id, target_id, language, req_user_id, req_city, req_country))
 
 
 def _find_dictionary_matches_fast(source_units, target_units, source_language, target_language):
@@ -962,8 +970,11 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
           f"{len(syntax_by_pair)} syntax, {len(phonetic_by_pair)} phonetic, "
           f"{len(set(sem_by_pair) & set(dict_by_pair))} sem+dict overlap)")
 
+    req_user_id = current_user.id if current_user and current_user.is_authenticated else None
+    req_city, req_country = get_user_location()
+
     return jsonify(_finalize_results(fused, source_units, target_units,
-                                      0, settings, source_id, target_id, language))
+                                      0, settings, source_id, target_id, language, req_user_id, req_city, req_country))
 
 
 def _get_semantic_highlight_matches(src_lemmas, tgt_lemmas, source_language, target_language):
@@ -1035,6 +1046,10 @@ def _get_semantic_highlight_matches(src_lemmas, tgt_lemmas, source_language, tar
 def search_stream():
     """Main text comparison search with SSE progress streaming."""
     data = request.get_json()
+    
+    # Capture request context variables before entering the generator
+    req_user_id = current_user.id if current_user and current_user.is_authenticated else None
+    req_city, req_country = get_user_location()
 
     def generate():
         slot = None
@@ -1069,6 +1084,18 @@ def search_stream():
                 max_results = settings.get('max_results', 0)
                 display_results = cached_results[:max_results] if max_results > 0 else cached_results
                 meta = cached_meta or {}
+                
+                # Log the cached search
+                match_type_raw = settings.get('match_type', 'lemma')
+                match_labels = {
+                    'lemma': 'Dictionary Form (Lemma)', 'exact': 'Exact Match',
+                    'semantic': 'AI Semantic', 'v3_synonyms': 'Dictionary (V3 Synonyms)',
+                    'synonyms': 'Dictionary (V3 Synonyms)', 'sound': 'Sound Matching',
+                    'edit_distance': 'Edit Distance'
+                }
+                log_search(match_labels.get(match_type_raw, 'Dictionary Form (Lemma)'), language, source_id, target_id, None,
+                          match_type_raw, len(cached_results), True, req_user_id, req_city, req_country)
+                
                 result = {
                     "type": "complete",
                     "results": display_results,
@@ -1121,6 +1148,17 @@ def search_stream():
                 return
 
             if not matches:
+                # Log the 0-match search before returning
+                match_type_raw = settings.get('match_type', 'lemma')
+                match_labels = {
+                    'lemma': 'Dictionary Form (Lemma)', 'exact': 'Exact Match',
+                    'semantic': 'AI Semantic', 'v3_synonyms': 'Dictionary (V3 Synonyms)',
+                    'synonyms': 'Dictionary (V3 Synonyms)', 'sound': 'Sound Matching',
+                    'edit_distance': 'Edit Distance'
+                }
+                log_search(match_labels.get(match_type_raw, 'Dictionary Form (Lemma)'), language, source_id, target_id, None,
+                          match_type_raw, 0, False, req_user_id, req_city, req_country)
+                
                 result = {
                     "type": "complete",
                     "results": [],
@@ -1140,7 +1178,7 @@ def search_stream():
 
             yield send_progress("Saving to cache")
             response_data = _finalize_results(scored_results, source_units, target_units,
-                                               stoplist_size, settings, source_id, target_id, language)
+                                               stoplist_size, settings, source_id, target_id, language, req_user_id, req_city, req_country)
 
             elapsed_time = round(time.time() - start_time, 2)
             result = {
@@ -1194,8 +1232,15 @@ def search():
             display_results = cached_results[:max_results] if max_results > 0 else cached_results
             user_id = current_user.id if current_user and current_user.is_authenticated else None
             city, country = get_user_location()
-            log_search('text_comparison', language, source_id, target_id, None,
-                      match_type, len(cached_results), True, user_id, city, country)
+            match_type_raw = settings.get('match_type', 'lemma')
+            match_labels = {
+                'lemma': 'Dictionary Form (Lemma)', 'exact': 'Exact Match',
+                'semantic': 'AI Semantic', 'v3_synonyms': 'Dictionary (V3 Synonyms)',
+                'synonyms': 'Dictionary (V3 Synonyms)', 'sound': 'Sound Matching',
+                'edit_distance': 'Edit Distance'
+            }
+            log_search(match_labels.get(match_type_raw, 'Dictionary Form (Lemma)'), language, source_id, target_id, None,
+                      match_type_raw, len(cached_results), True, user_id, city, country)
             meta = cached_meta or {}
             return jsonify({
                 "results": display_results,
@@ -1231,8 +1276,10 @@ def search():
             # Score, cache, log, and return
             scored_results = _scorer.score_matches(matches, source_units, target_units, settings, source_id, target_id)
             scored_results.sort(key=lambda x: x['overall_score'], reverse=True)
+            req_user_id = current_user.id if current_user and current_user.is_authenticated else None
+            req_city, req_country = get_user_location()
             return jsonify(_finalize_results(scored_results, source_units, target_units,
-                                              stoplist_size, settings, source_id, target_id, language))
+                                              stoplist_size, settings, source_id, target_id, language, req_user_id, req_city, req_country))
 
     except TimeoutError as e:
         return jsonify({"error": f"Server busy: {e}"}), 503
@@ -1326,6 +1373,11 @@ def wildcard_search_endpoint():
             max_results=max_results,
             era_filter=era_filter
         )
+        
+        user_id = current_user.id if current_user.is_authenticated else None
+        city, country = get_user_location()
+        log_search('String Search', language, None, None, query,
+                   'wildcard', len(results.get('results', [])), False, user_id, city, country)
         
         return jsonify(results)
         

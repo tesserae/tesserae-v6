@@ -1,0 +1,751 @@
+[
+  {
+    "author": "Achilles Tatius",
+    "work": "Leucippe et Clitophon",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0665",
+    "print_source": "Rudolf Hercher, Erotici Scriptores Graeci, Vol 1. Leipzig: in aedibus B. G. Teubneri, 1858.",
+    "added_by": "Emilie Redwood"
+  },
+  {
+    "author": "Aelian",
+    "work": "De Natura Animalium",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0590",
+    "print_source": "Rudolf Hercher, Claudii Aeliani de natura animalium libri xvii, varia historia, epistolae, fragmenta, Vol 1. Lipsiae: In Aedibus B.G. Teubneri, 1864.",
+    "added_by": "Emilie Redwood"
+  },
+  {
+    "author": "Aelian",
+    "work": "Epistulae Rusticae",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0592",
+    "print_source": "Rudolf Hercher, Claudii Aeliani de natura animalium libri xvii, varia historia, epistolae, fragmenta, Vol 2. Lipsiae: In Aedibus B.G. Teubneri, 1866.",
+    "added_by": "Emilie Redwood"
+  },
+  {
+    "author": "Aelian",
+    "work": "Varia Historia",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0591",
+    "print_source": "Rudolf Hercher, Claudii Aeliani de natura animalium libri xvii, varia historia, epistolae, fragmenta, Vol 2. Lipsiae: In Aedibus B.G. Teubneri, 1866.",
+    "added_by": "Emilie Redwood"
+  },
+  {
+    "author": "Aelius Aristides",
+    "work": "Ars Rhetorica",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0589",
+    "print_source": "Aristides, Aelius. Rhetores Graeci, Vol 2. ex recognitione Leonardi Spengel. Leonhard von Spengel. Leipzig. Teubner. 1854.",
+    "added_by": "Rudra Chakraborty"
+  },
+  {
+    "author": "Aelius Aristides",
+    "work": "Orationes",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0588%3atext%3d1",
+    "print_source": "Aristides, Aelius. Aristides. ex recensione Guilielmi Dindorfii. Leipzig. Weidmann. 1829. 1-2.",
+    "added_by": "Rudra Chakraborty"
+  },
+  {
+    "author": "Aeschines",
+    "work": "Speeches (Greek). Machine readable text",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0001",
+    "print_source": "Aeschines with an English translation by Charles Darwin Adams, Ph.D..Cambridge, MA, Harvard University Press; London, William Heinemann Ltd., 1919.",
+    "added_by": "Elizabeth Hunter"
+  },
+  {
+    "author": "Aeschylus",
+    "work": "Agamemnon",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0005",
+    "print_source": "Herbert Weir Smyth, Ph.D., Aeschylus, with an English translation by Herbert Weir Smyth, Ph. D. in two volumes.. Cambridge: Cambridge, Mass., Harvard University Press; London, William Heinemann, Ltd., 1926.",
+    "added_by": "Anna Glenn"
+  },
+  {
+    "author": "Aeschylus",
+    "work": "Eumenides",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0005",
+    "print_source": "Herbert Weir Smyth, Ph.D., Aeschylus, with an English translation by Herbert Weir Smyth, Ph. D. in two volumes.. Cambridge: Cambridge, Mass., Harvard University Press; London, William Heinemann, Ltd., 1926.",
+    "added_by": "Anna Glenn"
+  },
+  {
+    "author": "Aeschylus",
+    "work": "Libation Bearers",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0007",
+    "print_source": "Herbert Weir Smyth, Ph.D., Aeschylus, with an English translation by Herbert Weir Smyth, Ph. D. in two volumes. . Cambridge: Cambridge, Mass., Harvard University Press; London, William Heinemann, Ltd., 1926.",
+    "added_by": "Anna Glenn"
+  },
+  {
+    "author": "Aeschylus",
+    "work": "Persians",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0005",
+    "print_source": "Herbert Weir Smyth, Ph.D., Aeschylus, with an English translation by Herbert Weir Smyth, Ph. D. in two volumes.. Cambridge: Cambridge, Mass., Harvard University Press; London, William Heinemann, Ltd., 1926.",
+    "added_by": "Anna Glenn"
+  },
+  {
+    "author": "Aeschylus",
+    "work": "Prometheus Bound",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0009",
+    "print_source": "Herbert Weir Smyth, Ph.D., Aeschylus, with an English translation by Herbert Weir Smyth, Ph. D. in two volumes.. Cambridge: Cambridge, Mass., Harvard University Press; London, William Heinemann, Ltd., 1926.",
+    "added_by": "Anna Glenn"
+  },
+  {
+    "author": "Aeschylus",
+    "work": "Seven Against Thebes",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0005",
+    "print_source": "Herbert Weir Smyth, Ph.D., Aeschylus, with an English translation by Herbert Weir Smyth, Ph. D. in two volumes.. Cambridge: Cambridge, Mass., Harvard University Press; London, William Heinemann, Ltd., 1926.",
+    "added_by": "Anna Glenn"
+  },
+  {
+    "author": "Aeschylus",
+    "work": "Suppliant Women",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0005",
+    "print_source": "Herbert Weir Smyth, Ph.D., Aeschylus, with an English translation by Herbert Weir Smyth, Ph. D. in two volumes.. Cambridge: Cambridge, Mass., Harvard University Press; London, William Heinemann, Ltd., 1926.",
+    "added_by": "Anna Glenn"
+  },
+  {
+    "author": "Alcuin",
+    "work": "Carmina",
+    "e_source": "",
+    "e_source_url": "",
+    "print_source": "",
+    "added_by": "M. Paccara & F. Stella (University of Siena)"
+  },
+  {
+    "author": "Alcuin",
+    "work": "Carmina Rhytmica",
+    "e_source": "",
+    "e_source_url": "",
+    "print_source": "",
+    "added_by": "M. Paccara & F. Stella (University of Siena)"
+  },
+  {
+    "author": "Ambrose",
+    "work": "Apologia David Altera",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Karl Schenkl. Sanctii Ambrosii Opera, Pars Altera. Vindobonae: Gerold. 1897.",
+    "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Ambrose",
+    "work": "De Apologia David",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Karl Schenkl. Sanctii Ambrosii Opera, Pars Altera. Vindobonae: Gerold. 1897.",
+    "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Ambrose",
+    "work": "De Cain et Abel",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Karl Schenkl. Sanctii Ambrosii Opera, Pars Prima. Vindobonae: Gerold. 1897.",
+    "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Ambrose",
+    "work": "De Fuga Saeculi",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Karl Schenkl. Sanctii Ambrosii Opera, Pars Altera. Vindobonae: Gerold. 1897.",
+    "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Ambrose",
+    "work": "De Helia et Ieiunio",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Karl Schenkl. Sanctii Ambrosii Opera, Pars Altera. Vindobonae: Gerold. 1897.",
+    "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Ambrose",
+    "work": "De Iacob et Vita Beata",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Karl Schenkl. Sanctii Ambrosii Opera, Pars Altera. Vindobonae: Gerold. 1897.",
+    "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Ambrose",
+    "work": "De Interpellatione Iob et David",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Karl Schenkl. Sanctii Ambrosii Opera, Pars Altera. Vindobonae: Gerold. 1897.",
+    "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Ambrose",
+    "work": "De Ioseph",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Karl Schenkl. Sanctii Ambrosii Opera, Pars Altera. Vindobonae: Gerold. 1897.",
+    "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Ambrose",
+    "work": "De Mysteriis",
+    "e_source": "The Latin Library",
+    "e_source_url": "http://www.thelatinlibrary.com/ambrose.html",
+    "print_source": "Edition Unknown.",
+    "added_by": "Brianna Roberts"
+  },
+  {
+    "author": "Ambrose",
+    "work": "De Nabuthae",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Karl Schenkl. Sanctii Ambrosii Opera, Pars Altera. Vindobonae: Gerold. 1897.",
+    "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Ambrose",
+    "work": "De Noe",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Karl Schenkl. Sanctii Ambrosii Opera, Pars Prima. Vindobonae: Gerold. 1897.",
+    "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Ambrose",
+    "work": "De Paradiso",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Karl Schenkl. Sanctii Ambrosii Opera, Pars Prima. Vindobonae: Gerold. 1897.",
+    "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Ambrose",
+    "work": "De Patriarchis",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Karl Schenkl. Sanctii Ambrosii Opera, Pars Altera. Vindobonae: Gerold. 1897.",
+    "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Ambrose",
+    "work": "De Tobia",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Karl Schenkl. Sanctii Ambrosii Opera, Pars Altera. Vindobonae: Gerold. 1897.",
+    "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Ambrose",
+    "work": "Epistula ad Sororem",
+    "e_source": "The Latin Library",
+    "e_source_url": "http://www.thelatinlibrary.com/ambrose.html",
+    "print_source": "Edition Unknown.",
+    "added_by": "Brianna Roberts"
+  },
+  {
+    "author": "Ambrose",
+    "work": "Epistulae Variae",
+    "e_source": "The Latin Library",
+    "e_source_url": "http://www.thelatinlibrary.com/ambrose.html",
+    "print_source": "\"submitted by Oscar Cismarius from an unidentified e-text\"",
+    "added_by": "Brianna Roberts"
+  },
+  {
+    "author": "Ambrose",
+    "work": "Explanatio Psalmorum XII",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Michael Petschenig. Sanctii Ambrosii Opera, Pars VI. Vindobonae: Gerold. 1919.",
+    "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Ambrose",
+    "work": "Expositio Evangelii Secundum Lucan",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Henricus Schenkl. Sanctii Ambrosii Opera, Pars Quarta. Vindobonae: Gerold. 1902.",
+    "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Ambrose",
+    "work": "Expositio Psalmi CXVIII",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Michael Petschenig. Sanctii Ambrosii Opera, Pars Quinta. Vindobonae: Gerold. 1913.",
+    "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Ambrose",
+    "work": "Hexameron",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Karl Schenkl. Sanctii Ambrosii Opera, Pars Prima. Vindobonae: Gerold. 1897.",
+    "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Ammianus Marcellinus",
+    "work": "Rerum Gestarum",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A2007.01.0081%3Abook%3D14%3Achapter%3D1%3Asection%3D1",
+    "print_source": "Ammianus Marcellinus. With An English Translation. John C. Rolfe, PhD, Litt.D. Cambridge. Cambridge, Mass., Harvard University Press; London, William Heinemann, Ltd. 1935-1940.",
+    "added_by": "Katherine Roache"
+  },
+  {
+    "author": "Andocides",
+    "work": "De Mysteriis",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0019%3aspeech%3d1",
+    "print_source": "Karl Fuhr. Orationes. Stutgardiae: Teubner. 1966.",
+    "added_by": "V3 Legacy Import"
+  },
+  {
+    "author": "Andocides",
+    "work": "De Pace",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0019%3aspeech%3d1",
+    "print_source": "Karl Fuhr. Orationes. Stutgardiae: Teubner. 1966.",
+    "added_by": "V3 Legacy Import"
+  },
+  {
+    "author": "Andocides",
+    "work": "De Reditu Suo",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0019%3aspeech%3d1",
+    "print_source": "Karl Fuhr. Orationes. Stutgardiae: Teubner. 1966.",
+    "added_by": "V3 Legacy Import"
+  },
+  {
+    "author": "Andocides",
+    "work": "In Alcibiadem",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0019%3aspeech%3d1",
+    "print_source": "Karl Fuhr. Orationes. Stutgardiae: Teubner. 1966.",
+    "added_by": "V3 Legacy Import"
+  },
+  {
+    "author": "Anonymous",
+    "work": "Laudes Domini",
+    "e_source": "Divus Angelus",
+    "e_source_url": "http://www.divusangelus.it/texts/sec4dc/laudesdomini.htm",
+    "print_source": "Pieter Van Der Weijden, ed. Laudes domini: Tekst, vertaling en commentaar. Amsterdam: H. J. Paris, 1967.",
+    "added_by": "Vincent Hunink"
+  },
+  {
+    "author": "Antiphon",
+    "work": "Against the Stepmother for Poisoning",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0019%3aspeech%3d1",
+    "print_source": "Maidment, K. J., ed. Minor Attic Orators. Cambridge: Harvard UP, 1941.",
+    "added_by": "Katherine Roache"
+  },
+  {
+    "author": "Antiphon",
+    "work": "First Tetralogy",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0019%3aspeech%3d2",
+    "print_source": "Maidment, K. J., ed. Minor Attic Orators. Cambridge: Harvard UP, 1941.",
+    "added_by": "Katherine Roache"
+  },
+  {
+    "author": "Antiphon",
+    "work": "On the Choreutes",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0019%3aspeech%3d6",
+    "print_source": "Maidment, K. J., ed. Minor Attic Orators. Cambridge: Harvard UP, 1941.",
+    "added_by": "Katherine Roache"
+  },
+  {
+    "author": "Antiphon",
+    "work": "On the Murder of Herodes",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0019%3aspeech%3d5",
+    "print_source": "Maidment, K. J., ed. Minor Attic Orators. Cambridge: Harvard UP, 1941.",
+    "added_by": "Katherine Roache"
+  },
+  {
+    "author": "Antiphon",
+    "work": "Second Tetralogy",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0019%3aspeech%3d3",
+    "print_source": "Maidment, K. J., ed. Minor Attic Orators. Cambridge: Harvard UP, 1941.",
+    "added_by": "Katherine Roache"
+  },
+  {
+    "author": "Antiphon",
+    "work": "Speeches",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0019%3aspeech%3d3",
+    "print_source": "Maidment, K. J., ed. Minor Attic Orators. Cambridge: Harvard UP, 1941.",
+    "added_by": "V3 Legacy Import"
+  },
+  {
+    "author": "Antiphon",
+    "work": "Third Tetralogy",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0019%3aspeech%3d4",
+    "print_source": "Maidment, K. J., ed. Minor Attic Orators. Cambridge: Harvard UP, 1941.",
+    "added_by": "Katherine Roache"
+  },
+  {
+    "author": "Apollodorus",
+    "work": "Epitome",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0021%3atext%3dEpitome",
+    "print_source": "Apollodorus. Apollodorus, The Library, with an English Translation by Sir James George Frazer, F.B.A., F.R.S. in 2 Volumes. Cambridge, MA, Harvard University Press; London, William Heinemann Ltd. 1921.",
+    "added_by": "Katherine Roache"
+  },
+  {
+    "author": "Apollodorus",
+    "work": "Library",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0021%3atext%3dLibrary",
+    "print_source": "Apollodorus. Apollodorus, The Library, with an English Translation by Sir James George Frazer, F.B.A., F.R.S. in 2 Volumes. Cambridge, MA, Harvard University Press; London, William Heinemann Ltd. 1921.",
+    "added_by": "Katherine Roache"
+  },
+  {
+    "author": "Appian",
+    "work": "The Civil Wars",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0231",
+    "print_source": "Appian. The Civil Wars. L. Mendelssohn. Leipzig. Teubner. 1879.",
+    "added_by": "Katherine Roache"
+  },
+  {
+    "author": "Appian",
+    "work": "The Foreign Wars",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A1999.01.0229%3Atext%3DReg",
+    "print_source": "L. Mendelssohn. The Foreign Wars. L. Mendelssohn. Leipzig. Teubner. 1879.",
+    "added_by": "V3 Legacy Import"
+  },
+  {
+    "author": "Appolonius",
+    "work": "Argonautica",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0227",
+    "print_source": "George W. Mooney, Argonautica. London: Longmans, Green, 1912.",
+    "added_by": "Chris Forstall"
+  },
+  {
+    "author": "Apuleius",
+    "work": "Apologia",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0501",
+    "print_source": "Apuleius.Apulei Platonici Madaurensis, Pro se de magia liber (Apologia).Rudolf Helm. Lipsiae: B.G. Teubneri. 1912.",
+    "added_by": "V3 Legacy Import"
+  },
+  {
+    "author": "Apuleius",
+    "work": "De Deo Socratis",
+    "e_source": "Forum Romanum",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.forumromanum.org/literature/deo_socratis.html",
+    "print_source": "Jean Beaujeu. Paris 1973.",
+    "added_by": "V3 Legacy Import"
+  },
+  {
+    "author": "Apuleius",
+    "work": "Florida",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0503",
+    "print_source": "Apuleius. Apulei Platonici Madaurensis Florida. Rudolf Helm. Lipsiae: Teubner, 1921. 1921.",
+    "added_by": "Katherine Roache"
+  },
+  {
+    "author": "Apuleius",
+    "work": "Metamorphoses",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0502",
+    "print_source": "Apuleius. The Golden Ass, being the Metamorphoses of Lucius Apuleius. Stephen Gaselee. London: William Heinemann; New York: G.P. Putnam's Sons. 1915.",
+    "added_by": "Katherine Roache"
+  },
+  {
+    "author": "Apulieus",
+    "work": "Apologia",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0501",
+    "print_source": "Apuleius.Apulei Platonici Madaurensis, Pro se de magia liber (Apologia).Rudolf Helm. Lipsiae: B.G. Teubneri. 1912.",
+    "added_by": "Katherine Roache"
+  },
+  {
+    "author": "Apulieus",
+    "work": "De Deo Socratis",
+    "e_source": "Forum Romanum",
+    "e_source_url": "http://www.forumromanum.org/literature/deo_socratis.html",
+    "print_source": "Jean Beaujeu. Paris 1973.",
+    "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Aratus Solensis",
+    "work": "Phaenomena",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0019%3aspeech%3d1",
+    "print_source": "Arati Phaenomena. Berolini: Apvd Weidmannos. 1893.",
+    "added_by": "V3 Legacy Import"
+  },
+  {
+    "author": "Aretaeus",
+    "work": "De Causis et Signis Acutorum Morborum",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0019%3aspeech%3d1",
+    "print_source": "Francis Adams. The Extant Works of Aretaeus, the Cappadocian. Boston: Milford House. 1856.",
+    "added_by": "V3 Legacy Import"
+  },
+  {
+    "author": "Aretaeus",
+    "work": "De Curatione Acutorum Morborum Libri Duo",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0019%3aspeech%3d1",
+    "print_source": "Francis Adams. The Extant Works of Aretaeus, the Cappadocian. Boston: Milford House. 1856.",
+    "added_by": "V3 Legacy Import"
+  },
+  {
+    "author": "Aristophanes",
+    "work": "Acharnians",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0023",
+    "print_source": "F.W. Hall and W.M. Geldart, Aristophanes Comoediae, ed. F.W. Hall and W.M. Geldart, vol. 2. Oxford: Clarendon Press, Oxford, 1907.",
+    "added_by": "Anna Glenn"
+  },
+  {
+    "author": "Aristophanes",
+    "work": "Birds",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0025",
+    "print_source": "F.W. Hall and W.M. Geldart, Aristophanes Comoediae, ed. F.W. Hall and W.M. Geldart, vol. 2. Oxford: Clarendon Press, Oxford, 1907.",
+    "added_by": "Anna Glenn"
+  },
+  {
+    "author": "Aristophanes",
+    "work": "Clouds",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0027",
+    "print_source": "F.W. Hall and W.M. Geldart, Aristophanes Comoediae, ed. F.W. Hall and W.M. Geldart, vol. 2. Oxford: Clarendon Press, Oxford, 1907.",
+    "added_by": "Anna Glenn"
+  },
+  {
+    "author": "Aristophanes",
+    "work": "Ecclesiazusae",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0029",
+    "print_source": "F.W. Hall and W.M. Geldart, Aristophanes Comoediae, ed. F.W. Hall and W.M. Geldart, vol. 2. Oxford: Clarendon Press, Oxford, 1907.",
+    "added_by": "Anna Glenn"
+  },
+  {
+    "author": "Aristophanes",
+    "work": "Frogs",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0031",
+    "print_source": "F.W. Hall and W.M. Geldart, Aristophanes Comoediae, ed. F.W. Hall and W.M. Geldart, vol. 2. Oxford: Clarendon Press, Oxford, 1907.",
+    "added_by": "Anna Glenn"
+  },
+  {
+    "author": "Aristophanes",
+    "work": "Knights",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0033",
+    "print_source": "F.W. Hall and W.M. Geldart, Aristophanes Comoediae, ed. F.W. Hall and W.M. Geldart, vol. 1. Oxford: Clarendon Press, Oxford, 1907.",
+    "added_by": "Anna Glenn"
+  },
+  {
+    "author": "Aristophanes",
+    "work": "Lysistrata",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0035",
+    "print_source": "F.W. Hall and W.M. Geldart, Aristophanes Comoediae, ed. F.W. Hall and W.M. Geldart, vol. 2. Oxford: Clarendon Press, Oxford, 1907.",
+    "added_by": "Anna Glenn"
+  },
+  {
+    "author": "Aristophanes",
+    "work": "Peace",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0037",
+    "print_source": "F.W. Hall and W.M. Geldart, Aristophanes Comoediae, ed. F.W. Hall and W.M. Geldart, vol. 1. Oxford: Clarendon Press, Oxford, 1907.",
+    "added_by": "Anna Glenn"
+  },
+  {
+    "author": "Aristophanes",
+    "work": "Plutus",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0039",
+    "print_source": "F.W. Hall and W.M. Geldart, Aristophanes Comoediae, ed. F.W. Hall and W.M. Geldart, vol. 2. Oxford: Clarendon Press, Oxford, 1907.",
+    "added_by": "Anna Glenn"
+  },
+  {
+    "author": "Aristophanes",
+    "work": "Thesmaphoriazusae",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0041",
+    "print_source": "F.W. Hall and W.M. Geldart, Aristophanes Comoediae, ed. F.W. Hall and W.M. Geldart, vol. 2. Oxford: Clarendon Press, Oxford, 1907.",
+    "added_by": "Anna Glenn"
+  },
+  {
+    "author": "Aristophanes",
+    "work": "Wasps",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0043",
+    "print_source": "F.W. Hall and W.M. Geldart, Aristophanes Comoediae, ed. F.W. Hall and W.M. Geldart, vol. 1. Oxford: Clarendon Press, Oxford, 1907.",
+    "added_by": "Anna Glenn"
+  },
+  {
+    "author": "Aristotle",
+    "work": "Constitution",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A1999.01.0045",
+    "print_source": "Athenaion Politeia, ed. Kenyon. Oxford. 1920.",
+    "added_by": "Rudra Chakraborty"
+  },
+  {
+    "author": "Aristotle",
+    "work": "Economics",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A1999.01.0047",
+    "print_source": "Aristotle. Aristotle in 23 Volumes, Vol. 18. Harvard University Press, Cambridge, Mass., London. 1935.",
+    "added_by": "Rudra Chakraborty"
+  },
+  {
+    "author": "Aristotle",
+    "work": "Eudemian Ethics",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A1999.01.0049",
+    "print_source": "Aristotle. Aristotle's Eudemian Ethics, ed. F. Susemihl. Leipzig: Teubner. 1884.",
+    "added_by": "Rudra Chakraborty"
+  },
+  {
+    "author": "Aristotle",
+    "work": "Metaphysics",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A1999.01.0051",
+    "print_source": "Aristotle. Aristotle's Metaphysics, ed. W.D. Ross. Oxford: Clarendon Press. 1924.",
+    "added_by": "Rudra Chakraborty"
+  },
+  {
+    "author": "Aristotle",
+    "work": "Nicomachean Ethics",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A1999.01.0053",
+    "print_source": "ed. J. Bywater, Aristotle's Ethica Nicomachea. Oxford, Clarendon Press. 1894.",
+    "added_by": "Rudra Chakraborty"
+  },
+  {
+    "author": "Aristotle",
+    "work": "Poetics",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A1999.01.0055",
+    "print_source": "Aristotle. ed. R. Kassel, Aristotle's Ars Poetica. Oxford, Clarendon Press. 1966.",
+    "added_by": "Rudra Chakraborty"
+  },
+  {
+    "author": "Aristotle",
+    "work": "Politics",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A1999.01.0057",
+    "print_source": "Aristotle. ed. W. D. Ross, Aristotle's Politica. Oxford, Clarendon Press. 1957.",
+    "added_by": "Rudra Chakraborty"
+  },
+  {
+    "author": "Aristotle",
+    "work": "Rhetoric",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A1999.01.0059",
+    "print_source": "Ars Rhetorica. Aristotle. W. D. Ross. Oxford. Clarendon Press. 1959.",
+    "added_by": "Rudra Chakraborty"
+  },
+  {
+    "author": "Aristotle",
+    "work": "Virtues and Vices",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A1999.01.0061",
+    "print_source": "ed. I. Bekker, Aristotle's Opera, vol. 2. Berlin, Reimer. 1831.",
+    "added_by": "Rudra Chakraborty"
+  },
+  {
+    "author": "Arnobius",
+    "work": "Adversus Nationes",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "August Reifferscheid. Arnobii Adversus Nationes Libri VII. Vindobonae: Gerold. 1875.",
+    "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Arrian",
+    "work": "Anabasis",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0530",
+    "print_source": "A.G. Roos. Flavii Arriani Anabasis Alexandri. Teubner: Leipzig. 1907.",
+    "added_by": "V3 Legacy Import"
+  },
+  {
+    "author": "Arrian",
+    "work": "Cynegeticus",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0532",
+    "print_source": "Rudolf Hercher and Alfred Eberhard. Arriani Nicomediensis Scripta Minora. Teubner: Leipzig. 1885.",
+    "added_by": "V3 Legacy Import"
+  },
+  {
+    "author": "Athenaeus",
+    "work": "The Deipnosophists",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0405",
+    "print_source": "Charles Burton Gulick, The Deipnosophists. Cambridge, MA: Harvard University Press, 1927.",
+    "added_by": "Emilie Redwood"
+  },
+  {
+    "author": "Augurelli, Giovanni Aurelio",
+    "work": "Chrysopoeia",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://http//www.perseus.tufts.edu/hopper/searchresults?q=chrysopoeia",
+    "print_source": "Christophe Plantin. Chrysopoeia ad Leonem X Pontificem Maximum Antwerpen. 1582.",
+    "added_by": "V3 Legacy Import"
+  },
+  {
+    "author": "Augustine",
+    "work": "Adnotationes in Iob",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Joseph Zycha. Sancti Aurelii Augustini Opera, Sect III Pars III, Quaestiones in Heptateuchum, Adnotationes in Iob. Vindobonae: Gerold. 1895.",
+    "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Augustine",
+    "work": "Breviculus Collationis cum Donatistis",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Michael Petschenig. Sancti Aurelii Augustini Scripta contra Donatistas, Opera Sectio 7, Pars 3. Vindobonae: Gerold. 1910.",
+    "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Augustine",
+    "work": "Commonitorium",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Joseph Zycha. Sancti Aurelii Augustini Opera, Sect VI Pars II. Vindobonae: Gerold. 1892.",
+    "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Augustine",
+    "work": "Confessiones",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Pius Knoll. Sancti Aurelii Augustini Opera Opera Sectio I, Pars I. Vindobonae: Gerold. 1896.",
+    "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Augustine",
+    "work": "Contra Academicos",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Pius Knoll. Sancti Aurelii Augustini Opera, Sect I Pars III. Vindobonae: Gerold. 1922.",
+    "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Augustine",
+    "work": "Contra Adimantum",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Joseph Zycha. Sancti Aurelii Augustini Opera, Sect VI Pars I. Vindobonae: Gerold. 1891."
