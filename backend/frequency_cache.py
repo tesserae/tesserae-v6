@@ -5,6 +5,7 @@ from collections import Counter
 from datetime import datetime
 
 from backend.logging_config import get_logger
+from backend.utils import safe_listdir
 
 logger = get_logger('frequency_cache')
 
@@ -44,7 +45,7 @@ def get_corpus_checksum(language):
     if not os.path.exists(lang_dir):
         return None
     
-    files = sorted([f for f in os.listdir(lang_dir) if f.endswith('.tess')])
+    files = sorted([f for f in safe_listdir(lang_dir) if f.endswith('.tess')])
     file_info = []
     for f in files:
         path = os.path.join(lang_dir, f)
@@ -74,11 +75,12 @@ def load_frequency_cache(language):
 def save_frequency_cache(language, frequencies, total_lemmas, checksum):
     """Save frequency data to cache file"""
     cache_path = get_cache_path(language)
+    lang_dir = os.path.join(TEXTS_DIR, language)
     data = {
         'language': language,
         'frequencies': frequencies,
         'total_lemmas': total_lemmas,
-        'text_count': len([f for f in os.listdir(os.path.join(TEXTS_DIR, language)) if f.endswith('.tess')]) if os.path.exists(os.path.join(TEXTS_DIR, language)) else 0,
+        'text_count': len([f for f in safe_listdir(lang_dir) if f.endswith('.tess')]) if os.path.exists(lang_dir) else 0,
         'checksum': checksum,
         'last_updated': datetime.now().isoformat()
     }
@@ -96,7 +98,7 @@ def calculate_corpus_frequencies(language, text_processor):
         return {}
     
     all_lemmas = []
-    all_files = [f for f in os.listdir(lang_dir) if f.endswith('.tess')]
+    all_files = [f for f in safe_listdir(lang_dir) if f.endswith('.tess')]
     text_files = deduplicate_text_files(all_files)
     
     logger.info(f"Calculating corpus frequencies for {language}: {len(text_files)} texts (excluded {len(all_files) - len(text_files)} duplicate segments)...")
