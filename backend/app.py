@@ -282,6 +282,7 @@ def init_db():
                     value TEXT
                 )
             ''')
+            # Create/Update table schema
             cur.execute('''
                 CREATE TABLE IF NOT EXISTS search_logs (
                     id SERIAL PRIMARY KEY,
@@ -294,17 +295,20 @@ def init_db():
                     results_count INTEGER DEFAULT 0,
                     cached BOOLEAN DEFAULT FALSE,
                     user_id VARCHAR(255),
+                    client_ip VARCHAR(50),
                     city VARCHAR(100),
                     country VARCHAR(100),
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
-            cur.execute('''
-                ALTER TABLE search_logs ADD COLUMN IF NOT EXISTS city VARCHAR(100)
-            ''')
-            cur.execute('''
-                ALTER TABLE search_logs ADD COLUMN IF NOT EXISTS country VARCHAR(100)
-            ''')
+            cur.execute('ALTER TABLE search_logs ADD COLUMN IF NOT EXISTS client_ip VARCHAR(50)')
+            cur.execute('ALTER TABLE search_logs ADD COLUMN IF NOT EXISTS city VARCHAR(100)')
+            cur.execute('ALTER TABLE search_logs ADD COLUMN IF NOT EXISTS country VARCHAR(100)')
+            
+            # ... (rest of the init code) ...
+            
+    # In get_analytics route:
+    # unique_users = cur.execute("SELECT COUNT(DISTINCT COALESCE(user_id, client_ip)) FROM search_logs")
             cur.execute('''
                 CREATE INDEX IF NOT EXISTS idx_search_logs_created_at ON search_logs(created_at)
             ''')
@@ -2868,4 +2872,4 @@ def create_app():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5001, debug=True)

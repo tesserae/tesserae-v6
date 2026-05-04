@@ -1608,8 +1608,13 @@ def get_analytics():
             today_row = cur.fetchone()
             searches_today = today_row[0] if today_row else 0
             
+            # Total registered users (explicit USER role OR no role entry yet)
             cur.execute('''
-                SELECT COUNT(DISTINCT user_id) FROM search_logs WHERE user_id IS NOT NULL
+                SELECT COUNT(DISTINCT u.id) 
+                FROM users u
+                LEFT JOIN user_roles ur ON u.id = ur.user_id
+                LEFT JOIN roles r ON ur.role_id = r.id
+                WHERE r.name = 'USER' OR ur.role_id IS NULL
             ''')
             users_row = cur.fetchone()
             unique_users = users_row[0] if users_row else 0
@@ -1621,7 +1626,22 @@ def get_analytics():
                 ORDER BY COUNT(*) DESC
             ''')
             type_rows = cur.fetchall()
-            by_type = [{'type': row[0] or 'unknown', 'count': row[1]} for row in type_rows]
+            
+            # Map legacy types to clean labels
+            type_map = {
+                'text_comparison': 'Dictionary Form (Lemma)',
+                'line_search': 'Line Search',
+                'fusion_search': 'Fusion Search',
+                'rare_words': 'Rare Words',
+                'rare_pairs': 'Rare Pairs',
+                'wildcard_search': 'Wildcard Search'
+            }
+            
+            by_type = []
+            for row in type_rows:
+                raw_type = row[0] or 'unknown'
+                label = type_map.get(raw_type, raw_type)
+                by_type.append({'type': label, 'count': row[1]})
             
             cur.execute('''
                 SELECT language, COUNT(*) 
@@ -1686,31 +1706,40 @@ def get_analytics():
             city_rows = cur.fetchall()
             top_cities = [{'city': row[0], 'country': row[1] or '', 'count': row[2]} for row in city_rows]
             
+
+
+            # NEW: Cache hits/misses
+            cur.execute('SELECT COUNT(*) FROM search_logs WHERE cached = TRUE')
+            cache_hits = cur.fetchone()[0]
+            cur.execute('SELECT COUNT(*) FROM search_logs WHERE cached = FALSE')
+            cache_misses = cur.fetchone()[0]
+
+            # NEW: Distinct Search Queries
             cur.execute('''
-                SELECT query_text, language 
-                FROM search_logs 
-                WHERE query_text IS NOT NULL AND query_text != ''
-                ORDER BY created_at DESC
-                LIMIT 20
+                SELECT COUNT(DISTINCT 
+                    COALESCE(query_text, '') || '|' || 
+                    COALESCE(source_text, '') || '|' || 
+                    COALESCE(target_text, '') || '|' || 
+                    COALESCE(match_type, '')
+                ) FROM search_logs
             ''')
-            query_rows = cur.fetchall()
-            recent_queries = [{'query': row[0], 'language': row[1] or 'unknown'} for row in query_rows]
+            distinct_searches = cur.fetchone()[0]
         
-        return jsonify({
-            'total_searches': total_searches,
-            'searches_today': searches_today,
-            'unique_users': unique_users,
-            'cache_hits': 0,
-            'cache_misses': 0,
-            'by_type': by_type,
-            'by_language': by_language,
-            'per_day': per_day,
-            'top_sources': top_sources,
-            'top_targets': top_targets,
-            'top_countries': top_countries,
-            'top_cities': top_cities,
-            'recent_queries': recent_queries
-        })
+            return jsonify({
+                'total_searches': total_searches,
+                'searches_today': searches_today,
+                'unique_users': unique_users,
+                'distinct_searches': distinct_searches,
+                'cache_hits': cache_hits,
+                'cache_misses': cache_misses,
+                'by_type': by_type,
+                'by_language': by_language,
+                'per_day': per_day,
+                'top_sources': top_sources,
+                'top_targets': top_targets,
+                'top_countries': top_countries,
+                'top_cities': top_cities
+            })
     except Exception as e:
         logger.error(f"Failed to get analytics: {e}")
         return jsonify({'error': str(e)}), 500
