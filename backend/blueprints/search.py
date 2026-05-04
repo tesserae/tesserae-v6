@@ -188,7 +188,7 @@ def _run_matcher(match_type, source_units, target_units, settings, corpus_freque
 
 
 def _finalize_results(scored_results, source_units, target_units, stoplist_size,
-                      settings, source_id, target_id, language, req_user_id, req_city, req_country, cached=False):
+                      settings, source_id, target_id, language, req_user_id, req_city, req_country, req_ip, cached=False):
     """Cache results, log the search, and build the response dict."""
     if not cached:
         metadata = {
@@ -210,7 +210,7 @@ def _finalize_results(scored_results, source_units, target_units, stoplist_size,
     }
     log_search(match_labels.get(match_type_raw, 'Dictionary Form (Lemma)'), language, source_id, target_id, None,
                match_type_raw, len(scored_results), cached, req_user_id,
-               req_city, req_country)
+               req_city, req_country, req_ip)
 
     return {
         "results": display_results,
@@ -298,10 +298,10 @@ def _handle_dictionary_cross(params, source_units, target_units, settings):
         })
 
     req_user_id = current_user.id if current_user and current_user.is_authenticated else None
-    req_city, req_country = get_user_location()
+    req_city, req_country, req_ip = get_user_location()
 
     return jsonify(_finalize_results(scored_results, source_units, target_units,
-                                      0, settings, source_id, target_id, language, req_user_id, req_city, req_country))
+                                      0, settings, source_id, target_id, language, req_user_id, req_city, req_country, req_ip))
 
 
 def _find_dictionary_matches_fast(source_units, target_units, source_language, target_language):
@@ -971,10 +971,10 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
           f"{len(set(sem_by_pair) & set(dict_by_pair))} sem+dict overlap)")
 
     req_user_id = current_user.id if current_user and current_user.is_authenticated else None
-    req_city, req_country = get_user_location()
+    req_city, req_country, req_ip = get_user_location()
 
     return jsonify(_finalize_results(fused, source_units, target_units,
-                                      0, settings, source_id, target_id, language, req_user_id, req_city, req_country))
+                                      0, settings, source_id, target_id, language, req_user_id, req_city, req_country, req_ip))
 
 
 def _get_semantic_highlight_matches(src_lemmas, tgt_lemmas, source_language, target_language):
@@ -1049,7 +1049,7 @@ def search_stream():
     
     # Capture request context variables before entering the generator
     req_user_id = current_user.id if current_user and current_user.is_authenticated else None
-    req_city, req_country = get_user_location()
+    req_city, req_country, req_ip = get_user_location()
 
     def generate():
         slot = None
@@ -1094,7 +1094,7 @@ def search_stream():
                     'edit_distance': 'Edit Distance'
                 }
                 log_search(match_labels.get(match_type_raw, 'Dictionary Form (Lemma)'), language, source_id, target_id, None,
-                          match_type_raw, len(cached_results), True, req_user_id, req_city, req_country)
+                          match_type_raw, len(cached_results), True, req_user_id, req_city, req_country, req_ip)
                 
                 result = {
                     "type": "complete",
@@ -1157,7 +1157,7 @@ def search_stream():
                     'edit_distance': 'Edit Distance'
                 }
                 log_search(match_labels.get(match_type_raw, 'Dictionary Form (Lemma)'), language, source_id, target_id, None,
-                          match_type_raw, 0, False, req_user_id, req_city, req_country)
+                          match_type_raw, 0, False, req_user_id, req_city, req_country, req_ip)
                 
                 result = {
                     "type": "complete",
@@ -1178,7 +1178,7 @@ def search_stream():
 
             yield send_progress("Saving to cache")
             response_data = _finalize_results(scored_results, source_units, target_units,
-                                               stoplist_size, settings, source_id, target_id, language, req_user_id, req_city, req_country)
+                                               stoplist_size, settings, source_id, target_id, language, req_user_id, req_city, req_country, req_ip)
 
             elapsed_time = round(time.time() - start_time, 2)
             result = {
@@ -1231,7 +1231,7 @@ def search():
             max_results = settings.get('max_results', 0)
             display_results = cached_results[:max_results] if max_results > 0 else cached_results
             user_id = current_user.id if current_user and current_user.is_authenticated else None
-            city, country = get_user_location()
+            city, country, ip = get_user_location()
             match_type_raw = settings.get('match_type', 'lemma')
             match_labels = {
                 'lemma': 'Dictionary Form (Lemma)', 'exact': 'Exact Match',
@@ -1240,7 +1240,7 @@ def search():
                 'edit_distance': 'Edit Distance'
             }
             log_search(match_labels.get(match_type_raw, 'Dictionary Form (Lemma)'), language, source_id, target_id, None,
-                      match_type_raw, len(cached_results), True, user_id, city, country)
+                      match_type_raw, len(cached_results), True, user_id, city, country, ip)
             meta = cached_meta or {}
             return jsonify({
                 "results": display_results,
@@ -1277,9 +1277,9 @@ def search():
             scored_results = _scorer.score_matches(matches, source_units, target_units, settings, source_id, target_id)
             scored_results.sort(key=lambda x: x['overall_score'], reverse=True)
             req_user_id = current_user.id if current_user and current_user.is_authenticated else None
-            req_city, req_country = get_user_location()
+            req_city, req_country, req_ip = get_user_location()
             return jsonify(_finalize_results(scored_results, source_units, target_units,
-                                              stoplist_size, settings, source_id, target_id, language, req_user_id, req_city, req_country))
+                                              stoplist_size, settings, source_id, target_id, language, req_user_id, req_city, req_country, req_ip))
 
     except TimeoutError as e:
         return jsonify({"error": f"Server busy: {e}"}), 503
@@ -1375,9 +1375,9 @@ def wildcard_search_endpoint():
         )
         
         user_id = current_user.id if current_user.is_authenticated else None
-        city, country = get_user_location()
+        city, country, ip = get_user_location()
         log_search('String Search', language, None, None, query,
-                   'wildcard', len(results.get('results', [])), False, user_id, city, country)
+                   'wildcard', len(results.get('results', [])), False, user_id, city, country, ip)
         
         return jsonify(results)
         
