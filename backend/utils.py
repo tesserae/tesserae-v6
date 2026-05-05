@@ -70,21 +70,38 @@ def resolve_text_path(texts_dir, language, text_id):
     if not os.path.isdir(lang_dir):
         return None
 
-    # 1. Try direct match, validating resolved path stays inside lang_dir
-    direct_path = os.path.realpath(os.path.join(lang_dir, text_id))
+    # 1. Try direct match first. Under ASCII filesystem locales this can raise
+    # UnicodeEncodeError for Greek filenames, so fall through to byte-level
+    # directory scanning when that happens.
     try:
-        if os.path.commonpath([lang_dir, direct_path]) != lang_dir:
+        direct_path = os.path.realpath(os.path.join(lang_dir, text_id))
+        try:
+            if os.path.commonpath([lang_dir, direct_path]) != lang_dir:
+                return None
+        except ValueError:
             return None
-    except ValueError:
-        return None
-    if os.path.exists(direct_path):
-        return direct_path
+        if os.path.exists(direct_path):
+            return direct_path
+    except (OSError, UnicodeEncodeError):
+        direct_path = None
 
-    # 2. Try normalized match (NFC)
-    # Browsers often send NFC, but the filesystem may store filenames in NFD
+    # 2. Try normalized match (NFC) against raw directory entries so we can
+    # recover surrogateescaped paths even when Python cannot encode the input
+    # Unicode filename using the current filesystem locale.
     target_norm = unicodedata.normalize('NFC', text_id)
     try:
-        for filename in os.listdir(lang_dir):
+        lang_dir_bytes = os.fsencode(lang_dir)
+        for filename_bytes in os.listdir(lang_dir_bytes):
+            filename = fix_surrogate_escapes(os.fsdecode(filename_bytes))
+            if unicodedata.normalize('NFC', filename) == target_norm:
+                return os.fsdecode(os.path.join(lang_dir_bytes, filename_bytes))
+    except OSError:
+        pass
+
+    # 3. Final fallback using string directory listing for environments where
+    # bytes paths are unavailable.
+    try:
+        for filename in safe_listdir(lang_dir):
             if unicodedata.normalize('NFC', filename) == target_norm:
                 return os.path.join(lang_dir, filename)
     except OSError:
