@@ -25,59 +25,113 @@ export default function HelpPage() {
   // Formatter utility state
   const [formatterAuthor, setFormatterAuthor] = useState('');
   const [formatterWork, setFormatterWork] = useState('');
-  const [formatterTextType, setFormatterTextType] = useState('poetry');
-  const [formatterStartBook, setFormatterStartBook] = useState('1');
-  const [formatterStartLine, setFormatterStartLine] = useState('1');
-  const [formatterRawText, setFormatterRawText] = useState('');
+  const [formatterTextType, setFormatterTextType] = useState('');
+  const [formatterSubsectionCount, setFormatterSubsectionCount] = useState('1');
+  const [formatterSlots, setFormatterSlots] = useState([
+    { id: 1, startValues: ['1'], rawText: '' }
+  ]);
   const [formatterOutput, setFormatterOutput] = useState('');
   const [formatterCopied, setFormatterCopied] = useState(false);
 
+  const updateFormatterSlot = (slotId, field, value) => {
+    setFormatterCopied(false);
+    setFormatterSlots(prev => prev.map(slot => (
+      slot.id === slotId ? { ...slot, [field]: value } : slot
+    )));
+  };
+
+  const resizeStartValues = (values, count) => (
+    Array.from({ length: count }, (_, index) => values?.[index] || '1')
+  );
+
+  const handleFormatterSubsectionCountChange = (value) => {
+    const count = Math.min(5, Math.max(1, parseInt(value) || 1));
+    setFormatterSubsectionCount(String(count));
+    setFormatterCopied(false);
+    setFormatterOutput('');
+    setFormatterSlots(prev => prev.map(slot => ({
+      ...slot,
+      startValues: resizeStartValues(slot.startValues, count)
+    })));
+  };
+
+  const updateFormatterStartValue = (slotId, index, value) => {
+    setFormatterCopied(false);
+    setFormatterOutput('');
+    setFormatterSlots(prev => prev.map(slot => {
+      if (slot.id !== slotId) return slot;
+      const nextStartValues = resizeStartValues(slot.startValues, parseInt(formatterSubsectionCount) || 1);
+      nextStartValues[index] = value;
+      return { ...slot, startValues: nextStartValues };
+    }));
+  };
+
+  const addFormatterSlot = () => {
+    const count = parseInt(formatterSubsectionCount) || 1;
+    setFormatterCopied(false);
+    setFormatterOutput('');
+    setFormatterSlots(prev => ([
+      ...prev,
+      {
+        id: prev.length ? Math.max(...prev.map(slot => slot.id)) + 1 : 1,
+        startValues: resizeStartValues(null, count),
+        rawText: ''
+      }
+    ]));
+  };
+
+  const removeFormatterSlot = (slotId) => {
+    setFormatterCopied(false);
+    setFormatterOutput('');
+    setFormatterSlots(prev => prev.filter(slot => slot.id !== slotId));
+  };
+
+  const handleFormatterTextTypeChange = (value) => {
+    setFormatterTextType(value);
+    setFormatterCopied(false);
+    setFormatterOutput('');
+    if (!value) {
+      setFormatterSubsectionCount('1');
+      setFormatterSlots([{ id: 1, startValues: ['1'], rawText: '' }]);
+    }
+  };
+
+  const formatFormatterSlot = (author, work, slot) => {
+    const lines = slot.rawText.split('\n').filter(line => line.trim());
+
+    const subsectionDepth = Math.min(5, Math.max(1, parseInt(formatterSubsectionCount) || 1));
+    const baseRefParts = resizeStartValues(slot.startValues, subsectionDepth);
+    let currentLine = parseInt(baseRefParts[baseRefParts.length - 1]) || 1;
+
+    return lines.map((line) => {
+      const trimmedLine = line.trim();
+
+      if (!trimmedLine) return null;
+
+      const refParts = [...baseRefParts];
+      refParts[refParts.length - 1] = String(currentLine);
+      const tag = `<${author}.${work} ${refParts.join('.')}>`;
+      currentLine++;
+
+      return `${tag} ${trimmedLine}`;
+    }).filter(Boolean).join('\n');
+  };
+
   const formatToTess = () => {
-    if (!formatterAuthor.trim() || !formatterWork.trim() || !formatterRawText.trim()) {
+    if (!formatterAuthor.trim() || !formatterWork.trim() || !formatterTextType) {
       return;
     }
-    
+
     const author = formatterAuthor.toLowerCase().replace(/\s+/g, '_');
     const work = formatterWork.toLowerCase().replace(/\s+/g, '_');
-    const lines = formatterRawText.split('\n').filter(line => line.trim());
-    
-    let currentBook = parseInt(formatterStartBook) || 1;
-    let currentLine = parseInt(formatterStartLine) || 1;
-    
-    const formatted = lines.map((line, idx) => {
-      const trimmedLine = line.trim();
-      
-      // Check for book/section markers (e.g., "Book 2", "BOOK II", "Liber 3")
-      const bookMatch = trimmedLine.match(/^(book|liber|chapter|act)\s*(\d+|[ivxlc]+)/i);
-      if (bookMatch) {
-        const bookNum = bookMatch[2].match(/^\d+$/) 
-          ? parseInt(bookMatch[2]) 
-          : romanToInt(bookMatch[2]);
-        currentBook = bookNum;
-        currentLine = 1;
-        return null; // Skip the book marker line
-      }
-      
-      // Skip empty lines after trimming
-      if (!trimmedLine) return null;
-      
-      let tag;
-      if (formatterTextType === 'poetry') {
-        tag = `<${author}.${work} ${currentBook}.${currentLine}>`;
-        currentLine++;
-      } else if (formatterTextType === 'prose') {
-        tag = `<${author}.${work} ${currentBook}.${currentLine}>`;
-        currentLine++;
-      } else if (formatterTextType === 'drama') {
-        // For drama: act.scene.line format
-        tag = `<${author}.${work} ${currentBook}.1.${currentLine}>`;
-        currentLine++;
-      }
-      
-      return `${tag} ${trimmedLine}`;
-    }).filter(Boolean);
-    
-    setFormatterOutput(formatted.join('\n'));
+
+    const combinedOutput = formatterSlots
+      .map(slot => formatFormatterSlot(author, work, slot))
+      .filter(Boolean)
+      .join('\n');
+
+    setFormatterCopied(false);
+    setFormatterOutput(combinedOutput);
   };
   
   const romanToInt = (roman) => {
@@ -109,6 +163,8 @@ export default function HelpPage() {
     a.click();
     URL.revokeObjectURL(url);
   };
+
+  const hasFormatterRawText = formatterSlots.some(slot => slot.rawText.trim());
 
   const sections = [
     { id: 'getting-started', label: 'Getting Started' },
@@ -1140,7 +1196,7 @@ export default function HelpPage() {
                   Paste your plain text below and we'll convert it to .tess format automatically.
                 </p>
                 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
                   <div>
                     <label className="block text-xs font-medium text-amber-900 mb-1">Author</label>
                     <input 
@@ -1165,90 +1221,130 @@ export default function HelpPage() {
                     <label className="block text-xs font-medium text-amber-900 mb-1">Text Type</label>
                     <select 
                       value={formatterTextType} 
-                      onChange={e => setFormatterTextType(e.target.value)}
+                      onChange={e => handleFormatterTextTypeChange(e.target.value)}
                       className="w-full border border-amber-300 rounded px-2 py-1 text-sm"
                     >
-                      <option value="poetry">Poetry (book.line)</option>
-                      <option value="prose">Prose (section.para)</option>
-                      <option value="drama">Drama (act.scene.line)</option>
+                      <option value="">Select text type</option>
+                      <option value="poetry">Poetry</option>
+                      <option value="prose">Prose</option>
+                      <option value="drama">Drama</option>
                     </select>
                   </div>
-                  <div className="grid grid-cols-2 gap-2">
+                  {formatterTextType && (
                     <div>
-                      <label className="block text-xs font-medium text-amber-900 mb-1">Start Book</label>
-                      <input 
-                        type="number" 
-                        min="1"
-                        value={formatterStartBook} 
-                        onChange={e => setFormatterStartBook(e.target.value)}
+                      <label className="block text-xs font-medium text-amber-900 mb-1">Subsections</label>
+                      <select
+                        value={formatterSubsectionCount}
+                        onChange={e => handleFormatterSubsectionCountChange(e.target.value)}
                         className="w-full border border-amber-300 rounded px-2 py-1 text-sm"
-                      />
+                      >
+                        {[1, 2, 3, 4, 5].map(count => (
+                          <option key={count} value={count}>{count}</option>
+                        ))}
+                      </select>
                     </div>
-                    <div>
-                      <label className="block text-xs font-medium text-amber-900 mb-1">Start Line</label>
-                      <input 
-                        type="number" 
-                        min="1"
-                        value={formatterStartLine} 
-                        onChange={e => setFormatterStartLine(e.target.value)}
-                        className="w-full border border-amber-300 rounded px-2 py-1 text-sm"
-                      />
+                  )}
+                </div>
+
+                {formatterTextType && (
+                  <>
+                    <div className="space-y-4">
+                      {formatterSlots.map((slot, index) => (
+                        <div key={slot.id} className="rounded-lg border border-amber-200 bg-white/70 p-3">
+                          <div className="flex items-center justify-between gap-3 mb-3">
+                            <div className="text-xs font-semibold uppercase tracking-wide text-amber-900">
+                              Text Slot {index + 1}
+                            </div>
+                            {index > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => removeFormatterSlot(slot.id)}
+                                className="text-xs font-medium text-amber-800 underline underline-offset-2 hover:text-amber-950"
+                              >
+                                Close
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 mb-3">
+                            {resizeStartValues(slot.startValues, parseInt(formatterSubsectionCount) || 1).map((value, partIndex) => (
+                              <div key={partIndex}>
+                                <label className="block text-xs font-medium text-amber-900 mb-1">
+                                  Subsection {partIndex + 1}
+                                </label>
+                                <input
+                                  type="number"
+                                  min="1"
+                                  value={value}
+                                  onChange={e => updateFormatterStartValue(slot.id, partIndex, e.target.value)}
+                                  className="w-full border border-amber-300 rounded px-2 py-1 text-sm"
+                                />
+                              </div>
+                            ))}
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-medium text-amber-900 mb-1">Paste Raw Text (one line per row)</label>
+                            <textarea
+                              value={slot.rawText}
+                              onChange={e => updateFormatterSlot(slot.id, 'rawText', e.target.value)}
+                              placeholder="Arma virumque cano, Troiae qui primus ab oris&#10;Italiam, fato profugus, Laviniaque venit&#10;litora, multum ille et terris iactatus et alto"
+                              rows={8}
+                              className="w-full border border-amber-300 rounded px-2 py-2 text-sm font-mono"
+                            />
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                </div>
-                
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-medium text-amber-900 mb-1">Paste Raw Text (one line per row)</label>
-                    <textarea 
-                      value={formatterRawText}
-                      onChange={e => setFormatterRawText(e.target.value)}
-                      placeholder="Arma virumque cano, Troiae qui primus ab oris&#10;Italiam, fato profugus, Laviniaque venit&#10;litora, multum ille et terris iactatus et alto"
-                      rows={8}
-                      className="w-full border border-amber-300 rounded px-2 py-2 text-sm font-mono"
-                    />
-                    <p className="text-xs text-amber-700 mt-1">
-                      Tip: Lines starting with "Book", "Liber", "Chapter", or "Act" followed by a number will start a new section.
-                    </p>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-amber-900 mb-1">Formatted .tess Output</label>
-                    <textarea 
-                      value={formatterOutput}
-                      readOnly
-                      rows={8}
-                      className="w-full border border-amber-300 rounded px-2 py-2 text-sm font-mono bg-white"
-                      placeholder="Formatted output will appear here..."
-                    />
-                    {formatterOutput && (
-                      <div className="flex gap-2 mt-2">
-                        <button 
-                          type="button"
-                          onClick={copyFormatterOutput}
-                          className="px-3 py-1 text-xs bg-amber-600 text-white rounded hover:bg-amber-700"
-                        >
-                          {formatterCopied ? 'Copied!' : 'Copy to Clipboard'}
-                        </button>
-                        <button 
-                          type="button"
-                          onClick={downloadFormatterOutput}
-                          className="px-3 py-1 text-xs bg-amber-700 text-white rounded hover:bg-amber-800"
-                        >
-                          Download .tess File
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                <button 
-                  type="button"
-                  onClick={formatToTess}
-                  disabled={!formatterAuthor.trim() || !formatterWork.trim() || !formatterRawText.trim()}
-                  className="mt-3 px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Format Text
-                </button>
+
+                    <div className="flex flex-wrap gap-2 mt-4">
+                      <button
+                        type="button"
+                        onClick={addFormatterSlot}
+                        className="px-4 py-2 bg-white text-amber-900 border border-amber-300 rounded hover:bg-amber-100"
+                      >
+                        Add More
+                      </button>
+                      <button
+                        type="button"
+                        onClick={formatToTess}
+                        disabled={!formatterAuthor.trim() || !formatterWork.trim() || !hasFormatterRawText}
+                        className="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        Format Text
+                      </button>
+                    </div>
+
+                    <div className="mt-4">
+                      <label className="block text-xs font-medium text-amber-900 mb-1">Formatted .tess Output</label>
+                      <textarea
+                        value={formatterOutput}
+                        readOnly
+                        rows={10}
+                        className="w-full border border-amber-300 rounded px-2 py-2 text-sm font-mono bg-white"
+                        placeholder="Formatted output will appear here..."
+                      />
+                      {formatterOutput && (
+                        <div className="flex gap-2 mt-2">
+                          <button
+                            type="button"
+                            onClick={copyFormatterOutput}
+                            className="px-3 py-1 text-xs bg-amber-600 text-white rounded hover:bg-amber-700"
+                          >
+                            {formatterCopied ? 'Copied!' : 'Copy to Clipboard'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={downloadFormatterOutput}
+                            className="px-3 py-1 text-xs bg-amber-700 text-white rounded hover:bg-amber-800"
+                          >
+                            Download .tess File
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
               
               <h4 className="font-semibold text-gray-900 mb-3">Submit Your Formatted Text</h4>
