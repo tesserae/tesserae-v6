@@ -6,7 +6,7 @@ const SOURCE_LINKS = {
   'DigilibLT': 'https://digiliblt.uniupo.it/',
   'Open Greek and Latin Project': 'https://opengreekandlatin.org/',
   'Musisque Deoque': 'http://www.mqdq.it/',
-  'Corpus Scriptorum Latinorum': 'http://www.forumromanum.org/literature/index.html',
+  'Corpus Scriptorum Latinorum': 'https://web.archive.org/web/20220305141011/http://www.forumromanum.org/literature/index.html',
 };
 
 function IntroLink({ name, url }) {
