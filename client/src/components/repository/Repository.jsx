@@ -131,7 +131,6 @@ export default function Repository({ user, isAdmin = false }) {
   const [editingScope, setEditingScope] = useState('saved');
   const [itemToDelete, setItemToDelete] = useState(null);
   const [deleteError, setDeleteError] = useState('');
-<<<<<<< HEAD
   // Holds the AbortController for the in-flight delete request so the
   // confirmation modal's Cancel actually cancels the request rather than
   // dismissing only the dialog while the DELETE continues server-side.
@@ -144,8 +143,6 @@ export default function Repository({ user, isAdmin = false }) {
     }
     setItemToDelete(null);
   };
-=======
->>>>>>> 992cf74 (fix: address copilot code review feedback on UI and analytics)
   const [newIntertext, setNewIntertext] = useState({
     source_locus: '',
     source_text: '',
@@ -388,11 +385,8 @@ export default function Repository({ user, isAdmin = false }) {
 
   const handleDeleteIntertext = async (id) => {
     setDeleteError('');
-<<<<<<< HEAD
     const controller = new AbortController();
     deleteAbortRef.current = controller;
-=======
->>>>>>> 992cf74 (fix: address copilot code review feedback on UI and analytics)
     try {
       const res = await fetch(`/api/intertexts/my/${id}`, {
         method: 'DELETE',
@@ -404,24 +398,17 @@ export default function Repository({ user, isAdmin = false }) {
       loadPublicIntertexts();
       setItemToDelete(null);
     } catch (err) {
-<<<<<<< HEAD
       if (err.name === 'AbortError') return; // user cancelled; no error UI
       setDeleteError('Delete failed. You may not have permission.');
     } finally {
       if (deleteAbortRef.current === controller) deleteAbortRef.current = null;
-=======
-      setDeleteError('Delete failed. You may not have permission.');
->>>>>>> 992cf74 (fix: address copilot code review feedback on UI and analytics)
     }
   };
 
   const handleDeletePublicIntertext = async (id) => {
     setDeleteError('');
-<<<<<<< HEAD
     const controller = new AbortController();
     deleteAbortRef.current = controller;
-=======
->>>>>>> 992cf74 (fix: address copilot code review feedback on UI and analytics)
     try {
       const res = await fetch(`/api/intertexts/${id}`, {
         method: 'DELETE',
@@ -433,14 +420,10 @@ export default function Repository({ user, isAdmin = false }) {
       loadPublicIntertexts();
       setItemToDelete(null);
     } catch (err) {
-<<<<<<< HEAD
       if (err.name === 'AbortError') return; // user cancelled; no error UI
       setDeleteError('Delete failed. You may not have permission.');
     } finally {
       if (deleteAbortRef.current === controller) deleteAbortRef.current = null;
-=======
-      setDeleteError('Delete failed. You may not have permission.');
->>>>>>> 992cf74 (fix: address copilot code review feedback on UI and analytics)
     }
   };
 
@@ -829,15 +812,11 @@ export default function Repository({ user, isAdmin = false }) {
                         {new Date(item.created_at).toLocaleDateString()}
                       </span>
                     )}
-<<<<<<< HEAD
                     {/* Flag button: any authenticated user may flag a confirmed item.
                         Unflag is admin-only on the backend, so we hide that variant
                         from non-admin viewers to avoid offering a button that would
                         return 403 on click. */}
                     {isPublicView && (item.status !== 'flagged' || isAdmin) && (
-=======
-                    {isPublicView && (
->>>>>>> 992cf74 (fix: address copilot code review feedback on UI and analytics)
                     <button
                       onClick={async () => {
                         try {
@@ -1181,21 +1160,13 @@ export default function Repository({ user, isAdmin = false }) {
       )}
 
       {itemToDelete && (
-<<<<<<< HEAD
         <Modal isOpen={!!itemToDelete} onClose={cancelInFlightDelete} title="Confirm Deletion">
-=======
-        <Modal isOpen={!!itemToDelete} onClose={() => setItemToDelete(null)} title="Confirm Deletion">
->>>>>>> 992cf74 (fix: address copilot code review feedback on UI and analytics)
           <div className="p-4">
             <p className="text-gray-700">Are you sure you want to delete this intertext? This action cannot be undone.</p>
             {deleteError && <div className="mt-4 text-sm text-red-600 bg-red-50 p-2 rounded">{deleteError}</div>}
             <div className="flex justify-end gap-3 mt-6">
               <button
-<<<<<<< HEAD
                 onClick={cancelInFlightDelete}
-=======
-                onClick={() => setItemToDelete(null)}
->>>>>>> 992cf74 (fix: address copilot code review feedback on UI and analytics)
                 className="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 text-sm"
               >
                 Cancel
