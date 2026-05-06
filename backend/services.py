@@ -52,7 +52,7 @@ def get_user_location():
             ip_obj = ipaddress.ip_address(ip_address)
             if ip_obj.is_private or ip_obj.is_loopback or ip_obj.is_reserved:
                 # Simulation mode: Use a default location for local testing so the map isn't empty
-                sim_location = ('Buffalo', 'US') # Tesserae project home
+                sim_location = ('Buffalo', 'United States') # Tesserae project home
                 _geo_cache[ip_address] = sim_location
                 return sim_location[0], sim_location[1], ip_address
         except ValueError:
@@ -64,7 +64,19 @@ def get_user_location():
             if response.status_code == 200:
                 data = response.json()
                 if not data.get('bogon'):
-                    loc = (data.get('city'), data.get('country'))
+                    country_code = data.get('country')
+                    
+                    # Common ISO to Full Name Mapping to ensure consistent analytics
+                    country_map = {
+                        'US': 'United States', 'GB': 'United Kingdom', 'DE': 'Germany',
+                        'FR': 'France', 'IT': 'Italy', 'ES': 'Spain', 'CA': 'Canada',
+                        'AU': 'Australia', 'NL': 'Netherlands', 'IN': 'India',
+                        'CN': 'China', 'JP': 'Japan', 'BR': 'Brazil', 'RU': 'Russia',
+                        'CH': 'Switzerland', 'SE': 'Sweden', 'GR': 'Greece', 'TR': 'Turkey'
+                    }
+                    country = country_map.get(country_code, country_code)
+                    
+                    loc = (data.get('city'), country)
                     _geo_cache[ip_address] = loc
                     return loc[0], loc[1], ip_address
         except Exception as e:
