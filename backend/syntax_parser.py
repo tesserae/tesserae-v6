@@ -8,6 +8,7 @@ import os
 import re
 import json
 import hashlib
+import sqlite3
 from collections import defaultdict
 
 DEPREL_CATEGORIES = {
@@ -502,6 +503,176 @@ class SyntaxMatcher:
             os.path.dirname(os.path.dirname(__file__)), 'data', 'treebanks'
         )
         self.stanza_parser = None
+        self._db_parse_cache = {}
+
+    def _get_syntax_db_path(self, language):
+        """Return the syntax DB path for a supported language, if any."""
+        base_dir = os.path.dirname(os.path.dirname(__file__))
+        if language == 'la':
+            return os.path.join(base_dir, 'data', 'inverted_index', 'syntax_latin.db')
+        if language == 'grc':
+            return os.path.join(base_dir, 'data', 'inverted_index', 'syntax_greek.db')
+        return None
+
+    def _load_db_syntax_for_text(self, db_path, text_filename):
+        """Load syntax parses for one text from the syntax DB."""
+        cache_key = (db_path, text_filename)
+        if cache_key in self._db_parse_cache:
+            return self._db_parse_cache[cache_key]
+
+        if not db_path or not os.path.exists(db_path):
+            return {}
+
+        try:
+            conn = sqlite3.connect(db_path, timeout=5)
+        except sqlite3.OperationalError:
+            uri = f"file:{db_path}?mode=ro&immutable=1"
+            conn = sqlite3.connect(uri, uri=True)
+
+        cur = conn.cursor()
+        try:
+            cur.execute("SELECT text_id FROM texts WHERE filename = ?", (text_filename,))
+        except sqlite3.OperationalError:
+            conn.close()
+            uri = f"file:{db_path}?mode=ro&immutable=1"
+            conn = sqlite3.connect(uri, uri=True)
+            cur = conn.cursor()
+            cur.execute("SELECT text_id FROM texts WHERE filename = ?", (text_filename,))
+
+        row = cur.fetchone()
+        if not row:
+            conn.close()
+            return {}
+
+        text_id = row[0]
+        cur.execute(
+            "SELECT ref, tokens, lemmas, upos, heads, deprels, feats "
+            "FROM syntax WHERE text_id = ?",
+            (text_id,),
+        )
+
+        parses = {}
+        for ref, tokens, lemmas, upos, heads, deprels, feats in cur.fetchall():
+            parses[ref] = {
+                'tokens': json.loads(tokens) if tokens else [],
+                'lemmas': json.loads(lemmas) if lemmas else [],
+                'upos': json.loads(upos) if upos else [],
+                'heads': json.loads(heads) if heads else [],
+                'deprels': json.loads(deprels) if deprels else [],
+                'feats': json.loads(feats) if feats else [],
+            }
+
+        conn.close()
+        self._db_parse_cache[cache_key] = parses
+        return parses
+
+    def _expand_ref_candidates(self, ref, line_refs=None):
+        """Expand a unit ref into candidate line refs for syntax DB lookup."""
+        candidates = []
+        if line_refs:
+            candidates.extend(r for r in line_refs if r)
+        if ref:
+            candidates.append(ref)
+            if '-' in ref:
+                left, right = ref.split('-', 1)
+                if left:
+                    candidates.append(left)
+                if right:
+                    candidates.append(right)
+
+        seen = set()
+        ordered = []
+        for candidate in candidates:
+            if candidate not in seen:
+                seen.add(candidate)
+                ordered.append(candidate)
+        return ordered
+
+    def _stringify_feats(self, feats):
+        """Convert DB-stored features into CoNLL-U-style feature strings."""
+        if isinstance(feats, dict):
+            if not feats:
+                return '_'
+            return '|'.join(f'{k}={v}' for k, v in sorted(feats.items()))
+        if isinstance(feats, list):
+            if not feats:
+                return '_'
+            if all(isinstance(item, str) for item in feats):
+                return '|'.join(item for item in feats if item) or '_'
+        if isinstance(feats, str):
+            return feats or '_'
+        return '_'
+
+    def _build_sentence_from_db_parse(self, ref, parse_data):
+        """Build a SyntaxSentence from one syntax DB row."""
+        tokens = parse_data.get('tokens', [])
+        lemmas = parse_data.get('lemmas', [])
+        upos = parse_data.get('upos', [])
+        heads = parse_data.get('heads', [])
+        deprels = parse_data.get('deprels', [])
+        feats_list = parse_data.get('feats', [])
+
+        syntax_tokens = []
+        for i, form in enumerate(tokens):
+            lemma = lemmas[i] if i < len(lemmas) else form
+            upos_tag = upos[i] if i < len(upos) else ''
+            head = heads[i] if i < len(heads) else 0
+            deprel = deprels[i] if i < len(deprels) else ''
+            feats = feats_list[i] if i < len(feats_list) else '_'
+            syntax_tokens.append(SyntaxToken(
+                id=i + 1,
+                form=form,
+                lemma=lemma,
+                upos=upos_tag,
+                xpos='_',
+                feats=self._stringify_feats(feats),
+                head=head,
+                deprel=deprel,
+                deps='_',
+                misc='_',
+            ))
+
+        return SyntaxSentence(ref, ' '.join(tokens), syntax_tokens)
+
+    def get_syntax_score_by_ref(self, source_id, source_ref, target_id, target_ref,
+                                language, matched_lemmas=None,
+                                source_line_refs=None, target_line_refs=None):
+        """Get syntax similarity from syntax DB rows using text filename + line refs."""
+        db_path = self._get_syntax_db_path(language)
+        if not db_path:
+            return 0.0, None, None, False
+
+        source_parses = self._load_db_syntax_for_text(db_path, source_id)
+        target_parses = self._load_db_syntax_for_text(db_path, target_id)
+        if not source_parses or not target_parses:
+            return 0.0, None, None, False
+
+        source_candidates = [
+            ref for ref in self._expand_ref_candidates(source_ref, source_line_refs)
+            if ref in source_parses
+        ]
+        target_candidates = [
+            ref for ref in self._expand_ref_candidates(target_ref, target_line_refs)
+            if ref in target_parses
+        ]
+        if not source_candidates or not target_candidates:
+            return 0.0, None, None, False
+
+        best_score = 0.0
+        best_source = None
+        best_target = None
+
+        for src_candidate in source_candidates:
+            src_sent = self._build_sentence_from_db_parse(src_candidate, source_parses[src_candidate])
+            for tgt_candidate in target_candidates:
+                tgt_sent = self._build_sentence_from_db_parse(tgt_candidate, target_parses[tgt_candidate])
+                score = compute_syntax_similarity(src_sent, tgt_sent, matched_lemmas)
+                if score > best_score:
+                    best_score = score
+                    best_source = src_sent
+                    best_target = tgt_sent
+
+        return best_score, best_source, best_target, True
         
     def load_treebanks(self):
         """Load all UD treebank .conllu files for Latin, Greek, and English into the index."""
