@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LoadingSpinner } from '../common';
 import StatsTab from './tabs/StatsTab';
 import FeedbackTab from './tabs/FeedbackTab';
@@ -12,6 +12,7 @@ import RequestsTab from './tabs/RequestsTab';
 import UsersTab from './tabs/UsersTab';
 import GenreClassificationTab from './tabs/GenreClassificationTab';
 import DictionaryReviewTab from './tabs/DictionaryReviewTab';
+import Repository from '../repository/Repository';
 
 const normalizeRole = (role) => (role || '').toString().trim().toUpperCase();
 
@@ -41,6 +42,34 @@ export default function AdminPanel() {
   const [cacheInfo, setCacheInfo] = useState(null);
   const [loadError, setLoadError] = useState(null);
   const [bigramStats, setBigramStats] = useState({});
+
+  // Re-hydrate admin session on page refresh so user doesn't have to log in again
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const meRes = await fetch('/api/admin/me', { credentials: 'include' });
+        if (meRes.ok) {
+          const meData = await meRes.json();
+          const meRoles = Array.isArray(meData.roles)
+            ? meData.roles.map(normalizeRole).filter(Boolean)
+            : [];
+          if (meRoles.length > 0) {
+            setIsAuthenticated(true);
+            setAdminRoles(meRoles);
+            setAdminUserId(meData.user_id || null);
+            setMustResetPassword(Boolean(meData.must_reset_password));
+            window.dispatchEvent(new Event('admin-auth-changed'));
+            if (!meData.must_reset_password) {
+              loadAdminData();
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Session check failed', err);
+      }
+    };
+    checkSession();
+  }, []);
 
   const handleLogin = async () => {
     setAuthError('');
@@ -330,7 +359,7 @@ export default function AdminPanel() {
         <div className="bg-white rounded-lg shadow">
           <div className="border-b">
             <nav className="flex overflow-x-auto">
-              {['requests', 'feedback', 'users', 'sources', 'metadata', 'dictionary', 'cache', 'stats', 'analytics', 'audit', 'settings', 'genres'].map(tab => (
+              {['requests', 'feedback', 'users', 'sources', 'metadata', 'dictionary', 'cache', 'stats', 'analytics', 'audit', 'repository', 'settings', 'genres'].map(tab => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -350,7 +379,8 @@ export default function AdminPanel() {
                    tab === 'cache' ? 'Cache' :
                    tab === 'stats' ? 'Stats' :
                    tab === 'analytics' ? 'Analytics' :
-                   tab === 'audit' ? 'Audit' : 'Settings'}
+                   tab === 'audit' ? 'Audit' :
+                   tab === 'repository' ? 'Repository' : 'Settings'}
                 </button>
               ))}
             </nav>
@@ -414,6 +444,15 @@ export default function AdminPanel() {
 
             {activeTab === 'audit' && (
               <AuditTab authHeaders={{}} />
+            )}
+
+            {activeTab === 'repository' && (
+              <div className="p-4 bg-gray-50 min-h-[600px] rounded-lg">
+                <Repository
+                  user={{ id: adminUserId, role: adminRoles.includes('SUPER_ADMIN') ? 'SUPER_ADMIN' : 'ADMIN' }}
+                  isAdmin={true}
+                />
+              </div>
             )}
 
             {activeTab === 'settings' && (

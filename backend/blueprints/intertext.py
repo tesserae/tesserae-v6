@@ -2,7 +2,7 @@
 Intertext Repository Blueprint
 Handles saving, browsing, and exporting registered intertexts.
 """
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, session
 from flask_login import current_user
 from datetime import datetime
 import json
@@ -316,22 +316,48 @@ def update_intertext(intertext_id):
 
 @intertext_bp.route('/<int:intertext_id>', methods=['PATCH'])
 def flag_intertext(intertext_id):
-    """Flag an intertext for review - anyone can flag"""
+    """Flag/unflag an intertext - requires authentication.
+    Flagging: any logged-in user.
+    Unflagging (confirmed/pending): admins only."""
     try:
+        # Require authentication for all flag operations
+        user_id = current_user.id if current_user.is_authenticated else session.get('admin_user_id')
+        if not user_id:
+            return jsonify({'error': 'Login required to flag intertexts'}), 401
+
         it = Intertext.query.get(intertext_id)
         if not it:
             return jsonify({'error': 'Intertext not found'}), 404
-        
+
         data = request.get_json()
         if not data or not isinstance(data, dict):
             return jsonify({'error': 'Invalid request body'}), 400
-            
-        if data.get('status') == 'flagged':
+
+        new_status = data.get('status')
+        if new_status == 'flagged':
+            # Any authenticated user can flag
             it.status = 'flagged'
             db.session.commit()
             return jsonify({'success': True})
+        elif new_status in ('confirmed', 'pending'):
+            # Only admins can unflag
+            admin_roles = session.get('admin_roles', [])
+            is_admin = ('ADMIN' in admin_roles or 'SUPER_ADMIN' in admin_roles)
+            if not is_admin and current_user.is_authenticated:
+                from sqlalchemy import text as sql_text
+                result = db.session.execute(
+                    sql_text("SELECT r.name FROM roles r JOIN user_roles ur ON ur.role_id = r.id WHERE ur.user_id = :uid"),
+                    {'uid': current_user.id}
+                )
+                roles = [row[0] for row in result.fetchall()]
+                is_admin = 'ADMIN' in roles or 'SUPER_ADMIN' in roles
+            if not is_admin:
+                return jsonify({'error': 'Only admins can unflag intertexts'}), 403
+            it.status = new_status
+            db.session.commit()
+            return jsonify({'success': True})
         else:
-            return jsonify({'error': 'Invalid status - only flagged is allowed'}), 400
+            return jsonify({'error': 'Invalid status - must be flagged, confirmed, or pending'}), 400
     except Exception as e:
         db.session.rollback()
         logger.error(f"Failed to flag intertext: {e}")
@@ -342,15 +368,27 @@ def flag_intertext(intertext_id):
 def delete_intertext(intertext_id):
     """Delete an intertext - requires authentication and ownership"""
     try:
-        if not current_user.is_authenticated:
+        user_id = current_user.id if current_user.is_authenticated else session.get('admin_user_id')
+        if not user_id:
             return jsonify({'error': 'Login required to delete intertexts'}), 401
         
         it = Intertext.query.get(intertext_id)
         if not it:
             return jsonify({'error': 'Intertext not found'}), 404
         
-        if it.submitter_id != current_user.id:
-            return jsonify({'error': 'Only the submitter can delete this intertext'}), 403
+        admin_roles = session.get('admin_roles', [])
+        is_admin = ('ADMIN' in admin_roles or 'SUPER_ADMIN' in admin_roles)
+        if not is_admin and current_user.is_authenticated:
+            from sqlalchemy import text
+            result = db.session.execute(
+                text("SELECT r.name FROM roles r JOIN user_roles ur ON ur.role_id = r.id WHERE ur.user_id = :uid"),
+                {'uid': current_user.id}
+            )
+            roles = [row[0] for row in result.fetchall()]
+            is_admin = 'ADMIN' in roles or 'SUPER_ADMIN' in roles
+        
+        if str(it.submitter_id) != str(user_id) and not is_admin:
+            return jsonify({'error': 'Only the submitter or an admin can delete this intertext'}), 403
 
         for saved_copy in list(it.saved_copies):
             saved_copy.shared_to_public = False

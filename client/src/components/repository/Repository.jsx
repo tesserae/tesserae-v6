@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { LoadingSpinner, Modal } from '../common';
 
 /**
@@ -117,7 +117,7 @@ function normalizeRepositoryItem(item, { publicEntry = false } = {}) {
   };
 }
 
-export default function Repository({ user }) {
+export default function Repository({ user, isAdmin = false }) {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState({ language: 'all', status: 'all' });
   const [sortBy, setSortBy] = useState('created_at');
@@ -129,6 +129,20 @@ export default function Repository({ user }) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [editingScope, setEditingScope] = useState('saved');
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [deleteError, setDeleteError] = useState('');
+  // Holds the AbortController for the in-flight delete request so the
+  // confirmation modal's Cancel actually cancels the request rather than
+  // dismissing only the dialog while the DELETE continues server-side.
+  const deleteAbortRef = useRef(null);
+
+  const cancelInFlightDelete = () => {
+    if (deleteAbortRef.current) {
+      try { deleteAbortRef.current.abort(); } catch (_e) { /* noop */ }
+      deleteAbortRef.current = null;
+    }
+    setItemToDelete(null);
+  };
   const [newIntertext, setNewIntertext] = useState({
     source_locus: '',
     source_text: '',
@@ -185,7 +199,7 @@ export default function Repository({ user }) {
   const loadPublicIntertexts = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/intertexts');
+      const res = await fetch('/api/intertexts', { credentials: 'include' });
       if (!res.ok) {
         throw new Error('Failed to load public repository');
       }
@@ -203,7 +217,7 @@ export default function Repository({ user }) {
   const loadMyIntertexts = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/intertexts/my');
+      const res = await fetch('/api/intertexts/my', { credentials: 'include' });
       if (!res.ok) {
         throw new Error('Failed to load repository');
       }
@@ -270,6 +284,7 @@ export default function Repository({ user }) {
       const res = await fetch('/api/intertexts/my', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(payload)
       });
       if (!res.ok) throw new Error('Failed to add intertext');
@@ -300,6 +315,7 @@ export default function Repository({ user }) {
       const res = await fetch(`/api/intertexts/my/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(payload)
       });
       if (!res.ok) throw new Error('Failed to update');
@@ -323,6 +339,7 @@ export default function Repository({ user }) {
       const res = await fetch(`/api/intertexts/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(payload)
       });
       if (!res.ok) throw new Error('Failed to update');
@@ -367,26 +384,46 @@ export default function Repository({ user }) {
   };
 
   const handleDeleteIntertext = async (id) => {
-    if (!confirm('Delete this intertext?')) return;
+    setDeleteError('');
+    const controller = new AbortController();
+    deleteAbortRef.current = controller;
     try {
-      const res = await fetch(`/api/intertexts/my/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/intertexts/my/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        signal: controller.signal,
+      });
       if (!res.ok) throw new Error('Failed to delete');
       loadMyIntertexts();
       loadPublicIntertexts();
+      setItemToDelete(null);
     } catch (err) {
-      alert('Delete failed');
+      if (err.name === 'AbortError') return; // user cancelled; no error UI
+      setDeleteError('Delete failed. You may not have permission.');
+    } finally {
+      if (deleteAbortRef.current === controller) deleteAbortRef.current = null;
     }
   };
 
   const handleDeletePublicIntertext = async (id) => {
-    if (!confirm('Delete this public intertext?')) return;
+    setDeleteError('');
+    const controller = new AbortController();
+    deleteAbortRef.current = controller;
     try {
-      const res = await fetch(`/api/intertexts/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/intertexts/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        signal: controller.signal,
+      });
       if (!res.ok) throw new Error('Failed to delete');
       loadMyIntertexts();
       loadPublicIntertexts();
+      setItemToDelete(null);
     } catch (err) {
-      alert('Delete failed');
+      if (err.name === 'AbortError') return; // user cancelled; no error UI
+      setDeleteError('Delete failed. You may not have permission.');
+    } finally {
+      if (deleteAbortRef.current === controller) deleteAbortRef.current = null;
     }
   };
 
@@ -680,26 +717,26 @@ export default function Repository({ user }) {
                                         {item.scholar_score > 0 && (
                                           <span className="text-xs text-amber-600">{'★'.repeat(item.scholar_score)}</span>
                                         )}
+                                        {(item.submitter?.name || item.submitter?.orcid || item.contributor_name) && (
+                                          <span className="text-xs text-gray-500 border-l border-gray-300 pl-2 ml-1">
+                                            Added by {item.submitter?.name && item.submitter?.orcid 
+                                              ? `${item.submitter.name}`
+                                              : item.submitter?.name || item.contributor_name || 'Anonymous'}
+                                          </span>
+                                        )}
                                       </div>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
                                       <div className="bg-gray-50 p-2 rounded">
                                         <div className="text-xs text-red-600 font-medium mb-1">{formatCitation(item.source?.author, item.source?.work, item.source?.reference || item.source_locus)}</div>
-                                        <div className="text-gray-700">{highlightMatchedWords(item.source_text || item.source?.snippet || '', getFormsForItem(item), item.language || item.source?.language || 'la')}</div>
+                                        <div className="text-gray-700 max-h-32 overflow-y-auto">{highlightMatchedWords(item.source_text || item.source?.snippet || '', getFormsForItem(item), item.language || item.source?.language || 'la')}</div>
                                       </div>
                                       <div className="bg-gray-50 p-2 rounded">
                                         <div className="text-xs text-amber-600 font-medium mb-1">{formatCitation(item.target?.author, item.target?.work, item.target?.reference || item.target_locus)}</div>
-                                        <div className="text-gray-700">{highlightMatchedWords(item.target_text || item.target?.snippet || '', getFormsForItem(item), item.language || item.target?.language || 'la')}</div>
+                                        <div className="text-gray-700 max-h-32 overflow-y-auto">{highlightMatchedWords(item.target_text || item.target?.snippet || '', getFormsForItem(item), item.language || item.target?.language || 'la')}</div>
                                       </div>
                                     </div>
                                     {item.notes && <div className="mt-2 text-xs text-gray-500 italic">{item.notes}</div>}
-                                    {(item.submitter?.name || item.submitter?.orcid) && (
-                                      <div className="mt-1 text-xs text-gray-400">
-                                        Added by {item.submitter?.name && item.submitter?.orcid 
-                                          ? `${item.submitter.name} (ORCID: ${item.submitter.orcid})`
-                                          : item.submitter?.name || `ORCID: ${item.submitter.orcid}`}
-                                      </div>
-                                    )}
                                   </div>
                                 ))}
                               </div>
@@ -720,7 +757,7 @@ export default function Repository({ user }) {
             {sortedIntertexts.slice(0, displayLimit).map((item, i) => (
               <div key={item.id || i} className="p-4 hover:bg-gray-50">
                 {(() => {
-                  const canDeletePublicItem = isPublicView && user && item.submitter_id && String(item.submitter_id) === String(user.id);
+                  const canDeletePublicItem = isPublicView && user && (isAdmin || (item.submitter_id && String(item.submitter_id) === String(user.id)));
                   const canEditPublicItem = canDeletePublicItem;
                   const canEditSavedItem = viewMode === 'my' && user;
                   return (
@@ -747,6 +784,13 @@ export default function Repository({ user }) {
                       {item.scholar_score > 0 && (
                         <StarRating value={item.scholar_score} readOnly />
                       )}
+                      {(item.submitter?.name || item.submitter?.orcid || item.contributor_name) && (
+                        <span className="text-xs text-gray-500 border-l border-gray-300 pl-2 ml-1 flex items-center">
+                          Added by {item.submitter?.name && item.submitter?.orcid 
+                            ? `${item.submitter.name}`
+                            : item.submitter?.name || item.contributor_name || 'Anonymous'}
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -754,6 +798,34 @@ export default function Repository({ user }) {
                       <span className="text-xs text-gray-400">
                         {new Date(item.created_at).toLocaleDateString()}
                       </span>
+                    )}
+                    {/* Flag button: any authenticated user may flag a confirmed item.
+                        Unflag is admin-only on the backend, so we hide that variant
+                        from non-admin viewers to avoid offering a button that would
+                        return 403 on click. */}
+                    {isPublicView && (item.status !== 'flagged' || isAdmin) && (
+                    <button
+                      onClick={async () => {
+                        try {
+                          const newStatus = item.status === 'flagged' ? 'confirmed' : 'flagged';
+                          const res = await fetch(`/api/intertexts/${item.id}`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ status: newStatus })
+                          });
+                          if (res.ok) loadPublicIntertexts();
+                        } catch (err) { console.error('Flag failed:', err); }
+                      }}
+                      className={`text-xs px-2 py-1 rounded ${
+                        item.status === 'flagged'
+                          ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+                          : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                      }`}
+                      title={item.status === 'flagged' ? 'Remove flag' : 'Flag as problematic'}
+                    >
+                      {item.status === 'flagged' ? '⚑ Unflag' : '⚐ Flag'}
+                    </button>
                     )}
                     {canEditSavedItem && (
                       <div className="flex gap-1">
@@ -764,7 +836,7 @@ export default function Repository({ user }) {
                           Edit
                         </button>
                         <button
-                          onClick={() => handleDeleteIntertext(item.id)}
+                          onClick={() => { setDeleteError(''); setItemToDelete({ id: item.id, type: 'saved' }); }}
                           className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200"
                         >
                           Delete
@@ -781,7 +853,7 @@ export default function Repository({ user }) {
                     )}
                     {canDeletePublicItem && (
                       <button
-                        onClick={() => handleDeletePublicIntertext(item.id)}
+                        onClick={() => { setDeleteError(''); setItemToDelete({ id: item.id, type: 'public' }); }}
                         className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200"
                       >
                         Delete
@@ -796,7 +868,7 @@ export default function Repository({ user }) {
                     <div className="text-xs text-red-600 mb-1 font-medium">
                       {formatCitation(item.source?.author, item.source?.work, item.source?.reference || item.source_locus)}
                     </div>
-                    <div className="text-sm text-gray-700">
+                    <div className="text-sm text-gray-700 max-h-32 overflow-y-auto">
                       {highlightMatchedWords(
                         item.source?.snippet || item.source_text || '',
                         getFormsForItem(item),
@@ -808,7 +880,7 @@ export default function Repository({ user }) {
                     <div className="text-xs text-amber-600 mb-1 font-medium">
                       {formatCitation(item.target?.author, item.target?.work, item.target?.reference || item.target_locus)}
                     </div>
-                    <div className="text-sm text-gray-700">
+                    <div className="text-sm text-gray-700 max-h-32 overflow-y-auto">
                       {highlightMatchedWords(
                         item.target?.snippet || item.target_text || '',
                         getFormsForItem(item),
@@ -820,13 +892,6 @@ export default function Repository({ user }) {
                 {item.notes && (
                   <div className="mt-2 text-sm text-gray-600 italic">
                     Note: {item.notes}
-                  </div>
-                )}
-                {(item.submitter?.name || item.submitter?.orcid || item.contributor_name) && (
-                  <div className="mt-1 text-xs text-gray-400">
-                    Added by {item.submitter?.name && item.submitter?.orcid 
-                      ? `${item.submitter.name} (ORCID: ${item.submitter.orcid})`
-                      : item.submitter?.name || item.contributor_name || (item.submitter?.orcid ? `ORCID: ${item.submitter.orcid}` : 'Anonymous')}
                   </div>
                 )}
               </div>
@@ -1062,6 +1127,29 @@ export default function Repository({ user }) {
                 className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Save Changes
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {itemToDelete && (
+        <Modal isOpen={!!itemToDelete} onClose={cancelInFlightDelete} title="Confirm Deletion">
+          <div className="p-4">
+            <p className="text-gray-700">Are you sure you want to delete this intertext? This action cannot be undone.</p>
+            {deleteError && <div className="mt-4 text-sm text-red-600 bg-red-50 p-2 rounded">{deleteError}</div>}
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={cancelInFlightDelete}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => itemToDelete.type === 'public' ? handleDeletePublicIntertext(itemToDelete.id) : handleDeleteIntertext(itemToDelete.id)}
+                className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800 text-sm"
+              >
+                Confirm Delete
               </button>
             </div>
           </div>
