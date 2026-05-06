@@ -307,8 +307,6 @@ def init_db():
             
             # ... (rest of the init code) ...
             
-    # In get_analytics route:
-    # unique_users = cur.execute("SELECT COUNT(DISTINCT COALESCE(user_id, client_ip)) FROM search_logs")
             cur.execute('''
                 CREATE INDEX IF NOT EXISTS idx_search_logs_created_at ON search_logs(created_at)
             ''')
