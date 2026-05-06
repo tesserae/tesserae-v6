@@ -118,8 +118,24 @@ def _normalize_language_code(value):
 
 def check_admin_auth():
     """Check admin authentication via session"""
+    admin_user_id = session.get('admin_user_id')
+    if not admin_user_id:
+        return False
+        
     roles = [_normalize_role_name(r) for r in (session.get('admin_roles') or [])]
-    return bool(session.get('admin_user_id')) and any(role in ('ADMIN', 'SUPER_ADMIN') for role in roles)
+    if not any(role in ('ADMIN', 'SUPER_ADMIN') for role in roles):
+        return False
+        
+    try:
+        user = User.query.get(admin_user_id)
+        if not user or (user.session_version or 1) != session.get('admin_session_version', 1):
+            session.clear()
+            return False
+    except Exception as e:
+        logger.error(f"Failed to validate admin session version: {e}")
+        return False
+        
+    return True
 
 
 def _load_admin_roles(user_id):
@@ -277,6 +293,7 @@ def admin_login():
     session['admin_user_id'] = user.id
     session['admin_email'] = user.email
     session['admin_roles'] = roles
+    session['admin_session_version'] = user.session_version
     session.permanent = True
 
     try:
@@ -646,6 +663,7 @@ def update_user_roles(user_id):
                     """,
                     (user_id, role_id, get_admin_username()),
                 )
+                cur.execute("UPDATE users SET session_version = session_version + 1 WHERE id = %s", (user_id,))
                 log_admin_action('role_added', 'user', user_id, {'role': role_name})
                 return jsonify({'success': True, 'message': f'{role_name} added'})
 
@@ -659,6 +677,7 @@ def update_user_roles(user_id):
                 """,
                 (user_id, role_id),
             )
+            cur.execute("UPDATE users SET session_version = session_version + 1 WHERE id = %s", (user_id,))
             log_admin_action('role_removed', 'user', user_id, {'role': role_name})
             return jsonify({'success': True, 'message': f'{role_name} removed'})
     except Exception as e:
