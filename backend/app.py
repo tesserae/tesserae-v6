@@ -274,6 +274,8 @@ def init_db():
             cur.execute('''
                 ALTER TABLE feedback ADD COLUMN IF NOT EXISTS responded_at TIMESTAMP
             ''')
+            # Migration for users table to track session versions (Issue #86)
+            cur.execute('ALTER TABLE users ADD COLUMN IF NOT EXISTS session_version INTEGER DEFAULT 1')
             cur.execute('''
                 CREATE TABLE IF NOT EXISTS settings (
                     key VARCHAR(255) PRIMARY KEY,
