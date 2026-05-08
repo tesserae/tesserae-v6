@@ -341,6 +341,8 @@ class FeatureExtractor:
         tgt_text = target_unit.get('text', '')
         src_ref = source_unit.get('ref', '')
         tgt_ref = target_unit.get('ref', '')
+        src_line_refs = source_unit.get('line_refs')
+        tgt_line_refs = target_unit.get('line_refs')
         
         if not src_text or not tgt_text:
             return 0.0, None, None
@@ -350,7 +352,8 @@ class FeatureExtractor:
         # Try syntax_latin.db first when we have (filename, ref) for Latin
         if source_id and target_id and src_ref and tgt_ref and language == 'la':
             score, src_sent, tgt_sent, from_db = syntax_matcher.get_syntax_score_by_ref(
-                source_id, src_ref, target_id, tgt_ref, language, matched_lemmas
+                source_id, src_ref, target_id, tgt_ref, language, matched_lemmas,
+                source_line_refs=src_line_refs, target_line_refs=tgt_line_refs
             )
             if from_db:
                 # Build info dicts for response
