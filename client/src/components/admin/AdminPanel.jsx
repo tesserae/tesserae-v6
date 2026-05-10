@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { LoadingSpinner } from '../common';
 import StatsTab from './tabs/StatsTab';
 import FeedbackTab from './tabs/FeedbackTab';
@@ -72,25 +72,8 @@ export default function AdminPanel() {
     checkSession();
   }, []);
 
-  useEffect(() => {
-    let interval;
-    if (isAuthenticated && !mustResetPassword && activeTab === 'analytics') {
-      interval = setInterval(async () => {
-        try {
-          const res = await fetch('/api/admin/analytics', { credentials: 'include' });
-          if (res.ok) {
-            const data = await res.json();
-            setAnalytics(data);
-          }
-        } catch (err) {
-          console.error('Failed to poll analytics:', err);
-        }
-      }, 5000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isAuthenticated, mustResetPassword, activeTab]);
+
+
 
   const handleLogin = async () => {
     setAuthError('');

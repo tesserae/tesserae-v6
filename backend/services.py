@@ -2,6 +2,7 @@
 Services Module
 Extracted helper functions for analytics, geolocation, and request processing
 """
+import os
 import ipaddress
 import requests as http_requests
 from flask import request
@@ -51,10 +52,12 @@ def get_user_location():
         try:
             ip_obj = ipaddress.ip_address(ip_address)
             if ip_obj.is_private or ip_obj.is_loopback or ip_obj.is_reserved:
-                # Simulation mode: Use a default location for local testing so the map isn't empty
-                sim_location = ('Buffalo', 'United States') # Tesserae project home
-                _geo_cache[ip_address] = sim_location
-                return sim_location[0], sim_location[1], ip_address
+                if os.environ.get('TESSERAE_GEO_SIMULATE'):
+                    # Simulation mode: Use a default location for local testing so the map isn't empty
+                    sim_location = ('Buffalo', 'United States')  # Tesserae project home
+                    _geo_cache[ip_address] = sim_location
+                    return sim_location[0], sim_location[1], ip_address
+                return None, None, ip_address
         except ValueError:
             return None, None, ip_address
 

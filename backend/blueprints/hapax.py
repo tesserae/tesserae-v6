@@ -1705,7 +1705,7 @@ def hapax_search():
         results.sort(key=lambda x: (x['corpus_count'], x['lemma']))
 
         req_user_id = current_user.id if current_user and current_user.is_authenticated else None
-        req_city, req_country = get_user_location()
+        req_city, req_country, _ip = get_user_location()
         log_search('Rare Words', language, source_id, target_id, None,
                    'rare_words', len(results), False, req_user_id, req_city, req_country)
 
@@ -1942,7 +1942,7 @@ def rare_bigram_search():
         results = results[:limit]
         
         req_user_id = current_user.id if current_user and current_user.is_authenticated else None
-        req_city, req_country = get_user_location()
+        req_city, req_country, _ip = get_user_location()
         log_search('Rare Pairs', language, source_id, target_id, None,
                    'rare_pairs', len(results), False, req_user_id, req_city, req_country)
 

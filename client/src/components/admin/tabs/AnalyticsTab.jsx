@@ -33,27 +33,96 @@ const AnalyticsTab = () => {
     };
 
     fetchAnalytics();
-    const interval = setInterval(fetchAnalytics, 5000);
+    const interval = setInterval(fetchAnalytics, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  const LANG_NAMES = { la: 'Latin', grc: 'Greek', en: 'English' };
 
   const exportToCSV = () => {
     if (!data) return;
     
-    let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "Metric,Value\n";
-    csvContent += `Total Searches,${data.total_searches}\n`;
-    csvContent += `Distinct Queries,${data.distinct_searches}\n`;
-    csvContent += `Unique Visitors,${data.unique_users}\n`;
-    csvContent += `Searches Today,${data.searches_today}\n`;
-    
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `tesserae_analytics_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const lines = [];
+    const today = new Date().toISOString().split('T')[0];
+
+    lines.push('TESSERAE V6 — USER ANALYTICS EXPORT');
+    lines.push(`Exported: ${today}`);
+    lines.push('');
+
+    lines.push('SUMMARY');
+    lines.push('Metric,Value');
+    lines.push(`Total Searches,${data.total_searches || 0}`);
+    lines.push(`Distinct Queries,${data.distinct_searches || 0}`);
+    lines.push(`Unique Users,${data.unique_users || 'N/A'}`);
+    const todayCount = data.per_day?.find(d => d.date === today)?.count || data.searches_today || 0;
+    lines.push(`Searches Today,${todayCount}`);
+    lines.push(`Cache Hits,${data.cache_hits || 0}`);
+    lines.push(`Cache Misses,${data.cache_misses || 0}`);
+    lines.push('');
+
+    if (data.by_type?.length) {
+      lines.push('SEARCHES BY TYPE');
+      lines.push('Type,Count');
+      data.by_type.forEach(item => lines.push(`${item.type},${item.count}`));
+      lines.push('');
+    }
+
+    if (data.by_language?.length) {
+      lines.push('SEARCHES BY LANGUAGE');
+      lines.push('Language,Count');
+      data.by_language.forEach(item =>
+        lines.push(`${LANG_NAMES[item.language] || item.language},${item.count}`)
+      );
+      lines.push('');
+    }
+
+    if (data.top_sources?.length) {
+      lines.push('TOP SOURCE TEXTS');
+      lines.push('Text,Count');
+      data.top_sources.forEach(item =>
+        lines.push(`"${item.text.replace(/"/g, '""')}",${item.count}`)
+      );
+      lines.push('');
+    }
+
+    if (data.top_targets?.length) {
+      lines.push('TOP TARGET TEXTS');
+      lines.push('Text,Count');
+      data.top_targets.forEach(item =>
+        lines.push(`"${item.text.replace(/"/g, '""')}",${item.count}`)
+      );
+      lines.push('');
+    }
+
+    if (data.per_day?.length) {
+      lines.push('DAILY SEARCH ACTIVITY');
+      lines.push('Date,Count');
+      data.per_day.forEach(item => lines.push(`${item.date},${item.count}`));
+      lines.push('');
+    }
+
+    if (data.top_countries?.length) {
+      lines.push('TOP COUNTRIES');
+      lines.push('Country,Count');
+      data.top_countries.forEach(item => lines.push(`${item.country},${item.count}`));
+      lines.push('');
+    }
+
+    if (data.top_cities?.length) {
+      lines.push('TOP CITIES');
+      lines.push('City,Country,Count');
+      data.top_cities.forEach(item =>
+        lines.push(`"${item.city}","${item.country || ''}",${item.count}`)
+      );
+    }
+
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `tesserae_analytics_${today}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   if (loading) return (

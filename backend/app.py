@@ -1116,7 +1116,7 @@ def search():
             max_results = settings.get('max_results', 0)
             display_results = cached_results[:max_results] if max_results > 0 else cached_results
             user_id = current_user.id if current_user and current_user.is_authenticated else None
-            city, country = get_user_location()
+            city, country, _ip = get_user_location()
             match_type_raw = settings.get('match_type', 'lemma')
             match_labels = {
                 'lemma': 'Dictionary Form (Lemma)', 'exact': 'Exact Match',
@@ -1187,7 +1187,7 @@ def search():
         display_results = scored_results[:max_results] if max_results > 0 else scored_results
         
         user_id = current_user.id if current_user and current_user.is_authenticated else None
-        city, country = get_user_location()
+        city, country, _ip = get_user_location()
         match_type_raw = settings.get('match_type', 'lemma')
         match_labels = {
             'lemma': 'Dictionary Form (Lemma)', 'exact': 'Exact Match',
@@ -2022,7 +2022,7 @@ def line_search_parallel():
         final_results = all_results[:max_results] if max_results > 0 else all_results
         
         user_id = current_user.id if current_user and current_user.is_authenticated else None
-        city, country = get_user_location()
+        city, country, _ip = get_user_location()
         log_search('Line Search', language, source_text_id, None, line_text,
                   match_type, len(all_results), False, user_id, city, country)
         
@@ -2870,4 +2870,4 @@ def create_app():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
