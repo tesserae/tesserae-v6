@@ -42,7 +42,11 @@ def get_cache_path(text_id, language):
     text ID keeps filenames stable across NFC/NFD variants and avoids Unicode
     encode errors for Greek work IDs.
     """
-    normalized_id = unicodedata.normalize('NFC', text_id)
+    # Round-trip any surrogate escapes (from ASCII-locale fs decoding) back
+    # to clean Unicode via UTF-8 so the hash is stable whether the caller
+    # passes a JSON-decoded text_id or os.path.basename of a surrogate path.
+    cleaned_id = text_id.encode('utf-8', errors='surrogateescape').decode('utf-8', errors='replace')
+    normalized_id = unicodedata.normalize('NFC', cleaned_id)
     stem = normalized_id.replace('/', '_').replace('.tess', '')
     digest = hashlib.md5(normalized_id.encode('utf-8')).hexdigest()
 
