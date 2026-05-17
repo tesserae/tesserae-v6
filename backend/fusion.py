@@ -179,20 +179,53 @@ WEIGHT_PROFILES = {
     # Best-composite result from Phase 9 optimization (iter 16, seed 314).
     # 50-iter biblical-bias search over log-uniform [0.1×, 10×]; semantic and
     # quotation channels included as tunables. Objective: R@100 against the
-    # broad TSK 124-pair gold set; verified against the 29-pair verbatim gold
-    # set with 25/29 (86%) recall at top 50, 27/29 (93%) at top 1,000.
+    # broad TSK 124-pair benchmark; verified against the 29-pair verbatim
+    # benchmark with 26/29 (90%) recall at top 50, 28/29 (97%) at top 1,000.
+    # This profile is the default for Coptic. It is the profile under which
+    # the parallels presently being reviewed by Becky Krawiec were generated,
+    # so the weights here are frozen until that review is complete.
     "biblical_coptic": {
         "edit_distance":     0.795,
-        "sound":            24.277,    # cranked from baseline 5.0 — phonetic surface dominates
+        "sound":            24.277,    # cranked from baseline 5.0, phonetic surface dominates
         "exact":             0.698,
         "lemma":             0.320,    # reduced from baseline 2.0
         "dictionary":        0.123,
-        "semantic":         11.216,    # cranked from baseline 1.0 — multilingual_e5 carries paraphrase
+        "semantic":         11.216,    # cranked from baseline 1.0, multilingual_e5 carries paraphrase
         "rare_word":         0.550,    # reduced from baseline 7.0
         "syntax":            0.102,
         "syntax_structural": 0.081,
         "lemma_min1":        0.088,
-        "quotation":        35.052,    # cranked from baseline 0.0 — verbatim runs dominate
+        "quotation":        35.052,    # cranked from baseline 0.0, verbatim runs dominate
+    },
+
+    # Experimental profile, 2026-05-17. Designed to surface paraphrase and
+    # thematic intertexts that biblical_coptic suppresses. Compared with
+    # biblical_coptic, this profile raises the semantic and dictionary
+    # (Coptic Wordnet) channels, raises the lemma channel, lowers the
+    # quotation channel weight (so verbatim runs do not dominate the
+    # ranking), and lowers the sound channel weight (phonetic overlap is
+    # less useful for paraphrase). The single-word penalty is unchanged at
+    # the global level; biblical-prose thematic recovery requires the rarity
+    # multiplier to be softer, but tuning that lives elsewhere (see the
+    # SINGLE_WORD_PENALTY constant).
+    #
+    # Starting weights below are an unoptimized first guess. A proper
+    # optimization run targeting the thematic-tail TSK cases is the next
+    # step. Until that runs, this profile is for experimentation only.
+    # Not the default for any language. Select with profile_name=
+    # "biblical_coptic_thematic".
+    "biblical_coptic_thematic": {
+        "edit_distance":     1.0,
+        "sound":             3.0,
+        "exact":             0.7,
+        "lemma":             2.0,      # raised from biblical_coptic 0.32
+        "dictionary":        5.0,      # raised substantially from 0.12, paraphrase recall
+        "semantic":         25.0,      # raised from 11.2, primary thematic signal
+        "rare_word":         1.5,
+        "syntax":            0.5,
+        "syntax_structural": 0.5,
+        "lemma_min1":        0.5,
+        "quotation":         5.0,      # lowered from 35.0 so quotations don't dominate
     },
 }
 
