@@ -199,33 +199,41 @@ WEIGHT_PROFILES = {
     },
 
     # Experimental profile, 2026-05-17. Designed to surface paraphrase and
-    # thematic intertexts that biblical_coptic suppresses. Compared with
-    # biblical_coptic, this profile raises the semantic and dictionary
-    # (Coptic Wordnet) channels, raises the lemma channel, lowers the
-    # quotation channel weight (so verbatim runs do not dominate the
-    # ranking), and lowers the sound channel weight (phonetic overlap is
-    # less useful for paraphrase). The single-word penalty is unchanged at
-    # the global level; biblical-prose thematic recovery requires the rarity
-    # multiplier to be softer, but tuning that lives elsewhere (see the
-    # SINGLE_WORD_PENALTY constant).
+    # thematic intertexts that biblical_coptic suppresses, while keeping
+    # verbatim recall above a sanity floor.
     #
-    # Starting weights below are an unoptimized first guess. A proper
-    # optimization run targeting the thematic-tail TSK cases is the next
-    # step. Until that runs, this profile is for experimentation only.
+    # Weights below are the best of a 30-iteration hill-climbing search
+    # (`evaluation/coptic_recall/run_optimization_thematic.py`), starting
+    # from biblical_coptic with thematic-biased perturbations, and
+    # rejecting any iteration whose verbatim 29-pair R@50 dropped below 70%.
+    #
+    # Result vs biblical_coptic on Hebrews x Sahidic Psalms:
+    #   broad TSK 124-pair R@500: 17.7% (22/124) vs 16.1% (20/124), +2 pairs
+    #   broad TSK 124-pair R@100: 14.5% (18/124) vs 14.5% (18/124), unchanged
+    #   verbatim 29-pair R@50:    82.8% (24/29) vs 89.7% (26/29), -2 pairs
+    #   verbatim 29-pair R@500:   96.6% (28/29) vs 96.6% (28/29), unchanged
+    #
+    # The improvement is modest. Pure weight optimization plateaus here
+    # because most TSK thematic pairs are not detectable by lexical-surface
+    # channels at any weighting. Breaking through this ceiling requires
+    # additional matching primitives (e.g., a contrastive-fine-tuned Coptic
+    # embedding model trained on biblical paraphrase pairs), not just weight
+    # changes. See §4.7 of the article for future-work discussion.
+    #
     # Not the default for any language. Select with profile_name=
     # "biblical_coptic_thematic".
     "biblical_coptic_thematic": {
-        "edit_distance":     1.0,
-        "sound":             3.0,
-        "exact":             0.7,
-        "lemma":             2.0,      # raised from biblical_coptic 0.32
-        "dictionary":        5.0,      # raised substantially from 0.12, paraphrase recall
-        "semantic":         25.0,      # raised from 11.2, primary thematic signal
-        "rare_word":         1.5,
-        "syntax":            0.5,
-        "syntax_structural": 0.5,
-        "lemma_min1":        0.5,
-        "quotation":         5.0,      # lowered from 35.0 so quotations don't dominate
+        "edit_distance":     0.728,
+        "sound":            37.178,   # raised from biblical_coptic 24.3
+        "exact":             1.067,   # raised from 0.70
+        "lemma":             0.376,
+        "dictionary":        0.064,
+        "semantic":         20.107,   # raised from 11.2
+        "rare_word":         1.023,   # raised from 0.55
+        "syntax":            0.077,
+        "syntax_structural": 0.069,
+        "lemma_min1":        0.071,
+        "quotation":        20.964,   # lowered from 35.1 (less verbatim dominance)
     },
 }
 
