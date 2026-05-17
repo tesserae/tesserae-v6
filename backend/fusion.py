@@ -202,38 +202,49 @@ WEIGHT_PROFILES = {
     # thematic intertexts that biblical_coptic suppresses, while keeping
     # verbatim recall above a sanity floor.
     #
-    # Weights below are the best of a 30-iteration hill-climbing search
+    # Weights below are the best of two 30-iteration hill-climbing searches
     # (`evaluation/coptic_recall/run_optimization_thematic.py`), starting
-    # from biblical_coptic with thematic-biased perturbations, and
-    # rejecting any iteration whose verbatim 29-pair R@50 dropped below 70%.
+    # from biblical_coptic with thematic-biased perturbations and rejecting
+    # any iteration whose verbatim 29-pair R@50 dropped below 70%. The first
+    # search used a narrow perturbation range (log_range=1.5), the second
+    # used wide perturbation (log_range=2.5) with a different random seed.
+    # The wider search found a better Pareto point at its iteration 24.
     #
     # Result vs biblical_coptic on Hebrews x Sahidic Psalms:
-    #   broad TSK 124-pair R@500: 17.7% (22/124) vs 16.1% (20/124), +2 pairs
-    #   broad TSK 124-pair R@100: 14.5% (18/124) vs 14.5% (18/124), unchanged
-    #   verbatim 29-pair R@50:    82.8% (24/29) vs 89.7% (26/29), -2 pairs
-    #   verbatim 29-pair R@500:   96.6% (28/29) vs 96.6% (28/29), unchanged
+    #   broad TSK 124-pair R@100:  15.3% (19/124) vs 14.5% (18/124), +1 pair
+    #   broad TSK 124-pair R@500:  17.7% (22/124) vs 16.1% (20/124), +2 pairs
+    #   broad TSK 124-pair R@1000: 19.4% (24/124) vs 18.5% (23/124), +1 pair
+    #   verbatim 29-pair R@50:     79.3% (23/29) vs 89.7% (26/29), -3 pairs
+    #   verbatim 29-pair R@500:    96.6% (28/29) vs 96.6% (28/29), unchanged
+    #
+    # Interesting finding: the optimizer's winning shape boosts rare_word
+    # (4.8 vs biblical_coptic's 0.55) and drops semantic (4.2 vs 11.2). The
+    # broad-benchmark gains come from rare-word convergence in the
+    # paraphrase tail, not from semantic embedding. The "thematic" label is
+    # therefore partially misleading, what we have here is a "rare-word-
+    # weighted biblical" profile that recovers a few extra pairs.
     #
     # The improvement is modest. Pure weight optimization plateaus here
     # because most TSK thematic pairs are not detectable by lexical-surface
     # channels at any weighting. Breaking through this ceiling requires
     # additional matching primitives (e.g., a contrastive-fine-tuned Coptic
-    # embedding model trained on biblical paraphrase pairs), not just weight
-    # changes. See §4.7 of the article for future-work discussion.
+    # embedding model trained on biblical paraphrase pairs), not just
+    # weight changes. See §4.7 of the article for future-work discussion.
     #
     # Not the default for any language. Select with profile_name=
     # "biblical_coptic_thematic".
     "biblical_coptic_thematic": {
-        "edit_distance":     0.728,
-        "sound":            37.178,   # raised from biblical_coptic 24.3
-        "exact":             1.067,   # raised from 0.70
-        "lemma":             0.376,
-        "dictionary":        0.064,
-        "semantic":         20.107,   # raised from 11.2
-        "rare_word":         1.023,   # raised from 0.55
-        "syntax":            0.077,
-        "syntax_structural": 0.069,
-        "lemma_min1":        0.071,
-        "quotation":        20.964,   # lowered from 35.1 (less verbatim dominance)
+        "edit_distance":     0.182,
+        "sound":            19.086,   # lower than biblical_coptic 24.3
+        "exact":             0.977,
+        "lemma":             0.283,
+        "dictionary":        0.677,
+        "semantic":          4.157,   # lower than biblical_coptic 11.2
+        "rare_word":         4.816,   # raised from biblical_coptic 0.55
+        "syntax":            0.142,
+        "syntax_structural": 0.154,
+        "lemma_min1":        0.009,
+        "quotation":        13.449,   # lower than biblical_coptic 35.1
     },
 }
 
