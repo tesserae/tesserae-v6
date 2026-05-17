@@ -88,3 +88,15 @@ docs/HOW_TESSERAE_SEARCHES.md
 # Claude Code project instructions (private)
 CLAUDE.md
 server.log
+tmp/
+
+# Claude Code internal state
+.claude/
+
+# Additional large data directories (post-Phase-10 work, not for GitHub)
+backend/embeddings_e5/
+lxx_rahlfs/
+morphgnt_sblgnt/
+
+# Large generated lexicon CSVs (regenerable from upstream)
+backend/synonymy/coptic_coptic_wordnet.csv

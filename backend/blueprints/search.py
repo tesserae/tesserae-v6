@@ -52,6 +52,27 @@ VALID_CROSSLINGUAL_PAIRS = {
     frozenset(('la', 'en')),
     frozenset(('grc', 'en')),
 }
+try:
+    from backend.arabic import ARABIC_ENABLED
+    if ARABIC_ENABLED:
+        VALID_CROSSLINGUAL_PAIRS.add(frozenset(('ar', 'la')))
+        VALID_CROSSLINGUAL_PAIRS.add(frozenset(('ar', 'grc')))
+except ImportError:
+    pass
+try:
+    from backend.persian import PERSIAN_ENABLED
+    if PERSIAN_ENABLED:
+        VALID_CROSSLINGUAL_PAIRS.add(frozenset(('fa', 'ar')))
+        VALID_CROSSLINGUAL_PAIRS.add(frozenset(('fa', 'la')))
+except ImportError:
+    pass
+# Hebrew and Coptic pairs added unconditionally -- the plugins register
+# after blueprint import, so checking ENABLED flags here would always be False.
+# The corpus/text checks at search time handle the case where texts don't exist.
+VALID_CROSSLINGUAL_PAIRS.add(frozenset(('he', 'grc')))
+VALID_CROSSLINGUAL_PAIRS.add(frozenset(('he', 'la')))
+VALID_CROSSLINGUAL_PAIRS.add(frozenset(('cop', 'grc')))
+VALID_CROSSLINGUAL_PAIRS.add(frozenset(('ur', 'fa')))
 
 # Module-level references to shared components (injected via init_search_blueprint)
 _matcher = None       # Matcher: Finds parallel passages between texts
@@ -315,9 +336,145 @@ def _find_dictionary_matches_fast(source_units, target_units, source_language, t
         return _find_english_dictionary_matches(source_units, target_units,
                                                 source_language, target_language)
 
+    # --- Hebrew-Greek, Coptic-Greek, or Urdu-Persian pairs: CSV dictionary path ---
+    if 'he' in lang_pair or 'cop' in lang_pair or 'ur' in lang_pair:
+        return _find_csv_dictionary_matches(source_units, target_units,
+                                            source_language, target_language)
+
     # --- Greek-Latin pair: fast inverted-index path (unchanged) ---
     return _find_greek_latin_dictionary_matches_fast(source_units, target_units,
                                                      source_language, target_language)
+
+
+def _find_csv_dictionary_matches(source_units, target_units, source_language, target_language):
+    """Dictionary matching for language pairs using CSV-based dictionaries.
+
+    Works for Hebrew-Greek (hebrew_greek.csv) and Coptic-Greek (coptic_greek.csv).
+    Builds an inverted index on the target side, then scans source lemmas.
+    Returns dict keyed by (src_idx, tgt_idx) with word_matches list.
+    """
+    import csv
+    import unicodedata
+    from collections import defaultdict
+
+    lang_pair = frozenset((source_language, target_language))
+
+    # Load the appropriate dictionary
+    synonymy_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'synonymy', 'v6_additions')
+
+    if 'he' in lang_pair:
+        dict_path = os.path.join(synonymy_dir, 'hebrew_greek.csv')
+        new_lang = 'he'
+    elif 'cop' in lang_pair:
+        dict_path = os.path.join(synonymy_dir, 'coptic_greek.csv')
+        new_lang = 'cop'
+    elif 'ur' in lang_pair:
+        dict_path = os.path.join(synonymy_dir, 'urdu_persian.csv')
+        new_lang = 'ur'
+    else:
+        return {}
+
+    if not os.path.exists(dict_path):
+        logger.warning(f"Dictionary not found: {dict_path}")
+        return {}
+
+    # Load dictionary as bidirectional mapping
+    # CSV format: word1, word2 (the new-language word is first, Greek is second)
+    new_to_greek = defaultdict(set)
+    greek_to_new = defaultdict(set)
+    with open(dict_path, 'r', encoding='utf-8') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if len(row) < 2:
+                continue
+            w1 = row[0].strip()
+            w2 = row[1].strip()
+            if w1 and w2 and len(w1) >= 2 and len(w2) >= 3:
+                # Normalize Greek (strip accents for matching)
+                # Require min length 3 for Greek to filter CATSS betacode artifacts
+                w2_norm = unicodedata.normalize('NFC', w2)
+                w2_norm = ''.join(c for c in unicodedata.normalize('NFD', w2_norm)
+                                  if unicodedata.category(c) != 'Mn').lower()
+                # Normalize terminal sigma ς (U+03C2) to medial σ (U+03C3)
+                # to match the index which uses medial sigma throughout
+                w2_norm = w2_norm.replace('ς', 'σ')
+                if len(w2_norm) >= 3:
+                    new_to_greek[w1].add(w2_norm)
+                    greek_to_new[w2_norm].add(w1)
+
+    logger.info(f"Loaded {len(new_to_greek)} {new_lang} entries from {dict_path}")
+
+    # Minimal function-word filter: only block the most vacuous matches
+    # (articles, single-letter particles, pure conjunctions that match everywhere).
+    # We do NOT use the full cross-lingual stoplists here because CATSS and DDGLC
+    # include many function words as legitimate translation pairs (e.g., כי/οτι,
+    # על/επι). The scoring layer handles ranking via IDF -- we just need to remove
+    # the worst noise that produces thousands of identical meaningless matches.
+    _GREEK_ARTICLES = {
+        'ο', 'η', 'το', 'τον', 'την', 'του', 'τησ', 'της', 'τω', 'τη',
+        'τοι', 'ται', 'τους', 'τουσ', 'τας', 'τασ', 'των', 'τοις', 'τοισ', 'ταις', 'ταισ',
+    }
+    # Cross-lingual stoplist: remove only the highest-frequency function words
+    # that produce thousands of vacuous matches. The IDF-based scoring in the
+    # fusion handler handles the rest -- content words get higher IDF and rank
+    # above function words naturally. We only need to remove words so common
+    # that they create massive noise in the match set itself.
+    from backend.synonym_dict import CROSSLINGUAL_STOPLIST_GREEK
+    _GREEK_STOP = CROSSLINGUAL_STOPLIST_GREEK
+
+    # Hebrew: curated function words from the stoplist
+    from backend import fusion
+    _HEBREW_STOP = fusion._STOPLISTS.get('he', set())
+
+    # Coptic: curated function words
+    _COPTIC_STOP = fusion._STOPLISTS.get('cop', set())
+
+    # Build combined stoplists: start with fusion registry, then override
+    # Greek with the richer CROSSLINGUAL_STOPLIST_GREEK which includes
+    # articles, pronouns, prepositions, particles
+    lang_stops = dict(fusion._STOPLISTS)
+    lang_stops['grc'] = _GREEK_STOP  # override with cross-lingual stoplist
+
+    if source_language == new_lang:
+        src_dict = new_to_greek
+    else:
+        src_dict = greek_to_new
+
+    src_stop = lang_stops.get(source_language, set())
+    tgt_stop = lang_stops.get(target_language, set())
+
+    # Build inverted index on target side
+    target_index = defaultdict(list)
+    for ti, unit in enumerate(target_units):
+        for pos, lemma in enumerate(unit.get('lemmas', [])):
+            # Normalize sigma for consistent matching
+            lemma_n = lemma.replace('ς', 'σ') if lemma else lemma
+            if lemma_n in tgt_stop or len(lemma_n) < 2:
+                continue
+            target_index[lemma_n].append((ti, pos))
+
+    # Scan source units and find matches
+    results = defaultdict(list)
+    for si, unit in enumerate(source_units):
+        for src_pos, src_lemma in enumerate(unit.get('lemmas', [])):
+            if src_lemma in src_stop or len(src_lemma) < 2:
+                continue
+            translations = src_dict.get(src_lemma, set())
+            for translation in translations:
+                if translation in tgt_stop:
+                    continue
+                if translation in target_index:
+                    for ti, tgt_pos in target_index[translation]:
+                        key = (si, ti)
+                        results[key].append({
+                            'source_lemma': src_lemma,
+                            'target_lemma': translation,
+                            'source_indices': [src_pos],
+                            'target_indices': [tgt_pos],
+                        })
+
+    logger.info(f"Dictionary found {len(results)} pairs (minimal stoplist filtering)")
+    return dict(results)
 
 
 def _find_english_dictionary_matches(source_units, target_units, source_language, target_language):
@@ -703,9 +860,12 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
             logger.error(f"Syntax channel failed (may not have syntax DB): {e}")
 
     # --- Channel 4: Cross-lingual phonetic (transliteration + edit distance) ---
-    # Only for Greek-Latin pairs: transliterate Greek → Latin alphabet, then
-    # compare tokens by edit distance to catch phonetic echoes (e.g. μῆνιν / mene).
+    # Greek-Latin: transliterate Greek → Latin alphabet, then compare tokens
+    # by edit distance to catch phonetic echoes (e.g. μῆνιν / mene).
+    # Coptic-Greek: transliterate Coptic → Greek alphabet, same idea — most
+    # Coptic letters map identically to Greek, only 7 are Coptic-specific.
     phonetic_by_pair = {}
+    is_coptic_greek = lang_pair == frozenset(('cop', 'grc'))
     if is_greek_latin:
         try:
             from backend.matcher import find_crosslingual_phonetic_matches
@@ -716,6 +876,16 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
             logger.info(f"Phonetic found {len(phonetic_by_pair)} pairs with transliteration matches")
         except Exception as e:
             logger.error(f"Phonetic channel failed: {e}")
+    elif is_coptic_greek:
+        try:
+            from backend.matcher import find_crosslingual_phonetic_matches_cop_grc
+            phonetic_by_pair = find_crosslingual_phonetic_matches_cop_grc(
+                source_units, target_units,
+                source_language, target_language,
+                min_similarity=0.65, min_token_len=3)
+            logger.info(f"Phonetic (cop-grc) found {len(phonetic_by_pair)} pairs with transliteration matches")
+        except Exception as e:
+            logger.error(f"Phonetic (cop-grc) channel failed: {e}")
 
     # --- Merge ---
     # Phonetic alone is too noisy (thousands of false positives from short-word
@@ -743,15 +913,15 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
         phonetic_matches = phonetic_by_pair.get(key)
         has_phonetic = phonetic_matches is not None and len(phonetic_matches) > 0
 
-        # Count unique words per side for dict matches
+        # Count unique words per side for dict matches, compute V3-style IDF + distance
         dict_word_count = 0
-        avg_idf = 0.0
+        dict_score = 0.0
         if has_dict:
             unique_src = set(wm.get('source_lemma', wm.get('greek_lemma', '')) for wm in dict_wms)
             unique_tgt = set(wm.get('target_lemma', wm.get('latin_lemma', '')) for wm in dict_wms)
             dict_word_count = min(len(unique_src), len(unique_tgt))
 
-            # Compute average IDF
+            # V3-style IDF scoring: sum of IDF per matched word pair
             total_idf = 0.0
             for wm in dict_wms:
                 src_lemma = wm.get('source_lemma', wm.get('greek_lemma', ''))
@@ -760,10 +930,18 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
                 ti_idf = calc_idf(tgt_lemma, needs_accent_strip=target_needs_accent_strip)
                 wm['idf_score'] = (si_idf + ti_idf) / 2
                 total_idf += wm['idf_score']
-            avg_idf = total_idf / len(dict_wms) if dict_wms else 0
 
-        # Dictionary score: avg_idf scaled by match count (multiple rare matches >> 1 common)
-        dict_score = (min(avg_idf / 10.0, 1.0) * math.sqrt(dict_word_count)) if has_dict else 0.0
+            # V3-style distance: span of matched positions on each side
+            src_positions = sorted(set(p for wm in dict_wms for p in wm.get('source_indices', [])))
+            tgt_positions = sorted(set(p for wm in dict_wms for p in wm.get('target_indices', [])))
+            src_span = (src_positions[-1] - src_positions[0]) if len(src_positions) >= 2 else 1
+            tgt_span = (tgt_positions[-1] - tgt_positions[0]) if len(tgt_positions) >= 2 else 1
+            avg_span = (src_span + tgt_span) / 2
+            distance_factor = 1.0 / math.log(avg_span + 1) if avg_span > 0 else 1.0
+
+            # V3-style raw score: sum(IDF) * distance_factor
+            # This privileges rare words close together, just like intra-language V3
+            dict_score = total_idf * distance_factor
 
         # Apply min_matches filter: pairs below the dictionary threshold are excluded
         if has_dict and dict_word_count < min_matches:

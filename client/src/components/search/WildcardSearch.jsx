@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import { wildcardSearch } from '../../utils/api';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
+import { exportRowsToPDF } from '../../utils/exportResults';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -191,6 +192,20 @@ const WildcardSearch = ({ language }) => {
     URL.revokeObjectURL(url);
   }, [filteredResults, query]);
 
+  const exportPDF = useCallback(() => {
+    if (!filteredResults || filteredResults.length === 0) return;
+    const headers = ['Author', 'Title', 'Era', 'Locus', 'Text', 'Poetry/Prose'];
+    const rows = filteredResults.map(r => [
+      r.author || '', r.title || '', r.era || 'Unknown', r.locus || '',
+      (r.text || '').replace(/<[^>]*>/g, ''),
+      r.is_poetry !== false ? 'Poetry' : 'Prose',
+    ]);
+    const rtl = ['ar', 'fa', 'he', 'ur'].includes(language);
+    exportRowsToPDF(`Tesserae V6 — Wildcard Search: "${query}"`, '', headers, rows, {
+      dir: rtl ? 'rtl' : 'ltr', lang: language || '',
+    });
+  }, [filteredResults, query, language]);
+
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -369,6 +384,13 @@ const WildcardSearch = ({ language }) => {
                 className="text-sm bg-amber-600 text-white px-3 py-1 rounded hover:bg-amber-700"
               >
                 Export CSV
+              </button>
+              <button
+                onClick={exportPDF}
+                className="text-sm bg-amber-600 text-white px-3 py-1 rounded hover:bg-amber-700"
+                title="Open print-friendly view; choose 'Save as PDF' in the print dialog."
+              >
+                Export PDF
               </button>
             </div>
           </div>

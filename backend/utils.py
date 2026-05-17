@@ -382,7 +382,7 @@ def detect_text_type(filename, content=None, filepath=None, language=None):
     Tier 2: POETRY_WORKS — explicit known-poetry edge cases
     Tier 3: PROSE_WORKS — consolidated prose author/marker list
     Tier 4: Content heuristic — median line length (if filepath available)
-    Tier 5: Default to "poetry" — backward compatible
+    Tier 5: Language default (Coptic → prose; everything else → poetry).
     """
     # Tier 1: Manual overrides
     override = get_override(filename)
@@ -401,16 +401,26 @@ def detect_text_type(filename, content=None, filepath=None, language=None):
         if marker in name_lower:
             return 'prose'
 
-    # Tier 4: Content heuristic — median line length
-    resolved = filepath
-    if not resolved:
-        resolved = _resolve_text_filepath(filename, language)
-    if resolved and os.path.isfile(resolved):
-        result = _estimate_text_type_from_content(resolved)
-        if result:
-            return result
+    # Tier 4: Content heuristic — median line length.
+    # For Coptic the content heuristic misfires: Bible verses and
+    # Shenoute paragraph divisions are short (<100 chars) even though
+    # the underlying texts are unambiguously prose. Coptic has no
+    # poetry corpus in V6, so skip the content heuristic for cop and
+    # fall through to the language default below.
+    if language != 'cop':
+        resolved = filepath
+        if not resolved:
+            resolved = _resolve_text_filepath(filename, language)
+        if resolved and os.path.isfile(resolved):
+            result = _estimate_text_type_from_content(resolved)
+            if result:
+                return result
 
-    # Tier 5: Default to poetry (backward compatible)
+    # Tier 5: Language default. Coptic literary corpus (NT, OT,
+    # Shenoute, hagiographies, Apophthegmata Patrum) is universally
+    # prose. Other languages keep the legacy poetry default.
+    if language == 'cop':
+        return 'prose'
     return 'poetry'
 
 DISPLAY_NAMES = {
@@ -594,13 +604,18 @@ def get_text_metadata(filepath):
     override = get_override(filename)
     if 'display_author' in override:
         author = override['display_author']
+        # Also unify the grouping key so files with different filename
+        # prefixes but the same display_author group under one author in
+        # the hierarchy (e.g. sahidic.* and sahidica.* both under "Sahidic
+        # Coptic" rather than two separate authors with the same label).
+        author_raw = author.lower().replace(' ', '_')
     if 'display_work' in override:
         work = override['display_work']
         if is_part and part_display:
             title = f"{work}, {part_display}"
         else:
             title = work
-    
+
     result = {
         'id': filename,
         'author': author,

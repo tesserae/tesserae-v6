@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { LoadingSpinner, SearchableAuthorSelect } from '../common';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
+import { exportRowsToPDF } from '../../utils/exportResults';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -15,7 +16,7 @@ const highlightTokens = (tokens, highlightIndices) => {
   ).join(' ');
 };
 
-const LANG_PAIRS = [
+const DEFAULT_LANG_PAIRS = [
   { key: 'grc-la', source: 'grc', target: 'la', label: 'Greek → Latin' },
   { key: 'la-en', source: 'la', target: 'en', label: 'Latin → English' },
   { key: 'grc-en', source: 'grc', target: 'en', label: 'Greek → English' },
@@ -25,15 +26,26 @@ const LANG_LABELS = {
   grc: { name: 'Greek', color: 'amber', bgClass: 'bg-amber-50', textClass: 'text-amber-700', refClass: 'text-amber-600', btnClass: 'bg-amber-600 text-white' },
   la: { name: 'Latin', color: 'red', bgClass: 'bg-red-50', textClass: 'text-red-700', refClass: 'text-red-600', btnClass: 'bg-red-700 text-white' },
   en: { name: 'English', color: 'red', bgClass: 'bg-red-50', textClass: 'text-red-700', refClass: 'text-red-600', btnClass: 'bg-red-700 text-white' },
+  ar: { name: 'Arabic', color: 'red', bgClass: 'bg-red-50', textClass: 'text-red-700', refClass: 'text-red-600', btnClass: 'bg-red-700 text-white' },
+  fa: { name: 'Persian', color: 'red', bgClass: 'bg-red-50', textClass: 'text-red-700', refClass: 'text-red-600', btnClass: 'bg-red-700 text-white' },
+  he: { name: 'Hebrew', color: 'red', bgClass: 'bg-red-50', textClass: 'text-red-700', refClass: 'text-red-600', btnClass: 'bg-red-700 text-white' },
+  cop: { name: 'Coptic', color: 'red', bgClass: 'bg-red-50', textClass: 'text-red-700', refClass: 'text-red-600', btnClass: 'bg-red-700 text-white' },
+  ur: { name: 'Urdu', color: 'red', bgClass: 'bg-red-50', textClass: 'text-red-700', refClass: 'text-red-600', btnClass: 'bg-red-700 text-white' },
 };
 
 const LANG_DEFAULTS = {
   grc: { author: 'homer', work: 'iliad', part: '.part.1.' },
   la: { author: 'vergil', work: 'aeneid', part: '.part.1.' },
   en: { author: 'milton', work: 'paradise_lost', part: null },
+  ar: { author: 'quran', work: 'al_baqara', part: '.part.1.' },
+  fa: { author: 'hafez', work: 'divan', part: '.part.1.' },
+  he: { author: 'hebrew_bible', work: 'ruth', part: null },
+  cop: { author: 'sahidica', work: 'mark', part: null },
+  ur: { author: 'iqbal', work: 'bang_e_dra', part: null },
 };
 
 export default function CrossLingualSearch() {
+  const [LANG_PAIRS, setLangPairs] = useState(DEFAULT_LANG_PAIRS);
   const [hierarchy, setHierarchy] = useState({ grc: [], la: [], en: [] });
   const [loading, setLoading] = useState(true);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -48,7 +60,7 @@ export default function CrossLingualSearch() {
   const [targetWork, setTargetWork] = useState('');
   const [targetSection, setTargetSection] = useState('');
 
-  const [minMatches, setMinMatches] = useState(2);
+  const [minMatches, setMinMatches] = useState(1);
   const [displayLimit, setDisplayLimit] = useState(50);
   const [sortBy, setSortBy] = useState('score');
   const [showDistributionChart, setShowDistributionChart] = useState(false);
@@ -165,22 +177,32 @@ export default function CrossLingualSearch() {
   const loadHierarchies = async () => {
     setLoading(true);
     try {
-      const [grcRes, laRes, enRes] = await Promise.all([
-        fetch('/api/texts/hierarchy?language=grc'),
-        fetch('/api/texts/hierarchy?language=la'),
-        fetch('/api/texts/hierarchy?language=en')
-      ]);
-      const grcData = await grcRes.json();
-      const laData = await laRes.json();
-      const enData = await enRes.json();
-      const h = {
-        grc: grcData.authors || [],
-        la: laData.authors || [],
-        en: enData.authors || []
-      };
+      // Fetch available languages dynamically
+      let langCodes = ['grc', 'la', 'en'];
+      try {
+        const langRes = await fetch('/api/languages');
+        const langData = await langRes.json();
+        if (langData.languages) {
+          langCodes = langData.languages.map(l => l.code);
+        }
+        if (langData.crosslingual_pairs) {
+          setLangPairs(langData.crosslingual_pairs);
+        }
+      } catch (e) {
+        // fall back to defaults
+      }
+
+      const responses = await Promise.all(
+        langCodes.map(code => fetch(`/api/texts/hierarchy?language=${code}`))
+      );
+      const h = {};
+      for (let i = 0; i < langCodes.length; i++) {
+        const data = await responses[i].json();
+        h[langCodes[i]] = data.authors || [];
+      }
       setHierarchy(h);
-      setDefaultsForLang(h[currentPair.source], currentPair.source, setSourceAuthor, setSourceWork, setSourceSection);
-      setDefaultsForLang(h[currentPair.target], currentPair.target, setTargetAuthor, setTargetWork, setTargetSection);
+      setDefaultsForLang(h[currentPair.source] || [], currentPair.source, setSourceAuthor, setSourceWork, setSourceSection);
+      setDefaultsForLang(h[currentPair.target] || [], currentPair.target, setTargetAuthor, setTargetWork, setTargetSection);
     } catch (err) {
       console.error('Failed to load text hierarchies:', err);
     }
@@ -235,6 +257,26 @@ export default function CrossLingualSearch() {
     a.click();
     URL.revokeObjectURL(url);
   }, [results, srcLang, tgtLang, langPair]);
+
+  const exportPDF = useCallback(() => {
+    if (!results || results.length === 0) return;
+    const headers = ['Score', 'Channels', `${srcLang.name} Locus`, `${srcLang.name} Text`, `${tgtLang.name} Locus`, `${tgtLang.name} Text`, 'Semantic', 'Matched Words'];
+    const rows = results.map(r => [
+      (r.overall_score || r.score)?.toFixed(3) || '',
+      (r.channels || ''),
+      (r.source?.ref || r.source_locus || ''),
+      (r.source?.text || r.source_text || ''),
+      (r.target?.ref || r.target_locus || ''),
+      (r.target?.text || r.target_text || ''),
+      r.features?.semantic_score ? (r.features.semantic_score * 100).toFixed(0) + '%' : '',
+      (r.matched_words || []).map(m => m.display || `${m.source_word || m.greek_word}→${m.target_word || m.latin_word}`).join('; '),
+    ]);
+    // Both languages in cross-lingual could be RTL (e.g. ar↔fa); fall back to ltr if mixed.
+    const codes = [srcLang.code, tgtLang.code];
+    const rtl = codes.every(c => ['ar', 'fa', 'he', 'ur'].includes(c));
+    exportRowsToPDF(`Tesserae V6 — Cross-Lingual Results (${srcLang.name} → ${tgtLang.name})`, '',
+      headers, rows, { dir: rtl ? 'rtl' : 'ltr' });
+  }, [results, srcLang, tgtLang]);
 
   const sortedResults = useMemo(() => {
     if (!results || results.length === 0) return [];
@@ -528,6 +570,13 @@ export default function CrossLingualSearch() {
               >
                 Export CSV
               </button>
+              <button
+                onClick={exportPDF}
+                className="text-xs bg-red-700 text-white px-3 py-1.5 rounded hover:bg-red-800"
+                title="Open print-friendly view; choose 'Save as PDF' in the print dialog."
+              >
+                Export PDF
+              </button>
               <span className="text-xs text-gray-500">Sort:</span>
               <select
                 value={sortBy}
@@ -598,18 +647,18 @@ export default function CrossLingualSearch() {
                     <div className="text-xs text-gray-500 mb-1">Source</div>
                     <div className="font-medium text-gray-900">{result.source?.ref || result.source_locus}</div>
                     {result.source?.tokens && result.source?.highlight_indices?.length > 0 ? (
-                      <div className="text-gray-700 mt-1" dangerouslySetInnerHTML={{ __html: highlightTokens(result.source.tokens, result.source.highlight_indices) }} />
+                      <div className="text-gray-700 mt-1" dir={currentPair.source === 'ar' || currentPair.source === 'fa' || currentPair.source === 'he' || currentPair.source === 'ur' ? 'rtl' : undefined} dangerouslySetInnerHTML={{ __html: highlightTokens(result.source.tokens, result.source.highlight_indices) }} />
                     ) : (
-                      <div className="text-gray-700 mt-1">{result.source?.text || result.source_text || ''}</div>
+                      <div className="text-gray-700 mt-1" dir={currentPair.source === 'ar' || currentPair.source === 'fa' || currentPair.source === 'he' || currentPair.source === 'ur' ? 'rtl' : undefined}>{result.source?.text || result.source_text || ''}</div>
                     )}
                   </div>
                   <div>
                     <div className="text-xs text-gray-500 mb-1">Target</div>
                     <div className="font-medium text-gray-900">{result.target?.ref || result.target_locus}</div>
                     {result.target?.tokens && result.target?.highlight_indices?.length > 0 ? (
-                      <div className="text-gray-700 mt-1" dangerouslySetInnerHTML={{ __html: highlightTokens(result.target.tokens, result.target.highlight_indices) }} />
+                      <div className="text-gray-700 mt-1" dir={currentPair.target === 'ar' || currentPair.target === 'fa' || currentPair.target === 'he' || currentPair.target === 'ur' ? 'rtl' : undefined} dangerouslySetInnerHTML={{ __html: highlightTokens(result.target.tokens, result.target.highlight_indices) }} />
                     ) : (
-                      <div className="text-gray-700 mt-1">{result.target?.text || result.target_text || ''}</div>
+                      <div className="text-gray-700 mt-1" dir={currentPair.target === 'ar' || currentPair.target === 'fa' || currentPair.target === 'he' || currentPair.target === 'ur' ? 'rtl' : undefined}>{result.target?.text || result.target_text || ''}</div>
                     )}
                   </div>
                 </div>

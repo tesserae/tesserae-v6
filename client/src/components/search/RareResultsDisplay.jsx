@@ -9,6 +9,7 @@ import { Bar } from 'react-chartjs-2';
 import { formatElapsedTime } from '../../utils/formatting';
 import { displayGreekWithFinalSigma } from '../../utils/greekUtils';
 import { getDictionaryUrl } from '../../utils/linkUtils';
+import { exportRowsToPDF } from '../../utils/exportResults';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -244,6 +245,26 @@ const RareResultsDisplay = ({
     URL.revokeObjectURL(url);
   }, [results, isHapax]);
 
+  const exportPDF = useCallback(() => {
+    if (!results || results.length === 0) return;
+    const headers = isHapax
+      ? ['Lemma', 'Display Form', 'Corpus Frequency', 'Source Occurrences', 'Target Occurrences', 'Source Locations', 'Target Locations']
+      : ['Word Pair', 'Rarity %', 'Source Occurrences', 'Target Occurrences', 'Source Locations', 'Target Locations'];
+    const rows = results.map(r => {
+      const srcLocs = (r.source_locations || []).map(loc => loc.ref).join('; ');
+      const tgtLocs = (r.target_locations || []).map(loc => loc.ref).join('; ');
+      return isHapax
+        ? [r.lemma || '', r.display_form || '', r.corpus_count || r.corpus_frequency || '',
+           r.source_occurrences || 0, r.target_occurrences || 0, srcLocs, tgtLocs]
+        : [r.bigram || `${r.word1} + ${r.word2}` || '', r.rarity_percent?.toFixed(1) || '',
+           r.source_occurrences || 0, r.target_occurrences || 0, srcLocs, tgtLocs];
+    });
+    const rtl = ['ar', 'fa', 'he', 'ur'].includes(language);
+    exportRowsToPDF(`Tesserae V6 — ${isHapax ? 'Rare Words' : 'Rare Pairs'}`, '', headers, rows, {
+      dir: rtl ? 'rtl' : 'ltr', lang: language || '',
+    });
+  }, [results, isHapax, language]);
+
   const exportChart = () => {
     if (!chartRef.current) return;
     const canvas = chartRef.current.canvas;
@@ -409,6 +430,13 @@ const RareResultsDisplay = ({
               className="text-xs bg-amber-600 text-white px-3 py-1.5 rounded hover:bg-amber-700 whitespace-nowrap"
             >
               Export CSV
+            </button>
+            <button
+              onClick={exportPDF}
+              className="text-xs bg-amber-600 text-white px-3 py-1.5 rounded hover:bg-amber-700 whitespace-nowrap"
+              title="Open print-friendly view; choose 'Save as PDF' in the print dialog."
+            >
+              Export PDF
             </button>
           </div>
         </div>

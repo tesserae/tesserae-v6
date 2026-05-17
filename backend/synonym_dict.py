@@ -36,8 +36,14 @@ _CROSSLINGUAL_STOPLIST_GREEK_RAW = {
     'ου', 'ουκ', 'ουχ', 'μη', 'μητε', 'ουτε',
     # Articles (with both sigma forms)
     'ο', 'η', 'το', 'τον', 'την', 'του', 'της', 'τησ', 'τω', 'τη', 'τοι', 'ται', 'τους', 'τουσ', 'τας', 'τασ', 'των', 'τοις', 'τοισ', 'ταις', 'ταισ',
-    # Pronouns (common forms)
-    'εγω', 'συ', 'αυτος', 'αυτοσ', 'αυτη', 'αυτο', 'οδε', 'ηδε', 'τοδε', 'ουτος', 'ουτοσ', 'τουτο',
+    # Pronouns (all common forms including inflections)
+    'εγω', 'εμε', 'εμοι', 'εμου', 'μοι', 'μου', 'με',
+    'συ', 'σε', 'σοι', 'σου',
+    'αυτος', 'αυτοσ', 'αυτη', 'αυτο', 'αυτον', 'αυτην', 'αυτου', 'αυτησ', 'αυτω', 'αυτοι', 'αυτων', 'αυτοις', 'αυτοισ', 'αυτας', 'αυτασ', 'αυτους', 'αυτουσ',
+    'ημεις', 'ημασ', 'ημιν', 'ημων',
+    'υμεις', 'υμας', 'υμιν', 'υμων',
+    'οδε', 'ηδε', 'τοδε', 'ουτος', 'ουτοσ', 'τουτο', 'ταυτα', 'τουτον', 'τουτου', 'ταυτην', 'τουτω',
+    'εκεινος', 'εκεινοσ', 'εκεινη', 'εκεινο', 'εκεινον', 'εκεινου', 'εκεινοι',
     'ος', 'οσ', 'τις', 'τισ', 'τι', 'εμος', 'εμοσ', 'σος', 'σοσ', 'ημετερος', 'ημετεροσ',
     # Prepositions
     'εν', 'εις', 'εισ', 'εκ', 'εξ', 'απο', 'προς', 'προσ', 'επι', 'περι', 'κατα', 'μετα', 'δια', 'υπερ', 'υπο', 'παρα', 'προ', 'αμφι', 'ανα', 'αντι', 'συν',
@@ -592,6 +598,44 @@ def get_latin_lookup():
         logger.info(f"Loaded {len(_LATIN_LOOKUP)} Latin synonym entries (V3 + curated, u/v merged)")
     return _LATIN_LOOKUP
 
+_COPTIC_LOOKUP = None
+
+def get_coptic_lookup():
+    """Load Coptic-Coptic synonym lookup from Coptic Wordnet (Slaughter et al. 2019).
+
+    Returns a dict mapping each Coptic lemma to its set of CWN synonyms.
+    Synsets larger than 30 lemmas were skipped during extraction (those are
+    broad-concept buckets that generate too much noise; see
+    coptic_coptic_wordnet.csv build script).
+    """
+    global _COPTIC_LOOKUP
+    if _COPTIC_LOOKUP is not None:
+        return _COPTIC_LOOKUP
+
+    _COPTIC_LOOKUP = {}
+    csv_path = os.path.join(
+        os.path.dirname(__file__), 'synonymy', 'coptic_coptic_wordnet.csv'
+    )
+    if not os.path.exists(csv_path):
+        logger.warning(f"Coptic Wordnet CSV not found at {csv_path}")
+        return _COPTIC_LOOKUP
+
+    import csv
+    with open(csv_path, encoding='utf-8') as f:
+        reader = csv.reader(f)
+        next(reader, None)  # skip header
+        for row in reader:
+            if len(row) < 2:
+                continue
+            src, tgt = row[0].strip().lower(), row[1].strip().lower()
+            if not src or not tgt or src == tgt:
+                continue
+            _COPTIC_LOOKUP.setdefault(src, set()).add(tgt)
+
+    logger.info(f"Loaded {len(_COPTIC_LOOKUP)} Coptic synonym entries from Coptic Wordnet")
+    return _COPTIC_LOOKUP
+
+
 def get_greek_lookup():
     global _GREEK_LOOKUP
     if _GREEK_LOOKUP is None:
@@ -619,6 +663,8 @@ def find_synonyms(lemma: str, language: str) -> set:
         return get_latin_lookup().get(lemma_lower, set())
     elif language == 'grc':
         return get_greek_lookup().get(lemma_lower, set())
+    elif language == 'cop':
+        return get_coptic_lookup().get(lemma_lower, set())
     return set()
 
 def are_synonyms(lemma1: str, lemma2: str, language: str) -> bool:
@@ -642,6 +688,8 @@ def find_synonym_pairs_in_passages(source_lemmas: list, target_lemmas: list,
         lookup = get_latin_lookup()
     elif language == 'grc':
         lookup = get_greek_lookup()
+    elif language == 'cop':
+        lookup = get_coptic_lookup()
     else:
         return pairs
     

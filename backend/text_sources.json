@@ -7838,5 +7838,2255 @@
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0201",
     "print_source": "Xenophontis opera omnia, vol. 3.Oxford, Clarendon Press, 1904 (repr. 1961).",
     "added_by": "Bridget Murray"
+  },
+  {
+    "author": "Anonymous",
+    "work": "Acts of Pilate-Gospel of Nicodemus CM.1643 part",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Lacau 1904",
+    "added_by": "Lydia Bremer-McCollum, Nicholas Wagner",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "unknown",
+    "work": "Apophthegmata Patrum Sahidic 001: Anonymous Nau",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "",
+    "added_by": "Elizabeth Davidson, Christine Luckritz Marquis, Elizabeth Platte, Philippe Zaher, Caroline T. Schroeder, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Besa",
+    "work": "Exhortations",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "SFB 1136 &amp;quot;Bildung und Religion&amp;quot;, Coptic SCRIPTORIUM, KELLIA",
+    "added_by": "So Miyagawa, Julien Delhez, Heike Behlmer, Amir Zeldes, Caroline T. Schroeder",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Bohairic OT",
+    "work": "Obadiah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/bohairic-old-testament/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "Acts of the Apostles",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic OT",
+    "work": "Haggai",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/bohairic-old-testament/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic OT",
+    "work": "Amos",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/bohairic-old-testament/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "Colossians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic OT",
+    "work": "Daniel",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/bohairic-old-testament/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic OT",
+    "work": "Deuteronomy",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/bohairic-old-testament/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "Ephesians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic OT",
+    "work": "Exodus",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/bohairic-old-testament/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic OT",
+    "work": "Ezekiel",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/bohairic-old-testament/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "Galatians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic OT",
+    "work": "Genesis",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/bohairic-old-testament/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic OT",
+    "work": "Habakkuk",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/bohairic-old-testament/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "Hebrews",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "1 Corinthians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "1 John",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "1 Peter",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "1 Thessalonians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "1 Timothy",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic OT",
+    "work": "Jeremiah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/bohairic-old-testament/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "2 Corinthians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "2 John",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "2 Peter",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "2 Thessalonians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "2 Timothy",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "3 John",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic OT",
+    "work": "Job",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/bohairic-old-testament/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic OT",
+    "work": "Joel",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/bohairic-old-testament/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic OT",
+    "work": "Jonah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/bohairic-old-testament/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic OT",
+    "work": "Isaiah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/bohairic-old-testament/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "James",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "John",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "Jude",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic OT",
+    "work": "Lamentations",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/bohairic-old-testament/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic OT",
+    "work": "Leviticus",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/bohairic-old-testament/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "Luke",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic OT",
+    "work": "Malachi",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/bohairic-old-testament/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "Mark",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "Matthew",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic OT",
+    "work": "Micah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/bohairic-old-testament/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic OT",
+    "work": "Nahum",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/bohairic-old-testament/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic OT",
+    "work": "Numbers",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/bohairic-old-testament/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic OT",
+    "work": "Hosea",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/bohairic-old-testament/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "Philemon",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "Philippians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic OT",
+    "work": "Psalms",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/bohairic-old-testament/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "Revelation",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "Romans",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic OT",
+    "work": "Zephaniah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/bohairic-old-testament/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "Titus",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Bohairic OT",
+    "work": "Zechariah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/bohairic-old-testament/",
+    "print_source": "Marcion, Hany Takla",
+    "added_by": "Nina Speranskaja, Nicholas Wagner, Amir Zeldes",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Anonymous",
+    "work": "Book of Bartholomew - Part 1 (Budge ed. Book of the Resurrection of Jesus Christ)",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Budge Apocrypha 1913 on archive.org",
+    "added_by": "Caroline T. Schroeder, Lydia Bremer-McCollum, Amir Zeldes",
+    "license": ""
+  },
+  {
+    "author": "Zaleh",
+    "work": "Letter of Zaleh",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "http://papyri.info/ddbdp/cpr;2;237",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "unknown",
+    "work": "Dormition of John MERC.AD in Budge ed.",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Marcion project, Archive.org",
+    "added_by": "Amir Zeldes, Lance Martin, Caroline T. Schroeder",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Stephen of Hnes",
+    "work": "Encomium of Helias",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Sobhy 1919",
+    "added_by": "Lydia Bremer-McCollum, Caroline T. Schroeder",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Johannes the Archimandrite",
+    "work": "Apa Johannes Canons: FA143-158",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Diliana Atanassova, The Canons of Apa John the Archimandrite Project (FWF Project P22641-G19)",
+    "added_by": "Diliana Atanassova, Caroline T. Schroeder, Elizabeth Platte, Amir Zeldes",
+    "license": "CC BY-SA 3.0 Unported"
+  },
+  {
+    "author": "John IV of Constantinople",
+    "work": "On Penitence and Abstinence, part",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Marcion project, Archive.org",
+    "added_by": "Lance Martin, Mitchell Abrams, Amir Zeldes",
+    "license": "CC-BY 4.0 -"
+  },
+  {
+    "author": "unknown",
+    "work": "Lament of Mary CM.5139 part",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Lacau 1904",
+    "added_by": "Lydia Bremer-McCollum, Caroline T. Schroeder",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "unknown",
+    "work": "Life of Apa Aphou part",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "PATHS, CMCL",
+    "added_by": "Julian Bogdani, Caroline T. Schroeder, Lance Martin, Philippe Zaher, Amir Zeldes",
+    "license": "CC BY-NC-SA 4.0"
+  },
+  {
+    "author": "unknown",
+    "work": "Life of Cyrus in Budge ed. part",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Marcion project, Archive.org",
+    "added_by": "Amir Zeldes, Lance Martin, Caroline T. Schroeder",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "unknown",
+    "work": "History of Eustathius and Theopiste part",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Marcion project, Archive.org",
+    "added_by": "Lance Martin",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "unknown",
+    "work": "The Life of John the Kalybites part",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Marcion project, Archive.org",
+    "added_by": "Lance Martin, Tamara Siuda, Caroline T. Schroeder",
+    "license": "CC-BY 4.0 -"
+  },
+  {
+    "author": "unknown",
+    "work": "Life of Longinus and Lucius part",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "PATHS, CMCL",
+    "added_by": "Julian Bogdani, Caroline T. Schroeder, Lance Martin, Amir Zeldes",
+    "license": "CC BY-NC-SA 4.0"
+  },
+  {
+    "author": "unknown",
+    "work": "Life of Onnophrius part",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Marcion project, Archive.org",
+    "added_by": "Amir Zeldes, Lance Martin, Elizabeth Davidson, Caroline T. Schroeder",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "unknown",
+    "work": "Life of Paul of Tamma part",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "PATHS, CMCL",
+    "added_by": "Julian Bogdani, Amir Zeldes, Lance Martin, Caroline T. Schroeder",
+    "license": "CC BY-NC-SA 4.0"
+  },
+  {
+    "author": "unknown",
+    "work": "Life of Apa Phib part",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "PATHS, CMCL",
+    "added_by": "Julian Bogdani, Randy Komforty, Lance Martin, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC BY-NC-SA 4.0"
+  },
+  {
+    "author": "unknown",
+    "work": "Life of Pisentius part",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Marcion project, Archive.org",
+    "added_by": "Lance Martin, Amir Zeldes",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "unknown",
+    "work": "Curse to undo sinews",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "KYP T32",
+    "added_by": "Edward O. D. Love, Lance Martin, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "unknown",
+    "work": "Martyrdom of Victor part",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Marcion project, Archive.org",
+    "added_by": "Caroline T. Schroeder, Elizabeth Platte, Mitchell Abrams, Israel Avrahamy, Asael Benyami, Yinon Kahan, Oran Szachter, Lance Martin, Amir Zeldes",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "unknown",
+    "work": "Encomium on Mercurius the Martyr (Budge ed.)",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Budge 1915",
+    "added_by": "Lydia Bremer-McCollum",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "unknown",
+    "work": "Mysteries of John the Evangelist part",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Marcion project, Archive.org",
+    "added_by": "Mitchell Abrams, Lance Martin, Caroline T. Schroeder",
+    "license": "CC-BY 4.0 -"
+  },
+  {
+    "author": "Pachomian Community",
+    "work": "Instructions of Apa Pachomius in MERC.AR in Budge ed. - part",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Marcion project, Archive.org",
+    "added_by": "Amir Zeldes, Lance Martin",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "unknown",
+    "work": "Pistis Sophia Postscript",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Marcion project, Archive.org",
+    "added_by": "Randy Komforty, Lance Martin, Amir Zeldes, Caroline T. Schroeder",
+    "license": "CC-BY 4.0 -"
+  },
+  {
+    "author": "Proclus of Constantinople",
+    "work": "Proclus Homily 13 on Easter in Budge ed.",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Marcion project, Archive.org",
+    "added_by": "Amir Zeldes, Lance Martin, Caroline T. Schroeder",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "unknown",
+    "work": "Homily on Matthew",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Marcion project, Archive.org",
+    "added_by": "Elizabeth Davidson, Lance Martin, Amir Zeldes",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "unknown",
+    "work": "On the End of the World and on Temple of Solomon",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Marcion project, Archive.org",
+    "added_by": "Lance Martin, Amir Zeldes",
+    "license": "CC-BY 4.0 -"
+  },
+  {
+    "author": "unknown",
+    "work": "Encomium on Victor part",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Marcion project, Archive.org",
+    "added_by": "Lance Martin, Mitchell Abrams",
+    "license": "CC-BY 4.0 -"
+  },
+  {
+    "author": "Pseudo-Chrysostom",
+    "work": "On the Canaanite Woman",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Marcion project, Archive.org",
+    "added_by": "Lance Martin, Amir Zeldes",
+    "license": "CC-BY 4.0 -"
+  },
+  {
+    "author": "Pseudo-Ephrem",
+    "work": "The Asceticon of Apa Ephrem part",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Marcion project, Archive.org",
+    "added_by": "Lance Martin, Caroline T. Schroeder",
+    "license": "CC-BY 4.0 -"
+  },
+  {
+    "author": "unknown",
+    "work": "Encomium on Demetrius Archbishop of Alexandria part",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Marcion project, Archive.org",
+    "added_by": "Amir Zeldes",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Pseudo-Theophilus",
+    "work": "Pseudo-Theophilus On the Cross and the Thief: MICH.BR 283-286",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Alin Suciu",
+    "added_by": "Alin Suciu, Caroline T. Schroeder, Elizabeth Platte, Amir Zeldes",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "unknown",
+    "work": "Discourse on Abbaton part",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Marcion project, Archive.org",
+    "added_by": "Elizabeth Davidson, Lance Martin, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY 4.0 -"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Amos",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Baruch",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Bel and the Dragon",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Daniel",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Deuteronomy",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Ecclesiastes",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Epistle of Jeremiah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Esther",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Exodus",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Ezekiel",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Genesis",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Habakkuk",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Haggai",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Hosea",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "1 Chronicles",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "1 Kings",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "1 Samuel",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "2 Chronicles",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "2 Kings",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Coptic Scriptorium",
+    "work": "Sahidic Ii_Maccabees",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "",
+    "added_by": "",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "2 Samuel",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Isaiah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Jeremiah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Job",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Joel",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Jonah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Joshua",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Judges",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Judith",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Lamentations",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Leviticus",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Micah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Nahum",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Numbers",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Obadiah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Prayer of Manasses",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Proverbs",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Psalms",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Ruth",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Sirach",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Song of Solomon",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Susanna",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Tobit",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Wisdom",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Zechariah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Zephaniah",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "Crosswire, CoptOT",
+    "added_by": "Frank Feder, So Miyagawa, Elizabeth Platte, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "1 John",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "1 Peter",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "1 Thessalonians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "1 Timothy",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "1 Corinthians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "David Brakke, Hany Takla, J Warren Wells",
+    "added_by": "Elizabeth Platte, David Sriboonreuang, Christine Luckritz Marquis, Mitchell Abrams, Lance Martin, Caroline T. Schroeder, Amir Zeldes",
+    "license": "Coptic text (c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "2 Corinthians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "2 John",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "2 Peter",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "2 Thessalonians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "2 Timothy",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "3 John",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "Acts of the Apostles",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "Colossians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "Ephesians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "Galatians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "Hebrews",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "James",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "John",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "Jude",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "Luke",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "Mark",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "David Brakke, Hany Takla, J Warren Wells",
+    "added_by": "Caroline T. Schroeder, Mitchell Abrams, Lance Martin, Amir Zeldes",
+    "license": "Coptic text (c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "Matthew",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "Philemon",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "Philippians",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "Revelation",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "Romans",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "Titus",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Caroline T. Schroeder, Amir Zeldes",
+    "license": "(c)2000-2006 by J Warren Wells, for academic use only."
+  },
+  {
+    "author": "Shenoute",
+    "work": "Acephalous Work 22: YA 293-300",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "",
+    "added_by": "Rebecca Krawiec, Caroline T. Schroeder",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Shenoute",
+    "work": "Abraham Our Father XL 93-94",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "",
+    "added_by": "Rebecca Krawiec, David Sriboonreuang, Amir Zeldes, Caroline T.  Schroeder",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Shenoute",
+    "work": "I Have Been Considering BV 283-284",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Stephen Emmel",
+    "added_by": "Lance Martin, Nina Speransky, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Shenoute",
+    "work": "My Heart Is Crushed MONB.FL 105-106 (Amélineau edition)",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Stephen Emmel",
+    "added_by": "Adeline Harrington, Lydia Bremer-McCollum, Caroline T. Schroeder",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Shenoute",
+    "work": "Some Kinds of People Sift Dirt: GF 113-120",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "David Brakke",
+    "added_by": "Christine Luckritz Marquis, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Shenoute",
+    "work": "I See Your Eagerness: GF 17-18",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Stephen Emmel, David Brakke",
+    "added_by": "Rebecca Krawiec, Amir Zeldes, Caroline T. Schroeder",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Shenoute",
+    "work": "If Everyone Errs MONB.XG 336-343 (Amélineau edition)",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Stephen Emmel",
+    "added_by": "Lydia Bremer-McCollum, Caroline T. Schroeder",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Shenoute",
+    "work": "Not Because a Fox Barks: XH 204-216",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "",
+    "added_by": "Amir Zeldes, Lance Martin, David Sriboonreuang, Caroline T. Schroeder",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Shenoute",
+    "work": "This Great House MONB.XG Fragment 1 (Amélineau edition)",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Stephen Emmel",
+    "added_by": "Lydia Bremer-McCollum, Caroline T. Schroeder",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Shenoute",
+    "work": "So Listen FL15-28",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Stephen Emmel, Amélineau Oeuvres de Schenoudi 1907",
+    "added_by": "Lance Martin, Lydia Bremer-McCollum, Caroline T. Schroeder",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Shenoute",
+    "work": "In the Night: BV278-282",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Stephen Emmel",
+    "added_by": "Lance Martin, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY 4.0 -"
+  },
+  {
+    "author": "Shenoute",
+    "work": "So Concerning the Little Place BV 277-278",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Stephen Emmel, Amélineau Oeuvres de Schenoudi 1907",
+    "added_by": "Lance Martin, Amir Zeldes, Caroline T. Schroeder",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Shenoute",
+    "work": "Because of You Too O Prince of Evil XH 185-194",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Chassinat edition, OCR via So Miyagawa",
+    "added_by": "Tamara Siuda, Caroline T. Schroeder, Philippe Zaher",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Shenoute",
+    "work": "Whoever Seeks God Will Find CZ 129-137",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "David Brakke",
+    "added_by": "Christine Luckritz Marquis, Lance Martin, Caroline T. Schroeder, Rebecca Krawiec, Amir Zeldes",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Shenoute",
+    "work": "God Says Through Those Who Are His: GF 253-256",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Stephen Emmel, David Brakke",
+    "added_by": "Rebecca Krawiec, Lance Martin, Amir Zeldes, Caroline T. Schroeder",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Shenoute",
+    "work": "The Lord Thundered GG 19-28 in Amélineau",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Stephen Emmel, Amélineau Oeuvres de Schenoudi 1907",
+    "added_by": "Lance Martin, Amir Zeldes, Caroline T. Schroeder",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Shenoute",
+    "work": "God Who Alone Is True BV 119-122",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Stephen Emmel",
+    "added_by": "Lance Martin, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Shenoute",
+    "work": "Uncertain Canons XR 461-476",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Stephen Emmel",
+    "added_by": "Adeline Harrington, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Shenoute",
+    "work": "Unknown Work 5-1: GF 359-60",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "David Brakke, Paul Dilley",
+    "added_by": "Rebecca Krawiec, Caroline T. Schroeder, Christine Luckritz Marquis, Amir Zeldes",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Shenoute",
+    "work": "Who but God is the Witness MONB.FL 185-186 (Amélineau edition)",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Stephen Emmel",
+    "added_by": "Adeline Harrington, Lydia Bremer-McCollum, Caroline T. Schroeder",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Theodosius of Alexandria",
+    "work": "Encomium on Michael the Archangel (Budge ed. MERC.AL) Part",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "Budge Miscellaneous 1915 on Internet Archive",
+    "added_by": "Lydia Bremer-McCollum",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "unknown",
+    "work": "Gospel of Thomas",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/",
+    "print_source": "",
+    "added_by": "Paul Dilley, Lydia Bremer-McCollum, Caroline T. Schroeder, Amir Zeldes",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "1 Chronicles",
+    "e_source": "ETCBC / BHSA",
+    "e_source_url": "https://etcbc.github.io/bhsa/",
+    "print_source": "Biblia Hebraica Stuttgartensia (BHS), 5th edition. Stuttgart: Deutsche Bibelgesellschaft, 1997. Based on the Leningrad Codex (Codex Leningradensis B19A).",
+    "added_by": "Tesserae V6 import via Text-Fabric",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "1 Kings",
+    "e_source": "ETCBC / BHSA",
+    "e_source_url": "https://etcbc.github.io/bhsa/",
+    "print_source": "Biblia Hebraica Stuttgartensia (BHS), 5th edition. Stuttgart: Deutsche Bibelgesellschaft, 1997. Based on the Leningrad Codex (Codex Leningradensis B19A).",
+    "added_by": "Tesserae V6 import via Text-Fabric",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "1 Samuel",
+    "e_source": "ETCBC / BHSA",
+    "e_source_url": "https://etcbc.github.io/bhsa/",
+    "print_source": "Biblia Hebraica Stuttgartensia (BHS), 5th edition. Stuttgart: Deutsche Bibelgesellschaft, 1997. Based on the Leningrad Codex (Codex Leningradensis B19A).",
+    "added_by": "Tesserae V6 import via Text-Fabric",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "2 Samuel",
+    "e_source": "ETCBC / BHSA",
+    "e_source_url": "https://etcbc.github.io/bhsa/",
+    "print_source": "Biblia Hebraica Stuttgartensia (BHS), 5th edition. Stuttgart: Deutsche Bibelgesellschaft, 1997. Based on the Leningrad Codex (Codex Leningradensis B19A).",
+    "added_by": "Tesserae V6 import via Text-Fabric",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Daniel",
+    "e_source": "ETCBC / BHSA",
+    "e_source_url": "https://etcbc.github.io/bhsa/",
+    "print_source": "Biblia Hebraica Stuttgartensia (BHS), 5th edition. Stuttgart: Deutsche Bibelgesellschaft, 1997. Based on the Leningrad Codex (Codex Leningradensis B19A).",
+    "added_by": "Tesserae V6 import via Text-Fabric",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Deuteronomy 32",
+    "e_source": "ETCBC / BHSA",
+    "e_source_url": "https://etcbc.github.io/bhsa/",
+    "print_source": "Biblia Hebraica Stuttgartensia (BHS), 5th edition. Stuttgart: Deutsche Bibelgesellschaft, 1997. Based on the Leningrad Codex (Codex Leningradensis B19A).",
+    "added_by": "Tesserae V6 import via Text-Fabric",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Exodus 15",
+    "e_source": "ETCBC / BHSA",
+    "e_source_url": "https://etcbc.github.io/bhsa/",
+    "print_source": "Biblia Hebraica Stuttgartensia (BHS), 5th edition. Stuttgart: Deutsche Bibelgesellschaft, 1997. Based on the Leningrad Codex (Codex Leningradensis B19A).",
+    "added_by": "Tesserae V6 import via Text-Fabric",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Genesis 1–3",
+    "e_source": "ETCBC / BHSA",
+    "e_source_url": "https://etcbc.github.io/bhsa/",
+    "print_source": "Biblia Hebraica Stuttgartensia (BHS), 5th edition. Stuttgart: Deutsche Bibelgesellschaft, 1997. Based on the Leningrad Codex (Codex Leningradensis B19A).",
+    "added_by": "Tesserae V6 import via Text-Fabric",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Isaiah 1–12",
+    "e_source": "ETCBC / BHSA",
+    "e_source_url": "https://etcbc.github.io/bhsa/",
+    "print_source": "Biblia Hebraica Stuttgartensia (BHS), 5th edition. Stuttgart: Deutsche Bibelgesellschaft, 1997. Based on the Leningrad Codex (Codex Leningradensis B19A).",
+    "added_by": "Tesserae V6 import via Text-Fabric",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Psalms 1–30",
+    "e_source": "ETCBC / BHSA",
+    "e_source_url": "https://etcbc.github.io/bhsa/",
+    "print_source": "Biblia Hebraica Stuttgartensia (BHS), 5th edition. Stuttgart: Deutsche Bibelgesellschaft, 1997. Based on the Leningrad Codex (Codex Leningradensis B19A).",
+    "added_by": "Tesserae V6 import via Text-Fabric",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Ruth",
+    "e_source": "ETCBC / BHSA",
+    "e_source_url": "https://etcbc.github.io/bhsa/",
+    "print_source": "Biblia Hebraica Stuttgartensia (BHS), 5th edition. Stuttgart: Deutsche Bibelgesellschaft, 1997. Based on the Leningrad Codex (Codex Leningradensis B19A).",
+    "added_by": "Tesserae V6 import via Text-Fabric",
+    "license": "CC-BY-SA 4.0"
+  },
+  {
+    "author": "Qur'an",
+    "work": "al-Fatiha",
+    "e_source": "Tanzil",
+    "e_source_url": "https://tanzil.net/download/",
+    "print_source": "Mushaf al-Madinah al-Nabawiyah (Hafs 'an 'Asim transmission of the Qur'anic text).",
+    "added_by": "Tesserae V6 import",
+    "license": "CC-BY-ND 3.0 (Tanzil)"
+  },
+  {
+    "author": "Qur'an",
+    "work": "al-Baqara (part 1)",
+    "e_source": "Tanzil",
+    "e_source_url": "https://tanzil.net/download/",
+    "print_source": "Mushaf al-Madinah al-Nabawiyah (Hafs 'an 'Asim transmission of the Qur'anic text).",
+    "added_by": "Tesserae V6 import",
+    "license": "CC-BY-ND 3.0 (Tanzil)"
+  },
+  {
+    "author": "Qur'an",
+    "work": "al-Imran (part 1)",
+    "e_source": "Tanzil",
+    "e_source_url": "https://tanzil.net/download/",
+    "print_source": "Mushaf al-Madinah al-Nabawiyah (Hafs 'an 'Asim transmission of the Qur'anic text).",
+    "added_by": "Tesserae V6 import",
+    "license": "CC-BY-ND 3.0 (Tanzil)"
+  },
+  {
+    "author": "Qur'an",
+    "work": "Maryam",
+    "e_source": "Tanzil",
+    "e_source_url": "https://tanzil.net/download/",
+    "print_source": "Mushaf al-Madinah al-Nabawiyah (Hafs 'an 'Asim transmission of the Qur'anic text).",
+    "added_by": "Tesserae V6 import",
+    "license": "CC-BY-ND 3.0 (Tanzil)"
+  },
+  {
+    "author": "Imru' al-Qays",
+    "work": "Mu‘allaqah",
+    "e_source": "Public-domain Arabic literary archive",
+    "e_source_url": "",
+    "print_source": "Standard Mu‘allaqāt edition (multiple, e.g., al-Zawzanī, Sharḥ al-Mu‘allaqāt al-Sab‘).",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain"
+  },
+  {
+    "author": "Tarafa ibn al-‘Abd",
+    "work": "Mu‘allaqah",
+    "e_source": "Public-domain Arabic literary archive",
+    "e_source_url": "",
+    "print_source": "Standard Mu‘allaqāt edition (multiple, e.g., al-Zawzanī, Sharḥ al-Mu‘allaqāt al-Sab‘).",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain"
+  },
+  {
+    "author": "Anvari",
+    "work": "Diwan",
+    "e_source": "Ganjoor",
+    "e_source_url": "https://ganjoor.net/",
+    "print_source": "Standard editions of classical Persian poetry; specific editions vary by poet.",
+    "added_by": "Tesserae V6 import (Chronological Persian Poetry Dataset / Ganjoor SQLite)",
+    "license": "CC-BY-SA 4.0 (Ganjoor)"
+  },
+  {
+    "author": "Attar of Nishapur",
+    "work": "Diwan",
+    "e_source": "Ganjoor",
+    "e_source_url": "https://ganjoor.net/",
+    "print_source": "Standard editions of classical Persian poetry; specific editions vary by poet.",
+    "added_by": "Tesserae V6 import (Chronological Persian Poetry Dataset / Ganjoor SQLite)",
+    "license": "CC-BY-SA 4.0 (Ganjoor)"
+  },
+  {
+    "author": "Bidel Dehlavi",
+    "work": "Diwan",
+    "e_source": "Ganjoor",
+    "e_source_url": "https://ganjoor.net/",
+    "print_source": "Standard editions of classical Persian poetry; specific editions vary by poet.",
+    "added_by": "Tesserae V6 import (Chronological Persian Poetry Dataset / Ganjoor SQLite)",
+    "license": "CC-BY-SA 4.0 (Ganjoor)"
+  },
+  {
+    "author": "Farrokhi Sistani",
+    "work": "Diwan",
+    "e_source": "Ganjoor",
+    "e_source_url": "https://ganjoor.net/",
+    "print_source": "Standard editions of classical Persian poetry; specific editions vary by poet.",
+    "added_by": "Tesserae V6 import (Chronological Persian Poetry Dataset / Ganjoor SQLite)",
+    "license": "CC-BY-SA 4.0 (Ganjoor)"
+  },
+  {
+    "author": "Ferdowsi",
+    "work": "Diwan",
+    "e_source": "Ganjoor",
+    "e_source_url": "https://ganjoor.net/",
+    "print_source": "Standard editions of classical Persian poetry; specific editions vary by poet.",
+    "added_by": "Tesserae V6 import (Chronological Persian Poetry Dataset / Ganjoor SQLite)",
+    "license": "CC-BY-SA 4.0 (Ganjoor)"
+  },
+  {
+    "author": "Ferdowsi",
+    "work": "Shahnameh (part 1)",
+    "e_source": "Ganjoor",
+    "e_source_url": "https://ganjoor.net/",
+    "print_source": "Standard editions of classical Persian poetry; specific editions vary by poet.",
+    "added_by": "Tesserae V6 import (Chronological Persian Poetry Dataset / Ganjoor SQLite)",
+    "license": "CC-BY-SA 4.0 (Ganjoor)"
+  },
+  {
+    "author": "Hafez",
+    "work": "Divan (part 1)",
+    "e_source": "Ganjoor",
+    "e_source_url": "https://ganjoor.net/",
+    "print_source": "Standard editions of classical Persian poetry; specific editions vary by poet.",
+    "added_by": "Tesserae V6 import (Chronological Persian Poetry Dataset / Ganjoor SQLite)",
+    "license": "CC-BY-SA 4.0 (Ganjoor)"
+  },
+  {
+    "author": "Hafez",
+    "work": "Diwan",
+    "e_source": "Ganjoor",
+    "e_source_url": "https://ganjoor.net/",
+    "print_source": "Standard editions of classical Persian poetry; specific editions vary by poet.",
+    "added_by": "Tesserae V6 import (Chronological Persian Poetry Dataset / Ganjoor SQLite)",
+    "license": "CC-BY-SA 4.0 (Ganjoor)"
+  },
+  {
+    "author": "Iqbal Lahori",
+    "work": "Persian Diwan",
+    "e_source": "Ganjoor",
+    "e_source_url": "https://ganjoor.net/",
+    "print_source": "Standard editions of classical Persian poetry; specific editions vary by poet.",
+    "added_by": "Tesserae V6 import (Chronological Persian Poetry Dataset / Ganjoor SQLite)",
+    "license": "CC-BY-SA 4.0 (Ganjoor)"
+  },
+  {
+    "author": "Jami",
+    "work": "Diwan",
+    "e_source": "Ganjoor",
+    "e_source_url": "https://ganjoor.net/",
+    "print_source": "Standard editions of classical Persian poetry; specific editions vary by poet.",
+    "added_by": "Tesserae V6 import (Chronological Persian Poetry Dataset / Ganjoor SQLite)",
+    "license": "CC-BY-SA 4.0 (Ganjoor)"
+  },
+  {
+    "author": "Khaqani",
+    "work": "Diwan",
+    "e_source": "Ganjoor",
+    "e_source_url": "https://ganjoor.net/",
+    "print_source": "Standard editions of classical Persian poetry; specific editions vary by poet.",
+    "added_by": "Tesserae V6 import (Chronological Persian Poetry Dataset / Ganjoor SQLite)",
+    "license": "CC-BY-SA 4.0 (Ganjoor)"
+  },
+  {
+    "author": "Omar Khayyam",
+    "work": "Diwan (Rubaiyat)",
+    "e_source": "Ganjoor",
+    "e_source_url": "https://ganjoor.net/",
+    "print_source": "Standard editions of classical Persian poetry; specific editions vary by poet.",
+    "added_by": "Tesserae V6 import (Chronological Persian Poetry Dataset / Ganjoor SQLite)",
+    "license": "CC-BY-SA 4.0 (Ganjoor)"
+  },
+  {
+    "author": "Manuchehri",
+    "work": "Diwan",
+    "e_source": "Ganjoor",
+    "e_source_url": "https://ganjoor.net/",
+    "print_source": "Standard editions of classical Persian poetry; specific editions vary by poet.",
+    "added_by": "Tesserae V6 import (Chronological Persian Poetry Dataset / Ganjoor SQLite)",
+    "license": "CC-BY-SA 4.0 (Ganjoor)"
+  },
+  {
+    "author": "Nasir Khusraw",
+    "work": "Diwan",
+    "e_source": "Ganjoor",
+    "e_source_url": "https://ganjoor.net/",
+    "print_source": "Standard editions of classical Persian poetry; specific editions vary by poet.",
+    "added_by": "Tesserae V6 import (Chronological Persian Poetry Dataset / Ganjoor SQLite)",
+    "license": "CC-BY-SA 4.0 (Ganjoor)"
+  },
+  {
+    "author": "Nizami Ganjavi",
+    "work": "Diwan",
+    "e_source": "Ganjoor",
+    "e_source_url": "https://ganjoor.net/",
+    "print_source": "Standard editions of classical Persian poetry; specific editions vary by poet.",
+    "added_by": "Tesserae V6 import (Chronological Persian Poetry Dataset / Ganjoor SQLite)",
+    "license": "CC-BY-SA 4.0 (Ganjoor)"
+  },
+  {
+    "author": "Parvin Etesami",
+    "work": "Diwan",
+    "e_source": "Ganjoor",
+    "e_source_url": "https://ganjoor.net/",
+    "print_source": "Standard editions of classical Persian poetry; specific editions vary by poet.",
+    "added_by": "Tesserae V6 import (Chronological Persian Poetry Dataset / Ganjoor SQLite)",
+    "license": "CC-BY-SA 4.0 (Ganjoor)"
+  },
+  {
+    "author": "Rudaki",
+    "work": "Diwan",
+    "e_source": "Ganjoor",
+    "e_source_url": "https://ganjoor.net/",
+    "print_source": "Standard editions of classical Persian poetry; specific editions vary by poet.",
+    "added_by": "Tesserae V6 import (Chronological Persian Poetry Dataset / Ganjoor SQLite)",
+    "license": "CC-BY-SA 4.0 (Ganjoor)"
+  },
+  {
+    "author": "Rumi",
+    "work": "Diwan-i Shams",
+    "e_source": "Ganjoor",
+    "e_source_url": "https://ganjoor.net/",
+    "print_source": "Standard editions of classical Persian poetry; specific editions vary by poet.",
+    "added_by": "Tesserae V6 import (Chronological Persian Poetry Dataset / Ganjoor SQLite)",
+    "license": "CC-BY-SA 4.0 (Ganjoor)"
+  },
+  {
+    "author": "Rumi",
+    "work": "Masnavi (part 1)",
+    "e_source": "Ganjoor",
+    "e_source_url": "https://ganjoor.net/",
+    "print_source": "Standard editions of classical Persian poetry; specific editions vary by poet.",
+    "added_by": "Tesserae V6 import (Chronological Persian Poetry Dataset / Ganjoor SQLite)",
+    "license": "CC-BY-SA 4.0 (Ganjoor)"
+  },
+  {
+    "author": "Saadi",
+    "work": "Bustan (part 1)",
+    "e_source": "Ganjoor",
+    "e_source_url": "https://ganjoor.net/",
+    "print_source": "Standard editions of classical Persian poetry; specific editions vary by poet.",
+    "added_by": "Tesserae V6 import (Chronological Persian Poetry Dataset / Ganjoor SQLite)",
+    "license": "CC-BY-SA 4.0 (Ganjoor)"
+  },
+  {
+    "author": "Saadi",
+    "work": "Diwan",
+    "e_source": "Ganjoor",
+    "e_source_url": "https://ganjoor.net/",
+    "print_source": "Standard editions of classical Persian poetry; specific editions vary by poet.",
+    "added_by": "Tesserae V6 import (Chronological Persian Poetry Dataset / Ganjoor SQLite)",
+    "license": "CC-BY-SA 4.0 (Ganjoor)"
+  },
+  {
+    "author": "Saeb Tabrizi",
+    "work": "Diwan",
+    "e_source": "Ganjoor",
+    "e_source_url": "https://ganjoor.net/",
+    "print_source": "Standard editions of classical Persian poetry; specific editions vary by poet.",
+    "added_by": "Tesserae V6 import (Chronological Persian Poetry Dataset / Ganjoor SQLite)",
+    "license": "CC-BY-SA 4.0 (Ganjoor)"
+  },
+  {
+    "author": "Sanai",
+    "work": "Diwan",
+    "e_source": "Ganjoor",
+    "e_source_url": "https://ganjoor.net/",
+    "print_source": "Standard editions of classical Persian poetry; specific editions vary by poet.",
+    "added_by": "Tesserae V6 import (Chronological Persian Poetry Dataset / Ganjoor SQLite)",
+    "license": "CC-BY-SA 4.0 (Ganjoor)"
+  },
+  {
+    "author": "Mirza Ghalib",
+    "work": "Diwan-e Ghalib (Pritchett edition)",
+    "e_source": "Frances W. Pritchett, A Desertful of Roses",
+    "e_source_url": "https://franpritchett.com/00ghalib/",
+    "print_source": "Frances W. Pritchett, A Desertful of Roses: The Urdu Ghazals of Mirza Asadullah Khan Ghalib. Columbia University.",
+    "added_by": "Tesserae V6 import (Pritchett-format converter)",
+    "license": "Academic use (Pritchett site)"
+  },
+  {
+    "author": "Mirza Ghalib",
+    "work": "Diwan-e Ghalib",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/",
+    "print_source": "Multiple critical editions of Diwan-e Ghalib.",
+    "added_by": "Tesserae V6 import",
+    "license": "CC-BY-SA"
+  },
+  {
+    "author": "Allama Iqbal",
+    "work": "Armaghan-e Hijaz (Persian portion)",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/iqbal-demystified",
+    "print_source": "Kulliyat-e Iqbal (collected works; Persian and Urdu volumes).",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain (Iqbal d. 1938)"
+  },
+  {
+    "author": "Allama Iqbal",
+    "work": "Armaghan-e Hijaz (Urdu portion)",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/iqbal-demystified",
+    "print_source": "Kulliyat-e Iqbal (collected works; Persian and Urdu volumes).",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain (Iqbal d. 1938)"
+  },
+  {
+    "author": "Allama Iqbal",
+    "work": "Asrar-e Khudi",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/iqbal-demystified",
+    "print_source": "Kulliyat-e Iqbal (collected works; Persian and Urdu volumes).",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain (Iqbal d. 1938)"
+  },
+  {
+    "author": "Allama Iqbal",
+    "work": "Bal-e Jibril",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/iqbal-demystified",
+    "print_source": "Kulliyat-e Iqbal (collected works; Persian and Urdu volumes).",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain (Iqbal d. 1938)"
+  },
+  {
+    "author": "Allama Iqbal",
+    "work": "Bang-e Dara",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/iqbal-demystified",
+    "print_source": "Kulliyat-e Iqbal (collected works; Persian and Urdu volumes).",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain (Iqbal d. 1938)"
+  },
+  {
+    "author": "Allama Iqbal",
+    "work": "Javid Nama",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/iqbal-demystified",
+    "print_source": "Kulliyat-e Iqbal (collected works; Persian and Urdu volumes).",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain (Iqbal d. 1938)"
+  },
+  {
+    "author": "Allama Iqbal",
+    "work": "Pas Cheh Bayad Kard",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/iqbal-demystified",
+    "print_source": "Kulliyat-e Iqbal (collected works; Persian and Urdu volumes).",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain (Iqbal d. 1938)"
+  },
+  {
+    "author": "Allama Iqbal",
+    "work": "Payam-e Mashriq",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/iqbal-demystified",
+    "print_source": "Kulliyat-e Iqbal (collected works; Persian and Urdu volumes).",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain (Iqbal d. 1938)"
+  },
+  {
+    "author": "Allama Iqbal",
+    "work": "Rumuz-e Bekhudi",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/iqbal-demystified",
+    "print_source": "Kulliyat-e Iqbal (collected works; Persian and Urdu volumes).",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain (Iqbal d. 1938)"
+  },
+  {
+    "author": "Allama Iqbal",
+    "work": "Zabur-e Ajam",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/iqbal-demystified",
+    "print_source": "Kulliyat-e Iqbal (collected works; Persian and Urdu volumes).",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain (Iqbal d. 1938)"
+  },
+  {
+    "author": "Allama Iqbal",
+    "work": "Zarb-e Kalim",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/iqbal-demystified",
+    "print_source": "Kulliyat-e Iqbal (collected works; Persian and Urdu volumes).",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain (Iqbal d. 1938)"
+  },
+  {
+    "author": "Elizabeth Barrett Browning",
+    "work": "Sonnets from the Portuguese",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/",
+    "print_source": "Multiple editions; original publication varies.",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain"
+  },
+  {
+    "author": "Lewis Carroll",
+    "work": "Alice in Wonderland",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/",
+    "print_source": "Multiple editions; original publication varies.",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain"
+  },
+  {
+    "author": "William Cowper",
+    "work": "The Task",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/",
+    "print_source": "Multiple editions; original publication varies.",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain"
+  },
+  {
+    "author": "John Milton",
+    "work": "Paradise Lost",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/",
+    "print_source": "Multiple editions; original publication varies.",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain"
+  },
+  {
+    "author": "William Shakespeare",
+    "work": "Hamlet",
+    "e_source": "Moby Shakespeare",
+    "e_source_url": "https://shakespeare.mit.edu/",
+    "print_source": "Multiple editions; original publication varies.",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain"
+  },
+  {
+    "author": "William Shakespeare",
+    "work": "Richard III",
+    "e_source": "Moby Shakespeare",
+    "e_source_url": "https://shakespeare.mit.edu/",
+    "print_source": "Multiple editions; original publication varies.",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain"
+  },
+  {
+    "author": "William Shakespeare",
+    "work": "Sonnets",
+    "e_source": "Moby Shakespeare",
+    "e_source_url": "https://shakespeare.mit.edu/",
+    "print_source": "Multiple editions; original publication varies.",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain"
+  },
+  {
+    "author": "Jonathan Swift",
+    "work": "Gulliver's Travels",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/",
+    "print_source": "Multiple editions; original publication varies.",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain"
+  },
+  {
+    "author": "William Wordsworth",
+    "work": "The Prelude",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/",
+    "print_source": "Multiple editions; original publication varies.",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain"
+  },
+  {
+    "author": "World English Bible",
+    "work": "Pentateuch",
+    "e_source": "eBible.org",
+    "e_source_url": "https://ebible.org/web/",
+    "print_source": "World English Bible (WEB), Public Domain modern translation derived from the American Standard Version (1901).",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain"
+  },
+  {
+    "author": "World English Bible",
+    "work": "Prophets",
+    "e_source": "eBible.org",
+    "e_source_url": "https://ebible.org/web/",
+    "print_source": "World English Bible (WEB), Public Domain modern translation derived from the American Standard Version (1901).",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain"
+  },
+  {
+    "author": "World English Bible",
+    "work": "Writings",
+    "e_source": "eBible.org",
+    "e_source_url": "https://ebible.org/web/",
+    "print_source": "World English Bible (WEB), Public Domain modern translation derived from the American Standard Version (1901).",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain"
+  },
+  {
+    "author": "World English Bible",
+    "work": "Revelation",
+    "e_source": "eBible.org",
+    "e_source_url": "https://ebible.org/web/",
+    "print_source": "World English Bible (WEB), Public Domain modern translation derived from the American Standard Version (1901).",
+    "added_by": "Tesserae V6 import",
+    "license": "Public domain"
+  },
+  {
+    "author": "Sahidic NT",
+    "work": "New Testament (whole)",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament/",
+    "print_source": "Sahidica - A New Edition of the New Testament in Sahidic Coptic",
+    "added_by": "Tesserae V6 import (concatenated from 27 books)",
+    "license": "(c)2000-2006 J. Warren Wells; CC-BY 4.0 annotations"
+  },
+  {
+    "author": "Bohairic NT",
+    "work": "New Testament (whole)",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/new-testament-bohairic/",
+    "print_source": "Bohairic NT (KELLIA / Coptic SCRIPTORIUM)",
+    "added_by": "Tesserae V6 import (concatenated from 27 books)",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Bohairic OT",
+    "work": "Old Testament (whole)",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/bohairic-old-testament/",
+    "print_source": "Bohairic OT (KELLIA / Coptic SCRIPTORIUM)",
+    "added_by": "Tesserae V6 import (concatenated from 24 books)",
+    "license": "CC-BY 4.0"
+  },
+  {
+    "author": "Sahidic OT",
+    "work": "Old Testament (whole)",
+    "e_source": "Coptic Scriptorium",
+    "e_source_url": "https://data.copticscriptorium.org/texts/old-testament/",
+    "print_source": "CoptOT (KELLIA / Coptic SCRIPTORIUM)",
+    "added_by": "Tesserae V6 import (concatenated from 45 books)",
+    "license": "CC-BY-SA 4.0"
   }
 ]

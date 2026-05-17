@@ -1140,18 +1140,34 @@ def find_rare_word_matches_direct(source_units, target_units, language='la',
     """
     from collections import defaultdict
 
+    # Per-language manual stoplist for filtering function-class morphemes.
+    # Critical for Coptic post sub-word tokenisation (2026-05-01) — the
+    # rare_word channel otherwise generates millions of candidate matches
+    # on common bound morphemes whose corpus-doc-frequency happens to
+    # land within max_occurrences in some texts.
+    manual_stoplist = set()
+    if language == 'cop':
+        try:
+            from backend.coptic.stopwords import COPTIC_STOP_WORDS
+            manual_stoplist = COPTIC_STOP_WORDS
+        except Exception:
+            pass
+
+    def _accept(l):
+        return len(l) > 2 and l not in manual_stoplist
+
     # Collect unique lemmas per unit
     source_lemma_sets = []
     all_source_lemmas = set()
     for unit in source_units:
-        lemmas = set(l.lower() for l in unit.get('lemmas', []) if len(l) > 2)
+        lemmas = set(l.lower() for l in unit.get('lemmas', []) if _accept(l))
         source_lemma_sets.append(lemmas)
         all_source_lemmas.update(lemmas)
 
     target_lemma_sets = []
     all_target_lemmas = set()
     for unit in target_units:
-        lemmas = set(l.lower() for l in unit.get('lemmas', []) if len(l) > 2)
+        lemmas = set(l.lower() for l in unit.get('lemmas', []) if _accept(l))
         target_lemma_sets.append(lemmas)
         all_target_lemmas.update(lemmas)
 
@@ -1430,15 +1446,29 @@ def get_rare_lemmata_full():
         max_occ = int(request.args.get('max_occurrences', 10))
         limit = int(request.args.get('limit', 50000))
         
-        # Load from pre-cached file for instant response
+        # Load from pre-cached file for instant response.
+        # If the cache is missing for this language, regenerate it lazily —
+        # this is the bootstrap path for languages that have frequency data
+        # but no pre-built rare-words cache yet (e.g. when a language is added
+        # without rebuilding caches first). First request pays the build cost
+        # (~30–60s for typical corpora); subsequent requests are instant.
         cached = load_rare_words_cache(language)
+        if not cached:
+            logger.info(f"Rare-words cache missing for {language}, regenerating lazily")
+            try:
+                built = regenerate_rare_words_cache(language)
+                if built:
+                    cached = load_rare_words_cache(language)
+            except Exception as e:
+                logger.error(f"Lazy cache regeneration failed for {language}: {e}")
         if not cached:
             return jsonify({
                 'language': language,
                 'total': 0,
                 'max_occurrences': max_occ,
                 'words': [],
-                'error': 'Cache not available'
+                'error': 'Cache not available and could not be regenerated. '
+                         'Check that frequency data exists for this language.'
             })
         
         # Filter by max_occurrences

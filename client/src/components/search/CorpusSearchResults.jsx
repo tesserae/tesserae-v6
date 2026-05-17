@@ -5,6 +5,7 @@ import { Bar } from 'react-chartjs-2';
 import { formatFullCitation } from '../../utils/textNames';
 import { formatElapsedTime } from '../../utils/formatting';
 import { displayGreekWithFinalSigma, normalizeGreek } from '../../utils/greekUtils';
+import { exportRowsToPDF } from '../../utils/exportResults';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -248,6 +249,16 @@ export default function CorpusSearchResults({
     URL.revokeObjectURL(url);
   }, [results, query]);
 
+  const exportPDF = useCallback(() => {
+    if (!results || results.length === 0) return;
+    const headers = ['Author', 'Work', 'Locus', 'Text', 'Era', 'Year'];
+    const rows = results.map(r => [
+      r.author || '', r.work || '', r.locus || '', r.text || '', r.era || '', r.year || '',
+    ]);
+    const lemmaLabel = query?.lemmas?.join(' + ') || 'search';
+    exportRowsToPDF(`Tesserae V6 — Corpus Search: ${lemmaLabel}`, '', headers, rows, {});
+  }, [results, query]);
+
   const exportTimelineChart = () => {
     if (!chartRef.current) return;
     const canvas = chartRef.current.canvas;
@@ -396,6 +407,13 @@ export default function CorpusSearchResults({
                 className="text-sm text-amber-600 hover:text-amber-800"
               >
                 Export CSV
+              </button>
+              <button
+                onClick={exportPDF}
+                className="text-sm text-amber-600 hover:text-amber-800"
+                title="Open print-friendly view; choose 'Save as PDF' in the print dialog."
+              >
+                Export PDF
               </button>
             </div>
           </div>

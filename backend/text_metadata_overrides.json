@@ -1,4 +1,524 @@
 {
   "_description": "Per-text metadata overrides. Keyed by text filename (e.g. 'eobanus.heroidum.tess'). Fields: text_type (poetry/prose), display_author, display_work, year, era, notes. Only include fields you want to override.",
-  "_last_updated": "2026-02-09"
+  "_last_updated": "2026-05-01",
+  "bohairic.abdias.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Obadiah"
+  },
+  "bohairic.acts.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Acts of the Apostles"
+  },
+  "bohairic.aggaeus.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Haggai"
+  },
+  "bohairic.amos.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Amos"
+  },
+  "bohairic.bible.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Bible (whole)"
+  },
+  "bohairic.colossians.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Colossians"
+  },
+  "bohairic.daniel.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Daniel"
+  },
+  "bohairic.deuteronomium.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Deuteronomy"
+  },
+  "bohairic.ephesians.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Ephesians"
+  },
+  "bohairic.exodus.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Exodus"
+  },
+  "bohairic.ezechiel.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Ezekiel"
+  },
+  "bohairic.galathians.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Galatians"
+  },
+  "bohairic.genesis.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Genesis"
+  },
+  "bohairic.habacuc.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Habakkuk"
+  },
+  "bohairic.hebrews.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Hebrews"
+  },
+  "bohairic.i_corinthians.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "1 Corinthians"
+  },
+  "bohairic.i_john.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "1 John"
+  },
+  "bohairic.i_peter.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "1 Peter"
+  },
+  "bohairic.i_thessalonians.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "1 Thessalonians"
+  },
+  "bohairic.i_timothy.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "1 Timothy"
+  },
+  "bohairic.ieremias.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Jeremiah"
+  },
+  "bohairic.ii_corinthians.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "2 Corinthians"
+  },
+  "bohairic.ii_john.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "2 John"
+  },
+  "bohairic.ii_peter.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "2 Peter"
+  },
+  "bohairic.ii_thessalonians.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "2 Thessalonians"
+  },
+  "bohairic.ii_timothy.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "2 Timothy"
+  },
+  "bohairic.iii_john.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "3 John"
+  },
+  "bohairic.iob.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Job"
+  },
+  "bohairic.ioel.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Joel"
+  },
+  "bohairic.ionas.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Jonah"
+  },
+  "bohairic.isaias.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Isaiah"
+  },
+  "bohairic.james.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "James"
+  },
+  "bohairic.john.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "John"
+  },
+  "bohairic.jude.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Jude"
+  },
+  "bohairic.lamentationes.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Lamentations"
+  },
+  "bohairic.leviticus.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Leviticus"
+  },
+  "bohairic.luke.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Luke"
+  },
+  "bohairic.malachias.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Malachi"
+  },
+  "bohairic.mark.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Mark"
+  },
+  "bohairic.matthew.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Matthew"
+  },
+  "bohairic.michaeas.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Micah"
+  },
+  "bohairic.nahum.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Nahum"
+  },
+  "bohairic.nt.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "New Testament (whole)"
+  },
+  "bohairic.numeri.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Numbers"
+  },
+  "bohairic.osee.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Hosea"
+  },
+  "bohairic.ot.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Old Testament (whole)"
+  },
+  "bohairic.philemon.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Philemon"
+  },
+  "bohairic.philippians.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Philippians"
+  },
+  "bohairic.psalmi.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Psalms"
+  },
+  "bohairic.revelation.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Revelation"
+  },
+  "bohairic.romans.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Romans"
+  },
+  "bohairic.sophonias.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Zephaniah"
+  },
+  "bohairic.titus.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Titus"
+  },
+  "bohairic.zacharias.tess": {
+    "display_author": "Bohairic Coptic",
+    "display_work": "Zechariah"
+  },
+  "sahidic.amos.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Amos"
+  },
+  "sahidic.baruch.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Baruch"
+  },
+  "sahidic.bel_and_the_dragon.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Bel and the Dragon"
+  },
+  "sahidic.bible.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Bible (whole)"
+  },
+  "sahidic.daniel.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Daniel"
+  },
+  "sahidic.deuteronomy.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Deuteronomy"
+  },
+  "sahidic.ecclesiastes.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Ecclesiastes"
+  },
+  "sahidic.epistle_of_jeremiah.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Epistle of Jeremiah"
+  },
+  "sahidic.esther.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Esther"
+  },
+  "sahidic.exodus.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Exodus"
+  },
+  "sahidic.ezekiel.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Ezekiel"
+  },
+  "sahidic.genesis.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Genesis"
+  },
+  "sahidic.habakkuk.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Habakkuk"
+  },
+  "sahidic.haggai.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Haggai"
+  },
+  "sahidic.hosea.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Hosea"
+  },
+  "sahidic.i_chronicles.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "1 Chronicles"
+  },
+  "sahidic.i_kings.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "1 Kings"
+  },
+  "sahidic.i_samuel.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "1 Samuel"
+  },
+  "sahidic.ii_chronicles.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "2 Chronicles"
+  },
+  "sahidic.ii_kings.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "2 Kings"
+  },
+  "sahidic.ii_maccabees.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "2 Maccabees"
+  },
+  "sahidic.ii_samuel.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "2 Samuel"
+  },
+  "sahidic.isaiah.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Isaiah"
+  },
+  "sahidic.jeremiah.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Jeremiah"
+  },
+  "sahidic.job.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Job"
+  },
+  "sahidic.joel.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Joel"
+  },
+  "sahidic.jonah.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Jonah"
+  },
+  "sahidic.joshua.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Joshua"
+  },
+  "sahidic.judges.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Judges"
+  },
+  "sahidic.judith.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Judith"
+  },
+  "sahidic.lamentations.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Lamentations"
+  },
+  "sahidic.leviticus.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Leviticus"
+  },
+  "sahidic.micah.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Micah"
+  },
+  "sahidic.nahum.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Nahum"
+  },
+  "sahidic.numbers.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Numbers"
+  },
+  "sahidic.obadiah.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Obadiah"
+  },
+  "sahidic.ot.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Old Testament (whole)"
+  },
+  "sahidic.prayer_of_manasses.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Prayer of Manasses"
+  },
+  "sahidic.proverbs.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Proverbs"
+  },
+  "sahidic.psalms.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Psalms"
+  },
+  "sahidic.ruth.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Ruth"
+  },
+  "sahidic.sirach.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Sirach"
+  },
+  "sahidic.song_of_solomon.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Song of Solomon"
+  },
+  "sahidic.susanna.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Susanna"
+  },
+  "sahidic.tobit.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Tobit"
+  },
+  "sahidic.wisdom.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Wisdom"
+  },
+  "sahidic.zechariah.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Zechariah"
+  },
+  "sahidic.zephaniah.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Zephaniah"
+  },
+  "sahidica.1_john.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "1 John"
+  },
+  "sahidica.1_peter.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "1 Peter"
+  },
+  "sahidica.1_thessalonians.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "1 Thessalonians"
+  },
+  "sahidica.1_timothy.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "1 Timothy"
+  },
+  "sahidica.1corinthians.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "1 Corinthians"
+  },
+  "sahidica.2_corinthians.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "2 Corinthians"
+  },
+  "sahidica.2_john.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "2 John"
+  },
+  "sahidica.2_peter.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "2 Peter"
+  },
+  "sahidica.2_thessalonians.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "2 Thessalonians"
+  },
+  "sahidica.2_timothy.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "2 Timothy"
+  },
+  "sahidica.3_john.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "3 John"
+  },
+  "sahidica.acts_of_the_apostles.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Acts of the Apostles"
+  },
+  "sahidica.colossians.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Colossians"
+  },
+  "sahidica.ephesians.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Ephesians"
+  },
+  "sahidica.galatians.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Galatians"
+  },
+  "sahidica.hebrews.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Hebrews"
+  },
+  "sahidica.james.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "James"
+  },
+  "sahidica.john.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "John"
+  },
+  "sahidica.jude.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Jude"
+  },
+  "sahidica.luke.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Luke"
+  },
+  "sahidica.mark.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Mark"
+  },
+  "sahidica.matthew.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Matthew"
+  },
+  "sahidica.nt.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "New Testament (whole)"
+  },
+  "sahidica.philemon.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Philemon"
+  },
+  "sahidica.philippians.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Philippians"
+  },
+  "sahidica.revelation.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Revelation"
+  },
+  "sahidica.romans.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Romans"
+  },
+  "sahidica.titus.tess": {
+    "display_author": "Sahidic Coptic",
+    "display_work": "Titus"
+  }
 }

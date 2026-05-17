@@ -90,25 +90,72 @@ def save_frequency_cache(language, frequencies, total_lemmas, checksum):
     return data
 
 def calculate_corpus_frequencies(language, text_processor):
-    """Calculate lemma frequencies for entire corpus (deduplicated)"""
+    """Calculate lemma frequencies for entire corpus (deduplicated).
+
+    Uses the inverted index (SQLite) when available for fast frequency counting
+    without re-lemmatizing every text. Falls back to text_processor.process_file()
+    only when the index doesn't exist.
+    """
     lang_dir = os.path.join(TEXTS_DIR, language)
     if not os.path.exists(lang_dir):
         return {}
-    
-    all_lemmas = []
+
     all_files = [f for f in os.listdir(lang_dir) if f.endswith('.tess')]
     text_files = deduplicate_text_files(all_files)
-    
-    logger.info(f"Calculating corpus frequencies for {language}: {len(text_files)} texts (excluded {len(all_files) - len(text_files)} duplicate segments)...")
-    
-    for i, text_file in enumerate(text_files):
-        text_path = os.path.join(lang_dir, text_file)
+
+    # Fast path: read lemmas from inverted index (already lemmatized)
+    import sqlite3, json
+    index_dir = os.path.join(os.path.dirname(TEXTS_DIR), 'data', 'inverted_index')
+    index_path = os.path.join(index_dir, f'{language}_index.db')
+    if not os.path.exists(index_path):
+        # Try symlinked path
+        alt_path = os.path.join(os.path.dirname(os.path.dirname(TEXTS_DIR)), 'data', 'inverted_index', f'{language}_index.db')
+        if os.path.exists(alt_path):
+            index_path = alt_path
+
+    all_lemmas = []
+
+    if os.path.exists(index_path):
+        logger.info(f"Calculating corpus frequencies for {language} from index: {len(text_files)} texts...")
         try:
-            units = text_processor.process_file(text_path, language)
-            for unit in units:
-                all_lemmas.extend(unit['lemmas'])
+            conn = sqlite3.connect(f'file:{index_path}?mode=ro', uri=True)
+            c = conn.cursor()
+            text_file_set = set(text_files)
+            c.execute('SELECT filename, text_id FROM texts')
+            for filename, text_id in c.fetchall():
+                if filename not in text_file_set:
+                    continue
+                c2 = conn.cursor()
+                c2.execute('SELECT lemmas FROM lines WHERE text_id = ?', (text_id,))
+                for (lemmas_str,) in c2.fetchall():
+                    if not lemmas_str:
+                        continue
+                    if lemmas_str.startswith('['):
+                        try:
+                            lemmas = json.loads(lemmas_str)
+                        except:
+                            lemmas = lemmas_str.split(',')
+                    else:
+                        lemmas = lemmas_str.split(',')
+                    all_lemmas.extend(lemmas)
+            conn.close()
+            logger.info(f"  Read {len(all_lemmas)} lemma tokens from index")
         except Exception as e:
-            logger.error(f"  Error processing {text_file}: {e}")
+            logger.warning(f"  Index read failed ({e}), falling back to text processing")
+            all_lemmas = []
+
+    # Slow fallback: re-lemmatize from .tess files (only if index path failed)
+    if not all_lemmas:
+        logger.info(f"Calculating corpus frequencies for {language}: {len(text_files)} texts (excluded {len(all_files) - len(text_files)} duplicate segments)...")
+        text_processor._skip_stanza = True
+        for i, text_file in enumerate(text_files):
+            text_path = os.path.join(lang_dir, text_file)
+            try:
+                units = text_processor.process_file(text_path, language)
+                for unit in units:
+                    all_lemmas.extend(unit['lemmas'])
+            except Exception as e:
+                logger.error(f"  Error processing {text_file}: {e}")
         
         if (i + 1) % 100 == 0:
             logger.info(f"  Processed {i + 1}/{len(text_files)} texts...")

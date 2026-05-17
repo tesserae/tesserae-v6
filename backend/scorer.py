@@ -88,7 +88,10 @@ class Scorer:
             matched_lemmas = match.get('matched_lemmas', [])
             match_basis = match.get('match_basis', 'lemma')
             
-            if match_basis == 'sound' or match_type == 'sound':
+            if match_basis == 'quotation' or match_type == 'quotation':
+                result = self._score_quotation_match(match, src_unit, tgt_unit, settings)
+                results.append(result)
+            elif match_basis == 'sound' or match_type == 'sound':
                 result = self._score_sound_match(match, src_unit, tgt_unit, settings)
                 results.append(result)
             elif match_basis == 'edit_distance' or match_type == 'edit_distance':
@@ -186,7 +189,8 @@ class Scorer:
                 
                 features = feature_extractor.extract_features(
                     src_unit, tgt_unit, matched_lemmas, settings,
-                    source_id=self._current_source_id, target_id=self._current_target_id
+                    source_id=self._current_source_id, target_id=self._current_target_id,
+                    language=settings.get('language', 'la'),
                 )
                 
                 boosted_score = feature_extractor.boost_score(normalized_score, features, settings)
@@ -238,6 +242,78 @@ class Scorer:
         
         return results
     
+    def _score_quotation_match(self, match, src_unit, tgt_unit, settings):
+        """Score a quotation-run match (3+ consecutive identical surface tokens).
+
+        Score is run_length / 5, uncapped. A 5-word run = 1.0, a 10-word run = 2.0.
+        Deliberately does NOT use IDF — the whole point of the channel is to bypass
+        the IDF rarity penalty that suppresses common-vocabulary biblical quotations.
+        """
+        run_length = match.get('run_length', 0)
+        run_text = match.get('run_text', [])
+        s_pos = match.get('source_position', 0)
+        t_pos = match.get('target_position', 0)
+
+        src_highlight_indices = list(range(s_pos, s_pos + run_length))
+        tgt_highlight_indices = list(range(t_pos, t_pos + run_length))
+
+        # Build matched_words from the run tokens.  Use the bracket convention
+        # ('[QUOT:...]') that V6's rarity scoring recognises as a non-lemma
+        # marker — this keeps the run tokens out of the IDF-based rarity
+        # penalty, which is the whole point of the quotation channel.
+        word_scores = []
+        for i, tok in enumerate(run_text[:10]):
+            word_scores.append({
+                'lemma': f'[QUOT:{tok}]',
+                'source_word': tok,
+                'target_word': tok,
+                'frequency': 0,
+                'idf': 0,
+                'run_position': i,
+            })
+
+        quotation_score = match.get('quotation_score', run_length / 5.0)
+
+        features = {
+            'lemma_count': 0,
+            'pos_score': 0.0,
+            'edit_distance_score': 0.0,
+            'sound_score': 0.0,
+            'quotation_score': quotation_score,
+            'quotation_run_length': run_length,
+            'combined_score': quotation_score,
+        }
+
+        return {
+            'source': {
+                'ref': src_unit['ref'],
+                'text': src_unit['text'],
+                'tokens': src_unit['tokens'],
+                'highlight_indices': src_highlight_indices,
+                **({'line_refs': src_unit['line_refs'],
+                    'line_token_counts': src_unit['line_token_counts']}
+                   if 'line_refs' in src_unit else {}),
+            },
+            'target': {
+                'ref': tgt_unit['ref'],
+                'text': tgt_unit['text'],
+                'tokens': tgt_unit['tokens'],
+                'highlight_indices': tgt_highlight_indices,
+                **({'line_refs': tgt_unit['line_refs'],
+                    'line_token_counts': tgt_unit['line_token_counts']}
+                   if 'line_refs' in tgt_unit else {}),
+            },
+            'matched_words': word_scores,
+            'quotation_run_length': run_length,
+            'quotation_run_text': run_text,
+            'source_distance': 1,
+            'target_distance': 1,
+            'overall_score': quotation_score,
+            'base_score': quotation_score,
+            'features': features,
+            'match_basis': 'quotation',
+        }
+
     def _score_sound_match(self, match, src_unit, tgt_unit, settings):
         """Score a sound-based match (trigram similarity)"""
         sound_score = match.get('sound_score', 0)

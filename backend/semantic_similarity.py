@@ -269,7 +269,7 @@ def find_dictionary_matches(source_units: List[Dict], target_units: List[Dict],
     Returns:
         Tuple of (matches list, stoplist_size)
     """
-    from backend.synonym_dict import get_latin_lookup, get_greek_lookup
+    from backend.synonym_dict import get_latin_lookup, get_greek_lookup, get_coptic_lookup
     from backend.matcher import DEFAULT_LATIN_STOP_WORDS, DEFAULT_GREEK_STOP_WORDS
 
     settings = settings or {}
@@ -282,12 +282,16 @@ def find_dictionary_matches(source_units: List[Dict], target_units: List[Dict],
         logger.warning("Dictionary matching not available for English (no synonym data in V3)")
         return [], 0
 
-    stopwords = DEFAULT_LATIN_STOP_WORDS if language == 'la' else DEFAULT_GREEK_STOP_WORDS
-
     if language == 'la':
         lookup = get_latin_lookup()
+        stopwords = DEFAULT_LATIN_STOP_WORDS
     elif language == 'grc':
         lookup = get_greek_lookup()
+        stopwords = DEFAULT_GREEK_STOP_WORDS
+    elif language == 'cop':
+        lookup = get_coptic_lookup()
+        from backend.coptic.stopwords import COPTIC_STOP_WORDS
+        stopwords = COPTIC_STOP_WORDS
     else:
         return [], 0
 

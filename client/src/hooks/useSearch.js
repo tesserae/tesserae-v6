@@ -75,7 +75,7 @@ export const useSearch = () => {
           setResults(intermediateData.results || []);
           setFusionProgress({
             channelsDone: intermediateData.channels_done || [],
-            channelsTotal: intermediateData.channels_total || 9,
+            channelsTotal: intermediateData.channels_total || 6,
             phase: intermediateData.phase || 'line',
           });
         };

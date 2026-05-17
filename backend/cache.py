@@ -1,6 +1,28 @@
 """
 Tesserae V6 - Result Cache
-Caches search results for instant repeated queries
+Caches search results for instant repeated queries.
+
+# When to bump MATCHER_VERSION
+
+Bump this string whenever ANY of the following changes in a way that
+could affect ranked search results:
+
+- backend/matcher.py        (channel matchers, adjacency / stopword logic)
+- backend/fusion.py         (channel weights, fusion formula, window pass,
+                             rare-word thresholds, prose-pass gating)
+- backend/scorer.py         (per-pair scoring, IDF, distance penalty)
+- backend/feature_extractor.py  (feature gates, meter / syntax / sound)
+- any backend/<lang>/processor.py or stopwords.py
+- any change to lemma cache contents (cache/lemmas/*) or syntax DBs
+
+Adding a new sub-version letter (e.g. "2026-05-01a" -> "2026-05-01b")
+is fine for same-day iterative changes. Use a date-based prefix so
+chronological order is obvious.
+
+Cached entries whose key includes a different MATCHER_VERSION simply
+miss the cache and re-run from scratch. There is no need to manually
+clear the cache directory after bumping — the old entries become
+unreachable and can be garbage-collected later.
 """
 import os
 import json
@@ -8,6 +30,10 @@ import hashlib
 from datetime import datetime
 
 CACHE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'cache')
+
+# See top-of-module docstring for when to bump.
+MATCHER_VERSION = "2026-05-15e"
+
 
 def ensure_cache_dir():
     """Ensure cache directory exists"""
@@ -17,6 +43,7 @@ def ensure_cache_dir():
 def get_cache_key(source_id, target_id, language, settings):
     """Generate a unique cache key for a search configuration"""
     key_parts = {
+        'matcher_version': MATCHER_VERSION,
         'source': source_id,
         'target': target_id,
         'language': language,

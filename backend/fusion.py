@@ -69,6 +69,7 @@ import numpy as np
 
 from backend.logging_config import get_logger
 from backend.matcher import DEFAULT_LATIN_STOP_WORDS, DEFAULT_GREEK_STOP_WORDS, DEFAULT_ENGLISH_STOP_WORDS
+from backend.coptic.stopwords import COPTIC_STOP_WORDS
 
 logger = get_logger('fusion')
 
@@ -77,6 +78,7 @@ _STOPLISTS = {
     'la': DEFAULT_LATIN_STOP_WORDS,
     'grc': DEFAULT_GREEK_STOP_WORDS,
     'en': DEFAULT_ENGLISH_STOP_WORDS,
+    'cop': COPTIC_STOP_WORDS,
 }
 
 
@@ -143,7 +145,71 @@ CHANNEL_WEIGHTS = {
                             #   syntactic patterns; rises when semantic recovery adds 2nd channel)
     "lemma_min1": 0.3,      # lexical: single shared lemma (low — very high recall, very
                             #   noisy; serves as a catch-all for otherwise missed pairs)
+    "quotation": 0.0,       # lexical: runs of 3+ consecutive identical surface tokens.
+                            #   DEFAULT WEIGHT IS 0 to avoid affecting Latin/Greek
+                            #   classical-poetry benchmarks. The quotation channel is
+                            #   intended primarily for biblical-prose; enabled and
+                            #   weighted via WEIGHT_PROFILES["biblical_coptic"] below.
+                            #   Set the per-search weight via the profile mechanism.
 }
+
+
+# ---------------------------------------------------------------------------
+# WEIGHT PROFILES — domain-specific scoring configurations (added 2026-05-15)
+# ---------------------------------------------------------------------------
+# V6's channel weights need different calibration for different text-type
+# regimes. The "latin_epic" profile is the historical default (LLM-tuned for
+# classical Latin epic poetry, where rare_word convergence is the dominant
+# signal). The "biblical_coptic" profile is the result of a 50-iteration
+# optimization on Sahidic Hebrews × Sahidic Psalms (Phase 9 of the Coptic
+# project, 2026-05-15) — biblical-prose verbatim quotation lives in common
+# vocabulary that the rare_word penalty would otherwise suppress, so the
+# optimal profile gives high weight to phonetic-trigram (sound), neural-
+# semantic, and the quotation channel, with classical-allusion channels
+# (rare_word, lemma) reduced.
+#
+# Selection: get_weight_profile(language, corpus_type=None) chooses the
+# profile. Default selection:
+#   language=cop  → biblical_coptic
+#   otherwise     → latin_epic
+# This firewalls the Coptic optimization from affecting Latin/Greek defaults.
+WEIGHT_PROFILES = {
+    "latin_epic": dict(CHANNEL_WEIGHTS),  # snapshot of the historical Latin-tuned defaults
+
+    # Best-composite result from Phase 9 optimization (iter 16, seed 314).
+    # 50-iter biblical-bias search over log-uniform [0.1×, 10×]; semantic and
+    # quotation channels included as tunables. Objective: R@100 against the
+    # broad TSK 124-pair gold set; verified against the 29-pair verbatim gold
+    # set with 25/29 (86%) recall at top 50, 27/29 (93%) at top 1,000.
+    "biblical_coptic": {
+        "edit_distance":     0.795,
+        "sound":            24.277,    # cranked from baseline 5.0 — phonetic surface dominates
+        "exact":             0.698,
+        "lemma":             0.320,    # reduced from baseline 2.0
+        "dictionary":        0.123,
+        "semantic":         11.216,    # cranked from baseline 1.0 — multilingual_e5 carries paraphrase
+        "rare_word":         0.550,    # reduced from baseline 7.0
+        "syntax":            0.102,
+        "syntax_structural": 0.081,
+        "lemma_min1":        0.088,
+        "quotation":        35.052,    # cranked from baseline 0.0 — verbatim runs dominate
+    },
+}
+
+
+def get_weight_profile(language=None, corpus_type=None, profile_name=None):
+    """Return the appropriate channel weight dict for a search.
+
+    Selection order:
+      1. Explicit profile_name (overrides everything).
+      2. (language, corpus_type) tuple lookup — future extension point.
+      3. Language default: cop → biblical_coptic; everything else → latin_epic.
+    """
+    if profile_name and profile_name in WEIGHT_PROFILES:
+        return dict(WEIGHT_PROFILES[profile_name])
+    if language == "cop":
+        return dict(WEIGHT_PROFILES["biblical_coptic"])
+    return dict(WEIGHT_PROFILES["latin_epic"])
 
 # Bonus added for each additional channel beyond the first that confirms
 # a pair, rewarding cross-channel convergence as evidence of a true allusion.
@@ -295,6 +361,7 @@ ALL_CHANNELS = list(CHANNEL_WEIGHTS.keys())
 CHANNEL_ORDER = [
     "lemma",         # fast, high quality — gives first results immediately
     "exact",         # fast, high precision
+    "quotation",     # fast, very high precision for verbatim runs (biblical-text fix)
     "rare_word",     # fast, sparse
     "dictionary",    # fast-medium
     "syntax",        # fast, DB lookup
@@ -309,10 +376,12 @@ CHANNEL_ORDER = [
 # If a channel's required resource is missing for the search language, it is
 # skipped and not counted in the "N channels" progress message.
 CHANNEL_LANGUAGE_SUPPORT = {
-    "dictionary":    {"la", "grc"},      # Latin/Greek synonym pairs only
-    "sound":         {"la", "grc"},      # character trigram matching designed for Latin/Greek
-    "edit_distance": {"la", "grc"},      # Levenshtein designed for Latin/Greek morphology
-    "syntax":        {"la", "grc"},      # requires syntax DB (syntax_latin.db / syntax_greek.db)
+    "dictionary":    {"la", "grc", "cop"},  # Coptic uses Coptic Wordnet (Slaughter et al. 2019)
+    "sound":         {"la", "grc", "ar", "fa", "he", "cop", "ur"},  # character trigram Jaccard similarity
+    "edit_distance": {"la", "grc", "ar", "fa", "he", "cop", "ur"},  # Levenshtein fuzzy matching
+    "syntax":        {"la", "grc", "cop"},  # requires syntax DB (syntax_latin.db / syntax_greek.db / syntax_coptic.db)
+    "semantic":      {"la", "grc", "en", "he", "cop"},  # SPhilBERTa (la/grc/en) + BEREL (he) + multilingual-e5-large (cop)
+    "quotation":     {"la", "grc", "cop", "en", "ar", "fa", "he", "ur"},  # runs of identical tokens — language-agnostic
 }
 
 
@@ -427,6 +496,12 @@ CHANNEL_CONFIGS = {
         "use_pos": False,
         "use_syntax": False,
     },
+    "quotation": {
+        "match_type": "quotation",
+        "language": "la",
+        "quotation_min_run": 3,
+        "quotation_max_results": 50000,
+    },
 }
 
 
@@ -498,6 +573,19 @@ _SYNTAX_GREEK_DB_PATH = os.path.join(
     os.path.dirname(os.path.dirname(__file__)),
     "data", "inverted_index", "syntax_greek.db",
 )
+
+_SYNTAX_COPTIC_DB_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)),
+    "data", "inverted_index", "syntax_coptic.db",
+)
+
+
+def _syntax_db_for_language(lang):
+    if lang == 'grc':
+        return _SYNTAX_GREEK_DB_PATH
+    if lang == 'cop':
+        return _SYNTAX_COPTIC_DB_PATH
+    return _SYNTAX_DB_PATH
 
 _SYNTAX_PARSE_CACHE = {}
 _SYNTAX_CACHE_MAX = 50  # LRU-style cap: evict oldest when exceeded
@@ -733,7 +821,8 @@ def _score_syntax_chunk(args):
 
 def find_syntax_matches(source_units, target_units, source_id, target_id,
                         min_score=0.1, max_results=50000,
-                        source_language='la', target_language='la'):
+                        source_language='la', target_language='la',
+                        restrict_to_pair_keys=None):
     """Find syntax matches between source and target using syntax DBs.
 
     Two paths:
@@ -750,10 +839,20 @@ def find_syntax_matches(source_units, target_units, source_id, target_id,
     the appropriate DB for each side. UD dependency labels are language-
     independent, so structural fingerprint matching works cross-lingually.
 
+    When ``restrict_to_pair_keys`` is provided (a set of ``(source_ref,
+    target_ref)`` tuples), the lemma-gated Path A only computes syntax for
+    those pair keys, and the result is NOT capped by ``max_results`` (every
+    qualifying pair contributes its score to fusion). This is used by the
+    fusion driver to guarantee that pairs already firing on lexical channels
+    receive their syntax contribution rather than being displaced by the
+    50K cap when sub-word tokenisation inflates the candidate pool. The
+    structural fingerprint Path B is unaffected by this restriction and
+    behaves as before.
+
     Returns results in the same format as other channels.
     """
-    source_db = _SYNTAX_GREEK_DB_PATH if source_language == 'grc' else _SYNTAX_DB_PATH
-    target_db = _SYNTAX_GREEK_DB_PATH if target_language == 'grc' else _SYNTAX_DB_PATH
+    source_db = _syntax_db_for_language(source_language)
+    target_db = _syntax_db_for_language(target_language)
     source_parses = _load_syntax_for_text(source_db, source_id)
     target_parses = _load_syntax_for_text(target_db, target_id)
 
@@ -794,33 +893,51 @@ def find_syntax_matches(source_units, target_units, source_id, target_id,
                 target_lemma_index[lemma.lower()].add(ref)
 
     # --- Path A: Lemma-gated candidates ---
-    candidate_pairs = []
-    for source_ref, source_parse in source_parses.items():
-        if source_ref not in source_by_ref:
-            continue
-
-        # Count shared lemmas per target ref
-        target_hit_counts = Counter()
-        for i, lemma in enumerate(source_parse["lemmas"]):
-            if (
-                i < len(source_parse["upos"])
-                and source_parse["upos"][i] not in ("PUNCT", "X")
-                and lemma
-                and (not stoplist or lemma.lower() not in stoplist)
-            ):
-                for target_ref in target_lemma_index.get(lemma.lower(), set()):
-                    target_hit_counts[target_ref] += 1
-
-        for target_ref, count in target_hit_counts.items():
-            if count < MIN_SHARED_CONTENT_LEMMAS:
+    # When restrict_to_pair_keys is provided, build candidates directly from
+    # the restriction set (one parse pair per requested key). This bypasses
+    # the lemma inverted-index walk entirely AND the downstream max_results
+    # cap, ensuring every pair already firing on another channel gets its
+    # syntax contribution.
+    if restrict_to_pair_keys is not None:
+        candidate_pairs = []
+        for (source_ref, target_ref) in restrict_to_pair_keys:
+            if source_ref not in source_by_ref or target_ref not in target_by_ref:
                 continue
-            if target_ref not in target_by_ref:
-                continue
+            source_parse = source_parses.get(source_ref)
             target_parse = target_parses.get(target_ref)
-            if target_parse:
-                candidate_pairs.append(
-                    (source_ref, source_parse, target_ref, target_parse)
-                )
+            if source_parse is None or target_parse is None:
+                continue
+            candidate_pairs.append(
+                (source_ref, source_parse, target_ref, target_parse)
+            )
+    else:
+        candidate_pairs = []
+        for source_ref, source_parse in source_parses.items():
+            if source_ref not in source_by_ref:
+                continue
+
+            # Count shared lemmas per target ref
+            target_hit_counts = Counter()
+            for i, lemma in enumerate(source_parse["lemmas"]):
+                if (
+                    i < len(source_parse["upos"])
+                    and source_parse["upos"][i] not in ("PUNCT", "X")
+                    and lemma
+                    and (not stoplist or lemma.lower() not in stoplist)
+                ):
+                    for target_ref in target_lemma_index.get(lemma.lower(), set()):
+                        target_hit_counts[target_ref] += 1
+
+            for target_ref, count in target_hit_counts.items():
+                if count < MIN_SHARED_CONTENT_LEMMAS:
+                    continue
+                if target_ref not in target_by_ref:
+                    continue
+                target_parse = target_parses.get(target_ref)
+                if target_parse:
+                    candidate_pairs.append(
+                        (source_ref, source_parse, target_ref, target_parse)
+                    )
 
     num_candidates = len(candidate_pairs)
 
@@ -943,8 +1060,12 @@ def find_syntax_matches(source_units, target_units, source_id, target_id,
                 fingerprint_scored.append((source_ref, target_ref, score))
 
     # Cap scored pairs BEFORE building result dicts (avoids building millions
-    # of dicts only to discard most of them)
-    if max_results > 0 and len(scored_pairs) > max_results:
+    # of dicts only to discard most of them). When restrict_to_pair_keys is
+    # provided, the candidate set is already bounded by the caller's selection
+    # of "interesting" pairs, so we keep all of them — the cap was only there
+    # to control unbounded candidate explosions.
+    if (restrict_to_pair_keys is None
+            and max_results > 0 and len(scored_pairs) > max_results):
         scored_pairs.sort(key=lambda x: x[2], reverse=True)
         scored_pairs = scored_pairs[:max_results]
 
@@ -988,8 +1109,14 @@ def find_syntax_matches(source_units, target_units, source_id, target_id,
 def run_channel(channel_name, config, source_units, target_units,
                 matcher, scorer, source_id, target_id,
                 source_path=None, target_path=None,
-                source_language='la', target_language='la'):
-    """Run a single search channel and return scored results."""
+                source_language='la', target_language='la',
+                restrict_to_pair_keys=None):
+    """Run a single search channel and return scored results.
+
+    ``restrict_to_pair_keys`` is forwarded to the syntax channel only. It lets
+    the fusion driver tell syntax: "only score these pairs (already firing on
+    other channels), and don't apply the result cap." Other channels ignore it.
+    """
     match_type = config.get("match_type", "lemma")
     settings = dict(config)
 
@@ -1005,6 +1132,7 @@ def run_channel(channel_name, config, source_units, target_units,
             max_results=max_results,
             source_language=source_language,
             target_language=target_language,
+            restrict_to_pair_keys=restrict_to_pair_keys,
         )
 
     if match_type == "semantic":
@@ -1026,14 +1154,24 @@ def run_channel(channel_name, config, source_units, target_units,
     elif match_type == "rare_word":
         try:
             from backend.blueprints.hapax import find_rare_word_matches_direct
-            max_occ = settings.get("rare_word_max_occurrences", 50)
+            language = settings.get("language", "la")
+            # Coptic uses sub-word tokenisation, which inflates per-document
+            # token counts ~2-3x and pushes many morphemes above the default
+            # rarity threshold while remaining "rare" in absolute terms.
+            # Tighten the threshold so the channel still discriminates.
+            default_max_occ = 25 if language == 'cop' else 50
+            max_occ = settings.get("rare_word_max_occurrences", default_max_occ)
             matches = find_rare_word_matches_direct(
                 source_units, target_units,
-                language=settings.get("language", "la"),
+                language=language,
                 max_occurrences=max_occ,
             )
         except (ImportError, AttributeError):
             matches = []
+    elif match_type == "quotation":
+        matches, _ = matcher.find_quotation_matches(
+            source_units, target_units, settings
+        )
     else:
         # lemma or exact
         matches, _ = matcher.find_matches(source_units, target_units, settings, None)
@@ -1598,7 +1736,13 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
                 or if text_genres.csv lacks meter info)
     source_id/target_id: filenames needed for meter lookup.
     """
-    _weights = weights if weights is not None else CHANNEL_WEIGHTS
+    # Weight profile selection: explicit `weights` argument wins; otherwise
+    # fall through to the language-default profile via get_weight_profile().
+    # This is what firewalls the biblical-Coptic optimization (Phase 9 of the
+    # 2026-05-15 Coptic project) from Latin/Greek defaults — Coptic searches
+    # pick up the biblical-Coptic profile automatically, and other languages
+    # keep the historical latin_epic profile unchanged.
+    _weights = weights if weights is not None else get_weight_profile(language=language)
     _convergence_bonus = convergence_bonus if convergence_bonus is not None else CONVERGENCE_BONUS
     _idf_floor = idf_floor if idf_floor is not None else RARITY_IDF_FLOOR
     _idf_threshold = idf_threshold if idf_threshold is not None else RARITY_IDF_THRESHOLD
@@ -1612,6 +1756,9 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
 
     pair_scores = defaultdict(lambda: {
         "score": 0.0,
+        "quotation_score_contrib": 0.0,  # quotation channel's weighted contribution,
+                                         # accumulated separately so it bypasses
+                                         # the rarity multiplier at score-assembly time.
         "channels": [],
         "n_scoring_channels": 0,  # channels with raw_score > 0
         "best_result": None,
@@ -1631,7 +1778,16 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
             rt = r.get("target", {}).get("ref", "")
             key = (rs, rt)
             raw_score = r.get("overall_score") or r.get("score") or 0
-            pair_scores[key]["score"] += raw_score * weight
+            contribution = raw_score * weight
+            pair_scores[key]["score"] += contribution
+            # The quotation channel's contribution is also stashed separately
+            # so it can be re-added unscaled by the rarity multiplier at score
+            # assembly. A long verbatim run is intrinsically distinctive even
+            # when its individual tokens are common; bypassing the rarity
+            # penalty for that contribution prevents common-vocabulary verbatim
+            # quotations from being suppressed.
+            if ch_name == "quotation":
+                pair_scores[key]["quotation_score_contrib"] += contribution
             pair_scores[key]["channels"].append(ch_name)
             if raw_score > 0:
                 pair_scores[key]["n_scoring_channels"] += 1
@@ -1957,8 +2113,21 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
         #   The convergence bonus is also scaled by the rarity multiplier,
         #   but only to the first power (not squared), since the IDF
         #   weighting in weighted_n already provides steep suppression.
+        # Quotation bypass: the quotation channel's contribution is removed
+        #   from base_score before the rarity penalty and added back after,
+        #   so that a long verbatim run made of common biblical vocabulary
+        #   isn't suppressed by the same rarity multiplier that suppresses
+        #   bag-of-common-words matches. A 9-token verbatim run is
+        #   intrinsically distinctive even when each individual token is a
+        #   common function word.
+        quot_contrib = info.get("quotation_score_contrib", 0.0)
+        non_quotation_base = base_score - quot_contrib
         conv_mult = multiplier ** _conv_idf_power
-        info["score"] = base_score * (multiplier ** _penalty_power) + conv_score * conv_mult
+        info["score"] = (
+            non_quotation_base * (multiplier ** _penalty_power)
+            + quot_contrib
+            + conv_score * conv_mult
+        )
 
     _t2 = _time.time()
     logger.info(f"[FUSION] Rarity scoring complete for {len(pair_scores):,} pairs in {_t2-_t1:.1f}s")
@@ -2272,6 +2441,32 @@ def merge_line_and_window(line_results, window_results):
     return merged
 
 
+# Lexical channels whose pair coverage we hand to the syntax channel as a
+# "compute-syntax-here" allowlist (see find_syntax_matches docstring). Any
+# channel listed here that has already produced results by the time syntax
+# fires contributes its (source_ref, target_ref) pairs to the restriction
+# set, guaranteeing those pairs receive a syntax score rather than being
+# displaced by the syntax candidate cap.
+SYNTAX_RESTRICTION_SOURCE_CHANNELS = (
+    "lemma", "exact", "rare_word", "lemma_min1", "dictionary",
+)
+
+
+def _collect_syntax_restriction_keys(channel_results):
+    """Build the set of (source_ref, target_ref) pair keys that lexical
+    channels have already produced. Returns None if no eligible channel has
+    results yet (so the syntax channel falls back to its full lemma-gated
+    scan with the result cap, preserving prior behaviour)."""
+    keys = set()
+    for ch in SYNTAX_RESTRICTION_SOURCE_CHANNELS:
+        for r in channel_results.get(ch, []):
+            sref = r.get("source", {}).get("ref")
+            tref = r.get("target", {}).get("ref")
+            if sref and tref:
+                keys.add((sref, tref))
+    return keys if keys else None
+
+
 def _run_channels_sequential(channels, configs, source_units, target_units,
                              matcher, scorer, source_id, target_id,
                              source_path, target_path, phase_label,
@@ -2291,11 +2486,21 @@ def _run_channels_sequential(channels, configs, source_units, target_units,
             progress_callback(i + 1, total, ch_name, phase_label)
 
         config = configs[ch_name]
+        # For the syntax channel, restrict the lemma-gated path to pairs
+        # already produced by lexical channels so they cannot be cap-displaced.
+        restrict_keys = None
+        if config.get("match_type") == "syntax":
+            restrict_keys = _collect_syntax_restriction_keys(channel_results)
+            if restrict_keys is not None:
+                logger.info(f"[SYNTAX] Restricting lemma-gated path to "
+                            f"{len(restrict_keys):,} pair keys from "
+                            f"prior lexical channels")
         results = run_channel(
             ch_name, config, source_units, target_units,
             matcher, scorer, source_id, target_id,
             source_path=source_path, target_path=target_path,
             source_language=source_language, target_language=target_language,
+            restrict_to_pair_keys=restrict_keys,
         )
         if results:
             # Syntax returns dict with "syntax" and "syntax_structural" keys
@@ -2359,11 +2564,23 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
             "phase": "line",
         })
 
+        # For the syntax channel, restrict its lemma-gated path to pairs
+        # already produced by lexical channels (so cap-displacement cannot
+        # drop pairs that lexical evidence has already flagged as relevant).
+        restrict_keys = None
+        if configs[ch_name].get("match_type") == "syntax":
+            restrict_keys = _collect_syntax_restriction_keys(line_channel_results)
+            if restrict_keys is not None:
+                logger.info(f"[SYNTAX] Restricting lemma-gated path to "
+                            f"{len(restrict_keys):,} pair keys from "
+                            f"prior lexical channels")
+
         results = run_channel(
             ch_name, configs[ch_name], source_units, target_units,
             matcher, scorer, source_id, target_id,
             source_path=source_path, target_path=target_path,
             source_language=source_language, target_language=target_language,
+            restrict_to_pair_keys=restrict_keys,
         )
         # Syntax returns dict with "syntax" and "syntax_structural" keys
         if isinstance(results, dict):
@@ -2466,6 +2683,28 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
                                source_id=source_id, target_id=target_id)
 
     if mode == 'line':
+        final = line_fused[:max_results] if max_results > 0 else line_fused
+        yield ("complete", {"results": final, "total_results": len(line_fused)})
+        return
+
+    # The window pass was designed for poetry, where allusions span line
+    # breaks (enjambment) routinely. For prose-vs-prose searches, line
+    # divisions in our .tess files are usually editorial (Bible verse
+    # numbers, paragraph breaks in homilies) and the 2-line window pass
+    # mostly inflates noise — every cross-verse co-occurrence of common
+    # function/idiom words gets a second shot at matching. Skip it when
+    # both source and target are prose. (Mixed prose-vs-poetry still runs
+    # the window pass: an allusion from prose to a poetry source may
+    # span a verse line of the poetry side.)
+    try:
+        from backend.distance_filter import is_prose_text
+        both_prose = (is_prose_text(source_id, language) and
+                      is_prose_text(target_id, language))
+    except Exception:
+        both_prose = False
+    if both_prose and mode == 'merged':
+        logger.info(f"[FUSION] Skipping window pass: both {source_id} and "
+                    f"{target_id} are prose")
         final = line_fused[:max_results] if max_results > 0 else line_fused
         yield ("complete", {"results": final, "total_results": len(line_fused)})
         return
@@ -2632,6 +2871,19 @@ def run_fusion_search(source_units, target_units, matcher, scorer,
                                source_id=source_id, target_id=target_id)
 
     if mode == 'line':
+        return line_fused[:max_results] if max_results > 0 else line_fused
+
+    # Skip the window pass on prose-vs-prose pairs (see iter_fusion_search
+    # for rationale).
+    try:
+        from backend.distance_filter import is_prose_text
+        both_prose = (is_prose_text(source_id, language) and
+                      is_prose_text(target_id, language))
+    except Exception:
+        both_prose = False
+    if both_prose and mode == 'merged':
+        logger.info(f"[FUSION] Skipping window pass: both {source_id} and "
+                    f"{target_id} are prose")
         return line_fused[:max_results] if max_results > 0 else line_fused
 
     # --- Pass 2: Window-level (lexical channels only) ---

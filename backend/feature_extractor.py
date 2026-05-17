@@ -400,22 +400,31 @@ class FeatureExtractor:
         
         return score, src_info, tgt_info
     
-    def calculate_meter_score(self, source_unit, target_unit, source_id='', target_id=''):
+    def calculate_meter_score(self, source_unit, target_unit, source_id='', target_id='', language='la'):
         """
         Calculate metrical similarity between source and target verses.
         Uses MQDQ pre-computed scansions when available, falls back to CLTK.
         Returns 0-1 score based on pattern matching + scansion info.
+
+        The CLTK Latin scanners (hexameter / pentameter / hendecasyllable)
+        are the only metrical analyzers wired in. Calling them on non-Latin
+        text emits an ERROR per line from `cltk.prosody.lat.syllabifier`
+        ("Unsupported character") and returns nothing useful, so we early-
+        return for any non-Latin language.
         """
+        if language != 'la':
+            return 0.0, None, None
+
         try:
             from backend.metrical_scanner import get_scansion_for_line, calculate_metrical_similarity
         except ImportError:
             from metrical_scanner import get_scansion_for_line, calculate_metrical_similarity
-        
+
         src_text = source_unit.get('text', '')
         tgt_text = target_unit.get('text', '')
         src_ref = source_unit.get('ref', '')
         tgt_ref = target_unit.get('ref', '')
-        
+
         if not src_text or not tgt_text:
             return 0.0, None, None
         
@@ -520,7 +529,7 @@ class FeatureExtractor:
         
         if use_meter:
             meter_score, src_scan, tgt_scan = self.calculate_meter_score(
-                source_unit, target_unit, source_id, target_id
+                source_unit, target_unit, source_id, target_id, language=language
             )
             features['meter_score'] = meter_score
             features['source_scansion'] = src_scan

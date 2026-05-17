@@ -22,6 +22,31 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from backend.text_processor import TextProcessor
+try:
+    from backend.arabic import register as register_arabic
+    register_arabic()
+except ImportError:
+    pass
+try:
+    from backend.persian import register as register_persian
+    register_persian()
+except ImportError:
+    pass
+try:
+    from backend.hebrew import register as register_hebrew
+    register_hebrew()
+except ImportError:
+    pass
+try:
+    from backend.coptic import register as register_coptic
+    register_coptic()
+except ImportError:
+    pass
+try:
+    from backend.urdu import register as register_urdu
+    register_urdu()
+except ImportError:
+    pass
 
 TEXTS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts')
 INDEX_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'inverted_index')
@@ -395,7 +420,7 @@ def build_index(language, text_processor, verbose=True, resume=True, force=False
 
 def main():
     parser = argparse.ArgumentParser(description='Build inverted index for Tesserae corpus')
-    parser.add_argument('--language', '-l', choices=['la', 'grc', 'en', 'all'], default='all',
+    parser.add_argument('--language', '-l', choices=['la', 'grc', 'en', 'ar', 'fa', 'he', 'cop', 'ur', 'all'], default='all',
                         help='Language to index (default: all)')
     parser.add_argument('--quiet', '-q', action='store_true', help='Suppress output')
     parser.add_argument('--force', '-f', action='store_true',

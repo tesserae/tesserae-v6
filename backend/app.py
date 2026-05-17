@@ -524,6 +524,39 @@ app.register_blueprint(fusion_bp, url_prefix=API_PREFIX or None)
 
 app_logger.info(f"Blueprints registered (API_PREFIX='{API_PREFIX}', env={DEPLOYMENT_ENV})")
 
+# =============================================================================
+# PLUGIN LANGUAGES (Arabic, Persian, etc.)
+# =============================================================================
+try:
+    from backend.arabic import register as register_arabic
+    register_arabic()
+except ImportError:
+    pass
+
+try:
+    from backend.persian import register as register_persian
+    register_persian()
+except ImportError:
+    pass
+
+try:
+    from backend.hebrew import register as register_hebrew
+    register_hebrew()
+except ImportError:
+    pass
+
+try:
+    from backend.coptic import register as register_coptic
+    register_coptic()
+except ImportError:
+    pass
+
+try:
+    from backend.urdu import register as register_urdu
+    register_urdu()
+except ImportError:
+    pass
+
 
 # =============================================================================
 # REQUEST MIDDLEWARE
@@ -755,6 +788,82 @@ def api_version():
     except Exception as e:
         app_logger.error(f"Error getting version info: {e}")
         return jsonify({"version": "6.0", "last_updated": None})
+
+
+@api_route('/languages')
+def api_languages():
+    """Return available languages and cross-lingual pairs.
+    Frontend uses this to dynamically populate language tabs."""
+    import os
+    languages = [
+        {'code': 'la', 'label': 'Latin'},
+        {'code': 'grc', 'label': 'Greek'},
+        {'code': 'en', 'label': 'English'},
+    ]
+    crosslingual_pairs = [
+        {'key': 'grc-la', 'source': 'grc', 'target': 'la', 'label': 'Greek \u2192 Latin'},
+        {'key': 'la-en', 'source': 'la', 'target': 'en', 'label': 'Latin \u2192 English'},
+        {'key': 'grc-en', 'source': 'grc', 'target': 'en', 'label': 'Greek \u2192 English'},
+    ]
+    try:
+        from backend.arabic import ARABIC_ENABLED
+        if ARABIC_ENABLED:
+            texts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts', 'ar')
+            if os.path.isdir(texts_dir):
+                languages.append({'code': 'ar', 'label': 'Arabic'})
+                crosslingual_pairs.extend([
+                    {'key': 'ar-la', 'source': 'ar', 'target': 'la', 'label': 'Arabic \u2192 Latin'},
+                    {'key': 'ar-grc', 'source': 'ar', 'target': 'grc', 'label': 'Arabic \u2192 Greek'},
+                ])
+    except ImportError:
+        pass
+    try:
+        from backend.persian import PERSIAN_ENABLED
+        if PERSIAN_ENABLED:
+            texts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts', 'fa')
+            if os.path.isdir(texts_dir):
+                languages.append({'code': 'fa', 'label': 'Persian'})
+                crosslingual_pairs.extend([
+                    {'key': 'fa-ar', 'source': 'fa', 'target': 'ar', 'label': 'Persian \u2192 Arabic'},
+                    {'key': 'fa-la', 'source': 'fa', 'target': 'la', 'label': 'Persian \u2192 Latin'},
+                ])
+    except ImportError:
+        pass
+    try:
+        from backend.hebrew import HEBREW_ENABLED
+        if HEBREW_ENABLED:
+            texts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts', 'he')
+            if os.path.isdir(texts_dir):
+                languages.append({'code': 'he', 'label': 'Hebrew'})
+                crosslingual_pairs.extend([
+                    {'key': 'he-grc', 'source': 'he', 'target': 'grc', 'label': 'Hebrew \u2192 Greek'},
+                    {'key': 'he-la', 'source': 'he', 'target': 'la', 'label': 'Hebrew \u2192 Latin'},
+                ])
+    except ImportError:
+        pass
+    try:
+        from backend.coptic import COPTIC_ENABLED
+        if COPTIC_ENABLED:
+            texts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts', 'cop')
+            if os.path.isdir(texts_dir):
+                languages.append({'code': 'cop', 'label': 'Coptic'})
+                crosslingual_pairs.extend([
+                    {'key': 'cop-grc', 'source': 'cop', 'target': 'grc', 'label': 'Coptic \u2192 Greek'},
+                ])
+    except ImportError:
+        pass
+    try:
+        from backend.urdu import URDU_ENABLED
+        if URDU_ENABLED:
+            texts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts', 'ur')
+            if os.path.isdir(texts_dir):
+                languages.append({'code': 'ur', 'label': 'Urdu'})
+                crosslingual_pairs.extend([
+                    {'key': 'ur-fa', 'source': 'ur', 'target': 'fa', 'label': 'Urdu \u2192 Persian'},
+                ])
+    except ImportError:
+        pass
+    return jsonify({'languages': languages, 'crosslingual_pairs': crosslingual_pairs})
 
 
 # =============================================================================
@@ -2200,12 +2309,42 @@ def submit_request():
     
     language = (language or '').strip().lower()
     allowed_languages = {'latin', 'greek', 'english'}
+    try:
+        from backend.arabic import ARABIC_ENABLED
+        if ARABIC_ENABLED:
+            allowed_languages.add('arabic')
+    except ImportError:
+        pass
+    try:
+        from backend.persian import PERSIAN_ENABLED
+        if PERSIAN_ENABLED:
+            allowed_languages.add('persian')
+    except ImportError:
+        pass
+    try:
+        from backend.hebrew import HEBREW_ENABLED
+        if HEBREW_ENABLED:
+            allowed_languages.add('hebrew')
+    except ImportError:
+        pass
+    try:
+        from backend.coptic import COPTIC_ENABLED
+        if COPTIC_ENABLED:
+            allowed_languages.add('coptic')
+    except ImportError:
+        pass
+    try:
+        from backend.urdu import URDU_ENABLED
+        if URDU_ENABLED:
+            allowed_languages.add('urdu')
+    except ImportError:
+        pass
 
     # Only author and work are required
     if not author or not work:
         return jsonify({'error': 'Author and work title are required'}), 400
     if language not in allowed_languages:
-        return jsonify({'error': 'Please select a valid language (Latin, Greek, or English)'}), 400
+        return jsonify({'error': f'Please select a valid language ({", ".join(sorted(allowed_languages))})'}), 400
     
     try:
         with get_db_cursor() as cur:

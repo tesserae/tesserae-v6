@@ -49,6 +49,19 @@ LATIN_REVERSE_LEMMA = None
 GREEK_REVERSE_LEMMA = None
 _lemma_tables_loaded = False
 
+# =============================================================================
+# LANGUAGE HANDLER REGISTRY (for plugin languages like Arabic)
+# =============================================================================
+_LANGUAGE_HANDLERS = {}
+
+def register_language_handler(code, handler):
+    """Register a language handler for a given language code.
+    Handler must provide: tokenize_and_lemmatize(text), lemmatize_word(word),
+    split_into_phrases(text), ends_sentence(text).
+    """
+    _LANGUAGE_HANDLERS[code] = handler
+    logger.info(f'Registered language handler: {code}')
+
 def load_lemma_tables():
     """Load pre-computed lemma lookup tables from UD treebanks (lazy loading)"""
     global LATIN_LEMMA_TABLE, GREEK_LEMMA_TABLE, _lemma_tables_loaded
@@ -129,6 +142,7 @@ def get_reverse_lemma_table(language='la'):
 
 _cltk_latin_lemmatizer = None
 _cltk_greek_lemmatizer = None
+_stanza_grc_nlp = None  # Stanza Ancient Greek PROIEL model (97% Koine accuracy)
 _nltk_english_lemmatizer = None
 _cltk_latin_pos_tagger = None
 _cltk_greek_pos_tagger = None
@@ -233,7 +247,9 @@ class TextProcessor:
     
     def split_into_phrases(self, text, language='la'):
         """Split text into phrases based on sentence-ending punctuation (not colons)"""
-        if language == 'grc':
+        if language in _LANGUAGE_HANDLERS:
+            return _LANGUAGE_HANDLERS[language].split_into_phrases(text)
+        elif language == 'grc':
             # Greek: period, semicolon (;), ano teleia (·), question mark, exclamation
             phrase_delimiters = r'[.;·?!]'
         else:
@@ -249,14 +265,18 @@ class TextProcessor:
         text = text.rstrip()
         if not text:
             return False
-        if language == 'grc':
+        if language in _LANGUAGE_HANDLERS:
+            return _LANGUAGE_HANDLERS[language].ends_sentence(text)
+        elif language == 'grc':
             return text[-1] in '.;·?!'
         else:
             return text[-1] in '.;?!'
     
     def _tokenize_and_lemmatize(self, text, language):
         """Helper: tokenize and lemmatize text for any language."""
-        if language == 'grc':
+        if language in _LANGUAGE_HANDLERS:
+            return _LANGUAGE_HANDLERS[language].tokenize_and_lemmatize(text)
+        elif language == 'grc':
             original_tokens, tokens = self.tokenize_greek(text, preserve_case=True)
             lemmas = self._greek_lemmatize(tokens)
         elif language == 'en':
@@ -267,6 +287,33 @@ class TextProcessor:
             lemmas = self._latin_lemmatize(tokens)
         pos_tags = self._get_pos_tags(tokens, language)
         return original_tokens, tokens, lemmas, pos_tags
+
+    def _coptic_subword_unit_or_none(self, tess_basename, ref, text):
+        """Build a unit dict for a Coptic line from the SCRIPTORIUM sub-word
+        cache, or return None if no cache entry exists.
+
+        When the cache hits, ``tokens`` / ``lemmas`` come from CoNLL-U
+        morpheme-level annotations (e.g. ``ⲙⲛⲛⲉⲣⲣⲱⲟⲩ`` -> ``ⲙⲛ`` + ``ⲛⲉ``
+        + ``ⲣⲣⲱⲟⲩ``); the displayed ``text`` stays the raw bound-group line so
+        the UI still shows readable Coptic. ``original_tokens`` is the
+        whitespace-split bound-group form for callers that need it.
+        """
+        try:
+            from backend.coptic.processor import get_subword_units_for_ref
+        except ImportError:
+            return None
+        result = get_subword_units_for_ref(tess_basename, ref)
+        if not result:
+            return None
+        tokens, lemmas = result
+        return {
+            'ref': ref,
+            'text': text,
+            'tokens': tokens,
+            'original_tokens': text.split(),
+            'lemmas': lemmas,
+            'pos_tags': ['UNK'] * len(tokens),
+        }
 
     def process_file(self, filepath, language='la', unit_type='line'):
         """Process a .tess file and return list of text units
@@ -338,6 +385,16 @@ class TextProcessor:
 
             return units
 
+        # Coptic line-mode pulls sub-word tokens/lemmas from the SCRIPTORIUM
+        # CoNLL-U cache (cache/lemmas/cop/<basename>.json) so that bound groups
+        # are split into morphemes. Falls back per-line to runtime
+        # bound-group tokenization when no cache entry is available.
+        cop_basename = None
+        if language == 'cop':
+            cop_basename = os.path.basename(filepath)
+            if cop_basename.endswith('.tess'):
+                cop_basename = cop_basename[:-5]
+
         with open(filepath, 'r', encoding='utf-8') as f:
             for line in f:
                 line = line.strip()
@@ -348,22 +405,38 @@ class TextProcessor:
                 if match:
                     ref = match.group(1)
                     text = match.group(2)
-                    original_tokens, tokens, lemmas, pos_tags = self._tokenize_and_lemmatize(text, language)
-                    units.append({
-                        'ref': ref,
-                        'text': text,
-                        'tokens': tokens,
-                        'original_tokens': original_tokens,
-                        'lemmas': lemmas,
-                        'pos_tags': pos_tags
-                    })
-        
+                    cached_unit = None
+                    if cop_basename is not None:
+                        cached_unit = self._coptic_subword_unit_or_none(cop_basename, ref, text)
+                    if cached_unit is not None:
+                        units.append(cached_unit)
+                    else:
+                        original_tokens, tokens, lemmas, pos_tags = self._tokenize_and_lemmatize(text, language)
+                        units.append({
+                            'ref': ref,
+                            'text': text,
+                            'tokens': tokens,
+                            'original_tokens': original_tokens,
+                            'lemmas': lemmas,
+                            'pos_tags': pos_tags
+                        })
+
         return units
     
     def process_line(self, text, language='la'):
         """Process a single line of text and return a unit dict with tokens, lemmas, pos_tags.
         Used for line-search feature where user provides arbitrary text."""
-        if language == 'grc':
+        if language in _LANGUAGE_HANDLERS:
+            original_tokens, tokens, lemmas, pos_tags = _LANGUAGE_HANDLERS[language].tokenize_and_lemmatize(text)
+            return {
+                'ref': '',
+                'text': text,
+                'tokens': tokens,
+                'original_tokens': original_tokens,
+                'lemmas': lemmas,
+                'pos_tags': pos_tags
+            }
+        elif language == 'grc':
             original_tokens, tokens = self.tokenize_greek(text, preserve_case=True)
             lemmas = self._greek_lemmatize(tokens)
             pos_tags = self._get_pos_tags(tokens, language)
@@ -389,7 +462,10 @@ class TextProcessor:
         """Lemmatize a single word and return a set of possible lemmas.
         Used for line-search feature."""
         word = word.lower()
-        if language == 'grc':
+        if language in _LANGUAGE_HANDLERS:
+            lemma = _LANGUAGE_HANDLERS[language].lemmatize_word(word)
+            return {lemma} if isinstance(lemma, str) else set(lemma)
+        elif language == 'grc':
             lemmas = self._greek_lemmatize([word])
         elif language == 'en':
             lemmas = self._english_lemmatize([word])
@@ -549,34 +625,100 @@ class TextProcessor:
         return lemmas
     
     def _greek_lemmatize(self, tokens):
-        """Greek lemmatization using static lookup table, with CLTK fallback"""
+        """Greek lemmatization: lookup table (690K entries) -> Stanza grc_proiel fallback (97% accuracy)"""
         self._ensure_models_loaded()
         lemmas = []
+        stanza_batch = []  # tokens needing Stanza fallback
+        stanza_indices = []  # their positions in lemmas list
+
         for token in tokens:
             cache_key = f"grc:{token}"
             if cache_key in self.lemma_cache:
                 lemmas.append(self.lemma_cache[cache_key])
                 continue
-            
+
             norm_token = self._normalize_greek_token(token)
             greek_table = get_greek_lemma_table()
-            
+
             if norm_token in greek_table:
                 lemma = greek_table[norm_token]
-            elif self.use_cltk_greek and self.greek_lemmatizer:
-                try:
-                    result = self.greek_lemmatizer.lemmatize([token])
-                    lemma = result[0][1] if result else norm_token
-                    lemma = self._normalize_greek_token(lemma)
-                except Exception:
-                    lemma = norm_token
+                self.lemma_cache[cache_key] = lemma
+                lemmas.append(lemma)
             else:
-                lemma = norm_token
-            
-            self.lemma_cache[cache_key] = lemma
-            lemmas.append(lemma)
-        
+                # Placeholder; will be filled by Stanza batch
+                lemmas.append(None)
+                stanza_batch.append(token)
+                stanza_indices.append(len(lemmas) - 1)
+
+        # Batch Stanza fallback for all tokens not in lookup table
+        if stanza_batch:
+            stanza_lemmas = self._stanza_greek_lemmatize_batch(stanza_batch)
+            for i, idx in enumerate(stanza_indices):
+                lemma = stanza_lemmas[i] if i < len(stanza_lemmas) else self._normalize_greek_token(stanza_batch[i])
+                lemmas[idx] = lemma
+                cache_key = f"grc:{stanza_batch[i]}"
+                self.lemma_cache[cache_key] = lemma
+
+        # Final fallback: any remaining None -> normalized form
+        for i in range(len(lemmas)):
+            if lemmas[i] is None:
+                lemmas[i] = self._normalize_greek_token(tokens[i])
+
         return lemmas
+
+    def _stanza_greek_lemmatize_batch(self, tokens):
+        """Use Stanza grc_proiel model (97% accuracy) for tokens not in lookup table.
+
+        Lazy-loads on first call. Skipped during frequency cache init to avoid
+        loading ~200MB model at startup.
+        """
+        global _stanza_grc_nlp
+        # Skip Stanza during frequency cache init -- the 690K lookup table is
+        # sufficient for counting lemma frequencies, and loading Stanza adds
+        # ~200MB RAM + minutes of processing time at startup.
+        if getattr(self, '_skip_stanza', False):
+            return [self._normalize_greek_token(t) for t in tokens]
+        if _stanza_grc_nlp is None and not getattr(self.__class__, '_stanza_grc_attempted', False):
+            self.__class__._stanza_grc_attempted = True
+            try:
+                import stanza
+                _stanza_grc_nlp = stanza.Pipeline(
+                    'grc', package='proiel',
+                    processors='tokenize,lemma',
+                    tokenize_pretokenized=True,
+                    verbose=False, use_gpu=False,
+                )
+                logger.info("Stanza Ancient Greek (PROIEL) pipeline loaded for fallback lemmatization")
+            except Exception as e:
+                logger.warning(f"Stanza Ancient Greek not available: {e}")
+                _stanza_grc_nlp = None
+
+        if _stanza_grc_nlp is None:
+            # Fall back to CLTK or normalized form
+            if self.use_cltk_greek and self.greek_lemmatizer:
+                return [self._normalize_greek_token(
+                    self.greek_lemmatizer.lemmatize([t])[0][1]
+                    if self.greek_lemmatizer.lemmatize([t]) else t
+                ) for t in tokens]
+            return [self._normalize_greek_token(t) for t in tokens]
+
+        try:
+            # Process as a single pre-tokenized sentence
+            doc = _stanza_grc_nlp([tokens])
+            lemmas = []
+            for sent in doc.sentences:
+                for word in sent.words:
+                    lemmas.append(self._normalize_greek_token(word.lemma) if word.lemma else self._normalize_greek_token(word.text))
+            # Align output to input (Stanza may split differently)
+            if len(lemmas) == len(tokens):
+                return lemmas
+            elif len(lemmas) > len(tokens):
+                return lemmas[:len(tokens)]
+            else:
+                return lemmas + [self._normalize_greek_token(t) for t in tokens[len(lemmas):]]
+        except Exception as e:
+            logger.warning(f"Stanza Greek fallback failed: {e}")
+            return [self._normalize_greek_token(t) for t in tokens]
     
     def _cltk_greek_lemmatize(self, tokens):
         """Use CLTK GreekBackoffLemmatizer"""

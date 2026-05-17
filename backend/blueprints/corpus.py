@@ -108,15 +108,25 @@ def get_authors():
                 authors[author] = {'works': [], 'year': metadata.get('year'), 'era': metadata.get('era')}
             authors[author]['works'].append(metadata)
     
+    # Whole-corpus entries (Bible/NT/OT) should sit at the top of an
+    # author's work list, not buried alphabetically. Match by work_key
+    # (filename-derived) so the rule is independent of display label.
+    WHOLE_PRIORITY = {'bible': 0, 'nt': 1, 'ot': 2}
+    def work_sort_key(w):
+        wk = (w.get('work_key') or '').lower()
+        if wk in WHOLE_PRIORITY:
+            return [0, WHOLE_PRIORITY[wk], wk]
+        return [1] + natural_sort_key(w.get('title', ''))
+
     result = []
     for author in sorted(authors.keys()):
         result.append({
             'name': author,
             'year': authors[author].get('year'),
             'era': authors[author].get('era'),
-            'works': sorted(authors[author]['works'], key=lambda x: natural_sort_key(x['title']))
+            'works': sorted(authors[author]['works'], key=work_sort_key)
         })
-    
+
     return jsonify(result)
 
 
@@ -197,8 +207,16 @@ def get_texts_hierarchy():
         author_key_lower = author_key.lower()
         author_year = author_dates.get(author_key_lower, {}).get('year')
         author_era = author_dates.get(author_key_lower, {}).get('era')
+        # Priority order for whole-corpus entries — keep them at the top of
+        # the work list rather than buried alphabetically.
+        WHOLE_PRIORITY = {'bible': 0, 'nt': 1, 'ot': 2}
+        def work_sort_key(wk):
+            wk_lower = wk.lower()
+            if wk_lower in WHOLE_PRIORITY:
+                return [0, WHOLE_PRIORITY[wk_lower], wk_lower]
+            return [1] + natural_sort_key(wk)
         works = []
-        for work_key in sorted(author_data['works'].keys(), key=natural_sort_key):
+        for work_key in sorted(author_data['works'].keys(), key=work_sort_key):
             work_data = author_data['works'][work_key]
             works.append({
                 'work_key': work_key,

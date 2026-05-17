@@ -2,6 +2,8 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { Button, LoadingSpinner } from '../common';
 import { formatReference, formatElapsedTime } from '../../utils/formatting';
 import { displayGreekWithFinalSigma } from '../../utils/greekUtils';
+import { normalizeCoptic } from '../../utils/copticUtils';
+import { exportRowsToPDF } from '../../utils/exportResults';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 
@@ -87,19 +89,26 @@ const SearchResults = ({
   const exportCSV = useCallback(() => {
     if (!results || results.length === 0) return;
 
-    const headers = ['Source Locus', 'Source Text', 'Target Locus', 'Target Text', 'Score', 'Matched Words', 'Channels'];
-    const rows = results.map(r => {
+    // Sort by fused_score descending — the same score the on-screen list and
+    // ranking show. Falls back to score / overall_score for legacy formats.
+    // Without this explicit sort the CSV could appear unordered if the API
+    // serializes results in some other internal order.
+    const scoreOf = (r) => r.fused_score ?? r.score ?? r.overall_score ?? 0;
+    const sorted = [...results].sort((a, b) => scoreOf(b) - scoreOf(a));
+    const headers = ['Rank', 'Source Locus', 'Source Text', 'Target Locus', 'Target Text', 'Score', 'Matched Words', 'Channels'];
+    const rows = sorted.map((r, idx) => {
       const mw = r.matched_words || [];
       const sourceText = (r.source_text || r.source_snippet || r.source?.text || '').replace(/<[^>]*>/g, '').replace(/"/g, '""');
       const targetText = (r.target_text || r.target_snippet || r.target?.text || '').replace(/<[^>]*>/g, '').replace(/"/g, '""');
       return [
+        String(idx + 1),
         r.source_locus || r.source?.ref || '',
         highlightMatchedWords(sourceText, mw, 'source'),
         r.target_locus || r.target?.ref || '',
         highlightMatchedWords(targetText, mw, 'target'),
-        (r.score ?? r.overall_score)?.toFixed(3) || '',
+        scoreOf(r).toFixed(3),
         mw.map(w => typeof w === 'object' ? (w.lemma || w.word || '') : w).join('; '),
-        (r.channels || []).join('; ')
+        (r.channels || []).join('; '),
       ];
     });
 
@@ -112,6 +121,85 @@ const SearchResults = ({
     a.click();
     URL.revokeObjectURL(url);
   }, [results]);
+
+  const exportPDF = useCallback(() => {
+    if (!results || results.length === 0) return;
+    const headers = ['#', 'Source Locus', 'Source Text', 'Target Locus', 'Target Text', 'Score', 'Matched Words', 'Channels'];
+    // Token-based renderer: split source/target text on whitespace, compare each
+    // token against the matched-word set. Robust against any script and avoids
+    // regex word-boundary issues with non-ASCII alphabets. For Coptic the
+    // legacy/primary Unicode-block mismatch is normalised before comparing.
+    const escHtml = (s) => String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const stripPunct = (s) => s.replace(/^[\s.,;:!?'"()—–·‧·\-]+/, '')
+                              .replace(/[\s.,;:!?'"()—–·‧·\-]+$/, '');
+    const isCop = language === 'cop';
+    const norm = (s) => isCop ? normalizeCoptic(s) : s.toLowerCase();
+    const renderHL = (text, mw, side) => {
+      if (!text) return '';
+      const targets = new Set();
+      (mw || []).forEach(w => {
+        const word = typeof w === 'object'
+          ? (side === 'source' ? w.source_word : w.target_word) || w.word || w.lemma
+          : w;
+        if (!word) return;
+        const s = String(word);
+        if (s.includes('~') || s.includes('[')) return; // skip composite labels
+        targets.add(norm(stripPunct(s)));
+      });
+      if (targets.size === 0) return escHtml(text);
+      return String(text).split(/(\s+)/).map(part => {
+        if (/^\s+$/.test(part) || part === '') return escHtml(part);
+        const stripped = stripPunct(part);
+        const cmp = norm(stripped);
+        let hit = targets.has(cmp);
+        if (!hit) {
+          // Substring fallback: bound-group token containing a sub-word match.
+          for (const t of targets) {
+            if (t.length >= 3 && cmp.includes(t)) { hit = true; break; }
+          }
+        }
+        return hit ? `<strong class="hl">${escHtml(part)}</strong>` : escHtml(part);
+      }).join('');
+    };
+    // Sort by fused_score descending so the PDF order matches what's shown
+    // on screen (which uses fused_score as the primary score). The API may
+    // serialize results in a different internal order; without an explicit
+    // sort the PDF could appear out of order.
+    const scoreOf = (r) => r.fused_score ?? r.score ?? r.overall_score ?? 0;
+    const sorted = [...results].sort((a, b) => scoreOf(b) - scoreOf(a));
+    const rows = sorted.map((r, idx) => {
+      const mw = r.matched_words || [];
+      const sourceText = (r.source_text || r.source_snippet || r.source?.text || '').replace(/<[^>]*>/g, '');
+      const targetText = (r.target_text || r.target_snippet || r.target?.text || '').replace(/<[^>]*>/g, '');
+      return [
+        String(idx + 1),
+        r.source_locus || r.source?.ref || '',
+        renderHL(sourceText, mw, 'source'),
+        r.target_locus || r.target?.ref || '',
+        renderHL(targetText, mw, 'target'),
+        scoreOf(r).toFixed(3),
+        mw.map(w => typeof w === 'object' ? (w.lemma || w.word || '') : w).join('; '),
+        (r.channels || []).join('; '),
+      ];
+    });
+    const sourceLabel = sourceTextInfo ? `${sourceTextInfo.author || ''} ${sourceTextInfo.title || sourceTextInfo.work || ''}`.trim() : '';
+    const targetLabel = targetTextInfo ? `${targetTextInfo.author || ''} ${targetTextInfo.title || targetTextInfo.work || ''}`.trim() : '';
+    const subtitle = sourceLabel && targetLabel ? `${sourceLabel} vs ${targetLabel}` : '';
+    const rtl = ['ar', 'fa', 'he', 'ur'].includes(language);
+    // Headers are ['#', 'Source Locus', 'Source Text', 'Target Locus',
+    // 'Target Text', 'Score', 'Matched Words', 'Channels']. Widths chosen
+    // to minimise row height: each column gets width roughly proportional to
+    // its typical content length, so every column wraps to a similar number
+    // of lines instead of one column blowing up the row.
+    const colWidths = ['3%', '8%', '25%', '8%', '25%', '4%', '17%', '10%'];
+    exportRowsToPDF('Tesserae V6 — Search Results', subtitle, headers, rows, {
+      htmlCells: true,
+      dir: rtl ? 'rtl' : 'ltr',
+      lang: language || '',
+      colWidths,
+    });
+  }, [results, sourceTextInfo, targetTextInfo, language]);
 
   const exportDistributionChart = () => {
     if (!chartRef.current) return;
@@ -316,6 +404,22 @@ const SearchResults = ({
           if (hw.replace(/[uv]/g, 'u') === uvNormalized) return true;
         }
       }
+      // Coptic uses two equivalent Unicode blocks (U+03E2-03EF and
+      // U+2CB2-2CBF) for the same seven letters. Backend tokens are
+      // normalised to the latter; .tess display text uses the former.
+      // Normalise both sides before comparing. Backend tokens are
+      // sub-word morphemes (Scriptorium CoNLL-U) but the displayed text is
+      // whitespace-split into bound groups, so a sub-word match must
+      // highlight any bound group that contains it.
+      if (language === 'cop') {
+        const copNormalized = normalizeCoptic(normalized);
+        for (const hw of wordsToHighlight) {
+          const hwNorm = normalizeCoptic(hw);
+          if (!hwNorm) continue;
+          if (hwNorm === copNormalized) return true;
+          if (copNormalized.includes(hwNorm)) return true;
+        }
+      }
       return false;
     };
 
@@ -377,7 +481,7 @@ const SearchResults = ({
           {isSlowSearch && !isQueued && (
             <div className="text-sm text-gray-600 mb-4 text-center">
               {matchType === 'fusion'
-                ? 'Fusion search runs all 9 channels \u2014 results will appear as channels complete.'
+                ? 'Fusion search runs all available channels \u2014 results will appear as channels complete.'
                 : 'Initial sound or edit distance searches on large texts typically take several minutes.'}
             </div>
           )}
@@ -477,6 +581,13 @@ const SearchResults = ({
             >
               Export CSV
             </button>
+            <button
+              onClick={exportPDF}
+              className="text-xs bg-amber-600 text-white px-3 py-2 rounded hover:bg-amber-700 whitespace-nowrap"
+              title="Open print-friendly view; choose 'Save as PDF' in the print dialog."
+            >
+              Export PDF
+            </button>
             {onRerunFresh && !loading && (
               <button
                 onClick={onRerunFresh}
@@ -565,6 +676,7 @@ const SearchResults = ({
                 <div className="font-medium text-gray-900">{formatReference(r.source_locus || r.source?.ref, language)}</div>
                 <div
                   className="text-gray-700 mt-1"
+                  dir={language === 'ar' || language === 'fa' || language === 'he' || language === 'ur' ? 'rtl' : undefined}
                   dangerouslySetInnerHTML={{ __html: r.source_text || r.source_snippet || renderHighlightedText(r.source, language, r.matched_words, true, r.target) }}
                 />
                 {r.features?.source_scansion && renderScansion(r.features.source_scansion)}
@@ -574,6 +686,7 @@ const SearchResults = ({
                 <div className="font-medium text-gray-900">{formatReference(r.target_locus || r.target?.ref, language)}</div>
                 <div
                   className="text-gray-700 mt-1"
+                  dir={language === 'ar' || language === 'fa' || language === 'he' || language === 'ur' ? 'rtl' : undefined}
                   dangerouslySetInnerHTML={{ __html: r.target_text || r.target_snippet || renderHighlightedText(r.target, language, r.matched_words, false, r.source) }}
                 />
                 {r.features?.target_scansion && renderScansion(r.features.target_scansion)}
@@ -586,7 +699,7 @@ const SearchResults = ({
               </span>
               {r.channels && r.channels.length > 0 && (
                 <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
-                  {r.channels.length}/9 channels
+                  {r.channels.length} channel{r.channels.length !== 1 ? 's' : ''}
                 </span>
               )}
               {r.features?.meter_score > 0 && (

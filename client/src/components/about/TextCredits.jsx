@@ -7,6 +7,15 @@ const SOURCE_LINKS = {
   'Open Greek and Latin Project': 'http://www.dh.uni-leipzig.de/wo/projects/open-greek-and-latin-project/',
   'Musisque Deoque': 'http://www.mqdq.it/',
   'Corpus Scriptorum Latinorum': 'http://www.forumromanum.org/literature/index.html',
+  'Coptic Scriptorium': 'https://copticscriptorium.org/',
+  'BHSA': 'https://etcbc.github.io/bhsa/',
+  'Tanzil': 'https://tanzil.net/',
+  'Ganjoor': 'https://ganjoor.net/',
+  'Frances Pritchett': 'https://franpritchett.com/00ghalib/',
+  'Iqbal Demystified': 'https://github.com/iqbal-demystified',
+  'Project Gutenberg': 'https://www.gutenberg.org/',
+  'eBible.org': 'https://ebible.org/web/',
+  'Moby Shakespeare': 'https://shakespeare.mit.edu/',
 };
 
 function IntroLink({ name, url }) {
@@ -62,17 +71,36 @@ export default function TextCredits() {
       <h2 className="text-2xl font-semibold text-gray-900 mb-4">Sources</h2>
 
       <p className="text-gray-700 leading-relaxed mb-6">
-        The texts used in this project were gathered from many electronic text databases, including{' '}
+        The texts used in this project were gathered from many electronic text databases. Latin and Greek
+        texts come from{' '}
         <IntroLink name="The Latin Library" url={SOURCE_LINKS['The Latin Library']} />,{' '}
         <IntroLink name="The Perseus Project" url={SOURCE_LINKS['The Perseus Project']} />,{' '}
         <IntroLink name="DigilibLT" url={SOURCE_LINKS['DigilibLT']} />,{' '}
         <IntroLink name="Open Greek and Latin Project" url={SOURCE_LINKS['Open Greek and Latin Project']} />,{' '}
         <IntroLink name="Musisque Deoque" url={SOURCE_LINKS['Musisque Deoque']} />, and{' '}
         <IntroLink name="Corpus Scriptorum Latinorum" url={SOURCE_LINKS['Corpus Scriptorum Latinorum']} />.
-        {' '}We have modified the texts by changing the markup, and may have made superficial changes to orthography.
-        During our searches, all punctuation and capitalization are removed. Below we provide the electronic
-        sources for each of our texts. To the best of our ability, we have looked for indications of the
-        original provenance of these texts, and reproduce citation where possible. This is a work in progress.
+        {' '}Coptic texts (Sahidic and Bohairic) come from{' '}
+        <IntroLink name="Coptic Scriptorium" url={SOURCE_LINKS['Coptic Scriptorium']} /> (CC-BY 4.0; the
+        Sahidica New Testament is additionally subject to its own academic-use license, ©2000–2006
+        J. Warren Wells). The Hebrew Bible is extracted from the{' '}
+        <IntroLink name="ETCBC/BHSA" url={SOURCE_LINKS['BHSA']} /> dataset (Biblia Hebraica Stuttgartensia
+        Amstelodamensis). Quranic Arabic is from{' '}
+        <IntroLink name="Tanzil" url={SOURCE_LINKS['Tanzil']} />; pre-Islamic Arabic poetry from
+        public-domain Mu‘allaqāt editions. Classical Persian poetry comes from{' '}
+        <IntroLink name="Ganjoor" url={SOURCE_LINKS['Ganjoor']} />, the Chronological Persian Poetry
+        Dataset built on Ganjoor's SQLite distribution. Urdu Ghalib from{' '}
+        <IntroLink name="Frances Pritchett's A Desertful of Roses" url={SOURCE_LINKS['Frances Pritchett']} />{' '}
+        and Urdu Wikisource; Allama Iqbal's Urdu and Persian works from the{' '}
+        <IntroLink name="Iqbal Demystified Dataset" url={SOURCE_LINKS['Iqbal Demystified']} />. English
+        literary texts from{' '}
+        <IntroLink name="Project Gutenberg" url={SOURCE_LINKS['Project Gutenberg']} /> and{' '}
+        <IntroLink name="Moby Shakespeare" url={SOURCE_LINKS['Moby Shakespeare']} />, with the
+        World English Bible from{' '}
+        <IntroLink name="eBible.org" url={SOURCE_LINKS['eBible.org']} />. We have modified the texts by
+        changing the markup, and may have made superficial changes to orthography. During our searches,
+        all punctuation and capitalization are removed. Below we provide the electronic sources for each
+        of our texts. To the best of our ability, we have looked for indications of the original
+        provenance of these texts, and reproduce citation where possible. This is a work in progress.
       </p>
 
       <div className="mb-4">

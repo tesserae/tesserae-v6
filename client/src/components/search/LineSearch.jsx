@@ -3,6 +3,7 @@ import { LoadingSpinner } from '../common';
 import { normalizeGreek } from '../../utils/greekUtils';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
+import { exportRowsToPDF } from '../../utils/exportResults';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -294,6 +295,18 @@ export default function LineSearch({ language }) {
     a.click();
     URL.revokeObjectURL(url);
   }, [results, query]);
+
+  const exportPDF = useCallback(() => {
+    if (!results || results.length === 0) return;
+    const headers = ['Author', 'Work', 'Locus', 'Text', 'Era'];
+    const rows = results.map(r => [
+      r.author || '', r.work || '', r.locus || '', r.text || '', r.era || '',
+    ]);
+    const rtl = ['ar', 'fa', 'he', 'ur'].includes(language);
+    exportRowsToPDF(`Tesserae V6 — Line Search: "${query}"`, '', headers, rows, {
+      dir: rtl ? 'rtl' : 'ltr', lang: language || '',
+    });
+  }, [results, query, language]);
 
   const exportTimelineChart = () => {
     if (!chartRef.current) return;
@@ -726,6 +739,13 @@ export default function LineSearch({ language }) {
                     className="text-sm text-amber-600 hover:text-amber-800"
                   >
                     Export CSV
+                  </button>
+                  <button
+                    onClick={exportPDF}
+                    className="text-sm text-amber-600 hover:text-amber-800"
+                    title="Open print-friendly view; choose 'Save as PDF' in the print dialog."
+                  >
+                    Export PDF
                   </button>
                 </div>
               </div>
