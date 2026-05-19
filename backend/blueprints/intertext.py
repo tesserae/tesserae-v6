@@ -27,6 +27,19 @@ def _parse_json_list(raw_value):
 
 
 def _serialize_public_intertext(it):
+    # Resolve submitter display info: prefer cached columns, fall back to User relationship
+    user_obj = getattr(it, 'submitter', None)
+    cached_name = (it.submitter_name or '').strip()
+    cached_email = (it.submitter_email or '').strip()
+
+    if not cached_name and user_obj:
+        cached_name = f"{user_obj.first_name or ''} {user_obj.last_name or ''}".strip() or (user_obj.email or '')
+    if not cached_email and user_obj:
+        cached_email = user_obj.email or ''
+
+    # Build a username display: try full name, fall back to email prefix, then "Anonymous"
+    username_display = cached_name or (cached_email.split('@')[0] if cached_email else 'Anonymous')
+
     return {
         'id': it.id,
         'source': {
@@ -51,8 +64,9 @@ def _serialize_public_intertext(it):
         'user_score': it.user_score,
         'submitter_id': it.submitter_id,
         'submitter': {
-            'name': it.submitter_name or '',
-            'email': it.submitter_email or '',
+            'name': cached_name,
+            'username': username_display,
+            'email': cached_email,
             'institution': it.submitter_institution or '',
             'orcid': it.submitter_orcid or ''
         },
@@ -61,6 +75,7 @@ def _serialize_public_intertext(it):
         'status': it.status,
         'created_at': it.created_at.isoformat() if it.created_at else None
     }
+
 
 
 def _serialize_saved_intertext(it):

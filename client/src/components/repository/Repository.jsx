@@ -737,6 +737,19 @@ export default function Repository({ user, isAdmin = false }) {
                                       </div>
                                     </div>
                                     {item.notes && <div className="mt-2 text-xs text-gray-500 italic">{item.notes}</div>}
+                                    {isAdmin && (
+                                      <div className="mt-2 p-2 bg-red-50 rounded border border-red-100 text-xs">
+                                        <div className="font-semibold text-red-700 mb-1">⚙️ Submitter Info (Admin Only)</div>
+                                        <div className="text-gray-700">
+                                          <span className="font-medium">User:</span>{' '}
+                                          {item.submitter?.username || item.submitter?.name || 'Anonymous'}
+                                        </div>
+                                        {item.submitter?.email
+                                          ? <div className="text-gray-700"><span className="font-medium">Email:</span>{' '}<a href={`mailto:${item.submitter.email}`} className="text-red-600 hover:underline">{item.submitter.email}</a></div>
+                                          : <div className="text-gray-400 italic">No email on record</div>
+                                        }
+                                      </div>
+                                    )}
                                   </div>
                                 ))}
                               </div>
@@ -892,6 +905,19 @@ export default function Repository({ user, isAdmin = false }) {
                 {item.notes && (
                   <div className="mt-2 text-sm text-gray-600 italic">
                     Note: {item.notes}
+                  </div>
+                )}
+                {isAdmin && (
+                  <div className="mt-2 p-2 bg-red-50 rounded border border-red-100 text-xs">
+                    <div className="font-semibold text-red-700 mb-1">⚙️ Submitter Info (Admin Only)</div>
+                    <div className="text-gray-700">
+                      <span className="font-medium">User:</span>{' '}
+                      {item.submitter?.username || item.submitter?.name || 'Anonymous'}
+                    </div>
+                    {item.submitter?.email
+                      ? <div className="text-gray-700"><span className="font-medium">Email:</span>{' '}<a href={`mailto:${item.submitter.email}`} className="text-red-600 hover:underline">{item.submitter.email}</a></div>
+                      : <div className="text-gray-400 italic">No email on record</div>
+                    }
                   </div>
                 )}
               </div>
