@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { SearchableAuthorSelect } from '../common';
 
 const TextSelector = ({
@@ -29,6 +29,14 @@ const TextSelector = ({
     return hierarchy.find(a => a.author_key === selectedAuthor);
   }, [hierarchy, selectedAuthor]);
 
+  // When the author changes, clear the selected work so the user must pick one
+  const handleAuthorChange = useCallback((newAuthor) => {
+    if (newAuthor !== selectedAuthor) {
+      setSelectedText('');
+    }
+    setSelectedAuthor(newAuthor);
+  }, [selectedAuthor, setSelectedAuthor, setSelectedText]);
+
   return (
     <div className="space-y-3">
       <div>
@@ -37,7 +45,7 @@ const TextSelector = ({
         </label>
         <SearchableAuthorSelect
           value={selectedAuthor}
-          onChange={setSelectedAuthor}
+          onChange={handleAuthorChange}
           filter={filter}
           setFilter={setFilter}
           showDropdown={showDropdown}
