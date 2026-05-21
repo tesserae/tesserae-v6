@@ -359,11 +359,8 @@ export default function CrossLingualSearch() {
                 value={sourceAuthor}
                 onChange={(key) => {
                   setSourceAuthor(key);
-                  const works = getAuthorWorks(hierarchy[currentPair.source], key);
-                  if (works.length > 0) {
-                    setSourceWork(works[0].work_key);
-                    setSourceSection(works[0].whole_text || works[0].parts?.[0]?.id || '');
-                  }
+                  setSourceWork('');
+                  setSourceSection('');
                 }}
                 authors={hierarchy[currentPair.source]}
               />
@@ -374,11 +371,16 @@ export default function CrossLingualSearch() {
                 value={sourceWork}
                 onChange={e => {
                   setSourceWork(e.target.value);
-                  const { wholeText, parts } = getWorkParts(hierarchy[currentPair.source], sourceAuthor, e.target.value);
-                  setSourceSection(wholeText || parts[0]?.id || '');
+                  if (e.target.value) {
+                    const { wholeText, parts } = getWorkParts(hierarchy[currentPair.source], sourceAuthor, e.target.value);
+                    setSourceSection(wholeText || parts[0]?.id || '');
+                  } else {
+                    setSourceSection('');
+                  }
                 }}
                 className="w-full border rounded px-3 py-2"
               >
+                <option value="">Select a work...</option>
                 {getAuthorWorks(hierarchy[currentPair.source], sourceAuthor).map(w => (
                   <option key={w.work_key} value={w.work_key}>{w.work}</option>
                 ))}
@@ -414,11 +416,8 @@ export default function CrossLingualSearch() {
                 value={targetAuthor}
                 onChange={(key) => {
                   setTargetAuthor(key);
-                  const works = getAuthorWorks(hierarchy[currentPair.target], key);
-                  if (works.length > 0) {
-                    setTargetWork(works[0].work_key);
-                    setTargetSection(works[0].whole_text || works[0].parts?.[0]?.id || '');
-                  }
+                  setTargetWork('');
+                  setTargetSection('');
                 }}
                 authors={hierarchy[currentPair.target]}
               />
@@ -429,11 +428,16 @@ export default function CrossLingualSearch() {
                 value={targetWork}
                 onChange={e => {
                   setTargetWork(e.target.value);
-                  const { wholeText, parts } = getWorkParts(hierarchy[currentPair.target], targetAuthor, e.target.value);
-                  setTargetSection(wholeText || parts[0]?.id || '');
+                  if (e.target.value) {
+                    const { wholeText, parts } = getWorkParts(hierarchy[currentPair.target], targetAuthor, e.target.value);
+                    setTargetSection(wholeText || parts[0]?.id || '');
+                  } else {
+                    setTargetSection('');
+                  }
                 }}
                 className="w-full border rounded px-3 py-2"
               >
+                <option value="">Select a work...</option>
                 {getAuthorWorks(hierarchy[currentPair.target], targetAuthor).map(w => (
                   <option key={w.work_key} value={w.work_key}>{w.work}</option>
                 ))}
