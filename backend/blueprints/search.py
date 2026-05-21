@@ -570,20 +570,21 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
     # Two-lemma gate (Bernstein 2026-05-20). Scholar review of Iliad x Aeneid
     # output identified single-common-lemma matches (e.g. gerwn -> grandaevus,
     # koiranos -> rex) as noise at the top of the ranked list. The gate
-    # penalises or excludes cross-lingual pairs whose distinct lemma-match
-    # count is below a threshold (default 2). Two modes:
-    #   'penalty' (default): multiply the pair's fused score by a factor
-    #     (default 0.5), so single-lemma pairs sink below multi-lemma pairs
-    #     but stay visible to users who scroll.
-    #   'exclude': drop single-lemma pairs entirely. Used when regenerating
-    #     scholar-facing benchmark CSVs where the goal is to grade only the
-    #     well-evidenced candidates.
+    # excludes or penalises cross-lingual pairs whose distinct lemma-match
+    # count is below a threshold (default 2). Three modes:
+    #   'exclude' (default): drop below-threshold pairs entirely. Applied to
+    #     both scholar-facing benchmark CSVs and user-facing search, since the
+    #     scholar verdict is consistent: single-lemma matches are noise.
+    #   'penalty': multiply the pair's fused score by a factor (default 0.5)
+    #     so single-lemma pairs sink below multi-lemma pairs but stay visible
+    #     to users who scroll. Available for callers who want softer filtering
+    #     than the default.
     #   'off': no gate; preserves the pre-2026-05-20 behaviour.
     crosslingual_min_lemma_matches = settings.get('crosslingual_min_lemma_matches', 2)
-    crosslingual_lemma_gate = settings.get('crosslingual_lemma_gate', 'penalty')
+    crosslingual_lemma_gate = settings.get('crosslingual_lemma_gate', 'exclude')
     crosslingual_penalty_factor = settings.get('crosslingual_penalty_factor', 0.5)
     if crosslingual_lemma_gate not in ('penalty', 'exclude', 'off'):
-        crosslingual_lemma_gate = 'penalty'
+        crosslingual_lemma_gate = 'exclude'
 
     lang_pair = frozenset((source_language, target_language))
     if lang_pair not in VALID_CROSSLINGUAL_PAIRS:
