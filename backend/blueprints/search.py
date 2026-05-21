@@ -567,6 +567,25 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
     target_language = params['target_language']
     min_matches = settings.get('min_matches', 1)
 
+    # Two-lemma gate (Bernstein 2026-05-20). Scholar review of Iliad x Aeneid
+    # output identified single-common-lemma matches (e.g. gerwn -> grandaevus,
+    # koiranos -> rex) as noise at the top of the ranked list. The gate
+    # excludes or penalises cross-lingual pairs whose distinct lemma-match
+    # count is below a threshold (default 2). Three modes:
+    #   'exclude' (default): drop below-threshold pairs entirely. Applied to
+    #     both scholar-facing benchmark CSVs and user-facing search, since the
+    #     scholar verdict is consistent: single-lemma matches are noise.
+    #   'penalty': multiply the pair's fused score by a factor (default 0.5)
+    #     so single-lemma pairs sink below multi-lemma pairs but stay visible
+    #     to users who scroll. Available for callers who want softer filtering
+    #     than the default.
+    #   'off': no gate; preserves the pre-2026-05-20 behaviour.
+    crosslingual_min_lemma_matches = settings.get('crosslingual_min_lemma_matches', 2)
+    crosslingual_lemma_gate = settings.get('crosslingual_lemma_gate', 'exclude')
+    crosslingual_penalty_factor = settings.get('crosslingual_penalty_factor', 0.5)
+    if crosslingual_lemma_gate not in ('penalty', 'exclude', 'off'):
+        crosslingual_lemma_gate = 'exclude'
+
     lang_pair = frozenset((source_language, target_language))
     if lang_pair not in VALID_CROSSLINGUAL_PAIRS:
         return jsonify({"error": f"Unsupported cross-lingual pair: {source_language} -> {target_language}. "
@@ -774,6 +793,14 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
         if not has_dict and min_matches > 1:
             continue  # User requires dictionary confirmation; skip semantic-only pairs
 
+        # Two-lemma gate (see header comment). Record gate state before the
+        # legacy min_matches filter has zeroed dict_word_count, so the gate
+        # decision uses the original lemma count.
+        gate_lemma_count = dict_word_count
+        lemma_gate_triggered = gate_lemma_count < crosslingual_min_lemma_matches
+        if lemma_gate_triggered and crosslingual_lemma_gate == 'exclude':
+            continue
+
         # Phonetic score: average similarity of matched token pairs
         phonetic_score = 0.0
         if has_phonetic:
@@ -790,6 +817,10 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
                       + (1 if has_syntax else 0) + (1 if has_phonetic else 0))
         if n_channels >= 2:
             score += CONVERGENCE_BONUS
+
+        # Apply two-lemma gate penalty (soft-mode) after the score is composed.
+        if lemma_gate_triggered and crosslingual_lemma_gate == 'penalty':
+            score *= crosslingual_penalty_factor
 
         # Build result
         src_unit = source_units[src_idx]
@@ -946,6 +977,8 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
                 'syntax_score': syntax_score,
                 'phonetic_score': phonetic_score,
                 'n_channels': n_channels,
+                'lemma_gate_triggered': lemma_gate_triggered,
+                'lemma_match_count': gate_lemma_count,
             },
             'channels': ', '.join(channels),
             'match_basis': 'crosslingual_fusion'
