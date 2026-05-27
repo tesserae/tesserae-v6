@@ -10,7 +10,7 @@ from pathlib import Path
 import re
 
 DATA_DIR = "data/pedecerto"
-OUTPUT_TESS_DIR = "texts/la_mqdq"
+OUTPUT_TESS_DIR = "data/la_mqdq_temp"
 OUTPUT_SCANSION_DIR = "data/scansion"
 
 AUTHOR_NAME_MAP = {
