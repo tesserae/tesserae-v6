@@ -1707,7 +1707,7 @@ def hapax_search():
         req_user_id = current_user.id if current_user and current_user.is_authenticated else None
         req_city, req_country, _ip = get_user_location()
         log_search('Rare Words', language, source_id, target_id, None,
-                   'rare_words', len(results), False, req_user_id, req_city, req_country)
+                   'rare_words', len(results), False, req_user_id, req_city, req_country, _ip)
 
         return jsonify({
             'source': source_id,
@@ -1944,7 +1944,7 @@ def rare_bigram_search():
         req_user_id = current_user.id if current_user and current_user.is_authenticated else None
         req_city, req_country, _ip = get_user_location()
         log_search('Rare Pairs', language, source_id, target_id, None,
-                   'rare_pairs', len(results), False, req_user_id, req_city, req_country)
+                   'rare_pairs', len(results), False, req_user_id, req_city, req_country, _ip)
 
         return jsonify({
             'source': source_id,

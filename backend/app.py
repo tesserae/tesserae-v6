@@ -305,8 +305,6 @@ def init_db():
             cur.execute('ALTER TABLE search_logs ADD COLUMN IF NOT EXISTS city VARCHAR(100)')
             cur.execute('ALTER TABLE search_logs ADD COLUMN IF NOT EXISTS country VARCHAR(100)')
             
-            # ... (rest of the init code) ...
-            
             cur.execute('''
                 CREATE INDEX IF NOT EXISTS idx_search_logs_created_at ON search_logs(created_at)
             ''')
@@ -1125,7 +1123,7 @@ def search():
                 'edit_distance': 'Edit Distance'
             }
             log_search(match_labels.get(match_type_raw, 'Dictionary Form (Lemma)'), language, source_id, target_id, None, 
-                      match_type_raw, len(cached_results), True, user_id, city, country)
+                      match_type_raw, len(cached_results), True, user_id, city, country, _ip)
             meta = cached_meta or {}
             return jsonify({
                 "results": display_results,
@@ -1196,7 +1194,7 @@ def search():
             'edit_distance': 'Edit Distance'
         }
         log_search(match_labels.get(match_type_raw, 'Dictionary Form (Lemma)'), language, source_id, target_id, None,
-                  match_type_raw, len(scored_results), False, user_id, city, country)
+                  match_type_raw, len(scored_results), False, user_id, city, country, _ip)
         
         return jsonify({
             "results": display_results,
@@ -2024,7 +2022,7 @@ def line_search_parallel():
         user_id = current_user.id if current_user and current_user.is_authenticated else None
         city, country, _ip = get_user_location()
         log_search('Line Search', language, source_text_id, None, line_text,
-                  match_type, len(all_results), False, user_id, city, country)
+                  match_type, len(all_results), False, user_id, city, country, _ip)
         
         return jsonify({
             'results': final_results,

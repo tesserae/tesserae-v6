@@ -12,3 +12,4 @@ Flask-SQLAlchemy
 PyJWT
 stanza
 sentence-transformers>=2.6.0
+pycountry==24.6.1

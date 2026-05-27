@@ -25,7 +25,10 @@ def get_client_ip():
     return request.remote_addr or '127.0.0.1'
 
 
-# Simple in-memory cache for geolocation to save API hits and improve performance
+# Simple in-process cache for geolocation to save API hits and improve performance.
+# NOTE: This dictionary is process-local. Under multi-worker servers (like Gunicorn),
+# each worker maintains its own independent cache. For many-worker production scaling,
+# this should be promoted to a shared store such as Redis or a small SQLite table.
 _geo_cache = {}
 
 def get_user_location():
@@ -69,15 +72,16 @@ def get_user_location():
                 if not data.get('bogon'):
                     country_code = data.get('country')
                     
-                    # Common ISO to Full Name Mapping to ensure consistent analytics
-                    country_map = {
-                        'US': 'United States', 'GB': 'United Kingdom', 'DE': 'Germany',
-                        'FR': 'France', 'IT': 'Italy', 'ES': 'Spain', 'CA': 'Canada',
-                        'AU': 'Australia', 'NL': 'Netherlands', 'IN': 'India',
-                        'CN': 'China', 'JP': 'Japan', 'BR': 'Brazil', 'RU': 'Russia',
-                        'CH': 'Switzerland', 'SE': 'Sweden', 'GR': 'Greece', 'TR': 'Turkey'
-                    }
-                    country = country_map.get(country_code, country_code)
+                    # Dynamic ISO-to-name mapping via pycountry to cover all ~250 countries consistently
+                    country = country_code
+                    if country_code:
+                        try:
+                            import pycountry
+                            country_obj = pycountry.countries.get(alpha_2=country_code.upper())
+                            if country_obj:
+                                country = country_obj.name
+                        except Exception:
+                            pass
                     
                     loc = (data.get('city'), country)
                     _geo_cache[ip_address] = loc

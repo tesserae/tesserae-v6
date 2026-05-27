@@ -72,9 +72,6 @@ export default function AdminPanel() {
     checkSession();
   }, []);
 
-
-
-
   const handleLogin = async () => {
     setAuthError('');
     if (!adminEmail.trim()) {
