@@ -326,7 +326,7 @@ function App() {
     const hasValidSelection = sourceExists && targetExists;
 
     // Set defaults only when we do not already have valid selections.
-    const shouldSetDefaults = corpusReady && !hasValidSelection && (corpusJustLoaded || !sourceText || !targetText);
+    const shouldSetDefaults = corpusReady && !hasValidSelection && (corpusJustLoaded || (!sourceAuthor && !sourceText && !targetAuthor && !targetText));
     
     if (shouldSetDefaults) {
       let defaultSourceId, defaultTargetId;
