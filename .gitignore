@@ -51,6 +51,7 @@ node_modules/
 # See docs/DATA_FILES_REFERENCE.md for complete list and instructions
 texts/
 data/
+data/la_mqdq_temp/
 cache/
 backend/embeddings/
 
