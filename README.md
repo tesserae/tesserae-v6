@@ -1,6 +1,6 @@
 # Tesserae V6
 
-A web-based intertextual analysis tool for classical Latin, Greek, and English texts. Tesserae identifies textual parallels using advanced matching algorithms across a large corpus of classical literary works.
+A web-based intertextual analysis tool for classical Latin, Greek, English, and Coptic texts. Tesserae identifies textual parallels using advanced matching algorithms across a large corpus of classical literary works.
 
 ## Features
 
