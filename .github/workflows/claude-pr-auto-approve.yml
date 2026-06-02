@@ -1,0 +1,104 @@
+name: Claude PR auto-approve (low-risk only)
+
+# This workflow classifies a PR by safety pattern and optionally auto-approves
+# (NOT auto-merges) PRs that match one of three very-low-risk patterns:
+#
+#   safe:docs       - documentation-only changes
+#   safe:typo       - single tiny change (additions + deletions <= 4, no high-risk paths)
+#   safe:dep-patch  - dependency patch-version bumps only
+#
+# Detection always runs and posts a one-line comment. Whether the workflow
+# actually approves (i.e., creates a GitHub "APPROVE" review on Neil's behalf)
+# is gated by the repository variable CLAUDE_AUTO_APPROVE_ENABLED.
+#
+# Default: detection on, approval off. To turn approval on:
+#   gh variable set CLAUDE_AUTO_APPROVE_ENABLED --body "true" --repo tesserae/tesserae-v6
+#
+# Even with approval enabled, this workflow NEVER auto-merges. Neil clicks the
+# merge button. The intent is to give Neil a one-click merge experience on
+# trivial PRs while keeping the merge gate human.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  classify:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    outputs:
+      verdict: ${{ steps.classify.outputs.verdict }}
+    steps:
+      - name: Check out PR
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Fetch PR diff and file list
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          gh pr diff "$PR_NUMBER" --repo "$REPO" > /tmp/pr.diff
+          gh pr view "$PR_NUMBER" --repo "$REPO" --json files \
+            --jq '[.files[] | {path: .path, additions: .additions, deletions: .deletions}]' \
+            > /tmp/pr_files.json
+
+      - name: Run safe-pattern classifier
+        id: classify
+        run: |
+          set -euo pipefail
+          export PR_FILES_JSON="$(cat /tmp/pr_files.json)"
+          export PR_DIFF_PATH=/tmp/pr.diff
+          verdict="$(python3 .github/scripts/claude_pr_safe_check.py)"
+          echo "Verdict: $verdict"
+          echo "verdict=$verdict" >> "$GITHUB_OUTPUT"
+
+      - name: Post classification comment
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          VERDICT: ${{ steps.classify.outputs.verdict }}
+        run: |
+          set -euo pipefail
+          case "$VERDICT" in
+            safe:*)
+              tag="$(echo "$VERDICT" | cut -d: -f2)"
+              body="**Claude safety classifier:** \`$VERDICT\`. This PR matches the **$tag** safe-pattern (no high-risk paths touched, change is small or scope-limited). Auto-approve is **${{ vars.CLAUDE_AUTO_APPROVE_ENABLED || 'off' }}** for this repo. Neil retains the merge decision."
+              ;;
+            *)
+              reason="$(echo "$VERDICT" | cut -d: -f2-)"
+              body="**Claude safety classifier:** \`$VERDICT\`. Reason: $reason. No auto-approval; Neil's eye recommended."
+              ;;
+          esac
+          gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$body"
+
+  auto-approve:
+    needs: classify
+    if: |
+      vars.CLAUDE_AUTO_APPROVE_ENABLED == 'true' &&
+      startsWith(needs.classify.outputs.verdict, 'safe:')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto-approve safe-pattern PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          VERDICT: ${{ needs.classify.outputs.verdict }}
+        run: |
+          gh pr review "$PR_NUMBER" --repo "$REPO" --approve \
+            --body "Auto-approved by the Claude safety classifier (verdict: $VERDICT). Merge gate stays with Neil."

@@ -1,0 +1,73 @@
+name: Claude PR review (instant first pass)
+
+# This workflow runs a Claude first-pass review on every PR open and update.
+# The review is posted as a comment on the PR. It is informational only.
+# Neil retains the merge decision.
+#
+# Required secrets:
+#   ANTHROPIC_API_KEY  - set at Settings > Secrets and variables > Actions
+#
+# The default GITHUB_TOKEN handles comment posting.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out PR
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Fetch PR diff and file list
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          gh pr diff "$PR_NUMBER" --repo "$REPO" > /tmp/pr.diff
+          gh pr view "$PR_NUMBER" --repo "$REPO" --json files \
+            --jq '[.files[] | {path: .path, additions: .additions, deletions: .deletions}]' \
+            > /tmp/pr_files.json
+          echo "Diff size: $(wc -c < /tmp/pr.diff) bytes"
+          echo "File count: $(jq length < /tmp/pr_files.json)"
+
+      - name: Generate Claude review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          PR_DIFF_PATH: /tmp/pr.diff
+          PR_REVIEW_OUT: /tmp/review.md
+        run: |
+          set -euo pipefail
+          export PR_FILES_JSON="$(cat /tmp/pr_files.json)"
+          python3 .github/scripts/claude_pr_review.py
+          echo "=== Review preview ==="
+          head -40 /tmp/review.md
+
+      - name: Post review comment
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          gh pr comment "$PR_NUMBER" --repo "$REPO" --body-file /tmp/review.md
