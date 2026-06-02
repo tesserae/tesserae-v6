@@ -126,7 +126,7 @@ def search_fusion_stream():
                 meta = cached_meta or {}
                 
                 # Log the cached search
-                log_search('Fusion Search', language, source_id, target_id, None,
+                log_search('fusion_search', language, source_id, target_id, None,
                            'fusion', len(cached_results), True, req_user_id, req_city, req_country, req_ip)
                            
                 yield f"data: {json.dumps({'type': 'complete', 'results': display, 'total_matches': len(cached_results), 'source_lines': meta.get('source_lines', 0), 'target_lines': meta.get('target_lines', 0), 'elapsed_time': round(time.time() - start_time, 2), 'cached': True, 'fusion': True})}\n\n"
@@ -225,7 +225,7 @@ def search_fusion_stream():
             )
 
             # Log the search
-            log_search('Fusion Search', language, source_id, target_id, None,
+            log_search('fusion_search', language, source_id, target_id, None,
                        'fusion', len(final_results), False, req_user_id, req_city, req_country, req_ip)
 
             elapsed_time = round(time.time() - start_time, 2)
