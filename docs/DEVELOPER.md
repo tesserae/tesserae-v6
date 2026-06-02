@@ -62,6 +62,7 @@ Tables are created automatically on first run.
 | DATABASE_URL | Yes | PostgreSQL connection string |
 | ADMIN_PASSWORD | Yes | Admin panel password |
 | SESSION_SECRET | No | Flask session secret (auto-generated) |
+| TESSERAE_GEO_SIMULATE | No | Geolocation simulation for local development testing (Buffalo NY) |
 
 ### 6. Run the Application
 

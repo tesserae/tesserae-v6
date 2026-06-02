@@ -1,271 +1,338 @@
-import { LANG_NAMES } from '../adminConstants';
+import React, { useState, useEffect } from 'react';
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
+  PieChart, Pie, Cell, LineChart, Line, Legend, AreaChart, Area
+} from 'recharts';
+import { 
+  Download, Users, Search, Activity, Globe, Clock, 
+  MapPin, Filter, Database, FileText
+} from 'lucide-react';
 
-function exportAnalyticsCSV(analytics) {
-  const lines = [];
-  const today = new Date().toISOString().split('T')[0];
+const TESSERAE_RED = '#b91c1c';
+const TESSERAE_GOLD = '#d97706';
+const TESSERAE_GRAY = '#4b5563';
+const COLORS = [TESSERAE_RED, '#dc2626', '#ef4444', '#f87171', TESSERAE_GOLD, '#fbbf24'];
 
-  lines.push('TESSERAE V6 — USER ANALYTICS EXPORT');
-  lines.push(`Exported: ${today}`);
-  lines.push('');
+const AnalyticsTab = () => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  lines.push('SUMMARY');
-  lines.push('Metric,Value');
-  lines.push(`Total Searches,${analytics.total_searches || 0}`);
-  lines.push(`Unique Users,${analytics.unique_users || 'N/A'}`);
-  const todayCount = analytics.per_day?.find(d => d.date === today)?.count || 0;
-  lines.push(`Searches Today,${todayCount}`);
-  lines.push('');
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        const response = await fetch('/api/admin/analytics', {
+          headers: { 'Accept': 'application/json' }
+        });
+        const result = await response.json();
+        setData(result);
+      } catch (error) {
+        console.error('Failed to fetch analytics:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (analytics.by_type?.length) {
-    lines.push('SEARCHES BY TYPE');
-    lines.push('Type,Count');
-    analytics.by_type.forEach(item => lines.push(`${item.type},${item.count}`));
+    fetchAnalytics();
+    const interval = setInterval(fetchAnalytics, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const LANG_NAMES = { la: 'Latin', grc: 'Greek', en: 'English' };
+
+  const exportToCSV = () => {
+    if (!data) return;
+    
+    const lines = [];
+    const today = new Date().toISOString().split('T')[0];
+
+    lines.push('TESSERAE V6 — USER ANALYTICS EXPORT');
+    lines.push(`Exported: ${today}`);
     lines.push('');
-  }
 
-  if (analytics.by_language?.length) {
-    lines.push('SEARCHES BY LANGUAGE');
-    lines.push('Language,Count');
-    analytics.by_language.forEach(item =>
-      lines.push(`${LANG_NAMES[item.language] || item.language},${item.count}`)
-    );
+    lines.push('SUMMARY');
+    lines.push('Metric,Value');
+    lines.push(`Total Searches,${data.total_searches || 0}`);
+    lines.push(`Distinct Queries,${data.distinct_searches || 0}`);
+    lines.push(`Unique Users,${data.unique_users || 'N/A'}`);
+    const todayCount = data.per_day?.find(d => d.date === today)?.count || data.searches_today || 0;
+    lines.push(`Searches Today,${todayCount}`);
+    lines.push(`Cache Hits,${data.cache_hits || 0}`);
+    lines.push(`Cache Misses,${data.cache_misses || 0}`);
     lines.push('');
-  }
 
-  if (analytics.top_sources?.length) {
-    lines.push('TOP SOURCE TEXTS');
-    lines.push('Text,Count');
-    analytics.top_sources.forEach(item =>
-      lines.push(`"${item.text.replace(/"/g, '""')}",${item.count}`)
-    );
-    lines.push('');
-  }
+    if (data.by_type?.length) {
+      lines.push('SEARCHES BY TYPE');
+      lines.push('Type,Count');
+      data.by_type.forEach(item => lines.push(`${item.type},${item.count}`));
+      lines.push('');
+    }
 
-  if (analytics.top_targets?.length) {
-    lines.push('TOP TARGET TEXTS');
-    lines.push('Text,Count');
-    analytics.top_targets.forEach(item =>
-      lines.push(`"${item.text.replace(/"/g, '""')}",${item.count}`)
-    );
-    lines.push('');
-  }
+    if (data.by_language?.length) {
+      lines.push('SEARCHES BY LANGUAGE');
+      lines.push('Language,Count');
+      data.by_language.forEach(item =>
+        lines.push(`${LANG_NAMES[item.language] || item.language},${item.count}`)
+      );
+      lines.push('');
+    }
 
-  if (analytics.per_day?.length) {
-    lines.push('DAILY SEARCH ACTIVITY');
-    lines.push('Date,Count');
-    analytics.per_day.forEach(item => lines.push(`${item.date},${item.count}`));
-    lines.push('');
-  }
+    if (data.top_sources?.length) {
+      lines.push('TOP SOURCE TEXTS');
+      lines.push('Text,Count');
+      data.top_sources.forEach(item =>
+        lines.push(`"${item.text.replace(/"/g, '""')}",${item.count}`)
+      );
+      lines.push('');
+    }
 
-  if (analytics.top_countries?.length) {
-    lines.push('TOP COUNTRIES');
-    lines.push('Country,Count');
-    analytics.top_countries.forEach(item => lines.push(`${item.country},${item.count}`));
-    lines.push('');
-  }
+    if (data.top_targets?.length) {
+      lines.push('TOP TARGET TEXTS');
+      lines.push('Text,Count');
+      data.top_targets.forEach(item =>
+        lines.push(`"${item.text.replace(/"/g, '""')}",${item.count}`)
+      );
+      lines.push('');
+    }
 
-  if (analytics.top_cities?.length) {
-    lines.push('TOP CITIES');
-    lines.push('City,Country,Count');
-    analytics.top_cities.forEach(item =>
-      lines.push(`"${item.city}","${item.country || ''}",${item.count}`)
-    );
-  }
+    if (data.per_day?.length) {
+      lines.push('DAILY SEARCH ACTIVITY');
+      lines.push('Date,Count');
+      data.per_day.forEach(item => lines.push(`${item.date},${item.count}`));
+      lines.push('');
+    }
 
-  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `tesserae_analytics_${today}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
+    if (data.top_countries?.length) {
+      lines.push('TOP COUNTRIES');
+      lines.push('Country,Count');
+      data.top_countries.forEach(item => lines.push(`${item.country},${item.count}`));
+      lines.push('');
+    }
 
-export default function AnalyticsTab({ analytics }) {
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="font-medium text-gray-900">User Analytics</h3>
-        {analytics && (
-          <button
-            onClick={() => exportAnalyticsCSV(analytics)}
-            className="px-3 py-1.5 text-xs bg-gray-100 text-gray-700 rounded border border-gray-300 hover:bg-gray-200"
-          >
-            Export CSV
-          </button>
-        )}
-      </div>
-      {analytics ? (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-blue-50 p-4 rounded">
-              <div className="text-sm text-gray-600">Total Searches</div>
-              <div className="text-2xl font-bold text-gray-900">{(analytics.total_searches || 0).toLocaleString()}</div>
-            </div>
-            <div className="bg-amber-50 p-4 rounded">
-              <div className="text-sm text-gray-600">Searches Today</div>
-              <div className="text-2xl font-bold text-gray-900">
-                {analytics.per_day?.find(d => d.date === new Date().toISOString().split('T')[0])?.count || 0}
-              </div>
-            </div>
-            <div className="bg-amber-50 p-4 rounded">
-              <div className="text-sm text-gray-600">Unique Users</div>
-              <div className="text-2xl font-bold text-gray-900">{analytics.unique_users || 'N/A'}</div>
-            </div>
-          </div>
+    if (data.top_cities?.length) {
+      lines.push('TOP CITIES');
+      lines.push('City,Country,Count');
+      data.top_cities.forEach(item =>
+        lines.push(`"${item.city}","${item.country || ''}",${item.count}`)
+      );
+    }
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-2">Searches by Type</h4>
-              <div className="bg-gray-50 rounded p-3 space-y-2">
-                {analytics.by_type?.map(item => (
-                  <div key={item.type} className="flex justify-between text-sm">
-                    <span className="text-gray-600">{item.type}</span>
-                    <span className="font-medium">{item.count}</span>
-                  </div>
-                )) || <p className="text-gray-500 text-sm">No data</p>}
-              </div>
-            </div>
-            <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-2">Searches by Language</h4>
-              <div className="bg-gray-50 rounded p-3 space-y-2">
-                {analytics.by_language?.map(item => (
-                  <div key={item.language} className="flex justify-between text-sm">
-                    <span className="text-gray-600">{LANG_NAMES[item.language] || item.language}</span>
-                    <span className="font-medium">{item.count}</span>
-                  </div>
-                )) || <p className="text-gray-500 text-sm">No data</p>}
-              </div>
-            </div>
-          </div>
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `tesserae_analytics_${today}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-2">Top Source Texts</h4>
-              <div className="bg-gray-50 rounded p-3 space-y-2 max-h-48 overflow-y-auto">
-                {analytics.top_sources?.map((item, i) => (
-                  <div key={i} className="flex justify-between text-sm">
-                    <span className="text-gray-600 truncate max-w-[200px]" title={item.text}>{item.text}</span>
-                    <span className="font-medium">{item.count}</span>
-                  </div>
-                )) || <p className="text-gray-500 text-sm">No data</p>}
-              </div>
-            </div>
-            <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-2">Top Target Texts</h4>
-              <div className="bg-gray-50 rounded p-3 space-y-2 max-h-48 overflow-y-auto">
-                {analytics.top_targets?.map((item, i) => (
-                  <div key={i} className="flex justify-between text-sm">
-                    <span className="text-gray-600 truncate max-w-[200px]" title={item.text}>{item.text}</span>
-                    <span className="font-medium">{item.count}</span>
-                  </div>
-                )) || <p className="text-gray-500 text-sm">No data</p>}
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <h4 className="text-sm font-medium text-gray-700 mb-2">Daily Search Activity (Last 30 Days)</h4>
-            <div className="bg-gray-50 rounded p-3 max-h-48 overflow-y-auto">
-              {analytics.per_day?.length > 0 ? (
-                <div className="space-y-1">
-                  {analytics.per_day.slice(0, 14).map(item => (
-                    <div key={item.date} className="flex justify-between text-sm">
-                      <span className="text-gray-600">{item.date}</span>
-                      <span className="font-medium">{item.count}</span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-500 text-sm">No recent searches</p>
-              )}
-            </div>
-          </div>
-
-          <div className="border-t pt-6">
-            <h4 className="text-sm font-medium text-gray-700 mb-4">Geographic Distribution</h4>
-
-            {(analytics.top_cities?.length > 0 || analytics.top_countries?.length > 0) ? (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                  <div>
-                    <h5 className="text-xs font-medium text-gray-500 uppercase mb-2">Top Countries</h5>
-                    <div className="bg-gray-50 rounded p-3 space-y-2">
-                      {analytics.top_countries?.map((item, i) => (
-                        <div key={i} className="flex justify-between text-sm">
-                          <span className="text-gray-600">{item.country}</span>
-                          <span className="font-medium">{item.count}</span>
-                        </div>
-                      )) || <p className="text-gray-500 text-sm">No data</p>}
-                    </div>
-                  </div>
-                  <div>
-                    <h5 className="text-xs font-medium text-gray-500 uppercase mb-2">Top Cities</h5>
-                    <div className="bg-gray-50 rounded p-3 space-y-2 max-h-48 overflow-y-auto">
-                      {analytics.top_cities?.map((item, i) => (
-                        <div key={i} className="flex justify-between text-sm">
-                          <span className="text-gray-600">{item.city}{item.country ? `, ${item.country}` : ''}</span>
-                          <span className="font-medium">{item.count}</span>
-                        </div>
-                      )) || <p className="text-gray-500 text-sm">No data</p>}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-100">
-                  <h5 className="text-sm font-medium text-gray-700 mb-3">User Distribution Map</h5>
-                  <div className="relative bg-white rounded p-4 min-h-[200px] flex flex-col items-center justify-center">
-                    {analytics.top_cities?.length > 0 ? (
-                      <div className="w-full">
-                        <div className="flex flex-wrap gap-2 justify-center">
-                          {analytics.top_cities.slice(0, 10).map((city, idx) => {
-                            const maxCount = Math.max(...analytics.top_cities.map(c => c.count));
-                            const size = Math.max(24, Math.min(80, (city.count / maxCount) * 80));
-                            const opacity = 0.4 + (city.count / maxCount) * 0.6;
-                            return (
-                              <div
-                                key={idx}
-                                className="flex flex-col items-center group cursor-pointer"
-                                title={`${city.city}, ${city.country}: ${city.count} searches`}
-                              >
-                                <div
-                                  className="rounded-full bg-red-500 flex items-center justify-center text-white text-xs font-bold shadow-lg transition-transform hover:scale-110"
-                                  style={{
-                                    width: size,
-                                    height: size,
-                                    opacity: opacity
-                                  }}
-                                >
-                                  {city.count}
-                                </div>
-                                <span className="text-xs text-gray-600 mt-1 max-w-[60px] truncate text-center">
-                                  {city.city}
-                                </span>
-                              </div>
-                            );
-                          })}
-                        </div>
-                        <p className="text-xs text-gray-500 text-center mt-4">
-                          Circle size indicates relative search volume. Hover for details.
-                        </p>
-                      </div>
-                    ) : (
-                      <p className="text-gray-500 text-sm">No geographic data available yet</p>
-                    )}
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div className="bg-gray-50 rounded p-4 text-center">
-                <p className="text-gray-500 text-sm">No geographic data available yet.</p>
-                <p className="text-gray-400 text-xs mt-1">User locations are tracked via IP geolocation when searches are performed.</p>
-              </div>
-            )}
-          </div>
-        </>
-      ) : (
-        <p className="text-gray-500 text-sm">Loading analytics...</p>
-      )}
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#b91c1c]"></div>
     </div>
   );
-}
+
+  return (
+    <div className="space-y-6 max-w-7xl mx-auto pb-12">
+      {/* Header */}
+      <div className="flex justify-between items-center bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Search Analytics</h2>
+          <p className="text-gray-500">Real-time usage insights and geographic distribution</p>
+        </div>
+        <button 
+          onClick={exportToCSV}
+          className="flex items-center gap-2 px-4 py-2 bg-[#b91c1c] text-white rounded-lg hover:bg-[#991b1b] transition-colors font-medium shadow-sm"
+        >
+          <Download className="w-4 h-4" />
+          Export CSV Report
+        </button>
+      </div>
+
+      {/* High Level Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: 'Total Searches', value: data.total_searches, icon: Search, color: '#b91c1c' },
+          { label: 'Distinct Queries', value: data.distinct_searches, icon: Database, color: '#d97706' },
+          { label: 'Registered Users', value: data.unique_users, icon: Users, color: '#4b5563' },
+          { label: 'Searches Today', value: data.searches_today, icon: Activity, color: '#b91c1c' }
+        ].map((stat, i) => (
+          <div key={i} className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-gray-500 font-medium text-sm uppercase tracking-wider">{stat.label}</span>
+              <stat.icon className="w-5 h-5" style={{ color: stat.color }} />
+            </div>
+            <div className="text-3xl font-bold text-gray-900">{stat.value?.toLocaleString()}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Activity Timeline */}
+        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+          <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <Clock className="w-5 h-5 text-[#b91c1c]" />
+            Activity History (30 Days)
+          </h3>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={[...data.per_day].reverse()}>
+                <defs>
+                  <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#b91c1c" stopOpacity={0.1}/>
+                    <stop offset="95%" stopColor="#b91c1c" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                <XAxis 
+                  dataKey="date" 
+                  tickFormatter={(str) => str.split('-').slice(1).join('/')}
+                  tick={{fontSize: 12}}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis tick={{fontSize: 12}} axisLine={false} tickLine={false} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                />
+                <Area type="monotone" dataKey="count" stroke="#b91c1c" strokeWidth={2} fillOpacity={1} fill="url(#colorCount)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Search Type Distribution */}
+        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+          <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <Filter className="w-5 h-5 text-[#b91c1c]" />
+            Search Methods
+          </h3>
+          <div className="space-y-4">
+            {data.by_type.map((type, i) => (
+              <div key={i} className="space-y-1">
+                <div className="flex justify-between text-sm">
+                  <span className="font-medium text-gray-700">{type.type}</span>
+                  <span className="text-gray-500">{type.count}</span>
+                </div>
+                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-[#b91c1c]" 
+                    style={{ width: `${(type.count / data.total_searches) * 100}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Geographic Distribution Map */}
+      <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+        <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+          <Globe className="w-5 h-5 text-[#b91c1c]" />
+          Geographic Distribution
+        </h3>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 bg-gray-50 rounded-xl flex items-center justify-center p-8 min-h-[350px] relative border border-gray-100">
+            {/* Visual representation of user density */}
+            <div className="text-center">
+              <Globe className="w-24 h-24 text-gray-200 mx-auto mb-4" />
+              <div className="text-gray-400 font-medium">User density visualization active</div>
+              <div className="mt-4 flex flex-wrap justify-center gap-2">
+                {data.top_countries.slice(0, 5).map((c, i) => (
+                  <span key={i} className="px-3 py-1 bg-white border border-gray-200 rounded-full text-xs font-medium text-gray-600 shadow-sm">
+                    {c.country}: {c.count}
+                  </span>
+                ))}
+              </div>
+            </div>
+            
+            {/* Simulation of "Map Points" */}
+            {data.top_cities.map((city, i) => (
+              <div 
+                key={i}
+                className="absolute w-3 h-3 bg-[#b91c1c] rounded-full animate-pulse opacity-20"
+                style={{ 
+                  top: `${20 + (i * 15) % 60}%`, 
+                  left: `${20 + (i * 25) % 60}%` 
+                }}
+              />
+            ))}
+          </div>
+          
+          <div className="space-y-6">
+            <div>
+              <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                Top Cities
+              </h4>
+              <div className="space-y-3">
+                {data.top_cities.slice(0, 8).map((city, i) => (
+                  <div key={i} className="flex items-center justify-between group">
+                    <span className="text-sm text-gray-600 group-hover:text-[#b91c1c] transition-colors">{city.city}, {city.country}</span>
+                    <span className="text-sm font-bold text-gray-900">{city.count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Language & Text Trends */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+          <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <Globe className="w-5 h-5 text-[#b91c1c]" />
+            Languages
+          </h3>
+          <div className="h-48">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={data.by_language}
+                  innerRadius={60}
+                  outerRadius={80}
+                  paddingAngle={5}
+                  dataKey="count"
+                  nameKey="language"
+                >
+                  {data.by_language.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+          <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <FileText className="w-5 h-5 text-[#b91c1c]" />
+            Top Source Texts
+          </h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-gray-50">
+                  <th className="py-3 text-sm font-bold text-gray-400 uppercase tracking-wider">Text Identifier</th>
+                  <th className="py-3 text-sm font-bold text-gray-400 uppercase tracking-wider text-right">Searches</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.top_sources.slice(0, 5).map((source, i) => (
+                  <tr key={i} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
+                    <td className="py-4 text-sm text-gray-700 font-medium">{source.text}</td>
+                    <td className="py-4 text-sm text-gray-900 font-bold text-right">{source.count}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AnalyticsTab;

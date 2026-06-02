@@ -282,6 +282,7 @@ def init_db():
                     value TEXT
                 )
             ''')
+            # Create/Update table schema
             cur.execute('''
                 CREATE TABLE IF NOT EXISTS search_logs (
                     id SERIAL PRIMARY KEY,
@@ -294,17 +295,16 @@ def init_db():
                     results_count INTEGER DEFAULT 0,
                     cached BOOLEAN DEFAULT FALSE,
                     user_id VARCHAR(255),
+                    client_ip VARCHAR(50),
                     city VARCHAR(100),
                     country VARCHAR(100),
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
-            cur.execute('''
-                ALTER TABLE search_logs ADD COLUMN IF NOT EXISTS city VARCHAR(100)
-            ''')
-            cur.execute('''
-                ALTER TABLE search_logs ADD COLUMN IF NOT EXISTS country VARCHAR(100)
-            ''')
+            cur.execute('ALTER TABLE search_logs ADD COLUMN IF NOT EXISTS client_ip VARCHAR(50)')
+            cur.execute('ALTER TABLE search_logs ADD COLUMN IF NOT EXISTS city VARCHAR(100)')
+            cur.execute('ALTER TABLE search_logs ADD COLUMN IF NOT EXISTS country VARCHAR(100)')
+            
             cur.execute('''
                 CREATE INDEX IF NOT EXISTS idx_search_logs_created_at ON search_logs(created_at)
             ''')
@@ -1114,10 +1114,16 @@ def search():
             max_results = settings.get('max_results', 0)
             display_results = cached_results[:max_results] if max_results > 0 else cached_results
             user_id = current_user.id if current_user and current_user.is_authenticated else None
-            city, country = get_user_location()
-            log_search('text_comparison', language, source_id, target_id, None, 
-                      settings.get('match_type', 'lemma'), len(cached_results), True, user_id,
-                      city, country)
+            city, country, _ip = get_user_location()
+            match_type_raw = settings.get('match_type', 'lemma')
+            match_labels = {
+                'lemma': 'Dictionary Form (Lemma)', 'exact': 'Exact Match',
+                'semantic': 'AI Semantic', 'v3_synonyms': 'Dictionary (V3 Synonyms)',
+                'synonyms': 'Dictionary (V3 Synonyms)', 'sound': 'Sound Matching',
+                'edit_distance': 'Edit Distance'
+            }
+            log_search(match_labels.get(match_type_raw, 'Dictionary Form (Lemma)'), language, source_id, target_id, None, 
+                      match_type_raw, len(cached_results), True, user_id, city, country, _ip)
             meta = cached_meta or {}
             return jsonify({
                 "results": display_results,
@@ -1179,10 +1185,16 @@ def search():
         display_results = scored_results[:max_results] if max_results > 0 else scored_results
         
         user_id = current_user.id if current_user and current_user.is_authenticated else None
-        city, country = get_user_location()
-        log_search('text_comparison', language, source_id, target_id, None,
-                  settings.get('match_type', 'lemma'), len(scored_results), False, user_id,
-                  city, country)
+        city, country, _ip = get_user_location()
+        match_type_raw = settings.get('match_type', 'lemma')
+        match_labels = {
+            'lemma': 'Dictionary Form (Lemma)', 'exact': 'Exact Match',
+            'semantic': 'AI Semantic', 'v3_synonyms': 'Dictionary (V3 Synonyms)',
+            'synonyms': 'Dictionary (V3 Synonyms)', 'sound': 'Sound Matching',
+            'edit_distance': 'Edit Distance'
+        }
+        log_search(match_labels.get(match_type_raw, 'Dictionary Form (Lemma)'), language, source_id, target_id, None,
+                  match_type_raw, len(scored_results), False, user_id, city, country, _ip)
         
         return jsonify({
             "results": display_results,
@@ -2008,9 +2020,9 @@ def line_search_parallel():
         final_results = all_results[:max_results] if max_results > 0 else all_results
         
         user_id = current_user.id if current_user and current_user.is_authenticated else None
-        city, country = get_user_location()
-        log_search('line_search', language, source_text_id, None, line_text,
-                  match_type, len(all_results), False, user_id, city, country)
+        city, country, _ip = get_user_location()
+        log_search('Line Search', language, source_text_id, None, line_text,
+                  match_type, len(all_results), False, user_id, city, country, _ip)
         
         return jsonify({
             'results': final_results,

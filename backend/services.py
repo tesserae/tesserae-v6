@@ -2,6 +2,7 @@
 Services Module
 Extracted helper functions for analytics, geolocation, and request processing
 """
+import os
 import ipaddress
 import requests as http_requests
 from flask import request
@@ -24,36 +25,93 @@ def get_client_ip():
     return request.remote_addr or '127.0.0.1'
 
 
+# Simple in-process cache for geolocation to save API hits and improve performance.
+# NOTE: This dictionary is process-local. Under multi-worker servers (like Gunicorn),
+# each worker maintains its own independent cache. For many-worker production scaling,
+# this should be promoted to a shared store such as Redis or a small SQLite table.
+_geo_cache = {}
+
 def get_user_location():
-    """Get city and country from client IP using ipinfo.io (free tier: 50k/month)
+    """Get city, country, and IP from client IP using a robust two-tier provider system.
+    
+    Tier 1: ipinfo.io (50k/month free)
+    Tier 2: ip-api.com (Fallback)
     
     Returns:
-        tuple: (city, country) or (None, None) if unavailable
+        tuple: (city, country, ip_address) or (None, None, ip_address)
     """
+    ip_address = get_client_ip()
     try:
-        ip_address = get_client_ip()
         if not ip_address:
-            return None, None
+            return None, None, None
+            
+        # Check cache first
+        if ip_address in _geo_cache:
+            city, country = _geo_cache[ip_address]
+            return city, country, ip_address
+
+        # Skip geolocation for local/private IPs to save API quota, 
+        # but provide a simulation for local development testing.
         try:
             ip_obj = ipaddress.ip_address(ip_address)
             if ip_obj.is_private or ip_obj.is_loopback or ip_obj.is_reserved:
-                return None, None
+                if os.environ.get('TESSERAE_GEO_SIMULATE'):
+                    # Simulation mode: Use a default location for local testing so the map isn't empty
+                    sim_location = ('Buffalo', 'United States')  # Tesserae project home
+                    _geo_cache[ip_address] = sim_location
+                    return sim_location[0], sim_location[1], ip_address
+                return None, None, ip_address
         except ValueError:
-            return None, None
-        response = http_requests.get(f'https://ipinfo.io/{ip_address}/json', timeout=2)
-        if response.status_code == 200:
-            data = response.json()
-            if data.get('bogon'):
-                return None, None
-            return data.get('city'), data.get('country')
-    except Exception:
-        pass
-    return None, None
+            return None, None, ip_address
+
+        # Provider 1: ipinfo.io
+        try:
+            response = http_requests.get(f'https://ipinfo.io/{ip_address}/json', timeout=2)
+            if response.status_code == 200:
+                data = response.json()
+                if not data.get('bogon'):
+                    country_code = data.get('country')
+                    
+                    # Dynamic ISO-to-name mapping via pycountry to cover all ~250 countries consistently
+                    country = country_code
+                    if country_code:
+                        try:
+                            import pycountry
+                            country_obj = pycountry.countries.get(alpha_2=country_code.upper())
+                            if country_obj:
+                                country = country_obj.name
+                        except Exception:
+                            pass
+                    
+                    loc = (data.get('city'), country)
+                    _geo_cache[ip_address] = loc
+                    return loc[0], loc[1], ip_address
+        except Exception as e:
+            logger.debug(f"ipinfo.io failed: {e}")
+
+        # Provider 2: ip-api.com (Fallback)
+        try:
+            response = http_requests.get(f'http://ip-api.com/json/{ip_address}', timeout=2)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('status') == 'success':
+                    # Use full country name if available, fallback to countryCode
+                    country = data.get('country') or data.get('countryCode')
+                    loc = (data.get('city'), country)
+                    _geo_cache[ip_address] = loc
+                    return loc[0], loc[1], ip_address
+        except Exception as e:
+            logger.debug(f"ip-api.com fallback failed: {e}")
+
+    except Exception as e:
+        logger.error(f"Geolocation error: {e}")
+        
+    return None, None, ip_address
 
 
 def log_search(search_type, language='la', source_text=None, target_text=None, 
                query_text=None, match_type=None, results_count=0, cached=False, 
-               user_id=None, city=None, country=None):
+               user_id=None, city=None, country=None, client_ip=None):
     """Log a search to the analytics database
     
     Args:
@@ -68,15 +126,17 @@ def log_search(search_type, language='la', source_text=None, target_text=None,
         user_id: User ID if logged in
         city: User's city (from geolocation)
         country: User's country (from geolocation)
+        client_ip: Client's IP address
     """
     try:
         with get_db_cursor() as cur:
             cur.execute('''
                 INSERT INTO search_logs (search_type, language, source_text, target_text, 
                                          query_text, match_type, results_count, cached, user_id,
-                                         city, country)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                         client_ip, city, country)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             ''', (search_type, language, source_text, target_text, query_text, 
-                  match_type, results_count, cached, user_id, city, country))
+                  match_type, results_count, cached, user_id, client_ip, city, country))
     except Exception as e:
         logger.warning(f"Failed to log search: {e}")
+
