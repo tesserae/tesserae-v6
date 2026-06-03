@@ -193,6 +193,13 @@ def search_fusion_stream():
                     yield send_event("progress", {
                         "step": f"Running {evt_data['channel']} ({label})",
                         "detail": "",
+                        "fusion_batch": {
+                            "phase": phase,
+                            "channel": evt_data['channel'],
+                            "index": evt_data['step'],
+                            "total": evt_data['total'],
+                            "status": "running",
+                        },
                     })
 
                 elif event_type == "channel_done":
@@ -205,6 +212,14 @@ def search_fusion_stream():
                     yield send_event("progress", {
                         "step": step_text,
                         "detail": "",
+                        "fusion_batch": {
+                            "phase": phase,
+                            "channel": evt_data['channel'],
+                            "index": evt_data['step'],
+                            "total": evt_data['total'],
+                            "status": "skipped" if evt_data.get('skipped') else "done",
+                            "result_count": evt_data.get('count', 0),
+                        },
                     })
 
                 elif event_type == "intermediate":
