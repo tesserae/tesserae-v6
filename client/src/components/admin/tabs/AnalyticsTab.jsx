@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
   PieChart, Pie, Cell, LineChart, Line, Legend, AreaChart, Area
 } from 'recharts';
 import { 
@@ -227,7 +227,7 @@ const AnalyticsTab = () => {
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               {graphMetric === 'searches' && (
-                <AreaChart data={[...data.per_day].reverse()}>
+                <AreaChart data={[...(data?.per_day || [])].reverse()}>
                   <defs>
                     <linearGradient id="colorSearches" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#b91c1c" stopOpacity={0.15}/>
@@ -251,7 +251,7 @@ const AnalyticsTab = () => {
               )}
 
               {graphMetric === 'users' && (
-                <AreaChart data={[...data.per_day].reverse()}>
+                <AreaChart data={[...(data?.per_day || [])].reverse()}>
                   <defs>
                     <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#d97706" stopOpacity={0.15}/>
@@ -275,7 +275,7 @@ const AnalyticsTab = () => {
               )}
 
               {graphMetric === 'cache' && (
-                <LineChart data={[...data.per_day].reverse()}>
+                <LineChart data={[...(data?.per_day || [])].reverse()}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
                   <XAxis 
                     dataKey="date" 

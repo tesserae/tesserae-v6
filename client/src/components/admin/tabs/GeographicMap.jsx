@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as d3 from 'd3';
-import { MapPin, ZoomIn, ZoomOut, RotateCcw, Search, Map } from 'lucide-react';
+import { ZoomIn, ZoomOut, RotateCcw, Search, Map } from 'lucide-react';
 
 const CITY_COORDINATES = {
   // US Cities
@@ -177,6 +177,34 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
       })
       .catch(err => console.error('Failed to load world geojson:', err));
   }, []);
+  const [dimensions, setDimensions] = useState({ width: 600, height: 400 });
+
+  // Handle container resizing to keep D3 map responsive
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        setDimensions({
+          width: containerRef.current.clientWidth || 600,
+          height: 400
+        });
+      }
+    };
+
+    updateDimensions();
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateDimensions();
+    });
+    resizeObserver.observe(containerRef.current);
+
+    window.addEventListener('resize', updateDimensions);
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', updateDimensions);
+    };
+  }, []);
 
   const d3ZoomRef = useRef(null);
   const d3SvgRef = useRef(null);
@@ -185,8 +213,7 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
   useEffect(() => {
     if (!worldGeoData || !containerRef.current || !svgRef.current) return;
 
-    const width = containerRef.current.clientWidth || 600;
-    const height = 400;
+    const { width, height } = dimensions;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove(); // Clear previous drawings
@@ -345,7 +372,7 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
     d3ZoomRef.current = zoom;
     d3SvgRef.current = svg;
 
-  }, [worldGeoData, markers, topCountries]);
+  }, [worldGeoData, markers, topCountries, dimensions]);
 
   // Zoom click handlers
   const handleZoom = (direction) => {
@@ -377,8 +404,7 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
 
     if (match) {
       setSelectedMarker(match);
-      const width = containerRef.current.clientWidth || 600;
-      const height = 400;
+      const { width, height } = dimensions;
 
       // Resolve screen coordinates on world projection
       const projection = d3.geoNaturalEarth1().fitSize([width - 40, height - 40], worldGeoData);
