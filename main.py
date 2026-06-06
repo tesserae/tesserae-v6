@@ -5,6 +5,12 @@ Production-ready startup with robust error handling
 import os
 import sys
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv(override=True)
+except ImportError:
+    pass
+
 print("=" * 50)
 print("TESSERAE V6 STARTING")
 print("=" * 50)

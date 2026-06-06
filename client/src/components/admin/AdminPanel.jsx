@@ -66,7 +66,7 @@ export default function AdminPanel() {
           }
         }
       } catch (err) {
-        console.error('Session check failed', err);
+        // Silently ignore — expected when user is not authenticated
       }
     };
     checkSession();
