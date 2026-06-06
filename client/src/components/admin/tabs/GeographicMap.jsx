@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as d3 from 'd3';
-import { Globe, MapPin, ZoomIn, ZoomOut, RotateCcw, Play, Pause, Search } from 'lucide-react';
+import { Globe, MapPin, ZoomIn, ZoomOut, RotateCcw, Search, Map } from 'lucide-react';
 
 const CITY_COORDINATES = {
   // US Cities
@@ -109,6 +109,22 @@ const COUNTRY_NAME_MAP = {
   'CN': 'China'
 };
 
+const CITY_TO_STATE = {
+  'Buffalo': 'New York',
+  'Williamsville': 'New York',
+  'Tallahassee': 'Florida',
+  'Los Angeles': 'California',
+  'New York': 'New York',
+  'Boston': 'Massachusetts',
+  'Chicago': 'Illinois',
+  'San Francisco': 'California',
+  'Seattle': 'Washington',
+  'Austin': 'Texas',
+  'Washington': 'District of Columbia',
+  'Philadelphia': 'Pennsylvania',
+  'Atlanta': 'Georgia',
+};
+
 const resolveCoordinates = (city, country) => {
   if (city && CITY_COORDINATES[city]) {
     return CITY_COORDINATES[city];
@@ -141,10 +157,10 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
   const svgRef = useRef(null);
   const tooltipRef = useRef(null);
 
-  const [mapType, setMapType] = useState('globe'); // 'globe' or 'flat'
-  const [autoRotate, setAutoRotate] = useState(true);
+  const [viewMode, setViewMode] = useState('us'); // 'us' (United States) or 'world' (World Map)
   const [searchQuery, setSearchQuery] = useState('');
-  const [geoData, setGeoData] = useState(null);
+  const [usGeoData, setUsGeoData] = useState(null);
+  const [worldGeoData, setWorldGeoData] = useState(null);
   const [tooltip, setTooltip] = useState({ show: false, x: 0, y: 0, content: null });
   const [selectedMarker, setSelectedMarker] = useState(null);
 
@@ -164,113 +180,141 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
     });
   }, [topCities]);
 
-  // Load geojson data once
+  // Load geojson datasets
   useEffect(() => {
-    fetch('/world.geojson')
+    // US states
+    fetch('/us-states.geojson')
       .then(res => {
-        if (!res.ok) throw new Error('Local GeoJSON load failed');
+        if (!res.ok) throw new Error('Local US GeoJSON load failed');
         return res.json();
       })
       .catch(() => {
-        // Fallback to fetch from CDN if local load fails
+        return fetch('https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json').then(res => res.json());
+      })
+      .then(data => {
+        setUsGeoData(data);
+      })
+      .catch(err => console.error('Failed to load US states geojson:', err));
+
+    // World map
+    fetch('/world.geojson')
+      .then(res => {
+        if (!res.ok) throw new Error('Local World GeoJSON load failed');
+        return res.json();
+      })
+      .catch(() => {
         return fetch('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson').then(res => res.json());
       })
       .then(data => {
-        setGeoData(data);
+        setWorldGeoData(data);
       })
-      .catch(err => {
-        console.error('Failed to load world map geojson:', err);
-      });
+      .catch(err => console.error('Failed to load world geojson:', err));
   }, []);
 
   const d3ZoomRef = useRef(null);
   const d3SvgRef = useRef(null);
-  const currentRotateRef = useRef([0, 0]);
 
-  // Handle D3 projection rendering & updates
+  // Handle D3 projection rendering
   useEffect(() => {
+    const geoData = viewMode === 'us' ? usGeoData : worldGeoData;
     if (!geoData || !containerRef.current || !svgRef.current) return;
 
     const width = containerRef.current.clientWidth || 600;
     const height = 400;
 
     const svg = d3.select(svgRef.current);
-    svg.selectAll('*').remove(); // Clear previous contents
+    svg.selectAll('*').remove(); // Clear previous drawings
 
-    // Projection Setup
-    const projection = mapType === 'globe'
-      ? d3.geoOrthographic()
-          .scale(175)
-          .translate([width / 2, height / 2])
-          .clipAngle(90)
-          .rotate(currentRotateRef.current)
-      : d3.geoNaturalEarth1()
-          .scale(120)
-          .translate([width / 2, height / 2]);
+    // Setup Projections
+    // AlbersUsa is specifically designed to render US with Alaska/Hawaii insets.
+    // NaturalEarth1 is a beautiful 2D representation of the world.
+    const projection = viewMode === 'us'
+      ? d3.geoAlbersUsa().fitSize([width - 40, height - 40], geoData)
+      : d3.geoNaturalEarth1().fitSize([width - 40, height - 40], geoData);
 
-    const path = d3.geoPath().projection(projection);
-    
-    // Water background/glow for the globe
-    if (mapType === 'globe') {
-      svg.append('circle')
-        .attr('cx', width / 2)
-        .attr('cy', height / 2)
-        .attr('r', 175)
-        .attr('fill', 'url(#waterGradient)')
-        .attr('stroke', '#1e293b')
-        .attr('stroke-width', 1.5);
+    // If fitSize returns zero scale due to invalid bounding boxes, fallback
+    if (projection && viewMode === 'us') {
+      projection.translate([width / 2, height / 2 + 10]);
+    } else if (projection && viewMode === 'world') {
+      projection.translate([width / 2, height / 2]);
     }
 
-    // Main map container group for zoom/pan
+    const path = d3.geoPath().projection(projection);
+
+    // Base Group for Panning/Zooming
     const mapGroup = svg.append('g').attr('class', 'map-group');
+    const markersGroup = svg.append('g').attr('class', 'markers-group');
 
-    // Graticules (Subtle Gridlines)
-    const graticule = d3.geoGraticule();
-    mapGroup.append('path')
-      .datum(graticule)
-      .attr('class', 'graticule')
-      .attr('d', path)
-      .attr('fill', 'none')
-      .attr('stroke', 'rgba(51, 65, 85, 0.25)')
-      .attr('stroke-width', 0.5);
+    // Subtle background ocean container grid for world map
+    if (viewMode === 'world') {
+      const graticule = d3.geoGraticule();
+      mapGroup.append('path')
+        .datum(graticule)
+        .attr('class', 'graticule')
+        .attr('d', path)
+        .attr('fill', 'none')
+        .attr('stroke', 'rgba(51, 65, 85, 0.15)')
+        .attr('stroke-width', 0.5);
+    }
 
-    // Render Landmasses
-    const countries = mapGroup.selectAll('path.country')
+    // Render Boundaries
+    mapGroup.selectAll('path.boundary')
       .data(geoData.features)
       .enter()
       .append('path')
-      .attr('class', 'country')
+      .attr('class', 'boundary')
       .attr('d', path)
-      .attr('fill', '#1e293b')
-      .attr('stroke', '#0f172a')
-      .attr('stroke-width', 0.5)
+      .attr('fill', '#1e293b') // Dark slate background for land
+      .attr('stroke', '#0f172a') // Deep navy borders
+      .attr('stroke-width', 0.75)
       .style('cursor', 'pointer')
       .on('mouseover', function(event, d) {
-        const countryName = d.properties.name;
-        // Find if this country is in topCountries
-        const stats = topCountries.find(tc => 
-          tc.country === countryName || 
-          COUNTRY_NAME_MAP[tc.country] === countryName
-        );
-        const count = stats ? stats.count : 0;
-        
+        const featureName = d.properties.name;
+        let tooltipContent;
+
+        if (viewMode === 'us') {
+          // Aggregate searches for this state
+          const stateCities = markers.filter(m => CITY_TO_STATE[m.city] === featureName);
+          const stateCount = stateCities.reduce((sum, c) => sum + c.count, 0);
+          
+          tooltipContent = (
+            <div>
+              <div className="font-bold text-gray-100">{featureName} State</div>
+              <div className="text-xs text-gray-400 mt-0.5">
+                {stateCount > 0 
+                  ? `${stateCount.toLocaleString()} searches logged across ${stateCities.length} cities` 
+                  : 'No active searches in this state'}
+              </div>
+            </div>
+          );
+        } else {
+          // World Country stats
+          const stats = topCountries.find(tc => 
+            tc.country === featureName || 
+            COUNTRY_NAME_MAP[tc.country] === featureName
+          );
+          const count = stats ? stats.count : 0;
+          
+          tooltipContent = (
+            <div>
+              <div className="font-bold text-gray-100">{featureName}</div>
+              <div className="text-xs text-gray-400 mt-0.5">
+                {count > 0 ? `${count.toLocaleString()} searches logged` : 'No search activity'}
+              </div>
+            </div>
+          );
+        }
+
         d3.select(this)
           .transition()
           .duration(150)
-          .attr('fill', '#334155');
+          .attr('fill', '#334155'); // Highlight color
 
         setTooltip({
           show: true,
           x: event.clientX,
           y: event.clientY,
-          content: (
-            <div>
-              <div className="font-bold text-gray-100">{countryName}</div>
-              <div className="text-xs text-gray-400 mt-0.5">
-                {count > 0 ? `${count.toLocaleString()} searches logged` : 'No search activity'}
-              </div>
-            </div>
-          )
+          content: tooltipContent
         });
       })
       .on('mousemove', function(event) {
@@ -288,175 +332,116 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
         setTooltip(prev => ({ ...prev, show: false }));
       });
 
-    // Helper to check if marker coordinate is visible in Orthographic (not on back of globe)
-    const isCoordinateVisible = (coords) => {
-      if (mapType !== 'globe') return true;
-      const r = projection.rotate();
-      const center = [-r[0], -r[1]];
-      const distance = d3.geoDistance(coords, center);
-      return distance < Math.PI / 2;
-    };
+    // Filter markers based on current view projection
+    const visibleMarkers = markers.filter(m => {
+      const projected = projection(m.coordinates);
+      // d3.geoAlbersUsa returns null for coords outside the US boundaries (insets)
+      return projected && !isNaN(projected[0]) && !isNaN(projected[1]);
+    });
 
-    // Draw Markers Group
-    const markersGroup = svg.append('g').attr('class', 'markers-group');
-
-    const drawMarkers = () => {
-      markersGroup.selectAll('*').remove();
-
-      const markerNodes = markersGroup.selectAll('g.marker')
-        .data(markers.filter(m => isCoordinateVisible(m.coordinates)))
-        .enter()
-        .append('g')
-        .attr('class', 'marker')
-        .style('cursor', 'pointer')
-        .on('mouseover', function(event, d) {
-          setTooltip({
-            show: true,
-            x: event.clientX,
-            y: event.clientY,
-            content: (
-              <div>
-                <div className="font-bold text-red-400">{d.city}</div>
-                <div className="text-xs text-gray-300">{d.country}</div>
-                <div className="text-xs text-gray-400 mt-1 font-semibold">
-                  {d.count.toLocaleString()} searches
-                </div>
+    // Draw Pulsing City Markers
+    const markerNodes = markersGroup.selectAll('g.marker')
+      .data(visibleMarkers)
+      .enter()
+      .append('g')
+      .attr('class', 'marker')
+      .style('cursor', 'pointer')
+      .on('mouseover', function(event, d) {
+        setTooltip({
+          show: true,
+          x: event.clientX,
+          y: event.clientY,
+          content: (
+            <div>
+              <div className="font-bold text-red-400">{d.city}</div>
+              <div className="text-xs text-gray-300">{d.country}</div>
+              <div className="text-xs text-gray-400 mt-1 font-semibold">
+                {d.count.toLocaleString()} searches
               </div>
-            )
-          });
-        })
-        .on('mousemove', function(event) {
-          setTooltip(prev => ({
-            ...prev,
-            x: event.clientX,
-            y: event.clientY
-          }));
-        })
-        .on('mouseout', function() {
-          setTooltip(prev => ({ ...prev, show: false }));
-        })
-        .on('click', function(event, d) {
-          event.stopPropagation();
-          setSelectedMarker(d);
+            </div>
+          )
         });
-
-      // Animated pulsing ring around city markers
-      markerNodes.append('circle')
-        .attr('cx', d => projection(d.coordinates)[0])
-        .attr('cy', d => projection(d.coordinates)[1])
-        .attr('r', d => Math.max(8, Math.min(20, 4 + d.count * 0.4)))
-        .attr('fill', 'none')
-        .attr('stroke', '#ef4444')
-        .attr('stroke-width', 1.5)
-        .attr('opacity', 0.8)
-        .append('animate')
-        .attr('attributeName', 'r')
-        .attr('values', d => {
-          const rBase = Math.max(5, Math.min(15, 3 + d.count * 0.3));
-          return `${rBase};${rBase * 2.5};${rBase}`;
-        })
-        .attr('dur', '2s')
-        .attr('repeatCount', 'indefinite');
-
-      markerNodes.append('circle')
-        .attr('cx', d => projection(d.coordinates)[0])
-        .attr('cy', d => projection(d.coordinates)[1])
-        .attr('r', d => Math.max(4, Math.min(10, 2 + d.count * 0.2)))
-        .attr('fill', '#f87171')
-        .attr('stroke', '#ffffff')
-        .attr('stroke-width', 1)
-        .attr('opacity', 0.95);
-    };
-
-    drawMarkers();
-
-    // Map Zooming (Flat Map Only)
-    let zoom;
-    if (mapType === 'flat') {
-      zoom = d3.zoom()
-        .scaleExtent([1, 8])
-        .on('zoom', (event) => {
-          mapGroup.attr('transform', event.transform);
-          markersGroup.attr('transform', event.transform);
-        });
-      svg.call(zoom);
-      d3ZoomRef.current = zoom;
-      d3SvgRef.current = svg;
-    }
-
-    // Globe Drag Rotation
-    let drag;
-    if (mapType === 'globe') {
-      drag = d3.drag()
-        .on('drag', (event) => {
-          const r = projection.rotate();
-          // Adjust rotation velocity by scale/zoom
-          const k = 0.35;
-          const nextRotate = [r[0] + event.dx * k, r[1] - event.dy * k];
-          projection.rotate(nextRotate);
-          currentRotateRef.current = nextRotate;
-          
-          svg.selectAll('path.country').attr('d', path);
-          svg.selectAll('path.graticule').attr('d', path);
-          drawMarkers();
-        });
-      svg.call(drag);
-    }
-
-    // Auto-Rotation Timer for Globe
-    let timer;
-    if (mapType === 'globe' && autoRotate) {
-      timer = d3.timer(() => {
-        const r = projection.rotate();
-        const nextRotate = [r[0] + 0.15, r[1]];
-        projection.rotate(nextRotate);
-        currentRotateRef.current = nextRotate;
-
-        svg.selectAll('path.country').attr('d', path);
-        svg.selectAll('path.graticule').attr('d', path);
-        drawMarkers();
+      })
+      .on('mousemove', function(event) {
+        setTooltip(prev => ({
+          ...prev,
+          x: event.clientX,
+          y: event.clientY
+        }));
+      })
+      .on('mouseout', function() {
+        setTooltip(prev => ({ ...prev, show: false }));
+      })
+      .on('click', function(event, d) {
+        event.stopPropagation();
+        setSelectedMarker(d);
       });
-    }
 
-    // Cleanup timer/zoom
-    return () => {
-      if (timer) timer.stop();
-    };
+    // Pulsing outer ring
+    markerNodes.append('circle')
+      .attr('cx', d => projection(d.coordinates)[0])
+      .attr('cy', d => projection(d.coordinates)[1])
+      .attr('r', d => Math.max(8, Math.min(22, 5 + d.count * 0.5)))
+      .attr('fill', 'none')
+      .attr('stroke', '#ef4444')
+      .attr('stroke-width', 1.5)
+      .attr('opacity', 0.8)
+      .append('animate')
+      .attr('attributeName', 'r')
+      .attr('values', d => {
+        const rBase = Math.max(5, Math.min(15, 3 + d.count * 0.3));
+        return `${rBase};${rBase * 2.5};${rBase}`;
+      })
+      .attr('dur', '2s')
+      .attr('repeatCount', 'indefinite');
 
-  }, [geoData, mapType, autoRotate, markers, topCountries]);
+    // Central solid dot
+    markerNodes.append('circle')
+      .attr('cx', d => projection(d.coordinates)[0])
+      .attr('cy', d => projection(d.coordinates)[1])
+      .attr('r', d => Math.max(4, Math.min(10, 2.5 + d.count * 0.2)))
+      .attr('fill', '#f87171')
+      .attr('stroke', '#ffffff')
+      .attr('stroke-width', 1)
+      .attr('opacity', 0.95);
 
-  // Zoom Button Handlers (Flat Map only)
+    // Setup 2D Zoom/Pan behavior
+    const zoom = d3.zoom()
+      .scaleExtent([1, 10])
+      .on('zoom', (event) => {
+        mapGroup.attr('transform', event.transform);
+        markersGroup.attr('transform', event.transform);
+      });
+
+    svg.call(zoom);
+    d3ZoomRef.current = zoom;
+    d3SvgRef.current = svg;
+
+  }, [usGeoData, worldGeoData, viewMode, markers, topCountries]);
+
+  // Zoom click handlers
   const handleZoom = (direction) => {
-    if (mapType !== 'flat' || !d3SvgRef.current || !d3ZoomRef.current) return;
-    const svg = d3SvgRef.current;
-    const zoom = d3ZoomRef.current;
-
-    svg.transition()
+    if (!d3SvgRef.current || !d3ZoomRef.current) return;
+    d3SvgRef.current.transition()
       .duration(350)
-      .call(zoom.scaleBy, direction === 'in' ? 1.4 : 0.7);
+      .call(d3ZoomRef.current.scaleBy, direction === 'in' ? 1.4 : 0.7);
   };
 
   const handleReset = () => {
     setSelectedMarker(null);
-    if (mapType === 'flat' && d3SvgRef.current && d3ZoomRef.current) {
+    if (d3SvgRef.current && d3ZoomRef.current) {
       d3SvgRef.current.transition()
         .duration(450)
         .call(d3ZoomRef.current.transform, d3.zoomIdentity);
-    } else if (mapType === 'globe') {
-      currentRotateRef.current = [0, 0];
-      setAutoRotate(true);
-      // Re-trigger render
-      setMapType(prev => prev);
     }
   };
 
-  // Search function - zoom/fly to coordinate
+  // Search input: Zoom/fly to coordinate location
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
 
     const term = searchQuery.toLowerCase().trim();
-    // Search markers by city or country
     const match = markers.find(m => 
       m.city.toLowerCase().includes(term) || 
       m.country.toLowerCase().includes(term)
@@ -464,30 +449,25 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
 
     if (match) {
       setSelectedMarker(match);
-      if (mapType === 'globe') {
-        setAutoRotate(false);
-        // Fly rotation to coordinates
-        const targetRotate = [-match.coordinates[0], -match.coordinates[1]];
-        
-        d3.transition()
-          .duration(1000)
-          .tween('rotate', () => {
-            const rInterpolator = d3.interpolate(currentRotateRef.current, targetRotate);
-            return (t) => {
-              currentRotateRef.current = rInterpolator(t);
-              // Set the type state or force refresh by changing map type or triggering re-render
-              setMapType(prev => prev);
-            };
-          });
+      const width = containerRef.current.clientWidth || 600;
+      const height = 400;
+
+      // Determine correct projection to resolve screen coordinates
+      const geoData = viewMode === 'us' ? usGeoData : worldGeoData;
+      const projection = viewMode === 'us'
+        ? d3.geoAlbersUsa().fitSize([width - 40, height - 40], geoData)
+        : d3.geoNaturalEarth1().fitSize([width - 40, height - 40], geoData);
+
+      if (viewMode === 'us') {
+        projection.translate([width / 2, height / 2 + 10]);
       } else {
-        // Zoom/pan to flat coordinate
-        // Flat mapping to screen coords: need the SVG dimensions
+        projection.translate([width / 2, height / 2]);
+      }
+
+      const screenCoords = projection(match.coordinates);
+
+      if (screenCoords && !isNaN(screenCoords[0]) && !isNaN(screenCoords[1])) {
         if (d3SvgRef.current && d3ZoomRef.current) {
-          const width = containerRef.current.clientWidth || 600;
-          const height = 400;
-          const projection = d3.geoNaturalEarth1().scale(120).translate([width / 2, height / 2]);
-          const screenCoords = projection(match.coordinates);
-          
           d3SvgRef.current.transition()
             .duration(1000)
             .call(
@@ -498,9 +478,15 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
                 .translate(-screenCoords[0], -screenCoords[1])
             );
         }
+      } else if (viewMode === 'us') {
+        // City exists but outside US, switch views to show it
+        setViewMode('world');
+        setSearchQuery(match.city); // Keep search query to zoom on next render
       }
     }
   };
+
+  const isLoaded = viewMode === 'us' ? usGeoData : worldGeoData;
 
   return (
     <div className="lg:col-span-2 bg-[#090d16] text-white rounded-xl overflow-hidden relative border border-gray-800 shadow-xl flex flex-col min-h-[420px]">
@@ -508,90 +494,65 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
       {/* Header controls */}
       <div className="p-4 bg-slate-950/80 backdrop-blur-md border-b border-gray-800 flex flex-wrap items-center justify-between gap-3 z-10">
         <div className="flex items-center gap-2">
-          <Globe className="w-5 h-5 text-red-500 animate-spin" style={{ animationDuration: '8s' }} />
+          <Map className="w-5 h-5 text-red-500" />
           <h3 className="font-bold text-gray-200">Interactive Geographic Analytics</h3>
         </div>
         
-        {/* Toggle Controls */}
-        <div className="flex items-center gap-3">
-          {/* Map Type Switch */}
-          <div className="bg-[#111726] border border-gray-800 rounded-lg p-0.5 flex">
-            <button
-              onClick={() => { setMapType('globe'); setSelectedMarker(null); }}
-              className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
-                mapType === 'globe' 
-                  ? 'bg-red-700 text-white shadow-sm' 
-                  : 'text-gray-400 hover:text-gray-200'
-              }`}
-            >
-              3D Globe
-            </button>
-            <button
-              onClick={() => { setMapType('flat'); setSelectedMarker(null); }}
-              className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
-                mapType === 'flat' 
-                  ? 'bg-red-700 text-white shadow-sm' 
-                  : 'text-gray-400 hover:text-gray-200'
-              }`}
-            >
-              2D Map
-            </button>
-          </div>
-
-          {/* Auto rotate switch for globe */}
-          {mapType === 'globe' && (
-            <button
-              onClick={() => setAutoRotate(!autoRotate)}
-              className="p-1.5 bg-[#111726] border border-gray-800 rounded-lg hover:bg-slate-800 text-gray-400 hover:text-gray-200 transition-colors"
-              title={autoRotate ? 'Pause Rotation' : 'Auto Rotate Globe'}
-            >
-              {autoRotate ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-            </button>
-          )}
+        {/* Toggle US vs World View */}
+        <div className="bg-[#111726] border border-gray-800 rounded-lg p-0.5 flex">
+          <button
+            onClick={() => { setViewMode('us'); setSelectedMarker(null); }}
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+              viewMode === 'us' 
+                ? 'bg-red-700 text-white shadow-sm' 
+                : 'text-gray-400 hover:text-gray-200'
+            }`}
+          >
+            United States View
+          </button>
+          <button
+            onClick={() => { setViewMode('world'); setSelectedMarker(null); }}
+            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+              viewMode === 'world' 
+                ? 'bg-red-700 text-white shadow-sm' 
+                : 'text-gray-400 hover:text-gray-200'
+            }`}
+          >
+            World View
+          </button>
         </div>
       </div>
 
       {/* SVG Canvas Map */}
       <div ref={containerRef} className="flex-1 w-full bg-[#070b12] relative overflow-hidden flex items-center justify-center min-h-[350px]">
         
-        {!geoData && (
+        {!isLoaded && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#070b12]/95 z-20 gap-3">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
-            <div className="text-gray-400 text-sm font-medium">Initializing World Projection...</div>
+            <div className="text-gray-400 text-sm font-medium">
+              Loading {viewMode === 'us' ? 'United States Boundaries' : 'World Projection'}...
+            </div>
           </div>
         )}
 
-        <svg ref={svgRef} className="w-full h-[380px] select-none block">
-          <defs>
-            {/* Water gradient definition for globe */}
-            <radialGradient id="waterGradient" cx="50%" cy="50%" r="50%" fx="30%" fy="30%">
-              <stop offset="0%" stopColor="#111c33" />
-              <stop offset="70%" stopColor="#080e1a" />
-              <stop offset="100%" stopColor="#04070d" />
-            </radialGradient>
-          </defs>
-        </svg>
+        <svg ref={svgRef} className="w-full h-[380px] select-none block" />
 
-        {/* Floating Controls Overlay */}
+        {/* Floating Zoom Controls Overlay */}
         <div className="absolute bottom-4 left-4 flex flex-col gap-2 z-10">
-          {mapType === 'flat' && (
-            <>
-              <button
-                onClick={() => handleZoom('in')}
-                className="p-2 bg-[#111726]/90 backdrop-blur border border-gray-800 rounded-lg hover:bg-slate-800 text-gray-300 shadow-md transition-all"
-                title="Zoom In"
-              >
-                <ZoomIn className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => handleZoom('out')}
-                className="p-2 bg-[#111726]/90 backdrop-blur border border-gray-800 rounded-lg hover:bg-slate-800 text-gray-300 shadow-md transition-all"
-                title="Zoom Out"
-              >
-                <ZoomOut className="w-4 h-4" />
-              </button>
-            </>
-          )}
+          <button
+            onClick={() => handleZoom('in')}
+            className="p-2 bg-[#111726]/90 backdrop-blur border border-gray-800 rounded-lg hover:bg-slate-800 text-gray-300 shadow-md transition-all"
+            title="Zoom In"
+          >
+            <ZoomIn className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => handleZoom('out')}
+            className="p-2 bg-[#111726]/90 backdrop-blur border border-gray-800 rounded-lg hover:bg-slate-800 text-gray-300 shadow-md transition-all"
+            title="Zoom Out"
+          >
+            <ZoomOut className="w-4 h-4" />
+          </button>
           <button
             onClick={handleReset}
             className="p-2 bg-[#111726]/90 backdrop-blur border border-gray-800 rounded-lg hover:bg-slate-800 text-gray-300 shadow-md transition-all"
@@ -608,7 +569,7 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
         >
           <input
             type="text"
-            placeholder="Search city/country..."
+            placeholder={viewMode === 'us' ? "Search US City..." : "Search Global City..."}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full bg-transparent text-xs text-white border-none outline-none focus:ring-0 placeholder-gray-500 pr-1.5"
@@ -638,6 +599,12 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
                 <span className="text-gray-500">Searches Count:</span>
                 <span className="font-bold text-white">{selectedMarker.count}</span>
               </div>
+              {CITY_TO_STATE[selectedMarker.city] && (
+                <div className="flex justify-between">
+                  <span className="text-gray-500">State:</span>
+                  <span className="text-white">{CITY_TO_STATE[selectedMarker.city]}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-gray-500">Coordinates:</span>
                 <span className="font-mono text-gray-400">
