@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as d3 from 'd3';
-import { Globe, MapPin, ZoomIn, ZoomOut, RotateCcw, Search, Map } from 'lucide-react';
+import { MapPin, ZoomIn, ZoomOut, RotateCcw, Search, Map } from 'lucide-react';
 
 const CITY_COORDINATES = {
   // US Cities
@@ -109,22 +109,6 @@ const COUNTRY_NAME_MAP = {
   'CN': 'China'
 };
 
-const CITY_TO_STATE = {
-  'Buffalo': 'New York',
-  'Williamsville': 'New York',
-  'Tallahassee': 'Florida',
-  'Los Angeles': 'California',
-  'New York': 'New York',
-  'Boston': 'Massachusetts',
-  'Chicago': 'Illinois',
-  'San Francisco': 'California',
-  'Seattle': 'Washington',
-  'Austin': 'Texas',
-  'Washington': 'District of Columbia',
-  'Philadelphia': 'Pennsylvania',
-  'Atlanta': 'Georgia',
-};
-
 const resolveCoordinates = (city, country) => {
   if (city && CITY_COORDINATES[city]) {
     return CITY_COORDINATES[city];
@@ -157,9 +141,7 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
   const svgRef = useRef(null);
   const tooltipRef = useRef(null);
 
-  const [viewMode, setViewMode] = useState('us'); // 'us' (United States) or 'world' (World Map)
   const [searchQuery, setSearchQuery] = useState('');
-  const [usGeoData, setUsGeoData] = useState(null);
   const [worldGeoData, setWorldGeoData] = useState(null);
   const [tooltip, setTooltip] = useState({ show: false, x: 0, y: 0, content: null });
   const [selectedMarker, setSelectedMarker] = useState(null);
@@ -180,23 +162,8 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
     });
   }, [topCities]);
 
-  // Load geojson datasets
+  // Load geojson world map dataset
   useEffect(() => {
-    // US states
-    fetch('/us-states.geojson')
-      .then(res => {
-        if (!res.ok) throw new Error('Local US GeoJSON load failed');
-        return res.json();
-      })
-      .catch(() => {
-        return fetch('https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json').then(res => res.json());
-      })
-      .then(data => {
-        setUsGeoData(data);
-      })
-      .catch(err => console.error('Failed to load US states geojson:', err));
-
-    // World map
     fetch('/world.geojson')
       .then(res => {
         if (!res.ok) throw new Error('Local World GeoJSON load failed');
@@ -216,8 +183,7 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
 
   // Handle D3 projection rendering
   useEffect(() => {
-    const geoData = viewMode === 'us' ? usGeoData : worldGeoData;
-    if (!geoData || !containerRef.current || !svgRef.current) return;
+    if (!worldGeoData || !containerRef.current || !svgRef.current) return;
 
     const width = containerRef.current.clientWidth || 600;
     const height = 400;
@@ -225,91 +191,65 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove(); // Clear previous drawings
 
-    // Setup Projections
-    // AlbersUsa is specifically designed to render US with Alaska/Hawaii insets.
-    // NaturalEarth1 is a beautiful 2D representation of the world.
-    const projection = viewMode === 'us'
-      ? d3.geoAlbersUsa()
-          .scale((width / 960) * 1070)
-          .translate([width / 2, height / 2])
-      : d3.geoNaturalEarth1().fitSize([width - 40, height - 40], geoData);
+    // 2D World projection setup
+    const projection = d3.geoNaturalEarth1().fitSize([width - 40, height - 40], worldGeoData);
+    if (projection) {
+      projection.translate([width / 2, height / 2]);
+    }
 
     const path = d3.geoPath().projection(projection);
 
-    // Base Group for Panning/Zooming
+    // Groups for layout
     const mapGroup = svg.append('g').attr('class', 'map-group');
     const markersGroup = svg.append('g').attr('class', 'markers-group');
 
-    // Subtle background ocean container grid for world map
-    if (viewMode === 'world') {
-      const graticule = d3.geoGraticule();
-      mapGroup.append('path')
-        .datum(graticule)
-        .attr('class', 'graticule')
-        .attr('d', path)
-        .attr('fill', 'none')
-        .attr('stroke', 'rgba(51, 65, 85, 0.15)')
-        .attr('stroke-width', 0.5);
-    }
+    // Subtle background ocean container grid
+    const graticule = d3.geoGraticule();
+    mapGroup.append('path')
+      .datum(graticule)
+      .attr('class', 'graticule')
+      .attr('d', path)
+      .attr('fill', 'none')
+      .attr('stroke', 'rgba(185, 28, 28, 0.04)') // Subtle red graticule tint to match theme
+      .attr('stroke-width', 0.5);
 
-    // Render Boundaries
+    // Render Country Boundaries
     mapGroup.selectAll('path.boundary')
-      .data(geoData.features)
+      .data(worldGeoData.features)
       .enter()
       .append('path')
       .attr('class', 'boundary')
       .attr('d', path)
-      .attr('fill', '#1e293b') // Dark slate background for land
-      .attr('stroke', '#0f172a') // Deep navy borders
+      .attr('fill', '#f1f5f9') // Slate 100 landmass (light theme)
+      .attr('stroke', '#e2e8f0') // Slate 200 border lines
       .attr('stroke-width', 0.75)
       .style('cursor', 'pointer')
       .on('mouseover', function(event, d) {
-        const featureName = d.properties.name;
-        let tooltipContent;
-
-        if (viewMode === 'us') {
-          // Aggregate searches for this state
-          const stateCities = markers.filter(m => CITY_TO_STATE[m.city] === featureName);
-          const stateCount = stateCities.reduce((sum, c) => sum + c.count, 0);
-          
-          tooltipContent = (
-            <div>
-              <div className="font-bold text-gray-100">{featureName} State</div>
-              <div className="text-xs text-gray-400 mt-0.5">
-                {stateCount > 0 
-                  ? `${stateCount.toLocaleString()} searches logged across ${stateCities.length} cities` 
-                  : 'No active searches in this state'}
-              </div>
-            </div>
-          );
-        } else {
-          // World Country stats
-          const stats = topCountries.find(tc => 
-            tc.country === featureName || 
-            COUNTRY_NAME_MAP[tc.country] === featureName
-          );
-          const count = stats ? stats.count : 0;
-          
-          tooltipContent = (
-            <div>
-              <div className="font-bold text-gray-100">{featureName}</div>
-              <div className="text-xs text-gray-400 mt-0.5">
-                {count > 0 ? `${count.toLocaleString()} searches logged` : 'No search activity'}
-              </div>
-            </div>
-          );
-        }
-
+        const countryName = d.properties.name;
+        // World Country stats
+        const stats = topCountries.find(tc => 
+          tc.country === countryName || 
+          COUNTRY_NAME_MAP[tc.country] === countryName
+        );
+        const count = stats ? stats.count : 0;
+        
         d3.select(this)
           .transition()
           .duration(150)
-          .attr('fill', '#334155'); // Highlight color
+          .attr('fill', '#fca5a5'); // soft Tesserae Red hover highlight
 
         setTooltip({
           show: true,
           x: event.clientX,
           y: event.clientY,
-          content: tooltipContent
+          content: (
+            <div>
+              <div className="font-bold text-gray-900">{countryName}</div>
+              <div className="text-xs text-gray-500 mt-0.5 font-medium">
+                {count > 0 ? `${count.toLocaleString()} searches logged` : 'No search activity'}
+              </div>
+            </div>
+          )
         });
       })
       .on('mousemove', function(event) {
@@ -323,20 +263,13 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
         d3.select(this)
           .transition()
           .duration(150)
-          .attr('fill', '#1e293b');
+          .attr('fill', '#f1f5f9');
         setTooltip(prev => ({ ...prev, show: false }));
       });
 
-    // Filter markers based on current view projection
-    const visibleMarkers = markers.filter(m => {
-      const projected = projection(m.coordinates);
-      // d3.geoAlbersUsa returns null for coords outside the US boundaries (insets)
-      return projected && !isNaN(projected[0]) && !isNaN(projected[1]);
-    });
-
     // Draw Pulsing City Markers
     const markerNodes = markersGroup.selectAll('g.marker')
-      .data(visibleMarkers)
+      .data(markers)
       .enter()
       .append('g')
       .attr('class', 'marker')
@@ -347,10 +280,10 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
           x: event.clientX,
           y: event.clientY,
           content: (
-            <div>
-              <div className="font-bold text-red-400">{d.city}</div>
-              <div className="text-xs text-gray-300">{d.country}</div>
-              <div className="text-xs text-gray-400 mt-1 font-semibold">
+            <div className="text-gray-900">
+              <div className="font-bold text-[#b91c1c]">{d.city}</div>
+              <div className="text-xs text-gray-500 font-medium">{d.country}</div>
+              <div className="text-xs text-gray-600 mt-1 font-bold">
                 {d.count.toLocaleString()} searches
               </div>
             </div>
@@ -372,7 +305,7 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
         setSelectedMarker(d);
       });
 
-    // Pulsing outer ring
+    // Pulsing outer ring (Tesserae Red)
     markerNodes.append('circle')
       .attr('cx', d => projection(d.coordinates)[0])
       .attr('cy', d => projection(d.coordinates)[1])
@@ -380,22 +313,22 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
       .attr('fill', 'none')
       .attr('stroke', '#ef4444')
       .attr('stroke-width', 1.5)
-      .attr('opacity', 0.8)
+      .attr('opacity', 0.6)
       .append('animate')
       .attr('attributeName', 'r')
       .attr('values', d => {
         const rBase = Math.max(5, Math.min(15, 3 + d.count * 0.3));
         return `${rBase};${rBase * 2.5};${rBase}`;
       })
-      .attr('dur', '2s')
+      .attr('dur', '2.5s')
       .attr('repeatCount', 'indefinite');
 
-    // Central solid dot
+    // Central solid dot (Tesserae Red)
     markerNodes.append('circle')
       .attr('cx', d => projection(d.coordinates)[0])
       .attr('cy', d => projection(d.coordinates)[1])
       .attr('r', d => Math.max(4, Math.min(10, 2.5 + d.count * 0.2)))
-      .attr('fill', '#f87171')
+      .attr('fill', '#b91c1c')
       .attr('stroke', '#ffffff')
       .attr('stroke-width', 1)
       .attr('opacity', 0.95);
@@ -412,7 +345,7 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
     d3ZoomRef.current = zoom;
     d3SvgRef.current = svg;
 
-  }, [usGeoData, worldGeoData, viewMode, markers, topCountries]);
+  }, [worldGeoData, markers, topCountries]);
 
   // Zoom click handlers
   const handleZoom = (direction) => {
@@ -447,13 +380,11 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
       const width = containerRef.current.clientWidth || 600;
       const height = 400;
 
-      // Determine correct projection to resolve screen coordinates
-      const geoData = viewMode === 'us' ? usGeoData : worldGeoData;
-      const projection = viewMode === 'us'
-        ? d3.geoAlbersUsa()
-            .scale((width / 960) * 1070)
-            .translate([width / 2, height / 2])
-        : d3.geoNaturalEarth1().fitSize([width - 40, height - 40], geoData);
+      // Resolve screen coordinates on world projection
+      const projection = d3.geoNaturalEarth1().fitSize([width - 40, height - 40], worldGeoData);
+      if (projection) {
+        projection.translate([width / 2, height / 2]);
+      }
 
       const screenCoords = projection(match.coordinates);
 
@@ -469,59 +400,29 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
                 .translate(-screenCoords[0], -screenCoords[1])
             );
         }
-      } else if (viewMode === 'us') {
-        // City exists but outside US, switch views to show it
-        setViewMode('world');
-        setSearchQuery(match.city); // Keep search query to zoom on next render
       }
     }
   };
 
-  const isLoaded = viewMode === 'us' ? usGeoData : worldGeoData;
-
   return (
-    <div className="lg:col-span-2 bg-[#090d16] text-white rounded-xl overflow-hidden relative border border-gray-800 shadow-xl flex flex-col min-h-[420px]">
+    <div className="lg:col-span-2 bg-white text-gray-900 rounded-xl overflow-hidden relative border border-gray-100 shadow-sm flex flex-col min-h-[420px]">
       
       {/* Header controls */}
-      <div className="p-4 bg-slate-950/80 backdrop-blur-md border-b border-gray-800 flex flex-wrap items-center justify-between gap-3 z-10">
+      <div className="p-4 bg-slate-50 border-b border-gray-100 flex flex-wrap items-center justify-between gap-3 z-10">
         <div className="flex items-center gap-2">
-          <Map className="w-5 h-5 text-red-500" />
-          <h3 className="font-bold text-gray-200">Interactive Geographic Analytics</h3>
-        </div>
-        
-        {/* Toggle US vs World View */}
-        <div className="bg-[#111726] border border-gray-800 rounded-lg p-0.5 flex">
-          <button
-            onClick={() => { setViewMode('us'); setSelectedMarker(null); }}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
-              viewMode === 'us' 
-                ? 'bg-red-700 text-white shadow-sm' 
-                : 'text-gray-400 hover:text-gray-200'
-            }`}
-          >
-            United States View
-          </button>
-          <button
-            onClick={() => { setViewMode('world'); setSelectedMarker(null); }}
-            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
-              viewMode === 'world' 
-                ? 'bg-red-700 text-white shadow-sm' 
-                : 'text-gray-400 hover:text-gray-200'
-            }`}
-          >
-            World View
-          </button>
+          <Map className="w-5 h-5 text-[#b91c1c]" />
+          <h3 className="font-bold text-gray-800">Geographic Usage Analytics</h3>
         </div>
       </div>
 
       {/* SVG Canvas Map */}
-      <div ref={containerRef} className="flex-1 w-full bg-[#070b12] relative overflow-hidden flex items-center justify-center min-h-[350px]">
+      <div ref={containerRef} className="flex-1 w-full bg-slate-50 relative overflow-hidden flex items-center justify-center min-h-[350px]">
         
-        {!isLoaded && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#070b12]/95 z-20 gap-3">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
-            <div className="text-gray-400 text-sm font-medium">
-              Loading {viewMode === 'us' ? 'United States Boundaries' : 'World Projection'}...
+        {!worldGeoData && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/95 z-20 gap-3">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#b91c1c]"></div>
+            <div className="text-gray-500 text-sm font-medium">
+              Loading World Boundaries...
             </div>
           </div>
         )}
@@ -532,21 +433,21 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
         <div className="absolute bottom-4 left-4 flex flex-col gap-2 z-10">
           <button
             onClick={() => handleZoom('in')}
-            className="p-2 bg-[#111726]/90 backdrop-blur border border-gray-800 rounded-lg hover:bg-slate-800 text-gray-300 shadow-md transition-all"
+            className="p-2 bg-white/90 backdrop-blur border border-gray-200 rounded-lg hover:bg-slate-100 text-gray-700 shadow-sm transition-all"
             title="Zoom In"
           >
             <ZoomIn className="w-4 h-4" />
           </button>
           <button
             onClick={() => handleZoom('out')}
-            className="p-2 bg-[#111726]/90 backdrop-blur border border-gray-800 rounded-lg hover:bg-slate-800 text-gray-300 shadow-md transition-all"
+            className="p-2 bg-white/90 backdrop-blur border border-gray-200 rounded-lg hover:bg-slate-100 text-gray-700 shadow-sm transition-all"
             title="Zoom Out"
           >
             <ZoomOut className="w-4 h-4" />
           </button>
           <button
             onClick={handleReset}
-            className="p-2 bg-[#111726]/90 backdrop-blur border border-gray-800 rounded-lg hover:bg-slate-800 text-gray-300 shadow-md transition-all"
+            className="p-2 bg-white/90 backdrop-blur border border-gray-200 rounded-lg hover:bg-slate-100 text-gray-700 shadow-sm transition-all"
             title="Reset Map View"
           >
             <RotateCcw className="w-4 h-4" />
@@ -556,49 +457,43 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
         {/* Search Map Bar Overlay */}
         <form 
           onSubmit={handleSearchSubmit} 
-          className="absolute top-4 left-4 max-w-[200px] sm:max-w-[240px] flex items-center bg-slate-950/80 backdrop-blur border border-gray-800 rounded-lg px-2.5 py-1 z-10 shadow-lg"
+          className="absolute top-4 left-4 max-w-[200px] sm:max-w-[240px] flex items-center bg-white/90 backdrop-blur border border-gray-200 rounded-lg px-2.5 py-1.5 z-10 shadow-sm"
         >
           <input
             type="text"
-            placeholder={viewMode === 'us' ? "Search US City..." : "Search Global City..."}
+            placeholder="Search Global City..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-transparent text-xs text-white border-none outline-none focus:ring-0 placeholder-gray-500 pr-1.5"
+            className="w-full bg-transparent text-xs text-gray-800 border-none outline-none focus:ring-0 placeholder-gray-400 pr-1.5"
           />
-          <button type="submit" className="text-gray-400 hover:text-red-400 transition-colors">
+          <button type="submit" className="text-gray-500 hover:text-[#b91c1c] transition-colors">
             <Search className="w-3.5 h-3.5" />
           </button>
         </form>
 
         {/* Selected Marker Detail Card */}
         {selectedMarker && (
-          <div className="absolute bottom-4 right-4 bg-slate-950/90 backdrop-blur border border-red-900/50 rounded-xl p-4 max-w-[240px] shadow-2xl z-20 animate-fade-in text-xs">
+          <div className="absolute bottom-4 right-4 bg-white/95 backdrop-blur border border-red-100 rounded-xl p-4 max-w-[240px] shadow-lg z-20 animate-fade-in text-xs text-gray-800">
             <div className="flex justify-between items-start gap-3 mb-2">
               <div>
-                <h4 className="font-bold text-red-400 text-sm">{selectedMarker.city}</h4>
-                <div className="text-gray-400 font-medium text-[10px] uppercase tracking-wider">{selectedMarker.country}</div>
+                <h4 className="font-bold text-[#b91c1c] text-sm">{selectedMarker.city}</h4>
+                <div className="text-gray-400 font-semibold text-[10px] uppercase tracking-wider">{selectedMarker.country}</div>
               </div>
               <button 
                 onClick={() => setSelectedMarker(null)} 
-                className="text-gray-500 hover:text-gray-300 transition-colors font-semibold"
+                className="text-gray-400 hover:text-gray-600 transition-colors font-semibold"
               >
                 ✕
               </button>
             </div>
-            <div className="border-t border-gray-800 pt-2 flex flex-col gap-1 text-[11px] text-gray-300">
+            <div className="border-t border-gray-100 pt-2 flex flex-col gap-1 text-[11px] text-gray-600">
               <div className="flex justify-between">
-                <span className="text-gray-500">Searches Count:</span>
-                <span className="font-bold text-white">{selectedMarker.count}</span>
+                <span>Searches Count:</span>
+                <span className="font-bold text-gray-900">{selectedMarker.count}</span>
               </div>
-              {CITY_TO_STATE[selectedMarker.city] && (
-                <div className="flex justify-between">
-                  <span className="text-gray-500">State:</span>
-                  <span className="text-white">{CITY_TO_STATE[selectedMarker.city]}</span>
-                </div>
-              )}
               <div className="flex justify-between">
-                <span className="text-gray-500">Coordinates:</span>
-                <span className="font-mono text-gray-400">
+                <span>Coordinates:</span>
+                <span className="font-mono text-gray-500">
                   {selectedMarker.coordinates[1].toFixed(2)}°, {selectedMarker.coordinates[0].toFixed(2)}°
                 </span>
               </div>
@@ -607,7 +502,7 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
         )}
       </div>
 
-      {/* Hover Tooltip Portalled */}
+      {/* Hover Tooltip */}
       {tooltip.show && (
         <div
           ref={tooltipRef}
@@ -618,7 +513,7 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
             pointerEvents: 'none',
             zIndex: 9999
           }}
-          className="bg-slate-950/95 backdrop-blur-md border border-gray-800 px-3 py-2 rounded-lg text-xs shadow-2xl animate-fade-in"
+          className="bg-white/95 backdrop-blur border border-gray-200 px-3 py-2 rounded-lg text-xs shadow-lg animate-fade-in text-gray-800"
         >
           {tooltip.content}
         </div>
