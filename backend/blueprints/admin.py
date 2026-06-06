@@ -1656,7 +1656,7 @@ def get_analytics():
                 SELECT 
                     DATE(created_at) as day, 
                     COUNT(*) as count,
-                    COUNT(DISTINCT user_id) as users,
+                    COUNT(DISTINCT COALESCE(user_id, client_ip)) as users,
                     COUNT(CASE WHEN cached = TRUE THEN 1 END) as cache_hits,
                     COUNT(CASE WHEN cached = FALSE THEN 1 END) as cache_misses
                 FROM search_logs 

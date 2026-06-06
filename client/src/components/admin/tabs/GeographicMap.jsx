@@ -229,15 +229,10 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
     // AlbersUsa is specifically designed to render US with Alaska/Hawaii insets.
     // NaturalEarth1 is a beautiful 2D representation of the world.
     const projection = viewMode === 'us'
-      ? d3.geoAlbersUsa().fitSize([width - 40, height - 40], geoData)
+      ? d3.geoAlbersUsa()
+          .scale((width / 960) * 1070)
+          .translate([width / 2, height / 2])
       : d3.geoNaturalEarth1().fitSize([width - 40, height - 40], geoData);
-
-    // If fitSize returns zero scale due to invalid bounding boxes, fallback
-    if (projection && viewMode === 'us') {
-      projection.translate([width / 2, height / 2 + 10]);
-    } else if (projection && viewMode === 'world') {
-      projection.translate([width / 2, height / 2]);
-    }
 
     const path = d3.geoPath().projection(projection);
 
@@ -455,14 +450,10 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
       // Determine correct projection to resolve screen coordinates
       const geoData = viewMode === 'us' ? usGeoData : worldGeoData;
       const projection = viewMode === 'us'
-        ? d3.geoAlbersUsa().fitSize([width - 40, height - 40], geoData)
+        ? d3.geoAlbersUsa()
+            .scale((width / 960) * 1070)
+            .translate([width / 2, height / 2])
         : d3.geoNaturalEarth1().fitSize([width - 40, height - 40], geoData);
-
-      if (viewMode === 'us') {
-        projection.translate([width / 2, height / 2 + 10]);
-      } else {
-        projection.translate([width / 2, height / 2]);
-      }
 
       const screenCoords = projection(match.coordinates);
 
