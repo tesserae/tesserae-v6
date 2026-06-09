@@ -24,7 +24,7 @@ import urllib.request
 import urllib.error
 
 ANTHROPIC_URL = "https://api.anthropic.com/v1/messages"
-MODEL = "claude-sonnet-4-5"
+MODEL = "claude-fable-5"
 MAX_TOKENS = 2000
 DIFF_TOKEN_BUDGET_CHARS = 60_000  # ~15K tokens, leaves headroom for prompt + reply
 
