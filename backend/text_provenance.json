@@ -1403,15 +1403,6 @@
       "language": "la"
     }
   },
-  ".isaias.tess": {
-    "source": "first1k_greek",
-    "source_name": "First1KGreek - Open Greek and Latin Project",
-    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
-    "urn": "urn:cts:hebrewlit:heb0001.heb010.1st1K-eng1",
-    "author": "",
-    "title": "Isaias",
-    "added_date": "2026-01-22"
-  },
   "pseudoaristotle.de_mundo.tess": {
     "source": "first1k_greek",
     "source_name": "First1KGreek - Open Greek and Latin Project",
@@ -1788,15 +1779,6 @@
     "urn": "urn:cts:greekLit:tlg0026.tlg004.1st1K-grc1",
     "author": "Aeschines [Sp.]",
     "title": "\u1f18\u03c0\u03b9\u03c3\u03c4\u03bf\u03bb\u03b1\u03af",
-    "added_date": "2026-01-22"
-  },
-  ".01.tess": {
-    "source": "first1k_greek",
-    "source_name": "First1KGreek - Open Greek and Latin Project",
-    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
-    "urn": "urn:cts:greekLit:tlg0031.tlg002.INTF-grc1",
-    "author": "",
-    "title": "01",
     "added_date": "2026-01-22"
   },
   "anacharsis.epistulae.tess": {
@@ -3437,12 +3419,12 @@
     "title": "Sapientia Salomonis",
     "added_date": "2026-01-22"
   },
-  ".ecclesiasticus.tess": {
+  "septuaginta.ecclesiasticus.tess": {
     "source": "first1k_greek",
     "source_name": "First1KGreek - Open Greek and Latin Project",
     "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
     "urn": "urn:cts:greekLit:tlg0527.tlg034.1st1K-grc1",
-    "author": "",
+    "author": "Septuaginta",
     "title": "Ecclesiasticus",
     "added_date": "2026-01-22"
   },
@@ -3554,15 +3536,6 @@
     "title": "Malachias",
     "added_date": "2026-01-22"
   },
-  ".notes_on_isaias.tess": {
-    "source": "first1k_greek",
-    "source_name": "First1KGreek - Open Greek and Latin Project",
-    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
-    "urn": "urn:cts:greekLit:tlg0527.tlg048.1st1K-eng1",
-    "author": "",
-    "title": "Notes on Isaias",
-    "added_date": "2026-01-22"
-  },
   "septuaginta.isaias.tess": {
     "source": "first1k_greek",
     "source_name": "First1KGreek - Open Greek and Latin Project",
@@ -3570,15 +3543,6 @@
     "urn": "urn:cts:greekLit:tlg0527.tlg048.1st1K-grc1",
     "author": "Septuaginta",
     "title": "Isaias",
-    "added_date": "2026-01-22"
-  },
-  ".index_i_to_isaias.tess": {
-    "source": "first1k_greek",
-    "source_name": "First1KGreek - Open Greek and Latin Project",
-    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
-    "urn": "urn:cts:greekLit:tlg0527.tlg048.1st1K-mul1",
-    "author": "",
-    "title": "Index I to Isaias",
     "added_date": "2026-01-22"
   },
   "septuaginta.jeremias.tess": {
