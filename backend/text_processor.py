@@ -498,16 +498,29 @@ class TextProcessor:
             if norm_token in latin_table:
                 lemma = latin_table[norm_token]
             else:
+                # Try enclitic stripping ('que', 'ne', 'ue'), but only commit
+                # to it when the stripped form actually resolves in the
+                # lemma table. The previous version set stripped_base on any
+                # `.endswith` match, which then propagated to the CLTK
+                # fallback and the final fallback even for words that merely
+                # end in '-ne' or '-ue' (vimine, paene, Cyrene). The wrong
+                # truncated lemma got cached permanently. Only record
+                # stripped_base when the stripping is productive.
                 for enclitic in ['que', 'ne', 'ue']:
                     if norm_token.endswith(enclitic) and len(norm_token) > len(enclitic) + 1:
                         base = norm_token[:-len(enclitic)]
-                        stripped_base = base
                         if base in latin_table:
                             lemma = latin_table[base]
+                            stripped_base = base
+                            break
                         elif base + 'm' in latin_table:
                             lemma = latin_table[base + 'm']
-                        break
-            
+                            stripped_base = base
+                            break
+                        # base did not resolve in either form; do not commit
+                        # to stripping. Leave stripped_base as None so the
+                        # fallbacks below use the original token.
+
             if lemma is None and self.use_cltk_latin and self.latin_lemmatizer:
                 try:
                     token_to_try = stripped_base if stripped_base else token
@@ -516,7 +529,7 @@ class TextProcessor:
                     lemma = re.sub(r'\d+$', '', raw_lemma)
                 except Exception:
                     lemma = stripped_base or norm_token
-            
+
             if lemma is None:
                 lemma = stripped_base or norm_token
             

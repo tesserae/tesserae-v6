@@ -28,6 +28,7 @@ from flask import Blueprint, jsonify, request
 from flask_login import current_user
 import os
 import json
+import unicodedata
 
 from backend.logging_config import get_logger
 from backend.frequency_cache import load_frequency_cache
@@ -146,17 +147,34 @@ def extract_reference_numbers(ref_str):
 
 
 def is_word_in_stoplist(word, language):
-    """Check if a word is in the stoplist for the given language"""
+    """Check if a word is in the stoplist for the given language.
+
+    Greek inputs from the lemma pipeline are accent-stripped (NFKD +
+    combining-character removal) and have final sigma normalized to medial
+    sigma. GREEK_STOPWORDS is written with full diacritics ('καί', 'γάρ')
+    for source-readability, so the lookup side must apply the same
+    normalization the lemma pipeline uses before comparing. Without this,
+    high-frequency Greek function words leak past the stoplist into
+    rare-bigram results because the literal string comparison never
+    matches.
+    """
     if not word:
         return False
-    
-    word_lower = word.lower().strip()
-    
+
     if language == 'la':
-        return word_lower in LATIN_STOPWORDS
+        return word.lower().strip() in LATIN_STOPWORDS
     elif language == 'grc':
-        return word_lower in GREEK_STOPWORDS
-    
+        normalized = unicodedata.normalize('NFKD', word.lower().strip())
+        normalized = ''.join(c for c in normalized if unicodedata.category(c) != 'Mn')
+        normalized = normalized.replace('ς', 'σ')
+        for entry in GREEK_STOPWORDS:
+            entry_norm = unicodedata.normalize('NFKD', entry.lower().strip())
+            entry_norm = ''.join(c for c in entry_norm if unicodedata.category(c) != 'Mn')
+            entry_norm = entry_norm.replace('ς', 'σ')
+            if entry_norm == normalized:
+                return True
+        return False
+
     return False
 
 
