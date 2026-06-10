@@ -881,7 +881,15 @@ def find_greek_english_matches(greek_lemmas: list, english_lemmas: list,
             en_indices = [i for i, l in enumerate(english_lower_list) if l == en_word]
             if en_indices:
                 seen.add(pair_key)
-                grc_indices = [i for i, l in enumerate(greek_lemmas) if _normalize_greek(l) == grc_norm]
+                # grc_norm was constructed with ".replace('ς', 'σ')" (final
+                # sigma normalized to medial sigma). The per-lemma
+                # comparison must apply the same replacement; otherwise
+                # masculine nouns ending in final sigma (most Greek -ος
+                # forms: λόγος, θεός, ἄνθρωπος, etc.) emit empty
+                # source_indices, silently breaking downstream highlighting
+                # and any scorer that uses the indices.
+                grc_indices = [i for i, l in enumerate(greek_lemmas)
+                               if _normalize_greek(l).replace('ς', 'σ') == grc_norm]
                 matches.append({
                     'source_lemma': grc_lemma,
                     'target_lemma': en_word,
