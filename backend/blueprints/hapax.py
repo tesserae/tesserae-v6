@@ -996,9 +996,35 @@ def get_rare_words_from_cache(language, max_occurrences=10):
     return rare_words
 
 
+def _base_filename_expr(alias='t'):
+    """Return a SQL expression that collapses partition filenames to their base work.
+
+    The inverted index treats each .tess file as a separate text_id. A long
+    work like Homer's Iliad is indexed as both the full file
+    (homer.iliad.tess) AND each of its 24 part files (homer.iliad.part.N.tess).
+    Counting distinct text_ids therefore inflates document frequency for any
+    word in such a work, pushing genuine hapaxes out of the rare-word range.
+
+    This expression rewrites 'homer.iliad.part.1.tess' to 'homer.iliad.tess'
+    so COUNT(DISTINCT ...) counts each work once regardless of how it was
+    partitioned for indexing.
+    """
+    fn = f"{alias}.filename"
+    return (
+        f"CASE WHEN instr({fn}, '.part.') > 0 "
+        f"THEN substr({fn}, 1, instr({fn}, '.part.') - 1) || '.tess' "
+        f"ELSE {fn} END"
+    )
+
+
 def get_document_frequency(lemma, language):
     """Get the number of distinct texts that contain this lemma (document frequency).
-    Uses the inverted index for accurate corpus-wide rarity measurement."""
+    Uses the inverted index for accurate corpus-wide rarity measurement.
+
+    Partition files (homer.iliad.part.N.tess) are collapsed to their base
+    work (homer.iliad.tess) so a word indexed across both the full file and
+    its parts contributes a document frequency of 1, not 1 + part_count.
+    """
     conn = get_connection(language)
     if not conn:
         return 0
@@ -1014,8 +1040,11 @@ def get_document_frequency(lemma, language):
             expanded.add(lemma.replace('j', 'i'))
 
         placeholders = ','.join(['?' for _ in expanded])
+        base_expr = _base_filename_expr('t')
         cursor.execute(
-            f'SELECT COUNT(DISTINCT text_id) FROM postings WHERE lemma IN ({placeholders})',
+            f'SELECT COUNT(DISTINCT {base_expr}) '
+            f'FROM postings p JOIN texts t ON p.text_id = t.text_id '
+            f'WHERE p.lemma IN ({placeholders})',
             list(expanded)
         )
         return cursor.fetchone()[0]
@@ -1053,8 +1082,11 @@ def get_document_frequencies_batch(lemmas, language):
 
             all_variants = list(expanded_map.keys())
             placeholders = ','.join(['?' for _ in all_variants])
+            base_expr = _base_filename_expr('t')
             cursor.execute(
-                f'SELECT lemma, COUNT(DISTINCT text_id) FROM postings WHERE lemma IN ({placeholders}) GROUP BY lemma',
+                f'SELECT p.lemma, COUNT(DISTINCT {base_expr}) '
+                f'FROM postings p JOIN texts t ON p.text_id = t.text_id '
+                f'WHERE p.lemma IN ({placeholders}) GROUP BY p.lemma',
                 all_variants
             )
 

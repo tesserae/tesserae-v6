@@ -171,13 +171,30 @@ def find_crosslingual_phonetic_matches(source_units, target_units,
                     continue
                 used_grc.add(gi)
                 used_lat.add(li)
-                token_matches.append({
-                    'source_original': grc_orig,
-                    'target_original': lat_orig,
-                    'source_token': grc_tr,
-                    'target_token': lat_norm,
-                    'similarity': sim / 100.0,
-                })
+                # The per-token match dict's source / target fields must
+                # match the orientation of the pair_key below. When Latin
+                # is the source (grc_is_source=False), swap the labels so
+                # source_original is the Latin token and target_original is
+                # the Greek token. Previously these were hardcoded to the
+                # Greek-source case, which silently mislabeled every
+                # Latin-source / Greek-target search and broke downstream
+                # highlighting in one direction.
+                if grc_is_source:
+                    token_matches.append({
+                        'source_original': grc_orig,
+                        'target_original': lat_orig,
+                        'source_token': grc_tr,
+                        'target_token': lat_norm,
+                        'similarity': sim / 100.0,
+                    })
+                else:
+                    token_matches.append({
+                        'source_original': lat_orig,
+                        'target_original': grc_orig,
+                        'source_token': lat_norm,
+                        'target_token': grc_tr,
+                        'similarity': sim / 100.0,
+                    })
 
             if token_matches:
                 # Map back to (src_idx, tgt_idx) in original orientation
