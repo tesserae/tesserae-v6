@@ -1050,10 +1050,17 @@ def find_greek_latin_matches(greek_lemmas: list, latin_lemmas: list, use_stoplis
             continue
 
         grc_lookup = grc_norm.replace('ς', 'σ')  # medial sigma to match dict keys
-        # Normalize v→u in curated translations to match text processor's Latin lemmas
+        # Normalize v→u so every layer of the Greek-Latin dictionary matches
+        # what the UD lemmatizer emits on the target side. The V3 dictionary
+        # (~34,500 entries) stores Latin glosses with v-forms (vasto, venio,
+        # vulnero) while the text processor produces u-forms (uasto, uenio,
+        # uulnero). Only the curated layer was previously normalized, so any
+        # V3 or gazetteer entry whose Latin gloss contains a 'v' could never
+        # intersect the target text's lemma set. Apply the same replacement
+        # to all three sources so they share a single canonical lookup space.
         curated_translations = {w.replace('v', 'u') for w in CURATED_GREEK_LATIN.get(grc_lookup, [])}
-        v3_translations = gl_dict_norm.get(grc_norm, set()) if gl_dict_norm else set()
-        gazetteer_translations = gazetteer.get(grc_norm, set())
+        v3_translations = {w.replace('v', 'u') for w in (gl_dict_norm.get(grc_norm, set()) if gl_dict_norm else set())}
+        gazetteer_translations = {w.replace('v', 'u') for w in gazetteer.get(grc_norm, set())}
         latin_translations = curated_translations.union(v3_translations).union(gazetteer_translations)
 
         if latin_translations:
