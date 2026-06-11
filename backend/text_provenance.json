@@ -834,14 +834,6 @@
       "date_added": "2026-01-21T22:31:17.780289",
       "language": "la"
     },
-    "julius_firmicus_maternus.de_errore_profanarum_religionum": {
-      "source": "csel",
-      "original_id": "stoa0123a.stoa001.opp-lat1.xml",
-      "author": "Julius Firmicus Maternus",
-      "title": "De errore profanarum religionum",
-      "date_added": "2026-01-21T22:31:17.811399",
-      "language": "la"
-    },
     "hilary_saint_bishop_of_poitiers.tractatus_super_psalmos": {
       "source": "csel",
       "original_id": "stoa0149b.stoa001.opp-lat1.xml",
@@ -1457,15 +1449,6 @@
     "title": "Ab excessu divi Marci",
     "added_date": "2026-01-22"
   },
-  "philo_judaeus.on_the_creation_of_the_world.tess": {
-    "source": "first1k_greek",
-    "source_name": "First1KGreek - Open Greek and Latin Project",
-    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
-    "urn": "urn:cts:greekLit:tlg0018.tlg001.1st1K-eng1",
-    "author": "Philo Judaeus",
-    "title": "On the Creation of the World",
-    "added_date": "2026-01-22"
-  },
   "philo_judaeus.de_opificio_mundi.tess": {
     "source": "first1k_greek",
     "source_name": "First1KGreek - Open Greek and Latin Project",
@@ -1547,15 +1530,6 @@
     "title": "De plantatione",
     "added_date": "2026-01-22"
   },
-  "philo_judaeus.on_drunkenness.tess": {
-    "source": "first1k_greek",
-    "source_name": "First1KGreek - Open Greek and Latin Project",
-    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
-    "urn": "urn:cts:greekLit:tlg0018.tlg011.1st1K-eng1",
-    "author": "Philo Judaeus",
-    "title": "On Drunkenness",
-    "added_date": "2026-01-22"
-  },
   "philo_judaeus.de_ebrietate.tess": {
     "source": "first1k_greek",
     "source_name": "First1KGreek - Open Greek and Latin Project",
@@ -1563,15 +1537,6 @@
     "urn": "urn:cts:greekLit:tlg0018.tlg011.1st1K-grc1",
     "author": "Philo Judaeus",
     "title": "De ebrietate",
-    "added_date": "2026-01-22"
-  },
-  "philo_judaeus.on_sobriety.tess": {
-    "source": "first1k_greek",
-    "source_name": "First1KGreek - Open Greek and Latin Project",
-    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
-    "urn": "urn:cts:greekLit:tlg0018.tlg012.1st1K-eng1",
-    "author": "Philo Judaeus",
-    "title": "On Sobriety",
     "added_date": "2026-01-22"
   },
   "philo_judaeus.de_sobrietate.tess": {
@@ -1617,15 +1582,6 @@
     "urn": "urn:cts:greekLit:tlg0018.tlg016.1st1K-grc1",
     "author": "Philo Judaeus",
     "title": "De congressu eruditionis gratia",
-    "added_date": "2026-01-22"
-  },
-  "philo_judaeus.on_fugitives.tess": {
-    "source": "first1k_greek",
-    "source_name": "First1KGreek - Open Greek and Latin Project",
-    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
-    "urn": "urn:cts:greekLit:tlg0018.tlg017.1st1K-eng1",
-    "author": "Philo Judaeus",
-    "title": "On Fugitives",
     "added_date": "2026-01-22"
   },
   "philo_judaeus.de_fuga_et_inventione.tess": {
@@ -1700,15 +1656,6 @@
     "title": "De specialibus legibus (lib. i\u2011iv)",
     "added_date": "2026-01-22"
   },
-  "philo_judaeus.on_three_virtues_that_is_to_say_on_courage_humanit.tess": {
-    "source": "first1k_greek",
-    "source_name": "First1KGreek - Open Greek and Latin Project",
-    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
-    "urn": "urn:cts:greekLit:tlg0018.tlg025.1st1K-eng1",
-    "author": "Philo Judaeus",
-    "title": "On Three Virtues, that is to say, on Courage, Humanity, and Repentance",
-    "added_date": "2026-01-22"
-  },
   "philo_judaeus.de_virtutibus.tess": {
     "source": "first1k_greek",
     "source_name": "First1KGreek - Open Greek and Latin Project",
@@ -1718,15 +1665,6 @@
     "title": "De virtutibus",
     "added_date": "2026-01-22"
   },
-  "philo_judaeus.on_rewards_and_punishments.tess": {
-    "source": "first1k_greek",
-    "source_name": "First1KGreek - Open Greek and Latin Project",
-    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
-    "urn": "urn:cts:greekLit:tlg0018.tlg026.1st1K-eng1",
-    "author": "Philo Judaeus",
-    "title": "On Rewards and Punishments",
-    "added_date": "2026-01-22"
-  },
   "philo_judaeus.de_praemiis_et_poenis_et_de_exsecrationibus.tess": {
     "source": "first1k_greek",
     "source_name": "First1KGreek - Open Greek and Latin Project",
@@ -1734,15 +1672,6 @@
     "urn": "urn:cts:greekLit:tlg0018.tlg026.1st1K-grc1",
     "author": "Philo Judaeus",
     "title": "De praemiis et poenis et De exsecrationibus",
-    "added_date": "2026-01-22"
-  },
-  "philo_judaeus.to_prove_that_every_man_who_is_virtuous_is_also_fr.tess": {
-    "source": "first1k_greek",
-    "source_name": "First1KGreek - Open Greek and Latin Project",
-    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
-    "urn": "urn:cts:greekLit:tlg0018.tlg027.1st1K-eng1",
-    "author": "Philo Judaeus",
-    "title": "To Prove that every Man who is virtuous is also free",
     "added_date": "2026-01-22"
   },
   "philo_judaeus.de_aeternitate_mundi.tess": {
@@ -1842,15 +1771,6 @@
     "urn": "urn:cts:greekLit:tlg0055.tlg001.1st1K-grc1",
     "author": "Themistocles",
     "title": "Epistulae",
-    "added_date": "2026-01-22"
-  },
-  "galen.adhortatio_ad_artes_addiscendas.tess": {
-    "source": "first1k_greek",
-    "source_name": "First1KGreek - Open Greek and Latin Project",
-    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
-    "urn": "urn:cts:greekLit:tlg0057.tlg001.1st1K-grc1",
-    "author": "Galen",
-    "title": "Adhortatio ad artes addiscendas",
     "added_date": "2026-01-22"
   },
   "galen.protrepticus.tess": {
@@ -2636,15 +2556,6 @@
     "title": "Stadiasmus Magni Maris",
     "added_date": "2026-01-22"
   },
-  "dionysius_of_halicarnassus.de_demosthenis_dictione.tess": {
-    "source": "first1k_greek",
-    "source_name": "First1KGreek - Open Greek and Latin Project",
-    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
-    "urn": "urn:cts:greekLit:tlg0081.tlg006.1st1K-grc1",
-    "author": "Dionysius of Halicarnassus",
-    "title": "De Demosthenis dictione",
-    "added_date": "2026-01-22"
-  },
   "dionysius_of_halicarnassus.de_compositione_verborum_epitome.tess": {
     "source": "first1k_greek",
     "source_name": "First1KGreek - Open Greek and Latin Project",
@@ -2681,67 +2592,31 @@
     "title": "\u03a0\u03b5\u03c1\u1f76 \u1f00\u03bd\u03c4\u03c9\u03bd\u03c5\u03bc\u03af\u03b1\u03c2",
     "added_date": "2026-01-22"
   },
-  "aeschylus.\u1f31\u03ba\u03ad\u03c4\u03b9\u03b4\u03b5\u03c2.tess": {
-    "source": "first1k_greek",
-    "source_name": "First1KGreek - Open Greek and Latin Project",
-    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
-    "urn": "urn:cts:greekLit:tlg0085.tlg001.1st1K-grc1",
-    "author": "Aeschylus",
-    "title": "\u1f39\u03ba\u03ad\u03c4\u03b9\u03b4\u03b5\u03c2",
-    "added_date": "2026-01-22"
-  },
-  "aeschylus.\u03c0\u03ad\u03c1\u03c3\u03b1\u03b9.tess": {
+  "aeschylus.persians_hypothesis.tess": {
     "source": "first1k_greek",
     "source_name": "First1KGreek - Open Greek and Latin Project",
     "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
     "urn": "urn:cts:greekLit:tlg0085.tlg002.1st1K-grc1",
     "author": "Aeschylus",
-    "title": "\u03a0\u03ad\u03c1\u03c3\u03b1\u03b9",
+    "title": "Persians (hypothesis)",
     "added_date": "2026-01-22"
   },
-  "aeschylus.\u03c0\u03c1\u03bf\u03bc\u03b7\u03b8\u03b5\u1f7a\u03c2_\u03b4\u03b5\u03c3\u03bc\u03ce\u03c4\u03b7\u03c2.tess": {
-    "source": "first1k_greek",
-    "source_name": "First1KGreek - Open Greek and Latin Project",
-    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
-    "urn": "urn:cts:greekLit:tlg0085.tlg003.1st1K-grc1",
-    "author": "Aeschylus",
-    "title": "\u03a0\u03c1\u03bf\u03bc\u03b7\u03b8\u03b5\u1f7a\u03c2 \u0394\u03b5\u03c3\u03bc\u03ce\u03c4\u03b7\u03c2",
-    "added_date": "2026-01-22"
-  },
-  "aeschylus.\u1f11\u03c0\u03c4\u1f70_\u1f10\u03c0\u1f76_\u03b8\u03ae\u03b2\u03b1\u03c2.tess": {
-    "source": "first1k_greek",
-    "source_name": "First1KGreek - Open Greek and Latin Project",
-    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
-    "urn": "urn:cts:greekLit:tlg0085.tlg004.1st1K-grc1",
-    "author": "Aeschylus",
-    "title": "\u1f19\u03c0\u03c4\u1f70 \u1f10\u03c0\u1f76 \u0398\u03ae\u03b2\u03b1\u03c2",
-    "added_date": "2026-01-22"
-  },
-  "aeschylus.\u1f00\u03b3\u03b1\u03bc\u03ad\u03bc\u03bd\u03c9\u03bd.tess": {
+  "aeschylus.agamemnon_hypothesis.tess": {
     "source": "first1k_greek",
     "source_name": "First1KGreek - Open Greek and Latin Project",
     "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
     "urn": "urn:cts:greekLit:tlg0085.tlg005.1st1K-grc1",
     "author": "Aeschylus",
-    "title": "\u1f08\u03b3\u03b1\u03bc\u03ad\u03bc\u03bd\u03c9\u03bd",
+    "title": "Agamemnon (hypothesis)",
     "added_date": "2026-01-22"
   },
-  "aeschylus.\u03c7\u03bf\u03b7\u03c6\u00f3\u03c1o\u03b9.tess": {
-    "source": "first1k_greek",
-    "source_name": "First1KGreek - Open Greek and Latin Project",
-    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
-    "urn": "urn:cts:greekLit:tlg0085.tlg006.1st1K-grc1",
-    "author": "Aeschylus",
-    "title": "\u03a7\u03bf\u03b7\u03c6\u00f3\u03c1o\u03b9",
-    "added_date": "2026-01-22"
-  },
-  "aeschylus.\u03b5\u1f50\u03bc\u03b5\u03bd\u03af\u03b4\u03b5\u03c2.tess": {
+  "aeschylus.eumenides_hypothesis.tess": {
     "source": "first1k_greek",
     "source_name": "First1KGreek - Open Greek and Latin Project",
     "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
     "urn": "urn:cts:greekLit:tlg0085.tlg007.1st1K-grc1",
     "author": "Aeschylus",
-    "title": "\u0395\u1f50\u03bc\u03b5\u03bd\u03af\u03b4\u03b5\u03c2",
+    "title": "Eumenides (hypothesis)",
     "added_date": "2026-01-22"
   },
   "aristotle.analytica_priora.tess": {
@@ -3041,15 +2916,6 @@
     "title": "Elementa Harmonica",
     "added_date": "2026-01-22"
   },
-  "agathemerus.geographiae_informatio.tess": {
-    "source": "first1k_greek",
-    "source_name": "First1KGreek - Open Greek and Latin Project",
-    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
-    "urn": "urn:cts:greekLit:tlg0090.tlg001.opp-eng1",
-    "author": "Agathemerus",
-    "title": "Geographiae Informatio",
-    "added_date": "2026-01-22"
-  },
   "anonymous.geographiae_expositio_compendiaria.tess": {
     "source": "first1k_greek",
     "source_name": "First1KGreek - Open Greek and Latin Project",
@@ -3122,15 +2988,6 @@
     "title": "Fragmenta varia (13-190)",
     "added_date": "2026-01-22"
   },
-  "pseudoplutarch.on_the_naming_of_rivers_mountains_and_things_found.tess": {
-    "source": "first1k_greek",
-    "source_name": "First1KGreek - Open Greek and Latin Project",
-    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
-    "urn": "urn:cts:greekLit:tlg0094.tlg001.1st1K-eng1",
-    "author": "Pseudo-Plutarch",
-    "title": "On the Naming of Rivers, Mountains, and Things Found in Them",
-    "added_date": "2026-01-22"
-  },
   "pseudoplutarch.de_fluviis.tess": {
     "source": "first1k_greek",
     "source_name": "First1KGreek - Open Greek and Latin Project",
@@ -3183,15 +3040,6 @@
     "urn": "urn:cts:greekLit:tlg0099.tlg004.1st1K-grc1",
     "author": "Strabo",
     "title": "Strabonis Geographiae Chrestomathia,             Geographia. Selections Chrestomathia",
-    "added_date": "2026-01-22"
-  },
-  "anonymous.acts_of_john.tess": {
-    "source": "first1k_greek",
-    "source_name": "First1KGreek - Open Greek and Latin Project",
-    "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
-    "urn": "urn:cts:greekLit:tlg0317.tlg001.1st1K-eng1",
-    "author": "Anonymous",
-    "title": "Acts of John",
     "added_date": "2026-01-22"
   },
   "acta_joannis.acta_joannis.tess": {
