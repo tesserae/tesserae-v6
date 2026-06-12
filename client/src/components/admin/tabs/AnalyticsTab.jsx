@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
   PieChart, Pie, Cell, LineChart, Line, Legend, AreaChart, Area
 } from 'recharts';
 import { 
   Download, Users, Search, Activity, Globe, Clock, 
   MapPin, Filter, Database, FileText
 } from 'lucide-react';
+import GeographicMap from './GeographicMap';
+import { formatTesseraeIdentifier } from '../../../utils/textNames';
 
 const TESSERAE_RED = '#b91c1c';
 const TESSERAE_GOLD = '#d97706';
@@ -16,6 +18,7 @@ const COLORS = [TESSERAE_RED, '#dc2626', '#ef4444', '#f87171', TESSERAE_GOLD, '#
 const AnalyticsTab = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [graphMetric, setGraphMetric] = useState('searches'); // 'searches', 'users', 'cache'
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -37,7 +40,18 @@ const AnalyticsTab = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const LANG_NAMES = { la: 'Latin', grc: 'Greek', en: 'English' };
+  const LANG_NAMES = { 
+    la: 'Latin', 
+    grc: 'Greek', 
+    en: 'English',
+    cop: 'Coptic',
+    ar: 'Arabic',
+    he: 'Hebrew',
+    ur: 'Urdu',
+    fa: 'Farsi',
+    el: 'Modern Greek',
+    syr: 'Syriac'
+  };
 
   const exportToCSV = () => {
     if (!data) return;
@@ -131,6 +145,8 @@ const AnalyticsTab = () => {
     </div>
   );
 
+  const byLanguage = data?.by_language || [];
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
       {/* Header */}
@@ -168,34 +184,117 @@ const AnalyticsTab = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Activity Timeline */}
-        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-          <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <Clock className="w-5 h-5 text-[#b91c1c]" />
-            Activity History (30 Days)
-          </h3>
+        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+              <Clock className="w-5 h-5 text-[#b91c1c]" />
+              Activity History (30 Days)
+            </h3>
+            
+            {/* Metric Selector Buttons */}
+            <div className="bg-gray-100 p-0.5 rounded-lg flex border border-gray-200">
+              <button
+                onClick={() => setGraphMetric('searches')}
+                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                  graphMetric === 'searches'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Searches
+              </button>
+              <button
+                onClick={() => setGraphMetric('users')}
+                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                  graphMetric === 'users'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Active Users
+              </button>
+              <button
+                onClick={() => setGraphMetric('cache')}
+                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                  graphMetric === 'cache'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Cache Performance
+              </button>
+            </div>
+          </div>
+          
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={[...data.per_day].reverse()}>
-                <defs>
-                  <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#b91c1c" stopOpacity={0.1}/>
-                    <stop offset="95%" stopColor="#b91c1c" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                <XAxis 
-                  dataKey="date" 
-                  tickFormatter={(str) => str.split('-').slice(1).join('/')}
-                  tick={{fontSize: 12}}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis tick={{fontSize: 12}} axisLine={false} tickLine={false} />
-                <Tooltip 
-                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                />
-                <Area type="monotone" dataKey="count" stroke="#b91c1c" strokeWidth={2} fillOpacity={1} fill="url(#colorCount)" />
-              </AreaChart>
+              {graphMetric === 'searches' && (
+                <AreaChart data={[...(data?.per_day || [])].reverse()}>
+                  <defs>
+                    <linearGradient id="colorSearches" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#b91c1c" stopOpacity={0.15}/>
+                      <stop offset="95%" stopColor="#b91c1c" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                  <XAxis 
+                    dataKey="date" 
+                    tickFormatter={(str) => str.split('-').slice(1).join('/')}
+                    tick={{fontSize: 12}}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis tick={{fontSize: 12}} axisLine={false} tickLine={false} />
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  />
+                  <Area type="monotone" name="Searches" dataKey="count" stroke="#b91c1c" strokeWidth={2} fillOpacity={1} fill="url(#colorSearches)" />
+                </AreaChart>
+              )}
+
+              {graphMetric === 'users' && (
+                <AreaChart data={[...(data?.per_day || [])].reverse()}>
+                  <defs>
+                    <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#d97706" stopOpacity={0.15}/>
+                      <stop offset="95%" stopColor="#d97706" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                  <XAxis 
+                    dataKey="date" 
+                    tickFormatter={(str) => str.split('-').slice(1).join('/')}
+                    tick={{fontSize: 12}}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis tick={{fontSize: 12}} axisLine={false} tickLine={false} />
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  />
+                  <Area type="monotone" name="Active Users" dataKey="users" stroke="#d97706" strokeWidth={2} fillOpacity={1} fill="url(#colorUsers)" />
+                </AreaChart>
+              )}
+
+              {graphMetric === 'cache' && (
+                <LineChart data={[...(data?.per_day || [])].reverse()}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                  <XAxis 
+                    dataKey="date" 
+                    tickFormatter={(str) => str.split('-').slice(1).join('/')}
+                    tick={{fontSize: 12}}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis tick={{fontSize: 12}} axisLine={false} tickLine={false} />
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  />
+                  <Legend verticalAlign="top" height={36} iconType="circle" />
+                  <Line type="monotone" name="Cache Hits" dataKey="cache_hits" stroke="#10b981" strokeWidth={2.5} activeDot={{ r: 6 }} dot={{ r: 3 }} />
+                  <Line type="monotone" name="Cache Misses" dataKey="cache_misses" stroke="#ef4444" strokeWidth={2} dot={{ r: 3 }} />
+                </LineChart>
+              )}
             </ResponsiveContainer>
           </div>
         </div>
@@ -207,7 +306,7 @@ const AnalyticsTab = () => {
             Search Methods
           </h3>
           <div className="space-y-4">
-            {data.by_type.map((type, i) => (
+            {(data?.by_type || []).map((type, i) => (
               <div key={i} className="space-y-1">
                 <div className="flex justify-between text-sm">
                   <span className="font-medium text-gray-700">{type.type}</span>
@@ -227,49 +326,23 @@ const AnalyticsTab = () => {
 
       {/* Geographic Distribution Map */}
       <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-        <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-          <Globe className="w-5 h-5 text-[#b91c1c]" />
-          Geographic Distribution
-        </h3>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 bg-gray-50 rounded-xl flex items-center justify-center p-8 min-h-[350px] relative border border-gray-100">
-            {/* Visual representation of user density */}
-            <div className="text-center">
-              <Globe className="w-24 h-24 text-gray-200 mx-auto mb-4" />
-              <div className="text-gray-400 font-medium">User density visualization active</div>
-              <div className="mt-4 flex flex-wrap justify-center gap-2">
-                {data.top_countries.slice(0, 5).map((c, i) => (
-                  <span key={i} className="px-3 py-1 bg-white border border-gray-200 rounded-full text-xs font-medium text-gray-600 shadow-sm">
-                    {c.country}: {c.count}
-                  </span>
-                ))}
-              </div>
-            </div>
-            
-            {/* Simulation of "Map Points" */}
-            {data.top_cities.map((city, i) => (
-              <div 
-                key={i}
-                className="absolute w-3 h-3 bg-[#b91c1c] rounded-full animate-pulse opacity-20"
-                style={{ 
-                  top: `${20 + (i * 15) % 60}%`, 
-                  left: `${20 + (i * 25) % 60}%` 
-                }}
-              />
-            ))}
-          </div>
+          <GeographicMap 
+            topCities={data.top_cities || []} 
+            topCountries={data.top_countries || []} 
+          />
           
-          <div className="space-y-6">
+          <div className="space-y-6 flex flex-col justify-center">
             <div>
               <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
+                <MapPin className="w-4 h-4 text-[#b91c1c]" />
                 Top Cities
               </h4>
               <div className="space-y-3">
-                {data.top_cities.slice(0, 8).map((city, i) => (
-                  <div key={i} className="flex items-center justify-between group">
+                {(data?.top_cities || []).slice(0, 8).map((city, i) => (
+                  <div key={i} className="flex items-center justify-between group border-b border-gray-50 pb-2 last:border-0">
                     <span className="text-sm text-gray-600 group-hover:text-[#b91c1c] transition-colors">{city.city}, {city.country}</span>
-                    <span className="text-sm font-bold text-gray-900">{city.count}</span>
+                    <span className="text-sm font-bold text-gray-900 bg-gray-50 px-2 py-0.5 rounded-full">{city.count}</span>
                   </div>
                 ))}
               </div>
@@ -289,14 +362,17 @@ const AnalyticsTab = () => {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={data.by_language}
+                  data={byLanguage.map(item => ({
+                    ...item,
+                    name: LANG_NAMES[item.language] || item.language
+                  }))}
                   innerRadius={60}
                   outerRadius={80}
                   paddingAngle={5}
                   dataKey="count"
-                  nameKey="language"
+                  nameKey="name"
                 >
-                  {data.by_language.map((entry, index) => (
+                  {byLanguage.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
@@ -320,9 +396,11 @@ const AnalyticsTab = () => {
                 </tr>
               </thead>
               <tbody>
-                {data.top_sources.slice(0, 5).map((source, i) => (
+                {(data?.top_sources || []).slice(0, 5).map((source, i) => (
                   <tr key={i} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
-                    <td className="py-4 text-sm text-gray-700 font-medium">{source.text}</td>
+                    <td className="py-4 text-sm text-gray-700 font-medium" title={source.text}>
+                      {formatTesseraeIdentifier(source.text)}
+                    </td>
                     <td className="py-4 text-sm text-gray-900 font-bold text-right">{source.count}</td>
                   </tr>
                 ))}

@@ -1653,14 +1653,25 @@ def get_analytics():
             by_language = [{'language': row[0] or 'unknown', 'count': row[1]} for row in lang_rows]
             
             cur.execute('''
-                SELECT DATE(created_at) as day, COUNT(*) 
+                SELECT 
+                    DATE(created_at) as day, 
+                    COUNT(*) as count,
+                    COUNT(DISTINCT COALESCE(user_id, client_ip)) as users,
+                    COUNT(CASE WHEN cached = TRUE THEN 1 END) as cache_hits,
+                    COUNT(CASE WHEN cached = FALSE THEN 1 END) as cache_misses
                 FROM search_logs 
                 WHERE created_at > NOW() - INTERVAL '30 days'
                 GROUP BY DATE(created_at)
                 ORDER BY day DESC
             ''')
             daily_rows = cur.fetchall()
-            per_day = [{'date': str(row[0]), 'count': row[1]} for row in daily_rows]
+            per_day = [{
+                'date': str(row[0]), 
+                'count': row[1],
+                'users': row[2],
+                'cache_hits': row[3],
+                'cache_misses': row[4]
+            } for row in daily_rows]
             
             cur.execute('''
                 SELECT source_text, COUNT(*) 

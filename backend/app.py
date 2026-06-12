@@ -2742,13 +2742,24 @@ def get_analytics():
             
             # Searches per day (last 30 days)
             cur.execute('''
-                SELECT DATE(created_at) as day, COUNT(*) as count 
+                SELECT 
+                    DATE(created_at) as day, 
+                    COUNT(*) as count,
+                    COUNT(DISTINCT COALESCE(user_id, client_ip)) as users,
+                    COUNT(CASE WHEN cached = TRUE THEN 1 END) as cache_hits,
+                    COUNT(CASE WHEN cached = FALSE THEN 1 END) as cache_misses
                 FROM search_logs 
                 WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
                 GROUP BY DATE(created_at) 
                 ORDER BY day DESC
             ''')
-            per_day = [{'date': str(row[0]), 'count': row[1]} for row in cur.fetchall()]
+            per_day = [{
+                'date': str(row[0]), 
+                'count': row[1],
+                'users': row[2],
+                'cache_hits': row[3],
+                'cache_misses': row[4]
+            } for row in cur.fetchall()]
             
             # Top source texts
             cur.execute('''

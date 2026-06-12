@@ -333,3 +333,40 @@ export function formatFullCitation(author, locus) {
   
   return { author: displayAuthor, work: '', reference: displayRef };
 }
+
+export function formatTesseraeIdentifier(id) {
+  if (!id) return '';
+  const cleanId = id.replace(/\.tess$/, '');
+  const parts = cleanId.split('.');
+  
+  let author = '';
+  let work = '';
+  let extra = '';
+  
+  if (parts.length > 0) {
+    const authorPart = parts[0];
+    const mappedAuthor = ABBREVIATION_MAP[authorPart.toLowerCase()]?.author;
+    author = mappedAuthor || authorPart.charAt(0).toUpperCase() + authorPart.slice(1);
+  }
+  
+  if (parts.length > 1) {
+    const workPart = parts[1];
+    const mappedWork = WORK_NAMES[workPart.toLowerCase()] || ABBREVIATION_MAP[workPart.toLowerCase()]?.work;
+    work = mappedWork || workPart.charAt(0).toUpperCase() + workPart.slice(1).replace(/_/g, ' ');
+  }
+  
+  if (parts.length > 2) {
+    extra = ' ' + parts.slice(2).map(p => {
+      if (p.toLowerCase() === 'part') return 'Part';
+      return p.charAt(0).toUpperCase() + p.slice(1);
+    }).join(' ');
+  }
+  
+  if (author && work) {
+    return `${author}, ${work}${extra}`;
+  } else if (author) {
+    return `${author}${extra}`;
+  }
+  return cleanId;
+}
+
