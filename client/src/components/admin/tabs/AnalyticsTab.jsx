@@ -145,6 +145,8 @@ const AnalyticsTab = () => {
     </div>
   );
 
+  const byLanguage = data?.by_language || [];
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
       {/* Header */}
@@ -304,7 +306,7 @@ const AnalyticsTab = () => {
             Search Methods
           </h3>
           <div className="space-y-4">
-            {data.by_type.map((type, i) => (
+            {(data?.by_type || []).map((type, i) => (
               <div key={i} className="space-y-1">
                 <div className="flex justify-between text-sm">
                   <span className="font-medium text-gray-700">{type.type}</span>
@@ -337,7 +339,7 @@ const AnalyticsTab = () => {
                 Top Cities
               </h4>
               <div className="space-y-3">
-                {data.top_cities.slice(0, 8).map((city, i) => (
+                {(data?.top_cities || []).slice(0, 8).map((city, i) => (
                   <div key={i} className="flex items-center justify-between group border-b border-gray-50 pb-2 last:border-0">
                     <span className="text-sm text-gray-600 group-hover:text-[#b91c1c] transition-colors">{city.city}, {city.country}</span>
                     <span className="text-sm font-bold text-gray-900 bg-gray-50 px-2 py-0.5 rounded-full">{city.count}</span>
@@ -360,17 +362,17 @@ const AnalyticsTab = () => {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={data.by_language?.map(item => ({
+                  data={byLanguage.map(item => ({
                     ...item,
                     name: LANG_NAMES[item.language] || item.language
-                  })) || []}
+                  }))}
                   innerRadius={60}
                   outerRadius={80}
                   paddingAngle={5}
                   dataKey="count"
                   nameKey="name"
                 >
-                  {data.by_language.map((entry, index) => (
+                  {byLanguage.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
@@ -394,7 +396,7 @@ const AnalyticsTab = () => {
                 </tr>
               </thead>
               <tbody>
-                {data.top_sources.slice(0, 5).map((source, i) => (
+                {(data?.top_sources || []).slice(0, 5).map((source, i) => (
                   <tr key={i} className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
                     <td className="py-4 text-sm text-gray-700 font-medium" title={source.text}>
                       {formatTesseraeIdentifier(source.text)}
