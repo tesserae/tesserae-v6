@@ -210,6 +210,13 @@ def search_fusion_stream():
                 elif event_type == "intermediate":
                     yield f"data: {json.dumps({'type': 'intermediate', 'results': evt_data['results'], 'total_matches': evt_data['total_results'], 'channels_done': evt_data['channels_done'], 'channels_total': evt_data.get('channels_total', 9), 'phase': evt_data['phase'], 'elapsed': round(time.time() - start_time, 1)})}\n\n"
 
+                elif event_type == "heartbeat":
+                    # SSE comment: transmitted as bytes (keeps TCP alive) but
+                    # silently ignored by all SSE parsers and our frontend
+                    # TextDecoder reader.  Prevents proxy/browser read timeouts
+                    # during slow channels (edit_distance, sound, semantic).
+                    yield ": keep-alive\n\n"
+
                 elif event_type == "complete":
                     final_results = evt_data["results"]
 

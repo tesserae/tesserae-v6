@@ -63,7 +63,9 @@ import math
 import os
 import re
 import sqlite3
+import time
 from collections import Counter, defaultdict
+from concurrent.futures import ThreadPoolExecutor
 
 import numpy as np
 
@@ -2309,6 +2311,47 @@ def _run_channels_sequential(channels, configs, source_units, target_units,
     return channel_results
 
 
+# ---------------------------------------------------------------------------
+# SSE heartbeat helper — keeps the connection alive during slow channels
+# ---------------------------------------------------------------------------
+
+# Heartbeat interval in seconds.  Slow channels (edit_distance, sound,
+# semantic) can block for 2-5+ minutes.  Without periodic data on the wire,
+# browsers, reverse proxies (Nginx proxy_read_timeout), CDNs, and network
+# firewalls will kill the idle TCP connection — typically after 60-120 s.
+# Yielding a heartbeat every 10 s prevents this at every layer.
+HEARTBEAT_INTERVAL = 10
+
+
+def _run_channel_with_heartbeat(ch_name, config, source_units, target_units,
+                                matcher, scorer, source_id, target_id,
+                                source_path, target_path,
+                                source_language, target_language):
+    """Run a channel in a background thread, yielding heartbeats while it executes.
+
+    This is a generator that yields:
+        ("heartbeat", {"channel": ch_name})  — every HEARTBEAT_INTERVAL seconds
+        ("result", <channel_results>)         — once, when the channel finishes
+
+    The thread does no CPU work itself — run_channel() internally uses
+    ProcessPoolExecutor for heavy computation.  The thread merely lets us
+    regain control of the generator so we can yield keep-alive signals.
+    """
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        future = pool.submit(
+            run_channel, ch_name, config, source_units, target_units,
+            matcher, scorer, source_id, target_id,
+            source_path=source_path, target_path=target_path,
+            source_language=source_language, target_language=target_language,
+        )
+        while not future.done():
+            time.sleep(HEARTBEAT_INTERVAL)
+            if not future.done():
+                yield ("heartbeat", {"channel": ch_name})
+        # Re-raise any exception from the channel
+        yield ("result", future.result())
+
+
 def iter_fusion_search(source_units, target_units, matcher, scorer,
                        source_id, target_id, language='la',
                        mode='merged', max_results=5000,
@@ -2359,12 +2402,17 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
             "phase": "line",
         })
 
-        results = run_channel(
+        results = None
+        for hb_type, hb_data in _run_channel_with_heartbeat(
             ch_name, configs[ch_name], source_units, target_units,
             matcher, scorer, source_id, target_id,
-            source_path=source_path, target_path=target_path,
-            source_language=source_language, target_language=target_language,
-        )
+            source_path, target_path,
+            source_language, target_language,
+        ):
+            if hb_type == "heartbeat":
+                yield ("heartbeat", hb_data)
+            elif hb_type == "result":
+                results = hb_data
         # Syntax returns dict with "syntax" and "syntax_structural" keys
         if isinstance(results, dict):
             count = sum(len(v) for v in results.values() if v)
@@ -2486,12 +2534,17 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
             "phase": "window",
         })
 
-        results = run_channel(
+        results = None
+        for hb_type, hb_data in _run_channel_with_heartbeat(
             ch_name, configs[ch_name], source_windows, target_windows,
             matcher, scorer, source_id, target_id,
-            source_path=source_path, target_path=target_path,
-            source_language=source_language, target_language=target_language,
-        )
+            source_path, target_path,
+            source_language, target_language,
+        ):
+            if hb_type == "heartbeat":
+                yield ("heartbeat", hb_data)
+            elif hb_type == "result":
+                results = hb_data
         count = len(results) if results else 0
         if results:
             window_channel_results[ch_name] = results
