@@ -103,7 +103,14 @@ export const searchTextsStream = async (params, onProgress, signal, onQueued) =>
     }
   }
 
-  return finalResult || { results: [], total_matches: 0 };
+  if (!finalResult) {
+    throw new Error(
+      'Connection to server was lost during search. ' +
+      'The search may still be running in the background — please try again in a few minutes.'
+    );
+  }
+
+  return finalResult;
 };
 
 export const searchFusionStream = async (params, onProgress, signal, onIntermediate, onQueued) => {
@@ -161,7 +168,14 @@ export const searchFusionStream = async (params, onProgress, signal, onIntermedi
     }
   }
 
-  return finalResult || { results: [], total_matches: 0 };
+  if (!finalResult) {
+    throw new Error(
+      'Connection to server was lost during search. ' +
+      'The search may still be running in the background — please try again in a few minutes.'
+    );
+  }
+
+  return finalResult;
 };
 
 export const searchSemanticCross = async (params, signal) => {

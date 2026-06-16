@@ -1175,7 +1175,21 @@ def search_stream():
             # Find matches
             yield send_progress("Finding matches", f"{len(source_units)} \u00d7 {len(target_units)} units")
             try:
-                matches, stoplist_size = _run_matcher(match_type, source_units, target_units, settings, corpus_frequencies)
+                # Run matcher in a thread so we can yield SSE heartbeats
+                # while it executes.  Prevents proxy/browser read timeouts
+                # during slow channels (edit_distance ~3.5 min, sound ~3 min).
+                from concurrent.futures import ThreadPoolExecutor
+                import time as _time
+
+                with ThreadPoolExecutor(max_workers=1) as _pool:
+                    _future = _pool.submit(
+                        _run_matcher, match_type, source_units,
+                        target_units, settings, corpus_frequencies)
+                    while not _future.done():
+                        _time.sleep(10)
+                        if not _future.done():
+                            yield ": keep-alive\n\n"
+                    matches, stoplist_size = _future.result()
             except ValueError:
                 yield f"data: {json.dumps({'type': 'error', 'message': 'Use regular search endpoint for cross-lingual'})}\n\n"
                 return
