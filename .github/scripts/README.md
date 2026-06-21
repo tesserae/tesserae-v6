@@ -1,6 +1,6 @@
 # Claude PR automation
 
-This directory holds the scripts and workflows that automate first-pass PR review for Tesserae V6.
+This directory holds the scripts and workflows that automate first-pass PR review for Tesserae V6. The model ID is set in `claude_pr_review.py:27`; update it when Anthropic deprecates the current model.
 
 ## Files
 
