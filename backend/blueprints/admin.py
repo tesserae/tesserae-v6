@@ -1881,9 +1881,7 @@ def compute_embeddings():
             })
             
     except Exception as e:
-        logger.error(f"Failed to compute embeddings: {e}")
-        import traceback
-        traceback.print_exc()
+        logger.exception(f"Failed to compute embeddings: {e}")
         return jsonify({'error': str(e)}), 500
 
 

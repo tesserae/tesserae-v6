@@ -661,7 +661,8 @@ def is_available(language: str = 'la') -> bool:
     try:
         model = get_model(language)
         return model is not None
-    except:
+    except Exception as e:
+        logger.error(f"Error checking if semantic model is available: {e}")
         return False
 
 def get_model_info(language: str = 'la') -> Dict:

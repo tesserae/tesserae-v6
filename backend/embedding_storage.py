@@ -17,7 +17,9 @@ import numpy as np
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime
 import hashlib
+from backend.logging_config import get_logger
 
+logger = get_logger('embedding_storage')
 EMBEDDINGS_DIR = os.path.join(os.path.dirname(__file__), 'embeddings')
 MANIFEST_FILE = os.path.join(EMBEDDINGS_DIR, 'manifest.json')
 
@@ -47,8 +49,8 @@ def load_manifest() -> Dict:
             with open(MANIFEST_FILE, 'r') as f:
                 _manifest_cache = json.load(f)
                 return _manifest_cache
-        except:
-            pass
+        except Exception as e:
+            logger.error(f"Failed to load embedding manifest from {MANIFEST_FILE}: {e}")
     
     _manifest_cache = {
         'version': 1,

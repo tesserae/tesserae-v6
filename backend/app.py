@@ -2197,7 +2197,8 @@ def submit_request():
                     try:
                         file.seek(0)
                         content = file.read().decode('latin-1')
-                    except:
+                    except Exception as e:
+                        app_logger.error(f"Failed to read file '{file.filename}': {e}")
                         return jsonify({'error': 'Could not read file. Please ensure it is a plain text file.'}), 400
     else:
         data = request.get_json() or {}
