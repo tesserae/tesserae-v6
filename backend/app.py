@@ -107,8 +107,11 @@ if DEPLOYMENT_ENV == 'marvin' and not DIRECT_SERVER:
 # Create Flask app with static file serving
 app = Flask(__name__, static_folder=STATIC_FOLDER, static_url_path='')
 
-# Secure CORS: Restrict to allowed origins instead of wildcard
-ALLOWED_ORIGINS = os.environ.get("TESSERAE_ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:5000").split(",")
+# Secure CORS: Restrict to allowed origins instead of wildcard, defaulting to localhost and production domains
+ALLOWED_ORIGINS = os.environ.get(
+    "TESSERAE_ALLOWED_ORIGINS",
+    "http://localhost:5173,http://localhost:5000,https://tesserae.caset.buffalo.edu,http://tesserae.caset.buffalo.edu"
+).split(",")
 CORS(app, supports_credentials=True, origins=ALLOWED_ORIGINS)
 
 @app.after_request
@@ -116,7 +119,9 @@ def add_security_headers(response):
     """Add standard HTTP security headers to all API responses."""
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-Frame-Options'] = 'DENY'
-    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    # Gate HSTS to production/HTTPS to avoid sticky local dev browser issues
+    if request.is_secure or DEPLOYMENT_ENV != 'dev':
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
     return response
 
 def api_route(path, **kwargs):
