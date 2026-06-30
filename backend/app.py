@@ -106,8 +106,18 @@ if DEPLOYMENT_ENV == 'marvin' and not DIRECT_SERVER:
 
 # Create Flask app with static file serving
 app = Flask(__name__, static_folder=STATIC_FOLDER, static_url_path='')
-CORS(app, supports_credentials=True)  # Enable cross-origin requests
 
+# Secure CORS: Restrict to allowed origins instead of wildcard
+ALLOWED_ORIGINS = os.environ.get("TESSERAE_ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:5000").split(",")
+CORS(app, supports_credentials=True, origins=ALLOWED_ORIGINS)
+
+@app.after_request
+def add_security_headers(response):
+    """Add standard HTTP security headers to all API responses."""
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    return response
 
 def api_route(path, **kwargs):
     """Decorator for API routes that auto-prepends API_PREFIX.
@@ -2879,4 +2889,6 @@ def create_app():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app_logger.info("Starting Tesserae V6 development server...")
+    debug_mode = os.environ.get("TESSERAE_DEBUG", "false").lower() == "true"
+    app.run(host="0.0.0.0", port=5000, debug=debug_mode)
