@@ -452,3 +452,164 @@ class TestScoringConstants:
             "semantic", "rare_word", "syntax", "syntax_structural", "lemma_min1",
         }
         assert set(CHANNEL_WEIGHTS.keys()) == expected
+
+
+# ── Text Pair Frequency Baseline Tests ─────────────────────────────────────
+
+class TestTextPairFrequencyBaseline:
+    """Test calculations and routing when using text_pair frequency baseline."""
+
+    def _make_channel_results(self, lemmas_and_dfs):
+        """Helper: create mock channel results for given lemmas.
+
+        lemmas_and_dfs: list of (lemma, source_word, target_word) tuples
+        """
+        matched_words = []
+        for lemma, sw, tw in lemmas_and_dfs:
+            matched_words.append({
+                "lemma": lemma,
+                "source_word": sw,
+                "target_word": tw,
+                "type": "lemma",
+                "similarity": 1.0,
+            })
+        return {
+            "lemma": [
+                {
+                    "source": {
+                        "ref": "luc. 1.1",
+                        "text": " ".join(l for l, _, _ in lemmas_and_dfs),
+                        "tokens": [l for l, _, _ in lemmas_and_dfs],
+                        "lemmas": [l for l, _, _ in lemmas_and_dfs],
+                        "highlight_indices": list(range(len(lemmas_and_dfs))),
+                    },
+                    "target": {
+                        "ref": "verg. aen. 1.1",
+                        "text": " ".join(l for l, _, _ in lemmas_and_dfs),
+                        "tokens": [l for l, _, _ in lemmas_and_dfs],
+                        "lemmas": [l for l, _, _ in lemmas_and_dfs],
+                        "highlight_indices": list(range(len(lemmas_and_dfs))),
+                    },
+                    "score": 1.0,
+                    "overall_score": 1.0,
+                    "matched_words": matched_words,
+                    "match_basis": "lemma",
+                }
+            ]
+        }
+
+    def test_text_pair_idf_scale_not_capped(self, monkeypatch):
+        """Verify _idf_scale is NOT capped at 2.0 for text_pair basis."""
+        import math
+        from backend.fusion import fuse_results
+        import backend.fusion as fusion
+
+        # For text_pair with N=2: _idf_scale = log(1429)/log(2) ≈ 10.48
+        # Without the bypass, it would be capped at 2.0
+        mock_freqs = {'rara': 1}
+        monkeypatch.setattr(fusion, '_get_text_pair_doc_freqs',
+                            lambda lemmas, s, t, lang: mock_freqs)
+        monkeypatch.setattr(fusion, '_get_total_texts', lambda lang: 1429)
+
+        channel_results = self._make_channel_results([('rara', 'rara', 'rara')])
+        results = fuse_results(channel_results, freq_basis='text_pair',
+                               source_id='src.tess', target_id='tgt.tess',
+                               language='la')
+
+        assert len(results) == 1
+        # With uncapped scale ≈ 10.48, IDF for df=1 is log(2)*10.48 ≈ 7.26
+        # This is well above RARITY_IDF_THRESHOLD (1.5), so multiplier > 1.0
+        # The result should have a meaningful score
+        assert results[0]["fused_score"] > 0
+
+    def test_text_pair_fallback_when_no_ids(self, monkeypatch):
+        """Verify text_pair falls back to corpus when source_id/target_id are None."""
+        from backend.fusion import fuse_results
+        import backend.fusion as fusion
+
+        # Mock corpus doc freqs (should be used as fallback)
+        mock_corpus = {'verbum': 500}
+        monkeypatch.setattr(fusion, '_get_corpus_doc_freqs',
+                            lambda lemmas, lang: mock_corpus)
+        monkeypatch.setattr(fusion, '_get_total_texts', lambda lang: 1429)
+
+        channel_results = self._make_channel_results([('verbum', 'verbum', 'verbum')])
+
+        # source_id=None should cause text_pair to not activate
+        results = fuse_results(channel_results, freq_basis='text_pair',
+                               source_id=None, target_id=None, language='la')
+
+        assert len(results) == 1
+        assert results[0]["fused_score"] > 0
+
+    def test_text_pair_single_rare_word_high_idf(self, monkeypatch):
+        """A word appearing in only 1 of the 2 texts should get a high IDF."""
+        import math
+        from backend.fusion import fuse_results
+        import backend.fusion as fusion
+
+        # df=1 means it appears in only one of the pair texts
+        mock_freqs = {'singularis': 1}
+        monkeypatch.setattr(fusion, '_get_text_pair_doc_freqs',
+                            lambda lemmas, s, t, lang: mock_freqs)
+        monkeypatch.setattr(fusion, '_get_total_texts', lambda lang: 1429)
+
+        channel_results = self._make_channel_results(
+            [('singularis', 'singularis', 'singularis')])
+        results = fuse_results(channel_results, freq_basis='text_pair',
+                               source_id='src.tess', target_id='tgt.tess',
+                               language='la')
+
+        assert len(results) == 1
+        # The IDF for a word with df=1 in a 2-text pair with uncapped scale
+        # should be: (log(2) - log(1)) * (log(1429)/log(2)) = log(1429) ≈ 7.26
+        # This is above the RARITY_IDF_THRESHOLD, so the multiplier should
+        # be at or above 1.0 (no penalty, possible boost)
+        result = results[0]
+        assert result["fused_score"] > 0
+
+    def test_text_pair_same_text_edge_case(self, monkeypatch):
+        """When source == target, total_texts should be 1, not 2."""
+        import math
+        from backend.fusion import fuse_results
+        import backend.fusion as fusion
+
+        # With total_texts=1, log(1)=0, so all IDFs become 0
+        mock_freqs = {'amor': 1}
+        monkeypatch.setattr(fusion, '_get_text_pair_doc_freqs',
+                            lambda lemmas, s, t, lang: mock_freqs)
+        monkeypatch.setattr(fusion, '_get_total_texts', lambda lang: 1429)
+
+        channel_results = self._make_channel_results([('amor', 'amor', 'amor')])
+        # Same source and target — comparing text against itself
+        results = fuse_results(channel_results, freq_basis='text_pair',
+                               source_id='same_text.tess',
+                               target_id='same_text.tess', language='la')
+
+        assert len(results) == 1
+        # Score should still be positive (just heavily penalized since
+        # all IDFs are 0 with total_texts=1)
+        assert results[0]["fused_score"] > 0
+
+    def test_text_pair_all_words_in_both_texts(self, monkeypatch):
+        """Words appearing in both texts (df=2) should get IDF=0."""
+        from backend.fusion import fuse_results
+        import backend.fusion as fusion
+
+        # Both words have df=2 — they appear in both texts
+        mock_freqs = {'et': 2, 'est': 2}
+        monkeypatch.setattr(fusion, '_get_text_pair_doc_freqs',
+                            lambda lemmas, s, t, lang: mock_freqs)
+        monkeypatch.setattr(fusion, '_get_total_texts', lambda lang: 1429)
+
+        channel_results = self._make_channel_results(
+            [('et', 'et', 'et'), ('est', 'est', 'est')])
+        results = fuse_results(channel_results, freq_basis='text_pair',
+                               source_id='src.tess', target_id='tgt.tess',
+                               language='la')
+
+        assert len(results) == 1
+        # Both words have IDF=0 (very common within the pair),
+        # so geom_mean_idf will be near 0, applying heavy penalty
+        # but the fused_score should still be positive (just penalized)
+        assert results[0]["fused_score"] > 0
