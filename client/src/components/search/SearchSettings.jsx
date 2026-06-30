@@ -1,13 +1,6 @@
 import React, { useEffect } from 'react';
 
 const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, language = 'la' }) => {
-  useEffect(() => {
-    // Reset freq_basis to 'corpus' if it is currently 'meter' and language is not Latin
-    if (language !== 'la' && settings.freq_basis === 'meter') {
-      handleChange('freq_basis', 'corpus');
-    }
-  }, [language, settings.freq_basis]);
-
   const stopwordExamples = {
     la: 'pietas not pietate, bellum not bello',
     grc: 'λόγος not λόγον, θεός not θεῷ',
@@ -27,6 +20,13 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
     
     setSettings(prev => ({ ...prev, ...updates }));
   };
+
+  useEffect(() => {
+    // Reset freq_basis to 'corpus' if it is currently 'meter' and language is not Latin
+    if (language !== 'la' && settings.freq_basis === 'meter') {
+      handleChange('freq_basis', 'corpus');
+    }
+  }, [language, settings.freq_basis]);
 
   return (
     <div className="bg-gray-50 rounded-lg p-4">
