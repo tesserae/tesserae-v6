@@ -1,8 +1,7 @@
 cff-version: 1.2.0
 message: >-
-  If you use Tesserae, please cite the project as below. To cite a specific
-  earlier version, cite its author (Tesserae V3: Chris Forstall; Tesserae V1:
-  Poornima Shakthi).
+  If you use Tesserae, please cite the project as below. Contributors and
+  version developers are listed in the notes below.
 title: "Tesserae V6: Intertextual and Literary Discovery"
 abstract: >-
   Tesserae is an intertextual analysis tool for discovering textual parallels
@@ -19,9 +18,11 @@ authors:
   - family-names: Coffee
     given-names: Neil
     affiliation: "University at Buffalo, SUNY"
+    orcid: "https://orcid.org/0000-0002-1273-2052"
   - family-names: Scheirer
     given-names: Walter
     affiliation: "University of Notre Dame"
+    orcid: "https://orcid.org/0000-0001-9649-8074"
 keywords:
   - intertextuality
   - classical philology
@@ -39,11 +40,12 @@ keywords:
 # Co-founders (2008):
 #   Neil Coffee (University at Buffalo) and J. P. Koenig (University at Buffalo)
 #
-# Version authorship:
+# Version history and principal developers:
 #   Tesserae V1  — Poornima Shakthi
-#   Tesserae V3  — Chris Forstall (lead developer; now Mount Allison University)
-#   Tesserae V5  — developed with Walter Scheirer
-#   Tesserae V6  — created by Neil Coffee (January 2026)
+#   Tesserae V2  — Roelant Ossewarde
+#   Tesserae V3  — Chris Forstall (now Mount Allison University)
+#   Tesserae V5  — Jeffery Kinnison
+#   Tesserae V6  — Neil Coffee (January 2026)
 #
 # Graduate Tesserae Fellows (chronological from 2008;
 # UB = University at Buffalo, ND = University of Notre Dame):

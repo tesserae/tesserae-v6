@@ -351,9 +351,7 @@ export default function AboutPage({ onNavigate }) {
             Please cite the full project on first reference, together with the
             specific tool, corpus text, or query you used. Include the version
             (currently {versionInfo.version}) and your access date, since the
-            corpus and tools are updated regularly. To cite a specific earlier
-            version, cite its author (Tesserae V3, Chris Forstall; Tesserae V1,
-            Poornima Shakthi).
+            corpus and tools are updated regularly.
           </p>
         </section>
 
