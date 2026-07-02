@@ -83,7 +83,7 @@ export const searchTextsStream = async (params, onProgress, signal, onQueued) =>
           const data = JSON.parse(line.slice(6));
           if (data.type === 'progress') {
             if (onProgress) {
-              onProgress(data.step, data.detail, data.elapsed);
+              onProgress(data.step, data.detail, data.elapsed, data);
             }
           } else if (data.type === 'queued') {
             if (onQueued) {
@@ -144,7 +144,7 @@ export const searchFusionStream = async (params, onProgress, signal, onIntermedi
           const data = JSON.parse(line.slice(6));
           if (data.type === 'progress') {
             if (onProgress) {
-              onProgress(data.step, data.detail, data.elapsed);
+              onProgress(data.step, data.detail, data.elapsed, data);
             }
           } else if (data.type === 'queued') {
             if (onQueued) {

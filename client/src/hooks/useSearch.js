@@ -52,11 +52,26 @@ export const useSearch = () => {
     setIsQueued(false);
     setQueuedMessage('');
 
-    const handleProgress = (step, detail, elapsed) => {
+    const handleProgress = (step, detail, elapsed, meta = null) => {
       setIsQueued(false);
       setQueuedMessage('');
       setProgressText(detail ? `${step}: ${detail}` : step);
       setElapsedTime(Math.floor(elapsed));
+      if (meta?.fusion_batch) {
+        const batch = meta.fusion_batch;
+        setFusionProgress(prev => ({
+          channelsDone: prev?.channelsDone || [],
+          channelsTotal: batch.total || prev?.channelsTotal || 0,
+          phase: batch.phase || prev?.phase || 'line',
+          currentChannel: batch.channel,
+          batchIndex: batch.index || 0,
+          batchTotal: batch.total || 0,
+          batchStatus: batch.status || 'running',
+          currentBatchResults: batch.result_count || 0,
+          totalMatches: prev?.totalMatches || 0,
+          resultCount: prev?.resultCount || 0,
+        }));
+      }
     };
 
     const handleQueued = (reason, waitTime) => {
@@ -73,10 +88,19 @@ export const useSearch = () => {
       if (isFusion) {
         const handleIntermediate = (intermediateData) => {
           setResults(intermediateData.results || []);
+          const channelsDone = intermediateData.channels_done || [];
+          const channelsTotal = intermediateData.channels_total || 9;
           setFusionProgress({
-            channelsDone: intermediateData.channels_done || [],
-            channelsTotal: intermediateData.channels_total || 9,
+            channelsDone,
+            channelsTotal,
             phase: intermediateData.phase || 'line',
+            batchIndex: channelsDone.length,
+            batchTotal: channelsTotal,
+            batchStatus: 'done',
+            currentChannel: channelsDone[channelsDone.length - 1] || '',
+            currentBatchResults: 0,
+            totalMatches: intermediateData.total_matches || 0,
+            resultCount: (intermediateData.results || []).length,
           });
         };
         data = await searchFusionStream(params, handleProgress, abortController.current.signal, handleIntermediate, handleQueued);
