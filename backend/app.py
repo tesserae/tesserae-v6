@@ -139,6 +139,14 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {'pool_pre_ping': True, "pool_recycle": 300}
 
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+)
+if DEPLOYMENT_ENV != 'dev':
+    app.config['SESSION_COOKIE_SECURE'] = True
+
+
 # =============================================================================
 # DATABASE INITIALIZATION
 # =============================================================================
