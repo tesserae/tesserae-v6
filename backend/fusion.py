@@ -1420,7 +1420,8 @@ def _get_total_texts(language='la'):
                 # Fallback: known corpus sizes
                 _total_texts_cache[language] = {'la': 1429, 'grc': 691}.get(
                     language, 1000)
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Failed to query total texts for {language}, using fallback: {e}")
             _total_texts_cache[language] = {'la': 1429, 'grc': 691}.get(
                 language, 1000)
     return _total_texts_cache[language]

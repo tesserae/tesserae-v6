@@ -19,6 +19,9 @@ from flask_login import LoginManager, login_user, logout_user, current_user
 from sqlalchemy.exc import NoResultFound
 
 from backend.models import db, OAuth, User
+from backend.logging_config import get_logger
+
+logger = get_logger('replit_auth')
 
 ISSUER_URL = os.environ.get('ISSUER_URL', "https://replit.com/oidc")
 JWKS_URL = "https://replit.com/.well-known/jwks.json"
@@ -30,7 +33,8 @@ def get_jwks_client():
     if JWKS_CLIENT is None:
         try:
             JWKS_CLIENT = PyJWKClient(JWKS_URL)
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Failed to initialize JWKS client: {e}")
             JWKS_CLIENT = None
     return JWKS_CLIENT
 

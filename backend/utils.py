@@ -129,7 +129,8 @@ def save_metadata_overrides(overrides):
     try:
         with open(OVERRIDES_PATH, 'r', encoding='utf-8') as f:
             data = json.load(f)
-    except Exception:
+    except Exception as e:
+        logger.warning(f"Could not load existing metadata overrides: {e}")
         data = {}
     meta_keys = {k: v for k, v in data.items() if k.startswith('_')}
     meta_keys['_last_updated'] = __import__('datetime').date.today().isoformat()
@@ -382,7 +383,8 @@ def _estimate_text_type_from_content(filepath):
                 text = re.sub(r'^<[^>]+>\s*', '', line).strip()
                 if text:
                     lengths.append(len(text))
-    except Exception:
+    except Exception as e:
+        logger.warning(f"Could not detect meter for file: {e}")
         return None
 
     if not lengths:

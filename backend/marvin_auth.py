@@ -53,7 +53,8 @@ def _load_user_roles(user_id):
                 (user_id,),
             )
             return [row[0] for row in cur.fetchall()]
-    except Exception:
+    except Exception as e:
+        logger.warning(f"Failed to load roles for user_id={user_id}: {e}")
         return []
 
 
@@ -75,7 +76,8 @@ def _load_user_roles_by_email(email):
                 (normalized_email,),
             )
             return [row[0] for row in cur.fetchall()]
-    except Exception:
+    except Exception as e:
+        logger.warning(f"Failed to load roles for email={normalized_email}: {e}")
         return []
 
 

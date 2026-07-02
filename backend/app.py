@@ -199,8 +199,8 @@ def get_processed_units(text_id, language, unit_type, text_processor):
         units_line = units if unit_type == 'line' else text_processor.process_file(filepath, language, 'line')
         units_phrase = units if unit_type == 'phrase' else text_processor.process_file(filepath, language, 'phrase')
         save_cached_units(resolved_id, language, units_line, units_phrase, file_hash)
-    except Exception:
-        pass
+    except Exception as e:
+        app_logger.warning(f"Failed to save cached units for {resolved_id}: {e}")
 
     return units
 
@@ -570,7 +570,8 @@ def serve_static_downloads():
         downloads_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'downloads')
         try:
             return send_from_directory(downloads_dir, filepath)
-        except Exception:
+        except Exception as e:
+            app_logger.warning(f"Failed to serve download file '{filepath}': {e}")
             return jsonify({'error': 'File not found'}), 404
 
 @app.route('/legacy')
@@ -1206,8 +1207,7 @@ def search():
         })
         
     except Exception as e:
-        import traceback
-        traceback.print_exc()
+        app_logger.exception(f"Pairwise search failed: {e}")
         return jsonify({"error": str(e)})
 
 @api_route('/cache/stats')
@@ -1616,8 +1616,8 @@ def line_search():
                                         line_ref = line[1:tag_end]
                                         line_text = line[tag_end+1:].strip()
                                         file_lines_lookup[line_ref] = line_text
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            app_logger.warning(f"Failed to read text file for line search: {e}")
                     
                     for ref, matching_lemmas, positions in matches:
                         result_key = (filename, ref)
@@ -1847,8 +1847,7 @@ def line_search():
             return jsonify({'error': 'Provide query or line_text'}), 400
             
     except Exception as e:
-        import traceback
-        traceback.print_exc()
+        app_logger.exception(f"Line search failed: {e}")
         return jsonify({'error': str(e)}), 500
 
 
@@ -2038,8 +2037,7 @@ def line_search_parallel():
         })
         
     except Exception as e:
-        import traceback
-        traceback.print_exc()
+        app_logger.exception(f"Wildcard search failed: {e}")
         return jsonify({'error': str(e)}), 500
 
 @api_route('/corpus-search', methods=['POST'])
@@ -2123,8 +2121,8 @@ def corpus_search():
                                     if line_ref in refs:
                                         line_text = line[end_tag+1:].strip()
                                         lines_data[line_ref] = {'text': line_text, 'tokens': [], 'lemmas': []}
-                except Exception:
-                    pass
+                except Exception as e:
+                    app_logger.warning(f"Failed to read text file for corpus search: {e}")
             
             for ref, matching_lemmas, positions in refs_data:
                 line_info = lines_data.get(ref, {})
@@ -2167,8 +2165,7 @@ def corpus_search():
         })
         
     except Exception as e:
-        import traceback
-        traceback.print_exc()
+        app_logger.exception(f"Corpus search failed: {e}")
         return jsonify({'error': str(e)}), 500
 
 @api_route('/request', methods=['POST'])
