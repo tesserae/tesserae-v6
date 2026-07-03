@@ -129,7 +129,7 @@ def save_embeddings(text_path: str, language: str, embeddings: np.ndarray,
         return True
         
     except Exception as e:
-        print(f"Error saving embeddings for {text_path}: {e}")
+        logger.error(f"Error saving embeddings for {text_path}: {e}")
         return False
 
 def load_embeddings(text_path: str, language: str) -> Optional[np.ndarray]:
@@ -153,13 +153,13 @@ def load_embeddings(text_path: str, language: str) -> Optional[np.ndarray]:
         # allow_pickle=False for security, mmap_mode=None to load fully into memory
         return np.load(emb_path, mmap_mode=None, allow_pickle=False)
     except Exception as e:
-        print(f"Error loading embeddings from {emb_path}: {e}")
+        logger.error(f"Error loading embeddings from {emb_path}: {e}")
         # Try alternative loading approach
         try:
             with open(emb_path, 'rb') as f:
                 return np.load(f, allow_pickle=False)
         except Exception as e2:
-            print(f"Fallback loading also failed: {e2}")
+            logger.error(f"Fallback loading also failed: {e2}")
             return None
 
 def has_embeddings(text_path: str, language: str) -> bool:
@@ -216,7 +216,7 @@ def delete_embeddings(text_path: str, language: str) -> bool:
         
         return True
     except Exception as e:
-        print(f"Error deleting embeddings for {text_path}: {e}")
+        logger.error(f"Error deleting embeddings for {text_path}: {e}")
         return False
 
 def clear_all_embeddings() -> bool:
@@ -233,7 +233,7 @@ def clear_all_embeddings() -> bool:
         
         return True
     except Exception as e:
-        print(f"Error clearing embeddings: {e}")
+        logger.error(f"Error clearing embeddings: {e}")
         return False
 
 def list_missing_embeddings(corpus_texts: List[Dict]) -> List[Dict]:

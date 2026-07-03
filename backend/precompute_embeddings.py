@@ -13,6 +13,9 @@ import sys
 import glob
 import time
 from typing import List, Dict, Tuple
+from backend.logging_config import get_logger
+
+logger = get_logger('precompute_embeddings')
 
 def get_all_corpus_texts() -> List[Dict]:
     """Get all .tess files from the texts directories."""
@@ -61,7 +64,7 @@ def parse_tess_file(file_path: str) -> List[Dict]:
                                 'text': text
                             })
     except Exception as e:
-        print(f"Error parsing {file_path}: {e}")
+        logger.error(f"Error parsing {file_path}: {e}")
     
     return units
 
@@ -91,7 +94,7 @@ def compute_embeddings_for_text(text_path: str, language: str,
         success = save_embeddings(text_path, language, embeddings, refs)
         return success, len(texts)
     except Exception as e:
-        print(f"  Error computing embeddings: {e}")
+        logger.error(f"  Error computing embeddings: {e}")
         return False, 0
 
 def precompute_all(language: str = None, force: bool = False, 
