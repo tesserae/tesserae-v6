@@ -1,6 +1,7 @@
 """Memory-aware worker count for multiprocessing pools."""
 
 import os
+from backend.memory_util import get_available_memory_gb
 
 MAX_WORKERS = 4
 MIN_WORKERS = 2
@@ -13,15 +14,7 @@ def safe_worker_count(max_workers=MAX_WORKERS):
     Caps at MAX_WORKERS (4) by default. Drops to MIN_WORKERS (2)
     when available RAM is below LOW_MEMORY_GB (16 GB).
     """
-    try:
-        with open('/proc/meminfo') as f:
-            for line in f:
-                if line.startswith('MemAvailable:'):
-                    avail_kb = int(line.split()[1])
-                    avail_gb = avail_kb / (1024 * 1024)
-                    if avail_gb < LOW_MEMORY_GB:
-                        return MIN_WORKERS
-                    break
-    except (OSError, ValueError):
-        pass
+    avail_gb = get_available_memory_gb()
+    if avail_gb < LOW_MEMORY_GB and avail_gb != float('inf'):
+        return MIN_WORKERS
     return min(max_workers, os.cpu_count() or 2)

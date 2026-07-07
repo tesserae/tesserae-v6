@@ -12,6 +12,7 @@ import RequestsTab from './tabs/RequestsTab';
 import UsersTab from './tabs/UsersTab';
 import GenreClassificationTab from './tabs/GenreClassificationTab';
 import DictionaryReviewTab from './tabs/DictionaryReviewTab';
+import PerformanceTab from './tabs/PerformanceTab';
 import Repository from '../repository/Repository';
 
 const normalizeRole = (role) => (role || '').toString().trim().toUpperCase();
@@ -360,7 +361,7 @@ export default function AdminPanel() {
         <div className="bg-white rounded-lg shadow">
           <div className="border-b">
             <nav className="flex overflow-x-auto">
-              {['requests', 'feedback', 'users', 'sources', 'metadata', 'dictionary', 'cache', 'stats', 'analytics', 'audit', 'repository', 'settings', 'genres'].map(tab => (
+              {['requests', 'feedback', 'users', 'sources', 'metadata', 'dictionary', 'cache', 'stats', 'analytics', 'audit', 'repository', 'settings', 'genres', ...(adminRoles.map(r => r.toUpperCase()).includes('SUPER_ADMIN') ? ['performance'] : [])].map(tab => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -381,7 +382,8 @@ export default function AdminPanel() {
                    tab === 'stats' ? 'Stats' :
                    tab === 'analytics' ? 'Analytics' :
                    tab === 'audit' ? 'Audit' :
-                   tab === 'repository' ? 'Repository' : 'Settings'}
+                   tab === 'repository' ? 'Repository' :
+                   tab === 'performance' ? '⚡ Performance' : 'Settings'}
                 </button>
               ))}
             </nav>
@@ -458,6 +460,10 @@ export default function AdminPanel() {
 
             {activeTab === 'settings' && (
               <SettingsTab authHeaders={{}} />
+            )}
+
+            {activeTab === 'performance' && (
+              <PerformanceTab />
             )}
           </div>
         </div>

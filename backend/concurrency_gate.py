@@ -22,6 +22,12 @@ Crash safety:
 Configuration (environment variables):
     TESSERAE_MAX_HEAVY_SEARCHES  -- max concurrent heavy searches (default: 2)
     TESSERAE_MEMORY_THRESHOLD_GB -- min available GB to start a search (default: 8)
+    TESSERAE_QUEUE_TIMEOUT       -- max seconds to wait in queue (default: 300)
+    TESSERAE_QUEUE_POLL_INTERVAL -- seconds between retry attempts (default: 2.0)
+
+Runtime configuration:
+    Use ConcurrencyConfig class methods to adjust settings at runtime
+    without restarting the server (e.g., from admin API endpoints).
 
 Usage in an SSE generator:
     slot = SearchSlot()
@@ -41,7 +47,10 @@ Usage in a synchronous endpoint:
 import fcntl
 import os
 import time
+import threading
 import logging
+
+from backend.memory_util import get_available_memory_gb
 
 logger = logging.getLogger(__name__)
 
@@ -50,28 +59,6 @@ logger = logging.getLogger(__name__)
 _PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOCK_DIR = os.environ.get(
     'TESSERAE_LOCK_DIR', os.path.join(_PROJECT_ROOT, 'tmp', 'search_slots'))
-MAX_HEAVY_SEARCHES = int(os.environ.get(
-    'TESSERAE_MAX_HEAVY_SEARCHES', '2'))
-MEMORY_THRESHOLD_GB = float(os.environ.get(
-    'TESSERAE_MEMORY_THRESHOLD_GB', '8'))
-QUEUE_POLL_INTERVAL = 2.0   # seconds between retry attempts
-QUEUE_TIMEOUT = 300          # max seconds to wait in queue
-
-
-def available_memory_gb():
-    """Read available RAM in GB from /proc/meminfo.
-
-    Returns float('inf') if the file is unreadable, so the gate
-    fails open rather than blocking all searches.
-    """
-    try:
-        with open('/proc/meminfo') as f:
-            for line in f:
-                if line.startswith('MemAvailable:'):
-                    return int(line.split()[1]) / (1024 * 1024)
-    except (OSError, ValueError):
-        pass
-    return float('inf')
 
 
 def _ensure_lock_dir():
@@ -115,6 +102,135 @@ def _count_active_slots():
         except OSError:
             pass
     return active
+
+
+class ConcurrencyConfig:
+    """Thread-safe runtime-configurable concurrency settings."""
+    _lock = threading.Lock()
+
+    # Defaults (captured at import time from env vars)
+    _default_max = int(os.environ.get('TESSERAE_MAX_HEAVY_SEARCHES', '2'))
+    _default_mem = float(os.environ.get('TESSERAE_MEMORY_THRESHOLD_GB', '8'))
+    _default_timeout = float(os.environ.get('TESSERAE_QUEUE_TIMEOUT', '300'))
+    _default_poll = float(os.environ.get('TESSERAE_QUEUE_POLL_INTERVAL', '2.0'))
+
+    # Current values (mutable)
+    _max_heavy_searches = _default_max
+    _memory_threshold_gb = _default_mem
+    _queue_timeout = _default_timeout
+    _queue_poll_interval = _default_poll
+    _stress_test_mode = False
+
+    @classmethod
+    def get_max_searches(cls):
+        with cls._lock:
+            return cls._max_heavy_searches
+
+    @classmethod
+    def set_max_searches(cls, value):
+        value = int(value)
+        if not (1 <= value <= 50):
+            raise ValueError(f"max_searches must be between 1 and 50, got {value}")
+        with cls._lock:
+            cls._max_heavy_searches = value
+
+    @classmethod
+    def get_memory_threshold(cls):
+        with cls._lock:
+            return cls._memory_threshold_gb
+
+    @classmethod
+    def set_memory_threshold(cls, value):
+        value = float(value)
+        if not (0.5 <= value <= 128):
+            raise ValueError(f"memory_threshold_gb must be between 0.5 and 128, got {value}")
+        with cls._lock:
+            cls._memory_threshold_gb = value
+
+    @classmethod
+    def get_queue_timeout(cls):
+        with cls._lock:
+            return cls._queue_timeout
+
+    @classmethod
+    def set_queue_timeout(cls, value):
+        value = float(value)
+        if not (30 <= value <= 3600):
+            raise ValueError(f"queue_timeout must be between 30 and 3600, got {value}")
+        with cls._lock:
+            cls._queue_timeout = value
+
+    @classmethod
+    def get_queue_poll_interval(cls):
+        with cls._lock:
+            return cls._queue_poll_interval
+
+    @classmethod
+    def set_queue_poll_interval(cls, value):
+        value = float(value)
+        if not (0.5 <= value <= 10):
+            raise ValueError(f"queue_poll_interval must be between 0.5 and 10, got {value}")
+        with cls._lock:
+            cls._queue_poll_interval = value
+
+    @classmethod
+    def is_stress_test_mode(cls):
+        with cls._lock:
+            return cls._stress_test_mode
+
+    @classmethod
+    def set_stress_test_mode(cls, enabled: bool):
+        with cls._lock:
+            cls._stress_test_mode = bool(enabled)
+
+    @classmethod
+    def reset_to_defaults(cls):
+        with cls._lock:
+            cls._max_heavy_searches = cls._default_max
+            cls._memory_threshold_gb = cls._default_mem
+            cls._queue_timeout = cls._default_timeout
+            cls._queue_poll_interval = cls._default_poll
+            cls._stress_test_mode = False
+
+    @classmethod
+    def get_status(cls):
+        """Return config values plus live system data."""
+        with cls._lock:
+            config = {
+                'max_searches': cls._max_heavy_searches,
+                'memory_threshold_gb': cls._memory_threshold_gb,
+                'queue_timeout': cls._queue_timeout,
+                'queue_poll_interval': cls._queue_poll_interval,
+                'stress_test_mode': cls._stress_test_mode,
+                'active_searches': _count_active_slots(),
+                'available_memory_gb': round(get_available_memory_gb(), 1),
+                'defaults': {
+                    'max_searches': cls._default_max,
+                    'memory_threshold_gb': cls._default_mem,
+                    'queue_timeout': cls._default_timeout,
+                    'queue_poll_interval': cls._default_poll,
+                },
+            }
+        return config
+
+    @classmethod
+    def to_dict(cls):
+        """Return just the config values (no live data)."""
+        with cls._lock:
+            return {
+                'max_searches': cls._max_heavy_searches,
+                'memory_threshold_gb': cls._memory_threshold_gb,
+                'queue_timeout': cls._queue_timeout,
+                'queue_poll_interval': cls._queue_poll_interval,
+                'stress_test_mode': cls._stress_test_mode,
+            }
+
+
+# Backward-compatible module-level accessors (read from ConcurrencyConfig)
+MAX_HEAVY_SEARCHES = ConcurrencyConfig.get_max_searches()
+MEMORY_THRESHOLD_GB = ConcurrencyConfig.get_memory_threshold()
+QUEUE_POLL_INTERVAL = ConcurrencyConfig.get_queue_poll_interval()
+QUEUE_TIMEOUT = ConcurrencyConfig.get_queue_timeout()
 
 
 class SearchSlot:
@@ -174,17 +290,21 @@ class SearchSlot:
 
         Returns (ok, reason) where reason explains why we're blocked.
         """
-        mem_gb = available_memory_gb()
-        if mem_gb < MEMORY_THRESHOLD_GB:
-            return False, (
-                f"Server memory low ({mem_gb:.0f} GB available, "
-                f"need {MEMORY_THRESHOLD_GB:.0f} GB)")
+        # Memory check (skipped in stress test mode)
+        if not ConcurrencyConfig.is_stress_test_mode():
+            mem_gb = get_available_memory_gb()
+            threshold = ConcurrencyConfig.get_memory_threshold()
+            if mem_gb < threshold:
+                return False, (
+                    f"Server memory low ({mem_gb:.0f} GB available, "
+                    f"need {threshold:.0f} GB)")
 
+        max_searches = ConcurrencyConfig.get_max_searches()
         active = _count_active_slots()
-        if active >= MAX_HEAVY_SEARCHES:
+        if active >= max_searches:
             return False, (
                 f"Server is running {active} searches "
-                f"(max {MAX_HEAVY_SEARCHES})")
+                f"(max {max_searches})")
 
         return True, ""
 
@@ -195,7 +315,7 @@ class SearchSlot:
             {"status": "queued", "reason": "...", "wait_time": seconds_waited}
 
         When the generator returns (StopIteration), the slot is held.
-        Raises TimeoutError if QUEUE_TIMEOUT is exceeded.
+        Raises TimeoutError if queue_timeout is exceeded.
         """
         start = time.monotonic()
 
@@ -210,16 +330,17 @@ class SearchSlot:
                 return  # slot acquired, generator ends
 
             waited = time.monotonic() - start
-            if waited >= QUEUE_TIMEOUT:
+            queue_timeout = ConcurrencyConfig.get_queue_timeout()
+            if waited >= queue_timeout:
                 raise TimeoutError(
-                    f"Search queue timeout after {QUEUE_TIMEOUT}s: {reason}")
+                    f"Search queue timeout after {queue_timeout}s: {reason}")
 
             yield {
                 "status": "queued",
                 "reason": reason,
                 "wait_time": round(waited, 1),
             }
-            time.sleep(QUEUE_POLL_INTERVAL)
+            time.sleep(ConcurrencyConfig.get_queue_poll_interval())
 
     def release(self):
         """Explicitly release the slot. Safe to call multiple times."""
