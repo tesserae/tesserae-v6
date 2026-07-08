@@ -10,6 +10,8 @@ export default function AboutPage({ onNavigate }) {
       .catch(err => console.error('Failed to fetch version info:', err));
   }, []);
 
+  const currentYear = new Date().getFullYear();
+
   return (
     <div className="bg-white rounded-lg shadow p-4 sm:p-8">
       <h2 className="text-2xl font-semibold text-gray-900 mb-6">About Tesserae</h2>
@@ -341,9 +343,16 @@ export default function AboutPage({ onNavigate }) {
         <section>
           <h3 className="text-lg font-semibold text-gray-900 mb-3">Citation</h3>
           <div className="bg-gray-100 p-4 rounded font-mono text-sm">
-            Coffee, Neil. Tesserae V6: Intertextual and Literary Discovery. 
-            University at Buffalo, 2026. Available at: tesserae.caset.buffalo.edu
+            Coffee, Neil, Walter Scheirer, et al. Tesserae V6: Intertextual and
+            Literary Discovery. University at Buffalo, 2026{currentYear > 2026 ? `–${currentYear}` : ''}.
+            https://tesserae.caset.buffalo.edu
           </div>
+          <p className="text-sm text-gray-600 mt-3">
+            Please cite the full project on first reference, together with the
+            specific tool, corpus text, or query you used. Include the version
+            (currently {versionInfo.version}) and your access date, since the
+            corpus and tools are updated regularly.
+          </p>
         </section>
 
         {versionInfo.last_updated && (

@@ -452,3 +452,206 @@ class TestScoringConstants:
             "semantic", "rare_word", "syntax", "syntax_structural", "lemma_min1",
         }
         assert set(CHANNEL_WEIGHTS.keys()) == expected
+
+
+# ── Text Pair Frequency Baseline Tests ─────────────────────────────────────
+
+class TestTextPairFrequencyBaseline:
+    """Test calculations, routing, and database queries when using text_pair frequency baseline."""
+
+    def _make_channel_results(self, lemmas_and_dfs):
+        """Helper: create mock channel results for given lemmas.
+
+        lemmas_and_dfs: list of (lemma, source_word, target_word) tuples
+        """
+        matched_words = []
+        for lemma, sw, tw in lemmas_and_dfs:
+            matched_words.append({
+                "lemma": lemma,
+                "source_word": sw,
+                "target_word": tw,
+                "type": "lemma",
+                "similarity": 1.0,
+            })
+        return {
+            "lemma": [
+                {
+                    "source": {
+                        "ref": "luc. 1.1",
+                        "text": " ".join(l for l, _, _ in lemmas_and_dfs),
+                        "tokens": [l for l, _, _ in lemmas_and_dfs],
+                        "lemmas": [l for l, _, _ in lemmas_and_dfs],
+                        "highlight_indices": list(range(len(lemmas_and_dfs))),
+                    },
+                    "target": {
+                        "ref": "verg. aen. 1.1",
+                        "text": " ".join(l for l, _, _ in lemmas_and_dfs),
+                        "tokens": [l for l, _, _ in lemmas_and_dfs],
+                        "lemmas": [l for l, _, _ in lemmas_and_dfs],
+                        "highlight_indices": list(range(len(lemmas_and_dfs))),
+                    },
+                    "score": 1.0,
+                    "overall_score": 1.0,
+                    "matched_words": matched_words,
+                    "match_basis": "lemma",
+                }
+            ]
+        }
+
+    def test_text_pair_idf_scale_not_capped(self, monkeypatch):
+        """Verify _idf_scale is NOT capped at 2.0 for text_pair basis."""
+        from backend.fusion import fuse_results
+        import backend.fusion as fusion
+
+        # For text_pair with N=10 (tokens): _idf_scale = log(1429)/log(10) ≈ 3.15
+        # If capped at 2.0, score would be heavily penalized (rarity multiplier floor).
+        mock_freqs = {'rara': 6}
+        monkeypatch.setattr(fusion, '_get_text_pair_doc_freqs',
+                            lambda lemmas, s, t, lang: mock_freqs)
+        monkeypatch.setattr(fusion, '_get_text_pair_total_tokens', lambda s, t, lang: 10)
+        monkeypatch.setattr(fusion, '_get_total_texts', lambda lang: 1429)
+
+        channel_results = self._make_channel_results([('rara', 'rara', 'rara')])
+        results_uncapped = fuse_results(channel_results, freq_basis='text_pair',
+                                       source_id='src.tess', target_id='tgt.tess',
+                                       language='la')
+
+        # Compare to a standard corpus run where a tiny N=10 baseline is capped at 2.0
+        # By setting freq_basis='meter' (where N=10 and cap applies):
+        monkeypatch.setattr(fusion, '_get_text_meter', lambda tid: 'hexameter')
+        monkeypatch.setattr(fusion, '_get_meter_total_texts', lambda m, lang: 10)
+        monkeypatch.setattr(fusion, '_get_meter_doc_freqs', lambda l, m, lang: mock_freqs)
+        results_capped = fuse_results(channel_results, freq_basis='meter',
+                                     source_id='src.tess', target_id='tgt.tess',
+                                     language='la')
+
+        assert len(results_uncapped) == 1
+        assert len(results_capped) == 1
+        # The uncapped text-pair run must score significantly higher than the capped run
+        # because the rarity multiplier isn't artificially compressed by the 2.0 scaling cap.
+        assert results_uncapped[0]["fused_score"] > results_capped[0]["fused_score"]
+
+    def test_text_pair_fallback_when_no_ids(self, monkeypatch):
+        """Verify text_pair falls back to corpus when source_id/target_id are None."""
+        from backend.fusion import fuse_results
+        import backend.fusion as fusion
+
+        mock_corpus = {'verbum': 500}
+        monkeypatch.setattr(fusion, '_get_corpus_doc_freqs',
+                            lambda lemmas, lang: mock_corpus)
+        monkeypatch.setattr(fusion, '_get_total_texts', lambda lang: 1429)
+
+        channel_results = self._make_channel_results([('verbum', 'verbum', 'verbum')])
+
+        # Without source_id/target_id, it should fall back to corpus freqs
+        results_fallback = fuse_results(channel_results, freq_basis='text_pair',
+                                        source_id=None, target_id=None, language='la')
+
+        # Run direct corpus for comparison
+        results_corpus = fuse_results(channel_results, freq_basis='corpus',
+                                      source_id=None, target_id=None, language='la')
+
+        assert len(results_fallback) == 1
+        assert len(results_corpus) == 1
+        # Fallback to corpus means the scores should be identical
+        assert results_fallback[0]["fused_score"] == results_corpus[0]["fused_score"]
+
+    def test_text_pair_rare_vs_common_word_ordering(self, monkeypatch):
+        """Verify that a rare word scores higher than a common word under text_pair token frequency."""
+        from backend.fusion import fuse_results
+        import backend.fusion as fusion
+
+        monkeypatch.setattr(fusion, '_get_total_texts', lambda lang: 1429)
+        monkeypatch.setattr(fusion, '_get_text_pair_total_tokens', lambda s, t, lang: 50000)
+
+        # 1. Rare word
+        monkeypatch.setattr(fusion, '_get_text_pair_doc_freqs',
+                            lambda lemmas, s, t, lang: {'rare': 1})
+        channel_results_rare = self._make_channel_results([('rare', 'rare', 'rare')])
+        results_rare = fuse_results(channel_results_rare, freq_basis='text_pair',
+                                    source_id='src.tess', target_id='tgt.tess',
+                                    language='la')
+
+        # 2. Common word
+        monkeypatch.setattr(fusion, '_get_text_pair_doc_freqs',
+                            lambda lemmas, s, t, lang: {'common': 20000})
+        channel_results_common = self._make_channel_results([('common', 'common', 'common')])
+        results_common = fuse_results(channel_results_common, freq_basis='text_pair',
+                                      source_id='src.tess', target_id='tgt.tess',
+                                      language='la')
+
+        assert len(results_rare) == 1
+        assert len(results_common) == 1
+        # A rare word (tf=1) must outscore a common word (tf=20000) under local text-pair baseline
+        assert results_rare[0]["fused_score"] > results_common[0]["fused_score"]
+
+    def test_text_pair_same_text_edge_case(self, monkeypatch):
+        """Verify text_pair scores self-comparisons reasonably with token frequencies."""
+        from backend.fusion import fuse_results
+        import backend.fusion as fusion
+
+        mock_freqs = {'amor': 3000}
+        monkeypatch.setattr(fusion, '_get_text_pair_doc_freqs',
+                            lambda lemmas, s, t, lang: mock_freqs)
+        # For self-comparison, N = total tokens of 1 text
+        monkeypatch.setattr(fusion, '_get_text_pair_total_tokens', lambda s, t, lang: 10000 if s == t else 20000)
+        monkeypatch.setattr(fusion, '_get_total_texts', lambda lang: 1429)
+
+        channel_results = self._make_channel_results([('amor', 'amor', 'amor')])
+        
+        # Self-comparison (source_id == target_id, N=10000)
+        results_self = fuse_results(channel_results, freq_basis='text_pair',
+                                    source_id='same_text.tess',
+                                    target_id='same_text.tess', language='la')
+
+        # Cross-comparison (source_id != target_id, N=20000)
+        results_cross = fuse_results(channel_results, freq_basis='text_pair',
+                                     source_id='src.tess',
+                                     target_id='tgt.tess', language='la')
+
+        assert len(results_self) == 1
+        assert len(results_cross) == 1
+        # Self comparison shouldn't collapse to 0 anymore
+        assert results_self[0]["fused_score"] > 0
+        # Under token frequency, N=20000 vs N=10000 for the same word count (3000) means
+        # the word is proportionally rarer in the cross-comparison (N=20000), so it scores higher.
+        assert results_cross[0]["fused_score"] > results_self[0]["fused_score"]
+
+    def test_text_pair_real_db_query(self):
+        """Verify that _get_text_pair_doc_freqs successfully executes queries on a real SQLite database.
+
+        Requires data/inverted_index/en_index.db to be present.
+        """
+        import os
+        import pytest
+        from backend.fusion import _get_text_pair_doc_freqs
+
+        db_path = "data/inverted_index/en_index.db"
+        if not os.path.exists(db_path):
+            pytest.skip("en_index.db not found on disk, skipping real DB query test.")
+
+        # Test querying actual index for a known file present in standard en_index
+        text_id = "carroll.alice_in_wonderland.tess"
+        from backend.inverted_index import get_connection
+        conn = get_connection("en")
+        if conn:
+            cur = conn.cursor()
+            cur.execute("SELECT 1 FROM texts WHERE filename IN (?, ?) LIMIT 1", (text_id, text_id[:-5]))
+            if cur.fetchone() is None:
+                pytest.skip(f"{text_id} not found in en_index.db, skipping real DB query test.")
+        else:
+            pytest.skip("Could not open en_index.db via get_connection, skipping real DB query test.")
+        freqs = _get_text_pair_doc_freqs(
+            lemmas=["alice", "rabbit", "nonexistentword12345"],
+            source_id=text_id,
+            target_id=text_id,
+            language="en"
+        )
+
+        assert isinstance(freqs, dict)
+        # 'alice' and 'rabbit' should appear in the index for Alice in Wonderland
+        assert freqs.get("alice", 0) >= 1
+        assert freqs.get("rabbit", 0) >= 1
+        # Non-existent words should return 0 frequency
+        assert freqs.get("nonexistentword12345", 0) == 0
+

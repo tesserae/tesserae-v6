@@ -8,6 +8,9 @@ import json
 import math
 from collections import Counter
 from datetime import datetime
+from backend.logging_config import get_logger
+
+logger = get_logger('bigram_frequency')
 
 CACHE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'cache', 'bigrams')
 TEXTS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts')
@@ -64,8 +67,8 @@ def load_bigram_cache(language):
                 data = json.load(f)
                 _bigram_cache[language] = data
                 return data
-        except:
-            pass
+        except Exception as e:
+            logger.error(f"Failed to load bigram cache from {cache_path}: {e}")
     return None
 
 def get_bigram_cache(language):
