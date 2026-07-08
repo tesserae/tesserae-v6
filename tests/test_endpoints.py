@@ -25,9 +25,6 @@ if PROJECT_ROOT not in sys.path:
 from dotenv import load_dotenv
 load_dotenv(os.path.join(PROJECT_ROOT, '.env'))
 
-# Set direct server mode to enable /api prefix for API routes
-os.environ['TESSERAE_DIRECT_SERVER'] = '1'
-
 
 def check_db_connection(url):
     """Verify if a database URL is reachable via psycopg2."""
@@ -42,30 +39,29 @@ def check_db_connection(url):
         return False
 
 
-# Handle database port fallback if configured port (e.g. 5433) is unreachable
-db_url = os.environ.get('DATABASE_URL')
-if not check_db_connection(db_url):
-    # Search common fallback database locations on the host system
-    fallbacks = [
-        'postgresql://arpitsharma2010@localhost:5432/postgres',
-        'postgresql://postgres@localhost:5432/postgres',
-        'postgresql://localhost:5432/postgres'
-    ]
-    if db_url and ':5433/' in db_url:
-        fallbacks.insert(0, db_url.replace(':5433/', ':5432/'))
-
-    for fb in fallbacks:
-        if check_db_connection(fb):
-            os.environ['DATABASE_URL'] = fb
-            break
+# Determine if the database is available. If not, skip intertexts tests gracefully.
+db_unavailable = not check_db_connection(os.environ.get('DATABASE_URL'))
 
 
-def setup_module(module):
-    """Initialize mock caches and mini-index database to enable all search endpoints."""
-    # 1. Setup mock bigram cache for Latin
-    bigram_dir = os.path.join(PROJECT_ROOT, 'cache', 'bigrams')
+@pytest.fixture(scope="module", autouse=True)
+def mock_search_env(tmp_path_factory):
+    """
+    Module-scoped fixture to dynamically construct and configure a temporary
+    mock search index and bigram cache for Latin.
+    
+    NOTE: This mock index and cache data is hand-fabricated specifically for
+    endpoint integration tests and is not a replacement for full corpus/index validation.
+    """
+    # 1. Create temporary directories under pytest's temp path
+    tmp_dir = tmp_path_factory.mktemp("tesserae_test_data")
+    bigram_dir = tmp_dir / "cache" / "bigrams"
+    index_dir = tmp_dir / "data" / "inverted_index"
+    
     os.makedirs(bigram_dir, exist_ok=True)
-    bigram_path = os.path.join(bigram_dir, 'la_bigrams.json')
+    os.makedirs(index_dir, exist_ok=True)
+    
+    # 2. Write mock bigram cache for Latin
+    bigram_path = bigram_dir / "la_bigrams.json"
     mock_bigrams = {
         "language": "la",
         "frequencies": {
@@ -81,19 +77,9 @@ def setup_module(module):
     with open(bigram_path, 'w', encoding='utf-8') as f:
         json.dump(mock_bigrams, f)
 
-    # 2. Setup mock SQLite index for Latin ('la') to simulate pre-built search indexes
-    index_dir = os.path.join(PROJECT_ROOT, 'data', 'inverted_index')
-    os.makedirs(index_dir, exist_ok=True)
-    db_path = os.path.join(index_dir, 'la_index.db')
-    
-    # Remove existing index if any
-    if os.path.exists(db_path):
-        try:
-            os.remove(db_path)
-        except Exception:
-            pass
-
-    conn = sqlite3.connect(db_path)
+    # 3. Setup mock SQLite index for Latin ('la') to simulate pre-built search indexes
+    db_path = index_dir / "la_index.db"
+    conn = sqlite3.connect(str(db_path))
     cursor = conn.cursor()
     
     cursor.execute('''
@@ -145,8 +131,7 @@ def setup_module(module):
     postings_data.append(('hadriacas', 3, 'verg. ecl. 1.1', '[0]'))
     postings_data.append(('adriacas', 3, 'verg. ecl. 1.1', '[0]'))
     
-    # common words 'aspero', 'foedo', 'foederis' (and their lemmatized forms 'asper', 'asperus', 'foedus', 'foedum', 'foedera')
-    # in 8 distinct base works (1..8) -> not rare (> 5)
+    # common words 'aspero', 'foedo', 'foederis' (and their lemmatized forms) in 8 distinct base works -> not rare
     refs_by_id = {
         1: 'verg. aen. 1.1',
         2: 'luc. 1.1',
@@ -166,7 +151,7 @@ def setup_module(module):
         for lemma_var in ['foedo', 'foedus', 'foedum', 'foederis', 'foedera']:
             postings_data.append((lemma_var, t_id, ref, '[3]'))
         
-    # 'arma', 'uir', 'vir' in all 10 texts -> co-occur in all 10 texts (including part files)
+    # 'arma', 'uir', 'vir' in all 10 texts -> co-occur in all 10 texts
     for t_id in range(1, 11):
         ref = refs_by_id[t_id]
         postings_data.append(('arma', t_id, ref, '[5]'))
@@ -174,34 +159,48 @@ def setup_module(module):
         postings_data.append(('vir', t_id, ref, '[6]'))
         
     cursor.executemany('INSERT INTO postings VALUES (?, ?, ?, ?)', postings_data)
-    
     conn.commit()
     conn.close()
 
-
-def teardown_module(module):
-    """Clean up mock caches and SQLite database indices created during setup."""
-    bigram_path = os.path.join(PROJECT_ROOT, 'cache', 'bigrams', 'la_bigrams.json')
-    if os.path.exists(bigram_path):
-        try:
-            os.remove(bigram_path)
-        except Exception:
-            pass
-            
-    db_path = os.path.join(PROJECT_ROOT, 'data', 'inverted_index', 'la_index.db')
-    if os.path.exists(db_path):
-        try:
-            os.remove(db_path)
-        except Exception:
-            pass
+    # Monkeypatch the module paths to use our clean tmp folders
+    import backend.inverted_index
+    import backend.bigram_frequency
+    
+    old_index_dir = backend.inverted_index.INDEX_DIR
+    old_cache_dir = backend.bigram_frequency.CACHE_DIR
+    
+    backend.inverted_index.INDEX_DIR = str(index_dir)
+    backend.bigram_frequency.CACHE_DIR = str(bigram_dir)
+    
+    # Ensure caches are cleared so connections are opened on the new paths
+    backend.inverted_index._connections.clear()
+    backend.bigram_frequency._bigram_cache.clear()
+    
+    yield
+    
+    # Restore original paths
+    backend.inverted_index.INDEX_DIR = old_index_dir
+    backend.bigram_frequency.CACHE_DIR = old_cache_dir
+    backend.inverted_index._connections.clear()
+    backend.bigram_frequency._bigram_cache.clear()
 
 
 @pytest.fixture(scope="module")
 def client():
     """Module-scoped pytest fixture yielding the Flask test client."""
-    from backend.app import app
-    with app.test_client() as c:
-        yield c
+    # Move environment setup into the fixture to avoid import-time global side-effects
+    old_direct_server = os.environ.get('TESSERAE_DIRECT_SERVER')
+    os.environ['TESSERAE_DIRECT_SERVER'] = '1'
+    
+    try:
+        from backend.app import app
+        with app.test_client() as c:
+            yield c
+    finally:
+        if old_direct_server is None:
+            os.environ.pop('TESSERAE_DIRECT_SERVER', None)
+        else:
+            os.environ['TESSERAE_DIRECT_SERVER'] = old_direct_server
 
 
 def check_json(resp, min_keys=None):
@@ -527,10 +526,12 @@ def test_auth_user(client):
 
 # ── Repository (Intertexts) ───────────────────────────────────────
 
+@pytest.mark.skipif(db_unavailable, reason="Database connection not available")
 def test_intertexts_list(client):
     check_json(client.get("/api/intertexts"), min_keys=['intertexts'])
 
 
+@pytest.mark.skipif(db_unavailable, reason="Database connection not available")
 def test_intertexts_stats(client):
     check_json(client.get("/api/intertexts/stats"), min_keys=['total'])
 
