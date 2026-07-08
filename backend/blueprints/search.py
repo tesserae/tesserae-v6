@@ -912,8 +912,8 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
                         mw_entry['greek_lemma'] = g.get('source_lemma', '') if source_language == 'grc' else g.get('target_lemma', '')
                         mw_entry['latin_lemma'] = g.get('target_lemma', '') if source_language == 'grc' else g.get('source_lemma', '')
                     matched_words.append(mw_entry)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning(f"Failed to process cross-lingual match entry: {e}")
 
         # Add phonetic match highlighting
         if has_phonetic:
@@ -1331,8 +1331,7 @@ def search():
     except TimeoutError as e:
         return jsonify({"error": f"Server busy: {e}"}), 503
     except Exception as e:
-        import traceback
-        traceback.print_exc()
+        logger.exception(f"Search failed: {e}")
         return jsonify({"error": str(e)})
 
 
