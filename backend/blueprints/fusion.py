@@ -86,8 +86,8 @@ def search_fusion_stream():
             source_unit_type = data.get('source_unit_type', 'line')
             target_unit_type = data.get('target_unit_type', 'line')
             use_meter = data.get('use_meter', False)
-            freq_basis = data.get('freq_basis', 'corpus')  # corpus | meter
-            if freq_basis not in ('corpus', 'meter'):
+            freq_basis = data.get('freq_basis', 'corpus')  # corpus | meter | text_pair
+            if freq_basis not in ('corpus', 'meter', 'text_pair'):
                 freq_basis = 'corpus'
             if max_results <= 0:
                 max_results = 5000  # enforce cap for browser payload size
