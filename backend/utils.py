@@ -129,6 +129,8 @@ def save_metadata_overrides(overrides):
     try:
         with open(OVERRIDES_PATH, 'r', encoding='utf-8') as f:
             data = json.load(f)
+    except FileNotFoundError:
+        data = {}
     except Exception as e:
         logger.warning(f"Could not load existing metadata overrides: {e}")
         data = {}
@@ -384,7 +386,7 @@ def _estimate_text_type_from_content(filepath):
                 if text:
                     lengths.append(len(text))
     except Exception as e:
-        logger.warning(f"Could not detect meter for file: {e}")
+        logger.warning(f"Could not estimate text type from file '{filepath}': {e}")
         return None
 
     if not lengths:

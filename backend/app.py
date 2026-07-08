@@ -199,8 +199,8 @@ def get_processed_units(text_id, language, unit_type, text_processor):
         units_line = units if unit_type == 'line' else text_processor.process_file(filepath, language, 'line')
         units_phrase = units if unit_type == 'phrase' else text_processor.process_file(filepath, language, 'phrase')
         save_cached_units(resolved_id, language, units_line, units_phrase, file_hash)
-    except Exception as e:
-        app_logger.warning(f"Failed to save cached units for {resolved_id}: {e}")
+    except Exception:
+        app_logger.exception(f"Failed to save cached units for {resolved_id}")
 
     return units
 
