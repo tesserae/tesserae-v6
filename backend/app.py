@@ -106,8 +106,27 @@ if DEPLOYMENT_ENV == 'marvin' and not DIRECT_SERVER:
 
 # Create Flask app with static file serving
 app = Flask(__name__, static_folder=STATIC_FOLDER, static_url_path='')
-CORS(app, supports_credentials=True)  # Enable cross-origin requests
 
+# Secure CORS: Restrict to allowed origins instead of wildcard, defaulting to localhost and production domains
+ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get(
+        "TESSERAE_ALLOWED_ORIGINS",
+        "http://localhost:5173,http://localhost:5000,https://tesserae.caset.buffalo.edu,http://tesserae.caset.buffalo.edu"
+    ).split(",")
+    if origin.strip()
+]
+CORS(app, supports_credentials=True, origins=ALLOWED_ORIGINS)
+
+@app.after_request
+def add_security_headers(response):
+    """Add standard HTTP security headers to all API responses."""
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    # Only send HSTS outside of local dev to avoid sticky local browser issues
+    if DEPLOYMENT_ENV != 'dev':
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    return response
 
 def api_route(path, **kwargs):
     """Decorator for API routes that auto-prepends API_PREFIX.
@@ -123,6 +142,14 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0  # Disable caching for development
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {'pool_pre_ping': True, "pool_recycle": 300}
+
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+)
+if DEPLOYMENT_ENV != 'dev':
+    app.config['SESSION_COOKIE_SECURE'] = True
+
 
 # =============================================================================
 # DATABASE INITIALIZATION
@@ -570,8 +597,7 @@ def serve_static_downloads():
         downloads_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'downloads')
         try:
             return send_from_directory(downloads_dir, filepath)
-        except Exception as e:
-            app_logger.warning(f"Failed to serve download file '{filepath}': {e}")
+        except Exception:
             return jsonify({'error': 'File not found'}), 404
 
 @app.route('/legacy')
@@ -1207,7 +1233,8 @@ def search():
         })
         
     except Exception as e:
-        app_logger.exception(f"Pairwise search failed: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)})
 
 @api_route('/cache/stats')
@@ -1616,8 +1643,8 @@ def line_search():
                                         line_ref = line[1:tag_end]
                                         line_text = line[tag_end+1:].strip()
                                         file_lines_lookup[line_ref] = line_text
-                        except Exception as e:
-                            app_logger.warning(f"Failed to read text file for line search: {e}")
+                        except Exception:
+                            app_logger.exception(f"Error loading lines for {filename}")
                     
                     for ref, matching_lemmas, positions in matches:
                         result_key = (filename, ref)
@@ -1847,7 +1874,8 @@ def line_search():
             return jsonify({'error': 'Provide query or line_text'}), 400
             
     except Exception as e:
-        app_logger.exception(f"Line search failed: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 
@@ -2037,7 +2065,8 @@ def line_search_parallel():
         })
         
     except Exception as e:
-        app_logger.exception(f"Wildcard search failed: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 @api_route('/corpus-search', methods=['POST'])
@@ -2121,8 +2150,8 @@ def corpus_search():
                                     if line_ref in refs:
                                         line_text = line[end_tag+1:].strip()
                                         lines_data[line_ref] = {'text': line_text, 'tokens': [], 'lemmas': []}
-                except Exception as e:
-                    app_logger.warning(f"Failed to read text file for corpus search: {e}")
+                except Exception:
+                    app_logger.exception(f"Error loading text snippet for {filename}")
             
             for ref, matching_lemmas, positions in refs_data:
                 line_info = lines_data.get(ref, {})
@@ -2165,7 +2194,8 @@ def corpus_search():
         })
         
     except Exception as e:
-        app_logger.exception(f"Corpus search failed: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 @api_route('/request', methods=['POST'])
@@ -2194,8 +2224,7 @@ def submit_request():
                     try:
                         file.seek(0)
                         content = file.read().decode('latin-1')
-                    except Exception as e:
-                        app_logger.error(f"Failed to read file '{file.filename}': {e}")
+                    except:
                         return jsonify({'error': 'Could not read file. Please ensure it is a plain text file.'}), 400
     else:
         data = request.get_json() or {}
@@ -2877,4 +2906,6 @@ def create_app():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app_logger.info("Starting Tesserae V6 development server...")
+    debug_mode = os.environ.get("TESSERAE_DEBUG", "false").lower() == "true"
+    app.run(host="0.0.0.0", port=5000, debug=debug_mode)
