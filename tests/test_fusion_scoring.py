@@ -632,6 +632,15 @@ class TestTextPairFrequencyBaseline:
 
         # Test querying actual index for a known file present in standard en_index
         text_id = "carroll.alice_in_wonderland.tess"
+        from backend.inverted_index import get_connection
+        conn = get_connection("en")
+        if conn:
+            cur = conn.cursor()
+            cur.execute("SELECT 1 FROM texts WHERE filename IN (?, ?) LIMIT 1", (text_id, text_id[:-5]))
+            if cur.fetchone() is None:
+                pytest.skip(f"{text_id} not found in en_index.db, skipping real DB query test.")
+        else:
+            pytest.skip("Could not open en_index.db via get_connection, skipping real DB query test.")
         freqs = _get_text_pair_doc_freqs(
             lemmas=["alice", "rabbit", "nonexistentword12345"],
             source_id=text_id,

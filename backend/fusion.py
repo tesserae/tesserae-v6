@@ -1305,15 +1305,15 @@ def _get_meter_total_texts(meter, language='la'):
 
 
 def _get_text_pair_doc_freqs(lemmas, source_id, target_id, language='la'):
-    """Batch-fetch text-pair-specific document frequencies, with caching.
+    """Batch-fetch text-pair-specific token frequencies (term frequencies), with caching.
 
     Like _get_corpus_doc_freqs but restricted to the two compared texts.
     Queries the inverted index postings table filtered by text_ids that
     belong to the source and target texts.
 
-    Returns dict: lemma -> document count (0, 1, or 2) within the two texts.
+    Returns dict: lemma -> total token count across the two texts (0 if not found).
     """
-    cache_key = (source_id, target_id)
+    cache_key = (language, source_id, target_id)
     if cache_key not in _text_pair_doc_freq_cache:
         if len(_text_pair_doc_freq_cache) >= 100:
             # Evict oldest entry (FIFO) to limit memory growth
@@ -1437,7 +1437,7 @@ def _get_text_pair_doc_freqs(lemmas, source_id, target_id, language='la'):
 
 def _get_text_pair_total_tokens(source_id, target_id, language='la'):
     """Get the total number of tokens across both texts (cached)."""
-    cache_key = (source_id, target_id)
+    cache_key = (language, source_id, target_id)
     if cache_key in _text_pair_total_tokens_cache:
         return _text_pair_total_tokens_cache[cache_key]
 
@@ -1775,9 +1775,9 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
       "meter" — only texts sharing the same meter as source/target
                 (falls back to corpus if texts don't share a meter,
                 or if text_genres.csv lacks meter info)
-      "text_pair" — only the source and target texts (N=2).
-                    Bypasses IDF scaling cap so that words appearing
-                    in only one text get full corpus-calibrated IDF.
+      "text_pair" — token-frequency baseline over the source and target texts
+                    (N = total tokens across the pair). Bypasses IDF scaling cap
+                    so rare local terms can reach corpus-calibrated IDF values.
     source_id/target_id: filenames needed for meter and text_pair lookup.
     """
     _weights = weights if weights is not None else CHANNEL_WEIGHTS
