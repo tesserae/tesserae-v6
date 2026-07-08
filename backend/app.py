@@ -108,10 +108,14 @@ if DEPLOYMENT_ENV == 'marvin' and not DIRECT_SERVER:
 app = Flask(__name__, static_folder=STATIC_FOLDER, static_url_path='')
 
 # Secure CORS: Restrict to allowed origins instead of wildcard, defaulting to localhost and production domains
-ALLOWED_ORIGINS = os.environ.get(
-    "TESSERAE_ALLOWED_ORIGINS",
-    "http://localhost:5173,http://localhost:5000,https://tesserae.caset.buffalo.edu,http://tesserae.caset.buffalo.edu"
-).split(",")
+ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get(
+        "TESSERAE_ALLOWED_ORIGINS",
+        "http://localhost:5173,http://localhost:5000,https://tesserae.caset.buffalo.edu,http://tesserae.caset.buffalo.edu"
+    ).split(",")
+    if origin.strip()
+]
 CORS(app, supports_credentials=True, origins=ALLOWED_ORIGINS)
 
 @app.after_request
@@ -119,8 +123,8 @@ def add_security_headers(response):
     """Add standard HTTP security headers to all API responses."""
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-Frame-Options'] = 'DENY'
-    # Gate HSTS to production/HTTPS to avoid sticky local dev browser issues
-    if request.is_secure or DEPLOYMENT_ENV != 'dev':
+    # Only send HSTS outside of local dev to avoid sticky local browser issues
+    if DEPLOYMENT_ENV != 'dev':
         response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
     return response
 
@@ -222,8 +226,8 @@ def get_processed_units(text_id, language, unit_type, text_processor):
         units_line = units if unit_type == 'line' else text_processor.process_file(filepath, language, 'line')
         units_phrase = units if unit_type == 'phrase' else text_processor.process_file(filepath, language, 'phrase')
         save_cached_units(resolved_id, language, units_line, units_phrase, file_hash)
-    except Exception as e:
-        app_logger.warning(f"Failed to save cached units for {resolved_id}: {e}")
+    except Exception:
+        app_logger.exception(f"Failed to save cached units for {resolved_id}")
 
     return units
 
@@ -1639,8 +1643,8 @@ def line_search():
                                         line_ref = line[1:tag_end]
                                         line_text = line[tag_end+1:].strip()
                                         file_lines_lookup[line_ref] = line_text
-                        except Exception as e:
-                            app_logger.warning(f"Error loading lines for {text_id_str}: {e}")
+                        except Exception:
+                            app_logger.exception(f"Error loading lines for {filename}")
                     
                     for ref, matching_lemmas, positions in matches:
                         result_key = (filename, ref)
@@ -2146,8 +2150,8 @@ def corpus_search():
                                     if line_ref in refs:
                                         line_text = line[end_tag+1:].strip()
                                         lines_data[line_ref] = {'text': line_text, 'tokens': [], 'lemmas': []}
-                except Exception as e:
-                    app_logger.warning(f"Error loading text snippet for {filename}: {e}")
+                except Exception:
+                    app_logger.exception(f"Error loading text snippet for {filename}")
             
             for ref, matching_lemmas, positions in refs_data:
                 line_info = lines_data.get(ref, {})

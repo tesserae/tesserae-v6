@@ -8,6 +8,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 os.environ["SESSION_SECRET"] = "test-secret"
 os.environ["DEPLOYMENT_ENV"] = "test"
+os.environ["TESSERAE_DIRECT_SERVER"] = "1"
+os.environ["TESSERAE_ALLOWED_ORIGINS"] = "http://localhost:5173"
 
 from backend.app import app
 
@@ -29,9 +31,12 @@ def test_cors_headers_restrict_origins(client):
     # Allowed origin: should echo back
     headers = {'Origin': 'http://localhost:5173'}
     response = client.get('/api/texts', headers=headers)
+    # Don't fail the test if the endpoint returns 404 because of missing test data
+    assert response.status_code in [200, 404]
     assert response.headers.get('Access-Control-Allow-Origin') == 'http://localhost:5173'
 
     # Disallowed origin: should not echo back/should fail CORS
     headers = {'Origin': 'http://malicious.org'}
     response = client.get('/api/texts', headers=headers)
+    assert response.status_code in [200, 404]
     assert response.headers.get('Access-Control-Allow-Origin') is None
