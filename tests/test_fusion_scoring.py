@@ -503,11 +503,12 @@ class TestTextPairFrequencyBaseline:
         from backend.fusion import fuse_results
         import backend.fusion as fusion
 
-        # For text_pair with N=2: _idf_scale = log(1429)/log(2) ≈ 10.48
+        # For text_pair with N=10 (tokens): _idf_scale = log(1429)/log(10) ≈ 3.15
         # If capped at 2.0, score would be heavily penalized (rarity multiplier floor).
-        mock_freqs = {'rara': 1}
+        mock_freqs = {'rara': 6}
         monkeypatch.setattr(fusion, '_get_text_pair_doc_freqs',
                             lambda lemmas, s, t, lang: mock_freqs)
+        monkeypatch.setattr(fusion, '_get_text_pair_total_tokens', lambda s, t, lang: 10)
         monkeypatch.setattr(fusion, '_get_total_texts', lambda lang: 1429)
 
         channel_results = self._make_channel_results([('rara', 'rara', 'rara')])
@@ -515,9 +516,10 @@ class TestTextPairFrequencyBaseline:
                                        source_id='src.tess', target_id='tgt.tess',
                                        language='la')
 
-        # Compare to a standard corpus run where a tiny N=2 baseline is capped at 2.0
-        # By setting freq_basis='meter' (where N=2 and cap applies):
-        monkeypatch.setattr(fusion, '_get_meter_total_texts', lambda m, lang: 2)
+        # Compare to a standard corpus run where a tiny N=10 baseline is capped at 2.0
+        # By setting freq_basis='meter' (where N=10 and cap applies):
+        monkeypatch.setattr(fusion, '_get_text_meter', lambda tid: 'hexameter')
+        monkeypatch.setattr(fusion, '_get_meter_total_texts', lambda m, lang: 10)
         monkeypatch.setattr(fusion, '_get_meter_doc_freqs', lambda l, m, lang: mock_freqs)
         results_capped = fuse_results(channel_results, freq_basis='meter',
                                      source_id='src.tess', target_id='tgt.tess',
@@ -555,13 +557,14 @@ class TestTextPairFrequencyBaseline:
         assert results_fallback[0]["fused_score"] == results_corpus[0]["fused_score"]
 
     def test_text_pair_rare_vs_common_word_ordering(self, monkeypatch):
-        """Verify that a rare word (df=1) scores higher than a common word (df=2) under text_pair."""
+        """Verify that a rare word scores higher than a common word under text_pair token frequency."""
         from backend.fusion import fuse_results
         import backend.fusion as fusion
 
         monkeypatch.setattr(fusion, '_get_total_texts', lambda lang: 1429)
+        monkeypatch.setattr(fusion, '_get_text_pair_total_tokens', lambda s, t, lang: 50000)
 
-        # 1. Rare word (appears in only 1 of the 2 compared texts)
+        # 1. Rare word
         monkeypatch.setattr(fusion, '_get_text_pair_doc_freqs',
                             lambda lemmas, s, t, lang: {'rare': 1})
         channel_results_rare = self._make_channel_results([('rare', 'rare', 'rare')])
@@ -569,9 +572,9 @@ class TestTextPairFrequencyBaseline:
                                     source_id='src.tess', target_id='tgt.tess',
                                     language='la')
 
-        # 2. Common word (appears in both compared texts)
+        # 2. Common word
         monkeypatch.setattr(fusion, '_get_text_pair_doc_freqs',
-                            lambda lemmas, s, t, lang: {'common': 2})
+                            lambda lemmas, s, t, lang: {'common': 20000})
         channel_results_common = self._make_channel_results([('common', 'common', 'common')])
         results_common = fuse_results(channel_results_common, freq_basis='text_pair',
                                       source_id='src.tess', target_id='tgt.tess',
@@ -579,35 +582,40 @@ class TestTextPairFrequencyBaseline:
 
         assert len(results_rare) == 1
         assert len(results_common) == 1
-        # A rare word (df=1) must outscore a common word (df=2) under local text-pair baseline
+        # A rare word (tf=1) must outscore a common word (tf=20000) under local text-pair baseline
         assert results_rare[0]["fused_score"] > results_common[0]["fused_score"]
 
     def test_text_pair_same_text_edge_case(self, monkeypatch):
-        """When source == target, total_texts should be 1 (collapsing all IDFs to 0), scoring lower."""
+        """Verify text_pair scores self-comparisons reasonably with token frequencies."""
         from backend.fusion import fuse_results
         import backend.fusion as fusion
 
-        mock_freqs = {'amor': 1}
+        mock_freqs = {'amor': 3000}
         monkeypatch.setattr(fusion, '_get_text_pair_doc_freqs',
                             lambda lemmas, s, t, lang: mock_freqs)
+        # For self-comparison, N = total tokens of 1 text
+        monkeypatch.setattr(fusion, '_get_text_pair_total_tokens', lambda s, t, lang: 10000 if s == t else 20000)
         monkeypatch.setattr(fusion, '_get_total_texts', lambda lang: 1429)
 
         channel_results = self._make_channel_results([('amor', 'amor', 'amor')])
         
-        # Self-comparison (source_id == target_id, N=1, log(1)=0, penalty floor applied)
+        # Self-comparison (source_id == target_id, N=10000)
         results_self = fuse_results(channel_results, freq_basis='text_pair',
                                     source_id='same_text.tess',
                                     target_id='same_text.tess', language='la')
 
-        # Cross-comparison (source_id != target_id, N=2, no local penalty)
+        # Cross-comparison (source_id != target_id, N=20000)
         results_cross = fuse_results(channel_results, freq_basis='text_pair',
                                      source_id='src.tess',
                                      target_id='tgt.tess', language='la')
 
         assert len(results_self) == 1
         assert len(results_cross) == 1
-        # Comparing a text against itself must penalize the score significantly compared to cross-text
-        assert results_self[0]["fused_score"] < results_cross[0]["fused_score"]
+        # Self comparison shouldn't collapse to 0 anymore
+        assert results_self[0]["fused_score"] > 0
+        # Under token frequency, N=20000 vs N=10000 for the same word count (3000) means
+        # the word is proportionally rarer in the cross-comparison (N=20000), so it scores higher.
+        assert results_cross[0]["fused_score"] > results_self[0]["fused_score"]
 
     def test_text_pair_real_db_query(self):
         """Verify that _get_text_pair_doc_freqs successfully executes queries on a real SQLite database.

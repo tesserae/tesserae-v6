@@ -1101,6 +1101,7 @@ _meter_total_texts_cache = {}  # meter -> int
 _text_genre_cache = None     # filename -> row dict from text_genres.csv
 _meter_text_ids_cache = {}   # meter -> set of text_ids in the index
 _text_pair_doc_freq_cache = {}  # (source_id, target_id) -> {lemma: doc_freq}
+_text_pair_total_tokens_cache = {}  # (source_id, target_id) -> int
 
 
 def _load_text_genres():
@@ -1387,7 +1388,7 @@ def _get_text_pair_doc_freqs(lemmas, source_id, target_id, language='la'):
             batch = all_variants[i:i + batch_size]
             lemma_ph = ','.join(['?' for _ in batch])
             tid_ph = ','.join(['?' for _ in text_ids])
-            sql = (f'SELECT lemma, COUNT(DISTINCT text_id) FROM postings '
+            sql = (f'SELECT lemma, SUM(LENGTH(positions) - LENGTH(REPLACE(positions, ",", "")) + 1) FROM postings '
                    f'WHERE lemma IN ({lemma_ph}) AND text_id IN ({tid_ph}) '
                    f'GROUP BY lemma')
             cursor.execute(sql, batch + text_ids)
@@ -1432,6 +1433,50 @@ def _get_text_pair_doc_freqs(lemmas, source_id, target_id, language='la'):
             pair_cache[l] = pair_cache.get(l, 0)
 
     return {l: pair_cache.get(l, 0) for l in lemmas}
+
+
+def _get_text_pair_total_tokens(source_id, target_id, language='la'):
+    """Get the total number of tokens across both texts (cached)."""
+    cache_key = (source_id, target_id)
+    if cache_key in _text_pair_total_tokens_cache:
+        return _text_pair_total_tokens_cache[cache_key]
+
+    try:
+        from backend.inverted_index import get_connection
+        conn = get_connection(language)
+        if not conn:
+            return 2  # fallback
+
+        cursor = conn.cursor()
+
+        filenames = [source_id, target_id]
+        if source_id.endswith('.tess'): filenames.append(source_id[:-5])
+        else: filenames.append(source_id + '.tess')
+        if target_id.endswith('.tess'): filenames.append(target_id[:-5])
+        else: filenames.append(target_id + '.tess')
+
+        ph = ','.join(['?' for _ in filenames])
+        cursor.execute(f"SELECT text_id FROM texts WHERE filename IN ({ph})", filenames)
+        text_ids = [row[0] for row in cursor.fetchall()]
+
+        if not text_ids:
+            return 2
+
+        tid_ph = ','.join(['?' for _ in text_ids])
+        sql = f"SELECT SUM(LENGTH(positions) - LENGTH(REPLACE(positions, ',', '')) + 1) FROM postings WHERE text_id IN ({tid_ph}) AND lemma NOT LIKE '[%'"
+        cursor.execute(sql, text_ids)
+        row = cursor.fetchone()
+        total_tokens = row[0] if row and row[0] else 2
+
+        if len(_text_pair_total_tokens_cache) >= 100:
+            oldest_key = next(iter(_text_pair_total_tokens_cache))
+            _text_pair_total_tokens_cache.pop(oldest_key, None)
+
+        _text_pair_total_tokens_cache[cache_key] = total_tokens
+        return total_tokens
+    except Exception as e:
+        logger.error(f"[TEXT PAIR TOTAL TOKENS] Query failed: {e}")
+        return 2
 
 
 def _get_headword_map(language='la'):
@@ -1889,16 +1934,15 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
         elif _effective_freq_basis == 'text_pair':
             doc_freq_map = _get_text_pair_doc_freqs(
                 list(all_lexical_lemmas), source_id, target_id, language)
-            # total_texts is the actual number of distinct texts resolved.
-            # Normally 2, but 1 if source == target (same text vs itself).
-            total_texts = 2 if source_id != target_id else 1
+            # total_texts is the total number of tokens in the pair of texts.
+            total_texts = _get_text_pair_total_tokens(source_id, target_id, language)
         else:
             total_texts = _get_total_texts(language)
             doc_freq_map = _get_corpus_doc_freqs(
                 list(all_lexical_lemmas), language)
     else:
         if _effective_freq_basis == 'text_pair':
-            total_texts = 2 if source_id != target_id else 1
+            total_texts = _get_text_pair_total_tokens(source_id, target_id, language)
         else:
             total_texts = 1429
         doc_freq_map = {}
