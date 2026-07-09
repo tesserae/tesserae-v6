@@ -45,6 +45,7 @@ Usage in a synchronous endpoint:
 """
 
 import fcntl
+import json
 import os
 import time
 import threading
@@ -105,7 +106,12 @@ def _count_active_slots():
 
 
 class ConcurrencyConfig:
-    """Thread-safe runtime-configurable concurrency settings."""
+    """Runtime-configurable concurrency settings shared across worker processes.
+
+    Settings are persisted to a shared JSON file so that all Apache mod_wsgi
+    worker processes read the same values.  A short in-process cache (5 s)
+    avoids hitting the filesystem on every search check.
+    """
     _lock = threading.Lock()
 
     # Defaults (captured at import time from env vars)
@@ -114,17 +120,109 @@ class ConcurrencyConfig:
     _default_timeout = float(os.environ.get('TESSERAE_QUEUE_TIMEOUT', '300'))
     _default_poll = float(os.environ.get('TESSERAE_QUEUE_POLL_INTERVAL', '2.0'))
 
-    # Current values (mutable)
-    _max_heavy_searches = _default_max
-    _memory_threshold_gb = _default_mem
-    _queue_timeout = _default_timeout
-    _queue_poll_interval = _default_poll
-    _stress_test_mode = False
+    # Shared config file — lives next to lock files, accessible to all workers
+    _CONFIG_FILE = os.path.join(_PROJECT_ROOT, 'data', 'concurrency_config.json')
+
+    # In-process cache with TTL
+    _cache = None           # dict or None
+    _cache_ts = 0.0         # monotonic timestamp of last file read
+    _CACHE_TTL = 5.0        # seconds before re-reading the file
+
+    # ------------------------------------------------------------------
+    # Internal: file I/O helpers
+    # ------------------------------------------------------------------
+
+    @classmethod
+    def _read_file(cls):
+        """Read config from shared JSON file; return dict or None."""
+        try:
+            with open(cls._CONFIG_FILE, 'r') as f:
+                return json.load(f)
+        except (OSError, ValueError, json.JSONDecodeError):
+            return None
+
+    @classmethod
+    def _write_file(cls, data):
+        """Atomically write config to the shared JSON file."""
+        os.makedirs(os.path.dirname(cls._CONFIG_FILE), exist_ok=True)
+        tmp_path = cls._CONFIG_FILE + '.tmp'
+        try:
+            with open(tmp_path, 'w') as f:
+                json.dump(data, f, indent=2)
+            os.replace(tmp_path, cls._CONFIG_FILE)   # atomic on POSIX
+        except OSError as e:
+            logger.error("Failed to write concurrency config file: %s", e)
+
+    @classmethod
+    def _get_cached_config(cls):
+        """Return current config, refreshing from file if cache is stale."""
+        now = time.monotonic()
+        if cls._cache is not None and (now - cls._cache_ts) < cls._CACHE_TTL:
+            return cls._cache
+
+        file_data = cls._read_file()
+        if file_data is not None:
+            cls._cache = file_data
+            cls._cache_ts = now
+            return cls._cache
+
+        # No file yet — return env-var defaults
+        defaults = cls._defaults_dict()
+        cls._cache = defaults
+        cls._cache_ts = now
+        return defaults
+
+    @classmethod
+    def _defaults_dict(cls):
+        return {
+            'max_searches': cls._default_max,
+            'memory_threshold_gb': cls._default_mem,
+            'queue_timeout': cls._default_timeout,
+            'queue_poll_interval': cls._default_poll,
+            'stress_test_mode': False,
+        }
+
+    @classmethod
+    def _update_and_persist(cls, key, value):
+        """Update one key, write to file, and bust the cache."""
+        cfg = cls._get_cached_config().copy()
+        cfg[key] = value
+        cls._write_file(cfg)
+        cls._cache = cfg
+        cls._cache_ts = time.monotonic()
+
+    # ------------------------------------------------------------------
+    # Public getters (read through cache → shared file)
+    # ------------------------------------------------------------------
 
     @classmethod
     def get_max_searches(cls):
         with cls._lock:
-            return cls._max_heavy_searches
+            return cls._get_cached_config().get('max_searches', cls._default_max)
+
+    @classmethod
+    def get_memory_threshold(cls):
+        with cls._lock:
+            return cls._get_cached_config().get('memory_threshold_gb', cls._default_mem)
+
+    @classmethod
+    def get_queue_timeout(cls):
+        with cls._lock:
+            return cls._get_cached_config().get('queue_timeout', cls._default_timeout)
+
+    @classmethod
+    def get_queue_poll_interval(cls):
+        with cls._lock:
+            return cls._get_cached_config().get('queue_poll_interval', cls._default_poll)
+
+    @classmethod
+    def is_stress_test_mode(cls):
+        with cls._lock:
+            return cls._get_cached_config().get('stress_test_mode', False)
+
+    # ------------------------------------------------------------------
+    # Public setters (validate, persist to file, bust cache)
+    # ------------------------------------------------------------------
 
     @classmethod
     def set_max_searches(cls, value):
@@ -132,12 +230,7 @@ class ConcurrencyConfig:
         if not (1 <= value <= 50):
             raise ValueError(f"max_searches must be between 1 and 50, got {value}")
         with cls._lock:
-            cls._max_heavy_searches = value
-
-    @classmethod
-    def get_memory_threshold(cls):
-        with cls._lock:
-            return cls._memory_threshold_gb
+            cls._update_and_persist('max_searches', value)
 
     @classmethod
     def set_memory_threshold(cls, value):
@@ -145,12 +238,7 @@ class ConcurrencyConfig:
         if not (0.5 <= value <= 128):
             raise ValueError(f"memory_threshold_gb must be between 0.5 and 128, got {value}")
         with cls._lock:
-            cls._memory_threshold_gb = value
-
-    @classmethod
-    def get_queue_timeout(cls):
-        with cls._lock:
-            return cls._queue_timeout
+            cls._update_and_persist('memory_threshold_gb', value)
 
     @classmethod
     def set_queue_timeout(cls, value):
@@ -158,12 +246,7 @@ class ConcurrencyConfig:
         if not (30 <= value <= 3600):
             raise ValueError(f"queue_timeout must be between 30 and 3600, got {value}")
         with cls._lock:
-            cls._queue_timeout = value
-
-    @classmethod
-    def get_queue_poll_interval(cls):
-        with cls._lock:
-            return cls._queue_poll_interval
+            cls._update_and_persist('queue_timeout', value)
 
     @classmethod
     def set_queue_poll_interval(cls, value):
@@ -171,37 +254,36 @@ class ConcurrencyConfig:
         if not (0.5 <= value <= 10):
             raise ValueError(f"queue_poll_interval must be between 0.5 and 10, got {value}")
         with cls._lock:
-            cls._queue_poll_interval = value
-
-    @classmethod
-    def is_stress_test_mode(cls):
-        with cls._lock:
-            return cls._stress_test_mode
+            cls._update_and_persist('queue_poll_interval', value)
 
     @classmethod
     def set_stress_test_mode(cls, enabled: bool):
         with cls._lock:
-            cls._stress_test_mode = bool(enabled)
+            cls._update_and_persist('stress_test_mode', bool(enabled))
+
+    # ------------------------------------------------------------------
+    # Reset / status
+    # ------------------------------------------------------------------
 
     @classmethod
     def reset_to_defaults(cls):
         with cls._lock:
-            cls._max_heavy_searches = cls._default_max
-            cls._memory_threshold_gb = cls._default_mem
-            cls._queue_timeout = cls._default_timeout
-            cls._queue_poll_interval = cls._default_poll
-            cls._stress_test_mode = False
+            defaults = cls._defaults_dict()
+            cls._write_file(defaults)
+            cls._cache = defaults
+            cls._cache_ts = time.monotonic()
 
     @classmethod
     def get_status(cls):
         """Return config values plus live system data."""
         with cls._lock:
-            config = {
-                'max_searches': cls._max_heavy_searches,
-                'memory_threshold_gb': cls._memory_threshold_gb,
-                'queue_timeout': cls._queue_timeout,
-                'queue_poll_interval': cls._queue_poll_interval,
-                'stress_test_mode': cls._stress_test_mode,
+            cfg = cls._get_cached_config()
+            return {
+                'max_searches': cfg.get('max_searches', cls._default_max),
+                'memory_threshold_gb': cfg.get('memory_threshold_gb', cls._default_mem),
+                'queue_timeout': cfg.get('queue_timeout', cls._default_timeout),
+                'queue_poll_interval': cfg.get('queue_poll_interval', cls._default_poll),
+                'stress_test_mode': cfg.get('stress_test_mode', False),
                 'active_searches': _count_active_slots(),
                 'available_memory_gb': round(get_available_memory_gb(), 1),
                 'defaults': {
@@ -211,18 +293,18 @@ class ConcurrencyConfig:
                     'queue_poll_interval': cls._default_poll,
                 },
             }
-        return config
 
     @classmethod
     def to_dict(cls):
         """Return just the config values (no live data)."""
         with cls._lock:
+            cfg = cls._get_cached_config()
             return {
-                'max_searches': cls._max_heavy_searches,
-                'memory_threshold_gb': cls._memory_threshold_gb,
-                'queue_timeout': cls._queue_timeout,
-                'queue_poll_interval': cls._queue_poll_interval,
-                'stress_test_mode': cls._stress_test_mode,
+                'max_searches': cfg.get('max_searches', cls._default_max),
+                'memory_threshold_gb': cfg.get('memory_threshold_gb', cls._default_mem),
+                'queue_timeout': cfg.get('queue_timeout', cls._default_timeout),
+                'queue_poll_interval': cfg.get('queue_poll_interval', cls._default_poll),
+                'stress_test_mode': cfg.get('stress_test_mode', False),
             }
 
 
