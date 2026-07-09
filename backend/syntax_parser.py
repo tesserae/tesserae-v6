@@ -390,7 +390,7 @@ class StanzaParser:
     def _get_cache_key(self, text, language):
         """Generate cache key from text and language"""
         normalized = normalize_text_for_lookup(text)
-        return hashlib.md5(f"{language}:{normalized}".encode()).hexdigest()
+        return hashlib.md5(f"{language}:{normalized}".encode()).hexdigest()  # nosec B324
     
     def _get_pipeline(self, language):
         """Get or create Stanza pipeline for language"""

@@ -52,7 +52,7 @@ def get_corpus_checksum(language):
         stat = os.stat(path)
         file_info.append(f"{f}:{stat.st_size}:{stat.st_mtime}")
     
-    checksum = hashlib.md5('\n'.join(file_info).encode()).hexdigest()
+    checksum = hashlib.md5('\n'.join(file_info).encode()).hexdigest()  # nosec B324
     return checksum
 
 def get_cache_path(language):

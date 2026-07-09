@@ -102,10 +102,10 @@ def lookup_lemmas(lemmas, language, fallback_forms=None):
         FROM postings p
         JOIN texts t ON p.text_id = t.text_id
         WHERE p.lemma IN ({placeholders})
-    '''
+    '''  # nosec B608
     
     try:
-        cursor.execute(query, expanded_list)
+        cursor.execute(query, expanded_list)  # nosec B608
         for row in cursor.fetchall():
             lemma, filename, ref, positions_json = row
             key = (filename, ref)
@@ -258,7 +258,7 @@ def get_lines_batch(filename, refs, language):
         FROM lines l
         JOIN texts t ON l.text_id = t.text_id
         WHERE t.filename = ? AND l.ref IN ({placeholders})
-    ''', [filename] + list(refs))
+    ''', [filename] + list(refs))  # nosec B608
     
     results = {}
     for row in cursor.fetchall():

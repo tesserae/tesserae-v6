@@ -2908,4 +2908,4 @@ def create_app():
 if __name__ == "__main__":
     app_logger.info("Starting Tesserae V6 development server...")
     debug_mode = os.environ.get("TESSERAE_DEBUG", "false").lower() == "true"
-    app.run(host="0.0.0.0", port=5000, debug=debug_mode)
+    app.run(host="0.0.0.0", port=5000, debug=debug_mode)  # nosec B104

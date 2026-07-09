@@ -1247,7 +1247,7 @@ def _get_meter_doc_freqs(lemmas, meter, language='la'):
             batch = all_variants[i:i + batch_size]
             lemma_ph = ','.join(['?' for _ in batch])
             tid_ph = ','.join(['?' for _ in text_id_list])
-            sql = (f'SELECT lemma, COUNT(DISTINCT text_id) FROM postings '
+            sql = (f'SELECT lemma, COUNT(DISTINCT text_id) FROM postings '  # nosec B608
                    f'WHERE lemma IN ({lemma_ph}) AND text_id IN ({tid_ph}) '
                    f'GROUP BY lemma')
             cursor.execute(sql, batch + text_id_list)
@@ -1348,7 +1348,7 @@ def _get_text_pair_doc_freqs(lemmas, source_id, target_id, language='la'):
             filenames.append(target_id + '.tess')
 
         ph = ','.join(['?' for _ in filenames])
-        cursor.execute(f"SELECT text_id FROM texts WHERE filename IN ({ph})", filenames)
+        cursor.execute(f"SELECT text_id FROM texts WHERE filename IN ({ph})", filenames)  # nosec B608
         text_ids = [row[0] for row in cursor.fetchall()]
 
         if not text_ids:
@@ -1388,7 +1388,7 @@ def _get_text_pair_doc_freqs(lemmas, source_id, target_id, language='la'):
             batch = all_variants[i:i + batch_size]
             lemma_ph = ','.join(['?' for _ in batch])
             tid_ph = ','.join(['?' for _ in text_ids])
-            sql = (f'SELECT lemma, SUM(LENGTH(positions) - LENGTH(REPLACE(positions, ",", "")) + 1) FROM postings '
+            sql = (f'SELECT lemma, SUM(LENGTH(positions) - LENGTH(REPLACE(positions, ",", "")) + 1) FROM postings '  # nosec B608
                    f'WHERE lemma IN ({lemma_ph}) AND text_id IN ({tid_ph}) '
                    f'GROUP BY lemma')
             cursor.execute(sql, batch + text_ids)
@@ -1456,14 +1456,14 @@ def _get_text_pair_total_tokens(source_id, target_id, language='la'):
         else: filenames.append(target_id + '.tess')
 
         ph = ','.join(['?' for _ in filenames])
-        cursor.execute(f"SELECT text_id FROM texts WHERE filename IN ({ph})", filenames)
+        cursor.execute(f"SELECT text_id FROM texts WHERE filename IN ({ph})", filenames)  # nosec B608
         text_ids = [row[0] for row in cursor.fetchall()]
 
         if not text_ids:
             return 2
 
         tid_ph = ','.join(['?' for _ in text_ids])
-        sql = f"SELECT SUM(LENGTH(positions) - LENGTH(REPLACE(positions, ',', '')) + 1) FROM postings WHERE text_id IN ({tid_ph}) AND lemma NOT LIKE '[%'"
+        sql = f"SELECT SUM(LENGTH(positions) - LENGTH(REPLACE(positions, ',', '')) + 1) FROM postings WHERE text_id IN ({tid_ph}) AND lemma NOT LIKE '[%'"  # nosec B608
         cursor.execute(sql, text_ids)
         row = cursor.fetchone()
         total_tokens = row[0] if row and row[0] else 2

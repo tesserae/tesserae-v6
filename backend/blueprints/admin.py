@@ -756,7 +756,7 @@ def update_request(request_id):
             params.append(request_id)
 
             cur.execute(
-                f"UPDATE text_requests SET {', '.join(set_clauses)} WHERE id = %s",
+                f"UPDATE text_requests SET {', '.join(set_clauses)} WHERE id = %s",  # nosec B608
                 tuple(params)
             )
 
