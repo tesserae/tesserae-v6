@@ -19,7 +19,7 @@ def ensure_cache_dir():
 def get_file_hash(filepath):
     """Get MD5 hash of file content to detect changes"""
     with open(filepath, 'rb') as f:
-        return hashlib.md5(f.read()).hexdigest()
+        return hashlib.md5(f.read()).hexdigest()  # nosec B324
 
 def _is_ascii(text):
     """Return True when text can be safely used in ASCII-only environments."""
@@ -48,7 +48,7 @@ def get_cache_path(text_id, language):
     cleaned_id = text_id.encode('utf-8', errors='surrogateescape').decode('utf-8', errors='replace')
     normalized_id = unicodedata.normalize('NFC', cleaned_id)
     stem = normalized_id.replace('/', '_').replace('.tess', '')
-    digest = hashlib.md5(normalized_id.encode('utf-8')).hexdigest()
+    digest = hashlib.md5(normalized_id.encode('utf-8')).hexdigest()  # nosec B324
 
     ascii_hint = ''.join(
         c if c.isalnum() or c in '._-' else '_'

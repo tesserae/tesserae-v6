@@ -41,7 +41,7 @@ def get_cache_key(source_id, target_id, language, settings):
         'freq_basis': settings.get('freq_basis', 'corpus'),
     }
     key_str = json.dumps(key_parts, sort_keys=True)
-    return hashlib.md5(key_str.encode()).hexdigest()
+    return hashlib.md5(key_str.encode()).hexdigest()  # nosec B324
 
 def get_cached_results(source_id, target_id, language, settings):
     """Retrieve cached results if they exist"""

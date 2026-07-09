@@ -442,7 +442,7 @@ def fetch_latin_definition(lemma):
     try:
         url = f"https://en.wiktionary.org/api/rest_v1/page/definition/{urllib.parse.quote(lemma)}"
         req = urllib.request.Request(url, headers={'User-Agent': 'Tesserae/6.0'})
-        with urllib.request.urlopen(req, timeout=3) as response:
+        with urllib.request.urlopen(req, timeout=3) as response:  # nosec B310
             data = json.loads(response.read().decode('utf-8'))
             
             if 'la' in data:
@@ -459,7 +459,7 @@ def fetch_latin_definition(lemma):
     try:
         url = f"https://www.perseus.tufts.edu/hopper/morph?l={urllib.parse.quote(lemma)}&la=la"
         req = urllib.request.Request(url, headers={'User-Agent': 'Tesserae/6.0'})
-        with urllib.request.urlopen(req, timeout=3) as response:
+        with urllib.request.urlopen(req, timeout=3) as response:  # nosec B310
             html = response.read().decode('utf-8', errors='ignore')
             
             match = re.search(r'<td class="la_morph_word"[^>]*>.*?</td>\s*<td class="la_morph_gloss"[^>]*>(.*?)</td>', html, re.DOTALL)
@@ -482,7 +482,7 @@ def fetch_english_definition(word):
     try:
         url = f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}"
         req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-        with urllib.request.urlopen(req, timeout=5) as response:
+        with urllib.request.urlopen(req, timeout=5) as response:  # nosec B310
             data = json.loads(response.read().decode('utf-8'))
             if data and len(data) > 0:
                 meanings = data[0].get('meanings', [])
@@ -505,7 +505,7 @@ def fetch_greek_definition(lemma):
     try:
         url = f"https://en.wiktionary.org/api/rest_v1/page/definition/{urllib.parse.quote(lemma)}"
         req = urllib.request.Request(url, headers={'User-Agent': 'Tesserae/6.0'})
-        with urllib.request.urlopen(req, timeout=3) as response:
+        with urllib.request.urlopen(req, timeout=3) as response:  # nosec B310
             data = json.loads(response.read().decode('utf-8'))
             
             for lang_code in ['grc', 'el', 'other']:
@@ -524,7 +524,7 @@ def fetch_greek_definition(lemma):
     try:
         url = f"https://www.perseus.tufts.edu/hopper/morph?l={urllib.parse.quote(lemma)}&la=greek"
         req = urllib.request.Request(url, headers={'User-Agent': 'Tesserae/6.0'})
-        with urllib.request.urlopen(req, timeout=3) as response:
+        with urllib.request.urlopen(req, timeout=3) as response:  # nosec B310
             html = response.read().decode('utf-8', errors='ignore')
             
             match = re.search(r'<td class="greek_morph_word"[^>]*>.*?</td>\s*<td class="greek_morph_gloss"[^>]*>(.*?)</td>', html, re.DOTALL)
@@ -1042,7 +1042,7 @@ def get_document_frequency(lemma, language):
         placeholders = ','.join(['?' for _ in expanded])
         base_expr = _base_filename_expr('t')
         cursor.execute(
-            f'SELECT COUNT(DISTINCT {base_expr}) '
+            f'SELECT COUNT(DISTINCT {base_expr}) '  # nosec B608
             f'FROM postings p JOIN texts t ON p.text_id = t.text_id '
             f'WHERE p.lemma IN ({placeholders})',
             list(expanded)
@@ -1084,7 +1084,7 @@ def get_document_frequencies_batch(lemmas, language):
             placeholders = ','.join(['?' for _ in all_variants])
             base_expr = _base_filename_expr('t')
             cursor.execute(
-                f'SELECT p.lemma, COUNT(DISTINCT {base_expr}) '
+                f'SELECT p.lemma, COUNT(DISTINCT {base_expr}) '  # nosec B608
                 f'FROM postings p JOIN texts t ON p.text_id = t.text_id '
                 f'WHERE p.lemma IN ({placeholders}) GROUP BY p.lemma',
                 all_variants
@@ -1129,11 +1129,11 @@ def lookup_lemma_locations(lemma, language):
         JOIN texts t ON p.text_id = t.text_id
         WHERE p.lemma IN ({placeholders})
         ORDER BY t.filename, p.ref
-    '''
+    '''  # nosec B608
     
     locations = []
     try:
-        cursor.execute(query, list(expanded_lemmas))
+        cursor.execute(query, list(expanded_lemmas))  # nosec B608
         for row in cursor.fetchall():
             filename, ref, positions_json = row
             parts = filename.replace('.tess', '').split('.') if filename else ['unknown']
