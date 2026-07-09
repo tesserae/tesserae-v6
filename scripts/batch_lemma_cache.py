@@ -127,14 +127,24 @@ class FastTextProcessor:
 
             if lemma is None and self.latin_lemmatizer:
                 try:
-                    t = stripped_base if stripped_base else token
-                    result = self.latin_lemmatizer.lemmatize([t])
-                    lemma = result[0][1] if result else (stripped_base or norm)
+                    # Try the FULL form first; the enclitic-stripped base is a
+                    # heuristic that mangles words like lanugine -> lanugi.
+                    result = self.latin_lemmatizer.lemmatize([token])
+                    lemma = result[0][1] if result else None
+                    if (lemma is None or lemma == token or lemma == norm) and stripped_base:
+                        result = self.latin_lemmatizer.lemmatize([stripped_base])
+                        alt = result[0][1] if result else None
+                        if alt and alt != stripped_base:
+                            lemma = alt
+                    if lemma is None:
+                        lemma = norm
                 except Exception:
-                    lemma = stripped_base or norm
+                    lemma = norm
 
             if lemma is None:
-                lemma = stripped_base or norm
+                # No CLTK: keep the full normalized form. A raw form is honest;
+                # an unvalidated stripped stem is garbage (lanugine -> lanugi).
+                lemma = norm
 
             self.lemma_cache[cache_key] = lemma
             lemmas.append(lemma)
