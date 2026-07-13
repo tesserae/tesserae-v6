@@ -1100,6 +1100,8 @@ _meter_doc_freq_cache = {}   # meter -> {lemma: doc_freq}
 _meter_total_texts_cache = {}  # meter -> int
 _text_genre_cache = None     # filename -> row dict from text_genres.csv
 _meter_text_ids_cache = {}   # meter -> set of text_ids in the index
+_text_pair_doc_freq_cache = {}  # (source_id, target_id) -> {lemma: doc_freq}
+_text_pair_total_tokens_cache = {}  # (source_id, target_id) -> int
 
 
 def _load_text_genres():
@@ -1245,7 +1247,7 @@ def _get_meter_doc_freqs(lemmas, meter, language='la'):
             batch = all_variants[i:i + batch_size]
             lemma_ph = ','.join(['?' for _ in batch])
             tid_ph = ','.join(['?' for _ in text_id_list])
-            sql = (f'SELECT lemma, COUNT(DISTINCT text_id) FROM postings '
+            sql = (f'SELECT lemma, COUNT(DISTINCT text_id) FROM postings '  # nosec B608
                    f'WHERE lemma IN ({lemma_ph}) AND text_id IN ({tid_ph}) '
                    f'GROUP BY lemma')
             cursor.execute(sql, batch + text_id_list)
@@ -1300,6 +1302,181 @@ def _get_meter_total_texts(meter, language='la'):
         text_ids = _get_meter_text_ids(meter, language)
         _meter_total_texts_cache[cache_key] = len(text_ids) if text_ids else 0
     return _meter_total_texts_cache[cache_key]
+
+
+def _get_text_pair_doc_freqs(lemmas, source_id, target_id, language='la'):
+    """Batch-fetch text-pair-specific token frequencies (term frequencies), with caching.
+
+    Like _get_corpus_doc_freqs but restricted to the two compared texts.
+    Queries the inverted index postings table filtered by text_ids that
+    belong to the source and target texts.
+
+    Returns dict: lemma -> total token count across the two texts (0 if not found).
+    """
+    cache_key = (language, source_id, target_id)
+    if cache_key not in _text_pair_doc_freq_cache:
+        if len(_text_pair_doc_freq_cache) >= 100:
+            # Evict oldest entry (FIFO) to limit memory growth
+            oldest_key = next(iter(_text_pair_doc_freq_cache))
+            _text_pair_doc_freq_cache.pop(oldest_key, None)
+        _text_pair_doc_freq_cache[cache_key] = {}
+    pair_cache = _text_pair_doc_freq_cache[cache_key]
+
+    uncached = [l for l in lemmas if l not in pair_cache]
+    if not uncached:
+        return {l: pair_cache.get(l, 0) for l in lemmas}
+
+    try:
+        from backend.inverted_index import get_connection
+        conn = get_connection(language)
+        if not conn:
+            for l in uncached:
+                pair_cache[l] = 0
+            return {l: pair_cache.get(l, 0) for l in lemmas}
+
+        cursor = conn.cursor()
+
+        # Resolve text_ids for source_id and target_id
+        filenames = [source_id, target_id]
+        if source_id.endswith('.tess'):
+            filenames.append(source_id[:-5])
+        else:
+            filenames.append(source_id + '.tess')
+        if target_id.endswith('.tess'):
+            filenames.append(target_id[:-5])
+        else:
+            filenames.append(target_id + '.tess')
+
+        ph = ','.join(['?' for _ in filenames])
+        cursor.execute(f"SELECT text_id FROM texts WHERE filename IN ({ph})", filenames)  # nosec B608
+        text_ids = [row[0] for row in cursor.fetchall()]
+
+        if not text_ids:
+            for l in uncached:
+                pair_cache[l] = 0
+            return {l: pair_cache.get(l, 0) for l in lemmas}
+
+        # Prepare u/v dedup for Latin (same logic as _get_corpus_doc_freqs)
+        if language == 'la':
+            canonical = {}
+            query_set = set()
+            for l in uncached:
+                norm = l.replace('v', 'u').replace('j', 'i')
+                if norm not in canonical:
+                    canonical[norm] = l
+                    query_set.add(l)
+            query_lemmas = list(query_set)
+        else:
+            query_lemmas = list(set(uncached))
+
+        # Expand u/v variants for SQL
+        expanded_map = {}  # expanded_form -> original_lemma
+        for lemma in query_lemmas:
+            variants = {lemma}
+            if language == 'la':
+                variants.add(lemma.replace('u', 'v'))
+                variants.add(lemma.replace('v', 'u'))
+            for v in variants:
+                expanded_map[v] = lemma
+
+        # Query in batches
+        all_variants = list(expanded_map.keys())
+        batch_size = 500
+        batch_result = {}
+
+        for i in range(0, len(all_variants), batch_size):
+            batch = all_variants[i:i + batch_size]
+            lemma_ph = ','.join(['?' for _ in batch])
+            tid_ph = ','.join(['?' for _ in text_ids])
+            sql = (f'SELECT lemma, SUM(LENGTH(positions) - LENGTH(REPLACE(positions, ",", "")) + 1) FROM postings '  # nosec B608
+                   f'WHERE lemma IN ({lemma_ph}) AND text_id IN ({tid_ph}) '
+                   f'GROUP BY lemma')
+            cursor.execute(sql, batch + text_ids)
+            for row_lemma, count in cursor.fetchall():
+                original = expanded_map.get(row_lemma, row_lemma)
+                batch_result[original] = batch_result.get(original, 0) + count
+
+        # Populate cache
+        if language == 'la':
+            for l in uncached:
+                norm = l.replace('v', 'u').replace('j', 'i')
+                canon_lemma = canonical[norm]
+                pair_cache[l] = batch_result.get(canon_lemma, 0)
+        else:
+            for l in uncached:
+                pair_cache[l] = batch_result.get(l, 0)
+
+        # Headword normalization (same as corpus version)
+        headword_map = _get_headword_map(language)
+        if headword_map:
+            hw_to_fetch = set()
+            for l in uncached:
+                hw = headword_map.get(l)
+                if hw and hw != l and hw not in pair_cache:
+                    hw_to_fetch.add(hw)
+
+            if hw_to_fetch:
+                # Recurse for headwords
+                hw_freqs = _get_text_pair_doc_freqs(list(hw_to_fetch), source_id, target_id, language)
+                for hw, df in hw_freqs.items():
+                    pair_cache[hw] = df
+
+            for l in uncached:
+                hw = headword_map.get(l)
+                if hw and hw != l:
+                    hw_df = pair_cache.get(hw, 0)
+                    pair_cache[l] = max(pair_cache[l], hw_df)
+
+    except Exception as e:
+        logger.error(f"[TEXT PAIR IDF] Batch query failed for {source_id}/{target_id}: {e}")
+        for l in uncached:
+            pair_cache[l] = pair_cache.get(l, 0)
+
+    return {l: pair_cache.get(l, 0) for l in lemmas}
+
+
+def _get_text_pair_total_tokens(source_id, target_id, language='la'):
+    """Get the total number of tokens across both texts (cached)."""
+    cache_key = (language, source_id, target_id)
+    if cache_key in _text_pair_total_tokens_cache:
+        return _text_pair_total_tokens_cache[cache_key]
+
+    try:
+        from backend.inverted_index import get_connection
+        conn = get_connection(language)
+        if not conn:
+            return 2  # fallback
+
+        cursor = conn.cursor()
+
+        filenames = [source_id, target_id]
+        if source_id.endswith('.tess'): filenames.append(source_id[:-5])
+        else: filenames.append(source_id + '.tess')
+        if target_id.endswith('.tess'): filenames.append(target_id[:-5])
+        else: filenames.append(target_id + '.tess')
+
+        ph = ','.join(['?' for _ in filenames])
+        cursor.execute(f"SELECT text_id FROM texts WHERE filename IN ({ph})", filenames)  # nosec B608
+        text_ids = [row[0] for row in cursor.fetchall()]
+
+        if not text_ids:
+            return 2
+
+        tid_ph = ','.join(['?' for _ in text_ids])
+        sql = f"SELECT SUM(LENGTH(positions) - LENGTH(REPLACE(positions, ',', '')) + 1) FROM postings WHERE text_id IN ({tid_ph}) AND lemma NOT LIKE '[%'"  # nosec B608
+        cursor.execute(sql, text_ids)
+        row = cursor.fetchone()
+        total_tokens = row[0] if row and row[0] else 2
+
+        if len(_text_pair_total_tokens_cache) >= 100:
+            oldest_key = next(iter(_text_pair_total_tokens_cache))
+            _text_pair_total_tokens_cache.pop(oldest_key, None)
+
+        _text_pair_total_tokens_cache[cache_key] = total_tokens
+        return total_tokens
+    except Exception as e:
+        logger.error(f"[TEXT PAIR TOTAL TOKENS] Query failed: {e}")
+        return 2
 
 
 def _get_headword_map(language='la'):
@@ -1420,7 +1597,8 @@ def _get_total_texts(language='la'):
                 # Fallback: known corpus sizes
                 _total_texts_cache[language] = {'la': 1429, 'grc': 691}.get(
                     language, 1000)
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Failed to query total texts for {language}, using fallback: {e}")
             _total_texts_cache[language] = {'la': 1429, 'grc': 691}.get(
                 language, 1000)
     return _total_texts_cache[language]
@@ -1598,7 +1776,10 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
       "meter" — only texts sharing the same meter as source/target
                 (falls back to corpus if texts don't share a meter,
                 or if text_genres.csv lacks meter info)
-    source_id/target_id: filenames needed for meter lookup.
+      "text_pair" — token-frequency baseline over the source and target texts
+                    (N = total tokens across the pair). Bypasses IDF scaling cap
+                    so rare local terms can reach corpus-calibrated IDF values.
+    source_id/target_id: filenames needed for meter and text_pair lookup.
     """
     _weights = weights if weights is not None else CHANNEL_WEIGHTS
     _convergence_bonus = convergence_bonus if convergence_bonus is not None else CONVERGENCE_BONUS
@@ -1721,6 +1902,7 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
     # Select document-frequency baseline based on freq_basis parameter.
     # "corpus" (default): full inverted index.
     # "meter": restricted to texts sharing the same meter as source/target.
+    # "text_pair": restricted to the source and target texts.
     _effective_freq_basis = 'corpus'  # fallback
     _shared_meter = None
     if freq_basis == 'meter' and source_id and target_id and language == 'la':
@@ -1740,18 +1922,30 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
             logger.info(f"[FREQ BASIS] Texts don't share a meter "
                         f"(source={src_meter}, target={tgt_meter}), "
                         f"falling back to corpus")
+    elif freq_basis == 'text_pair' and source_id and target_id:
+        _effective_freq_basis = 'text_pair'
+        logger.info(f"[FREQ BASIS] Using text-pair-specific IDF: "
+                    f"source={source_id}, target={target_id}")
 
     if all_lexical_lemmas:
         if _effective_freq_basis == 'meter' and _shared_meter:
             total_texts = _get_meter_total_texts(_shared_meter, language)
             doc_freq_map = _get_meter_doc_freqs(
                 list(all_lexical_lemmas), _shared_meter, language)
+        elif _effective_freq_basis == 'text_pair':
+            doc_freq_map = _get_text_pair_doc_freqs(
+                list(all_lexical_lemmas), source_id, target_id, language)
+            # total_texts is the total number of tokens in the pair of texts.
+            total_texts = _get_text_pair_total_tokens(source_id, target_id, language)
         else:
             total_texts = _get_total_texts(language)
             doc_freq_map = _get_corpus_doc_freqs(
                 list(all_lexical_lemmas), language)
     else:
-        total_texts = 1429
+        if _effective_freq_basis == 'text_pair':
+            total_texts = _get_text_pair_total_tokens(source_id, target_id, language)
+        else:
+            total_texts = 1429
         doc_freq_map = {}
 
     # Pre-compute constants used in the inner loop to avoid repeated
@@ -1764,7 +1958,8 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
     # values back into the range the piecewise curve was tuned for.
     _N_reference = _get_total_texts(language)  # full corpus N (the calibration target)
     _idf_scale = math.log(_N_reference) / _log_total if _log_total > 0 else 1.0
-    _idf_scale = min(_idf_scale, 2.0)  # cap to prevent over-inflation for tiny baselines
+    if _effective_freq_basis != 'text_pair':
+        _idf_scale = min(_idf_scale, 2.0)  # cap to prevent over-inflation for tiny baselines
     _cutoff = RARITY_NEAR_STOPWORD_CUTOFF     # geom_idf below this → flat at floor
     _ramp_offset = RARITY_RAMP_OFFSET         # offset above floor at ramp start
     _ramp_start = _idf_floor + _ramp_offset   # multiplier at geom_idf = cutoff
@@ -2601,7 +2796,7 @@ def run_fusion_search(source_units, target_units, matcher, scorer,
         source_path: Full path to source .tess file (for semantic)
         target_path: Full path to target .tess file (for semantic)
         progress_callback: Optional fn(step, total, channel_name, phase) for SSE
-        freq_basis: IDF baseline ('corpus' or 'meter')
+        freq_basis: IDF baseline ('corpus', 'meter', or 'text_pair')
 
     Returns:
         List of result dicts sorted by fused_score descending.

@@ -52,7 +52,7 @@ def get_corpus_checksum(language):
         stat = os.stat(path)
         file_info.append(f"{f}:{stat.st_size}:{stat.st_mtime}")
     
-    checksum = hashlib.md5('\n'.join(file_info).encode()).hexdigest()
+    checksum = hashlib.md5('\n'.join(file_info).encode()).hexdigest()  # nosec B324
     return checksum
 
 def get_cache_path(language):
@@ -68,8 +68,8 @@ def load_frequency_cache(language):
                 data = json.load(f)
                 _frequency_cache[language] = data
                 return data
-        except:
-            pass
+        except Exception as e:
+            logger.error(f"Failed to load frequency cache from {cache_path}: {e}")
     return None
 
 def save_frequency_cache(language, frequencies, total_lemmas, checksum):
@@ -201,7 +201,8 @@ def get_frequency_cache_stats():
                     entries = len(data.get('frequencies', {}))
                     stats[lang] = entries
                     total_entries += entries
-            except:
+            except Exception as e:
+                logger.error(f"Failed to load frequency stats for {lang}: {e}")
                 stats[lang] = 0
         else:
             stats[lang] = 0

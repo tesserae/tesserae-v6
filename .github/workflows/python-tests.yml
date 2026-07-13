@@ -1,0 +1,39 @@
+name: Python Tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: 'pip'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install pytest pytest-cov bandit
+          
+      - name: Check Python syntax (compile all)
+        run: |
+          python -m py_compile main.py
+          python -m compileall backend/ -q
+
+      - name: Run tests with pytest
+        run: |
+          pytest tests/ --ignore=tests/test_endpoints.py --cov=backend --cov-report=term-missing -v
+
+      - name: Security scan (bandit)
+        run: |
+          bandit -r backend/ -ll -q --skip B404,B603,B607

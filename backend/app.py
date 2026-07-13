@@ -106,8 +106,27 @@ if DEPLOYMENT_ENV == 'marvin' and not DIRECT_SERVER:
 
 # Create Flask app with static file serving
 app = Flask(__name__, static_folder=STATIC_FOLDER, static_url_path='')
-CORS(app, supports_credentials=True)  # Enable cross-origin requests
 
+# Secure CORS: Restrict to allowed origins instead of wildcard, defaulting to localhost and production domains
+ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get(
+        "TESSERAE_ALLOWED_ORIGINS",
+        "http://localhost:5173,http://localhost:5000,https://tesserae.caset.buffalo.edu,http://tesserae.caset.buffalo.edu"
+    ).split(",")
+    if origin.strip()
+]
+CORS(app, supports_credentials=True, origins=ALLOWED_ORIGINS)
+
+@app.after_request
+def add_security_headers(response):
+    """Add standard HTTP security headers to all API responses."""
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    # Only send HSTS outside of local dev to avoid sticky local browser issues
+    if DEPLOYMENT_ENV != 'dev':
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    return response
 
 def api_route(path, **kwargs):
     """Decorator for API routes that auto-prepends API_PREFIX.
@@ -123,6 +142,14 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0  # Disable caching for development
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {'pool_pre_ping': True, "pool_recycle": 300}
+
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+)
+if DEPLOYMENT_ENV != 'dev':
+    app.config['SESSION_COOKIE_SECURE'] = True
+
 
 # =============================================================================
 # DATABASE INITIALIZATION
@@ -200,7 +227,7 @@ def get_processed_units(text_id, language, unit_type, text_processor):
         units_phrase = units if unit_type == 'phrase' else text_processor.process_file(filepath, language, 'phrase')
         save_cached_units(resolved_id, language, units_line, units_phrase, file_hash)
     except Exception:
-        pass
+        app_logger.exception(f"Failed to save cached units for {resolved_id}")
 
     return units
 
@@ -1617,7 +1644,7 @@ def line_search():
                                         line_text = line[tag_end+1:].strip()
                                         file_lines_lookup[line_ref] = line_text
                         except Exception:
-                            pass
+                            app_logger.exception(f"Error loading lines for {filename}")
                     
                     for ref, matching_lemmas, positions in matches:
                         result_key = (filename, ref)
@@ -2124,7 +2151,7 @@ def corpus_search():
                                         line_text = line[end_tag+1:].strip()
                                         lines_data[line_ref] = {'text': line_text, 'tokens': [], 'lemmas': []}
                 except Exception:
-                    pass
+                    app_logger.exception(f"Error loading text snippet for {filename}")
             
             for ref, matching_lemmas, positions in refs_data:
                 line_info = lines_data.get(ref, {})
@@ -2879,4 +2906,6 @@ def create_app():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app_logger.info("Starting Tesserae V6 development server...")
+    debug_mode = os.environ.get("TESSERAE_DEBUG", "false").lower() == "true"
+    app.run(host="0.0.0.0", port=5000, debug=debug_mode)  # nosec B104

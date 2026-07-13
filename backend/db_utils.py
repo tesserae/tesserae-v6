@@ -31,8 +31,8 @@ def get_db_connection():
         if conn:
             try:
                 conn.close()
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning(f"Error closing database connection: {e}")
 
 @contextmanager
 def get_db_cursor(commit=True):

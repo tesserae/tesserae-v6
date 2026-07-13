@@ -1,3 +1,5 @@
+import React, { useEffect } from 'react';
+
 const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, language = 'la' }) => {
   const stopwordExamples = {
     la: 'pietas not pietate, bellum not bello',
@@ -18,6 +20,13 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
     
     setSettings(prev => ({ ...prev, ...updates }));
   };
+
+  useEffect(() => {
+    // Reset freq_basis to 'corpus' if it is currently 'meter' and language is not Latin
+    if (language !== 'la' && settings.freq_basis === 'meter') {
+      handleChange('freq_basis', 'corpus');
+    }
+  }, [language, settings.freq_basis]);
 
   return (
     <div className="bg-gray-50 rounded-lg p-4">
@@ -136,22 +145,30 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
           </div>
           )}
 
-          {settings.match_type === 'fusion' && language === 'la' && (
+          {settings.match_type === 'fusion' && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Frequency Baseline
             </label>
             <select
-              value={settings.freq_basis || 'corpus'}
+              value={
+                // Reset 'meter' to 'corpus' if not on Latin (meter is Latin-only)
+                (settings.freq_basis === 'meter' && language !== 'la')
+                  ? 'corpus'
+                  : (settings.freq_basis || 'corpus')
+              }
               onChange={(e) => handleChange('freq_basis', e.target.value)}
               className="w-full border rounded px-2 py-2 text-base sm:text-sm"
             >
               <option value="corpus">Full corpus</option>
-              <option value="meter">Same meter</option>
+              {language === 'la' && <option value="meter">Same meter</option>}
+              <option value="text_pair">Text pair only</option>
             </select>
             <p className="text-xs text-gray-400 mt-1">
               {settings.freq_basis === 'meter'
                 ? 'IDF computed from texts in the same meter (e.g., hexameter only). Falls back to full corpus if texts differ in meter.'
+                : settings.freq_basis === 'text_pair'
+                ? 'IDF computed only from the two compared texts (source and target).'
                 : 'IDF computed from all texts in the corpus (default).'}
             </p>
           </div>
