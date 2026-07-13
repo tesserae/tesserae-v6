@@ -186,7 +186,9 @@ export default function PerformanceTab() {
               Timeout: {status?.queue_timeout ?? '?'}s
             </div>
             <div className="text-sm text-gray-600 mt-1">
-              Poll interval: {status?.poll_interval ?? '?'}s
+              Poll interval: <span className="text-gray-900 font-medium">
+                {status?.queue_poll_interval !== undefined ? `${status.queue_poll_interval}s` : '?'}
+              </span>
             </div>
           </div>
 
@@ -223,17 +225,17 @@ export default function PerformanceTab() {
             </label>
             <input
               type="range"
-              min={1}
-              max={20}
-              step={1}
+              min="1"
+              max="50"
+              step="1"
               value={maxSearches}
               onChange={e => setMaxSearches(Number(e.target.value))}
               className="w-full"
             />
             <div className="flex justify-between text-xs text-gray-400 mt-1">
               <span>1</span>
-              <span>10</span>
-              <span>20</span>
+              <span>25</span>
+              <span>50</span>
             </div>
           </div>
 
@@ -259,10 +261,10 @@ export default function PerformanceTab() {
               Queue Timeout (seconds)
             </label>
             <input
-              type="number"
-              min={30}
-              max={600}
-              step={10}
+              type="range"
+              min="30"
+              max="3600"
+              step="30"
               value={queueTimeout}
               onChange={e => setQueueTimeout(Number(e.target.value))}
               className="w-32 border rounded px-3 py-2 text-sm"

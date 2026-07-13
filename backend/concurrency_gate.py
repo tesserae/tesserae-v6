@@ -308,12 +308,6 @@ class ConcurrencyConfig:
             }
 
 
-# Backward-compatible module-level accessors (read from ConcurrencyConfig)
-MAX_HEAVY_SEARCHES = ConcurrencyConfig.get_max_searches()
-MEMORY_THRESHOLD_GB = ConcurrencyConfig.get_memory_threshold()
-QUEUE_POLL_INTERVAL = ConcurrencyConfig.get_queue_poll_interval()
-QUEUE_TIMEOUT = ConcurrencyConfig.get_queue_timeout()
-
 
 class SearchSlot:
     """Context manager / generator for acquiring a heavy-search slot.
