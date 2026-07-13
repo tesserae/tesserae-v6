@@ -29,7 +29,8 @@ def test_concurrency_config_cross_worker_sync():
             'memory_threshold_gb': 16.5,
             'queue_timeout': 999,
             'queue_poll_interval': 1.5,
-            'stress_test_mode': True
+            'stress_test_mode': True,
+            'stress_test_enabled_at': time.time()
         }
         with open(temp_path, 'w') as f:
             json.dump(new_config, f)

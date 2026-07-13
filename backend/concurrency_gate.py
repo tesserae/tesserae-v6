@@ -180,7 +180,17 @@ class ConcurrencyConfig:
             'queue_timeout': cls._default_timeout,
             'queue_poll_interval': cls._default_poll,
             'stress_test_mode': False,
+            'stress_test_enabled_at': 0,
         }
+
+    @classmethod
+    def _is_stress_test_active(cls, cfg):
+        """Internal helper to check if stress test mode is active and not expired (1 hour TTL)."""
+        if not cfg.get('stress_test_mode', False):
+            return False
+        # Auto-expire after 3600 seconds (1 hour)
+        enabled_at = cfg.get('stress_test_enabled_at', 0)
+        return (time.time() - enabled_at) < 3600
 
     @classmethod
     def _update_and_persist(cls, key, value):
@@ -218,7 +228,7 @@ class ConcurrencyConfig:
     @classmethod
     def is_stress_test_mode(cls):
         with cls._lock:
-            return cls._get_cached_config().get('stress_test_mode', False)
+            return cls._is_stress_test_active(cls._get_cached_config())
 
     # ------------------------------------------------------------------
     # Public setters (validate, persist to file, bust cache)
@@ -259,7 +269,13 @@ class ConcurrencyConfig:
     @classmethod
     def set_stress_test_mode(cls, enabled: bool):
         with cls._lock:
-            cls._update_and_persist('stress_test_mode', bool(enabled))
+            cfg = cls._get_cached_config().copy()
+            cfg['stress_test_mode'] = bool(enabled)
+            if enabled:
+                cfg['stress_test_enabled_at'] = time.time()
+            cls._write_file(cfg)
+            cls._cache = cfg
+            cls._cache_ts = time.monotonic()
 
     # ------------------------------------------------------------------
     # Reset / status
@@ -283,7 +299,7 @@ class ConcurrencyConfig:
                 'memory_threshold_gb': cfg.get('memory_threshold_gb', cls._default_mem),
                 'queue_timeout': cfg.get('queue_timeout', cls._default_timeout),
                 'queue_poll_interval': cfg.get('queue_poll_interval', cls._default_poll),
-                'stress_test_mode': cfg.get('stress_test_mode', False),
+                'stress_test_mode': cls._is_stress_test_active(cfg),
                 'active_searches': _count_active_slots(),
                 'available_memory_gb': round(get_available_memory_gb(), 1),
                 'defaults': {
@@ -304,7 +320,7 @@ class ConcurrencyConfig:
                 'memory_threshold_gb': cfg.get('memory_threshold_gb', cls._default_mem),
                 'queue_timeout': cfg.get('queue_timeout', cls._default_timeout),
                 'queue_poll_interval': cfg.get('queue_poll_interval', cls._default_poll),
-                'stress_test_mode': cfg.get('stress_test_mode', False),
+                'stress_test_mode': cls._is_stress_test_active(cfg),
             }
 
 

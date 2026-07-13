@@ -247,7 +247,7 @@ export default function PerformanceTab() {
             <input
               type="number"
               min={1}
-              max={64}
+              max={128}
               step={0.5}
               value={memThreshold}
               onChange={e => setMemThreshold(Number(e.target.value))}
@@ -261,10 +261,10 @@ export default function PerformanceTab() {
               Queue Timeout (seconds)
             </label>
             <input
-              type="range"
-              min="30"
-              max="3600"
-              step="30"
+              type="number"
+              min={30}
+              max={3600}
+              step={30}
               value={queueTimeout}
               onChange={e => setQueueTimeout(Number(e.target.value))}
               className="w-32 border rounded px-3 py-2 text-sm"

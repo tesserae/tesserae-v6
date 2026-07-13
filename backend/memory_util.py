@@ -29,12 +29,6 @@ def get_available_memory_gb():
 
     # macOS
     try:
-        # Total physical memory
-        total_bytes = int(subprocess.run(
-            ['sysctl', '-n', 'hw.memsize'],
-            capture_output=True, text=True, timeout=5
-        ).stdout.strip())
-
         # Parse vm_stat for page counts
         vm = subprocess.run(
             ['vm_stat'],
@@ -63,8 +57,7 @@ def get_available_memory_gb():
         # Available ~ free + inactive (conservative estimate)
         available_bytes = (free + inactive) * page_size
         available_gb = available_bytes / (1024 ** 3)
-        logger.debug("macOS memory: total=%.1fGB available=%.1fGB",
-                     total_bytes / (1024**3), available_gb)
+        logger.debug("macOS memory: available=%.1fGB", available_gb)
         return available_gb
     except (OSError, ValueError, subprocess.TimeoutExpired) as e:
         logger.debug("macOS memory detection failed: %s", e)
