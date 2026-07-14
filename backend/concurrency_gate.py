@@ -152,6 +152,7 @@ class ConcurrencyConfig:
             os.replace(tmp_path, cls._CONFIG_FILE)   # atomic on POSIX
         except OSError as e:
             logger.error("Failed to write concurrency config file: %s", e)
+            raise
 
     @classmethod
     def _get_cached_config(cls):

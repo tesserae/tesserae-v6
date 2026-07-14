@@ -2488,6 +2488,8 @@ def update_concurrency_config():
             changes['max_searches'] = {'old': old, 'new': val}
         except (ValueError, TypeError) as e:
             errors.append(f'max_searches: {e}')
+        except OSError as e:
+            return jsonify({'error': f'Failed to save config: {e}'}), 500
 
     if 'memory_threshold_gb' in data:
         try:
@@ -2497,6 +2499,8 @@ def update_concurrency_config():
             changes['memory_threshold_gb'] = {'old': old, 'new': val}
         except (ValueError, TypeError) as e:
             errors.append(f'memory_threshold_gb: {e}')
+        except OSError as e:
+            return jsonify({'error': f'Failed to save config: {e}'}), 500
 
     if 'queue_timeout' in data:
         try:
@@ -2506,6 +2510,8 @@ def update_concurrency_config():
             changes['queue_timeout'] = {'old': old, 'new': val}
         except (ValueError, TypeError) as e:
             errors.append(f'queue_timeout: {e}')
+        except OSError as e:
+            return jsonify({'error': f'Failed to save config: {e}'}), 500
 
     if 'queue_poll_interval' in data:
         try:
@@ -2515,6 +2521,8 @@ def update_concurrency_config():
             changes['queue_poll_interval'] = {'old': old, 'new': val}
         except (ValueError, TypeError) as e:
             errors.append(f'queue_poll_interval: {e}')
+        except OSError as e:
+            return jsonify({'error': f'Failed to save config: {e}'}), 500
 
     if errors:
         return jsonify({'error': '; '.join(errors)}), 400
@@ -2539,7 +2547,10 @@ def toggle_stress_test_mode():
 
     from backend.concurrency_gate import ConcurrencyConfig
     old = ConcurrencyConfig.is_stress_test_mode()
-    ConcurrencyConfig.set_stress_test_mode(enabled)
+    try:
+        ConcurrencyConfig.set_stress_test_mode(enabled)
+    except OSError as e:
+        return jsonify({'error': f'Failed to save config: {e}'}), 500
 
     log_admin_action('stress_test_toggle', 'concurrency_config', None,
                      {'old': old, 'new': enabled})
@@ -2562,7 +2573,10 @@ def reset_concurrency_config():
 
     from backend.concurrency_gate import ConcurrencyConfig
     old_config = ConcurrencyConfig.to_dict()
-    ConcurrencyConfig.reset_to_defaults()
+    try:
+        ConcurrencyConfig.reset_to_defaults()
+    except OSError as e:
+        return jsonify({'error': f'Failed to save config: {e}'}), 500
     new_config = ConcurrencyConfig.to_dict()
 
     log_admin_action('concurrency_reset', 'concurrency_config', None,

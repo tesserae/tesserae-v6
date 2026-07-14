@@ -246,7 +246,7 @@ export default function PerformanceTab() {
             </label>
             <input
               type="number"
-              min={1}
+              min={0.5}
               max={128}
               step={0.5}
               value={memThreshold}
@@ -333,7 +333,8 @@ export default function PerformanceTab() {
             <div>
               <div className="text-sm font-medium text-amber-800">Warning: Stress Test Mode Active</div>
               <p className="text-sm text-amber-700 mt-1">
-                Stress test mode bypasses memory safety checks. Only use in development/staging.
+                Memory safety checks are bypassed. This mode auto-expires after 1 hour.
+                Only use for controlled load testing.
               </p>
             </div>
           </div>

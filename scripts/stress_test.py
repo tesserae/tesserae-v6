@@ -6,22 +6,25 @@ This script simulates multiple concurrent heavy searches hitting the Tesserae ba
 to verify that the concurrency gate (SearchSlot and memory checks) works as expected.
 
 Usage:
-  python3 scripts/stress_test.py [num_concurrent]
+  python3 scripts/stress_test.py [num_concurrent] [--url URL]
+
+Examples:
+  python3 scripts/stress_test.py 5                          # 5 searches against localhost:8080
+  python3 scripts/stress_test.py 8 --url https://marvin.example.com  # 8 searches against Marvin
 
 Prerequisites:
-  - The Tesserae backend must be running locally (e.g. at http://localhost:5000)
-  - You must have some texts in the database. The script attempts to search for "test"
-    in the source text "lucan.bellum_civile.part.1".
+  - The Tesserae backend must be running at the target URL
+  - You must have some texts in the database. The script attempts to search for
+    "lucan.bellum_civile.part.1" against itself.
 """
 
 import sys
 import time
+import argparse
 import requests
 import threading
 
-# Adjust this URL to point to your local development server if different
-BASE_URL = "http://localhost:8080"
-SEARCH_URL = f"{BASE_URL}/api/search"
+DEFAULT_URL = "http://localhost:8080"
 
 # Sample search payload
 PAYLOAD = {
@@ -35,17 +38,13 @@ PAYLOAD = {
 }
 
 
-def run_search(thread_id, results):
+def run_search(thread_id, search_url, results):
     """Run a single search and record its result."""
     print(f"[Thread {thread_id}] Starting search...")
     start_time = time.time()
     
     try:
-        # We use a POST request since /api/search takes search parameters in the body.
-        # Note: Depending on whether the search route is standard or SSE streaming, 
-        # this script tests the standard connection capacity. 
-        # For actual SSE streams, you'd need a client that supports SSE to observe "queued" events.
-        response = requests.post(SEARCH_URL, json=PAYLOAD, timeout=600)
+        response = requests.post(search_url, json=PAYLOAD, timeout=600)
         
         elapsed = time.time() - start_time
         if response.status_code == 200:
@@ -62,14 +61,17 @@ def run_search(thread_id, results):
 
 
 def main():
-    num_concurrent = 5
-    if len(sys.argv) > 1:
-        try:
-            num_concurrent = int(sys.argv[1])
-        except ValueError:
-            print("Usage: python3 stress_test.py [num_concurrent]")
-            sys.exit(1)
+    parser = argparse.ArgumentParser(description="Stress test Tesserae V6 search concurrency")
+    parser.add_argument("num_concurrent", nargs="?", type=int, default=5,
+                        help="Number of concurrent searches to launch (default: 5)")
+    parser.add_argument("--url", default=DEFAULT_URL,
+                        help=f"Base URL of the Tesserae server (default: {DEFAULT_URL})")
+    args = parser.parse_args()
 
+    search_url = f"{args.url}/api/search"
+    num_concurrent = args.num_concurrent
+
+    print(f"Target server: {args.url}")
     print(f"Starting stress test with {num_concurrent} concurrent searches...")
     
     threads = []
@@ -79,7 +81,7 @@ def main():
     
     # Launch threads
     for i in range(num_concurrent):
-        t = threading.Thread(target=run_search, args=(i+1, results))
+        t = threading.Thread(target=run_search, args=(i+1, search_url, results))
         threads.append(t)
         t.start()
         # Small stagger to simulate organic traffic
@@ -94,7 +96,8 @@ def main():
     print("\n" + "="*40)
     print("STRESS TEST RESULTS")
     print("="*40)
-    print(f"Total time elapsed: {total_elapsed:.1f}s")
+    print(f"Target:              {args.url}")
+    print(f"Total time elapsed:  {total_elapsed:.1f}s")
     
     successes = [r for r in results if r["status"] == "success"]
     errors = [r for r in results if r["status"] == "error"]
