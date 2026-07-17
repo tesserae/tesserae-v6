@@ -3,6 +3,7 @@ import { STOPLIST_INFO } from '../../data/stoplists';
 
 export default function HelpPage() {
   const [activeSection, setActiveSection] = useState('getting-started');
+  const [expandedStoplists, setExpandedStoplists] = useState({});
   const [requestName, setRequestName] = useState('');
   const [requestEmail, setRequestEmail] = useState('');
   const [requestAuthor, setRequestAuthor] = useState('');
@@ -165,6 +166,19 @@ export default function HelpPage() {
   };
 
   const hasFormatterRawText = formatterSlots.some(slot => slot.rawText.trim());
+
+  const curatedStoplists = [
+    { key: 'latin', label: 'Latin', data: STOPLIST_INFO.latin },
+    { key: 'greek', label: 'Greek', data: STOPLIST_INFO.greek },
+    { key: 'english', label: 'English', data: STOPLIST_INFO.english }
+  ];
+
+  const toggleStoplist = (language) => {
+    setExpandedStoplists((current) => ({
+      ...current,
+      [language]: !current[language]
+    }));
+  };
 
   const sections = [
     { id: 'getting-started', label: 'Getting Started' },
@@ -721,25 +735,48 @@ export default function HelpPage() {
               </ul>
 
               <h4 className="font-medium text-gray-900 mt-6 mb-2">Curated Stop Words by Language</h4>
+              <p className="text-gray-600 text-sm mb-3">
+                Expand a language to see every curated entry. Greek entries are shown in the accentless normalized
+                form used by the matcher.
+              </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <h5 className="font-medium text-gray-800 mb-1">Latin ({STOPLIST_INFO.latin.count} words)</h5>
-                  <p className="text-xs text-gray-500 italic">
-                    {STOPLIST_INFO.latin.examples.join(', ')}...
-                  </p>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <h5 className="font-medium text-gray-800 mb-1">Greek ({STOPLIST_INFO.greek.count} words)</h5>
-                  <p className="text-xs text-gray-500 italic">
-                    {STOPLIST_INFO.greek.examples.join(', ')}...
-                  </p>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-3">
-                  <h5 className="font-medium text-gray-800 mb-1">English ({STOPLIST_INFO.english.count} words)</h5>
-                  <p className="text-xs text-gray-500 italic">
-                    {STOPLIST_INFO.english.examples.join(', ')}...
-                  </p>
-                </div>
+                {curatedStoplists.map(({ key, label, data }) => {
+                  const isExpanded = Boolean(expandedStoplists[key]);
+                  return (
+                    <div key={key} className="bg-gray-50 rounded-lg p-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <h5 className="font-medium text-gray-800">{label} ({data.words.length} words)</h5>
+                        <button
+                          type="button"
+                          className="text-xs font-medium text-blue-700 hover:text-blue-900 whitespace-nowrap"
+                          onClick={() => toggleStoplist(key)}
+                          aria-expanded={isExpanded}
+                          aria-controls={`${key}-curated-stoplist`}
+                        >
+                          {isExpanded ? 'Hide full list' : 'Show full list'}
+                        </button>
+                      </div>
+                      {isExpanded ? (
+                        <div
+                          id={`${key}-curated-stoplist`}
+                          className="mt-3 max-h-72 overflow-y-auto rounded border border-gray-200 bg-white p-2"
+                        >
+                          <div className="flex flex-wrap gap-1" aria-label={`Full curated ${label} stoplist`}>
+                            {data.words.map((word) => (
+                              <code key={word} className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-700">
+                                {word}
+                              </code>
+                            ))}
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-gray-500 italic mt-1">
+                          {data.words.slice(0, 13).join(', ')}...
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
 
               <h4 className="font-medium text-gray-900 mt-6 mb-2">Stoplist Options</h4>
