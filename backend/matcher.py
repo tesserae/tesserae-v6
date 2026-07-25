@@ -208,6 +208,7 @@ def find_crosslingual_phonetic_matches(source_units, target_units,
 
 from collections import defaultdict, Counter
 import os
+import json
 from concurrent.futures import ProcessPoolExecutor
 from backend.logging_config import get_logger
 from backend.zipf import find_zipf_elbow
@@ -449,26 +450,58 @@ DEFAULT_GREEK_STOP_WORDS = set(DEFAULT_GREEK_STOP_WORDS_LIST)
 DEFAULT_ENGLISH_STOP_WORDS = set(DEFAULT_ENGLISH_STOP_WORDS_LIST)
 
 
+_greek_display_map = None
+
+
+def _get_greek_display_map():
+    """Load the accentless -> polytonic display map for the Greek stoplist.
+
+    Display only. The matcher itself keeps filtering on the accentless
+    normalized forms; this restores accents and breathings for the Help page.
+    Returns {} if the data file is missing, so display falls back to the
+    normalized word.
+    """
+    global _greek_display_map
+    if _greek_display_map is None:
+        path = os.path.join(os.path.dirname(__file__), 'data', 'greek_stoplist_display.json')
+        try:
+            with open(path, encoding='utf-8') as f:
+                _greek_display_map = json.load(f)
+        except (OSError, ValueError):
+            _greek_display_map = {}
+    return _greek_display_map
+
+
 def get_curated_stoplists():
     """Return the primary matcher stoplists in a display-safe API shape.
 
     The matcher keeps ordered lists because manual stoplist sizes use their
     ranking, while matching itself uses sets. De-duplicate the public view
-    without changing matching behavior or manual-list ordering.
+    without changing matching behavior or manual-list ordering. Each language
+    also carries a ``display`` list: the same words in the form meant for
+    reading. For Greek that is the polytonic (accented) form; for Latin and
+    English it is identical to ``words``.
     """
     stoplists = (
         ('la', 'Latin', DEFAULT_LATIN_STOP_WORDS_LIST),
         ('grc', 'Greek', DEFAULT_GREEK_STOP_WORDS_LIST),
         ('en', 'English', DEFAULT_ENGLISH_STOP_WORDS_LIST),
     )
-    return {
-        language: {
+    greek_display = _get_greek_display_map()
+    result = {}
+    for language, label, words in stoplists:
+        deduped = list(dict.fromkeys(words))
+        if language == 'grc':
+            display = [greek_display.get(w, w) for w in deduped]
+        else:
+            display = list(deduped)
+        result[language] = {
             'label': label,
-            'words': list(dict.fromkeys(words)),
-            'count': len(dict.fromkeys(words)),
+            'words': deduped,
+            'display': display,
+            'count': len(deduped),
         }
-        for language, label, words in stoplists
-    }
+    return result
 
 
 class Matcher:

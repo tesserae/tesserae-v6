@@ -107,6 +107,27 @@ def test_curated_stoplists_endpoint(app_instance):
     assert "no-store" in response.headers["Cache-Control"]
     assert response.get_json() == {"stoplists": get_curated_stoplists()}
 
-    for stoplist in response.get_json()["stoplists"].values():
+    stoplists = response.get_json()["stoplists"]
+    for stoplist in stoplists.values():
         assert stoplist["count"] == len(stoplist["words"])
         assert len(stoplist["words"]) == len(set(stoplist["words"]))
+        # display list is parallel to words (same length, same order)
+        assert len(stoplist["display"]) == len(stoplist["words"])
+
+    # Latin/English display equals words; Greek display restores accents.
+    assert stoplists["la"]["display"] == stoplists["la"]["words"]
+    assert stoplists["en"]["display"] == stoplists["en"]["words"]
+    grc = stoplists["grc"]
+    assert grc["display"] != grc["words"]  # at least some words gain accents
+    # a couple of known mappings, and every accentless word maps to something
+    pairs = dict(zip(grc["words"], grc["display"]))
+    assert pairs["και"] == "καί"
+    assert pairs["ου"] == "οὐ"
+    assert all(d for d in grc["display"])
+    # Full map coverage: every Greek word is explicitly in the display map, so
+    # none silently falls back to its accentless form. If the matcher's Greek
+    # stoplist grows, this fails until the display map is updated to match.
+    from backend.matcher import _get_greek_display_map
+    display_map = _get_greek_display_map()
+    unmapped = [w for w in grc["words"] if w not in display_map]
+    assert not unmapped, f"Greek words missing from display map: {unmapped}"
