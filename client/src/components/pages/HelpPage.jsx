@@ -772,8 +772,8 @@ export default function HelpPage() {
 
               <h4 className="font-medium text-gray-900 mt-6 mb-2">Curated Stop Words by Language</h4>
               <p className="text-gray-600 text-sm mb-3">
-                Expand a language to see every curated entry. Greek entries are shown in the accentless normalized
-                form used by the matcher.
+                Expand a language to see every curated entry. Greek entries are shown in polytonic (accented) form;
+                the matcher itself filters on the accentless normalized form.
               </p>
               {curatedStoplists === null && !stoplistsError ? (
                 <p className="text-sm text-gray-500" role="status">Loading the current curated stoplists…</p>
@@ -805,16 +805,16 @@ export default function HelpPage() {
                             className="mt-3 max-h-72 overflow-y-auto rounded border border-gray-200 bg-white p-2"
                           >
                             <div className="flex flex-wrap gap-1" aria-label={`Full curated ${label} stoplist`}>
-                              {data.words.map((word) => (
+                              {data.words.map((word, i) => (
                                 <code key={word} className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-700">
-                                  {word}
+                                  {data.display?.[i] ?? word}
                                 </code>
                               ))}
                             </div>
                           </div>
                         ) : (
                           <p className="text-xs text-gray-500 italic mt-1">
-                            {data.words.slice(0, 13).join(', ')}...
+                            {(data.display ?? data.words).slice(0, 13).join(', ')}...
                           </p>
                         )}
                       </div>

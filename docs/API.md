@@ -415,13 +415,15 @@ Get corpus statistics.
 ### GET `/api/stoplists`
 Get the current curated stoplists used by the primary matcher and displayed on the Help page. The lists are de-duplicated for display and do not include text-specific Zipf additions.
 
+Each language also carries a `display` list, the same words in reading form and in the same order as `words`. For Greek this is the polytonic (accented) form; the matcher itself filters on the accentless `words`. For Latin and English `display` is identical to `words`.
+
 **Response:**
 ```json
 {
   "stoplists": {
-    "la": { "label": "Latin", "words": ["et", "in"], "count": 91 },
-    "grc": { "label": "Greek", "words": ["και", "δε"], "count": 195 },
-    "en": { "label": "English", "words": ["the", "be"], "count": 189 }
+    "la": { "label": "Latin", "words": ["et", "in"], "display": ["et", "in"], "count": 91 },
+    "grc": { "label": "Greek", "words": ["και", "δε"], "display": ["καί", "δέ"], "count": 195 },
+    "en": { "label": "English", "words": ["the", "be"], "display": ["the", "be"], "count": 189 }
   }
 }
 ```
