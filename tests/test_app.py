@@ -124,3 +124,10 @@ def test_curated_stoplists_endpoint(app_instance):
     assert pairs["και"] == "καί"
     assert pairs["ου"] == "οὐ"
     assert all(d for d in grc["display"])
+    # Full map coverage: every Greek word is explicitly in the display map, so
+    # none silently falls back to its accentless form. If the matcher's Greek
+    # stoplist grows, this fails until the display map is updated to match.
+    from backend.matcher import _get_greek_display_map
+    display_map = _get_greek_display_map()
+    unmapped = [w for w in grc["words"] if w not in display_map]
+    assert not unmapped, f"Greek words missing from display map: {unmapped}"
