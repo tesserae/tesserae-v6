@@ -94,3 +94,19 @@ def test_version_endpoint(app_instance):
         data = resp.get_json()
         assert "version" in data
         assert "last_updated" in data
+
+
+def test_curated_stoplists_endpoint(app_instance):
+    """The Help page receives the active primary matcher stoplists from the API."""
+    from backend.matcher import get_curated_stoplists
+
+    with app_instance.test_client() as client:
+        response = client.get("/api/stoplists")
+
+    assert response.status_code == 200
+    assert "no-store" in response.headers["Cache-Control"]
+    assert response.get_json() == {"stoplists": get_curated_stoplists()}
+
+    for stoplist in response.get_json()["stoplists"].values():
+        assert stoplist["count"] == len(stoplist["words"])
+        assert len(stoplist["words"]) == len(set(stoplist["words"]))

@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { STOPLIST_INFO } from '../../data/stoplists';
 
 export default function HelpPage() {
   const [activeSection, setActiveSection] = useState('getting-started');
   const [expandedStoplists, setExpandedStoplists] = useState({});
+  const [curatedStoplists, setCuratedStoplists] = useState(null);
+  const [stoplistsError, setStoplistsError] = useState(null);
   const [requestName, setRequestName] = useState('');
   const [requestEmail, setRequestEmail] = useState('');
   const [requestAuthor, setRequestAuthor] = useState('');
@@ -33,6 +35,46 @@ export default function HelpPage() {
   ]);
   const [formatterOutput, setFormatterOutput] = useState('');
   const [formatterCopied, setFormatterCopied] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadCuratedStoplists = async () => {
+      try {
+        const response = await fetch('/api/stoplists', {
+          headers: { Accept: 'application/json' },
+          cache: 'no-store'
+        });
+        if (!response.ok) {
+          throw new Error(`Unable to load stoplists (${response.status})`);
+        }
+
+        const payload = await response.json();
+        const languageCards = [
+          ['la', 'latin'],
+          ['grc', 'greek'],
+          ['en', 'english']
+        ].map(([language, key]) => {
+          const stoplist = payload.stoplists?.[language];
+          if (!stoplist || !Array.isArray(stoplist.words)) {
+            throw new Error('The stoplist response is incomplete');
+          }
+          return { key, label: stoplist.label, data: stoplist };
+        });
+
+        if (!cancelled) {
+          setCuratedStoplists(languageCards);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setStoplistsError(error.message || 'Unable to load the curated stoplists.');
+        }
+      }
+    };
+
+    loadCuratedStoplists();
+    return () => { cancelled = true; };
+  }, []);
 
   const updateFormatterSlot = (slotId, field, value) => {
     setFormatterCopied(false);
@@ -166,12 +208,6 @@ export default function HelpPage() {
   };
 
   const hasFormatterRawText = formatterSlots.some(slot => slot.rawText.trim());
-
-  const curatedStoplists = [
-    { key: 'latin', label: 'Latin', data: STOPLIST_INFO.latin },
-    { key: 'greek', label: 'Greek', data: STOPLIST_INFO.greek },
-    { key: 'english', label: 'English', data: STOPLIST_INFO.english }
-  ];
 
   const toggleStoplist = (language) => {
     setExpandedStoplists((current) => ({
@@ -739,45 +775,53 @@ export default function HelpPage() {
                 Expand a language to see every curated entry. Greek entries are shown in the accentless normalized
                 form used by the matcher.
               </p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
-                {curatedStoplists.map(({ key, label, data }) => {
-                  const isExpanded = Boolean(expandedStoplists[key]);
-                  return (
-                    <div key={key} className="bg-gray-50 rounded-lg p-3">
-                      <div className="flex items-center justify-between gap-2">
-                        <h5 className="font-medium text-gray-800">{label} ({data.words.length} words)</h5>
-                        <button
-                          type="button"
-                          className="text-xs font-medium text-blue-700 hover:text-blue-900 whitespace-nowrap"
-                          onClick={() => toggleStoplist(key)}
-                          aria-expanded={isExpanded}
-                          aria-controls={`${key}-curated-stoplist`}
-                        >
-                          {isExpanded ? 'Hide full list' : 'Show full list'}
-                        </button>
-                      </div>
-                      {isExpanded ? (
-                        <div
-                          id={`${key}-curated-stoplist`}
-                          className="mt-3 max-h-72 overflow-y-auto rounded border border-gray-200 bg-white p-2"
-                        >
-                          <div className="flex flex-wrap gap-1" aria-label={`Full curated ${label} stoplist`}>
-                            {data.words.map((word) => (
-                              <code key={word} className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-700">
-                                {word}
-                              </code>
-                            ))}
-                          </div>
+              {curatedStoplists === null && !stoplistsError ? (
+                <p className="text-sm text-gray-500" role="status">Loading the current curated stoplists…</p>
+              ) : stoplistsError ? (
+                <p className="text-sm text-red-700" role="alert">
+                  The current curated stoplists could not be loaded. Please try again later.
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                  {curatedStoplists.map(({ key, label, data }) => {
+                    const isExpanded = Boolean(expandedStoplists[key]);
+                    return (
+                      <div key={key} className="bg-gray-50 rounded-lg p-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <h5 className="font-medium text-gray-800">{label} ({data.words.length} words)</h5>
+                          <button
+                            type="button"
+                            className="text-xs font-medium text-blue-700 hover:text-blue-900 whitespace-nowrap"
+                            onClick={() => toggleStoplist(key)}
+                            aria-expanded={isExpanded}
+                            aria-controls={`${key}-curated-stoplist`}
+                          >
+                            {isExpanded ? 'Hide full list' : 'Show full list'}
+                          </button>
                         </div>
-                      ) : (
-                        <p className="text-xs text-gray-500 italic mt-1">
-                          {data.words.slice(0, 13).join(', ')}...
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+                        {isExpanded ? (
+                          <div
+                            id={`${key}-curated-stoplist`}
+                            className="mt-3 max-h-72 overflow-y-auto rounded border border-gray-200 bg-white p-2"
+                          >
+                            <div className="flex flex-wrap gap-1" aria-label={`Full curated ${label} stoplist`}>
+                              {data.words.map((word) => (
+                                <code key={word} className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-700">
+                                  {word}
+                                </code>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-xs text-gray-500 italic mt-1">
+                            {data.words.slice(0, 13).join(', ')}...
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
 
               <h4 className="font-medium text-gray-900 mt-6 mb-2">Stoplist Options</h4>
               <dl className="space-y-3">

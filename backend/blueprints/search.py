@@ -37,6 +37,7 @@ from backend.logging_config import get_logger
 from backend.services import get_user_location, log_search
 from backend.cache import get_cached_results, save_cached_results, clear_cache
 from backend.concurrency_gate import SearchSlot
+from backend.matcher import get_curated_stoplists
 
 logger = get_logger('search')
 
@@ -1333,6 +1334,18 @@ def search():
     except Exception as e:
         logger.exception(f"Search failed: {e}")
         return jsonify({"error": str(e)})
+
+
+@search_bp.route('/stoplists', methods=['GET'])
+def get_curated_stoplists_endpoint():
+    """Return the primary matcher stoplists used by the Help page.
+
+    This intentionally differs from POST /stoplist, which computes a
+    text-specific list using selected source and target texts.
+    """
+    response = jsonify({'stoplists': get_curated_stoplists()})
+    response.headers['Cache-Control'] = 'no-store'
+    return response
 
 
 @search_bp.route('/stoplist', methods=['POST'])

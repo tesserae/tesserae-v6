@@ -448,6 +448,29 @@ DEFAULT_LATIN_STOP_WORDS = set(DEFAULT_LATIN_STOP_WORDS_LIST)
 DEFAULT_GREEK_STOP_WORDS = set(DEFAULT_GREEK_STOP_WORDS_LIST)
 DEFAULT_ENGLISH_STOP_WORDS = set(DEFAULT_ENGLISH_STOP_WORDS_LIST)
 
+
+def get_curated_stoplists():
+    """Return the primary matcher stoplists in a display-safe API shape.
+
+    The matcher keeps ordered lists because manual stoplist sizes use their
+    ranking, while matching itself uses sets. De-duplicate the public view
+    without changing matching behavior or manual-list ordering.
+    """
+    stoplists = (
+        ('la', 'Latin', DEFAULT_LATIN_STOP_WORDS_LIST),
+        ('grc', 'Greek', DEFAULT_GREEK_STOP_WORDS_LIST),
+        ('en', 'English', DEFAULT_ENGLISH_STOP_WORDS_LIST),
+    )
+    return {
+        language: {
+            'label': label,
+            'words': list(dict.fromkeys(words)),
+            'count': len(dict.fromkeys(words)),
+        }
+        for language, label, words in stoplists
+    }
+
+
 class Matcher:
     def __init__(self):
         self.synonym_dict = {}

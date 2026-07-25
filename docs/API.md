@@ -412,6 +412,22 @@ Get corpus statistics.
 
 ---
 
+### GET `/api/stoplists`
+Get the current curated stoplists used by the primary matcher and displayed on the Help page. The lists are de-duplicated for display and do not include text-specific Zipf additions.
+
+**Response:**
+```json
+{
+  "stoplists": {
+    "la": { "label": "Latin", "words": ["et", "in"], "count": 91 },
+    "grc": { "label": "Greek", "words": ["και", "δε"], "count": 195 },
+    "en": { "label": "English", "words": ["the", "be"], "count": 189 }
+  }
+}
+```
+
+---
+
 ### POST `/api/stoplist`
 Generate a stoplist for given texts.
 
