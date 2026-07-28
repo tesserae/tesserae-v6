@@ -349,7 +349,7 @@ Heavy searches (fusion, sound, edit distance, semantic, cross-lingual) are limit
 |----------|---------|-------------|
 | `TESSERAE_MAX_HEAVY_SEARCHES` | 2 | Max concurrent heavy searches across all processes |
 | `TESSERAE_MEMORY_THRESHOLD_GB` | 8 | Min available RAM (GB) to start a new search |
-| `TESSERAE_LOCK_DIR` | `/tmp/tesserae_search_slots` | Directory for lock files (must be writable) |
+| `TESSERAE_LOCK_DIR` | `{PROJECT_ROOT}/tmp/search_slots` | Directory for lock files (must be writable by Apache user) |
 
 **Tuning:**
 - On a server with 32GB+ RAM: set `TESSERAE_MAX_HEAVY_SEARCHES=3` or `4`

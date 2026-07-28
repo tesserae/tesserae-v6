@@ -2447,3 +2447,143 @@ def reclassify_text_genres():
     except Exception as e:
         logger.error(f"Failed to reclassify genres: {e}")
         return jsonify({'error': str(e)}), 500
+
+
+# =============================================================================
+# CONCURRENCY MANAGEMENT (SUPER_ADMIN only)
+# =============================================================================
+
+@admin_bp.route('/concurrency', methods=['GET'])
+def get_concurrency_status():
+    """Get current concurrency config and live search status."""
+    if not check_admin_auth():
+        return jsonify({'error': 'Unauthorized'}), 401
+    roles = [_normalize_role_name(r) for r in (session.get('admin_roles') or [])]
+    if 'SUPER_ADMIN' not in roles:
+        return jsonify({'error': 'SUPER_ADMIN required'}), 403
+    from backend.concurrency_gate import ConcurrencyConfig
+    return jsonify(ConcurrencyConfig.get_status())
+
+
+@admin_bp.route('/concurrency', methods=['PUT'])
+def update_concurrency_config():
+    """Update concurrency configuration at runtime."""
+    if not check_admin_auth():
+        return jsonify({'error': 'Unauthorized'}), 401
+    roles = [_normalize_role_name(r) for r in (session.get('admin_roles') or [])]
+    if 'SUPER_ADMIN' not in roles:
+        return jsonify({'error': 'SUPER_ADMIN required'}), 403
+
+    data = request.get_json(force=True, silent=True) or {}
+    from backend.concurrency_gate import ConcurrencyConfig
+
+    changes = {}
+    errors = []
+
+    if 'max_searches' in data:
+        try:
+            val = int(data['max_searches'])
+            old = ConcurrencyConfig.get_max_searches()
+            ConcurrencyConfig.set_max_searches(val)
+            changes['max_searches'] = {'old': old, 'new': val}
+        except (ValueError, TypeError) as e:
+            errors.append(f'max_searches: {e}')
+        except OSError as e:
+            return jsonify({'error': f'Failed to save config: {e}'}), 500
+
+    if 'memory_threshold_gb' in data:
+        try:
+            val = float(data['memory_threshold_gb'])
+            old = ConcurrencyConfig.get_memory_threshold()
+            ConcurrencyConfig.set_memory_threshold(val)
+            changes['memory_threshold_gb'] = {'old': old, 'new': val}
+        except (ValueError, TypeError) as e:
+            errors.append(f'memory_threshold_gb: {e}')
+        except OSError as e:
+            return jsonify({'error': f'Failed to save config: {e}'}), 500
+
+    if 'queue_timeout' in data:
+        try:
+            val = float(data['queue_timeout'])
+            old = ConcurrencyConfig.get_queue_timeout()
+            ConcurrencyConfig.set_queue_timeout(val)
+            changes['queue_timeout'] = {'old': old, 'new': val}
+        except (ValueError, TypeError) as e:
+            errors.append(f'queue_timeout: {e}')
+        except OSError as e:
+            return jsonify({'error': f'Failed to save config: {e}'}), 500
+
+    if 'queue_poll_interval' in data:
+        try:
+            val = float(data['queue_poll_interval'])
+            old = ConcurrencyConfig.get_queue_poll_interval()
+            ConcurrencyConfig.set_queue_poll_interval(val)
+            changes['queue_poll_interval'] = {'old': old, 'new': val}
+        except (ValueError, TypeError) as e:
+            errors.append(f'queue_poll_interval: {e}')
+        except OSError as e:
+            return jsonify({'error': f'Failed to save config: {e}'}), 500
+
+    if errors:
+        return jsonify({'error': '; '.join(errors)}), 400
+
+    if changes:
+        log_admin_action('concurrency_update', 'concurrency_config', None, changes)
+
+    return jsonify({**ConcurrencyConfig.get_status(), 'changes': changes})
+
+
+@admin_bp.route('/concurrency/stress-test', methods=['POST'])
+def toggle_stress_test_mode():
+    """Toggle stress test mode (bypasses memory safety check)."""
+    if not check_admin_auth():
+        return jsonify({'error': 'Unauthorized'}), 401
+    roles = [_normalize_role_name(r) for r in (session.get('admin_roles') or [])]
+    if 'SUPER_ADMIN' not in roles:
+        return jsonify({'error': 'SUPER_ADMIN required'}), 403
+
+    data = request.get_json(force=True, silent=True) or {}
+    enabled = bool(data.get('enabled', False))
+
+    from backend.concurrency_gate import ConcurrencyConfig
+    old = ConcurrencyConfig.is_stress_test_mode()
+    try:
+        ConcurrencyConfig.set_stress_test_mode(enabled)
+    except OSError as e:
+        return jsonify({'error': f'Failed to save config: {e}'}), 500
+
+    log_admin_action('stress_test_toggle', 'concurrency_config', None,
+                     {'old': old, 'new': enabled})
+
+    return jsonify({
+        'success': True,
+        'stress_test_mode': enabled,
+        'message': 'Stress test mode ' + ('enabled' if enabled else 'disabled')
+    })
+
+
+@admin_bp.route('/concurrency/reset', methods=['POST'])
+def reset_concurrency_config():
+    """Reset concurrency config to environment variable defaults."""
+    if not check_admin_auth():
+        return jsonify({'error': 'Unauthorized'}), 401
+    roles = [_normalize_role_name(r) for r in (session.get('admin_roles') or [])]
+    if 'SUPER_ADMIN' not in roles:
+        return jsonify({'error': 'SUPER_ADMIN required'}), 403
+
+    from backend.concurrency_gate import ConcurrencyConfig
+    old_config = ConcurrencyConfig.to_dict()
+    try:
+        ConcurrencyConfig.reset_to_defaults()
+    except OSError as e:
+        return jsonify({'error': f'Failed to save config: {e}'}), 500
+    new_config = ConcurrencyConfig.to_dict()
+
+    log_admin_action('concurrency_reset', 'concurrency_config', None,
+                     {'old': old_config, 'new': new_config})
+
+    return jsonify({
+        'success': True,
+        'message': 'Concurrency config reset to defaults',
+        **ConcurrencyConfig.get_status()
+    })
