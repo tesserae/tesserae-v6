@@ -67,18 +67,24 @@ def _ensure_lock_dir():
     os.makedirs(LOCK_DIR, exist_ok=True)
 
 
-def _count_active_slots():
-    """Count how many slot files are currently held by live processes.
+import signal
 
-    Tries to acquire an exclusive lock on each .lock file. If the lock
-    fails (EWOULDBLOCK), the file is held by a live process. If it
-    succeeds, the file is stale (the holding process died) and is
-    cleaned up.
+EMERGENCY_MEMORY_FLOOR_GB = 3.0
 
-    Returns the number of actively held slots.
+
+def _ensure_lock_dir():
+    """Create the lock directory if it doesn't exist."""
+    os.makedirs(LOCK_DIR, exist_ok=True)
+
+
+def get_active_searches_list():
+    """Return a list of dicts describing currently active searches.
+
+    Each dict contains: pid, slot_file, source_id, target_id, match_type, start_time, runtime.
     """
     _ensure_lock_dir()
-    active = 0
+    searches = []
+    now = time.time()
     for name in os.listdir(LOCK_DIR):
         if not name.endswith('.lock'):
             continue
@@ -86,23 +92,100 @@ def _count_active_slots():
         try:
             fd = os.open(path, os.O_RDWR)
             try:
-                # Try to lock it -- if we can, the original holder is dead
+                # Try non-blocking lock -- if it succeeds, file is stale
                 fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-                # Stale file: unlock and delete
                 fcntl.flock(fd, fcntl.LOCK_UN)
                 os.close(fd)
                 try:
                     os.unlink(path)
-                    logger.info("Cleaned up stale slot file: %s", name)
                 except OSError:
                     pass
             except BlockingIOError:
-                # File is held by a live process
-                os.close(fd)
-                active += 1
+                # File is actively held -- read metadata
+                meta = {}
+                try:
+                    os.lseek(fd, 0, os.SEEK_SET)
+                    content = os.read(fd, 4096).decode('utf-8', errors='ignore').strip()
+                    if content:
+                        meta = json.loads(content)
+                except (OSError, json.JSONDecodeError):
+                    pass
+                finally:
+                    os.close(fd)
+
+                pid = meta.get('pid')
+                if not pid:
+                    parts = name.split('_')
+                    if len(parts) >= 2 and parts[1].isdigit():
+                        pid = int(parts[1])
+
+                start_ts = meta.get('start_time', now)
+                runtime = round(now - start_ts, 1)
+
+                searches.append({
+                    'pid': pid,
+                    'slot_file': name,
+                    'source_id': meta.get('source_id', 'Unknown'),
+                    'target_id': meta.get('target_id', 'Unknown'),
+                    'match_type': meta.get('match_type', 'Unknown'),
+                    'start_time': start_ts,
+                    'runtime': runtime
+                })
         except OSError:
             pass
-    return active
+    return searches
+
+
+def _count_active_slots():
+    """Count how many slot files are currently held by live processes."""
+    return len(get_active_searches_list())
+
+
+def kill_active_search(pid):
+    """Terminate an active search process by PID and clean up its slot file.
+
+    Returns True if killed/cleaned up, False if not found.
+    """
+    _ensure_lock_dir()
+    found = False
+    for name in os.listdir(LOCK_DIR):
+        if not name.endswith('.lock'):
+            continue
+        if f"_{pid}_" in name:
+            path = os.path.join(LOCK_DIR, name)
+            try:
+                os.unlink(path)
+            except OSError:
+                pass
+            found = True
+
+    if pid and pid != os.getpid():
+        try:
+            os.kill(pid, signal.SIGTERM)
+            logger.info("Sent SIGTERM to active search PID %d", pid)
+            found = True
+        except ProcessLookupError:
+            pass
+        except OSError as e:
+            logger.error("Failed to kill search PID %d: %s", pid, e)
+
+    return found
+
+
+def _reap_newest_active_slot():
+    """Emergency reaper: aborts the newest active search when RAM hits critical floor (<3 GB)."""
+    searches = get_active_searches_list()
+    # Filter out current process
+    other_searches = [s for s in searches if s.get('pid') != os.getpid()]
+    if not other_searches:
+        return False
+    # Sort newest first
+    other_searches.sort(key=lambda s: s.get('start_time', 0), reverse=True)
+    newest = other_searches[0]
+    pid = newest.get('pid')
+    logger.warning("Emergency RAM Reaper terminating PID %d (%s vs %s) due to critical memory",
+                   pid, newest.get('source_id'), newest.get('target_id'))
+    return kill_active_search(pid)
 
 
 class ConcurrencyConfig:
@@ -345,18 +428,39 @@ class SearchSlot:
             ... heavy work ...
     """
 
-    def __init__(self):
+    def __init__(self, source_id=None, target_id=None, match_type=None):
         self._fd = None
         self._path = None
         self._acquired = False
+        self.source_id = source_id or 'Unknown'
+        self.target_id = target_id or 'Unknown'
+        self.match_type = match_type or 'Unknown'
+        self.start_time = time.time()
 
     def _create_slot_file(self):
-        """Create a unique slot file and lock it."""
+        """Create a unique slot file, write metadata JSON, and lock it."""
+        if self._fd is not None:
+            return  # Already created
         _ensure_lock_dir()
         name = f"slot_{os.getpid()}_{id(self)}_{time.monotonic_ns()}.lock"
         self._path = os.path.join(LOCK_DIR, name)
         self._fd = os.open(self._path, os.O_CREAT | os.O_RDWR, 0o600)
         fcntl.flock(self._fd, fcntl.LOCK_EX)
+        # Write metadata JSON into the slot file
+        meta = {
+            'pid': os.getpid(),
+            'source_id': self.source_id,
+            'target_id': self.target_id,
+            'match_type': self.match_type,
+            'start_time': self.start_time
+        }
+        try:
+            os.ftruncate(self._fd, 0)
+            os.lseek(self._fd, 0, os.SEEK_SET)
+            os.write(self._fd, json.dumps(meta).encode('utf-8'))
+            os.fsync(self._fd)
+        except OSError:
+            pass
 
     def _remove_slot_file(self):
         """Release the lock and delete the slot file."""
@@ -383,44 +487,55 @@ class SearchSlot:
 
         Returns (ok, reason) where reason explains why we're blocked.
         """
-        # Memory check (skipped in stress test mode)
+        mem_gb = get_available_memory_gb()
+
+        # 1. Unbypassable Emergency RAM Safety Floor (John's requirement)
+        if mem_gb < EMERGENCY_MEMORY_FLOOR_GB and mem_gb != float('inf'):
+            _reap_newest_active_slot()
+            return False, (
+                f"Emergency memory safety floor reached ({mem_gb:.1f} GB available, "
+                f"minimum {EMERGENCY_MEMORY_FLOOR_GB:.1f} GB required)")
+
+        # 2. Configured Memory Threshold (skipped in stress test mode)
         if not ConcurrencyConfig.is_stress_test_mode():
-            mem_gb = get_available_memory_gb()
             threshold = ConcurrencyConfig.get_memory_threshold()
             if mem_gb < threshold:
                 return False, (
-                    f"Server memory low ({mem_gb:.0f} GB available, "
-                    f"need {threshold:.0f} GB)")
+                    f"Server memory low ({mem_gb:.1f} GB available, "
+                    f"need {threshold:.1f} GB)")
 
+        # 3. Concurrency Capacity (Note: our own slot is already created and counted)
         max_searches = ConcurrencyConfig.get_max_searches()
         active = _count_active_slots()
-        if active >= max_searches:
+        if active > max_searches:
             return False, (
-                f"Server is running {active} searches "
-                f"(max {max_searches})")
+                f"Server capacity reached ({active - 1} running, "
+                f"max {max_searches})")
 
         return True, ""
 
     def acquire(self):
         """Generator that yields queued-status dicts until a slot is acquired.
 
-        Each yielded dict has the form:
-            {"status": "queued", "reason": "...", "wait_time": seconds_waited}
-
-        When the generator returns (StopIteration), the slot is held.
-        Raises TimeoutError if queue_timeout is exceeded.
+        Uses create-slot-then-verify ordering to prevent TOCTOU overcount races.
         """
         start = time.monotonic()
 
         while True:
+            # Step 1: Optimistically reserve our slot file FIRST
+            self._create_slot_file()
+
+            # Step 2: Check if capacity and memory allow us to proceed
             ok, reason = self._can_proceed()
             if ok:
-                self._create_slot_file()
                 self._acquired = True
                 logger.info(
-                    "Search slot acquired (pid=%d, waited=%.1fs)",
-                    os.getpid(), time.monotonic() - start)
+                    "Search slot acquired (pid=%d, waited=%.1fs, %s vs %s)",
+                    os.getpid(), time.monotonic() - start, self.source_id, self.target_id)
                 return  # slot acquired, generator ends
+
+            # Step 3: Over limit or low RAM -- release our slot file while we wait
+            self._remove_slot_file()
 
             waited = time.monotonic() - start
             queue_timeout = ConcurrencyConfig.get_queue_timeout()

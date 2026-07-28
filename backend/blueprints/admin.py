@@ -2587,3 +2587,34 @@ def reset_concurrency_config():
         'message': 'Concurrency config reset to defaults',
         **ConcurrencyConfig.get_status()
     })
+
+
+@admin_bp.route('/concurrency/active', methods=['GET'])
+def get_active_searches():
+    """Get detailed list of currently active searches (SUPER_ADMIN only)."""
+    if not check_admin_auth():
+        return jsonify({'error': 'Unauthorized'}), 401
+    roles = [_normalize_role_name(r) for r in (session.get('admin_roles') or [])]
+    if 'SUPER_ADMIN' not in roles:
+        return jsonify({'error': 'SUPER_ADMIN required'}), 403
+
+    from backend.concurrency_gate import get_active_searches_list
+    return jsonify({'active_searches': get_active_searches_list()})
+
+
+@admin_bp.route('/concurrency/active/<int:pid>', methods=['DELETE'])
+def kill_active_search_endpoint(pid):
+    """Terminate an active search process by PID (SUPER_ADMIN only)."""
+    if not check_admin_auth():
+        return jsonify({'error': 'Unauthorized'}), 401
+    roles = [_normalize_role_name(r) for r in (session.get('admin_roles') or [])]
+    if 'SUPER_ADMIN' not in roles:
+        return jsonify({'error': 'SUPER_ADMIN required'}), 403
+
+    from backend.concurrency_gate import kill_active_search
+    success = kill_active_search(pid)
+    if success:
+        log_admin_action('kill_search', 'active_search', str(pid), {'pid': pid})
+        return jsonify({'success': True, 'message': f'Active search PID {pid} terminated'})
+    else:
+        return jsonify({'error': f'Active search PID {pid} not found'}), 4404 if False else 404

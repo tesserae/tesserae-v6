@@ -3,20 +3,29 @@ import { Activity, Cpu, Clock, AlertTriangle, RotateCcw, Settings, Zap, CheckCir
 
 export default function PerformanceTab() {
   const [status, setStatus] = useState(null);
+  const [activeSearches, setActiveSearches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [maxSearches, setMaxSearches] = useState(2);
   const [memThreshold, setMemThreshold] = useState(8);
   const [queueTimeout, setQueueTimeout] = useState(300);
+  const [isDirty, setIsDirty] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null); // {type: 'success'|'error', text: '...'}
   const [stressTestToggling, setStressTestToggling] = useState(false);
-  const [initialLoaded, setInitialLoaded] = useState(false);
+  const [killingPid, setKillingPid] = useState(null);
 
   const fetchStatus = async () => {
     try {
-      const res = await fetch('/api/admin/concurrency', { credentials: 'include' });
-      if (res.ok) {
-        setStatus(await res.json());
+      const [statusRes, activeRes] = await Promise.all([
+        fetch('/api/admin/concurrency', { credentials: 'include' }),
+        fetch('/api/admin/concurrency/active', { credentials: 'include' })
+      ]);
+      if (statusRes.ok) {
+        setStatus(await statusRes.json());
+      }
+      if (activeRes.ok) {
+        const activeData = await activeRes.json();
+        setActiveSearches(activeData.active_searches || []);
       }
     } catch (err) {
       console.error('Failed to fetch concurrency status:', err);
@@ -26,13 +35,12 @@ export default function PerformanceTab() {
   };
 
   useEffect(() => {
-    if (status && !initialLoaded) {
+    if (status && !isDirty) {
       setMaxSearches(status.max_searches);
       setMemThreshold(status.memory_threshold_gb);
       setQueueTimeout(status.queue_timeout);
-      setInitialLoaded(true);
     }
-  }, [status, initialLoaded]);
+  }, [status, isDirty]);
 
   useEffect(() => {
     fetchStatus();
@@ -60,6 +68,7 @@ export default function PerformanceTab() {
         if (data.max_searches) setMaxSearches(data.max_searches);
         if (data.memory_threshold_gb) setMemThreshold(data.memory_threshold_gb);
         if (data.queue_timeout) setQueueTimeout(data.queue_timeout);
+        setIsDirty(false);
         fetchStatus();
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to update settings' });
@@ -68,6 +77,29 @@ export default function PerformanceTab() {
       setMessage({ type: 'error', text: 'Failed to update settings: ' + err.message });
     }
     setSaving(false);
+  };
+
+  const killSearch = async (pid) => {
+    if (!window.confirm(`Are you sure you want to terminate active search PID ${pid}?`)) {
+      return;
+    }
+    setKillingPid(pid);
+    try {
+      const res = await fetch(`/api/admin/concurrency/active/${pid}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setMessage({ type: 'success', text: `Search PID ${pid} terminated.` });
+        fetchStatus();
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Failed to kill search' });
+      }
+    } catch (err) {
+      setMessage({ type: 'error', text: 'Failed to kill search: ' + err.message });
+    }
+    setKillingPid(null);
   };
 
   const toggleStressTest = async (enabled) => {
@@ -109,6 +141,7 @@ export default function PerformanceTab() {
         if (data.max_searches) setMaxSearches(data.max_searches);
         if (data.memory_threshold_gb) setMemThreshold(data.memory_threshold_gb);
         if (data.queue_timeout) setQueueTimeout(data.queue_timeout);
+        setIsDirty(false);
         fetchStatus();
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to reset settings' });
@@ -146,7 +179,10 @@ export default function PerformanceTab() {
     );
   }
 
-  const capacityPct = status ? Math.min((status.active_searches / status.max_searches) * 100, 100) : 0;
+  const activeCount = status?.active_searches ?? 0;
+  const maxCount = status?.max_searches ?? 1;
+  const isDraining = activeCount > maxCount;
+  const capacityPct = Math.min((activeCount / maxCount) * 100, 100);
 
   return (
     <div className="space-y-6">
@@ -165,15 +201,21 @@ export default function PerformanceTab() {
               <span className="text-sm text-gray-600">Active Searches</span>
             </div>
             <div className="text-2xl font-bold text-gray-900">
-              {status?.active_searches ?? 0} / {status?.max_searches ?? '?'}
+              {activeCount} / {maxCount}
             </div>
             <div className="mt-2 w-full bg-gray-200 rounded-full h-2.5">
               <div
-                className={`h-2.5 rounded-full transition-all ${status ? getCapacityColor(status.active_searches, status.max_searches) : 'bg-gray-300'}`}
+                className={`h-2.5 rounded-full transition-all ${getCapacityColor(activeCount, maxCount)}`}
                 style={{ width: `${capacityPct}%` }}
               />
             </div>
-            <p className="text-xs text-gray-500 mt-1">{capacityPct.toFixed(0)}% capacity</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {isDraining ? (
+                <span className="text-amber-700 font-medium">{activeCount} active (Draining down to max {maxCount})</span>
+              ) : (
+                `${capacityPct.toFixed(0)}% capacity`
+              )}
+            </p>
           </div>
 
           {/* Queue Settings Card */}
@@ -201,14 +243,73 @@ export default function PerformanceTab() {
             <div className={`text-2xl font-bold ${status ? getMemoryColor(status.available_memory_gb, status.memory_threshold_gb) : 'text-gray-900'}`}>
               {status ? formatMemory(status.available_memory_gb) : '?'} GB
             </div>
-            <p className="text-xs text-gray-500 mt-1">
-              Threshold: {status?.memory_threshold_gb ?? '?'} GB
-            </p>
+            <div className="flex items-center justify-between text-xs text-gray-500 mt-1">
+              <span>Threshold: {status?.memory_threshold_gb ?? '?'} GB</span>
+              <span className="px-1.5 py-0.5 bg-red-100 text-red-700 font-medium rounded text-[10px]">
+                Emergency Floor: 3 GB
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Section B: Concurrency Controls */}
+      {/* Section B: Active Searches Inspector */}
+      <div className="border-t pt-6">
+        <h3 className="font-medium text-gray-900 mb-4 flex items-center justify-between">
+          <span className="flex items-center gap-2">
+            <Activity className="w-4 h-4 text-red-700" />
+            Active Searches Inspector ({activeSearches.length})
+          </span>
+          <span className="text-xs text-gray-400 font-normal">Real-time process monitor</span>
+        </h3>
+
+        {activeSearches.length === 0 ? (
+          <div className="bg-gray-50 border border-gray-200 rounded p-6 text-center text-sm text-gray-500">
+            No heavy searches currently running.
+          </div>
+        ) : (
+          <div className="overflow-x-auto border border-gray-200 rounded">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-gray-100 text-gray-700 text-xs font-semibold border-b">
+                <tr>
+                  <th className="px-3 py-2">PID</th>
+                  <th className="px-3 py-2">Source Text</th>
+                  <th className="px-3 py-2">Target Text</th>
+                  <th className="px-3 py-2">Match Type</th>
+                  <th className="px-3 py-2">Runtime</th>
+                  <th className="px-3 py-2 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {activeSearches.map((s, idx) => (
+                  <tr key={s.slot_file || idx} className="hover:bg-gray-50">
+                    <td className="px-3 py-2 font-mono text-xs text-gray-600">{s.pid || '?'}</td>
+                    <td className="px-3 py-2 font-medium text-gray-900">{s.source_id}</td>
+                    <td className="px-3 py-2 text-gray-700">{s.target_id}</td>
+                    <td className="px-3 py-2 text-gray-600">
+                      <span className="inline-block px-2 py-0.5 text-xs bg-gray-200 text-gray-800 rounded">
+                        {s.match_type}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2 text-gray-600 font-mono text-xs">{s.runtime}s</td>
+                    <td className="px-3 py-2 text-right">
+                      <button
+                        onClick={() => killSearch(s.pid)}
+                        disabled={killingPid === s.pid}
+                        className="px-2.5 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+                      >
+                        {killingPid === s.pid ? 'Killing...' : 'Kill Search'}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Section C: Concurrency Controls */}
       <div className="border-t pt-6">
         <h3 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
           <Settings className="w-4 h-4" />
@@ -222,6 +323,9 @@ export default function PerformanceTab() {
               <span className="ml-2 inline-block px-2 py-0.5 text-xs font-bold bg-red-100 text-red-700 rounded">
                 {maxSearches}
               </span>
+              {isDirty && (
+                <span className="ml-2 text-xs text-amber-600 font-normal">(Unsaved changes)</span>
+              )}
             </label>
             <input
               type="range"
@@ -229,7 +333,10 @@ export default function PerformanceTab() {
               max="50"
               step="1"
               value={maxSearches}
-              onChange={e => setMaxSearches(Number(e.target.value))}
+              onChange={e => {
+                setMaxSearches(Number(e.target.value));
+                setIsDirty(true);
+              }}
               className="w-full"
             />
             <div className="flex justify-between text-xs text-gray-400 mt-1">
@@ -250,7 +357,10 @@ export default function PerformanceTab() {
               max={128}
               step={0.5}
               value={memThreshold}
-              onChange={e => setMemThreshold(Number(e.target.value))}
+              onChange={e => {
+                setMemThreshold(Number(e.target.value));
+                setIsDirty(true);
+              }}
               className="w-32 border rounded px-3 py-2 text-sm"
             />
           </div>
@@ -266,7 +376,10 @@ export default function PerformanceTab() {
               max={3600}
               step={30}
               value={queueTimeout}
-              onChange={e => setQueueTimeout(Number(e.target.value))}
+              onChange={e => {
+                setQueueTimeout(Number(e.target.value));
+                setIsDirty(true);
+              }}
               className="w-32 border rounded px-3 py-2 text-sm"
             />
           </div>
@@ -303,7 +416,7 @@ export default function PerformanceTab() {
         </div>
       </div>
 
-      {/* Section C: Stress Test Mode */}
+      {/* Section D: Stress Test Mode */}
       <div className="border-t pt-6">
         <h3 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
           <Zap className="w-4 h-4" />
@@ -315,7 +428,7 @@ export default function PerformanceTab() {
             disabled={stressTestToggling}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
               status?.stress_test_mode ? 'bg-amber-500' : 'bg-gray-300'
-            } ${stressTestToggling ? 'opacity-50 cursor-wait' : 'cursor-pointer'}`}
+            } ${stressTestToggling ? 'opacity-50 cursor-wait' : 'cursor-cursor-pointer'}`}
           >
             <span
               className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
@@ -333,15 +446,14 @@ export default function PerformanceTab() {
             <div>
               <div className="text-sm font-medium text-amber-800">Warning: Stress Test Mode Active</div>
               <p className="text-sm text-amber-700 mt-1">
-                Memory safety checks are bypassed. This mode auto-expires after 1 hour.
-                Only use for controlled load testing.
+                Soft memory threshold is bypassed. Emergency safety floor (3 GB) remains active. Mode auto-expires after 1 hour.
               </p>
             </div>
           </div>
         )}
       </div>
 
-      {/* Section D: Defaults Reference */}
+      {/* Section E: Defaults Reference */}
       {status?.defaults && (
         <div className="border-t pt-6">
           <h3 className="font-medium text-gray-900 mb-4 flex items-center gap-2">

@@ -113,17 +113,31 @@ def _parse_search_request(data):
     match_type = settings.get('match_type', 'lemma')
     is_crosslingual = match_type in ('semantic_cross', 'dictionary_cross', 'crosslingual_fusion')
 
+    def _resolve_with_fallback(lang, text_id):
+        path = resolve_text_path(_texts_dir, lang, text_id)
+        if path:
+            return path, lang
+        # Fallback: scan other language directories if text_id was sent with wrong language code
+        for alt_lang in ['la', 'grc', 'en']:
+            if alt_lang == lang:
+                continue
+            alt_path = resolve_text_path(_texts_dir, alt_lang, text_id)
+            if alt_path:
+                logger.warning("Smart fallback resolved text %s from %s to %s", text_id, lang, alt_lang)
+                return alt_path, alt_lang
+        return None, lang
+
     if is_crosslingual:
         source_language = data.get('source_language', 'la')
         target_language = data.get('target_language', 'la')
-        source_path = resolve_text_path(_texts_dir, source_language, source_id)
-        target_path = resolve_text_path(_texts_dir, target_language, target_id)
+        source_path, source_language = _resolve_with_fallback(source_language, source_id)
+        target_path, target_language = _resolve_with_fallback(target_language, target_id)
     else:
-        source_path = resolve_text_path(_texts_dir, language, source_id)
-        target_path = resolve_text_path(_texts_dir, language, target_id)
+        source_path, source_language = _resolve_with_fallback(language, source_id)
+        target_path, target_language = _resolve_with_fallback(language, target_id)
 
     if not source_path or not target_path:
-        raise FileNotFoundError('Text files not found')
+        raise FileNotFoundError(f'Text files not found: source="{source_id}", target="{target_id}"')
 
     settings['language'] = language
     settings['source_language'] = source_language
@@ -1144,7 +1158,7 @@ def search_stream():
                 return
 
             # Concurrency gate: wait for a slot before starting heavy work
-            slot = SearchSlot()
+            slot = SearchSlot(source_id=source_id, target_id=target_id, match_type=match_type)
             try:
                 for queued_event in slot.acquire():
                     yield f"data: {json.dumps({'type': 'queued', 'step': 'Search queued — server is busy', 'detail': queued_event.get('reason', ''), 'wait_time': queued_event.get('wait_time', 0), 'elapsed': round(time.time() - start_time, 1)})}\n\n"
@@ -1178,7 +1192,6 @@ def search_stream():
             try:
                 # Run matcher in a thread so we can yield SSE heartbeats
                 # while it executes.  Prevents proxy/browser read timeouts
-                # during slow channels (edit_distance ~3.5 min, sound ~3 min).
                 from concurrent.futures import ThreadPoolExecutor
                 import time as _time
 
@@ -1220,11 +1233,10 @@ def search_stream():
                 return
 
             # Score, cache, log, and return
-            yield send_progress("Scoring matches", f"{len(matches)} candidates")
+            yield send_progress("Saving to cache")
             scored_results = _scorer.score_matches(matches, source_units, target_units, settings, source_id, target_id)
             scored_results.sort(key=lambda x: x['overall_score'], reverse=True)
 
-            yield send_progress("Saving to cache")
             response_data = _finalize_results(scored_results, source_units, target_units,
                                                stoplist_size, settings, source_id, target_id, language, req_user_id, req_city, req_country, req_ip)
 
@@ -1240,6 +1252,9 @@ def search_stream():
             }
             yield f"data: {json.dumps(result)}\n\n"
 
+        except GeneratorExit:
+            logger.info("Client disconnected from SSE search stream (PID %d, %s vs %s)",
+                        os.getpid(), data.get('source', ''), data.get('target', ''))
         except Exception as e:
             logger.error(f"Search stream error: {e}")
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"

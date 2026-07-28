@@ -16,7 +16,7 @@ import time
 
 import pytest
 
-from backend.concurrency_gate import ConcurrencyConfig, _count_active_slots, LOCK_DIR
+from backend.concurrency_gate import ConcurrencyConfig, SearchSlot, _count_active_slots, LOCK_DIR
 
 
 # ---------------------------------------------------------------------------
@@ -233,9 +233,52 @@ def test_active_lock_file_counted():
 def test_write_failure_raises_oserror():
     """When the config file path is unwritable, setters should raise OSError."""
     with _ConfigPatch():
-        # Point to a path that cannot be written (directory that doesn't exist
-        # inside a read-only parent — we'll use /proc which is read-only on Linux,
-        # or a non-existent deep path on macOS)
         ConcurrencyConfig._CONFIG_FILE = '/nonexistent_dir_abc123/config.json'
         with pytest.raises(OSError):
             ConcurrencyConfig.set_max_searches(5)
+
+
+# ---------------------------------------------------------------------------
+# 6. Hardening tests: Emergency RAM floor, active listing, kill helper
+# ---------------------------------------------------------------------------
+
+def test_emergency_memory_floor_blocks_even_in_stress_mode(monkeypatch):
+    """Available memory below 3.0 GB must block searches even if stress mode is enabled."""
+    with _ConfigPatch():
+        ConcurrencyConfig.set_stress_test_mode(True)
+        assert ConcurrencyConfig.is_stress_test_mode() is True
+
+        # Mock get_available_memory_gb to return 2.0 GB (below 3.0 GB floor)
+        monkeypatch.setattr('backend.concurrency_gate.get_available_memory_gb', lambda: 2.0)
+
+        slot = SearchSlot(source_id="src.tess", target_id="tgt.tess", match_type="lemma")
+        ok, reason = slot._can_proceed()
+        assert ok is False
+        assert "Emergency memory safety floor reached" in reason
+
+
+def test_get_active_searches_list_and_kill():
+    """get_active_searches_list should parse metadata and kill_active_search should clean up."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        import backend.concurrency_gate as gate
+        old_lock_dir = gate.LOCK_DIR
+        gate.LOCK_DIR = tmpdir
+
+        try:
+            slot = SearchSlot(source_id="vergil.aeneid.tess", target_id="lucan.bellum_civile.tess", match_type="lemma")
+            slot._create_slot_file()
+
+            active_list = gate.get_active_searches_list()
+            assert len(active_list) == 1
+            assert active_list[0]['source_id'] == "vergil.aeneid.tess"
+            assert active_list[0]['target_id'] == "lucan.bellum_civile.tess"
+            assert active_list[0]['match_type'] == "lemma"
+            assert active_list[0]['pid'] == os.getpid()
+
+            # Test kill_active_search
+            success = gate.kill_active_search(os.getpid())
+            assert success is True
+            assert len(gate.get_active_searches_list()) == 0
+        finally:
+            gate.LOCK_DIR = old_lock_dir
+
