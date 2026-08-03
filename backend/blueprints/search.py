@@ -38,6 +38,9 @@ from backend.services import get_user_location, log_search
 from backend.cache import get_cached_results, save_cached_results, clear_cache
 from backend.concurrency_gate import SearchSlot
 from backend.matcher import get_curated_stoplists
+from backend.search_cancellation import (
+    SearchCancellation, SearchCancelled, request_cancellation,
+)
 
 logger = get_logger('search')
 
@@ -166,26 +169,56 @@ def _load_corpus_frequencies(language, settings):
     return None
 
 
-def _run_matcher(match_type, source_units, target_units, settings, corpus_frequencies=None):
+def _run_matcher(match_type, source_units, target_units, settings,
+                 corpus_frequencies=None, cancellation=None):
     """Dispatch to the appropriate matcher based on match_type.
 
     Returns (matches, stoplist_size).
     Raises ValueError for cross-lingual types that need special handling.
     """
     if match_type == 'sound':
-        return _matcher.find_sound_matches(source_units, target_units, settings)
+        return _matcher.find_sound_matches(source_units, target_units, settings,
+                                           cancellation=cancellation)
     elif match_type == 'edit_distance':
-        return _matcher.find_edit_distance_matches(source_units, target_units, settings)
+        return _matcher.find_edit_distance_matches(source_units, target_units, settings,
+                                                   cancellation=cancellation)
     elif match_type == 'semantic':
         from backend.semantic_similarity import find_semantic_matches
-        return find_semantic_matches(source_units, target_units, settings)
+        return find_semantic_matches(source_units, target_units, settings, cancellation)
     elif match_type == 'dictionary':
         from backend.semantic_similarity import find_dictionary_matches
-        return find_dictionary_matches(source_units, target_units, settings)
+        return find_dictionary_matches(source_units, target_units, settings, cancellation)
     elif match_type in ('semantic_cross', 'dictionary_cross', 'crosslingual_fusion'):
         raise ValueError(f'Cross-lingual match type {match_type} requires special handling')
     else:
-        return _matcher.find_matches(source_units, target_units, settings, corpus_frequencies)
+        return _matcher.find_matches(source_units, target_units, settings,
+                                     corpus_frequencies, cancellation)
+
+
+def _run_matcher_with_heartbeats(match_type, source_units, target_units,
+                                 settings, corpus_frequencies, cancellation):
+    """Run matching in a thread while making cancellation observable to SSE."""
+    from concurrent.futures import ThreadPoolExecutor, TimeoutError
+
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        try:
+            future = pool.submit(
+                _run_matcher, match_type, source_units, target_units,
+                settings, corpus_frequencies, cancellation,
+            )
+            while True:
+                try:
+                    result = future.result(timeout=1)
+                    yield ('result', result)
+                    return
+                except TimeoutError:
+                    cancellation.check()
+                    yield ('heartbeat', None)
+        except GeneratorExit:
+            # This runs before the executor context manager waits for its
+            # worker, giving the matcher a chance to terminate child pools.
+            cancellation.cancel()
+            raise
 
 
 def _finalize_results(scored_results, source_units, target_units, stoplist_size,
@@ -223,7 +256,8 @@ def _finalize_results(scored_results, source_units, target_units, stoplist_size,
     }
 
 
-def _handle_dictionary_cross(params, source_units, target_units, settings):
+def _handle_dictionary_cross(params, source_units, target_units, settings,
+                             cancellation=None):
     """Handle dictionary_cross match type with custom IDF-based result building.
 
     Unlike other match types, dictionary_cross builds results directly from
@@ -243,11 +277,14 @@ def _handle_dictionary_cross(params, source_units, target_units, settings):
     matches, stoplist_size = find_dictionary_crosslingual_matches(
         source_units, target_units, params['source_language'],
         params['target_language'], settings,
-        greek_frequencies=greek_frequencies, latin_frequencies=latin_frequencies
+        greek_frequencies=greek_frequencies, latin_frequencies=latin_frequencies,
+        cancellation=cancellation,
     )
 
     scored_results = []
     for m in matches:
+        if cancellation:
+            cancellation.check()
         src_unit = source_units[m['source_idx']]
         tgt_unit = target_units[m['target_idx']]
         src_tokens = src_unit.get('tokens', [])
@@ -305,7 +342,8 @@ def _handle_dictionary_cross(params, source_units, target_units, settings):
                                       0, settings, source_id, target_id, language, req_user_id, req_city, req_country, req_ip))
 
 
-def _find_dictionary_matches_fast(source_units, target_units, source_language, target_language):
+def _find_dictionary_matches_fast(source_units, target_units, source_language,
+                                  target_language, cancellation=None):
     """Fast inverted-index dictionary matching for cross-lingual fusion.
 
     Dispatches to the correct dictionary based on language pair:
@@ -322,14 +360,17 @@ def _find_dictionary_matches_fast(source_units, target_units, source_language, t
     # --- English language pairs: use per-line matching functions ---
     if 'en' in lang_pair:
         return _find_english_dictionary_matches(source_units, target_units,
-                                                source_language, target_language)
+                                                source_language, target_language,
+                                                cancellation)
 
     # --- Greek-Latin pair: fast inverted-index path (unchanged) ---
     return _find_greek_latin_dictionary_matches_fast(source_units, target_units,
-                                                     source_language, target_language)
+                                                     source_language, target_language,
+                                                     cancellation)
 
 
-def _find_english_dictionary_matches(source_units, target_units, source_language, target_language):
+def _find_english_dictionary_matches(source_units, target_units, source_language,
+                                     target_language, cancellation=None):
     """Fast inverted-index dictionary matching for English language pairs.
 
     Builds an inverted index on the English side's lemmas, then for each
@@ -366,6 +407,8 @@ def _find_english_dictionary_matches(source_units, target_units, source_language
     # Build inverted index: english_lemma_lower -> [(unit_idx, token_position), ...]
     en_lemma_index = {}
     for en_idx, unit in enumerate(en_units):
+        if cancellation:
+            cancellation.check()
         for pos, lemma in enumerate(unit.get('lemmas', [])):
             ln = lemma.lower()
             if ln in CROSSLINGUAL_STOPLIST_ENGLISH:
@@ -375,6 +418,8 @@ def _find_english_dictionary_matches(source_units, target_units, source_language
     pair_matches = {}
 
     for cl_idx, cl_unit in enumerate(cl_units):
+        if cancellation:
+            cancellation.check()
         cl_lemmas = cl_unit.get('lemmas', [])
         for cl_pos, cl_lemma in enumerate(cl_lemmas):
             # Normalize the classical lemma for dictionary lookup
@@ -419,6 +464,8 @@ def _find_english_dictionary_matches(source_units, target_units, source_language
 
     # Deduplicate: collapse multiple hits of same lemma pair per line pair
     for key in pair_matches:
+        if cancellation:
+            cancellation.check()
         seen = {}
         deduped = []
         for wm in pair_matches[key]:
@@ -440,7 +487,9 @@ def _find_english_dictionary_matches(source_units, target_units, source_language
     return pair_matches
 
 
-def _find_greek_latin_dictionary_matches_fast(source_units, target_units, source_language, target_language):
+def _find_greek_latin_dictionary_matches_fast(source_units, target_units,
+                                              source_language, target_language,
+                                              cancellation=None):
     """Fast inverted-index dictionary matching for Greek-Latin pairs.
 
     Builds an inverted index of Latin lemmas, then for each Greek lemma looks
@@ -469,6 +518,8 @@ def _find_greek_latin_dictionary_matches_fast(source_units, target_units, source
     # Build inverted index: latin_lemma_norm -> set of (unit_idx, token_position)
     lat_lemma_index = {}
     for tgt_idx, unit in enumerate(lat_units):
+        if cancellation:
+            cancellation.check()
         for pos, lemma in enumerate(unit.get('lemmas', [])):
             ln = lemma.lower()
             if ln in CROSSLINGUAL_STOPLIST_LATIN:
@@ -479,6 +530,8 @@ def _find_greek_latin_dictionary_matches_fast(source_units, target_units, source
     pair_matches = {}  # (src_idx, tgt_idx) -> list of word match dicts
 
     for grc_idx, grc_unit in enumerate(grc_units):
+        if cancellation:
+            cancellation.check()
         grc_lemmas = grc_unit.get('lemmas', [])
         for grc_pos, grc_lemma in enumerate(grc_lemmas):
             grc_norm = strip_accents(grc_lemma)
@@ -528,6 +581,8 @@ def _find_greek_latin_dictionary_matches_fast(source_units, target_units, source
 
     # Deduplicate: collapse multiple hits of same lemma pair per line pair
     for key in pair_matches:
+        if cancellation:
+            cancellation.check()
         seen = {}
         deduped = []
         for wm in pair_matches[key]:
@@ -557,7 +612,8 @@ def _find_greek_latin_dictionary_matches_fast(source_units, target_units, source
     return pair_matches
 
 
-def _handle_crosslingual_fusion(params, source_units, target_units, settings):
+def _handle_crosslingual_fusion(params, source_units, target_units, settings,
+                                cancellation=None):
     """Multi-channel cross-lingual fusion: semantic + dictionary + syntax + phonetic.
 
     Supports Greek-Latin, Latin-English, and Greek-English pairs.
@@ -568,6 +624,9 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
     """
     import math
     from backend.semantic_similarity import find_crosslingual_matches
+
+    if cancellation:
+        cancellation.check()
 
     source_id = params['source_id']
     target_id = params['target_id']
@@ -607,11 +666,13 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
     sem_settings = {**settings, 'max_results': 2000, 'semantic_top_n': 20}
     sem_matches, _ = find_crosslingual_matches(
         source_units, target_units,
-        source_language, target_language, sem_settings)
+        source_language, target_language, sem_settings, cancellation)
 
     # Index semantic results by pair key
     sem_by_pair = {}
     for m in sem_matches:
+        if cancellation:
+            cancellation.check()
         key = (m['source_idx'], m['target_idx'])
         sem_by_pair[key] = m.get('semantic_score', 0.0)
 
@@ -619,7 +680,7 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
     logger.info("Running fast dictionary matching...")
     dict_by_pair = _find_dictionary_matches_fast(
         source_units, target_units,
-        source_language, target_language)
+        source_language, target_language, cancellation)
     logger.info(f"Dictionary found {len(dict_by_pair)} pairs with matches")
 
     # --- Semantic recovery for dictionary-only pairs ---
@@ -647,6 +708,8 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
                 tgt_emb = tgt_emb / (tgt_norms + 1e-8)
                 recovered = 0
                 for key in recovery_keys:
+                    if cancellation:
+                        cancellation.check()
                     si, ti = key
                     if si < len(src_emb) and ti < len(tgt_emb):
                         cosine = float(np.dot(src_emb[si], tgt_emb[ti]))
@@ -654,6 +717,8 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
                             sem_by_pair[key] = cosine
                             recovered += 1
                 logger.info(f"Semantic recovery: {recovered}/{len(recovery_keys)} dictionary-only pairs got cosine scores")
+        except SearchCancelled:
+            raise
         except Exception as e:
             logger.error(f"Semantic recovery failed: {e}")
 
@@ -670,6 +735,8 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
     # Count document frequency: how many lines contain each lemma
     doc_freq = {}
     for unit in source_units:
+        if cancellation:
+            cancellation.check()
         seen = set()
         for lemma in unit.get('lemmas', []):
             norm = strip_accents(lemma) if source_needs_accent_strip else lemma.lower()
@@ -677,6 +744,8 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
                 doc_freq[norm] = doc_freq.get(norm, 0) + 1
                 seen.add(norm)
     for unit in target_units:
+        if cancellation:
+            cancellation.check()
         seen = set()
         for lemma in unit.get('lemmas', []):
             norm = strip_accents(lemma) if target_needs_accent_strip else lemma.lower()
@@ -707,6 +776,7 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
                 min_score=0.1, max_results=50000,
                 source_language=source_language,
                 target_language=target_language,
+                cancellation=cancellation,
             )
             # syntax_results is a dict: {"syntax": [...], "syntax_structural": [...]}
             if isinstance(syntax_results, dict):
@@ -727,6 +797,8 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
                 logger.info(f"Syntax found {total_syntax} matches ({len(syntax_by_pair)} unique pairs)")
             else:
                 logger.info("Syntax returned no results")
+        except SearchCancelled:
+            raise
         except Exception as e:
             logger.error(f"Syntax channel failed (may not have syntax DB): {e}")
 
@@ -740,8 +812,11 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
             phonetic_by_pair = find_crosslingual_phonetic_matches(
                 source_units, target_units,
                 source_language, target_language,
-                min_similarity=0.60, min_token_len=3)
+                min_similarity=0.60, min_token_len=3,
+                cancellation=cancellation)
             logger.info(f"Phonetic found {len(phonetic_by_pair)} pairs with transliteration matches")
+        except SearchCancelled:
+            raise
         except Exception as e:
             logger.error(f"Phonetic channel failed: {e}")
 
@@ -760,6 +835,8 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
 
     fused = []
     for key in all_keys:
+        if cancellation:
+            cancellation.check()
         src_idx, tgt_idx = key
         cosine = sem_by_pair.get(key, 0.0)
         dict_wms = dict_by_pair.get(key)  # list of word match dicts or None
@@ -1087,7 +1164,9 @@ def search_stream():
 
     def generate():
         slot = None
+        cancellation = None
         try:
+            cancellation = SearchCancellation(data.get('search_id'))
             start_time = time.time()
 
             def send_progress(step, detail=""):
@@ -1176,21 +1255,15 @@ def search_stream():
             # Find matches
             yield send_progress("Finding matches", f"{len(source_units)} \u00d7 {len(target_units)} units")
             try:
-                # Run matcher in a thread so we can yield SSE heartbeats
-                # while it executes.  Prevents proxy/browser read timeouts
-                # during slow channels (edit_distance ~3.5 min, sound ~3 min).
-                from concurrent.futures import ThreadPoolExecutor
-                import time as _time
-
-                with ThreadPoolExecutor(max_workers=1) as _pool:
-                    _future = _pool.submit(
-                        _run_matcher, match_type, source_units,
-                        target_units, settings, corpus_frequencies)
-                    while not _future.done():
-                        _time.sleep(10)
-                        if not _future.done():
-                            yield ": keep-alive\n\n"
-                    matches, stoplist_size = _future.result()
+                for event_type, event_data in _run_matcher_with_heartbeats(
+                        match_type, source_units, target_units, settings,
+                        corpus_frequencies, cancellation):
+                    if event_type == 'heartbeat':
+                        yield ": keep-alive\n\n"
+                    else:
+                        matches, stoplist_size = event_data
+            except SearchCancelled:
+                return
             except ValueError:
                 yield f"data: {json.dumps({'type': 'error', 'message': 'Use regular search endpoint for cross-lingual'})}\n\n"
                 return
@@ -1240,18 +1313,40 @@ def search_stream():
             }
             yield f"data: {json.dumps(result)}\n\n"
 
+        except GeneratorExit:
+            if cancellation is not None:
+                cancellation.cancel()
+            raise
+        except SearchCancelled:
+            return
         except Exception as e:
             logger.error(f"Search stream error: {e}")
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
         finally:
             if slot is not None:
                 slot.release()
+            if cancellation is not None:
+                cancellation.close()
 
     return Response(generate(), mimetype='text/event-stream', headers={
         'Cache-Control': 'no-cache',
         'Connection': 'keep-alive',
         'X-Accel-Buffering': 'no'
     })
+
+
+@search_bp.route('/search-cancel', methods=['POST'])
+def cancel_search():
+    """Record a cancellation request that can be observed by any web worker."""
+    data = request.get_json(silent=True) or {}
+    try:
+        request_cancellation(data.get('search_id'))
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+    except RuntimeError as e:
+        logger.error('Could not cancel search: %s', e)
+        return jsonify({'error': str(e)}), 500
+    return jsonify({'status': 'cancellation_requested'}), 202
 
 
 @search_bp.route('/search', methods=['POST'])
@@ -1262,8 +1357,11 @@ def search():
     edit_distance, semantic, dictionary, or cross-lingual variants). Returns all results
     at once with matched_words, scores, and highlight indices.
     """
+    cancellation = None
     try:
-        data = request.get_json()
+        data = request.get_json() or {}
+        cancellation = SearchCancellation(data.get('search_id'))
+        cancellation.check()
         params = _parse_search_request(data)
         settings = params['settings']
         source_id = params['source_id']
@@ -1301,27 +1399,31 @@ def search():
 
         # Concurrency gate: blocks until a slot is available
         with SearchSlot():
+            cancellation.check()
             # Load text units and corpus frequencies
             source_units, target_units = _load_units(params)
             corpus_frequencies = _load_corpus_frequencies(language, settings)
 
             # Cross-lingual fusion (default for cross-lingual searches)
             if match_type == 'crosslingual_fusion':
-                return _handle_crosslingual_fusion(params, source_units, target_units, settings)
+                return _handle_crosslingual_fusion(
+                    params, source_units, target_units, settings, cancellation)
 
             # Legacy single-channel cross-lingual paths
             if match_type == 'dictionary_cross':
-                return _handle_dictionary_cross(params, source_units, target_units, settings)
+                return _handle_dictionary_cross(
+                    params, source_units, target_units, settings, cancellation)
             if match_type == 'semantic_cross':
                 from backend.semantic_similarity import find_crosslingual_matches
                 matches, stoplist_size = find_crosslingual_matches(
                     source_units, target_units, params['source_language'],
-                    params['target_language'], settings)
+                    params['target_language'], settings, cancellation)
             else:
                 matches, stoplist_size = _run_matcher(match_type, source_units, target_units,
-                                                       settings, corpus_frequencies)
+                                                       settings, corpus_frequencies, cancellation)
 
             # Score, cache, log, and return
+            cancellation.check()
             scored_results = _scorer.score_matches(matches, source_units, target_units, settings, source_id, target_id)
             scored_results.sort(key=lambda x: x['overall_score'], reverse=True)
             req_user_id = current_user.id if current_user and current_user.is_authenticated else None
@@ -1329,11 +1431,16 @@ def search():
             return jsonify(_finalize_results(scored_results, source_units, target_units,
                                               stoplist_size, settings, source_id, target_id, language, req_user_id, req_city, req_country, req_ip))
 
+    except SearchCancelled:
+        return jsonify({'error': 'Search cancelled'}), 499
     except TimeoutError as e:
         return jsonify({"error": f"Server busy: {e}"}), 503
     except Exception as e:
         logger.exception(f"Search failed: {e}")
         return jsonify({"error": str(e)})
+    finally:
+        if cancellation is not None:
+            cancellation.close()
 
 
 @search_bp.route('/stoplists', methods=['GET'])

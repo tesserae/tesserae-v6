@@ -24,6 +24,7 @@ from backend.logging_config import get_logger
 from backend.services import get_user_location, log_search
 from backend.cache import get_cached_results, save_cached_results
 from backend.concurrency_gate import SearchSlot
+from backend.search_cancellation import SearchCancellation, SearchCancelled
 
 logger = get_logger('fusion')
 
@@ -65,7 +66,9 @@ def search_fusion_stream():
 
     def generate():
         slot = None
+        cancellation = None
         try:
+            cancellation = SearchCancellation(data.get('search_id'))
             from backend.fusion import iter_fusion_search
 
             start_time = time.time()
@@ -186,6 +189,7 @@ def search_fusion_stream():
                 target_path=target_path,
                 user_settings={'use_meter': use_meter},
                 freq_basis=freq_basis,
+                cancellation=cancellation,
             ):
                 if event_type == "channel_start":
                     phase = evt_data['phase']
@@ -264,12 +268,20 @@ def search_fusion_stream():
             }
             yield f"data: {json.dumps(complete)}\n\n"
 
+        except GeneratorExit:
+            if cancellation is not None:
+                cancellation.cancel()
+            raise
+        except SearchCancelled:
+            return
         except Exception as e:
             logger.error(f"Fusion search error: {e}", exc_info=True)
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
         finally:
             if slot is not None:
                 slot.release()
+            if cancellation is not None:
+                cancellation.close()
 
     return Response(generate(), mimetype='text/event-stream', headers={
         'Cache-Control': 'no-cache',

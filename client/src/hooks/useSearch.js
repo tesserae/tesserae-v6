@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { searchTexts, searchTextsStream, searchFusionStream, searchHapax, searchBigrams, searchSemanticCross } from '../utils/api';
+import { searchTexts, searchTextsStream, searchFusionStream, searchHapax, searchBigrams, searchSemanticCross, createSearchId, requestSearchCancellation } from '../utils/api';
 
 export const useSearch = () => {
   const [results, setResults] = useState([]);
@@ -14,6 +14,7 @@ export const useSearch = () => {
   const [isQueued, setIsQueued] = useState(false);
   const [queuedMessage, setQueuedMessage] = useState('');
   const abortController = useRef(null);
+  const activeSearchId = useRef(null);
   const timerRef = useRef(null);
   const startTimeRef = useRef(null);
 
@@ -39,10 +40,14 @@ export const useSearch = () => {
 
   const search = useCallback(async (params) => {
     if (abortController.current) {
+      requestSearchCancellation(activeSearchId.current);
       abortController.current.abort();
     }
+    activeSearchId.current = null;
     
     abortController.current = new AbortController();
+    const searchId = createSearchId();
+    activeSearchId.current = searchId;
     setLoading(true);
     setError(null);
     setProgress(0);
@@ -103,70 +108,86 @@ export const useSearch = () => {
             resultCount: (intermediateData.results || []).length,
           });
         };
-        data = await searchFusionStream(params, handleProgress, abortController.current.signal, handleIntermediate, handleQueued);
+        data = await searchFusionStream({ ...params, search_id: searchId }, handleProgress, abortController.current.signal, handleIntermediate, handleQueued);
       } else if (isCrossLingual) {
-        data = await searchTexts(params, abortController.current.signal);
+          data = await searchTexts({ ...params, search_id: searchId }, abortController.current.signal);
       } else {
         try {
-          data = await searchTextsStream(params, handleProgress, abortController.current.signal, handleQueued);
+          data = await searchTextsStream({ ...params, search_id: searchId }, handleProgress, abortController.current.signal, handleQueued);
         } catch (streamErr) {
           if (streamErr.message && streamErr.message.includes('405')) {
             setProgressText('Streaming not available, using standard search...');
-            data = await searchTexts(params, abortController.current.signal);
+            data = await searchTexts({ ...params, search_id: searchId }, abortController.current.signal);
           } else {
             throw streamErr;
           }
         }
       }
       
-      setResults(data.results || []);
-      setSearchStats({
-        elapsed_time: data.elapsed_time,
-        source_lines: data.source_lines,
-        target_lines: data.target_lines,
-        total_matches: data.total_matches
-      });
-      setProgress(100);
-      setProgressText('Complete');
-      setFusionProgress(null);
+      if (activeSearchId.current === searchId) {
+        setResults(data.results || []);
+        setSearchStats({
+          elapsed_time: data.elapsed_time,
+          source_lines: data.source_lines,
+          target_lines: data.target_lines,
+          total_matches: data.total_matches
+        });
+        setProgress(100);
+        setProgressText('Complete');
+        setFusionProgress(null);
+      }
     } catch (err) {
-      if (err.name !== 'AbortError') {
+      if (err.name !== 'AbortError' && activeSearchId.current === searchId) {
         setError(err.message || 'Search failed');
       }
     } finally {
-      setLoading(false);
-      setFusionProgress(null);
-      setHasSearched(true);
+      if (activeSearchId.current === searchId) {
+        activeSearchId.current = null;
+        setLoading(false);
+        setFusionProgress(null);
+        setHasSearched(true);
+      }
     }
   }, []);
 
   const searchCrossLingual = useCallback(async (params) => {
     if (abortController.current) {
+      requestSearchCancellation(activeSearchId.current);
       abortController.current.abort();
     }
+    activeSearchId.current = null;
     
     abortController.current = new AbortController();
+    const searchId = createSearchId();
+    activeSearchId.current = searchId;
     setLoading(true);
     setError(null);
     
     try {
-      const data = await searchSemanticCross(params, abortController.current.signal);
-      setResults(data.results || []);
+      const data = await searchSemanticCross({ ...params, search_id: searchId }, abortController.current.signal);
+      if (activeSearchId.current === searchId) {
+        setResults(data.results || []);
+      }
       return data;
     } catch (err) {
-      if (err.name !== 'AbortError') {
+      if (err.name !== 'AbortError' && activeSearchId.current === searchId) {
         setError(err.message || 'Search failed');
       }
     } finally {
-      setLoading(false);
-      setHasSearched(true);
+      if (activeSearchId.current === searchId) {
+        activeSearchId.current = null;
+        setLoading(false);
+        setHasSearched(true);
+      }
     }
   }, []);
 
   const searchRareWords = useCallback(async (params) => {
     if (abortController.current) {
+      requestSearchCancellation(activeSearchId.current);
       abortController.current.abort();
     }
+    activeSearchId.current = null;
     
     abortController.current = new AbortController();
     setLoading(true);
@@ -188,8 +209,10 @@ export const useSearch = () => {
 
   const searchWordPairs = useCallback(async (params) => {
     if (abortController.current) {
+      requestSearchCancellation(activeSearchId.current);
       abortController.current.abort();
     }
+    activeSearchId.current = null;
 
     abortController.current = new AbortController();
     setLoading(true);
@@ -216,8 +239,10 @@ export const useSearch = () => {
 
   const cancel = useCallback(() => {
     if (abortController.current) {
+      requestSearchCancellation(activeSearchId.current);
       abortController.current.abort();
       abortController.current = null;
+      activeSearchId.current = null;
     }
     setLoading(false);
     setProgress(0);
