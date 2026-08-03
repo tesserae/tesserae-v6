@@ -888,6 +888,34 @@ export default function HelpPage() {
                   </div>
                 </div>
                 <div>
+                  <h4 className="font-medium text-gray-900">Reading the Scores</h4>
+                  <p className="text-gray-600 text-sm mb-2">
+                    The score ranks the results of a single search from most to least likely to be a real
+                    connection. Read the list from the top and stop where the results stop being useful.
+                    The order, and the point where the scores fall off, matter more than the exact number.
+                  </p>
+                  <div className="bg-red-50 p-3 rounded border border-red-200 mb-2">
+                    <p className="text-sm text-gray-700">
+                      <strong>The score is relative, not absolute.</strong> A score is only meaningful within
+                      the search that produced it. There is no fixed number above which a result is
+                      &ldquo;good,&rdquo; and a 5 in one comparison is not the same as a 5 in another, because
+                      the score is calibrated to the particular pair of texts and to how common their
+                      vocabulary is across the corpus. Look at the ranking and the shape of the drop-off
+                      within your own search rather than for a universal cutoff.
+                    </p>
+                  </div>
+                  <ul className="list-disc list-inside text-gray-600 text-sm mt-1 ml-4">
+                    <li>Start at the top and read down. The results are ordered strongest first.</li>
+                    <li>Watch for where the scores fall off. Above that point you are usually looking at
+                        shared rare vocabulary and agreement across several channels. Below it you are
+                        mostly looking at coincidental overlaps of common words, including function words
+                        like conjunctions and pronouns.</li>
+                    <li>Judge the passages, not the number. Tesserae finds candidates; whether a parallel is
+                        a real allusion, an echo, a shared formula, or a coincidence is a scholarly judgment
+                        you make by reading the two passages in context.</li>
+                  </ul>
+                </div>
+                <div>
                   <h4 className="font-medium text-gray-900">Channel Badges</h4>
                   <p className="text-gray-600 text-sm">
                     In Fusion mode, each result displays colored badges showing which channels detected it.
