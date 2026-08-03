@@ -1,5 +1,6 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
-import { Button, LoadingSpinner } from '../common';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import { Button, LoadingSpinner, Pagination } from '../common';
+import { usePagination } from '../../hooks/usePagination';
 import { formatReference, formatElapsedTime } from '../../utils/formatting';
 import { displayGreekWithFinalSigma } from '../../utils/greekUtils';
 import { normalizeCoptic } from '../../utils/copticUtils';
@@ -13,8 +14,9 @@ const SearchResults = ({
   results,
   loading,
   error,
-  displayLimit,
-  setDisplayLimit,
+  pageSize,
+  onPageSizeChange,
+  searchRunId,
   onRegister,
   onCorpusSearch,
   onRerunFresh,
@@ -66,6 +68,60 @@ const SearchResults = ({
       return !prev;
     });
   }, [results]);
+
+  // Use frozen snapshot when paused, live results otherwise.
+  const activeResults = useMemo(
+    () => ((pauseUpdates && frozenResults) ? frozenResults : (results || [])),
+    [pauseUpdates, frozenResults, results]
+  );
+
+  // Sort happens upstream in App; filtering happens here; pagination comes last.
+  const filteredResults = useMemo(() => {
+    if (!chartFilter) return activeResults;
+    return activeResults.filter(r => {
+      const locus = chartFilter.view === 'source'
+        ? (r.source_locus || r.source?.ref || '')
+        : (r.target_locus || r.target?.ref || '');
+      const bookMatch = locus.match(/book\s*(\d+)/i) ||
+                        locus.match(/(\d+)\.\d+/) ||
+                        locus.match(/^([^.]+)/);
+      const book = bookMatch ? `Book ${bookMatch[1]}` : 'Other';
+      return book === chartFilter.book;
+    });
+  }, [activeResults, chartFilter]);
+
+  // A new search, a sort change, or a filter change all return to page 1.
+  // searchRunId covers the case where two searches return the same result count.
+  const paginationResetKey = `${searchRunId ?? ''}|${sortBy ?? ''}|` +
+    `${chartFilter ? `${chartFilter.view}:${chartFilter.book}` : ''}`;
+
+  const {
+    visibleItems,
+    startIndex,
+    currentPage,
+    totalPages,
+    totalResults,
+    pageSize: activePageSize,
+    setPage,
+    setPageSize,
+  } = usePagination(filteredResults, {
+    pageSize,
+    onPageSizeChange,
+    resetKey: paginationResetKey,
+    // While fusion streams, the array grows on every intermediate event; hold
+    // page 1 so the pointer can never trail a set that is still being built.
+    pinToFirstPage: loading,
+  });
+
+  const paginationProps = {
+    currentPage,
+    totalPages,
+    totalResults,
+    pageSize: activePageSize,
+    onPageChange: setPage,
+    onPageSizeChange: setPageSize,
+    disabled: loading,
+  };
 
   const toggleExpand = (index) => {
     setExpandedResults(prev => ({
@@ -514,24 +570,6 @@ const SearchResults = ({
     return null;
   }
 
-  // Use frozen snapshot when paused, live results otherwise
-  const activeResults = (pauseUpdates && frozenResults) ? frozenResults : results;
-
-  const filteredResults = chartFilter
-    ? activeResults.filter(r => {
-        const locus = chartFilter.view === 'source'
-          ? (r.source_locus || r.source?.ref || '')
-          : (r.target_locus || r.target?.ref || '');
-        const bookMatch = locus.match(/book\s*(\d+)/i) ||
-                          locus.match(/(\d+)\.\d+/) ||
-                          locus.match(/^([^.]+)/);
-        const book = bookMatch ? `Book ${bookMatch[1]}` : 'Other';
-        return book === chartFilter.book;
-      })
-    : activeResults;
-
-  const displayedResults = filteredResults.slice(0, displayLimit);
-
   return (
     <div className="space-y-4">
       {loading && fusionProgress && (
@@ -685,15 +723,17 @@ const SearchResults = ({
         </div>
       )}
 
+      <Pagination {...paginationProps} variant="full" idPrefix="parallels-top" />
+
       <div className="space-y-3">
-        {displayedResults.map((r, i) => (
+        {visibleItems.map((r, i) => (
           <div
-            key={i}
+            key={startIndex + i}
             className="bg-white border rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow"
           >
             <div className="flex gap-3">
               <span className="text-xs text-gray-400 min-w-[2.5rem] text-right shrink-0 leading-none" style={{paddingTop: '1px'}}>
-                {i + 1}.
+                {startIndex + i + 1}.
               </span>
               <div className="flex-1">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -778,16 +818,7 @@ const SearchResults = ({
         ))}
       </div>
 
-      {filteredResults.length > displayLimit && (
-        <div className="text-center mt-4">
-          <Button
-            variant="neutral"
-            onClick={() => setDisplayLimit(prev => prev + 50)}
-          >
-            Show More ({filteredResults.length - displayLimit} remaining)
-          </Button>
-        </div>
-      )}
+      <Pagination {...paginationProps} variant="nav" idPrefix="parallels-bottom" />
     </div>
   );
 };

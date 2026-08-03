@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Header, Navigation } from './components/layout';
 import { SearchModeToggle, TextSelector, SearchSettings, SearchResults, LineSearch, CrossLingualSearch, WildcardSearch, SavedSearches, CorpusSearchResults, RarePairsSettings } from './components/search';
 import RareResultsDisplay from './components/search/RareResultsDisplay';
@@ -11,7 +11,7 @@ import { AboutPage, HelpPage, DownloadsPage, PrivacyPage, ResearchPage, BlogArch
 import TextCredits from './components/about/TextCredits';
 import AiAnnouncement from './components/AiAnnouncement';
 import VisualizationsPage from './components/pages/VisualizationsPage';
-import { useCorpus, useSearch } from './hooks';
+import { useCorpus, useSearch, DEFAULT_PAGE_SIZE } from './hooks';
 import { getSessionValue, setSessionValue } from './utils/storage';
 
 const pathToPageType = {
@@ -140,7 +140,13 @@ function App() {
   });
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
   
-  const [displayLimit, setDisplayLimit] = useState(50);
+  // Page size is shared by every result renderer so the choice survives a new
+  // search and a switch between parallel and rare-word results. Purely local:
+  // it is never sent to the backend and never persisted to browser storage.
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  // Bumped once per search invocation. Renderers use it to return to page 1,
+  // which array length alone cannot detect when two searches return the same count.
+  const [searchRunId, setSearchRunId] = useState(0);
   const [sortBy, setSortBy] = useState('score');
   
   const [showRegisterModal, setShowRegisterModal] = useState(false);
@@ -175,12 +181,14 @@ function App() {
     clearResults
   } = useSearch();
 
-  const sortedResults = Array.isArray(results) ? [...results].sort((a, b) => {
-    if (sortBy === 'score') return (b.fused_score ?? b.score ?? b.overall_score ?? 0) - (a.fused_score ?? a.score ?? a.overall_score ?? 0);
-    if (sortBy === 'source_locus') return (a.source_locus || a.source?.ref || '').localeCompare(b.source_locus || b.source?.ref || '', undefined, { numeric: true });
-    if (sortBy === 'target_locus') return (a.target_locus || a.target?.ref || '').localeCompare(b.target_locus || b.target?.ref || '', undefined, { numeric: true });
-    return 0;
-  }) : [];
+  const sortedResults = useMemo(() => (
+    Array.isArray(results) ? [...results].sort((a, b) => {
+      if (sortBy === 'score') return (b.fused_score ?? b.score ?? b.overall_score ?? 0) - (a.fused_score ?? a.score ?? a.overall_score ?? 0);
+      if (sortBy === 'source_locus') return (a.source_locus || a.source?.ref || '').localeCompare(b.source_locus || b.source?.ref || '', undefined, { numeric: true });
+      if (sortBy === 'target_locus') return (a.target_locus || a.target?.ref || '').localeCompare(b.target_locus || b.target?.ref || '', undefined, { numeric: true });
+      return 0;
+    }) : []
+  ), [results, sortBy]);
 
   useEffect(() => {
     fetch('/api/auth/user')
@@ -432,6 +440,8 @@ function App() {
       }
     }
 
+    setSearchRunId(n => n + 1);
+
     const params = {
       source: sourceText,
       target: targetText,
@@ -451,10 +461,11 @@ function App() {
     } else if (searchMode === 'bigram') {
       await searchWordPairs(params);
     }
-  }, [sourceText, targetText, activeTab, corpus, settings, searchMode, search, searchRareWords, searchWordPairs]);
+  }, [sourceText, targetText, activeTab, corpus, corpusLoading, settings, searchMode, search, searchRareWords, searchWordPairs]);
 
   const handleRerunFresh = useCallback(async () => {
     if (!sourceText || !targetText) return;
+    setSearchRunId(n => n + 1);
     const params = {
       source: sourceText,
       target: targetText,
@@ -807,8 +818,9 @@ function App() {
                     results={results}
                     loading={searchLoading}
                     error={searchError}
-                    displayLimit={displayLimit}
-                    setDisplayLimit={setDisplayLimit}
+                    pageSize={pageSize}
+                    onPageSizeChange={setPageSize}
+                    searchRunId={searchRunId}
                     searchMode={searchMode}
                     sourceText={sourceText}
                     targetText={targetText}
@@ -822,8 +834,9 @@ function App() {
                     results={sortedResults}
                     loading={searchLoading}
                     error={searchError}
-                    displayLimit={displayLimit}
-                    setDisplayLimit={setDisplayLimit}
+                    pageSize={pageSize}
+                    onPageSizeChange={setPageSize}
+                    searchRunId={searchRunId}
                     onRegister={handleRegister}
                     onCorpusSearch={handleCorpusSearch}
                     onRerunFresh={handleRerunFresh}

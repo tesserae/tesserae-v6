@@ -18,5 +18,12 @@ export default defineConfig({
       }
     },
     allowedHosts: true
+  },
+  test: {
+    // Paths are relative to `root` ('client') above.
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/test/setup.js',
+    include: ['src/**/*.{test,spec}.{js,jsx}']
   }
 })
