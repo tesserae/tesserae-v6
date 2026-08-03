@@ -103,7 +103,7 @@ const SearchResults = ({
         highlightMatchedWords(sourceText, mw, 'source'),
         r.target_locus || r.target?.ref || '',
         highlightMatchedWords(targetText, mw, 'target'),
-        (r.score ?? r.overall_score)?.toFixed(3) || '',
+        (r.fused_score ?? r.score ?? r.overall_score)?.toFixed(3) || '',
         mw.map(w => typeof w === 'object' ? (w.lemma || w.word || '') : w).join('; '),
         (r.channels || []).join('; ')
       ];
@@ -156,7 +156,7 @@ const SearchResults = ({
         bookData[bookLabel] = { count: 0, totalScore: 0 };
       }
       bookData[bookLabel].count++;
-      bookData[bookLabel].totalScore += (r.score ?? r.overall_score ?? 0);
+      bookData[bookLabel].totalScore += (r.fused_score ?? r.score ?? r.overall_score ?? 0);
     });
 
     const sortedBooks = Object.keys(bookData).sort((a, b) => {
