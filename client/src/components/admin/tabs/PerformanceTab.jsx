@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Activity, Cpu, Clock, AlertTriangle, RotateCcw, Settings, Zap, CheckCircle } from 'lucide-react';
+import { Activity, Cpu, Clock, AlertTriangle, RotateCcw, Settings, Zap, CheckCircle, Search, Trash2 } from 'lucide-react';
 
 export default function PerformanceTab() {
   const [status, setStatus] = useState(null);
+  const [activeSearches, setActiveSearches] = useState([]);
+  const [killingSlots, setKillingSlots] = useState({});
   const [loading, setLoading] = useState(true);
   const [maxSearches, setMaxSearches] = useState(2);
   const [memThreshold, setMemThreshold] = useState(8);
@@ -14,14 +16,44 @@ export default function PerformanceTab() {
 
   const fetchStatus = async () => {
     try {
-      const res = await fetch('/api/admin/concurrency', { credentials: 'include' });
-      if (res.ok) {
-        setStatus(await res.json());
+      const [statusRes, activeRes] = await Promise.all([
+        fetch('/api/admin/concurrency', { credentials: 'include' }),
+        fetch('/api/admin/concurrency/active', { credentials: 'include' })
+      ]);
+
+      if (statusRes.ok) {
+        setStatus(await statusRes.json());
+      }
+      if (activeRes.ok) {
+        const activeData = await activeRes.json();
+        setActiveSearches(activeData.active_searches || []);
       }
     } catch (err) {
       console.error('Failed to fetch concurrency status:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const killSearch = async (slotId) => {
+    setKillingSlots(prev => ({ ...prev, [slotId]: true }));
+    setMessage(null);
+    try {
+      const res = await fetch(`/api/admin/concurrency/active/${slotId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setMessage({ type: 'success', text: `Search termination signal sent.` });
+        fetchStatus();
+      } else {
+        setMessage({ type: 'error', text: data.error || 'Failed to kill search' });
+      }
+    } catch (err) {
+      setMessage({ type: 'error', text: 'Failed to kill search: ' + err.message });
+    } finally {
+      setKillingSlots(prev => ({ ...prev, [slotId]: false }));
     }
   };
 
@@ -119,6 +151,29 @@ export default function PerformanceTab() {
     setSaving(false);
   };
 
+  const [killingAll, setKillingAll] = useState(false);
+
+  const killAllSearches = async () => {
+    if (!window.confirm('Are you sure you want to terminate ALL active searches?')) return;
+    setKillingAll(true);
+    try {
+      const res = await fetch('/api/admin/concurrency/active/all', {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (res.ok) {
+        setMessage({ type: 'success', text: 'Termination signal sent to all active searches.' });
+        fetchActiveSearches();
+      } else {
+        const data = await res.json();
+        setMessage({ type: 'error', text: data.error || 'Failed to kill all searches' });
+      }
+    } catch (err) {
+      setMessage({ type: 'error', text: 'Error killing all searches: ' + err.message });
+    }
+    setKillingAll(false);
+  };
+
   const getCapacityColor = (active, max) => {
     const pct = max > 0 ? (active / max) * 100 : 0;
     if (pct > 80) return 'bg-red-500';
@@ -135,6 +190,14 @@ export default function PerformanceTab() {
   const formatMemory = (val) => {
     if (val > 9999) return '∞';
     return val;
+  };
+
+  const formatRuntime = (seconds) => {
+    if (!seconds || seconds < 0) return '0s';
+    if (seconds < 60) return `${seconds.toFixed(0)}s`;
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}m ${secs}s`;
   };
 
   if (loading && !status) {
@@ -206,6 +269,106 @@ export default function PerformanceTab() {
             </p>
           </div>
         </div>
+      </div>
+
+      {/* Section A2: Active Search Inspector Table */}
+      <div className="border-t pt-6">
+        <h3 className="font-medium text-gray-900 mb-4 flex items-center justify-between">
+          <span className="flex items-center gap-2">
+            <Search className="w-4 h-4 text-red-600" />
+            Active Search Inspector
+            <span className="text-xs text-gray-400 font-normal">
+              ({activeSearches.length} running)
+            </span>
+          </span>
+          {activeSearches.length > 0 && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded font-medium animate-pulse">
+                Live Active
+              </span>
+              <button
+                onClick={killAllSearches}
+                disabled={killingAll}
+                className="px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded flex items-center gap-1 transition-colors disabled:opacity-50"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                {killingAll ? 'Terminating All...' : 'Terminate All Searches'}
+              </button>
+            </div>
+          )}
+        </h3>
+
+        {activeSearches.length === 0 ? (
+          <div className="bg-gray-50 border border-gray-200 rounded p-6 text-center text-gray-500">
+            <CheckCircle className="w-6 h-6 text-green-500 mx-auto mb-2" />
+            <p className="text-sm font-medium text-gray-700">No Active Searches</p>
+            <p className="text-xs text-gray-400 mt-1">
+              All search slots are currently idle.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto border border-gray-200 rounded">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-gray-50 text-gray-600 border-b border-gray-200 text-xs uppercase font-medium">
+                <tr>
+                  <th className="px-4 py-3">Source Text</th>
+                  <th className="px-4 py-3">Target Text</th>
+                  <th className="px-4 py-3">Language</th>
+                  <th className="px-4 py-3">Match Type</th>
+                  <th className="px-4 py-3">RAM Usage</th>
+                  <th className="px-4 py-3">Runtime</th>
+                  <th className="px-4 py-3">PID</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 bg-white">
+                {activeSearches.map(search => (
+                  <tr key={search.slot_id} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 font-mono text-xs text-gray-800 max-w-[180px] truncate" title={search.source_id}>
+                      {search.source_id.replace('.tess', '')}
+                    </td>
+                    <td className="px-4 py-3 font-mono text-xs text-gray-800 max-w-[180px] truncate" title={search.target_id}>
+                      {search.target_id.replace('.tess', '')}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="px-2 py-0.5 text-xs font-semibold uppercase bg-gray-100 text-gray-700 rounded">
+                        {search.language}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="px-2 py-0.5 text-xs font-medium bg-blue-50 text-blue-700 rounded border border-blue-100">
+                        {search.match_type}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 font-mono text-xs font-semibold text-gray-700">
+                      {search.memory_mb ? `${search.memory_mb} MB` : '—'}
+                    </td>
+                    <td className="px-4 py-3 font-medium text-gray-700">
+                      {formatRuntime(search.runtime_seconds)}
+                    </td>
+                    <td className="px-4 py-3 font-mono text-xs text-gray-500">
+                      {search.pid || '—'}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        onClick={() => killSearch(search.slot_id)}
+                        disabled={killingSlots[search.slot_id] || search.is_cancelling}
+                        className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded flex items-center gap-1 ml-auto disabled:opacity-50 transition-colors"
+                      >
+                        {killingSlots[search.slot_id] ? (
+                          <Activity className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-3.5 h-3.5" />
+                        )}
+                        {search.is_cancelling ? 'Terminating...' : killingSlots[search.slot_id] ? 'Killing...' : 'Kill Search'}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Section B: Concurrency Controls */}

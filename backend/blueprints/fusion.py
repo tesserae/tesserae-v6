@@ -191,6 +191,14 @@ def search_fusion_stream():
                 yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
                 return
 
+            # Register metadata for Active Search Inspector
+            slot.set_metadata({
+                'source_id': source_id,
+                'target_id': target_id,
+                'language': language,
+                'match_type': f'fusion ({mode})',
+            })
+
             # Load text units
             yield send_event("progress", {
                 "step": "Loading source text",
@@ -233,6 +241,10 @@ def search_fusion_stream():
                 channel_weights=channel_weights,
                 enabled_channels=enabled_channels,
             ):
+                if slot.is_cancelled():
+                    yield f"data: {json.dumps({'type': 'cancelled', 'message': 'Search terminated by administrator'})}\n\n"
+                    return
+
                 if event_type == "channel_start":
                     phase = evt_data['phase']
                     label = "window pass" if phase == "window" else f"{evt_data['step']}/{evt_data['total']} channels"

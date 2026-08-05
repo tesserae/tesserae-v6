@@ -140,8 +140,8 @@ def api_route(path, **kwargs):
 _session_secret = os.environ.get("SESSION_SECRET")
 if _session_secret:
     app.secret_key = _session_secret
-elif os.environ.get("DEPLOYMENT_ENV", "dev") == "dev":
-    app_logger.warning("SESSION_SECRET not set; generating an ephemeral dev secret key")
+elif os.environ.get("DEPLOYMENT_ENV", "production") == "dev":
+    app_logger.warning("SESSION_SECRET not set; generating ephemeral dev secret key")
     app.secret_key = os.urandom(32).hex()
 else:
     raise RuntimeError("SESSION_SECRET environment variable must be set in non-dev environments")
@@ -3030,5 +3030,9 @@ def create_app():
 if __name__ == "__main__":
     app_logger.info("Starting Tesserae V6 development server...")
     debug_mode = os.environ.get("TESSERAE_DEBUG", "false").lower() == "true"
+<<<<<<< HEAD
     port = int(os.environ.get("PORT", 5000))
+=======
+    port = int(os.environ.get("PORT", 5001))
+>>>>>>> 9c145f7 (feat(admin): add active search inspector and live kill capability (#147))
     app.run(host="0.0.0.0", port=port, debug=debug_mode)  # nosec B104

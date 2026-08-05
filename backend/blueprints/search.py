@@ -1328,6 +1328,14 @@ def search_stream():
                 yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
                 return
 
+            # Write metadata for active search inspector
+            slot.set_metadata({
+                'source_id': source_id,
+                'target_id': target_id,
+                'language': language,
+                'match_type': match_type,
+            })
+
             # Load text units (with per-text progress messages)
             source_unit_type = settings.get('source_unit_type', 'line')
             target_unit_type = settings.get('target_unit_type', 'line')
@@ -1363,12 +1371,19 @@ def search_stream():
                         _run_matcher, match_type, source_units,
                         target_units, settings, corpus_frequencies)
                     while not _future.done():
-                        _time.sleep(10)
+                        if slot.is_cancelled():
+                            yield f"data: {json.dumps({'type': 'cancelled', 'message': 'Search terminated by administrator'})}\n\n"
+                            return
+                        _time.sleep(2)
                         if not _future.done():
                             yield ": keep-alive\n\n"
                     matches, stoplist_size = _future.result()
             except ValueError:
                 yield f"data: {json.dumps({'type': 'error', 'message': 'Use regular search endpoint for cross-lingual'})}\n\n"
+                return
+
+            if slot.is_cancelled():
+                yield f"data: {json.dumps({'type': 'cancelled', 'message': 'Search terminated by administrator'})}\n\n"
                 return
 
             if not matches:
@@ -1476,7 +1491,13 @@ def search():
             })
 
         # Concurrency gate: blocks until a slot is available
-        with SearchSlot():
+        with SearchSlot() as slot:
+            slot.set_metadata({
+                'source_id': source_id,
+                'target_id': target_id,
+                'language': language,
+                'match_type': match_type,
+            })
             # Load text units and corpus frequencies
             source_units, target_units = _load_units(params)
             corpus_frequencies = _load_corpus_frequencies(language, settings)
