@@ -122,7 +122,13 @@ export default function Repository({ user, isAdmin = false }) {
   const [filter, setFilter] = useState({ language: 'all', status: 'all' });
   const [sortBy, setSortBy] = useState('created_at');
   const [sortOrder, setSortOrder] = useState('desc');
-  const [displayLimit, setDisplayLimit] = useState(50);
+  const [pageSize, setPageSize] = useState(50);
+  const [publicTotal, setPublicTotal] = useState(0);
+  const [myTotal, setMyTotal] = useState(0);
+  const [publicSummary, setPublicSummary] = useState({ visible: 0, with_notes: 0 });
+  const [mySummary, setMySummary] = useState({ saved: 0, shared: 0 });
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [loadError, setLoadError] = useState('');
   const [viewMode, setViewMode] = useState(user ? 'my' : 'public');
   const [publicIntertexts, setPublicIntertexts] = useState([]);
   const [myIntertexts, setMyIntertexts] = useState([]);
@@ -157,6 +163,7 @@ export default function Repository({ user, isAdmin = false }) {
   const [expandedAuthors, setExpandedAuthors] = useState({});
   const [expandedWorks, setExpandedWorks] = useState({});
   const [expandedFormsCache, setExpandedFormsCache] = useState({});
+  const expandedFormsCacheRef = useRef({});
 
   const loadExpandedFormsForItems = useCallback(async (items) => {
     const uniqueLemmaSets = new Map();
@@ -171,7 +178,7 @@ export default function Repository({ user, isAdmin = false }) {
       }
     });
     
-    const newCache = { ...expandedFormsCache };
+    const newCache = { ...expandedFormsCacheRef.current };
     const keysToFetch = [...uniqueLemmaSets.keys()].filter(k => !newCache[k]);
     
     if (keysToFetch.length === 0) return;
@@ -193,59 +200,102 @@ export default function Repository({ user, isAdmin = false }) {
       }
     }
     
+    expandedFormsCacheRef.current = newCache;
     setExpandedFormsCache(newCache);
-  }, [expandedFormsCache]);
+  }, []);
 
-  const loadPublicIntertexts = useCallback(async () => {
-    setLoading(true);
+  const buildRepositoryParams = useCallback((page) => {
+    const params = new URLSearchParams({
+      page: String(page),
+      per_page: String(pageSize),
+      sort_by: sortBy,
+      sort_order: sortOrder,
+    });
+    if (filter.language !== 'all') params.set('source_language', filter.language);
+    return params;
+  }, [filter.language, pageSize, sortBy, sortOrder]);
+
+  const loadPublicIntertexts = useCallback(async ({ page = 1, append = false } = {}) => {
+    if (append) setLoadingMore(true);
+    else {
+      setLoading(true);
+      setLoadError('');
+    }
     try {
-      const res = await fetch('/api/intertexts', { credentials: 'include' });
-      if (!res.ok) {
-        throw new Error('Failed to load public repository');
-      }
+      const params = buildRepositoryParams(page);
+      const res = await fetch(`/api/intertexts?${params.toString()}`, { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to load public repository');
       const data = await res.json();
       const items = (data.intertexts || []).map((item) => normalizeRepositoryItem(item, { publicEntry: true }));
-      setPublicIntertexts(items);
+      setPublicIntertexts(previous => append ? [...previous, ...items] : items);
+      setPublicTotal(data.total || 0);
+      setPublicSummary(data.summary || { visible: data.total || 0, with_notes: 0 });
       await loadExpandedFormsForItems(items);
     } catch (err) {
       console.error('Failed to load public intertexts:', err);
+      setLoadError('Unable to load the public repository. Please try again.');
     } finally {
-      setLoading(false);
+      if (append) setLoadingMore(false);
+      else setLoading(false);
     }
-  }, [loadExpandedFormsForItems]);
+  }, [buildRepositoryParams, loadExpandedFormsForItems]);
 
-  const loadMyIntertexts = useCallback(async () => {
-    setLoading(true);
+  const loadMyIntertexts = useCallback(async ({ page = 1, append = false } = {}) => {
+    if (!user) return;
+    if (append) setLoadingMore(true);
+    else {
+      setLoading(true);
+      setLoadError('');
+    }
     try {
-      const res = await fetch('/api/intertexts/my', { credentials: 'include' });
-      if (!res.ok) {
-        throw new Error('Failed to load repository');
-      }
+      const params = buildRepositoryParams(page);
+      params.set('visibility', filter.status);
+      const res = await fetch(`/api/intertexts/my?${params.toString()}`, { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to load repository');
       const data = await res.json();
       const items = (data.intertexts || []).map((item) => normalizeRepositoryItem(item));
-      setMyIntertexts(items);
+      setMyIntertexts(previous => append ? [...previous, ...items] : items);
+      setMyTotal(data.total || 0);
+      setMySummary(data.summary || { saved: data.total || 0, shared: 0 });
       await loadExpandedFormsForItems(items);
     } catch (err) {
       console.error('Failed to load my intertexts:', err);
+      setLoadError('Unable to load your saved intertexts. Please try again.');
     } finally {
-      setLoading(false);
+      if (append) setLoadingMore(false);
+      else setLoading(false);
     }
-  }, [loadExpandedFormsForItems]);
+  }, [buildRepositoryParams, filter.status, loadExpandedFormsForItems, user]);
 
   useEffect(() => {
-    loadPublicIntertexts();
-  }, [loadPublicIntertexts]);
+    if (viewMode === 'public') loadPublicIntertexts();
+  }, [viewMode, loadPublicIntertexts]);
 
   useEffect(() => {
-    if (user) {
+    if (user && viewMode !== 'public') {
       loadMyIntertexts();
       return;
     }
-    setMyIntertexts([]);
-    if (viewMode !== 'public') {
-      setViewMode('public');
+    if (!user) {
+      setMyIntertexts([]);
+      setMyTotal(0);
+      setMySummary({ saved: 0, shared: 0 });
+      if (viewMode !== 'public') setViewMode('public');
     }
   }, [user, viewMode, loadMyIntertexts]);
+
+  const loadMoreIntertexts = () => {
+    if (loading || loadingMore) return;
+    if (viewMode === 'public') {
+      if (publicIntertexts.length < publicTotal) {
+        loadPublicIntertexts({ page: Math.floor(publicIntertexts.length / pageSize) + 1, append: true });
+      }
+      return;
+    }
+    if (viewMode === 'my' && myIntertexts.length < myTotal) {
+      loadMyIntertexts({ page: Math.floor(myIntertexts.length / pageSize) + 1, append: true });
+    }
+  };
 
   const getFormsForItem = (item) => {
     const lemmas = item.matched_lemmas || [];
@@ -451,13 +501,13 @@ export default function Repository({ user, isAdmin = false }) {
     return sortOrder === 'desc' ? -cmp : cmp;
   });
   const personalStats = {
-    total: myIntertexts.length,
-    shared: myIntertexts.filter((item) => item.is_public).length,
+    total: mySummary.saved,
+    shared: mySummary.shared,
   };
 
   const publicStats = {
-    total: publicIntertexts.length,
-    withNotes: publicIntertexts.filter((item) => item.notes).length,
+    total: publicSummary.visible,
+    withNotes: publicSummary.with_notes,
   };
 
   const groupedByWork = (() => {
@@ -488,26 +538,14 @@ export default function Repository({ user, isAdmin = false }) {
   const langNames = { la: 'Latin', grc: 'Greek', en: 'English', cross: 'Greek-Latin' };
 
   const exportCSV = useCallback(() => {
-    const headers = ['Source', 'Target', 'Language', 'Match Score', 'Your Rating', 'Visibility', 'Notes', 'Created'];
-    const rows = sortedIntertexts.map(item => [
-      item.source_locus || '',
-      item.target_locus || '',
-      item.language || '',
-      item.score || '',
-      item.scholar_score || '',
-      item.is_public ? 'shared' : 'private',
-      (item.notes || '').replace(/"/g, '""'),
-      item.created_at || ''
-    ]);
-    const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
+    const params = buildRepositoryParams(1);
+    const isPersonalExport = !isPublicView;
+    if (isPersonalExport) params.set('visibility', filter.status);
+    else params.set('format', 'csv');
     const a = document.createElement('a');
-    a.href = url;
-    a.download = 'intertexts.csv';
+    a.href = `${isPersonalExport ? '/api/intertexts/my/export' : '/api/intertexts/export'}?${params.toString()}`;
     a.click();
-    URL.revokeObjectURL(url);
-  }, [sortedIntertexts]);
+  }, [buildRepositoryParams, filter.status, isPublicView]);
 
   const StarRating = ({ value, onChange, readOnly }) => (
     <div className="flex gap-0.5">
@@ -625,6 +663,19 @@ export default function Repository({ user, isAdmin = false }) {
               <option value="score">Match Score</option>
               <option value="scholar_score">Your Rating</option>
             </select>
+            {viewMode !== 'byWork' && (
+              <select
+                value={pageSize}
+                onChange={e => setPageSize(parseInt(e.target.value))}
+                aria-label="Intertexts at a time"
+                className="border rounded px-3 py-2 text-sm"
+              >
+                <option value="25">25 at a time</option>
+                <option value="50">50 at a time</option>
+                <option value="100">100 at a time</option>
+                <option value="500">500 at a time</option>
+              </select>
+            )}
             <button
               onClick={exportCSV}
               className="px-3 py-2 bg-gray-100 text-gray-700 border rounded hover:bg-gray-200 text-sm"
@@ -650,6 +701,12 @@ export default function Repository({ user, isAdmin = false }) {
           </div>
         </div>
       </div>
+
+      {loadError && (
+        <div className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {loadError}
+        </div>
+      )}
 
       {filteredIntertexts.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-8 text-center text-gray-500">
@@ -767,7 +824,7 @@ export default function Repository({ user, isAdmin = false }) {
       ) : (
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="divide-y divide-gray-200">
-            {sortedIntertexts.slice(0, displayLimit).map((item, i) => (
+            {sortedIntertexts.map((item, i) => (
               <div key={item.id || i} className="p-4 hover:bg-gray-50">
                 {(() => {
                   const canDeletePublicItem = isPublicView && user && (isAdmin || (item.submitter_id && String(item.submitter_id) === String(user.id)));
@@ -923,16 +980,22 @@ export default function Repository({ user, isAdmin = false }) {
               </div>
             ))}
           </div>
-          {sortedIntertexts.length > displayLimit && (
+          {sortedIntertexts.length < (isPublicView ? publicTotal : myTotal) && (
             <div className="px-4 py-3 bg-gray-50 text-center">
               <button
-                onClick={() => setDisplayLimit(displayLimit + 50)}
-                className="text-amber-600 hover:text-amber-800 text-sm"
+                onClick={loadMoreIntertexts}
+                disabled={loadingMore}
+                className="text-amber-600 hover:text-amber-800 text-sm disabled:opacity-50"
               >
-                Show more ({displayLimit} of {sortedIntertexts.length})
+                {loadingMore
+                  ? 'Loading...'
+                  : `Show more (${(isPublicView ? publicTotal : myTotal) - sortedIntertexts.length} remaining)`}
               </button>
             </div>
           )}
+          <div className="px-4 py-3 bg-gray-50 text-sm text-gray-500">
+            Showing {sortedIntertexts.length} of {isPublicView ? publicTotal : myTotal} intertexts
+          </div>
         </div>
       )}
 

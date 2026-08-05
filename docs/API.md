@@ -241,8 +241,12 @@ List public intertexts from the repository.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | page | int | Page number (default: 1) |
-| per_page | int | Results per page (default: 20) |
-| language | string | Filter by language |
+| per_page | int | Results per page: `25`, `50`, `100`, or `500` (default: 50) |
+| source_language | string | Filter by source language |
+| sort_by | string | `created_at`, `score`, or `scholar_score` (default: `created_at`) |
+| sort_order | string | `asc` or `desc` (default: `desc`) |
+
+The response includes `total`, page metadata, and a `summary` for repository counts.
 
 ---
 
@@ -267,7 +271,7 @@ Create a new intertext entry.
 ---
 
 ### GET `/api/intertexts/my`
-Get current user's saved intertexts. Requires authentication.
+Get current user's saved intertexts. Requires authentication. It accepts the same paging, source-language, and sorting parameters as the public list, plus `visibility` (`all`, `shared`, or `private`).
 
 ---
 
@@ -278,7 +282,12 @@ Export intertexts as CSV.
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | format | string | Export format: csv |
-| user_id | string | Filter by user (optional) |
+| source_language | string | Filter by source language |
+| sort_by | string | `created_at`, `score`, or `scholar_score` |
+| sort_order | string | `asc` or `desc` |
+
+### GET `/api/intertexts/my/export`
+Export all of the current user's matching saved intertexts as CSV. Requires authentication and accepts `source_language`, `visibility`, `sort_by`, and `sort_order`.
 
 ---
 

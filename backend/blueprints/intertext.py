@@ -2,7 +2,7 @@
 Intertext Repository Blueprint
 Handles saving, browsing, and exporting registered intertexts.
 """
-from flask import Blueprint, jsonify, request, session
+from flask import Blueprint, Response, jsonify, request, session
 from flask_login import current_user
 from datetime import datetime
 import json
@@ -16,6 +16,10 @@ logger = get_logger(__name__)
 
 intertext_bp = Blueprint('intertext', __name__, url_prefix='/intertexts')
 
+REPOSITORY_PAGE_SIZES = {25, 50, 100, 500}
+REPOSITORY_SORT_FIELDS = {'created_at', 'score', 'scholar_score'}
+REPOSITORY_SORT_ORDERS = {'asc', 'desc'}
+
 
 def _parse_json_list(raw_value):
     if not raw_value:
@@ -24,6 +28,102 @@ def _parse_json_list(raw_value):
         return json.loads(raw_value)
     except (TypeError, ValueError):
         return []
+
+
+def _parse_repository_list_params(include_visibility=False):
+    """Parse the shared pagination, filter, and sort query parameters."""
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 50, type=int)
+    sort_by = request.args.get('sort_by', 'created_at')
+    sort_order = request.args.get('sort_order', 'desc')
+    source_language = request.args.get('source_language')
+
+    if not page or page < 1:
+        return None, ('page must be a positive integer', 400)
+    if per_page not in REPOSITORY_PAGE_SIZES:
+        return None, ('per_page must be one of 25, 50, 100, or 500', 400)
+    if sort_by not in REPOSITORY_SORT_FIELDS:
+        return None, ('sort_by must be created_at, score, or scholar_score', 400)
+    if sort_order not in REPOSITORY_SORT_ORDERS:
+        return None, ('sort_order must be asc or desc', 400)
+
+    params = {
+        'page': page,
+        'per_page': per_page,
+        'sort_by': sort_by,
+        'sort_order': sort_order,
+        'source_language': source_language,
+    }
+    if include_visibility:
+        visibility = request.args.get('visibility', 'all')
+        if visibility not in {'all', 'shared', 'private'}:
+            return None, ('visibility must be all, shared, or private', 400)
+        params['visibility'] = visibility
+
+    return params, None
+
+
+def _apply_repository_sort(query, model, sort_by, sort_order):
+    score_field = model.tesserae_score
+    rating_field = model.user_score if model is Intertext else model.intertext_score
+    field = {
+        'created_at': model.created_at,
+        'score': score_field,
+        'scholar_score': rating_field,
+    }[sort_by]
+    order = field.asc() if sort_order == 'asc' else field.desc()
+    return query.order_by(order, model.id.asc())
+
+
+def _apply_public_repository_filters(query, params):
+    status = request.args.get('status')
+    target_language = request.args.get('target_language')
+    tag = request.args.get('tag')
+    submitter_id = request.args.get('submitter_id')
+
+    if status:
+        query = query.filter(Intertext.status == status)
+    if params['source_language']:
+        query = query.filter(Intertext.source_language == params['source_language'])
+    if target_language:
+        query = query.filter(Intertext.target_language == target_language)
+    if tag:
+        query = query.filter(Intertext.tags.ilike(f'%{tag}%'))
+    if submitter_id:
+        query = query.filter(Intertext.submitter_id == submitter_id)
+    return query
+
+
+def _apply_saved_repository_filters(query, params):
+    if params['source_language']:
+        query = query.filter(SavedIntertext.source_language == params['source_language'])
+    if params['visibility'] == 'shared':
+        query = query.filter(SavedIntertext.shared_to_public.is_(True))
+    elif params['visibility'] == 'private':
+        query = query.filter(SavedIntertext.shared_to_public.is_(False))
+    return query
+
+
+def _repository_csv_response(items, is_public):
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['Source', 'Target', 'Language', 'Match Score', 'Your Rating', 'Visibility', 'Notes', 'Created'])
+    for item in items:
+        writer.writerow([
+            item.source_reference or '',
+            item.target_reference or '',
+            item.source_language or '',
+            item.tesserae_score or '',
+            (item.user_score if is_public else item.intertext_score) or '',
+            'shared' if is_public or item.shared_to_public else 'private',
+            item.notes or '',
+            item.created_at.isoformat() if item.created_at else '',
+        ])
+    return Response(
+        output.getvalue(),
+        mimetype='text/csv',
+        headers={'Content-Disposition': 'attachment; filename=intertexts.csv'}
+    )
 
 
 def _serialize_public_intertext(it):
@@ -180,30 +280,17 @@ def _delete_public_copy(saved_it):
 @intertext_bp.route('', methods=['GET'])
 def list_intertexts():
     """List all intertexts with optional filtering"""
+    params, param_error = _parse_repository_list_params()
+    if param_error:
+        message, status_code = param_error
+        return jsonify({'error': message}), status_code
+
     try:
-        page = request.args.get('page', 1, type=int)
-        per_page = request.args.get('per_page', 50, type=int)
-        status = request.args.get('status', None)
-        source_language = request.args.get('source_language', None)
-        target_language = request.args.get('target_language', None)
-        tag = request.args.get('tag', None)
-        submitter_id = request.args.get('submitter_id', None)
-        
-        query = Intertext.query
-        
-        if status:
-            query = query.filter(Intertext.status == status)
-        if source_language:
-            query = query.filter(Intertext.source_language == source_language)
-        if target_language:
-            query = query.filter(Intertext.target_language == target_language)
-        if tag:
-            query = query.filter(Intertext.tags.ilike(f'%{tag}%'))
-        if submitter_id:
-            query = query.filter(Intertext.submitter_id == submitter_id)
-        
-        query = query.order_by(Intertext.created_at.desc())
-        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+        query = _apply_public_repository_filters(Intertext.query, params)
+        with_notes = query.filter(Intertext.notes.isnot(None), Intertext.notes != '').count()
+        pagination = _apply_repository_sort(
+            query, Intertext, params['sort_by'], params['sort_order']
+        ).paginate(page=params['page'], per_page=params['per_page'], error_out=False)
         
         intertexts = [_serialize_public_intertext(it) for it in pagination.items]
         
@@ -211,8 +298,12 @@ def list_intertexts():
             'intertexts': intertexts,
             'total': pagination.total,
             'pages': pagination.pages,
-            'current_page': page,
-            'per_page': per_page
+            'current_page': params['page'],
+            'per_page': params['per_page'],
+            'summary': {
+                'visible': pagination.total,
+                'with_notes': with_notes,
+            }
         })
     except Exception as e:
         logger.error(f"Failed to list intertexts: {e}")
@@ -421,41 +512,20 @@ def delete_intertext(intertext_id):
 @intertext_bp.route('/export', methods=['GET'])
 def export_intertexts():
     """Export intertexts to CSV or JSON"""
+    params, param_error = _parse_repository_list_params()
+    if param_error:
+        message, status_code = param_error
+        return jsonify({'error': message}), status_code
+
     try:
         format_type = request.args.get('format', 'json')
-        status = request.args.get('status', None)
-        
-        query = Intertext.query
-        if status:
-            query = query.filter(Intertext.status == status)
-        
-        intertexts = query.order_by(Intertext.created_at.desc()).all()
+        query = _apply_public_repository_filters(Intertext.query, params)
+        intertexts = _apply_repository_sort(
+            query, Intertext, params['sort_by'], params['sort_order']
+        ).all()
         
         if format_type == 'csv':
-            output = io.StringIO()
-            writer = csv.writer(output)
-            writer.writerow([
-                'id', 'source_text_id', 'source_author', 'source_work', 'source_reference', 'source_snippet', 'source_language',
-                'target_text_id', 'target_author', 'target_work', 'target_reference', 'target_snippet', 'target_language',
-                'matched_lemmas', 'matched_tokens', 'tesserae_score', 'user_score',
-                'notes', 'tags', 'status', 'created_at'
-            ])
-            
-            for it in intertexts:
-                writer.writerow([
-                    it.id, it.source_text_id, it.source_author, it.source_work, it.source_reference, it.source_snippet, it.source_language,
-                    it.target_text_id, it.target_author, it.target_work, it.target_reference, it.target_snippet, it.target_language,
-                    it.matched_lemmas, it.matched_tokens, it.tesserae_score, it.user_score,
-                    it.notes, it.tags, it.status, 
-                    it.created_at.isoformat() if it.created_at else ''
-                ])
-            
-            from flask import Response
-            return Response(
-                output.getvalue(),
-                mimetype='text/csv',
-                headers={'Content-Disposition': 'attachment; filename=intertexts.csv'}
-            )
+            return _repository_csv_response(intertexts, is_public=True)
         else:
             data = []
             for it in intertexts:
@@ -526,13 +596,24 @@ def list_my_intertexts():
     try:
         if not current_user.is_authenticated:
             return jsonify({'error': 'Login required'}), 401
-        
-        page = request.args.get('page', 1, type=int)
-        per_page = request.args.get('per_page', 50, type=int)
-        
-        query = SavedIntertext.query.filter(SavedIntertext.user_id == current_user.id)
-        query = query.order_by(SavedIntertext.created_at.desc())
-        pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+
+        params, param_error = _parse_repository_list_params(include_visibility=True)
+        if param_error:
+            message, status_code = param_error
+            return jsonify({'error': message}), status_code
+
+        base_query = SavedIntertext.query.filter(SavedIntertext.user_id == current_user.id)
+        summary_query = base_query
+        if params['source_language']:
+            summary_query = summary_query.filter(SavedIntertext.source_language == params['source_language'])
+        summary = {
+            'saved': summary_query.count(),
+            'shared': summary_query.filter(SavedIntertext.shared_to_public.is_(True)).count(),
+        }
+        query = _apply_saved_repository_filters(base_query, params)
+        pagination = _apply_repository_sort(
+            query, SavedIntertext, params['sort_by'], params['sort_order']
+        ).paginate(page=params['page'], per_page=params['per_page'], error_out=False)
         
         intertexts = [_serialize_saved_intertext(it) for it in pagination.items]
         
@@ -540,10 +621,35 @@ def list_my_intertexts():
             'intertexts': intertexts,
             'total': pagination.total,
             'pages': pagination.pages,
-            'current_page': page
+            'current_page': params['page'],
+            'per_page': params['per_page'],
+            'summary': summary,
         })
     except Exception as e:
         logger.error(f"Failed to list personal intertexts: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@intertext_bp.route('/my/export', methods=['GET'])
+def export_my_intertexts():
+    """Download every saved intertext matching the current Repository filters."""
+    if not current_user.is_authenticated:
+        return jsonify({'error': 'Login required'}), 401
+
+    params, param_error = _parse_repository_list_params(include_visibility=True)
+    if param_error:
+        message, status_code = param_error
+        return jsonify({'error': message}), status_code
+
+    try:
+        query = SavedIntertext.query.filter(SavedIntertext.user_id == current_user.id)
+        query = _apply_saved_repository_filters(query, params)
+        items = _apply_repository_sort(
+            query, SavedIntertext, params['sort_by'], params['sort_order']
+        ).all()
+        return _repository_csv_response(items, is_public=False)
+    except Exception as e:
+        logger.error(f"Failed to export personal intertexts: {e}")
         return jsonify({'error': str(e)}), 500
 
 

@@ -566,7 +566,24 @@ def test_auth_user(client):
 
 @pytest.mark.skipif(db_unavailable, reason="Database connection not available")
 def test_intertexts_list(client):
-    check_json(client.get("/api/intertexts"), min_keys=['intertexts'])
+    res = check_json(client.get(
+        "/api/intertexts?per_page=25&source_language=la&sort_by=score&sort_order=desc"
+    ), min_keys=['intertexts', 'total', 'pages', 'current_page', 'per_page', 'summary'])
+    assert res['per_page'] == 25
+    assert 'visible' in res['summary']
+    assert 'with_notes' in res['summary']
+
+
+@pytest.mark.skipif(db_unavailable, reason="Database connection not available")
+def test_intertexts_export(client):
+    resp = client.get("/api/intertexts/export?format=csv&per_page=50&sort_by=created_at")
+    assert resp.status_code == 200
+    assert resp.mimetype == 'text/csv'
+
+
+def test_intertexts_reject_invalid_page_size(client):
+    resp = client.get("/api/intertexts?per_page=20")
+    assert resp.status_code == 400
 
 
 @pytest.mark.skipif(db_unavailable, reason="Database connection not available")
