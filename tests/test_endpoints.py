@@ -405,6 +405,31 @@ def test_rare_lemmata_full_pagination_and_export(client, monkeypatch):
     assert export.get_data(as_text=True).splitlines()[1].startswith('alpha,1,Homer,Iliad')
 
 
+def test_text_credits_pagination_and_filtering(client, monkeypatch, tmp_path):
+    from backend.blueprints import corpus
+
+    sources_file = tmp_path / 'text_sources.json'
+    sources_file.write_text(json.dumps([
+        {'author': 'Virgil', 'work': 'Aeneid'},
+        {'author': 'Homer', 'work': 'Iliad'},
+        {'author': 'Virgil', 'work': 'Eclogues'},
+    ]), encoding='utf-8')
+    monkeypatch.setattr(corpus, 'TEXT_SOURCES_FILE', sources_file)
+
+    first_page = check_json(client.get('/api/text-credits?limit=25'))
+    assert first_page['total'] == 3
+    assert first_page['offset'] == 0
+    assert first_page['limit'] == 25
+    assert [entry['work'] for entry in first_page['entries']] == ['Aeneid', 'Iliad', 'Eclogues']
+
+    filtered_page = check_json(client.get('/api/text-credits?query=virgil&offset=1&limit=25'))
+    assert filtered_page['total'] == 2
+    assert [entry['work'] for entry in filtered_page['entries']] == ['Eclogues']
+
+    assert client.get('/api/text-credits?limit=10').status_code == 400
+    assert client.get('/api/text-credits?offset=-1').status_code == 400
+
+
 def test_rare_bigrams(client):
     resp = client.get("/api/rare-bigrams?language=la&max_occurrences=10")
     assert resp.status_code == 200

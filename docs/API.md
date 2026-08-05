@@ -191,6 +191,18 @@ List all texts in the corpus.
 }
 ```
 
+### GET `/api/text-credits`
+Browse the source credits for corpus texts in pages.
+
+**Query Parameters:**
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| query | string | Case-insensitive author or work filter (default: empty) |
+| offset | int | Zero-based result offset (default: 0) |
+| limit | int | Page size: `25`, `50`, `100`, or `500` (default: `50`) |
+
+The response contains the requested `entries` page plus `total`, `offset`, and `limit` metadata.
+
 ---
 
 ### GET `/api/authors`
