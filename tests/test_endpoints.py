@@ -367,6 +367,44 @@ def test_rare_lemmata(client):
     assert 'total_rare_words' in res
 
 
+def test_rare_lemmata_full_pagination_and_export(client, monkeypatch):
+    from backend.blueprints import hapax
+
+    cached_words = [
+        {'lemma': 'zeta', 'display': 'zeta', 'count': 3, 'first_author': 'Virgil', 'first_work': 'Aeneid'},
+        {'lemma': 'alpha', 'display': 'alpha', 'count': 1, 'first_author': 'Homer', 'first_work': 'Iliad'},
+        {'lemma': 'beta', 'display': 'beta', 'count': 2, 'first_author': 'Cicero', 'first_work': 'Orations'},
+    ]
+    monkeypatch.setattr(hapax, 'load_rare_words_cache', lambda _language: {'words': cached_words})
+
+    first_page = check_json(client.get(
+        '/api/rare-lemmata-full?language=la&max_occurrences=3&limit=25&sort_by=frequency&sort_order=asc'
+    ))
+    assert first_page['total'] == 3
+    assert first_page['offset'] == 0
+    assert first_page['limit'] == 25
+    assert [word['lemma'] for word in first_page['words']] == ['alpha', 'beta', 'zeta']
+
+    offset_page = check_json(client.get(
+        '/api/rare-lemmata-full?language=la&max_occurrences=3&offset=1&limit=25&sort_by=frequency&sort_order=asc'
+    ))
+    assert [word['lemma'] for word in offset_page['words']] == ['beta', 'zeta']
+
+    author_sorted = check_json(client.get(
+        '/api/rare-lemmata-full?language=la&max_occurrences=3&limit=25&sort_by=author&sort_order=desc'
+    ))
+    assert [word['first_author'] for word in author_sorted['words']] == ['Virgil', 'Homer', 'Cicero']
+
+    invalid_limit = client.get('/api/rare-lemmata-full?limit=10')
+    assert invalid_limit.status_code == 400
+
+    export = client.get('/api/rare-lemmata-full/export?language=la&max_occurrences=3&sort_by=lemma')
+    assert export.status_code == 200
+    assert export.mimetype == 'text/csv'
+    assert 'attachment;' in export.headers['Content-Disposition']
+    assert export.get_data(as_text=True).splitlines()[1].startswith('alpha,1,Homer,Iliad')
+
+
 def test_rare_bigrams(client):
     resp = client.get("/api/rare-bigrams?language=la&max_occurrences=10")
     assert resp.status_code == 200

@@ -146,14 +146,23 @@ Find unique word pairs shared between texts.
 
 ---
 
-### GET `/api/rare-lemmata`
-Get rare vocabulary for a specific text.
+### GET `/api/rare-lemmata-full`
+Browse rare vocabulary across a corpus language in pages.
 
 **Query Parameters:**
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| text_id | string | Text ID to analyze |
-| max_frequency | int | Maximum corpus frequency (default: 10) |
+| language | string | `la`, `grc`, or `en` (default: `la`) |
+| max_occurrences | int | Maximum corpus frequency (default: 10) |
+| offset | int | Zero-based result offset (default: 0) |
+| limit | int | Page size: `25`, `50`, `100`, or `500` (default: 50) |
+| sort_by | string | `frequency`, `lemma`, or `author` (default: `frequency`) |
+| sort_order | string | `asc` or `desc` (default: `asc`) |
+
+The response includes the requested `words` page and the total number of matching words.
+
+### GET `/api/rare-lemmata-full/export`
+Download all rare words matching the language, frequency, and sorting parameters as a CSV file. It accepts `language`, `max_occurrences`, `sort_by`, and `sort_order`; pagination parameters do not apply.
 
 ---
 
