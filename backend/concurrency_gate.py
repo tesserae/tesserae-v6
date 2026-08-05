@@ -56,10 +56,6 @@ from backend.memory_util import get_available_memory_gb
 
 logger = logging.getLogger(__name__)
 
-class SearchCancelled(Exception):
-    """Raised when an active search is cancelled by an administrator."""
-    pass
-
 
 # Use a project-local directory instead of /tmp so lock files are visible
 # and cleanable even when Apache runs with PrivateTmp=yes.

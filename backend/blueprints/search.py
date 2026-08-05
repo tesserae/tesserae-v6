@@ -1502,6 +1502,9 @@ def search():
             source_units, target_units = _load_units(params)
             corpus_frequencies = _load_corpus_frequencies(language, settings)
 
+            if slot.is_cancelled():
+                return jsonify({'error': 'Search terminated by administrator'}), 410
+
             # Cross-lingual fusion (default for cross-lingual searches)
             if match_type == 'crosslingual_fusion':
                 return _handle_crosslingual_fusion(params, source_units, target_units, settings)
@@ -1517,6 +1520,9 @@ def search():
             else:
                 matches, stoplist_size = _run_matcher(match_type, source_units, target_units,
                                                        settings, corpus_frequencies)
+
+            if slot.is_cancelled():
+                return jsonify({'error': 'Search terminated by administrator'}), 410
 
             # Score, cache, log, and return
             scored_results = _scorer.score_matches(matches, source_units, target_units, settings, source_id, target_id)

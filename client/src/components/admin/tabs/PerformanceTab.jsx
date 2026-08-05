@@ -163,7 +163,7 @@ export default function PerformanceTab() {
       });
       if (res.ok) {
         setMessage({ type: 'success', text: 'Termination signal sent to all active searches.' });
-        fetchActiveSearches();
+        fetchStatus();
       } else {
         const data = await res.json();
         setMessage({ type: 'error', text: data.error || 'Failed to kill all searches' });

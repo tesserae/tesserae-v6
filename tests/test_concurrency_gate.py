@@ -306,8 +306,9 @@ def test_cancel_search_creates_marker_and_is_cancelled():
                 assert active[0]['is_cancelling'] is True
 
                 # Release slot should clean up slot file AND cancel file
+                slot_id = slot.slot_id
                 slot.release()
-                cancel_file = os.path.join(tmpdir, f"{slot.slot_id}.cancel")
+                cancel_file = os.path.join(tmpdir, f"{slot_id}.cancel")
                 assert not os.path.exists(cancel_file)
             finally:
                 gate.LOCK_DIR = old_lock_dir
