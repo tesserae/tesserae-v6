@@ -420,6 +420,11 @@ class TestScoringConstants:
     def test_channel_weights_positive(self):
         from backend.fusion import CHANNEL_WEIGHTS
         for name, weight in CHANNEL_WEIGHTS.items():
+            # The quotation channel defaults to 0.0 in CHANNEL_WEIGHTS; it is
+            # enabled and weighted per-search via WEIGHT_PROFILES (biblical_coptic).
+            if name == "quotation":
+                assert weight >= 0, f"Channel {name} has negative weight {weight}"
+                continue
             assert weight > 0, f"Channel {name} has non-positive weight {weight}"
 
     def test_convergence_bonus_positive(self):
@@ -440,8 +445,10 @@ class TestScoringConstants:
 
     def test_ten_channels_defined(self):
         from backend.fusion import CHANNEL_WEIGHTS
-        assert len(CHANNEL_WEIGHTS) == 10, (
-            f"Expected 10 channels, found {len(CHANNEL_WEIGHTS)}: "
+        # 10 core channels plus the quotation channel added for biblical/Coptic
+        # verbatim-run detection (default weight 0.0, enabled via WEIGHT_PROFILES).
+        assert len(CHANNEL_WEIGHTS) == 11, (
+            f"Expected 11 channels, found {len(CHANNEL_WEIGHTS)}: "
             f"{list(CHANNEL_WEIGHTS.keys())}"
         )
 
@@ -450,6 +457,7 @@ class TestScoringConstants:
         expected = {
             "edit_distance", "sound", "exact", "lemma", "dictionary",
             "semantic", "rare_word", "syntax", "syntax_structural", "lemma_min1",
+            "quotation",
         }
         assert set(CHANNEL_WEIGHTS.keys()) == expected
 

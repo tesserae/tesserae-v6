@@ -53,6 +53,9 @@ VALID_CROSSLINGUAL_PAIRS = {
     frozenset(('la', 'en')),
     frozenset(('grc', 'en')),
 }
+# Coptic-Greek pair added unconditionally -- the corpus/text checks at search
+# time handle the case where Coptic texts are not installed.
+VALID_CROSSLINGUAL_PAIRS.add(frozenset(('cop', 'grc')))
 
 # Module-level references to shared components (injected via init_search_blueprint)
 _matcher = None       # Matcher: Finds parallel passages between texts
@@ -324,9 +327,126 @@ def _find_dictionary_matches_fast(source_units, target_units, source_language, t
         return _find_english_dictionary_matches(source_units, target_units,
                                                 source_language, target_language)
 
+    # --- Coptic-Greek pair: CSV dictionary path ---
+    if 'cop' in lang_pair:
+        return _find_csv_dictionary_matches(source_units, target_units,
+                                            source_language, target_language)
+
     # --- Greek-Latin pair: fast inverted-index path (unchanged) ---
     return _find_greek_latin_dictionary_matches_fast(source_units, target_units,
                                                      source_language, target_language)
+
+
+def _find_csv_dictionary_matches(source_units, target_units, source_language, target_language):
+    """Dictionary matching for Coptic-Greek using a CSV-based dictionary.
+
+    Builds an inverted index on the target side, then scans source lemmas.
+    Returns dict keyed by (src_idx, tgt_idx) with word_matches list.
+    """
+    import csv
+    import unicodedata
+    from collections import defaultdict
+
+    lang_pair = frozenset((source_language, target_language))
+
+    # Load the appropriate dictionary
+    synonymy_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'synonymy', 'v6_additions')
+
+    if 'cop' in lang_pair:
+        dict_path = os.path.join(synonymy_dir, 'coptic_greek.csv')
+        new_lang = 'cop'
+    else:
+        return {}
+
+    if not os.path.exists(dict_path):
+        logger.warning(f"Dictionary not found: {dict_path}")
+        return {}
+
+    # Load dictionary as bidirectional mapping
+    # CSV format: word1, word2 (the new-language word is first, Greek is second)
+    new_to_greek = defaultdict(set)
+    greek_to_new = defaultdict(set)
+    with open(dict_path, 'r', encoding='utf-8') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if len(row) < 2:
+                continue
+            w1 = row[0].strip()
+            w2 = row[1].strip()
+            if w1 and w2 and len(w1) >= 2 and len(w2) >= 3:
+                # Normalize Greek (strip accents for matching)
+                # Require min length 3 for Greek to filter CATSS betacode artifacts
+                w2_norm = unicodedata.normalize('NFC', w2)
+                w2_norm = ''.join(c for c in unicodedata.normalize('NFD', w2_norm)
+                                  if unicodedata.category(c) != 'Mn').lower()
+                # Normalize terminal sigma ς (U+03C2) to medial σ (U+03C3)
+                # to match the index which uses medial sigma throughout
+                w2_norm = w2_norm.replace('ς', 'σ')
+                if len(w2_norm) >= 3:
+                    new_to_greek[w1].add(w2_norm)
+                    greek_to_new[w2_norm].add(w1)
+
+    logger.info(f"Loaded {len(new_to_greek)} {new_lang} entries from {dict_path}")
+
+    # Cross-lingual stoplist: remove only the highest-frequency function words
+    # that produce thousands of vacuous matches. The IDF-based scoring in the
+    # fusion handler handles the rest -- content words get higher IDF and rank
+    # above function words naturally. We only need to remove words so common
+    # that they create massive noise in the match set itself.
+    from backend.synonym_dict import CROSSLINGUAL_STOPLIST_GREEK
+    _GREEK_STOP = CROSSLINGUAL_STOPLIST_GREEK
+
+    from backend import fusion
+
+    # Coptic: curated function words
+    _COPTIC_STOP = fusion._STOPLISTS.get('cop', set())
+
+    # Build combined stoplists: start with fusion registry, then override
+    # Greek with the richer CROSSLINGUAL_STOPLIST_GREEK which includes
+    # articles, pronouns, prepositions, particles
+    lang_stops = dict(fusion._STOPLISTS)
+    lang_stops['grc'] = _GREEK_STOP  # override with cross-lingual stoplist
+
+    if source_language == new_lang:
+        src_dict = new_to_greek
+    else:
+        src_dict = greek_to_new
+
+    src_stop = lang_stops.get(source_language, set())
+    tgt_stop = lang_stops.get(target_language, set())
+
+    # Build inverted index on target side
+    target_index = defaultdict(list)
+    for ti, unit in enumerate(target_units):
+        for pos, lemma in enumerate(unit.get('lemmas', [])):
+            # Normalize sigma for consistent matching
+            lemma_n = lemma.replace('ς', 'σ') if lemma else lemma
+            if lemma_n in tgt_stop or len(lemma_n) < 2:
+                continue
+            target_index[lemma_n].append((ti, pos))
+
+    # Scan source units and find matches
+    results = defaultdict(list)
+    for si, unit in enumerate(source_units):
+        for src_pos, src_lemma in enumerate(unit.get('lemmas', [])):
+            if src_lemma in src_stop or len(src_lemma) < 2:
+                continue
+            translations = src_dict.get(src_lemma, set())
+            for translation in translations:
+                if translation in tgt_stop:
+                    continue
+                if translation in target_index:
+                    for ti, tgt_pos in target_index[translation]:
+                        key = (si, ti)
+                        results[key].append({
+                            'source_lemma': src_lemma,
+                            'target_lemma': translation,
+                            'source_indices': [src_pos],
+                            'target_indices': [tgt_pos],
+                        })
+
+    logger.info(f"Dictionary found {len(results)} pairs (minimal stoplist filtering)")
+    return dict(results)
 
 
 def _find_english_dictionary_matches(source_units, target_units, source_language, target_language):
@@ -731,9 +851,12 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
             logger.error(f"Syntax channel failed (may not have syntax DB): {e}")
 
     # --- Channel 4: Cross-lingual phonetic (transliteration + edit distance) ---
-    # Only for Greek-Latin pairs: transliterate Greek → Latin alphabet, then
-    # compare tokens by edit distance to catch phonetic echoes (e.g. μῆνιν / mene).
+    # Greek-Latin: transliterate Greek → Latin alphabet, then compare tokens
+    # by edit distance to catch phonetic echoes (e.g. μῆνιν / mene).
+    # Coptic-Greek: transliterate Coptic → Greek alphabet, same idea — most
+    # Coptic letters map identically to Greek, only 7 are Coptic-specific.
     phonetic_by_pair = {}
+    is_coptic_greek = lang_pair == frozenset(('cop', 'grc'))
     if is_greek_latin:
         try:
             from backend.matcher import find_crosslingual_phonetic_matches
@@ -744,6 +867,16 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
             logger.info(f"Phonetic found {len(phonetic_by_pair)} pairs with transliteration matches")
         except Exception as e:
             logger.error(f"Phonetic channel failed: {e}")
+    elif is_coptic_greek:
+        try:
+            from backend.matcher import find_crosslingual_phonetic_matches_cop_grc
+            phonetic_by_pair = find_crosslingual_phonetic_matches_cop_grc(
+                source_units, target_units,
+                source_language, target_language,
+                min_similarity=0.65, min_token_len=3)
+            logger.info(f"Phonetic (cop-grc) found {len(phonetic_by_pair)} pairs with transliteration matches")
+        except Exception as e:
+            logger.error(f"Phonetic (cop-grc) channel failed: {e}")
 
     # --- Merge ---
     # Phonetic alone is too noisy (thousands of false positives from short-word

@@ -7,6 +7,7 @@ const SOURCE_LINKS = {
   'Open Greek and Latin Project': 'https://opengreekandlatin.org/',
   'Musisque Deoque': 'http://www.mqdq.it/',
   'Corpus Scriptorum Latinorum': 'https://web.archive.org/web/20220305141011/http://www.forumromanum.org/literature/index.html',
+  'Coptic Scriptorium': 'https://copticscriptorium.org/',
 };
 
 function IntroLink({ name, url }) {
@@ -62,13 +63,18 @@ export default function TextCredits() {
       <h2 className="text-2xl font-semibold text-gray-900 mb-4">Sources</h2>
 
       <p className="text-gray-700 leading-relaxed mb-6">
-        The texts used in this project were gathered from many electronic text databases, including{' '}
+        The texts used in this project were gathered from many electronic text databases. Latin and Greek
+        texts come from{' '}
         <IntroLink name="The Latin Library" url={SOURCE_LINKS['The Latin Library']} />,{' '}
         <IntroLink name="The Perseus Project" url={SOURCE_LINKS['The Perseus Project']} />,{' '}
         <IntroLink name="DigilibLT" url={SOURCE_LINKS['DigilibLT']} />,{' '}
         <IntroLink name="Open Greek and Latin Project" url={SOURCE_LINKS['Open Greek and Latin Project']} />,{' '}
         <IntroLink name="Musisque Deoque" url={SOURCE_LINKS['Musisque Deoque']} />, and{' '}
         <IntroLink name="Corpus Scriptorum Latinorum" url={SOURCE_LINKS['Corpus Scriptorum Latinorum']} />.
+        {' '}Coptic texts (Sahidic and Bohairic) come from{' '}
+        <IntroLink name="Coptic Scriptorium" url={SOURCE_LINKS['Coptic Scriptorium']} /> (CC-BY 4.0; the
+        Sahidica New Testament is additionally subject to its own academic-use license, ©2000–2006
+        J. Warren Wells).
         {' '}We have modified the texts by changing the markup, and may have made superficial changes to orthography.
         During our searches, all punctuation and capitalization are removed. Below we provide the electronic
         sources for each of our texts. To the best of our ability, we have looked for indications of the

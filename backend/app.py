@@ -553,6 +553,15 @@ app.register_blueprint(fusion_bp, url_prefix=API_PREFIX or None)
 
 app_logger.info(f"Blueprints registered (API_PREFIX='{API_PREFIX}', env={DEPLOYMENT_ENV})")
 
+# =============================================================================
+# PLUGIN LANGUAGES (Coptic)
+# =============================================================================
+try:
+    from backend.coptic import register as register_coptic
+    register_coptic()
+except ImportError:
+    pass
+
 
 # =============================================================================
 # REQUEST MIDDLEWARE
@@ -784,6 +793,35 @@ def api_version():
     except Exception as e:
         app_logger.error(f"Error getting version info: {e}")
         return jsonify({"version": "6.0", "last_updated": None})
+
+
+@api_route('/languages')
+def api_languages():
+    """Return available languages and cross-lingual pairs.
+    Frontend uses this to dynamically populate language tabs."""
+    import os
+    languages = [
+        {'code': 'la', 'label': 'Latin'},
+        {'code': 'grc', 'label': 'Greek'},
+        {'code': 'en', 'label': 'English'},
+    ]
+    crosslingual_pairs = [
+        {'key': 'grc-la', 'source': 'grc', 'target': 'la', 'label': 'Greek → Latin'},
+        {'key': 'la-en', 'source': 'la', 'target': 'en', 'label': 'Latin → English'},
+        {'key': 'grc-en', 'source': 'grc', 'target': 'en', 'label': 'Greek → English'},
+    ]
+    try:
+        from backend.coptic import COPTIC_ENABLED
+        if COPTIC_ENABLED:
+            texts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts', 'cop')
+            if os.path.isdir(texts_dir):
+                languages.append({'code': 'cop', 'label': 'Coptic'})
+                crosslingual_pairs.extend([
+                    {'key': 'cop-grc', 'source': 'cop', 'target': 'grc', 'label': 'Coptic → Greek'},
+                ])
+    except ImportError:
+        pass
+    return jsonify({'languages': languages, 'crosslingual_pairs': crosslingual_pairs})
 
 
 # =============================================================================
@@ -2241,12 +2279,18 @@ def submit_request():
     
     language = (language or '').strip().lower()
     allowed_languages = {'latin', 'greek', 'english'}
+    try:
+        from backend.coptic import COPTIC_ENABLED
+        if COPTIC_ENABLED:
+            allowed_languages.add('coptic')
+    except ImportError:
+        pass
 
     # Only author and work are required
     if not author or not work:
         return jsonify({'error': 'Author and work title are required'}), 400
     if language not in allowed_languages:
-        return jsonify({'error': 'Please select a valid language (Latin, Greek, or English)'}), 400
+        return jsonify({'error': f'Please select a valid language ({", ".join(sorted(allowed_languages))})'}), 400
     
     try:
         with get_db_cursor() as cur:

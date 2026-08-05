@@ -1192,18 +1192,34 @@ def find_rare_word_matches_direct(source_units, target_units, language='la',
     """
     from collections import defaultdict
 
+    # Per-language manual stoplist for filtering function-class morphemes.
+    # Critical for Coptic post sub-word tokenisation (2026-05-01) — the
+    # rare_word channel otherwise generates millions of candidate matches
+    # on common bound morphemes whose corpus-doc-frequency happens to
+    # land within max_occurrences in some texts.
+    manual_stoplist = set()
+    if language == 'cop':
+        try:
+            from backend.coptic.stopwords import COPTIC_STOP_WORDS
+            manual_stoplist = COPTIC_STOP_WORDS
+        except Exception:
+            pass
+
+    def _accept(l):
+        return len(l) > 2 and l not in manual_stoplist
+
     # Collect unique lemmas per unit
     source_lemma_sets = []
     all_source_lemmas = set()
     for unit in source_units:
-        lemmas = set(l.lower() for l in unit.get('lemmas', []) if len(l) > 2)
+        lemmas = set(l.lower() for l in unit.get('lemmas', []) if _accept(l))
         source_lemma_sets.append(lemmas)
         all_source_lemmas.update(lemmas)
 
     target_lemma_sets = []
     all_target_lemmas = set()
     for unit in target_units:
-        lemmas = set(l.lower() for l in unit.get('lemmas', []) if len(l) > 2)
+        lemmas = set(l.lower() for l in unit.get('lemmas', []) if _accept(l))
         target_lemma_sets.append(lemmas)
         all_target_lemmas.update(lemmas)
 

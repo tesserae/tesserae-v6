@@ -71,6 +71,7 @@ import numpy as np
 
 from backend.logging_config import get_logger
 from backend.matcher import DEFAULT_LATIN_STOP_WORDS, DEFAULT_GREEK_STOP_WORDS, DEFAULT_ENGLISH_STOP_WORDS
+from backend.coptic.stopwords import COPTIC_STOP_WORDS
 
 logger = get_logger('fusion')
 
@@ -79,6 +80,7 @@ _STOPLISTS = {
     'la': DEFAULT_LATIN_STOP_WORDS,
     'grc': DEFAULT_GREEK_STOP_WORDS,
     'en': DEFAULT_ENGLISH_STOP_WORDS,
+    'cop': COPTIC_STOP_WORDS,
 }
 
 
@@ -145,7 +147,124 @@ CHANNEL_WEIGHTS = {
                             #   syntactic patterns; rises when semantic recovery adds 2nd channel)
     "lemma_min1": 0.3,      # lexical: single shared lemma (low — very high recall, very
                             #   noisy; serves as a catch-all for otherwise missed pairs)
+    "quotation": 0.0,       # lexical: runs of 3+ consecutive identical surface tokens.
+                            #   DEFAULT WEIGHT IS 0 to avoid affecting Latin/Greek
+                            #   classical-poetry benchmarks. The quotation channel is
+                            #   intended primarily for biblical-prose; enabled and
+                            #   weighted via WEIGHT_PROFILES["biblical_coptic"] below.
+                            #   Set the per-search weight via the profile mechanism.
 }
+
+
+# ---------------------------------------------------------------------------
+# WEIGHT PROFILES — domain-specific scoring configurations (added 2026-05-15)
+# ---------------------------------------------------------------------------
+# V6's channel weights need different calibration for different text-type
+# regimes. The "latin_epic" profile is the historical default (LLM-tuned for
+# classical Latin epic poetry, where rare_word convergence is the dominant
+# signal). The "biblical_coptic" profile is the result of a 50-iteration
+# optimization on Sahidic Hebrews × Sahidic Psalms (Phase 9 of the Coptic
+# project, 2026-05-15) — biblical-prose verbatim quotation lives in common
+# vocabulary that the rare_word penalty would otherwise suppress, so the
+# optimal profile gives high weight to phonetic-trigram (sound), neural-
+# semantic, and the quotation channel, with classical-allusion channels
+# (rare_word, lemma) reduced.
+#
+# Selection: get_weight_profile(language, corpus_type=None) chooses the
+# profile. Default selection:
+#   language=cop  → biblical_coptic
+#   otherwise     → latin_epic
+# This firewalls the Coptic optimization from affecting Latin/Greek defaults.
+WEIGHT_PROFILES = {
+    "latin_epic": dict(CHANNEL_WEIGHTS),  # snapshot of the historical Latin-tuned defaults
+
+    # Best-composite result from Phase 9 optimization (iter 16, seed 314).
+    # 50-iter biblical-bias search over log-uniform [0.1×, 10×]; semantic and
+    # quotation channels included as tunables. Objective: R@100 against the
+    # broad TSK 124-pair benchmark; verified against the 29-pair verbatim
+    # benchmark with 26/29 (90%) recall at top 50, 28/29 (97%) at top 1,000.
+    # This profile is the default for Coptic. It is the profile under which
+    # the parallels presently being reviewed by Becky Krawiec were generated,
+    # so the weights here are frozen until that review is complete.
+    "biblical_coptic": {
+        "edit_distance":     0.795,
+        "sound":            24.277,    # cranked from baseline 5.0, phonetic surface dominates
+        "exact":             0.698,
+        "lemma":             0.320,    # reduced from baseline 2.0
+        "dictionary":        0.123,
+        "semantic":         11.216,    # cranked from baseline 1.0, multilingual_e5 carries paraphrase
+        "rare_word":         0.550,    # reduced from baseline 7.0
+        "syntax":            0.102,
+        "syntax_structural": 0.081,
+        "lemma_min1":        0.088,
+        "quotation":        35.052,    # cranked from baseline 0.0, verbatim runs dominate
+    },
+
+    # Experimental profile, 2026-05-17. Designed to surface paraphrase and
+    # thematic intertexts that biblical_coptic suppresses, while keeping
+    # verbatim recall above a sanity floor.
+    #
+    # Weights below are the best of two 30-iteration hill-climbing searches
+    # (`evaluation/coptic_recall/run_optimization_thematic.py`), starting
+    # from biblical_coptic with thematic-biased perturbations and rejecting
+    # any iteration whose verbatim 29-pair R@50 dropped below 70%. The first
+    # search used a narrow perturbation range (log_range=1.5), the second
+    # used wide perturbation (log_range=2.5) with a different random seed.
+    # The wider search found a better Pareto point at its iteration 24.
+    #
+    # Result vs biblical_coptic on Hebrews x Sahidic Psalms:
+    #   broad TSK 124-pair R@100:  15.3% (19/124) vs 14.5% (18/124), +1 pair
+    #   broad TSK 124-pair R@500:  17.7% (22/124) vs 16.1% (20/124), +2 pairs
+    #   broad TSK 124-pair R@1000: 19.4% (24/124) vs 18.5% (23/124), +1 pair
+    #   verbatim 29-pair R@50:     79.3% (23/29) vs 89.7% (26/29), -3 pairs
+    #   verbatim 29-pair R@500:    96.6% (28/29) vs 96.6% (28/29), unchanged
+    #
+    # Interesting finding: the optimizer's winning shape boosts rare_word
+    # (4.8 vs biblical_coptic's 0.55) and drops semantic (4.2 vs 11.2). The
+    # broad-benchmark gains come from rare-word convergence in the
+    # paraphrase tail, not from semantic embedding. The "thematic" label is
+    # therefore partially misleading, what we have here is a "rare-word-
+    # weighted biblical" profile that recovers a few extra pairs.
+    #
+    # The improvement is modest. Pure weight optimization plateaus here
+    # because most TSK thematic pairs are not detectable by lexical-surface
+    # channels at any weighting. Breaking through this ceiling requires
+    # additional matching primitives (e.g., a contrastive-fine-tuned Coptic
+    # embedding model trained on biblical paraphrase pairs), not just
+    # weight changes. See §4.7 of the article for future-work discussion.
+    #
+    # Not the default for any language. Select with profile_name=
+    # "biblical_coptic_thematic".
+    "biblical_coptic_thematic": {
+        "edit_distance":     0.182,
+        "sound":            19.086,   # lower than biblical_coptic 24.3
+        "exact":             0.977,
+        "lemma":             0.283,
+        "dictionary":        0.677,
+        "semantic":          4.157,   # lower than biblical_coptic 11.2
+        "rare_word":         4.816,   # raised from biblical_coptic 0.55
+        "syntax":            0.142,
+        "syntax_structural": 0.154,
+        "lemma_min1":        0.009,
+        "quotation":        13.449,   # lower than biblical_coptic 35.1
+    },
+}
+
+
+def get_weight_profile(language=None, corpus_type=None, profile_name=None):
+    """Return the appropriate channel weight dict for a search.
+
+    Selection order:
+      1. Explicit profile_name (overrides everything).
+      2. (language, corpus_type) tuple lookup — future extension point.
+      3. Language default: cop → biblical_coptic; everything else → latin_epic.
+    """
+    if profile_name and profile_name in WEIGHT_PROFILES:
+        return dict(WEIGHT_PROFILES[profile_name])
+    if language == "cop":
+        return dict(WEIGHT_PROFILES["biblical_coptic"])
+    return dict(WEIGHT_PROFILES["latin_epic"])
+
 
 # Bonus added for each additional channel beyond the first that confirms
 # a pair, rewarding cross-channel convergence as evidence of a true allusion.
@@ -297,6 +416,7 @@ ALL_CHANNELS = list(CHANNEL_WEIGHTS.keys())
 CHANNEL_ORDER = [
     "lemma",         # fast, high quality — gives first results immediately
     "exact",         # fast, high precision
+    "quotation",     # fast, very high precision for verbatim runs (biblical-text fix)
     "rare_word",     # fast, sparse
     "dictionary",    # fast-medium
     "syntax",        # fast, DB lookup
@@ -311,10 +431,12 @@ CHANNEL_ORDER = [
 # If a channel's required resource is missing for the search language, it is
 # skipped and not counted in the "N channels" progress message.
 CHANNEL_LANGUAGE_SUPPORT = {
-    "dictionary":    {"la", "grc"},      # Latin/Greek synonym pairs only
-    "sound":         {"la", "grc"},      # character trigram matching designed for Latin/Greek
-    "edit_distance": {"la", "grc"},      # Levenshtein designed for Latin/Greek morphology
-    "syntax":        {"la", "grc"},      # requires syntax DB (syntax_latin.db / syntax_greek.db)
+    "dictionary":    {"la", "grc", "cop"},  # Latin/Greek synonym pairs; Coptic uses Coptic Wordnet (Slaughter et al. 2019)
+    "sound":         {"la", "grc", "cop"},  # character trigram Jaccard similarity
+    "edit_distance": {"la", "grc", "cop"},  # Levenshtein fuzzy matching
+    "syntax":        {"la", "grc", "cop"},  # requires syntax DB (syntax_latin.db / syntax_greek.db / syntax_coptic.db)
+    "semantic":      {"la", "grc", "en", "cop"},  # SPhilBERTa (la/grc/en) + multilingual-e5-large (cop)
+    "quotation":     {"la", "grc", "cop", "en"},  # runs of identical tokens — language-agnostic
 }
 
 
@@ -429,6 +551,12 @@ CHANNEL_CONFIGS = {
         "use_pos": False,
         "use_syntax": False,
     },
+    "quotation": {
+        "match_type": "quotation",
+        "language": "la",
+        "quotation_min_run": 3,
+        "quotation_max_results": 50000,
+    },
 }
 
 
@@ -500,6 +628,19 @@ _SYNTAX_GREEK_DB_PATH = os.path.join(
     os.path.dirname(os.path.dirname(__file__)),
     "data", "inverted_index", "syntax_greek.db",
 )
+
+_SYNTAX_COPTIC_DB_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)),
+    "data", "inverted_index", "syntax_coptic.db",
+)
+
+
+def _syntax_db_for_language(lang):
+    if lang == 'grc':
+        return _SYNTAX_GREEK_DB_PATH
+    if lang == 'cop':
+        return _SYNTAX_COPTIC_DB_PATH
+    return _SYNTAX_DB_PATH
 
 _SYNTAX_PARSE_CACHE = {}
 _SYNTAX_CACHE_MAX = 50  # LRU-style cap: evict oldest when exceeded
@@ -754,8 +895,8 @@ def find_syntax_matches(source_units, target_units, source_id, target_id,
 
     Returns results in the same format as other channels.
     """
-    source_db = _SYNTAX_GREEK_DB_PATH if source_language == 'grc' else _SYNTAX_DB_PATH
-    target_db = _SYNTAX_GREEK_DB_PATH if target_language == 'grc' else _SYNTAX_DB_PATH
+    source_db = _syntax_db_for_language(source_language)
+    target_db = _syntax_db_for_language(target_language)
     source_parses = _load_syntax_for_text(source_db, source_id)
     target_parses = _load_syntax_for_text(target_db, target_id)
 
@@ -1028,14 +1169,24 @@ def run_channel(channel_name, config, source_units, target_units,
     elif match_type == "rare_word":
         try:
             from backend.blueprints.hapax import find_rare_word_matches_direct
-            max_occ = settings.get("rare_word_max_occurrences", 50)
+            language = settings.get("language", "la")
+            # Coptic uses sub-word tokenisation, which inflates per-document
+            # token counts ~2-3x and pushes many morphemes above the default
+            # rarity threshold while remaining "rare" in absolute terms.
+            # Tighten the threshold so the channel still discriminates.
+            default_max_occ = 25 if language == 'cop' else 50
+            max_occ = settings.get("rare_word_max_occurrences", default_max_occ)
             matches = find_rare_word_matches_direct(
                 source_units, target_units,
-                language=settings.get("language", "la"),
+                language=language,
                 max_occurrences=max_occ,
             )
         except (ImportError, AttributeError):
             matches = []
+    elif match_type == "quotation":
+        matches, _ = matcher.find_quotation_matches(
+            source_units, target_units, settings
+        )
     else:
         # lemma or exact
         matches, _ = matcher.find_matches(source_units, target_units, settings, None)
@@ -1781,7 +1932,13 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
                     so rare local terms can reach corpus-calibrated IDF values.
     source_id/target_id: filenames needed for meter and text_pair lookup.
     """
-    _weights = weights if weights is not None else CHANNEL_WEIGHTS
+    # Weight profile selection: explicit `weights` argument wins; otherwise
+    # fall through to the language-default profile via get_weight_profile().
+    # This is what firewalls the biblical-Coptic optimization (Phase 9 of the
+    # 2026-05-15 Coptic project) from Latin/Greek defaults — Coptic searches
+    # pick up the biblical-Coptic profile automatically, and other languages
+    # keep the historical latin_epic profile unchanged.
+    _weights = weights if weights is not None else get_weight_profile(language=language)
     _convergence_bonus = convergence_bonus if convergence_bonus is not None else CONVERGENCE_BONUS
     _idf_floor = idf_floor if idf_floor is not None else RARITY_IDF_FLOOR
     _idf_threshold = idf_threshold if idf_threshold is not None else RARITY_IDF_THRESHOLD
@@ -1795,6 +1952,9 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
 
     pair_scores = defaultdict(lambda: {
         "score": 0.0,
+        "quotation_score_contrib": 0.0,  # quotation channel's weighted contribution,
+                                         # accumulated separately so it bypasses
+                                         # the rarity multiplier at score-assembly time.
         "channels": [],
         "n_scoring_channels": 0,  # channels with raw_score > 0
         "best_result": None,
@@ -1814,7 +1974,16 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
             rt = r.get("target", {}).get("ref", "")
             key = (rs, rt)
             raw_score = r.get("overall_score") or r.get("score") or 0
-            pair_scores[key]["score"] += raw_score * weight
+            contribution = raw_score * weight
+            pair_scores[key]["score"] += contribution
+            # The quotation channel's contribution is also stashed separately
+            # so it can be re-added unscaled by the rarity multiplier at score
+            # assembly. A long verbatim run is intrinsically distinctive even
+            # when its individual tokens are common; bypassing the rarity
+            # penalty for that contribution prevents common-vocabulary verbatim
+            # quotations from being suppressed.
+            if ch_name == "quotation":
+                pair_scores[key]["quotation_score_contrib"] += contribution
             pair_scores[key]["channels"].append(ch_name)
             if raw_score > 0:
                 pair_scores[key]["n_scoring_channels"] += 1
@@ -2154,8 +2323,21 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
         #   The convergence bonus is also scaled by the rarity multiplier,
         #   but only to the first power (not squared), since the IDF
         #   weighting in weighted_n already provides steep suppression.
+        # Quotation bypass: the quotation channel's contribution is removed
+        #   from base_score before the rarity penalty and added back after,
+        #   so that a long verbatim run made of common biblical vocabulary
+        #   isn't suppressed by the same rarity multiplier that suppresses
+        #   bag-of-common-words matches. A 9-token verbatim run is
+        #   intrinsically distinctive even when each individual token is a
+        #   common function word.
+        quot_contrib = info.get("quotation_score_contrib", 0.0)
+        non_quotation_base = base_score - quot_contrib
         conv_mult = multiplier ** _conv_idf_power
-        info["score"] = base_score * (multiplier ** _penalty_power) + conv_score * conv_mult
+        info["score"] = (
+            non_quotation_base * (multiplier ** _penalty_power)
+            + quot_contrib
+            + conv_score * conv_mult
+        )
 
     _t2 = _time.time()
     logger.info(f"[FUSION] Rarity scoring complete for {len(pair_scores):,} pairs in {_t2-_t1:.1f}s")
@@ -2713,6 +2895,28 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
         yield ("complete", {"results": final, "total_results": len(line_fused)})
         return
 
+    # The window pass was designed for poetry, where allusions span line
+    # breaks (enjambment) routinely. For prose-vs-prose searches, line
+    # divisions in our .tess files are usually editorial (Bible verse
+    # numbers, paragraph breaks in homilies) and the 2-line window pass
+    # mostly inflates noise — every cross-verse co-occurrence of common
+    # function/idiom words gets a second shot at matching. Skip it when
+    # both source and target are prose. (Mixed prose-vs-poetry still runs
+    # the window pass: an allusion from prose to a poetry source may
+    # span a verse line of the poetry side.)
+    try:
+        from backend.distance_filter import is_prose_text
+        both_prose = (is_prose_text(source_id, language) and
+                      is_prose_text(target_id, language))
+    except Exception:
+        both_prose = False
+    if both_prose and mode == 'merged':
+        logger.info(f"[FUSION] Skipping window pass: both {source_id} and "
+                    f"{target_id} are prose")
+        final = line_fused[:max_results] if max_results > 0 else line_fused
+        yield ("complete", {"results": final, "total_results": len(line_fused)})
+        return
+
     # --- Pass 2: Window-level (co-occurrence channels only) ---
     source_windows = make_window_units(source_units)
     target_windows = make_window_units(target_units)
@@ -2880,6 +3084,19 @@ def run_fusion_search(source_units, target_units, matcher, scorer,
                                source_id=source_id, target_id=target_id)
 
     if mode == 'line':
+        return line_fused[:max_results] if max_results > 0 else line_fused
+
+    # Skip the window pass on prose-vs-prose pairs (see iter_fusion_search
+    # for rationale).
+    try:
+        from backend.distance_filter import is_prose_text
+        both_prose = (is_prose_text(source_id, language) and
+                      is_prose_text(target_id, language))
+    except Exception:
+        both_prose = False
+    if both_prose and mode == 'merged':
+        logger.info(f"[FUSION] Skipping window pass: both {source_id} and "
+                    f"{target_id} are prose")
         return line_fused[:max_results] if max_results > 0 else line_fused
 
     # --- Pass 2: Window-level (lexical channels only) ---
