@@ -2913,7 +2913,11 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
     # span a verse line of the poetry side.)
     try:
         from backend.distance_filter import is_prose_text
-        both_prose = (is_prose_text(source_id, language) and
+        # Gated to Coptic: the prose-vs-prose window skip is a biblical-Coptic
+        # optimization. Latin/Greek prose-vs-prose keeps the window pass so
+        # existing search behavior is unchanged.
+        both_prose = (language == 'cop' and
+                      is_prose_text(source_id, language) and
                       is_prose_text(target_id, language))
     except Exception:
         both_prose = False
@@ -3097,7 +3101,11 @@ def run_fusion_search(source_units, target_units, matcher, scorer,
     # for rationale).
     try:
         from backend.distance_filter import is_prose_text
-        both_prose = (is_prose_text(source_id, language) and
+        # Gated to Coptic: the prose-vs-prose window skip is a biblical-Coptic
+        # optimization. Latin/Greek prose-vs-prose keeps the window pass so
+        # existing search behavior is unchanged.
+        both_prose = (language == 'cop' and
+                      is_prose_text(source_id, language) and
                       is_prose_text(target_id, language))
     except Exception:
         both_prose = False
