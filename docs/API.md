@@ -363,12 +363,17 @@ Authenticate as admin.
 ---
 
 ### GET `/api/admin/requests`
-List pending text upload requests.
+List text upload requests.
 
 ---
 
 ### POST `/api/admin/requests/<id>/approve`
-Approve and add a submitted text to the corpus.
+Approve and add a submitted text to the corpus. Once the corpus file is saved, the request is marked approved; later maintenance failures are returned in the optional `warnings` array.
+
+---
+
+### POST `/api/admin/requests/<id>/mark-approved`
+Mark a pending request as approved without adding, replacing, or reprocessing corpus content. Use this recovery action only when the text has already been added to the corpus but the request status was not updated.
 
 ---
 

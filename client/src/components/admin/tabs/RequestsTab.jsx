@@ -49,18 +49,6 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
     return data;
   };
 
-  const approveRequest = async (requestId) => {
-    try {
-      await fetch(`/api/admin/requests/${requestId}/approve`, {
-        method: 'POST',
-        headers: authHeaders
-      });
-      onRefresh();
-    } catch (err) {
-      console.error('Failed to approve request:', err);
-    }
-  };
-
   const deleteRequest = async (requestId) => {
     if (!window.confirm('Are you sure you want to delete this text request? This cannot be undone.')) {
       return;
@@ -195,8 +183,9 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
         return parseApiResponse(approveRes, 'Failed to approve and add text to corpus');
       };
 
+      let approvalResult;
       try {
-        await approveRequestInternal(false);
+        approvalResult = await approveRequestInternal(false);
       } catch (err) {
         if (err?.status === 409) {
           const shouldOverwrite = window.confirm(
@@ -206,20 +195,49 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
             window.alert('Approval cancelled. Existing corpus text was not overwritten.');
             return;
           }
-          await approveRequestInternal(true);
+          approvalResult = await approveRequestInternal(true);
         } else {
           throw err;
         }
       }
 
-      onRefresh();
+      await onRefresh();
       setSelectedRequest(null);
+      if (approvalResult?.warnings?.length) {
+        window.alert(
+          `The text was added and marked approved, but ${approvalResult.warnings.length} maintenance task(s) need attention. Check the server logs for details.`
+        );
+      }
     } catch (err) {
       const message = saveCompleted
         ? `Approval failed after saving edits: ${err.message || 'Unknown error'}`
         : (err.message || 'Failed to approve request');
       window.alert(message);
       console.error('Failed to approve request:', err);
+    } finally {
+      setSavingRequest(false);
+    }
+  };
+
+  const markRequestApproved = async () => {
+    if (!selectedRequest) return;
+    const confirmed = window.confirm(
+      'Mark this pending request as approved? This only changes the request status and does not add, replace, or reprocess corpus content.'
+    );
+    if (!confirmed) return;
+
+    setSavingRequest(true);
+    try {
+      const res = await fetch(`/api/admin/requests/${selectedRequest.id}/mark-approved`, {
+        method: 'POST',
+        headers: authHeaders
+      });
+      await parseApiResponse(res, 'Failed to mark request approved');
+      await onRefresh();
+      setSelectedRequest(null);
+    } catch (err) {
+      window.alert(err.message || 'Failed to mark request approved');
+      console.error('Failed to mark request approved:', err);
     } finally {
       setSavingRequest(false);
     }
@@ -561,6 +579,16 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
                 </button>
               </div>
               <div className="flex gap-2">
+                {normalizedStatus(selectedRequest.status) === 'pending' && (
+                  <button
+                    onClick={markRequestApproved}
+                    disabled={savingRequest}
+                    className="px-4 py-2 bg-amber-100 text-amber-800 rounded hover:bg-amber-200 disabled:opacity-50"
+                    title="Use only when this request's text has already been added to the corpus"
+                  >
+                    Mark as Approved
+                  </button>
+                )}
                 <button
                   onClick={() => setSelectedRequest(null)}
                   className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50"

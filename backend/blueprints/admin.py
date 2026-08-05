@@ -790,6 +790,7 @@ def approve_and_add_text(request_id):
     data = request.get_json() or {}
     final_content = data.get('content', '')
     overwrite_existing = bool(data.get('overwrite', False))
+    warnings = []
     
     try:
         with get_db_cursor() as cur:
@@ -847,49 +848,70 @@ def approve_and_add_text(request_id):
             
             with open(filepath, 'w', encoding='utf-8') as f:
                 f.write('\n'.join(formatted_lines))
-        
-        # Step 3: Recalculate corpus frequencies (including bigram index)
-        recalculate_language_frequencies(language, _text_processor)
-        
-        # Also update bigram frequencies if cache exists
+
+        # Writing the corpus file is the approval boundary. Later maintenance can be
+        # retried separately and must not leave an added text stuck as pending.
+        approved_at = datetime.now()
+        with get_db_cursor() as cur:
+            cur.execute('''
+                UPDATE text_requests
+                SET status = 'approved', reviewed_at = %s, reviewed_by = %s,
+                    language = %s, admin_updated_at = %s
+                WHERE id = %s
+            ''', (approved_at, get_admin_username(), language, approved_at, request_id))
+
+        def run_maintenance(task, action):
+            try:
+                return action()
+            except Exception as exc:
+                logger.warning(f"Post-approval task failed for request {request_id}: {task}: {exc}")
+                warnings.append({'task': task, 'error': str(exc)})
+                return None
+
+        # Recalculate corpus frequencies (including bigram index).
+        run_maintenance('frequency recalculation', lambda: recalculate_language_frequencies(language, _text_processor))
+
+        # Update bigram frequencies only when the cache exists.
         from backend.bigram_frequency import is_bigram_cache_available, calculate_bigram_frequencies
-        if is_bigram_cache_available(language):
-            calculate_bigram_frequencies(language, _text_processor)
-        
-        # Step 3b: Regenerate rare words cache (depends on fresh frequency data)
+        run_maintenance(
+            'bigram frequency recalculation',
+            lambda: calculate_bigram_frequencies(language, _text_processor)
+            if is_bigram_cache_available(language) else None
+        )
+
+        # Regenerate the rare-words cache from the refreshed frequency data.
         from backend.blueprints.hapax import regenerate_rare_words_cache
-        try:
-            regenerate_rare_words_cache(language)
-        except Exception as e:
-            logger.warning(f"Could not regenerate rare words cache: {e}")
-        
-        # Step 4: Index in inverted index
+        run_maintenance('rare words cache regeneration', lambda: regenerate_rare_words_cache(language))
+
+        # Index the text for lemma search.
         from backend.inverted_index import index_single_text
-        index_result = index_single_text(filepath, language, _text_processor)
-        
-        # Step 5: Compute embeddings for the new text (for semantic search)
+        index_result = run_maintenance('inverted-index update', lambda: index_single_text(filepath, language, _text_processor))
+        if index_result and index_result.get('error'):
+            logger.warning(f"Post-approval task reported an error for request {request_id}: inverted-index update: {index_result['error']}")
+            warnings.append({'task': 'inverted-index update', 'error': index_result['error']})
+
+        # Compute embeddings for semantic search.
         embeddings_computed = False
-        try:
+        def compute_embeddings():
+            nonlocal embeddings_computed
             from sentence_transformers import SentenceTransformer
             from backend.precompute_embeddings import compute_embeddings_for_text
             model_name = 'all-MiniLM-L6-v2' if language == 'en' else 'bowphs/SPhilBerta'
             model = SentenceTransformer(model_name)
             success, n_lines = compute_embeddings_for_text(filepath, language, model, force=True)
             embeddings_computed = success
-        except Exception as e:
-            print(f"Warning: Could not compute embeddings for {filename}: {e}")
-        
-        # Step 6: Clear search results cache for this language
+            return n_lines
+        run_maintenance('embedding computation', compute_embeddings)
+
+        # Clear search results cache for this language.
         from backend.cache import clear_cache_for_language
-        cache_cleared = clear_cache_for_language(language)
-        
-        # Step 7: Update corpus_status.json counts
-        _update_corpus_status(language)
-        
-        # Step 7: Add to text_provenance.json
-        _update_text_provenance(text_id, author, work, language)
-        
-        # Step 8: Save author era/year to author_dates.json if provided
+        run_maintenance('search cache clearing', lambda: clear_cache_for_language(language))
+
+        # Update the corpus status and provenance metadata.
+        run_maintenance('corpus status update', lambda: _update_corpus_status(language))
+        run_maintenance('provenance update', lambda: _update_text_provenance(text_id, author, work, language))
+
+        # Save author era/year to author_dates.json if provided.
         author_key = normalize_author_date_key(safe_author)
         is_new_author = not (_author_dates and 
                             language in _author_dates and 
@@ -905,22 +927,16 @@ def approve_and_add_text(request_id):
                 'era': era or 'Unknown',
                 'note': ''
             }
-            try:
+            def save_author_dates():
                 with open(_author_dates_path, 'w') as f:
                     json.dump(_author_dates, f, indent=2)
-            except Exception as e:
-                logger.warning(f"Could not save author dates: {e}")
-        
-        # Step 9: Add to text_sources.json for the Sources page
-        _add_to_text_sources(author, work, db_e_source, db_e_source_url, db_print_source, db_added_by)
+            run_maintenance('author date update', save_author_dates)
 
-        # Final step: mark approved only after pipeline completes successfully
-        with get_db_cursor() as cur:
-            cur.execute('''
-                UPDATE text_requests
-                SET status = 'approved', reviewed_at = %s, reviewed_by = %s, language = %s
-                WHERE id = %s
-            ''', (datetime.now(), get_admin_username(), language, request_id))
+        # Add to text_sources.json for the Sources page.
+        run_maintenance(
+            'text sources update',
+            lambda: _add_to_text_sources(author, work, db_e_source, db_e_source_url, db_print_source, db_added_by)
+        )
         
         log_admin_action('approve_request', 'text_request', request_id, {
             'filename': filename,
@@ -938,10 +954,49 @@ def approve_and_add_text(request_id):
             'embeddings_computed': embeddings_computed,
             'is_new_author': is_new_author,
             'author_key': author_key if is_new_author else None,
+            'warnings': warnings,
             'message': f"Text added successfully. {'Note: Author dates not set - please add via Admin > Author Dates.' if is_new_author else ''}"
         })
     except Exception as e:
         logger.error(f"Failed to approve text request: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@admin_bp.route('/requests/<int:request_id>/mark-approved', methods=['POST'])
+def mark_request_approved(request_id):
+    """Mark a pending request approved without changing its corpus content."""
+    if not check_admin_auth():
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    try:
+        with get_db_cursor() as cur:
+            cur.execute('SELECT status FROM text_requests WHERE id = %s', (request_id,))
+            row = cur.fetchone()
+            if not row:
+                return jsonify({'error': 'Request not found'}), 404
+
+            status = (row[0] or 'pending').lower()
+            if status == 'rejected':
+                return jsonify({'error': 'Rejected requests cannot be marked approved with this recovery action'}), 409
+            if status == 'approved':
+                return jsonify({'success': True, 'already_approved': True, 'message': 'Request is already approved'})
+            if status != 'pending':
+                return jsonify({'error': f'Request with status "{status}" cannot be marked approved with this recovery action'}), 409
+
+            approved_at = datetime.now()
+            cur.execute('''
+                UPDATE text_requests
+                SET status = 'approved', reviewed_at = %s, reviewed_by = %s, admin_updated_at = %s
+                WHERE id = %s
+            ''', (approved_at, get_admin_username(), approved_at, request_id))
+
+        log_admin_action('mark_request_approved', 'text_request', request_id, {
+            'previous_status': status,
+            'recovery_only': True,
+        })
+        return jsonify({'success': True, 'message': 'Request marked approved'})
+    except Exception as e:
+        logger.error(f"Failed to mark text request {request_id} approved: {e}")
         return jsonify({'error': str(e)}), 500
 
 
