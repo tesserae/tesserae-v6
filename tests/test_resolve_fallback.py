@@ -75,3 +75,59 @@ def test_fallback_greek_text_with_latin_language(tmp_path):
     assert path is not None
     assert lang == "grc"
     assert os.path.basename(path) == "homer.iliad.part.1.tess"
+
+
+def test_parse_search_request_non_crosslingual_different_languages(tmp_path, monkeypatch):
+    """When source and target resolve to DIFFERENT language directories in non-crosslingual mode, raise ValueError."""
+    import pytest
+    import backend.blueprints.search as search_mod
+    from backend.blueprints.search import _parse_search_request
+
+    texts_dir = tmp_path / "texts"
+    la_dir = texts_dir / "la"
+    la_dir.mkdir(parents=True)
+    (la_dir / "vergil.aeneid.tess").write_text("test")
+    grc_dir = texts_dir / "grc"
+    grc_dir.mkdir(parents=True)
+    (grc_dir / "homer.iliad.tess").write_text("test")
+
+    monkeypatch.setattr(search_mod, "_texts_dir", str(texts_dir))
+
+    req_data = {
+        'source': 'vergil.aeneid.tess',
+        'target': 'homer.iliad.tess',
+        'language': 'la',
+        'settings': {'match_type': 'lemma'}
+    }
+
+    with pytest.raises(ValueError, match="Selected texts belong to different languages"):
+        _parse_search_request(req_data)
+
+
+def test_parse_search_request_non_crosslingual_same_fallback_language(tmp_path, monkeypatch):
+    """When both source and target fall back to the SAME language, update language parameters consistently."""
+    import backend.blueprints.search as search_mod
+    from backend.blueprints.search import _parse_search_request
+
+    texts_dir = tmp_path / "texts"
+    la_dir = texts_dir / "la"
+    la_dir.mkdir(parents=True)
+    (la_dir / "vergil.aeneid.tess").write_text("test")
+    (la_dir / "lucan.bellumpunicum.tess").write_text("test")
+    grc_dir = texts_dir / "grc"
+    grc_dir.mkdir(parents=True)
+
+    monkeypatch.setattr(search_mod, "_texts_dir", str(texts_dir))
+
+    req_data = {
+        'source': 'vergil.aeneid.tess',
+        'target': 'lucan.bellumpunicum.tess',
+        'language': 'grc',  # Incorrectly sent as grc for Latin texts
+        'settings': {'match_type': 'lemma'}
+    }
+
+    res = _parse_search_request(req_data)
+    assert res['language'] == 'la'
+    assert res['source_language'] == 'la'
+    assert res['target_language'] == 'la'
+

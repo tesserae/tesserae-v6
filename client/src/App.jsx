@@ -396,11 +396,17 @@ function App() {
     }
 
     // Guard: ensure selected texts belong to the current language corpus.
-    // Prevents stale text IDs from being sent after tab switches.
+    // Prevents stale text IDs from being sent after tab switches or during corpus loading.
+    if (corpusLoading) {
+      return;
+    }
+
     if (corpus.length > 0) {
       const sourceValid = corpus.some(t => t.id === sourceText);
       const targetValid = corpus.some(t => t.id === targetText);
       if (!sourceValid || !targetValid) {
+        setSourceText('');
+        setTargetText('');
         return;
       }
     }
