@@ -136,7 +136,7 @@ def api_route(path, **kwargs):
 
 
 # Application configuration
-app.secret_key = os.environ.get("SESSION_SECRET")
+app.secret_key = os.environ.get("SESSION_SECRET") or "dev-secret-key-tesserae-v6"
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # Handle proxy headers
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0  # Disable caching for development
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
@@ -2908,4 +2908,5 @@ def create_app():
 if __name__ == "__main__":
     app_logger.info("Starting Tesserae V6 development server...")
     debug_mode = os.environ.get("TESSERAE_DEBUG", "false").lower() == "true"
-    app.run(host="0.0.0.0", port=5000, debug=debug_mode)  # nosec B104
+    port = int(os.environ.get("PORT", 5001))
+    app.run(host="0.0.0.0", port=port, debug=debug_mode)  # nosec B104
