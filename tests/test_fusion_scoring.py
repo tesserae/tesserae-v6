@@ -412,6 +412,76 @@ class TestFuseResults:
         assert scores == sorted(scores, reverse=True)
 
 
+# ── Weight-profile firewall (Coptic tuning must not touch Latin/Greek) ──────
+
+class TestWeightProfileFirewall:
+    """get_weight_profile is the firewall that keeps the biblical-Coptic tuning
+    from affecting Latin/Greek/English searches. Verify the routing."""
+
+    def test_coptic_gets_biblical_profile(self):
+        from backend.fusion import get_weight_profile, WEIGHT_PROFILES
+        assert get_weight_profile(language='cop') == WEIGHT_PROFILES['biblical_coptic']
+
+    def test_latin_greek_english_get_latin_epic(self):
+        from backend.fusion import get_weight_profile, WEIGHT_PROFILES
+        for lang in ('la', 'grc', 'en'):
+            assert get_weight_profile(language=lang) == WEIGHT_PROFILES['latin_epic']
+
+    def test_none_and_unknown_default_to_latin_epic(self):
+        from backend.fusion import get_weight_profile, WEIGHT_PROFILES
+        assert get_weight_profile(language=None) == WEIGHT_PROFILES['latin_epic']
+        assert get_weight_profile(language='zz') == WEIGHT_PROFILES['latin_epic']
+
+    def test_explicit_profile_name_overrides_language(self):
+        from backend.fusion import get_weight_profile, WEIGHT_PROFILES
+        assert get_weight_profile(language='la', profile_name='biblical_coptic') \
+            == WEIGHT_PROFILES['biblical_coptic']
+
+    def test_quotation_inert_for_latin(self):
+        # The quotation channel must carry zero weight under the Latin profile,
+        # so it cannot alter Latin/Greek scoring.
+        from backend.fusion import get_weight_profile
+        assert get_weight_profile(language='la').get('quotation', 0.0) == 0.0
+
+
+# ── Quotation channel + rarity-bypass (Coptic biblical-prose path) ──────────
+
+class TestQuotationChannel:
+    """The quotation channel (biblical_coptic profile) contributes its score
+    while bypassing the rarity multiplier, and the non-quotation base is clamped
+    at zero so the penalty can never invert."""
+
+    def _mk(self, score):
+        return {
+            "source": {"ref": "shenoute.abraham.1", "text": "", "tokens": [],
+                       "lemmas": [], "highlight_indices": []},
+            "target": {"ref": "sahidic.psalms.1.1", "text": "", "tokens": [],
+                       "lemmas": [], "highlight_indices": []},
+            "overall_score": score,
+            "matched_words": [],
+        }
+
+    def test_quotation_pair_scored_under_biblical_coptic(self):
+        from backend.fusion import fuse_results
+        results = fuse_results({
+            "quotation": [self._mk(6.0)],
+            "lemma": [self._mk(2.0)],
+        }, language='cop')
+        assert len(results) == 1
+        assert "quotation" in results[0]["channels"]
+        assert results[0]["fused_score"] > 0
+
+    def test_large_quotation_contribution_does_not_produce_negative(self):
+        # Even if the quotation contribution dominates the base, the clamped
+        # non-quotation base keeps the fused score non-negative.
+        from backend.fusion import fuse_results
+        results = fuse_results({
+            "quotation": [self._mk(50.0)],
+        }, language='cop')
+        assert len(results) == 1
+        assert results[0]["fused_score"] >= 0
+
+
 # ── Constants Sanity Checks ────────────────────────────────────────────────
 
 class TestScoringConstants:

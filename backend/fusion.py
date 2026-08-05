@@ -71,7 +71,12 @@ import numpy as np
 
 from backend.logging_config import get_logger
 from backend.matcher import DEFAULT_LATIN_STOP_WORDS, DEFAULT_GREEK_STOP_WORDS, DEFAULT_ENGLISH_STOP_WORDS
-from backend.coptic.stopwords import COPTIC_STOP_WORDS
+try:
+    from backend.coptic.stopwords import COPTIC_STOP_WORDS
+except ImportError:
+    # Coptic is an optional plugin package. If it is absent, degrade gracefully
+    # (empty Coptic stoplist) rather than failing the whole backend at import.
+    COPTIC_STOP_WORDS = set()
 
 logger = get_logger('fusion')
 
@@ -2331,7 +2336,9 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
         #   intrinsically distinctive even when each individual token is a
         #   common function word.
         quot_contrib = info.get("quotation_score_contrib", 0.0)
-        non_quotation_base = base_score - quot_contrib
+        # quot_contrib is a component of base_score, so this is normally >= 0;
+        # clamp defensively so a rounding edge cannot invert the rarity penalty.
+        non_quotation_base = max(0.0, base_score - quot_contrib)
         conv_mult = multiplier ** _conv_idf_power
         info["score"] = (
             non_quotation_base * (multiplier ** _penalty_power)
