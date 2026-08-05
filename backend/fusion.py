@@ -2517,10 +2517,9 @@ def _which_line_has_matches(positions, boundary):
 def _trim_to_line(side, line_num):
     """Trim a window unit dict to show only one line of text.
 
-    Keeps the original range ref so merge_line_and_window treats it as a
-    window (with one novel line pair), preserving recall for pairs found
-    only via window channels. Trims text, tokens, and highlights to the
-    relevant line. Removes line_token_counts so frontend renders as single line.
+    Keeps the original range ref for contextual display and for window-only
+    matches. Trims text, tokens, and highlights to the relevant line. Removes
+    line_token_counts so frontend renders as single line.
     """
     counts = side.get('line_token_counts', [])
     if not counts or len(counts) < 2:
@@ -2542,15 +2541,46 @@ def _trim_to_line(side, line_num):
     side['tokens'] = new_tokens
     side['text'] = new_text
     side['highlight_indices'] = sorted(new_highlights)
-    # Keep the original range ref — merge_line_and_window needs it to
-    # correctly identify this as a window result with a novel line pair.
-    # Removing window metadata so frontend renders as single line.
+    # Keep the original range ref for contextual display; merge uses a private
+    # matched-line key when it needs exact single-line deduplication.
+    # Remove window metadata so frontend renders this as a single line.
     side.pop('line_token_counts', None)
     side.pop('line_refs', None)
     return side
 
 
-def penalize_single_line_windows(window_results):
+def _single_line_match_key(src, tgt, src_positions, tgt_positions,
+                           src_boundary, tgt_boundary):
+    """Return the actual line-pair for a non-enjambed window match.
+
+    The display ref of a trimmed window remains its two-line range so that a
+    window-only result retains its surrounding context.  This helper records
+    the one source×target line pair on which its matched words actually fall,
+    allowing the merge step to distinguish a duplicate line result from a
+    genuinely novel window result.
+
+    Return ``None`` when the positions or original per-line refs are not
+    available.  In that case the merge keeps its existing conservative
+    range-based behavior rather than risking a recall loss.
+    """
+    if not src_positions or not tgt_positions:
+        return None
+
+    src_refs = src.get('line_refs', [])
+    tgt_refs = tgt.get('line_refs', [])
+    if len(src_refs) < 2 or len(tgt_refs) < 2:
+        return None
+
+    src_line_ref = src_refs[_which_line_has_matches(src_positions, src_boundary)]
+    tgt_line_ref = tgt_refs[_which_line_has_matches(tgt_positions, tgt_boundary)]
+    src_book, src_line = parse_ref(src_line_ref)
+    tgt_book, tgt_line = parse_ref(tgt_line_ref)
+    if src_book is None or tgt_book is None:
+        return None
+    return src_book, src_line, tgt_book, tgt_line
+
+
+def penalize_single_line_windows(window_results, annotate_for_merge=False):
     """Filter and penalize window results based on enjambment quality.
 
     Three outcomes per result:
@@ -2561,6 +2591,11 @@ def penalize_single_line_windows(window_results):
        Preserves recall without visual clutter.
     3. No positions determinable → fall back to highlight_indices for the
        span check (handles scorer fallback to lemma forms).
+
+    When ``annotate_for_merge`` is true, non-enjambed windows with determinable
+    matched-word positions receive a private line-pair key.  The merged-search
+    path consumes that key before returning results; window-only mode leaves no
+    internal metadata on its public results.
     """
     out = []
     for r in window_results:
@@ -2617,6 +2652,12 @@ def penalize_single_line_windows(window_results):
             out.append(r)
         else:
             # Not a genuine enjambment — trim to single-line display
+            if annotate_for_merge:
+                match_key = _single_line_match_key(
+                    src, tgt, src_positions, tgt_positions,
+                    src_boundary, tgt_boundary)
+                if match_key is not None:
+                    r['_single_line_match_key'] = match_key
             r['source'] = _trim_to_line(
                 dict(src), _which_line_has_matches(src_positions, src_boundary))
             r['target'] = _trim_to_line(
@@ -2729,6 +2770,15 @@ def merge_line_and_window(line_results, window_results):
 
     kept_windows = []
     for r in window_results:
+        # A trimmed single-line window can have the same visible text as a
+        # line result while retaining a two-line display ref.  Compare the
+        # actual matched line-pair captured before trimming, not the whole
+        # window span, so empty neighboring line-pairs cannot make a duplicate
+        # look novel.  Always consume this private merge-only annotation.
+        single_line_match_key = r.pop('_single_line_match_key', None)
+        if single_line_match_key in line_by_ref:
+            continue
+
         rs = r.get("source", {}).get("ref", "")
         rt = r.get("target", {}).get("ref", "")
         rs_b, rs_start, rs_end = parse_range_ref(rs)
@@ -3116,7 +3166,8 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
                                  language=language,
                                  freq_basis=freq_basis,
                                  source_id=source_id, target_id=target_id)
-    window_fused = penalize_single_line_windows(window_fused)
+    window_fused = penalize_single_line_windows(
+        window_fused, annotate_for_merge=(mode != 'window'))
 
     if mode == 'window':
         final = window_fused[:max_results] if max_results > 0 else window_fused
@@ -3279,7 +3330,8 @@ def run_fusion_search(source_units, target_units, matcher, scorer,
     window_fused = fuse_results(window_channel_results, language=language,
                                  freq_basis=freq_basis,
                                  source_id=source_id, target_id=target_id)
-    window_fused = penalize_single_line_windows(window_fused)
+    window_fused = penalize_single_line_windows(
+        window_fused, annotate_for_merge=(mode != 'window'))
 
     if mode == 'window':
         return window_fused[:max_results] if max_results > 0 else window_fused

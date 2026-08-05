@@ -248,6 +248,119 @@ class TestTrimToLine:
         assert '-' in result['ref']
 
 
+class TestMergeLineAndWindow:
+    """Regression tests for trimmed single-line window deduplication."""
+
+    @staticmethod
+    def _line_result(source_ref="stat. theb. 12.597",
+                     target_ref="verg. aen. 1.20", score=10.0):
+        return {
+            'source': {
+                'ref': source_ref,
+                'text': 'arma',
+                'tokens': ['arma'],
+                'highlight_indices': [0],
+            },
+            'target': {
+                'ref': target_ref,
+                'text': 'arma',
+                'tokens': ['arma'],
+                'highlight_indices': [0],
+            },
+            'matched_words': [{
+                'lemma': 'arma', 'source_word': 'arma', 'target_word': 'arma',
+            }],
+            'fused_score': score,
+        }
+
+    @staticmethod
+    def _window_result(source_tokens, target_tokens, matched_words, score=9.0):
+        return {
+            'source': {
+                'ref': 'stat. theb. 12.597-stat. theb. 12.598',
+                'text': ' '.join(source_tokens[:1]) + '\n' + ' '.join(source_tokens[1:]),
+                'tokens': source_tokens,
+                'highlight_indices': [],
+                'line_token_counts': [1, 1],
+                'line_refs': ['stat. theb. 12.597', 'stat. theb. 12.598'],
+            },
+            'target': {
+                'ref': 'verg. aen. 1.20-verg. aen. 1.21',
+                'text': ' '.join(target_tokens[:1]) + '\n' + ' '.join(target_tokens[1:]),
+                'tokens': target_tokens,
+                'highlight_indices': [],
+                'line_token_counts': [1, 1],
+                'line_refs': ['verg. aen. 1.20', 'verg. aen. 1.21'],
+            },
+            'matched_words': matched_words,
+            'fused_score': score,
+        }
+
+    def test_drops_trimmed_window_when_line_pair_already_exists(self):
+        from backend.fusion import merge_line_and_window, penalize_single_line_windows
+
+        line = self._line_result()
+        window = self._window_result(
+            ['arma', 'cano'], ['arma', 'cano'],
+            [{'lemma': 'arma', 'source_word': 'arma', 'target_word': 'arma'}],
+        )
+        trimmed = penalize_single_line_windows([window], annotate_for_merge=True)
+        merged = merge_line_and_window([line], trimmed)
+
+        assert len(merged) == 1
+        assert merged[0]['source']['ref'] == 'stat. theb. 12.597'
+        assert '_single_line_match_key' not in merged[0]
+
+    def test_keeps_trimmed_window_for_window_only_line_pair(self):
+        from backend.fusion import merge_line_and_window, penalize_single_line_windows
+
+        line = self._line_result()
+        window = self._window_result(
+            ['cano', 'arma'], ['cano', 'arma'],
+            [{'lemma': 'arma', 'source_word': 'arma', 'target_word': 'arma'}],
+        )
+        trimmed = penalize_single_line_windows([window], annotate_for_merge=True)
+        merged = merge_line_and_window([line], trimmed)
+
+        assert len(merged) == 2
+        kept_window = next(r for r in merged if '-' in r['source']['ref'])
+        assert kept_window['source']['text'] == 'arma'
+        assert kept_window['target']['text'] == 'arma'
+        assert '_single_line_match_key' not in kept_window
+
+    def test_keeps_genuine_enjambment_window(self):
+        from backend.fusion import merge_line_and_window, penalize_single_line_windows
+
+        line = self._line_result()
+        window = self._window_result(
+            ['arma', 'cano'], ['arma', 'cano'],
+            [
+                {'lemma': 'arma', 'source_word': 'arma', 'target_word': 'arma'},
+                {'lemma': 'cano', 'source_word': 'cano', 'target_word': 'cano'},
+            ],
+            score=9.0,
+        )
+        filtered = penalize_single_line_windows([window], annotate_for_merge=True)
+        merged = merge_line_and_window([line], filtered)
+
+        assert len(merged) == 2
+        kept_window = next(r for r in merged if '-' in r['source']['ref'])
+        assert '\n' in kept_window['source']['text']
+        assert 'line_token_counts' in kept_window['source']
+        assert '_single_line_match_key' not in kept_window
+
+    def test_window_only_mode_does_not_add_merge_metadata(self):
+        from backend.fusion import penalize_single_line_windows
+
+        window = self._window_result(
+            ['arma', 'cano'], ['arma', 'cano'],
+            [{'lemma': 'arma', 'source_word': 'arma', 'target_word': 'arma'}],
+        )
+        result = penalize_single_line_windows([window])
+
+        assert '_single_line_match_key' not in result[0]
+
+
 # ── Syntax Scoring ─────────────────────────────────────────────────────────
 
 class TestComputeSyntaxScore:
@@ -744,9 +857,6 @@ class TestTextPairFrequencyBaseline:
         assert freqs.get("rabbit", 0) >= 1
         # Non-existent words should return 0 frequency
         assert freqs.get("nonexistentword12345", 0) == 0
-
-
-
 # ── Clean matched-lemma extraction (corpus-search input) ───────────────────
 
 class TestCleanMatchedLemmas:
