@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+
 const mainTabs = [
   { code: 'search', label: 'Search' },
   { code: 'browse', label: 'Browse Corpus' },
@@ -11,17 +13,17 @@ const mainTabs = [
   { code: 'admin', label: 'Admin' }
 ];
 
-const languageTabs = [
+const defaultLanguageTabs = [
   { code: 'la', label: 'Latin' },
   { code: 'grc', label: 'Greek' },
   { code: 'en', label: 'English' },
   { code: 'cross', label: 'Cross-Language' }
 ];
 
-const Navigation = ({ 
-  pageType, 
-  setPageType, 
-  activeTab, 
+const Navigation = ({
+  pageType,
+  setPageType,
+  activeTab,
   setActiveTab,
   onLanguageReset,
   lockedToAdmin = false,
@@ -29,6 +31,20 @@ const Navigation = ({
   showDownloads = false,
   setShowDownloads
 }) => {
+  const [languageTabs, setLanguageTabs] = useState(defaultLanguageTabs);
+
+  useEffect(() => {
+    fetch('/api/languages')
+      .then(r => r.json())
+      .then(data => {
+        if (data.languages) {
+          const tabs = data.languages.map(l => ({ code: l.code, label: l.label }));
+          tabs.push({ code: 'cross', label: 'Cross-Language' });
+          setLanguageTabs(tabs);
+        }
+      })
+      .catch(() => {}); // fall back to defaults
+  }, []);
   const handleLanguageClick = (tabCode) => {
     if (onLanguageReset) {
       onLanguageReset();
