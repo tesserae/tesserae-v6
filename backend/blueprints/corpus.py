@@ -23,6 +23,8 @@ from backend.frequency_cache import get_corpus_frequencies, recalculate_language
 logger = get_logger('corpus')
 
 AUTHOR_DATES_FILE = Path(__file__).parent.parent / "author_dates.json"
+TEXT_SOURCES_FILE = Path(__file__).parent.parent / "text_sources.json"
+TEXT_CREDITS_PAGE_SIZES = {25, 50, 100, 500}
 
 _author_dates_cache = None
 _author_dates_mtime = None
@@ -159,16 +161,39 @@ def get_provenance():
 
 @corpus_bp.route('/text-credits')
 def get_text_credits():
-    """Get text credits and provenance information from static JSON data file."""
-    text_sources_file = Path(__file__).parent.parent / "text_sources.json"
-    if text_sources_file.exists():
-        with open(text_sources_file, 'r', encoding='utf-8') as f:
+    """Get a filtered page of text credits from the static provenance data."""
+    try:
+        offset = int(request.args.get('offset', 0))
+        limit = int(request.args.get('limit', 50))
+    except (TypeError, ValueError):
+        return jsonify({'error': 'offset and limit must be integers'}), 400
+
+    if offset < 0:
+        return jsonify({'error': 'offset must be zero or greater'}), 400
+    if limit not in TEXT_CREDITS_PAGE_SIZES:
+        return jsonify({'error': 'limit must be one of 25, 50, 100, or 500'}), 400
+
+    query = request.args.get('query', '').strip().casefold()
+    if TEXT_SOURCES_FILE.exists():
+        with open(TEXT_SOURCES_FILE, 'r', encoding='utf-8') as f:
             sources = json.load(f)
     else:
-        import logging
-        logging.getLogger('tesserae.app').warning(f"text_sources.json not found at {text_sources_file}")
+        logger.warning("text_sources.json not found at %s", TEXT_SOURCES_FILE)
         sources = []
-    return jsonify(sources)
+
+    if query:
+        sources = [
+            entry for entry in sources
+            if query in entry.get('author', '').casefold()
+            or query in entry.get('work', '').casefold()
+        ]
+
+    return jsonify({
+        'entries': sources[offset:offset + limit],
+        'total': len(sources),
+        'offset': offset,
+        'limit': limit,
+    })
 
 
 @corpus_bp.route('/texts/hierarchy')

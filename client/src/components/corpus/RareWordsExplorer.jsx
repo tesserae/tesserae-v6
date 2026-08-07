@@ -27,8 +27,12 @@ function extractLineNumber(ref) {
 export default function RareWordsExplorer() {
   const [language, setLanguage] = useState('la');
   const [words, setWords] = useState([]);
+  const [totalWords, setTotalWords] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [loadError, setLoadError] = useState('');
   const [maxOccurrences, setMaxOccurrences] = useState(3);
+  const [pageSize, setPageSize] = useState(50);
   const [sortBy, setSortBy] = useState('frequency');
   const [sortOrder, setSortOrder] = useState('asc');
   const [expandedWord, setExpandedWord] = useState(null);
@@ -42,6 +46,7 @@ export default function RareWordsExplorer() {
   const [viewerTitle, setViewerTitle] = useState('');
   const [viewerTargetRef, setViewerTargetRef] = useState('');
   const highlightedLineRef = useRef(null);
+  const queryVersionRef = useRef(0);
 
   const openTextViewer = async (textId, word, ref, author, work) => {
     setViewerWord(word);
@@ -82,31 +87,48 @@ export default function RareWordsExplorer() {
   ];
 
   useEffect(() => {
+    const controller = new AbortController();
     let cancelled = false;
-    const currentLang = language;  // Capture current language
-    setWords([]);  // Clear immediately when language changes
+    const queryVersion = queryVersionRef.current + 1;
+    queryVersionRef.current = queryVersion;
+
+    setWords([]);
+    setTotalWords(0);
     setLoading(true);
+    setLoadingMore(false);
+    setLoadError('');
     setExpandedWord(null);
     setExpandedDetails({});
     
     const fetchWords = async () => {
       try {
-        // Force fresh request with language in URL
-        const url = `/api/rare-lemmata-full?language=${currentLang}&max_occurrences=${maxOccurrences}&limit=50000&_t=${Date.now()}`;
+        const params = new URLSearchParams({
+          language,
+          max_occurrences: String(maxOccurrences),
+          limit: String(pageSize),
+          offset: '0',
+          sort_by: sortBy,
+          sort_order: sortOrder
+        });
+        const url = `/api/rare-lemmata-full?${params.toString()}`;
         const res = await fetch(url, {
           cache: 'no-store',
-          headers: { 'Cache-Control': 'no-cache' }
+          headers: { 'Cache-Control': 'no-cache' },
+          signal: controller.signal
         });
+        if (!res.ok) throw new Error('Failed to load rare words');
         const data = await res.json();
+        if (data.error) throw new Error(data.error);
         
-        // Only update if this request wasn't cancelled AND language still matches
-        if (!cancelled && data.language === currentLang && language === currentLang) {
+        if (!cancelled && queryVersionRef.current === queryVersion) {
           setWords(data.words || []);
+          setTotalWords(data.total || 0);
           setLoading(false);
         }
       } catch (err) {
-        console.error('Failed to load rare words:', err);
-        if (!cancelled) {
+        if (!cancelled && queryVersionRef.current === queryVersion && err.name !== 'AbortError') {
+          console.error('Failed to load rare words:', err);
+          setLoadError('Unable to load rare words. Please try again.');
           setLoading(false);
         }
       }
@@ -114,21 +136,45 @@ export default function RareWordsExplorer() {
     
     fetchWords();
     
-    return () => { cancelled = true; };
-  }, [language, maxOccurrences]);
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [language, maxOccurrences, pageSize, sortBy, sortOrder]);
 
-  const loadRareWords = async () => {
-    setLoading(true);
+  const loadMoreWords = async () => {
+    if (loadingMore || loading || words.length >= totalWords) return;
+
+    const queryVersion = queryVersionRef.current;
+    setLoadingMore(true);
+    setLoadError('');
     try {
-      const res = await fetch(`/api/rare-lemmata-full?language=${language}&max_occurrences=${maxOccurrences}&limit=10000&_t=${Date.now()}`);
+      const params = new URLSearchParams({
+        language,
+        max_occurrences: String(maxOccurrences),
+        limit: String(pageSize),
+        offset: String(words.length),
+        sort_by: sortBy,
+        sort_order: sortOrder
+      });
+      const res = await fetch(`/api/rare-lemmata-full?${params.toString()}`, {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' }
+      });
+      if (!res.ok) throw new Error('Failed to load more rare words');
       const data = await res.json();
-      if (data.language === language) {
-        setWords(data.words || []);
+      if (data.error) throw new Error(data.error);
+      if (queryVersionRef.current === queryVersion) {
+        setWords(prev => [...prev, ...(data.words || [])]);
+        setTotalWords(data.total || 0);
       }
     } catch (err) {
-      console.error('Failed to load rare words:', err);
+      console.error('Failed to load more rare words:', err);
+      if (queryVersionRef.current === queryVersion) {
+        setLoadError('Unable to load more rare words. Please try again.');
+      }
     }
-    setLoading(false);
+    if (queryVersionRef.current === queryVersion) setLoadingMore(false);
   };
 
   const toggleWordExpand = async (lemma) => {
@@ -155,19 +201,6 @@ export default function RareWordsExplorer() {
     }
   };
 
-  const sortedWords = [...words].sort((a, b) => {
-    let cmp = 0;
-    if (sortBy === 'frequency') {
-      cmp = (a.count || 0) - (b.count || 0);
-    } else if (sortBy === 'lemma') {
-      // Case-insensitive sort for Greek/Latin
-      cmp = (a.lemma || '').toLowerCase().localeCompare((b.lemma || '').toLowerCase());
-    } else if (sortBy === 'author') {
-      cmp = (a.first_author || '').localeCompare(b.first_author || '');
-    }
-    return sortOrder === 'asc' ? cmp : -cmp;
-  });
-
   const handleSort = (field) => {
     if (sortBy === field) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -178,22 +211,16 @@ export default function RareWordsExplorer() {
   };
 
   const exportCSV = useCallback(() => {
-    const headers = ['Lemma', 'Frequency', 'First Author', 'First Work'];
-    const rows = words.map(w => [
-      w.lemma,
-      w.count,
-      w.first_author || '',
-      w.first_work || ''
-    ]);
-    const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
+    const params = new URLSearchParams({
+      language,
+      max_occurrences: String(maxOccurrences),
+      sort_by: sortBy,
+      sort_order: sortOrder
+    });
     const a = document.createElement('a');
-    a.href = url;
-    a.download = `rare_words_${language}.csv`;
+    a.href = `/api/rare-lemmata-full/export?${params.toString()}`;
     a.click();
-    URL.revokeObjectURL(url);
-  }, [words, language]);
+  }, [language, maxOccurrences, sortBy, sortOrder]);
 
   const getLanguageName = (lang) => {
     const names = { la: 'Latin', grc: 'Greek', en: 'English' };
@@ -211,7 +238,7 @@ export default function RareWordsExplorer() {
         {languageTabs.map(tab => (
           <button
             key={tab.code}
-            onClick={() => { setLanguage(tab.code); setWords([]); setExpandedWord(null); setExpandedDetails({}); }}
+            onClick={() => setLanguage(tab.code)}
             className={`px-4 py-2 text-sm font-medium whitespace-nowrap ${
               language === tab.code 
                 ? 'text-red-700 border-b-2 border-red-700' 
@@ -232,7 +259,7 @@ export default function RareWordsExplorer() {
             Find rare vocabulary across the corpus
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <select
             value={maxOccurrences}
             onChange={e => setMaxOccurrences(parseInt(e.target.value))}
@@ -243,6 +270,17 @@ export default function RareWordsExplorer() {
             <option value="3">Up to 3 occurrences</option>
             <option value="5">Up to 5 occurrences</option>
             <option value="10">Up to 10 occurrences</option>
+          </select>
+          <select
+            value={pageSize}
+            onChange={e => setPageSize(parseInt(e.target.value))}
+            aria-label="Words at a time"
+            className="border rounded px-3 py-2 text-sm"
+          >
+            <option value="25">25 words at a time</option>
+            <option value="50">50 words at a time</option>
+            <option value="100">100 words at a time</option>
+            <option value="500">500 words at a time</option>
           </select>
           <button
             onClick={exportCSV}
@@ -257,6 +295,11 @@ export default function RareWordsExplorer() {
         <LoadingSpinner text="Loading rare words..." />
       ) : (
         <div className="bg-white border rounded-lg">
+          {loadError && (
+            <div className="m-4 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              {loadError}
+            </div>
+          )}
           <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">
@@ -285,7 +328,7 @@ export default function RareWordsExplorer() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {sortedWords.map(word => (
+              {words.map(word => (
                 <>
                   <tr
                     key={word.lemma}
@@ -374,8 +417,19 @@ export default function RareWordsExplorer() {
           </table>
           </div>
           <div className="px-4 py-3 bg-gray-50 text-sm text-gray-500">
-            Showing {sortedWords.length} words
+            Showing {words.length} of {totalWords} words
           </div>
+          {words.length < totalWords && (
+            <div className="px-4 pb-4 bg-gray-50 text-center">
+              <button
+                onClick={loadMoreWords}
+                disabled={loadingMore}
+                className="px-3 py-2 bg-white text-amber-700 border border-amber-200 rounded hover:bg-amber-50 text-sm disabled:opacity-50"
+              >
+                {loadingMore ? 'Loading...' : `Show more (${totalWords - words.length} remaining)`}
+              </button>
+            </div>
+          )}
         </div>
       )}
 

@@ -367,6 +367,69 @@ def test_rare_lemmata(client):
     assert 'total_rare_words' in res
 
 
+def test_rare_lemmata_full_pagination_and_export(client, monkeypatch):
+    from backend.blueprints import hapax
+
+    cached_words = [
+        {'lemma': 'zeta', 'display': 'zeta', 'count': 3, 'first_author': 'Virgil', 'first_work': 'Aeneid'},
+        {'lemma': 'alpha', 'display': 'alpha', 'count': 1, 'first_author': 'Homer', 'first_work': 'Iliad'},
+        {'lemma': 'beta', 'display': 'beta', 'count': 2, 'first_author': 'Cicero', 'first_work': 'Orations'},
+    ]
+    monkeypatch.setattr(hapax, 'load_rare_words_cache', lambda _language: {'words': cached_words})
+
+    first_page = check_json(client.get(
+        '/api/rare-lemmata-full?language=la&max_occurrences=3&limit=25&sort_by=frequency&sort_order=asc'
+    ))
+    assert first_page['total'] == 3
+    assert first_page['offset'] == 0
+    assert first_page['limit'] == 25
+    assert [word['lemma'] for word in first_page['words']] == ['alpha', 'beta', 'zeta']
+
+    offset_page = check_json(client.get(
+        '/api/rare-lemmata-full?language=la&max_occurrences=3&offset=1&limit=25&sort_by=frequency&sort_order=asc'
+    ))
+    assert [word['lemma'] for word in offset_page['words']] == ['beta', 'zeta']
+
+    author_sorted = check_json(client.get(
+        '/api/rare-lemmata-full?language=la&max_occurrences=3&limit=25&sort_by=author&sort_order=desc'
+    ))
+    assert [word['first_author'] for word in author_sorted['words']] == ['Virgil', 'Homer', 'Cicero']
+
+    invalid_limit = client.get('/api/rare-lemmata-full?limit=10')
+    assert invalid_limit.status_code == 400
+
+    export = client.get('/api/rare-lemmata-full/export?language=la&max_occurrences=3&sort_by=lemma')
+    assert export.status_code == 200
+    assert export.mimetype == 'text/csv'
+    assert 'attachment;' in export.headers['Content-Disposition']
+    assert export.get_data(as_text=True).splitlines()[1].startswith('alpha,1,Homer,Iliad')
+
+
+def test_text_credits_pagination_and_filtering(client, monkeypatch, tmp_path):
+    from backend.blueprints import corpus
+
+    sources_file = tmp_path / 'text_sources.json'
+    sources_file.write_text(json.dumps([
+        {'author': 'Virgil', 'work': 'Aeneid'},
+        {'author': 'Homer', 'work': 'Iliad'},
+        {'author': 'Virgil', 'work': 'Eclogues'},
+    ]), encoding='utf-8')
+    monkeypatch.setattr(corpus, 'TEXT_SOURCES_FILE', sources_file)
+
+    first_page = check_json(client.get('/api/text-credits?limit=25'))
+    assert first_page['total'] == 3
+    assert first_page['offset'] == 0
+    assert first_page['limit'] == 25
+    assert [entry['work'] for entry in first_page['entries']] == ['Aeneid', 'Iliad', 'Eclogues']
+
+    filtered_page = check_json(client.get('/api/text-credits?query=virgil&offset=1&limit=25'))
+    assert filtered_page['total'] == 2
+    assert [entry['work'] for entry in filtered_page['entries']] == ['Eclogues']
+
+    assert client.get('/api/text-credits?limit=10').status_code == 400
+    assert client.get('/api/text-credits?offset=-1').status_code == 400
+
+
 def test_rare_bigrams(client):
     resp = client.get("/api/rare-bigrams?language=la&max_occurrences=10")
     assert resp.status_code == 200
@@ -528,7 +591,24 @@ def test_auth_user(client):
 
 @pytest.mark.skipif(db_unavailable, reason="Database connection not available")
 def test_intertexts_list(client):
-    check_json(client.get("/api/intertexts"), min_keys=['intertexts'])
+    res = check_json(client.get(
+        "/api/intertexts?per_page=25&source_language=la&sort_by=score&sort_order=desc"
+    ), min_keys=['intertexts', 'total', 'pages', 'current_page', 'per_page', 'summary'])
+    assert res['per_page'] == 25
+    assert 'visible' in res['summary']
+    assert 'with_notes' in res['summary']
+
+
+@pytest.mark.skipif(db_unavailable, reason="Database connection not available")
+def test_intertexts_export(client):
+    resp = client.get("/api/intertexts/export?format=csv&per_page=50&sort_by=created_at")
+    assert resp.status_code == 200
+    assert resp.mimetype == 'text/csv'
+
+
+def test_intertexts_reject_invalid_page_size(client):
+    resp = client.get("/api/intertexts?per_page=20")
+    assert resp.status_code == 400
 
 
 @pytest.mark.skipif(db_unavailable, reason="Database connection not available")

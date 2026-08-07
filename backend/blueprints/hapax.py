@@ -24,8 +24,10 @@ Uses:
 # =============================================================================
 # IMPORTS
 # =============================================================================
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, Response, jsonify, request
 from flask_login import current_user
+import csv
+import io
 import os
 import json
 import unicodedata
@@ -1482,6 +1484,88 @@ def regenerate_rare_words_cache(language):
     return True
 
 
+RARE_LEMMATA_PAGE_SIZES = {25, 50, 100, 500}
+RARE_LEMMATA_SORT_FIELDS = {'frequency', 'lemma', 'author'}
+RARE_LEMMATA_SORT_ORDERS = {'asc', 'desc'}
+
+
+def _get_rare_lemmata_matching(language, max_occ):
+    """Load and filter the cached rare-word records for an Explorer request."""
+    cached = load_rare_words_cache(language)
+    if not cached:
+        logger.info(f"Rare-words cache missing for {language}, regenerating lazily")
+        try:
+            if regenerate_rare_words_cache(language):
+                cached = load_rare_words_cache(language)
+        except Exception as e:
+            logger.error(f"Lazy cache regeneration failed for {language}: {e}")
+
+    if not cached:
+        return None
+
+    return [word for word in cached.get('words', []) if word['count'] <= max_occ]
+
+
+def _rare_lemmata_sort_key(word, sort_by):
+    lemma = word.get('display', word.get('lemma', '')).lstrip('*').casefold()
+    if sort_by == 'frequency':
+        return (word.get('count', 0), lemma)
+    if sort_by == 'author':
+        return (word.get('first_author', '').casefold(), lemma)
+    return (lemma,)
+
+
+def _format_rare_lemma(word):
+    """Return the public Explorer representation of a cached rare word."""
+    display = word.get('display', word.get('lemma', ''))
+    if display.startswith('*'):
+        display = display[1:]
+    return {
+        'lemma': unicodedata.normalize('NFC', display),
+        'count': word['count'],
+        'first_author': word.get('first_author', ''),
+        'first_work': word.get('first_work', ''),
+        'first_locus': word.get('first_locus', ''),
+        'text_id': word.get('text_id', '')
+    }
+
+
+def _parse_rare_lemmata_params(require_paging=True):
+    """Parse and validate the shared Rare Words Explorer query parameters."""
+    language = request.args.get('language', 'la')
+    try:
+        max_occ = int(request.args.get('max_occurrences', 10))
+    except (TypeError, ValueError):
+        return None, jsonify({'error': 'max_occurrences must be an integer'}), 400
+
+    sort_by = request.args.get('sort_by', 'frequency')
+    sort_order = request.args.get('sort_order', 'asc')
+    if sort_by not in RARE_LEMMATA_SORT_FIELDS:
+        return None, jsonify({'error': 'sort_by must be frequency, lemma, or author'}), 400
+    if sort_order not in RARE_LEMMATA_SORT_ORDERS:
+        return None, jsonify({'error': 'sort_order must be asc or desc'}), 400
+
+    params = {
+        'language': language,
+        'max_occ': max_occ,
+        'sort_by': sort_by,
+        'sort_order': sort_order,
+    }
+    if require_paging:
+        try:
+            offset = int(request.args.get('offset', 0))
+            limit = int(request.args.get('limit', 50))
+        except (TypeError, ValueError):
+            return None, jsonify({'error': 'offset and limit must be integers'}), 400
+        if offset < 0:
+            return None, jsonify({'error': 'offset must be zero or greater'}), 400
+        if limit not in RARE_LEMMATA_PAGE_SIZES:
+            return None, jsonify({'error': 'limit must be one of 25, 50, 100, or 500'}), 400
+        params.update({'offset': offset, 'limit': limit})
+
+    return params, None, None
+
+
 @hapax_bp.route('/rare-lemmata-full', methods=['GET'])
 def get_rare_lemmata_full():
     """
@@ -1491,66 +1575,42 @@ def get_rare_lemmata_full():
     Query params:
         language: 'la', 'grc', or 'en' (default: 'la')
         max_occurrences: max corpus frequency (default: 10)
-        limit: max number to return (default: 50000)
+        offset: zero-based result offset (default: 0)
+        limit: page size: 25, 50, 100, or 500 (default: 50)
+        sort_by: frequency, lemma, or author (default: frequency)
+        sort_order: asc or desc (default: asc)
     """
+    params, error_response, error_status = _parse_rare_lemmata_params()
+    if error_response:
+        return error_response, error_status
+
     try:
-        language = request.args.get('language', 'la')
-        max_occ = int(request.args.get('max_occurrences', 10))
-        limit = int(request.args.get('limit', 50000))
-        
-        # Load from pre-cached file for instant response.
-        # If the cache is missing for this language, regenerate it lazily —
-        # this is the bootstrap path for languages that have frequency data
-        # but no pre-built rare-words cache yet (e.g. when a language is added
-        # without rebuilding caches first). First request pays the build cost
-        # (~30–60s for typical corpora); subsequent requests are instant.
-        cached = load_rare_words_cache(language)
-        if not cached:
-            logger.info(f"Rare-words cache missing for {language}, regenerating lazily")
-            try:
-                built = regenerate_rare_words_cache(language)
-                if built:
-                    cached = load_rare_words_cache(language)
-            except Exception as e:
-                logger.error(f"Lazy cache regeneration failed for {language}: {e}")
-        if not cached:
+        matching = _get_rare_lemmata_matching(params['language'], params['max_occ'])
+        if matching is None:
             return jsonify({
-                'language': language,
+                'language': params['language'],
                 'total': 0,
-                'max_occurrences': max_occ,
+                'max_occurrences': params['max_occ'],
+                'offset': params['offset'],
+                'limit': params['limit'],
                 'words': [],
                 'error': 'Cache not available and could not be regenerated. '
                          'Check that frequency data exists for this language.'
             })
-        
-        # Filter by max_occurrences
-        all_words = cached.get('words', [])
-        matching = [w for w in all_words if w['count'] <= max_occ]
-        filtered = matching[:limit]
-        
-        # Format response using pre-computed display forms
-        import unicodedata as _ucd
-        results = []
-        for w in filtered:
-            display = w.get('display', w.get('lemma', ''))
-            # Strip leading asterisks (denote reconstructed forms in linguistics)
-            if display.startswith('*'):
-                display = display[1:]
-            # Ensure proper NFC normalization for consistent browser rendering
-            display = _ucd.normalize('NFC', display)
-            results.append({
-                'lemma': display,
-                'count': w['count'],
-                'first_author': w.get('first_author', ''),
-                'first_work': w.get('first_work', ''),
-                'first_locus': w.get('first_locus', ''),
-                'text_id': w.get('text_id', '')
-            })
+
+        matching.sort(
+            key=lambda word: _rare_lemmata_sort_key(word, params['sort_by']),
+            reverse=params['sort_order'] == 'desc'
+        )
+        page = matching[params['offset']:params['offset'] + params['limit']]
+        results = [_format_rare_lemma(word) for word in page]
         
         response = jsonify({
-            'language': language,
-            'total': len(matching),  # Total matching, not limited
-            'max_occurrences': max_occ,
+            'language': params['language'],
+            'total': len(matching),
+            'max_occurrences': params['max_occ'],
+            'offset': params['offset'],
+            'limit': params['limit'],
             'words': results
         })
         response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
@@ -1558,6 +1618,42 @@ def get_rare_lemmata_full():
         
     except Exception as e:
         logger.error(f"Error in rare-lemmata-full: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@hapax_bp.route('/rare-lemmata-full/export', methods=['GET'])
+def export_rare_lemmata_full():
+    """Download every matching Rare Words Explorer entry as a CSV file."""
+    params, error_response, error_status = _parse_rare_lemmata_params(require_paging=False)
+    if error_response:
+        return error_response, error_status
+
+    try:
+        matching = _get_rare_lemmata_matching(params['language'], params['max_occ'])
+        if matching is None:
+            return jsonify({'error': 'Rare words cache is not available'}), 503
+
+        matching.sort(
+            key=lambda word: _rare_lemmata_sort_key(word, params['sort_by']),
+            reverse=params['sort_order'] == 'desc'
+        )
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow(['Lemma', 'Frequency', 'First Author', 'First Work', 'First Locus'])
+        for word in matching:
+            formatted = _format_rare_lemma(word)
+            writer.writerow([
+                formatted['lemma'], formatted['count'], formatted['first_author'],
+                formatted['first_work'], formatted['first_locus']
+            ])
+
+        response = Response(output.getvalue(), mimetype='text/csv')
+        response.headers['Content-Disposition'] = (
+            f"attachment; filename=rare_words_{params['language']}.csv"
+        )
+        return response
+    except Exception as e:
+        logger.error(f"Error exporting rare-lemmata-full: {e}")
         return jsonify({'error': str(e)}), 500
 
 

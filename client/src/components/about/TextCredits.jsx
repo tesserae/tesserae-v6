@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const SOURCE_LINKS = {
   'The Latin Library': 'http://thelatinlibrary.com/',
@@ -19,27 +19,81 @@ function IntroLink({ name, url }) {
 }
 
 export default function TextCredits() {
-  const [data, setData] = useState(null);
+  const [entries, setEntries] = useState([]);
+  const [totalEntries, setTotalEntries] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState('');
   const [filter, setFilter] = useState('');
+  const [query, setQuery] = useState('');
+  const [pageSize, setPageSize] = useState(50);
+  const queryVersionRef = useRef(0);
 
   useEffect(() => {
-    fetch('/api/text-credits')
-      .then(res => res.json())
-      .then(d => { setData(d); setLoading(false); })
-      .catch(err => { setError(err.message); setLoading(false); });
-  }, []);
+    const timer = setTimeout(() => setQuery(filter), 250);
+    return () => clearTimeout(timer);
+  }, [filter]);
 
-  const filteredData = useMemo(() => {
-    if (!data) return [];
-    if (!filter.trim()) return data;
-    const q = filter.toLowerCase();
-    return data.filter(entry =>
-      entry.author.toLowerCase().includes(q) ||
-      entry.work.toLowerCase().includes(q)
-    );
-  }, [data, filter]);
+  useEffect(() => {
+    const controller = new AbortController();
+    const queryVersion = queryVersionRef.current + 1;
+    queryVersionRef.current = queryVersion;
+    setLoading(true);
+    setLoadingMore(false);
+    setError('');
+
+    const params = new URLSearchParams({
+      query,
+      offset: '0',
+      limit: String(pageSize),
+    });
+
+    fetch(`/api/text-credits?${params.toString()}`, { signal: controller.signal })
+      .then(async (res) => {
+        if (!res.ok) throw new Error('Failed to load sources');
+        return res.json();
+      })
+      .then((data) => {
+        if (queryVersionRef.current !== queryVersion) return;
+        setEntries(data.entries || []);
+        setTotalEntries(data.total || 0);
+        setLoading(false);
+      })
+      .catch((err) => {
+        if (err.name === 'AbortError' || queryVersionRef.current !== queryVersion) return;
+        setError('Failed to load sources. Please try again.');
+        setLoading(false);
+      });
+
+    return () => controller.abort();
+  }, [query, pageSize]);
+
+  const loadMore = async () => {
+    if (loading || loadingMore || entries.length >= totalEntries) return;
+
+    const queryVersion = queryVersionRef.current;
+    setLoadingMore(true);
+    setError('');
+    try {
+      const params = new URLSearchParams({
+        query,
+        offset: String(entries.length),
+        limit: String(pageSize),
+      });
+      const res = await fetch(`/api/text-credits?${params.toString()}`);
+      if (!res.ok) throw new Error('Failed to load more sources');
+      const data = await res.json();
+      if (queryVersionRef.current === queryVersion) {
+        setEntries(previousEntries => [...previousEntries, ...(data.entries || [])]);
+        setTotalEntries(data.total || 0);
+      }
+    } catch (err) {
+      if (queryVersionRef.current === queryVersion) {
+        setError('Failed to load more sources. Please try again.');
+      }
+    }
+    if (queryVersionRef.current === queryVersion) setLoadingMore(false);
+  };
 
   if (loading) {
     return (
@@ -50,7 +104,7 @@ export default function TextCredits() {
     );
   }
 
-  if (error) {
+  if (error && entries.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow p-8">
         <p className="text-red-600">Failed to load sources: {error}</p>
@@ -81,7 +135,7 @@ export default function TextCredits() {
         original provenance of these texts, and reproduce citation where possible. This is a work in progress.
       </p>
 
-      <div className="mb-4">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
         <input
           type="text"
           placeholder="Filter by author or work..."
@@ -89,10 +143,27 @@ export default function TextCredits() {
           onChange={(e) => setFilter(e.target.value)}
           className="w-full sm:w-80 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
         />
-        <span className="ml-3 text-sm text-gray-500">
-          {filteredData.length} {filteredData.length === 1 ? 'entry' : 'entries'}
+        <select
+          value={pageSize}
+          onChange={(e) => setPageSize(Number(e.target.value))}
+          aria-label="Entries at a time"
+          className="w-fit border border-gray-300 rounded-lg px-3 py-2 text-sm"
+        >
+          <option value="25">25 entries at a time</option>
+          <option value="50">50 entries at a time</option>
+          <option value="100">100 entries at a time</option>
+          <option value="500">500 entries at a time</option>
+        </select>
+        <span className="text-sm text-gray-500">
+          Showing {entries.length} of {totalEntries} {totalEntries === 1 ? 'entry' : 'entries'}
         </span>
       </div>
+
+      {error && (
+        <div className="mb-4 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
       <div className="overflow-x-auto border border-gray-200 rounded-lg">
         <table className="w-full text-sm min-w-[600px]">
@@ -106,7 +177,7 @@ export default function TextCredits() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {filteredData.map((entry, idx) => (
+            {entries.map((entry, idx) => (
               <tr key={idx} className="hover:bg-gray-50">
                 <td className="px-2 sm:px-4 py-2 text-gray-900 font-medium whitespace-nowrap">{entry.author}</td>
                 <td className="px-2 sm:px-4 py-2 text-gray-700">{entry.work}</td>
@@ -128,7 +199,7 @@ export default function TextCredits() {
                 <td className="px-2 sm:px-4 py-2 text-gray-600 whitespace-nowrap">{entry.added_by}</td>
               </tr>
             ))}
-            {filteredData.length === 0 && (
+            {!loading && entries.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
                   No entries found matching your filter.
@@ -138,6 +209,18 @@ export default function TextCredits() {
           </tbody>
         </table>
       </div>
+      {entries.length < totalEntries && (
+        <div className="mt-4 text-center">
+          <button
+            type="button"
+            onClick={loadMore}
+            disabled={loadingMore}
+            className="rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {loadingMore ? 'Loading…' : `Show More (${totalEntries - entries.length} remaining)`}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
