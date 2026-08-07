@@ -119,9 +119,10 @@ def _repository_csv_response(items, is_public):
             item.notes or '',
             item.created_at.isoformat() if item.created_at else '',
         ])
+    # Prepend UTF-8 BOM so Excel reads non-Latin scripts (Coptic, Greek) as Unicode, not Windows-1252.
     return Response(
-        output.getvalue(),
-        mimetype='text/csv',
+        '﻿' + output.getvalue(),
+        mimetype='text/csv; charset=utf-8',
         headers={'Content-Disposition': 'attachment; filename=intertexts.csv'}
     )
 
