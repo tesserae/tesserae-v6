@@ -226,6 +226,7 @@ export default function HelpPage() {
     { id: 'results', label: 'Understanding Results' },
     { id: 'best-practices', label: 'Search Tips' },
     { id: 'cross-lingual', label: 'Cross-Lingual Search' },
+    { id: 'coptic', label: 'Coptic Search' },
     { id: 'syntax-texts', label: 'Syntax Matching Texts' },
     { id: 'repository', label: 'Repository' },
     { id: 'faq', label: 'FAQ' },
@@ -338,7 +339,7 @@ export default function HelpPage() {
             <div className="prose max-w-none">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Getting Started</h3>
               <ol className="list-decimal list-inside space-y-4 text-gray-700">
-                <li><strong>Select a Language:</strong> Choose Latin, Greek, or English from the language tabs.</li>
+                <li><strong>Select a Language:</strong> Choose Latin, Greek, English, or Coptic from the language tabs.</li>
                 <li><strong>Choose Source Text:</strong> Select the "source" text — typically the earlier text.</li>
                 <li><strong>Choose Target Text:</strong> Select the "target" text — the later text that may contain the allusion.</li>
                 <li><strong>Run Search:</strong> Click "Find Parallels." The default search mode is <strong>Fusion — All Channels</strong>, which runs nine independent detection methods and combines their results for the best recall.</li>
@@ -356,6 +357,60 @@ export default function HelpPage() {
             </div>
           )}
 
+          {activeSection === 'coptic' && (
+            <div className="prose max-w-none">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Coptic Search</h3>
+              <p className="text-gray-700 mb-4">
+                Tesserae searches Sahidic Coptic alongside Latin, Greek, and English. The Coptic corpus combines the
+                Coptic Bible with major works of monastic literature — the sermons and letters of Shenoute of Atripe
+                and his successor Besa — so you can trace how Coptic authors quote scripture and reuse one another.
+              </p>
+              <p className="text-gray-700 mb-4">
+                Coptic search is tuned differently from the classical languages. Where Latin and Greek search looks for
+                allusion — shared rare vocabulary spread across a line — Coptic search is tuned for <strong>quotation
+                and close reuse</strong>, the way Coptic monastic authors most often engage their sources.
+              </p>
+
+              <div className="my-4 bg-green-50 border border-green-200 p-4 rounded-lg">
+                <h4 className="font-medium text-green-800 mb-1">Verbatim-quotation detection</h4>
+                <p className="text-green-800 text-sm">
+                  Coptic search's standout feature finds runs of identical consecutive words, catching direct
+                  scriptural quotations even where the author gives no citation. In practice the highest-ranked
+                  Coptic results are reliable quotations.
+                </p>
+              </div>
+
+              <p className="text-gray-700 mb-3">
+                Alongside quotation detection, Coptic search runs the same battery of methods as the other languages:
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-gray-700 text-sm mb-4">
+                <li><strong>Shared vocabulary</strong> — lines that share two or more dictionary words.</li>
+                <li><strong>Sound</strong> — words that sound alike, useful across spelling variation.</li>
+                <li><strong>Synonyms</strong> — related words drawn from the Coptic WordNet.</li>
+                <li><strong>Grammatical structure</strong> — lines built the same way.</li>
+                <li><strong>Meaning (AI)</strong> — a model that recognizes the same idea in different words (a multilingual model, for Coptic).</li>
+              </ul>
+
+              <div className="mt-4 bg-blue-50 p-4 rounded-lg">
+                <h4 className="font-medium text-blue-800 mb-1">Coptic → Greek</h4>
+                <p className="text-blue-800 text-sm">
+                  Because much of Coptic scripture and literature was translated from Greek, you can search a Coptic
+                  text against the Greek corpus to surface the Greek source behind a translation. Choose the
+                  Coptic → Greek pair on the Cross-Language tab.
+                </p>
+              </div>
+
+              <div className="mt-4 bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-medium text-gray-800 mb-1">Searching the whole corpus</h4>
+                <p className="text-gray-700 text-sm">
+                  From any result you can search the entire Coptic corpus for the words a parallel shares, to see
+                  where else they occur. All of Shenoute's works are also available as a single combined text, so you
+                  can search his whole surviving output at once.
+                </p>
+              </div>
+            </div>
+          )}
+
           {activeSection === 'fusion-search' && (
             <div className="prose max-w-none">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">How Fusion Search Works</h3>
@@ -365,7 +420,7 @@ export default function HelpPage() {
                 grammatical structure, and more. By fusing these signals, the system finds parallels that no single method could detect alone.
               </p>
 
-              <h4 className="text-lg font-medium text-gray-900 mt-6 mb-3">The Nine Channels</h4>
+              <h4 className="text-lg font-medium text-gray-900 mt-6 mb-3">The Detection Channels</h4>
               <div className="space-y-3">
                 <div className="border-l-4 border-red-400 pl-3">
                   <p className="text-sm text-gray-700"><strong>Lemma (2-word):</strong> The classic Tesserae approach — finds lines sharing two or more content-word dictionary forms. The workhorse channel for direct verbal echo.</p>
@@ -394,7 +449,13 @@ export default function HelpPage() {
                 <div className="border-l-4 border-purple-400 pl-3">
                   <p className="text-sm text-gray-700"><strong>Rare Vocabulary:</strong> Flags shared words that appear in fewer than 100 texts corpus-wide. A rare shared word is unlikely to be coincidence.</p>
                 </div>
+                <div className="border-l-4 border-green-500 pl-3">
+                  <p className="text-sm text-gray-700"><strong>Verbatim Quotation (Coptic):</strong> Finds runs of three or more identical consecutive words. This channel is used for Coptic, where authors most often engage their sources by direct quotation — it catches scriptural quotations even when the author gives no citation. See the <em>Coptic Search</em> section for details.</p>
+                </div>
               </div>
+              <p className="text-gray-600 text-sm mt-3">
+                Nine channels run for Latin, Greek, and English; Coptic adds the verbatim-quotation channel above.
+              </p>
 
               <h4 className="text-lg font-medium text-gray-900 mt-6 mb-3">How Results Are Combined</h4>
               <p className="text-gray-700 mb-3">
