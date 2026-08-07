@@ -1647,7 +1647,8 @@ def export_rare_lemmata_full():
                 formatted['first_work'], formatted['first_locus']
             ])
 
-        response = Response(output.getvalue(), mimetype='text/csv')
+        # Prepend UTF-8 BOM so Excel reads non-Latin scripts (Coptic, Greek) as Unicode, not Windows-1252.
+        response = Response('﻿' + output.getvalue(), mimetype='text/csv; charset=utf-8')
         response.headers['Content-Disposition'] = (
             f"attachment; filename=rare_words_{params['language']}.csv"
         )
