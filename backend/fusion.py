@@ -88,6 +88,27 @@ _STOPLISTS = {
     'cop': COPTIC_STOP_WORDS,
 }
 
+# matched_words carries scorer-internal markup as pseudo-lemmas: quotation-run
+# tokens ('[QUOT:...]'), dictionary pairs ('a≈b'), fuzzy/edit pairs ('a~b (66%)'),
+# and sound-channel trigrams ('[xyz]'). A real lemma contains none of these
+# characters. Used to derive a clean matched-lemma list for corpus-search.
+_MATCHED_LEMMA_MARKUP_RE = re.compile(r'[\[\]()~≈%:\s]')
+
+
+def _clean_matched_lemmas(lemma_keys, stoplist):
+    """Return the sorted set of real content lemmas from matched_words keys.
+
+    matched_words keys include scorer markup ('[QUOT:x]', 'a≈b', 'a~b (66%)',
+    '[xyz]') alongside genuine lemmas. Drop the markup and any function words so
+    the result is the actual words that matched, in index-normalized form —
+    what the corpus-search feature and result highlighting should consume.
+    """
+    return sorted({
+        lem for lem in lemma_keys
+        if lem and not _MATCHED_LEMMA_MARKUP_RE.search(lem)
+        and lem.lower() not in stoplist
+    })
+
 
 # ---------------------------------------------------------------------------
 # Config K channel weights (Feb 28 2026)
@@ -2366,6 +2387,8 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
                 info["all_target_highlights"]
             )
         result["matched_words"] = list(info["all_matched_words"].values())
+        result["matched_lemmas"] = _clean_matched_lemmas(
+            info["all_matched_words"], _STOPLISTS.get(language, set()))
         result["fused_score"] = round(info["score"], 4)
         result["channels"] = info["channels"]
         result["channel_count"] = len(info["channels"])

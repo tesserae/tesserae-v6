@@ -472,9 +472,14 @@ function App() {
         lemmas
       };
     } else {
-      lemmas = (result.matched_words || []).map(w => 
-        typeof w === 'object' ? (w.lemma || w.word || '') : w
-      ).filter(Boolean);
+      // Prefer the clean matched_lemmas list (real content words, markup and
+      // function words removed). Fall back to parsing matched_words for older
+      // results that predate the field.
+      lemmas = (Array.isArray(result.matched_lemmas) && result.matched_lemmas.length)
+        ? result.matched_lemmas.slice()
+        : (result.matched_words || []).map(w =>
+            typeof w === 'object' ? (w.lemma || w.word || '') : w
+          ).filter(Boolean);
       queryInfo = {
         source: { ref: result.source_locus || result.source?.ref, text: result.source_text || result.source?.text },
         target: { ref: result.target_locus || result.target?.ref, text: result.target_text || result.target?.text },

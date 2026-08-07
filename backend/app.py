@@ -2136,6 +2136,15 @@ def corpus_search():
 
         # Normalize lemmas for index lookup (strip Greek diacritics, Latin u/v)
         normalized_lemmas = [_normalize_lemma(l, language) for l in lemmas]
+        # Drop function words so corpus co-occurrence is driven by content words,
+        # not grammatical particles. Critical for Coptic, whose lemmatizer emits
+        # article/tense-marker morphemes (ⲡ "the", ⲁ past-marker, ...) that
+        # co-occur in nearly every clause and otherwise flood the results.
+        from backend.fusion import _STOPLISTS as _FUSION_STOPLISTS
+        _stop = _FUSION_STOPLISTS.get(language, set())
+        normalized_lemmas = [l for l in normalized_lemmas if l and l.lower() not in _stop]
+        if not normalized_lemmas:
+            return jsonify({'results': [], 'total': 0, 'lemmas': lemmas})
         matches = find_co_occurring_lemmas(normalized_lemmas, language, min_matches=min(2, len(normalized_lemmas)))
         
         results = []

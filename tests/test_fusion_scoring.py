@@ -733,3 +733,38 @@ class TestTextPairFrequencyBaseline:
         # Non-existent words should return 0 frequency
         assert freqs.get("nonexistentword12345", 0) == 0
 
+
+
+# ── Clean matched-lemma extraction (corpus-search input) ───────────────────
+
+class TestCleanMatchedLemmas:
+    """_clean_matched_lemmas strips scorer markup and function words from
+    matched_words keys so corpus-search sees real content lemmas. Regression
+    guard for the Coptic corpus-search fix (markup + particle flood)."""
+
+    def test_strips_quotation_and_pair_markup(self):
+        from backend.fusion import _clean_matched_lemmas
+        keys = ['[QUOT:ⲛ]', 'ⲛⲟⲩⲻⲉ~ⲛⲟⲩⲧⲉ (80%)', 'ⲛⲧⲟⲥ≈ⲡⲉⲥ',
+                '[ⲏⲣⲉ]', 'ⲓⲥⲁⲁⲕ', 'ⲳⲏⲣⲉ']
+        assert _clean_matched_lemmas(keys, set()) == sorted(['ⲓⲥⲁⲁⲕ', 'ⲳⲏⲣⲉ'])
+
+    def test_drops_stopwords(self):
+        from backend.fusion import _clean_matched_lemmas
+        keys = ['ⲡ', 'ⲁ', 'ⲓⲥⲁⲁⲕ', 'ⲳⲏⲣⲉ']
+        stop = {'ⲡ', 'ⲁ'}
+        assert _clean_matched_lemmas(keys, stop) == sorted(['ⲓⲥⲁⲁⲕ', 'ⲳⲏⲣⲉ'])
+
+    def test_latin_content_words_pass_through(self):
+        from backend.fusion import _clean_matched_lemmas
+        keys = ['arma', 'virum', 'et', 'a~b (66%)']
+        assert _clean_matched_lemmas(keys, {'et'}) == ['arma', 'virum']
+
+    def test_empty_and_all_markup(self):
+        from backend.fusion import _clean_matched_lemmas
+        assert _clean_matched_lemmas([], set()) == []
+        assert _clean_matched_lemmas(['[QUOT:x]', 'a≈b'], set()) == []
+
+    def test_dedupes(self):
+        from backend.fusion import _clean_matched_lemmas
+        assert _clean_matched_lemmas(['nux', 'nux', 'castanea'], set()) == \
+            sorted(['nux', 'castanea'])
