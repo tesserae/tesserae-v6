@@ -88,6 +88,39 @@ def init_search_blueprint(matcher, scorer, text_processor, texts_dir,
 # SHARED SEARCH HELPERS
 # =============================================================================
 
+def _resolve_with_fallback(texts_dir, language, text_id):
+    """Try resolving text path in the requested language first, then
+    fall back to scanning all language directories dynamically.
+
+    Returns (resolved_path, actual_language) or (None, None).
+    """
+    # Primary: try the requested language
+    path = resolve_text_path(texts_dir, language, text_id)
+    if path:
+        return path, language
+
+    # Fallback: scan all language directories dynamically
+    try:
+        available_langs = [
+            d for d in os.listdir(texts_dir)
+            if os.path.isdir(os.path.join(texts_dir, d)) and not d.startswith('.')
+        ]
+    except OSError:
+        available_langs = ['la', 'grc', 'en']
+
+    for alt_lang in available_langs:
+        if alt_lang == language:
+            continue
+        path = resolve_text_path(texts_dir, alt_lang, text_id)
+        if path:
+            logger.warning(
+                "Smart fallback: resolved '%s' from '%s' → '%s'",
+                text_id, language, alt_lang
+            )
+            return path, alt_lang
+
+    return None, None
+
 def _parse_search_request(data):
     """Parse and validate a search request from either endpoint.
 
@@ -119,11 +152,21 @@ def _parse_search_request(data):
     if is_crosslingual:
         source_language = data.get('source_language', 'la')
         target_language = data.get('target_language', 'la')
-        source_path = resolve_text_path(_texts_dir, source_language, source_id)
-        target_path = resolve_text_path(_texts_dir, target_language, target_id)
+        source_path, source_language = _resolve_with_fallback(_texts_dir, source_language, source_id)
+        target_path, target_language = _resolve_with_fallback(_texts_dir, target_language, target_id)
     else:
-        source_path = resolve_text_path(_texts_dir, language, source_id)
-        target_path = resolve_text_path(_texts_dir, language, target_id)
+        source_path, resolved_src_lang = _resolve_with_fallback(_texts_dir, language, source_id)
+        target_path, resolved_tgt_lang = _resolve_with_fallback(_texts_dir, language, target_id)
+        if resolved_src_lang and resolved_tgt_lang:
+            if resolved_src_lang == resolved_tgt_lang:
+                source_language = resolved_src_lang
+                target_language = resolved_tgt_lang
+                language = resolved_src_lang
+            else:
+                raise ValueError(
+                    f"Selected texts belong to different languages ('{resolved_src_lang}' and '{resolved_tgt_lang}'). "
+                    f"Please select Cross-Language mode."
+                )
 
     if not source_path or not target_path:
         raise FileNotFoundError('Text files not found')

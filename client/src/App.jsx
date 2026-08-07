@@ -398,6 +398,22 @@ function App() {
       return;
     }
 
+    // Guard: ensure selected texts belong to the current language corpus.
+    // Prevents stale text IDs from being sent after tab switches or during corpus loading.
+    if (corpusLoading) {
+      return;
+    }
+
+    if (corpus.length > 0) {
+      const sourceValid = corpus.some(t => t.id === sourceText);
+      const targetValid = corpus.some(t => t.id === targetText);
+      if (!sourceValid || !targetValid) {
+        setSourceText('');
+        setTargetText('');
+        return;
+      }
+    }
+
     const params = {
       source: sourceText,
       target: targetText,
@@ -412,7 +428,7 @@ function App() {
     } else if (searchMode === 'bigram') {
       await searchWordPairs(params);
     }
-  }, [sourceText, targetText, activeTab, settings, searchMode, search, searchRareWords, searchWordPairs]);
+  }, [sourceText, targetText, activeTab, corpus, settings, searchMode, search, searchRareWords, searchWordPairs]);
 
   const handleRerunFresh = useCallback(async () => {
     if (!sourceText || !targetText) return;
