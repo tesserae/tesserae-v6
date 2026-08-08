@@ -2,7 +2,7 @@
  * RarePairsSettings — Settings panel for rare word (hapax) and rare pair search modes.
  * Controls rarity threshold, proper noun exclusion, minimum frequency, and bigram options.
  */
-const RarePairsSettings = ({ settings, setSettings, searchMode }) => {
+const RarePairsSettings = ({ settings, setSettings, searchMode, language }) => {
   const handleChange = (key, value) => {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
@@ -18,7 +18,7 @@ const RarePairsSettings = ({ settings, setSettings, searchMode }) => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {isHapax && (
+        {isHapax && language !== 'cop' && (
           <div className="sm:col-span-2">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -31,9 +31,6 @@ const RarePairsSettings = ({ settings, setSettings, searchMode }) => {
                 Exclude proper nouns (names, places)
               </span>
             </label>
-            <p className="text-xs text-gray-400 mt-1 ml-6">
-              Filter out proper nouns (names and places)
-            </p>
           </div>
         )}
 

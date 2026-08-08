@@ -8,12 +8,41 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import { Bar } from 'react-chartjs-2';
 import { formatElapsedTime } from '../../utils/formatting';
 import { displayGreekWithFinalSigma } from '../../utils/greekUtils';
+import { normalizeCoptic } from '../../utils/copticUtils';
 import { getDictionaryUrl } from '../../utils/linkUtils';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const highlightMatchedWords = (text, matchedWords, lemma1, lemma2, positions) => {
+const highlightMatchedWords = (text, matchedWords, lemma1, lemma2, positions, language) => {
   if (!text) return text;
+
+  // Coptic: the search uses sub-word lemma forms (in a normalized alphabet) that
+  // don't align with the surface words — and \w doesn't match Coptic script — so
+  // match by normalized form with a substring fallback for bound groups (a surface
+  // word that contains the sub-word lemma, e.g. ⲣⲱⲙⲉ inside ⲛⲉⲩⲛⲟⲩⲣⲱⲙⲉ).
+  if (language === 'cop') {
+    const strip = (s) => String(s)
+      .replace(/^[\s.,;:!?'"()—–·‧-]+/, '')
+      .replace(/[\s.,;:!?'"()—–·‧-]+$/, '');
+    const norm = (s) => normalizeCoptic(strip(s));
+    const targets = new Set();
+    [lemma1, lemma2].forEach(l => { if (l) targets.add(norm(l)); });
+    (matchedWords || []).forEach(w => {
+      const word = typeof w === 'object' ? (w.lemma || w.word) : w;
+      if (word && !/[~[]/.test(String(word))) targets.add(norm(word));
+    });
+    targets.delete('');
+    if (targets.size === 0) return text;
+    return text.split(/(\s+)/).map((part, i) => {
+      if (/^\s+$/.test(part) || part === '') return part;
+      const cmp = norm(part);
+      let hit = targets.has(cmp);
+      if (!hit) { for (const t of targets) { if (t.length >= 3 && cmp.includes(t)) { hit = true; break; } } }
+      return hit
+        ? <span key={i}><span className="bg-yellow-200 px-0.5 rounded font-medium">{part}</span></span>
+        : part;
+    });
+  }
 
   // Split text into tokens while preserving whitespace
   const parts = text.split(/(\s+)/);
@@ -592,7 +621,7 @@ const RareResultsDisplay = ({
                         <div key={j} className="text-sm">
                           <div className="font-medium text-red-700">{formatLocationRef(loc.ref, formatTextName(sourceText))}</div>
                           {loc.text && <div className="text-gray-700">
-                            {highlightMatchedWords(displayGreekWithFinalSigma(loc.text), r.matched_words, r.word1 || r.lemma, r.word2, loc.positions)}
+                            {highlightMatchedWords(displayGreekWithFinalSigma(loc.text), r.matched_words, r.word1 || r.lemma, r.word2, loc.positions, language)}
                           </div>}
                         </div>
                       ))}
@@ -612,7 +641,7 @@ const RareResultsDisplay = ({
                         <div key={j} className="text-sm">
                           <div className="font-medium text-amber-700">{formatLocationRef(loc.ref, formatTextName(targetText))}</div>
                           {loc.text && <div className="text-gray-700">
-                            {highlightMatchedWords(displayGreekWithFinalSigma(loc.text), r.matched_words, r.word1 || r.lemma, r.word2, loc.positions)}
+                            {highlightMatchedWords(displayGreekWithFinalSigma(loc.text), r.matched_words, r.word1 || r.lemma, r.word2, loc.positions, language)}
                           </div>}
                         </div>
                       ))}
