@@ -777,7 +777,14 @@ export default function LineSearch({ language }) {
               )}
 
               <div className="divide-y divide-gray-200">
-                {filteredResults.slice(0, displayLimit).map((result, i) => (
+                {filteredResults.slice(0, displayLimit).map((result, i) => {
+                  // Coptic loci embed the full text id (e.g. "pseudo.athanasius.discourses.24");
+                  // strip that redundant filename stem so the citation reads "Discourses, 24".
+                  const stem = (result.text_id || '').replace(/\.tess$/, '');
+                  const displayLocus = stem && (result.locus || '').startsWith(stem + '.')
+                    ? result.locus.slice(stem.length + 1)
+                    : (result.locus || '');
+                  return (
                   <div key={i} className="p-4 hover:bg-gray-50">
                     <div className="flex flex-col sm:flex-row sm:items-start gap-2">
                       <span className="text-xs text-gray-400 min-w-[2.5rem] text-right shrink-0 leading-none" style={{paddingTop: '1px'}}>
@@ -788,7 +795,7 @@ export default function LineSearch({ language }) {
                           {result.author}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {result.work}, {result.locus}
+                          {result.work}, {displayLocus}
                         </div>
                         {result.era && (
                           <span className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded mt-1 inline-block">
@@ -801,7 +808,8 @@ export default function LineSearch({ language }) {
                       </div>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
               {filteredResults.length > displayLimit && (
                 <div className="px-4 py-3 bg-gray-50 text-center">
