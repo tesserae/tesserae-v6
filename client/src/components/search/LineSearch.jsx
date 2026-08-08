@@ -783,7 +783,7 @@ export default function LineSearch({ language }) {
                       <span className="text-xs text-gray-400 min-w-[2.5rem] text-right shrink-0 leading-none" style={{paddingTop: '1px'}}>
                         {i + 1}.
                       </span>
-                      <div className="sm:w-48 flex-shrink-0">
+                      <div className="sm:w-48 flex-shrink-0 min-w-0 break-words">
                         <div className="text-sm font-medium text-gray-900">
                           {result.author}
                         </div>
@@ -796,7 +796,7 @@ export default function LineSearch({ language }) {
                           </span>
                         )}
                       </div>
-                      <div className="flex-1 text-gray-700">
+                      <div className="flex-1 min-w-0 break-words text-gray-700">
                         {highlightMatches(result.text, result.matched_words || query.split(/\s+/))}
                       </div>
                     </div>
