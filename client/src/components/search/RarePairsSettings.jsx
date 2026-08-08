@@ -32,7 +32,7 @@ const RarePairsSettings = ({ settings, setSettings, searchMode }) => {
               </span>
             </label>
             <p className="text-xs text-gray-400 mt-1 ml-6">
-              Filter out words like Roma, Aeneas, Troia that are always capitalized
+              Filter out proper nouns (names and places)
             </p>
           </div>
         )}
