@@ -1607,8 +1607,11 @@ RARE_LEMMATA_SORT_ORDERS = {'asc', 'desc'}
 def _get_rare_lemmata_matching(language, max_occ):
     """Load and filter the cached rare-word records for an Explorer request."""
     cached = load_rare_words_cache(language)
-    if not cached:
-        logger.info(f"Rare-words cache missing for {language}, regenerating lazily")
+    # Regenerate when the cache is missing OR empty. An empty cache can be left
+    # behind by an earlier run that lacked support for a language (e.g. Coptic
+    # before it was added); without the empty-check it would never self-heal.
+    if not cached or not cached.get('words'):
+        logger.info(f"Rare-words cache missing/empty for {language}, regenerating lazily")
         try:
             if regenerate_rare_words_cache(language):
                 cached = load_rare_words_cache(language)
