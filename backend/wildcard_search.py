@@ -40,33 +40,22 @@ def get_author_dates():
     except ImportError:
         return {}
 
-GREEK_DIACRITICAL_MAP = {
-    'ά': 'α', 'ὰ': 'α', 'ᾶ': 'α', 'ἀ': 'α', 'ἁ': 'α', 'ἂ': 'α', 'ἃ': 'α', 'ἄ': 'α', 'ἅ': 'α', 'ἆ': 'α', 'ἇ': 'α',
-    'ᾀ': 'α', 'ᾁ': 'α', 'ᾂ': 'α', 'ᾃ': 'α', 'ᾄ': 'α', 'ᾅ': 'α', 'ᾆ': 'α', 'ᾇ': 'α', 'ᾲ': 'α', 'ᾳ': 'α', 'ᾴ': 'α', 'ᾷ': 'α',
-    'έ': 'ε', 'ὲ': 'ε', 'ἐ': 'ε', 'ἑ': 'ε', 'ἒ': 'ε', 'ἓ': 'ε', 'ἔ': 'ε', 'ἕ': 'ε',
-    'ή': 'η', 'ὴ': 'η', 'ῆ': 'η', 'ἠ': 'η', 'ἡ': 'η', 'ἢ': 'η', 'ἣ': 'η', 'ἤ': 'η', 'ἥ': 'η', 'ἦ': 'η', 'ἧ': 'η',
-    'ᾐ': 'η', 'ᾑ': 'η', 'ᾒ': 'η', 'ᾓ': 'η', 'ᾔ': 'η', 'ᾕ': 'η', 'ᾖ': 'η', 'ᾗ': 'η', 'ῂ': 'η', 'ῃ': 'η', 'ῄ': 'η', 'ῇ': 'η',
-    'ί': 'ι', 'ὶ': 'ι', 'ῖ': 'ι', 'ἰ': 'ι', 'ἱ': 'ι', 'ἲ': 'ι', 'ἳ': 'ι', 'ἴ': 'ι', 'ἵ': 'ι', 'ἶ': 'ι', 'ἷ': 'ι', 'ϊ': 'ι', 'ΐ': 'ι', 'ῒ': 'ι', 'ῗ': 'ι',
-    'ό': 'ο', 'ὸ': 'ο', 'ὀ': 'ο', 'ὁ': 'ο', 'ὂ': 'ο', 'ὃ': 'ο', 'ὄ': 'ο', 'ὅ': 'ο',
-    'ύ': 'υ', 'ὺ': 'υ', 'ῦ': 'υ', 'ὐ': 'υ', 'ὑ': 'υ', 'ὒ': 'υ', 'ὓ': 'υ', 'ὔ': 'υ', 'ὕ': 'υ', 'ὖ': 'υ', 'ὗ': 'υ', 'ϋ': 'υ', 'ΰ': 'υ', 'ῢ': 'υ', 'ῧ': 'υ',
-    'ώ': 'ω', 'ὼ': 'ω', 'ῶ': 'ω', 'ὠ': 'ω', 'ὡ': 'ω', 'ὢ': 'ω', 'ὣ': 'ω', 'ὤ': 'ω', 'ὥ': 'ω', 'ὦ': 'ω', 'ὧ': 'ω',
-    'ᾠ': 'ω', 'ᾡ': 'ω', 'ᾢ': 'ω', 'ᾣ': 'ω', 'ᾤ': 'ω', 'ᾥ': 'ω', 'ᾦ': 'ω', 'ᾧ': 'ω', 'ῲ': 'ω', 'ῳ': 'ω', 'ῴ': 'ω', 'ῷ': 'ω',
-    'ῤ': 'ρ', 'ῥ': 'ρ',
-}
-
-
 def normalize_greek(text: str) -> str:
     """
-    Normalize Greek text by removing diacriticals (accents, breathings, iota subscripts).
-    This allows searches like 'λογος' to match 'λόγος'.
+    Remove Greek diacritics (accents, breathings, iota subscripts) so an
+    accented query matches accentless text and vice versa -- e.g. both 'λογος'
+    and 'λόγος' match the corpus.
+
+    Works regardless of Unicode normalization form: the text is decomposed
+    (NFD) so every diacritic becomes a combining mark, then all combining marks
+    are stripped. The Greek corpus is stored in NFD while typed/pasted queries
+    are usually NFC; the previous precomposed-only character map reduced NFC
+    queries to base letters but left the NFD corpus untouched, so accented
+    queries matched nothing. Case is preserved -- the caller controls
+    case-sensitivity via regex flags.
     """
-    result = []
-    for char in text:
-        if char in GREEK_DIACRITICAL_MAP:
-            result.append(GREEK_DIACRITICAL_MAP[char])
-        else:
-            result.append(char)
-    return ''.join(result)
+    decomposed = unicodedata.normalize('NFD', text)
+    return ''.join(ch for ch in decomposed if not unicodedata.combining(ch))
 
 def normalize_latin(text: str) -> str:
     """
@@ -222,11 +211,13 @@ def search_file(filepath: str, parsed_query: Dict, case_sensitive: bool = False,
             search_text = text
 
         if matches_query(search_text, parsed_query, flags, is_greek, is_latin, is_coptic):
-            # Coptic normalization changes string length (strokes are stripped),
-            # so match positions on normalized text don't map back to the raw
-            # display text. Highlight whole bound groups instead of exact spans.
-            if is_coptic:
-                highlight_indices = get_coptic_highlight_indices(text, parsed_query, flags)
+            # Coptic and Greek normalizers change string length (strokes /
+            # combining accents are stripped), so match positions on the
+            # normalized text don't map back to the raw display text. Highlight
+            # whole tokens for those; Latin/English keep exact-span highlights.
+            token_normalizer = normalize_coptic if is_coptic else (normalize_greek if is_greek else None)
+            if token_normalizer:
+                highlight_indices = get_token_highlight_indices(text, parsed_query, flags, token_normalizer)
             else:
                 highlight_indices = get_highlight_indices(text, parsed_query, flags, is_greek, is_latin)
 
@@ -234,8 +225,8 @@ def search_file(filepath: str, parsed_query: Dict, case_sensitive: bool = False,
             display_text = text
             if is_prose and len(text) > 150:
                 display_text = extract_sentences_with_matches(text, highlight_indices)
-                if is_coptic:
-                    highlight_indices = get_coptic_highlight_indices(display_text, parsed_query, flags)
+                if token_normalizer:
+                    highlight_indices = get_token_highlight_indices(display_text, parsed_query, flags, token_normalizer)
                 else:
                     highlight_indices = get_highlight_indices(display_text, parsed_query, flags, is_greek, is_latin)
             
@@ -376,15 +367,16 @@ def get_highlight_indices(text: str, parsed_query: Dict, flags: int, is_greek: b
     return indices
 
 
-def get_coptic_highlight_indices(text: str, parsed_query: Dict, flags: int) -> List[List[int]]:
-    """Highlight indices for Coptic, at whole bound-group granularity.
+def get_token_highlight_indices(text: str, parsed_query: Dict, flags: int, normalizer) -> List[List[int]]:
+    """Highlight indices at whole-token (whitespace-delimited) granularity.
 
-    normalize_coptic() removes characters (supralinear strokes), so exact
-    match offsets computed on the normalized string don't line up with the
-    raw display text. Instead, walk the raw text group by group (whitespace-
-    delimited bound groups), normalize each group, and mark the whole raw
-    group when a query term matches inside it. Spans are on the raw text, so
-    they align with apply_highlighting().
+    Used for languages whose normalizer changes string length, so exact match
+    offsets on the normalized string don't line up with the raw display text:
+    normalize_coptic() strips supralinear strokes, and normalize_greek() strips
+    combining accents. Walk the raw text token by token, normalize each token,
+    and mark the whole raw token when a query term matches inside it. Spans are
+    on the raw text, so they align with apply_highlighting(). For Greek this is
+    exactly word-level highlighting; for Coptic it highlights the bound group.
     """
     terms = []
     query_type = parsed_query.get('type', 'simple')
@@ -395,14 +387,14 @@ def get_coptic_highlight_indices(text: str, parsed_query: Dict, flags: int) -> L
     elif query_type == 'proximity':
         terms = [parsed_query['term1'], parsed_query['term2']]
 
-    patterns = [r'\b' + normalize_coptic(t['pattern']) + r'\b' for t in terms]
+    patterns = [r'\b' + normalizer(t['pattern']) + r'\b' for t in terms]
     if not patterns:
         return []
 
     indices = []
     for m in re.finditer(r'\S+', text):
-        group_norm = normalize_coptic(m.group(0))
-        if any(re.search(p, group_norm, flags) for p in patterns):
+        token_norm = normalizer(m.group(0))
+        if any(re.search(p, token_norm, flags) for p in patterns):
             indices.append([m.start(), m.end()])
     return indices
 

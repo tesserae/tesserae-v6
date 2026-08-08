@@ -2,6 +2,19 @@ import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import { wildcardSearch } from '../../utils/api';
 import CopticSearchInput from './CopticSearchInput';
 import { transliterateToCoptic } from '../../utils/copticUtils';
+import { GREEK_SYNTAX_EXAMPLES } from '../../utils/greekUtils';
+
+// Search-syntax example words per language. Latin/English are plain ASCII;
+// Greek is imported (extracted verbatim from the corpus, never hand-typed);
+// Coptic is generated inline via the transliterator below.
+const LA_SYNTAX_EXAMPLES = {
+  wild: 'am*', wildFind: 'amor, amicus, etc.', single: 'am?r',
+  and: 'amor AND bellum', or: 'rex OR regina', prox: 'amor ~ dolor', phrase: '"arma virumque"',
+};
+const EN_SYNTAX_EXAMPLES = {
+  wild: 'lov*', wildFind: 'love, lover, etc.', single: 'w?r',
+  and: 'love AND war', or: 'king OR queen', prox: 'love ~ death', phrase: '"the quality of mercy"',
+};
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 
@@ -230,6 +243,7 @@ const WildcardSearch = ({ language }) => {
   };
 
   const languageLabel = language === 'la' ? 'Latin' : language === 'grc' ? 'Greek' : language === 'cop' ? 'Coptic' : 'English';
+  const syntaxEx = language === 'grc' ? GREEK_SYNTAX_EXAMPLES : language === 'en' ? EN_SYNTAX_EXAMPLES : LA_SYNTAX_EXAMPLES;
 
   return (
     <div className="space-y-4">
@@ -256,12 +270,12 @@ const WildcardSearch = ({ language }) => {
           </ul>
         ) : (
           <ul className="space-y-1 text-gray-600">
-            <li><code className="bg-gray-200 px-1 rounded">*</code> matches any characters (e.g., <code>am*</code> finds amor, amicus, etc.)</li>
-            <li><code className="bg-gray-200 px-1 rounded">?</code> matches single character (e.g., <code>am?r</code> finds amor, amer)</li>
-            <li><code className="bg-gray-200 px-1 rounded">AND</code> both terms required (e.g., <code>amor AND bellum</code>)</li>
-            <li><code className="bg-gray-200 px-1 rounded">OR</code> either term (e.g., <code>rex OR regina</code>)</li>
-            <li><code className="bg-gray-200 px-1 rounded">~</code> proximity search (e.g., <code>amor ~ dolor</code> finds words within ~100 characters)</li>
-            <li><code className="bg-gray-200 px-1 rounded">"..."</code> exact phrase (e.g., <code>"arma virumque"</code>)</li>
+            <li><code className="bg-gray-200 px-1 rounded">*</code> matches any characters (e.g., <code>{syntaxEx.wild}</code> finds {syntaxEx.wildFind})</li>
+            <li><code className="bg-gray-200 px-1 rounded">?</code> matches a single character (e.g., <code>{syntaxEx.single}</code>)</li>
+            <li><code className="bg-gray-200 px-1 rounded">AND</code> both terms required (e.g., <code>{syntaxEx.and}</code>)</li>
+            <li><code className="bg-gray-200 px-1 rounded">OR</code> either term (e.g., <code>{syntaxEx.or}</code>)</li>
+            <li><code className="bg-gray-200 px-1 rounded">~</code> proximity search (e.g., <code>{syntaxEx.prox}</code>, within ~100 characters)</li>
+            <li><code className="bg-gray-200 px-1 rounded">"..."</code> exact phrase (e.g., <code>{syntaxEx.phrase}</code>)</li>
           </ul>
         )}
       </div>
