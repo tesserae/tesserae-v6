@@ -63,3 +63,26 @@ class TestCleanCopticLemma:
         from backend.blueprints.hapax import _clean_coptic_lemma
         assert _clean_coptic_lemma('') == ''
         assert _clean_coptic_lemma('[...]') == ''
+
+
+class TestCopticCollation:
+    """_rare_lemmata_sort_key collates Coptic by the normalized lemma so the
+    Demotic-derived letters (ϣ ϥ ϩ ϫ ϭ) sort last, as in traditional Coptic
+    order — not first, as they would by the manuscript display's legacy block."""
+
+    def _order(self, language):
+        from backend.blueprints.hapax import _rare_lemmata_sort_key
+        recs = [
+            {'lemma': 'ⲳⲏⲣⲉ', 'display': 'ϣⲏⲣⲉ', 'count': 1},   # shai
+            {'lemma': 'ⲁⲣⲭⲏ', 'display': 'ⲁⲣⲭⲏ', 'count': 1},   # alfa
+            {'lemma': 'ⲹⲛ', 'display': 'ϩⲛ', 'count': 1},        # hori
+            {'lemma': 'ⲣⲱⲙⲉ', 'display': 'ⲣⲱⲙⲉ', 'count': 1},   # ro
+        ]
+        return [r['display'] for r in sorted(recs, key=lambda w: _rare_lemmata_sort_key(w, 'lemma', language))]
+
+    def test_coptic_demotic_letters_sort_last(self):
+        assert self._order('cop') == ['ⲁⲣⲭⲏ', 'ⲣⲱⲙⲉ', 'ϣⲏⲣⲉ', 'ϩⲛ']
+
+    def test_non_coptic_unchanged_uses_display(self):
+        # For non-cop the key is the display (legacy block), so ϣ/ϩ sort first
+        assert self._order('la')[0] in ('ϣⲏⲣⲉ', 'ϩⲛ')
