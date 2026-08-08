@@ -228,6 +228,12 @@ export default function RareWordsExplorer() {
     return names[lang] || lang;
   };
 
+  const getDictionaryName = (lang) => {
+    if (lang === 'en') return 'Wiktionary';
+    if (lang === 'cop') return 'Coptic Dictionary';
+    return 'Logeion';
+  };
+
   const SortIcon = ({ field }) => {
     if (sortBy !== field) return <span className="text-gray-300 ml-1">↕</span>;
     return <span className="text-red-600 ml-1">{sortOrder === 'asc' ? '↑' : '↓'}</span>;
@@ -346,7 +352,7 @@ export default function RareWordsExplorer() {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-gray-400 hover:text-amber-600 text-xs ml-1"
-                            title={`Look up "${word.lemma}" in ${language === 'en' ? 'Wiktionary' : 'Logeion'}`}
+                            title={`Look up "${word.lemma}" in ${getDictionaryName(language)}`}
                             onClick={(e) => e.stopPropagation()}
                           >
                             📖
@@ -375,9 +381,9 @@ export default function RareWordsExplorer() {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-gray-400 hover:text-amber-600 text-sm"
-                                title={`Look up "${word.lemma}" in ${language === 'en' ? 'Wiktionary' : 'Logeion'}`}
+                                title={`Look up "${word.lemma}" in ${getDictionaryName(language)}`}
                               >
-                                📖 {language === 'en' ? 'Wiktionary' : 'Logeion'}
+                                📖 {getDictionaryName(language)}
                               </a>
                             )}
                           </div>

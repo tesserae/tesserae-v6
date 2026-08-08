@@ -1624,8 +1624,16 @@ def _get_rare_lemmata_matching(language, max_occ):
     return [word for word in cached.get('words', []) if word['count'] <= max_occ]
 
 
-def _rare_lemmata_sort_key(word, sort_by):
-    lemma = word.get('display', word.get('lemma', '')).lstrip('*').casefold()
+def _rare_lemmata_sort_key(word, sort_by, language='la'):
+    if language == 'cop':
+        # Collate Coptic by the normalized lemma: the Coptic Unicode block orders
+        # the Greek-derived letters first and the Demotic-derived letters
+        # (ϣ ϥ ϩ ϫ ϭ …) last — traditional Coptic alphabetical order. The
+        # manuscript display puts those letters in the legacy block, which would
+        # (wrongly) sort them first.
+        lemma = word.get('lemma', word.get('display', '')).lstrip('*')
+    else:
+        lemma = word.get('display', word.get('lemma', '')).lstrip('*').casefold()
     if sort_by == 'frequency':
         return (word.get('count', 0), lemma)
     if sort_by == 'author':
@@ -1717,7 +1725,7 @@ def get_rare_lemmata_full():
             })
 
         matching.sort(
-            key=lambda word: _rare_lemmata_sort_key(word, params['sort_by']),
+            key=lambda word: _rare_lemmata_sort_key(word, params['sort_by'], params['language']),
             reverse=params['sort_order'] == 'desc'
         )
         page = matching[params['offset']:params['offset'] + params['limit']]
@@ -1752,7 +1760,7 @@ def export_rare_lemmata_full():
             return jsonify({'error': 'Rare words cache is not available'}), 503
 
         matching.sort(
-            key=lambda word: _rare_lemmata_sort_key(word, params['sort_by']),
+            key=lambda word: _rare_lemmata_sort_key(word, params['sort_by'], params['language']),
             reverse=params['sort_order'] == 'desc'
         )
         output = io.StringIO()
