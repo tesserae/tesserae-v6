@@ -22,6 +22,16 @@ from backend.utils import get_text_metadata, detect_text_type, resolve_text_path
 
 logger = get_logger('wildcard_search')
 
+# Coptic normalization reconciles the two Unicode encodings of Coptic
+# (legacy "Greek and Coptic" block vs the modern Coptic block) and strips
+# supralinear strokes, so a typed query matches the stored text. Guarded so a
+# missing coptic package can never break Latin/Greek/English wildcard search.
+try:
+    from backend.coptic.processor import normalize_coptic
+except Exception:  # pragma: no cover
+    def normalize_coptic(text):
+        return text
+
 def get_author_dates():
     """Get author dates from app.py"""
     try:
@@ -176,6 +186,7 @@ def search_file(filepath: str, parsed_query: Dict, case_sensitive: bool = False,
     """Search a single .tess file for matches."""
     results = []
     is_greek = language == 'grc'
+    is_coptic = language == 'cop'
     filename = os.path.basename(filepath)
     is_prose = detect_text_type(filename) == 'prose'
     
@@ -205,17 +216,28 @@ def search_file(filepath: str, parsed_query: Dict, case_sensitive: bool = False,
             search_text = normalize_greek(text)
         elif is_latin:
             search_text = normalize_latin(text)
+        elif is_coptic:
+            search_text = normalize_coptic(text)
         else:
             search_text = text
-        
-        if matches_query(search_text, parsed_query, flags, is_greek, is_latin):
-            highlight_indices = get_highlight_indices(text, parsed_query, flags, is_greek, is_latin)
-            
+
+        if matches_query(search_text, parsed_query, flags, is_greek, is_latin, is_coptic):
+            # Coptic normalization changes string length (strokes are stripped),
+            # so match positions on normalized text don't map back to the raw
+            # display text. Highlight whole bound groups instead of exact spans.
+            if is_coptic:
+                highlight_indices = get_coptic_highlight_indices(text, parsed_query, flags)
+            else:
+                highlight_indices = get_highlight_indices(text, parsed_query, flags, is_greek, is_latin)
+
             # For prose, extract only sentences containing matches
             display_text = text
             if is_prose and len(text) > 150:
                 display_text = extract_sentences_with_matches(text, highlight_indices)
-                highlight_indices = get_highlight_indices(display_text, parsed_query, flags, is_greek, is_latin)
+                if is_coptic:
+                    highlight_indices = get_coptic_highlight_indices(display_text, parsed_query, flags)
+                else:
+                    highlight_indices = get_highlight_indices(display_text, parsed_query, flags, is_greek, is_latin)
             
             # Apply HTML highlighting
             highlighted_text = apply_highlighting(display_text, highlight_indices)
@@ -230,48 +252,51 @@ def search_file(filepath: str, parsed_query: Dict, case_sensitive: bool = False,
     return results
 
 
-def matches_query(text: str, parsed_query: Dict, flags: int, is_greek: bool = False, is_latin: bool = False) -> bool:
+def matches_query(text: str, parsed_query: Dict, flags: int, is_greek: bool = False, is_latin: bool = False, is_coptic: bool = False) -> bool:
     """Check if text matches the parsed query."""
     query_type = parsed_query.get('type', 'simple')
-    
+
     if query_type == 'empty':
         return False
-    
+
     if query_type == 'simple':
-        return all(matches_term(text, term, flags, is_greek, is_latin) for term in parsed_query['terms'])
-    
+        return all(matches_term(text, term, flags, is_greek, is_latin, is_coptic) for term in parsed_query['terms'])
+
     if query_type == 'and':
-        return all(matches_term(text, term, flags, is_greek, is_latin) for term in parsed_query['terms'])
-    
+        return all(matches_term(text, term, flags, is_greek, is_latin, is_coptic) for term in parsed_query['terms'])
+
     if query_type == 'or':
-        return any(matches_term(text, term, flags, is_greek, is_latin) for term in parsed_query['terms'])
-    
+        return any(matches_term(text, term, flags, is_greek, is_latin, is_coptic) for term in parsed_query['terms'])
+
     if query_type == 'not':
-        include_match = matches_term(text, parsed_query['include'], flags, is_greek, is_latin)
-        exclude_match = matches_term(text, parsed_query['exclude'], flags, is_greek, is_latin)
+        include_match = matches_term(text, parsed_query['include'], flags, is_greek, is_latin, is_coptic)
+        exclude_match = matches_term(text, parsed_query['exclude'], flags, is_greek, is_latin, is_coptic)
         return include_match and not exclude_match
-    
+
     if query_type == 'proximity':
-        return matches_proximity(text, parsed_query, flags, is_greek, is_latin)
-    
+        return matches_proximity(text, parsed_query, flags, is_greek, is_latin, is_coptic)
+
     return False
 
 
-def matches_proximity(text: str, parsed_query: Dict, flags: int, is_greek: bool = False, is_latin: bool = False) -> bool:
+def matches_proximity(text: str, parsed_query: Dict, flags: int, is_greek: bool = False, is_latin: bool = False, is_coptic: bool = False) -> bool:
     """Check if two terms appear within the specified character distance."""
     term1 = parsed_query['term1']
     term2 = parsed_query['term2']
     distance = parsed_query.get('distance', 100)
-    
+
     pattern1 = term1['pattern']
     pattern2 = term2['pattern']
-    
+
     if is_greek:
         pattern1 = normalize_greek(pattern1)
         pattern2 = normalize_greek(pattern2)
     elif is_latin:
         pattern1 = normalize_latin(pattern1)
         pattern2 = normalize_latin(pattern2)
+    elif is_coptic:
+        pattern1 = normalize_coptic(pattern1)
+        pattern2 = normalize_coptic(pattern2)
     
     pattern1 = r'\b' + pattern1 + r'\b'
     pattern2 = r'\b' + pattern2 + r'\b'
@@ -303,13 +328,15 @@ def matches_proximity(text: str, parsed_query: Dict, flags: int, is_greek: bool 
     return False
 
 
-def matches_term(text: str, term: Dict, flags: int, is_greek: bool = False, is_latin: bool = False) -> bool:
+def matches_term(text: str, term: Dict, flags: int, is_greek: bool = False, is_latin: bool = False, is_coptic: bool = False) -> bool:
     """Check if text matches a single term."""
     pattern = term['pattern']
     if is_greek:
         pattern = normalize_greek(pattern)
     elif is_latin:
         pattern = normalize_latin(pattern)
+    elif is_coptic:
+        pattern = normalize_coptic(pattern)
     pattern = r'\b' + pattern + r'\b'
     return bool(re.search(pattern, text, flags))
 
@@ -346,6 +373,37 @@ def get_highlight_indices(text: str, parsed_query: Dict, flags: int, is_greek: b
             indices.append([match.start(), match.end()])
     
     indices.sort(key=lambda x: x[0])
+    return indices
+
+
+def get_coptic_highlight_indices(text: str, parsed_query: Dict, flags: int) -> List[List[int]]:
+    """Highlight indices for Coptic, at whole bound-group granularity.
+
+    normalize_coptic() removes characters (supralinear strokes), so exact
+    match offsets computed on the normalized string don't line up with the
+    raw display text. Instead, walk the raw text group by group (whitespace-
+    delimited bound groups), normalize each group, and mark the whole raw
+    group when a query term matches inside it. Spans are on the raw text, so
+    they align with apply_highlighting().
+    """
+    terms = []
+    query_type = parsed_query.get('type', 'simple')
+    if query_type in ('simple', 'and', 'or'):
+        terms = parsed_query.get('terms', [])
+    elif query_type == 'not':
+        terms = [parsed_query['include']]
+    elif query_type == 'proximity':
+        terms = [parsed_query['term1'], parsed_query['term2']]
+
+    patterns = [r'\b' + normalize_coptic(t['pattern']) + r'\b' for t in terms]
+    if not patterns:
+        return []
+
+    indices = []
+    for m in re.finditer(r'\S+', text):
+        group_norm = normalize_coptic(m.group(0))
+        if any(re.search(p, group_norm, flags) for p in patterns):
+            indices.append([m.start(), m.end()])
     return indices
 
 
