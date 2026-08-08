@@ -738,6 +738,7 @@ function App() {
                       settings={settings}
                       setSettings={setSettings}
                       searchMode={searchMode}
+                      language={activeTab}
                     />
                   )}
 
