@@ -201,7 +201,7 @@ export default function LineSearch({ language }) {
     setBrowseLoading(true);
     setBrowseLines([]);
     try {
-      const res = await fetch(`/api/text/${selectedWork}/lines`);
+      const res = await fetch(`/api/text/${selectedWork}/lines?language=${language}`);
       const data = await res.json();
       if (data.lines) {
         setBrowseLines(data.lines);
