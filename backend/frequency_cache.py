@@ -40,19 +40,31 @@ def deduplicate_text_files(text_files):
     return deduplicated
 
 def get_corpus_checksum(language):
-    """Get a checksum of all .tess files in a language directory"""
+    """Get a checksum of all .tess files in a language directory.
+
+    Iterates the directory using *bytes* paths so it works regardless of the
+    process filesystem encoding. Under an ASCII/C locale (as on some WSGI
+    deployments) os.stat() on a str path containing non-ASCII characters — e.g.
+    Greek filenames like "aeschylus.ἀγαμέμνων.tess" — raises UnicodeEncodeError;
+    bytes paths sidestep that entirely.
+    """
     lang_dir = os.path.join(TEXTS_DIR, language)
     if not os.path.exists(lang_dir):
         return None
-    
-    files = sorted([f for f in safe_listdir(lang_dir) if f.endswith('.tess')])
+
+    lang_dir_bytes = os.fsencode(lang_dir)  # lang_dir is ASCII, so this is safe
+    names = sorted(n for n in os.listdir(lang_dir_bytes) if n.endswith(b'.tess'))
     file_info = []
-    for f in files:
-        path = os.path.join(lang_dir, f)
-        stat = os.stat(path)
+    for name_bytes in names:
+        stat = os.stat(os.path.join(lang_dir_bytes, name_bytes))
+        f = os.fsdecode(name_bytes)
         file_info.append(f"{f}:{stat.st_size}:{stat.st_mtime}")
-    
-    checksum = hashlib.md5('\n'.join(file_info).encode()).hexdigest()  # nosec B324
+
+    # surrogatepass preserves surrogate-escaped names produced under an ASCII
+    # locale; for ASCII/UTF-8 names this yields the exact same bytes (and thus
+    # the same checksum) as the previous implementation, so existing frequency
+    # caches for Latin/English/Coptic are not needlessly invalidated.
+    checksum = hashlib.md5('\n'.join(file_info).encode('utf-8', 'surrogatepass')).hexdigest()  # nosec B324
     return checksum
 
 def get_cache_path(language):
