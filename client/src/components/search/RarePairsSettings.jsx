@@ -9,6 +9,13 @@ const RarePairsSettings = ({ settings, setSettings, searchMode, language }) => {
 
   const isHapax = searchMode === 'hapax';
 
+  // In rare-word (hapax) mode the only control is the proper-noun exclusion, which
+  // is hidden for Coptic (it relies on capitalization). That would leave an empty
+  // "Rare Words Settings" box, so don't render the panel at all in that case.
+  if (isHapax && language === 'cop') {
+    return null;
+  }
+
   return (
     <div className="bg-gray-50 rounded-lg p-4">
       <div className="mb-3">
