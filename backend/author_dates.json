@@ -1145,7 +1145,6 @@
       "era": "Medieval",
       "note": "Greek philosopher (d. 322 BCE); Latin translations primarily 12th-13th c."
     },
-
     "hilary_saint_bishop_of_poitiers": {
       "year": 367,
       "note": "d. 367 CE",
@@ -1186,7 +1185,6 @@
       "note": "d. 420 CE",
       "era": "Late Antique"
     },
-
     "calpurnius_siculus": {
       "year": 55,
       "note": "fl. c. 55 CE (date contested; some scholars place in 3rd c.)",
@@ -1332,7 +1330,7 @@
     "dinarchus": {
       "year": -290,
       "note": "d. c. 290 BCE",
-      "era": "Hellenistic"
+      "era": "Classical"
     },
     "demades": {
       "year": -319,
@@ -1346,7 +1344,7 @@
     },
     "theophrastus": {
       "year": -287,
-      "note": "d. 287 BCE",
+      "note": "d. c. 287 BCE",
       "era": "Hellenistic"
     },
     "euclid": {
@@ -1401,18 +1399,18 @@
     },
     "pausanias": {
       "year": 180,
-      "note": "fl. c. 150 CE",
+      "note": "fl. c. 2nd cent. CE",
       "era": "Early Imperial"
     },
     "aelius_aristides": {
       "year": 181,
-      "note": "d. 181 CE",
+      "note": "d. c. 181 CE",
       "era": "Early Imperial"
     },
     "aelian": {
       "year": 235,
       "note": "d. c. 235 CE",
-      "era": "Late Imperial"
+      "era": "Early Imperial"
     },
     "oppian": {
       "year": 180,
@@ -1444,40 +1442,15 @@
       "note": "d. 212 BCE",
       "era": "Hellenistic"
     },
-    "lucian": {
-      "year": 180,
-      "note": "d. c. 180 CE",
-      "era": "Early Imperial"
-    },
     "galen": {
       "year": 210,
       "note": "d. c. 210 CE",
       "era": "Early Imperial"
     },
-    "hippocrates": {
-      "year": -370,
-      "note": "d. c. 370 BCE",
-      "era": "Classical"
-    },
-    "aeschines": {
-      "year": -314,
-      "note": "d. c. 314 BCE",
-      "era": "Classical"
-    },
     "aeschines_sp": {
       "year": -314,
       "note": "attr. Aeschines",
       "era": "Classical"
-    },
-    "aelian": {
-      "year": 235,
-      "note": "d. c. 235 CE",
-      "era": "Early Imperial"
-    },
-    "aelius_aristides": {
-      "year": 181,
-      "note": "d. c. 181 CE",
-      "era": "Early Imperial"
     },
     "apollonius_dyscolus": {
       "year": 180,
@@ -1499,18 +1472,8 @@
       "note": "fl. c. 3rd cent. CE",
       "era": "Early Imperial"
     },
-    "epictetus": {
-      "year": 135,
-      "note": "d. c. 135 CE",
-      "era": "Early Imperial"
-    },
     "longus": {
       "year": 200,
-      "note": "fl. c. 2nd cent. CE",
-      "era": "Early Imperial"
-    },
-    "pausanias": {
-      "year": 180,
       "note": "fl. c. 2nd cent. CE",
       "era": "Early Imperial"
     },
@@ -1539,11 +1502,6 @@
       "note": "attr. Galen",
       "era": "Early Imperial"
     },
-    "theophrastus": {
-      "year": -287,
-      "note": "d. c. 287 BCE",
-      "era": "Hellenistic"
-    },
     "nicomachus_of_gerasa": {
       "year": 120,
       "note": "fl. c. 100 CE",
@@ -1569,17 +1527,11 @@
       "note": "d. 270 BCE",
       "era": "Hellenistic"
     },
-    "dinarchus": {
-      "year": -290,
-      "note": "d. c. 290 BCE",
-      "era": "Classical"
-    },
     "septuaginta": {
       "year": -250,
       "note": "c. 3rd cent. BCE",
       "era": "Hellenistic"
     },
-
     "acta_joannis": {
       "year": 175,
       "note": "c. 150-200 CE",
@@ -1976,6 +1928,133 @@
       "year": 2000,
       "note": "Published 2000",
       "era": "Modern"
+    }
+  },
+  "cop": {
+    "sahidic": {
+      "year": 300,
+      "note": "Sahidic Bible (Old Testament), 3rd–4th c.",
+      "era": "Early Coptic"
+    },
+    "sahidica": {
+      "year": 300,
+      "note": "Sahidic New Testament, 3rd–4th c.",
+      "era": "Early Coptic"
+    },
+    "pistis": {
+      "year": 350,
+      "note": "Pistis Sophia (Gnostic), 3rd–4th c.",
+      "era": "Early Coptic"
+    },
+    "pachomius": {
+      "year": 348,
+      "note": "Pachomius, d. 348",
+      "era": "Early Coptic"
+    },
+    "thomas": {
+      "year": 350,
+      "note": "Gospel of Thomas (Coptic), 4th c.",
+      "era": "Early Coptic"
+    },
+    "acts": {
+      "year": 400,
+      "note": "Acts of Pilate (apocryphal)",
+      "era": "Early Coptic"
+    },
+    "mysteries": {
+      "year": 400,
+      "note": "Mysteries of St John (apocryphal)",
+      "era": "Early Coptic"
+    },
+    "book": {
+      "year": 400,
+      "note": "Book of Bartholomew (apocryphal)",
+      "era": "Early Coptic"
+    },
+    "dormition": {
+      "year": 400,
+      "note": "Dormition of the Virgin (apocryphal)",
+      "era": "Early Coptic"
+    },
+    "shenoute": {
+      "year": 465,
+      "note": "Shenoute of Atripe, d. 465",
+      "era": "Classical Coptic"
+    },
+    "besa": {
+      "year": 480,
+      "note": "Besa, fl. late 5th c.",
+      "era": "Classical Coptic"
+    },
+    "apophthegmata": {
+      "year": 500,
+      "note": "Apophthegmata Patrum, compiled 5th–6th c.",
+      "era": "Classical Coptic"
+    },
+    "pseudo": {
+      "year": 650,
+      "note": "Pseudonymous homilies (ps.-Athanasius, ps.-Basil), 6th–8th c.",
+      "era": "Late Antique Coptic"
+    },
+    "life": {
+      "year": 650,
+      "note": "Hagiographic lives of saints, 6th–8th c.",
+      "era": "Late Antique Coptic"
+    },
+    "theodosius": {
+      "year": 567,
+      "note": "Theodosius of Alexandria, d. 567",
+      "era": "Late Antique Coptic"
+    },
+    "proclus": {
+      "year": 600,
+      "note": "Homiletic, Late Antique",
+      "era": "Late Antique Coptic"
+    },
+    "johannes": {
+      "year": 650,
+      "note": "Homiletic, Late Antique",
+      "era": "Late Antique Coptic"
+    },
+    "john": {
+      "year": 650,
+      "note": "John of Constantinople (homiletic)",
+      "era": "Late Antique Coptic"
+    },
+    "martyrdom": {
+      "year": 600,
+      "note": "Martyrdom account",
+      "era": "Late Antique Coptic"
+    },
+    "mercurius": {
+      "year": 600,
+      "note": "Martyrdom of Mercurius",
+      "era": "Late Antique Coptic"
+    },
+    "helias": {
+      "year": 600,
+      "note": "Hagiographic, Late Antique",
+      "era": "Late Antique Coptic"
+    },
+    "lament": {
+      "year": 600,
+      "note": "Late Antique",
+      "era": "Late Antique Coptic"
+    },
+    "doc": {
+      "year": 600,
+      "note": "Late Antique document",
+      "era": "Late Antique Coptic"
+    },
+    "magical": {
+      "year": 600,
+      "note": "Magical text, Late Antique",
+      "era": "Late Antique Coptic"
+    },
+    "bohairic": {
+      "year": 900,
+      "note": "Bohairic Bible (standardized dialect), 8th c.+",
+      "era": "Bohairic Medieval"
     }
   }
 }

@@ -865,14 +865,24 @@ def get_texts():
     if not os.path.exists(lang_dir):
         return jsonify([])
     
+    lang_dates = AUTHOR_DATES.get(language, {})
     texts = []
     for filename in sorted(os.listdir(lang_dir)):
         if filename.endswith('.tess'):
             metadata = get_text_metadata(os.path.join(lang_dir, filename))
+            # Fill era/year from author_dates (keyed by the filename's first
+            # component) when a per-text override didn't set them. This is how
+            # Coptic gets its eras, since it has no per-text era overrides.
+            if metadata.get('era') is None or metadata.get('year') is None:
+                info = lang_dates.get(filename.split('.')[0].lower(), {})
+                if metadata.get('era') is None:
+                    metadata['era'] = info.get('era')
+                if metadata.get('year') is None:
+                    metadata['year'] = info.get('year')
             texts.append(metadata)
-    
+
     texts.sort(key=lambda x: (x['author'], x['title']))
-    
+
     return jsonify(texts)
 
 @api_route('/authors')
