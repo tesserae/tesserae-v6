@@ -227,7 +227,7 @@ const WildcardSearch = ({ language }) => {
     scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
   };
 
-  const languageLabel = language === 'la' ? 'Latin' : language === 'grc' ? 'Greek' : 'English';
+  const languageLabel = language === 'la' ? 'Latin' : language === 'grc' ? 'Greek' : language === 'cop' ? 'Coptic' : 'English';
 
   return (
     <div className="space-y-4">
@@ -238,6 +238,8 @@ const WildcardSearch = ({ language }) => {
         </p>
       </div>
 
+      {/* Syntax examples below (am*, "arma virumque", rex OR regina) use Latin words to
+          illustrate wildcard/boolean SYNTAX regardless of the active corpus language. */}
       <div className="bg-gray-50 rounded-lg p-4 text-sm">
         <h4 className="font-medium mb-2">Search Syntax</h4>
         <ul className="space-y-1 text-gray-600">

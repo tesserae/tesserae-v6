@@ -432,7 +432,7 @@ export default function LineSearch({ language }) {
   };
 
   const getLanguageName = (lang) => {
-    const names = { la: 'Latin', grc: 'Greek', en: 'English' };
+    const names = { la: 'Latin', grc: 'Greek', en: 'English', cop: 'Coptic' };
     return names[lang] || lang;
   };
 

@@ -172,6 +172,12 @@ const RareResultsDisplay = ({
   const isHapax = searchMode === 'hapax';
   const title = isHapax ? 'Shared Rare Words' : 'Shared Rare Pairs';
 
+  const getDictionaryName = (lang) => {
+    if (lang === 'en') return 'Wiktionary';
+    if (lang === 'cop') return 'Coptic Dictionary';
+    return 'Logeion';
+  };
+
   const extractRefNumbers = (ref) => {
     if (!ref) return [Infinity, Infinity];
     const nums = ref.match(/\d+/g);
@@ -513,7 +519,7 @@ const RareResultsDisplay = ({
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-gray-400 hover:text-amber-600 text-xs"
-                      title={`Look up "${r.lemma}" in ${language === 'en' ? 'Wiktionary' : 'Logeion'}`}
+                      title={`Look up "${r.lemma}" in ${getDictionaryName(language)}`}
                     >
                       📖
                     </a>
@@ -526,7 +532,7 @@ const RareResultsDisplay = ({
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-gray-400 hover:text-amber-600 text-xs"
-                          title={`Look up "${r.word1}" in ${language === 'en' ? 'Wiktionary' : 'Logeion'}`}
+                          title={`Look up "${r.word1}" in ${getDictionaryName(language)}`}
                         >
                           📖
                         </a>
@@ -537,7 +543,7 @@ const RareResultsDisplay = ({
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-gray-400 hover:text-amber-600 text-xs"
-                          title={`Look up "${r.word2}" in ${language === 'en' ? 'Wiktionary' : 'Logeion'}`}
+                          title={`Look up "${r.word2}" in ${getDictionaryName(language)}`}
                         >
                           📖
                         </a>

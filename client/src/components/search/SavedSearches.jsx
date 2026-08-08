@@ -96,8 +96,9 @@ const SavedSearches = ({
                       <div className="font-medium text-gray-900 truncate">{search.name}</div>
                       <div className="text-xs text-gray-500">
                         {search.sourceAuthor} vs {search.targetAuthor} | {
-                          search.language === 'la' ? 'Latin' : 
-                          search.language === 'grc' ? 'Greek' : 'English'
+                          search.language === 'la' ? 'Latin' :
+                          search.language === 'grc' ? 'Greek' :
+                          search.language === 'cop' ? 'Coptic' : 'English'
                         }
                       </div>
                       <div className="text-xs text-gray-400">

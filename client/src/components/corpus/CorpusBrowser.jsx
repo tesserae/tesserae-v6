@@ -16,7 +16,8 @@ export default function CorpusBrowser() {
   const languageTabs = [
     { code: 'la', label: 'Latin' },
     { code: 'grc', label: 'Greek' },
-    { code: 'en', label: 'English' }
+    { code: 'en', label: 'English' },
+    { code: 'cop', label: 'Coptic' }
   ];
 
   const erasByLanguage = {
@@ -207,7 +208,7 @@ export default function CorpusBrowser() {
   };
 
   const getLanguageName = (lang) => {
-    const names = { la: 'Latin', grc: 'Greek', en: 'English' };
+    const names = { la: 'Latin', grc: 'Greek', en: 'English', cop: 'Coptic' };
     return names[lang] || lang;
   };
 
