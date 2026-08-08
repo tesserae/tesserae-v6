@@ -86,3 +86,35 @@ class TestCopticCollation:
     def test_non_coptic_unchanged_uses_display(self):
         # For non-cop the key is the display (legacy block), so ϣ/ϩ sort first
         assert self._order('la')[0] in ('ϣⲏⲣⲉ', 'ϩⲛ')
+
+
+class TestScanTextLemmaLocations:
+    """_scan_text_lemma_locations builds per-text locations from the current
+    lemmatizer (used for Coptic, whose index lemma forms have drifted)."""
+
+    def test_builds_locations_with_positions(self, monkeypatch):
+        import backend.blueprints.hapax as hx
+        monkeypatch.setattr(hx, '_texts_dir', '/texts')
+        monkeypatch.setattr(hx, 'resolve_text_path', lambda *a, **k: '/texts/x.tess')
+
+        class FakeTP:
+            def process_file(self, path, language):
+                return [
+                    {'ref': 'sahidic.genesis.1.1', 'text': 'ⲁ ⲃ ⲅ',
+                     'lemmas': ['ⲣⲱⲙⲉ', 'ⲛⲟⲩⲧⲉ', 'ⲣⲱⲙⲉ']},
+                    {'ref': 'sahidic.genesis.1.2', 'text': 'ⲇ ⲉ',
+                     'lemmas': ['ⲕⲁⲕⲉ', 'ⲛⲟⲩⲧⲉ']},
+                ]
+        monkeypatch.setattr(hx, '_text_processor', FakeTP())
+
+        out = hx._scan_text_lemma_locations('sahidic.bible.tess', 'cop', {'ⲣⲱⲙⲉ', 'ⲛⲟⲩⲧⲉ'})
+        assert out['ⲣⲱⲙⲉ'][0]['ref'] == 'sahidic.genesis.1.1'
+        assert out['ⲣⲱⲙⲉ'][0]['positions'] == [0, 2]
+        assert out['ⲣⲱⲙⲉ'][0]['text'] == 'ⲁ ⲃ ⲅ'
+        assert len(out['ⲛⲟⲩⲧⲉ']) == 2
+        assert out['ⲣⲱⲙⲉ'][0]['text_id'] == 'sahidic.bible.tess'
+
+    def test_unresolvable_path_returns_empty(self, monkeypatch):
+        import backend.blueprints.hapax as hx
+        monkeypatch.setattr(hx, 'resolve_text_path', lambda *a, **k: None)
+        assert hx._scan_text_lemma_locations('missing.tess', 'cop', {'x'}) == {}
