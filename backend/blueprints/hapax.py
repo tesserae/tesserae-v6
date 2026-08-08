@@ -1862,6 +1862,47 @@ def get_lemma_forms(lemma):
         return jsonify({'error': str(e)}), 500
 
 
+def _scan_text_lemma_locations(text_id, language, lemmas_of_interest):
+    """Find where each lemma occurs within ONE text by scanning its own units
+    with the current lemmatizer, independent of the inverted index.
+
+    Used for Coptic, whose inverted index was built with an older bound-group
+    lemmatization (so its lemma forms no longer match the current sub-word
+    lemmatizer) and whose aggregate corpus files (sahidic.bible, ...) aren't
+    indexed at all. Returns dict: lemma -> [location dict], matching the shape
+    that lookup_lemma_locations produces (text_id, author, work, ref, text,
+    positions).
+    """
+    from collections import defaultdict
+    path = resolve_text_path(_texts_dir, language, text_id)
+    if not path:
+        return {}
+    try:
+        units = _text_processor.process_file(path, language)
+    except Exception as e:
+        logger.error(f"Error scanning {text_id} for lemma locations: {e}")
+        return {}
+    parts = text_id.replace('.tess', '').split('.')
+    author = (parts[0] if parts else text_id).replace('_', ' ').title()
+    work = ('.'.join(parts[1:]) if len(parts) > 1 else '').replace('_', ' ').title()
+    wanted = set(lemmas_of_interest)
+    out = defaultdict(list)
+    for u in units:
+        lems = u.get('lemmas', [])
+        present = wanted.intersection(lems)
+        for lem in present:
+            positions = [i for i, l in enumerate(lems) if l == lem]
+            out[lem].append({
+                'text_id': text_id,
+                'author': author,
+                'work': work,
+                'ref': u.get('ref', ''),
+                'text': u.get('text', ''),
+                'positions': positions,
+            })
+    return out
+
+
 @hapax_bp.route('/hapax-search', methods=['POST'])
 def hapax_search():
     """
@@ -1904,56 +1945,59 @@ def hapax_search():
         shared_rare = {l for l in shared_lemmas
                        if 1 <= doc_freqs.get(l, 0) <= max_occ}
 
+        import re
+        source_base = re.sub(r'\.part\.\d+\.tess$', '.tess', source_id)
+        target_base = re.sub(r'\.part\.\d+\.tess$', '.tess', target_id)
+        source_is_full = '.part.' not in source_id
+        target_is_full = '.part.' not in target_id
+
+        def matches_source(loc_id):
+            if loc_id == source_id:
+                return True
+            if '.part.' in source_id and loc_id == source_base:
+                return True
+            if source_is_full and re.sub(r'\.part\.\d+\.tess$', '.tess', loc_id) == source_id:
+                return True
+            return False
+
+        def matches_target(loc_id):
+            if loc_id == target_id:
+                return True
+            if '.part.' in target_id and loc_id == target_base:
+                return True
+            if target_is_full and re.sub(r'\.part\.\d+\.tess$', '.tess', loc_id) == target_id:
+                return True
+            return False
+
+        # Coptic's inverted index is built with an older bound-group lemmatization
+        # and its aggregate corpus files aren't indexed, so it can't reliably locate
+        # current sub-word lemmas within a specific text. Scan the two texts directly.
+        use_textscan = (source_language == 'cop' or target_language == 'cop')
+        src_scan = _scan_text_lemma_locations(source_id, source_language, shared_rare) if use_textscan else None
+        tgt_scan = _scan_text_lemma_locations(target_id, target_language, shared_rare) if use_textscan else None
+
         results = []
         for lemma in shared_rare:
             corpus_count = doc_freqs.get(lemma, 0)
-            
-            source_locations = []
-            target_locations = []
-            
-            import re
-            source_base = re.sub(r'\.part\.\d+\.tess$', '.tess', source_id)
-            target_base = re.sub(r'\.part\.\d+\.tess$', '.tess', target_id)
-            source_is_full = '.part.' not in source_id
-            target_is_full = '.part.' not in target_id
-            
-            def matches_source(loc_id):
-                if loc_id == source_id:
-                    return True
-                if '.part.' in source_id and loc_id == source_base:
-                    return True
-                if source_is_full:
-                    loc_base = re.sub(r'\.part\.\d+\.tess$', '.tess', loc_id)
-                    if loc_base == source_id:
-                        return True
-                return False
-            
-            def matches_target(loc_id):
-                if loc_id == target_id:
-                    return True
-                if '.part.' in target_id and loc_id == target_base:
-                    return True
-                if target_is_full:
-                    loc_base = re.sub(r'\.part\.\d+\.tess$', '.tess', loc_id)
-                    if loc_base == target_id:
-                        return True
-                return False
-            
             all_locations = lookup_lemma_locations(lemma, source_language)
-            for loc in all_locations:
-                loc_text_id = loc['text_id']
-                if matches_source(loc_text_id):
-                    source_locations.append(loc)
-                elif matches_target(loc_text_id):
-                    target_locations.append(loc)
-            
-            if source_language != target_language:
-                target_all_locations = lookup_lemma_locations(lemma, target_language)
-                for loc in target_all_locations:
+
+            if use_textscan:
+                source_locations = src_scan.get(lemma, [])
+                target_locations = tgt_scan.get(lemma, [])
+            else:
+                source_locations = []
+                target_locations = []
+                for loc in all_locations:
                     loc_text_id = loc['text_id']
-                    if matches_target(loc_text_id):
+                    if matches_source(loc_text_id):
+                        source_locations.append(loc)
+                    elif matches_target(loc_text_id):
                         target_locations.append(loc)
-            
+                if source_language != target_language:
+                    for loc in lookup_lemma_locations(lemma, target_language):
+                        if matches_target(loc['text_id']):
+                            target_locations.append(loc)
+
             display_form = get_display_form(lemma, source_language, source_locations + target_locations)
 
             if len(source_locations) > 0 and len(target_locations) > 0:
