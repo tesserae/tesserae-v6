@@ -1369,6 +1369,85 @@ def clear_rare_words_memory_cache(language=None):
     logger.info(f"Cleared rare words memory cache for {language or 'all languages'}")
 
 
+def _is_coptic_aggregate(base):
+    """True for combined/duplicate lemma-cache files that would double-count the
+    same words: whole-corpus supersets (``<dialect>.bible`` / ``.ot`` / ``.nt``),
+    the all-Shenoute file, and hash-suffixed cache variants. Individual books and
+    works (sahidic.genesis, shenoute.abraham, mercurius, …) are kept."""
+    import re
+    if re.search(r'-[0-9a-f]{8,}$', base):        # hash-suffixed cache variant
+        return True
+    if base == 'shenoute.all':
+        return True
+    return bool(re.search(r'\.(bible|ot|nt)$', base))
+
+
+def _coptic_manuscript_form(lemma):
+    """Convert a normalized Coptic lemma back to manuscript spelling for display.
+
+    normalize_coptic() maps the legacy 'Greek and Coptic' block letters (ϣ ϥ ϩ
+    ϫ ϭ …) into the Coptic block for matching. Reverse that 1:1 map so the Rare
+    Words Explorer shows the letterforms used in the source texts. (The
+    supralinear stroke, stripped during normalization, is conventionally omitted
+    in lemma citation.)
+    """
+    from backend.coptic.processor import _LEGACY_TO_COPTIC
+    inv = {v: k for k, v in _LEGACY_TO_COPTIC.items()}
+    return ''.join(inv.get(c, c) for c in lemma)
+
+
+def _clean_coptic_lemma(lem):
+    """Trim leading/trailing non-Coptic-block characters (whitespace, editorial
+    brackets/parentheses, verse-number digits, dots) so tokenization and
+    transcription artifacts don't split one word into spurious rare variants.
+    Returns '' if nothing usable remains."""
+    import re
+    if not lem:
+        return ''
+    return re.sub(r'^[^Ⲁ-⳿]+|[^Ⲁ-⳿]+$', '', lem)
+
+
+def _coptic_rare_frequencies():
+    """Per-lemma (count, first_filename, first_ref) for Coptic, from the
+    SCRIPTORIUM sub-word lemma cache (cache/lemmas/cop), excluding aggregate
+    whole-corpus files.
+
+    Uses the lemmatizer's segmented sub-word lemmas — not the search index's
+    bound-group forms — so counts reflect actual words (every occurrence of
+    'man' counts as ⲣⲱⲙⲉ regardless of the attached article or preposition).
+    First occurrence is captured here (files walked in sorted order) so the
+    Explorer's provenance columns don't depend on a separate index lookup.
+    """
+    import glob
+    from collections import Counter
+    counts = Counter()
+    first = {}  # lemma -> (filename, ref)
+    cache_dir = os.path.join('cache', 'lemmas', 'cop')
+    for path in sorted(glob.glob(os.path.join(cache_dir, '*.json'))):
+        base = os.path.basename(path)[:-5]  # strip .json
+        if _is_coptic_aggregate(base):
+            continue
+        filename = base + '.tess'
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        except Exception:
+            continue
+        if not isinstance(data, dict):
+            continue
+        for ref, entry in data.items():
+            if not isinstance(entry, dict):
+                continue
+            for lem in (entry.get('lemmas') or []):
+                lem = _clean_coptic_lemma(lem)
+                if not lem:
+                    continue
+                counts[lem] += 1
+                if lem not in first:
+                    first[lem] = (filename, ref)
+    return {lem: (n, *first[lem]) for lem, n in counts.items()}
+
+
 def regenerate_rare_words_cache(language):
     """
     Regenerate rare words cache from current frequency data.
@@ -1377,15 +1456,24 @@ def regenerate_rare_words_cache(language):
     import re
     import unicodedata
     from backend.frequency_cache import load_frequency_cache
-    
+
     logger.info(f"Regenerating rare words cache for {language}")
-    
-    freq_data = load_frequency_cache(language)
-    if not freq_data:
-        logger.error(f"No frequency data for {language}")
-        return False
-    
-    frequencies = freq_data.get('frequencies', {})
+
+    if language == 'cop':
+        # Coptic counts sub-word lemmas from the SCRIPTORIUM lemma cache directly;
+        # the shared frequency cache holds bound-group forms (from the search
+        # index) that are wrong for rare-word counting.
+        frequencies = _coptic_rare_frequencies()
+        if not frequencies:
+            logger.error("No Coptic lemma cache found for rare-words regeneration")
+            return False
+    else:
+        freq_data = load_frequency_cache(language)
+        if not freq_data:
+            logger.error(f"No frequency data for {language}")
+            return False
+        frequencies = freq_data.get('frequencies', {})
+
     rare_words = []
     
     if language == 'la':
@@ -1438,28 +1526,55 @@ def regenerate_rare_words_cache(language):
                 if is_concat:
                     continue
                 rare_words.append({'lemma': clean, 'display': clean, 'count': count})
-    
+
+    elif language == 'cop':
+        from backend.coptic.stopwords import COPTIC_STOP_WORDS
+        for lemma, (count, first_file, first_ref) in frequencies.items():
+            if 1 <= count <= 10:
+                if len(lemma) < 2:
+                    continue
+                if lemma in COPTIC_STOP_WORDS:
+                    continue
+                # Must be entirely Coptic-block letters — reject transcription
+                # artifacts (lacuna brackets [...], parentheses, verse digits,
+                # internal dots) that the lemma cache carries from critical editions.
+                if not re.fullmatch(r'[Ⲁ-⳿]+', lemma):
+                    continue
+                parts = first_file.replace('.tess', '').split('.')
+                rare_words.append({
+                    'lemma': lemma,                             # normalized form, for index lookup
+                    'display': _coptic_manuscript_form(lemma),  # manuscript spelling for display
+                    'count': count,
+                    'first_author': parts[0] if parts else first_file,
+                    'first_work': '.'.join(parts[1:]) if len(parts) > 1 else '',
+                    'first_locus': first_ref,
+                    'text_id': first_file,
+                })
+
     seen = {}
     for w in rare_words:
         key = w['lemma']
         if key not in seen or w['count'] < seen[key]['count']:
             seen[key] = w
     
-    # Look up first location for each rare word to get author/work info
-    logger.info(f"Looking up first locations for {len(seen)} rare words...")
-    for lemma, word_data in seen.items():
-        try:
-            locations = lookup_lemma_locations(lemma, language)
-            # Deduplicate to avoid part files when full version exists
-            locations = deduplicate_locations(locations)
-            if locations:
-                first_loc = locations[0]
-                word_data['first_author'] = first_loc.get('author', '')
-                word_data['first_work'] = first_loc.get('work', '')
-                word_data['first_locus'] = first_loc.get('ref', '')
-                word_data['text_id'] = first_loc.get('text_id', '')
-        except Exception as e:
-            logger.debug(f"Could not look up location for {lemma}: {e}")
+    # Look up first location for each rare word to get author/work info.
+    # Coptic already carries provenance from _coptic_rare_frequencies (and the
+    # index lookup doesn't resolve its sub-word lemmas), so skip it here.
+    if language != 'cop':
+        logger.info(f"Looking up first locations for {len(seen)} rare words...")
+        for lemma, word_data in seen.items():
+            try:
+                locations = lookup_lemma_locations(lemma, language)
+                # Deduplicate to avoid part files when full version exists
+                locations = deduplicate_locations(locations)
+                if locations:
+                    first_loc = locations[0]
+                    word_data['first_author'] = first_loc.get('author', '')
+                    word_data['first_work'] = first_loc.get('work', '')
+                    word_data['first_locus'] = first_loc.get('ref', '')
+                    word_data['text_id'] = first_loc.get('text_id', '')
+            except Exception as e:
+                logger.debug(f"Could not look up location for {lemma}: {e}")
     
     def greek_sort_key(x):
         """Sort by base letter form so accented and unaccented entries interleave"""

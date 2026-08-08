@@ -83,7 +83,8 @@ export default function RareWordsExplorer() {
   const languageTabs = [
     { code: 'la', label: 'Latin' },
     { code: 'grc', label: 'Greek' },
-    { code: 'en', label: 'English' }
+    { code: 'en', label: 'English' },
+    { code: 'cop', label: 'Coptic' }
   ];
 
   useEffect(() => {
@@ -223,7 +224,7 @@ export default function RareWordsExplorer() {
   }, [language, maxOccurrences, sortBy, sortOrder]);
 
   const getLanguageName = (lang) => {
-    const names = { la: 'Latin', grc: 'Greek', en: 'English' };
+    const names = { la: 'Latin', grc: 'Greek', en: 'English', cop: 'Coptic' };
     return names[lang] || lang;
   };
 
