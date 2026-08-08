@@ -69,3 +69,43 @@ export const transliterateToCoptic = (input) => {
     .map(tok => (/^\s+$/.test(tok) || BOOLEAN_OPS.has(tok)) ? tok : transliterateToken(tok))
     .join('');
 };
+
+
+// Clickable letter palette for the Coptic search boxes. Each entry is a Coptic
+// glyph (codepoint-generated, not hand-typed) and the Leipzig-Jerusalem key
+// that also produces it by typing. Clicking inserts `char`; the transliterator
+// passes already-Coptic characters through unchanged, so palette and typing mix
+// freely. `x` (Bohairic khai) is included last.
+export const COPTIC_ALPHABET = [
+  { char: 'ⲁ', key: 'a' },
+  { char: 'ⲃ', key: 'b' },
+  { char: 'ⲅ', key: 'g' },
+  { char: 'ⲇ', key: 'd' },
+  { char: 'ⲉ', key: 'e' },
+  { char: 'ⲍ', key: 'z' },
+  { char: 'ⲏ', key: 'E' },
+  { char: 'ⲑ', key: 'th' },
+  { char: 'ⲓ', key: 'i' },
+  { char: 'ⲕ', key: 'k' },
+  { char: 'ⲗ', key: 'l' },
+  { char: 'ⲙ', key: 'm' },
+  { char: 'ⲛ', key: 'n' },
+  { char: 'ⲝ', key: 'ks' },
+  { char: 'ⲟ', key: 'o' },
+  { char: 'ⲡ', key: 'p' },
+  { char: 'ⲣ', key: 'r' },
+  { char: 'ⲥ', key: 's' },
+  { char: 'ⲧ', key: 't' },
+  { char: 'ⲩ', key: 'u' },
+  { char: 'ⲫ', key: 'ph' },
+  { char: 'ⲭ', key: 'kh' },
+  { char: 'ⲯ', key: 'ps' },
+  { char: 'ⲱ', key: 'O' },
+  { char: 'ϣ', key: 'sh' },
+  { char: 'ϥ', key: 'f' },
+  { char: 'ϩ', key: 'h' },
+  { char: 'ϫ', key: 'j' },
+  { char: 'ϭ', key: 'c' },
+  { char: 'ϯ', key: '+' },
+  { char: 'ϧ', key: 'x' },
+];
