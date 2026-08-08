@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import { wildcardSearch } from '../../utils/api';
+import CopticSearchInput from './CopticSearchInput';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 
@@ -254,14 +255,24 @@ const WildcardSearch = ({ language }) => {
 
       <div className="space-y-3">
         <div className="flex gap-2">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && query.trim() && handleSearch()}
-            placeholder="Enter search query..."
-            className="flex-1 border rounded px-3 py-2"
-          />
+          {language === 'cop' ? (
+            <CopticSearchInput
+              className="flex-1"
+              value={query}
+              onChange={setQuery}
+              onEnter={() => query.trim() && handleSearch()}
+              placeholder="Type in Latin: rOme, shEre, am* AND shEre..."
+            />
+          ) : (
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && query.trim() && handleSearch()}
+              placeholder="Enter search query..."
+              className="flex-1 border rounded px-3 py-2"
+            />
+          )}
           <button
             onClick={handleSearch}
             disabled={loading || !query.trim()}

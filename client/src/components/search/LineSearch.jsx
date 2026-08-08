@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { LoadingSpinner } from '../common';
 import { normalizeGreek } from '../../utils/greekUtils';
+import CopticSearchInput from './CopticSearchInput';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 
@@ -550,14 +551,24 @@ export default function LineSearch({ language }) {
                 Search Terms
               </label>
               <div className="flex flex-col sm:flex-row gap-3">
-                <input
-                  type="text"
-                  value={query}
-                  onChange={e => setQuery(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleSearch()}
-                  placeholder="Enter word or phrase..."
-                  className="flex-1 border rounded px-4 py-2"
-                />
+                {language === 'cop' ? (
+                  <CopticSearchInput
+                    className="flex-1"
+                    value={query}
+                    onChange={setQuery}
+                    onEnter={handleSearch}
+                    placeholder="Type in Latin: rOme, shEre..."
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={query}
+                    onChange={e => setQuery(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                    placeholder="Enter word or phrase..."
+                    className="flex-1 border rounded px-4 py-2"
+                  />
+                )}
                 <select
                   value={searchType}
                   onChange={e => setSearchType(e.target.value)}

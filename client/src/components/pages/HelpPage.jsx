@@ -408,6 +408,24 @@ export default function HelpPage() {
                   can search his whole surviving output at once.
                 </p>
               </div>
+
+              <div className="mt-4 bg-amber-50 border border-amber-200 p-4 rounded-lg">
+                <h4 className="font-medium text-amber-900 mb-1">Typing Coptic (Line Search &amp; String Search)</h4>
+                <p className="text-amber-900 text-sm mb-2">
+                  No Coptic keyboard is needed. On the word-entry boxes, type in Latin using the{' '}
+                  <strong>Leipzig-Jerusalem</strong> transliteration and the Coptic appears as you type
+                  (you can also paste Coptic directly). Most letters are intuitive; the ones to know:
+                </p>
+                <ul className="list-disc list-inside space-y-1 text-amber-900 text-sm mb-2">
+                  <li><code className="bg-amber-100 px-1 rounded">sh</code> = shai, <code className="bg-amber-100 px-1 rounded">h</code> = hori, <code className="bg-amber-100 px-1 rounded">f</code> = fai, <code className="bg-amber-100 px-1 rounded">j</code> = djandja, <code className="bg-amber-100 px-1 rounded">c</code> = kjima, <code className="bg-amber-100 px-1 rounded">+</code> = ti, <code className="bg-amber-100 px-1 rounded">x</code> = khai (Bohairic)</li>
+                  <li>Capital <code className="bg-amber-100 px-1 rounded">E</code> = eta (long e) and capital <code className="bg-amber-100 px-1 rounded">O</code> = omega (long o); digraphs <code className="bg-amber-100 px-1 rounded">th ph kh ps ks</code> as expected.</li>
+                </ul>
+                <p className="text-amber-900 text-sm">
+                  Coptic writes words joined into groups, so <strong>whole-word and phrase matching may miss a
+                  word fused inside a group</strong>. In String Search, use a wildcard
+                  (e.g. <code className="bg-amber-100 px-1 rounded">*rOme*</code>) to find a word wherever it sits.
+                </p>
+              </div>
             </div>
           )}
 
