@@ -55,6 +55,12 @@ export default function CopticSearchInput({ value, onChange, onEnter, placeholde
   const coptic = transliterateToCoptic(buffer);
   const showPreview = buffer && coptic !== buffer;
 
+  // Computed default: shows the transliteration idea with its Coptic result,
+  // and the other two input paths. "Transliteration", not "Latin" — the user
+  // types Latin letters but is entering Coptic, not a Latin word.
+  const effectivePlaceholder =
+    placeholder || `Transliteration (rOme = ${transliterateToCoptic('rOme')}), paste Coptic, or click Insert letters`;
+
   return (
     <div className={className}>
       <input
@@ -63,7 +69,7 @@ export default function CopticSearchInput({ value, onChange, onEnter, placeholde
         value={buffer}
         onChange={handleChange}
         onKeyDown={(e) => e.key === 'Enter' && onEnter && onEnter()}
-        placeholder={placeholder}
+        placeholder={effectivePlaceholder}
         className="w-full border rounded px-4 py-2"
       />
 
@@ -98,7 +104,7 @@ export default function CopticSearchInput({ value, onChange, onEnter, placeholde
           {paletteOpen ? 'Hide letters' : 'Insert letters'}
         </button>
         <span className="text-gray-400">
-          Type in Latin (Leipzig-Jerusalem):{' '}
+          Transliteration (Leipzig-Jerusalem):{' '}
           {HINT_KEYS.map((k) => `${k}→${transliterateToCoptic(k)}`).join('  ')}
         </span>
       </div>

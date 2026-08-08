@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import { wildcardSearch } from '../../utils/api';
 import CopticSearchInput from './CopticSearchInput';
+import { transliterateToCoptic } from '../../utils/copticUtils';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 
@@ -239,18 +240,30 @@ const WildcardSearch = ({ language }) => {
         </p>
       </div>
 
-      {/* Syntax examples below (am*, "arma virumque", rex OR regina) use Latin words to
-          illustrate wildcard/boolean SYNTAX regardless of the active corpus language. */}
+      {/* Syntax examples are language-aware: Latin words for la/grc/en, real
+          Coptic words (codepoint-generated via the transliterator) for cop. */}
       <div className="bg-gray-50 rounded-lg p-4 text-sm">
         <h4 className="font-medium mb-2">Search Syntax</h4>
-        <ul className="space-y-1 text-gray-600">
-          <li><code className="bg-gray-200 px-1 rounded">*</code> matches any characters (e.g., <code>am*</code> finds amor, amicus, etc.)</li>
-          <li><code className="bg-gray-200 px-1 rounded">?</code> matches single character (e.g., <code>am?r</code> finds amor, amer)</li>
-          <li><code className="bg-gray-200 px-1 rounded">AND</code> both terms required (e.g., <code>amor AND bellum</code>)</li>
-          <li><code className="bg-gray-200 px-1 rounded">OR</code> either term (e.g., <code>rex OR regina</code>)</li>
-          <li><code className="bg-gray-200 px-1 rounded">~</code> proximity search (e.g., <code>amor ~ dolor</code> finds words within ~100 characters)</li>
-          <li><code className="bg-gray-200 px-1 rounded">"..."</code> exact phrase (e.g., <code>"arma virumque"</code>)</li>
-        </ul>
+        {language === 'cop' ? (
+          <ul className="space-y-1 text-gray-600">
+            <li><code className="bg-gray-200 px-1 rounded">*</code> matches any characters (e.g., <code>{transliterateToCoptic('noute')}*</code> finds words beginning {transliterateToCoptic('noute')})</li>
+            <li><code className="bg-gray-200 px-1 rounded">?</code> matches a single character (e.g., <code>{transliterateToCoptic('rOm')}?</code>)</li>
+            <li><code className="bg-gray-200 px-1 rounded">AND</code> both terms required (e.g., <code>{transliterateToCoptic('noute')} AND {transliterateToCoptic('rOme')}</code>)</li>
+            <li><code className="bg-gray-200 px-1 rounded">OR</code> either term (e.g., <code>{transliterateToCoptic('noute')} OR {transliterateToCoptic('joeis')}</code>)</li>
+            <li><code className="bg-gray-200 px-1 rounded">~</code> proximity search (e.g., <code>{transliterateToCoptic('noute')} ~ {transliterateToCoptic('rOme')}</code>, within ~100 characters)</li>
+            <li><code className="bg-gray-200 px-1 rounded">"..."</code> exact phrase (e.g., <code>"{transliterateToCoptic('shEre')} {transliterateToCoptic('noute')}"</code>)</li>
+            <li className="text-gray-500 pt-1">Enter Coptic by typing the transliteration (e.g. <code>noute</code> → {transliterateToCoptic('noute')}), clicking <em>Insert letters</em>, or pasting. Coptic joins words into groups, so use <code className="bg-gray-200 px-1 rounded">*</code> to find a word inside a group.</li>
+          </ul>
+        ) : (
+          <ul className="space-y-1 text-gray-600">
+            <li><code className="bg-gray-200 px-1 rounded">*</code> matches any characters (e.g., <code>am*</code> finds amor, amicus, etc.)</li>
+            <li><code className="bg-gray-200 px-1 rounded">?</code> matches single character (e.g., <code>am?r</code> finds amor, amer)</li>
+            <li><code className="bg-gray-200 px-1 rounded">AND</code> both terms required (e.g., <code>amor AND bellum</code>)</li>
+            <li><code className="bg-gray-200 px-1 rounded">OR</code> either term (e.g., <code>rex OR regina</code>)</li>
+            <li><code className="bg-gray-200 px-1 rounded">~</code> proximity search (e.g., <code>amor ~ dolor</code> finds words within ~100 characters)</li>
+            <li><code className="bg-gray-200 px-1 rounded">"..."</code> exact phrase (e.g., <code>"arma virumque"</code>)</li>
+          </ul>
+        )}
       </div>
 
       <div className="space-y-3">
@@ -261,7 +274,6 @@ const WildcardSearch = ({ language }) => {
               value={query}
               onChange={setQuery}
               onEnter={() => query.trim() && handleSearch()}
-              placeholder="Type in Latin: rOme, shEre, am* AND shEre..."
             />
           ) : (
             <input

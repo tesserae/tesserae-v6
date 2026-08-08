@@ -557,7 +557,6 @@ export default function LineSearch({ language }) {
                     value={query}
                     onChange={setQuery}
                     onEnter={handleSearch}
-                    placeholder="Type in Latin: rOme, shEre..."
                   />
                 ) : (
                   <input
