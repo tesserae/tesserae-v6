@@ -11,7 +11,7 @@ export const SEARCH_DESCRIPTIONS = {
   string:
     'Enter specific terms, optionally with wildcards (am*), phrases, or AND/OR operators.',
   bigram:
-    'Finds uncommon two-word combinations that appear in both of two chosen texts but are rare across the corpus — it can catch rare combinations of otherwise ordinary words.',
+    'Finds rare two-word combinations that two chosen texts share — it can catch unusual pairings of otherwise ordinary words.',
   hapax:
     'Finds rare individual words that two chosen texts share.',
   cross:
