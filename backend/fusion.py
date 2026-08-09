@@ -292,6 +292,56 @@ def get_weight_profile(language=None, corpus_type=None, profile_name=None):
     return dict(WEIGHT_PROFILES["latin_epic"])
 
 
+# Clamp range for user-supplied channel weights (Advanced UI). Weights are
+# non-negative multipliers; the tuned defaults sit well inside this range, so
+# 0–20 gives users room to experiment without letting a single channel swamp
+# the fused score to a degree that would just be noise.
+USER_WEIGHT_MIN = 0.0
+USER_WEIGHT_MAX = 20.0
+
+
+def sanitize_channel_weights(raw):
+    """Validate/sanitize a user-supplied channel_weights dict.
+
+    Returns a clean dict containing only known channel keys mapped to finite
+    numbers clamped to [USER_WEIGHT_MIN, USER_WEIGHT_MAX]. Unknown keys and
+    non-numeric values are dropped. Returns {} for anything unusable, so an
+    empty result reliably means "no overrides" (default behavior preserved).
+    """
+    if not isinstance(raw, dict):
+        return {}
+    clean = {}
+    for key, val in raw.items():
+        if key not in CHANNEL_WEIGHTS:
+            continue
+        # Reject bools (isinstance(True, int) is True) and non-numbers.
+        if isinstance(val, bool) or not isinstance(val, (int, float)):
+            continue
+        num = float(val)
+        if num != num or num in (float("inf"), float("-inf")):  # NaN / inf
+            continue
+        clean[key] = max(USER_WEIGHT_MIN, min(USER_WEIGHT_MAX, num))
+    return clean
+
+
+def merge_channel_weights(channel_weights, language=None, corpus_type=None,
+                          profile_name=None):
+    """Merge sanitized user weight overrides over the default weight profile.
+
+    Returns None when there are no usable overrides (so callers can pass the
+    result straight to fuse_results(weights=...) and get the unchanged
+    language-default behavior). Otherwise returns a full weight dict: the
+    language/profile default with the user's overrides applied on top.
+    """
+    overrides = sanitize_channel_weights(channel_weights)
+    if not overrides:
+        return None
+    merged = get_weight_profile(language=language, corpus_type=corpus_type,
+                                profile_name=profile_name)
+    merged.update(overrides)
+    return merged
+
+
 # Bonus added for each additional channel beyond the first that confirms
 # a pair, rewarding cross-channel convergence as evidence of a true allusion.
 # The raw bonus per extra channel is 0.75 * idf_weight, where idf_weight
@@ -2765,7 +2815,7 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
                        source_path=None, target_path=None,
                        user_settings=None,
                        source_language=None, target_language=None,
-                       freq_basis='corpus'):
+                       freq_basis='corpus', channel_weights=None):
     """Generator version of run_fusion_search for progressive SSE streaming.
 
     Yields (event_type, data) tuples as the search progresses:
@@ -2776,12 +2826,23 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
 
     Uses CHANNEL_ORDER (fast channels first) so intermediate results
     appear within seconds of starting the search.
+
+    channel_weights: optional dict of per-channel weight overrides supplied by
+    the user (Advanced UI). When None or empty, weights fall through to the
+    language-default profile and behavior is unchanged. When provided, the
+    overrides are merged over the language-default profile (so a user need
+    only override a subset of channels) and passed to every fuse_results call.
     """
     user_settings = user_settings or {}
     if source_language is None:
         source_language = language
     if target_language is None:
         target_language = language
+
+    # Merge any user weight overrides over the language-default profile. When
+    # no overrides are given, effective_weights stays None so fuse_results()
+    # uses get_weight_profile() exactly as before (byte-identical default).
+    effective_weights = merge_channel_weights(channel_weights, language)
 
     # Build per-channel configs with language override and user settings
     configs = {}
@@ -2845,7 +2906,8 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
         # Cap intermediates at 500 (preview only) to avoid huge JSON payloads;
         # the full max_results set is sent in the final "complete" event.
         if count > 0 and line_channel_results:
-            fused = fuse_results(line_channel_results, language=language,
+            fused = fuse_results(line_channel_results, weights=effective_weights,
+                                 language=language,
                                  freq_basis=freq_basis,
                                  source_id=source_id, target_id=target_id)
             preview_cap = min(max_results, 500) if max_results > 0 else 500
@@ -2916,7 +2978,8 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
             logger.info(f"[STRUCTURAL GATE] Kept {after}/{before} structural pairs "
                         f"(dictionary or cosine >= {MIN_COSINE_NO_DICT})")
 
-    line_fused = fuse_results(line_channel_results, language=language,
+    line_fused = fuse_results(line_channel_results, weights=effective_weights,
+                               language=language,
                                freq_basis=freq_basis,
                                source_id=source_id, target_id=target_id)
 
@@ -2990,7 +3053,8 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
             "phase": "window",
         })
 
-    window_fused = fuse_results(window_channel_results, language=language,
+    window_fused = fuse_results(window_channel_results, weights=effective_weights,
+                                 language=language,
                                  freq_basis=freq_basis,
                                  source_id=source_id, target_id=target_id)
     window_fused = penalize_single_line_windows(window_fused)

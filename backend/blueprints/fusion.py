@@ -92,6 +92,13 @@ def search_fusion_stream():
             if max_results <= 0:
                 max_results = 5000  # enforce cap for browser payload size
 
+            # Optional user-supplied per-channel weight overrides (Advanced UI).
+            # Sanitized here (numbers only, known channels only, clamped) so the
+            # rest of the pipeline can trust it. Empty dict => no overrides =>
+            # default weight profile (behavior unchanged).
+            from backend.fusion import sanitize_channel_weights
+            channel_weights = sanitize_channel_weights(data.get('channel_weights'))
+
             if not source_id or not target_id:
                 yield f"data: {json.dumps({'type': 'error', 'message': 'Please select both source and target texts'})}\n\n"
                 return
@@ -116,6 +123,11 @@ def search_fusion_stream():
                 'use_meter': use_meter,
                 'freq_basis': freq_basis,
             }
+            # Only add to the cache key when the user actually supplied custom
+            # weights, so default-weight searches keep their existing cache
+            # entries (and never read/write a custom-weight result by mistake).
+            if channel_weights:
+                cache_settings['channel_weights'] = channel_weights
             cached_results, cached_meta = (None, None) if skip_cache else \
                 get_cached_results(source_id, target_id, language, cache_settings)
             if cached_results is not None:
@@ -186,6 +198,7 @@ def search_fusion_stream():
                 target_path=target_path,
                 user_settings={'use_meter': use_meter},
                 freq_basis=freq_basis,
+                channel_weights=channel_weights,
             ):
                 if event_type == "channel_start":
                     phase = evt_data['phase']
@@ -276,3 +289,29 @@ def search_fusion_stream():
         'Connection': 'keep-alive',
         'X-Accel-Buffering': 'no',
     })
+
+
+@fusion_bp.route('/fusion-default-weights', methods=['GET'])
+def fusion_default_weights():
+    """Return the default per-channel fusion weights for a language.
+
+    Used by the Advanced "Channel weights" UI to pre-fill its inputs with the
+    optimized defaults, and to know what "Reset to defaults" restores. Read-only
+    and side-effect-free; does not affect any search.
+
+    Query params:
+        language — la (default) | grc | en | cop | ...
+
+    Response: {"language": "la", "weights": {"lemma": 2.0, ...},
+               "min": 0.0, "max": 20.0}
+    """
+    from backend.fusion import (get_weight_profile, USER_WEIGHT_MIN,
+                                USER_WEIGHT_MAX)
+    language = request.args.get('language', 'la')
+    weights = get_weight_profile(language=language)
+    return {
+        'language': language,
+        'weights': weights,
+        'min': USER_WEIGHT_MIN,
+        'max': USER_WEIGHT_MAX,
+    }

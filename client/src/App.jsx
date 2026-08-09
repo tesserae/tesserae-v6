@@ -126,7 +126,10 @@ function App() {
     stoplist: false,
     use_meter: true,
     exclude_proper_nouns: false,
-    freq_basis: 'corpus'
+    freq_basis: 'corpus',
+    // Advanced: user-overridden fusion channel weights. Contains only the
+    // channels the user has explicitly changed; empty => use tuned defaults.
+    channel_weights: {}
   });
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
   
