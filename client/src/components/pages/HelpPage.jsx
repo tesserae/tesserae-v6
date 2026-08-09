@@ -545,7 +545,7 @@ export default function HelpPage() {
                 </div>
               </div>
               <p className="text-gray-600 text-sm mt-3">
-                Nine channels run for Latin, Greek, and English; Coptic adds the verbatim-quotation channel above.
+                These channels run for Latin, Greek, and English; Coptic adds the verbatim-quotation channel above.
               </p>
 
               <h4 className="text-lg font-medium text-gray-900 mt-6 mb-3">How Results Are Combined</h4>
@@ -757,63 +757,16 @@ export default function HelpPage() {
           {activeSection === 'match-types' && (
             <div className="prose max-w-none">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Match Types</h3>
-              <p className="text-gray-700 mb-4">Within Phrases search, the Match Type dropdown controls which detection method runs:</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-red-50 p-4 rounded-lg border border-red-200 md:col-span-2">
-                  <h4 className="font-medium text-red-900">Fusion — All Channels (default)</h4>
-                  <p className="text-gray-700 text-sm mt-1">
-                    Runs all ten detection channels simultaneously and combines results with weighted score fusion.
-                    Finds 92% of known parallels across five benchmark datasets — the recommended choice for general use.
-                    See{' '}
-                    <button onClick={() => setActiveSection('fusion-search')} className="text-red-600 hover:underline">
-                      How Fusion Search Works
-                    </button>.
-                  </p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-gray-900">Lemma</h4>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Matches words with the same dictionary form. "amor" matches "amorem", "amores", etc.
-                    The classic Tesserae method. Requires 2+ shared lemmas by default.
-                  </p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-gray-900">Exact</h4>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Only identical surface forms match — no lemmatization. Good for finding direct quotations or formulaic phrases.
-                  </p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-gray-900">Sound (Trigrams)</h4>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Measures phonetic similarity via character trigram patterns. Detects alliteration,
-                    rhyme, assonance, and consonance.
-                  </p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-gray-900">Edit Distance</h4>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Fuzzy character-level matching for morphological variants and spelling
-                    variations: "ferrea" matches "ferratos", "belligeri" matches "belli".
-                  </p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-gray-900">Semantic (AI)</h4>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Uses SPhilBERTa neural embeddings to find passages with similar meaning, even with completely different vocabulary.
-                    Also uses 23,800+ curated Latin synonym pairs (e.g., numen~deus, bellum~proelium, ignis~flamma).
-                  </p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-gray-900">Dictionary</h4>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Detects synonym substitution (<em>uariatio</em>) using curated Latin word pairs from Lewis & Short.
-                    Scores by IDF so rare synonym matches rank higher than common ones.
-                  </p>
-                </div>
-              </div>
-              <p className="text-gray-600 text-sm mt-4">
-                <strong>Tip:</strong> When running individual channels, Sound and Edit Distance can also be enabled as feature boosts under Advanced Settings.
+              <p className="text-gray-700 mb-4">
+                The default Phrases search runs all channels together (<strong>Fusion</strong>). You can also run a
+                <strong> single method</strong> on its own — choose it from the Match Type dropdown — when you want just one kind of
+                match, such as only exact quotations or only sound. These are the same methods described in{' '}
+                <button onClick={() => setActiveSection('fusion-search')} className="text-red-600 hover:underline">How Fusion Search Works &rarr; The Detection Channels</button>,
+                so they are not repeated here.
+              </p>
+              <p className="text-gray-700 mb-4">
+                <strong>Line Search</strong> offers three match types: <strong>Lemma</strong> (dictionary forms), <strong>Exact</strong>
+                (identical surface forms), and <strong>Regular expression</strong> (patterns &mdash; see below).
               </p>
 
               <div className="mt-6 border-t pt-4" id="regex-help">
