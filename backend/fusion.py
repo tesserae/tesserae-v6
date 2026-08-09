@@ -342,6 +342,30 @@ def merge_channel_weights(channel_weights, language=None, corpus_type=None,
     return merged
 
 
+def sanitize_channel_keys(raw):
+    """Validate a user-supplied list of fusion channel keys.
+
+    Returns a set of recognized channel keys, or None when the input is
+    unusable, empty, or contains no known channels. Unknown keys are dropped.
+    Returning None (never an empty set) lets callers treat "nothing usable"
+    the same as "not supplied" — which keeps default behavior byte-identical
+    when the user has not touched the on/off switches.
+
+    Used for the Advanced on/off switches: the request carries the list of
+    channels the user turned OFF (disabled_channels); channels not in it stay
+    on. Unlike a weight of 0 (which still runs and can pull pairs in via the
+    convergence bonus), a disabled channel is excluded from running entirely.
+    """
+    if not raw:
+        return None
+    if isinstance(raw, str):
+        raw = [raw]
+    if not isinstance(raw, (list, tuple, set, frozenset)):
+        return None
+    keys = {ch for ch in raw if ch in CHANNEL_WEIGHTS}
+    return keys or None
+
+
 # Bonus added for each additional channel beyond the first that confirms
 # a pair, rewarding cross-channel convergence as evidence of a true allusion.
 # The raw bonus per extra channel is 0.75 * idf_weight, where idf_weight
@@ -2815,7 +2839,8 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
                        source_path=None, target_path=None,
                        user_settings=None,
                        source_language=None, target_language=None,
-                       freq_basis='corpus', channel_weights=None):
+                       freq_basis='corpus', channel_weights=None,
+                       enabled_channels=None):
     """Generator version of run_fusion_search for progressive SSE streaming.
 
     Yields (event_type, data) tuples as the search progresses:
@@ -2832,6 +2857,14 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
     language-default profile and behavior is unchanged. When provided, the
     overrides are merged over the language-default profile (so a user need
     only override a subset of channels) and passed to every fuse_results call.
+
+    enabled_channels: optional iterable of channel keys the user has left ON
+    (Advanced UI on/off switches). When None or empty, every language-available
+    channel runs (behavior unchanged). When provided, only channels in this set
+    run at all — unchecked channels are excluded entirely, so they cannot pull
+    pairs in through the convergence bonus. As a guard rail, if the filter would
+    exclude every available channel (e.g. the user turned everything off), the
+    full available set runs instead of returning nothing.
     """
     user_settings = user_settings or {}
     if source_language is None:
@@ -2859,6 +2892,21 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
     # --- Pass 1: Line-level (language-appropriate channels, fast-first order) ---
     line_channel_results = {}
     available_channels = get_channels_for_language(language)
+    # Apply the optional user on/off filter. enabled_channels is the set of
+    # channels to KEEP; unchecked channels are dropped so they never run (and
+    # thus can't contribute convergence). Guard rail: if the filter would leave
+    # no channels (user turned everything off, or only unsupported ones on), we
+    # fall back to the full available set rather than running an empty search.
+    if enabled_channels:
+        enabled_set = set(enabled_channels)
+        restricted = [ch for ch in available_channels if ch in enabled_set]
+        if restricted:
+            available_channels = restricted
+        else:
+            logger.warning(
+                "[FUSION] enabled_channels %s excluded every available channel "
+                "for language '%s'; falling back to full channel set",
+                enabled_set, language)
     line_channels = [ch for ch in available_channels if ch in configs]
     total_line = len(line_channels)
 

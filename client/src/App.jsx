@@ -129,7 +129,11 @@ function App() {
     freq_basis: 'corpus',
     // Advanced: user-overridden fusion channel weights. Contains only the
     // channels the user has explicitly changed; empty => use tuned defaults.
-    channel_weights: {}
+    channel_weights: {},
+    // Advanced: fusion channels the user has turned OFF via the on/off
+    // switches. Empty => every channel runs (default). Only sent to the
+    // backend when non-empty (see request-building below).
+    disabled_channels: []
   });
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
   
@@ -424,6 +428,11 @@ function App() {
       language: activeTab,
       ...settings
     };
+    // Only send disabled_channels when the user has actually turned a channel
+    // off, so a default search's request body is unchanged from today.
+    if (!params.disabled_channels || params.disabled_channels.length === 0) {
+      delete params.disabled_channels;
+    }
 
     if (searchMode === 'parallel') {
       await search(params);
@@ -443,6 +452,9 @@ function App() {
       ...settings,
       skip_cache: true,
     };
+    if (!params.disabled_channels || params.disabled_channels.length === 0) {
+      delete params.disabled_channels;
+    }
     if (searchMode === 'parallel') {
       await search(params);
     }
