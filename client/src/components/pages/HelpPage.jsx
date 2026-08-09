@@ -511,41 +511,9 @@ export default function HelpPage() {
               <FusionFlowchart />
 
 
-              <h4 className="text-lg font-medium text-gray-900 mt-6 mb-3">The Detection Channels</h4>
-              <div className="space-y-3">
-                <div className="border-l-4 border-red-400 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Lemma (2-word):</strong> The classic Tesserae approach — finds lines sharing two or more content-word dictionary forms. The workhorse channel for direct verbal echo.</p>
-                </div>
-                <div className="border-l-4 border-red-400 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Lemma (1-word):</strong> Same method, but requires only one shared word. Catches allusions built around a single pivotal term, like Lucan's <em>canimus</em> echoing Vergil's <em>cano</em>.</p>
-                </div>
-                <div className="border-l-4 border-red-400 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Exact:</strong> Matches identical surface forms (not lemmatized). Catches verbatim quotation and formulaic borrowing.</p>
-                </div>
-                <div className="border-l-4 border-blue-400 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Semantic (AI):</strong> Uses SPhilBERTa neural embeddings to detect lines with similar meaning, even with completely different vocabulary.</p>
-                </div>
-                <div className="border-l-4 border-blue-400 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Dictionary:</strong> Detects synonym substitution (<em>uariatio</em>) using 23,833 curated Latin word pairs — e.g., <em>gladius/ensis</em>, <em>mare/pontus</em>.</p>
-                </div>
-                <div className="border-l-4 border-amber-400 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Sound:</strong> Measures phonetic similarity via character trigram patterns. Detects alliteration, assonance, and phonetic echo.</p>
-                </div>
-                <div className="border-l-4 border-amber-400 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Edit Distance:</strong> Fuzzy character-level matching for morphological variants — <em>ferrea</em> matching <em>ferratos</em>, <em>belligeri</em> matching <em>belli</em>.</p>
-                </div>
-                <div className="border-l-4 border-purple-400 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Syntax:</strong> Compares grammatical dependency structures (parsed by LatinPipe) to detect parallel sentence construction. Includes a structural fingerprint path that matches lines with identical grammatical patterns even when they share no vocabulary — catching allusions built on structural imitation with complete lexical substitution. Because many unrelated Latin lines share common syntactic patterns, structural matches are confirmed by a two-tier gate: they must have either a dictionary synonym pair between the two lines or high semantic similarity (cosine ≥ 0.70). In validation testing on Vergil's <em>Georgics</em> 3 vs. Lucretius <em>DRN</em> 6, this gate preserved all meaningful structural parallels while filtering over 90% of coincidental pattern matches.</p>
-                </div>
-                <div className="border-l-4 border-purple-400 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Rare Vocabulary:</strong> Flags shared words that appear in fewer than 100 texts corpus-wide. A rare shared word is unlikely to be coincidence.</p>
-                </div>
-                <div className="border-l-4 border-green-500 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Verbatim Quotation (Coptic):</strong> Finds runs of three or more identical consecutive words. This channel is used for Coptic, where authors most often engage their sources by direct quotation — it catches scriptural quotations even when the author gives no citation. See the <em>Coptic Search</em> section for details.</p>
-                </div>
-              </div>
-              <p className="text-gray-600 text-sm mt-3">
-                These channels run for Latin, Greek, and English; Coptic adds the verbatim-quotation channel above.
+              <p className="text-gray-700 mb-3">
+                For a catalog of what each of the ten channels detects — and how to run a single one on its own — see{' '}
+                <button onClick={() => setActiveSection('match-types')} className="text-red-600 hover:underline">Match Types</button>.
               </p>
 
               <h4 className="text-lg font-medium text-gray-900 mt-6 mb-3">How Results Are Combined</h4>
@@ -648,10 +616,7 @@ export default function HelpPage() {
                   <p className="text-gray-500 text-sm mt-2">
                     <strong>Use for:</strong> Discovering allusions, quotations, and thematic parallels between texts.
                     See{' '}
-                    <button onClick={() => setActiveSection('fusion-search')} className="text-red-600 hover:underline">
-                      How Fusion Search Works
-                    </button>
-                    {' '}for details on the ten channels.
+                    <button onClick={() => setActiveSection('match-types')} className="text-red-600 hover:underline">Match Types</button>{' '}for what each of the ten channels detects.
                   </p>
                 </div>
 
@@ -760,10 +725,45 @@ export default function HelpPage() {
               <p className="text-gray-700 mb-4">
                 The default Phrases search runs all channels together (<strong>Fusion</strong>). You can also run a
                 <strong> single method</strong> on its own — choose it from the Match Type dropdown — when you want just one kind of
-                match, such as only exact quotations or only sound. These are the same methods described in{' '}
-                <button onClick={() => setActiveSection('fusion-search')} className="text-red-600 hover:underline">How Fusion Search Works &rarr; The Detection Channels</button>,
-                so they are not repeated here.
+                match, such as only exact quotations or only sound. Here is what each method (channel) detects:
               </p>
+              <h4 className="text-lg font-medium text-gray-900 mt-6 mb-3">The Detection Channels</h4>
+              <div className="space-y-3">
+                <div className="border-l-4 border-red-400 pl-3">
+                  <p className="text-sm text-gray-700"><strong>Lemma (2-word):</strong> The classic Tesserae approach — finds lines sharing two or more content-word dictionary forms. The workhorse channel for direct verbal echo.</p>
+                </div>
+                <div className="border-l-4 border-red-400 pl-3">
+                  <p className="text-sm text-gray-700"><strong>Lemma (1-word):</strong> Same method, but requires only one shared word. Catches allusions built around a single pivotal term, like Lucan's <em>canimus</em> echoing Vergil's <em>cano</em>.</p>
+                </div>
+                <div className="border-l-4 border-red-400 pl-3">
+                  <p className="text-sm text-gray-700"><strong>Exact:</strong> Matches identical surface forms (not lemmatized). Catches verbatim quotation and formulaic borrowing.</p>
+                </div>
+                <div className="border-l-4 border-blue-400 pl-3">
+                  <p className="text-sm text-gray-700"><strong>Semantic (AI):</strong> Uses SPhilBERTa neural embeddings to detect lines with similar meaning, even with completely different vocabulary.</p>
+                </div>
+                <div className="border-l-4 border-blue-400 pl-3">
+                  <p className="text-sm text-gray-700"><strong>Dictionary:</strong> Detects synonym substitution (<em>uariatio</em>) using 23,833 curated Latin word pairs — e.g., <em>gladius/ensis</em>, <em>mare/pontus</em>.</p>
+                </div>
+                <div className="border-l-4 border-amber-400 pl-3">
+                  <p className="text-sm text-gray-700"><strong>Sound:</strong> Measures phonetic similarity via character trigram patterns. Detects alliteration, assonance, and phonetic echo.</p>
+                </div>
+                <div className="border-l-4 border-amber-400 pl-3">
+                  <p className="text-sm text-gray-700"><strong>Edit Distance:</strong> Fuzzy character-level matching for morphological variants — <em>ferrea</em> matching <em>ferratos</em>, <em>belligeri</em> matching <em>belli</em>.</p>
+                </div>
+                <div className="border-l-4 border-purple-400 pl-3">
+                  <p className="text-sm text-gray-700"><strong>Syntax:</strong> Compares grammatical dependency structures (parsed by LatinPipe) to detect parallel sentence construction. Includes a structural fingerprint path that matches lines with identical grammatical patterns even when they share no vocabulary — catching allusions built on structural imitation with complete lexical substitution. Because many unrelated Latin lines share common syntactic patterns, structural matches are confirmed by a two-tier gate: they must have either a dictionary synonym pair between the two lines or high semantic similarity (cosine ≥ 0.70). In validation testing on Vergil's <em>Georgics</em> 3 vs. Lucretius <em>DRN</em> 6, this gate preserved all meaningful structural parallels while filtering over 90% of coincidental pattern matches.</p>
+                </div>
+                <div className="border-l-4 border-purple-400 pl-3">
+                  <p className="text-sm text-gray-700"><strong>Rare Vocabulary:</strong> Flags shared words that appear in fewer than 100 texts corpus-wide. A rare shared word is unlikely to be coincidence.</p>
+                </div>
+                <div className="border-l-4 border-green-500 pl-3">
+                  <p className="text-sm text-gray-700"><strong>Verbatim Quotation (Coptic):</strong> Finds runs of three or more identical consecutive words. This channel is used for Coptic, where authors most often engage their sources by direct quotation — it catches scriptural quotations even when the author gives no citation. See the <em>Coptic Search</em> section for details.</p>
+                </div>
+              </div>
+              <p className="text-gray-600 text-sm mt-3">
+                These channels run for Latin, Greek, and English; Coptic adds the verbatim-quotation channel above.
+              </p>
+
               <p className="text-gray-700 mb-4">
                 <strong>Line Search</strong> offers three match types: <strong>Lemma</strong> (dictionary forms), <strong>Exact</strong>
                 (identical surface forms), and <strong>Regular expression</strong> (patterns &mdash; see below).
