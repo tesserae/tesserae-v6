@@ -13,7 +13,7 @@ export const SEARCH_DESCRIPTIONS = {
   bigram:
     'Finds uncommon two-word combinations that appear in both of two chosen texts but are rare across the corpus — it can catch rare combinations of otherwise ordinary words.',
   hapax:
-    'Finds rare words that two chosen texts share.',
+    'Finds rare individual words that two chosen texts share.',
   cross:
     'Finds parallels across languages — e.g. the Greek source behind a Latin, Coptic, or English text.',
 };
