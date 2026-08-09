@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { STOPLIST_INFO } from '../../data/stoplists';
+import FusionFlowchart from '../search/FusionFlowchart';
 
 export default function HelpPage() {
   const [activeSection, setActiveSection] = useState('getting-started');
@@ -217,21 +218,25 @@ export default function HelpPage() {
   };
 
   const sections = [
-    { id: 'getting-started', label: 'Getting Started' },
-    { id: 'fusion-search', label: 'How Fusion Search Works' },
-    { id: 'search-modes', label: 'Search Modes' },
-    { id: 'match-types', label: 'Match Types' },
-    { id: 'settings', label: 'Search Settings' },
-    { id: 'stoplists', label: 'Stoplists' },
-    { id: 'results', label: 'Understanding Results' },
-    { id: 'best-practices', label: 'Search Tips' },
-    { id: 'cross-lingual', label: 'Cross-Lingual Search' },
-    { id: 'coptic', label: 'Coptic Search' },
-    { id: 'syntax-texts', label: 'Syntax Matching Texts' },
-    { id: 'repository', label: 'Repository' },
-    { id: 'faq', label: 'FAQ' },
-    { id: 'upload-text', label: 'Upload Your Text' },
-    { id: 'feedback', label: 'Send Feedback' }
+    { id: 'getting-started', label: 'Getting Started', group: 'Start here' },
+    { id: 'search-modes', label: 'The Types of Search', group: 'Start here' },
+
+    { id: 'fusion-search', label: 'How Fusion Search Works', group: 'The Fusion (Phrases) search' },
+    { id: 'match-types', label: 'Match Types', group: 'The Fusion (Phrases) search' },
+    { id: 'settings', label: 'Search Settings', group: 'The Fusion (Phrases) search' },
+    { id: 'stoplists', label: 'Stoplists', group: 'The Fusion (Phrases) search' },
+    { id: 'results', label: 'Understanding Results', group: 'The Fusion (Phrases) search' },
+
+    { id: 'languages', label: 'Languages', group: 'Languages' },
+    { id: 'coptic', label: 'Coptic (in depth)', group: 'Languages' },
+    { id: 'cross-lingual', label: 'Cross-Language Search', group: 'Languages' },
+
+    { id: 'syntax-texts', label: 'Syntax', group: 'Reference & tools' },
+    { id: 'best-practices', label: 'Search Tips', group: 'Reference & tools' },
+    { id: 'repository', label: 'Repository', group: 'Reference & tools' },
+    { id: 'upload-text', label: 'Upload Your Text', group: 'Reference & tools' },
+    { id: 'faq', label: 'FAQ', group: 'Reference & tools' },
+    { id: 'feedback', label: 'Send Feedback', group: 'Reference & tools' }
   ];
 
   const submitTextRequest = async (e) => {
@@ -317,13 +322,18 @@ export default function HelpPage() {
         <nav className="md:w-64 p-4 bg-gray-50 border-b md:border-b-0 md:border-r">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Help Topics</h2>
           <ul className="space-y-1">
-            {sections.map(section => (
+            {sections.map((section, i) => (
               <li key={section.id}>
+                {(i === 0 || sections[i - 1].group !== section.group) && (
+                  <p className="px-3 pt-4 pb-1 text-[0.68rem] font-semibold uppercase tracking-wider text-gray-400 first:pt-1">
+                    {section.group}
+                  </p>
+                )}
                 <button
                   onClick={() => setActiveSection(section.id)}
                   className={`w-full text-left px-3 py-2 rounded text-sm ${
-                    activeSection === section.id 
-                      ? 'bg-red-100 text-red-700' 
+                    activeSection === section.id
+                      ? 'bg-red-100 text-red-700'
                       : 'text-gray-600 hover:bg-gray-100'
                   }`}
                 >
@@ -338,12 +348,17 @@ export default function HelpPage() {
           {activeSection === 'getting-started' && (
             <div className="prose max-w-none">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Getting Started</h3>
+              <p className="text-gray-700 mb-4">
+                Tesserae offers several kinds of search. Most people start with the default — <strong>Phrases</strong>, which
+                compares two texts and finds the passages most similar to each other. Here is the quick path:
+              </p>
               <ol className="list-decimal list-inside space-y-4 text-gray-700">
-                <li><strong>Select a Language:</strong> Choose Latin, Greek, English, or Coptic from the language tabs.</li>
-                <li><strong>Choose Source Text:</strong> Select the "source" text — typically the earlier text.</li>
-                <li><strong>Choose Target Text:</strong> Select the "target" text — the later text that may contain the allusion.</li>
-                <li><strong>Run Search:</strong> Click "Find Parallels." The default search mode is <strong>Fusion — All Channels</strong>, which runs nine independent detection methods and combines their results for the best recall.</li>
-                <li><strong>Browse Results:</strong> Results are ranked by confidence. The top results are overwhelmingly genuine parallels. Matched words are highlighted and channel badges show which methods detected each pair.</li>
+                <li><strong>Select a language:</strong> Latin, Greek, English, or Coptic, from the tabs.</li>
+                <li><strong>Choose a search type:</strong> the default is <strong>Phrases</strong> (compare two texts). See{' '}
+                  <button onClick={() => setActiveSection('search-modes')} className="text-red-600 hover:underline">The Types of Search</button>{' '}
+                  for the others (Lines, String Search, Rare Pairs, Rare Words).</li>
+                <li><strong>Choose your texts:</strong> a <strong>source</strong> (usually the earlier text) and a <strong>target</strong> that may echo it.</li>
+                <li><strong>Run the search:</strong> click "Find Parallels." Results are ranked by confidence, matched words are highlighted, and badges show which methods detected each pair.</li>
               </ol>
               <div className="mt-6 bg-amber-50 p-4 rounded-lg">
                 <h4 className="font-medium text-amber-800 mb-2">Tip</h4>
@@ -353,6 +368,55 @@ export default function HelpPage() {
                 <p className="text-gray-700 text-sm">
                   <strong>Example:</strong> Compare Vergil's Aeneid Book 1 (source) with Lucan's Civil War Book 1 (target) to find how Lucan echoes Vergil.
                 </p>
+              </div>
+            </div>
+          )}
+
+          {activeSection === 'languages' && (
+            <div className="prose max-w-none">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Languages</h3>
+              <p className="text-gray-700 mb-5">
+                Tesserae searches four languages. They share the same search types, but differ in how much of the corpus
+                is covered and which detection channels have data to work with.
+              </p>
+              <div className="space-y-5">
+                <div className="border-l-4 border-red-500 pl-4">
+                  <h4 className="font-medium text-gray-900">Latin</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    The largest and best-developed corpus (~1,400 texts). All ten channels are available, and every text has been
+                    grammatically parsed, so the syntax channels contribute. Latin has the most thoroughly evaluated results
+                    (roughly 92% recall on the standard allusion benchmarks).
+                  </p>
+                </div>
+                <div className="border-l-4 border-blue-500 pl-4">
+                  <h4 className="font-medium text-gray-900">Greek</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    A large corpus (~650 texts). Vocabulary, sound, meaning, and rare-word channels all work; searches are
+                    accent-insensitive, so you can enter text with or without diacritics. Greek does not yet have grammatical
+                    parses, so the syntax channels contribute nothing for Greek.
+                  </p>
+                </div>
+                <div className="border-l-4 border-emerald-500 pl-4">
+                  <h4 className="font-medium text-gray-900">English</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    A small corpus (about a dozen texts), useful mainly for translations and demonstrations. The vocabulary and
+                    meaning channels apply; there is no syntax data.
+                  </p>
+                </div>
+                <div className="border-l-4 border-amber-500 pl-4">
+                  <h4 className="font-medium text-gray-900">Coptic</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Sahidic and Bohairic (~180 texts) — the Coptic Bible plus monastic literature (Shenoute of Atripe and Besa).
+                    Coptic is tuned for <strong>quotation and close reuse</strong> rather than allusion, with a verbatim-quotation
+                    channel, sub-word lemmatization, and grammatical parses wired into the syntax channel. You can also search a
+                    Coptic text against the Greek corpus to surface its Greek source. See{' '}
+                    <button onClick={() => setActiveSection('coptic')} className="text-red-600 hover:underline">Coptic (in depth)</button>.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-5 bg-gray-50 p-4 rounded-lg text-sm text-gray-700">
+                <strong>Across languages:</strong> when a language lacks data for a channel (for example, syntax for Greek and English),
+                that channel simply contributes nothing — the other channels still run.
               </div>
             </div>
           )}
@@ -433,10 +497,14 @@ export default function HelpPage() {
             <div className="prose max-w-none">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">How Fusion Search Works</h3>
               <p className="text-gray-700 mb-4">
-                Tesserae V6's default search mode runs <strong>nine independent detection channels</strong> and combines their results.
+                Tesserae's default search — <strong>Phrases</strong> — runs <strong>ten independent detection channels</strong> and combines their results.
                 Each channel looks for a different kind of textual similarity — shared vocabulary, phonetic echo, semantic meaning,
                 grammatical structure, and more. By fusing these signals, the system finds parallels that no single method could detect alone.
+                The diagram below walks through the whole process step by step.
               </p>
+
+              <FusionFlowchart />
+
 
               <h4 className="text-lg font-medium text-gray-900 mt-6 mb-3">The Detection Channels</h4>
               <div className="space-y-3">
@@ -483,7 +551,7 @@ export default function HelpPage() {
                 casts a wider net, receives a lower weight.
               </p>
               <p className="text-gray-700 mb-3">
-                A <strong>convergence bonus</strong> rewards pairs found independently by multiple channels. If six out of nine channels all
+                A <strong>convergence bonus</strong> rewards pairs found independently by multiple channels. If six out of ten channels all
                 flag the same pair of lines, that agreement is strong evidence of a real connection — stronger than any single channel's
                 score alone. The convergence bonus is weighted by word rarity: pairs sharing rare vocabulary get the full bonus,
                 while pairs whose weakest word is very common receive a reduced bonus proportional to that word's frequency.
@@ -578,7 +646,7 @@ export default function HelpPage() {
                     <button onClick={() => setActiveSection('fusion-search')} className="text-red-600 hover:underline">
                       How Fusion Search Works
                     </button>
-                    {' '}for details on the nine channels.
+                    {' '}for details on the ten channels.
                   </p>
                 </div>
 
@@ -616,7 +684,7 @@ export default function HelpPage() {
                 </div>
 
                 <div className="border-l-4 border-purple-500 pl-4">
-                  <h4 className="font-medium text-gray-900">Word Pairs (Bigram Search)</h4>
+                  <h4 className="font-medium text-gray-900">Rare Pairs</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Discovers unusual word combinations (bigrams) that appear together in very few texts.
                     Even if individual words are common, their pairing may be distinctive.
@@ -689,7 +757,7 @@ export default function HelpPage() {
                 <div className="bg-red-50 p-4 rounded-lg border border-red-200 md:col-span-2">
                   <h4 className="font-medium text-red-900">Fusion — All Channels (default)</h4>
                   <p className="text-gray-700 text-sm mt-1">
-                    Runs all nine detection channels simultaneously and combines results with weighted score fusion.
+                    Runs all ten detection channels simultaneously and combines results with weighted score fusion.
                     Finds 92% of known parallels across five benchmark datasets — the recommended choice for general use.
                     See{' '}
                     <button onClick={() => setActiveSection('fusion-search')} className="text-red-600 hover:underline">
@@ -778,7 +846,7 @@ export default function HelpPage() {
               <div className="bg-amber-50 p-4 rounded-lg border border-amber-200 mb-4">
                 <p className="text-amber-700 text-sm">
                   <strong>Note:</strong> In Fusion mode (the default), most settings below are managed automatically by the
-                  nine channels. Settings like Minimum Matches, Max Distance, and Stoplist apply when running individual match types.
+                  ten channels. Settings like Minimum Matches, Max Distance, and Stoplist apply when running individual match types.
                 </p>
               </div>
               <dl className="space-y-4">
@@ -1036,7 +1104,7 @@ export default function HelpPage() {
 
               <h4 className="font-medium text-gray-900 mt-6 mb-3">Getting Started</h4>
               <ul className="list-disc list-inside text-gray-600 text-sm space-y-2 ml-2">
-                <li><strong>Use Fusion (the default)</strong>: It runs nine channels and finds far more parallels than any single method. Start here.</li>
+                <li><strong>Use Fusion (the default)</strong>: It runs ten channels and finds far more parallels than any single method. Start here.</li>
                 <li><strong>Start small, then expand</strong>: Begin with a single book comparison, then broaden to complete works</li>
                 <li><strong>Focus on the top results</strong>: Fusion ranks results by combined confidence. The highest-scoring results are overwhelmingly genuine parallels.</li>
                 <li><strong>Check channel badges</strong>: Results flagged by many independent channels are the most reliable</li>
@@ -1057,7 +1125,7 @@ export default function HelpPage() {
                 <li><strong>Select complete works</strong>: Search entire texts rather than individual books</li>
                 <li><strong>Increase max results</strong>: The default is 5,000. Set to 0 for unlimited results.</li>
                 <li><strong>Use the Lines tab</strong>: Search a single line against the entire 2,100+ text corpus</li>
-                <li><strong>Try Rare Words or Word Pairs</strong>: These specialized modes find distinctive vocabulary connections that complement Fusion</li>
+                <li><strong>Try Rare Words or Rare Pairs</strong>: These specialized modes find distinctive vocabulary connections that complement Fusion</li>
               </ul>
 
               <h4 className="font-medium text-gray-900 mt-6 mb-3">General Tips</h4>
@@ -1161,7 +1229,7 @@ export default function HelpPage() {
                 </ul>
                 <p className="text-purple-700 text-sm mt-2">
                   For comparison, the Latin fusion system achieves 91.9% recall across five benchmarks using
-                  nine channels. Cross-lingual search uses four channels: semantic embeddings, dictionary,
+                  ten channels. Cross-lingual search uses four channels: semantic embeddings, dictionary,
                   cross-lingual syntax (structural fingerprint matching via Universal Dependencies),
                   and phonetic transliteration (Greek→Latin character mapping for detecting sound echoes like μῆνιν ≈ Mene).
                 </p>
@@ -1171,11 +1239,20 @@ export default function HelpPage() {
 
           {activeSection === 'syntax-texts' && (
             <div className="prose max-w-none">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Syntax Matching</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Syntax</h3>
+              <p className="text-gray-700 mb-3">
+                Syntax matching compares the <strong>grammatical structure</strong> of two lines — how the words relate as
+                subjects, objects, and modifiers — rather than which words they use. In the Fusion search it works as
+                <strong> two channels</strong>:
+              </p>
+              <ul className="list-disc list-inside text-gray-700 text-sm space-y-1 mb-3">
+                <li><strong>Shared-word syntax:</strong> when two lines already share vocabulary, it checks whether those words sit in the same grammatical roles — a small confirmation that the parallel is structural, not coincidental.</li>
+                <li><strong>Structural fingerprint:</strong> matches two lines with the same dependency skeleton (e.g. subject–verb–object) even when they share <em>no</em> vocabulary. To avoid firing on ordinary grammar, it only counts when another channel (synonyms or meaning) also links the pair.</li>
+              </ul>
               <p className="text-gray-700 mb-4">
-                Syntax matching compares grammatical dependency structures between passages, detecting parallel
-                sentence construction even when no vocabulary is shared. It is one of the nine channels in Fusion search
-                and can also be used as a standalone feature boost.
+                Both add to the fused score on a <strong>sliding scale</strong>, but with low weight — syntax
+                <strong> supplements</strong> the other channels rather than driving results. A separate <strong>Syntax</strong>{' '}
+                checkbox in Search Settings can also apply it as a simple on/off boost.
               </p>
 
               <div className="bg-red-50 p-4 rounded border border-red-200 mb-4">
@@ -1188,19 +1265,18 @@ export default function HelpPage() {
               </div>
 
               <div className="bg-amber-50 p-4 rounded border border-amber-200 mb-4">
-                <h4 className="font-medium text-amber-800 mb-2">Greek — In Progress</h4>
+                <h4 className="font-medium text-amber-800 mb-2">Coptic — Available</h4>
                 <p className="text-sm text-gray-700">
-                  Greek syntax parsing is currently being built using the Stanza <code className="bg-amber-100 px-1 rounded">grc_proiel</code> model.
-                  Coverage is expanding incrementally — Homer's <em>Iliad</em> and other major texts are already parsed.
-                  As more Greek texts are added, syntax matching will become available for Greek-Greek and Greek-Latin comparisons.
-                  Cross-lingual syntax matching is already integrated: because Universal Dependencies labels are language-independent,
-                  structural fingerprint matching works directly across the Greek-Latin boundary.
+                  The Coptic corpus (~180 Sahidic and Bohairic texts) is grammatically parsed and wired into the same syntax
+                  channels, so Coptic searches use syntax the same way Latin does.
                 </p>
               </div>
               <div className="bg-gray-50 p-4 rounded border border-gray-200 mb-4">
-                <h4 className="font-medium text-gray-800 mb-2">English — Not Yet Available</h4>
+                <h4 className="font-medium text-gray-800 mb-2">Greek &amp; English — Not Yet</h4>
                 <p className="text-sm text-gray-700">
-                  Syntax parsing for English texts is planned but has not yet begun.
+                  Greek and English texts have not yet been parsed for grammar, so the syntax channels contribute nothing for
+                  those languages — their other channels still run normally. (Because grammatical labels are language-independent,
+                  cross-language structural matching becomes possible once Greek parses are added.)
                 </p>
               </div>
 
@@ -1269,7 +1345,7 @@ export default function HelpPage() {
                 <div>
                   <h4 className="font-medium text-gray-900">Why is my search taking so long?</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    Fusion search runs nine channels, which takes longer than a single-channel search.
+                    Fusion search runs ten channels, which takes longer than a single-channel search.
                     Try searching smaller sections (e.g., individual books) for faster results. Large text pairs
                     like the full Aeneid vs. Metamorphoses can take up to 15 minutes on first run but are cached
                     for subsequent searches. A progress timer is shown during the search.
