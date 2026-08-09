@@ -1336,7 +1336,7 @@ def bigram_cache_stats():
         return jsonify({'error': 'Unauthorized'}), 401
     
     stats = {}
-    for lang in ['la', 'grc', 'en']:
+    for lang in ['la', 'grc', 'en', 'cop']:
         if is_bigram_cache_available(lang):
             stats[lang] = get_bigram_stats(lang)
         else:
@@ -1353,7 +1353,7 @@ def build_bigram_cache():
     data = request.get_json() or {}
     language = data.get('language', 'la')
     
-    if language not in ['la', 'grc', 'en']:
+    if language not in ['la', 'grc', 'en', 'cop']:
         return jsonify({'error': 'Invalid language'}), 400
     
     try:
