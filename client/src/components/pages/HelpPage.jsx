@@ -496,6 +496,11 @@ export default function HelpPage() {
           {activeSection === 'fusion-search' && (
             <div className="prose max-w-none">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">How Fusion Search Works</h3>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-sm text-blue-900">
+                <strong>A note on examples:</strong> this section — and the ones that follow — uses <strong>Latin</strong> for its
+                examples, but the same process applies to Greek, English, and Coptic. Where a language differs (for instance, Greek
+                and English have no syntax data, and Coptic is tuned for quotation), it is noted along the way.
+              </div>
               <p className="text-gray-700 mb-4">
                 Tesserae's default search — <strong>Phrases</strong> — runs <strong>ten independent detection channels</strong> and combines their results.
                 Each channel looks for a different kind of textual similarity — shared vocabulary, phonetic echo, semantic meaning,
