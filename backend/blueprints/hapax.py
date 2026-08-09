@@ -193,6 +193,19 @@ def is_word_in_stoplist(word, language):
             if entry_norm == normalized:
                 return True
         return False
+    elif language == 'cop':
+        # Coptic rare-pair lemmas and COPTIC_STOP_WORDS are both in the
+        # normalized (normalize_coptic) alphabet, so they compare directly.
+        # Without this, Coptic function words (articles like ⲡ, particles like
+        # ϫⲉ) were never filtered, so rare pairs came out as content-word +
+        # function-word — only one meaningful, highlightable word — rather than
+        # genuine two-word collocations.
+        try:
+            from backend.coptic.stopwords import COPTIC_STOP_WORDS
+            from backend.coptic.processor import normalize_coptic
+            return normalize_coptic(word.lower().strip()) in COPTIC_STOP_WORDS
+        except Exception:
+            return False
 
     return False
 
