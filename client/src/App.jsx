@@ -678,10 +678,12 @@ function App() {
                     </button>
                   )}
                 </div>
-                <SearchModeToggle searchMode={searchMode} setSearchMode={setSearchMode} />
               </div>
 
-              <SearchDescription mode={searchMode} className="mb-6 -mt-2" />
+              <div className="mb-6">
+                <SearchModeToggle searchMode={searchMode} setSearchMode={setSearchMode} />
+                <SearchDescription mode={searchMode} className="mt-2 px-1" />
+              </div>
 
               {searchMode === 'line' ? (
                 <LineSearch key={activeTab} language={activeTab} />

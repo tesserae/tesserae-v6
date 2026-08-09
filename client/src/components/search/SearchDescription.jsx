@@ -7,9 +7,9 @@ export const SEARCH_DESCRIPTIONS = {
   parallel:
     'You set only the texts to compare; the search finds the most similar phrases between them, based on a variety of similarity types.',
   line:
-    'You enter a line to find other lines like it.',
+    'Enter a line to find other lines like it. Choose an existing line to search or write your own.',
   string:
-    'You enter specific terms, and can use wildcards (am*), phrases, and AND/OR operators.',
+    'Enter specific terms, optionally with wildcards (am*), phrases, or AND/OR operators.',
   bigram:
     'Finds uncommon two-word combinations that appear in both of two chosen texts but are rare across the corpus — it can catch rare combinations of otherwise ordinary words.',
   hapax:
