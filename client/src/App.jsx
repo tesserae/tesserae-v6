@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Header, Navigation } from './components/layout';
 import { SearchModeToggle, TextSelector, SearchSettings, SearchResults, LineSearch, CrossLingualSearch, WildcardSearch, SavedSearches, CorpusSearchResults, RarePairsSettings } from './components/search';
 import RareResultsDisplay from './components/search/RareResultsDisplay';
+import SearchDescription from './components/search/SearchDescription';
 import { Modal, LoadingSpinner } from './components/common';
 import { CorpusBrowser, RareWordsExplorer } from './components/corpus';
 import { Repository } from './components/repository';
@@ -680,6 +681,8 @@ function App() {
                 <SearchModeToggle searchMode={searchMode} setSearchMode={setSearchMode} />
               </div>
 
+              <SearchDescription mode={searchMode} className="mb-6 -mt-2" />
+
               {searchMode === 'line' ? (
                 <LineSearch key={activeTab} language={activeTab} />
               ) : searchMode === 'string' ? (
@@ -827,7 +830,10 @@ function App() {
         )}
 
         {pageType === 'search' && activeTab === 'cross' && (
-          <CrossLingualSearch />
+          <div className="space-y-3">
+            <SearchDescription mode="cross" className="px-1" />
+            <CrossLingualSearch />
+          </div>
         )}
 
         {pageType === 'browse' && (
@@ -862,12 +868,14 @@ function App() {
 
         {pageType === 'line-search' && (
           <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+            <SearchDescription mode="line" className="mb-4" />
             <LineSearch key={activeTab} language={activeTab} />
           </div>
         )}
 
         {pageType === 'string-search' && (
           <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+            <SearchDescription mode="string" className="mb-4" />
             <WildcardSearch language={activeTab} />
           </div>
         )}
