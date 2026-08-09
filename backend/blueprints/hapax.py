@@ -41,6 +41,23 @@ from backend.services import log_search, get_user_location
 
 logger = get_logger('hapax')
 
+# Coptic lemmatization normalizes the seven Coptic-only letters into the
+# "dialect-P" Coptic block (ϣ→ⲳ, ϩ→ⲹ, ϫ→ⲻ, …). For display we reverse that so
+# results show the manuscript letterforms scholars recognize. Built from the
+# forward map, so there is no hand-typed Coptic here.
+try:
+    from backend.coptic.processor import _LEGACY_TO_COPTIC as _COPTIC_LEGACY_MAP
+    _COPTIC_TO_MANUSCRIPT = {v: k for k, v in _COPTIC_LEGACY_MAP.items()}
+except Exception:  # pragma: no cover - coptic package optional
+    _COPTIC_TO_MANUSCRIPT = {}
+
+
+def _coptic_manuscript_form(text):
+    """Restore manuscript Coptic letterforms from the normalized lemma alphabet."""
+    if not text or not _COPTIC_TO_MANUSCRIPT:
+        return text
+    return ''.join(_COPTIC_TO_MANUSCRIPT.get(ch, ch) for ch in text)
+
 # Greek display forms: normalized lemma -> accented form for display
 _greek_display_forms = None
 def get_greek_display_forms():
@@ -2235,6 +2252,11 @@ def rare_bigram_search():
                 # Get proper dictionary forms for display
                 dict_form1 = get_dictionary_form(lemma1, language)
                 dict_form2 = get_dictionary_form(lemma2, language)
+                if language == 'cop':
+                    # Show manuscript letterforms (ϣ, ϩ, ϫ …) rather than the
+                    # normalized dialect-P block used internally for matching.
+                    dict_form1 = _coptic_manuscript_form(dict_form1)
+                    dict_form2 = _coptic_manuscript_form(dict_form2)
                 
                 # Get actual matched words from all locations for highlighting
                 src_locs = source_bigram_locations[bg_key]
