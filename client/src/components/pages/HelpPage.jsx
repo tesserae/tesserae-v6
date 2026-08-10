@@ -1360,53 +1360,11 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               <p className="text-gray-700 mb-4">
                 You can let your own AI assistant (such as Claude or ChatGPT) run Tesserae searches for you — comparing
                 texts, testing parallels for uniqueness across the corpus, and helping you interpret the results.
-                Tesserae does the searching, free, on its open API; your assistant orchestrates the steps and interprets.
-                There are three ways to connect, from simplest to most capable.
+                Tesserae does the searching, free, on its open API; your assistant orchestrates and interprets. Three
+                ways to connect are below — the simplest, by far, is the <strong>Claude connector: one URL, no setup</strong>.
               </p>
 
-              <div className="bg-blue-50 p-4 rounded border border-blue-200 mb-6">
-                <p className="text-gray-700 text-sm">
-                  <strong>Recommended:</strong> for the fullest capabilities — including running the complete fusion
-                  search from your assistant — use <strong>Claude with the connector (route 3)</strong>. ChatGPT and the
-                  paste-in guide are great for text discovery, corpus-uniqueness checks, and rare-word / rare-pair
-                  comparison, but can't run the long fusion search directly.
-                </p>
-              </div>
-
-              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">1 · Paste-in guide <span className="text-sm font-normal text-gray-500">— any AI, no setup</span></h4>
-              <p className="text-gray-700 text-sm mb-2">
-                Works with any assistant that can browse the web (ChatGPT, Claude, Gemini, or an agent that makes HTTP
-                requests). Open the guide, copy it, and paste it into your assistant as its first message — it teaches
-                the assistant Tesserae's full toolbox and a step-by-step research workflow.
-              </p>
-              <p className="mb-6">
-                <a href="/tesserae-data/ai-guide.html" target="_blank" rel="noopener noreferrer"
-                  className="inline-block bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded no-underline">
-                  Open the paste-in guide →
-                </a>
-              </p>
-
-              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">2 · ChatGPT Custom GPT <span className="text-sm font-normal text-gray-500">— included in ChatGPT Plus</span></h4>
-              <p className="text-gray-700 text-sm mb-2">
-                Build a reusable “Tesserae” GPT once; then you (and anyone you share it with) just chat with it.
-                GPT-building is included in ChatGPT Plus — find it under <strong>Explore GPTs → “+ Create”</strong> (top-right).
-              </p>
-              <ol className="list-decimal list-inside text-gray-700 text-sm space-y-1 mb-3">
-                <li>In ChatGPT: <strong>Explore GPTs → + Create → Configure</strong>. Name it <strong>Tesserae</strong>.</li>
-                <li>Paste the <em>Instructions</em> below into the Instructions box.</li>
-                <li><strong>Actions → Create new action → Import from URL</strong>, paste the schema URL below, set <strong>Authentication: None</strong>.</li>
-                <li>Test it (e.g. “List Vergil's texts”), then <strong>Save</strong> — privately or as a shared link.</li>
-              </ol>
-              <p className="text-gray-700 text-sm font-medium mb-1">Schema URL (for the Action):</p>
-              <CopyBlock text={AI_SCHEMA_URL} />
-              <p className="text-gray-700 text-sm font-medium mb-1 mt-3">Instructions (paste into the GPT):</p>
-              <CopyBlock text={GPT_INSTRUCTIONS} />
-              <p className="text-gray-500 text-xs mt-2 mb-6">
-                Note: ChatGPT Actions can't stream, so the GPT compares texts via rare words / rare pairs and points to
-                the web app for the full fusion search. For full fusion from an AI, use route 3.
-              </p>
-
-              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">3 · Claude connector <span className="text-sm font-normal text-gray-500">— easiest for Claude, most capable</span></h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">1 · Claude connector <span className="text-sm font-normal text-gray-500">— easiest (one URL) and most capable</span></h4>
               <p className="text-gray-700 text-sm mb-2">
                 Add Tesserae to Claude once, and regular chat Claude can run everything — including the full fusion
                 search — with no Python and no guide-pasting. In <strong>Claude Desktop</strong> or <strong>claude.ai
@@ -1430,6 +1388,39 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   <p className="mt-3">Restart Claude, then ask it to use Tesserae.</p>
                 </div>
               </details>
+
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">2 · Paste-in guide <span className="text-sm font-normal text-gray-500">— any AI, no setup</span></h4>
+              <p className="text-gray-700 text-sm mb-2">
+                Works with any assistant that can browse the web (ChatGPT, Claude, Gemini, or an agent that makes HTTP
+                requests). Open the guide, copy it, and paste it into your assistant as its first message — it teaches
+                the assistant Tesserae's full toolbox and a step-by-step research workflow.
+              </p>
+              <p className="mb-6">
+                <a href="/tesserae-data/ai-guide.html" target="_blank" rel="noopener noreferrer"
+                  className="inline-block bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded no-underline">
+                  Open the paste-in guide →
+                </a>
+              </p>
+
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">3 · ChatGPT Custom GPT <span className="text-sm font-normal text-gray-500">— included in ChatGPT Plus</span></h4>
+              <p className="text-gray-700 text-sm mb-2">
+                Build a reusable “Tesserae” GPT once; then you (and anyone you share it with) just chat with it.
+                GPT-building is included in ChatGPT Plus — find it under <strong>Explore GPTs → “+ Create”</strong> (top-right).
+              </p>
+              <ol className="list-decimal list-inside text-gray-700 text-sm space-y-1 mb-3">
+                <li>In ChatGPT: <strong>Explore GPTs → + Create → Configure</strong>. Name it <strong>Tesserae</strong>.</li>
+                <li>Paste the <em>Instructions</em> below into the Instructions box.</li>
+                <li><strong>Actions → Create new action → Import from URL</strong>, paste the schema URL below, set <strong>Authentication: None</strong>.</li>
+                <li>Test it (e.g. “List Vergil's texts”), then <strong>Save</strong> — privately or as a shared link.</li>
+              </ol>
+              <p className="text-gray-700 text-sm font-medium mb-1">Schema URL (for the Action):</p>
+              <CopyBlock text={AI_SCHEMA_URL} />
+              <p className="text-gray-700 text-sm font-medium mb-1 mt-3">Instructions (paste into the GPT):</p>
+              <CopyBlock text={GPT_INSTRUCTIONS} />
+              <p className="text-gray-500 text-xs mt-2 mb-6">
+                The GPT can run everything, including the full fusion search — it polls the fusion job until the
+                results are ready.
+              </p>
 
               <div className="bg-amber-50 p-4 rounded border border-amber-200">
                 <h4 className="font-medium text-amber-900 mb-2">A note on scholarly use</h4>
