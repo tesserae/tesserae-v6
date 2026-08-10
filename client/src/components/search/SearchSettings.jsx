@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { fetchFusionDefaultWeights } from '../../utils/api';
 
-// Fusion channels shown in the Advanced weights panel, with plain-English
-// labels. `quotation` is intentionally omitted — it is 0 for Latin/Greek/
-// English and is managed by the Coptic biblical profile, not a user knob.
+// Plain-English labels for the fusion channels shown in the Advanced weights
+// panel. Which rows actually render is driven by the per-language defaults from
+// /api/fusion-default-weights (see the filter in the render), so a channel that
+// doesn't apply to the current language isn't shown. Two channels are handled
+// by the backend and never appear here: `quotation` (managed by the Coptic
+// biblical profile) and `syntax_structural` ("Structure"), a gated sub-channel
+// that runs together with Syntax and isn't separately tunable.
 const CHANNEL_LABELS = [
   ['lemma', 'Shared words'],
   ['lemma_min1', 'Single word'],
@@ -13,7 +17,6 @@ const CHANNEL_LABELS = [
   ['semantic', 'Meaning'],
   ['dictionary', 'Synonyms'],
   ['syntax', 'Syntax'],
-  ['syntax_structural', 'Structure'],
   ['rare_word', 'Rare words'],
 ];
 
@@ -405,7 +408,7 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
                 (range {weightRange.min}–{weightRange.max}). Leave a weight at its default to keep it unchanged.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
-                {CHANNEL_LABELS.map(([ch, label]) => {
+                {CHANNEL_LABELS.filter(([ch]) => !defaultWeights || defaultWeights[ch] !== undefined).map(([ch, label]) => {
                   const on = isChannelOn(ch);
                   return (
                   <div key={ch} className="flex items-center gap-2">
