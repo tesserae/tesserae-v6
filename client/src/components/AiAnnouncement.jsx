@@ -10,8 +10,7 @@ const AiAnnouncement = ({ onOpen }) => {
       <span className="text-lg leading-none" aria-hidden="true">✨</span>
       <span className="flex-1 text-sm text-amber-900">
         <strong>New — use your own AI with Tesserae.</strong>{' '}
-        Have ChatGPT or Claude run searches and help interpret results.{' '}
-        <span className="text-amber-800">Claude gives the fullest capabilities.</span>
+        Have ChatGPT or Claude run searches and help interpret results.
       </span>
       <span className="text-sm font-semibold text-amber-800 whitespace-nowrap">Learn how →</span>
     </button>
