@@ -422,10 +422,22 @@ class TestWeightProfileFirewall:
         from backend.fusion import get_weight_profile, WEIGHT_PROFILES
         assert get_weight_profile(language='cop') == WEIGHT_PROFILES['biblical_coptic']
 
-    def test_latin_greek_english_get_latin_epic(self):
+    def test_latin_greek_get_latin_epic(self):
         from backend.fusion import get_weight_profile, WEIGHT_PROFILES
-        for lang in ('la', 'grc', 'en'):
+        for lang in ('la', 'grc'):
             assert get_weight_profile(language=lang) == WEIGHT_PROFILES['latin_epic']
+
+    def test_english_gets_english_profile(self):
+        # English uses its own profile: identical to latin_epic EXCEPT sound and
+        # edit_distance default to 0 (those channels are available for English
+        # but noisy, so off by default; users can weight them up in Advanced).
+        from backend.fusion import get_weight_profile, WEIGHT_PROFILES
+        en = get_weight_profile(language='en')
+        latin = WEIGHT_PROFILES['latin_epic']
+        assert en == WEIGHT_PROFILES['english']
+        assert en['sound'] == 0.0 and en['edit_distance'] == 0.0
+        assert all(en[k] == latin[k] for k in latin
+                   if k not in ('sound', 'edit_distance'))
 
     def test_none_and_unknown_default_to_latin_epic(self):
         from backend.fusion import get_weight_profile, WEIGHT_PROFILES

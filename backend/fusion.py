@@ -204,6 +204,15 @@ CHANNEL_WEIGHTS = {
 WEIGHT_PROFILES = {
     "latin_epic": dict(CHANNEL_WEIGHTS),  # snapshot of the historical Latin-tuned defaults
 
+    # English default. Same as latin_epic EXCEPT sound + edit_distance default
+    # to 0: those two channels are language-agnostic and are now available for
+    # English (so users can weight them up in the Advanced panel / run a
+    # sound-only or spelling-only English search), but they are noisy for
+    # English (edit_distance in particular yields many loose fuzzy matches), so
+    # the conservative default is 0 — English fusion output is unchanged unless
+    # a user opts in. All other weights match latin_epic.
+    "english": {**dict(CHANNEL_WEIGHTS), "sound": 0.0, "edit_distance": 0.0},
+
     # Best-composite result from Phase 9 optimization (iter 16, seed 314).
     # 50-iter biblical-bias search over log-uniform [0.1×, 10×]; semantic and
     # quotation channels included as tunables. Objective: R@100 against the
@@ -283,12 +292,14 @@ def get_weight_profile(language=None, corpus_type=None, profile_name=None):
     Selection order:
       1. Explicit profile_name (overrides everything).
       2. (language, corpus_type) tuple lookup — future extension point.
-      3. Language default: cop → biblical_coptic; everything else → latin_epic.
+      3. Language default: cop → biblical_coptic; en → english; else → latin_epic.
     """
     if profile_name and profile_name in WEIGHT_PROFILES:
         return dict(WEIGHT_PROFILES[profile_name])
     if language == "cop":
         return dict(WEIGHT_PROFILES["biblical_coptic"])
+    if language == "en":
+        return dict(WEIGHT_PROFILES["english"])
     return dict(WEIGHT_PROFILES["latin_epic"])
 
 
@@ -532,8 +543,8 @@ CHANNEL_ORDER = [
 # skipped and not counted in the "N channels" progress message.
 CHANNEL_LANGUAGE_SUPPORT = {
     "dictionary":    {"la", "grc", "cop"},  # Latin/Greek synonym pairs; Coptic uses Coptic Wordnet (Slaughter et al. 2019)
-    "sound":         {"la", "grc", "cop"},  # character trigram Jaccard similarity
-    "edit_distance": {"la", "grc", "cop"},  # Levenshtein fuzzy matching
+    "sound":         {"la", "grc", "cop", "en"},  # character trigram Jaccard similarity (language-agnostic)
+    "edit_distance": {"la", "grc", "cop", "en"},  # Levenshtein fuzzy matching (language-agnostic)
     "syntax":        {"la", "grc", "cop"},  # requires syntax DB (syntax_latin.db / syntax_greek.db / syntax_coptic.db)
     "semantic":      {"la", "grc", "en", "cop"},  # SPhilBERTa (la/grc/en) + multilingual-e5-large (cop)
     "quotation":     {"la", "grc", "cop", "en"},  # runs of identical tokens — language-agnostic
