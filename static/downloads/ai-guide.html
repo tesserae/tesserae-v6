@@ -128,7 +128,7 @@
   <ul>
     <li><strong>Base URL:</strong> <code>https://tesserae.caset.buffalo.edu/api</code></li>
     <li>Search endpoints are open <code>POST</code>/<code>GET</code> requests, JSON in and out (one streams — noted below). No authentication.</li>
-    <li><strong>Restricted environments:</strong> the <code>GET</code> orientation endpoints (<code>/languages</code>, <code>/texts</code>) often work even in sandboxed assistants via a built-in web-fetch tool, so you can still browse the corpus. The search endpoints are <code>POST</code> and need real network access — if only GET works, tell the user what you can still do (browse texts) versus what you can't (run searches).</li>
+    <li><strong>Restricted environments (GET-only):</strong> if your environment can only fetch URLs (a web-reading tool, no POST), you can still do <em>everything</em> — every search here has a <code>GET</code> URL form (see <strong>GET (URL-only) forms</strong> below), including the flagship fusion search via a poll. So even a sandboxed assistant can run the full workflow; prefer <code>POST</code> where you can (cleaner for phrases and long bodies), fall back to <code>GET</code> where you can't.</li>
     <li><strong>Be a good citizen:</strong> shared research server with a concurrency limit. Run heavy two-text comparisons sparingly, one at a time; the many light follow-up lookups are cheap — use them freely. On a timeout, wait and retry rather than firing requests in parallel.</li>
   </ul>
   <h3>Orientation</h3>
@@ -162,6 +162,12 @@
   <p><strong>Optional fusion tuning (advanced):</strong> <code>/search-fusion</code> also accepts <code>channel_weights</code> (an object mapping a channel name to a number, overlaid on the language defaults) and <code>disabled_channels</code> (an array of channels to turn off entirely — a true off, unlike weight 0, which still runs and can pull a pair in via convergence). Fetch the per-language default weights and the list of tunable channels from <code>GET /api/fusion-default-weights?language=la</code>. Omit both for standard behavior. Example: <code>{"source":"…","target":"…","language":"la","channel_weights":{"sound":8},"disabled_channels":["syntax"]}</code>.</p>
   <p><strong>Corpus-wide (light, fast, plain JSON):</strong> <code>POST /line-search</code> with <code>{"query":"arma virumque","language":"la","search_type":"lemma"}</code>; <code>POST /wildcard-search</code> with <code>{"query":"arma AND cano","language":"la"}</code>.</p>
   <p><strong>Rare shared items between two texts:</strong> <code>POST /rare-bigram-search</code> / <code>POST /hapax-search</code> with <code>{"source":"…","target":"…","language":"la"}</code>.</p>
+  <p><strong>GET (URL-only) forms — for assistants that can only fetch a URL:</strong> every light search takes the same parameters as a query string, so anything that can read a web page can run them (URL-encode ids and phrases):</p>
+  <pre class="req"><span class="k">GET</span> /api/line-search?query=arma+virumque&amp;language=la&amp;search_type=lemma
+<span class="k">GET</span> /api/wildcard-search?query=arma*&amp;language=la
+<span class="k">GET</span> /api/hapax-search?source=…&amp;target=…&amp;language=la
+<span class="k">GET</span> /api/rare-bigram-search?source=…&amp;target=…&amp;language=la</pre>
+  <p><strong>Fusion over GET (a poll):</strong> <code>GET /api/fusion-search?source=…&amp;target=…&amp;language=la</code> returns <code>{"status":"running"}</code> the first time and <code>{"status":"complete","parallels":[…]}</code> once ready — re-fetch the same URL every ~20–30s until it is complete. Any pair already computed (web app or a prior run) comes back instantly. This is how a URL-only assistant runs the flagship search.</p>
 
   <h2>The flagship workflow <span style="font-family:var(--sans);font-size:15px;font-weight:600;color:var(--muted)">— search → select → test → interpret</span></h2>
   <p>This is one route; offer others when they fit.</p>
@@ -242,7 +248,7 @@ You are being used to drive Tesserae, an intertextuality search engine for class
 ## The API (no key, no login)
 - Base URL: https://tesserae.caset.buffalo.edu/api
 - Search endpoints are open POST/GET requests, JSON in and out (one streams). No authentication.
-- Restricted environments: the GET orientation endpoints (/languages, /texts) often work even in sandboxed assistants via a built-in web-fetch tool, so you can still browse the corpus. The search endpoints are POST and need real network access. If only GET works, tell the user what you can still do (browse texts) vs. what you can't (run searches).
+- Restricted environments (GET-only): if you can only fetch URLs (a web tool, no POST), you can still do EVERYTHING — every search has a GET URL form (see "GET (URL-only) forms" below), including the flagship fusion search via a poll. Prefer POST where you can (cleaner for phrases/long bodies); fall back to GET where you can't.
 - Be a good citizen: shared research server with a concurrency limit. Run heavy two-text comparisons sparingly, one at a time; the many light follow-up lookups are cheap, use them freely. On a timeout, wait and retry rather than firing requests in parallel.
 
 ### Orientation
@@ -267,6 +273,8 @@ Reading the fusion signals: fused_score (rank by this); channels/channel_count (
 - Optional fusion tuning (advanced): /search-fusion also accepts channel_weights (object mapping a channel name to a number, overlaid on the language defaults) and disabled_channels (array of channels turned fully OFF — different from weight 0, which still runs and can pull a pair in via convergence). Get the per-language default weights + tunable channel list from GET /api/fusion-default-weights?language=la. Omit both for standard behavior. e.g. {"source":"...","target":"...","language":"la","channel_weights":{"sound":8},"disabled_channels":["syntax"]}.
 - Corpus-wide (light, fast, plain JSON): POST /line-search {"query":"arma virumque","language":"la","search_type":"lemma"};  POST /wildcard-search {"query":"arma AND cano","language":"la"}.
 - Rare shared items between two texts: POST /rare-bigram-search or POST /hapax-search {"source":"...","target":"...","language":"la"}.
+- GET (URL-only) forms — for assistants that can only fetch a URL. Every light search takes the same params as a query string (URL-encode ids and phrases): GET /api/line-search?query=arma+virumque&language=la&search_type=lemma ; GET /api/wildcard-search?query=arma*&language=la ; GET /api/hapax-search?source=...&target=...&language=la ; GET /api/rare-bigram-search?source=...&target=...&language=la
+- Fusion over GET (a poll): GET /api/fusion-search?source=...&target=...&language=la returns {"status":"running"} the first time and {"status":"complete","parallels":[...]} once ready — re-fetch the same URL every ~20-30s until complete. A pair already computed returns instantly. This is how a URL-only assistant runs the flagship search.
 
 ## The flagship workflow (search -> select -> test -> interpret)
 This is one route; offer others when they fit.

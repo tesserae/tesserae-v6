@@ -33,13 +33,13 @@ info:
     English (en) is a small corpus; Coptic (cop) is tuned for quotation/reuse.
 
 
-    NOTE ON FULL FUSION SEARCH: the flagship two-text "fusion" comparison
-    (fusionSearch) STREAMS Server-Sent Events and can run for minutes, so it is
-    not suitable for a synchronous Action call — do NOT call fusionSearch from a
-    Custom GPT. For a two-text comparison here, use rarePairsSearch and
-    rareWordsSearch (distinctive shared vocabulary is a strong intertext signal);
-    for the full weighted fusion search, direct the user to the web app at
-    https://tesserae.caset.buffalo.edu.
+    NOTE ON FUSION SEARCH: the streaming fusionSearch (POST /search-fusion) is
+    for browsers/dev tools and must NOT be called from a Custom GPT. But the full
+    fusion search IS available to a GPT via fusionSearchPoll (GET /fusion-search):
+    call it, and while it returns status "running", call it again every ~20-30s
+    until it returns status "complete" with a parallels array. A pair already
+    computed returns instantly. rarePairsSearch and rareWordsSearch remain fast
+    options for comparing two texts.
 servers:
   - url: https://tesserae.caset.buffalo.edu/api
     description: Tesserae production API
@@ -322,10 +322,59 @@ paths:
                   github_filed: { type: boolean }
                   issue_url: { type: string }
 
+  /fusion-search:
+    get:
+      operationId: fusionSearchPoll
+      summary: Full fusion comparison of two texts, as a poll-able GET (use THIS for fusion)
+      description: >-
+        The flagship two-text fusion search, exposed as a poll so any client —
+        including a Custom GPT — can use it. Returns {"status":"complete",
+        "parallels":[...]} when results are ready; otherwise starts the run and
+        returns {"status":"running"} — call this SAME operation again every
+        ~20-30s until status is "complete". A large comparison may take a few
+        minutes on first run; results are cached, so a pair already computed
+        (here or in the web app) returns instantly. Each parallel has a score,
+        the channels that fired, source/target {ref, text}, and matched words.
+      parameters:
+        - name: source
+          in: query
+          required: true
+          schema: { type: string }
+          description: Source text id (from listTexts)
+        - name: target
+          in: query
+          required: true
+          schema: { type: string }
+          description: Target text id (from listTexts)
+        - name: language
+          in: query
+          required: true
+          schema: { type: string, enum: [la, grc, en, cop] }
+      responses:
+        "200":
+          description: Either a running status, or the completed ranked parallels.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [running, complete, error] }
+                  count: { type: integer }
+                  parallels:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        score: { type: number }
+                        channels: { type: array, items: { type: string } }
+                        source: { type: object, properties: { ref: { type: string }, text: { type: string } } }
+                        target: { type: object, properties: { ref: { type: string }, text: { type: string } } }
+                        matched: { type: array, items: { type: string } }
+
   /search-fusion:
     post:
       operationId: fusionSearch
-      summary: "Full weighted fusion comparison of two texts (STREAMING — do not call from a GPT)"
+      summary: "Streaming fusion (browsers/dev tools only — GPTs must use fusionSearchPoll instead)"
       description: >-
         The flagship search: ranks the passages of two texts most likely to be
         genuine parallels, fusing ten similarity channels. IMPORTANT: this
