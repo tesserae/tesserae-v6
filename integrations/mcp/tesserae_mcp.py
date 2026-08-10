@@ -1,0 +1,201 @@
+"""
+Tesserae MCP server
+===================
+
+Exposes the Tesserae intertext-search API (https://tesserae.caset.buffalo.edu)
+as tools an MCP-capable AI client (Claude Desktop, Claude Code, etc.) can call.
+
+Tesserae finds intertextual parallels — allusions, echoes, quotations, and
+borrowings — across ~2,100 Latin, Greek, English, and Coptic literary works.
+The API is open (no key). This server just wraps it.
+
+Run:
+    pip install "mcp[cli]" requests
+    python tesserae_mcp.py            # stdio transport (for Claude Desktop/Code)
+
+Config (Claude Desktop / Claude Code), in the mcpServers block:
+    "tesserae": { "command": "python", "args": ["/full/path/to/tesserae_mcp.py"] }
+
+Environment:
+    TESSERAE_API_BASE  (default https://tesserae.caset.buffalo.edu/api)
+
+Guidance for the model using these tools:
+    - Typical workflow: list_texts -> (rare_pairs / rare_words to compare two
+      texts, OR fusion_search for the full weighted comparison) -> line_search
+      to test how unique a shared phrase is across the whole corpus -> interpret
+      the strongest, rarest parallels, quoting both passages and their loci.
+    - Keep Tesserae's results (matches, loci, rarity — transparent and
+      reproducible) clearly separate from your own interpretation; attribute
+      detections to Tesserae and present analysis as AI-assisted inference the
+      scholar should verify.
+    - fusion_search can take several minutes on large texts; run it once.
+"""
+import os
+import json
+
+import requests
+from mcp.server.fastmcp import FastMCP
+
+API_BASE = os.environ.get("TESSERAE_API_BASE", "https://tesserae.caset.buffalo.edu/api").rstrip("/")
+_TIMEOUT = 60
+_FUSION_TIMEOUT = 600
+
+mcp = FastMCP("tesserae")
+
+
+def _get(path, params=None):
+    r = requests.get(f"{API_BASE}{path}", params=params, timeout=_TIMEOUT)
+    r.raise_for_status()
+    return r.json()
+
+
+def _post(path, body):
+    r = requests.post(f"{API_BASE}{path}", json=body, timeout=_TIMEOUT)
+    r.raise_for_status()
+    return r.json()
+
+
+@mcp.tool()
+def get_languages() -> dict:
+    """List the languages Tesserae supports (la=Latin, grc=Greek, en=English,
+    cop=Coptic) and the available cross-language pairs."""
+    return _get("/languages")
+
+
+@mcp.tool()
+def list_texts(language: str, contains: str = "", limit: int = 60) -> list:
+    """List texts (with their ids) for a language. Use a text's `id` as the
+    source/target for two-text searches.
+
+    Args:
+        language: la | grc | en | cop
+        contains: optional case-insensitive filter on author/work/title
+                  (e.g. "vergil", "aeneid") — recommended, the full list is long.
+        limit: max texts to return (default 60).
+    """
+    texts = _get("/texts", {"language": language})
+    if isinstance(texts, dict):
+        texts = texts.get("texts") or texts.get("results") or []
+    needle = contains.strip().lower()
+    out = []
+    for t in texts:
+        blob = " ".join(str(t.get(k, "")) for k in ("author", "work", "title", "display_name", "id")).lower()
+        if needle and needle not in blob:
+            continue
+        out.append({
+            "id": t.get("id"),
+            "author": t.get("author"),
+            "work": t.get("work"),
+            "title": t.get("title") or t.get("display_name"),
+        })
+        if len(out) >= limit:
+            break
+    return out
+
+
+@mcp.tool()
+def line_search(query: str, language: str = "la", search_type: str = "lemma") -> dict:
+    """Find lines ANYWHERE in the corpus that share words with a phrase. This is
+    the corpus-wide UNIQUENESS check: run a candidate parallel's shared words
+    here — few results means the wording is distinctive (stronger allusion).
+
+    Args:
+        query: a phrase or line (e.g. "arma virumque").
+        language: la | grc | en | cop.
+        search_type: lemma (dictionary form, default) | exact | regex.
+    """
+    d = _post("/line-search", {"query": query, "language": language, "search_type": search_type})
+    results = [{
+        "locus": r.get("locus"),
+        "author": r.get("author"),
+        "work": r.get("work"),
+        "text": r.get("text"),
+        "matched_words": r.get("matched_words"),
+    } for r in (d.get("results") or [])[:40]]
+    return {"query": query, "total": d.get("total"), "results": results}
+
+
+@mcp.tool()
+def string_search(query: str, language: str = "la") -> dict:
+    """Wildcard / boolean / exact text search across the corpus. Supports
+    wildcards (am*), boolean operators (AND / OR / NOT), and "quoted phrases"."""
+    d = _post("/wildcard-search", {"query": query, "language": language})
+    results = [{
+        "ref": r.get("ref") or r.get("reference"),
+        "author": r.get("author"),
+        "title": r.get("title"),
+        "text": r.get("text"),
+    } for r in (d.get("results") or [])[:40]]
+    return {"query": query, "total_matches": d.get("total_matches"),
+            "truncated": d.get("truncated"), "results": results}
+
+
+@mcp.tool()
+def rare_pairs(source: str, target: str, language: str = "la") -> dict:
+    """Rare two-word combinations shared by two texts (distinctive collocations),
+    ranked by rarity. A JSON-fast way to compare two texts. Use text ids from
+    list_texts as source/target."""
+    d = _post("/rare-bigram-search", {"source": source, "target": target, "language": language})
+    results = [{
+        "bigram": f"{r.get('display1', r.get('word1'))} {r.get('display2', r.get('word2'))}",
+        "rarity_percent": r.get("rarity_percent"),
+        "source_locations": (r.get("source_locations") or [])[:5],
+        "target_locations": (r.get("target_locations") or [])[:5],
+    } for r in (d.get("results") or [])[:40]]
+    return {"shared_rare_count": d.get("shared_rare_count"), "results": results}
+
+
+@mcp.tool()
+def rare_words(source: str, target: str, language: str = "la") -> dict:
+    """Rare individual words shared by two texts, with how common each is
+    corpus-wide (fewer texts = rarer = stronger signal). Use ids from list_texts."""
+    d = _post("/hapax-search", {"source": source, "target": target, "language": language})
+    results = [{
+        "word": r.get("display_form") or r.get("lemma"),
+        "corpus_count": r.get("corpus_count"),
+        "proper_noun": r.get("is_proper_noun"),
+        "source_locations": (r.get("source_locations") or [])[:5],
+        "target_locations": (r.get("target_locations") or [])[:5],
+    } for r in (d.get("results") or [])[:40]]
+    return {"shared_rare_count": d.get("shared_rare_count"), "results": results}
+
+
+@mcp.tool()
+def fusion_search(source: str, target: str, language: str = "la", top: int = 20) -> dict:
+    """Full weighted FUSION comparison of two texts — the flagship search. Ranks
+    the passages most likely to be genuine parallels, fusing ten similarity
+    channels (shared words, sound, meaning, syntax, rare vocabulary, ...).
+
+    NOTE: this streams and can take SEVERAL MINUTES on large texts; results are
+    cached afterwards, so run it once. Use text ids from list_texts.
+
+    Returns the top `top` parallels, each with source/target loci + text, the
+    fused score, and which channels fired.
+    """
+    url = f"{API_BASE}/search-fusion"
+    body = {"source": source, "target": target, "language": language}
+    latest = []
+    with requests.post(url, json=body, stream=True, timeout=_FUSION_TIMEOUT) as r:
+        r.raise_for_status()
+        for line in r.iter_lines(decode_unicode=True):
+            if not line or not line.startswith("data: "):
+                continue
+            try:
+                evt = json.loads(line[6:])
+            except Exception:
+                continue
+            if isinstance(evt, dict) and isinstance(evt.get("results"), list):
+                latest = evt["results"]
+    latest = sorted(latest, key=lambda x: x.get("fused_score", 0), reverse=True)[:top]
+    parallels = [{
+        "score": round(x.get("fused_score", 0), 2),
+        "channels": x.get("channels"),
+        "source": {"ref": x.get("source", {}).get("ref"), "text": x.get("source", {}).get("text")},
+        "target": {"ref": x.get("target", {}).get("ref"), "text": x.get("target", {}).get("text")},
+        "matched": x.get("matched_lemmas") or x.get("matched_words"),
+    } for x in latest]
+    return {"source": source, "target": target, "count": len(parallels), "parallels": parallels}
+
+
+if __name__ == "__main__":
+    mcp.run()
