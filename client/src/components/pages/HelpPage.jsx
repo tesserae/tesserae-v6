@@ -849,6 +849,42 @@ export default function HelpPage() {
                   </dd>
                 </div>
               </dl>
+
+              <h4 className="text-lg font-semibold text-gray-900 mt-8 mb-2">Advanced: Channels &amp; weights</h4>
+              <p className="text-gray-700 text-sm mb-3">
+                The Phrases (fusion) search blends several detection methods — called <em>channels</em> (shared words,
+                sound, meaning, syntax, rare vocabulary, and more). Under <strong>Search Settings → Advanced —
+                Channels &amp; weights</strong> you can tune how much each channel counts, or switch channels off
+                entirely. Leaving this untouched uses Tesserae's tuned defaults, so your results are unchanged unless
+                you deliberately adjust it.
+              </p>
+              <div className="bg-blue-50 p-4 rounded border border-blue-200">
+                <dl className="space-y-3">
+                  <div>
+                    <dt className="font-medium text-gray-900">Weights</dt>
+                    <dd className="text-gray-600 text-sm mt-1">
+                      Raise or lower how much each channel contributes to a result's score. A higher weight makes that
+                      kind of similarity count for more; the numbers are relative, not percentages.
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="font-medium text-gray-900">On / off switches</dt>
+                    <dd className="text-gray-600 text-sm mt-1">
+                      Turn a channel off to exclude it from the search entirely — for example, to look for parallels
+                      using only sound and syntax. Switching a channel <em>off</em> is different from setting its weight
+                      to zero: a channel at weight 0 still runs and can pull a pair into the results when it agrees with
+                      other channels, whereas an off channel does not run at all.
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="font-medium text-gray-900">Only the channels that apply</dt>
+                    <dd className="text-gray-600 text-sm mt-1">
+                      The panel shows only the channels available for your chosen language — for instance, English does
+                      not show the syntax or dictionary channels, since those rely on data Tesserae doesn't have for English.
+                    </dd>
+                  </div>
+                </dl>
+              </div>
             </div>
           )}
 

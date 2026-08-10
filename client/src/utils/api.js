@@ -28,6 +28,11 @@ export const fetchAuthors = async (language) => {
   return jsonFetch(`${API_BASE}/authors?language=${language}`);
 };
 
+// Default per-channel fusion weights for a language (Advanced UI pre-fill).
+export const fetchFusionDefaultWeights = async (language) => {
+  return jsonFetch(`${API_BASE}/fusion-default-weights?language=${language}`);
+};
+
 export const fetchTexts = async (author) => {
   return jsonFetch(`${API_BASE}/texts?author=${author}`);
 };

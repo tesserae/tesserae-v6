@@ -92,6 +92,38 @@ def search_fusion_stream():
             if max_results <= 0:
                 max_results = 5000  # enforce cap for browser payload size
 
+            # Optional user-supplied per-channel weight overrides (Advanced UI).
+            # Sanitized here (numbers only, known channels only, clamped) so the
+            # rest of the pipeline can trust it. Empty dict => no overrides =>
+            # default weight profile (behavior unchanged).
+            from backend.fusion import (sanitize_channel_weights,
+                                        sanitize_channel_keys,
+                                        get_channels_for_language)
+            channel_weights = sanitize_channel_weights(data.get('channel_weights'))
+
+            # Optional per-channel ON/OFF switches (Advanced UI). The request
+            # carries disabled_channels — the channels the user turned OFF. A
+            # disabled channel is excluded from running entirely (a true off,
+            # unlike weight=0 which still runs and can pull pairs in via
+            # convergence). We turn that into enabled_channels, the KEEP-set
+            # passed downstream: (channels available for this language) minus
+            # (the ones the user disabled). Sending the OFF list (rather than
+            # the keep list) means channels the UI never exposes — e.g.
+            # `quotation` — stay on unless explicitly disabled, and a search
+            # with nothing turned off is byte-identical to today.
+            disabled_channels = sanitize_channel_keys(data.get('disabled_channels'))
+            available_for_lang = set(get_channels_for_language(language))
+            enabled_channels = None  # None => no restriction (default behavior)
+            if disabled_channels:
+                effective_disabled = disabled_channels & available_for_lang
+                keep = available_for_lang - effective_disabled
+                # Only a real restriction if it actually drops a channel that
+                # would otherwise run AND leaves at least one running. If the
+                # user turned everything off, fall back to the full set (guard
+                # rail) rather than running an empty search.
+                if effective_disabled and keep:
+                    enabled_channels = keep
+
             if not source_id or not target_id:
                 yield f"data: {json.dumps({'type': 'error', 'message': 'Please select both source and target texts'})}\n\n"
                 return
@@ -116,6 +148,16 @@ def search_fusion_stream():
                 'use_meter': use_meter,
                 'freq_basis': freq_basis,
             }
+            # Only add to the cache key when the user actually supplied custom
+            # weights, so default-weight searches keep their existing cache
+            # entries (and never read/write a custom-weight result by mistake).
+            if channel_weights:
+                cache_settings['channel_weights'] = channel_weights
+            # Same for the on/off filter: only key on it when it meaningfully
+            # restricts the channel set (enabled_channels is None otherwise).
+            # Sorted list => stable, JSON-serializable, order-independent key.
+            if enabled_channels:
+                cache_settings['enabled_channels'] = sorted(enabled_channels)
             cached_results, cached_meta = (None, None) if skip_cache else \
                 get_cached_results(source_id, target_id, language, cache_settings)
             if cached_results is not None:
@@ -186,6 +228,8 @@ def search_fusion_stream():
                 target_path=target_path,
                 user_settings={'use_meter': use_meter},
                 freq_basis=freq_basis,
+                channel_weights=channel_weights,
+                enabled_channels=enabled_channels,
             ):
                 if event_type == "channel_start":
                     phase = evt_data['phase']
@@ -276,3 +320,35 @@ def search_fusion_stream():
         'Connection': 'keep-alive',
         'X-Accel-Buffering': 'no',
     })
+
+
+@fusion_bp.route('/fusion-default-weights', methods=['GET'])
+def fusion_default_weights():
+    """Return the default per-channel fusion weights for a language.
+
+    Used by the Advanced "Channel weights" UI to pre-fill its inputs with the
+    optimized defaults, and to know what "Reset to defaults" restores. Read-only
+    and side-effect-free; does not affect any search.
+
+    Query params:
+        language — la (default) | grc | en | cop | ...
+
+    Response: {"language": "la", "weights": {"lemma": 2.0, ...},
+               "min": 0.0, "max": 20.0}
+
+    Only channels that actually run for this language are returned (via
+    get_channels_for_language), so the Advanced panel shows exactly the
+    knobs that apply to the search — e.g. no syntax/dictionary for English.
+    """
+    from backend.fusion import (get_weight_profile, get_channels_for_language,
+                                USER_WEIGHT_MIN, USER_WEIGHT_MAX)
+    language = request.args.get('language', 'la')
+    available = set(get_channels_for_language(language))
+    weights = {ch: w for ch, w in get_weight_profile(language=language).items()
+               if ch in available}
+    return {
+        'language': language,
+        'weights': weights,
+        'min': USER_WEIGHT_MIN,
+        'max': USER_WEIGHT_MAX,
+    }

@@ -1,4 +1,21 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { fetchFusionDefaultWeights } from '../../utils/api';
+
+// Fusion channels shown in the Advanced weights panel, with plain-English
+// labels. `quotation` is intentionally omitted — it is 0 for Latin/Greek/
+// English and is managed by the Coptic biblical profile, not a user knob.
+const CHANNEL_LABELS = [
+  ['lemma', 'Shared words'],
+  ['lemma_min1', 'Single word'],
+  ['exact', 'Exact'],
+  ['sound', 'Sound'],
+  ['edit_distance', 'Spelling'],
+  ['semantic', 'Meaning'],
+  ['dictionary', 'Synonyms'],
+  ['syntax', 'Syntax'],
+  ['syntax_structural', 'Structure'],
+  ['rare_word', 'Rare words'],
+];
 
 const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, language = 'la' }) => {
   const stopwordExamples = {
@@ -7,6 +24,80 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
     en: 'king not kings, speak not speaking',
     cop: 'use lemmatized (sub-word) dictionary forms, not inflected forms'
   };
+
+  // Advanced channel-weights panel state.
+  const [showChannelWeights, setShowChannelWeights] = useState(false);
+  const [defaultWeights, setDefaultWeights] = useState(null);
+  const [weightRange, setWeightRange] = useState({ min: 0, max: 20 });
+
+  // Fetch the tuned defaults for the active language so the inputs pre-fill
+  // with them (and so "Reset to defaults" knows what to restore).
+  useEffect(() => {
+    if (settings.match_type !== 'fusion') return;
+    let cancelled = false;
+    fetchFusionDefaultWeights(language)
+      .then((d) => {
+        if (cancelled) return;
+        setDefaultWeights(d.weights || {});
+        setWeightRange({ min: d.min ?? 0, max: d.max ?? 20 });
+      })
+      .catch(() => { /* non-fatal: panel just won't pre-fill */ });
+    return () => { cancelled = true; };
+  }, [language, settings.match_type]);
+
+  const channelWeights = settings.channel_weights || {};
+  const overrideCount = Object.keys(channelWeights).length;
+
+  // On/off switches. settings.disabled_channels holds the channels the user
+  // turned OFF (empty => every channel runs, the default). We store the OFF
+  // list rather than the ON list so a search with nothing disabled sends no
+  // restriction and behaves byte-identically to today.
+  const disabledChannels = settings.disabled_channels || [];
+  const disabledSet = new Set(disabledChannels);
+  const disabledCount = disabledChannels.length;
+  const isChannelOn = (ch) => !disabledSet.has(ch);
+
+  const toggleChannel = (ch) => {
+    setSettings((prev) => {
+      const current = new Set(prev.disabled_channels || []);
+      if (current.has(ch)) {
+        current.delete(ch);  // turn back ON
+      } else {
+        current.add(ch);     // turn OFF
+      }
+      return { ...prev, disabled_channels: Array.from(current) };
+    });
+  };
+
+  // Displayed value: user override if set, otherwise the language default.
+  const weightValue = (ch) => {
+    if (channelWeights[ch] !== undefined) return channelWeights[ch];
+    if (defaultWeights && defaultWeights[ch] !== undefined) return defaultWeights[ch];
+    return '';
+  };
+
+  const setChannelWeight = (ch, raw) => {
+    setSettings((prev) => {
+      const next = { ...(prev.channel_weights || {}) };
+      if (raw === '' || raw === null || raw === undefined) {
+        // Empty input clears the override for this channel (back to default).
+        delete next[ch];
+      } else {
+        let num = parseFloat(raw);
+        if (Number.isNaN(num)) return prev;
+        num = Math.max(weightRange.min, Math.min(weightRange.max, num));
+        next[ch] = num;
+      }
+      return { ...prev, channel_weights: next };
+    });
+  };
+
+  // Reset restores BOTH the weights (back to tuned defaults) and the on/off
+  // state (all channels on).
+  const resetChannelWeights = () => {
+    setSettings((prev) => ({ ...prev, channel_weights: {}, disabled_channels: [] }));
+  };
+  const isDirty = overrideCount > 0 || disabledCount > 0;
   const handleChange = (key, value) => {
     const updates = { [key]: value };
     
@@ -297,6 +388,89 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
             <p className="text-xs text-gray-400 mt-1">Note: Some features require pre-computed linguistic annotations for selected texts.</p>
             )}
           </div>
+
+          {settings.match_type === 'fusion' && (
+          <div className="sm:col-span-2 pt-2 border-t">
+            <button
+              type="button"
+              onClick={() => setShowChannelWeights((v) => !v)}
+              className="flex items-center gap-1 text-sm font-medium text-gray-700 hover:text-gray-900"
+            >
+              <span className="text-xs">{showChannelWeights ? '▼' : '▶'}</span>
+              Advanced — Channels &amp; weights
+              {disabledCount > 0 && (
+                <span className="ml-1 text-xs text-red-600">({disabledCount} off)</span>
+              )}
+              {overrideCount > 0 && (
+                <span className="ml-1 text-xs text-red-600">({overrideCount} custom)</span>
+              )}
+            </button>
+
+            {showChannelWeights && (
+            <div className="mt-3">
+              <p className="text-xs text-gray-500 mb-3">
+                Advanced — the defaults are optimized; custom settings can reduce recall.
+                Uncheck a channel to turn it off (it won't run at all); each channel that
+                stays on contributes to a match's score in proportion to its weight
+                (range {weightRange.min}–{weightRange.max}). Leave a weight at its default to keep it unchanged.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
+                {CHANNEL_LABELS.map(([ch, label]) => {
+                  const on = isChannelOn(ch);
+                  return (
+                  <div key={ch} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={on}
+                      onChange={() => toggleChannel(ch)}
+                      aria-label={`Enable ${label} channel`}
+                      className="h-4 w-4 flex-shrink-0"
+                    />
+                    <label
+                      className={`text-xs font-medium flex-1 min-w-0 truncate ${on ? 'text-gray-700' : 'text-gray-400 line-through'}`}
+                      title={label}
+                    >
+                      {label}
+                      {on && channelWeights[ch] !== undefined && (
+                        <span className="text-red-600"> *</span>
+                      )}
+                    </label>
+                    <input
+                      type="number"
+                      min={weightRange.min}
+                      max={weightRange.max}
+                      step="0.1"
+                      value={weightValue(ch)}
+                      onChange={(e) => setChannelWeight(ch, e.target.value)}
+                      disabled={!on}
+                      title={on ? undefined : 'Turn this channel on to set its weight'}
+                      className={`w-20 border rounded px-2 py-1.5 text-sm ${on ? '' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+                    />
+                  </div>
+                  );
+                })}
+              </div>
+              <div className="mt-3 flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={resetChannelWeights}
+                  disabled={!isDirty}
+                  className="text-sm text-red-600 hover:text-red-800 disabled:text-gray-300 disabled:cursor-not-allowed"
+                >
+                  Reset to defaults
+                </button>
+                {isDirty && (
+                  <span className="text-xs text-gray-400">
+                    {disabledCount > 0 && `${disabledCount} off`}
+                    {disabledCount > 0 && overrideCount > 0 && ', '}
+                    {overrideCount > 0 && `${overrideCount} reweighted`}
+                  </span>
+                )}
+              </div>
+            </div>
+            )}
+          </div>
+          )}
         </div>
       )}
     </div>

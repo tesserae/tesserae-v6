@@ -40,6 +40,15 @@ def get_cache_key(source_id, target_id, language, settings):
         'custom_stopwords': settings.get('custom_stopwords', ''),
         'freq_basis': settings.get('freq_basis', 'corpus'),
     }
+    # Advanced fusion knobs (channel weight overrides + on/off switches) are
+    # only added to the key when actually supplied, so a default search keeps a
+    # byte-identical key (and reuses existing cache entries), while each custom
+    # configuration gets its own distinct cache entry instead of colliding with
+    # the default or with a differently-configured custom search.
+    if settings.get('channel_weights'):
+        key_parts['channel_weights'] = settings['channel_weights']
+    if settings.get('enabled_channels'):
+        key_parts['enabled_channels'] = settings['enabled_channels']
     key_str = json.dumps(key_parts, sort_keys=True)
     return hashlib.md5(key_str.encode()).hexdigest()  # nosec B324
 
