@@ -2,8 +2,64 @@ import { useEffect, useState } from 'react';
 import { STOPLIST_INFO } from '../../data/stoplists';
 import FusionFlowchart from '../search/FusionFlowchart';
 
-export default function HelpPage() {
-  const [activeSection, setActiveSection] = useState('getting-started');
+const AI_SCHEMA_URL = 'https://tesserae.caset.buffalo.edu/tesserae-data/tesserae-openapi.yaml';
+
+const GPT_INSTRUCTIONS = `You are Tesserae, an assistant for finding intertextual parallels (allusions, echoes, quotations) in classical literature, using the provided Tesserae actions.
+
+- Follow the user's lead; they are the scholar. Surface a relevant capability briefly when useful, then defer.
+- Typical workflow: identify two texts (listTexts) -> find distinctive shared vocabulary (rarePairsSearch / rareWordsSearch) -> test how unique a shared phrase is across the whole corpus (lineSearch) -> interpret the strongest, rarest parallels, quoting both passages and their loci.
+- Do NOT call fusionSearch (it streams and is long-running). For two-text comparison use rarePairsSearch/rareWordsSearch; for full weighted fusion, point the user to the web app at https://tesserae.caset.buffalo.edu.
+- PROVENANCE (important): keep Tesserae's results and your own interpretation clearly separate. Attribute matches, loci, and rarity to Tesserae (transparent, reproducible); present your analysis as AI-assisted inference the scholar should verify. Encourage citing Tesserae for the parallels and describing surrounding analysis as AI-assisted.
+- Always show the actual passages and loci; be candid about weak matches. Language codes: la (Latin), grc (Greek), en (English), cop (Coptic).`;
+
+const MCP_PIP = 'pip install fastmcp requests';
+
+const MCP_CONFIG = `{
+  "mcpServers": {
+    "tesserae": {
+      "command": "python",
+      "args": ["/full/path/to/tesserae_mcp.py"]
+    }
+  }
+}`;
+
+const MCP_CLAUDE_CODE = 'claude mcp add tesserae -- python /full/path/to/tesserae_mcp.py';
+
+function CopyBlock({ text, label = 'Copy' }) {
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    try {
+      navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch { /* ignore */ }
+  };
+  return (
+    <div className="relative my-2">
+      <button
+        type="button"
+        onClick={copy}
+        className="absolute top-2 right-2 text-xs font-medium bg-gray-700 hover:bg-gray-600 text-gray-100 rounded px-2 py-1"
+      >
+        {copied ? 'Copied' : label}
+      </button>
+      <pre className="bg-gray-800 text-gray-100 text-xs rounded p-3 pt-8 overflow-x-auto whitespace-pre-wrap">{text}</pre>
+    </div>
+  );
+}
+
+export default function HelpPage({ initialSection = null, onSectionConsumed } = {}) {
+  const [activeSection, setActiveSection] = useState(initialSection || 'getting-started');
+
+  // If opened at a specific section (e.g. via the "use your own AI" flag),
+  // apply it once on mount and let the parent clear the request.
+  useEffect(() => {
+    if (initialSection) {
+      setActiveSection(initialSection);
+      if (onSectionConsumed) onSectionConsumed();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [expandedStoplists, setExpandedStoplists] = useState({});
   const [curatedStoplists, setCuratedStoplists] = useState(null);
   const [stoplistsError, setStoplistsError] = useState(null);
@@ -1307,48 +1363,67 @@ export default function HelpPage() {
                 There are three ways to connect, from simplest to most capable.
               </p>
 
-              <a
-                href="/tesserae-data/tesserae-ai-setup.html"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded no-underline mb-5"
-              >
-                Open the full setup guide →
-              </a>
-
-              <div className="space-y-3 mb-5">
-                <div className="bg-gray-50 p-4 rounded border border-gray-200">
-                  <h4 className="font-medium text-gray-900 mb-1">1 · Paste-in guide <span className="text-xs font-normal text-gray-500">— any AI, no setup</span></h4>
-                  <p className="text-gray-700 text-sm">
-                    Open our <a href="/tesserae-data/ai-guide.html" target="_blank" rel="noopener noreferrer" className="text-blue-700 underline">paste-in guide</a>,
-                    copy it, and paste it into any web-capable assistant (ChatGPT, Claude, Gemini…) as your first
-                    message. It teaches the assistant Tesserae's full toolbox and a step-by-step research workflow.
-                  </p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded border border-gray-200">
-                  <h4 className="font-medium text-gray-900 mb-1">2 · ChatGPT Custom GPT <span className="text-xs font-normal text-gray-500">— included in ChatGPT Plus</span></h4>
-                  <p className="text-gray-700 text-sm">
-                    Build a reusable “Tesserae” GPT (Explore GPTs → “+ Create”), paste our instructions, and import our
-                    API schema by URL. The setup guide has the exact steps, the schema URL, and the instructions to paste.
-                  </p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded border border-gray-200">
-                  <h4 className="font-medium text-gray-900 mb-1">3 · Claude, via a connector (MCP) <span className="text-xs font-normal text-gray-500">— most capable</span></h4>
-                  <p className="text-gray-700 text-sm">
-                    Add Tesserae as a connector so Claude can call it directly. Because this route has no short time
-                    limit, it can run even the full fusion search. Needs Python; the setup guide has the download and config.
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-blue-50 p-4 rounded border border-blue-200 mb-4">
+              <div className="bg-blue-50 p-4 rounded border border-blue-200 mb-6">
                 <p className="text-gray-700 text-sm">
-                  <strong>Recommendation:</strong> for the fullest capabilities — including running the complete fusion
+                  <strong>Recommended:</strong> for the fullest capabilities — including running the complete fusion
                   search from your assistant — use <strong>Claude with the connector (route 3)</strong>. ChatGPT and the
-                  paste-in guide work well for text discovery, corpus-uniqueness checks, and rare-word / rare-pair
+                  paste-in guide are great for text discovery, corpus-uniqueness checks, and rare-word / rare-pair
                   comparison, but can't run the long fusion search directly.
                 </p>
               </div>
+
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">1 · Paste-in guide <span className="text-sm font-normal text-gray-500">— any AI, no setup</span></h4>
+              <p className="text-gray-700 text-sm mb-2">
+                Works with any assistant that can browse the web (ChatGPT, Claude, Gemini, or an agent that makes HTTP
+                requests). Open the guide, copy it, and paste it into your assistant as its first message — it teaches
+                the assistant Tesserae's full toolbox and a step-by-step research workflow.
+              </p>
+              <p className="mb-6">
+                <a href="/tesserae-data/ai-guide.html" target="_blank" rel="noopener noreferrer"
+                  className="inline-block bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded no-underline">
+                  Open the paste-in guide →
+                </a>
+              </p>
+
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">2 · ChatGPT Custom GPT <span className="text-sm font-normal text-gray-500">— included in ChatGPT Plus</span></h4>
+              <p className="text-gray-700 text-sm mb-2">
+                Build a reusable “Tesserae” GPT once; then you (and anyone you share it with) just chat with it.
+                GPT-building is included in ChatGPT Plus — find it under <strong>Explore GPTs → “+ Create”</strong> (top-right).
+              </p>
+              <ol className="list-decimal list-inside text-gray-700 text-sm space-y-1 mb-3">
+                <li>In ChatGPT: <strong>Explore GPTs → + Create → Configure</strong>. Name it <strong>Tesserae</strong>.</li>
+                <li>Paste the <em>Instructions</em> below into the Instructions box.</li>
+                <li><strong>Actions → Create new action → Import from URL</strong>, paste the schema URL below, set <strong>Authentication: None</strong>.</li>
+                <li>Test it (e.g. “List Vergil's texts”), then <strong>Save</strong> — privately or as a shared link.</li>
+              </ol>
+              <p className="text-gray-700 text-sm font-medium mb-1">Schema URL (for the Action):</p>
+              <CopyBlock text={AI_SCHEMA_URL} />
+              <p className="text-gray-700 text-sm font-medium mb-1 mt-3">Instructions (paste into the GPT):</p>
+              <CopyBlock text={GPT_INSTRUCTIONS} />
+              <p className="text-gray-500 text-xs mt-2 mb-6">
+                Note: ChatGPT Actions can't stream, so the GPT compares texts via rare words / rare pairs and points to
+                the web app for the full fusion search. For full fusion from an AI, use route 3.
+              </p>
+
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">3 · Claude, via a connector (MCP) <span className="text-sm font-normal text-gray-500">— most capable</span></h4>
+              <p className="text-gray-700 text-sm mb-2">
+                MCP (Model Context Protocol) lets Claude call Tesserae directly. Because MCP tools aren't limited to a
+                few seconds, this route can run <strong>the full fusion search</strong>. It needs Python on your machine.
+              </p>
+              <ol className="list-decimal list-inside text-gray-700 text-sm space-y-1 mb-2">
+                <li>Download the server: <a href="/tesserae-data/tesserae_mcp.py" target="_blank" rel="noopener noreferrer" className="text-blue-700 underline">tesserae_mcp.py</a></li>
+                <li>Install its dependencies:</li>
+              </ol>
+              <CopyBlock text={MCP_PIP} />
+              <p className="text-gray-700 text-sm mt-3 mb-1"><strong>Claude Desktop:</strong> Settings → Developer → Edit Config, and add (use the real path to the file):</p>
+              <CopyBlock text={MCP_CONFIG} />
+              <p className="text-gray-700 text-sm mt-3 mb-1"><strong>Claude Code:</strong> instead run:</p>
+              <CopyBlock text={MCP_CLAUDE_CODE} />
+              <p className="text-gray-700 text-sm mt-3 mb-6">
+                Restart Claude, then ask, e.g.: “Use Tesserae to compare Aeneid 1 with Lucan's Civil War 1 and show the
+                strongest parallels.”
+              </p>
+
               <div className="bg-amber-50 p-4 rounded border border-amber-200">
                 <h4 className="font-medium text-amber-900 mb-2">A note on scholarly use</h4>
                 <p className="text-gray-700 text-sm">

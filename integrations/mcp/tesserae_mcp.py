@@ -10,7 +10,7 @@ borrowings — across ~2,100 Latin, Greek, English, and Coptic literary works.
 The API is open (no key). This server just wraps it.
 
 Run:
-    pip install "mcp[cli]" requests
+    pip install fastmcp requests
     python tesserae_mcp.py            # stdio transport (for Claude Desktop/Code)
 
 Config (Claude Desktop / Claude Code), in the mcpServers block:
@@ -34,7 +34,14 @@ import os
 import json
 
 import requests
-from mcp.server.fastmcp import FastMCP
+
+# FastMCP ships two ways: the standalone `fastmcp` package (recommended,
+# `pip install fastmcp`) and, in older MCP SDKs, bundled at
+# `mcp.server.fastmcp`. Support both so the server runs on either.
+try:
+    from fastmcp import FastMCP
+except ImportError:  # pragma: no cover
+    from mcp.server.fastmcp import FastMCP
 
 API_BASE = os.environ.get("TESSERAE_API_BASE", "https://tesserae.caset.buffalo.edu/api").rstrip("/")
 _TIMEOUT = 60

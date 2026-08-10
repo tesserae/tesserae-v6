@@ -81,6 +81,8 @@ function App() {
     const path = window.location.pathname;
     return pathToPageType[path] || 'search';
   });
+  // When set, HelpPage opens to this section (used by the "use your own AI" flag).
+  const [helpSection, setHelpSection] = useState(null);
   const [activeTab, setActiveTab] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     const lang = params.get('lang') || params.get('language');
@@ -280,6 +282,13 @@ function App() {
     }
     setPageType(nextPageType);
   }, [adminSessionChecked, adminSessionActive]);
+
+  // Open the Help page at the "Use with your AI" section.
+  const openAiHelp = useCallback(() => {
+    setHelpSection('ai-guide');
+    setPageTypeWithGuard('help');
+    window.history.pushState({}, '', '/help');
+  }, [setPageTypeWithGuard]);
 
   const appLockedToAdmin = adminSessionChecked && adminSessionActive;
 
@@ -653,7 +662,7 @@ function App() {
           <AdminPanel />
         ) : (
           <>
-        <AiAnnouncement />
+        <AiAnnouncement onOpen={openAiHelp} />
         {pageType === 'search' && activeTab !== 'cross' && (
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-4 sm:p-6">
@@ -908,7 +917,7 @@ function App() {
         )}
 
         {pageType === 'help' && (
-          <HelpPage />
+          <HelpPage initialSection={helpSection} onSectionConsumed={() => setHelpSection(null)} />
         )}
 
         {pageType === 'downloads' && (
