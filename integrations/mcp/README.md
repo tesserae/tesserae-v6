@@ -5,7 +5,7 @@ Exposes the Tesserae intertext-search API as tools for an MCP-capable AI client
 
 ## Install & run
 ```bash
-pip install "mcp[cli]" requests
+pip install fastmcp requests
 python tesserae_mcp.py     # stdio transport
 ```
 
