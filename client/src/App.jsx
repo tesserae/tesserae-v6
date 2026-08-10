@@ -9,6 +9,7 @@ import { Repository } from './components/repository';
 import { AdminPanel } from './components/admin';
 import { AboutPage, HelpPage, DownloadsPage, PrivacyPage, ResearchPage, BlogArchivePage } from './components/pages';
 import TextCredits from './components/about/TextCredits';
+import AiAnnouncement from './components/AiAnnouncement';
 import VisualizationsPage from './components/pages/VisualizationsPage';
 import { useCorpus, useSearch } from './hooks';
 import { getSessionValue, setSessionValue } from './utils/storage';
@@ -652,6 +653,7 @@ function App() {
           <AdminPanel />
         ) : (
           <>
+        <AiAnnouncement />
         {pageType === 'search' && activeTab !== 'cross' && (
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-4 sm:p-6">

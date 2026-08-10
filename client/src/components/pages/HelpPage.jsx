@@ -1301,24 +1301,53 @@ export default function HelpPage() {
             <div className="prose max-w-none">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Use Tesserae with your AI assistant</h3>
               <p className="text-gray-700 mb-4">
-                You can let your own AI assistant (such as ChatGPT or Claude) run Tesserae searches for you — comparing
+                You can let your own AI assistant (such as Claude or ChatGPT) run Tesserae searches for you — comparing
                 texts, testing parallels for uniqueness across the corpus, and helping you interpret the results.
                 Tesserae does the searching, free, on its open API; your assistant orchestrates the steps and interprets.
+                There are three ways to connect, from simplest to most capable.
               </p>
+
+              <a
+                href="/tesserae-data/tesserae-ai-setup.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded no-underline mb-5"
+              >
+                Open the full setup guide →
+              </a>
+
+              <div className="space-y-3 mb-5">
+                <div className="bg-gray-50 p-4 rounded border border-gray-200">
+                  <h4 className="font-medium text-gray-900 mb-1">1 · Paste-in guide <span className="text-xs font-normal text-gray-500">— any AI, no setup</span></h4>
+                  <p className="text-gray-700 text-sm">
+                    Open our <a href="/tesserae-data/ai-guide.html" target="_blank" rel="noopener noreferrer" className="text-blue-700 underline">paste-in guide</a>,
+                    copy it, and paste it into any web-capable assistant (ChatGPT, Claude, Gemini…) as your first
+                    message. It teaches the assistant Tesserae's full toolbox and a step-by-step research workflow.
+                  </p>
+                </div>
+                <div className="bg-gray-50 p-4 rounded border border-gray-200">
+                  <h4 className="font-medium text-gray-900 mb-1">2 · ChatGPT Custom GPT <span className="text-xs font-normal text-gray-500">— included in ChatGPT Plus</span></h4>
+                  <p className="text-gray-700 text-sm">
+                    Build a reusable “Tesserae” GPT (Explore GPTs → “+ Create”), paste our instructions, and import our
+                    API schema by URL. The setup guide has the exact steps, the schema URL, and the instructions to paste.
+                  </p>
+                </div>
+                <div className="bg-gray-50 p-4 rounded border border-gray-200">
+                  <h4 className="font-medium text-gray-900 mb-1">3 · Claude, via a connector (MCP) <span className="text-xs font-normal text-gray-500">— most capable</span></h4>
+                  <p className="text-gray-700 text-sm">
+                    Add Tesserae as a connector so Claude can call it directly. Because this route has no short time
+                    limit, it can run even the full fusion search. Needs Python; the setup guide has the download and config.
+                  </p>
+                </div>
+              </div>
+
               <div className="bg-blue-50 p-4 rounded border border-blue-200 mb-4">
-                <p className="text-gray-700 text-sm mb-3">
-                  We've written a guide you can paste into your assistant as its first message. It teaches the assistant
-                  Tesserae's full toolbox, a step-by-step research workflow, and — importantly — to keep a clear line
-                  between Tesserae's reproducible results and the AI's own interpretation.
+                <p className="text-gray-700 text-sm">
+                  <strong>Recommendation:</strong> for the fullest capabilities — including running the complete fusion
+                  search from your assistant — use <strong>Claude with the connector (route 3)</strong>. ChatGPT and the
+                  paste-in guide work well for text discovery, corpus-uniqueness checks, and rare-word / rare-pair
+                  comparison, but can't run the long fusion search directly.
                 </p>
-                <a
-                  href="/tesserae-data/ai-guide.html"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded no-underline"
-                >
-                  Open the full guide →
-                </a>
               </div>
               <div className="bg-amber-50 p-4 rounded border border-amber-200">
                 <h4 className="font-medium text-amber-900 mb-2">A note on scholarly use</h4>
