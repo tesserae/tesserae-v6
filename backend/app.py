@@ -488,6 +488,7 @@ from backend.blueprints.hapax import hapax_bp, init_hapax_blueprint
 from backend.blueprints.batch import batch_bp, init_batch_blueprint
 from backend.blueprints.api_docs import api_docs_bp
 from backend.blueprints.fusion import fusion_bp, init_fusion_blueprint
+from backend.blueprints.feature_request import feature_request_bp
 from backend.email_notifications import notify_text_request, notify_feedback
 
 author_dates_path = os.path.join(os.path.dirname(__file__), 'author_dates.json')
@@ -557,6 +558,7 @@ app.register_blueprint(hapax_bp, url_prefix=API_PREFIX or None)
 app.register_blueprint(batch_bp, url_prefix=batch_prefix)
 app.register_blueprint(api_docs_bp, url_prefix=API_PREFIX or None)
 app.register_blueprint(fusion_bp, url_prefix=API_PREFIX or None)
+app.register_blueprint(feature_request_bp, url_prefix=API_PREFIX or None)
 
 app_logger.info(f"Blueprints registered (API_PREFIX='{API_PREFIX}', env={DEPLOYMENT_ENV})")
 
