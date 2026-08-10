@@ -1367,10 +1367,18 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 You can let your own AI assistant (such as Claude or ChatGPT) run Tesserae searches for you — comparing
                 texts, testing parallels for uniqueness across the corpus, and helping you interpret the results.
                 Tesserae does the searching, free, on its open API; your assistant orchestrates and interprets. Three
-                ways to connect are below — the simplest, by far, is the <strong>Claude connector: one URL, no setup</strong>.
+                ways to connect are below. The one-URL <strong>Claude connector</strong> is being finalized (see the
+                note under it); for now, the <strong>paste-in guide</strong> and <strong>ChatGPT Custom GPT</strong> below
+                work today.
               </p>
 
-              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">1 · Claude connector <span className="text-sm font-normal text-gray-500">— easiest (one URL) and most capable</span></h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">1 · Claude connector <span className="text-sm font-normal text-amber-700">— coming soon</span></h4>
+              <div className="border border-amber-300 bg-amber-50 rounded p-3 text-sm text-amber-900 mb-3">
+                <strong>Under development.</strong> The one-URL Claude connector is built but not live yet — it's waiting
+                on a small server-configuration change, so Claude can add it but can't yet complete a search through it.
+                In the meantime, the <strong>paste-in guide</strong> and <strong>ChatGPT Custom GPT</strong> below both
+                work today.
+              </div>
               <p className="text-gray-700 text-sm mb-2">
                 Add Tesserae to Claude once, and regular chat Claude can run everything — including the full fusion
                 search — with no Python and no guide-pasting. In <strong>Claude Desktop</strong> or <strong>claude.ai
