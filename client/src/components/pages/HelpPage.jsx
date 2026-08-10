@@ -24,6 +24,7 @@ const MCP_CONFIG = `{
 }`;
 
 const MCP_CLAUDE_CODE = 'claude mcp add tesserae -- python /full/path/to/tesserae_mcp.py';
+const MCP_CONNECTOR_URL = 'https://tesserae.caset.buffalo.edu/api/mcp';
 
 function CopyBlock({ text, label = 'Copy' }) {
   const [copied, setCopied] = useState(false);
@@ -1405,24 +1406,30 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 the web app for the full fusion search. For full fusion from an AI, use route 3.
               </p>
 
-              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">3 · Claude, via a connector (MCP) <span className="text-sm font-normal text-gray-500">— most capable</span></h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">3 · Claude connector <span className="text-sm font-normal text-gray-500">— easiest for Claude, most capable</span></h4>
               <p className="text-gray-700 text-sm mb-2">
-                MCP (Model Context Protocol) lets Claude call Tesserae directly. Because MCP tools aren't limited to a
-                few seconds, this route can run <strong>the full fusion search</strong>. It needs Python on your machine.
+                Add Tesserae to Claude once, and regular chat Claude can run everything — including the full fusion
+                search — with no Python and no guide-pasting. In <strong>Claude Desktop</strong> or <strong>claude.ai
+                on a computer</strong>, go to <strong>Settings → Connectors → “Add custom connector”</strong> and paste
+                this URL:
               </p>
-              <ol className="list-decimal list-inside text-gray-700 text-sm space-y-1 mb-2">
-                <li>Download the server: <a href="/tesserae-data/tesserae_mcp.py" target="_blank" rel="noopener noreferrer" className="text-blue-700 underline">tesserae_mcp.py</a></li>
-                <li>Install its dependencies:</li>
-              </ol>
-              <CopyBlock text={MCP_PIP} />
-              <p className="text-gray-700 text-sm mt-3 mb-1"><strong>Claude Desktop:</strong> Settings → Developer → Edit Config, and add (use the real path to the file):</p>
-              <CopyBlock text={MCP_CONFIG} />
-              <p className="text-gray-700 text-sm mt-3 mb-1"><strong>Claude Code:</strong> instead run:</p>
-              <CopyBlock text={MCP_CLAUDE_CODE} />
-              <p className="text-gray-700 text-sm mt-3 mb-6">
-                Restart Claude, then ask, e.g.: “Use Tesserae to compare Aeneid 1 with Lucan's Civil War 1 and show the
-                strongest parallels.”
+              <CopyBlock text={MCP_CONNECTOR_URL} />
+              <p className="text-gray-700 text-sm mt-2 mb-2">
+                Then just ask, e.g.: “Use Tesserae to compare Aeneid 1 with Lucan's Civil War 1 and show the strongest
+                parallels.” Custom connectors need a paid Claude plan and are added on desktop or web (not the mobile app).
               </p>
+              <details className="text-sm text-gray-600 mb-6">
+                <summary className="cursor-pointer text-gray-700 font-medium">Advanced: run the connector locally instead (offline; no account/connector needed)</summary>
+                <div className="mt-2 pl-1">
+                  <p className="mb-2">Prefer to run the server on your own machine? Download <a href="/tesserae-data/tesserae_mcp.py" target="_blank" rel="noopener noreferrer" className="text-blue-700 underline">tesserae_mcp.py</a> and install its dependencies:</p>
+                  <CopyBlock text={MCP_PIP} />
+                  <p className="mt-3 mb-1"><strong>Claude Desktop:</strong> Settings → Developer → Edit Config, and add (use the real path to the file):</p>
+                  <CopyBlock text={MCP_CONFIG} />
+                  <p className="mt-3 mb-1"><strong>Claude Code:</strong> instead run:</p>
+                  <CopyBlock text={MCP_CLAUDE_CODE} />
+                  <p className="mt-3">Restart Claude, then ask it to use Tesserae.</p>
+                </div>
+              </details>
 
               <div className="bg-amber-50 p-4 rounded border border-amber-200">
                 <h4 className="font-medium text-amber-900 mb-2">A note on scholarly use</h4>
