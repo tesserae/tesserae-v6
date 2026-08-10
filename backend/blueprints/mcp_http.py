@@ -252,6 +252,19 @@ def mcp_endpoint():
         # This server never initiates messages, so it offers no SSE stream.
         return Response('Method Not Allowed', status=405)
 
+    # OAuth: the connector must present a bearer token (issued via /api/oauth).
+    # Missing/invalid -> 401 with WWW-Authenticate, which triggers the client's
+    # OAuth discovery + registration flow. (The resource behind this is the open
+    # Tesserae API, so the token is ceremonial — see backend/blueprints/mcp_oauth.)
+    from backend.blueprints.mcp_oauth import verify_access_token, PRM_URL
+    auth = request.headers.get('Authorization', '')
+    if not (auth.startswith('Bearer ') and verify_access_token(auth[7:])):
+        resp = jsonify({"jsonrpc": "2.0", "id": None,
+                        "error": {"code": -32001, "message": "Unauthorized"}})
+        resp.status_code = 401
+        resp.headers['WWW-Authenticate'] = f'Bearer resource_metadata="{PRM_URL}"'
+        return resp
+
     payload = request.get_json(silent=True)
     if payload is None:
         return jsonify(_error(None, -32700, "Parse error")), 400
