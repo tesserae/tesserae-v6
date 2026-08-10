@@ -1,0 +1,316 @@
+openapi: 3.1.0
+info:
+  title: Tesserae V6 API
+  version: "1.0.0"
+  description: >-
+    Tesserae finds intertextual parallels — allusions, echoes, quotations, and
+    borrowings — across ~2,100 Latin, Greek, English, and Coptic literary works.
+    This API is open (no key, no login) and read-only.
+
+
+    HOW TO USE (for an AI assistant driving this API):
+
+    1. Follow the user's lead; the user is the scholar. Surface a relevant
+       Tesserae capability briefly when it helps, then defer.
+
+    2. A typical workflow: pick two texts (listTexts) → find distinctive shared
+       vocabulary between them (rarePairsSearch / rareWordsSearch) → test how
+       unique a shared phrase is across the whole corpus (lineSearch) → interpret
+       the strongest, rarest parallels, quoting both passages and their loci.
+
+    3. PROVENANCE — keep Tesserae's output and your own interpretation clearly
+       separate. Tesserae's results (the matches, loci, rarity) are transparent
+       and reproducible; your interpretation is not, unless made auditable.
+       Attribute detections to Tesserae; present analysis as your own AI-assisted
+       inference the scholar should verify. Encourage the user to cite Tesserae
+       for the parallels and describe surrounding analysis as AI-assisted.
+
+    4. Be a good citizen: shared research server. Use the fast JSON endpoints
+       freely; on a timeout, back off and retry rather than firing in parallel.
+
+
+    LANGUAGE COVERAGE: Latin (la) is fullest; Greek (grc) has ~650 texts;
+    English (en) is a small corpus; Coptic (cop) is tuned for quotation/reuse.
+
+
+    NOTE ON FULL FUSION SEARCH: the flagship two-text "fusion" comparison
+    (fusionSearch) STREAMS Server-Sent Events and can run for minutes, so it is
+    not suitable for a synchronous Action call — do NOT call fusionSearch from a
+    Custom GPT. For a two-text comparison here, use rarePairsSearch and
+    rareWordsSearch (distinctive shared vocabulary is a strong intertext signal);
+    for the full weighted fusion search, direct the user to the web app at
+    https://tesserae.caset.buffalo.edu.
+servers:
+  - url: https://tesserae.caset.buffalo.edu/api
+    description: Tesserae production API
+
+paths:
+  /languages:
+    get:
+      operationId: getLanguages
+      summary: List available languages and cross-language pairs
+      responses:
+        "200":
+          description: Available languages and cross-lingual pairs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  languages:
+                    type: array
+                    items: { type: string }
+                    description: "Language codes, e.g. la, grc, en, cop"
+                  crosslingual_pairs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key: { type: string }
+                        label: { type: string }
+                        source: { type: string }
+                        target: { type: string }
+
+  /texts:
+    get:
+      operationId: listTexts
+      summary: List texts (with their ids) for a language
+      description: >-
+        Returns every text with its id (e.g. "vergil.aeneid.part.1.tess"). Use
+        these ids as the source/target for two-text searches.
+      parameters:
+        - name: language
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [la, grc, en, cop]
+      responses:
+        "200":
+          description: List of texts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: { type: string, description: "Text id — use as source/target" }
+                    author: { type: string }
+                    work: { type: string }
+                    title: { type: string }
+                    display_name: { type: string }
+                    part: { type: string }
+                    language: { type: string }
+                    era: { type: string }
+                    year: { type: integer }
+
+  /line-search:
+    post:
+      operationId: lineSearch
+      summary: Find corpus lines sharing words with a phrase (corpus-wide)
+      description: >-
+        Enter a line or phrase; returns every line in the corpus that shares 2+
+        words with it. This is the corpus-wide UNIQUENESS check: run a candidate
+        parallel's shared words here to see how common the wording is elsewhere.
+        Few results ⇒ distinctive ⇒ a stronger claim of deliberate allusion.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query, language]
+              properties:
+                query: { type: string, description: "A phrase or line, e.g. 'arma virumque'" }
+                language: { type: string, enum: [la, grc, en, cop] }
+                search_type:
+                  type: string
+                  enum: [lemma, exact, regex]
+                  default: lemma
+                  description: "lemma = dictionary-form match (default); exact = surface form; regex"
+      responses:
+        "200":
+          description: Matching corpus lines
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  query: { type: string }
+                  total: { type: integer }
+                  search_time: { type: number }
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        text_id: { type: string }
+                        author: { type: string }
+                        work: { type: string }
+                        locus: { type: string, description: "Citation, e.g. 'Vergil Aeneid 1.1'" }
+                        text: { type: string, description: "The line" }
+                        matched_words: { type: array, items: { type: string } }
+                        is_poetry: { type: boolean }
+                        era: { type: string }
+                        year: { type: integer }
+
+  /wildcard-search:
+    post:
+      operationId: stringSearch
+      summary: Wildcard / boolean / exact text search across the corpus
+      description: >-
+        Search the corpus for specific words, forms, or collocations. Supports
+        wildcards (am*), boolean operators (AND / OR / NOT), and "quoted phrases".
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query, language]
+              properties:
+                query: { type: string, description: "e.g. 'arma AND cano', 'am*', '\"arma virumque\"'" }
+                language: { type: string, enum: [la, grc, en, cop] }
+      responses:
+        "200":
+          description: Matching lines
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  query: { type: string }
+                  parsed_type: { type: string }
+                  total_matches: { type: integer }
+                  truncated: { type: boolean }
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        text_id: { type: string }
+                        author: { type: string }
+                        title: { type: string }
+                        ref: { type: string }
+                        reference: { type: string }
+                        text: { type: string }
+                        highlighted_text: { type: string }
+                        is_poetry: { type: boolean }
+                        year: { type: integer }
+
+  /rare-bigram-search:
+    post:
+      operationId: rarePairsSearch
+      summary: Rare two-word combinations shared by two texts
+      description: >-
+        Returns distinctive two-word collocations (bigrams) that two chosen texts
+        share, ranked by rarity. A shared rare collocation is strong evidence of
+        deliberate reuse. Good JSON-friendly substitute for full fusion when
+        comparing two texts.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [source, target, language]
+              properties:
+                source: { type: string, description: "Source text id" }
+                target: { type: string, description: "Target text id" }
+                language: { type: string, enum: [la, grc, en, cop] }
+      responses:
+        "200":
+          description: Shared rare bigrams
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  shared_rare_count: { type: integer }
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        bigram: { type: string }
+                        display1: { type: string }
+                        display2: { type: string }
+                        word1: { type: string }
+                        word2: { type: string }
+                        rarity_percent: { type: number, description: "100 = appears only in these two texts" }
+                        source_locations: { type: array, items: { type: string } }
+                        target_locations: { type: array, items: { type: string } }
+
+  /hapax-search:
+    post:
+      operationId: rareWordsSearch
+      summary: Rare individual words shared by two texts
+      description: >-
+        Returns rare individual words that two chosen texts share, with how often
+        each occurs corpus-wide. A shared rare word is a strong intertext signal.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [source, target, language]
+              properties:
+                source: { type: string, description: "Source text id" }
+                target: { type: string, description: "Target text id" }
+                language: { type: string, enum: [la, grc, en, cop] }
+      responses:
+        "200":
+          description: Shared rare words
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  shared_rare_count: { type: integer }
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        lemma: { type: string }
+                        display_form: { type: string }
+                        corpus_count: { type: integer, description: "How many texts contain this word" }
+                        is_proper_noun: { type: boolean }
+                        source_locations: { type: array, items: { type: string } }
+                        target_locations: { type: array, items: { type: string } }
+
+  /search-fusion:
+    post:
+      operationId: fusionSearch
+      summary: "Full weighted fusion comparison of two texts (STREAMING — do not call from a GPT)"
+      description: >-
+        The flagship search: ranks the passages of two texts most likely to be
+        genuine parallels, fusing ten similarity channels. IMPORTANT: this
+        response is a Server-Sent Events stream (text/event-stream) and can run
+        for minutes — it is NOT usable as a synchronous Action and a Custom GPT
+        must not call it. Documented here for completeness. For a two-text
+        comparison from an AI assistant, use rarePairsSearch / rareWordsSearch;
+        for full fusion, use the web app at https://tesserae.caset.buffalo.edu.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [source, target, language]
+              properties:
+                source: { type: string }
+                target: { type: string }
+                language: { type: string, enum: [la, grc, en, cop] }
+      responses:
+        "200":
+          description: >-
+            Server-Sent Events stream. Events of type "intermediate"/"complete"
+            carry a `results` array of ranked pairs (each with source/target
+            {ref, text}, fused_score, channels, matched_words).
+          content:
+            text/event-stream:
+              schema:
+                type: string
