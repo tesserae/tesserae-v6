@@ -135,21 +135,11 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Match Type
+            Search Method
           </label>
-          <select
-            value={settings.match_type}
-            onChange={(e) => handleChange('match_type', e.target.value)}
-            className="w-full border rounded px-2 py-2 text-base sm:text-sm"
-          >
-            <option value="fusion">Fusion — All Channels (best recall)</option>
-            <option value="lemma">Dictionary Form (Lemma)</option>
-            <option value="exact">Exact Match</option>
-            <option value="semantic">AI Semantic</option>
-            <option value="dictionary">Dictionary (V3 Synonyms)</option>
-            <option value="sound">Sound Matching (slower)</option>
-            <option value="edit_distance">Edit Distance (slower)</option>
-          </select>
+          <p className="w-full border rounded px-2 py-2 text-base sm:text-sm bg-gray-50 text-gray-800">
+            Fusion — all channels
+          </p>
           {settings.match_type === 'fusion' && (
             <p className="text-xs text-gray-500 mt-1">
               Runs 9 channels with weighted scoring. Best recall but slower.
