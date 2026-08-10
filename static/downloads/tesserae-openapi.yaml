@@ -281,6 +281,47 @@ paths:
                         source_locations: { type: array, items: { type: string } }
                         target_locations: { type: array, items: { type: string } }
 
+  /feature-request:
+    post:
+      operationId: submitFeatureRequest
+      summary: File a feature / language / text / bug request (ONLY with the user's sign-off)
+      description: >-
+        Submit a request for something Tesserae doesn't yet do (a feature, a
+        language, or a text/corpus addition), or report a bug. ONLY call this
+        after the user has explicitly confirmed the exact request — never file
+        silently. WARN the user first that feature/language/bug requests are
+        auto-filed as a PUBLIC GitHub issue for the dev team; any contact email
+        is kept private and never placed in the public issue. Put the actual
+        queries/results that prompted the request in `context` so it is
+        actionable. Include at least a title or a problem description.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type]
+              properties:
+                type: { type: string, enum: [feature, language, text, bug, other] }
+                title: { type: string }
+                problem: { type: string, description: "The scholarly need, in the user's words" }
+                desired: { type: string, description: "The Tesserae behavior that would address it" }
+                example: { type: string }
+                context: { type: string, description: "The actual queries/results that prompted this request" }
+                contact: { type: string, description: "Optional email — kept PRIVATE, never in the public issue" }
+      responses:
+        "200":
+          description: Submitted (stored + emailed; a public issue is filed for feature/language/bug when enabled)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  id: { type: integer }
+                  github_filed: { type: boolean }
+                  issue_url: { type: string }
+
   /search-fusion:
     post:
       operationId: fusionSearch

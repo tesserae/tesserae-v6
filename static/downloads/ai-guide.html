@@ -155,6 +155,7 @@
   <p><strong>Compare two texts (fusion):</strong> <code>POST /search-fusion</code></p>
   <pre class="req"><span class="k">{</span> <span class="s">"source"</span>: <span class="s">"vergil.aeneid.part.1.tess"</span>, <span class="s">"target"</span>: <span class="s">"lucan.bellum_civile.part.1.tess"</span>, <span class="s">"language"</span>: <span class="s">"la"</span> <span class="k">}</span></pre>
   <p><strong>Streams Server-Sent Events</strong> (<code>data: {...}</code> lines): mostly <code>{"type":"progress"}</code>, with <code>{"type":"intermediate","results":[…]}</code> events carrying the growing set. Read to the end; use the <code>results</code> array from the last event that has one; sort by <code>fused_score</code> descending. Give it a generous read timeout (a big search runs minutes; results are cached afterward — run it <strong>once</strong>, then work from the list). Each result's <code>source</code>/<code>target</code> are objects with <code>ref</code> (locus) and <code>text</code> (the line).</p>
+  <p><strong>Optional fusion tuning (advanced):</strong> <code>/search-fusion</code> also accepts <code>channel_weights</code> (an object mapping a channel name to a number, overlaid on the language defaults) and <code>disabled_channels</code> (an array of channels to turn off entirely — a true off, unlike weight 0, which still runs and can pull a pair in via convergence). Fetch the per-language default weights and the list of tunable channels from <code>GET /api/fusion-default-weights?language=la</code>. Omit both for standard behavior. Example: <code>{"source":"…","target":"…","language":"la","channel_weights":{"sound":8},"disabled_channels":["syntax"]}</code>.</p>
   <p><strong>Corpus-wide (light, fast, plain JSON):</strong> <code>POST /line-search</code> with <code>{"query":"arma virumque","language":"la","search_type":"lemma"}</code>; <code>POST /wildcard-search</code> with <code>{"query":"arma AND cano","language":"la"}</code>.</p>
   <p><strong>Rare shared items between two texts:</strong> <code>POST /rare-bigram-search</code> / <code>POST /hapax-search</code> with <code>{"source":"…","target":"…","language":"la"}</code>.</p>
 
@@ -193,6 +194,19 @@
     <li><strong>Record your reasoning/prompts</strong>, and keep "what Tesserae found" in a separate column/section from "what I argued from it."</li>
     <li>Tesserae's own <strong>Repository</strong> feature lets users save and share the intertexts they find — a durable, citable Tesserae-side record worth using.</li>
   </ul>
+
+  <h2>Requesting a feature, language, or text</h2>
+  <p>If the user wants something Tesserae doesn't do, or a language or text it doesn't cover, you can file a request on their behalf via <code>POST /api/feature-request</code>. Three rules:</p>
+  <ul>
+    <li><strong>Only with the user's explicit sign-off.</strong> Draft the request, show it to the user, and submit only after they confirm — never file silently.</li>
+    <li><strong>Warn them it may become public.</strong> Feature / language / bug requests are auto-filed as a public GitHub issue for the dev team; say so before submitting. Any contact email the user gives is kept private — it is never placed in the public issue.</li>
+    <li><strong>Attach a reproduction case.</strong> Because you've been running the API, put the actual queries and results that prompted the request in the <code>context</code> field — it makes the request far more actionable.</li>
+  </ul>
+  <pre class="req"><span class="k">POST /feature-request</span>
+<span class="k">{</span> <span class="s">"type"</span>: <span class="s">"feature"</span> | <span class="s">"language"</span> | <span class="s">"text"</span> | <span class="s">"bug"</span>,
+  <span class="s">"title"</span>: <span class="s">"…"</span>, <span class="s">"problem"</span>: <span class="s">"…"</span>, <span class="s">"desired"</span>: <span class="s">"…"</span>,
+  <span class="s">"example"</span>: <span class="s">"…"</span>, <span class="s">"context"</span>: <span class="s">"the queries/results you ran"</span>,
+  <span class="s">"contact"</span>: <span class="s">"optional email — kept private"</span> <span class="k">}</span></pre>
 
   <h2>Caveats &amp; etiquette</h2>
   <ul>
@@ -244,6 +258,7 @@ Reading the fusion signals: fused_score (rank by this); channels/channel_count (
 ### Request shapes
 - Compare two texts (fusion): POST /search-fusion  {"source":"vergil.aeneid.part.1.tess","target":"lucan.bellum_civile.part.1.tess","language":"la"}
   This STREAMS Server-Sent Events (data: {...} lines): mostly {"type":"progress"}, with {"type":"intermediate","results":[...]} events carrying the growing set. Read to the end; use the results array from the LAST event that has one; sort by fused_score descending. Give it a generous read timeout (a big search runs minutes; results are cached afterward, so run it ONCE then work from the list). Each result's source/target are objects with ref (locus) and text (the line).
+- Optional fusion tuning (advanced): /search-fusion also accepts channel_weights (object mapping a channel name to a number, overlaid on the language defaults) and disabled_channels (array of channels turned fully OFF — different from weight 0, which still runs and can pull a pair in via convergence). Get the per-language default weights + tunable channel list from GET /api/fusion-default-weights?language=la. Omit both for standard behavior. e.g. {"source":"...","target":"...","language":"la","channel_weights":{"sound":8},"disabled_channels":["syntax"]}.
 - Corpus-wide (light, fast, plain JSON): POST /line-search {"query":"arma virumque","language":"la","search_type":"lemma"};  POST /wildcard-search {"query":"arma AND cano","language":"la"}.
 - Rare shared items between two texts: POST /rare-bigram-search or POST /hapax-search {"source":"...","target":"...","language":"la"}.
 
@@ -272,6 +287,9 @@ So, in everything you produce:
 - Keep a repository of the secondary material you drew on (editions, commentaries, articles), with citations, so interpretive claims trace to sources rather than unexamined model priors.
 - Record your reasoning/prompts, and keep "what Tesserae found" separate from "what I argued from it."
 - Tesserae's own Repository feature lets users save and share the intertexts they find — a durable, citable Tesserae-side record.
+
+## Requesting a feature, language, or text
+If the user wants something Tesserae doesn't do, or a language/text it doesn't cover, you can file a request via POST /api/feature-request. Rules: (1) ONLY with the user's explicit sign-off — draft it, show the user, submit only after they confirm; never file silently. (2) Warn them it may be public — feature/language/bug requests are auto-filed as a public GitHub issue for the dev team; any contact email the user gives is kept PRIVATE (never placed in the public issue). (3) Put the actual queries/results that prompted the request in the `context` field. Body: {"type":"feature"|"language"|"text"|"bug","title":"...","problem":"...","desired":"...","example":"...","context":"the queries/results you ran","contact":"optional email, kept private"}.
 
 ## Caveats and etiquette
 - Fusion streams SSE; the lighter endpoints return plain JSON — prefer the light ones for follow-up checks.

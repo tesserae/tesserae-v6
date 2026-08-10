@@ -197,5 +197,29 @@ def fusion_search(source: str, target: str, language: str = "la", top: int = 20)
     return {"source": source, "target": target, "count": len(parallels), "parallels": parallels}
 
 
+@mcp.tool()
+def submit_feature_request(request_type: str, title: str = "", problem: str = "",
+                           desired: str = "", example: str = "", context: str = "",
+                           contact: str = "") -> dict:
+    """File a feature / language / text / bug request for Tesserae.
+
+    ONLY call this AFTER the user has explicitly confirmed the exact request —
+    never file silently. WARN the user first that feature/language/bug requests
+    are auto-filed as a PUBLIC GitHub issue for the dev team; any contact email
+    they give is kept private and never placed in the public issue.
+
+    Args:
+        request_type: feature | language | text | bug | other
+        title, problem, desired, example: the request (include at least a title
+            or a problem description).
+        context: the actual queries/results that prompted the request — attach
+            them so the request is actionable.
+        contact: optional email — kept private.
+    """
+    body = {"type": request_type, "title": title, "problem": problem,
+            "desired": desired, "example": example, "context": context, "contact": contact}
+    return _post("/feature-request", {k: v for k, v in body.items() if v})
+
+
 if __name__ == "__main__":
     mcp.run()
