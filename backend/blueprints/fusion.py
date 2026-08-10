@@ -13,7 +13,7 @@ the endpoint yields intermediate fused results after each channel finishes.
 Fast channels (lemma, exact) run first, so users see results within seconds.
 """
 
-from flask import Blueprint, request, Response
+from flask import Blueprint, request, Response, jsonify
 from flask_login import current_user
 import os
 import json
@@ -22,7 +22,9 @@ import time
 
 from backend.logging_config import get_logger
 from backend.services import get_user_location, log_search
-from backend.cache import get_cached_results, save_cached_results
+import threading
+from backend.cache import (get_cached_results, save_cached_results,
+                           get_cache_key, ensure_cache_dir, CACHE_DIR)
 from backend.concurrency_gate import SearchSlot
 
 logger = get_logger('fusion')
@@ -320,6 +322,186 @@ def search_fusion_stream():
         'Connection': 'keep-alive',
         'X-Accel-Buffering': 'no',
     })
+
+
+# ---------------------------------------------------------------------------
+# GET job/poll fusion search — for assistants that can only fetch a URL.
+#
+# The streaming POST /search-fusion above is ideal for browsers and dev tools,
+# but many consumer AI assistants can only issue a GET and read the response.
+# This exposes the same fusion search as a poll-able GET: it returns cached
+# results immediately when available, otherwise it starts the search in a
+# background thread and returns {status:"running"} — the caller polls the same
+# URL until {status:"complete"}. Cross-worker de-duplication uses a marker file
+# in the (shared, file-based) cache dir; the results cache is shared too, so a
+# pair already run in the web app is available here instantly.
+# ---------------------------------------------------------------------------
+
+_FUSION_MARKER_TTL = 1800  # 30 min; a 'running' marker older than this is stale
+
+
+def _default_fusion_cache_settings(language, max_results):
+    """cache_settings for a plain default fusion search — MUST match the default
+    path of POST /search-fusion so GET and POST share the same cache entries."""
+    return {
+        'match_type': 'fusion',
+        'mode': 'merged',
+        'max_results': max_results,
+        'language': language,
+        'source_unit_type': 'line',
+        'target_unit_type': 'line',
+        'use_meter': False,
+        'freq_basis': 'corpus',
+    }
+
+
+def _slim_fusion_result(r):
+    s = r.get('source', {}) or {}
+    t = r.get('target', {}) or {}
+    return {
+        'score': round(r.get('fused_score', 0), 2),
+        'channels': r.get('channels'),
+        'source': {'ref': s.get('ref'), 'text': s.get('text')},
+        'target': {'ref': t.get('ref'), 'text': t.get('text')},
+        'matched': r.get('matched_lemmas') or r.get('matched_words'),
+    }
+
+
+def _fusion_marker(job_key, kind):
+    return os.path.join(CACHE_DIR, f"fusion_{kind}_{job_key}.marker")
+
+
+def _run_fusion_job(source_id, target_id, language, max_results, job_key):
+    """Compute a default-settings fusion search and cache it (runs in a thread)."""
+    slot = None
+    try:
+        from backend.fusion import iter_fusion_search
+        source_path = resolve_text_path(_texts_dir, language, source_id)
+        target_path = resolve_text_path(_texts_dir, language, target_id)
+        cache_settings = _default_fusion_cache_settings(language, max_results)
+        source_units = _get_processed_units(source_id, language, 'line', _text_processor)
+        target_units = _get_processed_units(target_id, language, 'line', _text_processor)
+        if not source_units or not target_units:
+            raise ValueError('Could not process text units')
+        slot = SearchSlot()
+        for _queued in slot.acquire():
+            pass  # block until a concurrency slot frees up
+        final_results = []
+        for event_type, evt_data in iter_fusion_search(
+            source_units=source_units, target_units=target_units,
+            matcher=_matcher, scorer=_scorer,
+            source_id=source_id, target_id=target_id, language=language,
+            mode='merged', max_results=max_results,
+            source_path=source_path, target_path=target_path,
+            user_settings={'use_meter': False}, freq_basis='corpus',
+            channel_weights={}, enabled_channels=None,
+        ):
+            if event_type == 'complete':
+                final_results = evt_data['results']
+        save_cached_results(
+            source_id, target_id, language, cache_settings, final_results,
+            {'source_lines': len(source_units), 'target_lines': len(target_units), 'mode': 'merged'},
+        )
+    except Exception as e:
+        logger.error("GET fusion job failed (%s x %s): %s", source_id, target_id, e, exc_info=True)
+        try:
+            with open(_fusion_marker(job_key, 'error'), 'w', encoding='utf-8') as f:
+                f.write(str(e)[:500])
+        except IOError:
+            pass
+    finally:
+        if slot is not None:
+            slot.release()
+        try:
+            os.remove(_fusion_marker(job_key, 'running'))
+        except OSError:
+            pass
+
+
+@fusion_bp.route('/fusion-search', methods=['GET'])
+def fusion_search_get():
+    """Poll-able GET fusion search for URL-only assistants.
+
+    GET /api/fusion-search?source=<id>&target=<id>&language=la
+
+    Returns {status:"complete", parallels:[...]} when results are ready,
+    otherwise starts the run and returns {status:"running"} — poll the same URL
+    every ~20-30s until complete. Uses default fusion settings and shares the
+    cache with the streaming POST endpoint, so any pair already run in the web
+    app comes back instantly.
+    """
+    source_id = request.args.get('source')
+    target_id = request.args.get('target')
+    language = request.args.get('language', 'la')
+    if not source_id or not target_id:
+        return jsonify({'error': 'Provide source and target text ids (see /api/texts).'}), 400
+    try:
+        max_results = int(request.args.get('max', request.args.get('max_results', 5000)))
+    except (TypeError, ValueError):
+        max_results = 5000
+    if max_results <= 0:
+        max_results = 5000
+
+    source_path = resolve_text_path(_texts_dir, language, source_id)
+    target_path = resolve_text_path(_texts_dir, language, target_id)
+    if not source_path or not target_path:
+        return jsonify({'error': 'Text files not found for that source/target/language.'}), 404
+
+    cache_settings = _default_fusion_cache_settings(language, max_results)
+    ensure_cache_dir()
+    job_key = get_cache_key(source_id, target_id, language, cache_settings)
+
+    cached_results, _meta = get_cached_results(source_id, target_id, language, cache_settings)
+    if cached_results is not None:
+        for kind in ('running', 'error'):
+            try:
+                os.remove(_fusion_marker(job_key, kind))
+            except OSError:
+                pass
+        top = cached_results[:100]
+        return jsonify({
+            'status': 'complete', 'cached': True,
+            'source': source_id, 'target': target_id, 'language': language,
+            'count': len(cached_results), 'showing': len(top),
+            'parallels': [_slim_fusion_result(r) for r in top],
+        })
+
+    # Surface a prior failure once, then allow a retry on the next call.
+    err_marker = _fusion_marker(job_key, 'error')
+    if os.path.exists(err_marker):
+        try:
+            with open(err_marker, 'r', encoding='utf-8') as f:
+                err = f.read()
+        except IOError:
+            err = 'unknown error'
+        try:
+            os.remove(err_marker)
+        except OSError:
+            pass
+        return jsonify({'status': 'error', 'error': err,
+                        'message': 'The fusion run failed; call again to retry.'}), 500
+
+    # Already running (fresh marker)?
+    run_marker = _fusion_marker(job_key, 'running')
+    if os.path.exists(run_marker) and (time.time() - os.path.getmtime(run_marker)) < _FUSION_MARKER_TTL:
+        return jsonify({'status': 'running', 'source': source_id, 'target': target_id,
+                        'message': 'Fusion is computing. Poll this URL again in ~20-30s.'})
+
+    # Start a new background run.
+    try:
+        with open(run_marker, 'w', encoding='utf-8') as f:
+            f.write('')
+    except IOError:
+        pass
+    threading.Thread(
+        target=_run_fusion_job,
+        args=(source_id, target_id, language, max_results, job_key),
+        daemon=True,
+    ).start()
+    return jsonify({'status': 'running', 'source': source_id, 'target': target_id,
+                    'message': 'Fusion started. Poll this URL again in ~20-30s until status is '
+                               '"complete". Large comparisons can take a few minutes; results are '
+                               'cached afterward so repeats are instant.'})
 
 
 @fusion_bp.route('/fusion-default-weights', methods=['GET'])
