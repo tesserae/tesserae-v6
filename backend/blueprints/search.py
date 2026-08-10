@@ -1576,7 +1576,7 @@ def clear_search_cache():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
-@search_bp.route('/wildcard-search', methods=['POST'])
+@search_bp.route('/wildcard-search', methods=['GET', 'POST'])
 def wildcard_search_endpoint():
     """
     PHI-style wildcard/boolean search.
@@ -1589,7 +1589,8 @@ def wildcard_search_endpoint():
     try:
         from backend.wildcard_search import wildcard_search
         
-        data = request.get_json()
+        # Accept both POST JSON bodies and GET query-string params.
+        data = request.get_json(silent=True) or request.args
         query = data.get('query', '').strip()
         language = data.get('language', 'la')
         target_text = data.get('target_text')

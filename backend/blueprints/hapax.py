@@ -1933,7 +1933,7 @@ def _scan_text_lemma_locations(text_id, language, lemmas_of_interest):
     return out
 
 
-@hapax_bp.route('/hapax-search', methods=['POST'])
+@hapax_bp.route('/hapax-search', methods=['GET', 'POST'])
 def hapax_search():
     """
     Find shared rare words between source and target texts.
@@ -1948,7 +1948,8 @@ def hapax_search():
         exclude_proper_nouns: filter out proper nouns like names/places (default: false)
     """
     try:
-        data = request.get_json() or {}
+        # Accept both POST JSON bodies and GET query-string params.
+        data = request.get_json(silent=True) or request.args
         try:
             source_id, target_id, language = _parse_search_params(data)
         except ValueError as e:
@@ -2092,7 +2093,7 @@ def hapax_search():
         return jsonify({'error': str(e)}), 500
 
 
-@hapax_bp.route('/rare-bigram-search', methods=['POST'])
+@hapax_bp.route('/rare-bigram-search', methods=['GET', 'POST'])
 def rare_bigram_search():
     """
     Find shared rare word-pairs (bigrams) between source and target texts.
@@ -2114,7 +2115,8 @@ def rare_bigram_search():
             extract_bigrams, get_bigram_rarity_score, make_bigram_key
         )
 
-        data = request.get_json() or {}
+        # Accept both POST JSON bodies and GET query-string params.
+        data = request.get_json(silent=True) or request.args
         try:
             source_id, target_id, language = _parse_search_params(data)
         except ValueError as e:
