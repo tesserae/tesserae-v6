@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { STOPLIST_INFO } from '../../data/stoplists';
 import FusionFlowchart from '../search/FusionFlowchart';
 
@@ -51,13 +51,19 @@ function CopyBlock({ text, label = 'Copy' }) {
 
 export default function HelpPage({ initialSection = null, onSectionConsumed } = {}) {
   const [activeSection, setActiveSection] = useState(initialSection || 'getting-started');
+  const contentRef = useRef(null);
 
   // If opened at a specific section (e.g. via the "use your own AI" flag),
-  // apply it once on mount and let the parent clear the request.
+  // apply it once on mount and let the parent clear the request. On mobile the
+  // section list stacks above the content, so scroll to the content itself —
+  // otherwise the deep-link lands on the section nav, not the section.
   useEffect(() => {
     if (initialSection) {
       setActiveSection(initialSection);
       if (onSectionConsumed) onSectionConsumed();
+      requestAnimationFrame(() => {
+        if (contentRef.current) contentRef.current.scrollIntoView({ block: 'start' });
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -402,7 +408,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
           </ul>
         </nav>
 
-        <div className="flex-1 p-6">
+        <div ref={contentRef} className="flex-1 p-6">
           {activeSection === 'getting-started' && (
             <div className="prose max-w-none">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Getting Started</h3>
