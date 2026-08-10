@@ -231,6 +231,7 @@ export default function HelpPage() {
     { id: 'coptic', label: 'Coptic (in depth)', group: 'Languages' },
     { id: 'cross-lingual', label: 'Cross-Language Search', group: 'Languages' },
 
+    { id: 'ai-guide', label: 'Use with your AI', group: 'Reference & tools' },
     { id: 'syntax-texts', label: 'Syntax', group: 'Reference & tools' },
     { id: 'best-practices', label: 'Search Tips', group: 'Reference & tools' },
     { id: 'repository', label: 'Repository', group: 'Reference & tools' },
@@ -1255,6 +1256,41 @@ export default function HelpPage() {
                   Latin syntactic annotations are produced by <strong>LatinPipe</strong> (Straka & Straková, Charles University),
                   a neural dependency parser trained on Universal Dependencies treebanks. The parser processes raw Latin text
                   into full dependency trees with part-of-speech tags and grammatical relations.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {activeSection === 'ai-guide' && (
+            <div className="prose max-w-none">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Use Tesserae with your AI assistant</h3>
+              <p className="text-gray-700 mb-4">
+                You can let your own AI assistant (such as ChatGPT or Claude) run Tesserae searches for you — comparing
+                texts, testing parallels for uniqueness across the corpus, and helping you interpret the results.
+                Tesserae does the searching, free, on its open API; your assistant orchestrates the steps and interprets.
+              </p>
+              <div className="bg-blue-50 p-4 rounded border border-blue-200 mb-4">
+                <p className="text-gray-700 text-sm mb-3">
+                  We've written a guide you can paste into your assistant as its first message. It teaches the assistant
+                  Tesserae's full toolbox, a step-by-step research workflow, and — importantly — to keep a clear line
+                  between Tesserae's reproducible results and the AI's own interpretation.
+                </p>
+                <a
+                  href="/tesserae-data/ai-guide.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded no-underline"
+                >
+                  Open the full guide →
+                </a>
+              </div>
+              <div className="bg-amber-50 p-4 rounded border border-amber-200">
+                <h4 className="font-medium text-amber-900 mb-2">A note on scholarly use</h4>
+                <p className="text-gray-700 text-sm">
+                  Tesserae's results are transparent and reproducible — anyone can re-run a search and inspect why a
+                  parallel ranked where it did. Whatever your AI concludes from there is its own product. When you
+                  publish, cite Tesserae for the parallels it found, and present the surrounding analysis as
+                  AI-assisted interpretation you have checked.
                 </p>
               </div>
             </div>
