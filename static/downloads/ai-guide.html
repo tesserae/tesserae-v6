@@ -12,7 +12,8 @@
   :root{
     --paper:#faf8f4; --panel:#ffffff; --ink:#2a2521; --muted:#6f6558;
     --line:#ece3d6; --line-strong:#dccdb6;
-    --amber:#b45309; --amber-600:#d97706; --amber-900:#78350f; --amber-tint:#fbf3e6;
+    --amber:#b45309; --amber-600:#d97706; --amber-900:#78350f; --amber-tint:#fffbeb;
+    --accent:#b91c1c; --accent-deep:#991b1b; --accent-hover:#ea580c; --orange-100:#ffedd5;
     --code-bg:#2c2723; --code-ink:#f3ead9;
     --serif:'Crimson Pro',Georgia,'Times New Roman',serif;
     --sans:'Noto Sans','Inter',system-ui,-apple-system,sans-serif;
@@ -24,38 +25,35 @@
     font-size:17px;line-height:1.62;-webkit-font-smoothing:antialiased;}
   .wrap{max-width:800px;margin:0 auto;padding:0 24px 96px;}
 
-  /* masthead */
-  .top{display:flex;align-items:center;gap:12px;padding:22px 0 18px;border-bottom:1px solid var(--line);}
-  .mosaic{display:grid;grid-template-columns:repeat(4,8px);grid-template-rows:repeat(4,8px);gap:2px;flex:none}
-  .mosaic i{background:var(--amber-600);border-radius:1px;opacity:.85}
-  .mosaic i:nth-child(3n){background:var(--amber-900)}
-  .mosaic i:nth-child(4n){background:#e0a862}
-  .brand{font-family:var(--serif);font-weight:700;font-size:22px;letter-spacing:.2px;color:var(--amber-900)}
-  .brand small{display:block;font-family:var(--sans);font-weight:600;font-size:11px;letter-spacing:.14em;
-    text-transform:uppercase;color:var(--muted);margin-top:1px}
+  /* site header — matches the app: red→orange gradient, circular logo, Crimson Pro wordmark */
+  .site-header{background:linear-gradient(to right,var(--accent-deep),var(--accent) 55%,var(--accent-hover));box-shadow:0 2px 12px rgba(0,0,0,.15)}
+  .site-header-inner{max-width:800px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;gap:16px}
+  .site-logo{width:56px;height:56px;border-radius:9999px;flex:none;object-fit:cover;box-shadow:0 0 0 2px rgba(255,255,255,.25)}
+  .site-title{font-family:var(--serif);font-weight:600;font-size:32px;letter-spacing:.06em;color:#fff;line-height:1}
+  .site-subtitle{color:var(--orange-100);font-size:13px;margin-top:3px}
 
   header.hero{padding:44px 0 8px}
-  .eyebrow{font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--amber)}
+  .eyebrow{font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
   h1{font-family:var(--serif);font-weight:700;font-size:clamp(30px,5.2vw,44px);line-height:1.08;
     margin:.32em 0 .28em;text-wrap:balance;letter-spacing:-.01em}
   .lede{font-size:19px;color:#4a4239;max-width:64ch}
 
   .cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:26px 0 6px}
   button.copy{font-family:var(--sans);font-weight:600;font-size:15px;cursor:pointer;
-    background:var(--amber);color:#fff;border:0;border-radius:9px;padding:12px 20px;
-    box-shadow:0 1px 0 rgba(120,53,15,.4),0 8px 18px -8px rgba(180,83,9,.55);transition:background .15s,transform .06s}
-  button.copy:hover{background:var(--amber-600)}
+    background:linear-gradient(to right,var(--accent),var(--accent-hover));color:#fff;border:0;border-radius:9px;padding:12px 20px;
+    box-shadow:0 8px 18px -8px rgba(153,27,27,.55);transition:filter .15s,transform .06s}
+  button.copy:hover{filter:brightness(1.08)}
   button.copy:active{transform:translateY(1px)}
-  button.copy:focus-visible{outline:3px solid #f2c98a;outline-offset:2px}
+  button.copy:focus-visible{outline:3px solid #fca5a5;outline-offset:2px}
   .cta .hint{font-size:14px;color:var(--muted)}
 
   h2{font-family:var(--serif);font-weight:700;font-size:27px;margin:52px 0 6px;letter-spacing:-.01em;
     padding-top:14px;border-top:1px solid var(--line)}
   h2 .num{color:var(--line-strong);font-size:20px;margin-right:.5em;font-variant-numeric:tabular-nums}
-  h3{font-family:var(--sans);font-weight:700;font-size:16px;margin:26px 0 4px;color:var(--amber-900)}
+  h3{font-family:var(--sans);font-weight:700;font-size:16px;margin:26px 0 4px;color:var(--accent-deep)}
   p{margin:.7em 0}
-  a{color:var(--amber);text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:1px}
-  a:hover{color:var(--amber-600)}
+  a{color:var(--accent);text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:1px}
+  a:hover{color:var(--accent-hover)}
   strong{font-weight:700;color:#37302a}
   em{color:#4a4239}
   ul,ol{margin:.6em 0 .6em;padding-left:1.3em}
@@ -74,7 +72,7 @@
     border-radius:10px;padding:16px 20px;margin:22px 0}
   .callout.rule{background:#fbf6ef;border-left-color:var(--amber-900)}
   .callout p:first-child{margin-top:0}.callout p:last-child{margin-bottom:0}
-  .step{font-family:var(--serif);font-weight:700;color:var(--amber);font-size:1.02em}
+  .step{font-family:var(--serif);font-weight:700;color:var(--accent);font-size:1.02em}
 
   pre.req{font-family:var(--mono);font-size:13.5px;line-height:1.5;background:var(--code-bg);color:var(--code-ink);
     padding:14px 16px;border-radius:10px;overflow-x:auto;margin:10px 0}
@@ -90,12 +88,16 @@
 </style>
 </head>
 <body>
-<div class="wrap">
-
-  <div class="top">
-    <span class="mosaic" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
-    <span class="brand">Tesserae<small>Intertext search for classical literature</small></span>
+<header class="site-header">
+  <div class="site-header-inner">
+    <img src="/tesserae-icon.jpg" alt="Tesserae" class="site-logo">
+    <div>
+      <div class="site-title">TESSERAE</div>
+      <div class="site-subtitle">Intertextual and Literary Discovery</div>
+    </div>
   </div>
+</header>
+<div class="wrap">
 
   <header class="hero">
     <div class="eyebrow">Guide · For your AI assistant</div>
