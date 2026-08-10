@@ -1574,7 +1574,7 @@ def add_text():
 # These routes enable searching for words/phrases across the entire corpus
 # using the pre-built inverted index for fast lookups.
 
-@api_route('/line-search', methods=['POST'])
+@api_route('/line-search', methods=['GET', 'POST'])
 def line_search():
     """
     Search for words/phrases across the corpus with optional filters.
@@ -1584,8 +1584,10 @@ def line_search():
         from backend.inverted_index import is_index_available, find_co_occurring_lemmas, has_lines_data, get_lines_batch
         from backend.distance_filter import passes_distance_filter, is_prose_text as is_prose_text_unified
         
-        data = request.get_json() or {}
-        
+        # Accept both POST JSON bodies and GET query-string params, so any
+        # assistant that can only fetch a URL can still run this search.
+        data = request.get_json(silent=True) or request.args
+
         query = data.get('query', '')
         language = data.get('language', 'la')
         search_type = data.get('search_type', 'lemma')
