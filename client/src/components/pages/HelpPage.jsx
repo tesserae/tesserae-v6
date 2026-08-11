@@ -1424,8 +1424,12 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 Build a reusable “Tesserae” GPT once; then you (and anyone you share it with) just chat with it.
                 GPT-building is included in ChatGPT Plus — find it under <strong>Explore GPTs → “+ Create”</strong> (top-right).
               </p>
+              <p className="text-gray-700 text-sm mb-2">
+                <strong>Do this in a web browser</strong> at <code>chatgpt.com</code> — the ChatGPT desktop app does not
+                show the GPT-builder.
+              </p>
               <ol className="list-decimal list-inside text-gray-700 text-sm space-y-1 mb-3">
-                <li>In ChatGPT: <strong>Explore GPTs → + Create → Configure</strong>. Name it <strong>Tesserae</strong>.</li>
+                <li>In ChatGPT (web browser): <strong>Explore GPTs → + Create → Configure</strong>. Name it <strong>Tesserae</strong>.</li>
                 <li>Paste the <em>Instructions</em> below into the Instructions box.</li>
                 <li><strong>Actions → Create new action → Import from URL</strong>, paste the schema URL below, set <strong>Authentication: None</strong>.</li>
                 <li>Test it (e.g. “List Vergil's texts”), then <strong>Save</strong> — privately or as a shared link.</li>

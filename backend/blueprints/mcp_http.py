@@ -129,6 +129,28 @@ def _t_fusion_search(a):
         time.sleep(15)
 
 
+def _t_cross_language(a):
+    """Cross-language fusion — a source in one language vs a target in another
+    (e.g. a Greek model behind a Latin poem). Synchronous POST /search; may take
+    a few minutes on first run for a large pair."""
+    body = {'source': a.get('source'), 'target': a.get('target'),
+            'source_language': a.get('source_language', 'grc'),
+            'target_language': a.get('target_language', 'la'),
+            'match_type': 'crosslingual_fusion', 'min_matches': a.get('min_matches', 2)}
+    r = requests.post(f"{API_BASE}/search", json=body, timeout=_FUSION_POLL_TIMEOUT)
+    r.raise_for_status()
+    d = r.json()
+    results = (d.get('results') or [])[:30]
+    return {'count': len(results),
+            'parallels': [{'score': round(x.get('overall_score', 0), 2),
+                           'source': {'ref': (x.get('source') or {}).get('ref'),
+                                      'text': (x.get('source') or {}).get('text')},
+                           'target': {'ref': (x.get('target') or {}).get('ref'),
+                                      'text': (x.get('target') or {}).get('text')},
+                           'matched': x.get('matched_words')}
+                          for x in results]}
+
+
 def _t_submit_feature_request(a):
     """File a feature/language/text/bug request. Requires explicit user sign-off
     first; feature/language/bug are auto-filed as a public GitHub issue (contact
@@ -178,6 +200,14 @@ TOOLS = [
      "inputSchema": {"type": "object", "properties": {"source": _STR, "target": _STR, "language": _STR},
                      "required": ["source", "target", "language"]},
      "fn": _t_fusion_search},
+    {"name": "cross_language",
+     "description": "Cross-language parallels between two texts in DIFFERENT languages (e.g. a Greek source behind a Latin poem). Give source/target ids (from list_texts) and their languages. Synchronous; may take a few minutes on a large pair.",
+     "inputSchema": {"type": "object",
+                     "properties": {"source": _STR, "target": _STR,
+                                    "source_language": _STR, "target_language": _STR,
+                                    "min_matches": {"type": "integer"}},
+                     "required": ["source", "target", "source_language", "target_language"]},
+     "fn": _t_cross_language},
     {"name": "submit_feature_request",
      "description": "File a feature / language / text / bug request. ONLY after the user explicitly confirms; warn them feature/language/bug requests become a public GitHub issue (contact kept private). type: feature|language|text|bug.",
      "inputSchema": {"type": "object",

@@ -7,7 +7,8 @@ import json
 import backend.blueprints.mcp_http as M
 
 ALL_TOOLS = {"get_languages", "list_texts", "line_search", "string_search",
-             "rare_pairs", "rare_words", "fusion_search", "submit_feature_request"}
+             "rare_pairs", "rare_words", "fusion_search", "cross_language",
+             "submit_feature_request"}
 
 
 def test_initialize_echoes_protocol_and_serverinfo():
