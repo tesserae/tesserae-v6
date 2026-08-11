@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tesserae — API &amp; ChatGPT Integration Privacy Policy</title>
+<meta name="description" content="What happens to your data when Tesserae's open search API is used, including through a ChatGPT Custom GPT.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#faf8f4; --panel:#ffffff; --ink:#2a2521; --muted:#6f6558;
+    --line:#ece3d6; --line-strong:#dccdb6;
+    --amber-600:#d97706; --amber-900:#78350f; --amber-tint:#fffbeb;
+    --accent:#b91c1c; --accent-deep:#991b1b; --accent-hover:#ea580c; --orange-100:#ffedd5;
+    --serif:'Crimson Pro',Georgia,'Times New Roman',serif;
+    --sans:'Noto Sans','Inter',system-ui,-apple-system,sans-serif;
+    --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.62;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:760px;margin:0 auto;padding:0 24px 96px;}
+  .site-header{background:linear-gradient(to right,var(--accent-deep),var(--accent) 55%,var(--accent-hover));box-shadow:0 2px 12px rgba(0,0,0,.15)}
+  .site-header-inner{max-width:760px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;gap:16px}
+  .site-logo{width:56px;height:56px;border-radius:9999px;flex:none;object-fit:cover;box-shadow:0 0 0 2px rgba(255,255,255,.25)}
+  .site-title{font-family:var(--serif);font-weight:600;font-size:32px;letter-spacing:.06em;color:#fff;line-height:1}
+  .site-subtitle{color:var(--orange-100);font-size:13px;margin-top:3px}
+  header.hero{padding:40px 0 4px}
+  .eyebrow{font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+  h1{font-family:var(--serif);font-weight:700;font-size:clamp(28px,5vw,40px);line-height:1.1;margin:.3em 0 .3em;letter-spacing:-.01em}
+  h2{font-family:var(--serif);font-weight:700;font-size:23px;margin:40px 0 6px;padding-top:14px;border-top:1px solid var(--line)}
+  p{margin:.7em 0}
+  a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
+  a:hover{color:var(--accent-hover)}
+  strong{font-weight:700;color:#37302a}
+  ul{margin:.6em 0;padding-left:1.3em}
+  li{margin:.34em 0}
+  code{font-family:var(--mono);font-size:.86em;background:#f0e7d8;color:#5a3a10;padding:.08em .38em;border-radius:5px;border:1px solid #e6d8c0}
+  .lede{font-size:18px;color:#4a4239}
+  .callout{background:var(--amber-tint);border:1px solid #f0dcbb;border-left:4px solid var(--amber-600);border-radius:10px;padding:14px 18px;margin:20px 0}
+  .callout p:first-child{margin-top:0}.callout p:last-child{margin-bottom:0}
+  footer{margin-top:56px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+  @media (max-width:560px){body{font-size:16px}.wrap{padding:0 18px 72px}}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <img src="/tesserae-icon.jpg" alt="Tesserae" class="site-logo">
+    <div>
+      <div class="site-title">TESSERAE</div>
+      <div class="site-subtitle">Intertextual and Literary Discovery</div>
+    </div>
+  </div>
+</header>
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Privacy</div>
+    <h1>Tesserae API &amp; ChatGPT Integration — Privacy Policy</h1>
+    <p class="lede">This page explains, in plain terms, what happens to your data when Tesserae's open search API is used — including when you use it through a ChatGPT “Custom GPT” or another AI assistant. It describes the API only; the interactive website has its own <a href="https://tesserae.caset.buffalo.edu/privacy">privacy policy</a>.</p>
+  </header>
+
+  <h2>The service</h2>
+  <p>Tesserae is a free, non-commercial scholarly tool operated by the Tesserae project at the University at Buffalo. Its search API is <strong>open and keyless</strong>: there is no account, sign-in, or API key. When an AI assistant such as a ChatGPT Custom GPT searches Tesserae for you, it sends ordinary web requests to <code>tesserae.caset.buffalo.edu</code>. ChatGPT may ask your permission the first time before contacting the Tesserae server — that is the normal Custom-GPT permission prompt.</p>
+
+  <h2>What is sent to Tesserae</h2>
+  <p>Each search request carries only the <strong>search parameters</strong> — for example the two text ids being compared, a search word or phrase, a language code, or an author filter. Because it is keyless, no ChatGPT account details, no API key, and no login identifier are sent. As with any request over the internet, the request also carries the <strong>network IP address</strong> it comes from.</p>
+  <p>The Tesserae corpus is public classical literature, and searches are ordinary scholarly queries. <strong>Please do not put personal, confidential, or sensitive information into your searches</strong> — search terms are logged (see below).</p>
+
+  <h2>What Tesserae records</h2>
+  <p>For most search requests, the server writes a log entry containing:</p>
+  <ul>
+    <li>the search type and its parameters (the text ids compared, or the query word/phrase, and the language);</li>
+    <li>the number of results and a timestamp;</li>
+    <li>the requesting <strong>IP address</strong>, and an <strong>approximate city and country</strong> derived from it.</li>
+  </ul>
+  <p>These entries are used to understand load and usage of the shared research server. Some requests are <em>not</em> logged — listing texts or languages, and the “polling” search endpoints, record no such entry.</p>
+
+  <h2>Approximate location lookup</h2>
+  <p>To turn an IP address into an approximate city and country, Tesserae sends the IP to a third-party geolocation service (<code>ipinfo.io</code>, with <code>ip-api.com</code> as a fallback). This yields only a coarse, city-level location — never a precise position — and is subject to those services' own terms.</p>
+
+  <h2>Retention</h2>
+  <p>Search-log entries (including the IP address and approximate location) are stored on the Tesserae server and are <strong>currently retained indefinitely</strong>; there is no automatic deletion. Aggregated, de-identified usage may inform research on the Tesserae methods; no personally identifying information is included in research publications. You may contact the project (below) to ask about, or request deletion of, log data associated with your IP address.</p>
+
+  <h2>Cookies, tracking, and caching</h2>
+  <p>The API sets <strong>no cookies</strong> for anonymous search requests and uses <strong>no advertising or analytics trackers</strong>. To make repeated searches fast, Tesserae caches search <em>results</em> keyed by the search parameters; that results cache stores <strong>no IP address, location, or other personal data</strong>.</p>
+
+  <h2>Feature or bug requests</h2>
+  <p>If you ask the assistant to file a feature, text, or bug request on your behalf — and only after you explicitly confirm it — the request text is posted as a <strong>public GitHub issue</strong> for the development team. Any contact email you choose to include is kept <strong>private</strong>: it is stored for the team and is <strong>not</strong> placed in the public issue.</p>
+
+  <h2>Other data flows</h2>
+  <p>Tesserae does not sell or share your data. The only outbound data flows are those described above: the geolocation lookup, and (for a confirmed feature/bug request) filing a GitHub issue with the contact removed. Dictionary look-ups on the website may consult Wiktionary/Perseus, but those are part of the interactive site, not the search API.</p>
+
+  <h2>Contact</h2>
+  <p>For privacy questions or a data-deletion request, contact the Tesserae project team through the feedback form in the website's Help &amp; Support section, or the contact listed on <a href="https://tesserae.caset.buffalo.edu/about">the About page</a>.</p>
+
+  <footer>
+    Tesserae · University at Buffalo. This policy covers the open Tesserae search API and its use through AI assistants such as ChatGPT.<br>
+    Last updated: August 2026.
+  </footer>
+</div>
+</body>
+</html>
