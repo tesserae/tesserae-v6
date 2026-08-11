@@ -7,11 +7,14 @@
 All self-contained — no network, no live server.
 """
 import os
+import sys
 import json
 import time
 
 import pytest
 from flask import Flask
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 import backend.blueprints.async_poll as AP
 
