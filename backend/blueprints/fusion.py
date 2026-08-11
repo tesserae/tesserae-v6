@@ -382,6 +382,59 @@ def _fusion_marker(job_key, kind):
     return os.path.join(CACHE_DIR, f"fusion_{kind}_{job_key}.marker")
 
 
+def _fusion_status_path(job_key):
+    return os.path.join(CACHE_DIR, f"fusion_status_{job_key}.json")
+
+
+def _write_fusion_status(job_key, event_type, evt_data):
+    """Persist the latest real progress from the fusion generator so the GET
+    poll can report honest stage info. Only channel/intermediate events carry
+    usable data. We record the phase (line -> window), the number of similarity
+    signals (channels) completed vs. this phase's total, the current signal, and
+    the running candidate count. We deliberately do NOT compute a time-percentage
+    or ETA: channel costs are very unequal and the total step count isn't known
+    until the run finishes, so any smooth percent would be fabricated."""
+    status = None
+    if event_type in ('channel_start', 'channel_done'):
+        step = evt_data.get('step') or 0
+        status = {
+            'phase': evt_data.get('phase'),
+            'current_signal': evt_data.get('channel'),
+            'signals_done': max(0, step - (1 if event_type == 'channel_start' else 0)),
+            'signals_total': evt_data.get('total'),
+        }
+    elif event_type == 'intermediate':
+        status = {
+            'phase': evt_data.get('phase'),
+            'signals_done': evt_data.get('channels_done'),
+            'signals_total': evt_data.get('channels_total'),
+            'candidates_so_far': evt_data.get('total_results'),
+        }
+    if status is None:
+        return
+    status = {k: v for k, v in status.items() if v is not None}
+    try:
+        with open(_fusion_status_path(job_key), 'w', encoding='utf-8') as f:
+            json.dump(status, f)
+    except IOError:
+        pass
+
+
+def _read_fusion_status(job_key):
+    try:
+        with open(_fusion_status_path(job_key), 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except (IOError, ValueError):
+        return None
+
+
+def _clear_fusion_status(job_key):
+    try:
+        os.remove(_fusion_status_path(job_key))
+    except OSError:
+        pass
+
+
 def _run_fusion_job(source_id, target_id, language, max_results, job_key):
     """Compute a default-settings fusion search and cache it (runs in a thread)."""
     slot = None
@@ -407,6 +460,8 @@ def _run_fusion_job(source_id, target_id, language, max_results, job_key):
             user_settings={'use_meter': False}, freq_basis='corpus',
             channel_weights={}, enabled_channels=None,
         ):
+            # Record honest coarse progress for the GET poll (see _write_fusion_status).
+            _write_fusion_status(job_key, event_type, evt_data)
             if event_type == 'complete':
                 final_results = evt_data['results']
         save_cached_results(
@@ -427,6 +482,7 @@ def _run_fusion_job(source_id, target_id, language, max_results, job_key):
             os.remove(_fusion_marker(job_key, 'running'))
         except OSError:
             pass
+        _clear_fusion_status(job_key)
 
 
 @fusion_bp.route('/fusion-search', methods=['GET'])
@@ -469,6 +525,7 @@ def fusion_search_get():
                 os.remove(_fusion_marker(job_key, kind))
             except OSError:
                 pass
+        _clear_fusion_status(job_key)
         top = cached_results[:100]
         return jsonify({
             'status': 'complete', 'cached': True,
@@ -492,11 +549,27 @@ def fusion_search_get():
         return jsonify({'status': 'error', 'error': err,
                         'message': 'The fusion run failed; call again to retry.'}), 500
 
-    # Already running (fresh marker)?
+    # Already running (fresh marker)? Reuse the in-flight job — do NOT start a
+    # second one — and report honest coarse progress.
     run_marker = _fusion_marker(job_key, 'running')
     if os.path.exists(run_marker) and (time.time() - os.path.getmtime(run_marker)) < _FUSION_MARKER_TTL:
-        return jsonify({'status': 'running', 'source': source_id, 'target': target_id,
-                        'message': 'Fusion is computing. Poll this URL again in ~20-30s.'})
+        elapsed = int(time.time() - os.path.getmtime(run_marker))
+        resp = {
+            'status': 'running', 'source': source_id, 'target': target_id,
+            'elapsed_seconds': elapsed,
+            'message': 'Still computing on the Tesserae server (a full fusion search '
+                       'typically takes ~2-3 minutes). It will finish and cache even if you '
+                       'stop checking; call this same URL again in a minute or two.',
+        }
+        st = _read_fusion_status(job_key)
+        if st:
+            # Honest coarse progress. signals_done/signals_total = similarity
+            # signals (channels) computed this phase — NOT a time percentage
+            # (later signals are much slower). stage = 'line' then 'window'.
+            for k in ('phase', 'current_signal', 'signals_done', 'signals_total', 'candidates_so_far'):
+                if st.get(k) is not None:
+                    resp['stage' if k == 'phase' else k] = st[k]
+        return jsonify(resp)
 
     # Start a new background run.
     try:
