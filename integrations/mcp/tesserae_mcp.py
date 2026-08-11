@@ -205,6 +205,36 @@ def fusion_search(source: str, target: str, language: str = "la", top: int = 20)
 
 
 @mcp.tool()
+def cross_language(source: str, target: str, source_language: str,
+                   target_language: str, top: int = 20) -> dict:
+    """Cross-language intertext parallels between two texts in DIFFERENT languages
+    (e.g. the Greek model behind a Latin poem). Use text ids from list_texts and
+    give each text's language. Synchronous; may take a few minutes on a large pair.
+
+    Args:
+        source: source text id.
+        target: target text id.
+        source_language: source language (la | grc | en | cop).
+        target_language: target language (la | grc | en | cop).
+        top: max parallels to return.
+    """
+    r = requests.post(f"{API_BASE}/search", json={
+        "source": source, "target": target,
+        "source_language": source_language, "target_language": target_language,
+        "match_type": "crosslingual_fusion", "min_matches": 2,
+    }, timeout=_FUSION_TIMEOUT)
+    r.raise_for_status()
+    d = r.json()
+    parallels = [{
+        "score": round(x.get("overall_score", 0), 2),
+        "source": {"ref": (x.get("source") or {}).get("ref"), "text": (x.get("source") or {}).get("text")},
+        "target": {"ref": (x.get("target") or {}).get("ref"), "text": (x.get("target") or {}).get("text")},
+        "matched": x.get("matched_words"),
+    } for x in (d.get("results") or [])[:top]]
+    return {"source": source, "target": target, "count": len(parallels), "parallels": parallels}
+
+
+@mcp.tool()
 def submit_feature_request(request_type: str, title: str = "", problem: str = "",
                            desired: str = "", example: str = "", context: str = "",
                            contact: str = "") -> dict:

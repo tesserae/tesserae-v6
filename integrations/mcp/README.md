@@ -39,6 +39,7 @@ Lucan's Civil War 1 and show the strongest parallels."*
 | `rare_pairs` | Rare shared two-word collocations between two texts |
 | `rare_words` | Rare shared individual words between two texts |
 | `fusion_search` | Full weighted fusion comparison (can take minutes) |
+| `cross_language` | Cross-language parallels (e.g. a Greek source behind a Latin poem) |
 
 `TESSERAE_API_BASE` overrides the API base (default the production site).
 

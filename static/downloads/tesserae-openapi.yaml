@@ -124,10 +124,10 @@ paths:
       operationId: lineSearch
       summary: Find corpus lines sharing words with a phrase (corpus-wide)
       description: >-
-        Enter a line or phrase; returns every line in the corpus that shares 2+
-        words with it. This is the corpus-wide UNIQUENESS check: run a candidate
-        parallel's shared words here to see how common the wording is elsewhere.
-        Few results ⇒ distinctive ⇒ a stronger claim of deliberate allusion.
+        Every corpus line sharing 2+ words with a phrase — the corpus-wide
+        UNIQUENESS check. Run a candidate parallel's shared words here: few
+        results = distinctive wording = a stronger allusion claim. Use
+        distinct_loci (not total) for the count.
       requestBody:
         required: true
         content:
@@ -308,14 +308,10 @@ paths:
       operationId: submitFeatureRequest
       summary: File a feature / language / text / bug request (ONLY with the user's sign-off)
       description: >-
-        Submit a request for something Tesserae doesn't yet do (a feature, a
-        language, or a text/corpus addition), or report a bug. ONLY call this
-        after the user has explicitly confirmed the exact request — never file
-        silently. WARN the user first that feature/language/bug requests are
-        auto-filed as a PUBLIC GitHub issue for the dev team; any contact email
-        is kept private and never placed in the public issue. Put the actual
-        queries/results that prompted the request in `context` so it is
-        actionable. Include at least a title or a problem description.
+        File a feature/language/text/bug request. ONLY after the user's explicit
+        sign-off — never file silently. Warn them it becomes a PUBLIC GitHub
+        issue; any contact email is kept private. Put the queries/results that
+        prompted it in `context`.
       requestBody:
         required: true
         content:
@@ -349,14 +345,9 @@ paths:
       operationId: fusionSearchPoll
       summary: Full fusion comparison of two texts, as a poll-able GET (use THIS for fusion)
       description: >-
-        The flagship two-text fusion search, exposed as a poll so any client —
-        including a Custom GPT — can use it. Returns {"status":"complete",
-        "parallels":[...]} when results are ready; otherwise starts the run and
-        returns {"status":"running"} — call this SAME operation again every
-        ~20-30s until status is "complete". A large comparison may take a few
-        minutes on first run; results are cached, so a pair already computed
-        (here or in the web app) returns instantly. Each parallel has a score,
-        the channels that fired, source/target {ref, text}, and matched words.
+        Two-text fusion as a poll. Returns status "running" until ready, then
+        "complete" with a pre-sorted parallels array — call the SAME operation
+        again every ~20-30s until complete. A cached pair returns instantly.
       parameters:
         - name: source
           in: query
@@ -403,13 +394,10 @@ paths:
       operationId: fusionSearch
       summary: "Streaming fusion (browsers/dev tools only — GPTs must use fusionSearchPoll instead)"
       description: >-
-        The flagship search: ranks the passages of two texts most likely to be
-        genuine parallels, fusing ten similarity channels. IMPORTANT: this
-        response is a Server-Sent Events stream (text/event-stream) and can run
-        for minutes — it is NOT usable as a synchronous Action and a Custom GPT
-        must not call it. Documented here for completeness. For a two-text
-        comparison from an AI assistant, use rarePairsSearch / rareWordsSearch;
-        for full fusion, use the web app at https://tesserae.caset.buffalo.edu.
+        Streaming SSE fusion for browsers/dev tools only. It is a
+        text/event-stream that runs for minutes and is NOT a usable Action — a
+        Custom GPT must NOT call it; use fusionSearchPoll instead. Documented
+        here for completeness.
       requestBody:
         required: true
         content:
@@ -437,11 +425,10 @@ paths:
       operationId: crossLanguageSearch
       summary: Cross-language fusion (e.g. Greek source behind a Latin/Coptic passage)
       description: >-
-        Find parallels ACROSS languages between two texts — e.g. the Greek model
-        behind a Latin poem. Set match_type to "crosslingual_fusion" and give
-        SEPARATE source_language and target_language (not a combined "grc-la"
-        code). Returns plain JSON (not a stream). POST only — there is no poll/GET
-        form. Use getLanguages to see supported pairs.
+        Cross-language parallels (e.g. a Greek model behind a Latin passage). Set
+        match_type=crosslingual_fusion and give SEPARATE source_language and
+        target_language (not a combined code). Plain JSON, POST only. See
+        getLanguages for supported pairs.
       requestBody:
         required: true
         content:
@@ -480,9 +467,8 @@ paths:
       summary: String/wildcard search as a poll (use for slow queries / from a GPT)
       description: >-
         Same as stringSearch but poll-able so it can't time out: the first call
-        starts the job and returns {"status":"running"}; call this SAME operation
-        again every ~25s until {"status":"complete","results":[...]}. Results are
-        capped (max_results, default 200).
+        returns status "running"; call the SAME operation again every ~25s until
+        status "complete" with results. Results are capped (max_results, 200).
       parameters:
         - { name: query, in: query, required: true, schema: { type: string } }
         - { name: language, in: query, required: true, schema: { type: string, enum: [la, grc, en, cop] } }
