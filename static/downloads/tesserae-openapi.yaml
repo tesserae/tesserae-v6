@@ -373,9 +373,10 @@ paths:
       operationId: fusionSearchPoll
       summary: Full fusion comparison of two texts, as a poll-able GET (use THIS for fusion)
       description: >-
-        Two-text fusion as a poll. Returns status "running" until ready, then
-        "complete" with a pre-sorted parallels array — call the SAME operation
-        again every ~20-30s until complete. A cached pair returns instantly.
+        Two-text fusion as a poll. Returns "running" until ready, then "complete"
+        with a pre-sorted parallels array. Full fusion typically takes ~2-3 min;
+        call the SAME operation again every ~30s until complete — it reuses the
+        job, never a duplicate. Cached pairs return instantly.
       parameters:
         - name: source
           in: query
@@ -400,6 +401,13 @@ paths:
                 type: object
                 properties:
                   status: { type: string, enum: [running, complete, error] }
+                  message: { type: string, description: "Human-readable status note (e.g. the ~2-3 min guidance while running)." }
+                  elapsed_seconds: { type: integer, description: "Seconds since the job started (running only)." }
+                  stage: { type: string, description: "Coarse phase while running: 'line' then 'window'." }
+                  current_signal: { type: string, description: "The similarity signal (channel) being computed now." }
+                  signals_done: { type: integer, description: "Similarity signals computed so far THIS phase. NOTE: NOT a time-percentage — later signals (sound, semantic, edit-distance) are much slower, so this rises fast then slows." }
+                  signals_total: { type: integer, description: "Total similarity signals in the current phase." }
+                  candidates_so_far: { type: integer, description: "Candidate parallels found so far (running only)." }
                   count: { type: integer }
                   parallels:
                     type: array
