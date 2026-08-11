@@ -1595,7 +1595,13 @@ def wildcard_search_endpoint():
         language = data.get('language', 'la')
         target_text = data.get('target_text')
         case_sensitive = data.get('case_sensitive', False)
-        max_results = data.get('max_results', 500)
+        # Coerce to int: GET query-string params arrive as strings.
+        try:
+            max_results = int(data.get('max_results', 500))
+        except (TypeError, ValueError):
+            max_results = 500
+        if max_results <= 0:
+            max_results = 500
         era_filter = data.get('era_filter')
         
         if not query:

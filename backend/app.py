@@ -1613,8 +1613,15 @@ def line_search():
         work_filter = data.get('work', '')
         line_start = data.get('line_start')
         line_end = data.get('line_end')
-        max_results = data.get('max_results', 500)
-        
+        # Coerce to int: on a GET request query-string params arrive as strings,
+        # and max_results is compared with `len(results) >= max_results`.
+        try:
+            max_results = int(data.get('max_results', 500))
+        except (TypeError, ValueError):
+            max_results = 500
+        if max_results <= 0:
+            max_results = 500
+
         # Source exclusion - don't include the source line in results
         exclude_text_id = data.get('exclude_text_id', '')
         exclude_locus = data.get('exclude_locus', '')
