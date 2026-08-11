@@ -4,17 +4,39 @@ import FusionFlowchart from '../search/FusionFlowchart';
 
 const AI_SCHEMA_URL = 'https://tesserae.caset.buffalo.edu/tesserae-data/tesserae-openapi.yaml';
 
-const GPT_INSTRUCTIONS = `You are Tesserae, an assistant for finding intertextual parallels (allusions, echoes, quotations) in classical literature, using the provided Tesserae actions.
+// The public share URL of the ONE official Tesserae GPT in ChatGPT.
+// Set this to the GPT's share link once it exists (Help → "Use with your AI" →
+// ChatGPT). While it is an empty string, the "Use Tesserae in ChatGPT" button is
+// hidden and a short "coming soon" note is shown instead. This is the single
+// place to configure it.
+const OFFICIAL_GPT_URL = '';
 
-- Follow the user's lead; they are the scholar. Surface a relevant capability briefly when useful, then defer.
-- Typical workflow: identify two texts (listTexts) -> find distinctive shared vocabulary (rarePairsSearch / rareWordsSearch) -> test how unique a shared phrase is across the whole corpus (lineSearch) -> interpret the strongest, rarest parallels, quoting both passages and their loci.
-- Listing texts: a whole language is large. To list an author's texts (e.g. "list Vergil's texts"), call listTexts with language AND author (author=Vergil) — never fetch a whole language unfiltered; use a limit if browsing.
-- For a two-text comparison use rarePairsSearch/rareWordsSearch, or fusionSearchPoll for the full fusion search: call it, and while it returns status "running", call it again every ~20-30s until status is "complete". Do NOT call the streaming fusionSearch (Actions can't stream).
-- POLL the slow ones so they don't time out: if a plain rarePairsSearch/rareWordsSearch/stringSearch is slow on large texts, use rarePairsPoll/rareWordsPoll/stringSearchPoll instead (same running->complete polling as fusionSearchPoll).
-- Cross-language (a Greek model behind a Latin passage, etc.): use crossLanguageSearch (POST only; separate source_language/target_language).
-- Uniqueness check with lineSearch: use the response's distinct_loci (not total) — the corpus lists some whole works and their parts separately, so total double-counts. Pass a small max_results/limit and keep only the top results.
-- PROVENANCE (important): keep Tesserae's results and your own interpretation clearly separate. Attribute matches, loci, and rarity to Tesserae (transparent, reproducible); present your analysis as AI-assisted inference the scholar should verify. Encourage citing Tesserae for the parallels and describing surrounding analysis as AI-assisted.
-- Always show the actual passages and loci; be candid about weak matches. Language codes: la (Latin), grc (Greek), en (English), cop (Coptic).`;
+// Privacy policy for the API / ChatGPT-Action integration (static, plain-HTML
+// page — the URL to paste into the GPT builder's "Privacy policy" field).
+const API_PRIVACY_URL = 'https://tesserae.caset.buffalo.edu/tesserae-data/tesserae-api-privacy.html';
+
+const GPT_INSTRUCTIONS = `You are Tesserae, an assistant for finding intertextual parallels (allusions, echoes, quotations, borrowings) in classical literature, using the provided Tesserae actions. Follow the user's lead; they are the scholar. Show actual passages and loci; be candid about weak or ambiguous matches. Language codes: la (Latin), grc (Greek), en (English), cop (Coptic).
+
+WHICH SEARCH TO USE
+- General, unqualified two-text request ("find intertextual parallels between Aeneid 4 and Georgics 4"): use the FULL FUSION search (fusionSearchPoll) — Tesserae's most comprehensive method, combining ten similarity signals (shared words, sound, meaning, rare vocabulary, syntax, and more). Tell the user you are running the comprehensive fusion search; it can take a few minutes on the first run for a pair (poll until complete). If the user wants a quick first pass, offer rarePairsSearch instead.
+- Requests emphasizing "distinctive", "rare", "unusual" shared vocabulary/phrases, or a fast exploratory scan: use rarePairsSearch (rare shared word-pairs) or rareWordsSearch (rare shared single words). These are fast and target distinctive vocabulary specifically.
+- How unique a candidate phrase is across the whole corpus: use lineSearch. Report distinct_loci (NOT total) — the corpus lists some whole works and their parts separately, so total double-counts; pass a small max_results/limit.
+- Cross-language (e.g. a Greek model behind a Latin passage): crossLanguageSearch (POST only; separate source_language/target_language).
+
+METHOD TRANSPARENCY (required)
+- Always tell the user, briefly, WHICH Tesserae method produced the reported results and what it looks for, in scholar-facing language — e.g. "Method: Tesserae rare-pairs search, which looks for unusually distinctive shared word-pairs," or "Method: Tesserae full fusion search, which combines ten similarity signals." Use plain language, not just API names.
+- Never imply that one specialized method's output represents every possible Tesserae search. When it would materially help, note that another method could give a different perspective (e.g. a full fusion pass after a fast rare-pairs scan).
+
+LISTING TEXTS
+- A whole language is large (well over a thousand entries). To list an author's texts ("list Vergil's texts"), call listTexts with language AND author (author=Vergil); use compact=true and a limit. Never fetch a whole language unfiltered just to find one author. Only request broad inventories when the user actually asks, and paginate with limit/offset.
+
+POLLING (Actions can't stream)
+- The full fusion search and the slow variants of string/rare-pairs/rare-words searches are poll-based: call the *Poll operation (fusionSearchPoll / stringSearchPoll / rareWordsPoll / rarePairsPoll); while it returns status "running", call the SAME operation again every ~20-30s until status is "complete". Do NOT call the streaming fusionSearch.
+
+PROVENANCE (keep Tesserae's results and your interpretation separate)
+- Attribute matches, loci, scores/rarity, and corpus-search facts to Tesserae — they are transparent and reproducible.
+- Label your literary interpretation as AI-assisted inference the scholar should verify.
+- Encourage citing Tesserae for the computational results (the parallels and their rarity) and describing the surrounding analysis as AI-assisted interpretation the author has checked. Do not present your inference as Tesserae's conclusion.`;
 
 const MCP_PIP = 'pip install fastmcp requests';
 
@@ -1368,12 +1390,11 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
             <div className="prose max-w-none">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Use Tesserae with your AI assistant</h3>
               <p className="text-gray-700 mb-4">
-                You can let your own AI assistant (such as Claude or ChatGPT) run Tesserae searches for you — comparing
-                texts, testing parallels for uniqueness across the corpus, and helping you interpret the results.
-                Tesserae does the searching, free, on its open API; your assistant orchestrates and interprets. Three
-                ways to connect are below. The one-URL <strong>Claude connector</strong> is being finalized (see the
-                note under it); for now, the <strong>paste-in guide</strong> and <strong>ChatGPT Custom GPT</strong> below
-                work today.
+                You can let an AI assistant (ChatGPT or Claude) run Tesserae searches for you — comparing texts, testing
+                parallels for uniqueness across the corpus, and helping you interpret the results. Tesserae does the
+                searching, free, on its open API; the assistant orchestrates and interprets. The simplest, no-setup route
+                is the <strong>official Tesserae GPT in ChatGPT</strong> (see ChatGPT below). You can also paste a guide
+                into any assistant, build your own GPT, or (soon) add the one-URL Claude connector.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">1 · Claude connector <span className="text-sm font-normal text-amber-700">— coming soon</span></h4>
@@ -1420,29 +1441,65 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </a>
               </p>
 
-              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">3 · ChatGPT Custom GPT <span className="text-sm font-normal text-gray-500">— included in ChatGPT Plus</span></h4>
-              <p className="text-gray-700 text-sm mb-2">
-                Build a reusable “Tesserae” GPT once; then you (and anyone you share it with) just chat with it.
-                GPT-building is included in ChatGPT Plus — find it under <strong>Explore GPTs → “+ Create”</strong> (top-right).
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">3 · ChatGPT <span className="text-sm font-normal text-gray-500">— the official Tesserae GPT</span></h4>
+
+              <p className="text-gray-700 text-sm mb-2 font-medium">Use the official Tesserae GPT — no setup.</p>
+              {OFFICIAL_GPT_URL ? (
+                <p className="mb-3">
+                  <a href={OFFICIAL_GPT_URL} target="_blank" rel="noopener noreferrer"
+                    className="inline-block bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-4 py-2 rounded no-underline">
+                    Use Tesserae in ChatGPT →
+                  </a>
+                </p>
+              ) : (
+                <div className="border border-amber-300 bg-amber-50 rounded p-3 text-sm text-amber-900 mb-3">
+                  <strong>Coming soon.</strong> The official Tesserae GPT link will appear here shortly. In the meantime,
+                  you can build your own below, or use the paste-in guide above.
+                </div>
+              )}
+              <p className="text-gray-700 text-sm mb-1">Open it and ask it to find, compare, or investigate intertextual parallels using Tesserae. It works like an ordinary ChatGPT conversation:</p>
+              <ul className="list-disc list-inside text-gray-700 text-sm space-y-1 mb-2">
+                <li>You chat with it normally; it calls the Tesserae API for you when a search is needed.</li>
+                <li>The first time it runs a search, ChatGPT may ask permission to contact <code>tesserae.caset.buffalo.edu</code> — that's the normal Custom GPT permission prompt; choose <em>Allow</em> (or <em>Always allow</em>).</li>
+                <li>You don't configure any schemas or Actions — that's already built into the official GPT.</li>
+              </ul>
+              <p className="text-gray-500 text-xs mb-4">
+                Using a GPT works on the ChatGPT web and app clients. (<em>Creating or editing</em> a GPT is web-browser-only — see below.)
               </p>
-              <p className="text-gray-700 text-sm mb-2">
-                <strong>Do this in a web browser</strong> at <code>chatgpt.com</code> — the ChatGPT desktop app does not
-                show the GPT-builder.
-              </p>
-              <ol className="list-decimal list-inside text-gray-700 text-sm space-y-1 mb-3">
-                <li>In ChatGPT (web browser): <strong>Explore GPTs → + Create → Configure</strong>. Name it <strong>Tesserae</strong>.</li>
-                <li>Paste the <em>Instructions</em> below into the Instructions box.</li>
-                <li><strong>Actions → Create new action → Import from URL</strong>, paste the schema URL below, set <strong>Authentication: None</strong>.</li>
-                <li>Test it (e.g. “List Vergil's texts”), then <strong>Save</strong> — privately or as a shared link.</li>
-              </ol>
-              <p className="text-gray-700 text-sm font-medium mb-1">Schema URL (for the Action):</p>
-              <CopyBlock text={AI_SCHEMA_URL} />
-              <p className="text-gray-700 text-sm font-medium mb-1 mt-3">Instructions (paste into the GPT):</p>
-              <CopyBlock text={GPT_INSTRUCTIONS} />
-              <p className="text-gray-500 text-xs mt-2 mb-6">
-                The GPT can run everything, including the full fusion search — it polls the fusion job until the
-                results are ready.
-              </p>
+
+              <details className="text-sm text-gray-700 mb-4">
+                <summary className="cursor-pointer text-gray-800 font-medium">Advanced: build your own Tesserae GPT</summary>
+                <div className="mt-2 pl-1 space-y-2">
+                  <p className="text-gray-600">
+                    Optional — for researchers who want their own copy or custom instructions, developers, or institutions
+                    that want their own configuration. Most scholars can just use the official GPT above.
+                  </p>
+                  <p>
+                    <strong>Building or editing a GPT must be done in ChatGPT in a web browser</strong> at <code>chatgpt.com</code>
+                    — the desktop app doesn't clearly expose the GPT-builder. (Once built, you and anyone you share it with
+                    just chat with it normally, on any client, and you can edit it later.)
+                  </p>
+                  <ol className="list-decimal list-inside space-y-1">
+                    <li>In ChatGPT (web browser): <strong>Explore GPTs → + Create → Configure</strong>. Name it <strong>Tesserae</strong>. (The <em>Preview</em> pane beside Configure is just for testing your draft.)</li>
+                    <li>Paste the <em>Instructions</em> below into the Instructions box.</li>
+                    <li><strong>Actions → Create new action → Import from URL</strong>, paste the schema URL below, set <strong>Authentication: None</strong>.</li>
+                    <li>If you plan to share the GPT by link or publish it, add a <strong>Privacy policy</strong> URL (see the link below).</li>
+                    <li>Test it (e.g. “List Vergil's texts”), then <strong>Create</strong> — privately or as a shared link.</li>
+                  </ol>
+                  <p className="font-medium mb-1">Schema URL (for the Action):</p>
+                  <CopyBlock text={AI_SCHEMA_URL} />
+                  <p className="font-medium mb-1 mt-2">Instructions (paste into the GPT):</p>
+                  <CopyBlock text={GPT_INSTRUCTIONS} />
+                  <p className="text-gray-600 text-xs mt-1">
+                    Privacy policy URL (for the builder's “Privacy policy” field, required to share/publish):{' '}
+                    <a href={API_PRIVACY_URL} target="_blank" rel="noopener noreferrer" className="text-blue-700 underline break-all">{API_PRIVACY_URL}</a>
+                  </p>
+                  <p className="text-gray-500 text-xs">
+                    A custom GPT can run everything, including the full fusion search — it polls the fusion job until the
+                    results are ready. Building GPTs is included in ChatGPT Plus.
+                  </p>
+                </div>
+              </details>
 
               <div className="bg-amber-50 p-4 rounded border border-amber-200">
                 <h4 className="font-medium text-amber-900 mb-2">A note on scholarly use</h4>
