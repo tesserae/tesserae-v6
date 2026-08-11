@@ -71,3 +71,16 @@ def test_operation_summaries_under_limit(schema):
         if len(op.get("summary", "") or "") > OPENAI_DESC_LIMIT
     }
     assert not offenders, f"operation summaries over {OPENAI_DESC_LIMIT}: {offenders}"
+
+
+def test_list_texts_exposes_filter_params(schema):
+    """listTexts must offer author/limit so a GPT can avoid pulling a whole
+    language (which overflows the Action response size)."""
+    op = None
+    for _p, _m, o in _operations(schema):
+        if o.get("operationId") == "listTexts":
+            op = o
+            break
+    assert op is not None, "listTexts operation missing"
+    params = {p["name"] for p in op.get("parameters", [])}
+    assert {"author", "limit"} <= params, f"listTexts params: {params}"

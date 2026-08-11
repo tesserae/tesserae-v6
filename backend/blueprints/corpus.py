@@ -17,6 +17,7 @@ from backend.utils import (
     normalize_author_date_key,
     load_provenance,
     resolve_text_path,
+    apply_text_list_filters,
 )
 from backend.frequency_cache import get_corpus_frequencies, recalculate_language_frequencies
 
@@ -84,7 +85,11 @@ def get_texts():
             texts.append(metadata)
     
     texts.sort(key=lambda x: (x['author'], x['title']))
-    
+
+    # Optional server-side author filter / pagination / compaction (absent params
+    # → full list, so the web app is unaffected).
+    texts = apply_text_list_filters(texts, request.args)
+
     return jsonify(texts)
 
 
