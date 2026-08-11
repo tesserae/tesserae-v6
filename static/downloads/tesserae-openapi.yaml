@@ -36,6 +36,12 @@ info:
     number of distinct works.
 
 
+    LISTING TEXTS: a whole language is large — with listTexts ALWAYS pass an
+    `author` filter (e.g. author=Vergil) or a `limit`; never fetch a whole
+    language unfiltered. To answer "list <author>'s texts", call listTexts with
+    language + author=<author>.
+
+
     NOTE ON SLOW SEARCHES (poll, don't block): a Custom GPT Action times out
     after ~30-45s, but several searches run longer. Use the poll operations:
     call once, and while the response is {"status":"running"}, call the SAME
@@ -88,10 +94,12 @@ paths:
   /texts:
     get:
       operationId: listTexts
-      summary: List texts (with their ids) for a language
+      summary: List texts (with their ids) for a language — filter by author
       description: >-
-        Returns every text with its id (e.g. "vergil.aeneid.part.1.tess"). Use
-        these ids as the source/target for two-text searches.
+        Texts (ids like "vergil.aeneid.part.1.tess") for a language; use an id as
+        source/target. A whole language is large — narrow with `author` (e.g.
+        author=Vergil) or a `limit`, never fetch it unfiltered. For "list X's
+        texts", pass language + author=X.
       parameters:
         - name: language
           in: query
@@ -99,6 +107,26 @@ paths:
           schema:
             type: string
             enum: [la, grc, en, cop]
+        - name: author
+          in: query
+          required: false
+          description: "Case-insensitive substring over author/work/title/id (e.g. 'Vergil'). Use this to answer 'list <author>'s texts'."
+          schema: { type: string }
+        - name: limit
+          in: query
+          required: false
+          description: "Max texts to return (keep the response small)."
+          schema: { type: integer, default: 50 }
+        - name: offset
+          in: query
+          required: false
+          description: "Skip this many (pagination)."
+          schema: { type: integer, default: 0 }
+        - name: compact
+          in: query
+          required: false
+          description: "true → return only id/author/work/title/part/language (smaller response)."
+          schema: { type: boolean, default: true }
       responses:
         "200":
           description: List of texts

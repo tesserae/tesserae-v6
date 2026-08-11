@@ -664,6 +664,52 @@ def get_text_metadata(filepath):
     
     return result
 
+
+_TEXT_COMPACT_FIELDS = ('id', 'author', 'work', 'title', 'part', 'language')
+
+
+def apply_text_list_filters(texts, args):
+    """Optional server-side filtering / pagination / compaction for the /texts
+    list, keeping the bare-array response shape.
+
+    All params are optional, so callers that pass none (e.g. the web app, which
+    needs the full corpus list) get the unchanged full list — no regression.
+    Used mainly by AI-agent clients (ChatGPT Actions) whose response size is
+    capped: filtering by author, or a limit, keeps the payload small.
+
+    Params (from request.args): author (alias contains) case-insensitive
+    substring over author/work/title/id; offset/limit ints for pagination;
+    compact truthy → only id/author/work/title/part/language per text.
+    """
+    author = (args.get('author') or args.get('contains') or '').strip().lower()
+    if author:
+        def _hay(t):
+            return ' '.join(str(t.get(k, '') or '')
+                            for k in ('author', 'work', 'title', 'display_name', 'id')).lower()
+        texts = [t for t in texts if author in _hay(t)]
+
+    try:
+        offset = max(0, int(args.get('offset', 0)))
+    except (TypeError, ValueError):
+        offset = 0
+    if offset:
+        texts = texts[offset:]
+
+    limit_raw = args.get('limit')
+    if limit_raw not in (None, ''):
+        try:
+            n = int(limit_raw)
+            if n >= 0:
+                texts = texts[:n]
+        except (TypeError, ValueError):
+            pass
+
+    if str(args.get('compact', '')).strip().lower() in ('1', 'true', 'yes', 'on'):
+        texts = [{k: t.get(k) for k in _TEXT_COMPACT_FIELDS} for t in texts]
+
+    return texts
+
+
 def build_text_hierarchy(texts):
     """Build hierarchical structure: Author -> Work -> Parts"""
     hierarchy = {}

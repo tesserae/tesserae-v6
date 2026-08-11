@@ -64,7 +64,8 @@ from backend.text_processor import TextProcessor
 from backend.matcher import Matcher
 from backend.scorer import Scorer
 from backend.utils import (
-    get_text_metadata, build_text_hierarchy, clean_cts_reference, resolve_text_path
+    get_text_metadata, build_text_hierarchy, clean_cts_reference, resolve_text_path,
+    apply_text_list_filters
 )
 from backend.cache import (
     get_cached_results, save_cached_results, 
@@ -902,6 +903,11 @@ def get_texts():
             texts.append(metadata)
 
     texts.sort(key=lambda x: (x['author'], x['title']))
+
+    # Optional server-side author filter / pagination / compaction (absent params
+    # → full list, so the web app is unaffected). Lets AI-agent clients request
+    # e.g. ?author=Vergil instead of pulling the whole corpus.
+    texts = apply_text_list_filters(texts, request.args)
 
     return jsonify(texts)
 
