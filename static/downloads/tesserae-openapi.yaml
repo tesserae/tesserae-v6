@@ -29,17 +29,31 @@ info:
        freely; on a timeout, back off and retry rather than firing in parallel.
 
 
-    LANGUAGE COVERAGE: Latin (la) is fullest; Greek (grc) has ~650 texts;
-    English (en) is a small corpus; Coptic (cop) is tuned for quotation/reuse.
+    LANGUAGE COVERAGE: Latin (la) is fullest; Greek (grc) ~650 works; English
+    (en) is a small corpus; Coptic (cop) is tuned for quotation/reuse. NOTE:
+    listTexts returns one entry per text file and long works are split into
+    parts (each its own entry), so its per-language counts run higher than the
+    number of distinct works.
 
 
-    NOTE ON FUSION SEARCH: the streaming fusionSearch (POST /search-fusion) is
-    for browsers/dev tools and must NOT be called from a Custom GPT. But the full
-    fusion search IS available to a GPT via fusionSearchPoll (GET /fusion-search):
-    call it, and while it returns status "running", call it again every ~20-30s
-    until it returns status "complete" with a parallels array. A pair already
-    computed returns instantly. rarePairsSearch and rareWordsSearch remain fast
-    options for comparing two texts.
+    NOTE ON SLOW SEARCHES (poll, don't block): a Custom GPT Action times out
+    after ~30-45s, but several searches run longer. Use the poll operations:
+    call once, and while the response is {"status":"running"}, call the SAME
+    operation again every ~25s until {"status":"complete", ...}. A result already
+    computed returns instantly.
+      * Full fusion: fusionSearchPoll (GET /fusion-search) — NOT the streaming
+        fusionSearch (POST /search-fusion), which a GPT must not call.
+      * String search: stringSearchPoll (GET /wildcard-search-poll).
+      * Rare words / rare pairs: rareWordsPoll / rarePairsPoll. (Their plain POST
+        forms are fine for small texts but can exceed the timeout on large ones.)
+
+    CROSS-LANGUAGE (e.g. a Greek model behind a Latin passage): use
+    crossLanguageSearch (POST /search) with match_type "crosslingual_fusion" and
+    separate source_language/target_language fields. It is POST-only (no poll/GET
+    form) and returns plain JSON.
+
+    KEEP RESPONSES SMALL: pass a cap — max_results on lineSearch/stringSearch,
+    limit on rareWordsSearch/rarePairsSearch — and keep only the top results.
 servers:
   - url: https://tesserae.caset.buffalo.edu/api
     description: Tesserae production API
@@ -129,6 +143,10 @@ paths:
                   enum: [lemma, exact, regex]
                   default: lemma
                   description: "lemma = dictionary-form match (default); exact = surface form; regex"
+                max_results:
+                  type: integer
+                  default: 500
+                  description: "Cap the number of returned lines (keep this modest, e.g. 40, to stay context-window friendly)."
       responses:
         "200":
           description: Matching corpus lines
@@ -138,7 +156,8 @@ paths:
                 type: object
                 properties:
                   query: { type: string }
-                  total: { type: integer }
+                  total: { type: integer, description: "Total matching lines (whole works AND their parts count separately)." }
+                  distinct_loci: { type: integer, description: "Unique (author, work, locus) count — use THIS for a uniqueness check; it collapses the whole-work/part duplication." }
                   search_time: { type: number }
                   results:
                     type: array
@@ -172,6 +191,7 @@ paths:
               properties:
                 query: { type: string, description: "e.g. 'arma AND cano', 'am*', '\"arma virumque\"'" }
                 language: { type: string, enum: [la, grc, en, cop] }
+                max_results: { type: integer, default: 500, description: "Cap the number of returned lines (keep modest)." }
       responses:
         "200":
           description: Matching lines
@@ -219,6 +239,7 @@ paths:
                 source: { type: string, description: "Source text id" }
                 target: { type: string, description: "Target text id" }
                 language: { type: string, enum: [la, grc, en, cop] }
+                limit: { type: integer, default: 100, description: "Max results to return (keep modest, e.g. 40)." }
       responses:
         "200":
           description: Shared rare bigrams
@@ -260,6 +281,7 @@ paths:
                 source: { type: string, description: "Source text id" }
                 target: { type: string, description: "Target text id" }
                 language: { type: string, enum: [la, grc, en, cop] }
+                limit: { type: integer, description: "Max results to return (keep modest, e.g. 40). Omit for all." }
       responses:
         "200":
           description: Shared rare words
@@ -362,14 +384,19 @@ paths:
                   count: { type: integer }
                   parallels:
                     type: array
+                    description: "Pre-sorted best-first. Each item carries both the short poll names (score, matched) and the streaming-endpoint names (fused_score, matched_words, matched_lemmas, channel_count) so either shape works."
                     items:
                       type: object
                       properties:
-                        score: { type: number }
+                        score: { type: number, description: "Alias of fused_score." }
+                        fused_score: { type: number, description: "Rank by this (descending); already sorted." }
                         channels: { type: array, items: { type: string } }
+                        channel_count: { type: integer }
                         source: { type: object, properties: { ref: { type: string }, text: { type: string } } }
                         target: { type: object, properties: { ref: { type: string }, text: { type: string } } }
-                        matched: { type: array, items: { type: string } }
+                        matched: { type: array, items: { type: string }, description: "The echoed words (lemmas if available, else surface)." }
+                        matched_words: { type: array, items: { type: string } }
+                        matched_lemmas: { type: array, items: { type: string } }
 
   /search-fusion:
     post:
@@ -404,3 +431,123 @@ paths:
             text/event-stream:
               schema:
                 type: string
+
+  /search:
+    post:
+      operationId: crossLanguageSearch
+      summary: Cross-language fusion (e.g. Greek source behind a Latin/Coptic passage)
+      description: >-
+        Find parallels ACROSS languages between two texts — e.g. the Greek model
+        behind a Latin poem. Set match_type to "crosslingual_fusion" and give
+        SEPARATE source_language and target_language (not a combined "grc-la"
+        code). Returns plain JSON (not a stream). POST only — there is no poll/GET
+        form. Use getLanguages to see supported pairs.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [source, target, source_language, target_language, match_type]
+              properties:
+                source: { type: string, description: "Source text id (from listTexts, e.g. homer.iliad.part.1.tess)" }
+                target: { type: string, description: "Target text id (e.g. vergil.aeneid.part.1.tess)" }
+                source_language: { type: string, enum: [la, grc, en, cop], description: "Language of the source text" }
+                target_language: { type: string, enum: [la, grc, en, cop], description: "Language of the target text" }
+                match_type: { type: string, enum: [crosslingual_fusion], description: "Must be crosslingual_fusion" }
+                min_matches: { type: integer, default: 2, description: "1 (include semantic-only) to 4" }
+      responses:
+        "200":
+          description: Ranked cross-language parallels
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        overall_score: { type: number }
+                        source: { type: object, properties: { ref: { type: string }, text: { type: string } } }
+                        target: { type: object, properties: { ref: { type: string }, text: { type: string } } }
+                        matched_words: { type: array, items: { type: string } }
+
+  /wildcard-search-poll:
+    get:
+      operationId: stringSearchPoll
+      summary: String/wildcard search as a poll (use for slow queries / from a GPT)
+      description: >-
+        Same as stringSearch but poll-able so it can't time out: the first call
+        starts the job and returns {"status":"running"}; call this SAME operation
+        again every ~25s until {"status":"complete","results":[...]}. Results are
+        capped (max_results, default 200).
+      parameters:
+        - { name: query, in: query, required: true, schema: { type: string } }
+        - { name: language, in: query, required: true, schema: { type: string, enum: [la, grc, en, cop] } }
+        - { name: max_results, in: query, required: false, schema: { type: integer, default: 200 } }
+      responses:
+        "200":
+          description: Running status, or completed results.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [running, complete, error] }
+                  total_matches: { type: integer }
+                  showing: { type: integer }
+                  results: { type: array, items: { type: object } }
+
+  /hapax-search-poll:
+    get:
+      operationId: rareWordsPoll
+      summary: Rare shared words as a poll (use for slow pairs / from a GPT)
+      description: >-
+        Same as rareWordsSearch but poll-able: first call returns
+        {"status":"running"}; call the SAME operation again every ~25s until
+        {"status":"complete","results":[...]}. Results are capped (limit, default 60).
+      parameters:
+        - { name: source, in: query, required: true, schema: { type: string } }
+        - { name: target, in: query, required: true, schema: { type: string } }
+        - { name: language, in: query, required: true, schema: { type: string, enum: [la, grc, en, cop] } }
+        - { name: limit, in: query, required: false, schema: { type: integer, default: 60 } }
+      responses:
+        "200":
+          description: Running status, or completed results.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [running, complete, error] }
+                  shared_rare_count: { type: integer }
+                  showing: { type: integer }
+                  results: { type: array, items: { type: object } }
+
+  /rare-bigram-search-poll:
+    get:
+      operationId: rarePairsPoll
+      summary: Rare shared bigrams as a poll (use for slow pairs / from a GPT)
+      description: >-
+        Same as rarePairsSearch but poll-able: first call returns
+        {"status":"running"}; call the SAME operation again every ~25s until
+        {"status":"complete","results":[...]}. Results are capped (limit, default 60).
+      parameters:
+        - { name: source, in: query, required: true, schema: { type: string } }
+        - { name: target, in: query, required: true, schema: { type: string } }
+        - { name: language, in: query, required: true, schema: { type: string, enum: [la, grc, en, cop] } }
+        - { name: limit, in: query, required: false, schema: { type: integer, default: 60 } }
+      responses:
+        "200":
+          description: Running status, or completed results.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [running, complete, error] }
+                  shared_rare_count: { type: integer }
+                  showing: { type: integer }
+                  results: { type: array, items: { type: object } }
