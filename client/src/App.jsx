@@ -662,7 +662,7 @@ function App() {
           <AdminPanel />
         ) : (
           <>
-        <AiAnnouncement onOpen={openAiHelp} />
+        {pageType !== 'help' && <AiAnnouncement onOpen={openAiHelp} />}
         {pageType === 'search' && activeTab !== 'cross' && (
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-4 sm:p-6">
