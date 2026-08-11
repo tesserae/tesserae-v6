@@ -358,12 +358,23 @@ def _default_fusion_cache_settings(language, max_results):
 def _slim_fusion_result(r):
     s = r.get('source', {}) or {}
     t = r.get('target', {}) or {}
+    channels = r.get('channels')
+    score = round(r.get('fused_score', 0), 2)
+    matched = r.get('matched_lemmas') or r.get('matched_words')
+    # Emit BOTH the short poll-route names (score/matched) and the SSE field
+    # names (fused_score/matched_words/matched_lemmas/channel_count) so a client
+    # written against the streaming POST /search-fusion shape works unchanged
+    # against this GET poll route. Results arrive pre-sorted by fused_score.
     return {
-        'score': round(r.get('fused_score', 0), 2),
-        'channels': r.get('channels'),
+        'score': score,
+        'fused_score': score,
+        'channels': channels,
+        'channel_count': len(channels) if channels else 0,
         'source': {'ref': s.get('ref'), 'text': s.get('text')},
         'target': {'ref': t.get('ref'), 'text': t.get('text')},
-        'matched': r.get('matched_lemmas') or r.get('matched_words'),
+        'matched': matched,
+        'matched_words': r.get('matched_words'),
+        'matched_lemmas': r.get('matched_lemmas'),
     }
 
 

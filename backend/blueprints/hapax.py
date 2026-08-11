@@ -38,6 +38,7 @@ from backend.inverted_index import get_connection
 from backend.text_processor import get_latin_lemma_table, get_greek_lemma_table
 from backend.utils import resolve_text_path
 from backend.services import log_search, get_user_location
+from backend.blueprints.async_poll import SearchInputError
 
 logger = get_logger('hapax')
 
@@ -1933,11 +1934,148 @@ def _scan_text_lemma_locations(text_id, language, lemmas_of_interest):
     return out
 
 
+def _compute_rare_words(source_id, target_id, language, source_language, target_language, max_occ, exclude_proper, limit=None):
+    """Compute shared rare words between source and target texts.
+
+    Pure compute core extracted from the ``hapax_search`` view: no Flask
+    request, current_user, or log_search references. Raises SearchInputError
+    on bad input. Returns the result dict.
+    """
+    source_lemmas = get_text_lemmas(source_id, source_language)
+    target_lemmas = get_text_lemmas(target_id, target_language)
+
+    if not source_lemmas:
+        raise SearchInputError(f'Could not process source text: {source_id}')
+    if not target_lemmas:
+        raise SearchInputError(f'Could not process target text: {target_id}')
+
+    shared_lemmas = source_lemmas & target_lemmas
+
+    # Use document frequency (how many texts contain the lemma) for rarity,
+    # not token frequency. A word in 3 texts is rare; a word in 500 is not.
+    doc_freqs = get_document_frequencies_batch(shared_lemmas, source_language)
+
+    shared_rare = {l for l in shared_lemmas
+                   if 1 <= doc_freqs.get(l, 0) <= max_occ}
+
+    import re
+    source_base = re.sub(r'\.part\.\d+\.tess$', '.tess', source_id)
+    target_base = re.sub(r'\.part\.\d+\.tess$', '.tess', target_id)
+    source_is_full = '.part.' not in source_id
+    target_is_full = '.part.' not in target_id
+
+    def matches_source(loc_id):
+        if loc_id == source_id:
+            return True
+        if '.part.' in source_id and loc_id == source_base:
+            return True
+        if source_is_full and re.sub(r'\.part\.\d+\.tess$', '.tess', loc_id) == source_id:
+            return True
+        return False
+
+    def matches_target(loc_id):
+        if loc_id == target_id:
+            return True
+        if '.part.' in target_id and loc_id == target_base:
+            return True
+        if target_is_full and re.sub(r'\.part\.\d+\.tess$', '.tess', loc_id) == target_id:
+            return True
+        return False
+
+    # Coptic's inverted index is built with an older bound-group lemmatization
+    # and its aggregate corpus files aren't indexed, so it can't reliably locate
+    # current sub-word lemmas within a specific text. Scan the two texts directly.
+    use_textscan = (source_language == 'cop' or target_language == 'cop')
+    src_scan = _scan_text_lemma_locations(source_id, source_language, shared_rare) if use_textscan else None
+    tgt_scan = _scan_text_lemma_locations(target_id, target_language, shared_rare) if use_textscan else None
+
+    results = []
+    for lemma in shared_rare:
+        corpus_count = doc_freqs.get(lemma, 0)
+        all_locations = lookup_lemma_locations(lemma, source_language)
+
+        if use_textscan:
+            source_locations = src_scan.get(lemma, [])
+            target_locations = tgt_scan.get(lemma, [])
+        else:
+            source_locations = []
+            target_locations = []
+            for loc in all_locations:
+                loc_text_id = loc['text_id']
+                if matches_source(loc_text_id):
+                    source_locations.append(loc)
+                elif matches_target(loc_text_id):
+                    target_locations.append(loc)
+            if source_language != target_language:
+                for loc in lookup_lemma_locations(lemma, target_language):
+                    if matches_target(loc['text_id']):
+                        target_locations.append(loc)
+
+        display_form = get_display_form(lemma, source_language, source_locations + target_locations)
+
+        if len(source_locations) > 0 and len(target_locations) > 0:
+            # Check if this word is a proper noun — corpus-wide OR local context
+            # Local context catches names like Achates that are always capitalized
+            # in the source/target but have lowercase homographs elsewhere in corpus
+            word_is_pn = (is_proper_noun(lemma, source_language, all_locations) or
+                          is_proper_noun(lemma, source_language, source_locations + target_locations))
+
+            # Lowercase display_form for non-proper-nouns that got capitalized
+            # from line-initial sampling (e.g., "Fatalem" at start of a line)
+            if not word_is_pn and display_form and display_form[0].isupper():
+                display_form = display_form[0].lower() + display_form[1:]
+
+            results.append({
+                'lemma': lemma,
+                'display_form': display_form,
+                'corpus_count': corpus_count,
+                'is_proper_noun': word_is_pn,
+                'source_occurrences': len(source_locations),
+                'target_occurrences': len(target_locations),
+                'source_locations': source_locations,
+                'target_locations': target_locations,
+                'all_corpus_locations': all_locations
+            })
+
+    # Apply proper noun filter if requested
+    proper_nouns_excluded = 0
+    if exclude_proper:
+        filtered = []
+        for r in results:
+            if r['is_proper_noun']:
+                proper_nouns_excluded += 1
+            else:
+                filtered.append(r)
+        results = filtered
+
+    results.sort(key=lambda x: (x['corpus_count'], x['lemma']))
+
+    total = len(results)
+    if limit is not None and limit > 0:
+        results = results[:limit]
+
+    return {
+        'source': source_id,
+        'target': target_id,
+        'source_language': source_language,
+        'target_language': target_language,
+        'max_occurrences': max_occ,
+        'exclude_proper_nouns': exclude_proper,
+        'proper_nouns_excluded': proper_nouns_excluded,
+        'source_total_lemmas': len(source_lemmas),
+        'target_total_lemmas': len(target_lemmas),
+        'shared_lemmas': len(shared_lemmas),
+        'shared_rare_count': total,
+        'showing': len(results),
+        'results': results
+    }
+
+
 @hapax_bp.route('/hapax-search', methods=['GET', 'POST'])
 def hapax_search():
     """
     Find shared rare words between source and target texts.
-    
+
     POST body:
         source: source text filename (e.g., 'homer.iliad.part.1.tess')
         target: target text filename
@@ -1958,139 +2096,233 @@ def hapax_search():
         target_language = data.get('target_language', language)
         max_occ = int(data.get('max_occurrences', 50))
         exclude_proper = _coerce_bool(data.get('exclude_proper_nouns', False))
+        try:
+            limit = data.get('limit', data.get('top_n'))
+            limit = int(limit) if limit not in (None, '') else None
+        except (TypeError, ValueError):
+            limit = None
 
-        source_lemmas = get_text_lemmas(source_id, source_language)
-        target_lemmas = get_text_lemmas(target_id, target_language)
-        
-        if not source_lemmas:
-            return jsonify({'error': f'Could not process source text: {source_id}'}), 400
-        if not target_lemmas:
-            return jsonify({'error': f'Could not process target text: {target_id}'}), 400
-        
-        shared_lemmas = source_lemmas & target_lemmas
-
-        # Use document frequency (how many texts contain the lemma) for rarity,
-        # not token frequency. A word in 3 texts is rare; a word in 500 is not.
-        doc_freqs = get_document_frequencies_batch(shared_lemmas, source_language)
-
-        shared_rare = {l for l in shared_lemmas
-                       if 1 <= doc_freqs.get(l, 0) <= max_occ}
-
-        import re
-        source_base = re.sub(r'\.part\.\d+\.tess$', '.tess', source_id)
-        target_base = re.sub(r'\.part\.\d+\.tess$', '.tess', target_id)
-        source_is_full = '.part.' not in source_id
-        target_is_full = '.part.' not in target_id
-
-        def matches_source(loc_id):
-            if loc_id == source_id:
-                return True
-            if '.part.' in source_id and loc_id == source_base:
-                return True
-            if source_is_full and re.sub(r'\.part\.\d+\.tess$', '.tess', loc_id) == source_id:
-                return True
-            return False
-
-        def matches_target(loc_id):
-            if loc_id == target_id:
-                return True
-            if '.part.' in target_id and loc_id == target_base:
-                return True
-            if target_is_full and re.sub(r'\.part\.\d+\.tess$', '.tess', loc_id) == target_id:
-                return True
-            return False
-
-        # Coptic's inverted index is built with an older bound-group lemmatization
-        # and its aggregate corpus files aren't indexed, so it can't reliably locate
-        # current sub-word lemmas within a specific text. Scan the two texts directly.
-        use_textscan = (source_language == 'cop' or target_language == 'cop')
-        src_scan = _scan_text_lemma_locations(source_id, source_language, shared_rare) if use_textscan else None
-        tgt_scan = _scan_text_lemma_locations(target_id, target_language, shared_rare) if use_textscan else None
-
-        results = []
-        for lemma in shared_rare:
-            corpus_count = doc_freqs.get(lemma, 0)
-            all_locations = lookup_lemma_locations(lemma, source_language)
-
-            if use_textscan:
-                source_locations = src_scan.get(lemma, [])
-                target_locations = tgt_scan.get(lemma, [])
-            else:
-                source_locations = []
-                target_locations = []
-                for loc in all_locations:
-                    loc_text_id = loc['text_id']
-                    if matches_source(loc_text_id):
-                        source_locations.append(loc)
-                    elif matches_target(loc_text_id):
-                        target_locations.append(loc)
-                if source_language != target_language:
-                    for loc in lookup_lemma_locations(lemma, target_language):
-                        if matches_target(loc['text_id']):
-                            target_locations.append(loc)
-
-            display_form = get_display_form(lemma, source_language, source_locations + target_locations)
-
-            if len(source_locations) > 0 and len(target_locations) > 0:
-                # Check if this word is a proper noun — corpus-wide OR local context
-                # Local context catches names like Achates that are always capitalized
-                # in the source/target but have lowercase homographs elsewhere in corpus
-                word_is_pn = (is_proper_noun(lemma, source_language, all_locations) or
-                              is_proper_noun(lemma, source_language, source_locations + target_locations))
-
-                # Lowercase display_form for non-proper-nouns that got capitalized
-                # from line-initial sampling (e.g., "Fatalem" at start of a line)
-                if not word_is_pn and display_form and display_form[0].isupper():
-                    display_form = display_form[0].lower() + display_form[1:]
-
-                results.append({
-                    'lemma': lemma,
-                    'display_form': display_form,
-                    'corpus_count': corpus_count,
-                    'is_proper_noun': word_is_pn,
-                    'source_occurrences': len(source_locations),
-                    'target_occurrences': len(target_locations),
-                    'source_locations': source_locations,
-                    'target_locations': target_locations,
-                    'all_corpus_locations': all_locations
-                })
-
-        # Apply proper noun filter if requested
-        proper_nouns_excluded = 0
-        if exclude_proper:
-            filtered = []
-            for r in results:
-                if r['is_proper_noun']:
-                    proper_nouns_excluded += 1
-                else:
-                    filtered.append(r)
-            results = filtered
-
-        results.sort(key=lambda x: (x['corpus_count'], x['lemma']))
+        try:
+            result = _compute_rare_words(source_id, target_id, language,
+                                         source_language, target_language,
+                                         max_occ, exclude_proper, limit)
+        except SearchInputError as e:
+            return jsonify({'error': str(e)}), e.status
 
         req_user_id = current_user.id if current_user and current_user.is_authenticated else None
         req_city, req_country, _ip = get_user_location()
         log_search('Rare Words', language, source_id, target_id, None,
-                   'rare_words', len(results), False, req_user_id, req_city, req_country, _ip)
+                   'rare_words', result['shared_rare_count'], False, req_user_id, req_city, req_country, _ip)
 
-        return jsonify({
-            'source': source_id,
-            'target': target_id,
-            'source_language': source_language,
-            'target_language': target_language,
-            'max_occurrences': max_occ,
-            'exclude_proper_nouns': exclude_proper,
-            'proper_nouns_excluded': proper_nouns_excluded,
-            'source_total_lemmas': len(source_lemmas),
-            'target_total_lemmas': len(target_lemmas),
-            'shared_lemmas': len(shared_lemmas),
-            'shared_rare_count': len(results),
-            'results': results
-        })
-        
+        return jsonify(result)
+
     except Exception as e:
         logger.error(f"Error in hapax-search: {e}")
         return jsonify({'error': str(e)}), 500
+
+
+def _compute_rare_bigrams(source_id, target_id, language, min_rarity, limit, stoplist_basis, stoplist_size, use_stoplist):
+    """Compute shared rare bigrams between source and target texts.
+
+    Pure compute core extracted from the ``rare_bigram_search`` view: no Flask
+    request, current_user, or log_search references. Raises SearchInputError
+    on bad input. Returns the result dict.
+    """
+    from backend.bigram_frequency import (
+        is_bigram_cache_available, load_bigram_cache,
+        extract_bigrams, get_bigram_rarity_score, make_bigram_key
+    )
+
+    if not is_bigram_cache_available(language):
+        raise SearchInputError(
+            f'Bigram index not built for {language}. Please build it in Admin → Cache Management.'
+        )
+
+    load_bigram_cache(language)
+
+    # Adapt min_rarity for small corpora: with N docs, a shared bigram
+    # (doc_freq >= 2) has max rarity = 1 - 2/N. The default 0.9 threshold
+    # is calibrated for Latin/Greek (~2100 texts) and is impossible for
+    # small corpora like English (14 texts, max rarity = 0.857).
+    from backend.bigram_frequency import _bigram_cache
+    cached = _bigram_cache.get(language, {})
+    total_docs = cached.get('total_docs', 1)
+    max_possible_rarity = 1.0 - (2.0 / max(total_docs, 2))
+    if min_rarity > max_possible_rarity:
+        min_rarity = max(0.5, max_possible_rarity - 0.05)
+        logger.info(f"Adapted min_rarity to {min_rarity:.3f} for {language} corpus ({total_docs} docs, max possible {max_possible_rarity:.3f})")
+
+    try:
+        source_path = _resolve_text_path(source_id, language)
+    except FileNotFoundError:
+        raise SearchInputError(f'Source text not found: {source_id}', 404)
+    try:
+        target_path = _resolve_text_path(target_id, language)
+    except FileNotFoundError:
+        raise SearchInputError(f'Target text not found: {target_id}', 404)
+
+    source_units = _text_processor.process_file(source_path, language, unit_type='line')
+    target_units = _text_processor.process_file(target_path, language, unit_type='line')
+
+    source_bigram_locations = _extract_bigram_locations(source_units, make_bigram_key, language)
+    target_bigram_locations = _extract_bigram_locations(target_units, make_bigram_key, language)
+
+    dynamic_stopwords = set()
+    if use_stoplist and stoplist_size > 0:
+        source_lemma_freq = {}
+        target_lemma_freq = {}
+        for unit in source_units:
+            for lemma in unit.get('lemmas', []):
+                if lemma:
+                    source_lemma_freq[lemma.lower()] = source_lemma_freq.get(lemma.lower(), 0) + 1
+        for unit in target_units:
+            for lemma in unit.get('lemmas', []):
+                if lemma:
+                    target_lemma_freq[lemma.lower()] = target_lemma_freq.get(lemma.lower(), 0) + 1
+
+        if stoplist_basis == 'source':
+            freq = source_lemma_freq
+        elif stoplist_basis == 'target':
+            freq = target_lemma_freq
+        elif stoplist_basis == 'source_target':
+            freq = {}
+            for k, v in source_lemma_freq.items():
+                freq[k] = freq.get(k, 0) + v
+            for k, v in target_lemma_freq.items():
+                freq[k] = freq.get(k, 0) + v
+        else:
+            freq = source_lemma_freq
+
+        sorted_words = sorted(freq.items(), key=lambda x: -x[1])
+        dynamic_stopwords = set(w for w, _ in sorted_words[:stoplist_size])
+
+    shared_bigrams = set(source_bigram_locations.keys()) & set(target_bigram_locations.keys())
+
+    def get_surface_forms_from_text(text, lemma1, lemma2, lang):
+        """Extract actual surface forms from text that match the lemmas using the lemma table"""
+        if not text:
+            return [], []
+
+        # Clean and tokenize
+        import re
+        tokens = re.findall(r"[\w']+", text)
+
+        # Get the lemma table for reverse lookup
+        if lang == 'la':
+            lemma_table = _latin_lemma_table or get_latin_lemma_table()
+        elif lang == 'grc':
+            lemma_table = _greek_lemma_table or get_greek_lemma_table()
+        else:
+            lemma_table = {}
+
+        # Normalize for comparison
+        def normalize(w):
+            if lang == 'la':
+                return w.lower().replace('v', 'u').replace('j', 'i')
+            else:
+                import unicodedata
+                return unicodedata.normalize('NFD', w.lower())
+
+        lemma1_norm = normalize(lemma1)
+        lemma2_norm = normalize(lemma2)
+
+        forms1, forms2 = [], []
+        for token in tokens:
+            token_lower = token.lower()
+            token_norm = normalize(token)
+
+            # Check if this token's lemma matches our target lemmas
+            # First check the lemma table
+            mapped_lemma = lemma_table.get(token_lower, token_lower)
+            mapped_norm = normalize(mapped_lemma)
+
+            # Match if: token maps to the lemma, or token starts with lemma stem
+            if mapped_norm == lemma1_norm or token_norm == lemma1_norm or \
+               (len(lemma1_norm) >= 3 and token_norm.startswith(lemma1_norm[:min(4, len(lemma1_norm))])):
+                if token_lower not in [f.lower() for f in forms1]:
+                    forms1.append(token_lower)
+
+            if mapped_norm == lemma2_norm or token_norm == lemma2_norm or \
+               (len(lemma2_norm) >= 3 and token_norm.startswith(lemma2_norm[:min(4, len(lemma2_norm))])):
+                if token_lower not in [f.lower() for f in forms2]:
+                    forms2.append(token_lower)
+
+        return forms1, forms2
+
+    results = []
+    for bg_key in shared_bigrams:
+        words = bg_key.split('|')
+        lemma1 = words[0] if len(words) > 0 else ''
+        lemma2 = words[1] if len(words) > 1 else ''
+
+        if use_stoplist:
+            if stoplist_size > 0 and dynamic_stopwords:
+                if lemma1.lower() in dynamic_stopwords or lemma2.lower() in dynamic_stopwords:
+                    continue
+            else:
+                if is_word_in_stoplist(lemma1, language) or is_word_in_stoplist(lemma2, language):
+                    continue
+
+        rarity = get_bigram_rarity_score(bg_key, language)
+        if rarity >= min_rarity:
+            # Get proper dictionary forms for display
+            dict_form1 = get_dictionary_form(lemma1, language)
+            dict_form2 = get_dictionary_form(lemma2, language)
+            if language == 'cop':
+                # Show manuscript letterforms (ϣ, ϩ, ϫ …) rather than the
+                # normalized dialect-P block used internally for matching.
+                dict_form1 = _coptic_manuscript_form(dict_form1)
+                dict_form2 = _coptic_manuscript_form(dict_form2)
+
+            # Get actual matched words from all locations for highlighting
+            src_locs = source_bigram_locations[bg_key]
+            tgt_locs = target_bigram_locations[bg_key]
+            matched_words = set()
+
+            # Gather surface forms from both source and target locations
+            for loc in (src_locs[:3] + tgt_locs[:3]):
+                text = loc.get('text', '')
+                forms1, forms2 = get_surface_forms_from_text(text, lemma1, lemma2, language)
+                matched_words.update(forms1)
+                matched_words.update(forms2)
+
+            matched_words = list(matched_words)
+
+            # Extract first source reference for occurrence-based sorting
+            first_source_ref = ''
+            if source_bigram_locations[bg_key]:
+                first_source_ref = source_bigram_locations[bg_key][0].get('ref', '')
+
+            results.append({
+                'bigram': f'{dict_form1} + {dict_form2}',
+                'word1': lemma1,
+                'word2': lemma2,
+                'display1': dict_form1,
+                'display2': dict_form2,
+                'matched_words': matched_words,
+                'rarity': round(rarity, 4),
+                'rarity_percent': round(rarity * 100, 1),
+                'source_occurrences': len(source_bigram_locations[bg_key]),
+                'target_occurrences': len(target_bigram_locations[bg_key]),
+                'source_locations': source_bigram_locations[bg_key][:5],
+                'target_locations': target_bigram_locations[bg_key][:5],
+                '_first_source_ref': first_source_ref
+            })
+
+    results.sort(key=lambda x: -x['rarity'])
+    results = results[:limit]
+
+    return {
+        'source': source_id,
+        'target': target_id,
+        'language': language,
+        'min_rarity': min_rarity,
+        'source_unique_bigrams': len(source_bigram_locations),
+        'target_unique_bigrams': len(target_bigram_locations),
+        'shared_bigrams': len(shared_bigrams),
+        'shared_rare_count': len(results),
+        'results': results
+    }
 
 
 @hapax_bp.route('/rare-bigram-search', methods=['GET', 'POST'])
@@ -2098,10 +2330,10 @@ def rare_bigram_search():
     """
     Find shared rare word-pairs (bigrams) between source and target texts.
     Identifies unusual collocations even when individual words are common.
-    
+
     POST body:
         source: source text filename
-        target: target text filename  
+        target: target text filename
         language: 'la', 'grc', or 'en' (default: 'la')
         min_rarity: minimum rarity score (0-1, default 0.9)
         limit: max results to return (default 100)
@@ -2110,11 +2342,6 @@ def rare_bigram_search():
         stoplist: legacy boolean for backward compatibility
     """
     try:
-        from backend.bigram_frequency import (
-            is_bigram_cache_available, load_bigram_cache,
-            extract_bigrams, get_bigram_rarity_score, make_bigram_key
-        )
-
         # Accept both POST JSON bodies and GET query-string params.
         data = request.get_json(silent=True) or request.args
         try:
@@ -2132,205 +2359,108 @@ def rare_bigram_search():
         elif stoplist_basis in ('source_target', 'source', 'target', 'corpus'):
             use_stoplist = True
 
-        if not is_bigram_cache_available(language):
-            return jsonify({
-                'error': f'Bigram index not built for {language}. Please build it in Admin → Cache Management.'
-            }), 400
-
-        load_bigram_cache(language)
-
-        # Adapt min_rarity for small corpora: with N docs, a shared bigram
-        # (doc_freq >= 2) has max rarity = 1 - 2/N. The default 0.9 threshold
-        # is calibrated for Latin/Greek (~2100 texts) and is impossible for
-        # small corpora like English (14 texts, max rarity = 0.857).
-        from backend.bigram_frequency import _bigram_cache
-        cached = _bigram_cache.get(language, {})
-        total_docs = cached.get('total_docs', 1)
-        max_possible_rarity = 1.0 - (2.0 / max(total_docs, 2))
-        if min_rarity > max_possible_rarity:
-            min_rarity = max(0.5, max_possible_rarity - 0.05)
-            logger.info(f"Adapted min_rarity to {min_rarity:.3f} for {language} corpus ({total_docs} docs, max possible {max_possible_rarity:.3f})")
-
         try:
-            source_path = _resolve_text_path(source_id, language)
-        except FileNotFoundError:
-            return jsonify({'error': f'Source text not found: {source_id}'}), 404
-        try:
-            target_path = _resolve_text_path(target_id, language)
-        except FileNotFoundError:
-            return jsonify({'error': f'Target text not found: {target_id}'}), 404
+            result = _compute_rare_bigrams(source_id, target_id, language, min_rarity,
+                                           limit, stoplist_basis, stoplist_size, use_stoplist)
+        except SearchInputError as e:
+            return jsonify({'error': str(e)}), e.status
 
-        source_units = _text_processor.process_file(source_path, language, unit_type='line')
-        target_units = _text_processor.process_file(target_path, language, unit_type='line')
-
-        source_bigram_locations = _extract_bigram_locations(source_units, make_bigram_key, language)
-        target_bigram_locations = _extract_bigram_locations(target_units, make_bigram_key, language)
-        
-        dynamic_stopwords = set()
-        if use_stoplist and stoplist_size > 0:
-            source_lemma_freq = {}
-            target_lemma_freq = {}
-            for unit in source_units:
-                for lemma in unit.get('lemmas', []):
-                    if lemma:
-                        source_lemma_freq[lemma.lower()] = source_lemma_freq.get(lemma.lower(), 0) + 1
-            for unit in target_units:
-                for lemma in unit.get('lemmas', []):
-                    if lemma:
-                        target_lemma_freq[lemma.lower()] = target_lemma_freq.get(lemma.lower(), 0) + 1
-            
-            if stoplist_basis == 'source':
-                freq = source_lemma_freq
-            elif stoplist_basis == 'target':
-                freq = target_lemma_freq
-            elif stoplist_basis == 'source_target':
-                freq = {}
-                for k, v in source_lemma_freq.items():
-                    freq[k] = freq.get(k, 0) + v
-                for k, v in target_lemma_freq.items():
-                    freq[k] = freq.get(k, 0) + v
-            else:
-                freq = source_lemma_freq
-            
-            sorted_words = sorted(freq.items(), key=lambda x: -x[1])
-            dynamic_stopwords = set(w for w, _ in sorted_words[:stoplist_size])
-        
-        shared_bigrams = set(source_bigram_locations.keys()) & set(target_bigram_locations.keys())
-        
-        def get_surface_forms_from_text(text, lemma1, lemma2, lang):
-            """Extract actual surface forms from text that match the lemmas using the lemma table"""
-            if not text:
-                return [], []
-            
-            # Clean and tokenize
-            import re
-            tokens = re.findall(r"[\w']+", text)
-            
-            # Get the lemma table for reverse lookup
-            if lang == 'la':
-                lemma_table = _latin_lemma_table or get_latin_lemma_table()
-            elif lang == 'grc':
-                lemma_table = _greek_lemma_table or get_greek_lemma_table()
-            else:
-                lemma_table = {}
-            
-            # Normalize for comparison
-            def normalize(w):
-                if lang == 'la':
-                    return w.lower().replace('v', 'u').replace('j', 'i')
-                else:
-                    import unicodedata
-                    return unicodedata.normalize('NFD', w.lower())
-            
-            lemma1_norm = normalize(lemma1)
-            lemma2_norm = normalize(lemma2)
-            
-            forms1, forms2 = [], []
-            for token in tokens:
-                token_lower = token.lower()
-                token_norm = normalize(token)
-                
-                # Check if this token's lemma matches our target lemmas
-                # First check the lemma table
-                mapped_lemma = lemma_table.get(token_lower, token_lower)
-                mapped_norm = normalize(mapped_lemma)
-                
-                # Match if: token maps to the lemma, or token starts with lemma stem
-                if mapped_norm == lemma1_norm or token_norm == lemma1_norm or \
-                   (len(lemma1_norm) >= 3 and token_norm.startswith(lemma1_norm[:min(4, len(lemma1_norm))])):
-                    if token_lower not in [f.lower() for f in forms1]:
-                        forms1.append(token_lower)
-                
-                if mapped_norm == lemma2_norm or token_norm == lemma2_norm or \
-                   (len(lemma2_norm) >= 3 and token_norm.startswith(lemma2_norm[:min(4, len(lemma2_norm))])):
-                    if token_lower not in [f.lower() for f in forms2]:
-                        forms2.append(token_lower)
-            
-            return forms1, forms2
-        
-        results = []
-        for bg_key in shared_bigrams:
-            words = bg_key.split('|')
-            lemma1 = words[0] if len(words) > 0 else ''
-            lemma2 = words[1] if len(words) > 1 else ''
-            
-            if use_stoplist:
-                if stoplist_size > 0 and dynamic_stopwords:
-                    if lemma1.lower() in dynamic_stopwords or lemma2.lower() in dynamic_stopwords:
-                        continue
-                else:
-                    if is_word_in_stoplist(lemma1, language) or is_word_in_stoplist(lemma2, language):
-                        continue
-            
-            rarity = get_bigram_rarity_score(bg_key, language)
-            if rarity >= min_rarity:
-                # Get proper dictionary forms for display
-                dict_form1 = get_dictionary_form(lemma1, language)
-                dict_form2 = get_dictionary_form(lemma2, language)
-                if language == 'cop':
-                    # Show manuscript letterforms (ϣ, ϩ, ϫ …) rather than the
-                    # normalized dialect-P block used internally for matching.
-                    dict_form1 = _coptic_manuscript_form(dict_form1)
-                    dict_form2 = _coptic_manuscript_form(dict_form2)
-                
-                # Get actual matched words from all locations for highlighting
-                src_locs = source_bigram_locations[bg_key]
-                tgt_locs = target_bigram_locations[bg_key]
-                matched_words = set()
-                
-                # Gather surface forms from both source and target locations
-                for loc in (src_locs[:3] + tgt_locs[:3]):
-                    text = loc.get('text', '')
-                    forms1, forms2 = get_surface_forms_from_text(text, lemma1, lemma2, language)
-                    matched_words.update(forms1)
-                    matched_words.update(forms2)
-                
-                matched_words = list(matched_words)
-                
-                # Extract first source reference for occurrence-based sorting
-                first_source_ref = ''
-                if source_bigram_locations[bg_key]:
-                    first_source_ref = source_bigram_locations[bg_key][0].get('ref', '')
-                
-                results.append({
-                    'bigram': f'{dict_form1} + {dict_form2}',
-                    'word1': lemma1,
-                    'word2': lemma2,
-                    'display1': dict_form1,
-                    'display2': dict_form2,
-                    'matched_words': matched_words,
-                    'rarity': round(rarity, 4),
-                    'rarity_percent': round(rarity * 100, 1),
-                    'source_occurrences': len(source_bigram_locations[bg_key]),
-                    'target_occurrences': len(target_bigram_locations[bg_key]),
-                    'source_locations': source_bigram_locations[bg_key][:5],
-                    'target_locations': target_bigram_locations[bg_key][:5],
-                    '_first_source_ref': first_source_ref
-                })
-        
-        results.sort(key=lambda x: -x['rarity'])
-        results = results[:limit]
-        
         req_user_id = current_user.id if current_user and current_user.is_authenticated else None
         req_city, req_country, _ip = get_user_location()
         log_search('Rare Pairs', language, source_id, target_id, None,
-                   'rare_pairs', len(results), False, req_user_id, req_city, req_country, _ip)
+                   'rare_pairs', len(result['results']), False, req_user_id, req_city, req_country, _ip)
 
-        return jsonify({
-            'source': source_id,
-            'target': target_id,
-            'language': language,
-            'min_rarity': min_rarity,
-            'source_unique_bigrams': len(source_bigram_locations),
-            'target_unique_bigrams': len(target_bigram_locations),
-            'shared_bigrams': len(shared_bigrams),
-            'shared_rare_count': len(results),
-            'results': results
-        })
-        
+        return jsonify(result)
+
     except Exception as e:
         logger.error(f"Error in rare-bigram-search: {e}")
         return jsonify({'error': str(e)}), 500
+
+
+@hapax_bp.route('/hapax-search-poll', methods=['GET'])
+def hapax_search_poll():
+    from backend.blueprints.async_poll import poll, make_job_key
+    data = request.args
+    try:
+        source_id, target_id, language = _parse_search_params(data)
+    except ValueError as e:
+        return jsonify({'status': 'error', 'error': str(e)}), 200
+    source_language = data.get('source_language', language)
+    target_language = data.get('target_language', language)
+    try:
+        max_occ = int(data.get('max_occurrences', 50))
+    except (TypeError, ValueError):
+        max_occ = 50
+    exclude_proper = _coerce_bool(data.get('exclude_proper_nouns', False))
+    try:
+        limit = int(data.get('limit', 60))
+    except (TypeError, ValueError):
+        limit = 60
+    key = make_job_key('hapax', source_id, target_id, source_language, target_language, max_occ, exclude_proper, limit)
+
+    def compute():
+        return _compute_rare_words(source_id, target_id, language, source_language, target_language, max_occ, exclude_proper, limit)
+
+    def transform(d):
+        slim = []
+        for r in d.get('results', []):
+            slim.append({
+                'lemma': r.get('lemma'), 'display_form': r.get('display_form'),
+                'corpus_count': r.get('corpus_count'), 'is_proper_noun': r.get('is_proper_noun'),
+                'source_locations': (r.get('source_locations') or [])[:5],
+                'target_locations': (r.get('target_locations') or [])[:5],
+            })
+        return {'source': d.get('source'), 'target': d.get('target'),
+                'shared_rare_count': d.get('shared_rare_count'), 'showing': len(slim),
+                'results': slim}
+    return poll('hapax', key, compute, transform)
+
+
+@hapax_bp.route('/rare-bigram-search-poll', methods=['GET'])
+def rare_bigram_search_poll():
+    from backend.blueprints.async_poll import poll, make_job_key
+    data = request.args
+    try:
+        source_id, target_id, language = _parse_search_params(data)
+    except ValueError as e:
+        return jsonify({'status': 'error', 'error': str(e)}), 200
+    try:
+        min_rarity = float(data.get('min_rarity', 0.9))
+    except (TypeError, ValueError):
+        min_rarity = 0.9
+    try:
+        limit = int(data.get('limit', 60))
+    except (TypeError, ValueError):
+        limit = 60
+    stoplist_basis = data.get('stoplist_basis', 'source_target')
+    try:
+        stoplist_size = int(data.get('stoplist_size', 0))
+    except (TypeError, ValueError):
+        stoplist_size = 0
+    use_stoplist = _coerce_bool(data.get('stoplist', False))
+    if stoplist_basis == 'none':
+        use_stoplist = False
+    elif stoplist_basis in ('source_target', 'source', 'target', 'corpus'):
+        use_stoplist = True
+    key = make_job_key('rarebigram', source_id, target_id, language, min_rarity, limit, stoplist_basis, stoplist_size, use_stoplist)
+
+    def compute():
+        return _compute_rare_bigrams(source_id, target_id, language, min_rarity, limit, stoplist_basis, stoplist_size, use_stoplist)
+
+    def transform(d):
+        slim = []
+        for r in d.get('results', []):
+            slim.append({
+                'bigram': r.get('bigram'), 'display1': r.get('display1'), 'display2': r.get('display2'),
+                'word1': r.get('word1'), 'word2': r.get('word2'),
+                'rarity_percent': r.get('rarity_percent'), 'matched_words': r.get('matched_words'),
+                'source_locations': (r.get('source_locations') or [])[:5],
+                'target_locations': (r.get('target_locations') or [])[:5],
+            })
+        return {'source': d.get('source'), 'target': d.get('target'),
+                'shared_rare_count': d.get('shared_rare_count'), 'showing': len(slim),
+                'results': slim}
+    return poll('rarebigram', key, compute, transform)
 
 
 @hapax_bp.route('/rare-word-cloud', methods=['GET'])

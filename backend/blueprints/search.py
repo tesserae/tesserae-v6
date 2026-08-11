@@ -1620,3 +1620,41 @@ def wildcard_search_endpoint():
     except Exception as e:
         logger.error(f"Wildcard search error: {e}")
         return jsonify({'error': str(e), 'results': []}), 500
+
+
+@search_bp.route('/wildcard-search-poll', methods=['GET'])
+def wildcard_search_poll():
+    """Poll-able GET wildcard/string search for URL-only assistants.
+
+    GET /api/wildcard-search-poll?query=sonipes&language=la
+
+    A rare-word string search can run tens of seconds — longer than many
+    URL-fetch tools wait. This returns {status:"running"} on the first call and
+    {status:"complete", results:[...]} once ready; poll the same URL every ~25s.
+    Mirrors /api/fusion-search. Results are capped (max_results / limit, default
+    200) to stay context-window friendly."""
+    from backend.wildcard_search import wildcard_search
+    from backend.blueprints.async_poll import poll, make_job_key
+    data = request.args
+    query = (data.get('query') or '').strip()
+    language = data.get('language', 'la')
+    if not query:
+        return jsonify({'status': 'error', 'error': 'Query is required'}), 200
+    try:
+        max_results = int(data.get('max_results', data.get('limit', 200)))
+    except (TypeError, ValueError):
+        max_results = 200
+    if max_results <= 0:
+        max_results = 200
+    key = make_job_key('wildcard', language, query, max_results)
+
+    def compute():
+        return wildcard_search(language=language, query=query, max_results=max_results)
+
+    def transform(d):
+        res = (d.get('results') or [])[:max_results]
+        return {'query': d.get('query'), 'parsed_type': d.get('parsed_type'),
+                'total_matches': d.get('total_matches'), 'truncated': d.get('truncated'),
+                'showing': len(res), 'results': res}
+
+    return poll('wildcard', key, compute, transform)

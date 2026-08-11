@@ -630,10 +630,24 @@ def legacy_frontend():
 
 @app.errorhandler(404)
 def page_not_found(e):
-    """Handle 404 errors by serving the SPA for client-side routing"""
+    """Handle 404 errors by serving the SPA for client-side routing.
+
+    Unknown API routes must return a JSON 404, not the SPA HTML — otherwise an
+    AI agent (or any client) hitting a wrong/renamed endpoint silently gets a
+    200 page of HTML and can't tell it failed. On production Apache mounts Flask
+    at /api (WSGIScriptAlias /api), so an unknown /api/... call reaches Flask
+    with the /api stripped (e.g. /bogus) and script_root == '/api'; treat any
+    such request as an API request too. Genuine SPA client routes (/help,
+    /about, …) are served by Apache from the static build and never reach Flask
+    on prod; in the dev direct-server they arrive without the /api prefix and
+    still fall through to index.html below."""
     api_path = f"{API_PREFIX}/" if API_PREFIX else "/api/"
-    if request.path.startswith(api_path):
-        return jsonify({'error': 'Not found'}), 404
+    script_root = (request.script_root or '').rstrip('/')
+    is_api_request = request.path.startswith(api_path) or script_root.endswith('/api')
+    if is_api_request:
+        return jsonify({'error': 'Not found', 'path': request.path,
+                        'hint': 'Check the endpoint path against /api/texts and the API guide; '
+                                'all API paths are under /api/.'}), 404
     # Don't serve SPA for static file requests — return real 404
     if request.path.startswith('/static/'):
         return jsonify({'error': 'File not found'}), 404
@@ -1924,9 +1938,18 @@ def line_search():
             ))
             
             search_time = round(time_module.time() - search_start_time, 3)
+            # distinct_loci collapses the corpus's whole-work vs .part.N
+            # duplication: e.g. vergil.aeneid.tess and vergil.aeneid.part.1.tess
+            # both report Aeneid 1.146, so `total` double-counts. For a
+            # uniqueness check, count unique (author, work, locus) instead.
+            distinct_loci = len({
+                (r.get('author'), r.get('work'), r.get('locus'))
+                for r in results
+            })
             return jsonify({
                 'results': results,
                 'total': len(results),
+                'distinct_loci': distinct_loci,
                 'query': query,
                 'search_time': search_time
             })

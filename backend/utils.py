@@ -648,7 +648,10 @@ def get_text_metadata(filepath):
         'is_part': is_part,
         'title': title,
         'display_name': f"{author}, {title}",
-        'filepath': filepath,
+        # NOTE: the absolute server 'filepath' is intentionally NOT serialized —
+        # it leaked the server's filesystem layout (/var/www/...) into public
+        # /api/texts responses. Internal callers pass the path in; none read it
+        # back out of this dict.
         'text_type': text_type
     }
     
