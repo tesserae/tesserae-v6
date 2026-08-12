@@ -150,6 +150,12 @@ def get_active_searches():
                 fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
                 fcntl.flock(fd, fcntl.LOCK_UN)
                 os.close(fd)
+                # Safety: this cleanup is race-free because (1) flock is atomic —
+                # if we acquired the lock, no live process holds it; (2) new
+                # SearchSlot.acquire() always creates a fresh file with a unique
+                # slot_id (PID + timestamp), never reusing stale filenames; and
+                # (3) os.unlink of a file that was already removed by another
+                # reader is harmless (caught by the OSError handler).
                 try:
                     os.unlink(path)
                     cancel_path = os.path.join(LOCK_DIR, f"{slot_id}.cancel")

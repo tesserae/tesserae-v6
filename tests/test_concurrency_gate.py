@@ -230,9 +230,15 @@ def test_active_lock_file_counted():
 # 5. Write failure propagation
 # ---------------------------------------------------------------------------
 
+def test_write_failure_propagation():
+    """Config file write to a non-existent path should raise OSError."""
+    old = ConcurrencyConfig._CONFIG_FILE
+    try:
         ConcurrencyConfig._CONFIG_FILE = '/nonexistent_dir_abc123/config.json'
         with pytest.raises(OSError):
             ConcurrencyConfig.set_max_searches(5)
+    finally:
+        ConcurrencyConfig._CONFIG_FILE = old
 
 
 # ---------------------------------------------------------------------------

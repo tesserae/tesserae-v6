@@ -1371,10 +1371,16 @@ def search_stream():
                         _run_matcher, match_type, source_units,
                         target_units, settings, corpus_frequencies)
                     while not _future.done():
-                        if slot.is_cancelled():
-                            yield f"data: {json.dumps({'type': 'cancelled', 'message': 'Search terminated by administrator'})}\n\n"
-                            return
-                        _time.sleep(2)
+                        # Check cancel marker every 2s for responsive termination,
+                        # but only emit SSE heartbeat every ~10s to preserve the
+                        # original timeout-prevention interval.
+                        for _tick in range(5):
+                            if _future.done():
+                                break
+                            if slot.is_cancelled():
+                                yield f"data: {json.dumps({'type': 'cancelled', 'message': 'Search terminated by administrator'})}\n\n"
+                                return
+                            _time.sleep(2)
                         if not _future.done():
                             yield ": keep-alive\n\n"
                     matches, stoplist_size = _future.result()

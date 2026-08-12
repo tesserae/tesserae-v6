@@ -3030,9 +3030,5 @@ def create_app():
 if __name__ == "__main__":
     app_logger.info("Starting Tesserae V6 development server...")
     debug_mode = os.environ.get("TESSERAE_DEBUG", "false").lower() == "true"
-<<<<<<< HEAD
     port = int(os.environ.get("PORT", 5000))
-=======
-    port = int(os.environ.get("PORT", 5001))
->>>>>>> 9c145f7 (feat(admin): add active search inspector and live kill capability (#147))
     app.run(host="0.0.0.0", port=port, debug=debug_mode)  # nosec B104

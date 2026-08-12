@@ -287,9 +287,10 @@ def admin_login():
     if not email or not password:
         return jsonify({'error': 'Email and password are required'}), 400
 
-    # Local development fallback login (only active when DEPLOYMENT_ENV is explicitly set to 'dev')
-    dev_password = os.environ.get('ADMIN_PASSWORD', 'password123')
-    if password == dev_password and os.environ.get('DEPLOYMENT_ENV', 'production') == 'dev':
+    # Local development fallback login (only active when DEPLOYMENT_ENV is explicitly set to 'dev'
+    # and ADMIN_PASSWORD is explicitly set in the environment)
+    dev_password = os.environ.get('ADMIN_PASSWORD')
+    if dev_password and password == dev_password and os.environ.get('DEPLOYMENT_ENV', 'production') == 'dev':
         _clear_admin_login_failures(email)
         session['admin_user_id'] = 1
         session['admin_email'] = email or 'admin@tesserae.local'
