@@ -52,10 +52,16 @@ cd tesserae-v6
 # 2. Install Python dependencies
 pip install -r requirements.txt
 
-# 3. Download search index files (~5.3 GB from tesserae.caset.buffalo.edu)
+# 3. Set up environment variables (copy the template, then edit as needed)
+cp .env.example .env
+# NOTE: for local development, .env must set DEPLOYMENT_ENV=dev (or provide a
+# SESSION_SECRET). Otherwise the app will refuse to start — this is a safeguard
+# against running a real deployment without a proper session secret.
+
+# 4. Download search index files (~5.3 GB from tesserae.caset.buffalo.edu)
 python scripts/download_data.py
 
-# 4. Start the application
+# 5. Start the application
 python main.py
 ```
 
