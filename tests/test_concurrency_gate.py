@@ -320,8 +320,8 @@ def test_cancel_search_creates_marker_and_is_cancelled():
                 gate.LOCK_DIR = old_lock_dir
 
 
-def test_fusion_poll_job_metadata_match_type():
-    """Fusion poll job metadata match_type should report as 'fusion (poll)'."""
+def test_slot_metadata_match_type_fusion_poll_label():
+    """Slot metadata match_type should accept/report the 'fusion (poll)' label."""
     with tempfile.TemporaryDirectory() as tmpdir:
         import backend.concurrency_gate as gate
         old_lock_dir = gate.LOCK_DIR
@@ -348,3 +348,50 @@ def test_fusion_poll_job_metadata_match_type():
             finally:
                 gate.LOCK_DIR = old_lock_dir
 
+
+def test_cancel_search_releases_slot_and_cleans_up():
+    """Cancellation should be detected by is_cancelled(), and slot.release()
+    should clean up both the lock file and the .cancel marker."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        import backend.concurrency_gate as gate
+        old_lock_dir = gate.LOCK_DIR
+        gate.LOCK_DIR = tmpdir
+
+        with _ConfigPatch():
+            gate.ConcurrencyConfig.set_memory_threshold(0.5)
+            try:
+                slot = gate.SearchSlot()
+                for _ in slot.acquire():
+                    pass
+
+                slot.set_metadata({
+                    'source_id': 'src.tess',
+                    'target_id': 'tgt.tess',
+                    'language': 'la',
+                    'match_type': 'fusion (poll)',
+                })
+
+                # Before cancel: slot should not be cancelled
+                assert not slot.is_cancelled()
+                assert gate._count_active_slots() == 1
+
+                # Simulate admin cancellation (create .cancel file)
+                cancel_path = os.path.join(tmpdir, f"{slot.slot_id}.cancel")
+                with open(cancel_path, 'w') as f:
+                    f.write('')
+
+                # After cancel: is_cancelled should return True
+                assert slot.is_cancelled()
+
+                # Slot is still active (hasn't been released yet)
+                assert gate._count_active_slots() == 1
+
+                # Release slot (as the finally block would do)
+                slot.release()
+
+                # After release: slot file and cancel marker should be gone
+                assert gate._count_active_slots() == 0
+                assert not os.path.exists(cancel_path), \
+                    "Cancel marker should be cleaned up by slot.release()"
+            finally:
+                gate.LOCK_DIR = old_lock_dir
