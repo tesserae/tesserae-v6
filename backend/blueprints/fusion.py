@@ -452,13 +452,10 @@ def _run_fusion_job(source_id, target_id, language, max_results, job_key):
     slot = None
     try:
         from backend.fusion import iter_fusion_search
-        source_path = resolve_text_path(_texts_dir, language, source_id)
-        target_path = resolve_text_path(_texts_dir, language, target_id)
-        cache_settings = _default_fusion_cache_settings(language, max_results)
-        source_units = _get_processed_units(source_id, language, 'line', _text_processor)
-        target_units = _get_processed_units(target_id, language, 'line', _text_processor)
-        if not source_units or not target_units:
-            raise ValueError('Could not process text units')
+
+        # Acquire concurrency slot and register metadata BEFORE loading text
+        # units so the job is visible in the Active Search Inspector during the
+        # entire computation, including unit processing which can take seconds.
         slot = SearchSlot()
         for _queued in slot.acquire():
             pass  # block until a concurrency slot frees up
@@ -468,6 +465,14 @@ def _run_fusion_job(source_id, target_id, language, max_results, job_key):
             'language': language,
             'match_type': 'fusion (poll)',
         })
+
+        source_path = resolve_text_path(_texts_dir, language, source_id)
+        target_path = resolve_text_path(_texts_dir, language, target_id)
+        cache_settings = _default_fusion_cache_settings(language, max_results)
+        source_units = _get_processed_units(source_id, language, 'line', _text_processor)
+        target_units = _get_processed_units(target_id, language, 'line', _text_processor)
+        if not source_units or not target_units:
+            raise ValueError('Could not process text units')
         final_results = []
         for event_type, evt_data in iter_fusion_search(
             source_units=source_units, target_units=target_units,
@@ -488,7 +493,10 @@ def _run_fusion_job(source_id, target_id, language, max_results, job_key):
                 return
 
             # Record honest coarse progress for the GET poll (see _write_fusion_status).
-            _write_fusion_status(job_key, event_type, evt_data)
+            try:
+                _write_fusion_status(job_key, event_type, evt_data)
+            except Exception:
+                pass  # status display is best-effort; don't abort the job
             if event_type == 'complete':
                 final_results = evt_data['results']
         save_cached_results(
