@@ -96,6 +96,8 @@ export const searchTextsStream = async (params, onProgress, signal, onQueued) =>
             }
           } else if (data.type === 'complete') {
             finalResult = data;
+          } else if (data.type === 'cancelled') {
+            throw new Error(data.message || 'Search terminated by administrator');
           } else if (data.type === 'error') {
             throw new Error(data.message);
           }
@@ -161,6 +163,8 @@ export const searchFusionStream = async (params, onProgress, signal, onIntermedi
             }
           } else if (data.type === 'complete') {
             finalResult = data;
+          } else if (data.type === 'cancelled') {
+            throw new Error(data.message || 'Search terminated by administrator');
           } else if (data.type === 'error') {
             throw new Error(data.message);
           }

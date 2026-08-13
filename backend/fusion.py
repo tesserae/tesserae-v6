@@ -2811,7 +2811,8 @@ def _run_channels_sequential(channels, configs, source_units, target_units,
 # semantic) can block for 2-5+ minutes.  Without periodic data on the wire,
 # browsers, reverse proxies (Nginx proxy_read_timeout), CDNs, and network
 # firewalls will kill the idle TCP connection — typically after 60-120 s.
-# Yielding a heartbeat every 10 s prevents this at every layer.
+# 10 s is well within the lowest common proxy timeout while avoiding
+# excessive SSE traffic during long multi-minute searches.
 HEARTBEAT_INTERVAL = 10
 
 

@@ -140,8 +140,8 @@ def api_route(path, **kwargs):
 _session_secret = os.environ.get("SESSION_SECRET")
 if _session_secret:
     app.secret_key = _session_secret
-elif os.environ.get("DEPLOYMENT_ENV", "dev") == "dev":
-    app_logger.warning("SESSION_SECRET not set; generating an ephemeral dev secret key")
+elif os.environ.get("DEPLOYMENT_ENV", "production") == "dev":
+    app_logger.warning("SESSION_SECRET not set; generating ephemeral dev secret key")
     app.secret_key = os.urandom(32).hex()
 else:
     raise RuntimeError("SESSION_SECRET environment variable must be set in non-dev environments")
