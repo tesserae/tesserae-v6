@@ -462,6 +462,12 @@ def _run_fusion_job(source_id, target_id, language, max_results, job_key):
         slot = SearchSlot()
         for _queued in slot.acquire():
             pass  # block until a concurrency slot frees up
+        slot.set_metadata({
+            'source_id': source_id,
+            'target_id': target_id,
+            'language': language,
+            'match_type': 'fusion (poll)',
+        })
         final_results = []
         for event_type, evt_data in iter_fusion_search(
             source_units=source_units, target_units=target_units,
@@ -472,6 +478,15 @@ def _run_fusion_job(source_id, target_id, language, max_results, job_key):
             user_settings={'use_meter': False}, freq_basis='corpus',
             channel_weights={}, enabled_channels=None,
         ):
+            if slot.is_cancelled():
+                logger.info("GET fusion job cancelled (%s x %s)", source_id, target_id)
+                try:
+                    with open(_fusion_marker(job_key, 'error'), 'w', encoding='utf-8') as f:
+                        f.write('Search terminated by administrator')
+                except IOError:
+                    pass
+                return
+
             # Record honest coarse progress for the GET poll (see _write_fusion_status).
             _write_fusion_status(job_key, event_type, evt_data)
             if event_type == 'complete':

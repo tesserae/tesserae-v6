@@ -319,3 +319,32 @@ def test_cancel_search_creates_marker_and_is_cancelled():
             finally:
                 gate.LOCK_DIR = old_lock_dir
 
+
+def test_fusion_poll_job_metadata_match_type():
+    """Fusion poll job metadata match_type should report as 'fusion (poll)'."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        import backend.concurrency_gate as gate
+        old_lock_dir = gate.LOCK_DIR
+        gate.LOCK_DIR = tmpdir
+
+        with _ConfigPatch():
+            gate.ConcurrencyConfig.set_memory_threshold(0.5)
+            try:
+                slot = gate.SearchSlot()
+                for _ in slot.acquire():
+                    pass
+
+                slot.set_metadata({
+                    'source_id': 'vergil.aeneid.part.1.tess',
+                    'target_id': 'lucan.bellum_civile.part.1.tess',
+                    'language': 'la',
+                    'match_type': 'fusion (poll)',
+                })
+
+                active = gate.get_active_searches()
+                assert len(active) == 1
+                assert active[0]['match_type'] == 'fusion (poll)'
+                slot.release()
+            finally:
+                gate.LOCK_DIR = old_lock_dir
+
