@@ -47,7 +47,8 @@ def _get(path, params=None):
 
 
 def _post(path, body, timeout=None):
-    r = requests.post(f"{API_BASE}{path}", json=body, timeout=timeout or _TIMEOUT)
+    # `timeout or _TIMEOUT` is always a real timeout; bandit B113 can't see the fallback.
+    r = requests.post(f"{API_BASE}{path}", json=body, timeout=timeout or _TIMEOUT)  # nosec B113
     r.raise_for_status()
     return r.json()
 
