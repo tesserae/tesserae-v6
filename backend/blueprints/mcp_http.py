@@ -176,10 +176,11 @@ def _fusion_params(a):
         pass
     try:
         lim = int(a.get('limit') or 0)
-        if lim > 0:
-            p['limit'] = lim
     except (TypeError, ValueError):
-        pass
+        lim = 0
+    # Small default page (batch-of-~25 presentation contract) that also keeps the
+    # common response under the MCP client's token window; page more via limit/offset.
+    p['limit'] = lim if lim > 0 else 25
     # Server-side filters applied over the full result set before the display cap.
     for k in ('source_ref_prefix', 'target_ref_prefix'):
         v = (a.get(k) or '').strip()
@@ -246,18 +247,54 @@ def _t_compare_texts(a):
         fusion['showing'] = len(fusion['parallels'])
         fusion['note'] = (f"Top {len(fusion['parallels'])} of {full}; call fusion_search "
                           "(same source/target) for more, deeper pages, or ref/score filters.")
+        # Cross-reference: flag fusion parallels whose passage pair was ALSO found
+        # by a rare search (same source AND target loci), so the agent can merge by
+        # convergence directly instead of inferring from refs. Convergence of
+        # independent methods is real evidence and should raise an entry.
+        def _norm(s):
+            return ' '.join((s or '').split()).lower()
+        rare_idx = []
+        for sec, kind, key in ((rare_words, 'rare_word', 'word'), (rare_phrases, 'rare_phrase', 'bigram')):
+            for it in (sec.get('results') or []) if isinstance(sec, dict) else []:
+                srefs = {_norm(x) for x in (it.get('source_locations') or [])}
+                trefs = {_norm(x) for x in (it.get('target_locations') or [])}
+                if srefs and trefs:
+                    rare_idx.append((srefs, trefs, f"{kind}:{it.get(key)}"))
+        for p in fusion['parallels']:
+            sref = _norm((p.get('source') or {}).get('ref'))
+            tref = _norm((p.get('target') or {}).get('ref'))
+            hits = [lbl for srefs, trefs, lbl in rare_idx if sref in srefs and tref in trefs]
+            if hits:
+                p['also_found_by'] = hits
     out = {
         'source': a.get('source'), 'target': a.get('target'), 'language': a.get('language', 'la'),
         'ranked_parallels': fusion,      # fusion: strongest overall parallels
         'rare_phrases': rare_phrases,    # distinctive shared two-word collocations
         'rare_words': rare_words,        # distinctive shared individual words
     }
-    common = ('Present each ready section on its own (Ranked parallels / Rare shared phrases / '
-              'Rare shared words), then a short synthesis. Fusion ranks the strongest overall '
-              'parallels; the rare passes surface distinctive shared wording fusion may rank lower. '
-              'If a rare section says too_large or skipped, offer to run rare_pairs / rare_words on '
-              'its own. Genuine parallels also appear below fusion’s top results, so offer to page '
-              'deeper (fusion_search with offset) when useful.')
+    common = (
+        "PRESENTATION (default; an explicit user request for a by-search view, the full list, or a "
+        "specific sort overrides this). Merge the three sections into ONE list ordered by how "
+        "interesting each parallel is — your synthesis of fusion score, rarity, cross-method "
+        "convergence, and interpretive promise. Do NOT organize the output by which search produced "
+        "what; the sections here are data, interleave them. "
+        "Per entry: quote both passages with their loci; name the search(es) that found it, each with "
+        "its own metric — fusion (rank #, score, channel_count), rare phrase (rarity percentile), rare "
+        "word (corpus_count); when more than one search found the same passage pair, say so and rank "
+        "it HIGHER (a fusion parallel carries an also_found_by field when it coincides with a rare hit; "
+        "otherwise match by ref) — convergence of independent methods is itself evidence. "
+        "Fold each parallel's corpus context INLINE with its entry, not in a separate methods section: "
+        "run line_search on its shared words for how distinctive it is corpus-wide (use distinct_loci / "
+        "deduped counts) with a one-line characterization; do this for at least the top handful and any "
+        "entry resting on a rarity claim, before presenting. "
+        "Present ~25 entries, then ASK whether to continue, re-sort (fusion score / rarity / order in "
+        "either text / channel_count), filter (a ref range via source_ref_prefix), or search other "
+        "lines. Small sets (<10) need no batching. "
+        "Label the ordering as YOURS — 'most interesting' is your judgement, never Tesserae's ranking; "
+        "always quote the underlying Tesserae metrics so the user can re-derive any sort, and keep "
+        "Tesserae's detections and your interpretation distinct. "
+        "If a rare section says too_large or skipped, offer to run rare_pairs / rare_words on its own."
+    )
     if fusion.get('status') == 'running':
         out['note'] = ('The ranked_parallels (fusion) section is still computing server-side. '
                        'Present the ready sections now, then call fusion_search with the same '
@@ -336,7 +373,7 @@ TOOLS = [
                      "required": ["source", "target", "language"]},
      "fn": _t_rare_words},
     {"name": "compare_texts",
-     "description": "Recommended for comparing two texts. Runs all three automated pairwise searches at once — fusion (ranked parallels across ten signals), rare shared phrases, and rare shared words — and returns them as labeled sections. The rare sections return immediately; the fusion section takes a few minutes on a first run, so it may come back status 'running' — call compare_texts again with the same arguments shortly to fill it in (cached afterward).",
+     "description": "Recommended for comparing two texts. Runs all three automated pairwise searches at once — fusion (ranked parallels across ten signals), rare shared phrases, and rare shared words — and returns them as labeled sections. The rare sections return immediately; the fusion section takes a few minutes on a first run, so it may come back status 'running' — call compare_texts again with the same arguments shortly to fill it in (cached afterward). Direction is symmetric (same parallels and scores either way), but for allusion study put the earlier/model text as source and the later/alluding text as target so the labels read correctly. IMPORTANT: read the response 'note' — it specifies how to present the results (one merged, interest-ranked list, not by search type).",
      "inputSchema": {"type": "object", "properties": {"source": _STR, "target": _STR, "language": _STR},
                      "required": ["source", "target", "language"]},
      "fn": _t_compare_texts},
@@ -352,7 +389,12 @@ TOOLS = [
                      "takes a few minutes (cached after); returns status 'running' until ready. Scores are "
                      "relative to the specific pair (frequency baselines are computed per comparison), so "
                      "the same parallel can score differently across pairings — compare ranks within one "
-                     "run, not absolute scores across runs."),
+                     "run, not absolute scores across runs. Returns ~25 parallels by default (raise with "
+                     "limit, up to 500). Direction is symmetric, but for allusion study put the "
+                     "earlier/model text as source and the later/alluding text as target. Present results "
+                     "as one interest-ranked list of ~25, labelled as your own ordering (never as "
+                     "Tesserae's), each entry quoting its fused_score/channel_count; then ask to continue "
+                     "or re-sort."),
      "inputSchema": {"type": "object",
                      "properties": {"source": _STR, "target": _STR, "language": _STR,
                                     "offset": {"type": "integer"}, "limit": {"type": "integer"},
