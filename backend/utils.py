@@ -9,6 +9,24 @@ import unicodedata
 
 logger = logging.getLogger(__name__)
 
+
+def exact_phrase_pattern(query):
+    """Compile the regex for an *exact* line-search phrase.
+
+    Each query word must START at a word boundary, so a query word is not matched
+    inside a longer word: "quot annis" no longer matches "ali-quot annis". Words
+    are joined by whitespace. There is deliberately NO trailing boundary, so a
+    final word may carry a Latin enclitic — "arma virum" still matches "arma
+    virum-que cano" (the canonical arma-virum reference match). Unicode-aware
+    (\\b/\\w cover Greek and Coptic). Returns a compiled case-insensitive pattern,
+    or None for an empty query.
+    """
+    words = (query or '').split()
+    if not words:
+        return None
+    return re.compile(r'\s+'.join(r'\b' + re.escape(w) for w in words), re.IGNORECASE)
+
+
 OVERRIDES_PATH = os.path.join(os.path.dirname(__file__), 'text_metadata_overrides.json')
 PROVENANCE_PATH = os.path.join(os.path.dirname(__file__), 'text_provenance.json')
 
