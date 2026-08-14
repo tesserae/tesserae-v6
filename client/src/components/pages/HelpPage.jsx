@@ -1404,16 +1404,10 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 parallels for uniqueness across the corpus, and helping you interpret the results. Tesserae does the
                 searching, free, on its open API; the assistant orchestrates and interprets. The simplest, no-setup route
                 is the <strong>official Tesserae GPT in ChatGPT</strong> (see ChatGPT below). You can also paste a guide
-                into any assistant, build your own GPT, or (soon) add the one-URL Claude connector.
+                into any assistant, build your own GPT, or add the one-URL Claude connector.
               </p>
 
-              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">1 · Claude connector <span className="text-sm font-normal text-amber-700">— coming soon</span></h4>
-              <div className="border border-amber-300 bg-amber-50 rounded p-3 text-sm text-amber-900 mb-3">
-                <strong>Under development.</strong> The one-URL Claude connector is built but not live yet — it's waiting
-                on a small server-configuration change, so Claude can add it but can't yet complete a search through it.
-                In the meantime, the <strong>paste-in guide</strong> and <strong>ChatGPT Custom GPT</strong> below both
-                work today.
-              </div>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">1 · Claude connector <span className="text-sm font-normal text-gray-500">— one URL, full fusion search built in</span></h4>
               <p className="text-gray-700 text-sm mb-2">
                 Add Tesserae to Claude once, and regular chat Claude can run everything — including the full fusion
                 search — with no Python and no guide-pasting. In <strong>Claude Desktop</strong> or <strong>claude.ai
