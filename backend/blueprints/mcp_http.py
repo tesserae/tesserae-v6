@@ -162,6 +162,22 @@ def _fusion_params(a):
             p['offset'] = off
     except (TypeError, ValueError):
         pass
+    try:
+        lim = int(a.get('limit') or 0)
+        if lim > 0:
+            p['limit'] = lim
+    except (TypeError, ValueError):
+        pass
+    # Server-side filters applied over the full result set before the display cap.
+    for k in ('source_ref_prefix', 'target_ref_prefix'):
+        v = (a.get(k) or '').strip()
+        if v:
+            p[k] = v
+    try:
+        if a.get('min_score') is not None and str(a.get('min_score')).strip() != '':
+            p['min_score'] = float(a.get('min_score'))
+    except (TypeError, ValueError):
+        pass
     return p
 
 
@@ -300,10 +316,20 @@ TOOLS = [
                      "required": ["source", "target", "language"]},
      "fn": _t_compare_texts},
     {"name": "fusion_search",
-     "description": "Ranked fusion parallels for two texts across ten similarity signals — the passages most likely to be genuine parallels, strongest first. Returns a 100-result page; pass offset (100, 200, ...) to page deeper, since real parallels also appear below the top. Use compare_texts for a first look; use this to go deeper on the ranking. First run takes a few minutes (cached after); returns status 'running' until ready — call again shortly.",
+     "description": ("Ranked fusion parallels for two texts across ten similarity signals — the passages "
+                     "most likely to be genuine parallels, strongest first. Returns a page (default 100, "
+                     "up to 500 via limit); pass offset (100, 200, ...) to page deeper, since real "
+                     "parallels also appear below the top. To answer a question about ONE section/poem, "
+                     "use source_ref_prefix / target_ref_prefix — these filter the FULL result set (not "
+                     "just the page) by ref, so nothing is lost to the cap; a trailing dot pins a number "
+                     "(e.g. source_ref_prefix=\"ecl. 1.\" matches book/poem 1 but not 10). min_score drops "
+                     "weak matches. Response gives count (after filters) and total (before). First run "
+                     "takes a few minutes (cached after); returns status 'running' until ready."),
      "inputSchema": {"type": "object",
                      "properties": {"source": _STR, "target": _STR, "language": _STR,
-                                    "offset": {"type": "integer"}},
+                                    "offset": {"type": "integer"}, "limit": {"type": "integer"},
+                                    "source_ref_prefix": _STR, "target_ref_prefix": _STR,
+                                    "min_score": {"type": "number"}},
                      "required": ["source", "target", "language"]},
      "fn": _t_fusion_search},
     {"name": "cross_language",
