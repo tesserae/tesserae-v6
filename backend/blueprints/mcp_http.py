@@ -24,7 +24,16 @@ logger = logging.getLogger(__name__)
 mcp_http_bp = Blueprint('mcp_http', __name__)
 
 API_BASE = os.environ.get('TESSERAE_API_BASE', 'https://tesserae.caset.buffalo.edu/api').rstrip('/')
-SERVER_INFO = {"name": "tesserae", "version": "1.0.0"}
+SERVER_INFO = {
+    "name": "tesserae",
+    "title": "Tesserae",
+    "version": "1.0.0",
+    "websiteUrl": "https://tesserae.caset.buffalo.edu",
+    # MCP-native icon hint (clients that render serverInfo icons show the Tesserae
+    # mosaic mark instead of falling back to the parent domain's favicon).
+    "icons": [{"src": "https://tesserae.caset.buffalo.edu/tesserae-icon.jpg",
+               "mimeType": "image/jpeg", "sizes": "90x89"}],
+}
 DEFAULT_PROTOCOL = "2025-06-18"
 _TIMEOUT = 90
 _FUSION_POLL_TIMEOUT = 330   # HTTP request timeout for a fresh fusion run
