@@ -39,6 +39,7 @@ _FUSION_POLL_TIMEOUT = 330   # HTTP request timeout for a fresh fusion run
 _FUSION_MCP_BUDGET = 45      # seconds to block before returning status=running
 _COMPARE_BUDGET = 50         # hard per-call wall-clock ceiling for compare_texts (safe under ~60s client cap)
 _COMPARE_FUSION_RESERVE = 4  # seconds kept back to kick off the (async, separately-polled) fusion section
+_COMPARE_FUSION_PREVIEW = 25  # fusion parallels shown in the compare_texts first-look (fusion_search pages the rest)
 
 
 # --------------------------------------------------------------------------
@@ -101,14 +102,24 @@ def _t_string_search(a):
                         for r in (d.get('results') or [])[:40]]}
 
 
+def _locs(entries, k=5):
+    """Compact location list: just the refs (each raw entry is a verbose dict
+    carrying the full line text, author, work, text_id — far more than the agent
+    needs to point at a locus, and the main driver of oversized MCP payloads)."""
+    out = []
+    for e in (entries or [])[:k]:
+        out.append(e.get('ref') if isinstance(e, dict) else e)
+    return [r for r in out if r]
+
+
 def _t_rare_pairs(a, timeout=None):
     d = _post('/rare-bigram-search', {'source': a.get('source'), 'target': a.get('target'),
                                       'language': a.get('language', 'la')}, timeout=timeout)
     return {'shared_rare_count': d.get('shared_rare_count'),
             'results': [{'bigram': f"{r.get('display1', r.get('word1'))} {r.get('display2', r.get('word2'))}",
                          'rarity_percent': r.get('rarity_percent'),
-                         'source_locations': (r.get('source_locations') or [])[:5],
-                         'target_locations': (r.get('target_locations') or [])[:5]}
+                         'source_locations': _locs(r.get('source_locations')),
+                         'target_locations': _locs(r.get('target_locations'))}
                         for r in (d.get('results') or [])[:40]]}
 
 
@@ -118,8 +129,8 @@ def _t_rare_words(a, timeout=None):
     return {'shared_rare_count': d.get('shared_rare_count'),
             'results': [{'word': r.get('display_form') or r.get('lemma'),
                          'corpus_count': r.get('corpus_count'), 'proper_noun': r.get('is_proper_noun'),
-                         'source_locations': (r.get('source_locations') or [])[:5],
-                         'target_locations': (r.get('target_locations') or [])[:5]}
+                         'source_locations': _locs(r.get('source_locations')),
+                         'target_locations': _locs(r.get('target_locations'))}
                         for r in (d.get('results') or [])[:40]]}
 
 
@@ -222,6 +233,19 @@ def _t_compare_texts(a):
     rare_words = _section(_t_rare_words, 'rare_words', 34)     # typically ~25s
     rare_phrases = _section(_t_rare_pairs, 'rare_pairs', 18)   # typically ~10s
     fusion = _fusion_poll(_fusion_params(a), max(0, _left()))
+    # compare_texts is a "first look" that auto-runs three sections, so keep the
+    # combined payload small: cap the fusion preview to a compact top slice (deep
+    # dives go through fusion_search, which pages the full set). Without this a
+    # single response can exceed the MCP client's token budget.
+    if fusion.get('parallels'):
+        full = fusion.get('count')
+        fusion['parallels'] = [{'score': p.get('score'),
+                                'source': p.get('source'), 'target': p.get('target'),
+                                'matched': p.get('matched') or p.get('matched_lemmas')}
+                               for p in fusion['parallels'][:_COMPARE_FUSION_PREVIEW]]
+        fusion['showing'] = len(fusion['parallels'])
+        fusion['note'] = (f"Top {len(fusion['parallels'])} of {full}; call fusion_search "
+                          "(same source/target) for more, deeper pages, or ref/score filters.")
     out = {
         'source': a.get('source'), 'target': a.get('target'), 'language': a.get('language', 'la'),
         'ranked_parallels': fusion,      # fusion: strongest overall parallels
@@ -291,7 +315,7 @@ TOOLS = [
                      "required": ["language"]},
      "fn": _t_list_texts},
     {"name": "line_search",
-     "description": "Find corpus lines sharing words with a phrase (corpus-wide). The uniqueness check: few results means distinctive wording. search_type: lemma (default) | exact | regex.",
+     "description": "Find corpus lines sharing words with a phrase (corpus-wide). The uniqueness check: few results (total) means distinctive wording. Counts collapse whole-work vs per-book/poem duplicates of the same line, so total is a true distinct-loci count. search_type: exact matches whole words (a Latin enclitic on the final word is allowed, so 'arma virum' still hits 'arma virumque'); lemma (default) | exact | regex.",
      "inputSchema": {"type": "object",
                      "properties": {"query": _STR, "language": _STR, "search_type": _STR},
                      "required": ["query", "language"]},
@@ -325,7 +349,10 @@ TOOLS = [
                      "just the page) by ref, so nothing is lost to the cap; a trailing dot pins a number "
                      "(e.g. source_ref_prefix=\"ecl. 1.\" matches book/poem 1 but not 10). min_score drops "
                      "weak matches. Response gives count (after filters) and total (before). First run "
-                     "takes a few minutes (cached after); returns status 'running' until ready."),
+                     "takes a few minutes (cached after); returns status 'running' until ready. Scores are "
+                     "relative to the specific pair (frequency baselines are computed per comparison), so "
+                     "the same parallel can score differently across pairings — compare ranks within one "
+                     "run, not absolute scores across runs."),
      "inputSchema": {"type": "object",
                      "properties": {"source": _STR, "target": _STR, "language": _STR,
                                     "offset": {"type": "integer"}, "limit": {"type": "integer"},
