@@ -16,7 +16,8 @@ export default function CorpusBrowser() {
   const languageTabs = [
     { code: 'la', label: 'Latin' },
     { code: 'grc', label: 'Greek' },
-    { code: 'en', label: 'English' }
+    { code: 'en', label: 'English' },
+    { code: 'cop', label: 'Coptic' }
   ];
 
   const erasByLanguage = {
@@ -50,6 +51,14 @@ export default function CorpusBrowser() {
       { id: 'eighteenth_century', label: '18th Century' },
       { id: 'romantic', label: 'Romantic' },
       { id: 'victorian', label: 'Victorian' },
+      { id: 'unknown', label: 'Unknown' }
+    ],
+    cop: [
+      { id: 'all', label: 'All Eras' },
+      { id: 'early_coptic', label: 'Early Coptic' },
+      { id: 'classical_coptic', label: 'Classical Coptic' },
+      { id: 'late_antique_coptic', label: 'Late Antique Coptic' },
+      { id: 'bohairic_medieval', label: 'Bohairic / Medieval' },
       { id: 'unknown', label: 'Unknown' }
     ]
   };
@@ -116,6 +125,8 @@ export default function CorpusBrowser() {
     'archaic', 'classical', 'hellenistic',
     // Latin  
     'republic', 'augustan', 'early_imperial', 'later_imperial', 'late_antique',
+    // Coptic (3rd–14th c.)
+    'early_coptic', 'classical_coptic', 'late_antique_coptic', 'bohairic_medieval',
     // Medieval (Latin & English)
     'early_medieval', 'carolingian', 'medieval',
     // English
@@ -207,7 +218,7 @@ export default function CorpusBrowser() {
   };
 
   const getLanguageName = (lang) => {
-    const names = { la: 'Latin', grc: 'Greek', en: 'English' };
+    const names = { la: 'Latin', grc: 'Greek', en: 'English', cop: 'Coptic' };
     return names[lang] || lang;
   };
 

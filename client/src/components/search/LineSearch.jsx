@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { LoadingSpinner } from '../common';
 import { normalizeGreek } from '../../utils/greekUtils';
+import CopticSearchInput from './CopticSearchInput';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 
@@ -201,7 +202,7 @@ export default function LineSearch({ language }) {
     setBrowseLoading(true);
     setBrowseLines([]);
     try {
-      const res = await fetch(`/api/text/${selectedWork}/lines`);
+      const res = await fetch(`/api/text/${selectedWork}/lines?language=${language}`);
       const data = await res.json();
       if (data.lines) {
         setBrowseLines(data.lines);
@@ -286,7 +287,8 @@ export default function LineSearch({ language }) {
       r.era || ''
     ]);
     const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
+    // Prepend UTF-8 BOM so Excel reads non-Latin scripts (Coptic, Greek) as Unicode, not Windows-1252.
+    const blob = new Blob(['﻿', csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -431,7 +433,7 @@ export default function LineSearch({ language }) {
   };
 
   const getLanguageName = (lang) => {
-    const names = { la: 'Latin', grc: 'Greek', en: 'English' };
+    const names = { la: 'Latin', grc: 'Greek', en: 'English', cop: 'Coptic' };
     return names[lang] || lang;
   };
 
@@ -549,14 +551,23 @@ export default function LineSearch({ language }) {
                 Search Terms
               </label>
               <div className="flex flex-col sm:flex-row gap-3">
-                <input
-                  type="text"
-                  value={query}
-                  onChange={e => setQuery(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleSearch()}
-                  placeholder="Enter word or phrase..."
-                  className="flex-1 border rounded px-4 py-2"
-                />
+                {language === 'cop' ? (
+                  <CopticSearchInput
+                    className="flex-1"
+                    value={query}
+                    onChange={setQuery}
+                    onEnter={handleSearch}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={query}
+                    onChange={e => setQuery(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                    placeholder="Enter word or phrase..."
+                    className="flex-1 border rounded px-4 py-2"
+                  />
+                )}
                 <select
                   value={searchType}
                   onChange={e => setSearchType(e.target.value)}
@@ -776,18 +787,25 @@ export default function LineSearch({ language }) {
               )}
 
               <div className="divide-y divide-gray-200">
-                {filteredResults.slice(0, displayLimit).map((result, i) => (
+                {filteredResults.slice(0, displayLimit).map((result, i) => {
+                  // Coptic loci embed the full text id (e.g. "pseudo.athanasius.discourses.24");
+                  // strip that redundant filename stem so the citation reads "Discourses, 24".
+                  const stem = (result.text_id || '').replace(/\.tess$/, '');
+                  const displayLocus = stem && (result.locus || '').startsWith(stem + '.')
+                    ? result.locus.slice(stem.length + 1)
+                    : (result.locus || '');
+                  return (
                   <div key={i} className="p-4 hover:bg-gray-50">
                     <div className="flex flex-col sm:flex-row sm:items-start gap-2">
                       <span className="text-xs text-gray-400 min-w-[2.5rem] text-right shrink-0 leading-none" style={{paddingTop: '1px'}}>
                         {i + 1}.
                       </span>
-                      <div className="sm:w-48 flex-shrink-0">
+                      <div className="sm:w-48 flex-shrink-0 min-w-0 break-words">
                         <div className="text-sm font-medium text-gray-900">
                           {result.author}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {result.work}, {result.locus}
+                          {result.work}, {displayLocus}
                         </div>
                         {result.era && (
                           <span className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded mt-1 inline-block">
@@ -795,12 +813,13 @@ export default function LineSearch({ language }) {
                           </span>
                         )}
                       </div>
-                      <div className="flex-1 text-gray-700">
+                      <div className="flex-1 min-w-0 break-words text-gray-700">
                         {highlightMatches(result.text, result.matched_words || query.split(/\s+/))}
                       </div>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
               {filteredResults.length > displayLimit && (
                 <div className="px-4 py-3 bg-gray-50 text-center">

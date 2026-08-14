@@ -22,6 +22,16 @@ from backend.utils import get_text_metadata, detect_text_type, resolve_text_path
 
 logger = get_logger('wildcard_search')
 
+# Coptic normalization reconciles the two Unicode encodings of Coptic
+# (legacy "Greek and Coptic" block vs the modern Coptic block) and strips
+# supralinear strokes, so a typed query matches the stored text. Guarded so a
+# missing coptic package can never break Latin/Greek/English wildcard search.
+try:
+    from backend.coptic.processor import normalize_coptic
+except Exception:  # pragma: no cover
+    def normalize_coptic(text):
+        return text
+
 def get_author_dates():
     """Get author dates from app.py"""
     try:
@@ -30,33 +40,22 @@ def get_author_dates():
     except ImportError:
         return {}
 
-GREEK_DIACRITICAL_MAP = {
-    'ά': 'α', 'ὰ': 'α', 'ᾶ': 'α', 'ἀ': 'α', 'ἁ': 'α', 'ἂ': 'α', 'ἃ': 'α', 'ἄ': 'α', 'ἅ': 'α', 'ἆ': 'α', 'ἇ': 'α',
-    'ᾀ': 'α', 'ᾁ': 'α', 'ᾂ': 'α', 'ᾃ': 'α', 'ᾄ': 'α', 'ᾅ': 'α', 'ᾆ': 'α', 'ᾇ': 'α', 'ᾲ': 'α', 'ᾳ': 'α', 'ᾴ': 'α', 'ᾷ': 'α',
-    'έ': 'ε', 'ὲ': 'ε', 'ἐ': 'ε', 'ἑ': 'ε', 'ἒ': 'ε', 'ἓ': 'ε', 'ἔ': 'ε', 'ἕ': 'ε',
-    'ή': 'η', 'ὴ': 'η', 'ῆ': 'η', 'ἠ': 'η', 'ἡ': 'η', 'ἢ': 'η', 'ἣ': 'η', 'ἤ': 'η', 'ἥ': 'η', 'ἦ': 'η', 'ἧ': 'η',
-    'ᾐ': 'η', 'ᾑ': 'η', 'ᾒ': 'η', 'ᾓ': 'η', 'ᾔ': 'η', 'ᾕ': 'η', 'ᾖ': 'η', 'ᾗ': 'η', 'ῂ': 'η', 'ῃ': 'η', 'ῄ': 'η', 'ῇ': 'η',
-    'ί': 'ι', 'ὶ': 'ι', 'ῖ': 'ι', 'ἰ': 'ι', 'ἱ': 'ι', 'ἲ': 'ι', 'ἳ': 'ι', 'ἴ': 'ι', 'ἵ': 'ι', 'ἶ': 'ι', 'ἷ': 'ι', 'ϊ': 'ι', 'ΐ': 'ι', 'ῒ': 'ι', 'ῗ': 'ι',
-    'ό': 'ο', 'ὸ': 'ο', 'ὀ': 'ο', 'ὁ': 'ο', 'ὂ': 'ο', 'ὃ': 'ο', 'ὄ': 'ο', 'ὅ': 'ο',
-    'ύ': 'υ', 'ὺ': 'υ', 'ῦ': 'υ', 'ὐ': 'υ', 'ὑ': 'υ', 'ὒ': 'υ', 'ὓ': 'υ', 'ὔ': 'υ', 'ὕ': 'υ', 'ὖ': 'υ', 'ὗ': 'υ', 'ϋ': 'υ', 'ΰ': 'υ', 'ῢ': 'υ', 'ῧ': 'υ',
-    'ώ': 'ω', 'ὼ': 'ω', 'ῶ': 'ω', 'ὠ': 'ω', 'ὡ': 'ω', 'ὢ': 'ω', 'ὣ': 'ω', 'ὤ': 'ω', 'ὥ': 'ω', 'ὦ': 'ω', 'ὧ': 'ω',
-    'ᾠ': 'ω', 'ᾡ': 'ω', 'ᾢ': 'ω', 'ᾣ': 'ω', 'ᾤ': 'ω', 'ᾥ': 'ω', 'ᾦ': 'ω', 'ᾧ': 'ω', 'ῲ': 'ω', 'ῳ': 'ω', 'ῴ': 'ω', 'ῷ': 'ω',
-    'ῤ': 'ρ', 'ῥ': 'ρ',
-}
-
-
 def normalize_greek(text: str) -> str:
     """
-    Normalize Greek text by removing diacriticals (accents, breathings, iota subscripts).
-    This allows searches like 'λογος' to match 'λόγος'.
+    Remove Greek diacritics (accents, breathings, iota subscripts) so an
+    accented query matches accentless text and vice versa -- e.g. both 'λογος'
+    and 'λόγος' match the corpus.
+
+    Works regardless of Unicode normalization form: the text is decomposed
+    (NFD) so every diacritic becomes a combining mark, then all combining marks
+    are stripped. The Greek corpus is stored in NFD while typed/pasted queries
+    are usually NFC; the previous precomposed-only character map reduced NFC
+    queries to base letters but left the NFD corpus untouched, so accented
+    queries matched nothing. Case is preserved -- the caller controls
+    case-sensitivity via regex flags.
     """
-    result = []
-    for char in text:
-        if char in GREEK_DIACRITICAL_MAP:
-            result.append(GREEK_DIACRITICAL_MAP[char])
-        else:
-            result.append(char)
-    return ''.join(result)
+    decomposed = unicodedata.normalize('NFD', text)
+    return ''.join(ch for ch in decomposed if not unicodedata.combining(ch))
 
 def normalize_latin(text: str) -> str:
     """
@@ -176,6 +175,7 @@ def search_file(filepath: str, parsed_query: Dict, case_sensitive: bool = False,
     """Search a single .tess file for matches."""
     results = []
     is_greek = language == 'grc'
+    is_coptic = language == 'cop'
     filename = os.path.basename(filepath)
     is_prose = detect_text_type(filename) == 'prose'
     
@@ -205,17 +205,30 @@ def search_file(filepath: str, parsed_query: Dict, case_sensitive: bool = False,
             search_text = normalize_greek(text)
         elif is_latin:
             search_text = normalize_latin(text)
+        elif is_coptic:
+            search_text = normalize_coptic(text)
         else:
             search_text = text
-        
-        if matches_query(search_text, parsed_query, flags, is_greek, is_latin):
-            highlight_indices = get_highlight_indices(text, parsed_query, flags, is_greek, is_latin)
-            
+
+        if matches_query(search_text, parsed_query, flags, is_greek, is_latin, is_coptic):
+            # Coptic and Greek normalizers change string length (strokes /
+            # combining accents are stripped), so match positions on the
+            # normalized text don't map back to the raw display text. Highlight
+            # whole tokens for those; Latin/English keep exact-span highlights.
+            token_normalizer = normalize_coptic if is_coptic else (normalize_greek if is_greek else None)
+            if token_normalizer:
+                highlight_indices = get_token_highlight_indices(text, parsed_query, flags, token_normalizer)
+            else:
+                highlight_indices = get_highlight_indices(text, parsed_query, flags, is_greek, is_latin)
+
             # For prose, extract only sentences containing matches
             display_text = text
             if is_prose and len(text) > 150:
                 display_text = extract_sentences_with_matches(text, highlight_indices)
-                highlight_indices = get_highlight_indices(display_text, parsed_query, flags, is_greek, is_latin)
+                if token_normalizer:
+                    highlight_indices = get_token_highlight_indices(display_text, parsed_query, flags, token_normalizer)
+                else:
+                    highlight_indices = get_highlight_indices(display_text, parsed_query, flags, is_greek, is_latin)
             
             # Apply HTML highlighting
             highlighted_text = apply_highlighting(display_text, highlight_indices)
@@ -230,48 +243,51 @@ def search_file(filepath: str, parsed_query: Dict, case_sensitive: bool = False,
     return results
 
 
-def matches_query(text: str, parsed_query: Dict, flags: int, is_greek: bool = False, is_latin: bool = False) -> bool:
+def matches_query(text: str, parsed_query: Dict, flags: int, is_greek: bool = False, is_latin: bool = False, is_coptic: bool = False) -> bool:
     """Check if text matches the parsed query."""
     query_type = parsed_query.get('type', 'simple')
-    
+
     if query_type == 'empty':
         return False
-    
+
     if query_type == 'simple':
-        return all(matches_term(text, term, flags, is_greek, is_latin) for term in parsed_query['terms'])
-    
+        return all(matches_term(text, term, flags, is_greek, is_latin, is_coptic) for term in parsed_query['terms'])
+
     if query_type == 'and':
-        return all(matches_term(text, term, flags, is_greek, is_latin) for term in parsed_query['terms'])
-    
+        return all(matches_term(text, term, flags, is_greek, is_latin, is_coptic) for term in parsed_query['terms'])
+
     if query_type == 'or':
-        return any(matches_term(text, term, flags, is_greek, is_latin) for term in parsed_query['terms'])
-    
+        return any(matches_term(text, term, flags, is_greek, is_latin, is_coptic) for term in parsed_query['terms'])
+
     if query_type == 'not':
-        include_match = matches_term(text, parsed_query['include'], flags, is_greek, is_latin)
-        exclude_match = matches_term(text, parsed_query['exclude'], flags, is_greek, is_latin)
+        include_match = matches_term(text, parsed_query['include'], flags, is_greek, is_latin, is_coptic)
+        exclude_match = matches_term(text, parsed_query['exclude'], flags, is_greek, is_latin, is_coptic)
         return include_match and not exclude_match
-    
+
     if query_type == 'proximity':
-        return matches_proximity(text, parsed_query, flags, is_greek, is_latin)
-    
+        return matches_proximity(text, parsed_query, flags, is_greek, is_latin, is_coptic)
+
     return False
 
 
-def matches_proximity(text: str, parsed_query: Dict, flags: int, is_greek: bool = False, is_latin: bool = False) -> bool:
+def matches_proximity(text: str, parsed_query: Dict, flags: int, is_greek: bool = False, is_latin: bool = False, is_coptic: bool = False) -> bool:
     """Check if two terms appear within the specified character distance."""
     term1 = parsed_query['term1']
     term2 = parsed_query['term2']
     distance = parsed_query.get('distance', 100)
-    
+
     pattern1 = term1['pattern']
     pattern2 = term2['pattern']
-    
+
     if is_greek:
         pattern1 = normalize_greek(pattern1)
         pattern2 = normalize_greek(pattern2)
     elif is_latin:
         pattern1 = normalize_latin(pattern1)
         pattern2 = normalize_latin(pattern2)
+    elif is_coptic:
+        pattern1 = normalize_coptic(pattern1)
+        pattern2 = normalize_coptic(pattern2)
     
     pattern1 = r'\b' + pattern1 + r'\b'
     pattern2 = r'\b' + pattern2 + r'\b'
@@ -303,13 +319,15 @@ def matches_proximity(text: str, parsed_query: Dict, flags: int, is_greek: bool 
     return False
 
 
-def matches_term(text: str, term: Dict, flags: int, is_greek: bool = False, is_latin: bool = False) -> bool:
+def matches_term(text: str, term: Dict, flags: int, is_greek: bool = False, is_latin: bool = False, is_coptic: bool = False) -> bool:
     """Check if text matches a single term."""
     pattern = term['pattern']
     if is_greek:
         pattern = normalize_greek(pattern)
     elif is_latin:
         pattern = normalize_latin(pattern)
+    elif is_coptic:
+        pattern = normalize_coptic(pattern)
     pattern = r'\b' + pattern + r'\b'
     return bool(re.search(pattern, text, flags))
 
@@ -346,6 +364,38 @@ def get_highlight_indices(text: str, parsed_query: Dict, flags: int, is_greek: b
             indices.append([match.start(), match.end()])
     
     indices.sort(key=lambda x: x[0])
+    return indices
+
+
+def get_token_highlight_indices(text: str, parsed_query: Dict, flags: int, normalizer) -> List[List[int]]:
+    """Highlight indices at whole-token (whitespace-delimited) granularity.
+
+    Used for languages whose normalizer changes string length, so exact match
+    offsets on the normalized string don't line up with the raw display text:
+    normalize_coptic() strips supralinear strokes, and normalize_greek() strips
+    combining accents. Walk the raw text token by token, normalize each token,
+    and mark the whole raw token when a query term matches inside it. Spans are
+    on the raw text, so they align with apply_highlighting(). For Greek this is
+    exactly word-level highlighting; for Coptic it highlights the bound group.
+    """
+    terms = []
+    query_type = parsed_query.get('type', 'simple')
+    if query_type in ('simple', 'and', 'or'):
+        terms = parsed_query.get('terms', [])
+    elif query_type == 'not':
+        terms = [parsed_query['include']]
+    elif query_type == 'proximity':
+        terms = [parsed_query['term1'], parsed_query['term2']]
+
+    patterns = [r'\b' + normalizer(t['pattern']) + r'\b' for t in terms]
+    if not patterns:
+        return []
+
+    indices = []
+    for m in re.finditer(r'\S+', text):
+        token_norm = normalizer(m.group(0))
+        if any(re.search(p, token_norm, flags) for p in patterns):
+            indices.append([m.start(), m.end()])
     return indices
 
 

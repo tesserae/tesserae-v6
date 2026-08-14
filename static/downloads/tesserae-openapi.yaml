@@ -1,0 +1,575 @@
+openapi: 3.1.0
+info:
+  title: Tesserae V6 API
+  version: "1.0.0"
+  description: >-
+    Tesserae finds intertextual parallels — allusions, echoes, quotations, and
+    borrowings — across ~2,100 Latin, Greek, English, and Coptic literary works.
+    This API is open (no key, no login) and read-only.
+
+
+    HOW TO USE (for an AI assistant driving this API):
+
+    1. Follow the user's lead; the user is the scholar. Surface a relevant
+       Tesserae capability briefly when it helps, then defer.
+
+    2. A typical workflow: pick two texts (listTexts) → find distinctive shared
+       vocabulary between them (rarePairsSearch / rareWordsSearch) → test how
+       unique a shared phrase is across the whole corpus (lineSearch) → interpret
+       the strongest, rarest parallels, quoting both passages and their loci.
+
+    3. PROVENANCE — keep Tesserae's output and your own interpretation clearly
+       separate. Tesserae's results (the matches, loci, rarity) are transparent
+       and reproducible; your interpretation is not, unless made auditable.
+       Attribute detections to Tesserae; present analysis as your own AI-assisted
+       inference the scholar should verify. Encourage the user to cite Tesserae
+       for the parallels and describe surrounding analysis as AI-assisted.
+
+    4. Be a good citizen: shared research server. Use the fast JSON endpoints
+       freely; on a timeout, back off and retry rather than firing in parallel.
+
+
+    LANGUAGE COVERAGE: Latin (la) is fullest; Greek (grc) ~650 works; English
+    (en) is a small corpus; Coptic (cop) is tuned for quotation/reuse. NOTE:
+    listTexts returns one entry per text file and long works are split into
+    parts (each its own entry), so its per-language counts run higher than the
+    number of distinct works.
+
+
+    LISTING TEXTS: a whole language is large — with listTexts ALWAYS pass an
+    `author` filter (e.g. author=Vergil) or a `limit`; never fetch a whole
+    language unfiltered. To answer "list <author>'s texts", call listTexts with
+    language + author=<author>.
+
+
+    NOTE ON SLOW SEARCHES (poll, don't block): a Custom GPT Action times out
+    after ~30-45s, but several searches run longer. Use the poll operations:
+    call once, and while the response is {"status":"running"}, call the SAME
+    operation again every ~25s until {"status":"complete", ...}. A result already
+    computed returns instantly.
+      * Full fusion: fusionSearchPoll (GET /fusion-search) — NOT the streaming
+        fusionSearch (POST /search-fusion), which a GPT must not call.
+      * String search: stringSearchPoll (GET /wildcard-search-poll).
+      * Rare words / rare pairs: rareWordsPoll / rarePairsPoll. (Their plain POST
+        forms are fine for small texts but can exceed the timeout on large ones.)
+
+    CROSS-LANGUAGE (e.g. a Greek model behind a Latin passage): use
+    crossLanguageSearch (POST /search) with match_type "crosslingual_fusion" and
+    separate source_language/target_language fields. It is POST-only (no poll/GET
+    form) and returns plain JSON.
+
+    KEEP RESPONSES SMALL: pass a cap — max_results on lineSearch/stringSearch,
+    limit on rareWordsSearch/rarePairsSearch — and keep only the top results.
+servers:
+  - url: https://tesserae.caset.buffalo.edu/api
+    description: Tesserae production API
+
+paths:
+  /languages:
+    get:
+      operationId: getLanguages
+      summary: List available languages and cross-language pairs
+      responses:
+        "200":
+          description: Available languages and cross-lingual pairs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  languages:
+                    type: array
+                    items: { type: string }
+                    description: "Language codes, e.g. la, grc, en, cop"
+                  crosslingual_pairs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        key: { type: string }
+                        label: { type: string }
+                        source: { type: string }
+                        target: { type: string }
+
+  /texts:
+    get:
+      operationId: listTexts
+      summary: List texts (with their ids) for a language — filter by author
+      description: >-
+        Texts (ids like "vergil.aeneid.part.1.tess") for a language; use an id as
+        source/target. A whole language is large — narrow with `author` (e.g.
+        author=Vergil) or a `limit`, never fetch it unfiltered. For "list X's
+        texts", pass language + author=X.
+      parameters:
+        - name: language
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [la, grc, en, cop]
+        - name: author
+          in: query
+          required: false
+          description: "Case-insensitive substring over author/work/title/id (e.g. 'Vergil'). Use this to answer 'list <author>'s texts'."
+          schema: { type: string }
+        - name: limit
+          in: query
+          required: false
+          description: "Max texts to return (keep the response small)."
+          schema: { type: integer, default: 50 }
+        - name: offset
+          in: query
+          required: false
+          description: "Skip this many (pagination)."
+          schema: { type: integer, default: 0 }
+        - name: compact
+          in: query
+          required: false
+          description: "true → return only id/author/work/title/part/language (smaller response)."
+          schema: { type: boolean, default: true }
+      responses:
+        "200":
+          description: List of texts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: { type: string, description: "Text id — use as source/target" }
+                    author: { type: string }
+                    work: { type: string }
+                    title: { type: string }
+                    display_name: { type: string }
+                    part: { type: string }
+                    language: { type: string }
+                    era: { type: string }
+                    year: { type: integer }
+
+  /line-search:
+    post:
+      operationId: lineSearch
+      summary: Find corpus lines sharing words with a phrase (corpus-wide)
+      description: >-
+        Every corpus line sharing 2+ words with a phrase — the corpus-wide
+        UNIQUENESS check. Run a candidate parallel's shared words here: few
+        results = distinctive wording = a stronger allusion claim. Use
+        distinct_loci (not total) for the count.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query, language]
+              properties:
+                query: { type: string, description: "A phrase or line, e.g. 'arma virumque'" }
+                language: { type: string, enum: [la, grc, en, cop] }
+                search_type:
+                  type: string
+                  enum: [lemma, exact, regex]
+                  default: lemma
+                  description: "lemma = dictionary-form match (default); exact = surface form; regex"
+                max_results:
+                  type: integer
+                  default: 500
+                  description: "Cap the number of returned lines (keep this modest, e.g. 40, to stay context-window friendly)."
+      responses:
+        "200":
+          description: Matching corpus lines
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  query: { type: string }
+                  total: { type: integer, description: "Total matching lines (whole works AND their parts count separately)." }
+                  distinct_loci: { type: integer, description: "Unique (author, work, locus) count — use THIS for a uniqueness check; it collapses the whole-work/part duplication." }
+                  search_time: { type: number }
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        text_id: { type: string }
+                        author: { type: string }
+                        work: { type: string }
+                        locus: { type: string, description: "Citation, e.g. 'Vergil Aeneid 1.1'" }
+                        text: { type: string, description: "The line" }
+                        matched_words: { type: array, items: { type: string } }
+                        is_poetry: { type: boolean }
+                        era: { type: string }
+                        year: { type: integer }
+
+  /wildcard-search:
+    post:
+      operationId: stringSearch
+      summary: Wildcard / boolean / exact text search across the corpus
+      description: >-
+        Search the corpus for specific words, forms, or collocations. Supports
+        wildcards (am*), boolean operators (AND / OR / NOT), and "quoted phrases".
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query, language]
+              properties:
+                query: { type: string, description: "e.g. 'arma AND cano', 'am*', '\"arma virumque\"'" }
+                language: { type: string, enum: [la, grc, en, cop] }
+                max_results: { type: integer, default: 500, description: "Cap the number of returned lines (keep modest)." }
+      responses:
+        "200":
+          description: Matching lines
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  query: { type: string }
+                  parsed_type: { type: string }
+                  total_matches: { type: integer }
+                  truncated: { type: boolean }
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        text_id: { type: string }
+                        author: { type: string }
+                        title: { type: string }
+                        ref: { type: string }
+                        reference: { type: string }
+                        text: { type: string }
+                        highlighted_text: { type: string }
+                        is_poetry: { type: boolean }
+                        year: { type: integer }
+
+  /rare-bigram-search:
+    post:
+      operationId: rarePairsSearch
+      summary: Rare two-word combinations shared by two texts
+      description: >-
+        Returns distinctive two-word collocations (bigrams) that two chosen texts
+        share, ranked by rarity. A shared rare collocation is strong evidence of
+        deliberate reuse. Good JSON-friendly substitute for full fusion when
+        comparing two texts.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [source, target, language]
+              properties:
+                source: { type: string, description: "Source text id" }
+                target: { type: string, description: "Target text id" }
+                language: { type: string, enum: [la, grc, en, cop] }
+                limit: { type: integer, default: 100, description: "Max results to return (keep modest, e.g. 40)." }
+      responses:
+        "200":
+          description: Shared rare bigrams
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  shared_rare_count: { type: integer }
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        bigram: { type: string }
+                        display1: { type: string }
+                        display2: { type: string }
+                        word1: { type: string }
+                        word2: { type: string }
+                        rarity_percent: { type: number, description: "100 = appears only in these two texts" }
+                        source_locations: { type: array, items: { type: string } }
+                        target_locations: { type: array, items: { type: string } }
+
+  /hapax-search:
+    post:
+      operationId: rareWordsSearch
+      summary: Rare individual words shared by two texts
+      description: >-
+        Returns rare individual words that two chosen texts share, with how often
+        each occurs corpus-wide. A shared rare word is a strong intertext signal.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [source, target, language]
+              properties:
+                source: { type: string, description: "Source text id" }
+                target: { type: string, description: "Target text id" }
+                language: { type: string, enum: [la, grc, en, cop] }
+                limit: { type: integer, description: "Max results to return (keep modest, e.g. 40). Omit for all." }
+      responses:
+        "200":
+          description: Shared rare words
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  shared_rare_count: { type: integer }
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        lemma: { type: string }
+                        display_form: { type: string }
+                        corpus_count: { type: integer, description: "How many texts contain this word" }
+                        is_proper_noun: { type: boolean }
+                        source_locations: { type: array, items: { type: string } }
+                        target_locations: { type: array, items: { type: string } }
+
+  /feature-request:
+    post:
+      operationId: submitFeatureRequest
+      summary: File a feature / language / text / bug request (ONLY with the user's sign-off)
+      description: >-
+        File a feature/language/text/bug request. ONLY after the user's explicit
+        sign-off — never file silently. Warn them it becomes a PUBLIC GitHub
+        issue; any contact email is kept private. Put the queries/results that
+        prompted it in `context`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type]
+              properties:
+                type: { type: string, enum: [feature, language, text, bug, other] }
+                title: { type: string }
+                problem: { type: string, description: "The scholarly need, in the user's words" }
+                desired: { type: string, description: "The Tesserae behavior that would address it" }
+                example: { type: string }
+                context: { type: string, description: "The actual queries/results that prompted this request" }
+                contact: { type: string, description: "Optional email — kept PRIVATE, never in the public issue" }
+      responses:
+        "200":
+          description: Submitted (stored + emailed; a public issue is filed for feature/language/bug when enabled)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  id: { type: integer }
+                  github_filed: { type: boolean }
+                  issue_url: { type: string }
+
+  /fusion-search:
+    get:
+      operationId: fusionSearchPoll
+      summary: Full fusion comparison of two texts, as a poll-able GET (use THIS for fusion)
+      description: >-
+        Two-text fusion as a poll. Returns "running" until ready, then "complete"
+        with a pre-sorted parallels array. Full fusion typically takes ~2-3 min;
+        call the SAME operation again every ~30s until complete — it reuses the
+        job, never a duplicate. Cached pairs return instantly.
+      parameters:
+        - name: source
+          in: query
+          required: true
+          schema: { type: string }
+          description: Source text id (from listTexts)
+        - name: target
+          in: query
+          required: true
+          schema: { type: string }
+          description: Target text id (from listTexts)
+        - name: language
+          in: query
+          required: true
+          schema: { type: string, enum: [la, grc, en, cop] }
+      responses:
+        "200":
+          description: Either a running status, or the completed ranked parallels.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [running, complete, error] }
+                  message: { type: string, description: "Human-readable status note (e.g. the ~2-3 min guidance while running)." }
+                  elapsed_seconds: { type: integer, description: "Seconds since the job started (running only)." }
+                  stage: { type: string, description: "Coarse phase while running: 'line' then 'window'." }
+                  current_signal: { type: string, description: "The similarity signal (channel) being computed now." }
+                  signals_done: { type: integer, description: "Similarity signals computed so far THIS phase. NOTE: NOT a time-percentage — later signals (sound, semantic, edit-distance) are much slower, so this rises fast then slows." }
+                  signals_total: { type: integer, description: "Total similarity signals in the current phase." }
+                  candidates_so_far: { type: integer, description: "Candidate parallels found so far (running only)." }
+                  count: { type: integer }
+                  parallels:
+                    type: array
+                    description: "Pre-sorted best-first. Each item carries both the short poll names (score, matched) and the streaming-endpoint names (fused_score, matched_words, matched_lemmas, channel_count) so either shape works."
+                    items:
+                      type: object
+                      properties:
+                        score: { type: number, description: "Alias of fused_score." }
+                        fused_score: { type: number, description: "Rank by this (descending); already sorted." }
+                        channels: { type: array, items: { type: string } }
+                        channel_count: { type: integer }
+                        source: { type: object, properties: { ref: { type: string }, text: { type: string } } }
+                        target: { type: object, properties: { ref: { type: string }, text: { type: string } } }
+                        matched: { type: array, items: { type: string }, description: "The echoed words (lemmas if available, else surface)." }
+                        matched_words: { type: array, items: { type: string } }
+                        matched_lemmas: { type: array, items: { type: string } }
+
+  /search-fusion:
+    post:
+      operationId: fusionSearch
+      summary: "Streaming fusion (browsers/dev tools only — GPTs must use fusionSearchPoll instead)"
+      description: >-
+        Streaming SSE fusion for browsers/dev tools only. It is a
+        text/event-stream that runs for minutes and is NOT a usable Action — a
+        Custom GPT must NOT call it; use fusionSearchPoll instead. Documented
+        here for completeness.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [source, target, language]
+              properties:
+                source: { type: string }
+                target: { type: string }
+                language: { type: string, enum: [la, grc, en, cop] }
+      responses:
+        "200":
+          description: >-
+            Server-Sent Events stream. Events of type "intermediate"/"complete"
+            carry a `results` array of ranked pairs (each with source/target
+            {ref, text}, fused_score, channels, matched_words).
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
+  /search:
+    post:
+      operationId: crossLanguageSearch
+      summary: Cross-language fusion (e.g. Greek source behind a Latin/Coptic passage)
+      description: >-
+        Cross-language parallels (e.g. a Greek model behind a Latin passage). Set
+        match_type=crosslingual_fusion and give SEPARATE source_language and
+        target_language (not a combined code). Plain JSON, POST only. See
+        getLanguages for supported pairs.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [source, target, source_language, target_language, match_type]
+              properties:
+                source: { type: string, description: "Source text id (from listTexts, e.g. homer.iliad.part.1.tess)" }
+                target: { type: string, description: "Target text id (e.g. vergil.aeneid.part.1.tess)" }
+                source_language: { type: string, enum: [la, grc, en, cop], description: "Language of the source text" }
+                target_language: { type: string, enum: [la, grc, en, cop], description: "Language of the target text" }
+                match_type: { type: string, enum: [crosslingual_fusion], description: "Must be crosslingual_fusion" }
+                min_matches: { type: integer, default: 2, description: "1 (include semantic-only) to 4" }
+      responses:
+        "200":
+          description: Ranked cross-language parallels
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        overall_score: { type: number }
+                        source: { type: object, properties: { ref: { type: string }, text: { type: string } } }
+                        target: { type: object, properties: { ref: { type: string }, text: { type: string } } }
+                        matched_words: { type: array, items: { type: string } }
+
+  /wildcard-search-poll:
+    get:
+      operationId: stringSearchPoll
+      summary: String/wildcard search as a poll (use for slow queries / from a GPT)
+      description: >-
+        Same as stringSearch but poll-able so it can't time out: the first call
+        returns status "running"; call the SAME operation again every ~25s until
+        status "complete" with results. Results are capped (max_results, 200).
+      parameters:
+        - { name: query, in: query, required: true, schema: { type: string } }
+        - { name: language, in: query, required: true, schema: { type: string, enum: [la, grc, en, cop] } }
+        - { name: max_results, in: query, required: false, schema: { type: integer, default: 200 } }
+      responses:
+        "200":
+          description: Running status, or completed results.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [running, complete, error] }
+                  total_matches: { type: integer }
+                  showing: { type: integer }
+                  results: { type: array, items: { type: object } }
+
+  /hapax-search-poll:
+    get:
+      operationId: rareWordsPoll
+      summary: Rare shared words as a poll (use for slow pairs / from a GPT)
+      description: >-
+        Same as rareWordsSearch but poll-able: first call returns
+        {"status":"running"}; call the SAME operation again every ~25s until
+        {"status":"complete","results":[...]}. Results are capped (limit, default 60).
+      parameters:
+        - { name: source, in: query, required: true, schema: { type: string } }
+        - { name: target, in: query, required: true, schema: { type: string } }
+        - { name: language, in: query, required: true, schema: { type: string, enum: [la, grc, en, cop] } }
+        - { name: limit, in: query, required: false, schema: { type: integer, default: 60 } }
+      responses:
+        "200":
+          description: Running status, or completed results.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [running, complete, error] }
+                  shared_rare_count: { type: integer }
+                  showing: { type: integer }
+                  results: { type: array, items: { type: object } }
+
+  /rare-bigram-search-poll:
+    get:
+      operationId: rarePairsPoll
+      summary: Rare shared bigrams as a poll (use for slow pairs / from a GPT)
+      description: >-
+        Same as rarePairsSearch but poll-able: first call returns
+        {"status":"running"}; call the SAME operation again every ~25s until
+        {"status":"complete","results":[...]}. Results are capped (limit, default 60).
+      parameters:
+        - { name: source, in: query, required: true, schema: { type: string } }
+        - { name: target, in: query, required: true, schema: { type: string } }
+        - { name: language, in: query, required: true, schema: { type: string, enum: [la, grc, en, cop] } }
+        - { name: limit, in: query, required: false, schema: { type: integer, default: 60 } }
+      responses:
+        "200":
+          description: Running status, or completed results.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, enum: [running, complete, error] }
+                  shared_rare_count: { type: integer }
+                  showing: { type: integer }
+                  results: { type: array, items: { type: object } }

@@ -15,3 +15,16 @@ export const normalizeGreek = (text) => {
     .toLowerCase()
     .replace(/ς/g, 'σ');
 };
+
+// Search-syntax example strings for the String Search legend. The Greek
+// words are extracted verbatim from Iliad 1.1 in the corpus (never typed),
+// so the accents/encoding are exactly what the corpus uses.
+export const GREEK_SYNTAX_EXAMPLES = {
+  wild: "μῆν*",
+  wildFind: "μῆνιν",
+  single: "θε?",
+  and: "μῆνιν AND θεὰ",
+  or: "θεὰ OR ἄειδε",
+  prox: "μῆνιν ~ ἄειδε",
+  phrase: "\"μῆνιν ἄειδε\"",
+};

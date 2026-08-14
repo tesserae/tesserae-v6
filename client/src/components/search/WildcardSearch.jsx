@@ -1,5 +1,20 @@
 import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import { wildcardSearch } from '../../utils/api';
+import CopticSearchInput from './CopticSearchInput';
+import { transliterateToCoptic } from '../../utils/copticUtils';
+import { GREEK_SYNTAX_EXAMPLES } from '../../utils/greekUtils';
+
+// Search-syntax example words per language. Latin/English are plain ASCII;
+// Greek is imported (extracted verbatim from the corpus, never hand-typed);
+// Coptic is generated inline via the transliterator below.
+const LA_SYNTAX_EXAMPLES = {
+  wild: 'am*', wildFind: 'amor, amicus, etc.', single: 'am?r',
+  and: 'amor AND bellum', or: 'rex OR regina', prox: 'amor ~ dolor', phrase: '"arma virumque"',
+};
+const EN_SYNTAX_EXAMPLES = {
+  wild: 'lov*', wildFind: 'love, lover, etc.', single: 'w?r',
+  and: 'love AND war', or: 'king OR queen', prox: 'love ~ death', phrase: '"the quality of mercy"',
+};
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 
@@ -227,7 +242,8 @@ const WildcardSearch = ({ language }) => {
     scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
   };
 
-  const languageLabel = language === 'la' ? 'Latin' : language === 'grc' ? 'Greek' : 'English';
+  const languageLabel = language === 'la' ? 'Latin' : language === 'grc' ? 'Greek' : language === 'cop' ? 'Coptic' : 'English';
+  const syntaxEx = language === 'grc' ? GREEK_SYNTAX_EXAMPLES : language === 'en' ? EN_SYNTAX_EXAMPLES : LA_SYNTAX_EXAMPLES;
 
   return (
     <div className="space-y-4">
@@ -238,28 +254,51 @@ const WildcardSearch = ({ language }) => {
         </p>
       </div>
 
+      {/* Syntax examples are language-aware: Latin words for la/grc/en, real
+          Coptic words (codepoint-generated via the transliterator) for cop. */}
       <div className="bg-gray-50 rounded-lg p-4 text-sm">
         <h4 className="font-medium mb-2">Search Syntax</h4>
-        <ul className="space-y-1 text-gray-600">
-          <li><code className="bg-gray-200 px-1 rounded">*</code> matches any characters (e.g., <code>am*</code> finds amor, amicus, etc.)</li>
-          <li><code className="bg-gray-200 px-1 rounded">?</code> matches single character (e.g., <code>am?r</code> finds amor, amer)</li>
-          <li><code className="bg-gray-200 px-1 rounded">AND</code> both terms required (e.g., <code>amor AND bellum</code>)</li>
-          <li><code className="bg-gray-200 px-1 rounded">OR</code> either term (e.g., <code>rex OR regina</code>)</li>
-          <li><code className="bg-gray-200 px-1 rounded">~</code> proximity search (e.g., <code>amor ~ dolor</code> finds words within ~100 characters)</li>
-          <li><code className="bg-gray-200 px-1 rounded">"..."</code> exact phrase (e.g., <code>"arma virumque"</code>)</li>
-        </ul>
+        {language === 'cop' ? (
+          <ul className="space-y-1 text-gray-600">
+            <li><code className="bg-gray-200 px-1 rounded">*</code> matches any characters (e.g., <code>{transliterateToCoptic('noute')}*</code> finds words beginning {transliterateToCoptic('noute')})</li>
+            <li><code className="bg-gray-200 px-1 rounded">?</code> matches a single character (e.g., <code>{transliterateToCoptic('rOm')}?</code>)</li>
+            <li><code className="bg-gray-200 px-1 rounded">AND</code> both terms required (e.g., <code>{transliterateToCoptic('noute')} AND {transliterateToCoptic('rOme')}</code>)</li>
+            <li><code className="bg-gray-200 px-1 rounded">OR</code> either term (e.g., <code>{transliterateToCoptic('noute')} OR {transliterateToCoptic('joeis')}</code>)</li>
+            <li><code className="bg-gray-200 px-1 rounded">~</code> proximity search (e.g., <code>{transliterateToCoptic('noute')} ~ {transliterateToCoptic('rOme')}</code>, within ~100 characters)</li>
+            <li><code className="bg-gray-200 px-1 rounded">"..."</code> exact phrase (e.g., <code>"{transliterateToCoptic('shEre')} {transliterateToCoptic('noute')}"</code>)</li>
+            <li className="text-gray-500 pt-1">Enter Coptic by typing the transliteration (e.g. <code>noute</code> → {transliterateToCoptic('noute')}), clicking <em>Insert letters</em>, or pasting. Coptic joins words into groups, so use <code className="bg-gray-200 px-1 rounded">*</code> to find a word inside a group.</li>
+          </ul>
+        ) : (
+          <ul className="space-y-1 text-gray-600">
+            <li><code className="bg-gray-200 px-1 rounded">*</code> matches any characters (e.g., <code>{syntaxEx.wild}</code> finds {syntaxEx.wildFind})</li>
+            <li><code className="bg-gray-200 px-1 rounded">?</code> matches a single character (e.g., <code>{syntaxEx.single}</code>)</li>
+            <li><code className="bg-gray-200 px-1 rounded">AND</code> both terms required (e.g., <code>{syntaxEx.and}</code>)</li>
+            <li><code className="bg-gray-200 px-1 rounded">OR</code> either term (e.g., <code>{syntaxEx.or}</code>)</li>
+            <li><code className="bg-gray-200 px-1 rounded">~</code> proximity search (e.g., <code>{syntaxEx.prox}</code>, within ~100 characters)</li>
+            <li><code className="bg-gray-200 px-1 rounded">"..."</code> exact phrase (e.g., <code>{syntaxEx.phrase}</code>)</li>
+          </ul>
+        )}
       </div>
 
       <div className="space-y-3">
         <div className="flex gap-2">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && query.trim() && handleSearch()}
-            placeholder="Enter search query..."
-            className="flex-1 border rounded px-3 py-2"
-          />
+          {language === 'cop' ? (
+            <CopticSearchInput
+              className="flex-1"
+              value={query}
+              onChange={setQuery}
+              onEnter={() => query.trim() && handleSearch()}
+            />
+          ) : (
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && query.trim() && handleSearch()}
+              placeholder="Enter search query..."
+              className="flex-1 border rounded px-3 py-2"
+            />
+          )}
           <button
             onClick={handleSearch}
             disabled={loading || !query.trim()}

@@ -64,7 +64,8 @@ from backend.text_processor import TextProcessor
 from backend.matcher import Matcher
 from backend.scorer import Scorer
 from backend.utils import (
-    get_text_metadata, build_text_hierarchy, clean_cts_reference, resolve_text_path
+    get_text_metadata, build_text_hierarchy, clean_cts_reference, resolve_text_path,
+    apply_text_list_filters
 )
 from backend.cache import (
     get_cached_results, save_cached_results, 
@@ -136,7 +137,14 @@ def api_route(path, **kwargs):
 
 
 # Application configuration
-app.secret_key = os.environ.get("SESSION_SECRET")
+_session_secret = os.environ.get("SESSION_SECRET")
+if _session_secret:
+    app.secret_key = _session_secret
+elif os.environ.get("DEPLOYMENT_ENV", "production") == "dev":
+    app_logger.warning("SESSION_SECRET not set; generating ephemeral dev secret key")
+    app.secret_key = os.urandom(32).hex()
+else:
+    raise RuntimeError("SESSION_SECRET environment variable must be set in non-dev environments")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # Handle proxy headers
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0  # Disable caching for development
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
@@ -481,6 +489,9 @@ from backend.blueprints.hapax import hapax_bp, init_hapax_blueprint
 from backend.blueprints.batch import batch_bp, init_batch_blueprint
 from backend.blueprints.api_docs import api_docs_bp
 from backend.blueprints.fusion import fusion_bp, init_fusion_blueprint
+from backend.blueprints.mcp_http import mcp_http_bp
+from backend.blueprints.mcp_oauth import mcp_oauth_bp
+from backend.blueprints.feature_request import feature_request_bp
 from backend.email_notifications import notify_text_request, notify_feedback
 
 author_dates_path = os.path.join(os.path.dirname(__file__), 'author_dates.json')
@@ -550,8 +561,20 @@ app.register_blueprint(hapax_bp, url_prefix=API_PREFIX or None)
 app.register_blueprint(batch_bp, url_prefix=batch_prefix)
 app.register_blueprint(api_docs_bp, url_prefix=API_PREFIX or None)
 app.register_blueprint(fusion_bp, url_prefix=API_PREFIX or None)
+app.register_blueprint(mcp_http_bp, url_prefix=API_PREFIX or None)
+app.register_blueprint(mcp_oauth_bp, url_prefix=API_PREFIX or None)
+app.register_blueprint(feature_request_bp, url_prefix=API_PREFIX or None)
 
 app_logger.info(f"Blueprints registered (API_PREFIX='{API_PREFIX}', env={DEPLOYMENT_ENV})")
+
+# =============================================================================
+# PLUGIN LANGUAGES (Coptic)
+# =============================================================================
+try:
+    from backend.coptic import register as register_coptic
+    register_coptic()
+except ImportError:
+    pass
 
 
 # =============================================================================
@@ -608,10 +631,24 @@ def legacy_frontend():
 
 @app.errorhandler(404)
 def page_not_found(e):
-    """Handle 404 errors by serving the SPA for client-side routing"""
+    """Handle 404 errors by serving the SPA for client-side routing.
+
+    Unknown API routes must return a JSON 404, not the SPA HTML — otherwise an
+    AI agent (or any client) hitting a wrong/renamed endpoint silently gets a
+    200 page of HTML and can't tell it failed. On production Apache mounts Flask
+    at /api (WSGIScriptAlias /api), so an unknown /api/... call reaches Flask
+    with the /api stripped (e.g. /bogus) and script_root == '/api'; treat any
+    such request as an API request too. Genuine SPA client routes (/help,
+    /about, …) are served by Apache from the static build and never reach Flask
+    on prod; in the dev direct-server they arrive without the /api prefix and
+    still fall through to index.html below."""
     api_path = f"{API_PREFIX}/" if API_PREFIX else "/api/"
-    if request.path.startswith(api_path):
-        return jsonify({'error': 'Not found'}), 404
+    script_root = (request.script_root or '').rstrip('/')
+    is_api_request = request.path.startswith(api_path) or script_root.endswith('/api')
+    if is_api_request:
+        return jsonify({'error': 'Not found', 'path': request.path,
+                        'hint': 'Check the endpoint path against /api/texts and the API guide; '
+                                'all API paths are under /api/.'}), 404
     # Don't serve SPA for static file requests — return real 404
     if request.path.startswith('/static/'):
         return jsonify({'error': 'File not found'}), 404
@@ -786,6 +823,35 @@ def api_version():
         return jsonify({"version": "6.0", "last_updated": None})
 
 
+@api_route('/languages')
+def api_languages():
+    """Return available languages and cross-lingual pairs.
+    Frontend uses this to dynamically populate language tabs."""
+    import os
+    languages = [
+        {'code': 'la', 'label': 'Latin'},
+        {'code': 'grc', 'label': 'Greek'},
+        {'code': 'en', 'label': 'English'},
+    ]
+    crosslingual_pairs = [
+        {'key': 'grc-la', 'source': 'grc', 'target': 'la', 'label': 'Greek → Latin'},
+        {'key': 'la-en', 'source': 'la', 'target': 'en', 'label': 'Latin → English'},
+        {'key': 'grc-en', 'source': 'grc', 'target': 'en', 'label': 'Greek → English'},
+    ]
+    try:
+        from backend.coptic import COPTIC_ENABLED
+        if COPTIC_ENABLED:
+            texts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts', 'cop')
+            if os.path.isdir(texts_dir):
+                languages.append({'code': 'cop', 'label': 'Coptic'})
+                crosslingual_pairs.extend([
+                    {'key': 'cop-grc', 'source': 'cop', 'target': 'grc', 'label': 'Coptic → Greek'},
+                ])
+    except ImportError:
+        pass
+    return jsonify({'languages': languages, 'crosslingual_pairs': crosslingual_pairs})
+
+
 # =============================================================================
 # TEXT AND CORPUS API ROUTES
 # =============================================================================
@@ -820,14 +886,29 @@ def get_texts():
     if not os.path.exists(lang_dir):
         return jsonify([])
     
+    lang_dates = AUTHOR_DATES.get(language, {})
     texts = []
     for filename in sorted(os.listdir(lang_dir)):
         if filename.endswith('.tess'):
             metadata = get_text_metadata(os.path.join(lang_dir, filename))
+            # Fill era/year from author_dates (keyed by the filename's first
+            # component) when a per-text override didn't set them. This is how
+            # Coptic gets its eras, since it has no per-text era overrides.
+            if metadata.get('era') is None or metadata.get('year') is None:
+                info = lang_dates.get(filename.split('.')[0].lower(), {})
+                if metadata.get('era') is None:
+                    metadata['era'] = info.get('era')
+                if metadata.get('year') is None:
+                    metadata['year'] = info.get('year')
             texts.append(metadata)
-    
+
     texts.sort(key=lambda x: (x['author'], x['title']))
-    
+
+    # Optional server-side author filter / pagination / compaction (absent params
+    # → full list, so the web app is unaffected). Lets AI-agent clients request
+    # e.g. ?author=Vergil instead of pulling the whole corpus.
+    texts = apply_text_list_filters(texts, request.args)
+
     return jsonify(texts)
 
 @api_route('/authors')
@@ -1517,7 +1598,7 @@ def add_text():
 # These routes enable searching for words/phrases across the entire corpus
 # using the pre-built inverted index for fast lookups.
 
-@api_route('/line-search', methods=['POST'])
+@api_route('/line-search', methods=['GET', 'POST'])
 def line_search():
     """
     Search for words/phrases across the corpus with optional filters.
@@ -1527,8 +1608,10 @@ def line_search():
         from backend.inverted_index import is_index_available, find_co_occurring_lemmas, has_lines_data, get_lines_batch
         from backend.distance_filter import passes_distance_filter, is_prose_text as is_prose_text_unified
         
-        data = request.get_json() or {}
-        
+        # Accept both POST JSON bodies and GET query-string params, so any
+        # assistant that can only fetch a URL can still run this search.
+        data = request.get_json(silent=True) or request.args
+
         query = data.get('query', '')
         language = data.get('language', 'la')
         search_type = data.get('search_type', 'lemma')
@@ -1536,8 +1619,15 @@ def line_search():
         work_filter = data.get('work', '')
         line_start = data.get('line_start')
         line_end = data.get('line_end')
-        max_results = data.get('max_results', 500)
-        
+        # Coerce to int: on a GET request query-string params arrive as strings,
+        # and max_results is compared with `len(results) >= max_results`.
+        try:
+            max_results = int(data.get('max_results', 500))
+        except (TypeError, ValueError):
+            max_results = 500
+        if max_results <= 0:
+            max_results = 500
+
         # Source exclusion - don't include the source line in results
         exclude_text_id = data.get('exclude_text_id', '')
         exclude_locus = data.get('exclude_locus', '')
@@ -1861,9 +1951,26 @@ def line_search():
             ))
             
             search_time = round(time_module.time() - search_start_time, 3)
+            # distinct_loci collapses the corpus's whole-work vs .part.N
+            # duplication: e.g. vergil.aeneid.tess and vergil.aeneid.part.1.tess
+            # both report Aeneid 1.146, so `total` double-counts. Key on the
+            # text_id with any .part.N stripped, plus the locus — the whole and
+            # its part normalize to the same id (their `work` labels differ:
+            # "Aeneid" vs "Aeneid, Book 1", so we can't key on work). Different
+            # works keep distinct ids, so they are not collapsed.
+            import re as _re_dl
+
+            def _base_tid(tid):
+                return _re_dl.sub(r'\.part\.\d+\.tess$', '.tess', tid) if tid else tid
+
+            distinct_loci = len({
+                (_base_tid(r.get('text_id')) or r.get('author'), r.get('locus'))
+                for r in results
+            })
             return jsonify({
                 'results': results,
                 'total': len(results),
+                'distinct_loci': distinct_loci,
                 'query': query,
                 'search_time': search_time
             })
@@ -2091,6 +2198,15 @@ def corpus_search():
 
         # Normalize lemmas for index lookup (strip Greek diacritics, Latin u/v)
         normalized_lemmas = [_normalize_lemma(l, language) for l in lemmas]
+        # Drop function words so corpus co-occurrence is driven by content words,
+        # not grammatical particles. Critical for Coptic, whose lemmatizer emits
+        # article/tense-marker morphemes (ⲡ "the", ⲁ past-marker, ...) that
+        # co-occur in nearly every clause and otherwise flood the results.
+        from backend.fusion import _STOPLISTS as _FUSION_STOPLISTS
+        _stop = _FUSION_STOPLISTS.get(language, set())
+        normalized_lemmas = [l for l in normalized_lemmas if l and l.lower() not in _stop]
+        if not normalized_lemmas:
+            return jsonify({'results': [], 'total': 0, 'lemmas': lemmas})
         matches = find_co_occurring_lemmas(normalized_lemmas, language, min_matches=min(2, len(normalized_lemmas)))
         
         results = []
@@ -2241,12 +2357,18 @@ def submit_request():
     
     language = (language or '').strip().lower()
     allowed_languages = {'latin', 'greek', 'english'}
+    try:
+        from backend.coptic import COPTIC_ENABLED
+        if COPTIC_ENABLED:
+            allowed_languages.add('coptic')
+    except ImportError:
+        pass
 
     # Only author and work are required
     if not author or not work:
         return jsonify({'error': 'Author and work title are required'}), 400
     if language not in allowed_languages:
-        return jsonify({'error': 'Please select a valid language (Latin, Greek, or English)'}), 400
+        return jsonify({'error': f'Please select a valid language ({", ".join(sorted(allowed_languages))})'}), 400
     
     try:
         with get_db_cursor() as cur:
@@ -2908,4 +3030,5 @@ def create_app():
 if __name__ == "__main__":
     app_logger.info("Starting Tesserae V6 development server...")
     debug_mode = os.environ.get("TESSERAE_DEBUG", "false").lower() == "true"
-    app.run(host="0.0.0.0", port=5000, debug=debug_mode)  # nosec B104
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=debug_mode)  # nosec B104

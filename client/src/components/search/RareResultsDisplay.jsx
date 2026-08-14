@@ -8,12 +8,43 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import { Bar } from 'react-chartjs-2';
 import { formatElapsedTime } from '../../utils/formatting';
 import { displayGreekWithFinalSigma } from '../../utils/greekUtils';
+import { normalizeCoptic } from '../../utils/copticUtils';
 import { getDictionaryUrl } from '../../utils/linkUtils';
+import { Pagination } from '../common';
+import { usePagination } from '../../hooks/usePagination';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const highlightMatchedWords = (text, matchedWords, lemma1, lemma2, positions) => {
+const highlightMatchedWords = (text, matchedWords, lemma1, lemma2, positions, language) => {
   if (!text) return text;
+
+  // Coptic: the search uses sub-word lemma forms (in a normalized alphabet) that
+  // don't align with the surface words — and \w doesn't match Coptic script — so
+  // match by normalized form with a substring fallback for bound groups (a surface
+  // word that contains the sub-word lemma, e.g. ⲣⲱⲙⲉ inside ⲛⲉⲩⲛⲟⲩⲣⲱⲙⲉ).
+  if (language === 'cop') {
+    const strip = (s) => String(s)
+      .replace(/^[\s.,;:!?'"()—–·‧-]+/, '')
+      .replace(/[\s.,;:!?'"()—–·‧-]+$/, '');
+    const norm = (s) => normalizeCoptic(strip(s));
+    const targets = new Set();
+    [lemma1, lemma2].forEach(l => { if (l) targets.add(norm(l)); });
+    (matchedWords || []).forEach(w => {
+      const word = typeof w === 'object' ? (w.lemma || w.word) : w;
+      if (word && !/[~[]/.test(String(word))) targets.add(norm(word));
+    });
+    targets.delete('');
+    if (targets.size === 0) return text;
+    return text.split(/(\s+)/).map((part, i) => {
+      if (/^\s+$/.test(part) || part === '') return part;
+      const cmp = norm(part);
+      let hit = targets.has(cmp);
+      if (!hit) { for (const t of targets) { if (t.length >= 3 && cmp.includes(t)) { hit = true; break; } } }
+      return hit
+        ? <span key={i}><span className="bg-yellow-200 px-0.5 rounded font-medium">{part}</span></span>
+        : part;
+    });
+  }
 
   // Split text into tokens while preserving whitespace
   const parts = text.split(/(\s+)/);
@@ -154,8 +185,9 @@ const RareResultsDisplay = ({
   results,
   loading,
   error,
-  displayLimit,
-  setDisplayLimit,
+  pageSize,
+  onPageSizeChange,
+  searchRunId,
   searchMode,
   sourceText,
   targetText,
@@ -171,6 +203,12 @@ const RareResultsDisplay = ({
 
   const isHapax = searchMode === 'hapax';
   const title = isHapax ? 'Shared Rare Words' : 'Shared Rare Pairs';
+
+  const getDictionaryName = (lang) => {
+    if (lang === 'en') return 'Wiktionary';
+    if (lang === 'cop') return 'Coptic Dictionary';
+    return 'Logeion';
+  };
 
   const extractRefNumbers = (ref) => {
     if (!ref) return [Infinity, Infinity];
@@ -200,6 +238,36 @@ const RareResultsDisplay = ({
       return 0;
     });
   }, [results, sortBy]);
+
+  // Pagination runs on the sorted array, so page boundaries always match the
+  // order actually rendered. A new search, a switch between rare words and rare
+  // pairs, or a sort change all return to page 1 — searchRunId covers the case
+  // where two searches return the same result count.
+  const paginationResetKey = `${searchRunId ?? ''}|${searchMode ?? ''}|${sortBy}`;
+
+  const {
+    visibleItems,
+    startIndex,
+    currentPage,
+    totalPages,
+    totalResults,
+    pageSize: activePageSize,
+    setPage,
+    setPageSize,
+  } = usePagination(sortedResults, {
+    pageSize,
+    onPageSizeChange,
+    resetKey: paginationResetKey,
+  });
+
+  const paginationProps = {
+    currentPage,
+    totalPages,
+    totalResults,
+    pageSize: activePageSize,
+    onPageChange: setPage,
+    onPageSizeChange: setPageSize,
+  };
 
   const exportCSV = useCallback(() => {
     if (!results || results.length === 0) return;
@@ -482,8 +550,15 @@ const RareResultsDisplay = ({
         </div>
       )}
 
+      <Pagination
+        {...paginationProps}
+        variant="full"
+        idPrefix="rare-top"
+        itemLabel={isHapax ? 'rare words' : 'rare pairs'}
+      />
+
       <div className="space-y-3">
-        {sortedResults.slice(0, displayLimit).map((r, i) => {
+        {visibleItems.map((r, i) => {
           // For hapax (rare words), show the lemma (dictionary form); for bigrams, use display forms
           let displayName = isHapax ? (r.display_form || r.lemma) : (r.display_form || r.lemma || r.bigram);
           if (!displayName && r.word1 && r.word2) {
@@ -498,11 +573,11 @@ const RareResultsDisplay = ({
           displayName = displayGreekWithFinalSigma(displayName || '-');
           
           return (
-            <div key={i} className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow">
+            <div key={startIndex + i} className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow">
               <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-xs text-gray-400 min-w-[2.5rem] text-right shrink-0 leading-none" style={{paddingTop: '4px'}}>
-                    {i + 1}.
+                    {startIndex + i + 1}.
                   </span>
                   <span className="font-semibold text-lg text-amber-700">
                     {displayName}
@@ -513,7 +588,7 @@ const RareResultsDisplay = ({
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-gray-400 hover:text-amber-600 text-xs"
-                      title={`Look up "${r.lemma}" in ${language === 'en' ? 'Wiktionary' : 'Logeion'}`}
+                      title={`Look up "${r.lemma}" in ${getDictionaryName(language)}`}
                     >
                       📖
                     </a>
@@ -526,7 +601,7 @@ const RareResultsDisplay = ({
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-gray-400 hover:text-amber-600 text-xs"
-                          title={`Look up "${r.word1}" in ${language === 'en' ? 'Wiktionary' : 'Logeion'}`}
+                          title={`Look up "${r.word1}" in ${getDictionaryName(language)}`}
                         >
                           📖
                         </a>
@@ -537,7 +612,7 @@ const RareResultsDisplay = ({
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-gray-400 hover:text-amber-600 text-xs"
-                          title={`Look up "${r.word2}" in ${language === 'en' ? 'Wiktionary' : 'Logeion'}`}
+                          title={`Look up "${r.word2}" in ${getDictionaryName(language)}`}
                         >
                           📖
                         </a>
@@ -586,7 +661,7 @@ const RareResultsDisplay = ({
                         <div key={j} className="text-sm">
                           <div className="font-medium text-red-700">{formatLocationRef(loc.ref, formatTextName(sourceText))}</div>
                           {loc.text && <div className="text-gray-700">
-                            {highlightMatchedWords(displayGreekWithFinalSigma(loc.text), r.matched_words, r.word1 || r.lemma, r.word2, loc.positions)}
+                            {highlightMatchedWords(displayGreekWithFinalSigma(loc.text), r.matched_words, r.word1 || r.lemma, r.word2, loc.positions, language)}
                           </div>}
                         </div>
                       ))}
@@ -606,7 +681,7 @@ const RareResultsDisplay = ({
                         <div key={j} className="text-sm">
                           <div className="font-medium text-amber-700">{formatLocationRef(loc.ref, formatTextName(targetText))}</div>
                           {loc.text && <div className="text-gray-700">
-                            {highlightMatchedWords(displayGreekWithFinalSigma(loc.text), r.matched_words, r.word1 || r.lemma, r.word2, loc.positions)}
+                            {highlightMatchedWords(displayGreekWithFinalSigma(loc.text), r.matched_words, r.word1 || r.lemma, r.word2, loc.positions, language)}
                           </div>}
                         </div>
                       ))}
@@ -624,14 +699,12 @@ const RareResultsDisplay = ({
         })}
       </div>
 
-      {results.length > displayLimit && (
-        <button
-          onClick={() => setDisplayLimit(prev => prev + 50)}
-          className="mt-4 px-4 py-2 text-sm text-amber-700 hover:text-amber-800"
-        >
-          Show more ({results.length - displayLimit} remaining)
-        </button>
-      )}
+      <Pagination
+        {...paginationProps}
+        variant="nav"
+        idPrefix="rare-bottom"
+        itemLabel={isHapax ? 'rare words' : 'rare pairs'}
+      />
     </div>
   );
 };

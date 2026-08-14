@@ -109,6 +109,17 @@ def calculate_bigram_frequencies(language, text_processor, progress_callback=Non
     doc_bigrams = Counter()
     
     text_files = [f for f in os.listdir(lang_dir) if f.endswith('.tess')]
+
+    if language == 'cop':
+        # Exclude aggregate/superset corpora (whole-Bible, OT, NT, and the
+        # combined Shenoute corpus). Otherwise a bigram in an individual book is
+        # also counted in its aggregate, deflating its rarity — the same reason
+        # the Coptic search index is built without them.
+        text_files = [
+            f for f in text_files
+            if f[:-len('.tess')].split('.')[-1] not in ('bible', 'ot', 'nt', 'all')
+        ]
+
     if '.part.' in str(text_files):
         full_versions = set()
         for f in text_files:

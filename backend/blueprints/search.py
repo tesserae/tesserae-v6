@@ -56,6 +56,9 @@ VALID_CROSSLINGUAL_PAIRS = {
     frozenset(('la', 'en')),
     frozenset(('grc', 'en')),
 }
+# Coptic-Greek pair added unconditionally -- the corpus/text checks at search
+# time handle the case where Coptic texts are not installed.
+VALID_CROSSLINGUAL_PAIRS.add(frozenset(('cop', 'grc')))
 
 # Module-level references to shared components (injected via init_search_blueprint)
 _matcher = None       # Matcher: Finds parallel passages between texts
@@ -88,6 +91,39 @@ def init_search_blueprint(matcher, scorer, text_processor, texts_dir,
 # SHARED SEARCH HELPERS
 # =============================================================================
 
+def _resolve_with_fallback(texts_dir, language, text_id):
+    """Try resolving text path in the requested language first, then
+    fall back to scanning all language directories dynamically.
+
+    Returns (resolved_path, actual_language) or (None, None).
+    """
+    # Primary: try the requested language
+    path = resolve_text_path(texts_dir, language, text_id)
+    if path:
+        return path, language
+
+    # Fallback: scan all language directories dynamically
+    try:
+        available_langs = [
+            d for d in os.listdir(texts_dir)
+            if os.path.isdir(os.path.join(texts_dir, d)) and not d.startswith('.')
+        ]
+    except OSError:
+        available_langs = ['la', 'grc', 'en']
+
+    for alt_lang in available_langs:
+        if alt_lang == language:
+            continue
+        path = resolve_text_path(texts_dir, alt_lang, text_id)
+        if path:
+            logger.warning(
+                "Smart fallback: resolved '%s' from '%s' → '%s'",
+                text_id, language, alt_lang
+            )
+            return path, alt_lang
+
+    return None, None
+
 def _parse_search_request(data):
     """Parse and validate a search request from either endpoint.
 
@@ -119,11 +155,21 @@ def _parse_search_request(data):
     if is_crosslingual:
         source_language = data.get('source_language', 'la')
         target_language = data.get('target_language', 'la')
-        source_path = resolve_text_path(_texts_dir, source_language, source_id)
-        target_path = resolve_text_path(_texts_dir, target_language, target_id)
+        source_path, source_language = _resolve_with_fallback(_texts_dir, source_language, source_id)
+        target_path, target_language = _resolve_with_fallback(_texts_dir, target_language, target_id)
     else:
-        source_path = resolve_text_path(_texts_dir, language, source_id)
-        target_path = resolve_text_path(_texts_dir, language, target_id)
+        source_path, resolved_src_lang = _resolve_with_fallback(_texts_dir, language, source_id)
+        target_path, resolved_tgt_lang = _resolve_with_fallback(_texts_dir, language, target_id)
+        if resolved_src_lang and resolved_tgt_lang:
+            if resolved_src_lang == resolved_tgt_lang:
+                source_language = resolved_src_lang
+                target_language = resolved_tgt_lang
+                language = resolved_src_lang
+            else:
+                raise ValueError(
+                    f"Selected texts belong to different languages ('{resolved_src_lang}' and '{resolved_tgt_lang}'). "
+                    f"Please select Cross-Language mode."
+                )
 
     if not source_path or not target_path:
         raise FileNotFoundError('Text files not found')
@@ -363,10 +409,133 @@ def _find_dictionary_matches_fast(source_units, target_units, source_language,
                                                 source_language, target_language,
                                                 cancellation)
 
+    # --- Coptic-Greek pair: CSV dictionary path ---
+    if 'cop' in lang_pair:
+        return _find_csv_dictionary_matches(source_units, target_units,
+                                            source_language, target_language,
+                                            cancellation)
+
     # --- Greek-Latin pair: fast inverted-index path (unchanged) ---
     return _find_greek_latin_dictionary_matches_fast(source_units, target_units,
                                                      source_language, target_language,
                                                      cancellation)
+
+
+def _find_csv_dictionary_matches(source_units, target_units, source_language,
+                                 target_language, cancellation=None):
+    """Dictionary matching for Coptic-Greek using a CSV-based dictionary.
+
+    Builds an inverted index on the target side, then scans source lemmas.
+    Returns dict keyed by (src_idx, tgt_idx) with word_matches list.
+    """
+    import csv
+    import unicodedata
+    from collections import defaultdict
+
+    lang_pair = frozenset((source_language, target_language))
+
+    # Load the appropriate dictionary
+    synonymy_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'synonymy', 'v6_additions')
+
+    if 'cop' in lang_pair:
+        dict_path = os.path.join(synonymy_dir, 'coptic_greek.csv')
+        new_lang = 'cop'
+    else:
+        return {}
+
+    if not os.path.exists(dict_path):
+        logger.warning(f"Dictionary not found: {dict_path}")
+        return {}
+
+    # Load dictionary as bidirectional mapping
+    # CSV format: word1, word2 (the new-language word is first, Greek is second)
+    new_to_greek = defaultdict(set)
+    greek_to_new = defaultdict(set)
+    with open(dict_path, 'r', encoding='utf-8') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if len(row) < 2:
+                continue
+            w1 = row[0].strip()
+            w2 = row[1].strip()
+            if w1 and w2 and len(w1) >= 2 and len(w2) >= 3:
+                # Normalize Greek (strip accents for matching)
+                # Require min length 3 for Greek to filter CATSS betacode artifacts
+                w2_norm = unicodedata.normalize('NFC', w2)
+                w2_norm = ''.join(c for c in unicodedata.normalize('NFD', w2_norm)
+                                  if unicodedata.category(c) != 'Mn').lower()
+                # Normalize terminal sigma ς (U+03C2) to medial σ (U+03C3)
+                # to match the index which uses medial sigma throughout
+                w2_norm = w2_norm.replace('ς', 'σ')
+                if len(w2_norm) >= 3:
+                    new_to_greek[w1].add(w2_norm)
+                    greek_to_new[w2_norm].add(w1)
+
+    logger.info(f"Loaded {len(new_to_greek)} {new_lang} entries from {dict_path}")
+
+    # Cross-lingual stoplist: remove only the highest-frequency function words
+    # that produce thousands of vacuous matches. The IDF-based scoring in the
+    # fusion handler handles the rest -- content words get higher IDF and rank
+    # above function words naturally. We only need to remove words so common
+    # that they create massive noise in the match set itself.
+    from backend.synonym_dict import CROSSLINGUAL_STOPLIST_GREEK
+    _GREEK_STOP = CROSSLINGUAL_STOPLIST_GREEK
+
+    from backend import fusion
+
+    # Coptic: curated function words
+    _COPTIC_STOP = fusion._STOPLISTS.get('cop', set())
+
+    # Build combined stoplists: start with fusion registry, then override
+    # Greek with the richer CROSSLINGUAL_STOPLIST_GREEK which includes
+    # articles, pronouns, prepositions, particles
+    lang_stops = dict(fusion._STOPLISTS)
+    lang_stops['grc'] = _GREEK_STOP  # override with cross-lingual stoplist
+
+    if source_language == new_lang:
+        src_dict = new_to_greek
+    else:
+        src_dict = greek_to_new
+
+    src_stop = lang_stops.get(source_language, set())
+    tgt_stop = lang_stops.get(target_language, set())
+
+    # Build inverted index on target side
+    target_index = defaultdict(list)
+    for ti, unit in enumerate(target_units):
+        if cancellation:
+            cancellation.check()
+        for pos, lemma in enumerate(unit.get('lemmas', [])):
+            # Normalize sigma for consistent matching
+            lemma_n = lemma.replace('ς', 'σ') if lemma else lemma
+            if lemma_n in tgt_stop or len(lemma_n) < 2:
+                continue
+            target_index[lemma_n].append((ti, pos))
+
+    # Scan source units and find matches
+    results = defaultdict(list)
+    for si, unit in enumerate(source_units):
+        if cancellation:
+            cancellation.check()
+        for src_pos, src_lemma in enumerate(unit.get('lemmas', [])):
+            if src_lemma in src_stop or len(src_lemma) < 2:
+                continue
+            translations = src_dict.get(src_lemma, set())
+            for translation in translations:
+                if translation in tgt_stop:
+                    continue
+                if translation in target_index:
+                    for ti, tgt_pos in target_index[translation]:
+                        key = (si, ti)
+                        results[key].append({
+                            'source_lemma': src_lemma,
+                            'target_lemma': translation,
+                            'source_indices': [src_pos],
+                            'target_indices': [tgt_pos],
+                        })
+
+    logger.info(f"Dictionary found {len(results)} pairs (minimal stoplist filtering)")
+    return dict(results)
 
 
 def _find_english_dictionary_matches(source_units, target_units, source_language,
@@ -803,9 +972,12 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings,
             logger.error(f"Syntax channel failed (may not have syntax DB): {e}")
 
     # --- Channel 4: Cross-lingual phonetic (transliteration + edit distance) ---
-    # Only for Greek-Latin pairs: transliterate Greek → Latin alphabet, then
-    # compare tokens by edit distance to catch phonetic echoes (e.g. μῆνιν / mene).
+    # Greek-Latin: transliterate Greek → Latin alphabet, then compare tokens
+    # by edit distance to catch phonetic echoes (e.g. μῆνιν / mene).
+    # Coptic-Greek: transliterate Coptic → Greek alphabet, same idea — most
+    # Coptic letters map identically to Greek, only 7 are Coptic-specific.
     phonetic_by_pair = {}
+    is_coptic_greek = lang_pair == frozenset(('cop', 'grc'))
     if is_greek_latin:
         try:
             from backend.matcher import find_crosslingual_phonetic_matches
@@ -819,6 +991,16 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings,
             raise
         except Exception as e:
             logger.error(f"Phonetic channel failed: {e}")
+    elif is_coptic_greek:
+        try:
+            from backend.matcher import find_crosslingual_phonetic_matches_cop_grc
+            phonetic_by_pair = find_crosslingual_phonetic_matches_cop_grc(
+                source_units, target_units,
+                source_language, target_language,
+                min_similarity=0.65, min_token_len=3)
+            logger.info(f"Phonetic (cop-grc) found {len(phonetic_by_pair)} pairs with transliteration matches")
+        except Exception as e:
+            logger.error(f"Phonetic (cop-grc) channel failed: {e}")
 
     # --- Merge ---
     # Phonetic alone is too noisy (thousands of false positives from short-word
@@ -1233,6 +1415,14 @@ def search_stream():
                 return
             cancellation.check()
 
+            # Write metadata for active search inspector
+            slot.set_metadata({
+                'source_id': source_id,
+                'target_id': target_id,
+                'language': language,
+                'match_type': match_type,
+            })
+
             # Load text units (with per-text progress messages)
             source_unit_type = settings.get('source_unit_type', 'line')
             target_unit_type = settings.get('target_unit_type', 'line')
@@ -1263,6 +1453,10 @@ def search_stream():
                 for event_type, event_data in _run_matcher_with_heartbeats(
                         match_type, source_units, target_units, settings,
                         corpus_frequencies, cancellation):
+                    if slot.is_cancelled():
+                        cancellation.cancel()
+                        yield f"data: {json.dumps({'type': 'cancelled', 'message': 'Search terminated by administrator'})}\n\n"
+                        return
                     if event_type == 'heartbeat':
                         yield ": keep-alive\n\n"
                     else:
@@ -1271,6 +1465,10 @@ def search_stream():
                 return
             except ValueError:
                 yield f"data: {json.dumps({'type': 'error', 'message': 'Use regular search endpoint for cross-lingual'})}\n\n"
+                return
+
+            if slot.is_cancelled():
+                yield f"data: {json.dumps({'type': 'cancelled', 'message': 'Search terminated by administrator'})}\n\n"
                 return
 
             if not matches:
@@ -1405,11 +1603,20 @@ def search():
             })
 
         # Concurrency gate: blocks until a slot is available
-        with SearchSlot(cancellation=cancellation):
+        with SearchSlot(cancellation=cancellation) as slot:
             cancellation.check()
+            slot.set_metadata({
+                'source_id': source_id,
+                'target_id': target_id,
+                'language': language,
+                'match_type': match_type,
+            })
             # Load text units and corpus frequencies
             source_units, target_units = _load_units(params)
             corpus_frequencies = _load_corpus_frequencies(language, settings)
+
+            if slot.is_cancelled():
+                return jsonify({'error': 'Search terminated by administrator'}), 410
 
             # Cross-lingual fusion (default for cross-lingual searches)
             if match_type == 'crosslingual_fusion':
@@ -1428,6 +1635,9 @@ def search():
             else:
                 matches, stoplist_size = _run_matcher(match_type, source_units, target_units,
                                                        settings, corpus_frequencies, cancellation)
+
+            if slot.is_cancelled():
+                return jsonify({'error': 'Search terminated by administrator'}), 410
 
             # Score, cache, log, and return
             cancellation.check()
@@ -1514,7 +1724,7 @@ def clear_search_cache():
         return jsonify({'success': False, 'error': str(e)}), 500
 
 
-@search_bp.route('/wildcard-search', methods=['POST'])
+@search_bp.route('/wildcard-search', methods=['GET', 'POST'])
 def wildcard_search_endpoint():
     """
     PHI-style wildcard/boolean search.
@@ -1527,12 +1737,19 @@ def wildcard_search_endpoint():
     try:
         from backend.wildcard_search import wildcard_search
         
-        data = request.get_json()
+        # Accept both POST JSON bodies and GET query-string params.
+        data = request.get_json(silent=True) or request.args
         query = data.get('query', '').strip()
         language = data.get('language', 'la')
         target_text = data.get('target_text')
         case_sensitive = data.get('case_sensitive', False)
-        max_results = data.get('max_results', 500)
+        # Coerce to int: GET query-string params arrive as strings.
+        try:
+            max_results = int(data.get('max_results', 500))
+        except (TypeError, ValueError):
+            max_results = 500
+        if max_results <= 0:
+            max_results = 500
         era_filter = data.get('era_filter')
         
         if not query:
@@ -1557,3 +1774,41 @@ def wildcard_search_endpoint():
     except Exception as e:
         logger.error(f"Wildcard search error: {e}")
         return jsonify({'error': str(e), 'results': []}), 500
+
+
+@search_bp.route('/wildcard-search-poll', methods=['GET'])
+def wildcard_search_poll():
+    """Poll-able GET wildcard/string search for URL-only assistants.
+
+    GET /api/wildcard-search-poll?query=sonipes&language=la
+
+    A rare-word string search can run tens of seconds — longer than many
+    URL-fetch tools wait. This returns {status:"running"} on the first call and
+    {status:"complete", results:[...]} once ready; poll the same URL every ~25s.
+    Mirrors /api/fusion-search. Results are capped (max_results / limit, default
+    200) to stay context-window friendly."""
+    from backend.wildcard_search import wildcard_search
+    from backend.blueprints.async_poll import poll, make_job_key
+    data = request.args
+    query = (data.get('query') or '').strip()
+    language = data.get('language', 'la')
+    if not query:
+        return jsonify({'status': 'error', 'error': 'Query is required'}), 200
+    try:
+        max_results = int(data.get('max_results', data.get('limit', 200)))
+    except (TypeError, ValueError):
+        max_results = 200
+    if max_results <= 0:
+        max_results = 200
+    key = make_job_key('wildcard', language, query, max_results)
+
+    def compute():
+        return wildcard_search(language=language, query=query, max_results=max_results)
+
+    def transform(d):
+        res = (d.get('results') or [])[:max_results]
+        return {'query': d.get('query'), 'parsed_type': d.get('parsed_type'),
+                'total_matches': d.get('total_matches'), 'truncated': d.get('truncated'),
+                'showing': len(res), 'results': res}
+
+    return poll('wildcard', key, compute, transform)

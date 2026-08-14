@@ -1,7 +1,10 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
-import { Button, LoadingSpinner } from '../common';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import { Button, LoadingSpinner, Pagination } from '../common';
+import { usePagination } from '../../hooks/usePagination';
 import { formatReference, formatElapsedTime } from '../../utils/formatting';
 import { displayGreekWithFinalSigma } from '../../utils/greekUtils';
+import { normalizeCoptic } from '../../utils/copticUtils';
+import { exportRowsToPDF } from '../../utils/exportResults';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 
@@ -11,8 +14,9 @@ const SearchResults = ({
   results,
   loading,
   error,
-  displayLimit,
-  setDisplayLimit,
+  pageSize,
+  onPageSizeChange,
+  searchRunId,
   onRegister,
   onCorpusSearch,
   onRerunFresh,
@@ -65,6 +69,60 @@ const SearchResults = ({
     });
   }, [results]);
 
+  // Use frozen snapshot when paused, live results otherwise.
+  const activeResults = useMemo(
+    () => ((pauseUpdates && frozenResults) ? frozenResults : (results || [])),
+    [pauseUpdates, frozenResults, results]
+  );
+
+  // Sort happens upstream in App; filtering happens here; pagination comes last.
+  const filteredResults = useMemo(() => {
+    if (!chartFilter) return activeResults;
+    return activeResults.filter(r => {
+      const locus = chartFilter.view === 'source'
+        ? (r.source_locus || r.source?.ref || '')
+        : (r.target_locus || r.target?.ref || '');
+      const bookMatch = locus.match(/book\s*(\d+)/i) ||
+                        locus.match(/(\d+)\.\d+/) ||
+                        locus.match(/^([^.]+)/);
+      const book = bookMatch ? `Book ${bookMatch[1]}` : 'Other';
+      return book === chartFilter.book;
+    });
+  }, [activeResults, chartFilter]);
+
+  // A new search, a sort change, or a filter change all return to page 1.
+  // searchRunId covers the case where two searches return the same result count.
+  const paginationResetKey = `${searchRunId ?? ''}|${sortBy ?? ''}|` +
+    `${chartFilter ? `${chartFilter.view}:${chartFilter.book}` : ''}`;
+
+  const {
+    visibleItems,
+    startIndex,
+    currentPage,
+    totalPages,
+    totalResults,
+    pageSize: activePageSize,
+    setPage,
+    setPageSize,
+  } = usePagination(filteredResults, {
+    pageSize,
+    onPageSizeChange,
+    resetKey: paginationResetKey,
+    // While fusion streams, the array grows on every intermediate event; hold
+    // page 1 so the pointer can never trail a set that is still being built.
+    pinToFirstPage: loading,
+  });
+
+  const paginationProps = {
+    currentPage,
+    totalPages,
+    totalResults,
+    pageSize: activePageSize,
+    onPageChange: setPage,
+    onPageSizeChange: setPageSize,
+    disabled: loading,
+  };
+
   const toggleExpand = (index) => {
     setExpandedResults(prev => ({
       ...prev,
@@ -93,24 +151,32 @@ const SearchResults = ({
   const exportCSV = useCallback(() => {
     if (!results || results.length === 0) return;
 
-    const headers = ['Source Locus', 'Source Text', 'Target Locus', 'Target Text', 'Score', 'Matched Words', 'Channels'];
-    const rows = results.map(r => {
+    // Sort by fused_score descending — the same score the on-screen list and
+    // ranking show. Falls back to score / overall_score for legacy formats.
+    // Without this explicit sort the CSV could appear unordered if the API
+    // serializes results in some other internal order.
+    const scoreOf = (r) => r.fused_score ?? r.score ?? r.overall_score ?? 0;
+    const sorted = [...results].sort((a, b) => scoreOf(b) - scoreOf(a));
+    const headers = ['Rank', 'Source Locus', 'Source Text', 'Target Locus', 'Target Text', 'Score', 'Matched Words', 'Channels'];
+    const rows = sorted.map((r, idx) => {
       const mw = r.matched_words || [];
       const sourceText = (r.source_text || r.source_snippet || r.source?.text || '').replace(/<[^>]*>/g, '').replace(/"/g, '""');
       const targetText = (r.target_text || r.target_snippet || r.target?.text || '').replace(/<[^>]*>/g, '').replace(/"/g, '""');
       return [
+        String(idx + 1),
         r.source_locus || r.source?.ref || '',
         highlightMatchedWords(sourceText, mw, 'source'),
         r.target_locus || r.target?.ref || '',
         highlightMatchedWords(targetText, mw, 'target'),
-        (r.score ?? r.overall_score)?.toFixed(3) || '',
+        scoreOf(r).toFixed(3),
         mw.map(w => typeof w === 'object' ? (w.lemma || w.word || '') : w).join('; '),
-        (r.channels || []).join('; ')
+        (r.channels || []).join('; '),
       ];
     });
 
     const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${c}"`).join(','))].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
+    // Prepend UTF-8 BOM so Excel reads non-Latin scripts (Coptic, Greek) as Unicode, not Windows-1252.
+    const blob = new Blob(['﻿', csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -118,6 +184,85 @@ const SearchResults = ({
     a.click();
     URL.revokeObjectURL(url);
   }, [results]);
+
+  const exportPDF = useCallback(() => {
+    if (!results || results.length === 0) return;
+    const headers = ['#', 'Source Locus', 'Source Text', 'Target Locus', 'Target Text', 'Score', 'Matched Words', 'Channels'];
+    // Token-based renderer: split source/target text on whitespace, compare each
+    // token against the matched-word set. Robust against any script and avoids
+    // regex word-boundary issues with non-ASCII alphabets. For Coptic the
+    // legacy/primary Unicode-block mismatch is normalised before comparing.
+    const escHtml = (s) => String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const stripPunct = (s) => s.replace(/^[\s.,;:!?'"()—–·‧·\-]+/, '')
+                              .replace(/[\s.,;:!?'"()—–·‧·\-]+$/, '');
+    const isCop = language === 'cop';
+    const norm = (s) => isCop ? normalizeCoptic(s) : s.toLowerCase();
+    const renderHL = (text, mw, side) => {
+      if (!text) return '';
+      const targets = new Set();
+      (mw || []).forEach(w => {
+        const word = typeof w === 'object'
+          ? (side === 'source' ? w.source_word : w.target_word) || w.word || w.lemma
+          : w;
+        if (!word) return;
+        const s = String(word);
+        if (s.includes('~') || s.includes('[')) return; // skip composite labels
+        targets.add(norm(stripPunct(s)));
+      });
+      if (targets.size === 0) return escHtml(text);
+      return String(text).split(/(\s+)/).map(part => {
+        if (/^\s+$/.test(part) || part === '') return escHtml(part);
+        const stripped = stripPunct(part);
+        const cmp = norm(stripped);
+        let hit = targets.has(cmp);
+        if (!hit) {
+          // Substring fallback: bound-group token containing a sub-word match.
+          for (const t of targets) {
+            if (t.length >= 3 && cmp.includes(t)) { hit = true; break; }
+          }
+        }
+        return hit ? `<strong class="hl">${escHtml(part)}</strong>` : escHtml(part);
+      }).join('');
+    };
+    // Sort by fused_score descending so the PDF order matches what's shown
+    // on screen (which uses fused_score as the primary score). The API may
+    // serialize results in a different internal order; without an explicit
+    // sort the PDF could appear out of order.
+    const scoreOf = (r) => r.fused_score ?? r.score ?? r.overall_score ?? 0;
+    const sorted = [...results].sort((a, b) => scoreOf(b) - scoreOf(a));
+    const rows = sorted.map((r, idx) => {
+      const mw = r.matched_words || [];
+      const sourceText = (r.source_text || r.source_snippet || r.source?.text || '').replace(/<[^>]*>/g, '');
+      const targetText = (r.target_text || r.target_snippet || r.target?.text || '').replace(/<[^>]*>/g, '');
+      return [
+        String(idx + 1),
+        r.source_locus || r.source?.ref || '',
+        renderHL(sourceText, mw, 'source'),
+        r.target_locus || r.target?.ref || '',
+        renderHL(targetText, mw, 'target'),
+        scoreOf(r).toFixed(3),
+        mw.map(w => typeof w === 'object' ? (w.lemma || w.word || '') : w).join('; '),
+        (r.channels || []).join('; '),
+      ];
+    });
+    const sourceLabel = sourceTextInfo ? `${sourceTextInfo.author || ''} ${sourceTextInfo.title || sourceTextInfo.work || ''}`.trim() : '';
+    const targetLabel = targetTextInfo ? `${targetTextInfo.author || ''} ${targetTextInfo.title || targetTextInfo.work || ''}`.trim() : '';
+    const subtitle = sourceLabel && targetLabel ? `${sourceLabel} vs ${targetLabel}` : '';
+    const rtl = false;  // no right-to-left languages in this build (Coptic is LTR)
+    // Headers are ['#', 'Source Locus', 'Source Text', 'Target Locus',
+    // 'Target Text', 'Score', 'Matched Words', 'Channels']. Widths chosen
+    // to minimise row height: each column gets width roughly proportional to
+    // its typical content length, so every column wraps to a similar number
+    // of lines instead of one column blowing up the row.
+    const colWidths = ['3%', '8%', '25%', '8%', '25%', '4%', '17%', '10%'];
+    exportRowsToPDF('Tesserae V6 — Search Results', subtitle, headers, rows, {
+      htmlCells: true,
+      dir: rtl ? 'rtl' : 'ltr',
+      lang: language || '',
+      colWidths,
+    });
+  }, [results, sourceTextInfo, targetTextInfo, language]);
 
   const exportDistributionChart = () => {
     if (!chartRef.current) return;
@@ -156,7 +301,7 @@ const SearchResults = ({
         bookData[bookLabel] = { count: 0, totalScore: 0 };
       }
       bookData[bookLabel].count++;
-      bookData[bookLabel].totalScore += (r.score ?? r.overall_score ?? 0);
+      bookData[bookLabel].totalScore += (r.fused_score ?? r.score ?? r.overall_score ?? 0);
     });
 
     const sortedBooks = Object.keys(bookData).sort((a, b) => {
@@ -322,6 +467,22 @@ const SearchResults = ({
           if (hw.replace(/[uv]/g, 'u') === uvNormalized) return true;
         }
       }
+      // Coptic uses two equivalent Unicode blocks (U+03E2-03EF and
+      // U+2CB2-2CBF) for the same seven letters. Backend tokens are
+      // normalised to the latter; .tess display text uses the former.
+      // Normalise both sides before comparing. Backend tokens are
+      // sub-word morphemes (Scriptorium CoNLL-U) but the displayed text is
+      // whitespace-split into bound groups, so a sub-word match must
+      // highlight any bound group that contains it.
+      if (language === 'cop') {
+        const copNormalized = normalizeCoptic(normalized);
+        for (const hw of wordsToHighlight) {
+          const hwNorm = normalizeCoptic(hw);
+          if (!hwNorm) continue;
+          if (hwNorm === copNormalized) return true;
+          if (copNormalized.includes(hwNorm)) return true;
+        }
+      }
       return false;
     };
 
@@ -409,24 +570,6 @@ const SearchResults = ({
     return null;
   }
 
-  // Use frozen snapshot when paused, live results otherwise
-  const activeResults = (pauseUpdates && frozenResults) ? frozenResults : results;
-
-  const filteredResults = chartFilter
-    ? activeResults.filter(r => {
-        const locus = chartFilter.view === 'source'
-          ? (r.source_locus || r.source?.ref || '')
-          : (r.target_locus || r.target?.ref || '');
-        const bookMatch = locus.match(/book\s*(\d+)/i) ||
-                          locus.match(/(\d+)\.\d+/) ||
-                          locus.match(/^([^.]+)/);
-        const book = bookMatch ? `Book ${bookMatch[1]}` : 'Other';
-        return book === chartFilter.book;
-      })
-    : activeResults;
-
-  const displayedResults = filteredResults.slice(0, displayLimit);
-
   return (
     <div className="space-y-4">
       {loading && fusionProgress && (
@@ -502,6 +645,13 @@ const SearchResults = ({
             >
               Export CSV
             </button>
+            <button
+              onClick={exportPDF}
+              className="text-xs bg-amber-600 text-white px-3 py-2 rounded hover:bg-amber-700 whitespace-nowrap"
+              title="Open print-friendly view; choose 'Save as PDF' in the print dialog."
+            >
+              Export PDF
+            </button>
             {onRerunFresh && !loading && (
               <button
                 onClick={onRerunFresh}
@@ -573,15 +723,17 @@ const SearchResults = ({
         </div>
       )}
 
+      <Pagination {...paginationProps} variant="full" idPrefix="parallels-top" />
+
       <div className="space-y-3">
-        {displayedResults.map((r, i) => (
+        {visibleItems.map((r, i) => (
           <div
-            key={i}
+            key={startIndex + i}
             className="bg-white border rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow"
           >
             <div className="flex gap-3">
               <span className="text-xs text-gray-400 min-w-[2.5rem] text-right shrink-0 leading-none" style={{paddingTop: '1px'}}>
-                {i + 1}.
+                {startIndex + i + 1}.
               </span>
               <div className="flex-1">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -611,7 +763,7 @@ const SearchResults = ({
               </span>
               {r.channels && r.channels.length > 0 && (
                 <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
-                  {r.channels.length}/9 channels
+                  {r.channels.length} channel{r.channels.length !== 1 ? 's' : ''}
                 </span>
               )}
               {r.features?.meter_score > 0 && (
@@ -666,16 +818,7 @@ const SearchResults = ({
         ))}
       </div>
 
-      {filteredResults.length > displayLimit && (
-        <div className="text-center mt-4">
-          <Button
-            variant="neutral"
-            onClick={() => setDisplayLimit(prev => prev + 50)}
-          >
-            Show More ({filteredResults.length - displayLimit} remaining)
-          </Button>
-        </div>
-      )}
+      <Pagination {...paginationProps} variant="nav" idPrefix="parallels-bottom" />
     </div>
   );
 };

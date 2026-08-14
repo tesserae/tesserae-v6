@@ -47,6 +47,7 @@ Usage in a synchronous endpoint:
 import fcntl
 import json
 import os
+import subprocess
 import time
 import threading
 import logging
@@ -54,6 +55,7 @@ import logging
 from backend.memory_util import get_available_memory_gb
 
 logger = logging.getLogger(__name__)
+
 
 # Use a project-local directory instead of /tmp so lock files are visible
 # and cleanable even when Apache runs with PrivateTmp=yes.
@@ -103,6 +105,152 @@ def _count_active_slots():
         except OSError:
             pass
     return active
+
+
+def get_process_memory_mb(pid):
+    """Get Resident Set Size (RSS) RAM usage in MB for a process ID."""
+    if not pid:
+        return None
+    try:
+        res = subprocess.run(['ps', '-o', 'rss=', '-p', str(pid)], capture_output=True, text=True, timeout=2)
+        kb = int(res.stdout.strip())
+        return round(kb / 1024.0, 1)
+    except Exception:
+        return None
+
+
+def get_active_searches():
+    """Inspect all active search slots and return their metadata.
+
+    Returns a list of dicts, each containing:
+        - slot_id: str
+        - pid: int
+        - source_id: str
+        - target_id: str
+        - language: str
+        - match_type: str
+        - start_time: float (timestamp)
+        - runtime_seconds: float
+        - memory_mb: float or None
+        - is_cancelling: bool
+    """
+    _ensure_lock_dir()
+    now = time.time()
+    results = []
+
+    for name in os.listdir(LOCK_DIR):
+        if not name.endswith('.lock'):
+            continue
+        path = os.path.join(LOCK_DIR, name)
+        slot_id = name[:-5]  # strip '.lock'
+        try:
+            fd = os.open(path, os.O_RDWR)
+            try:
+                # Try non-blocking flock — if it succeeds, file is stale
+                fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                fcntl.flock(fd, fcntl.LOCK_UN)
+                os.close(fd)
+                # Safety: this cleanup is race-free because (1) flock is atomic —
+                # if we acquired the lock, no live process holds it; (2) new
+                # SearchSlot.acquire() always creates a fresh file with a unique
+                # slot_id (PID + timestamp), never reusing stale filenames; and
+                # (3) os.unlink of a file that was already removed by another
+                # reader is harmless (caught by the OSError handler).
+                try:
+                    os.unlink(path)
+                    cancel_path = os.path.join(LOCK_DIR, f"{slot_id}.cancel")
+                    if os.path.exists(cancel_path):
+                        os.unlink(cancel_path)
+                except OSError:
+                    pass
+            except BlockingIOError:
+                # Slot is actively held by a running process! Read metadata.
+                metadata = {}
+                try:
+                    with open(path, 'r') as f:
+                        content = f.read().strip()
+                        if content:
+                            metadata = json.loads(content)
+                except (OSError, ValueError, json.JSONDecodeError):
+                    pass
+
+                os.close(fd)
+
+                parts = slot_id.split('_')
+                pid = metadata.get('pid') or (int(parts[1]) if len(parts) >= 2 and parts[1].isdigit() else None)
+                start_time = metadata.get('start_time')
+                if not start_time:
+                    try:
+                        start_time = os.path.getmtime(path)
+                    except OSError:
+                        start_time = now
+                runtime = round(max(0.0, now - start_time), 1)
+
+                results.append({
+                    'slot_id': slot_id,
+                    'pid': pid,
+                    'source_id': metadata.get('source_id', 'Unknown'),
+                    'target_id': metadata.get('target_id', 'Unknown'),
+                    'language': metadata.get('language', 'Unknown'),
+                    'match_type': metadata.get('match_type', 'Unknown'),
+                    'start_time': start_time,
+                    'runtime_seconds': runtime,
+                    'memory_mb': get_process_memory_mb(pid),
+                    'is_cancelling': os.path.exists(os.path.join(LOCK_DIR, f"{slot_id}.cancel"))
+                })
+        except OSError:
+            pass
+
+    results.sort(key=lambda x: x['start_time'])
+    return results
+
+
+def cancel_search(slot_id):
+    """Signal an active search slot to terminate cleanly at its next checkpoint.
+
+    Returns True if signal was recorded, False if slot wasn't found or not active.
+    """
+    _ensure_lock_dir()
+    if not slot_id or '/' in slot_id or '\\' in slot_id or '..' in slot_id:
+        return False
+
+    lock_path = os.path.join(LOCK_DIR, f"{slot_id}.lock")
+    if not os.path.exists(lock_path):
+        return False
+
+    try:
+        fd = os.open(lock_path, os.O_RDWR)
+        try:
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            fcntl.flock(fd, fcntl.LOCK_UN)
+            os.close(fd)
+            return False
+        except BlockingIOError:
+            os.close(fd)
+            cancel_path = os.path.join(LOCK_DIR, f"{slot_id}.cancel")
+            try:
+                with open(cancel_path, 'w') as f:
+                    f.write(json.dumps({'cancelled_at': time.time()}))
+                logger.info("Created cancellation marker for slot %s", slot_id)
+                return True
+            except OSError as e:
+                logger.error("Failed to write cancel marker for %s: %s", slot_id, e)
+                return False
+    except OSError:
+        return False
+
+
+def cancel_all_searches():
+    """Cancel all currently running search slots.
+
+    Returns list of cancelled slot IDs.
+    """
+    active = get_active_searches()
+    cancelled = []
+    for item in active:
+        if cancel_search(item['slot_id']):
+            cancelled.append(item['slot_id'])
+    return cancelled
 
 
 class ConcurrencyConfig:
@@ -350,17 +498,63 @@ class SearchSlot:
         self._path = None
         self._acquired = False
         self._cancellation = cancellation
+        self.slot_id = None
+        self._start_time = None
 
     def _create_slot_file(self):
         """Create a unique slot file and lock it."""
         _ensure_lock_dir()
-        name = f"slot_{os.getpid()}_{id(self)}_{time.monotonic_ns()}.lock"
+        self.slot_id = f"slot_{os.getpid()}_{id(self)}_{time.monotonic_ns()}"
+        self._start_time = time.time()
+        name = f"{self.slot_id}.lock"
         self._path = os.path.join(LOCK_DIR, name)
         self._fd = os.open(self._path, os.O_CREAT | os.O_RDWR, 0o600)
         fcntl.flock(self._fd, fcntl.LOCK_EX)
+        payload = {
+            'slot_id': self.slot_id,
+            'pid': os.getpid(),
+            'start_time': self._start_time,
+            'source_id': 'Initializing...',
+            'target_id': 'Initializing...',
+            'language': '—',
+            'match_type': 'Initializing...',
+        }
+        try:
+            os.write(self._fd, json.dumps(payload).encode('utf-8'))
+            os.fsync(self._fd)
+        except OSError:
+            pass
+
+    def set_metadata(self, metadata: dict):
+        """Write search parameters metadata into the slot file."""
+        if not self._acquired or self._fd is None:
+            return
+        payload = {
+            'slot_id': self.slot_id,
+            'pid': os.getpid(),
+            'start_time': self._start_time or time.time(),
+            'source_id': metadata.get('source_id', 'Unknown'),
+            'target_id': metadata.get('target_id', 'Unknown'),
+            'language': metadata.get('language', 'Unknown'),
+            'match_type': metadata.get('match_type', 'Unknown'),
+        }
+        try:
+            os.lseek(self._fd, 0, os.SEEK_SET)
+            os.ftruncate(self._fd, 0)
+            os.write(self._fd, json.dumps(payload).encode('utf-8'))
+            os.fsync(self._fd)
+        except OSError as e:
+            logger.warning("Failed to write metadata for slot %s: %s", self.slot_id, e)
+
+    def is_cancelled(self):
+        """Check whether an admin has issued a cancellation signal for this slot."""
+        if not self.slot_id:
+            return False
+        cancel_path = os.path.join(LOCK_DIR, f"{self.slot_id}.cancel")
+        return os.path.exists(cancel_path)
 
     def _remove_slot_file(self):
-        """Release the lock and delete the slot file."""
+        """Release the lock and delete the slot file and any cancel marker."""
         if self._fd is not None:
             try:
                 fcntl.flock(self._fd, fcntl.LOCK_UN)
@@ -377,6 +571,14 @@ class SearchSlot:
             except OSError:
                 pass
             self._path = None
+        if self.slot_id is not None:
+            cancel_path = os.path.join(LOCK_DIR, f"{self.slot_id}.cancel")
+            try:
+                if os.path.exists(cancel_path):
+                    os.unlink(cancel_path)
+            except OSError:
+                pass
+            self.slot_id = None
         self._acquired = False
 
     def _can_proceed(self):

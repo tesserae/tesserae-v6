@@ -412,6 +412,88 @@ class TestFuseResults:
         assert scores == sorted(scores, reverse=True)
 
 
+# ── Weight-profile firewall (Coptic tuning must not touch Latin/Greek) ──────
+
+class TestWeightProfileFirewall:
+    """get_weight_profile is the firewall that keeps the biblical-Coptic tuning
+    from affecting Latin/Greek/English searches. Verify the routing."""
+
+    def test_coptic_gets_biblical_profile(self):
+        from backend.fusion import get_weight_profile, WEIGHT_PROFILES
+        assert get_weight_profile(language='cop') == WEIGHT_PROFILES['biblical_coptic']
+
+    def test_latin_greek_get_latin_epic(self):
+        from backend.fusion import get_weight_profile, WEIGHT_PROFILES
+        for lang in ('la', 'grc'):
+            assert get_weight_profile(language=lang) == WEIGHT_PROFILES['latin_epic']
+
+    def test_english_gets_english_profile(self):
+        # English uses its own profile: identical to latin_epic EXCEPT sound and
+        # edit_distance default to 0 (those channels are available for English
+        # but noisy, so off by default; users can weight them up in Advanced).
+        from backend.fusion import get_weight_profile, WEIGHT_PROFILES
+        en = get_weight_profile(language='en')
+        latin = WEIGHT_PROFILES['latin_epic']
+        assert en == WEIGHT_PROFILES['english']
+        assert en['sound'] == 0.0 and en['edit_distance'] == 0.0
+        assert all(en[k] == latin[k] for k in latin
+                   if k not in ('sound', 'edit_distance'))
+
+    def test_none_and_unknown_default_to_latin_epic(self):
+        from backend.fusion import get_weight_profile, WEIGHT_PROFILES
+        assert get_weight_profile(language=None) == WEIGHT_PROFILES['latin_epic']
+        assert get_weight_profile(language='zz') == WEIGHT_PROFILES['latin_epic']
+
+    def test_explicit_profile_name_overrides_language(self):
+        from backend.fusion import get_weight_profile, WEIGHT_PROFILES
+        assert get_weight_profile(language='la', profile_name='biblical_coptic') \
+            == WEIGHT_PROFILES['biblical_coptic']
+
+    def test_quotation_inert_for_latin(self):
+        # The quotation channel must carry zero weight under the Latin profile,
+        # so it cannot alter Latin/Greek scoring.
+        from backend.fusion import get_weight_profile
+        assert get_weight_profile(language='la').get('quotation', 0.0) == 0.0
+
+
+# ── Quotation channel + rarity-bypass (Coptic biblical-prose path) ──────────
+
+class TestQuotationChannel:
+    """The quotation channel (biblical_coptic profile) contributes its score
+    while bypassing the rarity multiplier, and the non-quotation base is clamped
+    at zero so the penalty can never invert."""
+
+    def _mk(self, score):
+        return {
+            "source": {"ref": "shenoute.abraham.1", "text": "", "tokens": [],
+                       "lemmas": [], "highlight_indices": []},
+            "target": {"ref": "sahidic.psalms.1.1", "text": "", "tokens": [],
+                       "lemmas": [], "highlight_indices": []},
+            "overall_score": score,
+            "matched_words": [],
+        }
+
+    def test_quotation_pair_scored_under_biblical_coptic(self):
+        from backend.fusion import fuse_results
+        results = fuse_results({
+            "quotation": [self._mk(6.0)],
+            "lemma": [self._mk(2.0)],
+        }, language='cop')
+        assert len(results) == 1
+        assert "quotation" in results[0]["channels"]
+        assert results[0]["fused_score"] > 0
+
+    def test_large_quotation_contribution_does_not_produce_negative(self):
+        # Even if the quotation contribution dominates the base, the clamped
+        # non-quotation base keeps the fused score non-negative.
+        from backend.fusion import fuse_results
+        results = fuse_results({
+            "quotation": [self._mk(50.0)],
+        }, language='cop')
+        assert len(results) == 1
+        assert results[0]["fused_score"] >= 0
+
+
 # ── Constants Sanity Checks ────────────────────────────────────────────────
 
 class TestScoringConstants:
@@ -420,6 +502,11 @@ class TestScoringConstants:
     def test_channel_weights_positive(self):
         from backend.fusion import CHANNEL_WEIGHTS
         for name, weight in CHANNEL_WEIGHTS.items():
+            # The quotation channel defaults to 0.0 in CHANNEL_WEIGHTS; it is
+            # enabled and weighted per-search via WEIGHT_PROFILES (biblical_coptic).
+            if name == "quotation":
+                assert weight >= 0, f"Channel {name} has negative weight {weight}"
+                continue
             assert weight > 0, f"Channel {name} has non-positive weight {weight}"
 
     def test_convergence_bonus_positive(self):
@@ -440,8 +527,10 @@ class TestScoringConstants:
 
     def test_ten_channels_defined(self):
         from backend.fusion import CHANNEL_WEIGHTS
-        assert len(CHANNEL_WEIGHTS) == 10, (
-            f"Expected 10 channels, found {len(CHANNEL_WEIGHTS)}: "
+        # 10 core channels plus the quotation channel added for biblical/Coptic
+        # verbatim-run detection (default weight 0.0, enabled via WEIGHT_PROFILES).
+        assert len(CHANNEL_WEIGHTS) == 11, (
+            f"Expected 11 channels, found {len(CHANNEL_WEIGHTS)}: "
             f"{list(CHANNEL_WEIGHTS.keys())}"
         )
 
@@ -450,6 +539,7 @@ class TestScoringConstants:
         expected = {
             "edit_distance", "sound", "exact", "lemma", "dictionary",
             "semantic", "rare_word", "syntax", "syntax_structural", "lemma_min1",
+            "quotation",
         }
         assert set(CHANNEL_WEIGHTS.keys()) == expected
 
@@ -655,3 +745,38 @@ class TestTextPairFrequencyBaseline:
         # Non-existent words should return 0 frequency
         assert freqs.get("nonexistentword12345", 0) == 0
 
+
+
+# ── Clean matched-lemma extraction (corpus-search input) ───────────────────
+
+class TestCleanMatchedLemmas:
+    """_clean_matched_lemmas strips scorer markup and function words from
+    matched_words keys so corpus-search sees real content lemmas. Regression
+    guard for the Coptic corpus-search fix (markup + particle flood)."""
+
+    def test_strips_quotation_and_pair_markup(self):
+        from backend.fusion import _clean_matched_lemmas
+        keys = ['[QUOT:ⲛ]', 'ⲛⲟⲩⲻⲉ~ⲛⲟⲩⲧⲉ (80%)', 'ⲛⲧⲟⲥ≈ⲡⲉⲥ',
+                '[ⲏⲣⲉ]', 'ⲓⲥⲁⲁⲕ', 'ⲳⲏⲣⲉ']
+        assert _clean_matched_lemmas(keys, set()) == sorted(['ⲓⲥⲁⲁⲕ', 'ⲳⲏⲣⲉ'])
+
+    def test_drops_stopwords(self):
+        from backend.fusion import _clean_matched_lemmas
+        keys = ['ⲡ', 'ⲁ', 'ⲓⲥⲁⲁⲕ', 'ⲳⲏⲣⲉ']
+        stop = {'ⲡ', 'ⲁ'}
+        assert _clean_matched_lemmas(keys, stop) == sorted(['ⲓⲥⲁⲁⲕ', 'ⲳⲏⲣⲉ'])
+
+    def test_latin_content_words_pass_through(self):
+        from backend.fusion import _clean_matched_lemmas
+        keys = ['arma', 'virum', 'et', 'a~b (66%)']
+        assert _clean_matched_lemmas(keys, {'et'}) == ['arma', 'virum']
+
+    def test_empty_and_all_markup(self):
+        from backend.fusion import _clean_matched_lemmas
+        assert _clean_matched_lemmas([], set()) == []
+        assert _clean_matched_lemmas(['[QUOT:x]', 'a≈b'], set()) == []
+
+    def test_dedupes(self):
+        from backend.fusion import _clean_matched_lemmas
+        assert _clean_matched_lemmas(['nux', 'nux', 'castanea'], set()) == \
+            sorted(['nux', 'castanea'])

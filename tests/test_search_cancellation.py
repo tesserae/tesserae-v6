@@ -119,6 +119,12 @@ def test_stream_disconnect_releases_search_slot(monkeypatch):
         def acquire(self):
             return iter(())
 
+        def set_metadata(self, metadata):
+            pass
+
+        def is_cancelled(self):
+            return False
+
         def release(self):
             TrackingSlot.released = True
 

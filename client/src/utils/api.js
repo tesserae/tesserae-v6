@@ -43,6 +43,11 @@ export const fetchAuthors = async (language) => {
   return jsonFetch(`${API_BASE}/authors?language=${language}`);
 };
 
+// Default per-channel fusion weights for a language (Advanced UI pre-fill).
+export const fetchFusionDefaultWeights = async (language) => {
+  return jsonFetch(`${API_BASE}/fusion-default-weights?language=${language}`);
+};
+
 export const fetchTexts = async (author) => {
   return jsonFetch(`${API_BASE}/texts?author=${author}`);
 };
@@ -106,6 +111,8 @@ export const searchTextsStream = async (params, onProgress, signal, onQueued) =>
             }
           } else if (data.type === 'complete') {
             finalResult = data;
+          } else if (data.type === 'cancelled') {
+            throw new Error(data.message || 'Search terminated by administrator');
           } else if (data.type === 'error') {
             throw new Error(data.message);
           }
@@ -171,6 +178,8 @@ export const searchFusionStream = async (params, onProgress, signal, onIntermedi
             }
           } else if (data.type === 'complete') {
             finalResult = data;
+          } else if (data.type === 'cancelled') {
+            throw new Error(data.message || 'Search terminated by administrator');
           } else if (data.type === 'error') {
             throw new Error(data.message);
           }

@@ -230,12 +230,168 @@ def test_active_lock_file_counted():
 # 5. Write failure propagation
 # ---------------------------------------------------------------------------
 
-def test_write_failure_raises_oserror():
-    """When the config file path is unwritable, setters should raise OSError."""
-    with _ConfigPatch():
-        # Point to a path that cannot be written (directory that doesn't exist
-        # inside a read-only parent — we'll use /proc which is read-only on Linux,
-        # or a non-existent deep path on macOS)
+def test_write_failure_propagation():
+    """Config file write to a non-existent path should raise OSError."""
+    old = ConcurrencyConfig._CONFIG_FILE
+    try:
         ConcurrencyConfig._CONFIG_FILE = '/nonexistent_dir_abc123/config.json'
         with pytest.raises(OSError):
             ConcurrencyConfig.set_max_searches(5)
+    finally:
+        ConcurrencyConfig._CONFIG_FILE = old
+
+
+# ---------------------------------------------------------------------------
+# 6. Metadata inspection and live cancellation
+# ---------------------------------------------------------------------------
+
+def test_slot_metadata_and_active_search_inspection():
+    """Metadata written to a slot should be readable by get_active_searches()."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        import backend.concurrency_gate as gate
+        old_lock_dir = gate.LOCK_DIR
+        gate.LOCK_DIR = tmpdir
+
+        with _ConfigPatch():
+            gate.ConcurrencyConfig.set_memory_threshold(0.5)
+            try:
+                slot = gate.SearchSlot()
+                # Acquire slot
+                for _ in slot.acquire():
+                    pass
+
+                slot.set_metadata({
+                    'source_id': 'vergil.aeneid.part.1.tess',
+                    'target_id': 'lucan.bellum_civile.part.1.tess',
+                    'language': 'la',
+                    'match_type': 'sound'
+                })
+
+                active = gate.get_active_searches()
+                assert len(active) == 1
+                search = active[0]
+                assert search['slot_id'] == slot.slot_id
+                assert search['source_id'] == 'vergil.aeneid.part.1.tess'
+                assert search['target_id'] == 'lucan.bellum_civile.part.1.tess'
+                assert search['language'] == 'la'
+                assert search['match_type'] == 'sound'
+                assert search['pid'] == os.getpid()
+                assert search['runtime_seconds'] >= 0.0
+                assert search['is_cancelling'] is False
+
+                slot.release()
+                assert len(gate.get_active_searches()) == 0
+            finally:
+                gate.LOCK_DIR = old_lock_dir
+
+
+def test_cancel_search_creates_marker_and_is_cancelled():
+    """cancel_search() should create a .cancel file and cause slot.is_cancelled() to return True."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        import backend.concurrency_gate as gate
+        old_lock_dir = gate.LOCK_DIR
+        gate.LOCK_DIR = tmpdir
+
+        with _ConfigPatch():
+            gate.ConcurrencyConfig.set_memory_threshold(0.5)
+            try:
+                slot = gate.SearchSlot()
+                for _ in slot.acquire():
+                    pass
+
+                assert slot.is_cancelled() is False
+
+                # Signal cancellation
+                success = gate.cancel_search(slot.slot_id)
+                assert success is True
+                assert slot.is_cancelled() is True
+
+                # Active searches should show is_cancelling=True
+                active = gate.get_active_searches()
+                assert len(active) == 1
+                assert active[0]['is_cancelling'] is True
+
+                # Release slot should clean up slot file AND cancel file
+                slot_id = slot.slot_id
+                slot.release()
+                cancel_file = os.path.join(tmpdir, f"{slot_id}.cancel")
+                assert not os.path.exists(cancel_file)
+            finally:
+                gate.LOCK_DIR = old_lock_dir
+
+
+def test_slot_metadata_match_type_fusion_poll_label():
+    """Slot metadata match_type should accept/report the 'fusion (poll)' label."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        import backend.concurrency_gate as gate
+        old_lock_dir = gate.LOCK_DIR
+        gate.LOCK_DIR = tmpdir
+
+        with _ConfigPatch():
+            gate.ConcurrencyConfig.set_memory_threshold(0.5)
+            try:
+                slot = gate.SearchSlot()
+                for _ in slot.acquire():
+                    pass
+
+                slot.set_metadata({
+                    'source_id': 'vergil.aeneid.part.1.tess',
+                    'target_id': 'lucan.bellum_civile.part.1.tess',
+                    'language': 'la',
+                    'match_type': 'fusion (poll)',
+                })
+
+                active = gate.get_active_searches()
+                assert len(active) == 1
+                assert active[0]['match_type'] == 'fusion (poll)'
+                slot.release()
+            finally:
+                gate.LOCK_DIR = old_lock_dir
+
+
+def test_cancel_search_releases_slot_and_cleans_up():
+    """Cancellation should be detected by is_cancelled(), and slot.release()
+    should clean up both the lock file and the .cancel marker."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        import backend.concurrency_gate as gate
+        old_lock_dir = gate.LOCK_DIR
+        gate.LOCK_DIR = tmpdir
+
+        with _ConfigPatch():
+            gate.ConcurrencyConfig.set_memory_threshold(0.5)
+            try:
+                slot = gate.SearchSlot()
+                for _ in slot.acquire():
+                    pass
+
+                slot.set_metadata({
+                    'source_id': 'src.tess',
+                    'target_id': 'tgt.tess',
+                    'language': 'la',
+                    'match_type': 'fusion (poll)',
+                })
+
+                # Before cancel: slot should not be cancelled
+                assert not slot.is_cancelled()
+                assert gate._count_active_slots() == 1
+
+                # Simulate admin cancellation (create .cancel file)
+                cancel_path = os.path.join(tmpdir, f"{slot.slot_id}.cancel")
+                with open(cancel_path, 'w') as f:
+                    f.write('')
+
+                # After cancel: is_cancelled should return True
+                assert slot.is_cancelled()
+
+                # Slot is still active (hasn't been released yet)
+                assert gate._count_active_slots() == 1
+
+                # Release slot (as the finally block would do)
+                slot.release()
+
+                # After release: slot file and cancel marker should be gone
+                assert gate._count_active_slots() == 0
+                assert not os.path.exists(cancel_path), \
+                    "Cancel marker should be cleaned up by slot.release()"
+            finally:
+                gate.LOCK_DIR = old_lock_dir

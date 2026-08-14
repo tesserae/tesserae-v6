@@ -403,7 +403,7 @@ def detect_text_type(filename, content=None, filepath=None, language=None):
     Tier 2: POETRY_WORKS — explicit known-poetry edge cases
     Tier 3: PROSE_WORKS — consolidated prose author/marker list
     Tier 4: Content heuristic — median line length (if filepath available)
-    Tier 5: Default to "poetry" — backward compatible
+    Tier 5: Language default (Coptic → prose; everything else → poetry).
     """
     # Tier 1: Manual overrides
     override = get_override(filename)
@@ -422,16 +422,26 @@ def detect_text_type(filename, content=None, filepath=None, language=None):
         if marker in name_lower:
             return 'prose'
 
-    # Tier 4: Content heuristic — median line length
-    resolved = filepath
-    if not resolved:
-        resolved = _resolve_text_filepath(filename, language)
-    if resolved and os.path.isfile(resolved):
-        result = _estimate_text_type_from_content(resolved)
-        if result:
-            return result
+    # Tier 4: Content heuristic — median line length.
+    # For Coptic the content heuristic misfires: Bible verses and
+    # Shenoute paragraph divisions are short (<100 chars) even though
+    # the underlying texts are unambiguously prose. Coptic has no
+    # poetry corpus in V6, so skip the content heuristic for cop and
+    # fall through to the language default below.
+    if language != 'cop':
+        resolved = filepath
+        if not resolved:
+            resolved = _resolve_text_filepath(filename, language)
+        if resolved and os.path.isfile(resolved):
+            result = _estimate_text_type_from_content(resolved)
+            if result:
+                return result
 
-    # Tier 5: Default to poetry (backward compatible)
+    # Tier 5: Language default. Coptic literary corpus (NT, OT,
+    # Shenoute, hagiographies, Apophthegmata Patrum) is universally
+    # prose. Other languages keep the legacy poetry default.
+    if language == 'cop':
+        return 'prose'
     return 'poetry'
 
 DISPLAY_NAMES = {
@@ -615,13 +625,18 @@ def get_text_metadata(filepath):
     override = get_override(filename)
     if 'display_author' in override:
         author = override['display_author']
+        # Also unify the grouping key so files with different filename
+        # prefixes but the same display_author group under one author in
+        # the hierarchy (e.g. sahidic.* and sahidica.* both under "Sahidic
+        # Coptic" rather than two separate authors with the same label).
+        author_raw = author.lower().replace(' ', '_')
     if 'display_work' in override:
         work = override['display_work']
         if is_part and part_display:
             title = f"{work}, {part_display}"
         else:
             title = work
-    
+
     result = {
         'id': filename,
         'author': author,
@@ -633,7 +648,10 @@ def get_text_metadata(filepath):
         'is_part': is_part,
         'title': title,
         'display_name': f"{author}, {title}",
-        'filepath': filepath,
+        # NOTE: the absolute server 'filepath' is intentionally NOT serialized —
+        # it leaked the server's filesystem layout (/var/www/...) into public
+        # /api/texts responses. Internal callers pass the path in; none read it
+        # back out of this dict.
         'text_type': text_type
     }
     
@@ -645,6 +663,52 @@ def get_text_metadata(filepath):
         result['has_override'] = True
     
     return result
+
+
+_TEXT_COMPACT_FIELDS = ('id', 'author', 'work', 'title', 'part', 'language')
+
+
+def apply_text_list_filters(texts, args):
+    """Optional server-side filtering / pagination / compaction for the /texts
+    list, keeping the bare-array response shape.
+
+    All params are optional, so callers that pass none (e.g. the web app, which
+    needs the full corpus list) get the unchanged full list — no regression.
+    Used mainly by AI-agent clients (ChatGPT Actions) whose response size is
+    capped: filtering by author, or a limit, keeps the payload small.
+
+    Params (from request.args): author (alias contains) case-insensitive
+    substring over author/work/title/id; offset/limit ints for pagination;
+    compact truthy → only id/author/work/title/part/language per text.
+    """
+    author = (args.get('author') or args.get('contains') or '').strip().lower()
+    if author:
+        def _hay(t):
+            return ' '.join(str(t.get(k, '') or '')
+                            for k in ('author', 'work', 'title', 'display_name', 'id')).lower()
+        texts = [t for t in texts if author in _hay(t)]
+
+    try:
+        offset = max(0, int(args.get('offset', 0)))
+    except (TypeError, ValueError):
+        offset = 0
+    if offset:
+        texts = texts[offset:]
+
+    limit_raw = args.get('limit')
+    if limit_raw not in (None, ''):
+        try:
+            n = int(limit_raw)
+            if n >= 0:
+                texts = texts[:n]
+        except (TypeError, ValueError):
+            pass
+
+    if str(args.get('compact', '')).strip().lower() in ('1', 'true', 'yes', 'on'):
+        texts = [{k: t.get(k) for k in _TEXT_COMPACT_FIELDS} for t in texts]
+
+    return texts
+
 
 def build_text_hierarchy(texts):
     """Build hierarchical structure: Author -> Work -> Parts"""

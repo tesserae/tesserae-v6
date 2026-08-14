@@ -109,7 +109,7 @@ export default function AboutPage({ onNavigate }) {
             <div className="bg-gray-50 p-4 rounded-lg">
               <h4 className="font-medium text-red-700 mb-2">Multi-Language Support</h4>
               <p className="text-sm text-gray-600">
-                Search within Latin, Greek, or English texts. Our corpus includes works from Homer to medieval authors.
+                Search within Latin, Greek, English, or Coptic texts. Our corpus includes works from Homer to medieval authors.
               </p>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg">
@@ -147,7 +147,7 @@ export default function AboutPage({ onNavigate }) {
 
         <section>
           <h3 className="text-lg font-semibold text-gray-900 mb-3">The Corpus</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
             <div className="text-center p-4 bg-red-50 rounded-lg">
               <div className="text-3xl font-bold text-red-700">1,444+</div>
               <div className="text-sm text-gray-600">Latin Texts</div>
@@ -159,6 +159,10 @@ export default function AboutPage({ onNavigate }) {
             <div className="text-center p-4 bg-amber-50 rounded-lg">
               <div className="text-3xl font-bold text-amber-700">14+</div>
               <div className="text-sm text-gray-600">English Texts</div>
+            </div>
+            <div className="text-center p-4 bg-green-50 rounded-lg">
+              <div className="text-3xl font-bold text-green-700">186+</div>
+              <div className="text-sm text-gray-600">Coptic Texts</div>
             </div>
           </div>
           <p className="text-gray-700 text-sm mb-3">

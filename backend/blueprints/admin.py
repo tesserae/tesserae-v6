@@ -126,13 +126,20 @@ def check_admin_auth():
     if not any(role in ('ADMIN', 'SUPER_ADMIN') for role in roles):
         return False
         
+    # Local dev bypass when user_id == 1 and explicitly in dev mode
+    if admin_user_id == 1 and os.environ.get("DEPLOYMENT_ENV", "production") == "dev":
+        return True
+
     try:
         user = User.query.get(admin_user_id)
         if not user or (user.session_version or 1) != session.get('admin_session_version', 1):
             session.clear()
             return False
     except Exception as e:
-        logger.error(f"Failed to validate admin session version: {e}")
+        logger.warning(f"DB unavailable for session validation: {e}")
+        if os.environ.get("DEPLOYMENT_ENV", "production") == "dev":
+            return True
+        session.clear()
         return False
         
     return True
@@ -140,6 +147,8 @@ def check_admin_auth():
 
 def _load_admin_roles(user_id):
     """Load roles for a user from RBAC tables."""
+    if user_id == 1 and os.environ.get("DEPLOYMENT_ENV", "production") == "dev":
+        return ['SUPER_ADMIN']
     try:
         with get_db_cursor(commit=False) as cur:
             cur.execute(
@@ -154,6 +163,8 @@ def _load_admin_roles(user_id):
             return [_normalize_role_name(row[0]) for row in cur.fetchall()]
     except Exception as e:
         logger.error(f"Failed to load admin roles: {e}")
+        if os.environ.get("DEPLOYMENT_ENV", "production") == "dev" and session.get('admin_roles'):
+            return session.get('admin_roles')
         return []
 
 
@@ -276,7 +287,30 @@ def admin_login():
     if not email or not password:
         return jsonify({'error': 'Email and password are required'}), 400
 
-    user = User.query.filter(User.email.ilike(email)).first()
+    # Local development fallback login (only active when DEPLOYMENT_ENV is explicitly set to 'dev'
+    # and ADMIN_PASSWORD is explicitly set in the environment)
+    dev_password = os.environ.get('ADMIN_PASSWORD')
+    if dev_password and password == dev_password and os.environ.get('DEPLOYMENT_ENV', 'production') == 'dev':
+        _clear_admin_login_failures(email)
+        session['admin_user_id'] = 1
+        session['admin_email'] = email or 'admin@tesserae.local'
+        session['admin_roles'] = ['SUPER_ADMIN']
+        session['admin_session_version'] = 1
+        session.permanent = True
+        return jsonify({
+            'success': True,
+            'message': 'Logged in successfully',
+            'user_id': 1,
+            'roles': ['SUPER_ADMIN'],
+            'user': {'id': 1, 'email': email or 'admin@tesserae.local', 'roles': ['SUPER_ADMIN']}
+        })
+
+    try:
+        user = User.query.filter(User.email.ilike(email)).first()
+    except Exception as e:
+        logger.warning(f"DB query failed during login: {e}")
+        return jsonify({'error': 'Invalid credentials'}), 401
+
     if not user or not user.password_hash:
         _record_failed_admin_login(email)
         return jsonify({'error': 'Invalid credentials'}), 401
@@ -1336,7 +1370,7 @@ def bigram_cache_stats():
         return jsonify({'error': 'Unauthorized'}), 401
     
     stats = {}
-    for lang in ['la', 'grc', 'en']:
+    for lang in ['la', 'grc', 'en', 'cop']:
         if is_bigram_cache_available(lang):
             stats[lang] = get_bigram_stats(lang)
         else:
@@ -1353,7 +1387,7 @@ def build_bigram_cache():
     data = request.get_json() or {}
     language = data.get('language', 'la')
     
-    if language not in ['la', 'grc', 'en']:
+    if language not in ['la', 'grc', 'en', 'cop']:
         return jsonify({'error': 'Invalid language'}), 400
     
     try:
@@ -2587,3 +2621,52 @@ def reset_concurrency_config():
         'message': 'Concurrency config reset to defaults',
         **ConcurrencyConfig.get_status()
     })
+
+
+@admin_bp.route('/concurrency/active', methods=['GET'])
+def get_active_searches_list():
+    """List all currently running heavy search tasks and their metadata."""
+    if not check_admin_auth():
+        return jsonify({'error': 'Unauthorized'}), 401
+    roles = [_normalize_role_name(r) for r in (session.get('admin_roles') or [])]
+    if 'SUPER_ADMIN' not in roles and 'ADMIN' not in roles:
+        return jsonify({'error': 'Admin role required'}), 403
+
+    from backend.concurrency_gate import get_active_searches
+    active = get_active_searches()
+    return jsonify({'active_searches': active, 'count': len(active)})
+
+
+@admin_bp.route('/concurrency/active/<slot_id>', methods=['DELETE'])
+def kill_active_search(slot_id):
+    """Terminate a specific active search by slot ID."""
+    if not check_admin_auth():
+        return jsonify({'error': 'Unauthorized'}), 401
+    roles = [_normalize_role_name(r) for r in (session.get('admin_roles') or [])]
+    if 'SUPER_ADMIN' not in roles:
+        return jsonify({'error': 'SUPER_ADMIN required'}), 403
+
+    from backend.concurrency_gate import cancel_search
+    success = cancel_search(slot_id)
+    if not success:
+        return jsonify({'error': 'Active search slot not found or already completed'}), 404
+
+    log_admin_action('search_kill', 'search_slot', slot_id, {'slot_id': slot_id})
+    return jsonify({'success': True, 'message': f'Cancellation signal sent to search slot {slot_id}'})
+
+
+@admin_bp.route('/concurrency/active/all', methods=['DELETE'])
+def kill_all_active_searches_route():
+    """Terminate ALL active searches at once."""
+    if not check_admin_auth():
+        return jsonify({'error': 'Unauthorized'}), 401
+    roles = [_normalize_role_name(r) for r in (session.get('admin_roles') or [])]
+    if 'SUPER_ADMIN' not in roles:
+        return jsonify({'error': 'SUPER_ADMIN required'}), 403
+
+    from backend.concurrency_gate import cancel_all_searches
+    cancelled_ids = cancel_all_searches()
+    log_admin_action('search_kill_all', 'search_slot', None, {'count': len(cancelled_ids), 'slots': cancelled_ids})
+    return jsonify({'success': True, 'count': len(cancelled_ids), 'cancelled_slots': cancelled_ids})
+
+

@@ -1,8 +1,108 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { STOPLIST_INFO } from '../../data/stoplists';
+import FusionFlowchart from '../search/FusionFlowchart';
 
-export default function HelpPage() {
-  const [activeSection, setActiveSection] = useState('getting-started');
+const AI_SCHEMA_URL = 'https://tesserae.caset.buffalo.edu/tesserae-data/tesserae-openapi.yaml';
+
+// The public share URL of the ONE official Tesserae GPT in ChatGPT.
+// Set this to the GPT's share link once it exists (Help → "Use with your AI" →
+// ChatGPT). While it is an empty string, the "Use Tesserae in ChatGPT" button is
+// hidden and a short "coming soon" note is shown instead. This is the single
+// place to configure it.
+const OFFICIAL_GPT_URL = '';
+
+// Privacy policy for the API / ChatGPT-Action integration (static, plain-HTML
+// page — the URL to paste into the GPT builder's "Privacy policy" field).
+const API_PRIVACY_URL = 'https://tesserae.caset.buffalo.edu/tesserae-data/tesserae-api-privacy.html';
+
+const GPT_INSTRUCTIONS = `You are Tesserae, an assistant for finding intertextual parallels (allusions, echoes, quotations, borrowings) in classical literature, using the provided Tesserae actions. Follow the user's lead; they are the scholar. Show actual passages and loci; be candid about weak or ambiguous matches. Language codes: la (Latin), grc (Greek), en (English), cop (Coptic).
+
+WHICH SEARCH TO USE
+- General, unqualified two-text request ("find intertextual parallels between Aeneid 4 and Georgics 4"): use the FULL FUSION search (fusionSearchPoll) — Tesserae's comprehensive comparison, combining ten similarity signals (shared words, sound, meaning, rare vocabulary, syntax, and more). See FULL FUSION below for how to handle its timing.
+- Requests emphasizing "distinctive", "rare", "unusual" shared vocabulary/phrases, or a fast exploratory scan: use rarePairsSearch (rare shared word-pairs) or rareWordsSearch (rare shared single words) — fast, and targeted at distinctive vocabulary.
+- How widespread or distinctive a candidate expression is across the whole corpus: use lineSearch. Report distinct_loci (NOT total) — the corpus lists some whole works and their parts separately, so total double-counts; pass a small max_results/limit. Use this to test the strongest candidates from a rare-pairs/rare-words scan.
+- A specific word, form, or pattern the scholar names: stringSearch (wildcards, AND/OR/NOT, "phrases").
+- Cross-language (e.g. a Greek model behind a Latin passage): crossLanguageSearch (POST only; separate source_language/target_language).
+
+METHOD TRANSPARENCY (required, scholar-facing)
+- Always briefly identify which Tesserae method produced the reported results and what it looks for — e.g. "Method: Tesserae full fusion search, the general comparison combining Tesserae's matching signals," or "Method: Tesserae rare-pairs search, which looks for unusually distinctive shared word-pairs." If you use one method to find candidates and another to test them, say so: "I used rare-pairs search to find candidates, then corpus-wide line search to test how distinctive the strongest ones are." Lead with plain language, not API names, and never present a specialized result as if it were every possible Tesserae analysis.
+
+FULL FUSION — timing and the check-back workflow (important)
+- Full fusion normally takes about 2-3 minutes. That is NORMAL — never call it slow or say something is wrong just because it is still running.
+- It runs on the Tesserae server and keeps running after you reply; the finished result is cached. You are NOT monitoring it in the background between messages.
+- When you start fusion and it returns status "running", tell the user once, e.g.: "Method: Tesserae full fusion search — this normally takes about 2-3 minutes and keeps running on the Tesserae server even after I reply. Ask me to 'check the fusion search' in a couple of minutes and I'll retrieve the results." Then end your turn. Do NOT say you will keep checking, and do NOT imply continuous background monitoring.
+- When the user later asks to check ("has the fusion search finished?" / "check the fusion search"), call fusionSearchPoll AGAIN with the SAME source/target/language. This reuses the existing job and cache — it does NOT start a new search. If status is "complete", retrieve and discuss the cached results. If still "running", report it (see PROGRESS) and invite another check shortly. If status is "error", report the failure and offer an alternative (e.g. a fast rarePairsSearch).
+- Poll conservatively: make at most ONE status check per user request. Do not loop many calls; if you ever poll within a single turn, stop the instant status is "complete".
+
+PROGRESS (honest only)
+- The running response may include elapsed_seconds, stage ("line" then "window"), current_signal, signals_done/signals_total, and candidates_so_far. Report these plainly if present, e.g. "Still running (~90s in): line-comparison phase, 7 of 10 signals computed, 40 candidates so far." signals_done/signals_total is the number of similarity signals computed, NOT a time percentage — later signals are much slower — so do not present it as "% complete" or invent an ETA.
+
+LISTING TEXTS
+- A whole language is large (well over a thousand entries). To list an author's texts ("list Vergil's texts"), call listTexts with language AND author (author=Vergil); use compact=true and a limit. Never fetch a whole language unfiltered just to find one author. Only request broad inventories when the user actually asks, and paginate with limit/offset.
+
+POLLING GENERALLY (Actions can't stream)
+- The full fusion search and the slow variants of string/rare-pairs/rare-words searches are poll-based: call the *Poll operation (fusionSearchPoll / stringSearchPoll / rareWordsPoll / rarePairsPoll); while it returns "running", call the SAME operation again until "complete". Do NOT call the streaming fusionSearch.
+
+PROVENANCE (keep Tesserae's results and your interpretation separate)
+- Attribute the matches, loci, scores/rarity, and corpus-search facts to Tesserae — they are transparent and reproducible.
+- Present your literary reading as AI-assisted inference the scholar should verify; never attribute an interpretive judgment to Tesserae itself.
+- Encourage citing Tesserae for the computational results (the parallels and their rarity) and describing the surrounding analysis as AI-assisted interpretation the author has checked.`;
+
+const MCP_PIP = 'pip install fastmcp requests';
+
+const MCP_CONFIG = `{
+  "mcpServers": {
+    "tesserae": {
+      "command": "python",
+      "args": ["/full/path/to/tesserae_mcp.py"]
+    }
+  }
+}`;
+
+const MCP_CLAUDE_CODE = 'claude mcp add tesserae -- python /full/path/to/tesserae_mcp.py';
+const MCP_CONNECTOR_URL = 'https://tesserae.caset.buffalo.edu/api/mcp';
+
+function CopyBlock({ text, label = 'Copy' }) {
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    try {
+      navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch { /* ignore */ }
+  };
+  return (
+    <div className="relative my-2">
+      <button
+        type="button"
+        onClick={copy}
+        className="absolute top-2 right-2 text-xs font-medium bg-gray-700 hover:bg-gray-600 text-gray-100 rounded px-2 py-1"
+      >
+        {copied ? 'Copied' : label}
+      </button>
+      <pre className="bg-gray-800 text-gray-100 text-xs rounded p-3 pt-8 overflow-x-auto whitespace-pre-wrap">{text}</pre>
+    </div>
+  );
+}
+
+export default function HelpPage({ initialSection = null, onSectionConsumed } = {}) {
+  const [activeSection, setActiveSection] = useState(initialSection || 'getting-started');
+  const contentRef = useRef(null);
+
+  // If opened at a specific section (e.g. via the "use your own AI" flag),
+  // apply it once on mount and let the parent clear the request. On mobile the
+  // section list stacks above the content, so scroll to the content itself —
+  // otherwise the deep-link lands on the section nav, not the section.
+  useEffect(() => {
+    if (initialSection) {
+      setActiveSection(initialSection);
+      if (onSectionConsumed) onSectionConsumed();
+      requestAnimationFrame(() => {
+        if (contentRef.current) contentRef.current.scrollIntoView({ block: 'start' });
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [expandedStoplists, setExpandedStoplists] = useState({});
   const [curatedStoplists, setCuratedStoplists] = useState(null);
   const [stoplistsError, setStoplistsError] = useState(null);
@@ -217,20 +317,26 @@ export default function HelpPage() {
   };
 
   const sections = [
-    { id: 'getting-started', label: 'Getting Started' },
-    { id: 'fusion-search', label: 'How Fusion Search Works' },
-    { id: 'search-modes', label: 'Search Modes' },
-    { id: 'match-types', label: 'Match Types' },
-    { id: 'settings', label: 'Search Settings' },
-    { id: 'stoplists', label: 'Stoplists' },
-    { id: 'results', label: 'Understanding Results' },
-    { id: 'best-practices', label: 'Search Tips' },
-    { id: 'cross-lingual', label: 'Cross-Lingual Search' },
-    { id: 'syntax-texts', label: 'Syntax Matching Texts' },
-    { id: 'repository', label: 'Repository' },
-    { id: 'faq', label: 'FAQ' },
-    { id: 'upload-text', label: 'Upload Your Text' },
-    { id: 'feedback', label: 'Send Feedback' }
+    { id: 'getting-started', label: 'Getting Started', group: 'Start here' },
+    { id: 'search-modes', label: 'The Types of Search', group: 'Start here' },
+
+    { id: 'fusion-search', label: 'How Fusion Search Works', group: 'The Fusion (Phrases) search' },
+    { id: 'match-types', label: 'Match Types', group: 'The Fusion (Phrases) search' },
+    { id: 'settings', label: 'Search Settings', group: 'The Fusion (Phrases) search' },
+    { id: 'stoplists', label: 'Stoplists', group: 'The Fusion (Phrases) search' },
+    { id: 'results', label: 'Understanding Results', group: 'The Fusion (Phrases) search' },
+
+    { id: 'languages', label: 'Languages', group: 'Languages' },
+    { id: 'coptic', label: 'Coptic (in depth)', group: 'Languages' },
+    { id: 'cross-lingual', label: 'Cross-Language Search', group: 'Languages' },
+
+    { id: 'ai-guide', label: 'Use with your AI', group: 'Reference & tools' },
+    { id: 'syntax-texts', label: 'Syntax', group: 'Reference & tools' },
+    { id: 'best-practices', label: 'Search Tips', group: 'Reference & tools' },
+    { id: 'repository', label: 'Repository', group: 'Reference & tools' },
+    { id: 'upload-text', label: 'Upload Your Text', group: 'Reference & tools' },
+    { id: 'faq', label: 'FAQ', group: 'Reference & tools' },
+    { id: 'feedback', label: 'Send Feedback', group: 'Reference & tools' }
   ];
 
   const submitTextRequest = async (e) => {
@@ -316,13 +422,18 @@ export default function HelpPage() {
         <nav className="md:w-64 p-4 bg-gray-50 border-b md:border-b-0 md:border-r">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Help Topics</h2>
           <ul className="space-y-1">
-            {sections.map(section => (
+            {sections.map((section, i) => (
               <li key={section.id}>
+                {(i === 0 || sections[i - 1].group !== section.group) && (
+                  <p className="px-3 pt-4 pb-1 text-[0.68rem] font-semibold uppercase tracking-wider text-gray-400 first:pt-1">
+                    {section.group}
+                  </p>
+                )}
                 <button
                   onClick={() => setActiveSection(section.id)}
                   className={`w-full text-left px-3 py-2 rounded text-sm ${
-                    activeSection === section.id 
-                      ? 'bg-red-100 text-red-700' 
+                    activeSection === section.id
+                      ? 'bg-red-100 text-red-700'
                       : 'text-gray-600 hover:bg-gray-100'
                   }`}
                 >
@@ -333,16 +444,21 @@ export default function HelpPage() {
           </ul>
         </nav>
 
-        <div className="flex-1 p-6">
+        <div ref={contentRef} className="flex-1 p-6">
           {activeSection === 'getting-started' && (
             <div className="prose max-w-none">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Getting Started</h3>
+              <p className="text-gray-700 mb-4">
+                Tesserae offers several kinds of search. Most people start with the default — <strong>Phrases</strong>, which
+                compares two texts and finds the passages most similar to each other. Here is the quick path:
+              </p>
               <ol className="list-decimal list-inside space-y-4 text-gray-700">
-                <li><strong>Select a Language:</strong> Choose Latin, Greek, or English from the language tabs.</li>
-                <li><strong>Choose Source Text:</strong> Select the "source" text — typically the earlier text.</li>
-                <li><strong>Choose Target Text:</strong> Select the "target" text — the later text that may contain the allusion.</li>
-                <li><strong>Run Search:</strong> Click "Find Parallels." The default search mode is <strong>Fusion — All Channels</strong>, which runs nine independent detection methods and combines their results for the best recall.</li>
-                <li><strong>Browse Results:</strong> Results are ranked by confidence. The top results are overwhelmingly genuine parallels. Matched words are highlighted and channel badges show which methods detected each pair.</li>
+                <li><strong>Select a language:</strong> Latin, Greek, English, or Coptic, from the tabs.</li>
+                <li><strong>Choose a search type:</strong> the default is <strong>Phrases</strong> (compare two texts). See{' '}
+                  <button onClick={() => setActiveSection('search-modes')} className="text-red-600 hover:underline">The Types of Search</button>{' '}
+                  for the others (Lines, String Search, Rare Pairs, Rare Words).</li>
+                <li><strong>Choose your texts:</strong> a <strong>source</strong> (usually the earlier text) and a <strong>target</strong> that may echo it.</li>
+                <li><strong>Run the search:</strong> click "Find Parallels." Results are ranked by confidence, matched words are highlighted, and badges show which methods detected each pair.</li>
               </ol>
               <div className="mt-6 bg-amber-50 p-4 rounded-lg">
                 <h4 className="font-medium text-amber-800 mb-2">Tip</h4>
@@ -356,45 +472,149 @@ export default function HelpPage() {
             </div>
           )}
 
+          {activeSection === 'languages' && (
+            <div className="prose max-w-none">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Languages</h3>
+              <p className="text-gray-700 mb-5">
+                Tesserae searches four languages. They share the same search types, but differ in how much of the corpus
+                is covered and which detection channels have data to work with.
+              </p>
+              <div className="space-y-5">
+                <div className="border-l-4 border-red-500 pl-4">
+                  <h4 className="font-medium text-gray-900">Latin</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    The largest and best-developed corpus (~1,400 texts). All ten channels are available, and every text has been
+                    grammatically parsed, so the syntax channels contribute. Latin has the most thoroughly evaluated results
+                    (roughly 92% recall on the standard allusion benchmarks).
+                  </p>
+                </div>
+                <div className="border-l-4 border-blue-500 pl-4">
+                  <h4 className="font-medium text-gray-900">Greek</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    A large corpus (~650 texts). Vocabulary, sound, meaning, and rare-word channels all work; searches are
+                    accent-insensitive, so you can enter text with or without diacritics. Greek does not yet have grammatical
+                    parses, so the syntax channels contribute nothing for Greek.
+                  </p>
+                </div>
+                <div className="border-l-4 border-emerald-500 pl-4">
+                  <h4 className="font-medium text-gray-900">English</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    A small corpus (about a dozen texts), useful mainly for translations and demonstrations. The vocabulary and
+                    meaning channels apply; there is no syntax data.
+                  </p>
+                </div>
+                <div className="border-l-4 border-amber-500 pl-4">
+                  <h4 className="font-medium text-gray-900">Coptic</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Sahidic and Bohairic (~180 texts) — the Coptic Bible plus monastic literature (Shenoute of Atripe and Besa).
+                    Coptic is tuned for <strong>quotation and close reuse</strong> rather than allusion, with a verbatim-quotation
+                    channel, sub-word lemmatization, and grammatical parses wired into the syntax channel. You can also search a
+                    Coptic text against the Greek corpus to surface its Greek source. See{' '}
+                    <button onClick={() => setActiveSection('coptic')} className="text-red-600 hover:underline">Coptic (in depth)</button>.
+                  </p>
+                </div>
+              </div>
+              <div className="mt-5 bg-gray-50 p-4 rounded-lg text-sm text-gray-700">
+                <strong>Across languages:</strong> when a language lacks data for a channel (for example, syntax for Greek and English),
+                that channel simply contributes nothing — the other channels still run.
+              </div>
+            </div>
+          )}
+
+          {activeSection === 'coptic' && (
+            <div className="prose max-w-none">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Coptic Search</h3>
+              <p className="text-gray-700 mb-4">
+                Tesserae searches Sahidic Coptic alongside Latin, Greek, and English. The Coptic corpus combines the
+                Coptic Bible with major works of monastic literature — the sermons and letters of Shenoute of Atripe
+                and his successor Besa — so you can trace how Coptic authors quote scripture and reuse one another.
+              </p>
+              <p className="text-gray-700 mb-4">
+                Coptic search is tuned differently from the classical languages. Where Latin and Greek search looks for
+                allusion — shared rare vocabulary spread across a line — Coptic search is tuned for <strong>quotation
+                and close reuse</strong>, the way Coptic monastic authors most often engage their sources.
+              </p>
+
+              <div className="my-4 bg-green-50 border border-green-200 p-4 rounded-lg">
+                <h4 className="font-medium text-green-800 mb-1">Verbatim-quotation detection</h4>
+                <p className="text-green-800 text-sm">
+                  Coptic search's standout feature finds runs of identical consecutive words, catching direct
+                  scriptural quotations even where the author gives no citation. In practice the highest-ranked
+                  Coptic results are reliable quotations.
+                </p>
+              </div>
+
+              <p className="text-gray-700 mb-3">
+                Alongside quotation detection, Coptic search runs the same battery of methods as the other languages:
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-gray-700 text-sm mb-4">
+                <li><strong>Shared vocabulary</strong> — lines that share two or more dictionary words.</li>
+                <li><strong>Sound</strong> — words that sound alike, useful across spelling variation.</li>
+                <li><strong>Synonyms</strong> — related words drawn from the Coptic WordNet.</li>
+                <li><strong>Grammatical structure</strong> — lines built the same way.</li>
+                <li><strong>Meaning (AI)</strong> — a model that recognizes the same idea in different words (a multilingual model, for Coptic).</li>
+              </ul>
+
+              <div className="mt-4 bg-blue-50 p-4 rounded-lg">
+                <h4 className="font-medium text-blue-800 mb-1">Coptic → Greek</h4>
+                <p className="text-blue-800 text-sm">
+                  Because much of Coptic scripture and literature was translated from Greek, you can search a Coptic
+                  text against the Greek corpus to surface the Greek source behind a translation. Choose the
+                  Coptic → Greek pair on the Cross-Language tab.
+                </p>
+              </div>
+
+              <div className="mt-4 bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-medium text-gray-800 mb-1">Searching the whole corpus</h4>
+                <p className="text-gray-700 text-sm">
+                  From any result you can search the entire Coptic corpus for the words a parallel shares, to see
+                  where else they occur. All of Shenoute's works are also available as a single combined text, so you
+                  can search his whole surviving output at once.
+                </p>
+              </div>
+
+              <div className="mt-4 bg-amber-50 border border-amber-200 p-4 rounded-lg">
+                <h4 className="font-medium text-amber-900 mb-1">Typing Coptic (Line Search &amp; String Search)</h4>
+                <p className="text-amber-900 text-sm mb-2">
+                  No Coptic keyboard is needed. On the word-entry boxes, type in Latin using the{' '}
+                  <strong>Leipzig-Jerusalem</strong> transliteration and the Coptic appears as you type
+                  (you can also paste Coptic directly). Most letters are intuitive; the ones to know:
+                </p>
+                <ul className="list-disc list-inside space-y-1 text-amber-900 text-sm mb-2">
+                  <li><code className="bg-amber-100 px-1 rounded">sh</code> = shai, <code className="bg-amber-100 px-1 rounded">h</code> = hori, <code className="bg-amber-100 px-1 rounded">f</code> = fai, <code className="bg-amber-100 px-1 rounded">j</code> = djandja, <code className="bg-amber-100 px-1 rounded">c</code> = kjima, <code className="bg-amber-100 px-1 rounded">+</code> = ti, <code className="bg-amber-100 px-1 rounded">x</code> = khai (Bohairic)</li>
+                  <li>Capital <code className="bg-amber-100 px-1 rounded">E</code> = eta (long e) and capital <code className="bg-amber-100 px-1 rounded">O</code> = omega (long o); digraphs <code className="bg-amber-100 px-1 rounded">th ph kh ps ks</code> as expected.</li>
+                </ul>
+                <p className="text-amber-900 text-sm">
+                  Coptic writes words joined into groups, so <strong>whole-word and phrase matching may miss a
+                  word fused inside a group</strong>. In String Search, use a wildcard
+                  (e.g. <code className="bg-amber-100 px-1 rounded">*rOme*</code>) to find a word wherever it sits.
+                </p>
+              </div>
+            </div>
+          )}
+
           {activeSection === 'fusion-search' && (
             <div className="prose max-w-none">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">How Fusion Search Works</h3>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-sm text-blue-900">
+                <strong>A note on examples:</strong> this section — and the ones that follow — uses <strong>Latin</strong> for its
+                examples, but the same process applies to Greek, English, and Coptic. Where a language differs (for instance, Greek
+                and English have no syntax data, and Coptic is tuned for quotation), it is noted along the way.
+              </div>
               <p className="text-gray-700 mb-4">
-                Tesserae V6's default search mode runs <strong>nine independent detection channels</strong> and combines their results.
+                Tesserae's default search — <strong>Phrases</strong> — runs <strong>ten independent detection channels</strong> and combines their results.
                 Each channel looks for a different kind of textual similarity — shared vocabulary, phonetic echo, semantic meaning,
                 grammatical structure, and more. By fusing these signals, the system finds parallels that no single method could detect alone.
+                The diagram below walks through the whole process step by step.
               </p>
 
-              <h4 className="text-lg font-medium text-gray-900 mt-6 mb-3">The Nine Channels</h4>
-              <div className="space-y-3">
-                <div className="border-l-4 border-red-400 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Lemma (2-word):</strong> The classic Tesserae approach — finds lines sharing two or more content-word dictionary forms. The workhorse channel for direct verbal echo.</p>
-                </div>
-                <div className="border-l-4 border-red-400 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Lemma (1-word):</strong> Same method, but requires only one shared word. Catches allusions built around a single pivotal term, like Lucan's <em>canimus</em> echoing Vergil's <em>cano</em>.</p>
-                </div>
-                <div className="border-l-4 border-red-400 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Exact:</strong> Matches identical surface forms (not lemmatized). Catches verbatim quotation and formulaic borrowing.</p>
-                </div>
-                <div className="border-l-4 border-blue-400 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Semantic (AI):</strong> Uses SPhilBERTa neural embeddings to detect lines with similar meaning, even with completely different vocabulary.</p>
-                </div>
-                <div className="border-l-4 border-blue-400 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Dictionary:</strong> Detects synonym substitution (<em>uariatio</em>) using 23,833 curated Latin word pairs — e.g., <em>gladius/ensis</em>, <em>mare/pontus</em>.</p>
-                </div>
-                <div className="border-l-4 border-amber-400 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Sound:</strong> Measures phonetic similarity via character trigram patterns. Detects alliteration, assonance, and phonetic echo.</p>
-                </div>
-                <div className="border-l-4 border-amber-400 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Edit Distance:</strong> Fuzzy character-level matching for morphological variants — <em>ferrea</em> matching <em>ferratos</em>, <em>belligeri</em> matching <em>belli</em>.</p>
-                </div>
-                <div className="border-l-4 border-purple-400 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Syntax:</strong> Compares grammatical dependency structures (parsed by LatinPipe) to detect parallel sentence construction. Includes a structural fingerprint path that matches lines with identical grammatical patterns even when they share no vocabulary — catching allusions built on structural imitation with complete lexical substitution. Because many unrelated Latin lines share common syntactic patterns, structural matches are confirmed by a two-tier gate: they must have either a dictionary synonym pair between the two lines or high semantic similarity (cosine ≥ 0.70). In validation testing on Vergil's <em>Georgics</em> 3 vs. Lucretius <em>DRN</em> 6, this gate preserved all meaningful structural parallels while filtering over 90% of coincidental pattern matches.</p>
-                </div>
-                <div className="border-l-4 border-purple-400 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Rare Vocabulary:</strong> Flags shared words that appear in fewer than 100 texts corpus-wide. A rare shared word is unlikely to be coincidence.</p>
-                </div>
-              </div>
+              <FusionFlowchart />
+
+
+              <p className="text-gray-700 mb-3">
+                For a catalog of what each of the ten channels detects — and how to run a single one on its own — see{' '}
+                <button onClick={() => setActiveSection('match-types')} className="text-red-600 hover:underline">Match Types</button>.
+              </p>
 
               <h4 className="text-lg font-medium text-gray-900 mt-6 mb-3">How Results Are Combined</h4>
               <p className="text-gray-700 mb-3">
@@ -404,7 +624,7 @@ export default function HelpPage() {
                 casts a wider net, receives a lower weight.
               </p>
               <p className="text-gray-700 mb-3">
-                A <strong>convergence bonus</strong> rewards pairs found independently by multiple channels. If six out of nine channels all
+                A <strong>convergence bonus</strong> rewards pairs found independently by multiple channels. If six out of ten channels all
                 flag the same pair of lines, that agreement is strong evidence of a real connection — stronger than any single channel's
                 score alone. The convergence bonus is weighted by word rarity: pairs sharing rare vocabulary get the full bonus,
                 while pairs whose weakest word is very common receive a reduced bonus proportional to that word's frequency.
@@ -496,10 +716,7 @@ export default function HelpPage() {
                   <p className="text-gray-500 text-sm mt-2">
                     <strong>Use for:</strong> Discovering allusions, quotations, and thematic parallels between texts.
                     See{' '}
-                    <button onClick={() => setActiveSection('fusion-search')} className="text-red-600 hover:underline">
-                      How Fusion Search Works
-                    </button>
-                    {' '}for details on the nine channels.
+                    <button onClick={() => setActiveSection('match-types')} className="text-red-600 hover:underline">Match Types</button>{' '}for what each of the ten channels detects.
                   </p>
                 </div>
 
@@ -537,7 +754,7 @@ export default function HelpPage() {
                 </div>
 
                 <div className="border-l-4 border-purple-500 pl-4">
-                  <h4 className="font-medium text-gray-900">Word Pairs (Bigram Search)</h4>
+                  <h4 className="font-medium text-gray-900">Rare Pairs</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Discovers unusual word combinations (bigrams) that appear together in very few texts.
                     Even if individual words are common, their pairing may be distinctive.
@@ -605,63 +822,51 @@ export default function HelpPage() {
           {activeSection === 'match-types' && (
             <div className="prose max-w-none">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Match Types</h3>
-              <p className="text-gray-700 mb-4">Within Phrases search, the Match Type dropdown controls which detection method runs:</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-red-50 p-4 rounded-lg border border-red-200 md:col-span-2">
-                  <h4 className="font-medium text-red-900">Fusion — All Channels (default)</h4>
-                  <p className="text-gray-700 text-sm mt-1">
-                    Runs all nine detection channels simultaneously and combines results with weighted score fusion.
-                    Finds 92% of known parallels across five benchmark datasets — the recommended choice for general use.
-                    See{' '}
-                    <button onClick={() => setActiveSection('fusion-search')} className="text-red-600 hover:underline">
-                      How Fusion Search Works
-                    </button>.
-                  </p>
+              <p className="text-gray-700 mb-4">
+                The default Phrases search runs all channels together (<strong>Fusion</strong>). You can also run a
+                <strong> single method</strong> on its own — choose it from the Match Type dropdown — when you want just one kind of
+                match, such as only exact quotations or only sound. Here is what each method (channel) detects:
+              </p>
+              <h4 className="text-lg font-medium text-gray-900 mt-6 mb-3">The Detection Channels</h4>
+              <div className="space-y-3">
+                <div className="border-l-4 border-red-400 pl-3">
+                  <p className="text-sm text-gray-700"><strong>Lemma (2-word):</strong> The classic Tesserae approach — finds lines sharing two or more content-word dictionary forms. The workhorse channel for direct verbal echo.</p>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-gray-900">Lemma</h4>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Matches words with the same dictionary form. "amor" matches "amorem", "amores", etc.
-                    The classic Tesserae method. Requires 2+ shared lemmas by default.
-                  </p>
+                <div className="border-l-4 border-red-400 pl-3">
+                  <p className="text-sm text-gray-700"><strong>Lemma (1-word):</strong> Same method, but requires only one shared word. Catches allusions built around a single pivotal term, like Lucan's <em>canimus</em> echoing Vergil's <em>cano</em>.</p>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-gray-900">Exact</h4>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Only identical surface forms match — no lemmatization. Good for finding direct quotations or formulaic phrases.
-                  </p>
+                <div className="border-l-4 border-red-400 pl-3">
+                  <p className="text-sm text-gray-700"><strong>Exact:</strong> Matches identical surface forms (not lemmatized). Catches verbatim quotation and formulaic borrowing.</p>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-gray-900">Sound (Trigrams)</h4>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Measures phonetic similarity via character trigram patterns. Detects alliteration,
-                    rhyme, assonance, and consonance.
-                  </p>
+                <div className="border-l-4 border-blue-400 pl-3">
+                  <p className="text-sm text-gray-700"><strong>Semantic (AI):</strong> Uses SPhilBERTa neural embeddings to detect lines with similar meaning, even with completely different vocabulary.</p>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-gray-900">Edit Distance</h4>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Fuzzy character-level matching for morphological variants and spelling
-                    variations: "ferrea" matches "ferratos", "belligeri" matches "belli".
-                  </p>
+                <div className="border-l-4 border-blue-400 pl-3">
+                  <p className="text-sm text-gray-700"><strong>Dictionary:</strong> Detects synonym substitution (<em>uariatio</em>) using 23,833 curated Latin word pairs — e.g., <em>gladius/ensis</em>, <em>mare/pontus</em>.</p>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-gray-900">Semantic (AI)</h4>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Uses SPhilBERTa neural embeddings to find passages with similar meaning, even with completely different vocabulary.
-                    Also uses 23,800+ curated Latin synonym pairs (e.g., numen~deus, bellum~proelium, ignis~flamma).
-                  </p>
+                <div className="border-l-4 border-amber-400 pl-3">
+                  <p className="text-sm text-gray-700"><strong>Sound:</strong> Measures phonetic similarity via character trigram patterns. Detects alliteration, assonance, and phonetic echo.</p>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-gray-900">Dictionary</h4>
-                  <p className="text-gray-600 text-sm mt-1">
-                    Detects synonym substitution (<em>uariatio</em>) using curated Latin word pairs from Lewis & Short.
-                    Scores by IDF so rare synonym matches rank higher than common ones.
-                  </p>
+                <div className="border-l-4 border-amber-400 pl-3">
+                  <p className="text-sm text-gray-700"><strong>Edit Distance:</strong> Fuzzy character-level matching for morphological variants — <em>ferrea</em> matching <em>ferratos</em>, <em>belligeri</em> matching <em>belli</em>.</p>
+                </div>
+                <div className="border-l-4 border-purple-400 pl-3">
+                  <p className="text-sm text-gray-700"><strong>Syntax:</strong> Compares grammatical dependency structures (parsed by LatinPipe) to detect parallel sentence construction. Includes a structural fingerprint path that matches lines with identical grammatical patterns even when they share no vocabulary — catching allusions built on structural imitation with complete lexical substitution. Because many unrelated Latin lines share common syntactic patterns, structural matches are confirmed by a two-tier gate: they must have either a dictionary synonym pair between the two lines or high semantic similarity (cosine ≥ 0.70). In validation testing on Vergil's <em>Georgics</em> 3 vs. Lucretius <em>DRN</em> 6, this gate preserved all meaningful structural parallels while filtering over 90% of coincidental pattern matches.</p>
+                </div>
+                <div className="border-l-4 border-purple-400 pl-3">
+                  <p className="text-sm text-gray-700"><strong>Rare Vocabulary:</strong> Flags shared words that appear in fewer than 100 texts corpus-wide. A rare shared word is unlikely to be coincidence.</p>
+                </div>
+                <div className="border-l-4 border-green-500 pl-3">
+                  <p className="text-sm text-gray-700"><strong>Verbatim Quotation (Coptic):</strong> Finds runs of three or more identical consecutive words. This channel is used for Coptic, where authors most often engage their sources by direct quotation — it catches scriptural quotations even when the author gives no citation. See the <em>Coptic Search</em> section for details.</p>
                 </div>
               </div>
-              <p className="text-gray-600 text-sm mt-4">
-                <strong>Tip:</strong> When running individual channels, Sound and Edit Distance can also be enabled as feature boosts under Advanced Settings.
+              <p className="text-gray-600 text-sm mt-3">
+                These channels run for Latin, Greek, and English; Coptic adds the verbatim-quotation channel above.
+              </p>
+
+              <p className="text-gray-700 mb-4">
+                <strong>Line Search</strong> offers three match types: <strong>Lemma</strong> (dictionary forms), <strong>Exact</strong>
+                (identical surface forms), and <strong>Regular expression</strong> (patterns &mdash; see below).
               </p>
 
               <div className="mt-6 border-t pt-4" id="regex-help">
@@ -699,7 +904,7 @@ export default function HelpPage() {
               <div className="bg-amber-50 p-4 rounded-lg border border-amber-200 mb-4">
                 <p className="text-amber-700 text-sm">
                   <strong>Note:</strong> In Fusion mode (the default), most settings below are managed automatically by the
-                  nine channels. Settings like Minimum Matches, Max Distance, and Stoplist apply when running individual match types.
+                  ten channels. Settings like Minimum Matches, Max Distance, and Stoplist apply when running individual match types.
                 </p>
               </div>
               <dl className="space-y-4">
@@ -743,6 +948,42 @@ export default function HelpPage() {
                   </dd>
                 </div>
               </dl>
+
+              <h4 className="text-lg font-semibold text-gray-900 mt-8 mb-2">Advanced: Channels &amp; weights</h4>
+              <p className="text-gray-700 text-sm mb-3">
+                The Phrases (fusion) search blends several detection methods — called <em>channels</em> (shared words,
+                sound, meaning, syntax, rare vocabulary, and more). Under <strong>Search Settings → Advanced —
+                Channels &amp; weights</strong> you can tune how much each channel counts, or switch channels off
+                entirely. Leaving this untouched uses Tesserae's tuned defaults, so your results are unchanged unless
+                you deliberately adjust it.
+              </p>
+              <div className="bg-blue-50 p-4 rounded border border-blue-200">
+                <dl className="space-y-3">
+                  <div>
+                    <dt className="font-medium text-gray-900">Weights</dt>
+                    <dd className="text-gray-600 text-sm mt-1">
+                      Raise or lower how much each channel contributes to a result's score. A higher weight makes that
+                      kind of similarity count for more; the numbers are relative, not percentages.
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="font-medium text-gray-900">On / off switches</dt>
+                    <dd className="text-gray-600 text-sm mt-1">
+                      Turn a channel off to exclude it from the search entirely — for example, to look for parallels
+                      using only sound and syntax. Switching a channel <em>off</em> is different from setting its weight
+                      to zero: a channel at weight 0 still runs and can pull a pair into the results when it agrees with
+                      other channels, whereas an off channel does not run at all.
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="font-medium text-gray-900">Only the channels that apply</dt>
+                    <dd className="text-gray-600 text-sm mt-1">
+                      The panel shows only the channels available for your chosen language — for instance, English does
+                      not show the syntax or dictionary channels, since those rely on data Tesserae doesn't have for English.
+                    </dd>
+                  </div>
+                </dl>
+              </div>
             </div>
           )}
 
@@ -888,6 +1129,34 @@ export default function HelpPage() {
                   </div>
                 </div>
                 <div>
+                  <h4 className="font-medium text-gray-900">Reading the Scores</h4>
+                  <p className="text-gray-600 text-sm mb-2">
+                    The score ranks the results of a single search from most to least likely to be a real
+                    connection. Read the list from the top and stop where the results stop being useful.
+                    The order, and the point where the scores fall off, matter more than the exact number.
+                  </p>
+                  <div className="bg-red-50 p-3 rounded border border-red-200 mb-2">
+                    <p className="text-sm text-gray-700">
+                      <strong>The score is relative, not absolute.</strong> A score is only meaningful within
+                      the search that produced it. There is no fixed number above which a result is
+                      &ldquo;good,&rdquo; and a 5 in one comparison is not the same as a 5 in another, because
+                      the score is calibrated to the particular pair of texts and to how common their
+                      vocabulary is across the corpus. Look at the ranking and the shape of the drop-off
+                      within your own search rather than for a universal cutoff.
+                    </p>
+                  </div>
+                  <ul className="list-disc list-inside text-gray-600 text-sm mt-1 ml-4">
+                    <li>Start at the top and read down. The results are ordered strongest first.</li>
+                    <li>Watch for where the scores fall off. Above that point you are usually looking at
+                        shared rare vocabulary and agreement across several channels. Below it you are
+                        mostly looking at coincidental overlaps of common words, including function words
+                        like conjunctions and pronouns.</li>
+                    <li>Judge the passages, not the number. Tesserae finds candidates; whether a parallel is
+                        a real allusion, an echo, a shared formula, or a coincidence is a scholarly judgment
+                        you make by reading the two passages in context.</li>
+                  </ul>
+                </div>
+                <div>
                   <h4 className="font-medium text-gray-900">Channel Badges</h4>
                   <p className="text-gray-600 text-sm">
                     In Fusion mode, each result displays colored badges showing which channels detected it.
@@ -929,7 +1198,7 @@ export default function HelpPage() {
 
               <h4 className="font-medium text-gray-900 mt-6 mb-3">Getting Started</h4>
               <ul className="list-disc list-inside text-gray-600 text-sm space-y-2 ml-2">
-                <li><strong>Use Fusion (the default)</strong>: It runs nine channels and finds far more parallels than any single method. Start here.</li>
+                <li><strong>Use Fusion (the default)</strong>: It runs ten channels and finds far more parallels than any single method. Start here.</li>
                 <li><strong>Start small, then expand</strong>: Begin with a single book comparison, then broaden to complete works</li>
                 <li><strong>Focus on the top results</strong>: Fusion ranks results by combined confidence. The highest-scoring results are overwhelmingly genuine parallels.</li>
                 <li><strong>Check channel badges</strong>: Results flagged by many independent channels are the most reliable</li>
@@ -950,7 +1219,7 @@ export default function HelpPage() {
                 <li><strong>Select complete works</strong>: Search entire texts rather than individual books</li>
                 <li><strong>Increase max results</strong>: The default is 5,000. Set to 0 for unlimited results.</li>
                 <li><strong>Use the Lines tab</strong>: Search a single line against the entire 2,100+ text corpus</li>
-                <li><strong>Try Rare Words or Word Pairs</strong>: These specialized modes find distinctive vocabulary connections that complement Fusion</li>
+                <li><strong>Try Rare Words or Rare Pairs</strong>: These specialized modes find distinctive vocabulary connections that complement Fusion</li>
               </ul>
 
               <h4 className="font-medium text-gray-900 mt-6 mb-3">General Tips</h4>
@@ -1054,7 +1323,7 @@ export default function HelpPage() {
                 </ul>
                 <p className="text-purple-700 text-sm mt-2">
                   For comparison, the Latin fusion system achieves 91.9% recall across five benchmarks using
-                  nine channels. Cross-lingual search uses four channels: semantic embeddings, dictionary,
+                  ten channels. Cross-lingual search uses four channels: semantic embeddings, dictionary,
                   cross-lingual syntax (structural fingerprint matching via Universal Dependencies),
                   and phonetic transliteration (Greek→Latin character mapping for detecting sound echoes like μῆνιν ≈ Mene).
                 </p>
@@ -1064,11 +1333,20 @@ export default function HelpPage() {
 
           {activeSection === 'syntax-texts' && (
             <div className="prose max-w-none">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Syntax Matching</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Syntax</h3>
+              <p className="text-gray-700 mb-3">
+                Syntax matching compares the <strong>grammatical structure</strong> of two lines — how the words relate as
+                subjects, objects, and modifiers — rather than which words they use. In the Fusion search it works as
+                <strong> two channels</strong>:
+              </p>
+              <ul className="list-disc list-inside text-gray-700 text-sm space-y-1 mb-3">
+                <li><strong>Shared-word syntax:</strong> when two lines already share vocabulary, it checks whether those words sit in the same grammatical roles — a small confirmation that the parallel is structural, not coincidental.</li>
+                <li><strong>Structural fingerprint:</strong> matches two lines with the same dependency skeleton (e.g. subject–verb–object) even when they share <em>no</em> vocabulary. To avoid firing on ordinary grammar, it only counts when another channel (synonyms or meaning) also links the pair.</li>
+              </ul>
               <p className="text-gray-700 mb-4">
-                Syntax matching compares grammatical dependency structures between passages, detecting parallel
-                sentence construction even when no vocabulary is shared. It is one of the nine channels in Fusion search
-                and can also be used as a standalone feature boost.
+                Both add to the fused score on a <strong>sliding scale</strong>, but with low weight — syntax
+                <strong> supplements</strong> the other channels rather than driving results. A separate <strong>Syntax</strong>{' '}
+                checkbox in Search Settings can also apply it as a simple on/off boost.
               </p>
 
               <div className="bg-red-50 p-4 rounded border border-red-200 mb-4">
@@ -1081,19 +1359,18 @@ export default function HelpPage() {
               </div>
 
               <div className="bg-amber-50 p-4 rounded border border-amber-200 mb-4">
-                <h4 className="font-medium text-amber-800 mb-2">Greek — In Progress</h4>
+                <h4 className="font-medium text-amber-800 mb-2">Coptic — Available</h4>
                 <p className="text-sm text-gray-700">
-                  Greek syntax parsing is currently being built using the Stanza <code className="bg-amber-100 px-1 rounded">grc_proiel</code> model.
-                  Coverage is expanding incrementally — Homer's <em>Iliad</em> and other major texts are already parsed.
-                  As more Greek texts are added, syntax matching will become available for Greek-Greek and Greek-Latin comparisons.
-                  Cross-lingual syntax matching is already integrated: because Universal Dependencies labels are language-independent,
-                  structural fingerprint matching works directly across the Greek-Latin boundary.
+                  The Coptic corpus (~180 Sahidic and Bohairic texts) is grammatically parsed and wired into the same syntax
+                  channels, so Coptic searches use syntax the same way Latin does.
                 </p>
               </div>
               <div className="bg-gray-50 p-4 rounded border border-gray-200 mb-4">
-                <h4 className="font-medium text-gray-800 mb-2">English — Not Yet Available</h4>
+                <h4 className="font-medium text-gray-800 mb-2">Greek &amp; English — Not Yet</h4>
                 <p className="text-sm text-gray-700">
-                  Syntax parsing for English texts is planned but has not yet begun.
+                  Greek and English texts have not yet been parsed for grammar, so the syntax channels contribute nothing for
+                  those languages — their other channels still run normally. (Because grammatical labels are language-independent,
+                  cross-language structural matching becomes possible once Greek parses are added.)
                 </p>
               </div>
 
@@ -1114,6 +1391,141 @@ export default function HelpPage() {
                   Latin syntactic annotations are produced by <strong>LatinPipe</strong> (Straka & Straková, Charles University),
                   a neural dependency parser trained on Universal Dependencies treebanks. The parser processes raw Latin text
                   into full dependency trees with part-of-speech tags and grammatical relations.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {activeSection === 'ai-guide' && (
+            <div className="prose max-w-none">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Use Tesserae with your AI assistant</h3>
+              <p className="text-gray-700 mb-4">
+                You can let an AI assistant (ChatGPT or Claude) run Tesserae searches for you — comparing texts, testing
+                parallels for uniqueness across the corpus, and helping you interpret the results. Tesserae does the
+                searching, free, on its open API; the assistant orchestrates and interprets. The simplest, no-setup route
+                is the <strong>official Tesserae GPT in ChatGPT</strong> (see ChatGPT below). You can also paste a guide
+                into any assistant, build your own GPT, or (soon) add the one-URL Claude connector.
+              </p>
+
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">1 · Claude connector <span className="text-sm font-normal text-amber-700">— coming soon</span></h4>
+              <div className="border border-amber-300 bg-amber-50 rounded p-3 text-sm text-amber-900 mb-3">
+                <strong>Under development.</strong> The one-URL Claude connector is built but not live yet — it's waiting
+                on a small server-configuration change, so Claude can add it but can't yet complete a search through it.
+                In the meantime, the <strong>paste-in guide</strong> and <strong>ChatGPT Custom GPT</strong> below both
+                work today.
+              </div>
+              <p className="text-gray-700 text-sm mb-2">
+                Add Tesserae to Claude once, and regular chat Claude can run everything — including the full fusion
+                search — with no Python and no guide-pasting. In <strong>Claude Desktop</strong> or <strong>claude.ai
+                on a computer</strong>, go to <strong>Settings → Connectors → “Add custom connector”</strong> and paste
+                this URL:
+              </p>
+              <CopyBlock text={MCP_CONNECTOR_URL} />
+              <p className="text-gray-700 text-sm mt-2 mb-2">
+                Then just ask, e.g.: “Use Tesserae to compare Aeneid 1 with Lucan's Civil War 1 and show the strongest
+                parallels.” Custom connectors need a paid Claude plan and are added on desktop or web (not the mobile app).
+              </p>
+              <details className="text-sm text-gray-600 mb-6">
+                <summary className="cursor-pointer text-gray-700 font-medium">Advanced: run the connector locally instead (offline; no account/connector needed)</summary>
+                <div className="mt-2 pl-1">
+                  <p className="mb-2">Prefer to run the server on your own machine? Download <a href="/tesserae-data/tesserae_mcp.py" target="_blank" rel="noopener noreferrer" className="text-blue-700 underline">tesserae_mcp.py</a> and install its dependencies:</p>
+                  <CopyBlock text={MCP_PIP} />
+                  <p className="mt-3 mb-1"><strong>Claude Desktop:</strong> Settings → Developer → Edit Config, and add (use the real path to the file):</p>
+                  <CopyBlock text={MCP_CONFIG} />
+                  <p className="mt-3 mb-1"><strong>Claude Code:</strong> instead run:</p>
+                  <CopyBlock text={MCP_CLAUDE_CODE} />
+                  <p className="mt-3">Restart Claude, then ask it to use Tesserae.</p>
+                </div>
+              </details>
+
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">2 · Paste-in guide <span className="text-sm font-normal text-gray-500">— any AI, no setup</span></h4>
+              <p className="text-gray-700 text-sm mb-2">
+                Works with any assistant that can browse the web (ChatGPT, Claude, Gemini, or an agent that makes HTTP
+                requests). Open the guide, copy it, and paste it into your assistant as its first message — it teaches
+                the assistant Tesserae's full toolbox and a step-by-step research workflow.
+              </p>
+              <p className="mb-6">
+                <a href="/tesserae-data/ai-guide.html" target="_blank" rel="noopener noreferrer"
+                  className="inline-block bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded no-underline">
+                  Open the paste-in guide →
+                </a>
+              </p>
+
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">3 · ChatGPT <span className="text-sm font-normal text-gray-500">— the official Tesserae GPT</span></h4>
+
+              <p className="text-gray-700 text-sm mb-2 font-medium">Use the official Tesserae GPT — no setup.</p>
+              {OFFICIAL_GPT_URL ? (
+                <p className="mb-3">
+                  <a href={OFFICIAL_GPT_URL} target="_blank" rel="noopener noreferrer"
+                    className="inline-block bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-4 py-2 rounded no-underline">
+                    Use Tesserae in ChatGPT →
+                  </a>
+                </p>
+              ) : (
+                <div className="border border-amber-300 bg-amber-50 rounded p-3 text-sm text-amber-900 mb-3">
+                  <strong>Coming soon.</strong> The official Tesserae GPT link will appear here shortly. In the meantime,
+                  you can build your own below, or use the paste-in guide above.
+                </div>
+              )}
+              <p className="text-gray-700 text-sm mb-1">Open it and ask it to find, compare, or investigate intertextual parallels using Tesserae. It works like an ordinary ChatGPT conversation:</p>
+              <ul className="list-disc list-inside text-gray-700 text-sm space-y-1 mb-2">
+                <li>You chat with it normally; it calls the Tesserae API for you when a search is needed.</li>
+                <li>The first time it runs a search, ChatGPT may ask permission to contact <code>tesserae.caset.buffalo.edu</code> — that's the normal Custom GPT permission prompt; choose <em>Allow</em> (or <em>Always allow</em>).</li>
+                <li>You don't configure any schemas or Actions — that's already built into the official GPT.</li>
+              </ul>
+              <p className="text-gray-500 text-xs mb-4">
+                Using a GPT works on the ChatGPT web and app clients. (<em>Creating or editing</em> a GPT is web-browser-only — see below.)
+              </p>
+
+              <div className="border border-gray-200 bg-gray-50 rounded p-3 text-sm text-gray-700 mb-4">
+                <strong>A note on the full fusion search.</strong> Tesserae's most comprehensive comparison (“full fusion”)
+                usually takes about <strong>2–3 minutes</strong>. It keeps running on the Tesserae server even after ChatGPT
+                has replied, and the finished result is cached. If it's still running, just ask the GPT to
+                “<em>check the fusion search</em>” after a couple of minutes — it will retrieve and discuss the completed
+                results. The faster “rare-pairs” and “rare-words” searches return in seconds.
+              </div>
+
+              <details className="text-sm text-gray-700 mb-4">
+                <summary className="cursor-pointer text-gray-800 font-medium">Advanced: build your own Tesserae GPT</summary>
+                <div className="mt-2 pl-1 space-y-2">
+                  <p className="text-gray-600">
+                    Optional — for researchers who want their own copy or custom instructions, developers, or institutions
+                    that want their own configuration. Most scholars can just use the official GPT above.
+                  </p>
+                  <p>
+                    <strong>Building or editing a GPT must be done in ChatGPT in a web browser</strong> at <code>chatgpt.com</code>
+                    — the desktop app doesn't clearly expose the GPT-builder. (Once built, you and anyone you share it with
+                    just chat with it normally, on any client, and you can edit it later.)
+                  </p>
+                  <ol className="list-decimal list-inside space-y-1">
+                    <li>In ChatGPT (web browser): <strong>Explore GPTs → + Create → Configure</strong>. Name it <strong>Tesserae</strong>. (The <em>Preview</em> pane beside Configure is just for testing your draft.)</li>
+                    <li>Paste the <em>Instructions</em> below into the Instructions box.</li>
+                    <li><strong>Actions → Create new action → Import from URL</strong>, paste the schema URL below, set <strong>Authentication: None</strong>.</li>
+                    <li>If you plan to share the GPT by link or publish it, add a <strong>Privacy policy</strong> URL (see the link below).</li>
+                    <li>Test it (e.g. “List Vergil's texts”), then <strong>Create</strong> — privately or as a shared link.</li>
+                  </ol>
+                  <p className="font-medium mb-1">Schema URL (for the Action):</p>
+                  <CopyBlock text={AI_SCHEMA_URL} />
+                  <p className="font-medium mb-1 mt-2">Instructions (paste into the GPT):</p>
+                  <CopyBlock text={GPT_INSTRUCTIONS} />
+                  <p className="text-gray-600 text-xs mt-1">
+                    Privacy policy URL (for the builder's “Privacy policy” field, required to share/publish):{' '}
+                    <a href={API_PRIVACY_URL} target="_blank" rel="noopener noreferrer" className="text-blue-700 underline break-all">{API_PRIVACY_URL}</a>
+                  </p>
+                  <p className="text-gray-500 text-xs">
+                    A custom GPT can run everything, including the full fusion search — it polls the fusion job until the
+                    results are ready. Building GPTs is included in ChatGPT Plus.
+                  </p>
+                </div>
+              </details>
+
+              <div className="bg-amber-50 p-4 rounded border border-amber-200">
+                <h4 className="font-medium text-amber-900 mb-2">A note on scholarly use</h4>
+                <p className="text-gray-700 text-sm">
+                  Tesserae's results are transparent and reproducible — anyone can re-run a search and inspect why a
+                  parallel ranked where it did. Whatever your AI concludes from there is its own product. When you
+                  publish, cite Tesserae for the parallels it found, and present the surrounding analysis as
+                  AI-assisted interpretation you have checked.
                 </p>
               </div>
             </div>
@@ -1162,7 +1574,7 @@ export default function HelpPage() {
                 <div>
                   <h4 className="font-medium text-gray-900">Why is my search taking so long?</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    Fusion search runs nine channels, which takes longer than a single-channel search.
+                    Fusion search runs ten channels, which takes longer than a single-channel search.
                     Try searching smaller sections (e.g., individual books) for faster results. Large text pairs
                     like the full Aeneid vs. Metamorphoses can take up to 15 minutes on first run but are cached
                     for subsequent searches. A progress timer is shown during the search.

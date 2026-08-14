@@ -1,15 +1,17 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Header, Navigation } from './components/layout';
 import { SearchModeToggle, TextSelector, SearchSettings, SearchResults, LineSearch, CrossLingualSearch, WildcardSearch, SavedSearches, CorpusSearchResults, RarePairsSettings } from './components/search';
 import RareResultsDisplay from './components/search/RareResultsDisplay';
+import SearchDescription from './components/search/SearchDescription';
 import { Modal, LoadingSpinner } from './components/common';
 import { CorpusBrowser, RareWordsExplorer } from './components/corpus';
 import { Repository } from './components/repository';
 import { AdminPanel } from './components/admin';
 import { AboutPage, HelpPage, DownloadsPage, PrivacyPage, ResearchPage, BlogArchivePage } from './components/pages';
 import TextCredits from './components/about/TextCredits';
+import AiAnnouncement from './components/AiAnnouncement';
 import VisualizationsPage from './components/pages/VisualizationsPage';
-import { useCorpus, useSearch } from './hooks';
+import { useCorpus, useSearch, DEFAULT_PAGE_SIZE } from './hooks';
 import { getSessionValue, setSessionValue } from './utils/storage';
 
 const pathToPageType = {
@@ -79,6 +81,8 @@ function App() {
     const path = window.location.pathname;
     return pathToPageType[path] || 'search';
   });
+  // When set, HelpPage opens to this section (used by the "use your own AI" flag).
+  const [helpSection, setHelpSection] = useState(null);
   const [activeTab, setActiveTab] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     const lang = params.get('lang') || params.get('language');
@@ -125,11 +129,24 @@ function App() {
     stoplist: false,
     use_meter: true,
     exclude_proper_nouns: false,
-    freq_basis: 'corpus'
+    freq_basis: 'corpus',
+    // Advanced: user-overridden fusion channel weights. Contains only the
+    // channels the user has explicitly changed; empty => use tuned defaults.
+    channel_weights: {},
+    // Advanced: fusion channels the user has turned OFF via the on/off
+    // switches. Empty => every channel runs (default). Only sent to the
+    // backend when non-empty (see request-building below).
+    disabled_channels: []
   });
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
   
-  const [displayLimit, setDisplayLimit] = useState(50);
+  // Page size is shared by every result renderer so the choice survives a new
+  // search and a switch between parallel and rare-word results. Purely local:
+  // it is never sent to the backend and never persisted to browser storage.
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  // Bumped once per search invocation. Renderers use it to return to page 1,
+  // which array length alone cannot detect when two searches return the same count.
+  const [searchRunId, setSearchRunId] = useState(0);
   const [sortBy, setSortBy] = useState('score');
   
   const [showRegisterModal, setShowRegisterModal] = useState(false);
@@ -164,12 +181,14 @@ function App() {
     clearResults
   } = useSearch();
 
-  const sortedResults = Array.isArray(results) ? [...results].sort((a, b) => {
-    if (sortBy === 'score') return (b.fused_score ?? b.score ?? b.overall_score ?? 0) - (a.fused_score ?? a.score ?? a.overall_score ?? 0);
-    if (sortBy === 'source_locus') return (a.source_locus || a.source?.ref || '').localeCompare(b.source_locus || b.source?.ref || '', undefined, { numeric: true });
-    if (sortBy === 'target_locus') return (a.target_locus || a.target?.ref || '').localeCompare(b.target_locus || b.target?.ref || '', undefined, { numeric: true });
-    return 0;
-  }) : [];
+  const sortedResults = useMemo(() => (
+    Array.isArray(results) ? [...results].sort((a, b) => {
+      if (sortBy === 'score') return (b.fused_score ?? b.score ?? b.overall_score ?? 0) - (a.fused_score ?? a.score ?? a.overall_score ?? 0);
+      if (sortBy === 'source_locus') return (a.source_locus || a.source?.ref || '').localeCompare(b.source_locus || b.source?.ref || '', undefined, { numeric: true });
+      if (sortBy === 'target_locus') return (a.target_locus || a.target?.ref || '').localeCompare(b.target_locus || b.target?.ref || '', undefined, { numeric: true });
+      return 0;
+    }) : []
+  ), [results, sortBy]);
 
   useEffect(() => {
     fetch('/api/auth/user')
@@ -272,6 +291,13 @@ function App() {
     setPageType(nextPageType);
   }, [adminSessionChecked, adminSessionActive]);
 
+  // Open the Help page at the "Use with your AI" section.
+  const openAiHelp = useCallback(() => {
+    setHelpSection('ai-guide');
+    setPageTypeWithGuard('help');
+    window.history.pushState({}, '', '/help');
+  }, [setPageTypeWithGuard]);
+
   const appLockedToAdmin = adminSessionChecked && adminSessionActive;
 
   const handleAdminSessionLogout = useCallback(async () => {
@@ -336,6 +362,9 @@ function App() {
       } else if (activeTab === 'en') {
         defaultSourceId = 'shakespeare.hamlet.tess';
         defaultTargetId = 'cowper.task.tess';
+      } else if (activeTab === 'cop') {
+        defaultSourceId = 'sahidic.bible.tess';
+        defaultTargetId = 'shenoute.abraham.tess';
       } else {
         defaultSourceId = 'vergil.aeneid.part.1.tess';
         defaultTargetId = 'lucan.bellum_civile.part.1.tess';
@@ -395,12 +424,35 @@ function App() {
       return;
     }
 
+    // Guard: ensure selected texts belong to the current language corpus.
+    // Prevents stale text IDs from being sent after tab switches or during corpus loading.
+    if (corpusLoading) {
+      return;
+    }
+
+    if (corpus.length > 0) {
+      const sourceValid = corpus.some(t => t.id === sourceText);
+      const targetValid = corpus.some(t => t.id === targetText);
+      if (!sourceValid || !targetValid) {
+        setSourceText('');
+        setTargetText('');
+        return;
+      }
+    }
+
+    setSearchRunId(n => n + 1);
+
     const params = {
       source: sourceText,
       target: targetText,
       language: activeTab,
       ...settings
     };
+    // Only send disabled_channels when the user has actually turned a channel
+    // off, so a default search's request body is unchanged from today.
+    if (!params.disabled_channels || params.disabled_channels.length === 0) {
+      delete params.disabled_channels;
+    }
 
     if (searchMode === 'parallel') {
       await search(params);
@@ -409,10 +461,11 @@ function App() {
     } else if (searchMode === 'bigram') {
       await searchWordPairs(params);
     }
-  }, [sourceText, targetText, activeTab, settings, searchMode, search, searchRareWords, searchWordPairs]);
+  }, [sourceText, targetText, activeTab, corpus, corpusLoading, settings, searchMode, search, searchRareWords, searchWordPairs]);
 
   const handleRerunFresh = useCallback(async () => {
     if (!sourceText || !targetText) return;
+    setSearchRunId(n => n + 1);
     const params = {
       source: sourceText,
       target: targetText,
@@ -420,6 +473,9 @@ function App() {
       ...settings,
       skip_cache: true,
     };
+    if (!params.disabled_channels || params.disabled_channels.length === 0) {
+      delete params.disabled_channels;
+    }
     if (searchMode === 'parallel') {
       await search(params);
     }
@@ -453,9 +509,14 @@ function App() {
         lemmas
       };
     } else {
-      lemmas = (result.matched_words || []).map(w => 
-        typeof w === 'object' ? (w.lemma || w.word || '') : w
-      ).filter(Boolean);
+      // Prefer the clean matched_lemmas list (real content words, markup and
+      // function words removed). Fall back to parsing matched_words for older
+      // results that predate the field.
+      lemmas = (Array.isArray(result.matched_lemmas) && result.matched_lemmas.length)
+        ? result.matched_lemmas.slice()
+        : (result.matched_words || []).map(w =>
+            typeof w === 'object' ? (w.lemma || w.word || '') : w
+          ).filter(Boolean);
       queryInfo = {
         source: { ref: result.source_locus || result.source?.ref, text: result.source_text || result.source?.text },
         target: { ref: result.target_locus || result.target?.ref, text: result.target_text || result.target?.text },
@@ -612,13 +673,14 @@ function App() {
           <AdminPanel />
         ) : (
           <>
+        {pageType !== 'help' && <AiAnnouncement onOpen={openAiHelp} />}
         {pageType === 'search' && activeTab !== 'cross' && (
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-4 sm:p-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                 <div className="flex items-center gap-4">
                   <h2 className="text-xl font-semibold text-gray-900">
-                    Search {activeTab === 'la' ? 'Latin' : activeTab === 'grc' ? 'Greek' : 'English'} Texts
+                    Search {activeTab === 'la' ? 'Latin' : activeTab === 'grc' ? 'Greek' : activeTab === 'cop' ? 'Coptic' : 'English'} Texts
                   </h2>
                   <SavedSearches
                     sourceAuthor={sourceAuthor}
@@ -653,7 +715,11 @@ function App() {
                     </button>
                   )}
                 </div>
+              </div>
+
+              <div className="mb-6">
                 <SearchModeToggle searchMode={searchMode} setSearchMode={setSearchMode} />
+                <SearchDescription mode={searchMode} className="mt-2 px-1" />
               </div>
 
               {searchMode === 'line' ? (
@@ -714,6 +780,7 @@ function App() {
                       settings={settings}
                       setSettings={setSettings}
                       searchMode={searchMode}
+                      language={activeTab}
                     />
                   )}
 
@@ -751,8 +818,9 @@ function App() {
                     results={results}
                     loading={searchLoading}
                     error={searchError}
-                    displayLimit={displayLimit}
-                    setDisplayLimit={setDisplayLimit}
+                    pageSize={pageSize}
+                    onPageSizeChange={setPageSize}
+                    searchRunId={searchRunId}
                     searchMode={searchMode}
                     sourceText={sourceText}
                     targetText={targetText}
@@ -766,8 +834,9 @@ function App() {
                     results={sortedResults}
                     loading={searchLoading}
                     error={searchError}
-                    displayLimit={displayLimit}
-                    setDisplayLimit={setDisplayLimit}
+                    pageSize={pageSize}
+                    onPageSizeChange={setPageSize}
+                    searchRunId={searchRunId}
                     onRegister={handleRegister}
                     onCorpusSearch={handleCorpusSearch}
                     onRerunFresh={handleRerunFresh}
@@ -802,7 +871,10 @@ function App() {
         )}
 
         {pageType === 'search' && activeTab === 'cross' && (
-          <CrossLingualSearch />
+          <div className="space-y-3">
+            <SearchDescription mode="cross" className="px-1" />
+            <CrossLingualSearch />
+          </div>
         )}
 
         {pageType === 'browse' && (
@@ -837,12 +909,14 @@ function App() {
 
         {pageType === 'line-search' && (
           <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+            <SearchDescription mode="line" className="mb-4" />
             <LineSearch key={activeTab} language={activeTab} />
           </div>
         )}
 
         {pageType === 'string-search' && (
           <div className="bg-white rounded-lg shadow p-4 sm:p-6">
+            <SearchDescription mode="string" className="mb-4" />
             <WildcardSearch language={activeTab} />
           </div>
         )}
@@ -856,7 +930,7 @@ function App() {
         )}
 
         {pageType === 'help' && (
-          <HelpPage />
+          <HelpPage initialSection={helpSection} onSectionConsumed={() => setHelpSection(null)} />
         )}
 
         {pageType === 'downloads' && (
