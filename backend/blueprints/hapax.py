@@ -1959,8 +1959,8 @@ def _compute_rare_words(source_id, target_id, language, source_language, target_
                    if 1 <= doc_freqs.get(l, 0) <= max_occ}
 
     import re
-    source_base = re.sub(r'\.part\.\d+\.tess$', '.tess', source_id)
-    target_base = re.sub(r'\.part\.\d+\.tess$', '.tess', target_id)
+    source_base = re.sub(r'\.part\.\d+.*\.tess$', '.tess', source_id)
+    target_base = re.sub(r'\.part\.\d+.*\.tess$', '.tess', target_id)
     source_is_full = '.part.' not in source_id
     target_is_full = '.part.' not in target_id
 
@@ -1969,7 +1969,7 @@ def _compute_rare_words(source_id, target_id, language, source_language, target_
             return True
         if '.part.' in source_id and loc_id == source_base:
             return True
-        if source_is_full and re.sub(r'\.part\.\d+\.tess$', '.tess', loc_id) == source_id:
+        if source_is_full and re.sub(r'\.part\.\d+.*\.tess$', '.tess', loc_id) == source_id:
             return True
         return False
 
@@ -1978,7 +1978,7 @@ def _compute_rare_words(source_id, target_id, language, source_language, target_
             return True
         if '.part.' in target_id and loc_id == target_base:
             return True
-        if target_is_full and re.sub(r'\.part\.\d+\.tess$', '.tess', loc_id) == target_id:
+        if target_is_full and re.sub(r'\.part\.\d+.*\.tess$', '.tess', loc_id) == target_id:
             return True
         return False
 

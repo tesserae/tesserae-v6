@@ -1976,7 +1976,7 @@ def line_search():
             import re as _re_dl
 
             def _base_tid(tid):
-                return _re_dl.sub(r'\.part\.\d+\.tess$', '.tess', tid) if tid else tid
+                return _re_dl.sub(r'\.part\.\d+.*\.tess$', '.tess', tid) if tid else tid
 
             _pos = {}
             _deduped = []
