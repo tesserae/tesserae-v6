@@ -10,19 +10,18 @@ Run these tests manually after any changes to search or indexing code.
 **Language**: Latin
 **Search Type**: Lemma
 
-**Expected Results**:
-- Total matches should be approximately 250+ results
-- Must include:
-  - **Ovid**: ~26 matches (Amores, Fasti, Metamorphoses, etc.)
-  - **Vergil**: ~2 matches (Aeneid)
-  - **Livy**: ~72 matches
-  - **Cicero**: ~8 matches
-  - **Curtius Rufus**: ~10 matches
+**Expected Results** (as of 2026-08-14; `total` == `distinct_loci`, deduplicated across whole-work and per-book/poem copies of the same line):
+- Total ~320 results (grew from the older ~250 as the corpus expanded to include medieval and Neo-Latin texts)
+- Must include (a search that drops these is broken):
+  - **Vergil**: ~24 (Aeneid and others)
+  - **Ovid**: ~14 (Amores, Fasti, Metamorphoses, etc.)
+  - **Livy**: ~42
+  - a broad span of eras and authors — e.g. Silius Italicus, Statius, Tacitus, and later Latin (William of Tyre, Eobanus)
 
 **Red Flags** (indicates broken search):
-- Ovid missing entirely
-- Less than 50 total results
-- Only showing Vergil
+- Ovid or Vergil missing entirely
+- Fewer than ~150 total results
+- Only one author/era represented
 
 ### Test 2: Verify diverse authors appear
 For any corpus-wide lemma search, results should span multiple eras and authors, not just the most famous texts.
@@ -36,19 +35,21 @@ For any corpus-wide lemma search, results should span multiple eras and authors,
 **Language**: Latin
 **Search Type**: Exact
 
-**Expected Results**:
-- Total matches should be approximately 35-40 results
+**Expected Results** (as of 2026-08-14; `total` == `distinct_loci`, deduplicated across whole-work and per-book/poem copies. The older "8+/2+" figures counted the same line twice under a whole work and its part; the whole/part dedup now reports true distinct loci, roughly halving the raw counts. Exact search matches whole words — a trailing enclitic is allowed, so "arma virum" still hits Aeneid 1.1 "arma virumque cano"):
+- Total ~21 results
 - Must include:
-  - **Ovid**: 2+ matches
-  - **Quintilian**: 2+ matches
-  - **Seneca**: 1+ match
-  - **Vergil**: 8+ matches (including Aeneid 1.1.1 "arma virumque cano")
-  - **Statius**: 2+ matches
-  - **Persius**: 1+ match
+  - **Vergil**: 4 (including Aeneid 1.1 "arma virumque cano")
+  - **Ovid**: 1+
+  - **Quintilian**: 1+
+  - **Seneca**: 1+ (Epistulae 113.25)
+  - **Statius**: 1+
+  - **Martial**: 2
 
 **Red Flags** (indicates broken search):
 - Ovid, Quintilian, or Seneca missing
-- Less than 20 total results
+- Fewer than ~15 total results
+- "aliquot annis"-style substring hits appearing for a two-word exact query (whole-word matching broken)
+- The same line appearing twice under both a whole work and its part (whole/part dedup broken)
 
 ---
 
