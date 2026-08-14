@@ -27,7 +27,12 @@ API_BASE = os.environ.get('TESSERAE_API_BASE', 'https://tesserae.caset.buffalo.e
 SERVER_INFO = {"name": "tesserae", "version": "1.0.0"}
 DEFAULT_PROTOCOL = "2025-06-18"
 _TIMEOUT = 90
-_FUSION_POLL_TIMEOUT = 330   # seconds to block-and-poll a fresh fusion run
+_FUSION_POLL_TIMEOUT = 330   # HTTP request timeout for a fresh fusion run
+# Remote MCP clients (e.g. Claude's connector) cap each tool call at ~60s, so a
+# fusion tool call must return well under that. We block-and-poll only for this
+# budget, then hand back a "still running" status telling the assistant to call
+# again — the job keeps computing server-side and its result is cached.
+_FUSION_MCP_BUDGET = 45      # seconds to block before returning status=running
 
 
 # --------------------------------------------------------------------------
@@ -112,10 +117,12 @@ def _t_rare_words(a):
 
 
 def _t_fusion_search(a):
-    """Full fusion — blocks and polls the GET fusion endpoint until complete
-    (MCP tools have no short timeout, so a few-minute wait is fine)."""
+    """Full fusion — starts the server-side job and block-polls the GET fusion
+    endpoint for a short budget, then returns status=running so the (time-limited)
+    MCP client can call again to pick up the cached result once it completes."""
     params = {'source': a.get('source'), 'target': a.get('target'), 'language': a.get('language', 'la')}
-    deadline = time.time() + _FUSION_POLL_TIMEOUT
+    poll_interval = 8
+    deadline = time.time() + _FUSION_MCP_BUDGET
     while True:
         d = _get('/fusion-search', params)
         status = d.get('status')
@@ -123,10 +130,14 @@ def _t_fusion_search(a):
             return {'status': 'complete', 'count': d.get('count'), 'parallels': d.get('parallels')}
         if status == 'error':
             return {'status': 'error', 'error': d.get('error')}
-        if time.time() > deadline:
+        # Return before starting a sleep that would push us past the budget, so
+        # the tool call never trips the client's ~60s per-call timeout.
+        if time.time() + poll_interval >= deadline:
             return {'status': 'running',
-                    'note': 'Still computing after a few minutes; call fusion_search again shortly to get the cached result.'}
-        time.sleep(15)
+                    'note': ('Fusion is still computing server-side (first runs take a few minutes) '
+                             'and its result will be cached. Call fusion_search again with the same '
+                             'arguments in ~30-60 seconds to retrieve it.')}
+        time.sleep(poll_interval)
 
 
 def _t_cross_language(a):
