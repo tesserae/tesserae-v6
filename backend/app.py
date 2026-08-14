@@ -1965,22 +1965,32 @@ def line_search():
             ))
             
             search_time = round(time_module.time() - search_start_time, 3)
-            # distinct_loci collapses the corpus's whole-work vs .part.N
-            # duplication: e.g. vergil.aeneid.tess and vergil.aeneid.part.1.tess
-            # both report Aeneid 1.146, so `total` double-counts. Key on the
-            # text_id with any .part.N stripped, plus the locus — the whole and
-            # its part normalize to the same id (their `work` labels differ:
-            # "Aeneid" vs "Aeneid, Book 1", so we can't key on work). Different
-            # works keep distinct ids, so they are not collapsed.
+            # Collapse the corpus's whole-work vs .part.N duplication: e.g.
+            # vergil.eclogues.tess and vergil.eclogues.part.1.tess both report
+            # Eclogues 1.43, so an undeduped list double-counts the same line and
+            # inflates the corpus-uniqueness signal (~2x for parted works). Key on
+            # the .part.N-stripped text_id plus locus (whole and part normalize to
+            # the same id; their `work` labels differ — "Eclogues" vs "Eclogues,
+            # Book 1" — so we cannot key on work). Different works keep distinct
+            # ids. Prefer the whole-work row as the canonical representative.
             import re as _re_dl
 
             def _base_tid(tid):
                 return _re_dl.sub(r'\.part\.\d+\.tess$', '.tess', tid) if tid else tid
 
-            distinct_loci = len({
-                (_base_tid(r.get('text_id')) or r.get('author'), r.get('locus'))
-                for r in results
-            })
+            _pos = {}
+            _deduped = []
+            for r in results:
+                k = (_base_tid(r.get('text_id')) or r.get('author'), r.get('locus'))
+                if k not in _pos:
+                    _pos[k] = len(_deduped)
+                    _deduped.append(r)
+                else:
+                    idx = _pos[k]
+                    if '.part.' in (_deduped[idx].get('text_id') or '') and '.part.' not in (r.get('text_id') or ''):
+                        _deduped[idx] = r
+            results = _deduped
+            distinct_loci = len(results)
             return jsonify({
                 'results': results,
                 'total': len(results),
