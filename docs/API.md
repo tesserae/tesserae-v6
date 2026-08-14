@@ -34,7 +34,9 @@ Run a parallel phrase search between source and target texts.
 |-------|------|---------|-------------|
 | source | string | required | Source text ID |
 | target | string | required | Target text ID |
-| match_type | string | "lemma" | Match type: lemma, exact, sound, semantic |
+| match_type | string | "lemma" | Match type: lemma, exact, sound, semantic, `crosslingual_fusion` |
+| source_language | string | — | Source language (required for `crosslingual_fusion`): la, grc, en, cop |
+| target_language | string | — | Target language (required for `crosslingual_fusion`): la, grc, en, cop |
 | source_unit_type | string | "line" | Unit type: line, phrase |
 | target_unit_type | string | "line" | Unit type: line, phrase |
 | stoplist_basis | string | "corpus" | Basis: corpus, source, target, source_target |
@@ -65,10 +67,31 @@ Run a parallel phrase search between source and target texts.
 }
 ```
 
+**Cross-language search:** set `match_type: "crosslingual_fusion"` and give **separate** `source_language` / `target_language` (not a combined `grc-la` code). Returns plain JSON (not a stream). POST only — there is no GET form. Example body: `{"source":"homer.iliad.part.1.tess","target":"vergil.aeneid.part.1.tess","source_language":"grc","target_language":"la","match_type":"crosslingual_fusion","min_matches":2}`. See `GET /api/languages` for supported pairs.
+
+---
+
+### GET `/api/fusion-search`
+Poll-able full fusion comparison of two texts — the fusion search for URL-only clients (and the shape the MCP tools use). The first call starts the job and returns `{"status":"running"}`; re-fetch the same URL every ~20–30s until `{"status":"complete","parallels":[…]}`. Results are cached, so a pair already computed returns instantly. Parallels are pre-sorted by `fused_score`.
+
+**Query parameters:**
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| source | string | required | Source text ID (from `/api/texts`) |
+| target | string | required | Target text ID |
+| language | string | required | la, grc, en, cop |
+| source_ref_prefix | string | — | Keep only parallels whose **source** ref contains this, applied over the full result set **before** the page cap. A trailing dot pins a number: `ecl. 1.` matches book/poem 1, not 10. The clean way to answer a one-book/one-poem question. |
+| target_ref_prefix | string | — | Same, for the **target** ref. |
+| min_score | number | — | Drop parallels scoring below this. |
+| limit | int | 100 | Page size (max 500). |
+| offset | int | 0 | Page start (0, 100, 200, …). Genuine parallels also appear below the top 100. |
+
+The completed response reports `count` (matches after filters), `total` (full set before filters), `offset`, `limit`, `showing`, and `filters`, alongside `parallels`.
+
 ---
 
 ### POST `/api/line-search`
-Search a single line against the entire corpus.
+Search a single line/phrase against the entire corpus. `search_type`: `lemma` (default), `exact`, or `regex`. **Exact** matches whole words (a Latin enclitic on the final word is allowed, so `arma virum` still matches `arma virumque`) — it is not a raw substring match. The response's `total` is deduplicated across whole-work vs per-book/poem copies of the same line (equal to `distinct_loci`), so counts are not inflated ~2× for split works.
 
 **Request Body:**
 ```json
