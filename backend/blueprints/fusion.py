@@ -586,12 +586,16 @@ def fusion_search_get():
             except OSError:
                 pass
         _clear_fusion_status(job_key)
-        top = cached_results[:100]
+        try:
+            offset = max(0, int(request.args.get('offset', 0)))
+        except (TypeError, ValueError):
+            offset = 0
+        page = cached_results[offset:offset + 100]
         return jsonify({
             'status': 'complete', 'cached': True,
             'source': source_id, 'target': target_id, 'language': language,
-            'count': len(cached_results), 'showing': len(top),
-            'parallels': [_slim_fusion_result(r) for r in top],
+            'count': len(cached_results), 'offset': offset, 'showing': len(page),
+            'parallels': [_slim_fusion_result(r) for r in page],
         })
 
     # Admin cancellation: return a terminal cancelled status.
