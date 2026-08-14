@@ -452,6 +452,20 @@ def _run_fusion_job(source_id, target_id, language, max_results, job_key):
     slot = None
     try:
         from backend.fusion import iter_fusion_search
+
+        # Acquire concurrency slot and register metadata BEFORE loading text
+        # units so the job is visible in the Active Search Inspector during the
+        # entire computation, including unit processing which can take seconds.
+        slot = SearchSlot()
+        for _queued in slot.acquire():
+            pass  # block until a concurrency slot frees up
+        slot.set_metadata({
+            'source_id': source_id,
+            'target_id': target_id,
+            'language': language,
+            'match_type': 'fusion (poll)',
+        })
+
         source_path = resolve_text_path(_texts_dir, language, source_id)
         target_path = resolve_text_path(_texts_dir, language, target_id)
         cache_settings = _default_fusion_cache_settings(language, max_results)
@@ -459,9 +473,6 @@ def _run_fusion_job(source_id, target_id, language, max_results, job_key):
         target_units = _get_processed_units(target_id, language, 'line', _text_processor)
         if not source_units or not target_units:
             raise ValueError('Could not process text units')
-        slot = SearchSlot()
-        for _queued in slot.acquire():
-            pass  # block until a concurrency slot frees up
         final_results = []
         for event_type, evt_data in iter_fusion_search(
             source_units=source_units, target_units=target_units,
@@ -472,8 +483,21 @@ def _run_fusion_job(source_id, target_id, language, max_results, job_key):
             user_settings={'use_meter': False}, freq_basis='corpus',
             channel_weights={}, enabled_channels=None,
         ):
+            if slot.is_cancelled():
+                logger.info("GET fusion job cancelled (%s x %s)", source_id, target_id)
+                try:
+                    with open(_fusion_marker(job_key, 'cancelled'), 'w', encoding='utf-8') as f:
+                        f.write('Search terminated by administrator')
+                except IOError:
+                    pass
+                # Slot is released by the finally block below.
+                return
+
             # Record honest coarse progress for the GET poll (see _write_fusion_status).
-            _write_fusion_status(job_key, event_type, evt_data)
+            try:
+                _write_fusion_status(job_key, event_type, evt_data)
+            except (IOError, OSError) as e:
+                logger.debug("Status write failed for fusion job %s: %s", job_key, e)
             if event_type == 'complete':
                 final_results = evt_data['results']
         save_cached_results(
@@ -489,7 +513,7 @@ def _run_fusion_job(source_id, target_id, language, max_results, job_key):
             pass
     finally:
         if slot is not None:
-            slot.release()
+            slot.release()  # releases flock, deletes .lock + .cancel files
         try:
             os.remove(_fusion_marker(job_key, 'running'))
         except OSError:
@@ -532,7 +556,7 @@ def fusion_search_get():
 
     cached_results, _meta = get_cached_results(source_id, target_id, language, cache_settings)
     if cached_results is not None:
-        for kind in ('running', 'error'):
+        for kind in ('running', 'error', 'cancelled'):
             try:
                 os.remove(_fusion_marker(job_key, kind))
             except OSError:
@@ -545,6 +569,26 @@ def fusion_search_get():
             'count': len(cached_results), 'showing': len(top),
             'parallels': [_slim_fusion_result(r) for r in top],
         })
+
+    # Admin cancellation: return a terminal cancelled status.
+    # Unlike error markers (which are consumed once to allow retry), cancelled
+    # markers persist until the client explicitly requests a retry via
+    # ?retry=1, preventing polling clients from inadvertently restarting.
+    cancel_marker = _fusion_marker(job_key, 'cancelled')
+    if os.path.exists(cancel_marker):
+        if request.args.get('retry') == '1':
+            try:
+                os.remove(cancel_marker)
+            except OSError:
+                pass
+            # Fall through to start a new run below.
+        else:
+            return jsonify({
+                'status': 'cancelled',
+                'source': source_id, 'target': target_id,
+                'message': 'This search was terminated by an administrator. '
+                           'Add &retry=1 to this URL to start a fresh run.',
+            })
 
     # Surface a prior failure once, then allow a retry on the next call.
     err_marker = _fusion_marker(job_key, 'error')
