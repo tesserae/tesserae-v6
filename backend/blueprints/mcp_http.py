@@ -137,9 +137,15 @@ def _fusion_poll(params, budget):
         d = _get('/fusion-search', params)
         status = d.get('status')
         if status == 'complete':
-            return {'status': 'complete', 'count': d.get('count'),
-                    'showing': d.get('showing'), 'offset': d.get('offset', 0),
-                    'parallels': d.get('parallels')}
+            out = {'status': 'complete', 'count': d.get('count'),
+                   'showing': d.get('showing'), 'offset': d.get('offset', 0),
+                   'parallels': d.get('parallels')}
+            # Surface filter context when present (count is after filters; total is
+            # the full result set before them).
+            for k in ('total', 'limit', 'filters'):
+                if d.get(k) is not None and d.get(k) != {}:
+                    out[k] = d.get(k)
+            return out
         if status == 'error':
             return {'status': 'error', 'error': d.get('error')}
         # Return before starting a sleep that would push us past the budget, so

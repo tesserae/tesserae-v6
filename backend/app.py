@@ -65,7 +65,7 @@ from backend.matcher import Matcher
 from backend.scorer import Scorer
 from backend.utils import (
     get_text_metadata, build_text_hierarchy, clean_cts_reference, resolve_text_path,
-    apply_text_list_filters
+    apply_text_list_filters, exact_phrase_pattern
 )
 from backend.cache import (
     get_cached_results, save_cached_results, 
@@ -1816,6 +1816,8 @@ def line_search():
             
             else:
                 # SLOW PATH: Fallback to file scanning (for exact/regex search)
+                # Compile the exact-phrase pattern once (whole-word-start matching).
+                exact_pattern = exact_phrase_pattern(query) if search_type == 'exact' else None
                 text_files = [f for f in os.listdir(lang_dir) if f.endswith('.tess')]
                 
                 for filename in text_files:
@@ -1861,7 +1863,9 @@ def line_search():
                             
                             match_found = False
                             if search_type == 'exact':
-                                if query.lower() in text.lower():
+                                # Whole-word-start match (see _exact_phrase_pattern):
+                                # excludes substring hits like "quot" inside "aliquot".
+                                if exact_pattern and exact_pattern.search(text):
                                     match_found = True
                             elif search_type == 'regex':
                                 try:
@@ -1894,6 +1898,16 @@ def line_search():
                                         if shared_lemmas:
                                             matched_words.append(word)
                                             matched_lemmas.update(shared_lemmas)
+                                elif search_type == 'exact':
+                                    # Highlight query words present as whole-word starts
+                                    # (consistent with the match test above).
+                                    for word in query.split():
+                                        wl = word.lower()
+                                        if wl in stopwords:
+                                            continue
+                                        if re.search(r'\b' + re.escape(word), text, re.IGNORECASE):
+                                            matched_words.append(wl)
+                                            matched_lemmas.add(wl)
                                 else:
                                     for word in query.lower().split():
                                         if word in text.lower() and word not in stopwords:
