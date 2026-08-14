@@ -129,6 +129,13 @@ export default function CrossLingualSearch() {
     }
   }, []);
 
+  useEffect(() => () => {
+    requestSearchCancellation(activeSearchId.current);
+    abortRef.current?.abort();
+    activeSearchId.current = null;
+    abortRef.current = null;
+  }, []);
+
   useEffect(() => {
     loadHierarchies();
   }, []);

@@ -138,9 +138,10 @@ def search_fusion_stream():
             # Concurrency gate: wait for a slot before starting heavy work.
             # Yields "queued" SSE events while waiting so the frontend can
             # show the user a message instead of appearing frozen.
-            slot = SearchSlot()
+            slot = SearchSlot(cancellation=cancellation)
             try:
                 for queued_event in slot.acquire():
+                    cancellation.check()
                     yield send_event("queued", {
                         "step": "Search queued — server is busy",
                         "detail": queued_event.get("reason", ""),
@@ -149,19 +150,23 @@ def search_fusion_stream():
             except TimeoutError as e:
                 yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
                 return
+            cancellation.check()
 
             # Load text units
             yield send_event("progress", {
                 "step": "Loading source text",
                 "detail": source_id.replace('.tess', ''),
             })
+            cancellation.check()
             source_units = _get_processed_units(source_id, language, source_unit_type, _text_processor)
 
             yield send_event("progress", {
                 "step": "Loading target text",
                 "detail": target_id.replace('.tess', ''),
             })
+            cancellation.check()
             target_units = _get_processed_units(target_id, language, target_unit_type, _text_processor)
+            cancellation.check()
 
             if not source_units or not target_units:
                 yield f"data: {json.dumps({'type': 'error', 'message': 'Could not process text units'})}\n\n"

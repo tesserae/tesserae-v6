@@ -38,6 +38,13 @@ export const useSearch = () => {
     };
   }, [loading]);
 
+  useEffect(() => () => {
+    requestSearchCancellation(activeSearchId.current);
+    abortController.current?.abort();
+    activeSearchId.current = null;
+    abortController.current = null;
+  }, []);
+
   const search = useCallback(async (params) => {
     if (abortController.current) {
       requestSearchCancellation(activeSearchId.current);
@@ -45,7 +52,8 @@ export const useSearch = () => {
     }
     activeSearchId.current = null;
     
-    abortController.current = new AbortController();
+    const controller = new AbortController();
+    abortController.current = controller;
     const searchId = createSearchId();
     activeSearchId.current = searchId;
     setLoading(true);
@@ -58,6 +66,7 @@ export const useSearch = () => {
     setQueuedMessage('');
 
     const handleProgress = (step, detail, elapsed, meta = null) => {
+      if (activeSearchId.current !== searchId) return;
       setIsQueued(false);
       setQueuedMessage('');
       setProgressText(detail ? `${step}: ${detail}` : step);
@@ -80,6 +89,7 @@ export const useSearch = () => {
     };
 
     const handleQueued = (reason, waitTime) => {
+      if (activeSearchId.current !== searchId) return;
       setIsQueued(true);
       setQueuedMessage(reason || 'Server is busy, your search is queued...');
     };
@@ -92,6 +102,7 @@ export const useSearch = () => {
       let data;
       if (isFusion) {
         const handleIntermediate = (intermediateData) => {
+          if (activeSearchId.current !== searchId) return;
           setResults(intermediateData.results || []);
           const channelsDone = intermediateData.channels_done || [];
           const channelsTotal = intermediateData.channels_total || 9;
@@ -108,16 +119,18 @@ export const useSearch = () => {
             resultCount: (intermediateData.results || []).length,
           });
         };
-        data = await searchFusionStream({ ...params, search_id: searchId }, handleProgress, abortController.current.signal, handleIntermediate, handleQueued);
+        data = await searchFusionStream({ ...params, search_id: searchId }, handleProgress, controller.signal, handleIntermediate, handleQueued);
       } else if (isCrossLingual) {
-          data = await searchTexts({ ...params, search_id: searchId }, abortController.current.signal);
+        data = await searchTexts({ ...params, search_id: searchId }, controller.signal);
       } else {
         try {
-          data = await searchTextsStream({ ...params, search_id: searchId }, handleProgress, abortController.current.signal, handleQueued);
+          data = await searchTextsStream({ ...params, search_id: searchId }, handleProgress, controller.signal, handleQueued);
         } catch (streamErr) {
           if (streamErr.message && streamErr.message.includes('405')) {
-            setProgressText('Streaming not available, using standard search...');
-            data = await searchTexts({ ...params, search_id: searchId }, abortController.current.signal);
+            if (activeSearchId.current === searchId) {
+              setProgressText('Streaming not available, using standard search...');
+            }
+            data = await searchTexts({ ...params, search_id: searchId }, controller.signal);
           } else {
             throw streamErr;
           }
@@ -143,6 +156,7 @@ export const useSearch = () => {
     } finally {
       if (activeSearchId.current === searchId) {
         activeSearchId.current = null;
+        abortController.current = null;
         setLoading(false);
         setFusionProgress(null);
         setHasSearched(true);
@@ -157,14 +171,15 @@ export const useSearch = () => {
     }
     activeSearchId.current = null;
     
-    abortController.current = new AbortController();
+    const controller = new AbortController();
+    abortController.current = controller;
     const searchId = createSearchId();
     activeSearchId.current = searchId;
     setLoading(true);
     setError(null);
     
     try {
-      const data = await searchSemanticCross({ ...params, search_id: searchId }, abortController.current.signal);
+      const data = await searchSemanticCross({ ...params, search_id: searchId }, controller.signal);
       if (activeSearchId.current === searchId) {
         setResults(data.results || []);
       }
@@ -176,6 +191,7 @@ export const useSearch = () => {
     } finally {
       if (activeSearchId.current === searchId) {
         activeSearchId.current = null;
+        abortController.current = null;
         setLoading(false);
         setHasSearched(true);
       }
@@ -189,21 +205,27 @@ export const useSearch = () => {
     }
     activeSearchId.current = null;
     
-    abortController.current = new AbortController();
+    const controller = new AbortController();
+    abortController.current = controller;
     setLoading(true);
     setError(null);
     
     try {
-      const data = await searchHapax(params, abortController.current.signal);
-      setResults(data.results || data.shared_words || []);
+      const data = await searchHapax(params, controller.signal);
+      if (abortController.current === controller) {
+        setResults(data.results || data.shared_words || []);
+      }
       return data;
     } catch (err) {
-      if (err.name !== 'AbortError') {
+      if (err.name !== 'AbortError' && abortController.current === controller) {
         setError(err.message || 'Search failed');
       }
     } finally {
-      setLoading(false);
-      setHasSearched(true);
+      if (abortController.current === controller) {
+        abortController.current = null;
+        setLoading(false);
+        setHasSearched(true);
+      }
     }
   }, []);
 
@@ -214,12 +236,14 @@ export const useSearch = () => {
     }
     activeSearchId.current = null;
 
-    abortController.current = new AbortController();
+    const controller = new AbortController();
+    abortController.current = controller;
     setLoading(true);
     setError(null);
 
     try {
-      const data = await searchBigrams(params, abortController.current.signal);
+      const data = await searchBigrams(params, controller.signal);
+      if (abortController.current !== controller) return data;
       if (data.error) {
         setError(data.error);
         setResults([]);
@@ -228,12 +252,15 @@ export const useSearch = () => {
       setResults(data.results || data.shared_bigrams || []);
       return data;
     } catch (err) {
-      if (err.name !== 'AbortError') {
+      if (err.name !== 'AbortError' && abortController.current === controller) {
         setError(err.message || 'Search failed');
       }
     } finally {
-      setLoading(false);
-      setHasSearched(true);
+      if (abortController.current === controller) {
+        abortController.current = null;
+        setLoading(false);
+        setHasSearched(true);
+      }
     }
   }, []);
 
@@ -248,6 +275,8 @@ export const useSearch = () => {
     setProgress(0);
     setProgressText('');
     setFusionProgress(null);
+    setIsQueued(false);
+    setQueuedMessage('');
   }, []);
 
   const clearResults = useCallback(() => {

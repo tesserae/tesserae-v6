@@ -1223,25 +1223,29 @@ def search_stream():
                 return
 
             # Concurrency gate: wait for a slot before starting heavy work
-            slot = SearchSlot()
+            slot = SearchSlot(cancellation=cancellation)
             try:
                 for queued_event in slot.acquire():
+                    cancellation.check()
                     yield f"data: {json.dumps({'type': 'queued', 'step': 'Search queued — server is busy', 'detail': queued_event.get('reason', ''), 'wait_time': queued_event.get('wait_time', 0), 'elapsed': round(time.time() - start_time, 1)})}\n\n"
             except TimeoutError as e:
                 yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
                 return
+            cancellation.check()
 
             # Load text units (with per-text progress messages)
             source_unit_type = settings.get('source_unit_type', 'line')
             target_unit_type = settings.get('target_unit_type', 'line')
 
             yield send_progress("Loading source text", source_id.replace('.tess', ''))
+            cancellation.check()
             if params['is_crosslingual']:
                 source_units = _get_processed_units(source_id, params['source_language'], source_unit_type, _text_processor)
             else:
                 source_units = _get_processed_units(source_id, language, source_unit_type, _text_processor)
 
             yield send_progress("Loading target text", target_id.replace('.tess', ''))
+            cancellation.check()
             if params['is_crosslingual']:
                 target_units = _get_processed_units(target_id, params['target_language'], target_unit_type, _text_processor)
             else:
@@ -1251,6 +1255,7 @@ def search_stream():
             if settings.get('stoplist_basis', 'source_target') == 'corpus':
                 yield send_progress("Loading corpus frequencies")
             corpus_frequencies = _load_corpus_frequencies(language, settings)
+            cancellation.check()
 
             # Find matches
             yield send_progress("Finding matches", f"{len(source_units)} \u00d7 {len(target_units)} units")
@@ -1294,7 +1299,9 @@ def search_stream():
 
             # Score, cache, log, and return
             yield send_progress("Scoring matches", f"{len(matches)} candidates")
+            cancellation.check()
             scored_results = _scorer.score_matches(matches, source_units, target_units, settings, source_id, target_id)
+            cancellation.check()
             scored_results.sort(key=lambda x: x['overall_score'], reverse=True)
 
             yield send_progress("Saving to cache")
@@ -1398,7 +1405,7 @@ def search():
             })
 
         # Concurrency gate: blocks until a slot is available
-        with SearchSlot():
+        with SearchSlot(cancellation=cancellation):
             cancellation.check()
             # Load text units and corpus frequencies
             source_units, target_units = _load_units(params)

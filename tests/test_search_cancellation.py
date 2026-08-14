@@ -19,6 +19,7 @@ from backend.search_cancellation import (
     cancellable_pool_map,
     request_cancellation,
 )
+from backend.concurrency_gate import SearchSlot
 
 
 def _slow_worker(value):
@@ -55,6 +56,19 @@ def test_cancellable_pool_terminates_in_flight_workers():
         timer.join()
 
     assert time.monotonic() - started < 1.5
+
+
+def test_search_slot_observes_cancellation_while_queued(monkeypatch):
+    cancellation = SearchCancellation()
+    slot = SearchSlot(cancellation=cancellation)
+    monkeypatch.setattr(slot, '_can_proceed', lambda: (False, 'busy'))
+
+    queued = slot.acquire()
+    assert next(queued)['status'] == 'queued'
+    cancellation.cancel()
+
+    with pytest.raises(SearchCancelled):
+        next(queued)
 
 
 def test_cancel_endpoint_records_valid_request(tmp_path, monkeypatch):
@@ -98,6 +112,9 @@ def test_stream_disconnect_releases_search_slot(monkeypatch):
 
     class TrackingSlot:
         released = False
+
+        def __init__(self, cancellation=None):
+            pass
 
         def acquire(self):
             return iter(())
@@ -143,3 +160,46 @@ def test_stream_disconnect_releases_search_slot(monkeypatch):
 
     response.close()
     assert TrackingSlot.released
+
+
+def test_stream_cancellation_while_queued_releases_search_slot(tmp_path, monkeypatch):
+    from flask import Flask
+    from backend.blueprints import search as search_blueprint
+
+    search_id = str(uuid.uuid4())
+
+    class QueuedSlot:
+        released = False
+
+        def __init__(self, cancellation=None):
+            pass
+
+        def acquire(self):
+            request_cancellation(search_id)
+            yield {'reason': 'busy', 'wait_time': 0}
+
+        def release(self):
+            QueuedSlot.released = True
+
+    monkeypatch.setattr(search_cancellation, 'CANCELLATION_DIR', str(tmp_path))
+    monkeypatch.setattr(search_blueprint, 'SearchSlot', QueuedSlot)
+    monkeypatch.setattr(search_blueprint, 'current_user', None)
+    monkeypatch.setattr(search_blueprint, 'get_user_location', lambda: (None, None, None))
+    monkeypatch.setattr(search_blueprint, '_parse_search_request', lambda data: {
+        'source_id': 'source.tess',
+        'target_id': 'target.tess',
+        'language': 'la',
+        'is_crosslingual': False,
+        'settings': {'match_type': 'lemma'},
+    })
+    monkeypatch.setattr(search_blueprint, 'get_cached_results', lambda *args: (None, None))
+
+    app = Flask(__name__)
+    app.register_blueprint(search_blueprint.search_bp)
+    response = app.test_client().post(
+        '/search-stream', json={'search_id': search_id}, buffered=True)
+
+    assert response.status_code == 200
+    assert b'queued' not in response.data
+    assert QueuedSlot.released
+    assert not (tmp_path / f'{search_id}.cancel').exists()
