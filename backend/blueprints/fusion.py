@@ -586,15 +586,50 @@ def fusion_search_get():
             except OSError:
                 pass
         _clear_fusion_status(job_key)
+
+        # Optional server-side filters applied over the FULL result set (all
+        # `max_results`) BEFORE the display cap, so single-poem / high-precision
+        # questions aren't biased by the top-N slice. Ref filters match anywhere
+        # in the (author-abbreviated) ref, so a trailing dot pins a number
+        # exactly, e.g. source_ref_prefix="ecl. 1." matches "verg. ecl. 1.x"
+        # but not "verg. ecl. 10.x".
+        def _norm(s):
+            return ' '.join((s or '').split()).lower()
+
+        results = cached_results
+        src_pfx = _norm(request.args.get('source_ref_prefix', ''))
+        tgt_pfx = _norm(request.args.get('target_ref_prefix', ''))
+        try:
+            min_score = float(request.args.get('min_score')) if request.args.get('min_score') else None
+        except (TypeError, ValueError):
+            min_score = None
+        if src_pfx:
+            results = [r for r in results if src_pfx in _norm((r.get('source') or {}).get('ref'))]
+        if tgt_pfx:
+            results = [r for r in results if tgt_pfx in _norm((r.get('target') or {}).get('ref'))]
+        if min_score is not None:
+            results = [r for r in results if (r.get('fused_score') or 0) >= min_score]
+
         try:
             offset = max(0, int(request.args.get('offset', 0)))
         except (TypeError, ValueError):
             offset = 0
-        page = cached_results[offset:offset + 100]
+        try:
+            limit = int(request.args.get('limit', 100))
+        except (TypeError, ValueError):
+            limit = 100
+        limit = max(1, min(limit, 500))
+        page = results[offset:offset + limit]
+        applied = {k: v for k, v in (('source_ref_prefix', src_pfx),
+                                     ('target_ref_prefix', tgt_pfx),
+                                     ('min_score', min_score)) if v}
         return jsonify({
             'status': 'complete', 'cached': True,
             'source': source_id, 'target': target_id, 'language': language,
-            'count': len(cached_results), 'offset': offset, 'showing': len(page),
+            'count': len(results),            # matches after filters
+            'total': len(cached_results),     # total computed before filters
+            'offset': offset, 'limit': limit, 'showing': len(page),
+            'filters': applied,
             'parallels': [_slim_fusion_result(r) for r in page],
         })
 
