@@ -49,6 +49,10 @@ def get_cache_key(source_id, target_id, language, settings):
         key_parts['channel_weights'] = settings['channel_weights']
     if settings.get('enabled_channels'):
         key_parts['enabled_channels'] = settings['enabled_channels']
+    # Only version caches that explicitly opt in.  Leaving this out preserves
+    # cache keys for unrelated search implementations.
+    if 'result_version' in settings:
+        key_parts['result_version'] = settings['result_version']
     key_str = json.dumps(key_parts, sort_keys=True)
     return hashlib.md5(key_str.encode()).hexdigest()  # nosec B324
 

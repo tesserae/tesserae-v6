@@ -145,6 +145,10 @@ def search_fusion_stream():
             skip_cache = data.get('skip_cache', False)
             cache_settings = {
                 'match_type': 'fusion',
+                # The merged result shape changed when single-line window
+                # duplicates began being removed.  Keep old cached fusion
+                # results from being served after deployment.
+                'result_version': 2,
                 'mode': mode,
                 'max_results': max_results,
                 'language': language,
