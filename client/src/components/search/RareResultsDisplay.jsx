@@ -10,6 +10,8 @@ import { formatElapsedTime } from '../../utils/formatting';
 import { displayGreekWithFinalSigma } from '../../utils/greekUtils';
 import { normalizeCoptic } from '../../utils/copticUtils';
 import { getDictionaryUrl } from '../../utils/linkUtils';
+import { Pagination } from '../common';
+import { usePagination } from '../../hooks/usePagination';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -183,8 +185,9 @@ const RareResultsDisplay = ({
   results,
   loading,
   error,
-  displayLimit,
-  setDisplayLimit,
+  pageSize,
+  onPageSizeChange,
+  searchRunId,
   searchMode,
   sourceText,
   targetText,
@@ -235,6 +238,36 @@ const RareResultsDisplay = ({
       return 0;
     });
   }, [results, sortBy]);
+
+  // Pagination runs on the sorted array, so page boundaries always match the
+  // order actually rendered. A new search, a switch between rare words and rare
+  // pairs, or a sort change all return to page 1 — searchRunId covers the case
+  // where two searches return the same result count.
+  const paginationResetKey = `${searchRunId ?? ''}|${searchMode ?? ''}|${sortBy}`;
+
+  const {
+    visibleItems,
+    startIndex,
+    currentPage,
+    totalPages,
+    totalResults,
+    pageSize: activePageSize,
+    setPage,
+    setPageSize,
+  } = usePagination(sortedResults, {
+    pageSize,
+    onPageSizeChange,
+    resetKey: paginationResetKey,
+  });
+
+  const paginationProps = {
+    currentPage,
+    totalPages,
+    totalResults,
+    pageSize: activePageSize,
+    onPageChange: setPage,
+    onPageSizeChange: setPageSize,
+  };
 
   const exportCSV = useCallback(() => {
     if (!results || results.length === 0) return;
@@ -517,8 +550,15 @@ const RareResultsDisplay = ({
         </div>
       )}
 
+      <Pagination
+        {...paginationProps}
+        variant="full"
+        idPrefix="rare-top"
+        itemLabel={isHapax ? 'rare words' : 'rare pairs'}
+      />
+
       <div className="space-y-3">
-        {sortedResults.slice(0, displayLimit).map((r, i) => {
+        {visibleItems.map((r, i) => {
           // For hapax (rare words), show the lemma (dictionary form); for bigrams, use display forms
           let displayName = isHapax ? (r.display_form || r.lemma) : (r.display_form || r.lemma || r.bigram);
           if (!displayName && r.word1 && r.word2) {
@@ -533,11 +573,11 @@ const RareResultsDisplay = ({
           displayName = displayGreekWithFinalSigma(displayName || '-');
           
           return (
-            <div key={i} className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow">
+            <div key={startIndex + i} className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow">
               <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-xs text-gray-400 min-w-[2.5rem] text-right shrink-0 leading-none" style={{paddingTop: '4px'}}>
-                    {i + 1}.
+                    {startIndex + i + 1}.
                   </span>
                   <span className="font-semibold text-lg text-amber-700">
                     {displayName}
@@ -659,14 +699,12 @@ const RareResultsDisplay = ({
         })}
       </div>
 
-      {results.length > displayLimit && (
-        <button
-          onClick={() => setDisplayLimit(prev => prev + 50)}
-          className="mt-4 px-4 py-2 text-sm text-amber-700 hover:text-amber-800"
-        >
-          Show more ({results.length - displayLimit} remaining)
-        </button>
-      )}
+      <Pagination
+        {...paginationProps}
+        variant="nav"
+        idPrefix="rare-bottom"
+        itemLabel={isHapax ? 'rare words' : 'rare pairs'}
+      />
     </div>
   );
 };
