@@ -33,6 +33,8 @@ _FUSION_POLL_TIMEOUT = 330   # HTTP request timeout for a fresh fusion run
 # budget, then hand back a "still running" status telling the assistant to call
 # again — the job keeps computing server-side and its result is cached.
 _FUSION_MCP_BUDGET = 45      # seconds to block before returning status=running
+_COMPARE_BUDGET = 50         # hard per-call wall-clock ceiling for compare_texts (safe under ~60s client cap)
+_COMPARE_FUSION_RESERVE = 4  # seconds kept back to kick off the (async, separately-polled) fusion section
 
 
 # --------------------------------------------------------------------------
@@ -44,8 +46,9 @@ def _get(path, params=None):
     return r.json()
 
 
-def _post(path, body):
-    r = requests.post(f"{API_BASE}{path}", json=body, timeout=_TIMEOUT)
+def _post(path, body, timeout=None):
+    # `timeout or _TIMEOUT` is always a real timeout; bandit B113 can't see the fallback.
+    r = requests.post(f"{API_BASE}{path}", json=body, timeout=timeout or _TIMEOUT)  # nosec B113
     r.raise_for_status()
     return r.json()
 
@@ -94,9 +97,9 @@ def _t_string_search(a):
                         for r in (d.get('results') or [])[:40]]}
 
 
-def _t_rare_pairs(a):
+def _t_rare_pairs(a, timeout=None):
     d = _post('/rare-bigram-search', {'source': a.get('source'), 'target': a.get('target'),
-                                      'language': a.get('language', 'la')})
+                                      'language': a.get('language', 'la')}, timeout=timeout)
     return {'shared_rare_count': d.get('shared_rare_count'),
             'results': [{'bigram': f"{r.get('display1', r.get('word1'))} {r.get('display2', r.get('word2'))}",
                          'rarity_percent': r.get('rarity_percent'),
@@ -105,9 +108,9 @@ def _t_rare_pairs(a):
                         for r in (d.get('results') or [])[:40]]}
 
 
-def _t_rare_words(a):
+def _t_rare_words(a, timeout=None):
     d = _post('/hapax-search', {'source': a.get('source'), 'target': a.get('target'),
-                                'language': a.get('language', 'la')})
+                                'language': a.get('language', 'la')}, timeout=timeout)
     return {'shared_rare_count': d.get('shared_rare_count'),
             'results': [{'word': r.get('display_form') or r.get('lemma'),
                          'corpus_count': r.get('corpus_count'), 'proper_noun': r.get('is_proper_noun'),
@@ -116,28 +119,104 @@ def _t_rare_words(a):
                         for r in (d.get('results') or [])[:40]]}
 
 
-def _t_fusion_search(a):
-    """Full fusion — starts the server-side job and block-polls the GET fusion
-    endpoint for a short budget, then returns status=running so the (time-limited)
-    MCP client can call again to pick up the cached result once it completes."""
-    params = {'source': a.get('source'), 'target': a.get('target'), 'language': a.get('language', 'la')}
+def _fusion_poll(params, budget):
+    """Start (or resume) a server-side fusion run and block-poll the GET fusion
+    endpoint for at most `budget` seconds, then return status=running so the
+    (time-limited) MCP client can call again to pick up the cached result once it
+    completes. Kicks off the job even when the budget is tiny (one GET starts it)."""
     poll_interval = 8
-    deadline = time.time() + _FUSION_MCP_BUDGET
+    deadline = time.time() + max(0, budget)
+    running_note = ('Still computing server-side (first runs take a few minutes) and the '
+                    'result will be cached. Call the same tool again with the same arguments '
+                    'in ~30-60 seconds to retrieve it.')
     while True:
         d = _get('/fusion-search', params)
         status = d.get('status')
         if status == 'complete':
-            return {'status': 'complete', 'count': d.get('count'), 'parallels': d.get('parallels')}
+            return {'status': 'complete', 'count': d.get('count'),
+                    'showing': d.get('showing'), 'offset': d.get('offset', 0),
+                    'parallels': d.get('parallels')}
         if status == 'error':
             return {'status': 'error', 'error': d.get('error')}
         # Return before starting a sleep that would push us past the budget, so
         # the tool call never trips the client's ~60s per-call timeout.
         if time.time() + poll_interval >= deadline:
-            return {'status': 'running',
-                    'note': ('Fusion is still computing server-side (first runs take a few minutes) '
-                             'and its result will be cached. Call fusion_search again with the same '
-                             'arguments in ~30-60 seconds to retrieve it.')}
+            return {'status': 'running', 'note': running_note}
         time.sleep(poll_interval)
+
+
+def _fusion_params(a):
+    p = {'source': a.get('source'), 'target': a.get('target'), 'language': a.get('language', 'la')}
+    try:
+        off = int(a.get('offset') or 0)
+        if off > 0:
+            p['offset'] = off
+    except (TypeError, ValueError):
+        pass
+    return p
+
+
+def _t_fusion_search(a):
+    """Ranked fusion parallels for two texts. Pass offset to page deeper into the
+    ranking (0, 100, 200, ...) once the run is cached."""
+    return _fusion_poll(_fusion_params(a), _FUSION_MCP_BUDGET)
+
+
+def _t_compare_texts(a):
+    """Recommended two-text comparison: run all three automated pairwise searches
+    and return them as labeled sections, all within one per-call time budget. The
+    rare-word and rare-phrase passes run to completion (each bounded so it can't
+    starve the others); fusion is async, so on a first run its section comes back
+    status=running and the caller polls fusion_search to fill it in (cached after).
+    A genuinely oversized pair degrades a section to a 'run it on its own' pointer."""
+    start = time.time()
+
+    def _left():
+        return _COMPARE_BUDGET - (time.time() - start)
+
+    def _section(fn, own_tool, cap):
+        # Run the rare sections sequentially — the server is CPU-bound, so parallel
+        # runs just make each slower. Give each a running-budget HTTP timeout (its
+        # typical cost, but never so much that fusion can't be kicked off); a
+        # genuinely oversized pair degrades to a pointer to run it on its own.
+        budget = min(cap, _left() - _COMPARE_FUSION_RESERVE)
+        if budget < 3:
+            return {'status': 'skipped',
+                    'note': f'Skipped to stay within the time budget; run {own_tool} on its own for this section.'}
+        try:
+            return fn(a, timeout=budget)
+        except requests.exceptions.Timeout:
+            return {'status': 'too_large',
+                    'note': f'This pair is large; run {own_tool} on its own to get this section.'}
+        except Exception as e:
+            return {'error': str(e)}
+
+    # rare_words first — shared rare individual words are the stronger intertext
+    # signal, so give them budget priority; rare_pairs takes what remains.
+    rare_words = _section(_t_rare_words, 'rare_words', 34)     # typically ~25s
+    rare_phrases = _section(_t_rare_pairs, 'rare_pairs', 18)   # typically ~10s
+    fusion = _fusion_poll(_fusion_params(a), max(0, _left()))
+    out = {
+        'source': a.get('source'), 'target': a.get('target'), 'language': a.get('language', 'la'),
+        'ranked_parallels': fusion,      # fusion: strongest overall parallels
+        'rare_phrases': rare_phrases,    # distinctive shared two-word collocations
+        'rare_words': rare_words,        # distinctive shared individual words
+    }
+    common = ('Present each ready section on its own (Ranked parallels / Rare shared phrases / '
+              'Rare shared words), then a short synthesis. Fusion ranks the strongest overall '
+              'parallels; the rare passes surface distinctive shared wording fusion may rank lower. '
+              'If a rare section says too_large or skipped, offer to run rare_pairs / rare_words on '
+              'its own. Genuine parallels also appear below fusion’s top results, so offer to page '
+              'deeper (fusion_search with offset) when useful.')
+    if fusion.get('status') == 'running':
+        out['note'] = ('The ranked_parallels (fusion) section is still computing server-side. '
+                       'Present the ready sections now, then call fusion_search with the same '
+                       'source/target/language in ~30-60s to fill in the ranked_parallels section '
+                       '(use fusion_search, not compare_texts, so the rare searches are not re-run). '
+                       + common)
+    else:
+        out['note'] = common
+    return out
 
 
 def _t_cross_language(a):
@@ -206,9 +285,16 @@ TOOLS = [
      "inputSchema": {"type": "object", "properties": {"source": _STR, "target": _STR, "language": _STR},
                      "required": ["source", "target", "language"]},
      "fn": _t_rare_words},
-    {"name": "fusion_search",
-     "description": "The flagship full fusion comparison of two texts — ranks the passages most likely to be genuine parallels across ten similarity channels. May take a few minutes on first run; cached afterward.",
+    {"name": "compare_texts",
+     "description": "Recommended for comparing two texts. Runs all three automated pairwise searches at once — fusion (ranked parallels across ten signals), rare shared phrases, and rare shared words — and returns them as labeled sections. The rare sections return immediately; the fusion section takes a few minutes on a first run, so it may come back status 'running' — call compare_texts again with the same arguments shortly to fill it in (cached afterward).",
      "inputSchema": {"type": "object", "properties": {"source": _STR, "target": _STR, "language": _STR},
+                     "required": ["source", "target", "language"]},
+     "fn": _t_compare_texts},
+    {"name": "fusion_search",
+     "description": "Ranked fusion parallels for two texts across ten similarity signals — the passages most likely to be genuine parallels, strongest first. Returns a 100-result page; pass offset (100, 200, ...) to page deeper, since real parallels also appear below the top. Use compare_texts for a first look; use this to go deeper on the ranking. First run takes a few minutes (cached after); returns status 'running' until ready — call again shortly.",
+     "inputSchema": {"type": "object",
+                     "properties": {"source": _STR, "target": _STR, "language": _STR,
+                                    "offset": {"type": "integer"}},
                      "required": ["source", "target", "language"]},
      "fn": _t_fusion_search},
     {"name": "cross_language",
@@ -254,10 +340,22 @@ def _handle(msg):
             "protocolVersion": params.get('protocolVersion') or DEFAULT_PROTOCOL,
             "capabilities": {"tools": {"listChanged": False}},
             "serverInfo": SERVER_INFO,
-            "instructions": ("Tesserae finds intertextual parallels in classical literature. "
-                             "Typical flow: list_texts -> rare_pairs/rare_words or fusion_search "
-                             "-> line_search to test corpus-uniqueness -> interpret. Keep Tesserae's "
-                             "results (transparent, reproducible) separate from your own interpretation."),
+            "instructions": (
+                "Tesserae finds intertextual parallels (allusions, echoes, borrowings) in Latin, "
+                "Greek, English, and Coptic literature. It does the searching; you orchestrate and "
+                "interpret. Read the results and discuss them freely, including your own literary "
+                "judgement — no need to constantly disclaim it. The one rule: don't present a "
+                "parallel Tesserae didn't return as if it had; anything you add beyond the results "
+                "is simply your own reading, offered normally.\n"
+                "On the first Tesserae request in a conversation, briefly orient the user: it can "
+                "compare two texts (a comprehensive ranked search plus fast rare-phrase and "
+                "rare-word passes), search the whole corpus, and match across languages. For "
+                "'compare these two texts', default to compare_texts, which runs all three pairwise "
+                "searches and returns labeled sections — present each section, then a short "
+                "synthesis. Recall is strongest near the top but genuine parallels also appear "
+                "further down, so offer to page deeper (fusion_search with offset) when useful. "
+                "Typical flow: list_texts -> compare_texts -> line_search to test how distinctive a "
+                "phrase is across the corpus."),
         })
     if method in ('notifications/initialized', 'initialized', 'notifications/cancelled'):
         return None  # notification: no response
