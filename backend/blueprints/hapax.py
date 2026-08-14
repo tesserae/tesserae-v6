@@ -1982,30 +1982,33 @@ def _compute_rare_words(source_id, target_id, language, source_language, target_
             return True
         return False
 
-    # Coptic's inverted index is built with an older bound-group lemmatization
-    # and its aggregate corpus files aren't indexed, so it can't reliably locate
-    # current sub-word lemmas within a specific text. Scan the two texts directly.
-    use_textscan = (source_language == 'cop' or target_language == 'cop')
-    src_scan = _scan_text_lemma_locations(source_id, source_language, shared_rare) if use_textscan else None
-    tgt_scan = _scan_text_lemma_locations(target_id, target_language, shared_rare) if use_textscan else None
+    # Decide, per side, whether to locate the lemma by scanning the text directly
+    # or via the inverted index:
+    #  - Coptic: its index uses an older bound-group lemmatization and omits
+    #    aggregate files, so it can't locate current sub-word lemmas.
+    #  - A .part.N text: parts are NOT in the index (only whole works are), and the
+    #    index filter matches the whole work, so it would return the word's
+    #    locations across the ENTIRE work (other books/poems) rather than the
+    #    selected part. Scanning the part file gives only that part's lines.
+    src_scan_needed = (source_language == 'cop') or ('.part.' in source_id)
+    tgt_scan_needed = (target_language == 'cop') or ('.part.' in target_id)
+    src_scan = _scan_text_lemma_locations(source_id, source_language, shared_rare) if src_scan_needed else None
+    tgt_scan = _scan_text_lemma_locations(target_id, target_language, shared_rare) if tgt_scan_needed else None
 
     results = []
     for lemma in shared_rare:
         corpus_count = doc_freqs.get(lemma, 0)
         all_locations = lookup_lemma_locations(lemma, source_language)
 
-        if use_textscan:
+        if src_scan_needed:
             source_locations = src_scan.get(lemma, [])
+        else:
+            source_locations = [loc for loc in all_locations if matches_source(loc['text_id'])]
+
+        if tgt_scan_needed:
             target_locations = tgt_scan.get(lemma, [])
         else:
-            source_locations = []
-            target_locations = []
-            for loc in all_locations:
-                loc_text_id = loc['text_id']
-                if matches_source(loc_text_id):
-                    source_locations.append(loc)
-                elif matches_target(loc_text_id):
-                    target_locations.append(loc)
+            target_locations = [loc for loc in all_locations if matches_target(loc['text_id'])]
             if source_language != target_language:
                 for loc in lookup_lemma_locations(lemma, target_language):
                     if matches_target(loc['text_id']):
