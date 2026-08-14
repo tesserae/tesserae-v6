@@ -1,5 +1,20 @@
 const API_BASE = '/api';
 
+export const createSearchId = () => crypto.randomUUID();
+
+export const requestSearchCancellation = (searchId) => {
+  if (!searchId) return;
+  // Keep this independent of the aborted request so it can still be sent when
+  // the page is navigating away or the original fetch has been cancelled.
+  void fetch(`${API_BASE}/search-cancel`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin',
+    keepalive: true,
+    body: JSON.stringify({ search_id: searchId }),
+  }).catch(() => {});
+};
+
 const jsonFetch = async (url) => {
   const response = await fetch(url, {
     headers: { 'Accept': 'application/json' },

@@ -493,10 +493,11 @@ class SearchSlot:
             ... heavy work ...
     """
 
-    def __init__(self):
+    def __init__(self, cancellation=None):
         self._fd = None
         self._path = None
         self._acquired = False
+        self._cancellation = cancellation
         self.slot_id = None
         self._start_time = None
 
@@ -615,6 +616,8 @@ class SearchSlot:
         start = time.monotonic()
 
         while True:
+            if self._cancellation is not None:
+                self._cancellation.check()
             ok, reason = self._can_proceed()
             if ok:
                 self._create_slot_file()
@@ -635,6 +638,8 @@ class SearchSlot:
                 "reason": reason,
                 "wait_time": round(waited, 1),
             }
+            if self._cancellation is not None:
+                self._cancellation.check()
             time.sleep(ConcurrencyConfig.get_queue_poll_interval())
 
     def release(self):

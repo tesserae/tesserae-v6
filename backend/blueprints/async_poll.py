@@ -66,8 +66,10 @@ def _run(name, key, compute):
     except Exception as e:  # noqa: BLE001 — surface any failure to the poller
         logger.error("async job %s failed: %s", name, e, exc_info=True)
         try:
-            with open(err_path, 'w', encoding='utf-8') as f:
+            tmp = err_path + '.tmp'
+            with open(tmp, 'w', encoding='utf-8') as f:
                 f.write(str(e)[:500])
+            os.replace(tmp, err_path)
         except IOError:
             pass
     finally:

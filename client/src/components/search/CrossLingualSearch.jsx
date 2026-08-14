@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { LoadingSpinner, SearchableAuthorSelect } from '../common';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
+import { createSearchId, requestSearchCancellation } from '../../utils/api';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -59,6 +60,7 @@ export default function CrossLingualSearch() {
   const chartRef = useRef(null);
   const hasSearchedRef = useRef(false);
   const abortRef = useRef(null);
+  const activeSearchId = useRef(null);
 
   const currentPair = LANG_PAIRS.find(p => p.key === langPair) || LANG_PAIRS[0];
   const srcLang = LANG_LABELS[currentPair.source];
@@ -69,9 +71,14 @@ export default function CrossLingualSearch() {
       setError('Please select both source and target texts');
       return;
     }
-    if (abortRef.current) abortRef.current.abort();
+    if (abortRef.current) {
+      requestSearchCancellation(activeSearchId.current);
+      abortRef.current.abort();
+    }
     const controller = new AbortController();
+    const searchId = createSearchId();
     abortRef.current = controller;
+    activeSearchId.current = searchId;
     setSearchLoading(true);
     setError(null);
     try {
@@ -84,33 +91,49 @@ export default function CrossLingualSearch() {
           source_language: currentPair.source,
           target_language: currentPair.target,
           match_type: 'crosslingual_fusion',
-          min_matches: minMatches
+          min_matches: minMatches,
+          search_id: searchId,
         }),
         signal: controller.signal
       });
       const data = await res.json();
-      if (data.error) {
-        setError(data.error);
-        setResults([]);
-      } else {
-        setResults(data.results || []);
+      if (activeSearchId.current === searchId) {
+        if (data.error) {
+          setError(data.error);
+          setResults([]);
+        } else {
+          setResults(data.results || []);
+        }
       }
     } catch (err) {
-      if (err.name === 'AbortError') {
+      if (err.name === 'AbortError' && activeSearchId.current === searchId) {
         setError(null);
-      } else {
+      } else if (activeSearchId.current === searchId) {
         setError('Search failed. Please try again.');
       }
     }
-    abortRef.current = null;
-    setSearchLoading(false);
+    if (activeSearchId.current === searchId) {
+      activeSearchId.current = null;
+      abortRef.current = null;
+      setSearchLoading(false);
+    }
   }, [sourceSection, targetSection, minMatches, currentPair]);
 
   const cancelSearch = useCallback(() => {
     if (abortRef.current) {
+      requestSearchCancellation(activeSearchId.current);
       abortRef.current.abort();
       abortRef.current = null;
+      activeSearchId.current = null;
+      setSearchLoading(false);
     }
+  }, []);
+
+  useEffect(() => () => {
+    requestSearchCancellation(activeSearchId.current);
+    abortRef.current?.abort();
+    activeSearchId.current = null;
+    abortRef.current = null;
   }, []);
 
   useEffect(() => {

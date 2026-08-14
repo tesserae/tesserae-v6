@@ -71,6 +71,7 @@ import numpy as np
 
 from backend.logging_config import get_logger
 from backend.matcher import DEFAULT_LATIN_STOP_WORDS, DEFAULT_GREEK_STOP_WORDS, DEFAULT_ENGLISH_STOP_WORDS
+from backend.search_cancellation import cancellable_pool_map
 try:
     from backend.coptic.stopwords import COPTIC_STOP_WORDS
 except ImportError:
@@ -987,7 +988,8 @@ def _score_syntax_chunk(args):
 
 def find_syntax_matches(source_units, target_units, source_id, target_id,
                         min_score=0.1, max_results=50000,
-                        source_language='la', target_language='la'):
+                        source_language='la', target_language='la',
+                        cancellation=None):
     """Find syntax matches between source and target using syntax DBs.
 
     Two paths:
@@ -1006,6 +1008,8 @@ def find_syntax_matches(source_units, target_units, source_id, target_id,
 
     Returns results in the same format as other channels.
     """
+    if cancellation:
+        cancellation.check()
     source_db = _syntax_db_for_language(source_language)
     target_db = _syntax_db_for_language(target_language)
     source_parses = _load_syntax_for_text(source_db, source_id)
@@ -1038,6 +1042,8 @@ def find_syntax_matches(source_units, target_units, source_id, target_id,
     # Build lemma → [target_ref] inverted index from parsed target data
     target_lemma_index = defaultdict(set)
     for ref, parse in target_parses.items():
+        if cancellation:
+            cancellation.check()
         for i, lemma in enumerate(parse["lemmas"]):
             if (
                 i < len(parse["upos"])
@@ -1050,6 +1056,8 @@ def find_syntax_matches(source_units, target_units, source_id, target_id,
     # --- Path A: Lemma-gated candidates ---
     candidate_pairs = []
     for source_ref, source_parse in source_parses.items():
+        if cancellation:
+            cancellation.check()
         if source_ref not in source_by_ref:
             continue
 
@@ -1080,7 +1088,6 @@ def find_syntax_matches(source_units, target_units, source_id, target_id,
 
     # Score lemma-gated candidates — use multiprocessing for large sets
     if num_candidates > 50000:
-        import multiprocessing
         from backend.worker_util import safe_worker_count
         num_workers = safe_worker_count()
         chunk_size = (num_candidates + num_workers - 1) // num_workers
@@ -1090,17 +1097,19 @@ def find_syntax_matches(source_units, target_units, source_id, target_id,
         ]
         logger.info(f"[SYNTAX] Parallel: {num_candidates:,} candidates, "
                     f"{num_workers} workers, {chunk_size:,} per chunk")
-        with multiprocessing.Pool(num_workers) as pool:
-            chunk_results = pool.map(
-                _score_syntax_chunk,
-                [(chunk, min_score) for chunk in chunks],
-            )
+        chunk_results = cancellable_pool_map(
+            _score_syntax_chunk, [(chunk, min_score) for chunk in chunks],
+            num_workers, cancellation)
         scored_pairs = []
         for chunk_hits in chunk_results:
+            if cancellation:
+                cancellation.check()
             scored_pairs.extend(chunk_hits)
     else:
         scored_pairs = []
         for source_ref, source_parse, target_ref, target_parse in candidate_pairs:
+            if cancellation:
+                cancellation.check()
             score = _compute_syntax_score(source_parse, target_parse)
             if score >= min_score:
                 scored_pairs.append((source_ref, target_ref, score))
@@ -1124,6 +1133,8 @@ def find_syntax_matches(source_units, target_units, source_id, target_id,
     target_fingerprint_index = defaultdict(list)
     target_fp_counts = Counter()
     for ref, parse in target_parses.items():
+        if cancellation:
+            cancellation.check()
         if ref not in target_by_ref:
             continue
         fp = _head_fingerprint(parse)
@@ -1134,6 +1145,8 @@ def find_syntax_matches(source_units, target_units, source_id, target_id,
     # Count source fingerprint frequencies for rarity filtering
     source_fp_counts = Counter()
     for source_ref, source_parse in source_parses.items():
+        if cancellation:
+            cancellation.check()
         if source_ref not in source_by_ref:
             continue
         fp = _head_fingerprint(source_parse)
@@ -1149,6 +1162,8 @@ def find_syntax_matches(source_units, target_units, source_id, target_id,
 
     fingerprint_pairs = []
     for source_ref, source_parse in source_parses.items():
+        if cancellation:
+            cancellation.check()
         if source_ref not in source_by_ref:
             continue
         fp = _head_fingerprint(source_parse)
@@ -1175,7 +1190,6 @@ def find_syntax_matches(source_units, target_units, source_id, target_id,
 
     # Score fingerprint candidates
     if num_fp_candidates > 50000:
-        import multiprocessing
         from backend.worker_util import safe_worker_count
         num_workers = safe_worker_count()
         chunk_size = (num_fp_candidates + num_workers - 1) // num_workers
@@ -1183,15 +1197,17 @@ def find_syntax_matches(source_units, target_units, source_id, target_id,
             fingerprint_pairs[i:i + chunk_size]
             for i in range(0, num_fp_candidates, chunk_size)
         ]
-        with multiprocessing.Pool(num_workers) as pool:
-            chunk_results = pool.map(
-                _score_structural_chunk,
-                [(chunk, min_score) for chunk in chunks],
-            )
+        chunk_results = cancellable_pool_map(
+            _score_structural_chunk, [(chunk, min_score) for chunk in chunks],
+            num_workers, cancellation)
         for chunk_hits in chunk_results:
+            if cancellation:
+                cancellation.check()
             fingerprint_scored.extend(chunk_hits)
     else:
         for source_ref, source_parse, target_ref, target_parse in fingerprint_pairs:
+            if cancellation:
+                cancellation.check()
             score = _compute_structural_score(source_parse, target_parse)
             if score >= min_score:
                 fingerprint_scored.append((source_ref, target_ref, score))
@@ -1210,6 +1226,8 @@ def find_syntax_matches(source_units, target_units, source_id, target_id,
     def _build_results(pair_list):
         out = []
         for source_ref, target_ref, score in pair_list:
+            if cancellation:
+                cancellation.check()
             source_unit = source_by_ref[source_ref]
             target_unit = target_by_ref[target_ref]
             out.append({
@@ -1242,10 +1260,12 @@ def find_syntax_matches(source_units, target_units, source_id, target_id,
 def run_channel(channel_name, config, source_units, target_units,
                 matcher, scorer, source_id, target_id,
                 source_path=None, target_path=None,
-                source_language='la', target_language='la'):
+                source_language='la', target_language='la', cancellation=None):
     """Run a single search channel and return scored results."""
     match_type = config.get("match_type", "lemma")
     settings = dict(config)
+    if cancellation:
+        cancellation.check()
 
     if match_type == "syntax":
         # Syntax channel uses its own scoring from syntax DBs
@@ -1259,6 +1279,7 @@ def run_channel(channel_name, config, source_units, target_units,
             max_results=max_results,
             source_language=source_language,
             target_language=target_language,
+            cancellation=cancellation,
         )
 
     if match_type == "semantic":
@@ -1267,15 +1288,15 @@ def run_channel(channel_name, config, source_units, target_units,
             settings["source_text_path"] = source_path
         if target_path:
             settings["target_text_path"] = target_path
-        matches, _ = find_semantic_matches(source_units, target_units, settings)
+        matches, _ = find_semantic_matches(source_units, target_units, settings, cancellation)
     elif match_type == "dictionary":
         from backend.semantic_similarity import find_dictionary_matches
-        matches, _ = find_dictionary_matches(source_units, target_units, settings)
+        matches, _ = find_dictionary_matches(source_units, target_units, settings, cancellation)
     elif match_type == "sound":
-        matches, _ = matcher.find_sound_matches(source_units, target_units, settings)
+        matches, _ = matcher.find_sound_matches(source_units, target_units, settings, cancellation)
     elif match_type == "edit_distance":
         matches, _ = matcher.find_edit_distance_matches(
-            source_units, target_units, settings
+            source_units, target_units, settings, cancellation
         )
     elif match_type == "rare_word":
         try:
@@ -1300,7 +1321,7 @@ def run_channel(channel_name, config, source_units, target_units,
         )
     else:
         # lemma or exact
-        matches, _ = matcher.find_matches(source_units, target_units, settings, None)
+        matches, _ = matcher.find_matches(source_units, target_units, settings, None, cancellation)
 
     if not matches:
         return []
@@ -2811,15 +2832,14 @@ def _run_channels_sequential(channels, configs, source_units, target_units,
 # semantic) can block for 2-5+ minutes.  Without periodic data on the wire,
 # browsers, reverse proxies (Nginx proxy_read_timeout), CDNs, and network
 # firewalls will kill the idle TCP connection — typically after 60-120 s.
-# 10 s is well within the lowest common proxy timeout while avoiding
-# excessive SSE traffic during long multi-minute searches.
-HEARTBEAT_INTERVAL = 10
+# One-second polling also lets cancellation unblock the slot promptly.
+HEARTBEAT_INTERVAL = 1
 
 
 def _run_channel_with_heartbeat(ch_name, config, source_units, target_units,
                                 matcher, scorer, source_id, target_id,
                                 source_path, target_path,
-                                source_language, target_language):
+                                source_language, target_language, cancellation):
     """Run a channel in a background thread, yielding heartbeats while it executes.
 
     This is a generator that yields:
@@ -2827,22 +2847,30 @@ def _run_channel_with_heartbeat(ch_name, config, source_units, target_units,
         ("result", <channel_results>)         — once, when the channel finishes
 
     The thread does no CPU work itself — run_channel() internally uses
-    ProcessPoolExecutor for heavy computation.  The thread merely lets us
+    cancellable child-process pools for heavy computation. The thread merely lets us
     regain control of the generator so we can yield keep-alive signals.
     """
     with ThreadPoolExecutor(max_workers=1) as pool:
-        future = pool.submit(
-            run_channel, ch_name, config, source_units, target_units,
-            matcher, scorer, source_id, target_id,
-            source_path=source_path, target_path=target_path,
-            source_language=source_language, target_language=target_language,
-        )
-        while not future.done():
-            time.sleep(HEARTBEAT_INTERVAL)
-            if not future.done():
-                yield ("heartbeat", {"channel": ch_name})
-        # Re-raise any exception from the channel
-        yield ("result", future.result())
+        try:
+            future = pool.submit(
+                run_channel, ch_name, config, source_units, target_units,
+                matcher, scorer, source_id, target_id,
+                source_path=source_path, target_path=target_path,
+                source_language=source_language, target_language=target_language,
+                cancellation=cancellation,
+            )
+            while not future.done():
+                time.sleep(HEARTBEAT_INTERVAL)
+                if cancellation:
+                    cancellation.check()
+                if not future.done():
+                    yield ("heartbeat", {"channel": ch_name})
+            # Re-raise any exception from the channel
+            yield ("result", future.result())
+        except GeneratorExit:
+            if cancellation:
+                cancellation.cancel()
+            raise
 
 
 def iter_fusion_search(source_units, target_units, matcher, scorer,
@@ -2852,7 +2880,7 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
                        user_settings=None,
                        source_language=None, target_language=None,
                        freq_basis='corpus', channel_weights=None,
-                       enabled_channels=None):
+                       enabled_channels=None, cancellation=None):
     """Generator version of run_fusion_search for progressive SSE streaming.
 
     Yields (event_type, data) tuples as the search progresses:
@@ -2879,6 +2907,8 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
     full available set runs instead of returning nothing.
     """
     user_settings = user_settings or {}
+    if cancellation:
+        cancellation.check()
     if source_language is None:
         source_language = language
     if target_language is None:
@@ -2923,6 +2953,8 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
     total_line = len(line_channels)
 
     for i, ch_name in enumerate(line_channels):
+        if cancellation:
+            cancellation.check()
         yield ("channel_start", {
             "channel": ch_name,
             "step": i + 1,
@@ -2936,6 +2968,7 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
             matcher, scorer, source_id, target_id,
             source_path, target_path,
             source_language, target_language,
+            cancellation,
         ):
             if hb_type == "heartbeat":
                 yield ("heartbeat", hb_data)
@@ -3083,6 +3116,8 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
     total_window = len(window_channels)
 
     for i, ch_name in enumerate(window_channels):
+        if cancellation:
+            cancellation.check()
         yield ("channel_start", {
             "channel": ch_name,
             "step": i + 1,
@@ -3096,6 +3131,7 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
             matcher, scorer, source_id, target_id,
             source_path, target_path,
             source_language, target_language,
+            cancellation,
         ):
             if hb_type == "heartbeat":
                 yield ("heartbeat", hb_data)

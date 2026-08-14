@@ -264,7 +264,8 @@ def find_crosslingual_phonetic_matches_cop_grc(source_units, target_units,
 
 def find_crosslingual_phonetic_matches(source_units, target_units,
                                         source_language, target_language,
-                                        min_similarity=0.70, min_token_len=3):
+                                        min_similarity=0.70, min_token_len=3,
+                                        cancellation=None):
     """Find cross-lingual token-level edit-distance matches via transliteration.
 
     Transliterates Greek tokens to Latin characters, then compares each
@@ -290,6 +291,8 @@ def find_crosslingual_phonetic_matches(source_units, target_units,
     # Pre-transliterate Greek tokens and normalize Latin tokens
     grc_translit = []  # [(unit_idx, [(original, transliterated), ...])]
     for i, unit in enumerate(grc_units):
+        if cancellation:
+            cancellation.check()
         tokens = unit.get('tokens', [])
         pairs = []
         for tok in tokens:
@@ -302,6 +305,8 @@ def find_crosslingual_phonetic_matches(source_units, target_units,
 
     lat_normalized = []  # [(unit_idx, [(original, normalized), ...])]
     for i, unit in enumerate(lat_units):
+        if cancellation:
+            cancellation.check()
         tokens = unit.get('tokens', [])
         pairs = []
         for tok in tokens:
@@ -315,6 +320,8 @@ def find_crosslingual_phonetic_matches(source_units, target_units,
     # Build trigram index on Latin tokens for pre-filtering
     lat_trigram_index = {}  # trigram -> set of lat_unit indices
     for lat_idx, lat_pairs in lat_normalized:
+        if cancellation:
+            cancellation.check()
         trigrams_seen = set()
         for _, norm in lat_pairs:
             for tri in _get_trigrams(norm):
@@ -329,6 +336,8 @@ def find_crosslingual_phonetic_matches(source_units, target_units,
     results = {}  # (src_idx, tgt_idx) -> list of match dicts
 
     for grc_idx, grc_pairs in grc_translit:
+        if cancellation:
+            cancellation.check()
         if not grc_pairs:
             continue
 
@@ -344,6 +353,8 @@ def find_crosslingual_phonetic_matches(source_units, target_units,
         candidates = [idx for idx, cnt in candidate_counts.items() if cnt >= 1]
 
         for lat_idx in candidates:
+            if cancellation:
+                cancellation.check()
             _, lat_pairs = lat_normalized[lat_idx]
             if not lat_pairs:
                 continue
@@ -405,10 +416,10 @@ def find_crosslingual_phonetic_matches(source_units, target_units,
 from collections import defaultdict, Counter
 import os
 import json
-from concurrent.futures import ProcessPoolExecutor
 from backend.logging_config import get_logger
 from backend.zipf import find_zipf_elbow
 from backend.worker_util import safe_worker_count
+from backend.search_cancellation import cancellable_pool_map
 
 logger = get_logger('matcher')
 
@@ -718,7 +729,7 @@ class Matcher:
         except FileNotFoundError:
             pass
     
-    def build_stoplist(self, source_units, target_units, stoplist_basis='source_target', language='la', corpus_frequencies=None, match_type='lemma'):
+    def build_stoplist(self, source_units, target_units, stoplist_basis='source_target', language='la', corpus_frequencies=None, match_type='lemma', cancellation=None):
         """Build stoplist using Zipf elbow detection based on specified text basis"""
         # For exact match, use tokens; otherwise use lemmas
         use_tokens = (match_type == 'exact')
@@ -730,16 +741,22 @@ class Matcher:
         elif stoplist_basis == 'source':
             all_features = []
             for unit in source_units:
+                if cancellation:
+                    cancellation.check()
                 all_features.extend(unit.get(feature_key, unit.get('lemmas', [])))
             freq = Counter(all_features)
         elif stoplist_basis == 'target':
             all_features = []
             for unit in target_units:
+                if cancellation:
+                    cancellation.check()
                 all_features.extend(unit.get(feature_key, unit.get('lemmas', [])))
             freq = Counter(all_features)
         else:
             all_features = []
             for unit in source_units + target_units:
+                if cancellation:
+                    cancellation.check()
                 all_features.extend(unit.get(feature_key, unit.get('lemmas', [])))
             freq = Counter(all_features)
         
@@ -815,7 +832,8 @@ class Matcher:
         
         return base_stops.union(top_freq)
     
-    def find_matches(self, source_units, target_units, settings=None, corpus_frequencies=None):
+    def find_matches(self, source_units, target_units, settings=None,
+                     corpus_frequencies=None, cancellation=None):
         """Find matching lemmas between source and target texts"""
         settings = settings or {}
         min_matches = settings.get('min_matches', 2)
@@ -825,16 +843,21 @@ class Matcher:
         max_distance = settings.get('max_distance', 999)
         stoplist_size = settings.get('stoplist_size', 0)
         custom_stopwords = settings.get('custom_stopwords', '')
+        if cancellation:
+            cancellation.check()
         
         if match_type == 'sound':
-            return self.find_sound_matches(source_units, target_units, settings)
+            return self.find_sound_matches(source_units, target_units, settings,
+                                           cancellation=cancellation)
         
         if stoplist_size == -1:
             stop_words = set()
         elif stoplist_size > 0:
             stop_words = self.build_stoplist_manual(source_units + target_units, stoplist_size, language, match_type)
         else:
-            stop_words = self.build_stoplist(source_units, target_units, stoplist_basis, language, corpus_frequencies, match_type)
+            stop_words = self.build_stoplist(
+                source_units, target_units, stoplist_basis, language,
+                corpus_frequencies, match_type, cancellation)
         
         if custom_stopwords:
             custom_list = [w.strip().lower() for w in custom_stopwords.split(',') if w.strip()]
@@ -879,6 +902,8 @@ class Matcher:
         
         target_index = defaultdict(list)
         for i, unit in enumerate(target_units):
+            if cancellation:
+                cancellation.check()
             if match_type == 'exact':
                 features = set(unit['tokens'])
             else:
@@ -895,6 +920,8 @@ class Matcher:
         matches = []
         
         for src_idx, src_unit in enumerate(source_units):
+            if cancellation:
+                cancellation.check()
             if match_type == 'exact':
                 src_features = set(f for f in src_unit['tokens'] 
                                   if not is_stopword(f) and len(f) > 2)
@@ -944,7 +971,8 @@ class Matcher:
         
         return matches, len(stop_words)
     
-    def find_sound_matches(self, source_units, target_units, settings=None):
+    def find_sound_matches(self, source_units, target_units, settings=None,
+                           cancellation=None):
         """
         Find matches based on sound similarity using character trigrams.
         Parallelized for large text pairs.
@@ -956,6 +984,8 @@ class Matcher:
 
         src_trigram_cache = []
         for src_unit in source_units:
+            if cancellation:
+                cancellation.check()
             src_tokens = [t for t in src_unit.get('tokens', []) if len(t) >= 3]
             src_trigrams = set()
             for token in src_tokens:
@@ -964,6 +994,8 @@ class Matcher:
 
         tgt_trigram_cache = []
         for tgt_unit in target_units:
+            if cancellation:
+                cancellation.check()
             tgt_tokens = [t for t in tgt_unit.get('tokens', []) if len(t) >= 3]
             tgt_trigrams = set()
             for token in tgt_tokens:
@@ -985,15 +1017,16 @@ class Matcher:
                             top_n_per_source) for chunk in chunks]
 
             matches = []
-            with ProcessPoolExecutor(max_workers=num_workers) as executor:
-                for chunk_matches in executor.map(_sound_chunk_worker,
-                                                  worker_args):
-                    matches.extend(chunk_matches)
+            for chunk_matches in cancellable_pool_map(
+                    _sound_chunk_worker, worker_args, num_workers, cancellation):
+                matches.extend(chunk_matches)
         else:
             indexed_src = [(i, toks, tris)
                            for i, (toks, tris) in enumerate(src_trigram_cache)]
             args = (indexed_src, tgt_trigram_cache, min_sound_score,
                     top_n_per_source)
+            if cancellation:
+                cancellation.check()
             matches = _sound_chunk_worker(args)
 
         matches.sort(key=lambda x: x.get('sound_score', 0), reverse=True)
@@ -1002,7 +1035,6 @@ class Matcher:
             matches = matches[:max_results]
 
         return matches, 0
-
     def find_quotation_matches(self, source_units, target_units, settings=None):
         """
         Find runs of consecutive identical surface tokens between source and target lines.
@@ -1127,7 +1159,8 @@ class Matcher:
             matches = matches[:max_results]
         return matches, 0
 
-    def find_edit_distance_matches(self, source_units, target_units, settings=None):
+    def find_edit_distance_matches(self, source_units, target_units, settings=None,
+                                   cancellation=None):
         """
         Find matches based on edit distance (fuzzy string matching).
         Like Filum from QCL: finds phrases with multiple fuzzy word matches.
@@ -1138,6 +1171,8 @@ class Matcher:
         from collections import defaultdict
         
         settings = settings or {}
+        if cancellation:
+            cancellation.check()
         min_similarity = settings.get('min_edit_similarity', 0.7)
         min_matches = settings.get('min_matches', 2)
         max_results = settings.get('max_results', 500)
@@ -1157,10 +1192,14 @@ class Matcher:
         if stoplist_size > 0:
             token_freq = Counter()
             for unit in source_units:
+                if cancellation:
+                    cancellation.check()
                 for token in unit.get('tokens', []):
                     if len(token) >= 3:
                         token_freq[normalize_greek(token)] += 1
             for unit in target_units:
+                if cancellation:
+                    cancellation.check()
                 for token in unit.get('tokens', []):
                     if len(token) >= 3:
                         token_freq[normalize_greek(token)] += 1
@@ -1172,12 +1211,16 @@ class Matcher:
         # Pre-process: extract tokens for each unit
         src_token_lists = []
         for unit in source_units:
+            if cancellation:
+                cancellation.check()
             tokens = [t for t in unit.get('tokens', []) 
                      if len(t) >= 3 and normalize_greek(t) not in stop_words]
             src_token_lists.append(tokens)
         
         tgt_token_lists = []
         for unit in target_units:
+            if cancellation:
+                cancellation.check()
             tokens = [t for t in unit.get('tokens', []) 
                      if len(t) >= 3 and normalize_greek(t) not in stop_words]
             tgt_token_lists.append(tokens)
@@ -1185,6 +1228,8 @@ class Matcher:
         # Build trigram index for target tokens → target unit indices
         trigram_to_targets = defaultdict(list)
         for tgt_idx, tgt_tokens in enumerate(tgt_token_lists):
+            if cancellation:
+                cancellation.check()
             for token in tgt_tokens:
                 for trigram in _get_trigrams(token):
                     trigram_to_targets[trigram].append(tgt_idx)
@@ -1217,17 +1262,19 @@ class Matcher:
 
             matches = []
             comparisons_made = 0
-            with ProcessPoolExecutor(max_workers=num_workers) as executor:
-                for chunk_matches, chunk_comparisons in executor.map(
-                        _edit_distance_chunk_worker, worker_args):
-                    matches.extend(chunk_matches)
-                    comparisons_made += chunk_comparisons
+            for chunk_matches, chunk_comparisons in cancellable_pool_map(
+                    _edit_distance_chunk_worker, worker_args, num_workers,
+                    cancellation):
+                matches.extend(chunk_matches)
+                comparisons_made += chunk_comparisons
         else:
             # Small text: run sequentially (no subprocess overhead)
             all_src = list(enumerate(src_token_lists))
             args = (all_src, tgt_token_lists, trigram_to_targets,
                     min_similarity, min_matches, include_exact_in_count,
                     min_shared_trigrams, top_n_per_source)
+            if cancellation:
+                cancellation.check()
             matches, comparisons_made = _edit_distance_chunk_worker(args)
 
         elapsed = time.time() - start_time

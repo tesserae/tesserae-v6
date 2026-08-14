@@ -123,8 +123,9 @@ def compute_similarity(embedding1: np.ndarray, embedding2: np.ndarray) -> float:
     similarity = dot_product / (norm1 * norm2)
     return float(max(0, similarity))
 
-def find_semantic_matches(source_units: List[Dict], target_units: List[Dict], 
-                          settings: Optional[Dict] = None) -> Tuple[List[Dict], int]:
+def find_semantic_matches(source_units: List[Dict], target_units: List[Dict],
+                          settings: Optional[Dict] = None,
+                          cancellation=None) -> Tuple[List[Dict], int]:
     """
     Find semantically similar passages between source and target texts.
     Uses pre-computed embeddings when available for fast search.
@@ -147,6 +148,8 @@ def find_semantic_matches(source_units: List[Dict], target_units: List[Dict],
         Tuple of (matches list, stoplist_size=0)
     """
     settings = settings or {}
+    if cancellation:
+        cancellation.check()
     language = settings.get('language', 'la')
     min_score = settings.get('min_semantic_score', 0.6)
     max_results = settings.get('max_results', 500)
@@ -184,6 +187,8 @@ def find_semantic_matches(source_units: List[Dict], target_units: List[Dict],
             logger.warning(f"Failed to load pre-computed embeddings: {e}")
 
     if source_embeddings is None or target_embeddings is None:
+        if cancellation:
+            cancellation.check()
         model = get_model(language)
         if model is None:
             logger.warning(f"Semantic model not available for {language}, returning empty results")
@@ -201,6 +206,8 @@ def find_semantic_matches(source_units: List[Dict], target_units: List[Dict],
         
         try:
             source_embeddings = encode_texts(source_texts, show_progress=False, language=language)
+            if cancellation:
+                cancellation.check()
             target_embeddings = encode_texts(target_texts, show_progress=False, language=language)
             if source_embeddings is None or target_embeddings is None:
                 logger.error(f"Failed to encode texts for {language}")
@@ -219,6 +226,8 @@ def find_semantic_matches(source_units: List[Dict], target_units: List[Dict],
     matches = []
 
     for src_idx in range(len(source_embeddings)):
+        if cancellation:
+            cancellation.check()
         row = similarity_matrix[src_idx]
         top_indices = np.argsort(row)[::-1][:top_n_per_source * 2]
 
@@ -248,7 +257,8 @@ def find_semantic_matches(source_units: List[Dict], target_units: List[Dict],
 
 
 def find_dictionary_matches(source_units: List[Dict], target_units: List[Dict],
-                             settings: Optional[Dict] = None) -> Tuple[List[Dict], int]:
+                             settings: Optional[Dict] = None,
+                             cancellation=None) -> Tuple[List[Dict], int]:
     """
     Find intra-language dictionary-based matches using V3 synonym data.
 
@@ -273,6 +283,8 @@ def find_dictionary_matches(source_units: List[Dict], target_units: List[Dict],
     from backend.matcher import DEFAULT_LATIN_STOP_WORDS, DEFAULT_GREEK_STOP_WORDS
 
     settings = settings or {}
+    if cancellation:
+        cancellation.check()
     language = settings.get('language', 'la')
     min_matches = settings.get('min_matches', 2)
     max_results = settings.get('max_results', 0)
@@ -302,6 +314,8 @@ def find_dictionary_matches(source_units: List[Dict], target_units: List[Dict],
     # target line indices where it appears.
     target_lemma_lines = defaultdict(set)
     for tgt_idx, tgt_unit in enumerate(target_units):
+        if cancellation:
+            cancellation.check()
         for lemma in tgt_unit.get('lemmas', []):
             low = lemma.lower()
             if is_content(low):
@@ -313,6 +327,8 @@ def find_dictionary_matches(source_units: List[Dict], target_units: List[Dict],
     # include_lemma_matches is True).
     matches = []
     for src_idx, src_unit in enumerate(source_units):
+        if cancellation:
+            cancellation.check()
         # tgt_idx → set of (src_lemma, tgt_lemma) synonym pairs found
         pair_counts = defaultdict(set)
         for src_lemma in src_unit.get('lemmas', []):
@@ -351,7 +367,8 @@ def find_dictionary_matches(source_units: List[Dict], target_units: List[Dict],
 
 def find_crosslingual_matches(source_units: List[Dict], target_units: List[Dict],
                                source_language: str, target_language: str,
-                               settings: Optional[Dict] = None) -> Tuple[List[Dict], int]:
+                               settings: Optional[Dict] = None,
+                               cancellation=None) -> Tuple[List[Dict], int]:
     """
     Find semantically similar passages between Greek and Latin texts using
     cross-lingual embeddings from SPhilBERTa.
@@ -375,6 +392,8 @@ def find_crosslingual_matches(source_units: List[Dict], target_units: List[Dict]
         Tuple of (matches list, stoplist_size=0)
     """
     settings = settings or {}
+    if cancellation:
+        cancellation.check()
     min_score = settings.get('min_semantic_score', 0.5)
     max_results = settings.get('max_results', 500)
     top_n_per_source = settings.get('semantic_top_n', 10)
@@ -390,7 +409,7 @@ def find_crosslingual_matches(source_units: List[Dict], target_units: List[Dict]
     if source_language == target_language:
         logger.warning(f"For same-language matching, use find_semantic_matches instead")
         return find_semantic_matches(source_units, target_units, 
-                                     {**settings, 'language': source_language})
+                                     {**settings, 'language': source_language}, cancellation)
     
     source_embeddings = None
     target_embeddings = None
@@ -420,6 +439,8 @@ def find_crosslingual_matches(source_units: List[Dict], target_units: List[Dict]
             logger.warning(f"Failed to load pre-computed embeddings: {e}")
 
     if source_embeddings is None or target_embeddings is None:
+        if cancellation:
+            cancellation.check()
         model = get_model('la')
         if model is None:
             logger.warning("SPhilBERTa model not available for cross-lingual matching")
@@ -436,6 +457,8 @@ def find_crosslingual_matches(source_units: List[Dict], target_units: List[Dict]
         
         try:
             source_embeddings = model.encode(source_texts, show_progress_bar=False)
+            if cancellation:
+                cancellation.check()
             target_embeddings = model.encode(target_texts, show_progress_bar=False)
             if source_embeddings is None or target_embeddings is None:
                 logger.error("Failed to encode texts for cross-lingual matching")
@@ -454,6 +477,8 @@ def find_crosslingual_matches(source_units: List[Dict], target_units: List[Dict]
     matches = []
 
     for src_idx in range(len(source_embeddings)):
+        if cancellation:
+            cancellation.check()
         row = similarity_matrix[src_idx]
         top_indices = np.argsort(row)[::-1][:top_n_per_source * 2]
 
@@ -488,7 +513,8 @@ def find_dictionary_crosslingual_matches(source_units: List[Dict], target_units:
                                           source_language: str, target_language: str,
                                           settings: Optional[Dict] = None,
                                           greek_frequencies: Optional[Dict] = None,
-                                          latin_frequencies: Optional[Dict] = None) -> Tuple[List[Dict], int]:
+                                          latin_frequencies: Optional[Dict] = None,
+                                          cancellation=None) -> Tuple[List[Dict], int]:
     """
     Find Greek-Latin word matches using V3's curated dictionary.
     This provides word-level highlighting without requiring AI embeddings.
@@ -542,11 +568,15 @@ def find_dictionary_crosslingual_matches(source_units: List[Dict], target_units:
     matches = []
     
     for src_idx, src_unit in enumerate(source_units):
+        if cancellation:
+            cancellation.check()
         src_lemmas = src_unit.get('lemmas', [])
         if not src_lemmas:
             continue
         
         for tgt_idx, tgt_unit in enumerate(target_units):
+            if cancellation:
+                cancellation.check()
             tgt_lemmas = tgt_unit.get('lemmas', [])
             if not tgt_lemmas:
                 continue

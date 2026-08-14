@@ -26,6 +26,7 @@ import threading
 from backend.cache import (get_cached_results, save_cached_results,
                            get_cache_key, ensure_cache_dir, CACHE_DIR)
 from backend.concurrency_gate import SearchSlot
+from backend.search_cancellation import SearchCancellation, SearchCancelled
 
 logger = get_logger('fusion')
 
@@ -67,7 +68,9 @@ def search_fusion_stream():
 
     def generate():
         slot = None
+        cancellation = None
         try:
+            cancellation = SearchCancellation(data.get('search_id'))
             from backend.fusion import iter_fusion_search
 
             start_time = time.time()
@@ -179,9 +182,10 @@ def search_fusion_stream():
             # Concurrency gate: wait for a slot before starting heavy work.
             # Yields "queued" SSE events while waiting so the frontend can
             # show the user a message instead of appearing frozen.
-            slot = SearchSlot()
+            slot = SearchSlot(cancellation=cancellation)
             try:
                 for queued_event in slot.acquire():
+                    cancellation.check()
                     yield send_event("queued", {
                         "step": "Search queued — server is busy",
                         "detail": queued_event.get("reason", ""),
@@ -190,6 +194,7 @@ def search_fusion_stream():
             except TimeoutError as e:
                 yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
                 return
+            cancellation.check()
 
             # Register metadata for Active Search Inspector
             slot.set_metadata({
@@ -204,13 +209,16 @@ def search_fusion_stream():
                 "step": "Loading source text",
                 "detail": source_id.replace('.tess', ''),
             })
+            cancellation.check()
             source_units = _get_processed_units(source_id, language, source_unit_type, _text_processor)
 
             yield send_event("progress", {
                 "step": "Loading target text",
                 "detail": target_id.replace('.tess', ''),
             })
+            cancellation.check()
             target_units = _get_processed_units(target_id, language, target_unit_type, _text_processor)
+            cancellation.check()
 
             if not source_units or not target_units:
                 yield f"data: {json.dumps({'type': 'error', 'message': 'Could not process text units'})}\n\n"
@@ -238,6 +246,7 @@ def search_fusion_stream():
                 target_path=target_path,
                 user_settings={'use_meter': use_meter},
                 freq_basis=freq_basis,
+                cancellation=cancellation,
                 channel_weights=channel_weights,
                 enabled_channels=enabled_channels,
             ):
@@ -322,12 +331,20 @@ def search_fusion_stream():
             }
             yield f"data: {json.dumps(complete)}\n\n"
 
+        except GeneratorExit:
+            if cancellation is not None:
+                cancellation.cancel()
+            raise
+        except SearchCancelled:
+            return
         except Exception as e:
             logger.error(f"Fusion search error: {e}", exc_info=True)
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
         finally:
             if slot is not None:
                 slot.release()
+            if cancellation is not None:
+                cancellation.close()
 
     return Response(generate(), mimetype='text/event-stream', headers={
         'Cache-Control': 'no-cache',
@@ -450,6 +467,7 @@ def _clear_fusion_status(job_key):
 def _run_fusion_job(source_id, target_id, language, max_results, job_key):
     """Compute a default-settings fusion search and cache it (runs in a thread)."""
     slot = None
+    cancellation = SearchCancellation()
     try:
         from backend.fusion import iter_fusion_search
 
@@ -482,8 +500,10 @@ def _run_fusion_job(source_id, target_id, language, max_results, job_key):
             source_path=source_path, target_path=target_path,
             user_settings={'use_meter': False}, freq_basis='corpus',
             channel_weights={}, enabled_channels=None,
+            cancellation=cancellation,
         ):
             if slot.is_cancelled():
+                cancellation.cancel()
                 logger.info("GET fusion job cancelled (%s x %s)", source_id, target_id)
                 try:
                     with open(_fusion_marker(job_key, 'cancelled'), 'w', encoding='utf-8') as f:
