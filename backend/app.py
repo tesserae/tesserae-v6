@@ -1899,15 +1899,16 @@ def line_search():
                                             matched_words.append(word)
                                             matched_lemmas.update(shared_lemmas)
                                 elif search_type == 'exact':
-                                    # Highlight query words present as whole-word starts
-                                    # (consistent with the match test above).
+                                    # The exact pattern already required the whole adjacent
+                                    # phrase, so every query word is present. Count them ALL,
+                                    # including stopwords — they are part of the phrase the user
+                                    # asked for (e.g. "ad Scythiam"), not co-occurrence noise to
+                                    # filter. Without this, a phrase containing a stopword falls
+                                    # below the 2-word threshold and is silently dropped.
                                     for word in query.split():
                                         wl = word.lower()
-                                        if wl in stopwords:
-                                            continue
-                                        if re.search(r'\b' + re.escape(word), text, re.IGNORECASE):
-                                            matched_words.append(wl)
-                                            matched_lemmas.add(wl)
+                                        matched_words.append(wl)
+                                        matched_lemmas.add(wl)
                                 else:
                                     for word in query.lower().split():
                                         if word in text.lower() and word not in stopwords:
