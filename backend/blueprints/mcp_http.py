@@ -102,14 +102,28 @@ def _t_string_search(a):
                         for r in (d.get('results') or [])[:40]]}
 
 
-def _locs(entries, k=5):
-    """Compact location list: just the refs (each raw entry is a verbose dict
-    carrying the full line text, author, work, text_id — far more than the agent
-    needs to point at a locus, and the main driver of oversized MCP payloads)."""
+def _locs(entries, k=3):
+    """In-scope locations with ref AND the full line text, so the agent can always
+    QUOTE the complete line per the presentation contract. Bounded to k entries to
+    keep the payload small — the raw dicts also carry author/work/text_id/positions,
+    which we drop as redundant (those inflated the response before)."""
     out = []
     for e in (entries or [])[:k]:
-        out.append(e.get('ref') if isinstance(e, dict) else e)
-    return [r for r in out if r]
+        if isinstance(e, dict):
+            ref = e.get('ref')
+            if not ref:
+                continue
+            item = {'ref': ref}
+            if e.get('text'):
+                item['text'] = e['text']
+            out.append(item)
+        elif e:
+            out.append({'ref': e})
+    return out
+
+
+def _loc_ref(x):
+    return x.get('ref') if isinstance(x, dict) else x
 
 
 def _t_rare_pairs(a, timeout=None):
@@ -256,8 +270,8 @@ def _t_compare_texts(a):
         rare_idx = []
         for sec, kind, key in ((rare_words, 'rare_word', 'word'), (rare_phrases, 'rare_phrase', 'bigram')):
             for it in (sec.get('results') or []) if isinstance(sec, dict) else []:
-                srefs = {_norm(x) for x in (it.get('source_locations') or [])}
-                trefs = {_norm(x) for x in (it.get('target_locations') or [])}
+                srefs = {_norm(_loc_ref(x)) for x in (it.get('source_locations') or [])}
+                trefs = {_norm(_loc_ref(x)) for x in (it.get('target_locations') or [])}
                 if srefs and trefs:
                     rare_idx.append((srefs, trefs, f"{kind}:{it.get(key)}"))
         for p in fusion['parallels']:
@@ -278,15 +292,21 @@ def _t_compare_texts(a):
         "interesting each parallel is — your synthesis of fusion score, rarity, cross-method "
         "convergence, and interpretive promise. Do NOT organize the output by which search produced "
         "what; the sections here are data, interleave them. "
-        "Per entry: quote both passages with their loci; name the search(es) that found it, each with "
-        "its own metric — fusion (rank #, score, channel_count), rare phrase (rarity percentile), rare "
-        "word (corpus_count); when more than one search found the same passage pair, say so and rank "
-        "it HIGHER (a fusion parallel carries an also_found_by field when it coincides with a rare hit; "
-        "otherwise match by ref) — convergence of independent methods is itself evidence. "
+        "Per entry: quote the COMPLETE line (or two-line window) of BOTH passages with their loci — "
+        "never a paraphrase, and this holds for tail entries too (a compressed entry shortens the "
+        "discussion, not the quotation). Every section carries the line text: fusion parallels in "
+        "source.text/target.text, and the rare sections in each in-scope location's text field. Name "
+        "the search(es) that found it, each with its own metric — fusion (rank #, score, channel_count), "
+        "rare phrase (rarity percentile), rare word (corpus_count); when more than one search found the "
+        "same passage pair, say so and rank it HIGHER (a fusion parallel carries an also_found_by field "
+        "when it coincides with a rare hit; otherwise match by ref) — convergence of independent methods "
+        "is itself evidence. "
         "Fold each parallel's corpus context INLINE with its entry, not in a separate methods section: "
         "run line_search on its shared words for how distinctive it is corpus-wide (use distinct_loci / "
         "deduped counts) with a one-line characterization; do this for at least the top handful and any "
-        "entry resting on a rarity claim, before presenting. "
+        "entry resting on a rarity claim, before presenting. When a rare-phrase/rare-word rarity metric "
+        "and the line_search corpus check disagree, TRUST the line_search check — it is the direct "
+        "corpus evidence (the percentile can overstate distinctiveness). "
         "Present ~25 entries, then ASK whether to continue, re-sort (fusion score / rarity / order in "
         "either text / channel_count), filter (a ref range via source_ref_prefix), or search other "
         "lines. Small sets (<10) need no batching. "
@@ -352,7 +372,7 @@ TOOLS = [
                      "required": ["language"]},
      "fn": _t_list_texts},
     {"name": "line_search",
-     "description": "Find corpus lines sharing words with a phrase (corpus-wide). The uniqueness check: few results (total) means distinctive wording. Counts collapse whole-work vs per-book/poem duplicates of the same line, so total is a true distinct-loci count. search_type: exact matches whole words (a Latin enclitic on the final word is allowed, so 'arma virum' still hits 'arma virumque'); lemma (default) | exact | regex.",
+     "description": "Find corpus lines sharing words with a phrase (corpus-wide). The uniqueness check: few results (total) means distinctive wording. Counts collapse whole-work vs per-book/poem duplicates of the same line, so total is a true distinct-loci count. search_type: 'lemma' (default) matches lines that share 2+ of the query's LEMMAS anywhere on the line — use this for words that co-occur but are NOT adjacent (e.g. 'Scythiam arces', 'lolium avenae'); 'exact' matches the query as an ADJACENT whole-word phrase (stopwords included literally, so 'ad Scythiam' matches only that contiguous phrase; a Latin enclitic on the final word is allowed, so 'arma virum' hits 'arma virumque') — for non-adjacent words use lemma; 'regex'.",
      "inputSchema": {"type": "object",
                      "properties": {"query": _STR, "language": _STR, "search_type": _STR},
                      "required": ["query", "language"]},
