@@ -1,11 +1,14 @@
 """_dedup_same_passage collapses the same passage duplicated across text_ids
 that differ only by author/work spelling, without touching distinct loci."""
 import os
-# Importing backend.app has DB/secret side effects — configure a throwaway env
-# before import, mirroring tests/test_app.py.
+# Importing backend.app has DB/secret side effects and captures DEPLOYMENT_ENV
+# into a module global at import time. Set the same env other suites expect
+# BEFORE importing, so whichever test module imports app first leaves it in the
+# non-dev state test_security_headers.py relies on (HSTS is gated on this global).
 os.environ.setdefault("DATABASE_URL", "sqlite:///:memory:")
 os.environ.setdefault("TESSERAE_DIRECT_SERVER", "1")
 os.environ.setdefault("SESSION_SECRET", "test-secret-key")
+os.environ.setdefault("DEPLOYMENT_ENV", "test")
 
 from backend.app import _dedup_same_passage  # noqa: E402
 
