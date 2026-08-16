@@ -1715,10 +1715,36 @@ def line_search():
                 query_lemmas = set(_normalize_lemma(t, language) for t in query.lower().split())
             
             # Filter out stopwords from query lemmas (like pairwise search)
-            filtered_query_lemmas = query_lemmas - stopwords
+            content_lemmas = query_lemmas - stopwords
+            filtered_query_lemmas = content_lemmas
             if len(filtered_query_lemmas) < 2:
                 filtered_query_lemmas = query_lemmas  # fallback if too few remain
-            
+
+            # Single-word count_only: line-search finds lines where 2+ words
+            # CO-OCCUR, so a one-content-word query would silently return 0 —
+            # which reads as "vanishingly rare" when it just means "not enough
+            # words to co-occur." Answer the real question instead: how common
+            # the word is across the corpus, via its document frequency (number
+            # of works containing it), from the fast precomputed table.
+            if count_only and len(content_lemmas) < 2:
+                from backend.blueprints.hapax import get_document_frequencies_batch
+                if content_lemmas:
+                    dfs = get_document_frequencies_batch(content_lemmas, language)
+                    df = max(dfs.values()) if dfs else 0
+                    return jsonify({
+                        'query': query,
+                        'single_word': True,
+                        'unit': 'works',
+                        'corpus_document_frequency': df,
+                        'total': df,
+                        'note': ('single-word query: count is the number of works that contain '
+                                 'this word, not co-occurring word pairs'),
+                    })
+                return jsonify({
+                    'query': query, 'single_word': True, 'total': None, 'unquantified': True,
+                    'note': 'query has no content words to count (all stopwords)',
+                })
+
             results = []
             seen_results = set()
             

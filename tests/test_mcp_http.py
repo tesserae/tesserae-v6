@@ -70,3 +70,26 @@ def test_tools_call_error_is_wrapped_not_raised(monkeypatch):
                    "params": {"name": "get_languages", "arguments": {}}})
     assert r["result"]["isError"] is True
     assert "kaboom" in r["result"]["content"][0]["text"]
+
+
+def test_line_search_single_word_passthrough(monkeypatch):
+    """A single-word count_only query surfaces single_word/unit, not a loci count."""
+    monkeypatch.setattr(M, '_post', lambda path, body: {
+        'query': 'sonipes', 'single_word': True, 'unit': 'works',
+        'corpus_document_frequency': 12, 'total': 12,
+        'note': 'single-word query: count is the number of works...'})
+    out = M._t_line_search({'query': 'sonipes', 'language': 'la', 'count_only': True})
+    assert out['single_word'] is True
+    assert out['unit'] == 'works'
+    assert out['total'] == 12
+    assert 'results' not in out  # count_only carries no results payload
+
+
+def test_line_search_capped_reports_floor(monkeypatch):
+    monkeypatch.setattr(M, '_post', lambda path, body: {
+        'query': 'toto orbe', 'total': 467, 'distinct_loci': 467, 'capped': True,
+        'total_at_least': 467})
+    out = M._t_line_search({'query': 'toto orbe', 'language': 'la', 'count_only': True})
+    assert out['capped'] is True
+    assert out['total_at_least'] == 467
+    assert 'results' not in out

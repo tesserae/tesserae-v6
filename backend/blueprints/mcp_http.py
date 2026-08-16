@@ -91,6 +91,15 @@ def _t_line_search(a):
                                'count_only': count_only})
     out = {'query': a.get('query'), 'total': d.get('total'),
            'distinct_loci': d.get('distinct_loci'), 'capped': d.get('capped')}
+    # Single-word query: `total` is a corpus document frequency (number of works
+    # containing the word), NOT co-occurring loci. Surface that so it isn't read
+    # as a loci count; a null total means all-stopword (unquantified).
+    if d.get('single_word'):
+        out['single_word'] = True
+        out['unit'] = d.get('unit', 'works')
+        if d.get('unquantified'):
+            out['unquantified'] = True
+        out['note'] = d.get('note')
     # When the corpus scan hit the cap, `total` is a floor — report "N+".
     if d.get('capped'):
         out['total_at_least'] = d.get('total_at_least', d.get('total'))
@@ -300,34 +309,59 @@ def _t_compare_texts(a):
         "interesting each parallel is — your synthesis of fusion score, rarity, cross-method "
         "convergence, and interpretive promise. Do NOT organize the output by which search produced "
         "what; the sections here are data, interleave them. "
+        "WRITE FOR A READER, NOT A PIPELINE. The visible presentation is plain English; the method "
+        "vocabulary (deduplicated distinct loci, N+, capped scan, lemma, bigram, rarity percentile, "
+        "fusion channels) is for your own reasoning, never for the reader. Translate every number into "
+        "plain words with nothing lost: 'these words occur together in only 8 places in all of surviving "
+        "Latin'; 'in at least 467 places — too common to mean much'; 'the two poems share the word in "
+        "different forms'; 'one of the rarest word-pairings the two texts share'; 'confirmed by several "
+        "independent kinds of similarity'. Keep the technical terms and raw numbers ready for when the "
+        "user asks how a figure was produced, and once the user uses their own vocabulary, mirror it (a "
+        "user who says 'lemma' may be answered with 'lemma'); default to plain. "
         "Per entry: quote the COMPLETE line (or two-line window) of BOTH passages with their loci — "
         "never a paraphrase, and this holds for tail entries too (a compressed entry shortens the "
-        "discussion, not the quotation). Every section carries the line text: fusion parallels in "
-        "source.text/target.text, and the rare sections in each in-scope location's text field. Name "
-        "the search(es) that found it, each with its own metric — fusion (rank #, score, channel_count), "
-        "rare phrase (rarity percentile), rare word (corpus_count); when more than one search found the "
-        "same passage pair, say so and rank it HIGHER (a fusion parallel carries an also_found_by field "
-        "when it coincides with a rare hit; otherwise match by ref) — convergence of independent methods "
-        "is itself evidence. "
+        "discussion, not the quotation). In each quotation, mark the shared material in BOLD, using the "
+        "matched word forms the results already carry for both sides; where the shared word wears "
+        "different forms, bold each form ('tua **rura manebunt**' against '**manet** divini gloria "
+        "**ruris**') — this makes the match visible without explaining it. Bold is the default marking; "
+        "where the output has no markdown, use CAPITALS or [brackets]. Every section carries the line "
+        "text: fusion parallels in source.text/target.text, and the rare sections in each in-scope "
+        "location's text field. "
+        "Say which search(es) found each parallel and how strong it is, in plain words (fusion = overall "
+        "similarity plus how many independent kinds of match agree; rare phrase = a distinctive shared "
+        "wording; rare word = a shared word and how rare it is corpus-wide); when more than one search "
+        "found the same passage pair, say so and rank it HIGHER (a fusion parallel carries an "
+        "also_found_by field when it coincides with a rare hit; otherwise match by ref) — agreement of "
+        "independent methods is itself evidence. Keep the raw metrics available to show on request. "
         "Fold each parallel's corpus context INLINE with its entry, not in a separate methods section. "
         "EVERY presented entry carries its corpus-wide context inline, in two proportionate tiers. "
-        "(a) Every entry states the corpus count for its shared material: line_search on the shared "
-        "lemmas (use count_only:true — it returns just the deduped count cheaply), or the rare-word "
-        "corpus_count where that is the entry's basis. (b) When that count is small enough to mean "
-        "something (roughly under 40), also characterize the distribution in one line — who else, which "
-        "era, verbatim quotation vs independent use — fetching the full line_search results (dedup "
-        "applied) for that entry. Above ~40 the number plus the word 'commonplace' suffices, and the "
-        "entry's interest then rests on placement or theme, so say so. If a count cannot be retrieved, "
-        "the entry says 'unquantified' rather than silently omitting it. If line_search reports "
-        "capped:true, report the count as 'N+' (it is a floor, not exact). When a rare-phrase/rare-word "
-        "rarity metric and the line_search corpus check disagree, TRUST the line_search check — it is "
-        "the direct corpus evidence (the percentile can overstate distinctiveness). "
-        "Present ~25 entries, then ASK whether to continue, re-sort (fusion score / rarity / order in "
-        "either text / channel_count), filter (a ref range via source_ref_prefix), or search other "
-        "lines. Small sets (<10) need no batching. "
+        "(a) Every entry states, in plain words, how common its shared material is across surviving Latin: "
+        "line_search on the shared lemmas (use count_only:true — it returns just the deduped count "
+        "cheaply), or the rare-word corpus_count where that is the entry's basis. (b) When that count is "
+        "small enough to mean something (roughly under 40), also characterize the distribution in one "
+        "line — who else, which era, verbatim quotation vs independent use — fetching the full "
+        "line_search results (dedup applied) for that entry. Above ~40, give the number and say it is too "
+        "common to signify, so the entry's interest rests on placement or theme — say which. If a count "
+        "cannot be retrieved, the entry says the overlap is 'unquantified' rather than silently omitting "
+        "it. If line_search reports capped:true the count is a floor: render it as 'at least N places', "
+        "never 'N+'. When a rare-phrase/rare-word rarity metric and the line_search corpus check "
+        "disagree, TRUST the line_search check — it is the direct corpus evidence. "
+        "NEVER describe results you have not fetched. Do not claim the tail is 'all function words' or "
+        "otherwise empty from a few visible entries or from memory of another run — genuine parallels "
+        "keep appearing deep into the ranking, into the thousands. The ranking concentrates real "
+        "parallels at the top; it never certifies the tail empty. "
+        "Present ~25 entries, then ASK whether to continue, re-sort (by overall similarity, rarity, order "
+        "in either poem, or number of agreeing methods), filter to a stretch of either text (a ref range "
+        "via source_ref_prefix), or search other lines. Small sets (<10) need no batching. Before you "
+        "close the list, sample a few deeper pages cheaply — a handful of entries near ranks 100, 300, "
+        "and 1000 via fusion_search offset with a small limit — and describe what those bands actually "
+        "look like in plain words (e.g. 'further down, the word-overlaps get thinner, but pairs worth a "
+        "look keep turning up, and there are 3,900 candidates in this comparison — want me to keep going, "
+        "or sweep a particular stretch of either poem?'). If you skip the sampling for time, close with "
+        "what is certain — the number of remaining candidates and the offer to continue — without "
+        "characterizing the unseen bands. The close is an open door, never a shut one. "
         "Label the ordering as YOURS — 'most interesting' is your judgement, never Tesserae's ranking; "
-        "always quote the underlying Tesserae metrics so the user can re-derive any sort, and keep "
-        "Tesserae's detections and your interpretation distinct. "
+        "keep Tesserae's detections and your own interpretation distinct. "
         "If a rare section says too_large or skipped, offer to run rare_pairs / rare_words on its own."
     )
     if fusion.get('status') == 'running':
@@ -387,7 +421,7 @@ TOOLS = [
                      "required": ["language"]},
      "fn": _t_list_texts},
     {"name": "line_search",
-     "description": "Find corpus lines sharing words with a phrase (corpus-wide). The uniqueness check: few results (total) means distinctive wording. Counts collapse whole-work vs per-book/poem duplicates of the same line, AND same-passage duplicates that differ only by author/work spelling (e.g. cyprian vs cyprian_saint), so total is a true distinct-loci count. Set count_only:true to get just the counts (total, distinct_loci, capped) with no results payload — use this to quantify a commonplace cheaply; fetch full results only when the count is small enough to characterize. `capped` is true when the scan hit the result cap (default 500): then `total` is a floor and `total_at_least` is returned — report it as \"N+\", not a precise count. search_type: 'lemma' (default) matches lines that share 2+ of the query's LEMMAS anywhere on the line — use this for words that co-occur but are NOT adjacent (e.g. 'Scythiam arces', 'lolium avenae'); 'exact' matches the query as an ADJACENT whole-word phrase (stopwords included literally, so 'ad Scythiam' matches only that contiguous phrase; a Latin enclitic on the final word is allowed, so 'arma virum' hits 'arma virumque') — for non-adjacent words use lemma; 'regex'.",
+     "description": "Find corpus lines sharing words with a phrase (corpus-wide). The uniqueness check: few results (total) means distinctive wording. Counts collapse whole-work vs per-book/poem duplicates of the same line, AND same-passage duplicates that differ only by author/work spelling (e.g. cyprian vs cyprian_saint), so total is a true distinct-loci count. Set count_only:true to get just the counts (total, distinct_loci, capped) with no results payload — use this to quantify a commonplace cheaply; fetch full results only when the count is small enough to characterize. `capped` is true when the scan hit the result cap (default 500): then `total` is a floor (`total_at_least`) — treat it as 'at least N', not exact. SINGLE-WORD queries: line-search needs 2+ words to CO-OCCUR, so a one-content-word count_only query does NOT return 0 — it returns `single_word:true` with `total` = the number of works that contain the word (a corpus document frequency, `unit:\"works\"`); an all-stopword query returns `unquantified:true` (total null). Report single-word counts as 'appears in N works', not as co-occurring places. search_type: 'lemma' (default) matches lines that share 2+ of the query's LEMMAS anywhere on the line — use this for words that co-occur but are NOT adjacent (e.g. 'Scythiam arces', 'lolium avenae'); 'exact' matches the query as an ADJACENT whole-word phrase (stopwords included literally, so 'ad Scythiam' matches only that contiguous phrase; a Latin enclitic on the final word is allowed, so 'arma virum' hits 'arma virumque') — for non-adjacent words use lemma; 'regex'.",
      "inputSchema": {"type": "object",
                      "properties": {"query": _STR, "language": _STR, "search_type": _STR,
                                     "count_only": {"type": "boolean"}},
