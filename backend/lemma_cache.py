@@ -115,6 +115,33 @@ def save_cached_units(text_id, language, units_line, units_phrase, file_hash):
     except IOError:
         return False
 
+
+def load_units_cached(filepath, language, text_processor, unit_type='line'):
+    """Return processed units for a text, reusing the on-disk lemma cache when it
+    is present and hash-valid; on a miss, compute with the text_processor and save
+    both line and phrase units so subsequent calls hit the cache.
+
+    This is the same disk-cache path the fusion loader uses. Callers that used to
+    call text_processor.process_file directly (rare-word / rare-pair searches) can
+    route through this to avoid re-lemmatizing on every request.
+    """
+    resolved_id = os.path.basename(filepath)
+    cached = get_cached_units(resolved_id, language)
+    if cached:
+        key = 'units_phrase' if unit_type == 'phrase' else 'units_line'
+        units = cached.get(key)
+        if units is not None:
+            return units
+    units = text_processor.process_file(filepath, language, unit_type)
+    try:
+        file_hash = get_file_hash(filepath)
+        line_units = units if unit_type == 'line' else text_processor.process_file(filepath, language, 'line')
+        phrase_units = units if unit_type == 'phrase' else text_processor.process_file(filepath, language, 'phrase')
+        save_cached_units(resolved_id, language, line_units, phrase_units, file_hash)
+    except Exception:
+        pass
+    return units
+
 def rebuild_lemma_cache(language, text_processor, progress_callback=None):
     """Rebuild lemma cache for all texts in a language"""
     lang_dir = os.path.join(TEXTS_DIR, language)
