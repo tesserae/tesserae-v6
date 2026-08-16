@@ -84,14 +84,22 @@ def _t_list_texts(a):
 
 
 def _t_line_search(a):
+    count_only = bool(a.get('count_only'))
     d = _post('/line-search', {'query': a.get('query', ''),
                                'language': a.get('language', 'la'),
-                               'search_type': a.get('search_type', 'lemma')})
-    return {'query': a.get('query'), 'total': d.get('total'),
-            'results': [{'locus': r.get('locus'), 'author': r.get('author'),
-                         'work': r.get('work'), 'text': r.get('text'),
-                         'matched_words': r.get('matched_words')}
-                        for r in (d.get('results') or [])[:40]]}
+                               'search_type': a.get('search_type', 'lemma'),
+                               'count_only': count_only})
+    out = {'query': a.get('query'), 'total': d.get('total'),
+           'distinct_loci': d.get('distinct_loci'), 'capped': d.get('capped')}
+    # When the corpus scan hit the cap, `total` is a floor — report "N+".
+    if d.get('capped'):
+        out['total_at_least'] = d.get('total_at_least', d.get('total'))
+    if not count_only:
+        out['results'] = [{'locus': r.get('locus'), 'author': r.get('author'),
+                           'work': r.get('work'), 'text': r.get('text'),
+                           'matched_words': r.get('matched_words')}
+                          for r in (d.get('results') or [])[:40]]
+    return out
 
 
 def _t_string_search(a):
@@ -301,12 +309,19 @@ def _t_compare_texts(a):
         "same passage pair, say so and rank it HIGHER (a fusion parallel carries an also_found_by field "
         "when it coincides with a rare hit; otherwise match by ref) — convergence of independent methods "
         "is itself evidence. "
-        "Fold each parallel's corpus context INLINE with its entry, not in a separate methods section: "
-        "run line_search on its shared words for how distinctive it is corpus-wide (use distinct_loci / "
-        "deduped counts) with a one-line characterization; do this for at least the top handful and any "
-        "entry resting on a rarity claim, before presenting. When a rare-phrase/rare-word rarity metric "
-        "and the line_search corpus check disagree, TRUST the line_search check — it is the direct "
-        "corpus evidence (the percentile can overstate distinctiveness). "
+        "Fold each parallel's corpus context INLINE with its entry, not in a separate methods section. "
+        "EVERY presented entry carries its corpus-wide context inline, in two proportionate tiers. "
+        "(a) Every entry states the corpus count for its shared material: line_search on the shared "
+        "lemmas (use count_only:true — it returns just the deduped count cheaply), or the rare-word "
+        "corpus_count where that is the entry's basis. (b) When that count is small enough to mean "
+        "something (roughly under 40), also characterize the distribution in one line — who else, which "
+        "era, verbatim quotation vs independent use — fetching the full line_search results (dedup "
+        "applied) for that entry. Above ~40 the number plus the word 'commonplace' suffices, and the "
+        "entry's interest then rests on placement or theme, so say so. If a count cannot be retrieved, "
+        "the entry says 'unquantified' rather than silently omitting it. If line_search reports "
+        "capped:true, report the count as 'N+' (it is a floor, not exact). When a rare-phrase/rare-word "
+        "rarity metric and the line_search corpus check disagree, TRUST the line_search check — it is "
+        "the direct corpus evidence (the percentile can overstate distinctiveness). "
         "Present ~25 entries, then ASK whether to continue, re-sort (fusion score / rarity / order in "
         "either text / channel_count), filter (a ref range via source_ref_prefix), or search other "
         "lines. Small sets (<10) need no batching. "
@@ -372,9 +387,10 @@ TOOLS = [
                      "required": ["language"]},
      "fn": _t_list_texts},
     {"name": "line_search",
-     "description": "Find corpus lines sharing words with a phrase (corpus-wide). The uniqueness check: few results (total) means distinctive wording. Counts collapse whole-work vs per-book/poem duplicates of the same line, so total is a true distinct-loci count. search_type: 'lemma' (default) matches lines that share 2+ of the query's LEMMAS anywhere on the line — use this for words that co-occur but are NOT adjacent (e.g. 'Scythiam arces', 'lolium avenae'); 'exact' matches the query as an ADJACENT whole-word phrase (stopwords included literally, so 'ad Scythiam' matches only that contiguous phrase; a Latin enclitic on the final word is allowed, so 'arma virum' hits 'arma virumque') — for non-adjacent words use lemma; 'regex'.",
+     "description": "Find corpus lines sharing words with a phrase (corpus-wide). The uniqueness check: few results (total) means distinctive wording. Counts collapse whole-work vs per-book/poem duplicates of the same line, AND same-passage duplicates that differ only by author/work spelling (e.g. cyprian vs cyprian_saint), so total is a true distinct-loci count. Set count_only:true to get just the counts (total, distinct_loci, capped) with no results payload — use this to quantify a commonplace cheaply; fetch full results only when the count is small enough to characterize. `capped` is true when the scan hit the result cap (default 500): then `total` is a floor and `total_at_least` is returned — report it as \"N+\", not a precise count. search_type: 'lemma' (default) matches lines that share 2+ of the query's LEMMAS anywhere on the line — use this for words that co-occur but are NOT adjacent (e.g. 'Scythiam arces', 'lolium avenae'); 'exact' matches the query as an ADJACENT whole-word phrase (stopwords included literally, so 'ad Scythiam' matches only that contiguous phrase; a Latin enclitic on the final word is allowed, so 'arma virum' hits 'arma virumque') — for non-adjacent words use lemma; 'regex'.",
      "inputSchema": {"type": "object",
-                     "properties": {"query": _STR, "language": _STR, "search_type": _STR},
+                     "properties": {"query": _STR, "language": _STR, "search_type": _STR,
+                                    "count_only": {"type": "boolean"}},
                      "required": ["query", "language"]},
      "fn": _t_line_search},
     {"name": "string_search",

@@ -1598,6 +1598,33 @@ def add_text():
 # These routes enable searching for words/phrases across the entire corpus
 # using the pre-built inverted index for fast lookups.
 
+def _dedup_same_passage(results):
+    """Collapse the SAME passage duplicated across text_ids that vary only by
+    author/work naming — e.g. cyprian.ad_demetrianum vs cyprian_saint.ad_demetrianum
+    (both locus 23), or arnobius.adversus_nationes vs
+    arnobius_of_sicca.adversus_nationes_libri_vii (both 2.59). The whole/part
+    text_id dedup misses these because the ids differ.
+
+    Key on (locus, normalized line text): two rows sharing BOTH the exact locus
+    label and the exact line are the same passage under a variant spelling.
+    Conservative by construction — a repeated refrain has one text but different
+    loci (kept), and edition spelling variants differ in text (kept), so this only
+    removes genuine duplicate-text inflation, never distinct loci. Rows with empty
+    text are always kept (can't confirm they are duplicates). Order preserved.
+    """
+    seen = set()
+    out = []
+    for r in results:
+        nt = ' '.join((r.get('text') or '').lower().split())
+        key = (r.get('locus'), nt)
+        if nt and key in seen:
+            continue
+        if nt:
+            seen.add(key)
+        out.append(r)
+    return out
+
+
 @api_route('/line-search', methods=['GET', 'POST'])
 def line_search():
     """
@@ -1627,6 +1654,14 @@ def line_search():
             max_results = 500
         if max_results <= 0:
             max_results = 500
+
+        # count_only: return just the deduped corpus counts (total / distinct_loci
+        # / capped) and skip the results payload. Quantifying a "commonplace" for
+        # the per-entry corpus-context rule then costs a tiny response instead of
+        # hundreds of passages. Accept truthy strings on GET.
+        count_only = data.get('count_only', False)
+        if isinstance(count_only, str):
+            count_only = count_only.strip().lower() in ('1', 'true', 'yes', 'on')
 
         # Source exclusion - don't include the source line in results
         exclude_text_id = data.get('exclude_text_id', '')
@@ -1966,6 +2001,13 @@ def line_search():
             ))
             
             search_time = round(time_module.time() - search_start_time, 3)
+
+            # Whether the corpus scan hit the result cap. When it did, `total`
+            # is a floor, not an exact count — callers should report "N+" rather
+            # than a false precise number. (The build loop breaks as soon as
+            # len(results) reaches max_results.)
+            capped = len(results) >= max_results
+
             # Collapse the corpus's whole-work vs .part.N duplication: e.g.
             # vergil.eclogues.tess and vergil.eclogues.part.1.tess both report
             # Eclogues 1.43, so an undeduped list double-counts the same line and
@@ -1991,14 +2033,25 @@ def line_search():
                     if '.part.' in (_deduped[idx].get('text_id') or '') and '.part.' not in (r.get('text_id') or ''):
                         _deduped[idx] = r
             results = _deduped
+
+            # Second pass: collapse the SAME passage duplicated across text_ids
+            # that vary only by author/work naming (see _dedup_same_passage).
+            results = _dedup_same_passage(results)
+
             distinct_loci = len(results)
-            return jsonify({
-                'results': results,
-                'total': len(results),
+            payload = {
+                'total': distinct_loci,
                 'distinct_loci': distinct_loci,
                 'query': query,
-                'search_time': search_time
-            })
+                'search_time': search_time,
+                'capped': capped,
+            }
+            if capped:
+                # `total`/`distinct_loci` are a lower bound under the cap.
+                payload['total_at_least'] = distinct_loci
+            if not count_only:
+                payload['results'] = results
+            return jsonify(payload)
         
         elif line_text or data.get('source_text_id'):
             pass
