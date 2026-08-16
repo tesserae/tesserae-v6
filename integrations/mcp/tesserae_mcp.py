@@ -28,6 +28,15 @@ Guidance for the model using these tools:
       reproducible) clearly separate from your own interpretation; attribute
       detections to Tesserae and present analysis as AI-assisted inference the
       scholar should verify.
+    - Presentation: merge results into ONE list ranked by interest (not grouped
+      by which tool found them); quote the COMPLETE line of BOTH passages with
+      their loci and mark the shared words in bold on both sides; give each entry
+      its corpus context in plain words via line_search(count_only=True) on its
+      shared words (small counts get a who-else-uses-it line, larger ones are
+      "commonplace", an unretrievable one is "unquantified", a capped one is "at
+      least N"); never describe results you have not fetched; close with an offer
+      to page deeper. Write for a reader, keeping technical terms for when the
+      user asks how a figure was produced.
     - fusion_search can take several minutes on large texts; run it once.
 """
 import os
@@ -101,25 +110,42 @@ def list_texts(language: str, contains: str = "", limit: int = 60) -> list:
 
 
 @mcp.tool()
-def line_search(query: str, language: str = "la", search_type: str = "lemma") -> dict:
-    """Find lines ANYWHERE in the corpus that share words with a phrase. This is
-    the corpus-wide UNIQUENESS check: run a candidate parallel's shared words
-    here — few results means the wording is distinctive (stronger allusion).
+def line_search(query: str, language: str = "la", search_type: str = "lemma",
+                count_only: bool = False) -> dict:
+    """Find lines ANYWHERE in the corpus that share words with a phrase. The
+    corpus-wide UNIQUENESS check: run a candidate parallel's shared words here —
+    few results means the wording is distinctive (a stronger allusion claim).
+
+    Report distinct_loci (not total). If the result is capped, say "at least N".
+    When the user records a count for use elsewhere, quote corpus_version with it.
 
     Args:
         query: a phrase or line (e.g. "arma virumque").
         language: la | grc | en | cop.
         search_type: lemma (dictionary form, default) | exact | regex.
+        count_only: return just the counts (fast, no passages) — quantify a
+            commonplace cheaply. A SINGLE-word query then reports how many WORKS
+            contain the word (single_word/unit:'works'), not co-occurring loci;
+            an all-stopword query returns unquantified.
     """
-    d = _post("/line-search", {"query": query, "language": language, "search_type": search_type})
-    results = [{
-        "locus": r.get("locus"),
-        "author": r.get("author"),
-        "work": r.get("work"),
-        "text": r.get("text"),
-        "matched_words": r.get("matched_words"),
-    } for r in (d.get("results") or [])[:40]]
-    return {"query": query, "total": d.get("total"), "results": results}
+    d = _post("/line-search", {"query": query, "language": language,
+                               "search_type": search_type, "count_only": count_only})
+    out = {"query": query, "total": d.get("total"),
+           "distinct_loci": d.get("distinct_loci"),
+           "capped": d.get("capped"), "corpus_version": d.get("corpus_version")}
+    for k in ("total_at_least", "filtered_common_words", "single_word", "unit",
+              "corpus_document_frequency", "unquantified"):
+        if d.get(k) is not None:
+            out[k] = d.get(k)
+    if not count_only:
+        out["results"] = [{
+            "locus": r.get("locus"),
+            "author": r.get("author"),
+            "work": r.get("work"),
+            "text": r.get("text"),
+            "matched_words": r.get("matched_words"),
+        } for r in (d.get("results") or [])[:40]]
+    return out
 
 
 @mcp.tool()
@@ -168,7 +194,9 @@ def rare_words(source: str, target: str, language: str = "la") -> dict:
 
 
 @mcp.tool()
-def fusion_search(source: str, target: str, language: str = "la", top: int = 20) -> dict:
+def fusion_search(source: str, target: str, language: str = "la", top: int = 20,
+                  source_ref_prefix: str = "", target_ref_prefix: str = "",
+                  min_score: float = 0.0, offset: int = 0) -> dict:
     """Full weighted FUSION comparison of two texts — the flagship search. Ranks
     the passages most likely to be genuine parallels, fusing ten similarity
     channels (shared words, sound, meaning, syntax, rare vocabulary, ...).
@@ -176,8 +204,19 @@ def fusion_search(source: str, target: str, language: str = "la", top: int = 20)
     NOTE: this streams and can take SEVERAL MINUTES on large texts; results are
     cached afterwards, so run it once. Use text ids from list_texts.
 
-    Returns the top `top` parallels, each with source/target loci + text, the
-    fused score, and which channels fired.
+    Args:
+        source, target: text ids from list_texts.
+        language: la | grc | en | cop.
+        top: max parallels to return.
+        source_ref_prefix: keep only parallels whose SOURCE ref starts with this
+            (e.g. "1." for book 1) — for a question about one book or poem.
+        target_ref_prefix: same, for the TARGET ref.
+        min_score: drop parallels below this fused score.
+        offset: page into the ranked set (0, 20, ...) — genuine parallels also
+            appear below the top, so offer to page deeper.
+
+    Returns the parallels (source/target loci + text, fused score, channels), plus
+    `total` (before filters) and `filtered_total` (after ref/score filters).
     """
     url = f"{API_BASE}/search-fusion"
     body = {"source": source, "target": target, "language": language}
@@ -193,7 +232,19 @@ def fusion_search(source: str, target: str, language: str = "la", top: int = 20)
                 continue
             if isinstance(evt, dict) and isinstance(evt.get("results"), list):
                 latest = evt["results"]
-    latest = sorted(latest, key=lambda x: x.get("fused_score", 0), reverse=True)[:top]
+    latest = sorted(latest, key=lambda x: x.get("fused_score", 0), reverse=True)
+    total = len(latest)
+
+    def _ref(x, side):
+        return str((x.get(side) or {}).get("ref") or "")
+    if source_ref_prefix:
+        latest = [x for x in latest if _ref(x, "source").startswith(source_ref_prefix)]
+    if target_ref_prefix:
+        latest = [x for x in latest if _ref(x, "target").startswith(target_ref_prefix)]
+    if min_score:
+        latest = [x for x in latest if x.get("fused_score", 0) >= min_score]
+    filtered_total = len(latest)
+    latest = latest[offset:offset + top]
     parallels = [{
         "score": round(x.get("fused_score", 0), 2),
         "channels": x.get("channels"),
@@ -201,7 +252,8 @@ def fusion_search(source: str, target: str, language: str = "la", top: int = 20)
         "target": {"ref": x.get("target", {}).get("ref"), "text": x.get("target", {}).get("text")},
         "matched": x.get("matched_lemmas") or x.get("matched_words"),
     } for x in latest]
-    return {"source": source, "target": target, "count": len(parallels), "parallels": parallels}
+    return {"source": source, "target": target, "count": len(parallels),
+            "total": total, "filtered_total": filtered_total, "parallels": parallels}
 
 
 @mcp.tool()
