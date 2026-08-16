@@ -37,6 +37,7 @@ from backend.frequency_cache import load_frequency_cache
 from backend.inverted_index import get_connection
 from backend.text_processor import get_latin_lemma_table, get_greek_lemma_table
 from backend.utils import resolve_text_path
+from backend.lemma_cache import load_units_cached
 from backend.services import log_search, get_user_location
 from backend.blueprints.async_poll import SearchInputError
 
@@ -1194,7 +1195,7 @@ def get_text_lemmas(text_id, language):
         return set()
     
     try:
-        units = _text_processor.process_file(text_path, language)
+        units = load_units_cached(text_path, language, _text_processor)
         all_lemmas = set()
         for unit in units:
             all_lemmas.update(unit.get('lemmas', []))
@@ -1909,7 +1910,7 @@ def _scan_text_lemma_locations(text_id, language, lemmas_of_interest):
     if not path:
         return {}
     try:
-        units = _text_processor.process_file(path, language)
+        units = load_units_cached(path, language, _text_processor)
     except Exception as e:
         logger.error(f"Error scanning {text_id} for lemma locations: {e}")
         return {}
@@ -2164,8 +2165,8 @@ def _compute_rare_bigrams(source_id, target_id, language, min_rarity, limit, sto
     except FileNotFoundError:
         raise SearchInputError(f'Target text not found: {target_id}', 404)
 
-    source_units = _text_processor.process_file(source_path, language, unit_type='line')
-    target_units = _text_processor.process_file(target_path, language, unit_type='line')
+    source_units = load_units_cached(source_path, language, _text_processor, unit_type='line')
+    target_units = load_units_cached(target_path, language, _text_processor, unit_type='line')
 
     source_bigram_locations = _extract_bigram_locations(source_units, make_bigram_key, language)
     target_bigram_locations = _extract_bigram_locations(target_units, make_bigram_key, language)
