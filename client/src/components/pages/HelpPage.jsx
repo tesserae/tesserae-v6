@@ -1409,9 +1409,10 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               <p className="text-gray-700 mb-4">
                 You can let an AI assistant (ChatGPT or Claude) run Tesserae searches for you — comparing texts, testing
                 parallels for uniqueness across the corpus, and helping you interpret the results. Tesserae does the
-                searching, free, on its open API; the assistant orchestrates and interprets. The simplest, no-setup route
-                is the <strong>official Tesserae GPT in ChatGPT</strong> (see ChatGPT below). You can also paste a guide
-                into any assistant, build your own GPT, or add the one-URL Claude connector.
+                searching, free, on its open API; the assistant orchestrates and interprets. The simplest, no-setup routes
+                are the one-URL <strong>Claude connector</strong> and the <strong>paste-in guide</strong>, which works in
+                ChatGPT, Gemini, or any assistant. (Building a shareable custom GPT now needs a ChatGPT Business, Team,
+                Enterprise, or Edu workspace — see ChatGPT below.)
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">1 · Claude connector <span className="text-sm font-normal text-gray-500">— one URL, full fusion search built in</span></h4>
@@ -1452,31 +1453,39 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </a>
               </p>
 
-              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">3 · ChatGPT <span className="text-sm font-normal text-gray-500">— the official Tesserae GPT</span></h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">3 · ChatGPT <span className="text-sm font-normal text-gray-500">— paste the guide</span></h4>
 
-              <p className="text-gray-700 text-sm mb-2 font-medium">Use the official Tesserae GPT — no setup.</p>
               {OFFICIAL_GPT_URL ? (
-                <p className="mb-3">
-                  <a href={OFFICIAL_GPT_URL} target="_blank" rel="noopener noreferrer"
-                    className="inline-block bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-4 py-2 rounded no-underline">
-                    Use Tesserae in ChatGPT →
-                  </a>
-                </p>
+                <>
+                  <p className="text-gray-700 text-sm mb-2 font-medium">Use the official Tesserae GPT — no setup.</p>
+                  <p className="mb-3">
+                    <a href={OFFICIAL_GPT_URL} target="_blank" rel="noopener noreferrer"
+                      className="inline-block bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-medium px-4 py-2 rounded no-underline">
+                      Use Tesserae in ChatGPT →
+                    </a>
+                  </p>
+                  <p className="text-gray-700 text-sm mb-4">
+                    Open it and just ask it to find, compare, or investigate parallels — it calls the Tesserae API for you.
+                    If it asks permission to contact <code>tesserae.caset.buffalo.edu</code>, choose <em>Allow</em>.
+                  </p>
+                </>
               ) : (
-                <div className="border border-amber-300 bg-amber-50 rounded p-3 text-sm text-amber-900 mb-3">
-                  <strong>Coming soon.</strong> The official Tesserae GPT link will appear here shortly. In the meantime,
-                  you can build your own below, or use the paste-in guide above.
-                </div>
+                <>
+                  <p className="text-gray-700 text-sm mb-2 font-medium">Use the paste-in guide — it works in ChatGPT with no setup.</p>
+                  <p className="text-gray-700 text-sm mb-2">
+                    Open the <strong>paste-in guide above (option 2)</strong>, copy it, and paste it into a new ChatGPT chat
+                    as your first message. ChatGPT then runs Tesserae's searches over the open API and follows the guide's
+                    workflow — comparing texts, testing parallels for corpus-wide rarity, and quoting both passages with
+                    their loci. This works on any ChatGPT plan.
+                  </p>
+                  <div className="border border-gray-200 bg-gray-50 rounded p-3 text-sm text-gray-600 mb-4">
+                    <strong>Why not a one-click GPT?</strong> OpenAI now limits creating and publicly sharing custom GPTs to
+                    ChatGPT Business, Team, Enterprise, and Edu workspaces, so there is no public one-click Tesserae GPT on a
+                    personal account. The paste-in guide gives ChatGPT the same abilities without one. (If you have such a
+                    workspace, you can build your own — see below.)
+                  </div>
+                </>
               )}
-              <p className="text-gray-700 text-sm mb-1">Open it and ask it to find, compare, or investigate intertextual parallels using Tesserae. It works like an ordinary ChatGPT conversation:</p>
-              <ul className="list-disc list-inside text-gray-700 text-sm space-y-1 mb-2">
-                <li>You chat with it normally; it calls the Tesserae API for you when a search is needed.</li>
-                <li>The first time it runs a search, ChatGPT may ask permission to contact <code>tesserae.caset.buffalo.edu</code> — that's the normal Custom GPT permission prompt; choose <em>Allow</em> (or <em>Always allow</em>).</li>
-                <li>You don't configure any schemas or Actions — that's already built into the official GPT.</li>
-              </ul>
-              <p className="text-gray-500 text-xs mb-4">
-                Using a GPT works on the ChatGPT web and app clients. (<em>Creating or editing</em> a GPT is web-browser-only — see below.)
-              </p>
 
               <div className="border border-gray-200 bg-gray-50 rounded p-3 text-sm text-gray-700 mb-4">
                 <strong>A note on the full fusion search.</strong> Tesserae's most comprehensive comparison (“full fusion”)
@@ -1490,8 +1499,10 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 <summary className="cursor-pointer text-gray-800 font-medium">Advanced: build your own Tesserae GPT</summary>
                 <div className="mt-2 pl-1 space-y-2">
                   <p className="text-gray-600">
-                    Optional — for researchers who want their own copy or custom instructions, developers, or institutions
-                    that want their own configuration. Most scholars can just use the official GPT above.
+                    Optional, and note OpenAI now allows creating a custom GPT only in a ChatGPT <strong>Business, Team,
+                    Enterprise, or Edu workspace</strong> (not on a personal Free/Plus/Pro account). If you have one, you can
+                    build your own copy with custom instructions and share it within your workspace. Most users can just
+                    paste the guide above instead.
                   </p>
                   <p>
                     <strong>Building or editing a GPT must be done in ChatGPT in a web browser</strong> at <code>chatgpt.com</code>
