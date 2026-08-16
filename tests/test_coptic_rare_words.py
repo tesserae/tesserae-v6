@@ -98,7 +98,7 @@ class TestScanTextLemmaLocations:
         monkeypatch.setattr(hx, 'resolve_text_path', lambda *a, **k: '/texts/x.tess')
 
         class FakeTP:
-            def process_file(self, path, language):
+            def process_file(self, path, language, unit_type='line'):
                 return [
                     {'ref': 'sahidic.genesis.1.1', 'text': 'ⲁ ⲃ ⲅ',
                      'lemmas': ['ⲣⲱⲙⲉ', 'ⲛⲟⲩⲧⲉ', 'ⲣⲱⲙⲉ']},
