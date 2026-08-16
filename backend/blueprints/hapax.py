@@ -1087,6 +1087,31 @@ def get_document_frequency(lemma, language):
         return 0
 
 
+_lemma_doc_freq_available = {}  # language -> bool (does the index have the precomputed table?)
+
+
+def _has_lemma_doc_freq(conn, language):
+    """Return True when the index DB has the precomputed lemma_doc_freq table.
+
+    Memoized per language. The table maps each stored lemma form to the number
+    of distinct base works containing it (parts collapsed to their whole work,
+    matching _base_filename_expr). When present it replaces the per-lemma
+    COUNT(DISTINCT ...) scan over the full postings table — an indexed seek
+    instead of a 17M-row aggregation.
+    """
+    if language in _lemma_doc_freq_available:
+        return _lemma_doc_freq_available[language]
+    try:
+        row = conn.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='lemma_doc_freq'"
+        ).fetchone()
+        available = row is not None
+    except Exception:
+        available = False
+    _lemma_doc_freq_available[language] = available
+    return available
+
+
 def get_document_frequencies_batch(lemmas, language):
     """Get document frequencies for a batch of lemmas efficiently.
     Returns dict mapping lemma -> number of texts containing it."""
@@ -1097,6 +1122,13 @@ def get_document_frequencies_batch(lemmas, language):
     try:
         cursor = conn.cursor()
         result = {}
+
+        # Fast path: read from the precomputed per-lemma document-frequency
+        # table when the index has it. Falls back to the live COUNT(DISTINCT)
+        # aggregation for indexes built before the table existed (grc/en/cop
+        # until rebuilt), so results are identical either way.
+        use_precomputed = _has_lemma_doc_freq(conn, language)
+        base_expr = _base_filename_expr('t')
 
         # Process in batches to avoid huge SQL queries
         lemma_list = list(lemmas)
@@ -1116,15 +1148,22 @@ def get_document_frequencies_batch(lemmas, language):
 
             all_variants = list(expanded_map.keys())
             placeholders = ','.join(['?' for _ in all_variants])
-            base_expr = _base_filename_expr('t')
-            cursor.execute(
-                f'SELECT p.lemma, COUNT(DISTINCT {base_expr}) '  # nosec B608
-                f'FROM postings p JOIN texts t ON p.text_id = t.text_id '
-                f'WHERE p.lemma IN ({placeholders}) GROUP BY p.lemma',
-                all_variants
-            )
+            if use_precomputed:
+                cursor.execute(
+                    f'SELECT lemma, df FROM lemma_doc_freq '  # nosec B608
+                    f'WHERE lemma IN ({placeholders})',
+                    all_variants
+                )
+            else:
+                cursor.execute(
+                    f'SELECT p.lemma, COUNT(DISTINCT {base_expr}) '  # nosec B608
+                    f'FROM postings p JOIN texts t ON p.text_id = t.text_id '
+                    f'WHERE p.lemma IN ({placeholders}) GROUP BY p.lemma',
+                    all_variants
+                )
 
-            # Aggregate counts back to original lemma
+            # Aggregate counts back to original lemma (sums u/v variant forms,
+            # matching the pre-existing behavior for both paths)
             for row_lemma, count in cursor.fetchall():
                 original = expanded_map.get(row_lemma, row_lemma)
                 result[original] = result.get(original, 0) + count
