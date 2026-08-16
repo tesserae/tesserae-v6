@@ -1816,6 +1816,156 @@
       "year": 130,
       "note": "fl. reign of Hadrian, c. 117-138 CE",
       "era": "Early Imperial"
+    },
+    "andocides": {
+      "year": -390,
+      "note": "c. 440-390 BCE",
+      "era": "Classical"
+    },
+    "antiphon": {
+      "year": -411,
+      "note": "c. 480-411 BCE (executed 411)",
+      "era": "Classical"
+    },
+    "appian": {
+      "year": 165,
+      "note": "c. 95-165 CE",
+      "era": "Early Imperial"
+    },
+    "aretaeus": {
+      "year": 150,
+      "note": "fl. c. 150 CE (2nd c.)",
+      "era": "Early Imperial"
+    },
+    "arrian": {
+      "year": 160,
+      "note": "c. 86-160 CE",
+      "era": "Early Imperial"
+    },
+    "barnabas": {
+      "year": 100,
+      "note": "Epistle of Barnabas, c. 70-132 CE",
+      "era": "Early Imperial"
+    },
+    "basil_of_caesarea": {
+      "year": 379,
+      "note": "d. 379 CE (c. 330-379)",
+      "era": "Late Antique"
+    },
+    "bion_of_phlossa": {
+      "year": -100,
+      "note": "fl. c. 100 BCE (Bion of Smyrna)",
+      "era": "Hellenistic"
+    },
+    "callistratus": {
+      "year": 350,
+      "note": "fl. 3rd-4th c. CE",
+      "era": "Late Antique"
+    },
+    "chariton": {
+      "year": 100,
+      "note": "fl. c. 1st c. CE (mid-1st-early 2nd)",
+      "era": "Early Imperial"
+    },
+    "clement": {
+      "year": 215,
+      "note": "d. c. 215 CE (c. 150-215), Clement of Alexandria",
+      "era": "Early Imperial"
+    },
+    "demetrius": {
+      "year": -50,
+      "note": "On Style; date disputed, prob. late Hellenistic/early Imperial",
+      "era": "Hellenistic"
+    },
+    "dionysius_halicarnassensis": {
+      "year": -7,
+      "note": "d. after 7 BCE; fl. late 1st c. BCE",
+      "era": "Hellenistic"
+    },
+    "eusebius_caesarea": {
+      "year": 339,
+      "note": "d. 339 CE (c. 260-339)",
+      "era": "Late Antique"
+    },
+    "flavius_josephus": {
+      "year": 100,
+      "note": "c. 37-100 CE",
+      "era": "Early Imperial"
+    },
+    "gregory_of_nazianzus": {
+      "year": 390,
+      "note": "d. 390 CE (c. 329-390)",
+      "era": "Late Antique"
+    },
+    "hyperides": {
+      "year": -322,
+      "note": "390-322 BCE (d. 322)",
+      "era": "Classical"
+    },
+    "isaeus": {
+      "year": -340,
+      "note": "c. 420-340 BCE",
+      "era": "Classical"
+    },
+    "libanius": {
+      "year": 393,
+      "note": "c. 314-393 CE",
+      "era": "Late Antique"
+    },
+    "lycophron": {
+      "year": -280,
+      "note": "fl. early 3rd c. BCE",
+      "era": "Hellenistic"
+    },
+    "lysias": {
+      "year": -380,
+      "note": "c. 445-380 BCE",
+      "era": "Classical"
+    },
+    "marcus_aurelius": {
+      "year": 180,
+      "note": "d. 180 CE (r. 161-180)",
+      "era": "Early Imperial"
+    },
+    "nonnus_of_panopolis": {
+      "year": 450,
+      "note": "fl. mid-5th c. CE",
+      "era": "Late Antique"
+    },
+    "oppian_of_apamea": {
+      "year": 215,
+      "note": "fl. c. 212-217 CE (Cynegetica; Pseudo-Oppian)",
+      "era": "Later Imperial"
+    },
+    "philostratus_the_athenian": {
+      "year": 250,
+      "note": "c. 170-250 CE (Flavius Philostratus)",
+      "era": "Later Imperial"
+    },
+    "philostratus_the_lemnian": {
+      "year": 230,
+      "note": "c. 190-230 CE (Philostratus of Lemnos)",
+      "era": "Later Imperial"
+    },
+    "phlegon": {
+      "year": 140,
+      "note": "fl. c. 100-140 CE (freedman of Hadrian)",
+      "era": "Early Imperial"
+    },
+    "plutarch_pseudo": {
+      "year": 120,
+      "note": "Pseudo-Plutarch; Plutarch's era, c. 1st-2nd c. CE",
+      "era": "Early Imperial"
+    },
+    "quintus_smyrnaeus": {
+      "year": 300,
+      "note": "fl. 3rd c. CE (disputed; late 2nd-4th)",
+      "era": "Later Imperial"
+    },
+    "tryphiodorus": {
+      "year": 300,
+      "note": "fl. 3rd-early 4th c. CE",
+      "era": "Later Imperial"
     }
   },
   "en": {
