@@ -1632,7 +1632,7 @@ def line_search():
     Uses inverted index for fast lookups when available.
     """
     try:
-        from backend.inverted_index import is_index_available, find_co_occurring_lemmas, has_lines_data, get_lines_batch
+        from backend.inverted_index import is_index_available, find_co_occurring_lemmas, has_lines_data, get_lines_batch, get_corpus_version
         from backend.distance_filter import passes_distance_filter, is_prose_text as is_prose_text_unified
         
         # Accept both POST JSON bodies and GET query-string params, so any
@@ -1718,15 +1718,25 @@ def line_search():
             content_lemmas = query_lemmas - stopwords
             filtered_query_lemmas = content_lemmas
             if len(filtered_query_lemmas) < 2:
-                filtered_query_lemmas = query_lemmas  # fallback if too few remain
+                # Restore the common words so the co-occurrence search can still
+                # run — a two-word query whose second word is too common to index
+                # on its own is still a PAIR query, not a single-word one.
+                filtered_query_lemmas = query_lemmas
 
-            # Single-word count_only: line-search finds lines where 2+ words
-            # CO-OCCUR, so a one-content-word query would silently return 0 —
-            # which reads as "vanishingly rare" when it just means "not enough
-            # words to co-occur." Answer the real question instead: how common
-            # the word is across the corpus, via its document frequency (number
-            # of works containing it), from the fast precomputed table.
-            if count_only and len(content_lemmas) < 2:
+            # Words dropped as too-common, named in the response so a reduced
+            # multi-word query is not silently answered as a different question.
+            filtered_common_words = sorted(query_lemmas - content_lemmas)
+            n_query_words = len([w for w in query.split() if w.strip()])
+
+            # Single-word count_only: route here ONLY when the query LITERALLY has
+            # one word. A multi-word query that common-word filtering reduces to a
+            # single content word is still a co-occurrence (pair) query and must
+            # run the pair search with the common word restored — reclassifying it
+            # as single-word silently turned countable pairings like "bis nostra"
+            # (22 places) into a work-count for "bis" (368 works). A one-word query
+            # can't co-occur with anything, so answer how common the word is across
+            # the corpus (document frequency) instead of a silent zero.
+            if count_only and n_query_words <= 1:
                 from backend.blueprints.hapax import get_document_frequencies_batch
                 if content_lemmas:
                     dfs = get_document_frequencies_batch(content_lemmas, language)
@@ -1737,11 +1747,13 @@ def line_search():
                         'unit': 'works',
                         'corpus_document_frequency': df,
                         'total': df,
+                        'corpus_version': get_corpus_version(language),
                         'note': ('single-word query: count is the number of works that contain '
                                  'this word, not co-occurring word pairs'),
                     })
                 return jsonify({
                     'query': query, 'single_word': True, 'total': None, 'unquantified': True,
+                    'corpus_version': get_corpus_version(language),
                     'note': 'query has no content words to count (all stopwords)',
                 })
 
@@ -2071,10 +2083,16 @@ def line_search():
                 'query': query,
                 'search_time': search_time,
                 'capped': capped,
+                'corpus_version': get_corpus_version(language),
             }
             if capped:
                 # `total`/`distinct_loci` are a lower bound under the cap.
                 payload['total_at_least'] = distinct_loci
+            if filtered_common_words:
+                # A common word in the query was too frequent to index on its own;
+                # it WAS still used for co-occurrence. Naming it lets the caller say
+                # the pairing leans on the other word rather than mis-report rarity.
+                payload['filtered_common_words'] = filtered_common_words
             if not count_only:
                 payload['results'] = results
             return jsonify(payload)

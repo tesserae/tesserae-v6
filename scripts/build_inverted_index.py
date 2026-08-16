@@ -408,6 +408,17 @@ def build_index(language, text_processor, verbose=True, resume=True, force=False
     # _base_filename_expr.
     build_lemma_doc_freq(conn, verbose=verbose)
 
+    # Stamp the corpus version (build date) so counts drawn from this index can be
+    # cited against a named corpus state. Bump this on any later dedup/lemma change.
+    from datetime import date
+    version = date.today().isoformat()
+    conn.execute("CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT)")
+    conn.execute("INSERT INTO meta (key, value) VALUES ('corpus_version', ?) "
+                 "ON CONFLICT(key) DO UPDATE SET value=excluded.value", (version,))
+    conn.commit()
+    if verbose:
+        print(f"  corpus_version stamped: {version}", flush=True)
+
     cursor.execute('SELECT COUNT(DISTINCT lemma) FROM postings')
     unique_lemmas = cursor.fetchone()[0]
 

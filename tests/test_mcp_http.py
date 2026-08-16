@@ -93,3 +93,24 @@ def test_line_search_capped_reports_floor(monkeypatch):
     assert out['capped'] is True
     assert out['total_at_least'] == 467
     assert 'results' not in out
+
+
+def test_line_search_multiword_common_word_reported(monkeypatch):
+    """A two-word query reduced by common-word filtering returns the PAIR count
+    plus filtered_common_words (not a single-word work count)."""
+    monkeypatch.setattr(M, '_post', lambda path, body: {
+        'query': 'bis nostra', 'total': 22, 'distinct_loci': 22, 'capped': False,
+        'filtered_common_words': ['noster'], 'corpus_version': '2026-08-16'})
+    out = M._t_line_search({'query': 'bis nostra', 'language': 'la', 'count_only': True})
+    assert out['total'] == 22
+    assert out.get('single_word') is None
+    assert out['filtered_common_words'] == ['noster']
+    assert out['corpus_version'] == '2026-08-16'
+
+
+def test_line_search_carries_corpus_version(monkeypatch):
+    monkeypatch.setattr(M, '_post', lambda path, body: {
+        'query': 'montibus umbrae', 'total': 8, 'distinct_loci': 8, 'capped': False,
+        'corpus_version': '2026-08-16'})
+    out = M._t_line_search({'query': 'montibus umbrae', 'language': 'la', 'count_only': True})
+    assert out['corpus_version'] == '2026-08-16'
