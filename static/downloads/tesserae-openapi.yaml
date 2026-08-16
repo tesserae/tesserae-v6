@@ -175,6 +175,10 @@ paths:
                   type: integer
                   default: 500
                   description: "Cap the number of returned lines (keep this modest, e.g. 40, to stay context-window friendly)."
+                count_only:
+                  type: boolean
+                  default: false
+                  description: "Return only counts (total, distinct_loci, capped, corpus_version), no results array — quantify a commonplace cheaply. A single-word query returns single_word:true with total = number of works containing the word (unit:'works'), not co-occurring loci; an all-stopword query returns unquantified:true."
       responses:
         "200":
           description: Matching corpus lines
@@ -186,6 +190,14 @@ paths:
                   query: { type: string }
                   total: { type: integer, description: "Total matching lines (whole works AND their parts count separately)." }
                   distinct_loci: { type: integer, description: "Unique (author, work, locus) count — use THIS for a uniqueness check; it collapses the whole-work/part duplication." }
+                  capped: { type: boolean, description: "True if the scan hit the result cap; then total is a floor — report 'at least N', not exact." }
+                  total_at_least: { type: integer, description: "Present when capped: the floor value for total." }
+                  corpus_version: { type: string, description: "Corpus/index version stamp (a date). Quote it with any count the user records elsewhere, e.g. '8 places, corpus version 2026-08-16'." }
+                  filtered_common_words: { type: array, items: { type: string }, description: "Common word(s) in a multi-word query that were down-weighted; the co-occurrence count is still real — say the pairing leans on the other word." }
+                  single_word: { type: boolean, description: "True when the query was a single word; then total is a corpus document frequency (number of works containing it), not co-occurring loci." }
+                  unit: { type: string, description: "For single_word results: 'works'." }
+                  corpus_document_frequency: { type: integer, description: "For single_word results: number of works containing the word." }
+                  unquantified: { type: boolean, description: "True when a single-word query is all stopwords (no content word to count); total is null." }
                   search_time: { type: number }
                   results:
                     type: array
@@ -392,6 +404,26 @@ paths:
           in: query
           required: true
           schema: { type: string, enum: [la, grc, en, cop] }
+        - name: source_ref_prefix
+          in: query
+          schema: { type: string }
+          description: "Keep only parallels whose SOURCE ref starts with this (e.g. '1.' for book 1, or 'ecl. 1.'). A trailing dot pins a number so '1.' does not also match book 10."
+        - name: target_ref_prefix
+          in: query
+          schema: { type: string }
+          description: "Same filter, applied to the TARGET ref."
+        - name: min_score
+          in: query
+          schema: { type: number }
+          description: "Keep only parallels with fused_score >= this value."
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+          description: "Page into the FULL ranked set (0, 100, 200, ...). Genuine parallels appear deep in the ranking, not only at the top."
+        - name: limit
+          in: query
+          schema: { type: integer, default: 100 }
+          description: "Max parallels to return (cap 500)."
       responses:
         "200":
           description: Either a running status, or the completed ranked parallels.
@@ -408,7 +440,8 @@ paths:
                   signals_done: { type: integer, description: "Similarity signals computed so far THIS phase. NOTE: NOT a time-percentage — later signals (sound, semantic, edit-distance) are much slower, so this rises fast then slows." }
                   signals_total: { type: integer, description: "Total similarity signals in the current phase." }
                   candidates_so_far: { type: integer, description: "Candidate parallels found so far (running only)." }
-                  count: { type: integer }
+                  count: { type: integer, description: "Number of parallels returned (AFTER any ref/score filters)." }
+                  total: { type: integer, description: "Total parallels BEFORE ref/score filters (so a filtered view still reports the full size)." }
                   parallels:
                     type: array
                     description: "Pre-sorted best-first. Each item carries both the short poll names (score, matched) and the streaming-endpoint names (fused_score, matched_words, matched_lemmas, channel_count) so either shape works."
