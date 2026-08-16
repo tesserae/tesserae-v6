@@ -90,7 +90,8 @@ def _t_line_search(a):
                                'search_type': a.get('search_type', 'lemma'),
                                'count_only': count_only})
     out = {'query': a.get('query'), 'total': d.get('total'),
-           'distinct_loci': d.get('distinct_loci'), 'capped': d.get('capped')}
+           'distinct_loci': d.get('distinct_loci'), 'capped': d.get('capped'),
+           'corpus_version': d.get('corpus_version')}
     # Single-word query: `total` is a corpus document frequency (number of works
     # containing the word), NOT co-occurring loci. Surface that so it isn't read
     # as a loci count; a null total means all-stopword (unquantified).
@@ -100,6 +101,10 @@ def _t_line_search(a):
         if d.get('unquantified'):
             out['unquantified'] = True
         out['note'] = d.get('note')
+    # A common word in the query was too frequent to index alone but WAS used for
+    # co-occurrence: name it so the pairing isn't mis-reported (the count is real).
+    if d.get('filtered_common_words'):
+        out['filtered_common_words'] = d.get('filtered_common_words')
     # When the corpus scan hit the cap, `total` is a floor — report "N+".
     if d.get('capped'):
         out['total_at_least'] = d.get('total_at_least', d.get('total'))
@@ -346,6 +351,9 @@ def _t_compare_texts(a):
         "it. If line_search reports capped:true the count is a floor: render it as 'at least N places', "
         "never 'N+'. When a rare-phrase/rare-word rarity metric and the line_search corpus check "
         "disagree, TRUST the line_search check — it is the direct corpus evidence. "
+        "These corpus counts shift slightly as the corpus is cleaned, so when the user is recording a "
+        "number for use elsewhere (a paper, a note), quote the corpus_version stamp the response carries "
+        "alongside it ('8 places, corpus version 2026-08-16') so the figure names the state it came from. "
         "NEVER describe results you have not fetched. Do not claim the tail is 'all function words' or "
         "otherwise empty from a few visible entries or from memory of another run — genuine parallels "
         "keep appearing deep into the ranking, into the thousands. The ranking concentrates real "
@@ -421,7 +429,7 @@ TOOLS = [
                      "required": ["language"]},
      "fn": _t_list_texts},
     {"name": "line_search",
-     "description": "Find corpus lines sharing words with a phrase (corpus-wide). The uniqueness check: few results (total) means distinctive wording. Counts collapse whole-work vs per-book/poem duplicates of the same line, AND same-passage duplicates that differ only by author/work spelling (e.g. cyprian vs cyprian_saint), so total is a true distinct-loci count. Set count_only:true to get just the counts (total, distinct_loci, capped) with no results payload — use this to quantify a commonplace cheaply; fetch full results only when the count is small enough to characterize. `capped` is true when the scan hit the result cap (default 500): then `total` is a floor (`total_at_least`) — treat it as 'at least N', not exact. SINGLE-WORD queries: line-search needs 2+ words to CO-OCCUR, so a one-content-word count_only query does NOT return 0 — it returns `single_word:true` with `total` = the number of works that contain the word (a corpus document frequency, `unit:\"works\"`); an all-stopword query returns `unquantified:true` (total null). Report single-word counts as 'appears in N works', not as co-occurring places. search_type: 'lemma' (default) matches lines that share 2+ of the query's LEMMAS anywhere on the line — use this for words that co-occur but are NOT adjacent (e.g. 'Scythiam arces', 'lolium avenae'); 'exact' matches the query as an ADJACENT whole-word phrase (stopwords included literally, so 'ad Scythiam' matches only that contiguous phrase; a Latin enclitic on the final word is allowed, so 'arma virum' hits 'arma virumque') — for non-adjacent words use lemma; 'regex'.",
+     "description": "Find corpus lines sharing words with a phrase (corpus-wide). The uniqueness check: few results (total) means distinctive wording. Counts collapse whole-work vs per-book/poem duplicates of the same line, AND same-passage duplicates that differ only by author/work spelling (e.g. cyprian vs cyprian_saint), so total is a true distinct-loci count. Set count_only:true to get just the counts (total, distinct_loci, capped) with no results payload — use this to quantify a commonplace cheaply; fetch full results only when the count is small enough to characterize. `capped` is true when the scan hit the result cap (default 500): then `total` is a floor (`total_at_least`) — treat it as 'at least N', not exact. SINGLE-WORD queries: a query that LITERALLY has one word can't co-occur with anything, so count_only returns `single_word:true` with `total` = the number of works that contain the word (a corpus document frequency, `unit:\"works\"`) — report as 'appears in N works', not co-occurring places; an all-stopword single word returns `unquantified:true` (total null). A MULTI-word query is always a co-occurrence count even if one word is too common to index alone: it returns the normal pair count plus `filtered_common_words` naming the common word(s) that were down-weighted — the count is real; say the pairing leans on the other word. Every response carries `corpus_version` (a date stamp of the corpus state); when the user is recording a count for use elsewhere, quote it with the number (e.g. '8 places, corpus version 2026-08-16'). search_type: 'lemma' (default) matches lines that share 2+ of the query's LEMMAS anywhere on the line — use this for words that co-occur but are NOT adjacent (e.g. 'Scythiam arces', 'lolium avenae'); 'exact' matches the query as an ADJACENT whole-word phrase (stopwords included literally, so 'ad Scythiam' matches only that contiguous phrase; a Latin enclitic on the final word is allowed, so 'arma virum' hits 'arma virumque') — for non-adjacent words use lemma; 'regex'.",
      "inputSchema": {"type": "object",
                      "properties": {"query": _STR, "language": _STR, "search_type": _STR,
                                     "count_only": {"type": "boolean"}},

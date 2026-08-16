@@ -52,6 +52,39 @@ def is_index_available(language):
     db_path = os.path.join(INDEX_DIR, f'{language}_index.db')
     return os.path.exists(db_path)
 
+_corpus_version = {}
+
+def get_corpus_version(language):
+    """Return the corpus/index version stamp (a date string) for a language, or
+    None if the index has no `meta` table / corpus_version row.
+
+    The stamp names the exact corpus state a count came from, so a figure that
+    shifts as dedup/ingestion/lemmatization improve can still be cited. Bump the
+    `meta.corpus_version` value whenever the corpus changes. Memoized per process
+    (a re-swapped index is picked up on WSGI reload)."""
+    if language in _corpus_version:
+        return _corpus_version[language]
+    v = None
+    conn = get_connection(language)
+    if conn:
+        try:
+            row = conn.execute("SELECT value FROM meta WHERE key='corpus_version'").fetchone()
+            if row is not None:
+                v = row[0]
+        except Exception:
+            v = None
+    _corpus_version[language] = v
+    return v
+
+def set_corpus_version(conn, version):
+    """Stamp an index DB with a corpus_version (idempotent). Call whenever the
+    corpus changes — a full rebuild, a dedup pass, or a lemmatization change.
+    `conn` is an open sqlite3 connection to the index DB."""
+    conn.execute("CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT)")
+    conn.execute("INSERT INTO meta (key, value) VALUES ('corpus_version', ?) "
+                 "ON CONFLICT(key) DO UPDATE SET value=excluded.value", (version,))
+    conn.commit()
+
 def lookup_lemmas(lemmas, language, fallback_forms=None):
     """
     Look up multiple lemmas and return matching text locations.
