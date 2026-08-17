@@ -41,6 +41,14 @@ def _compare_url(source, target, language):
         return None
     return (f"{WEB_BASE}/?source={quote(str(source))}&target={quote(str(target))}"
             f"&lang={quote(language or 'la')}")
+
+def _chart_url(source, target, language):
+    # Server-rendered image of the comparison's distribution chart (the same
+    # picture the web page draws), for an agent to attach/embed with results.
+    if not (source and target):
+        return None
+    return (f"{API_BASE}/comparison-chart?source={quote(str(source))}"
+            f"&target={quote(str(target))}&language={quote(language or 'la')}")
 # Keep this minimal and spec-exact for the negotiated protocolVersion. Adding
 # non-standard Implementation fields (title/websiteUrl/icons from a later draft)
 # caused Claude's connector to reject the initialize response ("Tesserae returned
@@ -261,6 +269,8 @@ def _t_fusion_search(a):
         # Live, interactive view of this comparison (charts) in the web app.
         res.setdefault('web_url', _compare_url(a.get('source'), a.get('target'),
                                                a.get('language', 'la')))
+        res.setdefault('chart_url', _chart_url(a.get('source'), a.get('target'),
+                                               a.get('language', 'la')))
     return res
 
 
@@ -338,6 +348,7 @@ def _t_compare_texts(a):
         # Live, interactive view of this comparison (with the distribution +
         # corpus-recurrence charts) in the web app.
         'web_url': _compare_url(a.get('source'), a.get('target'), a.get('language', 'la')),
+        'chart_url': _chart_url(a.get('source'), a.get('target'), a.get('language', 'la')),
     }
     common = (
         "PRESENTATION (default; an explicit user request for a by-search view, the full list, or a "
@@ -405,6 +416,11 @@ def _t_compare_texts(a):
         "SURFACE THE LINK: when the response carries a web_url, include it with the results in plain "
         "words -- 'open this comparison in Tesserae's own interface' -- in the close and in any artifact "
         "footer; without it the link is invisible to the reader. "
+        "OFFICIAL CHART: when the response carries a chart_url, attach or embed it with the results -- it "
+        "is the same distribution chart the site draws, rendered server-side as an image, so every user "
+        "sees the identical Tesserae chart regardless of medium. Prefer it over improvising a chart from "
+        "the raw numbers. The CONNECTION MAP below stays optional enrichment on top of it, for rich "
+        "surfaces that benefit from the in-conversation hover layer. "
         "CONNECTION MAP: when the medium can display one (an HTML artifact, a notebook), OFFER or produce "
         "a connection map of the comparison -- one compare_texts response already carries everything it "
         "needs (both sides' line positions, strengths, which search found each, and the full line texts "

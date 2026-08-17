@@ -41,6 +41,10 @@ Guidance for the model using these tools:
     - When a response carries web_url, show it with the results in plain words
       ("open this comparison in Tesserae's own interface"), in the close and in
       any artifact footer, or the link stays invisible to the reader.
+    - When a response carries chart_url, attach or embed it with the results: it
+      is the same distribution chart the site draws, rendered server-side as an
+      image, so every user sees the identical Tesserae chart. Prefer it over
+      improvising a chart from the raw numbers.
     - When the medium can display one, OFFER a connection map of a comparison (a
       compare_texts/fusion_search response already carries line positions, match
       strengths, which search found each, and the full line texts): the two texts
@@ -83,6 +87,14 @@ def _compare_url(source, target, language):
         return None
     return (f"{WEB_BASE}/?source={quote(str(source))}&target={quote(str(target))}"
             f"&lang={quote(language or 'la')}")
+
+
+def _chart_url(source, target, language):
+    # Server-rendered image of the comparison's distribution chart.
+    if not (source and target):
+        return None
+    return (f"{API_BASE}/comparison-chart?source={quote(str(source))}"
+            f"&target={quote(str(target))}&language={quote(language or 'la')}")
 
 _TIMEOUT = 60
 _FUSION_TIMEOUT = 600
@@ -295,7 +307,9 @@ def fusion_search(source: str, target: str, language: str = "la", top: int = 20,
     return {"source": source, "target": target, "count": len(parallels),
             "total": total, "filtered_total": filtered_total, "parallels": parallels,
             # Live, interactive view of this comparison (with its charts) in the web app.
-            "web_url": _compare_url(source, target, language)}
+            "web_url": _compare_url(source, target, language),
+            # Server-rendered distribution chart image (attach/embed with results).
+            "chart_url": _chart_url(source, target, language)}
 
 
 @mcp.tool()

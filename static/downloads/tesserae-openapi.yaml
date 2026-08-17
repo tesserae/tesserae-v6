@@ -458,6 +458,44 @@ paths:
                         matched_words: { type: array, items: { type: string } }
                         matched_lemmas: { type: array, items: { type: string } }
 
+  /comparison-chart:
+    get:
+      operationId: comparisonChart
+      summary: Server-rendered distribution chart image for a cached comparison
+      description: >-
+        The comparison's distribution chart as an IMAGE (the same picture the web
+        page draws) — attach or embed it with results instead of improvising a
+        chart. Reads the shared fusion cache, so a pair just compared is instant;
+        404 if not yet computed.
+      parameters:
+        - name: source
+          in: query
+          required: true
+          schema: { type: string }
+        - name: target
+          in: query
+          required: true
+          schema: { type: string }
+        - name: language
+          in: query
+          required: true
+          schema: { type: string, enum: [la, grc, en, cop] }
+        - name: format
+          in: query
+          schema: { type: string, enum: [svg, png], default: svg }
+        - name: side
+          in: query
+          schema: { type: string, enum: [source, target], default: source }
+          description: Which text's distribution to chart.
+      responses:
+        '200':
+          description: The chart image (SVG or PNG).
+          content:
+            image/svg+xml: { schema: { type: string, format: binary } }
+            image/png: { schema: { type: string, format: binary } }
+        '404':
+          description: The pair has not been computed yet; run the comparison first.
+
   /search-fusion:
     post:
       operationId: fusionSearch
