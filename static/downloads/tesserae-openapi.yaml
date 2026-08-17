@@ -211,8 +211,8 @@ paths:
                         text: { type: string, description: "The line" }
                         matched_words: { type: array, items: { type: string } }
                         is_poetry: { type: boolean }
-                        era: { type: string }
-                        year: { type: integer }
+                        era: { type: string, description: "Author's period. With year, lets you chart where the phrase recurs over time (a period/author timeline)." }
+                        year: { type: integer, description: "Author's date (negative = BCE). For an interactive timeline the user can click to filter by period or author, link them to https://tesserae.caset.buffalo.edu/?tab=line&q=<url-encoded query>&lang=<language>&type=<search_type>" }
 
   /wildcard-search:
     post:

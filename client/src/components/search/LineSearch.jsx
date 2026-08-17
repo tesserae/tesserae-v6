@@ -35,6 +35,8 @@ export default function LineSearch({ language }) {
   const [showPoetry, setShowPoetry] = useState(true);
   const [showProse, setShowProse] = useState(true);
   const [sortOrder, setSortOrder] = useState('chronological');
+  // Set when a /?tab=line&q=... deep link should auto-run once its query is in state.
+  const [pendingUrlSearch, setPendingUrlSearch] = useState(null);
   const chartRef = useRef(null);
   const authorChartRef = useRef(null);
   
@@ -196,6 +198,30 @@ export default function LineSearch({ language }) {
     }
     setLoading(false);
   };
+
+  // Deep link: /?tab=line&q=...&type=... opens Line Search pre-filled and runs it,
+  // so an AI agent (or a shared link) can point straight at an interactive timeline.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('q');
+    const type = params.get('type');
+    if (q) {
+      setQuery(q);
+      if (type && ['lemma', 'exact', 'regex'].includes(type)) setSearchType(type);
+      setMode('search');
+      setPendingUrlSearch(q);
+    }
+    // Run once on mount for the initial URL.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (pendingUrlSearch != null && query === pendingUrlSearch) {
+      setPendingUrlSearch(null);
+      handleSearch();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingUrlSearch, query]);
 
   const handleBrowseLines = async () => {
     if (!selectedAuthor || !selectedWork) return;
