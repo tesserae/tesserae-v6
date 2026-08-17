@@ -67,6 +67,11 @@ const MCP_CONFIG = `{
 }`;
 
 const MCP_CLAUDE_CODE = 'claude mcp add tesserae -- python /full/path/to/tesserae_mcp.py';
+// Paste-before-the-CSV prompt for the free "you search, the AI interprets" route.
+const INTERPRET_PROMPT = `You are helping me interpret results from Tesserae, a tool that finds intertextual parallels (allusions, echoes, borrowings) between classical texts. Below is a CSV comparing two texts. Each row is a candidate parallel. The columns are: Rank, Tesserae's overall ranking; Source Locus and Target Locus, the two passages' citations; Source Text and Target Text, the two lines; Score, Tesserae's similarity score, where higher is stronger; Matched Words, the shared words that triggered the match; Channels, the detection methods that agreed, where more methods agreeing means a sturdier parallel.
+
+Please pick out the parallels most likely to be real literary allusions rather than coincidence, and for each say why (distinctive shared vocabulary, several channels agreeing, thematic resonance). Flag any that look like common phrases or stock formulae. Treat Tesserae's detections as evidence to weigh, and label your own reading as your interpretation. Here is the CSV:`;
+
 const MCP_CONNECTOR_URL = 'https://tesserae.caset.buffalo.edu/api/mcp';
 
 function CopyBlock({ text, label = 'Copy' }) {
@@ -1410,37 +1415,36 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
             <div className="prose max-w-none">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Use Tesserae with your AI assistant</h3>
               <p className="text-gray-700 mb-4">
-                You can let an AI assistant (ChatGPT or Claude) run Tesserae searches for you — comparing texts, testing
-                parallels for uniqueness across the corpus, and helping you interpret the results. Tesserae does the
-                searching, free, on its open API; the assistant orchestrates and interprets. The most hands-off routes
-                are the one-URL <strong>Claude connector</strong> (needs a paid Claude plan) and the <strong>paste-in
-                guide</strong> for ChatGPT and other assistants that can call the API on their own.
+                Any AI can help you with Tesserae. The free way, which works with any assistant including free ones and
+                sandboxed apps like the standard Gemini, is to run the search here and let the AI interpret the results.
+                To have the AI run the searches for you instead, with no copying and pasting, you need a basic paid AI
+                subscription (see below).
               </p>
 
-              <div className="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-gray-700 mb-6">
-                <strong>Works with any assistant, even free or sandboxed:</strong> run the search on this site yourself,
-                then paste the results into whatever AI you have — ChatGPT, Claude, Gemini, anything — and ask it to
-                interpret. It is a little more manual, but it needs nothing beyond a chat window. The connector and
-                paste-in routes below are more automatic, but each needs an assistant that can reach the API itself:
-                sandboxed apps like the standard Gemini cannot, and the Claude connector needs a paid plan.
-              </div>
-
-              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">1 · Paste-in guide <span className="text-sm font-normal text-gray-500">— ChatGPT and other request-capable AIs</span></h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Free, with any AI <span className="text-sm font-normal text-gray-500">— you search, the AI interprets</span></h4>
               <p className="text-gray-700 text-sm mb-2">
-                Works with an assistant that can make live requests to the API itself, such as ChatGPT or an agent that
-                makes HTTP requests. Some assistants are sandboxed and cannot reach outside the chat, so the paste-in
-                will not work there — the standard <strong>Gemini</strong> app is one. Open the guide, copy it, and
-                paste it into your assistant as its first message — it teaches the assistant Tesserae's full toolbox and
-                a step-by-step research workflow.
+                This needs nothing beyond a chat window and works with any assistant, free or paid, including ones that
+                cannot reach the API themselves:
               </p>
-              <p className="mb-6">
-                <a href="/tesserae-data/ai-guide.html" target="_blank" rel="noopener noreferrer"
-                  className="inline-block bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded no-underline">
-                  Open the paste-in guide →
-                </a>
+              <ol className="list-decimal list-inside text-gray-700 text-sm space-y-1 mb-2">
+                <li>Run your search on this site: a two-text comparison, a line search, or a rare-word or rare-phrase search.</li>
+                <li>Click <strong>Export CSV</strong> above the results to download them.</li>
+                <li>Paste the prompt below into your AI, paste the CSV right after it, and send.</li>
+              </ol>
+              <CopyBlock text={INTERPRET_PROMPT} label="Copy the prompt" />
+              <p className="text-gray-500 text-xs mt-1 mb-6">
+                The CSV carries each parallel's loci, both lines, the score, the shared words, and which detection
+                methods agreed, so the AI has what it needs to weigh them. You stay in control of the searching.
               </p>
 
-              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">2 · Claude connector <span className="text-sm font-normal text-gray-500">— one URL, full fusion search built in</span></h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-8 mb-2">Have the AI run the searches for you</h4>
+              <p className="text-gray-700 text-sm mb-4">
+                To skip the copying and let the assistant search on its own, it has to reach the Tesserae API, which
+                today means a <strong>basic paid subscription</strong> to Claude or ChatGPT. Sandboxed apps such as the
+                standard Gemini cannot do this at any tier, so for Gemini use the free option above.
+              </p>
+
+              <h5 className="text-base font-semibold text-gray-900 mt-4 mb-2">Claude <span className="text-sm font-normal text-gray-500">— one URL, the smoothest route</span></h5>
               <p className="text-gray-700 text-sm mb-2">
                 Add Tesserae to Claude once, and regular chat Claude can run everything — including the full fusion
                 search — with no Python and no guide-pasting. In <strong>Claude Desktop</strong> or <strong>claude.ai
@@ -1450,7 +1454,8 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               <CopyBlock text={MCP_CONNECTOR_URL} />
               <p className="text-gray-700 text-sm mt-2 mb-2">
                 Then just ask, e.g.: “Use Tesserae to compare Aeneid 1 with Lucan's Civil War 1 and show the strongest
-                parallels.” Custom connectors need a paid Claude plan and are added on desktop or web (not the mobile app).
+                parallels.” Adding a connector needs a paid plan, and the minimum that includes connectors is
+                <strong> Claude Pro</strong>. Connectors are added on desktop or web, not the mobile app.
               </p>
               <details className="text-sm text-gray-600 mb-6">
                 <summary className="cursor-pointer text-gray-700 font-medium">Advanced: run the connector locally instead (offline; no account/connector needed)</summary>
@@ -1465,7 +1470,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </div>
               </details>
 
-              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">3 · ChatGPT <span className="text-sm font-normal text-gray-500">— paste the guide</span></h4>
+              <h5 className="text-base font-semibold text-gray-900 mt-6 mb-2">ChatGPT <span className="text-sm font-normal text-gray-500">— paste in the guide</span></h5>
 
               {OFFICIAL_GPT_URL ? (
                 <>
@@ -1482,13 +1487,22 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   </p>
                 </>
               ) : (
-                <p className="text-gray-700 text-sm mb-4">
-                  ChatGPT has no one-click Tesserae GPT, but the <strong>paste-in guide (option 1 above)</strong> works in
-                  ChatGPT with no setup: open it, copy it, and paste it into a new ChatGPT chat as your first message.
-                  ChatGPT then runs Tesserae's searches over the open API and follows the guide's workflow. Works on any
-                  ChatGPT plan. If you have a ChatGPT Business, Team, Enterprise, or Edu workspace, you can also build your
-                  own GPT (see below).
-                </p>
+                <>
+                  <p className="text-gray-700 text-sm mb-2">
+                    ChatGPT has no one-click Tesserae connector. Instead, open the paste-in guide below, copy it, and
+                    paste it into a new ChatGPT chat as your first message. ChatGPT then runs Tesserae's searches over
+                    the open API and follows the guide's workflow. This leans on ChatGPT's own browsing, so the minimum
+                    plan is <strong>Plus</strong>. For a dedicated Tesserae GPT you build once and reuse, you need a
+                    ChatGPT <strong>Business</strong> (or Team, Enterprise, or Edu) workspace, since OpenAI limits
+                    custom-GPT creation to those (see below).
+                  </p>
+                  <p className="mb-4">
+                    <a href="/tesserae-data/ai-guide.html" target="_blank" rel="noopener noreferrer"
+                      className="inline-block bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded no-underline">
+                      Open the paste-in guide →
+                    </a>
+                  </p>
+                </>
               )}
 
               <details className="text-sm text-gray-700 mb-4">
