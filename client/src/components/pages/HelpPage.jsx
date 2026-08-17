@@ -104,8 +104,11 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
     if (initialSection) {
       setActiveSection(initialSection);
       if (onSectionConsumed) onSectionConsumed();
+      // Land at the very top of the page so the site header and the section
+      // heading are both visible, rather than scrolling the content up under
+      // the sticky nav (which cut off the heading).
       requestAnimationFrame(() => {
-        if (contentRef.current) contentRef.current.scrollIntoView({ block: 'start' });
+        window.scrollTo({ top: 0 });
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1410,12 +1413,24 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 You can let an AI assistant (ChatGPT or Claude) run Tesserae searches for you — comparing texts, testing
                 parallels for uniqueness across the corpus, and helping you interpret the results. Tesserae does the
                 searching, free, on its open API; the assistant orchestrates and interprets. The simplest, no-setup routes
-                are the one-URL <strong>Claude connector</strong> and the <strong>paste-in guide</strong>, which works in
-                ChatGPT, Gemini, or any assistant. (Building a shareable custom GPT now needs a ChatGPT Business, Team,
-                Enterprise, or Edu workspace — see ChatGPT below.)
+                are the <strong>paste-in guide</strong>, which works in ChatGPT, Gemini, or any assistant, and the one-URL
+                <strong>Claude connector</strong>.
               </p>
 
-              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">1 · Claude connector <span className="text-sm font-normal text-gray-500">— one URL, full fusion search built in</span></h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">1 · Paste-in guide <span className="text-sm font-normal text-gray-500">— any AI, no setup</span></h4>
+              <p className="text-gray-700 text-sm mb-2">
+                Works with any assistant that can browse the web (ChatGPT, Claude, Gemini, or an agent that makes HTTP
+                requests). Open the guide, copy it, and paste it into your assistant as its first message — it teaches
+                the assistant Tesserae's full toolbox and a step-by-step research workflow.
+              </p>
+              <p className="mb-6">
+                <a href="/tesserae-data/ai-guide.html" target="_blank" rel="noopener noreferrer"
+                  className="inline-block bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded no-underline">
+                  Open the paste-in guide →
+                </a>
+              </p>
+
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">2 · Claude connector <span className="text-sm font-normal text-gray-500">— one URL, full fusion search built in</span></h4>
               <p className="text-gray-700 text-sm mb-2">
                 Add Tesserae to Claude once, and regular chat Claude can run everything — including the full fusion
                 search — with no Python and no guide-pasting. In <strong>Claude Desktop</strong> or <strong>claude.ai
@@ -1440,19 +1455,6 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </div>
               </details>
 
-              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">2 · Paste-in guide <span className="text-sm font-normal text-gray-500">— any AI, no setup</span></h4>
-              <p className="text-gray-700 text-sm mb-2">
-                Works with any assistant that can browse the web (ChatGPT, Claude, Gemini, or an agent that makes HTTP
-                requests). Open the guide, copy it, and paste it into your assistant as its first message — it teaches
-                the assistant Tesserae's full toolbox and a step-by-step research workflow.
-              </p>
-              <p className="mb-6">
-                <a href="/tesserae-data/ai-guide.html" target="_blank" rel="noopener noreferrer"
-                  className="inline-block bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded no-underline">
-                  Open the paste-in guide →
-                </a>
-              </p>
-
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">3 · ChatGPT <span className="text-sm font-normal text-gray-500">— paste the guide</span></h4>
 
               {OFFICIAL_GPT_URL ? (
@@ -1470,30 +1472,14 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   </p>
                 </>
               ) : (
-                <>
-                  <p className="text-gray-700 text-sm mb-2 font-medium">Use the paste-in guide — it works in ChatGPT with no setup.</p>
-                  <p className="text-gray-700 text-sm mb-2">
-                    Open the <strong>paste-in guide above (option 2)</strong>, copy it, and paste it into a new ChatGPT chat
-                    as your first message. ChatGPT then runs Tesserae's searches over the open API and follows the guide's
-                    workflow — comparing texts, testing parallels for corpus-wide rarity, and quoting both passages with
-                    their loci. This works on any ChatGPT plan.
-                  </p>
-                  <div className="border border-gray-200 bg-gray-50 rounded p-3 text-sm text-gray-600 mb-4">
-                    <strong>Why not a one-click GPT?</strong> OpenAI now limits creating and publicly sharing custom GPTs to
-                    ChatGPT Business, Team, Enterprise, and Edu workspaces, so there is no public one-click Tesserae GPT on a
-                    personal account. The paste-in guide gives ChatGPT the same abilities without one. (If you have such a
-                    workspace, you can build your own — see below.)
-                  </div>
-                </>
+                <p className="text-gray-700 text-sm mb-4">
+                  ChatGPT has no one-click Tesserae GPT, but the <strong>paste-in guide (option 1 above)</strong> works in
+                  ChatGPT with no setup: open it, copy it, and paste it into a new ChatGPT chat as your first message.
+                  ChatGPT then runs Tesserae's searches over the open API and follows the guide's workflow. Works on any
+                  ChatGPT plan. If you have a ChatGPT Business, Team, Enterprise, or Edu workspace, you can also build your
+                  own GPT (see below).
+                </p>
               )}
-
-              <div className="border border-gray-200 bg-gray-50 rounded p-3 text-sm text-gray-700 mb-4">
-                <strong>A note on the full fusion search.</strong> Tesserae's most comprehensive comparison (“full fusion”)
-                usually takes about <strong>2–3 minutes</strong>. It keeps running on the Tesserae server even after ChatGPT
-                has replied, and the finished result is cached. If it's still running, just ask the GPT to
-                “<em>check the fusion search</em>” after a couple of minutes — it will retrieve and discuss the completed
-                results. The faster “rare-pairs” and “rare-words” searches return in seconds.
-              </div>
 
               <details className="text-sm text-gray-700 mb-4">
                 <summary className="cursor-pointer text-gray-800 font-medium">Advanced: build your own Tesserae GPT</summary>
@@ -1530,6 +1516,14 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   </p>
                 </div>
               </details>
+
+              <div className="border border-gray-200 bg-gray-50 rounded p-3 text-sm text-gray-700 mb-4">
+                <strong>A note on the full fusion search.</strong> Tesserae's most comprehensive comparison (“full fusion”)
+                usually takes about <strong>2–3 minutes</strong>. It keeps running on the Tesserae server even after your
+                assistant has replied, and the finished result is cached. If it's still running, just ask your assistant to
+                “<em>check the fusion search</em>” after a couple of minutes — it will retrieve and discuss the completed
+                results. The faster “rare-pairs” and “rare-words” searches return in seconds.
+              </div>
 
               <div className="bg-amber-50 p-4 rounded border border-amber-200">
                 <h4 className="font-medium text-amber-900 mb-2">A note on scholarly use</h4>
