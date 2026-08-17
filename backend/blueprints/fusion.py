@@ -373,17 +373,36 @@ def search_fusion_stream():
 _FUSION_MARKER_TTL = 1800  # 30 min; a 'running' marker older than this is stale
 
 
-def _default_fusion_cache_settings(language, max_results):
+def _poll_use_meter(source_id, target_id, language):
+    """The web auto-enables meter when both texts are Latin poetry (via
+    /api/check-meter -> is_suitable_for_meter). The GET poll must decide it the
+    SAME way, or GET and POST land on different cache entries and report
+    different parallel counts for the same pair."""
+    try:
+        from backend.metrical_scanner import is_suitable_for_meter
+    except ImportError:
+        from metrical_scanner import is_suitable_for_meter
+    try:
+        return bool(is_suitable_for_meter(source_id, target_id, language))
+    except Exception:
+        return False
+
+
+def _default_fusion_cache_settings(language, max_results, use_meter=False):
     """cache_settings for a plain default fusion search — MUST match the default
-    path of POST /search-fusion so GET and POST share the same cache entries."""
+    path of POST /search-fusion so GET and POST share the same cache entries.
+    result_version and use_meter are part of that key: the stream stamps
+    result_version=2 (single-line window dedup) and sets use_meter from the
+    request (the web sends meter-on for poetry), so both must appear here too."""
     return {
         'match_type': 'fusion',
+        'result_version': 2,
         'mode': 'merged',
         'max_results': max_results,
         'language': language,
         'source_unit_type': 'line',
         'target_unit_type': 'line',
-        'use_meter': False,
+        'use_meter': use_meter,
         'freq_basis': 'corpus',
     }
 
@@ -490,7 +509,8 @@ def _run_fusion_job(source_id, target_id, language, max_results, job_key):
 
         source_path = resolve_text_path(_texts_dir, language, source_id)
         target_path = resolve_text_path(_texts_dir, language, target_id)
-        cache_settings = _default_fusion_cache_settings(language, max_results)
+        use_meter = _poll_use_meter(source_id, target_id, language)
+        cache_settings = _default_fusion_cache_settings(language, max_results, use_meter)
         source_units = _get_processed_units(source_id, language, 'line', _text_processor)
         target_units = _get_processed_units(target_id, language, 'line', _text_processor)
         if not source_units or not target_units:
@@ -502,7 +522,7 @@ def _run_fusion_job(source_id, target_id, language, max_results, job_key):
             source_id=source_id, target_id=target_id, language=language,
             mode='merged', max_results=max_results,
             source_path=source_path, target_path=target_path,
-            user_settings={'use_meter': False}, freq_basis='corpus',
+            user_settings={'use_meter': use_meter}, freq_basis='corpus',
             channel_weights={}, enabled_channels=None,
             cancellation=cancellation,
         ):
@@ -574,7 +594,8 @@ def fusion_search_get():
     if not source_path or not target_path:
         return jsonify({'error': 'Text files not found for that source/target/language.'}), 404
 
-    cache_settings = _default_fusion_cache_settings(language, max_results)
+    use_meter = _poll_use_meter(source_id, target_id, language)
+    cache_settings = _default_fusion_cache_settings(language, max_results, use_meter)
     ensure_cache_dir()
     job_key = get_cache_key(source_id, target_id, language, cache_settings)
 
