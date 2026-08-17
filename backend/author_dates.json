@@ -288,7 +288,7 @@
     "arnobius_advesus_nationes": {
       "year": 300,
       "note": "fl. c. 300 CE",
-      "era": "Later Imperial"
+      "era": "Late Antique"
     },
     "lactantius": {
       "year": 325,
@@ -303,17 +303,17 @@
     "juvencus": {
       "year": 330,
       "note": "fl. c. 330 CE",
-      "era": "Later Imperial"
+      "era": "Late Antique"
     },
     "iulius_firmicus_maternus": {
       "year": 350,
       "note": "fl. c. 350 CE",
-      "era": "Later Imperial"
+      "era": "Late Antique"
     },
     "favonius": {
       "year": 360,
       "note": "fl. c. 360 CE",
-      "era": "Later Imperial"
+      "era": "Late Antique"
     },
     "hilary_of_poitiers": {
       "year": 367,
@@ -323,7 +323,7 @@
     "hilary_of_poitiers_pseudo": {
       "year": 367,
       "note": "attr. Hilary",
-      "era": "Later Imperial"
+      "era": "Late Antique"
     },
     "ammianus": {
       "year": 395,
@@ -363,7 +363,7 @@
     "claudius_mamertinus": {
       "year": 362,
       "note": "fl. 362 CE",
-      "era": "Later Imperial"
+      "era": "Late Antique"
     },
     "prudentius": {
       "year": 413,
@@ -478,7 +478,7 @@
     "optatian": {
       "year": 335,
       "note": "fl. c. 325 CE",
-      "era": "Later Imperial"
+      "era": "Late Antique"
     },
     "cyprianus_gallus": {
       "year": 425,
@@ -508,7 +508,7 @@
     "victorinus": {
       "year": 303,
       "note": "d. c. 303 CE",
-      "era": "Later Imperial"
+      "era": "Late Antique"
     },
     "hegesippus_pseudo": {
       "year": 375,
@@ -548,7 +548,7 @@
     "arnobius_of_sicca": {
       "year": 330,
       "note": "d. c. 330 CE",
-      "era": "Later Imperial"
+      "era": "Late Antique"
     },
     "bede_the_venerable": {
       "year": 735,
@@ -613,7 +613,7 @@
     "lactantius_author": {
       "year": 325,
       "note": "d. c. 325 CE",
-      "era": "Later Imperial"
+      "era": "Late Antique"
     },
     "paulinus_saint_bishop_of_nola": {
       "year": 431,
@@ -633,7 +633,7 @@
     "pseudo_cyprian": {
       "year": 300,
       "note": "3rd-4th c. CE",
-      "era": "Later Imperial"
+      "era": "Late Antique"
     },
     "pseudo_eucherius": {
       "year": 500,
@@ -708,7 +708,7 @@
     "victorinus_saint_bishop_of_poetovio": {
       "year": 303,
       "note": "d. c. 303 CE",
-      "era": "Later Imperial"
+      "era": "Late Antique"
     },
     "anonymous": {
       "year": null,
@@ -1163,17 +1163,17 @@
     "julius_firmicus_maternus": {
       "year": 350,
       "note": "fl. c. 350 CE",
-      "era": "Later Imperial"
+      "era": "Late Antique"
     },
     "juvencus_caius_vettius_aquilinus": {
       "year": 330,
       "note": "fl. c. 330 CE",
-      "era": "Later Imperial"
+      "era": "Late Antique"
     },
     "iuuencus": {
       "year": 330,
       "note": "fl. c. 330 CE",
-      "era": "Later Imperial"
+      "era": "Late Antique"
     },
     "orientius_saint": {
       "year": 450,
@@ -1410,7 +1410,7 @@
     "aelian": {
       "year": 235,
       "note": "d. c. 235 CE",
-      "era": "Early Imperial"
+      "era": "Later Imperial"
     },
     "oppian": {
       "year": 180,
@@ -1445,7 +1445,7 @@
     "galen": {
       "year": 210,
       "note": "d. c. 210 CE",
-      "era": "Early Imperial"
+      "era": "Later Imperial"
     },
     "aeschines_sp": {
       "year": -314,
@@ -1470,7 +1470,7 @@
     "diogenes_laertius": {
       "year": 250,
       "note": "fl. c. 3rd cent. CE",
-      "era": "Early Imperial"
+      "era": "Later Imperial"
     },
     "longus": {
       "year": 200,
@@ -1500,7 +1500,7 @@
     "pseudogalen": {
       "year": 210,
       "note": "attr. Galen",
-      "era": "Early Imperial"
+      "era": "Later Imperial"
     },
     "nicomachus_of_gerasa": {
       "year": 120,
@@ -1510,7 +1510,7 @@
     "clement_of_alexandria": {
       "year": 215,
       "note": "d. c. 215 CE",
-      "era": "Early Imperial"
+      "era": "Later Imperial"
     },
     "soranus": {
       "year": 130,
@@ -1870,7 +1870,7 @@
     "clement": {
       "year": 215,
       "note": "d. c. 215 CE (c. 150-215), Clement of Alexandria",
-      "era": "Early Imperial"
+      "era": "Later Imperial"
     },
     "demetrius": {
       "year": -50,
@@ -1960,12 +1960,12 @@
     "quintus_smyrnaeus": {
       "year": 300,
       "note": "fl. 3rd c. CE (disputed; late 2nd-4th)",
-      "era": "Later Imperial"
+      "era": "Late Antique"
     },
     "tryphiodorus": {
       "year": 300,
       "note": "fl. 3rd-early 4th c. CE",
-      "era": "Later Imperial"
+      "era": "Late Antique"
     }
   },
   "en": {
