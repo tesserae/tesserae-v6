@@ -934,13 +934,13 @@ const SearchResults = ({
         <aside style={stickyAsideStyle} className="w-full lg:w-96 shrink-0 bg-white border rounded-lg p-4">
           <div className="flex items-center gap-1 mb-3">
             <button
-              onClick={() => setSidebarMode('comparison')}
-              className={`text-xs px-3 py-1 rounded ${sidebarMode === 'comparison' ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-            >In this comparison</button>
-            <button
               onClick={() => setSidebarMode('corpus')}
               className={`text-xs px-3 py-1 rounded ${sidebarMode === 'corpus' ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
             >Across the corpus</button>
+            <button
+              onClick={() => setSidebarMode('comparison')}
+              className={`text-xs px-3 py-1 rounded ${sidebarMode === 'comparison' ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+            >In this comparison</button>
           </div>
 
           {sidebarMode === 'comparison' && (<>
@@ -1010,19 +1010,15 @@ const SearchResults = ({
           <div className="flex items-center gap-1 mb-2">
             <span className="text-xs text-gray-600 mr-1">Group by:</span>
             <button
-              onClick={() => setCorpusGroupBy('era')}
-              className={`text-xs px-2.5 py-1 rounded ${corpusGroupBy === 'era' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
-            >Era</button>
-            <button
-              onClick={() => setCorpusGroupBy('author')}
-              className={`text-xs px-2.5 py-1 rounded ${corpusGroupBy === 'author' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
-            >Author</button>
-            <button
               onClick={() => setCorpusGroupBy('timeline')}
               className={`text-xs px-2.5 py-1 rounded ${corpusGroupBy === 'timeline' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
             >Timeline</button>
+            <button
+              onClick={() => setCorpusGroupBy('era')}
+              className={`text-xs px-2.5 py-1 rounded ${corpusGroupBy === 'era' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
+            >Era</button>
           </div>
-          {(corpusIsTimeline || corpusIsAuthor) && corpusData && !corpusData.tooFew && !corpusLoading && (
+          {corpusIsTimeline && corpusData && !corpusData.tooFew && !corpusLoading && (
             <p className="text-xs text-gray-500 mb-1.5">Click any author to see its lines.</p>
           )}
           <div>
@@ -1059,6 +1055,7 @@ const SearchResults = ({
                 <div className="space-y-1.5 overflow-y-auto" style={{ maxHeight: 200 }}>
                   {rows.map((l, i) => (
                     <div key={i} className="text-xs leading-snug">
+                      <span className="text-gray-400">{i + 1}. </span>
                       <span className="text-gray-500">
                         {[l.work && l.work.replace(/_/g, ' '), l.locus].filter(Boolean).join(' ')}
                       </span>
