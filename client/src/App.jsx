@@ -463,6 +463,38 @@ function App() {
     }
   }, [sourceText, targetText, activeTab, corpus, corpusLoading, settings, searchMode, search, searchRareWords, searchWordPairs]);
 
+  // Deep link: /?source=<id>&target=<id>&lang=<lang> — once the corpus for the
+  // URL's language has loaded, fill both pickers (resolving each text's author,
+  // which the URL doesn't carry) and run the comparison, so an agent's web_url
+  // lands on results instead of a blank form. The pair an agent just ran is
+  // cached, so this returns immediately. Runs once.
+  const deepLinkHandledRef = useRef(false);
+  const [deepLinkRun, setDeepLinkRun] = useState(false);
+  useEffect(() => {
+    if (deepLinkHandledRef.current) return;
+    const p = parseSearchParams();
+    if (!p.source || !p.target) { deepLinkHandledRef.current = true; return; }
+    if (corpusLoading || !corpus || corpus.length === 0) return;   // wait for the corpus
+    const src = corpus.find(t => t.id === p.source);
+    const tgt = corpus.find(t => t.id === p.target);
+    if (!src || !tgt) return;   // ids not in this corpus yet; wait (or never, if wrong)
+    deepLinkHandledRef.current = true;
+    setSourceAuthor(src.author_key || src.author?.toLowerCase().replace(/\s+/g, '_') || '');
+    setSourceText(src.id);
+    setTargetAuthor(tgt.author_key || tgt.author?.toLowerCase().replace(/\s+/g, '_') || '');
+    setTargetText(tgt.id);
+    setSearchMode('parallel');
+    setDeepLinkRun(true);
+  }, [corpus, corpusLoading]);
+
+  useEffect(() => {
+    if (deepLinkRun && sourceText && targetText && !corpusLoading) {
+      setDeepLinkRun(false);
+      handleSearch();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deepLinkRun, sourceText, targetText, corpusLoading]);
+
   const handleRerunFresh = useCallback(async () => {
     if (!sourceText || !targetText) return;
     setSearchRunId(n => n + 1);

@@ -401,7 +401,21 @@ def _t_compare_texts(a):
         "characterizing the unseen bands. The close is an open door, never a shut one. "
         "Label the ordering as YOURS — 'most interesting' is your judgement, never Tesserae's ranking; "
         "keep Tesserae's detections and your own interpretation distinct. "
-        "If a rare section says too_large or skipped, offer to run rare_pairs / rare_words on its own."
+        "If a rare section says too_large or skipped, offer to run rare_pairs / rare_words on its own. "
+        "SURFACE THE LINK: when the response carries a web_url, include it with the results in plain "
+        "words -- 'open this comparison in Tesserae's own interface' -- in the close and in any artifact "
+        "footer; without it the link is invisible to the reader. "
+        "CONNECTION MAP: when the medium can display one (an HTML artifact, a notebook), OFFER or produce "
+        "a connection map of the comparison -- one compare_texts response already carries everything it "
+        "needs (both sides' line positions, strengths, which search found each, and the full line texts "
+        "for a hover layer). Draw it the same way every time so every agent's map matches: the two texts "
+        "are vertical axes scaled to their line counts (source right, target left, or by chronology); each "
+        "parallel is a curve between its two lines; curve weight follows strength; color follows which "
+        "search found it (ranked/fusion vs rare-word), with weaker top-band links a recessive gray; the "
+        "few highlighted parallels get direct labels; hovering a curve shows both full lines with the "
+        "plain-language corpus note; a table of the strongest sits beneath as the accessible fallback; the "
+        "footer carries the corpus_version and the web_url. Offer, do not force -- a quick question does "
+        "not need a graphic."
     )
     if fusion.get('status') == 'running':
         out['note'] = ('The ranked_parallels (fusion) section is still computing server-side. '

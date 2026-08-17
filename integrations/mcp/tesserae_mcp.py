@@ -38,6 +38,18 @@ Guidance for the model using these tools:
       to page deeper. Write for a reader, keeping technical terms for when the
       user asks how a figure was produced.
     - fusion_search can take several minutes on large texts; run it once.
+    - When a response carries web_url, show it with the results in plain words
+      ("open this comparison in Tesserae's own interface"), in the close and in
+      any artifact footer, or the link stays invisible to the reader.
+    - When the medium can display one, OFFER a connection map of a comparison (a
+      compare_texts/fusion_search response already carries line positions, match
+      strengths, which search found each, and the full line texts): the two texts
+      as vertical axes scaled to their line counts, each parallel a curve between
+      its two lines, curve weight by strength, color by which search found it
+      (fusion vs rare-word), the few highlights directly labeled, hover showing
+      both full lines with the corpus note, a strongest-parallels table beneath as
+      the accessible fallback, footer carrying corpus_version and web_url. Offer,
+      do not force.
 """
 import os
 import json
