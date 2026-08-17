@@ -16,6 +16,7 @@ import json
 import time
 import uuid
 import logging
+from urllib.parse import quote
 
 import requests
 from flask import Blueprint, request, jsonify, Response
@@ -24,6 +25,22 @@ logger = logging.getLogger(__name__)
 mcp_http_bp = Blueprint('mcp_http', __name__)
 
 API_BASE = os.environ.get('TESSERAE_API_BASE', 'https://tesserae.caset.buffalo.edu/api').rstrip('/')
+# The web app that hosts the interactive charts, derived from the API base
+# (strip a trailing /api). web_url fields below deep-link into it so an agent
+# can hand the user a live, interactive timeline of the same result.
+WEB_BASE = API_BASE[:-4] if API_BASE.endswith('/api') else API_BASE
+
+def _line_search_url(query, language, search_type):
+    if not query:
+        return None
+    return (f"{WEB_BASE}/?tab=line&q={quote(query)}"
+            f"&lang={quote(language or 'la')}&type={quote(search_type or 'lemma')}")
+
+def _compare_url(source, target, language):
+    if not (source and target):
+        return None
+    return (f"{WEB_BASE}/?source={quote(str(source))}&target={quote(str(target))}"
+            f"&lang={quote(language or 'la')}")
 # Keep this minimal and spec-exact for the negotiated protocolVersion. Adding
 # non-standard Implementation fields (title/websiteUrl/icons from a later draft)
 # caused Claude's connector to reject the initialize response ("Tesserae returned
@@ -111,8 +128,14 @@ def _t_line_search(a):
     if not count_only:
         out['results'] = [{'locus': r.get('locus'), 'author': r.get('author'),
                            'work': r.get('work'), 'text': r.get('text'),
-                           'matched_words': r.get('matched_words')}
+                           'matched_words': r.get('matched_words'),
+                           # era + year let you chart WHERE ACROSS TIME the phrase
+                           # recurs (a period/author timeline), same as the web app.
+                           'era': r.get('era'), 'year': r.get('year')}
                           for r in (d.get('results') or [])[:40]]
+        # A live, interactive version of this search (timeline + filters) in the web app.
+        out['web_url'] = _line_search_url(a.get('query'), a.get('language', 'la'),
+                                          a.get('search_type', 'lemma'))
     return out
 
 
@@ -233,7 +256,12 @@ def _fusion_params(a):
 def _t_fusion_search(a):
     """Ranked fusion parallels for two texts. Pass offset to page deeper into the
     ranking (0, 100, 200, ...) once the run is cached."""
-    return _fusion_poll(_fusion_params(a), _FUSION_MCP_BUDGET)
+    res = _fusion_poll(_fusion_params(a), _FUSION_MCP_BUDGET)
+    if isinstance(res, dict):
+        # Live, interactive view of this comparison (charts) in the web app.
+        res.setdefault('web_url', _compare_url(a.get('source'), a.get('target'),
+                                               a.get('language', 'la')))
+    return res
 
 
 def _t_compare_texts(a):
@@ -307,6 +335,9 @@ def _t_compare_texts(a):
         'ranked_parallels': fusion,      # fusion: strongest overall parallels
         'rare_phrases': rare_phrases,    # distinctive shared two-word collocations
         'rare_words': rare_words,        # distinctive shared individual words
+        # Live, interactive view of this comparison (with the distribution +
+        # corpus-recurrence charts) in the web app.
+        'web_url': _compare_url(a.get('source'), a.get('target'), a.get('language', 'la')),
     }
     common = (
         "PRESENTATION (default; an explicit user request for a by-search view, the full list, or a "
@@ -429,7 +460,7 @@ TOOLS = [
                      "required": ["language"]},
      "fn": _t_list_texts},
     {"name": "line_search",
-     "description": "Find corpus lines sharing words with a phrase (corpus-wide). The uniqueness check: few results (total) means distinctive wording. Counts collapse whole-work vs per-book/poem duplicates of the same line, AND same-passage duplicates that differ only by author/work spelling (e.g. cyprian vs cyprian_saint), so total is a true distinct-loci count. Set count_only:true to get just the counts (total, distinct_loci, capped) with no results payload — use this to quantify a commonplace cheaply; fetch full results only when the count is small enough to characterize. `capped` is true when the scan hit the result cap (default 500): then `total` is a floor (`total_at_least`) — treat it as 'at least N', not exact. SINGLE-WORD queries: a query that LITERALLY has one word can't co-occur with anything, so count_only returns `single_word:true` with `total` = the number of works that contain the word (a corpus document frequency, `unit:\"works\"`) — report as 'appears in N works', not co-occurring places; an all-stopword single word returns `unquantified:true` (total null). A MULTI-word query is always a co-occurrence count even if one word is too common to index alone: it returns the normal pair count plus `filtered_common_words` naming the common word(s) that were down-weighted — the count is real; say the pairing leans on the other word. Every response carries `corpus_version` (a date stamp of the corpus state); when the user is recording a count for use elsewhere, quote it with the number (e.g. '8 places, corpus version 2026-08-16'). search_type: 'lemma' (default) matches lines that share 2+ of the query's LEMMAS anywhere on the line — use this for words that co-occur but are NOT adjacent (e.g. 'Scythiam arces', 'lolium avenae'); 'exact' matches the query as an ADJACENT whole-word phrase (stopwords included literally, so 'ad Scythiam' matches only that contiguous phrase; a Latin enclitic on the final word is allowed, so 'arma virum' hits 'arma virumque') — for non-adjacent words use lemma; 'regex'.",
+     "description": "Find corpus lines sharing words with a phrase (corpus-wide). The uniqueness check: few results (total) means distinctive wording. Counts collapse whole-work vs per-book/poem duplicates of the same line, AND same-passage duplicates that differ only by author/work spelling (e.g. cyprian vs cyprian_saint), so total is a true distinct-loci count. Set count_only:true to get just the counts (total, distinct_loci, capped) with no results payload — use this to quantify a commonplace cheaply; fetch full results only when the count is small enough to characterize. `capped` is true when the scan hit the result cap (default 500): then `total` is a floor (`total_at_least`) — treat it as 'at least N', not exact. SINGLE-WORD queries: a query that LITERALLY has one word can't co-occur with anything, so count_only returns `single_word:true` with `total` = the number of works that contain the word (a corpus document frequency, `unit:\"works\"`) — report as 'appears in N works', not co-occurring places; an all-stopword single word returns `unquantified:true` (total null). A MULTI-word query is always a co-occurrence count even if one word is too common to index alone: it returns the normal pair count plus `filtered_common_words` naming the common word(s) that were down-weighted — the count is real; say the pairing leans on the other word. Every response carries `corpus_version` (a date stamp of the corpus state); when the user is recording a count for use elsewhere, quote it with the number (e.g. '8 places, corpus version 2026-08-16'). search_type: 'lemma' (default) matches lines that share 2+ of the query's LEMMAS anywhere on the line — use this for words that co-occur but are NOT adjacent (e.g. 'Scythiam arces', 'lolium avenae'); 'exact' matches the query as an ADJACENT whole-word phrase (stopwords included literally, so 'ad Scythiam' matches only that contiguous phrase; a Latin enclitic on the final word is allowed, so 'arma virum' hits 'arma virumque') — for non-adjacent words use lemma; 'regex'. Each result carries `era` and `year` for its author, so you can chart WHERE ACROSS TIME the phrase recurs (a period or author timeline) — do that when a distribution over time would help the user see it. The response also carries `web_url`: a link that opens this same search in the Tesserae web app, which draws the timeline live and lets the user click a period or author to see just those citations. Offer that link when a visual or interactive view would help.",
      "inputSchema": {"type": "object",
                      "properties": {"query": _STR, "language": _STR, "search_type": _STR,
                                     "count_only": {"type": "boolean"}},

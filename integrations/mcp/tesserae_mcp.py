@@ -41,6 +41,7 @@ Guidance for the model using these tools:
 """
 import os
 import json
+from urllib.parse import quote
 
 import requests
 
@@ -53,6 +54,24 @@ except ImportError:  # pragma: no cover
     from mcp.server.fastmcp import FastMCP
 
 API_BASE = os.environ.get("TESSERAE_API_BASE", "https://tesserae.caset.buffalo.edu/api").rstrip("/")
+# Web app that hosts the interactive charts (strip a trailing /api). web_url
+# fields deep-link into it so the user can open a live, interactive timeline.
+WEB_BASE = API_BASE[:-4] if API_BASE.endswith("/api") else API_BASE
+
+
+def _line_search_url(query, language, search_type):
+    if not query:
+        return None
+    return (f"{WEB_BASE}/?tab=line&q={quote(query)}"
+            f"&lang={quote(language or 'la')}&type={quote(search_type or 'lemma')}")
+
+
+def _compare_url(source, target, language):
+    if not (source and target):
+        return None
+    return (f"{WEB_BASE}/?source={quote(str(source))}&target={quote(str(target))}"
+            f"&lang={quote(language or 'la')}")
+
 _TIMEOUT = 60
 _FUSION_TIMEOUT = 600
 
@@ -127,6 +146,12 @@ def line_search(query: str, language: str = "la", search_type: str = "lemma",
             commonplace cheaply. A SINGLE-word query then reports how many WORKS
             contain the word (single_word/unit:'works'), not co-occurring loci;
             an all-stopword query returns unquantified.
+
+    Each result carries era and year for its author, so you can chart where
+    across time the phrase recurs (a period/author timeline). The response also
+    carries web_url: a link that opens this search in the Tesserae web app,
+    which draws the timeline live and lets the user click a period or author to
+    see just those citations. Offer it when a visual would help.
     """
     d = _post("/line-search", {"query": query, "language": language,
                                "search_type": search_type, "count_only": count_only})
@@ -144,7 +169,10 @@ def line_search(query: str, language: str = "la", search_type: str = "lemma",
             "work": r.get("work"),
             "text": r.get("text"),
             "matched_words": r.get("matched_words"),
+            "era": r.get("era"),
+            "year": r.get("year"),
         } for r in (d.get("results") or [])[:40]]
+        out["web_url"] = _line_search_url(query, language, search_type)
     return out
 
 
@@ -253,7 +281,9 @@ def fusion_search(source: str, target: str, language: str = "la", top: int = 20,
         "matched": x.get("matched_lemmas") or x.get("matched_words"),
     } for x in latest]
     return {"source": source, "target": target, "count": len(parallels),
-            "total": total, "filtered_total": filtered_total, "parallels": parallels}
+            "total": total, "filtered_total": filtered_total, "parallels": parallels,
+            # Live, interactive view of this comparison (with its charts) in the web app.
+            "web_url": _compare_url(source, target, language)}
 
 
 @mcp.tool()
