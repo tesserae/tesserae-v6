@@ -16,8 +16,11 @@ Fast channels (lemma, exact) run first, so users see results within seconds.
 from flask import Blueprint, request, Response, jsonify
 from flask_login import current_user
 import os
+import io
+import re
+import math
 import json
-from backend.utils import resolve_text_path
+from backend.utils import resolve_text_path, get_text_metadata
 import time
 
 from backend.logging_config import get_logger
@@ -726,6 +729,122 @@ def fusion_search_get():
                     'message': 'Fusion started. Poll this URL again in ~20-30s until status is '
                                '"complete". Large comparisons can take a few minutes; results are '
                                'cached afterward so repeats are instant.'})
+
+
+@fusion_bp.route('/comparison-chart', methods=['GET'])
+def comparison_chart():
+    """Server-rendered distribution chart for a cached comparison — the same
+    picture the web page draws (where the parallels fall in one text), returned
+    as an image an AI agent can attach or embed in any medium.
+
+    GET /api/comparison-chart?source=<id>&target=<id>&language=la
+        &format=svg|png (default svg)  &side=source|target (default source)
+
+    Reads the SHARED fusion cache, so a pair an agent just compared is instant.
+    404s if the pair has not been computed yet (run the comparison first).
+    """
+    source_id = request.args.get('source')
+    target_id = request.args.get('target')
+    language = request.args.get('language', 'la')
+    fmt = (request.args.get('format', 'svg') or 'svg').lower()
+    side = (request.args.get('side', 'source') or 'source').lower()
+    if side not in ('source', 'target'):
+        side = 'source'
+    if fmt not in ('svg', 'png'):
+        fmt = 'svg'
+    if not source_id or not target_id:
+        return jsonify({'error': 'Provide source and target text ids (see /api/texts).'}), 400
+
+    source_path = resolve_text_path(_texts_dir, language, source_id)
+    target_path = resolve_text_path(_texts_dir, language, target_id)
+    if not source_path or not target_path:
+        return jsonify({'error': 'Text files not found for that source/target/language.'}), 404
+
+    max_results = 5000
+    use_meter = _poll_use_meter(source_id, target_id, language)
+    cache_settings = _default_fusion_cache_settings(language, max_results, use_meter)
+    cached_results, _meta = get_cached_results(source_id, target_id, language, cache_settings)
+    if cached_results is None:
+        return jsonify({'error': 'No cached comparison for this pair yet. Run the comparison '
+                                 '(fusion-search or compare_texts) first, then request the chart.'}), 404
+
+    meta = get_text_metadata(source_path if side == 'source' else target_path)
+    work_label = meta.get('display_name') or meta.get('title') or (source_id if side == 'source' else target_id)
+
+    # Distribution: parse each parallel's ref on `side` into (book, line) and bin
+    # adaptively — a single book gets binned by line position, multiple books by
+    # book — the same shape the site's in-comparison chart uses.
+    def _ref_of(r):
+        s = r.get(side) or {}
+        return s.get('ref') or r.get(side + '_locus') or ''
+    pts = []
+    for r in cached_results:
+        nums = [int(x) for x in re.findall(r'\d+', str(_ref_of(r)))]
+        book = nums[0] if len(nums) >= 2 else None
+        line = nums[-1] if nums else None
+        pts.append((book, line))
+
+    books = sorted({b for b, _ in pts if b is not None})
+    if len(books) <= 1:
+        lines = [l for _, l in pts if l is not None]
+        if not lines:
+            return jsonify({'error': 'Parallels carry no line references to chart.'}), 422
+        max_line = max(lines)
+        band = next((b for b in (10, 25, 50, 100, 200, 500, 1000) if math.ceil(max_line / b) <= 18), 1000)
+        n_bands = max(1, math.ceil(max_line / band))
+        counts = [0] * n_bands
+        for _, l in pts:
+            if l is not None:
+                counts[min(n_bands - 1, (l - 1) // band)] += 1
+        labels = [f"{i * band + 1}–{(i + 1) * band}" for i in range(n_bands)]
+        xlabel = f"Line in {work_label}"
+        title = f"Where the parallels fall in {work_label}"
+    else:
+        from collections import Counter
+        c = Counter(b for b, _ in pts if b is not None)
+        bs = sorted(c)
+        counts = [c[b] for b in bs]
+        labels = [f"Book {b}" for b in bs]
+        xlabel = "Book"
+        title = f"Parallels by book in {work_label}"
+
+    try:
+        from backend.inverted_index import get_corpus_version
+        corpus_version = get_corpus_version(language)
+    except Exception:
+        corpus_version = None
+
+    # Use the object-oriented Figure API (not pyplot) so this is thread-safe
+    # under mod_wsgi — pyplot's global figure state would race across requests.
+    from matplotlib.figure import Figure
+    color = '#b91c1c' if side == 'source' else '#d97706'   # site red / amber
+    fig = Figure(figsize=(7.2, 3.6), dpi=110)
+    ax = fig.subplots()
+    ax.bar(range(len(counts)), counts, color=color, edgecolor='white', linewidth=0.5)
+    ax.set_xticks(range(len(labels)))
+    ax.set_xticklabels(labels, rotation=45, ha='right', fontsize=8)
+    ax.set_ylabel('Parallels', fontsize=9)
+    ax.set_xlabel(xlabel, fontsize=9)
+    ax.set_title(title, fontsize=11)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.margins(x=0.01)
+    stamp = 'Tesserae'
+    if corpus_version:
+        stamp += f" · corpus {corpus_version}"
+    fig.text(0.99, 0.01, stamp, ha='right', va='bottom', fontsize=6, color='#9ca3af')
+    fig.tight_layout()
+
+    buf = io.BytesIO()
+    if fmt == 'png':
+        fig.savefig(buf, format='png', bbox_inches='tight')
+        mime = 'image/png'
+    else:
+        fig.savefig(buf, format='svg', bbox_inches='tight')
+        mime = 'image/svg+xml'
+    buf.seek(0)
+    return Response(buf.getvalue(), mimetype=mime,
+                    headers={'Cache-Control': 'public, max-age=3600'})
 
 
 @fusion_bp.route('/fusion-default-weights', methods=['GET'])
