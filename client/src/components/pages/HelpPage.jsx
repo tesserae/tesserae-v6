@@ -1412,16 +1412,26 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               <p className="text-gray-700 mb-4">
                 You can let an AI assistant (ChatGPT or Claude) run Tesserae searches for you — comparing texts, testing
                 parallels for uniqueness across the corpus, and helping you interpret the results. Tesserae does the
-                searching, free, on its open API; the assistant orchestrates and interprets. The simplest, no-setup routes
-                are the <strong>paste-in guide</strong>, which works in ChatGPT, Gemini, or any assistant, and the one-URL
-                <strong>Claude connector</strong>.
+                searching, free, on its open API; the assistant orchestrates and interprets. The most hands-off routes
+                are the one-URL <strong>Claude connector</strong> (needs a paid Claude plan) and the <strong>paste-in
+                guide</strong> for ChatGPT and other assistants that can call the API on their own.
               </p>
 
-              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">1 · Paste-in guide <span className="text-sm font-normal text-gray-500">— any AI, no setup</span></h4>
+              <div className="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-gray-700 mb-6">
+                <strong>Works with any assistant, even free or sandboxed:</strong> run the search on this site yourself,
+                then paste the results into whatever AI you have — ChatGPT, Claude, Gemini, anything — and ask it to
+                interpret. It is a little more manual, but it needs nothing beyond a chat window. The connector and
+                paste-in routes below are more automatic, but each needs an assistant that can reach the API itself:
+                sandboxed apps like the standard Gemini cannot, and the Claude connector needs a paid plan.
+              </div>
+
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">1 · Paste-in guide <span className="text-sm font-normal text-gray-500">— ChatGPT and other request-capable AIs</span></h4>
               <p className="text-gray-700 text-sm mb-2">
-                Works with any assistant that can browse the web (ChatGPT, Claude, Gemini, or an agent that makes HTTP
-                requests). Open the guide, copy it, and paste it into your assistant as its first message — it teaches
-                the assistant Tesserae's full toolbox and a step-by-step research workflow.
+                Works with an assistant that can make live requests to the API itself, such as ChatGPT or an agent that
+                makes HTTP requests. Some assistants are sandboxed and cannot reach outside the chat, so the paste-in
+                will not work there — the standard <strong>Gemini</strong> app is one. Open the guide, copy it, and
+                paste it into your assistant as its first message — it teaches the assistant Tesserae's full toolbox and
+                a step-by-step research workflow.
               </p>
               <p className="mb-6">
                 <a href="/tesserae-data/ai-guide.html" target="_blank" rel="noopener noreferrer"
