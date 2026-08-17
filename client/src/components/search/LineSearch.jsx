@@ -29,7 +29,7 @@ export default function LineSearch({ language }) {
   const [error, setError] = useState(null);
   const [searchType, setSearchType] = useState('lemma');
   const [displayLimit, setDisplayLimit] = useState(50);
-  const [showTimeline, setShowTimeline] = useState(false);
+  const [showTimeline, setShowTimeline] = useState(true);
   const [eraFilter, setEraFilter] = useState(null);
   const [authorFilter, setAuthorFilter] = useState(null);
   const [showPoetry, setShowPoetry] = useState(true);
@@ -390,7 +390,7 @@ export default function LineSearch({ language }) {
     onClick: (event, elements) => {
       if (elements.length > 0) {
         const idx = elements[0].index;
-        const chartData = buildTimelineData(genreFilteredResults);
+        const chartData = timelineData;
         if (chartData) {
           const clickedEra = chartData.labels[idx];
           setEraFilter(eraFilter === clickedEra ? null : clickedEra);
@@ -422,7 +422,7 @@ export default function LineSearch({ language }) {
     onClick: (event, elements) => {
       if (elements.length > 0) {
         const idx = elements[0].index;
-        const chartData = buildAuthorTimelineData(genreFilteredResults);
+        const chartData = authorTimelineData;
         if (chartData) {
           const clickedAuthor = chartData.labels[idx];
           setAuthorFilter(authorFilter === clickedAuthor ? null : clickedAuthor);
@@ -457,8 +457,16 @@ export default function LineSearch({ language }) {
     return work;
   };
 
+  // Some .tess sources encode editorial angle brackets as HTML entities
+  // (&lt; &gt;); decode for display so readers see < > not the raw entity.
+  const decodeEntities = (s) => (typeof s === 'string' ? s
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&apos;/g, "'")
+    .replace(/&amp;/g, '&') : s);
+
   const highlightMatches = (text, matchedWords) => {
     if (!text) return text;
+    text = decodeEntities(text);
     if (!matchedWords || matchedWords.length === 0) return text;
     
     const normalizeWord = (s) => {
@@ -1026,7 +1034,7 @@ export default function LineSearch({ language }) {
                     <span className="text-xs text-gray-400 w-16 flex-shrink-0 text-right">
                       {line.locus}
                     </span>
-                    <span className="text-sm text-gray-700 flex-1">{line.text}</span>
+                    <span className="text-sm text-gray-700 flex-1">{decodeEntities(line.text)}</span>
                   </div>
                 ))}
               </div>
