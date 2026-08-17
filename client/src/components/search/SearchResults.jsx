@@ -7,6 +7,7 @@ import { normalizeCoptic } from '../../utils/copticUtils';
 import { exportRowsToPDF } from '../../utils/exportResults';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
+import * as d3 from 'd3';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -34,10 +35,53 @@ const SearchResults = ({
   queuedMessage = ''
 }) => {
   const [expandedResults, setExpandedResults] = useState({});
-  const [showDistributionChart, setShowDistributionChart] = useState(false);
+  // Standing chart sidebar: open by default (remembered per session), so a live
+  // graph is on the comparison page with no extra clicks. Collapse toggles it.
+  const [showDistributionChart, setShowDistributionChart] = useState(() => {
+    try { return sessionStorage.getItem('tess_show_dist_chart') !== 'false'; }
+    catch { return true; }
+  });
+  const toggleDistributionChart = () => {
+    setShowDistributionChart(prev => {
+      const next = !prev;
+      try { sessionStorage.setItem('tess_show_dist_chart', String(next)); } catch {}
+      return next;
+    });
+  };
   const [distributionChartView, setDistributionChartView] = useState('target');
   const [chartFilter, setChartFilter] = useState(null);
+  // Sidebar has two modes: 'comparison' (where parallels fall in this pair) and
+  // 'corpus' (where a chosen parallel's shared words recur across the corpus).
+  const [sidebarMode, setSidebarMode] = useState('corpus');
+  const [corpusGroupBy, setCorpusGroupBy] = useState('timeline'); // 'era' | 'author' | 'timeline'
+  const [corpusHitIdx, setCorpusHitIdx] = useState(0);
+  const [corpusData, setCorpusData] = useState(null);
+  const [corpusLoading, setCorpusLoading] = useState(false);
+  const [corpusSelectedAuthor, setCorpusSelectedAuthor] = useState(null);
+  // Pin the sidebar via inline style (guaranteed to apply) only at the >=lg width
+  // where the two-column layout is active; on narrow screens it flows normally.
+  const [isWideLayout, setIsWideLayout] = useState(false);
+  // The page has a sticky top nav (z-40); pin the sidebar just below it, measuring
+  // the nav's real height so it never tucks underneath and gets its top clipped.
+  const [stickyTop, setStickyTop] = useState(72);
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const measure = () => {
+      setIsWideLayout(mq.matches);
+      const nav = document.querySelector('nav.sticky');
+      const h = nav ? nav.getBoundingClientRect().height : 56;
+      setStickyTop(Math.round(h) + 12);
+    };
+    measure();
+    mq.addEventListener('change', measure);
+    window.addEventListener('resize', measure);
+    return () => { mq.removeEventListener('change', measure); window.removeEventListener('resize', measure); };
+  }, []);
+  const stickyAsideStyle = isWideLayout
+    ? { position: 'sticky', top: stickyTop, alignSelf: 'flex-start', maxHeight: `calc(100vh - ${stickyTop + 16}px)`, overflowY: 'auto' }
+    : undefined;
   const chartRef = useRef(null);
+  const timelineRef = useRef(null);
   const [pauseUpdates, setPauseUpdates] = useState(false);
   const [frozenResults, setFrozenResults] = useState(null);
   const fusionBatchTotal = fusionProgress?.batchTotal || fusionProgress?.channelsTotal || 0;
@@ -82,10 +126,12 @@ const SearchResults = ({
       const locus = chartFilter.view === 'source'
         ? (r.source_locus || r.source?.ref || '')
         : (r.target_locus || r.target?.ref || '');
-      const bookMatch = locus.match(/book\s*(\d+)/i) ||
-                        locus.match(/(\d+)\.\d+/) ||
-                        locus.match(/^([^.]+)/);
-      const book = bookMatch ? `Book ${bookMatch[1]}` : 'Other';
+      const nums = (String(locus).match(/\d+/g) || []).map(Number);
+      if (chartFilter.mode === 'line') {
+        const line = nums.length ? nums[nums.length - 1] : null;
+        return line != null && line >= chartFilter.lineMin && line <= chartFilter.lineMax;
+      }
+      const book = nums.length ? `Book ${nums[0]}` : 'Other';
       return book === chartFilter.book;
     });
   }, [activeResults, chartFilter]);
@@ -93,7 +139,7 @@ const SearchResults = ({
   // A new search, a sort change, or a filter change all return to page 1.
   // searchRunId covers the case where two searches return the same result count.
   const paginationResetKey = `${searchRunId ?? ''}|${sortBy ?? ''}|` +
-    `${chartFilter ? `${chartFilter.view}:${chartFilter.book}` : ''}`;
+    `${chartFilter ? `${chartFilter.mode || 'book'}:${chartFilter.view}:${chartFilter.book ?? chartFilter.label ?? ''}` : ''}`;
 
   const {
     visibleItems,
@@ -281,46 +327,227 @@ const SearchResults = ({
 
   const getDistributionData = useCallback(() => {
     if (!results || results.length === 0) return null;
-
-    const bookData = {};
     const isSourceView = distributionChartView === 'source';
+    // A locus like "1.469" -> book 1, line 469; a flat "469" -> line only.
+    const parseLoc = (locus) => {
+      const nums = (String(locus).match(/\d+/g) || []).map(Number);
+      return { book: nums.length >= 2 ? nums[0] : null, line: nums.length ? nums[nums.length - 1] : null };
+    };
+    const pts = results.map(r => parseLoc(isSourceView
+      ? (r.source_locus || r.source?.ref || '')
+      : (r.target_locus || r.target?.ref || '')));
+    const color = isSourceView ? 'rgba(185, 28, 28, 0.7)' : 'rgba(217, 119, 6, 0.7)';
+    const border = isSourceView ? 'rgb(185, 28, 28)' : 'rgb(217, 119, 6)';
+    const books = new Set(pts.map(p => p.book).filter(b => b != null));
 
-    results.forEach(r => {
-      const locus = isSourceView
-        ? (r.source_locus || r.source?.ref || '')
-        : (r.target_locus || r.target?.ref || '');
+    // Single book (e.g. Aeneid 1 vs Lucan 1): a by-book chart is one useless
+    // column, so show WHERE ALONG THE BOOK the parallels fall — bin by line.
+    if (books.size <= 1) {
+      const lines = pts.map(p => p.line).filter(n => n != null);
+      if (lines.length === 0) return null;
+      const maxLine = Math.max(...lines);
+      const band = [10, 25, 50, 100, 200, 500, 1000].find(b => Math.ceil(maxLine / b) <= 18) || 1000;
+      const nBands = Math.max(1, Math.ceil(maxLine / band));
+      const counts = new Array(nBands).fill(0);
+      pts.forEach(p => { if (p.line != null) counts[Math.min(nBands - 1, Math.floor((p.line - 1) / band))]++; });
+      return {
+        _mode: 'line', _band: band,
+        labels: counts.map((_, i) => `${i * band + 1}–${(i + 1) * band}`),
+        datasets: [{ label: 'Parallels', data: counts, backgroundColor: color, borderColor: border, borderWidth: 1 }]
+      };
+    }
 
-      const bookMatch = locus.match(/book\s*(\d+)/i) ||
-                        locus.match(/(\d+)\.\d+/) ||
-                        locus.match(/^([^.]+)/);
-
-      const book = bookMatch ? bookMatch[1] : 'Other';
-      const bookLabel = `Book ${book}`;
-
-      if (!bookData[bookLabel]) {
-        bookData[bookLabel] = { count: 0, totalScore: 0 };
-      }
-      bookData[bookLabel].count++;
-      bookData[bookLabel].totalScore += (r.fused_score ?? r.score ?? r.overall_score ?? 0);
-    });
-
-    const sortedBooks = Object.keys(bookData).sort((a, b) => {
-      const numA = parseInt(a.replace(/\D/g, '')) || 0;
-      const numB = parseInt(b.replace(/\D/g, '')) || 0;
-      return numA - numB;
-    });
-
+    // Multiple books: keep the by-book view.
+    const bookData = {};
+    pts.forEach(p => { const k = `Book ${p.book}`; (bookData[k] = bookData[k] || { count: 0 }).count++; });
+    const sorted = Object.keys(bookData).sort((a, b) =>
+      (parseInt(a.replace(/\D/g, '')) || 0) - (parseInt(b.replace(/\D/g, '')) || 0));
     return {
-      labels: sortedBooks,
-      datasets: [{
-        label: 'Parallels',
-        data: sortedBooks.map(book => bookData[book].count),
-        backgroundColor: isSourceView ? 'rgba(185, 28, 28, 0.7)' : 'rgba(217, 119, 6, 0.7)',
-        borderColor: isSourceView ? 'rgb(185, 28, 28)' : 'rgb(217, 119, 6)',
-        borderWidth: 1
-      }]
+      _mode: 'book',
+      labels: sorted,
+      datasets: [{ label: 'Parallels', data: sorted.map(k => bookData[k].count), backgroundColor: color, borderColor: border, borderWidth: 1 }]
     };
   }, [results, distributionChartView]);
+
+  const distributionData = getDistributionData();
+  const distIsLine = distributionData?._mode === 'line';
+  const distWork = distributionChartView === 'source'
+    ? (sourceTextInfo?.title || 'Source')
+    : (targetTextInfo?.title || 'Target');
+
+  // ---- Corpus mode: where a parallel's shared words recur across the corpus ----
+  const ERA_ORDER = { 'Archaic': 0, 'Early Greek': 1, 'Classical': 2, 'Hellenistic': 3, 'Republic': 4, 'Late Republican': 5, 'Late Republic': 5, 'Augustan': 6, 'Early Imperial': 7, 'Imperial': 8, 'Later Imperial': 9, 'Late Antique': 10, 'Patristic': 10, 'Carolingian': 11, 'Medieval': 12, 'Renaissance': 13, 'Early Modern': 14, 'Modern': 15, 'Unknown': 99 };
+  const sharedLemmasOf = (r) => {
+    const raw = (r?.matched_lemmas && r.matched_lemmas.length) ? r.matched_lemmas : (r?.matched_words || []);
+    return raw
+      .map(w => (typeof w === 'object' ? (w.lemma || w.word || '') : String(w)).trim())
+      .filter(w => /^[\p{L}]+$/u.test(w));
+  };
+  const corpusHit = (results && results.length) ? results[Math.min(corpusHitIdx, results.length - 1)] : null;
+
+  useEffect(() => {
+    if (sidebarMode !== 'corpus' || !showDistributionChart || loading || !corpusHit) return;
+    const words = sharedLemmasOf(corpusHit);
+    const query = words.join(' ');
+    if (words.length < 2) { setCorpusData({ query, loci: [], tooFew: true }); return; }
+    let cancelled = false;
+    setCorpusLoading(true);
+    setCorpusSelectedAuthor(null);
+    fetch('/api/line-search', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, language, search_type: 'lemma', max_results: 500 }),
+    })
+      .then(res => res.json())
+      .then(d => { if (!cancelled) setCorpusData({ query, corpus_version: d.corpus_version,
+        loci: (d.results || []).map(x => ({ era: x.era, year: x.year, author: x.author,
+          work: x.work, locus: x.locus, text: x.text, matched_words: x.matched_words || [] })) }); })
+      .catch(() => { if (!cancelled) setCorpusData({ query, loci: [], error: true }); })
+      .finally(() => { if (!cancelled) setCorpusLoading(false); });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sidebarMode, corpusHitIdx, showDistributionChart, loading, language, results]);
+
+  const CORPUS_COLOR = { backgroundColor: 'rgba(37, 99, 235, 0.7)', borderColor: 'rgb(37, 99, 235)', borderWidth: 1 };
+  const getCorpusChartData = () => {
+    if (!corpusData || !corpusData.loci || !corpusData.loci.length) return null;
+    if (corpusGroupBy === 'author') {
+      const datedYear = (l) => (l.year != null && l.year < 9999 ? l.year : null);
+      const agg = {}; // author -> { count, year }
+      corpusData.loci.forEach(l => {
+        const a = l.author || 'Unknown';
+        if (!agg[a]) agg[a] = { count: 0, year: datedYear(l) };
+        agg[a].count++;
+        if (agg[a].year == null) { const y = datedYear(l); if (y != null) agg[a].year = y; }
+      });
+      let authors = Object.keys(agg);
+      // Cap to the top 30 contributors, then order THOSE chronologically.
+      authors.sort((a, b) => agg[b].count - agg[a].count);
+      const capped = authors.length > 30;
+      authors = authors.slice(0, 30);
+      const yr = (a) => (agg[a].year != null ? agg[a].year : 9999);
+      authors.sort((a, b) => yr(a) - yr(b) || a.localeCompare(b));
+      return { _capped: capped, labels: authors,
+        datasets: [{ label: 'Occurrences', data: authors.map(a => agg[a].count), ...CORPUS_COLOR }] };
+    }
+    const byEra = {};
+    corpusData.loci.forEach(l => { const e = l.era || 'Unknown'; byEra[e] = (byEra[e] || 0) + 1; });
+    const eras = Object.keys(byEra).sort((a, b) => (ERA_ORDER[a] ?? 50) - (ERA_ORDER[b] ?? 50));
+    return { labels: eras, datasets: [{ label: 'Occurrences', data: eras.map(e => byEra[e]), ...CORPUS_COLOR }] };
+  };
+  const corpusChartData = getCorpusChartData();
+  const corpusIsAuthor = corpusGroupBy === 'author';
+  const corpusIsTimeline = corpusGroupBy === 'timeline';
+  const corpusChartOptions = {
+    responsive: true, maintainAspectRatio: false,
+    indexAxis: corpusIsAuthor ? 'y' : 'x',
+    plugins: {
+      legend: { display: false },
+      title: { display: true, text: corpusIsAuthor
+        ? 'Where these words recur, by author (earliest → latest)'
+        : 'Where these words recur across the corpus' },
+      tooltip: { callbacks: { label: (c) => {
+        const v = corpusIsAuthor ? c.parsed.x : c.parsed.y;
+        return `${v} occurrence${v !== 1 ? 's' : ''}`;
+      } } },
+    },
+    onClick: (evt, elements) => {
+      if (corpusIsAuthor && elements && elements.length && corpusChartData) {
+        setCorpusSelectedAuthor(corpusChartData.labels[elements[0].index]);
+      }
+    },
+    scales: corpusIsAuthor ? {
+      x: { beginAtZero: true, ticks: { stepSize: 1 }, title: { display: true, text: 'Occurrences', font: { size: 12 } } },
+      y: { ticks: { autoSkip: false, font: { size: 10 } } },
+    } : {
+      x: { title: { display: true, text: 'Era (earliest → latest)', font: { size: 12 } } },
+      y: { beginAtZero: true, ticks: { stepSize: 1 }, title: { display: true, text: 'Occurrences', font: { size: 12 } } },
+    },
+  };
+
+  // Vertical timeline (d3): the date axis runs top (latest) to bottom (earliest);
+  // each author sits at its actual year, so time clusters and gaps are visible,
+  // with a bar for how often the shared words occur in that author. Click an
+  // author to list its actual instances below the chart.
+  useEffect(() => {
+    if (!(sidebarMode === 'corpus' && corpusGroupBy === 'timeline')) return;
+    const host = timelineRef.current;
+    if (!host) return;
+    host.innerHTML = '';
+    if (!corpusData || !corpusData.loci || !corpusData.loci.length) return;
+    const datedYear = (l) => (l.year != null && l.year < 9999 ? l.year : null);
+    const agg = {};
+    corpusData.loci.forEach(l => {
+      const a = l.author || 'Unknown';
+      (agg[a] = agg[a] || { count: 0, year: datedYear(l) }).count++;
+      if (agg[a].year == null) { const y = datedYear(l); if (y != null) agg[a].year = y; }
+    });
+    let data = Object.entries(agg).map(([author, v]) => ({ author, count: v.count, year: v.year }))
+      .filter(d => d.year != null);
+    if (!data.length) {
+      d3.select(host).append('div').attr('class', 'text-xs text-gray-400 p-2')
+        .text('No dated authors to place on a timeline.');
+      return;
+    }
+    data = data.sort((a, b) => b.count - a.count).slice(0, 40).sort((a, b) => b.year - a.year);
+
+    const rowH = 16, marginTop = 16, marginBottom = 8, axisW = 50, labelW = 175;
+    const width = host.clientWidth || 340;
+    const baseHeight = marginTop + marginBottom + data.length * rowH;
+
+    const years = data.map(d => d.year);
+    const yScale = d3.scaleLinear().domain([d3.min(years), d3.max(years)])
+      .range([baseHeight - marginBottom, marginTop]).nice();
+    let lastY = -Infinity;
+    data.forEach(d => { d.trueY = yScale(d.year); d.y = Math.max(d.trueY, lastY + rowH); lastY = d.y; });
+    // Greedy de-overlap can push the earliest author below baseHeight when dates
+    // cluster or an outlier stretches the scale; grow the canvas so nothing clips.
+    const height = Math.max(baseHeight, lastY + marginBottom + 6);
+    const svg = d3.select(host).append('svg').attr('width', width).attr('height', height)
+      .attr('font-family', 'inherit');
+    const dotR = 3, dotGap = 8;
+    const dotCap = Math.max(1, Math.floor((width - axisW - labelW) / dotGap));
+    const fmtYear = y => (y < 0 ? `${-y} BCE` : `${y} CE`);
+    const trunc = s => (s.length > 15 ? s.slice(0, 14) + '…' : s);
+
+    svg.append('line').attr('x1', axisW - 6).attr('x2', axisW - 6)
+      .attr('y1', marginTop - 6).attr('y2', baseHeight - marginBottom).attr('stroke', '#e5e7eb');
+    svg.append('g').selectAll('text.tick').data(yScale.ticks(6)).join('text')
+      .attr('x', 2).attr('y', d => yScale(d)).attr('dy', '0.32em')
+      .attr('font-size', 9).attr('fill', '#9ca3af').text(d => fmtYear(d));
+
+    const rows = svg.append('g').selectAll('g.row').data(data).join('g')
+      .style('cursor', 'pointer')
+      .on('click', (event, d) => setCorpusSelectedAuthor(d.author))
+      .on('mouseover', function () { d3.select(this).select('text.author-label').style('text-decoration', 'underline'); })
+      .on('mouseout', function () { d3.select(this).select('text.author-label').style('text-decoration', null); });
+    rows.append('line').attr('x1', axisW - 6).attr('x2', axisW)
+      .attr('y1', d => d.trueY).attr('y2', d => d.y).attr('stroke', '#e5e7eb');
+    // One dot per occurrence, so a single instance is a single dot rather than a
+    // long bar. Beyond dotCap dots a "+" marks the overflow; the exact total is in
+    // the label. dotCap is width-driven, so longer names simply leave room for fewer.
+    rows.each(function (d) {
+      const g = d3.select(this);
+      const n = Math.min(d.count, dotCap);
+      const fill = d.author === corpusSelectedAuthor ? 'rgba(37,99,235,1)' : 'rgba(37,99,235,0.75)';
+      for (let i = 0; i < n; i++) {
+        g.append('circle').attr('cx', axisW + dotR + i * dotGap).attr('cy', d.y)
+          .attr('r', dotR).attr('fill', fill);
+      }
+      if (d.count > dotCap) {
+        g.append('text').attr('x', axisW + n * dotGap + 1).attr('y', d.y).attr('dy', '0.32em')
+          .attr('font-size', 10).attr('font-weight', 700).attr('fill', fill).text('+');
+      }
+    });
+    rows.append('text').attr('class', 'author-label')
+      .attr('x', d => axisW + Math.min(d.count, dotCap) * dotGap + (d.count > dotCap ? 9 : 0) + 6)
+      .attr('y', d => d.y).attr('dy', '0.32em')
+      .attr('font-size', 9)
+      .attr('font-weight', d => d.author === corpusSelectedAuthor ? 700 : 400)
+      .attr('fill', '#2563eb')
+      .text(d => `${trunc(d.author.replace(/_/g, ' '))}, ${fmtYear(d.year)} (${d.count})`);
+    rows.append('title').text(d => `${d.author.replace(/_/g, ' ')} — ${fmtYear(d.year)} — ${d.count} occurrence${d.count !== 1 ? 's' : ''}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sidebarMode, corpusGroupBy, corpusData, corpusSelectedAuthor]);
 
   const chartOptions = {
     responsive: true,
@@ -331,11 +558,11 @@ const SearchResults = ({
       },
       title: {
         display: true,
-        text: `Distribution of Parallels from ${sourceTextInfo?.title || 'Source'} in ${targetTextInfo?.title || 'Target'}`
+        text: distIsLine ? `Where the parallels fall in ${distWork}` : 'Parallels by book'
       },
       tooltip: {
         callbacks: {
-          label: (context) => `${context.parsed.y} parallel${context.parsed.y !== 1 ? 's' : ''}`
+          label: (context) => `${context.parsed.y} parallel${context.parsed.y !== 1 ? 's' : ''}${distIsLine ? ` at lines ${context.label}` : ''}`
         }
       }
     },
@@ -343,9 +570,7 @@ const SearchResults = ({
       x: {
         title: {
           display: true,
-          text: distributionChartView === 'source'
-            ? (sourceTextInfo?.title || 'Source')
-            : (targetTextInfo?.title || 'Target'),
+          text: distIsLine ? `Line in ${distWork}` : distWork,
           font: { size: 12 }
         }
       },
@@ -362,12 +587,14 @@ const SearchResults = ({
       }
     },
     onClick: (event, elements) => {
-      if (elements.length > 0) {
+      if (elements.length > 0 && distributionData) {
         const idx = elements[0].index;
-        const chartData = getDistributionData();
-        if (chartData) {
-          const clickedBook = chartData.labels[idx];
-          setChartFilter({ book: clickedBook, view: distributionChartView });
+        const label = distributionData.labels[idx];
+        if (distributionData._mode === 'line') {
+          const m = String(label).match(/(\d+)\D+(\d+)/);
+          if (m) setChartFilter({ mode: 'line', view: distributionChartView, lineMin: +m[1], lineMax: +m[2], label });
+        } else {
+          setChartFilter({ mode: 'book', view: distributionChartView, book: label, label });
         }
       }
     }
@@ -507,6 +734,30 @@ const SearchResults = ({
     return highlightedVerses.join('<br class="verse-break" />');
   };
 
+  // Bold the matched words inside a corpus-instance line. matched_words are the
+  // actual surface tokens the line-search flagged, so normalize the same way the
+  // main highlighter does (case, trailing punctuation, Latin u/v, Greek accents).
+  const renderInstanceText = (text, matchedWords, lang) => {
+    if (!text) return null;
+    const strip = (w) => w.toLowerCase()
+      .replace(/[.,;:!?'"()—–··-]+$/, '')
+      .replace(/^[.,;:!?'"()—–··-]+/, '');
+    const norm = (w) => {
+      let n = strip(w);
+      if (lang === 'la') n = n.replace(/[uv]/g, 'u').replace(/j/g, 'i');
+      if (lang === 'grc') n = n.normalize('NFD').replace(/[̀-ͯ]/g, '');
+      return n;
+    };
+    const wanted = new Set((matchedWords || []).map(norm).filter(Boolean));
+    if (!wanted.size) return text;
+    return text.split(/(\s+)/).map((part, i) => {
+      if (/^\s+$/.test(part) || !part) return part;
+      return wanted.has(norm(part))
+        ? <strong key={i} className="font-semibold text-gray-900">{part}</strong>
+        : <span key={i}>{part}</span>;
+    });
+  };
+
   const renderScansion = (scansion) => {
     if (!scansion || !scansion.raw) return null;
     const meterAbbr = {
@@ -621,7 +872,7 @@ const SearchResults = ({
               ? `Top ${activeResults.length.toLocaleString()} of ${searchStats.total_matches.toLocaleString()} Parallels`
               : `${activeResults.length} Parallel${activeResults.length !== 1 ? 's' : ''} Found`}
             {loading && fusionProgress && (pauseUpdates ? ' (paused)' : ' (partial)')}
-            {chartFilter && ` (${filteredResults.length} in ${chartFilter.book})`}
+            {chartFilter && ` (${filteredResults.length} ${chartFilter.mode === 'line' ? `at lines ${chartFilter.label}` : `in ${chartFilter.book}`})`}
           </h3>
           {searchStats && (
             <p className="text-sm text-gray-500">
@@ -634,10 +885,10 @@ const SearchResults = ({
         <div className="flex flex-col sm:flex-row gap-2">
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setShowDistributionChart(!showDistributionChart)}
+              onClick={toggleDistributionChart}
               className={`text-xs px-3 py-2 rounded whitespace-nowrap ${showDistributionChart ? 'bg-amber-600 text-white' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'}`}
             >
-              {showDistributionChart ? 'Hide Chart' : 'Distribution'}
+              {showDistributionChart ? 'Hide chart' : 'Show chart'}
             </button>
             <button
               onClick={exportCSV}
@@ -677,8 +928,22 @@ const SearchResults = ({
         </div>
       </div>
 
+      {/* Two-column layout: results on the left, standing chart sidebar on the right */}
+      <div className="flex flex-col lg:flex-row-reverse gap-4 items-start">
       {showDistributionChart && results.length > 0 && (
-        <div className="bg-white border rounded-lg p-4 mb-4">
+        <aside style={stickyAsideStyle} className="w-full lg:w-96 shrink-0 bg-white border rounded-lg p-4">
+          <div className="flex items-center gap-1 mb-3">
+            <button
+              onClick={() => setSidebarMode('comparison')}
+              className={`text-xs px-3 py-1 rounded ${sidebarMode === 'comparison' ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+            >In this comparison</button>
+            <button
+              onClick={() => setSidebarMode('corpus')}
+              className={`text-xs px-3 py-1 rounded ${sidebarMode === 'corpus' ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+            >Across the corpus</button>
+          </div>
+
+          {sidebarMode === 'comparison' && (<>
           <div className="flex flex-wrap items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-gray-700">View:</span>
@@ -704,12 +969,12 @@ const SearchResults = ({
             </button>
           </div>
           <div className="h-[150px] sm:h-[200px]">
-            <Bar ref={chartRef} data={getDistributionData() || { labels: [], datasets: [] }} options={chartOptions} />
+            <Bar ref={chartRef} data={distributionData || { labels: [], datasets: [] }} options={chartOptions} />
           </div>
           {chartFilter && (
             <div className="mt-3 flex items-center justify-between bg-amber-50 border border-amber-200 rounded px-3 py-2">
               <span className="text-sm text-amber-800">
-                Filtering to {chartFilter.book} ({filteredResults.length} result{filteredResults.length !== 1 ? 's' : ''})
+                Filtering to {chartFilter.mode === 'line' ? `lines ${chartFilter.label}` : chartFilter.book} ({filteredResults.length} result{filteredResults.length !== 1 ? 's' : ''})
               </span>
               <button
                 onClick={() => setChartFilter(null)}
@@ -719,12 +984,102 @@ const SearchResults = ({
               </button>
             </div>
           )}
-          <p className="text-xs text-gray-500 mt-2">Click a bar to filter results to that book/section</p>
-        </div>
+          <p className="text-xs text-gray-500 mt-2">Click a bar to filter the results list.</p>
+          </>)}
+
+          {sidebarMode === 'corpus' && (<>
+          <div className="mb-2">
+            <label className="text-xs text-gray-600 block mb-1">Parallel:</label>
+            <select
+              value={corpusHitIdx}
+              onChange={(e) => setCorpusHitIdx(Number(e.target.value))}
+              className="w-full border rounded px-2 py-1 text-xs"
+            >
+              {(results || []).map((r, i) => (
+                <option key={i} value={i}>
+                  #{i + 1} · {formatReference(r.source_locus || r.source?.ref, language)} ↔ {formatReference(r.target_locus || r.target?.ref, language)}
+                </option>
+              ))}
+            </select>
+          </div>
+          {corpusHit && (
+            <p className="text-xs text-gray-500 mb-2">
+              Shared words: <span className="font-medium">{sharedLemmasOf(corpusHit).join(', ') || '—'}</span>
+            </p>
+          )}
+          <div className="flex items-center gap-1 mb-2">
+            <span className="text-xs text-gray-600 mr-1">Group by:</span>
+            <button
+              onClick={() => setCorpusGroupBy('era')}
+              className={`text-xs px-2.5 py-1 rounded ${corpusGroupBy === 'era' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
+            >Era</button>
+            <button
+              onClick={() => setCorpusGroupBy('author')}
+              className={`text-xs px-2.5 py-1 rounded ${corpusGroupBy === 'author' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
+            >Author</button>
+            <button
+              onClick={() => setCorpusGroupBy('timeline')}
+              className={`text-xs px-2.5 py-1 rounded ${corpusGroupBy === 'timeline' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
+            >Timeline</button>
+          </div>
+          {(corpusIsTimeline || corpusIsAuthor) && corpusData && !corpusData.tooFew && !corpusLoading && (
+            <p className="text-xs text-gray-500 mb-1.5">Click any author to see its lines.</p>
+          )}
+          <div>
+            {corpusLoading ? (
+              <div className="flex items-center justify-center h-[200px] text-sm text-gray-400">Searching the corpus…</div>
+            ) : corpusData && corpusData.tooFew ? (
+              <div className="flex items-center justify-center h-[200px] text-xs text-gray-400 text-center px-2">This parallel shares only one word, so there is no corpus-wide co-occurrence to map. Pick another.</div>
+            ) : corpusIsTimeline ? (
+              <div key="corpus-timeline" ref={timelineRef} className="w-full" />
+            ) : corpusChartData ? (
+              <div key="corpus-chart" style={{ height: corpusIsAuthor ? Math.max(180, corpusChartData.labels.length * 22) : 200 }}>
+                <Bar data={corpusChartData} options={corpusChartOptions} />
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-[200px] text-xs text-gray-400">No corpus occurrences found.</div>
+            )}
+          </div>
+          {corpusIsAuthor && corpusChartData && corpusChartData._capped && (
+            <p className="text-xs text-gray-400 mt-1">Showing the 30 most-cited authors, in chronological order.</p>
+          )}
+          {corpusSelectedAuthor && corpusData && corpusData.loci && (() => {
+            const rows = corpusData.loci.filter(l => (l.author || 'Unknown') === corpusSelectedAuthor);
+            return (
+              <div className="mt-2 border-t pt-2">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-medium text-gray-700">
+                    {corpusSelectedAuthor.replace(/_/g, ' ')} — {rows.length} instance{rows.length !== 1 ? 's' : ''}
+                  </span>
+                  <button
+                    onClick={() => setCorpusSelectedAuthor(null)}
+                    className="text-xs text-gray-400 hover:text-gray-700"
+                  >Close</button>
+                </div>
+                <div className="space-y-1.5 overflow-y-auto" style={{ maxHeight: 200 }}>
+                  {rows.map((l, i) => (
+                    <div key={i} className="text-xs leading-snug">
+                      <span className="text-gray-500">
+                        {[l.work && l.work.replace(/_/g, ' '), l.locus].filter(Boolean).join(' ')}
+                      </span>
+                      {l.text && <span className="text-gray-700"> — {renderInstanceText(l.text, l.matched_words, language)}</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+          {corpusData && corpusData.loci && corpusData.loci.length > 0 && (
+            <p className="text-xs text-gray-500 mt-2">
+              These words co-occur in {corpusData.loci.length} corpus lines{corpusData.corpus_version ? ` (corpus version ${corpusData.corpus_version})` : ''}.
+            </p>
+          )}
+          </>)}
+        </aside>
       )}
 
+      <div className="flex-1 min-w-0 w-full">
       <Pagination {...paginationProps} variant="full" idPrefix="parallels-top" />
-
       <div className="space-y-3">
         {visibleItems.map((r, i) => (
           <div
@@ -819,6 +1174,8 @@ const SearchResults = ({
       </div>
 
       <Pagination {...paginationProps} variant="nav" idPrefix="parallels-bottom" />
+      </div>{/* flex-1 results column */}
+      </div>{/* two-column flex wrapper */}
     </div>
   );
 };
