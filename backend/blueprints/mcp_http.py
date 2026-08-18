@@ -57,6 +57,14 @@ def _history_url(source, target, language):
         return None
     return (f"{API_BASE}/comparison-history-chart?source={quote(str(source))}"
             f"&target={quote(str(target))}&language={quote(language or 'la')}")
+
+def _map_url(source, target, language):
+    # Server-rendered connection map: the two texts as vertical axes, each top
+    # parallel a curve between them, weighted by strength, rare-word finds marked.
+    if not (source and target):
+        return None
+    return (f"{API_BASE}/comparison-map-chart?source={quote(str(source))}"
+            f"&target={quote(str(target))}&language={quote(language or 'la')}")
 # Keep this minimal and spec-exact for the negotiated protocolVersion. Adding
 # non-standard Implementation fields (title/websiteUrl/icons from a later draft)
 # caused Claude's connector to reject the initialize response ("Tesserae returned
@@ -281,6 +289,8 @@ def _t_fusion_search(a):
                                                a.get('language', 'la')))
         res.setdefault('history_url', _history_url(a.get('source'), a.get('target'),
                                                    a.get('language', 'la')))
+        res.setdefault('map_url', _map_url(a.get('source'), a.get('target'),
+                                           a.get('language', 'la')))
     return res
 
 
@@ -360,6 +370,7 @@ def _t_compare_texts(a):
         'web_url': _compare_url(a.get('source'), a.get('target'), a.get('language', 'la')),
         'chart_url': _chart_url(a.get('source'), a.get('target'), a.get('language', 'la')),
         'history_url': _history_url(a.get('source'), a.get('target'), a.get('language', 'la')),
+        'map_url': _map_url(a.get('source'), a.get('target'), a.get('language', 'la')),
     }
     common = (
         "PRESENTATION (default; an explicit user request for a by-search view, the full list, or a "
@@ -427,25 +438,17 @@ def _t_compare_texts(a):
         "SURFACE THE LINK: when the response carries a web_url, include it with the results in plain "
         "words -- 'open this comparison in Tesserae's own interface' -- in the close and in any artifact "
         "footer; without it the link is invisible to the reader. "
-        "OFFICIAL CHARTS: when the response carries a chart_url, attach or embed it -- it is the same "
-        "distribution chart the site draws (where the parallels fall in one text), rendered server-side as "
-        "an image, so every user sees the identical Tesserae chart. When it carries a history_url, attach "
-        "that too: one 'history strip' image showing where each of the top shared phrases recurs across the "
-        "corpus over time (one row per parallel, source and target marked), which answers 'where do these "
-        "echoes sit in literary history' in a single picture instead of one chart per parallel. Prefer "
-        "these official images over improvising charts from the raw numbers. The CONNECTION MAP below stays "
-        "optional enrichment on top of them, for rich surfaces with an in-conversation hover layer. "
-        "CONNECTION MAP: when the medium can display one (an HTML artifact, a notebook), OFFER or produce "
-        "a connection map of the comparison -- one compare_texts response already carries everything it "
-        "needs (both sides' line positions, strengths, which search found each, and the full line texts "
-        "for a hover layer). Draw it the same way every time so every agent's map matches: the two texts "
-        "are vertical axes scaled to their line counts (source right, target left, or by chronology); each "
-        "parallel is a curve between its two lines; curve weight follows strength; color follows which "
-        "search found it (ranked/fusion vs rare-word), with weaker top-band links a recessive gray; the "
-        "few highlighted parallels get direct labels; hovering a curve shows both full lines with the "
-        "plain-language corpus note; a table of the strongest sits beneath as the accessible fallback; the "
-        "footer carries the corpus_version and the web_url. Offer, do not force -- a quick question does "
-        "not need a graphic."
+        "OFFICIAL CHARTS: the response carries three ready-made chart image URLs, each the same figure the "
+        "site draws, rendered server-side so every user sees identical Tesserae charts. When they display "
+        "well in the medium, attach or embed them with the results, and PREFER them over drawing your own "
+        "-- do not improvise a chart when these exist. chart_url is the distribution chart (where the "
+        "parallels fall in one text). history_url is a 'history strip' showing where each top shared phrase "
+        "recurs across the corpus over time (one row per parallel, source and target marked), which answers "
+        "'where do these echoes sit in literary history' in one picture. map_url is the connection map: the "
+        "two texts as vertical axes with each top parallel a curve between them, weighted by strength and "
+        "highlighting rare-word finds, so the shape of the relationship reads at a glance. Each renders in a "
+        "few seconds the first time and is cached after. For an INTERACTIVE version (hover, click-to-filter) "
+        "point the user to the web_url. Offer, do not force -- a quick question does not need a graphic."
     )
     if fusion.get('status') == 'running':
         out['note'] = ('The ranked_parallels (fusion) section is still computing server-side. '

@@ -1035,6 +1035,142 @@ def comparison_history_chart():
     return Response(data, mimetype=mime, headers={'Cache-Control': 'public, max-age=3600'})
 
 
+@fusion_bp.route('/comparison-map-chart', methods=['GET'])
+def comparison_map_chart():
+    """Server-rendered connection map for a cached comparison: the two texts as
+    two vertical axes scaled to their line counts, each of the top parallels a
+    curve between the two lines it links, weighted by strength and colored by
+    which search found it (rare-word finds highlighted). Shows the SHAPE of the
+    relationship at a glance. Static image; the web app has the interactive one.
+
+    GET /api/comparison-map-chart?source=<id>&target=<id>&language=la
+        &format=svg|png (default svg)  &top=<N up to 200> (default 80)
+    Reads the shared fusion cache; 404 if the pair is not computed yet. Cached.
+    """
+    source_id = request.args.get('source')
+    target_id = request.args.get('target')
+    language = request.args.get('language', 'la')
+    fmt = (request.args.get('format', 'svg') or 'svg').lower()
+    if fmt not in ('svg', 'png'):
+        fmt = 'svg'
+    mime = 'image/png' if fmt == 'png' else 'image/svg+xml'
+    try:
+        top = int(request.args.get('top', 80))
+    except (TypeError, ValueError):
+        top = 80
+    top = max(5, min(top, 200))
+    if not source_id or not target_id:
+        return jsonify({'error': 'Provide source and target text ids (see /api/texts).'}), 400
+    sp = resolve_text_path(_texts_dir, language, source_id)
+    tp = resolve_text_path(_texts_dir, language, target_id)
+    if not (sp and tp):
+        return jsonify({'error': 'Text files not found for that source/target/language.'}), 404
+
+    try:
+        from backend.inverted_index import get_corpus_version
+        corpus_version = get_corpus_version(language)
+    except Exception:
+        corpus_version = None
+
+    cache_dir = os.path.join(CACHE_DIR, 'map_charts')
+    ck = hashlib.md5(f"{source_id}|{target_id}|{language}|{top}|{fmt}|{corpus_version}".encode()).hexdigest()  # nosec B324
+    cpath = os.path.join(cache_dir, f"{ck}.{fmt}")
+    if os.path.exists(cpath):
+        with open(cpath, 'rb') as f:
+            return Response(f.read(), mimetype=mime,
+                            headers={'Cache-Control': 'public, max-age=3600'})
+
+    use_meter = _poll_use_meter(source_id, target_id, language)
+    cache_settings = _default_fusion_cache_settings(language, 5000, use_meter)
+    cached_results, meta = get_cached_results(source_id, target_id, language, cache_settings)
+    if cached_results is None:
+        return jsonify({'error': 'No cached comparison yet. Run the comparison '
+                                 '(fusion-search or compare_texts) first, then request the chart.'}), 404
+    meta = meta or {}
+    trunc = lambda s: (str(s)[:30] + '…') if len(str(s)) > 31 else str(s)
+    src_meta = get_text_metadata(sp)
+    tgt_meta = get_text_metadata(tp)
+    src_title = trunc(src_meta.get('display_name') or src_meta.get('title') or source_id)
+    tgt_title = trunc(tgt_meta.get('display_name') or tgt_meta.get('title') or target_id)
+
+    def _line(ref):
+        nums = [int(x) for x in re.findall(r'\d+', str(ref))]
+        return nums[-1] if nums else None
+
+    scored = sorted(cached_results, key=lambda r: (r.get('fused_score') or r.get('score') or 0), reverse=True)
+    conns, src_seen, tgt_seen = [], [], []
+    for r in scored[:top]:
+        sl = _line((r.get('source') or {}).get('ref') or r.get('source_locus'))
+        tl = _line((r.get('target') or {}).get('ref') or r.get('target_locus'))
+        if sl is None or tl is None:
+            continue
+        conns.append({'sl': sl, 'tl': tl,
+                      'score': r.get('fused_score') or r.get('score') or 0,
+                      'rare': 'rare_word' in (r.get('channels') or [])})
+        src_seen.append(sl)
+        tgt_seen.append(tl)
+    if not conns:
+        return jsonify({'error': 'No line-referenced parallels to map.'}), 422
+
+    src_max = max(int(meta.get('source_lines') or 0), max(src_seen))
+    tgt_max = max(int(meta.get('target_lines') or 0), max(tgt_seen))
+    max_score = max((c['score'] for c in conns)) or 1.0
+
+    from matplotlib.figure import Figure
+    from matplotlib.path import Path as MplPath
+    from matplotlib.patches import PathPatch
+    from matplotlib.lines import Line2D
+    fig = Figure(figsize=(7.4, 8.6), dpi=110)
+    ax = fig.subplots()
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis('off')
+    x_src, x_tgt = 0.80, 0.20
+    y0, y1 = 0.07, 0.90
+
+    def _y(line, lmax):
+        return (y0 + y1) / 2 if lmax <= 1 else y1 - (line - 1) / (lmax - 1) * (y1 - y0)
+
+    ax.plot([x_src, x_src], [y0, y1], color='#d1d5db', lw=1.3, zorder=1)
+    ax.plot([x_tgt, x_tgt], [y0, y1], color='#d1d5db', lw=1.3, zorder=1)
+    # weakest first so the strong links sit on top
+    for c in sorted(conns, key=lambda c: c['score']):
+        ys, yt = _y(c['sl'], src_max), _y(c['tl'], tgt_max)
+        frac = c['score'] / max_score
+        lw = 0.3 + 2.0 * frac
+        if c['rare']:
+            color, alpha = '#b91c1c', 0.5 + 0.4 * frac
+        else:
+            color, alpha = '#64748b', 0.12 + 0.42 * frac
+        path = MplPath([(x_src, ys), (0.5, (ys + yt) / 2), (x_tgt, yt)],
+                       [MplPath.MOVETO, MplPath.CURVE3, MplPath.CURVE3])
+        ax.add_patch(PathPatch(path, facecolor='none', edgecolor=color, lw=lw, alpha=alpha, zorder=3))
+
+    ax.text(x_src, y1 + 0.035, src_title, ha='center', va='bottom', fontsize=9, fontweight='bold', color='#b91c1c')
+    ax.text(x_tgt, y1 + 0.035, tgt_title, ha='center', va='bottom', fontsize=9, fontweight='bold', color='#0369a1')
+    for xx, lmax in ((x_src, src_max), (x_tgt, tgt_max)):
+        ax.text(xx, y1 + 0.004, 'line 1', ha='center', va='bottom', fontsize=6, color='#9ca3af')
+        ax.text(xx, y0 - 0.012, f'line {lmax}', ha='center', va='top', fontsize=6, color='#9ca3af')
+    ax.text(0.5, 0.985, 'How the two texts connect', ha='center', va='top', fontsize=11)
+    handles = [Line2D([0], [0], color='#b91c1c', lw=2.2, label='rare-word find (distinctive)'),
+               Line2D([0], [0], color='#64748b', lw=2.2, label='other ranked parallel'),
+               Line2D([0], [0], color='#111827', lw=0.4, label='thicker line = stronger parallel')]
+    ax.legend(handles=handles, fontsize=7, loc='lower center', bbox_to_anchor=(0.5, -0.01), frameon=False)
+    stamp = 'Tesserae' + (f" · corpus {corpus_version}" if corpus_version else '')
+    fig.text(0.99, 0.005, stamp, ha='right', va='bottom', fontsize=6, color='#9ca3af')
+
+    buf = io.BytesIO()
+    fig.savefig(buf, format=('png' if fmt == 'png' else 'svg'), bbox_inches='tight')
+    data = buf.getvalue()
+    try:
+        os.makedirs(cache_dir, exist_ok=True)
+        with open(cpath, 'wb') as f:
+            f.write(data)
+    except OSError:
+        pass
+    return Response(data, mimetype=mime, headers={'Cache-Control': 'public, max-age=3600'})
+
+
 @fusion_bp.route('/fusion-default-weights', methods=['GET'])
 def fusion_default_weights():
     """Return the default per-channel fusion weights for a language.
