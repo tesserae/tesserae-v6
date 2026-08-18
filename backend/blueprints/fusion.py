@@ -676,6 +676,11 @@ def fusion_search_get():
         # distribution and cite the real size without paging thousands of results.
         ranked = len(cached_results)
         total_candidates = (_meta or {}).get('total_candidates')
+        # Older caches predate the stored count. When the ranking did not hit the
+        # cap, nothing was truncated, so the ranked count IS the true total — fill
+        # it in. Only a genuinely capped old cache stays null (then capped=true).
+        if total_candidates is None and ranked < max_results:
+            total_candidates = ranked
         capped = (total_candidates is not None and total_candidates > ranked) or \
                  (total_candidates is None and ranked >= max_results)
         by_book = _by_book_counts(cached_results)
