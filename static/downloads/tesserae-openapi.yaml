@@ -441,7 +441,16 @@ paths:
                   signals_total: { type: integer, description: "Total similarity signals in the current phase." }
                   candidates_so_far: { type: integer, description: "Candidate parallels found so far (running only)." }
                   count: { type: integer, description: "Number of parallels returned (AFTER any ref/score filters)." }
-                  total: { type: integer, description: "Total parallels BEFORE ref/score filters (so a filtered view still reports the full size)." }
+                  total: { type: integer, description: "Ranked list size BEFORE ref/score filters (may be capped)." }
+                  total_candidates: { type: integer, nullable: true, description: "True pre-cap count of scored parallels (the real comparison size). Null for older cached pairs; cite it as the size, e.g. '3,937 candidates'." }
+                  capped: { type: boolean, description: "True when the ranked list hit the cap; then quote total_candidates (or 'at least N'), never a bare 'top 5,000'." }
+                  by_book:
+                    type: object
+                    description: "Per-book parallel counts for source and target over the whole ranking, for drawing a distribution without paging. population states what was counted."
+                    properties:
+                      source: { type: array, items: { type: object, properties: { book: { type: integer }, count: { type: integer } } } }
+                      target: { type: array, items: { type: object, properties: { book: { type: integer }, count: { type: integer } } } }
+                      population: { type: object, properties: { ranked_candidates: { type: integer }, total_candidates: { type: integer, nullable: true }, capped: { type: boolean }, basis: { type: string } } }
                   parallels:
                     type: array
                     description: "Pre-sorted best-first. Each item carries both the short poll names (score, matched) and the streaming-endpoint names (fused_score, matched_words, matched_lemmas, channel_count) so either shape works."
@@ -457,132 +466,6 @@ paths:
                         matched: { type: array, items: { type: string }, description: "The echoed words (lemmas if available, else surface)." }
                         matched_words: { type: array, items: { type: string } }
                         matched_lemmas: { type: array, items: { type: string } }
-
-  /comparison-chart:
-    get:
-      operationId: comparisonChart
-      summary: Server-rendered distribution chart image for a cached comparison
-      description: >-
-        The comparison's distribution chart as an IMAGE (the same picture the web
-        page draws) — attach or embed it with results instead of improvising a
-        chart. Reads the shared fusion cache, so a pair just compared is instant;
-        404 if not yet computed.
-      parameters:
-        - name: source
-          in: query
-          required: true
-          schema: { type: string }
-        - name: target
-          in: query
-          required: true
-          schema: { type: string }
-        - name: language
-          in: query
-          required: true
-          schema: { type: string, enum: [la, grc, en, cop] }
-        - name: format
-          in: query
-          schema: { type: string, enum: [svg, png], default: svg }
-        - name: scale
-          in: query
-          schema: { type: number, default: 1 }
-          description: PNG resolution multiplier, 1 to 3 (use with format=png for a crisp raster; SVG is already vector-sharp).
-        - name: side
-          in: query
-          schema: { type: string, enum: [source, target], default: source }
-          description: Which text's distribution to chart.
-      responses:
-        '200':
-          description: The chart image (SVG or PNG).
-          content:
-            image/svg+xml: { schema: { type: string, format: binary } }
-            image/png: { schema: { type: string, format: binary } }
-        '404':
-          description: The pair has not been computed yet; run the comparison first.
-
-  /comparison-history-chart:
-    get:
-      operationId: comparisonHistoryChart
-      summary: Server-rendered 'history strip' image for a cached comparison
-      description: >-
-        One IMAGE of where each top shared phrase recurs across the corpus over
-        time (one row per parallel). Tracks shared-WORD recurrence, so meaning- or
-        grammar-only parallels are not on it. Attach with results; reads the shared
-        fusion cache; 404 if not computed yet.
-      parameters:
-        - name: source
-          in: query
-          required: true
-          schema: { type: string }
-        - name: target
-          in: query
-          required: true
-          schema: { type: string }
-        - name: language
-          in: query
-          required: true
-          schema: { type: string, enum: [la, grc, en, cop] }
-        - name: format
-          in: query
-          schema: { type: string, enum: [svg, png], default: svg }
-        - name: scale
-          in: query
-          schema: { type: number, default: 1 }
-          description: PNG resolution multiplier, 1 to 3 (use with format=png for a crisp raster; SVG is already vector-sharp).
-        - name: top
-          in: query
-          schema: { type: integer, default: 10 }
-          description: How many distinct top phrases to chart (max 15).
-      responses:
-        '200':
-          description: The history-strip image (SVG or PNG).
-          content:
-            image/svg+xml: { schema: { type: string, format: binary } }
-            image/png: { schema: { type: string, format: binary } }
-        '404':
-          description: The pair has not been computed yet; run the comparison first.
-
-  /comparison-map-chart:
-    get:
-      operationId: comparisonMapChart
-      summary: Server-rendered connection-map image for a cached comparison
-      description: >-
-        One IMAGE of how the two texts connect: two vertical axes scaled to full
-        line counts (book bands on multi-book texts), each top parallel a curve
-        between the lines it links. The strongest few are bold and labelled, the
-        rest recede. 404 if not computed yet.
-      parameters:
-        - name: source
-          in: query
-          required: true
-          schema: { type: string }
-        - name: target
-          in: query
-          required: true
-          schema: { type: string }
-        - name: language
-          in: query
-          required: true
-          schema: { type: string, enum: [la, grc, en, cop] }
-        - name: format
-          in: query
-          schema: { type: string, enum: [svg, png], default: svg }
-        - name: scale
-          in: query
-          schema: { type: number, default: 1 }
-          description: PNG resolution multiplier, 1 to 3 (use with format=png for a crisp raster; SVG is already vector-sharp).
-        - name: top
-          in: query
-          schema: { type: integer, default: 50 }
-          description: How many top parallels to draw (max 200).
-      responses:
-        '200':
-          description: The connection-map image (SVG or PNG).
-          content:
-            image/svg+xml: { schema: { type: string, format: binary } }
-            image/png: { schema: { type: string, format: binary } }
-        '404':
-          description: The pair has not been computed yet; run the comparison first.
 
   /search-fusion:
     post:

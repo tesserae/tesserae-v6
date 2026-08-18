@@ -184,7 +184,7 @@ def search_fusion_stream():
                 log_search('fusion_search', language, source_id, target_id, None,
                            'fusion', len(cached_results), True, req_user_id, req_city, req_country, req_ip)
                            
-                yield f"data: {json.dumps({'type': 'complete', 'results': display, 'total_matches': len(cached_results), 'source_lines': meta.get('source_lines', 0), 'target_lines': meta.get('target_lines', 0), 'elapsed_time': round(time.time() - start_time, 2), 'cached': True, 'fusion': True})}\n\n"
+                yield f"data: {json.dumps({'type': 'complete', 'results': display, 'total_matches': len(cached_results), 'total_candidates': meta.get('total_candidates'), 'source_lines': meta.get('source_lines', 0), 'target_lines': meta.get('target_lines', 0), 'elapsed_time': round(time.time() - start_time, 2), 'cached': True, 'fusion': True})}\n\n"
                 return
 
             # Concurrency gate: wait for a slot before starting heavy work.
@@ -240,6 +240,7 @@ def search_fusion_stream():
             # Stream events from the generator — yields progress and
             # intermediate results as each channel completes
             final_results = []
+            final_total = None
             for event_type, evt_data in iter_fusion_search(
                 source_units=source_units,
                 target_units=target_units,
@@ -309,12 +310,16 @@ def search_fusion_stream():
 
                 elif event_type == "complete":
                     final_results = evt_data["results"]
+                    final_total = evt_data.get("total_results")
 
-            # Cache final results
+            # Cache final results. total_candidates is the pre-cap count of scored
+            # parallels (final_results is capped at max_results); agents quote it as
+            # the true size of the comparison.
             metadata = {
                 'source_lines': len(source_units),
                 'target_lines': len(target_units),
                 'mode': mode,
+                'total_candidates': final_total,
             }
             save_cached_results(
                 source_id, target_id, language, cache_settings,
@@ -331,6 +336,7 @@ def search_fusion_stream():
                 "type": "complete",
                 "results": final_results,
                 "total_matches": len(final_results),
+                "total_candidates": final_total,   # pre-cap count (results are capped)
                 "source_lines": len(source_units),
                 "target_lines": len(target_units),
                 "elapsed_time": elapsed_time,
@@ -520,6 +526,7 @@ def _run_fusion_job(source_id, target_id, language, max_results, job_key):
         if not source_units or not target_units:
             raise ValueError('Could not process text units')
         final_results = []
+        final_total = None
         for event_type, evt_data in iter_fusion_search(
             source_units=source_units, target_units=target_units,
             matcher=_matcher, scorer=_scorer,
@@ -548,9 +555,11 @@ def _run_fusion_job(source_id, target_id, language, max_results, job_key):
                 logger.debug("Status write failed for fusion job %s: %s", job_key, e)
             if event_type == 'complete':
                 final_results = evt_data['results']
+                final_total = evt_data.get('total_results')
         save_cached_results(
             source_id, target_id, language, cache_settings, final_results,
-            {'source_lines': len(source_units), 'target_lines': len(target_units), 'mode': 'merged'},
+            {'source_lines': len(source_units), 'target_lines': len(target_units),
+             'mode': 'merged', 'total_candidates': final_total},
         )
     except Exception as e:
         logger.error("GET fusion job failed (%s x %s): %s", source_id, target_id, e, exc_info=True)
@@ -567,6 +576,20 @@ def _run_fusion_job(source_id, target_id, language, max_results, job_key):
         except OSError:
             pass
         _clear_fusion_status(job_key)
+
+
+def _by_book_counts(results):
+    """Count parallels per book (first ref number) for source and target over the
+    given result set, so an agent can draw a by-book distribution without paging
+    thousands of candidates. Single-level refs (no book) fall in bucket 0."""
+    from collections import Counter
+    sc, tc = Counter(), Counter()
+    for r in results:
+        for side, counter in (('source', sc), ('target', tc)):
+            nums = re.findall(r'\d+', str((r.get(side) or {}).get('ref') or ''))
+            counter[int(nums[0]) if len(nums) >= 2 else 0] += 1
+    fmt = lambda c: [{'book': b, 'count': n} for b, n in sorted(c.items())]
+    return {'source': fmt(sc), 'target': fmt(tc)}
 
 
 @fusion_bp.route('/fusion-search', methods=['GET'])
@@ -648,11 +671,26 @@ def fusion_search_get():
         applied = {k: v for k, v in (('source_ref_prefix', src_pfx),
                                      ('target_ref_prefix', tgt_pfx),
                                      ('min_score', min_score)) if v}
+        # True comparison size vs the capped ranked list, and a per-book
+        # distribution over the whole ranking — enough for an agent to draw the
+        # distribution and cite the real size without paging thousands of results.
+        ranked = len(cached_results)
+        total_candidates = (_meta or {}).get('total_candidates')
+        capped = (total_candidates is not None and total_candidates > ranked) or \
+                 (total_candidates is None and ranked >= max_results)
+        by_book = _by_book_counts(cached_results)
+        by_book['population'] = {'ranked_candidates': ranked,
+                                 'total_candidates': total_candidates,
+                                 'capped': capped,
+                                 'basis': 'all ranked candidates in the comparison'}
         return jsonify({
             'status': 'complete', 'cached': True,
             'source': source_id, 'target': target_id, 'language': language,
             'count': len(results),            # matches after filters
-            'total': len(cached_results),     # total computed before filters
+            'total': ranked,                  # ranked list size (may be capped)
+            'total_candidates': total_candidates,  # true pre-cap count (null if unknown)
+            'capped': capped,                 # ranked list hit the cap
+            'by_book': by_book,               # per-book distribution for both texts
             'offset': offset, 'limit': limit, 'showing': len(page),
             'filters': applied,
             'parallels': [_slim_fusion_result(r) for r in page],

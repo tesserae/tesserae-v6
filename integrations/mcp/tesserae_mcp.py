@@ -47,26 +47,33 @@ Guidance for the model using these tools:
     - When a response carries web_url, show it with the results in plain words
       ("open this comparison in Tesserae's own interface"), in the close and in
       any artifact footer, or the link stays invisible to the reader.
-    - The response carries three ready-made chart image URLs, each the same figure
-      the site draws, rendered server-side. When they display well in the medium,
-      attach them with the results and PREFER them over drawing your own:
-      chart_url (distribution: where the parallels fall in one text), history_url
-      (history strip: where each top shared phrase recurs across the corpus over
-      time -- shared-word recurrence only, so meaning/grammar-only parallels are
-      not on it), and map_url (connection map: the two texts as vertical axes joined by
-      curves weighted by strength, rare-word finds highlighted). These images are
-      STATIC, the user cannot click them, so whenever you show a chart tell them
-      the way to drill in is to open web_url, where they can click a bar to filter
-      the parallels or click an author to see just their citations. Give that link
-      every time you present a chart. Prefer the official charts by default; but
-      if the user asks for a chart, a different cut, or a custom visualization,
-      make it freely from the data and label it as your own rendering, not an
-      official Tesserae figure. Offer, do not force.
+    - Charts: there are no pre-made images to attach. After presenting results,
+      when the medium can display graphics, OFFER the user visual views and draw
+      whichever they accept yourself, from the data in hand: (1) a connection map
+      of the two texts, (2) a timeline of where a shared phrase recurs across the
+      centuries, (3) a distribution of parallels across the books or poems of
+      either text. Label every chart as your OWN rendering, never an official
+      Tesserae figure, and give web_url with each chart and in the close as the
+      way to explore interactively (the site's chart is clickable; yours is not).
+      Offer, do not force. Conventions: CONNECTION MAP -- two vertical axes scaled
+      to line counts (book boundaries marked on multi-book texts), each parallel a
+      curve weighted by strength and colored by which search found it, weak links
+      recessive gray, a small top tier labeled directly, hover gives both full
+      lines (a source->target locus table is the fallback). TIMELINE -- horizontal
+      years axis ("negative years are BCE"), one dot per occurrence labeled with
+      its author/work/locus, source and target in the two text colors and the rest
+      neutral, one row per phrase. line_search hits carry era, year, author, work,
+      and locus. DISTRIBUTION -- bars per book/poem with a value label on each, the
+      leading unit emphasized, a title naming BOTH texts and a subtitle stating the
+      population; use the by_book array the response carries and its population
+      block (when capped is true say "at least N", the true size being
+      total_candidates when given). Every chart footer carries corpus_version and
+      web_url.
     - Before a big comparison the first time, briefly offer the user a depth
       choice (a short menu, not a sprawl): the full comparison (ranked parallels
-      plus a corpus-rarity check on every entry and the charts, most thorough, a
-      few minutes), or a quick pass (top parallels only, no per-entry corpus
-      checks, under a minute). Run the full version if they don't choose.
+      plus a corpus-rarity check on every entry, most thorough, a few minutes), or
+      a quick pass (top parallels only, no per-entry corpus checks, under a
+      minute). Run the full version if they don't choose.
 """
 import os
 import json
@@ -101,30 +108,6 @@ def _compare_url(source, target, language):
     return (f"{WEB_BASE}/?source={quote(str(source))}&target={quote(str(target))}"
             f"&lang={quote(language or 'la')}")
 
-
-def _chart_url(source, target, language):
-    # Server-rendered image of the comparison's distribution chart.
-    if not (source and target):
-        return None
-    return (f"{API_BASE}/comparison-chart?source={quote(str(source))}"
-            f"&target={quote(str(target))}&language={quote(language or 'la')}")
-
-
-def _history_url(source, target, language):
-    # Server-rendered 'history strip': where each top shared phrase recurs across
-    # the corpus over time (one row per parallel), as one image.
-    if not (source and target):
-        return None
-    return (f"{API_BASE}/comparison-history-chart?source={quote(str(source))}"
-            f"&target={quote(str(target))}&language={quote(language or 'la')}")
-
-
-def _map_url(source, target, language):
-    # Server-rendered connection map (two texts as vertical axes, parallels as curves).
-    if not (source and target):
-        return None
-    return (f"{API_BASE}/comparison-map-chart?source={quote(str(source))}"
-            f"&target={quote(str(target))}&language={quote(language or 'la')}")
 
 _TIMEOUT = 60
 _FUSION_TIMEOUT = 600
@@ -303,6 +286,7 @@ def fusion_search(source: str, target: str, language: str = "la", top: int = 20,
     url = f"{API_BASE}/search-fusion"
     body = {"source": source, "target": target, "language": language}
     latest = []
+    total_candidates = None
     with requests.post(url, json=body, stream=True, timeout=_FUSION_TIMEOUT) as r:
         r.raise_for_status()
         for line in r.iter_lines(decode_unicode=True):
@@ -314,6 +298,8 @@ def fusion_search(source: str, target: str, language: str = "la", top: int = 20,
                 continue
             if isinstance(evt, dict) and isinstance(evt.get("results"), list):
                 latest = evt["results"]
+            if isinstance(evt, dict) and evt.get("total_candidates") is not None:
+                total_candidates = evt.get("total_candidates")
     latest = sorted(latest, key=lambda x: x.get("fused_score", 0), reverse=True)
     total = len(latest)
 
@@ -334,16 +320,30 @@ def fusion_search(source: str, target: str, language: str = "la", top: int = 20,
         "target": {"ref": x.get("target", {}).get("ref"), "text": x.get("target", {}).get("text")},
         "matched": x.get("matched_lemmas") or x.get("matched_words"),
     } for x in latest]
+    # Per-book distribution over the whole ranking, so an agent can draw the
+    # distribution chart without paging; total_candidates is the true (pre-cap)
+    # size, `total` the capped ranked list.
+    import re as _re
+    from collections import Counter as _Counter
+    _sc, _tc = _Counter(), _Counter()
+    for _x in latest:
+        for _side, _c in (("source", _sc), ("target", _tc)):
+            _n = _re.findall(r"\d+", _ref(_x, _side))
+            _c[int(_n[0]) if len(_n) >= 2 else 0] += 1
+    _fmt = lambda c: [{"book": b, "count": n} for b, n in sorted(c.items())]
+    capped = (total_candidates is not None and total_candidates > total)
     return {"source": source, "target": target, "count": len(parallels),
-            "total": total, "filtered_total": filtered_total, "parallels": parallels,
-            # Live, interactive view of this comparison (with its charts) in the web app.
-            "web_url": _compare_url(source, target, language),
-            # Server-rendered distribution chart image (attach/embed with results).
-            "chart_url": _chart_url(source, target, language),
-            # Server-rendered 'history strip' image (where the top phrases recur over time).
-            "history_url": _history_url(source, target, language),
-            # Server-rendered connection-map image (the two texts joined by weighted curves).
-            "map_url": _map_url(source, target, language)}
+            "total": total, "filtered_total": filtered_total,
+            "total_candidates": total_candidates, "capped": capped,
+            "by_book": {"source": _fmt(_sc), "target": _fmt(_tc),
+                        "population": {"ranked_candidates": total,
+                                       "total_candidates": total_candidates,
+                                       "capped": capped}},
+            "parallels": parallels,
+            # Live, interactive (clickable) view of this comparison in the web app --
+            # the one visual every user gets. Offer to draw charts yourself; do not
+            # attach a pre-made image (there are none).
+            "web_url": _compare_url(source, target, language)}
 
 
 @mcp.tool()
