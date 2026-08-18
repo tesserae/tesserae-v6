@@ -47,9 +47,12 @@ Guidance for the model using these tools:
       chart_url (distribution: where the parallels fall in one text), history_url
       (history strip: where each top shared phrase recurs across the corpus over
       time), and map_url (connection map: the two texts as vertical axes joined by
-      curves weighted by strength, rare-word finds highlighted). For an
-      interactive version point the user to web_url. Do not improvise a chart when
-      these exist; offer, do not force.
+      curves weighted by strength, rare-word finds highlighted). These images are
+      STATIC, the user cannot click them, so whenever you show a chart tell them
+      the way to drill in is to open web_url, where they can click a bar to filter
+      the parallels or click an author to see just their citations. Give that link
+      every time you present a chart. Do not improvise a chart when these exist;
+      offer, do not force.
     - Before a big comparison the first time, briefly offer the user a depth
       choice (a short menu, not a sprawl): the full comparison (ranked parallels
       plus a corpus-rarity check on every entry and the charts, most thorough, a

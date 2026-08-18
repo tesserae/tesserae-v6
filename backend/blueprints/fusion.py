@@ -834,6 +834,8 @@ def comparison_chart():
     if corpus_version:
         stamp += f" · corpus {corpus_version}"
     fig.text(0.99, 0.01, stamp, ha='right', va='bottom', fontsize=6, color='#9ca3af')
+    fig.text(0.01, 0.01, 'Static snapshot. Click-to-explore version at tesserae.caset.buffalo.edu',
+             ha='left', va='bottom', fontsize=6, color='#9ca3af')
     fig.tight_layout()
 
     buf = io.BytesIO()
@@ -1021,6 +1023,8 @@ def comparison_history_chart():
     ax.legend(handles=handles, fontsize=7, loc='lower right', frameon=False)
     stamp = 'Tesserae' + (f" · corpus {corpus_version}" if corpus_version else '')
     fig.text(0.99, 0.005, stamp, ha='right', va='bottom', fontsize=6, color='#9ca3af')
+    fig.text(0.01, 0.005, 'Static snapshot. Click-to-explore version at tesserae.caset.buffalo.edu',
+             ha='left', va='bottom', fontsize=6, color='#9ca3af')
     fig.tight_layout()
 
     buf = io.BytesIO()
@@ -1158,6 +1162,8 @@ def comparison_map_chart():
     ax.legend(handles=handles, fontsize=7, loc='lower center', bbox_to_anchor=(0.5, -0.01), frameon=False)
     stamp = 'Tesserae' + (f" · corpus {corpus_version}" if corpus_version else '')
     fig.text(0.99, 0.005, stamp, ha='right', va='bottom', fontsize=6, color='#9ca3af')
+    fig.text(0.01, 0.005, 'Static snapshot. Click-to-explore version at tesserae.caset.buffalo.edu',
+             ha='left', va='bottom', fontsize=6, color='#9ca3af')
 
     buf = io.BytesIO()
     fig.savefig(buf, format=('png' if fmt == 'png' else 'svg'), bbox_inches='tight')
