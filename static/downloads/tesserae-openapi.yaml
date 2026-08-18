@@ -501,10 +501,10 @@ paths:
       operationId: comparisonHistoryChart
       summary: Server-rendered 'history strip' image for a cached comparison
       description: >-
-        One IMAGE showing where each of the top shared phrases recurs across the
-        corpus over time (one row per parallel, source and target marked) — the
-        history of the echoes in a single picture. Attach it with results. Reads
-        the shared fusion cache; 404 if the pair is not computed yet.
+        One IMAGE of where each top shared phrase recurs across the corpus over
+        time (one row per parallel). Tracks shared-WORD recurrence, so meaning- or
+        grammar-only parallels are not on it. Attach with results; reads the shared
+        fusion cache; 404 if not computed yet.
       parameters:
         - name: source
           in: query

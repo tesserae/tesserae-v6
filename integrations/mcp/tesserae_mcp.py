@@ -37,6 +37,12 @@ Guidance for the model using these tools:
       least N"); never describe results you have not fetched; close with an offer
       to page deeper. Write for a reader, keeping technical terms for when the
       user asks how a figure was produced.
+    - The matching is not only lexical: besides shared words, fusion matches on
+      meaning (semantic), grammar (syntax), synonyms, and sound. A parallel found
+      by meaning or grammar may share no words, so it has nothing to bold; present
+      it on its own terms (quote both lines, say it is a meaning echo or a shared
+      construction), name the kind of similarity, and never drop it for lacking
+      shared words.
     - fusion_search can take several minutes on large texts; run it once.
     - When a response carries web_url, show it with the results in plain words
       ("open this comparison in Tesserae's own interface"), in the close and in
@@ -46,7 +52,8 @@ Guidance for the model using these tools:
       attach them with the results and PREFER them over drawing your own:
       chart_url (distribution: where the parallels fall in one text), history_url
       (history strip: where each top shared phrase recurs across the corpus over
-      time), and map_url (connection map: the two texts as vertical axes joined by
+      time -- shared-word recurrence only, so meaning/grammar-only parallels are
+      not on it), and map_url (connection map: the two texts as vertical axes joined by
       curves weighted by strength, rare-word finds highlighted). These images are
       STATIC, the user cannot click them, so whenever you show a chart tell them
       the way to drill in is to open web_url, where they can click a bar to filter
