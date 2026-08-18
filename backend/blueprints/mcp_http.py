@@ -451,7 +451,10 @@ def _t_compare_texts(a):
         "them -- so whenever you show a chart, tell them the way to drill in is to open the interactive "
         "version at web_url, where they can click a bar to filter the parallels to that stretch, click an "
         "author to see just their citations, and switch views. Give that link every time you present a "
-        "chart, not only in the close. Offer, do not force -- a quick question does not need a graphic."
+        "chart, not only in the close. The prefer-the-official-charts rule is for the DEFAULT: if the user "
+        "asks for a chart, a different cut, or a custom visualization, make it freely from the data, and "
+        "label it as your OWN rendering rather than an official Tesserae figure. "
+        "Offer, do not force -- a quick question does not need a graphic."
     )
     if fusion.get('status') == 'running':
         out['note'] = ('The ranked_parallels (fusion) section is still computing server-side. '

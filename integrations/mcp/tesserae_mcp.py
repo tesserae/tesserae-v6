@@ -51,8 +51,10 @@ Guidance for the model using these tools:
       STATIC, the user cannot click them, so whenever you show a chart tell them
       the way to drill in is to open web_url, where they can click a bar to filter
       the parallels or click an author to see just their citations. Give that link
-      every time you present a chart. Do not improvise a chart when these exist;
-      offer, do not force.
+      every time you present a chart. Prefer the official charts by default; but
+      if the user asks for a chart, a different cut, or a custom visualization,
+      make it freely from the data and label it as your own rendering, not an
+      official Tesserae figure. Offer, do not force.
     - Before a big comparison the first time, briefly offer the user a depth
       choice (a short menu, not a sprawl): the full comparison (ranked parallels
       plus a corpus-rarity check on every entry and the charts, most thorough, a

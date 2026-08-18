@@ -1557,6 +1557,11 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   publish, cite Tesserae for the parallels it found, and present the surrounding analysis as
                   AI-assisted interpretation you have checked.
                 </p>
+                <p className="text-gray-700 text-sm mt-2">
+                  Tesserae hands your AI ready-made charts, but you are also free to ask it for its own charts or a
+                  different cut of the results — whatever view you want. Those are your AI's own rendering, not
+                  official Tesserae figures, so treat them like any AI output you would check before relying on it.
+                </p>
               </div>
             </div>
           )}
