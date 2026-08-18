@@ -32,11 +32,16 @@ Guidance for the model using these tools:
       by which tool found them); quote the COMPLETE line of BOTH passages with
       their loci and mark the shared words in bold on both sides; give each entry
       its corpus context in plain words via line_search(count_only=True) on its
-      shared words (small counts get a who-else-uses-it line, larger ones are
-      "commonplace", an unretrievable one is "unquantified", a capped one is "at
-      least N"); never describe results you have not fetched; close with an offer
-      to page deeper. Write for a reader, keeping technical terms for when the
-      user asks how a figure was produced.
+      shared words. The FORM depends on the count: under 6, list EVERY occurrence
+      inline in compact canonical form (e.g. "Verg. Aen. 2.31; Stat. Theb. 12.531;
+      Macr. Sat. 5.5.3 (quoting Vergil)"), marking any that quote an earlier line
+      verbatim, because the scholar wants to gaze over the actual places; from 6 to
+      ~40, characterize at the resolution the count allows (by work when few, by
+      author when the author list is short, by period when it is long); above ~40,
+      the count plus "too common to signify" stands; an unretrievable count is
+      "unquantified", a capped one is "at least N". Never describe results you have
+      not fetched; close with an offer to page deeper. Write for a reader, keeping
+      technical terms for when the user asks how a figure was produced.
     - The matching is not only lexical: besides shared words, fusion matches on
       meaning (semantic), grammar (syntax), synonyms, and sound. A parallel found
       by meaning or grammar may share no words, so it has nothing to bold; present
@@ -61,9 +66,14 @@ Guidance for the model using these tools:
       recessive gray, a small top tier labeled directly, hover gives both full
       lines (a source->target locus table is the fallback). TIMELINE -- horizontal
       years axis ("negative years are BCE"), one dot per occurrence labeled with
-      its author/work/locus, source and target in the two text colors and the rest
-      neutral, one row per phrase. line_search hits carry era, year, author, work,
-      and locus. DISTRIBUTION -- bars per book/poem with a value label on each, the
+      its author/work/locus, one row per phrase; line_search hits carry era, year,
+      author, work, and locus. Keep the encoding dimensions separate, one legend
+      entry per dimension: COLOR answers WHERE (source text, target text, or
+      elsewhere in the corpus) and nothing else; a HOLLOW marker answers HOW (the
+      occurrence quotes an earlier line verbatim rather than reusing the phrase
+      independently) and composes with any color; an undated occurrence goes in a
+      labeled "undated" gutter at the axis edge with no special marker. DISTRIBUTION
+      -- bars per book/poem with a value label on each, the
       leading unit emphasized, a title naming BOTH texts and a subtitle stating the
       population; use the by_book array the response carries and its population
       block (when capped is true say "at least N", the true size being
@@ -331,7 +341,12 @@ def fusion_search(source: str, target: str, language: str = "la", top: int = 20,
             _n = _re.findall(r"\d+", _ref(_x, _side))
             _c[int(_n[0]) if len(_n) >= 2 else 0] += 1
     _fmt = lambda c: [{"book": b, "count": n} for b, n in sorted(c.items())]
-    capped = (total_candidates is not None and total_candidates > total)
+    # Older caches predate the stored count; when the ranking did not hit the cap
+    # (default 5000) the ranked count is the true total, so fill it in.
+    if total_candidates is None and total < 5000:
+        total_candidates = total
+    capped = (total_candidates is not None and total_candidates > total) or \
+             (total_candidates is None and total >= 5000)
     return {"source": source, "target": target, "count": len(parallels),
             "total": total, "filtered_total": filtered_total,
             "total_candidates": total_candidates, "capped": capped,

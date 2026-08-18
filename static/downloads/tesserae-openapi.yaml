@@ -442,7 +442,7 @@ paths:
                   candidates_so_far: { type: integer, description: "Candidate parallels found so far (running only)." }
                   count: { type: integer, description: "Number of parallels returned (AFTER any ref/score filters)." }
                   total: { type: integer, description: "Ranked list size BEFORE ref/score filters (may be capped)." }
-                  total_candidates: { type: integer, nullable: true, description: "True pre-cap count of scored parallels (the real comparison size). Null for older cached pairs; cite it as the size, e.g. '3,937 candidates'." }
+                  total_candidates: { type: integer, nullable: true, description: "True pre-cap count of scored parallels (the real comparison size) — cite it as the size, e.g. '3,937 candidates'. Null only for an older cached pair that genuinely hit the cap (then capped=true, quote 'at least N')." }
                   capped: { type: boolean, description: "True when the ranked list hit the cap; then quote total_candidates (or 'at least N'), never a bare 'top 5,000'." }
                   by_book:
                     type: object
