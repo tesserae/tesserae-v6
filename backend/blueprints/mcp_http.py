@@ -49,6 +49,14 @@ def _chart_url(source, target, language):
         return None
     return (f"{API_BASE}/comparison-chart?source={quote(str(source))}"
             f"&target={quote(str(target))}&language={quote(language or 'la')}")
+
+def _history_url(source, target, language):
+    # Server-rendered 'history strip': where each top shared phrase recurs across
+    # the corpus over time, one row per parallel. One image for the whole set.
+    if not (source and target):
+        return None
+    return (f"{API_BASE}/comparison-history-chart?source={quote(str(source))}"
+            f"&target={quote(str(target))}&language={quote(language or 'la')}")
 # Keep this minimal and spec-exact for the negotiated protocolVersion. Adding
 # non-standard Implementation fields (title/websiteUrl/icons from a later draft)
 # caused Claude's connector to reject the initialize response ("Tesserae returned
@@ -271,6 +279,8 @@ def _t_fusion_search(a):
                                                a.get('language', 'la')))
         res.setdefault('chart_url', _chart_url(a.get('source'), a.get('target'),
                                                a.get('language', 'la')))
+        res.setdefault('history_url', _history_url(a.get('source'), a.get('target'),
+                                                   a.get('language', 'la')))
     return res
 
 
@@ -349,6 +359,7 @@ def _t_compare_texts(a):
         # corpus-recurrence charts) in the web app.
         'web_url': _compare_url(a.get('source'), a.get('target'), a.get('language', 'la')),
         'chart_url': _chart_url(a.get('source'), a.get('target'), a.get('language', 'la')),
+        'history_url': _history_url(a.get('source'), a.get('target'), a.get('language', 'la')),
     }
     common = (
         "PRESENTATION (default; an explicit user request for a by-search view, the full list, or a "
@@ -416,11 +427,14 @@ def _t_compare_texts(a):
         "SURFACE THE LINK: when the response carries a web_url, include it with the results in plain "
         "words -- 'open this comparison in Tesserae's own interface' -- in the close and in any artifact "
         "footer; without it the link is invisible to the reader. "
-        "OFFICIAL CHART: when the response carries a chart_url, attach or embed it with the results -- it "
-        "is the same distribution chart the site draws, rendered server-side as an image, so every user "
-        "sees the identical Tesserae chart regardless of medium. Prefer it over improvising a chart from "
-        "the raw numbers. The CONNECTION MAP below stays optional enrichment on top of it, for rich "
-        "surfaces that benefit from the in-conversation hover layer. "
+        "OFFICIAL CHARTS: when the response carries a chart_url, attach or embed it -- it is the same "
+        "distribution chart the site draws (where the parallels fall in one text), rendered server-side as "
+        "an image, so every user sees the identical Tesserae chart. When it carries a history_url, attach "
+        "that too: one 'history strip' image showing where each of the top shared phrases recurs across the "
+        "corpus over time (one row per parallel, source and target marked), which answers 'where do these "
+        "echoes sit in literary history' in a single picture instead of one chart per parallel. Prefer "
+        "these official images over improvising charts from the raw numbers. The CONNECTION MAP below stays "
+        "optional enrichment on top of them, for rich surfaces with an in-conversation hover layer. "
         "CONNECTION MAP: when the medium can display one (an HTML artifact, a notebook), OFFER or produce "
         "a connection map of the comparison -- one compare_texts response already carries everything it "
         "needs (both sides' line positions, strengths, which search found each, and the full line texts "
@@ -596,7 +610,12 @@ def _handle(msg):
                 "rare-word passes), search the whole corpus, and match across languages. For "
                 "'compare these two texts', default to compare_texts, which runs all three pairwise "
                 "searches and returns labeled sections — present each section, then a short "
-                "synthesis. Recall is strongest near the top but genuine parallels also appear "
+                "synthesis. Before running a big comparison the first time, briefly offer the user a "
+                "depth choice (a short menu, not a sprawl): the full comparison (ranked parallels plus "
+                "a corpus-rarity check on every entry and the distribution and history charts, most "
+                "thorough, takes a few minutes), or a quick pass (top parallels only, no per-entry "
+                "corpus checks, back in under a minute). Run the full version if they don't want to "
+                "choose. Recall is strongest near the top but genuine parallels also appear "
                 "further down, so offer to page deeper (fusion_search with offset) when useful. "
                 "Typical flow: list_texts -> compare_texts -> line_search to test how distinctive a "
                 "phrase is across the corpus."),
