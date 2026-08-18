@@ -2019,6 +2019,16 @@
       "note": "d. 1824",
       "era": "Romantic"
     },
+    "coleridge": {
+      "year": 1834,
+      "note": "d. 1834",
+      "era": "Romantic"
+    },
+    "blake": {
+      "year": 1827,
+      "note": "d. 1827",
+      "era": "Romantic"
+    },
     "tennyson": {
       "year": 1892,
       "note": "d. 1892",
@@ -2075,9 +2085,9 @@
       "era": "Neoclassical"
     },
     "world_english_bible": {
-      "year": 2000,
-      "note": "Published 2000",
-      "era": "Modern"
+      "year": 1611,
+      "note": "King James Version, 1611",
+      "era": "Renaissance"
     }
   },
   "cop": {
