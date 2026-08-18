@@ -1207,7 +1207,7 @@ def comparison_map_chart():
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.axis('off')
-    x_tgt, x_src = 0.16, 0.64
+    x_src, x_tgt = 0.34, 0.80   # source (model) on the left, reading left to right
     y0, y1 = 0.08, 0.88
 
     def ys(p):
@@ -1232,7 +1232,7 @@ def comparison_map_chart():
 
     def curve(c, hi):
         a, b = ys(c['sp']), yt(c['tp'])
-        path = MplPath([(x_src, a), (0.40, (a + b) / 2), (x_tgt, b)],
+        path = MplPath([(x_src, a), ((x_src + x_tgt) / 2, (a + b) / 2), (x_tgt, b)],
                        [MplPath.MOVETO, MplPath.CURVE3, MplPath.CURVE3])
         if hi:
             color = '#b91c1c' if c['rare'] else '#1d4ed8'
@@ -1254,7 +1254,7 @@ def comparison_map_chart():
             ly -= 0.03
         used.append(ly)
         ax.annotate(f"{c['sref']} → {c['tref']}", xy=(x_src, a),
-                    xytext=(x_src + 0.05, ly), fontsize=7, color='#374151', va='center',
+                    xytext=(x_src - 0.06, ly), fontsize=7, color='#374151', va='center', ha='right',
                     arrowprops=dict(arrowstyle='-', color='#cbd5e1', lw=0.6))
 
     ax.text(x_src, y1 + 0.03, src_title, ha='center', va='bottom', fontsize=11, fontweight='bold', color='#b91c1c')
