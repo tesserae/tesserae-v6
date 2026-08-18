@@ -496,6 +496,44 @@ paths:
         '404':
           description: The pair has not been computed yet; run the comparison first.
 
+  /comparison-history-chart:
+    get:
+      operationId: comparisonHistoryChart
+      summary: Server-rendered 'history strip' image for a cached comparison
+      description: >-
+        One IMAGE showing where each of the top shared phrases recurs across the
+        corpus over time (one row per parallel, source and target marked) — the
+        history of the echoes in a single picture. Attach it with results. Reads
+        the shared fusion cache; 404 if the pair is not computed yet.
+      parameters:
+        - name: source
+          in: query
+          required: true
+          schema: { type: string }
+        - name: target
+          in: query
+          required: true
+          schema: { type: string }
+        - name: language
+          in: query
+          required: true
+          schema: { type: string, enum: [la, grc, en, cop] }
+        - name: format
+          in: query
+          schema: { type: string, enum: [svg, png], default: svg }
+        - name: top
+          in: query
+          schema: { type: integer, default: 10 }
+          description: How many top parallels to chart (max 15).
+      responses:
+        '200':
+          description: The history-strip image (SVG or PNG).
+          content:
+            image/svg+xml: { schema: { type: string, format: binary } }
+            image/png: { schema: { type: string, format: binary } }
+        '404':
+          description: The pair has not been computed yet; run the comparison first.
+
   /search-fusion:
     post:
       operationId: fusionSearch

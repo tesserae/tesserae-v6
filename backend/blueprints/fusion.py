@@ -20,6 +20,7 @@ import io
 import re
 import math
 import json
+import hashlib
 from backend.utils import resolve_text_path, get_text_metadata
 import time
 
@@ -845,6 +846,193 @@ def comparison_chart():
     buf.seek(0)
     return Response(buf.getvalue(), mimetype=mime,
                     headers={'Cache-Control': 'public, max-age=3600'})
+
+
+_AUTHOR_DATES_CACHE = {}
+
+
+def _author_dates(language):
+    """{author_key: year} for a language, from author_dates.json (memoized).
+    year is an int, negative for BCE; undated / sentinel entries are dropped."""
+    if language in _AUTHOR_DATES_CACHE:
+        return _AUTHOR_DATES_CACHE[language]
+    out = {}
+    try:
+        path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'author_dates.json')
+        with open(path, encoding='utf-8') as f:
+            data = json.load(f)
+        for k, v in (data.get(language) or {}).items():
+            y = v.get('year')
+            if isinstance(y, int) and y < 9999:
+                out[k.lower()] = y
+    except Exception:
+        pass
+    _AUTHOR_DATES_CACHE[language] = out
+    return out
+
+
+@fusion_bp.route('/comparison-history-chart', methods=['GET'])
+def comparison_history_chart():
+    """Server-rendered 'history strip' for a cached comparison: for each of the
+    top shared parallels, WHERE ITS PHRASE RECURS across the corpus over time.
+    One row per parallel, a shared date axis (BCE -> CE), a dot per corpus
+    recurrence, with the two compared texts marked (source red, target amber,
+    the rest of the tradition grey). Answers 'where does each of these echoes
+    sit in literary history' in one image, instead of a chart per parallel.
+
+    GET /api/comparison-history-chart?source=<id>&target=<id>&language=la
+        &format=svg|png (default svg)  &top=<N up to 15> (default 10)
+    Reads the SHARED fusion cache; 404 if the pair has not been computed yet.
+    Result image is cached, so repeat requests are instant.
+    """
+    source_id = request.args.get('source')
+    target_id = request.args.get('target')
+    language = request.args.get('language', 'la')
+    fmt = (request.args.get('format', 'svg') or 'svg').lower()
+    if fmt not in ('svg', 'png'):
+        fmt = 'svg'
+    mime = 'image/png' if fmt == 'png' else 'image/svg+xml'
+    try:
+        top = int(request.args.get('top', 10))
+    except (TypeError, ValueError):
+        top = 10
+    top = max(1, min(top, 15))
+    if not source_id or not target_id:
+        return jsonify({'error': 'Provide source and target text ids (see /api/texts).'}), 400
+    if not (resolve_text_path(_texts_dir, language, source_id) and
+            resolve_text_path(_texts_dir, language, target_id)):
+        return jsonify({'error': 'Text files not found for that source/target/language.'}), 404
+
+    try:
+        from backend.inverted_index import get_corpus_version
+        corpus_version = get_corpus_version(language)
+    except Exception:
+        corpus_version = None
+
+    # Image cache: the per-parallel corpus lookups are the expensive part, so
+    # cache the finished image keyed on the pair + top + format + corpus stamp.
+    cache_dir = os.path.join(CACHE_DIR, 'history_charts')
+    ck = hashlib.md5(f"{source_id}|{target_id}|{language}|{top}|{fmt}|{corpus_version}".encode()).hexdigest()  # nosec B324
+    cpath = os.path.join(cache_dir, f"{ck}.{fmt}")
+    if os.path.exists(cpath):
+        with open(cpath, 'rb') as f:
+            return Response(f.read(), mimetype=mime,
+                            headers={'Cache-Control': 'public, max-age=3600'})
+
+    use_meter = _poll_use_meter(source_id, target_id, language)
+    cache_settings = _default_fusion_cache_settings(language, 5000, use_meter)
+    cached_results, _meta = get_cached_results(source_id, target_id, language, cache_settings)
+    if cached_results is None:
+        return jsonify({'error': 'No cached comparison yet. Run the comparison '
+                                 '(fusion-search or compare_texts) first, then request the chart.'}), 404
+
+    from backend.inverted_index import find_co_occurring_lemmas
+    from backend.matcher import (DEFAULT_LATIN_STOP_WORDS, DEFAULT_GREEK_STOP_WORDS,
+                                 DEFAULT_ENGLISH_STOP_WORDS)
+    from backend.blueprints.hapax import get_document_frequencies_batch
+    stops = {'la': DEFAULT_LATIN_STOP_WORDS, 'grc': DEFAULT_GREEK_STOP_WORDS,
+             'en': DEFAULT_ENGLISH_STOP_WORDS}.get(language, set())
+    dates = _author_dates(language)
+    src_norm = source_id.replace('.tess', '').lower()
+    tgt_norm = target_id.replace('.tess', '').lower()
+    # A phrase in more than this many corpus loci is a commonplace, not a
+    # distinctive echo worth tracing — skip it (and it keeps each row legible).
+    COMMONPLACE_CAP = 400
+
+    def _content_lemmas(r):
+        seen, uniq = set(), []
+        for l in (r.get('matched_lemmas') or []):
+            s = str(l)
+            if s and s.lower() not in stops and s.lower() not in seen \
+                    and re.match(r'^[^\W\d_]+$', s, re.UNICODE):
+                seen.add(s.lower())
+                uniq.append(s)
+        return uniq
+
+    scored = sorted(cached_results, key=lambda r: (r.get('fused_score') or r.get('score') or 0), reverse=True)
+    rows = []
+    for r in scored:
+        if len(rows) >= top:
+            break
+        lems = _content_lemmas(r)
+        if len(lems) < 2:
+            continue
+        # Query on the two RAREST shared words (most distinctive), which is both
+        # faster and a truer phrase than the full lemma set. Forms absent from the
+        # doc-freq table sort last, so real headwords are preferred.
+        try:
+            dfs = get_document_frequencies_batch(set(lems), language) or {}
+        except Exception:
+            dfs = {}
+        pick = sorted(lems, key=lambda l: dfs.get(l) if dfs.get(l) is not None else 10 ** 9)[:2]
+        try:
+            matches = find_co_occurring_lemmas(pick, language, min_matches=2)
+        except Exception:
+            continue
+        if not (2 <= len(matches) <= COMMONPLACE_CAP):
+            continue
+        years, src_years, tgt_years = [], [], []
+        for m in matches:
+            filename = m[0]
+            y = dates.get(filename.split('.')[0].lower())
+            if y is None:
+                continue
+            years.append(y)
+            fn = filename.replace('.tess', '').lower()
+            if fn == src_norm:
+                src_years.append(y)
+            elif fn == tgt_norm:
+                tgt_years.append(y)
+        if years:
+            rows.append({'label': ' '.join(pick), 'years': years,
+                         'src_years': src_years, 'tgt_years': tgt_years})
+
+    if not rows:
+        return jsonify({'error': 'No datable corpus recurrences to chart for the top parallels.'}), 422
+
+    from matplotlib.figure import Figure
+    from matplotlib.ticker import FuncFormatter
+    from matplotlib.lines import Line2D
+    n = len(rows)
+    fig = Figure(figsize=(8.6, max(2.6, 0.42 * n + 1.2)), dpi=110)
+    ax = fig.subplots()
+    for i, row in enumerate(rows):
+        yy = n - 1 - i  # strongest parallel on top
+        ax.scatter(row['years'], [yy] * len(row['years']), s=10, color='#9ca3af',
+                   alpha=0.5, edgecolors='none', zorder=2)
+        if row['tgt_years']:
+            ax.scatter(row['tgt_years'], [yy] * len(row['tgt_years']), s=36, color='#d97706',
+                       edgecolors='white', linewidth=0.4, zorder=4)
+        if row['src_years']:
+            ax.scatter(row['src_years'], [yy] * len(row['src_years']), s=36, color='#b91c1c',
+                       edgecolors='white', linewidth=0.4, zorder=5)
+    ax.set_yticks(range(n))
+    ax.set_yticklabels([rows[n - 1 - j]['label'] for j in range(n)], fontsize=8)
+    ax.set_ylim(-0.6, n - 0.4)
+    ax.set_xlabel('Date (negative years are BCE)', fontsize=9)
+    ax.xaxis.set_major_formatter(FuncFormatter(lambda x, _p=None: f"{int(-x)} BCE" if x < 0 else f"{int(x)} CE"))
+    ax.set_title('Where these shared phrases recur across the corpus', fontsize=11)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.grid(axis='x', color='#f3f4f6', zorder=0)
+    handles = [Line2D([0], [0], marker='o', color='w', markerfacecolor='#b91c1c', markersize=6, label='in the source'),
+               Line2D([0], [0], marker='o', color='w', markerfacecolor='#d97706', markersize=6, label='in the target'),
+               Line2D([0], [0], marker='o', color='w', markerfacecolor='#9ca3af', markersize=6, label='elsewhere in the corpus')]
+    ax.legend(handles=handles, fontsize=7, loc='lower right', frameon=False)
+    stamp = 'Tesserae' + (f" · corpus {corpus_version}" if corpus_version else '')
+    fig.text(0.99, 0.005, stamp, ha='right', va='bottom', fontsize=6, color='#9ca3af')
+    fig.tight_layout()
+
+    buf = io.BytesIO()
+    fig.savefig(buf, format=('png' if fmt == 'png' else 'svg'), bbox_inches='tight')
+    data = buf.getvalue()
+    try:
+        os.makedirs(cache_dir, exist_ok=True)
+        with open(cpath, 'wb') as f:
+            f.write(data)
+    except OSError:
+        pass
+    return Response(data, mimetype=mime, headers={'Cache-Control': 'public, max-age=3600'})
 
 
 @fusion_bp.route('/fusion-default-weights', methods=['GET'])
