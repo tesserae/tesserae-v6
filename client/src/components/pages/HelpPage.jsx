@@ -75,7 +75,11 @@ const MCP_CLAUDE_CODE = 'claude mcp add tesserae -- python /full/path/to/tessera
 // Paste-before-the-CSV prompt for the free "you search, the AI interprets" route.
 const INTERPRET_PROMPT = `You are helping me interpret results from Tesserae, a tool that finds intertextual parallels (allusions, echoes, borrowings) between classical texts. Below is a CSV comparing two texts. Each row is a candidate parallel. The columns are: Rank, Tesserae's overall ranking; Source Locus and Target Locus, the two passages' citations; Source Text and Target Text, the two lines; Score, Tesserae's similarity score, where higher is stronger; Matched Words, the shared words that triggered the match; Channels, the detection methods that agreed, where more methods agreeing means a sturdier parallel.
 
-Please pick out the parallels most likely to be real literary allusions rather than coincidence, and for each say why (distinctive shared vocabulary, several channels agreeing, thematic resonance). Flag any that look like common phrases or stock formulae. Treat Tesserae's detections as evidence to weigh, and label your own reading as your interpretation. Here is the CSV:`;
+Please pick out the parallels most likely to be real literary allusions rather than coincidence, and for each say why (distinctive shared vocabulary, several channels agreeing, thematic resonance). Flag any that look like common phrases or stock formulae. Treat Tesserae's detections as evidence to weigh, and label your own reading as your interpretation.
+
+If it would help and you can display graphics, offer to draw a chart from these rows and make whichever I accept, labeled as your own rendering: a connection map joining the two texts by their loci (a curve per parallel, its weight set by Score), or a distribution of the parallels across the books or sections of either text (parse the loci). Offer, do not force; a short answer needs no chart, and the interactive versions live on the Tesserae site. (Tracing where a phrase recurs across all of literature over time needs corpus-wide data this CSV does not carry, so that view belongs on the site.)
+
+Here is the CSV:`;
 
 const MCP_CONNECTOR_URL = 'https://tesserae.caset.buffalo.edu/api/mcp';
 
