@@ -42,29 +42,6 @@ def _compare_url(source, target, language):
     return (f"{WEB_BASE}/?source={quote(str(source))}&target={quote(str(target))}"
             f"&lang={quote(language or 'la')}")
 
-def _chart_url(source, target, language):
-    # Server-rendered image of the comparison's distribution chart (the same
-    # picture the web page draws), for an agent to attach/embed with results.
-    if not (source and target):
-        return None
-    return (f"{API_BASE}/comparison-chart?source={quote(str(source))}"
-            f"&target={quote(str(target))}&language={quote(language or 'la')}")
-
-def _history_url(source, target, language):
-    # Server-rendered 'history strip': where each top shared phrase recurs across
-    # the corpus over time, one row per parallel. One image for the whole set.
-    if not (source and target):
-        return None
-    return (f"{API_BASE}/comparison-history-chart?source={quote(str(source))}"
-            f"&target={quote(str(target))}&language={quote(language or 'la')}")
-
-def _map_url(source, target, language):
-    # Server-rendered connection map: the two texts as vertical axes, each top
-    # parallel a curve between them, weighted by strength, rare-word finds marked.
-    if not (source and target):
-        return None
-    return (f"{API_BASE}/comparison-map-chart?source={quote(str(source))}"
-            f"&target={quote(str(target))}&language={quote(language or 'la')}")
 # Keep this minimal and spec-exact for the negotiated protocolVersion. Adding
 # non-standard Implementation fields (title/websiteUrl/icons from a later draft)
 # caused Claude's connector to reject the initialize response ("Tesserae returned
@@ -235,8 +212,9 @@ def _fusion_poll(params, budget):
                    'showing': d.get('showing'), 'offset': d.get('offset', 0),
                    'parallels': d.get('parallels')}
             # Surface filter context when present (count is after filters; total is
-            # the full result set before them).
-            for k in ('total', 'limit', 'filters'):
+            # the full result set before them). total_candidates/capped give the
+            # true comparison size; by_book lets an agent draw the distribution.
+            for k in ('total', 'total_candidates', 'capped', 'by_book', 'limit', 'filters'):
                 if d.get(k) is not None and d.get(k) != {}:
                     out[k] = d.get(k)
             return out
@@ -285,12 +263,6 @@ def _t_fusion_search(a):
         # Live, interactive view of this comparison (charts) in the web app.
         res.setdefault('web_url', _compare_url(a.get('source'), a.get('target'),
                                                a.get('language', 'la')))
-        res.setdefault('chart_url', _chart_url(a.get('source'), a.get('target'),
-                                               a.get('language', 'la')))
-        res.setdefault('history_url', _history_url(a.get('source'), a.get('target'),
-                                                   a.get('language', 'la')))
-        res.setdefault('map_url', _map_url(a.get('source'), a.get('target'),
-                                           a.get('language', 'la')))
     return res
 
 
@@ -365,12 +337,9 @@ def _t_compare_texts(a):
         'ranked_parallels': fusion,      # fusion: strongest overall parallels
         'rare_phrases': rare_phrases,    # distinctive shared two-word collocations
         'rare_words': rare_words,        # distinctive shared individual words
-        # Live, interactive view of this comparison (with the distribution +
-        # corpus-recurrence charts) in the web app.
+        # Live, interactive view of this comparison (the clickable charts) in the
+        # web app -- the one visual every user gets, in every medium.
         'web_url': _compare_url(a.get('source'), a.get('target'), a.get('language', 'la')),
-        'chart_url': _chart_url(a.get('source'), a.get('target'), a.get('language', 'la')),
-        'history_url': _history_url(a.get('source'), a.get('target'), a.get('language', 'la')),
-        'map_url': _map_url(a.get('source'), a.get('target'), a.get('language', 'la')),
     }
     common = (
         "PRESENTATION (default; an explicit user request for a by-search view, the full list, or a "
@@ -443,24 +412,33 @@ def _t_compare_texts(a):
         "SURFACE THE LINK: when the response carries a web_url, include it with the results in plain "
         "words -- 'open this comparison in Tesserae's own interface' -- in the close and in any artifact "
         "footer; without it the link is invisible to the reader. "
-        "OFFICIAL CHARTS: the response carries three ready-made chart image URLs, each the same figure the "
-        "site draws, rendered server-side so every user sees identical Tesserae charts. When they display "
-        "well in the medium, attach or embed them with the results, and PREFER them over drawing your own "
-        "-- do not improvise a chart when these exist. chart_url is the distribution chart (where the "
-        "parallels fall in one text). history_url is a 'history strip' showing where each top shared phrase "
-        "recurs across the corpus over time (one row per parallel, source and target marked), which answers "
-        "'where do these echoes sit in literary history' in one picture -- it tracks shared-WORD recurrence, "
-        "so meaning-only or grammar-only parallels are not on it. map_url is the connection map: the "
-        "two texts as vertical axes with each top parallel a curve between them, weighted by strength and "
-        "highlighting rare-word finds, so the shape of the relationship reads at a glance. Each renders in a "
-        "few seconds the first time and is cached after. These images are STATIC -- the user cannot click "
-        "them -- so whenever you show a chart, tell them the way to drill in is to open the interactive "
-        "version at web_url, where they can click a bar to filter the parallels to that stretch, click an "
-        "author to see just their citations, and switch views. Give that link every time you present a "
-        "chart, not only in the close. The prefer-the-official-charts rule is for the DEFAULT: if the user "
-        "asks for a chart, a different cut, or a custom visualization, make it freely from the data, and "
-        "label it as your OWN rendering rather than an official Tesserae figure. "
-        "Offer, do not force -- a quick question does not need a graphic."
+        "CHARTS: there are no pre-made images to attach. After presenting results, when the medium can "
+        "display graphics, OFFER the user visual views and draw whichever they accept yourself, from the "
+        "data in hand. The standard offers: (1) a CONNECTION MAP of the two texts, (2) a TIMELINE of where "
+        "a shared phrase recurs across the centuries, (3) a DISTRIBUTION of parallels across the books or "
+        "poems of either text. Label every chart as YOUR OWN rendering, never as an official Tesserae "
+        "figure, and with every chart -- and in the close -- give web_url in plain words as the way to "
+        "explore interactively (the site's chart is clickable; the one you draw is not). Offer, do not "
+        "force: a quick question needs no graphic, and a text-only medium gets the link alone. "
+        "Conventions, so any capable agent draws the same chart. "
+        "CONNECTION MAP: the two texts as two vertical axes scaled to their line counts (mark book "
+        "boundaries when a text spans several books); each parallel a curve between the lines it links, its "
+        "weight the strength and its color which search found it, with weak links a recessive gray so the "
+        "strong ones read; label a small top tier directly; on hover give BOTH full lines with their loci, "
+        "and where hover is impossible a compact source->target locus table is the fallback. "
+        "TIMELINE: a horizontal axis in plain years ('negative years are BCE'), one dot per occurrence, "
+        "each dot labeled with its author (work and locus on hover, or beside the dot when space allows); "
+        "distinguish occurrences in the source and target texts by the two text colors and leave everything "
+        "else neutral; one row per phrase when several share a chart, or a single detailed row when the "
+        "user asks about one phrase. line_search hits carry era, year, author, work, and locus -- draw from "
+        "those. "
+        "DISTRIBUTION: bars per book or poem, a value label on every bar, the leading unit emphasized "
+        "against muted neighbors; the title names BOTH texts and a subtitle states exactly what population "
+        "is counted. Use the by_book array the response carries (counts per book for source and target over "
+        "the whole ranking) so you need not page thousands of results, and take the population from "
+        "by_book.population: when capped is true say 'at least N candidates' (the true size is "
+        "total_candidates when given, the cap otherwise), never a bare 'top 5,000'. "
+        "Every chart's footer carries the corpus_version stamp and web_url."
     )
     if fusion.get('status') == 'running':
         out['note'] = ('The ranked_parallels (fusion) section is still computing server-side. '
