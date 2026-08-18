@@ -534,6 +534,44 @@ paths:
         '404':
           description: The pair has not been computed yet; run the comparison first.
 
+  /comparison-map-chart:
+    get:
+      operationId: comparisonMapChart
+      summary: Server-rendered connection-map image for a cached comparison
+      description: >-
+        One IMAGE of how the two texts connect: the texts as two vertical axes
+        scaled to their line counts, each top parallel a curve between the lines
+        it links, weighted by strength and highlighting rare-word finds. Attach it
+        with results. Reads the shared fusion cache; 404 if not computed yet.
+      parameters:
+        - name: source
+          in: query
+          required: true
+          schema: { type: string }
+        - name: target
+          in: query
+          required: true
+          schema: { type: string }
+        - name: language
+          in: query
+          required: true
+          schema: { type: string, enum: [la, grc, en, cop] }
+        - name: format
+          in: query
+          schema: { type: string, enum: [svg, png], default: svg }
+        - name: top
+          in: query
+          schema: { type: integer, default: 80 }
+          description: How many top parallels to draw (max 200).
+      responses:
+        '200':
+          description: The connection-map image (SVG or PNG).
+          content:
+            image/svg+xml: { schema: { type: string, format: binary } }
+            image/png: { schema: { type: string, format: binary } }
+        '404':
+          description: The pair has not been computed yet; run the comparison first.
+
   /search-fusion:
     post:
       operationId: fusionSearch

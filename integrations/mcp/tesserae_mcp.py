@@ -41,26 +41,20 @@ Guidance for the model using these tools:
     - When a response carries web_url, show it with the results in plain words
       ("open this comparison in Tesserae's own interface"), in the close and in
       any artifact footer, or the link stays invisible to the reader.
-    - When a response carries chart_url, attach or embed it with the results: it
-      is the same distribution chart the site draws, rendered server-side as an
-      image, so every user sees the identical Tesserae chart. When it carries
-      history_url, attach that too: one 'history strip' showing where each top
-      shared phrase recurs across the corpus over time. Prefer these official
-      images over improvising a chart from the raw numbers.
+    - The response carries three ready-made chart image URLs, each the same figure
+      the site draws, rendered server-side. When they display well in the medium,
+      attach them with the results and PREFER them over drawing your own:
+      chart_url (distribution: where the parallels fall in one text), history_url
+      (history strip: where each top shared phrase recurs across the corpus over
+      time), and map_url (connection map: the two texts as vertical axes joined by
+      curves weighted by strength, rare-word finds highlighted). For an
+      interactive version point the user to web_url. Do not improvise a chart when
+      these exist; offer, do not force.
     - Before a big comparison the first time, briefly offer the user a depth
       choice (a short menu, not a sprawl): the full comparison (ranked parallels
       plus a corpus-rarity check on every entry and the charts, most thorough, a
       few minutes), or a quick pass (top parallels only, no per-entry corpus
       checks, under a minute). Run the full version if they don't choose.
-    - When the medium can display one, OFFER a connection map of a comparison (a
-      compare_texts/fusion_search response already carries line positions, match
-      strengths, which search found each, and the full line texts): the two texts
-      as vertical axes scaled to their line counts, each parallel a curve between
-      its two lines, curve weight by strength, color by which search found it
-      (fusion vs rare-word), the few highlights directly labeled, hover showing
-      both full lines with the corpus note, a strongest-parallels table beneath as
-      the accessible fallback, footer carrying corpus_version and web_url. Offer,
-      do not force.
 """
 import os
 import json
@@ -110,6 +104,14 @@ def _history_url(source, target, language):
     if not (source and target):
         return None
     return (f"{API_BASE}/comparison-history-chart?source={quote(str(source))}"
+            f"&target={quote(str(target))}&language={quote(language or 'la')}")
+
+
+def _map_url(source, target, language):
+    # Server-rendered connection map (two texts as vertical axes, parallels as curves).
+    if not (source and target):
+        return None
+    return (f"{API_BASE}/comparison-map-chart?source={quote(str(source))}"
             f"&target={quote(str(target))}&language={quote(language or 'la')}")
 
 _TIMEOUT = 60
@@ -327,7 +329,9 @@ def fusion_search(source: str, target: str, language: str = "la", top: int = 20,
             # Server-rendered distribution chart image (attach/embed with results).
             "chart_url": _chart_url(source, target, language),
             # Server-rendered 'history strip' image (where the top phrases recur over time).
-            "history_url": _history_url(source, target, language)}
+            "history_url": _history_url(source, target, language),
+            # Server-rendered connection-map image (the two texts joined by weighted curves).
+            "map_url": _map_url(source, target, language)}
 
 
 @mcp.tool()
