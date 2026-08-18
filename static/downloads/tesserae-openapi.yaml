@@ -483,6 +483,10 @@ paths:
         - name: format
           in: query
           schema: { type: string, enum: [svg, png], default: svg }
+        - name: scale
+          in: query
+          schema: { type: number, default: 1 }
+          description: PNG resolution multiplier, 1 to 3 (use with format=png for a crisp raster; SVG is already vector-sharp).
         - name: side
           in: query
           schema: { type: string, enum: [source, target], default: source }
@@ -521,10 +525,14 @@ paths:
         - name: format
           in: query
           schema: { type: string, enum: [svg, png], default: svg }
+        - name: scale
+          in: query
+          schema: { type: number, default: 1 }
+          description: PNG resolution multiplier, 1 to 3 (use with format=png for a crisp raster; SVG is already vector-sharp).
         - name: top
           in: query
           schema: { type: integer, default: 10 }
-          description: How many top parallels to chart (max 15).
+          description: How many distinct top phrases to chart (max 15).
       responses:
         '200':
           description: The history-strip image (SVG or PNG).
@@ -539,10 +547,10 @@ paths:
       operationId: comparisonMapChart
       summary: Server-rendered connection-map image for a cached comparison
       description: >-
-        One IMAGE of how the two texts connect: the texts as two vertical axes
-        scaled to their line counts, each top parallel a curve between the lines
-        it links, weighted by strength and highlighting rare-word finds. Attach it
-        with results. Reads the shared fusion cache; 404 if not computed yet.
+        One IMAGE of how the two texts connect: two vertical axes scaled to full
+        line counts (book bands on multi-book texts), each top parallel a curve
+        between the lines it links. The strongest few are bold and labelled, the
+        rest recede. 404 if not computed yet.
       parameters:
         - name: source
           in: query
@@ -559,9 +567,13 @@ paths:
         - name: format
           in: query
           schema: { type: string, enum: [svg, png], default: svg }
+        - name: scale
+          in: query
+          schema: { type: number, default: 1 }
+          description: PNG resolution multiplier, 1 to 3 (use with format=png for a crisp raster; SVG is already vector-sharp).
         - name: top
           in: query
-          schema: { type: integer, default: 80 }
+          schema: { type: integer, default: 50 }
           description: How many top parallels to draw (max 200).
       responses:
         '200':

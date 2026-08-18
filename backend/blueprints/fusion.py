@@ -732,6 +732,58 @@ def fusion_search_get():
                                'cached afterward so repeats are instant.'})
 
 
+_LINE_POS_CACHE = {}
+
+
+def _line_positions(text_path):
+    """Read a .tess and return (pos(book, line) -> cumulative line number,
+    total_lines, [(book, start_offset), ...], n_books). Cumulative positioning is
+    what a multi-book text (e.g. the whole Aeneid) needs: line 11.22 sits at the
+    sum of books 1-10 plus 22, not at 22. Memoized per file."""
+    if text_path in _LINE_POS_CACHE:
+        return _LINE_POS_CACHE[text_path]
+    book_max = {}
+    try:
+        with open(text_path, encoding='utf-8', errors='replace') as f:
+            for ln in f:
+                m = re.match(r'^\s*<([^>]*)>', ln)
+                nums = [int(x) for x in re.findall(r'\d+', m.group(1))] if m else []
+                if not nums:
+                    continue
+                book = nums[0] if len(nums) >= 2 else 1
+                book_max[book] = max(book_max.get(book, 0), nums[-1])
+    except Exception:
+        pass
+    offsets, boundaries, cum = {}, [], 0
+    for b in sorted(book_max):
+        offsets[b] = cum
+        boundaries.append((b, cum))
+        cum += book_max[b]
+    total = cum or 1
+
+    def pos(book, line):
+        return offsets.get(book, offsets.get(1, 0)) + line
+    result = (pos, total, boundaries, len(book_max))
+    _LINE_POS_CACHE[text_path] = result
+    return result
+
+
+def _fig_response(fig, fmt, cache_path=None):
+    """Save a Figure to SVG/PNG bytes, optionally cache to disk, return a Response."""
+    buf = io.BytesIO()
+    fig.savefig(buf, format=('png' if fmt == 'png' else 'svg'), bbox_inches='tight')
+    data = buf.getvalue()
+    if cache_path:
+        try:
+            os.makedirs(os.path.dirname(cache_path), exist_ok=True)
+            with open(cache_path, 'wb') as f:
+                f.write(data)
+        except OSError:
+            pass
+    mime = 'image/png' if fmt == 'png' else 'image/svg+xml'
+    return Response(data, mimetype=mime, headers={'Cache-Control': 'public, max-age=3600'})
+
+
 @fusion_bp.route('/comparison-chart', methods=['GET'])
 def comparison_chart():
     """Server-rendered distribution chart for a cached comparison — the same
@@ -753,6 +805,12 @@ def comparison_chart():
         side = 'source'
     if fmt not in ('svg', 'png'):
         fmt = 'svg'
+    mime = 'image/png' if fmt == 'png' else 'image/svg+xml'
+    try:
+        scale = float(request.args.get('scale', 1))
+    except (TypeError, ValueError):
+        scale = 1.0
+    scale = max(1.0, min(scale, 3.0))
     if not source_id or not target_id:
         return jsonify({'error': 'Provide source and target text ids (see /api/texts).'}), 400
 
@@ -760,6 +818,20 @@ def comparison_chart():
     target_path = resolve_text_path(_texts_dir, language, target_id)
     if not source_path or not target_path:
         return jsonify({'error': 'Text files not found for that source/target/language.'}), 404
+
+    try:
+        from backend.inverted_index import get_corpus_version
+        corpus_version = get_corpus_version(language)
+    except Exception:
+        corpus_version = None
+
+    cache_dir = os.path.join(CACHE_DIR, 'dist_charts')
+    ck = hashlib.md5(f"{source_id}|{target_id}|{language}|{side}|{fmt}|{scale}|{corpus_version}|v2".encode()).hexdigest()  # nosec B324
+    cpath = os.path.join(cache_dir, f"{ck}.{fmt}")
+    if os.path.exists(cpath):
+        with open(cpath, 'rb') as f:
+            return Response(f.read(), mimetype=mime,
+                            headers={'Cache-Control': 'public, max-age=3600'})
 
     max_results = 5000
     use_meter = _poll_use_meter(source_id, target_id, language)
@@ -809,45 +881,39 @@ def comparison_chart():
         xlabel = "Book"
         title = f"Parallels by book in {work_label}"
 
-    try:
-        from backend.inverted_index import get_corpus_version
-        corpus_version = get_corpus_version(language)
-    except Exception:
-        corpus_version = None
-
     # Use the object-oriented Figure API (not pyplot) so this is thread-safe
     # under mod_wsgi — pyplot's global figure state would race across requests.
     from matplotlib.figure import Figure
-    color = '#b91c1c' if side == 'source' else '#d97706'   # site red / amber
-    fig = Figure(figsize=(7.2, 3.6), dpi=110)
+    accent = '#b91c1c' if side == 'source' else '#d97706'   # site red / amber
+    peak = max(counts) if counts else 0
+    # Peak bin(s) at full strength, the rest recede — the eye lands on where the
+    # parallels concentrate.
+    colors = [accent if v == peak else accent + '66' for v in counts]
+    rot = 0 if (xlabel == 'Book' and len(labels) <= 14) else (30 if len(labels) <= 14 else 45)
+    tick_lbls = [l.replace('Book ', '') for l in labels] if xlabel == 'Book' else labels
+    fig = Figure(figsize=(9.2, 4.8), dpi=int(110 * scale))
     ax = fig.subplots()
-    ax.bar(range(len(counts)), counts, color=color, edgecolor='white', linewidth=0.5)
-    ax.set_xticks(range(len(labels)))
-    ax.set_xticklabels(labels, rotation=45, ha='right', fontsize=8)
-    ax.set_ylabel('Parallels', fontsize=9)
-    ax.set_xlabel(xlabel, fontsize=9)
-    ax.set_title(title, fontsize=11)
+    bars = ax.bar(range(len(counts)), counts, color=colors, edgecolor='white', linewidth=0.6, zorder=3)
+    for rect, v in zip(bars, counts):
+        if v:
+            ax.text(rect.get_x() + rect.get_width() / 2, v, str(v), ha='center', va='bottom',
+                    fontsize=8.5, color='#374151', zorder=4)
+    ax.set_xticks(range(len(tick_lbls)))
+    ax.set_xticklabels(tick_lbls, rotation=rot, ha=('right' if rot else 'center'), fontsize=9.5)
+    ax.set_ylabel('Number of parallels', fontsize=10.5)
+    ax.set_xlabel(xlabel, fontsize=10.5)
+    ax.set_title(title, fontsize=13, fontweight='bold', pad=10)
+    ax.set_ylim(0, peak * 1.16 if peak else 1)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
+    ax.tick_params(axis='both', length=0)
+    ax.grid(axis='y', color='#eef0f2', zorder=0)
     ax.margins(x=0.01)
-    stamp = 'Tesserae'
-    if corpus_version:
-        stamp += f" · corpus {corpus_version}"
-    fig.text(0.99, 0.01, stamp, ha='right', va='bottom', fontsize=6, color='#9ca3af')
+    stamp = 'Tesserae' + (f" · corpus {corpus_version}" if corpus_version else '')
+    fig.text(0.99, 0.01, stamp, ha='right', va='bottom', fontsize=6.5, color='#9ca3af')
     fig.text(0.01, 0.01, 'Static snapshot. Click-to-explore version at tesserae.caset.buffalo.edu',
-             ha='left', va='bottom', fontsize=6, color='#9ca3af')
-    fig.tight_layout()
-
-    buf = io.BytesIO()
-    if fmt == 'png':
-        fig.savefig(buf, format='png', bbox_inches='tight')
-        mime = 'image/png'
-    else:
-        fig.savefig(buf, format='svg', bbox_inches='tight')
-        mime = 'image/svg+xml'
-    buf.seek(0)
-    return Response(buf.getvalue(), mimetype=mime,
-                    headers={'Cache-Control': 'public, max-age=3600'})
+             ha='left', va='bottom', fontsize=6.5, color='#9ca3af')
+    return _fig_response(fig, fmt, cpath)
 
 
 _AUTHOR_DATES_CACHE = {}
@@ -899,6 +965,11 @@ def comparison_history_chart():
     except (TypeError, ValueError):
         top = 10
     top = max(1, min(top, 15))
+    try:
+        scale = float(request.args.get('scale', 1))
+    except (TypeError, ValueError):
+        scale = 1.0
+    scale = max(1.0, min(scale, 3.0))
     if not source_id or not target_id:
         return jsonify({'error': 'Provide source and target text ids (see /api/texts).'}), 400
     if not (resolve_text_path(_texts_dir, language, source_id) and
@@ -914,7 +985,7 @@ def comparison_history_chart():
     # Image cache: the per-parallel corpus lookups are the expensive part, so
     # cache the finished image keyed on the pair + top + format + corpus stamp.
     cache_dir = os.path.join(CACHE_DIR, 'history_charts')
-    ck = hashlib.md5(f"{source_id}|{target_id}|{language}|{top}|{fmt}|{corpus_version}".encode()).hexdigest()  # nosec B324
+    ck = hashlib.md5(f"{source_id}|{target_id}|{language}|{top}|{fmt}|{scale}|{corpus_version}|v2".encode()).hexdigest()  # nosec B324
     cpath = os.path.join(cache_dir, f"{ck}.{fmt}")
     if os.path.exists(cpath):
         with open(cpath, 'rb') as f:
@@ -931,7 +1002,6 @@ def comparison_history_chart():
     from backend.inverted_index import find_co_occurring_lemmas
     from backend.matcher import (DEFAULT_LATIN_STOP_WORDS, DEFAULT_GREEK_STOP_WORDS,
                                  DEFAULT_ENGLISH_STOP_WORDS)
-    from backend.blueprints.hapax import get_document_frequencies_batch
     stops = {'la': DEFAULT_LATIN_STOP_WORDS, 'grc': DEFAULT_GREEK_STOP_WORDS,
              'en': DEFAULT_ENGLISH_STOP_WORDS}.get(language, set())
     dates = _author_dates(language)
@@ -941,38 +1011,45 @@ def comparison_history_chart():
     # distinctive echo worth tracing — skip it (and it keeps each row legible).
     COMMONPLACE_CAP = 400
 
-    def _content_lemmas(r):
-        seen, uniq = set(), []
-        for l in (r.get('matched_lemmas') or []):
-            s = str(l)
-            if s and s.lower() not in stops and s.lower() not in seen \
-                    and re.match(r'^[^\W\d_]+$', s, re.UNICODE):
-                seen.add(s.lower())
-                uniq.append(s)
-        return uniq
+    def _pick_words(r):
+        """From a parallel's matched_words, the two rarest content words as
+        (lemmas, surface forms). matched_words dicts carry a per-word corpus idf
+        and the actual surface form, so the row can be labelled with the words a
+        reader recognises (innuptae … Minervae) rather than lemma jargon."""
+        cand, seen = [], set()
+        for w in (r.get('matched_words') or []):
+            if not isinstance(w, dict):
+                continue
+            lem = w.get('lemma')
+            if not lem or str(lem).startswith('['):  # skip sound/trigram artifacts
+                continue
+            low = str(lem).lower()
+            if low in stops or low in seen or not re.match(r'^[^\W\d_]+$', str(lem), re.UNICODE):
+                continue
+            seen.add(low)
+            surf = w.get('source_word') or w.get('target_word') or lem
+            cand.append((w.get('idf') or 0.0, str(lem), str(surf)))
+        cand.sort(reverse=True)  # rarest (highest idf) first
+        return [c[1] for c in cand[:2]], [c[2] for c in cand[:2]]
 
     scored = sorted(cached_results, key=lambda r: (r.get('fused_score') or r.get('score') or 0), reverse=True)
-    rows = []
+    rows, seen_keys = [], set()
     for r in scored:
         if len(rows) >= top:
             break
-        lems = _content_lemmas(r)
+        lems, surfs = _pick_words(r)
         if len(lems) < 2:
             continue
-        # Query on the two RAREST shared words (most distinctive), which is both
-        # faster and a truer phrase than the full lemma set. Forms absent from the
-        # doc-freq table sort last, so real headwords are preferred.
+        key = tuple(sorted(l.lower() for l in lems))
+        if key in seen_keys:  # same phrase from another pairing — one row only
+            continue
         try:
-            dfs = get_document_frequencies_batch(set(lems), language) or {}
-        except Exception:
-            dfs = {}
-        pick = sorted(lems, key=lambda l: dfs.get(l) if dfs.get(l) is not None else 10 ** 9)[:2]
-        try:
-            matches = find_co_occurring_lemmas(pick, language, min_matches=2)
+            matches = find_co_occurring_lemmas(lems, language, min_matches=2)
         except Exception:
             continue
         if not (2 <= len(matches) <= COMMONPLACE_CAP):
             continue
+        seen_keys.add(key)
         years, src_years, tgt_years = [], [], []
         for m in matches:
             filename = m[0]
@@ -986,7 +1063,7 @@ def comparison_history_chart():
             elif fn == tgt_norm:
                 tgt_years.append(y)
         if years:
-            rows.append({'label': ' '.join(pick), 'years': years,
+            rows.append({'label': ' … '.join(surfs), 'years': years,
                          'src_years': src_years, 'tgt_years': tgt_years})
 
     if not rows:
@@ -996,47 +1073,40 @@ def comparison_history_chart():
     from matplotlib.ticker import FuncFormatter
     from matplotlib.lines import Line2D
     n = len(rows)
-    fig = Figure(figsize=(8.6, max(2.6, 0.42 * n + 1.2)), dpi=110)
+    fig = Figure(figsize=(9.4, max(3.0, 0.52 * n + 1.6)), dpi=int(110 * scale))
     ax = fig.subplots()
     for i, row in enumerate(rows):
         yy = n - 1 - i  # strongest parallel on top
-        ax.scatter(row['years'], [yy] * len(row['years']), s=10, color='#9ca3af',
-                   alpha=0.5, edgecolors='none', zorder=2)
+        ax.axhline(yy, color='#f3f4f6', lw=0.8, zorder=0)
+        ax.scatter(row['years'], [yy] * len(row['years']), s=26, color='#9ca3af',
+                   alpha=0.55, edgecolors='none', zorder=2)
         if row['tgt_years']:
-            ax.scatter(row['tgt_years'], [yy] * len(row['tgt_years']), s=36, color='#d97706',
-                       edgecolors='white', linewidth=0.4, zorder=4)
+            ax.scatter(row['tgt_years'], [yy] * len(row['tgt_years']), s=90, color='#d97706',
+                       edgecolors='white', linewidth=0.7, zorder=4)
         if row['src_years']:
-            ax.scatter(row['src_years'], [yy] * len(row['src_years']), s=36, color='#b91c1c',
-                       edgecolors='white', linewidth=0.4, zorder=5)
+            ax.scatter(row['src_years'], [yy] * len(row['src_years']), s=90, color='#b91c1c',
+                       edgecolors='white', linewidth=0.7, zorder=5)
     ax.set_yticks(range(n))
-    ax.set_yticklabels([rows[n - 1 - j]['label'] for j in range(n)], fontsize=8)
-    ax.set_ylim(-0.6, n - 0.4)
-    ax.set_xlabel('Date (negative years are BCE)', fontsize=9)
+    ax.set_yticklabels([rows[n - 1 - j]['label'] for j in range(n)], fontsize=10)
+    ax.set_ylim(-0.7, n - 0.3)
+    ax.set_xlabel('When the phrase appears (negative years are BCE)', fontsize=10)
     ax.xaxis.set_major_formatter(FuncFormatter(lambda x, _p=None: f"{int(-x)} BCE" if x < 0 else f"{int(x)} CE"))
-    ax.set_title('Where these shared phrases recur across the corpus', fontsize=11)
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.grid(axis='x', color='#f3f4f6', zorder=0)
-    handles = [Line2D([0], [0], marker='o', color='w', markerfacecolor='#b91c1c', markersize=6, label='in the source'),
-               Line2D([0], [0], marker='o', color='w', markerfacecolor='#d97706', markersize=6, label='in the target'),
-               Line2D([0], [0], marker='o', color='w', markerfacecolor='#9ca3af', markersize=6, label='elsewhere in the corpus')]
-    ax.legend(handles=handles, fontsize=7, loc='lower right', frameon=False)
+    ax.tick_params(axis='x', labelsize=9)
+    ax.set_title('Where these shared phrases recur across the corpus', fontsize=13, fontweight='bold', pad=12)
+    for s in ('top', 'right', 'left'):
+        ax.spines[s].set_visible(False)
+    ax.tick_params(axis='y', length=0)
+    ax.grid(axis='x', color='#eef0f2', zorder=0)
+    handles = [Line2D([0], [0], marker='o', color='w', markerfacecolor='#b91c1c', markersize=9, label='in the source text'),
+               Line2D([0], [0], marker='o', color='w', markerfacecolor='#d97706', markersize=9, label='in the target text'),
+               Line2D([0], [0], marker='o', color='w', markerfacecolor='#9ca3af', markersize=8, label='elsewhere in the corpus')]
+    ax.legend(handles=handles, fontsize=9, loc='upper center', bbox_to_anchor=(0.5, -0.16 / max(1, n) - 0.06),
+              ncol=3, frameon=False, columnspacing=1.4, handletextpad=0.4)
     stamp = 'Tesserae' + (f" · corpus {corpus_version}" if corpus_version else '')
-    fig.text(0.99, 0.005, stamp, ha='right', va='bottom', fontsize=6, color='#9ca3af')
-    fig.text(0.01, 0.005, 'Static snapshot. Click-to-explore version at tesserae.caset.buffalo.edu',
-             ha='left', va='bottom', fontsize=6, color='#9ca3af')
-    fig.tight_layout()
-
-    buf = io.BytesIO()
-    fig.savefig(buf, format=('png' if fmt == 'png' else 'svg'), bbox_inches='tight')
-    data = buf.getvalue()
-    try:
-        os.makedirs(cache_dir, exist_ok=True)
-        with open(cpath, 'wb') as f:
-            f.write(data)
-    except OSError:
-        pass
-    return Response(data, mimetype=mime, headers={'Cache-Control': 'public, max-age=3600'})
+    fig.text(0.99, 0.004, stamp, ha='right', va='bottom', fontsize=6.5, color='#9ca3af')
+    fig.text(0.01, 0.004, 'Static snapshot. Click-to-explore version at tesserae.caset.buffalo.edu',
+             ha='left', va='bottom', fontsize=6.5, color='#9ca3af')
+    return _fig_response(fig, fmt, cpath)
 
 
 @fusion_bp.route('/comparison-map-chart', methods=['GET'])
@@ -1059,10 +1129,15 @@ def comparison_map_chart():
         fmt = 'svg'
     mime = 'image/png' if fmt == 'png' else 'image/svg+xml'
     try:
-        top = int(request.args.get('top', 80))
+        top = int(request.args.get('top', 50))
     except (TypeError, ValueError):
-        top = 80
+        top = 50
     top = max(5, min(top, 200))
+    try:
+        scale = float(request.args.get('scale', 1))
+    except (TypeError, ValueError):
+        scale = 1.0
+    scale = max(1.0, min(scale, 3.0))
     if not source_id or not target_id:
         return jsonify({'error': 'Provide source and target text ids (see /api/texts).'}), 400
     sp = resolve_text_path(_texts_dir, language, source_id)
@@ -1077,7 +1152,7 @@ def comparison_map_chart():
         corpus_version = None
 
     cache_dir = os.path.join(CACHE_DIR, 'map_charts')
-    ck = hashlib.md5(f"{source_id}|{target_id}|{language}|{top}|{fmt}|{corpus_version}".encode()).hexdigest()  # nosec B324
+    ck = hashlib.md5(f"{source_id}|{target_id}|{language}|{top}|{fmt}|{scale}|{corpus_version}|v2".encode()).hexdigest()  # nosec B324
     cpath = os.path.join(cache_dir, f"{ck}.{fmt}")
     if os.path.exists(cpath):
         with open(cpath, 'rb') as f:
@@ -1090,91 +1165,114 @@ def comparison_map_chart():
     if cached_results is None:
         return jsonify({'error': 'No cached comparison yet. Run the comparison '
                                  '(fusion-search or compare_texts) first, then request the chart.'}), 404
-    meta = meta or {}
-    trunc = lambda s: (str(s)[:30] + '…') if len(str(s)) > 31 else str(s)
-    src_meta = get_text_metadata(sp)
-    tgt_meta = get_text_metadata(tp)
-    src_title = trunc(src_meta.get('display_name') or src_meta.get('title') or source_id)
-    tgt_title = trunc(tgt_meta.get('display_name') or tgt_meta.get('title') or target_id)
+    trunc = lambda s, n=34: (str(s)[:n - 1] + '…') if len(str(s)) > n else str(s)
+    src_title = trunc(get_text_metadata(sp).get('display_name') or source_id)
+    tgt_title = trunc(get_text_metadata(tp).get('display_name') or target_id)
+    # Cumulative line positions, so a multi-book text (whole Aeneid) plots 11.22
+    # at its true position on the full axis, not at line 22 within the book.
+    spos, s_total, s_bounds, s_nbooks = _line_positions(sp)
+    tpos, t_total, t_bounds, t_nbooks = _line_positions(tp)
 
-    def _line(ref):
+    def _bl(ref):
         nums = [int(x) for x in re.findall(r'\d+', str(ref))]
-        return nums[-1] if nums else None
+        if not nums:
+            return (None, None)
+        return (nums[0] if len(nums) >= 2 else 1, nums[-1])
 
     scored = sorted(cached_results, key=lambda r: (r.get('fused_score') or r.get('score') or 0), reverse=True)
-    conns, src_seen, tgt_seen = [], [], []
+    conns = []
     for r in scored[:top]:
-        sl = _line((r.get('source') or {}).get('ref') or r.get('source_locus'))
-        tl = _line((r.get('target') or {}).get('ref') or r.get('target_locus'))
+        sb, sl = _bl((r.get('source') or {}).get('ref') or r.get('source_locus'))
+        tb, tl = _bl((r.get('target') or {}).get('ref') or r.get('target_locus'))
         if sl is None or tl is None:
             continue
-        conns.append({'sl': sl, 'tl': tl,
+        conns.append({'sp': spos(sb, sl), 'tp': tpos(tb, tl),
+                      'sref': (f"{sb}.{sl}" if s_nbooks > 1 else str(sl)),
+                      'tref': (f"{tb}.{tl}" if t_nbooks > 1 else str(tl)),
                       'score': r.get('fused_score') or r.get('score') or 0,
                       'rare': 'rare_word' in (r.get('channels') or [])})
-        src_seen.append(sl)
-        tgt_seen.append(tl)
     if not conns:
         return jsonify({'error': 'No line-referenced parallels to map.'}), 422
-
-    src_max = max(int(meta.get('source_lines') or 0), max(src_seen))
-    tgt_max = max(int(meta.get('target_lines') or 0), max(tgt_seen))
-    max_score = max((c['score'] for c in conns)) or 1.0
+    max_score = max(c['score'] for c in conns) or 1.0
+    by_score = sorted(conns, key=lambda c: c['score'], reverse=True)
+    n_hi = min(8, len(by_score))
+    n_lbl = min(5, len(by_score))
 
     from matplotlib.figure import Figure
     from matplotlib.path import Path as MplPath
     from matplotlib.patches import PathPatch
     from matplotlib.lines import Line2D
-    fig = Figure(figsize=(7.4, 8.6), dpi=110)
+    fig = Figure(figsize=(9.6, 9.2), dpi=int(110 * scale))
     ax = fig.subplots()
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.axis('off')
-    x_src, x_tgt = 0.80, 0.20
-    y0, y1 = 0.07, 0.90
+    x_tgt, x_src = 0.16, 0.64
+    y0, y1 = 0.08, 0.88
 
-    def _y(line, lmax):
-        return (y0 + y1) / 2 if lmax <= 1 else y1 - (line - 1) / (lmax - 1) * (y1 - y0)
+    def ys(p):
+        return y1 - (p - 1) / max(1, s_total - 1) * (y1 - y0)
 
-    ax.plot([x_src, x_src], [y0, y1], color='#d1d5db', lw=1.3, zorder=1)
-    ax.plot([x_tgt, x_tgt], [y0, y1], color='#d1d5db', lw=1.3, zorder=1)
-    # weakest first so the strong links sit on top
-    for c in sorted(conns, key=lambda c: c['score']):
-        ys, yt = _y(c['sl'], src_max), _y(c['tl'], tgt_max)
-        frac = c['score'] / max_score
-        lw = 0.3 + 2.0 * frac
-        if c['rare']:
-            color, alpha = '#b91c1c', 0.5 + 0.4 * frac
-        else:
-            color, alpha = '#64748b', 0.12 + 0.42 * frac
-        path = MplPath([(x_src, ys), (0.5, (ys + yt) / 2), (x_tgt, yt)],
+    def yt(p):
+        return y1 - (p - 1) / max(1, t_total - 1) * (y1 - y0)
+
+    ax.plot([x_src, x_src], [y0, y1], color='#9ca3af', lw=1.6, zorder=4)
+    ax.plot([x_tgt, x_tgt], [y0, y1], color='#9ca3af', lw=1.6, zorder=4)
+
+    def draw_books(x, bounds, yfn, side):
+        if len(bounds) <= 1:
+            return
+        for b, off in bounds:
+            yy = yfn(off + 1)
+            ax.plot([x - 0.013, x + 0.013], [yy, yy], color='#cbd5e1', lw=0.9, zorder=4)
+            ax.text(x - 0.022 if side == 'src' else x + 0.022, yy, str(b),
+                    ha='right' if side == 'src' else 'left', va='center', fontsize=7, color='#94a3b8')
+    draw_books(x_src, s_bounds, ys, 'src')
+    draw_books(x_tgt, t_bounds, yt, 'tgt')
+
+    def curve(c, hi):
+        a, b = ys(c['sp']), yt(c['tp'])
+        path = MplPath([(x_src, a), (0.40, (a + b) / 2), (x_tgt, b)],
                        [MplPath.MOVETO, MplPath.CURVE3, MplPath.CURVE3])
-        ax.add_patch(PathPatch(path, facecolor='none', edgecolor=color, lw=lw, alpha=alpha, zorder=3))
+        if hi:
+            color = '#b91c1c' if c['rare'] else '#1d4ed8'
+            lw = 1.4 + 2.8 * (c['score'] / max_score)
+            ax.add_patch(PathPatch(path, facecolor='none', edgecolor=color, lw=lw, alpha=0.9, zorder=6))
+        else:
+            ax.add_patch(PathPatch(path, facecolor='none', edgecolor='#cbd5e1', lw=0.55, alpha=0.4, zorder=3))
+    for c in by_score[n_hi:]:
+        curve(c, False)
+    for c in reversed(by_score[:n_hi]):
+        curve(c, True)
 
-    ax.text(x_src, y1 + 0.035, src_title, ha='center', va='bottom', fontsize=9, fontweight='bold', color='#b91c1c')
-    ax.text(x_tgt, y1 + 0.035, tgt_title, ha='center', va='bottom', fontsize=9, fontweight='bold', color='#0369a1')
-    for xx, lmax in ((x_src, src_max), (x_tgt, tgt_max)):
-        ax.text(xx, y1 + 0.004, 'line 1', ha='center', va='bottom', fontsize=6, color='#9ca3af')
-        ax.text(xx, y0 - 0.012, f'line {lmax}', ha='center', va='top', fontsize=6, color='#9ca3af')
-    ax.text(0.5, 0.985, 'How the two texts connect', ha='center', va='top', fontsize=11)
-    handles = [Line2D([0], [0], color='#b91c1c', lw=2.2, label='rare-word find (distinctive)'),
-               Line2D([0], [0], color='#64748b', lw=2.2, label='other ranked parallel'),
-               Line2D([0], [0], color='#111827', lw=0.4, label='thicker line = stronger parallel')]
-    ax.legend(handles=handles, fontsize=7, loc='lower center', bbox_to_anchor=(0.5, -0.01), frameon=False)
+    # direct labels on the top few, at the source end, de-overlapped downward
+    used = []
+    for c in by_score[:n_lbl]:
+        a = ys(c['sp'])
+        ly = a
+        while any(abs(ly - u) < 0.03 for u in used):
+            ly -= 0.03
+        used.append(ly)
+        ax.annotate(f"{c['sref']} → {c['tref']}", xy=(x_src, a),
+                    xytext=(x_src + 0.05, ly), fontsize=7, color='#374151', va='center',
+                    arrowprops=dict(arrowstyle='-', color='#cbd5e1', lw=0.6))
+
+    ax.text(x_src, y1 + 0.03, src_title, ha='center', va='bottom', fontsize=11, fontweight='bold', color='#b91c1c')
+    ax.text(x_tgt, y1 + 0.03, tgt_title, ha='center', va='bottom', fontsize=11, fontweight='bold', color='#1d4ed8')
+    for xx, tot in ((x_src, s_total), (x_tgt, t_total)):
+        ax.text(xx, y1 + 0.006, '1', ha='center', va='bottom', fontsize=6.5, color='#9ca3af')
+        ax.text(xx, y0 - 0.014, f'line {tot}', ha='center', va='top', fontsize=6.5, color='#9ca3af')
+    ax.text(0.5, 0.975, 'How the two texts connect', ha='center', va='top', fontsize=13, fontweight='bold')
+    handles = [Line2D([0], [0], color='#b91c1c', lw=2.6, label='rare-word find'),
+               Line2D([0], [0], color='#1d4ed8', lw=2.6, label='other top parallel'),
+               Line2D([0], [0], color='#cbd5e1', lw=1.4, label='lower-ranked')]
+    ax.legend(handles=handles, fontsize=8, loc='lower center', bbox_to_anchor=(0.5, -0.02),
+              ncol=3, frameon=False)
     stamp = 'Tesserae' + (f" · corpus {corpus_version}" if corpus_version else '')
-    fig.text(0.99, 0.005, stamp, ha='right', va='bottom', fontsize=6, color='#9ca3af')
-    fig.text(0.01, 0.005, 'Static snapshot. Click-to-explore version at tesserae.caset.buffalo.edu',
-             ha='left', va='bottom', fontsize=6, color='#9ca3af')
-
-    buf = io.BytesIO()
-    fig.savefig(buf, format=('png' if fmt == 'png' else 'svg'), bbox_inches='tight')
-    data = buf.getvalue()
-    try:
-        os.makedirs(cache_dir, exist_ok=True)
-        with open(cpath, 'wb') as f:
-            f.write(data)
-    except OSError:
-        pass
-    return Response(data, mimetype=mime, headers={'Cache-Control': 'public, max-age=3600'})
+    fig.text(0.99, 0.006, stamp, ha='right', va='bottom', fontsize=6.5, color='#9ca3af')
+    fig.text(0.01, 0.006, 'Static snapshot. Click-to-explore version at tesserae.caset.buffalo.edu',
+             ha='left', va='bottom', fontsize=6.5, color='#9ca3af')
+    return _fig_response(fig, fmt, cpath)
 
 
 @fusion_bp.route('/fusion-default-weights', methods=['GET'])
