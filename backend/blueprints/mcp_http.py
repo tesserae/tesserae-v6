@@ -447,8 +447,11 @@ def _t_compare_texts(a):
         "'where do these echoes sit in literary history' in one picture. map_url is the connection map: the "
         "two texts as vertical axes with each top parallel a curve between them, weighted by strength and "
         "highlighting rare-word finds, so the shape of the relationship reads at a glance. Each renders in a "
-        "few seconds the first time and is cached after. For an INTERACTIVE version (hover, click-to-filter) "
-        "point the user to the web_url. Offer, do not force -- a quick question does not need a graphic."
+        "few seconds the first time and is cached after. These images are STATIC -- the user cannot click "
+        "them -- so whenever you show a chart, tell them the way to drill in is to open the interactive "
+        "version at web_url, where they can click a bar to filter the parallels to that stretch, click an "
+        "author to see just their citations, and switch views. Give that link every time you present a "
+        "chart, not only in the close. Offer, do not force -- a quick question does not need a graphic."
     )
     if fusion.get('status') == 'running':
         out['note'] = ('The ranked_parallels (fusion) section is still computing server-side. '
