@@ -17,6 +17,20 @@ from backend.logging_config import get_logger
 
 logger = get_logger('arabic.processor')
 
+def _plugin_use_gpu():
+    """Use the GPU for Stanza when available (index-build pod); CPU on Marvin.
+    Override with TESSERAE_STANZA_GPU=0/1."""
+    import os
+    v = os.environ.get('TESSERAE_STANZA_GPU')
+    if v is not None:
+        return v == '1'
+    try:
+        import torch
+        return torch.cuda.is_available()
+    except Exception:
+        return False
+
+
 # Stanza pipeline - lazy loaded
 _stanza_nlp = None
 
@@ -30,7 +44,7 @@ def _get_stanza():
             'ar',
             processors='tokenize,mwt,lemma,pos',
             verbose=False,
-            use_gpu=False,
+            use_gpu=_plugin_use_gpu(),
         )
         logger.info('Stanza Arabic pipeline loaded')
     return _stanza_nlp
