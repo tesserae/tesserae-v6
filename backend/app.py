@@ -2309,6 +2309,15 @@ def corpus_search():
         language = data.get('language', 'la')
         exclude_texts = data.get('exclude_texts', [])
         sort_by = data.get('sort_by', 'chronological')
+
+        # Exclude the WHOLE work family of each excluded text, not just the exact
+        # filename: the corpus carries a combined file AND per-book parts of the
+        # same work (e.g. milton.paradise_lost.tess + .part.1.tess), so excluding
+        # the compared text must also drop its duplicate variants, or a phrase
+        # unique to the two compared texts leaks back through a part file.
+        def _work_base(fn):
+            return re.sub(r'\.part\.\d+.*$', '', re.sub(r'\.tess$', '', fn or ''))
+        _excluded_bases = {_work_base(f) for f in exclude_texts}
         
         if not lemmas or len(lemmas) < 1:
             return jsonify({'error': 'At least 1 lemma required'}), 400
@@ -2336,7 +2345,7 @@ def corpus_search():
         text_genre_cache = {}
         
         for filename, ref, matching_lemmas, positions in matches:
-            if filename in exclude_texts:
+            if _work_base(filename) in _excluded_bases:
                 continue
             if filename not in text_genre_cache:
                 text_genre_cache[filename] = not is_prose_text_unified(filename, language)
