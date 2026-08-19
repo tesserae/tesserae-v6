@@ -568,13 +568,18 @@ app.register_blueprint(feature_request_bp, url_prefix=API_PREFIX or None)
 app_logger.info(f"Blueprints registered (API_PREFIX='{API_PREFIX}', env={DEPLOYMENT_ENV})")
 
 # =============================================================================
-# PLUGIN LANGUAGES (Coptic)
+# PLUGIN LANGUAGES (Coptic, Urdu, Hebrew, Arabic)
 # =============================================================================
 try:
     from backend.coptic import register as register_coptic
     register_coptic()
 except ImportError:
     pass
+for _plugin_lang in ('urdu', 'hebrew', 'arabic'):
+    try:
+        __import__(f'backend.{_plugin_lang}', fromlist=['register']).register()
+    except Exception:
+        pass
 
 
 # =============================================================================
@@ -849,6 +854,20 @@ def api_languages():
                 ])
     except ImportError:
         pass
+    # Plugin languages (Urdu, Hebrew, Arabic). Cross-lingual pairs are added when
+    # both sides of a pair are shipped.
+    for _mod, _flag, _code, _label in (
+        ('backend.urdu', 'URDU_ENABLED', 'ur', 'Urdu'),
+        ('backend.hebrew', 'HEBREW_ENABLED', 'he', 'Hebrew'),
+        ('backend.arabic', 'ARABIC_ENABLED', 'ar', 'Arabic'),
+    ):
+        try:
+            if getattr(__import__(_mod, fromlist=[_flag]), _flag, False):
+                _td = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts', _code)
+                if os.path.isdir(_td):
+                    languages.append({'code': _code, 'label': _label})
+        except ImportError:
+            pass
     return jsonify({'languages': languages, 'crosslingual_pairs': crosslingual_pairs})
 
 
@@ -2501,6 +2520,16 @@ def submit_request():
             allowed_languages.add('coptic')
     except ImportError:
         pass
+    for _mod, _flag, _name in (
+        ('backend.urdu', 'URDU_ENABLED', 'urdu'),
+        ('backend.hebrew', 'HEBREW_ENABLED', 'hebrew'),
+        ('backend.arabic', 'ARABIC_ENABLED', 'arabic'),
+    ):
+        try:
+            if getattr(__import__(_mod, fromlist=[_flag]), _flag, False):
+                allowed_languages.add(_name)
+        except ImportError:
+            pass
 
     # Only author and work are required
     if not author or not work:

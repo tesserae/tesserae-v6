@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { LoadingSpinner } from '../common';
 import { normalizeGreek } from '../../utils/greekUtils';
+import { dirFor } from '../../utils/rtl';
 import CopticSearchInput from './CopticSearchInput';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
@@ -586,6 +587,7 @@ export default function LineSearch({ language }) {
                     onChange={e => setQuery(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleSearch()}
                     placeholder="Enter word or phrase..."
+                    dir={dirFor(language)}
                     className="flex-1 border rounded px-4 py-2"
                   />
                 )}
@@ -834,7 +836,7 @@ export default function LineSearch({ language }) {
                           </span>
                         )}
                       </div>
-                      <div className="flex-1 min-w-0 break-words text-gray-700">
+                      <div className="flex-1 min-w-0 break-words text-gray-700" dir={dirFor(language)}>
                         {highlightMatches(result.text, result.matched_words || query.split(/\s+/))}
                       </div>
                     </div>
@@ -1047,7 +1049,7 @@ export default function LineSearch({ language }) {
                     <span className="text-xs text-gray-400 w-16 flex-shrink-0 text-right">
                       {line.locus}
                     </span>
-                    <span className="text-sm text-gray-700 flex-1">{decodeEntities(line.text)}</span>
+                    <span className="text-sm text-gray-700 flex-1" dir={dirFor(language)}>{decodeEntities(line.text)}</span>
                   </div>
                 ))}
               </div>

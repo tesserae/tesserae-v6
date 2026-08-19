@@ -3,6 +3,7 @@ import { Button, LoadingSpinner, Pagination } from '../common';
 import { usePagination } from '../../hooks/usePagination';
 import { formatReference, formatElapsedTime } from '../../utils/formatting';
 import { displayGreekWithFinalSigma } from '../../utils/greekUtils';
+import { dirFor, isRTL } from '../../utils/rtl';
 import { normalizeCoptic } from '../../utils/copticUtils';
 import { exportRowsToPDF } from '../../utils/exportResults';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
@@ -295,7 +296,7 @@ const SearchResults = ({
     const sourceLabel = sourceTextInfo ? `${sourceTextInfo.author || ''} ${sourceTextInfo.title || sourceTextInfo.work || ''}`.trim() : '';
     const targetLabel = targetTextInfo ? `${targetTextInfo.author || ''} ${targetTextInfo.title || targetTextInfo.work || ''}`.trim() : '';
     const subtitle = sourceLabel && targetLabel ? `${sourceLabel} vs ${targetLabel}` : '';
-    const rtl = false;  // no right-to-left languages in this build (Coptic is LTR)
+    const rtl = isRTL(language);  // Persian/Arabic/Urdu/Hebrew are right-to-left
     // Headers are ['#', 'Source Locus', 'Source Text', 'Target Locus',
     // 'Target Text', 'Score', 'Matched Words', 'Channels']. Widths chosen
     // to minimise row height: each column gets width roughly proportional to
@@ -1094,6 +1095,7 @@ const SearchResults = ({
                 <div className="font-medium text-gray-900">{formatReference(r.source_locus || r.source?.ref, language)}</div>
                 <div
                   className="text-gray-700 mt-1"
+                  dir={dirFor(language)}
                   dangerouslySetInnerHTML={{ __html: r.source_text || r.source_snippet || renderHighlightedText(r.source, language, r.matched_words, true, r.target) }}
                 />
                 {r.features?.source_scansion && renderScansion(r.features.source_scansion)}
@@ -1103,6 +1105,7 @@ const SearchResults = ({
                 <div className="font-medium text-gray-900">{formatReference(r.target_locus || r.target?.ref, language)}</div>
                 <div
                   className="text-gray-700 mt-1"
+                  dir={dirFor(language)}
                   dangerouslySetInnerHTML={{ __html: r.target_text || r.target_snippet || renderHighlightedText(r.target, language, r.matched_words, false, r.source) }}
                 />
                 {r.features?.target_scansion && renderScansion(r.features.target_scansion)}
