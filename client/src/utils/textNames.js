@@ -227,6 +227,24 @@ const AUTHOR_WORK_OVERRIDES = {
   },
 };
 
+// Full names for the abbreviated English work tags (keyed on the space-joined,
+// lower-cased name tokens), so a ref like "Milton P.L. 1.519" reads as
+// "Paradise Lost", not "P L". Single-word works (Lycidas, Hyperion) need no entry.
+const ENGLISH_WORK_NAMES = {
+  'p l': 'Paradise Lost',
+  'p r': 'Paradise Regained',
+  'f q': 'Faerie Queene',
+  'r a m': 'Rime of the Ancient Mariner',
+  's innoc': 'Songs of Innocence',
+  's exper': 'Songs of Experience',
+  'p p': "Pilgrim's Progress",
+  'l alleg': "L'Allegro",
+  'il pens': 'Il Penseroso',
+  'grecian urn': 'Ode on a Grecian Urn',
+  'eve st agnes': 'The Eve of St Agnes',
+  'robin hood': 'Robin Hood',
+};
+
 export function expandLocus(locus) {
   if (!locus) return { work: '', reference: locus || '' };
 
@@ -302,6 +320,22 @@ export function expandLocus(locus) {
         }
       }
     }
+  }
+
+  // Fallback for refs whose leading token is not a known abbreviation (all of
+  // English, plus any Greek/Coptic author absent from ABBREVIATION_MAP): treat
+  // the leading non-numeric tokens as author/work instead of returning "Unknown".
+  if (!author) {
+    const orig = (locus || '').split(/[\s.]+/).filter(Boolean);
+    const numAt = orig.findIndex(p => /^\d/.test(p));
+    const nameParts = numAt === -1 ? orig : orig.slice(0, numAt);
+    const refParts = numAt === -1 ? [] : orig.slice(numAt);
+    if (nameParts.length) author = nameParts[0];
+    if (!work && nameParts.length > 1) {
+      const rawWork = nameParts.slice(1).join(' ');
+      work = ENGLISH_WORK_NAMES[rawWork.toLowerCase()] || rawWork;
+    }
+    if (!reference && refParts.length) reference = refParts.join('.');
   }
 
   return { author, work, reference };
