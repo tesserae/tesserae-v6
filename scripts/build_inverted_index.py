@@ -443,7 +443,7 @@ def build_index(language, text_processor, verbose=True, resume=True, force=False
 
 def main():
     parser = argparse.ArgumentParser(description='Build inverted index for Tesserae corpus')
-    parser.add_argument('--language', '-l', choices=['la', 'grc', 'en', 'all'], default='all',
+    parser.add_argument('--language', '-l', choices=['la', 'grc', 'en', 'cop', 'fa', 'all'], default='all',
                         help='Language to index (default: all)')
     parser.add_argument('--quiet', '-q', action='store_true', help='Suppress output')
     parser.add_argument('--force', '-f', action='store_true',
@@ -457,7 +457,15 @@ def main():
     args = parser.parse_args()
     
     text_processor = TextProcessor()
-    
+
+    # Register plugin languages (Coptic, Persian) so their handlers are available
+    # for standard-mode (handler-based) index building.
+    for _plugin in ('coptic', 'persian'):
+        try:
+            __import__(f'backend.{_plugin}', fromlist=['register']).register()
+        except Exception:
+            pass
+
     if args.language == 'all':
         languages = ['la', 'grc', 'en']
     else:
