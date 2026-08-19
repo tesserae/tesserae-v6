@@ -1760,9 +1760,16 @@ def line_search():
             results = []
             seen_results = set()
             
-            # FAST PATH: Use inverted index if available (O(1) lookup vs O(n) scan)
-            if search_type == 'lemma' and is_index_available(language) and len(filtered_query_lemmas) >= 2:
-                candidates = find_co_occurring_lemmas(list(filtered_query_lemmas), language, min_matches=2)
+            # FAST PATH: Use inverted index if available (O(1) lookup vs O(n) scan).
+            # A single-word query (one content lemma) has nothing to co-occur with,
+            # so it just lists the lines that contain the word (min_matches=1);
+            # multi-word queries still require the pair to co-occur (min_matches=2).
+            # 1 for a single-word query, 2 for multi-word; never 0 (an empty
+            # lemma set would otherwise admit every line — it also can't reach the
+            # fast-path guard below, but max(1,...) makes that safety explicit).
+            min_matched = max(1, min(2, len(filtered_query_lemmas)))
+            if search_type == 'lemma' and is_index_available(language) and len(filtered_query_lemmas) >= 1:
+                candidates = find_co_occurring_lemmas(list(filtered_query_lemmas), language, min_matches=min_matched)
                 use_indexed_lines = has_lines_data(language)
                 
                 # Group candidates by text
@@ -1850,7 +1857,7 @@ def line_search():
                                 if token in filtered_query_lemmas:
                                     matched_words.append(token)
                         
-                        if len(set(matched_words)) < 2:
+                        if len(set(matched_words)) < min_matched:
                             continue
                         
                         # Exclude source line if specified (normalize both sides for robust matching)

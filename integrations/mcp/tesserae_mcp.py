@@ -189,10 +189,15 @@ def line_search(query: str, language: str = "la", search_type: str = "lemma",
         query: a phrase or line (e.g. "arma virumque").
         language: la | grc | en | cop.
         search_type: lemma (dictionary form, default) | exact | regex.
+            line_search matches only WITHIN a single line, so a verse phrase that
+            straddles a line break (enjambment) is invisible; if an exact search
+            of a verse phrase returns nothing, try a lemma search or regex on each
+            half before concluding it is absent.
         count_only: return just the counts (fast, no passages) — quantify a
             commonplace cheaply. A SINGLE-word query then reports how many WORKS
             contain the word (single_word/unit:'works'), not co-occurring loci;
-            an all-stopword query returns unquantified.
+            an all-stopword query returns unquantified. WITHOUT count_only, a
+            single-word query lists the lines that contain the word.
 
     Each result carries era and year for its author, so you can chart where
     across time the phrase recurs (a period/author timeline). The response also
