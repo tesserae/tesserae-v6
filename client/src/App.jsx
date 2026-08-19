@@ -897,6 +897,7 @@ function App() {
                 query={corpusSearchQuery}
                 elapsedTime={corpusSearchElapsed}
                 onBack={() => setShowCorpusSearch(false)}
+                language={activeTab}
               />
             )}
           </div>

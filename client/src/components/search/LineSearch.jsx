@@ -4,22 +4,9 @@ import { normalizeGreek } from '../../utils/greekUtils';
 import CopticSearchInput from './CopticSearchInput';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
+import { orderEras, ERA_COLORS } from '../../utils/eras';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-
-const ERA_ORDER = ['Archaic', 'Classical', 'Hellenistic', 'Republic', 'Augustan', 'Early Imperial', 'Later Imperial', 'Late Antique', 'Early Medieval', 'Unknown'];
-const ERA_COLORS = {
-  'Archaic': 'rgba(155, 35, 53, 0.7)',
-  'Classical': 'rgba(224, 123, 0, 0.7)',
-  'Hellenistic': 'rgba(197, 179, 88, 0.7)',
-  'Republic': 'rgba(0, 105, 148, 0.7)',
-  'Augustan': 'rgba(120, 81, 169, 0.7)',
-  'Early Imperial': 'rgba(34, 139, 34, 0.7)',
-  'Later Imperial': 'rgba(30, 144, 255, 0.7)',
-  'Late Antique': 'rgba(139, 69, 19, 0.7)',
-  'Early Medieval': 'rgba(112, 128, 144, 0.7)',
-  'Unknown': 'rgba(128, 128, 128, 0.7)'
-};
 
 export default function LineSearch({ language }) {
   const [mode, setMode] = useState('browse');
@@ -354,7 +341,7 @@ export default function LineSearch({ language }) {
       const era = r.era || 'Unknown';
       eraCounts[era] = (eraCounts[era] || 0) + 1;
     });
-    const sortedEras = ERA_ORDER.filter(era => eraCounts[era] > 0);
+    const sortedEras = orderEras(language, eraCounts);
     return {
       labels: sortedEras,
       datasets: [{
