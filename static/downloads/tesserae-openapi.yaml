@@ -170,7 +170,7 @@ paths:
                   type: string
                   enum: [lemma, exact, regex]
                   default: lemma
-                  description: "lemma = dictionary-form match (default); exact = surface form; regex"
+                  description: "lemma = dictionary-form match (default); exact = surface form; regex. NOTE: matches only WITHIN a single line, so a verse phrase split across a line break (enjambment) is invisible — if an exact search of a verse phrase returns nothing, try lemma or regex on each half before concluding it is absent."
                 max_results:
                   type: integer
                   default: 500
@@ -178,7 +178,7 @@ paths:
                 count_only:
                   type: boolean
                   default: false
-                  description: "Return only counts (total, distinct_loci, capped, corpus_version), no results array — quantify a commonplace cheaply. A single-word query returns single_word:true with total = number of works containing the word (unit:'works'), not co-occurring loci; an all-stopword query returns unquantified:true."
+                  description: "Return only counts (total, distinct_loci, capped, corpus_version), no results array — quantify a commonplace cheaply. A single-word query with count_only returns single_word:true with total = number of works containing the word (unit:'works'), not co-occurring loci; an all-stopword query returns unquantified:true. WITHOUT count_only, a single-word query lists the lines that contain the word."
       responses:
         "200":
           description: Matching corpus lines
