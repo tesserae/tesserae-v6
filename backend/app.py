@@ -568,11 +568,16 @@ app.register_blueprint(feature_request_bp, url_prefix=API_PREFIX or None)
 app_logger.info(f"Blueprints registered (API_PREFIX='{API_PREFIX}', env={DEPLOYMENT_ENV})")
 
 # =============================================================================
-# PLUGIN LANGUAGES (Coptic)
+# PLUGIN LANGUAGES (Coptic, Persian)
 # =============================================================================
 try:
     from backend.coptic import register as register_coptic
     register_coptic()
+except ImportError:
+    pass
+try:
+    from backend.persian import register as register_persian
+    register_persian()
 except ImportError:
     pass
 
@@ -847,6 +852,15 @@ def api_languages():
                 crosslingual_pairs.extend([
                     {'key': 'cop-grc', 'source': 'cop', 'target': 'grc', 'label': 'Coptic → Greek'},
                 ])
+    except ImportError:
+        pass
+    try:
+        from backend.persian import PERSIAN_ENABLED
+        if PERSIAN_ENABLED:
+            texts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts', 'fa')
+            if os.path.isdir(texts_dir):
+                languages.append({'code': 'fa', 'label': 'Persian'})
+                # Persian-Urdu cross-lingual is added when Urdu ships.
     except ImportError:
         pass
     return jsonify({'languages': languages, 'crosslingual_pairs': crosslingual_pairs})
@@ -2499,6 +2513,12 @@ def submit_request():
         from backend.coptic import COPTIC_ENABLED
         if COPTIC_ENABLED:
             allowed_languages.add('coptic')
+    except ImportError:
+        pass
+    try:
+        from backend.persian import PERSIAN_ENABLED
+        if PERSIAN_ENABLED:
+            allowed_languages.add('persian')
     except ImportError:
         pass
 

@@ -544,11 +544,11 @@ CHANNEL_ORDER = [
 # skipped and not counted in the "N channels" progress message.
 CHANNEL_LANGUAGE_SUPPORT = {
     "dictionary":    {"la", "grc", "cop"},  # Latin/Greek synonym pairs; Coptic uses Coptic Wordnet (Slaughter et al. 2019)
-    "sound":         {"la", "grc", "cop", "en"},  # character trigram Jaccard similarity (language-agnostic)
-    "edit_distance": {"la", "grc", "cop", "en"},  # Levenshtein fuzzy matching (language-agnostic)
+    "sound":         {"la", "grc", "cop", "en", "fa"},  # character trigram Jaccard similarity (language-agnostic)
+    "edit_distance": {"la", "grc", "cop", "en", "fa"},  # Levenshtein fuzzy matching (language-agnostic)
     "syntax":        {"la", "grc", "cop"},  # requires syntax DB (syntax_latin.db / syntax_greek.db / syntax_coptic.db)
     "semantic":      {"la", "grc", "en", "cop"},  # SPhilBERTa (la/grc/en) + multilingual-e5-large (cop)
-    "quotation":     {"la", "grc", "cop", "en"},  # runs of identical tokens — language-agnostic
+    "quotation":     {"la", "grc", "cop", "en", "fa"},  # runs of identical tokens — language-agnostic
 }
 
 
