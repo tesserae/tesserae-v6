@@ -12,6 +12,7 @@ Key Persian-specific processing:
 - Alif variant normalization
 """
 
+import os
 import re
 import unicodedata
 from backend.logging_config import get_logger
@@ -26,13 +27,24 @@ def _get_stanza():
     global _stanza_nlp
     if _stanza_nlp is None:
         import stanza
+        # Use the GPU when one is available (e.g. the index-build pod); fall back
+        # to CPU on the production server. Override with TESSERAE_STANZA_GPU=0/1.
+        _gpu_env = os.environ.get('TESSERAE_STANZA_GPU')
+        if _gpu_env is not None:
+            use_gpu = _gpu_env == '1'
+        else:
+            try:
+                import torch
+                use_gpu = torch.cuda.is_available()
+            except Exception:
+                use_gpu = False
         _stanza_nlp = stanza.Pipeline(
             'fa',
             processors='tokenize,lemma,pos',
             verbose=False,
-            use_gpu=False,
+            use_gpu=use_gpu,
         )
-        logger.info('Stanza Persian pipeline loaded')
+        logger.info('Stanza Persian pipeline loaded (use_gpu=%s)', use_gpu)
     return _stanza_nlp
 
 
