@@ -295,7 +295,7 @@ const SearchResults = ({
     const sourceLabel = sourceTextInfo ? `${sourceTextInfo.author || ''} ${sourceTextInfo.title || sourceTextInfo.work || ''}`.trim() : '';
     const targetLabel = targetTextInfo ? `${targetTextInfo.author || ''} ${targetTextInfo.title || targetTextInfo.work || ''}`.trim() : '';
     const subtitle = sourceLabel && targetLabel ? `${sourceLabel} vs ${targetLabel}` : '';
-    const rtl = false;  // no right-to-left languages in this build (Coptic is LTR)
+    const rtl = language === 'fa';  // Persian is right-to-left (Coptic is LTR)
     // Headers are ['#', 'Source Locus', 'Source Text', 'Target Locus',
     // 'Target Text', 'Score', 'Matched Words', 'Channels']. Widths chosen
     // to minimise row height: each column gets width roughly proportional to
@@ -1094,6 +1094,7 @@ const SearchResults = ({
                 <div className="font-medium text-gray-900">{formatReference(r.source_locus || r.source?.ref, language)}</div>
                 <div
                   className="text-gray-700 mt-1"
+                  dir={language === 'fa' ? 'rtl' : undefined}
                   dangerouslySetInnerHTML={{ __html: r.source_text || r.source_snippet || renderHighlightedText(r.source, language, r.matched_words, true, r.target) }}
                 />
                 {r.features?.source_scansion && renderScansion(r.features.source_scansion)}
@@ -1103,6 +1104,7 @@ const SearchResults = ({
                 <div className="font-medium text-gray-900">{formatReference(r.target_locus || r.target?.ref, language)}</div>
                 <div
                   className="text-gray-700 mt-1"
+                  dir={language === 'fa' ? 'rtl' : undefined}
                   dangerouslySetInnerHTML={{ __html: r.target_text || r.target_snippet || renderHighlightedText(r.target, language, r.matched_words, false, r.source) }}
                 />
                 {r.features?.target_scansion && renderScansion(r.features.target_scansion)}

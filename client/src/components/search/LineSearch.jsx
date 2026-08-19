@@ -586,6 +586,7 @@ export default function LineSearch({ language }) {
                     onChange={e => setQuery(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleSearch()}
                     placeholder="Enter word or phrase..."
+                    dir={language === 'fa' ? 'rtl' : undefined}
                     className="flex-1 border rounded px-4 py-2"
                   />
                 )}
@@ -834,7 +835,7 @@ export default function LineSearch({ language }) {
                           </span>
                         )}
                       </div>
-                      <div className="flex-1 min-w-0 break-words text-gray-700">
+                      <div className="flex-1 min-w-0 break-words text-gray-700" dir={language === 'fa' ? 'rtl' : undefined}>
                         {highlightMatches(result.text, result.matched_words || query.split(/\s+/))}
                       </div>
                     </div>
@@ -1047,7 +1048,7 @@ export default function LineSearch({ language }) {
                     <span className="text-xs text-gray-400 w-16 flex-shrink-0 text-right">
                       {line.locus}
                     </span>
-                    <span className="text-sm text-gray-700 flex-1">{decodeEntities(line.text)}</span>
+                    <span className="text-sm text-gray-700 flex-1" dir={language === 'fa' ? 'rtl' : undefined}>{decodeEntities(line.text)}</span>
                   </div>
                 ))}
               </div>
