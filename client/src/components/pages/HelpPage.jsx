@@ -509,7 +509,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   <p className="text-gray-600 text-sm mt-1">
                     The largest and best-developed corpus (~1,400 texts). All ten channels are available, and every text has been
                     grammatically parsed, so the syntax channels contribute. Latin has the most thoroughly evaluated results
-                    (roughly 92% recall on the standard allusion benchmarks).
+                    (92.6% recall across five standard Latin allusion benchmarks, as of August 2026).
                   </p>
                 </div>
                 <div className="border-l-4 border-blue-500 pl-4">
