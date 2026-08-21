@@ -86,11 +86,11 @@ function App() {
   const [activeTab, setActiveTab] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     const lang = params.get('lang') || params.get('language');
-    if (lang && ['la', 'grc', 'en', 'cross'].includes(lang)) {
+    if (lang && ['la', 'grc', 'en', 'cop', 'he', 'cross'].includes(lang)) {
       return lang;
     }
     const sessionLang = getSessionValue('activeTab', '');
-    if (sessionLang && ['la', 'grc', 'en', 'cross'].includes(sessionLang)) {
+    if (sessionLang && ['la', 'grc', 'en', 'cop', 'he', 'cross'].includes(sessionLang)) {
       return sessionLang;
     }
     return 'la';
@@ -239,7 +239,7 @@ function App() {
 
   useEffect(() => {
     const urlParams = parseSearchParams();
-    if (urlParams.lang && ['la', 'grc', 'en', 'cross'].includes(urlParams.lang)) {
+    if (urlParams.lang && ['la', 'grc', 'en', 'cop', 'he', 'cross'].includes(urlParams.lang)) {
       setActiveTab(urlParams.lang);
     }
     if (urlParams.tab && ['parallel', 'line', 'string', 'hapax', 'bigram'].includes(urlParams.tab)) {

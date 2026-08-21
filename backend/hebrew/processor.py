@@ -47,11 +47,17 @@ def _get_lemma_table():
 
 
 def _get_stanza():
-    """Lazy-load the Stanza Hebrew pipeline."""
+    """Lazy-load the Stanza Hebrew pipeline.
+
+    Stanza is an OPTIONAL fallback lemmatizer (~8% of tokens not in the BHSA
+    lookup table). If it is not installed (e.g. absent from the production
+    environment) or fails to load, Hebrew degrades gracefully to the lookup
+    table plus surface forms rather than erroring the search.
+    """
     global _stanza_nlp
     if _stanza_nlp is None:
-        import stanza
         try:
+            import stanza
             _stanza_nlp = stanza.Pipeline(
                 'he',
                 processors='tokenize,mwt,lemma,pos',
@@ -60,7 +66,7 @@ def _get_stanza():
             )
             logger.info('Stanza Hebrew pipeline loaded')
         except Exception as e:
-            logger.warning(f'Stanza Hebrew pipeline failed to load: {e}')
+            logger.warning(f'Stanza Hebrew pipeline unavailable ({e}); using lookup table only')
             _stanza_nlp = False  # sentinel to avoid repeated attempts
     return _stanza_nlp if _stanza_nlp is not False else None
 
