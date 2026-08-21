@@ -39,6 +39,11 @@ logger = get_logger('semantic_similarity')
 
 LATIN_GREEK_MODEL = "bowphs/SPhilBerta"
 ENGLISH_MODEL = "all-MiniLM-L6-v2"
+# Per-language semantic models. Hebrew and Coptic have their own within-language
+# embedding spaces (their precomputed embeddings under backend/embeddings/{he,cop}
+# use these); la/grc/en share the SPhilBERTa cross-lingual space.
+HEBREW_MODEL = "dicta-il/BEREL"                      # Dicta's Biblical/Rabbinic Hebrew BERT
+COPTIC_MODEL = "intfloat/multilingual-e5-large"      # multilingual (includes Coptic script)
 CACHE_DIR = os.path.join(os.path.dirname(__file__), 'semantic_cache')
 EMBEDDINGS_CACHE_FILE = os.path.join(CACHE_DIR, 'embeddings_cache.json')
 LEMMA_CACHE_FILE = os.path.join(CACHE_DIR, 'lemma_embeddings.json')
@@ -62,9 +67,15 @@ def get_model(language: str = 'la'):
     """
     global _models
 
-    # Use SPhilBERTa for all languages to share embedding space
-    model_name = LATIN_GREEK_MODEL
-    
+    # Within-language models for Hebrew/Coptic (their precomputed embeddings use these);
+    # la/grc/en share the SPhilBERTa space so cross-lingual la<->grc semantic works.
+    if language == 'he':
+        model_name = HEBREW_MODEL
+    elif language == 'cop':
+        model_name = COPTIC_MODEL
+    else:
+        model_name = LATIN_GREEK_MODEL
+
     if model_name not in _models:
         try:
             from sentence_transformers import SentenceTransformer
