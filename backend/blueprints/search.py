@@ -810,6 +810,35 @@ def _find_greek_latin_dictionary_matches_fast(source_units, target_units,
     return pair_matches
 
 
+def _longest_translated_run(word_matches):
+    """Length of the longest 'translated run' in a pair's dictionary matches.
+
+    A translated run is a diagonal run of matched positions -- consecutive on the
+    SOURCE side and consecutive on the TARGET side -- i.e. a stretch of words whose
+    translations appear in the same order in the target. It is the cross-lingual
+    analog of the verbatim-quotation channel: a run of 3 translated-in-order words is
+    intrinsically distinctive and, unlike bag-of-words overlap, is not inflated by a
+    long candidate verse. This is fully language-agnostic: it reads only the matched
+    positions the generic dictionary channel already records, so it serves every
+    cross-lingual pair (he-grc, he-la, cop-grc, grc-la) with no per-language code.
+    """
+    pairs = set()
+    for wm in word_matches or ():
+        for sp in (wm.get('source_indices') or []):
+            for tp in (wm.get('target_indices') or []):
+                pairs.add((sp, tp))
+    if not pairs:
+        return 0
+    best = 1
+    for sp, tp in pairs:
+        k = 1
+        while (sp + k, tp + k) in pairs:
+            k += 1
+        if k > best:
+            best = k
+    return best
+
+
 def _handle_crosslingual_fusion(params, source_units, target_units, settings,
                                 cancellation=None):
     """Multi-channel cross-lingual fusion: semantic + dictionary + syntax + phonetic.
@@ -1042,6 +1071,11 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings,
     DICTIONARY_WEIGHT = 2.0
     SYNTAX_WEIGHT = 0.5
     PHONETIC_WEIGHT = 1.5  # conservative; phonetic echoes across languages are high-precision
+    # Translated-run boost: a run of consecutive words whose translations appear in
+    # order in the target is a near-certain alignment and is length-robust (see
+    # _longest_translated_run). Additive: it only ever boosts a pair, so it cannot
+    # regress recall. Tunable, like the weights above; generic across all pairs.
+    RUN_WEIGHT = float(settings.get('crosslingual_run_weight', 3.0)) if settings else 3.0
     CONVERGENCE_BONUS = 0.5  # additive bonus when multiple channels fire
 
     fused = []
@@ -1107,9 +1141,15 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings,
         if not has_semantic and not has_dict and not has_syntax and not has_phonetic:
             continue
 
+        # Translated-run boost: longest run of in-order translated words in this pair
+        # (cross-lingual quotation analog). A run of 2+ is distinctive; cap at 6.
+        run_len = _longest_translated_run(dict_wms)
+        run_score = (min(run_len, 6) / 6.0) if run_len >= 2 else 0.0
+
         # Fused score (additive, matching article formula)
         score = ((cosine * SEMANTIC_WEIGHT) + (dict_score * DICTIONARY_WEIGHT)
-                 + (syntax_score * SYNTAX_WEIGHT) + (phonetic_score * PHONETIC_WEIGHT))
+                 + (syntax_score * SYNTAX_WEIGHT) + (phonetic_score * PHONETIC_WEIGHT)
+                 + (run_score * RUN_WEIGHT))
         n_channels = ((1 if has_semantic else 0) + (1 if has_dict else 0)
                       + (1 if has_syntax else 0) + (1 if has_phonetic else 0))
         if n_channels >= 2:
