@@ -710,6 +710,15 @@ const SearchResults = ({
           if (copNormalized.includes(hwNorm)) return true;
         }
       }
+      // Hebrew: the display text is fully pointed (nikkud + cantillation) but the
+      // highlight tokens/lemmas are unvocalized. Strip both before comparing.
+      if (language === 'he') {
+        const stripHe = (s) => s.normalize('NFD').replace(/[֑-ֽֿ-ׇ]/g, '').replace(/־/g, '');
+        const heNorm = stripHe(normalized);
+        for (const hw of wordsToHighlight) {
+          if (stripHe(hw) === heNorm) return true;
+        }
+      }
       return false;
     };
 
@@ -720,8 +729,10 @@ const SearchResults = ({
 
     // Split text into verses (window results have \n between lines)
     const verses = text.split('\n');
+    // Hebrew maqaf (U+05BE) joins words in display but the backend splits them.
+    const wordSplitter = language === 'he' ? /(\s+|־)/ : /(\s+)/;
     const highlightedVerses = verses.map(verse => {
-      const parts = verse.split(/(\s+)/);
+      const parts = verse.split(wordSplitter);
       return parts.map(part => {
         if (/^\s+$/.test(part)) return part; // whitespace
         if (shouldHighlight(part)) {
@@ -746,11 +757,17 @@ const SearchResults = ({
       let n = strip(w);
       if (lang === 'la') n = n.replace(/[uv]/g, 'u').replace(/j/g, 'i');
       if (lang === 'grc') n = n.normalize('NFD').replace(/[̀-ͯ]/g, '');
+      // Hebrew: strip nikkud + cantillation (matched_words are unvocalized, but the
+      // displayed .tess text is fully pointed) and the maqaf so it does not fuse words.
+      if (lang === 'he') n = n.normalize('NFD').replace(/[֑-ֽֿ-ׇ]/g, '').replace(/־/g, '');
       return n;
     };
     const wanted = new Set((matchedWords || []).map(norm).filter(Boolean));
     if (!wanted.size) return text;
-    return text.split(/(\s+)/).map((part, i) => {
+    // Hebrew maqaf (U+05BE) joins words in the display text but the backend splits
+    // them, so split on it too (kept as its own inert part) to highlight each word.
+    const splitter = lang === 'he' ? /(\s+|־)/ : /(\s+)/;
+    return text.split(splitter).map((part, i) => {
       if (/^\s+$/.test(part) || !part) return part;
       return wanted.has(norm(part))
         ? <strong key={i} className="font-semibold text-gray-900">{part}</strong>
