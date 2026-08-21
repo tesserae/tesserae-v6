@@ -39,6 +39,11 @@ logger = get_logger('semantic_similarity')
 
 LATIN_GREEK_MODEL = "bowphs/SPhilBerta"
 ENGLISH_MODEL = "all-MiniLM-L6-v2"
+# Hebrew has its own within-language model: MiqraBERT (Biblical-Hebrew Sentence-BERT),
+# fine-tuned in-house on OpenBible cross-references. The he corpus embeddings are computed
+# with it. Falls back to base MiqraBERT if the fine-tuned dir is absent.
+_HE_FINETUNED = os.path.join(os.path.dirname(__file__), 'models', 'miqrabert-hebrew-thematic')
+HEBREW_MODEL = _HE_FINETUNED if os.path.isdir(_HE_FINETUNED) else "davidmsmiley/MiqraBERT"
 CACHE_DIR = os.path.join(os.path.dirname(__file__), 'semantic_cache')
 EMBEDDINGS_CACHE_FILE = os.path.join(CACHE_DIR, 'embeddings_cache.json')
 LEMMA_CACHE_FILE = os.path.join(CACHE_DIR, 'lemma_embeddings.json')
@@ -62,8 +67,9 @@ def get_model(language: str = 'la'):
     """
     global _models
 
-    # Use SPhilBERTa for all languages to share embedding space
-    model_name = LATIN_GREEK_MODEL
+    # Use SPhilBERTa for all languages to share embedding space, except Hebrew,
+    # which uses its own within-language fine-tuned MiqraBERT.
+    model_name = HEBREW_MODEL if language == 'he' else LATIN_GREEK_MODEL
     
     if model_name not in _models:
         try:

@@ -92,3 +92,4 @@ server.log
 
 # Search concurrency lock files (runtime only)
 tmp/search_slots/
+backend/models/

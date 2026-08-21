@@ -15646,5 +15646,317 @@
     "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0098.tlg001/",
     "print_source": "Zenobius Sophista. Corpus paroemiographorum Graecorum, Vol. 1. Leutsch, Ernst von; Schneidewin, Friedrich Wilhelm, editors. Göttingen: Vandenhoeck and Ruprecht, 1839.",
     "added_by": "V6 Import"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Genesis",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Genesis",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Exodus",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Exodus",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Leviticus",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Leviticus",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Numbers",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Numbers",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Deuteronomy",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Deuteronomy",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Joshua",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Joshua",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Judges",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Judges",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "I Samuel",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/I_Samuel",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "II Samuel",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/II_Samuel",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "I Kings",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/I_Kings",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "II Kings",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/II_Kings",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Isaiah",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Isaiah",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Jeremiah",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Jeremiah",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Ezekiel",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Ezekiel",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Hosea",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Hosea",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Joel",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Joel",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Amos",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Amos",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Obadiah",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Obadiah",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Jonah",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Jonah",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Micah",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Micah",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Nahum",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Nahum",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Habakkuk",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Habakkuk",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Zephaniah",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Zephaniah",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Haggai",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Haggai",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Zechariah",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Zechariah",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Malachi",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Malachi",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Psalms",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Psalms",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Proverbs",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Proverbs",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Job",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Job",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Song of Songs",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Song_of_Songs",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Ruth",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Ruth",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Lamentations",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Lamentations",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Ecclesiastes",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Ecclesiastes",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Esther",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Esther",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Daniel",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Daniel",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Ezra",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Ezra",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "Nehemiah",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/Nehemiah",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "I Chronicles",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/I_Chronicles",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
+  },
+  {
+    "author": "Hebrew Bible",
+    "work": "II Chronicles",
+    "e_source": "Sefaria",
+    "e_source_url": "https://www.sefaria.org/II_Chronicles",
+    "print_source": "Miqra according to the Masorah (MAM), based on the Aleppo Codex (CC-BY-SA)",
+    "added_by": "Tesserae V6 (Sefaria import)"
   }
 ]

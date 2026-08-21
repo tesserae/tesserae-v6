@@ -791,6 +791,14 @@ class Matcher:
                 base_stops = set()
             if len(freq) < 2000:
                 zipf_stops = set()
+        elif language == 'he':
+            try:
+                from backend.hebrew.stopwords import HEBREW_STOP_WORDS
+                base_stops = HEBREW_STOP_WORDS
+            except ImportError:
+                base_stops = set()
+            if len(freq) < 2000:
+                zipf_stops = set()
         else:
             base_stops = DEFAULT_ENGLISH_STOP_WORDS
 
@@ -823,6 +831,12 @@ class Matcher:
             try:
                 from backend.coptic.stopwords import COPTIC_STOP_WORDS
                 base_stops = set(list(COPTIC_STOP_WORDS)[:stoplist_size])
+            except ImportError:
+                base_stops = set()
+        elif language == 'he':
+            try:
+                from backend.hebrew.stopwords import HEBREW_STOP_WORDS
+                base_stops = set(list(HEBREW_STOP_WORDS)[:stoplist_size])
             except ImportError:
                 base_stops = set()
         else:

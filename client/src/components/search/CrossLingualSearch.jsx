@@ -20,18 +20,22 @@ const LANG_PAIRS = [
   { key: 'grc-la', source: 'grc', target: 'la', label: 'Greek → Latin' },
   { key: 'la-en', source: 'la', target: 'en', label: 'Latin → English' },
   { key: 'grc-en', source: 'grc', target: 'en', label: 'Greek → English' },
+  { key: 'he-grc', source: 'he', target: 'grc', label: 'Hebrew → Greek' },
+  { key: 'he-la', source: 'he', target: 'la', label: 'Hebrew → Latin' },
 ];
 
 const LANG_LABELS = {
   grc: { name: 'Greek', color: 'amber', bgClass: 'bg-amber-50', textClass: 'text-amber-700', refClass: 'text-amber-600', btnClass: 'bg-amber-600 text-white' },
   la: { name: 'Latin', color: 'red', bgClass: 'bg-red-50', textClass: 'text-red-700', refClass: 'text-red-600', btnClass: 'bg-red-700 text-white' },
   en: { name: 'English', color: 'red', bgClass: 'bg-red-50', textClass: 'text-red-700', refClass: 'text-red-600', btnClass: 'bg-red-700 text-white' },
+  he: { name: 'Hebrew', color: 'red', bgClass: 'bg-red-50', textClass: 'text-red-700', refClass: 'text-red-600', btnClass: 'bg-red-700 text-white' },
 };
 
 const LANG_DEFAULTS = {
   grc: { author: 'homer', work: 'iliad', part: '.part.1.' },
   la: { author: 'vergil', work: 'aeneid', part: '.part.1.' },
   en: { author: 'milton', work: 'paradise_lost', part: null },
+  he: { author: 'hebrew_bible', work: 'ruth', part: null },
 };
 
 export default function CrossLingualSearch() {
@@ -188,18 +192,21 @@ export default function CrossLingualSearch() {
   const loadHierarchies = async () => {
     setLoading(true);
     try {
-      const [grcRes, laRes, enRes] = await Promise.all([
+      const [grcRes, laRes, enRes, heRes] = await Promise.all([
         fetch('/api/texts/hierarchy?language=grc'),
         fetch('/api/texts/hierarchy?language=la'),
-        fetch('/api/texts/hierarchy?language=en')
+        fetch('/api/texts/hierarchy?language=en'),
+        fetch('/api/texts/hierarchy?language=he')
       ]);
       const grcData = await grcRes.json();
       const laData = await laRes.json();
       const enData = await enRes.json();
+      const heData = await heRes.json();
       const h = {
         grc: grcData.authors || [],
         la: laData.authors || [],
-        en: enData.authors || []
+        en: enData.authors || [],
+        he: heData.authors || []
       };
       setHierarchy(h);
       setDefaultsForLang(h[currentPair.source], currentPair.source, setSourceAuthor, setSourceWork, setSourceSection);

@@ -295,7 +295,7 @@ const SearchResults = ({
     const sourceLabel = sourceTextInfo ? `${sourceTextInfo.author || ''} ${sourceTextInfo.title || sourceTextInfo.work || ''}`.trim() : '';
     const targetLabel = targetTextInfo ? `${targetTextInfo.author || ''} ${targetTextInfo.title || targetTextInfo.work || ''}`.trim() : '';
     const subtitle = sourceLabel && targetLabel ? `${sourceLabel} vs ${targetLabel}` : '';
-    const rtl = false;  // no right-to-left languages in this build (Coptic is LTR)
+    const rtl = language === 'he';  // Hebrew is right-to-left (Coptic/Greek/Latin are LTR)
     // Headers are ['#', 'Source Locus', 'Source Text', 'Target Locus',
     // 'Target Text', 'Score', 'Matched Words', 'Channels']. Widths chosen
     // to minimise row height: each column gets width roughly proportional to

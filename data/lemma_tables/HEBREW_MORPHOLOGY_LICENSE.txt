@@ -1,0 +1,21 @@
+Hebrew morphology tables — License and Attribution
+==================================================
+
+Files: data/lemma_tables/hebrew_lemmas.json, data/lemma_tables/hebrew_pos.json
+
+These are lookup tables (surface form -> lemma; surface form -> part of speech)
+DERIVED from the ETCBC/BHSA dataset (Biblia Hebraica Stuttgartensia
+Amstelodamensis) via Text-Fabric.
+
+Attribution (required): ETCBC, BHSA.
+  DOI: 10.17026/dans-z6y-skyh
+  https://etcbc.github.io/bhsa/
+
+License: Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)
+  https://creativecommons.org/licenses/by-nc/4.0/
+
+These derived lemma/POS tables are redistributed under CC BY-NC 4.0. The
+Non-Commercial clause is satisfied by Tesserae's free, non-commercial scholarly
+use; commercial use of BHSA-derived data requires consent from the German Bible
+Society. The underlying BHS text itself is NOT redistributed here — only derived
+lemma and part-of-speech annotations.

@@ -568,11 +568,17 @@ app.register_blueprint(feature_request_bp, url_prefix=API_PREFIX or None)
 app_logger.info(f"Blueprints registered (API_PREFIX='{API_PREFIX}', env={DEPLOYMENT_ENV})")
 
 # =============================================================================
-# PLUGIN LANGUAGES (Coptic)
+# PLUGIN LANGUAGES (Coptic, Hebrew)
 # =============================================================================
 try:
     from backend.coptic import register as register_coptic
     register_coptic()
+except ImportError:
+    pass
+
+try:
+    from backend.hebrew import register as register_hebrew
+    register_hebrew()
 except ImportError:
     pass
 
@@ -846,6 +852,18 @@ def api_languages():
                 languages.append({'code': 'cop', 'label': 'Coptic'})
                 crosslingual_pairs.extend([
                     {'key': 'cop-grc', 'source': 'cop', 'target': 'grc', 'label': 'Coptic → Greek'},
+                ])
+    except ImportError:
+        pass
+    try:
+        from backend.hebrew import HEBREW_ENABLED
+        if HEBREW_ENABLED:
+            texts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts', 'he')
+            if os.path.isdir(texts_dir):
+                languages.append({'code': 'he', 'label': 'Hebrew'})
+                crosslingual_pairs.extend([
+                    {'key': 'he-grc', 'source': 'he', 'target': 'grc', 'label': 'Hebrew → Greek'},
+                    {'key': 'he-la', 'source': 'he', 'target': 'la', 'label': 'Hebrew → Latin'},
                 ])
     except ImportError:
         pass
@@ -2499,6 +2517,12 @@ def submit_request():
         from backend.coptic import COPTIC_ENABLED
         if COPTIC_ENABLED:
             allowed_languages.add('coptic')
+    except ImportError:
+        pass
+    try:
+        from backend.hebrew import HEBREW_ENABLED
+        if HEBREW_ENABLED:
+            allowed_languages.add('hebrew')
     except ImportError:
         pass
 

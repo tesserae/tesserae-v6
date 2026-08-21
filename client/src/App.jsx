@@ -365,6 +365,9 @@ function App() {
       } else if (activeTab === 'cop') {
         defaultSourceId = 'sahidic.bible.tess';
         defaultTargetId = 'shenoute.abraham.tess';
+      } else if (activeTab === 'he') {
+        defaultSourceId = 'hebrew_bible.ruth.tess';
+        defaultTargetId = 'hebrew_bible.1_samuel.tess';
       } else {
         defaultSourceId = 'vergil.aeneid.part.1.tess';
         defaultTargetId = 'lucan.bellum_civile.part.1.tess';
@@ -712,7 +715,7 @@ function App() {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                 <div className="flex items-center gap-4">
                   <h2 className="text-xl font-semibold text-gray-900">
-                    Search {activeTab === 'la' ? 'Latin' : activeTab === 'grc' ? 'Greek' : activeTab === 'cop' ? 'Coptic' : 'English'} Texts
+                    Search {activeTab === 'la' ? 'Latin' : activeTab === 'grc' ? 'Greek' : activeTab === 'cop' ? 'Coptic' : activeTab === 'he' ? 'Hebrew' : 'English'} Texts
                   </h2>
                   <SavedSearches
                     sourceAuthor={sourceAuthor}

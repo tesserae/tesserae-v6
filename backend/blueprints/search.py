@@ -59,6 +59,10 @@ VALID_CROSSLINGUAL_PAIRS = {
 # Coptic-Greek pair added unconditionally -- the corpus/text checks at search
 # time handle the case where Coptic texts are not installed.
 VALID_CROSSLINGUAL_PAIRS.add(frozenset(('cop', 'grc')))
+# Hebrew cross-lingual pairs (Hebrew Bible -> Greek Septuagint, Hebrew Bible ->
+# Latin Vulgate). Corpus/text checks at search time handle absence gracefully.
+VALID_CROSSLINGUAL_PAIRS.add(frozenset(('he', 'grc')))
+VALID_CROSSLINGUAL_PAIRS.add(frozenset(('he', 'la')))
 
 # Module-level references to shared components (injected via init_search_blueprint)
 _matcher = None       # Matcher: Finds parallel passages between texts
@@ -409,8 +413,8 @@ def _find_dictionary_matches_fast(source_units, target_units, source_language,
                                                 source_language, target_language,
                                                 cancellation)
 
-    # --- Coptic-Greek pair: CSV dictionary path ---
-    if 'cop' in lang_pair:
+    # --- Coptic-Greek and Hebrew (he-grc / he-la) pairs: CSV dictionary path ---
+    if 'cop' in lang_pair or 'he' in lang_pair:
         return _find_csv_dictionary_matches(source_units, target_units,
                                             source_language, target_language,
                                             cancellation)
@@ -437,11 +441,21 @@ def _find_csv_dictionary_matches(source_units, target_units, source_language,
     # Load the appropriate dictionary
     synonymy_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'synonymy', 'v6_additions')
 
-    if 'cop' in lang_pair:
+    if lang_pair == frozenset(('he', 'la')):
+        dict_path = os.path.join(synonymy_dir, 'hebrew_latin.csv')
+        new_lang = 'he'
+    elif 'he' in lang_pair:
+        dict_path = os.path.join(synonymy_dir, 'hebrew_greek.csv')
+        new_lang = 'he'
+    elif 'cop' in lang_pair:
         dict_path = os.path.join(synonymy_dir, 'coptic_greek.csv')
         new_lang = 'cop'
     else:
         return {}
+
+    # The second CSV column is the "other" language (Greek for he/cop, Latin for
+    # the he-la bridge). Latin needs u/v folding and no Greek min-length filter.
+    col2_lang = next((l for l in lang_pair if l != new_lang), None)
 
     if not os.path.exists(dict_path):
         logger.warning(f"Dictionary not found: {dict_path}")
@@ -458,16 +472,25 @@ def _find_csv_dictionary_matches(source_units, target_units, source_language,
                 continue
             w1 = row[0].strip()
             w2 = row[1].strip()
-            if w1 and w2 and len(w1) >= 2 and len(w2) >= 3:
-                # Normalize Greek (strip accents for matching)
-                # Require min length 3 for Greek to filter CATSS betacode artifacts
-                w2_norm = unicodedata.normalize('NFC', w2)
-                w2_norm = ''.join(c for c in unicodedata.normalize('NFD', w2_norm)
-                                  if unicodedata.category(c) != 'Mn').lower()
-                # Normalize terminal sigma ς (U+03C2) to medial σ (U+03C3)
-                # to match the index which uses medial sigma throughout
-                w2_norm = w2_norm.replace('ς', 'σ')
-                if len(w2_norm) >= 3:
+            if w1.startswith('#'):
+                continue  # skip CSV comment/header lines (hebrew_latin.csv has them)
+            if w1 and w2 and len(w1) >= 2 and len(w2) >= 2:
+                if col2_lang == 'la':
+                    # Latin: fold u/v and j/i to match the Latin index; no Greek
+                    # betacode min-length filter, so 2-letter Latin (os, eo) survives.
+                    w2_norm = w2.lower().replace('v', 'u').replace('j', 'i')
+                    ok = len(w2_norm) >= 2
+                else:
+                    # Greek: strip accents for matching
+                    # Require min length 3 for Greek to filter CATSS betacode artifacts
+                    w2_norm = unicodedata.normalize('NFC', w2)
+                    w2_norm = ''.join(c for c in unicodedata.normalize('NFD', w2_norm)
+                                      if unicodedata.category(c) != 'Mn').lower()
+                    # Normalize terminal sigma ς (U+03C2) to medial σ (U+03C3)
+                    # to match the index which uses medial sigma throughout
+                    w2_norm = w2_norm.replace('ς', 'σ')
+                    ok = len(w2_norm) >= 3
+                if ok:
                     new_to_greek[w1].add(w2_norm)
                     greek_to_new[w2_norm].add(w1)
 
@@ -478,7 +501,7 @@ def _find_csv_dictionary_matches(source_units, target_units, source_language,
     # fusion handler handles the rest -- content words get higher IDF and rank
     # above function words naturally. We only need to remove words so common
     # that they create massive noise in the match set itself.
-    from backend.synonym_dict import CROSSLINGUAL_STOPLIST_GREEK
+    from backend.synonym_dict import CROSSLINGUAL_STOPLIST_GREEK, CROSSLINGUAL_STOPLIST_LATIN
     _GREEK_STOP = CROSSLINGUAL_STOPLIST_GREEK
 
     from backend import fusion
@@ -491,6 +514,7 @@ def _find_csv_dictionary_matches(source_units, target_units, source_language,
     # articles, pronouns, prepositions, particles
     lang_stops = dict(fusion._STOPLISTS)
     lang_stops['grc'] = _GREEK_STOP  # override with cross-lingual stoplist
+    lang_stops['la'] = CROSSLINGUAL_STOPLIST_LATIN  # filter Latin function words (he-la bridge)
 
     if source_language == new_lang:
         src_dict = new_to_greek
@@ -508,6 +532,8 @@ def _find_csv_dictionary_matches(source_units, target_units, source_language,
         for pos, lemma in enumerate(unit.get('lemmas', [])):
             # Normalize sigma for consistent matching
             lemma_n = lemma.replace('ς', 'σ') if lemma else lemma
+            if target_language == 'la' and lemma_n:
+                lemma_n = lemma_n.lower().replace('v', 'u').replace('j', 'i')
             if lemma_n in tgt_stop or len(lemma_n) < 2:
                 continue
             target_index[lemma_n].append((ti, pos))
@@ -518,9 +544,12 @@ def _find_csv_dictionary_matches(source_units, target_units, source_language,
         if cancellation:
             cancellation.check()
         for src_pos, src_lemma in enumerate(unit.get('lemmas', [])):
-            if src_lemma in src_stop or len(src_lemma) < 2:
+            src_key = src_lemma
+            if source_language == 'la' and src_key:
+                src_key = src_key.lower().replace('v', 'u').replace('j', 'i')
+            if src_key in src_stop or len(src_key) < 2:
                 continue
-            translations = src_dict.get(src_lemma, set())
+            translations = src_dict.get(src_key, set())
             for translation in translations:
                 if translation in tgt_stop:
                     continue
