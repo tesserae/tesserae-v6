@@ -90,7 +90,15 @@ def tokenize_hebrew(text, preserve_case=False):
     used by other language handlers.
     """
     # Remove .tess reference tags if present
-    text = re.sub(r'<[^>]+>', '', text).strip()
+    text = re.sub(r'<[^>]+>', '', text)
+    # Remove Masoretic paragraph markers {פ}/{ס} (petuchah/setumah) that some
+    # digitizations (e.g. Sefaria) include inline; otherwise they tokenize as
+    # spurious single-letter words.
+    text = re.sub(r'\{[^}]*\}', ' ', text)
+    # Split on maqaf (U+05BE, the Hebrew hyphen). It lives inside the Hebrew Unicode
+    # block, so without this the token regex fuses maqaf-joined words (e.g. \u05D0\u05EA\u05BE\u05DB\u05DC,
+    # \u05D1\u05E0\u05D9\u05BE\u05D9\u05E9\u05E8\u05D0\u05DC) into one token \u2014 ~7% of biblical tokens \u2014 breaking lexical matching.
+    text = text.replace('\u05BE', ' ').strip()
     if not text:
         return [], []
 
@@ -105,6 +113,26 @@ def tokenize_hebrew(text, preserve_case=False):
         original_tokens, normalized = zip(*pairs)
         return list(original_tokens), list(normalized)
     return [], []
+
+
+# Hebrew proclitic letters (conjunction waw, article he, and the inseparable
+# prepositions be/ke/le/me, plus relative she) that BHSA stores as SEPARATE
+# morphemes. Biblical surface tokens fuse them (e.g. ויאמר = ו + יאמר,
+# בארץ = ב + ארץ), so on a direct table miss we strip 1-3 leading clitic letters
+# and retry the lookup against the BHSA table before falling back to Stanza.
+_HE_PREFIX = set('והבכלמש')
+
+
+def _lookup_lemma(form, table):
+    """Table lookup with Hebrew clitic-prefix stripping on a miss."""
+    if form in table:
+        return table[form]
+    for k in (1, 2, 3):
+        if len(form) > k + 1 and all(c in _HE_PREFIX for c in form[:k]):
+            rest = form[k:]
+            if rest in table:
+                return table[rest]
+    return None
 
 
 def lemmatize_hebrew(tokens):
@@ -125,8 +153,9 @@ def lemmatize_hebrew(tokens):
 
     for i, token in enumerate(tokens):
         normalized = normalize_hebrew(token)
-        if normalized in table:
-            lemmas.append(table[normalized])
+        lemma = _lookup_lemma(normalized, table)
+        if lemma is not None:
+            lemmas.append(lemma)
         else:
             lemmas.append(None)  # placeholder
             stanza_needed.append(normalized)
