@@ -1839,7 +1839,15 @@ def line_search():
                             
                             match_found = False
                             if search_type == 'exact':
-                                if query.lower() in text.lower():
+                                # Fold Latin u/v and i/j so a query in one orthography
+                                # (e.g. "arma virum") also matches text digitized in the
+                                # other (e.g. Persius "arma uirum"). Latin only.
+                                q_cmp = query.lower()
+                                t_cmp = text.lower()
+                                if language == 'la':
+                                    q_cmp = _normalize_latin_lemma(q_cmp)
+                                    t_cmp = _normalize_latin_lemma(t_cmp)
+                                if q_cmp in t_cmp:
                                     match_found = True
                             elif search_type == 'regex':
                                 try:
@@ -1873,8 +1881,12 @@ def line_search():
                                             matched_words.append(word)
                                             matched_lemmas.update(shared_lemmas)
                                 else:
+                                    # Fold Latin u/v and i/j on both sides so matched-word
+                                    # counting agrees with the orthography-folded exact match.
+                                    t_cmp = _normalize_latin_lemma(text.lower()) if language == 'la' else text.lower()
                                     for word in query.lower().split():
-                                        if word in text.lower() and word not in stopwords:
+                                        w_cmp = _normalize_latin_lemma(word) if language == 'la' else word
+                                        if w_cmp in t_cmp and word not in stopwords:
                                             matched_words.append(word)
                                             matched_lemmas.add(word)
                                 
