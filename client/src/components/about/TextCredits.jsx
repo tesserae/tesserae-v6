@@ -14,6 +14,8 @@ const SOURCE_LINKS = {
   'MiqraBERT': 'https://huggingface.co/davidmsmiley/MiqraBERT',
   'OpenBible.info': 'https://www.openbible.info/labs/cross-references/',
   'CATSS': 'https://ccat.sas.upenn.edu/rak/catss.html',
+  'Stanza': 'https://stanfordnlp.github.io/stanza/',
+  'CLTK': 'http://cltk.org/',
   'Tanzil': 'https://tanzil.net/',
   'Ganjoor': 'https://ganjoor.net/',
   'Frances Pritchett': 'https://franpritchett.com/00ghalib/',
@@ -115,6 +117,14 @@ export default function TextCredits() {
         all punctuation and capitalization are removed. Below we provide the electronic sources for each
         of our texts. To the best of our ability, we have looked for indications of the original
         provenance of these texts, and reproduce citation where possible. This is a work in progress.
+      </p>
+
+      <p className="text-gray-600 text-sm leading-relaxed mb-6">
+        Automated tokenization, lemmatization, and morphological analysis rely on several
+        open-source NLP tools, including{' '}
+        <IntroLink name="Stanza" url={SOURCE_LINKS['Stanza']} /> (Stanford NLP Group; Qi et al.,
+        ACL 2020), the <IntroLink name="Classical Language Toolkit (CLTK)" url={SOURCE_LINKS['CLTK']} />,
+        and Text-Fabric. We gratefully acknowledge their authors.
       </p>
 
       <div className="mb-4">
