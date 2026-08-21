@@ -120,6 +120,7 @@ export default function HelpPage() {
     { id: 'results', label: 'Understanding Results' },
     { id: 'best-practices', label: 'Search Tips' },
     { id: 'cross-lingual', label: 'Cross-Lingual Search' },
+    { id: 'hebrew', label: 'Hebrew Search' },
     { id: 'syntax-texts', label: 'Syntax Matching Texts' },
     { id: 'repository', label: 'Repository' },
     { id: 'faq', label: 'FAQ' },
@@ -232,7 +233,7 @@ export default function HelpPage() {
             <div className="prose max-w-none">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Getting Started</h3>
               <ol className="list-decimal list-inside space-y-4 text-gray-700">
-                <li><strong>Select a Language:</strong> Choose Latin, Greek, or English from the language tabs.</li>
+                <li><strong>Select a Language:</strong> Choose Latin, Greek, English, or Hebrew from the language tabs (Coptic is also available). Hebrew supports search within the Hebrew Bible and cross-lingual matching to the Greek Septuagint — see <strong>Hebrew Search</strong> below.</li>
                 <li><strong>Choose Source Text:</strong> Select the "source" text — typically the earlier text.</li>
                 <li><strong>Choose Target Text:</strong> Select the "target" text — the later text that may contain the allusion.</li>
                 <li><strong>Run Search:</strong> Click "Find Parallels." The default search mode is <strong>Fusion — All Channels</strong>, which runs nine independent detection methods and combines their results for the best recall.</li>
@@ -922,6 +923,43 @@ export default function HelpPage() {
                   and phonetic transliteration (Greek→Latin character mapping for detecting sound echoes like μῆνιν ≈ Mene).
                 </p>
               </div>
+            </div>
+          )}
+
+          {activeSection === 'hebrew' && (
+            <div className="prose max-w-none">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Hebrew Search</h3>
+              <p className="text-gray-700 mb-4">
+                Tesserae searches the <strong>Hebrew Bible</strong> for textual parallels — allusions,
+                quotations, and the near-verbatim "doublets" where the same passage is preserved in more
+                than one book. It applies the same multi-channel fusion method used for Latin and Greek
+                (shared dictionary forms, exact word matches, sound and edit-distance fuzzy matching, and
+                rare-word matching), adapted to the Hebrew script and its orthography.
+              </p>
+              <div className="border-l-4 border-red-500 pl-4 mb-4">
+                <h4 className="font-medium text-gray-900">Within Hebrew (inner-biblical)</h4>
+                <p className="text-gray-600 text-sm mt-1">
+                  Compare two biblical books to find shared wording. In validation testing the tool
+                  rediscovers well-known relationships: <em>Psalm 18</em> and <em>2 Samuel 22</em> (the same
+                  victory poem preserved twice) light up as a dense cluster, and the verbatim quotation of
+                  <em> Exodus 15:2</em> inside <em>Isaiah 12:2</em> is pinpointed at the top of the results.
+                </p>
+              </div>
+              <div className="border-l-4 border-amber-500 pl-4 mb-4">
+                <h4 className="font-medium text-gray-900">Hebrew → Greek (cross-lingual to the Septuagint)</h4>
+                <p className="text-gray-600 text-sm mt-1">
+                  Tesserae also matches Hebrew against the <strong>Greek Septuagint</strong> across the
+                  language barrier, using a Hebrew-Greek dictionary of about 12,500 word pairs derived from
+                  the CATSS Masoretic-Septuagint alignment. This traces how a Hebrew passage relates to its
+                  ancient Greek translation and to other Greek texts — for example, Hebrew <em>Psalm 18</em>
+                  is matched to its Septuagint rendering (Greek <em>Psalm 17</em>). Select a Hebrew source
+                  and a Greek target, or use the Cross-Language tab.
+                </p>
+              </div>
+              <p className="text-gray-500 text-sm">
+                Hebrew support is new. Coverage grows as more of the Hebrew Bible and its Septuagint
+                counterparts are added to the corpus.
+              </p>
             </div>
           )}
 
