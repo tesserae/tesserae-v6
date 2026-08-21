@@ -632,18 +632,18 @@ export default function CrossLingualSearch() {
                     <div className="text-xs text-gray-500 mb-1">Source</div>
                     <div className="font-medium text-gray-900">{result.source?.ref || result.source_locus}</div>
                     {result.source?.tokens && result.source?.highlight_indices?.length > 0 ? (
-                      <div className="text-gray-700 mt-1" dangerouslySetInnerHTML={{ __html: highlightTokens(result.source.tokens, result.source.highlight_indices) }} />
+                      <div className="text-gray-700 mt-1" dir={currentPair.source === 'he' ? 'rtl' : undefined} dangerouslySetInnerHTML={{ __html: highlightTokens(result.source.tokens, result.source.highlight_indices) }} />
                     ) : (
-                      <div className="text-gray-700 mt-1">{result.source?.text || result.source_text || ''}</div>
+                      <div className="text-gray-700 mt-1" dir={currentPair.source === 'he' ? 'rtl' : undefined}>{result.source?.text || result.source_text || ''}</div>
                     )}
                   </div>
                   <div>
                     <div className="text-xs text-gray-500 mb-1">Target</div>
                     <div className="font-medium text-gray-900">{result.target?.ref || result.target_locus}</div>
                     {result.target?.tokens && result.target?.highlight_indices?.length > 0 ? (
-                      <div className="text-gray-700 mt-1" dangerouslySetInnerHTML={{ __html: highlightTokens(result.target.tokens, result.target.highlight_indices) }} />
+                      <div className="text-gray-700 mt-1" dir={currentPair.target === 'he' ? 'rtl' : undefined} dangerouslySetInnerHTML={{ __html: highlightTokens(result.target.tokens, result.target.highlight_indices) }} />
                     ) : (
-                      <div className="text-gray-700 mt-1">{result.target?.text || result.target_text || ''}</div>
+                      <div className="text-gray-700 mt-1" dir={currentPair.target === 'he' ? 'rtl' : undefined}>{result.target?.text || result.target_text || ''}</div>
                     )}
                   </div>
                 </div>

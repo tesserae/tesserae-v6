@@ -1089,7 +1089,7 @@ const SearchResults = ({
                       <span className="text-gray-500">
                         {[l.work && l.work.replace(/_/g, ' '), l.locus].filter(Boolean).join(' ')}
                       </span>
-                      {l.text && <span className="text-gray-700"> — {renderInstanceText(l.text, l.matched_words, language)}</span>}
+                      {l.text && <span className="text-gray-700" dir={language === 'he' ? 'rtl' : undefined}> — {renderInstanceText(l.text, l.matched_words, language)}</span>}
                     </div>
                   ))}
                 </div>
@@ -1124,6 +1124,7 @@ const SearchResults = ({
                 <div className="font-medium text-gray-900">{formatReference(r.source_locus || r.source?.ref, language)}</div>
                 <div
                   className="text-gray-700 mt-1"
+                  dir={language === 'he' ? 'rtl' : undefined}
                   dangerouslySetInnerHTML={{ __html: r.source_text || r.source_snippet || renderHighlightedText(r.source, language, r.matched_words, true, r.target) }}
                 />
                 {r.features?.source_scansion && renderScansion(r.features.source_scansion)}
@@ -1133,6 +1134,7 @@ const SearchResults = ({
                 <div className="font-medium text-gray-900">{formatReference(r.target_locus || r.target?.ref, language)}</div>
                 <div
                   className="text-gray-700 mt-1"
+                  dir={language === 'he' ? 'rtl' : undefined}
                   dangerouslySetInnerHTML={{ __html: r.target_text || r.target_snippet || renderHighlightedText(r.target, language, r.matched_words, false, r.source) }}
                 />
                 {r.features?.target_scansion && renderScansion(r.features.target_scansion)}

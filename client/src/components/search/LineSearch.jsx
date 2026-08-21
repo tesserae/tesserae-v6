@@ -489,12 +489,15 @@ export default function LineSearch({ language }) {
         normalized = normalized.replace(/v/g, 'u').replace(/j/g, 'i');
       } else if (language === 'grc') {
         normalized = normalizeGreek(s);
+      } else if (language === 'he') {
+        // strip nikkud + cantillation (matched_words are unvocalized) and maqaf
+        normalized = normalized.normalize('NFD').replace(/[֑-ֽֿ-ׇ]/g, '').replace(/־/g, '');
       }
       return normalized;
     };
-    
+
     const matchSet = new Set(matchedWords.map(w => normalizeWord(w)));
-    const words = text.split(/(\s+)/);
+    const words = text.split(language === 'he' ? /(\s+|־)/ : /(\s+)/);
     
     return words.map((word, i) => {
       if (/^\s+$/.test(word)) {
@@ -834,7 +837,7 @@ export default function LineSearch({ language }) {
                           </span>
                         )}
                       </div>
-                      <div className="flex-1 min-w-0 break-words text-gray-700">
+                      <div className="flex-1 min-w-0 break-words text-gray-700" dir={language === 'he' ? 'rtl' : undefined}>
                         {highlightMatches(result.text, result.matched_words || query.split(/\s+/))}
                       </div>
                     </div>
