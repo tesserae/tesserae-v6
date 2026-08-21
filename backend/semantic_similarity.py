@@ -42,10 +42,12 @@ ENGLISH_MODEL = "all-MiniLM-L6-v2"
 # Per-language semantic models. Hebrew and Coptic have their own within-language
 # embedding spaces (their precomputed embeddings under backend/embeddings/{he,cop}
 # use these); la/grc/en share the SPhilBERTa cross-lingual space.
-HEBREW_MODEL = "davidmsmiley/MiqraBERT"              # Sentence-BERT purpose-built for Biblical Hebrew parallels
-                                                     # (upgraded from dicta-il/BEREL: on the T'OMIM benchmark it
-                                                     # separates parallels 0.90 vs non-parallels 0.28, a clean
-                                                     # threshold BEREL/e5 lack). he embeddings recomputed to match.
+# MiqraBERT (Biblical-Hebrew Sentence-BERT) further fine-tuned in-house on 14k OpenBible
+# cross-reference pairs (weak supervision). vs base MiqraBERT on held-out sets: thematic-link
+# recall 0.27->0.51 AND near-verbatim (T'OMIM) 0.95->0.98 (no forgetting). Local model; the
+# he corpus embeddings are computed with it. Falls back to base MiqraBERT if the dir is absent.
+_HE_FINETUNED = os.path.join(os.path.dirname(__file__), 'models', 'miqrabert-hebrew-thematic')
+HEBREW_MODEL = _HE_FINETUNED if os.path.isdir(_HE_FINETUNED) else "davidmsmiley/MiqraBERT"
 COPTIC_MODEL = "intfloat/multilingual-e5-large"      # multilingual (includes Coptic script)
 CACHE_DIR = os.path.join(os.path.dirname(__file__), 'semantic_cache')
 EMBEDDINGS_CACHE_FILE = os.path.join(CACHE_DIR, 'embeddings_cache.json')
