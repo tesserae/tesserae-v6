@@ -8,7 +8,12 @@ const SOURCE_LINKS = {
   'Musisque Deoque': 'http://www.mqdq.it/',
   'Corpus Scriptorum Latinorum': 'http://www.forumromanum.org/literature/index.html',
   'Coptic Scriptorium': 'https://copticscriptorium.org/',
+  'Sefaria': 'https://www.sefaria.org/',
+  'Miqra according to the Masorah': 'https://he.wikisource.org/wiki/%D7%9E%D7%A9%D7%AA%D7%9E%D7%A9:Dovi/%D7%9E%D7%A7%D7%A8%D7%90_%D7%A2%D7%9C_%D7%A4%D7%99_%D7%94%D7%9E%D7%A1%D7%95%D7%A8%D7%94',
   'BHSA': 'https://etcbc.github.io/bhsa/',
+  'MiqraBERT': 'https://huggingface.co/davidmsmiley/MiqraBERT',
+  'OpenBible.info': 'https://www.openbible.info/labs/cross-references/',
+  'CATSS': 'https://ccat.sas.upenn.edu/rak/catss.html',
   'Tanzil': 'https://tanzil.net/',
   'Ganjoor': 'https://ganjoor.net/',
   'Frances Pritchett': 'https://franpritchett.com/00ghalib/',
@@ -82,9 +87,17 @@ export default function TextCredits() {
         {' '}Coptic texts (Sahidic and Bohairic) come from{' '}
         <IntroLink name="Coptic Scriptorium" url={SOURCE_LINKS['Coptic Scriptorium']} /> (CC-BY 4.0; the
         Sahidica New Testament is additionally subject to its own academic-use license, ©2000–2006
-        J. Warren Wells). The Hebrew Bible is extracted from the{' '}
-        <IntroLink name="ETCBC/BHSA" url={SOURCE_LINKS['BHSA']} /> dataset (Biblia Hebraica Stuttgartensia
-        Amstelodamensis). Quranic Arabic is from{' '}
+        J. Warren Wells). The Hebrew Bible text is the{' '}
+        <IntroLink name="Miqra according to the Masorah" url={SOURCE_LINKS['Miqra according to the Masorah']} />{' '}
+        (MAM) edition, based on the Aleppo Codex, obtained through{' '}
+        <IntroLink name="Sefaria" url={SOURCE_LINKS['Sefaria']} /> (CC-BY-SA); Hebrew morphological
+        lemmatization draws on the <IntroLink name="ETCBC/BHSA" url={SOURCE_LINKS['BHSA']} /> dataset
+        (Biblia Hebraica Stuttgartensia Amstelodamensis) via Text-Fabric. The Hebrew semantic channel
+        uses <IntroLink name="MiqraBERT" url={SOURCE_LINKS['MiqraBERT']} /> (D. M. Smiley), fine-tuned
+        in-house on <IntroLink name="OpenBible.info" url={SOURCE_LINKS['OpenBible.info']} /> cross-references
+        (CC-BY, from the Treasury of Scripture Knowledge); Hebrew-to-Greek Septuagint matching uses the{' '}
+        <IntroLink name="CATSS" url={SOURCE_LINKS['CATSS']} /> Masoretic-Septuagint parallel (E. Tov).
+        Quranic Arabic is from{' '}
         <IntroLink name="Tanzil" url={SOURCE_LINKS['Tanzil']} />; pre-Islamic Arabic poetry from
         public-domain Mu‘allaqāt editions. Classical Persian poetry comes from{' '}
         <IntroLink name="Ganjoor" url={SOURCE_LINKS['Ganjoor']} />, the Chronological Persian Poetry
