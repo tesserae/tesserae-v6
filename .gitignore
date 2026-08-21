@@ -100,3 +100,6 @@ morphgnt_sblgnt/
 
 # Large generated lexicon CSVs (regenerable from upstream)
 backend/synonymy/coptic_coptic_wordnet.csv
+notes/
+backend/models/
+PROGRESS.md
