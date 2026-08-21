@@ -92,7 +92,8 @@ export default function TextCredits() {
         (MAM) edition, based on the Aleppo Codex, obtained through{' '}
         <IntroLink name="Sefaria" url={SOURCE_LINKS['Sefaria']} /> (CC-BY-SA); Hebrew morphological
         lemmatization draws on the <IntroLink name="ETCBC/BHSA" url={SOURCE_LINKS['BHSA']} /> dataset
-        (Biblia Hebraica Stuttgartensia Amstelodamensis) via Text-Fabric. The Hebrew semantic channel
+        (Biblia Hebraica Stuttgartensia Amstelodamensis; CC-BY-NC 4.0, DOI 10.17026/dans-z6y-skyh)
+        via Text-Fabric. The Hebrew semantic channel
         uses <IntroLink name="MiqraBERT" url={SOURCE_LINKS['MiqraBERT']} /> (D. M. Smiley), fine-tuned
         in-house on <IntroLink name="OpenBible.info" url={SOURCE_LINKS['OpenBible.info']} /> cross-references
         (CC-BY, from the Treasury of Scripture Knowledge); Hebrew-to-Greek Septuagint matching uses the{' '}

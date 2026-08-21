@@ -1,0 +1,22 @@
+Hebrew Bible text — License and Attribution
+===========================================
+
+The Hebrew Bible text in this directory (texts/he/*.tess) is derived from:
+
+  "Miqra according to the Masorah" (MAM) — a digital edition of the Tanakh
+  based on the Aleppo Codex and closely related Tiberian manuscripts.
+  Editor: Seth (Avi) Kadish ("Dovi").
+  Source: https://he.wikisource.org/wiki/משתמש:Dovi/מקרא_על_פי_המסורה
+  Obtained via Sefaria — https://www.sefaria.org/
+
+License: Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+  https://creativecommons.org/licenses/by-sa/4.0/
+
+Modifications by Tesserae V6: converted to .tess line-reference markup and
+Masoretic paragraph markers ({פ}/{ס}) removed. The consonantal text is unchanged.
+
+Under CC BY-SA 4.0 these Hebrew Bible text files are distributed under the same
+CC BY-SA 4.0 license, with the attribution above. This notice applies to the
+Hebrew Bible TEXT files (texts/he/*.tess) only; other components of Tesserae
+(source code, models, and the ETCBC/BHSA-derived morphology tables) carry their
+own separate licenses.
