@@ -53,7 +53,7 @@ const SearchResults = ({
   // Sidebar has two modes: 'comparison' (where parallels fall in this pair) and
   // 'corpus' (where a chosen parallel's shared words recur across the corpus).
   const [sidebarMode, setSidebarMode] = useState('corpus');
-  const [corpusGroupBy, setCorpusGroupBy] = useState('timeline'); // 'era' | 'author' | 'timeline'
+  const [corpusGroupBy, setCorpusGroupBy] = useState(language === 'he' ? 'work' : 'timeline'); // 'era' | 'author' | 'work' | 'timeline'
   const [corpusHitIdx, setCorpusHitIdx] = useState(0);
   const [corpusData, setCorpusData] = useState(null);
   const [corpusLoading, setCorpusLoading] = useState(false);
@@ -410,11 +410,11 @@ const SearchResults = ({
   const CORPUS_COLOR = { backgroundColor: 'rgba(37, 99, 235, 0.7)', borderColor: 'rgb(37, 99, 235)', borderWidth: 1 };
   const getCorpusChartData = () => {
     if (!corpusData || !corpusData.loci || !corpusData.loci.length) return null;
-    if (corpusGroupBy === 'author') {
+    if (corpusGroupBy === 'author' || corpusGroupBy === 'work') {
       const datedYear = (l) => (l.year != null && l.year < 9999 ? l.year : null);
-      const agg = {}; // author -> { count, year }
+      const agg = {}; // author (or work) -> { count, year }
       corpusData.loci.forEach(l => {
-        const a = l.author || 'Unknown';
+        const a = (corpusGroupBy === 'work' ? l.work : l.author) || 'Unknown';
         if (!agg[a]) agg[a] = { count: 0, year: datedYear(l) };
         agg[a].count++;
         if (agg[a].year == null) { const y = datedYear(l); if (y != null) agg[a].year = y; }
@@ -435,14 +435,19 @@ const SearchResults = ({
     return { labels: eras, datasets: [{ label: 'Occurrences', data: eras.map(e => byEra[e]), ...CORPUS_COLOR }] };
   };
   const corpusChartData = getCorpusChartData();
-  const corpusIsAuthor = corpusGroupBy === 'author';
+  const corpusIsWork = corpusGroupBy === 'work';
+  // 'work' reuses the horizontal clickable-bar rendering of 'author', keyed on the
+  // book instead. Used for Hebrew, whose books share one author and carry no dates.
+  const corpusIsAuthor = corpusGroupBy === 'author' || corpusIsWork;
   const corpusIsTimeline = corpusGroupBy === 'timeline';
   const corpusChartOptions = {
     responsive: true, maintainAspectRatio: false,
     indexAxis: corpusIsAuthor ? 'y' : 'x',
     plugins: {
       legend: { display: false },
-      title: { display: true, text: corpusIsAuthor
+      title: { display: true, text: corpusIsWork
+        ? 'Which works these words recur in'
+        : corpusIsAuthor
         ? 'Where these words recur, by author (earliest → latest)'
         : 'Where these words recur across the corpus' },
       tooltip: { callbacks: { label: (c) => {
@@ -1026,17 +1031,25 @@ const SearchResults = ({
           )}
           <div className="flex items-center gap-1 mb-2">
             <span className="text-xs text-gray-600 mr-1">Group by:</span>
+            {language !== 'he' && (
+              <button
+                onClick={() => setCorpusGroupBy('timeline')}
+                className={`text-xs px-2.5 py-1 rounded ${corpusGroupBy === 'timeline' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
+              >Timeline</button>
+            )}
+            {language !== 'he' && (
+              <button
+                onClick={() => setCorpusGroupBy('era')}
+                className={`text-xs px-2.5 py-1 rounded ${corpusGroupBy === 'era' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
+              >Era</button>
+            )}
             <button
-              onClick={() => setCorpusGroupBy('timeline')}
-              className={`text-xs px-2.5 py-1 rounded ${corpusGroupBy === 'timeline' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
-            >Timeline</button>
-            <button
-              onClick={() => setCorpusGroupBy('era')}
-              className={`text-xs px-2.5 py-1 rounded ${corpusGroupBy === 'era' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
-            >Era</button>
+              onClick={() => setCorpusGroupBy('work')}
+              className={`text-xs px-2.5 py-1 rounded ${corpusGroupBy === 'work' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}`}
+            >Work</button>
           </div>
-          {corpusIsTimeline && corpusData && !corpusData.tooFew && !corpusLoading && (
-            <p className="text-xs text-gray-500 mb-1.5">Click any author to see its lines.</p>
+          {(corpusIsTimeline || corpusIsWork) && corpusData && !corpusData.tooFew && !corpusLoading && (
+            <p className="text-xs text-gray-500 mb-1.5">Click any {corpusIsWork ? 'work' : 'author'} to see its lines.</p>
           )}
           <div>
             {corpusLoading ? (
@@ -1054,10 +1067,10 @@ const SearchResults = ({
             )}
           </div>
           {corpusIsAuthor && corpusChartData && corpusChartData._capped && (
-            <p className="text-xs text-gray-400 mt-1">Showing the 30 most-cited authors, in chronological order.</p>
+            <p className="text-xs text-gray-400 mt-1">Showing the 30 most-cited {corpusIsWork ? 'works' : 'authors, in chronological order'}.</p>
           )}
           {corpusSelectedAuthor && corpusData && corpusData.loci && (() => {
-            const rows = corpusData.loci.filter(l => (l.author || 'Unknown') === corpusSelectedAuthor);
+            const rows = corpusData.loci.filter(l => ((corpusIsWork ? l.work : l.author) || 'Unknown') === corpusSelectedAuthor);
             return (
               <div className="mt-2 border-t pt-2">
                 <div className="flex items-center justify-between mb-1">
