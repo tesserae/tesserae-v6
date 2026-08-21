@@ -42,7 +42,10 @@ ENGLISH_MODEL = "all-MiniLM-L6-v2"
 # Per-language semantic models. Hebrew and Coptic have their own within-language
 # embedding spaces (their precomputed embeddings under backend/embeddings/{he,cop}
 # use these); la/grc/en share the SPhilBERTa cross-lingual space.
-HEBREW_MODEL = "dicta-il/BEREL"                      # Dicta's Biblical/Rabbinic Hebrew BERT
+HEBREW_MODEL = "davidmsmiley/MiqraBERT"              # Sentence-BERT purpose-built for Biblical Hebrew parallels
+                                                     # (upgraded from dicta-il/BEREL: on the T'OMIM benchmark it
+                                                     # separates parallels 0.90 vs non-parallels 0.28, a clean
+                                                     # threshold BEREL/e5 lack). he embeddings recomputed to match.
 COPTIC_MODEL = "intfloat/multilingual-e5-large"      # multilingual (includes Coptic script)
 CACHE_DIR = os.path.join(os.path.dirname(__file__), 'semantic_cache')
 EMBEDDINGS_CACHE_FILE = os.path.join(CACHE_DIR, 'embeddings_cache.json')
