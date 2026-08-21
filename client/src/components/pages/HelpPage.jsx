@@ -15,7 +15,7 @@ const OFFICIAL_GPT_URL = '';
 // page — the URL to paste into the GPT builder's "Privacy policy" field).
 const API_PRIVACY_URL = 'https://tesserae.caset.buffalo.edu/tesserae-data/tesserae-api-privacy.html';
 
-const GPT_INSTRUCTIONS = `You are Tesserae, an assistant for finding intertextual parallels (allusions, echoes, quotations, borrowings) in classical literature, using the provided Tesserae actions. Follow the user's lead; they are the scholar. Show actual passages and loci; be candid about weak or ambiguous matches. Language codes: la (Latin), grc (Greek), en (English), cop (Coptic).
+const GPT_INSTRUCTIONS = `You are Tesserae, an assistant for finding intertextual parallels (allusions, echoes, quotations, borrowings) in classical literature, using the provided Tesserae actions. Follow the user's lead; they are the scholar. Show actual passages and loci; be candid about weak or ambiguous matches. Language codes: la (Latin), grc (Greek), en (English), cop (Coptic), he (Hebrew).
 
 WHICH SEARCH TO USE
 - General, unqualified two-text request ("find intertextual parallels between Aeneid 4 and Georgics 4"): use the FULL FUSION search (fusionSearchPoll) — Tesserae's comprehensive comparison, combining ten similarity signals (shared words, sound, meaning, rare vocabulary, syntax, and more). See FULL FUSION below for how to handle its timing. For a question about ONE book or poem of a larger work, either use that part's id directly (e.g. vergil.eclogues.part.1.tess) or pass source_ref_prefix/target_ref_prefix to filter the full result set by ref (a trailing dot pins the number, e.g. "ecl. 1." matches poem 1, not 10); use offset/limit to page deeper, since genuine parallels also appear below the top 100. Scores are relative to each pairing (baselines are per comparison), so compare ranks within a run, not absolute scores across runs.
@@ -352,6 +352,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
     { id: 'languages', label: 'Languages', group: 'Languages' },
     { id: 'coptic', label: 'Coptic (in depth)', group: 'Languages' },
+    { id: 'hebrew', label: 'Hebrew (in depth)', group: 'Languages' },
     { id: 'cross-lingual', label: 'Cross-Language Search', group: 'Languages' },
 
     { id: 'ai-guide', label: 'Use with your AI', group: 'Reference & tools' },
@@ -477,7 +478,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 compares two texts and finds the passages most similar to each other. Here is the quick path:
               </p>
               <ol className="list-decimal list-inside space-y-4 text-gray-700">
-                <li><strong>Select a language:</strong> Latin, Greek, English, or Coptic, from the tabs.</li>
+                <li><strong>Select a language:</strong> Latin, Greek, English, Coptic, or Hebrew, from the tabs.</li>
                 <li><strong>Choose a search type:</strong> the default is <strong>Phrases</strong> (compare two texts). See{' '}
                   <button onClick={() => setActiveSection('search-modes')} className="text-red-600 hover:underline">The Types of Search</button>{' '}
                   for the others (Lines, String Search, Rare Pairs, Rare Words).</li>
@@ -500,7 +501,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
             <div className="prose max-w-none">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Languages</h3>
               <p className="text-gray-700 mb-5">
-                Tesserae searches four languages. They share the same search types, but differ in how much of the corpus
+                Tesserae searches five languages. They share the same search types, but differ in how much of the corpus
                 is covered and which detection channels have data to work with.
               </p>
               <div className="space-y-5">
@@ -535,6 +536,16 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                     channel, sub-word lemmatization, and grammatical parses wired into the syntax channel. You can also search a
                     Coptic text against the Greek corpus to surface its Greek source. See{' '}
                     <button onClick={() => setActiveSection('coptic')} className="text-red-600 hover:underline">Coptic (in depth)</button>.
+                  </p>
+                </div>
+                <div className="border-l-4 border-amber-500 pl-4">
+                  <h4 className="font-medium text-gray-900">Hebrew</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    The full Hebrew Bible — all 39 books of the Tanakh — in the Miqra according to the Masorah (Aleppo
+                    Codex). Hebrew reads right-to-left, and its fully vowel-pointed text is matched on the consonantal
+                    words, so vowel points and cantillation marks do not affect a match. You can also search the Hebrew
+                    Bible against the Greek Septuagint and the Latin Vulgate. See{' '}
+                    <button onClick={() => setActiveSection('hebrew')} className="text-red-600 hover:underline">Hebrew (in depth)</button>.
                   </p>
                 </div>
               </div>
@@ -612,6 +623,66 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   Coptic writes words joined into groups, so <strong>whole-word and phrase matching may miss a
                   word fused inside a group</strong>. In String Search, use a wildcard
                   (e.g. <code className="bg-amber-100 px-1 rounded">*rOme*</code>) to find a word wherever it sits.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {activeSection === 'hebrew' && (
+            <div className="prose max-w-none">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Hebrew Search</h3>
+              <p className="text-gray-700 mb-4">
+                Tesserae searches the Hebrew Bible alongside Latin, Greek, English, and Coptic. The corpus is the
+                full Tanakh — all 39 books — in the Miqra according to the Masorah (MAM) edition, based on the
+                Aleppo Codex. You can compare any two books to trace inner-biblical reuse, from a poem preserved in
+                two places (Psalm 18 and 2 Samuel 22) to a phrase quoted in a later prophet.
+              </p>
+
+              <div className="my-4 bg-amber-50 border border-amber-200 p-4 rounded-lg">
+                <h4 className="font-medium text-amber-900 mb-1">Reading and matching Hebrew</h4>
+                <ul className="list-disc list-inside space-y-1 text-amber-900 text-sm">
+                  <li>Hebrew reads <strong>right-to-left</strong>, and results are shown that way.</li>
+                  <li>The text is fully vowel-pointed, but matching works on the <strong>consonantal words</strong>: vowel points (nikkud) and cantillation marks are set aside, so a match is found regardless of pointing.</li>
+                  <li>Words joined by a maqaf (the Hebrew hyphen) are treated as separate words.</li>
+                  <li>Dictionary forms come from the <strong>ETCBC/BHSA</strong> morphology (about 92% of words), with an automatic fallback for the rest.</li>
+                </ul>
+              </div>
+
+              <p className="text-gray-700 mb-3">
+                Hebrew search runs the same battery of methods as the other languages:
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-gray-700 text-sm mb-4">
+                <li><strong>Shared vocabulary</strong> — lines that share two or more dictionary words.</li>
+                <li><strong>Sound</strong> — words that sound alike, useful across spelling variation.</li>
+                <li><strong>Rare words</strong> — shared uncommon vocabulary, the strongest sign of a real echo.</li>
+                <li><strong>Meaning (AI)</strong> — MiqraBERT, a Biblical-Hebrew model fine-tuned in-house, which recognizes the same idea phrased in different words.</li>
+              </ul>
+
+              <div className="mt-4 bg-blue-50 p-4 rounded-lg">
+                <h4 className="font-medium text-blue-800 mb-1">Hebrew → Greek and Hebrew → Latin</h4>
+                <p className="text-blue-800 text-sm">
+                  On the Cross-Language tab you can search the Hebrew Bible against the Greek Septuagint or the Latin
+                  Vulgate, to see how a Hebrew passage was rendered or echoed in translation. Hebrew-to-Greek uses the
+                  CATSS Masoretic-Septuagint alignment; Hebrew-to-Latin bridges that through Greek to the Vulgate.
+                </p>
+              </div>
+
+              <div className="mt-4 bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-medium text-gray-800 mb-1">Where words recur, by book</h4>
+                <p className="text-gray-700 text-sm">
+                  From any result you can search the whole Hebrew Bible for the words a parallel shares. Because the
+                  biblical books carry no fixed dates, the distribution chart groups the hits <strong>by book</strong>
+                  instead of on a timeline.
+                </p>
+              </div>
+
+              <div className="mt-4 bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-medium text-gray-800 mb-1">Sources and licenses</h4>
+                <p className="text-gray-700 text-sm">
+                  The Hebrew text is from Sefaria (Miqra according to the Masorah / Aleppo Codex, CC-BY-SA); the
+                  morphology is from ETCBC/BHSA (CC-BY-NC); the meaning model is MiqraBERT (D. M. Smiley), fine-tuned
+                  on OpenBible.info cross-references; and the Hebrew-Greek dictionary comes from the CATSS alignment
+                  (E. Tov). Full source and license details are on the About page.
                 </p>
               </div>
             </div>
