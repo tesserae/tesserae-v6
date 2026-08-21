@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import SourcesIntro from '../about/SourcesIntro';
 
 export default function AboutPage({ onNavigate }) {
   const [versionInfo, setVersionInfo] = useState({ version: '6.0', last_updated: null });
@@ -357,6 +358,11 @@ export default function AboutPage({ onNavigate }) {
             (currently {versionInfo.version}) and your access date, since the
             corpus and tools are updated regularly.
           </p>
+        </section>
+
+        <section className="bg-amber-50 border border-amber-200 rounded-lg p-5">
+          <h3 className="text-lg font-semibold text-amber-900 mb-3">Text Sources</h3>
+          <SourcesIntro />
         </section>
 
         {versionInfo.last_updated && (
