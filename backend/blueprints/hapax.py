@@ -146,6 +146,21 @@ def _extract_bigram_locations(units, make_bigram_key_fn, language):
     return bigram_locations
 
 
+def _dedup_locations_by_ref(locations):
+    """Collapse repeated refs in a locations list, preserving order. A bigram that
+    occurs twice in one verse yields two entries with the same ref, which reads as
+    a duplicate in the displayed locations. Keep the first entry per ref."""
+    seen = set()
+    out = []
+    for loc in locations:
+        ref = loc.get('ref', '')
+        if ref in seen:
+            continue
+        seen.add(ref)
+        out.append(loc)
+    return out
+
+
 def extract_reference_numbers(ref_str):
     """
     Extract numeric parts from CTS reference (e.g., "verg. aen. 1.5" -> (1, 5)).
@@ -2347,8 +2362,8 @@ def _compute_rare_bigrams(source_id, target_id, language, min_rarity, limit, sto
                 'rarity_percent': round(rarity * 100, 1),
                 'source_occurrences': len(source_bigram_locations[bg_key]),
                 'target_occurrences': len(target_bigram_locations[bg_key]),
-                'source_locations': source_bigram_locations[bg_key][:5],
-                'target_locations': target_bigram_locations[bg_key][:5],
+                'source_locations': _dedup_locations_by_ref(source_bigram_locations[bg_key])[:5],
+                'target_locations': _dedup_locations_by_ref(target_bigram_locations[bg_key])[:5],
                 '_first_source_ref': first_source_ref
             })
 
