@@ -273,9 +273,19 @@ class TextProcessor:
             return text[-1] in '.;?!'
     
     def _tokenize_and_lemmatize(self, text, language):
-        """Helper: tokenize and lemmatize text for any language."""
+        """Helper: tokenize and lemmatize text for any language.
+
+        Returns (original_tokens, tokens, lemmas, pos_tags, variant_lemmas).
+        variant_lemmas is a per-position list of extra lemmas (used by Hebrew for
+        the ketiv lemma at a qere/ketiv position); it is empty lists for
+        languages or handlers that do not produce it.
+        """
         if language in _LANGUAGE_HANDLERS:
-            return _LANGUAGE_HANDLERS[language].tokenize_and_lemmatize(text)
+            result = _LANGUAGE_HANDLERS[language].tokenize_and_lemmatize(text)
+            if len(result) >= 5:
+                return result[0], result[1], result[2], result[3], result[4]
+            original_tokens, tokens, lemmas, pos_tags = result
+            return original_tokens, tokens, lemmas, pos_tags, [[] for _ in tokens]
         elif language == 'grc':
             original_tokens, tokens = self.tokenize_greek(text, preserve_case=True)
             lemmas = self._greek_lemmatize(tokens)
@@ -286,7 +296,7 @@ class TextProcessor:
             original_tokens, tokens = self.tokenize_latin(text, preserve_case=True)
             lemmas = self._latin_lemmatize(tokens)
         pos_tags = self._get_pos_tags(tokens, language)
-        return original_tokens, tokens, lemmas, pos_tags
+        return original_tokens, tokens, lemmas, pos_tags, [[] for _ in tokens]
 
     def _coptic_subword_unit_or_none(self, tess_basename, ref, text):
         """Build a unit dict for a Coptic line from the SCRIPTORIUM sub-word
@@ -352,7 +362,7 @@ class TextProcessor:
                         combined_ref = buf_refs[0]
                     else:
                         combined_ref = f"{buf_refs[0]}-{buf_refs[-1]}"
-                    original_tokens, tokens, lemmas, pos_tags = self._tokenize_and_lemmatize(combined_text, language)
+                    original_tokens, tokens, lemmas, pos_tags, variant_lemmas = self._tokenize_and_lemmatize(combined_text, language)
                     units.append({
                         'ref': combined_ref,
                         'text': combined_text,
@@ -360,6 +370,7 @@ class TextProcessor:
                         'original_tokens': original_tokens,
                         'lemmas': lemmas,
                         'pos_tags': pos_tags,
+                        'variant_lemmas': variant_lemmas,
                         'line_refs': list(buf_refs),
                     })
                     buf_refs = []
@@ -372,7 +383,7 @@ class TextProcessor:
                     combined_ref = buf_refs[0]
                 else:
                     combined_ref = f"{buf_refs[0]}-{buf_refs[-1]}"
-                original_tokens, tokens, lemmas, pos_tags = self._tokenize_and_lemmatize(combined_text, language)
+                original_tokens, tokens, lemmas, pos_tags, variant_lemmas = self._tokenize_and_lemmatize(combined_text, language)
                 units.append({
                     'ref': combined_ref,
                     'text': combined_text,
@@ -380,6 +391,7 @@ class TextProcessor:
                     'original_tokens': original_tokens,
                     'lemmas': lemmas,
                     'pos_tags': pos_tags,
+                    'variant_lemmas': variant_lemmas,
                     'line_refs': list(buf_refs),
                 })
 
@@ -411,14 +423,15 @@ class TextProcessor:
                     if cached_unit is not None:
                         units.append(cached_unit)
                     else:
-                        original_tokens, tokens, lemmas, pos_tags = self._tokenize_and_lemmatize(text, language)
+                        original_tokens, tokens, lemmas, pos_tags, variant_lemmas = self._tokenize_and_lemmatize(text, language)
                         units.append({
                             'ref': ref,
                             'text': text,
                             'tokens': tokens,
                             'original_tokens': original_tokens,
                             'lemmas': lemmas,
-                            'pos_tags': pos_tags
+                            'pos_tags': pos_tags,
+                            'variant_lemmas': variant_lemmas
                         })
 
         return units
@@ -427,14 +440,15 @@ class TextProcessor:
         """Process a single line of text and return a unit dict with tokens, lemmas, pos_tags.
         Used for line-search feature where user provides arbitrary text."""
         if language in _LANGUAGE_HANDLERS:
-            original_tokens, tokens, lemmas, pos_tags = _LANGUAGE_HANDLERS[language].tokenize_and_lemmatize(text)
+            original_tokens, tokens, lemmas, pos_tags, variant_lemmas = self._tokenize_and_lemmatize(text, language)
             return {
                 'ref': '',
                 'text': text,
                 'tokens': tokens,
                 'original_tokens': original_tokens,
                 'lemmas': lemmas,
-                'pos_tags': pos_tags
+                'pos_tags': pos_tags,
+                'variant_lemmas': variant_lemmas
             }
         elif language == 'grc':
             original_tokens, tokens = self.tokenize_greek(text, preserve_case=True)

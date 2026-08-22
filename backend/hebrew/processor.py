@@ -89,47 +89,75 @@ def normalize_hebrew(text):
     return text
 
 
+# Hebrew Unicode block: U+0590-U+05FF (Hebrew), U+FB1D-U+FB4F (presentation forms).
+_HE_WORD_RE = re.compile(r'[\u0590-\u05FF\uFB1D-\uFB4F]+')
+# Qere/ketiv pair, both print orders: "[qere] (ketiv)" or "(ketiv) [qere]". The
+# qere (read form) is bracketed and pointed; the ketiv (written consonants) is
+# parenthesized. Groups 1/2 = qere/ketiv (first order), groups 3/4 = ketiv/qere.
+_QERE_KETIV_RE = re.compile(
+    r'\[([^\[\]]+)\]\s*\(([^()]+)\)|\(([^()]+)\)\s*\[([^\[\]]+)\]')
+
+
+def _he_words(segment):
+    """Maqaf-split a segment and return its Hebrew-letter word runs. Maqaf
+    (U+05BE) sits in the Hebrew block, so it must be split or maqaf-joined words
+    fuse into one token (~7% of biblical tokens)."""
+    return _HE_WORD_RE.findall(segment.replace('\u05BE', ' '))
+
+
+def tokenize_hebrew_with_variants(text):
+    """Tokenize Hebrew, keeping the qere reading and recording the ketiv as a
+    positional variant.
+
+    Returns (original_tokens, normalized_tokens, variant_forms), all equal
+    length. variant_forms[i] is a list of extra normalized surface forms at
+    position i: empty for ordinary tokens, and the ketiv word(s) at a qere/ketiv
+    pair's first qere position. The caller lemmatizes these so the ketiv lemma is
+    indexed at the same position as the qere. The qere reading is kept in the
+    token stream so the pair counts once and phrase adjacency runs through it;
+    display is unaffected (it comes from the raw line text).
+    """
+    text = re.sub(r'<[^>]+>', '', text)
+    text = re.sub(r'\{[^}]*\}', ' ', text)
+
+    original, variants = [], []
+    last = 0
+    for m in _QERE_KETIV_RE.finditer(text):
+        for w in _he_words(text[last:m.start()]):
+            original.append(w)
+            variants.append([])
+        if m.group(1) is not None:          # [qere] (ketiv)
+            qere, ketiv = m.group(1), m.group(2)
+        else:                                # (ketiv) [qere]
+            ketiv, qere = m.group(3), m.group(4)
+        ketiv_words = _he_words(ketiv)
+        for j, w in enumerate(_he_words(qere)):
+            original.append(w)
+            variants.append(ketiv_words if j == 0 else [])
+        last = m.end()
+    for w in _he_words(text[last:]):
+        original.append(w)
+        variants.append([])
+
+    kept_o, kept_n, kept_v = [], [], []
+    for o, v in zip(original, variants):
+        n = normalize_hebrew(o)
+        if n.strip():
+            kept_o.append(o)
+            kept_n.append(n)
+            kept_v.append([vn for vn in (normalize_hebrew(x) for x in v) if vn.strip()])
+    return kept_o, kept_n, kept_v
+
+
 def tokenize_hebrew(text, preserve_case=False):
     """Tokenize Hebrew text into words.
 
-    Returns (original_tokens, normalized_tokens) matching the pattern
-    used by other language handlers.
+    Returns (original_tokens, normalized_tokens) matching the pattern used by
+    other language handlers. Qere/ketiv handling and the variant channel live in
+    tokenize_hebrew_with_variants; this wrapper drops the variant channel.
     """
-    # Remove .tess reference tags if present
-    text = re.sub(r'<[^>]+>', '', text)
-    # Remove Masoretic paragraph markers {פ}/{ס} (petuchah/setumah) that some
-    # digitizations (e.g. Sefaria) include inline; otherwise they tokenize as
-    # spurious single-letter words.
-    text = re.sub(r'\{[^}]*\}', ' ', text)
-    # Qere/ketiv: the Masoretic text prints each pair with the read form (qere)
-    # in brackets and the written consonants (ketiv) in parentheses, in EITHER
-    # order: "[qere] (ketiv)" or "(ketiv) [qere]". Keep the qere reading in the
-    # token stream and drop the ketiv, so the pair contributes its words once (no
-    # double count from qere + ketiv) and phrase adjacency runs through the qere
-    # reading. Both surface forms stay matchable in exact search, which linearizes
-    # the qere and ketiv readings of the line separately. Display is unaffected
-    # (it comes from the raw line text). Note: the qere may be maqaf-joined
-    # multi-word, so this keeps the qere reading rather than forcing one position.
-    text = re.sub(r'\[([^\[\]]+)\]\s*\(([^()]+)\)', r'\1', text)  # [qere] (ketiv) -> qere
-    text = re.sub(r'\(([^()]+)\)\s*\[([^\[\]]+)\]', r'\2', text)  # (ketiv) [qere] -> qere
-    # Split on maqaf (U+05BE, the Hebrew hyphen). It lives inside the Hebrew Unicode
-    # block, so without this the token regex fuses maqaf-joined words (e.g. \u05D0\u05EA\u05BE\u05DB\u05DC,
-    # \u05D1\u05E0\u05D9\u05BE\u05D9\u05E9\u05E8\u05D0\u05DC) into one token \u2014 ~7% of biblical tokens \u2014 breaking lexical matching.
-    text = text.replace('\u05BE', ' ').strip()
-    if not text:
-        return [], []
-
-    # Hebrew Unicode block: U+0590-U+05FF (Hebrew), U+FB1D-U+FB4F (Hebrew presentation forms)
-    tokens = re.findall(r'[\u0590-\u05FF\uFB1D-\uFB4F]+', text)
-
-    original_tokens = list(tokens)
-    normalized = [normalize_hebrew(t) for t in tokens]
-    # Filter out empty tokens (can happen after stripping all diacritics from a pure-nikkud token)
-    pairs = [(o, n) for o, n in zip(original_tokens, normalized) if n.strip()]
-    if pairs:
-        original_tokens, normalized = zip(*pairs)
-        return list(original_tokens), list(normalized)
-    return [], []
+    original_tokens, normalized, _ = tokenize_hebrew_with_variants(text)
+    return original_tokens, normalized
 
 
 # Hebrew proclitic letters (conjunction waw, article he, and the inseparable
@@ -253,11 +281,17 @@ class HebrewLanguageHandler:
     """
 
     def tokenize_and_lemmatize(self, text):
-        """Full pipeline: tokenize, lemmatize, POS tag."""
-        original_tokens, tokens = tokenize_hebrew(text)
+        """Full pipeline: tokenize, lemmatize, POS tag, plus a qere/ketiv
+        variant-lemma channel. Returns a 5-tuple; the 5th element,
+        variant_lemmas, is a list parallel to tokens where entry i holds any
+        extra lemmas at position i (the ketiv lemma at a qere/ketiv pair's qere
+        position, empty elsewhere), so the index builder can post the ketiv
+        lemma on the same verse position as the qere."""
+        original_tokens, tokens, variant_forms = tokenize_hebrew_with_variants(text)
         lemmas = lemmatize_hebrew(tokens)
+        variant_lemmas = [lemmatize_hebrew(vf) if vf else [] for vf in variant_forms]
         pos_tags = get_pos_tags(tokens)
-        return original_tokens, tokens, lemmas, pos_tags
+        return original_tokens, tokens, lemmas, pos_tags, variant_lemmas
 
     def tokenize(self, text, preserve_case=False):
         return tokenize_hebrew(text, preserve_case)

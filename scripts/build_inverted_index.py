@@ -22,6 +22,31 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from backend.text_processor import TextProcessor
+try:
+    from backend.arabic import register as register_arabic
+    register_arabic()
+except ImportError:
+    pass
+try:
+    from backend.persian import register as register_persian
+    register_persian()
+except ImportError:
+    pass
+try:
+    from backend.hebrew import register as register_hebrew
+    register_hebrew()
+except ImportError:
+    pass
+try:
+    from backend.coptic import register as register_coptic
+    register_coptic()
+except ImportError:
+    pass
+try:
+    from backend.urdu import register as register_urdu
+    register_urdu()
+except ImportError:
+    pass
 
 TEXTS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts')
 INDEX_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'inverted_index')
@@ -141,36 +166,6 @@ def get_text_files(language):
     if not os.path.exists(lang_dir):
         return []
     return [f for f in os.listdir(lang_dir) if f.endswith('.tess')]
-
-def build_lemma_doc_freq(conn, verbose=True):
-    """(Re)build the lemma_doc_freq table: lemma -> number of distinct base
-    works containing it.
-
-    Part files (e.g. homer.iliad.part.1.tess) collapse to their base work
-    (homer.iliad.tess) so a word in one partitioned work counts once, matching
-    the runtime _base_filename_expr in backend/blueprints/hapax.py. Read by
-    get_document_frequencies_batch(); safe to regenerate at any time.
-    """
-    base = ("CASE WHEN instr(t.filename,'.part.')>0 "
-            "THEN substr(t.filename,1,instr(t.filename,'.part.')-1)||'.tess' "
-            "ELSE t.filename END")
-    cur = conn.cursor()
-    if verbose:
-        print("  Building lemma_doc_freq (per-lemma document frequency)...", flush=True)
-    t0 = time.time()
-    cur.execute('DROP TABLE IF EXISTS lemma_doc_freq')
-    cur.execute('CREATE TABLE lemma_doc_freq (lemma TEXT PRIMARY KEY, df INTEGER)')
-    cur.execute(
-        f'INSERT INTO lemma_doc_freq (lemma, df) '  # nosec B608
-        f'SELECT p.lemma, COUNT(DISTINCT {base}) '
-        f'FROM postings p JOIN texts t ON p.text_id = t.text_id '
-        f'GROUP BY p.lemma'
-    )
-    conn.commit()
-    if verbose:
-        n = cur.execute('SELECT COUNT(*) FROM lemma_doc_freq').fetchone()[0]
-        print(f"  lemma_doc_freq: {n} lemmas in {time.time()-t0:.1f}s", flush=True)
-
 
 def build_index(language, text_processor, verbose=True, resume=True, force=False,
                 use_syntax_db=False, fast_mode=False):
@@ -378,7 +373,20 @@ def build_index(language, text_processor, verbose=True, resume=True, force=False
                 if lemma not in lemma_positions:
                     lemma_positions[lemma] = []
                 lemma_positions[lemma].append(pos)
-            
+
+            # Variant lemmas (Hebrew qere/ketiv): post the ketiv lemma at the SAME
+            # position as the qere, so a lemma search for a ketiv-only word (e.g.
+            # לא, where the qere is לו) finds the verse. This adds no token
+            # position, so word and bigram counts still treat the pair as one.
+            for pos, variants in enumerate(unit.get('variant_lemmas') or []):
+                for vlem in variants:
+                    if not vlem:
+                        continue
+                    if vlem not in lemma_positions:
+                        lemma_positions[vlem] = []
+                    if pos not in lemma_positions[vlem]:
+                        lemma_positions[vlem].append(pos)
+
             for lemma, positions in lemma_positions.items():
                 cursor.execute(
                     'INSERT INTO postings (lemma, text_id, ref, positions) VALUES (?, ?, ?, ?)',
@@ -400,28 +408,10 @@ def build_index(language, text_processor, verbose=True, resume=True, force=False
             print(f"  [{i+1}/{remaining}] {filename} — {file_lines} lines, {file_postings} postings ({file_elapsed:.1f}s) | Total: {total_lines} lines, {total_elapsed:.0f}s elapsed", flush=True)
     
     conn.commit()
-
-    # Precompute per-lemma document frequency so rare-word / rarity lookups
-    # (backend/blueprints/hapax.py get_document_frequencies_batch) become an
-    # indexed seek instead of a COUNT(DISTINCT) scan over the whole postings
-    # table. df collapses part files to their base work, matching the runtime
-    # _base_filename_expr.
-    build_lemma_doc_freq(conn, verbose=verbose)
-
-    # Stamp the corpus version (build date) so counts drawn from this index can be
-    # cited against a named corpus state. Bump this on any later dedup/lemma change.
-    from datetime import date
-    version = date.today().isoformat()
-    conn.execute("CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT)")
-    conn.execute("INSERT INTO meta (key, value) VALUES ('corpus_version', ?) "
-                 "ON CONFLICT(key) DO UPDATE SET value=excluded.value", (version,))
-    conn.commit()
-    if verbose:
-        print(f"  corpus_version stamped: {version}", flush=True)
-
+    
     cursor.execute('SELECT COUNT(DISTINCT lemma) FROM postings')
     unique_lemmas = cursor.fetchone()[0]
-
+    
     conn.close()
     
     file_size = os.path.getsize(db_path) / (1024 * 1024)
@@ -443,7 +433,7 @@ def build_index(language, text_processor, verbose=True, resume=True, force=False
 
 def main():
     parser = argparse.ArgumentParser(description='Build inverted index for Tesserae corpus')
-    parser.add_argument('--language', '-l', choices=['la', 'grc', 'en', 'all'], default='all',
+    parser.add_argument('--language', '-l', choices=['la', 'grc', 'en', 'ar', 'fa', 'he', 'cop', 'ur', 'all'], default='all',
                         help='Language to index (default: all)')
     parser.add_argument('--quiet', '-q', action='store_true', help='Suppress output')
     parser.add_argument('--force', '-f', action='store_true',
