@@ -360,8 +360,8 @@ function App() {
         defaultSourceId = 'homer.iliad.part.1.tess';
         defaultTargetId = 'apollonius_rhodius.argonautica.part.1.tess';
       } else if (activeTab === 'en') {
-        defaultSourceId = 'shakespeare.hamlet.tess';
-        defaultTargetId = 'cowper.task.tess';
+        defaultSourceId = 'milton.paradise_lost.part.1.tess';
+        defaultTargetId = 'milton.paradise_regained.part.1.tess';
       } else if (activeTab === 'cop') {
         defaultSourceId = 'sahidic.bible.tess';
         defaultTargetId = 'shenoute.abraham.tess';
