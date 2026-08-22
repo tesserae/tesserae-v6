@@ -8,6 +8,9 @@ const SOURCE_LINKS = {
   'Open Greek and Latin Project': 'https://opengreekandlatin.org/',
   'Musisque Deoque': 'http://www.mqdq.it/',
   'Corpus Scriptorum Latinorum': 'https://web.archive.org/web/20220305141011/http://www.forumromanum.org/literature/index.html',
+  'The Greek New Testament: SBL Edition': 'https://sblgnt.com',
+  'Society of Biblical Literature': 'http://sbl-site.org',
+  'Logos Bible Software': 'http://logos.com',
   'Coptic Scriptorium': 'https://copticscriptorium.org/',
   'Sefaria': 'https://www.sefaria.org/',
   'Miqra according to the Masorah': 'https://he.wikisource.org/wiki/%D7%9E%D7%A9%D7%AA%D7%9E%D7%A9:Dovi/%D7%9E%D7%A7%D7%A8%D7%90_%D7%A2%D7%9C_%D7%A4%D7%99_%D7%94%D7%9E%D7%A1%D7%95%D7%A8%D7%94',
@@ -36,6 +39,12 @@ export default function SourcesIntro() {
       <IntroLink name="Open Greek and Latin Project" url={SOURCE_LINKS['Open Greek and Latin Project']} />,{' '}
       <IntroLink name="Musisque Deoque" url={SOURCE_LINKS['Musisque Deoque']} />, and{' '}
       <IntroLink name="Corpus Scriptorum Latinorum" url={SOURCE_LINKS['Corpus Scriptorum Latinorum']} />.
+      {' '}The Greek New Testament is{' '}
+      <IntroLink name="The Greek New Testament: SBL Edition" url={SOURCE_LINKS['The Greek New Testament: SBL Edition']} />{' '}
+      (SBLGNT), edited by Michael W. Holmes, ©2010{' '}
+      <IntroLink name="Society of Biblical Literature" url={SOURCE_LINKS['Society of Biblical Literature']} /> and{' '}
+      <IntroLink name="Logos Bible Software" url={SOURCE_LINKS['Logos Bible Software']} />, used by permission
+      under the SBLGNT End User License Agreement.
       {' '}Coptic texts (Sahidic and Bohairic) come from{' '}
       <IntroLink name="Coptic Scriptorium" url={SOURCE_LINKS['Coptic Scriptorium']} /> (CC-BY 4.0; the
       Sahidica New Testament is additionally subject to its own academic-use license, ©2000–2006
