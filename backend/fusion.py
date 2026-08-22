@@ -558,6 +558,38 @@ def get_channels_for_language(language):
             if ch not in CHANNEL_LANGUAGE_SUPPORT
             or language in CHANNEL_LANGUAGE_SUPPORT[ch]]
 
+
+# Channels expensive enough (quadratic per-line-pair comparison over N*M lines)
+# that running them at weight 0 is pure wasted work: fusion multiplies their
+# matches by the channel weight, so a zero weight means they contribute nothing
+# to the score. The English default profile zeroes sound + edit_distance; on a
+# large English pair (e.g. full Paradise Lost x a Bible book, ~16M line pairs)
+# those two channels are the slowest and would run for minutes only to be
+# discarded. Skip a heavy channel whenever its EFFECTIVE weight is 0. A user who
+# weights it up in the Advanced UI raises the effective weight above 0, which
+# re-enables it. Only the two heavy sub-lexical channels are eligible, so
+# zero-weight-by-default channels that are cheap and feed convergence
+# (e.g. quotation for Latin) keep running exactly as before.
+_SKIP_IF_ZERO_WEIGHT = frozenset({"sound", "edit_distance"})
+
+
+def _drop_zero_weight_heavy(channels, effective_weights, language):
+    """Drop heavy channels whose effective weight is 0 (they contribute nothing).
+
+    effective_weights may be None (no user overrides), in which case the
+    language-default profile is consulted. Returns a new list preserving order.
+    """
+    weights = effective_weights if effective_weights is not None \
+        else get_weight_profile(language=language)
+    kept = []
+    for ch in channels:
+        if ch in _SKIP_IF_ZERO_WEIGHT and not weights.get(ch, 0):
+            logger.info("[FUSION] Skipping channel '%s': effective weight is 0 "
+                        "(contributes nothing to the fused score)", ch)
+            continue
+        kept.append(ch)
+    return kept
+
 # Channel configurations (match the evaluation study)
 CHANNEL_CONFIGS = {
     "lemma": {
@@ -3000,6 +3032,9 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
                 "for language '%s'; falling back to full channel set",
                 enabled_set, language)
     line_channels = [ch for ch in available_channels if ch in configs]
+    # Skip heavy channels weighted 0 by the effective profile — they would run
+    # for minutes on a large pair and contribute nothing to the fused score.
+    line_channels = _drop_zero_weight_heavy(line_channels, effective_weights, language)
     total_line = len(line_channels)
 
     for i, ch_name in enumerate(line_channels):
@@ -3266,6 +3301,9 @@ def run_fusion_search(source_units, target_units, matcher, scorer,
     # --- Pass 1: Line-level (language-appropriate channels) ---
     available_channels = get_channels_for_language(language)
     line_channels = [ch for ch in available_channels if ch in configs]
+    # run_fusion_search always uses the language-default weight profile, so drop
+    # heavy channels the profile zeroes (English: sound + edit_distance).
+    line_channels = _drop_zero_weight_heavy(line_channels, None, language)
 
     line_channel_results = _run_channels_sequential(
         line_channels, configs, source_units, target_units,
