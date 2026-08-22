@@ -841,6 +841,23 @@ def _longest_translated_run(word_matches):
 
 def _handle_crosslingual_fusion(params, source_units, target_units, settings,
                                 cancellation=None):
+    """HTTP wrapper around :func:`_crosslingual_fusion_core`.
+
+    Pulls the request-scoped user/location metadata (only available inside a
+    Flask request) and hands it to the core, then jsonifies the plain dict the
+    core returns. The core itself is request-free so the poll-able GET endpoint
+    can run it in a background thread.
+    """
+    req_user_id = current_user.id if current_user and current_user.is_authenticated else None
+    req_city, req_country, req_ip = get_user_location()
+    core = _crosslingual_fusion_core(
+        params, source_units, target_units, settings, cancellation,
+        req_meta=(req_user_id, req_city, req_country, req_ip))
+    return jsonify(core)
+
+
+def _crosslingual_fusion_core(params, source_units, target_units, settings,
+                              cancellation=None, req_meta=None):
     """Multi-channel cross-lingual fusion: semantic + dictionary + syntax + phonetic.
 
     Supports Greek-Latin, Latin-English, and Greek-English pairs.
@@ -848,6 +865,12 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings,
     then runs token-level edit distance to catch phonetic echoes (e.g. μῆνιν/mene).
     Runs all applicable channels, merges by (source_idx, target_idx), and
     applies a convergence bonus when multiple channels fire on the same pair.
+
+    Request-free: returns a plain dict (never a Flask response), so it can run
+    both inside an HTTP request (via :func:`_handle_crosslingual_fusion`) and in
+    a background poll thread (via the crosslingual-search-poll endpoint).
+    ``req_meta`` is an optional (user_id, city, country, ip) tuple for search
+    logging; it defaults to all-None when no request context is available.
     """
     import math
     from backend.semantic_similarity import find_crosslingual_matches
@@ -883,8 +906,8 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings,
 
     lang_pair = frozenset((source_language, target_language))
     if lang_pair not in VALID_CROSSLINGUAL_PAIRS:
-        return jsonify({"error": f"Unsupported cross-lingual pair: {source_language} -> {target_language}. "
-                        f"Supported: grc-la, la-en, grc-en"})
+        return {"error": f"Unsupported cross-lingual pair: {source_language} -> {target_language}. "
+                f"Supported: grc-la, la-en, grc-en"}
 
     is_greek_latin = lang_pair == frozenset(('grc', 'la'))
     has_english = 'en' in lang_pair
@@ -1332,11 +1355,11 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings,
           f"{len(syntax_by_pair)} syntax, {len(phonetic_by_pair)} phonetic, "
           f"{len(set(sem_by_pair) & set(dict_by_pair))} sem+dict overlap)")
 
-    req_user_id = current_user.id if current_user and current_user.is_authenticated else None
-    req_city, req_country, req_ip = get_user_location()
+    req_user_id, req_city, req_country, req_ip = req_meta or (None, None, None, None)
 
-    return jsonify(_finalize_results(fused, source_units, target_units,
-                                      0, settings, source_id, target_id, language, req_user_id, req_city, req_country, req_ip))
+    return _finalize_results(fused, source_units, target_units,
+                             0, settings, source_id, target_id, language,
+                             req_user_id, req_city, req_country, req_ip)
 
 
 def _get_semantic_highlight_matches(src_lemmas, tgt_lemmas, source_language, target_language):
@@ -1881,3 +1904,86 @@ def wildcard_search_poll():
                 'showing': len(res), 'results': res}
 
     return poll('wildcard', key, compute, transform)
+
+
+@search_bp.route('/crosslingual-search-poll', methods=['GET'])
+def crosslingual_search_poll():
+    """Poll-able GET cross-lingual fusion for URL-only assistants.
+
+    GET /api/crosslingual-search-poll?source=<id>&target=<id>
+        &source_language=grc&target_language=la[&min_matches=2&offset=0&limit=30]
+
+    A cross-lingual fusion run (semantic + dictionary + syntax + phonetic
+    channels over every source x target line pair) can take minutes on a large
+    pair — longer than the ~60s a remote MCP client waits. This mirrors
+    /api/fusion-search: the first GET starts the run in a background thread and
+    returns {status:"running"}; poll the same URL every ~25s until
+    {status:"complete", parallels:[...]}. The full ranked list is cached, so
+    offset/limit page through it without recomputing (and a matching POST
+    /api/search hits the same results cache instantly).
+    """
+    from backend.blueprints.async_poll import poll, make_job_key, SearchInputError
+    data = request.args
+    source = data.get('source')
+    target = data.get('target')
+    source_language = data.get('source_language', 'grc')
+    target_language = data.get('target_language', 'la')
+    if not source or not target:
+        return jsonify({'status': 'error',
+                        'error': 'Provide source and target text ids (see /api/texts).'}), 200
+    try:
+        min_matches = int(data.get('min_matches', 2))
+    except (TypeError, ValueError):
+        min_matches = 2
+
+    # Full ranked list cached once per (pair, languages, min_matches); pagination
+    # slices this cached list per request, so offset/limit are NOT part of the key.
+    RANKED_CAP = 2000
+    key = make_job_key('xlingual', source, target,
+                       source_language, target_language, min_matches, RANKED_CAP)
+
+    def compute():
+        req = {'source': source, 'target': target,
+               'source_language': source_language, 'target_language': target_language,
+               'match_type': 'crosslingual_fusion', 'min_matches': min_matches,
+               'max_results': RANKED_CAP}
+        params = _parse_search_request(req)
+        settings = params['settings']
+        su, tu = _load_units(params)
+        core = _crosslingual_fusion_core(params, su, tu, settings, None)
+        if isinstance(core, dict) and core.get('error'):
+            raise SearchInputError(core['error'])
+        results = core.get('results', []) if isinstance(core, dict) else []
+        return {
+            'source': source, 'target': target,
+            'source_language': source_language, 'target_language': target_language,
+            'total': len(results),
+            'source_lines': core.get('source_lines', len(su)),
+            'target_lines': core.get('target_lines', len(tu)),
+            'results': results,
+        }
+
+    try:
+        offset = max(0, int(data.get('offset', 0)))
+    except (TypeError, ValueError):
+        offset = 0
+    try:
+        limit = int(data.get('limit', 30))
+    except (TypeError, ValueError):
+        limit = 30
+    limit = max(1, min(limit, 200))
+
+    def transform(d):
+        allres = d.get('results', [])
+        page = allres[offset:offset + limit]
+        return {
+            'source': d.get('source'), 'target': d.get('target'),
+            'source_language': d.get('source_language'),
+            'target_language': d.get('target_language'),
+            'count': len(allres), 'total': d.get('total', len(allres)),
+            'source_lines': d.get('source_lines'), 'target_lines': d.get('target_lines'),
+            'offset': offset, 'limit': limit, 'showing': len(page),
+            'parallels': page,
+        }
+
+    return poll('xlingual', key, compute, transform)
