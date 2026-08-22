@@ -636,6 +636,9 @@ DEFAULT_ENGLISH_STOP_WORDS_LIST = [
     'when', 'make', 'can', 'like', 'no', 'just', 'him', 'know', 'take', 'into',
     'your', 'some', 'could', 'them', 'see', 'other', 'than', 'then', 'now', 'its',
     'is', 'am', 'are', 'was', 'were', 'been', 'being', 'has', 'had', 'having',
+    # Possessive and object pronouns (function words; keep demos off "our", "us", etc.)
+    'our', 'ours', 'us', 'mine', 'yours', 'hers', 'theirs', 'whom', 'whose',
+    'these', 'those',
     # Early Modern / Archaic English (Shakespeare, Milton, etc.)
     'thou', 'thee', 'thy', 'thine', 'thyself', 'ye', 'art', 'doth', 'dost',
     'hath', 'hast', 'shalt', 'wilt', 'canst', 'wouldst', 'shouldst', 'couldst',

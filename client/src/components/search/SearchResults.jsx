@@ -681,6 +681,16 @@ const SearchResults = ({
       const normalized = word.toLowerCase().replace(/[.,;:!?'"()\u2014\u2013-]+$/, '').replace(/^[.,;:!?'"()\u2014\u2013-]+/, '');
       if (wordsToHighlight.has(normalized)) return true;
 
+      // Hyphenated compounds and elided forms: "Arch-fiend" -> arch / fiend,
+      // "reply'd" -> reply. Highlight if any interior sub-part matches a
+      // highlight word. Common in English (Milton) and safe elsewhere.
+      if (normalized.includes('-') || normalized.includes("'") || normalized.includes('\u2019')) {
+        const parts = normalized.split(/[-'\u2019]/).filter(p => p.length >= 2);
+        for (const part of parts) {
+          if (wordsToHighlight.has(part)) return true;
+        }
+      }
+
       // For sound matching: check if word contains any of the matched n-grams
       if (soundNgrams.size > 0) {
         for (const ngram of soundNgrams) {
