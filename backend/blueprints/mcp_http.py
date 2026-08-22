@@ -42,6 +42,14 @@ def _compare_url(source, target, language):
     return (f"{WEB_BASE}/?source={quote(str(source))}&target={quote(str(target))}"
             f"&lang={quote(language or 'la')}")
 
+def _crosslingual_url(source, target, source_language, target_language):
+    if not (source and target):
+        return None
+    # Opens the Cross-Language tab (lang=cross) with the two texts pre-filled.
+    return (f"{WEB_BASE}/?lang=cross&source={quote(str(source))}&target={quote(str(target))}"
+            f"&source_lang={quote(source_language or 'grc')}"
+            f"&target_lang={quote(target_language or 'la')}")
+
 # Keep this minimal and spec-exact for the negotiated protocolVersion. Adding
 # non-standard Implementation fields (title/websiteUrl/icons from a later draft)
 # caused Claude's connector to reject the initialize response ("Tesserae returned
@@ -474,26 +482,82 @@ def _t_compare_texts(a):
     return out
 
 
+def _xlang_params(a):
+    """Build the GET query for /crosslingual-search-poll from tool args."""
+    p = {'source': a.get('source'), 'target': a.get('target'),
+         'source_language': a.get('source_language', 'grc'),
+         'target_language': a.get('target_language', 'la')}
+    try:
+        mm = int(a.get('min_matches')) if a.get('min_matches') is not None else None
+        if mm is not None:
+            p['min_matches'] = mm
+    except (TypeError, ValueError):
+        pass
+    try:
+        off = int(a.get('offset') or 0)
+        if off > 0:
+            p['offset'] = off
+    except (TypeError, ValueError):
+        pass
+    try:
+        lim = int(a.get('limit') or 0)
+    except (TypeError, ValueError):
+        lim = 0
+    # Small default page (keeps the response under the MCP client's token window);
+    # page deeper via limit/offset over the cached full ranked list.
+    p['limit'] = lim if lim > 0 else 25
+    return p
+
+
+def _xlang_poll(params, budget):
+    """Start (or resume) a server-side cross-lingual run and block-poll the GET
+    crosslingual endpoint for at most `budget` seconds, then return
+    status=running so the (time-limited) MCP client can call again to pick up the
+    cached result. Mirrors _fusion_poll."""
+    poll_interval = 8
+    deadline = time.time() + max(0, budget)
+    running_note = ('Still computing server-side (a first cross-language run can take a few '
+                    'minutes) and the result will be cached. Call the same tool again with the '
+                    'same arguments in ~30-60 seconds to retrieve it.')
+    while True:
+        d = _get('/crosslingual-search-poll', params)
+        status = d.get('status')
+        if status == 'complete':
+            out = {'status': 'complete', 'count': d.get('count'),
+                   'total': d.get('total'), 'showing': d.get('showing'),
+                   'offset': d.get('offset', 0), 'limit': d.get('limit'),
+                   'parallels': d.get('parallels')}
+            return out
+        if status == 'error':
+            return {'status': 'error', 'error': d.get('error')}
+        if time.time() + poll_interval >= deadline:
+            return {'status': 'running', 'note': running_note}
+        time.sleep(poll_interval)
+
+
+_XLANG_NOTE = (
+    "Present these cross-language parallels as one interest-ranked list. Each parallel links a "
+    "source line in one language to a target line in another; quote BOTH full lines with their loci "
+    "and say which kind of similarity connects them (meaning/semantic, shared dictionary sense, "
+    "grammar/syntax, or sound), since a cross-language match usually shares no surface word. Label "
+    "the ordering as YOURS, not Tesserae's. Returns ~25 by default; page deeper with offset/limit. "
+    "Direction is symmetric, but put the earlier/model text as source. web_url opens the same "
+    "comparison in the Cross-Language view of the Tesserae web app."
+)
+
+
 def _t_cross_language(a):
-    """Cross-language fusion — a source in one language vs a target in another
-    (e.g. a Greek model behind a Latin poem). Synchronous POST /search; may take
-    a few minutes on first run for a large pair."""
-    body = {'source': a.get('source'), 'target': a.get('target'),
-            'source_language': a.get('source_language', 'grc'),
-            'target_language': a.get('target_language', 'la'),
-            'match_type': 'crosslingual_fusion', 'min_matches': a.get('min_matches', 2)}
-    r = requests.post(f"{API_BASE}/search", json=body, timeout=_FUSION_POLL_TIMEOUT)
-    r.raise_for_status()
-    d = r.json()
-    results = (d.get('results') or [])[:30]
-    return {'count': len(results),
-            'parallels': [{'score': round(x.get('overall_score', 0), 2),
-                           'source': {'ref': (x.get('source') or {}).get('ref'),
-                                      'text': (x.get('source') or {}).get('text')},
-                           'target': {'ref': (x.get('target') or {}).get('ref'),
-                                      'text': (x.get('target') or {}).get('text')},
-                           'matched': x.get('matched_words')}
-                          for x in results]}
+    """Cross-language parallels — a source in one language vs a target in another
+    (e.g. a Greek model behind a Latin poem). Async running-and-cache: a first
+    run on a large pair returns status 'running'; call again with the same
+    arguments to retrieve the cached result. Page with offset/limit."""
+    res = _xlang_poll(_xlang_params(a), _FUSION_MCP_BUDGET)
+    if isinstance(res, dict):
+        res.setdefault('web_url', _crosslingual_url(
+            a.get('source'), a.get('target'),
+            a.get('source_language', 'grc'), a.get('target_language', 'la')))
+        res.setdefault('note', _XLANG_NOTE)
+    return res
 
 
 def _t_submit_feature_request(a):
@@ -572,11 +636,21 @@ TOOLS = [
                      "required": ["source", "target", "language"]},
      "fn": _t_fusion_search},
     {"name": "cross_language",
-     "description": "Cross-language parallels between two texts in DIFFERENT languages (e.g. a Greek source behind a Latin poem). Give source/target ids (from list_texts) and their languages. Synchronous; may take a few minutes on a large pair.",
+     "description": ("Cross-language parallels between two texts in DIFFERENT languages (e.g. a Greek "
+                     "source behind a Latin poem, or a Hebrew source behind a Greek Septuagint). Give "
+                     "source/target ids (from list_texts) and their languages (supported pairs: grc-la, "
+                     "la-en, grc-en, and where installed he-grc/he-la, cop-grc). A first run on a large "
+                     "pair takes a few minutes and returns status 'running' (cached after); call again "
+                     "with the same arguments to retrieve it. Returns ~25 parallels by default; pass "
+                     "limit (up to 200) and offset (25, 50, ...) to page deeper into the ranking. Each "
+                     "parallel usually shares no surface word, so present the kind of similarity "
+                     "(meaning, dictionary sense, grammar, sound), not just shared tokens. web_url opens "
+                     "the same comparison in the web app's Cross-Language view."),
      "inputSchema": {"type": "object",
                      "properties": {"source": _STR, "target": _STR,
                                     "source_language": _STR, "target_language": _STR,
-                                    "min_matches": {"type": "integer"}},
+                                    "min_matches": {"type": "integer"},
+                                    "offset": {"type": "integer"}, "limit": {"type": "integer"}},
                      "required": ["source", "target", "source_language", "target_language"]},
      "fn": _t_cross_language},
     {"name": "submit_feature_request",
