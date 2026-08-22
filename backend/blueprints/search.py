@@ -31,7 +31,7 @@ from flask_login import current_user
 import os
 import json
 import time
-from backend.utils import resolve_text_path
+from backend.utils import resolve_text_path, format_short_locus
 
 from backend.logging_config import get_logger
 from backend.services import get_user_location, log_search
@@ -364,14 +364,14 @@ def _handle_dictionary_cross(params, source_units, target_units, settings,
 
         scored_results.append({
             'source': {
-                'ref': src_unit.get('ref', ''),
+                'ref': format_short_locus(src_unit.get('ref', '')),
                 'text': src_unit.get('text', ''),
                 'tokens': src_original,
                 'highlight_indices': [idx for wm in m.get('word_matches', [])
                                       for idx in wm.get('greek_indices', [])]
             },
             'target': {
-                'ref': tgt_unit.get('ref', ''),
+                'ref': format_short_locus(tgt_unit.get('ref', '')),
                 'text': tgt_unit.get('text', ''),
                 'tokens': tgt_original,
                 'highlight_indices': [idx for wm in m.get('word_matches', [])
@@ -1070,7 +1070,14 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings,
     SEMANTIC_WEIGHT = 1.2
     DICTIONARY_WEIGHT = 2.0
     SYNTAX_WEIGHT = 0.5
-    PHONETIC_WEIGHT = 1.5  # conservative; phonetic echoes across languages are high-precision
+    # Phonetic is a convergence booster only: phonetic-only pairs never enter the
+    # fusion (all_keys is built from semantic/dict/syntax keys), so this weight only
+    # ever nudges pairs that already have another channel. At the old 1.5 a phonetic
+    # similarity of ~0.8-0.95 added ~1.2-1.4, rivaling DICTIONARY_WEIGHT (2.0) and
+    # letting trivial echoes (ἅλα≈mari) outrank genuine dictionary calques. Dropped
+    # to 0.5 (the syntax-booster tier) so phonetic breaks ties toward cross-script
+    # echoes without dominating the dictionary/semantic signal.
+    PHONETIC_WEIGHT = 0.5
     # Translated-run boost: a run of consecutive words whose translations appear in
     # order in the target is a near-certain alignment and is length-robust (see
     # _longest_translated_run). Additive: it only ever boosts a pair, so it cannot
@@ -1294,13 +1301,13 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings,
 
         fused.append({
             'source': {
-                'ref': src_unit.get('ref', ''),
+                'ref': format_short_locus(src_unit.get('ref', '')),
                 'text': src_unit.get('text', ''),
                 'tokens': src_original,
                 'highlight_indices': sorted(set(source_highlights))
             },
             'target': {
-                'ref': tgt_unit.get('ref', ''),
+                'ref': format_short_locus(tgt_unit.get('ref', '')),
                 'text': tgt_unit.get('text', ''),
                 'tokens': tgt_original,
                 'highlight_indices': sorted(set(target_highlights))

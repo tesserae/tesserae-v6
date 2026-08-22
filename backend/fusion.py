@@ -64,6 +64,7 @@ import os
 import re
 import sqlite3
 import time
+import unicodedata
 from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor
 
@@ -94,6 +95,53 @@ _STOPLISTS = {
 # and sound-channel trigrams ('[xyz]'). A real lemma contains none of these
 # characters. Used to derive a clean matched-lemma list for corpus-search.
 _MATCHED_LEMMA_MARKUP_RE = re.compile(r'[\[\]()~≈%:\s]')
+
+
+def _display_matched_words(mw_dict, language):
+    """Filter matched_words for display.
+
+    Two kinds of debris leak into the raw matched_words map, most visibly for
+    Greek fusion results:
+      1. Scorer-internal markup keys — bracketed sound/edit-distance trigram
+         fragments ('[ύς]', '[ηγε]'), quotation markers ('[QUOT:x]'), fuzzy
+         markers ('a≈b', 'a~b (66%)'). These are matched by _MATCHED_LEMMA_MARKUP_RE.
+      2. The same word carried in two Greek encodings — the accented display form
+         ('ζεύς') and the accent-stripped, final-sigma-normalized index form
+         ('ζευσ') — which show as duplicate rows.
+
+    Drops (1) and collapses (2) to the single most readable (most accented) entry,
+    preferring an entry that carries a source_word. Non-Greek languages only get
+    the markup drop and a case-fold de-dup.
+    """
+    is_greek = (language == 'grc')
+
+    def _norm(lemma):
+        if is_greek:
+            return ''.join(c for c in unicodedata.normalize('NFD', lemma.lower())
+                           if not unicodedata.combining(c)).replace('ς', 'σ')
+        return lemma.lower()
+
+    def _accents(lemma):
+        return sum(1 for c in unicodedata.normalize('NFD', lemma)
+                   if unicodedata.combining(c))
+
+    chosen = {}  # norm -> (lemma, mw)
+    for lemma, mw in mw_dict.items():
+        if not lemma or _MATCHED_LEMMA_MARKUP_RE.search(lemma):
+            continue
+        norm = _norm(lemma)
+        prev = chosen.get(norm)
+        if prev is None:
+            chosen[norm] = (lemma, mw)
+            continue
+        prev_lemma, prev_mw = prev
+        better = (
+            (bool(mw.get('source_word')) and not prev_mw.get('source_word'))
+            or _accents(lemma) > _accents(prev_lemma)
+        )
+        if better:
+            chosen[norm] = (lemma, mw)
+    return [mw for _, mw in chosen.values()]
 
 
 def _clean_matched_lemmas(lemma_keys, stoplist):
@@ -2524,7 +2572,8 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
             result["target"]["highlight_indices"] = sorted(
                 info["all_target_highlights"]
             )
-        result["matched_words"] = list(info["all_matched_words"].values())
+        result["matched_words"] = _display_matched_words(
+            info["all_matched_words"], language)
         result["matched_lemmas"] = _clean_matched_lemmas(
             info["all_matched_words"], _STOPLISTS.get(language, set()))
         result["fused_score"] = round(info["score"], 4)

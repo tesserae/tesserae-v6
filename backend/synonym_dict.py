@@ -838,7 +838,24 @@ def get_greek_english_dict():
                 norm = _normalize_greek(greek_key).replace('ς', 'σ')
                 _GREEK_ENGLISH_DICT.setdefault(norm, set()).update(english_set)
             logger.info(f"  + {len(raw_add)} curated Greek-English additions")
+        # Blocklist: drop specific wrong Perseus glosses that produce noisy
+        # cross-language hits. The Perseus lexicon file is not in git, so these
+        # corrections travel here (normalized Greek key -> english gloss to drop).
+        # κράτος = "power/strength", never "storm"; λέγω = "say", never "mean".
+        for norm_key, bad_gloss in _GREEK_ENGLISH_BLOCKLIST:
+            if norm_key in _GREEK_ENGLISH_DICT:
+                _GREEK_ENGLISH_DICT[norm_key].discard(bad_gloss)
+                if not _GREEK_ENGLISH_DICT[norm_key]:
+                    del _GREEK_ENGLISH_DICT[norm_key]
     return _GREEK_ENGLISH_DICT
+
+
+# Wrong Perseus Greek->English glosses to drop at load time. Keys are the
+# accent-stripped, sigma-normalized Greek form; glosses are lowercased.
+_GREEK_ENGLISH_BLOCKLIST = [
+    ('κρατοσ', 'storm'),   # κράτος = power/strength, not storm (that is χειμών)
+    ('λεγω', 'mean'),      # λέγω = say/speak, not "mean"
+]
 
 
 def find_latin_english_matches(latin_lemmas: list, english_lemmas: list,

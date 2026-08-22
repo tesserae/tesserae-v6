@@ -59,10 +59,20 @@ def exact_phrase_pattern(query):
     (\\b/\\w cover Greek and Coptic). Returns a compiled case-insensitive pattern,
     or None for an empty query.
     """
-    words = (query or '').split()
+    query = unicodedata.normalize('NFC', query or '')
+    words = query.split()
     if not words:
         return None
     return re.compile(r'\s+'.join(r'\b' + re.escape(w) for w in words), re.IGNORECASE)
+
+
+def exact_search_text(text):
+    """NFC-normalize a text line before matching it against an exact_phrase_pattern.
+
+    Keeps the query side and the corpus side in the same Unicode form so Greek
+    phrases match regardless of NFC/NFD or oxia/tonos encoding in the source text.
+    """
+    return unicodedata.normalize('NFC', text or '')
 
 
 OVERRIDES_PATH = os.path.join(os.path.dirname(__file__), 'text_metadata_overrides.json')
@@ -272,8 +282,47 @@ def clean_cts_reference(ref):
                 break
         if numeric_parts:
             return '.'.join(numeric_parts)
-    
+
     return ref
+
+
+def format_short_locus(raw_ref):
+    """Canonical short-locus formatter shared across languages.
+
+    Turns the raw content of a .tess ``<...>`` reference tag into the bare locus
+    that the rest of the site shows (author/work come from metadata elsewhere).
+    Handles the formats that otherwise leak edition/text-id debris:
+
+      - CTS-URN LXX refs:  "septuaginta.tlg001 urn:cts:greekLit:tlg0527.tlg001
+        .1st1K-grc1.35.23"  ->  "35.23"
+      - Hebrew full-text-id refs:  "hebrew_bible.isaiah.34.11"  ->  "34.11"
+      - Already-bare loci ("1.560", "hom. il. 1.1")  ->  unchanged locus token.
+
+    Never raises; returns '' for an empty ref.
+    """
+    if not raw_ref:
+        return ''
+    ref = str(raw_ref).strip()
+    tail = ref.split()[-1] if ref.split() else ref
+
+    # CTS URN anywhere in the tail: reuse the URN-aware cleaner.
+    if 'urn:cts:' in tail:
+        return clean_cts_reference(tail)
+
+    # Dotted id with a trailing numeric locus and a non-numeric prefix (a text id
+    # or author/work): keep only the trailing numeric run ("hebrew_bible.isaiah
+    # .34.11" -> "34.11"). If every segment is numeric it is already a bare locus.
+    segs = tail.split('.')
+    numeric = []
+    for s in reversed(segs):
+        if s and re.match(r'^\d+[a-z]?$', s):
+            numeric.insert(0, s)
+        else:
+            break
+    if numeric and len(numeric) < len(segs):
+        return '.'.join(numeric)
+
+    return tail
 
 # --- Unified text type classification (5-tier cascade) ---
 #

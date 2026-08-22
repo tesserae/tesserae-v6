@@ -65,7 +65,8 @@ from backend.matcher import Matcher
 from backend.scorer import Scorer
 from backend.utils import (
     get_text_metadata, build_text_hierarchy, clean_cts_reference, resolve_text_path,
-    apply_text_list_filters, exact_phrase_pattern, strip_hebrew_pointing
+    apply_text_list_filters, exact_phrase_pattern, strip_hebrew_pointing,
+    exact_search_text, format_short_locus
 )
 from backend.cache import (
     get_cached_results, save_cached_results, 
@@ -1851,10 +1852,9 @@ def line_search():
                         else:
                             continue  # Skip if no text available
                         
-                        # Extract locus (last part of ref, clean CTS URNs)
-                        locus_parts = ref.split() if ref else []
-                        locus = locus_parts[-1] if locus_parts else ref
-                        locus = clean_cts_reference(locus)
+                        # Canonical short locus: strips CTS URNs and text-id
+                        # prefixes (Hebrew "hebrew_bible.isaiah.34.11" -> "34.11").
+                        locus = format_short_locus(ref)
                         
                         # Find matched words in text using pre-indexed lemmas
                         matched_words = []
@@ -1953,9 +1953,7 @@ def line_search():
                                 end_tag = line.index('>')
                                 full_locus = line[1:end_tag].strip()
                                 text = line[end_tag+1:].strip()
-                                locus_parts = full_locus.split()
-                                locus = locus_parts[-1] if locus_parts else full_locus
-                                locus = clean_cts_reference(locus)
+                                locus = format_short_locus(full_locus)
                             except ValueError:
                                 continue
                             
@@ -1974,8 +1972,11 @@ def line_search():
                             if search_type == 'exact':
                                 # Whole-word-start match (see _exact_phrase_pattern):
                                 # excludes substring hits like "quot" inside "aliquot".
-                                # Hebrew matches on the pointing-stripped layer.
-                                match_text = strip_hebrew_pointing(text) if he_exact else text
+                                # Hebrew matches on the pointing-stripped layer; other
+                                # languages are NFC-normalized so a precomposed Greek query
+                                # matches text stored decomposed (Homer Il. 1.1 μῆνιν ἄειδε
+                                # is NFD in the corpus). Both normalize the query side too.
+                                match_text = strip_hebrew_pointing(text) if he_exact else exact_search_text(text)
                                 if exact_pattern and exact_pattern.search(match_text):
                                     match_found = True
                             elif search_type == 'regex':
