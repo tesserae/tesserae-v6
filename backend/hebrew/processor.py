@@ -101,6 +101,17 @@ def tokenize_hebrew(text, preserve_case=False):
     # digitizations (e.g. Sefaria) include inline; otherwise they tokenize as
     # spurious single-letter words.
     text = re.sub(r'\{[^}]*\}', ' ', text)
+    # Qere/ketiv: the Masoretic text prints each pair with the read form (qere)
+    # in brackets and the written consonants (ketiv) in parentheses, in EITHER
+    # order: "[qere] (ketiv)" or "(ketiv) [qere]". Keep the qere reading in the
+    # token stream and drop the ketiv, so the pair contributes its words once (no
+    # double count from qere + ketiv) and phrase adjacency runs through the qere
+    # reading. Both surface forms stay matchable in exact search, which linearizes
+    # the qere and ketiv readings of the line separately. Display is unaffected
+    # (it comes from the raw line text). Note: the qere may be maqaf-joined
+    # multi-word, so this keeps the qere reading rather than forcing one position.
+    text = re.sub(r'\[([^\[\]]+)\]\s*\(([^()]+)\)', r'\1', text)  # [qere] (ketiv) -> qere
+    text = re.sub(r'\(([^()]+)\)\s*\[([^\[\]]+)\]', r'\2', text)  # (ketiv) [qere] -> qere
     # Split on maqaf (U+05BE, the Hebrew hyphen). It lives inside the Hebrew Unicode
     # block, so without this the token regex fuses maqaf-joined words (e.g. \u05D0\u05EA\u05BE\u05DB\u05DC,
     # \u05D1\u05E0\u05D9\u05BE\u05D9\u05E9\u05E8\u05D0\u05DC) into one token \u2014 ~7% of biblical tokens \u2014 breaking lexical matching.

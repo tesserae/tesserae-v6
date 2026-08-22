@@ -1977,7 +1977,20 @@ def line_search():
                                 # matches text stored decomposed (Homer Il. 1.1 μῆνιν ἄειδε
                                 # is NFD in the corpus). Both normalize the query side too.
                                 match_text = strip_hebrew_pointing(text) if he_exact else exact_search_text(text)
-                                if exact_pattern and exact_pattern.search(match_text):
+                                if he_exact and ('[' in match_text or '(' in match_text):
+                                    # Qere/ketiv, printed "[qere] (ketiv)" or
+                                    # "(ketiv) [qere]": a phrase may run through
+                                    # EITHER reading. Linearize both readings of the
+                                    # line and match if either contains the phrase,
+                                    # so exact search for the qere or the ketiv form
+                                    # both find the verse.
+                                    qere_line = re.sub(r'\[([^\[\]]+)\]\s*\(([^()]+)\)', r'\1', match_text)
+                                    qere_line = re.sub(r'\(([^()]+)\)\s*\[([^\[\]]+)\]', r'\2', qere_line)
+                                    ketiv_line = re.sub(r'\[([^\[\]]+)\]\s*\(([^()]+)\)', r'\2', match_text)
+                                    ketiv_line = re.sub(r'\(([^()]+)\)\s*\[([^\[\]]+)\]', r'\1', ketiv_line)
+                                    if exact_pattern and (exact_pattern.search(qere_line) or exact_pattern.search(ketiv_line)):
+                                        match_found = True
+                                elif exact_pattern and exact_pattern.search(match_text):
                                     match_found = True
                             elif search_type == 'regex':
                                 try:
