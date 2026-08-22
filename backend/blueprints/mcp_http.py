@@ -94,8 +94,14 @@ def _t_list_texts(a):
         blob = ' '.join(str(t.get(k, '')) for k in ('author', 'work', 'title', 'display_name', 'id')).lower()
         if needle and needle not in blob:
             continue
-        out.append({'id': t.get('id'), 'author': t.get('author'),
-                    'work': t.get('work'), 'title': t.get('title') or t.get('display_name')})
+        entry = {'id': t.get('id'), 'author': t.get('author'),
+                 'work': t.get('work'), 'title': t.get('title') or t.get('display_name')}
+        # Coptic dialect (sahidic / bohairic), when the listing carries it: a
+        # Sahidic-vs-Bohairic pair shares no vocabulary, so the dialect explains
+        # an empty rare-pairs result.
+        if t.get('dialect'):
+            entry['dialect'] = t.get('dialect')
+        out.append(entry)
         if len(out) >= limit:
             break
     return out

@@ -73,6 +73,19 @@ def get_corpus_version(language):
                 v = row[0]
         except Exception:
             v = None
+    # Fallback: some indexes (notably the he/cop plugin builds) predate the
+    # meta-table stamping in scripts/build_inverted_index.py, so they carry no
+    # corpus_version row. Rather than return null (which left he/cop responses
+    # unstamped while la/grc/en were dated), derive a date stamp from the index
+    # DB file's modification time, which tracks when the corpus was last built.
+    if v is None:
+        try:
+            db_path = os.path.join(INDEX_DIR, f'{language}_index.db')
+            if os.path.exists(db_path):
+                from datetime import date
+                v = date.fromtimestamp(os.path.getmtime(db_path)).isoformat()
+        except Exception:
+            v = None
     _corpus_version[language] = v
     return v
 

@@ -10,6 +10,44 @@ import unicodedata
 logger = logging.getLogger(__name__)
 
 
+def strip_hebrew_pointing(text):
+    """Strip Hebrew niqqud (vowel points) and cantillation marks (te'amim) so an
+    unpointed query can be matched against pointed corpus text.
+
+    Keeps the consonantal skeleton, drops maqaf (Hebrew hyphen -> space). NFC
+    normalized. This mirrors the diacritic stripping in the Hebrew processor but
+    is kept here, free of the optional Hebrew plugin, so the exact-match layer
+    can normalize both sides even when the plugin is not loaded.
+    """
+    if not text:
+        return text
+    text = unicodedata.normalize('NFC', text)
+    # niqqud + cantillation: U+0591-U+05BD, U+05BF-U+05C7
+    text = re.sub('[֑-ֽֿ-ׇ]', '', text)
+    # maqaf (U+05BE) -> space so hyphen-joined words compare as separate words
+    text = text.replace('־', ' ')
+    return text
+
+
+def infer_coptic_dialect(filename, author=None):
+    """Infer the Coptic dialect (sahidic / bohairic) for a text.
+
+    The corpus labels dialect two ways: an override display_author of "Bohairic
+    Coptic" / "Sahidic Coptic" (authoritative for the biblical translations), and
+    a filename prefix (bohairic.*, sahidic.*/sahidica.*). Shenoute and Besa, and
+    the wider literary corpus (saints' lives, martyrdoms, apophthegmata, pseudo-
+    homilies) are Sahidic. Bohairic texts are always explicitly prefixed, so the
+    safe default for a Coptic text with no Bohairic signal is Sahidic.
+
+    Returns 'sahidic', 'bohairic', or None (not a recognizable Coptic id).
+    """
+    name = (filename or '').lower()
+    auth = (author or '').lower()
+    if 'bohairic' in auth or name.startswith('bohairic.') or name.startswith('bohairic_'):
+        return 'bohairic'
+    return 'sahidic'
+
+
 def exact_phrase_pattern(query):
     """Compile the regex for an *exact* line-search phrase.
 

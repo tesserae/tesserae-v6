@@ -634,8 +634,11 @@ def wildcard_search(
                 author_key = filename.split('.')[0].lower()
                 author_info = lang_dates.get(author_key, {})
                 era = author_info.get('era', 'Unknown')
-                year = author_info.get('year', 9999)
-                
+                # None (not the 9999 sentinel) for an unknown year, so it does not
+                # leak into output and plot as year 9999 on a timeline. The sort
+                # below coalesces None -> 9999 for ordering only.
+                year = author_info.get('year')
+
                 for result in file_results:
                     result['text_id'] = filename
                     result['author'] = title_info['author']
