@@ -2355,7 +2355,7 @@ def _compute_rare_bigrams(source_id, target_id, language, min_rarity, limit, sto
     results.sort(key=lambda x: -x['rarity'])
     results = results[:limit]
 
-    return {
+    out = {
         'source': source_id,
         'target': target_id,
         'language': language,
@@ -2366,6 +2366,27 @@ def _compute_rare_bigrams(source_id, target_id, language, min_rarity, limit, sto
         'shared_rare_count': len(results),
         'results': results
     }
+
+    # Coptic: an empty result across two different dialects is expected, not a
+    # miss. Sahidic and Bohairic are separate written dialects that share almost
+    # no surface vocabulary, so name that when it happens instead of leaving the
+    # user to read the zero as an error.
+    if language == 'cop' and not results:
+        from backend.utils import infer_coptic_dialect
+        src_dialect = infer_coptic_dialect(source_id)
+        tgt_dialect = infer_coptic_dialect(target_id)
+        if src_dialect and tgt_dialect and src_dialect != tgt_dialect:
+            out['dialect_note'] = (
+                f'No shared rare pairs is expected here: the source is '
+                f'{src_dialect.capitalize()} Coptic and the target is '
+                f'{tgt_dialect.capitalize()} Coptic. The two dialects share almost '
+                f'no surface vocabulary, so a cross-dialect comparison returns few '
+                f'or no lexical matches.'
+            )
+            out['source_dialect'] = src_dialect
+            out['target_dialect'] = tgt_dialect
+
+    return out
 
 
 @hapax_bp.route('/rare-bigram-search', methods=['GET', 'POST'])

@@ -18,6 +18,7 @@ from backend.utils import (
     load_provenance,
     resolve_text_path,
     apply_text_list_filters,
+    infer_coptic_dialect,
 )
 from backend.frequency_cache import get_corpus_frequencies, recalculate_language_frequencies
 
@@ -82,8 +83,12 @@ def get_texts():
             metadata = get_text_metadata(os.path.join(lang_dir, filename))
             metadata['language'] = language
             enrich_metadata_with_author_dates(metadata, author_dates)
+            # Coptic: expose the dialect (sahidic / bohairic) so a cross-dialect
+            # comparison (which shares no vocabulary) is legible in the listing.
+            if language == 'cop':
+                metadata['dialect'] = infer_coptic_dialect(filename, metadata.get('author'))
             texts.append(metadata)
-    
+
     texts.sort(key=lambda x: (x['author'], x['title']))
 
     # Optional server-side author filter / pagination / compaction (absent params

@@ -995,6 +995,11 @@
       "note": "fl. c. 890 CE",
       "era": "Carolingian"
     },
+    "saxo_grammaticus": {
+      "year": 1208,
+      "note": "Gesta Danorum, c. 1208 CE",
+      "era": "Medieval"
+    },
     "agius_of_corvey": {
       "year": 876,
       "note": "fl. c. 876 CE",
@@ -2225,6 +2230,13 @@
       "year": 900,
       "note": "Bohairic Bible (standardized dialect), 8th c.+",
       "era": "Bohairic Medieval"
+    }
+  },
+  "he": {
+    "hebrew_bible": {
+      "year": null,
+      "note": "Hebrew Bible (Tanakh); composition dates span the Iron Age to the Second Temple period and are contested, so the year is left unset.",
+      "era": "Biblical"
     }
   }
 }

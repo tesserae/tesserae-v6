@@ -65,7 +65,7 @@ from backend.matcher import Matcher
 from backend.scorer import Scorer
 from backend.utils import (
     get_text_metadata, build_text_hierarchy, clean_cts_reference, resolve_text_path,
-    apply_text_list_filters, exact_phrase_pattern
+    apply_text_list_filters, exact_phrase_pattern, strip_hebrew_pointing
 )
 from backend.cache import (
     get_cached_results, save_cached_results, 
@@ -1811,8 +1811,10 @@ def line_search():
                     author_key = filename.split('.')[0].lower()
                     author_info = lang_dates.get(author_key, {})
                     era = author_info.get('era', 'Unknown')
-                    year = author_info.get('year', 9999)
-                    
+                    # None (not the 9999 sentinel) for an unknown year, so it does
+                    # not leak into output and plot as year 9999 on a timeline.
+                    year = author_info.get('year')
+
                     # Get line data from index
                     refs_needed = [ref for ref, _, _ in matches]
                     lines_data = {}
@@ -1915,7 +1917,14 @@ def line_search():
             else:
                 # SLOW PATH: Fallback to file scanning (for exact/regex search)
                 # Compile the exact-phrase pattern once (whole-word-start matching).
-                exact_pattern = exact_phrase_pattern(query) if search_type == 'exact' else None
+                # Hebrew: users type unpointed queries, but the corpus text is
+                # pointed (niqqud + cantillation). Strip pointing from the query
+                # here and from each line before the regex runs, so an unpointed
+                # exact search matches the pointed text (pointed text is kept for
+                # display). See strip_hebrew_pointing.
+                he_exact = (search_type == 'exact' and language == 'he')
+                exact_query = strip_hebrew_pointing(query) if he_exact else query
+                exact_pattern = exact_phrase_pattern(exact_query) if search_type == 'exact' else None
                 text_files = [f for f in os.listdir(lang_dir) if f.endswith('.tess')]
                 
                 for filename in text_files:
@@ -1930,8 +1939,10 @@ def line_search():
                     author_key = filename.split('.')[0].lower()
                     author_info = lang_dates.get(author_key, {})
                     era = author_info.get('era', 'Unknown')
-                    year = author_info.get('year', 9999)
-                    
+                    # None (not the 9999 sentinel) for an unknown year, so it does
+                    # not leak into output and plot as year 9999 on a timeline.
+                    year = author_info.get('year')
+
                     with open(filepath, 'r', encoding='utf-8') as f:
                         for line in f:
                             line = line.strip()
@@ -1963,7 +1974,9 @@ def line_search():
                             if search_type == 'exact':
                                 # Whole-word-start match (see _exact_phrase_pattern):
                                 # excludes substring hits like "quot" inside "aliquot".
-                                if exact_pattern and exact_pattern.search(text):
+                                # Hebrew matches on the pointing-stripped layer.
+                                match_text = strip_hebrew_pointing(text) if he_exact else text
+                                if exact_pattern and exact_pattern.search(match_text):
                                     match_found = True
                             elif search_type == 'regex':
                                 try:
@@ -2050,6 +2063,7 @@ def line_search():
             
             # Sort results: first by era (chronological), then by year, then alphabetically by author
             era_order = {
+                'Biblical': -1,
                 'Archaic': 0, 'Early Greek': 1, 'Classical': 2, 'Hellenistic': 3,
                 'Republic': 4, 'Late Republican': 5, 'Late Republic': 5,
                 'Augustan': 6, 'Early Imperial': 7, 'Imperial': 8, 
