@@ -16174,5 +16174,189 @@
     "e_source_url": "https://sblgnt.com",
     "print_source": "The Greek New Testament: SBL Edition, ed. M. W. Holmes (Society of Biblical Literature and Logos Bible Software, 2010).",
     "added_by": "Neil Coffee"
+  },
+  {
+    "author": "Septuaginta",
+    "work": "Arithmoi",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "V6 Import"
+  },
+  {
+    "author": "Septuaginta",
+    "work": "Basileion A",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "V6 Import"
+  },
+  {
+    "author": "Septuaginta",
+    "work": "Basileion B",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "V6 Import"
+  },
+  {
+    "author": "Septuaginta",
+    "work": "Basileion D",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "V6 Import"
+  },
+  {
+    "author": "Septuaginta",
+    "work": "Basileion G",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "V6 Import"
+  },
+  {
+    "author": "Septuaginta",
+    "work": "Bel et Draco (Theodotion)",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "V6 Import"
+  },
+  {
+    "author": "Septuaginta",
+    "work": "Daniel (Theodotion)",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "V6 Import"
+  },
+  {
+    "author": "Septuaginta",
+    "work": "Deuteronomion",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "V6 Import"
+  },
+  {
+    "author": "Septuaginta",
+    "work": "Ecclesiasticus",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "V6 Import"
+  },
+  {
+    "author": "Septuaginta",
+    "work": "Esdras A",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "V6 Import"
+  },
+  {
+    "author": "Septuaginta",
+    "work": "Esdras B",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "V6 Import"
+  },
+  {
+    "author": "Septuaginta",
+    "work": "Exodus",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "V6 Import"
+  },
+  {
+    "author": "Septuaginta",
+    "work": "Genesis",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "V6 Import"
+  },
+  {
+    "author": "Septuaginta",
+    "work": "Josue",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "V6 Import"
+  },
+  {
+    "author": "Septuaginta",
+    "work": "Kritai",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "V6 Import"
+  },
+  {
+    "author": "Septuaginta",
+    "work": "Levitikon",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "V6 Import"
+  },
+  {
+    "author": "Septuaginta",
+    "work": "Machabaeorum B",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "V6 Import"
+  },
+  {
+    "author": "Septuaginta",
+    "work": "Machabaeorum D",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "V6 Import"
+  },
+  {
+    "author": "Septuaginta",
+    "work": "Machabaeorum G",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "V6 Import"
+  },
+  {
+    "author": "Septuaginta",
+    "work": "Paralipomenon B",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "V6 Import"
+  },
+  {
+    "author": "Septuaginta",
+    "work": "Psalmi Salomonis",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "V6 Import"
+  },
+  {
+    "author": "Septuaginta",
+    "work": "Ruth",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "V6 Import"
+  },
+  {
+    "author": "Septuaginta",
+    "work": "Susanna (Theodotion)",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "V6 Import"
   }
 ]
