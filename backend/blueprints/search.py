@@ -1965,6 +1965,9 @@ def crosslingual_search_poll():
             'source': source, 'target': target,
             'source_language': source_language, 'target_language': target_language,
             'total': len(results),
+            # The ranked list is capped at RANKED_CAP, so a total equal to the cap
+            # is a floor, not the true count. Flag it so it is not read as exact.
+            'capped': len(results) >= RANKED_CAP,
             'source_lines': core.get('source_lines', len(su)),
             'target_lines': core.get('target_lines', len(tu)),
             'results': results,
@@ -1988,6 +1991,7 @@ def crosslingual_search_poll():
             'source_language': d.get('source_language'),
             'target_language': d.get('target_language'),
             'count': len(allres), 'total': d.get('total', len(allres)),
+            'capped': d.get('capped', False),
             'source_lines': d.get('source_lines'), 'target_lines': d.get('target_lines'),
             'offset': offset, 'limit': limit, 'showing': len(page),
             'parallels': page,

@@ -2474,9 +2474,15 @@ def hapax_search_poll():
                 'source_locations': (r.get('source_locations') or [])[:5],
                 'target_locations': (r.get('target_locations') or [])[:5],
             })
-        return {'source': d.get('source'), 'target': d.get('target'),
+        resp = {'source': d.get('source'), 'target': d.get('target'),
                 'shared_rare_count': d.get('shared_rare_count'), 'showing': len(slim),
                 'results': slim}
+        # Carry the cross-dialect Coptic explanation through the slim MCP shape,
+        # so an empty Sahidic-vs-Bohairic result says why instead of a bare zero.
+        for k in ('dialect_note', 'source_dialect', 'target_dialect'):
+            if k in d:
+                resp[k] = d[k]
+        return resp
     return poll('hapax', key, compute, transform)
 
 

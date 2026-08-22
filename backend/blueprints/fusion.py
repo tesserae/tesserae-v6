@@ -417,12 +417,23 @@ def _default_fusion_cache_settings(language, max_results, use_meter=False):
     }
 
 
-def _slim_fusion_result(r):
+def _slim_fusion_result(r, language=None):
     s = r.get('source', {}) or {}
     t = r.get('target', {}) or {}
     channels = r.get('channels')
     score = round(r.get('fused_score', 0), 2)
-    matched = r.get('matched_lemmas') or r.get('matched_words')
+    mw = r.get('matched_words')
+    # Drop scorer-internal debris (bracketed sound/edit trigrams like "[ύς]",
+    # dual-encoding duplicate lemmas like ζεύς/ζευσ) from matched_words at serve
+    # time, so results cached before the display filter shipped are cleaned on
+    # the way out too, not only freshly computed ones.
+    if isinstance(mw, dict) and language:
+        try:
+            from backend.fusion import _display_matched_words
+            mw = _display_matched_words(mw, language)
+        except Exception:
+            pass
+    matched = r.get('matched_lemmas') or mw
     # Emit BOTH the short poll-route names (score/matched) and the SSE field
     # names (fused_score/matched_words/matched_lemmas/channel_count) so a client
     # written against the streaming POST /search-fusion shape works unchanged
@@ -435,7 +446,7 @@ def _slim_fusion_result(r):
         'source': {'ref': s.get('ref'), 'text': s.get('text')},
         'target': {'ref': t.get('ref'), 'text': t.get('text')},
         'matched': matched,
-        'matched_words': r.get('matched_words'),
+        'matched_words': mw,
         'matched_lemmas': r.get('matched_lemmas'),
     }
 
@@ -698,7 +709,7 @@ def fusion_search_get():
             'by_book': by_book,               # per-book distribution for both texts
             'offset': offset, 'limit': limit, 'showing': len(page),
             'filters': applied,
-            'parallels': [_slim_fusion_result(r) for r in page],
+            'parallels': [_slim_fusion_result(r, language) for r in page],
         })
 
     # Admin cancellation: return a terminal cancelled status.
