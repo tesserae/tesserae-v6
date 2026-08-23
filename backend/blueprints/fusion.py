@@ -417,6 +417,54 @@ def _default_fusion_cache_settings(language, max_results, use_meter=False):
     }
 
 
+def _clean_matched_words_list(entries, language):
+    """List-shaped matched_words cleaner (cached/SSE results).
+
+    Mirrors backend.fusion._display_matched_words for the serialized shape:
+    drops entries whose lemma/display carry scorer markup (bracketed trigram
+    fragments, fuzzy a≈b / a~b markers), and collapses dual-encoding duplicates
+    (accented ζεύς vs stripped ζευσ) to one entry, preferring the accented form
+    and an entry that carries a source_word.
+    """
+    import unicodedata
+    from backend.fusion import _MATCHED_LEMMA_MARKUP_RE
+    is_greek = (language == 'grc')
+
+    def _norm(lemma):
+        if is_greek:
+            return ''.join(c for c in unicodedata.normalize('NFD', lemma.lower())
+                           if not unicodedata.combining(c)).replace('ς', 'σ')
+        return lemma.lower()
+
+    def _accents(s):
+        return sum(1 for c in unicodedata.normalize('NFD', s)
+                   if unicodedata.combining(c))
+
+    chosen = {}
+    order = []
+    for e in entries:
+        if not isinstance(e, dict):
+            continue
+        lemma = str(e.get('lemma') or e.get('source_lemma') or '')
+        disp = str(e.get('display') or '')
+        probe = lemma or disp
+        if not probe or _MATCHED_LEMMA_MARKUP_RE.search(probe) \
+                or _MATCHED_LEMMA_MARKUP_RE.search(disp):
+            continue
+        norm = _norm(probe)
+        prev = chosen.get(norm)
+        if prev is None:
+            chosen[norm] = e
+            order.append(norm)
+        else:
+            prev_key = str(prev.get('lemma') or prev.get('source_lemma') or '')
+            better = (bool(e.get('source_word')), _accents(probe)) > \
+                     (bool(prev.get('source_word')), _accents(prev_key))
+            if better:
+                chosen[norm] = e
+    return [chosen[n] for n in order]
+
+
 def _slim_fusion_result(r, language=None):
     s = r.get('source', {}) or {}
     t = r.get('target', {}) or {}
@@ -426,11 +474,18 @@ def _slim_fusion_result(r, language=None):
     # Drop scorer-internal debris (bracketed sound/edit trigrams like "[ύς]",
     # dual-encoding duplicate lemmas like ζεύς/ζευσ) from matched_words at serve
     # time, so results cached before the display filter shipped are cleaned on
-    # the way out too, not only freshly computed ones.
-    if isinstance(mw, dict) and language:
+    # the way out too, not only freshly computed ones. Cached results store
+    # matched_words as a LIST of entry dicts, freshly filtered ones as a dict,
+    # so both shapes are handled here.
+    if language and isinstance(mw, dict):
         try:
             from backend.fusion import _display_matched_words
             mw = _display_matched_words(mw, language)
+        except Exception:
+            pass
+    elif language and isinstance(mw, list):
+        try:
+            mw = _clean_matched_words_list(mw, language)
         except Exception:
             pass
     matched = r.get('matched_lemmas') or mw

@@ -2542,9 +2542,16 @@ def rare_bigram_search_poll():
                 'source_locations': (r.get('source_locations') or [])[:5],
                 'target_locations': (r.get('target_locations') or [])[:5],
             })
-        return {'source': d.get('source'), 'target': d.get('target'),
+        resp = {'source': d.get('source'), 'target': d.get('target'),
                 'shared_rare_count': d.get('shared_rare_count'), 'showing': len(slim),
                 'results': slim}
+        # Cross-dialect Coptic explanation: the compute adds it, and this slim
+        # transform (the one rare_pairs actually serves through) must carry it,
+        # same as the rare-words transform above.
+        for k in ('dialect_note', 'source_dialect', 'target_dialect'):
+            if k in d:
+                resp[k] = d[k]
+        return resp
     return poll('rarebigram', key, compute, transform)
 
 

@@ -526,6 +526,9 @@ def _xlang_poll(params, budget):
             out = {'status': 'complete', 'count': d.get('count'),
                    'total': d.get('total'), 'showing': d.get('showing'),
                    'offset': d.get('offset', 0), 'limit': d.get('limit'),
+                   # capped: the ranked list is capped at 2000, so a total equal
+                   # to the cap is a floor, not the true count.
+                   'capped': d.get('capped', False),
                    'parallels': d.get('parallels')}
             return out
         if status == 'error':
