@@ -2545,12 +2545,28 @@ def rare_bigram_search_poll():
         resp = {'source': d.get('source'), 'target': d.get('target'),
                 'shared_rare_count': d.get('shared_rare_count'), 'showing': len(slim),
                 'results': slim}
-        # Cross-dialect Coptic explanation: the compute adds it, and this slim
-        # transform (the one rare_pairs actually serves through) must carry it,
-        # same as the rare-words transform above.
+        # Cross-dialect Coptic explanation. Derived HERE at serve time rather
+        # than passed through from the compute: the poll path serves from
+        # _compute_rare_bigrams (which never attached the note; only the direct
+        # HTTP view did), and cached results computed before the note existed
+        # would lack it anyway. Serve-time derivation covers both.
         for k in ('dialect_note', 'source_dialect', 'target_dialect'):
             if k in d:
                 resp[k] = d[k]
+        if language == 'cop' and not slim and 'dialect_note' not in resp:
+            from backend.utils import infer_coptic_dialect
+            src_dialect = infer_coptic_dialect(source_id)
+            tgt_dialect = infer_coptic_dialect(target_id)
+            if src_dialect and tgt_dialect and src_dialect != tgt_dialect:
+                resp['dialect_note'] = (
+                    f'No shared rare pairs is expected here: the source is '
+                    f'{src_dialect.capitalize()} Coptic and the target is '
+                    f'{tgt_dialect.capitalize()} Coptic. The two dialects share almost '
+                    f'no surface vocabulary, so a cross-dialect comparison returns few '
+                    f'or no lexical matches.'
+                )
+                resp['source_dialect'] = src_dialect
+                resp['target_dialect'] = tgt_dialect
         return resp
     return poll('rarebigram', key, compute, transform)
 

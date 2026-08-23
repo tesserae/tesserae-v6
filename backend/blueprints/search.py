@@ -1991,7 +1991,9 @@ def crosslingual_search_poll():
             'source_language': d.get('source_language'),
             'target_language': d.get('target_language'),
             'count': len(allres), 'total': d.get('total', len(allres)),
-            'capped': d.get('capped', False),
+            # Derived at serve time so results cached before the flag existed
+            # still report honestly: a full ranked list AT the cap is a floor.
+            'capped': bool(d.get('capped', False)) or len(allres) >= RANKED_CAP,
             'source_lines': d.get('source_lines'), 'target_lines': d.get('target_lines'),
             'offset': offset, 'limit': limit, 'showing': len(page),
             'parallels': page,
