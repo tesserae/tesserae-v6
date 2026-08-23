@@ -189,23 +189,35 @@ def _loc_ref(x):
 def _t_rare_pairs(a, timeout=None):
     d = _post('/rare-bigram-search', {'source': a.get('source'), 'target': a.get('target'),
                                       'language': a.get('language', 'la')}, timeout=timeout)
-    return {'shared_rare_count': d.get('shared_rare_count'),
-            'results': [{'bigram': f"{r.get('display1', r.get('word1'))} {r.get('display2', r.get('word2'))}",
-                         'rarity_percent': r.get('rarity_percent'),
-                         'source_locations': _locs(r.get('source_locations')),
-                         'target_locations': _locs(r.get('target_locations'))}
-                        for r in (d.get('results') or [])[:40]]}
+    out = {'shared_rare_count': d.get('shared_rare_count'),
+           'results': [{'bigram': f"{r.get('display1', r.get('word1'))} {r.get('display2', r.get('word2'))}",
+                        'rarity_percent': r.get('rarity_percent'),
+                        'source_locations': _locs(r.get('source_locations')),
+                        'target_locations': _locs(r.get('target_locations'))}
+                       for r in (d.get('results') or [])[:40]]}
+    # This projection builds a fresh object, so anything the backend attaches
+    # must be carried explicitly. The cross-dialect Coptic note explains an
+    # empty result; dropping it turns an expected zero into a mystery.
+    for k in ('dialect_note', 'source_dialect', 'target_dialect'):
+        if k in d:
+            out[k] = d[k]
+    return out
 
 
 def _t_rare_words(a, timeout=None):
     d = _post('/hapax-search', {'source': a.get('source'), 'target': a.get('target'),
                                 'language': a.get('language', 'la')}, timeout=timeout)
-    return {'shared_rare_count': d.get('shared_rare_count'),
+    out = {'shared_rare_count': d.get('shared_rare_count'),
             'results': [{'word': r.get('display_form') or r.get('lemma'),
                          'corpus_count': r.get('corpus_count'), 'proper_noun': r.get('is_proper_noun'),
                          'source_locations': _locs(r.get('source_locations')),
                          'target_locations': _locs(r.get('target_locations'))}
                         for r in (d.get('results') or [])[:40]]}
+    for k in ('dialect_note', 'source_dialect', 'target_dialect'):
+        if k in d:
+            out[k] = d[k]
+    return out
+
 
 
 def _fusion_poll(params, budget):
