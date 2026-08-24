@@ -20,6 +20,7 @@ from flask import Blueprint, jsonify, request
 from backend.logging_config import get_logger
 from backend import scene_index
 from backend import lexical_density
+from backend import translations
 
 logger = get_logger('blueprints.scene')
 
@@ -111,6 +112,24 @@ def lexical_density_route():
         return jsonify({'error': 'work is required', 'lines': []})
     language = (request.args.get('language') or 'la').strip()
     return jsonify(lexical_density.line_density(work, language=language))
+
+
+@scene_bp.route('/translation')
+def translation_route():
+    """Aligned public-domain English for a selected passage.
+
+    Pass the work and the selected refs (comma-separated, or repeated `ref`).
+    Answers with available:false and a plain reason when no aligned translation
+    covers the passage, which is a normal outcome given partial coverage.
+    """
+    work = (request.args.get('work') or '').strip()
+    if not work:
+        return jsonify({'available': False, 'reason': 'work is required'})
+    refs = request.args.getlist('ref')
+    if not refs:
+        raw = request.args.get('refs') or ''
+        refs = [r for r in (x.strip() for x in raw.split('|')) if r]
+    return jsonify(translations.for_passage(work, refs))
 
 
 @scene_bp.route('/scene/density')

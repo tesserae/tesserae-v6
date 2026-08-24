@@ -108,6 +108,7 @@ export default function ReaderPage() {
             selection={selection}
             language={language}
             work={work.replace('.tess', '')}
+            units={units}
             onOpenPassage={openPassage}
           />
         </div>

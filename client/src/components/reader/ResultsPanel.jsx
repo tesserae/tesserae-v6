@@ -14,9 +14,10 @@ const LANG_LABEL = { la: 'Latin', grc: 'Greek', he: 'Hebrew', en: 'English', cop
  * Every result is a button that opens that passage in the Reader, which is what
  * makes the corpus browsable by association rather than by search alone.
  */
-export default function ResultsPanel({ selection, language, work, onOpenPassage }) {
+export default function ResultsPanel({ selection, language, work, units, onOpenPassage }) {
   const [tab, setTab] = useState('similar');
   const [similar, setSimilar] = useState(null);
+  const [translation, setTranslation] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -42,6 +43,22 @@ export default function ResultsPanel({ selection, language, work, onOpenPassage 
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [selection, work, tab]);
+
+  useEffect(() => {
+    if (!selection || tab !== 'translation') return;
+    let cancelled = false;
+    setLoading(true);
+    const refs = (units || [])
+      .slice(selection.startIdx, selection.endIdx + 1)
+      .map((u) => u.ref)
+      .join('|');
+    fetch(`/api/translation?work=${encodeURIComponent(work)}&refs=${encodeURIComponent(refs)}`)
+      .then((r) => r.json())
+      .then((d) => { if (!cancelled) setTranslation(d); })
+      .catch(() => { if (!cancelled) setTranslation(null); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [selection, work, units, tab]);
 
   if (!selection) {
     return (
@@ -131,10 +148,30 @@ export default function ResultsPanel({ selection, language, work, onOpenPassage 
         )}
 
         {tab === 'translation' && (
-          <p className="text-sm text-gray-500">
-            The aligned public-domain translation appears here where one exists, credited to
-            its translator. Coverage is about 30 percent of Greek and 18 percent of Latin.
-          </p>
+          <>
+            {loading && <LoadingSpinner />}
+            {!loading && translation?.available === false && (
+              <p className="text-sm text-gray-500">
+                {translation.reason} Aligned public-domain translations cover about 30
+                percent of Greek and 18 percent of Latin.
+              </p>
+            )}
+            {!loading && translation?.available && (
+              <div className="bg-white border border-gray-200 rounded-lg p-3">
+                <p className="text-sm text-gray-800 whitespace-pre-line leading-relaxed">
+                  {translation.text}
+                </p>
+                {translation.note && (
+                  <p className="text-[11px] text-amber-700 mt-2 leading-snug">{translation.note}</p>
+                )}
+                <p className="text-[11px] text-gray-500 mt-2 leading-snug">
+                  {translation.translator}
+                  {translation.year ? `, ${translation.year}` : ''}
+                  {translation.attribution ? ` \u00b7 ${translation.attribution}` : ''}
+                </p>
+              </div>
+            )}
+          </>
         )}
       </div>
     </aside>
