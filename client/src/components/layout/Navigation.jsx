@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 
 const mainTabs = [
   { code: 'search', label: 'Search' },
+  { code: 'read', label: 'Read' },
   { code: 'browse', label: 'Browse Corpus' },
   { code: 'repository', label: 'Repository' },
   // DISABLED FOR PRODUCTION - Uncomment to restore Visualizations

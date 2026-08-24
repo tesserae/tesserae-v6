@@ -5,6 +5,7 @@ import RareResultsDisplay from './components/search/RareResultsDisplay';
 import SearchDescription from './components/search/SearchDescription';
 import { Modal, LoadingSpinner } from './components/common';
 import { CorpusBrowser, RareWordsExplorer } from './components/corpus';
+import { ReaderPage } from './components/reader';
 import { Repository } from './components/repository';
 import { AdminPanel } from './components/admin';
 import { AboutPage, HelpPage, DownloadsPage, PrivacyPage, ResearchPage, BlogArchivePage } from './components/pages';
@@ -16,6 +17,7 @@ import { getSessionValue, setSessionValue } from './utils/storage';
 
 const pathToPageType = {
   '/': 'search',
+  '/read': 'read',
   '/browse': 'browse',
   '/repository': 'repository',
   '/line-search': 'line-search',
@@ -33,6 +35,7 @@ const pathToPageType = {
 
 const pageTypeToPath = {
   'search': '/',
+  'read': '/read',
   'browse': '/browse',
   'repository': '/repository',
   'line-search': '/line-search',
@@ -911,6 +914,10 @@ function App() {
             <SearchDescription mode="cross" className="px-1" />
             <CrossLingualSearch />
           </div>
+        )}
+
+        {pageType === 'read' && (
+          <ReaderPage />
         )}
 
         {pageType === 'browse' && (
