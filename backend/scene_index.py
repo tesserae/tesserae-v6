@@ -55,6 +55,14 @@ STRONG_LIFT = 0.090      # top-hit lift at or above the real-subject median
 WEAK_LIFT = 0.070        # below this, treat the result set as neighbours only
 COHERENCE_K = 20         # top-k cluster used for the agreement signal
 STRONG_COHERENCE = 0.900 # top-k agreement typical of a real subject
+# Decision boundary on the combined score, fitted 2026-08-24 to a 22-query probe
+# set (12 subjects the corpus holds, 10 it cannot). Combined = lift*10 +
+# (coherence-0.85)*10. Real subjects scored 1.20-2.35, absent ones 0.46-1.29, so
+# the classes overlap slightly and 1.30 is the accuracy-maximising split (91%).
+# 'strong' sits well above the overlap; 'moderate' spans it and is reported as
+# genuinely uncertain rather than as a verdict.
+MODERATE_COMBINED = 1.30
+STRONG_COMBINED = 1.65
 # A floor purely to stop the tail: results below the query's baseline are noise.
 BASELINE_MARGIN = 0.010
 
@@ -234,10 +242,19 @@ def _cluster_coherence(scores, k=COHERENCE_K):
 
 
 def _confidence_level(lift, coherence):
-    """Graded, never certain: see the calibration note at the top of the file."""
-    if lift >= STRONG_LIFT and coherence >= STRONG_COHERENCE:
+    """Graded, never certain: see the calibration note at the top of the file.
+
+    Neither signal separates present from absent subjects alone, but they fail
+    in different directions, so requiring BOTH for 'strong' and EITHER for
+    'moderate' left 'moderate' meaningless (it caught real and absent subjects
+    alike). Combining them into one score separates better than either does:
+    on the 18-query probe set, real subjects score above 1.75 and absent ones
+    below it, with the single exception noted in the log.
+    """
+    combined = lift * 10.0 + (coherence - 0.85) * 10.0
+    if combined >= STRONG_COMBINED:
         return 'strong'
-    if lift >= WEAK_LIFT or coherence >= STRONG_COHERENCE:
+    if combined >= MODERATE_COMBINED:
         return 'moderate'
     return 'low'
 

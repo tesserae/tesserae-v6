@@ -575,6 +575,76 @@ def _t_cross_language(a):
     return res
 
 
+_CONTENT_NOTE = (
+    "These are CONTENT matches: passages whose subject, scene type, or situation "
+    "resembles the query, found through English descriptions of what each passage "
+    "contains rather than through shared words. A cross-language hit therefore "
+    "shares NO vocabulary with the query, so explain the KIND of resemblance "
+    "instead of pointing at shared terms. The `gist` is a machine-written summary "
+    "of the passage, never the passage itself: fetch the lines before quoting. "
+    "Respect `confidence`: at level 'low' say the corpus does not appear to hold "
+    "this subject, and present the results as weak neighbours rather than findings."
+)
+
+
+def _t_theme_search(a):
+    """Find passages about a described subject, across every indexed language.
+
+    Free-text content search: describe what you are looking for ("a city sues for
+    peace and hands over hostages") and get passages whose CONTENT matches, in
+    Latin, Greek, Hebrew, and English at once.
+    """
+    params = {'q': a.get('query') or a.get('q') or ''}
+    for k in ('limit', 'languages', 'scale'):
+        if a.get(k):
+            params[k] = a[k]
+    d = _get('/scene/theme-search', params)
+    out = {'query': d.get('query'), 'confidence': d.get('confidence'),
+           'strong_matches': d.get('strong_matches'), 'note': d.get('note'),
+           'results': [{'work': r.get('work'), 'language': r.get('language'),
+                        'ref_start': r.get('ref_start'), 'ref_end': r.get('ref_end'),
+                        'score': r.get('score'), 'strong': r.get('strong'),
+                        'gist': r.get('gist'), 'themes': r.get('themes')}
+                       for r in (d.get('results') or [])]}
+    if d.get('error'):
+        out['error'] = d['error']
+    out['presentation'] = _CONTENT_NOTE
+    return out
+
+
+def _t_similar_passages(a):
+    """Passages elsewhere in the corpus whose content resembles a given passage.
+
+    Give a work id and a reference span (or an index window id) and get the
+    passages most like it in subject and situation, across languages.
+    """
+    params = {}
+    if a.get('window'):
+        params['window'] = a['window']
+    else:
+        params['work'] = a.get('work') or ''
+        for k in ('ref_start', 'ref_end'):
+            if a.get(k):
+                params[k] = a[k]
+    for k in ('limit', 'languages'):
+        if a.get(k):
+            params[k] = a[k]
+    d = _get('/scene/similar', params)
+    src = d.get('source') or {}
+    out = {'source': {'work': src.get('work'), 'ref_start': src.get('ref_start'),
+                      'ref_end': src.get('ref_end'), 'gist': src.get('gist')},
+           'confidence': d.get('confidence'),
+           'results': [{'work': r.get('work'), 'language': r.get('language'),
+                        'ref_start': r.get('ref_start'), 'ref_end': r.get('ref_end'),
+                        'score': r.get('score'), 'strong': r.get('strong'),
+                        'gist': r.get('gist'), 'themes': r.get('themes')}
+                       for r in (d.get('results') or [])]}
+    if d.get('error'):
+        out['error'] = d['error']
+    out['presentation'] = _CONTENT_NOTE
+    return out
+
+
 def _t_submit_feature_request(a):
     """File a feature/language/text/bug request. Requires explicit user sign-off
     first; feature/language/bug are auto-filed as a public GitHub issue (contact
@@ -610,6 +680,32 @@ TOOLS = [
      "inputSchema": {"type": "object", "properties": {"query": _STR, "language": _STR},
                      "required": ["query", "language"]},
      "fn": _t_string_search},
+    {"name": "theme_search",
+     "description": ("CONTENT search: find passages ABOUT a described subject, across Latin, Greek, "
+                     "Hebrew and English at once, even when they share no vocabulary. Describe what you "
+                     "want in plain English (\"a city surrenders, envoys hand over hostages\", \"grain "
+                     "shortage and famine relief\"). Complements the word-based searches: use this when "
+                     "the connection is one of subject or scene type rather than wording. Check the "
+                     "returned confidence: 'low' means the corpus does not appear to hold this subject."),
+     "inputSchema": {"type": "object",
+                     "properties": {"query": _STR,
+                                    "limit": {"type": "integer"},
+                                    "languages": _STR,
+                                    "scale": _STR},
+                     "required": ["query"]},
+     "fn": _t_theme_search},
+    {"name": "similar_passages",
+     "description": ("Passages elsewhere in the corpus whose CONTENT resembles a given passage. Give a "
+                     "work id (from list_texts) and a reference span, e.g. work=vergil.aeneid with "
+                     "ref_start='verg. aen. 6.258'. Returns cross-language matches that share subject and "
+                     "situation rather than words, which is how a Latin scene finds its Greek or Hebrew "
+                     "counterparts."),
+     "inputSchema": {"type": "object",
+                     "properties": {"work": _STR, "ref_start": _STR, "ref_end": _STR,
+                                    "window": _STR, "limit": {"type": "integer"},
+                                    "languages": _STR},
+                     "required": ["work"]},
+     "fn": _t_similar_passages},
     {"name": "rare_pairs",
      "description": "Rare two-word combinations shared by two texts (distinctive collocations), ranked by rarity. Fast two-text comparison.",
      "inputSchema": {"type": "object", "properties": {"source": _STR, "target": _STR, "language": _STR},
