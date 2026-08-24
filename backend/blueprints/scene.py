@@ -19,6 +19,7 @@ from flask import Blueprint, jsonify, request
 
 from backend.logging_config import get_logger
 from backend import scene_index
+from backend import lexical_density
 
 logger = get_logger('blueprints.scene')
 
@@ -94,6 +95,22 @@ def similar_passages():
         'situation) rather than in wording. Say what kind of resemblance each '
         'shows, and note that a cross-language match shares no vocabulary.')
     return jsonify(out)
+
+
+@scene_bp.route('/lexical-density')
+def lexical_density_route():
+    """Per-line lexical connection counts, for the Reader's red gutter marks.
+
+    Answers the older question ("what else uses these words?") beside the scene
+    index's newer one ("what else is about this?"). Read off the precomputed
+    lemma_doc_freq table and cached per work, so it costs a file read after the
+    first call.
+    """
+    work = (request.args.get('work') or '').strip()
+    if not work:
+        return jsonify({'error': 'work is required', 'lines': []})
+    language = (request.args.get('language') or 'la').strip()
+    return jsonify(lexical_density.line_density(work, language=language))
 
 
 @scene_bp.route('/scene/density')
