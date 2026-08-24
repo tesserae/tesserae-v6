@@ -386,8 +386,13 @@ def connection_density(work, scale='fine'):
     if not _state['ok']:
         return {'error': _state['error'], 'windows': []}
     import numpy as np
-    rows = [i for i in (_by_work.get(_norm_work(work)) or [])
-            if not scale or _records[i].get('scale') == scale]
+    # Match the EXACT work when the caller names a part file, since a reader is
+    # looking at one book: collapsing vergil.aeneid.part.6 into vergil.aeneid
+    # would paint book 3 and book 7 densities beside book 6's lines. Fall back to
+    # the whole work group only when the caller names the group itself.
+    exact = [i for i in range(len(_records)) if _records[i].get('work') == work]
+    rows = exact or (_by_work.get(_norm_work(work)) or [])
+    rows = [i for i in rows if not scale or _records[i].get('scale') == scale]
     if not rows:
         return {'work': work, 'windows': []}
     base = _norm_work(work)
