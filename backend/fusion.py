@@ -2581,7 +2581,78 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
         result["channel_count"] = len(info["channels"])
         merged.append(result)
 
+    merged = apply_context_confirmation(merged, language=language,
+                                        source_id=source_id, target_id=target_id)
     return merged
+
+
+# ---------------------------------------------------------------------------
+# Context channel: passage agreement as a confirmation signal
+# ---------------------------------------------------------------------------
+# Weight of the confirmation boost, as a fraction of a pair's own fused score.
+# Deliberately small: this channel corrects the ORDER of pairs the lexical
+# channels already found, and must never promote a pair on thematic agreement
+# alone (the 2026-08 evaluation showed passage similarity is a strong recall
+# signal and a weak precision one, so it confirms rather than proposes).
+CONTEXT_CONFIRMATION_WEIGHT = 0.15
+# Confirming every pair of a large comparison costs more than it returns, and
+# the ordering that matters to a reader is at the top.
+CONTEXT_CONFIRM_TOP_N = 3000
+
+
+def apply_context_confirmation(merged, language='la', source_id=None, target_id=None):
+    """Re-rank fused results by whether their surrounding passages agree in content.
+
+    A pair whose two lines sit in passages about the same kind of thing is
+    better evidence than one whose lines share words across unrelated contexts.
+    The boost is bounded and additive, so a confirmed pair rises among its
+    neighbours while an unconfirmed one keeps the score it earned lexically.
+    """
+    if not merged or not source_id or not target_id:
+        return merged
+    try:
+        from backend import context_channel
+        if not context_channel.context_available():
+            return merged
+    except Exception:
+        return merged
+
+    head = merged[:CONTEXT_CONFIRM_TOP_N]
+    pairs = []
+    for r in head:
+        srf = (r.get('source') or {}).get('ref')
+        trf = (r.get('target') or {}).get('ref')
+        if srf and trf:
+            pairs.append((srf, trf))
+    if not pairs:
+        return merged
+    try:
+        confirmations = context_channel.find_context_confirmations(
+            pairs, source_id, target_id)
+    except Exception as e:
+        logger.error('[CONTEXT] confirmation pass failed: %s', e)
+        return merged
+    if not confirmations:
+        return merged
+
+    for r in head:
+        srf = (r.get('source') or {}).get('ref')
+        trf = (r.get('target') or {}).get('ref')
+        score = confirmations.get((srf, trf))
+        if not score:
+            continue
+        base = r.get('fused_score') or 0.0
+        r['fused_score'] = round(base * (1.0 + CONTEXT_CONFIRMATION_WEIGHT * score), 4)
+        r['context_agreement'] = score
+        chans = list(r.get('channels') or [])
+        if 'context' not in chans:
+            chans.append('context')
+            r['channels'] = chans
+            r['channel_count'] = len(chans)
+    head.sort(key=lambda x: x.get('fused_score', 0.0), reverse=True)
+    logger.info('[CONTEXT] confirmed %d of the top %d fused pairs',
+                len(confirmations), len(head))
+    return head + merged[CONTEXT_CONFIRM_TOP_N:]
 
 
 # Exponential distance decay for window results based on cross-break gap:
