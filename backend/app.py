@@ -147,6 +147,30 @@ elif os.environ.get("DEPLOYMENT_ENV", "production") == "dev":
 else:
     raise RuntimeError("SESSION_SECRET environment variable must be set in non-dev environments")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # Handle proxy headers
+
+
+# -----------------------------------------------------------------------------
+# CACHING: never the page, forever the assets
+# -----------------------------------------------------------------------------
+# index.html went out with no Cache-Control at all, only an ETag, so browsers
+# fell back to heuristic caching and could serve a stale page for hours without
+# asking. Every deploy renames the bundle, so a stale page asks for a file that
+# no longer exists: the app fails to load and the user sees a blank panel, or a
+# blank site. That happened twice in one day, and "hard refresh" is not a fix,
+# it is asking the reader to work around us.
+#
+# The asset filenames carry a content hash, so they can be cached forever and
+# a new deploy simply asks for a different name. Only the page must be checked
+# every time, and it is small.
+@app.after_request
+def _cache_headers(response):
+    path = request.path or ''
+    if path.startswith('/assets/') and '-' in path.rsplit('/', 1)[-1]:
+        response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+    elif path == '/' or path.endswith('.html') or 'text/html' in (
+            response.headers.get('Content-Type') or ''):
+        response.headers['Cache-Control'] = 'no-cache, must-revalidate'
+    return response
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0  # Disable caching for development
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
