@@ -69,10 +69,30 @@ def _norm(text):
     return re.sub(r'[^a-z0-9 ]', ' ', str(text or '').lower())
 
 
+# Questions ABOUT the state of a feature, as opposed to what it does. A canned
+# definition is the wrong answer to "is theme search working yet", and worse, the
+# keyword rules cannot tell the two apart: "is theme search working" matches the
+# theme rule on `theme` + `search` and returns the definition. A user who pushes
+# back gets the identical answer, because the second question matches too. Seen
+# in production 2026-08-25.
+_META = (
+    'working', 'work yet', 'broken', 'available', 'deployed', 'live',
+    'enabled', 'turned on', 'exist', 'ready yet', 'why is', 'why does',
+    "why doesn't", 'why not', 'not answering', 'answer my question',
+    'is it on', 'does it work', 'status',
+)
+
+
 def route(question):
-    """Return a canned answer when the question clearly matches one, else None."""
+    """Return a canned answer when the question clearly matches one, else None.
+
+    Meta-questions fall through to the model, which can say what it does and
+    does not know, rather than repeating a definition nobody asked for.
+    """
     q = _norm(question)
     if not q.strip():
+        return None
+    if any(m in q for m in _META):
         return None
     for rule in _RULES:
         if all(any(term in q for term in group) for group in rule['all']):

@@ -55,7 +55,7 @@ def guide():
                        "content but not the wording."),
             'source': 'fallback', 'model_used': False})
 
-    text = model.complete(prompts.GUIDE_SYSTEM, question,
+    text = model.complete(prompts.guide_system(), question,
                           max_tokens=model.MAX_TOKENS_GUIDE)
     if not text:
         return jsonify({'error': 'the assistant could not answer just now',
@@ -143,7 +143,7 @@ def guide_stream():
                                          'The Help page explains each search.'})
             yield _sse('done', {'source': 'fallback', 'model_used': False})
             return
-        for piece in model.stream(prompts.GUIDE_SYSTEM, question,
+        for piece in model.stream(prompts.guide_system(), question,
                                   max_tokens=model.MAX_TOKENS_GUIDE):
             yield _sse('chunk', {'text': piece})
         yield _sse('done', {'source': 'model', 'model_used': True})
