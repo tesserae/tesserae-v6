@@ -63,21 +63,35 @@ export default function AssistantDock() {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-5 right-5 z-40 px-4 py-2.5 rounded-full bg-red-700 text-white text-sm font-semibold shadow-lg hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400"
+        aria-label="Open Tessa, the AI assistant"
+        className="fixed bottom-6 right-6 z-40 flex items-center gap-3 pl-3 pr-5 py-3 rounded-2xl bg-red-700 text-white shadow-xl ring-1 ring-red-900/20 transition hover:bg-red-800 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-red-400"
       >
-        Which search do I need?
+        <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-white/15 text-lg font-semibold leading-none">
+          T
+        </span>
+        <span className="text-left leading-tight">
+          <span className="block text-base font-semibold">Tessa</span>
+          <span className="block text-[11px] font-medium text-red-100">
+            AI Assistant &middot; ask the corpus
+          </span>
+        </span>
       </button>
     );
   }
 
   return (
-    <div className="fixed bottom-5 right-5 z-40 w-[22rem] max-w-[calc(100vw-2.5rem)] rounded-lg border border-gray-300 bg-white shadow-xl flex flex-col max-h-[min(32rem,calc(100vh-3rem))]">
+    <div className="fixed bottom-5 right-5 z-40 w-[24rem] max-w-[calc(100vw-2.5rem)] rounded-lg border border-gray-300 bg-white shadow-xl flex flex-col max-h-[min(32rem,calc(100vh-3rem))]">
       <header className="flex items-center justify-between px-3 py-2 border-b border-gray-200">
-        <h2 className="text-sm font-semibold text-gray-800">Ask the corpus</h2>
+        <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-800">
+          <span className="flex items-center justify-center w-6 h-6 rounded-md bg-red-700 text-white text-xs font-semibold leading-none">
+            T
+          </span>
+          Tessa AI Assistant
+        </h2>
         <button
           onClick={() => setOpen(false)}
           className="text-gray-400 hover:text-gray-700 text-lg leading-none px-1"
-          aria-label="Close the search guide"
+          aria-label="Close Tessa"
         >
           ×
         </button>
@@ -149,12 +163,6 @@ export default function AssistantDock() {
           Ask
         </button>
       </form>
-
-      <p className="px-3 pb-2 text-[11px] text-gray-500 leading-snug">
-        Answers come from searches actually run against the corpus. It does not
-        know classical scholarship independently, and it will not tell you what a
-        passage means.
-      </p>
     </div>
   );
 }

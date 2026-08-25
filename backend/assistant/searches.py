@@ -150,6 +150,48 @@ def corpus_census():
     return _census_cache
 
 
+_listing_cache = {}
+
+
+def find_works(probes):
+    """Which of these names the corpus actually holds, across every language.
+
+    Asked to recommend a comparison of Statius Thebaid 12 with the Aeneid, the
+    model replied that the corpus contained neither. It holds 23 Statius entries
+    and 14 Aeneid entries. It had been shown a 20-author sample of 1,826 Latin
+    works, neither name was in the sample, and it read the sample as the corpus.
+
+    The census stopped this at the language level by putting the real counts in
+    front of the model on every answer. This is the same repair at the work
+    level: a name in the question is looked up in code, against the actual
+    listing, so the model is told the work exists instead of inferring it from a
+    sample that was never meant to be exhaustive.
+
+    Returns {probe: [display names]} for what is present, {} for what is not.
+    """
+    for code in ('la', 'grc', 'he', 'cop', 'en'):
+        if code in _listing_cache:
+            continue
+        try:
+            rows = _get('/texts', {'language': code})
+            _listing_cache[code] = rows if isinstance(rows, list) else []
+        except SearchError:
+            _listing_cache[code] = []
+    out = {}
+    for p in probes:
+        pl = p.lower()
+        hits = []
+        for code, rows in _listing_cache.items():
+            for r in rows:
+                name = str(r.get('display_name') or '')
+                if pl in name.lower() or pl in str(r.get('author') or '').lower():
+                    hits.append(name)
+        if hits:
+            # Shortest first: "Statius, Thebaid" before "Statius, Thebaid, Book 9".
+            out[p] = sorted(set(hits), key=len)[:8]
+    return out
+
+
 def run(name, args):
     """Run one chosen search. Raises SearchError; never invents a result."""
     spec = TOOLS.get(name)

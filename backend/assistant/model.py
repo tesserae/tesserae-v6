@@ -171,14 +171,19 @@ def _ref_parts(ref):
     return (locus[-1] if locus else ''), words
 
 
-def numbers_preserved(source_text, generated):
+def numbers_preserved(source_text, generated, question=''):
     """True when the model introduced no numeric claim of its own.
 
     Borrowed from Tableau's practice of asserting that no number changes between
     the computed record and the prose. A number in the prose that never appeared
     in the facts is a fabricated statistic.
+
+    The QUESTION counts as a source. Asked about "Thebaid 12", a good answer says
+    "Thebaid 12" back, and the check was calling that 12 a fabricated statistic:
+    the number was the user's own. A number the user supplied is the one kind of
+    number the model demonstrably did not invent.
     """
-    src_nums = set(re.findall(r'\d+(?:\.\d+)?', source_text or ''))
+    src_nums = set(re.findall(r'\d+(?:\.\d+)?', (source_text or '') + ' ' + (question or '')))
     gen_nums = set(re.findall(r'\d+(?:\.\d+)?', generated or ''))
     invented = {n for n in gen_nums - src_nums if len(n) > 1 or float(n) > 9}
     if invented:

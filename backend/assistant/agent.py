@@ -70,6 +70,33 @@ _QUOTED = re.compile(
     r'(?:appear|occur|used|found|in\b|\?|$)')
 
 
+# Words too common to be a useful work-name probe.
+_LOOKUP_STOP = {'book', 'the', 'and', 'with', 'for', 'what', 'where', 'which',
+                'compare', 'comparing', 'between', 'against', 'search', 'text',
+                'texts', 'work', 'works', 'passage', 'corpus', 'latin', 'greek',
+                'hebrew', 'coptic', 'english', 'recommend', 'interesting'}
+
+
+def _named_works(question):
+    """Resolve author and work names in the question against the real listing.
+
+    Runs on every question, whatever searches were chosen, because the failure it
+    fixes had nothing to do with which search ran: the model was told the corpus
+    holds 1,826 Latin works, shown 20 of them, and concluded that the 1,806 it
+    could not see did not exist.
+    """
+    probes = {w.strip('.,;:?"\'').lower()
+              for w in re.findall(r'\b([A-Z][a-zA-Z]{3,})\b', question)}
+    probes -= _LOOKUP_STOP
+    if not probes:
+        return {}
+    try:
+        return searches.find_works(probes)
+    except Exception as e:            # a lookup failure must not lose the answer
+        logger.info('[ASSISTANT] work lookup failed: %s', e)
+        return {}
+
+
 def _quoted_phrase(question):
     m = _QUOTED.search(question)
     if not m:
@@ -251,7 +278,7 @@ def answer_stream(question, on_step=None):
     for f in all_facts:
         allowed += [e.get('ref') for e in (f.get('examples') or []) if e.get('ref')]
     _, removed = model.strip_unsupported_references(text, allowed)
-    ok_numbers, invented = model.numbers_preserved(block, text)
+    ok_numbers, invented = model.numbers_preserved(block, text, question)
     yield ('done', {'searches_run': ran, 'facts': all_facts,
                     'guardrails': {'references_removed': removed,
                                    'unsupported_numbers': invented,
@@ -367,6 +394,16 @@ def _prepare(question, step):
         block += ('WHAT THE CORPUS CONTAINS (true regardless of any search below):\n'
                   + ', '.join(f'{k}: {v} works' for k, v in census.items())
                   + '\n\n')
+    named = _named_works(question)
+    if named:
+        block += ('WORKS THE QUESTION NAMES, LOOKED UP IN THE CORPUS (authoritative;\n'
+                  'these ARE present, whether or not a search below happened to '
+                  'return them):\n')
+        for probe, hits in named.items():
+            block += f'  {probe}: {len(hits)} matching, e.g. ' + '; '.join(hits[:4]) + '\n'
+        block += ('\nSo do NOT write that the corpus lacks any of these. If the user '
+                  'asks how to compare them, recommend an approach using them.\n\n')
+
     block += ('SEARCH RESULTS (your only source of fact about specific passages):\n'
               + json.dumps(all_facts, ensure_ascii=False)[:3000])
     return {'block': block, 'facts': all_facts, 'ran': ran}
@@ -389,7 +426,7 @@ def answer(question, on_step=None):
     for f in all_facts:
         allowed += [e.get('ref') for e in (f.get('examples') or []) if e.get('ref')]
     text, removed = model.strip_unsupported_references(text, allowed)
-    ok_numbers, invented = model.numbers_preserved(block, text)
+    ok_numbers, invented = model.numbers_preserved(block, text, question)
     return {'answer': text, 'searches_run': ran, 'facts': all_facts,
             'guardrails': {'references_removed': removed,
                            'unsupported_numbers': invented,
