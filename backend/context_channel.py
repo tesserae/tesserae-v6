@@ -48,7 +48,7 @@ thematic agreement is not evidence against a verbal parallel, since a quotation
 can be transplanted into a wholly different setting).
 """
 from backend.logging_config import get_logger
-from backend import scene_index
+from backend import passage_index
 
 logger = get_logger('context_channel')
 
@@ -96,7 +96,7 @@ def find_context_confirmations(pairs, source_id, target_id,
         dict {(source_ref, target_ref): score in 0..1}. Pairs whose passages do
         not agree, or that have no indexed window, are simply absent.
     """
-    if not scene_index.is_available():
+    if not passage_index.is_available():
         return {}
     try:
         import numpy as np
@@ -114,11 +114,11 @@ def find_context_confirmations(pairs, source_id, target_id,
     def window_row(work, ref):
         key = (work, ref)
         if key not in win_cache:
-            wid = scene_index.window_for_passage(work, ref, ref, prefer='fine')
+            wid = passage_index.window_for_passage(work, ref, ref, prefer='fine')
             row = None
             if wid:
                 try:
-                    row = scene_index._ids.index(wid)
+                    row = passage_index._ids.index(wid)
                 except ValueError:
                     row = None
             win_cache[key] = row
@@ -143,8 +143,8 @@ def find_context_confirmations(pairs, source_id, target_id,
         trow = window_row(tgt_work, tgt_ref)
         if srow is None or trow is None:
             continue
-        a = np.asarray(scene_index._emb[srow], dtype=np.float32)
-        b = np.asarray(scene_index._emb[trow], dtype=np.float32)
+        a = np.asarray(passage_index._emb[srow], dtype=np.float32)
+        b = np.asarray(passage_index._emb[trow], dtype=np.float32)
         na, nb = float(np.linalg.norm(a)), float(np.linalg.norm(b))
         if na == 0.0 or nb == 0.0:
             continue
@@ -178,19 +178,19 @@ def _pair_baseline(src_work, tgt_work):
         return None, None
 
     def fine_rows(work):
-        rows = scene_index._by_work.get(work) or []
+        rows = passage_index._by_work.get(work) or []
         # Fall back to the work group when a part file is named, since that is
         # what the index keys on.
         if not rows and '.part.' in work:
-            rows = scene_index._by_work.get(work.split('.part.')[0]) or []
-        return [i for i in rows if scene_index._records[i].get('scale') == 'fine']
+            rows = passage_index._by_work.get(work.split('.part.')[0]) or []
+        return [i for i in rows if passage_index._records[i].get('scale') == 'fine']
 
     a, b = fine_rows(src_work), fine_rows(tgt_work)
     if not a or not b:
         _baseline_cache[key] = (None, None)
         return None, None
 
-    emb = scene_index._emb
+    emb = passage_index._emb
     # A fixed seed so the same comparison scores identically every time, which
     # matters for a tool whose results people cite.
     rnd = _random.Random(20260824)
@@ -214,4 +214,4 @@ def _pair_baseline(src_work, tgt_work):
 
 def context_available():
     """True when the scene index backing this channel is loadable."""
-    return scene_index.is_available()
+    return passage_index.is_available()

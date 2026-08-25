@@ -44,8 +44,8 @@ from collections import Counter
 
 import numpy as np
 
-INDEX = '/home/ncoffee/tesserae-scene/data/scene_index'
-OUT = '/home/ncoffee/tesserae-scene/data/releases/scene_index'
+INDEX = '/home/ncoffee/tesserae-scene/data/passage_index'
+OUT = '/home/ncoffee/tesserae-scene/data/releases/passage_index'
 
 # What actually governs each slice, and why. Written out per language rather than
 # held in one blanket statement, because they genuinely differ.
@@ -129,7 +129,7 @@ BUILD = {
         'name would never match literally. Treat false as "machine summary, '
         'unverified" rather than as an error to hide.'),
     'calibration_warning': (
-        'MODERATE_COMBINED and STRONG_COMBINED in backend/scene_index.py were '
+        'MODERATE_COMBINED and STRONG_COMBINED in backend/passage_index.py were '
         'fitted to THIS corpus and are not a property of the method. If your '
         'index differs in size, languages or genre balance they will be wrong for '
         'you. Refit with evaluation/scripts/calibrate_confidence.py; see '

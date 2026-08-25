@@ -26,7 +26,7 @@ export default function ConnectionGutter({ work, units, onSelectLine }) {
   useEffect(() => {
     if (!work) return;
     let cancelled = false;
-    fetch(`/api/scene/density?work=${encodeURIComponent(work)}`)
+    fetch(`/api/passages/density?work=${encodeURIComponent(work)}`)
       .then((r) => r.json())
       .then((d) => {
         if (cancelled || !d.windows) return;

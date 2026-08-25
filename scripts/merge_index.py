@@ -15,7 +15,7 @@ import sys
 
 import numpy as np
 
-INDEX = '/home/ncoffee/tesserae-scene/data/scene_index'
+INDEX = '/home/ncoffee/tesserae-scene/data/passage_index'
 
 
 def load_run(desc_path, emb_path, ids_path):

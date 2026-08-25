@@ -33,7 +33,7 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
       ref_end: selection.refEnd || selection.refStart || '',
       limit: '15',
     });
-    fetch(`/api/scene/similar?${params}`)
+    fetch(`/api/passages/similar?${params}`)
       .then((r) => r.json())
       .then((d) => {
         if (cancelled) return;

@@ -15,7 +15,7 @@ One caution shapes the design. Grenander et al. (2025) found plan-then-narrate d
 NOT help small models when the plan was itself model-generated. What makes this
 version work is that the plan is externally true, so every field below must be a
 COMPUTED quantity or a corpus fact, never a model guess. The one field that is
-itself a model product, the scene index's content agreement, is labelled as such
+itself a model product, the passage index's content agreement, is labelled as such
 so the narration can hedge it.
 """
 import collections
@@ -111,7 +111,7 @@ def summarize_results(results, source_id=None, target_id=None, limit=25):
     tgt_works = collections.Counter(_work_of(_ref_of(r, 'target')) for r in top)
     src_works = collections.Counter(_work_of(_ref_of(r, 'source')) for r in top)
 
-    # Themes, when the scene index contributed them. Labelled as model-derived.
+    # Themes, when the passage index contributed them. Labelled as model-derived.
     themes = collections.Counter()
     for r in top:
         for t in (r.get('themes') or []):

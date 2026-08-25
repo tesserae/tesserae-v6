@@ -1,6 +1,6 @@
 """Scene index: passage-level content retrieval over LLM-written descriptions.
 
-The index holds, for every scene-sized window of the corpus, a structured English
+The index holds, for every passage-sized window of the corpus, a structured English
 description of WHAT THE PASSAGE CONTAINS (mode, setting, participants, actions,
 themes, imagery, gist) plus an embedding of that description. Retrieval runs over
 the descriptions rather than the ancient text, which is what lets a Latin passage
@@ -11,9 +11,9 @@ Two query modes back the Reader:
   * by text     -- "find passages about grain shortage and famine relief"
 
 Data (built offline, see research/motif_feature/DEVELOPMENT_LOG_2026-08.md):
-  data/scene_index/descriptions.jsonl   one JSON record per window
-  data/scene_index/embeddings.npy       float16 (N, D), row i matches ids[i]
-  data/scene_index/ids.json             window ids, embedding row order
+  data/passage_index/descriptions.jsonl   one JSON record per window
+  data/passage_index/embeddings.npy       float16 (N, D), row i matches ids[i]
+  data/passage_index/ids.json             window ids, embedding row order
 
 Embeddings are memory-mapped, so the resident cost is the id/description tables
 rather than the matrix. Loading is lazy: nothing touches disk until the first
@@ -27,11 +27,11 @@ import threading
 from backend import scripture_id
 from backend.logging_config import get_logger
 
-logger = get_logger('scene_index')
+logger = get_logger('passage_index')
 
 _DATA_DIR = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    'data', 'scene_index')
+    'data', 'passage_index')
 
 # The query encoder must match the model the descriptions were embedded with.
 EMBED_MODEL = 'intfloat/multilingual-e5-large'
@@ -62,8 +62,19 @@ STRONG_COHERENCE = 0.900 # top-k agreement typical of a real subject
 # the classes overlap slightly and 1.30 is the accuracy-maximising split (91%).
 # 'strong' sits well above the overlap; 'moderate' spans it and is reported as
 # genuinely uncertain rather than as a verdict.
-MODERATE_COMBINED = 1.30
-STRONG_COMBINED = 1.65
+# Refitted 2026-08-25 against the full 603,594-window index, using the 28-query
+# probe set in evaluation/probe_sets/tesserae_2026-08.json (12 subjects the
+# corpus holds, 16 it does not). Accuracy 93%.
+#
+# Six of the absent queries are deliberate NEAR MISSES, classical in register
+# with one thing in them that does not exist in antiquity, and they are what
+# makes this fit worth anything. "A farmer lifts potatoes out of the ground and
+# sorts them for seed" scored 1.76, higher than eight of the twelve REAL
+# subjects, because everything in it but the potato is deeply present in the
+# corpus. Without those queries the strong boundary would have been set at 1.28,
+# from a tea ceremony, and Theme Search would have called near misses strong.
+MODERATE_COMBINED = 1.40
+STRONG_COMBINED = 1.7613
 # The index those two numbers were fitted against. They are a property of THAT
 # corpus, not of the method, and the corpus has since grown: merging Persian and
 # Urdu added 220,361 windows, which moves the median every lift is measured
@@ -71,7 +82,7 @@ STRONG_COMBINED = 1.65
 # live index that no longer matches gets told so in its own output rather than
 # reporting a band it has not earned. Refit with
 # evaluation/scripts/calibrate_confidence.py and update both numbers together.
-FITTED_AT_WINDOWS = 383201
+FITTED_AT_WINDOWS = 603594
 FITTED_TOLERANCE = 0.15     # beyond 15% drift, stop vouching for the band
 # A floor purely to stop the tail: results below the query's baseline are noise.
 BASELINE_MARGIN = 0.010
@@ -150,8 +161,8 @@ def _ensure_loaded():
             desc_path = os.path.join(_DATA_DIR, 'descriptions.jsonl')
             missing = [p for p in (ids_path, emb_path, desc_path) if not os.path.exists(p)]
             if missing:
-                _state['error'] = f"scene index not built ({', '.join(os.path.basename(m) for m in missing)} absent)"
-                logger.info('[SCENE] %s', _state['error'])
+                _state['error'] = f"passage index not built ({', '.join(os.path.basename(m) for m in missing)} absent)"
+                logger.info('[PASSAGES] %s', _state['error'])
                 return
             _ids = json.load(open(ids_path, encoding='utf-8'))
             by_id = {}
@@ -167,17 +178,17 @@ def _ensure_loaded():
             _emb = np.load(emb_path, mmap_mode='r')
             if _emb.shape[0] != len(_ids):
                 _state['error'] = f'index mismatch: {_emb.shape[0]} embeddings vs {len(_ids)} ids'
-                logger.error('[SCENE] %s', _state['error'])
+                logger.error('[PASSAGES] %s', _state['error'])
                 return
             _by_work = {}
             for i, r in enumerate(_records):
                 _by_work.setdefault(_norm_work(r.get('work')), []).append(i)
             _state['ok'] = True
-            logger.info('[SCENE] index ready: %d windows, %d works, dim %d',
+            logger.info('[PASSAGES] index ready: %d windows, %d works, dim %d',
                         len(_ids), len(_by_work), _emb.shape[1])
         except Exception as e:  # index problems must not break the app
             _state['error'] = f'{type(e).__name__}: {e}'
-            logger.error('[SCENE] index load failed: %s', _state['error'])
+            logger.error('[PASSAGES] index load failed: %s', _state['error'])
 
 
 # The query encoder runs as its own service, not inside the web application.
@@ -708,5 +719,5 @@ def connection_density(work, scale='fine'):
             json.dump(result, fh)
         os.replace(tmp, cache_path)   # atomic, so a reader never sees half a file
     except OSError as e:
-        logger.warning('[SCENE] could not cache density for %s: %s', work, e)
+        logger.warning('[PASSAGES] could not cache density for %s: %s', work, e)
     return result

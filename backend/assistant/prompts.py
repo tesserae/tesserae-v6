@@ -5,10 +5,10 @@ is asked to choose from a named set or to put given facts into prose, and it
 starts inventing when asked to recall or to judge on its own authority.
 """
 
-# Tools that depend on the scene index. If that index is not present on this
+# Tools that depend on the passage index. If that index is not present on this
 # deployment they DO NOT EXIST, and the model must not offer them.
 #
-# It did. Production 2026-08-25 shipped the assistant without the scene index,
+# It did. Production 2026-08-25 shipped the assistant without the passage index,
 # the tool list still advertised theme_search and similar_passages, and the
 # assistant recommended both to a user who then found nothing. Telling a scholar
 # to run a search that is not there is worse than declining to help: they go
@@ -27,18 +27,18 @@ _BASE_TOOLS = """The searches Tesserae offers:
 - cross_language: parallels between texts in DIFFERENT languages (Greek-Latin, Hebrew-Greek, Latin-English and others)."""
 
 
-def _scene_available():
+def _passages_available():
     """True when this deployment actually has the content index."""
     try:
-        from backend import scene_index
-        return scene_index.is_available()
+        from backend import passage_index
+        return passage_index.is_available()
     except Exception:
         return False
 
 
 def tools_description():
     """The tool list for THIS deployment, not the list of everything we built."""
-    if _scene_available():
+    if _passages_available():
         return _BASE_TOOLS + "\n" + _SCENE_TOOLS
     return _BASE_TOOLS
 

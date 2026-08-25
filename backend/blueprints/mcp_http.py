@@ -598,7 +598,7 @@ def _t_theme_search(a):
     for k in ('limit', 'languages', 'scale'):
         if a.get(k):
             params[k] = a[k]
-    d = _get('/scene/theme-search', params)
+    d = _get('/passages/theme-search', params)
     out = {'query': d.get('query'), 'confidence': d.get('confidence'),
            'strong_matches': d.get('strong_matches'), 'note': d.get('note'),
            'results': [{'work': r.get('work'), 'language': r.get('language'),
@@ -629,7 +629,7 @@ def _t_similar_passages(a):
     for k in ('limit', 'languages'):
         if a.get(k):
             params[k] = a[k]
-    d = _get('/scene/similar', params)
+    d = _get('/passages/similar', params)
     src = d.get('source') or {}
     out = {'source': {'work': src.get('work'), 'ref_start': src.get('ref_start'),
                       'ref_end': src.get('ref_end'), 'gist': src.get('gist')},

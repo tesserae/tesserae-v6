@@ -100,3 +100,6 @@ server.log
 # Search concurrency lock files (runtime only)
 tmp/search_slots/
 backend/models/
+
+# Build artefacts of the test run, not the tests themselves.
+tests/__pycache__/

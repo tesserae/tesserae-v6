@@ -4,13 +4,13 @@ Tesserae V6 - Scene Blueprint
 Passage-level content retrieval for the Reader: "Similar Passages" (what else in
 the corpus is like this stretch of text) and "Theme Search" (find passages about
 a described subject), plus the connection densities the Reader draws in its
-gutter. Backed by backend/scene_index.py.
+gutter. Backed by backend/passage_index.py.
 
 Endpoints (all GET, all under the app's API prefix):
-    /scene/status                 index availability and size
-    /scene/theme-search           ?q=...&limit=&languages=&scale=
-    /scene/similar                ?work=&ref_start=&ref_end=  (or ?window=)
-    /scene/density                ?work=&scale=
+    /passages/status                 index availability and size
+    /passages/theme-search           ?q=...&limit=&languages=&scale=
+    /passages/similar                ?work=&ref_start=&ref_end=  (or ?window=)
+    /passages/density                ?work=&scale=
 
 Every route answers 200 with an `error` field rather than raising, so a missing
 or half-built index degrades the Reader's panel instead of breaking the page.
@@ -18,13 +18,13 @@ or half-built index degrades the Reader's panel instead of breaking the page.
 from flask import Blueprint, jsonify, request
 
 from backend.logging_config import get_logger
-from backend import scene_index
+from backend import passage_index
 from backend import lexical_density
 from backend import translations
 
-logger = get_logger('blueprints.scene')
+logger = get_logger('blueprints.passages')
 
-scene_bp = Blueprint('scene', __name__)
+passages_bp = Blueprint('passages', __name__)
 
 _MAX_LIMIT = 100
 
@@ -49,12 +49,12 @@ def _scale():
     return s if s in ('fine', 'coarse') else None
 
 
-@scene_bp.route('/scene/status')
+@passages_bp.route('/passages/status')
 def scene_status():
-    return jsonify(scene_index.status())
+    return jsonify(passage_index.status())
 
 
-@scene_bp.route('/scene/theme-search')
+@passages_bp.route('/passages/theme-search')
 def theme_search():
     """Free-text content query across every indexed language at once."""
     q = (request.args.get('q') or request.args.get('query') or '').strip()
@@ -67,18 +67,18 @@ def theme_search():
     # log was unreadable, so the cause could not be seen from the response at
     # all. An error the operator cannot read is an error they cannot fix.
     try:
-        out = scene_index.find_by_text(
+        out = passage_index.find_by_text(
             q, limit=_int_arg('limit', 25), languages=_languages(), scale=_scale())
-    except scene_index.EmbedUnavailable as e:
+    except passage_index.EmbedUnavailable as e:
         # "cannot ask" is not "found nothing". Only one of those means the
         # corpus lacks the subject, and reporting the wrong one would be a
         # false negative dressed as a finding.
-        logger.warning('[SCENE] encoder unavailable: %s', e)
+        logger.warning('[PASSAGES] encoder unavailable: %s', e)
         return jsonify({'error': 'theme search is unavailable: the query encoder '
                                  'service is not running', 'unavailable': True,
                         'results': []})
     except Exception as e:
-        logger.exception('[SCENE] theme-search failed')
+        logger.exception('[PASSAGES] theme-search failed')
         return jsonify({'error': f'{type(e).__name__}: {e}', 'results': []})
     out['presentation'] = (
         'Each result is a passage whose CONTENT matches the description, not its '
@@ -88,7 +88,7 @@ def theme_search():
     return jsonify(out)
 
 
-@scene_bp.route('/scene/similar')
+@passages_bp.route('/passages/similar')
 def similar_passages():
     """Passages whose content resembles a given passage.
 
@@ -106,11 +106,11 @@ def similar_passages():
     # ?include_other_versions=1.
     include_versions = (request.args.get('include_other_versions') or '').lower() in ('1', 'true', 'yes')
     if window:
-        out = scene_index.find_similar_to_window(
+        out = passage_index.find_similar_to_window(
             window, limit=limit, languages=langs, include_same_work=include_same,
             suppress_other_versions=not include_versions)
     elif work:
-        out = scene_index.find_similar_to_passage(
+        out = passage_index.find_similar_to_passage(
             work, request.args.get('ref_start'), request.args.get('ref_end'),
             limit=limit, languages=langs, scale=_scale() or 'fine',
             suppress_other_versions=not include_versions)
@@ -125,7 +125,7 @@ def similar_passages():
     return jsonify(out)
 
 
-@scene_bp.route('/lexical-density')
+@passages_bp.route('/lexical-density')
 def lexical_density_route():
     """Per-line lexical connection counts, for the Reader's red gutter marks.
 
@@ -141,7 +141,7 @@ def lexical_density_route():
     return jsonify(lexical_density.line_density(work, language=language))
 
 
-@scene_bp.route('/translation')
+@passages_bp.route('/translation')
 def translation_route():
     """Aligned public-domain English for a selected passage.
 
@@ -159,10 +159,10 @@ def translation_route():
     return jsonify(translations.for_passage(work, refs))
 
 
-@scene_bp.route('/scene/density')
+@passages_bp.route('/passages/density')
 def density():
     """Per-window connection counts for the Reader's gutter."""
     work = (request.args.get('work') or '').strip()
     if not work:
         return jsonify({'error': 'work is required', 'windows': []})
-    return jsonify(scene_index.connection_density(work, scale=_scale() or 'fine'))
+    return jsonify(passage_index.connection_density(work, scale=_scale() or 'fine'))
