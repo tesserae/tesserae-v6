@@ -563,9 +563,8 @@ def _confidence_note_fitted(level):
     if level == 'moderate':
         return ('Moderate confidence: the corpus holds passages of this kind, but the '
                 'match is looser than a clear case. Read the results before relying on them.')
-    return ('No strong content match in the corpus for this description. The passages '
-            'below resemble the query only weakly, and should be read as neighbours '
-            'rather than findings.')
+    return ('The corpus does not appear to contain passages of this kind. Anything '
+            'the search returns for it is a nearest neighbour, not a finding.')
 
 
 def find_by_text(query, limit=25, languages=None, scale=None):

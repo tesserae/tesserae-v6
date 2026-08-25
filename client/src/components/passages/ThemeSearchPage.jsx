@@ -151,6 +151,7 @@ export default function ThemeSearchPage() {
   const [query, setQuery] = useState('');
   const [data, setData] = useState(null);
   const [running, setRunning] = useState(false);
+  const [showWeak, setShowWeak] = useState(false);
   const [error, setError] = useState(null);
 
   const run = useCallback(async (q) => {
@@ -159,6 +160,7 @@ export default function ThemeSearchPage() {
     setRunning(true);
     setError(null);
     setData(null);
+    setShowWeak(false);
     try {
       const res = await fetch(
         `/api/passages/theme-search?query=${encodeURIComponent(text)}&limit=25`);
@@ -242,9 +244,31 @@ export default function ThemeSearchPage() {
             </p>
           )}
 
+          {/* A weak verdict followed by twenty results reads as twenty findings,
+              whatever the banner says. The passages are not hidden -- knowing
+              what came closest is sometimes the useful answer -- but they are
+              not laid out as results until asked for. */}
+          {data.confidence?.level === 'low' && !!data.results?.length && !showWeak && (
+            <div className="mt-4">
+              <button
+                onClick={() => setShowWeak(true)}
+                className="text-sm text-red-700 hover:text-red-900 hover:underline"
+              >
+                Show the {data.results.length} nearest passages anyway
+              </button>
+              <p className="mt-1 text-xs text-gray-500">
+                These are the closest the corpus comes. For a subject it does not
+                contain, the closest thing is not evidence of anything.
+              </p>
+            </div>
+          )}
+
+          {(data.confidence?.level !== 'low' || showWeak) && (
           <p className="mt-4 mb-2 text-xs text-gray-500">
             Oldest first. Undated authors are listed last.
           </p>
+          )}
+          {(data.confidence?.level !== 'low' || showWeak) && (
           <ul className="space-y-3">
             {byWork(chronological(data.results)).map(({ key, head, items }) => (
               <li key={key} className="border border-gray-200 rounded p-3 bg-white">
@@ -333,13 +357,16 @@ export default function ThemeSearchPage() {
               </li>
             ))}
           </ul>
+          )}
 
+          {(data.confidence?.level !== 'low' || showWeak) && (
           <p className="mt-5 text-xs text-gray-500 leading-relaxed">
             These summaries are written by a language model from the passage
             itself, and for Coptic from its English translation, so treat them as
             a finding aid rather than as evidence. Read the passage before citing
             it.
           </p>
+          )}
         </div>
       )}
     </div>
