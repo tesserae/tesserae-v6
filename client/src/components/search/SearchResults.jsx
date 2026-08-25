@@ -5,6 +5,7 @@ import { formatReference, formatElapsedTime } from '../../utils/formatting';
 import { displayGreekWithFinalSigma } from '../../utils/greekUtils';
 import { normalizeCoptic } from '../../utils/copticUtils';
 import { exportRowsToPDF } from '../../utils/exportResults';
+import { ResultsInsight } from '../assistant';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import * as d3 from 'd3';
@@ -906,6 +907,14 @@ const SearchResults = ({
             {loading && fusionProgress && (pauseUpdates ? ' (paused)' : ' (partial)')}
             {chartFilter && ` (${filteredResults.length} ${chartFilter.mode === 'line' ? `at lines ${chartFilter.label}` : `in ${chartFilter.book}`})`}
           </h3>
+          {!loading && (
+            <ResultsInsight
+              results={activeResults}
+              source={sourceTextInfo?.display_name || sourceTextInfo?.name}
+              target={targetTextInfo?.display_name || targetTextInfo?.name}
+              className="mt-2 mb-2"
+            />
+          )}
           {searchStats && (
             <p className="text-sm text-gray-500">
               {searchStats.elapsed_time && `Search completed in ${formatElapsedTime(searchStats.elapsed_time)}`}
