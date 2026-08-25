@@ -16,7 +16,7 @@ findings without prose, so the feature thins rather than breaks.
 """
 import json
 
-from flask import Blueprint, Response, jsonify, request
+from flask import Blueprint, Response, jsonify, request, session
 
 from backend.logging_config import get_logger
 from backend.assistant import agent, findings, model, prompts, router
@@ -58,6 +58,26 @@ def ask_stream():
         if isinstance(turn, dict) and turn.get('text'):
             history.append({'role': 'user' if turn.get('role') == 'user' else 'assistant',
                             'text': str(turn['text'])[:600]})
+
+    # SERVER-SIDE FALLBACK. The client sends the conversation, and a browser
+    # running a cached older bundle sends nothing, which looks exactly like a
+    # first question: "What about Eobanus?" then arrives with no idea what the
+    # user was asking about, and the answer silently loses the thread. It did.
+    #
+    # The session cookie travels regardless of how old the loaded JavaScript is,
+    # so the last few questions are kept there too. Questions only, capped and
+    # truncated, because a session cookie is small and answers are long.
+    try:
+        remembered = [q for q in (session.get('tessa_qs') or []) if isinstance(q, str)]
+    except Exception:
+        remembered = []
+    if not history and remembered:
+        history = [{'role': 'user', 'text': q} for q in remembered]
+    if question:
+        try:
+            session['tessa_qs'] = (remembered + [question[:300]])[-4:]
+        except Exception:
+            pass
 
     def generate():
         if not question:

@@ -316,7 +316,13 @@ def answer_stream(question, on_step=None, history=None):
 
     def worker():
         try:
-            prep_result.update(_prepare(question, q.put) or {})
+            # history MUST be threaded here too. It was not, and that is the
+            # whole reason the conversation fix appeared to work in testing and
+            # did nothing in the browser: answer() passes history, this streaming
+            # path did not, and the browser uses this one. Tested through the
+            # HTTP endpoint now, not through answer(), so the two cannot diverge
+            # again without a test noticing.
+            prep_result.update(_prepare(question, q.put, history) or {})
         finally:
             q.put(None)
 
