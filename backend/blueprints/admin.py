@@ -2558,6 +2558,17 @@ def update_concurrency_config():
         except OSError as e:
             return jsonify({'error': f'Failed to save config: {e}'}), 500
 
+    if 'emergency_ram_floor_gb' in data:
+        try:
+            val = float(data['emergency_ram_floor_gb'])
+            old = ConcurrencyConfig.get_emergency_ram_floor()
+            ConcurrencyConfig.set_emergency_ram_floor(val)
+            changes['emergency_ram_floor_gb'] = {'old': old, 'new': val}
+        except (ValueError, TypeError) as e:
+            errors.append(f'emergency_ram_floor_gb: {e}')
+        except OSError as e:
+            return jsonify({'error': f'Failed to save config: {e}'}), 500
+
     if errors:
         return jsonify({'error': '; '.join(errors)}), 400
 

@@ -267,6 +267,7 @@ class ConcurrencyConfig:
     _default_mem = float(os.environ.get('TESSERAE_MEMORY_THRESHOLD_GB', '8'))
     _default_timeout = float(os.environ.get('TESSERAE_QUEUE_TIMEOUT', '300'))
     _default_poll = float(os.environ.get('TESSERAE_QUEUE_POLL_INTERVAL', '2.0'))
+    _default_emergency_floor = float(os.environ.get('TESSERAE_EMERGENCY_RAM_FLOOR_GB', '3.0'))
 
     # Shared config file — lives next to lock files, accessible to all workers
     _CONFIG_FILE = os.path.join(_PROJECT_ROOT, 'data', 'concurrency_config.json')
@@ -328,6 +329,7 @@ class ConcurrencyConfig:
             'memory_threshold_gb': cls._default_mem,
             'queue_timeout': cls._default_timeout,
             'queue_poll_interval': cls._default_poll,
+            'emergency_ram_floor_gb': cls._default_emergency_floor,
             'stress_test_mode': False,
             'stress_test_enabled_at': 0,
         }
@@ -379,6 +381,12 @@ class ConcurrencyConfig:
         with cls._lock:
             return cls._is_stress_test_active(cls._get_cached_config())
 
+    @classmethod
+    def get_emergency_ram_floor(cls):
+        with cls._lock:
+            return cls._get_cached_config().get(
+                'emergency_ram_floor_gb', cls._default_emergency_floor)
+
     # ------------------------------------------------------------------
     # Public setters (validate, persist to file, bust cache)
     # ------------------------------------------------------------------
@@ -416,6 +424,15 @@ class ConcurrencyConfig:
             cls._update_and_persist('queue_poll_interval', value)
 
     @classmethod
+    def set_emergency_ram_floor(cls, value):
+        value = float(value)
+        if not (1.0 <= value <= 16.0):
+            raise ValueError(
+                f"emergency_ram_floor_gb must be between 1.0 and 16.0, got {value}")
+        with cls._lock:
+            cls._update_and_persist('emergency_ram_floor_gb', value)
+
+    @classmethod
     def set_stress_test_mode(cls, enabled: bool):
         with cls._lock:
             cfg = cls._get_cached_config().copy()
@@ -443,19 +460,25 @@ class ConcurrencyConfig:
         """Return config values plus live system data."""
         with cls._lock:
             cfg = cls._get_cached_config()
+            avail_mem = round(get_available_memory_gb(), 1)
+            floor = cfg.get('emergency_ram_floor_gb', cls._default_emergency_floor)
             return {
                 'max_searches': cfg.get('max_searches', cls._default_max),
                 'memory_threshold_gb': cfg.get('memory_threshold_gb', cls._default_mem),
                 'queue_timeout': cfg.get('queue_timeout', cls._default_timeout),
                 'queue_poll_interval': cfg.get('queue_poll_interval', cls._default_poll),
+                'emergency_ram_floor_gb': floor,
                 'stress_test_mode': cls._is_stress_test_active(cfg),
                 'active_searches': _count_active_slots(),
-                'available_memory_gb': round(get_available_memory_gb(), 1),
+                'available_memory_gb': avail_mem,
+                'emergency_active': avail_mem < floor,
+                'reaper_status': MemoryReaper.get_status(),
                 'defaults': {
                     'max_searches': cls._default_max,
                     'memory_threshold_gb': cls._default_mem,
                     'queue_timeout': cls._default_timeout,
                     'queue_poll_interval': cls._default_poll,
+                    'emergency_ram_floor_gb': cls._default_emergency_floor,
                 },
             }
 
@@ -469,9 +492,143 @@ class ConcurrencyConfig:
                 'memory_threshold_gb': cfg.get('memory_threshold_gb', cls._default_mem),
                 'queue_timeout': cfg.get('queue_timeout', cls._default_timeout),
                 'queue_poll_interval': cfg.get('queue_poll_interval', cls._default_poll),
+                'emergency_ram_floor_gb': cfg.get(
+                    'emergency_ram_floor_gb', cls._default_emergency_floor),
                 'stress_test_mode': cls._is_stress_test_active(cfg),
             }
 
+class MemoryReaper:
+    """Background daemon thread that monitors system RAM and cancels the newest
+    running search when available memory drops below the emergency RAM floor.
+
+    Singleton per process — calling ``start()`` more than once is harmless.
+    The thread runs as a daemon so it is automatically cleaned up when the main
+    process exits.
+
+    Why the **newest** search?  It has completed the least work, so killing it
+    wastes the fewest resources and lets older (closer-to-done) searches finish.
+    """
+
+    _thread = None          # type: threading.Thread | None
+    _stop_event = threading.Event()
+    _lock = threading.Lock()
+
+    # Reaper telemetry
+    _reap_count = 0
+    _last_reap_at = 0.0     # timestamp
+    _last_reap_slot = ''
+    _last_reap_reason = ''
+
+    POLL_INTERVAL = 5.0     # seconds between RAM checks
+    COOLDOWN = 10.0         # seconds to wait after a reap before checking again
+
+    # ------------------------------------------------------------------
+    # Lifecycle
+    # ------------------------------------------------------------------
+
+    @classmethod
+    def start(cls):
+        """Start the reaper thread (idempotent)."""
+        with cls._lock:
+            if cls._thread is not None and cls._thread.is_alive():
+                return
+            cls._stop_event.clear()
+            cls._thread = threading.Thread(
+                target=cls._run, name='MemoryReaper', daemon=True)
+            cls._thread.start()
+            logger.info("MemoryReaper started (poll=%.1fs, cooldown=%.1fs)",
+                        cls.POLL_INTERVAL, cls.COOLDOWN)
+
+    @classmethod
+    def stop(cls):
+        """Signal the reaper to stop (used in tests or graceful shutdown)."""
+        cls._stop_event.set()
+        with cls._lock:
+            if cls._thread is not None:
+                cls._thread.join(timeout=cls.POLL_INTERVAL + 2)
+                cls._thread = None
+        logger.info("MemoryReaper stopped")
+
+    @classmethod
+    def is_running(cls):
+        with cls._lock:
+            return cls._thread is not None and cls._thread.is_alive()
+
+    # ------------------------------------------------------------------
+    # Status (exposed via admin API)
+    # ------------------------------------------------------------------
+
+    @classmethod
+    def get_status(cls):
+        return {
+            'active': cls.is_running(),
+            'reap_count': cls._reap_count,
+            'last_reap_at': cls._last_reap_at,
+            'last_reap_slot': cls._last_reap_slot,
+            'last_reap_reason': cls._last_reap_reason,
+        }
+
+    # ------------------------------------------------------------------
+    # Main loop (runs in a daemon thread)
+    # ------------------------------------------------------------------
+
+    @classmethod
+    def _run(cls):
+        """Poll system RAM and reap searches when memory is critical."""
+        while not cls._stop_event.is_set():
+            try:
+                cls._tick()
+            except Exception:
+                logger.exception("MemoryReaper tick failed")
+            cls._stop_event.wait(cls.POLL_INTERVAL)
+
+    @classmethod
+    def _tick(cls):
+        """One check-and-reap cycle."""
+        mem_gb = get_available_memory_gb()
+        floor = ConcurrencyConfig.get_emergency_ram_floor()
+
+        if mem_gb >= floor:
+            return  # plenty of RAM — nothing to do
+
+        # RAM is below the emergency floor.  Find searches to reap.
+        active = get_active_searches()
+        if not active:
+            return  # no searches running — nothing we can do
+
+        # Target the newest search (most recently started → least work lost)
+        newest = max(active, key=lambda s: s['start_time'])
+        slot_id = newest['slot_id']
+
+        reason = (
+            f"RAM {mem_gb:.1f} GB < emergency floor {floor:.1f} GB; "
+            f"reaping newest search {slot_id} "
+            f"(source={newest.get('source_id')}, target={newest.get('target_id')}, "
+            f"runtime={newest.get('runtime_seconds', 0):.0f}s)"
+        )
+        logger.warning("MemoryReaper: %s", reason)
+
+        if cancel_search(slot_id):
+            cls._reap_count += 1
+            cls._last_reap_at = time.time()
+            cls._last_reap_slot = slot_id
+            cls._last_reap_reason = reason
+            logger.warning("MemoryReaper: cancelled slot %s (total reaps: %d)",
+                           slot_id, cls._reap_count)
+            # Wait a cooldown period so the cancelled search has time to
+            # release memory before we check again.
+            cls._stop_event.wait(cls.COOLDOWN)
+        else:
+            logger.warning("MemoryReaper: cancel_search(%s) returned False", slot_id)
+
+
+def start_memory_reaper():
+    """Convenience entry point to start the MemoryReaper.
+
+    Call this from app startup (e.g. create_app) to ensure the reaper is
+    running.  Safe to call multiple times — the reaper is a singleton.
+    """
+    MemoryReaper.start()
 
 
 class SearchSlot:
@@ -586,9 +743,18 @@ class SearchSlot:
 
         Returns (ok, reason) where reason explains why we're blocked.
         """
-        # Memory check (skipped in stress test mode)
+        mem_gb = get_available_memory_gb()
+
+        # UNCONDITIONAL: Emergency RAM floor cannot be bypassed, even in
+        # stress test mode.  This is the last-resort OOM guard.
+        emergency_floor = ConcurrencyConfig.get_emergency_ram_floor()
+        if mem_gb < emergency_floor:
+            return False, (
+                f"EMERGENCY: RAM critically low ({mem_gb:.1f} GB available, "
+                f"emergency floor is {emergency_floor:.1f} GB)")
+
+        # Normal memory threshold (skipped in stress test mode)
         if not ConcurrencyConfig.is_stress_test_mode():
-            mem_gb = get_available_memory_gb()
             threshold = ConcurrencyConfig.get_memory_threshold()
             if mem_gb < threshold:
                 return False, (
@@ -614,6 +780,7 @@ class SearchSlot:
         Raises TimeoutError if queue_timeout is exceeded.
         """
         start = time.monotonic()
+        MemoryReaper.start()
 
         while True:
             if self._cancellation is not None:
