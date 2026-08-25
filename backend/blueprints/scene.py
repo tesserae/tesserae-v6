@@ -60,8 +60,18 @@ def theme_search():
     q = (request.args.get('q') or request.args.get('query') or '').strip()
     if not q:
         return jsonify({'error': 'q is required', 'results': []})
-    out = scene_index.find_by_text(
-        q, limit=_int_arg('limit', 25), languages=_languages(), scale=_scale())
+    # The module contract is that these routes answer 200 with an error field
+    # rather than raising, so a half-built index degrades the Reader's panel
+    # instead of breaking the page. That was documented and not implemented:
+    # on deployment this raised, Apache turned it into a bare 500, and the app
+    # log was unreadable, so the cause could not be seen from the response at
+    # all. An error the operator cannot read is an error they cannot fix.
+    try:
+        out = scene_index.find_by_text(
+            q, limit=_int_arg('limit', 25), languages=_languages(), scale=_scale())
+    except Exception as e:
+        logger.exception('[SCENE] theme-search failed')
+        return jsonify({'error': f'{type(e).__name__}: {e}', 'results': []})
     out['presentation'] = (
         'Each result is a passage whose CONTENT matches the description, not its '
         'wording, so results in different languages usually share no words with '
