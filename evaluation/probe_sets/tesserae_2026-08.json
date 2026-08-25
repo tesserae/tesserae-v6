@@ -1,0 +1,130 @@
+[
+ {
+  "query": "a warrior arms himself before battle, piece by piece",
+  "present": true
+ },
+ {
+  "query": "a lover complains that the beloved is cruel and indifferent",
+  "present": true
+ },
+ {
+  "query": "a monk in the desert is tempted and resists",
+  "present": true
+ },
+ {
+  "query": "a prophet denounces a king for injustice",
+  "present": true
+ },
+ {
+  "query": "a storm at sea scatters a fleet and the crew despairs",
+  "present": true
+ },
+ {
+  "query": "a seer is consulted and gives an answer that can be read two ways",
+  "present": true
+ },
+ {
+  "query": "a city falls and its people are led away captive",
+  "present": true
+ },
+ {
+  "query": "funeral games are held with prizes awarded to the winners",
+  "present": true
+ },
+ {
+  "query": "a father is commanded to sacrifice his own son",
+  "present": true
+ },
+ {
+  "query": "a descent into the world of the dead to consult a shade",
+  "present": true
+ },
+ {
+  "query": "a wine cup and the fleetingness of life",
+  "present": true
+ },
+ {
+  "query": "a guest at a banquet is asked to tell the story of his wanderings",
+  "present": true
+ },
+ {
+  "query": "a passenger boards a steam locomotive and finds a seat",
+  "present": false
+ },
+ {
+  "query": "a photographer develops a glass plate in a darkroom",
+  "present": false
+ },
+ {
+  "query": "a telegraph operator taps out a message in code",
+  "present": false
+ },
+ {
+  "query": "a tea ceremony performed with careful attention to each utensil",
+  "present": false
+ },
+ {
+  "query": "an Inuit hunter waits at a seal's breathing hole in the ice",
+  "present": false
+ },
+ {
+  "query": "a Mesoamerican priest reads the calendar to fix a festival date",
+  "present": false
+ },
+ {
+  "query": "a factory inspector reports on conditions in a cotton mill",
+  "present": false
+ },
+ {
+  "query": "a samurai prepares for ritual suicide before his lord",
+  "present": false
+ },
+ {
+  "query": "a Norse warrior boasts of his deeds in a mead hall",
+  "present": false
+ },
+ {
+  "query": "a surgeon administers ether before an operation",
+  "present": false
+ },
+ {
+  "query": "a farmer lifts potatoes out of the ground and sorts them for seed",
+  "present": false
+ },
+ {
+  "query": "a rider stands in his stirrups to shoot an arrow behind him",
+  "present": false
+ },
+ {
+  "query": "a still is heated and the rising vapour is caught and cooled into spirit",
+  "present": false
+ },
+ {
+  "query": "gunners swab out the cannon barrel and ram home a fresh powder charge",
+  "present": false
+ },
+ {
+  "query": "a compositor sets metal type line by line and locks up the forme",
+  "present": false
+ },
+ {
+  "query": "a captain takes the ship's latitude with a sextant at noon",
+  "present": false
+ },
+ {
+  "query": "airplanes and locomotives",
+  "present": false
+ },
+ {
+  "query": "a spacecraft docks with an orbital station",
+  "present": false
+ },
+ {
+  "query": "a programmer debugs a race condition in a web server",
+  "present": false
+ },
+ {
+  "query": "antibiotics are prescribed for a bacterial infection",
+  "present": false
+ }
+]

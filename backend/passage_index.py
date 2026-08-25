@@ -498,15 +498,27 @@ def _cluster_coherence(scores, k=COHERENCE_K):
 def _confidence_level(lift, coherence):
     """Graded, never certain: see the calibration note at the top of the file.
 
-    Neither signal separates present from absent subjects alone, but they fail
-    in different directions, so requiring BOTH for 'strong' and EITHER for
-    'moderate' left 'moderate' meaningless (it caught real and absent subjects
-    alike). Combining them into one score separates better than either does:
-    on the 18-query probe set, real subjects score above 1.75 and absent ones
-    below it, with the single exception noted in the log.
+    LIFT IS A GATE, NOT JUST AN ADDEND. The combined score alone reported
+    "airplanes and locomotives" as a STRONG match against a corpus of ancient
+    literature. Its lift was 0.060, plainly too low, but its coherence was
+    1.000 -- because when nothing resembles the query, every result is equally
+    unrelated to it, and uniform distance reads as a perfect cluster. Coherence
+    then carried the whole score and outvoted the signal that mattered.
+
+    So coherence can no longer rescue a query that nothing in the corpus
+    answers:
+
+      lift below WEAK_LIFT  -> low, whatever the cluster looks like
+      strong                -> needs BOTH the combined score AND real lift
+
+    The probe set missed this because every absent query in it was a plausible
+    near miss that still returned varied results. None was alien enough to
+    produce uniform noise, which is the case a reader will type first.
     """
     combined = lift * 10.0 + (coherence - 0.85) * 10.0
-    if combined >= STRONG_COMBINED:
+    if lift < WEAK_LIFT:
+        return 'low'
+    if combined >= STRONG_COMBINED and lift >= STRONG_LIFT:
         return 'strong'
     if combined >= MODERATE_COMBINED:
         return 'moderate'
