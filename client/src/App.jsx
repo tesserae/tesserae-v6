@@ -6,6 +6,7 @@ import SearchDescription from './components/search/SearchDescription';
 import { Modal, LoadingSpinner } from './components/common';
 import { CorpusBrowser, RareWordsExplorer } from './components/corpus';
 import { ReaderPage } from './components/reader';
+import ThemeSearchPage from './components/passages/ThemeSearchPage';
 import { Repository } from './components/repository';
 import { AdminPanel } from './components/admin';
 import { AboutPage, HelpPage, DownloadsPage, PrivacyPage, ResearchPage, BlogArchivePage } from './components/pages';
