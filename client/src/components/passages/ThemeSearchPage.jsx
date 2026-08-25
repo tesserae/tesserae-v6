@@ -46,15 +46,49 @@ const BAND = {
  * A real href, not a click handler, so the result can be opened in a new tab and
  * kept. Scholars compare things side by side.
  */
-function readerLink(r) {
+function readerLink(r, query) {
   const work = String(r.work || '').replace(/\.tess$/, '');
   const params = new URLSearchParams({
     work: `${work}.tess`,
     lang: r.language || 'la',
+    // BOTH ends of the window. Sending only ref_start selected a single line, so
+    // the Reader showed the whole original beside a translation of one line: the
+    // found passage and its English were nowhere near each other. The passage
+    // index knows the span, so the Reader should select the span.
     ref: r.ref_start || '',
+    refEnd: r.ref_end || r.ref_start || '',
     tab: 'translation',
+    // Carried through so the Reader can say what was searched for. Landing deep
+    // in a text with no memory of the question is disorienting.
+    q: query || '',
   });
   return `/read?${params.toString()}`;
+}
+
+/** Oldest first. A content search crosses centuries, so the order in which the
+ *  results are read is itself information: seeing a Homeric scene, then its
+ *  Hellenistic reworking, then a Latin one, is the point.
+ *
+ *  Undated works (Persian and Urdu authors are not in the dates table) go last
+ *  rather than being guessed at or dropped.
+ */
+function chronological(results) {
+  return [...(results || [])].sort((a, b) => {
+    const ay = typeof a.year === 'number' ? a.year : null;
+    const by = typeof b.year === 'number' ? b.year : null;
+    if (ay === null && by === null) return (b.score || 0) - (a.score || 0);
+    if (ay === null) return 1;
+    if (by === null) return -1;
+    if (ay !== by) return ay - by;
+    return (b.score || 0) - (a.score || 0);
+  });
+}
+
+/** "d. 456 BCE" if we have it, else the bare year, else nothing. */
+function dateLabel(r) {
+  if (r.date_note) return r.date_note;
+  if (typeof r.year !== 'number') return null;
+  return r.year < 0 ? `${Math.abs(r.year)} BCE` : `${r.year} CE`;
 }
 
 const LANG_LABEL = {
@@ -159,8 +193,11 @@ export default function ThemeSearchPage() {
             </p>
           )}
 
-          <ul className="mt-4 space-y-3">
-            {(data.results || []).map((r) => (
+          <p className="mt-4 mb-2 text-xs text-gray-500">
+            Oldest first. Undated authors are listed last.
+          </p>
+          <ul className="space-y-3">
+            {chronological(data.results).map((r) => (
               <li key={r.id || `${r.work}-${r.ref_start}`}
                   className="border border-gray-200 rounded p-3 bg-white">
                 <div className="flex items-baseline gap-2 flex-wrap">
@@ -168,12 +205,21 @@ export default function ThemeSearchPage() {
                     {LANG_LABEL[r.language] || r.language}
                   </span>
                   <a
-                    href={readerLink(r)}
+                    href={readerLink(r, data.query || query)}
                     className="font-medium text-red-800 hover:text-red-900 hover:underline"
                   >
                     {r.title || r.work}
                   </a>
                   <span className="text-sm text-gray-500">{r.ref_start}</span>
+                  {dateLabel(r) && (
+                    <span className="text-[11px] text-gray-500 whitespace-nowrap">
+                      {dateLabel(r)}
+                      {r.era ? ` · ${r.era}` : ''}
+                    </span>
+                  )}
+                  {!dateLabel(r) && (
+                    <span className="text-[11px] text-gray-400">undated</span>
+                  )}
                   {r.strong === false && (
                     <span className="text-[10px] text-gray-500 border border-gray-300 rounded px-1">
                       weak neighbour
@@ -193,7 +239,7 @@ export default function ThemeSearchPage() {
                 )}
                 <p className="mt-2">
                   <a
-                    href={readerLink(r)}
+                    href={readerLink(r, data.query || query)}
                     className="text-xs text-red-700 hover:text-red-900 hover:underline"
                   >
                     Read this passage with its translation &rarr;

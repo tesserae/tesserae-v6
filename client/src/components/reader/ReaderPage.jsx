@@ -23,7 +23,9 @@ export default function ReaderPage() {
   // specific passage in mind, and dropping them at line 1 of the work would
   // lose the thing they clicked.
   const [wantedRef] = useState(() => paramOr('ref', ''));
+  const [wantedRefEnd] = useState(() => paramOr('refEnd', ''));
   const [wantedTab] = useState(() => paramOr('tab', ''));
+  const [cameFrom] = useState(() => paramOr('q', ''));
   const [units, setUnits] = useState([]);
   const [metadata, setMetadata] = useState(null);
   const [selection, setSelection] = useState(null);
@@ -65,15 +67,20 @@ export default function ReaderPage() {
     if (!wantedRef || !units.length) return;
     const i = units.findIndex((u) => u.ref === wantedRef);
     if (i < 0) return;
-    setSelection({ startIdx: i, endIdx: i, refStart: units[i].ref,
-                   refEnd: units[i].ref, lineCount: 1 });
+    // Select the WHOLE found passage, not just its first line, so the
+    // translation panel renders the English for the same span the reader was
+    // shown a summary of.
+    const j = wantedRefEnd ? units.findIndex((u) => u.ref === wantedRefEnd) : i;
+    const end = j >= i ? j : i;
+    setSelection({ startIdx: i, endIdx: end, refStart: units[i].ref,
+                   refEnd: units[end].ref, lineCount: end - i + 1 });
     // Let the line render before scrolling to it.
     const id = window.setTimeout(() => {
       const el = document.getElementById(`line-${cssRef(units[i].ref)}`);
       if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
     }, 120);
     return () => window.clearTimeout(id);
-  }, [wantedRef, units]);
+  }, [wantedRef, wantedRefEnd, units]);
 
   const openPassage = useCallback((result) => {
     if (!result?.work) return;
@@ -116,6 +123,24 @@ export default function ReaderPage() {
                 not exist on a phone, so the words go here where there is room.
                 Without this a reader saw two columns of coloured squares beside
                 the poem and had no way to find out what they were. */}
+            {/* What the reader searched for, carried through the link. Landing
+                deep inside a text with no memory of the question is
+                disorienting, and the summary they clicked was an interpretation
+                that they should be able to weigh against the passage. */}
+            {cameFrom && (
+              <p className="px-3 py-2 text-xs text-gray-700 border-b border-gray-200 bg-red-50">
+                Found by Theme Search for{' '}
+                <span className="font-medium">&ldquo;{cameFrom}&rdquo;</span>
+                {selection?.lineCount > 1 && (
+                  <span className="text-gray-500">
+                    {' '}&middot; the matching passage is selected below
+                  </span>
+                )}
+                <a href="/theme-search" className="ml-2 text-red-700 hover:underline">
+                  back to results
+                </a>
+              </p>
+            )}
             <p className="px-3 py-1.5 text-[11px] text-gray-600 border-b border-gray-200 bg-gray-50 flex flex-wrap gap-x-4 gap-y-1">
               <span className="flex items-center gap-1.5">
                 <span className="inline-block w-[9px] h-[7px] rounded-sm bg-red-700" />
@@ -123,7 +148,8 @@ export default function ReaderPage() {
                 shared wording
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="inline-block w-[9px] h-[7px] rounded-sm bg-amber-600" />
+                <span className="inline-block w-[9px] h-[7px] rounded-sm"
+                      style={{ backgroundColor: '#7c6bb0' }} />
                 <strong className="font-semibold text-gray-700">C</strong>
                 similar content, wording need not match
               </span>

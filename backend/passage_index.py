@@ -313,6 +313,39 @@ def index_fingerprint():
     return f'{len(_ids)}-{mt}'
 
 
+# Author dates, for putting results in chronological order. The same table the
+# rest of the site uses, so a date here matches a date anywhere else.
+_DATES = None
+
+
+def _author_dates():
+    global _DATES
+    if _DATES is None:
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            'author_dates.json')
+        try:
+            with open(path, encoding='utf-8') as fh:
+                _DATES = json.load(fh)
+        except (OSError, ValueError):
+            _DATES = {}
+    return _DATES
+
+
+def _dating(work, language):
+    """year / era / note for a work, or empty when the author is not dated.
+
+    Persian, Urdu and Arabic authors are absent from the table, so those results
+    carry no date. They are shown as undated rather than guessed at, and sorted
+    after everything that has one.
+    """
+    key = str(work or '').split('.')[0].lower()
+    info = (_author_dates().get(language) or {}).get(key)
+    if not info:
+        return {}
+    return {'year': info.get('year'), 'era': info.get('era'),
+            'date_note': info.get('note')}
+
+
 def _result(row, score, strong=None, extra=None):
     r = _records[row]
     d = r.get('desc') or {}
@@ -346,6 +379,7 @@ def _result(row, score, strong=None, extra=None):
         # 'Pater' or refer to Achilles only as 'he'. It marks a name worth
         # checking, which is what a reader can act on.
         'names_unverified': d.get('names_unverified') or [],
+        **_dating(r.get('work'), r.get('language')),
     }
     if extra:
         out.update(extra)
