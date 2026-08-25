@@ -14,6 +14,9 @@ import { useCallback, useRef, useState } from 'react';
  */
 export default function useAssistantStream() {
   const [text, setText] = useState('');
+  // What it is doing right now. The searches take a few seconds before any
+  // answer text exists, and a blank panel in that gap reads as broken.
+  const [step, setStep] = useState(null);
   const [facts, setFacts] = useState(null);
   const [guardrails, setGuardrails] = useState(null);
   const [running, setRunning] = useState(false);
@@ -31,6 +34,7 @@ export default function useAssistantStream() {
     const controller = new AbortController();
     abortRef.current = controller;
     setText('');
+    setStep(null);
     setFacts(null);
     setGuardrails(null);
     setError(null);
@@ -66,7 +70,8 @@ export default function useAssistantStream() {
           } catch {
             continue;
           }
-          if (evt.type === 'chunk') setText((t) => t + (evt.text || ''));
+          if (evt.type === 'chunk') { setText((t) => t + (evt.text || '')); setStep(null); }
+          else if (evt.type === 'step') setStep(evt.text || null);
           else if (evt.type === 'facts') setFacts(evt.facts || null);
           else if (evt.type === 'error') setError(evt.error || 'the assistant could not answer');
           else if (evt.type === 'done') setGuardrails(evt.guardrails || { clean: true });
@@ -75,10 +80,11 @@ export default function useAssistantStream() {
     } catch (e) {
       if (e.name !== 'AbortError') setError(e.message);
     } finally {
+      setStep(null);
       setRunning(false);
       abortRef.current = null;
     }
   }, [stop]);
 
-  return { text, facts, guardrails, running, error, run, stop };
+  return { text, step, facts, guardrails, running, error, run, stop };
 }

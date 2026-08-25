@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import useAssistantStream from './useAssistantStream';
 
+// Openers that show what it can actually DO, not only what it can explain. It
+// runs searches now, so "where does this phrase appear" gets real loci back.
 const OPENERS = [
-  'Which search should I use?',
-  'What is the difference between lemma and exact?',
-  'How do I compare a Greek text with a Latin one?',
-  'How do I find passages about a scene rather than a phrase?',
+  'Where does the phrase arma virumque appear?',
+  'What Hebrew texts are in the corpus?',
+  'Recommend interesting searches across Hebrew and Greek.',
+  'What is the difference between lemma and exact search?',
 ];
 
 /**
@@ -24,7 +26,7 @@ export default function AssistantDock() {
   const [open, setOpen] = useState(false);
   const [turns, setTurns] = useState([]);
   const [draft, setDraft] = useState('');
-  const { text, running, error, run } = useAssistantStream();
+  const { text, step, running, error, run } = useAssistantStream();
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -54,7 +56,7 @@ export default function AssistantDock() {
     if (!question || running) return;
     setTurns((t) => [...t, { role: 'user', text: question }]);
     setDraft('');
-    run('/api/assistant/guide-stream', { question });
+    run('/api/assistant/ask-stream', { question });
   };
 
   if (!open) {
@@ -71,7 +73,7 @@ export default function AssistantDock() {
   return (
     <div className="fixed bottom-5 right-5 z-40 w-[22rem] max-w-[calc(100vw-2.5rem)] rounded-lg border border-gray-300 bg-white shadow-xl flex flex-col max-h-[min(32rem,calc(100vh-3rem))]">
       <header className="flex items-center justify-between px-3 py-2 border-b border-gray-200">
-        <h2 className="text-sm font-semibold text-gray-800">Search guide</h2>
+        <h2 className="text-sm font-semibold text-gray-800">Ask the corpus</h2>
         <button
           onClick={() => setOpen(false)}
           className="text-gray-400 hover:text-gray-700 text-lg leading-none px-1"
@@ -85,8 +87,9 @@ export default function AssistantDock() {
         {turns.length === 0 && !running && (
           <>
             <p className="text-sm text-gray-600 leading-relaxed">
-              Tell me what you are trying to find and I will say which searches to run,
-              and in what order.
+              Ask a question and I will run searches to answer it. I can tell you
+              where a phrase occurs, what the corpus holds in a language, and
+              which searches are worth trying.
             </p>
             <div className="flex flex-col gap-1.5">
               {OPENERS.map((q) => (
@@ -115,7 +118,10 @@ export default function AssistantDock() {
           </div>
         ))}
 
-        {running && (
+        {running && step && !text && (
+          <div className="text-xs text-gray-500 italic px-2">{step}…</div>
+        )}
+        {running && (text || !step) && (
           <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap bg-gray-50 rounded p-2">
             {text}
             <span className="inline-block w-1.5 h-4 ml-0.5 bg-gray-400 animate-pulse align-text-bottom" />
@@ -145,8 +151,9 @@ export default function AssistantDock() {
       </form>
 
       <p className="px-3 pb-2 text-[11px] text-gray-500 leading-snug">
-        This guide explains the tools. It does not know classical scholarship, and it
-        will not tell you what a passage means. Ask it where to look.
+        Answers come from searches actually run against the corpus. It does not
+        know classical scholarship independently, and it will not tell you what a
+        passage means.
       </p>
     </div>
   );
