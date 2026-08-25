@@ -350,6 +350,10 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
     { id: 'stoplists', label: 'Stoplists', group: 'The Fusion (Phrases) search' },
     { id: 'results', label: 'Understanding Results', group: 'The Fusion (Phrases) search' },
 
+    { id: 'theme-search', label: 'Theme Search', group: 'Reading & content' },
+    { id: 'reader', label: 'The Reader', group: 'Reading & content' },
+    { id: 'tessa', label: 'Tessa, the assistant', group: 'Reading & content' },
+
     { id: 'languages', label: 'Languages', group: 'Languages' },
     { id: 'coptic', label: 'Coptic (in depth)', group: 'Languages' },
     { id: 'hebrew', label: 'Hebrew (in depth)', group: 'Languages' },
@@ -497,6 +501,193 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
             </div>
           )}
 
+          {activeSection === 'theme-search' && (
+            <div className="prose max-w-none">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Theme Search</h3>
+              <p className="text-gray-700 mb-4">
+                Describe what happens in a passage, in your own words, and Theme Search finds
+                passages that match the description rather than the wording. Because it works
+                from content, results come back in every indexed language at once and usually
+                share no vocabulary with what you typed, or with each other.
+              </p>
+
+              <h4 className="font-medium text-gray-900 mt-6 mb-2">How it works</h4>
+              <p className="text-gray-700 mb-3">
+                Every text in the corpus is cut into overlapping <strong>passage windows</strong>:
+                twelve lines starting a new window every six, and a coarser thirty lines every
+                fifteen. The overlap matters, because a passage that straddles a boundary would
+                otherwise be split down the middle and neither half would describe it.
+              </p>
+              <p className="text-gray-700 mb-3">
+                A language model then writes a structured English description of each window:
+                what kind of passage it is, the setting, who is present, what happens step by
+                step, the objects in it, and its themes. Those descriptions, not the original
+                words, are what your query is compared against. There are <strong>603,594</strong> of
+                them, covering Latin, Greek, Hebrew, Coptic, English, Persian and Urdu.
+              </p>
+              <p className="text-gray-700 mb-3">
+                This is why a Persian passage can answer an English description of a Greek scene.
+                Nothing is being translated and no words are being matched: two passages are
+                being compared by what they are about.
+              </p>
+
+              <h4 className="font-medium text-gray-900 mt-6 mb-2">Reading the results</h4>
+              <ul className="list-disc pl-5 text-gray-700 space-y-2 mb-3">
+                <li>
+                  <strong>Results are ordered oldest first</strong>, with the author&rsquo;s date at
+                  the left, so you can see a subject move through time. Undated authors are
+                  listed last.
+                </li>
+                <li>
+                  <strong>Several passages from one work are grouped under it.</strong> The work is
+                  named once; each passage keeps its own reference and summary.
+                </li>
+                <li>
+                  <strong>Click a reference</strong> to open the passage in the Reader, with the
+                  translation panel open and your search shown above the text.
+                </li>
+                <li>
+                  <strong>The confidence band</strong> at the top says whether the corpus really
+                  contains what you asked for. It is worth trusting: see below.
+                </li>
+              </ul>
+
+              <h4 className="font-medium text-gray-900 mt-6 mb-2">What the confidence band means</h4>
+              <p className="text-gray-700 mb-3">
+                A search always returns its closest matches, even when the corpus holds nothing
+                of the kind, so the band tells you which situation you are in. It combines how
+                far the best result stands above the corpus average with how much the top
+                results resemble each other. A real subject returns a cluster; an absent one
+                returns scattered strays.
+              </p>
+              <p className="text-gray-700 mb-3">
+                The thresholds were fitted against a set of 28 test queries, half of them
+                subjects the corpus certainly holds and half it certainly does not, and they are
+                published with the code so anyone can check them. The hardest test cases are
+                near misses: &ldquo;a farmer lifts potatoes out of the ground and sorts them for
+                seed&rdquo; scores higher than eight genuinely classical subjects, because
+                everything in it except the potato is deeply present in the corpus.
+              </p>
+
+              <h4 className="font-medium text-gray-900 mt-6 mb-2">Limits worth knowing</h4>
+              <ul className="list-disc pl-5 text-gray-700 space-y-2">
+                <li>
+                  <strong>The summaries are machine-written.</strong> Treat them as a finding aid,
+                  not as evidence, and read the passage before citing it.
+                </li>
+                <li>
+                  <strong>Names are checked, and failures are shown.</strong> Where a summary names
+                  someone the passage does not appear to name, the result says so. That is a flag
+                  to check, not proof of error: a passage may call Jupiter &ldquo;Pater&rdquo; or
+                  refer to Achilles only as &ldquo;he&rdquo;.
+                </li>
+                <li>
+                  <strong>Coptic descriptions were written from English translations</strong>, not
+                  from the Coptic, because no available model reads Coptic well enough. They are
+                  evidence at one remove.
+                </li>
+                <li>
+                  <strong>Persian and Urdu intertextuality often works through form</strong> — a
+                  poem answering another in the same metre, rhyme and radif, sometimes with almost
+                  no shared vocabulary. These descriptions capture content, not form, so that
+                  whole mode of response is invisible here.
+                </li>
+                <li>
+                  The first search after a quiet period takes about ten seconds while the model
+                  loads. After that it is well under a second.
+                </li>
+              </ul>
+            </div>
+          )}
+
+          {activeSection === 'reader' && (
+            <div className="prose max-w-none">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">The Reader</h3>
+              <p className="text-gray-700 mb-4">
+                The Reader shows a text one line at a time with two things beside it: a gutter of
+                marks showing where the rest of the corpus connects to each line, and a panel of
+                those connections for whatever you select.
+              </p>
+
+              <h4 className="font-medium text-gray-900 mt-6 mb-2">The gutter</h4>
+              <p className="text-gray-700 mb-3">
+                Two narrow columns run down the left of the text, and the key above the text says
+                what they are:
+              </p>
+              <ul className="list-disc pl-5 text-gray-700 space-y-2 mb-3">
+                <li>
+                  <strong>W, in red: shared wording.</strong> Another passage in the corpus uses
+                  some of the same words as this line.
+                </li>
+                <li>
+                  <strong>C, in purple: similar content.</strong> Another passage describes
+                  something similar, whether or not it shares any words.
+                </li>
+              </ul>
+              <p className="text-gray-700 mb-3">
+                A darker mark means more connections. The two columns fill in independently as
+                each answer arrives, so one may be marked while the other is still working.
+                Select a line to see what the marks are pointing at.
+              </p>
+
+              <h4 className="font-medium text-gray-900 mt-6 mb-2">The panel</h4>
+              <ul className="list-disc pl-5 text-gray-700 space-y-2 mb-3">
+                <li>
+                  <strong>Similar passages</strong> lists passages elsewhere in the corpus whose
+                  content resembles your selection, across every indexed language.
+                </li>
+                <li>
+                  <strong>Translation</strong> shows the aligned public-domain English where one
+                  exists. Coverage is partial: roughly a fifth of the Greek corpus and a tenth of
+                  the Latin, so many passages have none.
+                </li>
+              </ul>
+              <p className="text-gray-700 mb-3">
+                Arriving from Theme Search, the Reader opens on the translation, selects the whole
+                passage that matched, and shows the search that brought you there, with a link
+                back to the results.
+              </p>
+            </div>
+          )}
+
+          {activeSection === 'tessa' && (
+            <div className="prose max-w-none">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Tessa, the assistant</h3>
+              <p className="text-gray-700 mb-4">
+                Tessa is a research assistant that <strong>runs searches against this corpus and
+                reports what came back</strong>. She is not a chatbot with opinions about
+                classical literature, and she is not a substitute for reading. Ask her a question
+                about what the corpus holds and she will search it.
+              </p>
+
+              <h4 className="font-medium text-gray-900 mt-6 mb-2">What she can do</h4>
+              <ul className="list-disc pl-5 text-gray-700 space-y-2 mb-3">
+                <li>Find where a word or phrase occurs, and list the actual lines.</li>
+                <li>Say what the corpus holds in a language, or by an author.</li>
+                <li>
+                  Report <strong>inflected variants</strong> you did not ask for. An exact search
+                  for <em>arma virumque</em> misses Eobanus entirely, who has the phrase
+                  twenty-one times in other cases. She will tell you they exist and offer to list
+                  them.
+                </li>
+                <li>Follow up. Ask &ldquo;what about Eobanus?&rdquo; and she keeps the thread.</li>
+                <li>Explain how the site works, including how to connect your own AI to it.</li>
+              </ul>
+
+              <h4 className="font-medium text-gray-900 mt-6 mb-2">How to trust her</h4>
+              <p className="text-gray-700 mb-3">
+                Every answer is checked before you see it. Citations must come from a search that
+                actually ran, numbers must appear in the results, and any line of text she quotes
+                must match the passage word for word. She runs on a model hosted on this server,
+                so nothing you ask is sent anywhere else.
+              </p>
+              <p className="text-gray-700 mb-3">
+                She still cannot read the literature for you. She reports what the searches
+                returned, and the judgement about what it means is yours.
+              </p>
+            </div>
+          )}
+
           {activeSection === 'languages' && (
             <div className="prose max-w-none">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Languages</h3>
@@ -508,7 +699,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 <div className="border-l-4 border-red-500 pl-4">
                   <h4 className="font-medium text-gray-900">Latin</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    The largest and best-developed corpus (~1,400 texts). All ten channels are available, and every text has been
+                    The largest and best-developed corpus (~1,400 texts). All eleven channels are available, and every text has been
                     grammatically parsed, so the syntax channels contribute. Latin has the most thoroughly evaluated results
                     (92.6% recall across five standard Latin allusion benchmarks, as of August 2026).
                   </p>
@@ -707,7 +898,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
 
               <p className="text-gray-700 mb-3">
-                For a catalog of what each of the ten channels detects — and how to run a single one on its own — see{' '}
+                For a catalog of what each of the eleven channels detects — and how to run a single one on its own — see{' '}
                 <button onClick={() => setActiveSection('match-types')} className="text-red-600 hover:underline">Match Types</button>.
               </p>
 
@@ -719,7 +910,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 casts a wider net, receives a lower weight.
               </p>
               <p className="text-gray-700 mb-3">
-                A <strong>convergence bonus</strong> rewards pairs found independently by multiple channels. If six out of ten channels all
+                A <strong>convergence bonus</strong> rewards pairs found independently by multiple channels. If six out of eleven channels all
                 flag the same pair of lines, that agreement is strong evidence of a real connection — stronger than any single channel's
                 score alone. The convergence bonus is weighted by word rarity: pairs sharing rare vocabulary get the full bonus,
                 while pairs whose weakest word is very common receive a reduced bonus proportional to that word's frequency.
@@ -797,21 +988,49 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
           {activeSection === 'search-modes' && (
             <div className="prose max-w-none">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Search Modes</h3>
-              <p className="text-gray-700 mb-6">Tesserae offers six search modes, accessible via tabs at the top of the search page:</p>
+              <p className="text-gray-700 mb-6">Tesserae offers six search modes on the search page, plus Theme Search and the Reader on their own tabs:</p>
 
               <div className="space-y-6">
                 <div className="border-l-4 border-red-500 pl-4">
                   <h4 className="font-medium text-gray-900">Phrases (Parallel Search)</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Compare a source text against a target text. The default match type is <strong>Fusion — All Channels</strong>, which
-                    runs nine independent detection methods (lemma, exact, semantic, dictionary, sound, edit distance, syntax,
-                    and rare vocabulary) and combines their results for the best recall.
+                    runs eleven independent detection methods (lemma, single-lemma, exact, semantic, dictionary, sound,
+                    edit distance, syntax, structural syntax, verbatim quotation and rare vocabulary) and combines
+                    their results for the best recall.
                     You can also select individual match types (Lemma, Exact, Sound, etc.) from the dropdown.
                   </p>
                   <p className="text-gray-500 text-sm mt-2">
                     <strong>Use for:</strong> Discovering allusions, quotations, and thematic parallels between texts.
                     See{' '}
-                    <button onClick={() => setActiveSection('match-types')} className="text-red-600 hover:underline">Match Types</button>{' '}for what each of the ten channels detects.
+                    <button onClick={() => setActiveSection('match-types')} className="text-red-600 hover:underline">Match Types</button>{' '}for what each of the eleven channels detects.
+                  </p>
+                </div>
+
+                <div className="border-l-4 border-purple-500 pl-4">
+                  <h4 className="font-medium text-gray-900">Theme Search <span className="text-xs text-gray-500">(its own tab)</span></h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Describe what happens in a passage, in your own words, and find passages that match
+                    the description rather than the wording. Results come back in every indexed language
+                    at once and usually share no vocabulary with the query or with each other.
+                  </p>
+                  <p className="text-gray-500 text-sm mt-2">
+                    <strong>Use for:</strong> finding a scene, motif or situation when you do not know
+                    what words it is phrased in, or when it crosses languages. See{' '}
+                    <button onClick={() => setActiveSection('theme-search')} className="text-red-600 hover:underline">Theme Search</button>.
+                  </p>
+                </div>
+
+                <div className="border-l-4 border-gray-400 pl-4">
+                  <h4 className="font-medium text-gray-900">Read <span className="text-xs text-gray-500">(its own tab)</span></h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Read a text with a gutter showing where the rest of the corpus connects to each line,
+                    by wording and by content, and a panel of those connections plus the translation where
+                    one exists.
+                  </p>
+                  <p className="text-gray-500 text-sm mt-2">
+                    <strong>Use for:</strong> working through a passage and seeing what it touches. See{' '}
+                    <button onClick={() => setActiveSection('reader')} className="text-red-600 hover:underline">The Reader</button>.
                   </p>
                 </div>
 
@@ -999,7 +1218,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               <div className="bg-amber-50 p-4 rounded-lg border border-amber-200 mb-4">
                 <p className="text-amber-700 text-sm">
                   <strong>Note:</strong> In Fusion mode (the default), most settings below are managed automatically by the
-                  ten channels. Settings like Minimum Matches, Max Distance, and Stoplist apply when running individual match types.
+                  eleven channels. Settings like Minimum Matches, Max Distance, and Stoplist apply when running individual match types.
                 </p>
               </div>
               <dl className="space-y-4">
@@ -1293,7 +1512,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
               <h4 className="font-medium text-gray-900 mt-6 mb-3">Getting Started</h4>
               <ul className="list-disc list-inside text-gray-600 text-sm space-y-2 ml-2">
-                <li><strong>Use Fusion (the default)</strong>: It runs ten channels and finds far more parallels than any single method. Start here.</li>
+                <li><strong>Use Fusion (the default)</strong>: It runs eleven channels and finds far more parallels than any single method. Start here.</li>
                 <li><strong>Start small, then expand</strong>: Begin with a single book comparison, then broaden to complete works</li>
                 <li><strong>Focus on the top results</strong>: Fusion ranks results by combined confidence. The highest-scoring results are overwhelmingly genuine parallels.</li>
                 <li><strong>Check channel badges</strong>: Results flagged by many independent channels are the most reliable</li>
@@ -1418,7 +1637,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </ul>
                 <p className="text-purple-700 text-sm mt-2">
                   For comparison, the Latin fusion system achieves 91.9% recall across five benchmarks using
-                  ten channels. Cross-lingual search uses four channels: semantic embeddings, dictionary,
+                  eleven channels. Cross-lingual search uses four channels: semantic embeddings, dictionary,
                   cross-lingual syntax (structural fingerprint matching via Universal Dependencies),
                   and phonetic transliteration (Greek→Latin character mapping for detecting sound echoes like μῆνιν ≈ Mene).
                 </p>
@@ -1681,7 +1900,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 <div>
                   <h4 className="font-medium text-gray-900">What is Fusion search and should I use it?</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    Fusion is the default search mode. It runs nine independent detection channels simultaneously
+                    Fusion is the default search mode. It runs eleven independent detection channels simultaneously
                     and combines their results, finding 92% of known parallels in benchmark tests. Unless you need
                     to isolate a specific detection method, Fusion is recommended for general use.
                   </p>
@@ -1689,7 +1908,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 <div>
                   <h4 className="font-medium text-gray-900">Why is my search taking so long?</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    Fusion search runs ten channels, which takes longer than a single-channel search.
+                    Fusion search runs eleven channels, which takes longer than a single-channel search.
                     Try searching smaller sections (e.g., individual books) for faster results. Large text pairs
                     like the full Aeneid vs. Metamorphoses can take up to 15 minutes on first run but are cached
                     for subsequent searches. A progress timer is shown during the search.

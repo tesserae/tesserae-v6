@@ -181,9 +181,7 @@ export default function ThemeSearchPage() {
       <h1 className="text-2xl font-semibold text-gray-900">Theme Search</h1>
       <p className="mt-2 text-sm text-gray-600 leading-relaxed">
         Describe what happens in a passage and this finds passages that match the
-        description, not the words. Because it works from content, results come
-        back in every indexed language at once and usually share no vocabulary
-        with what you typed, or with each other.
+        description.
       </p>
 
       <form
