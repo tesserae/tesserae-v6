@@ -172,6 +172,37 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # Handle proxy heade
 #
 # The hook is kept because it is correct for anything Flask does serve, and
 # because it will start covering the page the day the mount changes.
+# -----------------------------------------------------------------------------
+# WHICH BUILD IS CURRENT
+# -----------------------------------------------------------------------------
+# So a running page can notice it is out of date and offer to reload.
+#
+# The failure this addresses is quiet and nasty. Apache falls back to index.html
+# for any path it cannot find, so a stale page asking for a bundle that no longer
+# exists gets 200 OK with Content-Type text/html: the PAGE, pretending to be
+# JavaScript. The browser tries to execute HTML, fails at parse, and nothing
+# runs at all -- no app, no error handler, no message. Just a dead panel.
+_BUILD = {'name': None, 'checked': 0.0}
+
+
+@app.route(f'{API_PREFIX}/version' if API_PREFIX else '/version')
+def build_version():
+    """The bundle the server would serve to a fresh visitor."""
+    import re as _re
+    import time as _time
+    now = _time.time()
+    if not _BUILD['name'] or now - _BUILD['checked'] > 30:
+        try:
+            with open(os.path.join(STATIC_FOLDER, 'index.html'), encoding='utf-8') as fh:
+                head = fh.read(8192)
+            m = _re.search(r'/assets/(index-[A-Za-z0-9_-]+\.js)', head)
+            _BUILD['name'] = m.group(1) if m else None
+        except OSError:
+            _BUILD['name'] = None
+        _BUILD['checked'] = now
+    return jsonify({'bundle': _BUILD['name']})
+
+
 @app.after_request
 def _cache_headers(response):
     path = request.path or ''
