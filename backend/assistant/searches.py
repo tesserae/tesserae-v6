@@ -1,0 +1,162 @@
+"""The searches the assistant is allowed to run, and how it runs them.
+
+The guide half of the assistant could only ever say WHICH search to use, because
+it had no corpus access. Asked three times to recommend interesting searches
+across Hebrew and Greek, it three times listed tools. This module is what lets it
+look instead.
+
+WHY LOOPBACK HTTP RATHER THAN IMPORTING THE SEARCH CODE
+
+The searches are Flask routes, not library functions, and they carry a good deal
+of request handling: parameter coercion, text resolution, caching, cancellation.
+Calling them over 127.0.0.1 reuses all of that exactly as a browser would, so the
+assistant cannot drift from what the site actually does. It also isolates
+failures: a search that hangs or dies takes an HTTP timeout with it rather than
+the request thread.
+
+WHAT IS DELIBERATELY NOT HERE
+
+No fusion comparison of two large works. That takes minutes, and a model that can
+start one will. Only searches that return in seconds are exposed, so the
+assistant stays responsive and cannot be made to consume the machine by asking it
+an open-ended question.
+"""
+import json
+import urllib.error
+import urllib.parse
+import urllib.request
+
+from backend.logging_config import get_logger
+
+logger = get_logger('assistant.searches')
+
+# The site talks to itself over loopback. HTTPS with an explicit Host header,
+# because Apache serves Tesserae on a name-based virtual host and redirects
+# plain HTTP: a bare http://127.0.0.1 request lands on the default vhost and
+# 404s. Certificate verification is off because the peer is this machine, reached
+# by address, so there is no name to verify and nothing in between to spoof it.
+BASE = 'https://127.0.0.1/api'
+HOST_HEADER = 'tesserae.caset.buffalo.edu'
+
+# A search the assistant starts must not outlive the patience of the person who
+# asked. Anything slower belongs in the interface, where a user can watch it.
+TIMEOUT = 25
+
+
+class SearchError(Exception):
+    """A search could not be run. The caller says so rather than inventing."""
+
+
+def _get(path, params):
+    import ssl
+    url = f'{BASE}{path}?{urllib.parse.urlencode(params)}'
+    req = urllib.request.Request(url, headers={'Host': HOST_HEADER})
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    try:
+        with urllib.request.urlopen(req, timeout=TIMEOUT, context=ctx) as r:
+            return json.loads(r.read())
+    except urllib.error.HTTPError as e:
+        raise SearchError(f'search returned {e.code}') from e
+    except (urllib.error.URLError, OSError, ValueError) as e:
+        raise SearchError(str(e)) from e
+
+
+# --------------------------------------------------------------------------
+# The tools, as a schema the model chooses from
+# --------------------------------------------------------------------------
+# Structured choice, not free text. A model asked to name a tool in prose will
+# eventually name one that does not exist, which is the same failure as an
+# invented citation and harder to catch. It returns JSON, the name is checked
+# against this table, and an unknown name is refused rather than guessed at.
+TOOLS = {
+    'line_search': {
+        # search_type matters more than it looks. Asked where "arma virumque"
+        # occurs, a LEMMA search returns every line sharing the lemmas arma and
+        # uir -- hundreds of them, ranked so that Aeneid 1.1, the origin of the
+        # phrase, falls below position 60 and is invisible at any sane result
+        # cap. EXACT puts Aeneid 1.1 first, then Ovid, Seneca and Quintilian
+        # quoting it. For a phrase the user has quoted, exact is almost always
+        # what they meant.
+        'what': 'Find a word or phrase across the whole corpus. Use exact when '
+                'the user QUOTES a phrase and wants where it occurs; use lemma '
+                'when they want a word in all its inflected forms.',
+        'args': {'query': 'the word or phrase, in the original language',
+                 'language': 'la, grc, he, cop or en',
+                 'search_type': 'exact for a quoted phrase, lemma for a word'},
+        'run': lambda a: _get('/line-search', {
+            'query': a['query'], 'language': a.get('language', 'la'),
+            'search_type': a.get('search_type', 'lemma'), 'max_results': 60}),
+    },
+    'rare_words': {
+        # SAME LANGUAGE ONLY, and the description has to say so. Asked about
+        # Hebrew and Greek, the model ran this between Deuteronomy and the Iliad.
+        # Hebrew and Greek share no vocabulary, so it returned index artefacts
+        # (*lyrcea, aaaicti), and the model then concluded from that failure that
+        # the corpus holds no Hebrew at all -- having just been told by
+        # list_texts that it holds 39 Hebrew books.
+        'what': 'Uncommon single words shared by two named texts IN THE SAME '
+                'LANGUAGE. Fast and high precision. Never use it across two '
+                'different languages: they share no vocabulary and the result is '
+                'meaningless noise, not evidence of absence.',
+        'args': {'source': 'source text id', 'target': 'target text id'},
+        'run': lambda a: _get('/rare-lemmata', {
+            'source': a['source'], 'target': a['target'], 'limit': 30}),
+    },
+    'list_texts': {
+        'what': 'What the corpus actually holds in a language. Use FIRST when '
+                'the user asks an open question about a language or period, so '
+                'the answer names works that exist.',
+        'args': {'language': 'la, grc, he, cop or en'},
+        'run': lambda a: _get('/texts', {'language': a.get('language', 'la')}),
+    },
+}
+
+
+def tool_menu():
+    """The tool list as the model sees it, built from the table above."""
+    out = []
+    for name, spec in TOOLS.items():
+        args = ', '.join(f'{k} ({v})' for k, v in spec['args'].items())
+        out.append(f'- {name}: {spec["what"]}\n    arguments: {args}')
+    return '\n'.join(out)
+
+
+_census_cache = {}
+
+
+def corpus_census():
+    """Works per language, always shown to the answering step.
+
+    The fix for a failure that instruction could not stop. Twice the model
+    reasoned from "my search returned nothing" to "the corpus contains nothing":
+    it listed Hebrew, saw no Greek in the Hebrew listing, and wrote that the
+    corpus holds little Greek literature. It holds 703 Greek works.
+
+    A prompt rule against this did not take. So the census is put in front of the
+    model on every answer, whatever searches ran. It cannot write that a language
+    is absent while looking at the count of works in it.
+    """
+    if _census_cache:
+        return _census_cache
+    for code, name in (('la', 'Latin'), ('grc', 'Greek'), ('he', 'Hebrew'),
+                       ('cop', 'Coptic'), ('en', 'English')):
+        try:
+            rows = _get('/texts', {'language': code})
+            _census_cache[name] = len(rows) if isinstance(rows, list) else 0
+        except SearchError:
+            continue
+    return _census_cache
+
+
+def run(name, args):
+    """Run one chosen search. Raises SearchError; never invents a result."""
+    spec = TOOLS.get(name)
+    if spec is None:
+        raise SearchError(f'no such search: {name}')
+    missing = [k for k in spec['args'] if k not in args and k != 'language']
+    if missing:
+        raise SearchError(f'{name} needs {missing}')
+    logger.info('[ASSISTANT] running %s %s', name, args)
+    return spec['run'](args)
