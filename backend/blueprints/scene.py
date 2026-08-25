@@ -69,6 +69,14 @@ def theme_search():
     try:
         out = scene_index.find_by_text(
             q, limit=_int_arg('limit', 25), languages=_languages(), scale=_scale())
+    except scene_index.EmbedUnavailable as e:
+        # "cannot ask" is not "found nothing". Only one of those means the
+        # corpus lacks the subject, and reporting the wrong one would be a
+        # false negative dressed as a finding.
+        logger.warning('[SCENE] encoder unavailable: %s', e)
+        return jsonify({'error': 'theme search is unavailable: the query encoder '
+                                 'service is not running', 'unavailable': True,
+                        'results': []})
     except Exception as e:
         logger.exception('[SCENE] theme-search failed')
         return jsonify({'error': f'{type(e).__name__}: {e}', 'results': []})

@@ -180,14 +180,57 @@ def _ensure_loaded():
             logger.error('[SCENE] index load failed: %s', _state['error'])
 
 
-def _get_model():
-    """Lazy-load the query encoder (only needed for free-text queries)."""
-    global _model
-    if _model is None:
-        from sentence_transformers import SentenceTransformer
-        logger.info('[SCENE] loading query encoder %s', EMBED_MODEL)
-        _model = SentenceTransformer(EMBED_MODEL)
-    return _model
+# The query encoder runs as its own service, not inside the web application.
+# See services/embed_server.py for why: Apache runs three workers that recycle
+# every 1000 requests, so an in-process model would be loaded three times over
+# and reloaded, at 22 seconds a time, forever.
+EMBED_ENDPOINT = os.environ.get('TESSERAE_EMBED_ENDPOINT', 'http://127.0.0.1:8090')
+EMBED_TIMEOUT = 60
+
+
+class EmbedUnavailable(RuntimeError):
+    """The encoder service could not be reached. Say so; never guess a vector."""
+
+
+def embed_query(text):
+    """One query string to its vector, via the encoder service.
+
+    Returns a float32 numpy array. Raises EmbedUnavailable if the service is not
+    running, which the caller turns into an honest "unavailable" rather than an
+    empty result set: no results and cannot ask are different answers, and only
+    one of them means the corpus lacks the subject.
+    """
+    import json as _json
+    import urllib.error
+    import urllib.request
+
+    import numpy as np
+
+    payload = _json.dumps({'texts': [text], 'normalize': True}).encode('utf-8')
+    req = urllib.request.Request(f'{EMBED_ENDPOINT}/embed', data=payload,
+                                 headers={'Content-Type': 'application/json'})
+    try:
+        with urllib.request.urlopen(req, timeout=EMBED_TIMEOUT) as r:
+            body = _json.loads(r.read())
+    except (urllib.error.URLError, OSError, ValueError) as e:
+        raise EmbedUnavailable(
+            f'the query encoder service is not reachable at {EMBED_ENDPOINT}: {e}'
+        ) from e
+    vectors = body.get('vectors') or []
+    if not vectors:
+        raise EmbedUnavailable(f'encoder returned no vector: {body.get("error")}')
+    return np.asarray(vectors[0], dtype=np.float32)
+
+
+def encoder_available():
+    """True when the encoder service answers. Cheap: does not load the model."""
+    import urllib.error
+    import urllib.request
+    try:
+        with urllib.request.urlopen(f'{EMBED_ENDPOINT}/health', timeout=3) as r:
+            return r.status == 200
+    except (urllib.error.URLError, OSError):
+        return False
 
 
 # Query scoring is one pass over the whole embedding matrix, 785 MB at the
@@ -444,8 +487,7 @@ def find_by_text(query, limit=25, languages=None, scale=None):
     if not (query or '').strip():
         return {'error': 'empty query', 'results': []}
     import numpy as np
-    q = _get_model().encode([_E5_PREFIX + query.strip()[:1500]],
-                            normalize_embeddings=True)[0].astype(np.float32)
+    q = embed_query(_E5_PREFIX + query.strip()[:1500])
     scores = _score_all(q)
     baseline = float(np.median(scores))
     top = float(scores.max())
