@@ -6,7 +6,10 @@ import useAssistantStream from './useAssistantStream';
 const OPENERS = [
   'Where does the phrase arma virumque appear?',
   'What Hebrew texts are in the corpus?',
-  'Recommend interesting searches across Hebrew and Greek.',
+  // Replaces the banner that used to sit across the top of every page. The
+  // same thing is worth telling people, but as something they can ask rather
+  // than something that occupies the site whether they care or not.
+  'How can I use my AI agent with Tesserae?',
   'What is the difference between lemma and exact search?',
 ];
 

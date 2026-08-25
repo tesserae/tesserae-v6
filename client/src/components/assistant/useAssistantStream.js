@@ -38,6 +38,7 @@ export default function useAssistantStream() {
     setFacts(null);
     setGuardrails(null);
     setError(null);
+    let gotText = false;
     setRunning(true);
 
     try {
@@ -70,7 +71,7 @@ export default function useAssistantStream() {
           } catch {
             continue;
           }
-          if (evt.type === 'chunk') { setText((t) => t + (evt.text || '')); setStep(null); }
+          if (evt.type === 'chunk') { gotText = true; setText((t) => t + (evt.text || '')); setStep(null); }
           else if (evt.type === 'step') setStep(evt.text || null);
           else if (evt.type === 'facts') setFacts(evt.facts || null);
           else if (evt.type === 'error') setError(evt.error || 'the assistant could not answer');
@@ -78,7 +79,11 @@ export default function useAssistantStream() {
         }
       }
     } catch (e) {
-      if (e.name !== 'AbortError') setError(e.message);
+      // Do not paint an error over an answer the reader already has. A phone
+      // that backgrounds the tab, or a connection that drops after the last
+      // chunk, aborts the stream, and the panel showed "Load failed" beneath a
+      // complete and correct answer.
+      if (e.name !== 'AbortError' && !gotText) setError(e.message);
     } finally {
       setStep(null);
       setRunning(false);

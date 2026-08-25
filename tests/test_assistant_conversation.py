@@ -111,3 +111,48 @@ def test_exact_search_reports_variant_forms(client, route):
     _, ran = ask(client, route, 'Where does the phrase arma virumque appear?')
     assert any('variant' in r for r in ran), (
         f'ran {ran}: no variant pass, so inflected forms went unreported')
+
+
+def test_lists_the_actual_lines_when_asked_for_instances(client, route):
+    """The listing request, and the fabrication it once produced.
+
+    Asked "can you give the Eobanus instances?", the assistant returned twelve
+    citations that each quoted the Aeneid's opening line as though it were
+    Eobanus. The 21 real lines had been retrieved correctly and then discarded by
+    a character cap on the fact block before the model saw them, so it
+    reconstructed what it expected. Inventing primary text under a citation is
+    the worst output this tool can produce.
+    """
+    ask(client, route, 'Where does the phrase arma virumque appear?')
+    answer, _ = ask(client, route, 'Can you give the Eobanus instances?')
+
+    # A real Eobanus line, from the corpus, not from Vergil.
+    assert 'trahit arma' in answer or 'arma virosque' in answer or 'in arma viros' in answer, (
+        'the answer lists no genuine Eobanus line')
+    # The Aeneid incipit is NOT in Eobanus. Quoting it here is the fabrication.
+    assert 'Troiae qui primus ab oris' not in answer, (
+        "the answer quotes the Aeneid's opening line as though it were Eobanus")
+
+
+def test_guardrails_clean_on_a_listing_answer(client, route):
+    """A guard that fails on a TRUE answer is worse than no guard.
+
+    The citation check collected legitimate references from 'examples' only,
+    while the lines arrive under 'lines', so twelve correct citations were all
+    reported unsupported and a good answer was marked unclean.
+    """
+    ask(client, route, 'Where does the phrase arma virumque appear?')
+    resp = client.post(route, json={'question': 'Can you give the Eobanus instances?'})
+    done = {}
+    for line in resp.get_data(as_text=True).split('\n'):
+        if line.startswith('data: '):
+            try:
+                payload = json.loads(line[6:])
+            except ValueError:
+                continue
+            if 'searches_run' in payload:
+                done = payload
+    g = done.get('guardrails') or {}
+    assert g.get('fabricated_quotes') == [], f'fabricated quotes: {g.get("fabricated_quotes")}'
+    assert g.get('references_removed') == [], f'citations wrongly rejected: {g.get("references_removed")}'
+    assert g.get('clean') is True, f'guardrails: {g}'

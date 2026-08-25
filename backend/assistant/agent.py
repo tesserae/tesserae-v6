@@ -48,6 +48,26 @@ MAX_SEARCHES = 3
 
 # Questions the seeded listing already answers. Asking the model what else to
 # search when the answer is already in hand is a wasted round trip.
+# Questions ABOUT the tool rather than about the corpus. These must reach the
+# guide, which knows how the site works and how to connect an outside assistant.
+# Two things would otherwise go wrong: the carry-over heuristic treats any short
+# question as a follow-up, so "How can I use my AI agent with Tesserae?" would
+# inherit the previous phrase and search for it; and the no-punt rule, added so
+# corpus questions are never handed back as advice, would answer a how-to
+# question with a list of Latin works.
+_ABOUT_THE_TOOL = (
+    'my ai', 'own ai', 'ai agent', 'ai assistant', 'chatgpt', 'claude',
+    'connector', 'mcp', 'api', 'export', 'csv', 'download',
+    'how do i use', 'how can i use', 'how does this', 'how do you',
+    'what is the difference between', 'what does this site', 'log in', 'account',
+)
+
+
+def _is_about_the_tool(question):
+    q = (question or '').lower()
+    return any(t in q for t in _ABOUT_THE_TOOL)
+
+
 _HOLDINGS_QUESTION = (
     'what texts', 'which texts', 'what works', 'which works', 'what do you have',
     'what is in', "what's in", 'what does the corpus', 'how many', 'do you have',
@@ -88,6 +108,18 @@ _NOT_PEOPLE = {'latin', 'greek', 'hebrew', 'coptic', 'english', 'book', 'corpus'
                'which', 'does', 'this', 'that', 'they', 'there', 'about', 'also'}
 
 
+def _lines_for_author(raw, who):
+    """Citation and text for one author's hits, out of a raw search response."""
+    out = []
+    for r in ((raw or {}).get('results') or []):
+        if who.lower() not in str(r.get('author') or '').lower():
+            continue
+        bits = [r.get('author'), r.get('work'), r.get('locus')]
+        out.append({'ref': ' '.join(str(b) for b in bits if b),
+                    'text': str(r.get('text') or '')[:200]})
+    return out
+
+
 def _named_people(question):
     """Capitalised names in the question, as author candidates.
 
@@ -112,7 +144,7 @@ def _carried_phrase(question, history):
 
     Only fills a GAP: a question carrying its own quoted phrase keeps it.
     """
-    if not history or _quoted_phrase(question):
+    if not history or _quoted_phrase(question) or _is_about_the_tool(question):
         return None
     # A follow-up is short and refers back. A fresh question that simply
     # happens to lack quotation marks should not inherit the last subject.
@@ -192,6 +224,16 @@ Rules:
   open question needs.
 No prose outside the JSON."""
 
+# 260 tokens truncated answers mid-word: "...including Eobanus, Iliad, Book 2;
+# Eobanus, I" and then nothing. A listing answer needs room for the list.
+# A listing answer is long: thirteen citations with their lines ran past 900 and
+# stopped mid-word, losing the count and the offer that should close it.
+ANSWER_TOKENS = 1500
+
+# Large enough to hold a listing answer's worth of lines. The old 3,000 silently
+# dropped the very facts the question was about.
+FACTS_CHAR_CAP = 14000
+
 ANSWER_SYSTEM = """You are answering a scholar's question about a corpus of ancient literature.
 
 A search has been RUN and its results are given to you below. These are your only
@@ -208,7 +250,20 @@ Absolute rules:
 - Do not describe what other searches would find. You have one set of results;
   report it.
 
-Three to five sentences of plain scholarly English. No headings, no lists."""
+LISTING. When the user asks for the instances, the occurrences, the passages or
+the examples, GIVE THEM: one per line, citation first, then the line of text if
+the results carry it. That is the answer to that question, and a paragraph
+describing that instances exist is not. Do not stop at three of them because
+prose habit says to; list what the results hold, up to about fifteen, and say
+how many more there are. Asked "can you give the Eobanus instances?", the right
+answer is the list of Eobanus lines.
+
+OFFER WHAT THEY CANNOT SEE. If the results include variant forms, say how many
+there are and offer to list them. A reader told only about exact matches has no
+way to know the inflected ones exist, so mentioning the count and asking is the
+difference between a true answer and a useful one.
+
+Otherwise three to five sentences of plain scholarly English, no headings."""
 
 
 def _extract_json(text):
@@ -345,20 +400,28 @@ def answer_stream(question, on_step=None, history=None):
     collected = []
     for piece in model.stream(ANSWER_SYSTEM,
                               f'{block}\n\nQuestion: {question}\n\nAnswer:',
-                              max_tokens=260, temperature=0.2):
+                              max_tokens=ANSWER_TOKENS, temperature=0.2):
         collected.append(piece)
         yield ('chunk', piece)
 
     text = ''.join(collected)
+    # Every place a citation can legitimately come from. This read only
+    # 'examples', so the twelve genuine Eobanus citations, which arrive under
+    # 'lines', were all counted as unsupported and the answer was marked
+    # unclean for quoting exactly what it was given.
     allowed = []
     for f in all_facts:
-        allowed += [e.get('ref') for e in (f.get('examples') or []) if e.get('ref')]
+        for key in ('examples', 'lines'):
+            allowed += [e.get('ref') for e in (f.get(key) or [])
+                        if isinstance(e, dict) and e.get('ref')]
     _, removed = model.strip_unsupported_references(text, allowed)
     ok_numbers, invented = model.numbers_preserved(block, text, question)
+    ok_quotes, fabricated = model.quotes_supported(block, text)
     yield ('done', {'searches_run': ran, 'facts': all_facts,
                     'guardrails': {'references_removed': removed,
                                    'unsupported_numbers': invented,
-                                   'clean': not removed and ok_numbers}})
+                                   'fabricated_quotes': fabricated,
+                                   'clean': not removed and ok_numbers and ok_quotes}})
 
 
 def _prepare(question, step, history=None):
@@ -374,6 +437,11 @@ def _prepare(question, step, history=None):
         return {'error': 'the assistant is not running just now'}
 
     ran, all_facts = [], []
+
+    # A question about the tool is answered by the guide, which has the facts
+    # about connectors and CSV export. Searching the corpus for it is nonsense.
+    if _is_about_the_tool(question):
+        return {'needs_model_only': True}
 
     # RESOLVE THE QUESTION AGAINST THE CONVERSATION FIRST.
     #
@@ -454,13 +522,28 @@ def _prepare(question, step, history=None):
                             'kind': 'VARIANT FORMS of the same phrase, found by '
                                     'lemma search. These authors do NOT have the '
                                     'phrase exactly as written, but do have it in '
-                                    'other inflected forms. Worth telling the user '
-                                    'about, clearly labelled as variants.',
+                                    'other inflected forms. Tell the user how many '
+                                    'there are and offer to list them.',
                             'phrase': phrase,
                             'authors_with_variants': dict(sorted(
                                 extra.items(), key=lambda kv: -kv[1])[:15]),
-                            'example_lines': (vf.get('sample_lines') or [])[:6]})
+                            'example_lines': (vf.get('examples') or [])[:6]})
                         ran.append('line_search(lemma variants)')
+
+                    # THE LINES THEMSELVES, for any author the question names.
+                    # "Can you give the Eobanus instances?" could not be answered
+                    # because the facts carried the number 21 and no lines. A
+                    # count is not an instance.
+                    for who in _named_people(question):
+                        lines = _lines_for_author(var, who) or _lines_for_author(raw, who)
+                        if lines:
+                            all_facts.append({
+                                'kind': f'THE ACTUAL LINES in {who}. If the user asks '
+                                        f'for the instances, occurrences or examples, '
+                                        f'LIST THESE, citation first.',
+                                'author': who,
+                                'total_found': len(lines),
+                                'lines': lines[:12]})
                 except searches.SearchError as e:
                     logger.info('[ASSISTANT] variant search failed: %s', e)
 
@@ -544,8 +627,36 @@ def _prepare(question, step, history=None):
         block += ('\nSo do NOT write that the corpus lacks any of these. If the user '
                   'asks how to compare them, recommend an approach using them.\n\n')
 
-    block += ('SEARCH RESULTS (your only source of fact about specific passages):\n'
-              + json.dumps(all_facts, ensure_ascii=False)[:3000])
+    # MOST SPECIFIC FACTS FIRST, and a cap that does not cut them.
+    #
+    # This was 3,000 characters with the facts in the order they were gathered.
+    # Asked "can you give the Eobanus instances?", the block ran to 5,723
+    # characters, the 21 Eobanus lines sat at 3,867-5,512, and every one of them
+    # was discarded before the model saw it. It then produced twelve fabricated
+    # citations, each quoting the Aeneid's opening line as though it were
+    # Eobanus. Invented primary text is the worst thing this tool can emit.
+    #
+    # So: facts carrying actual LINES go first, because they are what a question
+    # about instances is answered from, and the cap is large enough to hold them.
+    def specificity(f):
+        if f.get('lines'):
+            return 0
+        if f.get('kind', '').startswith('VARIANT'):
+            return 1
+        if f.get('search') == 'line_search':
+            return 2
+        return 3
+
+    ordered = sorted(all_facts, key=specificity)
+    body = json.dumps(ordered, ensure_ascii=False)
+    if len(body) > FACTS_CHAR_CAP:
+        body = body[:FACTS_CHAR_CAP] + (
+            '\n\n[TRUNCATED. Some results were not shown. Say so if the user asks '
+            'for a complete list; do NOT invent the remainder.]')
+    block += ('SEARCH RESULTS (your only source of fact about specific passages).\n'
+              'Quote passage text ONLY as it appears here, character for character.\n'
+              'If a line you want is not here, say it is not shown rather than '
+              'reconstructing it.\n' + body)
     return {'block': block, 'facts': all_facts, 'ran': ran}
 
 
@@ -559,15 +670,23 @@ def answer(question, on_step=None, history=None):
     step('reading the results')
     text = model.complete(ANSWER_SYSTEM,
                           f'{block}\n\nQuestion: {question}\n\nAnswer:',
-                          max_tokens=260, temperature=0.2)
+                          max_tokens=ANSWER_TOKENS, temperature=0.2)
     if not text:
         return {'error': 'could not compose an answer', 'facts': all_facts}
+    # Every place a citation can legitimately come from. This read only
+    # 'examples', so the twelve genuine Eobanus citations, which arrive under
+    # 'lines', were all counted as unsupported and the answer was marked
+    # unclean for quoting exactly what it was given.
     allowed = []
     for f in all_facts:
-        allowed += [e.get('ref') for e in (f.get('examples') or []) if e.get('ref')]
+        for key in ('examples', 'lines'):
+            allowed += [e.get('ref') for e in (f.get(key) or [])
+                        if isinstance(e, dict) and e.get('ref')]
     text, removed = model.strip_unsupported_references(text, allowed)
     ok_numbers, invented = model.numbers_preserved(block, text, question)
+    ok_quotes, fabricated = model.quotes_supported(block, text)
     return {'answer': text, 'searches_run': ran, 'facts': all_facts,
             'guardrails': {'references_removed': removed,
                            'unsupported_numbers': invented,
-                           'clean': not removed and ok_numbers}}
+                           'fabricated_quotes': fabricated,
+                           'clean': not removed and ok_numbers and ok_quotes}}

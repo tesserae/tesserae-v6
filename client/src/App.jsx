@@ -9,7 +9,6 @@ import { Repository } from './components/repository';
 import { AdminPanel } from './components/admin';
 import { AboutPage, HelpPage, DownloadsPage, PrivacyPage, ResearchPage, BlogArchivePage } from './components/pages';
 import TextCredits from './components/about/TextCredits';
-import AiAnnouncement from './components/AiAnnouncement';
 import { AssistantDock } from './components/assistant';
 import VisualizationsPage from './components/pages/VisualizationsPage';
 import { useCorpus, useSearch, DEFAULT_PAGE_SIZE } from './hooks';
@@ -709,7 +708,6 @@ function App() {
           <AdminPanel />
         ) : (
           <>
-        {pageType !== 'help' && <AiAnnouncement onOpen={openAiHelp} />}
         {pageType === 'search' && activeTab !== 'cross' && (
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-4 sm:p-6">
