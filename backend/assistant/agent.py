@@ -108,6 +108,54 @@ _NOT_PEOPLE = {'latin', 'greek', 'hebrew', 'coptic', 'english', 'book', 'corpus'
                'which', 'does', 'this', 'that', 'they', 'there', 'about', 'also'}
 
 
+def _highlight_terms(facts):
+    """The words worth marking in an answer: the phrase, and its inflections.
+
+    A listing of six lines of Latin with nothing marked makes the reader hunt
+    for what matched. The phrase searched for is known exactly, and the variant
+    pass knows the inflected forms, so both can be marked.
+    """
+    terms = set()
+    for f in facts or []:
+        q = (f.get('args') or {}).get('query') or f.get('phrase')
+        if q:
+            terms.add(str(q))
+            terms.update(w for w in str(q).split() if len(w) > 3)
+        for e in (f.get('examples') or []) + (f.get('lines') or []):
+            for w in (e.get('matched_words') or []) if isinstance(e, dict) else []:
+                if isinstance(w, str) and len(w) > 3:
+                    terms.add(w)
+    return sorted(terms, key=len, reverse=True)[:12]
+
+
+def _variant_offer(facts, text):
+    """A sentence offering the inflected forms, when the answer omits one.
+
+    The prompt asks for this and the model does it when the answer is short and
+    forgets when it is long, which is exactly when it matters most: a listing of
+    six exact hits is precisely the answer that hides the twenty-one inflected
+    ones. Prompt-only fixes have failed all day, so this is computed.
+    """
+    if not facts:
+        return ''
+    low = (text or '').lower()
+    if 'variant' in low or 'inflect' in low:
+        return ''
+    for f in facts:
+        if not str(f.get('kind', '')).startswith('VARIANT'):
+            continue
+        authors = f.get('authors_with_variants') or {}
+        if not authors:
+            continue
+        n = sum(authors.values())
+        names = ', '.join(list(authors)[:3])
+        more = ' and others' if len(authors) > 3 else ''
+        return (f'\n\nThe same phrase also occurs in other inflected forms, '
+                f'{n} times, in authors not listed above ({names}{more}). '
+                f'Would you like those as well?')
+    return ''
+
+
 def _lines_for_author(raw, who):
     """Citation and text for one author's hits, out of a raw search response."""
     out = []
@@ -417,8 +465,12 @@ def answer_stream(question, on_step=None, history=None):
     _, removed = model.strip_unsupported_references(text, allowed)
     ok_numbers, invented = model.numbers_preserved(block, text, question)
     ok_quotes, fabricated = model.quotes_supported(block, text)
+    offer = _variant_offer(all_facts, text)
+    if offer:
+        yield ('chunk', offer)
     yield ('done', {'searches_run': ran, 'facts': all_facts,
-                    'guardrails': {'references_removed': removed,
+                    'highlight': _highlight_terms(all_facts),
+            'guardrails': {'references_removed': removed,
                                    'unsupported_numbers': invented,
                                    'fabricated_quotes': fabricated,
                                    'clean': not removed and ok_numbers and ok_quotes}})
@@ -685,7 +737,9 @@ def answer(question, on_step=None, history=None):
     text, removed = model.strip_unsupported_references(text, allowed)
     ok_numbers, invented = model.numbers_preserved(block, text, question)
     ok_quotes, fabricated = model.quotes_supported(block, text)
+    text += _variant_offer(all_facts, text)
     return {'answer': text, 'searches_run': ran, 'facts': all_facts,
+            'highlight': _highlight_terms(all_facts),
             'guardrails': {'references_removed': removed,
                            'unsupported_numbers': invented,
                            'fabricated_quotes': fabricated,

@@ -3,6 +3,23 @@ import useAssistantStream from './useAssistantStream';
 
 // Openers that show what it can actually DO, not only what it can explain. It
 // runs searches now, so "where does this phrase appear" gets real loci back.
+/** The answer with the matched words marked.
+ *
+ *  A listing of six lines of Latin with nothing marked makes the reader hunt for
+ *  what actually matched. The server sends the phrase it searched for and the
+ *  inflected forms the variant pass found, so both can be shown.
+ */
+function mark(text, terms) {
+  const list = (terms || []).filter((t) => t && t.length > 3);
+  if (!text || !list.length) return text;
+  const escaped = list.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const re = new RegExp(`(${escaped.join('|')})`, 'gi');
+  return text.split(re).map((part, i) =>
+    re.test(part) && list.some((t) => t.toLowerCase() === part.toLowerCase())
+      ? <mark key={i} className="bg-yellow-200 rounded-sm px-0.5">{part}</mark>
+      : part);
+}
+
 const OPENERS = [
   'Where does the phrase arma virumque appear?',
   'What Hebrew texts are in the corpus?',
@@ -29,7 +46,7 @@ export default function AssistantDock() {
   const [open, setOpen] = useState(false);
   const [turns, setTurns] = useState([]);
   const [draft, setDraft] = useState('');
-  const { text, step, running, error, run } = useAssistantStream();
+  const { text, step, running, error, highlight, run } = useAssistantStream();
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -144,7 +161,7 @@ export default function AssistantDock() {
         )}
         {running && (text || !step) && (
           <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap bg-gray-50 rounded p-2">
-            {text}
+            {mark(text, highlight)}
             <span className="inline-block w-1.5 h-4 ml-0.5 bg-gray-400 animate-pulse align-text-bottom" />
           </div>
         )}
