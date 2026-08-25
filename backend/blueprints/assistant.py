@@ -50,13 +50,21 @@ def ask_stream():
     """
     data = request.get_json(silent=True) or {}
     question = (data.get('question') or '').strip()
+    # Prior turns, so a follow-up can be resolved instead of being handed back
+    # to the user as advice. Trimmed and capped: this goes into a prompt, and
+    # the client is not a source to be trusted about size.
+    history = []
+    for turn in (data.get('history') or [])[-8:]:
+        if isinstance(turn, dict) and turn.get('text'):
+            history.append({'role': 'user' if turn.get('role') == 'user' else 'assistant',
+                            'text': str(turn['text'])[:600]})
 
     def generate():
         if not question:
             yield _sse('error', {'error': 'question is required'})
             return
         try:
-            for kind, payload in agent.answer_stream(question):
+            for kind, payload in agent.answer_stream(question, history=history):
                 if kind == 'chunk':
                     yield _sse('chunk', {'text': payload})
                 elif kind == 'step':

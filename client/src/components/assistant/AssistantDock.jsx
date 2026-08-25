@@ -54,9 +54,13 @@ export default function AssistantDock() {
   const ask = (q) => {
     const question = (q || '').trim();
     if (!question || running) return;
+    // Send the conversation so far. A follow-up like "is it in Eobanus?" is
+    // unanswerable without the turn that named the phrase, and the assistant
+    // used to respond by telling the user to run the search themselves.
+    const history = turns.slice(-8).map((t) => ({ role: t.role, text: t.text }));
     setTurns((t) => [...t, { role: 'user', text: question }]);
     setDraft('');
-    run('/api/assistant/ask-stream', { question });
+    run('/api/assistant/ask-stream', { question, history });
   };
 
   if (!open) {

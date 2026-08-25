@@ -87,7 +87,12 @@ TOOLS = {
                  'search_type': 'exact for a quoted phrase, lemma for a word'},
         'run': lambda a: _get('/line-search', {
             'query': a['query'], 'language': a.get('language', 'la'),
-            'search_type': a.get('search_type', 'lemma'), 'max_results': 60}),
+            'search_type': a.get('search_type', 'lemma'),
+            # The variant pass asks for more, because a lemma search spreads
+            # across far more authors than an exact one and a cap of 60 hid most
+            # of them: Eobanus has 35 lines carrying the phrase inflected, and
+            # only 5 survived the cap.
+            'max_results': int(a.get('max_results') or 60)}),
     },
     'rare_words': {
         # SAME LANGUAGE ONLY, and the description has to say so. Asked about
@@ -148,6 +153,26 @@ def corpus_census():
         except SearchError:
             continue
     return _census_cache
+
+
+def authors_matching(name, language='la'):
+    """Work ids and display names for an author, by loose name match.
+
+    Needed so a follow-up like "is it in Eobanus?" can be ANSWERED rather than
+    handed back as advice. Without it the assistant had no way to turn a name
+    into something searchable.
+    """
+    hits = []
+    try:
+        rows = _get('/texts', {'language': language})
+    except SearchError:
+        return hits
+    nl = str(name).lower()
+    for r in rows or []:
+        if nl in str(r.get('author') or '').lower() or nl in str(r.get('display_name') or '').lower():
+            hits.append({'id': r.get('id'), 'display_name': r.get('display_name'),
+                         'author': r.get('author')})
+    return hits
 
 
 _listing_cache = {}
