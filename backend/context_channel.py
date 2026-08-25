@@ -16,30 +16,63 @@ logic the syntax_structural channel uses, and it keeps the failure mode of
 scene similarity (confident thematic neighbours) out of the ranked output.
 
 Score per pair is the cosine between the two passages' content descriptions,
-rescaled so that only agreement above the corpus baseline counts:
+expressed as a percentile of THIS TEXT PAIR'S OWN distribution rather than
+against a fixed number.
 
-    context = clamp((cosine - NEUTRAL) / (CONFIRMED - NEUTRAL), 0, 1)
+That change is the whole point of the 2026-08-24 revision. A fixed threshold
+cannot work, because how similar two passages look depends on what is being
+compared. Random window pairs drawn from just two works score:
 
-Below NEUTRAL the pair gets nothing (no penalty: absence of thematic agreement
-is not evidence against a verbal parallel, since a quotation can be transplanted
-into a wholly different setting). At or above CONFIRMED it gets the full signal.
+    Lucan x Aeneid    (same genre, same language)     median 0.848, p99 0.898
+    Iliad x Aeneid    (same genre, cross-language)    median 0.855, p99 0.906
+    Genesis x Aeneid  (different genre and language)  median 0.842, p99 0.882
+
+The old fixed 0.901 therefore sat at the 99th percentile for Lucan, just under
+it for Homer, and ABOVE THE MAXIMUM for Genesis against the Aeneid, where
+nothing could ever have been confirmed. Two Latin epics share genre, register
+and subject matter, so their floor is already high and the band in which
+"recognisably the same kind of scene" lives is narrow: roughly 0.86 to 0.92,
+with genuinely near-identical scenes reaching 0.95 and above.
+
+So the baseline is measured per comparison, from random pairs of the two works,
+and a candidate is scored by where it falls in that distribution. A pair at the
+99.5th percentile of its own comparison means the same thing whether the texts
+are two Latin epics or a Hebrew prophet and a Latin poet.
+
+This is the same lesson the scene index itself learned: no absolute cosine
+threshold survives contact with a different query, and everything has to be
+relative to a baseline measured on the spot.
+
+Below the lower percentile the pair gets nothing (no penalty: absence of
+thematic agreement is not evidence against a verbal parallel, since a quotation
+can be transplanted into a wholly different setting).
 """
 from backend.logging_config import get_logger
 from backend import scene_index
 
 logger = get_logger('context_channel')
 
-# Cosine between two description embeddings, calibrated 2026-08-24 against the
-# actual distribution over the 143,947-window index rather than by eye:
-#   20,000 random cross-work pairs  median 0.844, p90 0.873, p99 0.901
-#   genuine best-match-in-another-work  p10 0.915, median 0.939
-# The random median is the CHANCE level, so anything at or below it is no
-# evidence at all. NEUTRAL sits at the 99th percentile of chance, which is where
-# agreement starts to mean something, and CONFIRMED at the median of genuine
-# cross-work matches. An earlier hand-guessed pair (0.840 / 0.905) put the zero
-# point at chance itself and therefore rewarded unrelated passages.
-NEUTRAL_AGREEMENT = 0.901
-CONFIRMED_AGREEMENT = 0.939
+# Percentiles of the comparison's own baseline. A pair has to be unusual FOR
+# THESE TWO TEXTS before it counts as confirmation: two prophecy scenes in two
+# epics is not distinctive, because prophecy scenes are common in both.
+#
+# Fitted 2026-08-24 by reading the Lucan-Vergil pairs at each level. Above the
+# 99th percentile sit the proem-to-proem invocation (causas ... expromere against
+# Musa, mihi causas memora), a lion simile against a lion simile, and the
+# socer/gener allusion to Anchises' lament over Caesar and Pompey. Around the
+# 90th sit arming scene against arming scene. At the median sit pairs that are
+# thematically adjacent but no more so than any two passages of these poems.
+NEUTRAL_PERCENTILE = 0.90
+CONFIRMED_PERCENTILE = 0.995
+
+# Random pairs sampled per comparison to establish that baseline. Cheap: a few
+# thousand dot products against rows already in memory.
+BASELINE_SAMPLES = 4000
+
+# The old absolute numbers, kept only so the previous behaviour can be measured
+# against the new one. Not used for scoring.
+LEGACY_NEUTRAL_AGREEMENT = 0.901
+LEGACY_CONFIRMED_AGREEMENT = 0.939
 
 # Only confirm pairs a lexical channel already proposed, and cap the work so a
 # large comparison does not pay an unbounded cost for a confirmation signal.
@@ -91,6 +124,14 @@ def find_context_confirmations(pairs, source_id, target_id,
             win_cache[key] = row
         return win_cache[key]
 
+    # Baseline for THIS comparison: how similar do random passages of these two
+    # works look? Everything below is measured against it.
+    lo, hi = _pair_baseline(src_work, tgt_work)
+    if lo is None:
+        logger.info('[CONTEXT] no baseline for %s x %s; not confirming', src_work, tgt_work)
+        return {}
+    span = hi - lo
+
     out = {}
     considered = 0
     for src_ref, tgt_ref in pairs:
@@ -108,12 +149,67 @@ def find_context_confirmations(pairs, source_id, target_id,
         if na == 0.0 or nb == 0.0:
             continue
         cos = float(a @ b) / (na * nb)
-        score = _clamp01((cos - NEUTRAL_AGREEMENT) /
-                         (CONFIRMED_AGREEMENT - NEUTRAL_AGREEMENT))
+        score = _clamp01((cos - lo) / span) if span > 0 else 0.0
         if score > 0.0:
             out[(src_ref, tgt_ref)] = round(score, 4)
-    logger.info('[CONTEXT] confirmed %d of %d candidate pairs', len(out), considered)
+    logger.info('[CONTEXT] confirmed %d of %d candidate pairs '
+                '(baseline for this comparison: p90=%.3f p99.5=%.3f)',
+                len(out), considered, lo, hi)
     return out
+
+
+_baseline_cache = {}
+
+
+def _pair_baseline(src_work, tgt_work):
+    """Cosine at the neutral and confirmed percentiles for this pair of works.
+
+    Sampled from the two works' own windows, so the answer reflects how alike
+    these particular texts look before any candidate is considered. Cached: a
+    comparison asks for it once and it does not change.
+    """
+    key = (src_work, tgt_work)
+    if key in _baseline_cache:
+        return _baseline_cache[key]
+    try:
+        import numpy as np
+        import random as _random
+    except ImportError:
+        return None, None
+
+    def fine_rows(work):
+        rows = scene_index._by_work.get(work) or []
+        # Fall back to the work group when a part file is named, since that is
+        # what the index keys on.
+        if not rows and '.part.' in work:
+            rows = scene_index._by_work.get(work.split('.part.')[0]) or []
+        return [i for i in rows if scene_index._records[i].get('scale') == 'fine']
+
+    a, b = fine_rows(src_work), fine_rows(tgt_work)
+    if not a or not b:
+        _baseline_cache[key] = (None, None)
+        return None, None
+
+    emb = scene_index._emb
+    # A fixed seed so the same comparison scores identically every time, which
+    # matters for a tool whose results people cite.
+    rnd = _random.Random(20260824)
+    vals = []
+    for _ in range(BASELINE_SAMPLES):
+        i, j = rnd.choice(a), rnd.choice(b)
+        x = np.asarray(emb[i], dtype=np.float32)
+        y = np.asarray(emb[j], dtype=np.float32)
+        nx, ny = float(np.linalg.norm(x)), float(np.linalg.norm(y))
+        if nx and ny:
+            vals.append(float(x @ y) / (nx * ny))
+    if len(vals) < 100:
+        _baseline_cache[key] = (None, None)
+        return None, None
+    vals.sort()
+    lo = vals[int(NEUTRAL_PERCENTILE * (len(vals) - 1))]
+    hi = vals[int(CONFIRMED_PERCENTILE * (len(vals) - 1))]
+    _baseline_cache[key] = (lo, hi)
+    return lo, hi
 
 
 def context_available():

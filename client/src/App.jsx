@@ -11,6 +11,7 @@ import { AdminPanel } from './components/admin';
 import { AboutPage, HelpPage, DownloadsPage, PrivacyPage, ResearchPage, BlogArchivePage } from './components/pages';
 import TextCredits from './components/about/TextCredits';
 import AiAnnouncement from './components/AiAnnouncement';
+import { AssistantDock } from './components/assistant';
 import VisualizationsPage from './components/pages/VisualizationsPage';
 import { useCorpus, useSearch, DEFAULT_PAGE_SIZE } from './hooks';
 import { getSessionValue, setSessionValue } from './utils/storage';
@@ -1130,6 +1131,8 @@ function App() {
           <p>Tesserae V6</p>
         </div>
       </footer>
+
+      <AssistantDock />
     </div>
   );
 }

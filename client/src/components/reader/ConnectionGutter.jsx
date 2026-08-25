@@ -14,6 +14,14 @@ import { useEffect, useState } from 'react';
 export default function ConnectionGutter({ work, units, onSelectLine }) {
   const [content, setContent] = useState({});   // ref -> 0..1
   const [verbal, setVerbal] = useState({});     // ref -> 0..1
+  // Loading has to look different from "loaded, nothing here". Both used to
+  // render at the faint end of the same opacity scale, so a reader opening a
+  // text saw an empty margin and concluded the corpus held no connections to
+  // it, when in fact the answer had not arrived. Content density is computed
+  // against the whole corpus and takes about five seconds the first time a work
+  // is opened, so this is the common case, not an edge one.
+  const [loadingContent, setLoadingContent] = useState(true);
+  const [loadingVerbal, setLoadingVerbal] = useState(true);
 
   useEffect(() => {
     if (!work) return;
@@ -34,7 +42,8 @@ export default function ConnectionGutter({ work, units, onSelectLine }) {
         });
         setContent(map);
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoadingContent(false); });
     return () => { cancelled = true; };
   }, [work]);
 
@@ -52,15 +61,20 @@ export default function ConnectionGutter({ work, units, onSelectLine }) {
         });
         setVerbal(map);
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoadingVerbal(false); });
     return () => { cancelled = true; };
   }, [work]);
+
+  const loading = loadingContent || loadingVerbal;
 
   return (
     <div
       className="w-9 shrink-0 border-r border-gray-200 bg-gray-50 pt-6"
       aria-hidden="true"
-      title="Left: verbal parallels. Right: similar passages."
+      title={loading
+        ? 'Working out what the corpus connects to this text...'
+        : 'Left: verbal parallels. Right: similar passages.'}
     >
       {units.map((u) => {
         const n = lineNumber(u.ref);
@@ -73,13 +87,20 @@ export default function ConnectionGutter({ work, units, onSelectLine }) {
             style={{ height: '1.75rem' }}
             onClick={() => onSelectLine?.(u)}
           >
+            {/* While a stream is still loading its marks are hollow and
+                pulsing, which reads as "not known yet" rather than as "nothing
+                here". They fill in as each answer arrives, independently. */}
             <span
-              className="block w-[9px] h-[7px] rounded-sm bg-red-700"
-              style={{ opacity: 0.12 + v * 0.88 }}
+              className={`block w-[9px] h-[7px] rounded-sm ${
+                loadingVerbal ? 'border border-red-300 animate-pulse' : 'bg-red-700'}`}
+              style={loadingVerbal ? undefined : { opacity: 0.12 + v * 0.88 }}
             />
             <span
-              className="block w-[9px] h-[7px] rounded-sm"
-              style={{ backgroundColor: '#7c6bb0', opacity: 0.12 + c * 0.88 }}
+              className={`block w-[9px] h-[7px] rounded-sm ${
+                loadingContent ? 'border animate-pulse' : ''}`}
+              style={loadingContent
+                ? { borderColor: '#c7bfe0' }
+                : { backgroundColor: '#7c6bb0', opacity: 0.12 + c * 0.88 }}
             />
           </div>
         );

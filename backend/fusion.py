@@ -537,6 +537,63 @@ RARITY_BOOST_CAP = 2.0             # Layer 3: hard ceiling on the rarity boost m
 # score: base * (0.15 * mult)^2 = base * 0.0225 * mult^2.
 SINGLE_WORD_PENALTY = 0.12
 
+# Relief for a single shared word that is genuinely RARE. The penalty above was
+# flat, so a pair whose only shared lemma is `urbs` was demoted exactly as hard
+# as a pair whose only shared lemma is `asylum`, and those are not the same
+# evidence.
+#
+# Measured 2026-08-24 on the 213 commentator-attested Lucan-Vergil pairs
+# (research/studies/2026-08-24_context_channel_calibration/). Of the gold pairs
+# ranked below 10,000, most deserve to be there: their whole lexical evidence is
+# `urbs` alone, or `tendo` alone, or `annus, multus`. Three do not:
+#
+#     rank 11,409   quercus   rarity 2.8
+#     rank 12,218   asylum    rarity 3.8
+#     rank 13,899   secundo   rarity 4.8
+#
+# `asylum` occurs in about 2% of the Latin corpus. A pair resting on it is not
+# the same claim as a pair resting on `urbs`, and the flat penalty could not tell
+# them apart.
+#
+# CROSS-LANGUAGE. The interpolation runs on rarity NORMALISED by the language's
+# own corpus size, not on the raw IDF, because raw IDF is not comparable across
+# languages: it is log(N) - log(df), and N is 1,648 Latin texts against 39 Hebrew
+# books, so the maximum possible rarity is 7.4 in Latin and 3.7 in Hebrew. A
+# threshold tuned on Latin would give Hebrew pairs no relief at all, and would
+# hand every Coptic hapax the maximum. Dividing by log(N) puts a hapax at 1.0 in
+# every language, which is the property that makes one curve serve all of them.
+# This is the same lesson the context channel learned the hard way on the same
+# day: no absolute similarity or rarity number survives a change of corpus.
+SINGLE_WORD_RARE_RELIEF = 0.50   # penalty applied to a single-word match on a hapax
+SINGLE_WORD_RARITY_POWER = 2.0   # >1 keeps the curve flat across common words
+
+
+def _single_word_penalty(word_idf, log_reference_n):
+    """Penalty for a match sharing one distinct word, scaled by that word's rarity.
+
+    log_reference_n must be log of the LANGUAGE CORPUS size, not of whatever
+    frequency basis the search is using. IDF here is already rescaled by
+    _idf_scale so that a hapax scores log(N_reference) whatever the basis: on a
+    hexameter basis of 218 texts the raw span is log(218)=5.4, and the scaling
+    stretches it back to log(1648)=7.4. Normalising by the basis instead would
+    have made every meter-basis penalty up to 1.38x too generous.
+
+    Returns SINGLE_WORD_PENALTY for an ordinary word and up to
+    SINGLE_WORD_RARE_RELIEF for one that appears in a single text. The squared
+    term keeps common words near the old flat value, so this changes the ranking
+    of rare single-word pairs and leaves the rest where they were:
+
+        urbs     (rarity 1.2 of 7.4)  ->  0.13   was 0.12
+        asylum   (rarity 3.8 of 7.4)  ->  0.22
+        secundo  (rarity 4.8 of 7.4)  ->  0.28
+        a hapax  (rarity 7.4 of 7.4)  ->  0.50
+    """
+    if not log_reference_n or log_reference_n <= 0 or word_idf is None or word_idf <= 0:
+        return SINGLE_WORD_PENALTY
+    normalised = min(1.0, max(0.0, word_idf / log_reference_n))
+    span = SINGLE_WORD_RARE_RELIEF - SINGLE_WORD_PENALTY
+    return SINGLE_WORD_PENALTY + span * (normalised ** SINGLE_WORD_RARITY_POWER)
+
 # No-significant-words penalty: applied when a multi-word match has NO word
 # with IDF >= RARITY_IDF_THRESHOLD.  These are bigrams of common vocabulary
 # (e.g., "num + campus", "ter + centum") that carry weak allusion signal.
@@ -2452,7 +2509,9 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
             # so even 1 dictionary synonym is meaningful confirmation.
             min_idf_gate_fired = False
             if n_unique_words <= 1 and not has_structural:
-                multiplier *= SINGLE_WORD_PENALTY
+                # Scaled by how rare that one word is, rather than flat.
+                # See SINGLE_WORD_RARE_RELIEF for why and for the measurement.
+                multiplier *= _single_word_penalty(geom_mean_idf, math.log(_N_reference))
             elif n_content_words == 0:
                 # All-function-words penalty: every matched lemma is on the
                 # curated stoplist (e.g., "tum + inde", "nec + sic", "ubi").

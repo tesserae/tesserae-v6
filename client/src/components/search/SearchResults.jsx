@@ -5,6 +5,7 @@ import { formatReference, formatElapsedTime } from '../../utils/formatting';
 import { displayGreekWithFinalSigma } from '../../utils/greekUtils';
 import { normalizeCoptic } from '../../utils/copticUtils';
 import { exportRowsToPDF } from '../../utils/exportResults';
+import { ResultsInsight } from '../assistant';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import * as d3 from 'd3';
@@ -912,6 +913,14 @@ const SearchResults = ({
               {searchStats.source_lines && ` | ${searchStats.source_lines} source lines`}
               {searchStats.target_lines && ` | ${searchStats.target_lines} target lines`}
             </p>
+          )}
+          {!loading && (
+            <ResultsInsight
+              results={activeResults}
+              source={sourceTextInfo?.display_name || sourceTextInfo?.name}
+              target={targetTextInfo?.display_name || targetTextInfo?.name}
+              className="mt-2"
+            />
           )}
         </div>
         <div className="flex flex-col sm:flex-row gap-2">

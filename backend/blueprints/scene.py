@@ -82,19 +82,28 @@ def similar_passages():
     limit = _int_arg('limit', 15)
     langs = _languages()
     include_same = (request.args.get('include_same_work') or '').lower() in ('1', 'true', 'yes')
+    # By default the same Bible passage in the corpus's other versions is not
+    # reported back: a reader in Coptic Genesis knows it is also in Hebrew and
+    # Latin. A scholar comparing versions can ask for them with
+    # ?include_other_versions=1.
+    include_versions = (request.args.get('include_other_versions') or '').lower() in ('1', 'true', 'yes')
     if window:
         out = scene_index.find_similar_to_window(
-            window, limit=limit, languages=langs, include_same_work=include_same)
+            window, limit=limit, languages=langs, include_same_work=include_same,
+            suppress_other_versions=not include_versions)
     elif work:
         out = scene_index.find_similar_to_passage(
             work, request.args.get('ref_start'), request.args.get('ref_end'),
-            limit=limit, languages=langs, scale=_scale() or 'fine')
+            limit=limit, languages=langs, scale=_scale() or 'fine',
+            suppress_other_versions=not include_versions)
     else:
         return jsonify({'error': 'work or window is required', 'results': []})
     out['presentation'] = (
         'These passages resemble the selection in CONTENT (scene type, theme, '
         'situation) rather than in wording. Say what kind of resemblance each '
-        'shows, and note that a cross-language match shares no vocabulary.')
+        'shows, and note that a cross-language match shares no vocabulary. '
+        'A result carrying `also_in` is one scriptural passage present in several '
+        'of the corpus versions, collapsed into a single entry.')
     return jsonify(out)
 
 

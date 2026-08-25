@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { LoadingSpinner } from '../common';
+import { ResultsInsight } from '../assistant';
 
 const LANG_LABEL = { la: 'Latin', grc: 'Greek', he: 'Hebrew', en: 'English', cop: 'Coptic' };
 
@@ -123,7 +124,36 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
                     <span className="ml-auto text-[11px] font-semibold text-green-700">strong</span>
                   )}
                 </div>
-                {r.gist && <p className="text-xs text-gray-600 mt-1 leading-snug">{r.gist}</p>}
+                {r.gist && (
+                  <p className="text-xs text-gray-600 mt-1 leading-snug">
+                    {r.gist}
+                    {/* The summary named someone the passage does not. Often that
+                        is sound inference (Vergil writes virgo where the summary
+                        says Sibyl), sometimes it is the wrong person, and a
+                        served result cannot tell those apart. So it is marked
+                        rather than asserted or hidden. */}
+                    {r.names_in_text === false && (
+                      <span
+                        className="ml-1 text-[10px] text-amber-700 whitespace-nowrap"
+                        title="This summary names people the passage itself does not name. It may be correct inference from context, or a misidentification. Check the text."
+                      >
+                        (names unconfirmed)
+                      </span>
+                    )}
+                  </p>
+                )}
+                {/* One scriptural passage the corpus holds in several versions,
+                    collapsed into a single result. Naming the other versions is
+                    useful; giving each one its own row is not. */}
+                {r.also_in?.length > 0 && (
+                  <p className="text-[11px] text-gray-500 mt-1 leading-snug">
+                    Also in{' '}
+                    {r.also_in
+                      .map((a) => LANG_LABEL[a.language] || a.language)
+                      .filter((v, i, arr) => arr.indexOf(v) === i)
+                      .join(', ')}
+                  </p>
+                )}
                 {r.themes?.length > 0 && (
                   <div className="flex gap-1 flex-wrap mt-1">
                     {r.themes.slice(0, 4).map((t) => (
@@ -137,6 +167,21 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
               These passages match in content, not wording, so a match in another language
               usually shares no words with the selection. Summaries are machine-written.
             </p>
+            {!loading && similar?.results?.length > 0 && (
+              <ResultsInsight
+                results={similar.results.map((r) => ({
+                  // The scene index reports one passage per hit, so present the
+                  // selection as the source side and the match as the target.
+                  source: { ref: selection.refStart, text: '' },
+                  target: { ref: `${r.work} ${r.ref_start}`, text: r.gist || '' },
+                  channels: ['context'],
+                  themes: r.themes || [],
+                }))}
+                source={work}
+                target="the corpus"
+                className="mt-2"
+              />
+            )}
           </>
         )}
 
@@ -152,16 +197,24 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
             {loading && <LoadingSpinner />}
             {!loading && translation?.available === false && (
               <p className="text-sm text-gray-500">
-                {translation.reason} Aligned public-domain translations cover about 30
-                percent of Greek and 18 percent of Latin.
+                {translation.reason} Aligned public-domain translations currently cover
+                about a fifth of the Greek corpus and a tenth of the Latin.
               </p>
             )}
             {!loading && translation?.available && (
               <div className="bg-white border border-gray-200 rounded-lg p-3">
+                {/* A block-only warning goes ABOVE the text. Below it, a reader who
+                    has already taken the English for a rendering of their lines
+                    will never see it. */}
+                {translation.block_only && (
+                  <p className="text-[11px] text-amber-800 bg-amber-50 border border-amber-200 rounded px-2 py-1.5 mb-2 leading-snug">
+                    {translation.note}
+                  </p>
+                )}
                 <p className="text-sm text-gray-800 whitespace-pre-line leading-relaxed">
                   {translation.text}
                 </p>
-                {translation.note && (
+                {translation.note && !translation.block_only && (
                   <p className="text-[11px] text-amber-700 mt-2 leading-snug">{translation.note}</p>
                 )}
                 <p className="text-[11px] text-gray-500 mt-2 leading-snug">

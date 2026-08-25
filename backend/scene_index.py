@@ -24,6 +24,7 @@ import os
 import re
 import threading
 
+from backend import scripture_id
 from backend.logging_config import get_logger
 
 logger = get_logger('scene_index')
@@ -162,6 +163,75 @@ def _get_model():
     return _model
 
 
+# Query scoring is one pass over the whole embedding matrix, 785 MB at the
+# current index size, and numpy's matrix-vector product is SINGLE-THREADED. So
+# every Theme Search and every Similar Passages query ran on one core while the
+# other thirty-one idled. Splitting the matrix across threads is a measured 4.1x
+# (1.15s to 0.29s on 383,201 windows), and it needs no extra memory: each thread
+# converts and multiplies its own slice, so the 1.5 GB float32 copy the old path
+# allocated in one block never exists.
+#
+# The GIL is not a problem here because numpy releases it inside the BLAS call.
+_SCORE_THREADS = min(16, max(2, (os.cpu_count() or 4) - 2))
+
+
+def _score_all(q):
+    """Cosine-ish scores of every window against a query vector, in parallel."""
+    import numpy as np
+    from concurrent.futures import ThreadPoolExecutor
+    n = _emb.shape[0]
+    out = np.empty(n, dtype=np.float32)
+    step = (n + _SCORE_THREADS - 1) // _SCORE_THREADS
+
+    def part(i):
+        lo = i * step
+        hi = min(n, lo + step)
+        if lo < hi:
+            out[lo:hi] = np.asarray(_emb[lo:hi], dtype=np.float32) @ q
+
+    with ThreadPoolExecutor(_SCORE_THREADS) as ex:
+        list(ex.map(part, range(_SCORE_THREADS)))
+    return out
+
+
+def _score_block(rows, chunk=32768):
+    """Scores of every window against EACH of `rows`, as an (N, len(rows)) array.
+
+    The batched counterpart to _score_all. Same arithmetic, one BLAS call per
+    chunk instead of one per query, which is the difference between re-reading
+    the corpus once per query and reading it once in total.
+
+    Chunked so no full float32 copy of the corpus ever exists.
+    """
+    import numpy as np
+    n = _emb.shape[0]
+    q = np.asarray(_emb[rows], dtype=np.float32).T      # (D, len(rows))
+    out = np.empty((n, len(rows)), dtype=np.float32)
+    for i in range(0, n, chunk):
+        j = min(n, i + chunk)
+        out[i:j] = np.asarray(_emb[i:j], dtype=np.float32) @ q
+    return out
+
+
+def index_fingerprint():
+    """Short identifier that changes whenever the index does.
+
+    Anything cached off this index has to be dropped when it changes. Adding a
+    text alters the answer for passages throughout the corpus, not only in the
+    new work: gutter density asks how many OTHER works hold a similar passage,
+    so one new text moves it everywhere. A cache keyed on the work name alone
+    would serve stale densities after every addition and nobody would notice.
+    """
+    _ensure_loaded()
+    if not _state['ok']:
+        return 'unavailable'
+    try:
+        mt = int(os.path.getmtime(os.path.join(_DATA_DIR, 'embeddings.npy')))
+    except OSError:
+        mt = 0
+    return f'{len(_ids)}-{mt}'
+
+
 def _result(row, score, strong=None, extra=None):
     r = _records[row]
     d = r.get('desc') or {}
@@ -177,6 +247,13 @@ def _result(row, score, strong=None, extra=None):
         'gist': d.get('gist'),
         'themes': d.get('themes') or [],
         'mode': d.get('mode'),
+        # Whether the people this description names actually appear in the
+        # passage. False means the summary identified someone the text does not
+        # name, which is sometimes sound inference and sometimes the wrong
+        # person, and a served result cannot tell those apart. None means the
+        # question could not be asked: no names given, or a passage in Greek,
+        # Hebrew or Coptic script where an English name would never match.
+        'names_in_text': d.get('names_in_text'),
     }
     if extra:
         out.update(extra)
@@ -184,12 +261,19 @@ def _result(row, score, strong=None, extra=None):
 
 
 def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
-          dedup=True, baseline=None, strong_at=None):
+          dedup=True, baseline=None, strong_at=None, exclude_span=None):
     """Shared ranking: sort, filter, and collapse near-duplicate windows.
 
     Duplicates are real in this corpus: a work and its .part.N file both carry
     the same lines, and the fine/coarse scales overlap by design, so without a
     dedup pass a single passage can occupy an entire page of results.
+
+    Scripture needs a second kind of dedup that no other text does. The corpus
+    holds the Bible in Hebrew, Greek twice, Latin, English and Coptic twice, so
+    asking what resembles Coptic Genesis 22 returns the same chapter in six
+    versions before it returns anything a reader did not already know. Those are
+    collapsed into one result carrying the other versions, and the passage the
+    query itself came from is dropped, which is what `exclude_span` is for.
     """
     import numpy as np
     if baseline is None:
@@ -199,6 +283,7 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
         strong_at = baseline + STRONG_LIFT
     order = np.argsort(-scores)
     seen = set()
+    by_passage = {}       # canonical scripture span -> index into out
     out = []
     for row in order:
         score = float(scores[row])
@@ -217,7 +302,29 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
             if key in seen:
                 continue
             seen.add(key)
-        out.append(_result(row, score, strong=score >= strong_at))
+
+        sp = scripture_id.span(work, r.get('ref_start'), r.get('ref_end'))
+        if sp is not None:
+            # The query's own passage in another version is not a finding.
+            if exclude_span is not None and scripture_id.overlaps(sp, exclude_span):
+                continue
+            prev = by_passage.get(sp)
+            if prev is not None:
+                # Same verses, different version. Hang it off the entry already
+                # there rather than spending another result slot on it.
+                out[prev].setdefault('also_in', []).append({
+                    'language': r.get('language'),
+                    'work': r.get('work'),
+                    'ref_start': r.get('ref_start'),
+                    'score': round(score, 4),
+                })
+                continue
+
+        result = _result(row, score, strong=score >= strong_at)
+        if sp is not None:
+            by_passage[sp] = len(out)
+            result['scripture_ref'] = f'{sp[0]} {sp[1][0]}:{sp[1][1]}'
+        out.append(result)
         if len(out) >= limit:
             break
     return out
@@ -280,7 +387,7 @@ def find_by_text(query, limit=25, languages=None, scale=None):
     import numpy as np
     q = _get_model().encode([_E5_PREFIX + query.strip()[:1500]],
                             normalize_embeddings=True)[0].astype(np.float32)
-    scores = np.asarray(_emb, dtype=np.float32) @ q
+    scores = _score_all(q)
     baseline = float(np.median(scores))
     top = float(scores.max())
     lift = top - baseline
@@ -301,7 +408,7 @@ def find_by_text(query, limit=25, languages=None, scale=None):
 
 
 def find_similar_to_window(window_id, limit=15, languages=None,
-                           include_same_work=False):
+                           include_same_work=False, suppress_other_versions=True):
     """Similar Passages, given an index window id."""
     _ensure_loaded()
     if not _state['ok']:
@@ -312,12 +419,19 @@ def find_similar_to_window(window_id, limit=15, languages=None,
         return {'error': f'unknown window {window_id}', 'results': []}
     import numpy as np
     q = np.asarray(_emb[row], dtype=np.float32)
-    scores = np.asarray(_emb, dtype=np.float32) @ q
+    scores = _score_all(q)
     scores[row] = -1.0
-    exclude = None if include_same_work else _norm_work(_records[row].get('work'))
+    src = _records[row]
+    exclude = None if include_same_work else _norm_work(src.get('work'))
+    # When the query is itself a Bible passage, the same verses in the corpus's
+    # other Bibles are not a discovery. Excluding the work alone does not cover
+    # it: Coptic Genesis and Hebrew Genesis are different works.
+    exclude_span = scripture_id.span(
+        _norm_work(src.get('work')), src.get('ref_start'), src.get('ref_end')
+    ) if suppress_other_versions else None
     baseline = float(np.median(scores))
     results = _rank(scores, limit, exclude_work=exclude, languages=languages,
-                    baseline=baseline)
+                    baseline=baseline, exclude_span=exclude_span)
     top = results[0]['score'] if results else baseline
     return {
         'source': _result(row, 1.0, strong=True),
@@ -367,12 +481,22 @@ def window_for_passage(work, ref_start=None, ref_end=None, prefer='fine'):
 
 
 def find_similar_to_passage(work, ref_start=None, ref_end=None, limit=15,
-                            languages=None, scale='fine'):
+                            languages=None, scale='fine',
+                            suppress_other_versions=True):
     """Similar Passages, given a reader selection (work + reference span)."""
     wid = window_for_passage(work, ref_start, ref_end, prefer=scale)
     if not wid:
         return {'error': 'no indexed window covers that passage', 'results': []}
-    return find_similar_to_window(wid, limit=limit, languages=languages)
+    return find_similar_to_window(wid, limit=limit, languages=languages,
+                                  suppress_other_versions=suppress_other_versions)
+
+
+_DENSITY_CACHE = os.path.join(_DATA_DIR, 'density_cache')
+
+
+def _density_cache_path(work, scale):
+    safe = re.sub(r'[^A-Za-z0-9._-]', '_', f'{work}.{scale}')
+    return os.path.join(_DENSITY_CACHE, f'{index_fingerprint()}.{safe}.json')
 
 
 def connection_density(work, scale='fine'):
@@ -386,6 +510,20 @@ def connection_density(work, scale='fine'):
     if not _state['ok']:
         return {'error': _state['error'], 'windows': []}
     import numpy as np
+
+    # Served from cache when the index has not changed. Computing this is a
+    # matrix multiply against the whole corpus for every window of the work,
+    # about 5 seconds for a book of the Aeneid, and the answer is identical
+    # until a text is added. The fingerprint in the filename is what makes that
+    # safe: a new index writes to new paths and the stale files are simply never
+    # read again.
+    cache_path = _density_cache_path(work, scale)
+    try:
+        with open(cache_path, encoding='utf-8') as fh:
+            return json.load(fh)
+    except (OSError, ValueError):
+        pass
+
     # Match the EXACT work when the caller names a part file, since a reader is
     # looking at one book: collapsing vergil.aeneid.part.6 into vergil.aeneid
     # would paint book 3 and book 7 densities beside book 6's lines. Fall back to
@@ -396,25 +534,78 @@ def connection_density(work, scale='fine'):
     if not rows:
         return {'work': work, 'windows': []}
     base = _norm_work(work)
-    mat = np.asarray(_emb, dtype=np.float32)
+    # ONE matrix-matrix multiply for every window of the work, not one
+    # matrix-vector multiply per window. The gutter needs 150 windows for a book
+    # of the Aeneid, and scoring them one at a time re-read the whole 785 MB
+    # corpus matrix 150 times: 43 seconds. Handing BLAS all 150 query vectors at
+    # once lets it reuse each chunk of the corpus across all of them, which is
+    # what a matrix-matrix kernel is for. Measured 43s -> 2.2s, 19x.
     out = []
-    for row in rows:
-        scores = mat @ np.asarray(_emb[row], dtype=np.float32)
-        strong_at = float(np.median(scores)) + STRONG_LIFT
+    all_scores = _score_block(rows)
+    for n_row, row in enumerate(rows):
+        scores = all_scores[:, n_row]
+        median = float(np.median(scores))
+        # The best match OUTSIDE this work, and how far it stands above the
+        # window's own baseline. This is the gutter's real signal, and it is
+        # continuous: every line gets a reading rather than most getting zero.
+        #
+        # It replaces a count of works clearing STRONG_LIFT. That constant was
+        # fitted to a different question, whether the corpus holds a subject at
+        # all, and reused here it read 100 of the 150 windows of Aeneid 6 as
+        # having no content connections whatever. What was actually happening is
+        # that a passage's nearest neighbours are usually its own author, and
+        # once those are excluded nothing cleared an absolute bar.
+        best_lift = 0.0
         strong = 0
         seen = set()
-        for other in np.argsort(-scores)[:200]:
-            if float(scores[other]) < strong_at:
-                break
+        for other in np.argsort(-scores)[:400]:
             w = _norm_work(_records[other].get('work'))
-            if w == base or w in seen:
+            if w == base:
+                continue
+            s = float(scores[other])
+            if best_lift == 0.0:
+                best_lift = max(0.0, s - median)
+            if w in seen:
                 continue
             seen.add(w)
-            strong += 1
+            if s >= median + STRONG_LIFT:
+                strong += 1
+            if len(seen) >= 25:
+                break
         r = _records[row]
         out.append({'id': r.get('id'), 'ref_start': r.get('ref_start'),
-                    'ref_end': r.get('ref_end'), 'connections': strong})
-    peak = max((w['connections'] for w in out), default=0) or 1
+                    'ref_end': r.get('ref_end'), 'connections': strong,
+                    'lift': round(best_lift, 4)})
+    # Normalise within the work, between its own 5th and 95th percentile, so the
+    # gutter uses its full range on whatever text is open. Scaling from zero
+    # instead left every mark between 0.57 and 1.00 on Aeneid 6, which is a
+    # uniformly dark column telling a reader nothing. A per-corpus scale would
+    # have the opposite fault, washing out a work whose connections are real but
+    # uniformly modest.
+    #
+    # This makes density a RELATIVE reading: where this text is more and less
+    # connected, not how it compares to another text. The absolute figure is
+    # carried alongside as `connections`, the number of other works with a
+    # strongly similar passage, which is what the tooltip should show.
+    lifts = sorted(w['lift'] for w in out)
+    if lifts:
+        lo = lifts[int(0.05 * (len(lifts) - 1))]
+        hi = lifts[int(0.95 * (len(lifts) - 1))]
+    else:
+        lo = hi = 0.0
+    rng = hi - lo
     for w in out:
-        w['density'] = round(w['connections'] / peak, 3)
-    return {'work': work, 'scale': scale, 'peak': peak, 'windows': out}
+        w['density'] = round(min(1.0, max(0.0, (w['lift'] - lo) / rng)), 3) if rng > 0 else 0.0
+    peak = max((w['connections'] for w in out), default=0)
+    result = {'work': work, 'scale': scale, 'peak': peak,
+              'lift_at_full_mark': round(hi, 4), 'lift_at_empty_mark': round(lo, 4),
+              'windows': out}
+    try:
+        os.makedirs(_DENSITY_CACHE, exist_ok=True)
+        tmp = cache_path + '.tmp'
+        with open(tmp, 'w', encoding='utf-8') as fh:
+            json.dump(result, fh)
+        os.replace(tmp, cache_path)   # atomic, so a reader never sees half a file
+    except OSError as e:
+        logger.warning('[SCENE] could not cache density for %s: %s', work, e)
+    return result

@@ -52,7 +52,9 @@ def _build_index():
 
 
 def _norm_work(work):
-    return (work or '').replace('.tess', '')
+    # Callers hand us a work name either bare (vergil.aeneid) or with the language
+    # directory the corpus files sit in (la/vergil.aeneid). Both mean the same work.
+    return (work or '').replace('.tess', '').split('/')[-1]
 
 
 def _load(work):
@@ -119,6 +121,22 @@ def for_passage(work, refs):
     src = (data.get('sources') or [{}])[0]
     per_unit = data.get('mean_source_lines_per_translation_unit') or 1
     coarse = per_unit and per_unit > 3
+    # Some translations carry no subdivision below the book. Lucretius' smallest
+    # unit averages over a thousand source lines, so what comes back for one line
+    # is the whole book. That is still worth reading, but a reader must not take
+    # it for a rendering of the lines selected, so it is said outright rather
+    # than left to a footnote.
+    block = per_unit and per_unit > 40
+    if block:
+        note = (f'The smallest unit this translation offers runs to about '
+                f'{round(per_unit)} lines, so what follows is the whole passage '
+                f'containing your selection, not a translation of those lines.')
+    elif coarse:
+        note = ('This translation is aligned in blocks of about '
+                f'{round(per_unit)} lines, so it covers the selection rather than '
+                'matching it line by line.')
+    else:
+        note = None
     return {
         'available': True,
         'work': _norm_work(work),
@@ -131,7 +149,7 @@ def for_passage(work, refs):
         'attribution': data.get('attribution'),
         'alignment_confidence': data.get('alignment_confidence'),
         'approximate': bool(coarse),
-        'note': ('This translation is aligned in blocks of about '
-                 f'{round(per_unit)} lines, so it covers the selection rather than '
-                 'matching it line by line.') if coarse else None,
+        'block_only': bool(block),
+        'block_lines': round(per_unit) if coarse else None,
+        'note': note,
     }
