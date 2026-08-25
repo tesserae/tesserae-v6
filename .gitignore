@@ -77,6 +77,13 @@ data/treebanks/
 
 # Evaluation benchmark data (large analysis/benchmark JSON files)
 evaluation/
+# Tests ARE tracked, even though the research notes around them are not. A
+# regression test that lives only on one machine cannot stop a regression: the
+# quotation-channel test would have caught an eleven-week production outage, and
+# it was written into an ignored directory.
+!evaluation/scripts/reference_test_arma.py
+!tests/
+!tests/**
 
 # Pre-computed embeddings (too large for Git)
 backend/embeddings/
