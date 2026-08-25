@@ -1,0 +1,344 @@
+[
+ {
+  "query": "plague",
+  "present": true,
+  "head": 0.08572185039520264,
+  "coherence": 0.8859782971833882
+ },
+ {
+  "query": "shipwreck",
+  "present": true,
+  "head": 0.09879034757614136,
+  "coherence": 0.925941306666324
+ },
+ {
+  "query": "banquet",
+  "present": true,
+  "head": 0.10683166980743408,
+  "coherence": 0.9344716925370066
+ },
+ {
+  "query": "prophecy",
+  "present": true,
+  "head": 0.08991044759750366,
+  "coherence": 0.9211208142732319
+ },
+ {
+  "query": "exile",
+  "present": true,
+  "head": 0.0851927399635315,
+  "coherence": 0.916882966694079
+ },
+ {
+  "query": "sacrifice",
+  "present": true,
+  "head": 0.07970327138900757,
+  "coherence": 0.9794644807514391
+ },
+ {
+  "query": "chariot",
+  "present": true,
+  "head": 0.09739053249359131,
+  "coherence": 0.9215463738692434
+ },
+ {
+  "query": "siege",
+  "present": true,
+  "head": 0.08754390478134155,
+  "coherence": 0.9291919909025493
+ },
+ {
+  "query": "airplanes",
+  "present": false,
+  "head": 0.0950813889503479,
+  "coherence": 1.0000009637129934
+ },
+ {
+  "query": "locomotive",
+  "present": false,
+  "head": 0.06898331642150879,
+  "coherence": 1.0000009637129934
+ },
+ {
+  "query": "telegraph",
+  "present": false,
+  "head": 0.07127028703689575,
+  "coherence": 1.0000009637129934
+ },
+ {
+  "query": "antibiotics",
+  "present": false,
+  "head": 0.09104162454605103,
+  "coherence": 1.0000009637129934
+ },
+ {
+  "query": "spacecraft",
+  "present": false,
+  "head": 0.07549136877059937,
+  "coherence": 1.0000009637129934
+ },
+ {
+  "query": "photograph",
+  "present": false,
+  "head": 0.10986506938934326,
+  "coherence": 1.0000009637129934
+ },
+ {
+  "query": "submarine",
+  "present": false,
+  "head": 0.08198755979537964,
+  "coherence": 1.0000009637129934
+ },
+ {
+  "query": "television",
+  "present": false,
+  "head": 0.10498440265655518,
+  "coherence": 1.0000009637129934
+ },
+ {
+  "query": "a plague",
+  "present": true,
+  "head": 0.0845441222190857,
+  "coherence": 0.9363720542506168
+ },
+ {
+  "query": "funeral games",
+  "present": true,
+  "head": 0.09568262100219727,
+  "coherence": 0.8931157965409128
+ },
+ {
+  "query": "a storm at sea",
+  "present": true,
+  "head": 0.1258178949356079,
+  "coherence": 0.9557799489874589
+ },
+ {
+  "query": "the underworld",
+  "present": true,
+  "head": 0.08852726221084595,
+  "coherence": 0.9171224493729441
+ },
+ {
+  "query": "airplanes and locomotives",
+  "present": false,
+  "head": 0.060458362102508545,
+  "coherence": 1.0000009637129934
+ },
+ {
+  "query": "a steam engine",
+  "present": false,
+  "head": 0.0648682713508606,
+  "coherence": 0.9796571430407073
+ },
+ {
+  "query": "a printing press",
+  "present": false,
+  "head": 0.07004612684249878,
+  "coherence": 0.9126005473889802
+ },
+ {
+  "query": "a vaccine trial",
+  "present": false,
+  "head": 0.05815404653549194,
+  "coherence": 0.9793032997532894
+ },
+ {
+  "query": "a plague strikes a city and the dead go unburied",
+  "present": true,
+  "head": 0.11717420816421509,
+  "coherence": 0.9405096756784539
+ },
+ {
+  "query": "a warrior arms himself before battle, piece by piece",
+  "present": true,
+  "head": 0.10954821109771729,
+  "coherence": 0.9298999987150494
+ },
+ {
+  "query": "a photographer develops a glass plate in a darkroom",
+  "present": false,
+  "head": 0.07154840230941772,
+  "coherence": 0.8775725515265214
+ },
+ {
+  "query": "a compositor sets metal type line by line",
+  "present": false,
+  "head": 0.06955200433731079,
+  "coherence": 0.8759754381681744
+ },
+ {
+  "query": "a lover complains that the beloved is cruel and indifferent",
+  "present": true,
+  "head": 0.10242044925689697,
+  "coherence": 0.9391375893040708
+ },
+ {
+  "query": "a monk in the desert is tempted and resists",
+  "present": true,
+  "head": 0.0757828950881958,
+  "coherence": 0.8920954654091283
+ },
+ {
+  "query": "a prophet denounces a king for injustice",
+  "present": true,
+  "head": 0.09224283695220947,
+  "coherence": 0.9080865960372122
+ },
+ {
+  "query": "a storm at sea scatters a fleet and the crew despairs",
+  "present": true,
+  "head": 0.14034444093704224,
+  "coherence": 0.9535403603001644
+ },
+ {
+  "query": "a seer is consulted and gives an answer that can be read two ways",
+  "present": true,
+  "head": 0.07899981737136841,
+  "coherence": 0.8849122699938322
+ },
+ {
+  "query": "a city falls and its people are led away captive",
+  "present": true,
+  "head": 0.11244720220565796,
+  "coherence": 0.9306534616570724
+ },
+ {
+  "query": "funeral games are held with prizes awarded to the winners",
+  "present": true,
+  "head": 0.11395132541656494,
+  "coherence": 0.8916365774054277
+ },
+ {
+  "query": "a father is commanded to sacrifice his own son",
+  "present": true,
+  "head": 0.10088914632797241,
+  "coherence": 0.9030529624537418
+ },
+ {
+  "query": "a descent into the world of the dead to consult a shade",
+  "present": true,
+  "head": 0.07734823226928711,
+  "coherence": 0.90838623046875
+ },
+ {
+  "query": "a wine cup and the fleetingness of life",
+  "present": true,
+  "head": 0.09158068895339966,
+  "coherence": 0.9341681229440789
+ },
+ {
+  "query": "a guest at a banquet is asked to tell the story of his wanderings",
+  "present": true,
+  "head": 0.09414690732955933,
+  "coherence": 0.9057171470240543
+ },
+ {
+  "query": "a passenger boards a steam locomotive and finds a seat",
+  "present": false,
+  "head": 0.06398814916610718,
+  "coherence": 0.8676529733758224
+ },
+ {
+  "query": "a telegraph operator taps out a message in code",
+  "present": false,
+  "head": 0.060078978538513184,
+  "coherence": 0.8742276643451892
+ },
+ {
+  "query": "a tea ceremony performed with careful attention to each utensil",
+  "present": false,
+  "head": 0.06912046670913696,
+  "coherence": 0.9025104723478619
+ },
+ {
+  "query": "an Inuit hunter waits at a seal's breathing hole in the ice",
+  "present": false,
+  "head": 0.07274532318115234,
+  "coherence": 0.8668167917351973
+ },
+ {
+  "query": "a Mesoamerican priest reads the calendar to fix a festival date",
+  "present": false,
+  "head": 0.07302653789520264,
+  "coherence": 0.8852323030170641
+ },
+ {
+  "query": "a factory inspector reports on conditions in a cotton mill",
+  "present": false,
+  "head": 0.07412976026535034,
+  "coherence": 0.8646451448139392
+ },
+ {
+  "query": "a samurai prepares for ritual suicide before his lord",
+  "present": false,
+  "head": 0.07358098030090332,
+  "coherence": 0.8828696803042763
+ },
+ {
+  "query": "a Norse warrior boasts of his deeds in a mead hall",
+  "present": false,
+  "head": 0.06729060411453247,
+  "coherence": 0.8777416028474506
+ },
+ {
+  "query": "a surgeon administers ether before an operation",
+  "present": false,
+  "head": 0.07708656787872314,
+  "coherence": 0.8891191984477796
+ },
+ {
+  "query": "a farmer lifts potatoes out of the ground and sorts them for seed",
+  "present": false,
+  "head": 0.10063683986663818,
+  "coherence": 0.9210783305921053
+ },
+ {
+  "query": "a rider stands in his stirrups to shoot an arrow behind him",
+  "present": false,
+  "head": 0.08155250549316406,
+  "coherence": 0.8875827990080181
+ },
+ {
+  "query": "a still is heated and the rising vapour is caught and cooled into spirit",
+  "present": false,
+  "head": 0.07055914402008057,
+  "coherence": 0.8843401457134046
+ },
+ {
+  "query": "gunners swab out the cannon barrel and ram home a fresh powder charge",
+  "present": false,
+  "head": 0.06238245964050293,
+  "coherence": 0.873853181537829
+ },
+ {
+  "query": "a compositor sets metal type line by line and locks up the forme",
+  "present": false,
+  "head": 0.0725250244140625,
+  "coherence": 0.8808100650185033
+ },
+ {
+  "query": "a captain takes the ship's latitude with a sextant at noon",
+  "present": false,
+  "head": 0.08867716789245605,
+  "coherence": 0.8919120387027138
+ },
+ {
+  "query": "a spacecraft docks with an orbital station",
+  "present": false,
+  "head": 0.06907576322555542,
+  "coherence": 0.8729585346422697
+ },
+ {
+  "query": "a programmer debugs a race condition in a web server",
+  "present": false,
+  "head": 0.054049015045166016,
+  "coherence": 0.8964186818976151
+ },
+ {
+  "query": "antibiotics are prescribed for a bacterial infection",
+  "present": false,
+  "head": 0.08597511053085327,
+  "coherence": 0.9312065526058799
+ }
+]
