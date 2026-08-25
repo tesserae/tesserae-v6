@@ -25,6 +25,7 @@ one that cannot look at all.
 """
 import json
 import re
+from collections import Counter
 
 from backend.logging_config import get_logger
 from backend.assistant import model, searches
@@ -39,10 +40,34 @@ logger = get_logger('assistant.agent')
 # and always cost another 2.6s, plus a longer facts block that slowed generation
 # again. Seeding already puts the corpus holdings in front of the model, so one
 # further search is enough for the questions this handles.
-MAX_SEARCHES = 1
+# One search was enough for a first question and never enough for a follow-up:
+# "are you sure it's not in Eobanus?" needs the phrase looked up AND the author
+# resolved. The cap exists to stop a model spending the machine on an open
+# question, so it rises rather than disappears.
+MAX_SEARCHES = 3
 
 # Questions the seeded listing already answers. Asking the model what else to
 # search when the answer is already in hand is a wasted round trip.
+# Questions ABOUT the tool rather than about the corpus. These must reach the
+# guide, which knows how the site works and how to connect an outside assistant.
+# Two things would otherwise go wrong: the carry-over heuristic treats any short
+# question as a follow-up, so "How can I use my AI agent with Tesserae?" would
+# inherit the previous phrase and search for it; and the no-punt rule, added so
+# corpus questions are never handed back as advice, would answer a how-to
+# question with a list of Latin works.
+_ABOUT_THE_TOOL = (
+    'my ai', 'own ai', 'ai agent', 'ai assistant', 'chatgpt', 'claude',
+    'connector', 'mcp', 'api', 'export', 'csv', 'download',
+    'how do i use', 'how can i use', 'how does this', 'how do you',
+    'what is the difference between', 'what does this site', 'log in', 'account',
+)
+
+
+def _is_about_the_tool(question):
+    q = (question or '').lower()
+    return any(t in q for t in _ABOUT_THE_TOOL)
+
+
 _HOLDINGS_QUESTION = (
     'what texts', 'which texts', 'what works', 'which works', 'what do you have',
     'what is in', "what's in", 'what does the corpus', 'how many', 'do you have',
@@ -75,6 +100,68 @@ _LOOKUP_STOP = {'book', 'the', 'and', 'with', 'for', 'what', 'where', 'which',
                 'compare', 'comparing', 'between', 'against', 'search', 'text',
                 'texts', 'work', 'works', 'passage', 'corpus', 'latin', 'greek',
                 'hebrew', 'coptic', 'english', 'recommend', 'interesting'}
+
+
+# Words that look like names but are not people.
+_NOT_PEOPLE = {'latin', 'greek', 'hebrew', 'coptic', 'english', 'book', 'corpus',
+               'tesserae', 'bible', 'renaissance', 'classical', 'what', 'where',
+               'which', 'does', 'this', 'that', 'they', 'there', 'about', 'also'}
+
+
+def _lines_for_author(raw, who):
+    """Citation and text for one author's hits, out of a raw search response."""
+    out = []
+    for r in ((raw or {}).get('results') or []):
+        if who.lower() not in str(r.get('author') or '').lower():
+            continue
+        bits = [r.get('author'), r.get('work'), r.get('locus')]
+        out.append({'ref': ' '.join(str(b) for b in bits if b),
+                    'text': str(r.get('text') or '')[:200]})
+    return out
+
+
+def _named_people(question):
+    """Capitalised names in the question, as author candidates.
+
+    Deliberately loose. It costs nothing to check a name that turns out not to
+    be an author, and it cost a whole exchange to miss one that was.
+    """
+    out = []
+    for w in re.findall(r'\b([A-Z][a-zA-Z]{3,})\b', question or ''):
+        k = w.strip('.,;:?"\'')
+        if k.lower() not in _NOT_PEOPLE and k not in out:
+            out.append(k)
+    return out[:4]
+
+
+def _carried_phrase(question, history):
+    """The phrase an earlier turn established, when this turn omits it.
+
+    A follow-up rarely repeats its subject. "How about in any post-classical
+    authors?" and "are you sure it's not in Eobanus?" are both about the phrase
+    named two turns earlier, and without it the assistant had nothing to search
+    for, so it asked the user to do the searching.
+
+    Only fills a GAP: a question carrying its own quoted phrase keeps it.
+    """
+    if not history or _quoted_phrase(question) or _is_about_the_tool(question):
+        return None
+    # A follow-up is short and refers back. A fresh question that simply
+    # happens to lack quotation marks should not inherit the last subject.
+    ql = (question or '').lower()
+    refers_back = (len(ql.split()) <= 14
+                   or any(w in ql for w in (' it ', "it's", 'it?', 'that one',
+                                            'how about', 'what about', 'any other',
+                                            'the phrase', 'same phrase')))
+    if not refers_back:
+        return None
+    for turn in reversed(history[-6:]):
+        if (turn or {}).get('role') != 'user':
+            continue
+        found = _quoted_phrase(turn.get('text') or '')
+        if found:
+            return found
+    return None
 
 
 def _named_works(question):
@@ -137,6 +224,16 @@ Rules:
   open question needs.
 No prose outside the JSON."""
 
+# 260 tokens truncated answers mid-word: "...including Eobanus, Iliad, Book 2;
+# Eobanus, I" and then nothing. A listing answer needs room for the list.
+# A listing answer is long: thirteen citations with their lines ran past 900 and
+# stopped mid-word, losing the count and the offer that should close it.
+ANSWER_TOKENS = 1500
+
+# Large enough to hold a listing answer's worth of lines. The old 3,000 silently
+# dropped the very facts the question was about.
+FACTS_CHAR_CAP = 14000
+
 ANSWER_SYSTEM = """You are answering a scholar's question about a corpus of ancient literature.
 
 A search has been RUN and its results are given to you below. These are your only
@@ -153,7 +250,20 @@ Absolute rules:
 - Do not describe what other searches would find. You have one set of results;
   report it.
 
-Three to five sentences of plain scholarly English. No headings, no lists."""
+LISTING. When the user asks for the instances, the occurrences, the passages or
+the examples, GIVE THEM: one per line, citation first, then the line of text if
+the results carry it. That is the answer to that question, and a paragraph
+describing that instances exist is not. Do not stop at three of them because
+prose habit says to; list what the results hold, up to about fifteen, and say
+how many more there are. Asked "can you give the Eobanus instances?", the right
+answer is the list of Eobanus lines.
+
+OFFER WHAT THEY CANNOT SEE. If the results include variant forms, say how many
+there are and offer to list them. A reader told only about exact matches has no
+way to know the inflected ones exist, so mentioning the count and asking is the
+difference between a true answer and a useful one.
+
+Otherwise three to five sentences of plain scholarly English, no headings."""
 
 
 def _extract_json(text):
@@ -205,7 +315,22 @@ def _summarise(name, raw):
             return ' '.join(str(b) for b in bits if b)
         works = sorted({f"{r.get('author')}, {r.get('work')}"
                         for r in results if r.get('author')})
+        # Authors and eras, counted. The variant pass compares author sets, and
+        # a question like "any post-classical authors?" is answerable directly
+        # from era rather than by the model guessing from names -- it guessed
+        # wrong, calling Salutati's De Laboribus Herculis Renaissance and then
+        # saying in the same breath that it does not contain the phrase, having
+        # itself reported the phrase there one turn earlier.
+        authors = Counter(str(r.get('author')) for r in results if r.get('author'))
+        eras = Counter(str(r.get('era')) for r in results if r.get('era'))
+        by_era = {}
+        for r in results:
+            if r.get('author') and r.get('era'):
+                by_era.setdefault(str(r['era']), set()).add(str(r['author']))
         return {'kind': 'phrase occurrences',
+                'authors': dict(authors.most_common(20)),
+                'eras': dict(eras.most_common()),
+                'authors_by_era': {k: sorted(v) for k, v in sorted(by_era.items())},
                 'hits_returned': len(results),
                 'hits_in_corpus': raw.get('total') or raw.get('total_at_least'),
                 'distinct_loci': raw.get('distinct_loci'),
@@ -223,7 +348,7 @@ def _summarise(name, raw):
     return {'kind': name, 'raw_size': len(results)}
 
 
-def answer_stream(question, on_step=None):
+def answer_stream(question, on_step=None, history=None):
     """Same loop, but yield the answer as it is written.
 
     Total time is 18-36s and most of it is generation. First tokens arrive in
@@ -246,7 +371,13 @@ def answer_stream(question, on_step=None):
 
     def worker():
         try:
-            prep_result.update(_prepare(question, q.put) or {})
+            # history MUST be threaded here too. It was not, and that is the
+            # whole reason the conversation fix appeared to work in testing and
+            # did nothing in the browser: answer() passes history, this streaming
+            # path did not, and the browser uses this one. Tested through the
+            # HTTP endpoint now, not through answer(), so the two cannot diverge
+            # again without a test noticing.
+            prep_result.update(_prepare(question, q.put, history) or {})
         finally:
             q.put(None)
 
@@ -269,23 +400,31 @@ def answer_stream(question, on_step=None):
     collected = []
     for piece in model.stream(ANSWER_SYSTEM,
                               f'{block}\n\nQuestion: {question}\n\nAnswer:',
-                              max_tokens=260, temperature=0.2):
+                              max_tokens=ANSWER_TOKENS, temperature=0.2):
         collected.append(piece)
         yield ('chunk', piece)
 
     text = ''.join(collected)
+    # Every place a citation can legitimately come from. This read only
+    # 'examples', so the twelve genuine Eobanus citations, which arrive under
+    # 'lines', were all counted as unsupported and the answer was marked
+    # unclean for quoting exactly what it was given.
     allowed = []
     for f in all_facts:
-        allowed += [e.get('ref') for e in (f.get('examples') or []) if e.get('ref')]
+        for key in ('examples', 'lines'):
+            allowed += [e.get('ref') for e in (f.get(key) or [])
+                        if isinstance(e, dict) and e.get('ref')]
     _, removed = model.strip_unsupported_references(text, allowed)
     ok_numbers, invented = model.numbers_preserved(block, text, question)
+    ok_quotes, fabricated = model.quotes_supported(block, text)
     yield ('done', {'searches_run': ran, 'facts': all_facts,
                     'guardrails': {'references_removed': removed,
                                    'unsupported_numbers': invented,
-                                   'clean': not removed and ok_numbers}})
+                                   'fabricated_quotes': fabricated,
+                                   'clean': not removed and ok_numbers and ok_quotes}})
 
 
-def _prepare(question, step):
+def _prepare(question, step, history=None):
     """Run the searches and build the fact block. Shared by both answer paths.
 
     Everything up to composing prose: seeding, the fast paths, the chooser, and
@@ -298,6 +437,21 @@ def _prepare(question, step):
         return {'error': 'the assistant is not running just now'}
 
     ran, all_facts = [], []
+
+    # A question about the tool is answered by the guide, which has the facts
+    # about connectors and CSV export. Searching the corpus for it is nonsense.
+    if _is_about_the_tool(question):
+        return {'needs_model_only': True}
+
+    # RESOLVE THE QUESTION AGAINST THE CONVERSATION FIRST.
+    #
+    # "are you sure it's not in Eobanus?" arrived with no idea what "it" was,
+    # because nothing carried the previous turn. So no phrase was found, no
+    # search ran, and the question fell through to the guide, which has no
+    # corpus access and could only recite tool names. The user had to be told
+    # to run the search himself, which is the failure this whole module exists
+    # to remove.
+    carried = _carried_phrase(question, history)
 
     # SEED THE LOOP IN CODE, not by asking. Whichever languages the question
     # names get listed before the model chooses anything.
@@ -323,7 +477,7 @@ def _prepare(question, step):
                 logger.info('[ASSISTANT] seed listing %s failed: %s', code, e)
 
     # A quoted phrase needs no deliberation: run the exact search for it.
-    phrase = _quoted_phrase(question)
+    phrase = _quoted_phrase(question) or carried
     if phrase:
         lang = next((c for c, w in (('he', 'hebrew'), ('grc', 'greek'),
                                     ('cop', 'coptic'), ('en', 'english'))
@@ -343,7 +497,65 @@ def _prepare(question, step):
             facts.update({'search': 'line_search',
                           'args': {'query': phrase, 'search_type': mode}})
             all_facts.append(facts)
-            ran.append('line_search(exact)')
+            ran.append(f'line_search({mode})')
+
+            # THE VARIANT PASS. An exact search finds the phrase as written and
+            # nothing else, so "arma virumque" misses Eobanus entirely while he
+            # has 35 lines carrying arma with vir in some other case: "arma
+            # virosque", "arma viros", "arma virum". Reporting the exact hits
+            # alone and stopping there is a true answer that leaves the more
+            # interesting one unsaid. So whenever an exact search runs, the
+            # inflected forms get looked up too, and the extra authors it turns
+            # up are offered as variants rather than folded in as if identical.
+            if mode == 'exact':
+                try:
+                    step(f'checking inflected variants of "{phrase}"')
+                    var = searches.run('line_search', {
+                        'query': phrase, 'language': lang, 'search_type': 'lemma',
+                        'max_results': 300})
+                    vf = _summarise('line_search', var)
+                    exact_authors = set((facts.get('authors') or {}))
+                    extra = {a: n for a, n in (vf.get('authors') or {}).items()
+                             if a not in exact_authors}
+                    if extra:
+                        all_facts.append({
+                            'kind': 'VARIANT FORMS of the same phrase, found by '
+                                    'lemma search. These authors do NOT have the '
+                                    'phrase exactly as written, but do have it in '
+                                    'other inflected forms. Tell the user how many '
+                                    'there are and offer to list them.',
+                            'phrase': phrase,
+                            'authors_with_variants': dict(sorted(
+                                extra.items(), key=lambda kv: -kv[1])[:15]),
+                            'example_lines': (vf.get('examples') or [])[:6]})
+                        ran.append('line_search(lemma variants)')
+
+                    # THE LINES THEMSELVES, for any author the question names.
+                    # "Can you give the Eobanus instances?" could not be answered
+                    # because the facts carried the number 21 and no lines. A
+                    # count is not an instance.
+                    for who in _named_people(question):
+                        lines = _lines_for_author(var, who) or _lines_for_author(raw, who)
+                        if lines:
+                            all_facts.append({
+                                'kind': f'THE ACTUAL LINES in {who}. If the user asks '
+                                        f'for the instances, occurrences or examples, '
+                                        f'LIST THESE, citation first.',
+                                'author': who,
+                                'total_found': len(lines),
+                                'lines': lines[:12]})
+                except searches.SearchError as e:
+                    logger.info('[ASSISTANT] variant search failed: %s', e)
+
+            # If the question names an author, answer FOR THAT AUTHOR instead of
+            # leaving the user to scan a list.
+            for who in _named_people(question):
+                hits = [a for a in (facts.get('authors') or {}) if who.lower() in a.lower()]
+                all_facts.append({
+                    'kind': f'the user asked specifically about {who}',
+                    'exact_phrase_in_' + who: hits or 'no exact occurrences',
+                    'note': ('Check the variant-forms fact above before saying the '
+                             'phrase is absent from this author.')})
         except searches.SearchError as e:
             logger.info('[ASSISTANT] phrase search failed: %s', e)
 
@@ -380,7 +592,18 @@ def _prepare(question, step):
         ran.append(name)
 
     if not all_facts:
-        return {'needs_model_only': True}
+        # Falling back to the guide here is what produced "use string_search
+        # with the exact phrase". The guide cannot see the corpus, so it can
+        # only name tools. If the question is about the corpus at all, list
+        # what is there and answer from that rather than handing the work back.
+        try:
+            step('listing what the corpus holds')
+            f = _summarise('list_texts', searches.run('list_texts', {'language': 'la'}))
+            f.update({'search': 'list_texts', 'args': {'language': 'la'}})
+            all_facts.append(f)
+            ran.append('list_texts(la)')
+        except searches.SearchError:
+            return {'needs_model_only': True}
 
     # The census goes in FIRST, before the search results. Without it the model
     # reads "my search found no Greek" as "there is no Greek", and no wording of
@@ -404,30 +627,66 @@ def _prepare(question, step):
         block += ('\nSo do NOT write that the corpus lacks any of these. If the user '
                   'asks how to compare them, recommend an approach using them.\n\n')
 
-    block += ('SEARCH RESULTS (your only source of fact about specific passages):\n'
-              + json.dumps(all_facts, ensure_ascii=False)[:3000])
+    # MOST SPECIFIC FACTS FIRST, and a cap that does not cut them.
+    #
+    # This was 3,000 characters with the facts in the order they were gathered.
+    # Asked "can you give the Eobanus instances?", the block ran to 5,723
+    # characters, the 21 Eobanus lines sat at 3,867-5,512, and every one of them
+    # was discarded before the model saw it. It then produced twelve fabricated
+    # citations, each quoting the Aeneid's opening line as though it were
+    # Eobanus. Invented primary text is the worst thing this tool can emit.
+    #
+    # So: facts carrying actual LINES go first, because they are what a question
+    # about instances is answered from, and the cap is large enough to hold them.
+    def specificity(f):
+        if f.get('lines'):
+            return 0
+        if f.get('kind', '').startswith('VARIANT'):
+            return 1
+        if f.get('search') == 'line_search':
+            return 2
+        return 3
+
+    ordered = sorted(all_facts, key=specificity)
+    body = json.dumps(ordered, ensure_ascii=False)
+    if len(body) > FACTS_CHAR_CAP:
+        body = body[:FACTS_CHAR_CAP] + (
+            '\n\n[TRUNCATED. Some results were not shown. Say so if the user asks '
+            'for a complete list; do NOT invent the remainder.]')
+    block += ('SEARCH RESULTS (your only source of fact about specific passages).\n'
+              'Quote passage text ONLY as it appears here, character for character.\n'
+              'If a line you want is not here, say it is not shown rather than '
+              'reconstructing it.\n' + body)
     return {'block': block, 'facts': all_facts, 'ran': ran}
 
 
-def answer(question, on_step=None):
+def answer(question, on_step=None, history=None):
     """Non-streaming answer. Kept for callers that want the whole thing at once."""
     step = on_step or (lambda _s: None)
-    prep = _prepare(question, step)
+    prep = _prepare(question, step, history)
     if prep.get('error') or prep.get('needs_model_only'):
         return prep
     block, all_facts, ran = prep['block'], prep['facts'], prep['ran']
     step('reading the results')
     text = model.complete(ANSWER_SYSTEM,
                           f'{block}\n\nQuestion: {question}\n\nAnswer:',
-                          max_tokens=260, temperature=0.2)
+                          max_tokens=ANSWER_TOKENS, temperature=0.2)
     if not text:
         return {'error': 'could not compose an answer', 'facts': all_facts}
+    # Every place a citation can legitimately come from. This read only
+    # 'examples', so the twelve genuine Eobanus citations, which arrive under
+    # 'lines', were all counted as unsupported and the answer was marked
+    # unclean for quoting exactly what it was given.
     allowed = []
     for f in all_facts:
-        allowed += [e.get('ref') for e in (f.get('examples') or []) if e.get('ref')]
+        for key in ('examples', 'lines'):
+            allowed += [e.get('ref') for e in (f.get(key) or [])
+                        if isinstance(e, dict) and e.get('ref')]
     text, removed = model.strip_unsupported_references(text, allowed)
     ok_numbers, invented = model.numbers_preserved(block, text, question)
+    ok_quotes, fabricated = model.quotes_supported(block, text)
     return {'answer': text, 'searches_run': ran, 'facts': all_facts,
             'guardrails': {'references_removed': removed,
                            'unsupported_numbers': invented,
-                           'clean': not removed and ok_numbers}}
+                           'fabricated_quotes': fabricated,
+                           'clean': not removed and ok_numbers and ok_quotes}}

@@ -28,7 +28,9 @@ _GEN_TIMEOUT = 180
 # Generation stays short on purpose. A small model asked for a paragraph writes a
 # good paragraph; asked for an essay it starts inventing to fill the space, and
 # on CPU every extra sentence costs seconds.
-MAX_TOKENS_GUIDE = 220
+# 220 cut the "how do I use my own AI" answer off mid-sentence, and that answer
+# now stands in for a banner that used to be on every page, so it has to finish.
+MAX_TOKENS_GUIDE = 700
 MAX_TOKENS_ANALYZE = 420
 
 
@@ -189,3 +191,58 @@ def numbers_preserved(source_text, generated, question=''):
     if invented:
         logger.warning('[ASSISTANT] generated unsupported numbers: %s', invented)
     return not invented, sorted(invented)
+
+
+# Words that mark a line as the assistant's own English, not a quoted source.
+_ENGLISH_TELLS = (
+    ' the ', ' this ', ' that ', ' there ', ' appears', ' occurs', ' corpus',
+    ' would ', ' these ', ' those ', ' which ', ' user', ' search', ' variant',
+    ' instance', ' phrase ', ' works', ' lines ', ' total', ' such ', ' from the ',
+)
+
+
+def quotes_supported(facts_text, generated):
+    """True when every passage the answer quotes actually appears in the facts.
+
+    Added after the assistant, asked to list Eobanus's instances, produced twelve
+    citations that each quoted the Aeneid's opening line as though it were
+    Eobanus. The facts held the 21 real lines; a character cap had discarded them
+    before the model saw them, and it reconstructed what it expected instead.
+
+    Fabricated primary text is the worst output a corpus tool can produce, and it
+    is the most convincing, so the check does not rely on the facts always
+    arriving intact. Any line that reads as quoted source rather than English
+    commentary must be found verbatim in the facts.
+
+    Deliberately lenient about WHAT counts as a quotation and strict about
+    whether a quotation checks out: a missed fabrication is far worse than a
+    false alarm on a stray line.
+    """
+    # Compare on LETTERS, not characters. A model listing a verse line will add
+    # or drop a comma, and the first version of this check called
+    # "Quartam ducebant aciem vir maximus armis," a fabrication because the
+    # results held the same line without the trailing comma. That is a guard
+    # crying wolf on a true answer, which trains people to ignore it.
+    #
+    # Punctuation-insensitive and content-sensitive: the words themselves must
+    # still match, so quoting the Aeneid's opening under an Eobanus citation is
+    # still caught.
+    def letters(t):
+        return ' '.join(re.sub(r"[^\w\s]", ' ', (t or '').lower()).split())
+
+    haystack = letters(facts_text)
+    unsupported = []
+    for raw in (generated or '').split('\n'):
+        line = raw.strip(' \t*-–—•').strip()
+        if len(line) < 18 or ':' in line or line.endswith('?'):
+            continue
+        padded = f' {line.lower()} '
+        if any(t in padded for t in _ENGLISH_TELLS):
+            continue          # the assistant's own prose, not a quotation
+        probe = letters(line)
+        if probe and probe not in haystack:
+            unsupported.append(line[:80])
+    if unsupported:
+        logger.warning('[ASSISTANT] quoted text not found in results: %s',
+                       unsupported[:3])
+    return not unsupported, unsupported[:5]

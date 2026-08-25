@@ -61,10 +61,54 @@ How to answer:
   than describing what it would do."""
 
 
+# What to say when someone asks how to use their own AI with Tesserae. Kept here
+# as fact rather than left to the model, which knew nothing about the connector
+# and would have invented an answer. This replaced a banner across the top of
+# every page, so the answer has to be as good as the banner was.
+USING_YOUR_OWN_AI = """HOW A READER USES THEIR OWN AI WITH TESSERAE (these are the facts;
+do not invent others):
+
+TWO ROUTES.
+
+1. FREE, WITH ANY AI, INCLUDING FREE ONES AND SANDBOXED APPS LIKE STANDARD GEMINI.
+   The reader searches here, then hands the results to their assistant:
+   run the search (two-text comparison, line search, rare word or rare phrase),
+   click Export CSV above the results, and paste the CSV into the AI with the
+   prompt provided on the Help page. The CSV carries each parallel's loci, both
+   lines, the score, the shared words, and which detection methods agreed, so the
+   assistant has what it needs to weigh them. The reader stays in control of the
+   searching. This needs nothing but a chat window.
+
+2. THE AI RUNS THE SEARCHES ITSELF, no copying and pasting. This requires the
+   assistant to reach the Tesserae API, which today means a basic PAID
+   subscription to Claude or ChatGPT. Sandboxed apps such as the standard Gemini
+   cannot do this at any tier, so for Gemini the reader should use route 1.
+
+   For Claude this is one URL, added once: Settings, then Connectors, then
+   "Add custom connector", and paste
+       https://tesserae.caset.buffalo.edu/api/mcp
+   Then they can simply ask, for example: "Use Tesserae to compare Aeneid 1 with
+   Lucan's Civil War 1 and show the strongest parallels." Regular chat Claude can
+   then run everything, including the full fusion search. Connectors need a paid
+   plan, the minimum being Claude Pro, and are added on desktop or web, not the
+   mobile app.
+
+   There is also an advanced local option, running the connector on their own
+   machine with tesserae_mcp.py, which needs no account or connector.
+
+Full instructions, including the exact prompt for route 1, are on the Help page
+under "Use with your AI".
+
+Name the searches as the READER SEES THEM on the site: a two-text comparison, a
+line search, a rare-word or rare-phrase search. Never use the internal tool names
+(fusion_search, compare_texts, line_search); a reader who goes looking for those
+on the site will not find them."""
+
+
 def guide_system():
     """Built per request, so a deployment without the content index never
     advertises it. Frozen at import time this was wrong on production."""
-    return _GUIDE_TEMPLATE.format(tools=tools_description())
+    return _GUIDE_TEMPLATE.format(tools=tools_description()) + '\n\n' + USING_YOUR_OWN_AI
 
 
 GUIDE_SYSTEM = guide_system()
