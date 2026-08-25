@@ -64,6 +64,15 @@ STRONG_COHERENCE = 0.900 # top-k agreement typical of a real subject
 # genuinely uncertain rather than as a verdict.
 MODERATE_COMBINED = 1.30
 STRONG_COMBINED = 1.65
+# The index those two numbers were fitted against. They are a property of THAT
+# corpus, not of the method, and the corpus has since grown: merging Persian and
+# Urdu added 220,361 windows, which moves the median every lift is measured
+# against. So the constants are held next to the size they were fitted at, and a
+# live index that no longer matches gets told so in its own output rather than
+# reporting a band it has not earned. Refit with
+# evaluation/scripts/calibrate_confidence.py and update both numbers together.
+FITTED_AT_WINDOWS = 383201
+FITTED_TOLERANCE = 0.15     # beyond 15% drift, stop vouching for the band
 # A floor purely to stop the tail: results below the query's baseline are noise.
 BASELINE_MARGIN = 0.010
 
@@ -90,9 +99,27 @@ def _ref_numbers(ref):
 
 
 def is_available():
-    """True when the index files are present and loadable."""
-    _ensure_loaded()
-    return _state['ok']
+    """True when the index files are present and consistent.
+
+    Deliberately does NOT load the index. It used to, and that made a question
+    as cheap as "is this feature on?" cost 1.2GB of embeddings: the per-request
+    tool list calls this, and so does startup. A reference test that only wanted
+    to run a line search was OOM-killed at 16GB because asking this question
+    pulled in the whole passage index.
+
+    Presence and agreement of the three files is what "available" means. A file
+    that is present but corrupt still fails at load time, and _state['error']
+    then carries the reason, which is why a completed load takes precedence.
+    """
+    if _state['loaded']:
+        return _state['ok']
+    try:
+        ids_path = os.path.join(_DATA_DIR, 'ids.json')
+        emb_path = os.path.join(_DATA_DIR, 'embeddings.npy')
+        desc_path = os.path.join(_DATA_DIR, 'descriptions.jsonl')
+        return all(os.path.getsize(p) > 0 for p in (ids_path, emb_path, desc_path))
+    except OSError:
+        return False
 
 
 def status():
@@ -366,7 +393,39 @@ def _confidence_level(lift, coherence):
     return 'low'
 
 
+def _calibration_drift():
+    """How far the live index has moved from the one the bands were fitted to.
+
+    Returns None when the index is not loaded or the drift is within tolerance.
+    """
+    try:
+        n = len(_ids) if _ids is not None else 0
+    except NameError:
+        return None
+    if not n or not FITTED_AT_WINDOWS:
+        return None
+    drift = abs(n - FITTED_AT_WINDOWS) / float(FITTED_AT_WINDOWS)
+    return None if drift <= FITTED_TOLERANCE else (n, drift)
+
+
+_UNCALIBRATED = (
+    'This confidence band is provisional. The thresholds were fitted against an '
+    'index of {fitted:,} windows and this index holds {now:,}, so the baseline '
+    'they assume has moved. The passages below are unaffected; only the '
+    'strong/moderate/low label is.')
+
+
 def _confidence_note(level):
+    drift = _calibration_drift()
+    if drift:
+        now, _ = drift
+        warning = _UNCALIBRATED.format(fitted=FITTED_AT_WINDOWS, now=now)
+        base = _confidence_note_fitted(level)
+        return f'{warning} {base}' if base else warning
+    return _confidence_note_fitted(level)
+
+
+def _confidence_note_fitted(level):
     if level == 'strong':
         return None
     if level == 'moderate':
