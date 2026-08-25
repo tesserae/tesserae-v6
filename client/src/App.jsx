@@ -915,6 +915,8 @@ function App() {
           </div>
         )}
 
+        {pageType === 'theme-search' && <ThemeSearchPage />}
+
         {pageType === 'read' && (
           <ReaderPage />
         )}

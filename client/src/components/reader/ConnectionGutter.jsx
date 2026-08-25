@@ -70,12 +70,30 @@ export default function ConnectionGutter({ work, units, onSelectLine }) {
 
   return (
     <div
-      className="w-9 shrink-0 border-r border-gray-200 bg-gray-50 pt-6"
-      aria-hidden="true"
+      className="w-9 shrink-0 border-r border-gray-200 bg-gray-50"
       title={loading
         ? 'Working out what the corpus connects to this text...'
         : 'Left: verbal parallels. Right: similar passages.'}
     >
+      {/* A KEY, because the tiles meant nothing without one. The only
+          explanation used to be a title tooltip, which does not exist on a
+          phone, so a reader saw two columns of coloured squares and had no way
+          to find out what they were. Two letters and a legend below is enough:
+          the gutter is narrow by design and must not become a sidebar. */}
+      <div className="h-6 flex gap-[3px] justify-center items-end pb-[2px]"
+           aria-hidden="true">
+        <span className="w-[9px] text-[8px] leading-none text-red-700 font-semibold text-center"
+              title="Verbal parallels: shared wording">W</span>
+        <span className="w-[9px] text-[8px] leading-none text-amber-700 font-semibold text-center"
+              title="Similar passages: shared content">C</span>
+      </div>
+      <span className="sr-only">
+        Two columns of marks run beside the text. The left column, W, shows
+        verbal parallels, where another passage shares wording with this line.
+        The right column, C, shows similar passages, where another passage
+        describes something similar without necessarily sharing any words. A
+        darker mark means more connections. Select a line to see them.
+      </span>
       {units.map((u) => {
         const n = lineNumber(u.ref);
         const v = n != null ? verbal[n] || 0 : 0;

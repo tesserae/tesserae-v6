@@ -88,6 +88,25 @@ export default function ReaderPage() {
 
       {!loading && !error && (
         <div className="flex flex-col lg:flex-row" style={{ minHeight: '32rem' }}>
+          <div className="flex flex-col flex-1 min-w-0">
+            {/* The key for the gutter marks. The gutter itself is nine pixels
+                wide per column and can only carry a letter, and its tooltip does
+                not exist on a phone, so the words go here where there is room.
+                Without this a reader saw two columns of coloured squares beside
+                the poem and had no way to find out what they were. */}
+            <p className="px-3 py-1.5 text-[11px] text-gray-600 border-b border-gray-200 bg-gray-50 flex flex-wrap gap-x-4 gap-y-1">
+              <span className="flex items-center gap-1.5">
+                <span className="inline-block w-[9px] h-[7px] rounded-sm bg-red-700" />
+                <strong className="font-semibold text-gray-700">W</strong>
+                shared wording
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="inline-block w-[9px] h-[7px] rounded-sm bg-amber-600" />
+                <strong className="font-semibold text-gray-700">C</strong>
+                similar content, wording need not match
+              </span>
+              <span className="text-gray-500">darker means more; select a line to see them</span>
+            </p>
           <div className="flex flex-1 min-w-0">
             <ConnectionGutter
               work={work.replace('.tess', '')}
@@ -103,6 +122,7 @@ export default function ReaderPage() {
               selection={selection}
               onSelect={setSelection}
             />
+            </div>
           </div>
           <ResultsPanel
             selection={selection}
