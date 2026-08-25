@@ -907,6 +907,14 @@ const SearchResults = ({
             {loading && fusionProgress && (pauseUpdates ? ' (paused)' : ' (partial)')}
             {chartFilter && ` (${filteredResults.length} ${chartFilter.mode === 'line' ? `at lines ${chartFilter.label}` : `in ${chartFilter.book}`})`}
           </h3>
+          {!loading && (
+            <ResultsInsight
+              results={activeResults}
+              source={sourceTextInfo?.display_name || sourceTextInfo?.name}
+              target={targetTextInfo?.display_name || targetTextInfo?.name}
+              className="mt-2 mb-2"
+            />
+          )}
           {searchStats && (
             <p className="text-sm text-gray-500">
               {searchStats.elapsed_time && `Search completed in ${formatElapsedTime(searchStats.elapsed_time)}`}

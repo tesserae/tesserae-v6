@@ -168,8 +168,13 @@ def format_for_narration(facts, passages=None, max_passages=5):
                      f"{facts.get('max_word_rarity_idf')}.")
     conc = facts.get('target_concentration') or []
     if conc:
-        lines.append('- Matches concentrate in: '
-                     + ', '.join(f'{w} ({c})' for w, c in conc) + '.')
+        # Spelled out rather than written as "aeneid (3)". A bare number in
+        # parentheses after a work name reads as a book number, and a model asked
+        # to narrate it duly reported matches concentrating in "Book 3" when the
+        # 3 was a count. Numbers in this block have to say what they count.
+        n = facts['n_results']
+        lines.append('- Where the matches land: '
+                     + '; '.join(f'{c} of the {n} in {w}' for w, c in conc) + '.')
     if facts.get('shared_themes'):
         lines.append('- Themes shared across the matches: '
                      + ', '.join(f'{t} ({c})' for t, c in facts['shared_themes']) + '.')

@@ -1126,6 +1126,8 @@ function App() {
         })()}
       </Modal>
 
+      <AssistantDock />
+
       <footer className="bg-gray-100 border-t mt-8 py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
           <p>Tesserae V6</p>

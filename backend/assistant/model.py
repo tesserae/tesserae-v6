@@ -61,6 +61,46 @@ def complete(system, user, max_tokens=MAX_TOKENS_GUIDE, temperature=0.2):
         return None
 
 
+def stream(system, user, max_tokens=MAX_TOKENS_GUIDE, temperature=0.2):
+    """Yield the answer token by token as the model writes it.
+
+    On a CPU the total time to a finished paragraph is 15-20 seconds, but the
+    first words arrive in about two. Streaming therefore changes the experience
+    far more than it changes the clock: a reader starts reading immediately
+    instead of watching a spinner, and generation at 16 tokens per second
+    outpaces reading speed. Yields plain text chunks; the caller frames them.
+    """
+    body = json.dumps({
+        'model': MODEL_NAME,
+        'messages': [{'role': 'system', 'content': system},
+                     {'role': 'user', 'content': user}],
+        'temperature': temperature,
+        'max_tokens': max_tokens,
+        'stream': True,
+    }).encode()
+    req = urllib.request.Request(f'{ENDPOINT}/v1/chat/completions', data=body,
+                                 headers={'Content-Type': 'application/json'})
+    try:
+        with urllib.request.urlopen(req, timeout=_GEN_TIMEOUT) as resp:
+            for raw in resp:
+                line = raw.decode('utf-8', 'replace').strip()
+                if not line.startswith('data:'):
+                    continue
+                payload = line[5:].strip()
+                if payload == '[DONE]':
+                    return
+                try:
+                    delta = json.loads(payload)['choices'][0].get('delta', {})
+                except (ValueError, KeyError, IndexError):
+                    continue
+                piece = delta.get('content')
+                if piece:
+                    yield piece
+    except (urllib.error.URLError, OSError) as e:
+        logger.warning('[ASSISTANT] streaming failed: %s', e)
+        return
+
+
 # --------------------------------------------------------------------------
 # Guardrails
 # --------------------------------------------------------------------------
@@ -80,13 +120,30 @@ def strip_unsupported_references(text, allowed_refs):
     """
     if not text:
         return text, []
-    allowed = {_normalise_ref(r) for r in (allowed_refs or [])}
+    allowed = [_ref_parts(r) for r in (allowed_refs or [])]
     removed = []
 
     def keep(match):
-        cand = _normalise_ref(match.group(1))
-        if not allowed or any(cand in a or a in cand for a in allowed):
+        if not allowed:
             return match.group(0)
+        c_locus, c_words = _ref_parts(match.group(1))
+        for a_locus, a_words in allowed:
+            # A locus may be written SHORTER than the one in the results and
+            # still be the same citation: the results carry "Tristia 2.1.534"
+            # and a writer naturally cites "Tristia 2.1". Requiring equality
+            # stripped correct references out of good answers, which is worse
+            # than the fabrication it was guarding against. A prefix on a dot
+            # boundary is the same passage, more loosely specified.
+            if not (c_locus == a_locus
+                    or a_locus.startswith(c_locus + '.')
+                    or c_locus.startswith(a_locus + '.')):
+                continue
+            # The locus agrees; one shared name word (or a prefix of one, since
+            # "Verg." abbreviates "vergil") is enough to call it the same citation.
+            if not c_words or any(
+                    cw == aw or aw.startswith(cw) or cw.startswith(aw)
+                    for cw in c_words for aw in a_words):
+                return match.group(0)
         removed.append(match.group(1))
         return 'that passage'
 
@@ -98,6 +155,20 @@ def strip_unsupported_references(text, allowed_refs):
 
 def _normalise_ref(ref):
     return re.sub(r'[^a-z0-9.]', '', str(ref).lower())
+
+
+def _ref_parts(ref):
+    """Split a reference into its name words and its numeric locus.
+
+    Our tags carry the full work name ("lucan.bellum_civile 1.1") while a writer
+    naturally shortens it to "Lucan 1.1". Comparing the whole strings called that
+    shortening a fabrication. What actually identifies a citation is the locus
+    plus at least one name word, so compare those.
+    """
+    s = re.sub(r'[^a-z0-9. ]', ' ', str(ref).lower())
+    locus = re.findall(r'\d+(?:\.\d+)*', s)
+    words = {w for w in re.split(r'[ .]+', re.sub(r'\d', ' ', s)) if len(w) > 2}
+    return (locus[-1] if locus else ''), words
 
 
 def numbers_preserved(source_text, generated):

@@ -69,10 +69,48 @@ def _norm(text):
     return re.sub(r'[^a-z0-9 ]', ' ', str(text or '').lower())
 
 
+# Questions ABOUT the state of a feature, as opposed to what it does. A canned
+# definition is the wrong answer to "is theme search working yet", and worse, the
+# keyword rules cannot tell the two apart: "is theme search working" matches the
+# theme rule on `theme` + `search` and returns the definition. A user who pushes
+# back gets the identical answer, because the second question matches too. Seen
+# in production 2026-08-25.
+# Requests for ADVICE, as opposed to requests for a definition. "Recommend
+# interesting searches across Hebrew and Greek" is a request for specific
+# suggestions about this corpus; answering it with the definition of
+# cross_language is useless, and that is what happened in production.
+#
+# The rules below match on topic keywords plus almost any question verb, so a
+# question that merely MENTIONS a topic gets its definition. That is right for
+# "what is theme search" and wrong for everything else. These markers say the
+# user wants judgement, which only the model can give.
+_ADVICE = (
+    'recommend', 'suggest', 'interesting', 'should i', 'help me', 'best way',
+    'where do i start', 'where should i', 'i want to', 'i am trying',
+    "i'm trying", 'give me', 'show me', 'any ideas', 'what could', 'worth',
+    'good place', 'starting point', 'investigate', 'explore',
+)
+
+_META = (
+    'working', 'work yet', 'broken', 'available', 'deployed', 'live',
+    'enabled', 'turned on', 'exist', 'ready yet', 'why is', 'why does',
+    "why doesn't", 'why not', 'not answering', 'answer my question',
+    'is it on', 'does it work', 'status',
+)
+
+
 def route(question):
-    """Return a canned answer when the question clearly matches one, else None."""
+    """Return a canned answer when the question clearly matches one, else None.
+
+    Meta-questions fall through to the model, which can say what it does and
+    does not know, rather than repeating a definition nobody asked for.
+    """
     q = _norm(question)
     if not q.strip():
+        return None
+    if any(m in q for m in _META):
+        return None
+    if any(a in q for a in _ADVICE):
         return None
     for rule in _RULES:
         if all(any(term in q for term in group) for group in rule['all']):
