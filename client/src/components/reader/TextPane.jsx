@@ -1,4 +1,5 @@
 import { useCallback, useRef } from 'react';
+import { cssRef } from './refId';
 
 const RTL = new Set(['he']);
 
@@ -56,6 +57,7 @@ export default function TextPane({ units, language, selection, onSelect }) {
           return (
             <div
               key={u.ref}
+              id={`line-${cssRef(u.ref)}`}
               className={`grid gap-2 cursor-text ${selected ? 'bg-red-50 border-l-[3px] border-red-700 -ml-[3px] rounded-r' : ''}`}
               style={{ gridTemplateColumns: '2.6rem 1fr', minHeight: '1.75rem' }}
               onMouseDown={() => begin(i)}

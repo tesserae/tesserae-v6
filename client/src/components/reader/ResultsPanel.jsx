@@ -15,8 +15,12 @@ const LANG_LABEL = { la: 'Latin', grc: 'Greek', he: 'Hebrew', en: 'English', cop
  * Every result is a button that opens that passage in the Reader, which is what
  * makes the corpus browsable by association rather than by search alone.
  */
-export default function ResultsPanel({ selection, language, work, units, onOpenPassage }) {
-  const [tab, setTab] = useState('similar');
+export default function ResultsPanel({ selection, language, work, units, onOpenPassage,
+                                       initialTab }) {
+  // Arriving from Theme Search, the reader has just been shown an English
+  // summary of a passage in a language they may not read. Opening on the
+  // translation is the useful default there; everywhere else 'similar' is.
+  const [tab, setTab] = useState(initialTab || 'similar');
   const [similar, setSimilar] = useState(null);
   const [translation, setTranslation] = useState(null);
   const [loading, setLoading] = useState(false);

@@ -19,6 +19,7 @@ import { getSessionValue, setSessionValue } from './utils/storage';
 const pathToPageType = {
   '/': 'search',
   '/read': 'read',
+  '/theme-search': 'theme-search',
   '/browse': 'browse',
   '/repository': 'repository',
   '/line-search': 'line-search',
@@ -37,6 +38,7 @@ const pathToPageType = {
 const pageTypeToPath = {
   'search': '/',
   'read': '/read',
+  'theme-search': '/theme-search',
   'browse': '/browse',
   'repository': '/repository',
   'line-search': '/line-search',

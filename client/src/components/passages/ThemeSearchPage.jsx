@@ -37,6 +37,26 @@ const BAND = {
   },
 };
 
+/** A link into the Reader, landing on this passage with the translation open.
+ *
+ * A reader who finds a Persian or Coptic passage by its English summary needs
+ * two things next: the passage itself, and a translation. Sending them to line 1
+ * of the work with the "similar passages" tab showing would lose both.
+ *
+ * A real href, not a click handler, so the result can be opened in a new tab and
+ * kept. Scholars compare things side by side.
+ */
+function readerLink(r) {
+  const work = String(r.work || '').replace(/\.tess$/, '');
+  const params = new URLSearchParams({
+    work: `${work}.tess`,
+    lang: r.language || 'la',
+    ref: r.ref_start || '',
+    tab: 'translation',
+  });
+  return `/read?${params.toString()}`;
+}
+
 const LANG_LABEL = {
   la: 'Latin', grc: 'Greek', he: 'Hebrew', cop: 'Coptic',
   en: 'English', fa: 'Persian', ur: 'Urdu',
@@ -147,7 +167,12 @@ export default function ThemeSearchPage() {
                   <span className="text-[10px] uppercase tracking-wide text-gray-500">
                     {LANG_LABEL[r.language] || r.language}
                   </span>
-                  <span className="font-medium text-gray-900">{r.title || r.work}</span>
+                  <a
+                    href={readerLink(r)}
+                    className="font-medium text-red-800 hover:text-red-900 hover:underline"
+                  >
+                    {r.title || r.work}
+                  </a>
                   <span className="text-sm text-gray-500">{r.ref_start}</span>
                   {r.strong === false && (
                     <span className="text-[10px] text-gray-500 border border-gray-300 rounded px-1">
@@ -166,6 +191,14 @@ export default function ThemeSearchPage() {
                     indirectly, or may have the wrong person.
                   </p>
                 )}
+                <p className="mt-2">
+                  <a
+                    href={readerLink(r)}
+                    className="text-xs text-red-700 hover:text-red-900 hover:underline"
+                  >
+                    Read this passage with its translation &rarr;
+                  </a>
+                </p>
                 {!!(r.themes || []).length && (
                   <div className="mt-2 flex flex-wrap gap-1">
                     {r.themes.slice(0, 5).map((t) => (

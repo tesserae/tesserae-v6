@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { cssRef } from './refId';
 import { LoadingSpinner } from '../common';
 import TextPane from './TextPane';
 import ConnectionGutter from './ConnectionGutter';
@@ -18,6 +19,11 @@ const DEFAULT_LANGUAGE = 'la';
 export default function ReaderPage() {
   const [work, setWork] = useState(() => paramOr('work', DEFAULT_WORK));
   const [language, setLanguage] = useState(() => paramOr('lang', DEFAULT_LANGUAGE));
+  // Where a link asked us to land. Theme Search sends the reader here with a
+  // specific passage in mind, and dropping them at line 1 of the work would
+  // lose the thing they clicked.
+  const [wantedRef] = useState(() => paramOr('ref', ''));
+  const [wantedTab] = useState(() => paramOr('tab', ''));
   const [units, setUnits] = useState([]);
   const [metadata, setMetadata] = useState(null);
   const [selection, setSelection] = useState(null);
@@ -53,6 +59,22 @@ export default function ReaderPage() {
   }, [work, language, selection]);
 
   /** Open a result in the Reader, which is what makes the corpus browsable. */
+  // Select the line the link named, once the text is in. Runs on units so it
+  // fires after the fetch rather than racing it.
+  useEffect(() => {
+    if (!wantedRef || !units.length) return;
+    const i = units.findIndex((u) => u.ref === wantedRef);
+    if (i < 0) return;
+    setSelection({ startIdx: i, endIdx: i, refStart: units[i].ref,
+                   refEnd: units[i].ref, lineCount: 1 });
+    // Let the line render before scrolling to it.
+    const id = window.setTimeout(() => {
+      const el = document.getElementById(`line-${cssRef(units[i].ref)}`);
+      if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    }, 120);
+    return () => window.clearTimeout(id);
+  }, [wantedRef, units]);
+
   const openPassage = useCallback((result) => {
     if (!result?.work) return;
     setWork(result.work.endsWith('.tess') ? result.work : `${result.work}.tess`);
@@ -130,6 +152,7 @@ export default function ReaderPage() {
             work={work.replace('.tess', '')}
             units={units}
             onOpenPassage={openPassage}
+            initialTab={wantedTab || undefined}
           />
         </div>
       )}
