@@ -84,11 +84,40 @@ function chronological(results) {
   });
 }
 
-/** "d. 456 BCE" if we have it, else the bare year, else nothing. */
-function dateLabel(r) {
-  if (r.date_note) return r.date_note;
+/** Split "d. c. 1020 CE" into the date and what kind of date it is.
+ *
+ *  The whole note set as one small grey string read as a footnote, and the
+ *  abbreviation came FIRST, so the eye hit "d." before the year in a column
+ *  whose entire job is to be scanned by year. The date now leads and the
+ *  qualifier follows in parentheses, spelled out: "c. 1020 CE (died)".
+ */
+const QUALIFIER = [
+  [/^d\.\s*/i, 'died'],
+  [/^fl\.\s*/i, 'flourished'],
+  [/^b\.\s*/i, 'born'],
+  [/^composed\s+/i, 'composed'],
+  [/^revealed\s+/i, 'revealed'],
+  [/^active\s+/i, 'active'],
+];
+
+function dateParts(r) {
+  const note = r.date_note;
+  if (note) {
+    for (const [re, word] of QUALIFIER) {
+      if (re.test(note)) return { date: note.replace(re, '').trim(), kind: word };
+    }
+    return { date: note, kind: null };
+  }
   if (typeof r.year !== 'number') return null;
-  return r.year < 0 ? `${Math.abs(r.year)} BCE` : `${r.year} CE`;
+  return {
+    date: r.year < 0 ? `${Math.abs(r.year)} BCE` : `${r.year} CE`,
+    kind: null,
+  };
+}
+
+function dateLabel(r) {
+  const p = dateParts(r);
+  return p ? p.date : null;
 }
 
 const LANG_LABEL = {
@@ -207,18 +236,22 @@ export default function ThemeSearchPage() {
                     an afterthought. The language moves right, where it labels
                     without competing. */}
                 <div className="flex items-baseline gap-3">
-                  <div className="w-28 shrink-0">
-                    {dateLabel(r) ? (
+                  <div className="w-32 shrink-0">
+                    {dateParts(r) ? (
                       <>
-                        <div className="text-sm font-medium text-gray-900 tabular-nums">
-                          {dateLabel(r)}
+                        <span className="inline-block rounded bg-gray-100 border border-gray-200 px-2 py-0.5 text-sm font-semibold text-gray-900 tabular-nums whitespace-nowrap">
+                          {dateParts(r).date}
+                        </span>
+                        <div className="mt-0.5 text-[11px] text-gray-500 leading-tight">
+                          {dateParts(r).kind && `(${dateParts(r).kind})`}
+                          {dateParts(r).kind && r.era ? ' · ' : ''}
+                          {r.era}
                         </div>
-                        {r.era && (
-                          <div className="text-[11px] text-gray-500">{r.era}</div>
-                        )}
                       </>
                     ) : (
-                      <div className="text-sm text-gray-400">undated</div>
+                      <span className="inline-block rounded bg-gray-50 border border-gray-200 px-2 py-0.5 text-sm text-gray-400">
+                        undated
+                      </span>
                     )}
                   </div>
 
@@ -227,7 +260,7 @@ export default function ThemeSearchPage() {
                       href={readerLink(r, data.query || query)}
                       className="font-medium text-red-800 hover:text-red-900 hover:underline"
                     >
-                      {r.title || r.work}
+                      {r.display_name || r.work}
                     </a>
                     <span className="ml-2 text-sm text-gray-500">{r.ref_start}</span>
                   </div>
@@ -254,14 +287,6 @@ export default function ThemeSearchPage() {
                     indirectly, or may have the wrong person.
                   </p>
                 )}
-                <p className="mt-2">
-                  <a
-                    href={readerLink(r, data.query || query)}
-                    className="text-xs text-red-700 hover:text-red-900 hover:underline"
-                  >
-                    Read this passage with its translation &rarr;
-                  </a>
-                </p>
                 {!!(r.themes || []).length && (
                   <div className="mt-2 flex flex-wrap gap-1">
                     {r.themes.slice(0, 5).map((t) => (

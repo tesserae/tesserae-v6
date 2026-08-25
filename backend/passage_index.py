@@ -346,6 +346,22 @@ def _dating(work, language):
             'date_note': info.get('note')}
 
 
+def _naming(work):
+    """author / title / display_name for a work id, or {} if it cannot be read."""
+    if not work:
+        return {}
+    try:
+        from backend.utils import get_text_metadata
+        m = get_text_metadata(f'{work}.tess')
+    except Exception:
+        return {}
+    author = m.get('author')
+    title = m.get('title') or m.get('work')
+    display = ', '.join(x for x in (author, title) if x)
+    return {'author': author, 'title': title,
+            'display_name': m.get('display_name') or display or None}
+
+
 def _result(row, score, strong=None, extra=None):
     r = _records[row]
     d = r.get('desc') or {}
@@ -380,6 +396,11 @@ def _result(row, score, strong=None, extra=None):
         # checking, which is what a reader can act on.
         'names_unverified': d.get('names_unverified') or [],
         **_dating(r.get('work'), r.get('language')),
+        # A readable author and title. Results were showing the raw file id,
+        # "aeschylus.seven_against_thebes", where the rest of the site says
+        # "Aeschylus, Seven Against Thebes". Same source the corpus listing uses,
+        # and it works from the filename alone, so it costs no file reads.
+        **_naming(r.get('work')),
     }
     if extra:
         out.update(extra)
