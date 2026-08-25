@@ -626,12 +626,70 @@ DISPLAY_NAMES = {
     'writings': 'Writings',
 }
 
+# Words that stay lowercase inside a title, English and Latin. Not applied to
+# the first or last word, so "De Bello Judaico" and "Ex Ponto" keep their
+# capital and a title never ends on a stranded lowercase preposition.
+_TITLE_MINOR = {
+    'a', 'an', 'and', 'as', 'at', 'but', 'by', 'for', 'from', 'in', 'into',
+    'nor', 'of', 'on', 'or', 'the', 'to', 'with', 'upon', 'over',
+    'de', 'ex', 'ab', 'ad', 'cum', 'per', 'pro', 'sub', 'et', 'ac', 'sive',
+    'super', 'inter', 'apud', 'contra', 'circa', 'post', 'ante',
+}
+
+# A STRICT Roman numeral. Strictness is the point: a loose character test calls
+# "civil" a numeral, since c, i, v, i and l are all numeral letters.
+_ROMAN = re.compile(
+    r'^m{0,3}(cm|cd|d?c{0,3})(xc|xl|l?x{0,3})(ix|iv|v?i{0,3})$', re.IGNORECASE)
+
+# Two-letter numerals that are not also plausible Latin words. "di", "mi", "vi",
+# "ci" and "li" are valid numerals AND real words, so they are only uppercased
+# when something numbers them ("libri vi").
+_SAFE_SHORT_ROMAN = {'ii', 'iv', 'ix', 'xi', 'xv', 'xx', 'xl', 'lx', 'cd', 'cm'}
+_NUMBERING = {'liber', 'libri', 'librum', 'book', 'books', 'part', 'parts',
+              'vol', 'volume', 'tome', 'carmen', 'carmina', 'epistula',
+              'epistulae', 'oratio', 'orationes', 'satura', 'saturae'}
+
+
+def _roman(token, previous):
+    """Should this token be set as a Roman numeral?"""
+    t = token.lower()
+    if not t or not _ROMAN.match(t):
+        return False
+    if len(t) >= 3:
+        return True
+    if t in _SAFE_SHORT_ROMAN:
+        return True
+    # "vi" is both six and a Latin word; only the numbered use gets the numeral.
+    return (previous or '').lower() in _NUMBERING
+
+
+def title_case(text):
+    """Title case that knows about small words and Roman numerals.
+
+    str.title() capitalises every word and every letter run, which produced
+    "The Taking Of Ilios" and "De Bello Judaico Libri Vii" on the site.
+    """
+    words = str(text or '').split()
+    out = []
+    for i, w in enumerate(words):
+        prev = words[i - 1] if i else ''
+        if _roman(w, prev):
+            out.append(w.upper())
+        elif i and i < len(words) - 1 and w.lower() in _TITLE_MINOR:
+            out.append(w.lower())
+        elif w[:1].isalpha():
+            out.append(w[0].upper() + w[1:] if w.isupper() or w.islower() else w)
+        else:
+            out.append(w)
+    return ' '.join(out)
+
+
 def format_display_name(raw_name):
     """Convert raw filename part to proper display name"""
     key = raw_name.lower().replace(' ', '_')
     if key in DISPLAY_NAMES:
         return DISPLAY_NAMES[key]
-    return raw_name.replace('_', ' ').title()
+    return title_case(raw_name.replace('_', ' '))
 
 # Works where parts are individual poems, not books
 PART_LABEL_OVERRIDES = {

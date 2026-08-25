@@ -120,6 +120,28 @@ function dateLabel(r) {
   return p ? p.date : null;
 }
 
+/** Group consecutive results from the same work, keeping every passage.
+ *
+ *  Two windows of Aeschylus's Seven matched, and the header, date and title
+ *  were repeated in full for each, which reads as two works. They are one work
+ *  and two passages. Collapsing them to a single row would be worse: the
+ *  passages are genuinely different and their loci and summaries are the point.
+ *  So the work is stated once and the passages are listed under it.
+ *
+ *  Consecutive is enough because the list is already sorted by date, so all
+ *  passages of one work sit together.
+ */
+function byWork(results) {
+  const groups = [];
+  for (const r of results) {
+    const key = `${r.work}|${r.language}`;
+    const last = groups[groups.length - 1];
+    if (last && last.key === key) last.items.push(r);
+    else groups.push({ key, head: r, items: [r] });
+  }
+  return groups;
+}
+
 const LANG_LABEL = {
   la: 'Latin', grc: 'Greek', he: 'Hebrew', cop: 'Coptic',
   en: 'English', fa: 'Persian', ur: 'Urdu',
@@ -226,26 +248,19 @@ export default function ThemeSearchPage() {
             Oldest first. Undated authors are listed last.
           </p>
           <ul className="space-y-3">
-            {chronological(data.results).map((r) => (
-              <li key={r.id || `${r.work}-${r.ref_start}`}
-                  className="border border-gray-200 rounded p-3 bg-white">
-                {/* The DATE leads, at the left and large enough to read down
-                    the column, because the results are in chronological order
-                    and the date is what that order is made of. It was set small
-                    and last, after the work id and the locus, where it read as
-                    an afterthought. The language moves right, where it labels
-                    without competing. */}
+            {byWork(chronological(data.results)).map(({ key, head, items }) => (
+              <li key={key} className="border border-gray-200 rounded p-3 bg-white">
                 <div className="flex items-baseline gap-3">
                   <div className="w-32 shrink-0">
-                    {dateParts(r) ? (
+                    {dateParts(head) ? (
                       <>
                         <span className="inline-block rounded bg-gray-100 border border-gray-200 px-2 py-0.5 text-sm font-semibold text-gray-900 tabular-nums whitespace-nowrap">
-                          {dateParts(r).date}
+                          {dateParts(head).date}
                         </span>
                         <div className="mt-0.5 text-[11px] text-gray-500 leading-tight">
-                          {dateParts(r).kind && `(${dateParts(r).kind})`}
-                          {dateParts(r).kind && r.era ? ' · ' : ''}
-                          {r.era}
+                          {dateParts(head).kind && `(${dateParts(head).kind})`}
+                          {dateParts(head).kind && head.era ? ' · ' : ''}
+                          {head.era}
                         </div>
                       </>
                     ) : (
@@ -256,47 +271,67 @@ export default function ThemeSearchPage() {
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <a
-                      href={readerLink(r, data.query || query)}
-                      className="font-medium text-red-800 hover:text-red-900 hover:underline"
-                    >
-                      {r.display_name || r.work}
-                    </a>
-                    <span className="ml-2 text-sm text-gray-500">{r.ref_start}</span>
+                    <span className="font-medium text-gray-900">
+                      {head.display_name || head.work}
+                    </span>
+                    {items.length > 1 && (
+                      <span className="ml-2 text-xs text-gray-500">
+                        {items.length} passages
+                      </span>
+                    )}
                   </div>
 
                   <span className="shrink-0 text-[10px] uppercase tracking-wide text-gray-500">
-                    {LANG_LABEL[r.language] || r.language}
+                    {LANG_LABEL[head.language] || head.language}
                   </span>
-                  {r.strong === false && (
-                    <span className="shrink-0 text-[10px] text-gray-500 border border-gray-300 rounded px-1">
-                      weak neighbour
-                    </span>
-                  )}
                 </div>
-                {r.gist && (
-                  <p className="mt-1 sm:ml-[7.75rem] text-sm text-gray-700 leading-snug">
-                    {r.gist}
-                  </p>
-                )}
-                {!!(r.names_unverified || []).length && (
-                  <p className="mt-1 text-[11px] text-amber-700">
-                    Not found in the passage:{' '}
-                    <span className="font-medium">{r.names_unverified.join(', ')}</span>.
-                    The summary may be naming someone the text refers to
-                    indirectly, or may have the wrong person.
-                  </p>
-                )}
-                {!!(r.themes || []).length && (
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {r.themes.slice(0, 5).map((t) => (
-                      <span key={t}
-                            className="text-[11px] bg-gray-100 text-gray-600 rounded px-1.5 py-0.5">
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                )}
+
+                {/* Every matching passage, in full. The work is named once; the
+                    passages are not merged, because their loci and summaries are
+                    what the reader came for. */}
+                <ul className="mt-2 sm:ml-[8.75rem] space-y-2">
+                  {items.map((r) => (
+                    <li key={r.id || r.ref_start}
+                        className={items.length > 1
+                          ? 'border-l-2 border-gray-200 pl-3'
+                          : ''}>
+                      <div className="flex items-baseline gap-2 flex-wrap">
+                        <a
+                          href={readerLink(r, data.query || query)}
+                          className="text-sm text-red-800 hover:text-red-900 hover:underline"
+                        >
+                          {r.ref_start}
+                        </a>
+                        {r.strong === false && (
+                          <span className="text-[10px] text-gray-500 border border-gray-300 rounded px-1">
+                            weak neighbour
+                          </span>
+                        )}
+                      </div>
+                      {r.gist && (
+                        <p className="mt-0.5 text-sm text-gray-700 leading-snug">{r.gist}</p>
+                      )}
+                      {!!(r.names_unverified || []).length && (
+                        <p className="mt-0.5 text-[11px] text-amber-700">
+                          Not found in the passage:{' '}
+                          <span className="font-medium">{r.names_unverified.join(', ')}</span>.
+                          The summary may be naming someone the text refers to
+                          indirectly, or may have the wrong person.
+                        </p>
+                      )}
+                      {!!(r.themes || []).length && (
+                        <div className="mt-1 flex flex-wrap gap-1">
+                          {r.themes.slice(0, 5).map((t) => (
+                            <span key={t}
+                                  className="text-[11px] bg-gray-100 text-gray-600 rounded px-1.5 py-0.5">
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
               </li>
             ))}
           </ul>
