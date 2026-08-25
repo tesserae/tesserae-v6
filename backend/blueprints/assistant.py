@@ -141,7 +141,7 @@ def analyze():
             if isinstance(v, dict) and v.get('ref'):
                 allowed.append(v['ref'])
     text, removed = model.strip_unsupported_references(text, allowed)
-    ok_numbers, invented = model.numbers_preserved(block, text)
+    ok_numbers, invented = model.numbers_preserved(block, text, question)
 
     return jsonify({
         'facts': facts,
@@ -234,7 +234,7 @@ def analyze_stream():
                 if isinstance(v, dict) and v.get('ref'):
                     allowed.append(v['ref'])
         _, removed = model.strip_unsupported_references(text, allowed)
-        ok_numbers, invented = model.numbers_preserved(block, text)
+        ok_numbers, invented = model.numbers_preserved(block, text, question)
         yield _sse('done', {'model_used': True,
                             'guardrails': {'references_removed': removed,
                                            'unsupported_numbers': invented,
