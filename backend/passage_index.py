@@ -495,6 +495,23 @@ def _cluster_coherence(scores, k=COHERENCE_K):
     return float((sim.sum() - n) / (n * n - n)) if n > 1 else 0.0
 
 
+# A description is a sentence. Below this, the confidence signals are not
+# measuring anything: every probe the thresholds were fitted on is a full
+# sentence, and raw similarity scales with query length, so a keyword and a
+# description are not on the same footing at all.
+#
+# Measured on the live index:
+#     "plague"                    lift 0.093  -> would read LOW, top hit is a
+#                                                plague passage in Silius
+#     "airplanes"                 lift 0.095  -> would read STRONG, top hit is
+#                                                nothing of the kind
+#
+# "airplanes" outscores "plague". The band cannot be reported for queries like
+# these, and reporting one anyway is worse than declining: it puts a confident
+# label on a number that does not mean what it says.
+MIN_WORDS_TO_RATE = 4
+
+
 def _confidence_level(lift, coherence):
     """Graded, never certain: see the calibration note at the top of the file.
 
@@ -558,6 +575,13 @@ def _confidence_note(level):
 
 
 def _confidence_note_fitted(level):
+    if level == 'unrated':
+        return ('This query is a few words rather than a description, so no '
+                'confidence can be reported for it: the measure is calibrated on '
+                'descriptions of what happens in a passage, and on short queries '
+                'it is unreliable in both directions. The results below are real '
+                'matches on content, but judge them yourself. For a single word, '
+                'a line search of the corpus may serve you better.')
     if level == 'strong':
         return None
     if level == 'moderate':
@@ -581,7 +605,8 @@ def find_by_text(query, limit=25, languages=None, scale=None):
     top = float(scores.max())
     lift = top - baseline
     coherence = _cluster_coherence(scores)
-    level = _confidence_level(lift, coherence)
+    rated = len((query or '').split()) >= MIN_WORDS_TO_RATE
+    level = _confidence_level(lift, coherence) if rated else 'unrated'
     results = _rank(scores, limit, languages=languages, scale=scale,
                     baseline=baseline,
                     strong_at=baseline + (STRONG_LIFT if level == 'strong' else 1e9))

@@ -23,6 +23,10 @@ const EXAMPLES = [
 ];
 
 const BAND = {
+  unrated: {
+    label: 'Not rated',
+    className: 'bg-gray-50 text-gray-700 border-gray-300',
+  },
   strong: {
     label: 'Strong match',
     className: 'bg-red-50 text-red-800 border-red-200',
