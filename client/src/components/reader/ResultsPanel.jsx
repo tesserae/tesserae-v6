@@ -132,7 +132,21 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
                         says Sibyl), sometimes it is the wrong person, and a
                         served result cannot tell those apart. So it is marked
                         rather than asserted or hidden. */}
-                    {r.names_in_text === false && (
+                    {/* Name WHICH one. The old marker only appeared when NO
+                        name could be found, so the case it exists for slipped
+                        past: Valerius Flaccus 1.1-30 is summarised as "Apollo,
+                        Cumaean Sibyl, Aeneas", Apollo and the Sibyl are both in
+                        the text, Aeneas is not, and the record passed on
+                        Apollo's strength with nothing shown to the reader. */}
+                    {!!(r.names_unverified || []).length && (
+                      <span
+                        className="ml-1 text-[10px] text-amber-700"
+                        title="This name was not found in the passage. The summary may be naming someone the text refers to indirectly, or may have the wrong person. Check the text."
+                      >
+                        (not found here: {r.names_unverified.join(', ')})
+                      </span>
+                    )}
+                    {r.names_in_text === false && !(r.names_unverified || []).length && (
                       <span
                         className="ml-1 text-[10px] text-amber-700 whitespace-nowrap"
                         title="This summary names people the passage itself does not name. It may be correct inference from context, or a misidentification. Check the text."

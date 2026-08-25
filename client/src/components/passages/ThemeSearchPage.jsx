@@ -158,6 +158,14 @@ export default function ThemeSearchPage() {
                 {r.gist && (
                   <p className="mt-1 text-sm text-gray-700 leading-snug">{r.gist}</p>
                 )}
+                {!!(r.names_unverified || []).length && (
+                  <p className="mt-1 text-[11px] text-amber-700">
+                    Not found in the passage:{' '}
+                    <span className="font-medium">{r.names_unverified.join(', ')}</span>.
+                    The summary may be naming someone the text refers to
+                    indirectly, or may have the wrong person.
+                  </p>
+                )}
                 {!!(r.themes || []).length && (
                   <div className="mt-2 flex flex-wrap gap-1">
                     {r.themes.slice(0, 5).map((t) => (

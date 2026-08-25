@@ -335,6 +335,17 @@ def _result(row, score, strong=None, extra=None):
         # question could not be asked: no names given, or a passage in Greek,
         # Hebrew or Coptic script where an English name would never match.
         'names_in_text': d.get('names_in_text'),
+        # WHICH names could not be found, not just whether any could. The
+        # verdict alone hid the case this exists for: Valerius Flaccus 1.1-30 is
+        # described with "Apollo, Cumaean Sibyl, Aeneas". Apollo is there
+        # (Phoebe, 1.5) and the Sibyl is there (Cumaeae uatis, 1.5). Aeneas is
+        # not: 1.9 has Phrygios Iulos, and the summary reached from Iulus back
+        # to Aeneas. The record passed on Apollo's strength and said nothing.
+        #
+        # Unverified is NOT proof of invention. A passage may call Jupiter
+        # 'Pater' or refer to Achilles only as 'he'. It marks a name worth
+        # checking, which is what a reader can act on.
+        'names_unverified': d.get('names_unverified') or [],
     }
     if extra:
         out.update(extra)
