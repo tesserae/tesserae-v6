@@ -19,6 +19,7 @@ export default function useAssistantStream() {
   const [step, setStep] = useState(null);
   const [facts, setFacts] = useState(null);
   const [guardrails, setGuardrails] = useState(null);
+  const [highlight, setHighlight] = useState([]);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState(null);
   const abortRef = useRef(null);
@@ -37,6 +38,7 @@ export default function useAssistantStream() {
     setStep(null);
     setFacts(null);
     setGuardrails(null);
+    setHighlight([]);
     setError(null);
     let gotText = false;
     setRunning(true);
@@ -75,7 +77,7 @@ export default function useAssistantStream() {
           else if (evt.type === 'step') setStep(evt.text || null);
           else if (evt.type === 'facts') setFacts(evt.facts || null);
           else if (evt.type === 'error') setError(evt.error || 'the assistant could not answer');
-          else if (evt.type === 'done') setGuardrails(evt.guardrails || { clean: true });
+          else if (evt.type === 'done') { setGuardrails(evt.guardrails || { clean: true }); setHighlight(evt.highlight || []); }
         }
       }
     } catch (e) {
@@ -91,5 +93,5 @@ export default function useAssistantStream() {
     }
   }, [stop]);
 
-  return { text, step, facts, guardrails, running, error, run, stop };
+  return { text, step, facts, guardrails, highlight, running, error, run, stop };
 }

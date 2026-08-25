@@ -99,7 +99,10 @@ def ask_stream():
                             yield _sse('chunk', {'text': piece})
                         yield _sse('done', {'searches_run': [], 'fell_back_to_guide': True})
                         return
-                    yield _sse('done', payload)
+                    # Pass the terms worth marking through to the page, so a
+                    # listing of Latin lines shows what actually matched.
+                    yield _sse('done', {**payload,
+                                        'highlight': payload.get('highlight') or []})
         except Exception as e:
             logger.error('[ASSISTANT] ask failed: %s', e)
             yield _sse('error', {'error': 'the assistant could not answer just now'})
