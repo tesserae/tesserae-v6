@@ -31,7 +31,51 @@ from backend.assistant import model, searches
 
 logger = get_logger('assistant.agent')
 
-MAX_SEARCHES = 2
+# ONE chooser call after seeding, not two.
+#
+# Measured: census 1.0s (cached thereafter), a listing 0.1s, a chooser call 2.6s,
+# the answer call 5.6s. The searches are nearly free; the model calls are the
+# cost. Two chooser rounds bought a second search that rarely changed the answer
+# and always cost another 2.6s, plus a longer facts block that slowed generation
+# again. Seeding already puts the corpus holdings in front of the model, so one
+# further search is enough for the questions this handles.
+MAX_SEARCHES = 1
+
+# Questions the seeded listing already answers. Asking the model what else to
+# search when the answer is already in hand is a wasted round trip.
+_HOLDINGS_QUESTION = (
+    'what texts', 'which texts', 'what works', 'which works', 'what do you have',
+    'what is in', "what's in", 'what does the corpus', 'how many', 'do you have',
+    'what authors', 'which authors', 'recommend', 'suggest', 'interesting',
+    'where do i start', 'where should i', 'what could i', 'ideas',
+)
+
+# A quoted phrase can be searched WITHOUT asking the model which tool to use.
+# The question already says what to look for and the answer is always the same
+# search, so the chooser call is pure latency. Matches "..." and 'the phrase X'.
+# Character ranges the phrase extractor accepts. The first version covered
+# Latin and basic Greek but NOT Greek Extended (U+1F00-1FFF), where the breathing
+# marks live, so a question about ῥοδοδάκτυλος extracted nothing and the fast
+# path silently did not fire. Hebrew and Coptic were missing entirely.
+_SCRIPTS = (r'a-zA-Z'
+            r'\u00c0-\u024f'      # Latin with diacritics
+            r'\u0370-\u03ff'      # Greek and Coptic
+            r'\u1f00-\u1fff'      # Greek Extended: breathings and accents
+            r'\u0590-\u05ff'      # Hebrew
+            r'\u2c80-\u2cff')     # Coptic
+
+_QUOTED = re.compile(
+    r'["\u201c\u2018]([^"\u201d\u2019]{3,60})["\u201d\u2019]'
+    r'|\bphrase\s+([' + _SCRIPTS + r' ]{3,40}?)\s*'
+    r'(?:appear|occur|used|found|in\b|\?|$)')
+
+
+def _quoted_phrase(question):
+    m = _QUOTED.search(question)
+    if not m:
+        return None
+    p = (m.group(1) or m.group(2) or '').strip(' ?.,')
+    return p if len(p.split()) <= 6 and len(p) >= 3 else None
 
 CHOOSE_SYSTEM = """You are choosing which search to run against a corpus of ancient literature to answer a scholar's question.
 
@@ -49,6 +93,11 @@ Rules:
 - If the question is open ("what is interesting in X"), start with list_texts to
   find out what the corpus actually holds, so your answer names real works.
 - Text ids come from list_texts. Do not guess them.
+- line_search matches the ORIGINAL SCRIPT. Greek texts are in Greek letters,
+  Hebrew in Hebrew letters, Coptic in Coptic letters. A transliteration will not
+  match: search for the Greek word as the Greek writes it, not as
+  "rhododaktylos". If you cannot write the original script, use list_texts and
+  answer from the holdings instead of running a search that cannot succeed.
 - line_search matches the ORIGINAL-LANGUAGE TEXT. Searching an English word
   against Greek, Hebrew or Coptic finds nothing, because those texts are not in
   English. To search Homer for "rosy-fingered dawn" you must search the Greek
@@ -147,19 +196,80 @@ def _summarise(name, raw):
     return {'kind': name, 'raw_size': len(results)}
 
 
-def answer(question, on_step=None):
-    """Answer a question by running a search and reporting what it returned.
+def answer_stream(question, on_step=None):
+    """Same loop, but yield the answer as it is written.
 
-    on_step, if given, is called with short progress strings, so an interface can
-    say "looking..." rather than showing a blank while a search runs.
+    Total time is 18-36s and most of it is generation. First tokens arrive in
+    about two seconds, so streaming is most of the difference between this
+    feeling immediate and feeling broken: the reader starts reading at once and
+    generation outpaces reading.
 
-    Returns {answer, searches_run, facts, guardrails} or falls back to
-    {needs_model_only: True} when no search applies.
+    Yields ('step', text) while searching, then ('chunk', text) repeatedly, then
+    ('done', {facts, searches_run, guardrails}). The guardrails can only run on
+    the finished text, so their verdict comes last and the caller decides what to
+    do about it -- the same contract the analyse endpoint already uses.
+    """
+    # Steps are forwarded through a queue as they happen, not collected and
+    # flushed at the end. Collected, they all appeared at once after eight
+    # seconds of silence, which tells the reader nothing while they are waiting
+    # and everything once they no longer need it.
+    import queue
+    q = queue.Queue()
+    prep_result = {}
+
+    def worker():
+        try:
+            prep_result.update(_prepare(question, q.put) or {})
+        finally:
+            q.put(None)
+
+    import threading
+    th = threading.Thread(target=worker, daemon=True)
+    th.start()
+    while True:
+        item = q.get()
+        if item is None:
+            break
+        yield ('step', item)
+    th.join()
+    prep = prep_result
+    if prep.get('error') or prep.get('needs_model_only'):
+        yield ('done', prep)
+        return
+
+    block, all_facts, ran = prep['block'], prep['facts'], prep['ran']
+    yield ('step', 'reading the results')
+    collected = []
+    for piece in model.stream(ANSWER_SYSTEM,
+                              f'{block}\n\nQuestion: {question}\n\nAnswer:',
+                              max_tokens=260, temperature=0.2):
+        collected.append(piece)
+        yield ('chunk', piece)
+
+    text = ''.join(collected)
+    allowed = []
+    for f in all_facts:
+        allowed += [e.get('ref') for e in (f.get('examples') or []) if e.get('ref')]
+    _, removed = model.strip_unsupported_references(text, allowed)
+    ok_numbers, invented = model.numbers_preserved(block, text)
+    yield ('done', {'searches_run': ran, 'facts': all_facts,
+                    'guardrails': {'references_removed': removed,
+                                   'unsupported_numbers': invented,
+                                   'clean': not removed and ok_numbers}})
+
+
+def _prepare(question, step):
+    """Run the searches and build the fact block. Shared by both answer paths.
+
+    Everything up to composing prose: seeding, the fast paths, the chooser, and
+    reducing raw results to computed facts. Returns either
+    {block, facts, ran} or {error} / {needs_model_only}.
     """
     if not model.is_available():
         return {'error': 'the assistant is not running just now'}
+    if not model.is_available():
+        return {'error': 'the assistant is not running just now'}
 
-    step = on_step or (lambda _s: None)
     ran, all_facts = [], []
 
     # SEED THE LOOP IN CODE, not by asking. Whichever languages the question
@@ -185,7 +295,35 @@ def answer(question, on_step=None):
             except searches.SearchError as e:
                 logger.info('[ASSISTANT] seed listing %s failed: %s', code, e)
 
-    for _ in range(MAX_SEARCHES):
+    # A quoted phrase needs no deliberation: run the exact search for it.
+    phrase = _quoted_phrase(question)
+    if phrase:
+        lang = next((c for c, w in (('he', 'hebrew'), ('grc', 'greek'),
+                                    ('cop', 'coptic'), ('en', 'english'))
+                     if w in question.lower()), 'la')
+        # EXACT only for Latin-script languages. Greek exact search returns
+        # nothing at all -- ῥοδοδάκτυλος finds 0 hits exact and 5 hits by lemma,
+        # correctly landing on Homer 24.788 -- almost certainly because the
+        # stored text carries diacritics that exact matching does not normalise.
+        # Hebrew and Coptic are untested and presumed to share the problem, so
+        # they take the mode that is known to work.
+        mode = 'exact' if lang in ('la', 'en') else 'lemma'
+        try:
+            step(f'searching for "{phrase}"')
+            raw = searches.run('line_search', {'query': phrase, 'language': lang,
+                                               'search_type': mode})
+            facts = _summarise('line_search', raw)
+            facts.update({'search': 'line_search',
+                          'args': {'query': phrase, 'search_type': mode}})
+            all_facts.append(facts)
+            ran.append('line_search(exact)')
+        except searches.SearchError as e:
+            logger.info('[ASSISTANT] phrase search failed: %s', e)
+
+    # If the seed answered a holdings question, go straight to composing.
+    skip_chooser = bool(all_facts) and (phrase or any(
+        h in question.lower() for h in _HOLDINGS_QUESTION))
+    for _ in range(0 if skip_chooser else MAX_SEARCHES):
         prompt = f'Question: {question}\n'
         if all_facts:
             prompt += (f'\nAlready found:\n{json.dumps(all_facts, ensure_ascii=False)[:1500]}'
@@ -217,7 +355,6 @@ def answer(question, on_step=None):
     if not all_facts:
         return {'needs_model_only': True}
 
-    step('reading the results')
     # The census goes in FIRST, before the search results. Without it the model
     # reads "my search found no Greek" as "there is no Greek", and no wording of
     # the rules prevented that.
@@ -231,14 +368,23 @@ def answer(question, on_step=None):
                   + ', '.join(f'{k}: {v} works' for k, v in census.items())
                   + '\n\n')
     block += ('SEARCH RESULTS (your only source of fact about specific passages):\n'
-              + json.dumps(all_facts, ensure_ascii=False, indent=1)[:6000])
-    text = model.complete(ANSWER_SYSTEM, f'{block}\n\nQuestion: {question}\n\nAnswer:',
-                          max_tokens=380, temperature=0.2)
+              + json.dumps(all_facts, ensure_ascii=False)[:3000])
+    return {'block': block, 'facts': all_facts, 'ran': ran}
+
+
+def answer(question, on_step=None):
+    """Non-streaming answer. Kept for callers that want the whole thing at once."""
+    step = on_step or (lambda _s: None)
+    prep = _prepare(question, step)
+    if prep.get('error') or prep.get('needs_model_only'):
+        return prep
+    block, all_facts, ran = prep['block'], prep['facts'], prep['ran']
+    step('reading the results')
+    text = model.complete(ANSWER_SYSTEM,
+                          f'{block}\n\nQuestion: {question}\n\nAnswer:',
+                          max_tokens=260, temperature=0.2)
     if not text:
         return {'error': 'could not compose an answer', 'facts': all_facts}
-
-    # The same guardrails the analyse path uses. Loci the model produced that are
-    # not in the results are removed rather than trusted.
     allowed = []
     for f in all_facts:
         allowed += [e.get('ref') for e in (f.get('examples') or []) if e.get('ref')]

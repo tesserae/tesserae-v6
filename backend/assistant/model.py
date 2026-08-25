@@ -128,7 +128,15 @@ def strip_unsupported_references(text, allowed_refs):
             return match.group(0)
         c_locus, c_words = _ref_parts(match.group(1))
         for a_locus, a_words in allowed:
-            if c_locus != a_locus:
+            # A locus may be written SHORTER than the one in the results and
+            # still be the same citation: the results carry "Tristia 2.1.534"
+            # and a writer naturally cites "Tristia 2.1". Requiring equality
+            # stripped correct references out of good answers, which is worse
+            # than the fabrication it was guarding against. A prefix on a dot
+            # boundary is the same passage, more loosely specified.
+            if not (c_locus == a_locus
+                    or a_locus.startswith(c_locus + '.')
+                    or c_locus.startswith(a_locus + '.')):
                 continue
             # The locus agrees; one shared name word (or a prefix of one, since
             # "Verg." abbreviates "vergil") is enough to call it the same citation.

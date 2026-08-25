@@ -19,7 +19,7 @@ import json
 from flask import Blueprint, Response, jsonify, request
 
 from backend.logging_config import get_logger
-from backend.assistant import findings, model, prompts, router
+from backend.assistant import agent, findings, model, prompts, router
 
 logger = get_logger('blueprints.assistant')
 
@@ -35,6 +35,49 @@ def status():
                  'the search engine output only, and it does not know classical '
                  'scholarship independently.'),
     })
+
+
+@assistant_bp.route('/assistant/ask-stream', methods=['POST'])
+def ask_stream():
+    """Answer a question by RUNNING searches, streaming as it goes.
+
+    The difference from /guide: this one looks. /guide can only say which search
+    to use, because it has no corpus access, and asked to recommend interesting
+    searches it recommends tool names. This runs them and reports what came back.
+
+    Events: step (what it is doing), chunk (answer text), done (facts, which
+    searches ran, guardrail verdict).
+    """
+    data = request.get_json(silent=True) or {}
+    question = (data.get('question') or '').strip()
+
+    def generate():
+        if not question:
+            yield _sse('error', {'error': 'question is required'})
+            return
+        try:
+            for kind, payload in agent.answer_stream(question):
+                if kind == 'chunk':
+                    yield _sse('chunk', {'text': payload})
+                elif kind == 'step':
+                    yield _sse('step', {'text': payload})
+                else:
+                    # Falls back to the guide when no search applies, so a
+                    # question about how the tool works still gets answered.
+                    if payload.get('needs_model_only'):
+                        yield _sse('step', {'text': 'no search applies; explaining instead'})
+                        for piece in model.stream(prompts.guide_system(), question,
+                                                  max_tokens=model.MAX_TOKENS_GUIDE):
+                            yield _sse('chunk', {'text': piece})
+                        yield _sse('done', {'searches_run': [], 'fell_back_to_guide': True})
+                        return
+                    yield _sse('done', payload)
+        except Exception as e:
+            logger.error('[ASSISTANT] ask failed: %s', e)
+            yield _sse('error', {'error': 'the assistant could not answer just now'})
+
+    return Response(generate(), mimetype='text/event-stream',
+                    headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no'})
 
 
 @assistant_bp.route('/assistant/guide', methods=['POST'])
