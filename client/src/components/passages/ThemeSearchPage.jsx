@@ -200,34 +200,51 @@ export default function ThemeSearchPage() {
             {chronological(data.results).map((r) => (
               <li key={r.id || `${r.work}-${r.ref_start}`}
                   className="border border-gray-200 rounded p-3 bg-white">
-                <div className="flex items-baseline gap-2 flex-wrap">
-                  <span className="text-[10px] uppercase tracking-wide text-gray-500">
+                {/* The DATE leads, at the left and large enough to read down
+                    the column, because the results are in chronological order
+                    and the date is what that order is made of. It was set small
+                    and last, after the work id and the locus, where it read as
+                    an afterthought. The language moves right, where it labels
+                    without competing. */}
+                <div className="flex items-baseline gap-3">
+                  <div className="w-28 shrink-0">
+                    {dateLabel(r) ? (
+                      <>
+                        <div className="text-sm font-medium text-gray-900 tabular-nums">
+                          {dateLabel(r)}
+                        </div>
+                        {r.era && (
+                          <div className="text-[11px] text-gray-500">{r.era}</div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="text-sm text-gray-400">undated</div>
+                    )}
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <a
+                      href={readerLink(r, data.query || query)}
+                      className="font-medium text-red-800 hover:text-red-900 hover:underline"
+                    >
+                      {r.title || r.work}
+                    </a>
+                    <span className="ml-2 text-sm text-gray-500">{r.ref_start}</span>
+                  </div>
+
+                  <span className="shrink-0 text-[10px] uppercase tracking-wide text-gray-500">
                     {LANG_LABEL[r.language] || r.language}
                   </span>
-                  <a
-                    href={readerLink(r, data.query || query)}
-                    className="font-medium text-red-800 hover:text-red-900 hover:underline"
-                  >
-                    {r.title || r.work}
-                  </a>
-                  <span className="text-sm text-gray-500">{r.ref_start}</span>
-                  {dateLabel(r) && (
-                    <span className="text-[11px] text-gray-500 whitespace-nowrap">
-                      {dateLabel(r)}
-                      {r.era ? ` · ${r.era}` : ''}
-                    </span>
-                  )}
-                  {!dateLabel(r) && (
-                    <span className="text-[11px] text-gray-400">undated</span>
-                  )}
                   {r.strong === false && (
-                    <span className="text-[10px] text-gray-500 border border-gray-300 rounded px-1">
+                    <span className="shrink-0 text-[10px] text-gray-500 border border-gray-300 rounded px-1">
                       weak neighbour
                     </span>
                   )}
                 </div>
                 {r.gist && (
-                  <p className="mt-1 text-sm text-gray-700 leading-snug">{r.gist}</p>
+                  <p className="mt-1 sm:ml-[7.75rem] text-sm text-gray-700 leading-snug">
+                    {r.gist}
+                  </p>
                 )}
                 {!!(r.names_unverified || []).length && (
                   <p className="mt-1 text-[11px] text-amber-700">
