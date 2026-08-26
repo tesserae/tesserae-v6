@@ -106,8 +106,25 @@ TOOLS = {
                 'different languages: they share no vocabulary and the result is '
                 'meaningless noise, not evidence of absence.',
         'args': {'source': 'source text id', 'target': 'target text id'},
-        'run': lambda a: _get('/rare-lemmata', {
-            'source': a['source'], 'target': a['target'], 'limit': 30}),
+        # /hapax-search, NOT /rare-lemmata.
+        #
+        # /rare-lemmata returns the raw 273,091-entry rare index in ALPHABETICAL
+        # order, so the first thirty are the head of the alphabet, which is OCR
+        # debris: *lyrcea, aaa, aaaicti, aaaipsa, aaaxeotou. Tessa reported those
+        # as "shared rare terms suggesting allusive engagement".
+        #
+        # /hapax-search is what the site's own Rare Words search uses, and it
+        # works: the same pair returns 186 real results -- alcathoum, belidae,
+        # echionium, exsaturabile, interfata, menoetes. I had assumed the site
+        # shared the broken endpoint and said so; NC had tested it and knew
+        # otherwise. The endpoint was the bug, not the feature.
+        'run': lambda a: _get('/hapax-search', {
+            'source': a['source'] if str(a['source']).endswith('.tess')
+                      else f"{a['source']}.tess",
+            'target': a['target'] if str(a['target']).endswith('.tess')
+                      else f"{a['target']}.tess",
+            'language': a.get('language', 'la'),
+            'max_occurrences': int(a.get('max_occurrences') or 10)}),
     },
     'theme_search': {
         # Content, not wording. A thematic question used to reach line_search,

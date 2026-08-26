@@ -111,9 +111,12 @@ _NOT_PEOPLE = {'latin', 'greek', 'hebrew', 'coptic', 'english', 'book', 'corpus'
 def _is_a_word(w):
     """Whether a token from the rare-word index is plausibly a word at all.
 
-    The index carries OCR debris -- '*lyrcea', 'aaa', 'aaaicti', 'aaiueou' --
-    and it sorts to the front of the alphabet, so an alphabetically ordered
-    sample is made of almost nothing else.
+    A BACKSTOP. The debris that prompted this came from the wrong endpoint, and
+    the tool now calls the right one: of 186 real results this discards none.
+    It stays because a lemma index built from OCR will always hold some debris,
+    and showing it to a scholar as evidence discredits every real finding
+    beside it. It is deliberately loose, because discarding a real word silently
+    is the same kind of harm.
     """
     w = str(w or '').strip().lower()
     if len(w) < 3 or not w.isalpha():
@@ -124,10 +127,13 @@ def _is_a_word(w):
         return False
     if re.match(r'^[bcdfghjklmnpqrstvwxz]{4,}', w):   # no vowel in the first four
         return False
+    # NO UPPER BOUND ON VOWELS. It was 0.8, and it threw away 'aeolia' --
+    # Aeolus's island, a real word in both poems -- and 'eoae'. Latin and Greek
+    # are full of vowel-heavy words and this corpus is where they live.
+    # Discarding a real word silently is the same harm as showing a fake one,
+    # and the doubled-first-letter rule already catches the all-vowel debris.
     vowels = sum(c in 'aeiouy' for c in w)
-    ratio = vowels / len(w)
-    # 'aaiueou' is all vowels; a word with no vowels at all is debris too.
-    return 0.2 <= ratio <= 0.8
+    return vowels / len(w) >= 0.2
 
 
 def _highlight_terms(facts):
@@ -796,32 +802,30 @@ def _summarise(name, raw):
                          for r in rows[:12]],
         }
     if name == 'rare_words':
-        # THE ARTEFACTS ARE FILTERED OUT, and if nothing survives, that is said.
+        # A BACKSTOP, no longer the main defence.
         #
-        # /rare-lemmata returns the first 30 of 273,091 rare words in ALPHABETICAL
-        # order, and the head of the Latin alphabet is index noise: comparing the
-        # Thebaid with the Aeneid returned *lyrcea, aaa, aaaicti, aaaipsa,
-        # aaaxeotou -- thirty entries, not one of them a word. Tessa duly
-        # reported them as "shared rare terms suggesting allusive engagement".
-        # Presenting OCR debris to a scholar as evidence is worse than saying
-        # nothing, and it discredits every real finding beside it.
+        # The debris came from calling /rare-lemmata, which returns the raw
+        # 273,091-entry index alphabetically. The tool now calls /hapax-search,
+        # which is what the site's own Rare Words search uses and which returns
+        # real vocabulary. The filter stays because a lemma index built from OCR
+        # will always hold some debris, and presenting it to a scholar as
+        # evidence discredits every real finding beside it -- but it should now
+        # be discarding almost nothing.
         clean = [w for w in results if _is_a_word(w.get('lemma') or w.get('word'))]
         return {'kind': 'rare shared words',
                 'returned': len(results),
                 'usable_after_filtering': len(clean),
                 'total_rare_in_corpus': raw.get('total_rare_words'),
                 'quality_note': (
-                    'This pass returns rare words ALPHABETICALLY, not by '
-                    'significance, so it is showing the start of the alphabet '
-                    'rather than the best evidence. '
-                    + ('None of what came back is a real word: say that the '
-                       'rare-word pass found nothing usable here and that the '
-                       'full comparison is the way to look properly. Do NOT '
-                       'list the discarded entries.'
-                       if not clean else
-                       'Treat the surviving words as a sample, not a finding.')),
+                    'Rare words shared by both texts, rarest first. One lexical '
+                    'channel, not a full comparison.'
+                    if clean else
+                    'Nothing usable came back: say the rare-word pass found '
+                    'nothing here and that the full comparison is the way to '
+                    'look properly. Do NOT list the discarded entries.'),
                 'words': [{'word': w.get('lemma') or w.get('word'),
-                           'occurrences': w.get('count') or w.get('occurrences')}
+                           'occurrences': (w.get('corpus_count') or w.get('count')
+                                           or w.get('occurrences'))}
                           for w in clean[:15]]}
     return {'kind': name, 'raw_size': len(results)}
 
