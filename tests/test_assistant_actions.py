@@ -575,3 +575,31 @@ def test_two_languages_beat_two_text_names():
     Bible against the Iliad."""
     built = actions.suggest('how do I compare Hebrew with Greek?')
     assert all(a['kind'] == 'cross_language' for a in built)
+
+
+def test_the_pair_sentence_uses_language_NAMES():
+    """It read "There is no cross-language search for la and fa on this site".
+    A reader who wrote Latin should be answered in Latin."""
+    from backend.assistant.agent import _handoff_sentence
+    text = _handoff_sentence([{
+        'kind': 'CROSS-LANGUAGE PAIR the reader asked about.',
+        'pair': 'Latin and Persian', 'supported_by_the_search': False,
+        'reachable_from_the_tab': False,
+        'all_pairs': ['Greek and Latin']}])
+    assert 'Latin and Persian' in text and ' la ' not in text
+
+
+def test_the_pair_sentence_distinguishes_all_three_cases():
+    from backend.assistant.agent import _handoff_sentence
+    base = {'kind': 'CROSS-LANGUAGE PAIR the reader asked about.',
+            'pair': 'Coptic and Greek', 'all_pairs': ['Greek and Latin']}
+    unsupported = _handoff_sentence([dict(base, supported_by_the_search=False,
+                                          reachable_from_the_tab=False)])
+    unreachable = _handoff_sentence([dict(base, supported_by_the_search=True,
+                                          reachable_from_the_tab=False)])
+    reachable = _handoff_sentence([dict(base, supported_by_the_search=True,
+                                        reachable_from_the_tab=True)])
+    assert 'no cross-language search' in unsupported
+    assert 'no control for choosing' in unreachable
+    assert 'Open it and choose' in reachable
+    assert len({unsupported, unreachable, reachable}) == 3

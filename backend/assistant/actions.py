@@ -134,6 +134,15 @@ _LANGUAGE_WORDS = {
 }
 
 
+def language_name(code):
+    """"Latin" for "la". A reader who wrote Latin should be answered in Latin,
+    not told there is no search for "la and fa"."""
+    for word, c in _LANGUAGE_WORDS.items():
+        if c == code:
+            return word.capitalize()
+    return str(code)
+
+
 def languages_named(question):
     """Language codes the question names, in the order they appear.
 
@@ -305,6 +314,11 @@ def build(facts, question=''):
                 source_author=a.get('source_author'),
                 target_author=a.get('target_author'),
                 label=f'Compare {f.get("source")} with {f.get("target")}'))
+
+        # A language pair. The tab is offered only when the tab can do it.
+        if kind.startswith('CROSS-LANGUAGE PAIR') and isinstance(f.get('args'), dict):
+            a = f['args']
+            out.append(_cross_language(a.get('a'), a.get('b')))
 
         # A text the reader asked to open.
         if kind.startswith('A TEXT THE READER WANTS TO OPEN') and isinstance(f.get('args'), dict):

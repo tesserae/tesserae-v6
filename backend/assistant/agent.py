@@ -660,6 +660,18 @@ def _handoff_sentence(facts):
     there is nothing to write, there is nothing for it to do.
     """
     for f in facts or []:
+        if str(f.get('kind') or '').startswith('CROSS-LANGUAGE PAIR'):
+            pair = f.get('pair')
+            if not f.get('supported_by_the_search'):
+                others = ', '.join(f.get('all_pairs') or [])
+                return (f'There is no cross-language search for {pair} on this '
+                        f'site. The pairs it does have are {others}.')
+            if not f.get('reachable_from_the_tab'):
+                return (f'The search itself handles {pair}, but the '
+                        f'Cross-Language tab has no control for choosing that '
+                        f'pair, so it cannot be run from the interface today.')
+            return (f'The Cross-Language tab compares {pair}. Open it and choose '
+                    f'the two texts there.')
         if str(f.get('kind') or '').startswith('A TEXT THE READER WANTS TO OPEN'):
             name = f.get('text_name')
             if name:
@@ -1137,6 +1149,35 @@ def _prepare(question, step, history=None, offered_phrase=None):
 
     compare_done = False
     read_done = False
+
+    # TWO LANGUAGES NAMED is a different search on a different tab.
+    #
+    # These questions name languages, so the seeding above has already listed
+    # both corpora, and the answer came back "the corpus contains 39 Hebrew
+    # works and 1,288 Greek works" -- a inventory, when the question was how to
+    # compare them. The count is true and it is not the answer.
+    #
+    # Written in code rather than sent to the model, because what is true here
+    # is three flat facts and the model was getting them wrong in the direction
+    # that costs a reader time: the Help page says Coptic can be searched
+    # against Greek, the search agrees, and the tab has no control for it.
+    _langs = actions.languages_named(question)
+    if len(_langs) >= 2 and any(t in question.lower() for t in actions._COMPARE_INTENT):
+        pair = actions.cross_pair(_langs[0], _langs[1])
+        label = pair[0] if pair else None
+        all_facts.append({
+            'kind': 'CROSS-LANGUAGE PAIR the reader asked about. Answer from '
+                    'these three fields and nothing else.',
+            'pair': label or (f'{actions.language_name(_langs[0])} and '
+                              f'{actions.language_name(_langs[1])}'),
+            'supported_by_the_search': bool(pair),
+            'reachable_from_the_tab': bool(pair and pair[1]),
+            'all_pairs': sorted(actions.CROSS_PAIRS.values()),
+            'search': 'cross_language',
+            'args': {'a': _langs[0], 'b': _langs[1]},
+        })
+        ran.append('checked the language pair')
+        compare_done = True
 
     # A COMPARISON IS OFFERED, NOT RUN HERE.
     #
