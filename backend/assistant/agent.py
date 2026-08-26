@@ -128,6 +128,41 @@ def _highlight_terms(facts):
     return sorted(terms, key=len, reverse=True)[:12]
 
 
+def _integrity_warning(removed, invented, fabricated, mispaired):
+    """A visible note when a guard failed, in the reader's own view.
+
+    Detecting a fabricated citation and then printing it unannotated is worse
+    than not checking: it lends the invention the authority of a tool that
+    claims to verify. If a check fails the reader must be told, in the answer,
+    not in a log file they will never see.
+    """
+    parts = []
+    if mispaired:
+        refs = ', '.join(r for r, _ in mispaired[:4])
+        parts.append(f'the text shown under {refs} does not match what the search '
+                     f'returned for those references')
+    if fabricated:
+        parts.append('some quoted text could not be found in the search results')
+    if removed:
+        refs = ', '.join(str(r) for r in list(removed)[:4])
+        parts.append(f'these citations did not come from a search that ran: {refs}')
+    if invented:
+        parts.append('some figures above are not in the results: '
+                     + ', '.join(str(n) for n in list(invented)[:4]))
+    if not parts:
+        return ''
+    return ('\n\n\u26a0 Do not rely on the passage list above: '
+            + '; '.join(parts) + '. This is an automatic check of the answer '
+            'against the searches that ran. Verify against the text itself.')
+
+
+def _offer_phrase(facts):
+    for f in facts or []:
+        if str(f.get('kind', '')).startswith('VARIANT') and f.get('phrase'):
+            return f['phrase']
+    return None
+
+
 def _variant_offer(facts, text):
     """A sentence offering the inflected forms, when the answer omits one.
 
@@ -144,15 +179,18 @@ def _variant_offer(facts, text):
     for f in facts:
         if not str(f.get('kind', '')).startswith('VARIANT'):
             continue
-        authors = f.get('authors_with_variants') or {}
-        if not authors:
+        # Read the TOTALS, not the truncated top-15 list. Reading the truncated
+        # dict is how the offer once reported 175 where the answer was 194.
+        authors = f.get('authors_with_variants_TOP15_ONLY') or {}
+        n = f.get('total_variant_occurrences') or sum(authors.values())
+        count = f.get('authors_with_variants_count') or len(authors)
+        if not n:
             continue
-        n = sum(authors.values())
         names = ', '.join(list(authors)[:3])
-        more = ' and others' if len(authors) > 3 else ''
-        return (f'\n\nThe same phrase also occurs in other inflected forms, '
-                f'{n} times, in authors not listed above ({names}{more}). '
-                f'Would you like those as well?')
+        more = f' and {count - 3} more' if count > 3 else ''
+        return (f'\n\n\u201c{f.get("phrase")}\u201d also {OFFER_MARK} '
+                f'{n} times, across {count} authors not listed above '
+                f'({names}{more}). Would you like those as well?')
     return ''
 
 
@@ -180,6 +218,116 @@ def _named_people(question):
         if k.lower() not in _NOT_PEOPLE and k not in out:
             out.append(k)
     return out[:4]
+
+
+_AFFIRMATIVE = {'yes', 'yes please', 'yep', 'yeah', 'ok', 'okay', 'sure',
+                'please', 'please do', 'go ahead', 'show me', 'show them',
+                'list them', 'yes list them', 'i would', 'y'}
+
+
+def _variant_answer(phrase, history, step):
+    """The inflected forms, grouped by author, as a fact block to narrate from.
+
+    Computed rather than left to a chooser, because the reader has already said
+    what they want and a second round of deliberation can only lose it.
+    """
+    from collections import Counter
+    step(f'listing the inflected forms of "{phrase}"')
+    try:
+        exact = searches.run('line_search', {'query': phrase, 'language': 'la',
+                                             'search_type': 'exact', 'max_results': 60})
+        var = searches.run('line_search', {'query': phrase, 'language': 'la',
+                                           'search_type': 'lemma', 'max_results': 300})
+    except searches.SearchError as e:
+        return {'error': f'the search failed: {e}'}
+
+    exact_authors = {str(r.get('author')) for r in (exact.get('results') or [])}
+    rows = [r for r in (var.get('results') or [])
+            if str(r.get('author')) not in exact_authors]
+    by_author = Counter(str(r.get('author')) for r in rows)
+
+    def ref_of(r):
+        return ' '.join(str(b) for b in (r.get('author'), r.get('work'), r.get('locus')) if b)
+
+    # Grouped, and spread across authors rather than 20 lines of Livy.
+    seen, lines = Counter(), []
+    for r in rows:
+        a = str(r.get('author'))
+        if seen[a] >= 3:
+            continue
+        seen[a] += 1
+        lines.append({'ref': ref_of(r), 'text': str(r.get('text') or '')[:160]})
+        if len(lines) >= 24:
+            break
+
+    facts = [{
+        'kind': f'THE INFLECTED FORMS of "{phrase}", which the reader has just '
+                f'asked for. These are the authors who do NOT have the phrase '
+                f'exactly as written. Report the totals, then LIST these lines '
+                f'grouped by author. Do NOT repeat the exact occurrences: the '
+                f'reader has already seen them.',
+        'phrase': phrase,
+        'total_occurrences': len(rows),
+        'author_count': len(by_author),
+        'by_author': dict(by_author.most_common(20)),
+        'lines': lines,
+    }]
+    block = ('THE READER ASKED FOR THE INFLECTED FORMS. Answer with these and '
+             'nothing else.\n'
+             + json.dumps(facts, ensure_ascii=False)[:FACTS_CHAR_CAP])
+    return {'block': block, 'facts': facts,
+            # The model is asked the QUESTION, and the question was the word
+            # "yes". Given a block of Cicero and Sallust and the prompt "yes",
+            # it reproduced the previous answer instead. An acceptance has to
+            # reach the model as the request it stands for.
+            'question_override': (
+                f'List the inflected forms of "{phrase}" in the authors who do '
+                f'not have it exactly as written. Give the totals, then list the '
+                f'lines grouped by author.'),
+            'ran': ['line_search(exact)', 'line_search(lemma variants)']}
+
+
+def _is_affirmative(question):
+    q = (question or '').strip().lower().rstrip('.!')
+    return q in _AFFIRMATIVE or q.startswith(('yes', 'please show', 'show me the',
+                                              'list the', 'show the'))
+
+
+# The exact sentence the offer is made with. Kept as a constant so the thing
+# that WRITES the offer and the thing that RECOGNISES it cannot drift apart,
+# which is how this broke the first time.
+OFFER_MARK = 'occurs in other inflected forms'
+
+
+def _pending_offer_from(history):
+    """The phrase an offer in the recent history was about, or None.
+
+    A fallback for when the server-side record is unavailable: reads the last
+    assistant turn, and only accepts an offer that is the MOST RECENT thing
+    said, so "yes" cannot reach back past an intervening question.
+    """
+    for turn in reversed(history or []):
+        role = (turn or {}).get('role')
+        if role != 'assistant':
+            continue
+        text = str(turn.get('text') or '')
+        if OFFER_MARK not in text:
+            return None            # the last thing said was not an offer
+        # The offer NAMES its phrase in curly quotes, so accepting it needs no
+        # guessing. Deriving it from the sentence instead once returned the word
+        # "also", because "phrase also occurs" matches the phrase pattern.
+        m = re.search(r'\u201c([^\u201d]{3,60})\u201d', text)
+        return m.group(1) if m else _last_phrase(history)
+    return None
+
+
+def _last_phrase(history):
+    for turn in reversed(history or []):
+        if (turn or {}).get('role') == 'user':
+            p = _quoted_phrase(turn.get('text') or '')
+            if p:
+                return p
+    return None
 
 
 def _carried_phrase(question, history):
@@ -383,10 +531,14 @@ def _summarise(name, raw):
                 'hits_in_corpus': raw.get('total') or raw.get('total_at_least'),
                 'distinct_loci': raw.get('distinct_loci'),
                 'works_containing_it': works[:15],
+                # Six examples against twelve hits made the model report "6
+                # distinct occurrences". It was counting what it could see. Show
+                # enough to list, and say how many exist either way.
+                'examples_shown': min(len(results), 20),
                 'examples': [{'ref': ref_of(r),
                               'matched_words': r.get('matched_words'),
                               'text': str(r.get('text') or '')[:160]}
-                             for r in results[:6]]}
+                             for r in results[:20]]}
     if name == 'rare_words':
         return {'kind': 'rare shared words', 'returned': len(results),
                 'total_rare_in_corpus': raw.get('total_rare_words'),
@@ -396,7 +548,7 @@ def _summarise(name, raw):
     return {'kind': name, 'raw_size': len(results)}
 
 
-def answer_stream(question, on_step=None, history=None):
+def answer_stream(question, on_step=None, history=None, offered_phrase=None):
     """Same loop, but yield the answer as it is written.
 
     Total time is 18-36s and most of it is generation. First tokens arrive in
@@ -425,7 +577,7 @@ def answer_stream(question, on_step=None, history=None):
             # path did not, and the browser uses this one. Tested through the
             # HTTP endpoint now, not through answer(), so the two cannot diverge
             # again without a test noticing.
-            prep_result.update(_prepare(question, q.put, history) or {})
+            prep_result.update(_prepare(question, q.put, history, offered_phrase) or {})
         finally:
             q.put(None)
 
@@ -446,8 +598,9 @@ def answer_stream(question, on_step=None, history=None):
     block, all_facts, ran = prep['block'], prep['facts'], prep['ran']
     yield ('step', 'reading the results')
     collected = []
+    asked = prep.get('question_override') or question
     for piece in model.stream(ANSWER_SYSTEM,
-                              f'{block}\n\nQuestion: {question}\n\nAnswer:',
+                              f'{block}\n\nQuestion: {asked}\n\nAnswer:',
                               max_tokens=ANSWER_TOKENS, temperature=0.2):
         collected.append(piece)
         yield ('chunk', piece)
@@ -465,18 +618,35 @@ def answer_stream(question, on_step=None, history=None):
     _, removed = model.strip_unsupported_references(text, allowed)
     ok_numbers, invented = model.numbers_preserved(block, text, question)
     ok_quotes, fabricated = model.quotes_supported(block, text)
+    ok_pairs, mispaired = model.quotes_paired(all_facts, text)
+
+    # SAY SO, IN THE ANSWER. The guards used to log and let the text stand, so a
+    # reader saw a fabricated citation with nothing to warn them. Streaming means
+    # the words are already on their screen and cannot be retracted, so the
+    # correction is appended where they will read it.
+    warn = _integrity_warning(removed, invented, fabricated, mispaired)
+    if warn:
+        yield ('chunk', warn)
+
     offer = _variant_offer(all_facts, text)
     if offer:
         yield ('chunk', offer)
     yield ('done', {'searches_run': ran, 'facts': all_facts,
                     'highlight': _highlight_terms(all_facts),
+                    # So the server can remember that an offer was made. The
+                    # session cookie carries QUESTIONS only, so an assistant
+                    # offer is invisible to a follow-up unless it is recorded.
+                    'offered_variants': bool(offer),
+                    'offer_phrase': _offer_phrase(all_facts) if offer else None,
             'guardrails': {'references_removed': removed,
                                    'unsupported_numbers': invented,
                                    'fabricated_quotes': fabricated,
-                                   'clean': not removed and ok_numbers and ok_quotes}})
+                                   'mispaired_quotes': mispaired,
+                                   'clean': (not removed and ok_numbers
+                                             and ok_quotes and ok_pairs)}})
 
 
-def _prepare(question, step, history=None):
+def _prepare(question, step, history=None, offered_phrase=None):
     """Run the searches and build the fact block. Shared by both answer paths.
 
     Everything up to composing prose: seeding, the fast paths, the chooser, and
@@ -494,6 +664,26 @@ def _prepare(question, step, history=None):
     # about connectors and CSV export. Searching the corpus for it is nonsense.
     if _is_about_the_tool(question):
         return {'needs_model_only': True}
+
+    # "YES" MEANS THE THING THAT WAS OFFERED.
+    #
+    # She offers the inflected forms, the reader says "yes", and she re-ran the
+    # same exact search and printed the same six lines again. The affirmative
+    # carried no content of its own, so the carry-over logic just repeated the
+    # previous question. An offer that cannot be accepted is not an offer.
+    # AN OFFER AND ITS ACCEPTANCE ARE ONE PIECE OF STATE.
+    #
+    # This was three separate conditions -- is the reply affirmative, did the
+    # previous answer mention variants, can a phrase be recovered -- and any one
+    # of them failing silently made "yes" repeat the previous answer instead. It
+    # failed three times for three different reasons, each invisible.
+    #
+    # Now the offer carries what accepting it means. If it is pending and the
+    # reader says yes, it is taken. Nothing to re-derive, nothing to match on.
+    pending = offered_phrase or _pending_offer_from(history)
+    if pending and _is_affirmative(question):
+        logger.info('[ASSISTANT] accepting the pending offer: variants of %r', pending)
+        return _variant_answer(pending, history, step)
 
     # RESOLVE THE QUESTION AGAINST THE CONVERSATION FIRST.
     #
@@ -570,6 +760,12 @@ def _prepare(question, step, history=None):
                     extra = {a: n for a, n in (vf.get('authors') or {}).items()
                              if a not in exact_authors}
                     if extra:
+                        # Totals from the WHOLE set, before any truncation. The
+                        # offer used to sum a dict capped at 15 authors and
+                        # reported 175 where the answer is 194, across 30
+                        # authors rather than 13.
+                        total_variant_hits = sum(extra.values())
+                        variant_author_count = len(extra)
                         all_facts.append({
                             'kind': 'VARIANT FORMS of the same phrase, found by '
                                     'lemma search. These authors do NOT have the '
@@ -577,8 +773,16 @@ def _prepare(question, step, history=None):
                                     'other inflected forms. Tell the user how many '
                                     'there are and offer to list them.',
                             'phrase': phrase,
-                            'authors_with_variants': dict(sorted(
+                            'total_variant_occurrences': total_variant_hits,
+                            'authors_with_variants_count': variant_author_count,
+                            'authors_with_variants_TOP15_ONLY': dict(sorted(
                                 extra.items(), key=lambda kv: -kv[1])[:15]),
+                            'variant_lines': [
+                                {'ref': ' '.join(str(b) for b in
+                                                 (x.get('author'), x.get('work'), x.get('locus')) if b),
+                                 'text': str(x.get('text') or '')[:160]}
+                                for x in (var.get('results') or [])
+                                if str(x.get('author')) not in exact_authors][:20],
                             'example_lines': (vf.get('examples') or [])[:6]})
                         ran.append('line_search(lemma variants)')
 
@@ -712,16 +916,17 @@ def _prepare(question, step, history=None):
     return {'block': block, 'facts': all_facts, 'ran': ran}
 
 
-def answer(question, on_step=None, history=None):
+def answer(question, on_step=None, history=None, offered_phrase=None):
     """Non-streaming answer. Kept for callers that want the whole thing at once."""
     step = on_step or (lambda _s: None)
-    prep = _prepare(question, step, history)
+    prep = _prepare(question, step, history, offered_phrase)
     if prep.get('error') or prep.get('needs_model_only'):
         return prep
     block, all_facts, ran = prep['block'], prep['facts'], prep['ran']
     step('reading the results')
     text = model.complete(ANSWER_SYSTEM,
-                          f'{block}\n\nQuestion: {question}\n\nAnswer:',
+                          f'{block}\n\nQuestion: '
+                          f'{prep.get("question_override") or question}\n\nAnswer:',
                           max_tokens=ANSWER_TOKENS, temperature=0.2)
     if not text:
         return {'error': 'could not compose an answer', 'facts': all_facts}
@@ -737,10 +942,14 @@ def answer(question, on_step=None, history=None):
     text, removed = model.strip_unsupported_references(text, allowed)
     ok_numbers, invented = model.numbers_preserved(block, text, question)
     ok_quotes, fabricated = model.quotes_supported(block, text)
+    ok_pairs, mispaired = model.quotes_paired(all_facts, text)
+    text += _integrity_warning(removed, invented, fabricated, mispaired)
     text += _variant_offer(all_facts, text)
     return {'answer': text, 'searches_run': ran, 'facts': all_facts,
             'highlight': _highlight_terms(all_facts),
             'guardrails': {'references_removed': removed,
                            'unsupported_numbers': invented,
                            'fabricated_quotes': fabricated,
-                           'clean': not removed and ok_numbers and ok_quotes}}
+                           'mispaired_quotes': mispaired,
+                           'clean': (not removed and ok_numbers
+                                     and ok_quotes and ok_pairs)}}

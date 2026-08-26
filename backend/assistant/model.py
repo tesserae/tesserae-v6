@@ -201,6 +201,57 @@ _ENGLISH_TELLS = (
 )
 
 
+def quotes_paired(facts, generated):
+    """True when every quoted line belongs to the citation it is printed under.
+
+    quotes_supported() asks whether a quoted line exists ANYWHERE in the
+    results, and that is not enough. Asked to list twelve occurrences when six
+    were shown, the model padded the list: it invented loci (Martial 1.11.1,
+    Salutati 1.1) and printed VERGIL'S line under each of them. Every one of
+    those quotes passed, because Aeneid 1.1 really is in the results -- under
+    Vergil.
+
+    So the check is now the PAIRING. A citation line followed by a line of
+    source text must agree: that ref's text in the results must be what is
+    printed beneath it.
+
+    Returns (ok, [(ref, quoted_line), ...]) for the pairs that do not agree.
+    """
+    ref_text = {}
+    for f in (facts or []):
+        for key in ('examples', 'lines'):
+            for e in (f.get(key) or []):
+                if isinstance(e, dict) and e.get('ref') and e.get('text'):
+                    ref_text[_norm(e['ref'])] = _norm(e['text'])
+
+    if not ref_text:
+        return True, []
+
+    bad = []
+    lines = [l.strip() for l in (generated or '').split('\n')]
+    for i, line in enumerate(lines[:-1]):
+        key = _norm(line)
+        if not key or key not in ref_text:
+            continue
+        # the next non-empty line is what is being attributed to this citation
+        nxt = next((l for l in lines[i + 1:i + 3] if l.strip()), '')
+        if not nxt:
+            continue
+        quoted = _norm(nxt)
+        if len(quoted) < 12:
+            continue
+        actual = ref_text[key]
+        if quoted[:60] not in actual and actual[:60] not in quoted:
+            bad.append((line, nxt[:70]))
+    if bad:
+        logger.warning('[ASSISTANT] quoted text does not match its citation: %s', bad[:3])
+    return not bad, bad[:6]
+
+
+def _norm(t):
+    return ' '.join(re.sub(r'[^\w\s]', ' ', str(t or '').lower()).split())
+
+
 def quotes_supported(facts_text, generated):
     """True when every passage the answer quotes actually appears in the facts.
 
