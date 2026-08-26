@@ -848,10 +848,18 @@ def _summarise(name, raw):
                     'Nothing usable came back: say the rare-word pass found '
                     'nothing here and that the full comparison is the way to '
                     'look properly. Do NOT list the discarded entries.'),
-                'words': [{'word': w.get('lemma') or w.get('word'),
-                           'occurrences': (w.get('corpus_count') or w.get('count')
-                                           or w.get('occurrences'))}
-                          for w in clean[:15]]}
+                # The cap is NAMED, because a model counts what it can see.
+                # Shown fifteen of 186 it reported "twelve rare words", and went
+                # on to say the corpus held no further instances.
+                'shared_rare_word_count': len(clean),
+                'words_note': (f'only {min(15, len(clean))} of '
+                               f'{len(clean)} shared rare words are listed here; '
+                               f'the total is shared_rare_word_count'),
+                'words_TOP15_ONLY': [
+                    {'word': w.get('lemma') or w.get('word'),
+                     'occurrences': (w.get('corpus_count') or w.get('count')
+                                     or w.get('occurrences'))}
+                    for w in clean[:15]]}
     return {'kind': name, 'raw_size': len(results)}
 
 
