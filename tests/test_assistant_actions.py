@@ -280,3 +280,37 @@ def test_actually_asking_for_them_still_works():
               'show me the passages', 'what lines contain it?',
               'cite each one', 'give me the occurrences'):
         assert _wants_listing(q), q
+
+
+# --- a fabricated statistic in WORDS is no better than one in digits -------
+
+def test_a_spelled_out_number_not_in_the_facts_is_caught():
+    """Asked for passages about a storm at sea, Tessa wrote "All but TWO of the
+    instances are from later authors" -- a quantified claim about the corpus
+    that nothing supported -- and the guard passed the answer as clean, because
+    it read digits only."""
+    from backend.assistant.model import numbers_preserved
+    ok, bad = numbers_preserved('{"distinct_works": 40, "passages_returned": 75}',
+                                'All but two of the instances are from later authors.')
+    assert not ok and 'two' in bad
+
+
+def test_a_spelled_out_number_that_IS_in_the_facts_passes():
+    from backend.assistant.model import numbers_preserved
+    ok, _ = numbers_preserved('{"hits": 12, "works": 8}',
+                              'Twelve instances appear across eight works.')
+    assert ok
+
+
+def test_one_is_not_flagged():
+    """Idiomatic far more often than numeric. Flagging it would train the reader
+    to ignore the warning, which is worse than not checking."""
+    from backend.assistant.model import numbers_preserved
+    ok, _ = numbers_preserved('{"works": 40}', 'One of the works is Ovid.')
+    assert ok
+
+
+def test_digits_still_work():
+    from backend.assistant.model import numbers_preserved
+    ok, bad = numbers_preserved('{"works": 40}', 'There are 999 works.')
+    assert not ok and '999' in bad

@@ -173,6 +173,18 @@ def _ref_parts(ref):
     return (locus[-1] if locus else ''), words
 
 
+# Spelled-out numbers the guard treats as claims. "one" is deliberately absent:
+# it is idiomatic ("one of the works") far more often than numeric.
+_WORD_NUMBERS = {
+    'two': 2, 'three': 3, 'four': 4, 'five': 5, 'six': 6, 'seven': 7,
+    'eight': 8, 'nine': 9, 'ten': 10, 'eleven': 11, 'twelve': 12,
+    'thirteen': 13, 'fourteen': 14, 'fifteen': 15, 'sixteen': 16,
+    'seventeen': 17, 'eighteen': 18, 'nineteen': 19, 'twenty': 20,
+    'thirty': 30, 'forty': 40, 'fifty': 50, 'sixty': 60, 'seventy': 70,
+    'eighty': 80, 'ninety': 90, 'hundred': 100, 'thousand': 1000,
+}
+
+
 def numbers_preserved(source_text, generated, question=''):
     """True when the model introduced no numeric claim of its own.
 
@@ -185,9 +197,30 @@ def numbers_preserved(source_text, generated, question=''):
     the number was the user's own. A number the user supplied is the one kind of
     number the model demonstrably did not invent.
     """
-    src_nums = set(re.findall(r'\d+(?:\.\d+)?', (source_text or '') + ' ' + (question or '')))
+    source = (source_text or '') + ' ' + (question or '')
+    src_nums = set(re.findall(r'\d+(?:\.\d+)?', source))
     gen_nums = set(re.findall(r'\d+(?:\.\d+)?', generated or ''))
     invented = {n for n in gen_nums - src_nums if len(n) > 1 or float(n) > 9}
+
+    # SPELLED-OUT NUMBERS COUNT TOO.
+    #
+    # This read digits only, so a fabricated statistic in words went straight
+    # through. Asked for passages about a storm at sea, Tessa wrote "All but TWO
+    # of the instances are from later authors", a quantified claim about the
+    # corpus that nothing in the results supports, and the guard passed the
+    # answer as clean. To a scholar an invented figure in words is no better
+    # than one in digits.
+    #
+    # "one" is left out: it is idiomatic far more often than numeric ("one of
+    # the works", "no one"), and flagging it would train the reader to ignore
+    # the warning, which is worse than not checking.
+    for word, value in _WORD_NUMBERS.items():
+        if not re.search(rf'\b{word}\b', (generated or '').lower()):
+            continue
+        if re.search(rf'\b{word}\b', source.lower()) or str(value) in src_nums:
+            continue
+        invented.add(word)
+
     if invented:
         logger.warning('[ASSISTANT] generated unsupported numbers: %s', invented)
     return not invented, sorted(invented)
