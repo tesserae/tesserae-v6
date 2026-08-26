@@ -498,19 +498,26 @@ def test_reaper_cancels_newest_search(monkeypatch):
                 for _ in slot1.acquire():
                     pass
                 slot1._start_time = 1000.0
+                slot1.set_metadata({'source_id': 'src1', 'target_id': 'tgt1'})
 
                 slot2 = gate.SearchSlot()
                 for _ in slot2.acquire():
                     pass
                 slot2._start_time = 2000.0  # Newest search
+                slot2.set_metadata({'source_id': 'src2', 'target_id': 'tgt2'})
 
                 assert gate._count_active_slots() == 2
 
                 # Mock low RAM (3.0 GB < 5.0 GB floor)
                 monkeypatch.setattr(gate, 'get_available_memory_gb', lambda: 3.0)
 
-                # Run one tick of the reaper manually
-                gate.MemoryReaper._tick()
+                # Run one tick of the reaper manually (override cooldown to avoid 10s sleep)
+                old_cooldown = gate.MemoryReaper.COOLDOWN
+                gate.MemoryReaper.COOLDOWN = 0.0
+                try:
+                    gate.MemoryReaper._tick()
+                finally:
+                    gate.MemoryReaper.COOLDOWN = old_cooldown
 
                 # Newer search (slot2) should have a cancel marker, older one (slot1) should not
                 assert slot2.is_cancelled(), "Newest search should be cancelled by reaper"
@@ -537,19 +544,21 @@ def test_reaper_does_not_cancel_when_above_floor(monkeypatch):
         with _ConfigPatch():
             try:
                 gate.ConcurrencyConfig.set_emergency_ram_floor(3.0)
+                gate.ConcurrencyConfig.set_memory_threshold(0.5)
                 monkeypatch.setattr(gate, 'get_available_memory_gb', lambda: 6.0)
 
                 slot = gate.SearchSlot()
                 for _ in slot.acquire():
                     pass
 
-                initial_reaps = gate.MemoryReaper._reap_count
+                initial_status = gate.MemoryReaper.get_status()
                 gate.MemoryReaper._tick()
 
                 assert not slot.is_cancelled()
-                assert gate.MemoryReaper._reap_count == initial_reaps
+                assert gate.MemoryReaper.get_status()['reap_count'] == initial_status['reap_count']
 
                 slot.release()
             finally:
                 gate.LOCK_DIR = old_lock_dir
+
 

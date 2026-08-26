@@ -82,7 +82,7 @@ def _count_active_slots():
     _ensure_lock_dir()
     active = 0
     for name in os.listdir(LOCK_DIR):
-        if not name.endswith('.lock'):
+        if not name.endswith('.lock') or name.startswith('reaper_'):
             continue
         path = os.path.join(LOCK_DIR, name)
         try:
@@ -139,7 +139,7 @@ def get_active_searches():
     results = []
 
     for name in os.listdir(LOCK_DIR):
-        if not name.endswith('.lock'):
+        if not name.endswith('.lock') or name.startswith('reaper_'):
             continue
         path = os.path.join(LOCK_DIR, name)
         slot_id = name[:-5]  # strip '.lock'
@@ -460,7 +460,8 @@ class ConcurrencyConfig:
         """Return config values plus live system data."""
         with cls._lock:
             cfg = cls._get_cached_config()
-            avail_mem = round(get_available_memory_gb(), 1)
+            raw_mem = get_available_memory_gb()
+            avail_mem = round(raw_mem, 1)
             floor = cfg.get('emergency_ram_floor_gb', cls._default_emergency_floor)
             return {
                 'max_searches': cfg.get('max_searches', cls._default_max),
@@ -471,7 +472,7 @@ class ConcurrencyConfig:
                 'stress_test_mode': cls._is_stress_test_active(cfg),
                 'active_searches': _count_active_slots(),
                 'available_memory_gb': avail_mem,
-                'emergency_active': avail_mem < floor,
+                'emergency_active': raw_mem < floor,
                 'reaper_status': MemoryReaper.get_status(),
                 'defaults': {
                     'max_searches': cls._default_max,
@@ -502,8 +503,9 @@ class MemoryReaper:
     running search when available memory drops below the emergency RAM floor.
 
     Singleton per process — calling ``start()`` more than once is harmless.
-    The thread runs as a daemon so it is automatically cleaned up when the main
-    process exits.
+    Cross-worker coordination: Uses file locking (flock) and a shared state file
+    in LOCK_DIR to prevent multiple mod_wsgi worker processes from reaping
+    simultaneously (thundering herd prevention) and to synchronize cooldowns.
 
     Why the **newest** search?  It has completed the least work, so killing it
     wastes the fewest resources and lets older (closer-to-done) searches finish.
@@ -513,7 +515,7 @@ class MemoryReaper:
     _stop_event = threading.Event()
     _lock = threading.Lock()
 
-    # Reaper telemetry
+    # In-memory fallbacks / defaults
     _reap_count = 0
     _last_reap_at = 0.0     # timestamp
     _last_reap_slot = ''
@@ -521,6 +523,52 @@ class MemoryReaper:
 
     POLL_INTERVAL = 5.0     # seconds between RAM checks
     COOLDOWN = 10.0         # seconds to wait after a reap before checking again
+
+    # ------------------------------------------------------------------
+    # Shared State Helpers (cross-worker synchronization via lock files)
+    # ------------------------------------------------------------------
+
+    @classmethod
+    def _state_file_path(cls):
+        return os.path.join(LOCK_DIR, 'reaper_state.json')
+
+    @classmethod
+    def _tick_lock_path(cls):
+        return os.path.join(LOCK_DIR, 'reaper_tick.lock')
+
+    @classmethod
+    def _read_shared_state(cls):
+        """Read shared reaper telemetry state across workers."""
+        try:
+            path = cls._state_file_path()
+            if os.path.exists(path):
+                with open(path, 'r') as f:
+                    return json.load(f)
+        except (OSError, ValueError, json.JSONDecodeError):
+            pass
+        return {
+            'reap_count': cls._reap_count,
+            'last_reap_at': cls._last_reap_at,
+            'last_reap_slot': cls._last_reap_slot,
+            'last_reap_reason': cls._last_reap_reason,
+        }
+
+    @classmethod
+    def _write_shared_state(cls, state):
+        """Persist shared reaper telemetry state atomically."""
+        _ensure_lock_dir()
+        cls._reap_count = state.get('reap_count', 0)
+        cls._last_reap_at = state.get('last_reap_at', 0.0)
+        cls._last_reap_slot = state.get('last_reap_slot', '')
+        cls._last_reap_reason = state.get('last_reap_reason', '')
+
+        tmp_path = cls._state_file_path() + '.tmp'
+        try:
+            with open(tmp_path, 'w') as f:
+                json.dump(state, f, indent=2)
+            os.replace(tmp_path, cls._state_file_path())
+        except OSError as e:
+            logger.warning("Failed to write shared reaper state: %s", e)
 
     # ------------------------------------------------------------------
     # Lifecycle
@@ -555,17 +603,18 @@ class MemoryReaper:
             return cls._thread is not None and cls._thread.is_alive()
 
     # ------------------------------------------------------------------
-    # Status (exposed via admin API)
+    # Status (exposed via admin API — reads cross-worker state file)
     # ------------------------------------------------------------------
 
     @classmethod
     def get_status(cls):
+        state = cls._read_shared_state()
         return {
             'active': cls.is_running(),
-            'reap_count': cls._reap_count,
-            'last_reap_at': cls._last_reap_at,
-            'last_reap_slot': cls._last_reap_slot,
-            'last_reap_reason': cls._last_reap_reason,
+            'reap_count': state.get('reap_count', 0),
+            'last_reap_at': state.get('last_reap_at', 0.0),
+            'last_reap_slot': state.get('last_reap_slot', ''),
+            'last_reap_reason': state.get('last_reap_reason', ''),
         }
 
     # ------------------------------------------------------------------
@@ -584,42 +633,81 @@ class MemoryReaper:
 
     @classmethod
     def _tick(cls):
-        """One check-and-reap cycle."""
+        """One check-and-reap cycle with cross-worker synchronization."""
         mem_gb = get_available_memory_gb()
         floor = ConcurrencyConfig.get_emergency_ram_floor()
 
         if mem_gb >= floor:
             return  # plenty of RAM — nothing to do
 
-        # RAM is below the emergency floor.  Find searches to reap.
-        active = get_active_searches()
-        if not active:
-            return  # no searches running — nothing we can do
+        # Shared cross-worker cooldown check: if any worker reaped < COOLDOWN ago, wait
+        state = cls._read_shared_state()
+        last_reap_at = state.get('last_reap_at', 0.0)
+        if (time.time() - last_reap_at) < cls.COOLDOWN:
+            return
 
-        # Target the newest search (most recently started → least work lost)
-        newest = max(active, key=lambda s: s['start_time'])
-        slot_id = newest['slot_id']
+        # RAM is below emergency floor. Try to acquire cross-worker tick lock
+        _ensure_lock_dir()
+        lock_path = cls._tick_lock_path()
+        try:
+            fd = os.open(lock_path, os.O_CREAT | os.O_RDWR, 0o600)
+            try:
+                # Try non-blocking flock — if another worker process is reaping, yield
+                fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                try:
+                    # Re-check cooldown inside lock
+                    state = cls._read_shared_state()
+                    last_reap_at = state.get('last_reap_at', 0.0)
+                    if (time.time() - last_reap_at) < cls.COOLDOWN:
+                        return
 
-        reason = (
-            f"RAM {mem_gb:.1f} GB < emergency floor {floor:.1f} GB; "
-            f"reaping newest search {slot_id} "
-            f"(source={newest.get('source_id')}, target={newest.get('target_id')}, "
-            f"runtime={newest.get('runtime_seconds', 0):.0f}s)"
-        )
-        logger.warning("MemoryReaper: %s", reason)
+                    active = get_active_searches()
+                    if not active:
+                        return
 
-        if cancel_search(slot_id):
-            cls._reap_count += 1
-            cls._last_reap_at = time.time()
-            cls._last_reap_slot = slot_id
-            cls._last_reap_reason = reason
-            logger.warning("MemoryReaper: cancelled slot %s (total reaps: %d)",
-                           slot_id, cls._reap_count)
-            # Wait a cooldown period so the cancelled search has time to
-            # release memory before we check again.
-            cls._stop_event.wait(cls.COOLDOWN)
-        else:
-            logger.warning("MemoryReaper: cancel_search(%s) returned False", slot_id)
+                    # Target the newest search (most recently started → least work lost)
+                    newest = max(active, key=lambda s: s.get('start_time', 0.0))
+                    slot_id = newest.get('slot_id')
+                    if not slot_id:
+                        return
+
+                    reason = (
+                        f"RAM {mem_gb:.1f} GB < emergency floor {floor:.1f} GB; "
+                        f"reaping newest search {slot_id} "
+                        f"(source={newest.get('source_id')}, target={newest.get('target_id')}, "
+                        f"runtime={newest.get('runtime_seconds', 0):.0f}s)"
+                    )
+                    logger.warning("MemoryReaper: %s", reason)
+
+                    if cancel_search(slot_id):
+                        new_state = {
+                            'reap_count': state.get('reap_count', 0) + 1,
+                            'last_reap_at': time.time(),
+                            'last_reap_slot': slot_id,
+                            'last_reap_reason': reason,
+                        }
+                        cls._write_shared_state(new_state)
+                        logger.warning("MemoryReaper: cancelled slot %s (total reaps: %d)",
+                                       slot_id, new_state['reap_count'])
+                        if cls.COOLDOWN > 0:
+                            cls._stop_event.wait(cls.COOLDOWN)
+                    else:
+                        logger.warning("MemoryReaper: cancel_search(%s) returned False", slot_id)
+                finally:
+                    try:
+                        fcntl.flock(fd, fcntl.LOCK_UN)
+                    except OSError:
+                        pass
+            except BlockingIOError:
+                # Another worker process is currently executing a reap tick
+                pass
+            finally:
+                try:
+                    os.close(fd)
+                except OSError:
+                    pass
+        except OSError as e:
+            logger.warning("MemoryReaper: failed to open tick lock file: %s", e)
 
 
 def start_memory_reaper():
