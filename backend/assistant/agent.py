@@ -136,6 +136,31 @@ def _is_a_word(w):
     return vowels / len(w) >= 0.2
 
 
+def _resolve_text_args(name, args):
+    """Map model-chosen text ids onto ids the corpus really holds.
+
+    The model writes them the way a person would ("Statius_Thebaid") rather than
+    the way the corpus stores them ("statius.thebaid"). Resolving is cheap and
+    the alternative is a 400 that reads as an empty result.
+    """
+    if name != 'rare_words' or not isinstance(args, dict):
+        return args
+    try:
+        from backend.assistant import corpus_lookup
+    except Exception:                                    # noqa: BLE001
+        return args
+    out = dict(args)
+    for key in ('source', 'target'):
+        raw = str(out.get(key) or '')
+        if not raw or corpus_lookup.is_text_id(raw):
+            continue
+        hit = corpus_lookup.resolve_one(raw.replace('_', ' ').replace('.', ' '))
+        if hit:
+            out[key] = str(hit.get('id') or '').replace('.tess', '')
+            logger.info('[ASSISTANT] resolved %r -> %r', raw, out[key])
+    return out
+
+
 def _highlight_terms(facts):
     """The words worth marking in an answer: the phrase, and its inflections.
 
@@ -1259,6 +1284,14 @@ def _prepare(question, step, history=None, offered_phrase=None):
             # It already ran this exact search. Asking again wastes a model call
             # and a search, and it did exactly that on "arma virumque".
             break
+        # THE MODEL'S TEXT IDS ARE RESOLVED BEFORE THE SEARCH RUNS.
+        #
+        # Asked what rare words the Thebaid and the Aeneid share, it chose
+        # source='Statius_Thebaid', target='Vergil_Aeneid'. Neither exists, the
+        # search returned 400, and the answer said the search "returned no
+        # results" -- which reads as evidence the two poems share no rare
+        # vocabulary. They share 186. A wrong id must never look like an absence.
+        args = _resolve_text_args(name, args)
         step(f'running {name}')
         try:
             result = searches.run(name, args)

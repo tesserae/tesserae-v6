@@ -416,3 +416,30 @@ def test_anything_else_still_goes_to_the_model():
     from backend.assistant.agent import _handoff_sentence
     assert _handoff_sentence([{'kind': 'phrase occurrences', 'examples': []}]) is None
     assert _handoff_sentence([]) is None
+
+
+# --- a wrong id must never look like an absence ----------------------------
+
+def test_model_written_text_ids_are_resolved_before_the_search_runs():
+    """Asked what rare words the Thebaid and the Aeneid share, the model chose
+    source='Statius_Thebaid', target='Vergil_Aeneid'. Neither exists, the search
+    returned 400, and the answer said it 'returned no results' -- which reads as
+    evidence the two poems share no rare vocabulary. They share 186."""
+    from backend.assistant.agent import _resolve_text_args
+    out = _resolve_text_args('rare_words',
+                             {'source': 'Statius_Thebaid', 'target': 'Vergil_Aeneid'})
+    assert out['source'] == 'statius.thebaid'
+    assert out['target'] == 'vergil.aeneid'
+
+
+def test_ids_that_are_already_right_are_left_alone():
+    from backend.assistant.agent import _resolve_text_args
+    out = _resolve_text_args('rare_words',
+                             {'source': 'vergil.aeneid', 'target': 'statius.thebaid'})
+    assert out['source'] == 'vergil.aeneid'
+
+
+def test_other_searches_are_untouched():
+    from backend.assistant.agent import _resolve_text_args
+    args = {'query': 'arma virumque', 'search_type': 'exact'}
+    assert _resolve_text_args('line_search', args) == args
