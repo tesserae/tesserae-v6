@@ -90,6 +90,7 @@ BASELINE_MARGIN = 0.010
 _lock = threading.Lock()
 _state = {'loaded': False, 'ok': False, 'error': None}
 _ids = None            # list[str]
+_undescribed = set()   # row indices with no description: excluded from results
 _records = None        # list[dict] in embedding-row order
 _emb = None            # np.memmap (N, D) float16
 _by_work = None        # work -> list[row index]
@@ -184,6 +185,24 @@ def _ensure_loaded():
             for i, r in enumerate(_records):
                 _by_work.setdefault(_norm_work(r.get('work')), []).append(i)
             _state['ok'] = True
+            # WINDOWS WITH NO DESCRIPTION ARE POISON. 128 records were never
+            # described, and an empty description embeds near the centre of the
+            # space, so it is weakly similar to EVERYTHING. They dominated any
+            # query without strong signal: "plague", "airplanes" and
+            # "television" all returned the same undescribed passages, and the
+            # head lift that decides confidence was computed over them.
+            #
+            # They carry no information and can only mislead, so they are
+            # excluded from ranking. They stay in the index, keeping ids and
+            # embedding rows in lockstep, and should be re-described.
+            global _undescribed
+            # _records is a LIST in embedding-row order, not a dict.
+            _undescribed = {i for i, rec in enumerate(_records)
+                            if not ((rec or {}).get('desc') or {})
+                            .get('gist', '').strip()}
+            if _undescribed:
+                logger.warning('[PASSAGES] %d windows have no description and are '
+                               'excluded from results', len(_undescribed))
             logger.info('[PASSAGES] index ready: %d windows, %d works, dim %d',
                         len(_ids), len(_by_work), _emb.shape[1])
         except Exception as e:  # index problems must not break the app
@@ -254,6 +273,21 @@ def encoder_available():
 #
 # The GIL is not a problem here because numpy releases it inside the BLAS call.
 _SCORE_THREADS = min(16, max(2, (os.cpu_count() or 4) - 2))
+
+
+def _mask_undescribed(scores):
+    """Put undescribed windows out of reach.
+
+    Done to the SCORES rather than at ranking time, because the confidence
+    measure reads the score distribution: leaving them in made head lift a
+    measure of how well the query matched a passage with no description.
+    """
+    if _undescribed:
+        import numpy as np
+        idx = np.fromiter(_undescribed, dtype=np.int64, count=len(_undescribed))
+        idx = idx[idx < scores.shape[0]]
+        scores[idx] = -1.0
+    return scores
 
 
 def _score_all(q):
@@ -598,7 +632,83 @@ def _confidence_note_fitted(level):
             'the search returns for it is a nearest neighbour, not a finding.')
 
 
-def find_by_text(query, limit=25, languages=None, scale=None):
+# QUERY EXPANSION: make the query look like the thing being searched.
+#
+# The index is built from SENTENCES describing what happens in a passage, so it
+# answers sentences. Measured 2026-08-25:
+#
+#   "warrior arming scene"                         Iliad 19.361 at rank 1440,
+#                                                  0 of 245 arming windows in
+#                                                  the top 50
+#   "a warrior arms himself before battle"         rank 66, 7 in the top 50
+#   "the shortness of life"                        best Seneca rank 31
+#   "life is short"                                rank 1
+#
+# Templates in code recover some of it and not enough, because "a passage in
+# which warrior arming scene" is not English and the embedding only drifts
+# toward sentence-space. A model writes a real sentence, which lands in it.
+#
+# Also handles stance: Seneca argues life is NOT short, and embeddings handle
+# negation poorly, so one paraphrase is asked to state the opposite.
+EXPAND_ENDPOINT = os.environ.get('TESSERAE_EXPAND_ENDPOINT',
+                                 'http://127.0.0.1:8081/v1/chat/completions')
+EXPAND_TIMEOUT = 20
+EXPAND_MAX_WORDS = 6        # longer queries are already sentences
+
+_EXPAND_SYSTEM = """Rewrite a search query as sentences describing what happens in
+a passage of ancient literature. Reply with JSON only: {"forms": ["...", "..."]}.
+
+Give exactly three, each a short plain sentence:
+  1. the query as a scene, in the present tense, saying who does what
+  2. the same scene described differently
+  3. the same subject stated the OTHER way round, so that a passage ARGUING
+     about it is also matched. For "the shortness of life" that is "life is not
+     short, it is wasted".
+
+No commentary, no names the query did not give, nothing about literature or
+authors. Just the scene."""
+
+_expand_cache = {}
+
+
+def expand_query(query):
+    """Sentence-shaped forms of a query, or [] when expansion is not wanted.
+
+    Never raises and never blocks a search: if the model is unavailable the
+    search proceeds with the query as typed.
+    """
+    q = (query or '').strip()
+    if not q or len(q.split()) > EXPAND_MAX_WORDS:
+        return []
+    if q in _expand_cache:
+        return _expand_cache[q]
+    import json as _json
+    import re as _re
+    import urllib.error
+    import urllib.request
+    body = _json.dumps({
+        'messages': [{'role': 'system', 'content': _EXPAND_SYSTEM},
+                     {'role': 'user', 'content': q}],
+        'max_tokens': 220, 'temperature': 0.3, 'stream': False,
+    }).encode('utf-8')
+    req = urllib.request.Request(EXPAND_ENDPOINT, data=body,
+                                 headers={'Content-Type': 'application/json'})
+    forms = []
+    try:
+        with urllib.request.urlopen(req, timeout=EXPAND_TIMEOUT) as r:
+            out = _json.loads(r.read())
+        txt = out['choices'][0]['message']['content'] or ''
+        m = _re.search(r'\{.*\}', txt, _re.S)
+        if m:
+            forms = [str(f).strip() for f in (_json.loads(m.group(0)).get('forms') or [])
+                     if str(f).strip()][:3]
+    except (urllib.error.URLError, OSError, ValueError, KeyError) as e:
+        logger.info('[PASSAGES] query expansion unavailable: %s', e)
+    _expand_cache[q] = forms
+    return forms
+
+
+def find_by_text(query, limit=25, languages=None, scale=None, expand=True):
     """Theme Search: free-text description of the wanted content."""
     _ensure_loaded()
     if not _state['ok']:
@@ -607,7 +717,17 @@ def find_by_text(query, limit=25, languages=None, scale=None):
         return {'error': 'empty query', 'results': []}
     import numpy as np
     q = embed_query(_E5_PREFIX + query.strip()[:1500])
-    scores = _score_all(q)
+    scores = _mask_undescribed(_score_all(q))
+    # A short query is probably a keyword or a noun phrase, which the index
+    # answers badly. Score the sentence forms too and keep the best per window:
+    # a passage that answers ANY reading of the query is a hit.
+    forms = expand_query(query) if expand else []
+    for f in forms:
+        try:
+            alt = _mask_undescribed(_score_all(embed_query(_E5_PREFIX + f[:1500])))
+        except EmbedUnavailable:
+            break
+        scores = np.maximum(scores, alt)
     baseline = float(np.median(scores))
     top = float(scores.max())
     lift = top - baseline
@@ -644,7 +764,7 @@ def find_similar_to_window(window_id, limit=15, languages=None,
         return {'error': f'unknown window {window_id}', 'results': []}
     import numpy as np
     q = np.asarray(_emb[row], dtype=np.float32)
-    scores = _score_all(q)
+    scores = _mask_undescribed(_score_all(q))
     scores[row] = -1.0
     src = _records[row]
     exclude = None if include_same_work else _norm_work(src.get('work'))
