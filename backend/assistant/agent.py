@@ -703,7 +703,15 @@ def _summarise(name, raw):
             'confidence': conf.get('level'),
             'confidence_note': ('how far the corpus really holds this subject; '
                                 '"low" means nothing much resembles it'),
-            'works_found': works[:15],
+            # The cap is stated, because a model counts what it can SEE. This
+            # is the same failure the phrase search already guards against with
+            # examples_shown: given fifteen of forty works it reported fourteen
+            # distinct works, and the number guard passed it because fourteen
+            # happened to appear elsewhere in the block.
+            'works_found_TOP15_ONLY': works[:15],
+            'works_found_note': (f'only the first 15 of {len(seen)} works are '
+                                 f'listed here; the true count is '
+                                 f'distinct_works below'),
             'distinct_works': len(seen),
             'languages': dict(langs),
             'passages_returned': len(rows),
