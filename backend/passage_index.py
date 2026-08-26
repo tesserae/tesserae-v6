@@ -699,9 +699,15 @@ _expand_cache_mtime = [0.0]
 #
 # So the first expansion of a query is arbitrary and every one after it is
 # fixed. Append-only, because three processes write to it.
+# It lives under cache/ rather than beside the index because the index directory
+# is not writable by the web user. Putting it there looked fine locally and did
+# nothing in production: _save_expansion failed, logged at info level, and every
+# request re-expanded, so two live searches for one query still came back in a
+# different order. cache/ is where the app already writes at runtime.
 EXPAND_CACHE_PATH = os.environ.get(
     'TESSERAE_EXPAND_CACHE',
-    os.path.join(_DATA_DIR, 'query_expansions.jsonl'))
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                 'cache', 'query_expansions.jsonl'))
 
 
 def _load_expansions():
@@ -733,7 +739,12 @@ def _save_expansion(q, forms):
             fh.write(json.dumps({'q': q, 'forms': forms}, ensure_ascii=False) + '\n')
         _expand_cache_mtime[0] = os.path.getmtime(EXPAND_CACHE_PATH)
     except OSError as e:
-        logger.info('[PASSAGES] could not persist query expansion: %s', e)
+        # Warning, not info. This failing is not cosmetic: it silently returns
+        # Theme Search to giving a different answer for the same query, which is
+        # exactly how it went unnoticed the first time.
+        logger.warning('[PASSAGES] could not persist query expansion to %s: %s. '
+                       'The same query will give different results.',
+                       EXPAND_CACHE_PATH, e)
 
 
 def expand_query(query):
