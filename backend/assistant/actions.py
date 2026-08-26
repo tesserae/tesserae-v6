@@ -162,6 +162,11 @@ def build(facts, question=''):
         if kind.startswith('THE INFLECTED FORMS') and f.get('phrase'):
             out.append(_line_search(f['phrase'], 'lemma', 'la'))
 
+        # A theme search that ran: the page is where the reader can widen it,
+        # narrow it to one language, or read any of the passages.
+        if kind == 'passages matching a description' and isinstance(f.get('args'), dict):
+            out.append(_theme_search((f['args'] or {}).get('query')))
+
         # Two named texts that were compared for rare shared vocabulary: the
         # full fusion search over the same pair is the deeper version of it.
         #

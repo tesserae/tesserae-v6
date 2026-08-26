@@ -109,6 +109,23 @@ TOOLS = {
         'run': lambda a: _get('/rare-lemmata', {
             'source': a['source'], 'target': a['target'], 'limit': 30}),
     },
+    'theme_search': {
+        # Content, not wording. A thematic question used to reach line_search,
+        # which is a search for WORDS: asked for passages about a storm at sea it
+        # translated the subject into Greek, searched for the two words, and
+        # timed out. The passage index answers descriptions of what happens, and
+        # it is the only tool here that crosses languages without a shared word.
+        'what': 'Passages whose CONTENT matches a description, across every '
+                'language at once. Use for any question about what happens in a '
+                'passage -- a theme, a scene, a motif, a situation -- rather '
+                'than about particular words. Give a short SENTENCE describing '
+                'the scene, not a keyword.',
+        'args': {'query': 'a sentence describing what happens in the passage',
+                 'languages': 'optional: la, grc, he, cop, en, fa or ur'},
+        'run': lambda a: _get('/passages/theme-search', {
+            'query': a['query'], 'limit': int(a.get('limit') or 25),
+            **({'languages': a['languages']} if a.get('languages') else {})}),
+    },
     'list_texts': {
         'what': 'What the corpus actually holds in a language. Use FIRST when '
                 'the user asks an open question about a language or period, so '
@@ -222,7 +239,11 @@ def run(name, args):
     spec = TOOLS.get(name)
     if spec is None:
         raise SearchError(f'no such search: {name}')
-    missing = [k for k in spec['args'] if k not in args and k != 'language']
+    # 'language' and 'languages' are always optional: a search that does not
+    # name one has a sensible default, and requiring them made theme_search
+    # unusable for the ordinary case of "across everything".
+    optional = {'language', 'languages'}
+    missing = [k for k in spec['args'] if k not in args and k not in optional]
     if missing:
         raise SearchError(f'{name} needs {missing}')
     logger.info('[ASSISTANT] running %s %s', name, args)

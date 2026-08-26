@@ -232,3 +232,31 @@ def test_compare_says_it_only_sets_the_search_up():
     a = actions.for_suggestion('compare', source='vergil.aeneid',
                                target='ovid.metamorphoses', language='la')
     assert 'ready to run' in a['detail']
+
+
+# --- thematic questions go to the passage index, not to a word search ------
+
+def test_a_thematic_question_is_recognised():
+    from backend.assistant.agent import _theme_question
+    assert _theme_question('are there any passages about a storm at sea?') == 'a storm at sea'
+    assert _theme_question('show me scenes where a city falls') == 'a city falls'
+    assert _theme_question('passages describing a descent to the underworld')
+
+
+def test_a_quoted_phrase_is_not_a_thematic_question():
+    """"where does 'arma virumque' appear" names WORDS, not a subject, even
+    though it contains 'where'. Sending it to the passage index would answer a
+    question nobody asked."""
+    from backend.assistant.agent import _theme_question
+    assert _theme_question('where does the exact phrase "arma virumque" appear?') == ''
+
+
+def test_a_holdings_question_is_not_thematic():
+    from backend.assistant.agent import _theme_question
+    assert _theme_question('what Hebrew texts are in the corpus?') == ''
+
+
+def test_a_theme_search_that_ran_offers_its_page():
+    built = actions.build([{'kind': 'passages matching a description',
+                            'args': {'query': 'a storm at sea'}}])
+    assert built and built[0]['url'] == '/theme-search?query=a+storm+at+sea'

@@ -488,6 +488,34 @@ _WANTS_LISTING = (
 )
 
 
+# A question about WHAT HAPPENS in a passage rather than about particular words.
+# These reach the passage index; everything else keeps the word searches.
+_THEME_QUESTION = (
+    'passages about', 'passages where', 'passages describing', 'passages in which',
+    'scenes of', 'scenes where', 'scene where', 'scenes in which', 'a scene',
+    'theme of', 'themes of', 'motif', 'episodes of', 'episode where',
+    'descriptions of', 'depictions of', 'anything about', 'anywhere', 'similar to',
+    'where someone', 'where a ', 'about a ', 'about the theme',
+)
+
+
+def _theme_question(question):
+    """The scene a thematic question describes, or '' if it is not one.
+
+    A quoted phrase always wins: "where does 'arma virumque' appear" names words,
+    not a subject, even though it contains "where".
+    """
+    q = str(question or '').strip()
+    if not any(t in q.lower() for t in _THEME_QUESTION):
+        return ''
+    from backend.assistant.actions import _theme_subject
+    subject = _theme_subject(q)
+    # The passage index answers SENTENCES. A bare noun phrase is expanded by the
+    # index itself, so a short subject is still worth sending, but an empty one
+    # is not a description of anything.
+    return subject if len(subject) >= 4 else ''
+
+
 def _wants_listing(question):
     q = (question or '').lower()
     return any(t in q for t in _WANTS_LISTING)
@@ -645,6 +673,30 @@ def _summarise(name, raw):
                               'matched_words': r.get('matched_words'),
                               'text': excerpt(r)}
                              for r in results[:20]]}
+    if name == 'theme_search':
+        conf = (raw.get('confidence') or {}) if isinstance(raw, dict) else {}
+        rows = (raw.get('results') or []) if isinstance(raw, dict) else []
+        works, seen = [], set()
+        for r in rows:
+            w = str(r.get('display_name') or r.get('work') or '')
+            if w and w not in seen:
+                seen.add(w)
+                works.append(w)
+        langs = Counter(str(r.get('language')) for r in rows if r.get('language'))
+        return {
+            'kind': 'passages matching a description',
+            'confidence': conf.get('level'),
+            'confidence_note': ('how far the corpus really holds this subject; '
+                                '"low" means nothing much resembles it'),
+            'works_found': works[:15],
+            'distinct_works': len(seen),
+            'languages': dict(langs),
+            'passages_returned': len(rows),
+            'examples': [{'ref': r.get('ref_start'),
+                          'work': r.get('display_name') or r.get('work'),
+                          'text': str(r.get('gist') or '')[:200]}
+                         for r in rows[:12]],
+        }
     if name == 'rare_words':
         return {'kind': 'rare shared words', 'returned': len(results),
                 'total_rare_in_corpus': raw.get('total_rare_words'),
@@ -843,9 +895,33 @@ def _prepare(question, step, history=None, offered_phrase=None):
             except searches.SearchError as e:
                 logger.info('[ASSISTANT] seed listing %s failed: %s', code, e)
 
+    # A THEMATIC question goes to the passage index, not to a word search.
+    #
+    # This is why "are there any passages about a storm at sea?" answered badly:
+    # the only search available was line_search, which looks for WORDS, so the
+    # model translated the subject into Greek, searched for "θάλασσα καταιγίς",
+    # and timed out. The corpus holds the scene in Curtius, Lucan and a dozen
+    # others; none of them shares those words.
+    #
+    # Decided from the reader's own words rather than by the chooser, for the
+    # same reason the rest of this module computes rather than asks.
+    theme_done = False
+    theme = _theme_question(question)
+    if theme and not _quoted_phrase(question):
+        try:
+            step(f'looking for passages about {theme}')
+            raw = searches.run('theme_search', {'query': theme, 'limit': 25})
+            facts = _summarise('theme_search', raw)
+            facts.update({'search': 'theme_search', 'args': {'query': theme}})
+            all_facts.append(facts)
+            ran.append('theme_search')
+            theme_done = True
+        except searches.SearchError as e:
+            logger.info('[ASSISTANT] theme search failed: %s', e)
+
     # A quoted phrase needs no deliberation: run the exact search for it.
     phrase = _quoted_phrase(question) or carried
-    if phrase:
+    if phrase and not theme_done:
         lang = next((c for c, w in (('he', 'hebrew'), ('grc', 'greek'),
                                     ('cop', 'coptic'), ('en', 'english'))
                      if w in question.lower()), 'la')
@@ -949,7 +1025,7 @@ def _prepare(question, step, history=None, offered_phrase=None):
             logger.info('[ASSISTANT] phrase search failed: %s', e)
 
     # If the seed answered a holdings question, go straight to composing.
-    skip_chooser = bool(all_facts) and (phrase or any(
+    skip_chooser = bool(all_facts) and (phrase or theme_done or any(
         h in question.lower() for h in _HOLDINGS_QUESTION))
     for _ in range(0 if skip_chooser else MAX_SEARCHES):
         prompt = f'Question: {question}\n'
