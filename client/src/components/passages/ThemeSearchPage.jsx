@@ -196,23 +196,38 @@ const LANG_LABEL = {
   en: 'English', fa: 'Persian', ur: 'Urdu',
 };
 
+// Order as the rest of the site uses: Latin, Greek, English, then the others.
+const LANG_CHOICES = [
+  ['', 'All languages'],
+  ['la', 'Latin'],
+  ['grc', 'Greek'],
+  ['en', 'English'],
+  ['he', 'Hebrew'],
+  ['cop', 'Coptic'],
+  ['fa', 'Persian'],
+  ['ur', 'Urdu'],
+];
+
 export default function ThemeSearchPage() {
   const [query, setQuery] = useState('');
+  const [language, setLanguage] = useState('');
   const [data, setData] = useState(null);
   const [running, setRunning] = useState(false);
   const [showWeak, setShowWeak] = useState(false);
   const [error, setError] = useState(null);
 
-  const run = useCallback(async (q) => {
+  const run = useCallback(async (q, lang) => {
     const text = (q || '').trim();
     if (!text || running) return;
     setRunning(true);
     setError(null);
     setData(null);
     setShowWeak(false);
+    const langParam = lang === undefined ? language : lang;
     try {
       const res = await fetch(
-        `/api/passages/theme-search?query=${encodeURIComponent(text)}&limit=25`);
+        `/api/passages/theme-search?query=${encodeURIComponent(text)}&limit=25`
+        + (langParam ? `&languages=${encodeURIComponent(langParam)}` : ''));
       const json = await res.json();
       // The API reports trouble in the body rather than by status, so that a
       // missing index degrades this panel instead of breaking the page.
@@ -223,7 +238,7 @@ export default function ThemeSearchPage() {
     } finally {
       setRunning(false);
     }
-  }, [running]);
+  }, [running, language]);
 
   const band = data && BAND[data.confidence?.level];
 
@@ -253,6 +268,39 @@ export default function ThemeSearchPage() {
           {running ? 'Searching…' : 'Search'}
         </button>
       </form>
+
+      {/* WHY THIS IS HERE
+        *
+        * The page shows 25 works, and the corpus holds seven languages, so each
+        * language gets three or four slots. That is why "warrior arming scene"
+        * returned no Vergil: the Aeneid was the 28th work, behind Persian,
+        * Greek, Neo-Latin and English arming scenes that are all genuine hits.
+        * Restricted to Latin it is 8th; restricted to Greek, the Iliad is 1st.
+        *
+        * So a scholar working in one language was being outvoted by the breadth
+        * of the corpus. The API already took `languages`; nothing exposed it. */}
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <label className="text-xs text-gray-600" htmlFor="theme-language">
+          Search in
+        </label>
+        <select
+          id="theme-language"
+          value={language}
+          onChange={(e) => {
+            const next = e.target.value;
+            setLanguage(next);
+            if (query.trim()) run(query, next);
+          }}
+          className="text-xs border border-gray-300 rounded px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-red-600"
+        >
+          {LANG_CHOICES.map(([v, label]) => (
+            <option key={v || 'all'} value={v}>{label}</option>
+          ))}
+        </select>
+        <span className="text-[11px] text-gray-500">
+          one language at a time shows more of it
+        </span>
+      </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
         {EXAMPLES.map((ex) => (
