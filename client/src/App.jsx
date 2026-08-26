@@ -3,7 +3,7 @@ import { Header, Navigation } from './components/layout';
 import { SearchModeToggle, TextSelector, SearchSettings, SearchResults, LineSearch, CrossLingualSearch, WildcardSearch, SavedSearches, CorpusSearchResults, RarePairsSettings } from './components/search';
 import RareResultsDisplay from './components/search/RareResultsDisplay';
 import SearchDescription from './components/search/SearchDescription';
-import { Modal, LoadingSpinner } from './components/common';
+import { Modal, LoadingSpinner, UpdateBanner } from './components/common';
 import { CorpusBrowser, RareWordsExplorer } from './components/corpus';
 import { ReaderPage } from './components/reader';
 import ThemeSearchPage from './components/passages/ThemeSearchPage';
@@ -674,6 +674,9 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-100">
+      {/* Above everything, because a page running old code can be wrong in ways
+          the reader cannot see. */}
+      <UpdateBanner />
       <Header user={user} setUser={setUser} onLogoClick={() => {
         if (appLockedToAdmin) {
           setPageType('admin');

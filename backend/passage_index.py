@@ -495,22 +495,65 @@ def _cluster_coherence(scores, k=COHERENCE_K):
     return float((sim.sum() - n) / (n * n - n)) if n > 1 else 0.0
 
 
-def _confidence_level(lift, coherence):
-    """Graded, never certain: see the calibration note at the top of the file.
+# A description is a sentence. Below this, the confidence signals are not
+# measuring anything: every probe the thresholds were fitted on is a full
+# sentence, and raw similarity scales with query length, so a keyword and a
+# description are not on the same footing at all.
+#
+# Measured on the live index:
+#     "plague"                    lift 0.093  -> would read LOW, top hit is a
+#                                                plague passage in Silius
+#     "airplanes"                 lift 0.095  -> would read STRONG, top hit is
+#                                                nothing of the kind
+#
+# "airplanes" outscores "plague". The band cannot be reported for queries like
+# these, and reporting one anyway is worse than declining: it puts a confident
+# label on a number that does not mean what it says.
+# CONFIDENCE THAT WORKS AT ANY QUERY LENGTH (2026-08-25)
+#
+# The first measure compared the top hit against the corpus median, and raw
+# similarity scales with query length, so a keyword and a sentence were not on
+# the same footing. Measured on this index, "airplanes" outscored "plague".
+#
+# Two statistics fix it, and the second only works once the first has run:
+#
+# 1. DEGENERACY. When nothing in the corpus resembles the query, the top results
+#    are uniformly distant from it and therefore identical to each other, and
+#    coherence goes to exactly 1.000. That is not agreement, it is the absence of
+#    any structure to agree about. Over a 28-query test set spanning one word to
+#    ten, NINE queries were degenerate and every one of them was a subject the
+#    corpus does not contain: airplanes, locomotive, telegraph, antibiotics,
+#    spacecraft, photograph, submarine, television, airplanes-and-locomotives.
+#
+# 2. HEAD LIFT, the mean of the top ten above the median, rather than the single
+#    top hit. A real subject brings a GROUP; a stray brings one lucky vector.
+#    With the degenerate cases removed it separates cleanly and at every length:
+#    present >= 0.080, absent <= 0.072.
+#
+# Neither works alone. Every magnitude statistic tried -- lift, z-score, robust
+# z, ratio, head z-score -- topped out at 82% because "photograph" and
+# "television" score high on all of them. Coherence alone reaches 57%.
+# Fitted 2026-08-25 against BOTH probe sets at once, 57 queries from one word to
+# ten: 91% accuracy with a single pair of thresholds. The old measure managed 93%
+# on sentences alone and was unusable on keywords, where it rated "airplanes"
+# above "plague".
+DEGENERATE_COHERENCE = 0.995   # no structure at all: nothing resembles the query
+HEAD_WEAK = 0.0750             # below this, the top ten are not a group
+HEAD_STRONG = 0.1006           # above every absent subject in either probe set
 
-    Neither signal separates present from absent subjects alone, but they fail
-    in different directions, so requiring BOTH for 'strong' and EITHER for
-    'moderate' left 'moderate' meaningless (it caught real and absent subjects
-    alike). Combining them into one score separates better than either does:
-    on the 18-query probe set, real subjects score above 1.75 and absent ones
-    below it, with the single exception noted in the log.
+
+def _confidence_level(head_lift, coherence):
+    """Graded, never certain. Works for one word or for a sentence.
+
+    head_lift is the mean of the top ten scores above the corpus median.
     """
-    combined = lift * 10.0 + (coherence - 0.85) * 10.0
-    if combined >= STRONG_COMBINED:
+    if coherence >= DEGENERATE_COHERENCE:
+        return 'low'
+    if head_lift < HEAD_WEAK:
+        return 'low'
+    if head_lift >= HEAD_STRONG:
         return 'strong'
-    if combined >= MODERATE_COMBINED:
-        return 'moderate'
-    return 'low'
+    return 'moderate'
 
 
 def _calibration_drift():
@@ -551,9 +594,8 @@ def _confidence_note_fitted(level):
     if level == 'moderate':
         return ('Moderate confidence: the corpus holds passages of this kind, but the '
                 'match is looser than a clear case. Read the results before relying on them.')
-    return ('No strong content match in the corpus for this description. The passages '
-            'below resemble the query only weakly, and should be read as neighbours '
-            'rather than findings.')
+    return ('The corpus does not appear to contain passages of this kind. Anything '
+            'the search returns for it is a nearest neighbour, not a finding.')
 
 
 def find_by_text(query, limit=25, languages=None, scale=None):
@@ -569,8 +611,12 @@ def find_by_text(query, limit=25, languages=None, scale=None):
     baseline = float(np.median(scores))
     top = float(scores.max())
     lift = top - baseline
+    # The GROUP at the head, not the single best hit: one lucky vector is not a
+    # subject, and the top hit alone is what made short queries unreadable.
+    k = min(10, len(scores))
+    head_lift = float(np.sort(scores)[-k:].mean()) - baseline
     coherence = _cluster_coherence(scores)
-    level = _confidence_level(lift, coherence)
+    level = _confidence_level(head_lift, coherence)
     results = _rank(scores, limit, languages=languages, scale=scale,
                     baseline=baseline,
                     strong_at=baseline + (STRONG_LIFT if level == 'strong' else 1e9))
@@ -579,6 +625,7 @@ def find_by_text(query, limit=25, languages=None, scale=None):
         'results': results,
         'strong_matches': sum(1 for r in results if r['strong']),
         'confidence': {'top': round(top, 4), 'baseline': round(baseline, 4),
+                       'head_lift': round(head_lift, 4),
                        'lift': round(lift, 4),
                        'coherence': round(coherence, 4), 'level': level},
         'note': _confidence_note(level),
