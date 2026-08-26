@@ -1,31 +1,4 @@
-<<<<<<< Updated upstream
 export default function ResearchPage({ setPageType }) {
-=======
-import { useState, useEffect } from 'react';
-
-export default function ResearchPage() {
-  const [expandedPost, setExpandedPost] = useState(null);
-  const [v3BlogPosts, setV3BlogPosts] = useState([]);
-
-  useEffect(() => {
-    let isMounted = true;
-    import('../../data/v3_blog_posts.json')
-      .then((module) => {
-        if (!isMounted) return;
-        const data = module && module.default ? module.default : module;
-        setV3BlogPosts(data);
-      })
-      .catch((error) => {
-        console.error('Failed to load v3_blog_posts.json', error);
-      });
-    return () => { isMounted = false; };
-  }, []);
-
-  const togglePost = (key) => {
-    setExpandedPost(expandedPost === key ? null : key);
-  };
-
->>>>>>> Stashed changes
   return (
     <div className="bg-white rounded-lg shadow p-4 sm:p-8">
       <h2 className="text-2xl font-semibold text-gray-900 mb-2">Research</h2>
@@ -223,7 +196,6 @@ export default function ResearchPage() {
           </ul>
         </section>
 
-<<<<<<< Updated upstream
         {/* V3 Blog Archive Link */}
         <section>
           <h3 className="text-lg font-semibold text-gray-900 mb-3">V3 Blog Archive</h3>
@@ -236,85 +208,6 @@ export default function ResearchPage() {
               View archived blog posts
             </button>
           </p>
-=======
-        {/* V3 Archived Blog Posts */}
-        <section>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            Archived V3 Blog Posts
-            <span className="text-xs font-normal bg-red-100 text-red-800 px-2 py-1 rounded-full">
-              Preserved
-            </span>
-          </h3>
-          <p className="text-gray-700 text-sm mb-6">
-            The following scholarly posts were preserved from the legacy Tesserae Version 3 website blog.
-            Click any post to expand and read the original archived content.
-          </p>
-
-          <div className="space-y-4">
-            {v3BlogPosts.map((post, index) => {
-              const postKey = post.url || `post-${index}`;
-              const isExpanded = expandedPost === postKey;
-              return (
-                <div
-                  key={postKey}
-                  className="border border-gray-200 rounded-lg overflow-hidden bg-white hover:border-red-200 transition-colors"
-                >
-                  <button
-                    onClick={() => togglePost(postKey)}
-                    aria-expanded={isExpanded}
-                    aria-controls={`panel-${postKey.replace(/[^a-zA-Z0-9]/g, '-')}`}
-                    className="w-full px-5 py-4 flex items-center justify-between bg-gray-50 hover:bg-red-50 text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
-                  >
-                    <div className="pr-4">
-                      <h4 className="text-base font-medium text-gray-900 mb-1">{post.title}</h4>
-                      <span className="text-xs text-gray-500 font-medium">{post.date}</span>
-                    </div>
-                    <svg
-                      className={`w-5 h-5 text-gray-400 flex-shrink-0 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
-                      fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-
-                  {isExpanded && (
-                    <div id={`panel-${postKey.replace(/[^a-zA-Z0-9]/g, '-')}`} className="px-5 py-4 border-t border-gray-100 bg-white">
-                      {post.url && (
-                        <a
-                          href={post.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center text-xs text-red-600 hover:text-red-800 font-medium mb-4"
-                        >
-                          View Original Wayback Archive
-                          <svg className="w-3 h-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                          </svg>
-                        </a>
-                      )}
-                      <div className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
-                        {post.content}
-                      </div>
-                      {post.images && post.images.length > 0 && (
-                        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          {post.images.map((imgSrc, imgIdx) => (
-                            <img
-                              key={imgIdx}
-                              src={imgSrc}
-                              alt={`Archived illustration from ${post.title}`}
-                              className="rounded border border-gray-200 shadow-sm max-w-full h-auto"
-                              onError={(e) => { e.target.style.display = 'none'; }}
-                            />
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
->>>>>>> Stashed changes
         </section>
 
         {/* Contact */}
