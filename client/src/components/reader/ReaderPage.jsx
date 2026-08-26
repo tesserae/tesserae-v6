@@ -123,7 +123,7 @@ export default function ReaderPage() {
         </h2>
         <div className="ml-auto flex items-end gap-2 min-w-0">
           <TextSelector
-            label="Read"
+            label=""
             language={language}
             authors={authors}
             selectedAuthor={pickAuthor}
@@ -209,7 +209,11 @@ export default function ReaderPage() {
                 onSelect={(sel) => { setSelection(sel); setPopupOpen(!!sel); }}
               />
               {popupOpen && (
-                <div className="absolute left-6 top-2">
+                // Under the last selected line, not pinned to the corner. It
+                // used to sit at the top of the pane whatever was selected, so
+                // it covered the opening lines of the text.
+                <div className="absolute left-10"
+                     style={{ top: `${(selection?.anchorTop ?? 0) + 8}px` }}>
                   <SelectionPopup
                     selection={selection}
                     work={work}
