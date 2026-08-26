@@ -818,9 +818,22 @@ def answer_stream(question, on_step=None, history=None, offered_phrase=None):
         if listing:
             yield ('chunk', listing)
 
+    # WHETHER AN OFFER STANDS IS SEPARATE FROM WHETHER ITS SENTENCE IS PRINTED.
+    #
+    # _variant_offer stays silent when the answer already mentions inflected
+    # forms, which was right when answers were long and might not. The short
+    # headline answer ALWAYS mentions them ("and 194 more in inflected forms"),
+    # so the sentence stopped being printed -- and with it went the state that
+    # made "yes" an acceptance, so "yes" fell back to repeating the phrase
+    # search. Fixed on its own this morning; my own change to the answer style
+    # reintroduced it the same day.
+    #
+    # So the offer STANDS whenever variants exist and the reader has not already
+    # been given them, whether or not a sentence was needed to say so.
     offer = _variant_offer(all_facts, text)
     if offer:
         yield ('chunk', offer)
+    pending_phrase = None if _wants_listing(asked) else _offer_phrase(all_facts)
     yield ('done', {'searches_run': ran, 'facts': all_facts,
                     'highlight': _highlight_terms(all_facts),
                     # Controls that open the real search page with the real
@@ -836,8 +849,8 @@ def answer_stream(question, on_step=None, history=None, offered_phrase=None):
                     # So the server can remember that an offer was made. The
                     # session cookie carries QUESTIONS only, so an assistant
                     # offer is invisible to a follow-up unless it is recorded.
-                    'offered_variants': bool(offer),
-                    'offer_phrase': _offer_phrase(all_facts) if offer else None,
+                    'offered_variants': bool(pending_phrase),
+                    'offer_phrase': pending_phrase,
             'guardrails': {'references_removed': removed,
                                    'unsupported_numbers': invented,
                                    'fabricated_quotes': fabricated,

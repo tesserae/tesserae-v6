@@ -80,3 +80,23 @@ def test_yes_does_not_reach_back_past_a_later_turn():
         {'role': 'assistant', 'text': 'The Greek corpus holds 113,531 windows.'},
     ]
     assert _pending_offer_from(history) is None
+
+
+def test_an_offer_stands_even_when_its_sentence_is_not_printed():
+    """_variant_offer stays silent when the answer already mentions inflected
+    forms. That was right when answers were long and might not; the short
+    headline answer always mentions them, so the sentence stopped appearing --
+    and with it the state that makes "yes" an acceptance. Offering and saying
+    so are now separate things."""
+    from backend.assistant.agent import _offer_phrase, _variant_offer
+    facts = [{'kind': 'VARIANT FORMS of the same phrase, found by lemma search.',
+              'phrase': 'arma virumque',
+              'total_variant_occurrences': 194,
+              'authors_with_variants_count': 30,
+              'authors_with_variants_TOP15_ONLY': {'Livy': 42}}]
+    already = ('The phrase appears twelve times exactly and 194 more in '
+               'inflected forms.')
+    # No sentence is needed...
+    assert _variant_offer(facts, already) == ''
+    # ...but the phrase is still on offer, which is what "yes" needs.
+    assert _offer_phrase(facts) == 'arma virumque'
