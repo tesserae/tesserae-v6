@@ -85,12 +85,29 @@ def _with_help(question):
     the system prompt stays identical between requests and only a few hundred
     words of context are added instead of forty thousand.
     """
+    parts = []
     try:
         block = site_help.context_for(question)
+        if block:
+            parts.append(block)
     except Exception as e:                               # noqa: BLE001
         logger.info('[ASSISTANT] help lookup failed: %s', e)
+
+    # The Help page is the authority on what the site DOES, and it can still
+    # leave a reader stuck: it says a Coptic text can be searched against the
+    # Greek corpus, which the search supports and the Cross-Language tab offers
+    # no control for. Where the documentation and the interface disagree, the
+    # correction goes AFTER the Help block so it is the last word.
+    try:
+        note = actions.cross_language_note(question)
+        if note:
+            parts.append(note)
+    except Exception as e:                               # noqa: BLE001
+        logger.info('[ASSISTANT] cross-language note failed: %s', e)
+
+    if not parts:
         return question
-    return f'{block}\n\nQuestion: {question}' if block else question
+    return '\n\n'.join(parts) + f'\n\nQuestion: {question}'
 
 
 @assistant_bp.route('/assistant/status')

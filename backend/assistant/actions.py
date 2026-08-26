@@ -99,6 +99,129 @@ def _compare(source, target, language='la', source_author=None,
     }
 
 
+# TWO LISTS, because the search and the page disagree.
+#
+# VALID_CROSSLINGUAL_PAIRS in blueprints/search.py is the authority on what the
+# search can do, and it is order-independent: six pairs, Coptic-Greek among
+# them, with dedicated Coptic-Greek phonetic matching behind it. LANG_PAIRS in
+# CrossLingualSearch.jsx is what the tab lets a reader pick, and it lists five.
+# Coptic-Greek is supported and not selectable.
+#
+# The Help page says "Coptic → Greek: you can search a Coptic text against the
+# Greek corpus", so a reader can be told it exists and then fail to find it.
+# Tessa should not paper over that: she offers the tab for what the tab can do,
+# and says plainly where the search exists but the control does not.
+CROSS_PAIRS = {
+    frozenset(('grc', 'la')): 'Greek and Latin',
+    frozenset(('la', 'en')): 'Latin and English',
+    frozenset(('grc', 'en')): 'Greek and English',
+    frozenset(('he', 'grc')): 'Hebrew and Greek',
+    frozenset(('he', 'la')): 'Hebrew and Latin',
+    frozenset(('cop', 'grc')): 'Coptic and Greek',
+}
+
+# What the Cross-Language tab actually offers a control for.
+TAB_PAIRS = {
+    frozenset(('grc', 'la')), frozenset(('la', 'en')), frozenset(('grc', 'en')),
+    frozenset(('he', 'grc')), frozenset(('he', 'la')),
+}
+
+
+# How a reader names a language, against the code the site uses.
+_LANGUAGE_WORDS = {
+    'latin': 'la', 'greek': 'grc', 'english': 'en', 'hebrew': 'he',
+    'coptic': 'cop', 'persian': 'fa', 'urdu': 'ur', 'arabic': 'ar',
+}
+
+
+def languages_named(question):
+    """Language codes the question names, in the order they appear.
+
+    Order matters: "Hebrew in Greek" and "Greek in Hebrew" are the same pair on
+    this site, which offers it one way only, but the reader's order is what the
+    answer should echo back.
+    """
+    q = str(question or '').lower()
+    found = []
+    for word, code in _LANGUAGE_WORDS.items():
+        idx = q.find(word)
+        if idx != -1:
+            found.append((idx, code))
+    found.sort()
+    out = []
+    for _, code in found:
+        if code not in out:
+            out.append(code)
+    return out
+
+
+def cross_pair(a, b):
+    """(label, reachable_from_the_tab) for these two languages, or None.
+
+    Order-independent, following the backend: comparing Latin with Greek is the
+    same search as Greek with Latin.
+    """
+    if not a or not b or a == b:
+        return None
+    key = frozenset((a, b))
+    if key not in CROSS_PAIRS:
+        return None
+    return CROSS_PAIRS[key], key in TAB_PAIRS
+
+
+def cross_language_note(question):
+    """What is true about the pair this question names, or None.
+
+    The guide reads the Help page, and the Help page says a Coptic text can be
+    searched against the Greek corpus. It can, by the search itself -- but the
+    Cross-Language tab offers no control for it, so a reader told "yes" goes
+    looking and finds nothing. Left alone the model would repeat the Help page
+    and be right in principle and useless in practice.
+    """
+    langs = languages_named(question)
+    if len(langs) < 2:
+        return None
+    found = cross_pair(langs[0], langs[1])
+    names = {v: k for k, v in _LANGUAGE_WORDS.items()}
+    a, b = names.get(langs[0], langs[0]), names.get(langs[1], langs[1])
+    if not found:
+        return (f'WHAT IS TRUE ABOUT {a.upper()} AND {b.upper()}: this site has '
+                f'no cross-language search for that pair. Say so plainly. The '
+                f'pairs it does have are: '
+                + ', '.join(sorted(CROSS_PAIRS.values())) + '.')
+    label, reachable = found
+    if reachable:
+        return (f'WHAT IS TRUE ABOUT {label.upper()}: the Cross-Language tab '
+                f'does this pair. Tell them to open it and choose the two texts '
+                f'there.')
+    return (f'WHAT IS TRUE ABOUT {label.upper()}: the search supports this pair, '
+            f'but the Cross-Language tab has no control for choosing it, so it '
+            f'cannot be run from the interface today. Say exactly that. Do not '
+            f'tell them to open the tab and pick it, and do not deny that the '
+            f'pair exists.')
+
+
+def _cross_language(a, b):
+    """The cross-language tab, when the tab can do this pair.
+
+    The page keeps its own state and reads nothing from the URL, so this opens
+    the tab and no more. Claiming to have set the pair up would be a promise the
+    page does not keep.
+    """
+    found = cross_pair(a, b)
+    if not found:
+        return None
+    label, reachable = found
+    if not reachable:
+        return None
+    return {
+        'kind': 'cross_language',
+        'label': 'Open Cross-Language Search',
+        'detail': f'{label} — choose the two texts there',
+        'url': '/?lang=cross',
+    }
+
+
 def _read(work, ref=None, ref_end=None, language=None, name=None):
     """Open a text in the Reader, at a passage when one is known.
 
@@ -290,7 +413,20 @@ def suggest(question, lookup=None):
     q = str(question or '').lower()
     out = []
 
-    if any(t in q for t in _COMPARE_INTENT):
+    # TWO LANGUAGES NAMED beats two texts named, because it is a different
+    # search on a different tab. "How do I compare Hebrew with Greek" is asking
+    # for the cross-language tool, not for the Hebrew Bible against the Iliad.
+    langs = languages_named(question)
+    if len(langs) >= 2 and any(t in q for t in _COMPARE_INTENT):
+        cross = _cross_language(langs[0], langs[1])
+        if cross:
+            out.append(cross)
+        else:
+            # The pair does not exist. Offering the tab anyway would send the
+            # reader somewhere that cannot answer them.
+            return []
+
+    if not out and any(t in q for t in _COMPARE_INTENT):
         try:
             hits = lookup.named_texts(question, limit=2)
         except Exception:                                # noqa: BLE001

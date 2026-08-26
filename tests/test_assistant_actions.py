@@ -517,3 +517,61 @@ def test_a_howto_that_names_nothing_is_recognised():
     assert _is_how_to('How do I search for a phrase?')
     assert _is_how_to('where do i start?')
     assert not _is_how_to('Where does "arma virumque" appear?')
+
+
+# --- cross-language: the search and the tab do not offer the same pairs ----
+
+def test_the_pair_list_matches_the_backend():
+    """VALID_CROSSLINGUAL_PAIRS in blueprints/search.py is the authority on what
+    the search can do. If it gains or loses a pair, this fails rather than
+    letting Tessa quietly describe a stale set."""
+    from backend.blueprints.search import VALID_CROSSLINGUAL_PAIRS
+    assert set(actions.CROSS_PAIRS) == set(VALID_CROSSLINGUAL_PAIRS)
+
+
+def test_pairs_are_order_independent():
+    """The backend says both directions; a reader comparing Latin with Greek
+    means the same search as Greek with Latin."""
+    assert actions.cross_pair('la', 'grc') == actions.cross_pair('grc', 'la')
+
+
+def test_a_supported_and_reachable_pair_offers_the_tab():
+    built = actions.suggest('how do I compare Hebrew with Greek?')
+    assert built and built[0]['url'] == '/?lang=cross'
+    assert 'Hebrew and Greek' in built[0]['detail']
+
+
+def test_coptic_greek_is_supported_but_not_offered():
+    """The search does this pair, with dedicated Coptic-Greek phonetic matching.
+    The Cross-Language tab has no control for it. Linking to the tab would send
+    the reader somewhere that cannot answer them."""
+    label, reachable = actions.cross_pair('cop', 'grc')
+    assert label == 'Coptic and Greek'
+    assert reachable is False
+    assert actions.suggest('how do I compare Coptic with Greek?') == []
+
+
+def test_an_unsupported_pair_offers_nothing():
+    assert actions.cross_pair('la', 'fa') is None
+    assert actions.suggest('how do I compare Latin with Persian?') == []
+
+
+def test_the_note_tells_the_truth_for_each_case():
+    cop = actions.cross_language_note('how do I compare Coptic with Greek?')
+    assert 'no control' in cop and 'Do not tell them to open the tab' in cop
+    he = actions.cross_language_note('how do I compare Hebrew with Greek?')
+    assert 'does this pair' in he
+    fa = actions.cross_language_note('how do I compare Latin with Persian?')
+    assert 'no cross-language search for that pair' in fa
+
+
+def test_no_note_when_the_question_names_one_language_or_none():
+    assert actions.cross_language_note('what is theme search?') is None
+    assert actions.cross_language_note('how do I search Latin?') is None
+
+
+def test_two_languages_beat_two_text_names():
+    """"Compare Hebrew with Greek" is the cross-language tool, not the Hebrew
+    Bible against the Iliad."""
+    built = actions.suggest('how do I compare Hebrew with Greek?')
+    assert all(a['kind'] == 'cross_language' for a in built)
