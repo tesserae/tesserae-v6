@@ -1,5 +1,6 @@
 const API_BASE = '/api';
 
+<<<<<<< Updated upstream
 export const createSearchId = () => crypto.randomUUID();
 
 export const requestSearchCancellation = (searchId) => {
@@ -15,6 +16,8 @@ export const requestSearchCancellation = (searchId) => {
   }).catch(() => {});
 };
 
+=======
+>>>>>>> Stashed changes
 const jsonFetch = async (url) => {
   const response = await fetch(url, {
     headers: { 'Accept': 'application/json' },
@@ -41,11 +44,14 @@ export const fetchCorpus = async (language) => {
 
 export const fetchAuthors = async (language) => {
   return jsonFetch(`${API_BASE}/authors?language=${language}`);
+<<<<<<< Updated upstream
 };
 
 // Default per-channel fusion weights for a language (Advanced UI pre-fill).
 export const fetchFusionDefaultWeights = async (language) => {
   return jsonFetch(`${API_BASE}/fusion-default-weights?language=${language}`);
+=======
+>>>>>>> Stashed changes
 };
 
 export const fetchTexts = async (author) => {
