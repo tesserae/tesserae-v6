@@ -358,3 +358,28 @@ def test_real_words_survive_the_filter():
     for word in ('lyrcea', 'arma', 'virumque', 'auctoritate', 'saeculum',
                  'thalamus', 'ferrum', 'oceanus', 'aeneas', 'iuppiter', 'poeta'):
         assert _is_a_word(word), word
+
+
+# --- a comparison is OFFERED as the fusion search, not substituted for ----
+
+def test_two_named_books_become_a_fusion_search_over_those_books():
+    """"compare Statius Thebaid 12 with Vergil Aeneid 1" wants the full search
+    over book 12 and book 1. Answering with the whole Thebaid would quietly
+    widen the question twelvefold."""
+    built = actions.build([{
+        'kind': 'TWO TEXTS THE READER WANTS COMPARED.',
+        'source': 'Statius, Thebaid, Book 12', 'target': 'Vergil, Aeneid, Book 1',
+        'args': {'source': 'statius.thebaid.part.12',
+                 'target': 'vergil.aeneid.part.1', 'language': 'la'}}])
+    assert built
+    assert 'source=statius.thebaid.part.12' in built[0]['url']
+    assert 'target=vergil.aeneid.part.1' in built[0]['url']
+
+
+def test_two_named_authors_compare_by_author():
+    built = actions.build([{
+        'kind': 'TWO TEXTS THE READER WANTS COMPARED.',
+        'source': 'Vergil', 'target': 'Statius',
+        'args': {'source_author': 'Vergil', 'target_author': 'Statius',
+                 'language': 'la'}}])
+    assert 'source_author=Vergil' in built[0]['url']

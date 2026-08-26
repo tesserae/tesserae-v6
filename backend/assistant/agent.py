@@ -996,13 +996,22 @@ def _prepare(question, step, history=None, offered_phrase=None):
 
     compare_done = False
 
-    # A COMPARISON of two named texts runs on the texts the READER named.
+    # A COMPARISON IS OFFERED, NOT RUN HERE.
     #
-    # "compare Statius Thebaid 12 with Vergil Aeneid 1" used to inherit the
-    # previous phrase and answer about that instead. With the inheritance fixed
-    # it fell to the chooser, which picks text ids by guessing at their spelling
-    # -- it produced "Vergil_Aeneid" and "Statius_Thebaid", neither of which
-    # exists. The names are resolved against the real listing here instead.
+    # "compare Statius Thebaid 12 with Vergil Aeneid 1" wants the fusion search:
+    # every channel, scored, over the two texts. That is what the main search
+    # page does, and Tessa's job is to set it up rather than to substitute
+    # something cheaper for it.
+    #
+    # My first attempt ran rare_words instead, because it was the only
+    # comparison tool she had, and reported its output as though it answered the
+    # question. It does not: it is one lexical pass, and NC rightly asked why we
+    # were talking about rare lemmata at all. A single-channel word overlap is
+    # not a comparison of two poems.
+    #
+    # So the texts are resolved, the census confirms the corpus holds them, and
+    # the fusion search is handed over as a control. Nothing heavy runs here,
+    # which also means the answer arrives immediately.
     if any(t in question.lower() for t in actions._COMPARE_INTENT):
         try:
             from backend.assistant import corpus_lookup
@@ -1010,24 +1019,29 @@ def _prepare(question, step, history=None, offered_phrase=None):
         except Exception as e:                              # noqa: BLE001
             logger.info('[ASSISTANT] compare lookup failed: %s', e)
             pair = []
-        if len(pair) == 2 and all(p.get('matched') == 'work' for p in pair):
-            src = str(pair[0].get('id') or '').replace('.tess', '')
-            tgt = str(pair[1].get('id') or '').replace('.tess', '')
-            try:
-                step(f'comparing {pair[0].get("display_name")} '
-                     f'with {pair[1].get("display_name")}')
-                raw = searches.run('rare_words', {'source': src, 'target': tgt})
-                facts = _summarise('rare_words', raw)
-                facts.update({'search': 'rare_words',
-                              'args': {'source': src, 'target': tgt,
-                                       'language': pair[0].get('language') or 'la'},
-                              'source_work': pair[0].get('display_name'),
-                              'target_work': pair[1].get('display_name')})
-                all_facts.append(facts)
-                ran.append('rare_words')
-                compare_done = True
-            except searches.SearchError as e:
-                logger.info('[ASSISTANT] compare failed: %s', e)
+        if len(pair) == 2:
+            by_author = all(p.get('matched') == 'author' for p in pair)
+            all_facts.append({
+                'kind': 'TWO TEXTS THE READER WANTS COMPARED. They are both in '
+                        'the corpus. Say so, say what a comparison of them will '
+                        'do -- the full search scores every channel, from shared '
+                        'wording to sound and meaning -- and stop. The control '
+                        'that opens it is shown beneath your answer. Do NOT '
+                        'report any search result: none has been run.',
+                'source': pair[0].get('display_name') or pair[0].get('id'),
+                'target': pair[1].get('display_name') or pair[1].get('id'),
+                'compares': 'whole authors' if by_author else 'these two texts',
+                'search': 'compare',
+                'args': ({'source_author': pair[0].get('author'),
+                          'target_author': pair[1].get('author'),
+                          'language': pair[0].get('language') or 'la'}
+                         if by_author else
+                         {'source': str(pair[0].get('id') or '').replace('.tess', ''),
+                          'target': str(pair[1].get('id') or '').replace('.tess', ''),
+                          'language': pair[0].get('language') or 'la'}),
+            })
+            ran.append('resolved both texts')
+            compare_done = True
 
     # A THEMATIC question goes to the passage index, not to a word search.
     #

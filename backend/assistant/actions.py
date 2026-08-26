@@ -162,6 +162,16 @@ def build(facts, question=''):
         if kind.startswith('THE INFLECTED FORMS') and f.get('phrase'):
             out.append(_line_search(f['phrase'], 'lemma', 'la'))
 
+        # Two texts the reader asked to have compared. Nothing was searched:
+        # this IS the answer, and the fusion search is what does the comparing.
+        if kind.startswith('TWO TEXTS') and isinstance(f.get('args'), dict):
+            a = f['args']
+            out.append(_compare(
+                a.get('source'), a.get('target'), a.get('language') or 'la',
+                source_author=a.get('source_author'),
+                target_author=a.get('target_author'),
+                label=f'Compare {f.get("source")} with {f.get("target")}'))
+
         # A theme search that ran: the page is where the reader can widen it,
         # narrow it to one language, or read any of the passages.
         if kind == 'passages matching a description' and isinstance(f.get('args'), dict):

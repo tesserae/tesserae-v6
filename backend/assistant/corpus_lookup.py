@@ -121,18 +121,40 @@ def resolve_one(name, language=None):
     return hits[0] if hits else None
 
 
+def book_of(row, number):
+    """The named book of a work, when the corpus holds books separately.
+
+    A reader who writes "Thebaid 12" means book 12, and the corpus has it as
+    statius.thebaid.part.12. Answering with the whole Thebaid instead quietly
+    widens the question by twelve times.
+    """
+    if not row or not number:
+        return None
+    base = str(row.get('id') or '').replace('.tess', '').split('.part.')[0]
+    want = f'{base}.part.{int(number)}'
+    for r in _all_texts(row.get('language')):
+        if str(r.get('id') or '').replace('.tess', '') == want:
+            return dict(r, matched='work')
+    return None
+
+
 def named_texts(question, language=None, limit=2):
     """Texts a question appears to name, in the order they are mentioned.
 
     Scans capitalised words and known author keys, because a reader writes
-    "echoes of Vergil in Statius" rather than a pair of ids.
+    "echoes of Vergil in Statius" rather than a pair of ids. A book number
+    following a name is honoured: "Thebaid 12" is book 12, not the whole poem.
     """
     found, seen = [], set()
-    # Capitalised runs first: "Silius Italicus", "Valerius Flaccus".
-    for cand in re.findall(r'\b[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?', question or ''):
+    # Capitalised runs first, each with any book number that follows it:
+    # "Silius Italicus", "Statius Thebaid 12".
+    for cand, num in re.findall(
+            r'\b([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?)\s*(\d{1,2})?\b', question or ''):
         if _norm(cand) in _NOISE:
             continue
         hit = resolve_one(cand, language=language)
+        if hit and num:
+            hit = book_of(hit, num) or hit
         if hit and hit.get('id') not in seen:
             seen.add(hit['id'])
             found.append(hit)
