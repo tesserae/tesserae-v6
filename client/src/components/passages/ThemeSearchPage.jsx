@@ -261,15 +261,9 @@ export default function ThemeSearchPage() {
   return (
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-2xl font-semibold text-gray-900">Theme Search</h1>
-      {/* Said where the work happens, not buried in Help. This is new, the
-          confidence band is a fitted estimate, and a scholar deciding whether
-          to cite a result needs to know that before relying on it. */}
-      <p className="mt-1 inline-block rounded border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] text-amber-800">
-        <span className="font-semibold uppercase tracking-wide">Beta</span>
-        {' \u00b7 '}
-        This feature is in development. Summaries are written by a language model
-        from the passage, so check any passage against the text before citing it.
-      </p>
+      <span className="ml-2 align-middle rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800">
+        Beta
+      </span>
       <p className="mt-2 text-sm text-gray-600 leading-relaxed">
         Describe what happens in a passage and this finds passages that match the
         description.

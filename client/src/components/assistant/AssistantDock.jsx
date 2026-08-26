@@ -328,10 +328,6 @@ export default function AssistantDock() {
         {error && <p className="text-xs text-amber-700">{error}</p>}
       </div>
 
-      <p className="px-3 pb-1 text-[10px] leading-snug text-gray-500 border-t border-gray-100 pt-1.5">
-        In development. Tessa reports what the searches return; check anything
-        you intend to cite against the text itself.
-      </p>
       <form
         onSubmit={(e) => { e.preventDefault(); ask(draft); }}
         className="flex gap-2 p-2 border-t border-gray-200"
