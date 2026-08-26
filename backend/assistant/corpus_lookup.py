@@ -70,6 +70,20 @@ def _norm(s):
     return re.sub(r'[^a-z0-9 ]+', ' ', str(s or '').lower()).strip()
 
 
+def _has_word(haystack, needle):
+    """Whole words only.
+
+    This was a plain substring test, so "rest" matched Euripides' ORESTES: the
+    sentence "the Reader shows it with its connections to the rest of the
+    corpus" resolved to two texts, and anything relying on how many texts a
+    sentence names was wrong. Any question containing "rest", "arms", "one" and
+    so on could pick up a work nobody mentioned.
+    """
+    if not needle:
+        return False
+    return re.search(rf'\b{re.escape(needle)}\b', haystack or '') is not None
+
+
 def find_texts(name, language=None, limit=5):
     """Texts whose author or title matches `name`, best first.
 
@@ -96,12 +110,12 @@ def find_texts(name, language=None, limit=5):
             # "Ovid" became the Ibis, both decided by an id-length tiebreak. The
             # site can search by author, so say so and let it.
             score, how = 100, 'author'
-        elif all(w in f'{akey} {wkey}' for w in words):
+        elif all(_has_word(f'{akey} {wkey}', w) for w in words):
             score = 80
-        elif q and q in title:
+        elif q and _has_word(title, q):
             score = 70
         elif words[0] in (akey, author):
-            extra = sum(6 for w in words[1:] if w in f'{title} {wkey}')
+            extra = sum(6 for w in words[1:] if _has_word(f'{title} {wkey}', w))
             score = 50 + extra
             if not extra:
                 how = 'author'

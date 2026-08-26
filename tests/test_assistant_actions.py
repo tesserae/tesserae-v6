@@ -603,3 +603,88 @@ def test_the_pair_sentence_distinguishes_all_three_cases():
     assert 'no control for choosing' in unreachable
     assert 'Open it and choose' in reachable
     assert len({unsupported, unreachable, reachable}) == 3
+
+
+# --- follow-ups after a hand-off -------------------------------------------
+
+READ_HISTORY = [
+    {'role': 'user', 'text': 'How do I read the Aeneid?'},
+    {'role': 'assistant', 'text': 'Vergil, Aeneid is in the corpus. The Reader '
+     'shows it with its connections to the rest of the corpus alongside.'},
+]
+COMPARE_HISTORY = [
+    {'role': 'user', 'text': 'compare Thebaid with Aeneid'},
+    {'role': 'assistant', 'text': 'The corpus holds both Statius, Thebaid and '
+     'Vergil, Aeneid. The full comparison scores every channel between them.'},
+]
+
+
+def test_a_bare_book_number_means_that_book_of_the_carried_text():
+    """"How do I read the Aeneid?" then "book 6" carried nothing: the second
+    turn named no work, every path declined it, and it fell to a corpus
+    listing."""
+    from backend.assistant.agent import _followup_text
+    for q in ('book 6', '6', 'and book 6?', 'what about book 6?', 'show me book 6'):
+        hit = _followup_text(q, READ_HISTORY)
+        assert hit, q
+        assert hit['id'] == 'vergil.aeneid.part.6.tess', (q, hit['id'])
+
+
+def test_two_texts_in_the_last_turn_make_a_follow_up_ambiguous():
+    """After "the corpus holds both Statius, Thebaid and Vergil, Aeneid",
+    "book 6" could be either. Taking the first resolved the word Statius to the
+    SILVAE -- neither text under discussion -- by the same id-length tiebreak
+    that has caused this twice before."""
+    from backend.assistant.agent import _followup_text
+    assert _followup_text('book 6', COMPARE_HISTORY) is None
+
+
+def test_a_follow_up_does_not_reach_back_past_another_answer():
+    from backend.assistant.agent import _followup_text
+    history = READ_HISTORY + [
+        {'role': 'user', 'text': 'what is theme search?'},
+        {'role': 'assistant', 'text': 'Theme Search finds passages by content.'},
+    ]
+    assert _followup_text('book 6', history) is None
+
+
+def test_a_bare_number_with_no_history_carries_nothing():
+    from backend.assistant.agent import _followup_text
+    assert _followup_text('book 6', []) is None
+
+
+def test_a_real_question_is_not_treated_as_a_follow_up():
+    from backend.assistant.agent import _followup_text
+    assert _followup_text('how do I read the Aeneid?', READ_HISTORY) is None
+    assert _followup_text('compare Thebaid 12 with Aeneid 1', READ_HISTORY) is None
+
+
+# --- text lookup matches whole words, not substrings ------------------------
+
+def test_a_word_inside_a_title_is_not_a_match():
+    """This was a plain substring test, so "rest" matched Euripides' ORESTES.
+    The hand-off sentence "...connections to the rest of the corpus" therefore
+    named two texts, and anything counting how many texts a sentence names was
+    wrong."""
+    from backend.assistant import corpus_lookup
+    assert corpus_lookup.named_texts('the rest of it', limit=3) == []
+    assert corpus_lookup.named_texts('arms and the man', limit=3) == []
+
+
+def test_real_names_still_resolve():
+    from backend.assistant import corpus_lookup
+    for name, want in (('Vergil', 'vergil.aeneid.tess'),
+                       ('Statius Thebaid', 'statius.thebaid.tess'),
+                       ('Aeneid', 'vergil.aeneid.tess'),
+                       ('Punica', 'silius_italicus.punica.tess'),
+                       ('the Iliad', 'homer.iliad.tess')):
+        hit = corpus_lookup.resolve_one(name)
+        assert hit and hit['id'] == want, (name, hit and hit['id'])
+
+
+def test_the_handoff_sentence_names_exactly_one_text():
+    """It named two, because of "rest"/Orestes, which is what broke the
+    follow-up carry-over."""
+    from backend.assistant import corpus_lookup
+    hits = corpus_lookup.named_texts(READ_HISTORY[1]['text'], limit=4)
+    assert [h['id'] for h in hits] == ['vergil.aeneid.tess']

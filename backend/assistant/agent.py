@@ -422,6 +422,69 @@ def _last_phrase(history):
 _TEXT_NAME = re.compile(r'(?<!^)(?<![.!?]\s)\b[A-Z][a-zA-Z]{3,}\b')
 
 
+# "book 6", "bk 6", "and book 6?", or just "6". A follow-up that carries a
+# number and nothing else.
+_BOOK_ONLY = re.compile(
+    r'^\s*(?:and\s+|then\s+|now\s+|what\s+about\s+|how\s+about\s+|show\s+me\s+)?'
+    r'(?:book|bk\.?|part|chapter)?\s*(\d{1,3})\s*[?.!]?\s*$', re.I)
+
+
+def _carried_text(history):
+    """The text Tessa last handed the reader, or None.
+
+    Read back through the RESOLVER rather than from a marker in the sentence.
+    The offer carry-over was built on a marker string once and broke the moment
+    an answer was truncated through it. Tessa's hand-off names the work by the
+    corpus's own display name -- "Vergil, Aeneid is in the corpus" -- so feeding
+    that sentence back to the same lookup that produced it is both simpler and
+    harder to break.
+
+    Only the MOST RECENT assistant turn counts, so a follow-up cannot reach back
+    past an intervening answer about something else.
+    """
+    for turn in reversed(history or []):
+        if (turn or {}).get('role') != 'assistant':
+            continue
+        try:
+            from backend.assistant import corpus_lookup
+            hits = corpus_lookup.named_texts(turn.get('text') or '', limit=2)
+        except Exception as e:                           # noqa: BLE001
+            logger.info('[ASSISTANT] carried-text lookup failed: %s', e)
+            return None
+        # TWO TEXTS MEANS THE FOLLOW-UP IS AMBIGUOUS, so nothing is carried.
+        # After "the corpus holds both Statius, Thebaid and Vergil, Aeneid",
+        # "book 6" could be either, and taking the first resolved the sentence's
+        # word "Statius" to the SILVAE -- neither of the two texts under
+        # discussion, by the same id-length tiebreak that has caused this twice
+        # before. A wrong guess here reads as an answer.
+        if len(hits) != 1:
+            return None
+        return hits[0]
+    return None
+
+
+def _followup_text(question, history):
+    """The text a short follow-up means, in a conversation about reading one.
+
+    "How do I read the Aeneid?" then "book 6" carried nothing at all: the second
+    turn named no work, so every path declined it and it fell to a corpus
+    listing. The book number is only meaningful against the text of the turn
+    before.
+    """
+    m = _BOOK_ONLY.match(question or '')
+    if not m:
+        return None
+    carried = _carried_text(history)
+    if not carried:
+        return None
+    try:
+        from backend.assistant import corpus_lookup
+        return corpus_lookup.book_of(carried, m.group(1)) or carried
+    except Exception as e:                               # noqa: BLE001
+        logger.info('[ASSISTANT] follow-up book lookup failed: %s', e)
+        return carried
+
+
 def _carried_phrase(question, history):
     """The phrase an earlier turn established, when this turn omits it.
 
@@ -1243,27 +1306,36 @@ def _prepare(question, step, history=None, offered_phrase=None):
     # and answered "the corpus contains eight works titled or associated with
     # the Aeneid" -- a catalogue entry in place of the thing asked for. The
     # Reader is the answer to "how do I read X", and it takes a work id.
-    if not compare_done and any(t in question.lower() for t in _READ_INTENT):
+    # A bare "book 6" after a hand-off means book 6 OF THAT TEXT. It carries no
+    # verb, so the read intent below never fires for it.
+    followup = None if compare_done else _followup_text(question, history)
+
+    if followup:
+        hits = [followup]
+    elif not compare_done and any(t in question.lower() for t in _READ_INTENT):
         try:
             from backend.assistant import corpus_lookup
             hits = corpus_lookup.named_texts(question, limit=1)
         except Exception as e:                              # noqa: BLE001
             logger.info('[ASSISTANT] read lookup failed: %s', e)
             hits = []
-        if hits:
-            t = hits[0]
-            all_facts.append({
-                'kind': 'A TEXT THE READER WANTS TO OPEN. It is in the corpus. '
-                        'Say so in ONE sentence and stop; the control that opens '
-                        'it is shown beneath your answer. Do NOT list other '
-                        'works, and do NOT report any search result.',
-                'text_name': t.get('display_name') or t.get('id'),
-                'search': 'read',
-                'args': {'work': str(t.get('id') or '').replace('.tess', ''),
-                         'language': t.get('language') or 'la'},
-            })
-            ran.append('resolved the text')
-            read_done = True
+    else:
+        hits = []
+
+    if hits:
+        t = hits[0]
+        all_facts.append({
+            'kind': 'A TEXT THE READER WANTS TO OPEN. It is in the corpus. '
+                    'Say so in ONE sentence and stop; the control that opens '
+                    'it is shown beneath your answer. Do NOT list other '
+                    'works, and do NOT report any search result.',
+            'text_name': t.get('display_name') or t.get('id'),
+            'search': 'read',
+            'args': {'work': str(t.get('id') or '').replace('.tess', ''),
+                     'language': t.get('language') or 'la'},
+        })
+        ran.append('resolved the text')
+        read_done = True
 
     # A THEMATIC question goes to the passage index, not to a word search.
     #
