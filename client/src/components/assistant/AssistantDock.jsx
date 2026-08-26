@@ -13,9 +13,15 @@ function mark(text, terms) {
   const list = (terms || []).filter((t) => t && t.length > 3);
   if (!text || !list.length) return text;
   const escaped = list.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  // Longest first, so "arma virumque" wins over "arma".
+  escaped.sort((a, b) => b.length - a.length);
   const re = new RegExp(`(${escaped.join('|')})`, 'gi');
+  const wanted = new Set(list.map((t) => t.toLowerCase()));
+  // NOT re.test(): a /g regex carries lastIndex between calls, so testing the
+  // pieces of a split alternates true and false and roughly half the matches
+  // went unmarked. Membership is the whole question here anyway.
   return text.split(re).map((part, i) =>
-    re.test(part) && list.some((t) => t.toLowerCase() === part.toLowerCase())
+    wanted.has(String(part).toLowerCase())
       ? <mark key={i} className="bg-yellow-200 rounded-sm px-0.5">{part}</mark>
       : part);
 }
