@@ -260,3 +260,23 @@ def test_a_theme_search_that_ran_offers_its_page():
     built = actions.build([{'kind': 'passages matching a description',
                             'args': {'query': 'a storm at sea'}}])
     assert built and built[0]['url'] == '/theme-search?query=a+storm+at+sea'
+
+
+def test_a_thematic_question_is_not_a_request_for_a_listing():
+    """Bare 'passages' and bare 'show me' matched every thematic question, and
+    Tessa printed a listing nobody had asked for."""
+    from backend.assistant.agent import _wants_listing
+    for q in ('are there any passages about a storm at sea?',
+              'show me scenes where a city falls',
+              'passages describing a descent to the underworld',
+              'how common is it?'):
+        assert not _wants_listing(q), q
+
+
+def test_actually_asking_for_them_still_works():
+    from backend.assistant.agent import _wants_listing
+    for q in ('list the instances of "arma virumque"',
+              'can you give the Eobanus instances?',
+              'show me the passages', 'what lines contain it?',
+              'cite each one', 'give me the occurrences'):
+        assert _wants_listing(q), q

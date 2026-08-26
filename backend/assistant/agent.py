@@ -481,11 +481,21 @@ difference between a true answer and a useful one."""
 # twelve, which is exactly the duplication the handoff exists to end. Whether the
 # reader asked for a listing is a property of their sentence, not a judgement
 # call, so it is decided here and the prompt is told the answer.
-_WANTS_LISTING = (
-    'list', 'instances', 'occurrences', 'passages', 'examples', 'lines',
-    'give me', 'show me', 'show the', 'which lines', 'what lines', 'cite',
-    'quotations', 'quotes', 'each one', 'all of them', 'every one',
+# Asking for them outright. Safe on their own.
+_LISTING_ASK = (
+    'list ', 'list the', 'cite ', 'which lines', 'what lines', 'each one',
+    'all of them', 'every one', 'the instances', 'the occurrences',
+    'the passages', 'the examples', 'the lines', 'instances of', 'occurrences of',
 )
+# Nouns that only mean "list them" when something is actually asking for them.
+# Bare 'passages' and bare 'show me' matched EVERY thematic question -- "are
+# there any passages about a storm at sea?", "show me scenes where a city
+# falls" -- and printed a listing nobody had asked for, which is the exact
+# duplication the handover exists to end.
+_LISTING_NOUNS = ('instances', 'occurrences', 'passages', 'examples', 'lines',
+                  'quotations', 'quotes')
+_LISTING_VERBS = ('give me', 'show me', 'show the', 'give the', 'can you give',
+                  'can i see', 'let me see', 'print', 'display')
 
 
 # A question about WHAT HAPPENS in a passage rather than about particular words.
@@ -518,7 +528,12 @@ def _theme_question(question):
 
 def _wants_listing(question):
     q = (question or '').lower()
-    return any(t in q for t in _WANTS_LISTING)
+    if any(t in q for t in _LISTING_ASK):
+        return True
+    # A noun on its own is not a request. "show me scenes where a city falls"
+    # wants a search, not a printed list.
+    return (any(v in q for v in _LISTING_VERBS)
+            and any(n in q for n in _LISTING_NOUNS))
 
 
 def _listing_rule(question):
