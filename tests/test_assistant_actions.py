@@ -7,6 +7,7 @@ corpus had been consulted. So every action is built in code from arguments a
 search has already run with, and these tests pin that.
 """
 from backend.assistant import actions
+from backend.assistant.agent import _wants_listing
 
 EXACT_FACT = {
     'kind': 'phrase occurrences',
@@ -93,3 +94,27 @@ def test_compare_needs_both_texts():
     a = actions.for_suggestion('compare', source='vergil.aeneid',
                                target='ovid.metamorphoses', language='la')
     assert a['url'].startswith('/?source=')
+
+
+# --- when a listing is warranted, decided in code rather than by the prompt ---
+#
+# The prompt alone did not hold: asked "where does the exact phrase arma virumque
+# appear?", the model read "where" as a request for the loci and printed all
+# twelve, which is the duplication the handoff exists to end.
+
+def test_a_plain_question_is_not_a_request_for_a_listing():
+    for q in ('Where does the exact phrase "arma virumque" appear?',
+              'How common is arma virumque?',
+              'Is arma virumque in Ovid?',
+              'What does the corpus hold in Hebrew?'):
+        assert not _wants_listing(q), q
+
+
+def test_asking_for_the_passages_is():
+    for q in ('list the instances',
+              'can you give the Eobanus instances?',
+              'show me the passages',
+              'what lines contain it?',
+              'give me the occurrences',
+              'cite each one'):
+        assert _wants_listing(q), q

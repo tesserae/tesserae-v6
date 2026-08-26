@@ -474,6 +474,36 @@ way to know the inflected ones exist, so the count and the question are the
 difference between a true answer and a useful one."""
 
 
+# An explicit request for the passages themselves, decided in CODE.
+#
+# The prompt alone did not hold. Asked "where does the exact phrase arma virumque
+# appear?", the model read "where" as a request for the loci and printed all
+# twelve, which is exactly the duplication the handoff exists to end. Whether the
+# reader asked for a listing is a property of their sentence, not a judgement
+# call, so it is decided here and the prompt is told the answer.
+_WANTS_LISTING = (
+    'list', 'instances', 'occurrences', 'passages', 'examples', 'lines',
+    'give me', 'show me', 'show the', 'which lines', 'what lines', 'cite',
+    'quotations', 'quotes', 'each one', 'all of them', 'every one',
+)
+
+
+def _wants_listing(question):
+    q = (question or '').lower()
+    return any(t in q for t in _WANTS_LISTING)
+
+
+def _listing_rule(question):
+    """The one instruction that changes with the question."""
+    if _wants_listing(question):
+        return ('THEY ASKED FOR THE PASSAGES. List them, one per line, citation '
+                'first, then the line of text. Up to about eight, then say how '
+                'many more there are.')
+    return ('THEY DID NOT ASK FOR A LISTING. Do NOT print the passages one by '
+            'one. Give the totals and the shape of the evidence in two to four '
+            'sentences. The controls below your answer open the full list.')
+
+
 def _extract_json(text):
     m = re.search(r'\{.*\}', text or '', re.S)
     if not m:
@@ -638,7 +668,8 @@ def answer_stream(question, on_step=None, history=None, offered_phrase=None):
     collected = []
     asked = prep.get('question_override') or question
     for piece in model.stream(ANSWER_SYSTEM,
-                              f'{block}\n\nQuestion: {asked}\n\nAnswer:',
+                              f'{block}\n\n{_listing_rule(asked)}'
+                              f'\n\nQuestion: {asked}\n\nAnswer:',
                               max_tokens=ANSWER_TOKENS, temperature=0.2):
         collected.append(piece)
         yield ('chunk', piece)
