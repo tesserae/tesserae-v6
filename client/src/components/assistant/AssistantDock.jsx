@@ -89,17 +89,26 @@ export default function AssistantDock() {
     run('/api/assistant/ask-stream', { question, history });
   };
 
+  // The launcher is deliberately two different things.
+  //
+  // On a desktop the two-line pill is worth its space: Tessa is new, and a bare
+  // initial would not tell anyone what it is. On a phone that same pill sits on
+  // top of the results a reader is trying to read, and the screenshots showed it
+  // covering a result card. So below `sm` it becomes a plain round button and
+  // the explanatory line is carried by the accessible name instead, where it
+  // costs no screen.
   if (!open) {
     return (
       <button
         onClick={() => setOpen(true)}
-        aria-label="Open Tessa, the AI assistant"
-        className="fixed bottom-6 right-6 z-40 flex items-center gap-3 pl-3 pr-5 py-3 rounded-2xl bg-red-700 text-white shadow-xl ring-1 ring-red-900/20 transition hover:bg-red-800 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-red-400"
+        aria-label="Open Tessa, the AI assistant, and ask about the corpus"
+        title="Tessa, the AI assistant"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex items-center justify-center sm:justify-start w-14 h-14 sm:w-auto sm:h-auto sm:gap-3 sm:pl-3 sm:pr-5 sm:py-3 rounded-full sm:rounded-2xl bg-red-700 text-white shadow-xl ring-1 ring-red-900/20 transition hover:bg-red-800 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-red-400"
       >
-        <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-white/15 text-lg font-semibold leading-none">
+        <span className="flex items-center justify-center w-9 h-9 rounded-xl sm:bg-white/15 text-lg font-semibold leading-none">
           T
         </span>
-        <span className="text-left leading-tight">
+        <span className="hidden sm:block text-left leading-tight">
           <span className="block text-base font-semibold">Tessa</span>
           <span className="block text-[11px] font-medium text-red-100">
             AI Assistant &middot; ask the corpus
@@ -110,7 +119,10 @@ export default function AssistantDock() {
   }
 
   return (
-    <div className="fixed bottom-5 right-5 z-40 w-[24rem] max-w-[calc(100vw-2.5rem)] rounded-lg border border-gray-300 bg-white shadow-xl flex flex-col max-h-[min(32rem,calc(100vh-3rem))]">
+    // Opened, the panel is a floating card on a desktop and a bottom sheet on a
+    // phone, where a 24rem card with margins on all four sides wastes the little
+    // width there is.
+    <div className="fixed z-40 inset-x-0 bottom-0 sm:inset-x-auto sm:bottom-5 sm:right-5 w-full sm:w-[24rem] sm:max-w-[calc(100vw-2.5rem)] rounded-t-xl sm:rounded-lg border-t sm:border border-gray-300 bg-white shadow-xl flex flex-col max-h-[85vh] sm:max-h-[min(32rem,calc(100vh-3rem))]">
       <header className="flex items-center justify-between px-3 py-2 border-b border-gray-200">
         <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-800">
           <span className="flex items-center justify-center w-6 h-6 rounded-md bg-red-700 text-white text-xs font-semibold leading-none">

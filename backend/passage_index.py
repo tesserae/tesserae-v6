@@ -87,6 +87,12 @@ FITTED_TOLERANCE = 0.15     # beyond 15% drift, stop vouching for the band
 # A floor purely to stop the tail: results below the query's baseline are noise.
 BASELINE_MARGIN = 0.010
 
+# How many passages one work may show on a Theme Search page. The Iliad has four
+# canonical arming scenes and a reader looking for the type-scene wants to see
+# that it recurs, so one per work is too few; more than three and a long epic
+# starts crowding the page again.
+PASSAGES_PER_WORK = 3
+
 _lock = threading.Lock()
 _state = {'loaded': False, 'ok': False, 'error': None}
 _ids = None            # list[str]
@@ -442,7 +448,8 @@ def _result(row, score, strong=None, extra=None):
 
 
 def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
-          dedup=True, baseline=None, strong_at=None, exclude_span=None):
+          dedup=True, baseline=None, strong_at=None, exclude_span=None,
+          per_work=None, only_works=None):
     """Shared ranking: sort, filter, and collapse near-duplicate windows.
 
     Duplicates are real in this corpus: a work and its .part.N file both carry
@@ -455,6 +462,10 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
     versions before it returns anything a reader did not already know. Those are
     collapsed into one result carrying the other versions, and the passage the
     query itself came from is dropped, which is what `exclude_span` is for.
+
+    `per_work` caps how many windows any one work may contribute, and
+    `only_works` restricts the whole ranking to a chosen set. Both exist for the
+    two-pass diversity in `find_by_text`; the default leaves ranking unchanged.
     """
     import numpy as np
     if baseline is None:
@@ -464,6 +475,7 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
         strong_at = baseline + STRONG_LIFT
     order = np.argsort(-scores)
     seen = set()
+    per_work_count = {}
     by_passage = {}       # canonical scripture span -> index into out
     out = []
     for row in order:
@@ -473,6 +485,10 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
         r = _records[row]
         work = _norm_work(r.get('work'))
         if exclude_work and work == exclude_work:
+            continue
+        if only_works is not None and work not in only_works:
+            continue
+        if per_work is not None and per_work_count.get(work, 0) >= per_work:
             continue
         if languages and r.get('language') not in languages:
             continue
@@ -505,6 +521,7 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
         if sp is not None:
             by_passage[sp] = len(out)
             result['scripture_ref'] = f'{sp[0]} {sp[1][0]}:{sp[1][1]}'
+        per_work_count[work] = per_work_count.get(work, 0) + 1
         out.append(result)
         if len(out) >= limit:
             break
@@ -669,6 +686,54 @@ No commentary, no names the query did not give, nothing about literature or
 authors. Just the scene."""
 
 _expand_cache = {}
+_expand_cache_mtime = [0.0]
+# Expansions are written here so that a query keeps the same answer.
+#
+# Temperature 0 was NOT enough on its own: two identical calls minutes apart
+# still came back with different sentences (observed 2026-08-26, three runs of
+# tests/test_passage_diversity.py), and since scores here sit hundredths of a
+# cosine apart, different sentences mean a different page. On top of that the
+# site runs three Apache worker processes, so an in-memory cache alone would
+# have given the same reader a different answer depending on which worker took
+# the request.
+#
+# So the first expansion of a query is arbitrary and every one after it is
+# fixed. Append-only, because three processes write to it.
+EXPAND_CACHE_PATH = os.environ.get(
+    'TESSERAE_EXPAND_CACHE',
+    os.path.join(_DATA_DIR, 'query_expansions.jsonl'))
+
+
+def _load_expansions():
+    """Read the shared cache if another worker has written to it since we looked."""
+    try:
+        mtime = os.path.getmtime(EXPAND_CACHE_PATH)
+    except OSError:
+        return
+    if mtime <= _expand_cache_mtime[0]:
+        return
+    try:
+        with open(EXPAND_CACHE_PATH, encoding='utf-8') as fh:
+            for line in fh:
+                try:
+                    rec = json.loads(line)
+                except ValueError:
+                    continue
+                if rec.get('q') is not None:
+                    _expand_cache[rec['q']] = rec.get('forms') or []
+    except OSError:
+        return
+    _expand_cache_mtime[0] = mtime
+
+
+def _save_expansion(q, forms):
+    try:
+        os.makedirs(os.path.dirname(EXPAND_CACHE_PATH), exist_ok=True)
+        with open(EXPAND_CACHE_PATH, 'a', encoding='utf-8') as fh:
+            fh.write(json.dumps({'q': q, 'forms': forms}, ensure_ascii=False) + '\n')
+        _expand_cache_mtime[0] = os.path.getmtime(EXPAND_CACHE_PATH)
+    except OSError as e:
+        logger.info('[PASSAGES] could not persist query expansion: %s', e)
 
 
 def expand_query(query):
@@ -676,10 +741,19 @@ def expand_query(query):
 
     Never raises and never blocks a search: if the model is unavailable the
     search proceeds with the query as typed.
+
+    Temperature is 0 because the same query must give the same results. At 0.3
+    it did not: two searches for "warrior arming scene" minutes apart returned
+    different works, since a different paraphrase moves scores that sit five
+    hundredths of a cosine apart across thousands of ranks. A scholar who cites
+    a result has to be able to find it again.
     """
     q = (query or '').strip()
     if not q or len(q.split()) > EXPAND_MAX_WORDS:
         return []
+    if q in _expand_cache:
+        return _expand_cache[q]
+    _load_expansions()
     if q in _expand_cache:
         return _expand_cache[q]
     import json as _json
@@ -689,7 +763,7 @@ def expand_query(query):
     body = _json.dumps({
         'messages': [{'role': 'system', 'content': _EXPAND_SYSTEM},
                      {'role': 'user', 'content': q}],
-        'max_tokens': 220, 'temperature': 0.3, 'stream': False,
+        'max_tokens': 220, 'temperature': 0.0, 'stream': False,
     }).encode('utf-8')
     req = urllib.request.Request(EXPAND_ENDPOINT, data=body,
                                  headers={'Content-Type': 'application/json'})
@@ -705,6 +779,10 @@ def expand_query(query):
     except (urllib.error.URLError, OSError, ValueError, KeyError) as e:
         logger.info('[PASSAGES] query expansion unavailable: %s', e)
     _expand_cache[q] = forms
+    # A failed expansion is not cached: the model being down for one request is
+    # no reason to answer that query without expansion for good.
+    if forms:
+        _save_expansion(q, forms)
     return forms
 
 
@@ -737,9 +815,40 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=True):
     head_lift = float(np.sort(scores)[-k:].mean()) - baseline
     coherence = _cluster_coherence(scores)
     level = _confidence_level(head_lift, coherence)
-    results = _rank(scores, limit, languages=languages, scale=scale,
-                    baseline=baseline,
-                    strong_at=baseline + (STRONG_LIFT if level == 'strong' else 1e9))
+    strong_at = baseline + (STRONG_LIFT if level == 'strong' else 1e9)
+
+    # WHY THE PAGE IS BUILT IN TWO PASSES
+    #
+    # Scores here are compressed to a degree that makes raw rank a poor guide:
+    # on "warrior arming scene" the top window scored 0.8701 and rank 4546
+    # scored 0.8174, so five hundredths of cosine covers four thousand places.
+    # What fills a page is therefore not relevance but repetition. Ferdowsi's
+    # and Nizami's Diwans are each ONE work holding tens of thousands of
+    # windows, many described in near-identical words, and between them they
+    # held 13 of the top 20 while the Aeneid sat at 89.
+    #
+    # So the works are chosen first, one window each, and only then is each
+    # chosen work allowed to show its other strong passages. That keeps the
+    # Iliad's four arming scenes, which a flat per-work cap would have thrown
+    # away, while stopping any single work from owning the page.
+    #
+    #     scheme            Aeneid  Iliad  Odyssey  Thebaid   (display position)
+    #     flat ranking          89      8       61        4
+    #     one per work          19      5       14        3
+    #
+    # Measured on both "warrior arming scene" and the sentence form, with the
+    # same ordering both times.
+    heads = _rank(scores, limit, languages=languages, scale=scale,
+                  baseline=baseline, strong_at=strong_at, per_work=1)
+    chosen = [_norm_work(r.get('work')) for r in heads]
+    results = _rank(scores, limit * PASSAGES_PER_WORK, languages=languages,
+                    scale=scale, baseline=baseline, strong_at=strong_at,
+                    per_work=PASSAGES_PER_WORK, only_works=set(chosen))
+    # Back into the order the first pass established, so the page still reads
+    # best-work-first and each work's passages sit together.
+    rank_of = {w: n for n, w in enumerate(chosen)}
+    results.sort(key=lambda r: (rank_of.get(_norm_work(r.get('work')), 10**9),
+                                -r.get('score', 0)))
     return {
         'query': query,
         'results': results,

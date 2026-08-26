@@ -321,11 +321,15 @@ export default function ThemeSearchPage() {
           <ul className="space-y-3">
             {byWork(chronological(data.results)).map(({ key, head, items }) => (
               <li key={key} className="border border-gray-200 rounded p-3 bg-white">
-                <div className="flex items-baseline gap-3">
-                  {/* The date column is fixed so the years line up down the page
-                      and can be scanned. Everything inside it must therefore
-                      wrap: only the chip itself is allowed one unbroken line. */}
-                  <div className="w-36 shrink-0 min-w-0 break-words">
+                {/* On a phone the three columns do not fit: the fixed date
+                    column plus the language label squeezed the title to three
+                    lines and pushed "GREEK" off the right edge. So the row
+                    stacks below `sm` and becomes columns above it. */}
+                <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-3">
+                  {/* Above `sm` the date column is fixed so the years line up
+                      down the page and can be scanned. Everything inside it
+                      must wrap: only the chip is allowed one unbroken line. */}
+                  <div className="sm:w-36 sm:shrink-0 min-w-0 break-words">
                     {(() => {
                       const d = dateParts(head);
                       if (!d) {
@@ -366,7 +370,7 @@ export default function ThemeSearchPage() {
                     )}
                   </div>
 
-                  <span className="shrink-0 text-[10px] uppercase tracking-wide text-gray-500">
+                  <span className="sm:shrink-0 text-[10px] uppercase tracking-wide text-gray-500">
                     {LANG_LABEL[head.language] || head.language}
                   </span>
                 </div>

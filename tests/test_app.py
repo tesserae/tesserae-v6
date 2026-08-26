@@ -71,16 +71,25 @@ def test_blueprint_registration(app_instance):
 
 
 def test_health_check_endpoints(app_instance):
-    """Verify that basic health check endpoints return successful status."""
+    """Verify that basic health check endpoints return successful status.
+
+    The prefix is read from the module rather than hard-coded. backend.app
+    decides API_PREFIX at IMPORT time from TESSERAE_DIRECT_SERVER, and the
+    fixture sets that variable before importing -- but only the first import in
+    a session runs, so whether /api/health exists depended on which test file
+    happened to import backend.app first. That made this test pass alone and
+    fail in the full suite, which is the kind of gap that hides real breakage.
+    """
+    from backend.app import API_PREFIX
     with app_instance.test_client() as client:
         # 1. Root health check
         resp1 = client.get("/health")
         assert resp1.status_code == 200
         data1 = resp1.get_json()
         assert data1 == {"status": "ok", "message": "Tesserae V6 is running"}
-        
-        # 2. Prefixed API health check
-        resp2 = client.get("/api/health")
+
+        # 2. The same check on whichever prefix this app was built with
+        resp2 = client.get(f"{API_PREFIX}/health")
         assert resp2.status_code == 200
         data2 = resp2.get_json()
         assert data2 == {"status": "ok", "message": "Tesserae V6 is running"}
@@ -88,12 +97,16 @@ def test_health_check_endpoints(app_instance):
 
 def test_version_endpoint(app_instance):
     """Verify version endpoint returns git version metadata structure."""
+    from backend.app import API_PREFIX
     with app_instance.test_client() as client:
-        resp = client.get("/api/version")
+        resp = client.get(f"{API_PREFIX}/version")
         assert resp.status_code == 200
         data = resp.get_json()
         assert "version" in data
         assert "last_updated" in data
+        # The running page compares this against its own bundle to notice it is
+        # stale, so losing the field would silently disable the update banner.
+        assert "bundle" in data
 
 
 def test_curated_stoplists_endpoint(app_instance):

@@ -166,6 +166,88 @@ says.
 
 ---
 
+## 3a. The index answers sentences, because it is built from sentences
+
+Measured 2026-08-25, and the largest single effect on result quality found so
+far. A query shaped like a noun phrase lands somewhere quite different from one
+shaped like a sentence:
+
+| query | target | best rank | in top 50 |
+|---|---|---|---|
+| "warrior arming scene" | Iliad arming scenes | 1440 for il. 19.361 | **0** of 245 |
+| "a warrior arms himself before battle, piece by piece" | same | 66 | 7 |
+| "the shortness of life" | Seneca, *De Brevitate Vitae* | 31 | 1 |
+| "life is short" | same | **1** | — |
+
+Two things are going on and they compound:
+
+- **Grammar.** Descriptions are sentences about what happens, so a sentence query
+  sits near them and an abstract noun phrase does not.
+- **Stance.** Seneca argues that life is NOT short. Embeddings handle negation
+  poorly, so his descriptions sit far from "the shortness of life" while a poem
+  lamenting brevity sits close. Notably "life is not short, we waste it" ranks
+  him best of all.
+
+This is a property of describe-then-retrieve, not a defect to patch away, and it
+is worth stating in any write-up of the method: **the system finds passages that
+DEPICT a subject more readily than passages that ARGUE about it.**
+
+### What was done about it (shipped 2026-08-26)
+
+Templates in code were measured first and rejected: they recover some of the gap
+and not enough (rank 57 to 12 on the arming case, still nothing in the top 50),
+because "a passage in which warrior arming scene" is not English, so the
+embedding drifts toward sentence-space without landing in it.
+
+What shipped is a model-written expansion. A query of six words or fewer is
+rewritten by the local model into three sentences -- the scene, the scene said
+differently, and the subject stated the OTHER way round so that a passage
+arguing the negation still matches -- and the best score per window is kept.
+
+| query | mode | best rank | in top 50 |
+|---|---|---|---|
+| warrior arming scene | plain | 57 | 0 |
+| | model-expanded | **7** | **5** |
+| the shortness of life | plain | 31 | 1 |
+| | model-expanded | **8** | **4** |
+
+Zero of eight absent probes became findable, so nothing was traded for it. The
+negation form is what finds Seneca, which is the direct answer to the stance
+problem above.
+
+### Two further things that had to be fixed with it
+
+**One work was owning the page.** Scores here are compressed to a degree that
+makes raw rank a poor guide: on "warrior arming scene" the top window scored
+0.8701 and rank 4546 scored 0.8174. What fills a page is therefore repetition,
+not relevance. Ferdowsi's and Nizami's Diwans are each ONE work holding tens of
+thousands of windows described in near-identical words, and between them they
+held 13 of the top 20. The page is now built in two passes: works are chosen
+first, one window each, and only then does each chosen work show up to three
+passages. Aeneid position 89 -> 19, and the Iliad keeps its several arming
+scenes, which a flat per-work cap would have thrown away.
+
+**The same query gave different answers.** Expansion ran at temperature 0.3.
+Setting it to 0 was not enough -- identical calls still returned different
+sentences -- so expansions are written to a shared file and reused. That also
+makes the three Apache workers agree with each other. A scholar who cites a
+result has to be able to find it again.
+
+### The limit that remains: descriptions differ in granularity
+
+Vergil still does not return for "warrior arming scene", and this one is not
+ranking. The windows exist and are described correctly, just summarily:
+
+    Iliad 11.16   action_steps: puts on greaves; puts on cuirass; puts on sword;
+                                takes shield; puts on helmet
+    Aen. 12.87    action_steps: Aeneas arms himself; Aeneas takes a spear
+    Aen. 11.486   action_steps: arming; charging into battle
+
+A piece-by-piece query matches Homer's enumeration and not Vergil's summary. No
+ranking change fixes this, and tuning around it would be fitting the retrieval
+to one query. The real fix is re-describing with a prompt that forces consistent
+detail, which costs GPU time. See `research/QUEUE.md`.
+
 ## 4. Limits a reader is told about
 
 - The summaries are machine-written: a finding aid, not evidence.
