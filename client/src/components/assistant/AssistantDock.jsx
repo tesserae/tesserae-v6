@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import useAssistantStream from './useAssistantStream';
+import { getSessionValue, setSessionValue } from '../../utils/storage';
 
 // Openers that show what it can actually DO, not only what it can explain. It
 // runs searches now, so "where does this phrase appear" gets real loci back.
@@ -88,6 +89,43 @@ function Actions({ items }) {
   );
 }
 
+/** The conversation, kept across a page load.
+ *
+ *  Tessa's whole point now is to send you to a search, and every one of those
+ *  actions is a real link, so taking one RELOADS the page: the app unmounts and
+ *  the transcript goes with it. The reader arrived at the results having lost
+ *  the reasoning that got them there, and the panel had shut itself.
+ *
+ *  sessionStorage rather than localStorage: a conversation belongs to the visit,
+ *  not to the browser for ever. Kept small, because a transcript of quoted Latin
+ *  grows fast and this is a 5MB store shared with the rest of the site.
+ */
+const KEEP_TURNS = 12;
+const KEEP_CHARS = 4000;
+
+function loadTurns() {
+  try {
+    const raw = JSON.parse(getSessionValue('tessa_turns', '[]'));
+    return Array.isArray(raw) ? raw : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveTurns(turns) {
+  try {
+    const trimmed = turns.slice(-KEEP_TURNS).map((t) => ({
+      role: t.role,
+      text: String(t.text || '').slice(0, KEEP_CHARS),
+      terms: (t.terms || []).slice(0, 12),
+      actions: (t.actions || []).slice(0, 4),
+    }));
+    setSessionValue('tessa_turns', JSON.stringify(trimmed));
+  } catch {
+    /* a full store must not break the panel */
+  }
+}
+
 const OPENERS = [
   'Where does the phrase arma virumque appear?',
   'What Hebrew texts are in the corpus?',
@@ -111,8 +149,10 @@ const OPENERS = [
  */
 export default function AssistantDock() {
   const [available, setAvailable] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [turns, setTurns] = useState([]);
+  // Reopens where it was left, because taking one of Tessa's own actions
+  // reloads the page and would otherwise shut her and wipe the conversation.
+  const [open, setOpen] = useState(() => getSessionValue('tessa_open', '0') === '1');
+  const [turns, setTurns] = useState(loadTurns);
   const [draft, setDraft] = useState('');
   const { text, step, running, error, highlight, offer, actions, run } = useAssistantStream();
   const scrollRef = useRef(null);
@@ -131,11 +171,14 @@ export default function AssistantDock() {
   // the terms arriving and the block being replaced by this plain transcript
   // entry, and no reader ever saw it.
   const prevRunning = useRef(false);
-  const pendingOffer = useRef(null);
+  // Restored as well: without it "yes" after a navigation would once again have
+  // nothing to accept, which is the bug that took three attempts to kill.
+  const pendingOffer = useRef(getSessionValue('tessa_pending_offer', '') || null);
   useEffect(() => {
     if (prevRunning.current && !running && text) {
       setTurns((t) => [...t, { role: 'assistant', text, terms: highlight, actions }]);
       pendingOffer.current = offer || null;
+      setSessionValue('tessa_pending_offer', offer || '');
     }
     prevRunning.current = running;
   }, [running, text, highlight, offer, actions]);
@@ -143,6 +186,9 @@ export default function AssistantDock() {
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [turns, text]);
+
+  useEffect(() => { saveTurns(turns); }, [turns]);
+  useEffect(() => { setSessionValue('tessa_open', open ? '1' : '0'); }, [open]);
 
   if (!available) return null;
 
@@ -202,13 +248,31 @@ export default function AssistantDock() {
           </span>
           Tessa AI Assistant
         </h2>
-        <button
-          onClick={() => setOpen(false)}
-          className="text-gray-400 hover:text-gray-700 text-lg leading-none px-1"
-          aria-label="Close Tessa"
-        >
-          ×
-        </button>
+        <div className="flex items-center gap-1">
+          {/* The conversation now survives a page load, so there has to be a way
+              to end one. Closing the panel deliberately does NOT clear it: a
+              reader who shuts Tessa to see the results underneath expects to
+              find the thread still there when they reopen her. */}
+          {turns.length > 0 && (
+            <button
+              onClick={() => {
+                setTurns([]);
+                pendingOffer.current = null;
+                setSessionValue('tessa_pending_offer', '');
+              }}
+              className="text-[11px] text-gray-500 hover:text-gray-800 px-1"
+            >
+              Clear
+            </button>
+          )}
+          <button
+            onClick={() => setOpen(false)}
+            className="text-gray-400 hover:text-gray-700 text-lg leading-none px-1"
+            aria-label="Close Tessa"
+          >
+            ×
+          </button>
+        </div>
       </header>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-3">
