@@ -87,6 +87,13 @@ def _is_about_the_site(question):
     q = (question or '').lower()
     if any(h in q for h in _HOLDINGS_QUESTION):
         return False
+    # "what Hebrew texts", "which Latin authors", "how many Greek works" -- the
+    # literal list has "what texts" and misses every one of these, because a
+    # language name sits in the middle. Once the holdings seeding depends on
+    # this answer, missing them sends a corpus question to the documentation.
+    if re.search(r'\b(what|which|how many)\b[^?]{0,20}\b'
+                 r'(texts?|works?|authors?|books?)\b', q):
+        return False
     if _is_how_to(question):
         return True
     try:
@@ -1196,11 +1203,21 @@ def _prepare(question, step, history=None, offered_phrase=None):
     # once told not to, refused to search at all and returned nothing. Neither
     # is acceptable, and both came from it deciding what to look at.
     #
-    # A question that names a language always gets that language's holdings.
+    # A question that names a language gets that language's holdings -- UNLESS
+    # it is a question about the site rather than about the corpus.
+    #
+    # "Does syntax matching work for Greek and English?" names two languages, so
+    # both were listed, the counts filled the answer, and it came back "the
+    # corpus contains 1288 Greek works and 162 English works, and syntax
+    # matching is supported for both languages". Confidently false: the Help
+    # page says Latin is fully covered, Greek is in progress and English has not
+    # been started. The holdings were true and had nothing to do with the
+    # question, and having them crowded out the page that did.
+    seed_holdings = not _is_about_the_site(question)
     for code, words in (('he', ('hebrew',)), ('grc', ('greek',)),
                         ('la', ('latin',)), ('cop', ('coptic',)),
                         ('en', ('english',))):
-        if any(w in question.lower() for w in words):
+        if seed_holdings and any(w in question.lower() for w in words):
             try:
                 step(f'listing what the corpus holds in {words[0]}')
                 facts = _summarise('list_texts', searches.run('list_texts', {'language': code}))
