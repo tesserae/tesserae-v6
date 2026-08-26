@@ -185,24 +185,6 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # Handle proxy heade
 _BUILD = {'name': None, 'checked': 0.0}
 
 
-@app.route(f'{API_PREFIX}/version' if API_PREFIX else '/version')
-def build_version():
-    """The bundle the server would serve to a fresh visitor."""
-    import re as _re
-    import time as _time
-    now = _time.time()
-    if not _BUILD['name'] or now - _BUILD['checked'] > 30:
-        try:
-            with open(os.path.join(STATIC_FOLDER, 'index.html'), encoding='utf-8') as fh:
-                head = fh.read(8192)
-            m = _re.search(r'/assets/(index-[A-Za-z0-9_-]+\.js)', head)
-            _BUILD['name'] = m.group(1) if m else None
-        except OSError:
-            _BUILD['name'] = None
-        _BUILD['checked'] = now
-    return jsonify({'bundle': _BUILD['name']})
-
-
 @app.after_request
 def _cache_headers(response):
     path = request.path or ''
@@ -869,6 +851,29 @@ def api_health():
     return jsonify({"status": "ok", "message": "Tesserae V6 is running"})
 
 
+def _current_bundle():
+    """The JS bundle a fresh visitor would be served.
+
+    Lets a running page notice it is out of date. Apache falls back to
+    index.html for any path it cannot find, so a stale page asking for a
+    deleted bundle gets 200 with Content-Type text/html -- the page pretending
+    to be JavaScript -- and nothing runs at all.
+    """
+    import re as _re
+    import time as _time
+    now = _time.time()
+    if not _BUILD['name'] or now - _BUILD['checked'] > 30:
+        try:
+            with open(os.path.join(STATIC_FOLDER, 'index.html'), encoding='utf-8') as fh:
+                head = fh.read(8192)
+            m = _re.search(r'/assets/(index-[A-Za-z0-9_-]+\.js)', head)
+            _BUILD['name'] = m.group(1) if m else None
+        except OSError:
+            _BUILD['name'] = None
+        _BUILD['checked'] = now
+    return _BUILD['name']
+
+
 @api_route('/version')
 def api_version():
     """Get version and last updated info from git"""
@@ -892,11 +897,15 @@ def api_version():
         return jsonify({
             "version": "6.0",
             "last_updated": formatted_date,
-            "last_updated_raw": last_updated
+            "last_updated_raw": last_updated,
+            # The JS bundle a fresh visitor gets, so a running page can notice
+            # it is stale and offer to reload.
+            "bundle": _current_bundle(),
         })
     except Exception as e:
         app_logger.error(f"Error getting version info: {e}")
-        return jsonify({"version": "6.0", "last_updated": None})
+        return jsonify({"version": "6.0", "last_updated": None,
+                        "bundle": _current_bundle()})
 
 
 @api_route('/languages')
