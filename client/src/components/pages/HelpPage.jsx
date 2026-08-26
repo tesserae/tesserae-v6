@@ -707,9 +707,10 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 <div className="border-l-4 border-blue-500 pl-4">
                   <h4 className="font-medium text-gray-900">Greek</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    A large corpus (~650 texts). Vocabulary, sound, meaning, and rare-word channels all work; searches are
-                    accent-insensitive, so you can enter text with or without diacritics. Greek does not yet have grammatical
-                    parses, so the syntax channels contribute nothing for Greek.
+                    A large corpus (about 1,290 entries, counting individual books). Vocabulary, sound, meaning, and
+                    rare-word channels all work; searches are accent-insensitive, so you can enter text with or without
+                    diacritics. About half the Greek corpus is grammatically parsed (650 texts, Homer among them), so the
+                    syntax channels contribute where both texts are parsed and nothing where either is not.
                   </p>
                 </div>
                 <div className="border-l-4 border-emerald-500 pl-4">
@@ -1666,7 +1667,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               <div className="bg-red-50 p-4 rounded border border-red-200 mb-4">
                 <h4 className="font-medium text-red-800 mb-2">Latin — Full Coverage</h4>
                 <p className="text-sm text-gray-700">
-                  All <strong>1,429 Latin texts</strong> in the corpus (542,000+ lines) have been parsed for syntactic
+                  <strong>1,433 Latin texts</strong> (639,000+ lines) have been parsed for syntactic
                   dependencies using LatinPipe, a state-of-the-art Latin dependency parser. This means syntax matching
                   works for <em>any</em> Latin text pair — not just a curated subset.
                 </p>
@@ -1679,12 +1680,21 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   channels, so Coptic searches use syntax the same way Latin does.
                 </p>
               </div>
-              <div className="bg-gray-50 p-4 rounded border border-gray-200 mb-4">
-                <h4 className="font-medium text-gray-800 mb-2">Greek &amp; English — Not Yet</h4>
+              <div className="bg-amber-50 p-4 rounded border border-amber-200 mb-4">
+                <h4 className="font-medium text-amber-800 mb-2">Greek — Partial</h4>
                 <p className="text-sm text-gray-700">
-                  Greek and English texts have not yet been parsed for grammar, so the syntax channels contribute nothing for
-                  those languages — their other channels still run normally. (Because grammatical labels are language-independent,
-                  cross-language structural matching becomes possible once Greek parses are added.)
+                  650 of the roughly 1,290 Greek texts in the corpus have been parsed (239,000+ lines), using Stanza with
+                  the {' '}<code className="bg-gray-200 px-1 rounded">grc_proiel</code> model. Homer is among them.
+                  Syntax matching <strong>does</strong> work for Greek pairs where both texts are parsed, and contributes
+                  nothing where either is not; the other channels run normally either way.
+                </p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded border border-gray-200 mb-4">
+                <h4 className="font-medium text-gray-800 mb-2">English — Not Yet</h4>
+                <p className="text-sm text-gray-700">
+                  English texts have not been parsed for grammar, so the syntax channels contribute nothing for English —
+                  its other channels still run normally. (Because grammatical labels are language-independent,
+                  cross-language structural matching becomes possible wherever both sides are parsed.)
                 </p>
               </div>
 
@@ -1966,10 +1976,11 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 <div>
                   <h4 className="font-medium text-gray-900">Does syntax matching work for Greek and English?</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    All 1,429 Latin texts have full syntax coverage. Greek syntax parsing is in progress —
-                    major texts including Homer are already parsed, with more being added. English syntax
-                    parsing is planned but not yet started. The syntax channel contributes no results for
-                    text pairs where parsing is unavailable.
+                    For Greek, yes, on about half the corpus: 650 of roughly 1,290 Greek texts are parsed,
+                    Homer among them, so syntax matching works where both texts are parsed. For English, no:
+                    English is not parsed at all. Latin (1,433 texts) and Coptic (186) are parsed too. Where
+                    parsing is unavailable the syntax channel contributes nothing and the other channels run
+                    normally.
                   </p>
                 </div>
               </div>
