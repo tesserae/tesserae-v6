@@ -852,9 +852,15 @@ def answer_stream(question, on_step=None, history=None, offered_phrase=None):
     handing_over = bool(all_facts) and not any(
         f.get('search') in ('line_search', 'theme_search', 'rare_words')
         for f in all_facts)
-    budget = 220 if handing_over else ANSWER_TOKENS
+    budget = 90 if handing_over else ANSWER_TOKENS
+    # Capping alone did nothing: at 220 tokens the model wrote 110 and finished
+    # inside the cap, so the clock did not move. It generates at about ten
+    # tokens a second on this CPU, so the only thing that shortens the wait is
+    # asking for fewer words.
+    brief = ('\n\nTWO SENTENCES AT MOST. Say the corpus holds them and what the '
+             'comparison covers. No list of what it will find.' if handing_over else '')
     for piece in model.stream(ANSWER_SYSTEM,
-                              f'{block}\n\n{_listing_rule(asked)}'
+                              f'{block}\n\n{_listing_rule(asked)}{brief}'
                               f'\n\nQuestion: {asked}\n\nAnswer:',
                               max_tokens=budget, temperature=0.2):
         collected.append(piece)
