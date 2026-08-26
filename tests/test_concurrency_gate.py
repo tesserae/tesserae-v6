@@ -254,6 +254,7 @@ def test_slot_metadata_and_active_search_inspection():
 
         with _ConfigPatch():
             gate.ConcurrencyConfig.set_memory_threshold(0.5)
+            gate.ConcurrencyConfig.set_emergency_ram_floor(1.0)
             try:
                 slot = gate.SearchSlot()
                 # Acquire slot
@@ -294,6 +295,7 @@ def test_cancel_search_creates_marker_and_is_cancelled():
 
         with _ConfigPatch():
             gate.ConcurrencyConfig.set_memory_threshold(0.5)
+            gate.ConcurrencyConfig.set_emergency_ram_floor(1.0)
             try:
                 slot = gate.SearchSlot()
                 for _ in slot.acquire():
@@ -329,6 +331,7 @@ def test_slot_metadata_match_type_fusion_poll_label():
 
         with _ConfigPatch():
             gate.ConcurrencyConfig.set_memory_threshold(0.5)
+            gate.ConcurrencyConfig.set_emergency_ram_floor(1.0)
             try:
                 slot = gate.SearchSlot()
                 for _ in slot.acquire():
@@ -359,6 +362,7 @@ def test_cancel_search_releases_slot_and_cleans_up():
 
         with _ConfigPatch():
             gate.ConcurrencyConfig.set_memory_threshold(0.5)
+            gate.ConcurrencyConfig.set_emergency_ram_floor(1.0)
             try:
                 slot = gate.SearchSlot()
                 for _ in slot.acquire():
@@ -486,6 +490,9 @@ def test_reaper_cancels_newest_search(monkeypatch):
             try:
                 gate.ConcurrencyConfig.set_emergency_ram_floor(5.0)
 
+                # Mock sufficient RAM during initial acquisition
+                monkeypatch.setattr(gate, 'get_available_memory_gb', lambda: 10.0)
+
                 # Create two slots with distinct start times
                 slot1 = gate.SearchSlot()
                 for _ in slot1.acquire():
@@ -530,12 +537,11 @@ def test_reaper_does_not_cancel_when_above_floor(monkeypatch):
         with _ConfigPatch():
             try:
                 gate.ConcurrencyConfig.set_emergency_ram_floor(3.0)
+                monkeypatch.setattr(gate, 'get_available_memory_gb', lambda: 6.0)
+
                 slot = gate.SearchSlot()
                 for _ in slot.acquire():
                     pass
-
-                # Mock sufficient RAM (6.0 GB > 3.0 GB floor)
-                monkeypatch.setattr(gate, 'get_available_memory_gb', lambda: 6.0)
 
                 initial_reaps = gate.MemoryReaper._reap_count
                 gate.MemoryReaper._tick()
