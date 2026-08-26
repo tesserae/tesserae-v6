@@ -19,7 +19,8 @@ import json
 from flask import Blueprint, Response, jsonify, request, session
 
 from backend.logging_config import get_logger
-from backend.assistant import actions, agent, findings, model, prompts, router
+from backend.assistant import (actions, agent, findings, model, prompts,
+                               router, site_help)
 
 logger = get_logger('blueprints.assistant')
 
@@ -69,6 +70,27 @@ def _remember_offer(payload):
                                   if payload.get('offered_variants') else None)
     except Exception:
         pass
+
+
+def _with_help(question):
+    """The question, preceded by the Help sections that bear on it.
+
+    The guide prompt describes the SEARCHES and nothing else, so it had never
+    heard of the Reader or Theme Search and answered questions about them by
+    listing the corpus. The Help page already says what every feature does and
+    is kept current because readers use it, so it is the source rather than
+    another copy in a prompt.
+
+    Question-specific, and in the user turn rather than the system prompt, so
+    the system prompt stays identical between requests and only a few hundred
+    words of context are added instead of forty thousand.
+    """
+    try:
+        block = site_help.context_for(question)
+    except Exception as e:                               # noqa: BLE001
+        logger.info('[ASSISTANT] help lookup failed: %s', e)
+        return question
+    return f'{block}\n\nQuestion: {question}' if block else question
 
 
 @assistant_bp.route('/assistant/status')
@@ -158,7 +180,8 @@ def ask_stream():
                     # question about how the tool works still gets answered.
                     if payload.get('needs_model_only'):
                         yield _sse('step', {'text': 'no search applies; explaining instead'})
-                        for piece in model.stream(prompts.guide_system(), question,
+                        for piece in model.stream(prompts.guide_system(),
+                                                  _with_help(question),
                                                   max_tokens=model.MAX_TOKENS_GUIDE):
                             yield _sse('chunk', {'text': piece})
                         # The guide half now hands over too. Nothing was
@@ -201,7 +224,7 @@ def guide():
                        "content but not the wording."),
             'source': 'fallback', 'model_used': False})
 
-    text = model.complete(prompts.guide_system(), question,
+    text = model.complete(prompts.guide_system(), _with_help(question),
                           max_tokens=model.MAX_TOKENS_GUIDE)
     if not text:
         return jsonify({'error': 'the assistant could not answer just now',
@@ -289,7 +312,7 @@ def guide_stream():
                                          'The Help page explains each search.'})
             yield _sse('done', {'source': 'fallback', 'model_used': False})
             return
-        for piece in model.stream(prompts.guide_system(), question,
+        for piece in model.stream(prompts.guide_system(), _with_help(question),
                                   max_tokens=model.MAX_TOKENS_GUIDE):
             yield _sse('chunk', {'text': piece})
         yield _sse('done', {'source': 'model', 'model_used': True})
