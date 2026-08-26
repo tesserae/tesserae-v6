@@ -86,6 +86,11 @@ def _compare(source, target, language='la', source_author=None,
         detail = f'all of {source_author} against all of {target_author}'
     else:
         return None
+    # SAY WHAT IT DOES. Line search and Theme Search run themselves from a URL;
+    # the main comparison only fills the form in, and a comparison is expensive
+    # enough that pressing Search yourself is reasonable. Labelling it as though
+    # it ran would be a small lie told every time.
+    detail += ' · opens the search ready to run'
     return {
         'kind': 'compare',
         'label': label or 'Compare these two texts',

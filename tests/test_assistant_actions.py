@@ -223,3 +223,12 @@ def test_id_checking_fails_closed(monkeypatch):
         raise RuntimeError('corpus unavailable')
     monkeypatch.setattr('backend.assistant.corpus_lookup.is_text_id', boom)
     assert actions._real_text('vergil.aeneid') is False
+
+
+def test_compare_says_it_only_sets_the_search_up():
+    """Line search and Theme Search run themselves from a URL; the main
+    comparison only fills the form in. Labelling it as though it ran would be a
+    small lie told every time."""
+    a = actions.for_suggestion('compare', source='vergil.aeneid',
+                               target='ovid.metamorphoses', language='la')
+    assert 'ready to run' in a['detail']
