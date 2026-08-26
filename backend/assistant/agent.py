@@ -899,14 +899,28 @@ def _summarise(name, raw):
         for r in results:
             if r.get('author') and r.get('era'):
                 by_era.setdefault(str(r['era']), set()).add(str(r['author']))
+        # EVERY CAPPED LIST SAYS SO IN ITS KEY, and the true count sits beside
+        # it. A model counts what it can see: shown fifteen of 186 it reported
+        # "twelve", shown fifteen of forty works it reported "fourteen distinct
+        # works". Both were caught only because the number happened to look
+        # wrong. Naming the cap has fixed it everywhere it has been applied, so
+        # it is applied to all of them rather than to the one that last failed.
         return {'kind': 'phrase occurrences',
-                'authors': dict(authors.most_common(20)),
+                'author_count': len(authors),
+                'authors_TOP20_ONLY': dict(authors.most_common(20)),
+                # Names only, UNCAPPED, for code that compares author sets. The
+                # variant pass used the capped dict for that and so treated
+                # authors beyond the top twenty as not having the phrase
+                # exactly, which is how the offer and its acceptance came to
+                # report different totals one turn apart.
+                'authors_all': sorted(authors),
                 'eras': dict(eras.most_common()),
                 'authors_by_era': {k: sorted(v) for k, v in sorted(by_era.items())},
                 'hits_returned': len(results),
                 'hits_in_corpus': raw.get('total') or raw.get('total_at_least'),
                 'distinct_loci': raw.get('distinct_loci'),
-                'works_containing_it': works[:15],
+                'work_count': len(works),
+                'works_containing_it_TOP15_ONLY': works[:15],
                 # Six examples against twelve hits made the model report "6
                 # distinct occurrences". It was counting what it could see. Show
                 # enough to list, and say how many exist either way.
@@ -942,6 +956,14 @@ def _summarise(name, raw):
             'distinct_works': len(seen),
             'languages': dict(langs),
             'passages_returned': len(rows),
+            # NOT renamed. `examples` and `lines` are read by the
+            # highlighter, by the reference guard and by _computed_listing;
+            # renaming them would break all three silently, which is the exact
+            # mistake this project has made three times. The cap is stated in a
+            # sibling key instead, which the model reads and code does not.
+            'examples_note': (f'only the first 12 of {len(rows)} passages are '
+                              f'listed; the totals are passages_returned and '
+                              f'distinct_works'),
             'examples': [{'ref': r.get('ref_start'),
                           'work': r.get('display_name') or r.get('work'),
                           'text': str(r.get('gist') or '')[:200]}
@@ -1416,7 +1438,10 @@ def _prepare(question, step, history=None, offered_phrase=None):
                         'query': phrase, 'language': lang, 'search_type': 'lemma',
                         'max_results': 300})
                     vf = _summarise('line_search', var)
-                    exact_authors = set((facts.get('authors') or {}))
+                    # The UNCAPPED names. Reading the capped dict here treated
+                    # authors beyond the top twenty as lacking the exact phrase.
+                    exact_authors = set(facts.get('authors_all')
+                                        or facts.get('authors_TOP20_ONLY') or {})
                     # COUNT THE RESULTS, NOT THE SUMMARY.
                     #
                     # `_summarise` caps its author dict at most_common(20), so
@@ -1445,7 +1470,7 @@ def _prepare(question, step, history=None, offered_phrase=None):
                             'authors_with_variants_count': variant_author_count,
                             'authors_with_variants_TOP15_ONLY': dict(sorted(
                                 extra.items(), key=lambda kv: -kv[1])[:15]),
-                            'variant_lines': [
+                            'variant_lines_TOP20_ONLY': [
                                 {'ref': ' '.join(str(b) for b in
                                                  (x.get('author'), x.get('work'), x.get('locus')) if b),
                                  'text': str(x.get('text') or '')[:160]}
@@ -1467,6 +1492,9 @@ def _prepare(question, step, history=None, offered_phrase=None):
                                         f'LIST THESE, citation first.',
                                 'author': who,
                                 'total_found': len(lines),
+                                'lines_note': (f'only the first 12 of '
+                                               f'{len(lines)} are listed; the '
+                                               f'total is total_found'),
                                 'lines': lines[:12]})
                 except searches.SearchError as e:
                     logger.info('[ASSISTANT] variant search failed: %s', e)
@@ -1474,7 +1502,9 @@ def _prepare(question, step, history=None, offered_phrase=None):
             # If the question names an author, answer FOR THAT AUTHOR instead of
             # leaving the user to scan a list.
             for who in _named_people(question):
-                hits = [a for a in (facts.get('authors') or {}) if who.lower() in a.lower()]
+                hits = [a for a in (facts.get('authors_all')
+                                    or facts.get('authors_TOP20_ONLY') or {})
+                        if who.lower() in a.lower()]
                 all_facts.append({
                     'kind': f'the user asked specifically about {who}',
                     'exact_phrase_in_' + who: hits or 'no exact occurrences',
