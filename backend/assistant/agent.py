@@ -509,6 +509,32 @@ def _summarise(name, raw):
         def ref_of(r):
             bits = [r.get('author'), r.get('work'), r.get('locus')]
             return ' '.join(str(b) for b in bits if b)
+
+        def excerpt(r, width=200):
+            """The passage around the MATCH, not its first 200 characters.
+
+            A prose window can be 1,400 characters with the phrase near the end,
+            so a head-truncated excerpt showed Salutati discoursing on poetry and
+            stopped before reaching "arma virumque" at all. The reader was shown
+            a citation with nothing in it to justify the citation.
+            """
+            t = ' '.join(str(r.get('text') or '').split())
+            if len(t) <= width:
+                return t
+            # The words the SEARCH says it matched. _summarise does not see the
+            # query, and does not need to: the result carries what matched.
+            words = [w for w in (r.get('matched_words') or []) if isinstance(w, str)]
+            low = t.lower()
+            at = -1
+            for w in words:
+                at = low.find(str(w).lower())
+                if at >= 0:
+                    break
+            if at < 0:
+                return t[:width] + '...'
+            start = max(0, at - width // 3)
+            end = min(len(t), start + width)
+            return ('...' if start else '') + t[start:end] + ('...' if end < len(t) else '')
         works = sorted({f"{r.get('author')}, {r.get('work')}"
                         for r in results if r.get('author')})
         # Authors and eras, counted. The variant pass compares author sets, and
@@ -537,7 +563,7 @@ def _summarise(name, raw):
                 'examples_shown': min(len(results), 20),
                 'examples': [{'ref': ref_of(r),
                               'matched_words': r.get('matched_words'),
-                              'text': str(r.get('text') or '')[:160]}
+                              'text': excerpt(r)}
                              for r in results[:20]]}
     if name == 'rare_words':
         return {'kind': 'rare shared words', 'returned': len(results),
