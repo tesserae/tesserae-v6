@@ -20,6 +20,12 @@ export default function useAssistantStream() {
   const [facts, setFacts] = useState(null);
   const [guardrails, setGuardrails] = useState(null);
   const [highlight, setHighlight] = useState([]);
+  // The phrase this answer offered to expand on, handed straight back on the
+  // next question. It cannot travel in the session: Flask writes the session
+  // cookie with the response headers, and this body is streamed after those are
+  // already gone, so the server's own record of the offer never reached the
+  // browser and "yes" had nothing to accept.
+  const [offer, setOffer] = useState(null);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState(null);
   const abortRef = useRef(null);
@@ -39,6 +45,7 @@ export default function useAssistantStream() {
     setFacts(null);
     setGuardrails(null);
     setHighlight([]);
+    setOffer(null);
     setError(null);
     let gotText = false;
     setRunning(true);
@@ -77,7 +84,11 @@ export default function useAssistantStream() {
           else if (evt.type === 'step') setStep(evt.text || null);
           else if (evt.type === 'facts') setFacts(evt.facts || null);
           else if (evt.type === 'error') setError(evt.error || 'the assistant could not answer');
-          else if (evt.type === 'done') { setGuardrails(evt.guardrails || { clean: true }); setHighlight(evt.highlight || []); }
+          else if (evt.type === 'done') {
+            setGuardrails(evt.guardrails || { clean: true });
+            setHighlight(evt.highlight || []);
+            setOffer(evt.offered_variants ? (evt.offer_phrase || null) : null);
+          }
         }
       }
     } catch (e) {
@@ -93,5 +104,5 @@ export default function useAssistantStream() {
     }
   }, [stop]);
 
-  return { text, step, facts, guardrails, highlight, running, error, run, stop };
+  return { text, step, facts, guardrails, highlight, offer, running, error, run, stop };
 }

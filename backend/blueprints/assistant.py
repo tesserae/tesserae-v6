@@ -26,8 +26,44 @@ logger = get_logger('blueprints.assistant')
 assistant_bp = Blueprint('assistant', __name__)
 
 
+TURN_HEAD = 400
+TURN_TAIL = 400
+
+
+def _trim_turn(text):
+    """Cap a history turn without throwing away the END of it.
+
+    THIS IS WHY "yes" KEPT REPEATING THE PREVIOUS ANSWER.
+
+    Turns were capped with text[:600]. The offer of the inflected forms is
+    appended to the END of an answer, and the answer that most needs it is a
+    listing of a dozen quoted lines, which runs well past 600 characters. So the
+    offer was cut off before the server ever saw it, `_pending_offer_from` found
+    no OFFER_MARK, and "yes" fell through to the ordinary phrase search and
+    printed the same list again.
+
+    It passed every direct test because a test sends the offer sentence alone,
+    which is short. Only the browser sends the whole answer.
+
+    Keeping both ends preserves the offer and still bounds what reaches a prompt.
+    """
+    text = text.strip()
+    if len(text) <= TURN_HEAD + TURN_TAIL:
+        return text
+    return f'{text[:TURN_HEAD]}\n[...]\n{text[-TURN_TAIL:]}'
+
+
 def _remember_offer(payload):
-    """Record whether this answer offered the inflected forms."""
+    """Record whether this answer offered the inflected forms.
+
+    NOTE: this cannot work from inside the streaming endpoint, and for a while
+    it silently did not. Flask writes the session cookie with the response
+    HEADERS, and a streaming body is generated after those have gone, so a
+    session assignment made inside the generator is never sent to the browser.
+    The stream therefore hands the offer to the client in the `done` event and
+    the client sends it back on the next question; this remains for the
+    non-streaming path.
+    """
     try:
         session['tessa_offer'] = (payload.get('offer_phrase')
                                   if payload.get('offered_variants') else None)
@@ -66,7 +102,7 @@ def ask_stream():
     for turn in (data.get('history') or [])[-8:]:
         if isinstance(turn, dict) and turn.get('text'):
             history.append({'role': 'user' if turn.get('role') == 'user' else 'assistant',
-                            'text': str(turn['text'])[:600]})
+                            'text': _trim_turn(str(turn['text']))})
 
     # SERVER-SIDE FALLBACK. The client sends the conversation, and a browser
     # running a cached older bundle sends nothing, which looks exactly like a
@@ -89,12 +125,22 @@ def ask_stream():
             pass
 
     # An offer the assistant made last turn, so "yes" can be an acceptance
-    # rather than a question with no content. Held server-side because the
-    # session cookie carries questions only.
-    try:
-        offered_phrase = session.get('tessa_offer')
-    except Exception:
-        offered_phrase = None
+    # rather than a question with no content.
+    #
+    # The CLIENT is asked first, because it is the only one of the two that
+    # actually works here: the session write happens inside the streaming
+    # generator, after the cookie has already gone out with the headers, so it
+    # never reaches the browser. The `done` event hands the phrase to the page
+    # and the page sends it back.
+    offered_phrase = None
+    raw_offer = data.get('offered_phrase')
+    if isinstance(raw_offer, str) and raw_offer.strip():
+        offered_phrase = raw_offer.strip()[:120]
+    if not offered_phrase:
+        try:
+            offered_phrase = session.get('tessa_offer')
+        except Exception:
+            offered_phrase = None
 
     def generate():
         if not question:

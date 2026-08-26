@@ -26,6 +26,32 @@ function mark(text, terms) {
       : part);
 }
 
+/** The answer as the reader should see it: emphasis rendered, matches marked.
+ *
+ *  The model writes titles as markdown, so answers arrived reading literally
+ *  "Vergil's *Aeneid*, Ovid's *Tristia*" with the asterisks on show. Nothing
+ *  rendered them, because the finished answer was printed as plain text.
+ *
+ *  Only bold and italic are handled. This is a chat panel, not a document
+ *  viewer, and anything that builds HTML from model output is a hazard, so the
+ *  text is split with a regex and rebuilt as React elements. No HTML is ever
+ *  constructed from the answer.
+ */
+const EMPHASIS = /(\*\*[^*\n]+\*\*|\*[^*\n]+\*|_[^_\n]+_)/g;
+
+function render(text, terms) {
+  if (!text) return text;
+  return String(text).split(EMPHASIS).map((part, i) => {
+    if (/^\*\*[^*\n]+\*\*$/.test(part)) {
+      return <strong key={i} className="font-semibold">{mark(part.slice(2, -2), terms)}</strong>;
+    }
+    if (/^\*[^*\n]+\*$/.test(part) || /^_[^_\n]+_$/.test(part)) {
+      return <em key={i}>{mark(part.slice(1, -1), terms)}</em>;
+    }
+    return <span key={i}>{mark(part, terms)}</span>;
+  });
+}
+
 const OPENERS = [
   'Where does the phrase arma virumque appear?',
   'What Hebrew texts are in the corpus?',
@@ -52,7 +78,7 @@ export default function AssistantDock() {
   const [open, setOpen] = useState(false);
   const [turns, setTurns] = useState([]);
   const [draft, setDraft] = useState('');
-  const { text, step, running, error, highlight, run } = useAssistantStream();
+  const { text, step, running, error, highlight, offer, run } = useAssistantStream();
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -63,13 +89,20 @@ export default function AssistantDock() {
   }, []);
 
   // Fold a finished answer into the transcript so the next question starts clean.
+  // The terms are stored WITH the turn. They arrive in the `done` event, which
+  // fires at the very end, and the marked-up answer was only rendered while
+  // `running` was true -- so the highlighting existed for the instant between
+  // the terms arriving and the block being replaced by this plain transcript
+  // entry, and no reader ever saw it.
   const prevRunning = useRef(false);
+  const pendingOffer = useRef(null);
   useEffect(() => {
     if (prevRunning.current && !running && text) {
-      setTurns((t) => [...t, { role: 'assistant', text }]);
+      setTurns((t) => [...t, { role: 'assistant', text, terms: highlight }]);
+      pendingOffer.current = offer || null;
     }
     prevRunning.current = running;
-  }, [running, text]);
+  }, [running, text, highlight, offer]);
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -86,7 +119,10 @@ export default function AssistantDock() {
     const history = turns.slice(-8).map((t) => ({ role: t.role, text: t.text }));
     setTurns((t) => [...t, { role: 'user', text: question }]);
     setDraft('');
-    run('/api/assistant/ask-stream', { question, history });
+    // Hand back the offer this answer made, so "yes" is an acceptance rather
+    // than a question with no content of its own.
+    run('/api/assistant/ask-stream',
+        { question, history, offered_phrase: pendingOffer.current || undefined });
   };
 
   // The launcher is deliberately two different things.
@@ -170,7 +206,7 @@ export default function AssistantDock() {
                 : 'text-sm text-gray-700 leading-relaxed whitespace-pre-wrap bg-gray-50 rounded p-2'
             }
           >
-            {t.role === 'user' ? `You: ${t.text}` : t.text}
+            {t.role === 'user' ? `You: ${t.text}` : render(t.text, t.terms)}
           </div>
         ))}
 
@@ -179,7 +215,7 @@ export default function AssistantDock() {
         )}
         {running && (text || !step) && (
           <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap bg-gray-50 rounded p-2">
-            {mark(text, highlight)}
+            {render(text, highlight)}
             <span className="inline-block w-1.5 h-4 ml-0.5 bg-gray-400 animate-pulse align-text-bottom" />
           </div>
         )}
