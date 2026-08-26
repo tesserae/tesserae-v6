@@ -117,6 +117,17 @@ def _dedupe(actions):
     return out[:MAX_ACTIONS]
 
 
+def _real_text(text_id):
+    """Does the corpus hold this id? Fails CLOSED: if the corpus cannot be
+    consulted, no link is offered, because an unchecked link is the thing this
+    module exists to prevent."""
+    try:
+        from backend.assistant import corpus_lookup
+        return corpus_lookup.is_text_id(text_id)
+    except Exception:                                    # noqa: BLE001
+        return False
+
+
 def build(facts, question=''):
     """Actions for this answer, most useful first.
 
@@ -148,10 +159,18 @@ def build(facts, question=''):
 
         # Two named texts that were compared for rare shared vocabulary: the
         # full fusion search over the same pair is the deeper version of it.
+        #
+        # These ids are CHECKED, unlike the phrase search's arguments. rare_words
+        # is given its texts by the MODEL, and asked about echoes of Vergil in
+        # Statius it chose "Vergil_Aeneid" and "Statius_Thebaid" -- neither of
+        # which exists. The search still ran and still returned something, so
+        # "a search ran with these arguments" is not evidence the texts are real.
         if kind == 'rare shared words' and isinstance(f.get('args'), dict):
             a = f['args']
-            out.append(_compare(a.get('source'), a.get('target'),
-                                a.get('language') or 'la'))
+            src = str(a.get('source') or '').replace('.tess', '')
+            tgt = str(a.get('target') or '').replace('.tess', '')
+            if _real_text(src) and _real_text(tgt):
+                out.append(_compare(src, tgt, a.get('language') or 'la'))
 
     return _dedupe(out)
 

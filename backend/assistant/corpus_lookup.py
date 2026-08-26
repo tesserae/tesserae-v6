@@ -149,3 +149,25 @@ def named_texts(question, language=None, limit=2):
         if len(found) >= limit:
             break
     return found
+
+
+def is_text_id(text_id):
+    """Whether the corpus really holds this id.
+
+    Text ids that reach `actions` are not all equal. Those recorded by the
+    phrase search come from arguments the site itself accepted. Those recorded
+    by rare_words were CHOSEN BY THE MODEL, and it chooses badly: asked about
+    echoes of Vergil in Statius it produced "Vergil_Aeneid" and "Statius_Thebaid",
+    neither of which exists, and a compare link built from them went nowhere.
+
+    So an id from a model-chosen search is checked here before it becomes a link.
+    """
+    if not text_id:
+        return False
+    want = str(text_id).replace('.tess', '').strip().lower()
+    if not want:
+        return False
+    for r in _all_texts(None):
+        if str(r.get('id') or '').replace('.tess', '').lower() == want:
+            return True
+    return False

@@ -192,3 +192,34 @@ def test_a_question_with_no_intent_at_all_offers_nothing():
 
 def test_one_named_text_is_not_enough_to_compare():
     assert actions.suggest('echoes of Vergil somewhere', lookup=_Corpus()) == []
+
+
+# --- ids from a MODEL-CHOSEN search are checked, unlike the phrase search's ---
+
+def test_unreal_text_ids_from_rare_words_produce_no_link(monkeypatch):
+    """rare_words is given its texts by the model, and it chose "Vergil_Aeneid"
+    and "Statius_Thebaid" -- neither of which exists. The search still ran and
+    still returned something, so "a search ran with these arguments" is not
+    evidence that the texts are real."""
+    monkeypatch.setattr(actions, '_real_text', lambda t: '.' in str(t))
+    bad = [{'kind': 'rare shared words',
+            'args': {'source': 'Vergil_Aeneid', 'target': 'Statius_Thebaid',
+                     'language': 'la'}}]
+    assert actions.build(bad) == []
+
+
+def test_real_text_ids_from_rare_words_do_produce_a_link(monkeypatch):
+    monkeypatch.setattr(actions, '_real_text', lambda t: '.' in str(t))
+    good = [{'kind': 'rare shared words',
+             'args': {'source': 'vergil.aeneid', 'target': 'statius.thebaid',
+                      'language': 'la'}}]
+    urls = [a['url'] for a in actions.build(good)]
+    assert urls and 'source=vergil.aeneid' in urls[0]
+
+
+def test_id_checking_fails_closed(monkeypatch):
+    """If the corpus cannot be consulted, offer nothing rather than a guess."""
+    def boom(*a, **k):
+        raise RuntimeError('corpus unavailable')
+    monkeypatch.setattr('backend.assistant.corpus_lookup.is_text_id', boom)
+    assert actions._real_text('vergil.aeneid') is False
