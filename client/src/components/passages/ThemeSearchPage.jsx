@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 /**
  * Theme Search: describe a passage in your own words, get passages that match
@@ -239,6 +239,22 @@ export default function ThemeSearchPage() {
       setRunning(false);
     }
   }, [running, language]);
+
+  // Arriving from a link with the search already in it -- from Tessa, from a
+  // bookmark, from a colleague. The page runs it rather than making the reader
+  // press Search on a query that is already filled in.
+  const ranFromUrl = useRef(false);
+  useEffect(() => {
+    if (ranFromUrl.current) return;
+    ranFromUrl.current = true;
+    const p = new URLSearchParams(window.location.search);
+    const q = (p.get('query') || '').trim();
+    if (!q) return;
+    const lang = (p.get('languages') || '').split(',')[0].trim();
+    setQuery(q);
+    if (lang) setLanguage(lang);
+    run(q, lang || '');
+  }, [run]);
 
   const band = data && BAND[data.confidence?.level];
 

@@ -167,7 +167,8 @@ def ask_stream():
                     # listing of Latin lines shows what actually matched.
                     _remember_offer(payload)
                     yield _sse('done', {**payload,
-                                        'highlight': payload.get('highlight') or []})
+                                        'highlight': payload.get('highlight') or [],
+                                        'actions': payload.get('actions') or []})
         except Exception as e:
             logger.error('[ASSISTANT] ask failed: %s', e)
             yield _sse('error', {'error': 'the assistant could not answer just now'})

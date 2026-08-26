@@ -26,6 +26,10 @@ export default function useAssistantStream() {
   // already gone, so the server's own record of the offer never reached the
   // browser and "yes" had nothing to accept.
   const [offer, setOffer] = useState(null);
+  // Controls that open the real search page with the real query in it. Built on
+  // the server from the arguments the searches ran with, never composed by the
+  // model, so a link cannot promise a search that does not exist.
+  const [actions, setActions] = useState([]);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState(null);
   const abortRef = useRef(null);
@@ -46,6 +50,7 @@ export default function useAssistantStream() {
     setGuardrails(null);
     setHighlight([]);
     setOffer(null);
+    setActions([]);
     setError(null);
     let gotText = false;
     setRunning(true);
@@ -88,6 +93,7 @@ export default function useAssistantStream() {
             setGuardrails(evt.guardrails || { clean: true });
             setHighlight(evt.highlight || []);
             setOffer(evt.offered_variants ? (evt.offer_phrase || null) : null);
+            setActions(Array.isArray(evt.actions) ? evt.actions : []);
           }
         }
       }
@@ -104,5 +110,5 @@ export default function useAssistantStream() {
     }
   }, [stop]);
 
-  return { text, step, facts, guardrails, highlight, offer, running, error, run, stop };
+  return { text, step, facts, guardrails, highlight, offer, actions, running, error, run, stop };
 }

@@ -52,6 +52,42 @@ function render(text, terms) {
   });
 }
 
+/** The controls that take you to the real search.
+ *
+ *  Tessa's job is to help someone USE Tesserae, not to reprint the results in a
+ *  chat panel. So the answer says what is there and how many, and these open the
+ *  actual page with the actual query in it.
+ *
+ *  Real anchors, not click handlers: a scholar will want to middle-click one
+ *  into a new tab and keep the conversation, or bookmark it, or send it to a
+ *  colleague. Nothing navigates on its own -- the main window changes only when
+ *  the reader chooses.
+ */
+function Actions({ items }) {
+  if (!items || !items.length) return null;
+  return (
+    <div className="mt-2 flex flex-col gap-1">
+      {items.map((a) => (
+        <a
+          key={a.url}
+          href={a.url}
+          className="group flex items-baseline gap-2 rounded border border-red-200 bg-red-50 px-2 py-1.5 hover:bg-red-100 hover:border-red-300"
+        >
+          <span className="text-red-700 text-xs leading-none pt-0.5">&#9654;</span>
+          <span className="min-w-0">
+            <span className="block text-xs font-medium text-red-800 group-hover:text-red-900">
+              {a.label}
+            </span>
+            {a.detail && (
+              <span className="block text-[11px] text-gray-500">{a.detail}</span>
+            )}
+          </span>
+        </a>
+      ))}
+    </div>
+  );
+}
+
 const OPENERS = [
   'Where does the phrase arma virumque appear?',
   'What Hebrew texts are in the corpus?',
@@ -78,7 +114,7 @@ export default function AssistantDock() {
   const [open, setOpen] = useState(false);
   const [turns, setTurns] = useState([]);
   const [draft, setDraft] = useState('');
-  const { text, step, running, error, highlight, offer, run } = useAssistantStream();
+  const { text, step, running, error, highlight, offer, actions, run } = useAssistantStream();
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -98,11 +134,11 @@ export default function AssistantDock() {
   const pendingOffer = useRef(null);
   useEffect(() => {
     if (prevRunning.current && !running && text) {
-      setTurns((t) => [...t, { role: 'assistant', text, terms: highlight }]);
+      setTurns((t) => [...t, { role: 'assistant', text, terms: highlight, actions }]);
       pendingOffer.current = offer || null;
     }
     prevRunning.current = running;
-  }, [running, text, highlight, offer]);
+  }, [running, text, highlight, offer, actions]);
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -207,6 +243,7 @@ export default function AssistantDock() {
             }
           >
             {t.role === 'user' ? `You: ${t.text}` : render(t.text, t.terms)}
+            {t.role !== 'user' && <Actions items={t.actions} />}
           </div>
         ))}
 
@@ -217,6 +254,7 @@ export default function AssistantDock() {
           <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap bg-gray-50 rounded p-2">
             {render(text, highlight)}
             <span className="inline-block w-1.5 h-4 ml-0.5 bg-gray-400 animate-pulse align-text-bottom" />
+            <Actions items={actions} />
           </div>
         )}
 
