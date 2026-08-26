@@ -101,3 +101,23 @@ def test_the_real_help_page_has_no_mislabelled_reader_section():
     for c in site_help._load():
         if 'gutter' in c:
             assert not c.lower().startswith(('theme search', '(its own tab')), c
+
+
+# --- the Help page decides what counts as a question about the site --------
+
+def test_a_site_question_is_recognised_without_a_keyword_list():
+    """"What is Theme Search?" is not phrased as a how-to, so a keyword list
+    missed it and the corpus listing answered "the corpus contains 1826 Latin
+    works", then said Theme Search "is not a defined feature within the corpus's
+    current interface or documentation" -- confidently, about a tab on the site.
+    """
+    from backend.assistant.agent import _is_about_the_site
+    assert _is_about_the_site('What is Theme Search?')
+    assert _is_about_the_site('What is the Reader for?')
+    assert _is_about_the_site('How do I export my results?')
+
+
+def test_a_holdings_question_still_goes_to_the_corpus():
+    from backend.assistant.agent import _is_about_the_site
+    assert not _is_about_the_site('what do you have by Ovid?')
+    assert not _is_about_the_site('how many Latin works are there?')

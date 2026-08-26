@@ -78,6 +78,24 @@ def _is_how_to(question):
     return any(t in (question or '').lower() for t in _HOW_TO)
 
 
+def _is_about_the_site(question):
+    """Is this a question the Help page answers, rather than the corpus?
+
+    A holdings question is excluded even when the Help page mentions the same
+    words: "what do you have by Ovid?" wants the listing, not documentation.
+    """
+    q = (question or '').lower()
+    if any(h in q for h in _HOLDINGS_QUESTION):
+        return False
+    if _is_how_to(question):
+        return True
+    try:
+        from backend.assistant import site_help
+        return bool(site_help.relevant(question, k=1))
+    except Exception:                                    # noqa: BLE001
+        return False
+
+
 def _is_about_the_tool(question):
     q = (question or '').lower()
     return any(t in q for t in _ABOUT_THE_TOOL)
@@ -1376,13 +1394,17 @@ def _prepare(question, step, history=None, offered_phrase=None):
         all_facts.append(facts)
         ran.append(name)
 
-    if not all_facts and _is_how_to(question):
-        # A HOW-TO THAT NAMED NOTHING. Reaching here means every fast path
-        # declined it, so there is no phrase, no text and no theme in it: it is
-        # a question about the tool. "How do I search for a phrase?" was being
-        # answered "the corpus contains 1826 Latin works", which is true and
-        # useless. The guide knows how the site works, and actions.suggest adds
-        # the control where the question implies one.
+    if not all_facts and _is_about_the_site(question):
+        # A QUESTION ABOUT THE SITE, not about the corpus. Reaching here means
+        # every fast path declined it, so it names no phrase, text or theme.
+        #
+        # The test is whether the HELP PAGE answers it, rather than another list
+        # of keywords: "What is Theme Search?" is not phrased as a how-to and so
+        # fell through to the corpus listing, which answered "the corpus
+        # contains 1826 Latin works" and then said Theme Search "is not a
+        # defined feature within the corpus's current interface or
+        # documentation" -- confidently, and wrongly, about a tab on the site.
+        # The guide sees the Help page; this path is how it gets the chance to.
         return {'needs_model_only': True}
 
     if not all_facts:
