@@ -99,15 +99,26 @@ def _compare(source, target, language='la', source_author=None,
     }
 
 
-def _read(work, ref, ref_end=None):
-    if not work or not ref:
+def _read(work, ref=None, ref_end=None, language=None, name=None):
+    """Open a text in the Reader, at a passage when one is known.
+
+    `ref` is optional: "how do I read the Aeneid?" names a work and no line, and
+    refusing to build a link without one left that question with no answer at
+    all. With a ref it lands on the passage; without, it opens the work.
+    """
+    if not work:
         return None
-    args = {'work': work if str(work).endswith('.tess') else f'{work}.tess',
-            'ref': ref, 'refEnd': ref_end or ref, 'tab': 'translation'}
+    args = {'work': work if str(work).endswith('.tess') else f'{work}.tess'}
+    if language in LANGUAGES:
+        args['lang'] = language
+    if ref:
+        args.update({'ref': ref, 'refEnd': ref_end or ref, 'tab': 'translation'})
     return {
         'kind': 'read',
-        'label': f'Open {ref} in the Reader',
-        'detail': 'with the translation alongside',
+        'label': (f'Open {ref} in the Reader' if ref
+                  else f'Read {name or work} in the Reader'),
+        'detail': ('with the translation alongside' if ref
+                   else 'with connections to the rest of the corpus'),
         'url': f'/read?{urlencode(args)}',
     }
 
@@ -172,6 +183,12 @@ def build(facts, question=''):
                 target_author=a.get('target_author'),
                 label=f'Compare {f.get("source")} with {f.get("target")}'))
 
+        # A text the reader asked to open.
+        if kind.startswith('A TEXT THE READER WANTS TO OPEN') and isinstance(f.get('args'), dict):
+            a = f['args']
+            out.append(_read(a.get('work'), language=a.get('language'),
+                             name=f.get('text_name')))
+
         # A theme search that ran: the page is where the reader can widen it,
         # narrow it to one language, or read any of the passages.
         if kind == 'passages matching a description' and isinstance(f.get('args'), dict):
@@ -201,6 +218,8 @@ def build(facts, question=''):
 _COMPARE_INTENT = ('compare', 'echoes', 'echo of', 'borrow', 'parallel',
                    'allusion', 'allude', 'imitat', 'influence', 'reuse',
                    'intertext', 'model for', 'draw on', 'draws on')
+_READ_INTENT = ('read ', 'reading ', 'open ', 'look at ', 'see the text',
+                'show me the text', 'view ')
 _THEME_INTENT = ('passages about', 'passages where', 'scenes', 'scene where',
                  'theme of', 'themes of', 'motif', 'episodes', 'anything about',
                  'passages describing', 'where someone', 'depictions of',
@@ -226,6 +245,36 @@ def _theme_subject(question):
             break
     q = q.strip(' ,.:;"\'')
     return q if len(q) >= 4 else ''
+
+
+# The bare pages, for a how-to that names no subject to work on. "How do I
+# search for a phrase?" is a fair question with no phrase in it, and answering
+# it with prose alone leaves the reader to go and find the page themselves --
+# which is the work Tessa exists to save.
+_BARE_TOOLS = (
+    (('phrase', 'word search', 'search for a word', 'exact search',
+      'lemma search', 'line search', 'find a word', 'search for a phrase'),
+     {'kind': 'line_search', 'label': 'Open Line Search',
+      'detail': 'find a word or phrase across the corpus', 'url': '/line-search'}),
+    (('theme', 'passages about', 'content search', 'by content', 'theme search'),
+     {'kind': 'theme_search', 'label': 'Open Theme Search',
+      'detail': 'find passages by what happens in them', 'url': '/theme-search'}),
+    (('compare', 'comparison', 'two texts', 'intertext'),
+     {'kind': 'compare', 'label': 'Open the comparison search',
+      'detail': 'score two texts against each other', 'url': '/'}),
+    (('read', 'reader', 'reading'),
+     {'kind': 'read', 'label': 'Open the Reader',
+      'detail': 'read a text with its connections alongside', 'url': '/read'}),
+)
+
+
+def bare_tool(question):
+    """The page a how-to is about, when no subject was named."""
+    q = str(question or '').lower()
+    for words, action in _BARE_TOOLS:
+        if any(w in q for w in words):
+            return dict(action)
+    return None
 
 
 def suggest(question, lookup=None):
@@ -265,6 +314,22 @@ def suggest(question, lookup=None):
         subject = _theme_subject(question)
         if subject:
             out.append(_theme_search(subject))
+
+    if any(t in q for t in _READ_INTENT):
+        try:
+            hits = lookup.named_texts(question, limit=1)
+        except Exception:                                # noqa: BLE001
+            hits = []
+        if hits:
+            t = hits[0]
+            out.append(_read(str(t.get('id') or '').replace('.tess', ''),
+                             language=t.get('language'),
+                             name=t.get('display_name')))
+
+    # Only when nothing specific was found: a bare page beats no control at all,
+    # but a set-up search beats a bare page.
+    if not any(a for a in out):
+        out.append(bare_tool(question))
 
     return _dedupe(out)
 

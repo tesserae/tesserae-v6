@@ -180,14 +180,23 @@ def test_the_asking_is_stripped_from_the_subject():
     assert _theme_subject('are there any passages about grief?') == 'grief'
 
 
-def test_a_question_naming_nothing_resolvable_offers_nothing():
-    """Better to say less than to link somewhere wrong."""
-    assert actions.suggest('compare Blorgus with Snarf', lookup=_Corpus()) == []
+def test_unresolvable_names_never_become_a_SPECIFIC_action():
+    """The principle is that a link must not promise something that does not
+    exist. A bare page does not: it goes somewhere real and lets the reader fill
+    it in. What must never happen is a comparison built FROM names the corpus
+    cannot resolve, so this checks the url carries no texts."""
+    built = actions.suggest('compare Blorgus with Snarf', lookup=_Corpus())
+    for a in built:
+        assert 'Blorgus' not in a['url'] and 'Snarf' not in a['url']
+        assert 'source=' not in a['url'] and 'source_author=' not in a['url']
 
 
-def test_a_question_with_no_intent_at_all_offers_nothing():
-    assert actions.suggest('what is the difference between lemma and exact search?',
-                           lookup=_Corpus()) == []
+def test_a_question_about_the_tools_offers_the_tool():
+    """Asked the difference between lemma and exact search, the useful extra is
+    the page where both can be tried."""
+    built = actions.suggest('what is the difference between lemma and exact search?',
+                            lookup=_Corpus())
+    assert [a['url'] for a in built] == ['/line-search']
 
 
 def test_one_named_text_is_not_enough_to_compare():
@@ -443,3 +452,68 @@ def test_other_searches_are_untouched():
     from backend.assistant.agent import _resolve_text_args
     args = {'query': 'arma virumque', 'search_type': 'exact'}
     assert _resolve_text_args('line_search', args) == args
+
+
+# --- the guide role: read hand-off, how-to routing, bare pages -------------
+
+def test_a_named_text_becomes_a_reader_link():
+    """"How do I read the Aeneid?" reached the chooser, which picked list_texts
+    and answered 'the corpus contains eight works titled or associated with the
+    Aeneid' -- a catalogue entry in place of the thing asked for."""
+    built = actions.build([{
+        'kind': 'A TEXT THE READER WANTS TO OPEN.',
+        'text_name': 'Vergil, Aeneid',
+        'args': {'work': 'vergil.aeneid', 'language': 'la'}}])
+    assert built and built[0]['url'].startswith('/read?work=vergil.aeneid.tess')
+    assert 'Vergil, Aeneid' in built[0]['label']
+
+
+def test_a_reader_link_needs_no_line_reference():
+    """Refusing to build one without a ref left 'how do I read the Aeneid?'
+    with no answer at all."""
+    a = actions.for_suggestion('read', work='vergil.aeneid', name='Vergil, Aeneid')
+    assert a and 'ref=' not in a['url']
+
+
+def test_a_howto_with_no_subject_gets_the_bare_page():
+    assert actions.bare_tool('How do I search for a phrase?')['url'] == '/line-search'
+    assert actions.bare_tool('How does theme search work?')['url'] == '/theme-search'
+    assert actions.bare_tool('how do I use the reader?')['url'] == '/read'
+
+
+def test_a_concept_question_gets_no_control():
+    """'what is a lemma?' wants an explanation, not a page."""
+    assert actions.bare_tool('what is a lemma?') is None
+
+
+def test_a_set_up_search_beats_a_bare_page():
+    """'how do I find echoes of Vergil in Statius' contains 'compare' intent AND
+    two names; it must get the real comparison, not the empty search page."""
+    class _C:
+        def named_texts(self, q, limit=2):
+            return [{'id': 'vergil.aeneid.tess', 'author': 'Vergil', 'language': 'la',
+                     'display_name': 'Vergil, Aeneid', 'matched': 'author'},
+                    {'id': 'statius.silvae.tess', 'author': 'Statius', 'language': 'la',
+                     'display_name': 'Statius, Silvae', 'matched': 'author'}]
+    built = actions.suggest('how do I find echoes of Vergil in Statius?', lookup=_C())
+    assert built and 'source_author=Vergil' in built[0]['url']
+
+
+def test_an_author_level_comparison_names_the_AUTHOR_not_a_work():
+    """The sentence took display_name whichever way the names resolved, so an
+    author-level match was described as 'work by both Ovid, Ibis and Vergil,
+    Aeneid'. The Ibis is an id-length tiebreak, and it told the reader the
+    search was narrower than it is."""
+    from backend.assistant.agent import _handoff_sentence
+    text = _handoff_sentence([{
+        'kind': 'TWO TEXTS THE READER WANTS COMPARED.',
+        'source': 'Ovid', 'target': 'Vergil', 'compares': 'whole authors'}])
+    assert 'Ovid' in text and 'Vergil' in text
+    assert 'Ibis' not in text and 'Aeneid' not in text
+
+
+def test_a_howto_that_names_nothing_is_recognised():
+    from backend.assistant.agent import _is_how_to
+    assert _is_how_to('How do I search for a phrase?')
+    assert _is_how_to('where do i start?')
+    assert not _is_how_to('Where does "arma virumque" appear?')

@@ -63,6 +63,21 @@ _ABOUT_THE_TOOL = (
 )
 
 
+# Wanting to READ something, as opposed to search for it.
+_READ_INTENT = ('read ', 'reading ', 'open ', 'look at ', 'see the text',
+                'show me the text', 'view ')
+
+# A question about HOW TO USE the site that names no subject to work on. These
+# reach the guide. A how-to that DOES name one -- "how do I find echoes of
+# Vergil in Statius" -- is handled by the fast paths long before this.
+_HOW_TO = ('how do i', 'how can i', 'how to ', 'where do i', 'can i ',
+           'is it possible to', 'what should i')
+
+
+def _is_how_to(question):
+    return any(t in (question or '').lower() for t in _HOW_TO)
+
+
 def _is_about_the_tool(question):
     q = (question or '').lower()
     return any(t in q for t in _ABOUT_THE_TOOL)
@@ -627,6 +642,12 @@ def _handoff_sentence(facts):
     there is nothing to write, there is nothing for it to do.
     """
     for f in facts or []:
+        if str(f.get('kind') or '').startswith('A TEXT THE READER WANTS TO OPEN'):
+            name = f.get('text_name')
+            if name:
+                return (f'{name} is in the corpus. The Reader shows it with its '
+                        f'connections to the rest of the corpus alongside.')
+            return None
         if not str(f.get('kind') or '').startswith('TWO TEXTS'):
             continue
         src, tgt = f.get('source'), f.get('target')
@@ -1097,6 +1118,7 @@ def _prepare(question, step, history=None, offered_phrase=None):
                 logger.info('[ASSISTANT] seed listing %s failed: %s', code, e)
 
     compare_done = False
+    read_done = False
 
     # A COMPARISON IS OFFERED, NOT RUN HERE.
     #
@@ -1130,8 +1152,19 @@ def _prepare(question, step, history=None, offered_phrase=None):
                         'wording to sound and meaning -- and stop. The control '
                         'that opens it is shown beneath your answer. Do NOT '
                         'report any search result: none has been run.',
-                'source': pair[0].get('display_name') or pair[0].get('id'),
-                'target': pair[1].get('display_name') or pair[1].get('id'),
+                # NAME WHAT THE SEARCH ACTUALLY COVERS.
+                #
+                # These took display_name whichever way the names resolved, so
+                # "where Ovid imitates Vergil" -- an AUTHOR-level match, and
+                # searched as one -- was answered "the corpus holds work by both
+                # Ovid, Ibis and Vergil, Aeneid". The Ibis is an arbitrary pick
+                # by an id-length tiebreak, which is the very thing author-level
+                # matching exists to avoid, and it told the reader the search was
+                # narrower than it is.
+                'source': (pair[0].get('author') if by_author
+                           else pair[0].get('display_name') or pair[0].get('id')),
+                'target': (pair[1].get('author') if by_author
+                           else pair[1].get('display_name') or pair[1].get('id')),
                 'compares': 'whole authors' if by_author else 'these two texts',
                 'search': 'compare',
                 'args': ({'source_author': pair[0].get('author'),
@@ -1144,6 +1177,34 @@ def _prepare(question, step, history=None, offered_phrase=None):
             })
             ran.append('resolved both texts')
             compare_done = True
+
+    # A TEXT THE READER WANTS TO OPEN goes to the Reader.
+    #
+    # "How do I read the Aeneid?" reached the chooser, which picked list_texts
+    # and answered "the corpus contains eight works titled or associated with
+    # the Aeneid" -- a catalogue entry in place of the thing asked for. The
+    # Reader is the answer to "how do I read X", and it takes a work id.
+    if not compare_done and any(t in question.lower() for t in _READ_INTENT):
+        try:
+            from backend.assistant import corpus_lookup
+            hits = corpus_lookup.named_texts(question, limit=1)
+        except Exception as e:                              # noqa: BLE001
+            logger.info('[ASSISTANT] read lookup failed: %s', e)
+            hits = []
+        if hits:
+            t = hits[0]
+            all_facts.append({
+                'kind': 'A TEXT THE READER WANTS TO OPEN. It is in the corpus. '
+                        'Say so in ONE sentence and stop; the control that opens '
+                        'it is shown beneath your answer. Do NOT list other '
+                        'works, and do NOT report any search result.',
+                'text_name': t.get('display_name') or t.get('id'),
+                'search': 'read',
+                'args': {'work': str(t.get('id') or '').replace('.tess', ''),
+                         'language': t.get('language') or 'la'},
+            })
+            ran.append('resolved the text')
+            read_done = True
 
     # A THEMATIC question goes to the passage index, not to a word search.
     #
@@ -1171,7 +1232,7 @@ def _prepare(question, step, history=None, offered_phrase=None):
 
     # A quoted phrase needs no deliberation: run the exact search for it.
     phrase = _quoted_phrase(question) or carried
-    if phrase and not theme_done and not compare_done:
+    if phrase and not theme_done and not compare_done and not read_done:
         lang = next((c for c, w in (('he', 'hebrew'), ('grc', 'greek'),
                                     ('cop', 'coptic'), ('en', 'english'))
                      if w in question.lower()), 'la')
@@ -1275,7 +1336,8 @@ def _prepare(question, step, history=None, offered_phrase=None):
             logger.info('[ASSISTANT] phrase search failed: %s', e)
 
     # If the seed answered a holdings question, go straight to composing.
-    skip_chooser = bool(all_facts) and (phrase or theme_done or compare_done or any(
+    skip_chooser = bool(all_facts) and (phrase or theme_done or compare_done
+                                        or read_done or any(
         h in question.lower() for h in _HOLDINGS_QUESTION))
     for _ in range(0 if skip_chooser else MAX_SEARCHES):
         prompt = f'Question: {question}\n'
@@ -1313,6 +1375,15 @@ def _prepare(question, step, history=None, offered_phrase=None):
         facts.update({'search': name, 'args': args})
         all_facts.append(facts)
         ran.append(name)
+
+    if not all_facts and _is_how_to(question):
+        # A HOW-TO THAT NAMED NOTHING. Reaching here means every fast path
+        # declined it, so there is no phrase, no text and no theme in it: it is
+        # a question about the tool. "How do I search for a phrase?" was being
+        # answered "the corpus contains 1826 Latin works", which is true and
+        # useless. The guide knows how the site works, and actions.suggest adds
+        # the control where the question implies one.
+        return {'needs_model_only': True}
 
     if not all_facts:
         # Falling back to the guide here is what produced "use string_search
