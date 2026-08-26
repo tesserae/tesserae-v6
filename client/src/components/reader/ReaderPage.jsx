@@ -121,6 +121,14 @@ export default function ReaderPage() {
         <h2 className="font-semibold text-gray-900" style={{ fontFamily: '"Gentium Book Plus", Georgia, serif' }}>
           {title || 'Reader'}
         </h2>
+        {/* Marked where it is used. The Reader, Theme Search and Tessa all
+            shipped in the last few days and are all still changing. */}
+        <span
+          className="rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800"
+          title="This feature is in development and still changing."
+        >
+          Beta
+        </span>
         <div className="ml-auto flex items-end gap-2 min-w-0">
           <TextSelector
             label=""

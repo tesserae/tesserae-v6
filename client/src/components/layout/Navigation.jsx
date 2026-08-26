@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 
 const mainTabs = [
   { code: 'search', label: 'Search' },
-  { code: 'read', label: 'Read' },
-  { code: 'theme-search', label: 'Theme Search' },
+  { code: 'read', label: 'Read', beta: true },
+  { code: 'theme-search', label: 'Theme Search', beta: true },
   { code: 'browse', label: 'Browse Corpus' },
   { code: 'repository', label: 'Repository' },
   // DISABLED FOR PRODUCTION - Uncomment to restore Visualizations
@@ -99,6 +99,15 @@ const Navigation = ({
                 }`}
               >
                 {tab.label}
+                {/* Said plainly rather than in a tooltip. The Reader, Theme
+                    Search and Tessa are all new and all still changing, and a
+                    scholar deciding whether to cite something needs to know
+                    that before they rely on it, not afterwards. */}
+                {tab.beta && (
+                  <span className="ml-1 align-super text-[9px] font-semibold uppercase tracking-wide text-amber-700">
+                    beta
+                  </span>
+                )}
               </button>
             ))}
             {showDownloads && setShowDownloads && (

@@ -314,3 +314,47 @@ def test_digits_still_work():
     from backend.assistant.model import numbers_preserved
     ok, bad = numbers_preserved('{"works": 40}', 'There are 999 works.')
     assert not ok and '999' in bad
+
+
+# --- a question that names its own subject is not a follow-up --------------
+
+def test_a_question_naming_two_texts_does_not_inherit_the_last_phrase():
+    """"compare Statius Thebaid 12 with Vergil Aeneid 1" is seven words, so the
+    length test called it a follow-up and it inherited "arma virumque" from
+    three turns earlier. Tessa answered a question about Statius and Vergil by
+    reporting where arma virumque occurs, with arma virumque highlighted."""
+    from backend.assistant.agent import _carried_phrase
+    history = [{'role': 'user', 'text': 'Where does the phrase "arma virumque" appear?'},
+               {'role': 'assistant', 'text': 'Twelve times.'}]
+    assert _carried_phrase('compare Statius Thebaid 12 with Vergil Aeneid 1',
+                           history) is None
+    assert _carried_phrase('is it in Ovid?', history) is None
+
+
+def test_a_real_follow_up_still_inherits():
+    from backend.assistant.agent import _carried_phrase
+    history = [{'role': 'user', 'text': 'Where does the phrase "arma virumque" appear?'},
+               {'role': 'assistant', 'text': 'Twelve times.'}]
+    assert _carried_phrase('how about in any post-classical authors?',
+                           history) == 'arma virumque'
+    assert _carried_phrase('what about it?', history) == 'arma virumque'
+
+
+# --- OCR debris never reaches a scholar as evidence ------------------------
+
+def test_index_artefacts_are_not_words():
+    """/rare-lemmata returns the first 30 of 273,091 rare words ALPHABETICALLY,
+    and the head of the Latin alphabet is index noise. Comparing the Thebaid
+    with the Aeneid returned thirty entries, not one of them a word, and Tessa
+    reported them as 'shared rare terms suggesting allusive engagement'."""
+    from backend.assistant.agent import _is_a_word
+    for junk in ('*lyrcea', 'aaa', 'aaaicti', 'aaaipsa', 'aaaxeotou',
+                 'aactoritate', 'aaiueou', 'aa', 'aalbuci', 'aahnae'):
+        assert not _is_a_word(junk), junk
+
+
+def test_real_words_survive_the_filter():
+    from backend.assistant.agent import _is_a_word
+    for word in ('lyrcea', 'arma', 'virumque', 'auctoritate', 'saeculum',
+                 'thalamus', 'ferrum', 'oceanus', 'aeneas', 'iuppiter', 'poeta'):
+        assert _is_a_word(word), word

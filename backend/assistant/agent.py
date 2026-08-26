@@ -108,6 +108,28 @@ _NOT_PEOPLE = {'latin', 'greek', 'hebrew', 'coptic', 'english', 'book', 'corpus'
                'which', 'does', 'this', 'that', 'they', 'there', 'about', 'also'}
 
 
+def _is_a_word(w):
+    """Whether a token from the rare-word index is plausibly a word at all.
+
+    The index carries OCR debris -- '*lyrcea', 'aaa', 'aaaicti', 'aaiueou' --
+    and it sorts to the front of the alphabet, so an alphabetically ordered
+    sample is made of almost nothing else.
+    """
+    w = str(w or '').strip().lower()
+    if len(w) < 3 or not w.isalpha():
+        return False
+    # No Latin or Greek word begins with a doubled letter. 'aactoritate' is
+    # 'auctoritate' with the u misread; 'aaaicti' is nothing at all.
+    if re.match(r'^(.)\1', w):
+        return False
+    if re.match(r'^[bcdfghjklmnpqrstvwxz]{4,}', w):   # no vowel in the first four
+        return False
+    vowels = sum(c in 'aeiouy' for c in w)
+    ratio = vowels / len(w)
+    # 'aaiueou' is all vowels; a word with no vowels at all is debris too.
+    return 0.2 <= ratio <= 0.8
+
+
 def _highlight_terms(facts):
     """The words worth marking in an answer: the phrase, and its inflections.
 
@@ -330,6 +352,12 @@ def _last_phrase(history):
     return None
 
 
+# A capitalised name that is not a sentence-opening word: "Statius", "Vergil
+# Aeneid". Used to tell a question that names its own subject from one that
+# refers back to an earlier turn.
+_TEXT_NAME = re.compile(r'(?<!^)(?<![.!?]\s)\b[A-Z][a-zA-Z]{3,}\b')
+
+
 def _carried_phrase(question, history):
     """The phrase an earlier turn established, when this turn omits it.
 
@@ -342,9 +370,22 @@ def _carried_phrase(question, history):
     """
     if not history or _quoted_phrase(question) or _is_about_the_tool(question):
         return None
+    ql = (question or '').lower()
+
+    # A QUESTION THAT NAMES ITS OWN SUBJECT IS NOT A FOLLOW-UP.
+    #
+    # "compare Statius Thebaid 12 with Vergil Aeneid 1" is seven words, so the
+    # length test called it a follow-up and it inherited "arma virumque" from
+    # three turns earlier. Tessa then answered a question about Statius and
+    # Vergil by reporting where arma virumque occurs, with arma virumque
+    # highlighted in it. The reader had named two texts and been ignored.
+    #
+    # Naming a work or an author is naming a subject, whatever the word count.
+    if _TEXT_NAME.search(question or ''):
+        return None
+
     # A follow-up is short and refers back. A fresh question that simply
     # happens to lack quotation marks should not inherit the last subject.
-    ql = (question or '').lower()
     refers_back = (len(ql.split()) <= 14
                    or any(w in ql for w in (' it ', "it's", 'it?', 'that one',
                                             'how about', 'what about', 'any other',
@@ -721,11 +762,33 @@ def _summarise(name, raw):
                          for r in rows[:12]],
         }
     if name == 'rare_words':
-        return {'kind': 'rare shared words', 'returned': len(results),
+        # THE ARTEFACTS ARE FILTERED OUT, and if nothing survives, that is said.
+        #
+        # /rare-lemmata returns the first 30 of 273,091 rare words in ALPHABETICAL
+        # order, and the head of the Latin alphabet is index noise: comparing the
+        # Thebaid with the Aeneid returned *lyrcea, aaa, aaaicti, aaaipsa,
+        # aaaxeotou -- thirty entries, not one of them a word. Tessa duly
+        # reported them as "shared rare terms suggesting allusive engagement".
+        # Presenting OCR debris to a scholar as evidence is worse than saying
+        # nothing, and it discredits every real finding beside it.
+        clean = [w for w in results if _is_a_word(w.get('lemma') or w.get('word'))]
+        return {'kind': 'rare shared words',
+                'returned': len(results),
+                'usable_after_filtering': len(clean),
                 'total_rare_in_corpus': raw.get('total_rare_words'),
+                'quality_note': (
+                    'This pass returns rare words ALPHABETICALLY, not by '
+                    'significance, so it is showing the start of the alphabet '
+                    'rather than the best evidence. '
+                    + ('None of what came back is a real word: say that the '
+                       'rare-word pass found nothing usable here and that the '
+                       'full comparison is the way to look properly. Do NOT '
+                       'list the discarded entries.'
+                       if not clean else
+                       'Treat the surviving words as a sample, not a finding.')),
                 'words': [{'word': w.get('lemma') or w.get('word'),
                            'occurrences': w.get('count') or w.get('occurrences')}
-                          for w in results[:15]]}
+                          for w in clean[:15]]}
     return {'kind': name, 'raw_size': len(results)}
 
 
@@ -931,6 +994,41 @@ def _prepare(question, step, history=None, offered_phrase=None):
             except searches.SearchError as e:
                 logger.info('[ASSISTANT] seed listing %s failed: %s', code, e)
 
+    compare_done = False
+
+    # A COMPARISON of two named texts runs on the texts the READER named.
+    #
+    # "compare Statius Thebaid 12 with Vergil Aeneid 1" used to inherit the
+    # previous phrase and answer about that instead. With the inheritance fixed
+    # it fell to the chooser, which picks text ids by guessing at their spelling
+    # -- it produced "Vergil_Aeneid" and "Statius_Thebaid", neither of which
+    # exists. The names are resolved against the real listing here instead.
+    if any(t in question.lower() for t in actions._COMPARE_INTENT):
+        try:
+            from backend.assistant import corpus_lookup
+            pair = corpus_lookup.named_texts(question, limit=2)
+        except Exception as e:                              # noqa: BLE001
+            logger.info('[ASSISTANT] compare lookup failed: %s', e)
+            pair = []
+        if len(pair) == 2 and all(p.get('matched') == 'work' for p in pair):
+            src = str(pair[0].get('id') or '').replace('.tess', '')
+            tgt = str(pair[1].get('id') or '').replace('.tess', '')
+            try:
+                step(f'comparing {pair[0].get("display_name")} '
+                     f'with {pair[1].get("display_name")}')
+                raw = searches.run('rare_words', {'source': src, 'target': tgt})
+                facts = _summarise('rare_words', raw)
+                facts.update({'search': 'rare_words',
+                              'args': {'source': src, 'target': tgt,
+                                       'language': pair[0].get('language') or 'la'},
+                              'source_work': pair[0].get('display_name'),
+                              'target_work': pair[1].get('display_name')})
+                all_facts.append(facts)
+                ran.append('rare_words')
+                compare_done = True
+            except searches.SearchError as e:
+                logger.info('[ASSISTANT] compare failed: %s', e)
+
     # A THEMATIC question goes to the passage index, not to a word search.
     #
     # This is why "are there any passages about a storm at sea?" answered badly:
@@ -957,7 +1055,7 @@ def _prepare(question, step, history=None, offered_phrase=None):
 
     # A quoted phrase needs no deliberation: run the exact search for it.
     phrase = _quoted_phrase(question) or carried
-    if phrase and not theme_done:
+    if phrase and not theme_done and not compare_done:
         lang = next((c for c, w in (('he', 'hebrew'), ('grc', 'greek'),
                                     ('cop', 'coptic'), ('en', 'english'))
                      if w in question.lower()), 'la')
@@ -1061,7 +1159,7 @@ def _prepare(question, step, history=None, offered_phrase=None):
             logger.info('[ASSISTANT] phrase search failed: %s', e)
 
     # If the seed answered a holdings question, go straight to composing.
-    skip_chooser = bool(all_facts) and (phrase or theme_done or any(
+    skip_chooser = bool(all_facts) and (phrase or theme_done or compare_done or any(
         h in question.lower() for h in _HOLDINGS_QUESTION))
     for _ in range(0 if skip_chooser else MAX_SEARCHES):
         prompt = f'Question: {question}\n'

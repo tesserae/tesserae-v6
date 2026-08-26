@@ -247,6 +247,9 @@ export default function AssistantDock() {
             T
           </span>
           Tessa AI Assistant
+          <span className="text-[9px] font-semibold uppercase tracking-wide text-amber-700 align-super">
+            beta
+          </span>
         </h2>
         <div className="flex items-center gap-1">
           {/* The conversation now survives a page load, so there has to be a way
@@ -325,6 +328,10 @@ export default function AssistantDock() {
         {error && <p className="text-xs text-amber-700">{error}</p>}
       </div>
 
+      <p className="px-3 pb-1 text-[10px] leading-snug text-gray-500 border-t border-gray-100 pt-1.5">
+        In development. Tessa reports what the searches return; check anything
+        you intend to cite against the text itself.
+      </p>
       <form
         onSubmit={(e) => { e.preventDefault(); ask(draft); }}
         className="flex gap-2 p-2 border-t border-gray-200"
