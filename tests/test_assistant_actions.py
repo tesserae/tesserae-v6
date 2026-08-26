@@ -383,3 +383,36 @@ def test_two_named_authors_compare_by_author():
         'args': {'source_author': 'Vergil', 'target_author': 'Statius',
                  'language': 'la'}}])
     assert 'source_author=Vergil' in built[0]['url']
+
+
+# --- a hand-off does not call the model at all -----------------------------
+
+def test_the_handoff_sentence_is_written_in_code():
+    """NC: 'why does it take so long to just find the right search and click it?
+    This takes longer than the user doing it manually?' It did: eleven of the
+    fourteen seconds were a 30B model on a CPU phrasing a fact it had been
+    handed. A hand-off carries no information the model was not given, so it is
+    composed here instead."""
+    from backend.assistant.agent import _handoff_sentence
+    text = _handoff_sentence([{
+        'kind': 'TWO TEXTS THE READER WANTS COMPARED.',
+        'source': 'Statius, Thebaid, Book 12',
+        'target': 'Vergil, Aeneid, Book 1'}])
+    assert text
+    assert 'Statius, Thebaid, Book 12' in text and 'Vergil, Aeneid, Book 1' in text
+
+
+def test_an_author_level_handoff_says_so():
+    from backend.assistant.agent import _handoff_sentence
+    text = _handoff_sentence([{
+        'kind': 'TWO TEXTS THE READER WANTS COMPARED.',
+        'source': 'Vergil', 'target': 'Statius', 'compares': 'whole authors'}])
+    assert 'work by both' in text
+
+
+def test_anything_else_still_goes_to_the_model():
+    """Only this one shape is safe to write in code. A fact that needs reading
+    must still be read."""
+    from backend.assistant.agent import _handoff_sentence
+    assert _handoff_sentence([{'kind': 'phrase occurrences', 'examples': []}]) is None
+    assert _handoff_sentence([]) is None

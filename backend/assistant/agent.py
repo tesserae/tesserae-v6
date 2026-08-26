@@ -577,6 +577,40 @@ def _wants_listing(question):
             and any(n in q for n in _LISTING_NOUNS))
 
 
+def _handoff_sentence(facts):
+    """The whole answer, written in code, when nothing needed a model.
+
+    WHY THIS EXISTS
+
+    NC: "why does it take so long to just find the right search and click it?
+    This takes longer than the user doing it manually?" Correct, and it was.
+
+    A hand-off answer carries no information the model was not handed: both
+    texts were resolved in code, the corpus was confirmed to hold them, and the
+    control is built in code too. Asking a 30B model on a CPU to phrase that
+    cost eleven seconds of the fourteen, to produce a sentence that says the
+    corpus contains both texts -- which is what the fact already said.
+
+    So this path does not call the model at all. That is the same rule the rest
+    of the module follows: every fact is computed and the model only writes. If
+    there is nothing to write, there is nothing for it to do.
+    """
+    for f in facts or []:
+        if not str(f.get('kind') or '').startswith('TWO TEXTS'):
+            continue
+        src, tgt = f.get('source'), f.get('target')
+        if not src or not tgt:
+            return None
+        if f.get('compares') == 'whole authors':
+            return (f'The corpus holds work by both {src} and {tgt}. '
+                    f'The full comparison scores every channel between them, '
+                    f'from shared wording to sound and sense.')
+        return (f'The corpus holds both {src} and {tgt}. '
+                f'The full comparison scores every channel between them, from '
+                f'shared wording to sound and sense.')
+    return None
+
+
 def _listing_rule(question):
     """The one instruction that changes with the question."""
     if _wants_listing(question):
@@ -853,12 +887,27 @@ def answer_stream(question, on_step=None, history=None, offered_phrase=None):
         f.get('search') in ('line_search', 'theme_search', 'rare_words')
         for f in all_facts)
     budget = 90 if handing_over else ANSWER_TOKENS
-    # Capping alone did nothing: at 220 tokens the model wrote 110 and finished
+    # NOTHING TO WRITE MEANS NOTHING TO GENERATE.
+    #
+    # Capping the model did not help: at 220 tokens it wrote 110 and finished
     # inside the cap, so the clock did not move. It generates at about ten
-    # tokens a second on this CPU, so the only thing that shortens the wait is
-    # asking for fewer words.
-    brief = ('\n\nTWO SENTENCES AT MOST. Say the corpus holds them and what the '
-             'comparison covers. No list of what it will find.' if handing_over else '')
+    # tokens a second on this CPU. The real answer is not to call it.
+    if handing_over:
+        sentence = _handoff_sentence(all_facts)
+        if sentence:
+            yield ('chunk', sentence)
+            yield ('done', {'searches_run': ran, 'facts': all_facts,
+                            'highlight': [],
+                            'actions': (actions.build(all_facts, question)
+                                        or actions.suggest(question)),
+                            'offered_variants': False, 'offer_phrase': None,
+                            'guardrails': {'references_removed': [],
+                                           'unsupported_numbers': [],
+                                           'fabricated_quotes': [],
+                                           'mispaired_quotes': [],
+                                           'clean': True}})
+            return
+    brief = ''
     for piece in model.stream(ANSWER_SYSTEM,
                               f'{block}\n\n{_listing_rule(asked)}{brief}'
                               f'\n\nQuestion: {asked}\n\nAnswer:',
