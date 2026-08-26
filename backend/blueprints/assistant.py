@@ -19,7 +19,7 @@ import json
 from flask import Blueprint, Response, jsonify, request, session
 
 from backend.logging_config import get_logger
-from backend.assistant import agent, findings, model, prompts, router
+from backend.assistant import actions, agent, findings, model, prompts, router
 
 logger = get_logger('blueprints.assistant')
 
@@ -161,7 +161,13 @@ def ask_stream():
                         for piece in model.stream(prompts.guide_system(), question,
                                                   max_tokens=model.MAX_TOKENS_GUIDE):
                             yield _sse('chunk', {'text': piece})
-                        yield _sse('done', {'searches_run': [], 'fell_back_to_guide': True})
+                        # The guide half now hands over too. Nothing was
+                        # searched, so the actions come from what the QUESTION
+                        # asks for -- resolved against texts the corpus really
+                        # holds, and omitted where a name cannot be resolved.
+                        yield _sse('done', {'searches_run': [],
+                                            'fell_back_to_guide': True,
+                                            'actions': actions.suggest(question)})
                         return
                     # Pass the terms worth marking through to the page, so a
                     # listing of Latin lines shows what actually matched.

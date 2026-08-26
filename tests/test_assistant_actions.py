@@ -93,7 +93,10 @@ def test_compare_needs_both_texts():
                                   target='', language='la') is None
     a = actions.for_suggestion('compare', source='vergil.aeneid',
                                target='ovid.metamorphoses', language='la')
-    assert a['url'].startswith('/?source=')
+    # Membership, not a prefix: the parameter order is not part of the contract.
+    assert a['url'].startswith('/?')
+    assert 'source=vergil.aeneid' in a['url']
+    assert 'target=ovid.metamorphoses' in a['url']
 
 
 # --- when a listing is warranted, decided in code rather than by the prompt ---
@@ -118,3 +121,74 @@ def test_asking_for_the_passages_is():
               'give me the occurrences',
               'cite each one'):
         assert _wants_listing(q), q
+
+
+# --- the guide half: a question where no search has run --------------------
+#
+# Names have to become REAL text ids or the link is a lie, so these use a stub
+# corpus rather than the live one and assert the shape of what is built.
+
+class _Corpus:
+    ROWS = {
+        'vergil': {'id': 'vergil.aeneid.tess', 'author': 'Vergil', 'language': 'la',
+                   'display_name': 'Vergil, Aeneid', 'matched': 'author'},
+        'statius': {'id': 'statius.silvae.tess', 'author': 'Statius', 'language': 'la',
+                    'display_name': 'Statius, Silvae', 'matched': 'author'},
+        'aeneid': {'id': 'vergil.aeneid.tess', 'author': 'Vergil', 'language': 'la',
+                   'display_name': 'Vergil, Aeneid', 'matched': 'work'},
+        'punica': {'id': 'silius_italicus.punica.tess', 'author': 'Silius Italicus',
+                   'language': 'la', 'display_name': 'Silius Italicus, Punica',
+                   'matched': 'work'},
+    }
+
+    def named_texts(self, question, limit=2):
+        out = []
+        for key, row in self.ROWS.items():
+            if key in question.lower() and row not in out:
+                out.append(row)
+            if len(out) >= limit:
+                break
+        return out
+
+
+def test_two_named_AUTHORS_become_an_author_level_comparison():
+    """Naming an author but no work is not a licence to pick one. An id-length
+    tiebreak once made Statius the Silvae and Ovid the Ibis."""
+    built = actions.suggest('how do I find echoes of Vergil in Statius?',
+                            lookup=_Corpus())
+    assert built, 'a comparison question produced nothing'
+    url = built[0]['url']
+    assert 'source_author=Vergil' in url and 'target_author=Statius' in url
+    assert 'source=' not in url.replace('source_author=', '')
+
+
+def test_two_named_WORKS_become_a_text_level_comparison():
+    built = actions.suggest('echoes of the Aeneid in the Punica', lookup=_Corpus())
+    url = built[0]['url']
+    assert 'source=vergil.aeneid' in url and 'target=silius_italicus.punica' in url
+
+
+def test_a_thematic_question_becomes_a_theme_search():
+    built = actions.suggest('are there any passages about a storm at sea?',
+                            lookup=_Corpus())
+    assert built[0]['url'] == '/theme-search?query=a+storm+at+sea'
+
+
+def test_the_asking_is_stripped_from_the_subject():
+    from backend.assistant.actions import _theme_subject
+    assert _theme_subject('show me scenes where a city falls') == 'a city falls'
+    assert _theme_subject('are there any passages about grief?') == 'grief'
+
+
+def test_a_question_naming_nothing_resolvable_offers_nothing():
+    """Better to say less than to link somewhere wrong."""
+    assert actions.suggest('compare Blorgus with Snarf', lookup=_Corpus()) == []
+
+
+def test_a_question_with_no_intent_at_all_offers_nothing():
+    assert actions.suggest('what is the difference between lemma and exact search?',
+                           lookup=_Corpus()) == []
+
+
+def test_one_named_text_is_not_enough_to_compare():
+    assert actions.suggest('echoes of Vergil somewhere', lookup=_Corpus()) == []

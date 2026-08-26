@@ -496,12 +496,50 @@ def _wants_listing(question):
 def _listing_rule(question):
     """The one instruction that changes with the question."""
     if _wants_listing(question):
-        return ('THEY ASKED FOR THE PASSAGES. List them, one per line, citation '
-                'first, then the line of text. Up to about eight, then say how '
-                'many more there are.')
+        return ('THEY ASKED FOR THE PASSAGES, and the list itself will be added '
+                'below your answer from the search results. Do NOT write the '
+                'list yourself. Give ONE sentence saying how many there are and '
+                'anything worth noticing about them.')
     return ('THEY DID NOT ASK FOR A LISTING. Do NOT print the passages one by '
             'one. Give the totals and the shape of the evidence in two to four '
             'sentences. The controls below your answer open the full list.')
+
+
+LISTING_LIMIT = 8
+
+
+def _computed_listing(facts, limit=LISTING_LIMIT):
+    """The passages, rendered from the results rather than narrated.
+
+    WHY THIS IS NOT LEFT TO THE MODEL
+
+    Under the tightened short-answer instruction the model began returning the
+    LINES without their loci -- "Arma virumque cano, Troiae qui primus ab oris"
+    with no "Vergil, Aeneid 1.1" in front of it. For a scholar the citation is
+    the more important half, and it was the half being dropped.
+
+    A listing is mechanical: every field is already in the facts. So it is built
+    here. That also removes it from the reach of the guardrails, which exist
+    because the model mangles citations, and puts the one thing a reader must be
+    able to trust beyond the model's reach entirely.
+    """
+    rows, total = [], 0
+    for f in facts or []:
+        for key in ('examples', 'lines'):
+            for e in (f.get(key) or []):
+                if not isinstance(e, dict) or not e.get('ref'):
+                    continue
+                total += 1
+                if len(rows) < limit and not any(r[0] == e['ref'] for r in rows):
+                    rows.append((str(e['ref']), str(e.get('text') or '').strip()))
+    if not rows:
+        return ''
+    out = ['']
+    for ref, line in rows:
+        out.append(f'\n{ref}' + (f'\n    {line}' if line else ''))
+    if total > len(rows):
+        out.append(f'\n\n{total - len(rows)} more are in the full search.')
+    return '\n'.join(out)
 
 
 def _extract_json(text):
@@ -697,6 +735,14 @@ def answer_stream(question, on_step=None, history=None, offered_phrase=None):
     if warn:
         yield ('chunk', warn)
 
+    # The passages themselves, built from the results. Appended AFTER the guards
+    # because it is computed rather than generated: there is nothing here for
+    # them to check that was not already checked when the search ran.
+    if _wants_listing(asked):
+        listing = _computed_listing(all_facts)
+        if listing:
+            yield ('chunk', listing)
+
     offer = _variant_offer(all_facts, text)
     if offer:
         yield ('chunk', offer)
@@ -706,7 +752,12 @@ def answer_stream(question, on_step=None, history=None, offered_phrase=None):
                     # query in it. Built in code from the arguments the searches
                     # ran with, never composed by the model: a link is a promise
                     # that something exists.
-                    'actions': actions.build(all_facts, question),
+                    # Falls back to what the QUESTION asks for when the search
+                    # that ran suggests nothing: "how do I find echoes of Vergil
+                    # in Statius" deserves a compare control even though the
+                    # phrase search that answered it does not imply one.
+                    'actions': (actions.build(all_facts, question)
+                                or actions.suggest(question)),
                     # So the server can remember that an offer was made. The
                     # session cookie carries QUESTIONS only, so an assistant
                     # offer is invisible to a follow-up unless it is recorded.

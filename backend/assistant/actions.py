@@ -65,15 +65,31 @@ def _theme_search(query, language=None):
     }
 
 
-def _compare(source, target, language='la'):
-    """The main fusion search over two texts."""
-    if not source or not target or language not in LANGUAGES:
+def _compare(source, target, language='la', source_author=None,
+             target_author=None, label=None):
+    """The main fusion search over two texts, or over two authors.
+
+    AUTHOR-LEVEL IS NOT A FALLBACK, it is the honest answer to a question that
+    named no work. Asked about "echoes of Vergil in Statius", picking a work for
+    each is a guess, and the guess was wrong: an id-length tiebreak made Statius
+    the Silvae and Ovid the Ibis. The site searches by author, so a reader who
+    named an author gets an author search.
+    """
+    if language not in LANGUAGES:
         return None
-    args = {'source': source, 'target': target, 'lang': language}
+    args = {'lang': language}
+    if source and target:
+        args.update({'source': source, 'target': target})
+        detail = f'{source} and {target}'
+    elif source_author and target_author:
+        args.update({'source_author': source_author, 'target_author': target_author})
+        detail = f'all of {source_author} against all of {target_author}'
+    else:
+        return None
     return {
         'kind': 'compare',
-        'label': 'Compare these two texts',
-        'detail': f'{source} and {target}',
+        'label': label or 'Compare these two texts',
+        'detail': detail,
         'url': f'/?{urlencode(args)}',
     }
 
@@ -136,6 +152,80 @@ def build(facts, question=''):
             a = f['args']
             out.append(_compare(a.get('source'), a.get('target'),
                                 a.get('language') or 'la'))
+
+    return _dedupe(out)
+
+
+# What a question is ASKING FOR, decided by its words. The model is not asked,
+# for the same reason it is not asked to write URLs: a guide that recommends the
+# wrong tool confidently is worse than one that says less.
+_COMPARE_INTENT = ('compare', 'echoes', 'echo of', 'borrow', 'parallel',
+                   'allusion', 'allude', 'imitat', 'influence', 'reuse',
+                   'intertext', 'model for', 'draw on', 'draws on')
+_THEME_INTENT = ('passages about', 'passages where', 'scenes', 'scene where',
+                 'theme of', 'themes of', 'motif', 'episodes', 'anything about',
+                 'passages describing', 'where someone', 'depictions of',
+                 'descriptions of')
+
+
+def _theme_subject(question):
+    """The thing a thematic question is about, with the asking stripped off."""
+    q = str(question or '').strip().rstrip('?')
+    for lead in ('are there any', 'are there', 'is there any', 'is there',
+                 'can you find', 'can i find', 'find me', 'show me', 'i want',
+                 'how do i find', 'how can i find', 'where can i find',
+                 'i am looking for', "i'm looking for", 'look for'):
+        if q.lower().startswith(lead):
+            q = q[len(lead):].strip()
+    for cut in ('passages about', 'passages where', 'passages describing',
+                'descriptions of', 'depictions of', 'scenes of', 'scene where',
+                'scenes where', 'scenes', 'theme of', 'themes of', 'episodes of',
+                'anything about', 'motif of'):
+        idx = q.lower().find(cut)
+        if idx != -1:
+            q = q[idx + len(cut):].strip()
+            break
+    q = q.strip(' ,.:;"\'')
+    return q if len(q) >= 4 else ''
+
+
+def suggest(question, lookup=None):
+    """Actions for a question where NO search has run.
+
+    This is the guide half: someone asks how to do something, and the useful
+    answer is the tool, already set up, rather than its name. Everything is
+    decided from the reader's own words and from texts the corpus really holds;
+    where a name cannot be resolved, nothing is offered.
+    """
+    if lookup is None:
+        from backend.assistant import corpus_lookup as lookup
+    q = str(question or '').lower()
+    out = []
+
+    if any(t in q for t in _COMPARE_INTENT):
+        try:
+            hits = lookup.named_texts(question, limit=2)
+        except Exception:                                # noqa: BLE001
+            hits = []
+        if len(hits) >= 2:
+            a, b = hits[0], hits[1]
+            lang = a.get('language') or 'la'
+            if a.get('matched') == 'author' and b.get('matched') == 'author':
+                out.append(_compare(
+                    None, None, lang,
+                    source_author=a.get('author'), target_author=b.get('author'),
+                    label=f'Compare {a.get("author")} with {b.get("author")}'))
+            else:
+                out.append(_compare(
+                    str(a.get('id') or '').replace('.tess', ''),
+                    str(b.get('id') or '').replace('.tess', ''), lang,
+                    label=(f'Compare {a.get("display_name") or a.get("id")} '
+                           f'with {b.get("display_name") or b.get("id")}')))
+
+    if any(t in q for t in _THEME_INTENT):
+        subject = _theme_subject(question)
+        if subject:
+            out.append(_theme_search(subject))
 
     return _dedupe(out)
 
