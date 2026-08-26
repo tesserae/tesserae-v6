@@ -783,15 +783,23 @@ def _prepare(question, step, history=None, offered_phrase=None):
                         'max_results': 300})
                     vf = _summarise('line_search', var)
                     exact_authors = set((facts.get('authors') or {}))
-                    extra = {a: n for a, n in (vf.get('authors') or {}).items()
-                             if a not in exact_authors}
+                    # COUNT THE RESULTS, NOT THE SUMMARY.
+                    #
+                    # `_summarise` caps its author dict at most_common(20), so
+                    # counting from it offered "179 times across 17 authors"
+                    # while accepting the offer answered with 194 across 30 --
+                    # the same search, reported two different ways one turn
+                    # apart. A previous comment here claimed these totals were
+                    # taken before any truncation. They were not.
+                    #
+                    # `_variant_answer` counts the rows, so this counts the rows.
+                    full_extra = Counter(
+                        str(r.get('author')) for r in (var.get('results') or [])
+                        if r.get('author') and str(r.get('author')) not in exact_authors)
+                    extra = dict(full_extra)
                     if extra:
-                        # Totals from the WHOLE set, before any truncation. The
-                        # offer used to sum a dict capped at 15 authors and
-                        # reported 175 where the answer is 194, across 30
-                        # authors rather than 13.
-                        total_variant_hits = sum(extra.values())
-                        variant_author_count = len(extra)
+                        total_variant_hits = sum(full_extra.values())
+                        variant_author_count = len(full_extra)
                         all_facts.append({
                             'kind': 'VARIANT FORMS of the same phrase, found by '
                                     'lemma search. These authors do NOT have the '
