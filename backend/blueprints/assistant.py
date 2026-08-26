@@ -26,6 +26,15 @@ logger = get_logger('blueprints.assistant')
 assistant_bp = Blueprint('assistant', __name__)
 
 
+def _remember_offer(payload):
+    """Record whether this answer offered the inflected forms."""
+    try:
+        session['tessa_offer'] = (payload.get('offer_phrase')
+                                  if payload.get('offered_variants') else None)
+    except Exception:
+        pass
+
+
 @assistant_bp.route('/assistant/status')
 def status():
     return jsonify({
@@ -79,12 +88,21 @@ def ask_stream():
         except Exception:
             pass
 
+    # An offer the assistant made last turn, so "yes" can be an acceptance
+    # rather than a question with no content. Held server-side because the
+    # session cookie carries questions only.
+    try:
+        offered_phrase = session.get('tessa_offer')
+    except Exception:
+        offered_phrase = None
+
     def generate():
         if not question:
             yield _sse('error', {'error': 'question is required'})
             return
         try:
-            for kind, payload in agent.answer_stream(question, history=history):
+            for kind, payload in agent.answer_stream(question, history=history,
+                                                     offered_phrase=offered_phrase):
                 if kind == 'chunk':
                     yield _sse('chunk', {'text': payload})
                 elif kind == 'step':
@@ -101,6 +119,7 @@ def ask_stream():
                         return
                     # Pass the terms worth marking through to the page, so a
                     # listing of Latin lines shows what actually matched.
+                    _remember_offer(payload)
                     yield _sse('done', {**payload,
                                         'highlight': payload.get('highlight') or []})
         except Exception as e:
