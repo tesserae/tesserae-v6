@@ -74,23 +74,68 @@ def _extract(source=None):
         logger.info('[HELP] cannot read %s: %s', path, e)
         return []
 
-    fragments = []
-    for raw in re.findall(r'>([^<>{}]{12,})<', src):
-        t = ' '.join(raw.split())
-        if not t or t.startswith('//'):
-            continue
-        if re.fullmatch(r'[\s{}();,.\-–—|]+', t):
-            continue
-        fragments.append(t)
+    # HEADINGS ARE BOUNDARIES, not more text to glue on.
+    #
+    # Merging fragments blindly produced "Theme Search (its own tab) Read a text
+    # with a gutter showing where the rest of the corpus connects to each line",
+    # which describes the READER under the Theme Search heading. The Help page
+    # is right; two <h4> headings sit next to each other and the merge ran
+    # straight through the second one. Feeding the model a sentence that is
+    # false is worse than giving it nothing, so a heading now closes the chunk
+    # before it and opens the one after.
+    # A HEADING IS TAKEN WHOLE, from its opening tag to its closing one.
+    #
+    # Reading it as "the next text fragment" got it wrong twice. First the
+    # closing '<' of a paragraph swallowed the '<' opening the heading, so
+    # headings after text were never seen at all and "Theme Search" ran on into
+    # the Reader's description. Then, with that fixed, <h4>Read <span>(its own
+    # tab)</span></h4> yielded "Read " -- five characters, under the minimum
+    # fragment length -- so the heading became "(its own tab)" and the word Read
+    # was lost. Both are the same mistake: inferring structure from the text
+    # instead of reading it.
+    heading_re = re.compile(r'<(h[1-6])\b[^>]*>(.*?)</\1>', re.S)
+    headings = []          # (start, end, text)
+    for m in heading_re.finditer(src):
+        inner = ' '.join(re.sub(r'<[^>]+>', ' ', m.group(2)).split())
+        inner = re.sub(r'\{[^{}]*\}', '', inner).strip()
+        if inner:
+            headings.append((m.start(), m.end(), inner))
 
-    chunks, buf = [], ''
-    for t in fragments:
+    def heading_at(pos):
+        """The heading this position sits under, and whether it is inside one."""
+        current = ''
+        for start, end, text in headings:
+            if start <= pos < end:
+                return text, True
+            if start < pos:
+                current = text
+            else:
+                break
+        return current, False
+
+    chunks, buf, heading = [], '', ''
+
+    def flush():
+        nonlocal buf
+        text = f'{heading}: {buf}'.strip() if heading else buf.strip()
+        if len(text.strip(': ')) >= 60:
+            chunks.append(text[:CHUNK_MAX])
+        buf = ''
+
+    for m in re.finditer(r'>([^<>{}]{12,})(?=<)', src):
+        t = ' '.join((m.group(1) or '').split())
+        if not t or t.startswith('//') or re.fullmatch(r'[\s{}();,.\-–—|]+', t):
+            continue
+        own, inside = heading_at(m.start())
+        if inside:
+            continue                        # the heading's own words
+        if own != heading:
+            flush()
+            heading = own
         buf = f'{buf} {t}'.strip() if buf else t
         if len(buf) >= CHUNK_MIN:
-            chunks.append(buf[:CHUNK_MAX])
-            buf = ''
-    if len(buf) >= 60:
-        chunks.append(buf)
+            flush()
+    flush()
 
     seen, out = set(), []
     for c in chunks:

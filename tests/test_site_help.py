@@ -45,3 +45,59 @@ def test_the_prompt_block_names_its_source():
 
 def test_no_block_when_nothing_matches():
     assert site_help.context_for('qwertyuiop zxcvbnm') == ''
+
+
+# --- headings must stay attached to their OWN text -------------------------
+#
+# Getting this wrong manufactured a false statement and fed it to the model,
+# which is worse than giving it no context at all. It went wrong twice, in two
+# different ways, so both are pinned here.
+
+FIXTURE = '''
+  <h4 className="x">Theme Search <span className="y">(its own tab)</span></h4>
+  <p className="z">
+    Describe what happens in a passage, in your own words, and find passages
+    that match the description rather than the wording across the whole corpus.
+  </p>
+  <h4 className="x">Read <span className="y">(its own tab)</span></h4>
+  <p className="z">
+    Read a text with a gutter showing where the rest of the corpus connects to
+    each line, by wording and by content, and a panel of those connections.
+  </p>
+'''
+
+
+def _chunks_from_fixture(tmp_path):
+    p = tmp_path / 'HelpPage.jsx'
+    p.write_text(FIXTURE, encoding='utf-8')
+    return site_help._extract(str(p))
+
+
+def test_a_heading_does_not_run_on_into_the_next_section(tmp_path):
+    """The first bug: a paragraph's closing '<' swallowed the '<' opening the
+    next heading, so 'Theme Search' was glued to the READER's description."""
+    for c in _chunks_from_fixture(tmp_path):
+        if c.lower().startswith('theme search'):
+            assert 'gutter' not in c, c
+
+
+def test_a_heading_with_a_nested_span_keeps_its_first_word(tmp_path):
+    """The second bug: <h4>Read <span>(its own tab)</span></h4> gave 'Read ',
+    five characters, under the fragment minimum -- so the heading became
+    '(its own tab)' and the word Read was lost."""
+    chunks = _chunks_from_fixture(tmp_path)
+    reader = [c for c in chunks if 'gutter' in c]
+    assert reader, 'the Reader paragraph vanished'
+    assert reader[0].startswith('Read'), reader[0]
+
+
+def test_each_section_keeps_its_own_description(tmp_path):
+    chunks = _chunks_from_fixture(tmp_path)
+    theme = [c for c in chunks if c.lower().startswith('theme search')]
+    assert theme and 'Describe what happens' in theme[0]
+
+
+def test_the_real_help_page_has_no_mislabelled_reader_section():
+    for c in site_help._load():
+        if 'gutter' in c:
+            assert not c.lower().startswith(('theme search', '(its own tab')), c
