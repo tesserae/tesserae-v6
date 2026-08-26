@@ -21,6 +21,12 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
   // summary of a passage in a language they may not read. Opening on the
   // translation is the useful default there; everywhere else 'similar' is.
   const [tab, setTab] = useState(initialTab || 'similar');
+
+  // Follow a LATER request too. useState reads its argument once, so the popup
+  // could ask for the translation and the panel would ignore it.
+  useEffect(() => {
+    if (initialTab) setTab(initialTab);
+  }, [initialTab]);
   const [similar, setSimilar] = useState(null);
   const [translation, setTranslation] = useState(null);
   const [loading, setLoading] = useState(false);

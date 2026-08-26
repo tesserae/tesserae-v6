@@ -1,5 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { cssRef } from './refId';
+import SelectionPopup from './SelectionPopup';
+import { TextSelector } from '../search';
+import { useCorpus } from '../../hooks';
 import { LoadingSpinner } from '../common';
 import TextPane from './TextPane';
 import ConnectionGutter from './ConnectionGutter';
@@ -19,9 +22,20 @@ const DEFAULT_LANGUAGE = 'la';
 export default function ReaderPage() {
   const [work, setWork] = useState(() => paramOr('work', DEFAULT_WORK));
   const [language, setLanguage] = useState(() => paramOr('lang', DEFAULT_LANGUAGE));
+  const { authors, hierarchy, getTextsForAuthor } = useCorpus(language);
   // Where a link asked us to land. Theme Search sends the reader here with a
   // specific passage in mind, and dropping them at line 1 of the work would
   // lose the thing they clicked.
+  // CHOOSING A WORK. The Reader opened on Aeneid 6 and offered no way to read
+  // anything else: a reader arriving at /read had to know to edit the URL. The
+  // same selector the search page uses, so the two behave alike.
+  const [pickAuthor, setPickAuthor] = useState('');
+  const [pickText, setPickText] = useState('');
+  // The popup that appears at a selection. Dismissed on a new selection or by
+  // acting on it, so it never lingers over the text.
+  const [popupOpen, setPopupOpen] = useState(false);
+  const [panelTab, setPanelTab] = useState(null);
+
   const [wantedRef] = useState(() => paramOr('ref', ''));
   const [wantedRefEnd] = useState(() => paramOr('refEnd', ''));
   const [wantedTab] = useState(() => paramOr('tab', ''));
@@ -82,6 +96,14 @@ export default function ReaderPage() {
     return () => window.clearTimeout(id);
   }, [wantedRef, wantedRefEnd, units]);
 
+  // Load whatever the picker chooses.
+  useEffect(() => {
+    if (!pickText) return;
+    setWork(pickText.endsWith('.tess') ? pickText : `${pickText}.tess`);
+    setSelection(null);
+    window.scrollTo({ top: 0 });
+  }, [pickText]);
+
   const openPassage = useCallback((result) => {
     if (!result?.work) return;
     setWork(result.work.endsWith('.tess') ? result.work : `${result.work}.tess`);
@@ -99,6 +121,20 @@ export default function ReaderPage() {
         <h2 className="font-semibold text-gray-900" style={{ fontFamily: '"Gentium Book Plus", Georgia, serif' }}>
           {title || 'Reader'}
         </h2>
+        <div className="ml-auto flex items-end gap-2 min-w-0">
+          <TextSelector
+            label="Read"
+            language={language}
+            authors={authors}
+            selectedAuthor={pickAuthor}
+            setSelectedAuthor={setPickAuthor}
+            selectedText={pickText}
+            setSelectedText={setPickText}
+            hierarchy={hierarchy}
+            fetchTexts={getTextsForAuthor}
+          />
+        </div>
+
         {selection && (
           <span className="text-sm text-gray-500">
             {selection.lineCount} line{selection.lineCount === 1 ? '' : 's'} selected
@@ -162,14 +198,28 @@ export default function ReaderPage() {
               onSelectLine={(u) => {
                 const i = units.findIndex((x) => x.ref === u.ref);
                 setSelection({ startIdx: i, endIdx: i, refStart: u.ref, refEnd: u.ref, lineCount: 1 });
+                setPopupOpen(true);
               }}
             />
-            <TextPane
-              units={units}
-              language={language}
-              selection={selection}
-              onSelect={setSelection}
-            />
+            <div className="relative flex-1 min-w-0">
+              <TextPane
+                units={units}
+                language={language}
+                selection={selection}
+                onSelect={(sel) => { setSelection(sel); setPopupOpen(!!sel); }}
+              />
+              {popupOpen && (
+                <div className="absolute left-6 top-2">
+                  <SelectionPopup
+                    selection={selection}
+                    work={work}
+                    language={language}
+                    onClose={() => setPopupOpen(false)}
+                    onTab={(t) => setPanelTab(t)}
+                  />
+                </div>
+              )}
+            </div>
             </div>
           </div>
           <ResultsPanel
@@ -178,7 +228,7 @@ export default function ReaderPage() {
             work={work.replace('.tess', '')}
             units={units}
             onOpenPassage={openPassage}
-            initialTab={wantedTab || undefined}
+            initialTab={panelTab || wantedTab || undefined}
           />
         </div>
       )}
