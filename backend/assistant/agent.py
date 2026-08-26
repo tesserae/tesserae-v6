@@ -843,10 +843,20 @@ def answer_stream(question, on_step=None, history=None, offered_phrase=None):
     yield ('step', 'reading the results')
     collected = []
     asked = prep.get('question_override') or question
+    # A HAND-OFF DOES NOT NEED A PARAGRAPH.
+    #
+    # Where no search ran, the whole answer is "yes, the corpus holds both, and
+    # here is the control". Generation is nearly all of the wall clock, so at the
+    # full budget the reader waited nineteen seconds to be handed a link, and the
+    # model filled the space with 'structural echoes and semantic resonance'.
+    handing_over = bool(all_facts) and not any(
+        f.get('search') in ('line_search', 'theme_search', 'rare_words')
+        for f in all_facts)
+    budget = 220 if handing_over else ANSWER_TOKENS
     for piece in model.stream(ANSWER_SYSTEM,
                               f'{block}\n\n{_listing_rule(asked)}'
                               f'\n\nQuestion: {asked}\n\nAnswer:',
-                              max_tokens=ANSWER_TOKENS, temperature=0.2):
+                              max_tokens=budget, temperature=0.2):
         collected.append(piece)
         yield ('chunk', piece)
 
