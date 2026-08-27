@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Extraction pass that also reads the old TEI P4 files.
 
-extract5 addresses every element by the TEI P5 namespace. Nineteen of the Perseus
+tei_extract_base addresses every element by the TEI P5 namespace. Nineteen of the Perseus
 translations are still in the older P4 form, whose elements sit in no namespace at
 all, so every lookup missed and the extractor reported them as having no text
 rather than as having failed. They were then simply absent from the results, and
@@ -43,7 +43,7 @@ def extract(path):
     if not _is_p4(path):
         return E.extract(path)
 
-    # Same walk as extract5, entered from a re-namespaced root. extract5.extract
+    # Same walk as tei_extract_base, from a re-namespaced root. Its extract()
     # takes a path, so hand it the normalised tree through a temporary file
     # rather than duplicating two hundred lines of traversal.
     root = _to_p5(path)
@@ -56,7 +56,7 @@ def extract(path):
             os.remove(tmp)
         except OSError:
             pass
-    # Restore the identity fields, which extract5 derives from the file name.
+    # Restore the identity fields, which tei_extract_base derives from the name.
     base = os.path.basename(path)[:-4]
     meta['cts_urn'] = 'urn:cts:%sLit:%s' % ('greek' if 'greekLit' in path else 'latin', base)
     meta['source_file'] = os.path.relpath(path, ROOT)

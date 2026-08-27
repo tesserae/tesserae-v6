@@ -4,20 +4,25 @@ Alignment build, twelfth pass.
 
 For each .tess work:
   1. take the Perseus WORK confirmed by content comparison of the original-language
-     text (verify2.py, verified.json),
+     text (verify_work_identity.py, verified.json),
   2. consider every public-domain English translation of that work,
   3. search compositions of the translation's anchors for the one that reproduces
      our own refs most FINELY, subject to near-maximal coverage,
   4. merge several English works when one .tess work spans several of them (Livy),
   5. write an aligned file per work plus a manifest.
 
-WHAT CHANGED FROM align11, AND WHY
-----------------------------------
+WHAT CHANGED FROM THE PREVIOUS VERSION, AND WHY
+-----------------------------------------------
 
-align11 left roughly 76,000 lines of already-licensed, already-downloaded English
-on the floor. Four separate causes, fixed here.
+This file was align12.py in the working directory it grew up in, and the
+"previous version" below is align11.py, which is not in this repository: the
+earlier passes were superseded and only the last is worth keeping. The history
+is kept because every item in it is a mistake that is easy to make again.
 
-1. IDENTITY CAME FROM TITLE STRINGS.  align11 read work_map.json, built by
+That previous version left roughly 76,000 lines of already-licensed,
+already-downloaded English on the floor. Four separate causes, fixed here.
+
+1. IDENTITY CAME FROM TITLE STRINGS.  It read work_map.json, built by
    matching author and title text. That is why Lucan, Thucydides, Phaedrus,
    Claudian, Ammianus, Apuleius' Metamorphoses, Tacitus' Germania, Sallust's
    Jugurtha, Boethius and Ovid's Heroides have no English today: their titles did
@@ -60,8 +65,8 @@ on the floor. Four separate causes, fixed here.
    only thing standing between a reader and someone else's translation.
 
    The other half of this is worse and was found by reading the output. The check
-   refuses to speak on fewer than twenty sampled names, and align11 read silence
-   as approval. Ovid's Medicamina is a hundred lines about face cream, offers
+   refuses to speak on fewer than twenty sampled names, and the previous version
+   read silence as approval. Ovid's Medicamina is a hundred lines about face cream, offers
    twelve names, agreed on NONE of them, and was published anyway under a HIGH
    confidence label, with English about pendants and lockets standing beside
    Latin about mixing powdered meal. A reader without Latin cannot detect that,
@@ -490,10 +495,10 @@ ONLY = set(x for x in os.environ.get("ONLY_WORKS", "").split(",") if x)
 def load_identity():
     """tess work -> {urn, source}, the Perseus work ours actually IS.
 
-    align10 gathered candidates by TEXTGROUP and let whichever English work best
+    An earlier pass gathered candidates by TEXTGROUP and let whichever English work best
     reproduced our reference numbers win. For an author of many similarly
     numbered short works that is a lottery, and it is how one translation of
-    Plutarch's Theseus came to answer for thirty-seven different essays. align11
+    Plutarch's Theseus came to answer for thirty-seven different essays. The pass after it
     replaced it with author-and-title matching, which is sound but deaf: it
     cannot recognise a work whose title Perseus words differently, and it dropped
     Lucan, Thucydides, Phaedrus, Ammianus and a hundred more on that account.
@@ -633,7 +638,7 @@ def main():
                            "name_hit": round(name_hit, 3), "name_n": name_n,
                            "identity": v.get("source"), "floor": name_floor})
             continue
-        # THE NAME CHECK ABSTAINS ON SHORT WORKS, and align11 read abstention as a
+        # THE NAME CHECK ABSTAINS ON SHORT WORKS, and the previous version read it as a
         # pass. It is not one. It is "cannot tell", and Ovid's Medicamina went out
         # with the wrong English under a HIGH confidence label because of it.
         #
