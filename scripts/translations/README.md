@@ -1,12 +1,13 @@
 # Aligned English translations
 
-How the English in the Reader's Translation tab is built. Three pipelines feed
+How the English in the Reader's Translation tab is built. Four pipelines feed
 the same place, `data/translations/`, which `backend/translations.py` reads.
 
-As of 2026-08-27 they produce **293,597 aligned references across 499 works**:
-255,357 from Perseus, 35,941 from the Greek Bible, and 2,299 five-line blocks
-covering Seneca's ten tragedies. The served directory holds 683 works in all,
-the rest being the Coptic and Hebrew scripture pairings built separately.
+As of 2026-08-27 they produce **304,588 aligned references across 502 works**:
+255,357 from Perseus, 35,941 from the Greek Bible, 2,299 five-line blocks
+covering Seneca's ten tragedies, and 10,991 lines of Statius. The served
+directory holds 687 works in all, the rest being the Coptic and Hebrew scripture
+pairings built separately.
 
 ---
 
@@ -143,6 +144,46 @@ so block lengths barely vary and the correlation has nothing to measure. That is
 the mirror image of the wisdom books in pipeline 2, where names were the useless
 test and length was the good one.
 
+## Pipeline 4: Statius
+
+    align_statius.py
+
+*Thebaid*, *Silvae* and *Achilleid*: 14,783 lines, no English in Perseus and none
+on Project Gutenberg, and the poet at the centre of the Flavian intertextual work
+this project supports. Source is Mozley's Loeb of 1928 from the Internet Archive,
+US public domain by date of publication.
+
+**The alignment data is the running page header, not the marginal line numbers.**
+This was planned as an OCR-and-margin-number job, which is slow and unreliable
+because marginal digits stand alone in white space and are the first thing OCR
+loses. It is also unnecessary: the Loeb prints "THEBAID, I. 18-41" at the head of
+every page, in ordinary type, which is what OCR reads best. Every page of English
+can be attached to a known range of Latin lines without reading one marginal
+number. The *Silvae* headers give book, poem and line, matching our references
+exactly.
+
+**The repair rule is the part to understand, because the obvious version of it is
+wrong.** Digits are what OCR misses, and a page header is mostly digits: "66-93"
+comes back as "6-93". The first version of this trusted contiguity — each page
+starts where the last ended — and that quietly stretched one page of English
+across sixty lines belonging to a page whose header the scan had lost.
+
+A page is now judged first on its own plausibility. A Loeb page holds twenty-odd
+lines, so a header claiming a sane span is believed **as printed**, even where it
+does not follow the previous page, because the usual reason for a jump is a lost
+header and the lines in the gap should stay unpaired. Only an impossible span
+means a digit was misread, and then contiguity supplies it — "6-93" after a page
+ending at 65 becomes 66-93, twenty-eight lines, a real page, with two independent
+reasons to believe it. Anything that cannot be made plausible is dropped.
+
+That change cut *Thebaid* coverage from 97% to 80% and raised proper-name
+agreement from 0.727 to **0.814**, which is the point: the pages it removed were
+the wrong ones.
+
+Coverage is 80% of the *Thebaid*, 89% of the *Achilleid* and 57% of the *Silvae*,
+the shortfall being page headers the scan lost entirely. One page is dropped for
+carrying Mozley's own prefatory note in place of the verse.
+
 ---
 
 ## Paths
@@ -159,6 +200,8 @@ overridable so nobody edits a checked-in file to run it elsewhere:
 | `TESSERAE_BIBLE_OUT` | `~/perseus_trans/translations_bible` |
 | `TESSERAE_SENECA_SRC` | `~/perseus_trans/seneca_src/pg57999.txt` |
 | `TESSERAE_SENECA_OUT` | `~/perseus_trans/translations_seneca` |
+| `TESSERAE_STATIUS_SRC` | `~/perseus_trans/statius_src` |
+| `TESSERAE_STATIUS_OUT` | `~/perseus_trans/translations_statius` |
 
 `ONLY_WORKS=la/lucan.bellum_civile,...` restricts `align_perseus.py` to named
 works, which is how to test a change without a full rebuild.
