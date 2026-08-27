@@ -91,7 +91,40 @@ STRONG_COHERENCE = 0.900 # top-k agreement typical of a real subject
 # The practical effect: STRONG is now a higher bar than it was, deliberately,
 # because it is set above every absent subject tested. Fewer result sets will be
 # called strong, and that is the correct direction to err.
-MODERATE_COMBINED = 1.27
+#
+# REFITTED 2026-08-27 (second time that day) against an 80-QUERY probe set, 40
+# present and 40 absent, in evaluation/probe_sets/tesserae_2026-08-27.json. The
+# set was enlarged because 32 queries put roughly +/-12 points of error on the
+# reported accuracy, and because the strong boundary is pinned to the single
+# highest absent score, which on 20 absent queries is one noisy number.
+#
+#     before (32 queries)   MODERATE 1.27   STRONG 1.83   accuracy 88%
+#     after  (80 queries)   MODERATE 1.21   STRONG 1.83   accuracy 79%
+#
+# STRONG DID NOT MOVE. Doubling the absent queries left it exactly where twenty
+# had put it, which is the best evidence available that 1.83 is a property of the
+# corpus and not of the probe set.
+#
+# THE ACCURACY DROP IS THE MEASUREMENT GETTING HARDER, NOT THE TOOL GETTING
+# WORSE. The old figure was taken on 20 absent queries; this one on 40, most of
+# them deliberate near misses. Ten of the first forty absent queries had to be
+# replaced during construction because they turned out to be PRESENT: a jury, a
+# census, a potter, a glassblower, a bee-keeper, a manumission, a watermill, an
+# illuminated manuscript, a naturalist classifying by genus and species, and
+# whaling from an open boat. Every one sounds unmodern and every one is
+# thoroughly ancient. See evaluation/probe_sets/TESTING_RECORD_2026-08.md.
+#
+# MODERATE MOVED DOWN, and the reason is worth stating because it looks like
+# loosening. Accuracy is FLAT from 1.14 to 1.25, and 1.27 sits just past the end
+# of that plateau, where it was costing real subjects for almost nothing:
+#
+#     threshold 1.21   present kept 39/40   absent rejected 24/40   79%
+#     threshold 1.27   present kept 34/40   absent rejected 25/40   74%
+#
+# Six genuine subjects were being called low so that one more near miss could be.
+# 1.21 rather than the fit's own 1.17, because 1.17 is exactly the lowest present
+# score observed and would be fitted to a single query.
+MODERATE_COMBINED = 1.21
 STRONG_COMBINED = 1.83
 # The index those two numbers were fitted against. They are a property of THAT
 # corpus, not of the method, and the corpus has since grown: merging Persian and

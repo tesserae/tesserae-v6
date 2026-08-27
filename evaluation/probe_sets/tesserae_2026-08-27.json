@@ -1,0 +1,322 @@
+[
+ {
+  "query": "a warrior puts on his armour before going out to fight",
+  "present": true
+ },
+ {
+  "query": "a hero descends to the underworld and speaks with the dead",
+  "present": true
+ },
+ {
+  "query": "a goddess disguises herself as a mortal to give advice",
+  "present": true
+ },
+ {
+  "query": "a ship is wrecked in a storm and the survivors reach shore",
+  "present": true
+ },
+ {
+  "query": "a funeral pyre is built and the body burned with offerings",
+  "present": true
+ },
+ {
+  "query": "a single combat between two champions in front of both armies",
+  "present": true
+ },
+ {
+  "query": "a prophecy is delivered that the hearer misunderstands",
+  "present": true
+ },
+ {
+  "query": "a river god or nymph appears to a sleeping man",
+  "present": true
+ },
+ {
+  "query": "a catalogue of forces listing their leaders and homelands",
+  "present": true
+ },
+ {
+  "query": "a mother laments over the body of her son",
+  "present": true
+ },
+ {
+  "query": "a banquet where a guest is asked to tell his story",
+  "present": true
+ },
+ {
+  "query": "a chariot race with a near-collision at the turning post",
+  "present": true
+ },
+ {
+  "query": "a general encourages his troops on the eve of battle",
+  "present": true
+ },
+ {
+  "query": "a city is besieged and its walls undermined",
+  "present": true
+ },
+ {
+  "query": "an ambassador delivers terms and is rejected",
+  "present": true
+ },
+ {
+  "query": "a conspiracy is uncovered and the plotters denounced",
+  "present": true
+ },
+ {
+  "query": "a plague strikes a city and the dead go unburied",
+  "present": true
+ },
+ {
+  "query": "a triumphal procession displaying captives and spoils",
+  "present": true
+ },
+ {
+  "query": "an army crosses a river under enemy fire",
+  "present": true
+ },
+ {
+  "query": "a defendant appeals to his past service to the state",
+  "present": true
+ },
+ {
+  "query": "a messenger reports a death that happened offstage",
+  "present": true
+ },
+ {
+  "query": "a chorus warns against pride and reversal of fortune",
+  "present": true
+ },
+ {
+  "query": "a woman plans revenge against the husband who wronged her",
+  "present": true
+ },
+ {
+  "query": "a father discovers he has killed his own child",
+  "present": true
+ },
+ {
+  "query": "a covenant is made and sealed with a sacrifice",
+  "present": true
+ },
+ {
+  "query": "a prophet denounces a king to his face",
+  "present": true
+ },
+ {
+  "query": "a people wander in the wilderness and complain of hunger",
+  "present": true
+ },
+ {
+  "query": "a young man is sold into slavery by his brothers",
+  "present": true
+ },
+ {
+  "query": "a city's walls fall and it is put to the sword",
+  "present": true
+ },
+ {
+  "query": "a psalmist cries out to God from despair",
+  "present": true
+ },
+ {
+  "query": "a monk is tempted in the desert by demons",
+  "present": true
+ },
+ {
+  "query": "a martyr refuses to sacrifice and is condemned",
+  "present": true
+ },
+ {
+  "query": "an abbot gives counsel to a younger brother",
+  "present": true
+ },
+ {
+  "query": "a king holds court and receives petitioners",
+  "present": true
+ },
+ {
+  "query": "a lover complains that the beloved is indifferent",
+  "present": true
+ },
+ {
+  "query": "a warrior draws his bow and boasts of his strength",
+  "present": true
+ },
+ {
+  "query": "a snake or serpent attacks and kills a man",
+  "present": true
+ },
+ {
+  "query": "someone is turned into an animal or a tree",
+  "present": true
+ },
+ {
+  "query": "a shield or cup is described in detail as a work of art",
+  "present": true
+ },
+ {
+  "query": "a doctor treats a wound on the battlefield",
+  "present": true
+ },
+ {
+  "query": "a scribe corrects a proof sheet fresh from the printing press",
+  "present": false
+ },
+ {
+  "query": "a surgeon gives the patient ether before cutting",
+  "present": false
+ },
+ {
+  "query": "a captain fixes his position with a sextant and a chronometer",
+  "present": false
+ },
+ {
+  "query": "a gunner swabs the barrel and rams home the powder",
+  "present": false
+ },
+ {
+  "query": "a farmer plants maize and banks the soil around the young stalks",
+  "present": false
+ },
+ {
+  "query": "a rider fires a pistol from horseback at full gallop",
+  "present": false
+ },
+ {
+  "query": "a clerk copies a letter with carbon paper",
+  "present": false
+ },
+ {
+  "query": "a distiller heats the still and condenses the spirit",
+  "present": false
+ },
+ {
+  "query": "a tea ceremony conducted with careful attention to each gesture",
+  "present": false
+ },
+ {
+  "query": "a samurai prepares for ritual suicide before his lord",
+  "present": false
+ },
+ {
+  "query": "an Inuit hunter waits beside a seal's breathing hole",
+  "present": false
+ },
+ {
+  "query": "a Mesoamerican priest consults the calendar for an auspicious day",
+  "present": false
+ },
+ {
+  "query": "a Norse warrior boasts of his deeds in the mead hall",
+  "present": false
+ },
+ {
+  "query": "a scribe sets movable type and pulls a proof from the press",
+  "present": false
+ },
+ {
+  "query": "a knight jousts in a tournament for a lady's favour",
+  "present": false
+ },
+ {
+  "query": "a shaman drums to enter a trance and travel to the spirit world",
+  "present": false
+ },
+ {
+  "query": "a factory inspector reports on conditions in the mills",
+  "present": false
+ },
+ {
+  "query": "a barrister in wig and gown cross-examines a witness",
+  "present": false
+ },
+ {
+  "query": "a newspaper editor decides which story leads",
+  "present": false
+ },
+ {
+  "query": "a bank forecloses on a mortgage and seizes the property",
+  "present": false
+ },
+ {
+  "query": "a clerk stamps a traveller's passport at the border post",
+  "present": false
+ },
+ {
+  "query": "a patient signs a consent form before an operation",
+  "present": false
+ },
+ {
+  "query": "antibiotics are prescribed for a bacterial infection",
+  "present": false
+ },
+ {
+  "query": "a technician examines a blood sample under a microscope for parasites",
+  "present": false
+ },
+ {
+  "query": "a chemist weighs a reagent and records the reaction",
+  "present": false
+ },
+ {
+  "query": "an astronomer photographs a comet through a telescope",
+  "present": false
+ },
+ {
+  "query": "a geologist reads the age of the rock from its strata",
+  "present": false
+ },
+ {
+  "query": "a spacecraft docks with an orbital station",
+  "present": false
+ },
+ {
+  "query": "a programmer traces a fault in a web server",
+  "present": false
+ },
+ {
+  "query": "a pilot lowers the landing gear on approach",
+  "present": false
+ },
+ {
+  "query": "a telegraph operator taps out a message in code",
+  "present": false
+ },
+ {
+  "query": "a radio broadcast interrupts with news of the war",
+  "present": false
+ },
+ {
+  "query": "a diver in a copper helmet walks the sea floor breathing air from a pump",
+  "present": false
+ },
+ {
+  "query": "a coffee house where men argue politics over their cups",
+  "present": false
+ },
+ {
+  "query": "a duel fought with pistols at twenty paces",
+  "present": false
+ },
+ {
+  "query": "a violinist tunes before a concert in a hall",
+  "present": false
+ },
+ {
+  "query": "a machinist turns a steel shaft on a lathe to a thousandth of an inch",
+  "present": false
+ },
+ {
+  "query": "a photographer develops a glass plate in a darkroom",
+  "present": false
+ },
+ {
+  "query": "a chemist fixes nitrogen from the air to make fertiliser",
+  "present": false
+ },
+ {
+  "query": "a notary registers a company and issues shares to its founders",
+  "present": false
+ }
+]
