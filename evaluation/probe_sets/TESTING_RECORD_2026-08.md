@@ -135,19 +135,93 @@ taking a blood pressure reading (moderate, Galen on diagnosis, likewise).
 
 ---
 
-## 7. Method, for whoever refits this next
+## 7. The second round: testing the eight I was unsure about
+
+NC, on being shown a list of queries I had flagged as uncertain: *"test those
+others, e.g genus and species."* Correct instruction. A flag on a query is not a
+finding, and the whole set exists because guessing failed once already.
+
+Six held. **Two more were wrong**, and both failed the same way as the first
+eight: I judged by how modern the words sound rather than by what the corpus
+holds.
+
+| # | query | scored | top hit | verdict |
+|---|---|---|---|---|
+| 64 | a naturalist classifies a specimen by genus and species | 1.76 strong | Quintilian *Inst.* 5.10.56, arguing the relation of genus to species | PRESENT, replaced |
+| 73 | a whaling crew harpoons a whale from an open boat | 1.74 strong | Oppian *Hal.* 5.145, fishermen hooking a giant sea beast | PRESENT, replaced |
+
+64 is the more instructive of the two. Linnaean taxonomy is modern, so the query
+reads as safely absent. But *genus* and *species* are Latin words for an ancient
+habit of thought, and Quintilian argues about their relationship explicitly. The
+retrieval was right and the label was wrong.
+
+73 is simpler and worse. Oppian gives much of *Halieutica* book 5 to hunting
+huge sea creatures from boats with hooks and lines. That is not an analogue to
+whaling. It is whaling.
+
+**Replacements, both tested:**
+
+| replaces | new query | confidence | nearest thing in the corpus |
+|---|---|---|---|
+| 64 | a technician examines a blood sample under a microscope for parasites | moderate 1.70 | Hippocrates, *Prorrheticon* on blood symptoms |
+| 73 | a diver in a copper helmet walks the sea floor breathing air from a pump | moderate 1.34 | Oppian, sponge divers working the sea floor |
+
+Both are the wanted shape: the analogue is real and ancient, and the impossible
+element is the microscope and the air pump.
+
+**Rejected replacements, recorded so nobody re-derives them.** Two scored strong
+and both were rejected for the same reason, that the near miss was accidental
+rather than designed:
+
+- *a biologist sequences the DNA of a specimen to place it on the family tree*
+  scored 2.26 against the Vulgate genealogies. It matched the metaphor "family
+  tree", not the subject. A query that scores high by accident would drag the
+  strong threshold up for no good reason.
+- *a lifeboat crew rows out through the surf to a wrecked steamer* scored 2.00
+  against Ovid's storm in *Metamorphoses* 11. Shipwreck and rescue are
+  everywhere in the corpus, so this is close to mislabelled.
+- *a crew hauls a steam trawler net aboard with a winch* scored 1.86 against
+  Oppian's net fishermen. Same problem as 73 itself.
+
+**The six that held**, with what they actually match:
+
+| # | label | scored | top hit |
+|---|---|---|---|
+| 31 | present | 1.47 moderate | Sulpicius Severus, *Dialogi*, a monk's temptation |
+| 33 | present | 1.39 moderate | Eobanus, Latin *Iliad*, an elder advising a younger man |
+| 37 | present | 1.66 strong | Lucan 9.796, death by snake venom |
+| 40 | present | 1.83 strong | Vergil *Aen.* 12.417, Iapyx healing a wound |
+| 60 | absent | 1.03 low | Plautus, *Mostellaria*, a moneylender demanding repayment |
+| 76 | absent | 1.15 moderate | Keats, a chamber prepared for a gathering |
+
+Two notes. **37 and 40 are not too narrow**, which is what I had worried about:
+both return the subject itself at strong confidence, and 40 returns the single
+most apt passage in Latin literature for it. **33 is usable but soft**: the
+corpus holds abbots counselling brothers, so the label is right, yet the search
+returns a generic elder-advises-younger scene from a Renaissance Latin *Iliad*.
+It measures the generic scene, not the monastic one.
+
+---
+
+## 8. Method, for whoever refits this next
 
 1. Write candidates. Absent ones should share the register of something the
    corpus does contain.
 2. **Run each candidate against the live index before adopting it.** Read the
    top hit. If the subject itself comes back, the query is present and must be
-   relabelled or cut.
+   relabelled or cut. Ten of the first forty absent queries failed this check,
+   so treat it as the rule and not a formality.
 3. Prefer absent queries that score moderate. A set of easy absent queries
    produces a threshold that is too low and a tool that overclaims.
-4. Refit with `calibrate_confidence.py`, update MODERATE_COMBINED and
+4. **Reject an absent query that scores strong for an accidental reason.** Check
+   why the top hit came back. If it matched a metaphor or a stray word rather
+   than the shape of the scene, it is noise, and because the strong threshold is
+   pinned to the highest absent score, one such query moves the threshold on its
+   own. "DNA on the family tree" pulling up Vulgate genealogies is the example.
+5. Refit with `calibrate_confidence.py`, update MODERATE_COMBINED and
    STRONG_COMBINED together in `backend/passage_index.py`.
-5. **Re-run the previous set as well**, or the two accuracy figures are not
+6. **Re-run the previous set as well**, or the two accuracy figures are not
    comparable. That mistake was made on 2026-08-25 and corrected on 08-27.
-6. The fit must be redone after any re-describe or re-embed, because every score
+7. The fit must be redone after any re-describe or re-embed, because every score
    is relative to the median of the whole index. The drift guard watches the
    window COUNT and will not notice.

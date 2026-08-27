@@ -1,16 +1,17 @@
 # Draft probe set for NC to edit — 2026-08-27
 
-**Updated 2026-08-27:** NC ruled 45, 54, 58, 61, 77, 78, 79 and 80 to be
-PRESENT, so they were replaced. Every replacement was run against the live index
-and its top hit inspected before adoption. Full record in
-`TESTING_RECORD_2026-08.md`.
+**Updated 2026-08-27, twice.** First, NC ruled 45, 54, 58, 61, 77, 78, 79 and 80
+to be PRESENT, so they were replaced. Then NC asked for the remaining eight
+uncertain queries to be tested rather than guessed at, which found two more bad
+ones, 64 and 73. Ten replacements in all.
+
+**Every query in this file that carries a note has been run against the live
+index and its top hit read.** Everything unannotated is untested and rests on
+judgement alone. Full record in `TESTING_RECORD_2026-08.md`.
 
 Suggestions only. Change the wording, change the labels, delete what is wrong,
 add what is missing. **A mislabelled query is worse than a missing one**, so
 where you are not certain, cut it.
-
-The queries marked ⚠ are ones I am least sure about and would most like you to
-check.
 
 ---
 
@@ -57,9 +58,9 @@ Phrased as a reader would type them, not in the text's own words.
 30. a psalmist cries out to God from despair
 
 ### Coptic and early Christian
-31. a monk is tempted in the desert by demons ⚠
+31. a monk is tempted in the desert by demons  *(tested: PRESENT, Sulpicius Severus, Dialogi)*
 32. a martyr refuses to sacrifice and is condemned
-33. an abbot gives counsel to a younger brother ⚠
+33. an abbot gives counsel to a younger brother  *(tested: present, but retrieval is soft — see notes)*
 
 ### Persian (now well described — worth testing)
 34. a king holds court and receives petitioners
@@ -67,10 +68,10 @@ Phrased as a reader would type them, not in the text's own words.
 36. a warrior draws his bow and boasts of his strength
 
 ### Deliberately hard — narrow subjects
-37. a snake or serpent attacks and kills a man ⚠
+37. a snake or serpent attacks and kills a man  *(tested: PRESENT, strong, Lucan 9)*
 38. someone is turned into an animal or a tree
 39. a shield or cup is described in detail as a work of art
-40. a doctor treats a wound on the battlefield ⚠
+40. a doctor treats a wound on the battlefield  *(tested: PRESENT, strong, Iapyx in Aeneid 12)*
 
 ---
 
@@ -107,13 +108,13 @@ Aim for the same shape: right register, right activity, one impossible element.
 57. a factory inspector reports on conditions in the mills
 58. a barrister in wig and gown cross-examines a witness  *(tested: moderate, nearest is Demosthenes on a witness)*
 59. a newspaper editor decides which story leads
-60. a bank forecloses on a mortgage and seizes the property ⚠
+60. a bank forecloses on a mortgage and seizes the property  *(tested: absent, low, nearest is Plautus on a moneylender)*
 61. a clerk stamps a traveller's passport at the border post  *(tested: low)*
 62. a patient signs a consent form before an operation
 
 ### Modern science and medicine
 63. antibiotics are prescribed for a bacterial infection
-64. a naturalist classifies a specimen by genus and species ⚠
+64. a technician examines a blood sample under a microscope for parasites  *(tested: moderate, nearest is Hippocrates on blood symptoms)*
 65. a chemist weighs a reagent and records the reaction
 66. an astronomer photographs a comet through a telescope
 67. a geologist reads the age of the rock from its strata
@@ -126,10 +127,10 @@ Aim for the same shape: right register, right activity, one impossible element.
 72. a radio broadcast interrupts with news of the war
 
 ### Subtle — the ones I would most like you to judge
-73. a whaling crew harpoons a whale from an open boat ⚠
+73. a diver in a copper helmet walks the sea floor breathing air from a pump  *(tested: moderate, nearest is Oppian's sponge divers)*
 74. a coffee house where men argue politics over their cups
 75. a duel fought with pistols at twenty paces
-76. a violinist tunes before a concert in a hall ⚠
+76. a violinist tunes before a concert in a hall  *(tested: moderate, nearest is Keats on a chamber prepared for a gathering)*
 77. a machinist turns a steel shaft on a lathe to a thousandth of an inch  *(tested: moderate, nearest is Milton at a forge)*
 78. a photographer develops a glass plate in a darkroom  *(tested: low)*
 79. a chemist fixes nitrogen from the air to make fertiliser  *(tested: moderate, nearest is Vergil on soil fertility)*
@@ -151,22 +152,46 @@ describing chemical and physical experiments. So modern science is not
 automatically absent, and neither is nineteenth-century English life. Anything
 after about 1850, or from outside Europe and the Mediterranean, is safer.
 
-**Still open, and I would rather you ruled than I guessed:**
+**All eight now tested, 2026-08-27.** Six held. Two did not, and both were
+mine to catch.
 
-- **31, 33** Coptic monastic subjects. The corpus holds the Apophthegmata
-  Patrum, so a monk tempted in the desert and an abbot counselling a younger
-  brother are probably PRESENT, which is what I have labelled them. Confirm.
-- **37, 40** may be too narrow to test anything reliably either way.
-- **60** a bank foreclosing on a mortgage. Roman law has debt and seizure of
-  property, so this may be closer to present than I assumed.
-- **64** a naturalist classifying by genus and species. Linnaean taxonomy is
-  modern, but Pliny and Aristotle classify animals at length, so this may be an
-  unfair near-miss rather than a clean absence.
-- **73, 76** whaling from an open boat, and a violinist tuning before a concert.
-  Both feel absent to me; neither is tested.
+**64, a naturalist classifies a specimen by genus and species, was wrong.** It
+scores 1.76, strong, and the top hit is Quintilian *arguing about the
+relationship between genus and species*. Linnaean taxonomy is modern, but the
+words and the act of classifying by genus and species are thoroughly ancient
+and thoroughly in the corpus. Replaced with a blood sample under a microscope,
+which lands at moderate against Hippocrates on blood symptoms: the right shape,
+because Hippocratic diagnosis is the real analogue and the microscope is the
+one impossible thing.
 
-Any of these can be settled the way the eight were, by running them and reading
-what comes back. Say the word and I will test them rather than argue about them.
+**73, a whaling crew harpoons a whale from an open boat, was also wrong.** It
+scores 1.74, strong, and the top hit is Oppian's *Halieutica* 5.145, fishermen
+hooking a giant sea beast from a boat. That is not an analogue to whaling. It
+is whaling. Oppian devotes much of book 5 to it. Replaced with a hard-hat diver
+breathing from an air pump, where Oppian's sponge divers are the analogue and
+the pump is the impossible element.
+
+Both mistakes have the same root as your eight: I judged by how modern the
+words sound rather than by what the corpus holds.
+
+**The six that held:**
+
+- **31** a monk tempted in the desert. Present, Sulpicius Severus, *Dialogi*.
+- **37** a snake kills a man. Present and strong, Lucan book 9, which is largely
+  about exactly this. Not too narrow at all.
+- **40** a doctor treats a battlefield wound. Present and strong, Iapyx healing
+  Aeneas in *Aeneid* 12. The best-behaved present query in the set.
+- **60** a bank forecloses. Absent, low. The nearest thing is Plautus's
+  moneylender in the *Mostellaria* demanding repayment, which is the analogue
+  and not the subject. Roman debt did not worry it after all.
+- **76** a violinist tunes before a concert. Absent, moderate, against Keats on
+  a chamber being prepared for a gathering. A good near miss.
+
+**One caveat on 33**, the abbot counselling a younger brother. The corpus does
+hold it, so the label is right, but the search returns Eobanus's Latin *Iliad*,
+an elder advising a younger man, rather than anything monastic. So it tests the
+generic scene and not the specific one. It is usable, and worth knowing that is
+what it measures.
 
 ## What happens next
 
