@@ -8,7 +8,9 @@ import TextPane from './TextPane';
 import ConnectionGutter from './ConnectionGutter';
 import ResultsPanel from './ResultsPanel';
 
-const DEFAULT_WORK = 'vergil.aeneid.part.6.tess';
+// Book 1, not book 6: the Reader opens where a reader expects a poem to start,
+// and "arma virumque cano" is the line most visitors will recognise.
+const DEFAULT_WORK = 'vergil.aeneid.part.1.tess';
 const DEFAULT_LANGUAGE = 'la';
 
 /**

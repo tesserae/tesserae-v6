@@ -358,7 +358,8 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
                 )}
                 {r.text && (
                   <p className="text-xs text-gray-700 mt-1.5 leading-snug">
-                    {r.text.length > 260 ? `${r.text.slice(0, 260)}…` : r.text}
+                    <Marked text={clip(r.text, r.matched_words)}
+                            words={r.matched_words} />
                   </p>
                 )}
                 <span className="mt-2 inline-block text-[11px] font-medium text-red-700
@@ -421,6 +422,60 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
 function bareLocus(ref) {
   const m = String(ref || '').match(/(\d+(?:[.:]\d+)*)\s*$/);
   return m ? m[1] : String(ref || '').trim();
+}
+
+/** Mark the matched words inside a quoted passage.
+ *
+ *  NC: "Matching words in reader are not highlighted." The card named them in
+ *  chips above the quotation but left the quotation itself unmarked, so on a
+ *  prose hit the reader had to scan a paragraph hunting for the two words that
+ *  earned it a place in the list. Some of those paragraphs run past three
+ *  thousand characters.
+ *
+ *  Whole-word and case-insensitive. Not stem matching: `matched_words` are the
+ *  forms as they appear in THIS passage, so they are already the right shape.
+ */
+function Marked({ text, words }) {
+  const list = (words || []).filter(Boolean);
+  if (!text) return null;
+  if (!list.length) return <>{text}</>;
+  const alt = [...new Set(list)]
+    .sort((a, b) => b.length - a.length)          // longest first, so a short
+    .map(escapeRe)                                // word cannot eat a longer one
+    .join('|');
+  const parts = String(text).split(new RegExp(`(?<![\\p{L}])(${alt})(?![\\p{L}])`, 'giu'));
+  return (
+    <>
+      {parts.map((p, i) => (
+        list.some((w) => w.toLowerCase() === p.toLowerCase())
+          ? <mark key={i} className="bg-red-100 text-red-900 font-semibold rounded-sm px-[1px]">{p}</mark>
+          : <span key={i}>{p}</span>
+      ))}
+    </>
+  );
+}
+
+function escapeRe(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/** Trim a long passage, but never cut off the words that matched.
+ *
+ *  A flat 260-character cut hid the evidence on exactly the hits that need it:
+ *  in a 3,749-character chapter of William of Tyre the matched words sit far
+ *  past the cut, so the reader saw an unmarked opening and no reason the result
+ *  was there at all. This keeps the window around the first match instead.
+ */
+function clip(text, words, span = 260) {
+  const s = String(text || '');
+  if (s.length <= span) return s;
+  const first = (words || [])
+    .map((w) => s.toLowerCase().indexOf(String(w).toLowerCase()))
+    .filter((i) => i >= 0)
+    .sort((a, b) => a - b)[0];
+  if (first == null || first < span - 40) return `${s.slice(0, span)}…`;
+  const start = Math.max(0, first - 60);
+  return `…${s.slice(start, start + span)}…`;
 }
 
 /** The same underlying text, ignoring the suffix and any book split.

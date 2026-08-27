@@ -86,14 +86,53 @@ describe('the tab searches the corpus for the selection', () => {
     mount();
     expect(await screen.findByText(/Caesar, De Bello Civili/)).toBeTruthy();
     // A lemma search, so the shared words are in different forms on each side
-    // and naming them is the whole point of the card.
-    expect(screen.getByText('classem')).toBeTruthy();
-    expect(screen.getByText('immisit')).toBeTruthy();
+    // and naming them is the whole point of the card. Each appears twice now:
+    // once as a chip, once marked inside the quotation.
+    expect(screen.getAllByText('classem').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('immisit').length).toBeGreaterThan(0);
   });
 
   it('says the cards open, since nothing else does', async () => {
     mount();
     expect((await screen.findAllByText(/Open in Reader/))[0]).toBeTruthy();
+  });
+});
+
+describe('the matched words are marked in the passage', () => {
+  it('marks them, not just the chips above', async () => {
+    mount();
+    await screen.findByText(/Caesar/);
+    // The chips name the words; the quotation has to show WHERE they are.
+    const marks = [...document.querySelectorAll('mark')].map((m) => m.textContent.toLowerCase());
+    expect(marks).toContain('classem');
+    expect(marks).toContain('immisit');
+  });
+
+  it('keeps the matched words visible in a long prose chapter', async () => {
+    // William of Tyre's units run past 3,700 characters. A flat cut at 260
+    // showed an unmarked opening and hid the only evidence for the hit.
+    const tail = `${'filler word '.repeat(120)}in Pomponianam classem immisit atque`;
+    global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve({
+      results: [{ author: 'William of Tyre', work: 'Historia', year: 1186,
+                  text_id: 'william.historia.tess', locus: '19.22',
+                  matched_words: ['classem', 'immisit'], text: tail }],
+    }) }));
+    mount();
+    await screen.findByText(/William of Tyre/);
+    const marks = [...document.querySelectorAll('mark')].map((m) => m.textContent.toLowerCase());
+    expect(marks).toContain('classem');
+  });
+
+  it('does not mark a word merely contained in a longer one', async () => {
+    global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve({
+      results: [{ author: 'Test', work: 'W', text_id: 'w.tess', locus: '1.1',
+                  year: 0, matched_words: ['arma'],
+                  text: 'armamentis plena, arma virumque' }],
+    }) }));
+    mount();
+    await screen.findByText(/Test/);
+    const marks = [...document.querySelectorAll('mark')].map((m) => m.textContent);
+    expect(marks).toEqual(['arma']);           // not the "arma" inside armamentis
   });
 });
 
