@@ -1,13 +1,13 @@
 # Aligned English translations
 
-How the English in the Reader's Translation tab is built. Five pipelines feed
+How the English in the Reader's Translation tab is built. Six pipelines feed
 the same place, `data/translations/`, which `backend/translations.py` reads.
 
-As of 2026-08-27 they produce **316,811 aligned references across 512 works**:
+As of 2026-08-27 they produce **352,053 aligned references across 585 works**:
 255,357 from Perseus, 35,941 from the Greek Bible, 2,299 five-line blocks
-covering Seneca's ten tragedies, 10,991 lines of Statius and 12,223 of
-Aristophanes. The served directory holds 697 works in all, the rest being the
-Coptic and Hebrew scripture pairings built separately.
+covering Seneca's ten tragedies, 10,991 lines of Statius, 12,223 of Aristophanes
+and 35,242 verses of the Vulgate. The served directory holds 770 works in all,
+the rest being the Coptic and Hebrew scripture pairings built separately.
 
 ---
 
@@ -221,6 +221,36 @@ Coverage 83-96% across all eleven, proper-name agreement 0.39 to 0.78.
 translation at full coverage and 3.1 source lines per unit, against Rogers at
 21.6. A coarser alignment should never displace a finer one that already works.
 
+## Pipeline 6: the Vulgate
+
+    align_vulgate.py
+
+The largest single untranslated work in the corpus: 39,244 lines, none of which
+had English beside it. It was left off the earlier priority list only because
+demand was judged lower than for Seneca or Statius. By coverage per hour of work
+it was far and away the best thing available.
+
+**Douay-Rheims, and the choice is not incidental.** It is a translation *of the
+Vulgate*. Every other public-domain English Bible translates the Hebrew and
+Greek, and the difference is not academic: the Vulgate's Psalter follows the
+Septuagint's numbering, so an English Bible made from the Hebrew is a psalm out
+of step, and pairing verse *n* with verse *n* would be wrong for the whole book
+while looking complete. Choosing the translation made from the same text removes
+the problem at the source instead of correcting for it afterwards.
+
+That it worked is visible in the numbers. **73 books, 35,242 verses, 100%
+coverage on nearly every book with no offset applied anywhere**, and length
+correlation between 0.88 and 0.98 — far above any other pipeline here, which is
+what a translation of this very text should look like. Vulgate Psalm 22 ("The
+Lord ruleth me: and I shall want nothing") is the Hebrew Bible's Psalm 23, and it
+pairs at 22 without correction.
+
+**Six books are deliberately unpaired**, being in the Vulgate and in no ordinary
+English Bible: 3 and 4 Esdras, the Prayer of Manasseh, Psalm 151, the Old Latin
+Psalter and the Epistle to the Laodiceans. They are reported as having no English
+rather than forced onto the nearest-looking book, which is how the Prayer of
+Manasseh would end up answering for Manasseh in Chronicles.
+
 ---
 
 ## Paths
@@ -241,6 +271,8 @@ overridable so nobody edits a checked-in file to run it elsewhere:
 | `TESSERAE_STATIUS_OUT` | `~/perseus_trans/translations_statius` |
 | `TESSERAE_ARISTOPHANES_SRC` | `~/perseus_trans/aristophanes_src` |
 | `TESSERAE_ARISTOPHANES_OUT` | `~/perseus_trans/translations_aristophanes` |
+| `TESSERAE_DRA_SRC` | `~/perseus_trans/bible_src/dra` |
+| `TESSERAE_VULGATE_OUT` | `~/perseus_trans/translations_vulgate` |
 
 `ONLY_WORKS=la/lucan.bellum_civile,...` restricts `align_perseus.py` to named
 works, which is how to test a change without a full rebuild.
