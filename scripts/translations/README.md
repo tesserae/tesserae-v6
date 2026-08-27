@@ -1,11 +1,12 @@
 # Aligned English translations
 
-How the English in the Reader's Translation tab is built. Three pipelines feed
+How the English in the Reader's Translation tab is built. Six pipelines feed
 the same place, `data/translations/`, which `backend/translations.py` reads.
 
-As of 2026-08-27 they produce **293,597 aligned references across 499 works**:
-255,357 from Perseus, 35,941 from the Greek Bible, and 2,299 five-line blocks
-covering Seneca's ten tragedies. The served directory holds 683 works in all,
+As of 2026-08-27 they produce **352,053 aligned references across 585 works**:
+255,357 from Perseus, 35,941 from the Greek Bible, 2,299 five-line blocks
+covering Seneca's ten tragedies, 10,991 lines of Statius, 12,223 of Aristophanes
+and 35,242 verses of the Vulgate. The served directory holds 770 works in all,
 the rest being the Coptic and Hebrew scripture pairings built separately.
 
 ---
@@ -143,6 +144,113 @@ so block lengths barely vary and the correlation has nothing to measure. That is
 the mirror image of the wisdom books in pipeline 2, where names were the useless
 test and length was the good one.
 
+## Pipeline 4: Statius
+
+    align_statius.py
+
+*Thebaid*, *Silvae* and *Achilleid*: 14,783 lines, no English in Perseus and none
+on Project Gutenberg, and the poet at the centre of the Flavian intertextual work
+this project supports. Source is Mozley's Loeb of 1928 from the Internet Archive,
+US public domain by date of publication.
+
+**The alignment data is the running page header, not the marginal line numbers.**
+This was planned as an OCR-and-margin-number job, which is slow and unreliable
+because marginal digits stand alone in white space and are the first thing OCR
+loses. It is also unnecessary: the Loeb prints "THEBAID, I. 18-41" at the head of
+every page, in ordinary type, which is what OCR reads best. Every page of English
+can be attached to a known range of Latin lines without reading one marginal
+number. The *Silvae* headers give book, poem and line, matching our references
+exactly.
+
+**The repair rule is the part to understand, because the obvious version of it is
+wrong.** Digits are what OCR misses, and a page header is mostly digits: "66-93"
+comes back as "6-93". The first version of this trusted contiguity — each page
+starts where the last ended — and that quietly stretched one page of English
+across sixty lines belonging to a page whose header the scan had lost.
+
+A page is now judged first on its own plausibility. A Loeb page holds twenty-odd
+lines, so a header claiming a sane span is believed **as printed**, even where it
+does not follow the previous page, because the usual reason for a jump is a lost
+header and the lines in the gap should stay unpaired. Only an impossible span
+means a digit was misread, and then contiguity supplies it — "6-93" after a page
+ending at 65 becomes 66-93, twenty-eight lines, a real page, with two independent
+reasons to believe it. Anything that cannot be made plausible is dropped.
+
+That change cut *Thebaid* coverage from 97% to 80% and raised proper-name
+agreement from 0.727 to **0.814**, which is the point: the pages it removed were
+the wrong ones.
+
+Coverage is 80% of the *Thebaid*, 89% of the *Achilleid* and 57% of the *Silvae*,
+the shortfall being page headers the scan lost entirely. One page is dropped for
+carrying Mozley's own prefatory note in place of the verse.
+
+## Pipeline 5: Aristophanes
+
+    align_aristophanes.py
+
+Aeschylus, Sophocles and Euripides all arrived with the Perseus rebuild. Of the
+eleven surviving comedies of Aristophanes, Perseus carries an English text of
+two, so a reader browsing Attic comedy met a wall of blank tabs where tragedy
+read through. Source is Rogers' Loeb of 1924, three volumes on the Internet
+Archive, US public domain by date of publication, using the same running-header
+trick as Statius.
+
+**Two things here that the Statius script did not need**, both of them cases
+where the first guess was wrong and measuring fixed it.
+
+*The play name has to be matched by similarity.* This scan is dirtier than the
+Statius one: "THE PEACE" comes through as "THE PEACH", "LYSISTRATA" as
+"LCYSISTRATA", and "THESMOPHORIAZUSAE" in six spellings across its forty pages.
+Matching the literal string would have dropped a third of the corpus silently. A
+hand-written list of observed misspellings fails on the first one nobody saw, so
+the title is matched against the eleven possible answers by similarity, at a
+threshold that accepts PEACH and rejects every other capitalised word in the
+scan.
+
+*The Greek-page guard was set far too tight.* The reasoning was that an English
+page contains no Greek. It does: volumes II and III bleed Greek from the facing
+page and from Rogers' footnotes, so real English pages sit at 0.23 to 0.33 Greek
+characters. A 0.25 threshold threw away 297 of them, every page of seven plays,
+and left those plays at 13-24% coverage looking like a source problem. Nothing in
+the scan exceeds 0.4, because the Greek pages carry Greek headers and never match
+the pattern at all. The guard is kept at 0.6 for a volume where it would matter.
+
+Coverage 83-96% across all eleven, proper-name agreement 0.39 to 0.78.
+
+**Clouds is built but deliberately not installed.** It already has Hickie's 1853
+translation at full coverage and 3.1 source lines per unit, against Rogers at
+21.6. A coarser alignment should never displace a finer one that already works.
+
+## Pipeline 6: the Vulgate
+
+    align_vulgate.py
+
+The largest single untranslated work in the corpus: 39,244 lines, none of which
+had English beside it. It was left off the earlier priority list only because
+demand was judged lower than for Seneca or Statius. By coverage per hour of work
+it was far and away the best thing available.
+
+**Douay-Rheims, and the choice is not incidental.** It is a translation *of the
+Vulgate*. Every other public-domain English Bible translates the Hebrew and
+Greek, and the difference is not academic: the Vulgate's Psalter follows the
+Septuagint's numbering, so an English Bible made from the Hebrew is a psalm out
+of step, and pairing verse *n* with verse *n* would be wrong for the whole book
+while looking complete. Choosing the translation made from the same text removes
+the problem at the source instead of correcting for it afterwards.
+
+That it worked is visible in the numbers. **73 books, 35,242 verses, 100%
+coverage on nearly every book with no offset applied anywhere**, and length
+correlation between 0.88 and 0.98 — far above any other pipeline here, which is
+what a translation of this very text should look like. Vulgate Psalm 22 ("The
+Lord ruleth me: and I shall want nothing") is the Hebrew Bible's Psalm 23, and it
+pairs at 22 without correction.
+
+**Six books are deliberately unpaired**, being in the Vulgate and in no ordinary
+English Bible: 3 and 4 Esdras, the Prayer of Manasseh, Psalm 151, the Old Latin
+Psalter and the Epistle to the Laodiceans. They are reported as having no English
+rather than forced onto the nearest-looking book, which is how the Prayer of
+Manasseh would end up answering for Manasseh in Chronicles.
+
 ---
 
 ## Paths
@@ -159,6 +267,12 @@ overridable so nobody edits a checked-in file to run it elsewhere:
 | `TESSERAE_BIBLE_OUT` | `~/perseus_trans/translations_bible` |
 | `TESSERAE_SENECA_SRC` | `~/perseus_trans/seneca_src/pg57999.txt` |
 | `TESSERAE_SENECA_OUT` | `~/perseus_trans/translations_seneca` |
+| `TESSERAE_STATIUS_SRC` | `~/perseus_trans/statius_src` |
+| `TESSERAE_STATIUS_OUT` | `~/perseus_trans/translations_statius` |
+| `TESSERAE_ARISTOPHANES_SRC` | `~/perseus_trans/aristophanes_src` |
+| `TESSERAE_ARISTOPHANES_OUT` | `~/perseus_trans/translations_aristophanes` |
+| `TESSERAE_DRA_SRC` | `~/perseus_trans/bible_src/dra` |
+| `TESSERAE_VULGATE_OUT` | `~/perseus_trans/translations_vulgate` |
 
 `ONLY_WORKS=la/lucan.bellum_civile,...` restricts `align_perseus.py` to named
 works, which is how to test a change without a full rebuild.
