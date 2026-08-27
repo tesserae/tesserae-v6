@@ -51,7 +51,7 @@ logger = get_logger('assistant.classify')
 
 # Kinds. Deliberately few: every one of these routes somewhere different, and a
 # taxonomy the model cannot hold in its head is a taxonomy it will guess at.
-KINDS = ('site', 'corpus', 'theme', 'holdings', 'read')
+KINDS = ('site', 'corpus', 'theme', 'holdings', 'read', 'compare')
 UNSURE = 'unsure'
 
 # OFF unless asked for, matching agent._MODEL_ROUTING exactly.
@@ -83,6 +83,11 @@ Reply with JSON only. No prose, no explanation.
     read      wants to open a work and read it continuously ("let me read
               Aeneid 6"). Asking to SEE THE LINES a search found is not this:
               that is still "corpus".
+    compare   names TWO texts or authors and asks what passes between them:
+              quotations, echoes, borrowings, allusions, influence, imitation.
+              "find quotations of Vergil's Aeneid in Ovid's Metamorphoses" is
+              this, not a word search. The words to look for are not known in
+              advance -- finding them IS the question.
 
   carries_subject   true if the question does not say what it is about and
                     only makes sense as a follow-up to the previous exchange
@@ -130,6 +135,13 @@ EXAMPLES = [
      {'kind': 'holdings', 'carries_subject': False, 'subject': None, 'scope': None}),
     ('let me read Aeneid 6', None,
      {'kind': 'read', 'carries_subject': False, 'subject': None, 'scope': 'Aeneid 6'}),
+    # The question that produced the worst answer this tool has given: a word
+    # search for "Aeneas" and then "the corpus contains no direct quotations".
+    ('If I want to find quotations of Vergil Aeneid in Ovid Metamorphoses, what do you recommend?',
+     None,
+     {'kind': 'compare', 'carries_subject': False, 'subject': None, 'scope': None}),
+    ('where does Statius echo the Aeneid?', None,
+     {'kind': 'compare', 'carries_subject': False, 'subject': None, 'scope': None}),
     # The two the first version got wrong, kept as examples so a later prompt
     # change cannot quietly lose them again.
     ('show me the actual lines', 'I found 12 occurrences of "arma virumque".',

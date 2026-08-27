@@ -67,14 +67,24 @@ export default function ThemeExport({ query, language, count }) {
       <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
         Export
       </span>
+      {/* PDF FIRST, because it is what people mean by "download". The printable
+          page renders the scripts better -- a browser shapes Arabic and lays
+          out right-to-left text more faithfully than any PDF library -- but it
+          is not a file you can send to a colleague, which is what NC asked for. */}
+      <a
+        href={params('pdf')}
+        className="text-xs font-semibold text-red-700 border border-red-200 bg-red-50
+                   rounded px-3 py-1.5 hover:bg-red-100 hover:border-red-300"
+      >
+        Download PDF
+      </a>
       <button
         onClick={openPrintable}
         disabled={busy}
-        className="text-xs font-semibold text-red-700 border border-red-200 bg-red-50
-                   rounded px-3 py-1.5 hover:bg-red-100 hover:border-red-300
-                   disabled:opacity-50"
+        className="text-xs font-semibold text-gray-700 border border-gray-300 bg-white
+                   rounded px-3 py-1.5 hover:bg-gray-50 disabled:opacity-50"
       >
-        {busy ? 'Preparing...' : 'Printable / PDF'}
+        {busy ? 'Preparing...' : 'Printable page'}
       </button>
       <a
         href={params('csv')}

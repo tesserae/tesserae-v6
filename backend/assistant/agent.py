@@ -1439,7 +1439,11 @@ def _prepare(question, step, history=None, offered_phrase=None):
     # So the texts are resolved, the census confirms the corpus holds them, and
     # the fusion search is handed over as a control. Nothing heavy runs here,
     # which also means the answer arrives immediately.
-    if any(t in question.lower() for t in actions._COMPARE_INTENT):
+    # The classifier's verdict counts as compare intent too, so a phrasing the
+    # list has never seen still reaches the right search.
+    _compare_intent = (any(t in question.lower() for t in actions._COMPARE_INTENT)
+                       or _decided(decision, 'kind', None) == 'compare')
+    if _compare_intent:
         try:
             from backend.assistant import corpus_lookup
             pair = corpus_lookup.named_texts(question, limit=2)
