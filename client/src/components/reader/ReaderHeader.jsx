@@ -48,7 +48,7 @@ function Select({ label, value, options, onChange, disabled }) {
 }
 
 export default function ReaderHeader({
-  language, onLanguage, hierarchy, work, onWork, metadata, units, selection,
+  language, onLanguage, hierarchy, work, onWork, units, selection,
 }) {
   const [languages, setLanguages] = useState([]);
 
@@ -143,11 +143,13 @@ export default function ReaderHeader({
                 onChange={(v) => onWork(v)} />
       )}
 
-      <span className="ml-auto flex items-center gap-2 text-sm text-gray-600">
-        {metadata?.display_name && (
-          <span className="hidden xl:inline text-gray-400">{metadata.display_name}</span>
-        )}
-        {range && <span className="tabular-nums">{range}</span>}
+      {/* THE POSITION ONLY. This also printed metadata.display_name, so the
+          header read "Vergil | Aeneid | Book 6 ... Vergil, Aeneid, Book 6" --
+          the dropdowns already say which text is open, and saying it again in
+          grey beside them is noise pretending to be information. What the
+          dropdowns cannot say is WHERE in the text you are. */}
+      <span className="ml-auto text-sm text-gray-600 tabular-nums">
+        {range}
       </span>
     </div>
   );

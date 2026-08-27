@@ -154,7 +154,6 @@ export default function ReaderPage() {
           // The banner describes a passage in the work being left.
           setCameFrom('');
         }}
-        metadata={metadata}
         units={units}
         selection={selection}
       />

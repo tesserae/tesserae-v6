@@ -112,3 +112,22 @@ describe('a work with no books shows no Book control', () => {
     expect(screen.queryByLabelText('Book')).toBeNull();
   });
 });
+
+describe('the header does not repeat itself', () => {
+  it('names the text once, in the dropdowns', () => {
+    // It also printed metadata.display_name, so the header read
+    // "Vergil | Aeneid | Book 6 ... Vergil, Aeneid, Book 6".
+    mount();
+    expect(screen.queryByText('Ovid, Tristia, Book 3')).toBeNull();
+  });
+
+  it('shows the position, which the dropdowns cannot', () => {
+    mount({ selection: { refStart: 'ov. tr. 3.1', refEnd: 'ov. tr. 3.4' } });
+    expect(screen.getByText(/ov\. tr\. 3\.1/)).toBeTruthy();
+  });
+
+  it('falls back to the line count with nothing selected', () => {
+    mount({ units: [{ ref: 'a' }, { ref: 'b' }] });
+    expect(screen.getByText('2 lines')).toBeTruthy();
+  });
+});
