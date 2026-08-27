@@ -485,7 +485,7 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
     if strong_at is None:
         strong_at = baseline + STRONG_LIFT
     order = np.argsort(-scores)
-    seen = set()
+    seen = {}          # work -> [(start, end)] already taken, for overlap dedup
     per_work_count = {}
     by_passage = {}       # canonical scripture span -> index into out
     out = []
@@ -506,10 +506,25 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
         if scale and r.get('scale') != scale:
             continue
         if dedup:
-            key = (work, _ref_numbers(r.get('ref_start')))
-            if key in seen:
+            # OVERLAP, not an identical start. Keying on ref_start alone let
+            # near-duplicates through, because two windows over the same lines
+            # rarely begin on the same one: Caesar came back as both
+            # 2.31.6-2.35.4 and 2.32.10-2.34.4, one wholly inside the other, and
+            # Homer as both the whole Iliad and .part.17 for adjacent spans.
+            # Claude desktop, testing the connector, counted these eating
+            # ranking slots. Measured on one query, 9 of 75 results were the same
+            # underlying text arriving twice.
+            #
+            # Iteration is in descending score, so the first window over a
+            # stretch of text is the best one and later overlaps are dropped.
+            lo = _ref_numbers(r.get('ref_start'))
+            hi = _ref_numbers(r.get('ref_end')) or lo
+            if lo > hi:
+                lo, hi = hi, lo
+            spans = seen.setdefault(work, [])
+            if any(lo <= b and a <= hi for a, b in spans):
                 continue
-            seen.add(key)
+            spans.append((lo, hi))
 
         sp = scripture_id.span(work, r.get('ref_start'), r.get('ref_end'))
         if sp is not None:

@@ -601,7 +601,13 @@ def _t_theme_search(a):
     d = _get('/passages/theme-search', params)
     out = {'query': d.get('query'), 'confidence': d.get('confidence'),
            'strong_matches': d.get('strong_matches'), 'note': d.get('note'),
+           # NAMED, not merely identified. Claude desktop had to reconstruct
+           # "Lucan, Civil War 7.363-392" from a work id: the API has carried
+           # the author and title all along and this projection dropped them.
            'results': [{'work': r.get('work'), 'language': r.get('language'),
+                        'author': r.get('author'), 'title': r.get('title'),
+                        'display_name': r.get('display_name'),
+                        'date': r.get('date_note') or r.get('year'),
                         'ref_start': r.get('ref_start'), 'ref_end': r.get('ref_end'),
                         'score': r.get('score'), 'strong': r.get('strong'),
                         'gist': r.get('gist'), 'themes': r.get('themes')}
@@ -669,6 +675,9 @@ def _t_similar_passages(a):
                       'ref_end': src.get('ref_end'), 'gist': src.get('gist')},
            'confidence': d.get('confidence'),
            'results': [{'work': r.get('work'), 'language': r.get('language'),
+                        'author': r.get('author'), 'title': r.get('title'),
+                        'display_name': r.get('display_name'),
+                        'date': r.get('date_note') or r.get('year'),
                         'ref_start': r.get('ref_start'), 'ref_end': r.get('ref_end'),
                         'score': r.get('score'), 'strong': r.get('strong'),
                         'gist': r.get('gist'), 'themes': r.get('themes')}
