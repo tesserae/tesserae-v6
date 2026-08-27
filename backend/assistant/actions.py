@@ -352,7 +352,22 @@ def build(facts, question=''):
 # What a question is ASKING FOR, decided by its words. The model is not asked,
 # for the same reason it is not asked to write URLs: a guide that recommends the
 # wrong tool confidently is worse than one that says less.
-_COMPARE_INTENT = ('compare', 'echoes', 'echo of', 'borrow', 'parallel',
+# QUOTATION was missing, and its absence produced the worst answer this tool has
+# given. Asked "if I want to find quotations of Vergil Aeneid in Ovid
+# Metamorphoses, what do you recommend?", nothing here matched, so the question
+# never reached the two-text comparison. It fell through to the chooser, which
+# ran a word search for "Aeneas", and Tessa then reported: "The corpus contains
+# no direct quotations of Vergil's Aeneid in Ovid's Metamorphoses."
+#
+# That is a false negative asserted as a finding, from a search that was never
+# capable of answering the question. Both texts had already been resolved
+# correctly a few lines earlier; only this list stood between the reader and the
+# right tool.
+#
+# The list is the problem, not this particular gap in it. See classify.py, which
+# now carries a 'compare' kind so the judgement is made rather than looked up.
+_COMPARE_INTENT = ('quotation', 'quote', 'quoting', 'quotes',
+                   'compare', 'echoes', 'echo of', 'borrow', 'parallel',
                    'allusion', 'allude', 'imitat', 'influence', 'reuse',
                    'intertext', 'model for', 'draw on', 'draws on')
 _READ_INTENT = ('read ', 'reading ', 'open ', 'look at ', 'see the text',
