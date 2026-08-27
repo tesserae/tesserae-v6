@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { chronological, dateParts } from '../../utils/chronology';
 import { LoadingSpinner } from '../common';
 import { ResultsInsight } from '../assistant';
 
@@ -118,20 +119,35 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
                 No passage in the corpus resembles this selection closely.
               </p>
             )}
-            {!loading && similar?.results?.map((r) => (
+            {/* OLDEST FIRST, like Theme Search. These results cross centuries
+                and the order they are read in is itself information: the
+                Aeneid, then Ovid reworking it, then Silius after him. Ranking
+                by score put Statius (96 CE) above Ovid (17 CE) and told the
+                reader nothing about the line of descent. */}
+            {!loading && chronological(similar?.results)?.map((r) => (
               <button
                 key={r.id}
                 onClick={() => onOpenPassage?.(r)}
-                className="w-full text-left bg-white border border-gray-200 rounded-lg p-3 hover:border-red-300 transition-colors"
+                className="group w-full text-left bg-white border border-gray-200 rounded-lg p-3
+                           hover:border-red-400 hover:bg-red-50/40 transition-colors
+                           focus:outline-none focus:ring-2 focus:ring-red-400"
               >
                 <div className="flex items-baseline gap-2 flex-wrap">
                   <span className="text-[10px] font-bold uppercase tracking-wide bg-gray-100 text-gray-600 rounded px-1">
                     {LANG_LABEL[r.language] || r.language}
                   </span>
-                  <span className="font-bold text-sm text-gray-900">
+                  {/* The title carries the link colour and underlines on hover,
+                      because nothing else said these cards open anything. A
+                      hover border on a div is not an affordance. */}
+                  <span className="font-bold text-sm text-red-800 group-hover:underline">
                     {prettyWork(r.work)}
                   </span>
                   <span className="text-xs text-gray-500">{shortRef(r.ref_start)}</span>
+                  {dateParts(r) && (
+                    <span className="text-[11px] text-gray-500 tabular-nums whitespace-nowrap">
+                      {dateParts(r).date}
+                    </span>
+                  )}
                   {r.strong && (
                     <span className="ml-auto text-[11px] font-semibold text-green-700">strong</span>
                   )}
@@ -187,6 +203,15 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
                     ))}
                   </div>
                 )}
+                {/* SAID OUTRIGHT. NC: "nothing indicates that their titles are
+                    clickable." The whole card has always been a button, which
+                    is invisible; Theme Search says this in words on every
+                    result and the Reader should not be quieter about the same
+                    action. */}
+                <span className="mt-2 inline-block text-[11px] font-medium text-red-700
+                                 group-hover:underline">
+                  Open in Reader &rarr;
+                </span>
               </button>
             ))}
             <p className="text-[11px] text-gray-400 pt-1 leading-snug">
