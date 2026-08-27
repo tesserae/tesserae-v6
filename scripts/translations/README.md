@@ -1,13 +1,13 @@
 # Aligned English translations
 
-How the English in the Reader's Translation tab is built. Four pipelines feed
+How the English in the Reader's Translation tab is built. Five pipelines feed
 the same place, `data/translations/`, which `backend/translations.py` reads.
 
-As of 2026-08-27 they produce **304,588 aligned references across 502 works**:
+As of 2026-08-27 they produce **316,811 aligned references across 512 works**:
 255,357 from Perseus, 35,941 from the Greek Bible, 2,299 five-line blocks
-covering Seneca's ten tragedies, and 10,991 lines of Statius. The served
-directory holds 687 works in all, the rest being the Coptic and Hebrew scripture
-pairings built separately.
+covering Seneca's ten tragedies, 10,991 lines of Statius and 12,223 of
+Aristophanes. The served directory holds 697 works in all, the rest being the
+Coptic and Hebrew scripture pairings built separately.
 
 ---
 
@@ -184,6 +184,43 @@ Coverage is 80% of the *Thebaid*, 89% of the *Achilleid* and 57% of the *Silvae*
 the shortfall being page headers the scan lost entirely. One page is dropped for
 carrying Mozley's own prefatory note in place of the verse.
 
+## Pipeline 5: Aristophanes
+
+    align_aristophanes.py
+
+Aeschylus, Sophocles and Euripides all arrived with the Perseus rebuild. Of the
+eleven surviving comedies of Aristophanes, Perseus carries an English text of
+two, so a reader browsing Attic comedy met a wall of blank tabs where tragedy
+read through. Source is Rogers' Loeb of 1924, three volumes on the Internet
+Archive, US public domain by date of publication, using the same running-header
+trick as Statius.
+
+**Two things here that the Statius script did not need**, both of them cases
+where the first guess was wrong and measuring fixed it.
+
+*The play name has to be matched by similarity.* This scan is dirtier than the
+Statius one: "THE PEACE" comes through as "THE PEACH", "LYSISTRATA" as
+"LCYSISTRATA", and "THESMOPHORIAZUSAE" in six spellings across its forty pages.
+Matching the literal string would have dropped a third of the corpus silently. A
+hand-written list of observed misspellings fails on the first one nobody saw, so
+the title is matched against the eleven possible answers by similarity, at a
+threshold that accepts PEACH and rejects every other capitalised word in the
+scan.
+
+*The Greek-page guard was set far too tight.* The reasoning was that an English
+page contains no Greek. It does: volumes II and III bleed Greek from the facing
+page and from Rogers' footnotes, so real English pages sit at 0.23 to 0.33 Greek
+characters. A 0.25 threshold threw away 297 of them, every page of seven plays,
+and left those plays at 13-24% coverage looking like a source problem. Nothing in
+the scan exceeds 0.4, because the Greek pages carry Greek headers and never match
+the pattern at all. The guard is kept at 0.6 for a volume where it would matter.
+
+Coverage 83-96% across all eleven, proper-name agreement 0.39 to 0.78.
+
+**Clouds is built but deliberately not installed.** It already has Hickie's 1853
+translation at full coverage and 3.1 source lines per unit, against Rogers at
+21.6. A coarser alignment should never displace a finer one that already works.
+
 ---
 
 ## Paths
@@ -202,6 +239,8 @@ overridable so nobody edits a checked-in file to run it elsewhere:
 | `TESSERAE_SENECA_OUT` | `~/perseus_trans/translations_seneca` |
 | `TESSERAE_STATIUS_SRC` | `~/perseus_trans/statius_src` |
 | `TESSERAE_STATIUS_OUT` | `~/perseus_trans/translations_statius` |
+| `TESSERAE_ARISTOPHANES_SRC` | `~/perseus_trans/aristophanes_src` |
+| `TESSERAE_ARISTOPHANES_OUT` | `~/perseus_trans/translations_aristophanes` |
 
 `ONLY_WORKS=la/lucan.bellum_civile,...` restricts `align_perseus.py` to named
 works, which is how to test a change without a full rebuild.
