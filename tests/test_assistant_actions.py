@@ -688,3 +688,62 @@ def test_the_handoff_sentence_names_exactly_one_text():
     from backend.assistant import corpus_lookup
     hits = corpus_lookup.named_texts(READ_HISTORY[1]['text'], limit=4)
     assert [h['id'] for h in hits] == ['vergil.aeneid.tess']
+
+
+# --- a follow-up naming a different work -----------------------------------
+
+def test_a_fragment_naming_another_work_is_a_reading_follow_up():
+    """"and the Georgics?" after a read hand-off is a request to read the
+    Georgics, but it carries no verb, so the read intent never fired and it fell
+    to a corpus listing."""
+    from backend.assistant.agent import _followup_text
+    for q, want in (('and the Georgics?', 'vergil.georgics.tess'),
+                    ('the Iliad?', 'homer.iliad.tess'),
+                    ('what about Statius Thebaid?', 'statius.thebaid.tess')):
+        hit = _followup_text(q, READ_HISTORY)
+        assert hit and hit['id'] == want, (q, hit and hit['id'])
+
+
+def test_a_name_is_not_resolved_twice_into_a_second_text():
+    """"what about Statius Thebaid?" produced statius.thebaid AND statius.SILVAE
+    -- the second from re-resolving the bare word "statius" -- which made a
+    one-text question look ambiguous everywhere that counts hits."""
+    from backend.assistant import corpus_lookup
+    hits = corpus_lookup.named_texts('what about Statius Thebaid?', limit=2)
+    assert [h['id'] for h in hits] == ['statius.thebaid.tess']
+
+
+def test_two_genuinely_different_authors_still_both_resolve():
+    from backend.assistant import corpus_lookup
+    hits = corpus_lookup.named_texts('compare Ovid and Vergil', limit=2)
+    assert len(hits) == 2
+    assert {h['author'] for h in hits} == {'Ovid', 'Vergil'}
+
+
+# --- the Help page answers its own FAQ, without the model ------------------
+
+def test_the_faq_is_answered_from_the_page_itself():
+    from backend.assistant import site_help
+    for q in ('How do I save my results?', 'Why is my search taking so long?',
+              'What does Refresh results do?',
+              'What is Fusion search and should I use it?'):
+        assert site_help.direct_answer(q), q
+
+
+def test_a_near_miss_is_not_answered_from_the_page():
+    """At a 0.6 threshold "What is the difference between lemma and exact
+    search?" was answered with the Phrases-versus-Lines section: wrong,
+    confident, and in the site's own voice."""
+    from backend.assistant import site_help
+    for q in ('What is the difference between lemma and exact search?',
+              'What is Theme Search?', 'How do I read the Aeneid?',
+              'what is a lemma?'):
+        assert site_help.direct_answer(q) is None, q
+
+
+def test_only_question_headings_are_used_this_way():
+    from backend.assistant import site_help
+    for chunk in site_help._load():
+        head, _, body = chunk.partition(': ')
+        if body and '?' not in head:
+            assert site_help.direct_answer(head) != body.strip()

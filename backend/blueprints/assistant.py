@@ -196,6 +196,26 @@ def ask_stream():
                     # Falls back to the guide when no search applies, so a
                     # question about how the tool works still gets answered.
                     if payload.get('needs_model_only'):
+                        # THE PAGE'S OWN ANSWER, WHERE IT HAS ONE.
+                        #
+                        # The Help page is written as questions and answers, so
+                        # for its own FAQ the model was being asked to
+                        # paraphrase a good answer into a worse one, at seven to
+                        # fourteen seconds a time. Where the reader asked the
+                        # page's question, the page answers, instantly and in
+                        # NC's words rather than a model's.
+                        direct = None
+                        try:
+                            direct = site_help.direct_answer(question)
+                        except Exception as e:           # noqa: BLE001
+                            logger.info('[ASSISTANT] direct answer failed: %s', e)
+                        if direct:
+                            yield _sse('chunk', {'text': direct})
+                            yield _sse('done', {'searches_run': [],
+                                                'fell_back_to_guide': True,
+                                                'answered_from_help': True,
+                                                'actions': actions.suggest(question)})
+                            return
                         yield _sse('step', {'text': 'no search applies; explaining instead'})
                         for piece in model.stream(prompts.guide_system(),
                                                   _with_help(question),

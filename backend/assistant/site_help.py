@@ -211,6 +211,45 @@ def relevant(question, k=4):
     return [c for _, c in scored[:k]]
 
 
+def direct_answer(question, threshold=0.75):
+    """The Help page's own answer, when the question IS one of its headings.
+
+    The Help page is written as questions and answers -- "How do I save my
+    results?", "Why is my search taking so long?" -- so for those the model was
+    being asked to paraphrase a good answer into a worse one, at seven to
+    fourteen seconds a time on this CPU. Where the reader has asked the page's
+    own question, the page's own answer is better and instant.
+
+    Deliberately strict, and the threshold is measured rather than guessed. At
+    0.6 "What is the difference between lemma and exact search?" was answered
+    with the Phrases-versus-Lines section: three shared words out of five
+    ("difference", "between", "search") were enough, and the reply was wrong,
+    confident and in the site's own voice. At 0.75 every one of the seven real
+    FAQ questions still matches and none of the five near misses does.
+
+    A heading that is not itself a question is never used this way.
+    """
+    want = _words(question)
+    if not want:
+        return None
+    best, best_score = None, 0.0
+    for c in _load():
+        head, _, body = c.partition(': ')
+        if not body or '?' not in head:
+            continue
+        have = _words(head)
+        if not have:
+            continue
+        overlap = want & have
+        # Both directions: the question must cover the heading AND the heading
+        # must cover the question, or "how do I save my results" would answer
+        # "how do I save my results as a chart".
+        score = min(len(overlap) / len(have), len(overlap) / len(want))
+        if score > best_score:
+            best, best_score = body.strip(), score
+    return best if best_score >= threshold else None
+
+
 def context_for(question, k=4):
     """The Help sections as a prompt block, or '' when nothing matches."""
     hits = relevant(question, k=k)

@@ -159,7 +159,28 @@ def named_texts(question, language=None, limit=2):
     "echoes of Vergil in Statius" rather than a pair of ids. A book number
     following a name is honoured: "Thebaid 12" is book 12, not the whole poem.
     """
-    found, seen = [], set()
+    found, seen, authors_used = [], set(), set()
+
+    def take(hit):
+        """Keep a hit unless it merely re-resolves a name already used.
+
+        "what about Statius Thebaid?" produced TWO texts: statius.thebaid from
+        the capitalised run, then statius.SILVAE from the bare word "statius"
+        further down. The second is not another text the reader named, it is the
+        same name resolved a second time and worse -- and it made a
+        one-text question look ambiguous everywhere that counts hits.
+        """
+        if not hit or hit.get('id') in seen:
+            return False
+        author = str(hit.get('author') or '').lower()
+        if hit.get('matched') == 'author' and author in authors_used:
+            return False
+        seen.add(hit['id'])
+        if author:
+            authors_used.add(author)
+        found.append(hit)
+        return True
+
     # Capitalised runs first, each with any book number that follows it:
     # "Silius Italicus", "Statius Thebaid 12".
     for cand, num in re.findall(
@@ -169,19 +190,14 @@ def named_texts(question, language=None, limit=2):
         hit = resolve_one(cand, language=language)
         if hit and num:
             hit = book_of(hit, num) or hit
-        if hit and hit.get('id') not in seen:
-            seen.add(hit['id'])
-            found.append(hit)
+        take(hit)
         if len(found) >= limit:
             return found
     # Then bare lowercase words, for "compare vergil and ovid".
     for w in _norm(question).split():
         if w in _NOISE or len(w) < 4:
             continue
-        hit = resolve_one(w, language=language)
-        if hit and hit.get('id') not in seen:
-            seen.add(hit['id'])
-            found.append(hit)
+        take(resolve_one(w, language=language))
         if len(found) >= limit:
             break
     return found

@@ -478,18 +478,48 @@ def _followup_text(question, history):
     listing. The book number is only meaningful against the text of the turn
     before.
     """
-    m = _BOOK_ONLY.match(question or '')
-    if not m:
-        return None
     carried = _carried_text(history)
     if not carried:
         return None
+
+    m = _BOOK_ONLY.match(question or '')
+    if m:
+        try:
+            from backend.assistant import corpus_lookup
+            return corpus_lookup.book_of(carried, m.group(1)) or carried
+        except Exception as e:                           # noqa: BLE001
+            logger.info('[ASSISTANT] follow-up book lookup failed: %s', e)
+            return carried
+
+    # A SHORT FOLLOW-UP NAMING A DIFFERENT WORK. "and the Georgics?" after a
+    # reading hand-off is a request to read the Georgics, but it carries no
+    # verb, so the read intent never fired and it fell to a corpus listing.
+    #
+    # Bounded to a genuinely short turn. A full question brings its own intent
+    # and is handled by the ordinary paths; only a fragment depends on the
+    # conversation to mean anything.
+    if len((question or '').split()) > 6:
+        return None
+    # A QUESTION CARRYING ITS OWN INTENT IS NOT A FRAGMENT. "how do I read the
+    # Aeneid?" is six words and names a text, so it slipped in here, and the
+    # ordinary read path would have answered it identically -- but a shortcut
+    # that fires on complete questions is a shortcut that will eventually answer
+    # one of them differently.
+    low = (question or '').lower()
+    if _quoted_phrase(question):
+        return None
+    if any(t in low for t in actions._COMPARE_INTENT):
+        return None
+    if any(t in low for t in _READ_INTENT):
+        return None
     try:
         from backend.assistant import corpus_lookup
-        return corpus_lookup.book_of(carried, m.group(1)) or carried
+        hits = corpus_lookup.named_texts(question, limit=2)
     except Exception as e:                               # noqa: BLE001
-        logger.info('[ASSISTANT] follow-up book lookup failed: %s', e)
-        return carried
+        logger.info('[ASSISTANT] follow-up text lookup failed: %s', e)
+        return None
+    # One text, or nothing. Two named in a fragment is not a reading follow-up.
+    return hits[0] if len(hits) == 1 else None
 
 
 def _carried_phrase(question, history):
@@ -613,6 +643,11 @@ source of fact.
 Absolute rules:
 - Name only works, authors and passages that appear in the results.
 - Never state a number that is not in the results.
+- Do NOT do arithmetic. Use the figures as given and do not derive new ones by
+  adding or subtracting them. Writing "13 others" because fifteen were listed
+  and two were named produces a number that is correct and unsupported, and the
+  answer is then flagged for an unsupported figure. If you want to say how many
+  remain, say how many are listed and how many there are in total.
 - If the results are thin or empty, say so plainly. "The corpus holds little on
   this" is a real answer and a useful one.
 - A corpus census is given first. It is TRUE. Never write that the corpus lacks
@@ -1143,7 +1178,16 @@ def answer_stream(question, on_step=None, history=None, offered_phrase=None):
         yield ('chunk', offer)
     pending_phrase = None if _wants_listing(asked) else _offer_phrase(all_facts)
     yield ('done', {'searches_run': ran, 'facts': all_facts,
-                    'highlight': _highlight_terms(all_facts),
+                    # MARKED ONLY WHERE LINES ARE SHOWN. Marking existed so a
+                    # listing of Latin did not make the reader hunt for what
+                    # matched. Now that the results themselves live on the
+                    # search pages, an answer that quotes nothing has nothing
+                    # worth marking, and highlighting scattered words in prose
+                    # is just noise. NC: "It does highlight phrases, though
+                    # that's mostly not necessary now that we refer them to the
+                    # search panels."
+                    'highlight': (_highlight_terms(all_facts)
+                                  if _wants_listing(asked) else []),
                     # Controls that open the real search page with the real
                     # query in it. Built in code from the arguments the searches
                     # ran with, never composed by the model: a link is a promise
