@@ -25,6 +25,21 @@ import pytest
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from backend.app import app  # noqa: E402
+from backend.assistant import model  # noqa: E402
+
+# THESE ARE INTEGRATION TESTS and they say so rather than failing obscurely.
+#
+# Every one of them asks Tessa a real question: the searches hit the live index
+# and the answers come from the model server on port 8081. A CI runner has
+# neither, so without this the whole module fails for want of a service and the
+# failures look like broken conversation handling.
+#
+# Skipped, not faked. A stub model would make these pass while testing nothing,
+# which is the failure mode this file's own docstring is about.
+if not model.is_available():
+    pytest.skip('assistant model server not reachable; these are integration '
+                'tests against a live model and index',
+                allow_module_level=True)
 
 
 @pytest.fixture(scope='module')
