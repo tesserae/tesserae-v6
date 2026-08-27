@@ -87,8 +87,16 @@ Reply with JSON only. No prose, no explanation.
                     Vergil Aeneid 1" is a complete instruction and carries
                     nothing, even straight after a search for something else.
 
-  subject   if carries_subject is true, the phrase or topic from the previous
-            exchange that it refers to, copied exactly. Otherwise null.
+  subject   if carries_subject is true, the phrase or topic from the PREVIOUS
+            exchange, copied exactly. Otherwise null.
+
+            It is never a new name introduced by this question. An author or
+            work named here narrows WHERE to look; the subject is still what
+            the previous exchange was about. "Can you give the Eobanus
+            instances?", after an exchange about "arma virumque", carries
+            "arma virumque" and not "Eobanus": the reader wants that phrase in
+            that author, and searching for the author's name finds only lines
+            that mention him.
 
 Judge what the reader MEANT. A question naming a feature of the site is about
 the site even though it contains words that also appear in the texts."""
@@ -115,6 +123,12 @@ EXAMPLES = [
     ('compare Statius Thebaid 12 with Vergil Aeneid 1',
      'I found "arma virumque" at Vergil, Aeneid 1.1.',
      {'kind': 'corpus', 'carries_subject': False, 'subject': None}),
+    # The author here is the SCOPE, not the subject. Taking "Eobanus" as the
+    # subject searched for lines mentioning his name instead of the phrase in
+    # his work, and the answer then had nothing genuine to quote.
+    ('Can you give the Eobanus instances?',
+     'The phrase "arma virumque" appears at Vergil, Aeneid 1.1 and in later poets.',
+     {'kind': 'corpus', 'carries_subject': True, 'subject': 'arma virumque'}),
 ]
 
 
