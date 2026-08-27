@@ -37,10 +37,13 @@ export default function ReaderPage() {
   const [popupOpen, setPopupOpen] = useState(false);
   const [panelTab, setPanelTab] = useState(null);
 
-  const [wantedRef] = useState(() => paramOr('ref', ''));
+  // `ref` is what Theme Search sends; `at` is what this page writes back, so a
+  // URL copied out of the address bar reselects its passage too. Reading only
+  // `ref` meant the Reader wrote a position it could not itself read.
+  const [wantedRef] = useState(() => paramOr('ref', '') || paramOr('at', ''));
   const [wantedRefEnd] = useState(() => paramOr('refEnd', ''));
   const [wantedTab] = useState(() => paramOr('tab', ''));
-  const [cameFrom] = useState(() => paramOr('q', ''));
+  const [cameFrom, setCameFrom] = useState(() => paramOr('q', ''));
   const [units, setUnits] = useState([]);
   const [metadata, setMetadata] = useState(null);
   const [selection, setSelection] = useState(null);
@@ -76,6 +79,13 @@ export default function ReaderPage() {
     p.set('work', work);
     p.set('lang', language);
     if (selection?.refStart) p.set('at', selection.refStart); else p.delete('at');
+    // ARRIVAL PARAMETERS ARE ONE-SHOT, and were being kept forever. `q` is what
+    // draws the "Found by Theme Search" banner, so it survived changing work,
+    // running a new search, and reloading -- the page kept claiming a passage
+    // had been found by a search the reader had long since left. They are read
+    // into state at mount, so dropping them from the URL here costs nothing and
+    // `at` carries the position instead.
+    ['ref', 'refEnd', 'tab', 'q'].forEach((k) => p.delete(k));
     window.history.replaceState({}, '', `${window.location.pathname}?${p}`);
   }, [work, language, selection]);
 
@@ -134,10 +144,16 @@ export default function ReaderPage() {
           // leaving it named left the header describing something not open.
           setLanguage(code);
           setWork('');
+          setCameFrom('');
         }}
         hierarchy={hierarchy}
         work={work}
-        onWork={(file) => { setWork(file); setSelection(null); }}
+        onWork={(file) => {
+          setWork(file);
+          setSelection(null);
+          // The banner describes a passage in the work being left.
+          setCameFrom('');
+        }}
         metadata={metadata}
         units={units}
         selection={selection}

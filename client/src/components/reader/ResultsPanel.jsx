@@ -71,17 +71,6 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
     return () => { cancelled = true; };
   }, [selection, work, units, tab]);
 
-  if (!selection) {
-    return (
-      <aside className="w-full lg:w-96 border-t lg:border-t-0 lg:border-l border-gray-200 bg-gray-50 p-6">
-        <p className="text-sm text-gray-500 leading-relaxed">
-          Select a passage in the text to see what the corpus connects to it. Drag across
-          several lines for content matches, or click a single line for word matches.
-        </p>
-      </aside>
-    );
-  }
-
   const tabs = [
     ['similar', 'Similar Passages'],
     ['verbal', 'Verbal Parallels'],
@@ -106,8 +95,21 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
         ))}
       </div>
 
+      {/* THE TABS STAY WHATEVER IS SELECTED.
+          With nothing selected this returned a bare paragraph and no tab bar at
+          all, so the panel looked like a different component depending on
+          whether a line was highlighted, and a reader who had just changed
+          works saw the three things the Reader can tell them simply vanish. The
+          tabs are what the panel IS; the body is what it currently knows. */}
       <div className="flex-1 overflow-y-auto p-3 space-y-2">
-        {tab === 'similar' && (
+        {!selection && (
+          <p className="text-sm text-gray-500 leading-relaxed p-3">
+            Select a passage in the text to see what the corpus connects to it.
+            Drag across several lines for content matches, or click a single line
+            for word matches.
+          </p>
+        )}
+        {selection && tab === 'similar' && (
           <>
             {loading && <LoadingSpinner />}
             {error && <p className="text-sm text-red-700">{error}</p>}
@@ -209,14 +211,14 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
           </>
         )}
 
-        {tab === 'verbal' && (
+        {selection && tab === 'verbal' && (
           <p className="text-sm text-gray-500">
             Word-level matches for this selection come from the existing search engines.
             Wiring in progress.
           </p>
         )}
 
-        {tab === 'translation' && (
+        {selection && tab === 'translation' && (
           <>
             {loading && <LoadingSpinner />}
             {!loading && translation?.available === false && (

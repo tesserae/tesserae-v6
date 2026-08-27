@@ -138,3 +138,61 @@ describe('arriving from Theme Search, which is how NC hit it', () => {
     expect(second).toBeLessThan(4);
   });
 });
+
+describe('the arrival banner is one-shot', () => {
+  const FROM_THEME =
+    '/read?work=ovid.tristia.part.3.tess&lang=la'
+    + '&ref=' + encodeURIComponent('ov. tr. 3.1')
+    + '&tab=translation&q=' + encodeURIComponent('extremes of nature');
+
+  it('shows on arrival', async () => {
+    window.history.replaceState({}, '', FROM_THEME);
+    await mountReader();
+    expect(await screen.findByText(/Found by Theme Search/)).toBeTruthy();
+  });
+
+  it('is dropped from the URL, so a reload does not resurrect it', async () => {
+    window.history.replaceState({}, '', FROM_THEME);
+    await mountReader();
+    await waitFor(() => {
+      const p = new URLSearchParams(window.location.search);
+      expect(p.get('q')).toBeNull();
+      expect(p.get('ref')).toBeNull();
+      expect(p.get('tab')).toBeNull();
+    });
+  });
+
+  it('goes away when the reader opens a different work', async () => {
+    window.history.replaceState({}, '', FROM_THEME);
+    await mountReader();
+    await screen.findByText(/Found by Theme Search/);
+    fireEvent.change(await screen.findByLabelText('Work'),
+                     { target: { value: 'amores' } });
+    await waitFor(() =>
+      expect(screen.queryByText(/Found by Theme Search/)).toBeNull());
+  });
+
+  it('keeps the position in the URL as `at`, which it can read back', async () => {
+    window.history.replaceState({}, '', FROM_THEME);
+    await mountReader();
+    await waitFor(() =>
+      expect(new URLSearchParams(window.location.search).get('at'))
+        .toBe('ov. tr. 3.1'));
+  });
+});
+
+describe('the side panel keeps its tabs', () => {
+  it('shows all three tabs with nothing selected', async () => {
+    window.history.replaceState({}, '', '/read?work=ovid.amores.tess&lang=la');
+    await mountReader();
+    for (const label of ['Similar Passages', 'Verbal Parallels', 'Translation']) {
+      expect(await screen.findByRole('button', { name: label })).toBeTruthy();
+    }
+  });
+
+  it('still explains what to do', async () => {
+    window.history.replaceState({}, '', '/read?work=ovid.amores.tess&lang=la');
+    await mountReader();
+    expect(await screen.findByText(/Select a passage in the text/)).toBeTruthy();
+  });
+});
