@@ -63,10 +63,11 @@ CORR_FLOOR = 0.45
 # A Loeb page of Statius holds twenty-odd lines. These bound what a header is
 # allowed to claim before we stop believing it. They are the whole basis of the
 # repair below, so they are measured from the scan rather than guessed: the
-# printed ranges cluster between 19 and 33 lines, and the bounds sit outside
-# that with room for the short page at the end of a book.
+# printed ranges of the 413 pages this accepts run from 12 to 33 lines and cluster
+# hard at 26 to 29, so the bounds sit outside the real distribution with room for
+# the short page at the end of a book, and well below two pages merged into one.
 MIN_SPAN = 10
-MAX_SPAN = 48
+MAX_SPAN = 40
 
 # Mozley prefaces some poems with a note of his own, and the note sits on the
 # page under the same running header as the verse, so it is picked up as though
@@ -113,8 +114,13 @@ def clean(lines):
     return re.sub(r'\s{2,}', ' ', text).strip()
 
 
-def parse_volume(path):
-    """[(work, book, poem, start, end, english)] in printed order."""
+def parse_volume(path, volume):
+    """[(work, book, poem, start, end, english, volume)] in printed order.
+
+    The volume is carried through because the two are cited separately: the
+    Thebaid spans both, so one blanket source URL would be wrong for eight of its
+    twelve books.
+    """
     pages, cur = [], None
     with open(path, encoding='utf-8', errors='replace') as fh:
         for line in fh:
@@ -130,13 +136,13 @@ def parse_volume(path):
                          digits(m.group(3)), digits(m.group(4)))
             if k and k[1] and k[3] is not None and k[4] is not None:
                 if cur:
-                    pages.append(cur[:5] + (clean(cur[5]),))
+                    pages.append(cur[:5] + (clean(cur[5]), volume))
                 cur = (k[0], k[1], k[2], k[3], k[4], [])
                 continue
             if cur:
                 cur[5].append(line)
     if cur:
-        pages.append(cur[:5] + (clean(cur[5]),))
+        pages.append(cur[:5] + (clean(cur[5]), volume))
     return pages
 
 
@@ -164,7 +170,8 @@ def repair(pages):
     """
     fixed = dropped = editorial = 0
     out, prev_key, prev_end = [], None, None
-    for work, book, poem, start, end, text in pages:
+    overlaps = 0
+    for work, book, poem, start, end, text, volume in pages:
         key = (work, book, poem)
         if key != prev_key:
             prev_key, prev_end = key, None
@@ -182,9 +189,18 @@ def repair(pages):
         if EDITORIAL.search(text[:400]):
             editorial += 1
             continue
-        out.append((work, book, poem, start, end, text))
+        # Two pages may not claim the same line. One pair in the whole scan does,
+        # off by a single line, and without this the later page's English would
+        # be discarded for that line in favour of the earlier one silently.
+        if prev_end is not None and start <= prev_end:
+            overlaps += 1
+            start = prev_end + 1
+            if start > end:
+                dropped += 1
+                continue
+        out.append((work, book, poem, start, end, text, volume))
         prev_end = end
-    return out, fixed, dropped, editorial
+    return out, fixed, dropped, editorial, overlaps
 
 
 def load_refs(path, depth):
@@ -238,11 +254,11 @@ def main():
         if not os.path.exists(p):
             print(f'missing volume: {p}')
             continue
-        pages += parse_volume(p)
+        pages += parse_volume(p, vol)
     print(f'page headers parsed: {len(pages)}')
-    pages, fixed, dropped, editorial = repair(pages)
+    pages, fixed, dropped, editorial, overlaps = repair(pages)
     print(f'  repaired by contiguity: {fixed}   dropped as unreconcilable: {dropped}'
-          f'   dropped as editorial matter: {editorial}')
+          f'   dropped as editorial matter: {editorial}   overlaps trimmed: {overlaps}')
 
     os.makedirs(OUT, exist_ok=True)
     print(f"\n{'work':20s} {'refs':>6s} {'paired':>7s} {'cov':>6s} {'names':>6s} "
@@ -256,8 +272,10 @@ def main():
         refs, lat = load_refs(path, depth), latin_for(path)
         mine = [p for p in pages if p[0] == work]
 
-        mapping, pairs = {}, []
-        for _, book, poem, start, end, text in mine:
+        mapping, pairs, vols = {}, [], []
+        for _, book, poem, start, end, text, volume in mine:
+            if volume not in vols:
+                vols.append(volume)
             if not text:
                 continue
             for ln in range(start, end + 1):
@@ -301,11 +319,14 @@ def main():
             'name_check_n': n,
             'length_correlation': (round(r, 3) if r is not None else None),
             'verified_by': 'names' if (hit is not None and hit >= NAME_FLOOR) else 'page length',
+            # Cite the volume(s) this work actually came from. The Thebaid spans
+            # both, so a single blanket URL would be wrong for eight of its books.
             'sources': [{'translator': 'J. H. Mozley', 'year': 1928,
                          'title': 'Statius, with an English translation (Loeb)',
                          'publisher': 'William Heinemann / G. P. Putnam',
                          'mode': 'page', 'ref_composition': ['loeb page'],
-                         'source_url': 'https://archive.org/details/statiusstat01statuoft'}],
+                         'source_url': ', '.join(
+                             f'https://archive.org/details/{v}' for v in vols)}],
             'license': ('Public domain in the United States: published 1928. '
                         'Text from the Internet Archive scan.'),
             'attribution': 'J. H. Mozley (1928), via the Internet Archive',
