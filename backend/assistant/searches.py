@@ -55,7 +55,8 @@ def _get(path, params):
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_NONE
     try:
-        with urllib.request.urlopen(req, timeout=TIMEOUT, context=ctx) as r:
+        # A fixed http(s) endpoint from configuration, never user input.
+        with urllib.request.urlopen(req, timeout=TIMEOUT, context=ctx) as r:  # nosec B310
             return json.loads(r.read())
     except urllib.error.HTTPError as e:
         raise SearchError(f'search returned {e.code}') from e

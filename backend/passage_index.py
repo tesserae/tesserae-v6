@@ -99,6 +99,7 @@ FITTED_TOLERANCE = 0.15     # beyond 15% drift, stop vouching for the band
 # against evaluation/probe_sets/tesserae_2026-08.json, and update both
 # constants together. Recorded here rather than only in a report because this
 # is the line someone will read when they wonder whether the numbers still hold.
+
 # A floor purely to stop the tail: results below the query's baseline are noise.
 BASELINE_MARGIN = 0.010
 
@@ -280,7 +281,8 @@ def embed_query(text):
     req = urllib.request.Request(f'{EMBED_ENDPOINT}/embed', data=payload,
                                  headers={'Content-Type': 'application/json'})
     try:
-        with urllib.request.urlopen(req, timeout=EMBED_TIMEOUT) as r:
+        # A fixed http(s) endpoint from configuration, never user input.
+        with urllib.request.urlopen(req, timeout=EMBED_TIMEOUT) as r:  # nosec B310
             body = _json.loads(r.read())
     except (urllib.error.URLError, OSError, ValueError) as e:
         raise EmbedUnavailable(
@@ -297,7 +299,8 @@ def encoder_available():
     import urllib.error
     import urllib.request
     try:
-        with urllib.request.urlopen(f'{EMBED_ENDPOINT}/health', timeout=3) as r:
+        # A fixed http(s) endpoint from configuration, never user input.
+        with urllib.request.urlopen(f'{EMBED_ENDPOINT}/health', timeout=3) as r:  # nosec B310
             return r.status == 200
     except (urllib.error.URLError, OSError):
         return False
@@ -840,7 +843,8 @@ def expand_query(query):
                                  headers={'Content-Type': 'application/json'})
     forms = []
     try:
-        with urllib.request.urlopen(req, timeout=EXPAND_TIMEOUT) as r:
+        # A fixed http(s) endpoint from configuration, never user input.
+        with urllib.request.urlopen(req, timeout=EXPAND_TIMEOUT) as r:  # nosec B310
             out = _json.loads(r.read())
         txt = out['choices'][0]['message']['content'] or ''
         m = _re.search(r'\{.*\}', txt, _re.S)

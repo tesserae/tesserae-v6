@@ -115,9 +115,14 @@ def texts_for(ids):
         # few hundred results would otherwise fail only on the largest requests.
         for i in range(0, len(ids), 500):
             chunk = ids[i:i + 500]
+            # `marks` is a run of '?' separated by commas and nothing else, so
+            # no value reaches the SQL text: the ids go in as bound parameters
+            # on the next line. bandit cannot see that and flags any f-string
+            # query (B608), so the reason is recorded rather than the warning
+            # silenced repo-wide.
             marks = ','.join('?' * len(chunk))
             for wid, text in c.execute(
-                    f'SELECT id, text FROM window_texts WHERE id IN ({marks})',
+                    f'SELECT id, text FROM window_texts WHERE id IN ({marks})',  # nosec B608
                     chunk):
                 out[wid] = text
     except sqlite3.Error as e:
