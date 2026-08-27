@@ -84,6 +84,21 @@ STRONG_COMBINED = 1.7613
 # evaluation/scripts/calibrate_confidence.py and update both numbers together.
 FITTED_AT_WINDOWS = 603594
 FITTED_TOLERANCE = 0.15     # beyond 15% drift, stop vouching for the band
+# THE COUNT IS NOT THE ONLY THING THAT INVALIDATES THE FIT, and the guard below
+# only watches the count. It was written for "the corpus grew", which is what
+# had happened at the time, and it does not notice "the corpus was re-described".
+#
+# The Persian/Urdu re-describe rewrites the descriptions of 220,361 windows,
+# a third of the index, and re-embeds them. Every score in Theme Search is
+# measured against the median of the whole index, so that median moves and the
+# two constants above no longer sit where they were fitted -- while the window
+# count does not change by one, so _calibration_drift() reports nothing wrong
+# and the bands keep being published as though they were still earned.
+#
+# So: REFIT AFTER THE MERGE, with evaluation/scripts/calibrate_confidence.py
+# against evaluation/probe_sets/tesserae_2026-08.json, and update both
+# constants together. Recorded here rather than only in a report because this
+# is the line someone will read when they wonder whether the numbers still hold.
 # A floor purely to stop the tail: results below the query's baseline are noise.
 BASELINE_MARGIN = 0.010
 
