@@ -25,6 +25,22 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from backend.app import app  # noqa: E402
 
+# INTEGRATION TESTS: they need the passage index and the window-text store,
+# which are multi-gigabyte files built offline and deliberately not in git. A CI
+# runner has neither, so without this the module fails for want of data and the
+# failures read as broken endpoints.
+#
+# Skipped rather than mocked. A stubbed index would make these pass while
+# testing nothing, and the whole point of this file is that the real data comes
+# back with real line numbers.
+from backend import passage_index, window_texts  # noqa: E402
+
+if not (passage_index.is_available() and window_texts.is_available()):
+    pytest.skip('passage index or window-text store not present; these are '
+                'integration tests against the built index',
+                allow_module_level=True)
+
+
 
 @pytest.fixture(scope='module')
 def route():

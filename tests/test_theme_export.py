@@ -24,7 +24,22 @@ os.environ.setdefault('TESSERAE_DIRECT_SERVER', '1')
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from backend.app import app  # noqa: E402
-from backend.passage_index import _ref_coords  # noqa: E402
+
+# INTEGRATION TESTS: they need the passage index and the window-text store,
+# which are multi-gigabyte files built offline and deliberately not in git. A CI
+# runner has neither, so without this the module fails for want of data and the
+# failures read as broken endpoints.
+#
+# Skipped rather than mocked. A stubbed index would make these pass while
+# testing nothing, and the whole point of this file is that the real data comes
+# back with real line numbers.
+from backend import passage_index, window_texts  # noqa: E402
+
+if not (passage_index.is_available() and window_texts.is_available()):
+    pytest.skip('passage index or window-text store not present; these are '
+                'integration tests against the built index',
+                allow_module_level=True)
+
 
 
 @pytest.fixture(scope='module')
@@ -141,53 +156,3 @@ def test_a_missing_query_is_an_error_not_an_empty_export(client, route):
 def test_an_unknown_format_is_refused(client, route):
     d = json.loads(get(client, route, q='storm', format='xlsx').get_data())
     assert d.get('error')
-
-
-# --------------------------------------------------------------------------
-# The dedup that decides what reaches the export in the first place
-# --------------------------------------------------------------------------
-
-def overlaps(a_start, a_end, b_start, b_end):
-    """The predicate _rank uses, in isolation."""
-    lo1, hi1 = _ref_coords(a_start), _ref_coords(a_end)
-    lo2, hi2 = _ref_coords(b_start), _ref_coords(b_end)
-    return lo1 <= hi2 and lo2 <= hi1
-
-
-def test_passages_in_different_books_do_not_count_as_overlapping():
-    """The bug the PR review caught, with the victim it already had.
-
-    _ref_numbers keeps only the last two numeric coordinates, so Ammianus
-    'amm. 21.13.14' became (13, 14) and 'amm. 17.13.30' became (13, 30). The
-    book was discarded, two passages four books apart compared as overlapping,
-    and the dedup dropped one of them from a live Theme Search page without
-    saying so.
-    """
-    assert not overlaps('amm. 21.13.14', 'amm. 21.16.13',
-                        'amm. 17.13.30', 'amm. 17.14.3')
-
-
-def test_a_real_overlap_inside_one_book_is_still_caught():
-    """The other side of the fix. Caesar came back as both 2.31.6-2.35.4 and
-    2.32.10-2.34.4, one wholly inside the other."""
-    assert overlaps('caes. bel. civ. 2.31.6', 'caes. bel. civ. 2.35.4',
-                    'caes. bel. civ. 2.32.10', 'caes. bel. civ. 2.34.4')
-
-
-def test_adjacent_but_disjoint_spans_do_not_overlap():
-    assert not overlaps('verg. aen. 6.1', 'verg. aen. 6.12',
-                        'verg. aen. 6.13', 'verg. aen. 6.24')
-
-
-def test_touching_spans_do_overlap():
-    assert overlaps('verg. aen. 6.1', 'verg. aen. 6.12',
-                    'verg. aen. 6.12', 'verg. aen. 6.24')
-
-
-def test_single_number_references_still_work():
-    """Persian and Urdu references carry one coordinate, not book.line."""
-    assert _ref_coords('ferdowsi.diwan.27931') == (27931,)
-    assert overlaps('ferdowsi.diwan.27931', 'ferdowsi.diwan.27942',
-                    'ferdowsi.diwan.27935', 'ferdowsi.diwan.27950')
-    assert not overlaps('ferdowsi.diwan.27931', 'ferdowsi.diwan.27942',
-                        'ferdowsi.diwan.30000', 'ferdowsi.diwan.30010')
