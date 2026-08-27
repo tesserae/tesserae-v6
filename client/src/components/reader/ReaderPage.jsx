@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { cssRef } from './refId';
-import SelectionPopup from './SelectionPopup';
-import { TextSelector } from '../search';
+import ReaderHeader from './ReaderHeader';
+import SelectionToolbar, { scopeFor } from './SelectionToolbar';
 import { useCorpus } from '../../hooks';
 import { LoadingSpinner } from '../common';
 import TextPane from './TextPane';
@@ -22,15 +22,16 @@ const DEFAULT_LANGUAGE = 'la';
 export default function ReaderPage() {
   const [work, setWork] = useState(() => paramOr('work', DEFAULT_WORK));
   const [language, setLanguage] = useState(() => paramOr('lang', DEFAULT_LANGUAGE));
-  const { authors, hierarchy, getTextsForAuthor } = useCorpus(language);
+  const { hierarchy } = useCorpus(language);
   // Where a link asked us to land. Theme Search sends the reader here with a
   // specific passage in mind, and dropping them at line 1 of the work would
   // lose the thing they clicked.
   // CHOOSING A WORK. The Reader opened on Aeneid 6 and offered no way to read
   // anything else: a reader arriving at /read had to know to edit the URL. The
   // same selector the search page uses, so the two behave alike.
-  const [pickAuthor, setPickAuthor] = useState('');
-  const [pickText, setPickText] = useState('');
+  // What the selection toolbar is scoped to. Seeded from the size of what was
+  // selected and then the reader's to change.
+  const [scope, setScope] = useState('line');
   // The popup that appears at a selection. Dismissed on a new selection or by
   // acting on it, so it never lingers over the text.
   const [popupOpen, setPopupOpen] = useState(false);
@@ -48,6 +49,10 @@ export default function ReaderPage() {
 
   // Load the work's text.
   useEffect(() => {
+    // No work yet: the language just changed and the effect below is choosing
+    // one. Fetching an empty id would 404 and paint an error over a page that
+    // is simply mid-change.
+    if (!work) return undefined;
     let cancelled = false;
     setLoading(true);
     setError(null);
@@ -96,13 +101,16 @@ export default function ReaderPage() {
     return () => window.clearTimeout(id);
   }, [wantedRef, wantedRefEnd, units]);
 
-  // Load whatever the picker chooses.
+  // A language with no work chosen opens that language's first text. Changing
+  // language clears the work, because the old one is not in the new language;
+  // without this the Reader would sit on an empty page waiting.
   useEffect(() => {
-    if (!pickText) return;
-    setWork(pickText.endsWith('.tess') ? pickText : `${pickText}.tess`);
-    setSelection(null);
-    window.scrollTo({ top: 0 });
-  }, [pickText]);
+    if (work || !hierarchy?.length) return;
+    for (const a of hierarchy) {
+      const file = ((a.works || [])[0]?.sections || [])[0]?.file;
+      if (file) { setWork(file); return; }
+    }
+  }, [work, hierarchy]);
 
   const openPassage = useCallback((result) => {
     if (!result?.work) return;
@@ -111,46 +119,24 @@ export default function ReaderPage() {
     window.scrollTo({ top: 0 });
   }, []);
 
-  const title = metadata
-    ? `${metadata.author || ''} ${metadata.title || ''}`.trim()
-    : prettyWork(work.replace('.tess', ''));
-
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200 flex-wrap">
-        <h2 className="font-semibold text-gray-900" style={{ fontFamily: '"Gentium Book Plus", Georgia, serif' }}>
-          {title || 'Reader'}
-        </h2>
-        {/* Marked where it is used. NC: the label alone, no explanation. */}
-        <span className="rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800">
-          Beta
-        </span>
-        <div className="ml-auto flex items-end gap-2 min-w-0">
-          <TextSelector
-            label=""
-            language={language}
-            authors={authors}
-            selectedAuthor={pickAuthor}
-            setSelectedAuthor={setPickAuthor}
-            selectedText={pickText}
-            setSelectedText={setPickText}
-            hierarchy={hierarchy}
-            fetchTexts={getTextsForAuthor}
-          />
-        </div>
-
-        {selection && (
-          <span className="text-sm text-gray-500">
-            {selection.lineCount} line{selection.lineCount === 1 ? '' : 's'} selected
-          </span>
-        )}
-        <button
-          onClick={() => setSelection(null)}
-          className={`ml-auto text-sm text-gray-500 hover:text-gray-700 ${selection ? '' : 'invisible'}`}
-        >
-          Clear selection
-        </button>
-      </div>
+      <ReaderHeader
+        language={language}
+        onLanguage={(code) => {
+          // A language of its own, so every corpus is reachable. Changing it
+          // clears the work: the previous text is not in the new language, and
+          // leaving it named left the header describing something not open.
+          setLanguage(code);
+          setWork('');
+        }}
+        hierarchy={hierarchy}
+        work={work}
+        onWork={(file) => { setWork(file); setSelection(null); }}
+        metadata={metadata}
+        units={units}
+        selection={selection}
+      />
 
       {loading && <div className="p-10"><LoadingSpinner /></div>}
       {error && <p className="p-6 text-red-700">{error}</p>}
@@ -181,19 +167,22 @@ export default function ReaderPage() {
                 </a>
               </p>
             )}
-            <p className="px-3 py-1.5 text-[11px] text-gray-600 border-b border-gray-200 bg-gray-50 flex flex-wrap gap-x-4 gap-y-1">
+            {/* The key names the marks the same way the panel names its tabs.
+                It used to read "W shared wording" and "C similar content" while
+                the tabs beside it said "Verbal Parallels" and "Similar
+                Passages", so the two halves of the same screen described the
+                same two things in different words. */}
+            <p className="px-3 py-1.5 text-[11px] text-gray-600 border-b border-gray-200 bg-gray-50 flex flex-wrap items-center gap-x-4 gap-y-1">
               <span className="flex items-center gap-1.5">
                 <span className="inline-block w-[9px] h-[7px] rounded-sm bg-red-700" />
-                <strong className="font-semibold text-gray-700">W</strong>
-                shared wording
+                verbal parallels
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="inline-block w-[9px] h-[7px] rounded-sm"
                       style={{ backgroundColor: '#7c6bb0' }} />
-                <strong className="font-semibold text-gray-700">C</strong>
-                similar content, wording need not match
+                similar passages
               </span>
-              <span className="text-gray-500">darker means more; select a line to see them</span>
+              <span className="ml-auto text-gray-500">darker = more connections</span>
             </p>
           <div className="flex flex-1 min-w-0">
             <ConnectionGutter
@@ -201,7 +190,10 @@ export default function ReaderPage() {
               units={units}
               onSelectLine={(u) => {
                 const i = units.findIndex((x) => x.ref === u.ref);
-                setSelection({ startIdx: i, endIdx: i, refStart: u.ref, refEnd: u.ref, lineCount: 1 });
+                const sel = { startIdx: i, endIdx: i, refStart: u.ref,
+                              refEnd: u.ref, lineCount: 1 };
+                setSelection(sel);
+                setScope(scopeFor(sel));
                 setPopupOpen(true);
               }}
             />
@@ -210,20 +202,26 @@ export default function ReaderPage() {
                 units={units}
                 language={language}
                 selection={selection}
-                onSelect={(sel) => { setSelection(sel); setPopupOpen(!!sel); }}
+                onSelect={(sel) => {
+                  setSelection(sel);
+                  if (sel) setScope(scopeFor(sel));
+                  setPopupOpen(!!sel);
+                }}
               />
-              {popupOpen && (
+              {popupOpen && selection && (
                 // Under the last selected line, not pinned to the corner. It
                 // used to sit at the top of the pane whatever was selected, so
                 // it covered the opening lines of the text.
-                <div className="absolute left-10"
+                <div className="absolute left-10 z-20"
                      style={{ top: `${(selection?.anchorTop ?? 0) + 8}px` }}>
-                  <SelectionPopup
+                  <SelectionToolbar
                     selection={selection}
+                    scope={scope}
+                    onScope={setScope}
                     work={work}
                     language={language}
+                    onAct={(t) => { if (t) setPanelTab(t); setPopupOpen(false); }}
                     onClose={() => setPopupOpen(false)}
-                    onTab={(t) => setPanelTab(t)}
                   />
                 </div>
               )}
@@ -249,17 +247,3 @@ function paramOr(name, fallback) {
   return v || fallback;
 }
 
-/** "vergil.aeneid.part.6" -> "Vergil, Aeneid 6", good enough for a result label. */
-function prettyWork(work) {
-  if (!work) return '';
-  const parts = String(work).replace(/\.tess$/, '').split('.');
-  const author = cap(parts[0] || '');
-  const title = cap(parts[1] || '');
-  const partIdx = parts.indexOf('part');
-  const book = partIdx > -1 ? ` ${parts[partIdx + 1]}` : '';
-  return title ? `${author}, ${title}${book}` : author;
-}
-
-function cap(s) {
-  return s.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-}
