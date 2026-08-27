@@ -335,22 +335,33 @@ def _score_block(rows, chunk=32768):
 
 
 def index_fingerprint():
-    """Short identifier that changes whenever the index does.
+    """Short identifier that changes whenever the index does, from file stats.
 
     Anything cached off this index has to be dropped when it changes. Adding a
     text alters the answer for passages throughout the corpus, not only in the
     new work: gutter density asks how many OTHER works hold a similar passage,
     so one new text moves it everywhere. A cache keyed on the work name alone
     would serve stale densities after every addition and nobody would notice.
+
+    COSTS NOTHING TO COMPUTE. It used to call _ensure_loaded() for len(_ids),
+    so asking "which index is this?" pulled the whole 1.2 GB index into memory --
+    thirteen seconds on a worker that had not loaded it yet. Since this names
+    the density cache file, even a cache HIT paid that, and Apache recycles
+    workers every 1000 requests, so the Reader went back to being slow at
+    intervals for no reason at all.
+
+    Size and mtime of the two index files change whenever the index changes,
+    which is the only guarantee required, and every worker computes the same
+    value without reading anything.
     """
-    _ensure_loaded()
-    if not _state['ok']:
-        return 'unavailable'
-    try:
-        mt = int(os.path.getmtime(os.path.join(_DATA_DIR, 'embeddings.npy')))
-    except OSError:
-        mt = 0
-    return f'{len(_ids)}-{mt}'
+    parts = []
+    for name in ('ids.json', 'embeddings.npy'):
+        try:
+            st = os.stat(os.path.join(_DATA_DIR, name))
+            parts.append(f'{st.st_size}-{int(st.st_mtime)}')
+        except OSError:
+            parts.append('0-0')
+    return '.'.join(parts)
 
 
 # Author dates, for putting results in chronological order. The same table the
@@ -987,17 +998,13 @@ def connection_density(work, scale='fine'):
     passage. Computed once per work and small enough to cache client-side; the
     Reader pairs it with the lexical density to draw the two-mark gutter.
     """
-    _ensure_loaded()
-    if not _state['ok']:
-        return {'error': _state['error'], 'windows': []}
-    import numpy as np
-
-    # Served from cache when the index has not changed. Computing this is a
-    # matrix multiply against the whole corpus for every window of the work,
-    # about 5 seconds for a book of the Aeneid, and the answer is identical
-    # until a text is added. The fingerprint in the filename is what makes that
-    # safe: a new index writes to new paths and the stale files are simply never
-    # read again.
+    # THE CACHE IS READ BEFORE THE INDEX IS LOADED.
+    #
+    # _ensure_loaded() pulls 1.2 GB and takes thirteen seconds on a worker that
+    # has not done it yet. Doing that first meant a cache HIT paid it too, for
+    # an answer that is a small JSON file and needs nothing from the index. With
+    # Apache recycling workers every 1000 requests, the Reader went back to
+    # taking thirteen seconds at intervals, for nothing.
     cache_path = _density_cache_path(work, scale)
     try:
         with open(cache_path, encoding='utf-8') as fh:
@@ -1005,6 +1012,15 @@ def connection_density(work, scale='fine'):
     except (OSError, ValueError):
         pass
 
+    _ensure_loaded()
+    if not _state['ok']:
+        return {'error': _state['error'], 'windows': []}
+    import numpy as np
+
+    # Computing this is a matrix multiply against the whole corpus for every
+    # window of the work, and the answer is identical until a text is added. The
+    # fingerprint in the filename is what makes caching safe: a new index writes
+    # to new paths and the stale files are simply never read again.
     # Match the EXACT work when the caller names a part file, since a reader is
     # looking at one book: collapsing vergil.aeneid.part.6 into vergil.aeneid
     # would paint book 3 and book 7 densities beside book 6's lines. Fall back to
