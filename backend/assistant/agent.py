@@ -60,6 +60,17 @@ _ABOUT_THE_TOOL = (
     'connector', 'mcp', 'api', 'export', 'csv', 'download',
     'how do i use', 'how can i use', 'how does this', 'how do you',
     'what is the difference between', 'what does this site', 'log in', 'account',
+    # NAMING THE SITE ITSELF. "tell me about the site's search capabilities"
+    # matched none of the above, so it was not recognised as a question about
+    # the tool: it inherited "arma virumque" from the previous turn and Tessa
+    # ran a corpus search instead of answering. NC caught it.
+    #
+    # These are deliberately narrow. This tuple gates two things -- routing to
+    # the guide, and discarding the carried subject -- and a phrase common in
+    # ordinary follow-ups would silently throw away context.
+    'this site', 'the site', "site's", 'tesserae', 'this tool', 'the tool',
+    'this app', 'capabilities', 'features', 'what can you', 'what can this',
+    'search types', 'types of search', 'kinds of search',
 )
 
 
@@ -532,6 +543,24 @@ def _carried_phrase(question, history):
 
     Only fills a GAP: a question carrying its own quoted phrase keeps it.
     """
+    # A QUESTION ABOUT THE SITE INHERITS NOTHING.
+    #
+    # This guarded on _is_about_the_tool alone, which is a bare substring list,
+    # while _is_about_the_site is the real classifier -- it excludes holdings
+    # questions, handles how-to, and falls back to the Help page. For "tell me
+    # about the site's search capabilities" the two disagreed: the list said
+    # False, so the question inherited "arma virumque" from the previous turn
+    # and Tessa ran a corpus search for it instead of describing the site. NC
+    # caught it. Every question the documentation answers was affected, not
+    # just that phrasing.
+    #
+    # The fix is in _ABOUT_THE_TOOL, which now names the site itself. Guarding
+    # here on _is_about_the_site instead was the obvious move and the wrong one:
+    # it ends in a Help-page relevance fallback loose enough to match almost
+    # anything, so it also stopped the genuine follow-ups this function exists
+    # for -- "how about in post-classical authors?" and "are you sure it's not
+    # in Eobanus?" both stopped carrying their subject. Precision matters more
+    # than reach in a guard that silently discards context.
     if not history or _quoted_phrase(question) or _is_about_the_tool(question):
         return None
     ql = (question or '').lower()

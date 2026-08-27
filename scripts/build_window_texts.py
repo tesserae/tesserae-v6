@@ -35,6 +35,25 @@ HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INDEX = os.environ.get('TESSERAE_PASSAGE_INDEX',
                        os.path.join(HERE, 'data', 'passage_index'))
 DB = os.path.join(INDEX, 'window_texts.db')
+
+# WHERE THE VERSE LINES COME FROM.
+#
+# The window files join a passage's lines with spaces, so the text they carry is
+# one long paragraph. That is fine for describing and embedding, which is all it
+# was ever used for, and wrong the moment a reader sees it: the first export
+# printed the opening of the Aeneid as prose, "Arma virumque cano, Troiae qui
+# primus ab oris Italiam, fato profugus...", with line 1 running into line 2.
+#
+# The .tess files are one line per verse, tagged "<verg. aen. 1.1>\tArma...", so
+# the breaks can be restored by slicing each work between the window's own
+# ref_start and ref_end. The corpus is spread over three checkouts and no single
+# one holds every language: Latin, Greek, English, Coptic and Hebrew here,
+# Persian in the Persian workspace, Urdu in the v6 tree.
+TEXT_TREES = [
+    os.path.join(HERE, 'texts'),
+    '/home/ncoffee/tesserae-persian/texts',
+    '/home/ncoffee/tesserae-v6-dev/texts',
+]
 WINDOW_FILES = [
     '/home/ncoffee/perseus_trans/scene_windows_newlangs.json',
     '/home/ncoffee/perseus_trans/scene_windows.json',
@@ -76,12 +95,89 @@ def build():
         print(f'  {len(batch):>8,} from {os.path.basename(path)}')
     conn.execute('CREATE INDEX idx_work ON window_texts(work)')
     conn.commit()
+    restore_line_breaks(conn)
     n = conn.execute('SELECT COUNT(*) FROM window_texts').fetchone()[0]
     conn.close()
     os.replace(tmp, DB)
     print(f'\n{n:,} distinct windows ({total:,} rows read) -> {DB}')
     print(f'{os.path.getsize(DB) / 1e6:.0f} MB')
     return n
+
+
+def _tess_index():
+    """basename without .tess -> path, first tree listed winning."""
+    found = {}
+    for tree in TEXT_TREES:
+        if not os.path.isdir(tree):
+            print(f'  skip (absent): {tree}')
+            continue
+        for root, _dirs, files in os.walk(tree):
+            for f in files:
+                if f.endswith('.tess'):
+                    found.setdefault(f[:-5], os.path.join(root, f))
+    return found
+
+
+def _lines_of(path):
+    """[(ref, text)] in file order, from "<ref>\\ttext" lines."""
+    out = []
+    with open(path, encoding='utf-8', errors='replace') as fh:
+        for line in fh:
+            line = line.rstrip('\n')
+            if not line.startswith('<'):
+                continue
+            close = line.find('>')
+            if close < 0:
+                continue
+            ref = line[1:close]
+            text = line[close + 1:].lstrip('\t')
+            out.append((ref, text))
+    return out
+
+
+def restore_line_breaks(conn):
+    """Replace each window's space-joined text with its real verse lines.
+
+    Works work by work so only one .tess is held at a time. A window whose
+    references cannot be found keeps the space-joined text it already has, and
+    those are COUNTED and reported: a silent fallback here would print poetry as
+    prose for one corner of the corpus and nobody would know which.
+    """
+    files = _tess_index()
+    print(f'\n  {len(files):,} .tess files across {len(TEXT_TREES)} trees')
+    works = [r[0] for r in conn.execute(
+        'SELECT DISTINCT work FROM window_texts WHERE work IS NOT NULL')]
+    fixed = kept = no_file = 0
+    missing_works = []
+    for work in works:
+        path = files.get(work)
+        if not path:
+            no_file += 1
+            if len(missing_works) < 8:
+                missing_works.append(work)
+            continue
+        lines = _lines_of(path)
+        at = {ref: i for i, (ref, _t) in enumerate(lines)}
+        updates = []
+        for wid, rs, re_ in conn.execute(
+                'SELECT id, ref_start, ref_end FROM window_texts WHERE work = ?',
+                (work,)):
+            i, j = at.get(rs), at.get(re_)
+            if i is None or j is None or j < i:
+                kept += 1
+                continue
+            updates.append(('\n'.join(t for _r, t in lines[i:j + 1]), wid))
+        if updates:
+            conn.executemany('UPDATE window_texts SET text = ? WHERE id = ?',
+                             updates)
+            fixed += len(updates)
+        conn.commit()
+    print(f'  line breaks restored : {fixed:,}')
+    print(f'  kept space-joined    : {kept:,} (references not found in the file)')
+    if no_file:
+        print(f'  works with no .tess  : {no_file:,}'
+              f'  e.g. {", ".join(missing_works[:4])}')
+    return fixed
 
 
 def check():
