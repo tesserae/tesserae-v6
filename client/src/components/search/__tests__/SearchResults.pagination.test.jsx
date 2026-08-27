@@ -124,6 +124,28 @@ const countRows = () => screen.getAllByText(/^\d+\.$/).length;
 const rowNumbers = () => screen.getAllByText(/^\d+\.$/).map((el) => parseInt(el.textContent, 10));
 
 const nav = () => screen.getAllByRole('navigation', { name: 'Search results pagination' })[0];
+
+/** Put the per-comparison distribution chart on screen, however it got left.
+ *
+ *  These tests used to press a "Distribution" button. The chart has since
+ *  become a standing sidebar with two views, and both changes broke the old
+ *  route to it:
+ *
+ *    - the open/close toggle is now "Show chart" / "Hide chart", and its state
+ *      is remembered in sessionStorage, which jsdom keeps for a whole file, so
+ *      one test closing the chart decided whether a later one could find it;
+ *    - the sidebar opens on "Across the corpus", which needs a backend call
+ *      these tests forbid, so it renders nothing. The chart whose bars filter
+ *      the results is the other view, "In this comparison".
+ *
+ *  Asking for the state the test needs, instead of assuming a default, is
+ *  independent of both.
+ */
+async function openChart() {
+  const closed = screen.queryByRole('button', { name: 'Show chart' });
+  if (closed) await userEvent.click(closed);
+  await userEvent.click(screen.getByRole('button', { name: 'In this comparison' }));
+}
 const nextButton = () => within(nav()).getByRole('button', { name: 'Next' });
 const prevButton = () => within(nav()).getByRole('button', { name: 'Previous' });
 
@@ -310,7 +332,7 @@ describe('SearchResults — reset behaviour', () => {
     await userEvent.click(within(nav()).getByRole('button', { name: 'Go to page 3' }));
     expect(screen.getByText('Showing 101–150 of 237 results')).toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole('button', { name: 'Distribution' }));
+    await openChart();
     await userEvent.click(screen.getByTestId('mock-chart-bar'));
 
     // Filter narrowed 237 -> the 100 results in Book 1, and the page reset.
@@ -321,7 +343,7 @@ describe('SearchResults — reset behaviour', () => {
 
   it('returns to page 1 when a chart filter is cleared', async () => {
     render(<SearchResults {...baseProps} results={makeBookedResults(237)} />);
-    await userEvent.click(screen.getByRole('button', { name: 'Distribution' }));
+    await openChart();
     await userEvent.click(screen.getByTestId('mock-chart-bar'));
     expect(screen.getByText('Showing 1–50 of 100 results')).toBeInTheDocument();
 

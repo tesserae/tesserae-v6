@@ -1,0 +1,126 @@
+/**
+ * The Verbal Parallels tab.
+ *
+ * It sat on the words "Wiring in progress" from the day the Reader shipped,
+ * and NC found it by opening the tab. These tests cover the two things that
+ * were easy to get wrong when wiring it up: the query is the SELECTED lines
+ * rather than the whole work, and a line must not be returned as a parallel to
+ * itself.
+ */
+import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
+import ResultsPanel from './ResultsPanel';
+
+const UNITS = [
+  { ref: 'verg. aen. 6.1', text: 'Sic fatur lacrimans, classique immittit habenas,' },
+  { ref: 'verg. aen. 6.2', text: 'et tandem Euboicis Cumarum adlabitur oris.' },
+  { ref: 'verg. aen. 6.3', text: 'Obvertunt pelago proras; tum dente tenaci' },
+];
+
+// One real hit, and the source line coming back as a match for itself.
+const HITS = {
+  results: [
+    {
+      author: 'Caesar', work: 'De Bello Civili', text_id: 'caesar.de_bello_civili.tess',
+      locus: '3.101.2', year: -44, matched_words: ['classem', 'immisit'],
+      text: 'in Pomponianam classem immisit atque omnes naves incendit',
+    },
+    {
+      author: 'Vergil', work: 'Aeneid', text_id: 'vergil.aeneid.part.6.tess',
+      locus: '6.1', year: -19, matched_words: ['classis', 'immitto'],
+      text: 'Sic fatur lacrimans, classique immittit habenas,',
+    },
+  ],
+};
+
+let sent;
+
+function mount(props = {}) {
+  const onOpenPassage = vi.fn();
+  render(
+    <ResultsPanel
+      selection={{ refStart: 'verg. aen. 6.1', refEnd: 'verg. aen. 6.1',
+                   startIdx: 0, endIdx: 0 }}
+      language="la"
+      work="vergil.aeneid.part.6.tess"
+      units={UNITS}
+      onOpenPassage={onOpenPassage}
+      initialTab="verbal"
+      {...props}
+    />
+  );
+  return { onOpenPassage };
+}
+
+beforeEach(() => {
+  sent = null;
+  global.fetch = vi.fn((url, opts) => {
+    sent = { url, body: JSON.parse(opts?.body || '{}') };
+    return Promise.resolve({ json: () => Promise.resolve(HITS) });
+  });
+});
+
+describe('the tab searches the corpus for the selection', () => {
+  it('sends the selected line, not the whole work', async () => {
+    mount();
+    await waitFor(() => expect(sent).toBeTruthy());
+    expect(sent.url).toBe('/api/line-search');
+    expect(sent.body.query).toBe(UNITS[0].text);
+    expect(sent.body.query).not.toContain('Obvertunt');
+    expect(sent.body.language).toBe('la');
+  });
+
+  it('sends a multi-line selection whole', async () => {
+    mount({ selection: { refStart: 'verg. aen. 6.1', refEnd: 'verg. aen. 6.2',
+                         startIdx: 0, endIdx: 1 } });
+    await waitFor(() => expect(sent).toBeTruthy());
+    expect(sent.body.query).toContain('Sic fatur');
+    expect(sent.body.query).toContain('adlabitur oris');
+    expect(sent.body.query).not.toContain('Obvertunt');
+  });
+
+  it('shows the match, and the words it matched on', async () => {
+    mount();
+    expect(await screen.findByText(/Caesar, De Bello Civili/)).toBeTruthy();
+    // A lemma search, so the shared words are in different forms on each side
+    // and naming them is the whole point of the card.
+    expect(screen.getByText('classem')).toBeTruthy();
+    expect(screen.getByText('immisit')).toBeTruthy();
+  });
+
+  it('says the cards open, since nothing else does', async () => {
+    mount();
+    expect((await screen.findAllByText(/Open in Reader/))[0]).toBeTruthy();
+  });
+});
+
+describe('a line is not a parallel to itself', () => {
+  it('drops the source line from its own results', async () => {
+    mount();
+    await screen.findByText(/Caesar/);
+    // Vergil 6.1 is the selection. The backend excludes one locus; this covers
+    // the case it cannot, a selection spanning several lines.
+    expect(screen.queryByText(/Vergil, Aeneid/)).toBeNull();
+  });
+
+  it('keeps other parts of the same work', async () => {
+    global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve({
+      results: [{ author: 'Vergil', work: 'Aeneid',
+                  text_id: 'vergil.aeneid.part.6.tess', locus: '6.900',
+                  year: -19, matched_words: ['habena'], text: 'elsewhere in book 6' }],
+    }) }));
+    mount();
+    // Reading Aeneid 6.1, a reader should still be told when 6.900 uses the
+    // same words. Excluding the whole work would have hidden it.
+    expect(await screen.findByText(/Vergil, Aeneid/)).toBeTruthy();
+  });
+});
+
+describe('when the corpus has nothing', () => {
+  it('says why rather than showing an empty panel', async () => {
+    global.fetch = vi.fn(() =>
+      Promise.resolve({ json: () => Promise.resolve({ results: [] }) }));
+    mount();
+    expect(await screen.findByText(/No other passage in the corpus/)).toBeTruthy();
+  });
+});

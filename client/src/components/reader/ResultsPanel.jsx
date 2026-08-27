@@ -32,6 +32,13 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
   const [translation, setTranslation] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  // Verbal keeps its own loading flag. A search of the whole corpus takes
+  // around twelve seconds against the scene index's fraction of a second, and
+  // sharing one flag means switching tabs mid-search leaves the other tab
+  // spinning over results it already has.
+  const [verbal, setVerbal] = useState(null);
+  const [verbalLoading, setVerbalLoading] = useState(false);
+  const [verbalError, setVerbalError] = useState(null);
 
   useEffect(() => {
     if (!selection || tab !== 'similar') return;
@@ -55,6 +62,64 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [selection, work, tab]);
+
+  /* VERBAL PARALLELS: the selection's own wording, searched across the corpus.
+   *
+   * This tab said "Wiring in progress" for as long as the Reader has existed,
+   * which NC found by opening it. The red gutter beside the text was already
+   * live, but that is a DENSITY measure -- how distinctive each line's
+   * vocabulary is -- and it never had the parallels themselves behind it. The
+   * marks pointed at something the panel could not show.
+   *
+   * /api/line-search is the engine the site's own Line Search runs on, so this
+   * is the same result a reader would get by copying the line into the search
+   * page, minus the copying. It matches on shared lemmata, which is why the
+   * Caesar hit for Aeneid 6.1 comes back on classem/immisit rather than on any
+   * shared surface form.
+   */
+  useEffect(() => {
+    if (!selection || tab !== 'verbal') return;
+    const picked = (units || []).slice(selection.startIdx, selection.endIdx + 1);
+    const query = picked.map((u) => u.text).filter(Boolean).join(' ').trim();
+    if (!query) { setVerbal({ results: [] }); return; }
+
+    let cancelled = false;
+    setVerbalLoading(true);
+    setVerbalError(null);
+    fetch('/api/line-search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query,
+        language,
+        search_type: 'lemma',
+        max_results: 25,
+        // The backend drops a hit only when text AND locus both match, so this
+        // removes the source line itself without hiding the rest of the work:
+        // a reader looking at Aeneid 6 should still be told when Aeneid 2 uses
+        // the same words.
+        exclude_text_id: work,
+        exclude_locus: bareLocus(selection.refStart),
+      }),
+    })
+      .then((r) => r.json())
+      .then((d) => {
+        if (cancelled) return;
+        if (d.error) setVerbalError(d.error);
+        // Belt and braces over the backend's single-locus exclusion: a
+        // multi-line selection sends one locus but has several, and every one
+        // of them would otherwise come back as a parallel to itself.
+        const mine = new Set(picked.map((u) => bareLocus(u.ref)));
+        setVerbal({
+          ...d,
+          results: (d.results || []).filter(
+            (r) => !(sameWork(r.text_id, work) && mine.has(bareLocus(r.locus)))),
+        });
+      })
+      .catch((e) => { if (!cancelled) setVerbalError(e.message); })
+      .finally(() => { if (!cancelled) setVerbalLoading(false); });
+    return () => { cancelled = true; };
+  }, [selection, work, units, language, tab]);
 
   useEffect(() => {
     if (!selection || tab !== 'translation') return;
@@ -237,10 +302,77 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
         )}
 
         {selection && tab === 'verbal' && (
-          <p className="text-sm text-gray-500">
-            Word-level matches for this selection come from the existing search engines.
-            Wiring in progress.
-          </p>
+          <>
+            {verbalLoading && (
+              <>
+                <LoadingSpinner />
+                {/* Said out loud because this one is slow. The scene index
+                    answers in a fraction of a second and this takes about
+                    twelve, so silence for twelve seconds reads as a hang. */}
+                <p className="text-xs text-gray-500 text-center">
+                  Searching the corpus for these words...
+                </p>
+              </>
+            )}
+            {verbalError && <p className="text-sm text-red-700">{verbalError}</p>}
+            {!verbalLoading && verbal?.results?.length === 0 && (
+              <p className="text-sm text-gray-500">
+                No other passage in the corpus shares this selection&rsquo;s distinctive
+                wording. Common words are set aside before searching, so a line built
+                mostly from them often has nothing to report.
+              </p>
+            )}
+            {!verbalLoading && chronological(verbal?.results)?.map((r, i) => (
+              <button
+                key={`${r.text_id}-${r.locus}-${i}`}
+                onClick={() => onOpenPassage?.({ work: r.text_id, language })}
+                className="group w-full text-left bg-white border border-gray-200 rounded-lg p-3
+                           hover:border-red-400 hover:bg-red-50/40 transition-colors
+                           focus:outline-none focus:ring-2 focus:ring-red-400"
+              >
+                <div className="flex items-baseline gap-2 flex-wrap">
+                  <span className="font-bold text-sm text-red-800 group-hover:underline">
+                    {r.author}{r.work ? `, ${r.work}` : ''}
+                  </span>
+                  <span className="text-xs text-gray-500">{r.locus}</span>
+                  {dateParts(r) && (
+                    <span className="text-[11px] text-gray-500 tabular-nums whitespace-nowrap">
+                      {dateParts(r).date}
+                    </span>
+                  )}
+                </div>
+                {/* THE MATCHED WORDS ARE THE POINT. This is a lemma search, so
+                    the shared words are usually in different forms in the two
+                    passages (classique/classem, immittit/immisit) and a reader
+                    scanning the quoted line will not always spot them. */}
+                {!!(r.matched_words || []).length && (
+                  <div className="flex gap-1 flex-wrap mt-1.5">
+                    {r.matched_words.map((w) => (
+                      <span key={w}
+                            className="text-[11px] font-semibold bg-red-100 text-red-800 rounded px-1">
+                        {w}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {r.text && (
+                  <p className="text-xs text-gray-700 mt-1.5 leading-snug">
+                    {r.text.length > 260 ? `${r.text.slice(0, 260)}…` : r.text}
+                  </p>
+                )}
+                <span className="mt-2 inline-block text-[11px] font-medium text-red-700
+                                 group-hover:underline">
+                  Open in Reader &rarr;
+                </span>
+              </button>
+            ))}
+            {!verbalLoading && verbal?.results?.length > 0 && (
+              <p className="text-[11px] text-gray-400 pt-1 leading-snug">
+                Matches share dictionary forms, not necessarily spellings. Oldest first.
+                {verbal.capped && ' The corpus holds more than are shown here.'}
+              </p>
+            )}
+          </>
         )}
 
         {selection && tab === 'translation' && (
@@ -280,6 +412,20 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
       </div>
     </aside>
   );
+}
+
+/** "verg. aen. 6.1" -> "6.1". The Reader's refs carry the work's short tag and
+ *  line-search's loci do not, so the numeric tail is the only part of the two
+ *  that can be compared. */
+function bareLocus(ref) {
+  const m = String(ref || '').match(/(\d+(?:[.:]\d+)*)\s*$/);
+  return m ? m[1] : String(ref || '').trim();
+}
+
+/** Same text, whether or not either side carries the .tess suffix. */
+function sameWork(a, b) {
+  const norm = (s) => String(s || '').replace(/\.tess$/, '').toLowerCase();
+  return norm(a) === norm(b) && norm(a) !== '';
 }
 
 /** Trailing book.line of a reference tag, which is what a reader recognises. */

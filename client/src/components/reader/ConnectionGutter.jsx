@@ -78,19 +78,25 @@ export default function ConnectionGutter({ work, units, onSelectLine }) {
       {/* A KEY, because the tiles meant nothing without one. The only
           explanation used to be a title tooltip, which does not exist on a
           phone, so a reader saw two columns of coloured squares and had no way
-          to find out what they were. Two letters and a legend below is enough:
-          the gutter is narrow by design and must not become a sidebar. */}
-      <div className="h-6 flex gap-[3px] justify-center items-end pb-[2px]"
+          to find out what they were.
+
+          This used to be the letters W and C, which NC caught: the legend above
+          says "verbal parallels" and "similar passages", so W and C were a
+          second, private naming the reader had to map onto the first -- and the
+          C was drawn in amber while its own column is violet, so the one hint
+          it gave pointed at the wrong column. The chips repeat the legend's
+          swatches in the legend's order instead. There is nothing left to
+          decode: same colour, same order, one naming. */}
+      <div className="h-6 flex gap-[3px] justify-center items-end pb-[3px]"
            aria-hidden="true">
-        <span className="w-[9px] text-[8px] leading-none text-red-700 font-semibold text-center"
-              title="Verbal parallels: shared wording">W</span>
-        <span className="w-[9px] text-[8px] leading-none text-amber-700 font-semibold text-center"
-              title="Similar passages: shared content">C</span>
+        <span className="block w-[9px] h-[7px] rounded-sm bg-red-700" />
+        <span className="block w-[9px] h-[7px] rounded-sm"
+              style={{ backgroundColor: '#7c6bb0' }} />
       </div>
       <span className="sr-only">
-        Two columns of marks run beside the text. The left column, W, shows
+        Two columns of marks run beside the text. The left column, red, shows
         verbal parallels, where another passage shares wording with this line.
-        The right column, C, shows similar passages, where another passage
+        The right column, violet, shows similar passages, where another passage
         describes something similar without necessarily sharing any words. A
         darker mark means more connections. Select a line to see them.
       </span>
