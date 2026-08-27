@@ -73,8 +73,26 @@ STRONG_COHERENCE = 0.900 # top-k agreement typical of a real subject
 # subjects, because everything in it but the potato is deeply present in the
 # corpus. Without those queries the strong boundary would have been set at 1.28,
 # from a tea ceremony, and Theme Search would have called near misses strong.
-MODERATE_COMBINED = 1.40
-STRONG_COMBINED = 1.7613
+# REFITTED 2026-08-27, after the Persian/Urdu re-describe, against the same
+# 32-query probe set (12 present, 20 absent). Both numbers moved, which is the
+# whole reason the refit was necessary: the window count did not change by one,
+# so nothing in the code would have reported these as stale.
+#
+#     before (fitted 2026-08-25)   MODERATE 1.40   STRONG 1.7613   accuracy 93%
+#     after  (fitted 2026-08-27)   MODERATE 1.27   STRONG 1.83     accuracy 88%
+#
+# ACCURACY FELL, and that is a real finding rather than noise in the fit. The
+# re-described Persian windows carry far more content than before -- 1.46 action
+# steps to 8.99 -- so there is simply more for an absent subject to half-match
+# against, and the two classes overlap more than they did. "A farmer lifts
+# potatoes out of the ground" now scores 1.83 and "antibiotics are prescribed"
+# 1.83, against a present-subject floor of 1.11.
+#
+# The practical effect: STRONG is now a higher bar than it was, deliberately,
+# because it is set above every absent subject tested. Fewer result sets will be
+# called strong, and that is the correct direction to err.
+MODERATE_COMBINED = 1.27
+STRONG_COMBINED = 1.83
 # The index those two numbers were fitted against. They are a property of THAT
 # corpus, not of the method, and the corpus has since grown: merging Persian and
 # Urdu added 220,361 windows, which moves the median every lift is measured
