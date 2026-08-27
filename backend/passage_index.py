@@ -131,6 +131,25 @@ def _ref_numbers(ref):
     return tuple(int(n) for n in nums[-2:]) if nums else ()
 
 
+def _ref_coords(ref):
+    """EVERY numeric coordinate, for comparing two spans of the same work.
+
+    _ref_numbers keeps only the last two, which is right for its own callers and
+    wrong for overlap tests. Ammianus is referenced book.chapter.section, so
+    'amm. 21.13.14' becomes (13, 14) and 'amm. 17.13.30' becomes (13, 30): the
+    book is discarded and two passages four books apart compare as overlapping.
+    The dedup then drops one of them, silently, from a live Theme Search page.
+
+    Caught by the automated review on PR #269, which flagged the tuple
+    comparison as suspicious without knowing it already had a victim. Verified
+    against real Ammianus references before the fix and after.
+
+    Differing lengths are safe here because this only ever compares references
+    within ONE work, where the citation depth is consistent.
+    """
+    return tuple(int(n) for n in re.findall(r'\d+', str(ref or '')))
+
+
 def is_available():
     """True when the index files are present and consistent.
 
@@ -532,8 +551,8 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
             #
             # Iteration is in descending score, so the first window over a
             # stretch of text is the best one and later overlaps are dropped.
-            lo = _ref_numbers(r.get('ref_start'))
-            hi = _ref_numbers(r.get('ref_end')) or lo
+            lo = _ref_coords(r.get('ref_start'))
+            hi = _ref_coords(r.get('ref_end')) or lo
             if lo > hi:
                 lo, hi = hi, lo
             spans = seen.setdefault(work, [])

@@ -54,7 +54,15 @@ logger = get_logger('assistant.classify')
 KINDS = ('site', 'corpus', 'theme', 'holdings', 'read')
 UNSURE = 'unsure'
 
-_ENABLED = os.environ.get('TESSERAE_MODEL_ROUTING', '1') not in ('0', 'false', 'no')
+# OFF unless asked for, matching agent._MODEL_ROUTING exactly.
+#
+# These two read the same variable and disagreed on its default: this module
+# treated anything but "0" as on, the agent treated anything but "1"/"true"/"yes"
+# as off. Production was safe because _decide() gates every call, but
+# classify() is independently importable and would have reached the model
+# server by default for any future caller. Flagged by the automated review on
+# PR #269 as a foot-gun rather than a live bug, which is what it was.
+_ENABLED = os.environ.get('TESSERAE_MODEL_ROUTING', '0') in ('1', 'true', 'yes')
 _TIMEOUT = float(os.environ.get('TESSERAE_ROUTING_TIMEOUT', '6'))
 
 SYSTEM = """You classify a question typed into Tesserae, a search tool for
