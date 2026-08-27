@@ -11,16 +11,22 @@ Endpoints (all GET, all under the app's API prefix):
     /passages/theme-search           ?q=...&limit=&languages=&scale=
     /passages/similar                ?work=&ref_start=&ref_end=  (or ?window=)
     /passages/density                ?work=&scale=
+    /passages/export                 ?q=...&format=json|csv  the same search,
+                                     with the source passages, oldest first
 
 Every route answers 200 with an `error` field rather than raising, so a missing
 or half-built index degrades the Reader's panel instead of breaking the page.
 """
-from flask import Blueprint, jsonify, request
+import csv
+import io
+
+from flask import Blueprint, Response, jsonify, request
 
 from backend.logging_config import get_logger
 from backend import passage_index
 from backend import lexical_density
 from backend import translations
+from backend import window_texts
 
 logger = get_logger('blueprints.passages')
 
@@ -86,6 +92,135 @@ def theme_search():
         'the query. Lead with the work and the gist; treat a result marked '
         'strong:false as a weak neighbour rather than a finding.')
     return jsonify(out)
+
+
+def _chronological(results):
+    """Oldest first, undated last.
+
+    The same order the site shows results in, and the order the export has to
+    keep: a themed set that crosses centuries is read as a line of descent, and
+    a spreadsheet sorted by relevance score throws that away.
+    """
+    def key(r):
+        y = r.get('year')
+        return (0, y) if isinstance(y, (int, float)) else (1, 0)
+    return sorted(results, key=key)
+
+
+# The columns, in the order a reader wants to see them. Passage text last,
+# because it is the long field and a spreadsheet is easier to scan when the
+# labels come first.
+_EXPORT_COLUMNS = [
+    ('n', 'n'),
+    ('author', 'author'),
+    ('title', 'work'),
+    ('locus', 'locus'),
+    ('date', 'date'),
+    ('era', 'era'),
+    ('language', 'language'),
+    ('score', 'score'),
+    ('strong', 'strong'),
+    ('themes', 'themes'),
+    ('summary', 'gist'),
+    ('passage', 'text'),
+]
+
+_LANG_NAME = {'la': 'Latin', 'grc': 'Greek', 'en': 'English', 'he': 'Hebrew',
+              'cop': 'Coptic', 'fa': 'Persian', 'ur': 'Urdu', 'ar': 'Arabic'}
+
+
+def _export_rows(results, texts):
+    """Flatten results into labelled rows carrying their source passage."""
+    rows = []
+    for i, r in enumerate(_chronological(results), start=1):
+        locus = r.get('ref_start') or ''
+        if r.get('ref_end') and r['ref_end'] != locus:
+            locus = f"{locus}-{r['ref_end']}"
+        rows.append({
+            'n': i,
+            'author': r.get('author') or '',
+            'work': r.get('title') or r.get('work') or '',
+            'locus': locus,
+            # The dating note ("d. c. 1020 CE") says more than the bare year and
+            # is what a scholar would cite, so it leads where it exists.
+            'date': r.get('date_note') or (str(r['year']) if isinstance(
+                r.get('year'), (int, float)) else ''),
+            'era': r.get('era') or '',
+            'language': _LANG_NAME.get(r.get('language'), r.get('language') or ''),
+            'score': round(r['score'], 4) if isinstance(
+                r.get('score'), (int, float)) else '',
+            'strong': 'yes' if r.get('strong') else 'no',
+            'themes': '; '.join(str(t) for t in (r.get('themes') or [])),
+            'gist': r.get('gist') or '',
+            # Absent rather than empty when the lookup has no text, so a hole is
+            # visible in the export instead of looking like a blank passage.
+            'text': texts.get(r.get('id'), '[source text unavailable]'),
+            'id': r.get('id') or '',
+        })
+    return rows
+
+
+@passages_bp.route('/passages/export')
+def export_theme_search():
+    """The same Theme Search, with the source passages, oldest first.
+
+    Theme Search results name a work and a line range and carry a machine-written
+    summary, but never the passage itself, so what a reader could take away was a
+    list of pointers. This returns the passages, labelled, in chronological
+    order, as JSON for the printable view or CSV for a spreadsheet.
+    """
+    q = (request.args.get('q') or request.args.get('query') or '').strip()
+    fmt = (request.args.get('format') or 'json').strip().lower()
+    if not q:
+        return jsonify({'error': 'q is required', 'results': []})
+    if fmt not in ('json', 'csv'):
+        return jsonify({'error': f'unknown format {fmt}', 'results': []})
+    try:
+        out = passage_index.find_by_text(
+            q, limit=_int_arg('limit', 25), languages=_languages(), scale=_scale())
+    except passage_index.EmbedUnavailable as e:
+        logger.warning('[PASSAGES] encoder unavailable: %s', e)
+        return jsonify({'error': 'theme search is unavailable: the query encoder '
+                                 'service is not running', 'unavailable': True,
+                        'results': []})
+    except Exception as e:
+        logger.exception('[PASSAGES] export failed')
+        return jsonify({'error': f'{type(e).__name__}: {e}', 'results': []})
+
+    results = out.get('results') or []
+    texts = window_texts.texts_for([r.get('id') for r in results])
+    rows = _export_rows(results, texts)
+    missing = sum(1 for r in rows if r['text'] == '[source text unavailable]')
+    if missing:
+        logger.warning('[PASSAGES] export: %d of %d passages had no source text',
+                       missing, len(rows))
+
+    if fmt == 'csv':
+        buf = io.StringIO()
+        w = csv.writer(buf)
+        w.writerow([label for label, _ in _EXPORT_COLUMNS])
+        for row in rows:
+            w.writerow([row[key] for _, key in _EXPORT_COLUMNS])
+        # BOM: Excel reads a UTF-8 CSV as the system codepage without one, which
+        # turns every Greek, Hebrew and Persian passage in the file into mojibake.
+        body = '﻿' + buf.getvalue()
+        stamp = ''.join(ch if ch.isalnum() else '_' for ch in q)[:40].strip('_')
+        # content_type, not mimetype: Flask appends its own charset to a
+        # mimetype, so passing one here produced "text/csv; charset=utf-8;
+        # charset=utf-8".
+        return Response(body, content_type='text/csv; charset=utf-8', headers={
+            'Content-Disposition':
+                f'attachment; filename="tesserae_theme_{stamp or "search"}.csv"'})
+
+    return jsonify({
+        'query': q,
+        'count': len(rows),
+        'missing_text': missing,
+        'confidence': out.get('confidence'),
+        'note': out.get('note'),
+        'order': 'chronological, oldest first; undated last',
+        'results': rows,
+    })
 
 
 @passages_bp.route('/passages/similar')

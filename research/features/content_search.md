@@ -52,11 +52,38 @@ float16. Prompt text capped at 1400 chars.
 Three runs have written descriptions into this index. The table is the record;
 see the caveat under it before trusting the data itself.
 
-| run | model | where | scope | `described_by` |
-|---|---|---|---|---|
-| original bulk | Qwen2.5-32B-Instruct | rented GPU pod | the whole index, 603,594 windows | *(not stamped)* |
-| gap fill, 2026-08-25 | Qwen3-30B-A3B-Instruct | local llama-server (CPU) | 35 windows the bulk run had missed | `qwen3-30b-a3b-local-2026-08-25` |
-| Persian/Urdu re-describe, 2026-08-26 | Qwen3-30B-A3B-Instruct-2507 | rented A100 80GB (RunPod) | 220,361 Persian and Urdu windows | `redescribe-2026-08` |
+| | original bulk | gap fill | Persian/Urdu re-describe |
+|---|---|---|---|
+| date | (index built to 2026-08-25) | 2026-08-25 | 2026-08-26/27 |
+| model | Qwen2.5-32B-Instruct | Qwen3-30B-A3B-Instruct | Qwen3-30B-A3B-Instruct-2507 |
+| precision | BF16 | Q4_K_M (GGUF) | BF16 |
+| server | vLLM, in-process `LLM()` | llama.cpp `llama-server` | vLLM 0.28.0 OpenAI server |
+| hardware | rented GPU pod | local, CPU, 12 threads | rented A100 SXM 80GB (RunPod, $1.39/h) |
+| temperature | 0.0 | 0.2 | 0.2 |
+| max output tokens | 380 | 700 | 700 |
+| input cap | 1400 chars | 1400 chars | 1400 chars |
+| `max_model_len` | 4096 | 8192 (`-c`) | 4096 |
+| `gpu_memory_utilization` | 0.92 | n/a | 0.92 |
+| concurrency | vLLM internal batching | 4 | 128 threads, `--max-num-seqs 128` |
+| script | `work/gpu_describe_v2.py`, `v3.py` | `work/describe_missing.py` | `work/redescribe.py` |
+| scope | whole index, 603,594 windows | 35 windows the bulk run missed | 220,361 Persian + Urdu windows |
+| `described_by` | *(not stamped)* | `qwen3-30b-a3b-local-2026-08-25` | `redescribe-2026-08` |
+
+**The prompt is not the same across runs**, which matters as much as the model.
+The bulk run's system prompt names the languages it expects, "Latin, Ancient
+Greek, Hebrew, or English", and Persian and Urdu are absent from that list. It
+also defines the key field permissively: "action_steps (list of short strings,
+empty list if no action)". The re-describe prompt names the Perso-Arabic scripts
+explicitly and requires "Several steps, not one". Both prompts are in their
+scripts verbatim; `work/ab_prompt_vs_model.py` holds the bulk prompt as a copy
+for comparison.
+
+The bulk run also carried a constraint the re-describe does not: a
+`names_present` list per window, extracted by lemma-resolved rarity filtering,
+telling the model to name only people from that list. That was added to stop it
+calling Aeneid 8.397-408 "Hector speaks to Andromache" when the speakers are
+Vulcan and Venus. The re-describe achieves the same end with a prompt rule
+rather than a per-window list.
 
 **Caveat: the original run recorded no model in the data.** 99.97% of rows carry
 no `described_by` field at all, because the bulk describe script
@@ -68,10 +95,76 @@ Qwen2.5-32B on a rented pod") and on this file, not on the index.
 An unstamped row therefore means Qwen2.5-32B, by elimination rather than by
 record. Every run since stamps itself, so this ambiguity does not grow.
 
+#### Why these models
+
+**Qwen2.5-32B-Instruct, for the bulk run.** Chosen by scaling up a measured
+pilot, not by reputation. `motif_pilot_openmodel.py` asked whether a cheap OPEN
+model's descriptions could match the hand-labeled gold set on
+describe-then-retrieve: it described the 92 gold scenes with Qwen2.5-7B-Instruct
+locally and free, ran the same TF-IDF retrieval, and compared against the
+hand-labeled baseline (within-language R@5 0.96, cross-language MRR 0.85, R@5
+0.95). It also timed generation specifically to project the cost of a full run
+on a rented GPU. The constraints that decided it: open weights, so the corpus is
+never sent to a third party and the run is reproducible; small enough to serve
+on one rented GPU; good enough at 7B in the pilot that 32B was a safe step up
+for the real thing.
+
+**Qwen3-30B-A3B-Instruct, for the 35-window gap fill.** Chosen because it was
+already running on the box. That job was 35 windows, too small to justify
+renting anything, and Tessa's assistant model server was serving on port 8081
+anyway. A different model from the bulk run, which is exactly why that run
+stamps itself.
+
+**Qwen3-30B-A3B-Instruct-2507, for the Persian/Urdu re-describe.** Continuity
+with the gap fill, which had already been shown to produce 6-7 action steps on
+the Persian and Urdu samples where the index held none. Its shape also suits a
+long batch job: a mixture-of-experts model with 30B total parameters but only
+~3B active per token, so it serves far faster than a dense 30B while fitting
+one A100 in BF16. Served at full precision rather than the FP8 build because the
+A100 is Ampere and has no native FP8: the quantized weights would have run
+through dequantization kernels for no gain on passages this short.
+
+Honestly stated: no benchmark was run against alternative model families for
+this pass. The choice was continuity with a model already measured on this exact
+task, not a bake-off. That is a real limitation of the record.
+
+#### Which variable actually mattered: the prompt or the model?
+
+Worth settling, because the re-describe was justified on a belief about the
+model, and the prompts differ too. `work/ab_prompt_vs_model.py` runs the same 24
+Persian windows through the current model under three conditions:
+
+| condition | mean `action_steps` | zero-step | failed |
+|---|---|---|---|
+| A: bulk prompt, bulk sampling (temp 0.0, 380 tokens) | 6.33 | 0/24 | 0 |
+| B: bulk prompt, new sampling (temp 0.2, 700 tokens) | 6.29 | 0/24 | 0 |
+| C: new prompt, new sampling (what the live run does) | 9.79 | 0/24 | 0 |
+
+Against the index's Persian rows: mean 1.46, and 56% with one step or none.
+
+**The prompt was not the cause.** Condition A reproduces the bulk run's prompt
+and sampling exactly and still returns 6.33 steps with not one empty result,
+where the index holds close to zero for the same passages. The plausible theory
+that the gap was a genre artifact -- Persian and Urdu here are Diwans, lyric
+with little external action, and the old prompt permitted "empty list if no
+action" -- does not survive this: the model assigns `mode: lyric` to 19 of 24
+under that same prompt and still lists six actions.
+
+The operative variable is the model. Qwen2.5-32B read Persian well enough for a
+correct one-line gist, as the before/after samples show, but returned empty
+`action_steps` on it. Qwen3-30B-A3B returns six on the identical prompt. The new
+prompt then adds roughly three more steps on top (6.33 to 9.79), so both
+contribute, with the model much the larger share.
+
+Caveat on rigor: this compares the current model against *stored output* of
+Qwen2.5-32B rather than re-serving Qwen2.5-32B alongside it. Prompt and sampling
+are controlled; the vLLM version and the `names_present` constraint are not. A
+fully controlled test would need the old model loaded on the same hardware.
+
 #### Why the Persian and Urdu windows were re-described
 
-The original describer failed on the Perso-Arabic script. Measured over the
-whole index:
+The original describer produced shallow descriptions for these two languages.
+Measured over the whole index:
 
 | language | windows | mean `action_steps` | one step or none |
 |---|---|---|---|
@@ -85,6 +178,25 @@ Not a window-size effect, which was the obvious explanation and the wrong one: a
 over, because Persian windows also crowd the top of thematic queries (13 of the
 top 20 for "warrior arming scene" were Persian Diwans), so bad descriptions
 there both retrieved badly and displaced better-described works.
+
+**It is shallowness, not illiteracy** -- but it is still the model's doing; see
+the A/B above. An early reading of this was that the first describer could not
+read the Perso-Arabic script at all. Comparing the two
+descriptions of the same window shows otherwise: the old ones identify the
+genre and subject correctly (a ghazal of love and separation, a panegyric to a
+ruler) and are merely generic, with a one-line gist and no `action_steps` at
+all. The model read the Persian; it did not work it through. That matters for
+what to expect from the re-describe, which is depth on passages already roughly
+placed, rather than the rescue of passages that were nonsense.
+
+Example, `anvari.diwan:coarse:1080`:
+
+- before, 0 action steps: "The speaker expresses the pain of separation and the
+  beauty of their beloved, longing for reunion."
+- after, 6 action steps: "The speaker laments the torment of love and
+  separation, yearning for union with the beloved while enduring the pain of
+  absence with quiet resolve." Steps name the sovereign, the beloved's hair
+  "consuming souls", the turn to spiritual awakening.
 
 Lineage: describe-then-retrieve, in the doc2query / HyDE tradition. Measured
 cross-language MRR 0.82 against 0.15 for raw multilingual embeddings on the same

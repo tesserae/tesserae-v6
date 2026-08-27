@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { chronological, dateParts } from '../../utils/chronology';
+import ThemeExport from './ThemeExport';
 
 /**
  * Theme Search: describe a passage in your own words, get passages that match
@@ -280,6 +281,12 @@ export default function ThemeSearchPage() {
             </div>
           )}
 
+          {/* Offered only where the results are, so it is not held out beside a
+              low-confidence set the reader has not chosen to look at. */}
+          {(data.confidence?.level !== 'low' || showWeak) && (
+            <ThemeExport query={data.query || query} language={language}
+                         count={data.results?.length || 0} />
+          )}
           {(data.confidence?.level !== 'low' || showWeak) && (
           <p className="mt-4 mb-2 text-xs text-gray-500">
             Oldest first. Undated authors are listed last.
