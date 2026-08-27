@@ -48,8 +48,13 @@ _ARABIC_SCRIPT = {'fa', 'ur', 'ar'}
 _FONT_CANDIDATES = {
     'body': ['/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'],
     'bold': ['/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'],
-    'coptic': [os.path.expanduser('~/.local/share/fonts/NotoSansCoptic-Regular.ttf'),
-               '/usr/share/fonts/truetype/noto/NotoSansCoptic-Regular.ttf'],
+    # Bundled first. Read from a home directory this worked in development and
+    # would have failed silently in production, where the web user cannot
+    # traverse /home/ncoffee. See backend/fonts/README.md.
+    'coptic': [os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            'fonts', 'NotoSansCoptic-Regular.ttf'),
+               '/usr/share/fonts/truetype/noto/NotoSansCoptic-Regular.ttf',
+               os.path.expanduser('~/.local/share/fonts/NotoSansCoptic-Regular.ttf')],
 }
 
 _LANG_NAME = {'la': 'Latin', 'grc': 'Greek', 'en': 'English', 'he': 'Hebrew',
