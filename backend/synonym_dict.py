@@ -366,6 +366,30 @@ if os.path.exists(_PERSEUS_ADDITIONS_PATH):
             _perseus_count += 1
     logger.info(f"Loaded {_perseus_count} Perseus Greek-Latin additions into CURATED_GREEK_LATIN (total: {len(CURATED_GREEK_LATIN)} entries)")
 
+# Load LSJ ↔ Lewis-Short pivot expansion (~120K long-tail pairs)
+# See research/plans/Bernstein/lexicon_pivot_expansion_plan.md
+_LSJLS_PIVOT_PATH = os.path.join(_DATA_DIR, 'v6_additions', 'lsj_ls_pivot.csv')
+if os.path.exists(_LSJLS_PIVOT_PATH):
+    _lsjls_count = 0
+    with open(_LSJLS_PIVOT_PATH, 'r', encoding='utf-8') as _f:
+        for _line in _f:
+            _line = _line.strip()
+            if not _line or _line.startswith('#'):
+                continue
+            _parts = [p.strip() for p in _line.split(',') if p.strip()]
+            if len(_parts) < 2:
+                continue
+            _greek_norm = _parts[0]  # already normalized in the source file
+            _latin_words = [w.lower() for w in _parts[1:]]
+            if _greek_norm in CURATED_GREEK_LATIN:
+                _existing = set(CURATED_GREEK_LATIN[_greek_norm])
+                _existing.update(_latin_words)
+                CURATED_GREEK_LATIN[_greek_norm] = list(_existing)
+            else:
+                CURATED_GREEK_LATIN[_greek_norm] = _latin_words
+            _lsjls_count += 1
+    logger.info(f"Loaded {_lsjls_count} LSJ-LS pivot additions into CURATED_GREEK_LATIN (total: {len(CURATED_GREEK_LATIN)} entries)")
+
 
 def load_accepted_review_entries():
     """Load accepted entries from the dictionary_review DB table into CURATED_GREEK_LATIN.

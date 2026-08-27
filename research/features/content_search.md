@@ -44,8 +44,159 @@ Those descriptions, not the original text, are what a query is compared against.
 of a Greek scene because two passages are compared by what they are about, with
 nothing translated and no words matched.
 
-Describer: Qwen2.5-32B-Instruct. Embeddings: intfloat/multilingual-e5-large,
-prefix `query: `, 1024 dimensions, float16. Prompt text capped at 1400 chars.
+Embeddings: intfloat/multilingual-e5-large, prefix `query: `, 1024 dimensions,
+float16. Prompt text capped at 1400 chars.
+
+#### Which model described what
+
+Three runs have written descriptions into this index. The table is the record;
+see the caveat under it before trusting the data itself.
+
+| | original bulk | gap fill | Persian/Urdu re-describe |
+|---|---|---|---|
+| date | (index built to 2026-08-25) | 2026-08-25 | 2026-08-26/27 |
+| model | Qwen2.5-32B-Instruct | Qwen3-30B-A3B-Instruct | Qwen3-30B-A3B-Instruct-2507 |
+| precision | BF16 | Q4_K_M (GGUF) | BF16 |
+| server | vLLM, in-process `LLM()` | llama.cpp `llama-server` | vLLM 0.28.0 OpenAI server |
+| hardware | rented GPU pod | local, CPU, 12 threads | rented A100 SXM 80GB (RunPod, $1.39/h) |
+| temperature | 0.0 | 0.2 | 0.2 |
+| max output tokens | 380 | 700 | 700 |
+| input cap | 1400 chars | 1400 chars | 1400 chars |
+| `max_model_len` | 4096 | 8192 (`-c`) | 4096 |
+| `gpu_memory_utilization` | 0.92 | n/a | 0.92 |
+| concurrency | vLLM internal batching | 4 | 128 threads, `--max-num-seqs 128` |
+| script | `work/gpu_describe_v2.py`, `v3.py` | `work/describe_missing.py` | `work/redescribe.py` |
+| scope | whole index, 603,594 windows | 35 windows the bulk run missed | 220,361 Persian + Urdu windows |
+| `described_by` | *(not stamped)* | `qwen3-30b-a3b-local-2026-08-25` | `redescribe-2026-08` |
+
+**The prompt is not the same across runs**, which matters as much as the model.
+The bulk run's system prompt names the languages it expects, "Latin, Ancient
+Greek, Hebrew, or English", and Persian and Urdu are absent from that list. It
+also defines the key field permissively: "action_steps (list of short strings,
+empty list if no action)". The re-describe prompt names the Perso-Arabic scripts
+explicitly and requires "Several steps, not one". Both prompts are in their
+scripts verbatim; `work/ab_prompt_vs_model.py` holds the bulk prompt as a copy
+for comparison.
+
+The bulk run also carried a constraint the re-describe does not: a
+`names_present` list per window, extracted by lemma-resolved rarity filtering,
+telling the model to name only people from that list. That was added to stop it
+calling Aeneid 8.397-408 "Hector speaks to Andromache" when the speakers are
+Vulcan and Venus. The re-describe achieves the same end with a prompt rule
+rather than a per-window list.
+
+**Caveat: the original run recorded no model in the data.** 99.97% of rows carry
+no `described_by` field at all, because the bulk describe script
+(`gpu_describe_v2.py` / `v3.py`) took the model as a command-line argument and
+never wrote it into the output. So the attribution above rests on prose notes
+(`work/describe_missing.py`, which states "the corpus was described with
+Qwen2.5-32B on a rented pod") and on this file, not on the index.
+
+An unstamped row therefore means Qwen2.5-32B, by elimination rather than by
+record. Every run since stamps itself, so this ambiguity does not grow.
+
+#### Why these models
+
+**Qwen2.5-32B-Instruct, for the bulk run.** Chosen by scaling up a measured
+pilot, not by reputation. `motif_pilot_openmodel.py` asked whether a cheap OPEN
+model's descriptions could match the hand-labeled gold set on
+describe-then-retrieve: it described the 92 gold scenes with Qwen2.5-7B-Instruct
+locally and free, ran the same TF-IDF retrieval, and compared against the
+hand-labeled baseline (within-language R@5 0.96, cross-language MRR 0.85, R@5
+0.95). It also timed generation specifically to project the cost of a full run
+on a rented GPU. The constraints that decided it: open weights, so the corpus is
+never sent to a third party and the run is reproducible; small enough to serve
+on one rented GPU; good enough at 7B in the pilot that 32B was a safe step up
+for the real thing.
+
+**Qwen3-30B-A3B-Instruct, for the 35-window gap fill.** Chosen because it was
+already running on the box. That job was 35 windows, too small to justify
+renting anything, and Tessa's assistant model server was serving on port 8081
+anyway. A different model from the bulk run, which is exactly why that run
+stamps itself.
+
+**Qwen3-30B-A3B-Instruct-2507, for the Persian/Urdu re-describe.** Continuity
+with the gap fill, which had already been shown to produce 6-7 action steps on
+the Persian and Urdu samples where the index held none. Its shape also suits a
+long batch job: a mixture-of-experts model with 30B total parameters but only
+~3B active per token, so it serves far faster than a dense 30B while fitting
+one A100 in BF16. Served at full precision rather than the FP8 build because the
+A100 is Ampere and has no native FP8: the quantized weights would have run
+through dequantization kernels for no gain on passages this short.
+
+Honestly stated: no benchmark was run against alternative model families for
+this pass. The choice was continuity with a model already measured on this exact
+task, not a bake-off. That is a real limitation of the record.
+
+#### Which variable actually mattered: the prompt or the model?
+
+Worth settling, because the re-describe was justified on a belief about the
+model, and the prompts differ too. `work/ab_prompt_vs_model.py` runs the same 24
+Persian windows through the current model under three conditions:
+
+| condition | mean `action_steps` | zero-step | failed |
+|---|---|---|---|
+| A: bulk prompt, bulk sampling (temp 0.0, 380 tokens) | 6.33 | 0/24 | 0 |
+| B: bulk prompt, new sampling (temp 0.2, 700 tokens) | 6.29 | 0/24 | 0 |
+| C: new prompt, new sampling (what the live run does) | 9.79 | 0/24 | 0 |
+
+Against the index's Persian rows: mean 1.46, and 56% with one step or none.
+
+**The prompt was not the cause.** Condition A reproduces the bulk run's prompt
+and sampling exactly and still returns 6.33 steps with not one empty result,
+where the index holds close to zero for the same passages. The plausible theory
+that the gap was a genre artifact -- Persian and Urdu here are Diwans, lyric
+with little external action, and the old prompt permitted "empty list if no
+action" -- does not survive this: the model assigns `mode: lyric` to 19 of 24
+under that same prompt and still lists six actions.
+
+The operative variable is the model. Qwen2.5-32B read Persian well enough for a
+correct one-line gist, as the before/after samples show, but returned empty
+`action_steps` on it. Qwen3-30B-A3B returns six on the identical prompt. The new
+prompt then adds roughly three more steps on top (6.33 to 9.79), so both
+contribute, with the model much the larger share.
+
+Caveat on rigor: this compares the current model against *stored output* of
+Qwen2.5-32B rather than re-serving Qwen2.5-32B alongside it. Prompt and sampling
+are controlled; the vLLM version and the `names_present` constraint are not. A
+fully controlled test would need the old model loaded on the same hardware.
+
+#### Why the Persian and Urdu windows were re-described
+
+The original describer produced shallow descriptions for these two languages.
+Measured over the whole index:
+
+| language | windows | mean `action_steps` | one step or none |
+|---|---|---|---|
+| Persian | 218,213 | 1.46 | 56% |
+| Urdu | 2,148 | 0.78 | 76% |
+| Coptic | 13,199 | 4.53 | 4% |
+| Latin | 208,929 | 3.18 | 15% |
+
+Not a window-size effect, which was the obvious explanation and the wrong one: a
+386-character Persian window re-describes to six action steps. This hurt twice
+over, because Persian windows also crowd the top of thematic queries (13 of the
+top 20 for "warrior arming scene" were Persian Diwans), so bad descriptions
+there both retrieved badly and displaced better-described works.
+
+**It is shallowness, not illiteracy** -- but it is still the model's doing; see
+the A/B above. An early reading of this was that the first describer could not
+read the Perso-Arabic script at all. Comparing the two
+descriptions of the same window shows otherwise: the old ones identify the
+genre and subject correctly (a ghazal of love and separation, a panegyric to a
+ruler) and are merely generic, with a one-line gist and no `action_steps` at
+all. The model read the Persian; it did not work it through. That matters for
+what to expect from the re-describe, which is depth on passages already roughly
+placed, rather than the rescue of passages that were nonsense.
+
+Example, `anvari.diwan:coarse:1080`:
+
+- before, 0 action steps: "The speaker expresses the pain of separation and the
+  beauty of their beloved, longing for reunion."
+- after, 6 action steps: "The speaker laments the torment of love and
+  separation, yearning for union with the beloved while enduring the pain of
+  absence with quiet resolve." Steps name the sovereign, the beloved's hair
+  "consuming souls", the turn to spiritual awakening.
 
 Lineage: describe-then-retrieve, in the doc2query / HyDE tradition. Measured
 cross-language MRR 0.82 against 0.15 for raw multilingual embeddings on the same
@@ -233,80 +384,58 @@ sentences -- so expansions are written to a shared file and reused. That also
 makes the three Apache workers agree with each other. A scholar who cites a
 result has to be able to find it again.
 
-### The limit that remains: descriptions differ in granularity
+### Why Vergil was missing: the page is 25 works and the corpus is seven languages
 
-Vergil still does not return for "warrior arming scene", and this one is not
-ranking. The windows exist and are described correctly, just summarily:
+I first blamed description granularity, comparing two Aeneid windows against
+Iliad 11.16, and that was WRONG. Measured across the whole index it is the other
+way round:
 
-    Iliad 11.16   action_steps: puts on greaves; puts on cuirass; puts on sword;
-                                takes shield; puts on helmet
-    Aen. 12.87    action_steps: Aeneas arms himself; Aeneas takes a spear
-    Aen. 11.486   action_steps: arming; charging into battle
+| work | windows | mean action_steps | arming windows | mean steps |
+|---|---|---|---|---|
+| Vergil, *Aeneid* | 4,604 | **3.53** | 84 | **3.30** |
+| Homer, *Iliad* | 7,291 | 3.19 | 245 | 3.07 |
+| Statius, *Thebaid* | 4,527 | 3.43 | 66 | 3.17 |
 
-A piece-by-piece query matches Homer's enumeration and not Vergil's summary. No
-ranking change fixes this, and tuning around it would be fitting the retrieval
-to one query. The real fix is re-describing with a prompt that forces consistent
-detail, which costs GPU time. See `research/QUEUE.md`.
+The Aeneid is described in MORE detail than the Iliad, not less. Two windows are
+not a corpus, and the aggregate says the opposite of the sample.
 
-## 4. Limits a reader is told about
+The actual cause is the cutoff. The page shows 25 works; the Aeneid is the 28th.
+The 27 ahead of it are mostly genuine arming scenes in Persian, Greek, Neo-Latin
+and English, so a Latinist was simply being outvoted by the breadth of the
+corpus. Restricted to Latin the Aeneid is 8th; restricted to Greek, the Iliad is
+1st. The fix is a language filter on the page, which the API already supported
+and nothing exposed. No re-describing needed.
 
-- The summaries are machine-written: a finding aid, not evidence.
-- Where a summary names someone the passage does not appear to name, the result
-  says so. A flag to check, not proof of error.
-- **Coptic descriptions were written from English translations**, not from
-  Coptic, because no available model reads Coptic well enough. Evidence at one
-  remove. Every record carries `derived_from_translation`.
-- **Persian and Urdu intertextuality often works through form** — a poem
-  answering another in the same metre, rhyme and radif, sometimes with almost no
-  shared vocabulary. These descriptions capture content, not form, so that whole
-  mode of response is invisible here.
-- The first search after a quiet period takes about ten seconds while the
-  encoder loads. After that, well under a second.
+### Where descriptions ARE thin, and it is not Latin
 
----
+The same measurement found the real granularity gap, in the languages added
+last:
 
-## 5. Performance
+| language | windows | mean action_steps |
+|---|---|---|
+| Coptic | 13,199 | 4.53 |
+| English | 42,163 | 3.39 |
+| Hebrew | 5,372 | 3.32 |
+| Latin | 208,929 | 3.18 |
+| Greek | 113,531 | 3.06 |
+| **Persian** | **218,213** | **1.46** |
+| **Urdu** | **2,148** | **0.78** |
 
-- Similar Passages: 0.28s
-- Reader gutter: 5.4s first visit, instant thereafter (cached)
-- Theme Search: ~0.7s warm, ~12s cold
+Persian windows are also half the size of Latin ones (506 characters against
+954), which looked like an explanation: shorter passage, less to describe. It is
+not. Re-describing a sample with the same prompt gives:
 
-Scoring is one pass over the whole embedding matrix. numpy's matrix-vector
-product is **single-threaded**, which was the real bottleneck; splitting across
-threads is a measured 4.1x and needs no extra memory. An earlier diagnosis
-blamed float32 conversion and both proposed fixes were slower.
+| sample | source size | current steps | re-described |
+|---|---|---|---|
+| Urdu, 12 windows | ~880 ch | 0.78 | **7.58** |
+| Persian, 10 windows | 386 ch | 0.00 | **6.10** |
 
----
+A 386-character window still yields six action steps, so these descriptions are
+broken rather than brief: the original describer failed on the Perso-Arabic
+script, not on short input. This is the one place in the index where spending
+GPU time is clearly justified, and it is the opposite of a Latin problem.
 
-## 6. Adding texts
-
-See `motif_feature/ADDING_TEXTS_TO_THE_CONTENT_INDEX.md`. In short: new texts
-need windowing, describing (GPU), embedding, and merging with
-`scripts/merge_index.py`, which checks that ids and embedding rows stay in
-lockstep and refuses to write if they do not. The existing index is not
-recomputed.
-
-**The invariant that matters:** ids, embedding rows and description records must
-agree in count and order. A slice whose ids and rows disagree does not fail
-loudly, it returns the wrong passage for every query.
-
----
-
-## 7. Release
-
-`scripts/build_passage_index_release.py` splits the index per language so each
-slice carries its own licence. One bundle would force BHSA's non-commercial term
-onto the 98.6% of the index that does not carry it. See
-[corpus/TEXTS_AND_LICENSING.md](../corpus/TEXTS_AND_LICENSING.md).
-
----
-
-## 8. Open
-
-- **Content as a fusion channel** (NC). Four problems make it hard: scale
-  mismatch between lines and windows, no rarity equivalent, calibration that
-  does not transfer, and that content similarity is not evidence of textual
-  contact. See [motif_feature/OPEN_QUESTIONS.md](../motif_feature/OPEN_QUESTIONS.md).
-- Translation and original sit in two columns, not interleaved line by line.
-- The 84% on the sentence probe set is worth improving without losing keyword
-  accuracy.
+It matters twice over, because Persian windows crowd the top of thematic
+queries: 13 of the top 20 on "warrior arming scene" were Persian Diwans. Bad
+descriptions there both retrieve badly and displace better-described works.
+See `research/QUEUE.md` for the cost.

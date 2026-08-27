@@ -25,6 +25,21 @@ import pytest
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from backend.app import app  # noqa: E402
+from backend.assistant import model  # noqa: E402
+
+# THESE ARE INTEGRATION TESTS and they say so rather than failing obscurely.
+#
+# Every one of them asks Tessa a real question: the searches hit the live index
+# and the answers come from the model server on port 8081. A CI runner has
+# neither, so without this the whole module fails for want of a service and the
+# failures look like broken conversation handling.
+#
+# Skipped, not faked. A stub model would make these pass while testing nothing,
+# which is the failure mode this file's own docstring is about.
+if not model.is_available():
+    pytest.skip('assistant model server not reachable; these are integration '
+                'tests against a live model and index',
+                allow_module_level=True)
 
 
 @pytest.fixture(scope='module')
@@ -156,3 +171,48 @@ def test_guardrails_clean_on_a_listing_answer(client, route):
     assert g.get('fabricated_quotes') == [], f'fabricated quotes: {g.get("fabricated_quotes")}'
     assert g.get('references_removed') == [], f'citations wrongly rejected: {g.get("references_removed")}'
     assert g.get('clean') is True, f'guardrails: {g}'
+
+
+def test_a_question_about_the_site_does_not_inherit_the_last_phrase(client, route):
+    """NC asked Tessa to describe the site and got a search for arma virumque.
+
+    The carry-over guard tested `_is_about_the_tool`, a bare substring list that
+    named connectors and CSV but never the site itself, so "tell me about the
+    site's search capabilities" was not recognised as a question about the tool.
+    It inherited the phrase from the previous turn and ran a corpus search for
+    it, and the reader watched "searching for 'arma virumque'..." appear under a
+    question that had nothing to do with the Aeneid.
+
+    Guarding on `_is_about_the_site` instead was the obvious fix and the wrong
+    one: it ends in a Help-page relevance fallback loose enough to match almost
+    anything, which stopped the genuine follow-ups from carrying their subject
+    too. Hence the narrow list, and hence this test on both sides of it.
+    """
+    q1 = 'Where does the phrase arma virumque appear?'
+    a1, ran1 = ask(client, route, q1)
+    assert any('line_search' in r for r in ran1), f'turn 1 ran {ran1}'
+
+    history = [{'role': 'user', 'text': q1}, {'role': 'assistant', 'text': a1}]
+    for question in ("tell me about the site's search capabilities",
+                     'what search types are there?',
+                     'what can this site search for?'):
+        answer, ran = ask(client, route, question, history=history)
+        assert not ran, f'{question!r} ran {ran}; it should search nothing'
+        assert 'arma virumque' not in answer.lower(), \
+            f'{question!r} answered about the carried phrase: {answer[:160]}'
+        assert answer.strip(), f'{question!r} answered nothing at all'
+
+
+def test_the_narrow_guard_still_lets_a_real_followup_carry_its_subject(client, route):
+    """The other side of the same guard.
+
+    A guard that discards context silently is worse than the bug it fixes, so
+    the follow-up path is asserted here rather than left to be noticed later.
+    """
+    q1 = 'Where does the phrase arma virumque appear?'
+    a1, _ = ask(client, route, q1)
+    history = [{'role': 'user', 'text': q1}, {'role': 'assistant', 'text': a1}]
+    _, ran = ask(client, route, 'how about in post-classical authors?',
+                 history=history)
+    assert any('line_search' in r for r in ran), \
+        f'the follow-up stopped searching for the carried phrase; ran {ran}'

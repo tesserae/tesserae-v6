@@ -24,6 +24,7 @@ assistant that can consume the machine on one open-ended question is worse than
 one that cannot look at all.
 """
 import json
+import os
 import re
 from collections import Counter
 
@@ -60,6 +61,17 @@ _ABOUT_THE_TOOL = (
     'connector', 'mcp', 'api', 'export', 'csv', 'download',
     'how do i use', 'how can i use', 'how does this', 'how do you',
     'what is the difference between', 'what does this site', 'log in', 'account',
+    # NAMING THE SITE ITSELF. "tell me about the site's search capabilities"
+    # matched none of the above, so it was not recognised as a question about
+    # the tool: it inherited "arma virumque" from the previous turn and Tessa
+    # ran a corpus search instead of answering. NC caught it.
+    #
+    # These are deliberately narrow. This tuple gates two things -- routing to
+    # the guide, and discarding the carried subject -- and a phrase common in
+    # ordinary follow-ups would silently throw away context.
+    'this site', 'the site', "site's", 'tesserae', 'this tool', 'the tool',
+    'this app', 'capabilities', 'features', 'what can you', 'what can this',
+    'search types', 'types of search', 'kinds of search',
 )
 
 
@@ -106,6 +118,42 @@ def _is_about_the_site(question):
 def _is_about_the_tool(question):
     q = (question or '').lower()
     return any(t in q for t in _ABOUT_THE_TOOL)
+
+
+# MODEL ROUTING. Off by default: this replaces the branch every question takes,
+# and it turns on only once NC has seen it run.
+#
+# The judgments below -- what kind of question this is, and whether it carries
+# the previous subject -- were substring matches over 130 literal phrases.
+# Measured against 26 held-out questions the prompt was never tuned on, the
+# lists get 58% and the model gets 85%. See evaluation/scripts/routing_probe.py.
+#
+# Every use goes through _decided(), which returns None whenever the model is
+# unavailable, slow, or unparseable. None means "fall back to the old
+# heuristics", so the worst case is exactly today's behaviour.
+_MODEL_ROUTING = os.environ.get('TESSERAE_MODEL_ROUTING', '0') in ('1', 'true', 'yes')
+
+
+def _decide(question, history):
+    """The three judgments in one call, or None to use the old heuristics."""
+    if not _MODEL_ROUTING:
+        return None
+    try:
+        from backend.assistant import classify
+        d = classify.classify(question, history)
+    except Exception as e:                                   # noqa: BLE001
+        logger.info('[AGENT] model routing unavailable: %s', e)
+        return None
+    if not d.usable:
+        return None
+    logger.info('[AGENT] routed as %s (carries=%s) in %.2fs',
+                d.kind, d.carries, d.seconds)
+    return d
+
+
+def _decided(decision, attr, fallback):
+    """Read one judgment, falling back when the model did not make it."""
+    return getattr(decision, attr) if decision is not None else fallback
 
 
 _HOLDINGS_QUESTION = (
@@ -532,6 +580,24 @@ def _carried_phrase(question, history):
 
     Only fills a GAP: a question carrying its own quoted phrase keeps it.
     """
+    # A QUESTION ABOUT THE SITE INHERITS NOTHING.
+    #
+    # This guarded on _is_about_the_tool alone, which is a bare substring list,
+    # while _is_about_the_site is the real classifier -- it excludes holdings
+    # questions, handles how-to, and falls back to the Help page. For "tell me
+    # about the site's search capabilities" the two disagreed: the list said
+    # False, so the question inherited "arma virumque" from the previous turn
+    # and Tessa ran a corpus search for it instead of describing the site. NC
+    # caught it. Every question the documentation answers was affected, not
+    # just that phrasing.
+    #
+    # The fix is in _ABOUT_THE_TOOL, which now names the site itself. Guarding
+    # here on _is_about_the_site instead was the obvious move and the wrong one:
+    # it ends in a Help-page relevance fallback loose enough to match almost
+    # anything, so it also stopped the genuine follow-ups this function exists
+    # for -- "how about in post-classical authors?" and "are you sure it's not
+    # in Eobanus?" both stopped carrying their subject. Precision matters more
+    # than reach in a guard that silently discards context.
     if not history or _quoted_phrase(question) or _is_about_the_tool(question):
         return None
     ql = (question or '').lower()
@@ -1225,8 +1291,24 @@ def _prepare(question, step, history=None, offered_phrase=None):
 
     ran, all_facts = [], []
 
+    # ONE judgment for the whole request, made once and read at each branch
+    # below. None when model routing is off or the model could not answer, in
+    # which case every branch keeps the heuristic it has always used.
+    decision = _decide(question, history)
+
     # A question about the tool is answered by the guide, which has the facts
     # about connectors and CSV export. Searching the corpus for it is nonsense.
+    #
+    # DELIBERATELY NOT the classifier's 'site' verdict, which was tried here and
+    # cost more than it bought. "How do I compare Hebrew with Greek?" is fairly
+    # called a question about the site, and the classifier calls it one, but the
+    # best answer to it is the COMPUTED hand-off further down: it names the two
+    # languages and links the control, in no time at all, without the model
+    # writing a word. Short-circuiting here skipped the facts that sentence is
+    # built from, so three probe questions went from 0.0s to 11-17s and were
+    # answered by generation instead. The classifier's 'site' verdict is still
+    # used, at the point where the old code asked the same question: after every
+    # fast path has declined and there is nothing computed to say.
     if _is_about_the_tool(question):
         return {'needs_model_only': True}
 
@@ -1258,7 +1340,16 @@ def _prepare(question, step, history=None, offered_phrase=None):
     # corpus access and could only recite tool names. The user had to be told
     # to run the search himself, which is the failure this whole module exists
     # to remove.
-    carried = _carried_phrase(question, history)
+    # The model is asked whether this carries a subject AND what the subject is,
+    # so a follow-up naming an author is no longer mistaken for a fresh
+    # question. That is the pre-existing failure the four red tests in
+    # test_assistant_conversation.py describe: _TEXT_NAME treats "What about
+    # Ovid?" as naming its own subject, and the docstring of _carried_phrase
+    # cites the very case its own rule breaks.
+    if decision is not None:
+        carried = decision.subject if decision.carries else None
+    else:
+        carried = _carried_phrase(question, history)
 
     # SEED THE LOOP IN CODE, not by asking. Whichever languages the question
     # names get listed before the model chooses anything.
@@ -1279,7 +1370,14 @@ def _prepare(question, step, history=None, offered_phrase=None):
     # page says Latin is fully covered, Greek is in progress and English has not
     # been started. The holdings were true and had nothing to do with the
     # question, and having them crowded out the page that did.
-    seed_holdings = not _is_about_the_site(question)
+    # Holdings are seeded unless the question is about the site. With model
+    # routing on, only a question the model calls 'holdings' or 'corpus' gets
+    # them, so a themed or reading question no longer drags in a census it has
+    # no use for.
+    if decision is not None:
+        seed_holdings = decision.kind in ('holdings', 'corpus')
+    else:
+        seed_holdings = not _is_about_the_site(question)
     for code, words in (('he', ('hebrew',)), ('grc', ('greek',)),
                         ('la', ('latin',)), ('cop', ('coptic',)),
                         ('en', ('english',))):
@@ -1431,7 +1529,19 @@ def _prepare(question, step, history=None, offered_phrase=None):
     # Decided from the reader's own words rather than by the chooser, for the
     # same reason the rest of this module computes rather than asks.
     theme_done = False
-    theme = _theme_question(question)
+    # The model decides WHETHER this is a themed question; the extractor still
+    # trims it to the scene itself. Keeping both matters: the extractor returns
+    # "a storm at sea" from "are there any passages about a storm at sea?", and
+    # querying the passage index with the whole sentence would put "are there
+    # any passages about" into the embedding. Where the extractor's own phrase
+    # list does not fire ("find me a warrior arming for battle" returns nothing)
+    # the question stands in, which is still better than not searching at all.
+    if decision is None:
+        theme = _theme_question(question)
+    elif decision.kind == 'theme':
+        theme = _theme_question(question) or question
+    else:
+        theme = ''
     if theme and not _quoted_phrase(question):
         try:
             step(f'looking for passages about {theme}')
@@ -1457,13 +1567,37 @@ def _prepare(question, step, history=None, offered_phrase=None):
         # Hebrew and Coptic are untested and presumed to share the problem, so
         # they take the mode that is known to work.
         mode = 'exact' if lang in ('la', 'en') else 'lemma'
+        # THE RESTRICTION THE READER ASKED FOR. "Can you give the Eobanus
+        # instances?" carries the phrase from the previous turn and narrows it
+        # to one author. Without this the search ran corpus-wide and the answer
+        # came back listing thirty other authors and none of Eobanus's lines.
+        #
+        # Dropped again if it finds nothing, because the scope may be a work
+        # rather than an author, and an empty answer to a real question is
+        # worse than an unfiltered one.
+        scope = _decided(decision, 'scope', None)
+        # A SCOPED SEARCH GOES BY LEMMA, whatever the language would otherwise
+        # take. Restricting to one author has already narrowed the field, and
+        # within one author the reader wants the phrase however it is inflected:
+        # "the Eobanus instances" means his "arma virosque" and "arma viros"
+        # too, and an exact search inside him finds nothing at all, because he
+        # never writes the phrase as Vergil does. The unscoped path keeps exact,
+        # where the distinction between quotation and echo is the whole point.
+        if scope:
+            mode = 'lemma'
+        args = {'query': phrase, 'language': lang, 'search_type': mode}
         try:
-            step(f'searching for "{phrase}"')
-            raw = searches.run('line_search', {'query': phrase, 'language': lang,
-                                               'search_type': mode})
+            step(f'searching for "{phrase}"' + (f' in {scope}' if scope else ''))
+            raw = searches.run('line_search', dict(args, author=scope) if scope
+                               else args)
+            if scope and not (raw or {}).get('results'):
+                logger.info('[AGENT] no hits in %s; searching without it', scope)
+                raw = searches.run('line_search', args)
+                scope = None
             facts = _summarise('line_search', raw)
             facts.update({'search': 'line_search',
-                          'args': {'query': phrase, 'search_type': mode}})
+                          'args': dict({'query': phrase, 'search_type': mode},
+                                       **({'author': scope} if scope else {}))})
             all_facts.append(facts)
             ran.append(f'line_search({mode})')
 
@@ -1598,7 +1732,8 @@ def _prepare(question, step, history=None, offered_phrase=None):
         all_facts.append(facts)
         ran.append(name)
 
-    if not all_facts and _is_about_the_site(question):
+    if not all_facts and (_is_about_the_site(question)
+                          if decision is None else decision.kind == 'site'):
         # A QUESTION ABOUT THE SITE, not about the corpus. Reaching here means
         # every fast path declined it, so it names no phrase, text or theme.
         #

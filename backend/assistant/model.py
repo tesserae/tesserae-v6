@@ -37,7 +37,8 @@ MAX_TOKENS_ANALYZE = 420
 def is_available():
     """True when the local model server answers. Cheap enough to call per request."""
     try:
-        with urllib.request.urlopen(f'{ENDPOINT}/health', timeout=_HEALTH_TIMEOUT) as r:
+        # A fixed http(s) endpoint from configuration, never user input.
+        with urllib.request.urlopen(f'{ENDPOINT}/health', timeout=_HEALTH_TIMEOUT) as r:  # nosec B310
             return json.loads(r.read()).get('status') == 'ok'
     except Exception:
         return False
@@ -55,7 +56,8 @@ def complete(system, user, max_tokens=MAX_TOKENS_GUIDE, temperature=0.2):
     req = urllib.request.Request(f'{ENDPOINT}/v1/chat/completions', data=body,
                                  headers={'Content-Type': 'application/json'})
     try:
-        with urllib.request.urlopen(req, timeout=_GEN_TIMEOUT) as r:
+        # A fixed http(s) endpoint from configuration, never user input.
+        with urllib.request.urlopen(req, timeout=_GEN_TIMEOUT) as r:  # nosec B310
             payload = json.loads(r.read())
         return payload['choices'][0]['message']['content'].strip()
     except (urllib.error.URLError, OSError, KeyError, ValueError) as e:
@@ -83,7 +85,8 @@ def stream(system, user, max_tokens=MAX_TOKENS_GUIDE, temperature=0.2):
     req = urllib.request.Request(f'{ENDPOINT}/v1/chat/completions', data=body,
                                  headers={'Content-Type': 'application/json'})
     try:
-        with urllib.request.urlopen(req, timeout=_GEN_TIMEOUT) as resp:
+        # A fixed http(s) endpoint from configuration, never user input.
+        with urllib.request.urlopen(req, timeout=_GEN_TIMEOUT) as resp:  # nosec B310
             for raw in resp:
                 line = raw.decode('utf-8', 'replace').strip()
                 if not line.startswith('data:'):

@@ -55,7 +55,8 @@ def _get(path, params):
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_NONE
     try:
-        with urllib.request.urlopen(req, timeout=TIMEOUT, context=ctx) as r:
+        # A fixed http(s) endpoint from configuration, never user input.
+        with urllib.request.urlopen(req, timeout=TIMEOUT, context=ctx) as r:  # nosec B310
             return json.loads(r.read())
     except urllib.error.HTTPError as e:
         raise SearchError(f'search returned {e.code}') from e
@@ -92,6 +93,11 @@ TOOLS = {
             # across far more authors than an exact one and a cap of 60 hid most
             # of them: Eobanus has 35 lines carrying the phrase inflected, and
             # only 5 survived the cap.
+            # WHERE to look, when the question named an author. "Can you give
+            # the Eobanus instances?" searched the whole corpus and answered
+            # with 30 other authors, because the restriction the reader asked
+            # for was thrown away between the question and the search.
+            **({'author': a['author']} if a.get('author') else {}),
             'max_results': int(a.get('max_results') or 60)}),
     },
     'rare_words': {

@@ -231,3 +231,50 @@ describe('the arrival banner can always be got rid of', () => {
       expect(screen.queryByText(/Found by Theme Search/)).toBeNull());
   });
 });
+
+describe('Back inside the Reader comes back to the Reader', () => {
+  // NC: "I did one reader search, clicked the link on a related work that came
+  // up in the tab for verbal parallels. When I clicked the back button from
+  // there, it didn't take me back but to the main regular search page."
+  //
+  // The cause was replaceState on every change, so moving between texts left no
+  // history entry at all. jsdom keeps a real history stack, so this is testable.
+
+  it('opening another text adds a history entry', async () => {
+    await mountReader();
+    const before = window.history.length;
+    fireEvent.change(await screen.findByLabelText('Author'),
+                     { target: { value: 'vergil' } });
+    await waitFor(() => expect(asked).toContain('vergil.aeneid.tess'));
+    expect(window.history.length).toBeGreaterThan(before);
+  });
+
+  it('going Back loads the text that was open before', async () => {
+    await mountReader();
+    fireEvent.change(await screen.findByLabelText('Author'),
+                     { target: { value: 'vergil' } });
+    await waitFor(() => expect(asked).toContain('vergil.aeneid.tess'));
+
+    asked.length = 0;
+    window.history.back();
+    // jsdom fires popstate asynchronously.
+    await waitFor(() => expect(asked).toContain('ovid.tristia.part.3.tess'));
+    // and the page must actually show it, not just hold the URL
+    await waitFor(() =>
+      expect(screen.getByLabelText('Author').value).toBe('ovid'));
+  });
+
+  it('adds exactly one entry per text, not one per render', async () => {
+    await mountReader();
+    // Get to the tip of the stack first. An earlier test in this file calls
+    // history.back(), and pushing while not at the tip discards the forward
+    // entry, so the length would not move and the measurement would be of the
+    // stack's shape rather than of this component.
+    window.history.pushState({}, '', window.location.href);
+    const before = window.history.length;
+    fireEvent.change(await screen.findByLabelText('Book'),
+                     { target: { value: 'ovid.tristia.part.4.tess' } });
+    await waitFor(() => expect(asked).toContain('ovid.tristia.part.4.tess'));
+    expect(window.history.length - before).toBe(1);
+  });
+});

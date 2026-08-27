@@ -32,6 +32,15 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
   const [translation, setTranslation] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  // Verbal keeps its own loading flag. A search of the whole corpus takes
+  // around twelve seconds against the scene index's fraction of a second, and
+  // sharing one flag means switching tabs mid-search leaves the other tab
+  // spinning over results it already has.
+  const [verbal, setVerbal] = useState(null);
+  const [verbalLoading, setVerbalLoading] = useState(false);
+  const [verbalError, setVerbalError] = useState(null);
+  // Kept so the panel can hand the same query on to the full Line Search page.
+  const [verbalQuery, setVerbalQuery] = useState('');
 
   useEffect(() => {
     if (!selection || tab !== 'similar') return;
@@ -55,6 +64,66 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [selection, work, tab]);
+
+  /* VERBAL PARALLELS: the selection's own wording, searched across the corpus.
+   *
+   * This tab said "Wiring in progress" for as long as the Reader has existed,
+   * which NC found by opening it. The red gutter beside the text was already
+   * live, but that is a DENSITY measure -- how distinctive each line's
+   * vocabulary is -- and it never had the parallels themselves behind it. The
+   * marks pointed at something the panel could not show.
+   *
+   * /api/line-search is the engine the site's own Line Search runs on, so this
+   * is the same result a reader would get by copying the line into the search
+   * page, minus the copying. It matches on shared lemmata, which is why the
+   * Caesar hit for Aeneid 6.1 comes back on classem/immisit rather than on any
+   * shared surface form.
+   */
+  useEffect(() => {
+    if (!selection || tab !== 'verbal') return;
+    const picked = (units || []).slice(selection.startIdx, selection.endIdx + 1);
+    const query = picked.map((u) => u.text).filter(Boolean).join(' ').trim();
+    if (!query) { setVerbal({ results: [] }); setVerbalQuery(''); return; }
+    setVerbalQuery(query);
+
+    let cancelled = false;
+    setVerbalLoading(true);
+    setVerbalError(null);
+    fetch('/api/line-search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query,
+        language,
+        search_type: 'lemma',
+        max_results: 25,
+        // The backend drops a hit only when text AND locus both match, so this
+        // removes the source line itself without hiding the rest of the work:
+        // a reader looking at Aeneid 6 should still be told when Aeneid 2 uses
+        // the same words.
+        // The whole-work name, since that is how the search index holds it.
+        exclude_text_id: `${baseWork(work)}.tess`,
+        exclude_locus: bareLocus(selection.refStart),
+      }),
+    })
+      .then((r) => r.json())
+      .then((d) => {
+        if (cancelled) return;
+        if (d.error) setVerbalError(d.error);
+        // Belt and braces over the backend's single-locus exclusion: a
+        // multi-line selection sends one locus but has several, and every one
+        // of them would otherwise come back as a parallel to itself.
+        const mine = new Set(picked.map((u) => bareLocus(u.ref)));
+        setVerbal({
+          ...d,
+          results: (d.results || []).filter(
+            (r) => !(sameWork(r.text_id, work) && mine.has(bareLocus(r.locus)))),
+        });
+      })
+      .catch((e) => { if (!cancelled) setVerbalError(e.message); })
+      .finally(() => { if (!cancelled) setVerbalLoading(false); });
+    return () => { cancelled = true; };
+  }, [selection, work, units, language, tab]);
 
   useEffect(() => {
     if (!selection || tab !== 'translation') return;
@@ -237,10 +306,96 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
         )}
 
         {selection && tab === 'verbal' && (
-          <p className="text-sm text-gray-500">
-            Word-level matches for this selection come from the existing search engines.
-            Wiring in progress.
-          </p>
+          <>
+            {verbalLoading && (
+              <>
+                <LoadingSpinner />
+                {/* Said out loud because this one is slow. The scene index
+                    answers in a fraction of a second and this takes about
+                    twelve, so silence for twelve seconds reads as a hang. */}
+                <p className="text-xs text-gray-500 text-center">
+                  Searching the corpus for these words...
+                </p>
+              </>
+            )}
+            {verbalError && <p className="text-sm text-red-700">{verbalError}</p>}
+            {!verbalLoading && verbal?.results?.length === 0 && (
+              <p className="text-sm text-gray-500">
+                No other passage in the corpus shares this selection&rsquo;s distinctive
+                wording. Common words are set aside before searching, so a line built
+                mostly from them often has nothing to report.
+              </p>
+            )}
+            {!verbalLoading && chronological(verbal?.results)?.map((r, i) => (
+              <button
+                key={`${r.text_id}-${r.locus}-${i}`}
+                onClick={() => onOpenPassage?.({ work: r.text_id, language })}
+                className="group w-full text-left bg-white border border-gray-200 rounded-lg p-3
+                           hover:border-red-400 hover:bg-red-50/40 transition-colors
+                           focus:outline-none focus:ring-2 focus:ring-red-400"
+              >
+                <div className="flex items-baseline gap-2 flex-wrap">
+                  <span className="font-bold text-sm text-red-800 group-hover:underline">
+                    {r.author}{r.work ? `, ${r.work}` : ''}
+                  </span>
+                  <span className="text-xs text-gray-500">{r.locus}</span>
+                  {dateParts(r) && (
+                    <span className="text-[11px] text-gray-500 tabular-nums whitespace-nowrap">
+                      {dateParts(r).date}
+                    </span>
+                  )}
+                </div>
+                {/* THE MATCHED WORDS ARE THE POINT. This is a lemma search, so
+                    the shared words are usually in different forms in the two
+                    passages (classique/classem, immittit/immisit) and a reader
+                    scanning the quoted line will not always spot them. */}
+                {!!(r.matched_words || []).length && (
+                  <div className="flex gap-1 flex-wrap mt-1.5">
+                    {r.matched_words.map((w) => (
+                      <span key={w}
+                            className="text-[11px] font-semibold bg-red-100 text-red-800 rounded px-1">
+                        {w}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {/* NO "Open in Reader" line here. NC: "we don't need the link
+                    under each verbal parallel result saying 'view in reader'
+                    when that is what clicking the work name does." The title
+                    carries the link colour and underlines on hover, which is
+                    the affordance; a second one under every card was clutter in
+                    a list where the passage text is the thing to read. */}
+                {r.text && (
+                  <p className="text-xs text-gray-700 mt-1.5 leading-snug">
+                    <Marked text={clip(r.text, r.matched_words)}
+                            words={r.matched_words} />
+                  </p>
+                )}
+              </button>
+            ))}
+            {!verbalLoading && verbal?.results?.length > 0 && (
+              <>
+                {/* THE WAY OUT TO THE REAL TOOLS. The panel runs one line
+                    against the corpus and shows 25; Line Search runs the same
+                    query with the filters, the timeline, era and author facets,
+                    and CSV export. This hands the query over rather than making
+                    the reader retype it. */}
+                <a
+                  href={`/?tab=line&lang=${encodeURIComponent(language)}`
+                        + `&q=${encodeURIComponent(verbalQuery)}&type=lemma`}
+                  className="block w-full text-center text-xs font-semibold text-red-700
+                             border border-red-200 bg-red-50 rounded-lg py-2
+                             hover:bg-red-100 hover:border-red-300"
+                >
+                  See the full result list in Line Search &rarr;
+                </a>
+                <p className="text-[11px] text-gray-400 pt-1 leading-snug">
+                  Matches share dictionary forms, not necessarily spellings. Oldest first.
+                  {verbal.capped && ' The corpus holds more than are shown here.'}
+                </p>
+              </>
+            )}
+          </>
         )}
 
         {selection && tab === 'translation' && (
@@ -280,6 +435,86 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
       </div>
     </aside>
   );
+}
+
+/** "verg. aen. 6.1" -> "6.1". The Reader's refs carry the work's short tag and
+ *  line-search's loci do not, so the numeric tail is the only part of the two
+ *  that can be compared. */
+function bareLocus(ref) {
+  const m = String(ref || '').match(/(\d+(?:[.:]\d+)*)\s*$/);
+  return m ? m[1] : String(ref || '').trim();
+}
+
+/** Mark the matched words inside a quoted passage.
+ *
+ *  NC: "Matching words in reader are not highlighted." The card named them in
+ *  chips above the quotation but left the quotation itself unmarked, so on a
+ *  prose hit the reader had to scan a paragraph hunting for the two words that
+ *  earned it a place in the list. Some of those paragraphs run past three
+ *  thousand characters.
+ *
+ *  Whole-word and case-insensitive. Not stem matching: `matched_words` are the
+ *  forms as they appear in THIS passage, so they are already the right shape.
+ */
+function Marked({ text, words }) {
+  const list = (words || []).filter(Boolean);
+  if (!text) return null;
+  if (!list.length) return <>{text}</>;
+  const alt = [...new Set(list)]
+    .sort((a, b) => b.length - a.length)          // longest first, so a short
+    .map(escapeRe)                                // word cannot eat a longer one
+    .join('|');
+  const parts = String(text).split(new RegExp(`(?<![\\p{L}])(${alt})(?![\\p{L}])`, 'giu'));
+  return (
+    <>
+      {parts.map((p, i) => (
+        list.some((w) => w.toLowerCase() === p.toLowerCase())
+          ? <mark key={i} className="bg-red-100 text-red-900 font-semibold rounded-sm px-[1px]">{p}</mark>
+          : <span key={i}>{p}</span>
+      ))}
+    </>
+  );
+}
+
+function escapeRe(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/** Trim a long passage, but never cut off the words that matched.
+ *
+ *  A flat 260-character cut hid the evidence on exactly the hits that need it:
+ *  in a 3,749-character chapter of William of Tyre the matched words sit far
+ *  past the cut, so the reader saw an unmarked opening and no reason the result
+ *  was there at all. This keeps the window around the first match instead.
+ */
+function clip(text, words, span = 260) {
+  const s = String(text || '');
+  if (s.length <= span) return s;
+  const first = (words || [])
+    .map((w) => s.toLowerCase().indexOf(String(w).toLowerCase()))
+    .filter((i) => i >= 0)
+    .sort((a, b) => a - b)[0];
+  if (first == null || first < span - 40) return `${s.slice(0, span)}…`;
+  const start = Math.max(0, first - 60);
+  return `…${s.slice(start, start + span)}…`;
+}
+
+/** The same underlying text, ignoring the suffix and any book split.
+ *
+ *  The Reader opens a book at a time -- "vergil.aeneid.part.6.tess" -- while
+ *  the search index holds the whole poem as "vergil.aeneid.tess" and gives its
+ *  loci as "6.1". Compared as plain strings the two never match, so Aeneid 6.1
+ *  came back as a verbal parallel to itself, matching on fatur, classique and
+ *  immittit. Dropping ".part.N" from both sides is what makes them the same
+ *  work. The locus still has to match as well, so this does not hide Aeneid 2
+ *  from a reader of Aeneid 6: only the selected lines themselves.
+ */
+function baseWork(s) {
+  return String(s || '').replace(/\.tess$/, '').replace(/\.part\.[^.]+$/, '').toLowerCase();
+}
+
+function sameWork(a, b) {
+  return baseWork(a) === baseWork(b) && baseWork(a) !== '';
 }
 
 /** Trailing book.line of a reference tag, which is what a reader recognises. */

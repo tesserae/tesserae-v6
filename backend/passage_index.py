@@ -84,6 +84,22 @@ STRONG_COMBINED = 1.7613
 # evaluation/scripts/calibrate_confidence.py and update both numbers together.
 FITTED_AT_WINDOWS = 603594
 FITTED_TOLERANCE = 0.15     # beyond 15% drift, stop vouching for the band
+# THE COUNT IS NOT THE ONLY THING THAT INVALIDATES THE FIT, and the guard below
+# only watches the count. It was written for "the corpus grew", which is what
+# had happened at the time, and it does not notice "the corpus was re-described".
+#
+# The Persian/Urdu re-describe rewrites the descriptions of 220,361 windows,
+# a third of the index, and re-embeds them. Every score in Theme Search is
+# measured against the median of the whole index, so that median moves and the
+# two constants above no longer sit where they were fitted -- while the window
+# count does not change by one, so _calibration_drift() reports nothing wrong
+# and the bands keep being published as though they were still earned.
+#
+# So: REFIT AFTER THE MERGE, with evaluation/scripts/calibrate_confidence.py
+# against evaluation/probe_sets/tesserae_2026-08.json, and update both
+# constants together. Recorded here rather than only in a report because this
+# is the line someone will read when they wonder whether the numbers still hold.
+
 # A floor purely to stop the tail: results below the query's baseline are noise.
 BASELINE_MARGIN = 0.010
 
@@ -114,6 +130,25 @@ def _ref_numbers(ref):
     'verg. aen. 6.268' -> (6, 268); 'hebrew_bible.genesis.41.47' -> (41, 47)."""
     nums = re.findall(r'\d+', str(ref or ''))
     return tuple(int(n) for n in nums[-2:]) if nums else ()
+
+
+def _ref_coords(ref):
+    """EVERY numeric coordinate, for comparing two spans of the same work.
+
+    _ref_numbers keeps only the last two, which is right for its own callers and
+    wrong for overlap tests. Ammianus is referenced book.chapter.section, so
+    'amm. 21.13.14' becomes (13, 14) and 'amm. 17.13.30' becomes (13, 30): the
+    book is discarded and two passages four books apart compare as overlapping.
+    The dedup then drops one of them, silently, from a live Theme Search page.
+
+    Caught by the automated review on PR #269, which flagged the tuple
+    comparison as suspicious without knowing it already had a victim. Verified
+    against real Ammianus references before the fix and after.
+
+    Differing lengths are safe here because this only ever compares references
+    within ONE work, where the citation depth is consistent.
+    """
+    return tuple(int(n) for n in re.findall(r'\d+', str(ref or '')))
 
 
 def is_available():
@@ -246,7 +281,8 @@ def embed_query(text):
     req = urllib.request.Request(f'{EMBED_ENDPOINT}/embed', data=payload,
                                  headers={'Content-Type': 'application/json'})
     try:
-        with urllib.request.urlopen(req, timeout=EMBED_TIMEOUT) as r:
+        # A fixed http(s) endpoint from configuration, never user input.
+        with urllib.request.urlopen(req, timeout=EMBED_TIMEOUT) as r:  # nosec B310
             body = _json.loads(r.read())
     except (urllib.error.URLError, OSError, ValueError) as e:
         raise EmbedUnavailable(
@@ -263,7 +299,8 @@ def encoder_available():
     import urllib.error
     import urllib.request
     try:
-        with urllib.request.urlopen(f'{EMBED_ENDPOINT}/health', timeout=3) as r:
+        # A fixed http(s) endpoint from configuration, never user input.
+        with urllib.request.urlopen(f'{EMBED_ENDPOINT}/health', timeout=3) as r:  # nosec B310
             return r.status == 200
     except (urllib.error.URLError, OSError):
         return False
@@ -485,7 +522,7 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
     if strong_at is None:
         strong_at = baseline + STRONG_LIFT
     order = np.argsort(-scores)
-    seen = set()
+    seen = {}          # work -> [(start, end)] already taken, for overlap dedup
     per_work_count = {}
     by_passage = {}       # canonical scripture span -> index into out
     out = []
@@ -506,10 +543,25 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
         if scale and r.get('scale') != scale:
             continue
         if dedup:
-            key = (work, _ref_numbers(r.get('ref_start')))
-            if key in seen:
+            # OVERLAP, not an identical start. Keying on ref_start alone let
+            # near-duplicates through, because two windows over the same lines
+            # rarely begin on the same one: Caesar came back as both
+            # 2.31.6-2.35.4 and 2.32.10-2.34.4, one wholly inside the other, and
+            # Homer as both the whole Iliad and .part.17 for adjacent spans.
+            # Claude desktop, testing the connector, counted these eating
+            # ranking slots. Measured on one query, 9 of 75 results were the same
+            # underlying text arriving twice.
+            #
+            # Iteration is in descending score, so the first window over a
+            # stretch of text is the best one and later overlaps are dropped.
+            lo = _ref_coords(r.get('ref_start'))
+            hi = _ref_coords(r.get('ref_end')) or lo
+            if lo > hi:
+                lo, hi = hi, lo
+            spans = seen.setdefault(work, [])
+            if any(lo <= b and a <= hi for a, b in spans):
                 continue
-            seen.add(key)
+            spans.append((lo, hi))
 
         sp = scripture_id.span(work, r.get('ref_start'), r.get('ref_end'))
         if sp is not None:
@@ -791,7 +843,8 @@ def expand_query(query):
                                  headers={'Content-Type': 'application/json'})
     forms = []
     try:
-        with urllib.request.urlopen(req, timeout=EXPAND_TIMEOUT) as r:
+        # A fixed http(s) endpoint from configuration, never user input.
+        with urllib.request.urlopen(req, timeout=EXPAND_TIMEOUT) as r:  # nosec B310
             out = _json.loads(r.read())
         txt = out['choices'][0]['message']['content'] or ''
         m = _re.search(r'\{.*\}', txt, _re.S)
