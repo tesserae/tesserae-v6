@@ -1298,8 +1298,18 @@ def _prepare(question, step, history=None, offered_phrase=None):
 
     # A question about the tool is answered by the guide, which has the facts
     # about connectors and CSV export. Searching the corpus for it is nonsense.
-    if _decided(decision, 'kind', None) == 'site' or (
-            decision is None and _is_about_the_tool(question)):
+    #
+    # DELIBERATELY NOT the classifier's 'site' verdict, which was tried here and
+    # cost more than it bought. "How do I compare Hebrew with Greek?" is fairly
+    # called a question about the site, and the classifier calls it one, but the
+    # best answer to it is the COMPUTED hand-off further down: it names the two
+    # languages and links the control, in no time at all, without the model
+    # writing a word. Short-circuiting here skipped the facts that sentence is
+    # built from, so three probe questions went from 0.0s to 11-17s and were
+    # answered by generation instead. The classifier's 'site' verdict is still
+    # used, at the point where the old code asked the same question: after every
+    # fast path has declined and there is nothing computed to say.
+    if _is_about_the_tool(question):
         return {'needs_model_only': True}
 
     # "YES" MEANS THE THING THAT WAS OFFERED.
