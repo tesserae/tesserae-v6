@@ -28,6 +28,7 @@ from backend import passage_index
 from backend import lexical_density
 from backend import translations
 from backend import window_texts
+from backend import theme_pdf
 from backend.inverted_index import get_corpus_version
 
 logger = get_logger('blueprints.passages')
@@ -226,7 +227,7 @@ def export_theme_search():
     fmt = (request.args.get('format') or 'json').strip().lower()
     if not q:
         return jsonify({'error': 'q is required', 'results': []})
-    if fmt not in ('json', 'csv'):
+    if fmt not in ('json', 'csv', 'pdf'):
         return jsonify({'error': f'unknown format {fmt}', 'results': []})
     try:
         out = passage_index.find_by_text(
@@ -247,6 +248,28 @@ def export_theme_search():
     if missing:
         logger.warning('[PASSAGES] export: %d of %d passages had no source text',
                        missing, len(rows))
+
+    if fmt == 'pdf':
+        # A real file, not a printable page. The browser still renders the
+        # scripts better than any PDF library will, so the printable route
+        # stays; this is for a reader who wants something to keep or send.
+        if not theme_pdf.available():
+            return jsonify({'error': 'PDF export is unavailable on this server '
+                                     '(reportlab or the fonts are missing)',
+                            'results': []})
+        try:
+            body = theme_pdf.build({'query': q, 'count': len(rows),
+                                    'missing_text': missing,
+                                    'confidence': out.get('confidence'),
+                                    'results': rows})
+        except Exception as e:                                   # noqa: BLE001
+            logger.exception('[PASSAGES] pdf export failed')
+            return jsonify({'error': f'could not build the PDF: {e}',
+                            'results': []})
+        stamp = ''.join(ch if ch.isalnum() else '_' for ch in q)[:40].strip('_')
+        return Response(body, content_type='application/pdf', headers={
+            'Content-Disposition':
+                f'attachment; filename="tesserae_theme_{stamp or "search"}.pdf"'})
 
     if fmt == 'csv':
         buf = io.StringIO()

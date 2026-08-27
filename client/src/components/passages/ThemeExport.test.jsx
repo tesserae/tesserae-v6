@@ -56,10 +56,19 @@ describe('the export offers itself only when there is something to export', () =
     expect(container.textContent).toBe('');
   });
 
-  it('offers both a printable document and a manipulable file', () => {
+  it('offers a PDF, a printable page and a manipulable file', () => {
     render(<ThemeExport query="arming" language="" count={3} />);
-    expect(screen.getByText('Printable / PDF')).toBeTruthy();
+    expect(screen.getByText('Download PDF')).toBeTruthy();
+    expect(screen.getByText('Printable page')).toBeTruthy();
     expect(screen.getByText('Download CSV')).toBeTruthy();
+  });
+
+  it('the PDF link asks the server for a PDF', () => {
+    render(<ThemeExport query="warrior arming" language="grc" count={3} />);
+    const href = screen.getByText('Download PDF').getAttribute('href');
+    expect(href).toContain('format=pdf');
+    expect(decodeURIComponent(href)).toContain('warrior arming');
+    expect(href).toContain('languages=grc');
   });
 });
 
@@ -77,7 +86,7 @@ describe('the CSV link carries the search', () => {
 describe('the printable document', () => {
   it('contains the source passages, not only the summaries', async () => {
     render(<ThemeExport query="warrior arming" language="" count={2} />);
-    fireEvent.click(screen.getByText('Printable / PDF'));
+    fireEvent.click(screen.getByText('Printable page'));
     await waitFor(() => expect(written).toContain('κνημῖδας'));
     // The Persian passage matters most: it is the case that has no other
     // served route to its own text.
@@ -86,7 +95,7 @@ describe('the printable document', () => {
 
   it('labels each passage with author, work, locus and date', async () => {
     render(<ThemeExport query="x" language="" count={2} />);
-    fireEvent.click(screen.getByText('Printable / PDF'));
+    fireEvent.click(screen.getByText('Printable page'));
     await waitFor(() => expect(written).toContain('Homer'));
     expect(written).toContain('Iliad');
     expect(written).toContain('11.15-11.46');
@@ -95,7 +104,7 @@ describe('the printable document', () => {
 
   it('sets direction on right-to-left passages only', async () => {
     render(<ThemeExport query="x" language="" count={2} />);
-    fireEvent.click(screen.getByText('Printable / PDF'));
+    fireEvent.click(screen.getByText('Printable page'));
     await waitFor(() => expect(written).toContain('نه برگیرد'));
     // Persian is RTL and Greek is not; a page that marks both, or neither,
     // renders one of them wrongly.
@@ -107,13 +116,13 @@ describe('the printable document', () => {
 
   it('marks a weak match as weak', async () => {
     render(<ThemeExport query="x" language="" count={2} />);
-    fireEvent.click(screen.getByText('Printable / PDF'));
+    fireEvent.click(screen.getByText('Printable page'));
     await waitFor(() => expect(written).toContain('weak match'));
   });
 
   it('says the summaries are machine-written', async () => {
     render(<ThemeExport query="x" language="" count={2} />);
-    fireEvent.click(screen.getByText('Printable / PDF'));
+    fireEvent.click(screen.getByText('Printable page'));
     await waitFor(() => expect(written).toContain('machine-written'));
   });
 
@@ -123,7 +132,7 @@ describe('the printable document', () => {
       results: [{ ...PAYLOAD.results[0], text: '<script>alert(1)</script>' }],
     }) }));
     render(<ThemeExport query="x" language="" count={1} />);
-    fireEvent.click(screen.getByText('Printable / PDF'));
+    fireEvent.click(screen.getByText('Printable page'));
     await waitFor(() => expect(written).toContain('&lt;script&gt;'));
     expect(written).not.toContain('<script>alert(1)</script>');
   });
@@ -131,7 +140,7 @@ describe('the printable document', () => {
   it('says so plainly when the pop-up is blocked', async () => {
     opened = false;
     render(<ThemeExport query="x" language="" count={2} />);
-    fireEvent.click(screen.getByText('Printable / PDF'));
+    fireEvent.click(screen.getByText('Printable page'));
     expect(await screen.findByText(/blocked the new window/)).toBeTruthy();
   });
 });

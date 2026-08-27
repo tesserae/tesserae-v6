@@ -14,3 +14,14 @@ stanza
 sentence-transformers>=2.6.0
 pycountry==24.6.1
 matplotlib>=3.3
+
+# PDF export of Theme Search results (backend/theme_pdf.py).
+# reportlab draws the document; the other two are what make it CORRECT for the
+# non-Latin scripts. arabic-reshaper converts Persian and Urdu to their cursive
+# contextual forms, and python-bidi reorders right-to-left runs. Without them a
+# PDF still builds and still looks like a document, with the Arabic-script text
+# as disconnected letters in the wrong order -- a failure invisible to a reader
+# who does not know the script.
+reportlab==4.5.1
+arabic-reshaper==3.0.0
+python-bidi==0.6.11
