@@ -219,7 +219,7 @@ export default function AssistantDock() {
     return (
       <button
         onClick={() => setOpen(true)}
-        aria-label="Open Tessa, the AI assistant, and ask about the corpus"
+        aria-label="Open Tessa, the AI assistant"
         title="Tessa, the AI assistant"
         className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex items-center justify-center sm:justify-start w-14 h-14 sm:w-auto sm:h-auto sm:gap-3 sm:pl-3 sm:pr-5 sm:py-3 rounded-full sm:rounded-2xl bg-red-700 text-white shadow-xl ring-1 ring-red-900/20 transition hover:bg-red-800 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-red-400"
       >
@@ -229,7 +229,7 @@ export default function AssistantDock() {
         <span className="hidden sm:block text-left leading-tight">
           <span className="block text-base font-semibold">Tessa</span>
           <span className="block text-[11px] font-medium text-red-100">
-            AI Assistant &middot; ask the corpus
+            AI Assistant
           </span>
         </span>
       </button>

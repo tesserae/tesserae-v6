@@ -174,18 +174,32 @@ export default function ReaderPage() {
                 deep inside a text with no memory of the question is
                 disorienting, and the summary they clicked was an interpretation
                 that they should be able to weigh against the passage. */}
+            {/* DISMISSIBLE, and it does not depend on the URL staying clean.
+                Stripping the arrival parameters is right and is tested, but the
+                banner outliving its arrival is the thing NC actually sees, and
+                it should not take a correct URL to be rid of it. It goes on the
+                first click of the ×, and the reader is never stuck with it. */}
             {cameFrom && (
-              <p className="px-3 py-2 text-xs text-gray-700 border-b border-gray-200 bg-red-50">
-                Found by Theme Search for{' '}
-                <span className="font-medium">&ldquo;{cameFrom}&rdquo;</span>
-                {selection?.lineCount > 1 && (
-                  <span className="text-gray-500">
-                    {' '}&middot; the matching passage is selected below
-                  </span>
-                )}
-                <a href="/theme-search" className="ml-2 text-red-700 hover:underline">
-                  back to results
-                </a>
+              <p className="px-3 py-2 text-xs text-gray-700 border-b border-gray-200 bg-red-50 flex items-center gap-2">
+                <span className="min-w-0">
+                  Found by Theme Search for{' '}
+                  <span className="font-medium">&ldquo;{cameFrom}&rdquo;</span>
+                  {selection?.lineCount > 1 && (
+                    <span className="text-gray-500">
+                      {' '}&middot; the matching passage is selected below
+                    </span>
+                  )}
+                  <a href="/theme-search" className="ml-2 text-red-700 hover:underline">
+                    back to results
+                  </a>
+                </span>
+                <button
+                  onClick={() => setCameFrom('')}
+                  aria-label="Dismiss"
+                  className="ml-auto shrink-0 text-gray-400 hover:text-gray-700 text-base leading-none px-1"
+                >
+                  ×
+                </button>
               </p>
             )}
             {/* The key names the marks the same way the panel names its tabs.
@@ -227,6 +241,9 @@ export default function ReaderPage() {
                   setSelection(sel);
                   if (sel) setScope(scopeFor(sel));
                   setPopupOpen(!!sel);
+                  // The reader has chosen their own passage, so the note about
+                  // how they arrived at someone else's is spent.
+                  if (sel) setCameFrom('');
                 }}
               />
               {popupOpen && selection && (

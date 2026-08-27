@@ -5,7 +5,7 @@
  * tests, so if anything is frozen it is here, where the choice becomes a fetch.
  */
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 const AUTHORS = [
   { name: 'Ovid', works: [
@@ -194,5 +194,40 @@ describe('the side panel keeps its tabs', () => {
     window.history.replaceState({}, '', '/read?work=ovid.amores.tess&lang=la');
     await mountReader();
     expect(await screen.findByText(/Select a passage in the text/)).toBeTruthy();
+  });
+});
+
+describe('a reload after arriving from Theme Search', () => {
+  it('does not show the banner again', async () => {
+    // Arrive.
+    window.history.replaceState({}, '',
+      '/read?work=ovid.tristia.part.3.tess&lang=la'
+      + '&ref=' + encodeURIComponent('ov. tr. 3.1')
+      + '&q=' + encodeURIComponent('arma virumque'));
+    await mountReader();
+    await screen.findByText(/Found by Theme Search/);
+
+    // Whatever the address bar now holds is what a reload would load.
+    const afterArrival = window.location.pathname + window.location.search;
+    expect(afterArrival).not.toContain('q=');
+
+    cleanup();
+    window.history.replaceState({}, '', afterArrival);
+    await mountReader();
+    expect(screen.queryByText(/Found by Theme Search/)).toBeNull();
+  });
+});
+
+describe('the arrival banner can always be got rid of', () => {
+  const FROM = '/read?work=ovid.tristia.part.3.tess&lang=la&q='
+    + encodeURIComponent('arma virumque');
+
+  it('has a dismiss control', async () => {
+    window.history.replaceState({}, '', FROM);
+    await mountReader();
+    await screen.findByText(/Found by Theme Search/);
+    fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
+    await waitFor(() =>
+      expect(screen.queryByText(/Found by Theme Search/)).toBeNull());
   });
 });
