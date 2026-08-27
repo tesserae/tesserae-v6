@@ -98,7 +98,8 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
         // removes the source line itself without hiding the rest of the work:
         // a reader looking at Aeneid 6 should still be told when Aeneid 2 uses
         // the same words.
-        exclude_text_id: work,
+        // The whole-work name, since that is how the search index holds it.
+        exclude_text_id: `${baseWork(work)}.tess`,
         exclude_locus: bareLocus(selection.refStart),
       }),
     })
@@ -422,10 +423,22 @@ function bareLocus(ref) {
   return m ? m[1] : String(ref || '').trim();
 }
 
-/** Same text, whether or not either side carries the .tess suffix. */
+/** The same underlying text, ignoring the suffix and any book split.
+ *
+ *  The Reader opens a book at a time -- "vergil.aeneid.part.6.tess" -- while
+ *  the search index holds the whole poem as "vergil.aeneid.tess" and gives its
+ *  loci as "6.1". Compared as plain strings the two never match, so Aeneid 6.1
+ *  came back as a verbal parallel to itself, matching on fatur, classique and
+ *  immittit. Dropping ".part.N" from both sides is what makes them the same
+ *  work. The locus still has to match as well, so this does not hide Aeneid 2
+ *  from a reader of Aeneid 6: only the selected lines themselves.
+ */
+function baseWork(s) {
+  return String(s || '').replace(/\.tess$/, '').replace(/\.part\.[^.]+$/, '').toLowerCase();
+}
+
 function sameWork(a, b) {
-  const norm = (s) => String(s || '').replace(/\.tess$/, '').toLowerCase();
-  return norm(a) === norm(b) && norm(a) !== '';
+  return baseWork(a) === baseWork(b) && baseWork(a) !== '';
 }
 
 /** Trailing book.line of a reference tag, which is what a reader recognises. */

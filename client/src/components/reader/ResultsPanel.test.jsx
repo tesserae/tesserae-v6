@@ -25,9 +25,12 @@ const HITS = {
       locus: '3.101.2', year: -44, matched_words: ['classem', 'immisit'],
       text: 'in Pomponianam classem immisit atque omnes naves incendit',
     },
+    // The source line coming back as its own parallel. Note the text_id: the
+    // Reader has "vergil.aeneid.part.6.tess" open, but the search index holds
+    // the whole poem, so this is the shape the live endpoint really returns.
     {
-      author: 'Vergil', work: 'Aeneid', text_id: 'vergil.aeneid.part.6.tess',
-      locus: '6.1', year: -19, matched_words: ['classis', 'immitto'],
+      author: 'Vergil', work: 'Aeneid', text_id: 'vergil.aeneid.tess',
+      locus: '6.1', year: -19, matched_words: ['fatur', 'classique', 'immittit'],
       text: 'Sic fatur lacrimans, classique immittit habenas,',
     },
   ],
@@ -95,23 +98,32 @@ describe('the tab searches the corpus for the selection', () => {
 });
 
 describe('a line is not a parallel to itself', () => {
-  it('drops the source line from its own results', async () => {
+  it('drops the source line even though the index names the whole poem', async () => {
     mount();
     await screen.findByText(/Caesar/);
-    // Vergil 6.1 is the selection. The backend excludes one locus; this covers
-    // the case it cannot, a selection spanning several lines.
+    // This is the case that actually shipped broken. The Reader has book 6
+    // open as vergil.aeneid.part.6.tess, the index returns the hit against
+    // vergil.aeneid.tess, and compared as plain strings the two never matched,
+    // so Aeneid 6.1 was listed as a verbal parallel to itself.
     expect(screen.queryByText(/Vergil, Aeneid/)).toBeNull();
   });
 
-  it('keeps other parts of the same work', async () => {
+  it('asks the backend to exclude the work under the name the index uses', async () => {
+    mount();
+    await waitFor(() => expect(sent).toBeTruthy());
+    expect(sent.body.exclude_text_id).toBe('vergil.aeneid.tess');
+    expect(sent.body.exclude_locus).toBe('6.1');
+  });
+
+  it('keeps other lines of the same work', async () => {
     global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve({
       results: [{ author: 'Vergil', work: 'Aeneid',
-                  text_id: 'vergil.aeneid.part.6.tess', locus: '6.900',
-                  year: -19, matched_words: ['habena'], text: 'elsewhere in book 6' }],
+                  text_id: 'vergil.aeneid.tess', locus: '2.100',
+                  year: -19, matched_words: ['habena'], text: 'elsewhere in the poem' }],
     }) }));
     mount();
-    // Reading Aeneid 6.1, a reader should still be told when 6.900 uses the
-    // same words. Excluding the whole work would have hidden it.
+    // Reading Aeneid 6.1, a reader should still be told when Aeneid 2 uses the
+    // same words. Matching on the work alone would have hidden it.
     expect(await screen.findByText(/Vergil, Aeneid/)).toBeTruthy();
   });
 });
