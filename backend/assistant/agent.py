@@ -1557,13 +1557,37 @@ def _prepare(question, step, history=None, offered_phrase=None):
         # Hebrew and Coptic are untested and presumed to share the problem, so
         # they take the mode that is known to work.
         mode = 'exact' if lang in ('la', 'en') else 'lemma'
+        # THE RESTRICTION THE READER ASKED FOR. "Can you give the Eobanus
+        # instances?" carries the phrase from the previous turn and narrows it
+        # to one author. Without this the search ran corpus-wide and the answer
+        # came back listing thirty other authors and none of Eobanus's lines.
+        #
+        # Dropped again if it finds nothing, because the scope may be a work
+        # rather than an author, and an empty answer to a real question is
+        # worse than an unfiltered one.
+        scope = _decided(decision, 'scope', None)
+        # A SCOPED SEARCH GOES BY LEMMA, whatever the language would otherwise
+        # take. Restricting to one author has already narrowed the field, and
+        # within one author the reader wants the phrase however it is inflected:
+        # "the Eobanus instances" means his "arma virosque" and "arma viros"
+        # too, and an exact search inside him finds nothing at all, because he
+        # never writes the phrase as Vergil does. The unscoped path keeps exact,
+        # where the distinction between quotation and echo is the whole point.
+        if scope:
+            mode = 'lemma'
+        args = {'query': phrase, 'language': lang, 'search_type': mode}
         try:
-            step(f'searching for "{phrase}"')
-            raw = searches.run('line_search', {'query': phrase, 'language': lang,
-                                               'search_type': mode})
+            step(f'searching for "{phrase}"' + (f' in {scope}' if scope else ''))
+            raw = searches.run('line_search', dict(args, author=scope) if scope
+                               else args)
+            if scope and not (raw or {}).get('results'):
+                logger.info('[AGENT] no hits in %s; searching without it', scope)
+                raw = searches.run('line_search', args)
+                scope = None
             facts = _summarise('line_search', raw)
             facts.update({'search': 'line_search',
-                          'args': {'query': phrase, 'search_type': mode}})
+                          'args': dict({'query': phrase, 'search_type': mode},
+                                       **({'author': scope} if scope else {}))})
             all_facts.append(facts)
             ran.append(f'line_search({mode})')
 

@@ -98,47 +98,61 @@ Reply with JSON only. No prose, no explanation.
             that author, and searching for the author's name finds only lines
             that mention him.
 
+  scope     the author or work the question restricts the search to, if it
+            names one, copied as written ("Eobanus", "Ovid", "the Aeneid").
+            null if it names none. This is WHERE to look, never WHAT to look
+            for.
+
 Judge what the reader MEANT. A question naming a feature of the site is about
 the site even though it contains words that also appear in the texts."""
 
 EXAMPLES = [
     ("tell me about the site's search capabilities", None,
-     {'kind': 'site', 'carries_subject': False, 'subject': None}),
+     {'kind': 'site', 'carries_subject': False, 'subject': None, 'scope': None}),
     ('what is fusion search?', None,
-     {'kind': 'site', 'carries_subject': False, 'subject': None}),
+     {'kind': 'site', 'carries_subject': False, 'subject': None, 'scope': None}),
     ('where does furor appear?', None,
-     {'kind': 'corpus', 'carries_subject': False, 'subject': None}),
+     {'kind': 'corpus', 'carries_subject': False, 'subject': None, 'scope': None}),
     ('what about Ovid?', 'I found "arma virumque" at Vergil, Aeneid 1.1.',
-     {'kind': 'corpus', 'carries_subject': True, 'subject': 'arma virumque'}),
+     {'kind': 'corpus', 'carries_subject': True, 'subject': 'arma virumque',
+      'scope': 'Ovid'}),
     ('are there any passages about a storm at sea?', None,
-     {'kind': 'theme', 'carries_subject': False, 'subject': None}),
+     {'kind': 'theme', 'carries_subject': False, 'subject': None, 'scope': None}),
     ('what texts do you have by Ovid?', None,
-     {'kind': 'holdings', 'carries_subject': False, 'subject': None}),
+     {'kind': 'holdings', 'carries_subject': False, 'subject': None, 'scope': None}),
     ('let me read Aeneid 6', None,
-     {'kind': 'read', 'carries_subject': False, 'subject': None}),
+     {'kind': 'read', 'carries_subject': False, 'subject': None, 'scope': 'Aeneid 6'}),
     # The two the first version got wrong, kept as examples so a later prompt
     # change cannot quietly lose them again.
     ('show me the actual lines', 'I found 12 occurrences of "arma virumque".',
-     {'kind': 'corpus', 'carries_subject': True, 'subject': 'arma virumque'}),
+     {'kind': 'corpus', 'carries_subject': True, 'subject': 'arma virumque',
+      'scope': None}),
     ('compare Statius Thebaid 12 with Vergil Aeneid 1',
      'I found "arma virumque" at Vergil, Aeneid 1.1.',
-     {'kind': 'corpus', 'carries_subject': False, 'subject': None}),
+     {'kind': 'corpus', 'carries_subject': False, 'subject': None, 'scope': None}),
     # The author here is the SCOPE, not the subject. Taking "Eobanus" as the
     # subject searched for lines mentioning his name instead of the phrase in
     # his work, and the answer then had nothing genuine to quote.
     ('Can you give the Eobanus instances?',
      'The phrase "arma virumque" appears at Vergil, Aeneid 1.1 and in later poets.',
-     {'kind': 'corpus', 'carries_subject': True, 'subject': 'arma virumque'}),
+     {'kind': 'corpus', 'carries_subject': True, 'subject': 'arma virumque',
+      'scope': 'Eobanus'}),
 ]
 
 
 class Decision:
-    __slots__ = ('kind', 'carries', 'subject', 'source', 'seconds')
+    __slots__ = ('kind', 'carries', 'subject', 'scope', 'source', 'seconds')
 
-    def __init__(self, kind, carries, subject, source, seconds=0.0):
+    def __init__(self, kind, carries, subject, source, seconds=0.0, scope=None):
         self.kind = kind
         self.carries = bool(carries)
         self.subject = subject or None
+        # WHERE to look, as opposed to what for. Added after the subject fix
+        # moved the failure rather than closing it: the classifier correctly
+        # carried "arma virumque" out of "Can you give the Eobanus instances?"
+        # and then nothing carried "Eobanus", so the answer listed every author
+        # in the corpus and none of the reader's.
+        self.scope = scope or None
         self.source = source            # 'model' | 'unsure'
         self.seconds = seconds
 
@@ -206,7 +220,9 @@ def _parse(raw):
         carries, subject = False, None
     if carries and not subject:
         carries = False
-    return kind, carries, subject
+    scope = d.get('scope')
+    scope = str(scope).strip() if scope else None
+    return kind, carries, subject, scope
 
 
 def classify(question, history=None):
@@ -238,8 +254,8 @@ def classify(question, history=None):
         logger.info('[CLASSIFY] unparseable: %r', (raw or '')[:120])
         return Decision(UNSURE, False, None, 'unsure', took)
 
-    kind, carries, subject = parsed
-    out = Decision(kind, carries, subject, 'model', took)
+    kind, carries, subject, scope = parsed
+    out = Decision(kind, carries, subject, 'model', took, scope=scope)
     with _lock:
         if len(_CACHE) >= _CACHE_MAX:
             _CACHE.clear()

@@ -92,6 +92,11 @@ TOOLS = {
             # across far more authors than an exact one and a cap of 60 hid most
             # of them: Eobanus has 35 lines carrying the phrase inflected, and
             # only 5 survived the cap.
+            # WHERE to look, when the question named an author. "Can you give
+            # the Eobanus instances?" searched the whole corpus and answered
+            # with 30 other authors, because the restriction the reader asked
+            # for was thrown away between the question and the search.
+            **({'author': a['author']} if a.get('author') else {}),
             'max_results': int(a.get('max_results') or 60)}),
     },
     'rare_words': {
