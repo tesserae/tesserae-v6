@@ -1,12 +1,12 @@
 # Aligned English translations
 
-How the English in the Reader's Translation tab is built. Two pipelines feed the
-same place, `data/translations/`, which `backend/translations.py` reads.
+How the English in the Reader's Translation tab is built. Three pipelines feed
+the same place, `data/translations/`, which `backend/translations.py` reads.
 
-As of 2026-08-27 these two produce **291,298 aligned lines across 489 works**:
-255,357 from Perseus and 35,941 from the Greek Bible. The served directory holds
-673 works and 371,637 lines in all, the rest being the Coptic and Hebrew
-scripture pairings built separately.
+As of 2026-08-27 they produce **293,597 aligned references across 499 works**:
+255,357 from Perseus, 35,941 from the Greek Bible, and 2,299 five-line blocks
+covering Seneca's ten tragedies. The served directory holds 683 works in all,
+the rest being the Coptic and Hebrew scripture pairings built separately.
 
 ---
 
@@ -115,6 +115,34 @@ Theodotion's, which is what Brenton prints; and Lamentations is held back becaus
 the acrostic letter name, a bare `Ἄλεφ.`, with the verse body missing. The
 English is correct and can go in as soon as the source text is fixed.
 
+## Pipeline 3: Seneca's tragedies
+
+    align_seneca_tragedies.py
+
+The largest canonical Latin gap with no English at all: 12,033 lines across ten
+plays, none of them translated in Perseus, and the corner of the corpus that
+Flavian and Elizabethan intertextual work runs straight through. Source is Frank
+Justus Miller's translation, Project Gutenberg 57999 (Chicago, 1907), public
+domain by publication and clear in the EU too since Miller died in 1938.
+
+**The alignment is exact rather than approximate**, because the two sides were
+built for each other without either knowing it. Our .tess files do not number
+Seneca line by line; they number in FIVE-LINE BLOCKS, `<sen. oed. 200-4>`. Miller
+prints the Latin line number in the margin every five lines. His marker 200 opens
+exactly the English that renders our block 200-4.
+
+That his markers are Latin line numbers and not a count of English verses is
+checked, not assumed: for every one of the ten plays the highest marker is
+exactly four less than our highest block start (1060 against 1064 in *Oedipus*,
+1995 against 1999 in *Hercules Oetaeus*). A count of English verses would run
+half again as long.
+
+Coverage is 98-99.5% on every play, with proper-name agreement 0.48 to 0.74.
+Length correlation is weak here and correctly ignored: every block is five lines,
+so block lengths barely vary and the correlation has nothing to measure. That is
+the mirror image of the wisdom books in pipeline 2, where names were the useless
+test and length was the good one.
+
 ---
 
 ## Paths
@@ -129,6 +157,8 @@ overridable so nobody edits a checked-in file to run it elsewhere:
 | `TESSERAE_TRANS_OUT` | `~/perseus_trans/translations_v3` |
 | `TESSERAE_BIBLE_SRC` | `~/perseus_trans/bible_src` |
 | `TESSERAE_BIBLE_OUT` | `~/perseus_trans/translations_bible` |
+| `TESSERAE_SENECA_SRC` | `~/perseus_trans/seneca_src/pg57999.txt` |
+| `TESSERAE_SENECA_OUT` | `~/perseus_trans/translations_seneca` |
 
 `ONLY_WORKS=la/lucan.bellum_civile,...` restricts `align_perseus.py` to named
 works, which is how to test a change without a full rebuild.
