@@ -336,6 +336,15 @@ def similar_passages():
     return jsonify(out)
 
 
+# BOTH PATHS, deliberately. Every other route in this blueprint carries the
+# /passages/ prefix in its own decorator, and these two do not, so they answer at
+# /api/lexical-density and /api/translation while /api/passages/... 404s. The
+# frontend calls the short paths and has always worked; the cost is that anyone
+# reasoning from the neighbouring routes gets a 404 that reads exactly like a
+# stale deploy, which cost an hour on 2026-08-27. Moving them would be the tidier
+# fix and would break every existing caller, so the prefixed path is added
+# alongside rather than instead. See issue #275.
+@passages_bp.route('/passages/lexical-density')
 @passages_bp.route('/lexical-density')
 def lexical_density_route():
     """Per-line lexical connection counts, for the Reader's red gutter marks.
@@ -352,6 +361,7 @@ def lexical_density_route():
     return jsonify(lexical_density.line_density(work, language=language))
 
 
+@passages_bp.route('/passages/translation')
 @passages_bp.route('/translation')
 def translation_route():
     """Aligned public-domain English for a selected passage.
