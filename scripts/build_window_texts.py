@@ -96,6 +96,7 @@ def build():
     conn.execute('CREATE INDEX idx_work ON window_texts(work)')
     conn.commit()
     restore_line_breaks(conn)
+    build_lines(conn)
     n = conn.execute('SELECT COUNT(*) FROM window_texts').fetchone()[0]
     conn.close()
     os.replace(tmp, DB)
@@ -133,6 +134,48 @@ def _lines_of(path):
             text = line[close + 1:].lstrip('\t')
             out.append((ref, text))
     return out
+
+
+def build_lines(conn):
+    """Every line of every work, addressable by its own reference.
+
+    Claude desktop, testing the connector: theme_search tells an agent "the gist
+    is a machine-written summary, never the passage itself: fetch the lines
+    before quoting", and no tool could. The only workaround was an exact-phrase
+    search on wording the user already knew by heart, which is exactly the
+    reader the feature exists to serve without.
+
+    The windows cannot answer it. They overlap, they start and stop on window
+    boundaries rather than on the reference asked for, and their text is a
+    single blob. A passage fetch has to return line-by-line references, because
+    the presentation contract requires a locus on every quotation.
+
+    This lives in the same file as the window texts, rather than reading
+    `texts/` at request time, for the reason that file exists at all: Persian
+    and Urdu are not in `texts/` in production, so a route that read from there
+    would work for five languages and quietly fail for two.
+    """
+    files = _tess_index()
+    conn.execute('CREATE TABLE IF NOT EXISTS lines ('
+                 'work TEXT, ord INTEGER, ref TEXT, text TEXT)')
+    works = [r[0] for r in conn.execute(
+        'SELECT DISTINCT work FROM window_texts WHERE work IS NOT NULL')]
+    total = 0
+    for work in works:
+        path = files.get(work)
+        if not path:
+            continue
+        rows = [(work, i, ref, text)
+                for i, (ref, text) in enumerate(_lines_of(path))]
+        if rows:
+            conn.executemany('INSERT INTO lines VALUES (?,?,?,?)', rows)
+            total += len(rows)
+        conn.commit()
+    conn.execute('CREATE INDEX IF NOT EXISTS idx_lines_work ON lines(work, ord)')
+    conn.execute('CREATE INDEX IF NOT EXISTS idx_lines_ref ON lines(work, ref)')
+    conn.commit()
+    print(f'  addressable lines    : {total:,}')
+    return total
 
 
 def restore_line_breaks(conn):

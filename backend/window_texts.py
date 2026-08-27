@@ -40,6 +40,65 @@ def _conn():
     return c
 
 
+MAX_LINES = 120
+
+
+def passage_lines(work, ref_start=None, ref_end=None, context=0,
+                  cap=MAX_LINES):
+    """The actual lines of a passage, each with its own reference.
+
+    Returns {'lines': [{'ref', 'text'}], 'capped': bool, 'total': int} or an
+    'error'. `capped` is honest rather than silent: a request for a whole book
+    comes back as a bounded window that says it was bounded, in the same style
+    as line_search's own cap, instead of a truncated payload that looks whole.
+
+    `context` widens the window by that many lines on each side, which is what
+    a reader wants when a machine-chosen window starts mid-sentence.
+    """
+    c = _conn()
+    if c is None:
+        return {'error': 'no passage text database', 'lines': []}
+    base = _base_work(work)
+    if not base:
+        return {'error': 'work is required', 'lines': []}
+    try:
+        rows = c.execute(
+            'SELECT ord, ref FROM lines WHERE work = ? ORDER BY ord',
+            (base,)).fetchall()
+        if not rows:
+            return {'error': f'no text stored for work {work}', 'lines': []}
+        at = {ref: o for o, ref in rows}
+        lo, hi = rows[0][0], rows[-1][0]
+        i = at.get(ref_start, lo) if ref_start else lo
+        j = at.get(ref_end, i) if ref_end else i
+        if ref_start and ref_start not in at:
+            return {'error': f'reference {ref_start} not found in {work}',
+                    'lines': []}
+        if j < i:
+            i, j = j, i
+        i = max(lo, i - int(context or 0))
+        j = min(hi, j + int(context or 0))
+        total = j - i + 1
+        capped = total > cap
+        if capped:
+            j = i + cap - 1
+        out = c.execute(
+            'SELECT ref, text FROM lines WHERE work = ? AND ord BETWEEN ? AND ? '
+            'ORDER BY ord', (base, i, j)).fetchall()
+    except sqlite3.Error as e:
+        logger.error('[WINDOWTEXTS] %s', e)
+        return {'error': str(e), 'lines': []}
+    return {'lines': [{'ref': r, 'text': t} for r, t in out],
+            'capped': capped, 'total': total, 'returned': len(out)}
+
+
+def _base_work(work):
+    """Strip .tess. Part files are their OWN works here and are NOT collapsed:
+    "vergil.aeneid.part.6" has its own line numbering in the index, so folding
+    it into "vergil.aeneid" would look up the wrong lines."""
+    return str(work or '').strip().replace('.tess', '')
+
+
 def texts_for(ids):
     """{window id: source text} for the ids that resolve. Missing ids are simply
     absent, so a caller can tell "no text" from "empty text"."""
@@ -65,3 +124,20 @@ def texts_for(ids):
         logger.error('[WINDOWTEXTS] %s', e)
         return out
     return out
+
+
+def language_of(work):
+    """The language a work is indexed under, or None.
+
+    Read from the window rows rather than guessed from the id: the work ids
+    carry no language and the corpus spans three checkouts.
+    """
+    c = _conn()
+    if c is None:
+        return None
+    try:
+        r = c.execute('SELECT language FROM window_texts WHERE work = ? LIMIT 1',
+                      (_base_work(work),)).fetchone()
+    except sqlite3.Error:
+        return None
+    return r[0] if r else None

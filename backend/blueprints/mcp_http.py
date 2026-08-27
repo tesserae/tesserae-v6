@@ -612,6 +612,40 @@ def _t_theme_search(a):
     return out
 
 
+def _t_get_passage(a):
+    """The actual lines at a reference, each with its own locus.
+
+    The missing half of the retrieval feature. theme_search tells the agent
+    "the gist is a machine-written summary of the passage, never the passage
+    itself: fetch the lines before quoting", and until this existed no tool
+    could. The only way through was an exact-phrase search on wording the user
+    already knew from memory, which is precisely the reader the feature exists
+    to serve without.
+
+    Takes exactly the fields theme_search and similar_passages emit, so a
+    result can be handed back unchanged.
+    """
+    params = {'work': a.get('work') or ''}
+    for k in ('ref_start', 'ref_end', 'context'):
+        if a.get(k) not in (None, ''):
+            params[k] = a[k]
+    d = _get('/passages/lines', params)
+    if d.get('error'):
+        return d
+    return {'work': d.get('work'), 'author': d.get('author'),
+            'title': d.get('title'), 'display_name': d.get('display_name'),
+            'language': d.get('language'),
+            'lines': d.get('lines') or [],
+            'returned': d.get('returned'), 'total': d.get('total'),
+            'capped': d.get('capped'), 'note': d.get('note'),
+            'corpus_version': d.get('corpus_version'),
+            'web_url': d.get('web_url'),
+            'presentation': ('These are the SOURCE lines, not a summary. Quote them with '
+                             'the locus shown against each line. If capped is true this is '
+                             'a bounded window, not the whole span, so say so rather than '
+                             'implying the passage ends here.')}
+
+
 def _t_similar_passages(a):
     """Passages elsewhere in the corpus whose content resembles a given passage.
 
@@ -694,6 +728,19 @@ TOOLS = [
                                     "scale": _STR},
                      "required": ["query"]},
      "fn": _t_theme_search},
+    {"name": "get_passage",
+     "description": ("The ACTUAL LINES at a reference, each with its own locus. Use this before "
+                     "quoting anything from theme_search or similar_passages: those return a "
+                     "machine-written gist, never the passage itself. Takes the fields they "
+                     "emit, e.g. work=vergil.aeneid.part.6 with ref_start='verg. aen. 6.258' "
+                     "and ref_end='verg. aen. 6.270'. context widens the window by that many "
+                     "lines each side. Covers every indexed language including Persian and "
+                     "Urdu, which are not reachable any other way."),
+     "inputSchema": {"type": "object",
+                     "properties": {"work": _STR, "ref_start": _STR, "ref_end": _STR,
+                                    "context": {"type": "integer"}},
+                     "required": ["work"]},
+     "fn": _t_get_passage},
     {"name": "similar_passages",
      "description": ("Passages elsewhere in the corpus whose CONTENT resembles a given passage. Give a "
                      "work id (from list_texts) and a reference span, e.g. work=vergil.aeneid with "

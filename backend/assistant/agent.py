@@ -24,6 +24,7 @@ assistant that can consume the machine on one open-ended question is worse than
 one that cannot look at all.
 """
 import json
+import os
 import re
 from collections import Counter
 
@@ -117,6 +118,42 @@ def _is_about_the_site(question):
 def _is_about_the_tool(question):
     q = (question or '').lower()
     return any(t in q for t in _ABOUT_THE_TOOL)
+
+
+# MODEL ROUTING. Off by default: this replaces the branch every question takes,
+# and it turns on only once NC has seen it run.
+#
+# The judgments below -- what kind of question this is, and whether it carries
+# the previous subject -- were substring matches over 130 literal phrases.
+# Measured against 26 held-out questions the prompt was never tuned on, the
+# lists get 58% and the model gets 85%. See evaluation/scripts/routing_probe.py.
+#
+# Every use goes through _decided(), which returns None whenever the model is
+# unavailable, slow, or unparseable. None means "fall back to the old
+# heuristics", so the worst case is exactly today's behaviour.
+_MODEL_ROUTING = os.environ.get('TESSERAE_MODEL_ROUTING', '0') in ('1', 'true', 'yes')
+
+
+def _decide(question, history):
+    """The three judgments in one call, or None to use the old heuristics."""
+    if not _MODEL_ROUTING:
+        return None
+    try:
+        from backend.assistant import classify
+        d = classify.classify(question, history)
+    except Exception as e:                                   # noqa: BLE001
+        logger.info('[AGENT] model routing unavailable: %s', e)
+        return None
+    if not d.usable:
+        return None
+    logger.info('[AGENT] routed as %s (carries=%s) in %.2fs',
+                d.kind, d.carries, d.seconds)
+    return d
+
+
+def _decided(decision, attr, fallback):
+    """Read one judgment, falling back when the model did not make it."""
+    return getattr(decision, attr) if decision is not None else fallback
 
 
 _HOLDINGS_QUESTION = (
@@ -1254,9 +1291,15 @@ def _prepare(question, step, history=None, offered_phrase=None):
 
     ran, all_facts = [], []
 
+    # ONE judgment for the whole request, made once and read at each branch
+    # below. None when model routing is off or the model could not answer, in
+    # which case every branch keeps the heuristic it has always used.
+    decision = _decide(question, history)
+
     # A question about the tool is answered by the guide, which has the facts
     # about connectors and CSV export. Searching the corpus for it is nonsense.
-    if _is_about_the_tool(question):
+    if _decided(decision, 'kind', None) == 'site' or (
+            decision is None and _is_about_the_tool(question)):
         return {'needs_model_only': True}
 
     # "YES" MEANS THE THING THAT WAS OFFERED.
@@ -1287,7 +1330,16 @@ def _prepare(question, step, history=None, offered_phrase=None):
     # corpus access and could only recite tool names. The user had to be told
     # to run the search himself, which is the failure this whole module exists
     # to remove.
-    carried = _carried_phrase(question, history)
+    # The model is asked whether this carries a subject AND what the subject is,
+    # so a follow-up naming an author is no longer mistaken for a fresh
+    # question. That is the pre-existing failure the four red tests in
+    # test_assistant_conversation.py describe: _TEXT_NAME treats "What about
+    # Ovid?" as naming its own subject, and the docstring of _carried_phrase
+    # cites the very case its own rule breaks.
+    if decision is not None:
+        carried = decision.subject if decision.carries else None
+    else:
+        carried = _carried_phrase(question, history)
 
     # SEED THE LOOP IN CODE, not by asking. Whichever languages the question
     # names get listed before the model chooses anything.
@@ -1308,7 +1360,14 @@ def _prepare(question, step, history=None, offered_phrase=None):
     # page says Latin is fully covered, Greek is in progress and English has not
     # been started. The holdings were true and had nothing to do with the
     # question, and having them crowded out the page that did.
-    seed_holdings = not _is_about_the_site(question)
+    # Holdings are seeded unless the question is about the site. With model
+    # routing on, only a question the model calls 'holdings' or 'corpus' gets
+    # them, so a themed or reading question no longer drags in a census it has
+    # no use for.
+    if decision is not None:
+        seed_holdings = decision.kind in ('holdings', 'corpus')
+    else:
+        seed_holdings = not _is_about_the_site(question)
     for code, words in (('he', ('hebrew',)), ('grc', ('greek',)),
                         ('la', ('latin',)), ('cop', ('coptic',)),
                         ('en', ('english',))):
@@ -1460,7 +1519,19 @@ def _prepare(question, step, history=None, offered_phrase=None):
     # Decided from the reader's own words rather than by the chooser, for the
     # same reason the rest of this module computes rather than asks.
     theme_done = False
-    theme = _theme_question(question)
+    # The model decides WHETHER this is a themed question; the extractor still
+    # trims it to the scene itself. Keeping both matters: the extractor returns
+    # "a storm at sea" from "are there any passages about a storm at sea?", and
+    # querying the passage index with the whole sentence would put "are there
+    # any passages about" into the embedding. Where the extractor's own phrase
+    # list does not fire ("find me a warrior arming for battle" returns nothing)
+    # the question stands in, which is still better than not searching at all.
+    if decision is None:
+        theme = _theme_question(question)
+    elif decision.kind == 'theme':
+        theme = _theme_question(question) or question
+    else:
+        theme = ''
     if theme and not _quoted_phrase(question):
         try:
             step(f'looking for passages about {theme}')
@@ -1627,7 +1698,8 @@ def _prepare(question, step, history=None, offered_phrase=None):
         all_facts.append(facts)
         ran.append(name)
 
-    if not all_facts and _is_about_the_site(question):
+    if not all_facts and (_is_about_the_site(question)
+                          if decision is None else decision.kind == 'site'):
         # A QUESTION ABOUT THE SITE, not about the corpus. Reaching here means
         # every fast path declined it, so it names no phrase, text or theme.
         #

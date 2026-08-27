@@ -19,6 +19,7 @@ or half-built index degrades the Reader's panel instead of breaking the page.
 """
 import csv
 import io
+from urllib.parse import quote
 
 from flask import Blueprint, Response, jsonify, request
 
@@ -27,6 +28,7 @@ from backend import passage_index
 from backend import lexical_density
 from backend import translations
 from backend import window_texts
+from backend.inverted_index import get_corpus_version
 
 logger = get_logger('blueprints.passages')
 
@@ -158,6 +160,57 @@ def _export_rows(results, texts):
             'id': r.get('id') or '',
         })
     return rows
+
+
+@passages_bp.route('/passages/lines')
+def passage_lines_route():
+    """The actual lines at a reference. The half of retrieval that was missing.
+
+    Claude desktop, testing the connector: theme_search instructs the agent
+    "the gist is a machine-written summary of the passage, never the passage
+    itself: fetch the lines before quoting", and no tool could do it. The only
+    way through was an exact-phrase search on wording the user already knew from
+    memory, which is precisely the reader this feature exists to serve without.
+
+    Takes exactly the fields theme_search and similar_passages already emit, so
+    a result can be handed straight back without the caller reshaping anything.
+    """
+    work = (request.args.get('work') or '').strip()
+    if not work:
+        return jsonify({'error': 'work is required', 'lines': []})
+    try:
+        context = max(0, min(20, int(request.args.get('context') or 0)))
+    except (TypeError, ValueError):
+        context = 0
+    out = window_texts.passage_lines(
+        work,
+        (request.args.get('ref_start') or '').strip() or None,
+        (request.args.get('ref_end') or '').strip() or None,
+        context=context)
+    if out.get('error'):
+        return jsonify(out)
+
+    # The same naming the theme-search results carry, so a citation built from
+    # this matches a citation built from those.
+    naming = passage_index._naming(work.replace('.tess', ''))
+    language = window_texts.language_of(work)
+    out.update({
+        'work': work,
+        'author': naming.get('author') or '',
+        'title': naming.get('title') or '',
+        'display_name': naming.get('display_name') or '',
+        'language': language or '',
+        'corpus_version': get_corpus_version(language) if language else None,
+        # So a quotation can always be taken back to the real thing.
+        'web_url': ('/read?work=' + quote(work if work.endswith('.tess')
+                                          else work + '.tess')
+                    + (f"&at={quote(out['lines'][0]['ref'])}"
+                       if out.get('lines') else '')),
+    })
+    if out.get('capped'):
+        out['note'] = (f"Showing {out['returned']} of {out['total']} lines. "
+                       f"Narrow ref_start/ref_end for the rest.")
+    return jsonify(out)
 
 
 @passages_bp.route('/passages/export')
