@@ -92,9 +92,15 @@ describe('the tab searches the corpus for the selection', () => {
     expect(screen.getAllByText('immisit').length).toBeGreaterThan(0);
   });
 
-  it('says the cards open, since nothing else does', async () => {
+  it('makes the work name the thing you click', async () => {
+    // This used to assert an "Open in Reader" line under every card. NC had it
+    // removed: the work name is already the link, so the extra line was
+    // clutter. The affordance now has to live on the title itself.
     mount();
-    expect((await screen.findAllByText(/Open in Reader/))[0]).toBeTruthy();
+    const title = await screen.findByText(/Caesar, De Bello Civili/);
+    expect(title.className).toMatch(/text-red-800/);
+    expect(title.className).toMatch(/group-hover:underline/);
+    expect(title.closest('button')).toBeTruthy();
   });
 });
 
@@ -133,6 +139,34 @@ describe('the matched words are marked in the passage', () => {
     await screen.findByText(/Test/);
     const marks = [...document.querySelectorAll('mark')].map((m) => m.textContent);
     expect(marks).toEqual(['arma']);           // not the "arma" inside armamentis
+  });
+});
+
+describe('the way out to the full search tools', () => {
+  it('hands the same query to Line Search', async () => {
+    mount();
+    const link = await screen.findByText(/See the full result list/);
+    const href = link.getAttribute('href');
+    expect(href).toContain('tab=line');
+    expect(href).toContain('lang=la');
+    expect(href).toContain('type=lemma');
+    expect(decodeURIComponent(href)).toContain(UNITS[0].text);
+  });
+
+  it('does not repeat "Open in Reader" under every card', async () => {
+    // NC: the work name is already the link, so a second one per card is
+    // clutter. Similar Passages keeps its own, which NC asked for separately.
+    mount();
+    await screen.findByText(/Caesar/);
+    expect(screen.queryByText(/Open in Reader/)).toBeNull();
+  });
+
+  it('offers no way out when there is nothing to pursue', async () => {
+    global.fetch = vi.fn(() =>
+      Promise.resolve({ json: () => Promise.resolve({ results: [] }) }));
+    mount();
+    await screen.findByText(/No other passage in the corpus/);
+    expect(screen.queryByText(/See the full result list/)).toBeNull();
   });
 });
 

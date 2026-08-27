@@ -39,6 +39,8 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
   const [verbal, setVerbal] = useState(null);
   const [verbalLoading, setVerbalLoading] = useState(false);
   const [verbalError, setVerbalError] = useState(null);
+  // Kept so the panel can hand the same query on to the full Line Search page.
+  const [verbalQuery, setVerbalQuery] = useState('');
 
   useEffect(() => {
     if (!selection || tab !== 'similar') return;
@@ -81,7 +83,8 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
     if (!selection || tab !== 'verbal') return;
     const picked = (units || []).slice(selection.startIdx, selection.endIdx + 1);
     const query = picked.map((u) => u.text).filter(Boolean).join(' ').trim();
-    if (!query) { setVerbal({ results: [] }); return; }
+    if (!query) { setVerbal({ results: [] }); setVerbalQuery(''); return; }
+    setVerbalQuery(query);
 
     let cancelled = false;
     setVerbalLoading(true);
@@ -356,23 +359,41 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
                     ))}
                   </div>
                 )}
+                {/* NO "Open in Reader" line here. NC: "we don't need the link
+                    under each verbal parallel result saying 'view in reader'
+                    when that is what clicking the work name does." The title
+                    carries the link colour and underlines on hover, which is
+                    the affordance; a second one under every card was clutter in
+                    a list where the passage text is the thing to read. */}
                 {r.text && (
                   <p className="text-xs text-gray-700 mt-1.5 leading-snug">
                     <Marked text={clip(r.text, r.matched_words)}
                             words={r.matched_words} />
                   </p>
                 )}
-                <span className="mt-2 inline-block text-[11px] font-medium text-red-700
-                                 group-hover:underline">
-                  Open in Reader &rarr;
-                </span>
               </button>
             ))}
             {!verbalLoading && verbal?.results?.length > 0 && (
-              <p className="text-[11px] text-gray-400 pt-1 leading-snug">
-                Matches share dictionary forms, not necessarily spellings. Oldest first.
-                {verbal.capped && ' The corpus holds more than are shown here.'}
-              </p>
+              <>
+                {/* THE WAY OUT TO THE REAL TOOLS. The panel runs one line
+                    against the corpus and shows 25; Line Search runs the same
+                    query with the filters, the timeline, era and author facets,
+                    and CSV export. This hands the query over rather than making
+                    the reader retype it. */}
+                <a
+                  href={`/?tab=line&lang=${encodeURIComponent(language)}`
+                        + `&q=${encodeURIComponent(verbalQuery)}&type=lemma`}
+                  className="block w-full text-center text-xs font-semibold text-red-700
+                             border border-red-200 bg-red-50 rounded-lg py-2
+                             hover:bg-red-100 hover:border-red-300"
+                >
+                  See the full result list in Line Search &rarr;
+                </a>
+                <p className="text-[11px] text-gray-400 pt-1 leading-snug">
+                  Matches share dictionary forms, not necessarily spellings. Oldest first.
+                  {verbal.capped && ' The corpus holds more than are shown here.'}
+                </p>
+              </>
             )}
           </>
         )}

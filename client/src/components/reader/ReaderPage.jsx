@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { cssRef } from './refId';
 import ReaderHeader from './ReaderHeader';
 import SelectionToolbar, { scopeFor } from './SelectionToolbar';
@@ -76,6 +76,21 @@ export default function ReaderPage() {
   }, [work, language]);
 
   // Keep the URL in step, so any passage is linkable and Back works.
+  //
+  // BACK USED TO LEAVE THE READER ENTIRELY. NC: "I did one reader search,
+  // clicked the link on a related work that came up in the tab for verbal
+  // parallels. When I clicked the back button from there, it didn't take me
+  // back but to the main regular search page." This wrote every change with
+  // replaceState, which overwrites the current history entry instead of adding
+  // one, so moving from the Aeneid to Caesar left no trace and Back went to
+  // whatever preceded the Reader. The comment above it claimed Back worked.
+  //
+  // So: opening a different text PUSHES an entry, and merely moving the
+  // selection within a text REPLACES, because dragging across lines should not
+  // fill the history with steps a reader then has to walk back through.
+  const lastKeyRef = useRef(null);
+  const fromPopRef = useRef(false);
+
   useEffect(() => {
     const p = new URLSearchParams(window.location.search);
     p.set('work', work);
@@ -88,8 +103,35 @@ export default function ReaderPage() {
     // into state at mount, so dropping them from the URL here costs nothing and
     // `at` carries the position instead.
     ['ref', 'refEnd', 'tab', 'q'].forEach((k) => p.delete(k));
-    window.history.replaceState({}, '', `${window.location.pathname}?${p}`);
+    const url = `${window.location.pathname}?${p}`;
+    const key = `${work}|${language}`;
+    const movedToAnotherText = lastKeyRef.current !== null && lastKeyRef.current !== key;
+    if (movedToAnotherText && !fromPopRef.current) {
+      window.history.pushState({}, '', url);
+    } else {
+      window.history.replaceState({}, '', url);
+    }
+    lastKeyRef.current = key;
+    fromPopRef.current = false;
   }, [work, language, selection]);
+
+  // Going Back inside the Reader has to put the Reader back, not just change
+  // the address bar. Without this the pushed entries above would restore the
+  // URL and leave the page showing the text the reader had navigated away from.
+  useEffect(() => {
+    const onPop = () => {
+      const p = new URLSearchParams(window.location.search);
+      const w = p.get('work');
+      if (!w) return;            // left the Reader; App's own handler has it
+      fromPopRef.current = true; // so the sync effect does not re-push this
+      setLanguage(p.get('lang') || 'la');
+      setWork(w);
+      setSelection(null);
+      setCameFrom('');
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
 
   /** Open a result in the Reader, which is what makes the corpus browsable. */
   // Select the line the link named, once the text is in. Runs on units so it
