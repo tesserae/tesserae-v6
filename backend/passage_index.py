@@ -956,7 +956,23 @@ def find_similar_to_passage(work, ref_start=None, ref_end=None, limit=15,
                                   suppress_other_versions=suppress_other_versions)
 
 
-_DENSITY_CACHE = os.path.join(_DATA_DIR, 'density_cache')
+# UNDER cache/, NOT beside the index.
+#
+# data/passage_index/ is owned by ncoffee:zodfaculty and the web user is
+# tess-flask, which is in tess-flask, users and tessdev -- not zodfaculty. So
+# this directory could never be created, the cache was NEVER written, and every
+# single Reader page load recomputed an 18-second matrix multiply against the
+# whole corpus. Three Apache workers, CPU-bound under the GIL, and the site
+# stops answering: NC reported the Reader's dropdowns "all frozen", which is
+# what a wedged server looks like from the browser.
+#
+# The identical mistake put query_expansions.jsonl in the same directory a few
+# hours earlier. I fixed that one and did not look for its siblings. Every other
+# runtime cache on this system writes under cache/, which is world-writable with
+# setgid tessdev; this was the only one that did not.
+_DENSITY_CACHE = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    'cache', 'passage_density')
 
 
 def _density_cache_path(work, scale):
@@ -1072,5 +1088,11 @@ def connection_density(work, scale='fine'):
             json.dump(result, fh)
         os.replace(tmp, cache_path)   # atomic, so a reader never sees half a file
     except OSError as e:
-        logger.warning('[PASSAGES] could not cache density for %s: %s', work, e)
+        # Loud, and it says what it costs. This failing silently is what made
+        # every Reader visit pay eighteen seconds of BLAS instead of reading a
+        # small JSON file.
+        logger.warning('[PASSAGES] could not cache density for %s at %s: %s. '
+                       'Every Reader load of this work will recompute it, which '
+                       'takes seconds of CPU and will block other requests.',
+                       work, _DENSITY_CACHE, e)
     return result
