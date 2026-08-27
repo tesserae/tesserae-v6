@@ -22,7 +22,7 @@ const DEFAULT_LANGUAGE = 'la';
 export default function ReaderPage() {
   const [work, setWork] = useState(() => paramOr('work', DEFAULT_WORK));
   const [language, setLanguage] = useState(() => paramOr('lang', DEFAULT_LANGUAGE));
-  const { hierarchy } = useCorpus(language);
+  const { hierarchy, loading: corpusLoading } = useCorpus(language);
   // Where a link asked us to land. Theme Search sends the reader here with a
   // specific passage in mind, and dropping them at line 1 of the work would
   // lose the thing they clicked.
@@ -105,12 +105,17 @@ export default function ReaderPage() {
   // language clears the work, because the old one is not in the new language;
   // without this the Reader would sit on an empty page waiting.
   useEffect(() => {
-    if (work || !hierarchy?.length) return;
+    // WAIT FOR THE NEW LANGUAGE'S LISTING. useCorpus refetches when the
+    // language changes, and until it lands `hierarchy` still holds the OLD
+    // language's texts -- picking from it would open a Latin work while the
+    // Reader asked for it in Greek, and the fetch would fail on a page that was
+    // only mid-change.
+    if (work || corpusLoading || !hierarchy?.length) return;
     for (const a of hierarchy) {
       const file = ((a.works || [])[0]?.sections || [])[0]?.file;
       if (file) { setWork(file); return; }
     }
-  }, [work, hierarchy]);
+  }, [work, hierarchy, corpusLoading]);
 
   const openPassage = useCallback((result) => {
     if (!result?.work) return;
