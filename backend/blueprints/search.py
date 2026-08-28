@@ -728,6 +728,139 @@ def _find_greek_latin_dictionary_matches_fast(source_units, target_units, source
     return pair_matches
 
 
+def _find_translated_runs(dict_by_pair):
+    """Longest chain of consecutive dictionary matches per pair: the
+    cross-lingual analogue of the quotation channel.
+
+    The he-grc dictionary channel is bag-of-words, so a two-word overlap of
+    common vocabulary outscores a real quotation whose words it also finds.
+    What distinguishes a quotation is ORDER: consecutive source words whose
+    translations appear in order in the target. The 2026-08-21 record
+    measured a prototype of this idea at R@1 0.641 on the alignment task
+    against 0.398 for bag-of-words, and the direct he-grc quotation test of
+    2026-08-27 (0 of 22 citations in the top 100) is the failure it exists
+    to fix.
+
+    Works entirely from the word matches the dictionary channel already
+    produced: each carries source and target token positions. A chain allows
+    a source gap of 2 and a target gap of 3, because stoplisted function
+    words leave holes in the position sequence on both sides.
+
+    Returns {(src_idx, tgt_idx): chain_length} for chains of 3 or more.
+    """
+    runs = {}
+    for key, wms in dict_by_pair.items():
+        pts = []
+        for wm in wms:
+            for sp in wm.get('source_indices', []):
+                for tp in wm.get('target_indices', []):
+                    pts.append((sp, tp))
+        if len(pts) < 3:
+            continue
+        pts = sorted(set(pts))
+        best = 0
+        n = len(pts)
+        # longest chain with 0 < d_src <= 2 and 0 < d_tgt <= 3
+        length = [1] * n
+        for i in range(n):
+            for j in range(i):
+                ds = pts[i][0] - pts[j][0]
+                dt = pts[i][1] - pts[j][1]
+                if 0 < ds <= 2 and 0 < dt <= 3 and length[j] + 1 > length[i]:
+                    length[i] = length[j] + 1
+        best = max(length)
+        if best >= 3:
+            runs[key] = best
+    return runs
+
+
+def _handle_lxx_pivot(params, source_units, target_units, settings):
+    """Answer a Hebrew-Greek search through the Septuagint. See backend/lxx_pivot.
+
+    Returns a Flask response, or None to signal "no counterpart, use the
+    direct route." The Greek-Greek search runs under the biblical_greek
+    weight profile, and every result keeps the Septuagint line visible while
+    carrying the Hebrew reference and line it translates: a reader shown a
+    match "in Hebrew" that was found in Greek must be able to see the Greek.
+    """
+    import re as _re
+    from backend import lxx_pivot
+    from backend.text_processor import TextProcessor
+    from backend.matcher import Matcher
+    from backend.scorer import Scorer
+    from backend.fusion import iter_fusion_search
+
+    source_language = params['source_language']
+    he_side = 'source' if source_language == 'he' else 'target'
+    he_id = params['source_id'] if he_side == 'source' else params['target_id']
+    grc_id = params['target_id'] if he_side == 'source' else params['source_id']
+
+    counterpart = lxx_pivot.lxx_counterpart(he_id)
+    if not counterpart:
+        return None
+    lxx_path = os.path.join(_texts_dir, 'grc', counterpart + '.tess')
+    if not os.path.exists(lxx_path):
+        logger.info(f"[LXX_PIVOT] counterpart file missing, direct route: {lxx_path}")
+        return None
+    logger.info(f"[LXX_PIVOT] routing {he_id} x {grc_id} through {counterpart}")
+
+    tp = TextProcessor()
+    lxx_units = tp.process_file(lxx_path, language='grc')
+    grc_units = target_units if he_side == 'source' else source_units
+
+    if he_side == 'source':
+        s_units, t_units = lxx_units, grc_units
+        s_id, t_id = counterpart + '.tess', grc_id
+        s_path, t_path = lxx_path, params['target_path']
+    else:
+        s_units, t_units = grc_units, lxx_units
+        s_id, t_id = grc_id, counterpart + '.tess'
+        s_path, t_path = params['source_path'], lxx_path
+
+    results = []
+    for evt, data in iter_fusion_search(
+            source_units=s_units, target_units=t_units,
+            matcher=Matcher(), scorer=Scorer(),
+            source_id=s_id, target_id=t_id,
+            language='grc', mode='merged',
+            max_results=settings.get('max_results', 5000),
+            source_path=s_path, target_path=t_path,
+            user_settings={'weights_profile': 'biblical_greek'}):
+        if evt == 'complete':
+            results = data.get('results', [])
+
+    lxx_pivot.annotate_results(results, he_id, he_side)
+
+    # Attach the Hebrew line text beside each Hebrew reference, so the UI can
+    # show the verse itself rather than only a pointer.
+    he_path = params['source_path'] if he_side == 'source' else params['target_path']
+    he_lines = {}
+    try:
+        with open(he_path, encoding='utf-8', errors='replace') as fh:
+            for line in fh:
+                m = _re.match(r'^<([^>]*)>\t?(.*)$', line)
+                if m:
+                    he_lines.setdefault(m.group(1).strip(), m.group(2).strip())
+    except OSError as e:
+        logger.warning(f"[LXX_PIVOT] could not read Hebrew text: {e}")
+    for r in results:
+        half = r.get(he_side)
+        if isinstance(half, dict) and half.get('hebrew_ref') in he_lines:
+            half['hebrew_text'] = he_lines[half['hebrew_ref']]
+
+    return jsonify({
+        'results': results,
+        'total_results': len(results),
+        'via_septuagint': True,
+        'septuagint_text': counterpart,
+        'weights_profile': 'biblical_greek',
+        'note': ('This Hebrew-Greek search was answered through the Septuagint: '
+                 'the Greek side was searched against the Septuagint text of the '
+                 'Hebrew book, and each result carries the Hebrew verse that '
+                 'Septuagint line translates.'),
+    })
+
+
 def _handle_crosslingual_fusion(params, source_units, target_units, settings):
     """Multi-channel cross-lingual fusion: semantic + dictionary + syntax + phonetic.
 
@@ -752,6 +885,20 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
         return jsonify({"error": f"Unsupported cross-lingual pair: {source_language} -> {target_language}. "
                         f"Supported: grc-la, la-en, grc-en"})
 
+    # --- Septuagint pivot for Hebrew-Greek biblical pairs ---
+    # The New Testament quotes the SEPTUAGINT, not the Hebrew, so a biblical
+    # he-grc search is better answered Greek-to-Greek against the LXX and
+    # mapped back to the Hebrew verse by versification. Measured 2026-08-27 on
+    # the 22 Isaiah citations in Romans: direct route 0 of 22 in the top 100,
+    # pivot with the biblical profile 15 of 22 (backend/lxx_pivot.py has the
+    # full account). Falls through to the direct route when the Hebrew text
+    # has no routed Septuagint counterpart, or when disabled.
+    if (lang_pair == frozenset(('he', 'grc'))
+            and os.environ.get('TESSERAE_LXX_PIVOT', '1') not in ('0', 'false', 'no')):
+        pivot_resp = _handle_lxx_pivot(params, source_units, target_units, settings)
+        if pivot_resp is not None:
+            return pivot_resp
+
     is_greek_latin = lang_pair == frozenset(('grc', 'la'))
     has_english = 'en' in lang_pair
 
@@ -773,6 +920,15 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
         source_units, target_units,
         source_language, target_language)
     logger.info(f"Dictionary found {len(dict_by_pair)} pairs with matches")
+
+    # --- Channel 5: translated runs (order-sensitive dictionary chains) ---
+    # Only meaningful for pairs whose dictionary is word-positional (the CSV
+    # dictionaries carry positions; the Greek-Latin path does too). Cheap:
+    # works from matches already in hand.
+    run_by_pair = _find_translated_runs(dict_by_pair)
+    if run_by_pair:
+        logger.info(f"Translated runs found on {len(run_by_pair)} pairs "
+                    f"(longest {max(run_by_pair.values())})")
 
     # --- Semantic recovery for dictionary-only pairs ---
     # Dictionary pairs not found by the semantic channel (filtered by top-N cap)
@@ -915,8 +1071,15 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
     # coincidences).  Only include phonetic pairs that also have semantic,
     # dictionary, or syntax support.  Semantic recovery above ensures phonetic
     # pairs with cosine > 0.4 get sem_by_pair entries, so they participate.
-    all_keys = set(sem_by_pair.keys()) | set(dict_by_pair.keys()) | set(syntax_by_pair.keys())
+    all_keys = (set(sem_by_pair.keys()) | set(dict_by_pair.keys())
+                | set(syntax_by_pair.keys()) | set(run_by_pair.keys()))
 
+    # Translated runs score like the monolingual quotation channel: run/5,
+    # weighted as quotation is in the biblical profiles, and kept OUTSIDE any
+    # rarity discounting, because a 3+ chain of in-order translations is
+    # distinctive even when every word in it is common (the Coptic Phase 5
+    # diagnosis, applied across languages).
+    TRANSLATED_RUN_WEIGHT = 35.0
     SEMANTIC_WEIGHT = 1.2
     DICTIONARY_WEIGHT = 2.0
     SYNTAX_WEIGHT = 0.5
@@ -933,6 +1096,8 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
         has_dict = dict_wms is not None
         syntax_score = syntax_by_pair.get(key, 0.0)
         has_syntax = syntax_score > 0
+        run_length = run_by_pair.get(key, 0)
+        has_run = run_length >= 3
         phonetic_matches = phonetic_by_pair.get(key)
         has_phonetic = phonetic_matches is not None and len(phonetic_matches) > 0
 
@@ -981,14 +1146,18 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
             phonetic_score = sum(m['similarity'] for m in phonetic_matches) / len(phonetic_matches)
 
         # Skip pairs with no channel
-        if not has_semantic and not has_dict and not has_syntax and not has_phonetic:
+        if (not has_semantic and not has_dict and not has_syntax
+                and not has_phonetic and not has_run):
             continue
 
         # Fused score (additive, matching article formula)
         score = ((cosine * SEMANTIC_WEIGHT) + (dict_score * DICTIONARY_WEIGHT)
                  + (syntax_score * SYNTAX_WEIGHT) + (phonetic_score * PHONETIC_WEIGHT))
+        if has_run:
+            score += (run_length / 5.0) * TRANSLATED_RUN_WEIGHT
         n_channels = ((1 if has_semantic else 0) + (1 if has_dict else 0)
-                      + (1 if has_syntax else 0) + (1 if has_phonetic else 0))
+                      + (1 if has_syntax else 0) + (1 if has_phonetic else 0)
+                      + (1 if has_run else 0))
         if n_channels >= 2:
             score += CONVERGENCE_BONUS
 
@@ -1124,6 +1293,8 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings):
             channels.append(f'syntax ({syntax_score:.2f})')
         if has_phonetic:
             channels.append(f'phonetic ({len(phonetic_matches)} tokens)')
+        if has_run:
+            channels.append(f'translated run ({run_length} words)')
 
         fused.append({
             'source': {

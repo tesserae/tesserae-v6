@@ -198,6 +198,33 @@ WEIGHT_PROFILES = {
         "quotation":        35.052,    # cranked from baseline 0.0, verbatim runs dominate
     },
 
+    # Biblical GREEK profile, 2026-08-27. The biblical_coptic values adopted
+    # UNCHANGED, on measurement rather than analogy: applied to SBLGNT Romans
+    # x Septuagint Isaiah against the 22 formula-marked Isaiah citations, this
+    # profile scored 8 of 22 in the top ten and 15 of 22 in the top 100, where
+    # the latin_epic default scored 0 and 1. That matches the equivalent
+    # Coptic result at every cutoff through 100: the profile encodes the TEXT
+    # TYPE (biblical prose quoting scripture verbatim), not the language.
+    #
+    # NOT the default for grc — classical Greek keeps latin_epic. Selected
+    # explicitly by the Septuagint pivot (backend/lxx_pivot.py) and available
+    # by name. A refinement sweep on the Greek 124-pair TSK benchmark may
+    # update these numbers; until then identity with biblical_coptic is a
+    # feature, because every figure published for the shape carries over.
+    "biblical_greek": {
+        "edit_distance":     0.795,
+        "sound":            24.277,
+        "exact":             0.698,
+        "lemma":             0.320,
+        "dictionary":        0.123,
+        "semantic":         11.216,
+        "rare_word":         0.550,
+        "syntax":            0.102,
+        "syntax_structural": 0.081,
+        "lemma_min1":        0.088,
+        "quotation":        35.052,
+    },
+
     # Experimental profile, 2026-05-17. Designed to surface paraphrase and
     # thematic intertexts that biblical_coptic suppresses, while keeping
     # verbatim recall above a sanity floor.
@@ -2585,6 +2612,18 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
     appear within seconds of starting the search.
     """
     user_settings = user_settings or {}
+    # Per-call weight profile override, thread-safe: 'weights_profile' in
+    # user_settings names a WEIGHT_PROFILES entry and is passed down to each
+    # fuse_results call, so a caller (the Septuagint pivot) can request the
+    # biblical profile for one search without touching the language default
+    # or any global state.
+    _weights_override = None
+    _wp = user_settings.get('weights_profile')
+    if _wp:
+        _weights_override = get_weight_profile(profile_name=_wp)
+        if _weights_override is None or _wp not in WEIGHT_PROFILES:
+            logger.warning(f"[FUSION] unknown weights_profile {_wp!r}; using language default")
+            _weights_override = None
     if source_language is None:
         source_language = language
     if target_language is None:
@@ -2659,7 +2698,7 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
         # Cap intermediates at 500 (preview only) to avoid huge JSON payloads;
         # the full max_results set is sent in the final "complete" event.
         if count > 0 and line_channel_results:
-            fused = fuse_results(line_channel_results, language=language,
+            fused = fuse_results(line_channel_results, language=language, weights=_weights_override,
                                  freq_basis=freq_basis,
                                  source_id=source_id, target_id=target_id)
             preview_cap = min(max_results, 500) if max_results > 0 else 500
@@ -2730,7 +2769,7 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
             logger.info(f"[STRUCTURAL GATE] Kept {after}/{before} structural pairs "
                         f"(dictionary or cosine >= {MIN_COSINE_NO_DICT})")
 
-    line_fused = fuse_results(line_channel_results, language=language,
+    line_fused = fuse_results(line_channel_results, language=language, weights=_weights_override,
                                freq_basis=freq_basis,
                                source_id=source_id, target_id=target_id)
 
@@ -2795,7 +2834,7 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
             "phase": "window",
         })
 
-    window_fused = fuse_results(window_channel_results, language=language,
+    window_fused = fuse_results(window_channel_results, language=language, weights=_weights_override,
                                  freq_basis=freq_basis,
                                  source_id=source_id, target_id=target_id)
     window_fused = penalize_single_line_windows(window_fused)
@@ -2817,7 +2856,7 @@ def run_fusion_search(source_units, target_units, matcher, scorer,
                       source_path=None, target_path=None,
                       progress_callback=None,
                       source_language=None, target_language=None,
-                      freq_basis='corpus'):
+                      freq_basis='corpus', weights_profile=None):
     """Run two-pass weighted fusion search.
 
     Pass 1 (line-level): All 9 channels run on individual verse lines.
@@ -2844,6 +2883,13 @@ def run_fusion_search(source_units, target_units, matcher, scorer,
     Returns:
         List of result dicts sorted by fused_score descending.
     """
+    # Optional per-call profile override, mirroring iter_fusion_search.
+    _weights_override = None
+    if weights_profile:
+        _weights_override = get_weight_profile(profile_name=weights_profile)
+        if weights_profile not in WEIGHT_PROFILES:
+            logger.warning(f"[FUSION] unknown weights_profile {weights_profile!r}; using language default")
+            _weights_override = None
     if source_language is None:
         source_language = language
     if target_language is None:
@@ -2918,7 +2964,7 @@ def run_fusion_search(source_units, target_units, matcher, scorer,
             logger.info(f"[STRUCTURAL GATE] Kept {after}/{before} structural pairs "
                         f"(dictionary or cosine >= {MIN_COSINE_NO_DICT2})")
 
-    line_fused = fuse_results(line_channel_results, language=language,
+    line_fused = fuse_results(line_channel_results, language=language, weights=_weights_override,
                                freq_basis=freq_basis,
                                source_id=source_id, target_id=target_id)
 
@@ -2954,7 +3000,7 @@ def run_fusion_search(source_units, target_units, matcher, scorer,
         progress_callback,
         source_language=source_language, target_language=target_language,
     )
-    window_fused = fuse_results(window_channel_results, language=language,
+    window_fused = fuse_results(window_channel_results, language=language, weights=_weights_override,
                                  freq_basis=freq_basis,
                                  source_id=source_id, target_id=target_id)
     window_fused = penalize_single_line_windows(window_fused)
