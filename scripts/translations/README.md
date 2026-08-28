@@ -221,6 +221,22 @@ Coverage 83-96% across all eleven, proper-name agreement 0.39 to 0.78.
 translation at full coverage and 3.1 source lines per unit, against Rogers at
 21.6. A coarser alignment should never displace a finer one that already works.
 
+## Pipeline 6½: the SBLGNT remap
+
+    remap_sblgnt.py
+
+The SBL Greek New Testament shipped 2026-08-21 as `novum_testamentum.*` beside
+the legacy `new_testament.*` files, and arrived with no English: pipeline 2's
+27 WEB alignments are keyed to the legacy refs. Both schemes end in
+chapter.verse, so this is a remap, not an alignment search — every SBLGNT ref
+takes the unit the legacy file already holds for the same chapter and verse.
+
+The whole risk is versification, and there are exactly four differences, each
+verified against the Greek before being encoded (Matt 23:13, Rev 12:18,
+3 John 1:15, Rom 16:24 — the script header has the details). With those
+handled, coverage is 1.0000 on all 27 books, and the script refuses to write
+any book below 0.95.
+
 ## Pipeline 6: the Vulgate
 
     align_vulgate.py
