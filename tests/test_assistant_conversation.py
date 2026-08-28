@@ -22,6 +22,15 @@ import sys
 
 import pytest
 
+# THE SUITE TESTS THE SHIPPED CONFIGURATION. Production runs with model routing
+# on (enabled 2026-08-28 after the Tessa audit: the three follow-up tests below
+# fail by design under the heuristic path, whose _TEXT_NAME rule reads "What
+# about Eobanus?" as a fresh question; the classifier was built to fix exactly
+# that and measured 8/8 here against 5/8 without it). Set BEFORE any backend
+# import, because agent reads the flag at import time. setdefault, so a
+# deliberate TESSERAE_MODEL_ROUTING=0 run still tests the fallback path.
+os.environ.setdefault('TESSERAE_MODEL_ROUTING', '1')
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from backend.app import app  # noqa: E402
