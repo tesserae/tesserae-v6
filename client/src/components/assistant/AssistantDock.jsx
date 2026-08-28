@@ -249,7 +249,7 @@ export default function AssistantDock() {
           <span className="flex items-center justify-center w-6 h-6 rounded-md bg-red-700 text-white text-xs font-semibold leading-none">
             T
           </span>
-          Tessa AI Assistant
+          Tessa &middot; Search help &amp; site guide
           <span className="text-[9px] font-semibold uppercase tracking-wide text-amber-700 align-super">
             beta
           </span>
