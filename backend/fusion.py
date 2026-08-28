@@ -284,6 +284,34 @@ WEIGHT_PROFILES = {
         "quotation":        35.052,    # cranked from baseline 0.0, verbatim runs dominate
     },
 
+    # Biblical GREEK profile, 2026-08-27. The biblical_coptic values adopted
+    # UNCHANGED, on measurement rather than analogy: applied to SBLGNT Romans
+    # x Septuagint Isaiah against the 22 formula-marked Isaiah citations, this
+    # profile scored 8 of 22 in the top ten and 15 of 22 in the top 100, where
+    # the latin_epic default scored 0 and 1. That matches the equivalent
+    # Coptic result at every cutoff through 100: the profile encodes the TEXT
+    # TYPE (biblical prose quoting scripture verbatim), not the language.
+    #
+    # NOT the default for grc — classical Greek keeps latin_epic. Selected
+    # explicitly by the Septuagint pivot (backend/lxx_pivot.py) or by name via
+    # user_settings['weights_profile']. A refinement sweep on the Greek
+    # 124-pair TSK benchmark may update these numbers; until then identity
+    # with biblical_coptic is a feature, because every figure published for
+    # the shape carries over.
+    "biblical_greek": {
+        "edit_distance":     0.795,
+        "sound":            24.277,
+        "exact":             0.698,
+        "lemma":             0.320,
+        "dictionary":        0.123,
+        "semantic":         11.216,
+        "rare_word":         0.550,
+        "syntax":            0.102,
+        "syntax_structural": 0.081,
+        "lemma_min1":        0.088,
+        "quotation":        35.052,
+    },
+
     # Experimental profile, 2026-05-17. Designed to surface paraphrase and
     # thematic intertexts that biblical_coptic suppresses, while keeping
     # verbatim recall above a sanity floor.
@@ -3178,7 +3206,18 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
     # Merge any user weight overrides over the language-default profile. When
     # no overrides are given, effective_weights stays None so fuse_results()
     # uses get_weight_profile() exactly as before (byte-identical default).
-    effective_weights = merge_channel_weights(channel_weights, language)
+    # A caller may name a base profile via user_settings['weights_profile']
+    # (the Septuagint pivot asks for biblical_greek this way); user overrides
+    # still apply on top of the named profile.
+    _wp = user_settings.get('weights_profile')
+    if _wp and _wp in WEIGHT_PROFILES:
+        effective_weights = (merge_channel_weights(channel_weights, language, profile_name=_wp)
+                             or get_weight_profile(profile_name=_wp))
+    elif _wp:
+        logger.warning(f"[FUSION] unknown weights_profile {_wp!r}; using language default")
+        effective_weights = merge_channel_weights(channel_weights, language)
+    else:
+        effective_weights = merge_channel_weights(channel_weights, language)
 
     # Build per-channel configs with language override and user settings
     configs = {}
