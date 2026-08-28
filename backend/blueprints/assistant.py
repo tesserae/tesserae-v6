@@ -290,8 +290,10 @@ def analyze():
     else:
         ask = f'{block}\n\nAnalyse what this evidence supports.'
 
+    # temperature=0 like the answer paths in agent.py: this output passes
+    # through the same number and reference guards, so it must be reproducible.
     text = model.complete(prompts.ANALYZE_SYSTEM, ask,
-                          max_tokens=model.MAX_TOKENS_ANALYZE)
+                          max_tokens=model.MAX_TOKENS_ANALYZE, temperature=0.0)
     if not text:
         return jsonify({'facts': facts, 'answer': None, 'model_used': False,
                         'note': 'Computed findings only: generation failed.'})
@@ -385,7 +387,8 @@ def analyze_stream():
 
         collected = []
         for piece in model.stream(prompts.ANALYZE_SYSTEM, ask,
-                                  max_tokens=model.MAX_TOKENS_ANALYZE):
+                                  max_tokens=model.MAX_TOKENS_ANALYZE,
+                                  temperature=0.0):
             collected.append(piece)
             yield _sse('chunk', {'text': piece})
 

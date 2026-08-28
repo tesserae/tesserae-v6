@@ -701,6 +701,20 @@ ANSWER_TOKENS = 1500
 # dropped the very facts the question was about.
 FACTS_CHAR_CAP = 14000
 
+# THE EXAMPLES IN THIS PROMPT CARRY NO FIGURES. They used to: "194 more in
+# inflected forms", "all but two are later authors quoting Vergil". The model
+# parroted those example phrases verbatim into answers where they were false --
+# "All but two are later authors quoting Vergil" about 42 hits that were all
+# Eobanus -- and the numbers guardrail rightly flagged the echoed "two" and
+# "194", failing test_guardrails_clean_on_a_listing_answer intermittently. A
+# small model copies a vivid example far more readily than it follows the rule
+# above it, so the examples describe the shape of a good answer and quote no
+# number a bad answer could inherit. The same goes for citations: the tool
+# example used to name "Aeneid 1.1", the model would echo it into answers about
+# other texts, and the reference guard then stripped it as unsupported --
+# correctly, and the test caught it as a wrongly rejected citation. No figure,
+# citation, or quotable phrase in this prompt may be something an answer could
+# repeat as fact.
 ANSWER_SYSTEM = """You are answering a scholar's question about a corpus of ancient literature.
 
 A search has been RUN and its results are given to you below. These are your only
@@ -710,9 +724,8 @@ Absolute rules:
 - Name only works, authors and passages that appear in the results.
 - Never state a number that is not in the results.
 - Do NOT do arithmetic. Use the figures as given and do not derive new ones by
-  adding or subtracting them. Writing "13 others" because fifteen were listed
-  and two were named produces a number that is correct and unsupported, and the
-  answer is then flagged for an unsupported figure. If you want to say how many
+  adding or subtracting them: a derived count is unsupported even when the sum
+  is right, and the answer is then flagged for it. If you want to say how many
   remain, say how many are listed and how many there are in total.
 - If the results are thin or empty, say so plainly. "The corpus holds little on
   this" is a real answer and a useful one.
@@ -728,20 +741,26 @@ Underneath your answer the reader is given real controls that open the search
 itself, with the query already in it. So the useful answer is the SHAPE of what
 is there and the judgement they cannot get from a results table:
 
-  How much there is    "twelve times exactly, across eight works, and 194 more
-                       in inflected forms"
-  Which tool, and why  "exact is right for a phrase you have quoted; lemma would
-                       fold in cano and canere and bury Aeneid 1.1"
-  What is worth noting "all but two are later authors quoting Vergil"
+  How much there is    the exact-hit count, how many works they span, and how
+                       many more exist in inflected forms, every figure taken
+                       from the results as given
+  Which tool, and why  exact is right for a phrase they have quoted; lemma
+                       folds in every inflection of the same words and can bury
+                       the very line they care about
+  What is worth noting a judgement the results state outright, such as most
+                       hits being later authors quoting an original. Never
+                       describe a distribution the results do not state: which
+                       books lack the phrase, where it concentrates, what the
+                       unlisted rest looks like.
 
-Lead with the numbers. Two to four sentences. Do not end by telling them to
+Lead with the numbers. Keep it to a few sentences. Do not end by telling them to
 click anything: the controls are there and they can see them.
 
 LISTING, WHICH IS THE EXCEPTION. If they ASK for the instances, the occurrences,
 the passages or the examples, give them: one per line, citation first, then the
 line of text. A count is not an instance, and a paragraph saying that instances
 exist is not an answer to "can you give the Eobanus instances?". List up to
-about eight and say how many more there are. Do not volunteer a listing they did
+about 8 and say how many more there are. Do not volunteer a listing they did
 not ask for -- that is what the search page is for.
 
 OFFER WHAT THEY CANNOT SEE. If the results include variant forms, say how many
@@ -1189,10 +1208,16 @@ def answer_stream(question, on_step=None, history=None, offered_phrase=None):
                                            'clean': True}})
             return
     brief = ''
+    # temperature=0. Answers report search results, and sampling was the last
+    # source of intermittent fabrication: at 0.2 the model would occasionally
+    # invent a shape claim ("the phrase appears in every book except...") that
+    # the numbers guardrail then flagged, one run in several. Greedy decoding
+    # makes the answer to a given fact block reproducible, so a clean answer
+    # stays clean and a bad one fails every time, where it can be fixed.
     for piece in model.stream(ANSWER_SYSTEM,
                               f'{block}\n\n{_listing_rule(asked)}{brief}'
                               f'\n\nQuestion: {asked}\n\nAnswer:',
-                              max_tokens=budget, temperature=0.2):
+                              max_tokens=budget, temperature=0.0):
         collected.append(piece)
         yield ('chunk', piece)
 
@@ -1827,10 +1852,11 @@ def answer(question, on_step=None, history=None, offered_phrase=None):
         return prep
     block, all_facts, ran = prep['block'], prep['facts'], prep['ran']
     step('reading the results')
+    # temperature=0 for the same reason as the streaming path above.
     text = model.complete(ANSWER_SYSTEM,
                           f'{block}\n\nQuestion: '
                           f'{prep.get("question_override") or question}\n\nAnswer:',
-                          max_tokens=ANSWER_TOKENS, temperature=0.2)
+                          max_tokens=ANSWER_TOKENS, temperature=0.0)
     if not text:
         return {'error': 'could not compose an answer', 'facts': all_facts}
     # Every place a citation can legitimately come from. This read only
