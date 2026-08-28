@@ -221,6 +221,55 @@ Coverage 83-96% across all eleven, proper-name agreement 0.39 to 0.78.
 translation at full coverage and 3.1 source lines per unit, against Rogers at
 21.6. A coarser alignment should never displace a finer one that already works.
 
+## Pipeline 7: Quintus of Smyrna and Apollonius Rhodius
+
+    align_theoi.py
+
+The two big Greek epics outside Homer with no English at all: the
+*Posthomerica* (8,800 lines) and the *Argonautica* (5,800). Way's Loeb of 1913
+and Seaton's of 1912, both US public domain, from the Theoi Classical Texts
+Library transcriptions -- clean HTML, no OCR, each paragraph opening with a
+bracketed line number.
+
+**What that number counts differs between the two authors**, and assuming
+otherwise is the Seneca trap again. Seaton's markers are Greek line numbers
+(book 4's last is 1773 against our 1781) and map directly. Way's are his OWN
+English verse lines (book 1's last is 1103 against our 830 Greek), so they are
+rescaled proportionally onto the Greek per book before use. The name check is
+the judge of whether the rescale held: 0.44-0.46 for Quintus and 0.61 for
+Apollonius, with length correlation 0.99 for both.
+
+Both works exist twice in the corpus under different names (Quintus as
+`fall_of_troy` and `posthomerica` with slightly different line counts,
+Apollonius as `apollonius.argonautica` and `apollonius_rhodius.argonautica`,
+byte-identical). One alignment is computed per author and written once per
+work id. Coverage is 100% on all four.
+
+## Pipeline 8: Ovid's Fasti, Tristia and Ex Ponto
+
+    align_ovid.py
+
+The rest of Ovid: the Perseus rebuild covered the *Metamorphoses*, *Amores*,
+*Ars* and *Heroides*; these three (11,700 lines) had nothing. Two sources.
+
+**Tristia and Ex Ponto: Wheeler's Loeb of 1924**, the Statius running-header
+method with one addition. The OCR mauls the lower-case poem numerals in the
+headers beyond reliable reading ("iii" arrives as m1, im and mr; "vii" and
+"viii" both arrive as vu), so the walk trusts numbers and contiguity instead:
+a single-range header continues the current poem, a cross header
+("127--II. 24") finishes it and opens the next, both validated against our
+own poem lengths, and the mangled numeral is consulted only to resync after a
+failure. Coverage 77% and 90%, names 0.61 and 0.75.
+
+**Fasti: Riley's Bohn prose of 1851**, because the only Loeb is Frazer 1931,
+out of reach until 2027. The scan's headers alone are not enough (OCR loses
+many), but Riley annotates so heavily that nearly every page carries footnotes
+anchored "] -- Ver. 141.", and those verse numbers date the page directly. A
+page whose footnotes run far past one page's span is a page whose successor
+lost its header: its whole body, notes included, is kept as one honest coarse
+unit rather than claiming verses whose prose was discarded. Coverage 87%,
+names 0.69, length correlation 0.77.
+
 ## Pipeline 6½: the SBLGNT remap
 
     remap_sblgnt.py
