@@ -127,6 +127,9 @@ function saveTurns(turns) {
 }
 
 const OPENERS = [
+  // Site help leads. Half of what she does is explain the site, and until this
+  // suggestion existed no surface of the panel said so.
+  'How do I run a search?',
   'Where does the phrase arma virumque appear?',
   'What Hebrew texts are in the corpus?',
   // Replaces the banner that used to sit across the top of every page. The
@@ -229,7 +232,7 @@ export default function AssistantDock() {
         <span className="hidden sm:block text-left leading-tight">
           <span className="block text-base font-semibold">Tessa</span>
           <span className="block text-[11px] font-medium text-red-100">
-            AI Assistant
+            Search help &amp; site guide
           </span>
         </span>
       </button>
@@ -282,9 +285,9 @@ export default function AssistantDock() {
         {turns.length === 0 && !running && (
           <>
             <p className="text-sm text-gray-600 leading-relaxed">
-              Ask a question and I will run searches to answer it. I can tell you
-              where a phrase occurs, what the corpus holds in a language, and
-              which searches are worth trying.
+              I can run searches on this corpus and explain how the site works.
+              Ask me where a phrase occurs, what the corpus holds, how to set up
+              a search, or what a result means.
             </p>
             <div className="flex flex-col gap-1.5">
               {OPENERS.map((q) => (
@@ -335,7 +338,7 @@ export default function AssistantDock() {
         <input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder="What are you trying to find?"
+          placeholder="Ask about a text, a phrase, or how the site works"
           className="flex-1 text-sm px-2 py-1.5 rounded border border-gray-300 focus:outline-none focus:ring-1 focus:ring-red-600"
         />
         <button

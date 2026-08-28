@@ -654,14 +654,20 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
             <div className="prose max-w-none">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Tessa, the assistant</h3>
               <p className="text-gray-700 mb-4">
-                Tessa is a research assistant that <strong>runs searches against this corpus and
-                reports what came back</strong>. She is not a chatbot with opinions about
-                classical literature, and she is not a substitute for reading. Ask her a question
-                about what the corpus holds and she will search it.
+                Tessa does two things: she <strong>explains how this site works</strong>, and she
+                <strong> runs searches against this corpus and reports what came back</strong>.
+                Ask her how to set up a search, what a result means, or where a phrase occurs.
+                She can bring a little general background to an answer, but what she reports is
+                anchored to the searches she actually ran. She is not a chatbot with opinions
+                about classical literature, and she is not a substitute for reading.
               </p>
 
               <h4 className="font-medium text-gray-900 mt-6 mb-2">What she can do</h4>
               <ul className="list-disc pl-5 text-gray-700 space-y-2 mb-3">
+                <li>
+                  Explain how the site works, including how to connect your own AI to it. She
+                  reads these Help pages, so what is documented here is what she knows.
+                </li>
                 <li>Find where a word or phrase occurs, and list the actual lines.</li>
                 <li>Say what the corpus holds in a language, or by an author.</li>
                 <li>
@@ -671,7 +677,6 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   them.
                 </li>
                 <li>Follow up. Ask &ldquo;what about Eobanus?&rdquo; and she keeps the thread.</li>
-                <li>Explain how the site works, including how to connect your own AI to it.</li>
               </ul>
 
               <h4 className="font-medium text-gray-900 mt-6 mb-2">How to trust her</h4>
@@ -684,6 +689,17 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               <p className="text-gray-700 mb-3">
                 She still cannot read the literature for you. She reports what the searches
                 returned, and the judgement about what it means is yours.
+              </p>
+
+              <h4 className="font-medium text-gray-900 mt-6 mb-2">For advanced analysis</h4>
+              <p className="text-gray-700 mb-3">
+                Tessa runs on a small model, which keeps her fast and private, and it also limits
+                how deeply she can interpret. If you want advanced AI analysis of search results,
+                such as weighing which parallels are genuine allusions or drafting an
+                interpretation, the best way is to connect your own latest-model AI directly to
+                Tesserae and let it run the searches itself. The instructions are on the{' '}
+                <button onClick={() => setActiveSection('ai-guide')} className="text-red-600 hover:underline">Use with your AI</button>{' '}
+                page, and Tessa can walk you through the setup.
               </p>
             </div>
           )}
