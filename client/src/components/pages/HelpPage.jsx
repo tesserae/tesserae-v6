@@ -638,7 +638,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </li>
                 <li>
                   <strong>Translation</strong> shows the aligned public-domain English where one
-                  exists. Coverage is partial: roughly a fifth of the Greek corpus and a tenth of
+                  exists. Coverage is partial: roughly a third of the Greek corpus and a fifth of
                   the Latin, so many passages have none.
                 </li>
               </ul>

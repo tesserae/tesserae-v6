@@ -404,7 +404,7 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
             {!loading && translation?.available === false && (
               <p className="text-sm text-gray-500">
                 {translation.reason} Aligned public-domain translations currently cover
-                about a fifth of the Greek corpus and a tenth of the Latin.
+                about a third of the Greek corpus and a fifth of the Latin.
               </p>
             )}
             {!loading && translation?.available && (
