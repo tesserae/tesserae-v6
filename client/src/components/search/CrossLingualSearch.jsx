@@ -43,6 +43,10 @@ export default function CrossLingualSearch() {
   const [loading, setLoading] = useState(true);
   const [searchLoading, setSearchLoading] = useState(false);
   const [results, setResults] = useState([]);
+  // Set when the server answered a Hebrew-Greek search through the Septuagint
+  // (via_septuagint in the response). Shown above the results, because a
+  // reader must know the match was found in Greek and mapped to the Hebrew.
+  const [pivotNote, setPivotNote] = useState(null);
   const [error, setError] = useState(null);
 
   const [langPair, setLangPair] = useState('grc-la');
@@ -105,8 +109,10 @@ export default function CrossLingualSearch() {
         if (data.error) {
           setError(data.error);
           setResults([]);
+    setPivotNote(null);
         } else {
           setResults(data.results || []);
+          setPivotNote(data.via_septuagint ? (data.note || '') : null);
         }
       }
     } catch (err) {
@@ -232,6 +238,7 @@ export default function CrossLingualSearch() {
   const handleLangPairChange = useCallback((newKey) => {
     setLangPair(newKey);
     setResults([]);
+    setPivotNote(null);
     setChartFilter(null);
     hasSearchedRef.current = false;
     const pair = LANG_PAIRS.find(p => p.key === newKey) || LANG_PAIRS[0];
@@ -544,6 +551,11 @@ export default function CrossLingualSearch() {
 
       {results.length > 0 && (
         <div className="bg-white rounded-lg shadow overflow-hidden">
+          {pivotNote && (
+            <div className="px-4 py-2 bg-amber-50 border-b border-amber-200 text-xs text-amber-800">
+              {pivotNote}
+            </div>
+          )}
           <div className="px-4 py-3 bg-gray-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <span className="text-sm text-gray-600">
               Found {results.length} cross-lingual parallels
@@ -631,6 +643,14 @@ export default function CrossLingualSearch() {
                   <div>
                     <div className="text-xs text-gray-500 mb-1">Source</div>
                     <div className="font-medium text-gray-900">{result.source?.ref || result.source_locus}</div>
+                    {(result.source?.hebrew_ref || result.target?.hebrew_ref) && (
+                      <div className="text-xs text-gray-600 mt-0.5">
+                        Hebrew: {result.source?.hebrew_ref || result.target?.hebrew_ref}
+                        {(result.source?.hebrew_text || result.target?.hebrew_text) && (
+                          <div className="text-gray-700 mt-0.5" dir="rtl">{result.source?.hebrew_text || result.target?.hebrew_text}</div>
+                        )}
+                      </div>
+                    )}
                     {result.source?.tokens && result.source?.highlight_indices?.length > 0 ? (
                       <div className="text-gray-700 mt-1" dir={currentPair.source === 'he' ? 'rtl' : undefined} dangerouslySetInnerHTML={{ __html: highlightTokens(result.source.tokens, result.source.highlight_indices) }} />
                     ) : (

@@ -839,6 +839,100 @@ def _longest_translated_run(word_matches):
     return best
 
 
+def _lxx_pivot_core(params, source_units, target_units, settings):
+    """Answer a Hebrew-Greek search through the Septuagint. See backend/lxx_pivot.
+
+    The New Testament quotes the SEPTUAGINT, not the Hebrew, so a biblical
+    he-grc search is better answered Greek-to-Greek against the LXX and mapped
+    back to the Hebrew verse by versification. Measured 2026-08-27 on the 22
+    formula-marked Isaiah citations in Romans: direct route 0 of 22 in the top
+    100, pivot with the biblical_greek profile 15 of 22, 8 in the top ten
+    (backend/lxx_pivot.py carries the full account).
+
+    Returns a plain dict (this runs inside the request-free core), or None to
+    signal "no routed counterpart, use the direct route." Every result keeps
+    the Septuagint line visible and carries the Hebrew reference and text it
+    translates: a reader shown a match "in Hebrew" that was found in Greek
+    must be able to see the Greek.
+    """
+    import re as _re
+    from backend import lxx_pivot
+    from backend.text_processor import TextProcessor
+    from backend.matcher import Matcher
+    from backend.scorer import Scorer
+    from backend.fusion import iter_fusion_search
+
+    source_language = params['source_language']
+    he_side = 'source' if source_language == 'he' else 'target'
+    he_id = params['source_id'] if he_side == 'source' else params['target_id']
+    grc_id = params['target_id'] if he_side == 'source' else params['source_id']
+
+    counterpart = lxx_pivot.lxx_counterpart(he_id)
+    if not counterpart:
+        return None
+    lxx_path = os.path.join(_texts_dir, 'grc', counterpart + '.tess')
+    if not os.path.exists(lxx_path):
+        logger.info(f"[LXX_PIVOT] counterpart file missing, direct route: {lxx_path}")
+        return None
+    logger.info(f"[LXX_PIVOT] routing {he_id} x {grc_id} through {counterpart}")
+
+    tp = TextProcessor()
+    lxx_units = tp.process_file(lxx_path, language='grc')
+    grc_units = target_units if he_side == 'source' else source_units
+
+    if he_side == 'source':
+        s_units, t_units = lxx_units, grc_units
+        s_id, t_id = counterpart + '.tess', grc_id
+        s_path, t_path = lxx_path, params['target_path']
+    else:
+        s_units, t_units = grc_units, lxx_units
+        s_id, t_id = grc_id, counterpart + '.tess'
+        s_path, t_path = params['source_path'], lxx_path
+
+    results = []
+    for evt, data in iter_fusion_search(
+            source_units=s_units, target_units=t_units,
+            matcher=Matcher(), scorer=Scorer(),
+            source_id=s_id, target_id=t_id,
+            language='grc', mode='merged',
+            max_results=settings.get('max_results', 5000),
+            source_path=s_path, target_path=t_path,
+            user_settings={'weights_profile': 'biblical_greek'}):
+        if evt == 'complete':
+            results = data.get('results', [])
+
+    lxx_pivot.annotate_results(results, he_id, he_side)
+
+    # Attach the Hebrew line text beside each Hebrew reference, so the UI can
+    # show the verse itself rather than only a pointer.
+    he_path = params['source_path'] if he_side == 'source' else params['target_path']
+    he_lines = {}
+    try:
+        with open(he_path, encoding='utf-8', errors='replace') as fh:
+            for line in fh:
+                m = _re.match(r'^<([^>]*)>\t?(.*)$', line)
+                if m:
+                    he_lines.setdefault(m.group(1).strip(), m.group(2).strip())
+    except OSError as e:
+        logger.warning(f"[LXX_PIVOT] could not read Hebrew text: {e}")
+    for r in results:
+        half = r.get(he_side)
+        if isinstance(half, dict) and half.get('hebrew_ref') in he_lines:
+            half['hebrew_text'] = he_lines[half['hebrew_ref']]
+
+    return {
+        'results': results,
+        'total_results': len(results),
+        'via_septuagint': True,
+        'septuagint_text': counterpart,
+        'weights_profile': 'biblical_greek',
+        'note': ('This Hebrew-Greek search was answered through the Septuagint: '
+                 'the Greek side was searched against the Septuagint text of the '
+                 'Hebrew book, and each result carries the Hebrew verse that '
+                 'Septuagint line translates.'),
+    }
+
+
 def _handle_crosslingual_fusion(params, source_units, target_units, settings,
                                 cancellation=None):
     """HTTP wrapper around :func:`_crosslingual_fusion_core`.
@@ -908,6 +1002,15 @@ def _crosslingual_fusion_core(params, source_units, target_units, settings,
     if lang_pair not in VALID_CROSSLINGUAL_PAIRS:
         return {"error": f"Unsupported cross-lingual pair: {source_language} -> {target_language}. "
                 f"Supported: grc-la, la-en, grc-en"}
+
+    # --- Septuagint pivot for Hebrew-Greek biblical pairs ---
+    # Falls through to the direct route when the Hebrew text has no routed
+    # Septuagint counterpart, or when disabled (TESSERAE_LXX_PIVOT=0).
+    if (lang_pair == frozenset(('he', 'grc'))
+            and os.environ.get('TESSERAE_LXX_PIVOT', '1') not in ('0', 'false', 'no')):
+        pivot_out = _lxx_pivot_core(params, source_units, target_units, settings)
+        if pivot_out is not None:
+            return pivot_out
 
     is_greek_latin = lang_pair == frozenset(('grc', 'la'))
     has_english = 'en' in lang_pair
