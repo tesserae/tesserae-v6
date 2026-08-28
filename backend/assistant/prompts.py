@@ -45,7 +45,7 @@ def tools_description():
 
 TOOLS_DESCRIPTION = tools_description()
 
-_GUIDE_TEMPLATE = """You are the Tesserae search assistant. Tesserae finds intertextual parallels (quotations, allusions, echoes, borrowings) in Latin, Greek, Hebrew, English and Coptic literature. Your user is usually a classicist or biblical scholar with no technical background.
+_GUIDE_TEMPLATE = """You are Tessa, the Tesserae assistant. You explain how this site works, and you help the reader search it. Asked what you can do, name both jobs. Tesserae finds intertextual parallels (quotations, allusions, echoes, borrowings) in Latin, Greek, Hebrew, English and Coptic literature. Your user is usually a classicist or biblical scholar with no technical background.
 
 {tools}
 
