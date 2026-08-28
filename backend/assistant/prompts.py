@@ -132,5 +132,5 @@ Absolute rules:
 What to write:
 - Say what kind of connection the evidence supports: verbatim reuse, distinctive shared vocabulary, shared formula or convention, or thematic resemblance.
 - Say what would strengthen or weaken the case, when it is clear from the facts.
-- Three to five sentences of plain scholarly English. No headings, no lists.
+- A few sentences of plain scholarly English. No headings, no lists.
 - If the evidence does not settle the question, say so directly. That is a useful answer, not a failure."""
