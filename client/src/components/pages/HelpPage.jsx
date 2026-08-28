@@ -852,10 +852,26 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
               <div className="mt-4 bg-blue-50 p-4 rounded-lg">
                 <h4 className="font-medium text-blue-800 mb-1">Hebrew → Greek and Hebrew → Latin</h4>
-                <p className="text-blue-800 text-sm">
-                  On the Cross-Language tab you can search the Hebrew Bible against the Greek Septuagint or the Latin
-                  Vulgate, to see how a Hebrew passage was rendered or echoed in translation. Hebrew-to-Greek uses the
+                <p className="text-blue-800 text-sm mb-2">
+                  On the Cross-Language tab you can search the Hebrew Bible against the Greek New Testament or the Latin
+                  Vulgate, to see how a Hebrew passage was quoted, rendered, or echoed. Hebrew-to-Greek uses the
                   CATSS Masoretic-Septuagint alignment; Hebrew-to-Latin bridges that through Greek to the Vulgate.
+                </p>
+                <p className="text-blue-800 text-sm mb-2">
+                  <strong>Searching for Old Testament quotations in the Greek New Testament routes through the
+                  Septuagint.</strong> New Testament authors quote the Septuagint, the ancient Greek translation of the
+                  Hebrew Bible, rather than translating the Hebrew themselves. So when you search a Hebrew book against
+                  a Greek text, Tesserae finds the quotation Greek-to-Greek against the Septuagint version of that book,
+                  where verbatim matching is at its strongest, and then maps each Septuagint verse back to the Hebrew
+                  verse it translates. Each result shows the Septuagint line where the match was found together with
+                  the Hebrew verse behind it, and a notice above the results says the routing was used.
+                </p>
+                <p className="text-blue-800 text-sm">
+                  On a benchmark of the 22 explicitly marked citations of Isaiah in Romans, this routing finds 15 in
+                  the top 100 results and 9 in the top ten, where the direct word-for-word route found none in the top
+                  100. A few books are not routed because their Septuagint versification diverges too far from the
+                  Hebrew (Jeremiah, Ezra-Nehemiah, Ecclesiastes, Lamentations); those fall back to the direct
+                  dictionary search.
                 </p>
               </div>
 
