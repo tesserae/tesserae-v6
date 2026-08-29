@@ -227,6 +227,11 @@ for w, tag, t in CYPRIAN_TREATISES:
 # ---- Ambrose (NPNF series 2 vol. 10, de Romestin 1896) ----
 reg('ambrose.de_mysteriis', 'npnf210', 'On the Mysteries',
     r'<(ambrose\. de_mysteriis\. (\d+)\.\d+)>', mode='chapter')
+# NPNF's letter selection uses the Benedictine numbers our corpus uses;
+# the seven letters both sides hold align, the rest stay uncovered
+reg('ambrose.epistulae_variae', 'npnf210', 'Selections from the Letters',
+    r'<(ambrose\. epistolae_variae\. (\d+)\.(\d+))>',
+    mode='ambrose-letters')
 
 
 def load_refs(path, ref_re):
@@ -291,6 +296,17 @@ def parse(volumes, w):
         # them into two books, numbering each book from 1
         flat = numbered_children(seg, lvl)
         return {('flat', n): t for n, t in flat.items()}
+    if mode == 'ambrose-letters':
+        out = {}
+        for attrs, body in children(seg, lvl):
+            m = re.search(r'(?:Epistle|Letter)\s+([IVXLCD]+)',
+                          attrs.get('title', ''))
+            n = roman_to_int(m.group(1)) if m else None
+            if not n:
+                continue
+            for c, t in chain_sections(plain(body)).items():
+                out[(n, c)] = t
+        return out
     if mode == 'quirinum':
         # each Book opens with Cyprian's own list of heads and then one
         # @n-numbered div per testimony; the first draft chained the
