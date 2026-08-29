@@ -108,7 +108,7 @@ reg('lactantius.de_opificio_dei', 'anf07', 'On the Workmanship of God',
 reg('lactantius.de_mortibus_persecutorum', 'anf07',
     'Of the Manner in Which the Persecutors Died',
     r'<(lact\. de_mort\. (\d+)\.\d+)>', mode='chapter')
-reg('lactantius.de_ave_phoenice', 'anf07', 'The Ph', 
+reg('lactantius.de_ave_phoenice', 'anf07', 'The Ph\u0153nix',
     r'<(lact\. phoenice\. (\d+))>', mode='verse')
 reg('lactantius.carmen_de_passione_domini', 'anf07',
     'A Poem on the Passion of the Lord',
@@ -237,7 +237,6 @@ reg('ambrose.epistulae_variae', 'npnf210', 'Selections from the Letters',
 def load_refs(path, ref_re):
     """[(ref, g2, g3, latin)] — group meanings vary by mode."""
     out = []
-    pat = re.compile(r'^\s*' + ref_re + r'\s*(?:>)?')
     for line in open(path, encoding='utf-8', errors='replace'):
         m = re.match(r'^\s*<([^>]+)>\s*(.*)', line)
         if not m:
@@ -381,7 +380,6 @@ def main():
                 pairs.append((latin, text))
         elif w['mode'] == 'commodian':
             # corpus (book, poem): book 2 continues the flat numbering
-            book1_max = max(int(g2) if False else 0 for _ in [0])
             poems1 = {int(g3) for _, g2, g3, _ in refs if g2 == '1'}
             off = max(poems1) if poems1 else 0
             for ref, b, p, latin in refs:
