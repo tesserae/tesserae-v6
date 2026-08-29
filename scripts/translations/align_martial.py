@@ -126,8 +126,10 @@ def parse_book(path):
         text = strip_title(strip_tags(body))
         if n in out:      # a repeated anchor would mean the page is mangled
             raise ValueError(f'{path}: duplicate anchor C{n}')
-        if text:
-            out[n] = text
+        # an anchor whose body vanishes once blockquotes are stripped is an
+        # epigram the Bohn prints only in Graglia's Italian (11.58): record
+        # it, so the numbering validation knows it is untranslated, not lost
+        out[n] = text
     return out
 
 
@@ -221,12 +223,13 @@ def main():
     for b in range(1, 15):
         got = parse_book(os.path.join(args.src_dir, f'book{b:02d}.htm'))
         for k in sorted(got, key=str):
-            if not is_english(got[k]):
+            if not got[k] or not is_english(got[k]):
                 dropped.append((b, k))
                 del got[k]
         books[b] = got
     for b, k in dropped:
-        print(f'  book {b} epigram {k}: not English (Graglia italian), skipped')
+        print(f'  book {b} epigram {k}: untranslated in the Bohn '
+              f'(Graglia italian or omitted), skipped')
 
     spect = parse_spectaculis(os.path.join(args.src_dir, 'spectaculis.htm'))
     for k in sorted(spect):
