@@ -32,6 +32,7 @@ import json
 import os
 import re
 import sys
+from collections import defaultdict
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import proper_names as V
@@ -146,7 +147,6 @@ def main():
 
         # allocate corpus lines to Riley scenes by cumulative length,
         # act by act
-        from collections import defaultdict
         acts = defaultdict(list)          # act -> [(ref, latin)] in order
         for ref, key, latin in refs:
             if key == 'prologue':
