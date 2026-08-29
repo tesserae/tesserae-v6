@@ -50,6 +50,9 @@ page documents it. Queries at or under 12 content lemmas are untouched
 
 Same investigation, same table: the qere/ketiv rewrite of
 build_inverted_index.py had DROPPED the #235 lemma_doc_freq finalize step,
-so Hebrew and Coptic indexes had no table and Latin's was stale. The
-builder is restored with a history note in its docstring; all five
-languages' tables rebuilt on production 2026-08-29.
+so the Hebrew and Coptic indexes had no table at all. (Latin's looked
+stale in the first diagnosis, but the rebuild reproduced its counts
+exactly: the canonical dedup re-appends '.tess' after stripping '.part.N',
+which the diagnostic probe had skipped.) The builder is restored with a
+history note in its docstring; all five languages' tables rebuilt on
+production 2026-08-29 (grc 493,470 lemmas in 775s, la 301,338 in 257s).
