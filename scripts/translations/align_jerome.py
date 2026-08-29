@@ -103,6 +103,13 @@ def parse_letters(xml_path):
                 out['18B'] = chains[1]
         else:
             out[str(n)] = chains.get(0, {})
+            if len(chains) > 1:
+                # a restarted chain in any other letter is an anomaly the
+                # coverage numbers would otherwise hide — say so
+                print(f'  letter {n}: {len(chains) - 1} extra section '
+                      f'chain(s) ignored '
+                      f'({sum(len(c) for k, c in chains.items() if k)} '
+                      f'sections)')
     return out
 
 
