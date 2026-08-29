@@ -47,6 +47,9 @@ export default function ReaderPage() {
   const [wantedTab] = useState(() => paramOr('tab', ''));
   const [cameFrom, setCameFrom] = useState(() => paramOr('q', ''));
   const [units, setUnits] = useState([]);
+  // The last work id whose fetch failed, so falling back to a default text
+  // cannot loop if the default itself is broken.
+  const failedWorkRef = useRef(null);
   const [metadata, setMetadata] = useState(null);
   const [selection, setSelection] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -66,7 +69,22 @@ export default function ReaderPage() {
       .then((r) => r.json())
       .then((d) => {
         if (cancelled) return;
-        if (d.error) { setError(d.error); return; }
+        if (d.error) {
+          // A work the current language does not hold (a stale URL, a
+          // language switched under an open text) used to leave "Text not
+          // found" on screen with no way forward but the URL bar. Clear the
+          // work instead, so the default-picker below opens the new
+          // language's first text. The ref guards the one bad loop: if the
+          // picked default itself fails, show the error rather than spin.
+          if (work !== failedWorkRef.current) {
+            failedWorkRef.current = work;
+            setWork('');
+            return;
+          }
+          setError(d.error);
+          return;
+        }
+        failedWorkRef.current = null;
         setUnits(d.units || []);
         setMetadata(d.metadata || null);
       })
@@ -166,8 +184,10 @@ export default function ReaderPage() {
     // only mid-change.
     if (work || corpusLoading || !hierarchy?.length) return;
     for (const a of hierarchy) {
-      const file = ((a.works || [])[0]?.sections || [])[0]?.file;
-      if (file) { setWork(file); return; }
+      for (const w of a.works || []) {
+        const file = (w.sections || [])[0]?.file;
+        if (file) { setWork(file); return; }
+      }
     }
   }, [work, hierarchy, corpusLoading]);
 
