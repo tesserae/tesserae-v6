@@ -278,3 +278,25 @@ describe('Back inside the Reader comes back to the Reader', () => {
     expect(window.history.length - before).toBe(1);
   });
 });
+
+describe('per-language defaults', () => {
+  it('switching to Greek opens the Argonautica, not the first author', async () => {
+    await mountReader();
+    fireEvent.change(await screen.findByLabelText('Language'),
+                     { target: { value: 'grc' } });
+    await waitFor(() =>
+      expect(asked).toContain('apollonius.argonautica.part.1.tess'));
+  });
+
+  it('switching back to Latin opens Aeneid 1', async () => {
+    await mountReader();
+    fireEvent.change(await screen.findByLabelText('Language'),
+                     { target: { value: 'grc' } });
+    await waitFor(() =>
+      expect(asked).toContain('apollonius.argonautica.part.1.tess'));
+    fireEvent.change(await screen.findByLabelText('Language'),
+                     { target: { value: 'la' } });
+    await waitFor(() =>
+      expect(asked).toContain('vergil.aeneid.part.1.tess'));
+  });
+});
