@@ -42,6 +42,15 @@ case "${1:-}" in
     done
     # Prune the attic to the newest KEEP files so it cannot grow without bound.
     ls -1t "$ATTIC" | tail -n +$((KEEP + 1)) | while read -r old; do rm -f "$ATTIC/$old"; done
+    # Ensure /static/downloads is reachable through the docroot. Apache serves
+    # dist/ directly (the /var/www/tess-new symlink) and hands only /api to
+    # Flask, so Flask's serve_static_downloads hook never sees these URLs: a
+    # missing dist/static meant every Downloads-page file link fell through the
+    # SPA rewrite and served index.html as a 200 -- benchmark "downloads" were
+    # silently HTML. The symlink dies whenever dist is rebuilt, so it is
+    # re-ensured here, on every deploy.
+    mkdir -p "$DIST/static"
+    ln -sfn "$(cd "$DIST/.." && pwd)/static/downloads" "$DIST/static/downloads"
     echo "restored $n older bundle(s); attic holds $(ls -1 "$ATTIC" | wc -l)"
     ;;
   *)
