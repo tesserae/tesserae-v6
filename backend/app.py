@@ -1825,6 +1825,45 @@ def line_search():
             filtered_common_words = sorted(query_lemmas - content_lemmas)
             n_query_words = len([w for w in query.split() if w.strip()])
 
+            # A PASSAGE-SIZED QUERY SEARCHES ON ITS RAREST WORDS. The Reader's
+            # Verbal Parallels tab sends the whole selection as one query; six
+            # Aeneid lines lemmatize to 40 lemmas, whose posting lists union to
+            # 269,850 candidate lines and 97 seconds of search (measured
+            # 2026-08-29, NC watching the spinner). Two shared words out of 40
+            # is also a commonplace, not a parallel. So above a cap the query
+            # keeps only its rarest lemmas by corpus document frequency, which
+            # is both the fast search and the Tesserae-shaped question: lines
+            # sharing the passage's DISTINCTIVE vocabulary. The reduction is
+            # named in the response, never silent.
+            LEMMA_CAP = 12
+            reduced_from = None
+            if len(filtered_query_lemmas) > LEMMA_CAP:
+                try:
+                    import sqlite3 as _sq
+                    from backend.lexical_density import _index_path
+                    _conn = _sq.connect(f'file:{_index_path(language)}?mode=ro',
+                                        uri=True)
+                    _df = {}
+                    for _lem in filtered_query_lemmas:
+                        _r = _conn.execute(
+                            'SELECT df FROM lemma_doc_freq WHERE lemma = ?',
+                            (_lem,)).fetchone()
+                        _df[_lem] = _r[0] if _r else 0
+                    _conn.close()
+                    _present = [l for l in filtered_query_lemmas if _df[l] > 0]
+                    if len(_present) > LEMMA_CAP:
+                        reduced_from = len(filtered_query_lemmas)
+                        filtered_query_lemmas = set(
+                            sorted(_present, key=lambda l: _df[l])[:LEMMA_CAP])
+                except Exception as _e:
+                    # No doc-freq table for this language: search as-is, but say
+                    # so, because the silent form of this fallback is how the
+                    # missing Hebrew and Coptic tables went unnoticed.
+                    app.logger.warning(
+                        '[LINE-SEARCH] passage-query reduction unavailable for '
+                        '%s (%s); searching on all %d lemmas', language, _e,
+                        len(filtered_query_lemmas))
+
             # Single-word count_only: route here ONLY when the query LITERALLY has
             # one word. A multi-word query that common-word filtering reduces to a
             # single content word is still a co-occurrence (pair) query and must
@@ -2224,6 +2263,13 @@ def line_search():
                 # it WAS still used for co-occurrence. Naming it lets the caller say
                 # the pairing leans on the other word rather than mis-report rarity.
                 payload['filtered_common_words'] = filtered_common_words
+            if reduced_from:
+                payload['query_reduced'] = {
+                    'from_lemmas': reduced_from,
+                    'to_lemmas': sorted(filtered_query_lemmas),
+                    'note': ('Passage-sized query: searched on its '
+                             f'{len(filtered_query_lemmas)} rarest words'),
+                }
             if not count_only:
                 payload['results'] = results
             return jsonify(payload)

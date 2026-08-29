@@ -319,6 +319,15 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
               </>
             )}
             {verbalError && <p className="text-sm text-red-700">{verbalError}</p>}
+            {!verbalLoading && verbal?.query_reduced && (
+              /* A passage-sized selection is searched on its rarest words, and
+                 the reader is told which, so the results are never mistaken
+                 for a search of the whole wording. */
+              <p className="text-xs text-gray-500">
+                Passage-sized selection: matched on its most distinctive words
+                ({verbal.query_reduced.to_lemmas.join(', ')}).
+              </p>
+            )}
             {!verbalLoading && verbal?.results?.length === 0 && (
               <p className="text-sm text-gray-500">
                 No other passage in the corpus shares this selection&rsquo;s distinctive

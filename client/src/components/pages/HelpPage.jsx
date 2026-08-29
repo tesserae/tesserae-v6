@@ -637,6 +637,14 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   content resembles your selection, across every indexed language.
                 </li>
                 <li>
+                  <strong>Verbal parallels</strong> lists corpus lines that share your
+                  selection&rsquo;s wording. A line or short phrase is searched on all of its
+                  content words. A passage-sized selection is searched on its most distinctive
+                  words, the rarest in the corpus by document frequency, and the panel names
+                  which words those were. Rare shared vocabulary is what marks a genuine echo;
+                  a couple of common words shared with a long passage is a commonplace.
+                </li>
+                <li>
                   <strong>Translation</strong> shows the aligned public-domain English where one
                   exists. Coverage is partial: roughly a third of the Greek corpus and a fifth of
                   the Latin, so many passages have none.
