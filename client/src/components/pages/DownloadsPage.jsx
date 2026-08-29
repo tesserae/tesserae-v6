@@ -352,6 +352,55 @@ const DownloadsPage = () => {
       </div>
 
       <div className="bg-white rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Coptic Text-Reuse Study</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Complete evaluation data for the article &ldquo;Multi-Channel Feature Fusion for Finding
+          Coptic Text Reuse&rdquo;: gold-standard benchmarks, ranked search outputs,
+          weight-optimization logs, and the scripts that reproduce them. Because the Sahidica New
+          Testament is licensed for academic use only, its line text is replaced with verse
+          references throughout; every result is reproducible with the freely obtainable Sahidica
+          text. See the README for the full inventory and licensing.
+        </p>
+        <ul className="space-y-2 text-sm">
+          <li>
+            <a href="/static/downloads/coptic_article/coptic_v6_data_release_2026-08-29.zip"
+               className="text-red-600 hover:underline font-medium" download>
+              Complete release (zip, ~280 KB)
+            </a>
+            {' '}&mdash; all files below in one archive, with MANIFEST.csv checksums.
+          </li>
+          <li>
+            <a href="/static/downloads/coptic_article/README.md"
+               className="text-red-600 hover:underline">README</a>
+            {' '}&mdash; inventory, methods, licensing, and the run-to-run variation note.
+          </li>
+          <li>
+            <a href="/static/downloads/coptic_article/gold/romans_isaiah_gold_22.csv"
+               className="text-red-600 hover:underline">Held-out benchmark: Romans&ndash;Isaiah citations (22 pairs)</a>
+            {' '}&mdash; the explicit formula-marked citations, fixed before any output was seen.
+          </li>
+          <li>
+            <a href="/static/downloads/coptic_article/gold/tsk_hebrews_psalms_gold_124.csv"
+               className="text-red-600 hover:underline">Development benchmark: Hebrews&ndash;Psalms cross-references (124 pairs)</a>
+            {' '}&mdash; derived from the OpenBible.info dataset, vote-filtered, LXX-numbered.
+          </li>
+          <li>
+            <a href="/static/downloads/coptic_article/outputs/romans_isaiah_ranked_10000.jsonl"
+               className="text-red-600 hover:underline">Ranked output: Romans &times; Isaiah (top 10,000)</a>
+            {' '}&mdash; the single held-out run the article reports; reproduces its Table 4 exactly.
+          </li>
+          <li>
+            <a href="/static/downloads/coptic_article/outputs/hebrews_psalms_ranked_10000.jsonl"
+               className="text-red-600 hover:underline">Ranked output: Hebrews &times; Psalms (top 10,000)</a>
+          </li>
+          <li>
+            <a href="/static/downloads/coptic_article/outputs/shenoute_abraham_bible_top50.csv"
+               className="text-red-600 hover:underline">Ranked output: Shenoute, Abraham Our Father &times; Sahidic Bible (top 50)</a>
+          </li>
+        </ul>
+      </div>
+
+      <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">V6 Benchmark Evaluation Subsets</h3>
         <p className="text-sm text-gray-600 mb-4">
           Machine-readable evaluation subsets extracted from the scholarly benchmark sets above. Each file
