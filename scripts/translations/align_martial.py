@@ -189,7 +189,8 @@ def build(refs, english, tess_work, sources, note, log):
         'coverage': round(len(ref_to_unit) / max(1, len(refs)), 4),
         'mean_source_lines_per_translation_unit':
             round(len(ref_to_unit) / max(1, len(units)), 1),
-        'alignment_confidence': 'high',
+        'alignment_confidence':
+            'high' if (score[0] is None or score[0] >= 0.5) else 'medium',
         'name_check_hit_rate': score,
         'name_check_n': score[1],
         'sources': sources,
@@ -238,12 +239,13 @@ def main():
         f = os.path.join(args.tess_dir, f'martialis.epigrammata_{b}.tess')
         want = {ep for _, ep, _ in load_tess(
             f, r'<(mart\. \w+\. ([^.]+)\.\d+)>\s*(.*)')}
-        have = set(books[b]) | {k for k in books[b]}
         missing = {w for w in want if w not in books[b]} - {'epistula'}
-        if len(missing) > max(2, len(want) * 0.05) + len(
-                [d for d in dropped if d[0] == b]):
-            print(f'BOOK {b}: {len(missing)} of {len(want)} epigrams missing '
-                  f'in the English — refusing to align this book')
+        # zero tolerance beyond the epigrams dropped as untranslated:
+        # the numbering match is the whole basis of the 'exact' claim
+        dropped_b = {k for bb, k in dropped if bb == b}
+        if missing - dropped_b:
+            print(f'BOOK {b}: epigrams {sorted(missing - dropped_b, key=str)[:8]} '
+                  f'missing in the English — refusing to align this book')
             books[b] = {}
 
     log = []
@@ -311,7 +313,8 @@ def main():
         'coverage': round(len(ref_to_unit) / max(1, len(refs)), 4),
         'mean_source_lines_per_translation_unit':
             round(len(ref_to_unit) / max(1, len(units)), 1),
-        'alignment_confidence': 'high',
+        'alignment_confidence':
+            'high' if (score[0] is None or score[0] >= 0.5) else 'medium',
         'name_check_hit_rate': score,
         'name_check_n': score[1],
         'sources': [s for b in range(1, 15) for s in src(b)],
