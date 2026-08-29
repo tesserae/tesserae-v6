@@ -167,6 +167,43 @@ def get_text_files(language):
         return []
     return [f for f in os.listdir(lang_dir) if f.endswith('.tess')]
 
+def build_lemma_doc_freq(conn, verbose=True):
+    """(Re)build the lemma_doc_freq table: lemma -> number of distinct base
+    works containing it.
+
+    Part files (e.g. homer.iliad.part.1.tess) collapse to their base work
+    (homer.iliad.tess) so a word in one partitioned work counts once, matching
+    the runtime _base_filename_expr in backend/blueprints/hapax.py. Read by
+    get_document_frequencies_batch() and by line_search's passage-query
+    reduction; safe to regenerate at any time.
+
+    HISTORY: added in #235, silently DROPPED by the qere/ketiv rewrite of this
+    script, which is why the Hebrew and Coptic indexes shipped without the
+    table and the Latin one went stale as the corpus grew. Restored 2026-08-29;
+    if you rework this script, this function and its call at the end of
+    build_index() must survive.
+    """
+    base = ("CASE WHEN instr(t.filename,'.part.')>0 "
+            "THEN substr(t.filename,1,instr(t.filename,'.part.')-1)||'.tess' "
+            "ELSE t.filename END")
+    cur = conn.cursor()
+    if verbose:
+        print("  Building lemma_doc_freq (per-lemma document frequency)...", flush=True)
+    t0 = time.time()
+    cur.execute('DROP TABLE IF EXISTS lemma_doc_freq')
+    cur.execute('CREATE TABLE lemma_doc_freq (lemma TEXT PRIMARY KEY, df INTEGER)')
+    cur.execute(
+        f'INSERT INTO lemma_doc_freq (lemma, df) '  # nosec B608
+        f'SELECT p.lemma, COUNT(DISTINCT {base}) '
+        f'FROM postings p JOIN texts t ON p.text_id = t.text_id '
+        f'GROUP BY p.lemma'
+    )
+    conn.commit()
+    if verbose:
+        n = cur.execute('SELECT COUNT(*) FROM lemma_doc_freq').fetchone()[0]
+        print(f"  lemma_doc_freq: {n} lemmas in {time.time()-t0:.1f}s", flush=True)
+
+
 def build_index(language, text_processor, verbose=True, resume=True, force=False,
                 use_syntax_db=False, fast_mode=False):
     """Build inverted index for a language.
@@ -408,7 +445,9 @@ def build_index(language, text_processor, verbose=True, resume=True, force=False
             print(f"  [{i+1}/{remaining}] {filename} — {file_lines} lines, {file_postings} postings ({file_elapsed:.1f}s) | Total: {total_lines} lines, {total_elapsed:.0f}s elapsed", flush=True)
     
     conn.commit()
-    
+
+    build_lemma_doc_freq(conn, verbose=verbose)
+
     cursor.execute('SELECT COUNT(DISTINCT lemma) FROM postings')
     unique_lemmas = cursor.fetchone()[0]
     

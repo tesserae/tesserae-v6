@@ -1855,8 +1855,14 @@ def line_search():
                         reduced_from = len(filtered_query_lemmas)
                         filtered_query_lemmas = set(
                             sorted(_present, key=lambda l: _df[l])[:LEMMA_CAP])
-                except Exception:
-                    pass                      # no doc-freq table: search as-is
+                except Exception as _e:
+                    # No doc-freq table for this language: search as-is, but say
+                    # so, because the silent form of this fallback is how the
+                    # missing Hebrew and Coptic tables went unnoticed.
+                    app.logger.warning(
+                        '[LINE-SEARCH] passage-query reduction unavailable for '
+                        '%s (%s); searching on all %d lemmas', language, _e,
+                        len(filtered_query_lemmas))
 
             # Single-word count_only: route here ONLY when the query LITERALLY has
             # one word. A multi-word query that common-word filtering reduces to a
