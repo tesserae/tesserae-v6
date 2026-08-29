@@ -113,7 +113,7 @@ def main():
                 mapping[m.group(1)] = chunks[key]
                 pairs.append((m.group(5), chunks[key]))
 
-        cov = mapping and len(mapping) / refs or 0
+        cov = len(mapping) / refs if refs else 0
         hit, n = V.score(pairs, 'la', sample=800)
         ulist, idx, ref2u = [], {}, {}
         for ref, txt in mapping.items():
