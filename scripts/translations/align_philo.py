@@ -1,4 +1,7 @@
-"""Philo Judaeus: section-exact Yonge English for 28 Greek treatises.
+"""Philo Judaeus: section-exact Yonge English for the Greek treatises.
+
+The corpus holds 28; 27 are written. On Joseph is in the registry but is
+expected to fail validation and stay unwritten (see below).
 
 Corpus refs are Cohn-Wendland section numbers, flat (`<philo_judaeus.
 de_abrahamo 172>`) or book.section for the four multi-book works. C. D.
@@ -163,11 +166,16 @@ def main():
             page = pages[p]
             for (mbk, s), t in page.items():
                 if bk is None:
+                    # single-book work: only unbooked (n) markers count
                     if mbk is None:
                         english[(None, s)] = t
-                elif mbk == bk or (mbk is None and len(plist) > 1
-                                   and p == plist[[b for b, _ in
-                                                   plist].index(bk)][1]):
+                elif mbk == bk:
+                    # (b.n) markers name their book (On Dreams)
+                    english[(bk, s)] = t
+                elif mbk is None and len(plist) > 1:
+                    # multi-book work split one page per book (Moses,
+                    # Special Laws): the page's plain (n) markers belong
+                    # to the corpus book this page is registered under
                     english[(bk, s)] = t
 
         # per-book structural validation
