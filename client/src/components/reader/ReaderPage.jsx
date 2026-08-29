@@ -12,6 +12,11 @@ import ResultsPanel from './ResultsPanel';
 // and "arma virumque cano" is the line most visitors will recognise.
 const DEFAULT_WORK = 'vergil.aeneid.part.1.tess';
 const DEFAULT_LANGUAGE = 'la';
+// Where each language's corpus opens when no work is chosen yet.
+const PREFERRED_WORK = {
+  la: DEFAULT_WORK,
+  grc: 'apollonius.argonautica.part.1.tess',
+};
 
 /**
  * The Reader: read a text, select a passage, see what the corpus connects to it.
@@ -183,13 +188,22 @@ export default function ReaderPage() {
     // Reader asked for it in Greek, and the fetch would fail on a page that was
     // only mid-change.
     if (work || corpusLoading || !hierarchy?.length) return;
+    // Each language opens on its signature text (NC: Latin on Aeneid 1,
+    // Greek on Argonautica 1), not on whichever author sorts first. If the
+    // preferred file is missing or broken the failed-work guard has already
+    // recorded it, and the hierarchy scan below takes over.
+    const preferred = PREFERRED_WORK[language];
+    if (preferred && preferred !== failedWorkRef.current) {
+      setWork(preferred);
+      return;
+    }
     for (const a of hierarchy) {
       for (const w of a.works || []) {
         const file = (w.sections || [])[0]?.file;
         if (file) { setWork(file); return; }
       }
     }
-  }, [work, hierarchy, corpusLoading]);
+  }, [work, language, hierarchy, corpusLoading]);
 
   const openPassage = useCallback((result) => {
     if (!result?.work) return;

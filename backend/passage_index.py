@@ -171,9 +171,20 @@ _model = None
 
 
 def _norm_work(work):
-    """Collapse a .part.N filename to its base work, so hom.iliad.part.2 and
-    hom.iliad are one work for exclusion and dedup purposes."""
-    return (work or '').split('.part.')[0]
+    """Collapse a work identifier to the index's key form.
+
+    The Reader sends the work as its corpus filename, and for a multi-part
+    work the .part split incidentally removed the .tess suffix too, so
+    vergil.aeneid.part.1.tess matched while a single-file work like
+    shenoute.a22.tess never did: its Similar Passages answered "no indexed
+    window covers that passage" for every selection. Strip the language
+    directory and the .tess suffix explicitly, then collapse parts."""
+    w = (work or '')
+    if '/' in w:
+        w = w.rsplit('/', 1)[-1]
+    if w.endswith('.tess'):
+        w = w[:-5]
+    return w.split('.part.')[0]
 
 
 def _ref_numbers(ref):
@@ -181,6 +192,27 @@ def _ref_numbers(ref):
     'verg. aen. 6.268' -> (6, 268); 'hebrew_bible.genesis.41.47' -> (41, 47)."""
     nums = re.findall(r'\d+', str(ref or ''))
     return tuple(int(n) for n in nums[-2:]) if nums else ()
+
+
+def _ref_numbers_in(work, ref):
+    """_ref_numbers, protected from digits in the WORK name itself.
+
+    'shenoute.a22.1' parsed bare gives (22, 1): the 22 is from the work name
+    a22, and the reader's selection header then displayed lines 1-3 as
+    "22.1-22.3". Both sides of the window match were polluted the same way,
+    which happened to cancel out, but any comparison against an unpolluted
+    ref breaks. Strip the work name (in any of its forms) off the front
+    before reading digits."""
+    s = str(ref or '')
+    w = _norm_work(work)
+    for prefix in (str(work or ''), w):
+        if prefix and s.startswith(prefix):
+            s = s[len(prefix):]
+            break
+    nums = re.findall(r'\d+', s)
+    if not nums:
+        return _ref_numbers(ref)
+    return tuple(int(n) for n in nums[-2:])
 
 
 def _ref_coords(ref):
@@ -1034,15 +1066,15 @@ def window_for_passage(work, ref_start=None, ref_end=None, prefer='fine'):
     rows = _by_work.get(_norm_work(work)) or []
     if not rows:
         return None
-    want = _ref_numbers(ref_start) or ()
-    want_end = _ref_numbers(ref_end) or want
+    want = _ref_numbers_in(work, ref_start) or ()
+    want_end = _ref_numbers_in(work, ref_end) or want
     best, best_key = None, None
     for row in rows:
         r = _records[row]
         if prefer and r.get('scale') != prefer:
             continue
-        lo = _ref_numbers(r.get('ref_start'))
-        hi = _ref_numbers(r.get('ref_end'))
+        lo = _ref_numbers_in(r.get('work'), r.get('ref_start'))
+        hi = _ref_numbers_in(r.get('work'), r.get('ref_end'))
         if not (lo and hi):
             continue
         if not want:

@@ -106,7 +106,7 @@ export default function ReaderHeader({
     if (selection?.refStart) {
       return selection.refStart === selection.refEnd
         ? selection.refStart
-        : `${selection.refStart}–${shortRef(selection.refEnd)}`;
+        : `${selection.refStart}–${shortRef(selection.refEnd, selection.refStart)}`;
     }
     if (!units?.length) return '';
     return `${units.length} lines`;
@@ -155,8 +155,16 @@ export default function ReaderHeader({
   );
 }
 
-/** "verg. aen. 6.263" -> "6.263": the tail is enough once the head is shown. */
-function shortRef(ref) {
-  const m = String(ref || '').match(/([\d.]+)\s*$/);
-  return m ? m[1] : ref;
+/** The range's end, shortened to what differs from its start:
+ *  "verg. aen. 6.263"-"verg. aen. 6.301" -> "301". The old version kept the
+ *  trailing digit run of the end ref alone, which read digits out of the WORK
+ *  name: "shenoute.a22.1"-"shenoute.a22.3" displayed as "22.1-22.3" (NC hit
+ *  it in Coptic, where several of Shenoute's canons are numbered works). */
+function shortRef(refEnd, refStart) {
+  const a = String(refStart || '');
+  const b = String(refEnd || '');
+  let i = 0;
+  while (i < a.length && i < b.length && a[i] === b[i]) i += 1;
+  const cut = Math.max(b.lastIndexOf('.', i - 1), b.lastIndexOf(' ', i - 1)) + 1;
+  return b.slice(cut) || b;
 }
