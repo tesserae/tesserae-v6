@@ -65,6 +65,14 @@ export const useCorpus = (language) => {
         setLoading(false);
       })
       .catch(err => {
+        // One automatic retry: a transient authors-fetch failure used to
+        // leave the Reader's dropdowns empty (placeholder Author/Work) until
+        // a full reload, with no way to recover from the page.
+        if (retryCountRef.current < 1) {
+          retryCountRef.current += 1;
+          setTimeout(() => loadCorpus(lang), 2000);
+          return;
+        }
         setError(err.message || 'Failed to load corpus data');
         setLoading(false);
       });
@@ -74,6 +82,7 @@ export const useCorpus = (language) => {
     setCorpus([]);
     setAuthors([]);
     setHierarchy([]);
+    retryCountRef.current = 0;   // each language gets its own retry budget
     loadCorpus(language);
   }, [language, loadCorpus]);
 

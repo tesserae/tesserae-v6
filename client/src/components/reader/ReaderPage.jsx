@@ -16,6 +16,12 @@ const DEFAULT_LANGUAGE = 'la';
 const PREFERRED_WORK = {
   la: DEFAULT_WORK,
   grc: 'apollonius.argonautica.part.1.tess',
+  // Fully resourced texts (translation + content windows + parallels), so the
+  // Reader's first impression of a corpus is its best one. NC hit Coptic
+  // opening on an untranslated, unindexed apocryphon.
+  cop: 'shenoute.abraham.tess',
+  he: 'hebrew_bible.genesis.tess',
+  en: 'milton.paradise_lost.part.1.tess',
 };
 
 /**
