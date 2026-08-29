@@ -76,6 +76,13 @@ def english_stems(text):
     return st
 
 
+def skel(w):
+    """Consonant skeleton. Vowels are what transliteration mangles
+    (Mouses/Moses, Aigupt-/Egypt-, Iotor/Jethro), consonants survive, so a
+    skeleton prefix is the fallback test when the vowelled prefix fails."""
+    return re.sub(r"[aeiou]", "", w)
+
+
 def score(pairs, lang, sample=500, seed=0):
     """pairs: [(source_line, english_text)] -> (hit_rate, n_tested)"""
     rnd = random.Random(seed)
@@ -93,8 +100,13 @@ def score(pairs, lang, sample=500, seed=0):
         tested += 1
         ok = False
         for _, c in ns:
+            sc = skel(c)
             for e in st:
                 if e[:4] == c[:4] or (len(c) >= 5 and len(e) >= 5 and e[:5] == c[:5]):
+                    ok = True
+                    break
+                se = skel(e)
+                if len(sc) >= 3 and len(se) >= 3 and se[:3] == sc[:3]:
                     ok = True
                     break
             if ok:
