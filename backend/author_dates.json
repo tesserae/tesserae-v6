@@ -1583,6 +1583,12 @@
    "note": "d. c. 860 CE",
    "year": 860
   },
+  "frontinus": {
+   "era": "Early Imperial",
+   "note": "d. 103 CE",
+   "year": 103,
+   "added": "editorial-2026-08-30"
+  },
   "fulcher_of_chartres": {
    "era": "Medieval",
    "note": "d. c. 1127 CE",
@@ -1688,6 +1694,18 @@
    "note": "d. 856 CE",
    "year": 856
   },
+  "hyginus": {
+   "era": "Early Imperial",
+   "note": "attrib. C. Iulius Hyginus (d. 17 CE); transmitted texts likely 1st-2nd c. CE",
+   "year": 100,
+   "added": "editorial-2026-08-30"
+  },
+  "isidore": {
+   "era": "Early Medieval",
+   "note": "d. 636 CE",
+   "year": 636,
+   "added": "editorial-2026-08-30"
+  },
   "isidore_of_seville": {
    "era": "Early Medieval",
    "note": "d. 636 CE",
@@ -1747,6 +1765,12 @@
    "era": "Late Antique",
    "note": "fl. c. 500 CE",
    "year": 500
+  },
+  "justin": {
+   "era": "Later Imperial",
+   "note": "fl. c. 2nd-3rd c. CE; epitome of Pompeius Trogus (Augustan)",
+   "year": 200,
+   "added": "editorial-2026-08-30"
   },
   "juvenal": {
    "era": "Early Imperial",
@@ -1983,6 +2007,12 @@
    "note": "d. 62 CE",
    "year": 62
   },
+  "petrarch": {
+   "era": "Renaissance",
+   "note": "d. 1374 CE",
+   "year": 1374,
+   "added": "editorial-2026-08-30"
+  },
   "petronius": {
    "era": "Early Imperial",
    "note": "d. 66 CE",
@@ -2037,6 +2067,12 @@
    "era": "Modern",
    "note": "d. 1741 CE",
    "year": 1741
+  },
+  "pomponius_mela": {
+   "era": "Early Imperial",
+   "note": "fl. c. 43 CE",
+   "year": 43,
+   "added": "editorial-2026-08-30"
   },
   "pontius_diaconus": {
    "era": "Later Imperial",
@@ -2223,6 +2259,12 @@
    "note": "d. c. 425 CE",
    "year": 425
   },
+  "sidonius": {
+   "era": "Late Antique",
+   "note": "d. c. 485 CE",
+   "year": 485,
+   "added": "editorial-2026-08-30"
+  },
   "sigloardus_remensis": {
    "era": "Carolingian",
    "note": "fl. c. 870 CE",
@@ -2317,6 +2359,18 @@
    "era": "Early Imperial",
    "note": "fl. c. 31 CE",
    "year": 31
+  },
+  "varro": {
+   "era": "Republic",
+   "note": "d. 27 BCE",
+   "year": -27,
+   "added": "editorial-2026-08-30"
+  },
+  "velleius_paterculus": {
+   "era": "Early Imperial",
+   "note": "d. c. 31 CE",
+   "year": 31,
+   "added": "editorial-2026-08-30"
   },
   "venantius_fortunatus": {
    "era": "Late Antique",

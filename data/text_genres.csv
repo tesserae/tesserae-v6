@@ -1235,7 +1235,6 @@ poeta_saxo.annales_de_gestis_karoli_magni.part.3.tess,poeta_saxo,annales_de_gest
 poeta_saxo.annales_de_gestis_karoli_magni.part.4.tess,poeta_saxo,annales_de_gestis_karoli_magni,Carolingian,hexameter,epic,auto
 poeta_saxo.annales_de_gestis_karoli_magni.part.5.tess,poeta_saxo,annales_de_gestis_karoli_magni,Carolingian,hexameter,epic,auto
 polignac.antilucretius.tess,polignac,antilucretius,Modern,prose,philosophy,auto
-polignac.epia.tess,polignac,epia,Modern,prose,philosophy,auto
 polignac.imitatio.tess,polignac,imitatio,Modern,prose,philosophy,auto
 pontius_diaconus.acta_proconsularia.tess,pontius_diaconus,acta_proconsularia,Later Imperial,prose,theology,auto
 pontius_diaconus.vita_caecilii_cypriani.tess,pontius_diaconus,vita_caecilii_cypriani,Later Imperial,prose,theology,auto
@@ -1690,3 +1689,16 @@ septuaginta.susanna_translatio_graeca.tess,septuaginta,susanna_translatio_graeca
 septuaginta.threni_seu_lamentationes.tess,septuaginta,threni_seu_lamentationes,Hellenistic,prose,biblical,rule_based
 septuaginta.tobias.tess,septuaginta,tobias,Hellenistic,prose,biblical,rule_based
 septuaginta.zacharias.tess,septuaginta,zacharias,Hellenistic,prose,biblical,rule_based
+varro.de_lingua_latina.tess,varro,de_lingua_latina,Republic,prose,technical,editorial
+varro.res_rusticae.tess,varro,res_rusticae,Republic,prose,technical,editorial
+hyginus.astronomica.tess,hyginus,astronomica,Early Imperial,prose,technical,editorial
+hyginus.fabulae.tess,hyginus,fabulae,Early Imperial,prose,technical,editorial
+justin.epitome.tess,justin,epitome,Later Imperial,prose,historiography,editorial
+velleius_paterculus.historiae_romanae.tess,velleius_paterculus,historiae_romanae,Early Imperial,prose,historiography,editorial
+frontinus.strategemata.tess,frontinus,strategemata,Early Imperial,prose,technical,editorial
+frontinus.de_aquis.tess,frontinus,de_aquis,Early Imperial,prose,technical,editorial
+pomponius_mela.de_chorographia.tess,pomponius_mela,de_chorographia,Early Imperial,prose,technical,editorial
+sidonius.epistulae.tess,sidonius,epistulae,Late Antique,prose,epistolary,editorial
+sidonius.carmina.tess,sidonius,carmina,Late Antique,mixed,panegyric,editorial
+isidore.etymologiae.tess,isidore,etymologiae,Early Medieval,prose,technical,editorial
+petrarch.africa.tess,petrarch,africa,Renaissance,hexameter,epic,editorial
