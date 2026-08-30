@@ -2481,6 +2481,18 @@
    "note": "d. 1142 CE",
    "year": 1142,
    "added": "editorial-2026-08-30-batch2"
+  },
+  "aquinas": {
+   "era": "Medieval",
+   "note": "d. 1274 CE",
+   "year": 1274,
+   "added": "editorial-2026-08-30-batch3"
+  },
+  "erasmus": {
+   "era": "Renaissance",
+   "note": "d. 1536 CE",
+   "year": 1536,
+   "added": "editorial-2026-08-30-batch3"
   }
  },
  "ur": {

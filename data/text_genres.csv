@@ -1711,3 +1711,7 @@ abelard.historia_calamitatum.tess,abelard,historia_calamitatum,Medieval,prose,ep
 abelard.epistolae.tess,abelard,epistolae,Medieval,prose,epistolary,editorial
 gregorius_magnus.dialogi.tess,gregorius_magnus,dialogi,Early Medieval,prose,theology,editorial
 gregorius_magnus.regula_pastoralis.tess,gregorius_magnus,regula_pastoralis,Early Medieval,prose,theology,editorial
+aquinas.summa_theologiae_1.tess,aquinas,summa_theologiae_1,Medieval,prose,theology,editorial
+aquinas.hymni.tess,aquinas,hymni,Medieval,unknown,christian_poetry,editorial
+erasmus.moriae_encomium.tess,erasmus,moriae_encomium,Renaissance,prose,satire,editorial
+erasmus.colloquia.tess,erasmus,colloquia,Renaissance,prose,satire,editorial
