@@ -627,14 +627,44 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               <p className="text-gray-700 mb-3">
                 A darker mark means more connections. The two columns fill in independently as
                 each answer arrives, so one may be marked while the other is still working.
-                Select a line to see what the marks are pointing at.
+                Clicking a mark selects that line and opens the matching panel tab: a red mark
+                opens Verbal Parallels, a purple one opens Similar Passages.
+              </p>
+
+              <h4 className="font-medium text-gray-900 mt-6 mb-2">Selecting text</h4>
+              <p className="text-gray-700 mb-3">
+                Select lines the way you would select any text: click and drag across them, or
+                double-click a single word. A small toolbar appears under the selection with a
+                three-way scope switch, <strong>Word / Line / Passage</strong>, which is set
+                automatically from the size of what you selected and can be corrected in one
+                click. The scope decides the question the button asks:
+              </p>
+              <ul className="list-disc pl-5 text-gray-700 space-y-2 mb-3">
+                <li>
+                  <strong>Word</strong> looks up one word across the whole corpus (String
+                  Search). It needs a single double-clicked word; with a longer selection the
+                  toolbar says so instead of offering a search.
+                </li>
+                <li>
+                  <strong>Line</strong> takes the line to the full Line Search page to find
+                  shared wording, with all its filters and charts.
+                </li>
+                <li>
+                  <strong>Passage</strong> asks the panel for similar passages, a question about
+                  content rather than wording.
+                </li>
+              </ul>
+              <p className="text-gray-700 mb-3">
+                To put a selection away, click anywhere outside the text and panel, press
+                Escape, or use the toolbar&rsquo;s ×.
               </p>
 
               <h4 className="font-medium text-gray-900 mt-6 mb-2">The panel</h4>
               <ul className="list-disc pl-5 text-gray-700 space-y-2 mb-3">
                 <li>
                   <strong>Similar passages</strong> lists passages elsewhere in the corpus whose
-                  content resembles your selection, across every indexed language.
+                  content resembles your selection, across every indexed language. Fifteen show
+                  at first; <strong>Show more matches</strong> extends the list.
                 </li>
                 <li>
                   <strong>Verbal parallels</strong> lists corpus lines that share your

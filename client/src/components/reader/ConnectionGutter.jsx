@@ -107,25 +107,43 @@ export default function ConnectionGutter({ work, units, onSelectLine }) {
         return (
           <div
             key={u.ref}
-            className="flex gap-[3px] justify-center items-center cursor-pointer"
+            className="flex items-center cursor-pointer"
             style={{ height: '1.75rem' }}
             onClick={() => onSelectLine?.(u)}
           >
+            {/* Each column is its own hit area covering half the row, so a
+                click on the red mark opens Verbal Parallels and a click on
+                the violet one opens Similar Passages. Before this, both
+                marks shared one handler and the panel always opened on
+                whatever tab it was last on, so the red column appeared to
+                lead nowhere. */}
             {/* While a stream is still loading its marks are hollow and
                 pulsing, which reads as "not known yet" rather than as "nothing
                 here". They fill in as each answer arrives, independently. */}
             <span
-              className={`block w-[9px] h-[7px] rounded-sm ${
-                loadingVerbal ? 'border border-red-300 animate-pulse' : 'bg-red-700'}`}
-              style={loadingVerbal ? undefined : { opacity: 0.12 + v * 0.88 }}
-            />
+              className="flex-1 h-full flex items-center justify-end pr-[1.5px]"
+              title="Verbal parallels for this line"
+              onClick={(e) => { e.stopPropagation(); onSelectLine?.(u, 'verbal'); }}
+            >
+              <span
+                className={`block w-[9px] h-[7px] rounded-sm ${
+                  loadingVerbal ? 'border border-red-300 animate-pulse' : 'bg-red-700'}`}
+                style={loadingVerbal ? undefined : { opacity: 0.12 + v * 0.88 }}
+              />
+            </span>
             <span
-              className={`block w-[9px] h-[7px] rounded-sm ${
-                loadingContent ? 'border animate-pulse' : ''}`}
-              style={loadingContent
-                ? { borderColor: '#c7bfe0' }
-                : { backgroundColor: '#7c6bb0', opacity: 0.12 + c * 0.88 }}
-            />
+              className="flex-1 h-full flex items-center justify-start pl-[1.5px]"
+              title="Similar passages for this line"
+              onClick={(e) => { e.stopPropagation(); onSelectLine?.(u, 'similar'); }}
+            >
+              <span
+                className={`block w-[9px] h-[7px] rounded-sm ${
+                  loadingContent ? 'border animate-pulse' : ''}`}
+                style={loadingContent
+                  ? { borderColor: '#c7bfe0' }
+                  : { backgroundColor: '#7c6bb0', opacity: 0.12 + c * 0.88 }}
+              />
+            </span>
           </div>
         );
       })}

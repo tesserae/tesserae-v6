@@ -29,7 +29,7 @@ export default function TextPane({ units, language, selection, onSelect }) {
   // selected". Reading the native selection instead means there is only one
   // answer to what is selected, and ordinary text selection works as it does
   // everywhere else, including keyboard and double-click.
-  const emit = (a, b, anchorTop) => {
+  const emit = (a, b, anchorTop, text) => {
     const lo = Math.min(a, b);
     const hi = Math.max(a, b);
     onSelect?.({
@@ -39,6 +39,9 @@ export default function TextPane({ units, language, selection, onSelect }) {
       refEnd: units[hi]?.ref,
       lineCount: hi - lo + 1,
       anchorTop,
+      // The literal characters the reader swept, so the toolbar can tell a
+      // double-clicked word from a whole line and search for the word itself.
+      text: text || '',
     });
   };
 
@@ -62,7 +65,7 @@ export default function TextPane({ units, language, selection, onSelect }) {
     // never covers what was selected. It used to sit at the top-left corner of
     // the pane whatever the reader had chosen.
     const el = document.getElementById(`line-${cssRef(units[hi]?.ref)}`);
-    emit(lo, hi, el ? el.offsetTop + el.offsetHeight : 0);
+    emit(lo, hi, el ? el.offsetTop + el.offsetHeight : 0, String(sel).trim());
   };
 
   const rtl = RTL.has(language);

@@ -5,6 +5,19 @@ import { ResultsInsight } from '../assistant';
 
 const LANG_LABEL = { la: 'Latin', grc: 'Greek', he: 'Hebrew', en: 'English', cop: 'Coptic' };
 
+/** Parse a response as JSON, failing with a message a reader can act on.
+ *  While the server reloads, Apache answers API calls with an HTML error
+ *  page, and r.json() on that used to put "Unexpected token '<', <!DOCTYPE
+ *  ... is not valid JSON" on screen. */
+async function asJson(r) {
+  const ct = (r.headers && r.headers.get('content-type')) || '';
+  if (r.ok === false || (ct && !ct.includes('json'))) {
+    throw new Error('The server did not answer just now (it may have been '
+      + 'restarting). Reselect the passage to try again.');
+  }
+  return r.json();
+}
+
 /**
  * The Reader's side panel: what the corpus has to say about the current selection.
  *
@@ -49,7 +62,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   const loadFullTranslation = () => {
     setFullTranslation('loading');
     fetch(`/api/passages/translation-full?work=${encodeURIComponent(work)}`)
-      .then((r) => r.json())
+      .then(asJson)
       .then(setFullTranslation)
       .catch((e) => setFullTranslation({ available: false, reason: e.message }));
   };
@@ -72,7 +85,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
       limit: String(simLimit),
     });
     fetch(`/api/passages/similar?${params}`)
-      .then((r) => r.json())
+      .then(asJson)
       .then((d) => {
         if (cancelled) return;
         if (d.error) setError(d.error);
@@ -124,7 +137,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
         exclude_locus: bareLocus(selection.refStart),
       }),
     })
-      .then((r) => r.json())
+      .then(asJson)
       .then((d) => {
         if (cancelled) return;
         if (d.error) setVerbalError(d.error);
@@ -152,7 +165,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
       .map((u) => u.ref)
       .join('|');
     fetch(`/api/translation?work=${encodeURIComponent(work)}&refs=${encodeURIComponent(refs)}`)
-      .then((r) => r.json())
+      .then(asJson)
       .then((d) => { if (!cancelled) setTranslation(d); })
       .catch(() => { if (!cancelled) setTranslation(null); })
       .finally(() => { if (!cancelled) setLoading(false); });

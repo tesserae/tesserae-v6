@@ -28,13 +28,24 @@ const SCOPES = [
 
 const ACTION = {
   word: { label: 'Find this word', tab: null },
-  line: { label: 'Find shared wording', tab: 'parallels' },
+  line: { label: 'Find shared wording', tab: 'verbal' },
   passage: { label: 'Find similar passages', tab: 'similar' },
 };
 
-/** A selection of three lines or more reads as a passage, one line as a line. */
+/** The single word a selection amounts to, or null. A double-click on a word
+ *  gives the browser selection exactly that word; a drag or a bare click does
+ *  not. Trailing punctuation swept up with the word is not part of it. */
+export function wordOf(selection) {
+  const t = String(selection?.text || '').trim().replace(/^[^\p{L}]+|[^\p{L}]+$/gu, '');
+  if (!t || /\s/.test(t) || !/\p{L}/u.test(t)) return null;
+  return t;
+}
+
+/** A selection of three lines or more reads as a passage, one line as a line,
+ *  a double-clicked single word as a word. */
 export function scopeFor(selection) {
   if (!selection) return 'line';
+  if (wordOf(selection)) return 'word';
   return (selection.lineCount || 1) >= 3 ? 'passage' : 'line';
 }
 
@@ -47,12 +58,14 @@ export default function SelectionToolbar({
   const refEnd = selection.refEnd || refStart;
   const shown = refStart === refEnd ? refStart : `${refStart}–${tail(refEnd)}`;
   const action = ACTION[scope] || ACTION.line;
+  const word = wordOf(selection);
 
   const go = () => {
     if (scope === 'word') {
-      const p = new URLSearchParams({
-        language: language || 'la', ref: refStart || '',
-      });
+      // The string-search page seeds its box from this key, not from the URL.
+      if (!word) return;
+      try { sessionStorage.setItem('tesserae_goto_query', word); } catch { /* fine */ }
+      const p = new URLSearchParams({ language: language || 'la' });
       window.location.href = `/string-search?${p.toString()}`;
       return;
     }
@@ -88,13 +101,21 @@ export default function SelectionToolbar({
         ))}
       </div>
 
-      <button
-        onClick={go}
-        className="rounded bg-red-700 px-3 py-1 text-xs font-medium text-white hover:bg-red-800
-                   focus:outline-none focus:ring-2 focus:ring-red-400"
-      >
-        {action.label}
-      </button>
+      {scope === 'word' && !word ? (
+        // Word scope with no single word in hand: say what to do instead of
+        // offering a search that has nothing to search for.
+        <span className="text-[11px] text-gray-500 whitespace-nowrap px-1">
+          double-click one word to search for it
+        </span>
+      ) : (
+        <button
+          onClick={go}
+          className="rounded bg-red-700 px-3 py-1 text-xs font-medium text-white hover:bg-red-800
+                     focus:outline-none focus:ring-2 focus:ring-red-400"
+        >
+          {scope === 'word' ? `Find “${word}” in the corpus` : action.label}
+        </button>
+      )}
 
       <span className="text-[11px] text-gray-500 tabular-nums whitespace-nowrap">
         {shown} selected
