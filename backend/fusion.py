@@ -312,6 +312,30 @@ WEIGHT_PROFILES = {
         "quotation":        35.052,
     },
 
+    # Hebrew default, added 2026-08-30. The biblical_greek values adopted on
+    # measurement, continuing the transfer chain: fitted on Sahidic Coptic
+    # (Hebrews x Psalms), adopted for Greek scripture (Romans x LXX Isaiah,
+    # matched the tuned Coptic system), and now validated on Hebrew with the
+    # held-out 2 Samuel 22 / Psalm 18 doublet (51 pairs, whole-book search,
+    # 1.76M candidates): 9/10 gold in the top ten and 31/51 by rank 100,
+    # against 1/10 and 13/51 under latin_epic. The profile encodes the text
+    # type (biblical near-verbatim reuse) rather than the language. A
+    # Hebrew-fitted sweep may refine it later; keep the name separate from
+    # biblical_greek so the two can diverge.
+    "biblical_hebrew": {
+        "edit_distance":     0.795,
+        "sound":            24.277,
+        "exact":             0.698,
+        "lemma":             0.320,
+        "dictionary":        0.123,
+        "semantic":         11.216,
+        "rare_word":         0.550,
+        "syntax":            0.102,
+        "syntax_structural": 0.081,
+        "lemma_min1":        0.088,
+        "quotation":        35.052,
+    },
+
     # Experimental profile, 2026-05-17. Designed to surface paraphrase and
     # thematic intertexts that biblical_coptic suppresses, while keeping
     # verbatim recall above a sanity floor.
@@ -369,12 +393,17 @@ def get_weight_profile(language=None, corpus_type=None, profile_name=None):
     Selection order:
       1. Explicit profile_name (overrides everything).
       2. (language, corpus_type) tuple lookup — future extension point.
-      3. Language default: cop → biblical_coptic; en → english; else → latin_epic.
+      3. Language default: cop → biblical_coptic; he → biblical_hebrew;
+         en → english; else → latin_epic.
     """
     if profile_name and profile_name in WEIGHT_PROFILES:
         return dict(WEIGHT_PROFILES[profile_name])
     if language == "cop":
         return dict(WEIGHT_PROFILES["biblical_coptic"])
+    if language == "he":
+        # The whole Hebrew corpus is the Hebrew Bible, so the biblical
+        # profile is the right default, as it is for Coptic.
+        return dict(WEIGHT_PROFILES["biblical_hebrew"])
     if language == "en":
         return dict(WEIGHT_PROFILES["english"])
     return dict(WEIGHT_PROFILES["latin_epic"])
@@ -677,11 +706,11 @@ CHANNEL_ORDER = [
 # skipped and not counted in the "N channels" progress message.
 CHANNEL_LANGUAGE_SUPPORT = {
     "dictionary":    {"la", "grc", "cop"},  # Latin/Greek synonym pairs; Coptic uses Coptic Wordnet (Slaughter et al. 2019)
-    "sound":         {"la", "grc", "cop", "en"},  # character trigram Jaccard similarity (language-agnostic)
-    "edit_distance": {"la", "grc", "cop", "en"},  # Levenshtein fuzzy matching (language-agnostic)
+    "sound":         {"la", "grc", "cop", "en", "he"},  # character trigram Jaccard similarity (language-agnostic)
+    "edit_distance": {"la", "grc", "cop", "en", "he"},  # Levenshtein fuzzy matching (language-agnostic)
     "syntax":        {"la", "grc", "cop"},  # requires syntax DB (syntax_latin.db / syntax_greek.db / syntax_coptic.db)
-    "semantic":      {"la", "grc", "en", "cop"},  # SPhilBERTa (la/grc/en) + multilingual-e5-large (cop)
-    "quotation":     {"la", "grc", "cop", "en"},  # runs of identical tokens — language-agnostic
+    "semantic":      {"la", "grc", "en", "cop", "he"},  # SPhilBERTa (la/grc/en) + multilingual-e5-large (cop) + fine-tuned MiqraBERT (he)
+    "quotation":     {"la", "grc", "cop", "en", "he"},  # runs of identical tokens — language-agnostic
 }
 
 
