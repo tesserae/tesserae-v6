@@ -19,10 +19,7 @@ authors:
     given-names: Neil
     affiliation: "University at Buffalo, SUNY"
     orcid: "https://orcid.org/0000-0002-1273-2052"
-  - family-names: Scheirer
-    given-names: Walter
-    affiliation: "University of Notre Dame"
-    orcid: "https://orcid.org/0000-0001-9649-8074"
+  - name: "The Tesserae Project Team"
 keywords:
   - intertextuality
   - classical philology
@@ -32,10 +29,10 @@ keywords:
   - text reuse detection
 
 # ---------------------------------------------------------------------------
-# Full contributor roster, recorded here for credit. The citation above names
-# the two principal authors plus "et al." per project convention; tools that
-# generate a citation from this file will list the `authors:` entries above.
-# To move anyone into the generated citation, add them to `authors:`.
+# Full contributor roster, recorded here for credit. The generated citation
+# names the project founder and V6 author plus the team as an entity (NC's
+# preference, 2026-08-30). To move anyone into the generated citation, add
+# them to `authors:`.
 #
 # Co-founders (2008):
 #   Neil Coffee (University at Buffalo) and J. P. Koenig (University at Buffalo)
@@ -44,7 +41,8 @@ keywords:
 #   Tesserae V1  — Poornima Shakthi
 #   Tesserae V2  — Roelant Ossewarde
 #   Tesserae V3  — Chris Forstall (now Mount Allison University)
-#   Tesserae V5  — Jeffery Kinnison
+#   Tesserae V5  — Jeffery Kinnison, with Walter Scheirer
+#                  (University of Notre Dame, orcid.org/0000-0001-9649-8074)
 #   Tesserae V6  — Neil Coffee (January 2026)
 #
 # Graduate Tesserae Fellows (chronological from 2008;
