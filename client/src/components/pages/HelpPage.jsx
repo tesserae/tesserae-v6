@@ -608,6 +608,12 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 marks showing where the rest of the corpus connects to each line, and a panel of
                 those connections for whatever you select.
               </p>
+              <p className="text-gray-700 mb-4">
+                For works that have one, an <strong>About</strong> button in the header opens a
+                short orientation note saying what the text is, who wrote it and when, and why a
+                reader might care. The same notes appear behind the small ⓘ buttons in Browse
+                Corpus. Coverage is growing: recently added works get theirs first.
+              </p>
 
               <h4 className="font-medium text-gray-900 mt-6 mb-2">The gutter</h4>
               <p className="text-gray-700 mb-3">

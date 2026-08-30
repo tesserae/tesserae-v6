@@ -52,6 +52,24 @@ export default function ReaderHeader({
 }) {
   const [languages, setLanguages] = useState([]);
 
+  // A curated two-or-three-sentence orientation blurb for the open work,
+  // where one exists (data/text_descriptions.json). The About button only
+  // appears when there is something to show.
+  const [about, setAbout] = useState(null);
+  const [aboutOpen, setAboutOpen] = useState(false);
+  useEffect(() => {
+    setAbout(null);
+    setAboutOpen(false);
+    if (!work) return undefined;
+    let dead = false;
+    const p = new URLSearchParams({ language: language || 'la', work });
+    fetch(`/api/text-descriptions?${p}`)
+      .then((r) => r.json())
+      .then((d) => { if (!dead) setAbout(d.description || null); })
+      .catch(() => {});
+    return () => { dead = true; };
+  }, [work, language]);
+
   useEffect(() => {
     let dead = false;
     fetch('/api/languages')
@@ -113,6 +131,7 @@ export default function ReaderHeader({
   })();
 
   return (
+    <>
     <div className="flex items-center gap-2 px-4 py-2 border-b border-gray-200 flex-wrap">
       <span className="font-semibold tracking-wide text-gray-900 mr-1"
             style={{ fontFamily: '"Gentium Book Plus", Georgia, serif' }}>
@@ -142,6 +161,20 @@ export default function ReaderHeader({
         <Select label="Book" value={work} options={bookOptions}
                 onChange={(v) => onWork(v)} />
       )}
+      {about && (
+        <button
+          onClick={() => setAboutOpen((o) => !o)}
+          aria-expanded={aboutOpen}
+          aria-label="About this text"
+          title="About this text"
+          className={`rounded-full border px-2 py-0.5 text-xs font-medium ${
+            aboutOpen
+              ? 'border-red-300 bg-red-50 text-red-800'
+              : 'border-gray-300 text-gray-600 hover:border-gray-400 hover:text-gray-800'}`}
+        >
+          About
+        </button>
+      )}
 
       {/* THE POSITION ONLY. This also printed metadata.display_name, so the
           header read "Vergil | Aeneid | Book 6 ... Vergil, Aeneid, Book 6" --
@@ -152,6 +185,12 @@ export default function ReaderHeader({
         {range}
       </span>
     </div>
+    {aboutOpen && about && (
+      <p className="px-4 py-2 text-sm text-gray-700 border-b border-gray-200 bg-gray-50">
+        {about}
+      </p>
+    )}
+    </>
   );
 }
 

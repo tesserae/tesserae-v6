@@ -10,6 +10,10 @@ export default function CorpusBrowser() {
   const [sortOrder, setSortOrder] = useState('chronological');
   const [expandedAuthors, setExpandedAuthors] = useState(new Set());
   const [translated, setTranslated] = useState({});
+  // Orientation blurbs (data/text_descriptions.json), and which rows have
+  // theirs open. Not every work has one; the ⓘ only shows where one exists.
+  const [descriptions, setDescriptions] = useState({});
+  const [openDescs, setOpenDescs] = useState(new Set());
   const [stats, setStats] = useState(null);
   const [selectedSource, setSelectedSource] = useState(null);
   const [selectedTarget, setSelectedTarget] = useState(null);
@@ -99,11 +103,29 @@ export default function CorpusBrowser() {
     } catch {
       setTranslated({});
     }
+    // Orientation blurbs; a failure only costs the ⓘ buttons.
+    setOpenDescs(new Set());
+    try {
+      const dr = await fetch(`/api/text-descriptions?language=${language}`);
+      const dd = await dr.json();
+      setDescriptions(dd?.descriptions || {});
+    } catch {
+      setDescriptions({});
+    }
   };
 
   /** homer.iliad.part.2.tess and homer.iliad.tess are one translated work. */
   const translationOf = (id) =>
     translated[String(id || '').replace(/\.tess$/, '').split('.part.')[0]];
+
+  const descriptionOf = (id) =>
+    descriptions[String(id || '').replace(/\.tess$/, '').split('.part.')[0]];
+
+  const toggleDesc = (id) => setOpenDescs((prev) => {
+    const next = new Set(prev);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    return next;
+  });
 
   const loadStats = async () => {
     try {
@@ -363,10 +385,11 @@ export default function CorpusBrowser() {
                   {group.texts.map(text => {
                     const isSource = selectedSource?.text.id === text.id;
                     const isTarget = selectedTarget?.text.id === text.id;
+                    const blurb = descriptionOf(text.id);
                     return (
+                      <div key={text.id} className="border-b border-gray-100 last:border-b-0">
                       <div
-                        key={text.id}
-                        className={`flex items-center gap-2 px-3 py-1.5 pl-8 text-sm border-b border-gray-100 last:border-b-0 ${
+                        className={`flex items-center gap-2 px-3 py-1.5 pl-8 text-sm ${
                           isSource ? 'bg-amber-50' : isTarget ? 'bg-red-50' : ''
                         }`}
                       >
@@ -389,6 +412,20 @@ export default function CorpusBrowser() {
                           <span className="text-xs text-red-700 font-medium">T</span>
                         </label>
                         <span className="text-gray-700 flex-1">{text.title}</span>
+                        {blurb && (
+                          <button
+                            onClick={() => toggleDesc(text.id)}
+                            aria-expanded={openDescs.has(text.id)}
+                            aria-label={`About ${text.title}`}
+                            title="What is this text?"
+                            className={`rounded-full border w-4 h-4 leading-none text-[10px] font-serif italic ${
+                              openDescs.has(text.id)
+                                ? 'border-red-300 bg-red-50 text-red-800'
+                                : 'border-gray-300 text-gray-500 hover:border-gray-400 hover:text-gray-700'}`}
+                          >
+                            i
+                          </button>
+                        )}
                         {translationOf(text.id) && (
                           <a
                             href={`/read?lang=${language}&work=${encodeURIComponent(text.id)}&view=english`}
@@ -402,6 +439,12 @@ export default function CorpusBrowser() {
                         {text.line_count && (
                           <span className="text-xs text-gray-400">{text.line_count} lines</span>
                         )}
+                      </div>
+                      {blurb && openDescs.has(text.id) && (
+                        <p className="px-3 pb-2 pl-8 pr-4 text-xs text-gray-600 leading-relaxed">
+                          {blurb}
+                        </p>
+                      )}
                       </div>
                     );
                   })}
