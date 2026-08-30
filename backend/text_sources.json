@@ -12449,14 +12449,6 @@
   },
   {
     "author": "Polignac",
-    "work": "Epia",
-    "e_source": "The Latin Library",
-    "e_source_url": "https://www.thelatinlibrary.com",
-    "print_source": "",
-    "added_by": "V6 Import"
-  },
-  {
-    "author": "Polignac",
     "work": "Imitatio",
     "e_source": "The Latin Library",
     "e_source_url": "https://www.thelatinlibrary.com",
@@ -16358,5 +16350,109 @@
     "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
     "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
     "added_by": "V6 Import"
+  },
+  {
+    "author": "Varro",
+    "work": "De Lingua Latina",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/varro.html",
+    "print_source": "Edition not stated by the source.",
+    "added_by": "V6 Import (Latin batch 2026-08-30)"
+  },
+  {
+    "author": "Varro",
+    "work": "Res Rusticae",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/varro.html",
+    "print_source": "Edition not stated by the source.",
+    "added_by": "V6 Import (Latin batch 2026-08-30)"
+  },
+  {
+    "author": "Hyginus",
+    "work": "De Astronomia",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/hyginus.html",
+    "print_source": "Edition not stated by the source.",
+    "added_by": "V6 Import (Latin batch 2026-08-30)"
+  },
+  {
+    "author": "Hyginus",
+    "work": "Fabulae",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/hyginus.html",
+    "print_source": "Edition not stated by the source; the page carries a selection of the fabulae, numbered here sequentially in page order.",
+    "added_by": "V6 Import (Latin batch 2026-08-30)"
+  },
+  {
+    "author": "Justin",
+    "work": "Epitome of the Philippic Histories of Pompeius Trogus",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/justin.html",
+    "print_source": "Edition not stated by the source.",
+    "added_by": "V6 Import (Latin batch 2026-08-30)"
+  },
+  {
+    "author": "Velleius Paterculus",
+    "work": "Historiae Romanae",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/vell1.html",
+    "print_source": "Edition not stated by the source.",
+    "added_by": "V6 Import (Latin batch 2026-08-30)"
+  },
+  {
+    "author": "Frontinus",
+    "work": "Strategemata",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/frontinus.html",
+    "print_source": "Edition not stated by the source.",
+    "added_by": "V6 Import (Latin batch 2026-08-30)"
+  },
+  {
+    "author": "Frontinus",
+    "work": "De Aquis Urbis Romae",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/frontinus.html",
+    "print_source": "Edition not stated by the source.",
+    "added_by": "V6 Import (Latin batch 2026-08-30)"
+  },
+  {
+    "author": "Pomponius Mela",
+    "work": "De Chorographia",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/pomponius1.html",
+    "print_source": "Edition not stated by the source.",
+    "added_by": "V6 Import (Latin batch 2026-08-30)"
+  },
+  {
+    "author": "Sidonius Apollinaris",
+    "work": "Epistulae",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/sidonius.html",
+    "print_source": "Edition not stated by the source.",
+    "added_by": "V6 Import (Latin batch 2026-08-30)"
+  },
+  {
+    "author": "Sidonius Apollinaris",
+    "work": "Carmina",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/sidoniuscarmina.html",
+    "print_source": "Christian Luetjohann, Gai Sollii Apollinaris Sidonii Epistulae et Carmina (MGH AA 8). Berlin, 1887 (as stated on the source page).",
+    "added_by": "V6 Import (Latin batch 2026-08-30)"
+  },
+  {
+    "author": "Isidore of Seville",
+    "work": "Etymologiae",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/isidore.html",
+    "print_source": "Edition not stated by the source.",
+    "added_by": "V6 Import (Latin batch 2026-08-30)"
+  },
+  {
+    "author": "Petrarch",
+    "work": "Africa",
+    "e_source": "Latin Wikisource",
+    "e_source_url": "https://la.wikisource.org/wiki/Africa",
+    "print_source": "After Nicola Festa, ed., Africa (Edizione nazionale delle opere di Francesco Petrarca I). Florence, 1926; Wikisource credits petrarca.letteraturaoperaomnia.org as its immediate source.",
+    "added_by": "V6 Import (Latin batch 2026-08-30)"
   }
 ]
