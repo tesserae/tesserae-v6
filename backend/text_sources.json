@@ -6240,6 +6240,14 @@
     "added_by": "M. Paccara & F. Stella (University of Siena); John James"
   },
   {
+    "author": "Fronto",
+    "work": "Epistulae (Correspondence)",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/fronto.html",
+    "print_source": "Transcription by George Hinge; letters carry van den Hout and Haines (Loeb 1919-20) references as given on the source page.",
+    "added_by": "V6 Import (Latin batch 2 2026-08-30)"
+  },
+  {
     "author": "Fulcher of Chartres",
     "work": "Historia Hierosolymitana",
     "e_source": "archive.org",
@@ -6942,6 +6950,22 @@
     "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
     "print_source": "Maurice Jourjon. Lettres Theologiques. Paris: Editions du Cerf. 1974.",
     "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Gregory the Great",
+    "work": "Regula Pastoralis",
+    "e_source": "Monumenta.ch",
+    "e_source_url": "https://monumenta.ch/latein/",
+    "print_source": "Patrologia Latina 77 (Migne).",
+    "added_by": "V6 Import (Latin batch 2 2026-08-30)"
+  },
+  {
+    "author": "Gregory the Great",
+    "work": "Dialogi",
+    "e_source": "Monumenta.ch",
+    "e_source_url": "https://monumenta.ch/latein/",
+    "print_source": "Patrologia Latina 77 (Migne); the facing Greek version of Zacharias omitted.",
+    "added_by": "V6 Import (Latin batch 2 2026-08-30)"
   },
   {
     "author": "Hanno",
@@ -8875,9 +8899,10 @@
     "author": "Lactantius Placidus",
     "work": "In Statii Thebaida Commentum",
     "e_source": "DigilibLT",
-    "e_source_url": "http://digiliblt.lett.unipmn.it/xtf/view?query=;brand=default;docId=dlt000323/dlt000323.xml;",
+    "e_source_url": "https://digiliblt.uniupo.it/teidocs/idno/DLT000323/format/xml",
     "print_source": "Robertus Dale Sweeney Stutgardiae et Lipsiae, Teubner 1997. Linguistic correction: Manuela Naso. XML encoding: Nadia Rosso.",
-    "added_by": "Caitlin Diddams"
+    "added_by": "Caitlin Diddams",
+    "note": "Text re-extracted 2026-08-30 from the digilibLT TEI to repair lost capital letters and restore the Thebaid lemmata."
   },
   {
     "author": "Libanius",
@@ -9968,6 +9993,22 @@
     "added_by": "V6 Import"
   },
   {
+    "author": "Nemesianus",
+    "work": "Cynegetica",
+    "e_source": "LacusCurtius",
+    "e_source_url": "https://penelope.uchicago.edu/Thayer/L/Roman/Texts/Nemesianus/Cynegetica*.html",
+    "print_source": "J. W. Duff and A. M. Duff, Minor Latin Poets (Loeb), text as transcribed by Bill Thayer.",
+    "added_by": "V6 Import (Latin batch 2 2026-08-30)"
+  },
+  {
+    "author": "Nemesianus",
+    "work": "Eclogae",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/nemesianus.html",
+    "print_source": "Edition not stated by the source.",
+    "added_by": "V6 Import (Latin batch 2 2026-08-30)"
+  },
+  {
     "author": "Nepos",
     "work": "Vitae",
     "e_source": "Perseus",
@@ -10382,6 +10423,22 @@
     "e_source_url": "https://www.thelatinlibrary.com",
     "print_source": "",
     "added_by": "V6 Import"
+  },
+  {
+    "author": "Peter Abelard",
+    "work": "Epistolae (the Heloise correspondence, 2-8)",
+    "e_source": "Monumenta.ch",
+    "e_source_url": "https://monumenta.ch/latein/",
+    "print_source": "Patrologia Latina 178 (Migne); per-letter editorial argumenta omitted.",
+    "added_by": "V6 Import (Latin batch 2 2026-08-30)"
+  },
+  {
+    "author": "Peter Abelard",
+    "work": "Historia Calamitatum",
+    "e_source": "Monumenta.ch",
+    "e_source_url": "https://monumenta.ch/latein/",
+    "print_source": "Patrologia Latina 178 (Migne); Migne’s editorial argumentum (ch. 1) omitted, chapters 2-16 as numbered there.",
+    "added_by": "V6 Import (Latin batch 2 2026-08-30)"
   },
   {
     "author": "Petronius",
@@ -12904,6 +12961,14 @@
     "added_by": "Caitlin Diddams"
   },
   {
+    "author": "Pseudo-Nemesianus",
+    "work": "De Aucupio",
+    "e_source": "LacusCurtius",
+    "e_source_url": "https://penelope.uchicago.edu/Thayer/L/Roman/Texts/Nemesianus/De_Aucupio*.html",
+    "print_source": "J. W. Duff and A. M. Duff, Minor Latin Poets (Loeb), text as transcribed by Bill Thayer.",
+    "added_by": "V6 Import (Latin batch 2 2026-08-30)"
+  },
+  {
     "author": "Pseudo-Plutarch",
     "work": "De Musica",
     "e_source": "Perseus",
@@ -14654,6 +14719,14 @@
     "e_source_url": "https://www.gutenberg.org/",
     "print_source": "",
     "added_by": "V6 Import"
+  },
+  {
+    "author": "Symmachus",
+    "work": "Epistulae (Books 1-10)",
+    "e_source": "Latin Wikisource",
+    "e_source_url": "https://la.wikisource.org/wiki/Libri_Decem_Epistolarum",
+    "print_source": "Patrologia Latina 18 (Migne). Book and letter numbering follow PL, which differs in places from Seeck (MGH AA 6.1).",
+    "added_by": "V6 Import (Latin batch 2 2026-08-30)"
   },
   {
     "author": "Tacitus",

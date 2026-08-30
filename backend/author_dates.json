@@ -2451,6 +2451,36 @@
    "era": "Medieval",
    "note": "d. c. 1186 CE",
    "year": 1186
+  },
+  "fronto": {
+   "era": "Later Imperial",
+   "note": "d. c. 166 CE",
+   "year": 166,
+   "added": "editorial-2026-08-30-batch2"
+  },
+  "nemesianus": {
+   "era": "Later Imperial",
+   "note": "fl. c. 283 CE",
+   "year": 283,
+   "added": "editorial-2026-08-30-batch2"
+  },
+  "nemesianus_pseudo": {
+   "era": "Later Imperial",
+   "note": "attr. Nemesianus, date uncertain",
+   "year": 300,
+   "added": "editorial-2026-08-30-batch2"
+  },
+  "symmachus": {
+   "era": "Late Antique",
+   "note": "d. 402 CE",
+   "year": 402,
+   "added": "editorial-2026-08-30-batch2"
+  },
+  "abelard": {
+   "era": "Medieval",
+   "note": "d. 1142 CE",
+   "year": 1142,
+   "added": "editorial-2026-08-30-batch2"
   }
  },
  "ur": {
