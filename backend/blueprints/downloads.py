@@ -30,8 +30,8 @@ def create_zip_from_directory(directory, prefix=''):
 @downloads_bp.route('/downloads/texts/<language>')
 def download_texts(language):
     """Download all texts for a language as a zip file"""
-    if language not in ['la', 'grc', 'en']:
-        return jsonify({'error': 'Invalid language. Use: la, grc, en'}), 400
+    if language not in ['la', 'grc', 'en', 'cop', 'he']:
+        return jsonify({'error': 'Invalid language. Use: la, grc, en, cop, he'}), 400
     
     lang_dir = os.path.join(TEXTS_DIR, language)
     if not os.path.exists(lang_dir):

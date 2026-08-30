@@ -1702,3 +1702,12 @@ sidonius.epistulae.tess,sidonius,epistulae,Late Antique,prose,epistolary,editori
 sidonius.carmina.tess,sidonius,carmina,Late Antique,mixed,panegyric,editorial
 isidore.etymologiae.tess,isidore,etymologiae,Early Medieval,prose,technical,editorial
 petrarch.africa.tess,petrarch,africa,Renaissance,hexameter,epic,editorial
+fronto.epistulae.tess,fronto,epistulae,Later Imperial,prose,epistolary,editorial
+nemesianus.eclogae.tess,nemesianus,eclogae,Later Imperial,hexameter,pastoral,editorial
+nemesianus.cynegetica.tess,nemesianus,cynegetica,Later Imperial,hexameter,didactic,editorial
+nemesianus_pseudo.de_aucupio.tess,nemesianus_pseudo,de_aucupio,Later Imperial,hexameter,didactic,editorial
+symmachus.epistulae.tess,symmachus,epistulae,Late Antique,prose,epistolary,editorial
+abelard.historia_calamitatum.tess,abelard,historia_calamitatum,Medieval,prose,epistolary,editorial
+abelard.epistolae.tess,abelard,epistolae,Medieval,prose,epistolary,editorial
+gregorius_magnus.dialogi.tess,gregorius_magnus,dialogi,Early Medieval,prose,theology,editorial
+gregorius_magnus.regula_pastoralis.tess,gregorius_magnus,regula_pastoralis,Early Medieval,prose,theology,editorial
