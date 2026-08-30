@@ -135,6 +135,10 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
         // The whole-work name, since that is how the search index holds it.
         exclude_text_id: `${baseWork(work)}.tess`,
         exclude_locus: bareLocus(selection.refStart),
+        // Hide matches whose shared words are all commonplaces (quid + variis
+        // matching quid + varii is Latin, not an echo). Reader-only: the Line
+        // Search page keeps deliberate common-word queries intact.
+        rare_focus: true,
       }),
     })
       .then(asJson)
@@ -181,7 +185,11 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   ];
 
   return (
-    <aside className="w-full lg:w-96 border-t lg:border-t-0 lg:border-l border-gray-200 bg-gray-50 flex flex-col">
+    // Sticky on desktop: deep in Thebaid 12 the results used to be a full
+    // page-scroll away, pinned to where the panel started. It now rides the
+    // viewport and scrolls its own contents.
+    <aside className="w-full lg:w-96 border-t lg:border-t-0 lg:border-l border-gray-200 bg-gray-50
+                      flex flex-col lg:sticky lg:top-0 lg:self-start lg:h-screen">
       <div className="flex border-b border-gray-200 text-sm">
         {tabs.map(([id, label]) => (
           <button
@@ -402,6 +410,13 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
               </>
             )}
             {verbalError && <p className="text-sm text-red-700">{verbalError}</p>}
+            {!verbalLoading && verbal?.rare_focus?.hidden > 0 && (
+              <p className="text-xs text-gray-500">
+                {verbal.rare_focus.hidden} match{verbal.rare_focus.hidden === 1 ? '' : 'es'} sharing
+                only common words ({verbal.rare_focus.common_lemmas.join(', ')}) not shown.
+                The full Line Search page shows everything.
+              </p>
+            )}
             {!verbalLoading && verbal?.query_reduced && (
               /* A passage-sized selection is searched on its rarest words, and
                  the reader is told which, so the results are never mistaken
