@@ -56,6 +56,20 @@ export default function ReaderPage() {
   const [wantedRef] = useState(() => paramOr('ref', '') || paramOr('at', ''));
   const [wantedRefEnd] = useState(() => paramOr('refEnd', ''));
   const [wantedTab] = useState(() => paramOr('tab', ''));
+  // Which language is the READING column. 'source' is the classical page;
+  // 'english' puts the translation in the middle and the original in the
+  // side panel. NC: "We need a place where the English is the focus."
+  const [focusView, setFocusView] = useState(() => paramOr('view', 'source'));
+  const [fullTr, setFullTr] = useState(null);
+  useEffect(() => { setFullTr(null); }, [work]);
+  useEffect(() => {
+    if (focusView !== 'english' || fullTr !== null) return;
+    setFullTr('loading');
+    fetch(`/api/passages/translation-full?work=${encodeURIComponent(work)}&language=${language}`)
+      .then((r) => r.json())
+      .then(setFullTr)
+      .catch((e) => setFullTr({ available: false, reason: e.message }));
+  }, [focusView, fullTr, work, language]);
   const [cameFrom, setCameFrom] = useState(() => paramOr('q', ''));
   const [units, setUnits] = useState([]);
   // The last work id whose fetch failed, so falling back to a default text
@@ -125,6 +139,7 @@ export default function ReaderPage() {
     p.set('work', work);
     p.set('lang', language);
     if (selection?.refStart) p.set('at', selection.refStart); else p.delete('at');
+    if (focusView === 'english') p.set('view', 'english'); else p.delete('view');
     // ARRIVAL PARAMETERS ARE ONE-SHOT, and were being kept forever. `q` is what
     // draws the "Found by Theme Search" banner, so it survived changing work,
     // running a new search, and reloading -- the page kept claiming a passage
@@ -142,7 +157,7 @@ export default function ReaderPage() {
     }
     lastKeyRef.current = key;
     fromPopRef.current = false;
-  }, [work, language, selection]);
+  }, [work, language, selection, focusView]);
 
   // Going Back inside the Reader has to put the Reader back, not just change
   // the address bar. Without this the pushed entries above would restore the
@@ -300,8 +315,74 @@ export default function ReaderPage() {
                       style={{ backgroundColor: '#7c6bb0' }} />
                 similar passages
               </span>
-              <span className="ml-auto text-gray-500">darker = more connections</span>
+              <span className="ml-auto flex items-center gap-1">
+                <span className="text-gray-500 mr-2">darker = more connections</span>
+                <button
+                  onClick={() => setFocusView('source')}
+                  className={`px-1.5 py-0.5 rounded text-[11px] font-medium border ${
+                    focusView !== 'english'
+                      ? 'bg-red-700 text-white border-red-700'
+                      : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100'}`}
+                >
+                  Original
+                </button>
+                <button
+                  onClick={() => setFocusView('english')}
+                  className={`px-1.5 py-0.5 rounded text-[11px] font-medium border ${
+                    focusView === 'english'
+                      ? 'bg-red-700 text-white border-red-700'
+                      : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100'}`}
+                >
+                  English
+                </button>
+              </span>
             </p>
+          {focusView === 'english' && (
+            <div className="flex-1 min-w-0 overflow-y-auto px-6 py-4">
+              {fullTr === 'loading' && <LoadingSpinner />}
+              {fullTr && fullTr !== 'loading' && fullTr.available === false && (
+                <p className="text-sm text-gray-600">
+                  {fullTr.reason} Switch back to the original, or pick a work with
+                  an EN badge in Browse Corpus.
+                </p>
+              )}
+              {fullTr && fullTr !== 'loading' && fullTr.available && (
+                <div className="max-w-2xl space-y-3">
+                  <p className="text-[11px] text-gray-500">
+                    {fullTr.attribution}. Click a block to see the original and its
+                    connections in the panel.
+                  </p>
+                  {fullTr.blocks.map((b) => {
+                    const isSel = selection?.refStart === b.ref_start;
+                    return (
+                      <div
+                        key={b.ref_start}
+                        onClick={() => {
+                          const i = units.findIndex((x) => x.ref === b.ref_start);
+                          const j = units.findIndex((x) => x.ref === b.ref_end);
+                          if (i < 0) return;
+                          const end = j >= i ? j : i;
+                          const sel = { startIdx: i, endIdx: end, refStart: b.ref_start,
+                                        refEnd: b.ref_end, lineCount: end - i + 1 };
+                          setSelection(sel);
+                          setScope(scopeFor(sel));
+                          setCameFrom('');
+                        }}
+                        className={`cursor-pointer rounded p-2 -mx-2 ${
+                          isSel ? 'bg-red-50 ring-1 ring-red-200' : 'hover:bg-gray-50'}`}
+                      >
+                        <p className="text-[10px] text-gray-400 mb-0.5">{b.ref_start}
+                          {b.ref_end !== b.ref_start ? ` – ${b.ref_end}` : ''}</p>
+                        <p className="text-[15px] leading-relaxed text-gray-900"
+                           style={{ fontFamily: 'Georgia, serif' }}>{b.text}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+          {focusView !== 'english' && (
           <div className="flex flex-1 min-w-0">
             <ConnectionGutter
               work={work.replace('.tess', '')}
@@ -348,9 +429,11 @@ export default function ReaderPage() {
               )}
             </div>
             </div>
+          )}
           </div>
           <ResultsPanel
             selection={selection}
+            focus={focusView}
             language={language}
             work={work.replace('.tess', '')}
             units={units}

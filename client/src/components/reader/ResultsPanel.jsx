@@ -16,7 +16,7 @@ const LANG_LABEL = { la: 'Latin', grc: 'Greek', he: 'Hebrew', en: 'English', cop
  * Every result is a button that opens that passage in the Reader, which is what
  * makes the corpus browsable by association rather than by search alone.
  */
-export default function ResultsPanel({ selection, language, work, units, onOpenPassage,
+export default function ResultsPanel({ selection, focus, language, work, units, onOpenPassage,
                                        initialTab }) {
   // Arriving from Theme Search, the reader has just been shown an English
   // summary of a passage in a language they may not read. Opening on the
@@ -162,7 +162,9 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
   const tabs = [
     ['similar', 'Similar Passages'],
     ['verbal', 'Verbal Parallels'],
-    ['translation', 'Translation'],
+    // In the English-focused reading view the middle column IS the
+    // translation, so this tab holds the original instead.
+    ['translation', focus === 'english' ? 'Original' : 'Translation'],
   ];
 
   return (
@@ -475,7 +477,20 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
           </>
         )}
 
-        {selection && tab === 'translation' && (
+        {selection && tab === 'translation' && focus === 'english' && (
+          <div className="space-y-1">
+            <p className="text-[11px] text-gray-500 mb-2">
+              The original text of the selected block.
+            </p>
+            {(units || []).slice(selection.startIdx, selection.endIdx + 1).map((u) => (
+              <p key={u.ref} className="text-sm text-gray-900 leading-relaxed">
+                <span className="text-[10px] text-gray-400 mr-2">{u.ref}</span>
+                {u.text}
+              </p>
+            ))}
+          </div>
+        )}
+        {selection && tab === 'translation' && focus !== 'english' && (
           <>
             {loading && <LoadingSpinner />}
             {!loading && translation?.available === false && (

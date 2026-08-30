@@ -391,7 +391,7 @@ export default function CorpusBrowser() {
                         <span className="text-gray-700 flex-1">{text.title}</span>
                         {translationOf(text.id) && (
                           <a
-                            href={`/read?lang=${language}&work=${encodeURIComponent(text.id)}&tab=translation`}
+                            href={`/read?lang=${language}&work=${encodeURIComponent(text.id)}&view=english`}
                             className="text-[10px] font-bold uppercase tracking-wide bg-emerald-100
                                        text-emerald-800 rounded px-1 hover:bg-emerald-200"
                             title={`English available: ${translationOf(text.id).attribution}. Open in the Reader.`}
