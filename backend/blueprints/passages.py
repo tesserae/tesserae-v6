@@ -361,6 +361,27 @@ def lexical_density_route():
     return jsonify(lexical_density.line_density(work, language=language))
 
 
+@passages_bp.route('/passages/translations')
+def translations_available():
+    """Which works of a language have aligned translations, with attribution.
+
+    Feeds the Browse Corpus translation badges. Cached per worker against the
+    translations directory listing."""
+    language = (request.args.get('language') or 'la').strip()
+    return jsonify({'language': language,
+                    'works': translations.available(language)})
+
+
+@passages_bp.route('/passages/translation-full')
+def translation_full():
+    """The whole translation of one work, in reading order, as blocks."""
+    work = (request.args.get('work') or '').strip()
+    if not work:
+        return jsonify({'error': 'work is required'}), 400
+    language = (request.args.get('language') or '').strip() or None
+    return jsonify(translations.full_text(work, language))
+
+
 @passages_bp.route('/passages/translation')
 @passages_bp.route('/translation')
 def translation_route():
