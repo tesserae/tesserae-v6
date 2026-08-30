@@ -2043,14 +2043,16 @@ def line_search():
                         
                         # Find matched words in text using pre-indexed lemmas
                         matched_words = []
+                        matched_lemma_set = set()
                         indexed_lemmas = set(line_info.get('lemmas', [])) if line_info else set()
                         indexed_tokens = line_info.get('tokens', []) if line_info else []
-                        
+
                         # Use indexed data if available, otherwise fallback to quick token matching
                         if indexed_lemmas:
                             # Match query lemmas against indexed lemmas
                             matching_query_lemmas = indexed_lemmas & filtered_query_lemmas
                             if matching_query_lemmas:
+                                matched_lemma_set = set(matching_query_lemmas)
                                 # Find the actual words that correspond to matching lemmas
                                 for i, lemma in enumerate(line_info.get('lemmas', [])):
                                     if lemma in matching_query_lemmas and i < len(indexed_tokens):
@@ -2061,6 +2063,7 @@ def line_search():
                             for token in text_tokens:
                                 if token in filtered_query_lemmas:
                                     matched_words.append(token)
+                                    matched_lemma_set.add(token)
                         
                         if len(set(matched_words)) < min_matched:
                             continue
@@ -2090,7 +2093,11 @@ def line_search():
                             'era': era,
                             'year': year,
                             'is_poetry': not is_prose_text_unified(filename, language),
-                            'matched_words': matched_words
+                            'matched_words': matched_words,
+                            # Distinct query lemmas this line shares, for
+                            # rarity-aware filtering downstream (rare_focus).
+                            # The scan path below sets the same field.
+                            'matched_lemmas': sorted(matched_lemma_set)
                         })
                         
                         if len(results) >= max_results:
