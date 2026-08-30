@@ -1771,7 +1771,14 @@ def rare_focus_filter(results, language):
                 commons.update(distinct)
         conn.close()
         return kept, hidden, sorted(commons)
-    except Exception:
+    except Exception as e:
+        # No doc-freq table for this language (or a broken one): filter
+        # nothing, but say so — the silent form of this fallback is how the
+        # missing Hebrew and Coptic tables went unnoticed last time.
+        import logging
+        logging.getLogger('tesserae').warning(
+            '[RARE-FOCUS] filter unavailable for %s (%s); showing all matches',
+            language, e)
         return results, 0, []
 
 
