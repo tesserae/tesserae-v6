@@ -480,9 +480,210 @@ def abelard_hist(src, tess, out):
         'attribution': 'H. A. Bellows (1922), via Project Gutenberg'})
 
 
+# ------------------------------------------------------------- nemesianus
+
+def lc_line_paras(path):
+    """[(start_line, text)] from a LacusCurtius English page whose paragraphs
+    are anchored at the Latin line they begin (NAME="n" or NAME="f.n")."""
+    t = open(path, encoding='utf-8', errors='replace').read()
+    t = re.sub(r'<A CLASS="ref".*?</A>', ' ', t, flags=re.S | re.I)
+    t = re.sub(r'<SPAN CLASS="pagenum">.*?</SPAN>', ' ', t, flags=re.S | re.I)
+    hits = list(re.finditer(
+        r'<A NAME="(\d+(?:\.\d+)?)"[^>]*(?:>.*?</A>|/?>)', t, flags=re.S))
+    out = []
+    for i, m in enumerate(hits):
+        end = hits[i + 1].start() if i + 1 < len(hits) else len(t)
+        chunk = t[m.end():end]
+        chunk = re.split(r"Thayer's Note|<div class=\"egnote\"", chunk,
+                         flags=re.I)[0]
+        txt = strip_tags(chunk)
+        txt = re.sub(r'\s+', ' ', txt).strip()
+        if len(txt.split()) >= 3:
+            out.append((m.group(1), txt))
+    return out
+
+
+def _nemes_range_map(paras, refs, lat, ref_line):
+    """Range-keyed: the paragraph anchored at line N serves lines N..next-1."""
+    mapping = {}
+    starts = [int(float(a)) if '.' not in a else a for a, _t in paras]
+    for ri, (ref, tail) in enumerate(refs):
+        n = ref_line(tail)
+        if n is None:
+            continue
+        chosen = None
+        for (a, txt) in paras:
+            av = int(float(a)) if '.' not in a else a
+            if isinstance(av, int) and isinstance(n, int) and av <= n:
+                chosen = txt
+            elif av == n:
+                chosen = txt
+        if chosen:
+            mapping[ref] = chosen
+    return mapping
+
+
+NEMES_META = {
+    'sources': [{'translator': 'J. Wight Duff and Arnold M. Duff',
+                 'year': 1934,
+                 'title': 'Minor Latin Poets (Loeb)',
+                 'publisher': 'Heinemann (LacusCurtius transcription; '
+                              'copyright not renewed per the site notice)',
+                 'mode': 'line-range', 'ref_composition': ['line'],
+                 'source_url': 'https://penelope.uchicago.edu/Thayer/E/'
+                               'Roman/Texts/Nemesianus/home.html'}],
+    'license': 'Public domain in the US: Loeb 1934, copyright not renewed '
+               '(per LacusCurtius).',
+    'attribution': 'J. W. Duff and A. M. Duff (Loeb), via LacusCurtius',
+}
+
+
+def nemes_cyn(src, tess, out):
+    paras = lc_line_paras(os.path.join(src, 'nemesianus_cyn_english.html'))
+    refs, lat = tess_refs(tess, 'nemes. cyn.')
+    mapping = _nemes_range_map(paras, refs, lat,
+                               lambda tail: int(tail) if tail.isdigit() else None)
+    return emit(out, 'la/nemesianus.cynegetica', refs, lat, mapping, NEMES_META)
+
+
+def nemes_ecl(src, tess, out):
+    refs, lat = tess_refs(tess, 'nemes. ecl.')
+    mapping = {}
+    for poem in range(1, 5):
+        paras = lc_line_paras(
+            os.path.join(src, f'nemesianus_ecl{poem}_english.html'))
+        sub = [(r, t) for r, t in refs if t.startswith(f'{poem}.')]
+        mapping.update(_nemes_range_map(
+            paras, sub, lat,
+            lambda tail: int(tail.split('.')[1])
+            if tail.split('.')[1].isdigit() else None))
+    return emit(out, 'la/nemesianus.eclogae', refs, lat, mapping, NEMES_META)
+
+
+def nemes_aucup(src, tess, out):
+    paras = lc_line_paras(os.path.join(src, 'nemesianus_aucup_english.html'))
+    refs, lat = tess_refs(tess, 'nemes_ps. aucup.')
+    # the English page carries one paragraph per fragment, anchored 1 and 2
+    frag_eng = {a: t for a, t in paras if '.' not in a}
+    mapping = {}
+    for ref, tail in refs:
+        frag = tail.split('.')[0]
+        if frag in frag_eng:
+            mapping[ref] = frag_eng[frag]
+    return emit(out, 'la/nemesianus_pseudo.de_aucupio', refs, lat, mapping,
+                NEMES_META)
+
+
+# ---------------------------------------------------------------- varro rr
+
+def varro_rr(src, tess, out):
+    t = open(os.path.join(src, 'varro',
+                          'storr_best_varro_on_farming_djvu.txt'),
+             encoding='utf-8', errors='replace').read()
+    # the translation proper starts at the second "BOOK I" (the first is TOC)
+    starts = [m.start() for m in re.finditer(r'^\s*BOOK\s+I\s*$', t, flags=re.M)]
+    body = t[starts[-1]:]
+    # strip running heads and bare page numbers
+    body = re.sub(r'^.{0,10}VARRO ON FARMING.*$', ' ', body, flags=re.M)
+    body = re.sub(r'^\s*\d+\s*$', ' ', body, flags=re.M)
+    books = list(re.finditer(r'^\s*BOOK\s+([IVX]+)\s*$', body, flags=re.M))
+    english = {}
+    for bi, bm in enumerate(books):
+        bnum = roman_to_int(bm.group(1))
+        bend = books[bi + 1].start() if bi + 1 < len(books) else len(body)
+        seg = body[bm.end():bend]
+        chapters = list(re.finditer(r'^\s*CHAPTER\s+(\S+)\s*$', seg,
+                                    flags=re.M))
+        cur = 0
+        for ci, cm in enumerate(chapters):
+            n = roman_to_int(re.sub(r'[^IVXL]', '', cm.group(1)))
+            n = n if n is not None and cur < n <= cur + 3 else cur + 1
+            cur = n
+            cend = chapters[ci + 1].start() if ci + 1 < len(chapters) else len(seg)
+            txt = seg[cm.end():cend]
+            txt = re.sub(r'\s+', ' ', txt).strip()
+            if len(txt.split()) >= 5:
+                english[(bnum, n)] = txt
+        # the book's preface (before chapter I) belongs to chapter 1's key
+        # only when no chapter 1 was found; otherwise leave it uncovered
+    refs, lat = tess_refs(tess, 'varro. rust.')
+    mapping = {}
+    for ref, tail in refs:
+        p = tail.split('.')
+        if len(p) >= 2 and p[0].isdigit() and p[1].isdigit():
+            key = (int(p[0]), int(p[1]))
+            if key in english:
+                mapping[ref] = english[key]
+    return emit(out, 'la/varro.res_rusticae', refs, lat, mapping, {
+        'sources': [{'translator': 'Lloyd Storr-Best', 'year': 1912,
+                     'title': 'Varro on Farming',
+                     'publisher': 'G. Bell and Sons (archive.org OCR)',
+                     'mode': 'chapter-exact',
+                     'ref_composition': ['book', 'chapter'],
+                     'source_url': 'https://archive.org/details/'
+                                   'varroonfarmingmt00varr'}],
+        'license': 'Public domain: Storr-Best, 1912.',
+        'attribution': 'L. Storr-Best (1912), via archive.org'})
+
+
+# ------------------------------------------------------ abelard epistolae
+
+MONC_ORD = {'FIRST': 1, 'SECOND': 2, 'THIRD': 3, 'FOURTH': 4, 'FIFTH': 5,
+            'SIXTH': 6, 'SEVENTH': 7, 'EIGHTH': 8}
+
+
+def abelard_epist(src, tess, out):
+    t = open(os.path.join(src, 'abelard', 'moncrieff_letters_1926_djvu.txt'),
+             encoding='utf-8', errors='replace').read()
+    marks = list(re.finditer(
+        r'^\s*THE (FIRST|SECOND|THIRD|FOURTH|FIFTH|SIXTH|SEVENTH|EIGHTH)\.?'
+        r' ?LETTER', t, flags=re.M))
+    letters = {}
+    for i, m in enumerate(marks):
+        end = marks[i + 1].start() if i + 1 < len(marks) else len(t)
+        body = t[m.end():end]
+        # Moncrieff opens each letter with an italic Argument; drop up to
+        # its end (a blank-line break after 'Argument')
+        am = re.search(r'Argument[\s\S]{0,2500}?\n\n\n', body)
+        if am and am.end() < len(body) * 0.5:
+            body = body[am.end():]
+        body = re.sub(r'^\s*\d+\s*$', ' ', body, flags=re.M)   # page numbers
+        body = re.sub(r'^.{0,60}(ABELARD|HELOISE|LETTERS OF).{0,60}$', ' ',
+                      body, flags=re.M)                          # run heads
+        body = re.sub(r'\^', '', body)                           # note marks
+        body = re.sub(r'(\w)-\s+', r'\1', body)                 # hyphens
+        body = re.sub(r'\s+', ' ', body).strip()
+        letters[MONC_ORD[m.group(1)]] = body
+    refs, lat = tess_refs(tess, 'abael. epist.')
+    by_letter = {}
+    for ref, tail in refs:
+        ep = int(tail.split('.')[0])
+        by_letter.setdefault(ep, []).append((ref, lat[ref]))
+    mapping = {}
+    for ep, rows in by_letter.items():
+        if ep in letters:
+            # block=40: measured name-check trade-off (40 rows -> 0.71 hit,
+            # 15 rows -> 0.45); finer blocks drift within the long letters
+            mapping.update(proportional_blocks(rows, letters[ep], block=40))
+    return emit(out, 'la/abelard.epistolae', refs, lat, mapping, {
+        'sources': [{'translator': 'C. K. Scott Moncrieff', 'year': 1925,
+                     'title': 'The Letters of Abelard and Heloise',
+                     'publisher': 'Guy Chapman / A. A. Knopf 1926 printing '
+                                  '(archive.org OCR)',
+                     'mode': 'letter-proportional',
+                     'ref_composition': ['letter'],
+                     'source_url': 'https://archive.org/details/'
+                                   'lettersofabelard0000abel'}],
+        'license': 'Public domain: Scott Moncrieff, first published 1925.',
+        'attribution': 'C. K. Scott Moncrieff (1925), via archive.org'})
+
+
 WORKS = {'justin': justin, 'velleius': velleius, 'strat': strat,
          'aquis': aquis, 'sidonius': sidonius,
-         'gregory_regula': gregory_regula, 'abelard_hist': abelard_hist}
+         'gregory_regula': gregory_regula, 'abelard_hist': abelard_hist,
+         'nemes_cyn': nemes_cyn, 'nemes_ecl': nemes_ecl,
+         'nemes_aucup': nemes_aucup, 'varro_rr': varro_rr,
+         'abelard_epist': abelard_epist}
 
 
 def main():
