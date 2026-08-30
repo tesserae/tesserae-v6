@@ -33,15 +33,28 @@ def skeleton(tok):
     return ''.join(c for c in tok if 'א' <= c <= 'ת')
 
 
+# Two-consonant vav-initial clitic clusters (vav + a second prefix), which the
+# source also emitted free-standing, and which folding a chain of singles can
+# produce. All 886 corpus occurrences were in the seven split books and none
+# in the thirty-two clean ones, so no real word is caught. ומה ("and what")
+# IS a real word, occurs only in clean books, and is deliberately absent here.
+CLUSTERS = {'ול', 'וה', 'וב', 'ומ', 'וכ', 'וש'}
+
+
+def foldable(t):
+    sk = skeleton(t)
+    return bool(sk) and (len(sk) == 1 or sk in CLUSTERS)
+
+
 def fold_line(text):
     toks = text.split(' ')
     out = []
     i = 0
     while i < len(toks):
         t = toks[i]
-        # join forward while this token is a one-consonant clitic and a
+        # join forward while this token is a clitic (or clitic cluster) and a
         # following token exists to host it
-        while i + 1 < len(toks) and len(skeleton(t)) == 1 and skeleton(t):
+        while i + 1 < len(toks) and foldable(t):
             i += 1
             t = t + toks[i]
         out.append(t)
@@ -66,6 +79,7 @@ def fix_file(path, write=True):
         for tok in new.split(' '):
             sk = skeleton(tok)
             assert len(sk) != 1, (ref, tok)
+            assert sk not in CLUSTERS, (ref, tok)
         fixed.append(ref + new)
     if write:
         open(path, 'w', encoding='utf-8').write('\n'.join(fixed) + '\n')
