@@ -7,7 +7,9 @@ export default function CorpusBrowser() {
   const [loading, setLoading] = useState(true);
   const [searchFilter, setSearchFilter] = useState('');
   const [selectedEra, setSelectedEra] = useState('all');
-  const [sortOrder, setSortOrder] = useState('chronological');
+  // Alphabetical by default (NC 2026-08-30): finding a known author is the
+  // common case, and era order buries the back half of the alphabet.
+  const [sortOrder, setSortOrder] = useState('alphabetical');
   const [expandedAuthors, setExpandedAuthors] = useState(new Set());
   const [translated, setTranslated] = useState({});
   // Orientation blurbs (data/text_descriptions.json), and which rows have
@@ -418,12 +420,12 @@ export default function CorpusBrowser() {
                             aria-expanded={openDescs.has(text.id)}
                             aria-label={`About ${text.title}`}
                             title="What is this text?"
-                            className={`rounded-full border w-4 h-4 leading-none text-[10px] font-serif italic ${
+                            className={`text-[10px] font-bold uppercase tracking-wide rounded px-1 ${
                               openDescs.has(text.id)
-                                ? 'border-red-300 bg-red-50 text-red-800'
-                                : 'border-gray-300 text-gray-500 hover:border-gray-400 hover:text-gray-700'}`}
+                                ? 'bg-red-100 text-red-800 hover:bg-red-200'
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
                           >
-                            i
+                            About
                           </button>
                         )}
                         {translationOf(text.id) && (
