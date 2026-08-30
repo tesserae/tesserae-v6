@@ -30,10 +30,21 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 
 
 def load_units(cache_dir, language, filename):
+    import hashlib
+    import unicodedata
     base = filename[:-5] if filename.endswith('.tess') else filename
-    path = os.path.join(cache_dir, language, base + '.json')
+    # the cache's canonical name is ASCII-hint + md5(text_id) (see
+    # backend/lemma_cache.get_cache_path); the bare-stem name is legacy
+    norm = unicodedata.normalize('NFC', filename)
+    digest = hashlib.md5(norm.encode('utf-8')).hexdigest()  # nosec B324
+    hint = ''.join(c if c.isalnum() or c in '._-' else '_'
+                   for c in base if ord(c) < 128).strip('._-') or 'text'
+    path = os.path.join(cache_dir, language, f'{hint[:64]}-{digest}.json')
     if not os.path.exists(path):
-        raise SystemExit(f'no lemma cache entry: {path}')
+        path = os.path.join(cache_dir, language, base + '.json')
+    if not os.path.exists(path):
+        raise SystemExit(f'no lemma cache entry for {filename} in '
+                         f'{cache_dir}/{language}')
     with open(path, encoding='utf-8') as fh:
         data = json.load(fh)
     units = data['units_line']
