@@ -5728,6 +5728,22 @@
     "added_by": "V6 Import"
   },
   {
+    "author": "Erasmus",
+    "work": "Colloquia familiaria (18 selected colloquies)",
+    "e_source": "Latin Wikisource",
+    "e_source_url": "https://la.wikisource.org/wiki/Colloquia_familiaria",
+    "print_source": "Scan-backed Wikisource transcription (Erasmi Colloquia Familiaria et Encomium Moriae). Selection, in corpus order: 1 Naufragium, 2 Abbatis et eruditae, 3 Charon, 4 Peregrinatio religionis ergo, 5 Funus, 6 Convivium religiosum, 7 Exorcismus sive spectrum, 8 Alcumistica, 9 Diversoria, 10 Militis et Carthusiani, 11 Proci et puellae, 12 Coniugium impar, 13 Uxor mempsigamos, 14 Puerpera, 15 Adolescentis et scorti, 16 Cyclops sive evangeliophorus, 17 Inquisitio de fide, 18 Epicureus.",
+    "added_by": "V6 Import (Latin batch 3 2026-08-30)"
+  },
+  {
+    "author": "Erasmus",
+    "work": "Moriae Encomium",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/erasmus/moriae.shtml",
+    "print_source": "Edition not stated by the source; carries the standard 68 section numbers. Includes the prefatory letter to Thomas More.",
+    "added_by": "V6 Import (Latin batch 3 2026-08-30)"
+  },
+  {
     "author": "Erchembertus, monachus Casinensis",
     "work": "Martyrologium",
     "e_source": "Musisque Deoque",
@@ -15167,6 +15183,22 @@
     "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0093.tlg010x09/",
     "print_source": "Friedrich Wimmer, Theophrasti Eresii Opera, Quae Supersunt, Omnia., Paris. A.F. Didot. 1866",
     "added_by": "V6 Import"
+  },
+  {
+    "author": "Thomas Aquinas",
+    "work": "Hymni (Corpus Christi hymns)",
+    "e_source": "Latin Wikisource / Preces Latinae",
+    "e_source_url": "https://la.wikisource.org/wiki/Pange_lingua",
+    "print_source": "Pange lingua, Lauda Sion, Verbum supernum, Adoro te devote from la.wikisource; Sacris solemniis from preces-latinae.org (Liturgia Horarum text). Liturgical accents and ligatures normalized.",
+    "added_by": "V6 Import (Latin batch 3 2026-08-30)"
+  },
+  {
+    "author": "Thomas Aquinas",
+    "work": "Summa Theologiae, Prima Pars",
+    "e_source": "Corpus Thomisticum",
+    "e_source_url": "https://www.corpusthomisticum.org/sth1001.html",
+    "print_source": "Textum Leoninum (Rome 1888) as edited by Roberto Busa and Enrique Alarcon, Corpus Thomisticum, Fundacion Tomas de Aquino.",
+    "added_by": "V6 Import (Latin batch 3 2026-08-30)"
   },
   {
     "author": "Thucydides",
