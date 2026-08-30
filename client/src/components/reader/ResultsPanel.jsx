@@ -42,16 +42,22 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
   // Kept so the panel can hand the same query on to the full Line Search page.
   const [verbalQuery, setVerbalQuery] = useState('');
 
+  // How many similar passages to ask for. 15 is the first page; the
+  // Show-more button raises it in steps, capped where relevance has long
+  // since tailed off. Reset on every new selection.
+  const [simLimit, setSimLimit] = useState(15);
+  useEffect(() => { setSimLimit(15); }, [selection]);
+
   useEffect(() => {
     if (!selection || tab !== 'similar') return;
     let cancelled = false;
-    setLoading(true);
+    if (simLimit === 15) setLoading(true);
     setError(null);
     const params = new URLSearchParams({
       work,
       ref_start: selection.refStart || '',
       ref_end: selection.refEnd || selection.refStart || '',
-      limit: '15',
+      limit: String(simLimit),
     });
     fetch(`/api/passages/similar?${params}`)
       .then((r) => r.json())
@@ -63,7 +69,7 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
       .catch((e) => { if (!cancelled) setError(e.message); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [selection, work, tab]);
+  }, [selection, work, tab, simLimit]);
 
   /* VERBAL PARALLELS: the selection's own wording, searched across the corpus.
    *
@@ -283,6 +289,18 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
                 </span>
               </button>
             ))}
+            {!loading && similar?.results?.length >= simLimit && simLimit < 60 && (
+              /* More exist below the cut: the index ranks every window, and 15
+                 is only the first page. Capped at 60, where content similarity
+                 has tailed into noise. */
+              <button
+                onClick={() => setSimLimit((l) => Math.min(l + 15, 60))}
+                className="w-full text-center text-xs font-medium text-red-700 border
+                           border-gray-200 rounded py-1.5 hover:bg-red-50"
+              >
+                Show more matches
+              </button>
+            )}
             <p className="text-[11px] text-gray-400 pt-1 leading-snug">
               These passages match in content, not wording, so a match in another language
               usually shares no words with the selection. Summaries are machine-written.
