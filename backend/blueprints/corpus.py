@@ -58,6 +58,33 @@ def natural_sort_key(s):
     return [int(c) if c.isdigit() else c.lower() for c in re.split(r'(\d+)', str(s))]
 
 
+# Orientation blurbs per work: what a text is, for readers who meet it here
+# first. Curated in data/text_descriptions.json, keyed language -> base work
+# id. Cached against the file's mtime so an edit shows up without a restart.
+DESCRIPTIONS_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    'data', 'text_descriptions.json')
+_descriptions_cache = {'mtime': None, 'data': {}}
+
+
+def load_descriptions():
+    try:
+        mtime = os.path.getmtime(DESCRIPTIONS_PATH)
+    except OSError:
+        return {}
+    if _descriptions_cache['mtime'] != mtime:
+        try:
+            with open(DESCRIPTIONS_PATH, encoding='utf-8') as f:
+                data = json.load(f)
+            _descriptions_cache['data'] = {
+                k: v for k, v in data.items() if not k.startswith('_')}
+            _descriptions_cache['mtime'] = mtime
+        except (OSError, ValueError):
+            logger.warning('text_descriptions.json unreadable', exc_info=True)
+            return _descriptions_cache['data']
+    return _descriptions_cache['data']
+
+
 def init_corpus_blueprint(texts_dir, text_processor, get_processed_units_fn):
     """Initialize blueprint with required dependencies"""
     global _texts_dir, _text_processor, _get_processed_units
@@ -167,6 +194,23 @@ def get_provenance():
         'texts': provenance.get('texts', {}),
         'total_tracked': len(provenance.get('texts', {}))
     })
+
+
+@corpus_bp.route('/text-descriptions')
+def get_text_descriptions():
+    """Orientation blurbs for a language's works, or one work's blurb.
+
+    ?language=la           -> {"descriptions": {work_id: blurb, ...}}
+    ?language=la&work=x    -> {"description": blurb or null}
+    The work key is the base id: no language directory, no .tess, no .part.
+    """
+    language = request.args.get('language', 'la')
+    by_lang = load_descriptions().get(language, {})
+    work = request.args.get('work')
+    if work:
+        base = re.sub(r'\.part\.\d+$', '', work.replace('.tess', ''))
+        return jsonify({'description': by_lang.get(base)})
+    return jsonify({'descriptions': by_lang})
 
 
 @corpus_bp.route('/text-credits')
