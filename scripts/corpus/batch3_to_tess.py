@@ -230,12 +230,26 @@ def hymns(src, out):
                     if txt:
                         lines.append(txt)
         n = 0
+        # two typos in the Wikisource Lauda Sion transcription, corrected
+        # against the received text (caught by the PR auto-review)
+        TYPOS = {'sumnt': 'sumunt', 'mettendus': 'mittendus'}
         for l in lines:
+            # wiki residue: unwrap [[link|text]] links, drop pure
+            # category/interwiki lines
+            if re.fullmatch(r'\[\[(?:[A-Za-z-]{2,10}:|Categoria:).*\]\]',
+                            l.strip()):
+                continue
+            l = re.sub(r'\[\[(?:[^]|]*\|)?([^]]*)\]\]', r'\1', l)
             l = norm(l)
+            for bad, good in TYPOS.items():
+                l = re.sub(r'\b%s\b' % bad, good, l)
             if not l or len(l) < 4 or l.isdigit():
                 continue
             if re.match(r'^[A-Z] [A-Z]+', l):     # drop-cap 'S ACRIS...'
                 l = l[0] + l[2:]
+            # a drop-cap first word prints ALL CAPS; restore normal case
+            l = re.sub(r'^([A-Z])([A-Z]{2,})\b',
+                       lambda m: m.group(1) + m.group(2).lower(), l)
             n += 1
             units.append((f'aquin. hymn. {num}.{n}', l))
         print(f'    hymn {num} {name}: {n} lines')
