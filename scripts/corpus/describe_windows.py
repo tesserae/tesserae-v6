@@ -55,8 +55,11 @@ def ask(endpoint, model, rec, temperature, max_tokens, timeout=300):
                       'content': f"Passage:\n{rec['text'][:1400]}\n\nJSON:"}],
         'temperature': temperature, 'max_tokens': max_tokens,
     }).encode('utf-8')
-    req = urllib.request.Request(endpoint, data=body,
-                                 headers={'Content-Type': 'application/json'})
+    req = urllib.request.Request(endpoint, data=body, headers={
+        'Content-Type': 'application/json',
+        # the RunPod HTTP proxy answers 403 to python-urllib's default
+        # User-Agent; any explicit agent passes (learned on the batch-2 run)
+        'User-Agent': 'tesserae-describe/1.0'})
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return json.loads(r.read())['choices'][0]['message']['content'] or ''
 
