@@ -30,9 +30,11 @@ const DownloadsPage = () => {
   };
 
   const languages = [
-    { code: 'la', name: 'Latin', texts: '~1,444', embeddings: true },
-    { code: 'grc', name: 'Greek', texts: '~650', embeddings: true },
-    { code: 'en', name: 'English', texts: '~14', embeddings: false }
+    { code: 'la', name: 'Latin', texts: '~1,850', embeddings: true },
+    { code: 'grc', name: 'Greek', texts: '~1,290', embeddings: true },
+    { code: 'en', name: 'English', texts: '~160', embeddings: false },
+    { code: 'cop', name: 'Coptic', texts: '~185', embeddings: false },
+    { code: 'he', name: 'Hebrew', texts: '~40', embeddings: false }
   ];
 
   return (
