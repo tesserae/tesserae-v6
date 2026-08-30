@@ -57,6 +57,8 @@ data/la_mqdq_temp/
 # Small curated data files ARE tracked (the blanket rule above is for the
 # multi-GB indexes and tables):
 !data/text_descriptions.json
+!data/lemma_tables/
+!data/text_genres.csv
 cache/
 backend/embeddings/
 
