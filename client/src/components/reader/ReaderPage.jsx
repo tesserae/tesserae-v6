@@ -79,6 +79,23 @@ export default function ReaderPage() {
   const [selection, setSelection] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // The reader content (gutter, text, results panel). A click anywhere
+  // outside it, or Escape, clears the selection and its toolbar, so the
+  // page margins act as a "put that away" surface.
+  const contentRef = useRef(null);
+  useEffect(() => {
+    const clear = () => { setSelection(null); setPopupOpen(false); };
+    const onDown = (e) => {
+      if (contentRef.current && !contentRef.current.contains(e.target)) clear();
+    };
+    const onKey = (e) => { if (e.key === 'Escape') clear(); };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, []);
 
   // Load the work's text.
   useEffect(() => {
@@ -261,7 +278,7 @@ export default function ReaderPage() {
       {error && <p className="p-6 text-red-700">{error}</p>}
 
       {!loading && !error && (
-        <div className="flex flex-col lg:flex-row" style={{ minHeight: '32rem' }}>
+        <div ref={contentRef} className="flex flex-col lg:flex-row" style={{ minHeight: '32rem' }}>
           <div className="flex flex-col flex-1 min-w-0">
             {/* The key for the gutter marks. The gutter itself is nine pixels
                 wide per column and can only carry a letter, and its tooltip does
@@ -387,12 +404,16 @@ export default function ReaderPage() {
             <ConnectionGutter
               work={work.replace('.tess', '')}
               units={units}
-              onSelectLine={(u) => {
+              onSelectLine={(u, which) => {
                 const i = units.findIndex((x) => x.ref === u.ref);
                 const sel = { startIdx: i, endIdx: i, refStart: u.ref,
                               refEnd: u.ref, lineCount: 1 };
                 setSelection(sel);
                 setScope(scopeFor(sel));
+                // The column clicked says which question the reader is
+                // asking, so the panel opens on that tab: red for verbal
+                // parallels, violet for similar passages.
+                if (which) setPanelTab(which);
                 setPopupOpen(true);
               }}
             />
