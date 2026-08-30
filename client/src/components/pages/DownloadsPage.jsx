@@ -98,6 +98,10 @@ const DownloadsPage = () => {
 
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Benchmark Sets</h3>
+        <p className="text-xs text-gray-500 mb-2">
+          Original Tesserae datasets on this page are released under CC BY 4.0: free to
+          use and redistribute with attribution to the Tesserae Project.
+        </p>
         <p className="text-sm text-gray-600 mb-4">
           Hand-curated datasets for evaluating intertextual detection algorithms. Includes hand-ranked parallels 
           from scholarly commentaries (Hunter, Knauer, Neils) and Tesserae results with scoring.

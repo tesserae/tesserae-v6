@@ -100,7 +100,34 @@ export default function AboutPage({ onNavigate }) {
               <li><strong>Tesserae V3</strong>: Original scoring algorithm, text corpus, and synonym dictionaries (developed by Chris Forstall at University at Buffalo)</li>
               <li><strong>Tesserae V5</strong>: API design concepts and modern architecture patterns (developed with Walter Scheirer)</li>
             </ul>
-            <p className="mt-3"><strong>License:</strong> MIT License - free to use, modify, and redistribute.</p>
+            <div className="mt-3 space-y-1">
+              <p><strong>Code:</strong> MIT License &mdash; free to use, modify, and redistribute.</p>
+              <p><strong>Original datasets</strong> (benchmark sets, gold standards, translation
+                alignments): CC BY 4.0 &mdash; free to use with attribution.</p>
+              <p><strong>Corpus texts:</strong> individual licenses per source; see the Text
+                Credits section for provenance and terms.</p>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">How to Cite</h3>
+          <div className="text-sm text-gray-700 space-y-2">
+            <p>
+              If Tesserae contributed to published research, please cite the project:
+            </p>
+            <p className="bg-gray-50 border border-gray-200 rounded p-3 font-mono text-xs">
+              Coffee, N., &amp; The Tesserae Project Team (2026). Tesserae V6: Intertextual
+              and Literary Discovery (Version 6.0) [Software].
+              https://tesserae.caset.buffalo.edu
+            </p>
+            <p>
+              GitHub&rsquo;s &ldquo;Cite this repository&rdquo; button on{' '}
+              <a href="https://github.com/tesserae/tesserae-v6"
+                 className="text-red-600 hover:underline">the project repository</a>{' '}
+              provides BibTeX and APA forms. A journal article describing V6 is under
+              review and will become the preferred citation on acceptance.
+            </p>
           </div>
         </section>
 
