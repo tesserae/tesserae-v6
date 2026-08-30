@@ -50,8 +50,13 @@ node_modules/
 # Total ~4.7GB - too large for GitHub, share separately
 # See docs/DATA_FILES_REFERENCE.md for complete list and instructions
 texts/
-data/
+# data/* rather than data/ so single curated files can be un-ignored below
+# (git cannot re-include a child of an ignored DIRECTORY).
+data/*
 data/la_mqdq_temp/
+# Small curated data files ARE tracked (the blanket rule above is for the
+# multi-GB indexes and tables):
+!data/text_descriptions.json
 cache/
 backend/embeddings/
 
