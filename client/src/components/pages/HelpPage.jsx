@@ -678,7 +678,11 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   content words. A passage-sized selection is searched on its most distinctive
                   words, the rarest in the corpus by document frequency, and the panel names
                   which words those were. Rare shared vocabulary is what marks a genuine echo;
-                  a couple of common words shared with a long passage is a commonplace.
+                  a couple of common words shared with a long passage is a commonplace. For the
+                  same reason, matches that share nothing but very common words (quid, ipse,
+                  varius) are hidden here, with a note saying how many; matches survive by
+                  sharing at least one distinctive word, or three or more words together. The
+                  full Line Search page applies no such filter.
                 </li>
                 <li>
                   <strong>Translation</strong> shows the aligned public-domain English where one

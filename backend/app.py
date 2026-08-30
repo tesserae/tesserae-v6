@@ -1722,6 +1722,59 @@ def _dedup_same_passage(results):
     return out
 
 
+# A lemma this frequent (as a share of the table's most frequent lemma) is a
+# commonplace: quis, ipse, uir and some three hundred friends. 0.45 keeps
+# examen (151/767 in Latin) distinctive while catching uarius (481/767).
+RARE_FOCUS_COMMON_RATIO = 0.45
+
+
+def rare_focus_filter(results, language):
+    """Drop lemma-search results whose shared words are ALL commonplaces.
+
+    The Reader's Verbal Parallels tab asks this: a line's quid + uariis
+    matching Catullus's quid + uarii is not an echo, it is Latin. A result
+    survives when at least one shared lemma is distinctive (low document
+    frequency), or when three or more distinct lemmas are shared, since the
+    CO-OCCURRENCE of several common words is itself distinctive (arma +
+    uir + cano). Returns (kept, hidden_count, common_lemmas_seen); on any
+    failure (no doc-freq table for the language) returns results unfiltered.
+    """
+    try:
+        import sqlite3 as _sq
+        from backend.lexical_density import _index_path
+        conn = _sq.connect(f'file:{_index_path(language)}?mode=ro', uri=True)
+        max_df = conn.execute('SELECT MAX(df) FROM lemma_doc_freq').fetchone()[0]
+        if not max_df:
+            conn.close()
+            return results, 0, []
+        threshold = max_df * RARE_FOCUS_COMMON_RATIO
+        df_cache = {}
+
+        def df_of(lem):
+            if lem not in df_cache:
+                row = conn.execute(
+                    'SELECT df FROM lemma_doc_freq WHERE lemma = ?',
+                    (lem,)).fetchone()
+                df_cache[lem] = row[0] if row else 0
+            return df_cache[lem]
+
+        kept, hidden, commons = [], 0, set()
+        for r in results:
+            distinct = set(r.get('matched_lemmas') or [])
+            if not distinct:
+                kept.append(r)
+                continue
+            if len(distinct) >= 3 or any(df_of(l) <= threshold for l in distinct):
+                kept.append(r)
+            else:
+                hidden += 1
+                commons.update(distinct)
+        conn.close()
+        return kept, hidden, sorted(commons)
+    except Exception:
+        return results, 0, []
+
+
 @api_route('/line-search', methods=['GET', 'POST'])
 def line_search():
     """
@@ -1759,6 +1812,14 @@ def line_search():
         count_only = data.get('count_only', False)
         if isinstance(count_only, str):
             count_only = count_only.strip().lower() in ('1', 'true', 'yes', 'on')
+
+        # rare_focus: opt-in (the Reader's Verbal Parallels tab sets it). Hide
+        # results whose shared words are all commonplaces; see
+        # rare_focus_filter. The Line Search page never sets it, so deliberate
+        # common-word queries there behave exactly as before.
+        rare_focus = data.get('rare_focus', False)
+        if isinstance(rare_focus, str):
+            rare_focus = rare_focus.strip().lower() in ('1', 'true', 'yes', 'on')
 
         # Source exclusion - don't include the source line in results
         exclude_text_id = data.get('exclude_text_id', '')
@@ -2183,7 +2244,10 @@ def line_search():
                                     'era': era,
                                     'year': year,
                                     'is_poetry': not is_prose_text_unified(filename, language),
-                                    'matched_words': matched_words
+                                    'matched_words': matched_words,
+                                    # The distinct query lemmas this line shares,
+                                    # for rarity-aware filtering downstream.
+                                    'matched_lemmas': sorted(matched_lemmas)
                                 })
                                 
                                 if len(results) >= max_results:
@@ -2246,6 +2310,15 @@ def line_search():
             # that vary only by author/work naming (see _dedup_same_passage).
             results = _dedup_same_passage(results)
 
+            rare_focus_report = None
+            if rare_focus and search_type == 'lemma':
+                results, _hidden, _commons = rare_focus_filter(results, language)
+                if _hidden:
+                    rare_focus_report = {
+                        'hidden': _hidden,
+                        'common_lemmas': _commons,
+                    }
+
             distinct_loci = len(results)
             payload = {
                 'total': distinct_loci,
@@ -2263,6 +2336,8 @@ def line_search():
                 # it WAS still used for co-occurrence. Naming it lets the caller say
                 # the pairing leans on the other word rather than mis-report rarity.
                 payload['filtered_common_words'] = filtered_common_words
+            if rare_focus_report:
+                payload['rare_focus'] = rare_focus_report
             if reduced_from:
                 payload['query_reduced'] = {
                     'from_lemmas': reduced_from,
