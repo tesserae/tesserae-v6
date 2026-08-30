@@ -9,6 +9,7 @@ export default function CorpusBrowser() {
   const [selectedEra, setSelectedEra] = useState('all');
   const [sortOrder, setSortOrder] = useState('chronological');
   const [expandedAuthors, setExpandedAuthors] = useState(new Set());
+  const [translated, setTranslated] = useState({});
   const [stats, setStats] = useState(null);
   const [selectedSource, setSelectedSource] = useState(null);
   const [selectedTarget, setSelectedTarget] = useState(null);
@@ -89,7 +90,20 @@ export default function CorpusBrowser() {
       console.error('Failed to load corpus:', err);
     }
     setLoading(false);
+    // Which of these works have aligned English, for the EN badges. A
+    // failure here only costs the badges, so it stays silent.
+    try {
+      const tr = await fetch(`/api/passages/translations?language=${language}`);
+      const td = await tr.json();
+      setTranslated(td?.works || {});
+    } catch {
+      setTranslated({});
+    }
   };
+
+  /** homer.iliad.part.2.tess and homer.iliad.tess are one translated work. */
+  const translationOf = (id) =>
+    translated[String(id || '').replace(/\.tess$/, '').split('.part.')[0]];
 
   const loadStats = async () => {
     try {
@@ -375,6 +389,16 @@ export default function CorpusBrowser() {
                           <span className="text-xs text-red-700 font-medium">T</span>
                         </label>
                         <span className="text-gray-700 flex-1">{text.title}</span>
+                        {translationOf(text.id) && (
+                          <a
+                            href={`/read?lang=${language}&work=${encodeURIComponent(text.id)}&tab=translation`}
+                            className="text-[10px] font-bold uppercase tracking-wide bg-emerald-100
+                                       text-emerald-800 rounded px-1 hover:bg-emerald-200"
+                            title={`English available: ${translationOf(text.id).attribution}. Open in the Reader.`}
+                          >
+                            EN
+                          </a>
+                        )}
                         {text.line_count && (
                           <span className="text-xs text-gray-400">{text.line_count} lines</span>
                         )}

@@ -153,3 +153,112 @@ def for_passage(work, refs):
         'block_lines': round(per_unit) if coarse else None,
         'note': note,
     }
+
+
+# ---------------------------------------------------------------------------
+# Browsing support: which works have translations, and a full-text view.
+# Added 2026-08-30. Until now translations were reachable only through the
+# Reader's Translation tab, and only for a selected passage: nothing on the
+# site said WHICH works have English, and nothing offered it continuously.
+# ---------------------------------------------------------------------------
+
+_available_cache = {}      # language -> (dir_signature, {base_work: summary})
+
+
+def _dir_signature(language):
+    sig = []
+    try:
+        for name in sorted(os.listdir(_DIR)):
+            if name.startswith(f'{language}__') and name.endswith('.json'):
+                sig.append((name, os.path.getmtime(os.path.join(_DIR, name))))
+    except OSError:
+        pass
+    return tuple(sig)
+
+
+def available(language):
+    """{base_work: {translator, coverage, confidence}} for one language.
+
+    Loads each translation file once per worker and caches against the
+    directory listing, so the first request after a deploy pays the scan and
+    the rest are instant."""
+    sig = _dir_signature(language)
+    cached = _available_cache.get(language)
+    if cached and cached[0] == sig:
+        return cached[1]
+    out = {}
+    for name, _ in sig:
+        base = name[len(language) + 2:-5]
+        base = base.split('.part.')[0]
+        try:
+            with open(os.path.join(_DIR, name), encoding='utf-8') as fh:
+                data = json.load(fh)
+        except (OSError, ValueError):
+            continue
+        entry = out.setdefault(base, {
+            'attribution': data.get('attribution', ''),
+            'coverage': 0.0,
+            'confidence': data.get('alignment_confidence', ''),
+        })
+        # A multi-part work reports its best-known coverage; parts share one
+        # attribution in practice.
+        cov = data.get('coverage') or 0
+        entry['coverage'] = max(entry['coverage'], round(float(cov), 3))
+    _available_cache[language] = (sig, out)
+    return out
+
+
+def full_text(work, language=None):
+    """The whole translation of a work, in reading order, as blocks.
+
+    Reading order comes from the corpus .tess file itself, because unit order
+    inside the JSON is not reliable: repairs append recovered units at the
+    end. Consecutive lines sharing a unit merge into one block."""
+    data = _load(work)
+    if not data:
+        return {'available': False, 'work': _norm_work(work),
+                'reason': 'No aligned public-domain translation for this work.'}
+    language = language or data.get('language') or 'la'
+    base = _norm_work(work)
+    texts_dir = os.path.join(os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__))), 'texts', language)
+    paths = []
+    whole = os.path.join(texts_dir, base + '.tess')
+    if os.path.exists(whole):
+        paths = [whole]
+    else:
+        import glob as _glob
+        paths = sorted(_glob.glob(os.path.join(texts_dir, base + '.part.*.tess')))
+    if not paths:
+        return {'available': False, 'work': base,
+                'reason': 'Corpus text not found for this work.'}
+    ref_to_unit = data.get('ref_to_unit', {})
+    units = data.get('units', [])
+    blocks, cur_unit, cur_start, cur_end = [], None, None, None
+    import re as _re
+    for path in paths:
+        with open(path, encoding='utf-8', errors='ignore') as fh:
+            for line in fh:
+                m = _re.match(r'<([^>]+)>', line)
+                if not m:
+                    continue
+                ref = m.group(1).strip()
+                u = ref_to_unit.get(ref)
+                if u is None:
+                    continue
+                if u == cur_unit:
+                    cur_end = ref
+                    continue
+                if cur_unit is not None:
+                    blocks.append({'ref_start': cur_start, 'ref_end': cur_end,
+                                   'text': units[cur_unit]})
+                cur_unit, cur_start, cur_end = u, ref, ref
+    if cur_unit is not None:
+        blocks.append({'ref_start': cur_start, 'ref_end': cur_end,
+                       'text': units[cur_unit]})
+    return {'available': True, 'work': base,
+            'attribution': data.get('attribution', ''),
+            'license': data.get('license', ''),
+            'alignment_confidence': data.get('alignment_confidence', ''),
+            'coverage': data.get('coverage'),
+            'blocks': blocks}

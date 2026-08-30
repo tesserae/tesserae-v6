@@ -41,6 +41,18 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
   const [verbalError, setVerbalError] = useState(null);
   // Kept so the panel can hand the same query on to the full Line Search page.
   const [verbalQuery, setVerbalQuery] = useState('');
+  // The whole work's translation, fetched on demand from the Translation
+  // tab's no-selection state. null = not asked; 'loading'; or the payload.
+  const [fullTranslation, setFullTranslation] = useState(null);
+  useEffect(() => { setFullTranslation(null); }, [work]);
+
+  const loadFullTranslation = () => {
+    setFullTranslation('loading');
+    fetch(`/api/passages/translation-full?work=${encodeURIComponent(work)}`)
+      .then((r) => r.json())
+      .then(setFullTranslation)
+      .catch((e) => setFullTranslation({ available: false, reason: e.message }));
+  };
 
   // How many similar passages to ask for. 15 is the first page; the
   // Show-more button raises it in steps, capped where relevance has long
@@ -178,7 +190,45 @@ export default function ResultsPanel({ selection, language, work, units, onOpenP
           works saw the three things the Reader can tell them simply vanish. The
           tabs are what the panel IS; the body is what it currently knows. */}
       <div className="flex-1 overflow-y-auto p-3 space-y-2">
-        {!selection && (
+        {!selection && tab === 'translation' && (
+          <>
+            {fullTranslation === null && (
+              <div className="space-y-2">
+                <p className="text-sm text-gray-600">
+                  Select a passage to see its translation beside the text, or read
+                  the work&rsquo;s full translation here.
+                </p>
+                <button
+                  onClick={loadFullTranslation}
+                  className="w-full text-center text-xs font-medium text-red-700 border
+                             border-gray-200 rounded py-1.5 hover:bg-red-50"
+                >
+                  Show full translation
+                </button>
+              </div>
+            )}
+            {fullTranslation === 'loading' && <LoadingSpinner />}
+            {fullTranslation && fullTranslation !== 'loading' && fullTranslation.available === false && (
+              <p className="text-sm text-gray-500">{fullTranslation.reason}</p>
+            )}
+            {fullTranslation && fullTranslation !== 'loading' && fullTranslation.available && (
+              <div className="space-y-3">
+                <p className="text-[11px] text-gray-500 leading-snug">
+                  {fullTranslation.attribution}. Blocks follow the source text&rsquo;s
+                  order; alignment is {fullTranslation.alignment_confidence || 'approximate'}.
+                </p>
+                {fullTranslation.blocks.map((b) => (
+                  <div key={b.ref_start} className="bg-white border border-gray-200 rounded p-2">
+                    <p className="text-[10px] text-gray-400 mb-1">{b.ref_start}
+                      {b.ref_end !== b.ref_start ? ` – ${b.ref_end}` : ''}</p>
+                    <p className="text-sm text-gray-800 leading-relaxed">{b.text}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+        {!selection && tab !== 'translation' && (
           <p className="text-sm text-gray-500 leading-relaxed p-3">
             Select a passage in the text to see what the corpus connects to it.
             Drag across several lines for content matches, or click a single line
