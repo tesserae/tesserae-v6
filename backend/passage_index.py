@@ -674,6 +674,37 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
     return out
 
 
+def _interleave_languages(heads, pool):
+    """Compose a multi-language page by round-robin over each language's own
+    ranking. A single global cutoff lets the biggest corpora own the page:
+    "a parent sacrifices a child" filled every slot with Greek tragedy and
+    Latin epic while the Akedah, the top Hebrew result, sat past the cutoff
+    (NC, 2026-08-31). Measured on the 74-instance pilot benchmark at rank
+    100: global cutoff 15, appended per-language guarantee 15, promoted
+    guarantee 15-18, deeper per-work groups 15 and worse at the head, and
+    THIS round-robin 18 with the head intact, so it shipped. Languages with
+    nothing above the relevance floor are absent from the pool and get
+    nothing: interleaving never fabricates relevance. The cycle order is
+    each language's first appearance in the global ranking, so the page
+    still opens with the strongest match overall.
+    """
+    by_lang, order = {}, []
+    for r in pool:
+        lg = r.get('language')
+        if lg not in by_lang:
+            by_lang[lg] = []
+            order.append(lg)
+        by_lang[lg].append(r)
+    out, i = [], 0
+    total = sum(len(v) for v in by_lang.values())
+    while len(out) < len(heads) and len(out) < total:
+        lg = order[i % len(order)]
+        if by_lang[lg]:
+            out.append(by_lang[lg].pop(0))
+        i += 1
+    return out
+
+
 def _cluster_coherence(scores, k=COHERENCE_K):
     """How much the top-k results agree with each other.
 
@@ -998,6 +1029,13 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=True):
     # same ordering both times.
     heads = _rank(scores, limit, languages=languages, scale=scale,
                   baseline=baseline, strong_at=strong_at, per_work=1)
+    # Multi-language pages are composed by per-language round-robin rather
+    # than one global cutoff; see _interleave_languages for the measurements
+    # behind the choice.
+    if not languages or len(languages) > 1:
+        pool = _rank(scores, limit * 6, languages=languages, scale=scale,
+                     baseline=baseline, strong_at=strong_at, per_work=1)
+        heads = _interleave_languages(heads, pool)
     chosen = [_norm_work(r.get('work')) for r in heads]
     results = _rank(scores, limit * PASSAGES_PER_WORK, languages=languages,
                     scale=scale, baseline=baseline, strong_at=strong_at,
