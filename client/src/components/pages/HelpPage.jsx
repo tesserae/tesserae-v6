@@ -510,6 +510,14 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 from content, results come back in every indexed language at once and usually
                 share no vocabulary with what you typed, or with each other.
               </p>
+              <p className="text-gray-700 mb-4">
+                Results open with the strongest matches first; a toggle switches to oldest-first
+                for tracing a theme through time. Show more results extends the list in steps of
+                25, and narrowing to one language shows more of that language. Two phrasing tips:
+                naming names (&ldquo;Abraham sacrifices Isaac&rdquo;) finds a specific story, while
+                generic phrasing (&ldquo;a parent sacrifices a child&rdquo;) finds the scene type
+                across traditions.
+              </p>
 
               <h4 className="font-medium text-gray-900 mt-6 mb-2">How it works</h4>
               <p className="text-gray-700 mb-3">
