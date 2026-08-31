@@ -123,6 +123,13 @@ export default function ThemeSearchPage() {
   // which sat just below the cutoff, with no way to page deeper.
   const [limit, setLimit] = useState(25);
   const [loadingMore, setLoadingMore] = useState(false);
+  // Display order. 'score' shows the strongest matches first, which is what
+  // a search should default to: chronological-only display let weak ancient
+  // matches sit above strong later ones, and pushed the (deliberately
+  // undated) Hebrew Bible to the bottom of every list. 'date' remains for
+  // tracing an image through time, which the moth-and-candle search does
+  // beautifully. The API already returns work groups in score order.
+  const [order, setOrder] = useState('score');
 
   const run = useCallback(async (q, lang, depth) => {
     const text = (q || '').trim();
@@ -298,13 +305,32 @@ export default function ThemeSearchPage() {
                          count={data.results?.length || 0} />
           )}
           {(data.confidence?.level !== 'low' || showWeak) && (
-          <p className="mt-4 mb-2 text-xs text-gray-500">
-            Oldest first. Undated authors are listed last.
-          </p>
+          <div className="mt-4 mb-2 flex items-center gap-3 text-xs text-gray-500">
+            <span className="flex rounded border border-gray-300 overflow-hidden">
+              {[['score', 'Best match'], ['date', 'Oldest first']].map(([k, label]) => (
+                <button
+                  key={k}
+                  onClick={() => setOrder(k)}
+                  aria-pressed={order === k}
+                  className={`px-2 py-1 font-medium ${
+                    order === k ? 'bg-gray-100 text-gray-900'
+                                : 'bg-white text-gray-500 hover:text-gray-800'}`}
+                >
+                  {label}
+                </button>
+              ))}
+            </span>
+            <span>
+              {order === 'date'
+                ? 'Oldest first. Undated authors are listed last.'
+                : 'Strongest matches first.'}
+            </span>
+          </div>
           )}
           {(data.confidence?.level !== 'low' || showWeak) && (
           <ul className="space-y-3">
-            {byWork(chronological(data.results)).map(({ key, head, items }) => (
+            {byWork(order === 'date' ? chronological(data.results) : data.results)
+              .map(({ key, head, items }) => (
               <li key={key} className="border border-gray-200 rounded p-3 bg-white">
                 {/* On a phone the three columns do not fit: the fixed date
                     column plus the language label squeezed the title to three
