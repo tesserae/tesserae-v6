@@ -118,29 +118,39 @@ export default function ThemeSearchPage() {
   const [showWeak, setShowWeak] = useState(false);
   const [error, setError] = useState(null);
 
-  const run = useCallback(async (q, lang) => {
+  // How deep the ranked list goes. 25 at first; Show more steps it up to the
+  // API's cap of 100. NC reached the bottom of the 25 hunting Genesis 22,
+  // which sat just below the cutoff, with no way to page deeper.
+  const [limit, setLimit] = useState(25);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const run = useCallback(async (q, lang, depth) => {
     const text = (q || '').trim();
-    if (!text || running) return;
-    setRunning(true);
+    if (!text || running || loadingMore) return;
+    const wanted = depth || 25;
+    const deepening = Boolean(depth) && data;
+    // A fresh search blanks the page; Show more keeps the list on screen and
+    // swaps in the longer one when it arrives.
+    if (deepening) setLoadingMore(true);
+    else { setRunning(true); setData(null); setShowWeak(false); setLimit(25); }
     setError(null);
-    setData(null);
-    setShowWeak(false);
     const langParam = lang === undefined ? language : lang;
     try {
       const res = await fetch(
-        `/api/passages/theme-search?query=${encodeURIComponent(text)}&limit=25`
+        `/api/passages/theme-search?query=${encodeURIComponent(text)}&limit=${wanted}`
         + (langParam ? `&languages=${encodeURIComponent(langParam)}` : ''));
       const json = await res.json();
       // The API reports trouble in the body rather than by status, so that a
       // missing index degrades this panel instead of breaking the page.
       if (json.error) setError(json.error);
-      else setData(json);
+      else { setData(json); setLimit(wanted); }
     } catch (e) {
       setError(e.message || 'the search could not be run');
     } finally {
       setRunning(false);
+      setLoadingMore(false);
     }
-  }, [running, language]);
+  }, [running, loadingMore, data, language]);
 
   // Arriving from a link with the search already in it -- from Tessa, from a
   // bookmark, from a colleague. The page runs it rather than making the reader
@@ -401,6 +411,25 @@ export default function ThemeSearchPage() {
           </ul>
           )}
 
+          {(data.confidence?.level !== 'low' || showWeak) &&
+            (data.results || []).length > 0 && limit < 100 && (
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => run(query, undefined, Math.min(limit + 25, 100))}
+                disabled={loadingMore}
+                className="rounded border border-gray-300 bg-white px-4 py-1.5 text-sm
+                           text-gray-700 hover:border-gray-400 hover:text-gray-900
+                           disabled:text-gray-400"
+              >
+                {loadingMore ? 'Loading…' : 'Show more results'}
+              </button>
+            </div>
+          )}
+          {(data.confidence?.level !== 'low' || showWeak) && limit >= 100 && (
+            <p className="mt-4 text-center text-xs text-gray-500">
+              End of the ranked list. Narrowing to one language shows more of it.
+            </p>
+          )}
           {(data.confidence?.level !== 'low' || showWeak) && (
           <p className="mt-5 text-xs text-gray-500 leading-relaxed">
             These summaries are written by a language model from the passage
