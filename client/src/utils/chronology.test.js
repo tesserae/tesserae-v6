@@ -7,7 +7,7 @@
  * these similar passages in? Should be chronological."
  */
 import { describe, expect, it } from 'vitest';
-import { chronological, dateParts } from './chronology';
+import { chronological, byBestMatch, dateParts } from './chronology';
 
 const STATIUS = { work: 'statius.silvae', year: 96, date_note: 'd. c. 96 CE', score: 0.9 };
 const SILIUS = { work: 'silius_italicus.punica', year: 101, date_note: 'd. 101 CE', score: 0.8 };
