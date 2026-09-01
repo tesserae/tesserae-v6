@@ -23,6 +23,14 @@ export function chronological(results) {
     if (ay === null) return 1;
     if (by === null) return -1;
     if (ay !== by) return ay - by;
+    // Same year: keep each work's passages TOGETHER, best work first. The
+    // old tie-break (score alone) interleaved works dated to the same year,
+    // and the consecutive grouping downstream then split one work into
+    // several single-passage cards: Philoctetes appeared three times among
+    // the tragedians all dated 406 BCE (NC's report, 2026-08-31).
+    const aw = a.work || '';
+    const bw = b.work || '';
+    if (aw !== bw) return aw < bw ? -1 : 1;
     return (b.score || 0) - (a.score || 0);
   });
 }
