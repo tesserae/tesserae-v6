@@ -3232,6 +3232,14 @@
     "added_by": "V6 Import"
   },
   {
+    "author": "Carmina Burana",
+    "work": "Carmina Burana (Seria, selection)",
+    "e_source": "archive.org",
+    "e_source_url": "https://archive.org/details/bub_gb_fE8gMwITr70C",
+    "print_source": "J. A. Schmeller, ed., Carmina Burana: Lateinische und deutsche Lieder und Gedichte einer Handschrift des XIII. Jahrhunderts aus Benedictbeuern (Bibliothek des Litterarischen Vereins in Stuttgart, vol. XVI). Stuttgart, 1847. A well-defined subset of the Seria section (31 of ~207 poems, those with a confirmed Schmeller number) is imported; the Amatoria/Potatoria/Lusoria section is not included in this pass.",
+    "added_by": "V6 Import (Latin satirists batch 2026-09-01)"
+  },
+  {
     "author": "Carmina Delphis Inventa",
     "work": "Carmina Delphis Inventa",
     "e_source": "Open Greek and Latin / Scaife",
@@ -8680,6 +8688,14 @@
     "added_by": "V6 Import"
   },
   {
+    "author": "Johannes de Hauvilla",
+    "work": "Architrenius",
+    "e_source": "archive.org",
+    "e_source_url": "https://archive.org/details/anglolatinsatiri01wrig",
+    "print_source": "Thomas Wright, ed., The Anglo-Latin Satirical Poets and Epigrammatists of the Twelfth Century, Rolls Series 59, vol. 1. London: Longman, 1872, pp. 240-392. The modern critical edition (Schmidt, ed. and trans., 1974) is in copyright and was not used.",
+    "added_by": "V6 Import (Latin satirists batch 2026-09-01)"
+  },
+  {
     "author": "John Cassian",
     "work": "Conlationes",
     "e_source": "Open Greek and Latin / CSEL",
@@ -10119,6 +10135,14 @@
     "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0358.tlg005/",
     "print_source": "Nicomachus of Gerasa. Introductio Arithmetica. Hoche, Richard, editor. Leipzig: Teubner, 1866.",
     "added_by": "V6 Import"
+  },
+  {
+    "author": "Nigellus Wireker",
+    "work": "Speculum Stultorum",
+    "e_source": "archive.org",
+    "e_source_url": "https://archive.org/details/anglolatinsatiri01wrig",
+    "print_source": "Thomas Wright, ed., The Anglo-Latin Satirical Poets and Epigrammatists of the Twelfth Century, Rolls Series 59, vol. 1. London: Longman, 1872, pp. 3-145. A later critical edition (Mozley and Raymo, 1960) is regarded by scholars as textually superior to Wright's but was not substituted here; see project log for the open question of whether to re-derive from it.",
+    "added_by": "V6 Import (Latin satirists batch 2026-09-01)"
   },
   {
     "author": "Nithardus",
