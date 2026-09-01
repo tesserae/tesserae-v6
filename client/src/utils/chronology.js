@@ -127,3 +127,31 @@ export function dateLabel(r) {
   const p = dateParts(r);
   return p ? p.date : null;
 }
+
+/** Strongest first, with each work's passages kept together.
+ *
+ *  The API returns multi-language pages in language round-robin order, which
+ *  guarantees every language appears but is NOT a score order. The page's
+ *  "Best match" button showed that raw order, so it promised strongest-first
+ *  and delivered a language rotation: Euripides at 0.856, then Gellius, then
+ *  Cowper, then Attar (NC, 2026-09-01). Selection still comes from the
+ *  round-robin, so no language loses its place on the page; only the display
+ *  order is score-driven here.
+ */
+export function byBestMatch(results) {
+  const best = {};
+  for (const r of results || []) {
+    const w = r.work || '';
+    if ((r.score || 0) > (best[w] || 0)) best[w] = r.score || 0;
+  }
+  return [...(results || [])].sort((a, b) => {
+    const aw = a.work || '';
+    const bw = b.work || '';
+    if (aw !== bw) {
+      const d = (best[bw] || 0) - (best[aw] || 0);
+      if (d !== 0) return d;
+      return aw < bw ? -1 : 1;
+    }
+    return (b.score || 0) - (a.score || 0);
+  });
+}

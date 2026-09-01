@@ -7,7 +7,7 @@
  * these similar passages in? Should be chronological."
  */
 import { describe, expect, it } from 'vitest';
-import { chronological, dateParts } from './chronology';
+import { chronological, byBestMatch, dateParts } from './chronology';
 
 const STATIUS = { work: 'statius.silvae', year: 96, date_note: 'd. c. 96 CE', score: 0.9 };
 const SILIUS = { work: 'silius_italicus.punica', year: 101, date_note: 'd. 101 CE', score: 0.8 };
@@ -76,5 +76,28 @@ describe('same-year grouping (added with the best-work tie-break)', () => {
   it('never places a later year before an earlier one regardless of score', () => {
     const out = chronological([r('eobanus', 1540, 0.99), r('euripides', -406, 0.1)]);
     expect(out[0].work).toBe('euripides');
+  });
+});
+
+describe('byBestMatch', () => {
+  const r = (work, year, score) => ({ work, year, score });
+
+  it('orders by score, not by the API language rotation', () => {
+    const rotated = [r('euripides', -406, 0.856), r('gellius', 180, 0.7), r('cowper', 1800, 0.82)];
+    const out = byBestMatch(rotated);
+    expect(out.map((x) => x.work)).toEqual(['euripides', 'cowper', 'gellius']);
+  });
+
+  it('keeps a work together, best passage first', () => {
+    const rows = [r('a', 1, 0.5), r('b', 2, 0.9), r('a', 1, 0.95), r('b', 2, 0.6)];
+    const out = byBestMatch(rows);
+    expect(out.map((x) => `${x.work}${x.score}`)).toEqual(['a0.95', 'a0.5', 'b0.9', 'b0.6']);
+  });
+
+  it('does not mutate its input', () => {
+    const rows = [r('a', 1, 0.1), r('b', 2, 0.9)];
+    const copy = JSON.parse(JSON.stringify(rows));
+    byBestMatch(rows);
+    expect(rows).toEqual(copy);
   });
 });
