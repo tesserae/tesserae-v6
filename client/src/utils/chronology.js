@@ -16,6 +16,14 @@
  *  rather than being guessed at or dropped.
  */
 export function chronological(results) {
+  // Best score per work, so that within a tied year the works line up by
+  // their strongest passage rather than alphabetically (the auto-review
+  // caught the first version doing the latter while claiming the former).
+  const best = {};
+  for (const r of results || []) {
+    const w = r.work || '';
+    if ((r.score || 0) > (best[w] || 0)) best[w] = r.score || 0;
+  }
   return [...(results || [])].sort((a, b) => {
     const ay = typeof a.year === 'number' ? a.year : null;
     const by = typeof b.year === 'number' ? b.year : null;
@@ -23,14 +31,18 @@ export function chronological(results) {
     if (ay === null) return 1;
     if (by === null) return -1;
     if (ay !== by) return ay - by;
-    // Same year: keep each work's passages TOGETHER, best work first. The
-    // old tie-break (score alone) interleaved works dated to the same year,
-    // and the consecutive grouping downstream then split one work into
-    // several single-passage cards: Philoctetes appeared three times among
-    // the tragedians all dated 406 BCE (NC's report, 2026-08-31).
+    // Same year: keep each work's passages TOGETHER, best work first. Score
+    // alone interleaved same-year works, and the consecutive grouping
+    // downstream then split one work into several single-passage cards:
+    // Philoctetes appeared three times among the tragedians all dated
+    // 406 BCE (NC's report, 2026-08-31).
     const aw = a.work || '';
     const bw = b.work || '';
-    if (aw !== bw) return aw < bw ? -1 : 1;
+    if (aw !== bw) {
+      const d = (best[bw] || 0) - (best[aw] || 0);
+      if (d !== 0) return d;
+      return aw < bw ? -1 : 1;
+    }
     return (b.score || 0) - (a.score || 0);
   });
 }
