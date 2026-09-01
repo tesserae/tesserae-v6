@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { chronological, dateParts } from '../../utils/chronology';
+import { chronological, byBestMatch, dateParts } from '../../utils/chronology';
 import ThemeExport from './ThemeExport';
 
 /**
@@ -329,7 +329,7 @@ export default function ThemeSearchPage() {
           )}
           {(data.confidence?.level !== 'low' || showWeak) && (
           <ul className="space-y-3">
-            {byWork(order === 'date' ? chronological(data.results) : data.results)
+            {byWork(order === 'date' ? chronological(data.results) : byBestMatch(data.results))
               .map(({ key, head, items }) => (
               <li key={key} className="border border-gray-200 rounded p-3 bg-white">
                 {/* On a phone the three columns do not fit: the fixed date
