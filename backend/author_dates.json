@@ -1183,6 +1183,11 @@
    "note": "fl. c. 889 CE",
    "year": 889
   },
+  "alan_de_insulis": {
+   "era": "Medieval",
+   "note": "d. 1202/1203 CE",
+   "year": 1202
+  },
   "alcuin": {
    "era": "Carolingian",
    "note": "d. 804 CE",
@@ -1312,6 +1317,11 @@
    "era": "Early Medieval",
    "note": "d. 735 CE",
    "year": 735
+  },
+  "bernard_silvestris": {
+   "era": "Medieval",
+   "note": "fl. c. 1147 CE",
+   "year": 1147
   },
   "bernowinus": {
    "era": "Carolingian",
@@ -2436,6 +2446,11 @@
    "era": "Carolingian",
    "note": "d. 849 CE",
    "year": 849
+  },
+  "walter_de_chatillon": {
+   "era": "Medieval",
+   "note": "d. c. 1201/1202 CE",
+   "year": 1201
   },
   "wandalbert": {
    "era": "Carolingian",
