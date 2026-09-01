@@ -135,6 +135,12 @@ STRONG_COMBINED = 1.83
 # evaluation/scripts/calibrate_confidence.py and update both numbers together.
 FITTED_AT_WINDOWS = 603594
 FITTED_TOLERANCE = 0.15     # beyond 15% drift, stop vouching for the band
+# Growth since the fit, recorded rather than refitted: the Latin import batches
+# and the dual-phrasing pass brought the index to 610,670, and the vernacular
+# pilot (Commedia, Roland, Nibelungenlied) to 617,137 on 2026-09-01. That is
+# 2.2% drift, well inside the tolerance above, so the band still stands. Refit
+# when a batch takes it past 15%, or after any corpus-wide re-describe, which
+# the count alone cannot detect.
 # THE COUNT IS NOT THE ONLY THING THAT INVALIDATES THE FIT, and the guard below
 # only watches the count. It was written for "the corpus grew", which is what
 # had happened at the time, and it does not notice "the corpus was re-described".

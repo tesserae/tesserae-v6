@@ -96,6 +96,7 @@ function byWork(results) {
 const LANG_LABEL = {
   la: 'Latin', grc: 'Greek', he: 'Hebrew', cop: 'Coptic',
   en: 'English', fa: 'Persian', ur: 'Urdu',
+  it: 'Italian', fro: 'Old French', gmh: 'Middle High German',
 };
 
 // Order as the rest of the site uses: Latin, Greek, English, then the others.
@@ -108,6 +109,9 @@ const LANG_CHOICES = [
   ['cop', 'Coptic'],
   ['fa', 'Persian'],
   ['ur', 'Urdu'],
+  ['it', 'Italian'],
+  ['fro', 'Old French'],
+  ['gmh', 'Middle High German'],
 ];
 
 export default function ThemeSearchPage() {
