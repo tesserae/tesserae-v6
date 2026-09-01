@@ -1715,3 +1715,11 @@ aquinas.summa_theologiae_1.tess,aquinas,summa_theologiae_1,Medieval,prose,theolo
 aquinas.hymni.tess,aquinas,hymni,Medieval,unknown,christian_poetry,editorial
 erasmus.moriae_encomium.tess,erasmus,moriae_encomium,Renaissance,prose,satire,editorial
 erasmus.colloquia.tess,erasmus,colloquia,Renaissance,prose,satire,editorial
+alan_de_insulis.anticlaudianus.tess,alan_de_insulis,anticlaudianus,Medieval,hexameter,epic,editorial
+alan_de_insulis.de_planctu_naturae.tess,alan_de_insulis,de_planctu_naturae,Medieval,mixed,philosophy,editorial
+bernard_silvestris.cosmographia.tess,bernard_silvestris,cosmographia,Medieval,mixed,philosophy,editorial
+cassiodorus.institutiones.tess,cassiodorus,institutiones,Late Antique,prose,didactic,editorial
+cassiodorus.variae.tess,cassiodorus,variae,Late Antique,prose,epistolary,editorial
+venantius_fortunatus.carmina.tess,venantius_fortunatus,carmina,Late Antique,mixed,lyric,editorial
+venantius_fortunatus.vita_martini.tess,venantius_fortunatus,vita_martini,Late Antique,hexameter,epic,editorial
+walter_de_chatillon.alexandreis.tess,walter_de_chatillon,alexandreis,Medieval,hexameter,epic,editorial

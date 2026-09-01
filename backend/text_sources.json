@@ -328,6 +328,22 @@
     "added_by": "M. Paccara & F. Stella (University of Siena); John James"
   },
   {
+    "author": "Alanus de Insulis",
+    "work": "Anticlaudianus",
+    "e_source": "Monumenta.ch (Corpus Corporum)",
+    "e_source_url": "https://www.monumenta.ch/latein/xanfang.php?n=337",
+    "print_source": "Patrologia Latina 210 (Migne), cols. 485-576.",
+    "added_by": "V6 Import (Latin medieval batch 2026-08-31)"
+  },
+  {
+    "author": "Alanus de Insulis",
+    "work": "De Planctu Naturae",
+    "e_source": "Monumenta.ch (Corpus Corporum)",
+    "e_source_url": "https://www.monumenta.ch/latein/xanfang.php?n=337",
+    "print_source": "Patrologia Latina 210 (Migne), cols. 431-482.",
+    "added_by": "V6 Import (Latin medieval batch 2026-08-31)"
+  },
+  {
     "author": "Alcidamas",
     "work": "Odysseus",
     "e_source": "Open Greek and Latin / Scaife",
@@ -2944,6 +2960,14 @@
     "added_by": "V6 Import"
   },
   {
+    "author": "Bernardus Silvestris",
+    "work": "Cosmographia (De mundi universitate)",
+    "e_source": "Internet Archive",
+    "e_source_url": "https://archive.org/details/bernardisilvestrisdemundiuniversitatesivemegacosmusetmicrocosmused.barach1876",
+    "print_source": "Barach, Carl Sigmund, and Johann Wrobel, eds. Bernardi Silvestris De mundi universitate libri duo sive Megacosmus et Microcosmus (Bibliotheca Philosophorum Mediae Aetatis I). Innsbruck: Wagner, 1876.",
+    "added_by": "V6 Import (Latin medieval batch 2026-08-31)"
+  },
+  {
     "author": "Bernowinus",
     "work": "Carmina",
     "e_source": "The Latin Library",
@@ -3222,6 +3246,22 @@
     "e_source_url": "https://www.gutenberg.org/",
     "print_source": "",
     "added_by": "V6 Import"
+  },
+  {
+    "author": "Cassiodorus",
+    "work": "Institutiones",
+    "e_source": "Monumenta.ch (Corpus Corporum)",
+    "e_source_url": "https://www.monumenta.ch/latein/",
+    "print_source": "Patrologia Latina 70 (Migne, 1847), cols. 1105-1220.",
+    "added_by": "V6 Import (Latin medieval batch 2026-08-31)"
+  },
+  {
+    "author": "Cassiodorus",
+    "work": "Variae",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/cassiodorus/",
+    "print_source": "Cassiodorus, Variae. Numbering follows Mommsen's edition (Monumenta Germaniae Historica, Auctores Antiquissimi 12, Berlin 1894), cross-checked against Hodgkin, Thomas. The Letters of Cassiodorus. London: Henry Frowde, 1886 (per-book letter counts 46/41/53/51/44/25/47/33/25/35/40/28, books 1-12).",
+    "added_by": "V6 Import (Latin medieval batch 2026-08-31)"
   },
   {
     "author": "Catholic Church Pope",
@@ -6982,6 +7022,14 @@
     "e_source_url": "https://monumenta.ch/latein/",
     "print_source": "Patrologia Latina 77 (Migne); the facing Greek version of Zacharias omitted.",
     "added_by": "V6 Import (Latin batch 2 2026-08-30)"
+  },
+  {
+    "author": "Gualterus de Castellione",
+    "work": "Alexandreis",
+    "e_source": "Bibliotheca Augustana (hs-augsburg.de)",
+    "e_source_url": "https://www.hs-augsburg.de/~harsch/Chronologia/Lspost12/Castellione/cas_alpr.html",
+    "print_source": "Colker, Marvin L., ed. Galteri de Castellione Alexandreis (Thesaurus Mundi 17). Padua: In aedibus Antenoreis, 1978.",
+    "added_by": "V6 Import (Latin medieval batch 2026-08-31)"
   },
   {
     "author": "Hanno",
@@ -15287,6 +15335,22 @@
     "e_source_url": "https://web.archive.org/web/20240812080521/http://virgil.org/",
     "print_source": "Brinton, Anna Cox, Maphaeus Vegius and his Thirteenth Book of the Aeneid: A Chapter on Virgil in the Renaissance. Stanford: Stanford University Press, 1930.",
     "added_by": "V3 Legacy Import"
+  },
+  {
+    "author": "Venantius Fortunatus",
+    "work": "Carmina",
+    "e_source": "Monumenta.ch (Corpus Corporum)",
+    "e_source_url": "https://www.monumenta.ch/latein/xanfang.php?n=77",
+    "print_source": "Leo, Friedrich, ed. Venanti Honori Clementiani Fortunati Opera Poetica (Monumenta Germaniae Historica, Auctores Antiquissimi 4.1). Berlin: Weidmann, 1881.",
+    "added_by": "V6 Import (Latin medieval batch 2026-08-31)"
+  },
+  {
+    "author": "Venantius Fortunatus",
+    "work": "Vita Sancti Martini",
+    "e_source": "Monumenta.ch (Corpus Corporum)",
+    "e_source_url": "https://www.monumenta.ch/latein/xanfang.php?n=77",
+    "print_source": "Patrologia Latina 88 (Migne, 1850), cols. 336-426.",
+    "added_by": "V6 Import (Latin medieval batch 2026-08-31)"
   },
   {
     "author": "Vergil",
