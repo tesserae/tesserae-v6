@@ -16647,5 +16647,13 @@
     "e_source_url": "https://la.wikisource.org/wiki/Africa",
     "print_source": "After Nicola Festa, ed., Africa (Edizione nazionale delle opere di Francesco Petrarca I). Florence, 1926; Wikisource credits petrarca.letteraturaoperaomnia.org as its immediate source.",
     "added_by": "V6 Import (Latin batch 2026-08-30)"
+  },
+  {
+    "author": "Johannes Hymonides (John the Deacon)",
+    "work": "Versiculi de cena Cypriani",
+    "e_source": "Musa Medievalis (MQDQ), Universita Ca' Foscari Venezia",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/ordinata/pf457104",
+    "print_source": "Karl Strecker, ed., Monumenta Germaniae Historica, Poetae Latini Aevi Carolini IV. Berlin, 1914.",
+    "added_by": "Tesserae satirists batch 2026-09-01; provenance verified by the coordinator against the Musa Medievalis text (first four lines match verbatim)"
   }
 ]
