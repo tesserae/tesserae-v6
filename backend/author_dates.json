@@ -1358,6 +1358,11 @@
    "note": "d. c. 845 CE",
    "year": 845
   },
+  "carmina_burana": {
+   "era": "Medieval",
+   "note": "compiled c. 1230 CE (Benediktbeuern manuscript); component poems mostly 12th-early 13th c.",
+   "year": 1230
+  },
   "cassiodorus": {
    "era": "Late Antique",
    "note": "d. c. 580 CE",
@@ -1751,6 +1756,11 @@
    "note": "d. 420 CE",
    "year": 420
   },
+  "johannes_hanville": {
+   "era": "Medieval",
+   "note": "fl. c. 1184 CE",
+   "year": 1184
+  },
   "johannes_hymonides": {
    "era": "Carolingian",
    "note": "d. c. 880 CE",
@@ -1916,6 +1926,11 @@
    "era": "Republic",
    "note": "d. c. 24 BCE",
    "year": -24
+  },
+  "nigel_wireker": {
+   "era": "Medieval",
+   "note": "d. c. 1198/1200 CE",
+   "year": 1200
   },
   "nithardus": {
    "era": "Carolingian",

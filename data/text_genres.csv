@@ -389,6 +389,7 @@ caesar_augustus.res_gestae_divi_augusti.tess,caesar_augustus,res_gestae_divi_aug
 calpurnius_siculus.eclogae.tess,calpurnius_siculus,eclogae,Early Imperial,hexameter,pastoral,auto
 candidus_of_fulda.epitaphia_aegili.tess,candidus_of_fulda,epitaphia_aegili,Carolingian,unknown,medieval,auto
 candidus_of_fulda.vita_aegili.tess,candidus_of_fulda,vita_aegili,Carolingian,unknown,medieval,auto
+carmina_burana.carmina_burana.tess,carmina_burana,carmina_burana,Medieval,mixed,goliardic_satire,editorial
 catholic_church_pope.epistulae_imperatorum_pontificum_aliorum.tess,catholic_church_pope,epistulae_imperatorum_pontificum_aliorum,Late Antique,prose,theology,auto
 cato_the_elder.de_agricultura.tess,cato_the_elder,de_agricultura,Republic,prose,technical,auto
 catullus.carmina.tess,catullus,carmina,Republic,mixed,lyric,auto
@@ -936,6 +937,7 @@ jerome.vulgate.part.9.1_samuel.tess,jerome,vulgate,Late Antique,prose,scripture,
 jerome.vulgate.tess,jerome,vulgate,Late Antique,prose,scripture,auto
 jerome_saint.epistulae.tess,jerome_saint,epistulae,Late Antique,prose,epistolary,auto
 jerome_saint.in_hieremiam_prophetam_libri_sex.tess,jerome_saint,in_hieremiam_prophetam_libri_sex,Late Antique,prose,theology,auto
+johannes_hanville.architrenius.tess,johannes_hanville,architrenius,Medieval,hexameter,satire,editorial
 johannes_hymonides.versiculi_de_cena_cypriani.tess,johannes_hymonides,versiculi_de_cena_cypriani,Carolingian,unknown,medieval,auto
 john_cassian.conlationes.tess,john_cassian,conlationes,Late Antique,prose,theology,auto
 john_cassian.conlationes_patrum_collationibus_selecti.tess,john_cassian,conlationes_patrum_collationibus_selecti,Late Antique,prose,theology,auto
@@ -1064,6 +1066,7 @@ minucius_felix.octavius.tess,minucius_felix,octavius,Late Antique,prose,theology
 moduin.carminum_appendix.tess,moduin,carminum_appendix,Carolingian,unknown,medieval,auto
 moduin.eclogae.tess,moduin,eclogae,Carolingian,unknown,medieval,auto
 nepos.vitae.tess,nepos,vitae,Republic,prose,historiography,auto
+nigel_wireker.speculum_stultorum.tess,nigel_wireker,speculum_stultorum,Medieval,elegiac,satire,editorial
 nithardus.historiae.tess,nithardus,historiae,Carolingian,prose,historiography,auto
 optatian.epistula.tess,optatian,epistula,Later Imperial,prose,panegyric,auto
 optatus_saint_bishop_of_mileve.appendix_decem_monumentorum_veterum.tess,optatus_saint_bishop_of_mileve,appendix_decem_monumentorum_veterum,Late Antique,prose,theology,auto
