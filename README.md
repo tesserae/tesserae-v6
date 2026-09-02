@@ -64,14 +64,15 @@ cp .env.example .env
 # SESSION_SECRET). Otherwise the app will refuse to start — this is a safeguard
 # against running a real deployment without a proper session secret.
 
-# 4. Download search index files (~5.3 GB from tesserae.caset.buffalo.edu)
+# 4. Download search index files (several GB from tesserae.caset.buffalo.edu;
+#    the script prints the exact total before it starts)
 python scripts/download_data.py
 
 # 5. Start the application
 python main.py
 ```
 
-The Git repository contains all source code, texts, embeddings, and lemma tables. The only additional download is the pre-built search indexes (SQLite databases, ~5.3 GB). The download script handles this automatically.
+The Git repository contains all source code, texts, embeddings, and lemma tables. The only additional download is the pre-built search indexes (SQLite databases). The download script handles this automatically and reports the total before downloading.
 
 To check which data files are present or missing:
 ```bash
@@ -103,12 +104,16 @@ tesserae-v6/
 │   ├── app.py              # Main application
 │   ├── blueprints/         # Modular API routes
 │   │   ├── admin.py        # Admin endpoints
-│   │   ├── corpus.py       # Corpus management
+│   │   ├── assistant.py    # Tessa, the site assistant
+│   │   ├── corpus.py       # Corpus management and text descriptions
 │   │   ├── fusion.py       # Fusion search endpoint (SSE streaming)
 │   │   ├── hapax.py        # Rare words/bigrams search
 │   │   ├── intertext.py    # Repository management
+│   │   ├── mcp_http.py     # MCP connector (Claude and other clients)
+│   │   ├── passages.py     # Theme Search, Similar Passages, the Reader
 │   │   └── search.py       # Search endpoints
 │   ├── fusion.py           # 11-channel fusion engine
+│   ├── passage_index.py    # Passage window index behind Theme Search
 │   ├── matcher.py          # Text matching algorithms
 │   ├── scorer.py           # V3-style scoring
 │   ├── semantic_similarity.py  # AI semantic + dictionary matching
@@ -125,7 +130,7 @@ tesserae-v6/
 ├── data/                    # Corpus and data files
 │   ├── inverted_index/     # Pre-built search indexes
 │   └── lemma_tables/       # Latin/Greek lemma lookup tables
-├── texts/                   # .tess text files (2,100+ works)
+├── texts/                   # .tess text files (3,500+ works)
 ├── evaluation/              # Evaluation scripts and benchmarks
 ├── research/                # Scholarly work, studies, session notes
 ├── docs/                    # Documentation
