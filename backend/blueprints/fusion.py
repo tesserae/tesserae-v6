@@ -29,7 +29,8 @@ from backend.services import get_user_location, log_search
 import threading
 from backend.cache import (get_cached_results, save_cached_results,
                            get_cache_key, ensure_cache_dir, CACHE_DIR)
-from backend.concurrency_gate import SearchSlot
+from backend.concurrency_gate import SearchSlot, get_cancellation_message
+
 from backend.search_cancellation import SearchCancellation, SearchCancelled
 
 logger = get_logger('fusion')
@@ -260,8 +261,9 @@ def search_fusion_stream():
                 enabled_channels=enabled_channels,
             ):
                 if slot.is_cancelled():
-                    yield f"data: {json.dumps({'type': 'cancelled', 'message': 'Search terminated by administrator'})}\n\n"
+                    yield f"data: {json.dumps({'type': 'cancelled', 'message': get_cancellation_message(slot)})}\n\n"
                     return
+
 
                 if event_type == "channel_start":
                     phase = evt_data['phase']
@@ -608,9 +610,10 @@ def _run_fusion_job(source_id, target_id, language, max_results, job_key):
                 logger.info("GET fusion job cancelled (%s x %s)", source_id, target_id)
                 try:
                     with open(_fusion_marker(job_key, 'cancelled'), 'w', encoding='utf-8') as f:
-                        f.write('Search terminated by administrator')
+                        f.write(get_cancellation_message(slot))
                 except IOError:
                     pass
+
                 # Slot is released by the finally block below.
                 return
 

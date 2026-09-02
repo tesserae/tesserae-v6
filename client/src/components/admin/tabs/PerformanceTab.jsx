@@ -9,6 +9,7 @@ export default function PerformanceTab() {
   const [maxSearches, setMaxSearches] = useState(2);
   const [memThreshold, setMemThreshold] = useState(8);
   const [emergencyFloor, setEmergencyFloor] = useState(3.0);
+  const [reaperEnabled, setReaperEnabled] = useState(false);
   const [queueTimeout, setQueueTimeout] = useState(300);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null); // {type: 'success'|'error', text: '...'}
@@ -64,9 +65,12 @@ export default function PerformanceTab() {
       setMemThreshold(status.memory_threshold_gb);
       setQueueTimeout(status.queue_timeout);
       setEmergencyFloor(status.emergency_ram_floor_gb);
+      setReaperEnabled(Boolean(status.reaper_enabled));
       setInitialLoaded(true);
     }
   }, [status, initialLoaded]);
+
+
 
   useEffect(() => {
     fetchStatus();
@@ -86,7 +90,8 @@ export default function PerformanceTab() {
           max_searches: maxSearches,
           memory_threshold_gb: memThreshold,
           queue_timeout: queueTimeout,
-          emergency_ram_floor_gb: emergencyFloor
+          emergency_ram_floor_gb: emergencyFloor,
+          reaper_enabled: reaperEnabled
         })
       });
       const data = await res.json();
@@ -96,6 +101,7 @@ export default function PerformanceTab() {
         if (data.memory_threshold_gb) setMemThreshold(data.memory_threshold_gb);
         if (data.queue_timeout) setQueueTimeout(data.queue_timeout);
         if (data.emergency_ram_floor_gb) setEmergencyFloor(data.emergency_ram_floor_gb);
+        if (data.reaper_enabled !== undefined) setReaperEnabled(Boolean(data.reaper_enabled));
         fetchStatus();
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to update settings' });
@@ -146,6 +152,7 @@ export default function PerformanceTab() {
         if (data.memory_threshold_gb) setMemThreshold(data.memory_threshold_gb);
         if (data.queue_timeout) setQueueTimeout(data.queue_timeout);
         if (data.emergency_ram_floor_gb) setEmergencyFloor(data.emergency_ram_floor_gb);
+        setReaperEnabled(false);
         fetchStatus();
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to reset settings' });
@@ -155,6 +162,7 @@ export default function PerformanceTab() {
     }
     setSaving(false);
   };
+
 
   const [killingAll, setKillingAll] = useState(false);
 
@@ -437,14 +445,34 @@ export default function PerformanceTab() {
             <input
               type="number"
               min={1.0}
-              max={16.0}
+              max={status?.max_emergency_floor_gb || 16.0}
               step={0.5}
               value={emergencyFloor}
               onChange={e => setEmergencyFloor(Number(e.target.value))}
               className="w-32 border rounded px-3 py-2 text-sm"
             />
-            <p className="text-xs text-gray-400 mt-1">Blocks ALL new searches below this, even in Stress Test Mode</p>
+            <p className="text-xs text-gray-400 mt-1">
+              Blocks ALL new searches below this. Max allowed for this server: {status?.max_emergency_floor_gb ? `${status.max_emergency_floor_gb} GB (80% of RAM)` : '16 GB'}
+            </p>
           </div>
+
+          {/* Automatic Memory Reaper Toggle */}
+          <div>
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={reaperEnabled}
+                onChange={e => setReaperEnabled(e.target.checked)}
+                className="rounded text-red-700 focus:ring-red-500 h-4 w-4"
+              />
+              Enable Automatic Memory Reaper
+              <span className="text-xs text-gray-500 font-normal">(Off by default)</span>
+            </label>
+            <p className="text-xs text-gray-400 mt-1 ml-6">
+              When enabled, automatically cancels the newest running search if available RAM drops below the Emergency Floor.
+            </p>
+          </div>
+
 
           {/* Queue Timeout */}
           <div>

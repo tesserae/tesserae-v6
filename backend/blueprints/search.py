@@ -36,7 +36,8 @@ from backend.utils import resolve_text_path, format_short_locus
 from backend.logging_config import get_logger
 from backend.services import get_user_location, log_search
 from backend.cache import get_cached_results, save_cached_results, clear_cache
-from backend.concurrency_gate import SearchSlot
+from backend.concurrency_gate import SearchSlot, get_cancellation_message
+
 from backend.matcher import get_curated_stoplists
 from backend.search_cancellation import (
     SearchCancellation, SearchCancelled, request_cancellation,
@@ -1657,7 +1658,7 @@ def search_stream():
                         corpus_frequencies, cancellation):
                     if slot.is_cancelled():
                         cancellation.cancel()
-                        yield f"data: {json.dumps({'type': 'cancelled', 'message': 'Search terminated by administrator'})}\n\n"
+                        yield f"data: {json.dumps({'type': 'cancelled', 'message': get_cancellation_message(slot)})}\n\n"
                         return
                     if event_type == 'heartbeat':
                         yield ": keep-alive\n\n"
@@ -1670,8 +1671,9 @@ def search_stream():
                 return
 
             if slot.is_cancelled():
-                yield f"data: {json.dumps({'type': 'cancelled', 'message': 'Search terminated by administrator'})}\n\n"
+                yield f"data: {json.dumps({'type': 'cancelled', 'message': get_cancellation_message(slot)})}\n\n"
                 return
+
 
             if not matches:
                 # Log the 0-match search before returning
@@ -1818,7 +1820,7 @@ def search():
             corpus_frequencies = _load_corpus_frequencies(language, settings)
 
             if slot.is_cancelled():
-                return jsonify({'error': 'Search terminated by administrator'}), 410
+                return jsonify({'error': get_cancellation_message(slot)}), 410
 
             # Cross-lingual fusion (default for cross-lingual searches)
             if match_type == 'crosslingual_fusion':
@@ -1839,7 +1841,8 @@ def search():
                                                        settings, corpus_frequencies, cancellation)
 
             if slot.is_cancelled():
-                return jsonify({'error': 'Search terminated by administrator'}), 410
+                return jsonify({'error': get_cancellation_message(slot)}), 410
+
 
             # Score, cache, log, and return
             cancellation.check()

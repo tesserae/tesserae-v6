@@ -489,8 +489,10 @@ def test_reaper_cancels_newest_search(monkeypatch):
         with _ConfigPatch():
             try:
                 gate.ConcurrencyConfig.set_emergency_ram_floor(5.0)
+                gate.ConcurrencyConfig.set_memory_threshold(0.5)
+                gate.ConcurrencyConfig.set_reaper_enabled(True)
 
-                # Mock sufficient RAM during initial acquisition
+                # Mock sufficient RAM so acquire doesn't block on emergency floor
                 monkeypatch.setattr(gate, 'get_available_memory_gb', lambda: 10.0)
 
                 # Create two slots with distinct start times
@@ -521,6 +523,8 @@ def test_reaper_cancels_newest_search(monkeypatch):
 
                 # Newer search (slot2) should have a cancel marker, older one (slot1) should not
                 assert slot2.is_cancelled(), "Newest search should be cancelled by reaper"
+                assert slot2.get_cancel_reason() == 'low_memory', "Cancel reason should be low_memory"
+                assert "low" in gate.get_cancellation_message(slot2).lower()
                 assert not slot1.is_cancelled(), "Older search should remain uncancelled"
 
                 # Telemetry check
@@ -532,6 +536,53 @@ def test_reaper_cancels_newest_search(monkeypatch):
                 slot2.release()
             finally:
                 gate.LOCK_DIR = old_lock_dir
+
+
+def test_reaper_disabled_by_default(monkeypatch):
+    """MemoryReaper is disabled by default and ignores ticks when disabled."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        import backend.concurrency_gate as gate
+        old_lock_dir = gate.LOCK_DIR
+        gate.LOCK_DIR = tmpdir
+
+        with _ConfigPatch():
+            try:
+                gate.ConcurrencyConfig.set_emergency_ram_floor(5.0)
+                gate.ConcurrencyConfig.set_memory_threshold(0.5)
+
+                assert not gate.ConcurrencyConfig.is_reaper_enabled(), "Reaper should be disabled by default"
+
+                # Mock sufficient RAM to acquire
+                monkeypatch.setattr(gate, 'get_available_memory_gb', lambda: 10.0)
+                slot = gate.SearchSlot()
+                for _ in slot.acquire():
+                    pass
+
+                # Mock low RAM below floor
+                monkeypatch.setattr(gate, 'get_available_memory_gb', lambda: 3.0)
+
+                gate.MemoryReaper._tick()
+                assert not slot.is_cancelled(), "Slot should NOT be cancelled when reaper is disabled"
+
+                slot.release()
+            finally:
+                gate.LOCK_DIR = old_lock_dir
+
+
+def test_emergency_ram_floor_cannot_exceed_80_percent_ram(monkeypatch):
+    """Setting emergency RAM floor higher than 80% of physical RAM raises ValueError."""
+    import backend.concurrency_gate as gate
+    with _ConfigPatch():
+        # Mock physical total RAM to 10.0 GB (80% max cap = 8.0 GB)
+        monkeypatch.setattr(gate, 'get_total_memory_gb', lambda: 10.0)
+
+        # 5.0 GB is below 8.0 GB cap -> should succeed
+        gate.ConcurrencyConfig.set_emergency_ram_floor(5.0)
+        assert gate.ConcurrencyConfig.get_emergency_ram_floor() == 5.0
+
+        # 9.0 GB is above 8.0 GB cap -> should raise ValueError
+        with pytest.raises(ValueError, match="exceed 80% of total physical RAM"):
+            gate.ConcurrencyConfig.set_emergency_ram_floor(9.0)
 
 
 def test_reaper_does_not_cancel_when_above_floor(monkeypatch):
