@@ -64,15 +64,17 @@ cp .env.example .env
 # SESSION_SECRET). Otherwise the app will refuse to start — this is a safeguard
 # against running a real deployment without a proper session secret.
 
-# 4. Download search index files (several GB from tesserae.caset.buffalo.edu;
-#    the script prints the exact total before it starts)
+# 4. Download search index files (~1.4 GB from tesserae.caset.buffalo.edu,
+#    ~6.5 GB once extracted)
 python scripts/download_data.py
 
 # 5. Start the application
 python main.py
 ```
 
-The Git repository contains all source code, texts, embeddings, and lemma tables. The only additional download is the pre-built search indexes (SQLite databases). The download script handles this automatically and reports the total before downloading.
+The Git repository contains all source code, texts, embeddings, and lemma tables. The only additional download is the pre-built search indexes (SQLite databases, ~1.4 GB compressed and ~6.5 GB extracted). The download script handles this automatically.
+
+Currently published: the Latin, Greek, and English indexes and the Latin and Greek syntax databases. The Coptic and Hebrew indexes, the Coptic syntax database, and the passage index behind Theme Search are not yet published, so a fresh clone runs Latin, Greek, and English search. Data and scripts for the Coptic study are published separately under Downloads on the site.
 
 To check which data files are present or missing:
 ```bash
