@@ -18,10 +18,10 @@ import ThemeExport from './ThemeExport';
  */
 
 const EXAMPLES = [
+  'a guest arrives and is welcomed with food, wine, and a bath',
+  'a mother laments her dead son over his body',
+  'a wife or child recognizes someone long thought dead or lost',
   'a warrior arms himself before battle, piece by piece',
-  'a city falls and its people are led away captive',
-  'a descent into the world of the dead to consult a shade',
-  'a storm at sea scatters a fleet and the crew despairs',
 ];
 
 const BAND = {
