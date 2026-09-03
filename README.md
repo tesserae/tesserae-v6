@@ -64,17 +64,17 @@ cp .env.example .env
 # SESSION_SECRET). Otherwise the app will refuse to start — this is a safeguard
 # against running a real deployment without a proper session secret.
 
-# 4. Download search index files (~1.4 GB from tesserae.caset.buffalo.edu,
-#    ~6.5 GB once extracted)
+# 4. Download search index files (~2.8 GB from tesserae.caset.buffalo.edu,
+#    ~9.4 GB once extracted; --file la fetches just one)
 python scripts/download_data.py
 
 # 5. Start the application
 python main.py
 ```
 
-The Git repository contains all source code, texts, embeddings, and lemma tables. The only additional download is the pre-built search indexes (SQLite databases, ~1.4 GB compressed and ~6.5 GB extracted). The download script handles this automatically.
+The Git repository contains all source code, texts, embeddings, and lemma tables. The only additional download is the pre-built search indexes (~2.8 GB compressed, ~9.4 GB extracted). The download script handles this automatically.
 
-Currently published: the Latin, Greek, and English indexes and the Latin and Greek syntax databases. The Coptic and Hebrew indexes, the Coptic syntax database, and the passage index behind Theme Search are not yet published, so a fresh clone runs Latin, Greek, and English search. Data and scripts for the Coptic study are published separately under Downloads on the site.
+Published: inverted indexes for Latin, Greek, English, Coptic, and Hebrew; syntax databases for Latin, Greek, and Coptic; and the passage index behind Theme Search and Similar Passages. The passage index excludes `window_texts.db` (3 GB of passage text), so results rank correctly but carry no text until that file is rebuilt locally, and Theme Search additionally needs the query encoder service (`services/embed_server.py`). Data and scripts for the Coptic study are published separately under Downloads on the site.
 
 To check which data files are present or missing:
 ```bash

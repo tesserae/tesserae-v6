@@ -136,7 +136,8 @@ def check_status(manifest):
 
         required = entry.get("required", True)
         req_label = " (required)" if required else " (optional)"
-        size_label = entry.get("size_uncompressed_human", "unknown size")
+        size_label = entry.get("size_human") or entry.get(
+            "size_uncompressed_human", "unknown size")
 
         print(f"  [{marker:7s}] {entry['extract_to']} — {size_label}{req_label}")
         print(f"           {entry['description']}")
