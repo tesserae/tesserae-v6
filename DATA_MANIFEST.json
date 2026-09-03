@@ -98,6 +98,17 @@
       "size_human": "2.3 GB",
       "sha256": "8ff7e7f326ecb70a027bc7ea3362c2771a3b81e1c50baca0442e69280f536d0e",
       "size_compressed": 1358767570
+    },
+    {
+      "filename": "window_texts.db.tar.gz",
+      "extract_to": "data/passage_index/window_texts.db",
+      "description": "Passage text for every window, so results show the passage and not only its description. Covers Latin, Greek, English, Coptic and Hebrew, the languages whose source texts ship in texts/. Persian, Urdu and Arabic windows are indexed but their texts are not published, so those rows are absent.",
+      "size_bytes": 1870000000,
+      "size_human": "1.9 GB",
+      "size_compressed": 317562416,
+      "sha256": "57b621c0d2aa58e9de550aab6327a8d038bcf12c01bdcdc102bdb1799771c3f9",
+      "required": false,
+      "rebuild_instructions": "Run: python scripts/build_window_texts.py"
     }
   ],
   "notes": {
