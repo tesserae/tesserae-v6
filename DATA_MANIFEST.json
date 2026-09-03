@@ -102,11 +102,11 @@
     {
       "filename": "window_texts.db.tar.gz",
       "extract_to": "data/passage_index/window_texts.db",
-      "description": "Passage text for every window, so results show the passage and not only its description. Covers Latin, Greek, English, Coptic and Hebrew, the languages whose source texts ship in texts/. Persian, Urdu and Arabic windows are indexed but their texts are not published, so those rows are absent.",
-      "size_bytes": 1870000000,
+      "description": "Passage text for every window, so results show the passage and not only its description. Covers the eight languages whose sources ship in texts/ (Latin, Greek, English, Coptic, Hebrew, Italian, Middle High German, Old French). Persian, Urdu and Arabic windows are indexed but their texts are not published, so those rows are absent.",
+      "size_bytes": 1880000000,
       "size_human": "1.9 GB",
-      "size_compressed": 317562416,
-      "sha256": "57b621c0d2aa58e9de550aab6327a8d038bcf12c01bdcdc102bdb1799771c3f9",
+      "size_compressed": 318836300,
+      "sha256": "214caa5a27a1ae41e5e4a2518945b3c0423da397b8a946a8e1c65b5adbb2e577",
       "required": false,
       "rebuild_instructions": "Run: python scripts/build_window_texts.py"
     }
