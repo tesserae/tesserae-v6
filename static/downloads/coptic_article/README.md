@@ -59,7 +59,9 @@ at https://github.com/tesserae/tesserae-v6.
   different psalm from the one Hebrews is quoting; F = formulaic or
   coincidental overlap. Counts: Q 30, A 3, D 6, F 11. Citation status was
   checked against Nestle-Aland 28, Appendix III; the `basis` column gives
-  the reason for each assignment.
+  the reason for each assignment. Three rows (ranks 39, 42, 50) have an
+  empty `quotation_run_length`: those pairs carry no quotation-channel run
+  and reached the top 50 on the lemma and sound channels.
 
 These outputs carry references and scores; the two JSONL files contain no
 text and redistribute nothing.
