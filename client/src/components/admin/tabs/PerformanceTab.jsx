@@ -8,6 +8,8 @@ export default function PerformanceTab() {
   const [loading, setLoading] = useState(true);
   const [maxSearches, setMaxSearches] = useState(2);
   const [memThreshold, setMemThreshold] = useState(8);
+  const [emergencyFloor, setEmergencyFloor] = useState(3.0);
+  const [reaperEnabled, setReaperEnabled] = useState(false);
   const [queueTimeout, setQueueTimeout] = useState(300);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null); // {type: 'success'|'error', text: '...'}
@@ -62,9 +64,13 @@ export default function PerformanceTab() {
       setMaxSearches(status.max_searches);
       setMemThreshold(status.memory_threshold_gb);
       setQueueTimeout(status.queue_timeout);
+      setEmergencyFloor(status.emergency_ram_floor_gb);
+      setReaperEnabled(Boolean(status.reaper_enabled));
       setInitialLoaded(true);
     }
   }, [status, initialLoaded]);
+
+
 
   useEffect(() => {
     fetchStatus();
@@ -83,7 +89,9 @@ export default function PerformanceTab() {
         body: JSON.stringify({
           max_searches: maxSearches,
           memory_threshold_gb: memThreshold,
-          queue_timeout: queueTimeout
+          queue_timeout: queueTimeout,
+          emergency_ram_floor_gb: emergencyFloor,
+          reaper_enabled: reaperEnabled
         })
       });
       const data = await res.json();
@@ -92,6 +100,8 @@ export default function PerformanceTab() {
         if (data.max_searches) setMaxSearches(data.max_searches);
         if (data.memory_threshold_gb) setMemThreshold(data.memory_threshold_gb);
         if (data.queue_timeout) setQueueTimeout(data.queue_timeout);
+        if (data.emergency_ram_floor_gb) setEmergencyFloor(data.emergency_ram_floor_gb);
+        if (data.reaper_enabled !== undefined) setReaperEnabled(Boolean(data.reaper_enabled));
         fetchStatus();
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to update settings' });
@@ -141,6 +151,8 @@ export default function PerformanceTab() {
         if (data.max_searches) setMaxSearches(data.max_searches);
         if (data.memory_threshold_gb) setMemThreshold(data.memory_threshold_gb);
         if (data.queue_timeout) setQueueTimeout(data.queue_timeout);
+        if (data.emergency_ram_floor_gb) setEmergencyFloor(data.emergency_ram_floor_gb);
+        setReaperEnabled(false);
         fetchStatus();
       } else {
         setMessage({ type: 'error', text: data.error || 'Failed to reset settings' });
@@ -150,6 +162,7 @@ export default function PerformanceTab() {
     }
     setSaving(false);
   };
+
 
   const [killingAll, setKillingAll] = useState(false);
 
@@ -263,9 +276,14 @@ export default function PerformanceTab() {
             </div>
             <div className={`text-2xl font-bold ${status ? getMemoryColor(status.available_memory_gb, status.memory_threshold_gb) : 'text-gray-900'}`}>
               {status ? formatMemory(status.available_memory_gb) : '?'} GB
+              {status?.emergency_active && (
+                <span className="ml-2 px-2 py-0.5 text-xs font-bold bg-red-600 text-white rounded animate-pulse">
+                  EMERGENCY
+                </span>
+              )}
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              Threshold: {status?.memory_threshold_gb ?? '?'} GB
+              Threshold: {status?.memory_threshold_gb ?? '?'} GB · Emergency Floor: {status?.emergency_ram_floor_gb ?? '?'} GB
             </p>
           </div>
         </div>
@@ -418,6 +436,44 @@ export default function PerformanceTab() {
             />
           </div>
 
+          {/* Emergency RAM Floor */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Emergency RAM Floor (GB)
+              <span className="ml-1 text-xs text-red-500 font-normal">unbypassable</span>
+            </label>
+            <input
+              type="number"
+              min={1.0}
+              max={status?.max_emergency_floor_gb || 16.0}
+              step={0.5}
+              value={emergencyFloor}
+              onChange={e => setEmergencyFloor(Number(e.target.value))}
+              className="w-32 border rounded px-3 py-2 text-sm"
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              Blocks ALL new searches below this. Max allowed for this server: {status?.max_emergency_floor_gb ? `${status.max_emergency_floor_gb} GB (80% of RAM)` : '16 GB'}
+            </p>
+          </div>
+
+          {/* Automatic Memory Reaper Toggle */}
+          <div>
+            <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={reaperEnabled}
+                onChange={e => setReaperEnabled(e.target.checked)}
+                className="rounded text-red-700 focus:ring-red-500 h-4 w-4"
+              />
+              Enable Automatic Memory Reaper
+              <span className="text-xs text-gray-500 font-normal">(Off by default)</span>
+            </label>
+            <p className="text-xs text-gray-400 mt-1 ml-6">
+              When enabled, automatically cancels the newest running search if available RAM drops below the Emergency Floor.
+            </p>
+          </div>
+
+
           {/* Queue Timeout */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -496,13 +552,40 @@ export default function PerformanceTab() {
             <div>
               <div className="text-sm font-medium text-amber-800">Warning: Stress Test Mode Active</div>
               <p className="text-sm text-amber-700 mt-1">
-                Memory safety checks are bypassed. This mode auto-expires after 1 hour.
+                Memory safety checks are bypassed. The Emergency RAM Floor ({status?.emergency_ram_floor_gb ?? 3.0} GB) still applies and cannot be bypassed. This mode auto-expires after 1 hour.
                 Only use for controlled load testing.
               </p>
             </div>
           </div>
         )}
       </div>
+
+      {/* Section C2: Memory Reaper Status */}
+      {status?.reaper_status?.reap_count > 0 && (
+        <div className="border-t pt-6">
+          <h3 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-red-500" />
+            Memory Reaper Activity
+          </h3>
+          <div className="bg-red-50 border border-red-200 rounded p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <span className={`w-2 h-2 rounded-full ${status.reaper_status.active ? 'bg-green-500' : 'bg-gray-400'}`} />
+              <span className="text-sm font-medium text-gray-800">
+                Reaper {status.reaper_status.active ? 'Active' : 'Inactive'}
+              </span>
+              <span className="text-xs text-gray-500">•</span>
+              <span className="text-sm text-red-700 font-semibold">
+                {status.reaper_status.reap_count} search{status.reaper_status.reap_count !== 1 ? 'es' : ''} auto-terminated
+              </span>
+            </div>
+            {status.reaper_status.last_reap_reason && (
+              <p className="text-xs text-red-600 font-mono break-all">
+                Last: {status.reaper_status.last_reap_reason}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Section D: Defaults Reference */}
       {status?.defaults && (
@@ -525,6 +608,10 @@ export default function PerformanceTab() {
               <div>
                 <span className="text-blue-600">QUEUE_TIMEOUT:</span>{' '}
                 <span className="font-mono">{status.defaults.queue_timeout}</span>
+              </div>
+              <div>
+                <span className="text-blue-600">EMERGENCY_RAM_FLOOR_GB:</span>{' '}
+                <span className="font-mono">{status.defaults.emergency_ram_floor_gb}</span>
               </div>
             </div>
           </div>

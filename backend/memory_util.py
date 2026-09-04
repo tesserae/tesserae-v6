@@ -64,3 +64,33 @@ def get_available_memory_gb():
 
     # Fallback: fail open
     return float('inf')
+
+
+def get_total_memory_gb():
+    """Return total physical RAM in GB.
+
+    Linux:  reads MemTotal from /proc/meminfo.
+    macOS:  uses sysctl hw.memsize.
+    Other:  returns float('inf') so validation fails open.
+    """
+    # Linux
+    try:
+        with open('/proc/meminfo') as f:
+            for line in f:
+                if line.startswith('MemTotal:'):
+                    return int(line.split()[1]) / (1024 * 1024)
+    except (OSError, ValueError):
+        pass
+
+    # macOS
+    try:
+        total_bytes = int(subprocess.run(
+            ['sysctl', '-n', 'hw.memsize'],
+            capture_output=True, text=True, timeout=5
+        ).stdout.strip())
+        return total_bytes / (1024 ** 3)
+    except (OSError, ValueError, subprocess.TimeoutExpired):
+        pass
+
+    return float('inf')
+
