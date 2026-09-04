@@ -4,9 +4,6 @@ gold/romans_isaiah_gold_22.csv,1294,d106400b6e1340a3
 gold/tsk_hebrews_psalms_all_votes_lxx.csv,175459,c815a0e50e8b294a
 gold/tsk_hebrews_psalms_gold_124.csv,7732,3c25f603875b1360
 gold/tsk_hebrews_psalms_strict_11.csv,743,277425e78714e88f
-outputs/hebrews_psalms_ranked_10000.jsonl,1701791,1bfc89c86904d9bf
-outputs/romans_isaiah_ranked_10000.jsonl,1537469,0292955e2b3fad61
-outputs/shenoute_abraham_bible_top50.csv,24332,3f89ceb692491aed
 logs/full10_log.jsonl,574,6bebaf999a0c7133
 logs/greek_baseline_log.jsonl,526,840b8190700f0c65
 logs/optimization_log.jsonl,8403,baa6cbf18d2612f9
@@ -20,6 +17,10 @@ logs/phase9_best_weights.json,1304,07ef571b3f2bb852
 logs/phase9_log.jsonl,29675,d02db44f9a162b1d
 logs/quot_v2_log.jsonl,573,402b12848d03dd3d
 logs/quotation_channel_baseline_log.jsonl,578,ff0a0cf1ca09a578
+outputs/hebrews_psalms_ranked_10000.jsonl,1701791,1bfc89c86904d9bf
+outputs/hebrews_psalms_top50_adjudicated.csv,4232,8d97f4609a35fdb1
+outputs/romans_isaiah_ranked_10000.jsonl,1537469,0292955e2b3fad61
+outputs/shenoute_abraham_bible_top50.csv,24332,3f89ceb692491aed
 scripts/becky_abraham_parallels.py,7114,65cc4a1b26dcf99e
 scripts/build_gold_set.py,6610,1d827d61638cf164
 scripts/build_greek_gold.py,2916,d6326ba4a8378243

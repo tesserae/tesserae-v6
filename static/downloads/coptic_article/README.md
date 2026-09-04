@@ -50,6 +50,17 @@ at https://github.com/tesserae/tesserae-v6.
   ranks the 9-token Isaiah 56:5 fragment below the top 50; see the
   run-to-run note below.
 
+- `hebrews_psalms_top50_adjudicated.csv` — the top 50 rows of
+  `hebrews_psalms_ranked_10000.jsonl` with a category for each pair
+  (article §4.2 and its precision figure), added 2026-09-04. Categories:
+  Q = documented quotation of the cited psalm, including re-quotations of
+  the same verse at other points in Hebrews and verse-boundary spillover;
+  A = unmarked allusion to the cited psalm; D = the same wording in a
+  different psalm from the one Hebrews is quoting; F = formulaic or
+  coincidental overlap. Counts: Q 30, A 3, D 6, F 11. Citation status was
+  checked against Nestle-Aland 28, Appendix III; the `basis` column gives
+  the reason for each assignment.
+
 These outputs carry references and scores; the two JSONL files contain no
 text and redistribute nothing.
 

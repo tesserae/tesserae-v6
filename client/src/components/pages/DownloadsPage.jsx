@@ -369,7 +369,7 @@ const DownloadsPage = () => {
         </p>
         <ul className="space-y-2 text-sm">
           <li>
-            <a href="/static/downloads/coptic_article/coptic_v6_data_release_2026-08-29.zip"
+            <a href="/static/downloads/coptic_article/coptic_v6_data_release_2026-09-04.zip"
                className="text-red-600 hover:underline font-medium" download>
               Complete release (zip, ~280 KB)
             </a>

@@ -1,0 +1,51 @@
+rank,psalm_ref,hebrews_ref,quotation_run_length,category,basis
+1,sahidic.psalms.8.5,sahidica.hebrews.2.6,22,Q,Heb 2:6-8 quotes Ps 8:5-7
+2,sahidic.psalms.39.8,sahidica.hebrews.10.7,17,Q,Heb 10:5-7 quotes Ps 39:7-9
+3,sahidic.psalms.44.8,sahidica.hebrews.1.9,17,Q,Heb 1:8-9 quotes Ps 44:7-8
+4,sahidic.psalms.39.7,sahidica.hebrews.10.5,17,Q,Heb 10:5-7 quotes Ps 39:7-9
+5,sahidic.psalms.117.6,sahidica.hebrews.13.6,13,Q,Heb 13:6 quotes Ps 117:6
+6,sahidic.psalms.8.7,sahidica.hebrews.2.7,13,Q,verse-boundary spillover; standard lists give Ps 8:6
+7,sahidic.psalms.109.4,sahidica.hebrews.7.17,12,Q,Heb 7:17 quotes Ps 109:4
+8,sahidic.psalms.2.7,sahidica.hebrews.5.5,13,Q,Heb 5:5 quotes Ps 2:7
+9,sahidic.psalms.2.7,sahidica.hebrews.1.5,13,Q,Heb 1:5 quotes Ps 2:7
+10,sahidic.psalms.101.28,sahidica.hebrews.1.12,11,Q,Heb 1:10-12 quotes Ps 101:26-28
+11,sahidic.psalms.109.4,sahidica.hebrews.5.6,12,Q,Heb 5:6 quotes Ps 109:4
+12,sahidic.psalms.94.8,sahidica.hebrews.3.8,12,Q,Heb 3:7-11 quotes Ps 94:7-11
+13,sahidic.psalms.109.1,sahidica.hebrews.1.13,11,Q,Heb 1:13 quotes Ps 109:1
+14,sahidic.psalms.101.27,sahidica.hebrews.1.12,9,Q,Heb 1:10-12 quotes Ps 101:26-28
+15,sahidic.psalms.94.10,sahidica.hebrews.3.10,9,Q,Heb 3:7-11 quotes Ps 94:7-11
+16,sahidic.psalms.103.4,sahidica.hebrews.1.7,8,Q,Heb 1:7 quotes Ps 103:4
+17,sahidic.psalms.94.11,sahidica.hebrews.4.3,9,Q,re-quotation of Ps 94:11
+18,sahidic.psalms.101.27,sahidica.hebrews.1.11,9,Q,Heb 1:10-12 quotes Ps 101:26-28
+19,sahidic.psalms.94.11,sahidica.hebrews.3.11,9,Q,Heb 3:7-11 quotes Ps 94:7-11
+20,sahidic.psalms.39.7,sahidica.hebrews.10.8,8,Q,re-quotation of Ps 39:7
+21,sahidic.psalms.94.7,sahidica.hebrews.3.15,8,Q,re-quotation of Ps 94:7
+22,sahidic.psalms.94.7,sahidica.hebrews.3.7,8,Q,Heb 3:7 quotes Ps 94:7
+23,sahidic.psalms.134.14,sahidica.hebrews.10.30,8,Q,the Lord will judge his people; NA28 cites Ps 134:14 (135:14)
+24,sahidic.psalms.44.7,sahidica.hebrews.1.8,7,Q,Heb 1:8-9 quotes Ps 44:7-8
+25,sahidic.psalms.118.90,sahidica.hebrews.1.10,8,D,you founded the earth; cited source is Ps 101:26 (rank 46)
+26,sahidic.psalms.94.7,sahidica.hebrews.4.7,8,Q,re-quotation of Ps 94:7
+27,sahidic.psalms.55.12,sahidica.hebrews.13.6,8,D,I will not fear what man can do to me; cited source is Ps 117:6 (rank 5)
+28,sahidic.psalms.23.5,sahidica.hebrews.6.7,8,F,receives blessing from God; possible echo
+29,sahidic.psalms.143.3,sahidica.hebrews.2.6,8,D,what is man / son of man; cited source is Ps 8:5 (rank 1)
+30,sahidic.psalms.104.11,sahidica.hebrews.2.12,8,F,formula: saying I will
+31,sahidic.psalms.109.4,sahidica.hebrews.7.11,5,A,order of Melchizedek; allusion to Ps 109:4
+32,sahidic.psalms.39.8,sahidica.hebrews.10.9,7,Q,re-quotation of Ps 39:8
+33,sahidic.psalms.8.6,sahidica.hebrews.2.7,7,Q,Heb 2:6-8 quotes Ps 8:5-7
+34,sahidic.psalms.109.4,sahidica.hebrews.5.10,5,A,order of Melchizedek; allusion to Ps 109:4
+35,sahidic.psalms.54.20,sahidica.hebrews.11.23,7,F,formula: did not fear
+36,sahidic.psalms.55.5,sahidica.hebrews.13.6,7,D,I will not fear; doublet of Ps 55:12; cited source is Ps 117:6
+37,sahidic.psalms.47.9,sahidica.hebrews.1.4,7,F,formula: so also is the manner
+38,sahidic.psalms.21.23,sahidica.hebrews.2.12,6,Q,Heb 2:12 quotes Ps 21:23
+39,sahidic.psalms.34.18,sahidica.hebrews.2.12,,D,I will praise you in the assembly; cited source is Ps 21:23 (rank 38)
+40,sahidic.psalms.149.2,sahidica.hebrews.3.2,6,F,formula: him who made him
+41,sahidic.psalms.149.2,sahidica.hebrews.3.3,6,F,formula: him who made him
+42,sahidic.psalms.104.9,sahidica.hebrews.11.17,,F,shared names Abraham and Isaac only
+43,sahidic.psalms.8.6,sahidica.hebrews.2.9,6,A,crowned with glory and honor; echo of the Heb 2:7 quotation
+44,sahidic.psalms.32.9,sahidica.hebrews.10.30,6,F,formula: he who said
+45,sahidic.psalms.148.5,sahidica.hebrews.10.30,6,F,formula: he who said
+46,sahidic.psalms.101.26,sahidica.hebrews.1.10,6,Q,Heb 1:10-12 quotes Ps 101:26-28
+47,sahidic.psalms.109.4,sahidica.hebrews.7.21,6,Q,Heb 7:21 quotes Ps 109:4
+48,sahidic.psalms.100.2,sahidica.hebrews.9.8,6,F,formula: the way of the holy
+49,sahidic.psalms.80.6,sahidica.hebrews.8.9,6,F,out of the land of Egypt; Heb 8:9 quotes Jeremiah
+50,sahidic.psalms.103.5,sahidica.hebrews.1.10,,D,founded the earth; cited source is Ps 101:26 (rank 46)
