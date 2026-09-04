@@ -54,6 +54,11 @@ TEXT_TREES = [
     '/home/ncoffee/tesserae-persian/texts',
     '/home/ncoffee/tesserae-v6-dev/texts',
 ]
+# The vernacular batch of 2026-09 left no window file behind, so its 6,467
+# windows had descriptions and embeddings and no text at all: searchable, and
+# unreadable. scripts/fill_window_texts_from_index.py rebuilds rows like those
+# from the index's own references, which is the route to take when a batch's
+# window file is gone.
 WINDOW_FILES = [
     '/home/ncoffee/perseus_trans/scene_windows_newlangs.json',
     '/home/ncoffee/perseus_trans/scene_windows.json',

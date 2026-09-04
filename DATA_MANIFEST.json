@@ -11,7 +11,8 @@
       "size_human": "2.2 GB",
       "sha256": "2ab3b00760ee436864ea76dec56da13d1b24d1ef90860c65870916b0976a6fbf",
       "required": true,
-      "rebuild_instructions": "Run: python scripts/build_inverted_index.py --language la --use-syntax-db --force"
+      "rebuild_instructions": "Run: python scripts/build_inverted_index.py --language la --use-syntax-db --force",
+      "size_compressed": 663467818
     },
     {
       "filename": "grc_index.db.tar.gz",
@@ -20,7 +21,8 @@
       "size_bytes": 1489494016,
       "size_human": "1.4 GB",
       "sha256": "ae768c7831c3b7d480e3ef2ae179ad341f5f60b2f621c9292137965d0e0cf6ba",
-      "rebuild_instructions": "Run: python scripts/build_inverted_index.py --language grc --fast --force"
+      "rebuild_instructions": "Run: python scripts/build_inverted_index.py --language grc --fast --force",
+      "size_compressed": 296869346
     },
     {
       "filename": "en_index.db.tar.gz",
@@ -29,7 +31,8 @@
       "size_bytes": 83283968,
       "size_human": "79 MB",
       "sha256": "4f492c47ec471b4481a9f0b44aab86c06de748b2d0b461244a96c614a4b208ca",
-      "rebuild_instructions": "Run: python scripts/build_inverted_index.py --language en --force"
+      "rebuild_instructions": "Run: python scripts/build_inverted_index.py --language en --force",
+      "size_compressed": 24347088
     },
     {
       "filename": "syntax_latin.db.tar.gz",
@@ -38,7 +41,8 @@
       "size_bytes": 1664045056,
       "size_human": "1.6 GB",
       "sha256": "eb5d29a760137eeaa6dcc160a35cc38956976ff82a3808ff1a2dd3f818660477",
-      "rebuild_instructions": "Run build_latinpipe_syntax.py on Marvin with local LatinPipe model (~1-2 hours)"
+      "rebuild_instructions": "Run build_latinpipe_syntax.py on Marvin with local LatinPipe model (~1-2 hours)",
+      "size_compressed": 243019433
     },
     {
       "filename": "syntax_greek.db.tar.gz",
@@ -48,17 +52,63 @@
       "size_human": "967 MB",
       "sha256": "a8b43ea11fa01fb618d30906bd7113315dae83259620bc4b20a3ec9043e95c8a",
       "required": true,
-      "rebuild_instructions": "Run: python scripts/build_greek_syntax_db.py"
+      "rebuild_instructions": "Run: python scripts/build_greek_syntax_db.py",
+      "size_compressed": 139014429
     },
     {
-      "filename": "latin_lemmas_extended.db.tar.gz",
-      "extract_to": "data/lemma_tables/latin_lemmas_extended.db",
-      "description": "Extended Latin lemma lookup table",
-      "size_bytes": 15671296,
-      "size_human": "15 MB",
-      "sha256": "PENDING",
+      "filename": "cop_index.db.tar.gz",
+      "extract_to": "data/inverted_index/cop_index.db",
+      "description": "Coptic inverted index (Sahidic and Bohairic, 187 texts)",
       "required": false,
-      "rebuild_instructions": "Rebuilt automatically during index build"
+      "rebuild_instructions": "Run: python scripts/build_inverted_index.py --language cop --force",
+      "size_bytes": 270848000,
+      "size_human": "271 MB",
+      "sha256": "608b5be5e9a929e2b918db5930390a1ddd78c7909171cb81af1de64e1638c04f",
+      "size_compressed": 53075951
+    },
+    {
+      "filename": "he_index.db.tar.gz",
+      "extract_to": "data/inverted_index/he_index.db",
+      "description": "Biblical Hebrew inverted index (Tanakh, 39 books)",
+      "required": false,
+      "rebuild_instructions": "Run: python scripts/build_inverted_index.py --language he --force",
+      "size_bytes": 46723072,
+      "size_human": "47 MB",
+      "sha256": "0b3eaba9baf27513d91f3fbba83a7fcd588b3aa9b5b5354373c5e9b3b75ece74",
+      "size_compressed": 10975292
+    },
+    {
+      "filename": "syntax_coptic.db.tar.gz",
+      "extract_to": "data/inverted_index/syntax_coptic.db",
+      "description": "Coptic dependency parses, for the syntax channels",
+      "required": false,
+      "rebuild_instructions": "See docs/DATA_FILES_REFERENCE.md",
+      "size_bytes": 351248384,
+      "size_human": "351 MB",
+      "sha256": "33bb6f9c1a46a24a18ed63920614a88f492eb21ae3165181026a806ad1a8638e",
+      "size_compressed": 40249033
+    },
+    {
+      "filename": "passage_index.tar.gz",
+      "extract_to": "data/passage_index/embeddings.npy",
+      "description": "Passage window index behind Theme Search and Similar Passages: ids.json, embeddings.npy, descriptions.jsonl. Does NOT include window_texts.db (3 GB), so results rank correctly but carry no passage text until that is rebuilt locally. Theme Search also needs the query encoder service (services/embed_server.py).",
+      "required": false,
+      "rebuild_instructions": "See research/studies/2026-08-25_content_search_shipped/REPORT.md",
+      "size_bytes": 2251664711,
+      "size_human": "2.3 GB",
+      "sha256": "8ff7e7f326ecb70a027bc7ea3362c2771a3b81e1c50baca0442e69280f536d0e",
+      "size_compressed": 1358767570
+    },
+    {
+      "filename": "window_texts.db.tar.gz",
+      "extract_to": "data/passage_index/window_texts.db",
+      "description": "Passage text for every window, so results show the passage and not only its description. Covers the eight languages whose sources ship in texts/ (Latin, Greek, English, Coptic, Hebrew, Italian, Middle High German, Old French). Persian, Urdu and Arabic windows are indexed but their texts are not published, so those rows are absent.",
+      "size_bytes": 1880000000,
+      "size_human": "1.9 GB",
+      "size_compressed": 318836300,
+      "sha256": "214caa5a27a1ae41e5e4a2518945b3c0423da397b8a946a8e1c65b5adbb2e577",
+      "required": false,
+      "rebuild_instructions": "Run: python scripts/build_window_texts.py"
     }
   ],
   "notes": {

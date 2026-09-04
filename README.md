@@ -1,6 +1,6 @@
 # Tesserae V6
 
-A web-based intertextual analysis tool for classical Latin, Greek, and English texts. Tesserae identifies textual parallels using advanced matching algorithms across a large corpus of classical literary works.
+A web-based intertextual analysis tool for Latin, Greek, English, Coptic, and Biblical Hebrew texts. Tesserae identifies textual parallels, allusions, quotations, and reuse across a corpus of 3,500+ literary works, combining lexical, sub-lexical, semantic, and syntactic evidence in a single interpretable score.
 
 ## Features
 
@@ -10,21 +10,27 @@ A web-based intertextual analysis tool for classical Latin, Greek, and English t
 - **Rare Words (Hapax)**: Find rare vocabulary shared between texts
 - **Word Pairs (Bigrams)**: Discover unique word combinations
 - **String Search**: Wildcard and boolean text search across all works
+- **Theme Search**: Describe the content you want in plain language and find passages across the corpus, in any indexed language
+- **Similar Passages**: From any passage in the Reader, find others like it
 
 ### Match Types
-- **Lemma**: Match by dictionary form (default)
-- **Exact**: Match identical word forms only
-- **Sound**: Phonetic similarity (character trigram overlap)
-- **Edit Distance**: Fuzzy matching (Levenshtein similarity)
-- **Semantic**: AI embedding similarity (SPhilBERTa)
-- **Dictionary**: Curated V3 synonym pairs
-- **Syntax**: Dependency tree pattern matching
+- **Lemma**: Two or more shared dictionary headwords (default, V3-style matching)
+- **Lemma (single)**: One shared headword, high recall and noisy
+- **Exact**: Identical surface forms
 - **Rare Word**: Shared low-frequency vocabulary
-- **Fusion**: All 9 channels combined with weighted scoring
+- **Sound**: Character trigram overlap
+- **Edit Distance**: Fuzzy matching (Levenshtein similarity)
+- **Quotation**: Runs of consecutive identical tokens, the signature of direct citation
+- **Semantic**: Embedding similarity (SPhilBERTa for Latin/Greek/English, multilingual-e5 for Coptic, a fine-tuned MiqraBERT for Hebrew)
+- **Dictionary**: Curated synonym pairs, including Coptic Wordnet
+- **Syntax**: Dependency pattern matching at shared lemma positions
+- **Syntax (structural)**: Matching dependency patterns with no shared lemmas
+- **Fusion**: All 11 channels combined with weighted scoring, under weight profiles fitted to text types (Latin epic, biblical prose). Channel availability varies by language: one without a syntax database or a synonym dictionary runs the channels it has.
 
-### Cross-Lingual Search (Experimental)
+### Cross-Lingual Search
 - Greek↔Latin parallel detection
-- Dictionary-based and AI semantic matching available
+- Hebrew→Greek, routed through the Septuagint, and Hebrew→Latin against the Vulgate
+- Dictionary-based and semantic matching available
 
 ### Additional Features
 - Intertext Repository for saving and sharing discoveries
@@ -58,14 +64,17 @@ cp .env.example .env
 # SESSION_SECRET). Otherwise the app will refuse to start — this is a safeguard
 # against running a real deployment without a proper session secret.
 
-# 4. Download search index files (~5.3 GB from tesserae.caset.buffalo.edu)
+# 4. Download search index files (~3.1 GB from tesserae.caset.buffalo.edu,
+#    ~11.3 GB once extracted; --file la fetches just one)
 python scripts/download_data.py
 
 # 5. Start the application
 python main.py
 ```
 
-The Git repository contains all source code, texts, embeddings, and lemma tables. The only additional download is the pre-built search indexes (SQLite databases, ~5.3 GB). The download script handles this automatically.
+The Git repository contains all source code, texts, embeddings, and lemma tables. The only additional download is the pre-built search indexes (~3.1 GB compressed, ~11.3 GB extracted). The download script handles this automatically.
+
+Published: inverted indexes for Latin, Greek, English, Coptic, and Hebrew; syntax databases for Latin, Greek, and Coptic; the passage index behind Theme Search and Similar Passages; and the passage text those results display. Theme Search additionally needs the query encoder service (`services/embed_server.py`) running. The passage text covers the eight languages whose sources ship in `texts/`: Persian and Urdu windows are in the index but their texts are not published, so those results show a description without the passage. Data and scripts for the Coptic study are published separately under Downloads on the site.
 
 To check which data files are present or missing:
 ```bash
@@ -81,7 +90,8 @@ See [docs/DATA_FILES_REFERENCE.md](docs/DATA_FILES_REFERENCE.md) for full detail
 | Frontend | React 18 + Vite + Tailwind CSS |
 | Backend | Flask (Python 3.11) |
 | Database | PostgreSQL (Neon) |
-| NLP | CLTK, NLTK |
+| NLP | CLTK, NLTK, Stanza |
+| Embeddings | SPhilBERTa, multilingual-e5-large, MiqraBERT (the query encoder runs as its own service) |
 
 ## Documentation
 
@@ -96,12 +106,16 @@ tesserae-v6/
 │   ├── app.py              # Main application
 │   ├── blueprints/         # Modular API routes
 │   │   ├── admin.py        # Admin endpoints
-│   │   ├── corpus.py       # Corpus management
+│   │   ├── assistant.py    # Tessa, the site assistant
+│   │   ├── corpus.py       # Corpus management and text descriptions
 │   │   ├── fusion.py       # Fusion search endpoint (SSE streaming)
 │   │   ├── hapax.py        # Rare words/bigrams search
 │   │   ├── intertext.py    # Repository management
+│   │   ├── mcp_http.py     # MCP connector (Claude and other clients)
+│   │   ├── passages.py     # Theme Search, Similar Passages, the Reader
 │   │   └── search.py       # Search endpoints
-│   ├── fusion.py           # 9-channel fusion engine
+│   ├── fusion.py           # 11-channel fusion engine
+│   ├── passage_index.py    # Passage window index behind Theme Search
 │   ├── matcher.py          # Text matching algorithms
 │   ├── scorer.py           # V3-style scoring
 │   ├── semantic_similarity.py  # AI semantic + dictionary matching
@@ -118,7 +132,7 @@ tesserae-v6/
 ├── data/                    # Corpus and data files
 │   ├── inverted_index/     # Pre-built search indexes
 │   └── lemma_tables/       # Latin/Greek lemma lookup tables
-├── texts/                   # .tess text files (2,100+ works)
+├── texts/                   # .tess text files (3,500+ works)
 ├── evaluation/              # Evaluation scripts and benchmarks
 ├── research/                # Scholarly work, studies, session notes
 ├── docs/                    # Documentation
@@ -128,9 +142,12 @@ tesserae-v6/
 ## Corpus
 
 The Tesserae corpus includes texts in:
-- **Latin** - Plautus through Medieval authors
-- **Greek** - Homer through Byzantine period
-- **English** - Shakespeare, Milton, Cowper, and more
+- **Latin** (1,861 works) - Plautus through the Latin Middle Ages
+- **Greek** (1,288 works) - Homer through the Byzantine period, including the Septuagint and the SBL Greek New Testament
+- **Coptic** (187 works) - Sahidic and Bohairic, biblical and monastic
+- **English** (162 works) - Shakespeare, Milton, Cowper, and public-domain translations
+- **Biblical Hebrew** (39 works) - the Tanakh, in Sefaria's Miqra according to the Masorah
+- A small number of medieval vernacular texts (Italian, Old French, Middle High German)
 
 Texts use the `.tess` format with section tags:
 ```
