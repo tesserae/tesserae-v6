@@ -184,14 +184,47 @@ class Scorer:
 
                 src_match_set = set(src_match_list)
                 tgt_match_set = set(tgt_match_list)
-                for lemma in matched_lemmas:
-                    # Skip lemmas not present on both sides — these come from
-                    # synonym pairs in the dictionary channel where e.g.
-                    # "agger" is in source but only "tumulus" in target.
-                    # The synonym partner covers the actual match.
-                    if match_basis == 'dictionary':
-                        if lemma not in src_match_set or lemma not in tgt_match_set:
+                n_scored = 0
+                if match_basis == 'dictionary':
+                    # A synonym pair is one match: "agger" on the source side
+                    # against "tumulus" on the target side. Score each pair
+                    # once (mean IDF of its two lemmas), each lemma at most
+                    # once (a many-to-one set of pairs counts one), and leave
+                    # lemmas present on both sides to the ordinary loop below.
+                    # Before 2026-09-05 the loop skipped every lemma that was
+                    # not on both sides, so a pure synonym pair scored 0 and
+                    # the channel could only echo the lemma channel.
+                    pairs = match.get('synonym_pairs') or []
+                    if not pairs:
+                        src_only = [l for l in matched_lemmas if l in src_match_set and l not in tgt_match_set]
+                        tgt_only = [l for l in matched_lemmas if l in tgt_match_set and l not in src_match_set]
+                        pairs = list(zip(src_only, tgt_only))
+                    used_s, used_t = set(), set()
+                    for a_lem, b_lem in pairs:
+                        if a_lem == b_lem or a_lem in used_s or b_lem in used_t:
                             continue
+                        if a_lem not in src_match_set or b_lem not in tgt_match_set:
+                            continue
+                        used_s.add(a_lem); used_t.add(b_lem)
+                        idf = (math.log((total_words + 1) / (freq.get(a_lem, 1) + 1)) + 1
+                               + math.log((total_words + 1) / (freq.get(b_lem, 1) + 1)) + 1) / 2
+                        src_word = next((src_tokens_list[i] for i, l in enumerate(src_match_list) if l == a_lem and i < len(src_tokens_list)), a_lem)
+                        tgt_word = next((tgt_tokens_list[i] for i, l in enumerate(tgt_match_list) if l == b_lem and i < len(tgt_tokens_list)), b_lem)
+                        word_scores.append({
+                            'lemma': a_lem,
+                            'source_word': src_word,
+                            'target_word': tgt_word,
+                            'target_lemma': b_lem,
+                            'frequency': min(freq.get(a_lem, 1), freq.get(b_lem, 1)),
+                            'idf': idf,
+                            'type': 'synonym',
+                        })
+                        total_freq_score += idf
+                        n_scored += 1
+                    lemmas_to_score = [l for l in matched_lemmas if l in src_match_set and l in tgt_match_set]
+                else:
+                    lemmas_to_score = matched_lemmas
+                for lemma in lemmas_to_score:
                     lemma_freq = freq.get(lemma, 1)
                     idf = math.log((total_words + 1) / (lemma_freq + 1)) + 1
                     # Find corresponding surface tokens for this lemma
@@ -216,7 +249,8 @@ class Scorer:
                 
                 raw_score = total_freq_score * distance_factor
                 
-                max_score = len(matched_lemmas) * math.log(total_words + 1) if total_words > 0 else 1
+                n_items = (n_scored + len(lemmas_to_score)) if match_basis == 'dictionary' else len(matched_lemmas)
+                max_score = max(1, n_items) * math.log(total_words + 1) if total_words > 0 else 1
                 unbounded = settings.get('unbounded_scoring', False)
                 normalized_score = (raw_score / max_score) if max_score > 0 else 0
                 if not unbounded:

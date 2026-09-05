@@ -890,3 +890,34 @@ class TestCleanMatchedLemmas:
         from backend.fusion import _clean_matched_lemmas
         assert _clean_matched_lemmas(['nux', 'nux', 'castanea'], set()) == \
             sorted(['nux', 'castanea'])
+
+
+class TestDictionarySynonymPairScoring:
+    """A pure synonym pair (agger / tumulus) must score in the dictionary
+    channel. From 2026-03-01 to 2026-09-05 the scorer skipped every lemma
+    not present on both sides, so such a pair scored 0 and the channel could
+    only echo the lemma channel (Latin, Greek, Coptic Wordnet alike)."""
+
+    def _units(self, a, b):
+        return ([{'ref': 's.1', 'text': a, 'tokens': a.split(), 'lemmas': a.split()}],
+                [{'ref': 't.1', 'text': b, 'tokens': b.split(), 'lemmas': b.split()}])
+
+    def test_synonym_pair_scores_positive(self):
+        from backend.scorer import Scorer
+        src, tgt = self._units('agger altus', 'tumulus altus')
+        m = [{'source_idx': 0, 'target_idx': 0, 'matched_lemmas': ['agger', 'tumulus', 'altus'],
+              'synonym_pairs': [('agger', 'tumulus')], 'match_basis': 'dictionary'}]
+        res = Scorer().score_matches(m, src, tgt, {'language': 'la', 'match_type': 'dictionary', 'unbounded_scoring': True}, 's', 't')
+        assert res and res[0]['overall_score'] > 0
+        words = res[0]['matched_words']
+        assert any(w.get('type') == 'synonym' and w['source_word'] == 'agger' and w['target_word'] == 'tumulus' for w in words)
+        assert any(w['lemma'] == 'altus' for w in words)
+
+    def test_many_to_one_counts_once(self):
+        from backend.scorer import Scorer
+        src, tgt = self._units('agger vallum moles', 'tumulus')
+        pairs = [('agger', 'tumulus'), ('vallum', 'tumulus'), ('moles', 'tumulus')]
+        m = [{'source_idx': 0, 'target_idx': 0, 'matched_lemmas': ['agger', 'vallum', 'moles', 'tumulus'],
+              'synonym_pairs': pairs, 'match_basis': 'dictionary'}]
+        res = Scorer().score_matches(m, src, tgt, {'language': 'la', 'match_type': 'dictionary', 'unbounded_scoring': True}, 's', 't')
+        assert res and sum(1 for w in res[0]['matched_words'] if w.get('type') == 'synonym') == 1
