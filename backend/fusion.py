@@ -2229,7 +2229,8 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
                   idf_floor=None, idf_threshold=None,
                   convergence_idf_power=None, min_idf_threshold=None,
                   min_idf_penalty=None, language='la',
-                  freq_basis='corpus', source_id=None, target_id=None):
+                  freq_basis='corpus', source_id=None, target_id=None,
+                  confirm_context=True):
     """Combine results from multiple channels using weighted score fusion.
 
     Three-layer rarity scoring for each (source_ref, target_ref) pair:
@@ -2697,8 +2698,13 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
         result["channel_count"] = len(info["channels"])
         merged.append(result)
 
-    merged = apply_context_confirmation(merged, language=language,
-                                        source_id=source_id, target_id=target_id)
+    # The passage-context pass (3,000 candidate pairs looked up in the
+    # passage index) costs about a minute; the progressive intermediate
+    # fusions skip it and only the final fusion pays it (2026-09-06: a
+    # diwan-against-diwan search was paying it after every channel).
+    if confirm_context:
+        merged = apply_context_confirmation(merged, language=language,
+                                            source_id=source_id, target_id=target_id)
     return merged
 
 
@@ -3334,7 +3340,8 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
             fused = fuse_results(line_channel_results, weights=effective_weights,
                                  language=language,
                                  freq_basis=freq_basis,
-                                 source_id=source_id, target_id=target_id)
+                                 source_id=source_id, target_id=target_id,
+                                 confirm_context=False)
             preview_cap = min(max_results, 500) if max_results > 0 else 500
             top = fused[:preview_cap]
             yield ("intermediate", {
