@@ -95,7 +95,7 @@ function byWork(results) {
 
 const LANG_LABEL = {
   la: 'Latin', grc: 'Greek', he: 'Hebrew', cop: 'Coptic',
-  en: 'English', fa: 'Persian', ur: 'Urdu',
+  en: 'English', fa: 'Persian', ur: 'Urdu', ar: 'Arabic',
   it: 'Italian', fro: 'Old French', gmh: 'Middle High German',
 };
 
@@ -109,6 +109,7 @@ const LANG_CHOICES = [
   ['cop', 'Coptic'],
   ['fa', 'Persian'],
   ['ur', 'Urdu'],
+  ['ar', 'Arabic'],
   ['it', 'Italian'],
   ['fro', 'Old French'],
   ['gmh', 'Middle High German'],
@@ -234,7 +235,8 @@ export default function ThemeSearchPage() {
     const p = new URLSearchParams(window.location.search);
     const q = (p.get('query') || '').trim();
     if (!q) return;
-    const lang = (p.get('languages') || '').split(',')[0].trim();
+    // any number of languages, comma-separated (2026-09-06: a pick-several control)
+    const lang = (p.get('languages') || '').split(',').map((x) => x.trim()).filter(Boolean).join(',');
     setQuery(q);
     if (lang) setLanguage(lang);
     run(q, lang || '');
@@ -283,25 +285,29 @@ export default function ThemeSearchPage() {
         * So a scholar working in one language was being outvoted by the breadth
         * of the corpus. The API already took `languages`; nothing exposed it. */}
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <label className="text-xs text-gray-600" htmlFor="theme-language">
-          Search in
-        </label>
-        <select
-          id="theme-language"
-          value={language}
-          onChange={(e) => {
-            const next = e.target.value;
+        <span className="text-xs text-gray-600">Search in</span>
+        {/* Pick any set of languages (2026-09-06). 'All' clears the set; the
+            request sends the chosen codes comma-separated, which the API has
+            always accepted. */}
+        {LANG_CHOICES.map(([v, label]) => {
+          const chosen = language ? language.split(',') : [];
+          const on = v ? chosen.includes(v) : chosen.length === 0;
+          const toggle = () => {
+            let next;
+            if (!v) next = '';
+            else next = (on ? chosen.filter((c) => c !== v) : [...chosen, v]).join(',');
             setLanguage(next);
             if (query.trim()) run(query, next);
-          }}
-          className="text-xs border border-gray-300 rounded px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-red-600"
-        >
-          {LANG_CHOICES.map(([v, label]) => (
-            <option key={v || 'all'} value={v}>{label}</option>
-          ))}
-        </select>
+          };
+          return (
+            <label key={v || 'all'} className={`text-xs px-2 py-0.5 rounded border cursor-pointer select-none ${on ? 'bg-red-600 text-white border-red-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>
+              <input type="checkbox" className="sr-only" checked={on} onChange={toggle} />
+              {label}
+            </label>
+          );
+        })}
         <span className="text-[11px] text-gray-500">
-          one language at a time shows more of it
+          fewer languages show more of each
         </span>
       </div>
 
