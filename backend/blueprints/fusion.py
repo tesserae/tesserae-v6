@@ -96,6 +96,13 @@ def search_fusion_stream():
             source_unit_type = data.get('source_unit_type', 'line')
             target_unit_type = data.get('target_unit_type', 'line')
             use_meter = data.get('use_meter', False)
+            # The web's settings start with meter on and are corrected by a
+            # later /api/check-meter call; a default search fired before that
+            # correction lands carries use_meter=True for a language with no
+            # scansion and misses the cache the GET route and the warm-ups
+            # share (2026-09-06). Decide it here the way the GET route does.
+            if use_meter and not _poll_use_meter(source_id, target_id, language):
+                use_meter = False
             freq_basis = data.get('freq_basis', 'corpus')  # corpus | meter | text_pair
             if freq_basis not in ('corpus', 'meter', 'text_pair'):
                 freq_basis = 'corpus'
