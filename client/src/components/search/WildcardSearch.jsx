@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
+import { languageName } from '../../utils/languageNames';
 import { wildcardSearch } from '../../utils/api';
 import CopticSearchInput from './CopticSearchInput';
 import { transliterateToCoptic } from '../../utils/copticUtils';
@@ -229,7 +230,7 @@ const WildcardSearch = ({ language }) => {
     scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
   };
 
-  const languageLabel = language === 'la' ? 'Latin' : language === 'grc' ? 'Greek' : language === 'cop' ? 'Coptic' : 'English';
+  const languageLabel = languageName(language);
   const syntaxEx = language === 'grc' ? GREEK_SYNTAX_EXAMPLES : language === 'en' ? EN_SYNTAX_EXAMPLES : LA_SYNTAX_EXAMPLES;
 
   return (

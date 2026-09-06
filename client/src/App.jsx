@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { languageName } from './utils/languageNames';
 import { Header, Navigation } from './components/layout';
 import { SearchModeToggle, TextSelector, SearchSettings, SearchResults, LineSearch, CrossLingualSearch, WildcardSearch, SavedSearches, CorpusSearchResults, RarePairsSettings } from './components/search';
 import RareResultsDisplay from './components/search/RareResultsDisplay';
@@ -727,7 +728,7 @@ function App() {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                 <div className="flex items-center gap-4">
                   <h2 className="text-xl font-semibold text-gray-900">
-                    Search {activeTab === 'la' ? 'Latin' : activeTab === 'grc' ? 'Greek' : activeTab === 'cop' ? 'Coptic' : activeTab === 'he' ? 'Hebrew' : 'English'} Texts
+                    Search {languageName(activeTab)} Texts
                   </h2>
                   <SavedSearches
                     sourceAuthor={sourceAuthor}
