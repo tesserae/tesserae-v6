@@ -99,6 +99,10 @@ def search_fusion_stream():
             freq_basis = data.get('freq_basis', 'corpus')  # corpus | meter | text_pair
             if freq_basis not in ('corpus', 'meter', 'text_pair'):
                 freq_basis = 'corpus'
+            # Name the pair at the start: a long or memory-heavy search is
+            # otherwise anonymous in the log until its first channel reports.
+            logger.info('[FUSION] stream start: %s x %s (%s) max_results=%s use_meter=%s',
+                        source_id, target_id, language, max_results, use_meter)
             if max_results <= 0:
                 max_results = 5000  # enforce cap for browser payload size
 
