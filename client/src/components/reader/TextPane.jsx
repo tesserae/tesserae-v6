@@ -88,36 +88,18 @@ export default function TextPane({ units, language, selection, onSelect, total, 
   const coarse = typeof window !== 'undefined' && window.matchMedia
     && window.matchMedia('(pointer: coarse)').matches;
 
-  // ON A PHONE THERE IS NO MOUSEUP.
-  //
-  // A drag with the finger extends the browser's own selection and ends
-  // without any mouse event, so the pane never read it and nothing appeared
-  // (NC, 2026-09-07). The document's selectionchange event fires for every
-  // way of selecting, so it is read too, a moment after the last change,
-  // and only when the selection lies inside this pane.
+  // Touch screens select by tapping (below), with native selection switched
+  // off, so there is no finger drag to read. A selectionchange listener that
+  // read the selection during a MOUSE drag re-rendered the lines mid-drag
+  // and made the browser's highlight jump from the first line to the second
+  // (NC, 2026-09-07); it is gone.
   const paneRef = useRef(null);
-  const readRef = useRef(readSelection);
-  readRef.current = readSelection;
-  useEffect(() => {
-    let timer = 0;
-    const onChange = () => {
-      const sel = window.getSelection();
-      if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
-      const node = sel.anchorNode;
-      if (!paneRef.current || !node || !paneRef.current.contains(node)) return;
-      clearTimeout(timer);
-      timer = setTimeout(() => readRef.current(), 350);
-    };
-    document.addEventListener('selectionchange', onChange);
-    return () => { clearTimeout(timer); document.removeEventListener('selectionchange', onChange); };
-  }, []);
 
   return (
     <div
       ref={paneRef}
       className="flex-1 px-6 py-6 overflow-y-auto reader-text"
-      onMouseUp={readSelection}
-      onTouchEnd={() => setTimeout(readSelection, 50)}
+      onMouseUp={coarse ? undefined : readSelection}
       onKeyUp={(e) => { if (e.shiftKey) readSelection(); }}
     >
       <div

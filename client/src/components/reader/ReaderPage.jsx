@@ -24,10 +24,12 @@ const PREFERRED_WORK = {
   cop: 'shenoute.abraham.tess',
   he: 'hebrew_bible.genesis.tess',
   en: 'milton.paradise_lost.part.1.tess',
-  // The three poetic languages open on the works that carry English:
-  // Hafez has the richest connections; Ghalib's Wikisource edition is the
-  // Urdu default elsewhere; al-Baqara is translated verse for verse.
-  fa: 'hafez.diwan.tess',
+  // The three poetic languages open on works that show every feature,
+  // translation included: Iqbal's Asrar-e Khudi is the one Persian work
+  // with aligned English (Nicholson 1920); al-Baqara is translated verse for
+  // verse. Urdu has no translated work, so Ghalib's Wikisource edition, the
+  // Urdu default elsewhere, stands.
+  fa: 'iqbal.asrar_e_khudi.tess',
   ur: 'ghalib.diwan_wikisource.tess',
   ar: 'quran.al_baqara.tess',
 };
