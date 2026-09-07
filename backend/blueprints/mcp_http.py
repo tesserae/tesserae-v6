@@ -619,7 +619,7 @@ _CONTENT_NOTE = (
     "instead of pointing at shared terms. The `gist` is a machine-written summary "
     "of the passage, never the passage itself: fetch the lines before quoting. "
     "Respect `confidence`: at level 'low' say the corpus does not appear to hold "
-    "this subject, and present the results as weak neighbours rather than findings."
+    "this subject, and present the results as weak neighbors rather than findings."
 )
 
 

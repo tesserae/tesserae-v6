@@ -856,7 +856,7 @@ def _confidence_note_fitted(level):
         return ('Moderate confidence: the corpus holds passages of this kind, but the '
                 'match is looser than a clear case. Read the results before relying on them.')
     return ('The corpus does not appear to contain passages of this kind. Anything '
-            'the search returns for it is a nearest neighbour, not a finding.')
+            'the search returns for it is a nearest neighbor, not a finding.')
 
 
 # QUERY EXPANSION: make the query look like the thing being searched.

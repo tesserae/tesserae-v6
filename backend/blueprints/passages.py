@@ -103,7 +103,7 @@ def theme_search():
         'Each result is a passage whose CONTENT matches the description, not its '
         'wording, so results in different languages usually share no words with '
         'the query. Lead with the work and the gist; treat a result marked '
-        'strong:false as a weak neighbour rather than a finding.')
+        'strong:false as a weak neighbor rather than a finding.')
     return jsonify(out)
 
 

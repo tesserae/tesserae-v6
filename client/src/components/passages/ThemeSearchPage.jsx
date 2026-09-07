@@ -510,7 +510,7 @@ export default function ThemeSearchPage() {
                         </a>
                         {r.strong === false && (
                           <span className="text-[10px] text-gray-500 border border-gray-300 rounded px-1">
-                            weak neighbour
+                            weak neighbor
                           </span>
                         )}
                       </div>
