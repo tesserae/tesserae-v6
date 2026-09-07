@@ -143,6 +143,9 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
         // The whole-work name, since that is how the search index holds it.
         exclude_text_id: `${baseWork(work)}.tess`,
         exclude_locus: bareLocus(selection.refStart),
+        // The selected lines by reference, so the server can take their
+        // lemmas from the index instead of re-tagging the words.
+        refs: picked.map((u) => u.ref),
         // Hide matches whose shared words are all commonplaces (quid + variis
         // matching quid + varii is Latin, not an echo). Reader-only: the Line
         // Search page keeps deliberate common-word queries intact.

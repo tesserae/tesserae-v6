@@ -1857,8 +1857,15 @@ def line_search():
                 stopwords = set(DEFAULT_LATIN_STOP_WORDS)
             elif language == 'grc':
                 stopwords = set(DEFAULT_GREEK_STOP_WORDS)
-            else:
+            elif language == 'en':
                 stopwords = set(DEFAULT_ENGLISH_STOP_WORDS)
+            else:
+                # Persian, Urdu, Arabic, Coptic, Hebrew: the language's own
+                # curated list. The English list applied here left every
+                # Persian particle searchable, and one line of Hafez took
+                # eleven minutes (2026-09-07).
+                from backend.matcher import _plugin_stoplist
+                stopwords = set(_plugin_stoplist(language) or DEFAULT_ENGLISH_STOP_WORDS)
             
             # Optionally add top N corpus-frequent lemmas
             stoplist_size = data.get('stoplist_size', 10)
@@ -1869,11 +1876,36 @@ def line_search():
                 stopwords.update(lemma for lemma, _ in sorted_lemmas[:stoplist_size])
             
             query_lemmas = set()
-            if search_type == 'lemma':
+            # THE INDEX ALREADY KNOWS THE LEMMAS OF ITS OWN LINES. When the
+            # Reader asks about lines of a work (it names them in `refs`, or
+            # the first in exclude_text_id + exclude_locus), their lemmas are
+            # read from the index's lines table instead of re-tagged. For
+            # Persian, Urdu and Arabic re-tagging meant loading Stanza inside
+            # the web process (gigabytes, minutes; the app grew to 10 GB).
+            _stanza_langs = ('fa', 'ur', 'ar')
+            _ref_list = [str(r) for r in (data.get('refs') or []) if r]
+            if not _ref_list and data.get('exclude_text_id') and data.get('exclude_locus'):
+                _stem = str(data['exclude_text_id']).replace('.tess', '')
+                _ref_list = [f"{_stem}.{data['exclude_locus']}"]
+            if search_type == 'lemma' and _ref_list and data.get('exclude_text_id') and has_lines_data(language):
+                _stem = str(data['exclude_text_id']).replace('.tess', '')
+                _rows = get_lines_batch(f'{_stem}.tess', _ref_list, language)
+                for _row in _rows.values():
+                    query_lemmas.update(_normalize_lemma(l, language) for l in (_row.get('lemmas') or []) if l)
+            if search_type == 'lemma' and not query_lemmas:
                 query_tokens = query.lower().split()
-                for token in query_tokens:
-                    lemmas = text_processor.lemmatize_word(token, language)
-                    query_lemmas.update(_normalize_lemma(l, language) for l in lemmas)
+                if language in _stanza_langs:
+                    # A typed query in these languages is searched by its
+                    # normalized surface forms (the language's own normalizer,
+                    # the one the index lemmas went through); nouns and most
+                    # words are their own lemma, and no tagger runs here.
+                    from backend.perso_arabic import _base_normalize
+                    query_lemmas = set(_base_normalize(t, language) for t in query_tokens)
+                    query_lemmas.discard('')
+                else:
+                    for token in query_tokens:
+                        lemmas = text_processor.lemmatize_word(token, language)
+                        query_lemmas.update(_normalize_lemma(l, language) for l in lemmas)
                 if not query_lemmas:
                     query_lemmas = set(_normalize_lemma(t, language) for t in query_tokens)
             else:
