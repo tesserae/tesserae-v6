@@ -203,7 +203,6 @@ export default function ReaderPage() {
   // no author or work (NC, 2026-09-07). If the language in hand is not served,
   // the Reader moves to the first served language and its preferred work.
   useEffect(() => {
-    if (paramOr('work', '')) return;   // a link named a work; leave it alone
     let dead = false;
     fetch('/api/languages')
       .then((r) => r.json())
@@ -485,7 +484,10 @@ export default function ReaderPage() {
                 // Under the last selected line, not pinned to the corner. It
                 // used to sit at the top of the pane whatever was selected, so
                 // it covered the opening lines of the text.
-                <div className="absolute left-10 z-20"
+                // Desktop only. On a phone it piled up with the browser's own
+                // copy toolbar and the results sheet (NC, 2026-09-07); the
+                // sheet's tabs already do what the toolbar offers there.
+                <div className="hidden lg:block absolute left-10 z-20"
                      style={{ top: `${(selection?.anchorTop ?? 0) + 8}px` }}>
                   <SelectionToolbar
                     selection={selection}
