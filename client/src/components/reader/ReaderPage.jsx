@@ -12,7 +12,10 @@ import ResultsPanel from './ResultsPanel';
 // and "arma virumque cano" is the line most visitors will recognise.
 const DEFAULT_WORK = 'vergil.aeneid.part.1.tess';
 // Lines drawn at a time. See TextPane: a whole diwan at once froze a phone.
-const READER_STEP = 400;
+// A thousand covers every Latin and Greek book (Aeneid 1 is 756 lines), so
+// on production nothing changes for those texts; only the diwans and long
+// whole-work files arrive in stretches.
+const READER_STEP = 1000;
 const DEFAULT_LANGUAGE = 'la';
 // Where each language's corpus opens when no work is chosen yet.
 const PREFERRED_WORK = {
