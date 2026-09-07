@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { cssRef } from './refId';
 import ReaderHeader from './ReaderHeader';
 import SelectionToolbar, { scopeFor } from './SelectionToolbar';
@@ -11,6 +11,8 @@ import ResultsPanel from './ResultsPanel';
 // Book 1, not book 6: the Reader opens where a reader expects a poem to start,
 // and "arma virumque cano" is the line most visitors will recognise.
 const DEFAULT_WORK = 'vergil.aeneid.part.1.tess';
+// Lines drawn at a time. See TextPane: a whole diwan at once froze a phone.
+const READER_STEP = 400;
 const DEFAULT_LANGUAGE = 'la';
 // Where each language's corpus opens when no work is chosen yet.
 const PREFERRED_WORK = {
@@ -91,6 +93,11 @@ export default function ReaderPage() {
   }, [focusView, fullTr, work, language]);
   const [cameFrom, setCameFrom] = useState(() => paramOr('q', ''));
   const [units, setUnits] = useState([]);
+  // How many lines are drawn; grows as the reader scrolls (see TextPane).
+  const [visibleCount, setVisibleCount] = useState(READER_STEP);
+  useEffect(() => { setVisibleCount(READER_STEP); }, [units]);
+  const shownUnits = useMemo(() => units.slice(0, visibleCount), [units, visibleCount]);
+  const showMore = useCallback(() => setVisibleCount((n) => Math.min(n + READER_STEP, units.length)), [units.length]);
   // The last work id whose fetch failed, so falling back to a default text
   // cannot loop if the default itself is broken.
   const failedWorkRef = useRef(null);
@@ -240,6 +247,8 @@ export default function ReaderPage() {
     if (!wantedRef || !units.length) return;
     const i = units.findIndex((u) => u.ref === wantedRef);
     if (i < 0) return;
+    // The line must be drawn before it can be selected and scrolled to.
+    if (i >= visibleCount) { setVisibleCount(i + READER_STEP); return; }
     // Select the WHOLE found passage, not just its first line, so the
     // translation panel renders the English for the same span the reader was
     // shown a summary of.
@@ -253,7 +262,7 @@ export default function ReaderPage() {
       if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
     }, 120);
     return () => window.clearTimeout(id);
-  }, [wantedRef, wantedRefEnd, units]);
+  }, [wantedRef, wantedRefEnd, units, visibleCount]);
 
   // A language with no work chosen opens that language's first text. Changing
   // language clears the work, because the old one is not in the new language;
@@ -446,7 +455,7 @@ export default function ReaderPage() {
           <div className="flex flex-1 min-w-0">
             <ConnectionGutter
               work={work.replace('.tess', '')}
-              units={units}
+              units={shownUnits}
               onSelectLine={(u, which) => {
                 const i = units.findIndex((x) => x.ref === u.ref);
                 const sel = { startIdx: i, endIdx: i, refStart: u.ref,
@@ -462,7 +471,9 @@ export default function ReaderPage() {
             />
             <div className="relative flex-1 min-w-0">
               <TextPane
-                units={units}
+                units={shownUnits}
+                total={units.length}
+                onMore={showMore}
                 language={language}
                 selection={selection}
                 onSelect={(sel) => {

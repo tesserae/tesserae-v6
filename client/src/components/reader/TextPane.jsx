@@ -12,7 +12,22 @@ const RTL = new Set(['he']);
  * matches). Reference numbers appear every fifth line, the convention in printed
  * editions, so the margin stays quiet while remaining navigable.
  */
-export default function TextPane({ units, language, selection, onSelect }) {
+export default function TextPane({ units, language, selection, onSelect, total, onMore }) {
+  // LONG TEXTS ARRIVE IN STRETCHES. Hafez's diwan is 9,502 lines and Anvari's
+  // 26,616; drawing every line and gutter tile at once froze a phone and
+  // crashed its tab (NC, 2026-09-07). The page draws what it has been given
+  // and asks for more when the reader nears the end, or when they press the
+  // button. `total` is the whole text's line count, `onMore` extends it.
+  const sentinelRef = useRef(null);
+  useEffect(() => {
+    if (!onMore || !sentinelRef.current || (total != null && units.length >= total)) return undefined;
+    if (typeof IntersectionObserver === 'undefined') return undefined;
+    const obs = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) onMore();
+    }, { rootMargin: '600px 0px' });
+    obs.observe(sentinelRef.current);
+    return () => obs.disconnect();
+  }, [onMore, total, units.length]);
 
   // By index, not by searching the ref: the old test ran findIndex for every
   // line on every render, 90 million comparisons for a 9,500-line diwan, and
@@ -138,6 +153,17 @@ export default function TextPane({ units, language, selection, onSelect }) {
             </div>
           );
         })}
+        {total != null && units.length < total && (
+          <div ref={sentinelRef} className="py-4 text-center" dir="ltr">
+            <button
+              type="button"
+              onClick={onMore}
+              className="text-sm px-3 py-1.5 rounded border border-gray-300 text-gray-700 hover:border-red-600 hover:text-red-700"
+            >
+              Show more ({units.length.toLocaleString()} of {total.toLocaleString()} lines shown)
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
