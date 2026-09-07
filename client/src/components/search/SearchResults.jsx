@@ -539,7 +539,11 @@ const SearchResults = ({
     rows.each(function (d) {
       const g = d3.select(this);
       const n = Math.min(d.count, dotCap);
-      const fill = d.author === corpusSelectedAuthor ? 'rgba(37,99,235,1)' : 'rgba(37,99,235,0.75)';
+      // The two texts under comparison are drawn in red so the reader can see
+      // them among the rest of the corpus (they used to be left out).
+      const compared = new Set([sourceTextInfo?.author, targetTextInfo?.author].filter(Boolean));
+      const base = compared.has(d.author) ? '185,28,28' : '37,99,235';
+      const fill = d.author === corpusSelectedAuthor ? `rgba(${base},1)` : `rgba(${base},0.75)`;
       for (let i = 0; i < n; i++) {
         g.append('circle').attr('cx', axisW + dotR + i * dotGap).attr('cy', d.y)
           .attr('r', dotR).attr('fill', fill);
@@ -558,7 +562,7 @@ const SearchResults = ({
       .text(d => `${trunc(d.author.replace(/_/g, ' '))}, ${fmtYear(d.year)} (${d.count})`);
     rows.append('title').text(d => `${d.author.replace(/_/g, ' ')} — ${fmtYear(d.year)} — ${d.count} occurrence${d.count !== 1 ? 's' : ''}`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sidebarMode, corpusGroupBy, corpusData, corpusSelectedAuthor]);
+  }, [sidebarMode, corpusGroupBy, corpusData, corpusSelectedAuthor, sourceTextInfo, targetTextInfo]);
 
   const chartOptions = {
     responsive: true,

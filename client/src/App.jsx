@@ -589,7 +589,11 @@ function App() {
         body: JSON.stringify({
           lemmas,
           language: activeTab,
-          exclude_texts: [sourceText, targetText].filter(Boolean)
+          // The two texts being compared used to be left out, so the corpus
+          // map and its timeline never showed the very authors in question
+          // (NC, 2026-09-07: Mir and Iqbal missing). They are included and
+          // the chart marks them.
+          exclude_texts: []
         })
       });
       const data = await res.json();
