@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { cssRef } from './refId';
 
 const RTL = new Set(['he']);
@@ -32,10 +32,35 @@ export default function TextPane({ units, language, selection, onSelect, total, 
   // By index, not by searching the ref: the old test ran findIndex for every
   // line on every render, 90 million comparisons for a 9,500-line diwan, and
   // a click in Anvari took several seconds to show its highlight.
-  const selLo = selection ? Math.min(selection.startIdx, selection.endIdx) : -1;
-  const selHi = selection ? Math.max(selection.startIdx, selection.endIdx) : -1;
-  const isSelected = useCallback((i) => selection != null && i >= selLo && i <= selHi,
-    [selection, selLo, selHi]);
+  // PAINT WHILE DRAGGING. The browser's own selection colour is hidden in
+  // the text (index.css), so until the mouse was released nothing showed and
+  // a reader could not see what they were selecting (NC, 2026-09-07). A
+  // mouse drag is now tracked line by line and the page's band follows it;
+  // on release the dragged span is what gets selected.
+  const [drag, setDrag] = useState(null);   // { anchor, current } during a mouse drag
+  const selLo = drag ? Math.min(drag.anchor, drag.current)
+    : selection ? Math.min(selection.startIdx, selection.endIdx) : -1;
+  const selHi = drag ? Math.max(drag.anchor, drag.current)
+    : selection ? Math.max(selection.startIdx, selection.endIdx) : -1;
+  const isSelected = useCallback((i) => (drag != null || selection != null) && i >= selLo && i <= selHi,
+    [drag, selection, selLo, selHi]);
+  const dragRef = useRef(null);
+  dragRef.current = drag;
+  useEffect(() => {
+    // Releasing outside the pane still ends the drag.
+    const up = () => {
+      const d = dragRef.current;
+      if (!d) return;
+      setDrag(null);
+      const lo = Math.min(d.anchor, d.current);
+      const hi = Math.max(d.anchor, d.current);
+      const el = document.getElementById(`line-${cssRef(units[hi]?.ref)}`);
+      const sel = window.getSelection();
+      emit(lo, hi, el ? el.offsetTop + el.offsetHeight : 0, sel ? String(sel).trim() : '');
+    };
+    window.addEventListener('mouseup', up);
+    return () => window.removeEventListener('mouseup', up);
+  });
 
   // THE BROWSER'S SELECTION IS THE SELECTION.
   //
@@ -99,7 +124,6 @@ export default function TextPane({ units, language, selection, onSelect, total, 
     <div
       ref={paneRef}
       className="flex-1 px-6 py-6 overflow-y-auto reader-text"
-      onMouseUp={coarse ? undefined : readSelection}
       onKeyUp={(e) => { if (e.shiftKey) readSelection(); }}
     >
       <div
@@ -120,9 +144,17 @@ export default function TextPane({ units, language, selection, onSelect, total, 
               // A tap on a phone makes no text selection, so nothing used to
               // happen. A click or tap that leaves no selection selects the
               // line itself; a drag still selects the swept span.
+              onMouseDown={(e) => {
+                if (coarse || e.button !== 0) return;
+                setDrag({ anchor: i, current: i });
+              }}
+              onMouseEnter={() => {
+                if (dragRef.current) setDrag((d) => (d && d.current !== i ? { ...d, current: i } : d));
+              }}
               onClick={(e) => {
                 const el = e.currentTarget;
                 const bottom = el.offsetTop + el.offsetHeight;
+                if (!coarse) return;   // the mouse path selects on mousedown/mouseup above
                 if (coarse) {
                   // TOUCH SCREENS SELECT BY TAPPING. Native text selection is
                   // off there (see index.css), so the phone's own Copy bar
