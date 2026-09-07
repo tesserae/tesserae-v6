@@ -527,11 +527,25 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 otherwise be split down the middle and neither half would describe it.
               </p>
               <p className="text-gray-700 mb-3">
-                A language model then writes a structured English description of each window:
-                what kind of passage it is, the setting, who is present, what happens step by
-                step, the objects in it, and its themes. Those descriptions, not the original
-                words, are what your query is compared against. There are <strong>603,594</strong> of
-                them, covering Latin, Greek, Hebrew, Coptic, English, Persian and Urdu.
+                A language model then writes a structured English description of each window.
+                The description always has the same eight fields. One of them is fixed: the
+                <strong> kind of passage</strong>, chosen from nine categories (narrative, speech,
+                lyric, argument, description, catalog, prayer, prophecy, dialogue). The others
+                are written freely in English: the setting, who is present, what happens step by
+                step, the objects in it, two to five <strong>theme words</strong> (the model is
+                shown examples such as mortality, exile, hospitality, divine anger, love, war, but
+                chooses its own), the dominant imagery and tone, and a one-sentence gist.
+              </p>
+              <p className="text-gray-700 mb-3">
+                Your query is compared against the whole description, all eight fields joined,
+                not against the original words. So a query can name the kind of passage, the
+                situation, the people, the action, an object, or a theme, and the search treats
+                them alike. Under each result the site shows the gist sentence as the summary and
+                the theme words as tags. The tags are the model&rsquo;s own words for that window,
+                not a controlled list, so &ldquo;transience&rdquo; on one passage and
+                &ldquo;impermanence&rdquo; on another mean the same thing. There are more than
+                600,000 descriptions on the main site, covering Latin, Greek, Hebrew, Coptic,
+                English, Persian, Urdu and Arabic.
               </p>
               <p className="text-gray-700 mb-3">
                 This is why a Persian passage can answer an English description of a Greek scene.
@@ -555,8 +569,10 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   translation panel open and your search shown above the text.
                 </li>
                 <li>
-                  <strong>The confidence band</strong> at the top says whether the corpus really
-                  contains what you asked for. It is worth trusting: see below.
+                  <strong>The confidence band</strong> at the top estimates whether the corpus
+                  really contains what you asked for. It is a rough guide, right about three
+                  times in four on test questions, and the passages themselves are the check:
+                  see below.
                 </li>
               </ul>
 
@@ -569,12 +585,23 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 returns scattered strays.
               </p>
               <p className="text-gray-700 mb-3">
-                The thresholds were fitted against a set of 28 test queries, half of them
-                subjects the corpus certainly holds and half it certainly does not, and they are
-                published with the code so anyone can check them. The hardest test cases are
-                near misses: &ldquo;a farmer lifts potatoes out of the ground and sorts them for
-                seed&rdquo; scores higher than eight genuinely classical subjects, because
-                everything in it except the potato is deeply present in the corpus.
+                The thresholds are fitted against test queries, half of them subjects the corpus
+                certainly holds and half it certainly does not, and they are published with the
+                code so anyone can check them. How well they work depends on the corpus. On the
+                Latin and Greek corpus the fit agreed with its test set on about nine queries in
+                ten (88 to 91 percent, depending on the set of 32 queries).
+                On the Persian, Urdu and Arabic corpus, fitted on 50 queries, it agreed on 74
+                percent: it kept 20 of 26 real subjects out of the low band and put 17 of 24
+                absent ones there. So read the band as a first estimate. A low band is a real
+                warning that the top results do not stand out from the background, and a strong
+                band means the corpus probably holds the subject, not that every listed passage
+                is about it.
+              </p>
+              <p className="text-gray-700 mb-3">
+                The hardest test cases are near misses: &ldquo;a farmer lifts potatoes out of the
+                ground and sorts them for seed&rdquo; scores higher than eight genuinely classical
+                subjects, because everything in it except the potato is deeply present in the
+                corpus.
               </p>
 
               <h4 className="font-medium text-gray-900 mt-6 mb-2">Limits worth knowing</h4>
