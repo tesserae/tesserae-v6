@@ -713,11 +713,17 @@ def fusion_search_get():
     if not source_id or not target_id:
         return jsonify({'error': 'Provide source and target text ids (see /api/texts).'}), 400
     try:
-        max_results = int(request.args.get('max', request.args.get('max_results', 5000)))
+        display_max = int(request.args.get('max', request.args.get('max_results', 5000)))
     except (TypeError, ValueError):
-        max_results = 5000
-    if max_results <= 0:
-        max_results = 5000
+        display_max = 5000
+    if display_max <= 0:
+        display_max = 5000
+    # The cache key does not include the requested count, so a search computed
+    # at max=200 was stored as THE result for the pair and served to the web
+    # page, which asks for up to 5000, as a 200-line list (preview warm-ups,
+    # 2026-09-06). The job therefore always runs at the storage cap, and `max`
+    # only trims what this response shows.
+    max_results = 5000
 
     source_path = resolve_text_path(_texts_dir, language, source_id)
     target_path = resolve_text_path(_texts_dir, language, target_id)
@@ -778,6 +784,7 @@ def fusion_search_get():
             results = [r for r in results if tgt_pfx in _norm((r.get('target') or {}).get('ref'))]
         if min_score is not None:
             results = [r for r in results if (r.get('fused_score') or 0) >= min_score]
+        results = results[:display_max]
 
         try:
             offset = max(0, int(request.args.get('offset', 0)))
