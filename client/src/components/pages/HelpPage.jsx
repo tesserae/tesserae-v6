@@ -574,6 +574,16 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   times in four on test questions, and the passages themselves are the check:
                   see below.
                 </li>
+                <li>
+                  <strong>&ldquo;Weak neighbour&rdquo; beside a passage</strong> is a second,
+                  narrower judgement. The band weighs the top results as a group; the tag says
+                  whether this one passage, on its own, stands clearly above the corpus average.
+                  A strong band over a list of weak neighbours is a common and meaningful
+                  outcome: the corpus holds the subject, but it is spread across many passages
+                  of ordinary closeness rather than concentrated in one outstanding hit. In the
+                  Persian and Urdu ghazal corpora, where longing, love and separation recur in
+                  almost every poem, that is the usual shape of an answer.
+                </li>
               </ul>
 
               <h4 className="font-medium text-gray-900 mt-6 mb-2">What the confidence band means</h4>
