@@ -519,8 +519,14 @@ def _dating(work, language):
     info = (_author_dates().get(language) or {}).get(key)
     if not info:
         return {}
+    # The table's notes carry curation remarks after the dating ("...; era set
+    # 2026-09-06 under the new Arabic labels", or a file path). Only the
+    # dating itself is for readers: the part before the first semicolon,
+    # without any parenthesis (a source path showed under Mir, 2026-09-07).
+    note = str(info.get('note') or '').split(';')[0]
+    note = re.sub(r'\s*\([^)]*\)', '', note).strip()
     return {'year': info.get('year'), 'era': info.get('era'),
-            'date_note': info.get('note')}
+            'date_note': note or None}
 
 
 def _naming(work):

@@ -153,6 +153,15 @@ const LANG_CHOICES = [
 export default function ThemeSearchPage() {
   const [query, setQuery] = useState('');
   const [language, setLanguage] = useState('');
+  // Only the languages this server serves are offered (a preview serves a
+  // few; the full row on it promised Latin and Old French, 2026-09-07).
+  const [served, setServed] = useState(null);
+  useEffect(() => {
+    fetch('/api/languages').then((r) => r.json()).then((d) => {
+      const codes = (d.languages || []).map((l) => l.code || l).filter(Boolean);
+      if (codes.length) setServed(codes);
+    }).catch(() => {});
+  }, []);
   const [data, setData] = useState(null);
   const [running, setRunning] = useState(false);
   const [showWeak, setShowWeak] = useState(false);
@@ -324,7 +333,7 @@ export default function ThemeSearchPage() {
         {/* Pick any set of languages (2026-09-06). 'All' clears the set; the
             request sends the chosen codes comma-separated, which the API has
             always accepted. */}
-        {LANG_CHOICES.map(([v, label]) => {
+        {LANG_CHOICES.filter(([v]) => !v || !served || served.includes(v)).map(([v, label]) => {
           const chosen = language ? language.split(',') : [];
           const on = v ? chosen.includes(v) : chosen.length === 0;
           const toggle = () => {

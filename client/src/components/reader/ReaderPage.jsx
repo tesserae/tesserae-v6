@@ -304,7 +304,11 @@ export default function ReaderPage() {
                       {' '}&middot; the matching passage is selected below
                     </span>
                   )}
-                  <a href="/theme-search" className="ml-2 text-red-700 hover:underline">
+                  {/* The search itself goes back in the address, so the page
+                      re-runs it; a bare /theme-search landed on an empty form
+                      (NC, 2026-09-07). */}
+                  <a href={`/theme-search?query=${encodeURIComponent(cameFrom)}`}
+                     className="ml-2 text-red-700 hover:underline">
                     back to results
                   </a>
                 </span>
