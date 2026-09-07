@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { cssRef } from './refId';
 
 const RTL = new Set(['he']);
@@ -71,10 +71,36 @@ export default function TextPane({ units, language, selection, onSelect }) {
 
   const rtl = RTL.has(language);
 
+  // ON A PHONE THERE IS NO MOUSEUP.
+  //
+  // A drag with the finger extends the browser's own selection and ends
+  // without any mouse event, so the pane never read it and nothing appeared
+  // (NC, 2026-09-07). The document's selectionchange event fires for every
+  // way of selecting, so it is read too, a moment after the last change,
+  // and only when the selection lies inside this pane.
+  const paneRef = useRef(null);
+  const readRef = useRef(readSelection);
+  readRef.current = readSelection;
+  useEffect(() => {
+    let timer = 0;
+    const onChange = () => {
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0 || sel.isCollapsed) return;
+      const node = sel.anchorNode;
+      if (!paneRef.current || !node || !paneRef.current.contains(node)) return;
+      clearTimeout(timer);
+      timer = setTimeout(() => readRef.current(), 350);
+    };
+    document.addEventListener('selectionchange', onChange);
+    return () => { clearTimeout(timer); document.removeEventListener('selectionchange', onChange); };
+  }, []);
+
   return (
     <div
+      ref={paneRef}
       className="flex-1 px-6 py-6 overflow-y-auto"
       onMouseUp={readSelection}
+      onTouchEnd={() => setTimeout(readSelection, 50)}
       onKeyUp={(e) => { if (e.shiftKey) readSelection(); }}
     >
       <div

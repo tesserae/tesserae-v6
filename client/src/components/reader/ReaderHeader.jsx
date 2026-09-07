@@ -19,7 +19,7 @@ import { useEffect, useMemo, useState } from 'react';
  */
 
 // Latin, Greek, English first, as everywhere else on the site.
-const LANG_ORDER = ['la', 'grc', 'en', 'he', 'cop', 'fa', 'ur', 'it', 'fro', 'gmh'];
+const LANG_ORDER = ['la', 'grc', 'en', 'he', 'cop', 'fa', 'ur', 'ar', 'it', 'fro', 'gmh'];
 const LANG_LABEL = {
   la: 'Latin', grc: 'Greek', en: 'English', he: 'Hebrew',
   cop: 'Coptic', fa: 'Persian', ur: 'Urdu', ar: 'Arabic',

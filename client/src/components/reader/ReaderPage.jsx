@@ -22,6 +22,12 @@ const PREFERRED_WORK = {
   cop: 'shenoute.abraham.tess',
   he: 'hebrew_bible.genesis.tess',
   en: 'milton.paradise_lost.part.1.tess',
+  // The three poetic languages open on the works that carry English:
+  // Hafez has the richest connections; Ghalib's Wikisource edition is the
+  // Urdu default elsewhere; al-Baqara is translated verse for verse.
+  fa: 'hafez.diwan.tess',
+  ur: 'ghalib.diwan_wikisource.tess',
+  ar: 'quran.al_baqara.tess',
 };
 
 /**
@@ -192,6 +198,27 @@ export default function ReaderPage() {
   // Going Back inside the Reader has to put the Reader back, not just change
   // the address bar. Without this the pushed entries above would restore the
   // URL and leave the page showing the text the reader had navigated away from.
+  // A server that serves only some languages (the preview) must not open on
+  // the Aeneid: the text endpoint served it while the header showed Coptic and
+  // no author or work (NC, 2026-09-07). If the language in hand is not served,
+  // the Reader moves to the first served language and its preferred work.
+  useEffect(() => {
+    if (paramOr('work', '')) return;   // a link named a work; leave it alone
+    let dead = false;
+    fetch('/api/languages')
+      .then((r) => r.json())
+      .then((d) => {
+        if (dead) return;
+        const codes = (d.languages || []).map((l) => l.code || l).filter(Boolean);
+        if (codes.length && !codes.includes(language)) {
+          setLanguage(codes[0]);
+          setWork('');
+        }
+      })
+      .catch(() => {});
+    return () => { dead = true; };
+  }, []);
+
   useEffect(() => {
     const onPop = () => {
       const p = new URLSearchParams(window.location.search);
