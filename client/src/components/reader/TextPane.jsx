@@ -85,6 +85,8 @@ export default function TextPane({ units, language, selection, onSelect, total, 
   };
 
   const rtl = RTL.has(language);
+  const coarse = typeof window !== 'undefined' && window.matchMedia
+    && window.matchMedia('(pointer: coarse)').matches;
 
   // ON A PHONE THERE IS NO MOUSEUP.
   //
@@ -113,7 +115,7 @@ export default function TextPane({ units, language, selection, onSelect, total, 
   return (
     <div
       ref={paneRef}
-      className="flex-1 px-6 py-6 overflow-y-auto"
+      className="flex-1 px-6 py-6 overflow-y-auto reader-text"
       onMouseUp={readSelection}
       onTouchEnd={() => setTimeout(readSelection, 50)}
       onKeyUp={(e) => { if (e.shiftKey) readSelection(); }}
@@ -137,10 +139,24 @@ export default function TextPane({ units, language, selection, onSelect, total, 
               // happen. A click or tap that leaves no selection selects the
               // line itself; a drag still selects the swept span.
               onClick={(e) => {
+                const el = e.currentTarget;
+                const bottom = el.offsetTop + el.offsetHeight;
+                if (coarse) {
+                  // TOUCH SCREENS SELECT BY TAPPING. Native text selection is
+                  // off there (see index.css), so the phone's own Copy bar
+                  // never appears over the page (NC, 2026-09-07). A tap
+                  // selects a line; a tap on another line extends the span
+                  // to it; a tap inside the span narrows it to that line.
+                  if (selection && (i < selLo || i > selHi)) {
+                    emit(Math.min(selLo, i), Math.max(selHi, i), bottom, '');
+                  } else {
+                    emit(i, i, bottom, u.text);
+                  }
+                  return;
+                }
                 const s = window.getSelection();
                 if (s && !s.isCollapsed && String(s).trim()) return;
-                const el = e.currentTarget;
-                emit(i, i, el.offsetTop + el.offsetHeight, u.text);
+                emit(i, i, bottom, u.text);
               }}
             >
               <span

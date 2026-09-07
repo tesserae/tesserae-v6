@@ -204,10 +204,10 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
     <aside className={`w-full lg:w-96 border-t lg:border-t-0 lg:border-l border-gray-200 bg-gray-50
                       flex flex-col fixed inset-x-0 bottom-0 z-40 shadow-2xl
                       lg:static lg:shadow-none lg:sticky lg:top-0 lg:self-start lg:h-screen lg:max-h-none
-                      ${(selection || sheetOpen) ? 'max-h-[60vh]' : 'max-h-[2.75rem] overflow-hidden'}`}>
+                      ${(selection || sheetOpen) ? 'max-h-[55vh]' : 'max-h-[2.75rem] overflow-hidden'}`}>
       {/* Room on the right for the Tessa button, which floats over the sheet
           on a phone; the strip scrolls if the labels do not fit. */}
-      <div className="flex items-center border-b border-gray-200 text-sm overflow-x-auto pr-20 lg:pr-0 whitespace-nowrap">
+      <div className="flex items-center shrink-0 border-b border-gray-200 text-sm overflow-x-auto pr-20 lg:pr-0 whitespace-nowrap">
         {(selection || sheetOpen) && (
           <button
             onClick={() => { setSheetOpen(false); onClose?.(); }}

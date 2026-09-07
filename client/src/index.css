@@ -59,5 +59,14 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .scroll-hint::after {
     transition: none;
+
+/* The Reader on a touch screen selects by tapping lines (TextPane.jsx), so the
+   browser's own text selection, and with it the phone's Copy bar over the
+   page, is switched off there. Mouse users keep normal selection. */
+@media (pointer: coarse) {
+  .reader-text {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
   }
 }
