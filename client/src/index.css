@@ -70,3 +70,11 @@ body {
     -webkit-touch-callout: none;
   }
 }
+
+/* Inside the Reader's text the page draws its own selection (the pink band and
+   red bar, by line). The browser's blue is hidden there: in right-to-left text
+   a drag that starts at the left of a line begins after its last letter, so
+   the blue skipped the first and last lines of a span while the page counted
+   them, and the two highlights disagreed (NC, 2026-09-07). Copying still works. */
+.reader-text ::selection { background: transparent; }
+.reader-text ::-moz-selection { background: transparent; }
