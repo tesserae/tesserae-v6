@@ -92,6 +92,15 @@ export default function TextPane({ units, language, selection, onSelect }) {
               id={`line-${cssRef(u.ref)}`}
               className={`grid gap-2 cursor-text ${selected ? 'bg-red-50 border-l-[3px] border-red-700 -ml-[3px] rounded-r' : ''}`}
               style={{ gridTemplateColumns: '2.6rem 1fr', minHeight: '1.75rem' }}
+              // A tap on a phone makes no text selection, so nothing used to
+              // happen. A click or tap that leaves no selection selects the
+              // line itself; a drag still selects the swept span.
+              onClick={(e) => {
+                const s = window.getSelection();
+                if (s && !s.isCollapsed && String(s).trim()) return;
+                const el = e.currentTarget;
+                emit(i, i, el.offsetTop + el.offsetHeight, u.text);
+              }}
             >
               <span
                 className="text-[0.72rem] text-gray-500 text-right pt-[0.35em] tabular-nums select-none"

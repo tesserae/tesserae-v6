@@ -483,6 +483,7 @@ export default function ReaderPage() {
             units={units}
             onOpenPassage={openPassage}
             initialTab={panelTab || wantedTab || undefined}
+            onClose={() => { setSelection(null); setPopupOpen(false); }}
           />
         </div>
       )}
