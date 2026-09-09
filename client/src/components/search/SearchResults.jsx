@@ -490,7 +490,7 @@ const SearchResults = ({
     let data = Object.entries(agg).map(([author, v]) => ({ author, count: v.count, year: v.year }))
       .filter(d => d.year != null);
     if (!data.length) {
-      d3.select(host).append('div').attr('class', 'text-xs text-gray-400 p-2')
+      d3.select(host).append('div').attr('class', 'text-xs text-gray-500 p-2')
         .text('No dated authors to place on a timeline.');
       return;
     }
@@ -909,7 +909,10 @@ const SearchResults = ({
       )}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">
+          {/* Announced to screen readers. A search can run for half a minute
+              and then fill the page, and nothing said it had finished
+              (2026-09-08). "polite" so it waits for a pause in speech. */}
+          <h3 className="text-lg font-semibold text-gray-900" role="status" aria-live="polite">
             {searchStats?.total_matches && searchStats.total_matches > activeResults.length
               ? `Top ${activeResults.length.toLocaleString()} of ${searchStats.total_matches.toLocaleString()} Parallels`
               : `${activeResults.length} Parallel${activeResults.length !== 1 ? 's' : ''} Found`}
@@ -1081,7 +1084,7 @@ const SearchResults = ({
           )}
           <div>
             {corpusLoading ? (
-              <div className="flex items-center justify-center h-[200px] text-sm text-gray-400">Searching the corpus…</div>
+              <div className="flex items-center justify-center h-[200px] text-sm text-gray-500">Searching the corpus…</div>
             ) : corpusData && corpusData.tooFew ? (
               <div className="flex items-center justify-center h-[200px] text-xs text-gray-400 text-center px-2">This parallel shares only one word, so there is no corpus-wide co-occurrence to map. Pick another.</div>
             ) : corpusIsTimeline ? (
@@ -1091,11 +1094,11 @@ const SearchResults = ({
                 <Bar data={corpusChartData} options={corpusChartOptions} />
               </div>
             ) : (
-              <div className="flex items-center justify-center h-[200px] text-xs text-gray-400">No corpus occurrences found.</div>
+              <div className="flex items-center justify-center h-[200px] text-xs text-gray-500">No corpus occurrences found.</div>
             )}
           </div>
           {corpusIsAuthor && corpusChartData && corpusChartData._capped && (
-            <p className="text-xs text-gray-400 mt-1">Showing the 30 most-cited {corpusIsWork ? 'works' : 'authors, in chronological order'}.</p>
+            <p className="text-xs text-gray-500 mt-1">Showing the 30 most-cited {corpusIsWork ? 'works' : 'authors, in chronological order'}.</p>
           )}
           {corpusSelectedAuthor && corpusData && corpusData.loci && (() => {
             const rows = corpusData.loci.filter(l => ((corpusIsWork ? l.work : l.author) || 'Unknown') === corpusSelectedAuthor);
@@ -1107,13 +1110,13 @@ const SearchResults = ({
                   </span>
                   <button
                     onClick={() => setCorpusSelectedAuthor(null)}
-                    className="text-xs text-gray-400 hover:text-gray-700"
+                    className="text-xs text-gray-500 hover:text-gray-700"
                   >Close</button>
                 </div>
                 <div className="space-y-1.5 overflow-y-auto" style={{ maxHeight: 200 }}>
                   {rows.map((l, i) => (
                     <div key={i} className="text-xs leading-snug">
-                      <span className="text-gray-400">{i + 1}. </span>
+                      <span className="text-gray-500">{i + 1}. </span>
                       <span className="text-gray-500">
                         {[l.work && l.work.replace(/_/g, ' '), l.locus].filter(Boolean).join(' ')}
                       </span>
@@ -1142,7 +1145,7 @@ const SearchResults = ({
             className="bg-white border rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow"
           >
             <div className="flex gap-3">
-              <span className="text-xs text-gray-400 min-w-[2.5rem] text-right shrink-0 leading-none" style={{paddingTop: '1px'}}>
+              <span className="text-xs text-gray-500 min-w-[2.5rem] text-right shrink-0 leading-none" style={{paddingTop: '1px'}}>
                 {startIndex + i + 1}.
               </span>
               <div className="flex-1">

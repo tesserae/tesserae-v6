@@ -29,6 +29,7 @@ import { useState } from 'react';
 export default function ThemeExport({ query, language, count }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   if (!query || !count) return null;
 
@@ -93,6 +94,28 @@ export default function ThemeExport({ query, language, count }) {
       >
         Download CSV
       </a>
+      {/* A link that reproduces this search. The page already reads query and
+          languages from the address, so the contract existed and nothing
+          offered it: sharing a Theme Search meant sending a screenshot
+          (NC, 2026-09-08). Confirmed in place rather than with a browser
+          alert, which blocks the page and has to be dismissed. */}
+      <button
+        onClick={() => {
+          const p = new URLSearchParams({ query });
+          if (language) p.set('languages', language);
+          const url = `${window.location.origin}/theme-search?${p.toString()}`;
+          const done = () => { setCopied(true); setTimeout(() => setCopied(false), 2500); };
+          if (navigator.clipboard?.writeText) {
+            navigator.clipboard.writeText(url).then(done).catch(() => setError('Could not copy the link.'));
+          } else {
+            setError('This browser will not allow copying to the clipboard.');
+          }
+        }}
+        className="text-xs font-semibold text-gray-700 border border-gray-300 bg-white
+                   rounded px-3 py-1.5 hover:bg-gray-50"
+      >
+        {copied ? 'Link copied' : 'Copy link'}
+      </button>
       <span className="text-xs text-gray-500">
         with the passages themselves, oldest first
       </span>

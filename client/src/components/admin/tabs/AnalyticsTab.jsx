@@ -334,7 +334,7 @@ const AnalyticsTab = () => {
           
           <div className="space-y-6 flex flex-col justify-center">
             <div>
-              <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-[#b91c1c]" />
                 Top Cities
               </h4>
@@ -391,8 +391,8 @@ const AnalyticsTab = () => {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-gray-50">
-                  <th className="py-3 text-sm font-bold text-gray-400 uppercase tracking-wider">Text Identifier</th>
-                  <th className="py-3 text-sm font-bold text-gray-400 uppercase tracking-wider text-right">Searches</th>
+                  <th className="py-3 text-sm font-bold text-gray-500 uppercase tracking-wider">Text Identifier</th>
+                  <th className="py-3 text-sm font-bold text-gray-500 uppercase tracking-wider text-right">Searches</th>
                 </tr>
               </thead>
               <tbody>

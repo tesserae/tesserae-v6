@@ -85,7 +85,7 @@ export default function ResultsInsight({ results, source, target, className = ''
           <ScopeButton active={scope >= total} disabled={running} onClick={() => changeScope(total)}>
             all {total}
           </ScopeButton>
-          <span className="text-gray-400">
+          <span className="text-gray-500">
             (the parallels loaded on this page, in ranked order)
           </span>
         </div>

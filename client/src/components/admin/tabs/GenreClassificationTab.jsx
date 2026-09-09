@@ -668,7 +668,7 @@ export default function GenreClassificationTab() {
                   </td>
                   <td className="py-1.5 px-2">
                     <span className={`text-xs ${
-                      t.confidence === 'manual' ? 'text-green-600' : 'text-gray-400'
+                      t.confidence === 'manual' ? 'text-green-600' : 'text-gray-500'
                     }`}>
                       {t.confidence}
                     </span>

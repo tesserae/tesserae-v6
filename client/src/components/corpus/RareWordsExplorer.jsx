@@ -345,13 +345,13 @@ export default function RareWordsExplorer() {
                     <td className="px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-amber-700 hover:text-amber-900">
                       <span className="flex items-center gap-1">
                         {word.lemma}
-                        <span className="text-gray-400 text-xs">{expandedWord === word.lemma ? '▼' : '▶'}</span>
+                        <span className="text-gray-500 text-xs">{expandedWord === word.lemma ? '▼' : '▶'}</span>
                         {getDictionaryUrl(word.lemma, language) && (
                           <a
                             href={getDictionaryUrl(word.lemma, language)}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-gray-400 hover:text-amber-600 text-xs ml-1"
+                            className="text-gray-500 hover:text-amber-600 text-xs ml-1"
                             title={`Look up "${word.lemma}" in ${getDictionaryName(language)}`}
                             onClick={(e) => e.stopPropagation()}
                           >
@@ -380,7 +380,7 @@ export default function RareWordsExplorer() {
                                 href={getDictionaryUrl(word.lemma, language)}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-gray-400 hover:text-amber-600 text-sm"
+                                className="text-gray-500 hover:text-amber-600 text-sm"
                                 title={`Look up "${word.lemma}" in ${getDictionaryName(language)}`}
                               >
                                 📖 {getDictionaryName(language)}
@@ -477,7 +477,7 @@ export default function RareWordsExplorer() {
                         : ''
                   }`}
                 >
-                  <span className="text-gray-400 w-16 flex-shrink-0 text-right">
+                  <span className="text-gray-500 w-16 flex-shrink-0 text-right">
                     {extractLineNumber(line.locus)}
                   </span>
                   <span 

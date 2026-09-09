@@ -268,7 +268,7 @@ export default function NetworkGraph({ language = 'la', nodeType = 'author' }) {
         <h3 className="text-lg font-semibold text-amber-400">Network Graph</h3>
         
         <div className="flex items-center gap-2">
-          <label className="text-sm text-gray-400">Min Degree:</label>
+          <label className="text-sm text-gray-500">Min Degree:</label>
           <input
             type="range"
             min="0"
@@ -281,7 +281,7 @@ export default function NetworkGraph({ language = 'la', nodeType = 'author' }) {
         </div>
 
         <div className="flex items-center gap-2">
-          <label className="text-sm text-gray-400">Era:</label>
+          <label className="text-sm text-gray-500">Era:</label>
           <select
             value={filters.era}
             onChange={e => setFilters(f => ({ ...f, era: e.target.value }))}
@@ -295,7 +295,7 @@ export default function NetworkGraph({ language = 'la', nodeType = 'author' }) {
         </div>
 
         <div className="flex items-center gap-2">
-          <label className="text-sm text-gray-400">Min Tier:</label>
+          <label className="text-sm text-gray-500">Min Tier:</label>
           <select
             value={filters.minTier}
             onChange={e => setFilters(f => ({ ...f, minTier: e.target.value }))}
@@ -309,7 +309,7 @@ export default function NetworkGraph({ language = 'la', nodeType = 'author' }) {
           </select>
         </div>
 
-        <div className="text-sm text-gray-400">
+        <div className="text-sm text-gray-500">
           {filteredNodes.length} nodes, {filteredEdges.length} edges
         </div>
       </div>
@@ -319,7 +319,7 @@ export default function NetworkGraph({ language = 'la', nodeType = 'author' }) {
           {Object.entries(ERA_COLORS).filter(([k]) => k !== 'default').slice(0, 6).map(([era, color]) => (
             <div key={era} className="flex items-center gap-1">
               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
-              <span className="text-xs text-gray-400">{era}</span>
+              <span className="text-xs text-gray-500">{era}</span>
             </div>
           ))}
         </div>
@@ -327,19 +327,19 @@ export default function NetworkGraph({ language = 'la', nodeType = 'author' }) {
           <span className="text-xs text-gray-500">Edges:</span>
           <div className="flex items-center gap-1">
             <div className="w-8 h-1 rounded" style={{ backgroundColor: '#fbbf24' }} />
-            <span className="text-xs text-gray-400">Gold</span>
+            <span className="text-xs text-gray-500">Gold</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-8 h-1 rounded" style={{ backgroundColor: '#9ca3af' }} />
-            <span className="text-xs text-gray-400">Silver</span>
+            <span className="text-xs text-gray-500">Silver</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-8 h-1 rounded" style={{ backgroundColor: '#b45309' }} />
-            <span className="text-xs text-gray-400">Bronze</span>
+            <span className="text-xs text-gray-500">Bronze</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-8 h-1 rounded" style={{ backgroundColor: '#c2410c' }} />
-            <span className="text-xs text-gray-400">Copper</span>
+            <span className="text-xs text-gray-500">Copper</span>
           </div>
         </div>
       </div>
@@ -347,7 +347,7 @@ export default function NetworkGraph({ language = 'la', nodeType = 'author' }) {
       <div ref={containerRef} className="flex-1 relative min-h-[400px] bg-gray-900 rounded">
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-900/80">
-            <div className="text-gray-400">Loading network data...</div>
+            <div className="text-gray-500">Loading network data...</div>
           </div>
         )}
         
@@ -369,14 +369,14 @@ export default function NetworkGraph({ language = 'la', nodeType = 'author' }) {
         <div className="mt-4 p-3 bg-gray-700 rounded">
           <h4 className="font-semibold text-amber-300 mb-2">{selectedNode.id}</h4>
           <div className="grid grid-cols-2 gap-2 text-sm">
-            <div><span className="text-gray-400">Era:</span> <span className="text-gray-200">{selectedNode.era || 'Unknown'}</span></div>
-            <div><span className="text-gray-400">In-degree (cited):</span> <span className="text-gray-200">{selectedNode.inDegree}</span></div>
-            <div><span className="text-gray-400">Out-degree (citing):</span> <span className="text-gray-200">{selectedNode.outDegree}</span></div>
-            <div><span className="text-gray-400">Gold connections:</span> <span className="text-yellow-400">{selectedNode.goldTotal}</span></div>
+            <div><span className="text-gray-500">Era:</span> <span className="text-gray-200">{selectedNode.era || 'Unknown'}</span></div>
+            <div><span className="text-gray-500">In-degree (cited):</span> <span className="text-gray-200">{selectedNode.inDegree}</span></div>
+            <div><span className="text-gray-500">Out-degree (citing):</span> <span className="text-gray-200">{selectedNode.outDegree}</span></div>
+            <div><span className="text-gray-500">Gold connections:</span> <span className="text-yellow-400">{selectedNode.goldTotal}</span></div>
           </div>
           <button
             onClick={() => setSelectedNode(null)}
-            className="mt-2 text-sm text-gray-400 hover:text-gray-200"
+            className="mt-2 text-sm text-gray-500 hover:text-gray-200"
           >
             Close
           </button>

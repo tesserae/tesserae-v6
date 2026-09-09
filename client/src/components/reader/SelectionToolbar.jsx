@@ -123,7 +123,7 @@ export default function SelectionToolbar({
 
       <button onClick={onClose}
               aria-label="Dismiss"
-              className="text-gray-400 hover:text-gray-700 text-base leading-none px-1">
+              className="text-gray-500 hover:text-gray-700 text-base leading-none px-1">
         ×
       </button>
     </div>

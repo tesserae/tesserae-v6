@@ -373,7 +373,7 @@ export default function UsersTab({ authHeaders, isAdmin = false, isSuperAdmin = 
       </div>
 
       {roles.length > 0 && (
-        <div className="text-xs text-gray-400">
+        <div className="text-xs text-gray-500">
           Available roles: {roles.map(roleLabel).join(', ')}
         </div>
       )}

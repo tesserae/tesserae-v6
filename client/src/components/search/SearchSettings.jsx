@@ -218,7 +218,7 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
               placeholder="Default"
               className="w-full border rounded px-2 py-2 text-base sm:text-sm"
             />
-            <p className="text-xs text-gray-400 mt-1">Default = curated list + high-frequency words</p>
+            <p className="text-xs text-gray-500 mt-1">Default = curated list + high-frequency words</p>
           </div>
           )}
 
@@ -241,7 +241,7 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
               {language === 'la' && <option value="meter">Same meter</option>}
               <option value="text_pair">Text pair only</option>
             </select>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-gray-500 mt-1">
               {settings.freq_basis === 'meter'
                 ? 'IDF computed from texts in the same meter (e.g., hexameter only). Falls back to full corpus if texts differ in meter.'
                 : settings.freq_basis === 'text_pair'
@@ -325,7 +325,7 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
               onChange={(e) => handleChange('custom_stopwords', e.target.value)}
               className="w-full border rounded px-2 py-2 text-base sm:text-sm"
             />
-            <p className="text-xs text-gray-400 mt-1">Use dictionary forms (lemmata): {stopwordExamples[language] || stopwordExamples.la}</p>
+            <p className="text-xs text-gray-500 mt-1">Use dictionary forms (lemmata): {stopwordExamples[language] || stopwordExamples.la}</p>
           </div>
           )}
 
@@ -338,7 +338,7 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
                   onChange={(e) => handleChange('bigram_boost', e.target.checked)}
                   className="rounded border-gray-300" />
                 <span>Bigram frequency boost</span>
-                <span className="text-xs text-gray-400">(rare word pairs)</span>
+                <span className="text-xs text-gray-500">(rare word pairs)</span>
               </label>
               )}
               {settings.match_type !== 'fusion' && (
@@ -362,7 +362,7 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
                 <input type="checkbox" checked={settings.use_syntax || false}
                   onChange={(e) => handleChange('use_syntax', e.target.checked)}
                   className="rounded border-gray-300" />
-                <span>Syntax matching <span className="text-gray-400 text-xs">(limited texts)</span></span>
+                <span>Syntax matching <span className="text-gray-500 text-xs">(limited texts)</span></span>
                 <span className="invisible group-hover:visible absolute left-0 top-6 z-10 bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap">
                   See User Guide for list of texts with syntax data
                 </span>
@@ -370,7 +370,7 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
               )}
             </div>
             {settings.match_type !== 'fusion' && (
-            <p className="text-xs text-gray-400 mt-1">Note: Some features require pre-computed linguistic annotations for selected texts.</p>
+            <p className="text-xs text-gray-500 mt-1">Note: Some features require pre-computed linguistic annotations for selected texts.</p>
             )}
           </div>
 
@@ -412,7 +412,7 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
                       className="h-4 w-4 flex-shrink-0"
                     />
                     <label
-                      className={`text-xs font-medium flex-1 min-w-0 truncate ${on ? 'text-gray-700' : 'text-gray-400 line-through'}`}
+                      className={`text-xs font-medium flex-1 min-w-0 truncate ${on ? 'text-gray-700' : 'text-gray-500 line-through'}`}
                       title={label}
                     >
                       {label}
@@ -429,7 +429,7 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
                       onChange={(e) => setChannelWeight(ch, e.target.value)}
                       disabled={!on}
                       title={on ? undefined : 'Turn this channel on to set its weight'}
-                      className={`w-20 border rounded px-2 py-1.5 text-sm ${on ? '' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+                      className={`w-20 border rounded px-2 py-1.5 text-sm ${on ? '' : 'bg-gray-100 text-gray-500 cursor-not-allowed'}`}
                     />
                   </div>
                   );
@@ -445,7 +445,7 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
                   Reset to defaults
                 </button>
                 {isDirty && (
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-gray-500">
                     {disabledCount > 0 && `${disabledCount} off`}
                     {disabledCount > 0 && overrideCount > 0 && ', '}
                     {overrideCount > 0 && `${overrideCount} reweighted`}

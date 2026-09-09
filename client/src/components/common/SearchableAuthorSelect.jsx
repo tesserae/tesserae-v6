@@ -7,7 +7,10 @@ const SearchableAuthorSelect = ({
   filter: externalFilter,
   setFilter: externalSetFilter,
   showDropdown: externalShowDropdown,
-  setShowDropdown: externalSetShowDropdown
+  setShowDropdown: externalSetShowDropdown,
+  // The visible label sits above this component rather than inside it, so the
+  // caller passes the name assistive software should read (2026-09-08).
+  ariaLabel
 }) => {
   const inputRef = useRef(null);
   const containerRef = useRef(null);
@@ -73,6 +76,10 @@ const SearchableAuthorSelect = ({
         <input
           ref={inputRef}
           type="text"
+          aria-label={ariaLabel}
+          role="combobox"
+          aria-expanded={showDropdown}
+          aria-autocomplete="list"
           placeholder="Type to search..."
           value={displayValue}
           onChange={e => { setFilter(e.target.value); setShowDropdown(true); setIsEditing(true); }}

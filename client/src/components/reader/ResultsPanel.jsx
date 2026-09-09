@@ -247,7 +247,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                 </p>
                 {fullTranslation.blocks.map((b) => (
                   <div key={b.ref_start} className="bg-white border border-gray-200 rounded p-2">
-                    <p className="text-[10px] text-gray-400 mb-1">{b.ref_start}
+                    <p className="text-[10px] text-gray-500 mb-1">{b.ref_start}
                       {b.ref_end !== b.ref_start ? ` – ${b.ref_end}` : ''}</p>
                     <p className="text-sm text-gray-800 leading-relaxed">{b.text}</p>
                   </div>
@@ -379,7 +379,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                 Show more matches
               </button>
             )}
-            <p className="text-[11px] text-gray-400 pt-1 leading-snug">
+            <p className="text-[11px] text-gray-500 pt-1 leading-snug">
               These passages match in content, not wording, so a match in another language
               usually shares no words with the selection. Summaries are machine-written.
             </p>
@@ -501,7 +501,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                 >
                   See the full result list in Line Search &rarr;
                 </a>
-                <p className="text-[11px] text-gray-400 pt-1 leading-snug">
+                <p className="text-[11px] text-gray-500 pt-1 leading-snug">
                   Matches share dictionary forms, not necessarily spellings. Oldest first.
                   {verbal.capped && ' The corpus holds more than are shown here.'}
                 </p>
@@ -517,7 +517,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
             </p>
             {(units || []).slice(selection.startIdx, selection.endIdx + 1).map((u) => (
               <p key={u.ref} className="text-sm text-gray-900 leading-relaxed">
-                <span className="text-[10px] text-gray-400 mr-2">{displayRef(u.ref)}</span>
+                <span className="text-[10px] text-gray-500 mr-2">{displayRef(u.ref)}</span>
                 {u.text}
               </p>
             ))}

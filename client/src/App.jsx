@@ -17,6 +17,25 @@ import VisualizationsPage from './components/pages/VisualizationsPage';
 import { useCorpus, useSearch, DEFAULT_PAGE_SIZE } from './hooks';
 import { getSessionValue, setSessionValue } from './utils/storage';
 
+// What each page is called in the browser tab, the bookmark and the history.
+const PAGE_TITLES = {
+  search: 'Search',
+  read: 'Reader',
+  'theme-search': 'Theme Search',
+  browse: 'Browse Corpus',
+  repository: 'Repository',
+  'line-search': 'Line Search',
+  'string-search': 'String Search',
+  visualizations: 'Visualize',
+  downloads: 'Downloads',
+  about: 'About',
+  help: 'Help & Support',
+  privacy: 'Privacy',
+  research: 'Research',
+  'blog-archive': 'Blog Archive',
+  admin: 'Admin',
+};
+
 const pathToPageType = {
   '/': 'search',
   '/read': 'read',
@@ -90,6 +109,8 @@ function App() {
   });
   // When set, HelpPage opens to this section (used by the "use your own AI" flag).
   const [helpSection, setHelpSection] = useState(null);
+  // Confirms a copied search link on the button itself, for 2.5 seconds.
+  const [shareCopied, setShareCopied] = useState(false);
   const [activeTab, setActiveTab] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     const lang = params.get('lang') || params.get('language');
@@ -269,6 +290,16 @@ function App() {
     if (window.location.pathname !== newPath) {
       window.history.pushState({}, '', newPath + window.location.search);
     }
+  }, [pageType]);
+
+  // Every page used to be called "Tesserae V6", so six open tabs, a list of
+  // bookmarks and the browser history were all indistinguishable, and a saved
+  // Reader page gave no clue what was in it (2026-09-08). The Reader sets its
+  // own title from the work it is showing; this covers the rest.
+  useEffect(() => {
+    document.title = pageType === 'read'
+      ? document.title
+      : `${PAGE_TITLES[pageType] || 'Search'} — Tesserae`;
   }, [pageType]);
 
   useEffect(() => {
@@ -750,16 +781,23 @@ function App() {
                     <button
                       onClick={() => {
                         const url = buildShareableUrl(sourceText, targetText, sourceAuthor, targetAuthor, activeTab, settings);
-                        navigator.clipboard.writeText(url);
-                        alert('Search link copied to clipboard!');
+                        // Confirmed on the button itself. A browser alert stops
+                        // the page and has to be dismissed, which is a lot of
+                        // ceremony for a copied link (2026-09-08).
+                        navigator.clipboard.writeText(url)
+                          .then(() => {
+                            setShareCopied(true);
+                            setTimeout(() => setShareCopied(false), 2500);
+                          })
+                          .catch(() => {});
                       }}
-                      className="text-sm text-gray-500 hover:text-red-600 flex items-center gap-1"
-                      title="Copy shareable link"
+                      className={`text-sm flex items-center gap-1 ${shareCopied ? 'text-red-700 font-medium' : 'text-gray-500 hover:text-red-600'}`}
+                      title="Copy a link that reproduces this search"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                       </svg>
-                      Share
+                      {shareCopied ? 'Link copied' : 'Share'}
                     </button>
                   )}
                 </div>
@@ -1107,7 +1145,7 @@ function App() {
                 rows={3}
                 maxLength={500}
               />
-              <div className="text-xs text-gray-400 text-right mt-1">
+              <div className="text-xs text-gray-500 text-right mt-1">
                 {registerNotes.length}/500
               </div>
             </div>

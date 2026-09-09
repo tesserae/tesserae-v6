@@ -79,7 +79,7 @@ export default function AuditTab({ authHeaders }) {
                           </span>
                         )}
                       </div>
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-gray-500">
                         {entry.created_at ? new Date(entry.created_at).toLocaleString() : ''}
                       </span>
                     </div>

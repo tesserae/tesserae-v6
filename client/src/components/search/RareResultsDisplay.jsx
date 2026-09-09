@@ -576,7 +576,7 @@ const RareResultsDisplay = ({
             <div key={startIndex + i} className="bg-white border rounded-lg p-4 hover:shadow-md transition-shadow">
               <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs text-gray-400 min-w-[2.5rem] text-right shrink-0 leading-none" style={{paddingTop: '4px'}}>
+                  <span className="text-xs text-gray-500 min-w-[2.5rem] text-right shrink-0 leading-none" style={{paddingTop: '4px'}}>
                     {startIndex + i + 1}.
                   </span>
                   <span className="font-semibold text-lg text-amber-700">
@@ -587,7 +587,7 @@ const RareResultsDisplay = ({
                       href={getDictionaryUrl(r.lemma, language)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-gray-400 hover:text-amber-600 text-xs"
+                      className="text-gray-500 hover:text-amber-600 text-xs"
                       title={`Look up "${r.lemma}" in ${getDictionaryName(language)}`}
                     >
                       📖
@@ -600,7 +600,7 @@ const RareResultsDisplay = ({
                           href={getDictionaryUrl(r.word1, language)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-gray-400 hover:text-amber-600 text-xs"
+                          className="text-gray-500 hover:text-amber-600 text-xs"
                           title={`Look up "${r.word1}" in ${getDictionaryName(language)}`}
                         >
                           📖
@@ -611,7 +611,7 @@ const RareResultsDisplay = ({
                           href={getDictionaryUrl(r.word2, language)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-gray-400 hover:text-amber-600 text-xs"
+                          className="text-gray-500 hover:text-amber-600 text-xs"
                           title={`Look up "${r.word2}" in ${getDictionaryName(language)}`}
                         >
                           📖
@@ -670,7 +670,7 @@ const RareResultsDisplay = ({
                       )}
                     </div>
                   ) : (
-                    <div className="text-sm text-gray-400">No locations</div>
+                    <div className="text-sm text-gray-500">No locations</div>
                   )}
                 </div>
                 <div>
@@ -690,7 +690,7 @@ const RareResultsDisplay = ({
                       )}
                     </div>
                   ) : (
-                    <div className="text-sm text-gray-400">No locations</div>
+                    <div className="text-sm text-gray-500">No locations</div>
                   )}
                 </div>
               </div>

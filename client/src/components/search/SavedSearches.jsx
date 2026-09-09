@@ -100,7 +100,7 @@ const SavedSearches = ({
                           languageName(search.language)
                         }
                       </div>
-                      <div className="text-xs text-gray-400">
+                      <div className="text-xs text-gray-500">
                         Saved {new Date(search.created_at).toLocaleDateString()}
                       </div>
                     </div>

@@ -18,3 +18,46 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* A scrolling strip with its scrollbar hidden gives no sign that it continues,
+   and on a phone that put half the navigation out of reach: only three or four
+   of the eleven tabs fit, and nothing suggested the rest (2026-09-08). The
+   fade is painted by the container, sits above the strip, and ignores clicks,
+   so the tabs underneath still work. It is drawn only while the strip can
+   actually scroll further, via the data-more attribute Navigation sets. */
+.scroll-hint {
+  position: relative;
+}
+
+.scroll-hint::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 2.5rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 150ms ease;
+  background: linear-gradient(to right, rgba(249, 250, 251, 0), rgba(249, 250, 251, 0.95));
+}
+
+.scroll-hint[data-more='true']::after {
+  opacity: 1;
+}
+
+/* Keyboard focus, in the site's red, shown for keyboard users and not for
+   mouse clicks. Set once here rather than per component: the interface had
+   sixty scattered focus styles and two that made the distinction, so a
+   keyboard user lost their place on the denser pages. */
+:focus-visible {
+  outline: 2px solid #b91c1c;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-hint::after {
+    transition: none;
+  }
+}

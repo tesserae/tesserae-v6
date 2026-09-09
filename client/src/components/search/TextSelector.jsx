@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useId } from 'react';
 import { SearchableAuthorSelect } from '../common';
 
 const TextSelector = ({
@@ -12,6 +12,13 @@ const TextSelector = ({
   hierarchy,
   fetchTexts
 }) => {
+  // The labels above these menus were plain text sitting next to them, so
+  // assistive software announced two unnamed menus and a blind reader could
+  // not tell the source text from the target (2026-09-08). useId gives each
+  // instance its own id, which matters because the page renders two.
+  const uid = useId();
+  const workId = `${uid}-work`;
+  const textId = `${uid}-text`;
   const [filter, setFilter] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
   const [texts, setTexts] = useState([]);
@@ -44,6 +51,7 @@ const TextSelector = ({
           {label} Author
         </label>
         <SearchableAuthorSelect
+          ariaLabel={`${label} author`}
           value={selectedAuthor}
           onChange={handleAuthorChange}
           filter={filter}
@@ -56,10 +64,11 @@ const TextSelector = ({
       
       {authorHierarchy && authorHierarchy.works && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor={workId} className="block text-sm font-medium text-gray-700 mb-1">
             {label} Work
           </label>
           <select
+            id={workId}
             value={selectedText}
             onChange={(e) => setSelectedText(e.target.value)}
             className="w-full border rounded px-2 py-2 text-base sm:text-sm"
@@ -90,10 +99,11 @@ const TextSelector = ({
 
       {!authorHierarchy && texts.length > 0 && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor={textId} className="block text-sm font-medium text-gray-700 mb-1">
             {label} Text
           </label>
           <select
+            id={textId}
             value={selectedText}
             onChange={(e) => setSelectedText(e.target.value)}
             className="w-full border rounded px-2 py-2 text-base sm:text-sm"

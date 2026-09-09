@@ -100,7 +100,7 @@ export default function FeedbackTab({ feedback, onRefresh }) {
                       From: {item.name || 'Anonymous'} {item.email && `<${item.email}>`}
                     </div>
                     <p className="text-gray-800 mt-2 whitespace-pre-wrap">{item.message}</p>
-                    <div className="text-xs text-gray-400 mt-1">
+                    <div className="text-xs text-gray-500 mt-1">
                       {item.created_at && new Date(item.created_at).toLocaleString()}
                     </div>
                     {isResponded && (item.responded_by || item.responded_at) && (

@@ -768,7 +768,7 @@ export default function Repository({ user, isAdmin = false }) {
                                         <span className={`text-xs px-2 py-0.5 rounded ${item.is_public ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
                                           {item.is_public ? 'shared' : 'private'}
                                         </span>
-                                        <span className="text-xs text-gray-400">
+                                        <span className="text-xs text-gray-500">
                                           Score: {item.score?.toFixed?.(2) || item.score || '-'}
                                         </span>
                                         {item.scholar_score > 0 && (
@@ -803,7 +803,7 @@ export default function Repository({ user, isAdmin = false }) {
                                         </div>
                                         {item.submitter?.email
                                           ? <div className="text-gray-700"><span className="font-medium">Email:</span>{' '}<a href={`mailto:${item.submitter.email}`} className="text-red-600 hover:underline">{item.submitter.email}</a></div>
-                                          : <div className="text-gray-400 italic">No email on record</div>
+                                          : <div className="text-gray-500 italic">No email on record</div>
                                         }
                                       </div>
                                     )}
@@ -865,7 +865,7 @@ export default function Repository({ user, isAdmin = false }) {
                   </div>
                   <div className="flex items-center gap-2">
                     {item.created_at && (
-                      <span className="text-xs text-gray-400">
+                      <span className="text-xs text-gray-500">
                         {new Date(item.created_at).toLocaleDateString()}
                       </span>
                     )}
@@ -973,7 +973,7 @@ export default function Repository({ user, isAdmin = false }) {
                     </div>
                     {item.submitter?.email
                       ? <div className="text-gray-700"><span className="font-medium">Email:</span>{' '}<a href={`mailto:${item.submitter.email}`} className="text-red-600 hover:underline">{item.submitter.email}</a></div>
-                      : <div className="text-gray-400 italic">No email on record</div>
+                      : <div className="text-gray-500 italic">No email on record</div>
                     }
                   </div>
                 )}
@@ -1062,7 +1062,7 @@ export default function Repository({ user, isAdmin = false }) {
                   value={newIntertext.scholar_score} 
                   onChange={score => setNewIntertext({...newIntertext, scholar_score: score})}
                 />
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-gray-500 mt-1">
                   {newIntertext.scholar_score > 0 ? `${newIntertext.scholar_score}/5 selected` : 'Required'}
                 </p>
               </div>
@@ -1076,11 +1076,11 @@ export default function Repository({ user, isAdmin = false }) {
                 placeholder="e.g., arma, virum, fato"
                 className="w-full border rounded px-3 py-2 text-sm"
               />
-              <p className="text-xs text-gray-400 mt-1">Words to highlight in both passages</p>
+              <p className="text-xs text-gray-500 mt-1">Words to highlight in both passages</p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Notes <span className="text-gray-400">({(newIntertext.notes || '').length}/500)</span>
+                Notes <span className="text-gray-500">({(newIntertext.notes || '').length}/500)</span>
               </label>
               <textarea
                 value={newIntertext.notes}
@@ -1180,13 +1180,13 @@ export default function Repository({ user, isAdmin = false }) {
                   setEditingItem({...editingItem, scholar_score: score});
                 }}
               />
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-gray-500 mt-1">
                 {editingItem.scholar_score > 0 ? `${editingItem.scholar_score}/5 selected` : 'Required'}
               </p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Notes <span className="text-gray-400">({(editingItem.notes || '').length}/500)</span>
+                Notes <span className="text-gray-500">({(editingItem.notes || '').length}/500)</span>
               </label>
               <textarea
                 value={editingItem.notes || ''}

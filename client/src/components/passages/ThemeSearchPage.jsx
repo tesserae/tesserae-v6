@@ -215,7 +215,19 @@ export default function ThemeSearchPage() {
       // The API reports trouble in the body rather than by status, so that a
       // missing index degrades this panel instead of breaking the page.
       if (json.error) setError(json.error);
-      else { setData(json); setLimit(wanted); }
+      else {
+        setData(json);
+        setLimit(wanted);
+        // Record the search in the address. The page has always been able to
+        // READ a query from the URL, and never wrote one, so reloading lost
+        // the search and there was nothing to copy out of the address bar
+        // (2026-09-08). replaceState rather than pushState: the reader gets a
+        // reloadable, sendable link without the Back button filling up with
+        // every refinement of the same search.
+        const p = new URLSearchParams({ query: text });
+        if (langParam) p.set('languages', langParam);
+        window.history.replaceState({}, '', `/theme-search?${p.toString()}`);
+      }
     } catch (e) {
       setError(e.message || 'the search could not be run');
     } finally {
@@ -460,7 +472,7 @@ export default function ThemeSearchPage() {
                       const d = dateParts(head);
                       if (!d) {
                         return (
-                          <span className="inline-block rounded bg-gray-50 border border-gray-200 px-2 py-0.5 text-sm text-gray-400">
+                          <span className="inline-block rounded bg-gray-50 border border-gray-200 px-2 py-0.5 text-sm text-gray-500">
                             undated
                           </span>
                         );
@@ -476,7 +488,7 @@ export default function ThemeSearchPage() {
                             {head.era}
                           </div>
                           {d.about && (
-                            <div className="mt-0.5 text-[11px] text-gray-400 leading-tight">
+                            <div className="mt-0.5 text-[11px] text-gray-500 leading-tight">
                               {d.about}
                             </div>
                           )}
@@ -562,7 +574,7 @@ export default function ThemeSearchPage() {
                 disabled={loadingMore}
                 className="rounded border border-gray-300 bg-white px-4 py-1.5 text-sm
                            text-gray-700 hover:border-gray-400 hover:text-gray-900
-                           disabled:text-gray-400"
+                           disabled:text-gray-500"
               >
                 {loadingMore ? 'Loading…' : 'Show more results'}
               </button>

@@ -96,7 +96,7 @@ const Pagination = ({
           <span
             key={`ellipsis-${i}`}
             aria-hidden="true"
-            className="px-2 py-1 text-xs text-gray-400 select-none"
+            className="px-2 py-1 text-xs text-gray-500 select-none"
           >
             {ELLIPSIS}
           </span>
