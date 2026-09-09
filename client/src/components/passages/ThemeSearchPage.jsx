@@ -17,12 +17,47 @@ import ThemeExport from './ThemeExport';
  * doing real work and hiding it would be worse than showing it.
  */
 
-const EXAMPLES = [
-  'a guest arrives and is welcomed with food, wine, and a bath',
-  'a mother laments her dead son over his body',
-  'a wife or child recognizes someone long thought dead or lost',
-  'a warrior arms himself before battle, piece by piece',
-];
+/* THE EXAMPLES HAVE TO SUIT THE CORPUS THE SERVER ACTUALLY HOLDS.
+ *
+ * The four below on the left were written when the corpus was Latin and Greek,
+ * and they are Homeric and Virgilian topoi. On a preview serving Coptic,
+ * Persian, Urdu and Arabic, two of them came back "the corpus does not appear
+ * to contain passages of this kind": the page was offering a first-time
+ * visitor four suggestions and failing on half of them (NC, 2026-09-09). It is
+ * the same fault as the Latin authors that once appeared in the Persian tab, a
+ * fixed list that does not follow what is served.
+ *
+ * Every query in every set below was MEASURED against the corpus it is offered
+ * to, not guessed. Each rated strong or moderate when run. If the corpus
+ * changes substantially, measure them again rather than assuming they hold:
+ * scripts exist for this in evaluation/probe_sets/.
+ */
+const EXAMPLE_SETS = {
+  // Latin, Greek and English. The set the production site has always shown.
+  classical: [
+    'a guest arrives and is welcomed with food, wine, and a bath',
+    'a mother laments her dead son over his body',
+    'a wife or child recognizes someone long thought dead or lost',
+    'a warrior arms himself before battle, piece by piece',
+  ],
+  // Persian, Urdu and Arabic, with Coptic alongside. Measured 2026-09-09:
+  // all four rated strong, and three of the four return Coptic passages too.
+  persoArabic: [
+    'a moth is drawn to the candle flame and burns, love as self-destruction',
+    'the cupbearer is asked to pour wine at dawn',
+    'a poet praises his patron’s generosity and courage',
+    'the dead are mourned and the mourner tears his clothes',
+  ],
+};
+
+/** The example set for the languages this server serves. Classical wins when
+ *  any of its languages is present, so production is unchanged. */
+function examplesFor(served) {
+  const has = (codes) => Array.isArray(served) && served.some((c) => codes.includes(c));
+  if (has(['la', 'grc', 'en'])) return EXAMPLE_SETS.classical;
+  if (has(['fa', 'ur', 'ar'])) return EXAMPLE_SETS.persoArabic;
+  return EXAMPLE_SETS.classical;
+}
 
 const BAND = {
   unrated: {
@@ -312,7 +347,7 @@ export default function ThemeSearchPage() {
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
-        {EXAMPLES.map((ex) => (
+        {examplesFor(served).map((ex) => (
           <button
             key={ex}
             onClick={() => { setQuery(ex); run(ex); }}
