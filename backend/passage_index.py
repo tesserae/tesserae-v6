@@ -264,11 +264,30 @@ def is_available():
         return False
 
 
+def index_version():
+    """A date stamp for the passage index, for citing a Theme Search.
+
+    The per-language inverted indexes carry a corpus_version in a meta table;
+    this index has no such table, so the stamp comes from the build date of
+    ids.json, which is rewritten whenever windows are added or dropped. Same
+    fallback the inverted index uses when its stamp is missing. Returns None
+    rather than raising: a missing stamp costs a clause in a citation
+    (2026-09-08).
+    """
+    try:
+        import datetime
+        p = os.path.join(_DATA_DIR, 'ids.json')
+        return datetime.date.fromtimestamp(os.path.getmtime(p)).isoformat()
+    except Exception:                                            # noqa: BLE001
+        return None
+
+
 def status():
     _ensure_loaded()
     return {
         'available': _state['ok'],
         'error': _state['error'],
+        'index_version': index_version(),
         'windows': len(_ids) if _ids else 0,
         'works': len(_by_work) if _by_work else 0,
         'model': EMBED_MODEL,

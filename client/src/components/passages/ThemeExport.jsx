@@ -1,4 +1,11 @@
 import { useState } from 'react';
+import { CiteButton } from '../common';
+
+const LANG_NAMES = {
+  la: 'Latin', grc: 'Greek', en: 'English', he: 'Hebrew', cop: 'Coptic',
+  fa: 'Persian', ur: 'Urdu', ar: 'Arabic',
+  it: 'Italian', fro: 'Old French', gmh: 'Middle High German',
+};
 
 /**
  * Taking a Theme Search away with you.
@@ -26,7 +33,7 @@ import { useState } from 'react';
  * CSV is the manipulable form, with a BOM so Excel does not turn every Greek
  * and Persian passage into mojibake.
  */
-export default function ThemeExport({ query, language, count }) {
+export default function ThemeExport({ query, language, count, corpusVersion }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
@@ -116,6 +123,19 @@ export default function ThemeExport({ query, language, count }) {
       >
         {copied ? 'Link copied' : 'Copy link'}
       </button>
+      <CiteButton
+        label="Cite"
+        finding={{
+          kind: 'theme search',
+          query,
+          language: language
+            ? language.split(',').map((c) => LANG_NAMES[c] || c).join(' and ')
+            : 'all languages',
+          corpusVersion,
+          url: `${window.location.origin}/theme-search?`
+            + new URLSearchParams(language ? { query, languages: language } : { query }).toString(),
+        }}
+      />
       <span className="text-xs text-gray-500">
         with the passages themselves, oldest first
       </span>

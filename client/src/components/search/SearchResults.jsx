@@ -1,7 +1,8 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
-import { Button, LoadingSpinner, Pagination } from '../common';
+import { Button, LoadingSpinner, Pagination, CiteButton } from '../common';
 import { usePagination } from '../../hooks/usePagination';
 import { formatReference, formatElapsedTime } from '../../utils/formatting';
+import { languageName } from '../../utils/languageNames';
 import { displayGreekWithFinalSigma } from '../../utils/greekUtils';
 import { normalizeCoptic } from '../../utils/copticUtils';
 import { exportRowsToPDF } from '../../utils/exportResults';
@@ -1226,6 +1227,21 @@ const SearchResults = ({
                   Register
                 </Button>
               )}
+              {/* A parallel is the thing a scholar actually puts in a footnote,
+                  so Cite belongs on the parallel and not only on the page
+                  (interface audit, 2026-09-08). */}
+              <CiteButton
+                finding={{
+                  kind: 'fusion search',
+                  source: displayLocus(r.source_locus || r.source?.ref, sourceTextInfo),
+                  target: displayLocus(r.target_locus || r.target?.ref, targetTextInfo),
+                  language: languageName(language),
+                  score: r.fused_score ?? r.score ?? r.overall_score,
+                  channels: Array.isArray(r.channels) ? r.channels.join(', ') : (r.channels || ''),
+                  corpusVersion: searchStats?.corpus_version,
+                  url: typeof window !== 'undefined' ? window.location.href : '',
+                }}
+              />
             </div>
             </div>{/* flex-1 */}
             </div>{/* flex row-number wrapper */}

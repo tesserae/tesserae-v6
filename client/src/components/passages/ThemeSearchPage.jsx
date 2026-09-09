@@ -429,6 +429,7 @@ export default function ThemeSearchPage() {
               low-confidence set the reader has not chosen to look at. */}
           {(data.confidence?.level !== 'low' || showWeak) && (
             <ThemeExport query={data.query || query} language={language}
+                         corpusVersion={data.corpus_version}
                          count={data.results?.length || 0} />
           )}
           {(data.confidence?.level !== 'low' || showWeak) && (
