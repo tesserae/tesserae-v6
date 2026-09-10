@@ -15,6 +15,7 @@ questions from the deterministic router and /analyze still returns the computed
 findings without prose, so the feature thins rather than breaks.
 """
 import json
+import re
 
 from flask import Blueprint, Response, jsonify, request, session
 
@@ -70,6 +71,40 @@ def _remember_offer(payload):
                                   if payload.get('offered_variants') else None)
     except Exception:
         pass
+
+
+def _allowed_refs(results, source_id=None, target_id=None):
+    """The citations the model is allowed to make: every result's own tags,
+    plus each tag's locus under the full work name.
+
+    The tags abbreviate ("luc. 1.499") while a writer names the work ("Lucan's
+    Bellum Civile 1.499"). The reference guard matches a locus plus one name
+    word, and "Bellum Civile" shares no word with "luc", so the guard was
+    replacing a correct citation with "that passage" (production log,
+    2026-09-10). The work ids the page sends carry the words the writer uses.
+    """
+    allowed = []
+    names = {'source': _id_words(source_id), 'target': _id_words(target_id)}
+    for r in results:
+        for side in ('source', 'target'):
+            v = r.get(side)
+            ref = v.get('ref') if isinstance(v, dict) else None
+            if not ref:
+                continue
+            allowed.append(ref)
+            locus = re.findall(r'\d+(?:\.\d+)*', str(ref))
+            if names[side] and locus:
+                allowed.append(f'{names[side]} {locus[-1]}')
+    return allowed
+
+
+def _id_words(text_id):
+    """'lucan.bellum_civile.part.1.tess' -> 'lucan bellum civile'."""
+    if not text_id:
+        return ''
+    s = re.sub(r'\.tess$', '', str(text_id))
+    s = re.sub(r'\.part\.\d+.*$', '', s)
+    return re.sub(r'[._]+', ' ', s).strip()
 
 
 def _with_help(question):
@@ -273,6 +308,7 @@ def guide():
 def analyze():
     data = request.get_json(silent=True) or {}
     results = data.get('results') or []
+    question = (data.get('question') or '').strip()
     if not results:
         return jsonify({'error': 'results are required'})
 
@@ -285,8 +321,8 @@ def analyze():
                         'note': 'Computed findings only: the assistant is not running.'})
 
     ask = block
-    if (data.get('question') or '').strip():
-        ask = f"{block}\n\nThe scholar asks: {data['question'].strip()}"
+    if question:
+        ask = f"{block}\n\nThe scholar asks: {question}"
     else:
         ask = f'{block}\n\nAnalyse what this evidence supports.'
 
@@ -299,12 +335,7 @@ def analyze():
                         'note': 'Computed findings only: generation failed.'})
 
     # Guardrails: the model may not introduce citations or numbers of its own.
-    allowed = []
-    for r in results:
-        for side in ('source', 'target'):
-            v = r.get(side)
-            if isinstance(v, dict) and v.get('ref'):
-                allowed.append(v['ref'])
+    allowed = _allowed_refs(results, data.get('source'), data.get('target'))
     text, removed = model.strip_unsupported_references(text, allowed)
     text, access_removed = model.strip_access_talk(text)
     ok_numbers, invented = model.numbers_preserved(block, text, question)
@@ -366,6 +397,7 @@ def guide_stream():
 def analyze_stream():
     data = request.get_json(silent=True) or {}
     results = data.get('results') or []
+    question = (data.get('question') or '').strip()
 
     def generate():
         if not results:
@@ -382,8 +414,8 @@ def analyze_stream():
             return
         block = findings.format_for_narration(facts, passages=results)
         ask = block
-        if (data.get('question') or '').strip():
-            ask = f"{block}\n\nThe scholar asks: {data['question'].strip()}"
+        if question:
+            ask = f"{block}\n\nThe scholar asks: {question}"
         else:
             ask = f'{block}\n\nAnalyse what this evidence supports.'
 
@@ -395,12 +427,7 @@ def analyze_stream():
             yield _sse('chunk', {'text': piece})
 
         text = ''.join(collected)
-        allowed = []
-        for r in results:
-            for side in ('source', 'target'):
-                v = r.get(side)
-                if isinstance(v, dict) and v.get('ref'):
-                    allowed.append(v['ref'])
+        allowed = _allowed_refs(results, data.get('source'), data.get('target'))
         cleaned, removed = model.strip_unsupported_references(text, allowed)
         cleaned, access_removed = model.strip_access_talk(cleaned)
         ok_numbers, invented = model.numbers_preserved(block, cleaned, question)

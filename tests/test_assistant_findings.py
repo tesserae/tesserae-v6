@@ -79,6 +79,17 @@ def test_guard_removes_whether_the_later_author_knew():
     assert len(removed) == 1
 
 
+def test_full_work_name_citations_are_allowed():
+    from backend.blueprints.assistant import _allowed_refs
+    allowed = _allowed_refs(TWO_TEXT, 'vergil.aeneid.part.1.tess', 'lucan.bellum_civile.part.1.tess')
+    text = ('The run appears in Vergil’s Aeneid 1.146 and Lucan’s Bellum Civile 1.499. '
+            'Nothing links it to Thebaid 6.98.')
+    cleaned, removed = model.strip_unsupported_references(text, allowed)
+    assert 'Bellum Civile 1.499' in cleaned
+    assert 'Aeneid 1.146' in cleaned
+    assert removed == ['Thebaid 6.98']
+
+
 def test_guard_leaves_ordinary_prose_alone():
     text = 'The shared phrase Syrtibus aequor is rare. The evidence supports direct reuse.'
     cleaned, removed = model.strip_access_talk(text)
