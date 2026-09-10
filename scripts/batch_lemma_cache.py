@@ -19,6 +19,7 @@ import os
 import re
 import time
 import resource
+import unicodedata
 
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -158,7 +159,6 @@ class FastTextProcessor:
         missed every accented token and the fallback kept the accents, so the
         postings written for a new text could never match a query
         (Greek Anthology import, 2026-09-10)."""
-        import unicodedata
         nfkd = unicodedata.normalize('NFKD', token)
         stripped = ''.join(c for c in nfkd if not unicodedata.combining(c))
         return stripped.replace('ς', 'σ').lower()
