@@ -83,3 +83,18 @@ def test_guard_leaves_ordinary_prose_alone():
     text = 'The shared phrase Syrtibus aequor is rare. The evidence supports direct reuse.'
     cleaned, removed = model.strip_access_talk(text)
     assert cleaned == text and removed == []
+
+
+def test_guard_keeps_historical_context_when_it_is_not_a_hedge():
+    text = ('The historical context is the civil war. The phrase recurs in Aen. 1.146 '
+            'and Luc. 1.499. Both poets use it of the Syrtes.')
+    cleaned, removed = model.strip_access_talk(text)
+    assert cleaned == text and removed == []
+
+
+def test_guard_does_not_split_on_abbreviations():
+    text = ('The run appears at Aen. 1.146. This would be strengthened by historical '
+            'context for the borrowing. The phrase is rare.')
+    cleaned, removed = model.strip_access_talk(text)
+    assert cleaned == 'The run appears at Aen. 1.146. The phrase is rare.'
+    assert len(removed) == 1

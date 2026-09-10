@@ -403,7 +403,7 @@ def analyze_stream():
                     allowed.append(v['ref'])
         cleaned, removed = model.strip_unsupported_references(text, allowed)
         cleaned, access_removed = model.strip_access_talk(cleaned)
-        ok_numbers, invented = model.numbers_preserved(block, text, question)
+        ok_numbers, invented = model.numbers_preserved(block, cleaned, question)
         # The words have already streamed to the page, so when a guard cut
         # something the final event carries the cleaned text and the page
         # replaces what it showed. Without this the guard only wrote a log line.

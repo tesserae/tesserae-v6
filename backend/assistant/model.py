@@ -166,8 +166,28 @@ def strip_unsupported_references(text, allowed_refs):
 _ACCESS_TALK = re.compile(
     r"\b(?:access to|had access|could have (?:read|known|seen)|"
     r"whether [^.]{0,60}\b(?:knew|read|had read|was familiar with)|"
-    r"causal link|historical context|"
+    r"causal link|"
     r"familiarity with [^.]{0,40}\b(?:text|work|poem))\b", re.I)
+# "Historical context" on its own can be legitimate. It is the hedge only when
+# the sentence offers it as what the case still needs.
+_CONTEXT_HEDGE = re.compile(
+    r"historical context", re.I)
+_HEDGE_VERBS = re.compile(
+    r"\b(?:strengthen|weaken|would|need|require|establish|confirm)", re.I)
+_SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+(?=[A-Z\"“])")
+# Abbreviations that end in a full stop mid-sentence ("Aen. 1.146", "cf. the
+# passage"), so a split after them is glued back together.
+_ABBREV_END = re.compile(r"\b(?:[A-Z][a-z]{0,3}|cf|e\.g|i\.e|vs|ed|tr|fr)\.$")
+
+
+def _sentences(text):
+    out = []
+    for piece in _SENTENCE_SPLIT.split(text.strip()):
+        if out and _ABBREV_END.search(out[-1]):
+            out[-1] = out[-1] + ' ' + piece
+        else:
+            out.append(piece)
+    return out
 
 
 def strip_access_talk(text):
@@ -175,10 +195,10 @@ def strip_access_talk(text):
     text. Returns (cleaned_text, removed_sentences)."""
     if not text:
         return text, []
-    sentences = re.split(r'(?<=[.!?])\s+', text.strip())
+    sentences = _sentences(text)
     kept, removed = [], []
     for s in sentences:
-        if _ACCESS_TALK.search(s):
+        if _ACCESS_TALK.search(s) or (_CONTEXT_HEDGE.search(s) and _HEDGE_VERBS.search(s)):
             removed.append(s)
         else:
             kept.append(s)
