@@ -129,7 +129,10 @@ _EXPORT_COLUMNS = [
 ]
 
 _LANG_NAME = {'la': 'Latin', 'grc': 'Greek', 'en': 'English', 'he': 'Hebrew',
-              'cop': 'Coptic', 'fa': 'Persian', 'ur': 'Urdu', 'ar': 'Arabic'}
+              'cop': 'Coptic', 'fa': 'Persian', 'ur': 'Urdu', 'ar': 'Arabic',
+              # The theme tier's medieval vernaculars (2026-09-01). Without
+              # these the export labelled Dante's passages "it".
+              'it': 'Italian', 'fro': 'Old French', 'gmh': 'Middle High German'}
 
 
 def _export_rows(results, texts):

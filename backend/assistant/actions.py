@@ -27,7 +27,7 @@ navigates on its own.
 from urllib.parse import urlencode
 
 # What the page will accept. A language the site cannot search is not offered.
-LANGUAGES = {'la', 'grc', 'he', 'cop', 'en', 'fa', 'ur', 'ar'}
+LANGUAGES = {'la', 'grc', 'he', 'cop', 'en', 'fa', 'ur', 'ar', 'it', 'fro', 'gmh'}
 SEARCH_TYPES = {'exact', 'lemma', 'regex'}
 MAX_ACTIONS = 4
 
@@ -131,6 +131,9 @@ TAB_PAIRS = {
 _LANGUAGE_WORDS = {
     'latin': 'la', 'greek': 'grc', 'english': 'en', 'hebrew': 'he',
     'coptic': 'cop', 'persian': 'fa', 'urdu': 'ur', 'arabic': 'ar',
+    # So Tessa can act on "search the Italian passages" now that the theme
+    # tier holds Dante, Roland and the Nibelungenlied (2026-09-01).
+    'italian': 'it', 'old french': 'fro', 'middle high german': 'gmh',
 }
 
 

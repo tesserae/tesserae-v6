@@ -58,7 +58,8 @@ _FONT_CANDIDATES = {
 }
 
 _LANG_NAME = {'la': 'Latin', 'grc': 'Greek', 'en': 'English', 'he': 'Hebrew',
-              'cop': 'Coptic', 'fa': 'Persian', 'ur': 'Urdu', 'ar': 'Arabic'}
+              'cop': 'Coptic', 'fa': 'Persian', 'ur': 'Urdu', 'ar': 'Arabic',
+              'it': 'Italian', 'fro': 'Old French', 'gmh': 'Middle High German'}
 
 _registered = False
 
