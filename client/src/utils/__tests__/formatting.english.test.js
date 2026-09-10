@@ -31,6 +31,7 @@ describe('formatReference for English tags', () => {
   it('still handles the work-first tags', () => {
     expect(formatReference('hamlet 3.1.56', 'en')).toBe('Shakespeare, Hamlet 3.1.56');
     expect(formatReference('richard iii 1.1', 'en')).toBe('Shakespeare, Richard III 1.1');
+    expect(formatReference('edgar_allan_poe.the_raven 1', 'en')).toBe('Poe, The Raven 1');
   });
 
   it('formats a range of the same work once', () => {

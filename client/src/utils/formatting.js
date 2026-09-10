@@ -110,6 +110,8 @@ const ENGLISH_WORKS = {
 const englishWorkMetadata = {
   'hamlet': { author: 'Shakespeare', title: 'Hamlet' },
   'richard iii': { author: 'Shakespeare', title: 'Richard III' },
+  // The one English tag written as a dotted file id ("edgar_allan_poe.the_raven 1").
+  'edgar_allan_poe.the_raven': { author: 'Poe', title: 'The Raven' },
   'othello': { author: 'Shakespeare', title: 'Othello' },
   'macbeth': { author: 'Shakespeare', title: 'Macbeth' },
   'lear': { author: 'Shakespeare', title: 'King Lear' },
