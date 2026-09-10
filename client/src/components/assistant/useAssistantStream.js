@@ -91,6 +91,9 @@ export default function useAssistantStream() {
           else if (evt.type === 'error') setError(evt.error || 'the assistant could not answer');
           else if (evt.type === 'done') {
             setGuardrails(evt.guardrails || { clean: true });
+            // A guard on the server may have cut a sentence after it streamed;
+            // the final event then carries the cleaned text to show instead.
+            if (typeof evt.text === 'string' && evt.text) setText(evt.text);
             setHighlight(evt.highlight || []);
             setOffer(evt.offered_variants ? (evt.offer_phrase || null) : null);
             setActions(Array.isArray(evt.actions) ? evt.actions : []);

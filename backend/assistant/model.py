@@ -158,6 +158,35 @@ def strip_unsupported_references(text, allowed_refs):
     return cleaned, removed
 
 
+# Sentences that wonder whether the later author could have read the earlier
+# text. The site's convention settles that before a search is run, and the
+# prompt says so, but a small model still reaches for the hedge ("this case
+# would be strengthened by historical context for Lucan's access to Vergil's
+# text", production, 2026-09-10). A prompt rule is advice; this is a check.
+_ACCESS_TALK = re.compile(
+    r"\b(?:access to|had access|could have (?:read|known|seen)|"
+    r"whether [^.]{0,60}\b(?:knew|read|had read|was familiar with)|"
+    r"causal link|historical context|"
+    r"familiarity with [^.]{0,40}\b(?:text|work|poem))\b", re.I)
+
+
+def strip_access_talk(text):
+    """Remove sentences that question the later author's access to the earlier
+    text. Returns (cleaned_text, removed_sentences)."""
+    if not text:
+        return text, []
+    sentences = re.split(r'(?<=[.!?])\s+', text.strip())
+    kept, removed = [], []
+    for s in sentences:
+        if _ACCESS_TALK.search(s):
+            removed.append(s)
+        else:
+            kept.append(s)
+    if removed:
+        logger.warning('[ASSISTANT] removed access-talk sentences: %s', removed)
+    return ' '.join(kept), removed
+
+
 def _normalise_ref(ref):
     return re.sub(r'[^a-z0-9.]', '', str(ref).lower())
 

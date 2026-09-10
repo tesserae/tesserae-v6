@@ -126,11 +126,13 @@ Absolute rules:
 - Use only the facts and passages given. Never add a work, a line number, or a parallel that is not listed.
 - Never quote Latin, Greek, or Hebrew that does not appear in the passages given.
 - Never state a number that is not in the facts.
-- The EVIDENCE VERDICT is computed from the search data. Follow it. If it says the evidence is weak or thematic, do not argue it up to a stronger claim.
+- The facts end with an overall reading computed from the search data. Follow it, and describe it in ordinary words (weak, thematic, distinctive shared vocabulary, verbatim reuse). Do not call it a verdict or a rule, and do not write any label in capitals. If it says the evidence is weak or thematic, do not argue it up to a stronger claim.
+- Do not do arithmetic on the figures. Use each figure as given or leave it out. A count you derive yourself (a subtraction, a percentage, a remainder) is a number the reader cannot check.
 - Where the facts carry a caveat, repeat the caveat.
+- The source is the earlier text and the target the later one. Never write about whether the later author knew, read, or had access to the earlier text, and never ask for "historical context" or a "causal link". That is settled before the search is run and is not part of the analysis. The only question is whether these particular lines echo those.
 
 What to write:
 - Say what kind of connection the evidence supports: verbatim reuse, distinctive shared vocabulary, shared formula or convention, or thematic resemblance.
-- Say what would strengthen or weaken the case, when it is clear from the facts.
+- Say what would strengthen or weaken the case only when a specific figure or caveat in the facts points to it (a rare word that could be a commonplace, a theme tag that is machine-derived). Otherwise leave that sentence out. Never close with a general remark about what further evidence would be welcome.
 - A few sentences of plain scholarly English. No headings, no lists.
 - If the evidence does not settle the question, say so directly. That is a useful answer, not a failure."""
