@@ -8,7 +8,10 @@ gutter. Backed by backend/passage_index.py.
 
 Endpoints (all GET, all under the app's API prefix):
     /passages/status                 index availability and size
-    /passages/theme-search           ?q=...&limit=&languages=&scale=
+    /passages/theme-search           ?q=...&limit=&offset=&languages=&scale=
+                                     offset pages past the normal result set --
+                                     results (offset+1) to (offset+limit) of the
+                                     same ranking. Default 0, unchanged response.
     /passages/similar                ?work=&ref_start=&ref_end=  (or ?window=)
     /passages/density                ?work=&scale=
     /passages/export                 ?q=...&format=json|csv  the same search,
@@ -36,6 +39,11 @@ logger = get_logger('blueprints.passages')
 passages_bp = Blueprint('passages', __name__)
 
 _MAX_LIMIT = 100
+# How far a Theme Search page can be paged past the normal cap. Sane rather
+# than unlimited: an offset this large already means scanning results a
+# scholar would have to be quite determined to reach, and unbounded would let
+# a request walk the whole ranking one `_rank` call at a time.
+_MAX_OFFSET = 5000
 
 
 def _int_arg(name, default, lo=1, hi=_MAX_LIMIT):
@@ -77,7 +85,9 @@ def theme_search():
     # all. An error the operator cannot read is an error they cannot fix.
     try:
         out = passage_index.find_by_text(
-            q, limit=_int_arg('limit', 25), languages=_languages(), scale=_scale())
+            q, limit=_int_arg('limit', 25),
+            offset=_int_arg('offset', 0, lo=0, hi=_MAX_OFFSET),
+            languages=_languages(), scale=_scale())
     except passage_index.EmbedUnavailable as e:
         # "cannot ask" is not "found nothing". Only one of those means the
         # corpus lacks the subject, and reporting the wrong one would be a

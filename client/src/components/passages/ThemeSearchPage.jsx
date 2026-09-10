@@ -127,6 +127,19 @@ export default function ThemeSearchPage() {
   // which sat just below the cutoff, with no way to page deeper.
   const [limit, setLimit] = useState(25);
   const [loadingMore, setLoadingMore] = useState(false);
+  // Once `limit` maxes out at 100, Show More switches from re-running the
+  // query with a bigger limit (a superset it can drop in whole) to paging
+  // with `offset`: results (pastCap+1) to (pastCap+100) of the same ranking,
+  // appended rather than replacing what is already on screen. Verified
+  // 2026-09-10: for a broad topos, passages a scholar would want -- Alan of
+  // Lille Anticlaudianus 1.73, Nonnus Dionysiaca 3.147, Seneca Oedipus 525,
+  // Pliny Letters 5.6.5 -- ranked 300 to 3,000, well past the old cap with no
+  // way to reach them.
+  const [pastCap, setPastCap] = useState(0);
+  // Set once an offset fetch comes back with nothing new, which is the only
+  // reliable signal that the ranking has run out (the confidence-band floor
+  // in _rank means the ranking can end well short of the corpus).
+  const [exhausted, setExhausted] = useState(false);
   // Display order. 'score' shows the strongest matches first, which is what
   // a search should default to: chronological-only display let weak ancient
   // matches sit above strong later ones, and pushed the (deliberately
@@ -143,7 +156,10 @@ export default function ThemeSearchPage() {
     // A fresh search blanks the page; Show more keeps the list on screen and
     // swaps in the longer one when it arrives.
     if (deepening) setLoadingMore(true);
-    else { setRunning(true); setData(null); setShowWeak(false); setLimit(25); }
+    else {
+      setRunning(true); setData(null); setShowWeak(false); setLimit(25);
+      setPastCap(0); setExhausted(false);
+    }
     setError(null);
     const langParam = lang === undefined ? language : lang;
     try {
@@ -162,6 +178,44 @@ export default function ThemeSearchPage() {
       setLoadingMore(false);
     }
   }, [running, loadingMore, data, language]);
+
+  // Show More past `limit`'s cap of 100: fetches the next 100 ranked results
+  // (offset+1 .. offset+100) and appends them. Grouping and ordering are
+  // re-derived from the full accumulated `data.results` on every render (see
+  // byWork/byBestMatch/chronological below), so appending here -- rather than
+  // replacing -- is what keeps a passage already on screen from moving: a
+  // full re-sort by score or date is idempotent on rows whose scores/dates
+  // did not change, and every appended row ranks below everything already
+  // shown.
+  const loadPastCap = useCallback(async () => {
+    if (!data || running || loadingMore) return;
+    const text = (data.query || query || '').trim();
+    if (!text) return;
+    setLoadingMore(true);
+    setError(null);
+    const nextOffset = pastCap + 100;
+    try {
+      const res = await fetch(
+        `/api/passages/theme-search?query=${encodeURIComponent(text)}`
+        + `&limit=100&offset=${nextOffset}`
+        + (language ? `&languages=${encodeURIComponent(language)}` : ''));
+      const json = await res.json();
+      if (json.error) {
+        setError(json.error);
+      } else if (!json.results || !json.results.length) {
+        // Nothing more past this point; hide the button rather than let a
+        // reader click into empty fetches.
+        setExhausted(true);
+      } else {
+        setData((prev) => ({ ...prev, results: [...(prev.results || []), ...json.results] }));
+        setPastCap(nextOffset);
+      }
+    } catch (e) {
+      setError(e.message || 'the search could not be run');
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [data, running, loadingMore, pastCap, language, query]);
 
   // Arriving from a link with the search already in it -- from Tessa, from a
   // bookmark, from a colleague. The page runs it rather than making the reader
@@ -442,10 +496,12 @@ export default function ThemeSearchPage() {
           )}
 
           {(data.confidence?.level !== 'low' || showWeak) &&
-            (data.results || []).length > 0 && limit < 100 && (
+            (data.results || []).length > 0 && !(limit >= 100 && exhausted) && (
             <div className="mt-4 text-center">
               <button
-                onClick={() => run(query, undefined, Math.min(limit + 25, 100))}
+                onClick={() => (limit < 100
+                  ? run(query, undefined, Math.min(limit + 25, 100))
+                  : loadPastCap())}
                 disabled={loadingMore}
                 className="rounded border border-gray-300 bg-white px-4 py-1.5 text-sm
                            text-gray-700 hover:border-gray-400 hover:text-gray-900
@@ -453,9 +509,14 @@ export default function ThemeSearchPage() {
               >
                 {loadingMore ? 'Loading…' : 'Show more results'}
               </button>
+              {limit >= 100 && (
+                <p className="mt-1 text-xs text-gray-500">
+                  Past the default cutoff; these are weak neighbours until read.
+                </p>
+              )}
             </div>
           )}
-          {(data.confidence?.level !== 'low' || showWeak) && limit >= 100 && (
+          {(data.confidence?.level !== 'low' || showWeak) && limit >= 100 && exhausted && (
             <p className="mt-4 text-center text-xs text-gray-500">
               End of the ranked list. Narrowing to one language shows more of it.
             </p>
