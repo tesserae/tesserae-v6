@@ -34,6 +34,16 @@ def test_verdict_is_plain_words_not_a_capitalised_code():
     assert 'verbatim reuse' in block
 
 
+def test_block_uses_plain_channel_words_and_no_passage_numbers():
+    facts = findings.summarize_results(TWO_TEXT, 'vergil.aeneid.part.1', 'lucan.bellum_civile.part.1')
+    block = findings.format_for_narration(facts, passages=TWO_TEXT)
+    assert 'edit_distance' not in block and 'lemma_min1' not in block
+    assert 'spelling' in block and 'shared words' in block
+    assert '[1]' not in block
+    assert '- verg. aen. 1.146:' in block
+    assert 'passage [1]' in prompts.ANALYZE_SYSTEM
+
+
 def test_two_text_comparison_reports_no_concentration():
     facts = findings.summarize_results(TWO_TEXT, 'vergil.aeneid.part.1', 'lucan.bellum_civile.part.1')
     assert facts['target_concentration'] == []
@@ -133,6 +143,13 @@ def test_analyze_stream_route_ends_with_done(monkeypatch):
               if line.startswith('data: ')]
     assert events[-1]['type'] == 'done', events[-1]
     assert events[-1]['guardrails']['clean'] is True
+
+
+def test_truncated_answer_is_cut_back_to_a_full_sentence():
+    text = 'The run is verbatim. The other parallels are thematic. The case for direct'
+    assert model.trim_to_sentence(text) == 'The run is verbatim. The other parallels are thematic.'
+    assert model.trim_to_sentence('Complete already.') == 'Complete already.'
+    assert model.trim_to_sentence('No sentence end at all') == 'No sentence end at all'
 
 
 def test_guard_leaves_ordinary_prose_alone():

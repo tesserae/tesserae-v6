@@ -338,6 +338,7 @@ def analyze():
     allowed = _allowed_refs(results, data.get('source'), data.get('target'))
     text, removed = model.strip_unsupported_references(text, allowed)
     text, access_removed = model.strip_access_talk(text)
+    text = model.trim_to_sentence(text)
     ok_numbers, invented = model.numbers_preserved(block, text, question)
 
     return jsonify({
@@ -430,6 +431,7 @@ def analyze_stream():
         allowed = _allowed_refs(results, data.get('source'), data.get('target'))
         cleaned, removed = model.strip_unsupported_references(text, allowed)
         cleaned, access_removed = model.strip_access_talk(cleaned)
+        cleaned = model.trim_to_sentence(cleaned)
         ok_numbers, invented = model.numbers_preserved(block, cleaned, question)
         # The words have already streamed to the page, so when a guard cut
         # something the final event carries the cleaned text and the page
@@ -439,7 +441,7 @@ def analyze_stream():
                                'access_sentences_removed': access_removed,
                                'unsupported_numbers': invented,
                                'clean': not removed and not access_removed and ok_numbers}}
-        if removed or access_removed:
+        if cleaned != text.strip():
             done['text'] = cleaned
         yield _sse('done', done)
 

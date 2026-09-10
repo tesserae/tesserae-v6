@@ -8,17 +8,9 @@ import { fetchFusionDefaultWeights } from '../../utils/api';
 // by the backend and never appear here: `quotation` (managed by the Coptic
 // biblical profile) and `syntax_structural` ("Structure"), a gated sub-channel
 // that runs together with Syntax and isn't separately tunable.
-const CHANNEL_LABELS = [
-  ['lemma', 'Shared words'],
-  ['lemma_min1', 'Single word'],
-  ['exact', 'Exact'],
-  ['sound', 'Sound'],
-  ['edit_distance', 'Spelling'],
-  ['semantic', 'Meaning'],
-  ['dictionary', 'Synonyms'],
-  ['syntax', 'Syntax'],
-  ['rare_word', 'Rare words'],
-];
+// The table itself lives in utils/channels.js, shared with the findings block
+// above the results assistant, so the two panels use one vocabulary.
+import { CHANNEL_LABELS } from '../../utils/channels';
 
 const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, language = 'la' }) => {
   const stopwordExamples = {

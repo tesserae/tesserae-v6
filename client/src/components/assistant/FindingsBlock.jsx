@@ -1,3 +1,5 @@
+import { channelLabel } from '../../utils/channels';
+
 const VERDICT_STYLE = {
   verbatim: 'bg-red-100 text-red-800',
   distinctive_lexical: 'bg-red-50 text-red-700',
@@ -58,7 +60,7 @@ export default function FindingsBlock({ facts }) {
         <div className="flex flex-wrap gap-1">
           {channels.map(([name, count]) => (
             <span key={name} className="px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 text-[10px]">
-              {name} · {count}
+              {channelLabel(name)} · {count}
             </span>
           ))}
         </div>

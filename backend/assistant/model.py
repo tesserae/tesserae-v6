@@ -207,6 +207,24 @@ def strip_access_talk(text):
     return ' '.join(kept), removed
 
 
+def trim_to_sentence(text):
+    """Cut an answer that ran out of tokens back to its last complete sentence.
+
+    The generation cap is deliberately short, and a small model asked for one
+    paragraph sometimes writes two and is cut off mid-word. A page should not
+    show "the strongest claim remains the verbatim run. The case for direct
+    reuse is strongest in the single instance of identical phrasing" with no
+    full stop.
+    """
+    if not text:
+        return text
+    t = text.rstrip()
+    if t[-1] in '.!?"”':
+        return t
+    cut = max(t.rfind('. '), t.rfind('! '), t.rfind('? '))
+    return t[:cut + 1] if cut > 0 else t
+
+
 def _normalise_ref(ref):
     return re.sub(r'[^a-z0-9.]', '', str(ref).lower())
 
