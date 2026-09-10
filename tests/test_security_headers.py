@@ -20,8 +20,14 @@ def client():
         yield client
 
 def test_security_headers_are_present(client):
-    # Make request to any endpoint (e.g. root SPA endpoint)
-    response = client.get('/')
+    # Any endpoint will do: the headers are added by an after_request hook on
+    # every response. It used to request '/', the front page, which only
+    # exists once the frontend has been built, so the test silently depended
+    # on a built bundle being present in the checkout. Once dist/ stopped
+    # being tracked (2026-09-10) a fresh checkout has no front page and the
+    # request raised NotFound. An API route needs no build.
+    response = client.get('/api/languages')
+    assert response.status_code == 200
     assert response.headers.get('X-Content-Type-Options') == 'nosniff'
     assert response.headers.get('X-Frame-Options') == 'DENY'
     # Strict-Transport-Security should be present in non-dev DEPLOYMENT_ENV
