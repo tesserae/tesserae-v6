@@ -1000,6 +1000,14 @@
     "added_by": "V6 Import"
   },
   {
+    "author": "Anthologia Graeca",
+    "work": "Anthologia Palatina",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 7000.001)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg7000/tlg001",
+    "print_source": "William Roger Paton, ed., The Greek Anthology, Loeb Classical Library, 5 vols. London: William Heinemann Ltd. / New York: G. P. Putnam's Sons, 1916-1918. (The Perseus TEI's own sourceDesc names this as its Greek-text source; see archive.org volumes greekanthology01pato etc. for the OCR scans.)",
+    "added_by": "Claude batch 2026-09-10"
+  },
+  {
     "author": "Antiphon",
     "work": "Against the Stepmother for Poisoning",
     "e_source": "Perseus",
@@ -5616,6 +5624,14 @@
     "added_by": "Caitlin Diddams"
   },
   {
+    "author": "Eberhardus Alemannus",
+    "work": "Laborintus",
+    "e_source": "archive.org (OCR text)",
+    "e_source_url": "https://archive.org/details/lesartspoetiquesdudouzfaral",
+    "print_source": "Edmond Faral, ed., Les arts poetiques du XIIe et du XIIIe siecle. Paris: Champion, 1924, pp. 336-377. Also known as Evrard the German (Eberhardus Alemannus); not to be confused with Evrard of Bethune (Evrardus Bethuniensis), author of the Graecismus grammar.",
+    "added_by": "Claude batch 2026-09-10"
+  },
+  {
     "author": "Einhardus",
     "work": "Carmina",
     "e_source": "",
@@ -6902,6 +6918,22 @@
     "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0057.tlg033/",
     "print_source": "George Helmreich, Claudii Galeni Pergameni Scripta Minora, Leipzig. Teubner. 1893, Vol. 3",
     "added_by": "V6 Import"
+  },
+  {
+    "author": "Galfridus de Vino Salvo",
+    "work": "Poetria Nova",
+    "e_source": "archive.org (OCR text)",
+    "e_source_url": "https://archive.org/details/lesartspoetiquesdudouzfaral",
+    "print_source": "Edmond Faral, ed., Les arts poetiques du XIIe et du XIIIe siecle. Paris: Champion, 1924, pp. 194-262. Also known as Geoffrey of Vinsauf.",
+    "added_by": "Claude batch 2026-09-10"
+  },
+  {
+    "author": "Galfridus de Vino Salvo",
+    "work": "Documentum de modo et arte dictandi et versificandi",
+    "e_source": "archive.org (OCR text)",
+    "e_source_url": "https://archive.org/details/lesartspoetiquesdudouzfaral",
+    "print_source": "Edmond Faral, ed., Les arts poetiques du XIIe et du XIIIe siecle. Paris: Champion, 1924, pp. 263-320. Also known as Geoffrey of Vinsauf.",
+    "added_by": "Claude batch 2026-09-10"
   },
   {
     "author": "Gellius",
@@ -9921,6 +9953,14 @@
     "added_by": "Chris Forstall"
   },
   {
+    "author": "Matthaeus Vindocinensis",
+    "work": "Ars Versificatoria",
+    "e_source": "archive.org (OCR text)",
+    "e_source_url": "https://archive.org/details/lesartspoetiquesdudouzfaral",
+    "print_source": "Edmond Faral, ed., Les arts poetiques du XIIe et du XIIIe siecle. Paris: Champion, 1924, pp. 106-193. Also known as Matthew of Vendome.",
+    "added_by": "Claude batch 2026-09-10"
+  },
+  {
     "author": "Maximianus",
     "work": "Elegiae",
     "e_source": "The Latin Library",
@@ -10497,6 +10537,14 @@
     "added_by": "Jessica Micceri"
   },
   {
+    "author": "Pentadius",
+    "work": "Carmina",
+    "e_source": "archive.org (OCR text)",
+    "e_source_url": "https://archive.org/details/pt1a2anthologial01buecuoft",
+    "print_source": "Franz Buecheler and Alexander Riese, eds., Anthologia Latina, vol. 1. Leipzig: Teubner. AL 234, 235, 265-268 (per the volume's own author index; AL 236-238 are not by Pentadius).",
+    "added_by": "Claude batch 2026-09-10"
+  },
+  {
     "author": "Persius",
     "work": "Satires",
     "e_source": "Perseus",
@@ -10575,6 +10623,14 @@
     "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/PETR_RIG%7Cauro%7C000",
     "print_source": "P. E. Beichner, 1965",
     "added_by": "M. Paccara & F. Stella (University of Siena); John James"
+  },
+  {
+    "author": "Petrus Riga",
+    "work": "De Ornatu Mundi",
+    "e_source": "Documenta Catholica Omnia (PDF scan of Patrologia Latina)",
+    "e_source_url": "http://www.documentacatholicaomnia.eu/02m/1057-1134,_Hildebertus_Turonensis_Episcopus,_De_Ornatu_Mundi,_MLT.pdf",
+    "print_source": "Patrologia Latina 171 (Migne), cols. 1235-1238, printed there under Hildebert of Lavardin's name (a known misattribution; the poem is by Peter Riga). A different, much shorter poem than Petrus Riga's Aurora.",
+    "added_by": "Claude batch 2026-09-10"
   },
   {
     "author": "Phaedrus",
@@ -12751,6 +12807,14 @@
     "e_source_url": "http://www.mqdq.it/public/testo/testo/codice/PRVD%7Capot%7C001",
     "print_source": "J. Bergman. 1926. Editing of the digital edition: G. Dalla Pietà (2010).",
     "added_by": "Caitlin Diddams"
+  },
+  {
+    "author": "Prudentius",
+    "work": "Cathemerinon",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-latinLit)",
+    "e_source_url": "https://raw.githubusercontent.com/PerseusDL/canonical-latinLit/master/data/stoa0238/stoa004/stoa0238.stoa004.perseus-lat2.xml",
+    "print_source": "H. J. Thomson, ed., Prudentius, vol. 1, Loeb Classical Library. London: William Heinemann / Cambridge, MA: Harvard University Press, 1949.",
+    "added_by": "Claude batch 2026-09-10"
   },
   {
     "author": "Prudentius",
@@ -15279,6 +15343,14 @@
     "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0199",
     "print_source": "Thucydides Historiae in Two Volumes. Oxford,\n\tOxford University Press. 1942.",
     "added_by": "V3 Legacy Import"
+  },
+  {
+    "author": "Tiberianus",
+    "work": "Carmina",
+    "e_source": "archive.org (OCR text)",
+    "e_source_url": "https://archive.org/details/poetaelatinimin00baehgoog",
+    "print_source": "Aemilius Baehrens, ed., Poetae Latini Minores, vol. 3. Leipzig: Teubner, pp. 262-269.",
+    "added_by": "Claude batch 2026-09-10"
   },
   {
     "author": "Tibullus",
