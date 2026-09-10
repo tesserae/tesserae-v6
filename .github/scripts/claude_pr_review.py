@@ -73,7 +73,8 @@ Tesserae V6 is a multi-channel intertextual search system for classical language
 3. **Risk classification.** Using the table above, what is the overall risk?
 4. **Specific things Neil should verify.** Two or three concrete items, with file:line references.
 5. **Cleanliness.** Any obvious code-quality issues, missing tests, dead code, or commented-out debug statements? Any chance of conflict with the production-deploy workflow (frontend rebuild, WSGI touch)?
-6. **Merge recommendation.** One of: ready to merge, request changes, needs Neil's judgment.
+6. **Connector parity.** Does the diff add or change a public API route (a new `@*.route(...)` outside admin/auth)? If so, flag whether `backend/blueprints/mcp_http.py` TOOLS and `backend/blueprints/mcp_manifest.py` were updated to match — `tests/test_mcp_parity.py` should fail the build if not, but call it out anyway.
+7. **Merge recommendation.** One of: ready to merge, request changes, needs Neil's judgment.
 
 # PR being reviewed
 

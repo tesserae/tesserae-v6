@@ -12,6 +12,8 @@ wrappers over the public Tesserae API (reusing the same shapes as the stdio MCP
 server), so this stays decoupled from the search internals.
 """
 import os
+import re
+import csv
 import json
 import time
 import uuid
@@ -278,6 +280,28 @@ def _fusion_params(a):
             p['min_score'] = float(a.get('min_score'))
     except (TypeError, ValueError):
         pass
+    # Two of the site's Advanced settings panel options that ARE wired into
+    # fusion search (see backend/blueprints/fusion.py fusion_search_get):
+    # per-side unit type, and per-channel weight overrides. Omitted ->
+    # 'line'/'line' with tuned default weights, identical to before these
+    # existed. NOTE: the panel's other fusion-looking controls, stoplist_size
+    # and max_distance, are NOT plumbed into fusion search anywhere in the
+    # backend (verified 2026-09-10: every fusion channel hardcodes
+    # stoplist_size=-1 in CHANNEL_CONFIGS, and max_distance has no fusion
+    # concept at all) -- they configure only the classic single-channel
+    # search the fusion tools don't call. Adding them here would tell an
+    # agent they change fusion results when nothing in the pipeline reads
+    # them, so they are deliberately left out; see the parity task report.
+    for k in ('source_unit_type', 'target_unit_type'):
+        v = (a.get(k) or '').strip().lower()
+        if v in ('line', 'phrase'):
+            p[k] = v
+    w = a.get('weights')
+    if isinstance(w, dict) and w:
+        try:
+            p['weights'] = json.dumps(w)
+        except (TypeError, ValueError):
+            pass
     return p
 
 
@@ -326,6 +350,15 @@ def _t_compare_texts(a):
     rare_words = _section(_t_rare_words, 'rare_words', 34)     # typically ~25s
     rare_phrases = _section(_t_rare_pairs, 'rare_pairs', 18)   # typically ~10s
     fusion = _fusion_poll(_fusion_params(a), max(0, _left()))
+    # Computed evidence facts (verdict/rarity/concentration, no language model)
+    # over the SAME parallels fusion just returned, before the preview slice
+    # below drops the channels/matched_words fields these facts need.
+    evidence = None
+    if fusion.get('status') == 'complete' and fusion.get('parallels'):
+        try:
+            evidence = _evidence_facts(fusion['parallels'], a.get('source'), a.get('target'))
+        except Exception as e:
+            logger.warning("compare_texts evidence_summary failed: %s", e)
     # compare_texts is a "first look" that auto-runs three sections, so keep the
     # combined payload small: cap the fusion preview to a compact top slice (deep
     # dives go through fusion_search, which pages the full set). Without this a
@@ -363,6 +396,7 @@ def _t_compare_texts(a):
         'ranked_parallels': fusion,      # fusion: strongest overall parallels
         'rare_phrases': rare_phrases,    # distinctive shared two-word collocations
         'rare_words': rare_words,        # distinctive shared individual words
+        'evidence': evidence,            # computed verdict/rarity facts, no LLM (see evidence_summary)
         # Live, interactive view of this comparison (the clickable charts) in the
         # web app -- the one visual every user gets, in every medium.
         'web_url': _compare_url(a.get('source'), a.get('target'), a.get('language', 'la')),
@@ -592,12 +626,18 @@ def _t_theme_search(a):
 
     Free-text content search: describe what you are looking for ("a city sues for
     peace and hands over hostages") and get passages whose CONTENT matches, in
-    Latin, Greek, Hebrew, and English at once.
+    Latin, Greek, Hebrew, and English at once. Pass offset to page PAST the
+    normal cutoff -- results offset+1 to offset+limit of the SAME ranking, not
+    a fresh run. Results reached only by paging come back with strong:false
+    even when the raw score would otherwise qualify, since the confidence band
+    is fitted to what the first page shows, not to how deep a caller pages.
     """
     params = {'q': a.get('query') or a.get('q') or ''}
     for k in ('limit', 'languages', 'scale'):
         if a.get(k):
             params[k] = a[k]
+    if a.get('offset'):
+        params['offset'] = a['offset']
     d = _get('/passages/theme-search', params)
     out = {'query': d.get('query'), 'confidence': d.get('confidence'),
            'strong_matches': d.get('strong_matches'), 'note': d.get('note'),
@@ -638,18 +678,46 @@ def _t_get_passage(a):
     d = _get('/passages/lines', params)
     if d.get('error'):
         return d
-    return {'work': d.get('work'), 'author': d.get('author'),
-            'title': d.get('title'), 'display_name': d.get('display_name'),
-            'language': d.get('language'),
-            'lines': d.get('lines') or [],
-            'returned': d.get('returned'), 'total': d.get('total'),
-            'capped': d.get('capped'), 'note': d.get('note'),
-            'corpus_version': d.get('corpus_version'),
-            'web_url': d.get('web_url'),
-            'presentation': ('These are the SOURCE lines, not a summary. Quote them with '
-                             'the locus shown against each line. If capped is true this is '
-                             'a bounded window, not the whole span, so say so rather than '
-                             'implying the passage ends here.')}
+    out = {'work': d.get('work'), 'author': d.get('author'),
+           'title': d.get('title'), 'display_name': d.get('display_name'),
+           'language': d.get('language'),
+           'lines': d.get('lines') or [],
+           'returned': d.get('returned'), 'total': d.get('total'),
+           'capped': d.get('capped'), 'note': d.get('note'),
+           'corpus_version': d.get('corpus_version'),
+           'web_url': d.get('web_url'),
+           'presentation': ('These are the SOURCE lines, not a summary. Quote them with '
+                            'the locus shown against each line. If capped is true this is '
+                            'a bounded window, not the whole span, so say so rather than '
+                            'implying the passage ends here.')}
+    if a.get('translation'):
+        out['translation'] = _passage_translation(a.get('work') or '', out['lines'])
+    return out
+
+
+def _passage_translation(work, lines):
+    """The aligned public-domain English for the lines get_passage just fetched,
+    via the same /passages/translation route the Reader's Translation tab
+    calls (work + the exact line refs). Always returns an `available` field,
+    even when there is none, so the caller can say so rather than the field
+    silently vanishing."""
+    refs = [l.get('ref') for l in (lines or []) if isinstance(l, dict) and l.get('ref')]
+    if not refs:
+        return {'available': False, 'reason': 'No lines to align a translation to.'}
+    try:
+        d = _get('/passages/translation', {'work': work, 'refs': '|'.join(refs)})
+    except requests.exceptions.RequestException as e:
+        return {'available': False, 'reason': f'Translation lookup failed: {e}'}
+    if not d.get('available'):
+        return {'available': False,
+                'reason': d.get('reason') or 'No aligned translation for this passage.'}
+    out = {'available': True, 'translator': d.get('translator'), 'text': d.get('text')}
+    # Coarse-alignment caveats: when the translation covers the passage in
+    # blocks rather than line-by-line, say so rather than implying a tight fit.
+    for k in ('year', 'license', 'attribution', 'approximate', 'block_only', 'note'):
+        if d.get(k) is not None:
+            out[k] = d[k]
+    return out
 
 
 def _t_similar_passages(a):
@@ -688,6 +756,155 @@ def _t_similar_passages(a):
     return out
 
 
+# --------------------------------------------------------------------------
+# describe_text: what a text is and where it came from
+# --------------------------------------------------------------------------
+_TEXT_GENRES_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    'data', 'text_genres.csv')
+_text_genres_cache = {'mtime': None, 'data': {}}
+
+
+def _text_genre_row(filename):
+    """One row of data/text_genres.csv (era/meter/genre/confidence) for a
+    .tess filename, cached against the file's mtime. Same file and same key
+    (filename) backend.fusion uses for its per-text meter lookup."""
+    try:
+        mtime = os.path.getmtime(_TEXT_GENRES_PATH)
+    except OSError:
+        return None
+    if _text_genres_cache['mtime'] != mtime:
+        data = {}
+        try:
+            with open(_TEXT_GENRES_PATH, encoding='utf-8') as f:
+                for row in csv.DictReader(f):
+                    data[row['filename']] = row
+        except (OSError, KeyError, csv.Error):
+            data = {}
+        _text_genres_cache['mtime'] = mtime
+        _text_genres_cache['data'] = data
+    return _text_genres_cache['data'].get(filename)
+
+
+def _normalize_author_date_key(value):
+    """Mirrors backend.utils.normalize_author_date_key exactly, so the
+    author_dates.json lookup here matches what /texts already used to
+    enrich the listing's year/era fields."""
+    return (value or '').strip().lower().replace(' ', '_').replace('.', '_').replace('-', '_')
+
+
+def _t_describe_text(a):
+    """Orientation for one text: what it is, where it came from, the author's
+    dates/era, and its genre -- the facts the site's Browse Corpus and Sources
+    pages carry, joined onto a single text id from list_texts.
+
+    Missing pieces (no orientation blurb written yet, no Sources entry, no
+    author-dates record, no genre row) come back null rather than dropped, so
+    the caller can tell 'not covered yet' from 'field omitted'.
+    """
+    text_id = (a.get('id') or a.get('text_id') or '').strip()
+    language = a.get('language', 'la')
+    if not text_id:
+        return {'error': 'id is required (a text id from list_texts)'}
+    filename = text_id if text_id.endswith('.tess') else f'{text_id}.tess'
+
+    texts = _get('/texts', {'language': language})
+    if isinstance(texts, dict):
+        texts = texts.get('texts') or texts.get('results') or []
+    meta = next((t for t in (texts or []) if t.get('id') == filename), None)
+    if meta is None:
+        return {'error': f'{filename!r} not found in language {language!r} (see list_texts)'}
+
+    # Orientation blurb: keyed by the base work id (no .tess, no .part.N).
+    base = re.sub(r'\.part\.\d+$', '', filename[:-len('.tess')])
+    try:
+        desc = _get('/text-descriptions', {'language': language, 'work': base})
+        description = desc.get('description') if isinstance(desc, dict) else None
+    except requests.exceptions.RequestException:
+        description = None
+
+    # Sources page entry: matched the way the site itself upserts one
+    # (backend.blueprints.admin._add_to_text_sources), on lowercased
+    # author + work display strings -- there is no shared filename key.
+    author = meta.get('author') or ''
+    work = meta.get('work') or meta.get('title') or ''
+    source = None
+    if author and work:
+        try:
+            # limit=500 (the largest page size /text-credits allows): a
+            # prolific author's works can outrun the default page.
+            credits = _get('/text-credits', {'query': author, 'limit': 500, 'offset': 0})
+            entries = (credits or {}).get('entries') or []
+            na, nw = author.strip().lower(), work.strip().lower()
+            source = next((e for e in entries
+                          if (e.get('author') or '').strip().lower() == na
+                          and (e.get('work') or '').strip().lower() == nw), None)
+        except requests.exceptions.RequestException:
+            source = None
+
+    # Author dates/era: /texts already enriches meta.year/meta.era from the
+    # same file, but fetch the record directly too so the note field (e.g.
+    # 'fl. c. 860 CE') comes through, which the enrichment drops.
+    author_dates = None
+    author_key = meta.get('author_key') or ''
+    if author_key:
+        try:
+            dates = _get('/author-dates')
+            lang_dates = (dates or {}).get(language, {}) if isinstance(dates, dict) else {}
+            author_dates = (lang_dates.get(author_key) or lang_dates.get(author_key.lower())
+                            or lang_dates.get(_normalize_author_date_key(author_key)))
+        except requests.exceptions.RequestException:
+            author_dates = None
+
+    genre_row = _text_genre_row(filename)
+    genre = None
+    if genre_row:
+        genre = {'era': genre_row.get('era') or None, 'meter': genre_row.get('meter') or None,
+                 'genre': genre_row.get('genre') or None,
+                 'confidence': genre_row.get('confidence') or None}
+
+    return {
+        'id': filename, 'author': meta.get('author'), 'work': meta.get('work'),
+        'title': meta.get('title'), 'language': language,
+        'year': meta.get('year'), 'era': meta.get('era'),
+        'description': description,
+        'source': source,
+        'author_dates': author_dates,
+        'genre': genre,
+    }
+
+
+# --------------------------------------------------------------------------
+# evidence_summary: the computed reading, no language model involved
+# --------------------------------------------------------------------------
+def _t_evidence_summary(a):
+    """The computed evidence facts for a source/target pair -- what the site's
+    own Findings panel shows, reduced from the search engine's output with NO
+    language model in the loop (backend.assistant.findings.summarize_results).
+    Runs the same fusion search fusion_search runs and shares its cache, so a
+    pair already compared here returns instantly.
+    """
+    try:
+        limit = int(a.get('limit') or 25)
+    except (TypeError, ValueError):
+        limit = 25
+    limit = max(1, min(limit, 500))
+    res = _fusion_poll(_fusion_params({**a, 'limit': limit}), _FUSION_MCP_BUDGET)
+    if res.get('status') != 'complete':
+        return res  # 'running' or 'error': same contract as fusion_search
+    return _evidence_facts(res.get('parallels') or [], a.get('source'), a.get('target'), limit)
+
+
+def _evidence_facts(parallels, source_id, target_id, limit=25):
+    from backend.assistant import findings
+    facts = findings.summarize_results(parallels, source_id=source_id, target_id=target_id,
+                                       limit=limit)
+    out = dict(facts)
+    out['reading'] = findings.VERDICT_LABELS.get(facts.get('verdict'), facts.get('verdict'))
+    out['reading_note'] = facts.get('verdict_note')
+    return out
+
+
 def _t_submit_feature_request(a):
     """File a feature/language/text/bug request. Requires explicit user sign-off
     first; feature/language/bug are auto-filed as a public GitHub issue (contact
@@ -702,7 +919,7 @@ def _t_submit_feature_request(a):
 _STR = {"type": "string"}
 TOOLS = [
     {"name": "get_languages",
-     "description": "List Tesserae's languages (la Latin, grc Greek, en English, cop Coptic) and cross-language pairs.",
+     "description": "List Tesserae's languages (la Latin, grc Greek, en English, cop Coptic, he Hebrew, where each is installed) and cross-language pairs. The set can grow, so call this rather than assuming a fixed list.",
      "inputSchema": {"type": "object", "properties": {}},
      "fn": _t_get_languages},
     {"name": "list_texts",
@@ -729,12 +946,18 @@ TOOLS = [
                      "want in plain English (\"a city surrenders, envoys hand over hostages\", \"grain "
                      "shortage and famine relief\"). Complements the word-based searches: use this when "
                      "the connection is one of subject or scene type rather than wording. Check the "
-                     "returned confidence: 'low' means the corpus does not appear to hold this subject."),
+                     "returned confidence: 'low' means the corpus does not appear to hold this subject. "
+                     "offset pages PAST the normal cutoff (results offset+1..offset+limit of the same "
+                     "ranking, not a fresh run) for when the first page doesn't have enough — genuine "
+                     "matches for a broad topos can rank in the hundreds or thousands. Paged-in results "
+                     "come back with strong:false regardless of score, since the confidence band is "
+                     "fitted to the first page."),
      "inputSchema": {"type": "object",
                      "properties": {"query": _STR,
                                     "limit": {"type": "integer"},
                                     "languages": _STR,
-                                    "scale": _STR},
+                                    "scale": _STR,
+                                    "offset": {"type": "integer"}},
                      "required": ["query"]},
      "fn": _t_theme_search},
     {"name": "get_passage",
@@ -744,12 +967,29 @@ TOOLS = [
                      "emit, e.g. work=vergil.aeneid.part.6 with ref_start='verg. aen. 6.258' "
                      "and ref_end='verg. aen. 6.270'. context widens the window by that many "
                      "lines each side. Covers every indexed language including Persian and "
-                     "Urdu, which are not reachable any other way."),
+                     "Urdu, which are not reachable any other way. Set translation:true to also "
+                     "fetch the aligned public-domain English translation the Reader shows for "
+                     "these same lines, returned as translation:{available, translator, text, "
+                     "...}; when none exists, available is false with a plain reason rather than "
+                     "the field being dropped."),
      "inputSchema": {"type": "object",
                      "properties": {"work": _STR, "ref_start": _STR, "ref_end": _STR,
-                                    "context": {"type": "integer"}},
+                                    "context": {"type": "integer"},
+                                    "translation": {"type": "boolean"}},
                      "required": ["work"]},
      "fn": _t_get_passage},
+    {"name": "describe_text",
+     "description": ("What a text IS and where it came from: the orientation description shown on "
+                     "the site, the print/electronic source citation, the author's dates and era, and "
+                     "the genre/meter classification. Give a text id from list_texts (and the same "
+                     "language). Use this before discussing an unfamiliar text, or when a user asks "
+                     "'what is this' or wants to cite an edition. Fields the corpus does not have yet "
+                     "come back null rather than omitted, so 'no orientation blurb written' is "
+                     "distinguishable from a lookup failure."),
+     "inputSchema": {"type": "object",
+                     "properties": {"id": _STR, "language": _STR},
+                     "required": ["id", "language"]},
+     "fn": _t_describe_text},
     {"name": "similar_passages",
      "description": ("Passages elsewhere in the corpus whose CONTENT resembles a given passage. Give a "
                      "work id (from list_texts) and a reference span, e.g. work=vergil.aeneid with "
@@ -773,10 +1013,27 @@ TOOLS = [
                      "required": ["source", "target", "language"]},
      "fn": _t_rare_words},
     {"name": "compare_texts",
-     "description": "Recommended for comparing two texts. Runs all three automated pairwise searches at once — fusion (ranked parallels across ten signals), rare shared phrases, and rare shared words — and returns them as labeled sections. The rare sections return immediately; the fusion section takes a few minutes on a first run, so it may come back status 'running' — call compare_texts again with the same arguments shortly to fill it in (cached afterward). Direction is symmetric (same parallels and scores either way), but for allusion study put the earlier/model text as source and the later/alluding text as target so the labels read correctly. IMPORTANT: read the response 'note' — it specifies how to present the results (one merged, interest-ranked list, not by search type).",
+     "description": "Recommended for comparing two texts. Runs all three automated pairwise searches at once — fusion (ranked parallels across ten signals), rare shared phrases, and rare shared words — and returns them as labeled sections, plus an `evidence` block of computed facts (see evidence_summary) when the fusion section is ready. The rare sections return immediately; the fusion section takes a few minutes on a first run, so it may come back status 'running' — call compare_texts again with the same arguments shortly to fill it in (cached afterward). Direction is symmetric (same parallels and scores either way), but for allusion study put the earlier/model text as source and the later/alluding text as target so the labels read correctly. IMPORTANT: read the response 'note' — it specifies how to present the results (one merged, interest-ranked list, not by search type).",
      "inputSchema": {"type": "object", "properties": {"source": _STR, "target": _STR, "language": _STR},
                      "required": ["source", "target", "language"]},
      "fn": _t_compare_texts},
+    {"name": "evidence_summary",
+     "description": ("The computed evidence facts for a source/target pair — what the site's own "
+                     "Findings panel shows — with NO language model involved: everything here is "
+                     "counted or looked up, never guessed. Runs the same fusion search fusion_search "
+                     "runs (shares its cache, so an already-compared pair returns instantly) over the "
+                     "top `limit` parallels (default 25) and reduces them to a verdict ('verbatim', "
+                     "'distinctive_lexical', 'moderate_lexical', 'thematic', or 'weak'), channel mix, "
+                     "word-rarity (IDF), and which books/sections the matches cluster in, plus `reading` "
+                     "(the verdict in plain words) and `reading_note` (what it means). Use this to ground "
+                     "a claim about how strong a case is in numbers rather than impression; state the "
+                     "verdict as a computed reading, not your own judgement. A first run on an uncached "
+                     "pair may return status 'running' like fusion_search — call again shortly."),
+     "inputSchema": {"type": "object",
+                     "properties": {"source": _STR, "target": _STR, "language": _STR,
+                                    "limit": {"type": "integer"}},
+                     "required": ["source", "target", "language"]},
+     "fn": _t_evidence_summary},
     {"name": "fusion_search",
      "description": ("Ranked fusion parallels for two texts across ten similarity signals — the passages "
                      "most likely to be genuine parallels, strongest first. Returns a page (default 100, "
@@ -794,12 +1051,21 @@ TOOLS = [
                      "earlier/model text as source and the later/alluding text as target. Present results "
                      "as one interest-ranked list of ~25, labelled as your own ordering (never as "
                      "Tesserae's), each entry quoting its fused_score/channel_count; then ask to continue "
-                     "or re-sort."),
+                     "or re-sort. Advanced settings, matching the site's search panel: source_unit_type / "
+                     "target_unit_type ('line', the default, or 'phrase') change how each text is cut "
+                     "into comparable units before matching; weights is an object of channel name to a "
+                     "number (e.g. {\"semantic\": 2.0, \"sound\": 0}) that overrides the tuned default "
+                     "weight for just those channels — channels are edit_distance, sound, exact, lemma, "
+                     "dictionary, semantic, rare_word, syntax, syntax_structural, lemma_min1, quotation. "
+                     "Omit all three for today's default behavior; a non-default combination gets its own "
+                     "cache entry, so the first run on a new combination takes the full few minutes again."),
      "inputSchema": {"type": "object",
                      "properties": {"source": _STR, "target": _STR, "language": _STR,
                                     "offset": {"type": "integer"}, "limit": {"type": "integer"},
                                     "source_ref_prefix": _STR, "target_ref_prefix": _STR,
-                                    "min_score": {"type": "number"}},
+                                    "min_score": {"type": "number"},
+                                    "source_unit_type": _STR, "target_unit_type": _STR,
+                                    "weights": {"type": "object"}},
                      "required": ["source", "target", "language"]},
      "fn": _t_fusion_search},
     {"name": "cross_language",

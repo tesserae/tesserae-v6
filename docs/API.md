@@ -85,8 +85,13 @@ Poll-able full fusion comparison of two texts — the fusion search for URL-only
 | min_score | number | — | Drop parallels scoring below this. |
 | limit | int | 100 | Page size (max 500). |
 | offset | int | 0 | Page start (0, 100, 200, …). Genuine parallels also appear below the top 100. |
+| source_unit_type | string | line | `line` or `phrase` — how the source text is cut into comparable units. Matches the site's Advanced settings panel. A non-default value gets its own cache entry (first run recomputes). |
+| target_unit_type | string | line | Same, for the target text. |
+| weights | string (JSON) | — | Per-channel weight overrides, e.g. `{"semantic":2.0,"sound":0}`. Channels: edit_distance, sound, exact, lemma, dictionary, semantic, rare_word, syntax, syntax_structural, lemma_min1, quotation. Unknown keys and non-numeric values are dropped; a non-empty override gets its own cache entry. |
 
 The completed response reports `count` (matches after filters), `total` (full set before filters), `offset`, `limit`, `showing`, and `filters`, alongside `parallels`.
+
+Note: `stoplist_size` and `max_distance`, which the site's search settings panel also shows, are NOT read by fusion search anywhere in the pipeline (every fusion channel hardcodes its own `stoplist_size`, and `max_distance` has no fusion-side meaning at all) — they configure only the classic single-channel search (`POST /api/search`). Passing them here has no effect.
 
 ---
 

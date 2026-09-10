@@ -400,23 +400,40 @@ def _poll_use_meter(source_id, target_id, language):
         return False
 
 
-def _default_fusion_cache_settings(language, max_results, use_meter=False):
-    """cache_settings for a plain default fusion search — MUST match the default
-    path of POST /search-fusion so GET and POST share the same cache entries.
-    result_version and use_meter are part of that key: the stream stamps
-    result_version=2 (single-line window dedup) and sets use_meter from the
-    request (the web sends meter-on for poetry), so both must appear here too."""
-    return {
+def _default_fusion_cache_settings(language, max_results, use_meter=False,
+                                   source_unit_type='line', target_unit_type='line',
+                                   channel_weights=None):
+    """cache_settings for a fusion search — MUST match the default path of
+    POST /search-fusion so GET and POST share the same cache entries when the
+    caller passes no overrides. result_version and use_meter are part of that
+    key: the stream stamps result_version=2 (single-line window dedup) and
+    sets use_meter from the request (the web sends meter-on for poetry), so
+    both must appear here too. source_unit_type/target_unit_type/channel_weights
+    default to the same values the plain GET call has always used, so a caller
+    that supplies none of them gets byte-identical cache keys to before this
+    was added (2026-09-10, connector parity)."""
+    settings = {
         'match_type': 'fusion',
         'result_version': 2,
         'mode': 'merged',
         'max_results': max_results,
         'language': language,
-        'source_unit_type': 'line',
-        'target_unit_type': 'line',
+        'source_unit_type': source_unit_type,
+        'target_unit_type': target_unit_type,
         'use_meter': use_meter,
         'freq_basis': 'corpus',
     }
+    # Only key on channel_weights when the caller actually supplied overrides,
+    # matching the POST route's rule, so default-weight runs keep reading the
+    # cache entries that already exist.
+    if channel_weights:
+        settings['channel_weights'] = channel_weights
+    return settings
+
+
+def _unit_type_arg(name):
+    v = (request.args.get(name) or 'line').strip().lower()
+    return v if v in ('line', 'phrase') else 'line'
 
 
 def _clean_matched_words_list(entries, language):
@@ -565,10 +582,13 @@ def _clear_fusion_status(job_key):
         pass
 
 
-def _run_fusion_job(source_id, target_id, language, max_results, job_key):
-    """Compute a default-settings fusion search and cache it (runs in a thread)."""
+def _run_fusion_job(source_id, target_id, language, max_results, job_key,
+                    source_unit_type='line', target_unit_type='line', channel_weights=None):
+    """Compute a fusion search (default settings unless overridden) and cache it
+    (runs in a thread)."""
     slot = None
     cancellation = SearchCancellation()
+    channel_weights = channel_weights or {}
     try:
         from backend.fusion import iter_fusion_search
 
@@ -588,9 +608,12 @@ def _run_fusion_job(source_id, target_id, language, max_results, job_key):
         source_path = resolve_text_path(_texts_dir, language, source_id)
         target_path = resolve_text_path(_texts_dir, language, target_id)
         use_meter = _poll_use_meter(source_id, target_id, language)
-        cache_settings = _default_fusion_cache_settings(language, max_results, use_meter)
-        source_units = _get_processed_units(source_id, language, 'line', _text_processor)
-        target_units = _get_processed_units(target_id, language, 'line', _text_processor)
+        cache_settings = _default_fusion_cache_settings(
+            language, max_results, use_meter,
+            source_unit_type=source_unit_type, target_unit_type=target_unit_type,
+            channel_weights=channel_weights)
+        source_units = _get_processed_units(source_id, language, source_unit_type, _text_processor)
+        target_units = _get_processed_units(target_id, language, target_unit_type, _text_processor)
         if not source_units or not target_units:
             raise ValueError('Could not process text units')
         final_results = []
@@ -602,7 +625,7 @@ def _run_fusion_job(source_id, target_id, language, max_results, job_key):
             mode='merged', max_results=max_results,
             source_path=source_path, target_path=target_path,
             user_settings={'use_meter': use_meter}, freq_basis='corpus',
-            channel_weights={}, enabled_channels=None,
+            channel_weights=channel_weights, enabled_channels=None,
             cancellation=cancellation,
         ):
             if slot.is_cancelled():
@@ -690,8 +713,26 @@ def fusion_search_get():
     if not source_path or not target_path:
         return jsonify({'error': 'Text files not found for that source/target/language.'}), 404
 
+    # Optional overrides matching what the web app's Advanced settings panel
+    # sends on POST /search-fusion: unit type (line/phrase) per side, and
+    # per-channel weight overrides. Absent -> identical to the pre-existing
+    # default (line/line, tuned weights), so a plain call is unaffected.
+    source_unit_type = _unit_type_arg('source_unit_type')
+    target_unit_type = _unit_type_arg('target_unit_type')
+    from backend.fusion import sanitize_channel_weights
+    raw_weights = request.args.get('weights')
+    channel_weights = {}
+    if raw_weights:
+        try:
+            channel_weights = sanitize_channel_weights(json.loads(raw_weights))
+        except (TypeError, ValueError):
+            channel_weights = {}
+
     use_meter = _poll_use_meter(source_id, target_id, language)
-    cache_settings = _default_fusion_cache_settings(language, max_results, use_meter)
+    cache_settings = _default_fusion_cache_settings(
+        language, max_results, use_meter,
+        source_unit_type=source_unit_type, target_unit_type=target_unit_type,
+        channel_weights=channel_weights)
     ensure_cache_dir()
     job_key = get_cache_key(source_id, target_id, language, cache_settings)
 
@@ -836,6 +877,8 @@ def fusion_search_get():
     threading.Thread(
         target=_run_fusion_job,
         args=(source_id, target_id, language, max_results, job_key),
+        kwargs={'source_unit_type': source_unit_type, 'target_unit_type': target_unit_type,
+                'channel_weights': channel_weights},
         daemon=True,
     ).start()
     return jsonify({'status': 'running', 'source': source_id, 'target': target_id,
