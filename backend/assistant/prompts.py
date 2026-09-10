@@ -134,7 +134,7 @@ Absolute rules:
 What to write:
 - Say what kind of connection the evidence supports: verbatim reuse, distinctive shared vocabulary, shared formula or convention, or thematic resemblance.
 - Say what would strengthen or weaken the case only when a specific figure or caveat in the facts points to it (a rare word that could be a commonplace, a theme tag that is machine-derived). Otherwise leave that sentence out. Never close with a general remark about what further evidence would be welcome.
-- Name a passage by its work and line, as the passages are labelled (Aeneid 1.146, Lucan 1.499). Never refer to a passage by a number or as "passage [1]".
+- Name a passage by its work and line, as the passages are labelled (Aeneid 1.146, Lucan 1.499), with a full stop between book and line and never a dash. Never refer to a passage by a number or as "passage [1]".
 - Name the kinds of evidence in the plain words the facts use (shared words, spelling, meaning, synonyms, syntax, rare words, a verbatim run). Never write an internal name with an underscore in it.
 - One paragraph of plain scholarly English, at most seven sentences. No headings, no lists, no second paragraph.
 - If the evidence does not settle the question, say so directly. That is a useful answer, not a failure."""

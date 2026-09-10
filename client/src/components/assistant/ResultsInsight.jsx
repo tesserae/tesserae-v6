@@ -64,10 +64,12 @@ export default function ResultsInsight({ results, source, target, className = ''
       {guardrails && !guardrails.clean && (
         <p className="text-[11px] text-amber-700 leading-snug">
           {guardrails.references_removed?.length > 0 &&
-            `A citation not present in these results was removed from the text above. `}
+            `The assistant cited a passage that is not in these results, so that citation was taken out of the text above. `}
           {guardrails.unsupported_numbers?.length > 0 &&
-            `A figure above (${guardrails.unsupported_numbers.join(', ')}) was not among the measured values. `}
-          Trust the measured figures over the prose.
+            `The text above uses a figure (${guardrails.unsupported_numbers.join(', ')}) that is not among the values measured in the box above. `}
+          {guardrails.access_sentences_removed?.length > 0 &&
+            `A sentence speculating about whether the later author knew the earlier text was taken out. `}
+          Where the text and the measured values disagree, the values are right.
         </p>
       )}
 

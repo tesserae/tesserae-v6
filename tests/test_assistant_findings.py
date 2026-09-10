@@ -152,6 +152,34 @@ def test_truncated_answer_is_cut_back_to_a_full_sentence():
     assert model.trim_to_sentence('No sentence end at all') == 'No sentence end at all'
 
 
+def test_reference_guard_removes_a_range_citation_whole():
+    # Production left "that passage–107" on the page: the guard matched
+    # "Aeneid 1.1" and not the "–107" that followed it.
+    from backend.blueprints.assistant import _allowed_refs
+    allowed = _allowed_refs(TWO_TEXT, 'vergil.aeneid.part.1.tess', 'lucan.bellum_civile.part.1.tess')
+    text = 'The construction in Aeneid 1.1–107 and Lucan 1.1–645 matches.'
+    cleaned, removed = model.strip_unsupported_references(text, allowed)
+    assert '–107' not in cleaned and '–645' not in cleaned
+    assert cleaned == 'The construction in that passage and that passage matches.'
+    assert len(removed) == 2
+
+
+def test_reference_guard_keeps_a_valid_range_citation():
+    from backend.blueprints.assistant import _allowed_refs
+    allowed = _allowed_refs(TWO_TEXT, 'vergil.aeneid.part.1.tess', 'lucan.bellum_civile.part.1.tess')
+    text = 'The storm at Aeneid 1.146–150 is echoed at Lucan 1.499.'
+    cleaned, removed = model.strip_unsupported_references(text, allowed)
+    assert cleaned == text and removed == []
+
+
+def test_number_guard_accepts_the_parts_of_a_locus():
+    block = '- verg. aen. 1.107: "..."\n  luc. 1.645: "..."'
+    ok, invented = model.numbers_preserved(block, 'Line 107 of Aeneid 1 answers line 645 of Lucan 1.')
+    assert ok and invented == []
+    ok, invented = model.numbers_preserved(block, 'All 300 parallels agree.')
+    assert not ok and invented == ['300']
+
+
 def test_guard_leaves_ordinary_prose_alone():
     text = 'The shared phrase Syrtibus aequor is rare. The evidence supports direct reuse.'
     cleaned, removed = model.strip_access_talk(text)

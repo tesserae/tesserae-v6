@@ -114,7 +114,11 @@ def stream(system, user, max_tokens=MAX_TOKENS_GUIDE, temperature=0.2):
 # 17-33%. So the model is never the source of a reference: it narrates facts we
 # computed, and anything that looks like a citation it produced on its own is
 # checked against the references we actually gave it.
-_REF_PATTERN = re.compile(r'\b([A-Z][a-z]+\.?\s+[A-Z]?[a-z]*\.?\s*\d+\.\d+)\b')
+# A citation with an optional range tail ("Aeneid 1.107–110"). The tail has
+# to be part of the match: when the guard replaced "Aeneid 1.1" and left
+# "–107" behind, the page read "that passage–107" (NC, 2026-09-10).
+_REF_PATTERN = re.compile(
+    r'\b([A-Z][a-z]+\.?\s+[A-Z]?[a-z]*\.?\s*\d+\.\d+(?:\s*[-–—]\s*\d+(?:\.\d+)?)?)\b')
 
 
 def strip_unsupported_references(text, allowed_refs):
@@ -240,7 +244,10 @@ def _ref_parts(ref):
     s = re.sub(r'[^a-z0-9. ]', ' ', str(ref).lower())
     locus = re.findall(r'\d+(?:\.\d+)*', s)
     words = {w for w in re.split(r'[ .]+', re.sub(r'\d', ' ', s)) if len(w) > 2}
-    return (locus[-1] if locus else ''), words
+    # The FIRST locus. A range ("Aeneid 1.107–110") carries its end as a
+    # second number, and comparing that to the allowed loci would strip a
+    # correct citation.
+    return (locus[0] if locus else ''), words
 
 
 # Spelled-out numbers the guard treats as claims. "one" is deliberately absent:
@@ -269,6 +276,11 @@ def numbers_preserved(source_text, generated, question=''):
     """
     source = (source_text or '') + ' ' + (question or '')
     src_nums = set(re.findall(r'\d+(?:\.\d+)?', source))
+    # The parts of a locus count too: the facts carry "verg. aen. 1.107", and
+    # a writer who says "line 107" has invented nothing.
+    for n in list(src_nums):
+        if '.' in n:
+            src_nums.update(n.split('.'))
     gen_nums = set(re.findall(r'\d+(?:\.\d+)?', generated or ''))
     invented = {n for n in gen_nums - src_nums if len(n) > 1 or float(n) > 9}
 
