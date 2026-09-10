@@ -315,7 +315,6 @@ augustine.retractationum.tess,augustine,retractationum,Late Antique,prose,theolo
 augustine.sermo_ad_caesariensis_ecclesiae_plebem.tess,augustine,sermo_ad_caesariensis_ecclesiae_plebem,Late Antique,prose,theology,auto
 augustine.sermo_de_rusticiano_subdiacono.tess,augustine,sermo_de_rusticiano_subdiacono,Late Antique,prose,theology,auto
 augustine.speculum.tess,augustine,speculum,Late Antique,prose,theology,auto
-augustine_pseudo.quaestiones_veteris_et_novi_testamenti.tess,augustine_pseudo,quaestiones_veteris_et_novi_testamenti,Late Antique,prose,theology,auto
 aurelius_victor.de_caesaribus.tess,aurelius_victor,de_caesaribus,Late Antique,prose,historiography,auto
 aurelius_victor.epitome_de_caesaribus.tess,aurelius_victor,epitome_de_caesaribus,Late Antique,prose,historiography,auto
 ausonius.cento_nuptialis.tess,ausonius,cento_nuptialis,Late Antique,hexameter,epic,auto
@@ -611,7 +610,6 @@ cyprian.de_mortalitate.tess,cyprian,de_mortalitate,Late Antique,prose,theology,a
 cyprian.de_opere_et_eleemosynis.tess,cyprian,de_opere_et_eleemosynis,Late Antique,prose,theology,auto
 cyprian.de_zelo_et_livore.tess,cyprian,de_zelo_et_livore,Late Antique,prose,theology,auto
 cyprian.epistulae.tess,cyprian,epistulae,Late Antique,prose,epistolary,auto
-cyprian.fortunatum_aut_de_exhortatione_martyrii.tess,cyprian,fortunatum_aut_de_exhortatione_martyrii,Late Antique,prose,theology,auto
 cyprian.quod_idola_dii_non_sint.tess,cyprian,quod_idola_dii_non_sint,Late Antique,prose,theology,auto
 cyprian.sententiae_episcoporum_numero_LXXXVII_de_haereticis_baptizandis.tess,cyprian,sententiae_episcoporum_numero_LXXXVII_de_haereticis_baptizandis,Late Antique,prose,theology,auto
 cyprian_pseudo.ad_flavium_felicem_de_resurrectione_mortuorum.tess,cyprian_pseudo,ad_flavium_felicem_de_resurrectione_mortuorum,Later Imperial,prose,theology,auto
@@ -649,7 +647,6 @@ cyprian_saint.de_zelo_et_livore.tess,cyprian_saint,de_zelo_et_livore,Later Imper
 cyprian_saint.epistulae.tess,cyprian_saint,epistulae,Later Imperial,prose,epistolary,auto
 cyprian_saint.quod_idola_dii_non_sint.tess,cyprian_saint,quod_idola_dii_non_sint,Later Imperial,prose,theology,auto
 cyprian_saint.sententiae_episcoporum.tess,cyprian_saint,sententiae_episcoporum,Later Imperial,prose,theology,auto
-cyprian_saint.testimoniorum_libri_tres_adversus_judaeo.tess,cyprian_saint,testimoniorum_libri_tres_adversus_judaeo,Later Imperial,prose,theology,auto
 cyprianus_cordubensis.cypriani_et_samsonis_carmina.tess,cyprianus_cordubensis,cypriani_et_samsonis_carmina,Later Imperial,unknown,medieval,auto
 cyprianus_cordubensis.cypriani_et_samsonis_carminum_appendix.tess,cyprianus_cordubensis,cypriani_et_samsonis_carminum_appendix,Later Imperial,unknown,medieval,auto
 cyprianus_gallus.heptateuchos.part.1.tess,cyprianus_gallus,heptateuchos,Late Antique,hexameter,epic,auto
@@ -812,7 +809,6 @@ hilary_saint_bishop_of_poitiers.libri_tres_adversum_valentem_et_ursacium.tess,hi
 hilary_saint_bishop_of_poitiers.oratio_synodi_sardicensis_ad_constantium.tess,hilary_saint_bishop_of_poitiers,oratio_synodi_sardicensis_ad_constantium,Late Antique,prose,theology,auto
 hilary_saint_bishop_of_poitiers.spuria.tess,hilary_saint_bishop_of_poitiers,spuria,Late Antique,prose,theology,auto
 hilary_saint_bishop_of_poitiers.tractatus_mysteriorum.tess,hilary_saint_bishop_of_poitiers,tractatus_mysteriorum,Late Antique,prose,theology,auto
-hilary_saint_bishop_of_poitiers.tractatus_super_psalmos.tess,hilary_saint_bishop_of_poitiers,tractatus_super_psalmos,Late Antique,prose,theology,auto
 hildebert_of_lavardin.carmen_in_libros_regum.part.1.tess,hildebert_of_lavardin,carmen_in_libros_regum,Medieval,unknown,medieval,auto
 hildebert_of_lavardin.carmen_in_libros_regum.part.2.tess,hildebert_of_lavardin,carmen_in_libros_regum,Medieval,unknown,medieval,auto
 hildebert_of_lavardin.carmen_in_libros_regum.part.3.tess,hildebert_of_lavardin,carmen_in_libros_regum,Medieval,unknown,medieval,auto
@@ -1074,7 +1070,6 @@ optatus_saint_bishop_of_mileve.s_optati_milevitani_libri_vii.tess,optatus_saint_
 orientius_saint.carmina.tess,orientius_saint,carmina,Late Antique,prose,christian_poetry,auto
 orientius_saint.commonitorium.tess,orientius_saint,commonitorium,Late Antique,prose,christian_poetry,auto
 orosius_paulus.commenitorium_orosii_ad_augustinum_de_er.tess,orosius_paulus,commenitorium_orosii_ad_augustinum_de_er,Late Antique,prose,theology,auto
-orosius_paulus.historiae_adversum_paganos.tess,orosius_paulus,historiae_adversum_paganos,Late Antique,prose,historiography,auto
 orosius_paulus.liber_apologeticus.tess,orosius_paulus,liber_apologeticus,Late Antique,prose,theology,auto
 ovid.amores.part.1.tess,ovid,amores,Augustan,elegiac,elegy,auto
 ovid.amores.part.2.tess,ovid,amores,Augustan,elegiac,elegy,auto
@@ -1245,7 +1240,6 @@ priscian.carmen_in_laudem_Anastasii_imperatoris.part.1.tess,priscian,carmen_in_l
 priscian.carmen_in_laudem_Anastasii_imperatoris.part.preface.tess,priscian,carmen_in_laudem_Anastasii_imperatoris.part.preface,Late Antique,prose,technical,auto
 priscian.carmen_in_laudem_Anastasii_imperatoris.tess,priscian,carmen_in_laudem_Anastasii_imperatoris,Late Antique,prose,technical,auto
 priscian.perihegesis.tess,priscian,perihegesis,Late Antique,prose,technical,auto
-priscillian.canones.tess,priscillian,canones,Late Antique,prose,theology,auto
 priscillian.tractatus_undecim.tess,priscillian,tractatus_undecim,Late Antique,prose,theology,auto
 priscillian_bishop_of_avila.canones_in_pauli_apostoli_epistula_canon.tess,priscillian_bishop_of_avila,canones_in_pauli_apostoli_epistula_canon,Late Antique,prose,theology,auto
 priscillian_bishop_of_avila.tractatus_undecim.tess,priscillian_bishop_of_avila,tractatus_undecim,Late Antique,prose,theology,auto
@@ -1293,7 +1287,6 @@ pseudo_cyprian.de_spectaculis_liber.tess,pseudo_cyprian,de_spectaculis_liber,Lat
 pseudo_cyprian.de_xii_abusionibus_saeculi.tess,pseudo_cyprian,de_xii_abusionibus_saeculi,Later Imperial,prose,theology,auto
 pseudo_cyprian.epistulae.tess,pseudo_cyprian,epistulae,Later Imperial,prose,theology,auto
 pseudo_cyprian.liber_de_aleatoribus.tess,pseudo_cyprian,liber_de_aleatoribus,Later Imperial,prose,theology,auto
-pseudo_cyprian.oratio_i.tess,pseudo_cyprian,oratio_i,Later Imperial,prose,theology,auto
 pseudo_cyprian.oratio_ii.tess,pseudo_cyprian,oratio_ii,Later Imperial,prose,theology,auto
 pseudo_eucherius.de_situ_hierusolimitanae_urbis_atque_ips.tess,pseudo_eucherius,de_situ_hierusolimitanae_urbis_atque_ips,Late Antique,prose,theology,auto
 pseudo_severus_sulpicius.epistolae_septem.tess,pseudo_severus_sulpicius,epistolae_septem,Late Antique,prose,theology,auto
@@ -1316,7 +1309,6 @@ quintilian.institutio_oratoria.part.9.tess,quintilian,institutio_oratoria,Early 
 quintilian.institutio_oratoria.tess,quintilian,institutio_oratoria,Early Imperial,prose,oratory,auto
 quintilian_pseudo.major_declamations.tess,quintilian_pseudo,major_declamations,Early Imperial,prose,oratory,auto
 remigius_of_auxerre.expositione_in_paschale_carmen.tess,remigius_of_auxerre,expositione_in_paschale_carmen,Early Medieval,prose,medieval,auto
-rufinus.interpretatio_orationem_gregorii_nazianzeni.tess,rufinus,interpretatio_orationem_gregorii_nazianzeni,Late Antique,prose,theology,auto
 rufinus_of_aquileia.interpretatio_orationum_gregorii_nazianz.tess,rufinus_of_aquileia,interpretatio_orationum_gregorii_nazianz,Late Antique,prose,theology,auto
 rufius_festus.breviarium.tess,rufius_festus,breviarium,Late Antique,prose,historiography,auto
 ruricius_i_bishop_of_limoges.epistulae.tess,ruricius_i_bishop_of_limoges,epistulae,Late Antique,prose,epistolary,auto
@@ -1428,7 +1420,6 @@ sulpicius_severus.chronica.tess,sulpicius_severus,chronica,Late Antique,prose,th
 sulpicius_severus.dialogi.tess,sulpicius_severus,dialogi,Late Antique,prose,theology,auto
 sulpicius_severus.epistula_ad_Bassulae_parenti.tess,sulpicius_severus,epistula_ad_Bassulae_parenti,Late Antique,prose,epistolary,auto
 sulpicius_severus.epistula_ad_aurelium.tess,sulpicius_severus,epistula_ad_aurelium,Late Antique,prose,epistolary,auto
-sulpicius_severus.epistula_prima_ad_eusebium.tess,sulpicius_severus,epistula_prima_ad_eusebium,Late Antique,prose,epistolary,auto
 sulpicius_severus.vita_martini.tess,sulpicius_severus,vita_martini,Late Antique,prose,theology,auto
 sulpicius_severus_pseudo.alia_epistula.tess,sulpicius_severus_pseudo,alia_epistula,Late Antique,prose,epistolary,auto
 tacitus.agricola.tess,tacitus,agricola,Early Imperial,prose,historiography,auto

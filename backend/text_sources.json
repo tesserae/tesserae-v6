@@ -2552,14 +2552,6 @@
     "added_by": "V6 Import"
   },
   {
-    "author": "Augustine Pseudo",
-    "work": "Quaestiones Veteris Et Novi Testamenti",
-    "e_source": "The Latin Library",
-    "e_source_url": "https://www.thelatinlibrary.com",
-    "print_source": "",
-    "added_by": "V6 Import"
-  },
-  {
     "author": "Aurelius Victor",
     "work": "De Caesaribus",
     "e_source": "Forum Romanum",
@@ -4473,14 +4465,6 @@
   },
   {
     "author": "Cyprian",
-    "work": "Fortunatum Aut de Exhortatione Martyrii",
-    "e_source": "The Latin Library",
-    "e_source_url": "https://www.thelatinlibrary.com",
-    "print_source": "",
-    "added_by": "V6 Import"
-  },
-  {
-    "author": "Cyprian",
     "work": "Quod Idola Dii Non Sint",
     "e_source": "Open Greek and Latin",
     "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
@@ -4788,14 +4772,6 @@
     "work": "Sententiae Episcoporum",
     "e_source": "Open Greek and Latin / CSEL",
     "e_source_url": "https://scaife.perseus.org/library/urn:cts:latinLit:stoa0104a.stoa013/",
-    "print_source": "Cyprian. Saint. S. Thasci Caecili Cypriani Opera omnia, Pars I (Corpus Scriptorum Ecclesiasticorum Latinorum, Volume 3.1). Hartel, Wilhelm von, editor. Vienna: Gerold, 1868.",
-    "added_by": "V6 Import"
-  },
-  {
-    "author": "Cyprian Saint",
-    "work": "Testimoniorum Libri Tres Adversus Judaeo",
-    "e_source": "Open Greek and Latin / CSEL",
-    "e_source_url": "https://scaife.perseus.org/library/urn:cts:latinLit:stoa0104a.stoa014/",
     "print_source": "Cyprian. Saint. S. Thasci Caecili Cypriani Opera omnia, Pars I (Corpus Scriptorum Ecclesiasticorum Latinorum, Volume 3.1). Hartel, Wilhelm von, editor. Vienna: Gerold, 1868.",
     "added_by": "V6 Import"
   },
@@ -6585,14 +6561,6 @@
   },
   {
     "author": "Galen",
-    "work": "De Naturalibus Facultatibus",
-    "e_source": "Open Greek and Latin / Scaife",
-    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0057.tlg010/",
-    "print_source": "Karl Gottlob Kühn, Claudii Galeni Opera Omnia, Leipzig. Knobloch. 1821",
-    "added_by": "V6 Import"
-  },
-  {
-    "author": "Galen",
     "work": "De Nervorum Dissectione",
     "e_source": "Open Greek and Latin / Scaife",
     "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0057.tlg014/",
@@ -7405,14 +7373,6 @@
     "e_source": "Open Greek and Latin / CSEL",
     "e_source_url": "https://scaife.perseus.org/library/urn:cts:latinLit:stoa0149b.stoa009/",
     "print_source": "Hilary, Saint, Bishop of Poitiers. S. Hilarii episcopi Pictaviensis opera (Corpus Scriptorum Ecclesiasticorum Latinorum, Volume 65.4). Feder, Alfred, editor. Vienna, Leipzig: Tempsky, Freytag, 1916.",
-    "added_by": "V6 Import"
-  },
-  {
-    "author": "Hilary Saint Bishop of Poitiers",
-    "work": "Tractatus Super Psalmos",
-    "e_source": "Open Greek and Latin / CSEL",
-    "e_source_url": "https://scaife.perseus.org/library/urn:cts:latinLit:stoa0149b.stoa001/",
-    "print_source": "Hilary, Saint, Bishop of Poitiers. S. Hilarii Episcopi Pictaviensis Tractatus super psalmos. (Corpus Scriptorum Ecclesiasticorum Latinorum, Volume 22). Zingerle, Anton, editor. Prague, Vienna, Leipzig: Tempsky, Freytag, 1891.",
     "added_by": "V6 Import"
   },
   {
@@ -10274,14 +10234,6 @@
   },
   {
     "author": "Orosius Paulus",
-    "work": "Historiae Adversum Paganos",
-    "e_source": "Open Greek and Latin / CSEL",
-    "e_source_url": "https://scaife.perseus.org/library/urn:cts:latinLit:stoa0215c.stoa001/",
-    "print_source": "Orosius, Paulus. Historiarum adversum paganos libri VII (Corpus scriptorum ecclesiasticorum latinorum, Volume 5). Zangemeister, Karl, editor. Gerold: Vienna, 1882.",
-    "added_by": "V6 Import"
-  },
-  {
-    "author": "Orosius Paulus",
     "work": "Liber Apologeticus",
     "e_source": "Open Greek and Latin / CSEL",
     "e_source_url": "https://scaife.perseus.org/library/urn:cts:latinLit:stoa0215c.stoa002/",
@@ -12722,14 +12674,6 @@
   },
   {
     "author": "Priscillian",
-    "work": "Canones",
-    "e_source": "Open Greek and Latin",
-    "e_source_url": "https://github.com/OpenGreekAndLatin/csel-dev/tree/master/data/stoa0234e",
-    "print_source": "Georg Schepps. Priscilliani Quae Supersunt, Accedit Orosii Commonitorium de Errore Priscillianistarum et Origenistarum. Vindobonae: Gerold. 1889.",
-    "added_by": "Caitlin Diddams"
-  },
-  {
-    "author": "Priscillian",
     "work": "Tractatus Undecim",
     "e_source": "Open Greek and Latin",
     "e_source_url": "https://github.com/OpenGreekAndLatin/csel-dev/tree/master/data/stoa0234e",
@@ -13030,14 +12974,6 @@
     "e_source": "Open Greek and Latin",
     "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
     "print_source": "Wilhelm August Ritter von Hartel. S. Thasci Caecili Cypriani Opera Omnia. Vindobonae: Gerold. 1871.",
-    "added_by": "Caitlin Diddams"
-  },
-  {
-    "author": "Pseudo-Cyprian",
-    "work": "Oratio I",
-    "e_source": "Open Greek and Latin",
-    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
-    "print_source": "Wilhelm August Ritter von Hartel. S. Thasci Caecili Cypriani Opera Omnia, Pars III. Vindobonae: Gerold. 1871.",
     "added_by": "Caitlin Diddams"
   },
   {
@@ -13502,14 +13438,6 @@
     "e_source": "Open Greek and Latin / CSEL",
     "e_source_url": "https://scaife.perseus.org/library/urn:cts:latinLit:stoa0241d.stoa002/",
     "print_source": "Remigius of Auxerre. Sedulii Opera omnia (Corpus Scriptorum Ecclesiasticorum Latinorum, Volume 10). Huemer, Johann, editor. Vienna: Gerold, 1885.",
-    "added_by": "V6 Import"
-  },
-  {
-    "author": "Rufinus",
-    "work": "Interpretatio Orationem Gregorii Nazianzeni",
-    "e_source": "The Latin Library",
-    "e_source_url": "https://www.thelatinlibrary.com",
-    "print_source": "",
     "added_by": "V6 Import"
   },
   {
@@ -14835,14 +14763,6 @@
   {
     "author": "Sulpicius Severus",
     "work": "Epistula ad Bassulae Parenti",
-    "e_source": "The Latin Library",
-    "e_source_url": "https://www.thelatinlibrary.com",
-    "print_source": "",
-    "added_by": "V6 Import"
-  },
-  {
-    "author": "Sulpicius Severus",
-    "work": "Epistula Prima ad Eusebium",
     "e_source": "The Latin Library",
     "e_source_url": "https://www.thelatinlibrary.com",
     "print_source": "",
