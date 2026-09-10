@@ -586,7 +586,7 @@ def _result(row, score, strong=None, extra=None):
 
 def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
           dedup=True, baseline=None, strong_at=None, exclude_span=None,
-          per_work=None, only_works=None):
+          per_work=None, only_works=None, offset=0):
     """Shared ranking: sort, filter, and collapse near-duplicate windows.
 
     Duplicates are real in this corpus: a work and its .part.N file both carry
@@ -603,6 +603,14 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
     `per_work` caps how many windows any one work may contribute, and
     `only_works` restricts the whole ranking to a chosen set. Both exist for the
     two-pass diversity in `find_by_text`; the default leaves ranking unchanged.
+
+    `offset` skips the first `offset` positions of THIS SAME ranking -- same
+    filters, same dedup, same per-work cap -- before `limit` results are
+    collected. That is what lets Theme Search page past its normal cap: page 2
+    is `_rank(scores, limit, offset=limit, ...)`, which lines up exactly with
+    what page 1 already showed, rather than a fresh ranking that happens to use
+    a bigger limit (which is how the existing 25/50/75/100 stepping works, and
+    why it tops out at 100: `_int_arg` caps `limit` itself there).
     """
     import numpy as np
     if baseline is None:
@@ -614,7 +622,13 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
     seen = {}          # work -> [(start, end)] already taken, for overlap dedup
     per_work_count = {}
     by_passage = {}       # canonical scripture span -> index into out
+    # Scripture spans consumed while skipping toward `offset`. A later
+    # duplicate of one of them (same verses, another version) has to be
+    # dropped rather than merged: the entry it would merge into was never
+    # added to `out` on this page, so there is nothing to hang it off.
+    swallowed_spans = set()
     out = []
+    rank = 0   # positions that have passed every filter; what `offset` counts
     for row in order:
         score = float(scores[row])
         if score < floor:
@@ -657,6 +671,8 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
             # The query's own passage in another version is not a finding.
             if exclude_span is not None and scripture_id.overlaps(sp, exclude_span):
                 continue
+            if sp in swallowed_spans:
+                continue
             prev = by_passage.get(sp)
             if prev is not None:
                 # Same verses, different version. Hang it off the entry already
@@ -668,6 +684,17 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
                     'score': round(score, 4),
                 })
                 continue
+
+        # Everything above has decided whether this row occupies a genuine
+        # position in the ranking (a new entry, not a duplicate or an
+        # excluded one). THAT position is what `offset` pages against.
+        if rank < offset:
+            rank += 1
+            per_work_count[work] = per_work_count.get(work, 0) + 1
+            if sp is not None:
+                swallowed_spans.add(sp)
+            continue
+        rank += 1
 
         result = _result(row, score, strong=score >= strong_at)
         if sp is not None:
@@ -981,8 +1008,22 @@ def expand_query(query):
     return forms
 
 
-def find_by_text(query, limit=25, languages=None, scale=None, expand=True):
-    """Theme Search: free-text description of the wanted content."""
+def find_by_text(query, limit=25, languages=None, scale=None, expand=True,
+                 offset=0):
+    """Theme Search: free-text description of the wanted content.
+
+    `offset` pages past the normal result set: results (offset+1) to
+    (offset+limit) of the SAME ranking, not a re-run with a different cutoff.
+    Verified 2026-09-10: passages a scholar would want for a broad topos --
+    Alan of Lille Anticlaudianus 1.73, Nonnus Dionysiaca 3.147, Seneca Oedipus
+    525, Pliny Letters 5.6.5 -- ranked 300 to 3000 for "a shaded natural spot
+    with trees, a meadow, and a spring or brook", just past where the page
+    used to stop with no way to see further. Results reached only by paging
+    past the default view have their `strong` flag forced False: the
+    confidence band was fitted to what page 1 shows, not to how deep a reader
+    chooses to page, and individual scores can still clear STRONG_LIFT this
+    deep because rank here is compressed, not confidence-ordered.
+    """
     _ensure_loaded()
     if not _state['ok']:
         return {'error': _state['error'], 'results': []}
@@ -1033,15 +1074,22 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=True):
     #
     # Measured on both "warrior arming scene" and the sentence form, with the
     # same ordering both times.
-    heads = _rank(scores, limit, languages=languages, scale=scale,
+    heads = _rank(scores, limit, offset=offset, languages=languages, scale=scale,
                   baseline=baseline, strong_at=strong_at, per_work=1)
     # Multi-language pages are composed by per-language round-robin rather
     # than one global cutoff; see _interleave_languages for the measurements
-    # behind the choice.
+    # behind the choice. `offset` shifts the pool the same way it shifts
+    # `heads`, so an offset page's language mix starts where the previous
+    # page's left off rather than repeating from the top.
     if not languages or len(languages) > 1:
-        pool = _rank(scores, limit * 6, languages=languages, scale=scale,
-                     baseline=baseline, strong_at=strong_at, per_work=1)
+        pool = _rank(scores, limit * 6, offset=offset, languages=languages,
+                     scale=scale, baseline=baseline, strong_at=strong_at,
+                     per_work=1)
         heads = _interleave_languages(heads, pool)
+    # Works, not offset: once the (offset-adjusted) set of works for this page
+    # is chosen, each one's own top passages are fetched from the start of ITS
+    # ranking within `only_works`, same as page 1 -- offset only decided WHICH
+    # works appear, not how many of a chosen work's passages to show.
     chosen = [_norm_work(r.get('work')) for r in heads]
     results = _rank(scores, limit * PASSAGES_PER_WORK, languages=languages,
                     scale=scale, baseline=baseline, strong_at=strong_at,
@@ -1051,6 +1099,10 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=True):
     rank_of = {w: n for n, w in enumerate(chosen)}
     results.sort(key=lambda r: (rank_of.get(_norm_work(r.get('work')), 10**9),
                                 -r.get('score', 0)))
+    if offset:
+        # Reached only by paging past the default view; see the docstring.
+        for r in results:
+            r['strong'] = False
     return {
         'query': query,
         'results': results,
