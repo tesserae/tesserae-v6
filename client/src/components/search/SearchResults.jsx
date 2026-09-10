@@ -517,7 +517,12 @@ const SearchResults = ({
 
     svg.append('line').attr('x1', axisW - 6).attr('x2', axisW - 6)
       .attr('y1', marginTop - 6).attr('y2', baseHeight - marginBottom).attr('stroke', '#e5e7eb');
-    svg.append('g').selectAll('text.tick').data(yScale.ticks(6)).join('text')
+    // As many year labels as the axis has room for at 9px, and never more
+    // than six. A fixed six put "1840 CE" through "1660 CE" on top of one
+    // another when the timeline held two authors and was 40px tall
+    // (NC, 2026-09-10).
+    const tickCount = Math.max(2, Math.min(6, Math.floor((baseHeight - marginTop - marginBottom) / 14)));
+    svg.append('g').selectAll('text.tick').data(yScale.ticks(tickCount)).join('text')
       .attr('x', 2).attr('y', d => yScale(d)).attr('dy', '0.32em')
       .attr('font-size', 9).attr('fill', '#9ca3af').text(d => fmtYear(d));
 

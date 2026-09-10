@@ -77,8 +77,39 @@ export const sortByLocus = (results) => {
   });
 };
 
+// The author token of an English reference tag, as written in texts/en, to the
+// name shown. Keys are lower-cased with trailing periods removed ("carr." to
+// "carr"). Every author in the English corpus as of 2026-09-10.
+const ENGLISH_AUTHORS = {
+  milton: 'Milton', keats: 'Keats', spenser: 'Spenser', blake: 'Blake',
+  bunyan: 'Bunyan', coleridge: 'Coleridge', cowper: 'Cowper',
+  ebrowning: 'Elizabeth Barrett Browning', shelley: 'Shelley',
+  wordsworth: 'Wordsworth', carr: 'Carroll', swift: 'Swift',
+  shake: 'Shakespeare', web: 'World English Bible',
+};
+
+// The work token(s) of those tags, keyed the same way (a multi-token work is
+// joined with single spaces), to the title shown. A work not listed here is
+// shown as written with its trailing periods removed, which is right for
+// "Hyperion", "Lycidas", "Comus" and every Bible book.
+const ENGLISH_WORKS = {
+  'p.l': 'Paradise Lost', 'p.r': 'Paradise Regained',
+  'il.pens': 'Il Penseroso', 'l.alleg': "L'Allegro",
+  'f.q': 'The Faerie Queene', 'p.p': "The Pilgrim's Progress",
+  'r.a.m': 'The Rime of the Ancient Mariner',
+  's.exper': 'Songs of Experience', 's.innoc': 'Songs of Innocence',
+  'alice': "Alice's Adventures in Wonderland", 'gull': "Gulliver's Travels",
+  'prelude': 'The Prelude', 'task': 'The Task', 'son': 'Sonnets',
+  'eve.st.agnes': 'The Eve of St. Agnes', 'grecian.urn': 'Ode on a Grecian Urn',
+  'ode.bards': 'Ode (Bards of Passion and of Mirth)',
+  'mermaid': 'Lines on the Mermaid Tavern', 'robin.hood': 'Robin Hood',
+  'autumn': 'To Autumn', 'melancholy': 'Ode on Melancholy',
+  'nightingale': 'Ode to a Nightingale', 'psyche': 'Ode to Psyche',
+};
+
 const englishWorkMetadata = {
   'hamlet': { author: 'Shakespeare', title: 'Hamlet' },
+  'richard iii': { author: 'Shakespeare', title: 'Richard III' },
   'othello': { author: 'Shakespeare', title: 'Othello' },
   'macbeth': { author: 'Shakespeare', title: 'Macbeth' },
   'lear': { author: 'Shakespeare', title: 'King Lear' },
@@ -573,10 +604,30 @@ export const formatReference = (ref, language = null) => {
   if (language === 'en' || (!language && /^[a-z_]+\s+[IVX\d]/i.test(cleanRef))) {
     const parts = cleanRef.split(/\s+/);
     if (parts.length >= 2) {
-      const workKey = parts[0].toLowerCase();
-      const location = formatLocation(parts.slice(1).join('.'));
-      
-      const meta = englishWorkMetadata[workKey];
+      // Most English tags name the author and then the work, often as an
+      // abbreviation with periods: "Milton P.L. 1.225", "Spenser F.Q. 1.1.1",
+      // "carr. alice. 1.12", "WEB 1 Kings 2.3". The branch below was written
+      // for the other shape, "hamlet 3.1", where the first token is the work,
+      // so on a Milton tag it took "Milton" as the work, found nothing, and
+      // joined the rest with periods: "Milton P.L..1.225", "Keats
+      // Hyperion.1.296" (NC, 2026-09-10, preparing a talk). The locus is the
+      // last token; everything before it is author and work.
+      const location = formatLocation(parts[parts.length - 1]);
+      const prefix = parts.slice(0, -1);
+      const key = (s) => s.toLowerCase().replace(/\.+$/, '');
+      const authorKey = key(prefix[0]);
+      const author = ENGLISH_AUTHORS[authorKey];
+      if (author && prefix.length >= 2) {
+        const workTokens = prefix.slice(1);
+        const workKey = workTokens.map(key).join(' ');
+        const title = ENGLISH_WORKS[workKey]
+          || (author === 'World English Bible'
+            ? workTokens.join(' ')
+            : workTokens.map((w) => w.replace(/\.+$/, '')).join(' '));
+        return appendLocation(`${author}, ${title}`, location);
+      }
+      const workKey = prefix.map(key).join(' ');
+      const meta = englishWorkMetadata[workKey] || englishWorkMetadata[key(parts[0])];
       if (meta) {
         return appendLocation(`${meta.author}, ${meta.title}`, location);
       }
