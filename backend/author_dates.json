@@ -476,6 +476,11 @@
    "note": "c. 440-390 BCE",
    "year": -390
   },
+  "anthologia_graeca": {
+   "era": "Hellenistic",
+   "note": "Anthologia Palatina; a compilation of epigrams by hundreds of poets spanning roughly the 7th c. BCE to the 10th c. CE, gathered by Constantinus Cephalas c. 900 CE and copied into the Palatine manuscript c. 940 CE; individual poets range from Hellenistic (e.g. Meleager) to early Byzantine",
+   "year": -100
+  },
   "antiphon": {
    "era": "Classical",
    "note": "c. 480-411 BCE (executed 411)",
@@ -1568,6 +1573,11 @@
    "note": "d. c. 424 CE",
    "year": 424
   },
+  "eberhard_the_german": {
+   "era": "Medieval",
+   "note": "fl. c. 1213 CE (Laborintus); Eberhardus Alemannus / Evrard the German, not to be confused with Evrardus Bethuniensis, author of the Graecismus",
+   "year": 1213
+  },
   "fardulfus": {
    "era": "Carolingian",
    "note": "d. 806 CE",
@@ -1618,6 +1628,11 @@
    "era": "Later Imperial",
    "note": "fl. c. 180 CE",
    "year": 180
+  },
+  "geoffrey_of_vinsauf": {
+   "era": "Medieval",
+   "note": "fl. c. 1200-1216 CE (Poetria Nova, Documentum)",
+   "year": 1210
   },
   "gerwardus": {
    "era": "Carolingian",
@@ -1897,6 +1912,11 @@
    "note": "d. c. 104 CE",
    "year": 104
   },
+  "matthew_of_vendome": {
+   "era": "Medieval",
+   "note": "fl. c. 1175 CE (Ars Versificatoria)",
+   "year": 1175
+  },
   "maximianus": {
    "era": "Late Antique",
    "note": "fl. c. 540 CE",
@@ -2026,6 +2046,11 @@
    "era": "Late Antique",
    "note": "d. c. 420 CE",
    "year": 420
+  },
+  "pentadius": {
+   "era": "Late Antique",
+   "note": "fl. 3rd-4th c. CE",
+   "year": 300
   },
   "persius": {
    "era": "Early Imperial",
@@ -2369,6 +2394,11 @@
    "era": "Carolingian",
    "note": "d. 821 CE",
    "year": 821
+  },
+  "tiberianus": {
+   "era": "Late Antique",
+   "note": "fl. c. 335 CE (praetorian prefect of Gaul under Constantine)",
+   "year": 335
   },
   "tibullus": {
    "era": "Augustan",
