@@ -43,6 +43,33 @@ VERDICTS = {
 
 # The same names the results panel shows (client FindingsBlock.jsx), so the
 # prose and the badge above it use one vocabulary.
+# Channel names in the words the search settings panel uses, so the prose
+# says "spelling" and "meaning" rather than "edit_distance" and "semantic".
+# The internal names leaked into the narration on production (NC, 2026-09-10).
+CHANNEL_WORDS = {
+    'lemma': 'shared words',
+    'lemma_min1': 'a single shared word',
+    'exact': 'identical words',
+    'sound': 'sound',
+    'edit_distance': 'spelling',
+    'semantic': 'meaning',
+    'dictionary': 'synonyms',
+    'syntax': 'syntax',
+    'syntax_structural': 'sentence structure',
+    'rare_word': 'rare words',
+    'quotation': 'verbatim run',
+    'context': 'content agreement',
+    'form': 'poetic form',
+    'refrain': 'refrain',
+    'rhyme': 'rhyme',
+    'meter': 'meter',
+}
+
+
+def channel_word(name):
+    return CHANNEL_WORDS.get(name, str(name).replace('_', ' '))
+
+
 VERDICT_LABELS = {
     'verbatim': 'verbatim reuse',
     'distinctive_lexical': 'distinctive shared vocabulary',
@@ -180,9 +207,9 @@ def format_for_narration(facts, passages=None, max_passages=5):
 
     ch = facts.get('channels_fired') or {}
     if ch:
-        top_ch = ', '.join(f'{k} on {v} of {facts["n_results"]}'
+        top_ch = ', '.join(f'{channel_word(k)} on {v} of {facts["n_results"]}'
                            for k, v in list(ch.items())[:6])
-        lines.append(f'- Evidence channels that fired: {top_ch}.')
+        lines.append(f'- Kinds of evidence found: {top_ch}.')
     lines.append(f"- Verbatim runs of shared words: {facts.get('verbatim_pairs', 0)} pairs.")
     lines.append(f"- Rare-word matches: {facts.get('rare_word_pairs', 0)} pairs.")
     if facts.get('mean_word_rarity_idf') is not None:
@@ -212,12 +239,14 @@ def format_for_narration(facts, passages=None, max_passages=5):
 
     if passages:
         lines.append('')
-        lines.append('PASSAGES (the only text you may quote):')
-        for i, p in enumerate(passages[:max_passages], 1):
+        lines.append('PASSAGES (the only text you may quote; name them by work and line):')
+        # No "[1]", "[2]" numbering. Given numbers, the model cited "passage
+        # [3]", which means nothing to a reader of the page.
+        for p in passages[:max_passages]:
             s = p.get('source_text') or p.get('source', {}).get('text', '')
             t = p.get('target_text') or p.get('target', {}).get('text', '')
             sr = _ref_of(p, 'source')
             tr = _ref_of(p, 'target')
-            lines.append(f'[{i}] {sr}: "{str(s)[:180]}"')
-            lines.append(f'    {tr}: "{str(t)[:180]}"')
+            lines.append(f'- {sr}: "{str(s)[:180]}"')
+            lines.append(f'  {tr}: "{str(t)[:180]}"')
     return '\n'.join(lines)
