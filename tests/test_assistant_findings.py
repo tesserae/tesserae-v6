@@ -90,6 +90,51 @@ def test_full_work_name_citations_are_allowed():
     assert removed == ['Thebaid 6.98']
 
 
+# Both analyze routes used to raise NameError on `question` after the model had
+# answered, so the non-streamed route returned 500 and the streamed one ended
+# in an error event. The model is stubbed; the point is that the routes finish.
+def _client(monkeypatch):
+    from backend.app import app
+    from backend.assistant import model as m
+    monkeypatch.setattr(m, 'is_available', lambda: True)
+    monkeypatch.setattr(m, 'complete', lambda *a, **k: 'The evidence supports verbatim reuse.')
+    monkeypatch.setattr(m, 'stream', lambda *a, **k: iter(['The evidence ', 'supports verbatim reuse.']))
+    app.testing = True
+    return app, app.test_client()
+
+
+def _path(app, endpoint):
+    for rule in app.url_map.iter_rules():
+        if rule.endpoint == endpoint:
+            return rule.rule
+    raise AssertionError(endpoint)
+
+
+def test_analyze_route_finishes_with_and_without_a_question(monkeypatch):
+    app, c = _client(monkeypatch)
+    url = _path(app, 'assistant.analyze')
+    for extra in ({}, {'question': 'Is Thebaid 6 relevant?'}):
+        r = c.post(url, json={'results': TWO_TEXT, 'source': 'vergil.aeneid.part.1.tess',
+                              'target': 'lucan.bellum_civile.part.1.tess', **extra})
+        assert r.status_code == 200, r.get_data(as_text=True)[:200]
+        body = r.get_json()
+        assert body['model_used'] is True
+        assert body['guardrails']['clean'] is True
+
+
+def test_analyze_stream_route_ends_with_done(monkeypatch):
+    import json as _json
+    app, c = _client(monkeypatch)
+    url = _path(app, 'assistant.analyze_stream')
+    r = c.post(url, json={'results': TWO_TEXT, 'source': 'vergil.aeneid.part.1.tess',
+                          'target': 'lucan.bellum_civile.part.1.tess', 'question': 'And so?'})
+    assert r.status_code == 200
+    events = [_json.loads(line[6:]) for line in r.get_data(as_text=True).splitlines()
+              if line.startswith('data: ')]
+    assert events[-1]['type'] == 'done', events[-1]
+    assert events[-1]['guardrails']['clean'] is True
+
+
 def test_guard_leaves_ordinary_prose_alone():
     text = 'The shared phrase Syrtibus aequor is rare. The evidence supports direct reuse.'
     cleaned, removed = model.strip_access_talk(text)
