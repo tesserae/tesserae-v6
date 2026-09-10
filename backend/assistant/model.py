@@ -244,7 +244,10 @@ def _ref_parts(ref):
     s = re.sub(r'[^a-z0-9. ]', ' ', str(ref).lower())
     locus = re.findall(r'\d+(?:\.\d+)*', s)
     words = {w for w in re.split(r'[ .]+', re.sub(r'\d', ' ', s)) if len(w) > 2}
-    return (locus[-1] if locus else ''), words
+    # The FIRST locus. A range ("Aeneid 1.107–110") carries its end as a
+    # second number, and comparing that to the allowed loci would strip a
+    # correct citation.
+    return (locus[0] if locus else ''), words
 
 
 # Spelled-out numbers the guard treats as claims. "one" is deliberately absent:
