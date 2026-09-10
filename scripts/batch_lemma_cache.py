@@ -150,6 +150,19 @@ class FastTextProcessor:
             lemmas.append(lemma)
         return lemmas
 
+    @staticmethod
+    def normalize_greek(token):
+        """The form the Greek lemma table and the inverted index use: no
+        diacritics, lower case, final sigma written as sigma. The server does
+        the same (backend/text_processor.py). Without this the table lookup
+        missed every accented token and the fallback kept the accents, so the
+        postings written for a new text could never match a query
+        (Greek Anthology import, 2026-09-10)."""
+        import unicodedata
+        nfkd = unicodedata.normalize('NFKD', token)
+        stripped = ''.join(c for c in nfkd if not unicodedata.combining(c))
+        return stripped.replace('ς', 'σ').lower()
+
     def greek_lemmatize(self, tokens):
         lemmas = []
         for token in tokens:
@@ -158,21 +171,22 @@ class FastTextProcessor:
                 lemmas.append(self.lemma_cache[cache_key])
                 continue
 
+            norm = self.normalize_greek(token)
             lemma = None
-            if token in self.greek_table:
+            if norm in self.greek_table:
+                lemma = self.greek_table[norm]
+            elif token in self.greek_table:
                 lemma = self.greek_table[token]
-            elif token.lower() in self.greek_table:
-                lemma = self.greek_table[token.lower()]
 
             if lemma is None and self.greek_lemmatizer:
                 try:
                     result = self.greek_lemmatizer.lemmatize([token])
-                    lemma = result[0][1] if result else token
+                    lemma = self.normalize_greek(result[0][1]) if result else norm
                 except Exception:
-                    lemma = token
+                    lemma = norm
 
             if lemma is None:
-                lemma = token
+                lemma = norm
 
             self.lemma_cache[cache_key] = lemma
             lemmas.append(lemma)
