@@ -207,7 +207,14 @@ export default function ThemeSearchPage() {
         // reader click into empty fetches.
         setExhausted(true);
       } else {
-        setData((prev) => ({ ...prev, results: [...(prev.results || []), ...json.results] }));
+        // On a multi-language page the language interleave can pull a work
+        // up from deeper in the pool, so a later page may carry a passage
+        // already on screen. Keep the first copy.
+        setData((prev) => {
+          const have = new Set((prev.results || []).map((r) => `${r.work}|${r.ref_start}|${r.ref_end}`));
+          const fresh = json.results.filter((r) => !have.has(`${r.work}|${r.ref_start}|${r.ref_end}`));
+          return { ...prev, results: [...(prev.results || []), ...fresh] };
+        });
         setPastCap(nextOffset);
       }
     } catch (e) {
