@@ -3241,11 +3241,11 @@
   },
   {
     "author": "Carmina Burana",
-    "work": "Carmina Burana (Seria, selection)",
-    "e_source": "archive.org",
-    "e_source_url": "https://archive.org/details/bub_gb_fE8gMwITr70C",
-    "print_source": "J. A. Schmeller, ed., Carmina Burana: Lateinische und deutsche Lieder und Gedichte einer Handschrift des XIII. Jahrhunderts aus Benedictbeuern (Bibliothek des Litterarischen Vereins in Stuttgart, vol. XVI). Stuttgart, 1847. A well-defined subset of the Seria section (31 of ~207 poems, those with a confirmed Schmeller number) is imported; the Amatoria/Potatoria/Lusoria section is not included in this pass.",
-    "added_by": "V6 Import (Latin satirists batch 2026-09-01)"
+    "work": "Carmina Burana",
+    "e_source": "Bibliotheca Augustana",
+    "e_source_url": "https://www.hs-augsburg.de/~harsch/Chronologia/Lspost13/CarminaBurana/bur_intr.html",
+    "print_source": "Complete collection, CB 1 to 228 with the supplement, in the Hilka, Schumann and Bernt numbering (Munich, 1979) as transcribed by Bibliotheca Augustana. Replaces the 31-poem Schmeller 1847 selection imported 2026-09-01.",
+    "added_by": "Claude batch 2026-09-10"
   },
   {
     "author": "Carmina Delphis Inventa",
