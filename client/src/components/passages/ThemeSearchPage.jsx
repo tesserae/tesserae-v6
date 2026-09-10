@@ -511,7 +511,7 @@ export default function ThemeSearchPage() {
               </button>
               {limit >= 100 && (
                 <p className="mt-1 text-xs text-gray-500">
-                  Past the default cutoff; these are weak neighbours until read.
+                  Past the default cutoff. Matches below this line are weaker.
                 </p>
               )}
             </div>
