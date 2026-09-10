@@ -10274,14 +10274,6 @@
   },
   {
     "author": "Orosius Paulus",
-    "work": "Historiae Adversum Paganos",
-    "e_source": "Open Greek and Latin / CSEL",
-    "e_source_url": "https://scaife.perseus.org/library/urn:cts:latinLit:stoa0215c.stoa001/",
-    "print_source": "Orosius, Paulus. Historiarum adversum paganos libri VII (Corpus scriptorum ecclesiasticorum latinorum, Volume 5). Zangemeister, Karl, editor. Gerold: Vienna, 1882.",
-    "added_by": "V6 Import"
-  },
-  {
-    "author": "Orosius Paulus",
     "work": "Liber Apologeticus",
     "e_source": "Open Greek and Latin / CSEL",
     "e_source_url": "https://scaife.perseus.org/library/urn:cts:latinLit:stoa0215c.stoa002/",
@@ -14835,14 +14827,6 @@
   {
     "author": "Sulpicius Severus",
     "work": "Epistula ad Bassulae Parenti",
-    "e_source": "The Latin Library",
-    "e_source_url": "https://www.thelatinlibrary.com",
-    "print_source": "",
-    "added_by": "V6 Import"
-  },
-  {
-    "author": "Sulpicius Severus",
-    "work": "Epistula Prima ad Eusebium",
     "e_source": "The Latin Library",
     "e_source_url": "https://www.thelatinlibrary.com",
     "print_source": "",
