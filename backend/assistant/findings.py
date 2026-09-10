@@ -41,6 +41,16 @@ VERDICTS = {
     'weak': 'Little beyond ordinary shared vocabulary.',
 }
 
+# The same names the results panel shows (client FindingsBlock.jsx), so the
+# prose and the badge above it use one vocabulary.
+VERDICT_LABELS = {
+    'verbatim': 'verbatim reuse',
+    'distinctive_lexical': 'distinctive shared vocabulary',
+    'moderate_lexical': 'shared vocabulary, but common',
+    'thematic': 'thematic resemblance',
+    'weak': 'weak',
+}
+
 
 def _channels_of(result):
     return set(result.get('channels') or [])
@@ -110,6 +120,14 @@ def summarize_results(results, source_id=None, target_id=None, limit=25):
     # than the same count scattered across a corpus.
     tgt_works = collections.Counter(_work_of(_ref_of(r, 'target')) for r in top)
     src_works = collections.Counter(_work_of(_ref_of(r, 'source')) for r in top)
+    # In a two-text comparison every match lands in the one target, so the
+    # count is not a finding. The narration used to report "all 25 of the
+    # top-ranked parallels landing in Lucan" for Vergil against Lucan, which
+    # could not have been otherwise (NC, 2026-09-10). Only report a spread.
+    if len(tgt_works) < 2:
+        tgt_works = collections.Counter()
+    if len(src_works) < 2:
+        src_works = collections.Counter()
 
     # Themes, when the passage index contributed them. Labelled as model-derived.
     themes = collections.Counter()
@@ -152,7 +170,12 @@ def format_for_narration(facts, passages=None, max_passages=5):
 
     lines = ['COMPUTED FACTS (calculated by the search engine, not by you):']
     if facts.get('source') and facts.get('target'):
-        lines.append(f"- Comparison: {facts['source']} against {facts['target']}")
+        # The site's convention: the source is the earlier text, the target
+        # the later one that may echo it. Said here so the model does not
+        # wonder aloud whether the later author could have read the earlier
+        # one, which for the texts in this corpus is not in question.
+        lines.append(f"- Comparison: {facts['source']} (source, the earlier text) "
+                     f"against {facts['target']} (target, the later text).")
     lines.append(f"- {facts['n_results']} top-ranked parallels examined.")
 
     ch = facts.get('channels_fired') or {}
@@ -179,7 +202,12 @@ def format_for_narration(facts, passages=None, max_passages=5):
         lines.append('- Themes shared across the matches: '
                      + ', '.join(f'{t} ({c})' for t, c in facts['shared_themes']) + '.')
         lines.append(f"- Caveat: {facts['themes_caveat']}")
-    lines.append(f"- EVIDENCE VERDICT (computed rule): {facts['verdict'].upper()}. "
+    # Plain words, not a code. This line used to read "EVIDENCE VERDICT
+    # (computed rule): VERBATIM", and the model copied the label into its
+    # prose, where a reader met a capitalized term nothing on the page
+    # explained.
+    lines.append(f"- Overall reading, computed by the engine from the figures above: "
+                 f"{VERDICT_LABELS.get(facts['verdict'], facts['verdict'])}. "
                  f"{facts['verdict_note']}")
 
     if passages:

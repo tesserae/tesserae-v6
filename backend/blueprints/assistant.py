@@ -306,6 +306,7 @@ def analyze():
             if isinstance(v, dict) and v.get('ref'):
                 allowed.append(v['ref'])
     text, removed = model.strip_unsupported_references(text, allowed)
+    text, access_removed = model.strip_access_talk(text)
     ok_numbers, invented = model.numbers_preserved(block, text, question)
 
     return jsonify({
@@ -313,8 +314,9 @@ def analyze():
         'answer': text,
         'model_used': True,
         'guardrails': {'references_removed': removed,
+                       'access_sentences_removed': access_removed,
                        'unsupported_numbers': invented,
-                       'clean': not removed and ok_numbers},
+                       'clean': not removed and not access_removed and ok_numbers},
     })
 
 
@@ -399,12 +401,20 @@ def analyze_stream():
                 v = r.get(side)
                 if isinstance(v, dict) and v.get('ref'):
                     allowed.append(v['ref'])
-        _, removed = model.strip_unsupported_references(text, allowed)
-        ok_numbers, invented = model.numbers_preserved(block, text, question)
-        yield _sse('done', {'model_used': True,
-                            'guardrails': {'references_removed': removed,
-                                           'unsupported_numbers': invented,
-                                           'clean': not removed and ok_numbers}})
+        cleaned, removed = model.strip_unsupported_references(text, allowed)
+        cleaned, access_removed = model.strip_access_talk(cleaned)
+        ok_numbers, invented = model.numbers_preserved(block, cleaned, question)
+        # The words have already streamed to the page, so when a guard cut
+        # something the final event carries the cleaned text and the page
+        # replaces what it showed. Without this the guard only wrote a log line.
+        done = {'model_used': True,
+                'guardrails': {'references_removed': removed,
+                               'access_sentences_removed': access_removed,
+                               'unsupported_numbers': invented,
+                               'clean': not removed and not access_removed and ok_numbers}}
+        if removed or access_removed:
+            done['text'] = cleaned
+        yield _sse('done', done)
 
     return Response(generate(), mimetype='text/event-stream',
                     headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no'})
