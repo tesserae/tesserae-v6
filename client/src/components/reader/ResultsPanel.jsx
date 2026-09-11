@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { chronological, dateParts } from '../../utils/chronology';
 import { LoadingSpinner } from '../common';
 import { ResultsInsight } from '../assistant';
+import { displayRef } from './refId';
 
 const LANG_LABEL = {
   la: 'Latin', grc: 'Greek', he: 'Hebrew', en: 'English', cop: 'Coptic',
@@ -516,7 +517,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
             </p>
             {(units || []).slice(selection.startIdx, selection.endIdx + 1).map((u) => (
               <p key={u.ref} className="text-sm text-gray-900 leading-relaxed">
-                <span className="text-[10px] text-gray-400 mr-2">{u.ref}</span>
+                <span className="text-[10px] text-gray-400 mr-2">{displayRef(u.ref)}</span>
                 {u.text}
               </p>
             ))}

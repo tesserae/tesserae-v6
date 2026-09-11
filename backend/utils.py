@@ -326,6 +326,7 @@ def format_short_locus(raw_ref):
 
 
 _REF_WS = re.compile(r'\s+')
+_REF_DOTS_BEFORE_LOCUS = re.compile(r'\.{2,}(?=\S)')
 _REF_DOTS = re.compile(r'\.{2,}')
 
 
@@ -350,7 +351,8 @@ def normalize_ref(ref):
     if not ref or not isinstance(ref, str):
         return ref
     s = _REF_WS.sub(' ', ref.strip())
-    s = _REF_DOTS.sub(lambda m: '. ' if m.end() < len(s) and s[m.end()] != ' ' else '.', s)
+    s = _REF_DOTS_BEFORE_LOCUS.sub('. ', s)
+    s = _REF_DOTS.sub('.', s)
     return _REF_WS.sub(' ', s).strip()
 
 # --- Unified text type classification (5-tier cascade) ---
