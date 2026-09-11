@@ -114,3 +114,32 @@ def test_line_search_carries_corpus_version(monkeypatch):
         'corpus_version': '2026-08-16'})
     out = M._t_line_search({'query': 'montibus umbrae', 'language': 'la', 'count_only': True})
     assert out['corpus_version'] == '2026-08-16'
+
+
+def test_string_search_cleans_malformed_refs(monkeypatch):
+    """Sallust's raw tag "sal.  Cat..58.15" reached Claude desktop verbatim."""
+    monkeypatch.setattr(M, '_post', lambda path, body: {
+        'total_matches': 1,
+        'results': [{'ref': 'sal.  Cat..58.15', 'author': 'Sallust',
+                     'title': 'Catilina', 'text': 'Sed ubi ...'}]})
+    out = M._t_string_search({'query': 'sed ubi', 'language': 'la'})
+    assert out['results'][0]['ref'] == 'sal. Cat. 58.15'
+
+
+def test_content_tools_clean_malformed_refs(monkeypatch):
+    row = {'work': 'sallust.catilina', 'language': 'la', 'author': 'Sallust',
+           'title': 'Catilina', 'ref_start': 'sal.  Cat..58.1',
+           'ref_end': 'sal.  Cat..58.15', 'score': 0.5, 'strong': True}
+    monkeypatch.setattr(M, '_get', lambda path, params: {
+        'query': 'x', 'results': [row],
+        'source': dict(row),
+        'lines': [{'ref': 'sal.  Cat..58.15', 'text': 'Sed ubi ...'}]})
+    ts = M._t_theme_search({'query': 'x'})
+    assert (ts['results'][0]['ref_start'], ts['results'][0]['ref_end']) == \
+        ('sal. Cat. 58.1', 'sal. Cat. 58.15')
+    sim = M._t_similar_passages({'work': 'sallust.catilina', 'ref_start': 'sal. Cat. 58.1'})
+    assert sim['source']['ref_start'] == 'sal. Cat. 58.1'
+    assert sim['results'][0]['ref_end'] == 'sal. Cat. 58.15'
+    gp = M._t_get_passage({'work': 'sallust.catilina', 'ref_start': 'sal. Cat. 58.15'})
+    assert gp['lines'] == [{'ref': 'sal. Cat. 58.15', 'text': 'Sed ubi ...'}]
+    assert M._locs([{'ref': 'pl. poen.  12', 'text': 't'}]) == [{'ref': 'pl. poen. 12', 'text': 't'}]

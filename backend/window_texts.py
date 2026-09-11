@@ -15,6 +15,7 @@ import sqlite3
 import threading
 
 from backend.logging_config import get_logger
+from backend.utils import normalize_ref
 
 logger = get_logger('window_texts')
 
@@ -68,7 +69,13 @@ def passage_lines(work, ref_start=None, ref_end=None, context=0,
         if not rows:
             return {'error': f'no text stored for work {work}', 'lines': []}
         at = {ref: o for o, ref in rows}
+        # The stored refs are the raw .tess tags, some malformed ("sal.  Cat..58.15").
+        # The connector shows the cleaned form, so accept a cleaned ref coming back.
+        for o, ref in rows:
+            at.setdefault(normalize_ref(ref), o)
         lo, hi = rows[0][0], rows[-1][0]
+        ref_start = ref_start if ref_start in at else normalize_ref(ref_start)
+        ref_end = ref_end if ref_end in at else normalize_ref(ref_end)
         i = at.get(ref_start, lo) if ref_start else lo
         j = at.get(ref_end, i) if ref_end else i
         if ref_start and ref_start not in at:
