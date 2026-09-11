@@ -642,10 +642,145 @@ def process_volume(vol, log):
     return per_book_units, per_book_eid_to_pos, expected_per_book
 
 
+# --- Loeb small-capital first word ---------------------------------------
+# The Loeb page sets the FIRST WORD of every translation in small capitals.
+# Small caps are shorter than full capitals, and this OCR reads several of
+# them, letter for letter, as if they were lower-case: most often H -> u
+# ("THE" -> "Tue", "WHEN" -> "Wuen"), and occasionally another tall letter
+# behaves the same way ("BLEST" -> "Buest", L -> u; "GUARDIAN" -> "Guarpian",
+# D -> p). The table below is restricted to cases confirmed by reading the
+# rest of the sentence -- each entry either matches the coordinator's own
+# list outright, or was checked here against its actual context (logged
+# case by case in the research thread) before being added. Two spellings are
+# kept for "whether" ("Wueruer", "Wuertuer") because this OCR did not
+# converge on one rendering of the double H. Deliberately EXCLUDED: "Curist"
+# (Christ), "Luxe" (Luke) and "Tueses" (Thebes, confirmed by context, not
+# "these") are all proper names and left untouched, per instruction; "Fue",
+# "Suep", "Aut-wisE" and other one-off, low-confidence strings are also left
+# untouched rather than guessed.
+FIRST_WORD_REPAIRS = {
+    'Tue': 'The', 'Wuen': 'When', 'Ir': 'If', 'Tuis': 'This', 'Tuou': 'Thou',
+    'Wuart': 'What', 'Wuo': 'Who', 'Tuus': 'Thus', 'Wuy': 'Why',
+    'Wuere': 'Where', 'Wuether': 'Whether', 'Tuese': 'These', 'Tuere': 'There',
+    'Tuey': 'They', 'Tuen': 'Then', 'Wuile': 'While',
+    # additional cases verified from their own sentence context:
+    'Tuts': 'This', 'Tus': 'This', 'Sue': 'She', 'Buest': 'Blest',
+    'Wuite': 'White', 'Guarpian': 'Guardian', 'Wueruer': 'Whether',
+    'Wuertuer': 'Whether',
+}
+FIRST_WORD_RE = re.compile(r'^(\W*)([A-Za-z]+)(.*)$', re.DOTALL)
+
+
+def repair_first_word(unit, counts):
+    m = FIRST_WORD_RE.match(unit)
+    if not m:
+        return unit
+    lead, word, rest = m.groups()
+    repl = FIRST_WORD_REPAIRS.get(word)
+    if repl is None:
+        return unit
+    counts[word] += 1
+    return lead + repl + rest
+
+
+# --- English-likeness test -------------------------------------------------
+# Some units are Greek-page OCR that leaked through as if they were the
+# English heading's body (see the module docstring on why that happens).
+# Others are a genuine English opening followed by leaked Greek/footnote
+# text appended after it (the marker boundary between one epigram's real
+# body and the next heading was missed) -- still wrong to show whole, since
+# the reader would see Greek text under "Translation". Both are caught the
+# same way: real Paton prose is dense with ordinary English function words
+# (the, and, of, who, this...) at a remarkably stable rate; transliterated
+# Greek is not, even where individual tokens coincidentally resemble English
+# words often enough to fool a general-vocabulary check (tried first here,
+# and abandoned: at any threshold that did not also start rejecting real,
+# short, proper-noun-heavy epigrams, the two categories overlapped too much
+# to separate). Function-word DENSITY does not have that problem: measured
+# across the two examples flagged for review here (7.607, 14.141) it sits at
+# 0.03-0.05; every real spot-check and a broad manual sample of clean units
+# sits at 0.3 or higher, and the handful of units found in the 0.10-0.15
+# band on inspection all turned out to be exactly the "good opening + leaked
+# Greek tail" case, not clean text -- so the floor is set at 0.15, with a
+# cap on no-vowel tokens (another mark of letter-salad OCR) as a second,
+# mostly redundant check.
+STOPWORDS_EN = frozenset("""
+the and for are but not you all any can had her was one our out day get has
+him his how man new now old see two way who about after again also always
+among another around as at away be because been before began begin being
+below between both by call came can cannot could did do does down each even
+every first from further gave get gets give given he here him himself
+however i if in into is it its itself let like made make many may me might
+more most much must my myself never no nor now of off on once only or other
+our ours own same she should since so some such than that their them
+themselves then there these they this those thou thy thee thus to too under
+until up upon us we were what when where which while who whom whose why
+will with within without would your yourself
+""".split())
+NOVOWEL_RE = re.compile(r'[aeiouyAEIOUY]')
+ENGLISH_MIN_TOKENS = 6
+ENGLISH_DENSITY_FLOOR = 0.15
+ENGLISH_NOVOWEL_CAP = 0.30
+
+
+def english_likeness(unit):
+    """(is_english, density, novowel_frac, n_tokens). Units with too few
+    tokens to judge reliably are passed (True) rather than guessed at."""
+    toks = re.findall(r"[A-Za-z']+", unit)
+    toks3 = [t for t in toks if len(t) >= 3]
+    if len(toks3) < ENGLISH_MIN_TOKENS:
+        return True, None, None, len(toks3)
+    stop_hits = sum(1 for t in toks if t.lower() in STOPWORDS_EN)
+    density = stop_hits / len(toks)
+    novowel = sum(1 for t in toks3 if not NOVOWEL_RE.search(t))
+    novowel_frac = novowel / len(toks3)
+    ok = density >= ENGLISH_DENSITY_FLOOR and novowel_frac <= ENGLISH_NOVOWEL_CAP
+    return ok, density, novowel_frac, len(toks3)
+
+
+def clean_book_units(book_n, units, eid_to_pos, greek_refs, repair_counts, log):
+    """Repair the first-word small-caps OCR, then drop any unit that fails
+    the English-likeness test, compacting positions and remapping eid ->
+    position (and the refs that pointed at each dropped position, for the
+    log) accordingly. Only removes units; never invents or merges text."""
+    units = [repair_first_word(u, repair_counts) for u in units]
+
+    pos_to_refs = {}
+    for ref, gtext in greek_refs:
+        eid = epigram_id_of(ref)
+        pos = eid_to_pos.get(eid)
+        if pos is not None:
+            pos_to_refs.setdefault(pos, []).append(ref)
+
+    keep_remap = {}  # old pos -> new pos
+    new_units = []
+    for pos, u in enumerate(units):
+        ok, density, novowel_frac, n_tok = english_likeness(u)
+        if ok:
+            keep_remap[pos] = len(new_units)
+            new_units.append(u)
+        else:
+            log['dropped_non_english_units'].append({
+                'book': book_n, 'refs': pos_to_refs.get(pos, []),
+                'first_60_chars': u[:60],
+                'density': round(density, 3) if density is not None else None,
+                'novowel_frac': round(novowel_frac, 3) if novowel_frac is not None else None,
+                'n_tokens': n_tok})
+
+    new_eid_to_pos = {}
+    for eid, pos in eid_to_pos.items():
+        if pos in keep_remap:
+            new_eid_to_pos[eid] = keep_remap[pos]
+        # else: the unit this epigram pointed to was dropped -> unmatched
+    return new_units, new_eid_to_pos
+
+
 def main():
     os.makedirs(OUT_DIR, exist_ok=True)
     log = {'numeral_repairs': [], 'spurious_markers': [], 'skipped_missing': [],
-           'lettered_attached': [], 'duplicate_headings_dropped': [], 'wide_jumps': []}
+           'lettered_attached': [], 'duplicate_headings_dropped': [], 'wide_jumps': [],
+           'dropped_non_english_units': []}
+    repair_counts = Counter()
 
     report_rows = []
     all_per_book_units = {}
@@ -665,6 +800,8 @@ def main():
         greek_refs = load_greek_refs(book_n)
         units = all_per_book_units[book_n]
         eid_to_pos = all_per_book_eid_to_pos[book_n]  # epigram id -> unit position, this book only
+        units, eid_to_pos = clean_book_units(
+            book_n, units, eid_to_pos, greek_refs, repair_counts, log)
 
         ref_to_unit = {}
         n_translated_refs = 0
@@ -776,7 +913,17 @@ def main():
     print('lettered epigrams attached to base:', len(log['lettered_attached']))
     print('spurious markers (unmatched found headings):', len(log['spurious_markers']))
     print('epigrams never matched (real gaps):', len(log['skipped_missing']))
+    print('non-English units dropped:', len(log['dropped_non_english_units']))
+    print('first-word small-caps repairs, by replacement:')
+    for word, repl in FIRST_WORD_REPAIRS.items():
+        c = repair_counts.get(word, 0)
+        if c:
+            print('   %-10s -> %-8s  %d' % (word, repl, c))
+    zero = [w for w in FIRST_WORD_REPAIRS if not repair_counts.get(w, 0)]
+    if zero:
+        print('   (0 occurrences):', ', '.join(zero))
 
+    log['first_word_repairs'] = {w: repair_counts.get(w, 0) for w in FIRST_WORD_REPAIRS}
     json.dump(log, open(os.path.join(HERE, 'align_anthologia_graeca_log.json'), 'w'),
                ensure_ascii=False, indent=1)
     json.dump(report_rows, open(os.path.join(HERE, 'align_anthologia_graeca_report.json'), 'w'),
