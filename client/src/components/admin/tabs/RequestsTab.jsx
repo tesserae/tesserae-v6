@@ -1,26 +1,38 @@
 import { useMemo, useState } from 'react';
 import { LANG_NAMES } from '../adminConstants';
 
+const REQUEST_STATUSES = ['pending', 'approved', 'rejected', 'completed'];
+
+// Sort order in the table: work still to do first, finished work last.
+const STATUS_WEIGHT = { pending: 0, rejected: 1, approved: 2, completed: 3 };
+
+const STATUS_BADGE = {
+  pending: 'bg-amber-100 text-amber-700',
+  approved: 'bg-blue-100 text-blue-700',
+  rejected: 'bg-red-100 text-red-700',
+  completed: 'bg-green-100 text-green-700'
+};
+
 export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [editingRequest, setEditingRequest] = useState(null);
   const [savingRequest, setSavingRequest] = useState(false);
   const [tessPreview, setTessPreview] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [hideCompleted, setHideCompleted] = useState(true);
 
   const normalizedStatus = (status) => (status || 'pending').toLowerCase();
 
   const filteredAndSortedRequests = useMemo(() => {
     const filtered = textRequests.filter((request) => {
-      if (statusFilter === 'all') return true;
-      return normalizedStatus(request.status) === statusFilter;
+      const s = normalizedStatus(request.status);
+      if (statusFilter !== 'all') return s === statusFilter;
+      return !(hideCompleted && s === 'completed');
     });
 
     const statusWeight = (status) => {
       const s = normalizedStatus(status);
-      if (s === 'pending') return 0;
-      if (s === 'approved') return 2;
-      return 1;
+      return STATUS_WEIGHT[s] !== undefined ? STATUS_WEIGHT[s] : 1;
     };
 
     return [...filtered].sort((a, b) => {
@@ -31,7 +43,7 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
       const bTime = new Date(b.created_at || 0).getTime();
       return bTime - aTime;
     });
-  }, [textRequests, statusFilter]);
+  }, [textRequests, statusFilter, hideCompleted]);
 
   const parseApiResponse = async (response, fallbackMessage) => {
     let data = null;
@@ -61,6 +73,21 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
     }
   };
 
+  const setRequestStatus = async (requestId, status) => {
+    try {
+      const res = await fetch(`/api/admin/requests/${requestId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
+        body: JSON.stringify({ status })
+      });
+      await parseApiResponse(res, 'Failed to update request status');
+      onRefresh();
+    } catch (err) {
+      window.alert(err.message || 'Failed to update request status');
+      console.error('Failed to update request status:', err);
+    }
+  };
+
   const deleteRequest = async (requestId) => {
     if (!window.confirm('Are you sure you want to delete this text request? This cannot be undone.')) {
       return;
@@ -86,6 +113,7 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
       official_work: request.official_work || request.work || '',
       approved_filename: request.approved_filename || request.suggested_filename || '',
       text_date: request.text_date || '',
+      status: normalizedStatus(request.status),
       admin_notes: request.admin_notes || '',
       content: request.content || '',
       author_era: request.author_era || '',
@@ -121,6 +149,7 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
     try {
       const normalize = (v) => (v === null || v === undefined ? '' : String(v));
       const hasChanges = [
+        'status',
         'official_author',
         'official_work',
         'approved_filename',
@@ -162,6 +191,7 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
     try {
       const normalize = (v) => (v === null || v === undefined ? '' : String(v));
       const hasChanges = [
+        'status',
         'official_author',
         'official_work',
         'approved_filename',
@@ -252,11 +282,21 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
                 className="border rounded px-2 py-1 text-sm"
               >
                 <option value="all">All</option>
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
+                {REQUEST_STATUSES.map(s => (
+                  <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+                ))}
               </select>
             </div>
+            <label className="flex items-center gap-1.5 text-xs text-gray-500">
+              <input
+                type="checkbox"
+                checked={hideCompleted}
+                disabled={statusFilter !== 'all'}
+                onChange={e => setHideCompleted(e.target.checked)}
+                className="rounded h-3.5 w-3.5 disabled:opacity-40"
+              />
+              Hide completed
+            </label>
           </div>
         </div>
 
@@ -284,9 +324,7 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
                 <tr key={request.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => openRequestDetails(request)}>
                   <td className="px-3 py-2 whitespace-nowrap">
                     <span className={`px-2 py-0.5 text-xs rounded ${
-                      request.status === 'approved' ? 'bg-amber-100 text-amber-700' :
-                      request.status === 'rejected' ? 'bg-red-100 text-red-700' :
-                      'bg-amber-100 text-amber-700'
+                      STATUS_BADGE[normalizedStatus(request.status)] || STATUS_BADGE.pending
                     }`}>
                       {request.status || 'pending'}
                     </span>
@@ -301,12 +339,29 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
                     {request.admin_updated_at ? new Date(request.admin_updated_at).toLocaleString() : '-'}
                   </td>
                   <td className="px-3 py-2 whitespace-nowrap">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); openRequestDetails(request); }}
-                      className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
-                    >
-                      Review
-                    </button>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); openRequestDetails(request); }}
+                        className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                      >
+                        Review
+                      </button>
+                      {normalizedStatus(request.status) === 'completed' ? (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setRequestStatus(request.id, 'pending'); }}
+                          className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                        >
+                          Reopen
+                        </button>
+                      ) : (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setRequestStatus(request.id, 'completed'); }}
+                          className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200"
+                        >
+                          Mark complete
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -367,6 +422,18 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <select
+                    value={editingRequest.status}
+                    onChange={e => setEditingRequest(prev => ({ ...prev, status: e.target.value }))}
+                    className="w-full border rounded px-3 py-2 text-sm"
+                  >
+                    {REQUEST_STATUSES.map(s => (
+                      <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
+                    ))}
+                  </select>
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Language</label>
                   <div className="px-3 py-2 bg-gray-100 rounded text-sm">
