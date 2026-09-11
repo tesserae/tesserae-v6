@@ -46,3 +46,20 @@ def test_resolve_text_path_matches_unicode_normalization_variants(tmp_path):
 
     assert resolved is not None
     assert unicodedata.normalize('NFC', os.path.basename(resolved)) == filename_nfc
+
+
+def test_normalize_ref_repairs_doubled_period_and_double_space():
+    # Sallust's tags read "<sal.  Cat..58.15>": the second period stands in
+    # for the space before the locus. Claude desktop quoted it verbatim.
+    assert utils.normalize_ref('sal.  Cat..58.15') == 'sal. Cat. 58.15'
+    assert utils.normalize_ref('hp. Epid..1.1.1') == 'hp. Epid. 1.1.1'
+    assert utils.normalize_ref('pl. poen.  1') == 'pl. poen. 1'
+    assert utils.normalize_ref('sen. her. o.  0-4') == 'sen. her. o. 0-4'
+
+
+def test_normalize_ref_leaves_well_formed_refs_alone():
+    for ref in ('hom. il. 1.1', 'verg. aen. 6.258', '35.23', 'A.R. 1.1',
+                'hebrew_bible.isaiah.34.11'):
+        assert utils.normalize_ref(ref) == ref
+    assert utils.normalize_ref('') == ''
+    assert utils.normalize_ref(None) is None

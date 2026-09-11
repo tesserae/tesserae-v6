@@ -23,6 +23,8 @@ from urllib.parse import quote
 import requests
 from flask import Blueprint, request, jsonify, Response
 
+from backend.utils import normalize_ref
+
 logger = logging.getLogger(__name__)
 mcp_http_bp = Blueprint('mcp_http', __name__)
 
@@ -143,7 +145,7 @@ def _t_line_search(a):
     if d.get('capped'):
         out['total_at_least'] = d.get('total_at_least', d.get('total'))
     if not count_only:
-        out['results'] = [{'locus': r.get('locus'), 'author': r.get('author'),
+        out['results'] = [{'locus': normalize_ref(r.get('locus')), 'author': r.get('author'),
                            'work': r.get('work'), 'text': r.get('text'),
                            'matched_words': r.get('matched_words'),
                            # era + year let you chart WHERE ACROSS TIME the phrase
@@ -159,7 +161,7 @@ def _t_line_search(a):
 def _t_string_search(a):
     d = _post('/wildcard-search', {'query': a.get('query', ''), 'language': a.get('language', 'la')})
     return {'query': a.get('query'), 'total_matches': d.get('total_matches'),
-            'results': [{'ref': r.get('ref') or r.get('reference'), 'author': r.get('author'),
+            'results': [{'ref': normalize_ref(r.get('ref') or r.get('reference')), 'author': r.get('author'),
                          'title': r.get('title'), 'text': r.get('text')}
                         for r in (d.get('results') or [])[:40]]}
 
@@ -175,12 +177,12 @@ def _locs(entries, k=3):
             ref = e.get('ref')
             if not ref:
                 continue
-            item = {'ref': ref}
+            item = {'ref': normalize_ref(ref)}
             if e.get('text'):
                 item['text'] = e['text']
             out.append(item)
         elif e:
-            out.append({'ref': e})
+            out.append({'ref': normalize_ref(e)})
     return out
 
 
@@ -648,7 +650,8 @@ def _t_theme_search(a):
                         'author': r.get('author'), 'title': r.get('title'),
                         'display_name': r.get('display_name'),
                         'date': r.get('date_note') or r.get('year'),
-                        'ref_start': r.get('ref_start'), 'ref_end': r.get('ref_end'),
+                        'ref_start': normalize_ref(r.get('ref_start')),
+                        'ref_end': normalize_ref(r.get('ref_end')),
                         'score': r.get('score'), 'strong': r.get('strong'),
                         'gist': r.get('gist'), 'themes': r.get('themes')}
                        for r in (d.get('results') or [])]}
@@ -681,7 +684,8 @@ def _t_get_passage(a):
     out = {'work': d.get('work'), 'author': d.get('author'),
            'title': d.get('title'), 'display_name': d.get('display_name'),
            'language': d.get('language'),
-           'lines': d.get('lines') or [],
+           'lines': [dict(l, ref=normalize_ref(l.get('ref'))) if isinstance(l, dict) else l
+                     for l in (d.get('lines') or [])],
            'returned': d.get('returned'), 'total': d.get('total'),
            'capped': d.get('capped'), 'note': d.get('note'),
            'corpus_version': d.get('corpus_version'),
@@ -691,7 +695,8 @@ def _t_get_passage(a):
                             'a bounded window, not the whole span, so say so rather than '
                             'implying the passage ends here.')}
     if a.get('translation'):
-        out['translation'] = _passage_translation(a.get('work') or '', out['lines'])
+        # The translation route keys on the stored refs, so pass the raw lines.
+        out['translation'] = _passage_translation(a.get('work') or '', d.get('lines') or [])
     return out
 
 
@@ -739,14 +744,17 @@ def _t_similar_passages(a):
             params[k] = a[k]
     d = _get('/passages/similar', params)
     src = d.get('source') or {}
-    out = {'source': {'work': src.get('work'), 'ref_start': src.get('ref_start'),
-                      'ref_end': src.get('ref_end'), 'gist': src.get('gist')},
+    out = {'source': {'work': src.get('work'),
+                      'ref_start': normalize_ref(src.get('ref_start')),
+                      'ref_end': normalize_ref(src.get('ref_end')),
+                      'gist': src.get('gist')},
            'confidence': d.get('confidence'),
            'results': [{'work': r.get('work'), 'language': r.get('language'),
                         'author': r.get('author'), 'title': r.get('title'),
                         'display_name': r.get('display_name'),
                         'date': r.get('date_note') or r.get('year'),
-                        'ref_start': r.get('ref_start'), 'ref_end': r.get('ref_end'),
+                        'ref_start': normalize_ref(r.get('ref_start')),
+                        'ref_end': normalize_ref(r.get('ref_end')),
                         'score': r.get('score'), 'strong': r.get('strong'),
                         'gist': r.get('gist'), 'themes': r.get('themes')}
                        for r in (d.get('results') or [])]}

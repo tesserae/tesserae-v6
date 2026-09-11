@@ -324,6 +324,35 @@ def format_short_locus(raw_ref):
 
     return tail
 
+
+_REF_WS = re.compile(r'\s+')
+_REF_DOTS = re.compile(r'\.{2,}')
+
+
+def normalize_ref(ref):
+    """Tidy a raw .tess reference tag for display, keeping its shape.
+
+    Fifty-four corpus files carry malformed tags: a double space in Plautus and
+    the Senecan tragedies ("pl. poen.  1"), a doubled period in Sallust and two
+    Hippocratic works ("sal.  Cat..58.15", where the second period stands in for
+    the space before the locus). The website's short-locus formatter drops the
+    prefix and never shows the damage; the connector hands the whole tag to the
+    agent, which quoted "sal. Cat..58.15" back to the user.
+
+      "sal.  Cat..58.15"  ->  "sal. Cat. 58.15"
+      "pl. poen.  1"      ->  "pl. poen. 1"
+      "hom. il. 1.1"      ->  unchanged
+
+    Lookups that take a reference back (passage lines) accept either form, so
+    an agent can hand a cleaned reference straight back. Never raises; an
+    empty or non-string value comes back unchanged.
+    """
+    if not ref or not isinstance(ref, str):
+        return ref
+    s = _REF_WS.sub(' ', ref.strip())
+    s = _REF_DOTS.sub(lambda m: '. ' if m.end() < len(s) and s[m.end()] != ' ' else '.', s)
+    return _REF_WS.sub(' ', s).strip()
+
 # --- Unified text type classification (5-tier cascade) ---
 #
 # Tier 1: Manual overrides (text_metadata_overrides.json)
