@@ -87,12 +87,15 @@ ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, HERE)
 import proper_names as PN  # noqa: E402
 
-SRC_DIR = ('/home/ncoffee/tesserae-backups/curtius_batch_scratch_2026-09-10/'
-           'scratch_curtius/translations_src')
+# Where the five archive.org djvu text files live. Pass the directory as the
+# first argument, or set PATON_SRC_DIR; the default is the machine this was
+# first run on.
+SRC_DIR = (sys.argv[1] if len(sys.argv) > 1 else
+           os.environ.get('PATON_SRC_DIR',
+                          '/home/ncoffee/tesserae-backups/curtius_batch_scratch_2026-09-10/'
+                          'scratch_curtius/translations_src'))
 TESS_DIR = os.path.join(ROOT, 'texts', 'grc')
 OUT_DIR = os.path.join(ROOT, 'data', 'translations')
-POETS_SIDE_CAR = ('/home/ncoffee/tesserae-backups/curtius_batch_scratch_2026-09-10/'
-                   'scratch_curtius/anthologia_graeca_poets.json')
 
 VOLUMES = [
     # 'year' is read from each volume's own title/copyright page ("First
