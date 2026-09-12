@@ -1894,7 +1894,12 @@ def line_search():
             if not _ref_list and data.get('exclude_text_id') and data.get('exclude_locus'):
                 _stem = str(data['exclude_text_id']).replace('.tess', '')
                 _ref_list = [f"{_stem}.{data['exclude_locus']}"]
-            if search_type == 'lemma' and _ref_list and data.get('exclude_text_id') and has_lines_data(language):
+            # Only for those three languages. On production the index path
+            # changed Latin Reader results (Aeneid 1.33 came back empty on
+            # 2026-09-11) because the index's lemma spellings differ from the
+            # lemmatizer's; Latin, Greek and the rest keep the lemmatizer.
+            if (search_type == 'lemma' and language in _stanza_langs and _ref_list
+                    and data.get('exclude_text_id') and has_lines_data(language)):
                 _stem = str(data['exclude_text_id']).replace('.tess', '')
                 _rows = get_lines_batch(f'{_stem}.tess', _ref_list, language)
                 for _row in _rows.values():
