@@ -25,7 +25,7 @@ export default function AboutPage({ onNavigate }) {
             It helps scholars find passages where one author may have been influenced by, alluding to, or directly
             quoting another text. Founded in 2008 by Neil Coffee (Department of Classics) and{' '}
             <a
-              href="https://arts-sciences.buffalo.edu/linguistics/faculty/faculty-directory/koenig.html"
+              href="https://arts-sciences.buffalo.edu/linguistics/faculty/jean-pierre-koenig.html"
               target="_blank"
               rel="noopener noreferrer"
               className="text-amber-600 hover:underline"
@@ -58,7 +58,7 @@ export default function AboutPage({ onNavigate }) {
           <p className="text-gray-700 mb-4">
             Tesserae is a collaboration between{' '}
             <a 
-              href="https://www.buffalo.edu/cas/english/faculty/faculty_directory.host.html/content/shared/cas/english/faculty-staff/faculty/coffee.detail.html" 
+              href="https://arts-sciences.buffalo.edu/classics/faculty/core-faculty/coffee-neil.html"
               target="_blank" 
               rel="noopener noreferrer"
               className="text-amber-600 hover:underline font-semibold"
@@ -337,7 +337,7 @@ export default function AboutPage({ onNavigate }) {
             
             <div className="bg-white p-4 rounded-lg border border-amber-200">
               <a 
-                href="https://www.buffalo.edu/humanities-institute.html" 
+                href="https://arts-sciences.buffalo.edu/humanities-institute.html" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 hover:opacity-80"
