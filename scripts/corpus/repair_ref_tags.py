@@ -40,23 +40,23 @@ import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, '..', '..'))
+if '--root' in sys.argv and sys.argv.index('--root') + 1 >= len(sys.argv):
+    raise SystemExit('--root needs a path')
 ROOT = sys.argv[sys.argv.index('--root') + 1] if '--root' in sys.argv else REPO
 APPLY = '--apply' in sys.argv
 STAMP = time.strftime('%Y%m%d')
 sys.path.insert(0, REPO)
 from backend.utils import normalize_ref  # noqa: E402
 
-TAG_LANGS = ('la', 'grc', 'en', 'cop', 'he', 'it', 'fro', 'gmh', 'fa', 'ur', 'ar')
-
-
 def bad(tag):
     return '  ' in tag or '..' in tag
 
 
 def affected_files(root):
-    """(lang, filename) for every .tess whose tags need the rule."""
+    """(lang, filename) for every .tess whose tags need the rule, in every
+    language directory (the same sweep as tests/test_tess_tags_clean.py)."""
     out = []
-    for lang in TAG_LANGS:
+    for lang in sorted(os.listdir(os.path.join(root, 'texts'))):
         for path in sorted(glob.glob(os.path.join(root, 'texts', lang, '*.tess'))):
             with open(path, encoding='utf-8', errors='replace') as fh:
                 for line in fh:
@@ -199,11 +199,16 @@ def fix_passage_index(root, files):
         print(f'  passage-index window_texts.db: {len(wt_upd)} windows, {len(ln_upd)} lines')
         c.close()
         if APPLY:
-            backup(wdb)
-            c = sqlite3.connect(wdb)
+            # Copy, update, swap, as for the inverted indexes: the live app's
+            # read-only handles keep the old file until the WSGI reload.
+            new = wdb + '.new'
+            shutil.copy2(wdb, new)
+            c = sqlite3.connect(new)
             c.executemany('update window_texts set ref_start=?, ref_end=? where rowid=?', wt_upd)
             c.executemany('update lines set ref=? where rowid=?', ln_upd)
             c.commit(); c.close()
+            os.replace(wdb, f'{wdb}.bak-reftags-{STAMP}')
+            os.replace(new, wdb)
 
 
 def fix_translations(root, files):
