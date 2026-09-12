@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { cssRef } from './refId';
 
 const RTL = new Set(['he']);
@@ -12,14 +12,55 @@ const RTL = new Set(['he']);
  * matches). Reference numbers appear every fifth line, the convention in printed
  * editions, so the margin stays quiet while remaining navigable.
  */
-export default function TextPane({ units, language, selection, onSelect }) {
+export default function TextPane({ units, language, selection, onSelect, total, onMore }) {
+  // LONG TEXTS ARRIVE IN STRETCHES. Hafez's diwan is 9,502 lines and Anvari's
+  // 26,616; drawing every line and gutter tile at once froze a phone and
+  // crashed its tab (NC, 2026-09-07). The page draws what it has been given
+  // and asks for more when the reader nears the end, or when they press the
+  // button. `total` is the whole text's line count, `onMore` extends it.
+  const sentinelRef = useRef(null);
+  useEffect(() => {
+    if (!onMore || !sentinelRef.current || (total != null && units.length >= total)) return undefined;
+    if (typeof IntersectionObserver === 'undefined') return undefined;
+    const obs = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) onMore();
+    }, { rootMargin: '600px 0px' });
+    obs.observe(sentinelRef.current);
+    return () => obs.disconnect();
+  }, [onMore, total, units.length]);
 
-  const isSelected = useCallback((ref) => {
-    if (!selection) return false;
-    const { startIdx, endIdx } = selection;
-    const i = units.findIndex((u) => u.ref === ref);
-    return i >= Math.min(startIdx, endIdx) && i <= Math.max(startIdx, endIdx);
-  }, [selection, units]);
+  // By index, not by searching the ref: the old test ran findIndex for every
+  // line on every render, 90 million comparisons for a 9,500-line diwan, and
+  // a click in Anvari took several seconds to show its highlight.
+  // PAINT WHILE DRAGGING. The browser's own selection colour is hidden in
+  // the text (index.css), so until the mouse was released nothing showed and
+  // a reader could not see what they were selecting (NC, 2026-09-07). A
+  // mouse drag is now tracked line by line and the page's band follows it;
+  // on release the dragged span is what gets selected.
+  const [drag, setDrag] = useState(null);   // { anchor, current } during a mouse drag
+  const selLo = drag ? Math.min(drag.anchor, drag.current)
+    : selection ? Math.min(selection.startIdx, selection.endIdx) : -1;
+  const selHi = drag ? Math.max(drag.anchor, drag.current)
+    : selection ? Math.max(selection.startIdx, selection.endIdx) : -1;
+  const isSelected = useCallback((i) => (drag != null || selection != null) && i >= selLo && i <= selHi,
+    [drag, selection, selLo, selHi]);
+  const dragRef = useRef(null);
+  dragRef.current = drag;
+  useEffect(() => {
+    // Releasing outside the pane still ends the drag.
+    const up = () => {
+      const d = dragRef.current;
+      if (!d) return;
+      setDrag(null);
+      const lo = Math.min(d.anchor, d.current);
+      const hi = Math.max(d.anchor, d.current);
+      const el = document.getElementById(`line-${cssRef(units[hi]?.ref)}`);
+      const sel = window.getSelection();
+      emit(lo, hi, el ? el.offsetTop + el.offsetHeight : 0, sel ? String(sel).trim() : '');
+    };
+    window.addEventListener('mouseup', up);
+    return () => window.removeEventListener('mouseup', up);
+  });
 
   // THE BROWSER'S SELECTION IS THE SELECTION.
   //
@@ -69,11 +110,20 @@ export default function TextPane({ units, language, selection, onSelect }) {
   };
 
   const rtl = RTL.has(language);
+  const coarse = typeof window !== 'undefined' && window.matchMedia
+    && window.matchMedia('(pointer: coarse)').matches;
+
+  // Touch screens select by tapping (below), with native selection switched
+  // off, so there is no finger drag to read. A selectionchange listener that
+  // read the selection during a MOUSE drag re-rendered the lines mid-drag
+  // and made the browser's highlight jump from the first line to the second
+  // (NC, 2026-09-07); it is gone.
+  const paneRef = useRef(null);
 
   return (
     <div
-      className="flex-1 px-6 py-6 overflow-y-auto"
-      onMouseUp={readSelection}
+      ref={paneRef}
+      className="flex-1 px-6 py-6 overflow-y-auto reader-text"
       onKeyUp={(e) => { if (e.shiftKey) readSelection(); }}
     >
       <div
@@ -84,13 +134,38 @@ export default function TextPane({ units, language, selection, onSelect }) {
         {units.map((u, i) => {
           const n = lineNumber(u.ref);
           const showNumber = n != null && n % 5 === 0;
-          const selected = isSelected(u.ref);
+          const selected = isSelected(i);
           return (
             <div
               key={u.ref}
               id={`line-${cssRef(u.ref)}`}
               className={`grid gap-2 cursor-text ${selected ? 'bg-red-50 border-l-[3px] border-red-700 -ml-[3px] rounded-r' : ''}`}
               style={{ gridTemplateColumns: '2.6rem 1fr', minHeight: '1.75rem' }}
+              // A tap on a phone makes no text selection, so nothing used to
+              // happen. A click or tap that leaves no selection selects the
+              // line itself; a drag still selects the swept span.
+              onMouseDown={(e) => {
+                if (coarse || e.button !== 0) return;
+                setDrag({ anchor: i, current: i });
+              }}
+              onMouseEnter={() => {
+                if (dragRef.current) setDrag((d) => (d && d.current !== i ? { ...d, current: i } : d));
+              }}
+              onClick={(e) => {
+                const el = e.currentTarget;
+                const bottom = el.offsetTop + el.offsetHeight;
+                if (!coarse) return;   // the mouse path selects on mousedown/mouseup above
+                // TOUCH SCREENS SELECT BY TAPPING. Native text selection is
+                // off there (see index.css), so the phone's own Copy bar
+                // never appears over the page (NC, 2026-09-07). A tap
+                // selects a line; a tap on another line extends the span
+                // to it; a tap inside the span narrows it to that line.
+                if (selection && (i < selLo || i > selHi)) {
+                  emit(Math.min(selLo, i), Math.max(selHi, i), bottom, '');
+                } else {
+                  emit(i, i, bottom, u.text);
+                }
+              }}
             >
               <span
                 className="text-[0.72rem] text-gray-500 text-right pt-[0.35em] tabular-nums select-none"
@@ -102,6 +177,17 @@ export default function TextPane({ units, language, selection, onSelect }) {
             </div>
           );
         })}
+        {total != null && units.length < total && (
+          <div ref={sentinelRef} className="py-4 text-center" dir="ltr">
+            <button
+              type="button"
+              onClick={onMore}
+              className="text-sm px-3 py-1.5 rounded border border-gray-300 text-gray-700 hover:border-red-600 hover:text-red-700"
+            >
+              Show more ({units.length.toLocaleString()} of {total.toLocaleString()} lines shown)
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

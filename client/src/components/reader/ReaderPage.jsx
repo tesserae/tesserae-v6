@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { cssRef } from './refId';
 import ReaderHeader from './ReaderHeader';
 import SelectionToolbar, { scopeFor } from './SelectionToolbar';
@@ -11,6 +11,11 @@ import ResultsPanel from './ResultsPanel';
 // Book 1, not book 6: the Reader opens where a reader expects a poem to start,
 // and "arma virumque cano" is the line most visitors will recognise.
 const DEFAULT_WORK = 'vergil.aeneid.part.1.tess';
+// Lines drawn at a time. See TextPane: a whole diwan at once froze a phone.
+// A thousand covers every Latin and Greek book (Aeneid 1 is 756 lines), so
+// on production nothing changes for those texts; only the diwans and long
+// whole-work files arrive in stretches.
+const READER_STEP = 1000;
 const DEFAULT_LANGUAGE = 'la';
 // Where each language's corpus opens when no work is chosen yet.
 const PREFERRED_WORK = {
@@ -22,6 +27,14 @@ const PREFERRED_WORK = {
   cop: 'shenoute.abraham.tess',
   he: 'hebrew_bible.genesis.tess',
   en: 'milton.paradise_lost.part.1.tess',
+  // The three poetic languages open on works that show every feature,
+  // translation included: Iqbal's Asrar-e Khudi is the one Persian work
+  // with aligned English (Nicholson 1920); al-Baqara is translated verse for
+  // verse. Urdu has no translated work, so Ghalib's Wikisource edition, the
+  // Urdu default elsewhere, stands.
+  fa: 'iqbal.asrar_e_khudi.tess',
+  ur: 'ghalib.diwan_wikisource.tess',
+  ar: 'quran.al_baqara.tess',
 };
 
 /**
@@ -85,6 +98,11 @@ export default function ReaderPage() {
   }, [focusView, fullTr, work, language]);
   const [cameFrom, setCameFrom] = useState(() => paramOr('q', ''));
   const [units, setUnits] = useState([]);
+  // How many lines are drawn; grows as the reader scrolls (see TextPane).
+  const [visibleCount, setVisibleCount] = useState(READER_STEP);
+  useEffect(() => { setVisibleCount(READER_STEP); }, [units]);
+  const shownUnits = useMemo(() => units.slice(0, visibleCount), [units, visibleCount]);
+  const showMore = useCallback(() => setVisibleCount((n) => Math.min(n + READER_STEP, units.length)), [units.length]);
   // The last work id whose fetch failed, so falling back to a default text
   // cannot loop if the default itself is broken.
   const failedWorkRef = useRef(null);
@@ -192,6 +210,26 @@ export default function ReaderPage() {
   // Going Back inside the Reader has to put the Reader back, not just change
   // the address bar. Without this the pushed entries above would restore the
   // URL and leave the page showing the text the reader had navigated away from.
+  // A server that serves only some languages (the preview) must not open on
+  // the Aeneid: the text endpoint served it while the header showed Coptic and
+  // no author or work (NC, 2026-09-07). If the language in hand is not served,
+  // the Reader moves to the first served language and its preferred work.
+  useEffect(() => {
+    let dead = false;
+    fetch('/api/languages')
+      .then((r) => r.json())
+      .then((d) => {
+        if (dead) return;
+        const codes = (d.languages || []).map((l) => l.code || l).filter(Boolean);
+        if (codes.length && !codes.includes(language)) {
+          setLanguage(codes[0]);
+          setWork('');
+        }
+      })
+      .catch(() => {});
+    return () => { dead = true; };
+  }, []);
+
   useEffect(() => {
     const onPop = () => {
       const p = new URLSearchParams(window.location.search);
@@ -214,6 +252,8 @@ export default function ReaderPage() {
     if (!wantedRef || !units.length) return;
     const i = units.findIndex((u) => u.ref === wantedRef);
     if (i < 0) return;
+    // The line must be drawn before it can be selected and scrolled to.
+    if (i >= visibleCount) { setVisibleCount(i + READER_STEP); return; }
     // Select the WHOLE found passage, not just its first line, so the
     // translation panel renders the English for the same span the reader was
     // shown a summary of.
@@ -227,7 +267,7 @@ export default function ReaderPage() {
       if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
     }, 120);
     return () => window.clearTimeout(id);
-  }, [wantedRef, wantedRefEnd, units]);
+  }, [wantedRef, wantedRefEnd, units, visibleCount]);
 
   // A language with no work chosen opens that language's first text. Changing
   // language clears the work, because the old one is not in the new language;
@@ -420,7 +460,7 @@ export default function ReaderPage() {
           <div className="flex flex-1 min-w-0">
             <ConnectionGutter
               work={work.replace('.tess', '')}
-              units={units}
+              units={shownUnits}
               onSelectLine={(u, which) => {
                 const i = units.findIndex((x) => x.ref === u.ref);
                 const sel = { startIdx: i, endIdx: i, refStart: u.ref,
@@ -436,12 +476,20 @@ export default function ReaderPage() {
             />
             <div className="relative flex-1 min-w-0">
               <TextPane
-                units={units}
+                units={shownUnits}
+                total={units.length}
+                onMore={showMore}
                 language={language}
                 selection={selection}
                 onSelect={(sel) => {
                   setSelection(sel);
                   if (sel) setScope(scopeFor(sel));
+                  // One line asks for shared wording, which is what the
+                  // popup offers for it, so the panel opens on Verbal
+                  // Parallels; a span asks for similar passages. The panel
+                  // used to stay on Similar Passages for a single line while
+                  // the popup said "Find shared wording" (NC, 2026-09-06).
+                  if (sel) setPanelTab(sel.lineCount === 1 ? 'verbal' : 'similar');
                   setPopupOpen(!!sel);
                   // The reader has chosen their own passage, so the note about
                   // how they arrived at someone else's is spent.
@@ -452,7 +500,10 @@ export default function ReaderPage() {
                 // Under the last selected line, not pinned to the corner. It
                 // used to sit at the top of the pane whatever was selected, so
                 // it covered the opening lines of the text.
-                <div className="absolute left-10 z-20"
+                // Desktop only. On a phone it piled up with the browser's own
+                // copy toolbar and the results sheet (NC, 2026-09-07); the
+                // sheet's tabs already do what the toolbar offers there.
+                <div className="hidden lg:block absolute left-10 z-20"
                      style={{ top: `${(selection?.anchorTop ?? 0) + 8}px` }}>
                   <SelectionToolbar
                     selection={selection}
@@ -477,6 +528,7 @@ export default function ReaderPage() {
             units={units}
             onOpenPassage={openPassage}
             initialTab={panelTab || wantedTab || undefined}
+            onClose={() => { setSelection(null); setPopupOpen(false); }}
           />
         </div>
       )}

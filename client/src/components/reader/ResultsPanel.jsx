@@ -35,11 +35,14 @@ async function asJson(r) {
  * makes the corpus browsable by association rather than by search alone.
  */
 export default function ResultsPanel({ selection, focus, language, work, units, onOpenPassage,
-                                       initialTab }) {
+                                       initialTab, onClose }) {
   // Arriving from Theme Search, the reader has just been shown an English
   // summary of a passage in a language they may not read. Opening on the
   // translation is the useful default there; everywhere else 'similar' is.
   const [tab, setTab] = useState(initialTab || 'similar');
+  // Phone only: the sheet is a bare tab strip until a tab is tapped or a
+  // line selected; on desktop the panel is always open.
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   // Follow a LATER request too. useState reads its argument once, so the popup
   // could ask for the translation and the panel would ignore it.
@@ -140,6 +143,9 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
         // The whole-work name, since that is how the search index holds it.
         exclude_text_id: `${baseWork(work)}.tess`,
         exclude_locus: bareLocus(selection.refStart),
+        // The selected lines by reference, so the server can take their
+        // lemmas from the index instead of re-tagging the words.
+        refs: picked.map((u) => u.ref),
         // Hide matches whose shared words are all commonplaces (quid + variis
         // matching quid + varii is Latin, not an echo). Reader-only: the Line
         // Search page keeps deliberate common-word queries intact.
@@ -193,13 +199,32 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
     // Sticky on desktop: deep in Thebaid 12 the results used to be a full
     // page-scroll away, pinned to where the panel started. It now rides the
     // viewport and scrolls its own contents.
-    <aside className="w-full lg:w-96 border-t lg:border-t-0 lg:border-l border-gray-200 bg-gray-50
-                      flex flex-col lg:sticky lg:top-0 lg:self-start lg:h-screen">
-      <div className="flex border-b border-gray-200 text-sm">
+    // On a phone the panel used to be stacked UNDER the whole text, so its
+    // tabs sat 798 lines down and the Reader looked as if it had no results
+    // (NC, 2026-09-07). Below the lg breakpoint it is now a sheet fixed to
+    // the bottom of the screen, shown once something is selected, with its
+    // own close control; with nothing selected it stays out of the way.
+    <aside className={`w-full lg:w-96 border-t lg:border-t-0 lg:border-l border-gray-200 bg-gray-50
+                      flex flex-col fixed inset-x-0 bottom-0 z-40 shadow-2xl
+                      lg:static lg:shadow-none lg:sticky lg:top-0 lg:self-start lg:h-screen lg:max-h-none
+                      ${(selection || sheetOpen) ? 'max-h-[55vh]' : 'max-h-[2.75rem] overflow-hidden'}`}>
+      {/* Room on the right for the Tessa button, which floats over the sheet
+          on a phone; the strip scrolls if the labels do not fit. */}
+      <div className="flex items-center shrink-0 border-b border-gray-200 text-sm overflow-x-auto pr-20 lg:pr-0 whitespace-nowrap">
+        {(selection || sheetOpen) && (
+          <button
+            onClick={() => { setSheetOpen(false); onClose?.(); }}
+            className="lg:hidden px-3 py-2 text-gray-500 hover:text-gray-800"
+            aria-label="Close results"
+            title="Close"
+          >
+            ✕
+          </button>
+        )}
         {tabs.map(([id, label]) => (
           <button
             key={id}
-            onClick={() => setTab(id)}
+            onClick={() => { setTab(id); setSheetOpen(true); }}
             className={`px-3 py-2 font-semibold border-b-2 transition-colors ${
               tab === id
                 ? 'text-red-700 border-red-700'
@@ -528,8 +553,9 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
             {loading && <LoadingSpinner />}
             {!loading && translation?.available === false && (
               <p className="text-sm text-gray-500">
-                {translation.reason} Aligned public-domain translations currently cover
-                over half of the Greek corpus and nearly half of the Latin.
+                {['fa', 'ur', 'ar'].includes(language)
+                  ? `No English translation is aligned to any ${{ fa: 'Persian', ur: 'Urdu', ar: 'Arabic' }[language]} work yet. Aligned public-domain translations currently cover over half of the Greek corpus and nearly half of the Latin.`
+                  : `${translation.reason} Aligned public-domain translations currently cover over half of the Greek corpus and nearly half of the Latin.`}
               </p>
             )}
             {!loading && translation?.available && (

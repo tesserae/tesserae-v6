@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import useAssistantStream from './useAssistantStream';
+import { WorkingLine } from './ResultsInsight';
 import { getSessionValue, setSessionValue } from '../../utils/storage';
 
 // Openers that show what it can actually DO, not only what it can explain. It
@@ -317,10 +318,10 @@ export default function AssistantDock() {
           </div>
         ))}
 
-        {running && step && !text && (
-          <div className="text-xs text-gray-500 italic px-2">{step}…</div>
+        {running && !text && (
+          <WorkingLine label={step || 'Tessa is reading your question'} />
         )}
-        {running && (text || !step) && (
+        {running && text && (
           <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap bg-gray-50 rounded p-2">
             {render(text, highlight)}
             <span className="inline-block w-1.5 h-4 ml-0.5 bg-gray-400 animate-pulse align-text-bottom" />

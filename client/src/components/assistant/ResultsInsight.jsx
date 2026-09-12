@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useAssistantStream from './useAssistantStream';
 import FindingsBlock from './FindingsBlock';
 
@@ -95,7 +95,10 @@ export default function ResultsInsight({ results, source, target, className = ''
 
       {error && <p className="text-xs text-amber-700">{error}</p>}
 
-      {(text || running) && (
+      {running && !text && (
+        <WorkingLine label="Tessa is reading the figures and the passages, then writing" />
+      )}
+      {text && (
         <div className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
           {text}
           {running && <span className="inline-block w-1.5 h-4 ml-0.5 bg-gray-400 animate-pulse align-text-bottom" />}
@@ -141,6 +144,28 @@ export default function ResultsInsight({ results, source, target, className = ''
         nothing else.
       </p>
     </section>
+  );
+}
+
+/**
+ * What the reader sees while the model has not yet produced a word: a
+ * spinner, what is being done, and the seconds so far. A local model takes
+ * ten to thirty seconds to read a long prompt before its first word, and a
+ * bare blinking cursor for that long reads as a dead page (NC, 2026-09-07).
+ */
+export function WorkingLine({ label }) {
+  const [seconds, setSeconds] = useState(0);
+  useEffect(() => {
+    const started = Date.now();
+    const id = setInterval(() => setSeconds(Math.floor((Date.now() - started) / 1000)), 1000);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <div className="flex items-center gap-2 text-xs text-gray-600 px-1 py-1" role="status" aria-live="polite">
+      <span className="inline-block w-3.5 h-3.5 rounded-full border-2 border-gray-300 border-t-red-700 animate-spin" />
+      <span>{label}…</span>
+      <span className="text-gray-400 tabular-nums">{seconds}s</span>
+    </div>
   );
 }
 

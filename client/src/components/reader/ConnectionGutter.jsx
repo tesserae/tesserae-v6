@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
+import { cssRef } from './refId';
 
 /**
  * The Reader's margin: two marks per line showing where the corpus has something
@@ -68,9 +69,59 @@ export default function ConnectionGutter({ work, units, onSelectLine }) {
 
   const loading = loadingContent || loadingVerbal;
 
+  // TILES SIT WHERE THEIR LINES SIT.
+  //
+  // Each tile used to be a fixed 1.75rem row while a text line is 1.06rem at
+  // line-height 1.75, that is 1.855rem, and taller still when it wraps. The
+  // two columns drifted apart by about a line every twenty, and in a
+  // ninety-line Arabic ode the last tiles sat six lines above their text
+  // (NC, 2026-09-06). The text pane's line elements are measured after
+  // layout, again when fonts finish loading and whenever the pane resizes,
+  // and every tile is placed at its own line's top with its line's height.
+  const [positions, setPositions] = useState(null);
+  useLayoutEffect(() => {
+    if (!units?.length) return undefined;
+    let frame = 0;
+    const measure = () => {
+      const next = {};
+      let any = false;
+      units.forEach((u) => {
+        const el = document.getElementById(`line-${cssRef(u.ref)}`);
+        if (el) {
+          next[u.ref] = { top: el.offsetTop, height: el.offsetHeight };
+          any = true;
+        }
+      });
+      setPositions(any ? next : null);
+    };
+    const schedule = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(measure);
+    };
+    schedule();
+    window.addEventListener('resize', schedule);
+    if (document.fonts?.ready) document.fonts.ready.then(schedule).catch(() => {});
+    let observer = null;
+    const first = document.getElementById(`line-${cssRef(units[0].ref)}`);
+    const pane = first?.offsetParent;
+    if (pane && typeof ResizeObserver !== 'undefined') {
+      observer = new ResizeObserver(schedule);
+      observer.observe(pane);
+    }
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('resize', schedule);
+      if (observer) observer.disconnect();
+    };
+  }, [units]);
+  const measuredHeight = positions
+    ? Math.max(...Object.values(positions).map((p) => p.top + p.height), 0)
+    : 0;
+
   return (
     <div
-      className="w-9 shrink-0 border-r border-gray-200 bg-gray-50"
+      className="w-9 shrink-0 border-r border-gray-200 bg-gray-50 relative"
+      style={positions ? { minHeight: `${measuredHeight}px` } : undefined}
       title={loading
         ? 'Working out what the corpus connects to this text...'
         : 'Left: verbal parallels. Right: similar passages.'}
@@ -104,11 +155,12 @@ export default function ConnectionGutter({ work, units, onSelectLine }) {
         const n = lineNumber(u.ref);
         const v = n != null ? verbal[n] || 0 : 0;
         const c = n != null ? content[n] || 0 : 0;
+        const pos = positions?.[u.ref];
         return (
           <div
             key={u.ref}
-            className="flex items-center cursor-pointer"
-            style={{ height: '1.75rem' }}
+            className={`flex items-center cursor-pointer ${pos ? 'absolute left-0 right-0' : ''}`}
+            style={pos ? { top: `${pos.top}px`, height: `${pos.height}px` } : { height: '1.75rem' }}
             onClick={() => onSelectLine?.(u)}
           >
             {/* Each column is its own hit area covering half the row, so a
