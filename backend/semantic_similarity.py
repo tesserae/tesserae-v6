@@ -360,6 +360,7 @@ def find_dictionary_matches(source_units: List[Dict], target_units: List[Dict],
                     'source_idx': src_idx,
                     'target_idx': tgt_idx,
                     'matched_lemmas': list(matched),
+                    'synonym_pairs': sorted(pairs),  # (source lemma, target lemma)
                     'match_basis': 'dictionary',
                 })
 
