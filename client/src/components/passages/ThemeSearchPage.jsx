@@ -150,6 +150,11 @@ const LANG_CHOICES = [
   ['gmh', 'Middle High German'],
 ];
 
+// The passage index on production has held Persian and Urdu windows since
+// 2026-08-25 by design, while word search does not serve those languages, so
+// /api/languages does not list them. They stay on offer here regardless.
+const INDEX_ONLY = ['fa', 'ur'];
+
 export default function ThemeSearchPage() {
   const [query, setQuery] = useState('');
   const [language, setLanguage] = useState('');
@@ -345,7 +350,7 @@ export default function ThemeSearchPage() {
         {/* Pick any set of languages (2026-09-06). 'All' clears the set; the
             request sends the chosen codes comma-separated, which the API has
             always accepted. */}
-        {LANG_CHOICES.filter(([v]) => !v || !served || served.includes(v)).map(([v, label]) => {
+        {LANG_CHOICES.filter(([v]) => !v || !served || served.includes(v) || INDEX_ONLY.includes(v)).map(([v, label]) => {
           const chosen = language ? language.split(',') : [];
           const on = v ? chosen.includes(v) : chosen.length === 0;
           const toggle = () => {
