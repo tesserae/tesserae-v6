@@ -409,9 +409,9 @@ def analyze_stream():
             return
         facts = findings.summarize_results(
             results, source_id=data.get('source'), target_id=data.get('target'),
-        # The page decides the scope (top 25, top 100, everything loaded) and
-        # says so in its header. A second cap here made "all 200" report on 25.
-        limit=len(results))
+            # The page decides the scope (top 25, top 100, everything loaded) and
+            # says so in its header. A second cap here made "all 200" report on 25.
+            limit=len(results))
         # Send the computed findings first: they are true regardless of what the
         # model does next, and they give the reader something immediately.
         yield _sse('facts', {'facts': facts})

@@ -538,14 +538,14 @@ def _dating(work, language):
     info = (_author_dates().get(language) or {}).get(key)
     if not info:
         return {}
-    # The table's notes carry curation remarks after the dating ("...; era set
-    # 2026-09-06 under the new Arabic labels", or a file path). Only the
-    # dating itself is for readers: the part before the first semicolon,
-    # without any parenthesis (a source path showed under Mir, 2026-09-07).
-    note = str(info.get('note') or '').split(';')[0]
-    note = re.sub(r'\s*\([^)]*\)', '', note).strip()
+    # The preview trimmed notes at the first semicolon and dropped parentheses
+    # because its Persian, Urdu and Arabic rows carried curation remarks. On
+    # the production table that rule cut real dating: "Greek philosopher
+    # (d. 322 BCE); Latin translations ..." lost its date, and "fl. c. 55 CE
+    # (date contested; ...)" was left with an open parenthesis. The note is
+    # shown as written; clean the table rows instead.
     return {'year': info.get('year'), 'era': info.get('era'),
-            'date_note': note or None}
+            'date_note': info.get('note')}
 
 
 def _naming(work):
