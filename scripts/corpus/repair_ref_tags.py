@@ -44,7 +44,7 @@ if '--root' in sys.argv and sys.argv.index('--root') + 1 >= len(sys.argv):
     raise SystemExit('--root needs a path')
 ROOT = sys.argv[sys.argv.index('--root') + 1] if '--root' in sys.argv else REPO
 APPLY = '--apply' in sys.argv
-STAMP = time.strftime('%Y%m%d')
+STAMP = time.strftime('%Y%m%d-%H%M%S')  # unique per run: a rerun must never overwrite the first backup
 sys.path.insert(0, REPO)
 from backend.utils import normalize_ref  # noqa: E402
 
@@ -71,6 +71,16 @@ def affected_files(root):
 def backup(path):
     if APPLY and os.path.exists(path):
         shutil.copy2(path, f'{path}.bak-reftags-{STAMP}')
+
+
+def write_json(path, obj):
+    """Write beside the file and rename over it. Some cache files belong to
+    the web app's account and cannot be opened for writing, but their
+    directory takes a rename; the swap is also atomic for any reader."""
+    tmp = f'{path}.new'
+    with open(tmp, 'w', encoding='utf-8') as fh:
+        json.dump(obj, fh, ensure_ascii=False)
+    os.replace(tmp, path)
 
 
 def fix_texts(root, files):
@@ -124,7 +134,7 @@ def fix_lemma_cache(root, files):
             print(f'  lemma-cache {os.path.basename(cpath)}: {n} refs, hash {"updated" if hash_changed else "same"}')
             if APPLY:
                 backup(cpath)
-                json.dump(d, open(cpath, 'w', encoding='utf-8'), ensure_ascii=False)
+                write_json(cpath, d)
     print(f'lemma-cache: {total} refs')
 
 
@@ -145,15 +155,35 @@ def fix_index(root, files):
                     else: n_post += 1
         src.close()
         print(f'  index {lang}: {len(ids)} texts, {n_lines} line refs, {n_post} posting refs to rewrite')
-        if not APPLY:
+        if not APPLY or not (n_lines or n_post):
+            if APPLY:
+                print(f'  index {lang}: nothing to rewrite, left untouched')
             continue
         new = db + '.new'
         shutil.copy2(db, new)
         c = sqlite3.connect(new)
-        for t in ('lines', 'postings'):
-            rows = c.execute(f'select rowid, ref from {t} where text_id in (%s)' % ','.join('?' * len(ids)), ids).fetchall()
-            c.executemany(f'update {t} set ref=? where rowid=?',
-                          [(normalize_ref(ref), rid) for rid, ref in rows if normalize_ref(ref) != ref])
+        # lines is unique on (text_id, ref). Two raw tags in one text can clean
+        # to the same ref (a repeated heading such as "... tit."); the index
+        # builder keeps one line per ref, so the later duplicate is dropped
+        # here rather than updated into a constraint violation.
+        rows = c.execute('select rowid, text_id, ref from lines where text_id in (%s)' % ','.join('?' * len(ids)), ids).fetchall()
+        seen = {(t, r) for _, t, r in rows if normalize_ref(r) == r}
+        upd, drop = [], []
+        for rid, t, r in rows:
+            nr = normalize_ref(r)
+            if nr == r:
+                continue
+            if (t, nr) in seen:
+                drop.append((rid,))
+            else:
+                seen.add((t, nr)); upd.append((nr, rid))
+        c.executemany('update lines set ref=? where rowid=?', upd)
+        c.executemany('delete from lines where rowid=?', drop)
+        if drop:
+            print(f'  index {lang}: {len(drop)} duplicate line(s) dropped after cleaning')
+        rows = c.execute('select rowid, ref from postings where text_id in (%s)' % ','.join('?' * len(ids)), ids).fetchall()
+        c.executemany('update postings set ref=? where rowid=?',
+                      [(normalize_ref(ref), rid) for rid, ref in rows if normalize_ref(ref) != ref])
         c.commit(); c.close()
         os.replace(db, f'{db}.bak-reftags-{STAMP}')
         os.replace(new, db)
@@ -231,7 +261,7 @@ def fix_translations(root, files):
         print(f'  translations {os.path.basename(path)}: {n} keys')
         if APPLY:
             backup(path)
-            json.dump(d, open(path, 'w', encoding='utf-8'), ensure_ascii=False)
+            write_json(path, d)
     print(f'translations: {total} keys')
 
 
