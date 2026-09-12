@@ -1864,8 +1864,15 @@ def line_search():
                 # curated list. The English list applied here left every
                 # Persian particle searchable, and one line of Hafez took
                 # eleven minutes (2026-09-07).
-                from backend.matcher import _plugin_stoplist
-                stopwords = set(_plugin_stoplist(language) or DEFAULT_ENGLISH_STOP_WORDS)
+                # Production's matcher has no language plugins yet (they come
+                # with the Persian, Urdu and Arabic work), so fall back to the
+                # list this branch always used.
+                try:
+                    from backend.matcher import _plugin_stoplist
+                except ImportError:
+                    _plugin_stoplist = None
+                stopwords = set((_plugin_stoplist(language) if _plugin_stoplist else None)
+                                or DEFAULT_ENGLISH_STOP_WORDS)
             
             # Optionally add top N corpus-frequent lemmas
             stoplist_size = data.get('stoplist_size', 10)

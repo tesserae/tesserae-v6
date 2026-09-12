@@ -59,6 +59,8 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .scroll-hint::after {
     transition: none;
+  }
+}
 
 /* The Reader on a touch screen selects by tapping lines (TextPane.jsx), so the
    browser's own text selection, and with it the phone's Copy bar over the
