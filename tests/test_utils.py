@@ -68,3 +68,9 @@ def test_normalize_ref_leaves_well_formed_refs_alone():
 def test_normalize_ref_handles_two_doubled_periods_and_a_trailing_one():
     assert utils.normalize_ref('a..b..1.1') == 'a. b. 1.1'
     assert utils.normalize_ref('a. b. 1..') == 'a. b. 1.'
+
+
+def test_normalize_ref_is_idempotent_on_repaired_tags():
+    for ref in ('sal.  Cat..58.15', 'pl. poen.  1', 'hp. Epid..1.1.1', 'a..b..1.1'):
+        once = utils.normalize_ref(ref)
+        assert utils.normalize_ref(once) == once
