@@ -246,9 +246,35 @@ def fix_fusion_cache(root, files):
             os.remove(p)
 
 
+def preflight(root, files, data_modes):
+    """Refuse to touch the data stores unless the repaired texts are in place
+    (the lemma-cache hash is taken from the file on disk), and refuse to start
+    any store if a translation map would have two keys collapse into one."""
+    still_bad = [f'{l}/{fn}' for l, fn in files
+                 if any(bad(line[1:line.find('>')]) for line in open(os.path.join(root, 'texts', l, fn), encoding='utf-8', errors='replace')
+                        if line.startswith('<') and '>' in line)]
+    if data_modes and still_bad:
+        raise SystemExit(f'texts still carry malformed tags; repair or pull them first: {still_bad[:5]}')
+    for lang, fn in files:
+        path = os.path.join(root, 'data', 'translations', f'{lang}__{fn[:-5]}.json')
+        if os.path.exists(path):
+            r2u = json.load(open(path, encoding='utf-8')).get('ref_to_unit') or {}
+            if len({normalize_ref(k) for k in r2u}) != len(r2u):
+                raise SystemExit(f'translation keys would collide after cleaning: {path}')
+
+
 if __name__ == '__main__':
-    files = affected_files(ROOT)
-    print(f'{"APPLY" if APPLY else "DRY RUN"} on {ROOT}: {len(files)} files with malformed tags')
+    if '--list' in sys.argv:
+        # "lang/filename" per line: the affected set is fixed by the list, not
+        # by scanning, so the data stores can be repaired after the texts are.
+        files = [tuple(l.strip().split('/', 1)) for l in open(sys.argv[sys.argv.index('--list') + 1])
+                 if l.strip() and not l.startswith('#')]
+    else:
+        files = affected_files(ROOT)
+    data_modes = any(f in sys.argv for f in ('--lemma-cache', '--index', '--passage-index', '--translations', '--fusion-cache'))
+    print(f'{"APPLY" if APPLY else "DRY RUN"} on {ROOT}: {len(files)} files')
+    if APPLY:
+        preflight(ROOT, files, data_modes)
     if '--texts' in sys.argv: fix_texts(ROOT, files)
     if '--lemma-cache' in sys.argv: fix_lemma_cache(ROOT, files)
     if '--index' in sys.argv: fix_index(ROOT, files)
