@@ -196,6 +196,20 @@ const SearchResults = ({
     });
   }, []);
 
+  // The locus as a citation names it: "verg. aen. 1.1" expanded by
+  // formatReference. When a reference starts with the compared text's own id
+  // (some corpora tag lines with the file id plus a locus), the author and
+  // title come from the text record and the id is cut away.
+  const displayLocus = useCallback((ref, info) => {
+    const r = String(ref || '').replace(/<\/?.*?>/g, '').trim();
+    const base = String(info?.id || '').replace(/\.tess$/, '');
+    if (base && info?.author && r.startsWith(base + '.')) {
+      const name = [info.author, info.title || info.work].filter(Boolean).join(', ');
+      return `${name} ${r.slice(base.length + 1)}`;
+    }
+    return formatReference(r, language);
+  }, [language]);
+
   const exportCSV = useCallback(() => {
     if (!results || results.length === 0) return;
 
