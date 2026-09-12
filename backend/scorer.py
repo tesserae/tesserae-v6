@@ -205,7 +205,13 @@ class Scorer:
                             continue
                         if a_lem not in src_match_set or b_lem not in tgt_match_set:
                             continue
-                        used_s.add(a_lem); used_t.add(b_lem)
+                        # A lemma present on both sides is scored by the
+                        # ordinary loop below; it does not also count as half
+                        # of a pair (review of PR #369).
+                        if a_lem in tgt_match_set or b_lem in src_match_set:
+                            continue
+                        used_s.add(a_lem)
+                        used_t.add(b_lem)
                         idf = (math.log((total_words + 1) / (freq.get(a_lem, 1) + 1)) + 1
                                + math.log((total_words + 1) / (freq.get(b_lem, 1) + 1)) + 1) / 2
                         src_word = next((src_tokens_list[i] for i, l in enumerate(src_match_list) if l == a_lem and i < len(src_tokens_list)), a_lem)
