@@ -358,7 +358,11 @@ export default function ThemeSearchPage() {
             if (!v) next = '';
             else next = (on ? chosen.filter((c) => c !== v) : [...chosen, v]).join(',');
             setLanguage(next);
-            if (query.trim()) run(query, next);
+            // Re-run only a search that has already been run, so changing the
+            // languages refines the list on screen. Typing a query and then
+            // picking languages used to start the search before the reader
+            // pressed Search (NC, 2026-09-06).
+            if (data && query.trim()) run(query, next);
           };
           return (
             <label key={v || 'all'} className={`text-xs px-2 py-0.5 rounded border cursor-pointer select-none ${on ? 'bg-red-600 text-white border-red-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>

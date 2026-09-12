@@ -528,8 +528,9 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
             {loading && <LoadingSpinner />}
             {!loading && translation?.available === false && (
               <p className="text-sm text-gray-500">
-                {translation.reason} Aligned public-domain translations currently cover
-                over half of the Greek corpus and nearly half of the Latin.
+                {['fa', 'ur', 'ar'].includes(language)
+                  ? `No English translation is aligned to any ${{ fa: 'Persian', ur: 'Urdu', ar: 'Arabic' }[language]} work yet. Aligned public-domain translations currently cover over half of the Greek corpus and nearly half of the Latin.`
+                  : `${translation.reason} Aligned public-domain translations currently cover over half of the Greek corpus and nearly half of the Latin.`}
               </p>
             )}
             {!loading && translation?.available && (

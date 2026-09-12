@@ -14,12 +14,13 @@ const RTL = new Set(['he']);
  */
 export default function TextPane({ units, language, selection, onSelect }) {
 
-  const isSelected = useCallback((ref) => {
-    if (!selection) return false;
-    const { startIdx, endIdx } = selection;
-    const i = units.findIndex((u) => u.ref === ref);
-    return i >= Math.min(startIdx, endIdx) && i <= Math.max(startIdx, endIdx);
-  }, [selection, units]);
+  // By index, not by searching the ref: the old test ran findIndex for every
+  // line on every render, 90 million comparisons for a 9,500-line diwan, and
+  // a click in Anvari took several seconds to show its highlight.
+  const selLo = selection ? Math.min(selection.startIdx, selection.endIdx) : -1;
+  const selHi = selection ? Math.max(selection.startIdx, selection.endIdx) : -1;
+  const isSelected = useCallback((i) => selection != null && i >= selLo && i <= selHi,
+    [selection, selLo, selHi]);
 
   // THE BROWSER'S SELECTION IS THE SELECTION.
   //
@@ -84,7 +85,7 @@ export default function TextPane({ units, language, selection, onSelect }) {
         {units.map((u, i) => {
           const n = lineNumber(u.ref);
           const showNumber = n != null && n % 5 === 0;
-          const selected = isSelected(u.ref);
+          const selected = isSelected(i);
           return (
             <div
               key={u.ref}

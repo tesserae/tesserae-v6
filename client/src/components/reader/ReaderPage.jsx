@@ -442,6 +442,12 @@ export default function ReaderPage() {
                 onSelect={(sel) => {
                   setSelection(sel);
                   if (sel) setScope(scopeFor(sel));
+                  // One line asks for shared wording, which is what the
+                  // popup offers for it, so the panel opens on Verbal
+                  // Parallels; a span asks for similar passages. The panel
+                  // used to stay on Similar Passages for a single line while
+                  // the popup said "Find shared wording" (NC, 2026-09-06).
+                  if (sel) setPanelTab(sel.lineCount === 1 ? 'verbal' : 'similar');
                   setPopupOpen(!!sel);
                   // The reader has chosen their own passage, so the note about
                   // how they arrived at someone else's is spent.
