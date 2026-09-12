@@ -503,11 +503,11 @@ export default function GeographicMap({ topCities = [], topCountries = [] }) {
             <div className="flex justify-between items-start gap-3 mb-2">
               <div>
                 <h4 className="font-bold text-[#b91c1c] text-sm">{selectedMarker.city}</h4>
-                <div className="text-gray-400 font-semibold text-[10px] uppercase tracking-wider">{selectedMarker.country}</div>
+                <div className="text-gray-500 font-semibold text-[10px] uppercase tracking-wider">{selectedMarker.country}</div>
               </div>
               <button 
                 onClick={() => setSelectedMarker(null)} 
-                className="text-gray-400 hover:text-gray-600 transition-colors font-semibold"
+                className="text-gray-500 hover:text-gray-600 transition-colors font-semibold"
               >
                 ✕
               </button>

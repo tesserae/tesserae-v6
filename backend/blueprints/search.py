@@ -304,7 +304,21 @@ def _finalize_results(scored_results, source_units, target_units, stoplist_size,
         "target_lines": len(target_units),
         "stoplist_size": stoplist_size,
         "cached": cached,
+        # Stamped so a result can be cited reproducibly: the same search on the
+        # same corpus version gives the same answer, and the corpus does change
+        # as texts are added and lemmatization improves (2026-09-08).
+        "corpus_version": _corpus_version_or_none(language),
     }
+
+
+def _corpus_version_or_none(language):
+    """The index's version stamp, or None. Never raises: a missing stamp costs
+    a clause in a citation, and must not cost the search."""
+    try:
+        from backend.inverted_index import get_corpus_version
+        return get_corpus_version(language)
+    except Exception:                                            # noqa: BLE001
+        return None
 
 
 def _handle_dictionary_cross(params, source_units, target_units, settings,
@@ -1718,6 +1732,7 @@ def search_stream():
                 "source_lines": response_data["source_lines"],
                 "target_lines": response_data["target_lines"],
                 "stoplist_size": response_data["stoplist_size"],
+                "corpus_version": response_data.get("corpus_version"),
                 "elapsed_time": elapsed_time
             }
             yield f"data: {json.dumps(result)}\n\n"

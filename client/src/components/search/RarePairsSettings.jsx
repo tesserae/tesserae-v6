@@ -89,7 +89,7 @@ const RarePairsSettings = ({ settings, setSettings, searchMode, language }) => {
                 placeholder="Default"
                 className="w-full border rounded px-2 py-2 text-sm disabled:opacity-50"
               />
-              <p className="text-xs text-gray-400 mt-1">Default = curated list + high-frequency words</p>
+              <p className="text-xs text-gray-500 mt-1">Default = curated list + high-frequency words</p>
             </div>
           </>
         )}

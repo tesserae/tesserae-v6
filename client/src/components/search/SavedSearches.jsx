@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { languageName } from '../../utils/languageNames';
 import { Modal } from '../common';
 
 const SavedSearches = ({ 
@@ -96,12 +97,10 @@ const SavedSearches = ({
                       <div className="font-medium text-gray-900 truncate">{search.name}</div>
                       <div className="text-xs text-gray-500">
                         {search.sourceAuthor} vs {search.targetAuthor} | {
-                          search.language === 'la' ? 'Latin' :
-                          search.language === 'grc' ? 'Greek' :
-                          search.language === 'cop' ? 'Coptic' : 'English'
+                          languageName(search.language)
                         }
                       </div>
-                      <div className="text-xs text-gray-400">
+                      <div className="text-xs text-gray-500">
                         Saved {new Date(search.created_at).toLocaleDateString()}
                       </div>
                     </div>

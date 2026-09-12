@@ -287,7 +287,7 @@ export default function CorpusBrowser() {
               {selectedSource ? (
                 <span className="font-medium">{selectedSource.author.author}, {selectedSource.text.title}</span>
               ) : (
-                <span className="text-gray-400">none</span>
+                <span className="text-gray-500">none</span>
               )}
             </span>
             <span>
@@ -295,7 +295,7 @@ export default function CorpusBrowser() {
               {selectedTarget ? (
                 <span className="font-medium">{selectedTarget.author.author}, {selectedTarget.text.title}</span>
               ) : (
-                <span className="text-gray-400">none</span>
+                <span className="text-gray-500">none</span>
               )}
             </span>
             <div className="flex gap-2 ml-auto">
@@ -368,15 +368,15 @@ export default function CorpusBrowser() {
                 onClick={() => toggleAuthor(group.author)}
                 className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer"
               >
-                <span className="text-gray-400 text-xs w-4">
+                <span className="text-gray-500 text-xs w-4">
                   {expandedAuthors.has(group.author) ? '▼' : '▶'}
                 </span>
                 <span className="font-medium text-gray-900 flex-1">{group.author}</span>
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-gray-500">
                   {group.texts.length} {group.texts.length === 1 ? 'work' : 'works'}
                 </span>
                 {group.era && group.era !== 'unknown' && (
-                  <span className="text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
+                  <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
                     {formatEraLabel(group.era)}
                   </span>
                 )}
@@ -439,7 +439,7 @@ export default function CorpusBrowser() {
                           </a>
                         )}
                         {text.line_count && (
-                          <span className="text-xs text-gray-400">{text.line_count} lines</span>
+                          <span className="text-xs text-gray-500">{text.line_count} lines</span>
                         )}
                       </div>
                       {blurb && openDescs.has(text.id) && (

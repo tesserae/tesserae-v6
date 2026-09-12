@@ -93,7 +93,7 @@ export default function TextPane({ units, language, selection, onSelect }) {
               style={{ gridTemplateColumns: '2.6rem 1fr', minHeight: '1.75rem' }}
             >
               <span
-                className="text-[0.72rem] text-gray-400 text-right pt-[0.35em] tabular-nums select-none"
+                className="text-[0.72rem] text-gray-500 text-right pt-[0.35em] tabular-nums select-none"
                 style={{ fontFamily: 'inherit' }}
               >
                 {showNumber ? n : ''}

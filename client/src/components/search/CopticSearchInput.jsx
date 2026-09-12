@@ -103,7 +103,7 @@ export default function CopticSearchInput({ value, onChange, onEnter, placeholde
         >
           {paletteOpen ? 'Hide letters' : 'Insert letters'}
         </button>
-        <span className="text-gray-400">
+        <span className="text-gray-500">
           Transliteration (Leipzig-Jerusalem):{' '}
           {HINT_KEYS.map((k) => `${k}→${transliterateToCoptic(k)}`).join('  ')}
         </span>

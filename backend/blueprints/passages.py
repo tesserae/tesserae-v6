@@ -99,11 +99,13 @@ def theme_search():
     except Exception as e:
         logger.exception('[PASSAGES] theme-search failed')
         return jsonify({'error': f'{type(e).__name__}: {e}', 'results': []})
+    # Stamped so a Theme Search can be cited reproducibly (2026-09-08).
+    out['corpus_version'] = passage_index.index_version()
     out['presentation'] = (
         'Each result is a passage whose CONTENT matches the description, not its '
         'wording, so results in different languages usually share no words with '
         'the query. Lead with the work and the gist; treat a result marked '
-        'strong:false as a weak neighbour rather than a finding.')
+        'strong:false as a weak neighbor rather than a finding.')
     return jsonify(out)
 
 

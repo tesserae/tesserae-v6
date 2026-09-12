@@ -476,7 +476,7 @@ export default function AdminPanel() {
               <h3 className="text-lg font-semibold text-gray-900">Change Admin Password</h3>
               <button
                 onClick={() => setShowChangePassword(false)}
-                className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+                className="text-gray-500 hover:text-gray-600 text-2xl leading-none"
               >
                 &times;
               </button>

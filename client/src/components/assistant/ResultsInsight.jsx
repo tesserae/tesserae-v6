@@ -9,28 +9,48 @@ import FindingsBlock from './FindingsBlock';
  * spends a slow generation on someone who may only want the list, and it puts a
  * machine opinion above their own before they have formed one. So it sits as one
  * quiet control, and it opens with the computed figures rather than the prose.
+ *
+ * Scope is a choice, and it is said out loud. Tessa read the top 25 by default
+ * and the panel only admitted it in a hover tooltip, so a reader took a summary
+ * of 25 parallels for a summary of the whole list. The header now names the
+ * count, and the reader can widen it to the top 100 or to everything loaded.
+ * The figures are computed over every parallel sent; only a handful of
+ * passages go to the model, so widening the scope costs little.
  */
+const SCOPES = [25, 100];
+
 export default function ResultsInsight({ results, source, target, className = '' }) {
   const [open, setOpen] = useState(false);
+  const [scope, setScope] = useState(25);
   const [question, setQuestion] = useState('');
   const { text, facts, guardrails, running, error, run } = useAssistantStream();
 
   if (!results?.length) return null;
 
-  const ask = (q) => {
+  const total = results.length;
+  const count = Math.min(scope, total);
+  const scopeLabel = count === total ? `all ${total}` : `the top ${count} of ${total}`;
+
+  const ask = (q, n = scope) => {
     setOpen(true);
     run('/api/assistant/analyze-stream', {
-      results: results.slice(0, 25),
+      results: results.slice(0, n),
       source,
       target,
       question: q || undefined,
     });
   };
 
+  const changeScope = (n) => {
+    setScope(n);
+    ask(question, n);
+  };
+
   if (!open) {
     return (
       <button
         onClick={() => ask('')}
+        title={`Tessa reads ${scopeLabel} parallels in this list and summarizes what they show, starting from the computed figures. You can widen the scope once the panel is open. Nothing runs until you click.`}
         className={`text-sm text-red-700 hover:text-red-900 font-medium underline decoration-dotted underline-offset-4 ${className}`}
       >
         What does this evidence show?
@@ -38,10 +58,14 @@ export default function ResultsInsight({ results, source, target, className = ''
     );
   }
 
+  const scopeOptions = SCOPES.filter((n) => n < total);
+
   return (
     <section className={`rounded border border-gray-200 bg-gray-50 p-3 space-y-3 ${className}`}>
-      <div className="flex items-baseline justify-between gap-3">
-        <h3 className="text-sm font-semibold text-gray-800">Reading these results</h3>
+      <div className="flex items-baseline justify-between gap-3 flex-wrap">
+        <h3 className="text-sm font-semibold text-gray-800">
+          Tessa is reading {scopeLabel} parallels
+        </h3>
         <button
           onClick={() => setOpen(false)}
           className="text-xs text-gray-500 hover:text-gray-700"
@@ -49,6 +73,23 @@ export default function ResultsInsight({ results, source, target, className = ''
           Close
         </button>
       </div>
+
+      {(scopeOptions.length > 0) && (
+        <div className="flex items-center gap-2 text-xs text-gray-600 flex-wrap">
+          <span>Read:</span>
+          {scopeOptions.map((n) => (
+            <ScopeButton key={n} active={scope === n} disabled={running} onClick={() => changeScope(n)}>
+              top {n}
+            </ScopeButton>
+          ))}
+          <ScopeButton active={scope >= total} disabled={running} onClick={() => changeScope(total)}>
+            all {total}
+          </ScopeButton>
+          <span className="text-gray-500">
+            (the parallels loaded on this page, in ranked order)
+          </span>
+        </div>
+      )}
 
       <FindingsBlock facts={facts} />
 
@@ -81,7 +122,7 @@ export default function ResultsInsight({ results, source, target, className = ''
           <input
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            placeholder="Ask about these results"
+            placeholder={`Ask about ${scopeLabel} parallels`}
             className="flex-1 text-sm px-2 py-1.5 rounded border border-gray-300 focus:outline-none focus:ring-1 focus:ring-red-600"
           />
           <button
@@ -95,9 +136,27 @@ export default function ResultsInsight({ results, source, target, className = ''
       )}
 
       <p className="text-[11px] text-gray-500 leading-snug">
-        The figures are computed by the search engine. The prose is written by a local
-        open model from those figures and the passages shown, and it knows nothing else.
+        The figures are computed by the search engine over {scopeLabel} parallels. The prose is
+        written by a local open model from those figures and a few of the passages, and it knows
+        nothing else.
       </p>
     </section>
+  );
+}
+
+function ScopeButton({ active, disabled, onClick, children }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled || active}
+      className={`px-2 py-0.5 rounded border text-xs ${
+        active
+          ? 'bg-red-700 border-red-700 text-white'
+          : 'bg-white border-gray-300 text-gray-700 hover:border-red-600 hover:text-red-700 disabled:opacity-50'
+      }`}
+    >
+      {children}
+    </button>
   );
 }

@@ -96,9 +96,20 @@ def search_fusion_stream():
             source_unit_type = data.get('source_unit_type', 'line')
             target_unit_type = data.get('target_unit_type', 'line')
             use_meter = data.get('use_meter', False)
+            # The web's settings start with meter on and are corrected by a
+            # later /api/check-meter call; a default search fired before that
+            # correction lands carries use_meter=True for a language with no
+            # scansion and misses the cache the GET route and the warm-ups
+            # share (2026-09-06). Decide it here the way the GET route does.
+            if use_meter and not _poll_use_meter(source_id, target_id, language):
+                use_meter = False
             freq_basis = data.get('freq_basis', 'corpus')  # corpus | meter | text_pair
             if freq_basis not in ('corpus', 'meter', 'text_pair'):
                 freq_basis = 'corpus'
+            # Name the pair at the start: a long or memory-heavy search is
+            # otherwise anonymous in the log until its first channel reports.
+            logger.info('[FUSION] stream start: %s x %s (%s) max_results=%s use_meter=%s',
+                        source_id, target_id, language, max_results, use_meter)
             if max_results <= 0:
                 max_results = 5000  # enforce cap for browser payload size
 
@@ -702,11 +713,17 @@ def fusion_search_get():
     if not source_id or not target_id:
         return jsonify({'error': 'Provide source and target text ids (see /api/texts).'}), 400
     try:
-        max_results = int(request.args.get('max', request.args.get('max_results', 5000)))
+        display_max = int(request.args.get('max', request.args.get('max_results', 5000)))
     except (TypeError, ValueError):
-        max_results = 5000
-    if max_results <= 0:
-        max_results = 5000
+        display_max = 5000
+    if display_max <= 0:
+        display_max = 5000
+    # The cache key does not include the requested count, so a search computed
+    # at max=200 was stored as THE result for the pair and served to the web
+    # page, which asks for up to 5000, as a 200-line list (preview warm-ups,
+    # 2026-09-06). The job therefore always runs at the storage cap, and `max`
+    # only trims what this response shows.
+    max_results = 5000
 
     source_path = resolve_text_path(_texts_dir, language, source_id)
     target_path = resolve_text_path(_texts_dir, language, target_id)
@@ -767,6 +784,7 @@ def fusion_search_get():
             results = [r for r in results if tgt_pfx in _norm((r.get('target') or {}).get('ref'))]
         if min_score is not None:
             results = [r for r in results if (r.get('fused_score') or 0) >= min_score]
+        results = results[:display_max]
 
         try:
             offset = max(0, int(request.args.get('offset', 0)))

@@ -263,7 +263,7 @@ export default function CacheTab({ authHeaders, cacheInfo, bigramStats, onRefres
                           ? 'text-red-500'
                           : confirmModal.severity === 'medium'
                             ? 'text-amber-500'
-                            : 'text-gray-400'
+                            : 'text-gray-500'
                       }`}>•</span>
                       {item}
                     </li>

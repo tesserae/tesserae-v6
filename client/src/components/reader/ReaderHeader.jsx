@@ -37,7 +37,7 @@ function Select({ label, value, options, onChange, disabled }) {
         onChange={(e) => onChange(e.target.value)}
         className="max-w-[11rem] truncate rounded border border-gray-300 bg-white px-2 py-1 text-sm
                    text-gray-800 hover:border-gray-400 focus:outline-none focus:ring-1
-                   focus:ring-red-600 disabled:bg-gray-50 disabled:text-gray-400"
+                   focus:ring-red-600 disabled:bg-gray-50 disabled:text-gray-500"
       >
         {!value && <option value="">{label}</option>}
         {options.map((o) => (

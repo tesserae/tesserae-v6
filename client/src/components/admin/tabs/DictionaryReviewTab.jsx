@@ -195,7 +195,7 @@ export default function DictionaryReviewTab() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline gap-2 flex-wrap">
                   <span className="font-medium text-gray-900">{entry.greek_lemma}</span>
-                  <span className="text-gray-400">↔</span>
+                  <span className="text-gray-500">↔</span>
                   <span className="font-medium text-gray-900">{entry.latin_lemma}</span>
                   {entry.shared_senses && (
                     <span className="text-sm text-gray-500">({entry.shared_senses})</span>
@@ -203,11 +203,11 @@ export default function DictionaryReviewTab() {
                 </div>
                 <div className="flex items-center gap-3 mt-0.5">
                   {entry.greek_pos && (
-                    <span className="text-xs text-gray-400">{entry.greek_pos}/{entry.latin_pos}</span>
+                    <span className="text-xs text-gray-500">{entry.greek_pos}/{entry.latin_pos}</span>
                   )}
-                  <span className="text-xs text-gray-400">score: {Math.round(entry.score)}</span>
+                  <span className="text-xs text-gray-500">score: {Math.round(entry.score)}</span>
                   {entry.reviewed_by && (
-                    <span className="text-xs text-gray-400">
+                    <span className="text-xs text-gray-500">
                       by {entry.reviewed_by}
                     </span>
                   )}
@@ -263,7 +263,7 @@ export default function DictionaryReviewTab() {
                     {(entry.status === 'accepted' || entry.status === 'rejected') && (
                       <button
                         onClick={() => updateEntry(entry.id, 'pending')}
-                        className="px-2 py-0.5 text-xs rounded border border-gray-200 text-gray-400 hover:bg-gray-50"
+                        className="px-2 py-0.5 text-xs rounded border border-gray-200 text-gray-500 hover:bg-gray-50"
                       >
                         Undo
                       </button>

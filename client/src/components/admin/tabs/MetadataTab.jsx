@@ -168,7 +168,7 @@ export default function MetadataTab({ authHeaders }) {
                 className="w-full border rounded px-2 py-1.5 text-sm"
                 placeholder={editingMetadata._auto_year || 'From author_dates.json'}
               />
-              <p className="text-xs text-gray-400 mt-0.5">Negative for BCE (e.g., -70 for 70 BCE)</p>
+              <p className="text-xs text-gray-500 mt-0.5">Negative for BCE (e.g., -70 for 70 BCE)</p>
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-700 mb-1">Era</label>
@@ -251,7 +251,7 @@ export default function MetadataTab({ authHeaders }) {
                       {text.has_override ? (
                         <span className="text-xs text-amber-600 font-medium">Overridden</span>
                       ) : (
-                        <span className="text-xs text-gray-400">Auto</span>
+                        <span className="text-xs text-gray-500">Auto</span>
                       )}
                     </td>
                     <td className="px-2 py-1.5 text-right whitespace-nowrap">

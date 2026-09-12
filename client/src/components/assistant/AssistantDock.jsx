@@ -273,7 +273,7 @@ export default function AssistantDock() {
           )}
           <button
             onClick={() => setOpen(false)}
-            className="text-gray-400 hover:text-gray-700 text-lg leading-none px-1"
+            className="text-gray-500 hover:text-gray-700 text-lg leading-none px-1"
             aria-label="Close Tessa"
           >
             ×

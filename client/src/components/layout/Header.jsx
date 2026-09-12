@@ -399,7 +399,7 @@ const Header = ({ user, setUser, onLogoClick }) => {
               <h3 className="text-lg font-bold text-gray-900">Link ORCID</h3>
               <button
                 onClick={() => { setShowOrcidModal(false); setOrcidError(null); }}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-500 hover:text-gray-600"
               >
                 &times;
               </button>
@@ -465,7 +465,7 @@ const Header = ({ user, setUser, onLogoClick }) => {
               </h3>
               <button
                 onClick={() => { setShowLoginModal(false); resetLoginForm(); }}
-                className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+                className="text-gray-500 hover:text-gray-600 text-2xl leading-none"
               >
                 &times;
               </button>
@@ -592,7 +592,7 @@ const Header = ({ user, setUser, onLogoClick }) => {
               <h3 className="text-lg font-bold text-gray-900">Reset Password</h3>
               <button
                 onClick={() => setShowResetModal(false)}
-                className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+                className="text-gray-500 hover:text-gray-600 text-2xl leading-none"
               >
                 &times;
               </button>

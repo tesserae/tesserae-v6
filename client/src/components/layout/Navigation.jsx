@@ -1,4 +1,40 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+
+/** Tells a horizontally scrolling strip whether there is more to its right.
+ *
+ *  The tab strips hide their scrollbar, which looks clean on a laptop where
+ *  every tab fits and hides half the site on a phone where three or four do.
+ *  This sets data-more on the container; index.css paints a fade while it is
+ *  true (2026-09-08). Watches scrolling, resizing and content changes, because
+ *  the language row appears and disappears with the page.
+ */
+function useScrollHint(contentKey) {
+  const ref = useRef(null);
+  const [more, setMore] = useState(false);
+  const measure = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    setMore(el.scrollWidth - el.clientWidth - el.scrollLeft > 4);
+  }, []);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    // contentKey re-measures when the tabs themselves change: adding a tab
+    // changes scrollWidth but not the container's own box, so a ResizeObserver
+    // alone would not notice.
+    measure();
+    el.addEventListener('scroll', measure, { passive: true });
+    window.addEventListener('resize', measure);
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
+    if (ro) ro.observe(el);
+    return () => {
+      el.removeEventListener('scroll', measure);
+      window.removeEventListener('resize', measure);
+      if (ro) ro.disconnect();
+    };
+  }, [measure, contentKey]);
+  return [ref, more];
+}
 
 const mainTabs = [
   { code: 'search', label: 'Search' },
@@ -34,6 +70,8 @@ const Navigation = ({
   setShowDownloads
 }) => {
   const [languageTabs, setLanguageTabs] = useState(defaultLanguageTabs);
+  const [mainRef, mainMore] = useScrollHint(showDownloads);
+  const [langRef, langMore] = useScrollHint(languageTabs.length + ':' + pageType);
 
   useEffect(() => {
     fetch('/api/languages')
@@ -85,7 +123,11 @@ const Navigation = ({
     <nav className="bg-gray-50 border-b sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-3 sm:px-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex overflow-x-auto scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0">
+          <div
+            ref={mainRef}
+            data-more={mainMore}
+            className="scroll-hint flex overflow-x-auto scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0"
+          >
             {mainTabs
               .filter(tab => tab.code !== 'admin')
               .map(tab => (
@@ -127,7 +169,11 @@ const Navigation = ({
         
         {pageType === 'search' && (
           <div className="py-2 border-t">
-            <div className="flex overflow-x-auto scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0">
+            <div
+              ref={langRef}
+              data-more={langMore}
+              className="scroll-hint flex overflow-x-auto scrollbar-hide -mx-3 px-3 sm:mx-0 sm:px-0"
+            >
               {languageTabs.map(tab => (
                 <button
                   key={tab.code}

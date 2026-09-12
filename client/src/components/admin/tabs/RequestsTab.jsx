@@ -383,7 +383,7 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
               </div>
               <button
                 onClick={() => setSelectedRequest(null)}
-                className="text-gray-400 hover:text-gray-600 text-2xl"
+                className="text-gray-500 hover:text-gray-600 text-2xl"
               >
                 &times;
               </button>
@@ -403,7 +403,7 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
                     className="w-full border rounded px-3 py-2 text-sm"
                     placeholder="e.g., Vergil"
                   />
-                  <p className="text-xs text-gray-400 mt-1">Original: {selectedRequest.author}</p>
+                  <p className="text-xs text-gray-500 mt-1">Original: {selectedRequest.author}</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Official Work Title</label>
@@ -417,7 +417,7 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
                     className="w-full border rounded px-3 py-2 text-sm"
                     placeholder="e.g., Aeneid"
                   />
-                  <p className="text-xs text-gray-400 mt-1">Original: {selectedRequest.work}</p>
+                  <p className="text-xs text-gray-500 mt-1">Original: {selectedRequest.work}</p>
                 </div>
               </div>
 
@@ -608,7 +608,7 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
 
               <div className="bg-gray-900 rounded p-4">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs font-medium text-gray-400 uppercase">.tess Preview</span>
+                  <span className="text-xs font-medium text-gray-500 uppercase">.tess Preview</span>
                   <span className="text-xs text-gray-500">First 10 lines</span>
                 </div>
                 <pre className="text-amber-400 text-sm font-mono whitespace-pre-wrap overflow-x-auto">

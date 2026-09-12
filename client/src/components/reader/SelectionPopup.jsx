@@ -76,10 +76,10 @@ export default function SelectionPopup({ selection, work, language, onClose, onT
       <div className="flex items-baseline justify-between px-3 py-2 border-b border-gray-200">
         <span className="text-xs text-gray-600">
           {n} line{n === 1 ? '' : 's'} selected
-          <span className="text-gray-400"> · {refStart}{refEnd !== refStart ? `–${refEnd}` : ''}</span>
+          <span className="text-gray-500"> · {refStart}{refEnd !== refStart ? `–${refEnd}` : ''}</span>
         </span>
         <button onClick={onClose}
-                className="text-gray-400 hover:text-gray-700 text-lg leading-none px-1"
+                className="text-gray-500 hover:text-gray-700 text-lg leading-none px-1"
                 aria-label="Close">×</button>
       </div>
 

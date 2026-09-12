@@ -17,12 +17,47 @@ import ThemeExport from './ThemeExport';
  * doing real work and hiding it would be worse than showing it.
  */
 
-const EXAMPLES = [
-  'a guest arrives and is welcomed with food, wine, and a bath',
-  'a mother laments her dead son over his body',
-  'a wife or child recognizes someone long thought dead or lost',
-  'a warrior arms himself before battle, piece by piece',
-];
+/* THE EXAMPLES HAVE TO SUIT THE CORPUS THE SERVER ACTUALLY HOLDS.
+ *
+ * The four below on the left were written when the corpus was Latin and Greek,
+ * and they are Homeric and Virgilian topoi. On a preview serving Coptic,
+ * Persian, Urdu and Arabic, two of them came back "the corpus does not appear
+ * to contain passages of this kind": the page was offering a first-time
+ * visitor four suggestions and failing on half of them (NC, 2026-09-09). It is
+ * the same fault as the Latin authors that once appeared in the Persian tab, a
+ * fixed list that does not follow what is served.
+ *
+ * Every query in every set below was MEASURED against the corpus it is offered
+ * to, not guessed. Each rated strong or moderate when run. If the corpus
+ * changes substantially, measure them again rather than assuming they hold:
+ * scripts exist for this in evaluation/probe_sets/.
+ */
+const EXAMPLE_SETS = {
+  // Latin, Greek and English. The set the production site has always shown.
+  classical: [
+    'a guest arrives and is welcomed with food, wine, and a bath',
+    'a mother laments her dead son over his body',
+    'a wife or child recognizes someone long thought dead or lost',
+    'a warrior arms himself before battle, piece by piece',
+  ],
+  // Persian, Urdu and Arabic, with Coptic alongside. Measured 2026-09-09:
+  // all four rated strong, and three of the four return Coptic passages too.
+  persoArabic: [
+    'a moth is drawn to the candle flame and burns, love as self-destruction',
+    'the cupbearer is asked to pour wine at dawn',
+    'a poet praises his patron’s generosity and courage',
+    'the dead are mourned and the mourner tears his clothes',
+  ],
+};
+
+/** The example set for the languages this server serves. Classical wins when
+ *  any of its languages is present, so production is unchanged. */
+function examplesFor(served) {
+  const has = (codes) => Array.isArray(served) && served.some((c) => codes.includes(c));
+  if (has(['la', 'grc', 'en'])) return EXAMPLE_SETS.classical;
+  if (has(['fa', 'ur', 'ar'])) return EXAMPLE_SETS.persoArabic;
+  return EXAMPLE_SETS.classical;
+}
 
 const BAND = {
   unrated: {
@@ -95,7 +130,7 @@ function byWork(results) {
 
 const LANG_LABEL = {
   la: 'Latin', grc: 'Greek', he: 'Hebrew', cop: 'Coptic',
-  en: 'English', fa: 'Persian', ur: 'Urdu',
+  en: 'English', fa: 'Persian', ur: 'Urdu', ar: 'Arabic',
   it: 'Italian', fro: 'Old French', gmh: 'Middle High German',
 };
 
@@ -109,14 +144,29 @@ const LANG_CHOICES = [
   ['cop', 'Coptic'],
   ['fa', 'Persian'],
   ['ur', 'Urdu'],
+  ['ar', 'Arabic'],
   ['it', 'Italian'],
   ['fro', 'Old French'],
   ['gmh', 'Middle High German'],
 ];
 
+// The passage index on production has held Persian and Urdu windows since
+// 2026-08-25 by design, while word search does not serve those languages, so
+// /api/languages does not list them. They stay on offer here regardless.
+const INDEX_ONLY = ['fa', 'ur'];
+
 export default function ThemeSearchPage() {
   const [query, setQuery] = useState('');
   const [language, setLanguage] = useState('');
+  // Only the languages this server serves are offered (a preview serves a
+  // few; the full row on it promised Latin and Old French, 2026-09-07).
+  const [served, setServed] = useState(null);
+  useEffect(() => {
+    fetch('/api/languages').then((r) => r.json()).then((d) => {
+      const codes = (d.languages || []).map((l) => l.code || l).filter(Boolean);
+      if (codes.length) setServed(codes);
+    }).catch(() => {});
+  }, []);
   const [data, setData] = useState(null);
   const [running, setRunning] = useState(false);
   const [showWeak, setShowWeak] = useState(false);
@@ -170,7 +220,19 @@ export default function ThemeSearchPage() {
       // The API reports trouble in the body rather than by status, so that a
       // missing index degrades this panel instead of breaking the page.
       if (json.error) setError(json.error);
-      else { setData(json); setLimit(wanted); }
+      else {
+        setData(json);
+        setLimit(wanted);
+        // Record the search in the address. The page has always been able to
+        // READ a query from the URL, and never wrote one, so reloading lost
+        // the search and there was nothing to copy out of the address bar
+        // (2026-09-08). replaceState rather than pushState: the reader gets a
+        // reloadable, sendable link without the Back button filling up with
+        // every refinement of the same search.
+        const p = new URLSearchParams({ query: text });
+        if (langParam) p.set('languages', langParam);
+        window.history.replaceState({}, '', `/theme-search?${p.toString()}`);
+      }
     } catch (e) {
       setError(e.message || 'the search could not be run');
     } finally {
@@ -234,7 +296,8 @@ export default function ThemeSearchPage() {
     const p = new URLSearchParams(window.location.search);
     const q = (p.get('query') || '').trim();
     if (!q) return;
-    const lang = (p.get('languages') || '').split(',')[0].trim();
+    // any number of languages, comma-separated (2026-09-06: a pick-several control)
+    const lang = (p.get('languages') || '').split(',').map((x) => x.trim()).filter(Boolean).join(',');
     setQuery(q);
     if (lang) setLanguage(lang);
     run(q, lang || '');
@@ -283,30 +346,34 @@ export default function ThemeSearchPage() {
         * So a scholar working in one language was being outvoted by the breadth
         * of the corpus. The API already took `languages`; nothing exposed it. */}
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <label className="text-xs text-gray-600" htmlFor="theme-language">
-          Search in
-        </label>
-        <select
-          id="theme-language"
-          value={language}
-          onChange={(e) => {
-            const next = e.target.value;
+        <span className="text-xs text-gray-600">Search in</span>
+        {/* Pick any set of languages (2026-09-06). 'All' clears the set; the
+            request sends the chosen codes comma-separated, which the API has
+            always accepted. */}
+        {LANG_CHOICES.filter(([v]) => !v || !served || served.includes(v) || INDEX_ONLY.includes(v)).map(([v, label]) => {
+          const chosen = language ? language.split(',') : [];
+          const on = v ? chosen.includes(v) : chosen.length === 0;
+          const toggle = () => {
+            let next;
+            if (!v) next = '';
+            else next = (on ? chosen.filter((c) => c !== v) : [...chosen, v]).join(',');
             setLanguage(next);
             if (query.trim()) run(query, next);
-          }}
-          className="text-xs border border-gray-300 rounded px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-red-600"
-        >
-          {LANG_CHOICES.map(([v, label]) => (
-            <option key={v || 'all'} value={v}>{label}</option>
-          ))}
-        </select>
+          };
+          return (
+            <label key={v || 'all'} className={`text-xs px-2 py-0.5 rounded border cursor-pointer select-none ${on ? 'bg-red-600 text-white border-red-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>
+              <input type="checkbox" className="sr-only" checked={on} onChange={toggle} />
+              {label}
+            </label>
+          );
+        })}
         <span className="text-[11px] text-gray-500">
-          one language at a time shows more of it
+          fewer languages show more of each
         </span>
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
-        {EXAMPLES.map((ex) => (
+        {examplesFor(served).map((ex) => (
           <button
             key={ex}
             onClick={() => { setQuery(ex); run(ex); }}
@@ -367,6 +434,7 @@ export default function ThemeSearchPage() {
               low-confidence set the reader has not chosen to look at. */}
           {(data.confidence?.level !== 'low' || showWeak) && (
             <ThemeExport query={data.query || query} language={language}
+                         corpusVersion={data.corpus_version}
                          count={data.results?.length || 0} />
           )}
           {(data.confidence?.level !== 'low' || showWeak) && (
@@ -410,7 +478,7 @@ export default function ThemeSearchPage() {
                       const d = dateParts(head);
                       if (!d) {
                         return (
-                          <span className="inline-block rounded bg-gray-50 border border-gray-200 px-2 py-0.5 text-sm text-gray-400">
+                          <span className="inline-block rounded bg-gray-50 border border-gray-200 px-2 py-0.5 text-sm text-gray-500">
                             undated
                           </span>
                         );
@@ -426,7 +494,7 @@ export default function ThemeSearchPage() {
                             {head.era}
                           </div>
                           {d.about && (
-                            <div className="mt-0.5 text-[11px] text-gray-400 leading-tight">
+                            <div className="mt-0.5 text-[11px] text-gray-500 leading-tight">
                               {d.about}
                             </div>
                           )}
@@ -469,7 +537,7 @@ export default function ThemeSearchPage() {
                         </a>
                         {r.strong === false && (
                           <span className="text-[10px] text-gray-500 border border-gray-300 rounded px-1">
-                            weak neighbour
+                            weak neighbor
                           </span>
                         )}
                       </div>
@@ -512,7 +580,7 @@ export default function ThemeSearchPage() {
                 disabled={loadingMore}
                 className="rounded border border-gray-300 bg-white px-4 py-1.5 text-sm
                            text-gray-700 hover:border-gray-400 hover:text-gray-900
-                           disabled:text-gray-400"
+                           disabled:text-gray-500"
               >
                 {loadingMore ? 'Loading…' : 'Show more results'}
               </button>

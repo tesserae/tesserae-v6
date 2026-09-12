@@ -62,6 +62,19 @@ export default function ReaderPage() {
   const [focusView, setFocusView] = useState(() => paramOr('view', 'source'));
   const [fullTr, setFullTr] = useState(null);
   useEffect(() => { setFullTr(null); }, [work]);
+
+  // Name the browser tab after the work being read. A reader keeps several of
+  // these open side by side and bookmarks the interesting ones, and every one
+  // of them used to say "Tesserae V6" (2026-09-08).
+  useEffect(() => {
+    const stem = String(work || '').replace(/\.tess$/, '').replace(/_/g, ' ');
+    const pretty = stem
+      .split('.')
+      .slice(0, 2)
+      .map((p) => p.replace(/\b\w/g, (c) => c.toUpperCase()))
+      .join(', ');
+    document.title = pretty ? `${pretty} — Reader — Tesserae` : 'Reader — Tesserae';
+  }, [work]);
   useEffect(() => {
     if (focusView !== 'english' || fullTr !== null) return;
     setFullTr('loading');
@@ -304,14 +317,18 @@ export default function ReaderPage() {
                       {' '}&middot; the matching passage is selected below
                     </span>
                   )}
-                  <a href="/theme-search" className="ml-2 text-red-700 hover:underline">
+                  {/* The search itself goes back in the address, so the page
+                      re-runs it; a bare /theme-search landed on an empty form
+                      (NC, 2026-09-07). */}
+                  <a href={`/theme-search?query=${encodeURIComponent(cameFrom)}`}
+                     className="ml-2 text-red-700 hover:underline">
                     back to results
                   </a>
                 </span>
                 <button
                   onClick={() => setCameFrom('')}
                   aria-label="Dismiss"
-                  className="ml-auto shrink-0 text-gray-400 hover:text-gray-700 text-base leading-none px-1"
+                  className="ml-auto shrink-0 text-gray-500 hover:text-gray-700 text-base leading-none px-1"
                 >
                   ×
                 </button>
@@ -388,7 +405,7 @@ export default function ReaderPage() {
                         className={`cursor-pointer rounded p-2 -mx-2 ${
                           isSel ? 'bg-red-50 ring-1 ring-red-200' : 'hover:bg-gray-50'}`}
                       >
-                        <p className="text-[10px] text-gray-400 mb-0.5">{b.ref_start}
+                        <p className="text-[10px] text-gray-500 mb-0.5">{b.ref_start}
                           {b.ref_end !== b.ref_start ? ` – ${b.ref_end}` : ''}</p>
                         <p className="text-[15px] leading-relaxed text-gray-900"
                            style={{ fontFamily: 'Georgia, serif' }}>{b.text}</p>

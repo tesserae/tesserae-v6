@@ -264,11 +264,30 @@ def is_available():
         return False
 
 
+def index_version():
+    """A date stamp for the passage index, for citing a Theme Search.
+
+    The per-language inverted indexes carry a corpus_version in a meta table;
+    this index has no such table, so the stamp comes from the build date of
+    ids.json, which is rewritten whenever windows are added or dropped. Same
+    fallback the inverted index uses when its stamp is missing. Returns None
+    rather than raising: a missing stamp costs a clause in a citation
+    (2026-09-08).
+    """
+    try:
+        import datetime
+        p = os.path.join(_DATA_DIR, 'ids.json')
+        return datetime.date.fromtimestamp(os.path.getmtime(p)).isoformat()
+    except Exception:                                            # noqa: BLE001
+        return None
+
+
 def status():
     _ensure_loaded()
     return {
         'available': _state['ok'],
         'error': _state['error'],
+        'index_version': index_version(),
         'windows': len(_ids) if _ids else 0,
         'works': len(_by_work) if _by_work else 0,
         'model': EMBED_MODEL,
@@ -519,6 +538,12 @@ def _dating(work, language):
     info = (_author_dates().get(language) or {}).get(key)
     if not info:
         return {}
+    # The preview trimmed notes at the first semicolon and dropped parentheses
+    # because its Persian, Urdu and Arabic rows carried curation remarks. On
+    # the production table that rule cut real dating: "Greek philosopher
+    # (d. 322 BCE); Latin translations ..." lost its date, and "fl. c. 55 CE
+    # (date contested; ...)" was left with an open parenthesis. The note is
+    # shown as written; clean the table rows instead.
     return {'year': info.get('year'), 'era': info.get('era'),
             'date_note': info.get('note')}
 
@@ -856,7 +881,7 @@ def _confidence_note_fitted(level):
         return ('Moderate confidence: the corpus holds passages of this kind, but the '
                 'match is looser than a clear case. Read the results before relying on them.')
     return ('The corpus does not appear to contain passages of this kind. Anything '
-            'the search returns for it is a nearest neighbour, not a finding.')
+            'the search returns for it is a nearest neighbor, not a finding.')
 
 
 # QUERY EXPANSION: make the query look like the thing being searched.

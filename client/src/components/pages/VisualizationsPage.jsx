@@ -12,7 +12,7 @@ export default function VisualizationsPage() {
         <h1 className="text-2xl sm:text-3xl font-bold text-red-700 mb-2">
           Distant Reading Visualizations
         </h1>
-        <p className="text-gray-400">
+        <p className="text-gray-500">
           Explore large-scale patterns of literary influence across the classical corpus.
           These visualizations reveal connections invisible through traditional close reading.
         </p>
@@ -41,7 +41,7 @@ export default function VisualizationsPage() {
 
       <div className="flex flex-wrap gap-4 mb-4 p-3 bg-gray-800 rounded-lg">
         <div className="flex items-center gap-2">
-          <label className="text-sm text-gray-400">Language:</label>
+          <label className="text-sm text-gray-500">Language:</label>
           <select
             value={language}
             onChange={e => setLanguage(e.target.value)}
@@ -54,7 +54,7 @@ export default function VisualizationsPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <label className="text-sm text-gray-400">Node Type:</label>
+          <label className="text-sm text-gray-500">Node Type:</label>
           <select
             value={nodeType}
             onChange={e => setNodeType(e.target.value)}
@@ -104,48 +104,48 @@ export default function VisualizationsPage() {
 
       <div className="mt-6 p-4 bg-gray-800 rounded-lg">
         <h3 className="text-lg font-semibold text-amber-300 mb-2">Methodology</h3>
-        <p className="text-sm text-gray-400 mb-3">
+        <p className="text-sm text-gray-500 mb-3">
           Connections are identified using a multi-signal composite scoring system that correlates 
           four independent matching algorithms for high precision:
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="p-3 bg-gray-700 rounded">
             <div className="font-semibold text-amber-200">Lemma Matching</div>
-            <div className="text-sm text-gray-400">Threshold: 7+ shared lemmas</div>
+            <div className="text-sm text-gray-500">Threshold: 7+ shared lemmas</div>
             <div className="text-xs text-gray-500">Dictionary-normalized word comparison</div>
           </div>
           <div className="p-3 bg-gray-700 rounded">
             <div className="font-semibold text-amber-200">Semantic Similarity</div>
-            <div className="text-sm text-gray-400">Threshold: 0.7+ cosine similarity</div>
+            <div className="text-sm text-gray-500">Threshold: 0.7+ cosine similarity</div>
             <div className="text-xs text-gray-500">SPhilBERTa neural embeddings</div>
           </div>
           <div className="p-3 bg-gray-700 rounded">
             <div className="font-semibold text-amber-200">Sound Matching</div>
-            <div className="text-sm text-gray-400">Threshold: 0.6+ phonetic similarity</div>
+            <div className="text-sm text-gray-500">Threshold: 0.6+ phonetic similarity</div>
             <div className="text-xs text-gray-500">Phonetic transcription comparison</div>
           </div>
           <div className="p-3 bg-gray-700 rounded">
             <div className="font-semibold text-amber-200">Edit Distance</div>
-            <div className="text-sm text-gray-400">Threshold: 0.5+ similarity</div>
+            <div className="text-sm text-gray-500">Threshold: 0.5+ similarity</div>
             <div className="text-xs text-gray-500">Character-level Levenshtein distance</div>
           </div>
         </div>
         <div className="mt-4 flex flex-wrap gap-4">
           <div className="flex items-center gap-2">
             <span className="px-2 py-1 bg-yellow-600 rounded text-xs font-semibold">GOLD</span>
-            <span className="text-sm text-gray-400">4 signals confirm</span>
+            <span className="text-sm text-gray-500">4 signals confirm</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="px-2 py-1 bg-gray-500 rounded text-xs font-semibold">SILVER</span>
-            <span className="text-sm text-gray-400">3 signals confirm</span>
+            <span className="text-sm text-gray-500">3 signals confirm</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="px-2 py-1 bg-amber-800 rounded text-xs font-semibold">BRONZE</span>
-            <span className="text-sm text-gray-400">2 signals confirm</span>
+            <span className="text-sm text-gray-500">2 signals confirm</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="px-2 py-1 bg-orange-900 rounded text-xs font-semibold">COPPER</span>
-            <span className="text-sm text-gray-400">1 signal confirms</span>
+            <span className="text-sm text-gray-500">1 signal confirms</span>
           </div>
         </div>
       </div>
