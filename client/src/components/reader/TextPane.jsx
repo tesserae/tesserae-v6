@@ -155,22 +155,16 @@ export default function TextPane({ units, language, selection, onSelect, total, 
                 const el = e.currentTarget;
                 const bottom = el.offsetTop + el.offsetHeight;
                 if (!coarse) return;   // the mouse path selects on mousedown/mouseup above
-                if (coarse) {
-                  // TOUCH SCREENS SELECT BY TAPPING. Native text selection is
-                  // off there (see index.css), so the phone's own Copy bar
-                  // never appears over the page (NC, 2026-09-07). A tap
-                  // selects a line; a tap on another line extends the span
-                  // to it; a tap inside the span narrows it to that line.
-                  if (selection && (i < selLo || i > selHi)) {
-                    emit(Math.min(selLo, i), Math.max(selHi, i), bottom, '');
-                  } else {
-                    emit(i, i, bottom, u.text);
-                  }
-                  return;
+                // TOUCH SCREENS SELECT BY TAPPING. Native text selection is
+                // off there (see index.css), so the phone's own Copy bar
+                // never appears over the page (NC, 2026-09-07). A tap
+                // selects a line; a tap on another line extends the span
+                // to it; a tap inside the span narrows it to that line.
+                if (selection && (i < selLo || i > selHi)) {
+                  emit(Math.min(selLo, i), Math.max(selHi, i), bottom, '');
+                } else {
+                  emit(i, i, bottom, u.text);
                 }
-                const s = window.getSelection();
-                if (s && !s.isCollapsed && String(s).trim()) return;
-                emit(i, i, bottom, u.text);
               }}
             >
               <span

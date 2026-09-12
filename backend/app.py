@@ -1901,12 +1901,18 @@ def line_search():
                     query_lemmas.update(_normalize_lemma(l, language) for l in (_row.get('lemmas') or []) if l)
             if search_type == 'lemma' and not query_lemmas:
                 query_tokens = query.lower().split()
-                if language in _stanza_langs:
+                try:
+                    from backend.perso_arabic import _base_normalize
+                except ImportError:
+                    # The Persian, Urdu and Arabic normalizer lives on the
+                    # preview branch; without it every language takes the
+                    # lemmatizer path below.
+                    _base_normalize = None
+                if language in _stanza_langs and _base_normalize is not None:
                     # A typed query in these languages is searched by its
                     # normalized surface forms (the language's own normalizer,
                     # the one the index lemmas went through); nouns and most
                     # words are their own lemma, and no tagger runs here.
-                    from backend.perso_arabic import _base_normalize
                     query_lemmas = set(_base_normalize(t, language) for t in query_tokens)
                     query_lemmas.discard('')
                 else:
