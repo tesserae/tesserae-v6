@@ -1,5 +1,90 @@
 # Tesserae V6 Changelog
 
+Newest first. Every pull request adds a line here; production data
+operations that are not code (index rebuilds, cache rebuilds, corpus
+repairs) are listed under "Data operations" with the script that did them,
+so the state of the live site can be reconstructed from this file and
+docs/DATA_OPERATIONS.md.
+
+## 2026-09-13
+
+### Data operations
+- Document frequency counts one document per work: the `lemma_doc_freq`
+  tables of the Latin and Greek indexes were rebuilt counting whole works
+  plus book files that have no whole (Latin 812 documents instead of 1,682
+  index entries, Greek 900 instead of 1,268). Script
+  `scripts/corpus/rebuild_docfreq.py`; the word-frequency caches already
+  followed the rule. Found on the way: the book files of Lucretius and of
+  Lucan come from a different edition than their whole-work files.
+
+## 2026-09-12
+
+### Corpus
+- #371 Repaired malformed line tags in 54 files (double space, doubled
+  period: `<sal.  Cat..58.15>` is now `<sal. Cat. 58.15>`), 32,256 tags,
+  text unchanged; `tests/test_tess_tags_clean.py` lints every corpus file.
+- #372 `scripts/corpus/repair_ref_tags.py`: fixes from the production run
+  (atomic writes, unique backup stamps, duplicate-heading handling).
+
+### Data operations
+- The same repair applied to every store that had copied the raw tags:
+  lemma caches, Latin and Greek inverted indexes, passage index
+  (descriptions and window texts), 41 translation maps, one cached result.
+- Stale index entries dropped: 33 Greek (old Septuagint leftovers, retired
+  duplicates, renamed Philo works) and 1 English.
+  `scripts/corpus/drop_stale_index_entries.py`.
+- Rare-bigram caches rebuilt from the corpus for Greek (610 to 900
+  documents) and Latin (899 to 812; retired duplicates no longer counted).
+  `scripts/corpus/rebuild_bigrams.py`.
+
+### Decisions
+- Poem-level book files (Catullus, Horace, Juvenal, Vergil and others; 178
+  files) stay out of the inverted index: indexing them beside the whole
+  works would inflate document frequencies (NC, 2026-09-12).
+
+## 2026-09-11
+
+### Ports from the preview branch (general improvements, no new language)
+- #367 Fusion-route fixes (context confirmation once per search, compute at
+  the storage cap, meter decided server-side); Tessa reads the top 25, 100
+  or all loaded parallels and says so; Cite button with a reproducible
+  reference, MLA and Chicago, and a corpus-version stamp on fusion and
+  Theme Search responses; interface audit (contrast, one focus ring, phone
+  tab-strip fade, link previews, page titles, Theme Search query in the
+  address with Copy link, screen-reader labels); Theme Search offers any
+  set of languages.
+- #368 Reader on phones (bottom sheet, tap to select), long texts drawn in
+  1,000-line stretches, selection fixes; #370 hotfix limits the Reader's
+  index-lemma shortcut to Persian, Urdu and Arabic after it changed Latin
+  results.
+- #369 Scorer: a synonym pair scores in the dictionary channel again
+  (benchmark 781 to 788 of 862).
+
+### Connector
+- #366 References are cleaned before the connector shows them, and
+  passage lookups accept the cleaned form.
+
+## 2026-09-10
+
+### Corpus
+- #360 Curtius batch: Greek Anthology (16 books), Tiberianus, Pentadius,
+  Prudentius Cathemerinon, Matthew of Vendome, Geoffrey of Vinsauf,
+  Eberhard the German, Peter Riga, complete Carmina Burana, Aelian re-cut
+  by sentence; Greek lemma-cache normalisation fixed.
+- #362 45 duplicate texts retired (weaker copy of each pair).
+- #363 Paton's Greek Anthology translation aligned (76.5%); #365 Pope's
+  Prudentius aligned (99.4%); #364 Aeschines Against Ctesiphon trimmed to
+  the speech.
+
+### Assistant and connector
+- #355 to #359 Tessa prose and guards (plain verdict words, no arithmetic,
+  no speculation about access, cleaner citations, caveat wording).
+- #361 Connector parity with the site, with a parity test.
+
+---
+
+# Earlier (January to February 2026, as first written)
+
 ## Published (January 26, 2026)
 
 Initial public release of Tesserae V6 at https://tesserae-v-6.replit.app
