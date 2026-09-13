@@ -8,6 +8,13 @@ docs/DATA_OPERATIONS.md.
 
 ## 2026-09-13
 
+### Help
+- Help gains "How well does it work?": one dated, measured figure per
+  search and language (Latin, Greek, Coptic, Hebrew, English, Cross-Language,
+  Theme Search), with "not measured" where that is the truth, and a
+  standing invitation under each language for specialists' feedback and
+  help; articles with full details are noted as in preparation.
+
 ### Corpus
 - Lucan, Bellum Civile: six misreadings in the whole-work file corrected
   from its book files ("vitum" to "victum", "Tentates" to "Teutates" and
