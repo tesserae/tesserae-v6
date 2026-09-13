@@ -526,7 +526,8 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 list's known parallels that the search returns within a cutoff; it says how much a
                 search finds, not how good its first page is. Where a search or a language has not
                 been measured yet, the table says so. Articles with full details, methods and data are
-                in preparation; the Coptic and Latin data releases are already on the Downloads page.
+                in preparation; the Coptic data release and the benchmark lists for Latin, Greek and
+                Cross-Language are already on the Downloads page.
               </p>
               <div className="overflow-x-auto">
                 <table className="min-w-full text-sm text-left text-gray-700">
@@ -553,7 +554,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 whole ranking: the Latin and Coptic first-ten figures above are the closest thing to a
                 precision measure so far, and a human-graded precision test is under way.
               </p>
-              <Invitation language="each of these languages" />
+              <Invitation language="these languages" />
             </div>
           )}
 
