@@ -19,6 +19,11 @@ docs/DATA_OPERATIONS.md.
   `scripts/corpus/apply_lucretius_lucan_editions.py` brings the passage
   index, the translation map and cached results into line.
 
+### Fixes
+- #375 Lemma cache saves write beside the file and rename over it, and a
+  failed save is logged and counted as an error; files owned by another
+  account had made saves fail silently.
+
 ### Data operations
 - Document frequency restored to the canonical one-document-per-work rule
   in the Latin and Greek indexes (book files collapse to their base work;

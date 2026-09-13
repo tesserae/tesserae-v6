@@ -36,9 +36,22 @@ Conventions
   `scripts/corpus/add_texts_to_index.py --replace ...` on a copy, then swap;
   `scripts/corpus/apply_lucretius_lucan_editions.py --apply`;
   `scripts/corpus/rebuild_bigrams.py la`.
-- Backups: `la_index.db.bak-editions-<stamp>`, `window_texts.db.bak-editions-<stamp>`,
-  `descriptions.jsonl.bak-editions-<stamp>`, `la__lucretius.de_rerum_natura.json.bak-editions-<stamp>`,
-  `la_bigrams.json.pre-rebuild-<stamp>.bak`.
+- Backups: `la_index.db.bak-editions3-20260913-084715` (the index the
+  live one was built from; two earlier attempts left `bak-editions-20260913-083836`
+  and `bak-editions2-20260913-084233`), `window_texts.db.bak-editions-20260913-083836`,
+  `descriptions.jsonl.bak-editions-20260913-083836`,
+  `la__lucretius.de_rerum_natura.json.bak-editions-20260913-083836`,
+  `la_bigrams.json.pre-rebuild-20260913-0839.bak`.
+- What went wrong and was fixed the same morning: (1) the batch cache
+  builder reported eight caches built while two (Lucretius books 1 and 2)
+  had failed silently because their files belonged to the web app's
+  account; the two were rebuilt by hand and the writer is fixed in #375 to
+  write beside the file and rename, and to count a failed save as an
+  error. (2) `add_texts_to_index.py --replace` takes every filename after
+  one flag; repeating the flag keeps only the last name, so the first run
+  replaced Lucan alone. The final run replaced all eight and was verified
+  on the copy before the swap (no row with the old tag form; book 1 with
+  1,117 lines of the Perseus text).
 - Note: the six Lucretius book works keep their passage windows and locus
   ranges; the Perseus and Latin Library lineation differ by a few lines at
   book ends, so a handful of lines at a book's end may fall outside the
@@ -64,8 +77,9 @@ Conventions
   `scripts/corpus/drop_stale_index_entries.py` now calls the same builder.
   Rule for the future: any script that deletes from or rebuilds
   `lemma_doc_freq` must call `build_lemma_doc_freq`.
-- Backups: `*_index.db.bak-docfreq-20260913` (interim) and
-  `*_index.db.bak-docfreq-<stamp>` (canonical swap).
+- Backups: `*_index.db.bak-docfreq-20260913` (interim),
+  `la_index.db.bak-docfreq-20260913-082107` and
+  `grc_index.db.bak-docfreq-20260913-082424` (canonical swap).
 - Checks: reference test 324; rare-words comparison returns; sample df
   values fall to the work counts.
 - Why the counts differ from the bigram caches: the bigram builder counts
