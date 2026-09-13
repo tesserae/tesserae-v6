@@ -343,6 +343,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
   const sections = [
     { id: 'getting-started', label: 'Getting Started', group: 'Start here' },
     { id: 'search-modes', label: 'The Types of Search', group: 'Start here' },
+    { id: 'how-well', label: 'How well does it work?', group: 'Start here' },
 
     { id: 'fusion-search', label: 'How Fusion Search Works', group: 'The Fusion (Phrases) search' },
     { id: 'match-types', label: 'Match Types', group: 'The Fusion (Phrases) search' },
@@ -445,6 +446,21 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
     setFeedbackSubmitting(false);
   };
 
+  // The same invitation under every language: the measured figures are a
+  // first indication, the articles with full details are in preparation, and
+  // specialists' feedback and help are wanted (NC, 2026-09-13).
+  const Invitation = ({ language }) => (
+    <p className="text-gray-600 text-sm mt-2 border-l-2 border-gray-300 pl-3">
+      These figures are a first indication of how {language} search performs; articles with full
+      details are in preparation. We would value the judgment of specialists in {language} on the
+      results, and if you would like to help make it better, from a gold set of known parallels to a
+      correction of the text, please{' '}
+      <button type="button" onClick={() => setActiveSection('feedback')} className="text-red-700 hover:underline">
+        write to us
+      </button>.
+    </p>
+  );
+
   return (
     <div className="bg-white rounded-lg shadow">
       <div className="flex flex-col md:flex-row">
@@ -498,6 +514,47 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   <strong>Example:</strong> Compare Vergil's Aeneid Book 1 (source) with Lucan's Civil War Book 1 (target) to find how Lucan echoes Vergil.
                 </p>
               </div>
+            </div>
+          )}
+
+          {activeSection === 'how-well' && (
+            <div className="prose max-w-none">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">How well does it work?</h3>
+              <p className="text-gray-700 mb-4">
+                Every figure below was measured against a published list of parallels or a test set, and
+                each is dated, because the corpus and the scoring change. Recall is the share of a
+                list's known parallels that the search returns within a cutoff; it says how much a
+                search finds, not how good its first page is. Where a search or a language has not
+                been measured yet, the table says so. Articles with full details, methods and data are
+                in preparation; the Coptic data release and the benchmark lists for Latin, Greek and
+                Cross-Language are already on the Downloads page.
+              </p>
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-sm text-left text-gray-700">
+                  <thead className="text-xs uppercase text-gray-500 border-b border-gray-200">
+                    <tr><th className="py-2 pr-4">Search</th><th className="py-2 pr-4">Language</th><th className="py-2 pr-4">Measured against</th><th className="py-2 pr-4">Result</th><th className="py-2">Date</th></tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 align-top">
+                    <tr><td className="py-2 pr-4">Verbal parallels (Fusion)</td><td className="py-2 pr-4">Latin</td><td className="py-2 pr-4">862 parallels from five published commentaries and studies (Lucan, Valerius Flaccus and Statius against Vergil, Ovid and Statius)</td><td className="py-2 pr-4">About 92 percent found (788 to 798 of 862, depending on the run); on the Valerius Flaccus set, nine of the first ten results are attested in the commentaries</td><td className="py-2">September 2026</td></tr>
+                    <tr><td className="py-2 pr-4">Verbal parallels (Fusion)</td><td className="py-2 pr-4">Greek</td><td className="py-2 pr-4">121 Homeric parallels in later epic (Iliad and Odyssey benchmarks)</td><td className="py-2 pr-4">69 percent found searching whole works, 97 percent searching book by book</td><td className="py-2">early 2026</td></tr>
+                    <tr><td className="py-2 pr-4">Verbal parallels (Fusion)</td><td className="py-2 pr-4">Coptic</td><td className="py-2 pr-4">Scripture quoted in scripture: the 22 marked citations of Isaiah in Romans (held out from all tuning), and a broad 124-pair reference list</td><td className="py-2 pr-4">On the held-out citations, 59 percent in the first hundred and eight of the first ten are genuine; on the broad list, 14.5 percent in the first hundred, since Coptic search is tuned for quotation rather than loose allusion</td><td className="py-2">August 2026</td></tr>
+                    <tr><td className="py-2 pr-4">Verbal parallels (Fusion)</td><td className="py-2 pr-4">Hebrew</td><td className="py-2 pr-4">The 22 marked citations of Isaiah in Romans, searched from the Hebrew through the Septuagint into the Greek New Testament</td><td className="py-2 pr-4">15 of 22 in the first hundred, 9 in the first ten; the direct word-for-word route found none</td><td className="py-2">August 2026</td></tr>
+                    <tr><td className="py-2 pr-4">Verbal parallels (Fusion)</td><td className="py-2 pr-4">English</td><td className="py-2 pr-4">No published list of parallels has been run yet</td><td className="py-2 pr-4">Not measured</td><td className="py-2"></td></tr>
+                    <tr><td className="py-2 pr-4">Cross-Language (Greek to Latin)</td><td className="py-2 pr-4">Greek and Latin</td><td className="py-2 pr-4">412 Homeric parallels in the Aeneid from Knauer's index</td><td className="py-2 pr-4">About 40 percent in the first fifty for a given target line, 94 percent found somewhere in the ranking; only 31 percent of the listed parallels share any vocabulary across the two languages</td><td className="py-2">2026</td></tr>
+                    <tr><td className="py-2 pr-4">Theme Search</td><td className="py-2 pr-4">Latin and Greek</td><td className="py-2 pr-4">Confidence band: 32 test subjects, half present in the corpus and half absent. Recall: the works Curtius cites for eleven topoi (57 works held here)</td><td className="py-2 pr-4">The band agrees with the test set on 88 to 91 percent of subjects. Of Curtius's 57 works, 23 appear somewhere in the returned lists and 7 among the first ten; a frontier language model asked the same questions from memory names 14 and 13</td><td className="py-2">September 2026</td></tr>
+                    <tr><td className="py-2 pr-4">Theme Search</td><td className="py-2 pr-4">Coptic, Hebrew, English</td><td className="py-2 pr-4">Included in the index; no language-specific test yet</td><td className="py-2 pr-4">Not measured separately</td><td className="py-2"></td></tr>
+                    <tr><td className="py-2 pr-4">Rare words, rare pairs, line and string search</td><td className="py-2 pr-4">All</td><td className="py-2 pr-4">Exact lookups in the index</td><td className="py-2 pr-4">They return every occurrence the index holds; there is no recall to measure, only the coverage of the corpus and the accuracy of the dictionary forms (see each language section)</td><td className="py-2"></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-gray-700 mt-4">
+                Two cautions. A published list is a test of what the search finds, and the lists that exist
+                were made by scholars looking for particular kinds of parallel, so a high figure on one
+                list says little about another kind. And the first page matters more to a reader than the
+                whole ranking: the Latin and Coptic first-ten figures above are the closest thing to a
+                precision measure so far, and a human-graded precision test is under way.
+              </p>
+              <Invitation language="these languages" />
             </div>
           )}
 
@@ -809,8 +866,10 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   <p className="text-gray-600 text-sm mt-1">
                     The largest and best-developed corpus (~1,400 texts). All eleven channels are available, and every text has been
                     grammatically parsed, so the syntax channels contribute. Latin has the most thoroughly evaluated results
-                    (92.6% recall across five standard Latin allusion benchmarks, as of August 2026).
+                    (about 92 percent recall across five standard Latin allusion benchmarks, as of September 2026;
+                    see <button type="button" onClick={() => setActiveSection('how-well')} className="text-red-700 hover:underline">How well does it work?</button>).
                   </p>
+                  <Invitation language="Latin" />
                 </div>
                 <div className="border-l-4 border-blue-500 pl-4">
                   <h4 className="font-medium text-gray-900">Greek</h4>
@@ -819,7 +878,10 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                     rare-word channels all work; searches are accent-insensitive, so you can enter text with or without
                     diacritics. About half the Greek corpus is grammatically parsed (650 texts, Homer among them), so the
                     syntax channels contribute where both texts are parsed and nothing where either is not.
+                    On 121 Homeric parallels in later epic, the search finds 69 percent searching whole works and
+                    97 percent book by book (early 2026).
                   </p>
+                  <Invitation language="Greek" />
                 </div>
                 <div className="border-l-4 border-emerald-500 pl-4">
                   <h4 className="font-medium text-gray-900">English</h4>
@@ -869,6 +931,14 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 allusion — shared rare vocabulary spread across a line — Coptic search is tuned for <strong>quotation
                 and close reuse</strong>, the way Coptic monastic authors most often engage their sources.
               </p>
+              <p className="text-gray-700 mb-2">
+                How well it works, measured (August 2026): on the 22 marked citations of Isaiah in Romans, a test
+                held out from all tuning, 59 percent are found in the first hundred results and eight of the
+                first ten results are genuine citations; on a broad reference list of 124 scriptural parallels of
+                every kind, 14.5 percent are found in the first hundred, the price of tuning for quotation. The
+                data and the ranked runs are on the Downloads page.
+              </p>
+              <Invitation language="Coptic" />
 
               <div className="my-4 bg-green-50 border border-green-200 p-4 rounded-lg">
                 <h4 className="font-medium text-green-800 mb-1">Verbatim-quotation detection</h4>
@@ -937,6 +1007,14 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 Aleppo Codex. You can compare any two books to trace inner-biblical reuse, from a poem preserved in
                 two places (Psalm 18 and 2 Samuel 22) to a phrase quoted in a later prophet.
               </p>
+              <p className="text-gray-700 mb-2">
+                How well it works, measured (August 2026): searching the 22 marked citations of Isaiah in Romans from
+                the Hebrew, through the Septuagint, into the Greek New Testament finds 15 in the first hundred
+                results and 9 in the first ten; a direct word-for-word route found none. Inner-biblical Hebrew reuse
+                has been checked on known pairs (Psalm 18 and 2 Samuel 22, Isaiah 12:2 and Exodus 15:2) but not
+                yet against a published list.
+              </p>
+              <Invitation language="Hebrew" />
 
               <div className="my-4 bg-amber-50 border border-amber-200 p-4 rounded-lg">
                 <h4 className="font-medium text-amber-900 mb-1">Reading and matching Hebrew</h4>
