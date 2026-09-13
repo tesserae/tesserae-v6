@@ -338,7 +338,11 @@ def rebuild_language(tp, language, force=False):
             file_hash = get_file_hash(filepath)
             units_line = tp.process_file(filepath, language, 'line')
             units_phrase = tp.process_file(filepath, language, 'phrase')
-            save_cached_units(text_file, language, units_line, units_phrase, file_hash)
+            if not save_cached_units(text_file, language, units_line, units_phrase, file_hash):
+                # Counted as an error, not as built: on 2026-09-13 two caches
+                # owned by another account failed here silently and stale
+                # rows reached the index.
+                raise IOError('cache file could not be written')
             processed += 1
 
             if processed % 50 == 0 or processed == 1:
