@@ -2,6 +2,7 @@
 Tesserae V6 - Lemma Cache
 Pre-computes and caches lemmatized text units for faster searches
 """
+import logging
 import os
 import json
 import hashlib
@@ -108,11 +109,25 @@ def save_cached_units(text_id, language, units_line, units_phrase, file_hash):
         'units_phrase': units_phrase
     }
     
+    # Write beside the file and rename over it. Cache files are created by
+    # whichever account first needed them (the web app at request time, or
+    # the deploy account in a batch), so a later writer may not be allowed to
+    # open the existing file; the directory allows a rename, and the swap is
+    # atomic for a concurrent reader. A failure is logged, not swallowed: on
+    # 2026-09-13 a batch rebuild reported eight caches built while two had
+    # silently failed here, and stale rows reached the index.
+    tmp_path = f'{cache_path}.{os.getpid()}.tmp'
     try:
-        with open(cache_path, 'w', encoding='utf-8') as f:
+        with open(tmp_path, 'w', encoding='utf-8') as f:
             json.dump(cache_data, f)
+        os.replace(tmp_path, cache_path)
         return True
-    except IOError:
+    except OSError as e:
+        logging.getLogger(__name__).warning('lemma cache not saved for %s: %s', text_id, e)
+        try:
+            os.remove(tmp_path)
+        except OSError:
+            pass
         return False
 
 
