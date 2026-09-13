@@ -22,6 +22,31 @@ Conventions
 - Stamp backups to the second; a rerun must never overwrite the first
   run's backup.
 
+## 2026-09-13 Lucan correction and Lucretius edition change applied to the stores
+- What: after the text files changed in git (Lucan whole file: six lines;
+  Lucretius: whole file retagged "lucr. N.L", six book files regenerated
+  from it), the eight texts' lemma caches were rebuilt, their entries
+  replaced in the Latin index (which rebuilds document frequency
+  canonically), the passage index's refs for the whole Lucretius renamed
+  and the book works' line texts replaced, the Lucretius translation map's
+  Perseus-aligned key family renamed with the Latin Library family
+  dropped, cached results naming the texts deleted, and the Latin
+  rare-bigram cache rebuilt.
+- Scripts: `scripts/batch_lemma_cache.py la`;
+  `scripts/corpus/add_texts_to_index.py --replace ...` on a copy, then swap;
+  `scripts/corpus/apply_lucretius_lucan_editions.py --apply`;
+  `scripts/corpus/rebuild_bigrams.py la`.
+- Backups: `la_index.db.bak-editions-<stamp>`, `window_texts.db.bak-editions-<stamp>`,
+  `descriptions.jsonl.bak-editions-<stamp>`, `la__lucretius.de_rerum_natura.json.bak-editions-<stamp>`,
+  `la_bigrams.json.pre-rebuild-<stamp>.bak`.
+- Note: the six Lucretius book works keep their passage windows and locus
+  ranges; the Perseus and Latin Library lineation differ by a few lines at
+  book ends, so a handful of lines at a book's end may fall outside the
+  last window until those windows are rebuilt.
+- Checks: reference test 324; Lucretius 1.1 in line search, passage lines
+  and the Reader under the new tag; a Lucretius translation lookup; Lucan
+  1.445 reads "Teutates" in the Reader.
+
 ## 2026-09-13 Document frequency: canonical rule restored
 - What happened: the stale-entry drop of 2026-09-12 recomputed
   `lemma_doc_freq` with a plain COUNT(DISTINCT text_id), which counts every
