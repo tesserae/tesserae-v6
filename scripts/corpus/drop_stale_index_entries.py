@@ -31,6 +31,10 @@ c.execute(f'delete from texts where text_id in ({marks})', ids)
 sys.path.insert(0, a.root)
 from scripts.build_inverted_index import build_lemma_doc_freq  # noqa: E402
 build_lemma_doc_freq(c, verbose=False)
-c.commit(); c.execute('VACUUM'); c.close()
+c.commit()
+assert c.execute('pragma integrity_check').fetchone()[0] == 'ok'
+c.execute('VACUUM'); c.close()
 os.replace(db, f'{db}.bak-stale-{tag}'); os.replace(new, db)
-print(f'swapped; backup {os.path.basename(db)}.bak-stale-{tag}; texts now', sqlite3.connect(db).execute('select count(*) from texts').fetchone()[0])
+chk = sqlite3.connect(f'file:{db}?mode=ro', uri=True)
+print(f'swapped; backup {os.path.basename(db)}.bak-stale-{tag}; texts now', chk.execute('select count(*) from texts').fetchone()[0])
+chk.close()

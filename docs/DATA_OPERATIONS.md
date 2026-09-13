@@ -43,6 +43,12 @@ Conventions
   `*_index.db.bak-docfreq-<stamp>` (canonical swap).
 - Checks: reference test 324; rare-words comparison returns; sample df
   values fall to the work counts.
+- Why the counts differ from the bigram caches: the bigram builder counts
+  each orphan book file (a work with no whole-work file, such as the
+  Greek Anthology's sixteen books) as its own document, so it reports
+  Latin 812 and Greek 900; the document-frequency builder collapses those
+  to their base work, so it reports Latin 782 and Greek 853. Both are
+  one-per-work rules; they differ only on orphan books.
 
 ## 2026-09-12 Rare-bigram caches rebuilt
 - What: `cache/bigrams/grc_bigrams.json` (610 to 900 documents) and
