@@ -22,17 +22,27 @@ Conventions
 - Stamp backups to the second; a rerun must never overwrite the first
   run's backup.
 
-## 2026-09-13 Document frequency, one document per work
-- What: `lemma_doc_freq` in `data/inverted_index/la_index.db` and
-  `grc_index.db` rebuilt over whole works plus book files that have no
-  whole (the rule `backend/bigram_frequency.py` already used). Latin 812
-  documents, Greek 900.
-- Script: `scripts/corpus/rebuild_docfreq.py` (prepared on copies; the
-  swap was done by hand with `cp`, `mv`, `touch`).
-- Backups: `la_index.db.bak-docfreq-20260913`, `grc_index.db.bak-docfreq-20260913`.
-- Checks: no df value rose; 110 Latin lemmas that occur only in Lucretius
-  and Lucan book files left the table (callers treat a missing lemma as
-  df 0); reference test 324; rare-words comparison returns.
+## 2026-09-13 Document frequency: canonical rule restored
+- What happened: the stale-entry drop of 2026-09-12 recomputed
+  `lemma_doc_freq` with a plain COUNT(DISTINCT text_id), which counts every
+  file, so a word in a work held whole and by book counted once per file
+  ("et" in 1,656 Latin documents). The canonical builder
+  (`scripts/build_inverted_index.build_lemma_doc_freq`, restored 2026-08-29)
+  collapses book files to their base work, matching the app's run-time
+  fallback (`_base_filename_expr` in `backend/blueprints/hapax.py`).
+- Fix: both Latin and Greek tables rebuilt on copies with the canonical
+  builder and swapped in (Latin 782 works, Greek 853 works). An interim
+  rebuild earlier the same day used a nearby rule (whole files plus orphan
+  book files counted singly: Latin 812, Greek 900) and was superseded.
+- Scripts: `scripts/corpus/rebuild_docfreq.py --language <lang> --apply`
+  (now a thin wrapper around the canonical builder);
+  `scripts/corpus/drop_stale_index_entries.py` now calls the same builder.
+  Rule for the future: any script that deletes from or rebuilds
+  `lemma_doc_freq` must call `build_lemma_doc_freq`.
+- Backups: `*_index.db.bak-docfreq-20260913` (interim) and
+  `*_index.db.bak-docfreq-<stamp>` (canonical swap).
+- Checks: reference test 324; rare-words comparison returns; sample df
+  values fall to the work counts.
 
 ## 2026-09-12 Rare-bigram caches rebuilt
 - What: `cache/bigrams/grc_bigrams.json` (610 to 900 documents) and

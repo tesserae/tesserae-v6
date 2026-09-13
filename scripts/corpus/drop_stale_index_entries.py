@@ -4,7 +4,7 @@ lemma_doc_freq, VACUUM, atomic swap; the live app keeps its old handle until
 the swap). Dry run unless --apply.
     python drop_stale_index_entries.py --root /var/www/tesseraev6_flask --language grc [--apply]
 """
-import argparse, os, shutil, sqlite3, time
+import argparse, os, shutil, sqlite3, sys, time
 ap = argparse.ArgumentParser(); ap.add_argument('--root', required=True); ap.add_argument('--language', required=True); ap.add_argument('--apply', action='store_true')
 a = ap.parse_args()
 db = os.path.join(a.root, 'data', 'inverted_index', f'{a.language}_index.db')
@@ -25,8 +25,12 @@ c = sqlite3.connect(new)
 c.execute(f'delete from lines where text_id in ({marks})', ids)
 c.execute(f'delete from postings where text_id in ({marks})', ids)
 c.execute(f'delete from texts where text_id in ({marks})', ids)
-c.execute('delete from lemma_doc_freq')
-c.execute('insert into lemma_doc_freq (lemma, df) select lemma, count(distinct text_id) from postings group by lemma')
+# Document frequency counts one document per WORK (book files collapse to
+# their base work); the canonical builder does that. A plain
+# COUNT(DISTINCT text_id) here inflated every partitioned work on 2026-09-12.
+sys.path.insert(0, a.root)
+from scripts.build_inverted_index import build_lemma_doc_freq  # noqa: E402
+build_lemma_doc_freq(c, verbose=False)
 c.commit(); c.execute('VACUUM'); c.close()
 os.replace(db, f'{db}.bak-stale-{tag}'); os.replace(new, db)
 print(f'swapped; backup {os.path.basename(db)}.bak-stale-{tag}; texts now', sqlite3.connect(db).execute('select count(*) from texts').fetchone()[0])

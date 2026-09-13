@@ -9,13 +9,12 @@ docs/DATA_OPERATIONS.md.
 ## 2026-09-13
 
 ### Data operations
-- Document frequency counts one document per work: the `lemma_doc_freq`
-  tables of the Latin and Greek indexes were rebuilt counting whole works
-  plus book files that have no whole (Latin 812 documents instead of 1,682
-  index entries, Greek 900 instead of 1,268). Script
-  `scripts/corpus/rebuild_docfreq.py`; the word-frequency caches already
-  followed the rule. Found on the way: the book files of Lucretius and of
-  Lucan come from a different edition than their whole-work files.
+- Document frequency restored to the canonical one-document-per-work rule
+  in the Latin and Greek indexes (book files collapse to their base work;
+  Latin 782 works, Greek 853). The stale-entry drop of the day before had
+  recomputed it per file. Scripts touching the table now all call
+  `build_lemma_doc_freq`. Found on the way: the book files of Lucretius and
+  of Lucan come from a different edition than their whole-work files.
 
 ## 2026-09-12
 
