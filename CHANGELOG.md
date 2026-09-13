@@ -8,6 +8,17 @@ docs/DATA_OPERATIONS.md.
 
 ## 2026-09-13
 
+### Corpus
+- Lucan, Bellum Civile: six misreadings in the whole-work file corrected
+  from its book files ("vitum" to "victum", "Tentates" to "Teutates" and
+  four more); whole and books now agree line for line.
+- Lucretius, De Rerum Natura: the six book files, which came from a
+  different (Latin Library) edition with transposed lines, are regenerated
+  from the Perseus whole-work file (Leonard), and the whole file's tags
+  take the site's usual form "lucr. 1.1". One edition, one citation form.
+  `scripts/corpus/apply_lucretius_lucan_editions.py` brings the passage
+  index, the translation map and cached results into line.
+
 ### Data operations
 - Document frequency restored to the canonical one-document-per-work rule
   in the Latin and Greek indexes (book files collapse to their base work;
