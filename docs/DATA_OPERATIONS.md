@@ -22,7 +22,7 @@ Conventions
 - Stamp backups to the second; a rerun must never overwrite the first
   run's backup.
 
-## PLANNED (run after PR #378 merges) The Prelude's Books XII to XIV separated in the stores
+## 2026-09-16 The Prelude's Books XII to XIV separated in the stores (PR #378)
 - What: the text files in git now carry Books XIII and XIV under their own
   numbers (PR #378: tags 12.337 to 12.1170 became 13.1 to 13.378 and 14.1
   to 14.456; part.12 holds Book XII alone; part.13 and part.14 are new).
@@ -47,9 +47,20 @@ Conventions
   backend/passage_index.py and grep of backend/ for ':' splitting); the
   suffix is a label, and ids.json's row order is what aligns with
   embeddings.npy, which the script never reorders.
-- Backups: `.bak-prelude-<stamp>` beside window_texts.db, descriptions.jsonl
-  and ids.json; fill in the stamps and the reference-test result here when
-  run.
+- Run 2026-09-16 18:51 to 18:53 as ncoffee from the production root inside
+  `systemd-run --user --scope -p MemoryMax=…`. `batch_lemma_cache.py en`
+  built 139 English caches (only 25 of 164 existed; 13 s). The index step
+  replaced text_ids 9 (whole, 56,251 postings) and 50 (part.12, 336 lines)
+  and added 164 (part.13) and 165 (part.14); lemma_doc_freq rebuilt
+  (37,595 lemmas). The store script's counts matched the dry run exactly.
+- Backups: `en_index.db.bak-prelude-20260916-185244`,
+  `window_texts.db.bak-prelude-20260916-185206`,
+  `descriptions.jsonl.bak-prelude-20260916-185206`,
+  `ids.json.bak-prelude-20260916-185206`.
+- Results: reference test 324 distinct loci; `/api/text/wordsworth.prelude.part.14.tess`
+  serves 456 lines from 14.1; English exact search "hoary mist" returns
+  14.42; Theme Search for the Snowdon ascent returns Prelude 14.17 and
+  part.14 14.49 at the head; the English text list shows parts 13 and 14.
 - Checks after: reference test ("arma virum" 324); Reader opens Prelude
   13.1 and 14.1 under the new tags; a Theme Search hit in Book XIV shows a
   14.N reference; `part.13` and `part.14` appear in the English text list.
