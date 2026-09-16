@@ -6,6 +6,21 @@ repairs) are listed under "Data operations" with the script that did them,
 so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md.
 
+## 2026-09-16
+
+### Corpus
+- #378 Wordsworth, The Prelude (1850): Books XIII and XIV get their own
+  numbers. The file had run them together under Book XII, so a line of the
+  Snowdon ascent read "Prelude 12.900". Part files 13 and 14 added, part 12
+  cut to Book XII; `scripts/corpus/apply_prelude_books.py` brought the
+  passage index and the English index into line (data operation below).
+
+### Data operations
+- The Prelude's refs remapped in the passage index (197 whole-work windows,
+  192 part windows moved to the new parts, ids kept in embedding order),
+  English lemma caches rebuilt (139 had been missing), English index
+  updated for the four files with document frequency rebuilt.
+
 ## 2026-09-13
 
 ### Help
