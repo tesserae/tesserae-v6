@@ -22,6 +22,38 @@ Conventions
 - Stamp backups to the second; a rerun must never overwrite the first
   run's backup.
 
+## PLANNED (run after PR #378 merges) The Prelude's Books XII to XIV separated in the stores
+- What: the text files in git now carry Books XIII and XIV under their own
+  numbers (PR #378: tags 12.337 to 12.1170 became 13.1 to 13.378 and 14.1
+  to 14.456; part.12 holds Book XII alone; part.13 and part.14 are new).
+  On production, in this order: (1) `scripts/batch_lemma_cache.py en` for
+  wordsworth.prelude and its parts 12, 13 and 14; (2)
+  `scripts/corpus/add_texts_to_index.py --replace` with the four files
+  after ONE flag, on a copy of `data/inverted_index/en_index.db`, then
+  swap; (3) `scripts/corpus/apply_prelude_books.py --apply` from the
+  production root inside a MemoryMax scope: remaps refs in the passage
+  index, moves the part.12 windows that belong to Books XIII and XIV to
+  the new part works (ids renamed in window_texts.db, descriptions.jsonl
+  and ids.json alike, order and count untouched, embeddings.npy untouched),
+  rebuilds the three parts' line tables from the files, deletes cached
+  results naming the texts; (4) `touch tesseraev6_flask.wsgi`.
+- Dry run against the live stores 2026-09-16 (read only, from a scratch
+  root linked to them): whole-work windows remapped 197; part.12 windows
+  moved to part.13 88, to part.14 104; 14 windows straddle a new boundary
+  and keep both refs; whole-work line refs remapped 834; ids.json 192
+  renamed of 625,154; cached results named 0.
+- Why ids can be renamed in place: no backend code reads the
+  ":scale:ordinal" suffix of a window id as a position (checked
+  backend/passage_index.py and grep of backend/ for ':' splitting); the
+  suffix is a label, and ids.json's row order is what aligns with
+  embeddings.npy, which the script never reorders.
+- Backups: `.bak-prelude-<stamp>` beside window_texts.db, descriptions.jsonl
+  and ids.json; fill in the stamps and the reference-test result here when
+  run.
+- Checks after: reference test ("arma virum" 324); Reader opens Prelude
+  13.1 and 14.1 under the new tags; a Theme Search hit in Book XIV shows a
+  14.N reference; `part.13` and `part.14` appear in the English text list.
+
 ## 2026-09-13 Lucan correction and Lucretius edition change applied to the stores
 - What: after the text files changed in git (Lucan whole file: six lines;
   Lucretius: whole file retagged "lucr. N.L", six book files regenerated

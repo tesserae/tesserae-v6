@@ -180,7 +180,7 @@ def window_texts_db():
     n_whole, n_moved, n_straddle = 0, {13: 0, 14: 0}, 0
     for rowid, wid, work, rs, re_ in w_rows:
         new_rs, new_re = remap(rs), remap(re_)
-        if _straddles(new_rs, new_re):
+        if (new_rs != rs or new_re != re_) and _straddles(new_rs, new_re):
             n_straddle += 1
         if work == WHOLE:
             if new_rs != rs or new_re != re_:
@@ -197,7 +197,7 @@ def window_texts_db():
             w_updates.append((new_id, new_work, new_rs, new_re, rowid))
     print(f'  window_texts.db window_texts: whole-work rows remapped: {n_whole}; '
           f'part.12 windows moved to part.13: {n_moved[13]}, to part.14: {n_moved[14]}; '
-          f'straddling windows (ref_start and ref_end land in different books): {n_straddle}')
+          f'windows straddling the new 12/13 or 13/14 boundary (refs remapped independently): {n_straddle}')
 
     # lines table: whole work updated in place; part.12 dropped and rebuilt
     # from the three current .tess files.
@@ -208,6 +208,7 @@ def window_texts_db():
         'select count(*) from lines where work=?', (OLD_PART,)).fetchone()[0]
     conn_ro.close()
     l_updates = [(remap(ref), rowid) for rowid, ref in l_whole if remap(ref) != ref]
+    print(f'  window_texts.db lines: {WHOLE}: {len(l_updates)} refs remapped in place')
 
     new_part_lines = {}
     for work_name, fname in ((OLD_PART, 'wordsworth.prelude.part.12.tess'),
@@ -271,7 +272,7 @@ def passage_descriptions(id_rename):
                 continue
             rs, re_ = r.get('ref_start'), r.get('ref_end')
             new_rs, new_re = remap(rs), remap(re_)
-            if _straddles(new_rs, new_re):
+            if (new_rs != rs or new_re != re_) and _straddles(new_rs, new_re):
                 n_straddle += 1
             r['ref_start'], r['ref_end'] = new_rs, new_re
             if work == WHOLE:
