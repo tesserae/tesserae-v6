@@ -22,6 +22,34 @@ Conventions
 - Stamp backups to the second; a rerun must never overwrite the first
   run's backup.
 
+## 2026-09-16 Paradise Lost renumbered in the stores (PR #380)
+- What: the text files in git now number every book of Paradise Lost
+  1..n (they began at 2 with a duplicated tag a few lines in) and the
+  whitespace-only row in Book 4 is gone (1,015 lines; whole file 10,565).
+  On production, in this order: (1) `scripts/batch_lemma_cache.py en`
+  rebuilt the 13 changed caches (3 s); (2)
+  `scripts/corpus/add_texts_to_index.py --replace` with the 13 files after
+  one flag on a copy of `data/inverted_index/en_index.db`, then swap
+  (whole work 10,565 lines, no duplicate refs; 164 texts, 181,515 lines,
+  lemma_doc_freq 38,287; the 30 extra lines are the old duplicates the
+  index had collapsed); (3) `scripts/corpus/apply_paradise_lost_numbering.py
+  --apply` inside a MemoryMax scope: 138 line refs remapped and 2 blank
+  rows dropped in the lines table, 69 of 4,917 windows remapped in
+  window_texts.db and descriptions.jsonl, 4 cached results deleted; ids
+  and embeddings untouched; (4) `touch tesseraev6_flask.wsgi`.
+- Verity commentary: `scripts/corpus/rekey_verity_paradise_lost.py`
+  re-keyed the notes to the corrected numbering (of 1,372 lemma notes
+  1,295 stayed, 17 moved, 60 unresolved; 95.6 percent agreement with the
+  text). The re-keyed file replaces `data/commentaries/verity__milton.paradise_lost.json`
+  on the preview and goes to production with the scholarship branch; the
+  old copy is kept beside it in the backups directory.
+- Backups: `en_index.db.bak-milton-20260916-213923`,
+  `window_texts.db.bak-milton-20260916-213929`,
+  `descriptions.jsonl.bak-milton-20260916-213929`.
+- Checks: reference test 324; `/api/text/milton.paradise_lost.part.1.tess`
+  serves 798 lines from 1.1; the part.1 windows start at 1.1; no
+  duplicate refs remain in the lines table; Book 4 has 1,015 lines.
+
 ## 2026-09-16 The Prelude's Books XII to XIV separated in the stores (PR #378)
 - What: the text files in git now carry Books XIII and XIV under their own
   numbers (PR #378: tags 12.337 to 12.1170 became 13.1 to 13.378 and 14.1

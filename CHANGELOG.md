@@ -9,6 +9,12 @@ docs/DATA_OPERATIONS.md.
 ## 2026-09-16
 
 ### Corpus
+- #380 Milton, Paradise Lost: every book now runs from line 1. The file
+  had begun each book at 2 with a duplicated number a few lines in, so
+  the opening lines were cited one too high and Verity's notes missed
+  them; a blank row in Book 4 is gone. `scripts/corpus/apply_paradise_lost_numbering.py`
+  brought the stores into line (data operation below) and
+  `rekey_verity_paradise_lost.py` re-keyed the commentary.
 - #378 Wordsworth, The Prelude (1850): Books XIII and XIV get their own
   numbers. The file had run them together under Book XII, so a line of the
   Snowdon ascent read "Prelude 12.900". Part files 13 and 14 added, part 12
@@ -16,6 +22,9 @@ docs/DATA_OPERATIONS.md.
   passage index and the English index into line (data operation below).
 
 ### Data operations
+- Paradise Lost refs remapped in the passage index (69 windows, 138 line
+  refs, 2 blank rows dropped), English lemma caches and index updated for
+  the thirteen files.
 - The Prelude's refs remapped in the passage index (197 whole-work windows,
   192 part windows moved to the new parts, ids kept in embedding order),
   English lemma caches rebuilt (139 had been missing), English index
