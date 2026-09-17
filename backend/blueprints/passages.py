@@ -22,6 +22,7 @@ or half-built index degrades the Reader's panel instead of breaking the page.
 """
 import csv
 import io
+import os
 from urllib.parse import quote
 
 from flask import Blueprint, Response, jsonify, request
@@ -29,6 +30,7 @@ from flask import Blueprint, Response, jsonify, request
 from backend.logging_config import get_logger
 from backend import passage_index
 from backend import lexical_density
+from backend import reader_rerank
 from backend import translations
 from backend import window_texts
 from backend import theme_pdf
@@ -64,6 +66,12 @@ def _languages():
 def _scale():
     s = (request.args.get('scale') or '').strip().lower()
     return s if s in ('fine', 'coarse') else None
+
+
+def _reader_wanted():
+    """False only if the request opts out with ?reader=0 (or false/no/off)."""
+    raw = (request.args.get('reader') or '').strip().lower()
+    return raw not in ('0', 'false', 'no', 'off')
 
 
 @passages_bp.route('/passages/status')
@@ -106,6 +114,15 @@ def theme_search():
         'wording, so results in different languages usually share no words with '
         'the query. Lead with the work and the gist; treat a result marked '
         'strong:false as a weak neighbor rather than a finding.')
+    # Reader-at-top: re-score the head of the ranking with the trained free
+    # reader model (services/reader_server.py) and re-order it by that score.
+    # Only runs when THEME_READER_URL names a running service and the request
+    # has not opted out with ?reader=0; a disabled or unreachable reader
+    # leaves the response exactly as it was, with no 'reader' field at all,
+    # so a request made before this feature existed gets the same answer.
+    if os.environ.get('THEME_READER_URL') and _reader_wanted() and out.get('results'):
+        out['results'], reader_meta = reader_rerank.apply(q, out['results'])
+        out['reader'] = reader_meta
     return jsonify(out)
 
 
