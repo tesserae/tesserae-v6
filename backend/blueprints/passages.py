@@ -91,10 +91,18 @@ def theme_search():
     # on deployment this raised, Apache turned it into a bare 500, and the app
     # log was unreadable, so the cause could not be seen from the response at
     # all. An error the operator cannot read is an error they cannot fix.
+    limit = _int_arg('limit', 25)
+    offset = _int_arg('offset', 0, lo=0, hi=_MAX_OFFSET)
+    # The reader re-orders the top K of the ranking, so on the first page it
+    # needs at least K candidates to read even when the page shows fewer;
+    # the list is cut back to the requested length after the re-rank. Later
+    # pages (offset > 0) are left in index order: re-ranking each page on its
+    # own would shuffle results between pages.
+    reader_on = bool(os.environ.get('THEME_READER_URL')) and _reader_wanted() and offset == 0
+    fetch = max(limit, reader_rerank.DEFAULT_K) if reader_on else limit
     try:
         out = passage_index.find_by_text(
-            q, limit=_int_arg('limit', 25),
-            offset=_int_arg('offset', 0, lo=0, hi=_MAX_OFFSET),
+            q, limit=fetch, offset=offset,
             languages=_languages(), scale=_scale())
     except passage_index.EmbedUnavailable as e:
         # "cannot ask" is not "found nothing". Only one of those means the
@@ -120,9 +128,11 @@ def theme_search():
     # has not opted out with ?reader=0; a disabled or unreachable reader
     # leaves the response exactly as it was, with no 'reader' field at all,
     # so a request made before this feature existed gets the same answer.
-    if os.environ.get('THEME_READER_URL') and _reader_wanted() and out.get('results'):
+    if reader_on and out.get('results'):
         out['results'], reader_meta = reader_rerank.apply(q, out['results'])
         out['reader'] = reader_meta
+        if fetch > limit:
+            out['results'] = out['results'][:limit]
     return jsonify(out)
 
 
