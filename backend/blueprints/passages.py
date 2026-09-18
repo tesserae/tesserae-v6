@@ -22,6 +22,7 @@ or half-built index degrades the Reader's panel instead of breaking the page.
 """
 import csv
 import io
+import os
 from urllib.parse import quote
 
 from flask import Blueprint, Response, jsonify, request
@@ -29,6 +30,7 @@ from flask import Blueprint, Response, jsonify, request
 from backend.logging_config import get_logger
 from backend import passage_index
 from backend import lexical_density
+from backend import reader_rerank
 from backend import translations
 from backend import window_texts
 from backend import theme_pdf
@@ -66,6 +68,12 @@ def _scale():
     return s if s in ('fine', 'coarse') else None
 
 
+def _reader_wanted():
+    """False only if the request opts out with ?reader=0 (or false/no/off)."""
+    raw = (request.args.get('reader') or '').strip().lower()
+    return raw not in ('0', 'false', 'no', 'off')
+
+
 @passages_bp.route('/passages/status')
 def scene_status():
     return jsonify(passage_index.status())
@@ -83,10 +91,22 @@ def theme_search():
     # on deployment this raised, Apache turned it into a bare 500, and the app
     # log was unreadable, so the cause could not be seen from the response at
     # all. An error the operator cannot read is an error they cannot fix.
+    limit = _int_arg('limit', 25)
+    offset = _int_arg('offset', 0, lo=0, hi=_MAX_OFFSET)
+    # The reader re-orders the top K of the ranking. Every page that falls
+    # inside those K is cut from the SAME re-ranked list (fetch the K from
+    # offset 0, re-rank, then slice), so a passage promoted into page one
+    # cannot appear again on page two and a demoted one is not lost. Pages
+    # past K are served in index order as before, which the re-rank does not
+    # touch. Scores are deterministic, so each page re-ranks the same K the
+    # same way at the cost of one reader call per page.
+    K = reader_rerank.DEFAULT_K
+    reader_on = bool(os.environ.get('THEME_READER_URL')) and _reader_wanted() and offset < K
+    fetch = max(offset + limit, K) if reader_on else limit
+    fetch_offset = 0 if reader_on else offset
     try:
         out = passage_index.find_by_text(
-            q, limit=_int_arg('limit', 25),
-            offset=_int_arg('offset', 0, lo=0, hi=_MAX_OFFSET),
+            q, limit=fetch, offset=fetch_offset,
             languages=_languages(), scale=_scale())
     except passage_index.EmbedUnavailable as e:
         # "cannot ask" is not "found nothing". Only one of those means the
@@ -106,6 +126,16 @@ def theme_search():
         'wording, so results in different languages usually share no words with '
         'the query. Lead with the work and the gist; treat a result marked '
         'strong:false as a weak neighbor rather than a finding.')
+    # Reader-at-top: re-score the head of the ranking with the trained free
+    # reader model (services/reader_server.py) and re-order it by that score.
+    # Only runs when THEME_READER_URL names a running service and the request
+    # has not opted out with ?reader=0; a disabled or unreachable reader
+    # leaves the response exactly as it was, with no 'reader' field at all,
+    # so a request made before this feature existed gets the same answer.
+    if reader_on and out.get('results'):
+        out['results'], reader_meta = reader_rerank.apply(q, out['results'])
+        out['reader'] = reader_meta
+        out['results'] = out['results'][offset:offset + limit]
     return jsonify(out)
 
 

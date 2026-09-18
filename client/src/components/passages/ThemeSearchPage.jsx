@@ -439,6 +439,7 @@ export default function ThemeSearchPage() {
           {(data.confidence?.level !== 'low' || showWeak) && (
             <ThemeExport query={data.query || query} language={language}
                          corpusVersion={data.corpus_version}
+                         ranking={data.reader?.applied && data.reader.model ? `re-ranked by reader ${data.reader.model}` : undefined}
                          count={data.results?.length || 0} />
           )}
           {(data.confidence?.level !== 'low' || showWeak) && (

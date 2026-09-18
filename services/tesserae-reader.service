@@ -1,0 +1,31 @@
+[Unit]
+Description=Tesserae Theme Search reader (trained MiniLM cross-encoder)
+Documentation=file:///home/ncoffee/tesserae-scene/services/reader_server.py
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/ncoffee/tesserae-scene
+Environment=TESSERAE_READER_PORT=8091
+Environment=READER_MODEL_DIR=/home/ncoffee/tesserae-models/theme_reader_minilm_2026-09-17
+Environment=READER_THREADS=16
+# Offline: a Hugging Face outage must never become a failed search on the site.
+Environment=HF_HUB_OFFLINE=1
+Environment=TRANSFORMERS_OFFLINE=1
+# Same layout as tesserae-embed.service: the script from the main checkout
+# (~/tesserae-scene), the interpreter from the venv that holds torch and
+# transformers, the checkpoint at a stable path outside any checkout.
+# systemd reports the unit active before the model has loaded; poll
+# GET /health for loaded_at before trusting it.
+ExecStart=/home/ncoffee/tesserae-v6-dev/venv/bin/python /home/ncoffee/tesserae-scene/services/reader_server.py
+
+# The checkpoint is 88MB and MiniLM is small, but this caps growth the same
+# way tesserae-embed.service does: exceeded, it is killed and restarted
+# rather than pushing anything else on the machine out of memory.
+MemoryMax=4G
+CPUWeight=50
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target

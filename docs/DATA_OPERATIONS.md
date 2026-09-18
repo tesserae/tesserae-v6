@@ -22,6 +22,34 @@ Conventions
 - Stamp backups to the second; a rerun must never overwrite the first
   run's backup.
 
+## PLANNED (on deploy of the re-ranker PR) Theme Search re-ranker service
+- What: copy the trained checkpoint
+  (evaluation/theme_benchmark/distill_train/runs/minilm/best, 88 MB) to
+  /home/ncoffee/tesserae-models/theme_reader_minilm_2026-09-17; install
+  services/tesserae-reader.service as a user unit (it runs the script from
+  ~/tesserae-scene with the venv that holds torch, the layout of
+  tesserae-embed.service; READER_THREADS=16, port 8091, MemoryMax 4G,
+  restart on failure), enable and start it, then poll
+  http://127.0.0.1:8091/health until it reports loaded_at (the unit shows
+  active before the model has loaded); add
+  THEME_READER_URL=http://127.0.0.1:8091 and
+  THEME_READER_MODEL=minilm-distill-2026-09-17 to the production
+  environment the WSGI app reads; `npm run build` from the repo root;
+  keep_old_bundles save and restore; `touch tesseraev6_flask.wsgi`.
+- Cost inside the request, measured on the preview 2026-09-18 for the dog
+  query: window texts for 100 passages 0.9 s, translation lookups 0.2 s
+  (35 of 100 had one), reader call about 2 s: about 3.2 s in all on a
+  first page. Every page inside the top 100 is cut from the same re-ranked
+  list, so a page costs one reader call and results do not move between
+  pages; pages past 100 are index order.
+- No index, cache or passage-index change. Rollback: unset
+  THEME_READER_URL and touch the wsgi file; the page returns to index
+  order.
+- Checks: `/api/passages/status` unchanged; a Theme Search for "a
+  faithful dog greets his master" returns `reader.applied: true` and
+  Odyssey 17.295 first; the same with `&reader=0` returns the index
+  order; the Cite popover names the re-ranker; reference test 324.
+
 ## 2026-09-16 Paradise Lost renumbered in the stores (PR #380)
 - What: the text files in git now number every book of Paradise Lost
   1..n (they began at 2 with a duplicated tag a few lines in) and the
