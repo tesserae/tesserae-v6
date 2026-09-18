@@ -12,6 +12,10 @@ export default function CorpusBrowser() {
   const [sortOrder, setSortOrder] = useState('alphabetical');
   const [expandedAuthors, setExpandedAuthors] = useState(new Set());
   const [translated, setTranslated] = useState({});
+  // Base work ids with passage windows, for the Theme Search badge. A work
+  // missing from this set has no passage windows and never appears in Theme
+  // Search or Similar Passages.
+  const [coveredWorks, setCoveredWorks] = useState(new Set());
   // Orientation blurbs (data/text_descriptions.json), and which rows have
   // theirs open. Not every work has one; the ⓘ only shows where one exists.
   const [descriptions, setDescriptions] = useState({});
@@ -105,6 +109,15 @@ export default function CorpusBrowser() {
     } catch {
       setTranslated({});
     }
+    // Which of these works have passage windows, for the Theme Search badge.
+    // A failure here only costs the badges.
+    try {
+      const cr = await fetch(`/api/passages/works?language=${language}`);
+      const cd = await cr.json();
+      setCoveredWorks(new Set(cd?.works || []));
+    } catch {
+      setCoveredWorks(new Set());
+    }
     // Orientation blurbs; a failure only costs the ⓘ buttons.
     setOpenDescs(new Set());
     try {
@@ -123,6 +136,9 @@ export default function CorpusBrowser() {
   const descriptionOf = (id) =>
     descriptions[String(id || '').replace(/\.tess$/, '').split('.part.')[0]];
 
+  const isCovered = (id) =>
+    coveredWorks.has(String(id || '').replace(/\.tess$/, '').split('.part.')[0]);
+
   const toggleDesc = (id) => setOpenDescs((prev) => {
     const next = new Set(prev);
     if (next.has(id)) next.delete(id); else next.add(id);
@@ -138,6 +154,18 @@ export default function CorpusBrowser() {
       console.error('Failed to load stats:', err);
     }
   };
+
+  // Distinct works (part files collapsed) in the current language, and how
+  // many of those are covered by Theme Search, for the count line under the
+  // corpus heading.
+  const coverageCount = useMemo(() => {
+    const baseIds = new Set(
+      corpus.map(t => String(t.id || '').replace(/\.tess$/, '').split('.part.')[0])
+    );
+    let covered = 0;
+    baseIds.forEach(id => { if (coveredWorks.has(id)) covered += 1; });
+    return { covered, total: baseIds.size };
+  }, [corpus, coveredWorks]);
 
   const groupedByAuthor = useMemo(() => {
     const groups = {};
@@ -325,6 +353,11 @@ export default function CorpusBrowser() {
           <p className="text-sm text-gray-500">
             {stats?.[language]?.texts || corpus.length} texts
           </p>
+          {coverageCount.total > 0 && (
+            <p className="text-xs text-gray-500">
+              {coverageCount.covered} of {coverageCount.total} works are covered by Theme Search
+            </p>
+          )}
         </div>
         <div className="flex flex-wrap gap-2 w-full sm:w-auto">
           <input
@@ -437,6 +470,15 @@ export default function CorpusBrowser() {
                           >
                             EN
                           </a>
+                        )}
+                        {isCovered(text.id) && (
+                          <span
+                            className="text-[10px] font-bold uppercase tracking-wide bg-purple-100
+                                       text-purple-800 rounded px-1"
+                            title="Covered by Theme Search and Similar Passages"
+                          >
+                            Theme Search
+                          </span>
                         )}
                         {text.line_count && (
                           <span className="text-xs text-gray-500">{text.line_count} lines</span>

@@ -376,6 +376,21 @@ def lexical_density_route():
     return jsonify(lexical_density.line_density(work, language=language))
 
 
+@passages_bp.route('/passages/works')
+def works_available():
+    """Which works of a language have passage windows, for the Browse Corpus
+    "Theme Search" badge.
+
+    A work with no passage windows never appears in Theme Search or Similar
+    Passages, so Browse Corpus marks the ones that do. Cached per worker
+    inside passage_index, since the index loads once and does not change for
+    the life of the process."""
+    language = (request.args.get('language') or 'la').strip()
+    return jsonify({'language': language,
+                    'index_version': passage_index.index_version(),
+                    'works': passage_index.works_for_language(language)})
+
+
 @passages_bp.route('/passages/translations')
 def translations_available():
     """Which works of a language have aligned translations, with attribution.
