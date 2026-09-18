@@ -627,7 +627,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 the top hundred are read: a passage the comparison did not bring into the
                 hundred cannot be promoted by the reading. On sixteen test themes judged against a
                 scholar's grading rule, the share of the first ten results that is the scene rose
-                from about 29 to about 43 percent (the larger model, read live, reaches 71). The result
+                from about 29 to about 43 percent (the larger paid model, on the hundred closest passages, reaches 71). The result
                 citation names the reading model, and adding <code>&amp;reader=0</code> to a
                 search address shows the order without it.
               </p>
