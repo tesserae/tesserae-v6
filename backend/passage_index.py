@@ -1059,9 +1059,17 @@ def expand_query(query):
     return forms
 
 
-def find_by_text(query, limit=25, languages=None, scale=None, expand=True,
+def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
                  offset=0):
     """Theme Search: free-text description of the wanted content.
+
+    `expand` now defaults to False and no in-repo caller passes True: measured
+    in `evaluation/theme_benchmark/expansion_test/REPORT.md`, expansion
+    changed nothing on 15 of 16 test queries (it only ever runs for queries of
+    six words or fewer) and on the one query it did touch, it pushed the
+    corpus's one clear right answer (Odyssey 17, Argos) out of the top hundred
+    entirely, a loss the reader re-rank could not recover from. The parameter
+    and `expand_query` itself are left in place rather than removed.
 
     `offset` pages past the normal result set: results (offset+1) to
     (offset+limit) of the SAME ranking, not a re-run with a different cutoff.

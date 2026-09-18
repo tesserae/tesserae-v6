@@ -320,3 +320,14 @@ def test_route_ignores_a_non_numeric_offset(monkeypatch, client, route):
     r = client.get(f'{route}?q=test&offset=banana')
     assert r.status_code == 200
     assert calls[-1]['offset'] == 0
+
+
+def test_find_by_text_expand_defaults_to_false():
+    """Query expansion is off by default: measured to have no effect on 15 of
+    16 test queries and to push the one right answer it did touch out of the
+    top hundred (evaluation/theme_benchmark/expansion_test/REPORT.md). No
+    index needed -- this only inspects the function's own signature.
+    """
+    import inspect
+    default = inspect.signature(pi.find_by_text).parameters['expand'].default
+    assert default is False
