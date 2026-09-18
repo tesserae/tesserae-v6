@@ -623,6 +623,13 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 Nothing is being translated and no words are being matched: two passages are
                 being compared by what they are about.
               </p>
+              <p className="text-gray-700 mb-3">
+                Theme Search and Similar Passages only reach works that have been cut into
+                passage windows: about 1,858 works and 625,000 passages. A work outside that
+                index never appears in either feature, whatever it contains. Browse Corpus marks
+                the works that are covered with a small &ldquo;Theme Search&rdquo; badge next to
+                each title.
+              </p>
 
               <h4 className="font-medium text-gray-900 mt-6 mb-2">Reading the results</h4>
               <ul className="list-disc pl-5 text-gray-700 space-y-2 mb-3">

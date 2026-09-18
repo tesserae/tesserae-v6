@@ -296,6 +296,32 @@ def status():
     }
 
 
+_works_by_language_cache = {}  # language -> [base work id, ...]
+
+
+def works_for_language(language):
+    """Base work ids that have at least one passage window in this language.
+
+    Feeds the Browse Corpus "Theme Search" badge: a work with no rows here
+    never appears in Theme Search or Similar Passages results. Mirrors
+    translations.available() in spirit, one call over the already-loaded
+    index rather than a directory scan, cached per worker since _by_work
+    itself is loaded once and never changes for the life of the process."""
+    _ensure_loaded()
+    if language in _works_by_language_cache:
+        return _works_by_language_cache[language]
+    out = set()
+    if _by_work and _records:
+        for work, rows in _by_work.items():
+            for row in rows:
+                if _records[row].get('language') == language:
+                    out.add(work)
+                    break
+    result = sorted(out)
+    _works_by_language_cache[language] = result
+    return result
+
+
 def _ensure_loaded():
     global _ids, _records, _emb, _by_work
     if _state['loaded']:

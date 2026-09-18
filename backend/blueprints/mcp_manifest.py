@@ -336,6 +336,13 @@ MANIFEST = {
                   "Corpus badges; get_passage(translation=true) already reports per-passage "
                   "availability, which is what a retrieval-minded caller needs."),
     },
+    '/api/passages/works': {
+        'site_only': True,
+        'reason': ("Corpus-browse listing of which works have passage windows at all, for the "
+                  "Browse Corpus Theme Search badge; theme_search and similar_passages already "
+                  "report per-query and per-passage coverage, which is what a retrieval-minded "
+                  "caller needs."),
+    },
     '/api/text/<path:text_id>': {
         'site_only': True,
         'reason': ("Raw whole-work text dump (every unit) for the corpus text viewer; "
