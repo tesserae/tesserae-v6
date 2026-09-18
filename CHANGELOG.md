@@ -22,13 +22,14 @@ docs/DATA_OPERATIONS.md.
   survives the rewrite to the real route, `/browse`.
 
 ### Corpus
-- Retire 33 duplicate Latin files, rebuild Martial from the per-book files:
+- Retire 40 duplicate Latin files, rebuild Martial from the per-book files:
   `martial.epigrams` and its 14 `.part.N` files, missing dozens of epigrams
   per book, are rebuilt from the 14 `martialis.epigrammata_N` files that
   held the complete text (6,399 verse-lines to 9,375); those 14 per-book
   files and 26 other duplicate or stray files are retired (40 total; see
-  docs/DATA_OPERATIONS.md for why the file count and the "33" in this PR's
-  title disagree). Archived, not deleted outright:
+  docs/DATA_OPERATIONS.md for why the file count and the "33" the source
+  report used disagree, a count the merge commit's own title (`de8863e`,
+  "(#389)") carried forward unchanged). Archived, not deleted outright:
   `~/tesserae-backups/retired_duplicates_2026-09-18/`.
 
 - #390 Fixed the coverage list going blank mid-deploy. Right after a deploy
