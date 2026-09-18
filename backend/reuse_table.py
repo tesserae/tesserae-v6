@@ -1,0 +1,228 @@
+"""
+Tesserae V6 - Reuse Table
+
+Query layer for the corpus-wide verbatim/near-verbatim line reuse table,
+cache/reuse_pairs/<lang>.db, built by scripts/reuse/build_reuse_table.py.
+See that script's module docstring and research/reuse_table/REPORT_2026-09-18.md
+for what the table measures (shared word-triples above a Jaccard/containment
+threshold) and its known limitations (a locus label is occasionally not
+unique within a work; corpus-hygiene duplicate files still surface as
+"reuse" until they are retired -- see the report's "Top 20 work pairs").
+
+Backs GET /api/reuse/line and GET /api/reuse/marks (backend/blueprints/reuse.py).
+Latin only as of 2026-09-19; other languages answer is_available() = False
+until their table is built.
+
+Table schema (written by the build script):
+    pairs(work_a, line_a_ref, work_b, line_b_ref, shared, jaccard, span_len)
+    line_counts(work, line_ref, n_works)
+    meta(key, value)  -- built_at, corpus_version, corpus_file_count, ...
+"""
+import json
+import os
+import sqlite3
+from functools import lru_cache
+
+from backend.logging_config import get_logger
+from backend.utils import normalize_author_date_key
+
+logger = get_logger('reuse_table')
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DB_DIR = os.path.join(BASE_DIR, 'cache', 'reuse_pairs')
+CACHE_LEMMAS_DIR = os.path.join(BASE_DIR, 'cache', 'lemmas')
+AUTHOR_DATES_PATH = os.path.join(BASE_DIR, 'backend', 'author_dates.json')
+
+_connections = {}
+_author_dates = None
+
+
+def _load_author_dates():
+    global _author_dates
+    if _author_dates is None:
+        try:
+            with open(AUTHOR_DATES_PATH, 'r', encoding='utf-8') as f:
+                _author_dates = json.load(f)
+        except Exception:
+            _author_dates = {}
+    return _author_dates
+
+
+def _author_year(language, work):
+    """Author's year for a work, for newest-first ordering in the Reader's
+    Reuse tab, or None when the author is not in author_dates.json."""
+    dates = _load_author_dates().get(language, {})
+    author_key = (work or '').split('.')[0]
+    info = (dates.get(author_key) or dates.get(author_key.lower())
+            or dates.get(normalize_author_date_key(author_key)) or {})
+    return info.get('year')
+
+
+def _db_path(language):
+    return os.path.join(DB_DIR, f'{language}.db')
+
+
+def is_available(language):
+    """Whether a reuse table exists for this language. A language the table
+    has not been built for (or not yet, or never will) is a normal state,
+    not an error -- callers should answer 404 with a plain message, not a
+    500 or a silently-empty 200."""
+    return os.path.exists(_db_path(language))
+
+
+def _get_connection(language):
+    if language in _connections:
+        return _connections[language]
+    path = _db_path(language)
+    if not os.path.exists(path):
+        return None
+    try:
+        conn = sqlite3.connect(path, check_same_thread=False)
+        conn.row_factory = sqlite3.Row
+        _connections[language] = conn
+        return conn
+    except Exception as e:
+        logger.error(f"Failed to open reuse table for '{language}': {e}")
+        return None
+
+
+def meta(language):
+    """The build's meta key/value pairs (built_at, corpus_version, ...), or
+    {} if the table is missing or has no meta table."""
+    conn = _get_connection(language)
+    if not conn:
+        return {}
+    try:
+        rows = conn.execute("SELECT key, value FROM meta").fetchall()
+        return {r['key']: r['value'] for r in rows}
+    except Exception:
+        return {}
+
+
+@lru_cache(maxsize=128)
+def _load_work_lines(language, work):
+    """(ordered_refs, ref_to_text, ref_to_seq) for one work, built once from
+    its plain lemma cache -- the same per-line source the table itself was
+    built from, so a reuse-table ref always resolves to real line text.
+
+    A locus label can repeat within a work (see the module docstring's
+    duplicate-locus caveat); ref_to_text/ref_to_seq keep the FIRST
+    occurrence, same as the build script's own line-lookup convention.
+    Memoized per (language, work) for the life of the process -- a lemma
+    cache file does not change without a deploy, which restarts workers."""
+    path = os.path.join(CACHE_LEMMAS_DIR, language, work + '.json')
+    if not os.path.exists(path):
+        return ([], {}, {})
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except Exception as e:
+        logger.warning(f"Could not read lemma cache for {language}/{work}: {e}")
+        return ([], {}, {})
+    ordered = []
+    ref_to_text = {}
+    ref_to_seq = {}
+    for seq, unit in enumerate(data.get('units_line', [])):
+        ref = unit.get('ref', '')
+        ordered.append(ref)
+        if ref and ref not in ref_to_text:
+            ref_to_text[ref] = unit.get('text', '')
+            ref_to_seq[ref] = seq
+    return (ordered, ref_to_text, ref_to_seq)
+
+
+def _line_text(language, work, ref):
+    _, ref_to_text, _ = _load_work_lines(language, work)
+    return ref_to_text.get(ref, '')
+
+
+def line(language, work, ref):
+    """Other works' lines that repeat this line (from `pairs`, both
+    directions), each carrying what the Reader needs to open it there.
+
+    Returns {'available': False} if no table exists for the language, else
+    {'available': True, 'quotations': [...], 'meta': {...}} where each
+    quotation is {work, ref, language, text, shared, jaccard, span_len},
+    ordered by shared descending."""
+    if not is_available(language):
+        return {'available': False, 'quotations': []}
+    conn = _get_connection(language)
+    if not conn:
+        return {'available': False, 'quotations': []}
+    try:
+        rows = conn.execute(
+            """SELECT work_b AS other_work, line_b_ref AS other_ref, shared, jaccard, span_len
+                 FROM pairs WHERE work_a = ? AND line_a_ref = ?
+               UNION ALL
+               SELECT work_a AS other_work, line_a_ref AS other_ref, shared, jaccard, span_len
+                 FROM pairs WHERE work_b = ? AND line_b_ref = ?
+               ORDER BY shared DESC""",
+            (work, ref, work, ref)
+        ).fetchall()
+    except Exception as e:
+        logger.error(f"reuse_table.line query failed for {language}/{work}/{ref}: {e}")
+        return {'available': False, 'quotations': []}
+
+    quotations = [{
+        'work': r['other_work'],
+        'ref': r['other_ref'],
+        'language': language,
+        'text': _line_text(language, r['other_work'], r['other_ref']),
+        'shared': r['shared'],
+        'jaccard': r['jaccard'],
+        'span_len': r['span_len'],
+        'year': _author_year(language, r['other_work']),
+    } for r in rows]
+    return {'available': True, 'quotations': quotations, 'meta': meta(language)}
+
+
+def marks(language, work, ref_start=None, ref_end=None):
+    """Per-line count of other works repeating each line, for the Reader's
+    margin marker. Reads `line_counts`, which only has a row for a line that
+    is in at least one kept pair -- a line with no reuse has no row (not a
+    zero-count row), so the marker only needs to place a mark where a row
+    exists here.
+
+    ref_start/ref_end (either or both optional) restrict the range using the
+    work's own line ORDER (seq_in_work, from the lemma cache), not a string
+    comparison of ref labels, since a citation label like "verg. aen. 1.9"
+    does not sort correctly as a string against "verg. aen. 1.10". Omitting
+    both returns every reused line in the work."""
+    if not is_available(language):
+        return {'available': False, 'lines': []}
+    conn = _get_connection(language)
+    if not conn:
+        return {'available': False, 'lines': []}
+    try:
+        rows = conn.execute(
+            "SELECT line_ref, n_works FROM line_counts WHERE work = ?", (work,)
+        ).fetchall()
+    except Exception as e:
+        logger.error(f"reuse_table.marks query failed for {language}/{work}: {e}")
+        return {'available': False, 'lines': []}
+
+    if not rows:
+        return {'available': True, 'lines': []}
+
+    seq_start = seq_end = None
+    ref_to_seq = {}
+    if ref_start or ref_end:
+        _, _, ref_to_seq = _load_work_lines(language, work)
+        if ref_start:
+            seq_start = ref_to_seq.get(ref_start)
+        if ref_end:
+            seq_end = ref_to_seq.get(ref_end)
+
+    out = []
+    for r in rows:
+        ref = r['line_ref']
+        if seq_start is not None or seq_end is not None:
+            seq = ref_to_seq.get(ref)
+            if seq is None:
+                continue
+            if seq_start is not None and seq < seq_start:
+                continue
+            if seq_end is not None and seq > seq_end:
+                continue
+        out.append({'ref': ref, 'n_works': r['n_works']})
+    return {'available': True, 'lines': out}

@@ -108,6 +108,25 @@ export default function ReaderPage() {
   const failedWorkRef = useRef(null);
   const [metadata, setMetadata] = useState(null);
   const [selection, setSelection] = useState(null);
+  // "Quoted in N works": per-line reuse counts for the currently open work,
+  // from the corpus-wide reuse table (Latin only as of 2026-09-19; a 404
+  // for any other language just leaves this empty, no error shown).
+  const [reuseMarks, setReuseMarks] = useState({});
+  useEffect(() => {
+    if (!work) { setReuseMarks({}); return undefined; }
+    let cancelled = false;
+    fetch(`/api/reuse/marks?work=${encodeURIComponent(work.replace('.tess', ''))}`
+      + `&language=${encodeURIComponent(language)}`)
+      .then((r) => (r.status === 404 ? { lines: [] } : r.json()))
+      .then((d) => {
+        if (cancelled) return;
+        const map = {};
+        (d.lines || []).forEach((l) => { map[l.ref] = l.n_works; });
+        setReuseMarks(map);
+      })
+      .catch(() => { if (!cancelled) setReuseMarks({}); });
+    return () => { cancelled = true; };
+  }, [work, language]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   // The reader content (gutter, text, results panel). A click anywhere
@@ -481,6 +500,16 @@ export default function ReaderPage() {
                 onMore={showMore}
                 language={language}
                 selection={selection}
+                reuseMarks={reuseMarks}
+                onReuseClick={(u) => {
+                  const i = units.findIndex((x) => x.ref === u.ref);
+                  const sel = { startIdx: i, endIdx: i, refStart: u.ref,
+                                refEnd: u.ref, lineCount: 1 };
+                  setSelection(sel);
+                  setScope(scopeFor(sel));
+                  setPanelTab('reuse');
+                  setPopupOpen(true);
+                }}
                 onSelect={(sel) => {
                   setSelection(sel);
                   if (sel) setScope(scopeFor(sel));

@@ -12,7 +12,8 @@ const RTL = new Set(['he']);
  * matches). Reference numbers appear every fifth line, the convention in printed
  * editions, so the margin stays quiet while remaining navigable.
  */
-export default function TextPane({ units, language, selection, onSelect, total, onMore }) {
+export default function TextPane({ units, language, selection, onSelect, total, onMore,
+                                    reuseMarks, onReuseClick }) {
   // LONG TEXTS ARRIVE IN STRETCHES. Hafez's diwan is 9,502 lines and Anvari's
   // 26,616; drawing every line and gutter tile at once froze a phone and
   // crashed its tab (NC, 2026-09-07). The page draws what it has been given
@@ -140,7 +141,7 @@ export default function TextPane({ units, language, selection, onSelect, total, 
               key={u.ref}
               id={`line-${cssRef(u.ref)}`}
               className={`grid gap-2 cursor-text ${selected ? 'bg-red-50 border-l-[3px] border-red-700 -ml-[3px] rounded-r' : ''}`}
-              style={{ gridTemplateColumns: '2.6rem 1fr', minHeight: '1.75rem' }}
+              style={{ gridTemplateColumns: '2.6rem 1.15rem 1fr', minHeight: '1.75rem' }}
               // A tap on a phone makes no text selection, so nothing used to
               // happen. A click or tap that leaves no selection selects the
               // line itself; a drag still selects the swept span.
@@ -172,6 +173,24 @@ export default function TextPane({ units, language, selection, onSelect, total, 
                 style={{ fontFamily: 'inherit' }}
               >
                 {showNumber ? n : ''}
+              </span>
+              {/* "Quoted in N works": a small mark for a line the corpus-wide
+                  reuse table shows repeated verbatim (or near-verbatim) in
+                  other works. Red-and-grey, matching the rest of the
+                  Reader's palette; opens the Reuse tab on the line it marks. */}
+              <span className="pt-[0.3em]">
+                {reuseMarks?.[u.ref] > 0 && (
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); onReuseClick?.(u); }}
+                    title={`Quoted in ${reuseMarks[u.ref]} other work${reuseMarks[u.ref] === 1 ? '' : 's'}`}
+                    className="inline-flex items-center justify-center text-[9px] font-bold leading-none
+                               text-red-700 bg-gray-100 border border-gray-300 rounded px-1 py-[2px]
+                               hover:bg-red-50 hover:border-red-300"
+                  >
+                    {reuseMarks[u.ref]}
+                  </button>
+                )}
               </span>
               <p className="m-0">{u.text}</p>
             </div>

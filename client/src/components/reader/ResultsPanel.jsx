@@ -67,6 +67,36 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   const [fullTranslation, setFullTranslation] = useState(null);
   useEffect(() => { setFullTranslation(null); }, [work]);
 
+  // REUSE: other works whose lines verbatim-repeat the selection, from the
+  // corpus-wide reuse table (backend/reuse_table.py). Latin only for now --
+  // a language with no table answers 404, which reads here as `available:
+  // false` rather than an error, since "not built for this language" is a
+  // normal state, not a failure.
+  const [reuse, setReuse] = useState(null);
+  const [reuseLoading, setReuseLoading] = useState(false);
+  const [reuseError, setReuseError] = useState(null);
+  useEffect(() => {
+    if (!selection || tab !== 'reuse') return;
+    const picked = (units || []).slice(selection.startIdx, selection.endIdx + 1);
+    if (!picked.length) { setReuse({ available: true, quotations: [] }); return; }
+    let cancelled = false;
+    setReuseLoading(true);
+    setReuseError(null);
+    Promise.all(picked.map((u) => fetch(
+      `/api/reuse/line?work=${encodeURIComponent(work)}`
+      + `&ref=${encodeURIComponent(u.ref)}&language=${encodeURIComponent(language)}`,
+    ).then((r) => (r.status === 404 ? { available: false } : asJson(r)))))
+      .then((results) => {
+        if (cancelled) return;
+        const available = results.some((r) => r.available);
+        const quotations = results.flatMap((r) => r.quotations || []);
+        setReuse({ available, quotations, meta: results.find((r) => r.meta)?.meta });
+      })
+      .catch((e) => { if (!cancelled) setReuseError(e.message); })
+      .finally(() => { if (!cancelled) setReuseLoading(false); });
+    return () => { cancelled = true; };
+  }, [selection, work, units, language, tab]);
+
   const loadFullTranslation = () => {
     setFullTranslation('loading');
     fetch(`/api/passages/translation-full?work=${encodeURIComponent(work)}`)
@@ -193,6 +223,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
     // In the English-focused reading view the middle column IS the
     // translation, so this tab holds the original instead.
     ['translation', focus === 'english' ? 'Original' : 'Translation'],
+    ['reuse', 'Reuse'],
   ];
 
   return (
@@ -591,9 +622,90 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
             )}
           </>
         )}
+
+        {selection && tab === 'reuse' && (
+          <>
+            <p className="text-[11px] text-gray-500 leading-snug">
+              Lines sharing enough word-triples with this line to count as a quotation
+              or near-quotation, computed once over the corpus. Latin for now.
+            </p>
+            {reuseLoading && <LoadingSpinner />}
+            {reuseError && <p className="text-sm text-red-700">{reuseError}</p>}
+            {!reuseLoading && !reuseError && reuse?.available === false && (
+              <p className="text-sm text-gray-500">
+                No reuse table has been built for {LANG_LABEL[language] || language} yet.
+              </p>
+            )}
+            {!reuseLoading && !reuseError && reuse?.available && reuse.quotations.length === 0 && (
+              <p className="text-sm text-gray-500">
+                No other work in the corpus repeats this line closely enough to count.
+              </p>
+            )}
+            {!reuseLoading && reuse?.available && reuse.quotations.length > 0 && (
+              <div className="space-y-3">
+                {groupReuseByWork(reuse.quotations).map(({ work: otherWork, year, items }) => (
+                  <div key={otherWork}>
+                    <div className="flex items-baseline gap-2 mb-1">
+                      <span className="font-bold text-sm text-red-800">{prettyWork(otherWork)}</span>
+                      {year != null && (
+                        <span className="text-[11px] text-gray-500 tabular-nums">
+                          {year < 0 ? `${Math.abs(year)} BCE` : `${year} CE`}
+                        </span>
+                      )}
+                    </div>
+                    <div className="space-y-1.5">
+                      {items.map((q) => (
+                        <button
+                          key={`${q.work}-${q.ref}`}
+                          onClick={() => onOpenPassage?.({ work: q.work, language: q.language, ref_start: q.ref })}
+                          className="group w-full text-left bg-white border border-gray-200 rounded-lg p-2.5
+                                     hover:border-red-400 hover:bg-red-50/40 transition-colors
+                                     focus:outline-none focus:ring-2 focus:ring-red-400"
+                        >
+                          <div className="flex items-baseline gap-2 flex-wrap">
+                            <span className="text-xs text-gray-500">{q.ref}</span>
+                            {q.span_len > 1 && (
+                              <span className="text-[10px] font-semibold bg-gray-100 text-gray-600 rounded px-1">
+                                {q.span_len} lines
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-800 mt-0.5 leading-snug">{q.text}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
       </div>
     </aside>
   );
+}
+
+/** Group reuse quotations by the other work, newest author-date first (a
+ *  work with no known author date sorts last, not first -- an unguessed date
+ *  should not read as "oldest"). Within a work, order by span (a chained
+ *  multi-line quotation before single lines) then by shared count. */
+function groupReuseByWork(quotations) {
+  const byWork = new Map();
+  for (const q of quotations) {
+    if (!byWork.has(q.work)) byWork.set(q.work, { work: q.work, year: q.year ?? null, items: [] });
+    byWork.get(q.work).items.push(q);
+  }
+  const groups = [...byWork.values()];
+  for (const g of groups) {
+    g.items.sort((a, b) => (b.span_len - a.span_len) || (b.shared - a.shared));
+  }
+  groups.sort((a, b) => {
+    if (a.year == null && b.year == null) return a.work < b.work ? -1 : 1;
+    if (a.year == null) return 1;
+    if (b.year == null) return -1;
+    return b.year - a.year;
+  });
+  return groups;
 }
 
 /** "verg. aen. 6.1" -> "6.1". The Reader's refs carry the work's short tag and
