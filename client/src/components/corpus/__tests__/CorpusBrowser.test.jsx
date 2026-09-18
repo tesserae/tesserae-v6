@@ -65,7 +65,15 @@ describe('the Theme Search coverage badge', () => {
     render(<CorpusBrowser />);
 
     await waitFor(() =>
-      expect(screen.getByText('1 of 2 works are covered by Theme Search')).toBeTruthy());
+      expect(screen.getByText(/1 of 2 works are covered by Theme Search/)).toBeTruthy());
+  });
+
+  it('can show only the covered works', async () => {
+    render(<CorpusBrowser />);
+    await waitFor(() => expect(screen.getByText('Cicero')).toBeTruthy());
+    fireEvent.click(screen.getByLabelText('Show only works covered by Theme Search'));
+    await waitFor(() => expect(screen.queryByText('Cicero')).toBeNull());
+    expect(screen.getByText('Vergil')).toBeTruthy();
   });
 
   it('a failed works fetch costs only the badges, not the page', async () => {

@@ -16,6 +16,8 @@ export default function CorpusBrowser() {
   // missing from this set has no passage windows and never appears in Theme
   // Search or Similar Passages.
   const [coveredWorks, setCoveredWorks] = useState(new Set());
+  // Show only the works Theme Search covers (a list on demand).
+  const [coveredOnly, setCoveredOnly] = useState(false);
   // Orientation blurbs (data/text_descriptions.json), and which rows have
   // theirs open. Not every work has one; the ⓘ only shows where one exists.
   const [descriptions, setDescriptions] = useState({});
@@ -225,14 +227,19 @@ export default function CorpusBrowser() {
   };
 
   const filteredAuthors = useMemo(() => {
-    return sortedAuthors.filter(group => {
+    const groups = coveredOnly
+      ? sortedAuthors
+          .map((group) => ({ ...group, texts: group.texts.filter((t) => isCovered(t.id)) }))
+          .filter((group) => group.texts.length > 0)
+      : sortedAuthors;
+    return groups.filter(group => {
       const matchesSearch = !searchFilter || 
         group.author.toLowerCase().includes(searchFilter.toLowerCase()) ||
         group.texts.some(t => t.title?.toLowerCase().includes(searchFilter.toLowerCase()));
       const matchesEra = selectedEra === 'all' || normalizeEra(group.era) === selectedEra;
       return matchesSearch && matchesEra;
     });
-  }, [sortedAuthors, searchFilter, selectedEra]);
+  }, [sortedAuthors, searchFilter, selectedEra, coveredOnly, coveredWorks]);
 
   const toggleAuthor = (author) => {
     const newExpanded = new Set(expandedAuthors);
@@ -355,7 +362,12 @@ export default function CorpusBrowser() {
           </p>
           {coverageCount.total > 0 && (
             <p className="text-xs text-gray-500">
-              {coverageCount.covered} of {coverageCount.total} works are covered by Theme Search
+              {coverageCount.covered} of {coverageCount.total} works are covered by Theme Search.{' '}
+              <label className="inline-flex items-center gap-1 cursor-pointer">
+                <input type="checkbox" checked={coveredOnly} onChange={(e) => setCoveredOnly(e.target.checked)}
+                       className="accent-red-700" aria-label="Show only works covered by Theme Search" />
+                <span>show only those</span>
+              </label>
             </p>
           )}
         </div>
