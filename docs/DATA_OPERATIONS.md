@@ -22,6 +22,104 @@ Conventions
 - Stamp backups to the second; a rerun must never overwrite the first
   run's backup.
 
+## 2026-09-18 Corpus: 33 duplicate Latin files retired, Martial rebuilt from its per-book files
+- What (code, this PR; not yet run on production): `research/corpus/
+  RETIREMENT_LIST_2026-09-18.md` confirmed 12 duplicate/stray Latin files
+  safe to retire; NC additionally decided to retire a further "stray
+  second edition" group the report had left undecided, and to rebuild
+  `martial.epigrams` (missing dozens of epigrams per book, including all
+  of 1.1 and the prefatory epistle) from the 14 `martialis.epigrammata_N`
+  per-book files, which hold the complete text. After the rebuild those 14
+  per-book files are exact duplicates of the new parts and are retired
+  too. Total files removed from `texts/la/`: 40 (the task's own prose
+  calls this "33," matching the source report's own inconsistent count of
+  the second group as "7 pairs... 6 files across 6 pairs" in its words;
+  the real count once Manilius's five `.part.N` files are included with
+  its retired whole file is 14, not 7, so 12 + 14 + 14 = 40. Flagged
+  explicitly rather than silently reconciled to the round number; see the
+  PR body and archive README for the same note). Registries edited:
+  `data/text_genres.csv` (40 rows removed) and `backend/text_sources.json`
+  (12 entries removed, the ones for files that had one). No
+  `text_descriptions.json` or `author_dates.json` entries existed for any
+  of the 40. `martial.epigrams.tess` and its 14 `.part.N` files keep their
+  names but change content: 6,399 verse-lines to 9,375, using the tag
+  scheme `<mart. BOOK.EPIGRAM.LINE>` the old whole file already used, the
+  prefatory letters before books 1 and 9 as epigram 0. No blank separator
+  lines between epigrams (the old file had them; dropped because
+  `scripts/corpus/validate_tess.py` rejects empty lines and the rebuild's
+  own verification checklist required none). Verified: every book's
+  epigram count matches the standard reference count for that book, no
+  duplicate tags, `validate_tess.py` passes on all 15 files, and all but
+  166 of the old whole file's 6,399 lines match the new file verbatim
+  (normalized); the 166 are spot-checked word-level manuscript variants
+  (example: `redimit`/`redemit` at 1.8.5), not missing content. Retired
+  files and reasons, and the Martial counts per book, are in `research/
+  threads/` (kept local, not committed) and in the archive README below.
+- Also checked and left alone: `backend/metrical_scanner.py`'s meter
+  lookup keys scansion data in `data/scansion/mqdq_scansions.json` by
+  `martialis.epigrammata_{book}` derived from the citation tag itself
+  (parsing `<mart. B.E.L>`), not from any `.tess` filename, so retiring
+  the `martialis.epigrammata_N.tess` files does not affect meter boosts
+  for Martial; the rebuilt files keep the same `mart.` tag prefix the
+  lookup expects. `martialis.de_spectaculis.tess` was checked against the
+  old and new whole files (no overlap either way) and left untouched, a
+  separate text under its own name.
+- Archive: `~/tesserae-backups/retired_duplicates_2026-09-18/` (`texts/la/`
+  for the 40 retired files, `martial_rebuild_originals/` for the 29
+  pre-rebuild Martial files, empty `lemma_cache/la/` and `translations/
+  la/`: none of the 40 had either in this checkout), with a README in the
+  2026-09-10 format.
+- Production steps (after merge, none of them run yet):
+  1. `git pull` on production `main`; this alone removes the 40 retired
+     files from `texts/la/` and changes the 15 Martial files' content.
+  2. Lemma cache: delete the stale cache entries for the 40 retired works
+     and the 15 changed Martial files from `cache/lemmas/la/`, then
+     `python scripts/batch_lemma_cache.py la` (rebuilds only the missing
+     ones; it skips a filename it already has cached, so the Martial
+     files' cache entries must be deleted first or `--force` used, and
+     `--force` would rebuild the whole Latin corpus rather than just the
+     15 files, so delete-then-rebuild is the fast path, as the 2026-09-16
+     Paradise Lost entry above did for its 13 changed files).
+  3. Latin inverted index: `python scripts/corpus/drop_stale_index_entries.py
+     --root /var/www/tesseraev6_flask --language la --apply` removes the
+     40 retired texts' postings, lines and texts rows and rebuilds
+     `lemma_doc_freq` with the canonical builder (dry run first, without
+     `--apply`, to confirm it finds exactly 40 stale filenames). Then
+     replace the 15 Martial files' postings in place (same filenames, new
+     content) with `scripts/corpus/add_texts_to_index.py --db
+     la_index.db.new --language la --cache-dir cache/lemmas --replace
+     martial.epigrams.tess martial.epigrams.part.1.tess ... .part.14.tess`
+     on a copy, per that script's own atomic-swap pattern (cp live to
+     .new, run, then swap live to .bak and .new to live).
+  4. Latin bigram cache: `cd /var/www/tesseraev6_flask && venv/bin/python
+     scripts/corpus/rebuild_bigrams.py la` (full rebuild from the corpus,
+     needed because both the retirement and the Martial content change
+     touch it; the 2026-09-10 precedent did not call this out as a
+     separate step, so confirm it is actually stale before assuming a
+     rebuild is required, same caution as that entry).
+  5. Passage index: drop the 40 retired texts' windows in lockstep across
+     ids, embeddings, descriptions and window_texts, and replace the
+     Martial works' windows with newly-described ones, using
+     `drop_passage_rows.py` and `apply_passage_rows.py --mode replace`.
+     `drop_passage_rows.py` is not in this repository (per `research/
+     corpus/RETIREMENT_LIST_2026-09-18.md` section 10, a copy was in
+     `~/tesserae-backups/session_scripts_2026-09-11/batch/`, written for a
+     preview branch as of 2026-09-10); confirm it still exists there or
+     recreate it from the 2026-09-10 precedent before running this step.
+  6. Reference test in `tests/search_reference_tests.md` ("arma virum"
+     lemma search: Ovid, Quintilian, Seneca) before and after every index
+     change, plus a Martial-specific search (e.g. a lemma search that
+     should now surface epigram 1.1) to confirm the rebuild is live.
+  7. `touch tesseraev6_flask.wsgi`.
+- Scripts: `scripts/corpus/drop_stale_index_entries.py`,
+  `scripts/corpus/add_texts_to_index.py`, `scripts/batch_lemma_cache.py`,
+  `scripts/corpus/rebuild_bigrams.py`, `drop_passage_rows.py` and
+  `apply_passage_rows.py` (passage index).
+- Checks run without a server (this PR, before merge):
+  `python scripts/corpus/validate_tess.py texts/la/martial.epigrams*.tess`
+  (all 15 pass); the reference-test units under `tests/` that touch text
+  listing (see the PR body for which ran and their results).
+
 ## 2026-09-18 Theme Search re-ranker service installed (PR #382, with #383)
 - What: copy the trained checkpoint
   (evaluation/theme_benchmark/distill_train/runs/minilm/best, 88 MB) to
