@@ -152,6 +152,15 @@ Conventions
   (expected about 320); exact "hic est quem legis" finds Martial 1.1.1;
   Similar Passages on Martial 1.0.1 answers; coverage answered 730 works
   in 1.3 s during the reload.
+- Done 2026-09-18 16:45 EDT: the 1,995 windows were described on a RunPod
+  A100 with Qwen/Qwen2.5-32B-Instruct-AWQ (the corpus's own description
+  model), 8 minutes, no failures (sidecar
+  ~/tesserae-backups/passage_index_2026-09-18/martial_described.jsonl),
+  embedded through the local encoder and appended with
+  `scripts/corpus/apply_passage_rows.py --mode append --tag
+  martial-describe-20260918` (backups with that tag): 619,358 windows and
+  vectors after; reload; Similar Passages checked on martial.epigrams
+  2.3.2.
 
 ## 2026-09-18 Coverage sidecar written on reload (PR #390)
 - What: `data/passage_index/works_by_language.json` is not a manual data
