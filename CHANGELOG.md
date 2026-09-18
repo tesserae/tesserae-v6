@@ -15,7 +15,11 @@ docs/DATA_OPERATIONS.md.
   Download list button for the works on screen. The Help page's Theme
   Search topic links to it, and the Theme Search page itself shows how much
   of the current language it reaches, with the same link (only when exactly
-  one of the four Browse Corpus languages is selected).
+  one of the four Browse Corpus languages is selected). Verified against
+  production: 765 of 782 Latin works covered, computed identically by both
+  pages off one shared helper (`client/src/utils/passageCoverage.js`); a
+  new App-level test confirms the `/corpus` deep link's query string
+  survives the rewrite to the real route, `/browse`.
 
 ## 2026-09-18
 

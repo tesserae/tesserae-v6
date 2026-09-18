@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { chronological, byBestMatch, dateParts } from '../../utils/chronology';
+import { coverageCounts } from '../../utils/passageCoverage';
 import ThemeExport from './ThemeExport';
 
 /**
@@ -189,13 +190,10 @@ export default function ThemeSearchPage() {
       fetch(`/api/passages/works?language=${code}`).then((r) => r.json()).catch(() => ({ works: [] })),
     ]).then(([texts, works]) => {
       if (dead) return;
-      const baseIds = new Set(
-        (texts || []).map((t) => String(t.id || '').replace(/\.tess$/, '').split('.part.')[0])
-      );
-      const covered = new Set(works?.works || []);
-      let n = 0;
-      baseIds.forEach((id) => { if (covered.has(id)) n += 1; });
-      setCoverage({ covered: n, total: baseIds.size, language: code });
+      // Same helper Browse Corpus's own count uses (utils/passageCoverage),
+      // so the two "N of M" numbers can't drift apart from each other.
+      const { covered, total } = coverageCounts(texts, works?.works || []);
+      setCoverage({ covered, total, language: code });
     }).catch(() => { if (!dead) setCoverage(null); });
     return () => { dead = true; };
   }, [language]);

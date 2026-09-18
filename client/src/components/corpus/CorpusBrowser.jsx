@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { LoadingSpinner } from '../common';
+import { baseWorkId, coverageCounts } from '../../utils/passageCoverage';
 
 // Languages the corpus tabs offer, read from the URL's `language` param so
 // a link (Help, Theme Search) can land here already on the right tab.
@@ -147,15 +148,11 @@ export default function CorpusBrowser() {
     }
   };
 
-  /** homer.iliad.part.2.tess and homer.iliad.tess are one translated work. */
-  const translationOf = (id) =>
-    translated[String(id || '').replace(/\.tess$/, '').split('.part.')[0]];
+  const translationOf = (id) => translated[baseWorkId(id)];
 
-  const descriptionOf = (id) =>
-    descriptions[String(id || '').replace(/\.tess$/, '').split('.part.')[0]];
+  const descriptionOf = (id) => descriptions[baseWorkId(id)];
 
-  const isCovered = (id) =>
-    coveredWorks.has(String(id || '').replace(/\.tess$/, '').split('.part.')[0]);
+  const isCovered = (id) => coveredWorks.has(baseWorkId(id));
 
   const toggleDesc = (id) => setOpenDescs((prev) => {
     const next = new Set(prev);
@@ -175,15 +172,9 @@ export default function CorpusBrowser() {
 
   // Distinct works (part files collapsed) in the current language, and how
   // many of those are covered by Theme Search, for the count line under the
-  // corpus heading.
-  const coverageCount = useMemo(() => {
-    const baseIds = new Set(
-      corpus.map(t => String(t.id || '').replace(/\.tess$/, '').split('.part.')[0])
-    );
-    let covered = 0;
-    baseIds.forEach(id => { if (coveredWorks.has(id)) covered += 1; });
-    return { covered, total: baseIds.size };
-  }, [corpus, coveredWorks]);
+  // corpus heading. Same helper Theme Search's own count uses (see
+  // utils/passageCoverage), so the two numbers can't drift apart.
+  const coverageCount = useMemo(() => coverageCounts(corpus, coveredWorks), [corpus, coveredWorks]);
 
   const groupedByAuthor = useMemo(() => {
     const groups = {};
