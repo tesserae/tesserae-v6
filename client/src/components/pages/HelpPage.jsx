@@ -604,6 +604,19 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 600,000 descriptions on the main site, covering Latin, Greek, Hebrew, Coptic,
                 English, Persian, Urdu and Arabic.
               </p>
+              <h4 className="font-medium text-gray-900 mt-6 mb-2">Names and paraphrases</h4>
+              <p className="text-gray-700 mb-3">
+                The descriptions name the people in a passage, so a name is precise and a
+                paraphrase is broad. &ldquo;Tiresias&rdquo; finds the passages where he
+                appears; &ldquo;an old man prophesying&rdquo; finds prophets of every kind and
+                can miss the ones the description calls by name. The same holds for places
+                and gods. A query that names a category rather than a scene, such as
+                &ldquo;recognition&rdquo; or &ldquo;reversal of fortune&rdquo;, matches little,
+                because the descriptions record what happens: say instead what happens on the
+                page, for example &ldquo;a character learns the true identity of a stranger who
+                turns out to be kin&rdquo;. When a search finds less than you expect, try the
+                name, then the scene in its own words.
+              </p>
               <h4 className="font-medium text-gray-900 mt-6 mb-2">The reading step</h4>
               <p className="text-gray-700 mb-3">
                 Comparing descriptions is quick and shallow, so the first page is then read. A
