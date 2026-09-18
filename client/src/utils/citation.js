@@ -46,6 +46,7 @@ function accessed(date, style) {
  * @param {number} [f.score]
  * @param {string} [f.channels]  e.g. 'semantic, shared vocabulary'.
  * @param {string} [f.corpusVersion]
+ * @param {string} [f.ranking]     e.g. 're-ranked by reader minilm-distill-2026-09-17'.
  * @param {string} [f.url]       a link that reruns the search.
  * @param {Date}   [f.date]      defaults to today.
  */
@@ -62,6 +63,7 @@ export function reproducibleCitation(f) {
     pair,
     typeof f.score === 'number' ? `score ${f.score.toFixed(3)}` : null,
     f.channels ? `channels: ${f.channels}` : null,
+    f.ranking || null,
   ]);
   const tail = join([`accessed ${accessed(f.date)}`]);
   return join([head, body, tail], '. ') + (f.url ? `.\n${f.url}` : '.');

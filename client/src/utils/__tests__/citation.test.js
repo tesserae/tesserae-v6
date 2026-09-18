@@ -78,3 +78,11 @@ describe('buildCitation', () => {
     expect(buildCitation('nonsense', parallel)).toBe(reproducibleCitation(parallel));
   });
 });
+
+test('reproducible citation names the re-ranker when a theme search was re-ranked', () => {
+  const text = reproducibleCitation({ kind: 'theme search', query: 'a dog greets his master',
+    corpusVersion: '2026-09-16', ranking: 're-ranked by reader minilm-distill-2026-09-17', date: new Date('2026-09-18') });
+  expect(text).toContain('re-ranked by reader minilm-distill-2026-09-17');
+  expect(reproducibleCitation({ kind: 'theme search', query: 'x', date: new Date('2026-09-18') })).not.toContain('re-ranked');
+});
+

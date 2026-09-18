@@ -22,6 +22,24 @@ Conventions
 - Stamp backups to the second; a rerun must never overwrite the first
   run's backup.
 
+## PLANNED (on deploy of the re-ranker PR) Theme Search re-ranker service
+- What: copy the trained checkpoint
+  (evaluation/theme_benchmark/distill_train/runs/minilm/best, 88 MB) to
+  a production path outside the web tree; install
+  services/tesserae-reader.service as a user unit with READER_MODEL_DIR
+  pointing at it, READER_THREADS=16, port 8091 (MemoryMax 4G, restart on
+  failure), enable and start it; add THEME_READER_URL=http://127.0.0.1:8091
+  (and THEME_READER_MODEL=minilm-distill-2026-09-17) to the production
+  environment the WSGI app reads; `npm run build` from the repo root;
+  keep_old_bundles save and restore; `touch tesseraev6_flask.wsgi`.
+- No index, cache or passage-index change. Rollback: unset
+  THEME_READER_URL and touch the wsgi file; the page returns to index
+  order.
+- Checks: `/api/passages/status` unchanged; a Theme Search for "a
+  faithful dog greets his master" returns `reader.applied: true` and
+  Odyssey 17.295 first; the same with `&reader=0` returns the index
+  order; the Cite popover names the re-ranker; reference test 324.
+
 ## 2026-09-16 Paradise Lost renumbered in the stores (PR #380)
 - What: the text files in git now number every book of Paradise Lost
   1..n (they began at 2 with a duplicated tag a few lines in) and the

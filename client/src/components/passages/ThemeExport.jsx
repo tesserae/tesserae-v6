@@ -33,7 +33,7 @@ const LANG_NAMES = {
  * CSV is the manipulable form, with a BOM so Excel does not turn every Greek
  * and Persian passage into mojibake.
  */
-export default function ThemeExport({ query, language, count, corpusVersion }) {
+export default function ThemeExport({ query, language, count, corpusVersion, ranking }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
@@ -132,6 +132,7 @@ export default function ThemeExport({ query, language, count, corpusVersion }) {
             ? language.split(',').map((c) => LANG_NAMES[c] || c).join(' and ')
             : 'all languages',
           corpusVersion,
+          ranking,
           url: `${window.location.origin}/theme-search?`
             + new URLSearchParams(language ? { query, languages: language } : { query }).toString(),
         }}

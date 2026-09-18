@@ -185,3 +185,13 @@ def test_route_reports_applied_false_when_reader_call_fails(monkeypatch, client,
     body = r.get_json()
     assert body['reader'] == {'applied': False}
     assert [x['id'] for x in body['results']] == ['w0', 'w1']
+
+
+def test_meta_names_the_model(monkeypatch):
+    from backend import reader_rerank
+    monkeypatch.setattr(reader_rerank.reader_client, 'score', lambda q, ps, timeout=6.0: {p['id']: 0.5 for p in ps})
+    monkeypatch.setattr(reader_rerank, '_reader_texts', lambda results: {r['id']: 'text' for r in results})
+    results = [{'id': 'a', 'score': 0.9}, {'id': 'b', 'score': 0.8}]
+    out, meta = reader_rerank.apply('q', results, k=2)
+    assert meta['applied'] is True and meta['model'] == reader_rerank.MODEL_ID
+

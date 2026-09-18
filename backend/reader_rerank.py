@@ -21,6 +21,9 @@ from backend.logging_config import get_logger
 logger = get_logger('reader_rerank')
 
 DEFAULT_K = int(os.environ.get('THEME_READER_K', '100'))
+# Named in the reproducible citation so a re-ranked search can be re-run
+# the same way; change it when the checkpoint changes.
+MODEL_ID = os.environ.get('THEME_READER_MODEL', 'minilm-distill-2026-09-17')
 
 
 def build_passage_text(gist, translation, text):
@@ -85,7 +88,7 @@ def apply(query, results, k=None, timeout=6.0):
     Returns (results, meta). On any failure (disabled, unreachable, no
     results) returns the ORIGINAL list unchanged and meta {'applied': False}.
     On success returns a new list (re-ordered head + untouched tail) and
-    meta {'applied': True, 'k': k, 'ms': elapsed}. Never raises.
+    meta {'applied': True, 'k': k, 'ms': elapsed, 'model': MODEL_ID}. Never raises.
     """
     k = DEFAULT_K if k is None else k
     if not results:
@@ -119,4 +122,4 @@ def apply(query, results, k=None, timeout=6.0):
         return (-reader_score, -(r.get('score') or 0.0))
 
     head_sorted = sorted(head, key=sort_key)
-    return head_sorted + tail, {'applied': True, 'k': k, 'ms': ms}
+    return head_sorted + tail, {'applied': True, 'k': k, 'ms': ms, 'model': MODEL_ID}
