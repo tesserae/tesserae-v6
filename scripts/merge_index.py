@@ -15,6 +15,9 @@ import sys
 
 import numpy as np
 
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from backend.passage_index import _norm_work, WORKS_SIDECAR_FILENAME  # noqa: E402
+
 INDEX = '/home/ncoffee/tesserae-scene/data/passage_index'
 
 
@@ -138,6 +141,47 @@ def main():
     import collections
     langs = collections.Counter(recs[i].get('language') for i in ids)
     print('by language:', dict(langs))
+
+    _write_works_sidecar(ids, recs)
+
+
+def _write_works_sidecar(ids, recs):
+    """Write works_by_language.json alongside the freshly merged index.
+
+    Browse Corpus asks passage_index.works_for_language() which works have
+    Theme Search coverage, and answering that has always meant loading the
+    full ~2GB index first. Right after a deploy reload that load is still
+    running, so the answer came back slow or empty and read as "0 of N
+    works covered" -- indistinguishable from an actual gap. Writing this
+    sidecar here means a fresh index ships with the answer already
+    computed, so a warm-up load is never on the critical path for it. (A
+    production worker that loads the index before a rebuild writes this
+    same file itself, lazily -- see passage_index._write_works_sidecar --
+    so this is belt and suspenders, not the only path to a fresh file.)
+    """
+    import datetime
+    by_lang = {}
+    for wid in ids:
+        rec = recs.get(wid) or {}
+        lang = rec.get('language')
+        if not lang:
+            continue
+        work = _norm_work(rec.get('work'))
+        by_lang.setdefault(lang, set()).add(work)
+    languages = {lang: sorted(works) for lang, works in by_lang.items()}
+    try:
+        index_version = datetime.date.fromtimestamp(
+            os.path.getmtime(os.path.join(INDEX, 'ids.json'))).isoformat()
+    except OSError:
+        index_version = None
+    path = os.path.join(INDEX, WORKS_SIDECAR_FILENAME)
+    tmp_path = path + '.tmp'
+    payload = {'index_version': index_version, 'languages': languages}
+    with open(tmp_path, 'w', encoding='utf-8') as fh:
+        json.dump(payload, fh, ensure_ascii=False)
+    os.replace(tmp_path, path)
+    print(f'wrote {WORKS_SIDECAR_FILENAME}: {sum(len(w) for w in languages.values())} '
+          f'work/language rows across {len(languages)} languages')
 
 
 if __name__ == '__main__':

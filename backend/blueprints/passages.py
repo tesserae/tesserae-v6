@@ -412,9 +412,13 @@ def works_available():
     "Theme Search" badge.
 
     A work with no passage windows never appears in Theme Search or Similar
-    Passages, so Browse Corpus marks the ones that do. Cached per worker
-    inside passage_index, since the index loads once and does not change for
-    the life of the process."""
+    Passages, so Browse Corpus marks the ones that do.
+    passage_index.works_for_language() answers this from a small on-disk
+    sidecar when one is present and current, with no index load at all;
+    only when the sidecar is missing or stale does it fall back to loading
+    the full passage index, which is what made this route slow or empty
+    right after a deploy reload. Cached per worker either way, since the
+    index does not change for the life of the process."""
     language = (request.args.get('language') or 'la').strip()
     return jsonify({'language': language,
                     'index_version': passage_index.index_version(),

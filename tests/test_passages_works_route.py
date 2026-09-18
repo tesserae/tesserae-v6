@@ -81,3 +81,95 @@ def test_response_carries_an_index_version(monkeypatch):
     client = app.test_client()
     out = _get(client, _route(), language='la')
     assert out['index_version'] == '2026-09-18'
+
+
+# --- works_by_language.json sidecar ---------------------------------------
+#
+# Right after a deploy reload (touch tesseraev6_flask.wsgi), each of the
+# three Apache workers loads the ~2GB passage index on its first request,
+# which takes about 90 seconds. A request to this route during that window
+# used to be slow or fail, and the client's silent fallback then rendered
+# as "0 of 782 works are covered by Theme Search" -- indistinguishable from
+# a real coverage gap. The sidecar lets the route answer from a small file
+# instead of the loaded index, when that file is present and current.
+
+def _reset_sidecar_state(monkeypatch):
+    monkeypatch.setattr(passage_index, '_works_by_language_cache', {})
+    monkeypatch.setattr(passage_index, '_sidecar_written', False)
+
+
+def test_sidecar_hit_answers_without_loading_the_index(monkeypatch, tmp_path):
+    """A current sidecar must answer the route without ever calling
+    _ensure_loaded() -- that's the whole point of the fix."""
+    monkeypatch.setattr(passage_index, '_DATA_DIR', str(tmp_path))
+    monkeypatch.setattr(passage_index, 'index_version', lambda: '2026-09-18')
+    _reset_sidecar_state(monkeypatch)
+    monkeypatch.setitem(passage_index._state, 'loaded', False)
+    monkeypatch.setitem(passage_index._state, 'ok', False)
+    monkeypatch.setattr(passage_index, '_records', None)
+    monkeypatch.setattr(passage_index, '_by_work', None)
+    sidecar = {'index_version': '2026-09-18',
+               'languages': {'la': ['vergil.aeneid', 'cicero.orator'],
+                             'grc': ['homer.iliad']}}
+    (tmp_path / passage_index.WORKS_SIDECAR_FILENAME).write_text(json.dumps(sidecar))
+
+    client = app.test_client()
+    out = _get(client, _route(), language='la')
+
+    assert set(out['works']) == {'vergil.aeneid', 'cicero.orator'}
+    assert out['index_version'] == '2026-09-18'
+    assert passage_index._state['loaded'] is False, \
+        'a sidecar hit must not trigger _ensure_loaded()'
+
+
+def test_stale_sidecar_falls_back_to_the_loaded_index(monkeypatch, tmp_path):
+    """A sidecar stamped with a different index_version is a rebuild in
+    progress, or leftover from a prior index, and must not be trusted."""
+    monkeypatch.setattr(passage_index, '_DATA_DIR', str(tmp_path))
+    monkeypatch.setattr(passage_index, 'index_version', lambda: '2026-09-18')
+    _reset_sidecar_state(monkeypatch)
+    stale = {'index_version': '2020-01-01', 'languages': {'la': ['some.stale.work']}}
+    (tmp_path / passage_index.WORKS_SIDECAR_FILENAME).write_text(json.dumps(stale))
+    _stub_index(monkeypatch, RECORDS)
+
+    client = app.test_client()
+    out = _get(client, _route(), language='la')
+
+    assert set(out['works']) == {'vergil.aeneid', 'cicero.orator'}
+    assert 'some.stale.work' not in out['works']
+
+
+def test_missing_sidecar_is_written_after_the_first_load(monkeypatch, tmp_path):
+    """The request that has to load the index leaves the sidecar behind, so
+    the next request (in this worker or another) does not have to."""
+    monkeypatch.setattr(passage_index, '_DATA_DIR', str(tmp_path))
+    monkeypatch.setattr(passage_index, 'index_version', lambda: '2026-09-18')
+    _reset_sidecar_state(monkeypatch)
+    _stub_index(monkeypatch, RECORDS)
+
+    client = app.test_client()
+    out = _get(client, _route(), language='la')
+    assert set(out['works']) == {'vergil.aeneid', 'cicero.orator'}
+
+    sidecar_path = tmp_path / passage_index.WORKS_SIDECAR_FILENAME
+    assert sidecar_path.exists(), 'a successful load must write the sidecar'
+    payload = json.loads(sidecar_path.read_text())
+    assert payload['index_version'] == '2026-09-18'
+    assert set(payload['languages']['la']) == {'vergil.aeneid', 'cicero.orator'}
+    assert set(payload['languages']['grc']) == {'homer.iliad'}
+
+
+def test_sidecar_silent_on_a_language_falls_back_rather_than_guessing_empty(monkeypatch, tmp_path):
+    """A current sidecar that never mentions a language (e.g. one added to
+    the index after the sidecar was written) must not read as zero works."""
+    monkeypatch.setattr(passage_index, '_DATA_DIR', str(tmp_path))
+    monkeypatch.setattr(passage_index, 'index_version', lambda: '2026-09-18')
+    _reset_sidecar_state(monkeypatch)
+    sidecar = {'index_version': '2026-09-18', 'languages': {'la': ['vergil.aeneid']}}
+    (tmp_path / passage_index.WORKS_SIDECAR_FILENAME).write_text(json.dumps(sidecar))
+    _stub_index(monkeypatch, RECORDS)
+
+    client = app.test_client()
+    out = _get(client, _route(), language='grc')
+
+    assert out['works'] == ['homer.iliad']

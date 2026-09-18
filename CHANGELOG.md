@@ -31,6 +31,21 @@ docs/DATA_OPERATIONS.md.
   title disagree). Archived, not deleted outright:
   `~/tesserae-backups/retired_duplicates_2026-09-18/`.
 
+- #390 Fixed the coverage list going blank mid-deploy. Right after a deploy
+  reload, each Apache worker loads the 2GB passage index on its first
+  request (about 90 seconds), and `/api/passages/works` used to answer
+  slow or empty during that window, which Browse Corpus and Theme Search
+  both read as "0 of 782 works are covered" -- indistinguishable from a
+  real gap. The route now reads a small `works_by_language.json` sidecar
+  next to the index first, falling back to loading the full index only
+  when that file is missing or stamped with a different index version;
+  the sidecar is written by the index merge script
+  (`scripts/merge_index.py`) and, as a backstop, by whichever worker loads
+  the index first. On the client, both pages retry a failed or empty
+  coverage fetch once at +3s and once more at +10s, and show "Theme
+  Search coverage is loading" instead of asserting "0 of N" while that is
+  still unresolved.
+
 ## 2026-09-18
 
 ### Theme Search

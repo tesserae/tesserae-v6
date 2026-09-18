@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { chronological, byBestMatch, dateParts } from '../../utils/chronology';
-import { coverageCounts } from '../../utils/passageCoverage';
+import { coverageCounts, fetchCoveredWorks } from '../../utils/passageCoverage';
 import ThemeExport from './ThemeExport';
 
 /**
@@ -185,15 +185,20 @@ export default function ThemeSearchPage() {
     }
     const code = codes[0];
     let dead = false;
-    Promise.all([
-      fetch(`/api/texts?language=${code}`).then((r) => r.json()).catch(() => []),
-      fetch(`/api/passages/works?language=${code}`).then((r) => r.json()).catch(() => ({ works: [] })),
-    ]).then(([texts, works]) => {
-      if (dead) return;
-      // Same helper Browse Corpus's own count uses (utils/passageCoverage),
-      // so the two "N of M" numbers can't drift apart from each other.
-      const { covered, total } = coverageCounts(texts, works?.works || []);
-      setCoverage({ covered, total, language: code });
+    fetch(`/api/texts?language=${code}`).then((r) => r.json()).catch(() => []).then((texts) => {
+      if (dead) return texts;
+      // Right after a deploy reload the passage index can still be
+      // loading on this server and /api/passages/works answers slow or
+      // empty; fetchCoveredWorks retries at +3s and +10s (see Browse
+      // Corpus, utils/passageCoverage) rather than trust a first answer
+      // of zero.
+      return fetchCoveredWorks(code, (texts || []).length > 0).then((works) => {
+        if (dead) return;
+        // Same helper Browse Corpus's own count uses (utils/passageCoverage),
+        // so the two "N of M" numbers can't drift apart from each other.
+        const { covered, total } = coverageCounts(texts, works || []);
+        setCoverage({ covered, total, language: code });
+      });
     }).catch(() => { if (!dead) setCoverage(null); });
     return () => { dead = true; };
   }, [language]);
@@ -409,7 +414,12 @@ export default function ThemeSearchPage() {
 
       {coverage && coverage.total > 0 && (
         <p className="mt-1 text-[11px] text-gray-500">
-          Searches {coverage.covered} of {coverage.total} works in {LANG_LABEL[coverage.language] || coverage.language}.{' '}
+          {coverage.covered > 0
+            // A covered count of zero is indistinguishable from "the
+            // coverage fetch hasn't succeeded yet" (see fetchCoveredWorks
+            // in utils/passageCoverage), so this never asserts "0 of N".
+            ? <>Searches {coverage.covered} of {coverage.total} works in {LANG_LABEL[coverage.language] || coverage.language}.{' '}</>
+            : <>Theme Search coverage is loading.{' '}</>}
           <a
             href={`/corpus?theme=1&language=${coverage.language}`}
             className="text-red-700 hover:underline"

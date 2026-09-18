@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { LoadingSpinner } from '../common';
-import { baseWorkId, coverageCounts } from '../../utils/passageCoverage';
+import { baseWorkId, coverageCounts, fetchCoveredWorks } from '../../utils/passageCoverage';
 
 // Languages the corpus tabs offer, read from the URL's `language` param so
 // a link (Help, Theme Search) can land here already on the right tab.
@@ -111,10 +111,12 @@ export default function CorpusBrowser() {
   const loadCorpus = async () => {
     setLoading(true);
     setExpandedAuthors(new Set());
+    let loadedCorpus = [];
     try {
       const res = await fetch(`/api/texts?language=${language}`);
       const data = await res.json();
-      setCorpus(data || []);
+      loadedCorpus = data || [];
+      setCorpus(loadedCorpus);
     } catch (err) {
       console.error('Failed to load corpus:', err);
     }
@@ -128,15 +130,13 @@ export default function CorpusBrowser() {
     } catch {
       setTranslated({});
     }
-    // Which of these works have passage windows, for the Theme Search badge.
-    // A failure here only costs the badges.
-    try {
-      const cr = await fetch(`/api/passages/works?language=${language}`);
-      const cd = await cr.json();
-      setCoveredWorks(new Set(cd?.works || []));
-    } catch {
-      setCoveredWorks(new Set());
-    }
+    // Which of these works have passage windows, for the Theme Search
+    // badge. Right after a deploy reload this can come back slow, empty,
+    // or failed while the passage index is still loading on this worker;
+    // fetchCoveredWorks retries at +3s and +10s before giving up, so the
+    // count line below doesn't have to trust a first answer of zero.
+    const covered = await fetchCoveredWorks(language, loadedCorpus.length > 0);
+    setCoveredWorks(new Set(covered));
     // Orientation blurbs; a failure only costs the ⓘ buttons.
     setOpenDescs(new Set());
     try {
@@ -390,7 +390,14 @@ export default function CorpusBrowser() {
           </p>
           {coverageCount.total > 0 && (
             <p className="text-xs text-gray-500">
-              {coverageCount.covered} of {coverageCount.total} works are covered by Theme Search.{' '}
+              {coverageCount.covered > 0
+                // A covered count of zero is indistinguishable from "the
+                // coverage fetch hasn't succeeded yet" (see
+                // fetchCoveredWorks), so this never asserts "0 of N": that
+                // reads as a real gap when it usually just means the
+                // passage index is still loading on this server.
+                ? <>{coverageCount.covered} of {coverageCount.total} works are covered by Theme Search.{' '}</>
+                : <>Theme Search coverage is loading.{' '}</>}
               <label className="inline-flex items-center gap-1 cursor-pointer">
                 <input type="checkbox" checked={coveredOnly} onChange={(e) => setCoveredOnly(e.target.checked)}
                        className="accent-red-700" aria-label="Show only works covered by Theme Search" />

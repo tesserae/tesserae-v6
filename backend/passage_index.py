@@ -297,6 +297,83 @@ def status():
 
 
 _works_by_language_cache = {}  # language -> [base work id, ...]
+_sidecar_written = False  # this worker has already tried writing the sidecar once
+
+WORKS_SIDECAR_FILENAME = 'works_by_language.json'
+
+
+def _works_sidecar_path():
+    return os.path.join(_DATA_DIR, WORKS_SIDECAR_FILENAME)
+
+
+def _read_works_sidecar():
+    """Read the works-by-language sidecar, if present and current.
+
+    Right after a deploy touches the wsgi file, all three Apache workers
+    reload and each one pays the ~90-second, ~2GB cost of _ensure_loaded()
+    on its first request. Browse Corpus asks "which works have Theme
+    Search coverage" during exactly that window, and a slow or failed
+    answer used to render as "0 of 782 works covered" -- indistinguishable
+    from a real gap. This sidecar answers the question from a few KB on
+    disk instead, with no index load at all.
+
+    Returns the sidecar's {language: [work id, ...]} mapping, or None if
+    the file is absent, unreadable, or stamped with a different
+    index_version than what's on disk right now (a rebuild in progress,
+    or a stale file a previous index left behind). A version mismatch
+    means the caller must fall back to _ensure_loaded() rather than serve
+    a wrong answer quickly.
+    """
+    try:
+        with open(_works_sidecar_path(), encoding='utf-8') as fh:
+            payload = json.load(fh)
+    except (OSError, ValueError):
+        return None
+    if not isinstance(payload, dict):
+        return None
+    if payload.get('index_version') != index_version():
+        return None
+    languages = payload.get('languages')
+    return languages if isinstance(languages, dict) else None
+
+
+def _write_works_sidecar(languages):
+    """Write the works-by-language sidecar, best-effort.
+
+    Called once per worker, right after the first successful
+    _ensure_loaded(), so production gets the file after one warm request
+    with no rebuild needed. (The index build script also writes this file
+    directly, so a fresh deploy usually never needs this lazy path at
+    all.) A write failure -- read-only mount, a race with another worker,
+    the directory missing in a dev checkout -- is swallowed: the sidecar
+    is a speed-up, never a dependency, and _ensure_loaded() is always the
+    fallback.
+    """
+    try:
+        tmp = _works_sidecar_path() + '.tmp'
+        payload = {'index_version': index_version(), 'languages': languages}
+        with open(tmp, 'w', encoding='utf-8') as fh:
+            json.dump(payload, fh, ensure_ascii=False)
+        os.replace(tmp, _works_sidecar_path())
+    except OSError as e:
+        logger.warning('[PASSAGES] could not write works-by-language sidecar: %s', e)
+
+
+def _compute_works_by_language():
+    """Every language's work list, in one pass over the loaded index.
+
+    Assumes _ensure_loaded() has already run. Same membership test
+    works_for_language used before the sidecar existed: a work counts for
+    a language if any one of its rows carries that language.
+    """
+    by_lang = {}
+    if _by_work and _records:
+        for work, rows in _by_work.items():
+            langs = {_records[row].get('language') for row in rows}
+            for lang in langs:
+                if lang:
+                    by_lang.setdefault(lang, set()).add(work)
+    return {lang: sorted(works) for lang, works in by_lang.items()}
 
 
 def works_for_language(language):
@@ -304,22 +381,39 @@ def works_for_language(language):
 
     Feeds the Browse Corpus "Theme Search" badge: a work with no rows here
     never appears in Theme Search or Similar Passages results. Mirrors
-    translations.available() in spirit, one call over the already-loaded
-    index rather than a directory scan, cached per worker since _by_work
-    itself is loaded once and never changes for the life of the process."""
-    _ensure_loaded()
+    translations.available() in spirit.
+
+    Tries the on-disk sidecar first, which costs a small file read and
+    nothing else. Only when that sidecar is missing or stale does this
+    load the full passage index (_ensure_loaded(), ~2GB, ~90s on a cold
+    worker) to compute the answer directly -- and it then writes the
+    sidecar so the next call, in this worker or the next one, skips the
+    load. Cached per worker either way, since the answer does not change
+    for the life of the process.
+    """
+    global _sidecar_written
     if language in _works_by_language_cache:
         return _works_by_language_cache[language]
-    out = set()
-    if _by_work and _records:
-        for work, rows in _by_work.items():
-            for row in rows:
-                if _records[row].get('language') == language:
-                    out.add(work)
-                    break
-    result = sorted(out)
-    _works_by_language_cache[language] = result
-    return result
+
+    sidecar = _read_works_sidecar()
+    if sidecar is not None:
+        for lang, works in sidecar.items():
+            _works_by_language_cache.setdefault(lang, list(works))
+        if language in _works_by_language_cache:
+            return _works_by_language_cache[language]
+        # Sidecar is current but silent on this language (e.g. a language
+        # added since it was written without windows yet): fall through to
+        # the loaded index rather than guess.
+
+    _ensure_loaded()
+    full = _compute_works_by_language()
+    for lang, works in full.items():
+        _works_by_language_cache.setdefault(lang, works)
+    _works_by_language_cache.setdefault(language, [])
+    if not _sidecar_written and _state['ok']:
+        _write_works_sidecar(full)
+        _sidecar_written = True
+    return _works_by_language_cache.get(language, [])
 
 
 def _ensure_loaded():
