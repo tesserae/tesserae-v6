@@ -119,7 +119,6 @@ ambrose.epistulae_variae.tess,ambrose,epistulae_variae,Late Antique,prose,episto
 ambrose.exameron.tess,ambrose,exameron,Late Antique,prose,theology,auto
 ambrose.exlanatio_super_psalmos_xii.tess,ambrose,exlanatio_super_psalmos_xii,Late Antique,prose,theology,auto
 ambrose.explanatio_psalmorum_xii.tess,ambrose,explanatio_psalmorum_xii,Late Antique,prose,theology,auto
-ambrose.expositio_de_psalmo_cxviii.tess,ambrose,expositio_de_psalmo_cxviii,Late Antique,prose,theology,auto
 ambrose.expositio_evangelii_secundum_lucan.tess,ambrose,expositio_evangelii_secundum_lucan,Late Antique,prose,theology,auto
 ambrose.expositio_psalmi_cxviii.tess,ambrose,expositio_psalmi_cxviii,Late Antique,prose,theology,auto
 ambrose.hexameron.tess,ambrose,hexameron,Late Antique,prose,theology,auto
@@ -292,15 +291,6 @@ augustine.du_duabus_animabus.tess,augustine,du_duabus_animabus,Late Antique,pros
 augustine.epistula_ad_catholicos_de_secta_donatist.tess,augustine,epistula_ad_catholicos_de_secta_donatist,Late Antique,prose,epistolary,auto
 augustine.epistula_ad_catholicos_de_secta_donatistarum.tess,augustine,epistula_ad_catholicos_de_secta_donatistarum,Late Antique,prose,epistolary,auto
 augustine.epistulae.tess,augustine,epistulae,Late Antique,prose,epistolary,auto
-augustine.epistulae_1-30.part.1.tess,augustine,epistulae_1-30,Late Antique,prose,epistolary,auto
-augustine.epistulae_121-150.part.5.tess,augustine,epistulae_121-150,Late Antique,prose,epistolary,auto
-augustine.epistulae_151-180.part.6.tess,augustine,epistulae_151-180,Late Antique,prose,epistolary,auto
-augustine.epistulae_181-210.part.7.tess,augustine,epistulae_181-210,Late Antique,prose,epistolary,auto
-augustine.epistulae_211-240.part.8.tess,augustine,epistulae_211-240,Late Antique,prose,epistolary,auto
-augustine.epistulae_241-270.part.9.tess,augustine,epistulae_241-270,Late Antique,prose,epistolary,auto
-augustine.epistulae_31-60.part.2.tess,augustine,epistulae_31-60,Late Antique,prose,epistolary,auto
-augustine.epistulae_61-90.part.3.tess,augustine,epistulae_61-90,Late Antique,prose,epistolary,auto
-augustine.epistulae_91-120.part.4.tess,augustine,epistulae_91-120,Late Antique,prose,epistolary,auto
 augustine.gesta_cum_emerito_donatistarum_episcopo.tess,augustine,gesta_cum_emerito_donatistarum_episcopo,Late Antique,prose,theology,auto
 augustine.gesta_cum_emerito_donatistarum_episcopum.tess,augustine,gesta_cum_emerito_donatistarum_episcopum,Late Antique,prose,theology,auto
 augustine.libellus_adversus_fulgentium_donatistam.tess,augustine,libellus_adversus_fulgentium_donatistam,Late Antique,prose,theology,auto
@@ -310,11 +300,9 @@ augustine.liber_qui_appellatur_speculum.tess,augustine,liber_qui_appellatur_spec
 augustine.locutiones_in_heptateuchum.tess,augustine,locutiones_in_heptateuchum,Late Antique,prose,theology,auto
 augustine.psalmus_contra_partem_donati.tess,augustine,psalmus_contra_partem_donati,Late Antique,prose,theology,auto
 augustine.quaestiones_in_heptateuchum.tess,augustine,quaestiones_in_heptateuchum,Late Antique,prose,theology,auto
-augustine.retractationes.tess,augustine,retractationes,Late Antique,prose,theology,auto
 augustine.retractationum.tess,augustine,retractationum,Late Antique,prose,theology,auto
 augustine.sermo_ad_caesariensis_ecclesiae_plebem.tess,augustine,sermo_ad_caesariensis_ecclesiae_plebem,Late Antique,prose,theology,auto
 augustine.sermo_de_rusticiano_subdiacono.tess,augustine,sermo_de_rusticiano_subdiacono,Late Antique,prose,theology,auto
-augustine.speculum.tess,augustine,speculum,Late Antique,prose,theology,auto
 aurelius_victor.de_caesaribus.tess,aurelius_victor,de_caesaribus,Late Antique,prose,historiography,auto
 aurelius_victor.epitome_de_caesaribus.tess,aurelius_victor,epitome_de_caesaribus,Late Antique,prose,historiography,auto
 ausonius.cento_nuptialis.tess,ausonius,cento_nuptialis,Late Antique,hexameter,epic,auto
@@ -629,7 +617,6 @@ cyprian_pseudo.de_rebaptismate.tess,cyprian_pseudo,de_rebaptismate,Later Imperia
 cyprian_pseudo.de_singularitate_clericorum.tess,cyprian_pseudo,de_singularitate_clericorum,Later Imperial,prose,theology,auto
 cyprian_pseudo.de_spectaculis.tess,cyprian_pseudo,de_spectaculis,Later Imperial,prose,theology,auto
 cyprian_pseudo.epistulae.tess,cyprian_pseudo,epistulae,Later Imperial,prose,epistolary,auto
-cyprian_pseudo.genesis.tess,cyprian_pseudo,genesis,Later Imperial,prose,theology,auto
 cyprian_pseudo.liber_de_aleatoribus.tess,cyprian_pseudo,liber_de_aleatoribus,Later Imperial,prose,theology,auto
 cyprian_pseudo.orationes.tess,cyprian_pseudo,orationes,Later Imperial,prose,theology,auto
 cyprian_pseudo.sodoma.tess,cyprian_pseudo,sodoma,Later Imperial,prose,theology,auto
@@ -1014,12 +1001,6 @@ magnus_felix_ennodius.petitorium_quo_absolutus_est_gerontius_p.tess,magnus_felix
 magnus_felix_ennodius.praeceptum_quando_iussi_sunt_omnes_episc.tess,magnus_felix_ennodius,praeceptum_quando_iussi_sunt_omnes_episc,Late Antique,prose,medieval,auto
 magnus_felix_ennodius.vita_epiphanii.tess,magnus_felix_ennodius,vita_epiphanii,Late Antique,prose,medieval,auto
 manilius.astronomica.tess,manilius,astronomica,Augustan,hexameter,didactic,auto
-manilius.astronomicon.part.1.tess,manilius,astronomicon,Augustan,hexameter,didactic,auto
-manilius.astronomicon.part.2.tess,manilius,astronomicon,Augustan,hexameter,didactic,auto
-manilius.astronomicon.part.3.tess,manilius,astronomicon,Augustan,hexameter,didactic,auto
-manilius.astronomicon.part.4.tess,manilius,astronomicon,Augustan,hexameter,didactic,auto
-manilius.astronomicon.part.5.tess,manilius,astronomicon,Augustan,hexameter,didactic,auto
-manilius.astronomicon.tess,manilius,astronomicon,Augustan,hexameter,didactic,auto
 marbodus_redonensis.certamina_septem_fratrum_machabaeorum.tess,marbodus_redonensis,certamina_septem_fratrum_machabaeorum,Medieval,unknown,medieval,auto
 marcus_mincuius_felix.octavius.tess,marcus_mincuius_felix,octavius,Later Imperial,prose,theology,auto
 martial.epigrams.part.1.tess,martial,epigrams,Early Imperial,lyric,satire,auto
@@ -1038,20 +1019,6 @@ martial.epigrams.part.8.tess,martial,epigrams,Early Imperial,lyric,satire,auto
 martial.epigrams.part.9.tess,martial,epigrams,Early Imperial,lyric,satire,auto
 martial.epigrams.tess,martial,epigrams,Early Imperial,lyric,satire,auto
 martialis.de_spectaculis.tess,martialis,de_spectaculis,Early Imperial,hexameter,satire,auto
-martialis.epigrammata_1.tess,martialis,epigrammata_1,Early Imperial,hexameter,satire,auto
-martialis.epigrammata_10.tess,martialis,epigrammata_10,Early Imperial,hexameter,satire,auto
-martialis.epigrammata_11.tess,martialis,epigrammata_11,Early Imperial,hexameter,satire,auto
-martialis.epigrammata_12.tess,martialis,epigrammata_12,Early Imperial,hexameter,satire,auto
-martialis.epigrammata_13.tess,martialis,epigrammata_13,Early Imperial,hexameter,satire,auto
-martialis.epigrammata_14.tess,martialis,epigrammata_14,Early Imperial,hexameter,satire,auto
-martialis.epigrammata_2.tess,martialis,epigrammata_2,Early Imperial,hexameter,satire,auto
-martialis.epigrammata_3.tess,martialis,epigrammata_3,Early Imperial,hexameter,satire,auto
-martialis.epigrammata_4.tess,martialis,epigrammata_4,Early Imperial,hexameter,satire,auto
-martialis.epigrammata_5.tess,martialis,epigrammata_5,Early Imperial,hexameter,satire,auto
-martialis.epigrammata_6.tess,martialis,epigrammata_6,Early Imperial,hexameter,satire,auto
-martialis.epigrammata_7.tess,martialis,epigrammata_7,Early Imperial,hexameter,satire,auto
-martialis.epigrammata_8.tess,martialis,epigrammata_8,Early Imperial,hexameter,satire,auto
-martialis.epigrammata_9.tess,martialis,epigrammata_9,Early Imperial,hexameter,satire,auto
 maximianus.elegiae.tess,maximianus,elegiae,Late Antique,elegiac,elegy,auto
 micon_of_saint_riquier.opus_prosodiacum.tess,micon_of_saint_riquier,opus_prosodiacum,Carolingian,unknown,medieval,auto
 micon_of_saint_riquier.prologus_in_tractatum_de_primis_syllabis.tess,micon_of_saint_riquier,prologus_in_tractatum_de_primis_syllabis,Carolingian,unknown,medieval,auto
@@ -1244,10 +1211,6 @@ priscillian.tractatus_undecim.tess,priscillian,tractatus_undecim,Late Antique,pr
 priscillian_bishop_of_avila.canones_in_pauli_apostoli_epistula_canon.tess,priscillian_bishop_of_avila,canones_in_pauli_apostoli_epistula_canon,Late Antique,prose,theology,auto
 priscillian_bishop_of_avila.tractatus_undecim.tess,priscillian_bishop_of_avila,tractatus_undecim,Late Antique,prose,theology,auto
 proba_active_4th_century.cento.tess,proba_active_4th_century,cento,Late Antique,prose,epic,auto
-propertius.elegiae_1.tess,propertius,elegiae_1,Augustan,hexameter,elegy,auto
-propertius.elegiae_2.tess,propertius,elegiae_2,Augustan,hexameter,elegy,auto
-propertius.elegiae_3.tess,propertius,elegiae_3,Augustan,hexameter,elegy,auto
-propertius.elegiae_4.tess,propertius,elegiae_4,Augustan,hexameter,elegy,auto
 propertius.elegies.tess,propertius,elegies,Augustan,elegiac,elegy,auto
 prudentius.apotheosis.tess,prudentius,apotheosis,Late Antique,unknown,christian_poetry,auto
 prudentius.contra_symmachum.part.1.tess,prudentius,contra_symmachum,Late Antique,unknown,christian_poetry,auto
@@ -1534,8 +1497,6 @@ theodulf_of_orleans.carmina.part.79.tess,theodulf_of_orleans,carmina,Carolingian
 theodulf_of_orleans.carmina.part.9.tess,theodulf_of_orleans,carmina,Carolingian,unknown,medieval,auto
 theodulf_of_orleans.carmina.tess,theodulf_of_orleans,carmina,Carolingian,unknown,medieval,auto
 theodulf_of_orleans.epitaphia.tess,theodulf_of_orleans,epitaphia,Carolingian,unknown,medieval,auto
-tibullus.elegiae_1.tess,tibullus,elegiae_1,Augustan,hexameter,elegy,auto
-tibullus.elegiae_2.tess,tibullus,elegiae_2,Augustan,hexameter,elegy,auto
 tibullus.elegies.tess,tibullus,elegies,Augustan,elegiac,elegy,auto
 unknown.corpus_scriptorum_ecclesiasticorum_latin.tess,unknown,corpus_scriptorum_ecclesiasticorum_latin,unknown,prose,unclassified,auto
 valerius_flaccus.argonautica.part.1.tess,valerius_flaccus,argonautica,Early Imperial,hexameter,epic,auto
@@ -1568,7 +1529,6 @@ vergil.georgics.part.3.tess,vergil,georgics,Augustan,hexameter,didactic,auto
 vergil.georgics.part.4.tess,vergil,georgics,Augustan,hexameter,didactic,auto
 vergil.georgics.tess,vergil,georgics,Augustan,hexameter,didactic,auto
 vergil_pseudo.aetna.tess,vergil_pseudo,aetna,Augustan,hexameter,epic,auto
-vergil_pseudo.appendix_vergiliana_combined.tess,vergil_pseudo,appendix_vergiliana_combined,Augustan,elegiac,elegy,auto
 vergil_pseudo.catalepton.tess,vergil_pseudo,catalepton,Augustan,lyric,lyric,auto
 vergil_pseudo.ciris.tess,vergil_pseudo,ciris,Augustan,hexameter,epic,auto
 vergil_pseudo.copa.tess,vergil_pseudo,copa,Augustan,lyric,lyric,auto

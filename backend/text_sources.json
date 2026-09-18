@@ -593,14 +593,6 @@
   },
   {
     "author": "Ambrose",
-    "work": "Expositio de Psalmo Cxviii",
-    "e_source": "The Latin Library",
-    "e_source_url": "https://www.thelatinlibrary.com",
-    "print_source": "",
-    "added_by": "V6 Import"
-  },
-  {
-    "author": "Ambrose",
     "work": "Expositio Evangelii Secundum Lucan",
     "e_source": "Open Greek and Latin",
     "e_source_url": "https://github.com/OpenGreekAndLatin/csel-dev/tree/master/data/stoa0022",
@@ -2505,14 +2497,6 @@
   },
   {
     "author": "Augustine",
-    "work": "Retractationes",
-    "e_source": "The Latin Library",
-    "e_source_url": "https://www.thelatinlibrary.com",
-    "print_source": "",
-    "added_by": "V6 Import"
-  },
-  {
-    "author": "Augustine",
     "work": "Retractationum",
     "e_source": "Open Greek and Latin / CSEL",
     "e_source_url": "https://scaife.perseus.org/library/urn:cts:latinLit:stoa0040.stoa077/",
@@ -2542,14 +2526,6 @@
     "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
     "print_source": "Michael Petschenig. Sancti Aurelii Augustini Scripta contra Donatistas. Vindobonae: Gerold. 1910.",
     "added_by": "Caitlin Diddams"
-  },
-  {
-    "author": "Augustine",
-    "work": "Speculum",
-    "e_source": "Open Greek and Latin / CSEL",
-    "e_source_url": "https://scaife.perseus.org/library/urn:cts:latinLit:stoa0040.stoa080/",
-    "print_source": "",
-    "added_by": "V6 Import"
   },
   {
     "author": "Aurelius Victor",
@@ -4626,14 +4602,6 @@
   {
     "author": "Cyprian Pseudo",
     "work": "Epistulae",
-    "e_source": "The Latin Library",
-    "e_source_url": "https://www.thelatinlibrary.com",
-    "print_source": "",
-    "added_by": "V6 Import"
-  },
-  {
-    "author": "Cyprian Pseudo",
-    "work": "Genesis",
     "e_source": "The Latin Library",
     "e_source_url": "https://www.thelatinlibrary.com",
     "print_source": "",
@@ -9857,14 +9825,6 @@
     "added_by": "V3 Legacy Import"
   },
   {
-    "author": "Manilius",
-    "work": "Astronomicon",
-    "e_source": "The Latin Library",
-    "e_source_url": "https://www.thelatinlibrary.com",
-    "print_source": "",
-    "added_by": "V6 Import"
-  },
-  {
     "author": "Marbodus episcopus Redonensis",
     "work": "Carmina Septem Fratrum Macchabeorum",
     "e_source": "Musisque Deoque",
@@ -12706,38 +12666,6 @@
   },
   {
     "author": "Propertius",
-    "work": "Elegiae 1",
-    "e_source": "The Latin Library",
-    "e_source_url": "https://www.thelatinlibrary.com",
-    "print_source": "",
-    "added_by": "V6 Import"
-  },
-  {
-    "author": "Propertius",
-    "work": "Elegiae 2",
-    "e_source": "The Latin Library",
-    "e_source_url": "https://www.thelatinlibrary.com",
-    "print_source": "",
-    "added_by": "V6 Import"
-  },
-  {
-    "author": "Propertius",
-    "work": "Elegiae 3",
-    "e_source": "The Latin Library",
-    "e_source_url": "https://www.thelatinlibrary.com",
-    "print_source": "",
-    "added_by": "V6 Import"
-  },
-  {
-    "author": "Propertius",
-    "work": "Elegiae 4",
-    "e_source": "The Latin Library",
-    "e_source_url": "https://www.thelatinlibrary.com",
-    "print_source": "",
-    "added_by": "V6 Import"
-  },
-  {
-    "author": "Propertius",
     "work": "Elegies",
     "e_source": "Perseus",
     "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0494",
@@ -15282,22 +15210,6 @@
   },
   {
     "author": "Tibullus",
-    "work": "Elegiae 1",
-    "e_source": "The Latin Library",
-    "e_source_url": "https://www.thelatinlibrary.com",
-    "print_source": "",
-    "added_by": "V6 Import"
-  },
-  {
-    "author": "Tibullus",
-    "work": "Elegiae 2",
-    "e_source": "The Latin Library",
-    "e_source_url": "https://www.thelatinlibrary.com",
-    "print_source": "",
-    "added_by": "V6 Import"
-  },
-  {
-    "author": "Tibullus",
     "work": "Elegies",
     "e_source": "The Latin Library",
     "e_source_url": "https://www.thelatinlibrary.com",
@@ -15395,14 +15307,6 @@
   {
     "author": "Vergil Pseudo",
     "work": "Aetna",
-    "e_source": "The Latin Library",
-    "e_source_url": "https://www.thelatinlibrary.com",
-    "print_source": "",
-    "added_by": "V6 Import"
-  },
-  {
-    "author": "Vergil Pseudo",
-    "work": "Appendix Vergiliana Combined",
     "e_source": "The Latin Library",
     "e_source_url": "https://www.thelatinlibrary.com",
     "print_source": "",
