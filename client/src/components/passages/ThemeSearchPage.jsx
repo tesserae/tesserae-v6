@@ -167,6 +167,39 @@ export default function ThemeSearchPage() {
       if (codes.length) setServed(codes);
     }).catch(() => {});
   }, []);
+  // How much of the current single language Theme Search actually reaches
+  // ("Searches N of M works in this language"), with a link to the full list
+  // in Browse Corpus. Cheap to compute -- both fetches are already used
+  // elsewhere for this -- but only meaningful for exactly one language at a
+  // time, and only for the four Browse Corpus itself covers; multi-select
+  // and "All languages" (the default) skip it rather than show something
+  // that doesn't parse or a link Browse Corpus can't honor.
+  const [coverage, setCoverage] = useState(null);
+  const BROWSE_CORPUS_LANGUAGES = ['la', 'grc', 'en', 'cop'];
+  useEffect(() => {
+    const codes = language ? language.split(',').map((s) => s.trim()).filter(Boolean) : [];
+    if (codes.length !== 1 || !BROWSE_CORPUS_LANGUAGES.includes(codes[0])) {
+      setCoverage(null);
+      return;
+    }
+    const code = codes[0];
+    let dead = false;
+    Promise.all([
+      fetch(`/api/texts?language=${code}`).then((r) => r.json()).catch(() => []),
+      fetch(`/api/passages/works?language=${code}`).then((r) => r.json()).catch(() => ({ works: [] })),
+    ]).then(([texts, works]) => {
+      if (dead) return;
+      const baseIds = new Set(
+        (texts || []).map((t) => String(t.id || '').replace(/\.tess$/, '').split('.part.')[0])
+      );
+      const covered = new Set(works?.works || []);
+      let n = 0;
+      baseIds.forEach((id) => { if (covered.has(id)) n += 1; });
+      setCoverage({ covered: n, total: baseIds.size, language: code });
+    }).catch(() => { if (!dead) setCoverage(null); });
+    return () => { dead = true; };
+  }, [language]);
+
   const [data, setData] = useState(null);
   const [running, setRunning] = useState(false);
   const [showWeak, setShowWeak] = useState(false);
@@ -375,6 +408,18 @@ export default function ThemeSearchPage() {
           fewer languages show more of each
         </span>
       </div>
+
+      {coverage && coverage.total > 0 && (
+        <p className="mt-1 text-[11px] text-gray-500">
+          Searches {coverage.covered} of {coverage.total} works in {LANG_LABEL[coverage.language] || coverage.language}.{' '}
+          <a
+            href={`/corpus?theme=1&language=${coverage.language}`}
+            className="text-red-700 hover:underline"
+          >
+            See the list of covered works
+          </a>
+        </p>
+      )}
 
       <div className="mt-3 flex flex-wrap gap-2">
         {examplesFor(served).map((ex) => (

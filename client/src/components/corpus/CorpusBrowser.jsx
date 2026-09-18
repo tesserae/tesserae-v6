@@ -1,8 +1,19 @@
 import { useState, useEffect, useMemo } from 'react';
 import { LoadingSpinner } from '../common';
 
+// Languages the corpus tabs offer, read from the URL's `language` param so
+// a link (Help, Theme Search) can land here already on the right tab.
+const VALID_LANGUAGES = ['la', 'grc', 'en', 'cop'];
+
 export default function CorpusBrowser() {
-  const [language, setLanguage] = useState('la');
+  // A link can open this page with the Theme Search filter already on and a
+  // language chosen (`/corpus?theme=1&language=la`), so Help and Theme
+  // Search can point straight at "the list" instead of describing where to
+  // find the checkbox (NC 2026-09-18: "I don't see a separate list").
+  const [language, setLanguage] = useState(() => {
+    const lang = new URLSearchParams(window.location.search).get('language');
+    return VALID_LANGUAGES.includes(lang) ? lang : 'la';
+  });
   const [corpus, setCorpus] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchFilter, setSearchFilter] = useState('');
@@ -16,8 +27,13 @@ export default function CorpusBrowser() {
   // missing from this set has no passage windows and never appears in Theme
   // Search or Similar Passages.
   const [coveredWorks, setCoveredWorks] = useState(new Set());
-  // Show only the works Theme Search covers (a list on demand).
-  const [coveredOnly, setCoveredOnly] = useState(false);
+  // Show only the works Theme Search covers (a list on demand). `theme=1`
+  // in the URL turns this on at load.
+  const [coveredOnly, setCoveredOnly] = useState(() => (
+    new URLSearchParams(window.location.search).get('theme') === '1'
+  ));
+  // Confirms a copied covered-works list on the button itself, briefly.
+  const [listCopied, setListCopied] = useState(false);
   // Orientation blurbs (data/text_descriptions.json), and which rows have
   // theirs open. Not every work has one; the ⓘ only shows where one exists.
   const [descriptions, setDescriptions] = useState({});
@@ -241,6 +257,27 @@ export default function CorpusBrowser() {
     });
   }, [sortedAuthors, searchFilter, selectedEra, coveredOnly, coveredWorks]);
 
+  // Plain text lines (author, title) for the covered works currently on
+  // screen, so the filtered list can leave the page as more than a checkbox
+  // — Copy list and Download list below use this.
+  const coveredListText = useMemo(() => (
+    coveredOnly
+      ? filteredAuthors
+          .flatMap((group) => group.texts.map((t) => `${group.author}, ${t.title}`))
+          .join('\n')
+      : ''
+  ), [coveredOnly, filteredAuthors]);
+
+  const copyCoveredList = () => {
+    if (!coveredListText || !navigator.clipboard?.writeText) return;
+    navigator.clipboard.writeText(coveredListText)
+      .then(() => {
+        setListCopied(true);
+        setTimeout(() => setListCopied(false), 2500);
+      })
+      .catch(() => {});
+  };
+
   const toggleAuthor = (author) => {
     const newExpanded = new Set(expandedAuthors);
     if (newExpanded.has(author)) {
@@ -402,6 +439,30 @@ export default function CorpusBrowser() {
       <div className="text-xs text-gray-500 mb-2">
         Click author to expand works. Use checkboxes to select Source (S) or Target (T).
       </div>
+
+      {coveredOnly && coverageCount.total > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-2 border border-purple-200 bg-purple-50 rounded px-3 py-2 mb-2">
+          <h3 className="text-sm font-medium text-purple-900">
+            Works covered by Theme Search: {coverageCount.covered} of {coverageCount.total} in {getLanguageName(language)}
+          </h3>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={copyCoveredList}
+              className="text-xs px-2 py-1 border border-purple-300 rounded bg-white text-purple-800 hover:bg-purple-100"
+            >
+              {listCopied ? 'Copied' : 'Copy list'}
+            </button>
+            <a
+              href={`data:text/plain;charset=utf-8,${encodeURIComponent(coveredListText)}`}
+              download={`theme-search-works-${language}.txt`}
+              className="text-xs px-2 py-1 border border-purple-300 rounded bg-white text-purple-800 hover:bg-purple-100"
+            >
+              Download list
+            </a>
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <LoadingSpinner text="Loading corpus..." />

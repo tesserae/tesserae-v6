@@ -41,6 +41,11 @@ const pathToPageType = {
   '/read': 'read',
   '/theme-search': 'theme-search',
   '/browse': 'browse',
+  // Alias: Help and Theme Search link to "/corpus" for the covered-works
+  // list (the owner's word for the page), and it lands on Browse Corpus.
+  // The address then canonicalizes to /browse (see the pageType->path
+  // effect below); the query string carries the filter regardless of path.
+  '/corpus': 'browse',
   '/repository': 'repository',
   '/line-search': 'line-search',
   '/string-search': 'string-search',

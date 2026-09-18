@@ -6,6 +6,17 @@ repairs) are listed under "Data operations" with the script that did them,
 so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md.
 
+## 2026-09-19
+
+### Theme Search
+- #388 The list of covered works is reachable, not just a checkbox in Browse
+  Corpus: `/corpus?theme=1&language=la` opens Browse Corpus with the filter
+  and language already set, with a heading, a Copy list button, and a
+  Download list button for the works on screen. The Help page's Theme
+  Search topic links to it, and the Theme Search page itself shows how much
+  of the current language it reaches, with the same link (only when exactly
+  one of the four Browse Corpus languages is selected).
+
 ## 2026-09-18
 
 ### Theme Search
