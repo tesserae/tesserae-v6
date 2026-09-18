@@ -9,7 +9,7 @@
  * on an uncovered one.
  */
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import CorpusBrowser from '../CorpusBrowser';
 
 const TEXTS = [
@@ -119,5 +119,71 @@ describe('the Theme Search coverage badge', () => {
     fireEvent.click(screen.getByText('Vergil'));
     await waitFor(() => expect(screen.getByText('Aeneid 1')).toBeTruthy());
     expect(screen.queryByText('Theme Search')).toBeNull();
+  });
+
+  // Right after a deploy reload, the passage index can still be loading on
+  // this server and /api/passages/works comes back slow, empty, or failed.
+  // The old code read that as "zero coverage" and printed "0 of 2 works are
+  // covered by Theme Search" -- indistinguishable from a real gap. Now it
+  // says the count is still loading instead of asserting a false zero.
+  describe('when the works fetch cannot yet answer', () => {
+    it('shows "coverage is loading" rather than "0 of N" on a failed fetch', async () => {
+      global.fetch = vi.fn((url) => {
+        if (url.startsWith('/api/passages/works')) {
+          return Promise.reject(new Error('network down'));
+        }
+        return mockFetch(url);
+      });
+
+      render(<CorpusBrowser />);
+
+      await waitFor(() =>
+        expect(screen.getByText(/Theme Search coverage is loading/)).toBeTruthy());
+      expect(screen.queryByText(/0 of 2 works are covered/)).toBeNull();
+    });
+
+    it('shows "coverage is loading" rather than "0 of N" on an empty works list', async () => {
+      global.fetch = vi.fn((url) => {
+        if (url.startsWith('/api/passages/works')) {
+          return Promise.resolve({ json: () => Promise.resolve({ language: 'la', works: [] }) });
+        }
+        return mockFetch(url);
+      });
+
+      render(<CorpusBrowser />);
+
+      await waitFor(() =>
+        expect(screen.getByText(/Theme Search coverage is loading/)).toBeTruthy());
+      expect(screen.queryByText(/0 of 2 works are covered/)).toBeNull();
+    });
+
+    it('recovers to the real count once a retry succeeds', async () => {
+      vi.useFakeTimers();
+      let calls = 0;
+      global.fetch = vi.fn((url) => {
+        if (url.startsWith('/api/passages/works')) {
+          calls += 1;
+          if (calls < 2) {
+            return Promise.resolve({ json: () => Promise.resolve({ language: 'la', works: [] }) });
+          }
+          return Promise.resolve({
+            json: () => Promise.resolve({ language: 'la', works: ['vergil.aeneid'] }),
+          });
+        }
+        return mockFetch(url);
+      });
+
+      render(<CorpusBrowser />);
+
+      // First attempt fires immediately and comes back empty: "loading".
+      await act(() => vi.advanceTimersByTimeAsync(0));
+      expect(screen.getByText(/Theme Search coverage is loading/)).toBeTruthy();
+
+      // Retry at +3s succeeds, so the real count takes over.
+      await act(() => vi.advanceTimersByTimeAsync(3000));
+      expect(screen.getByText(/1 of 2 works are covered by Theme Search/)).toBeTruthy();
+
+      vi.useRealTimers();
+    });
   });
 });
