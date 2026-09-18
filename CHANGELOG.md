@@ -6,10 +6,10 @@ repairs) are listed under "Data operations" with the script that did them,
 so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md.
 
-## Unreleased
+## 2026-09-18
 
 ### Theme Search
-- The re-ranker: a small model trained once on 32,000 readings by a paid
+- #382 The re-ranker: a small model trained once on 32,000 readings by a paid
   model reads the top hundred results against the query and re-orders
   them. Judged precision in the top ten on sixteen test themes rises from
   0.42 to 0.59 (the paid reader itself reaches 0.71); every scene query
@@ -21,10 +21,13 @@ docs/DATA_OPERATIONS.md.
   order. The reproducible citation names the re-ranker's version.
   Records: evaluation/theme_benchmark/distill_train/REPORT.md.
 
-### Data operations (on deploy; detail in docs/DATA_OPERATIONS.md)
-- Copy the checkpoint to production, install and start the
-  `tesserae-reader` user unit, set `THEME_READER_URL` in the production
-  environment, rebuild `dist/`.
+- #383 Browse Corpus marks every work Theme Search covers with a "Theme
+  Search" badge, shows how many of a language's works are covered, and can
+  list only those; the Help page says what the index holds.
+
+### Data operations
+- The re-ranker service installed and switched on (detail in
+  docs/DATA_OPERATIONS.md, 2026-09-18).
 
 ## 2026-09-16
 

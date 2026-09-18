@@ -22,7 +22,7 @@ Conventions
 - Stamp backups to the second; a rerun must never overwrite the first
   run's backup.
 
-## PLANNED (on deploy of the re-ranker PR) Theme Search re-ranker service
+## 2026-09-18 Theme Search re-ranker service installed (PR #382, with #383)
 - What: copy the trained checkpoint
   (evaluation/theme_benchmark/distill_train/runs/minilm/best, 88 MB) to
   /home/ncoffee/tesserae-models/theme_reader_minilm_2026-09-17; install
@@ -42,6 +42,26 @@ Conventions
   first page. Every page inside the top 100 is cut from the same re-ranked
   list, so a page costs one reader call and results do not move between
   pages; pages past 100 are index order.
+- Done 2026-09-18 about 14:20 as ncoffee: PRs #382 and #383 merged and
+  pulled (ec32fbf); `npm run build` from the repo root, keep_old_bundles
+  save (18 bundles) and restore; checkpoint copied to
+  ~/tesserae-models/theme_reader_minilm_2026-09-17 (88 MB); unit installed
+  as ~/.config/systemd/user/tesserae-reader.service, enabled and started,
+  /health reported loaded_at within 30 s; THEME_READER_URL and
+  THEME_READER_MODEL appended to the production .env; wsgi touched. The
+  preview's hand-started reader on 8091 was stopped first; both sites now
+  use the unit.
+- Checks: the dog query returns reader.applied true, model
+  minilm-distill-2026-09-17, about 2 to 2.7 s; `&reader=0` returns index
+  order; /api/passages/works?language=la returns 765 works; reference
+  test 324; new bundle index-CA0n6WsB.js served.
+- Found while checking: production's candidate hundred for the dog query
+  differs from the preview's because cache/query_expansions.jsonl holds
+  different paraphrases on each site (the local Qwen at temperature 0 gave
+  different forms on 16 and 17 September), and the paraphrase set decides
+  which passages make the hundred. Production's set leaves Odyssey 17.295
+  outside the hundred, so the re-ranker cannot promote it there. Not
+  caused by this deploy; recorded in research/threads/OUTSTANDING_WORK.md.
 - No index, cache or passage-index change. Rollback: unset
   THEME_READER_URL and touch the wsgi file; the page returns to index
   order.
