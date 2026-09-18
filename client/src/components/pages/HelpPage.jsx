@@ -639,9 +639,16 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               <p className="text-gray-700 mb-3">
                 Theme Search and Similar Passages only reach works that have been cut into
                 passage windows: about 1,858 works and 625,000 passages. A work outside that
-                index never appears in either feature, whatever it contains. Browse Corpus marks
-                the works that are covered with a small &ldquo;Theme Search&rdquo; badge next to
-                each title.
+                index never appears in either feature, whatever it contains.
+              </p>
+
+              <h4 className="font-medium text-gray-900 mt-6 mb-2">Which works Theme Search covers</h4>
+              <p className="text-gray-700 mb-3">
+                Theme Search covers the works that have passage descriptions, not the whole
+                corpus. The list is in Browse Corpus:{' '}
+                <a href="/corpus?theme=1&language=la" className="text-red-600 hover:underline">
+                  See the list of covered works
+                </a>. A small &ldquo;Theme Search&rdquo; badge marks each covered work there.
               </p>
 
               <h4 className="font-medium text-gray-900 mt-6 mb-2">Reading the results</h4>

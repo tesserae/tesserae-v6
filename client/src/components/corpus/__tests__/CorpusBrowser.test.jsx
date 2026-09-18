@@ -45,6 +45,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  window.history.replaceState({}, '', '/');
 });
 
 describe('the Theme Search coverage badge', () => {
@@ -74,6 +75,34 @@ describe('the Theme Search coverage badge', () => {
     fireEvent.click(screen.getByLabelText('Show only works covered by Theme Search'));
     await waitFor(() => expect(screen.queryByText('Cicero')).toBeNull());
     expect(screen.getByText('Vergil')).toBeTruthy();
+  });
+
+  it('a URL of ?theme=1&language=la opens straight to the covered-only list', async () => {
+    window.history.replaceState({}, '', '/corpus?theme=1&language=la');
+    render(<CorpusBrowser />);
+
+    await waitFor(() => expect(screen.getByText('Vergil')).toBeTruthy());
+    // The filter is already on: Cicero (uncovered) never shows.
+    expect(screen.queryByText('Cicero')).toBeNull();
+    expect(screen.getByLabelText('Show only works covered by Theme Search').checked).toBe(true);
+  });
+
+  it('shows the "Works covered by Theme Search" heading and a Copy list button when the filter is on', async () => {
+    window.history.replaceState({}, '', '/corpus?theme=1&language=la');
+    render(<CorpusBrowser />);
+
+    await waitFor(() =>
+      expect(screen.getByText('Works covered by Theme Search: 1 of 2 in Latin')).toBeTruthy());
+    expect(screen.getByText('Copy list')).toBeTruthy();
+    expect(screen.getByText('Download list')).toBeTruthy();
+  });
+
+  it('shows no heading or list buttons when the filter is off', async () => {
+    render(<CorpusBrowser />);
+
+    await waitFor(() => expect(screen.getByText('Vergil')).toBeTruthy());
+    expect(screen.queryByText(/Works covered by Theme Search:/)).toBeNull();
+    expect(screen.queryByText('Copy list')).toBeNull();
   });
 
   it('a failed works fetch costs only the badges, not the page', async () => {
