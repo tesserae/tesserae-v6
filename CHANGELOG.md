@@ -21,6 +21,14 @@ docs/DATA_OPERATIONS.md.
   order. The reproducible citation names the re-ranker's version.
   Records: evaluation/theme_benchmark/distill_train/REPORT.md.
 
+- Query expansion removed from Theme Search retrieval (`find_by_text`
+  defaults to `expand=False`): measured no effect on 15 of 16 test queries
+  and, on the one it touched, it pushed a right answer out of the top
+  hundred before the reader ever saw it
+  (evaluation/theme_benchmark/expansion_test/REPORT.md). Help page's
+  reading-step figures corrected from 42/59 percent, measured on a
+  different candidate set, to the live page's own 29/43 percent on the
+  same sixteen test themes.
 - #385 Help: names are precise and paraphrases broad in Theme Search, and
   what to type when a search finds little (from a user report).
 - #383 Browse Corpus marks every work Theme Search covers with a "Theme
