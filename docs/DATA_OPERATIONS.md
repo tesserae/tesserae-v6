@@ -119,6 +119,57 @@ Conventions
   `python scripts/corpus/validate_tess.py texts/la/martial.epigrams*.tess`
   (all 15 pass); the reference-test units under `tests/` that touch text
   listing (see the PR body for which ran and their results).
+- Done 2026-09-18, EDT throughout, as ncoffee on production
+  `/var/www/tesseraev6_flask`: 14:50 `git pull` of #389 (`de8863e`); this
+  brought Latin to 1,822 files and `martial.epigrams` to 9,375 lines.
+  Lemma cache: the 55 orphan entries for the retired and rebuilt files
+  removed from `cache/lemmas/la/`, then `scripts/batch_lemma_cache.py la`
+  under a `MemoryMax=8G` scope built the 15 new Martial entries. 14:53
+  `scripts/corpus/drop_stale_index_entries.py --root
+  /var/www/tesseraev6_flask --language la --apply` (a dry run first found
+  exactly 40 stale: 30,960 lines, 556,097 postings): swapped, backup
+  `la_index.db.bak-stale-20260918-1453`, 1,642 texts. 15:05
+  `scripts/corpus/add_texts_to_index.py --db la_index.db.new --language la
+  --cache-dir cache/lemmas --replace` for the 15 Martial files on a copy,
+  `lemma_doc_freq` rebuilt (327,464 lemmas, 68 s), swapped, backup
+  `la_index.db.bak-martial-20260918`; 930,059 lines in the index. 15:07
+  `scripts/corpus/rebuild_bigrams.py la`: 777 docs, 3,805,740 bigrams,
+  134 s. 16:00 passage index: a corrected copy prepared at
+  `~/tesserae-backups/passage_index_2026-09-18/` (`CHECK.md`): 10,154
+  windows dropped (7,186 for the 40 retired works, 2,968 for the old
+  Martial), 2,363 Martial windows reused from the `martialis` files'
+  vectors and descriptions (line sequences verified identical), 617,363
+  windows after; swapped, backups tagged
+  `martial-rebuild-40retire-20260918`; 1,995 windows of the whole-file
+  Martial still need descriptions (phase misalignment against the old
+  per-book windows), queued for a GPU describe run, to be appended with
+  `apply_passage_rows.py --mode append`. 16:04 coverage sidecar
+  `data/passage_index/works_by_language.json` written by warming each
+  language once (la 730, grc 828, en 42, cop 144, he 39; index version
+  2026-09-18), then one reload (`touch tesseraev6_flask.wsgi`) also
+  carrying PR #390.
+- Checks after the reload: "arma virum" lemma search 323 distinct loci
+  (expected about 320); exact "hic est quem legis" finds Martial 1.1.1;
+  Similar Passages on Martial 1.0.1 answers; coverage answered 730 works
+  in 1.3 s during the reload.
+- Done 2026-09-18 16:45 EDT: the 1,995 windows were described on a RunPod
+  A100 with Qwen/Qwen2.5-32B-Instruct-AWQ (the corpus's own description
+  model), 8 minutes, no failures (sidecar
+  ~/tesserae-backups/passage_index_2026-09-18/martial_described.jsonl),
+  embedded through the local encoder and appended with
+  `scripts/corpus/apply_passage_rows.py --mode append --tag
+  martial-describe-20260918` (backups with that tag): 619,358 windows and
+  vectors after; reload; Similar Passages checked on martial.epigrams
+  2.3.2.
+
+## 2026-09-18 Coverage sidecar written on reload (PR #390)
+- What: `data/passage_index/works_by_language.json` is not a manual data
+  operation; the app writes it itself the first time each language's
+  coverage is warmed after a reload (see the 2026-09-18 retirement/Martial
+  entry above, whose 16:04 reload produced the file's first copy on
+  production: la 730, grc 828, en 42, cop 144, he 39, index version
+  2026-09-18). Noted here only because a cache file now persists outside
+  the request that created it.
 
 ## 2026-09-18 Theme Search re-ranker service installed (PR #382, with #383)
 - What: copy the trained checkpoint
