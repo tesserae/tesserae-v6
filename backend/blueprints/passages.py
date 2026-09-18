@@ -93,16 +93,20 @@ def theme_search():
     # all. An error the operator cannot read is an error they cannot fix.
     limit = _int_arg('limit', 25)
     offset = _int_arg('offset', 0, lo=0, hi=_MAX_OFFSET)
-    # The reader re-orders the top K of the ranking, so on the first page it
-    # needs at least K candidates to read even when the page shows fewer;
-    # the list is cut back to the requested length after the re-rank. Later
-    # pages (offset > 0) are left in index order: re-ranking each page on its
-    # own would shuffle results between pages.
-    reader_on = bool(os.environ.get('THEME_READER_URL')) and _reader_wanted() and offset == 0
-    fetch = max(limit, reader_rerank.DEFAULT_K) if reader_on else limit
+    # The reader re-orders the top K of the ranking. Every page that falls
+    # inside those K is cut from the SAME re-ranked list (fetch the K from
+    # offset 0, re-rank, then slice), so a passage promoted into page one
+    # cannot appear again on page two and a demoted one is not lost. Pages
+    # past K are served in index order as before, which the re-rank does not
+    # touch. Scores are deterministic, so each page re-ranks the same K the
+    # same way at the cost of one reader call per page.
+    K = reader_rerank.DEFAULT_K
+    reader_on = bool(os.environ.get('THEME_READER_URL')) and _reader_wanted() and offset < K
+    fetch = max(offset + limit, K) if reader_on else limit
+    fetch_offset = 0 if reader_on else offset
     try:
         out = passage_index.find_by_text(
-            q, limit=fetch, offset=offset,
+            q, limit=fetch, offset=fetch_offset,
             languages=_languages(), scale=_scale())
     except passage_index.EmbedUnavailable as e:
         # "cannot ask" is not "found nothing". Only one of those means the
@@ -131,8 +135,7 @@ def theme_search():
     if reader_on and out.get('results'):
         out['results'], reader_meta = reader_rerank.apply(q, out['results'])
         out['reader'] = reader_meta
-        if fetch > limit:
-            out['results'] = out['results'][:limit]
+        out['results'] = out['results'][offset:offset + limit]
     return jsonify(out)
 
 

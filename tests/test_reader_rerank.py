@@ -195,3 +195,32 @@ def test_meta_names_the_model(monkeypatch):
     out, meta = reader_rerank.apply('q', results, k=2)
     assert meta['applied'] is True and meta['model'] == reader_rerank.MODEL_ID
 
+
+def test_pages_inside_the_top_hundred_come_from_one_reranked_list(monkeypatch):
+    """A passage promoted into page one must not appear again on page two,
+    and one demoted off page one must land on page two."""
+    from backend.app import app
+    from backend.blueprints import passages as P
+    monkeypatch.setenv('THEME_READER_URL', 'http://127.0.0.1:1')
+    calls = []
+
+    def fake_find(q, limit=25, offset=0, languages=None, scale=None, **kw):
+        calls.append((limit, offset))
+        return {'results': [{'id': f'w{i}', 'work': f'w{i}', 'score': 1.0 - i / 200} for i in range(offset, offset + limit)]}
+    monkeypatch.setattr(P.passage_index, 'find_by_text', fake_find)
+    monkeypatch.setattr(P.passage_index, 'index_version', lambda: '2026-09-18')
+    # The reader promotes w30 to the top and demotes w0 to the bottom of the hundred.
+    monkeypatch.setattr(P.reader_rerank.reader_client, 'score',
+                        lambda q, ps, timeout=6.0: {p['id']: (1.0 if p['id'] == 'w30' else 0.0 if p['id'] == 'w0' else 0.5) for p in ps})
+    monkeypatch.setattr(P.reader_rerank, '_reader_texts', lambda results: {r['id']: 't' for r in results})
+    c = app.test_client()
+    path = next(str(r) for r in app.url_map.iter_rules() if r.endpoint == 'passages.theme_search')
+    p1 = c.get(f'{path}?q=x&limit=25&offset=0').get_json()['results']
+    p2 = c.get(f'{path}?q=x&limit=25&offset=25').get_json()['results']
+    p5 = c.get(f'{path}?q=x&limit=25&offset=100').get_json()['results']
+    ids1, ids2 = [r['id'] for r in p1], [r['id'] for r in p2]
+    assert ids1[0] == 'w30' and 'w30' not in ids2 and 'w0' not in ids1
+    assert len(ids1) == 25 and len(ids2) == 25 and not set(ids1) & set(ids2)
+    assert calls[0] == (100, 0) and calls[1] == (100, 0) and calls[2] == (25, 100)
+    assert [r['id'] for r in p5][0] == 'w100'
+
