@@ -541,7 +541,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                     <tr><td className="py-2 pr-4">Verbal parallels (Fusion)</td><td className="py-2 pr-4">Hebrew</td><td className="py-2 pr-4">The 22 marked citations of Isaiah in Romans, searched from the Hebrew through the Septuagint into the Greek New Testament</td><td className="py-2 pr-4">15 of 22 in the first hundred, 9 in the first ten; the direct word-for-word route found none</td><td className="py-2">August 2026</td></tr>
                     <tr><td className="py-2 pr-4">Verbal parallels (Fusion)</td><td className="py-2 pr-4">English</td><td className="py-2 pr-4">No published list of parallels has been run yet</td><td className="py-2 pr-4">Not measured</td><td className="py-2"></td></tr>
                     <tr><td className="py-2 pr-4">Cross-Language (Greek to Latin)</td><td className="py-2 pr-4">Greek and Latin</td><td className="py-2 pr-4">412 Homeric parallels in the Aeneid from Knauer's index</td><td className="py-2 pr-4">About 40 percent in the first fifty for a given target line, 94 percent found somewhere in the ranking; only 31 percent of the listed parallels share any vocabulary across the two languages</td><td className="py-2">2026</td></tr>
-                    <tr><td className="py-2 pr-4">Theme Search</td><td className="py-2 pr-4">Latin and Greek</td><td className="py-2 pr-4">Confidence band: 32 test subjects, half present in the corpus and half absent. Recall: the works Curtius cites for eleven topoi (57 works held here)</td><td className="py-2 pr-4">The band agrees with the test set on 88 to 91 percent of subjects. Of Curtius's 57 works, 23 appear somewhere in the returned lists and 7 among the first ten; a frontier language model asked the same questions from memory names 14 and 13</td><td className="py-2">September 2026</td></tr>
+                    <tr><td className="py-2 pr-4">Theme Search</td><td className="py-2 pr-4">Latin and Greek</td><td className="py-2 pr-4">Confidence band: 32 test subjects, half present in the corpus and half absent. Recall: the works Curtius cites for eleven topoi (57 works held here)</td><td className="py-2 pr-4">The band agrees with the test set on 88 to 91 percent of subjects. Of Curtius's 57 works, 23 appear somewhere in the returned lists and 7 among the first ten; a frontier language model asked the same questions from memory names 14 and 13. Precision of the first ten results, sixteen test themes, judged: 42 percent by description order, 59 percent after the reading step (see The reading step under Theme Search)</td><td className="py-2">September 2026</td></tr>
                     <tr><td className="py-2 pr-4">Theme Search</td><td className="py-2 pr-4">Coptic, Hebrew, English</td><td className="py-2 pr-4">Included in the index; no language-specific test yet</td><td className="py-2 pr-4">Not measured separately</td><td className="py-2"></td></tr>
                     <tr><td className="py-2 pr-4">Rare words, rare pairs, line and string search</td><td className="py-2 pr-4">All</td><td className="py-2 pr-4">Exact lookups in the index</td><td className="py-2 pr-4">They return every occurrence the index holds; there is no recall to measure, only the coverage of the corpus and the accuracy of the dictionary forms (see each language section)</td><td className="py-2"></td></tr>
                   </tbody>
@@ -603,6 +603,20 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 &ldquo;impermanence&rdquo; on another mean the same thing. There are more than
                 600,000 descriptions on the main site, covering Latin, Greek, Hebrew, Coptic,
                 English, Persian, Urdu and Arabic.
+              </p>
+              <h4 className="font-medium text-gray-900 mt-6 mb-2">The reading step</h4>
+              <p className="text-gray-700 mb-3">
+                Comparing descriptions is quick and shallow, so the first page is then read. A
+                small model on our own server takes the hundred passages that scored highest,
+                reads each one against your query, and gives it a score for how fully it is the
+                scene you described; the page is ordered by that score. It was trained once on
+                32,000 readings by a larger model and costs nothing to run, so it stays on. Only
+                the top hundred are read: a passage the comparison did not bring into the
+                hundred cannot be promoted by the reading. On sixteen test themes graded by a
+                calibrated judge, the share of the first ten results that is the scene rose
+                from 42 to 59 percent (the larger model, read live, reaches 71). The result
+                citation names the reading model, and adding <code>&amp;reader=0</code> to a
+                search address shows the order without it.
               </p>
               <p className="text-gray-700 mb-3">
                 This is why a Persian passage can answer an English description of a Greek scene.
