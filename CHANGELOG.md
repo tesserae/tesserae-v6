@@ -21,6 +21,8 @@ docs/DATA_OPERATIONS.md.
   order. The reproducible citation names the re-ranker's version.
   Records: evaluation/theme_benchmark/distill_train/REPORT.md.
 
+- #385 Help: names are precise and paraphrases broad in Theme Search, and
+  what to type when a search finds little (from a user report).
 - #383 Browse Corpus marks every work Theme Search covers with a "Theme
   Search" badge, shows how many of a language's works are covered, and can
   list only those; the Help page says what the index holds.
