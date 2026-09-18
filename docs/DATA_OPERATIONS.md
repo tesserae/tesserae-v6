@@ -42,7 +42,7 @@ Conventions
   first page. Every page inside the top 100 is cut from the same re-ranked
   list, so a page costs one reader call and results do not move between
   pages; pages past 100 are index order.
-- Done 2026-09-18 about 14:20 as ncoffee: PRs #382 and #383 merged and
+- Done 2026-09-18 about 07:07 EDT as ncoffee: PRs #382 and #383 merged and
   pulled (ec32fbf); `npm run build` from the repo root, keep_old_bundles
   save (18 bundles) and restore; checkpoint copied to
   ~/tesserae-models/theme_reader_minilm_2026-09-17 (88 MB); unit installed
