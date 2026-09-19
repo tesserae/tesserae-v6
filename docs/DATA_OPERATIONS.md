@@ -126,7 +126,28 @@ Conventions
 - Scripts: `scripts/corpus/drop_stale_index_entries.py`,
   `scripts/corpus/rebuild_bigrams.py`, `drop_passage_rows.py` (passage
   index).
-- Done: not yet run on production; this entry records the PR only.
+- Done 2026-09-19, EDT throughout, as ncoffee on production
+  `/var/www/tesseraev6_flask`, each step inside its own `systemd-run
+  --user --scope -p MemoryMax=<n> -p MemorySwapMax=0` scope, one at a
+  time: 08:27 `git pull` of #393 (`c01d12c`); brought Latin to 1,820
+  files, confirmed the two retired files absent. Two orphan entries for
+  the retired files removed from `cache/lemmas/la/`. 08:28
+  `scripts/corpus/drop_stale_index_entries.py --root
+  /var/www/tesseraev6_flask --language la --apply` (a dry run first found
+  exactly 2 stale: 11 lines, 10,043 postings), cap 8G: swapped, backup
+  `la_index.db.bak-stale-20260919-0827`, 1,640 texts. 08:31
+  `scripts/corpus/rebuild_bigrams.py la`, cap 10G: 775 docs, 15,421,035
+  bigrams, 101 s. 08:34 `drop_passage_rows.py --work
+  juvencus_caius_vettius_aquilinus.evangeliorum_libri_quattuor --work
+  pseudo_cyprian.carmina --tag retire-b2-20260919 --apply`, cap 12G: 2
+  windows dropped (each work had one), ids 619,358 to 619,356, backups
+  tagged `*.bak-retire-b2-20260919`. 08:36 coverage sidecar
+  `data/passage_index/works_by_language.json` refreshed in a capped
+  process (la 728, grc 828, en 42, cop 144, he 39; index version
+  2026-09-19), then one reload (`touch tesseraev6_flask.wsgi`).
+- Checks after the reload: Similar Passages answers on
+  `cyprian_pseudo.sodoma` 1; coverage answers from the sidecar; "arma
+  virum" lemma search count unchanged at about 323 distinct loci.
 
 ## 2026-09-18 Corpus: 33 duplicate Latin files retired, Martial rebuilt from its per-book files
 - What (code, this PR; not yet run on production): `research/corpus/
