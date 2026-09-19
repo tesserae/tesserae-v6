@@ -509,7 +509,15 @@ Conventions
   epistulary collections), 0 false matches. Full detail, both checks'
   worked examples, and the still-skipped-works list:
   `research/reuse_table/REPORT_2026-09-18_production_build.md`.
-- Production steps (Latin, not yet run): from the production checkout (it
+- Done (Latin): 2026-09-19 11:00-11:12 EDT, from the production checkout
+  under `MemoryMax=12G`: 775 works, 651,535 lines, 336,955 pairs kept
+  (282,075 via the rare single-triple "possible" rule), 692 s, written to
+  `cache/reuse_pairs/la.db` (87 MB) with `la_stats.json` beside it. Workers
+  picked the table up without a reload. Verified on the live site: Aeneid
+  1.1 shows 2 strict (Geoffrey of Vinsauf, Quintilian) and 4 possible
+  quoting works, Aeneid 7.466 shows Macrobius, Saturnalia 5.11.23. Greek and
+  English builds to follow, one at a time.
+- Production steps (Latin, as planned): from the production checkout (it
   must read production `texts/`, not a worktree's), one at a time,
   `systemd-run --user --scope -p MemoryMax=12G -p MemorySwapMax=0
   venv/bin/python scripts/reuse/build_reuse_table.py --language la` --
