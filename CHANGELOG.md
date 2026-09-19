@@ -9,6 +9,13 @@ docs/DATA_OPERATIONS.md.
 ## 2026-09-19
 
 ### Reader
+- Quotation table builder: two rules tightened after the first English build
+  marked Hamlet's "What shall I do?" as strictly quoted by eight Bible verses
+  and paired the Faerie Queene's books with each other. An n-gram made only of
+  commonplace words now counts toward no rule and no line total (before, the
+  commonplace set only guarded the rare single-n-gram rule), and part files of
+  one work count as the same work. The English table was taken off production
+  until it is rebuilt under these rules; Latin and Greek are rebuilt too.
 - Quotation table builder (`scripts/reuse/build_reuse_table.py`): a Greek
   lemma cache whose text_id holds a Greek file name as escaped bytes (eight
   such caches, written under an ASCII locale) crashed the Greek build with
