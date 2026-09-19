@@ -8856,14 +8856,6 @@
     "added_by": "V6 Import"
   },
   {
-    "author": "Juvencus Caius Vettius Aquilinus",
-    "work": "Evangeliorum Libri Quattuor",
-    "e_source": "Open Greek and Latin / CSEL",
-    "e_source_url": "https://scaife.perseus.org/library/urn:cts:latinLit:stoa0169a.stoa002/",
-    "print_source": "Juvencus. Evangeliorum libri quattuor. Corpus scriptorum ecclesiasticorum Latinorum, Volume 24. Huemer, Johann, editor. Vienna: Gerold, 1891.",
-    "added_by": "V6 Import"
-  },
-  {
     "author": "Lactantius",
     "work": "Carmen de Passione Domini",
     "e_source": "The Latin Library",
@@ -9758,14 +9750,6 @@
     "e_source": "The Latin Library",
     "e_source_url": "https://www.thelatinlibrary.com",
     "print_source": "",
-    "added_by": "V6 Import"
-  },
-  {
-    "author": "Magnus Felix Ennodius",
-    "work": "Epistulae",
-    "e_source": "Open Greek and Latin / CSEL",
-    "e_source_url": "https://scaife.perseus.org/library/urn:cts:latinLit:stoa0114a.stoa008/",
-    "print_source": "Magnus Felix Ennodius. Magni Felicis Ennodii Opera Omnia (Corpus Scriptorum Ecclesiasticorum Latinorum, Volume 6). Hartel, Wilhelm, editor. Vienna: Gerold, 1882.",
     "added_by": "V6 Import"
   },
   {
@@ -12798,14 +12782,6 @@
     "e_source": "Open Greek and Latin",
     "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
     "print_source": "Wilhelm August Ritter von Hartel. S. Thasci Caecili Cypriani Opera Omnia. Vindobonae: Gerold. 1871.",
-    "added_by": "Caitlin Diddams"
-  },
-  {
-    "author": "Pseudo-Cyprian",
-    "work": "Carmina",
-    "e_source": "Open Greek and Latin",
-    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
-    "print_source": "Rudolf Peiper. Cypriani Galli Poetae Heptateuchos. Vindobonae: Gerold. 1891.",
     "added_by": "Caitlin Diddams"
   },
   {
