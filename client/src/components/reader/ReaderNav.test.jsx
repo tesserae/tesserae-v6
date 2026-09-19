@@ -28,7 +28,7 @@ describe('ReaderNav', () => {
   it('offers the previous and next book and opens them', () => {
     const onWork = vi.fn();
     render(<ReaderNav sections={sections} work="vergil.aeneid.part.2.tess"
-                      onWork={onWork} onJump={() => true} />);
+                      onWork={onWork} onJump={() => ''} />);
     fireEvent.click(screen.getByLabelText('Previous: Book 1'));
     expect(onWork).toHaveBeenCalledWith('vergil.aeneid.part.1.tess');
     fireEvent.click(screen.getByLabelText('Next: Book 3'));
@@ -37,20 +37,20 @@ describe('ReaderNav', () => {
 
   it('disables the link past either end', () => {
     render(<ReaderNav sections={sections} work="vergil.aeneid.part.1.tess"
-                      onWork={() => {}} onJump={() => true} />);
+                      onWork={() => {}} onJump={() => ''} />);
     expect(screen.getByLabelText('No previous book')).toBeDisabled();
     expect(screen.getByLabelText('Next: Book 2')).not.toBeDisabled();
   });
 
   it('shows no book links for a work in one file', () => {
     render(<ReaderNav sections={[sections[0]]} work="vergil.aeneid.part.1.tess"
-                      onWork={() => {}} onJump={() => true} />);
+                      onWork={() => {}} onJump={() => ''} />);
     expect(screen.queryByLabelText(/Next/)).toBeNull();
     expect(screen.getByLabelText('Back to top')).toBeInTheDocument();
   });
 
   it('hands the typed locus to onJump and reports a miss', () => {
-    const onJump = vi.fn((q) => q === '6.851');
+    const onJump = vi.fn((q) => (q === '6.851' ? '' : `no line ${q} here`));
     render(<ReaderNav sections={sections} work="vergil.aeneid.part.2.tess"
                       onWork={() => {}} onJump={onJump} />);
     const box = screen.getByLabelText('Go to line');

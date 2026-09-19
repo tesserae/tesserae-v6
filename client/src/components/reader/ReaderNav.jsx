@@ -62,8 +62,9 @@ function BookLinks({ sections, work, onWork, size }) {
 }
 
 /**
- * The sticky strip. `onJump(query)` returns true when the Reader found the
- * line and is scrolling to it, false otherwise; the box then says so.
+ * The sticky strip. `onJump(query)` returns '' when the Reader found the
+ * line and is scrolling to it, otherwise a short message for the box to show
+ * ("no line 6.9999 here", or that a bare number is ambiguous in this file).
  */
 export default function ReaderNav({ sections, work, onWork, onJump }) {
   const [q, setQ] = useState('');
@@ -73,9 +74,9 @@ export default function ReaderNav({ sections, work, onWork, onJump }) {
     e.preventDefault();
     const query = q.trim();
     if (!query) return;
-    const ok = onJump(query);
-    setMiss(ok ? '' : `no line ${query} here`);
-    if (ok) setQ('');
+    const problem = onJump(query) || '';
+    setMiss(problem);
+    if (!problem) setQ('');
   };
 
   return (

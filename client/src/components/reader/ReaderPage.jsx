@@ -301,15 +301,24 @@ export default function ReaderPage() {
   // number, the last segment (".851"), which is unambiguous inside a single
   // book file. Returns false when nothing matches so the strip can say so.
   const [jumpRef, setJumpRef] = useState('');
+  // Returns '' on success, otherwise the message the strip should show. A
+  // bare number is only followed when it names exactly one line: in a file
+  // that holds several books (or poems) the same line number recurs, and
+  // guessing the first would send the reader to the wrong book.
   const jumpTo = useCallback((query) => {
     const q = String(query || '').trim().toLowerCase();
-    if (!q || !units.length) return false;
+    if (!q || !units.length) return `no line ${query} here`;
     const refs = units.map((u) => String(u.ref || '').toLowerCase());
     let i = refs.findIndex((r) => r === q || r.endsWith(' ' + q));
-    if (i < 0 && /^\d+[a-z]?$/.test(q)) i = refs.findIndex((r) => r.endsWith('.' + q));
-    if (i < 0) return false;
+    if (i < 0 && /^\d+[a-z]?$/.test(q)) {
+      const hits = [];
+      refs.forEach((r, k) => { if (r.endsWith('.' + q)) hits.push(k); });
+      if (hits.length > 1) return `line ${query} is in ${hits.length} places here; add the book, e.g. 6.${query}`;
+      if (hits.length === 1) i = hits[0];
+    }
+    if (i < 0) return `no line ${query} here`;
     setJumpRef(units[i].ref);
-    return true;
+    return '';
   }, [units]);
   useEffect(() => {
     if (!jumpRef || !units.length) return undefined;
@@ -329,6 +338,7 @@ export default function ReaderPage() {
     setWork(file);
     setSelection(null);
     setCameFrom('');
+    setJumpRef('');   // a jump aimed at the book being left must not fire in the next
   }, []);
 
   // A language with no work chosen opens that language's first text. Changing
