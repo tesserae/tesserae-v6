@@ -14,7 +14,21 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from backend.app import app  # noqa: E402
+import pytest
 from backend import passage_index  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _isolate_data_dir(monkeypatch, tmp_path):
+    """Every test here reads and writes the works-by-language sidecar under a
+    temporary data dir, never the real one. On 2026-09-19 an unisolated run
+    read production's sidecar (so the fixture works were not what came back)
+    and, on a machine where it was missing, WROTE fixture data into
+    production's data/passage_index/works_by_language.json through a worktree
+    symlink."""
+    monkeypatch.setattr(passage_index, '_DATA_DIR', str(tmp_path))
+    monkeypatch.setattr(passage_index, '_works_by_language_cache', {})
+    monkeypatch.setattr(passage_index, '_sidecar_written', False)
 
 
 def _stub_index(monkeypatch, records):

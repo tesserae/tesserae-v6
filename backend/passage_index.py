@@ -1376,6 +1376,16 @@ def _density_cache_path(work, scale):
     return os.path.join(_DENSITY_CACHE, f'{index_fingerprint()}.{safe}.json')
 
 
+def _row_scores(rows, chunk=256):
+    """Yield (row, scores-against-every-window) for `rows`, a chunk at a time,
+    so no more than `chunk` columns of the score block exist at once."""
+    for c0 in range(0, len(rows), chunk):
+        block_rows = rows[c0:c0 + chunk]
+        block = _score_block(block_rows)
+        for k, row in enumerate(block_rows):
+            yield row, block[:, k]
+
+
 def connection_density(work, scale='fine'):
     """Per-window content-connection density for the Reader's gutter.
 
@@ -1422,10 +1432,15 @@ def connection_density(work, scale='fine'):
     # corpus matrix 150 times: 43 seconds. Handing BLAS all 150 query vectors at
     # once lets it reuse each chunk of the corpus across all of them, which is
     # what a matrix-matrix kernel is for. Measured 43s -> 2.2s, 19x.
+    # Rows in chunks (2026-09-19): _score_block returns an (N windows in the
+    # corpus) x (rows) float32 block, 2.5 MB per row at today's 619k windows,
+    # so a whole work in one call was 5.0 GB for the Punica (2,032 windows)
+    # and would be 11.6 GB for the Vulgate (6,540). That single allocation is
+    # what pushed a preview server past its 6 and 8 GB caps and what a
+    # production worker pays on the first open of any large uncached work.
+    # 256 rows at a time keeps the block under 0.7 GB with the same answer.
     out = []
-    all_scores = _score_block(rows)
-    for n_row, row in enumerate(rows):
-        scores = all_scores[:, n_row]
+    for row, scores in _row_scores(rows):
         median = float(np.median(scores))
         # The best match OUTSIDE this work, and how far it stands above the
         # window's own baseline. This is the gutter's real signal, and it is
