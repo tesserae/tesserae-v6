@@ -733,7 +733,9 @@ function ReuseGroups({ quotations, onOpenPassage }) {
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-gray-800 mt-0.5 leading-snug">{q.text}</p>
+                <p className="text-sm text-gray-800 mt-0.5 leading-snug">
+                  <BoldSpans text={q.text} spans={q.bold_spans} />
+                </p>
               </button>
             ))}
           </div>
@@ -772,6 +774,34 @@ function groupReuseByWork(quotations) {
 function bareLocus(ref) {
   const m = String(ref || '').match(/(\d+(?:[.:]\d+)*)\s*$/);
   return m ? m[1] : String(ref || '').trim();
+}
+
+/** Bold the words a Reuse-tab quotation shares with the selected line, from
+ *  the [start, end) character spans backend/reuse_table.py's line()
+ *  computes server-side (_shared_word_mask/_bold_spans) -- a word-triple
+ *  match (or, failing that, the plain shared token a possible-echo pair was
+ *  matched on) reconstructed against the SAME normalized tokens the reuse
+ *  table itself was built from, not a client-side guess at which words
+ *  matter. Spans are non-overlapping and given in left-to-right order, so
+ *  this only needs to walk them once. Same visual treatment as Verbal
+ *  Parallels' Marked, below, for one consistent "this word is why" look
+ *  across the two tabs. */
+function BoldSpans({ text, spans }) {
+  if (!text) return null;
+  if (!spans || !spans.length) return <>{text}</>;
+  const parts = [];
+  let pos = 0;
+  spans.forEach(([start, end], i) => {
+    if (start > pos) parts.push(<span key={`t${i}`}>{text.slice(pos, start)}</span>);
+    parts.push(
+      <mark key={`b${i}`} className="bg-red-100 text-red-900 font-semibold rounded-sm px-[1px]">
+        {text.slice(start, end)}
+      </mark>
+    );
+    pos = end;
+  });
+  if (pos < text.length) parts.push(<span key="tail">{text.slice(pos)}</span>);
+  return <>{parts}</>;
 }
 
 /** Mark the matched words inside a quoted passage.

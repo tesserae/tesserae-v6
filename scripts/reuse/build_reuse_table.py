@@ -106,6 +106,11 @@ INDEX_DIR = os.path.join(BASE_DIR, 'data', 'inverted_index')
 # backend/app.py all call.
 sys.path.insert(0, BASE_DIR)
 from backend.lemma_cache import get_cached_units  # noqa: E402
+# gen_ngram_indices/gen_ngrams moved to backend/ngram_utils.py (2026-09-19)
+# so backend/reuse_table.py can reconstruct the SAME word-triples at read
+# time, to bold shared words in the Reader's Reuse tab, without
+# reimplementing (and risking drifting from) this exact window definition.
+from backend.ngram_utils import gen_ngram_indices, gen_ngrams  # noqa: E402
 
 
 def hash_ngram(tokens):
@@ -114,26 +119,6 @@ def hash_ngram(tokens):
     joined = '\x1f'.join(tokens).encode('utf-8')
     digest = hashlib.blake2b(joined, digest_size=8).digest()
     return int.from_bytes(digest, 'big', signed=True)
-
-
-def gen_ngram_indices(n):
-    """Yield index triples for contiguous 3-grams and one-gap skip-3-grams
-    over a sequence of length n. Factored out of gen_ngrams so build_index
-    can apply the SAME index pattern to a line's lemmas as to its surface
-    tokens -- the two arrays are positionally parallel in the lemma cache
-    (see get_cached_units), so the lemma triple at a given ngram's indices
-    is the lemma-level identity of that surface n-gram."""
-    for i in range(n - 2):
-        yield (i, i + 1, i + 2)
-    for i in range(n - 3):
-        yield (i, i + 1, i + 3)
-        yield (i, i + 2, i + 3)
-
-
-def gen_ngrams(tokens):
-    """Yield contiguous 3-grams and one-gap skip-3-grams for a token list."""
-    for idxs in gen_ngram_indices(len(tokens)):
-        yield tuple(tokens[i] for i in idxs)
 
 
 def _line_lemmas(unit):

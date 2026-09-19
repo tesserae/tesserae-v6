@@ -109,6 +109,49 @@ describe('a line nothing else repeats', () => {
   });
 });
 
+// BOLD SPANS (2026-09-19): backend/reuse_table.py's line() computes
+// [start, end) character ranges in the quotation's own `text` for the
+// words it shares with the selected line -- a word-triple match, or a
+// plain shared token for a possible-echo pair (see reuse_table.py). The
+// Reader wraps those ranges in <mark>, not the client re-deriving which
+// words matched.
+const BOLD_SPANS_RESPONSE = {
+  available: true,
+  quotations: [{
+    work: 'quintilian.institutio_oratoria', ref: 'Quint. Inst. 11.3.36', language: 'la',
+    text: 'Suspenditur arma virumque cano, quia illud pertinet ad rem.',
+    shared: 8, jaccard: 0.0684, span_len: 1, year: 35, tier: 'strict',
+    bold_spans: [[12, 16], [17, 25], [26, 30]],
+  }],
+  meta: { corpus_version: '2026-08-16' },
+};
+
+describe('bolding the words a quotation shares with the selected line', () => {
+  it('wraps each bold span in its own mark, leaving the rest plain', async () => {
+    global.fetch = vi.fn(() => Promise.resolve({ status: 200, json: () => Promise.resolve(BOLD_SPANS_RESPONSE) }));
+    mount();
+    await waitFor(() => expect(screen.getByText(/Quintilian/)).toBeTruthy());
+    const marks = document.querySelectorAll('mark');
+    expect(Array.from(marks).map((m) => m.textContent)).toEqual(['arma', 'virumque', 'cano']);
+    // The surrounding words are not swept into a mark.
+    expect(screen.getByText(/Suspenditur/).tagName).not.toBe('MARK');
+  });
+
+  it('renders plain text when a quotation has no bold_spans', async () => {
+    global.fetch = vi.fn(() => Promise.resolve({
+      status: 200,
+      json: () => Promise.resolve({
+        available: true,
+        quotations: [{ ...BOLD_SPANS_RESPONSE.quotations[0], bold_spans: [] }],
+      }),
+    }));
+    mount();
+    await waitFor(() => expect(screen.getByText(/Quintilian/)).toBeTruthy());
+    expect(document.querySelectorAll('mark').length).toBe(0);
+    expect(screen.getByText(/Suspenditur arma virumque cano/)).toBeTruthy();
+  });
+});
+
 // TIERED (2026-09-19): strict pairs (tier 'strict' or absent, kept by the
 // original jaccard/containment rules) list first with no heading; possible
 // pairs (tier 'possible', kept only by the rare-single-ngram rule -- one

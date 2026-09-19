@@ -26,6 +26,7 @@ from functools import lru_cache
 
 from backend.logging_config import get_logger
 from backend.lemma_cache import get_cache_path
+from backend.ngram_utils import gen_ngram_indices, gen_ngrams
 from backend.passage_index import _norm_work
 from backend.utils import normalize_author_date_key
 
@@ -182,40 +183,138 @@ def _work_cache_path(language, work):
 
 @lru_cache(maxsize=128)
 def _load_work_lines(language, work):
-    """(ordered_refs, ref_to_text, ref_to_seq) for one work, built once from
-    its lemma cache -- the same per-line source the table itself was built
-    from, so a reuse-table ref always resolves to real line text. See
-    _work_cache_path for how the file is found.
+    """{'ordered', 'text', 'seq', 'tokens', 'original_tokens'} for one
+    work, built once from its lemma cache -- the same per-line source the
+    table itself was built from, so a reuse-table ref always resolves to
+    real line data. See _work_cache_path for how the file is found.
+
+    'tokens' is the already-normalized surface form (lowercase, punctuation
+    stripped, v->u, j->i for Latin -- see backend/text_processor.py
+    tokenize_latin) the build script matched n-grams on; 'original_tokens'
+    is the same length and order, case-preserved and still punctuation-free,
+    for finding a token's position back in 'text' (see _bold_spans). Both
+    are what bold_shared_words (line(), below) needs to reconstruct which
+    words a quotation shares with the selected line -- reading them from
+    here means that computation uses the EXACT tokens the build indexed,
+    not a fresh re-tokenization that could drift from it.
 
     A locus label can repeat within a work (see the module docstring's
-    duplicate-locus caveat); ref_to_text/ref_to_seq keep the FIRST
-    occurrence, same as the build script's own line-lookup convention.
-    Memoized per (language, work) for the life of the process -- a lemma
-    cache file does not change without a deploy, which restarts workers."""
+    duplicate-locus caveat); the per-ref maps keep the FIRST occurrence,
+    same as the build script's own line-lookup convention. Memoized per
+    (language, work) for the life of the process -- a lemma cache file
+    does not change without a deploy, which restarts workers."""
+    empty = {'ordered': [], 'text': {}, 'seq': {}, 'tokens': {}, 'original_tokens': {}}
     path = _work_cache_path(language, work)
     if path is None:
-        return ([], {}, {})
+        return empty
     try:
         with open(path, 'r', encoding='utf-8') as f:
             data = json.load(f)
     except Exception as e:
         logger.warning(f"Could not read lemma cache for {language}/{work}: {e}")
-        return ([], {}, {})
+        return empty
     ordered = []
     ref_to_text = {}
     ref_to_seq = {}
+    ref_to_tokens = {}
+    ref_to_original_tokens = {}
     for seq, unit in enumerate(data.get('units_line', [])):
         ref = unit.get('ref', '')
         ordered.append(ref)
         if ref and ref not in ref_to_text:
             ref_to_text[ref] = unit.get('text', '')
             ref_to_seq[ref] = seq
-    return (ordered, ref_to_text, ref_to_seq)
+            ref_to_tokens[ref] = unit.get('tokens') or []
+            ref_to_original_tokens[ref] = unit.get('original_tokens') or []
+    return {
+        'ordered': ordered, 'text': ref_to_text, 'seq': ref_to_seq,
+        'tokens': ref_to_tokens, 'original_tokens': ref_to_original_tokens,
+    }
 
 
 def _line_text(language, work, ref):
-    _, ref_to_text, _ = _load_work_lines(language, work)
-    return ref_to_text.get(ref, '')
+    return _load_work_lines(language, work)['text'].get(ref, '')
+
+
+def _line_tokens(language, work, ref):
+    """(tokens, original_tokens) for one line -- see _load_work_lines. A
+    missing or misaligned original_tokens array falls back to the
+    normalized tokens themselves, same fallback build_reuse_table.py's
+    _line_lemmas uses for the same reason (an older cache predating the
+    field, or one that failed to populate it)."""
+    data = _load_work_lines(language, work)
+    tokens = data['tokens'].get(ref) or []
+    original = data['original_tokens'].get(ref) or []
+    if len(original) != len(tokens):
+        original = tokens
+    return tokens, original
+
+
+def _shared_word_mask(source_tokens, quote_tokens):
+    """Boolean mask over quote_tokens: True for a position belonging to at
+    least one word-triple -- contiguous or one-gap skip, EXACTLY as
+    scripts/reuse/build_reuse_table.py's find_pairs defines them
+    (backend/ngram_utils.gen_ngrams, imported by both) -- shared with
+    source_tokens. This is what the pairs table itself was built to
+    detect, reconstructed at read time rather than stored, so bolding a
+    quotation costs nothing when the table is built and never drifts from
+    what the build actually matched on.
+
+    FALLS BACK to a plain shared-TOKEN mask (no triple structure) when no
+    triple reconstructs. Two cases: a quoting line under three tokens can
+    never form a triple at all, and a possible-echo pair (see line()'s
+    tier docstring) can have as few as ONE shared token once its match is
+    embedded in an otherwise unrelated sentence -- exactly the shape the
+    rare-single-ngram rule exists for, so bolding just that shared word
+    still shows a reader what earned the match, rather than bolding
+    nothing at all."""
+    n = len(quote_tokens)
+    mask = [False] * n
+    if len(source_tokens) >= 3 and n >= 3:
+        source_ngrams = set(gen_ngrams(source_tokens))
+        matched = False
+        for idxs in gen_ngram_indices(n):
+            if tuple(quote_tokens[i] for i in idxs) in source_ngrams:
+                matched = True
+                for i in idxs:
+                    mask[i] = True
+        if matched:
+            return mask
+    source_set = set(source_tokens)
+    for i, t in enumerate(quote_tokens):
+        if t and t in source_set:
+            mask[i] = True
+    return mask
+
+
+def _bold_spans(text, original_tokens, mask):
+    """[start, end) character spans in `text` for the tokens where mask[i]
+    is True, for the client to wrap in <b>. Found by scanning
+    original_tokens (case-preserved, already punctuation-free -- see
+    _load_work_lines) against `text` left to right: text.find naturally
+    matches a token that is immediately followed by punctuation in the
+    source ("cano" inside "cano,"), since find() looks for a substring, not
+    a whole word. A token find() cannot locate at or after the previous
+    token's end (a rare cache/text mismatch) is skipped rather than raising
+    or aborting, so one bad token does not blank bolding for the whole
+    line; a case-insensitive retry covers the ordinary reason a plain find
+    fails, a casing difference between the cache and a since-corrected
+    text file."""
+    spans = []
+    pos = 0
+    for i, tok in enumerate(original_tokens):
+        if not tok:
+            continue
+        idx = text.find(tok, pos)
+        if idx < 0:
+            idx = text.lower().find(tok.lower(), pos)
+        if idx < 0:
+            continue
+        end = idx + len(tok)
+        if i < len(mask) and mask[i]:
+            spans.append([idx, end])
+        pos = end
+    return spans
 
 
 def line(language, work, ref):
@@ -224,8 +323,18 @@ def line(language, work, ref):
 
     Returns {'available': False} if no table exists for the language, else
     {'available': True, 'quotations': [...], 'meta': {...}} where each
-    quotation is {work, ref, language, text, shared, jaccard, span_len,
-    tier}, ordered by shared descending.
+    quotation is {work, ref, language, text, bold_spans, shared, jaccard,
+    span_len, tier}, ordered by shared descending.
+
+    BOLD_SPANS (2026-09-19): [[start, end], ...] character ranges in
+    `text` -- the quoting line's own words that belong to a word-triple
+    (or, failing that, a plain shared token; see _shared_word_mask) it
+    shares with the SELECTED line (`ref` on `work`, the argument to this
+    call). Computed fresh on every request rather than stored: it depends
+    on which line the reader has selected, not on the pair alone, and
+    computing it is cheap (a handful of short token lists, not a corpus
+    scan). The selected line's own locus/ref label is unaffected either
+    way -- only a quotation's TEXT gets bold_spans, never its `ref`.
 
     TIERED (2026-09-19): `tier` is 'strict' for a pair kept by the jaccard
     rule or the containment override (both require shared>=2 --
@@ -258,17 +367,25 @@ def line(language, work, ref):
         logger.error(f"reuse_table.line query failed for {language}/{work}/{ref}: {e}")
         return {'available': False, 'quotations': []}
 
-    quotations = [{
-        'work': r['other_work'],
-        'ref': r['other_ref'],
-        'language': language,
-        'text': _line_text(language, r['other_work'], r['other_ref']),
-        'shared': r['shared'],
-        'jaccard': r['jaccard'],
-        'span_len': r['span_len'],
-        'year': _author_year(language, r['other_work']),
-        'tier': 'possible' if r['shared'] == 1 else 'strict',
-    } for r in rows]
+    source_tokens, _ = _line_tokens(language, work, ref)
+    quotations = []
+    for r in rows:
+        other_work, other_ref = r['other_work'], r['other_ref']
+        text = _line_text(language, other_work, other_ref)
+        quote_tokens, quote_original_tokens = _line_tokens(language, other_work, other_ref)
+        mask = _shared_word_mask(source_tokens, quote_tokens)
+        quotations.append({
+            'work': other_work,
+            'ref': other_ref,
+            'language': language,
+            'text': text,
+            'bold_spans': _bold_spans(text, quote_original_tokens, mask),
+            'shared': r['shared'],
+            'jaccard': r['jaccard'],
+            'span_len': r['span_len'],
+            'year': _author_year(language, other_work),
+            'tier': 'possible' if r['shared'] == 1 else 'strict',
+        })
     return {'available': True, 'quotations': quotations, 'meta': meta(language)}
 
 
@@ -332,7 +449,7 @@ def marks(language, work, ref_start=None, ref_end=None):
     seq_start = seq_end = None
     ref_to_seq = {}
     if ref_start or ref_end:
-        _, _, ref_to_seq = _load_work_lines(language, work)
+        ref_to_seq = _load_work_lines(language, work)['seq']
         if ref_start:
             seq_start = ref_to_seq.get(ref_start)
         if ref_end:

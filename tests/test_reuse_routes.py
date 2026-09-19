@@ -38,6 +38,24 @@ def _write_lemma_cache(lemmas_dir, language, work, refs_and_texts):
         json.dump(data, f)
 
 
+def _write_lemma_cache_with_tokens(lemmas_dir, language, work, entries):
+    """Like _write_lemma_cache, but for tests of bold_spans (backend/
+    reuse_table.py's _shared_word_mask/_bold_spans), which need precise
+    control over `tokens` (normalized: lowercase, punctuation stripped,
+    v->u/j->i) versus `original_tokens` (case-preserved, punctuation
+    stripped) -- _write_lemma_cache's text.lower().split() gives neither
+    (it keeps punctuation attached and has no original_tokens at all), so
+    the two never come apart the way real cache files do.
+    entries: [(ref, text, tokens, original_tokens), ...]."""
+    lang_dir = os.path.join(lemmas_dir, language)
+    os.makedirs(lang_dir, exist_ok=True)
+    units = [{'ref': ref, 'text': text, 'tokens': tokens, 'original_tokens': original_tokens}
+             for ref, text, tokens, original_tokens in entries]
+    data = {'text_id': work, 'language': language, 'units_line': units}
+    with open(os.path.join(lang_dir, work + '.json'), 'w', encoding='utf-8') as f:
+        json.dump(data, f)
+
+
 def _write_hashed_lemma_cache(lemmas_dir, language, work, refs_and_texts):
     """Like _write_lemma_cache, but under the CURRENT production naming --
     <ascii_hint>-<md5(text_id)>.json, computed with the same
@@ -230,6 +248,90 @@ def test_line_tags_strict_and_possible_tiers(monkeypatch, tmp_path):
     assert tiers['macrobius.saturnalia'] == 'strict'
     assert tiers['servius.commentary'] == 'strict'
     assert tiers['seneca.epistulae'] == 'possible'
+
+
+def test_line_bolds_the_shared_triple_in_a_strict_quotation(monkeypatch, tmp_path):
+    """Quintilian-shaped: "arma virumque cano" sits inside a longer prose
+    sentence quoting Aen. 1.1. bold_spans must cover exactly those three
+    words in the quotation's own text (case-preserved, comma un-bolded),
+    found via the SAME word-triple (contiguous, here) find_pairs matches
+    on, reconstructed at read time (backend/reuse_table.py
+    _shared_word_mask/_bold_spans)."""
+    _reset_reuse_table_state(monkeypatch, tmp_path)
+    _write_lemma_cache_with_tokens(str(tmp_path / 'lemmas'), 'la', 'vergil.aeneid', [
+        ('verg. aen. 1.1', 'Arma virumque cano, Troiae qui primus ab oris',
+         ['arma', 'uirumque', 'cano', 'troiae', 'qui', 'primus', 'ab', 'oris'],
+         ['Arma', 'virumque', 'cano', 'Troiae', 'qui', 'primus', 'ab', 'oris']),
+    ])
+    quint_text = 'Suspenditur arma virumque cano, quia illud pertinet ad rem.'
+    _write_lemma_cache_with_tokens(str(tmp_path / 'lemmas'), 'la', 'quintilian.institutio_oratoria', [
+        ('Quint. Inst. 11.3.36', quint_text,
+         ['suspenditur', 'arma', 'uirumque', 'cano', 'quia', 'illud', 'pertinet', 'ad', 'rem'],
+         ['Suspenditur', 'arma', 'virumque', 'cano', 'quia', 'illud', 'pertinet', 'ad', 'rem']),
+    ])
+    _write_reuse_db(
+        str(tmp_path / 'reuse_pairs'), 'la',
+        pairs_rows=[
+            ('vergil.aeneid', 'verg. aen. 1.1', 'quintilian.institutio_oratoria',
+             'Quint. Inst. 11.3.36', 8, 0.0684, 1),
+        ],
+        line_counts_rows=[('vergil.aeneid', 'verg. aen. 1.1', 1)],
+        meta_rows=[('corpus_version', '2026-08-16')],
+    )
+    client = app.test_client()
+    r = _get(client, _route('/reuse/line'), work='vergil.aeneid', ref='verg. aen. 1.1', language='la')
+    out = json.loads(r.get_data())
+    quint = next(q for q in out['quotations'] if q['work'] == 'quintilian.institutio_oratoria')
+    assert quint['tier'] == 'strict'
+    # One span per bolded word (not merged across the spaces between them):
+    # arma, virumque, cano -- and nothing else in the sentence.
+    expected = []
+    pos = 0
+    for word in ('arma', 'virumque', 'cano'):
+        start = quint_text.index(word, pos)
+        end = start + len(word)
+        expected.append([start, end])
+        pos = end
+    assert quint['bold_spans'] == expected
+    bolded_text = ' '.join(quint_text[s:e] for s, e in quint['bold_spans'])
+    assert bolded_text == 'arma virumque cano'
+    # Not swept into any bold span: the words right before and after.
+    assert not any(s <= quint_text.index('Suspenditur') < e for s, e in quint['bold_spans'])
+    assert not any(s <= quint_text.index('quia') < e for s, e in quint['bold_spans'])
+
+
+def test_line_falls_back_to_bolding_a_shared_token_for_a_possible_echo(monkeypatch, tmp_path):
+    """A quoting line too short to form any word-triple (here, two tokens)
+    can never go through the primary triple reconstruction -- bold_spans
+    must fall back to the plain shared-token it was matched on instead of
+    coming back empty."""
+    _reset_reuse_table_state(monkeypatch, tmp_path)
+    _write_lemma_cache_with_tokens(str(tmp_path / 'lemmas'), 'la', 'vergil.aeneid', [
+        ('verg. aen. 1.1', 'Arma virumque cano, Troiae qui primus ab oris',
+         ['arma', 'uirumque', 'cano', 'troiae', 'qui', 'primus', 'ab', 'oris'],
+         ['Arma', 'virumque', 'cano', 'Troiae', 'qui', 'primus', 'ab', 'oris']),
+    ])
+    fragment_text = 'Cano nihil.'
+    _write_lemma_cache_with_tokens(str(tmp_path / 'lemmas'), 'la', 'anonymus.fragmenta', [
+        ('anon. frag. 1', fragment_text, ['cano', 'nihil'], ['Cano', 'nihil']),
+    ])
+    _write_reuse_db(
+        str(tmp_path / 'reuse_pairs'), 'la',
+        pairs_rows=[
+            ('vergil.aeneid', 'verg. aen. 1.1', 'anonymus.fragmenta', 'anon. frag. 1', 1, 0.01, 1),
+        ],
+        line_counts_rows=[('vergil.aeneid', 'verg. aen. 1.1', 1)],
+        meta_rows=[('corpus_version', '2026-08-16')],
+    )
+    client = app.test_client()
+    r = _get(client, _route('/reuse/line'), work='vergil.aeneid', ref='verg. aen. 1.1', language='la')
+    out = json.loads(r.get_data())
+    frag = next(q for q in out['quotations'] if q['work'] == 'anonymus.fragmenta')
+    assert frag['tier'] == 'possible'
+    start = fragment_text.index('Cano')
+    end = start + len('Cano')
+    assert frag['bold_spans'] == [[start, end]]
+    assert 'nihil' not in fragment_text[start:end]
 
 
 def test_line_no_matches_is_a_normal_empty_result_not_an_error(monkeypatch, tmp_path):
