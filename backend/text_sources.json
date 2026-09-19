@@ -5850,14 +5850,6 @@
   {
     "author": "Eugippius",
     "work": "Excerpta ex Operibus Augustini",
-    "e_source": "Open Greek and Latin",
-    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
-    "print_source": "Pius Knoll. Eugippi Opera, Pars I. Vindobonae: Gerold. 1885.",
-    "added_by": "Caitlin Diddams"
-  },
-  {
-    "author": "Eugippius",
-    "work": "Exerpta ex Operibus Augustini",
     "e_source": "The Latin Library",
     "e_source_url": "https://www.thelatinlibrary.com",
     "print_source": "",

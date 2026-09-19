@@ -22,6 +22,125 @@ Conventions
 - Stamp backups to the second; a rerun must never overwrite the first
   run's backup.
 
+## 2026-09-19 Corpus: Eugippius duplicate retired, Ennodius Book 2 resegmented (batch 3)
+- What (code, this PR; not yet run on production): `research/corpus/
+  ENNODIUS_EUGIPPIUS_COMPARISON_2026-09-19.md` examined the Eugippius and
+  Ennodius pairs the batch 2 source document had left unretired. NC approved
+  both operations on 2026-09-19.
+  1. **Eugippius**: `eugippius.excerpta_ex_operibus_augustini.tess`
+     (correctly spelled filename, 1,218 lines, 192,995 words; interleaves
+     386 capitula summaries with full excerpt text for only 208 of 390
+     excerpts) is retired. `eugippius.exerpta_ex_operibus_augustini.tess`
+     (misspelled filename, missing the first "c", 391 lines, 228,811 words)
+     is kept: the only file with complete wording for all 390 excerpts. Its
+     id is not renamed (would touch every index and the passage windows);
+     its displayed title is corrected in code instead (see below). Before
+     retiring, checked for any excerpt with full text only in the retired
+     file: the source document flagged one apparent case (excerpt "198a"),
+     re-verified here and found to exist in the kept file too, under an
+     OCR-garbled tag (`19sa`, misread of "198a"), 96.1% six-word chunk
+     containment; a full sweep of every line in the retired file found no
+     other candidate. No excerpt's full text exists only in the retired
+     file.
+  2. **Ennodius**: `magnus_felix_ennodius.carmina.tess` (173 lines, one
+     whole poem per line: 21 for Book 1, duplicating `ennodius.carmina.tess`
+     at proper verse granularity for 19 of 21 poems; 152 for Book 2, unique
+     to this file) is retired outright and replaced by
+     `magnus_felix_ennodius.carmina_2.tess` (932 lines, one verse per line,
+     Book 2 only; Book 1 dropped since `ennodius.carmina.tess` already
+     covers it). The new file is built directly from the source XML the
+     retired file's own provenance record names
+     (`stoa0114a.stoa003.opp-lat1.xml`, OpenGreekAndLatin/csel-dev, Hartel's
+     1882 CSEL 6 edition in EpiDoc TEI with one `<l n="...">` per verse and
+     apparatus segregated into `<note>` elements), fetched directly from
+     GitHub, not guessed or inferred from OCR line breaks. An OCR-based
+     route (a lineated 1882 Google Books scan of the same edition,
+     archive.org id `magnifelicisenn00ennogoog`) was tried first and
+     abandoned after a validation check caught silent, cascading
+     misalignment from a single unfiltered running-header fragment; the
+     clean XML source was used instead once found. Verified poem-by-poem
+     (normalized word match) against the retired file: 151 of 152 poems
+     match exactly; the one apparent exception (poem 150) is an
+     embedded-title artifact in the source XML, resolved by stripping the
+     title to match the corpus's no-embedded-titles convention. Two
+     pre-existing source-XML defects were found and corrected while
+     building the new file: poem 107's 8 verses were entirely missing from
+     the retired whole-poem file (recovered here) and poem 93 carried a
+     misencoded apparatus line as a second "verse" (dropped here). Book 1
+     of the retired file held two prose items (slots 1.6, 1.7) not
+     duplicated anywhere else in the corpus; retiring the whole file drops
+     these two items from the searchable corpus (flagged, not restored,
+     since restoring them was not asked for and is its own small decision).
+  See `~/tesserae-backups/retired_duplicates_2026-09-19b/README.md` for the
+  full verification detail on both files.
+- Registries edited:
+  - `data/text_genres.csv`: removed the Eugippius retired file's row and
+    the Ennodius whole-poem file's row; added a row for
+    `magnus_felix_ennodius.carmina_2.tess` (era Late Antique, meter
+    `unknown` matching `ennodius.carmina.tess`'s own row, not `prose`; the
+    retired file's row had been auto-classified prose only because its
+    whole-poem lines exceeded the classifier's median-line-length cutoff).
+  - `backend/text_sources.json`: removed the "Eugippius" / "Excerpta ex
+    Operibus Augustini" entry sourced from Open Greek and Latin / CSEL
+    (the retired file's own citation); corrected the kept file's entry,
+    previously spelled "Exerpta ex Operibus Augustini", to read "Excerpta
+    ex Operibus Augustini". The "Magnus Felix Ennodius" / "Carmina" entry
+    is unchanged: it is a flat author/work citation that remains accurate
+    for the new file (same author, same source edition).
+  - `backend/text_provenance.json`: removed the
+    `eugippius.excerpta_ex_operibus_augustini` entry and the
+    `magnus_felix_ennodius.carmina` entry; added
+    `magnus_felix_ennodius.carmina_2` (same source XML, title "Carmina,
+    Book 2").
+  - `backend/author_dates.json`: not touched for either file. Eugippius's
+    and Magnus Felix Ennodius's entries are author-level, used by other
+    files that remain.
+  - `backend/utils.py` `DISPLAY_NAMES`: added
+    `'exerpta_ex_operibus_augustini': 'Excerpta ex Operibus Augustini'` so
+    the kept Eugippius file's title displays correctly everywhere despite
+    its misspelled id; the id itself is not renamed (noted here for a
+    future rename operation).
+- Checks run without a server (this PR, before merge):
+  `python scripts/corpus/validate_tess.py` on the kept Eugippius file: FAIL
+  on the tab-delimited `<ref>\ttext` check, the same pre-existing legacy
+  space-delimited condition documented for other files in the 2026-09-19
+  batch 2 entry above (this PR does not modify the kept file's content).
+  On the new `magnus_felix_ennodius.carmina_2.tess`: FAIL on one
+  non-monotonic-ref warning, `<...107.8> -> <...107.ep>`, a false positive
+  of the validator's ref-sort rule (a letter-suffixed tag always sorts
+  before a numeric one at the same position, regardless of the letters);
+  the epistle genuinely follows poem 107's verses in the source. No other
+  check failed (0 empty lines, 0 duplicate refs, 0 HTML residue).
+- Production steps (after merge, none of them run yet):
+  1. `git pull` on production `main`; removes
+     `eugippius.excerpta_ex_operibus_augustini.tess` and
+     `magnus_felix_ennodius.carmina.tess` from `texts/la/`, adds
+     `magnus_felix_ennodius.carmina_2.tess`.
+  2. Lemma cache: delete any `cache/lemmas/la/` entries for the two
+     retired filenames; build a fresh entry for
+     `magnus_felix_ennodius.carmina_2` (new content, needs one).
+  3. Latin inverted index: drop the two retired texts' postings, lines and
+     texts rows with `scripts/corpus/drop_stale_index_entries.py` (dry run
+     first), then run the normal Latin text-import step for
+     `magnus_felix_ennodius.carmina_2.tess` so its verses are indexed;
+     rebuild `lemma_doc_freq`.
+  4. Latin bigram cache: `venv/bin/python scripts/corpus/rebuild_bigrams.py
+     la`, after confirming it is actually stale.
+  5. Passage index: drop the retired texts' windows (283 for the Eugippius
+     file, 39 for the Ennodius whole-poem file, per the source comparison
+     document) in lockstep across ids, embeddings, descriptions and
+     window_texts with `drop_passage_rows.py`; build new windows for
+     `magnus_felix_ennodius.carmina_2` (932 lines).
+  6. Atomic swap of both the inverted index and the passage index, `touch
+     tesseraev6_flask.wsgi`, run the reference test before and after
+     (324 distinct loci for "arma virum" as of 2026-09).
+  7. A search for a phrase known to be in `magnus_felix_ennodius.carmina_2`
+     (e.g. a Book 2 epigram line) to confirm the new file is live and
+     indexed.
+- Archive: `~/tesserae-backups/retired_duplicates_2026-09-19b/` (`texts/la/`
+  for the 2 retired files; `lemma_cache/la/` and `translations/la/` both
+  empty, no entry for either file found in this checkout).
+
 ## 2026-09-19 Corpus: two more duplicate Latin files retired (batch 2)
 - What (code, this PR; not yet run on production): `research/corpus/
   RETIREMENT_LIST_2026-09-19_batch2.md` checked six further items found

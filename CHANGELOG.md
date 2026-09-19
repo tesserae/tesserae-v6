@@ -30,6 +30,21 @@ docs/DATA_OPERATIONS.md.
   survives the rewrite to the real route, `/browse`.
 
 ### Corpus
+- Retire the Eugippius duplicate and resegment Ennodius Book 2 (batch 3):
+  `eugippius.excerpta_ex_operibus_augustini` (correctly spelled, but drops
+  the real Augustine wording for 183 of 390 excerpts in favor of one-line
+  summaries) is retired; `eugippius.exerpta_ex_operibus_augustini`
+  (misspelled filename, kept, has complete text for all 390) gets its
+  displayed title corrected in code so the misspelling never surfaces.
+  `magnus_felix_ennodius.carmina` (152 Book 2 poems stored one whole poem
+  per line) is retired and replaced by `magnus_felix_ennodius.carmina_2`,
+  rebuilt at proper one-verse-per-line granularity directly from the
+  edition's own EpiDoc XML source, which also recovers a poem missing from
+  the old file and drops a miscoded apparatus line. See
+  docs/DATA_OPERATIONS.md for the excerpt-containment check, the
+  verse-by-verse verification, and the registries edited. Archived:
+  `~/tesserae-backups/retired_duplicates_2026-09-19b/`.
+
 - Retire two more duplicate Latin files (batch 2):
   `juvencus_caius_vettius_aquilinus.evangeliorum_libri_quattuor` (whole
   books stored one per line; `juvencus.historia_evangelica` already
