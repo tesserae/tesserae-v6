@@ -541,9 +541,15 @@ def find_pairs(index_db_path, min_shared, min_jaccard, min_shared_override, min_
     cur = conn.cursor()
 
     line_meta = {}
+    line_base = {}
     for line_id, work, ref, token_count, seq in cur.execute(
             "SELECT line_id, work, line_ref, token_count, seq_in_work FROM lines"):
         line_meta[line_id] = (work, ref, seq)
+        # Part files of one work (spenser.faerie_queene.part.4 and .part.6,
+        # indexed separately when no whole file exists) are the SAME work for
+        # the purpose of "quoted in another work": the English table (2026-09-19)
+        # was full of the Faerie Queene repeating its own formulas across parts.
+        line_base[line_id] = work.split('.part.')[0] if '.part.' in work else work
     n_lines = len(line_meta)
     print(f"[build_reuse_table] pairs: {n_lines} lines loaded, elapsed {time.time()-t0:.1f}s")
 
@@ -558,6 +564,8 @@ def find_pairs(index_db_path, min_shared, min_jaccard, min_shared_override, min_
     # commonplace_hashes for a shared==1 pair's one contributing n-gram
     # (MIN(ngram_hash) in a single-row group is just that row's hash).
     conn.execute("CREATE TABLE pair_hits (a INTEGER, b INTEGER, group_size INTEGER, ngram_hash INTEGER)")
+    commonplace_hashes = commonplace_hashes or frozenset()
+    n_commonplace_groups_skipped = 0
     hit_batch = []
     HIT_BATCH = 500000
     current_hash = None
@@ -572,17 +580,26 @@ def find_pairs(index_db_path, min_shared, min_jaccard, min_shared_override, min_
             hit_batch = []
 
     def flush_group(lines_in_group):
-        nonlocal n_pair_increments
+        nonlocal n_pair_increments, n_commonplace_groups_skipped
+        # An n-gram made only of commonplace words ("what shall i do", "et in
+        # illo") is evidence of nothing: it used to count toward the strict
+        # rules and the n-gram totals, so Hamlet III.4.192 came out "quoted"
+        # by eight Bible verses (English table, 2026-09-19). Such n-grams now
+        # count for no rule and for neither line's total, so a line of pure
+        # function words has no n-grams at all rather than a few worthless ones.
+        if current_hash in commonplace_hashes:
+            n_commonplace_groups_skipped += 1
+            return
         L = len(lines_in_group)
         for lid in lines_in_group:
             line_ngram_count[lid] += 1
         if L < 2:
             return
         for i in range(L):
-            wi = line_meta[lines_in_group[i]][0]
+            wi = line_base[lines_in_group[i]]
             for j in range(i + 1, L):
                 a, b = lines_in_group[i], lines_in_group[j]
-                if line_meta[b][0] == wi:
+                if line_base[b] == wi:
                     continue
                 if a > b:
                     a, b = b, a
@@ -605,7 +622,8 @@ def find_pairs(index_db_path, min_shared, min_jaccard, min_shared_override, min_
     flush_hits()
     conn.commit()
 
-    print(f"[build_reuse_table] pairs: {n_ngrams_processed} n-grams scanned, "
+    print(f"[build_reuse_table] pairs: {n_ngrams_processed} n-grams scanned "
+          f"({n_commonplace_groups_skipped} commonplace-word-only n-grams counted for nothing), "
           f"{n_pair_increments} pair-occurrences written, elapsed {time.time()-t0:.1f}s")
 
     print("[build_reuse_table] pairs: aggregating candidate pairs (SQL GROUP BY, not a Python dict)...")

@@ -256,3 +256,47 @@ def test_repair_surrogates_recovers_a_greek_file_name_and_leaves_clean_text_alon
     assert mod._repair_surrogates('vergil.aeneid', 'x') == ('vergil.aeneid', False)
     # a lone surrogate that is not an escaped byte cannot be decoded: fall back
     assert mod._repair_surrogates('bad\ud800id', 'fallback') == ('fallback', True)
+
+
+def test_commonplace_only_ngrams_count_for_no_rule_and_no_total(tmp_path):
+    """English table, 2026-09-19: Hamlet III.4.192 "What shall I do?" came out
+    strictly "quoted" by eight Bible verses, because the run "what shall i do"
+    gave shared >= 2 with a high Jaccard. N-grams made only of commonplace
+    words must count toward nothing: neither the shared count nor the lines'
+    n-gram totals."""
+    run = ['what', 'shall', 'i', 'do']
+    a = list(run)                                   # Hamlet's line IS the run
+    b = ['pilate', 'saith', 'unto', 'them'] + run + ['with', 'jesus']
+    commonplace = {hash_ngram(g) for g in gen_ngrams(run)}
+    db = _fixture_db(tmp_path, {
+        0: ('shakespeare.hamlet', 'hamlet III.4.192', a),
+        1: ('world_english_bible.new_testament', 'WEB Matthew 27.22', b),
+    })
+    pair_info, _, _ = find_pairs(
+        db, min_shared=2, min_jaccard=0.15, min_shared_override=4, min_containment=0.5,
+        rare_max_df=20, rare_min_containment=0.06, commonplace_hashes=commonplace)
+    assert _pairs_between(pair_info, 'shakespeare.hamlet', 'world_english_bible.new_testament') == []
+    # Without the commonplace set the very same fixture IS kept, so the
+    # exclusion, not the fixture, is what removes the pair.
+    pair_info, _, _ = find_pairs(
+        db, min_shared=2, min_jaccard=0.15, min_shared_override=4, min_containment=0.5,
+        rare_max_df=20, rare_min_containment=0.06, commonplace_hashes=set())
+    assert _pairs_between(pair_info, 'shakespeare.hamlet', 'world_english_bible.new_testament') != []
+
+
+def test_part_files_of_one_work_do_not_quote_each_other(tmp_path):
+    """spenser.faerie_queene.part.4 and .part.6 are one work: a formula the
+    poem repeats across books is not reuse by another work. The same line in
+    Bunyan still counts."""
+    line = ['so', 'forth', 'he', 'rode', 'upon', 'his', 'steed', 'of', 'might']
+    db = _fixture_db(tmp_path, {
+        0: ('spenser.faerie_queene.part.4', 'Spenser F.Q. 4.4.354', line),
+        1: ('spenser.faerie_queene.part.6', 'Spenser F.Q. 6.12.712', line),
+        2: ('bunyan.pilgrims_progress', 'Bunyan P.P. 1.10', line),
+    })
+    pair_info, _, _ = find_pairs(
+        db, min_shared=2, min_jaccard=0.15, min_shared_override=4, min_containment=0.5,
+        rare_max_df=20)
+    assert _pairs_between(pair_info, 'spenser.faerie_queene.part.4', 'spenser.faerie_queene.part.6') == []
+    assert _pairs_between(pair_info, 'spenser.faerie_queene.part.4', 'bunyan.pilgrims_progress') != []
+    assert _pairs_between(pair_info, 'spenser.faerie_queene.part.6', 'bunyan.pilgrims_progress') != []
