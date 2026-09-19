@@ -9,6 +9,13 @@ docs/DATA_OPERATIONS.md.
 ## 2026-09-19
 
 ### Reader
+- The connection gutter's density computation now scores a work's windows
+  256 at a time instead of all at once. The old single block cost 2.5 MB per
+  window (5 GB for the whole Punica, 11.6 GB for the Vulgate), which is what
+  pushed a preview server past its memory caps and what a production worker
+  paid on the first open of any large uncached work. Same answer, under
+  0.7 GB. Also: the works-route unit test no longer writes the real coverage
+  sidecar (it did, through a worktree symlink, on 2026-09-19).
 - Navigation inside a text: a thin strip stays at the top of the text column
   with previous and next book, a Go to line box (a locus such as 6.851, or a
   bare line number within the open book) and Back to top, and the book links

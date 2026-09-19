@@ -61,3 +61,40 @@ def test_the_fingerprint_changes_when_the_index_does(tmp_path, monkeypatch):
     first = passage_index.index_fingerprint()
     (tmp_path / 'ids.json').write_text('["a", "b"]', encoding='utf-8')
     assert passage_index.index_fingerprint() != first
+
+
+def test_density_scores_a_work_in_chunks_of_at_most_256_rows(monkeypatch, tmp_path):
+    """The score block is 2.5 MB per window at the current index size: a whole
+    work in one _score_block call was 5 GB for the Punica and 11.6 GB for the
+    Vulgate (2026-09-19). connection_density must ask for rows a chunk at a
+    time and still report every window."""
+    import numpy as np
+    records = [{'id': f'w{i}', 'work': 'silius_italicus.punica', 'scale': 'fine',
+                'ref_start': f'1.{i}', 'ref_end': f'1.{i}'} for i in range(600)]
+    records += [{'id': f'o{i}', 'work': f'other.work_{i}', 'scale': 'fine',
+                 'ref_start': '1.1', 'ref_end': '1.1'} for i in range(5)]
+    by_work = {}
+    for i, r in enumerate(records):
+        by_work.setdefault(passage_index._norm_work(r['work']), []).append(i)
+    monkeypatch.setitem(passage_index._state, 'loaded', True)
+    monkeypatch.setitem(passage_index._state, 'ok', True)
+    monkeypatch.setitem(passage_index._state, 'error', None)
+    monkeypatch.setattr(passage_index, '_records', records)
+    monkeypatch.setattr(passage_index, '_by_work', by_work)
+    monkeypatch.setattr(passage_index, '_ensure_loaded', lambda: None)
+    monkeypatch.setattr(passage_index, '_DENSITY_CACHE', str(tmp_path))
+    monkeypatch.setattr(passage_index, 'index_fingerprint', lambda: 'test')
+    calls = []
+
+    def fake_score_block(rows, chunk=32768):
+        calls.append(len(rows))
+        rng = np.random.default_rng(len(calls))
+        return rng.random((len(records), len(rows)), dtype=np.float32)
+    monkeypatch.setattr(passage_index, '_score_block', fake_score_block)
+
+    out = passage_index.connection_density('silius_italicus.punica', scale='fine')
+
+    assert len(out['windows']) == 600
+    assert sum(calls) == 600
+    assert max(calls) <= 256
+    assert len(calls) >= 3

@@ -6,8 +6,11 @@ violet mark in the Reader's gutter that shows where a work's content is echoed
 elsewhere in the corpus. The first time a worker sees a given work it pays for
 loading the passage index (mmap'd embeddings, ~1.2 GB of ids/descriptions) AND
 a matrix multiply of that work's windows against the whole corpus -- for a
-large work this is about 100 seconds and 1.4 GB of resident memory on a
-production Apache worker that also has to keep answering other requests. The
+large work this was about 100 seconds and, before the score block was
+chunked (backend/passage_index.py _row_scores, 2026-09-19), a single
+allocation of 2.5 MB per window: 5 GB for the Punica, 11.6 GB for the
+Vulgate, on a production Apache worker that also has to keep answering
+other requests. The
 answer is cached to disk (cache/passage_density/) precisely so this only has
 to happen once per work per index build, but nothing has ever pre-warmed that
 cache: it fills lazily, one unlucky reader at a time.
@@ -38,9 +41,8 @@ Usage:
     # See what would run, no computation, no index load beyond enumeration:
     venv/bin/python scripts/precompute_passage_density.py --dry-run --language la
 
-    # Real run, one language, bounded memory (measure first; ~1.4 GB peak
-    # observed for the densest single work, per the CLAUDE.md memory-cap log --
-    # 8G leaves headroom without risking other services if this overruns):
+    # Real run, one language, bounded memory: the index is about 2.5 GB
+    # resident and the chunked score block under 0.7 GB, so 8G is ample:
     systemd-run --user --scope -p MemoryMax=8G -p MemorySwapMax=0 \\
         venv/bin/python scripts/precompute_passage_density.py --language la
 
