@@ -28,6 +28,24 @@ docs/DATA_OPERATIONS.md.
   pages off one shared helper (`client/src/utils/passageCoverage.js`); a
   new App-level test confirms the `/corpus` deep link's query string
   survives the rewrite to the real route, `/browse`.
+- The covered-works link (#388, above) only showed with exactly one of the
+  four Browse Corpus languages selected, so the default "All languages"
+  view had no link at all. The line under the language row now always
+  shows: the per-language sentence stays for one covered language, a
+  summed sentence ("Theme Search covers N works in 4 languages") for the
+  default or several languages picked together, and a fixed sentence for
+  a language Browse Corpus doesn't index (Hebrew, Persian, Urdu). The link
+  always goes to the Latin list, `/corpus?theme=1&language=la`. Review
+  follow-up: the single-covered-language sentence was still gated on
+  `coverage.total > 0`, so a covered language with a zero or not-yet-loaded
+  count rendered none of the three sentences; it now shows a loading
+  sentence while unresolved and the fixed four-language sentence if the
+  count resolves to zero. The summed fetch also used to run on every
+  mount regardless of the picker; it now runs only the first time the
+  summed or fixed sentence is actually needed, and `language`'s initial
+  value is read synchronously from a shared link's `languages=` param
+  (rather than set later in an effect) so that check is accurate on the
+  very first render.
 
 ### Corpus
 - Retire the Eugippius duplicate and resegment Ennodius Book 2 (batch 3):
