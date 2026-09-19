@@ -186,6 +186,13 @@ docs/DATA_OPERATIONS.md.
   list only those; the Help page says what the index holds.
 
 ### Data operations
+- Planned: `scripts/precompute_passage_density.py` warms the Reader gutter's
+  passage-density cache (`cache/passage_density/`) and, with `--lexical`, the
+  lexical-density cache (`cache/lexical_density/`) for every work in the
+  passage index, so a first Reader open of a large work no longer pays the
+  ~100s/1.4 GB the live `/api/passages/density` computation costs on an
+  Apache worker. Not yet run against the production index (detail in
+  docs/DATA_OPERATIONS.md).
 - The re-ranker service installed and switched on (detail in
   docs/DATA_OPERATIONS.md, 2026-09-18).
 

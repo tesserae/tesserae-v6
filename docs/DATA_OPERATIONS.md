@@ -22,6 +22,60 @@ Conventions
 - Stamp backups to the second; a rerun must never overwrite the first
   run's backup.
 
+## 2026-09-19 Reader: passage-density cache precompute script (planned, not yet run)
+
+- What (code, this PR; not yet run against any real index): `scripts/
+  precompute_passage_density.py` walks every work in the passage index and
+  calls `backend.passage_index.connection_density(work, scale='fine')` --
+  the identical function `GET /api/passages/density` calls for the Reader's
+  violet gutter mark -- for each one, so its on-disk cache
+  (`cache/passage_density/<fingerprint>.<work>.fine.json`) is already warm
+  before a reader ever opens that work. With `--lexical` it does the same
+  for `backend.lexical_density.line_density()` and its cache under
+  `cache/lexical_density/`. Neither computation is reimplemented; the
+  script imports and calls the same functions the endpoints call and lets
+  them write their own cache files in their own format.
+  The work list is read off the loaded index's own per-window records
+  (the raw `work` field, e.g. `vergil.aeneid.part.6`), not
+  `passage_index.works_for_language()`, because that function collapses a
+  multi-part work's parts into one base id and the Reader requests density
+  by the exact part filename it has open.
+  Flags: `--language la|grc|en|cop|he|all` (default all, one language at a
+  time is the intended real usage), `--only-missing` (default; a work
+  already cached is skipped without calling the compute function again),
+  `--force` (recompute and overwrite), `--limit N` (testing), `--dry-run`
+  (list the works that would be processed, computing nothing), `--lexical`
+  (also warm the lexical-density cache for the same works).
+- Why now: the gutter's cache fills lazily, one reader at a time, and the
+  first person to open a large work pays for both the passage index's
+  ~1.2 GB load and a matrix multiply of that work's windows against the
+  whole corpus -- about 100 seconds and 1.4 GB of resident memory on a
+  production Apache worker that is also trying to answer other requests
+  during that window.
+  See `backend/passage_index.py`'s `connection_density()` docstring and
+  comments for the load/compute cost breakdown this script exists to
+  front-run.
+- Verified without computing: `tests/test_precompute_passage_density.py`
+  (16 tests, argument handling and the skip-when-cached / force logic
+  against a monkeypatched compute function and a temporary cache
+  directory, no real index touched) and a real `--dry-run --limit 3
+  --language la` smoke run against this worktree's actual passage index
+  (619,034 windows, 1,819 Latin works), inside `systemd-run --user --scope
+  -p MemoryMax=4G -p MemorySwapMax=0` as a precaution: exit 0, printed
+  three work ids (`abelard.epistolae`, `abelard.historia_calamitatum`,
+  `adamnan.de_locis_santis`) each marked "missing", wrote nothing to
+  `cache/passage_density/` (index enumeration alone peaked at 2.85 GB
+  resident; no per-work computation ran).
+- Run (planned, not yet executed): one language at a time, per the standing
+  memory rules --
+  `systemd-run --user --scope -p MemoryMax=8G -p MemorySwapMax=0
+  venv/bin/python scripts/precompute_passage_density.py --language la`
+  (repeat per language; add `--lexical` to also warm the red-mark cache).
+  The 8G cap is a starting estimate from the code comments' own "100s,
+  1.4 GB" figure for a single large work, not a measured whole-run peak;
+  measure the actual peak on the first real run before reusing the cap for
+  the remaining languages.
+
 ## 2026-09-19 Corpus: Eugippius duplicate retired, Ennodius Book 2 resegmented (batch 3)
 - What (code, this PR; not yet run on production): `research/corpus/
   ENNODIUS_EUGIPPIUS_COMPARISON_2026-09-19.md` examined the Eugippius and
