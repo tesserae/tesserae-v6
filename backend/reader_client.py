@@ -50,6 +50,11 @@ def score(query, passages, timeout=6.0):
     url = (os.environ.get('THEME_READER_URL') or '').strip()
     if not url or not passages:
         return None
+    if not url.startswith(('http://', 'https://')):
+        # Operator-set address of the local re-ranker service. Only web
+        # schemes make sense; anything else is a misconfiguration.
+        _warn_rate_limited('[READER] THEME_READER_URL has no http(s) scheme: %r', url)
+        return None
 
     endpoint = url.rstrip('/') + '/score'
     body = json.dumps({'query': query, 'passages': passages}).encode('utf-8')
@@ -57,7 +62,7 @@ def score(query, passages, timeout=6.0):
         endpoint, data=body, method='POST',
         headers={'Content-Type': 'application/json'})
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:  # nosec B310 - scheme checked above
             if resp.status != 200:
                 _warn_rate_limited(
                     '[READER] %s returned status %s', endpoint, resp.status)
