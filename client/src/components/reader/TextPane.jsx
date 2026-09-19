@@ -177,13 +177,23 @@ export default function TextPane({ units, language, selection, onSelect, total, 
               {/* "Quoted in N works": a small mark for a line the corpus-wide
                   reuse table shows repeated verbatim (or near-verbatim) in
                   other works. Red-and-grey, matching the rest of the
-                  Reader's palette; opens the Reuse tab on the line it marks. */}
+                  Reader's palette; opens the Reuse tab on the line it marks.
+                  onMouseDown stops here so the line's own drag-to-select
+                  never starts under the mark: without it, pressing the mark
+                  also began a one-line drag on the parent, and the mouseup
+                  that ends it fired onSelect (panel -> Verbal Parallels)
+                  moments before the click fired onReuseClick (panel ->
+                  Reuse). The two usually raced to the right answer, but only
+                  by luck of event order, which is why NC saw it do nothing:
+                  a slow render between mouseup and click let Verbal win. */}
               <span className="pt-[0.3em]">
                 {reuseMarks?.[u.ref] > 0 && (
                   <button
                     type="button"
+                    onMouseDown={(e) => e.stopPropagation()}
                     onClick={(e) => { e.stopPropagation(); onReuseClick?.(u); }}
                     title={`Quoted in ${reuseMarks[u.ref]} other work${reuseMarks[u.ref] === 1 ? '' : 's'}`}
+                    aria-label={`quoted in ${reuseMarks[u.ref]} work${reuseMarks[u.ref] === 1 ? '' : 's'}`}
                     className="inline-flex items-center justify-center text-[9px] font-bold leading-none
                                text-red-700 bg-gray-100 border border-gray-300 rounded px-1 py-[2px]
                                hover:bg-red-50 hover:border-red-300"
