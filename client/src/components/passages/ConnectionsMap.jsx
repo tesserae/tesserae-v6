@@ -373,8 +373,12 @@ function LabeledHeatmap({
       const y = colMargin + i * cellSize + cellSize / 2;
       const active = hover && hover.i === i;
       if (active) {
-        ctx.fillStyle = 'rgba(185, 28, 28, 0.08)';
+        ctx.fillStyle = 'rgba(185, 28, 28, 0.16)';
         ctx.fillRect(0, colMargin + i * cellSize, ROW_MARGIN, cellSize);
+        ctx.strokeStyle = 'rgba(185, 28, 28, 0.9)';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(0.75, colMargin + i * cellSize + 0.75, ROW_MARGIN - 1.5, cellSize - 1.5);
+        ctx.lineWidth = 1;
       }
       ctx.font = active ? LABEL_FONT_ACTIVE : LABEL_FONT;
       ctx.fillStyle = active ? LABEL_COLOR_ACTIVE : LABEL_COLOR;
@@ -405,9 +409,18 @@ function LabeledHeatmap({
 
     // Hover bands, drawn before the cells so the grid lines stay crisp.
     if (hover) {
-      ctx.fillStyle = 'rgba(185, 28, 28, 0.08)';
+      // Stronger than the first version (8%): from the middle of a fifty-
+      // author grid the faint bands did not lead the eye to the two names
+      // (NC, 2026-09-19). A tinted band plus a red outline runs the whole
+      // row and the whole column, from the cell out to both label margins.
+      ctx.fillStyle = 'rgba(185, 28, 28, 0.16)';
       ctx.fillRect(0, colMargin + hover.i * cellSize, nCols * cellSize, cellSize);
-      ctx.fillRect(hover.j * cellSize, colMargin, cellSize, nRows * cellSize);
+      ctx.fillRect(hover.j * cellSize, 0, cellSize, colMargin + nRows * cellSize);
+      ctx.strokeStyle = 'rgba(185, 28, 28, 0.9)';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(0.75, colMargin + hover.i * cellSize + 0.75, nCols * cellSize - 1.5, cellSize - 1.5);
+      ctx.strokeRect(hover.j * cellSize + 0.75, 0.75, cellSize - 1.5, colMargin + nRows * cellSize - 1.5);
+      ctx.lineWidth = 1;
     }
 
     for (let i = 0; i < nRows; i++) {
@@ -468,19 +481,37 @@ function LabeledHeatmap({
       const x = j * cellSize + cellSize / 2;
       const text = truncateToWidth(ctx, colText(label), LABEL_CAP);
       ctx.font = active ? LABEL_FONT_ACTIVE : LABEL_FONT;
-      ctx.fillStyle = active ? LABEL_COLOR_ACTIVE : LABEL_COLOR;
+      // The same highlight the row label gets (NC, 2026-09-19: "not the same
+      // on rows and columns"): a tinted, outlined box behind the hovered
+      // name, drawn in the label's own orientation.
+      const boxFor = (w, h) => {
+        ctx.fillStyle = 'rgba(185, 28, 28, 0.16)';
+        ctx.fillRect(-3, -h / 2, w + 6, h);
+        ctx.strokeStyle = 'rgba(185, 28, 28, 0.9)';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(-2.25, -h / 2 + 0.75, w + 4.5, h - 1.5);
+        ctx.lineWidth = 1;
+      };
       if (rotate) {
         ctx.save();
         ctx.translate(x, colMargin - 6);
         ctx.rotate(-Math.PI / 4);
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
+        if (active) boxFor(ctx.measureText(text).width, Math.min(cellSize, 16));
+        ctx.fillStyle = active ? LABEL_COLOR_ACTIVE : LABEL_COLOR;
         ctx.fillText(text, 0, 0);
         ctx.restore();
       } else {
         ctx.textAlign = 'center';
-        ctx.textBaseline = 'bottom';
-        ctx.fillText(text, x, colMargin - 8);
+        ctx.textBaseline = 'middle';
+        const w = ctx.measureText(text).width;
+        ctx.save();
+        ctx.translate(x - w / 2, colMargin - 14);
+        if (active) boxFor(w, 14);
+        ctx.restore();
+        ctx.fillStyle = active ? LABEL_COLOR_ACTIVE : LABEL_COLOR;
+        ctx.fillText(text, x, colMargin - 14);
       }
     });
   }, [rowLabels, colLabels, rowIds, colIds, normalised, cellSize, hover, colMargin, gridWidth,
