@@ -380,6 +380,50 @@ def test_line_falls_back_to_bolding_a_shared_token_for_a_possible_echo(monkeypat
     assert 'nihil' not in fragment_text[start:end]
 
 
+def test_line_does_not_bold_a_shared_token_inside_an_unshared_longer_word(monkeypatch, tmp_path):
+    """A shared token found with plain substring search can land inside an
+    unrelated word that merely contains its letters -- "arma" is a
+    substring of "armatum" the same way "cano" is a substring of
+    "canorum". The quoting line's own text puts an unshared "armatum"
+    right before the real, standalone "arma virumque cano" it actually
+    shares with the selected line; bold_spans must skip the embedded
+    match and bold only the real word, found by scanning
+    backend/reuse_table.py's _bold_spans with word boundaries."""
+    _reset_reuse_table_state(monkeypatch, tmp_path)
+    _write_lemma_cache_with_tokens(str(tmp_path / 'lemmas'), 'la', 'vergil.aeneid', [
+        ('verg. aen. 1.1', 'Arma virumque cano, Troiae qui primus ab oris',
+         ['arma', 'uirumque', 'cano', 'troiae', 'qui', 'primus', 'ab', 'oris'],
+         ['Arma', 'virumque', 'cano', 'Troiae', 'qui', 'primus', 'ab', 'oris']),
+    ])
+    quote_text = 'armatum tenens ait, arma virumque cano tandem.'
+    _write_lemma_cache_with_tokens(str(tmp_path / 'lemmas'), 'la', 'anonymus.imitator', [
+        ('anon. imit. 1', quote_text,
+         ['arma', 'uirumque', 'cano', 'tandem'],
+         ['arma', 'virumque', 'cano', 'tandem']),
+    ])
+    _write_reuse_db(
+        str(tmp_path / 'reuse_pairs'), 'la',
+        pairs_rows=[
+            ('vergil.aeneid', 'verg. aen. 1.1', 'anonymus.imitator', 'anon. imit. 1', 9, 0.15, 1),
+        ],
+        line_counts_rows=[('vergil.aeneid', 'verg. aen. 1.1', 1)],
+        meta_rows=[('corpus_version', '2026-08-16')],
+    )
+    client = app.test_client()
+    r = _get(client, _route('/reuse/line'), work='vergil.aeneid', ref='verg. aen. 1.1', language='la')
+    out = json.loads(r.get_data())
+    quote = next(q for q in out['quotations'] if q['work'] == 'anonymus.imitator')
+    # The real, standalone "arma" (not the one embedded in "armatum").
+    real_start = quote_text.index('arma', quote_text.index('armatum') + 1)
+    real_end = real_start + len('arma')
+    starts = [s for s, e in quote['bold_spans']]
+    assert real_start in starts
+    # Nothing bolded inside "armatum" itself.
+    armatum_start = quote_text.index('armatum')
+    armatum_end = armatum_start + len('armatum')
+    assert not any(armatum_start <= s < armatum_end for s, e in quote['bold_spans'])
+
+
 def test_line_no_matches_is_a_normal_empty_result_not_an_error(monkeypatch, tmp_path):
     _reset_reuse_table_state(monkeypatch, tmp_path)
     _build_fixture(tmp_path)
@@ -409,6 +453,58 @@ def test_line_missing_language_table_is_404_plain_message(monkeypatch, tmp_path)
     assert 'error' in out and isinstance(out['error'], str) and out['error']
 
 
+def test_line_corrupt_database_file_is_404_not_200_or_500(monkeypatch, tmp_path):
+    """A reuse table file that exists but is not a valid SQLite database
+    (a garbage/truncated file, however that happened) must answer the same
+    plain 404 as a language with no table at all -- not a 200 with
+    available:false (sqlite3.connect() succeeds on a garbage file; the
+    format error only surfaces on the first real read, so is_available()
+    must actually try a read, not just check the file exists -- see
+    backend/reuse_table.py's _get_connection) and not an unhandled 500."""
+    _reset_reuse_table_state(monkeypatch, tmp_path)
+    reuse_dir = tmp_path / 'reuse_pairs'
+    reuse_dir.mkdir(parents=True, exist_ok=True)
+    (reuse_dir / 'la.db').write_bytes(b'not a sqlite database, just garbage bytes')
+    client = app.test_client()
+    r = _get(client, _route('/reuse/line'), work='vergil.aeneid', ref='verg. aen. 1.1', language='la')
+    assert r.status_code == 404
+    out = json.loads(r.get_data())
+    assert 'error' in out and isinstance(out['error'], str) and out['error']
+
+
+def test_marks_corrupt_database_file_is_404_not_200_or_500(monkeypatch, tmp_path):
+    _reset_reuse_table_state(monkeypatch, tmp_path)
+    reuse_dir = tmp_path / 'reuse_pairs'
+    reuse_dir.mkdir(parents=True, exist_ok=True)
+    (reuse_dir / 'la.db').write_bytes(b'not a sqlite database, just garbage bytes')
+    client = app.test_client()
+    r = _get(client, _route('/reuse/marks'), work='vergil.aeneid', language='la')
+    assert r.status_code == 404
+    out = json.loads(r.get_data())
+    assert 'error' in out and isinstance(out['error'], str) and out['error']
+
+
+def test_corrupt_database_connection_is_never_cached(monkeypatch, tmp_path):
+    """The failure must not stick around as a cached connection: once the
+    garbage file is replaced with a real, valid database, the VERY NEXT
+    call must succeed -- proving _get_connection did not cache (and keep
+    reusing) a broken connection from the first, failed attempt."""
+    _reset_reuse_table_state(monkeypatch, tmp_path)
+    reuse_dir = tmp_path / 'reuse_pairs'
+    reuse_dir.mkdir(parents=True, exist_ok=True)
+    (reuse_dir / 'la.db').write_bytes(b'garbage')
+    assert reuse_table.is_available('la') is False
+    assert 'la' not in reuse_table._connections
+
+    _build_fixture(tmp_path)  # overwrites la.db with a real, valid database
+    assert reuse_table.is_available('la') is True
+    client = app.test_client()
+    r = _get(client, _route('/reuse/line'), work='vergil.aeneid', ref='verg. aen. 1.1', language='la')
+    assert r.status_code == 200
+    out = json.loads(r.get_data())
+    assert out['available'] is True
+
+
 def test_line_resolves_a_part_file_work_id_to_the_base_id(monkeypatch, tmp_path):
     """The Reader sends the part file it has open (e.g.
     vergil.aeneid.part.7.tess), but the table is keyed on the collapsed
@@ -428,7 +524,13 @@ def test_line_resolves_a_part_file_work_id_to_the_base_id(monkeypatch, tmp_path)
 def test_line_keeps_a_part_only_works_own_part_id(monkeypatch, tmp_path):
     """A work with no base/whole-text file at all is keyed on its own full
     part id in the table -- _resolve_work must not strip that .part.N off,
-    or a legitimate part-only work id would find nothing."""
+    or a legitimate part-only work id would find nothing. `partonly.work`
+    is a stand-in for the real corpus shape this covers: paschasius_
+    radbertus.epitaphium_arsenii ships only as
+    paschasius_radbertus.epitaphium_arsenii.part.2.tess, with no base
+    epitaphium_arsenii.tess at all (see
+    test_line_resolves_the_real_paschasius_radbertus_part_only_work below
+    for that exact work id)."""
     _reset_reuse_table_state(monkeypatch, tmp_path)
     _build_fixture(tmp_path)
     client = app.test_client()
@@ -439,6 +541,49 @@ def test_line_keeps_a_part_only_works_own_part_id(monkeypatch, tmp_path):
     assert [(q['work'], q['ref']) for q in out['quotations']] == [
         ('macrobius.saturnalia', 'macro. sat. 5.2.8'),
     ]
+
+
+def test_line_resolves_the_real_paschasius_radbertus_part_only_work(monkeypatch, tmp_path):
+    """The same fallback as test_line_keeps_a_part_only_works_own_part_id
+    above, but with the actual real-corpus work id rather than a stand-in:
+    paschasius_radbertus.epitaphium_arsenii ships as
+    texts/la/paschasius_radbertus.epitaphium_arsenii.part.2.tess with no
+    base (whole-text) file, so the table keys it on that full part id, and
+    _norm_work's usual "collapse .part.N to the base id" must not apply
+    here -- there is no base id to collapse to."""
+    _reset_reuse_table_state(monkeypatch, tmp_path)
+    _write_lemma_cache(str(tmp_path / 'lemmas'), 'la', 'vergil.aeneid', [
+        ('verg. aen. 1.1', 'Arma virumque cano, Troiae qui primus ab oris'),
+    ])
+    _write_lemma_cache(str(tmp_path / 'lemmas'), 'la', 'paschasius_radbertus.epitaphium_arsenii.part.2', [
+        ('paschasius_radbertus. epitaphium_arsenii. 2.1', 'a line from the real part-only work'),
+    ])
+    _write_reuse_db(
+        str(tmp_path / 'reuse_pairs'), 'la',
+        pairs_rows=[
+            ('vergil.aeneid', 'verg. aen. 1.1', 'paschasius_radbertus.epitaphium_arsenii.part.2',
+             'paschasius_radbertus. epitaphium_arsenii. 2.1', 4, 0.2, 1),
+        ],
+        line_counts_rows=[
+            ('paschasius_radbertus.epitaphium_arsenii.part.2',
+             'paschasius_radbertus. epitaphium_arsenii. 2.1', 1),
+        ],
+        meta_rows=[('corpus_version', '2026-08-16')],
+    )
+    client = app.test_client()
+    r = _get(client, _route('/reuse/line'), work='paschasius_radbertus.epitaphium_arsenii.part.2.tess',
+              ref='paschasius_radbertus. epitaphium_arsenii. 2.1', language='la')
+    out = json.loads(r.get_data())
+    assert out['available'] is True
+    assert [(q['work'], q['ref']) for q in out['quotations']] == [
+        ('vergil.aeneid', 'verg. aen. 1.1'),
+    ]
+
+    r_marks = _get(client, _route('/reuse/marks'),
+                    work='paschasius_radbertus.epitaphium_arsenii.part.2.tess', language='la')
+    out_marks = json.loads(r_marks.get_data())
+    assert out_marks['available'] is True
+    assert [row['ref'] for row in out_marks['lines']] == ['paschasius_radbertus. epitaphium_arsenii. 2.1']
 
 
 # --- /reuse/marks --------------------------------------------------------

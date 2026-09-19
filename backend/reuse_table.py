@@ -20,6 +20,7 @@ Table schema (written by the build script):
 """
 import json
 import os
+import re
 import sqlite3
 from collections import defaultdict
 from functools import lru_cache
@@ -67,27 +68,81 @@ def _db_path(language):
 
 
 def is_available(language):
-    """Whether a reuse table exists for this language. A language the table
-    has not been built for (or not yet, or never will) is a normal state,
-    not an error -- callers should answer 404 with a plain message, not a
-    500 or a silently-empty 200."""
-    return os.path.exists(_db_path(language))
+    """Whether a reuse table exists for this language AND can actually be
+    opened and read -- not just whether the file exists. A language the
+    table has not been built for (or not yet, or never will) is a normal
+    state, not an error -- callers should answer 404 with a plain message,
+    not a 500 or a silently-empty 200. A CORRUPT file (present but not a
+    valid SQLite database) gets the SAME 404 rather than a 200 with
+    available:false: this routes through _get_connection, which validates
+    a file before ever caching a connection to it (see its own docstring),
+    so backend/blueprints/reuse.py's existing `if not is_available(...):
+    return 404` gate -- unchanged -- already covers both cases with no
+    blueprint code of its own."""
+    return _get_connection(language) is not None
+
+
+def _drop_connection(language):
+    """Evict and close a cached connection, so the NEXT call re-attempts
+    from scratch via _get_connection (which will not re-cache a still-bad
+    file, but will pick up a since-fixed one). Used when a query against
+    an already-cached connection turns out to fail with
+    sqlite3.DatabaseError -- e.g. the file was replaced with garbage, or
+    corrupted on disk, after this process already validated and cached
+    it; without this the same broken connection would be reused and fail
+    the same way on every subsequent request for the language."""
+    conn = _connections.pop(language, None)
+    if conn is not None:
+        try:
+            conn.close()
+        except Exception:
+            pass
 
 
 def _get_connection(language):
+    """A cached sqlite3 connection for `language`, or None if the db file
+    is missing, or present but not actually openable/readable as SQLite.
+
+    VALIDATES BEFORE CACHING. sqlite3.connect() on a garbage (non-SQLite)
+    file succeeds -- SQLite defers file-format validation until the first
+    real read, not connect time -- so a connection is never handed back
+    (or cached in _connections) until a cheap query against it has
+    actually succeeded. Without this, a corrupt db would connect
+    successfully, get cached, and then fail on EVERY subsequent caller's
+    first real query (meta/line/marks each running their own SELECT),
+    every time, for the life of the process -- not just once at open.
+
+    Only THIS MODULE ever touches this database, and only ever with
+    SELECT (grep backend/reuse_table.py for '.execute(' -- there is no
+    INSERT/UPDATE/DELETE/CREATE anywhere in it); the table is written
+    exclusively by scripts/reuse/build_reuse_table.py, a separate offline
+    process against a separate temp file swapped into place after the
+    build finishes. So `sqlite3.DatabaseError` here always means "this
+    file is not a valid database" (corrupt, truncated, or garbage), not a
+    write conflict or a locked-by-another-writer condition."""
     if language in _connections:
         return _connections[language]
     path = _db_path(language)
     if not os.path.exists(path):
         return None
+    conn = None
     try:
         conn = sqlite3.connect(path, check_same_thread=False)
         conn.row_factory = sqlite3.Row
-        _connections[language] = conn
-        return conn
+        conn.execute("SELECT 1 FROM meta LIMIT 1")
+    except sqlite3.DatabaseError as e:
+        logger.error(f"Reuse table for '{language}' is not a valid database: {e}")
+        if conn is not None:
+            try:
+                conn.close()
+            except Exception:
+                pass
+        return None
     except Exception as e:
         logger.error(f"Failed to open reuse table for '{language}': {e}")
         return None
+    _connections[language] = conn
+    return conn
 
 
 def meta(language):
@@ -99,6 +154,14 @@ def meta(language):
     try:
         rows = conn.execute("SELECT key, value FROM meta").fetchall()
         return {r['key']: r['value'] for r in rows}
+    except sqlite3.DatabaseError as e:
+        # A connection validated fine at open but has since gone bad (the
+        # file was replaced or corrupted on disk) -- drop it so the NEXT
+        # call re-opens from scratch instead of hitting the same broken
+        # connection on every future request (see _drop_connection).
+        logger.error(f"reuse_table.meta query failed for '{language}': {e}")
+        _drop_connection(language)
+        return {}
     except Exception:
         return {}
 
@@ -309,29 +372,34 @@ def _bold_spans(text, original_tokens, mask):
     """[start, end) character spans in `text` for the tokens where mask[i]
     is True, for the client to wrap in <b>. Found by scanning
     original_tokens (case-preserved, already punctuation-free -- see
-    _load_work_lines) against `text` left to right: text.find naturally
-    matches a token that is immediately followed by punctuation in the
-    source ("cano" inside "cano,"), since find() looks for a substring, not
-    a whole word. A token find() cannot locate at or after the previous
-    token's end (a rare cache/text mismatch) is skipped rather than raising
-    or aborting, so one bad token does not blank bolding for the whole
-    line; a case-insensitive retry covers the ordinary reason a plain find
-    fails, a casing difference between the cache and a since-corrected
-    text file."""
+    _load_work_lines) against `text` left to right, matched as WHOLE
+    WORDS (\\b...\\b), not substrings: a first version used text.find,
+    which happily matches "cano" inside "canorum" or "arma" inside
+    "armatum" and would bold a fragment of an unrelated word that merely
+    contains a shared token's letters. \\b in Python's re is Unicode-aware
+    or a str pattern (the default, no flag needed), so this holds for
+    accented Latin and Greek text the same as plain ASCII.
+
+    A token the word-boundary regex cannot locate at or after the previous
+    token's end (a rare cache/text mismatch) is skipped rather than
+    raising or aborting, so one bad token does not blank bolding for the
+    whole line; a case-insensitive retry covers the ordinary reason a
+    plain match fails, a casing difference between the cache and a
+    since-corrected text file."""
     spans = []
     pos = 0
     for i, tok in enumerate(original_tokens):
         if not tok:
             continue
-        idx = text.find(tok, pos)
-        if idx < 0:
-            idx = text.lower().find(tok.lower(), pos)
-        if idx < 0:
+        pattern = r'\b' + re.escape(tok) + r'\b'
+        m = re.compile(pattern).search(text, pos)
+        if m is None:
+            m = re.compile(pattern, re.IGNORECASE).search(text, pos)
+        if m is None:
             continue
-        end = idx + len(tok)
         if i < len(mask) and mask[i]:
-            spans.append([idx, end])
-        pos = end
+            spans.append([m.start(), m.end()])
+        pos = m.end()
     return spans
 
 
@@ -381,6 +449,10 @@ def line(language, work, ref):
                ORDER BY shared DESC""",
             (work, ref, work, ref)
         ).fetchall()
+    except sqlite3.DatabaseError as e:
+        logger.error(f"reuse_table.line query failed for {language}/{work}/{ref}: {e}")
+        _drop_connection(language)
+        return {'available': False, 'quotations': []}
     except Exception as e:
         logger.error(f"reuse_table.line query failed for {language}/{work}/{ref}: {e}")
         return {'available': False, 'quotations': []}
@@ -451,6 +523,10 @@ def marks(language, work, ref_start=None, ref_end=None):
                SELECT line_b_ref AS ref, work_a AS other, shared FROM pairs WHERE work_b = ?""",
             (work, work)
         ).fetchall()
+    except sqlite3.DatabaseError as e:
+        logger.error(f"reuse_table.marks query failed for {language}/{work}: {e}")
+        _drop_connection(language)
+        return {'available': False, 'lines': []}
     except Exception as e:
         logger.error(f"reuse_table.marks query failed for {language}/{work}: {e}")
         return {'available': False, 'lines': []}
