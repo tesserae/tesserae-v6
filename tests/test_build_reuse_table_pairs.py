@@ -249,8 +249,7 @@ def test_repair_surrogates_recovers_a_greek_file_name_and_leaves_clean_text_alon
         'build_reuse_table', pathlib.Path(__file__).resolve().parents[1] / 'scripts' / 'reuse' / 'build_reuse_table.py')
     mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
     real = 'aeschylus.εὐμενίδες.tess'
-    escaped = real.encode('utf-8').decode('utf-8', 'surrogateescape')
-    escaped = real.encode('utf-8').decode('ascii', 'surrogateescape')
+    escaped = real.encode('utf-8').decode('ascii', 'surrogateescape')   # what an ASCII locale produced
     assert escaped != real and any(0xD800 <= ord(c) <= 0xDFFF for c in escaped)
     fixed, changed = mod._repair_surrogates(escaped, 'fallback')
     assert (fixed, changed) == (real, True)
