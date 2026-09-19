@@ -8,6 +8,12 @@ docs/DATA_OPERATIONS.md.
 
 ## 2026-09-19
 
+### Infrastructure
+- The Python test workflow on main had failed since the Theme Search re-ranker
+  merged: the security scan flagged the re-ranker client's URL open. The client
+  now refuses a THEME_READER_URL without an http or https scheme and the scan
+  line is marked as checked. No behaviour change for the configured service.
+
 ### Reader
 - Similar Passages in the Reader showed the raw work id ("quintus_smyrnaeus.fall_of_troy")
   instead of a proper title. The passage index already sends author, title and

@@ -224,3 +224,14 @@ def test_pages_inside_the_top_hundred_come_from_one_reranked_list(monkeypatch):
     assert calls[0] == (100, 0) and calls[1] == (100, 0) and calls[2] == (25, 100)
     assert [r['id'] for r in p5][0] == 'w100'
 
+
+
+def test_score_rejects_a_reader_url_without_an_http_scheme(monkeypatch):
+    # The bandit B310 check: only http(s) addresses may be opened. Anything
+    # else is a misconfiguration and score() takes its usual no-op path.
+    monkeypatch.setenv('THEME_READER_URL', 'file:///etc/passwd')
+    called = []
+    monkeypatch.setattr(reader_client.urllib.request, 'urlopen',
+                        lambda *a, **k: called.append(a))
+    assert reader_client.score('q', [{'id': 'x', 'text': 't'}]) is None
+    assert called == []
