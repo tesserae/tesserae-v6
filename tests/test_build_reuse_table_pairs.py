@@ -300,3 +300,29 @@ def test_part_files_of_one_work_do_not_quote_each_other(tmp_path):
     assert _pairs_between(pair_info, 'spenser.faerie_queene.part.4', 'spenser.faerie_queene.part.6') == []
     assert _pairs_between(pair_info, 'spenser.faerie_queene.part.4', 'bunyan.pilgrims_progress') != []
     assert _pairs_between(pair_info, 'spenser.faerie_queene.part.6', 'bunyan.pilgrims_progress') != []
+
+
+def test_stoplist_words_count_as_commonplace_even_when_rare_in_the_sample(tmp_path):
+    """The data-driven threshold (a share of the top lemma's df) missed "shall"
+    and "do" on the English corpus, so "what shall I do" survived as a strict
+    match between Hamlet and Bunyan (2026-09-19). With the language's
+    stoplist folded in, an n-gram of function words is commonplace however
+    rare its words happen to be in the sample."""
+    from build_reuse_table import _fold
+    works = {
+        'shakespeare.hamlet': [('hamlet III.4.192', ['what', 'shall', 'i', 'do'])],
+        'bunyan.pilgrims_progress': [('Bunyan P.P. 1.711', ['now', 'thought', 'christian', 'what', 'shall', 'i', 'do'])],
+        'keats.hyperion': [('Keats Hyperion 1.1', ['deep', 'in', 'the', 'shady', 'sadness', 'of', 'a', 'vale'])],
+    }
+    cache_data = _cache_data(works)
+    index_db = os.path.join(str(tmp_path), 'idx.db')
+    stats, commonplace = build_index(cache_data, index_db, max_df=200, commonplace_ratio=1.5, language='en')   # ratio above any df: only the stoplist can flag
+    assert hash_ngram(('what', 'shall', 'i')) in commonplace
+    assert hash_ngram(('shall', 'i', 'do')) in commonplace
+    # a content-word n-gram is not swept up
+    assert hash_ngram(('shady', 'sadness', 'of')) not in commonplace
+    # no stoplist for a language without one: same data, nothing extra flagged
+    stats2, commonplace2 = build_index(cache_data, os.path.join(str(tmp_path), 'idx2.db'),
+                                       max_df=200, commonplace_ratio=1.5, language='cop')
+    assert hash_ngram(('what', 'shall', 'i')) not in commonplace2
+    assert _fold('Ἀγαμέμνων') == 'αγαμεμνων' and _fold('Vergilius') == 'uergilius'

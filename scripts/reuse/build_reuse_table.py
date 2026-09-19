@@ -90,6 +90,7 @@ import sqlite3
 import sys
 import tempfile
 import time
+import unicodedata
 from collections import defaultdict
 from datetime import datetime, timezone
 
@@ -224,7 +225,34 @@ def _repair_surrogates(text, fallback):
         return (fallback or text.encode('utf-8', 'replace').decode('utf-8')), True
 
 
-def build_index(cache_data, index_db_path, max_df, commonplace_ratio=0.08):
+def _stopset_for(language):
+    """Function words for `language` from the backend's cross-lingual
+    stoplists (backend/synonym_dict.py), lowercase and accent-stripped, or an
+    empty set for a language without one. Used alongside the data-driven
+    commonplace threshold: on the English corpus that threshold (8% of the
+    top lemma's line-df) missed "shall" and "do", so Hamlet's "What shall I
+    do?" still came out quoted by Bunyan's "what shall I do?" (2026-09-19)."""
+    try:
+        from backend import synonym_dict as sd
+    except Exception:  # noqa: BLE001 - the builder must still run without the web app's deps
+        return frozenset()
+    raw = {
+        'la': getattr(sd, 'CROSSLINGUAL_STOPLIST_LATIN', set()),
+        'grc': getattr(sd, 'CROSSLINGUAL_STOPLIST_GREEK', set()),
+        'en': getattr(sd, 'CROSSLINGUAL_STOPLIST_ENGLISH', set()),
+    }.get(language, set())
+    return frozenset(_fold(w) for w in raw)
+
+
+def _fold(token):
+    """Lowercase, accents and combining marks removed, u/v and j/i folded (Latin
+    orthography), so a stoplist entry matches however the cache spells it."""
+    t = unicodedata.normalize('NFD', str(token).lower())
+    t = ''.join(ch for ch in t if not unicodedata.combining(ch))
+    return t.replace('v', 'u').replace('j', 'i')
+
+
+def build_index(cache_data, index_db_path, max_df, commonplace_ratio=0.08, language=None):
     """Stage 1: stream per-line n-grams from cache_data (already-loaded,
     already-validated {tess_basename: cache_dict}, from discover_corpus)
     into a temporary SQLite index DB (lines, postings after banality
@@ -365,6 +393,13 @@ def build_index(cache_data, index_db_path, max_df, commonplace_ratio=0.08):
     # docstring).
     max_lemma_df = max(lemma_df.values()) if lemma_df else 0
     commonplace_threshold = max_lemma_df * commonplace_ratio
+    stopset = _stopset_for(language)
+    n_stoplist_only = 0
+
+    def _commonplace(lem, tok):
+        return (lemma_df.get(lem, 0) >= commonplace_threshold
+                or _fold(lem) in stopset or _fold(tok) in stopset)
+
     commonplace_hashes = set()
     for tess_basename, data in cache_data.items():
         for unit in data.get('units_line', []):
@@ -374,12 +409,18 @@ def build_index(cache_data, index_db_path, max_df, commonplace_ratio=0.08):
             lemmas = _line_lemmas(unit)
             for idxs in gen_ngram_indices(len(tokens)):
                 lemma_gram = tuple(lemmas[i] for i in idxs)
-                if all(lemma_df.get(lem, 0) >= commonplace_threshold for lem in lemma_gram):
-                    surface_gram = tuple(tokens[i] for i in idxs)
-                    commonplace_hashes.add(hash_ngram(surface_gram))
+                token_gram = tuple(tokens[i] for i in idxs)
+                if all(_commonplace(lem, tok) for lem, tok in zip(lemma_gram, token_gram)):
+                    h = hash_ngram(token_gram)
+                    if h not in commonplace_hashes and not all(
+                            lemma_df.get(lem, 0) >= commonplace_threshold for lem in lemma_gram):
+                        n_stoplist_only += 1
+                    commonplace_hashes.add(h)
     print(f"[build_reuse_table] index: {len(lemma_df)} distinct lemmas, "
           f"commonplace threshold {commonplace_threshold:.0f} (of max lemma df {max_lemma_df}), "
-          f"{len(commonplace_hashes)} n-grams are commonplace-word-only, elapsed {time.time()-t0:.1f}s")
+          f"{len(commonplace_hashes)} n-grams are commonplace-word-only "
+          f"({n_stoplist_only} of them only because of the {language or 'no'} stoplist, "
+          f"{len(stopset)} entries), elapsed {time.time()-t0:.1f}s")
 
     print("[build_reuse_table] index: computing n-gram document frequencies (SQL GROUP BY)...")
     conn.execute("CREATE INDEX idx_raw_ngram ON postings_raw(ngram_hash)")
@@ -817,7 +858,8 @@ def main():
     tmp_dir = tempfile.mkdtemp(prefix=f'reuse_table_{args.language}_')
     index_db_path = os.path.join(tmp_dir, f'{args.language}_index.db')
     try:
-        index_stats, commonplace_hashes = build_index(cache_data, index_db_path, args.max_df)
+        index_stats, commonplace_hashes = build_index(cache_data, index_db_path, args.max_df,
+                                                      language=args.language)
         pair_info, line_to_other_works, pair_stats = find_pairs(
             index_db_path, args.min_shared, args.min_jaccard,
             args.min_shared_override, args.min_containment, args.rare_max_df,

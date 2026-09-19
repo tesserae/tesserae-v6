@@ -9,6 +9,11 @@ docs/DATA_OPERATIONS.md.
 ## 2026-09-19
 
 ### Reader
+- Quotation table builder: a word also counts as commonplace when it is in
+  the language's stoplist (the cross-lingual function-word lists in
+  backend/synonym_dict.py, accent-stripped and u/v folded). The data-driven
+  threshold alone missed "shall" and "do" on the English corpus, so "what
+  shall I do" still linked Hamlet to Bunyan after the previous fix.
 - Quotation table builder: two rules tightened after the first English build
   marked Hamlet's "What shall I do?" as strictly quoted by eight Bible verses
   and paired the Faerie Queene's books with each other. An n-gram made only of
