@@ -24,6 +24,7 @@ import sqlite3
 from functools import lru_cache
 
 from backend.logging_config import get_logger
+from backend.passage_index import _norm_work
 from backend.utils import normalize_author_date_key
 
 logger = get_logger('reuse_table')
@@ -99,6 +100,58 @@ def meta(language):
         return {}
 
 
+def _work_has_rows(language, work):
+    """Whether `work` (an already-stripped id, exact match) is a key the
+    table actually has rows for. Cheap indexed lookup (line_counts.work is
+    indexed) used only to disambiguate in _resolve_work."""
+    conn = _get_connection(language)
+    if not conn:
+        return False
+    try:
+        return conn.execute(
+            "SELECT 1 FROM line_counts WHERE work = ? LIMIT 1", (work,)
+        ).fetchone() is not None
+    except Exception:
+        return False
+
+
+def _resolve_work(language, work):
+    """Map a Reader work id to the id build_reuse_table.py actually keyed
+    the table on.
+
+    The Reader sends the work it has open, which for a multi-part text is
+    a part-file id (vergil.aeneid.part.7.tess) -- the Reader's own default
+    and normal navigation unit. discover_corpus() in
+    scripts/reuse/build_reuse_table.py collapses a .part.N file into its
+    base id whenever a base (whole-text) file exists for that work, which
+    covers nearly every multi-part work, so vergil.aeneid.part.7 must
+    resolve to vergil.aeneid to find anything -- passing the part id
+    through unchanged is what made GET /api/reuse/marks answer
+    `lines: []` for a part-file work while the base id for the same
+    range answered correctly.
+
+    A handful of works ship as parts only, with no base file at all (e.g.
+    paschasius_radbertus.epitaphium_arsenii) -- discover_corpus() never
+    drops those, so the table keys them on their own full part id. Try
+    the part-collapsed id first (the common case); if it has no rows in
+    the table but the raw (stripped-of-.tess-only) id does, use the raw
+    id instead, so those works keep working too."""
+    w = (work or '')
+    if '/' in w:
+        w = w.rsplit('/', 1)[-1]
+    if w.endswith('.tess'):
+        w = w[:-5]
+    raw = w
+    collapsed = _norm_work(raw)
+    if collapsed == raw:
+        return raw
+    if _work_has_rows(language, collapsed):
+        return collapsed
+    if _work_has_rows(language, raw):
+        return raw
+    return collapsed
+
+
 @lru_cache(maxsize=128)
 def _load_work_lines(language, work):
     """(ordered_refs, ref_to_text, ref_to_seq) for one work, built once from
@@ -149,6 +202,7 @@ def line(language, work, ref):
     conn = _get_connection(language)
     if not conn:
         return {'available': False, 'quotations': []}
+    work = _resolve_work(language, work)
     try:
         rows = conn.execute(
             """SELECT work_b AS other_work, line_b_ref AS other_ref, shared, jaccard, span_len
@@ -187,12 +241,20 @@ def marks(language, work, ref_start=None, ref_end=None):
     work's own line ORDER (seq_in_work, from the lemma cache), not a string
     comparison of ref labels, since a citation label like "verg. aen. 1.9"
     does not sort correctly as a string against "verg. aen. 1.10". Omitting
-    both returns every reused line in the work."""
+    both returns every reused line in the work.
+
+    `work` is resolved the same way `line()` resolves it (see
+    _resolve_work): the Reader sends whatever part-file id it has open,
+    but the table is keyed on the collapsed base id for nearly every
+    work, so vergil.aeneid.part.7 must resolve to vergil.aeneid before
+    querying `line_counts` -- otherwise this always answers `lines: []`
+    for a part-file work even when the base id has marks."""
     if not is_available(language):
         return {'available': False, 'lines': []}
     conn = _get_connection(language)
     if not conn:
         return {'available': False, 'lines': []}
+    work = _resolve_work(language, work)
     try:
         rows = conn.execute(
             "SELECT line_ref, n_works FROM line_counts WHERE work = ?", (work,)

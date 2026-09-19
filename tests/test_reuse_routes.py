@@ -78,15 +78,26 @@ def _build_fixture(tmp_path, language='la'):
     _write_lemma_cache(str(tmp_path / 'lemmas'), language, 'servius.commentary', [
         ('serv. 1.1', 'a note on arma virumque'),
     ])
+    # A work that ships as parts only, with no base/whole-text file --
+    # discover_corpus() in build_reuse_table.py never collapses these, so
+    # the table keys them on their own full part id (e.g.
+    # paschasius_radbertus.epitaphium_arsenii.part.2 in production).
+    # _resolve_work must NOT strip .part.N off an id like this one, since
+    # stripping it would look up a base id the table never had.
+    _write_lemma_cache(str(tmp_path / 'lemmas'), language, 'partonly.work.part.2', [
+        ('partonly. work. 2.1', 'a line that only exists as a part file'),
+    ])
     _write_reuse_db(
         str(tmp_path / 'reuse_pairs'), language,
         pairs_rows=[
             ('vergil.aeneid', 'verg. aen. 1.1', 'macrobius.saturnalia', 'macro. sat. 5.2.8', 10, 0.2, 1),
             ('servius.commentary', 'serv. 1.1', 'vergil.aeneid', 'verg. aen. 1.1', 4, 0.15, 1),
+            ('macrobius.saturnalia', 'macro. sat. 5.2.8', 'partonly.work.part.2', 'partonly. work. 2.1', 5, 0.3, 1),
         ],
         line_counts_rows=[
             ('vergil.aeneid', 'verg. aen. 1.1', 2),
             ('vergil.aeneid', 'verg. aen. 1.3', 1),
+            ('partonly.work.part.2', 'partonly. work. 2.1', 1),
         ],
         meta_rows=[
             ('built_at', '2026-09-19T00:00:00+00:00'),
@@ -165,6 +176,38 @@ def test_line_missing_language_table_is_404_plain_message(monkeypatch, tmp_path)
     assert 'error' in out and isinstance(out['error'], str) and out['error']
 
 
+def test_line_resolves_a_part_file_work_id_to_the_base_id(monkeypatch, tmp_path):
+    """The Reader sends the part file it has open (e.g.
+    vergil.aeneid.part.7.tess), but the table is keyed on the collapsed
+    base id -- a part-file work id must find the same quotations as the
+    base id."""
+    _reset_reuse_table_state(monkeypatch, tmp_path)
+    _build_fixture(tmp_path)
+    client = app.test_client()
+    base = _get(client, _route('/reuse/line'), work='vergil.aeneid',
+                ref='verg. aen. 1.1', language='la')
+    part = _get(client, _route('/reuse/line'), work='vergil.aeneid.part.1.tess',
+                ref='verg. aen. 1.1', language='la')
+    assert part.status_code == 200
+    assert json.loads(part.get_data())['quotations'] == json.loads(base.get_data())['quotations']
+
+
+def test_line_keeps_a_part_only_works_own_part_id(monkeypatch, tmp_path):
+    """A work with no base/whole-text file at all is keyed on its own full
+    part id in the table -- _resolve_work must not strip that .part.N off,
+    or a legitimate part-only work id would find nothing."""
+    _reset_reuse_table_state(monkeypatch, tmp_path)
+    _build_fixture(tmp_path)
+    client = app.test_client()
+    r = _get(client, _route('/reuse/line'), work='partonly.work.part.2.tess',
+              ref='partonly. work. 2.1', language='la')
+    out = json.loads(r.get_data())
+    assert out['available'] is True
+    assert [(q['work'], q['ref']) for q in out['quotations']] == [
+        ('macrobius.saturnalia', 'macro. sat. 5.2.8'),
+    ]
+
+
 # --- /reuse/marks --------------------------------------------------------
 
 def test_marks_returns_all_reused_lines_when_no_range_given(monkeypatch, tmp_path):
@@ -208,3 +251,42 @@ def test_marks_missing_language_table_is_404_plain_message(monkeypatch, tmp_path
     assert r.status_code == 404
     out = json.loads(r.get_data())
     assert 'error' in out
+
+
+def test_marks_resolves_a_part_file_work_id_to_the_base_id(monkeypatch, tmp_path):
+    """Reproduces the bug report: GET /api/reuse/marks?work=vergil.aeneid.part.7
+    (a part file, the Reader's normal navigation unit) must answer the same
+    marks as work=vergil.aeneid, not an empty list."""
+    _reset_reuse_table_state(monkeypatch, tmp_path)
+    _build_fixture(tmp_path)
+    client = app.test_client()
+    r = _get(client, _route('/reuse/marks'), work='vergil.aeneid.part.7.tess', language='la')
+    assert r.status_code == 200
+    out = json.loads(r.get_data())
+    assert out['available'] is True
+    refs = {row['ref']: row['n_works'] for row in out['lines']}
+    assert refs == {'verg. aen. 1.1': 2, 'verg. aen. 1.3': 1}
+
+
+def test_marks_range_still_works_with_a_part_file_work_id(monkeypatch, tmp_path):
+    """The ref_start/ref_end range logic loads the work's own line order
+    from its lemma cache (_load_work_lines) -- that must also use the
+    resolved base id, not the raw part-file id, or the range filter would
+    silently find no ref_to_seq entries and drop every row."""
+    _reset_reuse_table_state(monkeypatch, tmp_path)
+    _build_fixture(tmp_path)
+    client = app.test_client()
+    r = _get(client, _route('/reuse/marks'), work='vergil.aeneid.part.1.tess',
+              ref_start='verg. aen. 1.1', ref_end='verg. aen. 1.1', language='la')
+    out = json.loads(r.get_data())
+    assert [row['ref'] for row in out['lines']] == ['verg. aen. 1.1']
+
+
+def test_marks_keeps_a_part_only_works_own_part_id(monkeypatch, tmp_path):
+    _reset_reuse_table_state(monkeypatch, tmp_path)
+    _build_fixture(tmp_path)
+    client = app.test_client()
+    r = _get(client, _route('/reuse/marks'), work='partonly.work.part.2.tess', language='la')
+    out = json.loads(r.get_data())
+    assert out['available'] is True
+    assert [row['ref'] for row in out['lines']] == ['partonly. work. 2.1']
