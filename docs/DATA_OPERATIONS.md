@@ -22,6 +22,245 @@ Conventions
 - Stamp backups to the second; a rerun must never overwrite the first
   run's backup.
 
+## 2026-09-19 Corpus: Eugippius duplicate retired, Ennodius Book 2 resegmented (batch 3)
+- What (code, this PR; not yet run on production): `research/corpus/
+  ENNODIUS_EUGIPPIUS_COMPARISON_2026-09-19.md` examined the Eugippius and
+  Ennodius pairs the batch 2 source document had left unretired. NC approved
+  both operations on 2026-09-19.
+  1. **Eugippius**: `eugippius.excerpta_ex_operibus_augustini.tess`
+     (correctly spelled filename, 1,218 lines, 192,995 words; interleaves
+     386 capitula summaries with full excerpt text for only 208 of 390
+     excerpts) is retired. `eugippius.exerpta_ex_operibus_augustini.tess`
+     (misspelled filename, missing the first "c", 391 lines, 228,811 words)
+     is kept: the only file with complete wording for all 390 excerpts. Its
+     id is not renamed (would touch every index and the passage windows);
+     its displayed title is corrected in code instead (see below). Before
+     retiring, checked for any excerpt with full text only in the retired
+     file: the source document flagged one apparent case (excerpt "198a"),
+     re-verified here and found to exist in the kept file too, under an
+     OCR-garbled tag (`19sa`, misread of "198a"), 96.1% six-word chunk
+     containment; a full sweep of every line in the retired file found no
+     other candidate. No excerpt's full text exists only in the retired
+     file.
+  2. **Ennodius**: `magnus_felix_ennodius.carmina.tess` (173 lines, one
+     whole poem per line: 21 for Book 1, duplicating `ennodius.carmina.tess`
+     at proper verse granularity for 19 of 21 poems; 152 for Book 2, unique
+     to this file) is retired outright and replaced by
+     `magnus_felix_ennodius.carmina_2.tess` (932 lines, one verse per line,
+     Book 2 only; Book 1 dropped since `ennodius.carmina.tess` already
+     covers it). The new file is built directly from the source XML the
+     retired file's own provenance record names
+     (`stoa0114a.stoa003.opp-lat1.xml`, OpenGreekAndLatin/csel-dev, Hartel's
+     1882 CSEL 6 edition in EpiDoc TEI with one `<l n="...">` per verse and
+     apparatus segregated into `<note>` elements), fetched directly from
+     GitHub, not guessed or inferred from OCR line breaks. An OCR-based
+     route (a lineated 1882 Google Books scan of the same edition,
+     archive.org id `magnifelicisenn00ennogoog`) was tried first and
+     abandoned after a validation check caught silent, cascading
+     misalignment from a single unfiltered running-header fragment; the
+     clean XML source was used instead once found. Verified poem-by-poem
+     (normalized word match) against the retired file: 151 of 152 poems
+     match exactly; the one apparent exception (poem 150) is an
+     embedded-title artifact in the source XML, resolved by stripping the
+     title to match the corpus's no-embedded-titles convention. Two
+     pre-existing source-XML defects were found and corrected while
+     building the new file: poem 107's 8 verses were entirely missing from
+     the retired whole-poem file (recovered here) and poem 93 carried a
+     misencoded apparatus line as a second "verse" (dropped here). Book 1
+     of the retired file held two prose items (slots 1.6, 1.7) not
+     duplicated anywhere else in the corpus, flagged in an earlier pass of
+     this PR and now preserved (see "Part D" below) rather than dropped.
+  See `~/tesserae-backups/retired_duplicates_2026-09-19b/README.md` for the
+  full verification detail on both files.
+- Registries edited:
+  - `data/text_genres.csv`: removed the Eugippius retired file's row and
+    the Ennodius whole-poem file's row; added a row for
+    `magnus_felix_ennodius.carmina_2.tess` (era Late Antique, meter
+    `unknown` matching `ennodius.carmina.tess`'s own row, not `prose`; the
+    retired file's row had been auto-classified prose only because its
+    whole-poem lines exceeded the classifier's median-line-length cutoff).
+  - `backend/text_sources.json`: removed the "Eugippius" / "Excerpta ex
+    Operibus Augustini" entry sourced from Open Greek and Latin / CSEL
+    (the retired file's own citation); corrected the kept file's entry,
+    previously spelled "Exerpta ex Operibus Augustini", to read "Excerpta
+    ex Operibus Augustini". The "Magnus Felix Ennodius" / "Carmina" entry
+    is unchanged: it is a flat author/work citation that remains accurate
+    for the new file (same author, same source edition).
+  - `backend/text_provenance.json`: removed the
+    `eugippius.excerpta_ex_operibus_augustini` entry and the
+    `magnus_felix_ennodius.carmina` entry; added
+    `magnus_felix_ennodius.carmina_2` (same source XML, title "Carmina,
+    Book 2").
+  - `backend/author_dates.json`: not touched for either file. Eugippius's
+    and Magnus Felix Ennodius's entries are author-level, used by other
+    files that remain.
+  - `backend/utils.py` `DISPLAY_NAMES`: added
+    `'exerpta_ex_operibus_augustini': 'Excerpta ex Operibus Augustini'` so
+    the kept Eugippius file's title displays correctly everywhere despite
+    its misspelled id; the id itself is not renamed (noted here for a
+    future rename operation).
+- Checks run without a server (this PR, before merge):
+  `python scripts/corpus/validate_tess.py` on the kept Eugippius file: FAIL
+  on the tab-delimited `<ref>\ttext` check, the same pre-existing legacy
+  space-delimited condition documented for other files in the 2026-09-19
+  batch 2 entry above (this PR does not modify the kept file's content).
+  On the new `magnus_felix_ennodius.carmina_2.tess`: FAIL on one
+  non-monotonic-ref warning, `<...107.8> -> <...107.ep>`, a false positive
+  of the validator's ref-sort rule (a letter-suffixed tag always sorts
+  before a numeric one at the same position, regardless of the letters);
+  the epistle genuinely follows poem 107's verses in the source. No other
+  check failed (0 empty lines, 0 duplicate refs, 0 HTML residue).
+- Production steps (after merge, none of them run yet):
+  1. `git pull` on production `main`; removes
+     `eugippius.excerpta_ex_operibus_augustini.tess` and
+     `magnus_felix_ennodius.carmina.tess` from `texts/la/`, adds
+     `magnus_felix_ennodius.carmina_2.tess`.
+  2. Lemma cache: delete any `cache/lemmas/la/` entries for the two
+     retired filenames; build a fresh entry for
+     `magnus_felix_ennodius.carmina_2` (new content, needs one).
+  3. Latin inverted index: drop the two retired texts' postings, lines and
+     texts rows with `scripts/corpus/drop_stale_index_entries.py` (dry run
+     first), then run the normal Latin text-import step for
+     `magnus_felix_ennodius.carmina_2.tess` so its verses are indexed;
+     rebuild `lemma_doc_freq`.
+  4. Latin bigram cache: `venv/bin/python scripts/corpus/rebuild_bigrams.py
+     la`, after confirming it is actually stale.
+  5. Passage index: drop the retired texts' windows (283 for the Eugippius
+     file, 39 for the Ennodius whole-poem file, per the source comparison
+     document) in lockstep across ids, embeddings, descriptions and
+     window_texts with `drop_passage_rows.py`; build new windows for
+     `magnus_felix_ennodius.carmina_2` (932 lines).
+  6. Atomic swap of both the inverted index and the passage index, `touch
+     tesseraev6_flask.wsgi`, run the reference test before and after
+     (324 distinct loci for "arma virum" as of 2026-09).
+  7. A search for a phrase known to be in `magnus_felix_ennodius.carmina_2`
+     (e.g. a Book 2 epigram line) to confirm the new file is live and
+     indexed.
+- Archive: `~/tesserae-backups/retired_duplicates_2026-09-19b/` (`texts/la/`
+  for the 2 retired files; `lemma_cache/la/` and `translations/la/` both
+  empty, no entry for either file found in this checkout).
+
+### Part C (added same day, same PR): Sodoma and Iona pairs checked, kept as-is
+- What: NC asked whether `tertullian_pseudo.de_sodoma.tess` /
+  `cyprian_pseudo.sodoma.tess` and `tertullian_pseudo.de_iona_propheta.tess`
+  / `cyprian_pseudo.de_iona.tess` are the same poem transmitted under two
+  attributions (a documented manuscript-tradition fact for these two poems)
+  and, if so, to retire the weaker copy. Compared by normalized line
+  matching (lowercase, v to u, j to i, punctuation stripped) and by
+  order-independent 4-word chunk containment (not just index-aligned lines,
+  since a one-line offset in the Sodoma pair would otherwise distort a
+  naive per-line diff):
+  - **Sodoma**: `cyprian_pseudo.sodoma.tess` 166 lines/1,580 words;
+    `tertullian_pseudo.de_sodoma.tess` 167 lines/1,594 words. 4-word chunk
+    containment 53.7% (cyprian-in-tertullian) / 53.1% (the reverse).
+    Index-aligned exact-line match at the best offset: 33.1% (55/166).
+  - **Iona**: `cyprian_pseudo.de_iona.tess` 105 lines/1,007 words;
+    `tertullian_pseudo.de_iona_propheta.tess` 105 lines/1,009 words. 4-word
+    chunk containment 53.4% / 52.8%. Index-aligned exact-line match: 41.0%
+    (43/105).
+  - For comparison, every genuine same-edition duplicate pair checked in
+    this document (2026-09-18 and 2026-09-19 batches) ran 90%+ on the same
+    kind of chunk-containment check; OCR noise alone (letter swaps, v/u,
+    dropped letters) does not depress the figure to ~53%. The differences
+    here are at the word-choice level, not the letter level (Sodoma line 1:
+    "primaeui **crimina** saecli" vs "primaeui **tempora** saecli"; line 3:
+    "**Quot** caelum **spargit**" vs "**quas** caelum **sparsit**"; line 4:
+    "**et** liquido" vs "**haud** liquido"), the kind of divergence expected
+    between two real manuscript-tradition recensions, not two scans of one
+    edition. `backend/text_sources.json` confirms two different
+    print-edition lineages exist for both poems (a Peiper 1891 CSEL
+    "Cyprianus Heptateuchos" edition and an Oehler 1854 "Tertullian" edition
+    are both cited elsewhere in the file, for neither of the two currently
+    served files, which are both instead sourced from The Latin Library
+    under their respective attribution pages).
+  - **Decision: keep both pairs.** They are the same poem but differ
+    materially enough (word-level, not OCR-level) that picking a "better"
+    copy would mean picking a manuscript tradition, not deduplicating a
+    scan; both traditions are legitimate to keep searchable.
+  - Bonus finding while checking `text_sources.json` credits (as asked):
+    three orphaned citation entries with no corresponding served file,
+    removed: "Pseudo-Cyprian"/"Sodoma" (Peiper 1891, `added_by`: "V3 Legacy
+    Import", left over from a file already gone, likely the `pseudo_cyprian.carmina`
+    bundle retired in the 2026-09-18 batch), "Pseudo-Tertullian"/"Carmen De
+    Iona et Ninive" and "Pseudo-Tertullian"/"Incerti Auctoris Carmen
+    Sodoma" (both Oehler 1854, `added_by`: "Caitlin Diddams", matching no
+    filename or author/work string on any file in the current corpus).
+    Neither of the two live pairs' own citations (both "The Latin Library",
+    `added_by`: "V6 Import") was touched.
+- No corpus files added, removed or modified in Part C; the only change is
+  the three-entry `text_sources.json` cleanup above.
+
+### Part D (added same day, same PR): the two Book 1 prose prefaces preserved
+- What: NC asked not to drop the two Book 1 prose items flagged in Part B
+  (slots 1.6 and 1.7 of the retired `magnus_felix_ennodius.carmina.tess`)
+  and to identify what they are. Re-checked against the source XML
+  (`stoa0114a.stoa003.opp-lat1.xml`): both slots are actually mixed
+  prose-plus-verse compositions, not pure prose. Slot 6's verse (40 lines,
+  240 words, opening "Post canas hiemes, gelidi post damna profundi")
+  and slot 7's verse (80 lines, 414 words, opening "Fluminis in medio
+  succendis uiscera, Fauste,") match `ennodius.carmina.tess`'s own poems 6
+  and 7 verse-for-verse (confirmed by opening and closing lines) -- so the
+  verse portions are NOT unique, they are the same poems the batch-2-era
+  comparison document had already found duplicated in `ennodius.carmina.tess`.
+  What genuinely exists nowhere else is the PROSE that precedes each poem
+  in this source only: slot 6 is titled "VI. Dictio Ennodi diaconi quando
+  de Roma rediit" (443 words, a prose "dictio" on Ennodius's return from
+  Rome) and slot 7 is titled "VII. Fausto Praefatio" (123 words, a prose
+  preface addressed to Faustus, introducing the poem that follows). Neither
+  text appears in `magnus_felix_ennodius.dictiones.tess` (the separate,
+  already-served Dictiones collection, a different source document,
+  `stoa0114a.stoa004`) or anywhere else in the corpus (checked by exact
+  phrase search across `texts/la/`).
+  - New file: `magnus_felix_ennodius.carmina_1_praefationes.tess` (2 lines,
+    567 words), holding just these two prose prefaces, tagged
+    `<magnus_felix_ennodius.carmina_1_praefationes 6>` and `<...7>` (the
+    original Book 1 slot numbers, for traceability). The id deliberately
+    does not read "dictiones_1": the existing `magnus_felix_ennodius.dictiones.tess`
+    is already a complete, separately-sourced collection, and naming this
+    file as if it were "book 1" of that collection would misrepresent it;
+    "carmina_1_praefationes" names what these two items actually are,
+    prose prefaces belonging to Carmina Book 1.
+  - Two small transcription artifacts in the source XML's prose text were
+    corrected while extracting it (both are stray tokens, not real Latin,
+    consistent with the level of noise already documented elsewhere in
+    this corpus): "pateat exul- s tantis" -> "pateat exultantis" (slot 6)
+    and "quantum sentio, 5 rubiginosos" -> "quantum sentio, rubiginosos"
+    (slot 7). Word counts (443 and 123) match the retired whole-poem
+    file's own `2.6`/`2.7`-equivalent lines for these two items exactly
+    once the source XML's `<note>` apparatus, nested inside the `<p>`
+    element for slot 7 in this specific source (an isolated encoding
+    irregularity, not present for slot 6), is excluded from extraction.
+  - Registries: `data/text_genres.csv` (new row, era Late Antique, meter
+    prose, genre medieval, matching the other Magnus Felix Ennodius prose
+    works); `backend/text_provenance.json` (new entry, same source XML as
+    `magnus_felix_ennodius.carmina_2`, title "Carmina, Book 1, Prose
+    Prefaces (6-7)").
+  - `python scripts/corpus/validate_tess.py`: `2 lines, avg 2090 chars
+    [ok]`, no flags.
+
+### Part D verification addendum: two checks NC asked to confirm
+- **`DISPLAY_NAMES` keys on the bare stem.** Ran
+  `format_display_name('exerpta_ex_operibus_augustini')` directly: returns
+  `'Excerpta ex Operibus Augustini'`. Also ran the actual call path the app
+  uses, `get_text_metadata('texts/la/eugippius.exerpta_ex_operibus_augustini.tess')`:
+  its `title` is `'Excerpta ex Operibus Augustini'` too. Both confirm the
+  Part A fix reaches the real title the site renders, not just the raw
+  dictionary lookup.
+- **`meter=unknown` is an accepted, correctly-handled value.** Grepped
+  every consumer of the `meter` column: `backend/blueprints/admin.py`
+  itself defaults a missing value to `'unknown'`
+  (`row.setdefault('meter', 'unknown')`); `backend/fusion.py`'s
+  `_get_text_meter()` explicitly treats `'unknown'` (with `'mixed'` and
+  blank) as "no meter data, do not group this text by meter" for the
+  same-meter IDF feature, which is exactly the intended behavior for a
+  verse text the scanner has no scansion entry for; the admin genre
+  editor, `client/src/components/admin/tabs/GenreClassificationTab.jsx`,
+  uses `'unknown'` as its own fallback throughout (`t.meter || 'unknown'`)
+  and treats the meter column as an open set of values discovered from the
+  data, not a fixed enum. `unknown` is not a guess; it is the same value
+  already used in production for the sibling row `ennodius.carmina.tess`,
+  for the identical reason.
+
 ## 2026-09-19 Corpus: two more duplicate Latin files retired (batch 2)
 - What (code, this PR; not yet run on production): `research/corpus/
   RETIREMENT_LIST_2026-09-19_batch2.md` checked six further items found

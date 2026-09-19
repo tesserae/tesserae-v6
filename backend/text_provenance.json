@@ -634,12 +634,20 @@
       "date_added": "2026-01-21T22:31:16.376866",
       "language": "la"
     },
-    "magnus_felix_ennodius.carmina": {
+    "magnus_felix_ennodius.carmina_1_praefationes": {
       "source": "csel",
       "original_id": "stoa0114a.stoa003.opp-lat1.xml",
       "author": "Magnus Felix Ennodius",
-      "title": "Carmina",
-      "date_added": "2026-01-21T22:31:16.470948",
+      "title": "Carmina, Book 1, Prose Prefaces (6-7)",
+      "date_added": "2026-09-19T00:00:00.000000",
+      "language": "la"
+    },
+    "magnus_felix_ennodius.carmina_2": {
+      "source": "csel",
+      "original_id": "stoa0114a.stoa003.opp-lat1.xml",
+      "author": "Magnus Felix Ennodius",
+      "title": "Carmina, Book 2",
+      "date_added": "2026-09-19T00:00:00.000000",
       "language": "la"
     },
     "magnus_felix_ennodius.dictiones": {
@@ -760,14 +768,6 @@
       "author": "Pseudo-Eucherius",
       "title": "De Situ Hierusolimitanae Urbis Atque Ipsius Judaeae",
       "date_added": "2026-01-21T22:31:17.050868",
-      "language": "la"
-    },
-    "eugippius.excerpta_ex_operibus_augustini": {
-      "source": "csel",
-      "original_id": "stoa0119.stoa003.opp-lat1.xml",
-      "author": "Eugippius",
-      "title": "Excerpta ex Operibus Augustini",
-      "date_added": "2026-01-21T22:31:17.490316",
       "language": "la"
     },
     "evagrius_monachus.altercatio_legis_inter_simonem_iudaeum_e": {

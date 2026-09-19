@@ -655,6 +655,11 @@ DISPLAY_NAMES = {
     'prophets': 'Prophets',
     'revelation': 'Revelation',
     'writings': 'Writings',
+    # eugippius.exerpta_ex_operibus_augustini.tess keeps its misspelled id
+    # (renaming would touch every index and the passage windows; see
+    # docs/DATA_OPERATIONS.md, 2026-09-19 batch 3), but the displayed title
+    # should read correctly.
+    'exerpta_ex_operibus_augustini': 'Excerpta ex Operibus Augustini',
 }
 
 # Words that stay lowercase inside a title, English and Latin. Not applied to

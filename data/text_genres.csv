@@ -710,7 +710,6 @@ eucherius_of_lyon.formulae_spiritalis_intellegentiae.tess,eucherius_of_lyon,form
 eucherius_of_lyon.instructiones.tess,eucherius_of_lyon,instructiones,Late Antique,prose,theology,auto
 eucherius_of_lyon.unknown.tess,eucherius_of_lyon,unknown,Late Antique,prose,theology,auto
 eugippius.epistula_ad_probam_virginem.tess,eugippius,epistula_ad_probam_virginem,Late Antique,prose,theology,auto
-eugippius.excerpta_ex_operibus_augustini.tess,eugippius,excerpta_ex_operibus_augustini,Late Antique,prose,theology,auto
 eugippius.exerpta_ex_operibus_augustini.tess,eugippius,exerpta_ex_operibus_augustini,Late Antique,prose,theology,auto
 eugippius.vita_sancti_severini.tess,eugippius,vita_sancti_severini,Late Antique,prose,theology,auto
 eutropius.breviarium.tess,eutropius,breviarium,Late Imperial,prose,historiography,auto
@@ -988,7 +987,8 @@ macrobius.saturnalia.tess,macrobius,saturnalia,Late Antique,prose,philosophy,aut
 maffeo_veggio.aeneid.tess,maffeo_veggio,aeneid,Renaissance,hexameter,epic,auto
 magnus_felix_ennodius.benedictio_cerei_i.tess,magnus_felix_ennodius,benedictio_cerei_i,Late Antique,prose,medieval,auto
 magnus_felix_ennodius.benedictio_cerei_ii.tess,magnus_felix_ennodius,benedictio_cerei_ii,Late Antique,prose,medieval,auto
-magnus_felix_ennodius.carmina.tess,magnus_felix_ennodius,carmina,Late Antique,prose,medieval,auto
+magnus_felix_ennodius.carmina_1_praefationes.tess,magnus_felix_ennodius,carmina_1_praefationes,Late Antique,prose,medieval,auto
+magnus_felix_ennodius.carmina_2.tess,magnus_felix_ennodius,carmina_2,Late Antique,unknown,medieval,auto
 magnus_felix_ennodius.de_vita_beati_antoni_monachi.tess,magnus_felix_ennodius,de_vita_beati_antoni_monachi,Late Antique,prose,medieval,auto
 magnus_felix_ennodius.dictiones.tess,magnus_felix_ennodius,dictiones,Late Antique,prose,medieval,auto
 magnus_felix_ennodius.ennodius_ambrosio_et_beato.tess,magnus_felix_ennodius,ennodius_ambrosio_et_beato,Late Antique,prose,medieval,auto

@@ -30,6 +30,37 @@ docs/DATA_OPERATIONS.md.
   survives the rewrite to the real route, `/browse`.
 
 ### Corpus
+- Retire the Eugippius duplicate and resegment Ennodius Book 2 (batch 3):
+  `eugippius.excerpta_ex_operibus_augustini` (correctly spelled, but drops
+  the real Augustine wording for 183 of 390 excerpts in favor of one-line
+  summaries) is retired; `eugippius.exerpta_ex_operibus_augustini`
+  (misspelled filename, kept, has complete text for all 390) gets its
+  displayed title corrected in code so the misspelling never surfaces.
+  `magnus_felix_ennodius.carmina` (152 Book 2 poems stored one whole poem
+  per line) is retired and replaced by `magnus_felix_ennodius.carmina_2`,
+  rebuilt at proper one-verse-per-line granularity directly from the
+  edition's own EpiDoc XML source, which also recovers a poem missing from
+  the old file and drops a miscoded apparatus line. See
+  docs/DATA_OPERATIONS.md for the excerpt-containment check, the
+  verse-by-verse verification, and the registries edited. Archived:
+  `~/tesserae-backups/retired_duplicates_2026-09-19b/`.
+  Also checked whether the Sodoma and Iona poems, each transmitted under
+  both a Cyprian and a Tertullian attribution, are duplicate copies:
+  `tertullian_pseudo.de_sodoma`/`cyprian_pseudo.sodoma` and
+  `tertullian_pseudo.de_iona_propheta`/`cyprian_pseudo.de_iona` both run
+  around 53% word-chunk containment (well below the 90%+ seen for genuine
+  same-edition duplicates elsewhere in this document, and the differences
+  are word-choice-level, not OCR-level), so both pairs are kept as distinct
+  recensions rather than deduplicated. Removed three orphaned
+  `backend/text_sources.json` citation entries found while checking
+  credits for this comparison.
+  Also preserved the two Book 1 prose items flagged when the whole-poem
+  file was retired: they turn out to be prose prefaces ("Dictio Ennodi
+  diaconi quando de Roma rediit" and "Fausto Praefatio") attached to poems
+  6 and 7, whose verse is already covered by `ennodius.carmina.tess`; the
+  prefaces themselves are not duplicated anywhere, so they are kept in a
+  new file, `magnus_felix_ennodius.carmina_1_praefationes.tess` (2 lines).
+
 - Retire two more duplicate Latin files (batch 2):
   `juvencus_caius_vettius_aquilinus.evangeliorum_libri_quattuor` (whole
   books stored one per line; `juvencus.historia_evangelica` already
