@@ -77,3 +77,93 @@ describe('results are labelled with a real author and title', () => {
     expect(await screen.findByText('ovid.metamorphoses')).toBeTruthy();
   });
 });
+
+/**
+ * The "N of M works" coverage line under the language row used to render
+ * only when exactly one covered language (Latin, Greek, English, Coptic)
+ * was picked -- with the default "All languages" nothing pointed at the
+ * covered-works list at all. Now one line always shows: the existing
+ * per-language sentence for one covered language, a fixed sentence for one
+ * language Browse Corpus doesn't index, and a summed sentence otherwise
+ * (the default, or several languages picked together).
+ */
+describe('the covered-works line under the language row', () => {
+  // la: 10 texts, 8 covered. grc: 5 texts, 5 covered. en: 4 texts, 2
+  // covered. cop: 3 texts, 3 covered. Sum: 18 of 4 languages.
+  const TOTALS = { la: 10, grc: 5, en: 4, cop: 3 };
+  const COVERED = { la: 8, grc: 5, en: 2, cop: 3 };
+
+  function mockFetch() {
+    return vi.fn((url) => {
+      const u = String(url);
+      if (u.startsWith('/api/languages')) {
+        return Promise.resolve({ json: () => Promise.resolve({ languages: [] }) });
+      }
+      const textsMatch = u.match(/^\/api\/texts\?language=(\w+)/);
+      if (textsMatch) {
+        const lang = textsMatch[1];
+        const n = TOTALS[lang] || 0;
+        const texts = Array.from({ length: n }, (_, i) => (
+          { id: `${lang}${i}.tess`, author: 'Author', title: `Work ${i}` }
+        ));
+        return Promise.resolve({ json: () => Promise.resolve(texts) });
+      }
+      const worksMatch = u.match(/^\/api\/passages\/works\?language=(\w+)/);
+      if (worksMatch) {
+        const lang = worksMatch[1];
+        const n = COVERED[lang] || 0;
+        const works = Array.from({ length: n }, (_, i) => `${lang}${i}`);
+        return Promise.resolve({ json: () => Promise.resolve({ works }) });
+      }
+      if (u.startsWith('/api/passages/theme-search')) {
+        return Promise.resolve({ json: () => Promise.resolve(RESULT) });
+      }
+      return Promise.resolve({ json: () => Promise.resolve({}) });
+    });
+  }
+
+  beforeEach(() => {
+    global.fetch = mockFetch();
+    // The page writes the current query and languages into the address bar
+    // (replaceState) so a search survives a reload. jsdom's window.location
+    // isn't reset between tests in this file, so without this a later test's
+    // fresh mount reads an earlier test's leftover ?query=&languages= and
+    // starts already mid-search with a language picked.
+    window.history.replaceState(null, '', '/');
+  });
+
+  it('with all languages (the default), sums coverage over the four Browse Corpus indexes', async () => {
+    render(<ThemeSearchPage />);
+    expect(await screen.findByText(/Theme Search covers 18 works in 4 languages\./)).toBeTruthy();
+    const link = screen.getByRole('link', { name: 'See the list.' });
+    expect(link.getAttribute('href')).toBe('/corpus?theme=1&language=la');
+
+    // Picking several languages together (not exactly one) keeps the same
+    // summed sentence rather than something that doesn't parse.
+    fireEvent.click(screen.getByText('Latin'));
+    fireEvent.click(screen.getByText('Greek'));
+    expect(await screen.findByText(/Theme Search covers 18 works in 4 languages\./)).toBeTruthy();
+  });
+
+  it('with one covered language selected, keeps the per-language sentence', async () => {
+    render(<ThemeSearchPage />);
+    await screen.findByText(/Theme Search covers 18 works in 4 languages\./);
+    fireEvent.click(screen.getByText('Latin'));
+    expect(await screen.findByText(/Searches 8 of 10 works in Latin\./)).toBeTruthy();
+    const link = screen.getByRole('link', { name: 'See the list of covered works' });
+    expect(link.getAttribute('href')).toBe('/corpus?theme=1&language=la');
+    expect(screen.queryByText(/Theme Search covers/)).toBeNull();
+  });
+
+  it('with one language Browse Corpus does not cover selected, shows the fixed sentence', async () => {
+    render(<ThemeSearchPage />);
+    await screen.findByText(/Theme Search covers 18 works in 4 languages\./);
+    fireEvent.click(screen.getByText('Hebrew'));
+    expect(await screen.findByText(
+      /Theme Search covers works in Latin, Greek, English and Coptic;/
+    )).toBeTruthy();
+    const link = screen.getByRole('link', { name: 'see the list' });
+    expect(link.getAttribute('href')).toBe('/corpus?theme=1&language=la');
+    expect(screen.queryByText(/Searches \d+ of \d+ works/)).toBeNull();
+  });
+});

@@ -28,6 +28,14 @@ docs/DATA_OPERATIONS.md.
   pages off one shared helper (`client/src/utils/passageCoverage.js`); a
   new App-level test confirms the `/corpus` deep link's query string
   survives the rewrite to the real route, `/browse`.
+- The covered-works link (#388, above) only showed with exactly one of the
+  four Browse Corpus languages selected, so the default "All languages"
+  view had no link at all. The line under the language row now always
+  shows: the per-language sentence stays for one covered language, a
+  summed sentence ("Theme Search covers N works in 4 languages") for the
+  default or several languages picked together, and a fixed sentence for
+  a language Browse Corpus doesn't index (Hebrew, Persian, Urdu). The link
+  always goes to the Latin list, `/corpus?theme=1&language=la`.
 
 ### Corpus
 - Retire the Eugippius duplicate and resegment Ennodius Book 2 (batch 3):

@@ -135,6 +135,15 @@ const LANG_LABEL = {
   it: 'Italian', fro: 'Old French', gmh: 'Middle High German',
 };
 
+/** "Latin, Greek, English and Coptic" -- used for the fixed coverage
+ *  sentence shown when the picker is narrowed to one language Browse Corpus
+ *  doesn't cover (Hebrew, Persian, Urdu). */
+function joinLangNames(codes) {
+  const names = codes.map((c) => LANG_LABEL[c] || c);
+  if (names.length < 2) return names.join('');
+  return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
+}
+
 // Order as the rest of the site uses: Latin, Greek, English, then the others.
 const LANG_CHOICES = [
   ['', 'All languages'],
@@ -202,6 +211,28 @@ export default function ThemeSearchPage() {
     }).catch(() => { if (!dead) setCoverage(null); });
     return () => { dead = true; };
   }, [language]);
+
+  // The same coverage question, summed over all four languages Browse Corpus
+  // indexes, for the line shown when the picker isn't narrowed to exactly one
+  // of them: the default "All languages", or several picked at once. Fetched
+  // once on mount and cached here rather than refetched on every language
+  // click -- one /api/texts and one /api/passages/works call per language,
+  // four pairs total, ever.
+  const [allCoverage, setAllCoverage] = useState(null);
+  useEffect(() => {
+    let dead = false;
+    Promise.all(BROWSE_CORPUS_LANGUAGES.map((code) => (
+      fetch(`/api/texts?language=${code}`).then((r) => r.json()).catch(() => []).then((texts) => {
+        const arr = Array.isArray(texts) ? texts : [];
+        return fetchCoveredWorks(code, arr.length > 0).then((works) => coverageCounts(arr, works || []));
+      })
+    ))).then((results) => {
+      if (dead) return;
+      const total = results.reduce((sum, r) => sum + r.covered, 0);
+      setAllCoverage({ total, languageCount: BROWSE_CORPUS_LANGUAGES.length });
+    }).catch(() => {});
+    return () => { dead = true; };
+  }, []);
 
   const [data, setData] = useState(null);
   const [running, setRunning] = useState(false);
@@ -341,6 +372,16 @@ export default function ThemeSearchPage() {
 
   const band = data && BAND[data.confidence?.level];
 
+  // Which of the three coverage-line states applies: one covered language
+  // (Latin, Greek, English, Coptic) picked alone keeps the existing
+  // per-language sentence; one uncovered language (Hebrew, Persian, Urdu,
+  // or any other not in Browse Corpus) alone gets the fixed sentence; "All
+  // languages" (nothing picked) or several picked together get the summed
+  // sentence. Exactly one of these always renders.
+  const selectedLangCodes = language ? language.split(',').map((s) => s.trim()).filter(Boolean) : [];
+  const singleCoveredLang = selectedLangCodes.length === 1 && BROWSE_CORPUS_LANGUAGES.includes(selectedLangCodes[0]);
+  const singleUncoveredLang = selectedLangCodes.length === 1 && !singleCoveredLang;
+
   return (
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-2xl font-semibold text-gray-900">Theme Search</h1>
@@ -412,7 +453,7 @@ export default function ThemeSearchPage() {
         </span>
       </div>
 
-      {coverage && coverage.total > 0 && (
+      {singleCoveredLang && coverage && coverage.total > 0 && (
         <p className="mt-1 text-[11px] text-gray-500">
           {coverage.covered > 0
             // A covered count of zero is indistinguishable from "the
@@ -425,6 +466,26 @@ export default function ThemeSearchPage() {
             className="text-red-700 hover:underline"
           >
             See the list of covered works
+          </a>
+        </p>
+      )}
+
+      {singleUncoveredLang && (
+        <p className="mt-1 text-[11px] text-gray-500">
+          Theme Search covers works in {joinLangNames(BROWSE_CORPUS_LANGUAGES)};{' '}
+          <a href="/corpus?theme=1&language=la" className="text-red-700 hover:underline">
+            see the list
+          </a>.
+        </p>
+      )}
+
+      {!singleCoveredLang && !singleUncoveredLang && (
+        <p className="mt-1 text-[11px] text-gray-500">
+          {allCoverage
+            ? <>Theme Search covers {allCoverage.total} works in {allCoverage.languageCount} languages.{' '}</>
+            : <>Theme Search coverage is loading.{' '}</>}
+          <a href="/corpus?theme=1&language=la" className="text-red-700 hover:underline">
+            See the list.
           </a>
         </p>
       )}
