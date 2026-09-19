@@ -67,6 +67,44 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   const [fullTranslation, setFullTranslation] = useState(null);
   useEffect(() => { setFullTranslation(null); }, [work]);
 
+  // REUSE: other works whose lines verbatim-repeat the selection, from the
+  // corpus-wide reuse table (backend/reuse_table.py). Latin only for now --
+  // a language with no table answers 404, which reads here as `available:
+  // false` rather than an error, since "not built for this language" is a
+  // normal state, not a failure.
+  const [reuse, setReuse] = useState(null);
+  const [reuseLoading, setReuseLoading] = useState(false);
+  const [reuseError, setReuseError] = useState(null);
+  // TIERED (2026-09-19): strict pairs (the original jaccard/containment
+  // rules) list first with no heading, unchanged from before tiering;
+  // possible pairs (the rare-single-ngram rule alone -- one rare shared
+  // phrase, weaker evidence, see backend/reuse_table.py) sit behind a
+  // collapsed section a reader opens on purpose. Collapsed again on a new
+  // selection, so it never carries over from a line that had it open.
+  const [possibleOpen, setPossibleOpen] = useState(false);
+  useEffect(() => { setPossibleOpen(false); }, [selection]);
+  useEffect(() => {
+    if (!selection || tab !== 'reuse') return;
+    const picked = (units || []).slice(selection.startIdx, selection.endIdx + 1);
+    if (!picked.length) { setReuse({ available: true, quotations: [] }); return; }
+    let cancelled = false;
+    setReuseLoading(true);
+    setReuseError(null);
+    Promise.all(picked.map((u) => fetch(
+      `/api/reuse/line?work=${encodeURIComponent(work)}`
+      + `&ref=${encodeURIComponent(u.ref)}&language=${encodeURIComponent(language)}`,
+    ).then((r) => (r.status === 404 ? { available: false } : asJson(r)))))
+      .then((results) => {
+        if (cancelled) return;
+        const available = results.some((r) => r.available);
+        const quotations = results.flatMap((r) => r.quotations || []);
+        setReuse({ available, quotations, meta: results.find((r) => r.meta)?.meta });
+      })
+      .catch((e) => { if (!cancelled) setReuseError(e.message); })
+      .finally(() => { if (!cancelled) setReuseLoading(false); });
+    return () => { cancelled = true; };
+  }, [selection, work, units, language, tab]);
+
   const loadFullTranslation = () => {
     setFullTranslation('loading');
     fetch(`/api/passages/translation-full?work=${encodeURIComponent(work)}`)
@@ -188,11 +226,17 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   }, [selection, work, units, tab]);
 
   const tabs = [
-    ['similar', 'Similar Passages'],
-    ['verbal', 'Verbal Parallels'],
+    // Short labels so the four tabs fit one row without a scrollbar a
+    // reader has no way to know is there ("If users can't see all of them
+    // they won't know they're there," NC, 2026-09-19) -- matches
+    // feat/scholarship-tab's wording. The full name is the title attribute.
+    ['similar', 'Similar', 'Similar Passages'],
+    ['verbal', 'Parallels', 'Verbal Parallels'],
     // In the English-focused reading view the middle column IS the
     // translation, so this tab holds the original instead.
-    ['translation', focus === 'english' ? 'Original' : 'Translation'],
+    ['translation', focus === 'english' ? 'Original' : 'Translation',
+     focus === 'english' ? 'The original text' : 'Translation'],
+    ['reuse', 'Reuse', 'Reuse'],
   ];
 
   return (
@@ -209,8 +253,11 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                       lg:static lg:shadow-none lg:sticky lg:top-0 lg:self-start lg:h-screen lg:max-h-none
                       ${(selection || sheetOpen) ? 'max-h-[55vh]' : 'max-h-[2.75rem] overflow-hidden'}`}>
       {/* Room on the right for the Tessa button, which floats over the sheet
-          on a phone; the strip scrolls if the labels do not fit. */}
-      <div className="flex items-center shrink-0 border-b border-gray-200 text-sm overflow-x-auto pr-20 lg:pr-0 whitespace-nowrap">
+          on a phone. The strip WRAPS to a second line rather than scrolling
+          when the tabs do not all fit one row: a scrollbar here was easy to
+          miss entirely, so a reader could open the Reader and never learn
+          the Reuse tab existed (NC, 2026-09-19). */}
+      <div className="flex items-center flex-wrap shrink-0 border-b border-gray-200 text-sm pr-20 lg:pr-0">
         {(selection || sheetOpen) && (
           <button
             onClick={() => { setSheetOpen(false); onClose?.(); }}
@@ -221,11 +268,12 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
             ✕
           </button>
         )}
-        {tabs.map(([id, label]) => (
+        {tabs.map(([id, label, full]) => (
           <button
             key={id}
+            title={full || label}
             onClick={() => { setTab(id); setSheetOpen(true); }}
-            className={`px-3 py-2 font-semibold border-b-2 transition-colors ${
+            className={`px-2.5 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               tab === id
                 ? 'text-red-700 border-red-700'
                 : 'text-gray-500 border-transparent hover:text-gray-700'
@@ -591,9 +639,133 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
             )}
           </>
         )}
+
+        {selection && tab === 'reuse' && (
+          <>
+            <p className="text-[11px] text-gray-500 leading-snug">
+              Lines sharing enough word-triples with this line to count as a quotation
+              or near-quotation, computed once over the corpus. Latin for now.
+            </p>
+            {reuseLoading && <LoadingSpinner />}
+            {reuseError && <p className="text-sm text-red-700">{reuseError}</p>}
+            {!reuseLoading && !reuseError && reuse?.available === false && (
+              <p className="text-sm text-gray-500">
+                No reuse table has been built for {LANG_LABEL[language] || language} yet.
+              </p>
+            )}
+            {!reuseLoading && !reuseError && reuse?.available && reuse.quotations.length === 0 && (
+              <p className="text-sm text-gray-500">
+                No other work in the corpus repeats this line closely enough to count.
+              </p>
+            )}
+            {!reuseLoading && reuse?.available && reuse.quotations.length > 0 && (() => {
+              // TIERED: strict first with no heading (the original
+              // behavior); possible pairs -- one rare shared phrase, kept
+              // only by the rare-single-ngram rule -- behind a collapsed
+              // section, since a 30-pair sample of that rule's yield was
+              // still mostly coincidental (NC, 2026-09-19).
+              const strict = reuse.quotations.filter((q) => q.tier !== 'possible');
+              const possible = reuse.quotations.filter((q) => q.tier === 'possible');
+              return (
+                <>
+                  {strict.length > 0 && (
+                    <ReuseGroups quotations={strict} onOpenPassage={onOpenPassage} />
+                  )}
+                  {possible.length > 0 && (
+                    <div className={strict.length > 0 ? 'mt-3' : ''}>
+                      <button
+                        onClick={() => setPossibleOpen((o) => !o)}
+                        className="w-full flex items-center justify-between text-xs font-semibold
+                                   text-gray-600 border border-gray-200 rounded-lg px-2.5 py-1.5
+                                   hover:bg-gray-100"
+                        aria-expanded={possibleOpen}
+                      >
+                        <span>Possible echoes (one rare shared phrase) &middot; {possible.length}</span>
+                        <span aria-hidden="true">{possibleOpen ? '−' : '+'}</span>
+                      </button>
+                      {possibleOpen && (
+                        <div className="mt-2">
+                          <ReuseGroups quotations={possible} onOpenPassage={onOpenPassage} />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
+              );
+            })()}
+          </>
+        )}
       </div>
     </aside>
   );
+}
+
+/** The Reuse tab's per-work groups: the same card layout for either tier,
+ *  factored out so tiering (strict shown directly, possible behind a
+ *  collapsed section) does not duplicate the markup. */
+function ReuseGroups({ quotations, onOpenPassage }) {
+  return (
+    <div className="space-y-3">
+      {groupReuseByWork(quotations).map(({ work: otherWork, year, items }) => (
+        <div key={otherWork}>
+          <div className="flex items-baseline gap-2 mb-1">
+            <span className="font-bold text-sm text-red-800">{prettyWork(otherWork)}</span>
+            {year != null && (
+              <span className="text-[11px] text-gray-500 tabular-nums">
+                {year < 0 ? `${Math.abs(year)} BCE` : `${year} CE`}
+              </span>
+            )}
+          </div>
+          <div className="space-y-1.5">
+            {items.map((q) => (
+              <button
+                key={`${q.work}-${q.ref}`}
+                onClick={() => onOpenPassage?.({ work: q.work, language: q.language, ref_start: q.ref })}
+                className="group w-full text-left bg-white border border-gray-200 rounded-lg p-2.5
+                           hover:border-red-400 hover:bg-red-50/40 transition-colors
+                           focus:outline-none focus:ring-2 focus:ring-red-400"
+              >
+                <div className="flex items-baseline gap-2 flex-wrap">
+                  <span className="text-xs text-gray-500">{q.ref}</span>
+                  {q.span_len > 1 && (
+                    <span className="text-[10px] font-semibold bg-gray-100 text-gray-600 rounded px-1">
+                      {q.span_len} lines
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm text-gray-800 mt-0.5 leading-snug">
+                  <BoldSpans text={q.text} spans={q.bold_spans} />
+                </p>
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Group reuse quotations by the other work, newest author-date first (a
+ *  work with no known author date sorts last, not first -- an unguessed date
+ *  should not read as "oldest"). Within a work, order by span (a chained
+ *  multi-line quotation before single lines) then by shared count. */
+function groupReuseByWork(quotations) {
+  const byWork = new Map();
+  for (const q of quotations) {
+    if (!byWork.has(q.work)) byWork.set(q.work, { work: q.work, year: q.year ?? null, items: [] });
+    byWork.get(q.work).items.push(q);
+  }
+  const groups = [...byWork.values()];
+  for (const g of groups) {
+    g.items.sort((a, b) => (b.span_len - a.span_len) || (b.shared - a.shared));
+  }
+  groups.sort((a, b) => {
+    if (a.year == null && b.year == null) return a.work < b.work ? -1 : 1;
+    if (a.year == null) return 1;
+    if (b.year == null) return -1;
+    return b.year - a.year;
+  });
+  return groups;
 }
 
 /** "verg. aen. 6.1" -> "6.1". The Reader's refs carry the work's short tag and
@@ -602,6 +774,34 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
 function bareLocus(ref) {
   const m = String(ref || '').match(/(\d+(?:[.:]\d+)*)\s*$/);
   return m ? m[1] : String(ref || '').trim();
+}
+
+/** Bold the words a Reuse-tab quotation shares with the selected line, from
+ *  the [start, end) character spans backend/reuse_table.py's line()
+ *  computes server-side (_shared_word_mask/_bold_spans) -- a word-triple
+ *  match (or, failing that, the plain shared token a possible-echo pair was
+ *  matched on) reconstructed against the SAME normalized tokens the reuse
+ *  table itself was built from, not a client-side guess at which words
+ *  matter. Spans are non-overlapping and given in left-to-right order, so
+ *  this only needs to walk them once. Same visual treatment as Verbal
+ *  Parallels' Marked, below, for one consistent "this word is why" look
+ *  across the two tabs. */
+function BoldSpans({ text, spans }) {
+  if (!text) return null;
+  if (!spans || !spans.length) return <>{text}</>;
+  const parts = [];
+  let pos = 0;
+  spans.forEach(([start, end], i) => {
+    if (start > pos) parts.push(<span key={`t${i}`}>{text.slice(pos, start)}</span>);
+    parts.push(
+      <mark key={`b${i}`} className="bg-red-100 text-red-900 font-semibold rounded-sm px-[1px]">
+        {text.slice(start, end)}
+      </mark>
+    );
+    pos = end;
+  });
+  if (pos < text.length) parts.push(<span key="tail">{text.slice(pos)}</span>);
+  return <>{parts}</>;
 }
 
 /** Mark the matched words inside a quoted passage.

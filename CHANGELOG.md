@@ -15,6 +15,29 @@ docs/DATA_OPERATIONS.md.
   Theme Search use -- but the Reader's card built its own rough label from the
   id instead of reading them. It now reads `display_name`, falling back to the
   old label only for a response that predates the field.
+- Corpus-wide reuse table and "Reuse" tab: a small mark beside a line the
+  corpus repeats verbatim elsewhere ("quoted in N works" on hover) opens a
+  new Reuse tab beside Similar Passages, Verbal Parallels and Translation,
+  listing the repeating lines grouped by work, newest-first by author date
+  where known. Built from `scripts/reuse/build_reuse_table.py --language la`
+  (ported from the `research/reuse_table/` prototype, containment-gated
+  n-gram matching, see `research/reuse_table/REPORT_2026-09-18.md`), reading
+  `texts/la/` as the live corpus so retired files are excluded automatically;
+  writes `cache/reuse_pairs/la.db`. First run: 679 works, 516,458 lines,
+  52,855 pairs kept in 419s under a 12G cap (98 live files skipped, Gellius
+  among them, because the loader guessed the plain `<work>.json` cache
+  filename instead of resolving the hashed name). Fixed to call
+  `backend.lemma_cache.get_cached_units` and rebuilt: 777 works, 652,003
+  lines, 62,265 pairs kept in ~30 minutes, 0 works skipped for missing
+  cache; see docs/DATA_OPERATIONS.md and
+  `research/reuse_table/REPORT_2026-09-18_production_build.md`. New endpoints
+  `GET /api/reuse/line` and `GET /api/reuse/marks`
+  (`backend/reuse_table.py`, `backend/blueprints/reuse.py`), registered
+  site_only in `mcp_manifest.py`. Backend tests
+  (`tests/test_reuse_routes.py`) and Vitest
+  (`client/src/components/reader/ReuseTab.test.jsx`,
+  `TextPane.reuse.test.jsx`). Help page: new Reuse paragraph under the
+  Reader topic.
 
 ### Theme Search
 - #388 The list of covered works is reachable, not just a checkbox in Browse

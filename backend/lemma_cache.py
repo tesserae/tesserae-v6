@@ -35,14 +35,23 @@ def _legacy_cache_path(text_id, language):
     safe_id = text_id.replace('/', '_').replace('.tess', '')
     return os.path.join(CACHE_DIR, language, f"{safe_id}.json")
 
-def get_cache_path(text_id, language):
+def get_cache_path(text_id, language, cache_dir=None):
     """Get an ASCII-safe path to a cached lemma file.
 
     The cache filename must stay ASCII-only because some production WSGI
     environments expose an ASCII filesystem locale. Hashing the normalized
     text ID keeps filenames stable across NFC/NFD variants and avoids Unicode
     encode errors for Greek work IDs.
+
+    `cache_dir` defaults to this module's own CACHE_DIR; backend/reuse_table.py
+    passes its own (test-patchable) lemma cache directory so it can compute
+    the SAME hashed filename production's own cache uses without adopting
+    this module's CACHE_DIR (and, with it, get_cached_units's requirement
+    that a live .tess file exist and hash-match -- reuse_table only wants a
+    line's text, not a freshness guarantee, and the requirement would also
+    defeat the fixture directories the reuse-route tests use).
     """
+    cache_dir = cache_dir if cache_dir is not None else CACHE_DIR
     # Round-trip any surrogate escapes (from ASCII-locale fs decoding) back
     # to clean Unicode via UTF-8 so the hash is stable whether the caller
     # passes a JSON-decoded text_id or os.path.basename of a surrogate path.
@@ -60,7 +69,7 @@ def get_cache_path(text_id, language):
         ascii_hint = 'text'
 
     filename = f"{ascii_hint[:64]}-{digest}.json"
-    return os.path.join(CACHE_DIR, language, filename)
+    return os.path.join(cache_dir, language, filename)
 
 def get_cached_units(text_id, language):
     """Load pre-computed units from cache if available and valid"""

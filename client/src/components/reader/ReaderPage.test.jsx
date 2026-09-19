@@ -6,6 +6,7 @@
  */
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 const AUTHORS = [
   { name: 'Ovid', works: [
@@ -182,10 +183,10 @@ describe('the arrival banner is one-shot', () => {
 });
 
 describe('the side panel keeps its tabs', () => {
-  it('shows all three tabs with nothing selected', async () => {
+  it('shows all four tabs, short labels, with nothing selected', async () => {
     window.history.replaceState({}, '', '/read?work=ovid.amores.tess&lang=la');
     await mountReader();
-    for (const label of ['Similar Passages', 'Verbal Parallels', 'Translation']) {
+    for (const label of ['Similar', 'Parallels', 'Translation', 'Reuse']) {
       expect(await screen.findByRole('button', { name: label })).toBeTruthy();
     }
   });
@@ -298,5 +299,75 @@ describe('per-language defaults', () => {
                      { target: { value: 'la' } });
     await waitFor(() =>
       expect(asked).toContain('vergil.aeneid.part.1.tess'));
+  });
+});
+
+describe('clicking a "quoted in N works" mark', () => {
+  // NC: "the marks show, but clicking on them does nothing," and his
+  // screenshot had the results panel closed. The mark sits inside the same
+  // line the reader can also drag-select, and clicking it used to start (and
+  // release) that drag too, so the panel's own onSelect briefly won the race
+  // against onReuseClick and landed on Verbal Parallels instead of Reuse --
+  // or, on a slow render, stayed there. This exercises a real click (down,
+  // up, then the click event, not just a synthetic .click()) through the
+  // whole Reader, the same path a mouse takes.
+  const REUSE_QUOTE = {
+    work: 'macrobius.saturnalia', ref: 'macro. sat. 5.2.8', language: 'la',
+    text: 'a repeated line, quoted at length', shared: 5, span_len: 1, year: 400,
+  };
+
+  beforeEach(() => {
+    window.history.replaceState({}, '', '/read?work=ovid.tristia.part.3.tess&lang=la');
+    const reply = (obj) => Promise.resolve({
+      ok: true, status: 200,
+      json: () => Promise.resolve(obj),
+      text: () => Promise.resolve(JSON.stringify(obj)),
+      headers: { get: () => 'application/json' },
+    });
+    global.fetch = vi.fn((url) => {
+      const u = String(url);
+      if (u.startsWith('/api/text/')) {
+        return reply({
+          units: [{ ref: 'ov. tr. 3.1', text: 'a quoted line' }],
+          metadata: { display_name: 'a text' },
+        });
+      }
+      if (u.startsWith('/api/reuse/marks')) {
+        return reply({ lines: [{ ref: 'ov. tr. 3.1', n_works: 2 }] });
+      }
+      if (u.startsWith('/api/reuse/line')) {
+        return reply({ available: true, quotations: [REUSE_QUOTE] });
+      }
+      if (u.includes('/authors?')) return reply(AUTHORS);
+      if (u.includes('/texts?')) return reply([]);
+      if (u.startsWith('/api/languages')) return reply({ languages: [{ code: 'la' }] });
+      return reply({});
+    });
+  });
+
+  it('opens the panel on the Reuse tab and shows the fetched rows', async () => {
+    await mountReader();
+    const mark = await screen.findByTitle('Quoted in 2 other works');
+
+    await userEvent.setup().click(mark);
+
+    const reuseTab = screen.getByRole('button', { name: 'Reuse' });
+    await waitFor(() => expect(reuseTab.className).toContain('text-red-700'));
+    expect(await screen.findByText(/a repeated line, quoted at length/)).toBeTruthy();
+    expect(screen.getByText(/Macrobius/)).toBeTruthy();
+  });
+
+  it('is reachable by keyboard, with an aria-label naming the count', async () => {
+    await mountReader();
+    const mark = await screen.findByLabelText('quoted in 2 works');
+    expect(mark.tagName).toBe('BUTTON');
+
+    mark.focus();
+    expect(document.activeElement).toBe(mark);
+    await userEvent.setup().keyboard('{Enter}');
+
+    const reuseTab = screen.getByRole('button', { name: 'Reuse' });
+    await waitFor(() => expect(reuseTab.className).toContain('text-red-700'));
+    expect(await screen.findByText(/a repeated line, quoted at length/)).toBeTruthy();
   });
 });

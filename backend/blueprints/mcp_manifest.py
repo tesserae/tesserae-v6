@@ -154,9 +154,22 @@ MANIFEST = {
         'site_only': True,
         'reason': "Per-window connection counts that feed the Reader's margin gutter; visual.",
     },
+    '/api/reuse/line': {
+        'site_only': True,
+        'reason': ("Lines from other works that verbatim-repeat one specific line, for the "
+                  "Reader's Reuse tab; a corpus-wide table keyed to a single line/ref the "
+                  "Reader is showing, not a search a tool caller runs independently. Latin "
+                  "only as of 2026-09-19 (cache/reuse_pairs/la.db)."),
+    },
     '/api/rare-word-cloud': {
         'site_only': True,
         'reason': 'Word-cloud visualization data (sizes/weights for rendering); visual.',
+    },
+    '/api/reuse/marks': {
+        'site_only': True,
+        'reason': ("Per-line reuse counts for a visible range, feeding the Reader's margin "
+                  "'quoted in N works' marks; a rendering aid keyed to what is on screen, "
+                  "not something a tool caller asks for independently."),
     },
 
     # -- SITE_ONLY: produces a file ----------------------------------------------------

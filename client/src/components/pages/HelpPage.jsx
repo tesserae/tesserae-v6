@@ -831,6 +831,13 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   <strong>Translation</strong> shows the aligned public-domain English where one
                   exists. Coverage is partial: over half of the Greek corpus and nearly half of the Latin, so some passages have none.
                 </li>
+                <li>
+                  <strong>Reuse</strong> lists other works that repeat a line closely enough to
+                  count as a quotation or near-quotation: a small numbered mark beside a line in
+                  the text (&ldquo;quoted in N works&rdquo; on hover) opens this tab for that
+                  line. It comes from a table built once over the whole corpus, not a live
+                  search, so it covers only what has been built: Latin for now.
+                </li>
               </ul>
               <p className="text-gray-700 mb-3">
                 Arriving from Theme Search, the Reader opens on the translation, selects the whole

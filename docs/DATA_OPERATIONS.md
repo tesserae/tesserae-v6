@@ -423,6 +423,110 @@ Conventions
   `cyprian_pseudo.sodoma` 1; coverage answers from the sidecar; "arma
   virum" lemma search count unchanged at about 323 distinct loci.
 
+## 2026-09-19 Reader: corpus-wide reuse table built for Latin
+
+- What (code, not yet run on production): `scripts/reuse/build_reuse_table.py
+  --language <lang>` builds the corpus-wide verbatim/near-verbatim line-reuse
+  table the Reader's "quoted in N works" mark and Reuse tab read
+  (`GET /api/reuse/line`, `GET /api/reuse/marks`, `backend/reuse_table.py`).
+  It reads `texts/<lang>/*.tess` as the live corpus (so a file retired from
+  `texts/` is excluded even if a stale cache entry for it still exists),
+  applies the same `.part.N` skip rule as `backend/bigram_frequency.py`
+  (drop a part file when its base file is present), reads surface tokens
+  from each surviving file's plain `cache/lemmas/<lang>/<text_id>.json`
+  (skipping any live file with no plain cache -- a warning names them, not
+  an error), and writes `cache/reuse_pairs/<lang>.db` (`pairs`,
+  `line_counts`, `meta` with `built_at`, `corpus_version`,
+  `corpus_file_count`). Ported from the `research/reuse_table/` prototype
+  (`build_reuse_index.py` + `find_reuse_pairs.py`, merged into one script);
+  see `research/reuse_table/REPORT_2026-09-18.md` for the full design
+  history, including the containment rule
+  (`shared >= 4 and shared/min(ngrams_a, ngrams_b) >= 0.5`, replacing an
+  earlier raw-shared-count override that let long, unrelated prose
+  paragraphs through on a handful of coincidental function-word n-grams).
+- Run: `systemd-run --user --scope -p MemoryMax=12G venv/bin/python3
+  scripts/reuse/build_reuse_table.py --language la`, foreground, from a
+  worktree with `texts/`, `data/lemma_tables/` from git and `cache/lemmas/`,
+  `data/inverted_index/` symlinked to production (the same layout
+  `~/tesserae-map` uses). Result on the post-2026-09-10/09-18 retirement
+  corpus: 679 works indexed (1,043 `.part.` files collapsed into their base;
+  98 live `.tess` files skipped for a missing plain lemma cache -- rebuild
+  those caches to close this recall gap, a pre-existing condition this
+  script surfaced rather than caused), 516,458 lines, 52,855 pairs kept,
+  419s (about 7 minutes) total, comfortably under the cap. Prior stale-corpus
+  prototype run (before the duplicate-file retirements): 858 works, 605,521
+  lines, 117,111 pairs, 12.5 minutes -- the drop in both work count and kept
+  pairs on this run is expected and is itself a rough measure of how much of
+  the earlier count was corpus-duplicate artifact rather than genuine reuse.
+- Checked: the 20-known-quotation set (Vergil in Macrobius and Servius'
+  Georgics commentary; Gellius could not be checked here -- see below) came
+  back 18/20 recovered, the 2 misses both short quotations sitting inside a
+  very long multi-quotation commentator line whose few surviving n-grams did
+  not clear the containment/jaccard bar, the same known-limitation shape the
+  prototype report documents. A fresh 30-pair random hand sample (seed 42)
+  read against full line text (not a truncated preview -- the prototype
+  report's own lesson): 3 duplicate-text artifacts (a still-unretired
+  Eugippius `excerpta`/`exerpta` spelling-variant pair, and a newly-found
+  `cyprian_pseudo.de_pascha` / `pseudo_cyprian.carmina` overlap -- neither on
+  the 2026-09-10/09-18 retirement lists, both worth adding), 1 false
+  (coincidental) match, and 26 genuine matches (17 direct verbatim
+  quotations correctly located, including two buried in 824- and
+  1,233-token compilation lines; 9 formula/shared-citation/self-echo cases,
+  several of them real Augustine-Jerome correspondence preserved in both
+  men's letter collections). Duplicate-artifact share (3/30, 10%) is far
+  below the stale-corpus prototype's finding (dominant, ~7:1 over genuine
+  quotation on its poetry subset) but not literally zero -- the corpus still
+  carries a handful of un-retired duplicate/near-duplicate work pairs.
+- Known gap, not fixed here: Gellius's Attic Nights (`gellius.attic_nights`)
+  has no plain lemma cache in production, only the per-`.part.N` and
+  file-hash-suffixed caches, so it is absent from this run entirely (one of
+  the 98 skipped files) and the known-quotation check above could not
+  include it. Rebuilding its cache (`scripts/rebuild_lemma_cache.py` or
+  equivalent) and re-running the language would close this.
+- **Fixed and rebuilt 2026-09-19:** the gap above was not a missing cache but
+  a wrong filename guess -- caches are named `<work id>-<md5>.json`
+  (`get_cache_path`), and this script's `discover_corpus` was checking the
+  plain `<work id>.json` name only. Switched it to call
+  `backend.lemma_cache.get_cached_units(fname, language)`, the same
+  hashed-name-then-legacy-name, file-hash-validated resolution
+  `scripts/batch_lemma_cache.py`, `backend/text_service.py` and
+  `backend/app.py` already use, instead of guessing. Rebuilt on the same
+  corpus: 777 works indexed, 0 skipped for missing/invalid cache (down from
+  98, Gellius included), 652,003 lines, 62,265 pairs kept, ~30 minutes
+  total (`index_elapsed_seconds` 1,632s + `pairs_elapsed_seconds` 93s,
+  `total_elapsed_seconds` 1,787s per `cache/reuse_pairs/la_stats.json`).
+  Re-checked: the 20-known-quotation set (Vergil in Macrobius Saturnalia
+  5-6, Servius' Georgics commentary, and Gellius, sampled fresh with seed
+  20260918) now comes back 20/20; a fresh 30-pair random hand sample (seed
+  43) read against full line text: 23 genuine quotations (mostly patristic
+  authors independently quoting the same Vulgate verse, plus Gospel-harmony
+  and testimonia-anthology citations), 3 formula/self-echo (fixed
+  scriptural or epic-formula tags, e.g. the Pentateuch's "locutus est
+  Dominus ad Mosen dicens" and the Vergilian epic hemistich "at parte ex
+  alia" shared by unrelated poems), 4 duplicate-artifact pairs (Ennodius
+  under two work ids, Juvencus under two work ids, and two Augustine/Jerome
+  letters that are the same physical letter cross-catalogued in both men's
+  epistulary collections), 0 false matches. Full detail, both checks'
+  worked examples, and the still-skipped-works list:
+  `research/reuse_table/REPORT_2026-09-18_production_build.md`.
+- Production steps (Latin, not yet run): from the production checkout (it
+  must read production `texts/`, not a worktree's), one at a time,
+  `systemd-run --user --scope -p MemoryMax=12G -p MemorySwapMax=0
+  venv/bin/python scripts/reuse/build_reuse_table.py --language la` --
+  measured peak 9.2 GB, about 10 minutes, writes `cache/reuse_pairs/la.db`.
+  Then `touch tesseraev6_flask.wsgi` so the workers pick up the new table.
+  Greek and English builds are to follow the same pattern once Latin is
+  live and reviewed; rebuild after any corpus change to that language (new
+  imports, retirements, lemma-cache rebuilds) -- the table is a snapshot,
+  not computed live. `cache/` is not in git; `cache/reuse_pairs/<lang>.db`
+  ships only by running the script on production, the same way other
+  caches under `cache/` are built.
+- Verify: `tests/test_reuse_routes.py` (fixture-db backend route tests),
+  `tests/test_mcp_parity.py` (manifest coverage for the two new routes),
+  plus the reference tests in `tests/search_reference_tests.md` (unrelated
+  to this table, run as a matter of course whenever search/indexing code is
+  touched).
+
 ## 2026-09-18 Corpus: 33 duplicate Latin files retired, Martial rebuilt from its per-book files
 - What (code, this PR; not yet run on production): `research/corpus/
   RETIREMENT_LIST_2026-09-18.md` confirmed 12 duplicate/stray Latin files

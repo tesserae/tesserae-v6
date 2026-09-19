@@ -12,7 +12,8 @@ const RTL = new Set(['he']);
  * matches). Reference numbers appear every fifth line, the convention in printed
  * editions, so the margin stays quiet while remaining navigable.
  */
-export default function TextPane({ units, language, selection, onSelect, total, onMore }) {
+export default function TextPane({ units, language, selection, onSelect, total, onMore,
+                                    reuseMarks, onReuseClick }) {
   // LONG TEXTS ARRIVE IN STRETCHES. Hafez's diwan is 9,502 lines and Anvari's
   // 26,616; drawing every line and gutter tile at once froze a phone and
   // crashed its tab (NC, 2026-09-07). The page draws what it has been given
@@ -140,7 +141,7 @@ export default function TextPane({ units, language, selection, onSelect, total, 
               key={u.ref}
               id={`line-${cssRef(u.ref)}`}
               className={`grid gap-2 cursor-text ${selected ? 'bg-red-50 border-l-[3px] border-red-700 -ml-[3px] rounded-r' : ''}`}
-              style={{ gridTemplateColumns: '2.6rem 1fr', minHeight: '1.75rem' }}
+              style={{ gridTemplateColumns: '2.6rem 1.15rem 1fr', minHeight: '1.75rem' }}
               // A tap on a phone makes no text selection, so nothing used to
               // happen. A click or tap that leaves no selection selects the
               // line itself; a drag still selects the swept span.
@@ -172,6 +173,70 @@ export default function TextPane({ units, language, selection, onSelect, total, 
                 style={{ fontFamily: 'inherit' }}
               >
                 {showNumber ? n : ''}
+              </span>
+              {/* "Quoted in N works": a small mark for a line the corpus-wide
+                  reuse table shows repeated verbatim (or near-verbatim) in
+                  other works. Red-and-grey, matching the rest of the
+                  Reader's palette; opens the Reuse tab on the line it marks.
+                  onMouseDown stops here so the line's own drag-to-select
+                  never starts under the mark: without it, pressing the mark
+                  also began a one-line drag on the parent, and the mouseup
+                  that ends it fired onSelect (panel -> Verbal Parallels)
+                  moments before the click fired onReuseClick (panel ->
+                  Reuse). The two usually raced to the right answer, but only
+                  by luck of event order, which is why NC saw it do nothing:
+                  a slow render between mouseup and click let Verbal win.
+
+                  TIERED (2026-09-19): reuseMarks[ref] is now
+                  {n_works, n_possible_works} -- n_works counts only STRICT
+                  pairs (kept by the original jaccard/containment rules);
+                  n_possible_works counts only POSSIBLE pairs (kept by the
+                  rare-single-ngram rule alone, shared==1 -- a corpus-rare
+                  three-word match is real evidence, but weaker than the
+                  two-or-more-shared-word matches the solid mark stands for,
+                  and a 30-pair sample of that rule's yield was still mostly
+                  coincidental, NC 2026-09-19). A line with any strict pair
+                  gets the solid mark (unchanged); only a line with NO
+                  strict pair but at least one possible one gets a lighter,
+                  dashed-outline mark instead -- never both at once. */}
+              <span className="pt-[0.3em]">
+                {reuseMarks?.[u.ref] && (() => {
+                  const strict = reuseMarks[u.ref].n_works || 0;
+                  const possible = reuseMarks[u.ref].n_possible_works || 0;
+                  if (strict > 0) {
+                    return (
+                      <button
+                        type="button"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => { e.stopPropagation(); onReuseClick?.(u); }}
+                        title={`Quoted in ${strict} other work${strict === 1 ? '' : 's'}`}
+                        aria-label={`quoted in ${strict} work${strict === 1 ? '' : 's'}`}
+                        className="inline-flex items-center justify-center text-[9px] font-bold leading-none
+                                   text-red-700 bg-gray-100 border border-gray-300 rounded px-1 py-[2px]
+                                   hover:bg-red-50 hover:border-red-300"
+                      >
+                        {strict}
+                      </button>
+                    );
+                  }
+                  if (possible > 0) {
+                    return (
+                      <button
+                        type="button"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => { e.stopPropagation(); onReuseClick?.(u); }}
+                        title={`Possible echo in ${possible} other work${possible === 1 ? '' : 's'} (one rare shared phrase)`}
+                        aria-label={`possible echo in ${possible} work${possible === 1 ? '' : 's'}`}
+                        className="inline-flex items-center justify-center text-[9px] font-bold leading-none
+                                   text-gray-500 bg-white border border-dashed border-gray-300 rounded px-1 py-[2px]
+                                   hover:bg-gray-50 hover:border-gray-400"
+                      >
+                        {possible}
+                      </button>
+                    );
+                  }
+                  return null;
+                })()}
               </span>
               <p className="m-0">{u.text}</p>
             </div>

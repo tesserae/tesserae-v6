@@ -46,6 +46,27 @@ class TestCachePathNaming:
         assert nfc_text_id != nfd_text_id
         assert lemma_cache.get_cache_path(nfc_text_id, "grc") == lemma_cache.get_cache_path(nfd_text_id, "grc")
 
+    def test_default_cache_dir_param_is_identical_to_the_pre_param_behaviour(self, isolated_cache_dirs):
+        """get_cache_path gained an optional `cache_dir` param (2026-09-19,
+        for backend/reuse_table.py, which needs the same hashed filename
+        computed against its OWN lemma cache directory rather than this
+        module's CACHE_DIR). Every other caller -- get_cached_units and
+        save_cached_units in this module, plus every test above this one
+        in this file -- calls it with only (text_id, language), and must
+        keep resolving to exactly this module's CACHE_DIR, not None, not
+        the caller's own working directory, and not a stale value captured
+        before a test monkeypatches CACHE_DIR (the default is looked up by
+        name inside the function body, not bound at def time)."""
+        cache_dir, _ = isolated_cache_dirs
+        text_id = "vergil.aeneid.tess"
+
+        omitted = lemma_cache.get_cache_path(text_id, "la")
+        explicit_default = lemma_cache.get_cache_path(text_id, "la", cache_dir=str(cache_dir))
+        explicit_module_constant = lemma_cache.get_cache_path(text_id, "la", cache_dir=lemma_cache.CACHE_DIR)
+
+        assert omitted == explicit_default == explicit_module_constant
+        assert omitted.startswith(str(cache_dir))
+
 
 class TestCachedUnitLoading:
     def test_save_and_load_cached_units_for_greek_text_id(self, isolated_cache_dirs):
