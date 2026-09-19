@@ -448,6 +448,32 @@ Conventions
   the 98 skipped files) and the known-quotation check above could not
   include it. Rebuilding its cache (`scripts/rebuild_lemma_cache.py` or
   equivalent) and re-running the language would close this.
+- **Fixed and rebuilt 2026-09-19:** the gap above was not a missing cache but
+  a wrong filename guess -- caches are named `<work id>-<md5>.json`
+  (`get_cache_path`), and this script's `discover_corpus` was checking the
+  plain `<work id>.json` name only. Switched it to call
+  `backend.lemma_cache.get_cached_units(fname, language)`, the same
+  hashed-name-then-legacy-name, file-hash-validated resolution
+  `scripts/batch_lemma_cache.py`, `backend/text_service.py` and
+  `backend/app.py` already use, instead of guessing. Rebuilt on the same
+  corpus: 777 works indexed, 0 skipped for missing/invalid cache (down from
+  98, Gellius included), 652,003 lines, 62,265 pairs kept, ~30 minutes
+  total (`index_elapsed_seconds` 1,632s + `pairs_elapsed_seconds` 93s,
+  `total_elapsed_seconds` 1,787s per `cache/reuse_pairs/la_stats.json`).
+  Re-checked: the 20-known-quotation set (Vergil in Macrobius Saturnalia
+  5-6, Servius' Georgics commentary, and Gellius, sampled fresh with seed
+  20260918) now comes back 20/20; a fresh 30-pair random hand sample (seed
+  43) read against full line text: 23 genuine quotations (mostly patristic
+  authors independently quoting the same Vulgate verse, plus Gospel-harmony
+  and testimonia-anthology citations), 3 formula/self-echo (fixed
+  scriptural or epic-formula tags, e.g. the Pentateuch's "locutus est
+  Dominus ad Mosen dicens" and the Vergilian epic hemistich "at parte ex
+  alia" shared by unrelated poems), 4 duplicate-artifact pairs (Ennodius
+  under two work ids, Juvencus under two work ids, and two Augustine/Jerome
+  letters that are the same physical letter cross-catalogued in both men's
+  epistulary collections), 0 false matches. Full detail, both checks'
+  worked examples, and the still-skipped-works list:
+  `research/reuse_table/REPORT_2026-09-18_production_build.md`.
 - What production needs: run once per language under a `systemd-run`
   memory-capped scope (Latin took under 7 minutes; Greek/English untried but
   the prototype report estimates comparable-order cost), and rebuild after

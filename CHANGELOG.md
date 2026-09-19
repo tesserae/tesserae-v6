@@ -23,9 +23,14 @@ docs/DATA_OPERATIONS.md.
   (ported from the `research/reuse_table/` prototype, containment-gated
   n-gram matching, see `research/reuse_table/REPORT_2026-09-18.md`), reading
   `texts/la/` as the live corpus so retired files are excluded automatically;
-  writes `cache/reuse_pairs/la.db`. 679 works, 516,458 lines, 52,855 pairs
-  kept in 419s under a 12G cap (98 live files skipped for a missing lemma
-  cache, a pre-existing gap; see docs/DATA_OPERATIONS.md). New endpoints
+  writes `cache/reuse_pairs/la.db`. First run: 679 works, 516,458 lines,
+  52,855 pairs kept in 419s under a 12G cap (98 live files skipped, Gellius
+  among them, because the loader guessed the plain `<work>.json` cache
+  filename instead of resolving the hashed name). Fixed to call
+  `backend.lemma_cache.get_cached_units` and rebuilt: 777 works, 652,003
+  lines, 62,265 pairs kept in ~30 minutes, 0 works skipped for missing
+  cache; see docs/DATA_OPERATIONS.md and
+  `research/reuse_table/REPORT_2026-09-18_production_build.md`. New endpoints
   `GET /api/reuse/line` and `GET /api/reuse/marks`
   (`backend/reuse_table.py`, `backend/blueprints/reuse.py`), registered
   site_only in `mcp_manifest.py`. Backend tests
