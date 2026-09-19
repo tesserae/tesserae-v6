@@ -650,6 +650,21 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   See the list of covered works
                 </a>. A small &ldquo;Theme Search&rdquo; badge marks each covered work there.
               </p>
+              <h4 className="font-medium text-gray-900 mt-6 mb-2">The Map view</h4>
+              <p className="text-gray-700 mb-3">
+                The &ldquo;Map&rdquo; tab beside Theme Search is a picture of these same
+                connections at a larger scale: a heatmap of how strongly authors, works,
+                centuries or genres connect to one another, built from the same description
+                comparison Theme Search and Similar Passages use, not a separate signal. A link
+                between two cells means their passages&rsquo; descriptions came out close, the
+                same relationship a passage-by-passage Similar Passages lookup would show.
+                Translation pairs (the same text in two languages, such as the Vulgate and the
+                Septuagint) are hidden by default, because that signal is so much stronger than
+                allusion that it crowds out everything else; a switch shows them. Clicking a
+                cell lists the work pairs behind it, clicking a work pair lists the strongest
+                passage pairs, and clicking a passage pair opens the Reader on one of them with
+                the other showing as a connection.
+              </p>
 
               <h4 className="font-medium text-gray-900 mt-6 mb-2">Reading the results</h4>
               <ul className="list-disc pl-5 text-gray-700 space-y-2 mb-3">

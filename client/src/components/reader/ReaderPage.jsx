@@ -287,13 +287,78 @@ export default function ReaderPage() {
     const end = j >= i ? j : i;
     setSelection({ startIdx: i, endIdx: end, refStart: units[i].ref,
                    refEnd: units[end].ref, lineCount: end - i + 1 });
+    // Open the results panel on the requested tab exactly as a click on the
+    // text would (TextPane's own onSelect sets panelTab + popupOpen the same
+    // way) -- arriving via a URL is not a click, so nothing else would set
+    // them. The connections map's own reader_url (a selection plus
+    // tab=similar) otherwise landed with the passage highlighted and NO
+    // panel at all, not merely one scrolled out of view (NC, 2026-09-19).
+    if (wantedTab) setPanelTab(wantedTab);
+    setPopupOpen(true);
     // Let the line render before scrolling to it.
     const id = window.setTimeout(() => {
+      // The results panel is `position: sticky; top: 0` inside this card
+      // (ResultsPanel.jsx), pinned to the WINDOW's own scroll -- but the
+      // text itself scrolls in its OWN inner `overflow-y-auto` pane
+      // (independent of the window), so centering the target line in that
+      // inner pane does nothing to bring the card, and so the panel, onto
+      // screen in the first place. Landing deep in a long work with
+      // tab=similar left the panel above the fold with no visible scroll
+      // (NC, 2026-09-19). Scrolling the card into view first (a separate
+      // scroll context) fixes that; the line then centers inside it as
+      // before.
+      contentRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' });
       const el = document.getElementById(`line-${cssRef(units[i].ref)}`);
       if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
     }, 120);
     return () => window.clearTimeout(id);
-  }, [wantedRef, wantedRefEnd, units, visibleCount]);
+  }, [wantedRef, wantedRefEnd, wantedTab, units, visibleCount]);
+
+  // "Go to line" from the ReaderNav strip (NC, 2026-09-19). A typed locus is
+  // matched against the line refs of the open text: the whole ref ("verg.
+  // aen. 6.851"), its locus after the work tag ("6.851"), or, for a bare
+  // number, the last segment (".851"), which is unambiguous inside a single
+  // book file. Returns false when nothing matches so the strip can say so.
+  const [jumpRef, setJumpRef] = useState('');
+  // Returns '' on success, otherwise the message the strip should show. A
+  // bare number is only followed when it names exactly one line: in a file
+  // that holds several books (or poems) the same line number recurs, and
+  // guessing the first would send the reader to the wrong book.
+  const jumpTo = useCallback((query) => {
+    const q = String(query || '').trim().toLowerCase();
+    if (!q || !units.length) return `no line ${query} here`;
+    const refs = units.map((u) => String(u.ref || '').toLowerCase());
+    let i = refs.findIndex((r) => r === q || r.endsWith(' ' + q));
+    if (i < 0 && /^\d+[a-z]?$/.test(q)) {
+      const hits = [];
+      refs.forEach((r, k) => { if (r.endsWith('.' + q)) hits.push(k); });
+      if (hits.length > 1) return `line ${query} is in ${hits.length} places here; add the book, e.g. 6.${query}`;
+      if (hits.length === 1) i = hits[0];
+    }
+    if (i < 0) return `no line ${query} here`;
+    setJumpRef(units[i].ref);
+    return '';
+  }, [units]);
+  useEffect(() => {
+    if (!jumpRef || !units.length) return undefined;
+    const i = units.findIndex((u) => u.ref === jumpRef);
+    if (i < 0) { setJumpRef(''); return undefined; }
+    // Draw the line first if it is past the lines shown so far, then scroll.
+    if (i >= visibleCount) { setVisibleCount(i + READER_STEP); return undefined; }
+    const id = window.setTimeout(() => {
+      const el = document.getElementById(`line-${cssRef(jumpRef)}`);
+      if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      setJumpRef('');
+    }, 80);
+    return () => window.clearTimeout(id);
+  }, [jumpRef, units, visibleCount]);
+  const sections = useMemo(() => sectionsFor(hierarchy, work), [hierarchy, work]);
+  const changeBook = useCallback((file) => {
+    setWork(file);
+    setSelection(null);
+    setCameFrom('');
+    setJumpRef('');   // a jump aimed at the book being left must not fire in the next
+  }, []);
 
   // "Go to line" from the ReaderNav strip (NC, 2026-09-19). A typed locus is
   // matched against the line refs of the open text: the whole ref ("verg.
@@ -409,7 +474,7 @@ export default function ReaderPage() {
       {error && <p className="p-6 text-red-700">{error}</p>}
 
       {!loading && !error && (
-        <div ref={contentRef} className="flex flex-col lg:flex-row" style={{ minHeight: '32rem' }}>
+        <div ref={contentRef} data-testid="reader-content" className="flex flex-col lg:flex-row" style={{ minHeight: '32rem' }}>
           <div className="flex flex-col flex-1 min-w-0">
             {/* Previous/next book, go to line, back to top: sticky, so the way
                 out of a long text is always on screen (NC, 2026-09-19). */}

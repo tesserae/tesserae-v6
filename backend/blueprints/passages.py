@@ -34,6 +34,7 @@ from backend import reader_rerank
 from backend import translations
 from backend import window_texts
 from backend import theme_pdf
+from backend import connections_map
 from backend.inverted_index import get_corpus_version
 
 logger = get_logger('blueprints.passages')
@@ -472,3 +473,117 @@ def density():
     if not work:
         return jsonify({'error': 'work is required', 'windows': []})
     return jsonify(passage_index.connection_density(work, scale=_scale() or 'fine'))
+
+
+# ---------------------------------------------------------------------------
+# Corpus connections map: a picture of Theme Search's own connections
+# (the same passage index, the same description embeddings), aggregated by
+# work, author, century and genre. Backed entirely by the offline cache
+# scripts/build_connections_map.py writes to cache/connections_map/; nothing
+# below touches the passage index itself, so a request here costs a SQLite
+# read rather than a matrix multiply. All four routes 404 with a plain
+# message when that cache has not been built for the current index.
+# ---------------------------------------------------------------------------
+def _map_languages():
+    raw = (request.args.get('languages') or '').strip()
+    if not raw:
+        return None
+    langs = [x.strip() for x in raw.split(',') if x.strip()]
+    return langs or None
+
+
+def _map_translations():
+    raw = (request.args.get('translations') or '').strip().lower()
+    return raw in ('1', 'true', 'yes')
+
+
+@passages_bp.route('/passages/map')
+def connections_map_route():
+    """The matrix for one view: authors, works, centuries or genres.
+
+    Translation pairs (curated or heuristic-detected) are excluded from the
+    counts unless ?translations=1 is passed, since the strongest signal in
+    this data is "the same text in two languages", which would otherwise
+    swamp the allusive relationships a scholar is looking for.
+    """
+    if not connections_map.is_available():
+        return jsonify({'error': 'the connections map has not been built for '
+                                 'this index'}), 404
+    view = (request.args.get('view') or 'author').strip().lower()
+    out = connections_map.get_map(
+        view, languages=_map_languages(),
+        top=_int_arg('top', connections_map.DEFAULT_TOP, lo=2, hi=connections_map.MAX_TOP),
+        translations=_map_translations())
+    return jsonify(out)
+
+
+@passages_bp.route('/passages/map/cell')
+def connections_map_cell_route():
+    """The work pairs behind one matrix cell (view + the two entity ids)."""
+    if not connections_map.is_available():
+        return jsonify({'error': 'the connections map has not been built for '
+                                 'this index'}), 404
+    view = (request.args.get('view') or 'author').strip().lower()
+    a = (request.args.get('a') or '').strip()
+    b = (request.args.get('b') or '').strip()
+    out = connections_map.get_cell(view, a, b, languages=_map_languages(),
+                                   translations=_map_translations())
+    return jsonify(out)
+
+
+@passages_bp.route('/passages/map/pair')
+def connections_map_pair_route():
+    """The strongest passage pairs behind one work pair, ready for the Reader.
+
+    Each pair carries both window ids, refs, a one-line description, the
+    score, and a `reader_url` per side built the same way Similar Passages'
+    "Open in Reader" links are (work + language + ref span, landing on the
+    Similar Passages tab so the connection is visible live). Deduplicated on
+    the unordered window pair, work_a's window always on the left (NC,
+    2026-09-19 -- see connections_map.get_pair). `book_a`/`book_b` filter to
+    one cell of the books x books drill-down (`/passages/map/books`).
+    """
+    work_a = (request.args.get('work_a') or '').strip()
+    work_b = (request.args.get('work_b') or '').strip()
+    if not connections_map.is_available():
+        return jsonify({'error': 'the connections map has not been built for '
+                                 'this index'}), 404
+    out = connections_map.get_pair(
+        work_a, work_b,
+        limit=_int_arg('limit', connections_map.DEFAULT_PAIR_LIMIT, lo=1,
+                       hi=connections_map.MAX_PAIR_LIMIT),
+        book_a=(request.args.get('book_a') or '').strip() or None,
+        book_b=(request.args.get('book_b') or '').strip() or None)
+    return jsonify(out)
+
+
+@passages_bp.route('/passages/map/books')
+def connections_map_books_route():
+    """Books x books heatmap for one work pair -- the third drill-down level.
+
+    A "book" is the first level of a window's ref_start (e.g. "hom. il.
+    4.446" -> book 4); a work whose refs carry only one level is split into
+    blocks of 100 lines labelled by the block's own first line. Computed from
+    the edges/windows tables already in the cache -- no schema change, no
+    rebuild required.
+    """
+    if not connections_map.is_available():
+        return jsonify({'error': 'the connections map has not been built for '
+                                 'this index'}), 404
+    work_a = (request.args.get('work_a') or '').strip()
+    work_b = (request.args.get('work_b') or '').strip()
+    out = connections_map.get_books_map(work_a, work_b)
+    return jsonify(out)
+
+
+@passages_bp.route('/passages/map/work')
+def connections_map_work_route():
+    """One work's connections by work, for a "start from one work" view."""
+    if not connections_map.is_available():
+        return jsonify({'error': 'the connections map has not been built for '
+                                 'this index'}), 404
+    work = (request.args.get('work') or '').strip()
+    out = connections_map.get_work_connections(
+        work, languages=_map_languages(), translations=_map_translations(),
+        limit=_int_arg('limit', 50, lo=1, hi=500))
+    return jsonify(out)
