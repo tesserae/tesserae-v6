@@ -155,6 +155,61 @@ describe('the covered-works line under the language row', () => {
     expect(screen.queryByText(/Theme Search covers/)).toBeNull();
   });
 
+  it("while a picked covered language's count is still loading, shows a loading sentence with a link", async () => {
+    render(<ThemeSearchPage />);
+    await screen.findByText(/Theme Search covers 18 works in 4 languages\./);
+    fireEvent.click(screen.getByText('Greek'));
+    // Synchronously after the click, before the /api/texts and
+    // /api/passages/works fetches for Greek have resolved, the count for
+    // this language is unknown. This is the state the old gate
+    // (`coverage && coverage.total > 0`) rendered nothing for at all.
+    expect(screen.getByText(/Theme Search coverage is loading\./)).toBeTruthy();
+    const link = screen.getByRole('link', { name: 'See the list of covered works' });
+    expect(link.getAttribute('href')).toBe('/corpus?theme=1&language=grc');
+    // Once it resolves, it settles into the normal per-language sentence.
+    expect(await screen.findByText(/Searches 5 of 5 works in Greek\./)).toBeTruthy();
+  });
+
+  it('when a picked covered language resolves to zero indexed works, shows the fixed sentence', async () => {
+    global.fetch = vi.fn((url) => {
+      const u = String(url);
+      if (u.startsWith('/api/languages')) {
+        return Promise.resolve({ json: () => Promise.resolve({ languages: [] }) });
+      }
+      // English has zero indexed texts in this snapshot; the other three
+      // covered languages still have some.
+      const totals = { la: 10, grc: 5, en: 0, cop: 3 };
+      const covered = { la: 8, grc: 5, en: 0, cop: 3 };
+      const textsMatch = u.match(/^\/api\/texts\?language=(\w+)/);
+      if (textsMatch) {
+        const lang = textsMatch[1];
+        const n = totals[lang] || 0;
+        const texts = Array.from({ length: n }, (_, i) => (
+          { id: `${lang}${i}.tess`, author: 'Author', title: `Work ${i}` }
+        ));
+        return Promise.resolve({ json: () => Promise.resolve(texts) });
+      }
+      const worksMatch = u.match(/^\/api\/passages\/works\?language=(\w+)/);
+      if (worksMatch) {
+        const lang = worksMatch[1];
+        const n = covered[lang] || 0;
+        const works = Array.from({ length: n }, (_, i) => `${lang}${i}`);
+        return Promise.resolve({ json: () => Promise.resolve({ works }) });
+      }
+      return Promise.resolve({ json: () => Promise.resolve({}) });
+    });
+    render(<ThemeSearchPage />);
+    // 8 + 5 + 0 + 3 = 16.
+    await screen.findByText(/Theme Search covers 16 works in 4 languages\./);
+    fireEvent.click(screen.getByText('English'));
+    expect(await screen.findByText(
+      /Theme Search covers works in Latin, Greek, English and Coptic;/
+    )).toBeTruthy();
+    const link = screen.getByRole('link', { name: 'see the list' });
+    expect(link.getAttribute('href')).toBe('/corpus?theme=1&language=la');
+    expect(screen.queryByText(/Searches \d+ of \d+ works/)).toBeNull();
+  });
+
   it('with one language Browse Corpus does not cover selected, shows the fixed sentence', async () => {
     render(<ThemeSearchPage />);
     await screen.findByText(/Theme Search covers 18 works in 4 languages\./);

@@ -167,7 +167,21 @@ const INDEX_ONLY = ['fa', 'ur'];
 
 export default function ThemeSearchPage() {
   const [query, setQuery] = useState('');
-  const [language, setLanguage] = useState('');
+  // Read synchronously (a lazy initializer, not an effect) so that on the
+  // very first render -- before any effect has run -- `language` already
+  // reflects a shared link's languages= param. Without this, the aggregate
+  // coverage fetch below (which only runs when the picker ISN'T on a single
+  // covered language) would see the pre-deep-link '' for one extra render
+  // and fetch coverage for all four languages even when the link was
+  // headed straight for one of them.
+  const [language, setLanguage] = useState(() => {
+    const p = new URLSearchParams(window.location.search);
+    // Mirrors the "arriving from a link with the search already in it"
+    // effect below: the language only carries over when a query does too,
+    // matching what that effect will go on to run.
+    if (!(p.get('query') || '').trim()) return '';
+    return (p.get('languages') || '').split(',').map((x) => x.trim()).filter(Boolean).join(',');
+  });
   // Only the languages this server serves are offered (a preview serves a
   // few; the full row on it promised Latin and Old French, 2026-09-07).
   const [served, setServed] = useState(null);
@@ -186,6 +200,20 @@ export default function ThemeSearchPage() {
   // that doesn't parse or a link Browse Corpus can't honor.
   const [coverage, setCoverage] = useState(null);
   const BROWSE_CORPUS_LANGUAGES = ['la', 'grc', 'en', 'cop'];
+  // Which of the three coverage-line states applies: one covered language
+  // picked alone keeps the per-language sentence; one uncovered language
+  // (Hebrew, Persian, Urdu, or any other not in Browse Corpus) alone gets
+  // the fixed sentence; "All languages" (nothing picked) or several picked
+  // together get the summed sentence. Computed here (not just above the
+  // JSX) because the aggregate fetch below needs it too.
+  const selectedLangCodes = language ? language.split(',').map((s) => s.trim()).filter(Boolean) : [];
+  const singleCoveredLang = selectedLangCodes.length === 1 && BROWSE_CORPUS_LANGUAGES.includes(selectedLangCodes[0]);
+  const singleUncoveredLang = selectedLangCodes.length === 1 && !singleCoveredLang;
+  // `coverage` can be stale (left over from a previously selected covered
+  // language) while its fetch for the current one is still in flight, so
+  // "resolved" checks the language it was fetched for, not just whether it
+  // is non-null.
+  const coverageResolved = Boolean(coverage) && coverage.language === selectedLangCodes[0];
   useEffect(() => {
     const codes = language ? language.split(',').map((s) => s.trim()).filter(Boolean) : [];
     if (codes.length !== 1 || !BROWSE_CORPUS_LANGUAGES.includes(codes[0])) {
@@ -214,12 +242,17 @@ export default function ThemeSearchPage() {
 
   // The same coverage question, summed over all four languages Browse Corpus
   // indexes, for the line shown when the picker isn't narrowed to exactly one
-  // of them: the default "All languages", or several picked at once. Fetched
-  // once on mount and cached here rather than refetched on every language
-  // click -- one /api/texts and one /api/passages/works call per language,
-  // four pairs total, ever.
+  // covered language: the default "All languages", several picked together,
+  // or one language Browse Corpus doesn't index. Fetched only the first time
+  // one of those states is reached (not on every mount -- the single-covered-
+  // -language path, the common case, never needs it) and cached here rather
+  // than refetched on every later language click -- one /api/texts and one
+  // /api/passages/works call per language, four pairs total, at most once.
   const [allCoverage, setAllCoverage] = useState(null);
+  const allCoverageStarted = useRef(false);
   useEffect(() => {
+    if (singleCoveredLang || allCoverageStarted.current) return;
+    allCoverageStarted.current = true;
     let dead = false;
     Promise.all(BROWSE_CORPUS_LANGUAGES.map((code) => (
       fetch(`/api/texts?language=${code}`).then((r) => r.json()).catch(() => []).then((texts) => {
@@ -230,9 +263,9 @@ export default function ThemeSearchPage() {
       if (dead) return;
       const total = results.reduce((sum, r) => sum + r.covered, 0);
       setAllCoverage({ total, languageCount: BROWSE_CORPUS_LANGUAGES.length });
-    }).catch(() => {});
+    }).catch(() => { allCoverageStarted.current = false; });
     return () => { dead = true; };
-  }, []);
+  }, [singleCoveredLang]);
 
   const [data, setData] = useState(null);
   const [running, setRunning] = useState(false);
@@ -363,24 +396,15 @@ export default function ThemeSearchPage() {
     const p = new URLSearchParams(window.location.search);
     const q = (p.get('query') || '').trim();
     if (!q) return;
-    // any number of languages, comma-separated (2026-09-06: a pick-several control)
-    const lang = (p.get('languages') || '').split(',').map((x) => x.trim()).filter(Boolean).join(',');
+    // any number of languages, comma-separated (2026-09-06: a pick-several
+    // control). `language` state already carries this (see its lazy
+    // initializer above, which reads the same params), and `run` falls back
+    // to `language` when its second argument is omitted.
     setQuery(q);
-    if (lang) setLanguage(lang);
-    run(q, lang || '');
+    run(q);
   }, [run]);
 
   const band = data && BAND[data.confidence?.level];
-
-  // Which of the three coverage-line states applies: one covered language
-  // (Latin, Greek, English, Coptic) picked alone keeps the existing
-  // per-language sentence; one uncovered language (Hebrew, Persian, Urdu,
-  // or any other not in Browse Corpus) alone gets the fixed sentence; "All
-  // languages" (nothing picked) or several picked together get the summed
-  // sentence. Exactly one of these always renders.
-  const selectedLangCodes = language ? language.split(',').map((s) => s.trim()).filter(Boolean) : [];
-  const singleCoveredLang = selectedLangCodes.length === 1 && BROWSE_CORPUS_LANGUAGES.includes(selectedLangCodes[0]);
-  const singleUncoveredLang = selectedLangCodes.length === 1 && !singleCoveredLang;
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -453,7 +477,7 @@ export default function ThemeSearchPage() {
         </span>
       </div>
 
-      {singleCoveredLang && coverage && coverage.total > 0 && (
+      {singleCoveredLang && coverageResolved && coverage.total > 0 && (
         <p className="mt-1 text-[11px] text-gray-500">
           {coverage.covered > 0
             // A covered count of zero is indistinguishable from "the
@@ -463,6 +487,33 @@ export default function ThemeSearchPage() {
             : <>Theme Search coverage is loading.{' '}</>}
           <a
             href={`/corpus?theme=1&language=${coverage.language}`}
+            className="text-red-700 hover:underline"
+          >
+            See the list of covered works
+          </a>
+        </p>
+      )}
+
+      {singleCoveredLang && coverageResolved && coverage.total === 0 && (
+        // This covered language genuinely has zero indexed works. "0 of 0"
+        // asserts nothing, so point at the general list instead of a
+        // per-language one that would have nothing to show.
+        <p className="mt-1 text-[11px] text-gray-500">
+          Theme Search covers works in {joinLangNames(BROWSE_CORPUS_LANGUAGES)};{' '}
+          <a href="/corpus?theme=1&language=la" className="text-red-700 hover:underline">
+            see the list
+          </a>.
+        </p>
+      )}
+
+      {singleCoveredLang && !coverageResolved && (
+        // Still fetching, or the language just changed and the fetch for it
+        // hasn't landed yet. This used to render nothing at all -- the gap
+        // the coverage line exists to close.
+        <p className="mt-1 text-[11px] text-gray-500">
+          Theme Search coverage is loading.{' '}
+          <a
+            href={`/corpus?theme=1&language=${selectedLangCodes[0]}`}
             className="text-red-700 hover:underline"
           >
             See the list of covered works

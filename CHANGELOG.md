@@ -35,7 +35,17 @@ docs/DATA_OPERATIONS.md.
   summed sentence ("Theme Search covers N works in 4 languages") for the
   default or several languages picked together, and a fixed sentence for
   a language Browse Corpus doesn't index (Hebrew, Persian, Urdu). The link
-  always goes to the Latin list, `/corpus?theme=1&language=la`.
+  always goes to the Latin list, `/corpus?theme=1&language=la`. Review
+  follow-up: the single-covered-language sentence was still gated on
+  `coverage.total > 0`, so a covered language with a zero or not-yet-loaded
+  count rendered none of the three sentences; it now shows a loading
+  sentence while unresolved and the fixed four-language sentence if the
+  count resolves to zero. The summed fetch also used to run on every
+  mount regardless of the picker; it now runs only the first time the
+  summed or fixed sentence is actually needed, and `language`'s initial
+  value is read synchronously from a shared link's `languages=` param
+  (rather than set later in an effect) so that check is accurate on the
+  very first render.
 
 ### Corpus
 - Retire the Eugippius duplicate and resegment Ennodius Book 2 (batch 3):
