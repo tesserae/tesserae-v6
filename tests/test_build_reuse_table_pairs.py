@@ -238,3 +238,21 @@ def test_unrelated_lines_still_excluded(tmp_path):
         db, min_shared=2, min_jaccard=0.15, min_shared_override=4, min_containment=0.5,
         rare_max_df=20)
     assert pair_info == []
+
+
+def test_repair_surrogates_recovers_a_greek_file_name_and_leaves_clean_text_alone():
+    # Eight Greek lemma caches on production (2026-09-19) hold text_id as the
+    # surrogate-escaped bytes of a Greek file name, e.g. aeschylus.εὐμενίδες,
+    # written under an ASCII locale; SQLite refuses lone surrogates.
+    import importlib.util, pathlib
+    spec = importlib.util.spec_from_file_location(
+        'build_reuse_table', pathlib.Path(__file__).resolve().parents[1] / 'scripts' / 'reuse' / 'build_reuse_table.py')
+    mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+    real = 'aeschylus.εὐμενίδες.tess'
+    escaped = real.encode('utf-8').decode('ascii', 'surrogateescape')   # what an ASCII locale produced
+    assert escaped != real and any(0xD800 <= ord(c) <= 0xDFFF for c in escaped)
+    fixed, changed = mod._repair_surrogates(escaped, 'fallback')
+    assert (fixed, changed) == (real, True)
+    assert mod._repair_surrogates('vergil.aeneid', 'x') == ('vergil.aeneid', False)
+    # a lone surrogate that is not an escaped byte cannot be decoded: fall back
+    assert mod._repair_surrogates('bad\ud800id', 'fallback') == ('fallback', True)

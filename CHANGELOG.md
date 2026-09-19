@@ -9,6 +9,12 @@ docs/DATA_OPERATIONS.md.
 ## 2026-09-19
 
 ### Reader
+- Quotation table builder (`scripts/reuse/build_reuse_table.py`): a Greek
+  lemma cache whose text_id holds a Greek file name as escaped bytes (eight
+  such caches, written under an ASCII locale) crashed the Greek build with
+  "surrogates not allowed"; the builder now decodes those ids back to UTF-8
+  (the same round trip backend/lemma_cache.py already does) and reports how
+  many it repaired.
 - The connection gutter's density computation now scores a work's windows
   256 at a time instead of all at once. The old single block cost 2.5 MB per
   window (5 GB for the whole Punica, 11.6 GB for the Vulgate), which is what

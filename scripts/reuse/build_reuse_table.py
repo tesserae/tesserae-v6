@@ -212,6 +212,18 @@ def discover_corpus(language):
     return kept, skipped_parts, missing_cache
 
 
+def _repair_surrogates(text, fallback):
+    """(text with any surrogate-escaped bytes decoded back to UTF-8, changed?).
+    A lone surrogate that is not a surrogateescape byte falls back to
+    `fallback` (or is replaced) rather than crashing the build."""
+    if not isinstance(text, str) or not any(0xD800 <= ord(ch) <= 0xDFFF for ch in text):
+        return text, False
+    try:
+        return text.encode('utf-8', 'surrogateescape').decode('utf-8'), True
+    except UnicodeError:
+        return (fallback or text.encode('utf-8', 'replace').decode('utf-8')), True
+
+
 def build_index(cache_data, index_db_path, max_df, commonplace_ratio=0.08):
     """Stage 1: stream per-line n-grams from cache_data (already-loaded,
     already-validated {tess_basename: cache_dict}, from discover_corpus)
@@ -280,6 +292,7 @@ def build_index(cache_data, index_db_path, max_df, commonplace_ratio=0.08):
     n_lines_seen = 0
     n_lines_too_short = 0
     works_indexed = 0
+    n_ids_repaired = 0
     # Corpus-wide line-document-frequency per LEMMA (once per line it
     # appears in, not per raw occurrence) -- cheap: Latin's lemma
     # vocabulary is in the tens of thousands, nowhere near the n-gram
@@ -289,6 +302,13 @@ def build_index(cache_data, index_db_path, max_df, commonplace_ratio=0.08):
 
     for tess_basename, data in cache_data.items():
         work_id = data.get('text_id', tess_basename)
+        # Some Greek lemma caches were written under an ASCII locale, so a
+        # Greek file name sits in text_id as surrogate-escaped bytes; SQLite
+        # refuses to store those ("surrogates not allowed", 2026-09-19).
+        # Re-encoding with surrogateescape recovers the real UTF-8 name.
+        work_id, fixed = _repair_surrogates(work_id, tess_basename)
+        if fixed:
+            n_ids_repaired += 1
         if work_id.endswith('.tess'):
             work_id = work_id[:-len('.tess')]
         units = data.get('units_line', [])
@@ -298,7 +318,7 @@ def build_index(cache_data, index_db_path, max_df, commonplace_ratio=0.08):
         for seq, unit in enumerate(units):
             tokens = unit.get('tokens') or []
             lemmas = _line_lemmas(unit)
-            ref = unit.get('ref', '')
+            ref, _ = _repair_surrogates(unit.get('ref', ''), '')
             n_lines_seen += 1
             for lem in set(lemmas):
                 lemma_df[lem] += 1
@@ -328,6 +348,9 @@ def build_index(cache_data, index_db_path, max_df, commonplace_ratio=0.08):
         conn.executemany("INSERT INTO lines VALUES (?,?,?,?,?)", line_rows)
     conn.commit()
 
+    if n_ids_repaired:
+        print(f"[build_reuse_table] index: {n_ids_repaired} work id(s) carried surrogate-escaped "
+              f"bytes in their lemma cache text_id and were decoded back to UTF-8")
     print(f"[build_reuse_table] index: {n_lines_seen} lines read from {works_indexed} works "
           f"({n_lines_too_short} lines under 3 tokens, kept with no n-grams), "
           f"{n_gram_instances} n-gram instances, elapsed {time.time()-t0:.1f}s")
