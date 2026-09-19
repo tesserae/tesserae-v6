@@ -316,9 +316,17 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                   </span>
                   {/* The title carries the link colour and underlines on hover,
                       because nothing else said these cards open anything. A
-                      hover border on a div is not an affordance. */}
+                      hover border on a div is not an affordance.
+
+                      Real name, not the file slug: the scene index sends
+                      author/title/display_name from get_text_metadata, the
+                      same source Browse Corpus and Theme Search use, so
+                      "quintus_smyrnaeus.fall_of_troy" reads as "Quintus
+                      Smyrnaeus, Fall of Troy". prettyWork is only a fallback
+                      for an older cached response that predates those
+                      fields. */}
                   <span className="font-bold text-sm text-red-800 group-hover:underline">
-                    {prettyWork(r.work)}
+                    {r.display_name || prettyWork(r.work)}
                   </span>
                   <span className="text-xs text-gray-500">{shortRef(r.ref_start)}</span>
                   {dateParts(r) && (

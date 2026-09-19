@@ -10,7 +10,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from backend.passage_index import _norm_work, _ref_numbers, _ref_numbers_in
+from backend.passage_index import _norm_work, _ref_numbers, _ref_numbers_in, _naming
 
 
 def test_norm_work_strips_tess_from_single_file_works():
@@ -50,3 +50,27 @@ def test_ref_numbers_in_window_rows_and_selection_agree():
     hi = _ref_numbers_in('shenoute.a22', 'shenoute.a22.30')
     want = _ref_numbers_in('shenoute.a22.tess', 'shenoute.a22.2')
     assert lo <= want <= hi
+
+
+def test_naming_gives_a_real_author_and_title_not_the_file_slug():
+    # Similar Passages and Theme Search results were showing the raw work id
+    # ("quintus_smyrnaeus.fall_of_troy") in the Reader, because the client
+    # built its own label from the id instead of reading the fields this
+    # function already adds to every result. Pinning them down here so a
+    # regression in _naming (rather than in the client) would be caught too.
+    n = _naming('quintus_smyrnaeus.fall_of_troy')
+    assert n['author'] == 'Quintus Smyrnaeus'
+    assert n['title'] == 'Fall of Troy'
+    assert n['display_name'] == 'Quintus Smyrnaeus, Fall of Troy'
+
+
+def test_naming_labels_a_book_of_a_multi_part_work():
+    n = _naming('ovid.metamorphoses.part.4')
+    assert n['author'] == 'Ovid'
+    assert n['title'] == 'Metamorphoses, Book 4'
+    assert n['display_name'] == 'Ovid, Metamorphoses, Book 4'
+
+
+def test_naming_is_empty_for_no_work_rather_than_raising():
+    assert _naming(None) == {}
+    assert _naming('') == {}

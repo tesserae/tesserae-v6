@@ -8,6 +8,14 @@ docs/DATA_OPERATIONS.md.
 
 ## 2026-09-19
 
+### Reader
+- Similar Passages in the Reader showed the raw work id ("quintus_smyrnaeus.fall_of_troy")
+  instead of a proper title. The passage index already sends author, title and
+  display_name from `get_text_metadata` -- the same source Browse Corpus and
+  Theme Search use -- but the Reader's card built its own rough label from the
+  id instead of reading them. It now reads `display_name`, falling back to the
+  old label only for a response that predates the field.
+
 ### Theme Search
 - #388 The list of covered works is reachable, not just a checkbox in Browse
   Corpus: `/corpus?theme=1&language=la` opens Browse Corpus with the filter

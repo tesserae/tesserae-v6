@@ -201,6 +201,49 @@ describe('a line is not a parallel to itself', () => {
   });
 });
 
+describe('the Similar Passages tab shows a real title, not the file id', () => {
+  // The scene index names the work by its filename slug internally
+  // ("quintus_smyrnaeus.fall_of_troy"), and the card used to build its own
+  // rough label from that slug by splitting on dots and underscores. The API
+  // sends author/title/display_name from get_text_metadata -- the same
+  // source Browse Corpus and Theme Search use -- and the card should read
+  // that instead of re-deriving a worse version of it.
+  const SIMILAR_HIT = {
+    source: { id: 'src', work: 'vergil.aeneid.part.6', display_name: 'Vergil, Aeneid, Book 6' },
+    results: [{
+      id: 'quintus_smyrnaeus.fall_of_troy.w1',
+      language: 'grc',
+      work: 'quintus_smyrnaeus.fall_of_troy',
+      author: 'Quintus Smyrnaeus',
+      title: 'The Fall of Troy',
+      display_name: 'Quintus Smyrnaeus, The Fall of Troy',
+      ref_start: '6.357',
+      score: 0.9,
+      gist: 'A hero descends to the underworld.',
+    }],
+    confidence: { top: 0.9, baseline: 0.5, lift: 0.4 },
+  };
+
+  it('renders the display name the API sends', async () => {
+    global.fetch = vi.fn(() =>
+      Promise.resolve({ json: () => Promise.resolve(SIMILAR_HIT) }));
+    mount({ initialTab: 'similar' });
+    expect(await screen.findByText('Quintus Smyrnaeus, The Fall of Troy')).toBeTruthy();
+    expect(screen.queryByText(/quintus_smyrnaeus\.fall_of_troy/)).toBeNull();
+    expect(screen.queryByText(/^Fall Of Troy$/)).toBeNull();
+  });
+
+  it('falls back to a formatted slug only when the API sends no display name', async () => {
+    // An older cached response, or an index built before this field existed.
+    global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve({
+      results: [{ id: 'w1', language: 'la', work: 'ovid.metamorphoses.part.4',
+                  ref_start: '4.55', score: 0.8 }],
+    }) }));
+    mount({ initialTab: 'similar' });
+    expect(await screen.findByText('Ovid, Metamorphoses 4')).toBeTruthy();
+  });
+});
+
 describe('when the corpus has nothing', () => {
   it('says why rather than showing an empty panel', async () => {
     global.fetch = vi.fn(() =>
