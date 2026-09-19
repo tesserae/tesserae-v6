@@ -17,12 +17,21 @@ What it does, in one pass:
      and its author.work.part.N.tess splits exist in texts/, the base file's
      cache already contains every line the parts do, so the .part. files are
      dropped (same rule as backend/bigram_frequency.py).
-  3. For each surviving base file, reads surface tokens from its plain
-     cache/lemmas/<lang>/<text_id>.json (already normalized: lowercase,
-     punctuation stripped, v->u, j->i for Latin -- see
-     backend/text_processor.py tokenize_latin). A base file with no plain
-     cache is skipped and counted (a recall gap to close by rebuilding that
-     cache, not a design choice).
+  3. For each surviving base file, reads surface tokens from its lemma cache
+     (already normalized: lowercase, punctuation stripped, v->u, j->i for
+     Latin -- see backend/text_processor.py tokenize_latin), resolved via
+     backend.lemma_cache.get_cached_units -- the SAME resolution production
+     uses (scripts/batch_lemma_cache.py, backend/text_service.py,
+     backend/app.py all call it), not a plain <text_id>.json guess. The
+     current cache filename is content-hash-free and ASCII-safe:
+     <ascii_hint>-<md5(text_id including .tess)>.json (get_cache_path); an
+     older plain <text_id>.json name is checked as a fallback
+     (_legacy_cache_path) for caches predating that scheme. Either way the
+     cache is only used if its stored file_hash (an MD5 of the .tess file's
+     CONTENT) matches the live file's current hash -- a stale cache is
+     treated as missing, not silently served. A base file with no valid
+     cache under either name is skipped and counted (a recall gap to close
+     by rebuilding that cache, not a design choice).
   4. Builds an n-gram inverted index (contiguous 3-grams plus one-gap skip-
      3-grams per line), hashes each n-gram to a signed 64-bit int, and drops
      any n-gram whose posting list exceeds --max-df lines corpus-wide (the
@@ -62,7 +71,6 @@ import argparse
 import hashlib
 import json
 import os
-import re
 import shutil
 import sqlite3
 import sys
@@ -77,7 +85,13 @@ CACHE_DIR = os.path.join(BASE_DIR, 'cache', 'lemmas')
 OUT_DIR = os.path.join(BASE_DIR, 'cache', 'reuse_pairs')
 INDEX_DIR = os.path.join(BASE_DIR, 'data', 'inverted_index')
 
-HASH_RE = re.compile(r'-[0-9a-f]{32}\.json$')
+# Reuse production's own cache-file resolution (hashed name first, legacy
+# plain name as fallback, file_hash-validated either way) rather than
+# guessing a filename -- see the module docstring's item 3. This is the
+# same function scripts/batch_lemma_cache.py, backend/text_service.py and
+# backend/app.py all call.
+sys.path.insert(0, BASE_DIR)
+from backend.lemma_cache import get_cached_units  # noqa: E402
 
 
 def hash_ngram(tokens):
@@ -131,7 +145,9 @@ def get_corpus_version(language):
 
 def discover_corpus(language):
     """Return (kept, skipped_parts, missing_cache) where kept is
-    {tess_basename: cache_json_path} for the live, base-file, cached corpus.
+    {tess_basename: cache_dict} for the live, base-file, hash-valid-cached
+    corpus -- cache_dict is the already-loaded, already file_hash-validated
+    JSON payload from backend.lemma_cache.get_cached_units.
 
     Source of truth for "live" is texts/<lang>/*.tess, not cache/lemmas/, so
     a text retired from texts/ (simply absent there now) is never included
@@ -164,20 +180,21 @@ def discover_corpus(language):
     kept = {}
     missing_cache = []
     for fname in surviving:
-        text_id = fname[:-len('.tess')]
-        cache_path = os.path.join(cache_dir, text_id + '.json')
-        if os.path.exists(cache_path):
-            kept[fname] = cache_path
+        cached = get_cached_units(fname, language)
+        if cached is not None:
+            kept[fname] = cached
         else:
             missing_cache.append(fname)
 
     return kept, skipped_parts, missing_cache
 
 
-def build_index(cache_files, index_db_path, max_df):
-    """Stage 1: stream per-line n-grams from cache_files into a temporary
-    SQLite index DB (lines, postings after banality filtering). Returns a
-    stats dict. Mirrors research/reuse_table/build_reuse_index.py."""
+def build_index(cache_data, index_db_path, max_df):
+    """Stage 1: stream per-line n-grams from cache_data (already-loaded,
+    already-validated {tess_basename: cache_dict}, from discover_corpus)
+    into a temporary SQLite index DB (lines, postings after banality
+    filtering). Returns a stats dict. Mirrors
+    research/reuse_table/build_reuse_index.py."""
     t0 = time.time()
     if os.path.exists(index_db_path):
         os.remove(index_db_path)
@@ -207,13 +224,7 @@ def build_index(cache_files, index_db_path, max_df):
     n_lines_too_short = 0
     works_indexed = 0
 
-    for tess_basename, path in cache_files.items():
-        try:
-            with open(path, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-        except Exception as e:
-            print(f"  WARN: could not read {path}: {e}", file=sys.stderr)
-            continue
+    for tess_basename, data in cache_data.items():
         work_id = data.get('text_id', tess_basename)
         if work_id.endswith('.tess'):
             work_id = work_id[:-len('.tess')]
@@ -493,19 +504,21 @@ def main():
 
     t_start = time.time()
 
-    cache_files, skipped_parts, missing_cache = discover_corpus(args.language)
-    print(f"[build_reuse_table] {len(cache_files)} works to index "
+    cache_data, skipped_parts, missing_cache = discover_corpus(args.language)
+    print(f"[build_reuse_table] {len(cache_data)} works to index "
           f"({len(skipped_parts)} .part. files skipped in favor of their base file, "
-          f"{len(missing_cache)} base files skipped for missing lemma cache)")
+          f"{len(missing_cache)} base files skipped for missing/invalid lemma cache)")
     if missing_cache:
-        print(f"[build_reuse_table] WARN: {len(missing_cache)} live .tess files have no plain "
-              f"lemma cache and are excluded from this run (rebuild their cache to close the gap): "
+        print(f"[build_reuse_table] WARN: {len(missing_cache)} live .tess files have no "
+              f"file_hash-valid lemma cache under either the current hashed name or the "
+              f"legacy plain name, and are excluded from this run (rebuild their cache to "
+              f"close the gap): "
               + ', '.join(sorted(missing_cache)[:10]) + (' ...' if len(missing_cache) > 10 else ''))
 
     tmp_dir = tempfile.mkdtemp(prefix=f'reuse_table_{args.language}_')
     index_db_path = os.path.join(tmp_dir, f'{args.language}_index.db')
     try:
-        index_stats = build_index(cache_files, index_db_path, args.max_df)
+        index_stats = build_index(cache_data, index_db_path, args.max_df)
         pair_info, line_to_other_works, pair_stats = find_pairs(
             index_db_path, args.min_shared, args.min_jaccard,
             args.min_shared_override, args.min_containment)
@@ -515,7 +528,7 @@ def main():
         meta = {
             'built_at': built_at,
             'corpus_version': corpus_version,
-            'corpus_file_count': len(cache_files),
+            'corpus_file_count': len(cache_data),
             'language': args.language,
             'max_df': args.max_df,
             'min_shared': args.min_shared,
