@@ -193,6 +193,52 @@ def test_line_finds_text_under_a_hashed_only_cache_filename(monkeypatch, tmp_pat
     assert geoffrey['text'] == 'Arma virumque cano Trojae qui prinus ab oris'
 
 
+def test_line_prefers_the_current_hashed_cache_over_a_stale_plain_one(monkeypatch, tmp_path):
+    """Reproduces the bug report: Tertullian's Ad Nationes showed the
+    "Tertullian, Ad Nationes Libri Duo ... 2.17" reference with no text,
+    while the Apologeticum entry beside it showed text. The real work has
+    TWO cache files: a stale plain-named one left from an old CTS-URN
+    tagging scheme ("tertullian.ad_nationes_libri_duo
+    urn:cts:latinLit:stoa0275.stoa002.opp-lat2.2.17"), and a current
+    hashed one matching the live .tess file's own tag shape
+    ("tertullian.ad_nationes_libri_duo 2.17", the full work id plus
+    locus -- this work has no short abbreviation at all). _work_cache_path
+    used to check plain first and never got past the stale file, so a ref
+    in the CURRENT tag shape -- the only shape the reuse table (built from
+    the live .tess file) ever actually stores -- was never in the cache it
+    read. Hashed must now win whenever both exist."""
+    _reset_reuse_table_state(monkeypatch, tmp_path)
+    _write_lemma_cache(str(tmp_path / 'lemmas'), 'la', 'vergil.aeneid', [
+        ('verg. aen. 1.18', 'hoc regnum dea gentibus esse, si qua fata sinant'),
+    ])
+    # Stale: plain-named, old CTS-URN loci -- must NOT be the one read.
+    _write_lemma_cache(str(tmp_path / 'lemmas'), 'la', 'tertullian.ad_nationes_libri_duo', [
+        ('tertullian.ad_nationes_libri_duo urn:cts:latinLit:stoa0275.stoa002.opp-lat2.2.17',
+         'a stale line under the old tagging scheme'),
+    ])
+    # Current: hashed name, tag shape matching the live .tess file (the
+    # full work id plus locus -- no short abbreviation for this work).
+    _write_hashed_lemma_cache(str(tmp_path / 'lemmas'), 'la', 'tertullian.ad_nationes_libri_duo', [
+        ('tertullian.ad_nationes_libri_duo 2.17',
+         'hoc regnum dea gentibus esse, Si qua fata sinant, iam tunc tenditque fouetque'),
+    ])
+    _write_reuse_db(
+        str(tmp_path / 'reuse_pairs'), 'la',
+        pairs_rows=[
+            ('vergil.aeneid', 'verg. aen. 1.18', 'tertullian.ad_nationes_libri_duo',
+             'tertullian.ad_nationes_libri_duo 2.17', 9, 0.0056, 1),
+        ],
+        line_counts_rows=[('vergil.aeneid', 'verg. aen. 1.18', 1)],
+        meta_rows=[('corpus_version', '2026-08-16')],
+    )
+    client = app.test_client()
+    r = _get(client, _route('/reuse/line'), work='vergil.aeneid', ref='verg. aen. 1.18', language='la')
+    out = json.loads(r.get_data())
+    tert = next(q for q in out['quotations'] if q['work'] == 'tertullian.ad_nationes_libri_duo')
+    assert tert['ref'] == 'tertullian.ad_nationes_libri_duo 2.17'
+    assert tert['text'] == 'hoc regnum dea gentibus esse, Si qua fata sinant, iam tunc tenditque fouetque'
+
+
 # --- /reuse/line -------------------------------------------------------
 
 def test_line_combines_both_directions_ordered_by_shared(monkeypatch, tmp_path):

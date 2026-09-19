@@ -156,28 +156,46 @@ def _resolve_work(language, work):
 
 
 def _work_cache_path(language, work):
-    """The lemma cache file for `work`: the plain <work>.json name if that
-    exists (the legacy naming, and what the reuse-route test fixtures
-    write), else the current content-hashed name
-    (<ascii_hint>-<md5(text_id)>.json) production's own lemma cache uses --
-    computed with backend.lemma_cache.get_cache_path (the exact function
-    that named the file), pointed at THIS module's own CACHE_LEMMAS_DIR
-    rather than that module's CACHE_DIR, so a test that patches
-    CACHE_LEMMAS_DIR still gets a self-contained fixture directory.
+    """The lemma cache file for `work`: the CURRENT content-hashed name
+    (<ascii_hint>-<md5(text_id)>.json) production's own lemma cache uses
+    first -- computed with backend.lemma_cache.get_cache_path (the exact
+    function that named the file), pointed at THIS module's own
+    CACHE_LEMMAS_DIR rather than that module's CACHE_DIR, so a test that
+    patches CACHE_LEMMAS_DIR still gets a self-contained fixture directory
+    -- and only when that does not exist, the plain <work>.json legacy
+    name (what the reuse-route test fixtures write, and what a handful of
+    real caches predating the hashed scheme still use).
 
-    Reading only the plain name here used to miss every work whose cache
-    has no legacy copy -- Geoffrey of Vinsauf's Documentum among them,
-    present only under its hashed name, so its Reuse tab entries carried a
-    ref but no line text (2026-09-19). This does not validate the cache
-    against a live .tess file's hash (unlike get_cached_units): a reuse
-    lookup only wants a line's text, and requiring a fresh match would also
-    make it impossible to test with a fixture cache and no fixture corpus."""
-    plain = os.path.join(CACHE_LEMMAS_DIR, language, work + '.json')
-    if os.path.exists(plain):
-        return plain
+    HASHED FIRST, NOT PLAIN FIRST (changed 2026-09-19; see the module's
+    git history for the version this replaced). Checking plain first
+    missed every work whose cache has no legacy copy at all -- Geoffrey of
+    Vinsauf's Documentum, whose Reuse tab entries carried a ref but no line
+    text -- but plain-first has a second, worse failure mode when BOTH
+    names exist for the same work: Tertullian's Ad Nationes has a stale
+    plain-named cache from an old CTS-URN tagging scheme
+    ("tertullian.ad_nationes_libri_duo urn:cts:latinLit:...2.17") sitting
+    alongside a current, file-hash-matching, correctly-tagged hashed one
+    ("tertullian.ad_nationes_libri_duo 2.17", the .tess file's own tag
+    shape). Plain-first served the stale file, so a ref in the shape the
+    reuse table (and the .tess file) actually uses was never in it -- ref
+    shown, no text. This is not a tag-SHAPE problem to special-case (short
+    abbreviation vs. full id vs. dot-glued forms all already round-trip
+    correctly once the right cache file is read, since the build and this
+    lookup both read a line's `ref` verbatim from whatever cache file
+    backs `work`); it is a stale-file problem, fixed the same way
+    backend.lemma_cache.get_cached_units already avoids it for every other
+    caller -- hashed is the name a rebuild actually writes, so it is
+    checked first, and a plain-named leftover only wins when hashed is
+    altogether absent. Still no file_hash validation against a live .tess
+    file (unlike get_cached_units): a reuse lookup only wants a line's
+    text, and requiring a fresh match would also make it impossible to
+    test with a fixture cache and no fixture corpus."""
     hashed = get_cache_path(work + '.tess', language, cache_dir=CACHE_LEMMAS_DIR)
     if os.path.exists(hashed):
         return hashed
+    plain = os.path.join(CACHE_LEMMAS_DIR, language, work + '.json')
+    if os.path.exists(plain):
+        return plain
     return None
 
 
