@@ -54,6 +54,12 @@ docs/DATA_OPERATIONS.md.
   recensions rather than deduplicated. Removed three orphaned
   `backend/text_sources.json` citation entries found while checking
   credits for this comparison.
+  Also preserved the two Book 1 prose items flagged when the whole-poem
+  file was retired: they turn out to be prose prefaces ("Dictio Ennodi
+  diaconi quando de Roma rediit" and "Fausto Praefatio") attached to poems
+  6 and 7, whose verse is already covered by `ennodius.carmina.tess`; the
+  prefaces themselves are not duplicated anywhere, so they are kept in a
+  new file, `magnus_felix_ennodius.carmina_1_praefationes.tess` (2 lines).
 
 - Retire two more duplicate Latin files (batch 2):
   `juvencus_caius_vettius_aquilinus.evangeliorum_libri_quattuor` (whole

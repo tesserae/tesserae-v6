@@ -68,9 +68,8 @@ Conventions
      the retired whole-poem file (recovered here) and poem 93 carried a
      misencoded apparatus line as a second "verse" (dropped here). Book 1
      of the retired file held two prose items (slots 1.6, 1.7) not
-     duplicated anywhere else in the corpus; retiring the whole file drops
-     these two items from the searchable corpus (flagged, not restored,
-     since restoring them was not asked for and is its own small decision).
+     duplicated anywhere else in the corpus, flagged in an earlier pass of
+     this PR and now preserved (see "Part D" below) rather than dropped.
   See `~/tesserae-backups/retired_duplicates_2026-09-19b/README.md` for the
   full verification detail on both files.
 - Registries edited:
@@ -190,6 +189,77 @@ Conventions
     `added_by`: "V6 Import") was touched.
 - No corpus files added, removed or modified in Part C; the only change is
   the three-entry `text_sources.json` cleanup above.
+
+### Part D (added same day, same PR): the two Book 1 prose prefaces preserved
+- What: NC asked not to drop the two Book 1 prose items flagged in Part B
+  (slots 1.6 and 1.7 of the retired `magnus_felix_ennodius.carmina.tess`)
+  and to identify what they are. Re-checked against the source XML
+  (`stoa0114a.stoa003.opp-lat1.xml`): both slots are actually mixed
+  prose-plus-verse compositions, not pure prose. Slot 6's verse (40 lines,
+  240 words, opening "Post canas hiemes, gelidi post damna profundi")
+  and slot 7's verse (80 lines, 414 words, opening "Fluminis in medio
+  succendis uiscera, Fauste,") match `ennodius.carmina.tess`'s own poems 6
+  and 7 verse-for-verse (confirmed by opening and closing lines) -- so the
+  verse portions are NOT unique, they are the same poems the batch-2-era
+  comparison document had already found duplicated in `ennodius.carmina.tess`.
+  What genuinely exists nowhere else is the PROSE that precedes each poem
+  in this source only: slot 6 is titled "VI. Dictio Ennodi diaconi quando
+  de Roma rediit" (443 words, a prose "dictio" on Ennodius's return from
+  Rome) and slot 7 is titled "VII. Fausto Praefatio" (123 words, a prose
+  preface addressed to Faustus, introducing the poem that follows). Neither
+  text appears in `magnus_felix_ennodius.dictiones.tess` (the separate,
+  already-served Dictiones collection, a different source document,
+  `stoa0114a.stoa004`) or anywhere else in the corpus (checked by exact
+  phrase search across `texts/la/`).
+  - New file: `magnus_felix_ennodius.carmina_1_praefationes.tess` (2 lines,
+    567 words), holding just these two prose prefaces, tagged
+    `<magnus_felix_ennodius.carmina_1_praefationes 6>` and `<...7>` (the
+    original Book 1 slot numbers, for traceability). The id deliberately
+    does not read "dictiones_1": the existing `magnus_felix_ennodius.dictiones.tess`
+    is already a complete, separately-sourced collection, and naming this
+    file as if it were "book 1" of that collection would misrepresent it;
+    "carmina_1_praefationes" names what these two items actually are,
+    prose prefaces belonging to Carmina Book 1.
+  - Two small transcription artifacts in the source XML's prose text were
+    corrected while extracting it (both are stray tokens, not real Latin,
+    consistent with the level of noise already documented elsewhere in
+    this corpus): "pateat exul- s tantis" -> "pateat exultantis" (slot 6)
+    and "quantum sentio, 5 rubiginosos" -> "quantum sentio, rubiginosos"
+    (slot 7). Word counts (443 and 123) match the retired whole-poem
+    file's own `2.6`/`2.7`-equivalent lines for these two items exactly
+    once the source XML's `<note>` apparatus, nested inside the `<p>`
+    element for slot 7 in this specific source (an isolated encoding
+    irregularity, not present for slot 6), is excluded from extraction.
+  - Registries: `data/text_genres.csv` (new row, era Late Antique, meter
+    prose, genre medieval, matching the other Magnus Felix Ennodius prose
+    works); `backend/text_provenance.json` (new entry, same source XML as
+    `magnus_felix_ennodius.carmina_2`, title "Carmina, Book 1, Prose
+    Prefaces (6-7)").
+  - `python scripts/corpus/validate_tess.py`: `2 lines, avg 2090 chars
+    [ok]`, no flags.
+
+### Part D verification addendum: two checks NC asked to confirm
+- **`DISPLAY_NAMES` keys on the bare stem.** Ran
+  `format_display_name('exerpta_ex_operibus_augustini')` directly: returns
+  `'Excerpta ex Operibus Augustini'`. Also ran the actual call path the app
+  uses, `get_text_metadata('texts/la/eugippius.exerpta_ex_operibus_augustini.tess')`:
+  its `title` is `'Excerpta ex Operibus Augustini'` too. Both confirm the
+  Part A fix reaches the real title the site renders, not just the raw
+  dictionary lookup.
+- **`meter=unknown` is an accepted, correctly-handled value.** Grepped
+  every consumer of the `meter` column: `backend/blueprints/admin.py`
+  itself defaults a missing value to `'unknown'`
+  (`row.setdefault('meter', 'unknown')`); `backend/fusion.py`'s
+  `_get_text_meter()` explicitly treats `'unknown'` (with `'mixed'` and
+  blank) as "no meter data, do not group this text by meter" for the
+  same-meter IDF feature, which is exactly the intended behavior for a
+  verse text the scanner has no scansion entry for; the admin genre
+  editor, `client/src/components/admin/tabs/GenreClassificationTab.jsx`,
+  uses `'unknown'` as its own fallback throughout (`t.meter || 'unknown'`)
+  and treats the meter column as an open set of values discovered from the
+  data, not a fixed enum. `unknown` is not a guess; it is the same value
+  already used in production for the sibling row `ennodius.carmina.tess`,
+  for the identical reason.
 
 ## 2026-09-19 Corpus: two more duplicate Latin files retired (batch 2)
 - What (code, this PR; not yet run on production): `research/corpus/
