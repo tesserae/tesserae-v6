@@ -430,7 +430,7 @@ export default function ThemeSearchPage() {
       </span>
 
       <div className="mt-4 inline-flex rounded border border-gray-300 overflow-hidden text-sm">
-        {[['search', 'Search'], ['map', 'Map']].map(([v, label]) => (
+        {[['search', 'Theme Search'], ['map', 'Similarity Map']].map(([v, label]) => (
           <button
             key={v}
             onClick={() => setTabAndUrl(v)}

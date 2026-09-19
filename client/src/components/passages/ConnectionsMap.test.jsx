@@ -173,7 +173,8 @@ describe('loading the map', () => {
   it('shows a legend under the grid with the low, middle and high counts', async () => {
     render(<ConnectionsMap />);
     await waitFor(() => expect(screen.getByLabelText(/Connections map/)).toBeTruthy());
-    expect(screen.getByText(/low 6, middle 6, high 6 links/)).toBeTruthy();
+    // Every fixture count is 6, so the ramp collapses to a single figure.
+    expect(screen.getByText(/6 links in each cell/)).toBeTruthy();
   });
 
   it('shows no legend when every cell is empty', async () => {
@@ -311,7 +312,7 @@ describe('hovering and clicking the grid (margin-aware coordinates)', () => {
     fireEvent.mouseMove(canvas, cellCenter(28, 0, 1));
     expect(await screen.findByText('Homer (grc)')).toBeTruthy();
     expect(screen.getByText('Vergil (la)')).toBeTruthy();
-    expect(screen.getByText(/count 6 \(100th percentile\)/)).toBeTruthy();
+    expect(screen.getByText('6 links')).toBeTruthy();   // the tooltip, exact; the legend says 'in each cell'
   });
 
   it('moving off the grid clears the tooltip', async () => {
@@ -372,7 +373,7 @@ describe('hovering and clicking the grid (margin-aware coordinates)', () => {
     fireEvent.click(canvas, cellCenter(28, 0, 1));
     // "Homer (grc) x Vergil (la), works" -- NC's own example format, comma
     // before the level name, so it reads as a breadcrumb trail.
-    expect(await screen.findByText('Homer (grc) × Vergil (la), works')).toBeTruthy();
+    expect(await screen.findByText('Work by work: Homer (grc) × Vergil (la)')).toBeTruthy();
   });
 
   it('scrolls each new drill-down grid to the START of the viewport, not merely into view', async () => {
@@ -401,7 +402,7 @@ describe('hovering and clicking the grid (margin-aware coordinates)', () => {
 
     const booksCanvas = await screen.findByLabelText(/Books of Homer, iliad by books of Vergil, aeneid/);
     expect(worksCanvas.compareDocumentPosition(booksCanvas) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(await screen.findByText('Homer, iliad × Vergil, aeneid, books')).toBeTruthy();
+    expect(await screen.findByText('Book by book: Homer, iliad × Vergil, aeneid')).toBeTruthy();
     expect(window.HTMLElement.prototype.scrollIntoView).toHaveBeenCalledWith(
       expect.objectContaining({ block: 'start' }));
     window.HTMLElement.prototype.scrollIntoView.mockClear();
@@ -423,7 +424,7 @@ describe('hovering and clicking the grid (margin-aware coordinates)', () => {
     // strip the abbreviation, show only the locus, space not comma).
     expect(screen.getByText('Homer, Iliad 1.1')).toBeTruthy();
     expect(screen.getByText('Vergil, Aeneid 1.1')).toBeTruthy();
-    expect(screen.getByText('Homer, Iliad × Vergil, Aeneid, passages')).toBeTruthy();
+    expect(screen.getByText('Passages: Homer, Iliad × Vergil, Aeneid')).toBeTruthy();
     const links = screen.getAllByRole('link');
     expect(links.some((a) => a.getAttribute('href').includes('tab=similar'))).toBe(true);
     // The passage-pair list gets its own scroll-into-view too, since it

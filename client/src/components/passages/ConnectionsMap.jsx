@@ -90,6 +90,10 @@ function fmtCount(n) {
 
 function ColorLegend({ legend }) {
   if (!legend || !legend.high) return null;
+  if (legend.low === legend.high) {
+    // One cell, or every cell alike: a ramp from 5057 to 5057 says nothing.
+    return <div className="mt-2 text-[11px] text-gray-500">{fmtCount(legend.high)} links in each cell</div>;
+  }
   return (
     <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-gray-500">
       <span>{fmtCount(legend.low)}</span>
@@ -583,6 +587,24 @@ export default function ConnectionsMap() {
     if (selectedPair) pairSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [selectedPair]);
 
+  // Browser Back unwinds the drill-down one level at a time instead of
+  // leaving the map (NC, 2026-09-19: "the back button goes all the way back
+  // to the start of the full map, not the subordinate maps I clicked
+  // through"). Each drill step pushes a history entry carrying the
+  // selections at that depth; popstate restores them (and refetches a level
+  // whose data is gone). The base entry is stamped depth 0 on mount so the
+  // first Back lands on the top grid rather than on the previous page.
+  const pushDrill = useCallback((depth, sel) => {
+    try { window.history.pushState({ mapDrill: { depth, view, ...sel } }, ''); } catch (e) { /* ignore */ }
+  }, [view]);
+  useEffect(() => {
+    try {
+      if (!window.history.state?.mapDrill) window.history.replaceState({ mapDrill: { depth: 0, view } }, '');
+    } catch (e) { /* ignore */ }
+  }, []);   // eslint-disable-line react-hooks/exhaustive-deps
+  const dataRef = useRef({});
+  dataRef.current = { cellData, booksData, pairData, view };
+
   // "Start from one work": a searchable picker over the raw work ids that
   // have passage windows (the same /api/passages/works Browse Corpus uses
   // for its badge), so the map can be entered from a single work rather
@@ -775,9 +797,12 @@ export default function ConnectionsMap() {
       // The top grid is already work-by-work -- skip straight to the books
       // level rather than showing a one-row "work pairs" list of itself.
       loadBooks(a, b, labelA, labelB);
+      pushDrill(2, { selectedCell: { a, b, labelA, labelB }, topOutline: { i, j },
+                     selectedWorkCell: { workA: a, workB: b, labelA, labelB } });
       return;
     }
     loadCell(view, a, b);
+    pushDrill(1, { selectedCell: { a, b, labelA, labelB }, topOutline: { i, j } });
   };
 
   // Second level, Authors view only: a work x work cell inside the nested
@@ -792,6 +817,8 @@ export default function ConnectionsMap() {
     if (workA === workB) return;
     setWorksOutline({ i, j });
     loadBooks(workA, workB, wm.labels_a[i], wm.labels_b[j]);
+    pushDrill(2, { selectedCell, topOutline, worksOutline: { i, j },
+                   selectedWorkCell: { workA, workB, labelA: wm.labels_a[i], labelB: wm.labels_b[j] } });
   };
 
   // Third level: a book x book cell -- the passage pairs behind it.
@@ -800,6 +827,9 @@ export default function ConnectionsMap() {
     const bookA = booksData.ids_a[i], bookB = booksData.ids_b[j];
     setBooksOutline({ i, j });
     loadPair(selectedWorkCell.workA, selectedWorkCell.workB, bookA, bookB);
+    pushDrill(3, { selectedCell, topOutline, selectedWorkCell, worksOutline, booksOutline: { i, j },
+                   selectedPair: { work_a: selectedWorkCell.workA, work_b: selectedWorkCell.workB,
+                                   book_a: bookA, book_b: bookB } });
   };
 
   const loadPair = async (work_a, work_b, book_a, book_b) => {
@@ -816,6 +846,42 @@ export default function ConnectionsMap() {
       setError(e.message || 'that work pair could not be loaded');
     }
   };
+
+  useEffect(() => {
+    const onPop = (e) => {
+      const d = e.state?.mapDrill;
+      if (!d) return;
+      const cur = dataRef.current;
+      const clearAll = () => {
+        setSelectedPair(null); setPairData(null); setBooksOutline(null);
+        setSelectedWorkCell(null); setBooksData(null); setWorksOutline(null);
+        setSelectedCell(null); setCellData(null); setTopOutline(null);
+      };
+      if (d.view && d.view !== cur.view) { clearAll(); return; }
+      // Level 1: the clicked top-grid cell.
+      if (d.depth >= 1 && d.selectedCell) {
+        setSelectedCell(d.selectedCell); setTopOutline(d.topOutline || null);
+        if (!cur.cellData && d.view !== 'work') loadCell(d.view, d.selectedCell.a, d.selectedCell.b);
+      } else { setSelectedCell(null); setCellData(null); setTopOutline(null); }
+      // Level 2: the work pair (books grid). loadBooks clears level 3 itself,
+      // so it runs before level 3 is restored.
+      if (d.depth >= 2 && d.selectedWorkCell) {
+        const w = d.selectedWorkCell;
+        if (!cur.booksData) loadBooks(w.workA, w.workB, w.labelA, w.labelB);
+        else setSelectedWorkCell(w);
+        setWorksOutline(d.worksOutline || null);
+      } else { setSelectedWorkCell(null); setBooksData(null); setWorksOutline(null); }
+      // Level 3: the passage pairs.
+      if (d.depth >= 3 && d.selectedPair) {
+        const sp = d.selectedPair;
+        if (!cur.pairData) loadPair(sp.work_a, sp.work_b, sp.book_a, sp.book_b);
+        else setSelectedPair(sp);
+        setBooksOutline(d.booksOutline || null);
+      } else { setSelectedPair(null); setPairData(null); setBooksOutline(null); }
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, [loadCell, loadBooks]);   // eslint-disable-line react-hooks/exhaustive-deps
 
   // Author and work in full for the pair-list breadcrumb too (NC,
   // 2026-09-19), read off the first loaded pair's own windows (which already
@@ -852,7 +918,7 @@ export default function ConnectionsMap() {
 
   const onClickWorkRowCell = (_i, j) => {
     const c = workCols[j];
-    if (c) loadPair(startWork, c.work);
+    if (c) { loadPair(startWork, c.work); pushDrill(3, { selectedPair: { work_a: startWork, work_b: c.work } }); }
   };
 
   return (
@@ -1036,7 +1102,7 @@ export default function ConnectionsMap() {
           {selectedCell && (view === 'century' || view === 'genre') && (
             <div ref={cellSectionRef} className="mt-4 text-sm">
               <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">
-                {selectedCell.labelA} &times; {selectedCell.labelB}, work pairs
+                Work pairs: {selectedCell.labelA} &times; {selectedCell.labelB}
               </p>
               {!cellData && <p className="text-gray-500 italic mt-1">Loading…</p>}
               {cellData?.work_pairs && (
@@ -1044,7 +1110,11 @@ export default function ConnectionsMap() {
                   {cellData.work_pairs.map((wp) => (
                     <li key={`${wp.work_a}|${wp.work_b}`}>
                       <button
-                        onClick={() => loadPair(wp.work_a, wp.work_b)}
+                        onClick={() => {
+                          loadPair(wp.work_a, wp.work_b);
+                          pushDrill(3, { selectedCell, topOutline,
+                                         selectedPair: { work_a: wp.work_a, work_b: wp.work_b } });
+                        }}
                         className="text-left w-full text-red-800 hover:text-red-900 hover:underline"
                       >
                         {wp.work_a} &harr; {wp.work_b} ({wp.count})
@@ -1070,7 +1140,7 @@ export default function ConnectionsMap() {
                   what is being compared makes it plain a new grid appeared
                   below the one just clicked, rather than nothing happening. */}
               <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">
-                {selectedCell.labelA} &times; {selectedCell.labelB}, works
+                Work by work: {selectedCell.labelA} &times; {selectedCell.labelB}
               </p>
               {!cellData && <p className="text-gray-500 italic mt-1">Loading…</p>}
               {cellData && !cellData.works_matrix && (
@@ -1101,7 +1171,7 @@ export default function ConnectionsMap() {
           {selectedWorkCell && (
             <div ref={booksSectionRef} className="mt-4">
               <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">
-                {selectedWorkCell.labelA} &times; {selectedWorkCell.labelB}, books
+                Book by book: {selectedWorkCell.labelA} &times; {selectedWorkCell.labelB}
               </p>
               {loadingBooks && <p className="text-gray-500 italic mt-1">Loading…</p>}
               {booksData?.error && <p className="text-amber-700 mt-1">{booksData.error}</p>}
@@ -1132,7 +1202,7 @@ export default function ConnectionsMap() {
           {selectedPair && (
             <div ref={pairSectionRef} className="mt-4 text-sm">
               <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">
-                {pairHeading()}, passages
+                Passages: {pairHeading()}
               </p>
               {!pairData && <p className="text-gray-500 italic mt-1">Loading…</p>}
               {pairData?.error && <p className="text-amber-700 mt-1">{pairData.error}</p>}
@@ -1194,7 +1264,7 @@ export default function ConnectionsMap() {
           {selectedPair && (
             <div ref={pairSectionRef} className="mt-4">
               <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">
-                {pairHeading()}, passages
+                Passages: {pairHeading()}
               </p>
               {!pairData && <p className="text-gray-500 italic mt-1">Loading…</p>}
               {pairData?.pairs && (
