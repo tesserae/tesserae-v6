@@ -8,6 +8,12 @@ docs/DATA_OPERATIONS.md.
 
 ## 2026-09-19
 
+### Reader
+- The side panel (Similar Passages, Verbal Parallels, Translation, Reuse) now
+  stays on screen while the page scrolls. Its sticky rule had been cancelled
+  by the outer card's overflow clipping since the Reader shipped, so deep in a
+  text the panel sat above the fold and looked absent.
+
 ### Infrastructure
 - The Python test workflow on main had failed since the Theme Search re-ranker
   merged: the security scan flagged the re-ranker client's URL open. The client
