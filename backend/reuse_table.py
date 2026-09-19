@@ -24,6 +24,7 @@ import sqlite3
 from functools import lru_cache
 
 from backend.logging_config import get_logger
+from backend.lemma_cache import get_cache_path
 from backend.passage_index import _norm_work
 from backend.utils import normalize_author_date_key
 
@@ -152,19 +153,46 @@ def _resolve_work(language, work):
     return collapsed
 
 
+def _work_cache_path(language, work):
+    """The lemma cache file for `work`: the plain <work>.json name if that
+    exists (the legacy naming, and what the reuse-route test fixtures
+    write), else the current content-hashed name
+    (<ascii_hint>-<md5(text_id)>.json) production's own lemma cache uses --
+    computed with backend.lemma_cache.get_cache_path (the exact function
+    that named the file), pointed at THIS module's own CACHE_LEMMAS_DIR
+    rather than that module's CACHE_DIR, so a test that patches
+    CACHE_LEMMAS_DIR still gets a self-contained fixture directory.
+
+    Reading only the plain name here used to miss every work whose cache
+    has no legacy copy -- Geoffrey of Vinsauf's Documentum among them,
+    present only under its hashed name, so its Reuse tab entries carried a
+    ref but no line text (2026-09-19). This does not validate the cache
+    against a live .tess file's hash (unlike get_cached_units): a reuse
+    lookup only wants a line's text, and requiring a fresh match would also
+    make it impossible to test with a fixture cache and no fixture corpus."""
+    plain = os.path.join(CACHE_LEMMAS_DIR, language, work + '.json')
+    if os.path.exists(plain):
+        return plain
+    hashed = get_cache_path(work + '.tess', language, cache_dir=CACHE_LEMMAS_DIR)
+    if os.path.exists(hashed):
+        return hashed
+    return None
+
+
 @lru_cache(maxsize=128)
 def _load_work_lines(language, work):
     """(ordered_refs, ref_to_text, ref_to_seq) for one work, built once from
-    its plain lemma cache -- the same per-line source the table itself was
-    built from, so a reuse-table ref always resolves to real line text.
+    its lemma cache -- the same per-line source the table itself was built
+    from, so a reuse-table ref always resolves to real line text. See
+    _work_cache_path for how the file is found.
 
     A locus label can repeat within a work (see the module docstring's
     duplicate-locus caveat); ref_to_text/ref_to_seq keep the FIRST
     occurrence, same as the build script's own line-lookup convention.
     Memoized per (language, work) for the life of the process -- a lemma
     cache file does not change without a deploy, which restarts workers."""
-    path = os.path.join(CACHE_LEMMAS_DIR, language, work + '.json')
-    if not os.path.exists(path):
+    path = _work_cache_path(language, work)
+    if path is None:
         return ([], {}, {})
     try:
         with open(path, 'r', encoding='utf-8') as f:

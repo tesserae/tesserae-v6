@@ -16,6 +16,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from backend.app import app  # noqa: E402
 from backend import reuse_table  # noqa: E402
+from backend.lemma_cache import get_cache_path  # noqa: E402
 
 
 def _route(suffix):
@@ -34,6 +35,24 @@ def _write_lemma_cache(lemmas_dir, language, work, refs_and_texts):
               for ref, text in refs_and_texts]
     data = {'text_id': work, 'language': language, 'units_line': units}
     with open(os.path.join(lang_dir, work + '.json'), 'w', encoding='utf-8') as f:
+        json.dump(data, f)
+
+
+def _write_hashed_lemma_cache(lemmas_dir, language, work, refs_and_texts):
+    """Like _write_lemma_cache, but under the CURRENT production naming --
+    <ascii_hint>-<md5(text_id)>.json, computed with the same
+    backend.lemma_cache.get_cache_path production's cache builder uses --
+    instead of the legacy plain <work>.json name. Some works ship with only
+    this name and no legacy copy (Geoffrey of Vinsauf's Documentum is the
+    real one that surfaced the bug: its Reuse tab entries carried a ref but
+    no line text, because _load_work_lines only ever tried the plain name)."""
+    lang_dir = os.path.join(lemmas_dir, language)
+    os.makedirs(lang_dir, exist_ok=True)
+    units = [{'ref': ref, 'text': text, 'tokens': text.lower().split()}
+              for ref, text in refs_and_texts]
+    data = {'text_id': work + '.tess', 'language': language, 'units_line': units}
+    path = get_cache_path(work + '.tess', language, cache_dir=lemmas_dir)
+    with open(path, 'w', encoding='utf-8') as f:
         json.dump(data, f)
 
 
@@ -105,6 +124,37 @@ def _build_fixture(tmp_path, language='la'):
             ('language', language),
         ],
     )
+
+
+def test_line_finds_text_under_a_hashed_only_cache_filename(monkeypatch, tmp_path):
+    """Reproduces the bug report: Quintilian's quotation of "arma virumque
+    cano" showed its line text, but Geoffrey of Vinsauf's Documentum
+    (geoffrey. document. 3.10.2) showed the reference with no text.
+    Geoffrey's lemma cache exists only under its hashed name, with no
+    legacy plain copy -- Quintilian's happens to have both, which is why
+    only Geoffrey's was ever missing text."""
+    _reset_reuse_table_state(monkeypatch, tmp_path)
+    _write_lemma_cache(str(tmp_path / 'lemmas'), 'la', 'vergil.aeneid', [
+        ('verg. aen. 1.1', 'Arma virumque cano, Troiae qui primus ab oris'),
+    ])
+    _write_hashed_lemma_cache(str(tmp_path / 'lemmas'), 'la', 'geoffrey_of_vinsauf.documentum', [
+        ('geoffrey. document. 3.10.2', 'Arma virumque cano Trojae qui prinus ab oris'),
+    ])
+    _write_reuse_db(
+        str(tmp_path / 'reuse_pairs'), 'la',
+        pairs_rows=[
+            ('vergil.aeneid', 'verg. aen. 1.1', 'geoffrey_of_vinsauf.documentum',
+             'geoffrey. document. 3.10.2', 4, 0.2, 1),
+        ],
+        line_counts_rows=[('vergil.aeneid', 'verg. aen. 1.1', 1)],
+        meta_rows=[('corpus_version', '2026-08-16')],
+    )
+    client = app.test_client()
+    r = _get(client, _route('/reuse/line'), work='vergil.aeneid', ref='verg. aen. 1.1', language='la')
+    out = json.loads(r.get_data())
+    geoffrey = next(q for q in out['quotations'] if q['work'] == 'geoffrey_of_vinsauf.documentum')
+    assert geoffrey['ref'] == 'geoffrey. document. 3.10.2'
+    assert geoffrey['text'] == 'Arma virumque cano Trojae qui prinus ab oris'
 
 
 # --- /reuse/line -------------------------------------------------------

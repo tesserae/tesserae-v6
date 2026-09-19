@@ -218,12 +218,17 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   }, [selection, work, units, tab]);
 
   const tabs = [
-    ['similar', 'Similar Passages'],
-    ['verbal', 'Verbal Parallels'],
+    // Short labels so the four tabs fit one row without a scrollbar a
+    // reader has no way to know is there ("If users can't see all of them
+    // they won't know they're there," NC, 2026-09-19) -- matches
+    // feat/scholarship-tab's wording. The full name is the title attribute.
+    ['similar', 'Similar', 'Similar Passages'],
+    ['verbal', 'Parallels', 'Verbal Parallels'],
     // In the English-focused reading view the middle column IS the
     // translation, so this tab holds the original instead.
-    ['translation', focus === 'english' ? 'Original' : 'Translation'],
-    ['reuse', 'Reuse'],
+    ['translation', focus === 'english' ? 'Original' : 'Translation',
+     focus === 'english' ? 'The original text' : 'Translation'],
+    ['reuse', 'Reuse', 'Reuse'],
   ];
 
   return (
@@ -240,8 +245,11 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                       lg:static lg:shadow-none lg:sticky lg:top-0 lg:self-start lg:h-screen lg:max-h-none
                       ${(selection || sheetOpen) ? 'max-h-[55vh]' : 'max-h-[2.75rem] overflow-hidden'}`}>
       {/* Room on the right for the Tessa button, which floats over the sheet
-          on a phone; the strip scrolls if the labels do not fit. */}
-      <div className="flex items-center shrink-0 border-b border-gray-200 text-sm overflow-x-auto pr-20 lg:pr-0 whitespace-nowrap">
+          on a phone. The strip WRAPS to a second line rather than scrolling
+          when the tabs do not all fit one row: a scrollbar here was easy to
+          miss entirely, so a reader could open the Reader and never learn
+          the Reuse tab existed (NC, 2026-09-19). */}
+      <div className="flex items-center flex-wrap shrink-0 border-b border-gray-200 text-sm pr-20 lg:pr-0">
         {(selection || sheetOpen) && (
           <button
             onClick={() => { setSheetOpen(false); onClose?.(); }}
@@ -252,11 +260,12 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
             ✕
           </button>
         )}
-        {tabs.map(([id, label]) => (
+        {tabs.map(([id, label, full]) => (
           <button
             key={id}
+            title={full || label}
             onClick={() => { setTab(id); setSheetOpen(true); }}
-            className={`px-3 py-2 font-semibold border-b-2 transition-colors ${
+            className={`px-2.5 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               tab === id
                 ? 'text-red-700 border-red-700'
                 : 'text-gray-500 border-transparent hover:text-gray-700'

@@ -43,11 +43,25 @@ What it does, in one pass:
      scores them by Jaccard and containment, keeps a pair if
        shared >= --min-shared and jaccard >= --min-jaccard
        OR shared >= --min-shared-override and containment >= --min-containment
+       OR shared == 1 and that n-gram's corpus-wide line-df < --rare-max-df
+          and containment >= --rare-min-containment
      where containment = shared / min(ngrams_a, ngrams_b) (the fraction of
      the SHORTER line's surviving n-grams the match accounts for -- this
      replaced a raw shared-count-only override that let long, unrelated
      prose paragraphs through on a handful of coincidental function-word
      n-grams; see REPORT_2026-09-18.md "Follow-up: the prose length fix").
+     The third rule (added 2026-09-19, see find_pairs's docstring for the
+     full investigation) recovers a short, isolated quotation -- as little
+     as three words -- that shares only one n-gram with its source and so
+     never reaches --min-shared, PROVIDED that one n-gram is corpus-rare
+     AND containment clears a much lower floor than the main override's
+     0.5 (default 0.06). Banality (step 4) turned out not to be why famous
+     openings like Vergil's "arma virumque cano" were under-detected:
+     measured against the live corpus, none of that line's sixteen n-grams
+     reach anywhere near --max-df=200 (worst case, 9 lines). The real gap
+     was min-shared -- and rarity alone, with no containment floor, floods
+     (6.4M pairs on the live corpus; see find_pairs's docstring for the
+     measurement that walked this back to a containment floor instead).
   6. Chains adjacent line matches (seq s/t and s+1/t+1 in the same work
      pair) into spans and writes everything to
      cache/reuse_pairs/<lang>.db:
@@ -102,14 +116,38 @@ def hash_ngram(tokens):
     return int.from_bytes(digest, 'big', signed=True)
 
 
+def gen_ngram_indices(n):
+    """Yield index triples for contiguous 3-grams and one-gap skip-3-grams
+    over a sequence of length n. Factored out of gen_ngrams so build_index
+    can apply the SAME index pattern to a line's lemmas as to its surface
+    tokens -- the two arrays are positionally parallel in the lemma cache
+    (see get_cached_units), so the lemma triple at a given ngram's indices
+    is the lemma-level identity of that surface n-gram."""
+    for i in range(n - 2):
+        yield (i, i + 1, i + 2)
+    for i in range(n - 3):
+        yield (i, i + 1, i + 3)
+        yield (i, i + 2, i + 3)
+
+
 def gen_ngrams(tokens):
     """Yield contiguous 3-grams and one-gap skip-3-grams for a token list."""
-    n = len(tokens)
-    for i in range(n - 2):
-        yield (tokens[i], tokens[i + 1], tokens[i + 2])
-    for i in range(n - 3):
-        yield (tokens[i], tokens[i + 1], tokens[i + 3])
-        yield (tokens[i], tokens[i + 2], tokens[i + 3])
+    for idxs in gen_ngram_indices(len(tokens)):
+        yield tuple(tokens[i] for i in idxs)
+
+
+def _line_lemmas(unit):
+    """A unit's lemmas, positionally aligned with its tokens -- or the
+    tokens themselves when there is no lemmas array, or it doesn't match
+    the tokens array in length (a stale or partial cache entry): treating
+    each surface form as its own "lemma" in that fallback case is exactly
+    the old, less accurate behavior, not a crash or a silently wrong
+    alignment."""
+    tokens = unit.get('tokens') or []
+    lemmas = unit.get('lemmas')
+    if not lemmas or len(lemmas) != len(tokens):
+        return tokens
+    return lemmas
 
 
 def get_corpus_version(language):
@@ -189,12 +227,46 @@ def discover_corpus(language):
     return kept, skipped_parts, missing_cache
 
 
-def build_index(cache_data, index_db_path, max_df):
+def build_index(cache_data, index_db_path, max_df, commonplace_ratio=0.08):
     """Stage 1: stream per-line n-grams from cache_data (already-loaded,
     already-validated {tess_basename: cache_dict}, from discover_corpus)
     into a temporary SQLite index DB (lines, postings after banality
-    filtering). Returns a stats dict. Mirrors
-    research/reuse_table/build_reuse_index.py."""
+    filtering). Returns (stats, commonplace_hashes). Mirrors
+    research/reuse_table/build_reuse_index.py.
+
+    commonplace_hashes: the set of n-gram hashes composed ENTIRELY of
+    commonplace LEMMAS -- a lemma whose own corpus-wide line-df is at least
+    `commonplace_ratio` of the most frequent lemma's df (the same
+    ratio-of-max-df design backend/app.py's rare_focus_filter already uses,
+    RARE_FOCUS_COMMON_RATIO=0.45 there for a different purpose and scale;
+    0.08 is what a 2026-09-19 measurement against the live corpus found --
+    see below). find_pairs uses this to keep the rare-single-ngram rule
+    (see its own docstring) from passing a trigram that is corpus-rare only
+    as a specific ORDERED combination of otherwise ordinary words --
+    ('ut', 'in', 'ista'), ('cum', 'in', 'ius'), ('et', 'qua', 'tibi') and
+    the like, which is what most of a first 30-pair sample turned out to be
+    even after adding a containment floor: individually common words
+    rarely co-occur in this exact trigram shape, so the SHAPE is rare even
+    though nothing about the words is. A genuine echo -- "ad sidera
+    palmas", "iste dei sanctus", "magna de stirpe" -- has at least one word
+    distinctive enough on its own to be memorable, which is what this
+    excludes-if-none-are-distinctive test asks for directly.
+
+    LEMMAS, NOT SURFACE TOKENS, because Latin's inflection spreads one
+    ordinary word over many surface forms, each individually rarer than
+    the word actually is -- "amat" (768 lines) looks almost as rare as a
+    genuinely distinctive word by raw surface count, but its lemma "amo"
+    is unremarkable (5237). A first attempt used surface-token df and
+    found no threshold worked: low enough to catch the commonplace-only
+    false positives in the 30-pair sample also caught genuine echoes
+    ("ad sidera palmas" has surface df low enough to look rare), and high
+    enough to spare them caught almost nothing. Lemma df fixed this: at
+    ratio 0.08 every genuine echo in that sample survived (none of its
+    three lemmas individually exceeded the threshold) while 9 of the
+    remaining 21 commonplace-word matches were correctly excluded. Falls
+    back to the surface token itself when a unit has no lemmas array (or a
+    misaligned one), which only affects languages/caches predating
+    lemmatization."""
     t0 = time.time()
     if os.path.exists(index_db_path):
         os.remove(index_db_path)
@@ -223,6 +295,12 @@ def build_index(cache_data, index_db_path, max_df):
     n_lines_seen = 0
     n_lines_too_short = 0
     works_indexed = 0
+    # Corpus-wide line-document-frequency per LEMMA (once per line it
+    # appears in, not per raw occurrence) -- cheap: Latin's lemma
+    # vocabulary is in the tens of thousands, nowhere near the n-gram
+    # count, so this dict stays small next to postings_raw. See the
+    # docstring above for why lemmas rather than surface tokens.
+    lemma_df = defaultdict(int)
 
     for tess_basename, data in cache_data.items():
         work_id = data.get('text_id', tess_basename)
@@ -234,8 +312,11 @@ def build_index(cache_data, index_db_path, max_df):
         works_indexed += 1
         for seq, unit in enumerate(units):
             tokens = unit.get('tokens') or []
+            lemmas = _line_lemmas(unit)
             ref = unit.get('ref', '')
             n_lines_seen += 1
+            for lem in set(lemmas):
+                lemma_df[lem] += 1
             if len(tokens) < 3:
                 n_lines_too_short += 1
                 line_rows.append((line_id, work_id, ref, len(tokens), seq))
@@ -265,6 +346,32 @@ def build_index(cache_data, index_db_path, max_df):
     print(f"[build_reuse_table] index: {n_lines_seen} lines read from {works_indexed} works "
           f"({n_lines_too_short} lines under 3 tokens, kept with no n-grams), "
           f"{n_gram_instances} n-gram instances, elapsed {time.time()-t0:.1f}s")
+
+    # Which n-grams are commonplace-LEMMA-only: a second, in-memory-only
+    # pass (cache_data is already loaded; no re-reading from disk) now that
+    # lemma_df's totals -- and so the commonplace threshold -- are known.
+    # Kept as a Python set of hashes (keyed on the SURFACE n-gram, since
+    # that is what postings/pair_hits key on): bounded by the lemma
+    # vocabulary's combinatorics, not by postings_raw's size, so nowhere
+    # near the scale that forced pair_hits onto disk (see find_pairs's
+    # docstring).
+    max_lemma_df = max(lemma_df.values()) if lemma_df else 0
+    commonplace_threshold = max_lemma_df * commonplace_ratio
+    commonplace_hashes = set()
+    for tess_basename, data in cache_data.items():
+        for unit in data.get('units_line', []):
+            tokens = unit.get('tokens') or []
+            if len(tokens) < 3:
+                continue
+            lemmas = _line_lemmas(unit)
+            for idxs in gen_ngram_indices(len(tokens)):
+                lemma_gram = tuple(lemmas[i] for i in idxs)
+                if all(lemma_df.get(lem, 0) >= commonplace_threshold for lem in lemma_gram):
+                    surface_gram = tuple(tokens[i] for i in idxs)
+                    commonplace_hashes.add(hash_ngram(surface_gram))
+    print(f"[build_reuse_table] index: {len(lemma_df)} distinct lemmas, "
+          f"commonplace threshold {commonplace_threshold:.0f} (of max lemma df {max_lemma_df}), "
+          f"{len(commonplace_hashes)} n-grams are commonplace-word-only, elapsed {time.time()-t0:.1f}s")
 
     print("[build_reuse_table] index: computing n-gram document frequencies (SQL GROUP BY)...")
     conn.execute("CREATE INDEX idx_raw_ngram ON postings_raw(ngram_hash)")
@@ -303,7 +410,7 @@ def build_index(cache_data, index_db_path, max_df):
     conn.close()
 
     elapsed = time.time() - t0
-    return {
+    stats = {
         'works_indexed': works_indexed,
         'lines_indexed': n_lines_seen,
         'lines_under_3_tokens': n_lines_too_short,
@@ -311,17 +418,118 @@ def build_index(cache_data, index_db_path, max_df):
         'ngrams_kept': n_ngrams_kept,
         'ngrams_dropped_banal_over_max_df': n_ngrams_dropped_banal,
         'postings_written': n_postings_written,
+        'distinct_lemmas': len(lemma_df),
+        'commonplace_ngrams': len(commonplace_hashes),
         'index_elapsed_seconds': elapsed,
     }
+    return stats, commonplace_hashes
 
 
-def find_pairs(index_db_path, min_shared, min_jaccard, min_shared_override, min_containment):
+def find_pairs(index_db_path, min_shared, min_jaccard, min_shared_override, min_containment,
+               rare_max_df=20, rare_min_containment=0.06, commonplace_hashes=None):
     """Stage 2: stream postings ordered by ngram_hash, accumulate cross-work
     shared-ngram counts, score by jaccard/containment, chain adjacent kept
     pairs into spans. Returns (pair_info, line_to_other_works, stats).
-    Mirrors research/reuse_table/find_reuse_pairs.py."""
+    Mirrors research/reuse_table/find_reuse_pairs.py.
+
+    A THIRD keep rule, alongside the jaccard rule and the containment
+    override (see the module docstring's item 5): a pair sharing exactly
+    ONE n-gram is kept anyway if that n-gram is rare corpus-wide (line-df
+    under `rare_max_df`) AND containment is at least `rare_min_containment`
+    (a much lower floor than the main override's 0.5). Investigating why
+    only Quintilian and Geoffrey of Vinsauf showed up as reusing "arma
+    virumque cano" (Aen. 1.1) found that banality was not the obstacle --
+    none of that line's sixteen n-grams even approach the max-df=200 cutoff
+    (worst case 9 lines corpus-wide; see research notes for the
+    measurement). The obstacle was min_shared: a short, isolated quotation
+    embedded in an otherwise unrelated line (Seneca, Ep. 113.25, quoting
+    only the three words "arma virumque cano" inside a long sentence about
+    grammar) shares exactly one n-gram with Aen. 1.1 and so never reached
+    the shared>=2 floor.
+
+    RARITY ALONE FLOODS. A first version dropped the containment check
+    entirely (reasoning that Aen. 1.1's containment against Seneca's line
+    is only shared/min(16,205)=0.0625, so no meaningful floor could pass
+    genuine short quotations without a low bar). Built against the full
+    Latin corpus, "rare, shared==1, no containment check" kept 6.4 MILLION
+    pairs, essentially flooding: a random 30-pair sample (seed 43) was
+    almost entirely unrelated prose paragraphs -- e.g. Cicero De Oratore
+    and Columella De Re Rustica, containment 0.008 -- that happen to share
+    one obscure trigram purely by the corpus's combinatorial size (36M
+    distinct n-grams over 652K lines). The fix is not to drop containment
+    but to lower its floor drastically instead of dropping it: containment
+    is pinned to the SHORTER side, so it stays informative exactly when one
+    line of the pair is short (a verse line, typically 13-16 n-grams here)
+    -- which is what a famous short quotation embedded in a longer work
+    looks like, and what a coincidental overlap between two long prose
+    paragraphs does NOT look like (median containment among the flooded
+    sample was ~0.005, an order of magnitude under Seneca's 0.0625). At
+    rare_min_containment=0.06 (just under Seneca's own value, so the
+    motivating case still passes) this rule keeps ~474K pairs instead of
+    6.4M.
+
+    CONTAINMENT ALONE STILL ISN'T ENOUGH. A fresh 30-pair sample (seed 43)
+    of THAT set was better but still mostly noise -- roughly two-thirds
+    read as coincidental, e.g. ('ut','in','ista'), ('cum','in','ius'),
+    ('et','qua','tibi'): a SPECIFIC ORDERED triple of otherwise ordinary
+    words can easily be corpus-rare (this exact shape just doesn't come up
+    often) without the match meaning anything, since none of the three
+    words is itself distinctive. The genuine hits in that sample -- "ad
+    sidera palmas" (Ovid/Valerius Flaccus), "iste dei sanctus" (Alcuin/
+    Walahfrid Strabo), "magna de stirpe" (an anonymous satirist echoing
+    Vergil, quoted by Suetonius), "pusillanimitate spiritus" (Jerome
+    quoting his own Vulgate) -- all share at least one word that is
+    unusual on its own, not just in this combination. `commonplace_hashes`
+    (from build_index, see its own docstring) is exactly this test: an
+    n-gram in that set has EVERY token individually common, so the
+    rare-single-ngram rule below also excludes it regardless of how rare
+    the 3-word shape happens to be. On the live corpus this cut the rule's
+    yield from 473K to 286K pairs (188K more excluded as commonplace-word
+    matches that would otherwise have qualified).
+
+    WHAT THIS RULE DOES AND DOES NOT ACHIEVE. On the motivating case it
+    works cleanly: Aen. 1.1 now shows 7 works reusing it (Geoffrey of
+    Vinsauf, Quintilian, Seneca, Valerius Flaccus twice, Claudian,
+    Salutati -- all independently plausible: Valerius Flaccus and Claudian
+    are both extensively documented Vergil-imitators, and Salutati's line
+    is a literal gloss on "arma virumque cano" itself), up from 2. But a
+    fresh corpus-wide 30-pair sample (seed 43) of the rule's full yield
+    after both filters still reads as roughly a quarter to a third
+    genuine (epic-formula echoes like "ab extremo aquilone" shared by
+    Lucan and Pliny, "luci sociata perenni" linking Alcuin to his
+    Carolingian-era predecessor Venantius Fortunatus) against a majority
+    of generic, low-content phrases whose rarity is still just
+    combinatorial accident -- a single 3-word match, however filtered,
+    remains inherently weaker evidence than two or more, and no
+    frequency-based filter fully closes that gap. This is the same
+    tradeoff CLAUDE.md already documents for the fusion channel
+    lemma_min1 ("high recall, noisy, catch-all"): the rule earns its
+    place by recovering real cases the stricter rules miss entirely, not
+    by matching their precision. A future pass could restrict it further
+    (e.g. requiring the other work's author to postdate the quoted line,
+    or having the Reader label a shared==1 match differently from a
+    shared>=2 one) rather than tightening the frequency thresholds again,
+    which has diminishing returns past this point -- pure rarity, then
+    rarity+containment, then rarity+containment+commonplace-word
+    exclusion were tried in that order to reach this version.
+
+    CANDIDATE PAIRS ARE ACCUMULATED IN SQLITE, NOT A PYTHON DICT. The first
+    version of the rare-single-ngram rule kept the existing `overlap =
+    defaultdict(int)` (already ~28M entries keyed by (line_id, line_id)
+    tuples on the full Latin corpus) and added a second, same-sized dict
+    tracking each pair's rarest shared n-gram's df. That doubled the memory
+    this stage held resident and got the run OOM-killed under a 12G cap at
+    00:28 on 2026-09-19 (previously ~10G without the second dict). Both the
+    count AND the rarest-df are now one SQL query (COUNT(*), MIN(group_size)
+    ... GROUP BY a, b) against a `pair_hits` table streamed to disk in
+    batches during the same postings scan -- the identical fix build_index
+    already applies to n-gram document frequency, and for the identical
+    reason (see that function's own comment)."""
     t0 = time.time()
     conn = sqlite3.connect(index_db_path)
+    conn.execute("PRAGMA journal_mode=OFF")
+    conn.execute("PRAGMA synchronous=OFF")
+    conn.execute("PRAGMA temp_store = FILE")
     cur = conn.cursor()
 
     line_meta = {}
@@ -332,11 +540,28 @@ def find_pairs(index_db_path, min_shared, min_jaccard, min_shared_override, min_
     print(f"[build_reuse_table] pairs: {n_lines} lines loaded, elapsed {time.time()-t0:.1f}s")
 
     line_ngram_count = defaultdict(int)
-    overlap = defaultdict(int)
+
+    # Every (a, b, group_size, ngram_hash) row a co-occurring ngram-group
+    # contributes, written to disk in batches rather than aggregated in
+    # memory. group_size is that n-gram's own corpus-wide line-df (<=200,
+    # since postings is already banality-filtered), which the closing
+    # GROUP BY turns into the rarest-shared-ngram-df each pair needs for
+    # the rare-single-ngram rule; ngram_hash lets that rule also check
+    # commonplace_hashes for a shared==1 pair's one contributing n-gram
+    # (MIN(ngram_hash) in a single-row group is just that row's hash).
+    conn.execute("CREATE TABLE pair_hits (a INTEGER, b INTEGER, group_size INTEGER, ngram_hash INTEGER)")
+    hit_batch = []
+    HIT_BATCH = 500000
     current_hash = None
     current_lines = []
     n_ngrams_processed = 0
     n_pair_increments = 0
+
+    def flush_hits():
+        nonlocal hit_batch
+        if hit_batch:
+            conn.executemany("INSERT INTO pair_hits VALUES (?,?,?,?)", hit_batch)
+            hit_batch = []
 
     def flush_group(lines_in_group):
         nonlocal n_pair_increments
@@ -353,8 +578,10 @@ def find_pairs(index_db_path, min_shared, min_jaccard, min_shared_override, min_
                     continue
                 if a > b:
                     a, b = b, a
-                overlap[(a, b)] += 1
+                hit_batch.append((a, b, L, current_hash))
                 n_pair_increments += 1
+                if len(hit_batch) >= HIT_BATCH:
+                    flush_hits()
 
     for ngram_hash, line_id in cur.execute("SELECT ngram_hash, line_id FROM postings ORDER BY ngram_hash"):
         if ngram_hash != current_hash:
@@ -367,14 +594,25 @@ def find_pairs(index_db_path, min_shared, min_jaccard, min_shared_override, min_
     if current_lines:
         flush_group(current_lines)
         n_ngrams_processed += 1
+    flush_hits()
+    conn.commit()
 
     print(f"[build_reuse_table] pairs: {n_ngrams_processed} n-grams scanned, "
-          f"{len(overlap)} candidate cross-work line pairs, "
-          f"{n_pair_increments} pair-increments, elapsed {time.time()-t0:.1f}s")
+          f"{n_pair_increments} pair-occurrences written, elapsed {time.time()-t0:.1f}s")
 
+    print("[build_reuse_table] pairs: aggregating candidate pairs (SQL GROUP BY, not a Python dict)...")
+    conn.execute("CREATE INDEX idx_pair_hits_ab ON pair_hits(a, b)")
+    conn.commit()
+
+    commonplace_hashes = commonplace_hashes or frozenset()
     kept = []
     n_excluded_by_raw_override = 0
-    for (a, b), shared in overlap.items():
+    n_kept_via_rare_single = 0
+    n_excluded_commonplace_rare = 0
+    n_candidate_pairs = 0
+    for a, b, shared, min_gdf, single_ngram_hash in conn.execute(
+            "SELECT a, b, COUNT(*), MIN(group_size), MIN(ngram_hash) FROM pair_hits GROUP BY a, b"):
+        n_candidate_pairs += 1
         na = line_ngram_count[a]
         nb = line_ngram_count[b]
         union = na + nb - shared
@@ -383,14 +621,35 @@ def find_pairs(index_db_path, min_shared, min_jaccard, min_shared_override, min_
         containment = shared / min_ngrams if min_ngrams > 0 else 0.0
         meets_jaccard = shared >= min_shared and jaccard >= min_jaccard
         meets_containment_override = shared >= min_shared_override and containment >= min_containment
+        # MIN(ngram_hash) over a shared==1 group is exactly that one row's
+        # hash (there is only one row), so this is the single contributing
+        # n-gram -- checked against commonplace_hashes (see this function's
+        # and build_index's docstrings) so a corpus-rare SHAPE built from
+        # otherwise ordinary words does not pass on rarity alone.
+        meets_rare_single = (
+            bool(rare_max_df) and shared == 1 and min_gdf < rare_max_df
+            and containment >= rare_min_containment
+        )
+        if meets_rare_single and single_ngram_hash in commonplace_hashes:
+            meets_rare_single = False
+            n_excluded_commonplace_rare += 1
         if shared >= min_shared_override and not meets_jaccard and not meets_containment_override:
             n_excluded_by_raw_override += 1
-        if meets_jaccard or meets_containment_override:
+        if meets_jaccard or meets_containment_override or meets_rare_single:
+            if meets_rare_single and not meets_jaccard and not meets_containment_override:
+                n_kept_via_rare_single += 1
             kept.append((a, b, shared, jaccard))
 
-    print(f"[build_reuse_table] pairs: {len(kept)} pairs kept after threshold "
+    conn.execute("DROP TABLE pair_hits")
+    conn.commit()
+
+    print(f"[build_reuse_table] pairs: {n_candidate_pairs} candidate cross-work line pairs, "
+          f"{len(kept)} pairs kept after threshold "
           f"({n_excluded_by_raw_override} excluded by the containment gate: "
-          f"shared>={min_shared_override} but containment<{min_containment} and jaccard<{min_jaccard}), "
+          f"shared>={min_shared_override} but containment<{min_containment} and jaccard<{min_jaccard}; "
+          f"{n_kept_via_rare_single} kept via the rare-single-ngram rule (shared==1, line-df<"
+          f"{rare_max_df}, containment>={rare_min_containment}); {n_excluded_commonplace_rare} more "
+          f"would have qualified for that rule but were excluded as commonplace-word-only), "
           f"elapsed {time.time()-t0:.1f}s")
 
     pair_by_seq = {}
@@ -437,9 +696,10 @@ def find_pairs(index_db_path, min_shared, min_jaccard, min_shared_override, min_
     stats = {
         'lines_loaded': n_lines,
         'ngrams_scanned': n_ngrams_processed,
-        'candidate_cross_work_pairs': len(overlap),
+        'candidate_cross_work_pairs': n_candidate_pairs,
         'pairs_kept': len(pair_info),
         'candidates_excluded_by_containment_gate': n_excluded_by_raw_override,
+        'pairs_kept_via_rare_single_ngram': n_kept_via_rare_single,
         'rows_in_spans_gt1': n_spans,
         'lines_with_at_least_one_other_work': len(line_to_other_works),
         'pairs_elapsed_seconds': elapsed,
@@ -492,6 +752,19 @@ def main():
                      help='keep if shared >= this AND containment >= --min-containment, regardless of jaccard')
     ap.add_argument('--min-containment', type=float, default=0.5,
                      help='containment = shared / min(ngrams_a, ngrams_b)')
+    ap.add_argument('--rare-max-df', type=int, default=20,
+                     help='keep a pair sharing exactly one n-gram if that n-gram\'s corpus-wide '
+                          'line-df is under this AND containment >= --rare-min-containment (a '
+                          'short, isolated quotation of a famous line, e.g. "arma virumque cano" '
+                          'alone inside an unrelated sentence, shares only one n-gram with its '
+                          'source and never reaches --min-shared); pass 0 to disable this rule')
+    ap.add_argument('--rare-min-containment', type=float, default=0.06,
+                     help='containment floor for the rare-single-ngram rule above -- much lower '
+                          'than --min-containment because containment is pinned to the shorter '
+                          'line, and a short famous line quoted in a much longer one has a low '
+                          'containment no matter how genuine the match (0.0625 for Aen. 1.1 '
+                          'against Seneca Ep. 113.25); rarity alone with no containment floor '
+                          'floods (measured 6.4M pairs on the live Latin corpus, see find_pairs)')
     ap.add_argument('--out-db', default=None)
     ap.add_argument('--stats-out', default=None)
     ap.add_argument('--keep-index-db', action='store_true',
@@ -518,10 +791,11 @@ def main():
     tmp_dir = tempfile.mkdtemp(prefix=f'reuse_table_{args.language}_')
     index_db_path = os.path.join(tmp_dir, f'{args.language}_index.db')
     try:
-        index_stats = build_index(cache_data, index_db_path, args.max_df)
+        index_stats, commonplace_hashes = build_index(cache_data, index_db_path, args.max_df)
         pair_info, line_to_other_works, pair_stats = find_pairs(
             index_db_path, args.min_shared, args.min_jaccard,
-            args.min_shared_override, args.min_containment)
+            args.min_shared_override, args.min_containment, args.rare_max_df,
+            args.rare_min_containment, commonplace_hashes)
 
         corpus_version = get_corpus_version(args.language)
         built_at = datetime.now(timezone.utc).isoformat()
@@ -535,6 +809,9 @@ def main():
             'min_jaccard': args.min_jaccard,
             'min_shared_override': args.min_shared_override,
             'min_containment': args.min_containment,
+            'rare_max_df': args.rare_max_df,
+            'rare_min_containment': args.rare_min_containment,
+            'commonplace_ngrams': index_stats['commonplace_ngrams'],
             'works_indexed': index_stats['works_indexed'],
             'lines_indexed': index_stats['lines_indexed'],
             'pairs_kept': pair_stats['pairs_kept'],
