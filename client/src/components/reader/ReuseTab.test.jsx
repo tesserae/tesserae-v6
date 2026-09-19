@@ -3,7 +3,7 @@
  * line, from the corpus-wide reuse table (GET /api/reuse/line).
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import ResultsPanel from './ResultsPanel';
 
 const UNITS = [
@@ -106,5 +106,81 @@ describe('a line nothing else repeats', () => {
     }));
     mount();
     await waitFor(() => expect(screen.getByText(/no other work/i)).toBeTruthy());
+  });
+});
+
+// TIERED (2026-09-19): strict pairs (tier 'strict' or absent, kept by the
+// original jaccard/containment rules) list first with no heading; possible
+// pairs (tier 'possible', kept only by the rare-single-ngram rule -- one
+// rare shared phrase, weaker evidence) sit behind a collapsed section a
+// reader opens on purpose.
+const TIERED_RESPONSE = {
+  available: true,
+  quotations: [
+    {
+      work: 'macrobius.saturnalia', ref: 'macro. sat. 5.2.8', language: 'la',
+      text: 'Troiae qui primus ab oris, quoted at length', shared: 10,
+      jaccard: 0.2, span_len: 1, year: 400, tier: 'strict',
+    },
+    {
+      work: 'seneca.epistulae', ref: 'sen. ep. 113.25', language: 'la',
+      text: 'arma virumque cano, buried in an unrelated sentence', shared: 1,
+      jaccard: 0.03, span_len: 1, year: 65, tier: 'possible',
+    },
+  ],
+  meta: { corpus_version: '2026-08-16' },
+};
+
+describe('tiered results: strict shown directly, possible collapsed', () => {
+  it('shows the strict result immediately, with no heading above it', async () => {
+    global.fetch = vi.fn(() => Promise.resolve({ status: 200, json: () => Promise.resolve(TIERED_RESPONSE) }));
+    mount();
+    await waitFor(() => expect(screen.getByText(/Macrobius/)).toBeTruthy());
+    expect(screen.queryByText(/^strict$/i)).toBeNull();
+  });
+
+  it('does not show the possible result until the section is expanded', async () => {
+    global.fetch = vi.fn(() => Promise.resolve({ status: 200, json: () => Promise.resolve(TIERED_RESPONSE) }));
+    mount();
+    await waitFor(() => expect(screen.getByText(/Macrobius/)).toBeTruthy());
+    expect(screen.queryByText(/Seneca/)).toBeNull();
+    expect(screen.getByText(/Possible echoes/)).toBeTruthy();
+  });
+
+  it('reveals the possible result on clicking the collapsed section', async () => {
+    global.fetch = vi.fn(() => Promise.resolve({ status: 200, json: () => Promise.resolve(TIERED_RESPONSE) }));
+    mount();
+    await waitFor(() => expect(screen.getByText(/Macrobius/)).toBeTruthy());
+    fireEvent.click(screen.getByText(/Possible echoes/));
+    expect(screen.getByText(/Seneca/)).toBeTruthy();
+    expect(screen.getByText(/arma virumque cano, buried in an unrelated sentence/)).toBeTruthy();
+  });
+
+  it('names the possible count in the collapsed section label', async () => {
+    global.fetch = vi.fn(() => Promise.resolve({ status: 200, json: () => Promise.resolve(TIERED_RESPONSE) }));
+    mount();
+    await waitFor(() => expect(screen.getByText(/Macrobius/)).toBeTruthy());
+    expect(screen.getByText(/Possible echoes.*1/)).toBeTruthy();
+  });
+
+  it('clicking a possible result still opens it in the Reader', async () => {
+    global.fetch = vi.fn(() => Promise.resolve({ status: 200, json: () => Promise.resolve(TIERED_RESPONSE) }));
+    const { onOpenPassage } = mount();
+    await waitFor(() => expect(screen.getByText(/Macrobius/)).toBeTruthy());
+    fireEvent.click(screen.getByText(/Possible echoes/));
+    screen.getByText(/arma virumque cano, buried in an unrelated sentence/).closest('button').click();
+    expect(onOpenPassage).toHaveBeenCalledWith(
+      expect.objectContaining({ work: 'seneca.epistulae', ref_start: 'sen. ep. 113.25' })
+    );
+  });
+
+  it('shows only the collapsed section when every pair is possible', async () => {
+    global.fetch = vi.fn(() => Promise.resolve({
+      status: 200,
+      json: () => Promise.resolve({ available: true, quotations: [TIERED_RESPONSE.quotations[1]] }),
+    }));
+    mount();
+    await waitFor(() => expect(screen.getByText(/Possible echoes/)).toBeTruthy());
+    expect(screen.queryByText(/no other work/i)).toBeNull();
   });
 });

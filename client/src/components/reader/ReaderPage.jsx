@@ -111,6 +111,10 @@ export default function ReaderPage() {
   // "Quoted in N works": per-line reuse counts for the currently open work,
   // from the corpus-wide reuse table (Latin only as of 2026-09-19; a 404
   // for any other language just leaves this empty, no error shown).
+  // TIERED (2026-09-19): each entry is {n_works, n_possible_works} --
+  // strict pairs (the original two rules) vs. possible ones (the
+  // rare-single-ngram rule alone) -- see backend/reuse_table.py marks().
+  // TextPane decides which mark style to draw from the two counts.
   const [reuseMarks, setReuseMarks] = useState({});
   useEffect(() => {
     if (!work) { setReuseMarks({}); return undefined; }
@@ -121,7 +125,9 @@ export default function ReaderPage() {
       .then((d) => {
         if (cancelled) return;
         const map = {};
-        (d.lines || []).forEach((l) => { map[l.ref] = l.n_works; });
+        (d.lines || []).forEach((l) => {
+          map[l.ref] = { n_works: l.n_works, n_possible_works: l.n_possible_works };
+        });
         setReuseMarks(map);
       })
       .catch(() => { if (!cancelled) setReuseMarks({}); });

@@ -185,22 +185,58 @@ export default function TextPane({ units, language, selection, onSelect, total, 
                   moments before the click fired onReuseClick (panel ->
                   Reuse). The two usually raced to the right answer, but only
                   by luck of event order, which is why NC saw it do nothing:
-                  a slow render between mouseup and click let Verbal win. */}
+                  a slow render between mouseup and click let Verbal win.
+
+                  TIERED (2026-09-19): reuseMarks[ref] is now
+                  {n_works, n_possible_works} -- n_works counts only STRICT
+                  pairs (kept by the original jaccard/containment rules);
+                  n_possible_works counts only POSSIBLE pairs (kept by the
+                  rare-single-ngram rule alone, shared==1 -- a corpus-rare
+                  three-word match is real evidence, but weaker than the
+                  two-or-more-shared-word matches the solid mark stands for,
+                  and a 30-pair sample of that rule's yield was still mostly
+                  coincidental, NC 2026-09-19). A line with any strict pair
+                  gets the solid mark (unchanged); only a line with NO
+                  strict pair but at least one possible one gets a lighter,
+                  dashed-outline mark instead -- never both at once. */}
               <span className="pt-[0.3em]">
-                {reuseMarks?.[u.ref] > 0 && (
-                  <button
-                    type="button"
-                    onMouseDown={(e) => e.stopPropagation()}
-                    onClick={(e) => { e.stopPropagation(); onReuseClick?.(u); }}
-                    title={`Quoted in ${reuseMarks[u.ref]} other work${reuseMarks[u.ref] === 1 ? '' : 's'}`}
-                    aria-label={`quoted in ${reuseMarks[u.ref]} work${reuseMarks[u.ref] === 1 ? '' : 's'}`}
-                    className="inline-flex items-center justify-center text-[9px] font-bold leading-none
-                               text-red-700 bg-gray-100 border border-gray-300 rounded px-1 py-[2px]
-                               hover:bg-red-50 hover:border-red-300"
-                  >
-                    {reuseMarks[u.ref]}
-                  </button>
-                )}
+                {reuseMarks?.[u.ref] && (() => {
+                  const strict = reuseMarks[u.ref].n_works || 0;
+                  const possible = reuseMarks[u.ref].n_possible_works || 0;
+                  if (strict > 0) {
+                    return (
+                      <button
+                        type="button"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => { e.stopPropagation(); onReuseClick?.(u); }}
+                        title={`Quoted in ${strict} other work${strict === 1 ? '' : 's'}`}
+                        aria-label={`quoted in ${strict} work${strict === 1 ? '' : 's'}`}
+                        className="inline-flex items-center justify-center text-[9px] font-bold leading-none
+                                   text-red-700 bg-gray-100 border border-gray-300 rounded px-1 py-[2px]
+                                   hover:bg-red-50 hover:border-red-300"
+                      >
+                        {strict}
+                      </button>
+                    );
+                  }
+                  if (possible > 0) {
+                    return (
+                      <button
+                        type="button"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => { e.stopPropagation(); onReuseClick?.(u); }}
+                        title={`Possible echo in ${possible} other work${possible === 1 ? '' : 's'} (one rare shared phrase)`}
+                        aria-label={`possible echo in ${possible} work${possible === 1 ? '' : 's'}`}
+                        className="inline-flex items-center justify-center text-[9px] font-bold leading-none
+                                   text-gray-500 bg-white border border-dashed border-gray-300 rounded px-1 py-[2px]
+                                   hover:bg-gray-50 hover:border-gray-400"
+                      >
+                        {possible}
+                      </button>
+                    );
+                  }
+                  return null;
+                })()}
               </span>
               <p className="m-0">{u.text}</p>
             </div>

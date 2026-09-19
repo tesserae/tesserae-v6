@@ -21,6 +21,7 @@ Table schema (written by the build script):
 import json
 import os
 import sqlite3
+from collections import defaultdict
 from functools import lru_cache
 
 from backend.logging_config import get_logger
@@ -223,8 +224,20 @@ def line(language, work, ref):
 
     Returns {'available': False} if no table exists for the language, else
     {'available': True, 'quotations': [...], 'meta': {...}} where each
-    quotation is {work, ref, language, text, shared, jaccard, span_len},
-    ordered by shared descending."""
+    quotation is {work, ref, language, text, shared, jaccard, span_len,
+    tier}, ordered by shared descending.
+
+    TIERED (2026-09-19): `tier` is 'strict' for a pair kept by the jaccard
+    rule or the containment override (both require shared>=2 --
+    scripts/reuse/build_reuse_table.py's find_pairs) and 'possible' for one
+    kept only by the rare-single-ngram rule, which requires shared==1
+    exactly. Since shared==1 is never reachable through the other two
+    rules, the tier is fully determined by `shared` already in this row --
+    no rebuild or schema change needed to add it. NC, after reviewing a
+    30-pair sample of the rare-single rule's yield: "a quarter genuine is
+    too noisy for the Reader mark" -- the Reuse tab lists strict pairs
+    first with no heading (unchanged from before tiering) and possible
+    pairs in a separate, collapsed "Possible echoes" section."""
     if not is_available(language):
         return {'available': False, 'quotations': []}
     conn = _get_connection(language)
@@ -254,16 +267,29 @@ def line(language, work, ref):
         'jaccard': r['jaccard'],
         'span_len': r['span_len'],
         'year': _author_year(language, r['other_work']),
+        'tier': 'possible' if r['shared'] == 1 else 'strict',
     } for r in rows]
     return {'available': True, 'quotations': quotations, 'meta': meta(language)}
 
 
 def marks(language, work, ref_start=None, ref_end=None):
     """Per-line count of other works repeating each line, for the Reader's
-    margin marker. Reads `line_counts`, which only has a row for a line that
-    is in at least one kept pair -- a line with no reuse has no row (not a
-    zero-count row), so the marker only needs to place a mark where a row
-    exists here.
+    margin marker -- split into two tiers (2026-09-19; see line()'s
+    docstring for the tier rule and why no rebuild was needed): `n_works`
+    counts only STRICT pairs (shared>=2, the original jaccard/containment
+    rules) and `n_possible_works` counts only POSSIBLE pairs (shared==1,
+    the rare-single-ngram rule). The Reader shows the solid "quoted in N
+    works" mark when n_works>0, and only when it is 0 falls back to a
+    lighter outline mark reading "possible echo in N works" -- a line
+    never shows both.
+
+    Computed directly from `pairs` (indexed on work_a/work_b) rather than
+    the precomputed `line_counts` table, which only ever held one combined
+    count and would need a rebuild to carry the split; `pairs` already has
+    everything (shared, and both directions) needed to compute both tiers
+    live, at the cost of aggregating this work's own rows on every call
+    instead of one indexed lookup -- still a small, indexed slice of the
+    table per work, not a full scan.
 
     ref_start/ref_end (either or both optional) restrict the range using the
     work's own line ORDER (seq_in_work, from the lemma cache), not a string
@@ -275,8 +301,8 @@ def marks(language, work, ref_start=None, ref_end=None):
     _resolve_work): the Reader sends whatever part-file id it has open,
     but the table is keyed on the collapsed base id for nearly every
     work, so vergil.aeneid.part.7 must resolve to vergil.aeneid before
-    querying `line_counts` -- otherwise this always answers `lines: []`
-    for a part-file work even when the base id has marks."""
+    querying `pairs` -- otherwise this always answers `lines: []` for a
+    part-file work even when the base id has marks."""
     if not is_available(language):
         return {'available': False, 'lines': []}
     conn = _get_connection(language)
@@ -285,7 +311,10 @@ def marks(language, work, ref_start=None, ref_end=None):
     work = _resolve_work(language, work)
     try:
         rows = conn.execute(
-            "SELECT line_ref, n_works FROM line_counts WHERE work = ?", (work,)
+            """SELECT line_a_ref AS ref, work_b AS other, shared FROM pairs WHERE work_a = ?
+               UNION ALL
+               SELECT line_b_ref AS ref, work_a AS other, shared FROM pairs WHERE work_b = ?""",
+            (work, work)
         ).fetchall()
     except Exception as e:
         logger.error(f"reuse_table.marks query failed for {language}/{work}: {e}")
@@ -293,6 +322,12 @@ def marks(language, work, ref_start=None, ref_end=None):
 
     if not rows:
         return {'available': True, 'lines': []}
+
+    strict_others = defaultdict(set)
+    possible_others = defaultdict(set)
+    for r in rows:
+        bucket = possible_others if r['shared'] == 1 else strict_others
+        bucket[r['ref']].add(r['other'])
 
     seq_start = seq_end = None
     ref_to_seq = {}
@@ -304,8 +339,7 @@ def marks(language, work, ref_start=None, ref_end=None):
             seq_end = ref_to_seq.get(ref_end)
 
     out = []
-    for r in rows:
-        ref = r['line_ref']
+    for ref in set(strict_others) | set(possible_others):
         if seq_start is not None or seq_end is not None:
             seq = ref_to_seq.get(ref)
             if seq is None:
@@ -314,5 +348,9 @@ def marks(language, work, ref_start=None, ref_end=None):
                 continue
             if seq_end is not None and seq > seq_end:
                 continue
-        out.append({'ref': ref, 'n_works': r['n_works']})
+        out.append({
+            'ref': ref,
+            'n_works': len(strict_others.get(ref, ())),
+            'n_possible_works': len(possible_others.get(ref, ())),
+        })
     return {'available': True, 'lines': out}

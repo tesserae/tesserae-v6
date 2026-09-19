@@ -14,9 +14,11 @@ empty result).
 
 Endpoints (both GET, under the app's API prefix):
     /reuse/line   ?work=&ref=&language=                  other works' lines
-                  that repeat this line, both directions
+                  that repeat this line, both directions -- each carries a
+                  `tier` ('strict' or 'possible', see reuse_table.line)
     /reuse/marks  ?work=&ref_start=&ref_end=&language=    per-line reuse
-                  counts for a range, for the marker
+                  counts for a range, for the marker -- `n_works` (strict)
+                  and `n_possible_works` (possible), see reuse_table.marks
 """
 from flask import Blueprint, jsonify, request
 

@@ -75,6 +75,14 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   const [reuse, setReuse] = useState(null);
   const [reuseLoading, setReuseLoading] = useState(false);
   const [reuseError, setReuseError] = useState(null);
+  // TIERED (2026-09-19): strict pairs (the original jaccard/containment
+  // rules) list first with no heading, unchanged from before tiering;
+  // possible pairs (the rare-single-ngram rule alone -- one rare shared
+  // phrase, weaker evidence, see backend/reuse_table.py) sit behind a
+  // collapsed section a reader opens on purpose. Collapsed again on a new
+  // selection, so it never carries over from a line that had it open.
+  const [possibleOpen, setPossibleOpen] = useState(false);
+  useEffect(() => { setPossibleOpen(false); }, [selection]);
   useEffect(() => {
     if (!selection || tab !== 'reuse') return;
     const picked = (units || []).slice(selection.startIdx, selection.endIdx + 1);
@@ -650,47 +658,88 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                 No other work in the corpus repeats this line closely enough to count.
               </p>
             )}
-            {!reuseLoading && reuse?.available && reuse.quotations.length > 0 && (
-              <div className="space-y-3">
-                {groupReuseByWork(reuse.quotations).map(({ work: otherWork, year, items }) => (
-                  <div key={otherWork}>
-                    <div className="flex items-baseline gap-2 mb-1">
-                      <span className="font-bold text-sm text-red-800">{prettyWork(otherWork)}</span>
-                      {year != null && (
-                        <span className="text-[11px] text-gray-500 tabular-nums">
-                          {year < 0 ? `${Math.abs(year)} BCE` : `${year} CE`}
-                        </span>
+            {!reuseLoading && reuse?.available && reuse.quotations.length > 0 && (() => {
+              // TIERED: strict first with no heading (the original
+              // behavior); possible pairs -- one rare shared phrase, kept
+              // only by the rare-single-ngram rule -- behind a collapsed
+              // section, since a 30-pair sample of that rule's yield was
+              // still mostly coincidental (NC, 2026-09-19).
+              const strict = reuse.quotations.filter((q) => q.tier !== 'possible');
+              const possible = reuse.quotations.filter((q) => q.tier === 'possible');
+              return (
+                <>
+                  {strict.length > 0 && (
+                    <ReuseGroups quotations={strict} onOpenPassage={onOpenPassage} />
+                  )}
+                  {possible.length > 0 && (
+                    <div className={strict.length > 0 ? 'mt-3' : ''}>
+                      <button
+                        onClick={() => setPossibleOpen((o) => !o)}
+                        className="w-full flex items-center justify-between text-xs font-semibold
+                                   text-gray-600 border border-gray-200 rounded-lg px-2.5 py-1.5
+                                   hover:bg-gray-100"
+                        aria-expanded={possibleOpen}
+                      >
+                        <span>Possible echoes (one rare shared phrase) &middot; {possible.length}</span>
+                        <span aria-hidden="true">{possibleOpen ? '−' : '+'}</span>
+                      </button>
+                      {possibleOpen && (
+                        <div className="mt-2">
+                          <ReuseGroups quotations={possible} onOpenPassage={onOpenPassage} />
+                        </div>
                       )}
                     </div>
-                    <div className="space-y-1.5">
-                      {items.map((q) => (
-                        <button
-                          key={`${q.work}-${q.ref}`}
-                          onClick={() => onOpenPassage?.({ work: q.work, language: q.language, ref_start: q.ref })}
-                          className="group w-full text-left bg-white border border-gray-200 rounded-lg p-2.5
-                                     hover:border-red-400 hover:bg-red-50/40 transition-colors
-                                     focus:outline-none focus:ring-2 focus:ring-red-400"
-                        >
-                          <div className="flex items-baseline gap-2 flex-wrap">
-                            <span className="text-xs text-gray-500">{q.ref}</span>
-                            {q.span_len > 1 && (
-                              <span className="text-[10px] font-semibold bg-gray-100 text-gray-600 rounded px-1">
-                                {q.span_len} lines
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-sm text-gray-800 mt-0.5 leading-snug">{q.text}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  )}
+                </>
+              );
+            })()}
           </>
         )}
       </div>
     </aside>
+  );
+}
+
+/** The Reuse tab's per-work groups: the same card layout for either tier,
+ *  factored out so tiering (strict shown directly, possible behind a
+ *  collapsed section) does not duplicate the markup. */
+function ReuseGroups({ quotations, onOpenPassage }) {
+  return (
+    <div className="space-y-3">
+      {groupReuseByWork(quotations).map(({ work: otherWork, year, items }) => (
+        <div key={otherWork}>
+          <div className="flex items-baseline gap-2 mb-1">
+            <span className="font-bold text-sm text-red-800">{prettyWork(otherWork)}</span>
+            {year != null && (
+              <span className="text-[11px] text-gray-500 tabular-nums">
+                {year < 0 ? `${Math.abs(year)} BCE` : `${year} CE`}
+              </span>
+            )}
+          </div>
+          <div className="space-y-1.5">
+            {items.map((q) => (
+              <button
+                key={`${q.work}-${q.ref}`}
+                onClick={() => onOpenPassage?.({ work: q.work, language: q.language, ref_start: q.ref })}
+                className="group w-full text-left bg-white border border-gray-200 rounded-lg p-2.5
+                           hover:border-red-400 hover:bg-red-50/40 transition-colors
+                           focus:outline-none focus:ring-2 focus:ring-red-400"
+              >
+                <div className="flex items-baseline gap-2 flex-wrap">
+                  <span className="text-xs text-gray-500">{q.ref}</span>
+                  {q.span_len > 1 && (
+                    <span className="text-[10px] font-semibold bg-gray-100 text-gray-600 rounded px-1">
+                      {q.span_len} lines
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm text-gray-800 mt-0.5 leading-snug">{q.text}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 

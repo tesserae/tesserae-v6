@@ -97,6 +97,16 @@ def _build_fixture(tmp_path, language='la'):
     _write_lemma_cache(str(tmp_path / 'lemmas'), language, 'servius.commentary', [
         ('serv. 1.1', 'a note on arma virumque'),
     ])
+    # A line quoted only in the loose, single-rare-shared-word sense (tier
+    # "possible" -- see reuse_table.line/marks): shared=1, the shape the
+    # rare-single-ngram rule alone can produce (scripts/reuse/
+    # build_reuse_table.py's find_pairs).
+    _write_lemma_cache(str(tmp_path / 'lemmas'), language, 'seneca.epistulae', [
+        ('sen. ep. 1.1', 'arma uirumque cano, buried in an unrelated sentence'),
+    ])
+    _write_lemma_cache(str(tmp_path / 'lemmas'), language, 'ovid.tristia', [
+        ('ov. tr. 1.1', 'a line that reuses verg. aen. 1.3 strictly'),
+    ])
     # A work that ships as parts only, with no base/whole-text file --
     # discover_corpus() in build_reuse_table.py never collapses these, so
     # the table keys them on their own full part id (e.g.
@@ -112,9 +122,17 @@ def _build_fixture(tmp_path, language='la'):
             ('vergil.aeneid', 'verg. aen. 1.1', 'macrobius.saturnalia', 'macro. sat. 5.2.8', 10, 0.2, 1),
             ('servius.commentary', 'serv. 1.1', 'vergil.aeneid', 'verg. aen. 1.1', 4, 0.15, 1),
             ('macrobius.saturnalia', 'macro. sat. 5.2.8', 'partonly.work.part.2', 'partonly. work. 2.1', 5, 0.3, 1),
+            # shared=1: tier "possible", reachable only via the rare-single
+            # rule -- added alongside 1.1's two strict pairs above, so
+            # n_works (strict) must stay 2 while n_possible_works becomes 1.
+            ('vergil.aeneid', 'verg. aen. 1.1', 'seneca.epistulae', 'sen. ep. 1.1', 1, 0.03, 1),
+            # Restores 1.3's reuse count (previously a line_counts-only
+            # fixture row with no backing pair) now that marks() computes
+            # counts from `pairs` directly rather than the precomputed table.
+            ('vergil.aeneid', 'verg. aen. 1.3', 'ovid.tristia', 'ov. tr. 1.1', 3, 0.2, 1),
         ],
         line_counts_rows=[
-            ('vergil.aeneid', 'verg. aen. 1.1', 2),
+            ('vergil.aeneid', 'verg. aen. 1.1', 3),
             ('vergil.aeneid', 'verg. aen. 1.3', 1),
             ('partonly.work.part.2', 'partonly. work. 2.1', 1),
         ],
@@ -197,6 +215,23 @@ def test_line_carries_meta(monkeypatch, tmp_path):
     assert out['meta']['corpus_version'] == '2026-08-16'
 
 
+def test_line_tags_strict_and_possible_tiers(monkeypatch, tmp_path):
+    """macrobius (shared=10) and servius (shared=4) are tier 'strict' --
+    kept by the jaccard rule or the containment override, both of which
+    require shared>=2. seneca (shared=1) is tier 'possible' -- reachable
+    only through the rare-single-ngram rule, which is why shared==1 alone
+    is enough to know the tier without a rebuild (see reuse_table.line)."""
+    _reset_reuse_table_state(monkeypatch, tmp_path)
+    _build_fixture(tmp_path)
+    client = app.test_client()
+    r = _get(client, _route('/reuse/line'), work='vergil.aeneid', ref='verg. aen. 1.1', language='la')
+    out = json.loads(r.get_data())
+    tiers = {q['work']: q['tier'] for q in out['quotations']}
+    assert tiers['macrobius.saturnalia'] == 'strict'
+    assert tiers['servius.commentary'] == 'strict'
+    assert tiers['seneca.epistulae'] == 'possible'
+
+
 def test_line_no_matches_is_a_normal_empty_result_not_an_error(monkeypatch, tmp_path):
     _reset_reuse_table_state(monkeypatch, tmp_path)
     _build_fixture(tmp_path)
@@ -270,6 +305,52 @@ def test_marks_returns_all_reused_lines_when_no_range_given(monkeypatch, tmp_pat
     assert out['available'] is True
     refs = {row['ref']: row['n_works'] for row in out['lines']}
     assert refs == {'verg. aen. 1.1': 2, 'verg. aen. 1.3': 1}
+
+
+def test_marks_reports_strict_and_possible_counts_separately(monkeypatch, tmp_path):
+    """1.1 has two strict pairs (macrobius, servius) and one possible pair
+    (seneca, shared=1): n_works must stay 2 (strict only), and the
+    possible pair must show up as n_possible_works=1, not inflate n_works
+    to 3. 1.3 has one strict pair and no possible one, so n_possible_works
+    there is 0."""
+    _reset_reuse_table_state(monkeypatch, tmp_path)
+    _build_fixture(tmp_path)
+    client = app.test_client()
+    r = _get(client, _route('/reuse/marks'), work='vergil.aeneid', language='la')
+    out = json.loads(r.get_data())
+    by_ref = {row['ref']: row for row in out['lines']}
+    assert by_ref['verg. aen. 1.1']['n_works'] == 2
+    assert by_ref['verg. aen. 1.1']['n_possible_works'] == 1
+    assert by_ref['verg. aen. 1.3']['n_works'] == 1
+    assert by_ref['verg. aen. 1.3']['n_possible_works'] == 0
+
+
+def test_marks_a_line_with_only_a_possible_pair_has_zero_strict(monkeypatch, tmp_path):
+    """A line reused only in the loose, single-rare-shared-word sense (no
+    strict pair at all) must report n_works=0 -- the Reader shows the
+    lighter outline mark only in exactly this case (n_works==0 and
+    n_possible_works>0)."""
+    _reset_reuse_table_state(monkeypatch, tmp_path)
+    _write_lemma_cache(str(tmp_path / 'lemmas'), 'la', 'lucan.bellum_civile', [
+        ('luc. 1.1', 'a line quoted nowhere strictly'),
+    ])
+    _write_lemma_cache(str(tmp_path / 'lemmas'), 'la', 'pliny.naturalis_historia', [
+        ('plin. nat. 1.1', 'a line sharing one rare phrase with lucan'),
+    ])
+    _write_reuse_db(
+        str(tmp_path / 'reuse_pairs'), 'la',
+        pairs_rows=[
+            ('lucan.bellum_civile', 'luc. 1.1', 'pliny.naturalis_historia', 'plin. nat. 1.1', 1, 0.02, 1),
+        ],
+        line_counts_rows=[('lucan.bellum_civile', 'luc. 1.1', 1)],
+        meta_rows=[('corpus_version', '2026-08-16')],
+    )
+    client = app.test_client()
+    r = _get(client, _route('/reuse/marks'), work='lucan.bellum_civile', language='la')
+    out = json.loads(r.get_data())
+    row = next(row for row in out['lines'] if row['ref'] == 'luc. 1.1')
+    assert row['n_works'] == 0
+    assert row['n_possible_works'] == 1
 
 
 def test_marks_range_uses_line_order_not_string_order(monkeypatch, tmp_path):
