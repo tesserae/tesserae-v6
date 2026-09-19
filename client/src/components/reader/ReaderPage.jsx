@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { cssRef } from './refId';
 import ReaderHeader from './ReaderHeader';
+import ReaderNav, { ReaderEndNav, sectionsFor } from './ReaderNav';
 import SelectionToolbar, { scopeFor } from './SelectionToolbar';
 import { useCorpus } from '../../hooks';
 import { LoadingSpinner } from '../common';
@@ -294,6 +295,52 @@ export default function ReaderPage() {
     return () => window.clearTimeout(id);
   }, [wantedRef, wantedRefEnd, units, visibleCount]);
 
+  // "Go to line" from the ReaderNav strip (NC, 2026-09-19). A typed locus is
+  // matched against the line refs of the open text: the whole ref ("verg.
+  // aen. 6.851"), its locus after the work tag ("6.851"), or, for a bare
+  // number, the last segment (".851"), which is unambiguous inside a single
+  // book file. Returns false when nothing matches so the strip can say so.
+  const [jumpRef, setJumpRef] = useState('');
+  // Returns '' on success, otherwise the message the strip should show. A
+  // bare number is only followed when it names exactly one line: in a file
+  // that holds several books (or poems) the same line number recurs, and
+  // guessing the first would send the reader to the wrong book.
+  const jumpTo = useCallback((query) => {
+    const q = String(query || '').trim().toLowerCase();
+    if (!q || !units.length) return `no line ${query} here`;
+    const refs = units.map((u) => String(u.ref || '').toLowerCase());
+    let i = refs.findIndex((r) => r === q || r.endsWith(' ' + q));
+    if (i < 0 && /^\d+[a-z]?$/.test(q)) {
+      const hits = [];
+      refs.forEach((r, k) => { if (r.endsWith('.' + q)) hits.push(k); });
+      if (hits.length > 1) return `line ${query} is in ${hits.length} places here; add the book, e.g. 6.${query}`;
+      if (hits.length === 1) i = hits[0];
+    }
+    if (i < 0) return `no line ${query} here`;
+    setJumpRef(units[i].ref);
+    return '';
+  }, [units]);
+  useEffect(() => {
+    if (!jumpRef || !units.length) return undefined;
+    const i = units.findIndex((u) => u.ref === jumpRef);
+    if (i < 0) { setJumpRef(''); return undefined; }
+    // Draw the line first if it is past the lines shown so far, then scroll.
+    if (i >= visibleCount) { setVisibleCount(i + READER_STEP); return undefined; }
+    const id = window.setTimeout(() => {
+      const el = document.getElementById(`line-${cssRef(jumpRef)}`);
+      if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      setJumpRef('');
+    }, 80);
+    return () => window.clearTimeout(id);
+  }, [jumpRef, units, visibleCount]);
+  const sections = useMemo(() => sectionsFor(hierarchy, work), [hierarchy, work]);
+  const changeBook = useCallback((file) => {
+    setWork(file);
+    setSelection(null);
+    setCameFrom('');
+    setJumpRef('');   // a jump aimed at the book being left must not fire in the next
+  }, []);
+
   // A language with no work chosen opens that language's first text. Changing
   // language clears the work, because the old one is not in the new language;
   // without this the Reader would sit on an empty page waiting.
@@ -364,6 +411,9 @@ export default function ReaderPage() {
       {!loading && !error && (
         <div ref={contentRef} className="flex flex-col lg:flex-row" style={{ minHeight: '32rem' }}>
           <div className="flex flex-col flex-1 min-w-0">
+            {/* Previous/next book, go to line, back to top: sticky, so the way
+                out of a long text is always on screen (NC, 2026-09-19). */}
+            <ReaderNav sections={sections} work={work} onWork={changeBook} onJump={jumpTo} />
             {/* The key for the gutter marks. The gutter itself is nine pixels
                 wide per column and can only carry a letter, and its tooltip does
                 not exist on a phone, so the words go here where there is room.
@@ -559,6 +609,9 @@ export default function ReaderPage() {
               )}
             </div>
             </div>
+          )}
+          {units.length > 0 && shownUnits.length >= units.length && (
+            <ReaderEndNav sections={sections} work={work} onWork={changeBook} />
           )}
           </div>
           <ResultsPanel
