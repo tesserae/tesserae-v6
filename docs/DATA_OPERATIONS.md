@@ -260,6 +260,41 @@ Conventions
   data, not a fixed enum. `unknown` is not a guess; it is the same value
   already used in production for the sibling row `ennodius.carmina.tess`,
   for the identical reason.
+- Done 2026-09-19, EDT throughout, as ncoffee on production
+  `/var/www/tesseraev6_flask`, each step inside its own `systemd-run
+  --user --scope -p MemoryMax=<n> -p MemorySwapMax=0` scope, one at a
+  time: 10:50 `git pull` of #395 (`421306d`); confirmed the two retired
+  files (`eugippius.excerpta_ex_operibus_augustini.tess`,
+  `magnus_felix_ennodius.carmina.tess`) absent, and the two new files
+  (`magnus_felix_ennodius.carmina_2.tess`,
+  `magnus_felix_ennodius.carmina_1_praefationes.tess`) present. Two orphan
+  entries for the retired files removed from `cache/lemmas/la/`, then
+  `scripts/batch_lemma_cache.py la` under a `MemoryMax=8G` scope built the
+  two new entries. 11:00 `scripts/corpus/drop_stale_index_entries.py
+  --language la --apply` (a dry run first found exactly 2 stale: 1,391
+  lines, 107,429 postings), cap 8G: swapped, backup
+  `la_index.db.bak-stale-20260919-0922`, 1,638 texts. 11:08
+  `scripts/corpus/add_texts_to_index.py --db la_index.db.new --language la
+  --cache-dir cache/lemmas --add magnus_felix_ennodius.carmina_2.tess
+  magnus_felix_ennodius.carmina_1_praefationes.tess` on a copy, cap 8G,
+  `lemma_doc_freq` rebuilt (327,130 lemmas, 48 s), swapped, backup
+  `la_index.db.bak-ennodius-20260919`; 1,640 texts, 929,591 lines. 11:12
+  `scripts/corpus/rebuild_bigrams.py la`, cap 10G: 775 docs, 15,225,911
+  bigrams, 105 s. 11:16 `drop_passage_rows.py --work
+  eugippius.excerpta_ex_operibus_augustini --work
+  magnus_felix_ennodius.carmina --tag retire-b3-20260919 --apply`, cap
+  12G: 322 windows dropped (283 and 39), ids 619,356 to 619,034, backups
+  tagged `*.bak-retire-b3-20260919`. 11:18 coverage sidecar
+  `data/passage_index/works_by_language.json` refreshed (la 728, grc 828,
+  en 42, cop 144, he 39; index version 2026-09-19), then one reload
+  (`touch tesseraev6_flask.wsgi`).
+- Open: the two new Ennodius files have no passage windows yet (they need
+  a GPU describe run for their descriptions, queued for BullsAI or the
+  next GPU session), so they are searchable but absent from Theme Search
+  and Similar Passages until then.
+- Checks after the reload: "arma virum" lemma search count unchanged; an
+  exact search of an Ennodius Book 2 verse finds
+  `magnus_felix_ennodius.carmina_2`; coverage answers 728 Latin works.
 
 ## 2026-09-19 Corpus: two more duplicate Latin files retired (batch 2)
 - What (code, this PR; not yet run on production): `research/corpus/
