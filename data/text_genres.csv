@@ -936,7 +936,6 @@ juvencus.historia_evangelica.part.2.tess,juvencus,historia_evangelica,Later Impe
 juvencus.historia_evangelica.part.3.tess,juvencus,historia_evangelica,Later Imperial,hexameter,epic,auto
 juvencus.historia_evangelica.part.4.tess,juvencus,historia_evangelica,Later Imperial,hexameter,epic,auto
 juvencus.historia_evangelica.tess,juvencus,historia_evangelica,Later Imperial,hexameter,epic,auto
-juvencus_caius_vettius_aquilinus.evangeliorum_libri_quattuor.tess,juvencus_caius_vettius_aquilinus,evangeliorum_libri_quattuor,Later Imperial,prose,epic,auto
 lactantius.carmen_de_passione_domini.tess,lactantius,carmen_de_passione_domini,Late Antique,prose,theology,auto
 lactantius.de_ave_phoenice.tess,lactantius,de_ave_phoenice,Late Antique,prose,theology,auto
 lactantius.de_ira_dei.tess,lactantius,de_ira_dei,Late Antique,prose,theology,auto
@@ -993,7 +992,6 @@ magnus_felix_ennodius.carmina.tess,magnus_felix_ennodius,carmina,Late Antique,pr
 magnus_felix_ennodius.de_vita_beati_antoni_monachi.tess,magnus_felix_ennodius,de_vita_beati_antoni_monachi,Late Antique,prose,medieval,auto
 magnus_felix_ennodius.dictiones.tess,magnus_felix_ennodius,dictiones,Late Antique,prose,medieval,auto
 magnus_felix_ennodius.ennodius_ambrosio_et_beato.tess,magnus_felix_ennodius,ennodius_ambrosio_et_beato,Late Antique,prose,medieval,auto
-magnus_felix_ennodius.epistulae.tess,magnus_felix_ennodius,epistulae,Late Antique,prose,medieval,auto
 magnus_felix_ennodius.eucharisticum_de_vita_sua.tess,magnus_felix_ennodius,eucharisticum_de_vita_sua,Late Antique,prose,medieval,auto
 magnus_felix_ennodius.libellus_adversus_eos_qui_contra_synodum.tess,magnus_felix_ennodius,libellus_adversus_eos_qui_contra_synodum,Late Antique,prose,medieval,auto
 magnus_felix_ennodius.panegyricus_theodorico_regi_dictus.tess,magnus_felix_ennodius,panegyricus_theodorico_regi_dictus,Late Antique,prose,medieval,auto
@@ -1238,7 +1236,6 @@ prudentius.psychomachia.tess,prudentius,psychomachia,Late Antique,unknown,christ
 pseudo_cyprian.ad_novatianum.tess,pseudo_cyprian,ad_novatianum,Later Imperial,prose,theology,auto
 pseudo_cyprian.ad_vigilium_de_iudaica_incredulitate.tess,pseudo_cyprian,ad_vigilium_de_iudaica_incredulitate,Later Imperial,prose,theology,auto
 pseudo_cyprian.adversus_judaeos.tess,pseudo_cyprian,adversus_judaeos,Later Imperial,prose,theology,auto
-pseudo_cyprian.carmina.tess,pseudo_cyprian,carmina,Later Imperial,prose,theology,auto
 pseudo_cyprian.de_disciplina_et_bono_pudicitiae.tess,pseudo_cyprian,de_disciplina_et_bono_pudicitiae,Later Imperial,prose,theology,auto
 pseudo_cyprian.de_duplici_martyrio.tess,pseudo_cyprian,de_duplici_martyrio,Later Imperial,prose,theology,auto
 pseudo_cyprian.de_laude_martyrii.tess,pseudo_cyprian,de_laude_martyrii,Later Imperial,prose,theology,auto

@@ -30,6 +30,18 @@ docs/DATA_OPERATIONS.md.
   survives the rewrite to the real route, `/browse`.
 
 ### Corpus
+- Retire two more duplicate Latin files (batch 2):
+  `juvencus_caius_vettius_aquilinus.evangeliorum_libri_quattuor` (whole
+  books stored one per line; `juvencus.historia_evangelica` already
+  carries the same poem at per-verse granularity) and
+  `pseudo_cyprian.carmina` (a six-poem bundle; five of its six poems
+  already exist as separate, per-verse `cyprian_pseudo.*` files, kept).
+  Also dropped a stale `data/text_genres.csv` row and a stale
+  `backend/text_sources.json` entry left over from the 2026-09-18 batch,
+  for a file already gone. See docs/DATA_OPERATIONS.md for the containment
+  checks and the registries edited. Archived:
+  `~/tesserae-backups/retired_duplicates_2026-09-19/`.
+
 - Retire 40 duplicate Latin files, rebuild Martial from the per-book files:
   `martial.epigrams` and its 14 `.part.N` files, missing dozens of epigrams
   per book, are rebuilt from the 14 `martialis.epigrammata_N` files that

@@ -22,6 +22,112 @@ Conventions
 - Stamp backups to the second; a rerun must never overwrite the first
   run's backup.
 
+## 2026-09-19 Corpus: two more duplicate Latin files retired (batch 2)
+- What (code, this PR; not yet run on production): `research/corpus/
+  RETIREMENT_LIST_2026-09-19_batch2.md` checked six further items found
+  since the 2026-09-18 batch, against production texts at
+  `/var/www/tesseraev6_flask/texts/la/`. Two were confirmed safe to retire
+  and approved by NC on 2026-09-19; the other four were left alone (two
+  need a human read before any decision, one is a shared generic title
+  over two distinct works, one is expected cross-collection overlap of a
+  shared letter). Files removed from `texts/la/`: 2.
+  1. `juvencus_caius_vettius_aquilinus.evangeliorum_libri_quattuor.tess`
+     (5 lines, one per book, whole books stored as single `<ref>` lines,
+     19,752 words) retired; `juvencus.historia_evangelica.tess` (+4
+     `.part.N` files, 3,182 lines at per-verse granularity, 19,854 words)
+     kept. Word counts within 0.5%; line-level containment 60.4%/60.9%,
+     spot-checked misses are orthographic variants (`quum`/`cum`), not
+     missing content.
+  2. `pseudo_cyprian.carmina.tess` (6 lines, one giant line per poem: the
+     Peiper 1891 CSEL edition of Genesis, Sodoma, De Iona, Ad Senatorem,
+     De Pascha, Ad Flavium Felicem) retired. Five of its six poems already
+     exist as separate, per-verse `cyprian_pseudo.*` files (note the
+     reversed word order versus the retired `pseudo_cyprian.*` id), kept:
+     `cyprian_pseudo.de_pascha`, `.sodoma`, `.de_iona`,
+     `.ad_senatorem_ex_christiana_religione_ad_idolorum_servitutem_conversum`,
+     `.ad_flavium_felicem_de_resurrectione_mortuorum`. The sixth poem,
+     Genesis, is not part of this operation (its standalone file was
+     already retired in the 2026-09-18 batch). Re-verified in this PR with
+     a 6-word normalized chunk containment check: 93.5% to 97.2% across
+     the five poems, word counts within 2% each; misses spot-checked as
+     single-word orthographic variants (e.g. standalone "Qoi mihi
+     ruricolas" vs. bundle "Qui mihi ruricolas") and each poem's title
+     heading, present as running text in the bundle's single line but not
+     carried into the standalone per-verse body text (paratextual, not
+     missing content).
+- Registries edited: `data/text_genres.csv` (3 rows removed: the two
+  retired files, plus `magnus_felix_ennodius.epistulae.tess`, a stale row
+  left over from the 2026-09-18 batch, whose file was already gone; of
+  the three stale rows the source document named, the other two,
+  `augustine.speculum` and `cyprian_pseudo.genesis`, had already been
+  cleaned up by the 2026-09-18 batch itself by the time this PR branched).
+  `backend/text_sources.json` (3 entries removed: "Juvencus Caius Vettius
+  Aquilinus"/"Evangeliorum Libri Quattuor" and "Pseudo-Cyprian"/"Carmina"
+  for the two retired files, plus "Magnus Felix Ennodius"/"Epistulae", an
+  orphan for the same already-gone file as the stale genres row above,
+  found while verifying no row in this registry points at a missing file.
+  Note: the source document stated no `text_sources.json` entry existed
+  for the Juvencus id; an entry did exist at execution time and is
+  removed here, flagged as a discrepancy rather than silently reconciled).
+  `backend/text_provenance.json` and `backend/author_dates.json` also
+  carry rows for the two retired files (a per-file CSEL-import record
+  each, and an author-level date record used by no other file for
+  Juvencus); neither registry was touched by the 2026-09-18 precedent, so
+  neither is touched here, flagged as a follow-up. `data/text_genres.csv`
+  separately still carries roughly 87 rows for files absent from `texts/`
+  unrelated to either 2026-09 retirement batch (found while checking this
+  batch's rows against the files on disk); not touched, well outside this
+  operation's scope, flagged for a future cleanup pass.
+- No `text_descriptions.json` entries for either retired file (checked
+  the file in this repository; production's copy is checked at
+  execution time per the source document).
+- Archive: `~/tesserae-backups/retired_duplicates_2026-09-19/` (`texts/la/`
+  for the 2 retired files; `lemma_cache/la/` and `translations/la/` both
+  empty, no entry for either file found in this checkout, which does not
+  carry the real lemma cache), README in the 2026-09-18 format.
+- Checks run without a server (this PR, before merge):
+  `python scripts/corpus/validate_tess.py` on the 5 kept Cyprian files and
+  the kept Juvencus work (whole + 4 parts): all 10 report `[FAIL]` on the
+  script's tab-delimited `<ref>\ttext` check, because these are legacy
+  imports that use `<ref>` followed by one or two literal spaces rather
+  than a tab, a pre-existing condition of these already-served files that
+  predates and is unrelated to this operation (this PR does not modify
+  their content). Re-checked by hand with a space-tolerant version of the
+  same script's other rules: 0 empty lines, 0 duplicate refs, 0 HTML
+  residue across all 10 files, so the files are otherwise sound; the
+  tab-vs-space convention gap is flagged, not fixed, here.
+- Production steps (after merge, none of them run yet, following the
+  2026-09-18 precedent exactly since this batch is much smaller: 2 files,
+  each with 1 passage-index window):
+  1. `git pull` on production `main`; removes the 2 retired files from
+     `texts/la/`.
+  2. Lemma cache: check `cache/lemmas/la/` for entries under either
+     retired file's name and delete them if present (this checkout's
+     stub cache has none, so confirm on the actual server cache at
+     execution time); no rebuild needed since no file's content changed,
+     only removals.
+  3. Latin inverted index: `python scripts/corpus/drop_stale_index_entries.py
+     --root /var/www/tesseraev6_flask --language la --apply` (dry run
+     first, without `--apply`, to confirm it finds exactly 2 stale
+     filenames) removes the 2 retired texts' postings, lines and texts
+     rows and rebuilds `lemma_doc_freq`.
+  4. Latin bigram cache: `cd /var/www/tesseraev6_flask && venv/bin/python
+     scripts/corpus/rebuild_bigrams.py la`; confirm it is actually stale
+     before assuming a rebuild is required (same caution as 2026-09-18).
+  5. Passage index: drop the 2 retired texts' windows (1 each) in
+     lockstep across ids, embeddings, descriptions and window_texts with
+     `drop_passage_rows.py` (same script location caveat as 2026-09-18:
+     confirm it still exists in `~/tesserae-backups/session_scripts_2026-09-11/batch/`
+     or recreate it from that precedent).
+  6. Reference test in `tests/search_reference_tests.md` ("arma virum"
+     lemma search: Ovid, Quintilian, Seneca) before and after the index
+     change.
+  7. `touch tesseraev6_flask.wsgi`.
+- Scripts: `scripts/corpus/drop_stale_index_entries.py`,
+  `scripts/corpus/rebuild_bigrams.py`, `drop_passage_rows.py` (passage
+  index).
+- Done: not yet run on production; this entry records the PR only.
+
 ## 2026-09-18 Corpus: 33 duplicate Latin files retired, Martial rebuilt from its per-book files
 - What (code, this PR; not yet run on production): `research/corpus/
   RETIREMENT_LIST_2026-09-18.md` confirmed 12 duplicate/stray Latin files
