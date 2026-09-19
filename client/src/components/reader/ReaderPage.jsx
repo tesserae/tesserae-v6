@@ -329,7 +329,13 @@ export default function ReaderPage() {
   }, []);
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
+    // overflow-clip, not overflow-hidden: both clip the children to the
+    // rounded corners, but overflow-hidden also makes this card the scroll
+    // container that the results panel's `position: sticky` attaches to, so
+    // the panel could never ride the window. Deep in a text the panel sat
+    // above the fold and the Reader looked as if it had no side tabs at all
+    // (NC, 2026-09-19, arriving from the connections map).
+    <div className="bg-white rounded-lg shadow overflow-clip">
       <ReaderHeader
         language={language}
         onLanguage={(code) => {
