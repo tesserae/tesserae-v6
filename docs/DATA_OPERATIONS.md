@@ -474,13 +474,18 @@ Conventions
   epistulary collections), 0 false matches. Full detail, both checks'
   worked examples, and the still-skipped-works list:
   `research/reuse_table/REPORT_2026-09-18_production_build.md`.
-- What production needs: run once per language under a `systemd-run`
-  memory-capped scope (Latin took under 7 minutes; Greek/English untried but
-  the prototype report estimates comparable-order cost), and rebuild after
-  any corpus change to that language (new imports, retirements, lemma-cache
-  rebuilds) -- the table is a snapshot, not computed live. `cache/` is not
-  in git; `cache/reuse_pairs/<lang>.db` ships by running the script on
-  production, the same way other caches under `cache/` are built.
+- Production steps (Latin, not yet run): from the production checkout (it
+  must read production `texts/`, not a worktree's), one at a time,
+  `systemd-run --user --scope -p MemoryMax=12G -p MemorySwapMax=0
+  venv/bin/python scripts/reuse/build_reuse_table.py --language la` --
+  measured peak 9.2 GB, about 10 minutes, writes `cache/reuse_pairs/la.db`.
+  Then `touch tesseraev6_flask.wsgi` so the workers pick up the new table.
+  Greek and English builds are to follow the same pattern once Latin is
+  live and reviewed; rebuild after any corpus change to that language (new
+  imports, retirements, lemma-cache rebuilds) -- the table is a snapshot,
+  not computed live. `cache/` is not in git; `cache/reuse_pairs/<lang>.db`
+  ships only by running the script on production, the same way other
+  caches under `cache/` are built.
 - Verify: `tests/test_reuse_routes.py` (fixture-db backend route tests),
   `tests/test_mcp_parity.py` (manifest coverage for the two new routes),
   plus the reference tests in `tests/search_reference_tests.md` (unrelated
