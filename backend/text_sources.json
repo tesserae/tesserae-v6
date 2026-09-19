@@ -12881,14 +12881,6 @@
     "added_by": "Caitlin Diddams"
   },
   {
-    "author": "Pseudo-Cyprian",
-    "work": "Sodoma",
-    "e_source": "Open Greek and Latin",
-    "e_source_url": "https://web.archive.org/web/20240812080521/http://opengreekandlatin.github.io/csel-dev/",
-    "print_source": "Rudolfus Peiper. Cyprianus Heptateuchos. Österreichische Akademie der Wissenschaften: Wien, Österreich. 1891.",
-    "added_by": "V3 Legacy Import"
-  },
-  {
     "author": "Pseudo-Hegesippus",
     "work": "De Excidio Hierosolymitano",
     "e_source": "digilibLT",
@@ -12990,22 +12982,6 @@
     "e_source": "Open Greek and Latin",
     "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
     "print_source": "Emil Kroymann. Quinti Septimi Florentis Tertulliani Opera Pars III. Vindobonae: Gerold. 1906.",
-    "added_by": "Caitlin Diddams"
-  },
-  {
-    "author": "Pseudo-Tertullian",
-    "work": "Carmen De Iona et Ninive",
-    "e_source": "Open Greek and Latin",
-    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
-    "print_source": "Franz Oehler. Quinti Septimi Florentis Tertulliani Quae Supersunt Omnia, Tomus II. Lipsiae: Weigel. 1854.",
-    "added_by": "Caitlin Diddams"
-  },
-  {
-    "author": "Pseudo-Tertullian",
-    "work": "Incerti Auctoris Carmen Sodoma",
-    "e_source": "Open Greek and Latin",
-    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
-    "print_source": "Franz Oehler. Quinti Septimi Florentis Tertulliani Quae Supersunt Omnia, Tomus II. Lipsiae: Weigel. 1854.",
     "added_by": "Caitlin Diddams"
   },
   {

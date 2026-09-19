@@ -44,6 +44,16 @@ docs/DATA_OPERATIONS.md.
   docs/DATA_OPERATIONS.md for the excerpt-containment check, the
   verse-by-verse verification, and the registries edited. Archived:
   `~/tesserae-backups/retired_duplicates_2026-09-19b/`.
+  Also checked whether the Sodoma and Iona poems, each transmitted under
+  both a Cyprian and a Tertullian attribution, are duplicate copies:
+  `tertullian_pseudo.de_sodoma`/`cyprian_pseudo.sodoma` and
+  `tertullian_pseudo.de_iona_propheta`/`cyprian_pseudo.de_iona` both run
+  around 53% word-chunk containment (well below the 90%+ seen for genuine
+  same-edition duplicates elsewhere in this document, and the differences
+  are word-choice-level, not OCR-level), so both pairs are kept as distinct
+  recensions rather than deduplicated. Removed three orphaned
+  `backend/text_sources.json` citation entries found while checking
+  credits for this comparison.
 
 - Retire two more duplicate Latin files (batch 2):
   `juvencus_caius_vettius_aquilinus.evangeliorum_libri_quattuor` (whole

@@ -141,6 +141,56 @@ Conventions
   for the 2 retired files; `lemma_cache/la/` and `translations/la/` both
   empty, no entry for either file found in this checkout).
 
+### Part C (added same day, same PR): Sodoma and Iona pairs checked, kept as-is
+- What: NC asked whether `tertullian_pseudo.de_sodoma.tess` /
+  `cyprian_pseudo.sodoma.tess` and `tertullian_pseudo.de_iona_propheta.tess`
+  / `cyprian_pseudo.de_iona.tess` are the same poem transmitted under two
+  attributions (a documented manuscript-tradition fact for these two poems)
+  and, if so, to retire the weaker copy. Compared by normalized line
+  matching (lowercase, v to u, j to i, punctuation stripped) and by
+  order-independent 4-word chunk containment (not just index-aligned lines,
+  since a one-line offset in the Sodoma pair would otherwise distort a
+  naive per-line diff):
+  - **Sodoma**: `cyprian_pseudo.sodoma.tess` 166 lines/1,580 words;
+    `tertullian_pseudo.de_sodoma.tess` 167 lines/1,594 words. 4-word chunk
+    containment 53.7% (cyprian-in-tertullian) / 53.1% (the reverse).
+    Index-aligned exact-line match at the best offset: 33.1% (55/166).
+  - **Iona**: `cyprian_pseudo.de_iona.tess` 105 lines/1,007 words;
+    `tertullian_pseudo.de_iona_propheta.tess` 105 lines/1,009 words. 4-word
+    chunk containment 53.4% / 52.8%. Index-aligned exact-line match: 41.0%
+    (43/105).
+  - For comparison, every genuine same-edition duplicate pair checked in
+    this document (2026-09-18 and 2026-09-19 batches) ran 90%+ on the same
+    kind of chunk-containment check; OCR noise alone (letter swaps, v/u,
+    dropped letters) does not depress the figure to ~53%. The differences
+    here are at the word-choice level, not the letter level (Sodoma line 1:
+    "primaeui **crimina** saecli" vs "primaeui **tempora** saecli"; line 3:
+    "**Quot** caelum **spargit**" vs "**quas** caelum **sparsit**"; line 4:
+    "**et** liquido" vs "**haud** liquido"), the kind of divergence expected
+    between two real manuscript-tradition recensions, not two scans of one
+    edition. `backend/text_sources.json` confirms two different
+    print-edition lineages exist for both poems (a Peiper 1891 CSEL
+    "Cyprianus Heptateuchos" edition and an Oehler 1854 "Tertullian" edition
+    are both cited elsewhere in the file, for neither of the two currently
+    served files, which are both instead sourced from The Latin Library
+    under their respective attribution pages).
+  - **Decision: keep both pairs.** They are the same poem but differ
+    materially enough (word-level, not OCR-level) that picking a "better"
+    copy would mean picking a manuscript tradition, not deduplicating a
+    scan; both traditions are legitimate to keep searchable.
+  - Bonus finding while checking `text_sources.json` credits (as asked):
+    three orphaned citation entries with no corresponding served file,
+    removed: "Pseudo-Cyprian"/"Sodoma" (Peiper 1891, `added_by`: "V3 Legacy
+    Import", left over from a file already gone, likely the `pseudo_cyprian.carmina`
+    bundle retired in the 2026-09-18 batch), "Pseudo-Tertullian"/"Carmen De
+    Iona et Ninive" and "Pseudo-Tertullian"/"Incerti Auctoris Carmen
+    Sodoma" (both Oehler 1854, `added_by`: "Caitlin Diddams", matching no
+    filename or author/work string on any file in the current corpus).
+    Neither of the two live pairs' own citations (both "The Latin Library",
+    `added_by`: "V6 Import") was touched.
+- No corpus files added, removed or modified in Part C; the only change is
+  the three-entry `text_sources.json` cleanup above.
+
 ## 2026-09-19 Corpus: two more duplicate Latin files retired (batch 2)
 - What (code, this PR; not yet run on production): `research/corpus/
   RETIREMENT_LIST_2026-09-19_batch2.md` checked six further items found
