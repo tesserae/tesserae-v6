@@ -9,6 +9,11 @@ docs/DATA_OPERATIONS.md.
 ## 2026-09-19
 
 ### Reader
+- Navigation inside a text: a thin strip stays at the top of the text column
+  with previous and next book, a Go to line box (a locus such as 6.851, or a
+  bare line number within the open book) and Back to top, and the book links
+  repeat at the end of the text. Until now the only way out of the bottom of a
+  long book was a scroll back to the header.
 - The side panel (Similar Passages, Verbal Parallels, Translation, Reuse) now
   stays on screen while the page scrolls. Its sticky rule had been cancelled
   by the outer card's overflow clipping since the Reader shipped, so deep in a
