@@ -827,6 +827,27 @@ Conventions
   production: la 730, grc 828, en 42, cop 144, he 39, index version
   2026-09-18). Noted here only because a cache file now persists outside
   the request that created it.
+## 2026-09-20 Three client deploys: sample searches, tab changes, King James label (PRs #419, #421, #420)
+- 14:08 EDT: PR #419 (Theme Search sample searches re-measured: funeral
+  games and a storm at sea replace the recognition chip; all five strong
+  on production) merged 29db6ca0, pulled, bundle rebuilt in the launcher
+  (old bundles kept), WSGI reloaded; served bundle index-BSdZd-fr.js
+  carries the new chips.
+- 14:19 EDT: PR #421 (tab changes start the new page clean; only the
+  first address rewrite keeps parameters, so a Theme Search query no
+  longer re-runs on every return to the tab; NC "I need 421") merged
+  2798c427 and PR #420 (the English Bible displayed as the King James
+  Bible; identifiers unchanged) merged ae948007; pulled, bundle rebuilt,
+  reloaded; served bundle index-C0oXA1QI.js carries "King James Bible"
+  six times and "World English Bible" not at all.
+- The Similarity Map bakes author labels into its cache at build time, so
+  its author row still read "World English Bible (en) (tr.)" after the
+  reload; the map cache rebuild was started 14:20 (cap 8 GB, about 27
+  minutes) and is followed by a reload. Done line below when finished.
+- Note for long-open tabs: a page loaded before a deploy keeps its old
+  bundle until reloaded; index.html now comes with Cache-Control:
+  no-cache, so a fresh load always gets the current bundle.
+
 ## 2026-09-20 Corpus: the English Bible files are the King James Version (planned rename, not yet run)
 - Finding (NC, 2026-09-20, from the results page's corpus panel): the 70
   files `texts/en/world_english_bible.*` hold the Authorized (King James)
