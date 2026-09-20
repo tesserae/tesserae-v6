@@ -510,6 +510,11 @@ Conventions
   over" and "summer, day"; after, it opens with "expanded wings" (P.L. 1.20
   / Hyperion 1.29), "dire event", "old Saturn", "far within", "high Gods",
   "palace, court", "awaiting command". Tessa restarted 23:54.
+- 2026-09-20 00:05-00:12 EDT: PR #414 (English function-word list from
+  sources, 275 entries) deployed with a bundle rebuild inside the launcher
+  (Tessa paused three minutes) and a reload; live /api/stoplists shows 275
+  English entries; the one cached English search result was cleared and the
+  default English pair re-warmed (top ten unchanged from the 23:53 check).
 
 ## 2026-09-19 Reader: Quotation tables rebuilt for Latin, Greek and English under the final builder rules
 - What: after the first English table (13:14) marked Hamlet III.4.192 "What
