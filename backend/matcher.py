@@ -627,7 +627,7 @@ DEFAULT_GREEK_STOP_WORDS_LIST = [
 ]
 
 DEFAULT_ENGLISH_STOP_WORDS_LIST = [
-    # English function words, 274 entries (2026-09-19, NC's rule: a
+    # English function words, 275 entries (2026-09-19, NC's rule: a
     # stoplist holds function words only; common content words are
     # down-weighted by frequency in scoring, never removed; see
     # docs/DECISIONS.md, 2026-09-19).

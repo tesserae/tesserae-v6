@@ -10,7 +10,7 @@ behind each, are in docs/DECISIONS.md.
 ## 2026-09-19
 
 ### Search
-- English function-word list rebuilt from sources (274 words): the Snowball
+- English function-word list rebuilt from sources (275 words): the Snowball
   stopword list plus the same words in their Early Modern inflections after
   Barber, Early Modern English (1997). Seven content verbs the old list held
   (get, go, know, make, say, see, take) are gone, 27 Snowball function words

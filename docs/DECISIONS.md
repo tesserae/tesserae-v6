@@ -23,7 +23,7 @@ commonplace test.
 mixes function words with common verbs ("know", "take", "make", "go",
 "see", "come", "think", "look", "want", "give", "use", "find", "tell",
 "ask", "work", "seem", "feel", "try", "leave", "call"). The fusion scoring
-layer penalizes those as function words. Adopted (NC, 2026-09-19 23:58, "Go ahead with that stop list"). The list, 274 words (220 plain words plus the 49 Snowball contractions and five apostrophe forms, since the tokenizer keeps contractions whole), is the Snowball English
+layer penalizes those as function words. Adopted (NC, 2026-09-19 23:58, "Go ahead with that stop list"). The list, 275 words (220 plain words plus 50 Snowball contractions and five apostrophe forms, since the tokenizer keeps contractions whole), is the Snowball English
 stopword list (Porter's Snowball project, `snowball.tartarus.org/algorithms/
 english/stop.txt`, 174 entries, 124 once contractions are set aside), a
 published function-word list widely reused (NLTK, Lucene, R), PLUS the
