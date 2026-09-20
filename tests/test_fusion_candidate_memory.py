@@ -17,7 +17,7 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-from backend.matcher import Matcher, DEFAULT_LATIN_STOP_WORDS  # noqa: E402
+from backend.matcher import Matcher, DEFAULT_LATIN_STOP_WORDS, BoundedCandidates  # noqa: E402
 from backend import fusion  # noqa: E402
 
 
@@ -120,7 +120,7 @@ def test_candidate_cap_larger_than_matches_changes_nothing_but_order():
 
 
 def test_every_lemma_channel_has_a_result_cap():
-    for name in ('lemma', 'lemma_min1', 'exact'):
+    for name in ('lemma', 'lemma_min1', 'exact', 'dictionary'):
         assert fusion.CHANNEL_CONFIGS[name].get('max_results', 0) > 0, name
 
 
@@ -137,3 +137,42 @@ def test_run_channel_passes_the_candidate_cap(monkeypatch):
                              FakeMatcher(), None, 'src', 'tgt')
     assert out == []
     assert seen['candidate_cap'] == cfg['max_results'] * 4
+
+
+def test_bounded_candidates_plain_list_when_uncapped():
+    bc = BoundedCandidates(0, [], [])
+    bc.add({'matched_lemmas': ['a']}); bc.add({'matched_lemmas': ['b']})
+    assert [m['matched_lemmas'] for m in bc.result()] == [['a'], ['b']]
+    assert '_quick_score' not in bc.result()[0]
+
+
+def test_dictionary_channel_bounds_its_candidates(monkeypatch):
+    import backend.synonym_dict as sd
+    from backend.semantic_similarity import find_dictionary_matches
+    # a tiny synonym table: every word is a synonym of its neighbour
+    words = ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta']
+    table = {w: {w, words[(i + 1) % len(words)]} for i, w in enumerate(words)}
+    monkeypatch.setattr(sd, 'get_latin_lookup', lambda: table)
+    src = [unit(f's{i}', f'{words[i]} {words[(i + 1) % 6]} filler{i}') for i in range(6)]
+    tgt = [unit(f't{j}', ' '.join(words[:j + 2])) for j in range(5)]
+    settings = {'language': 'la', 'min_matches': 2, 'include_lemma_matches': True}
+    full, _ = find_dictionary_matches(src, tgt, dict(settings))
+    assert len(full) > 3
+    capped, _ = find_dictionary_matches(src, tgt, dict(settings, candidate_cap=3))
+    assert len(capped) == 3
+    scores = [m['_quick_score'] for m in capped]
+    assert scores == sorted(scores, reverse=True)
+    full_pairs = {(m['source_idx'], m['target_idx']) for m in full}
+    assert all((m['source_idx'], m['target_idx']) in full_pairs for m in capped)
+
+
+def test_run_channel_passes_the_cap_to_the_dictionary_channel(monkeypatch):
+    import backend.semantic_similarity as ss
+    seen = {}
+
+    def fake(src, tgt, settings, cancellation=None):
+        seen.update(settings); return [], 0
+    monkeypatch.setattr(ss, 'find_dictionary_matches', fake)
+    cfg = dict(fusion.CHANNEL_CONFIGS['dictionary'])
+    out = fusion.run_channel('dictionary', cfg, [unit('a', 'x')], [unit('b', 'y')], None, None, 'src', 'tgt')
+    assert out == [] and seen['candidate_cap'] == cfg['max_results'] * 4

@@ -751,6 +751,50 @@ def get_curated_stoplists():
     return result
 
 
+class BoundedCandidates:
+    """A candidate list bounded to `cap` entries, ranked by the quick IDF
+    score the fusion channel runner's pre-filter uses (sum over matched
+    lemmas of log((N+1)/(df+1)) + 1, df = units containing the lemma in
+    source plus target). Memory stays proportional to the cap instead of
+    growing with source units times target units (2026-09-20). With cap 0
+    it is a plain list."""
+
+    def __init__(self, cap, source_units, target_units):
+        self.cap = int(cap or 0)
+        self.items = []
+        self.seq = 0
+        if self.cap > 0:
+            self.freq = Counter()
+            for u in source_units:
+                for lem in set(u.get('lemmas', [])):
+                    self.freq[lem] += 1
+            for u in target_units:
+                for lem in set(u.get('lemmas', [])):
+                    self.freq[lem] += 1
+            self.total = len(source_units) + len(target_units)
+
+    def quick_score(self, matched):
+        return sum(math.log((self.total + 1) / (self.freq.get(l, 1) + 1)) + 1
+                   for l in matched)
+
+    def add(self, match):
+        if self.cap <= 0:
+            self.items.append(match)
+            return
+        score = self.quick_score(match.get('matched_lemmas', []))
+        match['_quick_score'] = score
+        self.seq += 1
+        if len(self.items) < self.cap:
+            heapq.heappush(self.items, (score, self.seq, match))
+        elif score > self.items[0][0]:
+            heapq.heapreplace(self.items, (score, self.seq, match))
+
+    def result(self):
+        if self.cap <= 0:
+            return self.items
+        return [m for _, _, m in sorted(self.items, key=lambda h: h[0], reverse=True)]
+
+
 class Matcher:
     def __init__(self):
         self.synonym_dict = {}
@@ -1017,24 +1061,7 @@ class Matcher:
         # IDF score the channel runner uses for its pre-filter, so the kept
         # set is the one that filter would keep, but memory stays at the cap
         # instead of growing with source units times target units.
-        candidate_cap = int(settings.get('candidate_cap') or 0)
-        if candidate_cap > 0:
-            lemma_freq = Counter()
-            for u in source_units:
-                for lem in set(u.get('lemmas', [])):
-                    lemma_freq[lem] += 1
-            for u in target_units:
-                for lem in set(u.get('lemmas', [])):
-                    lemma_freq[lem] += 1
-            total_docs = len(source_units) + len(target_units)
-            def _quick_idf(matched):
-                return sum(
-                    math.log((total_docs + 1) / (lemma_freq.get(l, 1) + 1)) + 1
-                    for l in matched
-                )
-            heap = []  # (quick_score, sequence, match): smallest score on top
-            seq = 0
-        matches = []
+        candidates = BoundedCandidates(settings.get('candidate_cap'), source_units, target_units)
         
         for src_idx, src_unit in enumerate(source_units):
             if cancellation:
@@ -1080,23 +1107,12 @@ class Matcher:
                     tgt_distance = self._get_feature_span(tgt_unit, matched_features, match_type)
 
                     if src_distance <= max_distance and tgt_distance <= max_distance:
-                        match = {
+                        candidates.add({
                             'source_idx': src_idx,
                             'target_idx': tgt_idx,
                             'matched_lemmas': list(matched_features)
-                        }
-                        if candidate_cap > 0:
-                            score = _quick_idf(match['matched_lemmas'])
-                            match['_quick_score'] = score
-                            seq += 1
-                            if len(heap) < candidate_cap:
-                                heapq.heappush(heap, (score, seq, match))
-                            elif score > heap[0][0]:
-                                heapq.heapreplace(heap, (score, seq, match))
-                        else:
-                            matches.append(match)
-        if candidate_cap > 0:
-            matches = [m for _, _, m in sorted(heap, key=lambda h: h[0], reverse=True)]
+                        })
+        matches = candidates.result()
         
         return matches, len(stop_words)
     

@@ -835,6 +835,10 @@ CHANNEL_CONFIGS = {
         "language": "la",
         "include_lemma_matches": True,
         "unbounded_scoring": True,
+        # cap added 2026-09-20: with include_lemma_matches the channel
+        # re-finds every two-shared-lemma pair plus synonym pairs and had no
+        # cap; Seneca's Letters x Aeneid blew 12 GB in its window step
+        "max_results": 50000,
         "use_edit_distance": False,
         "use_sound": False,
         "use_pos": False,
@@ -1508,6 +1512,9 @@ def run_channel(channel_name, config, source_units, target_units,
         matches, _ = find_semantic_matches(source_units, target_units, settings, cancellation)
     elif match_type == "dictionary":
         from backend.semantic_similarity import find_dictionary_matches
+        cap = config.get("max_results", 0)
+        if cap > 0:
+            settings["candidate_cap"] = cap * 4  # bounded in the matcher, see the lemma branch
         matches, _ = find_dictionary_matches(source_units, target_units, settings, cancellation)
     elif match_type == "sound":
         matches, _ = matcher.find_sound_matches(source_units, target_units, settings, cancellation)
