@@ -15,7 +15,9 @@ Conventions
 - One heavy job at a time. Never `pkill -f`.
 - After any swap: `touch tesseraev6_flask.wsgi` so the workers reopen files.
 - Verify with the reference tests in `tests/search_reference_tests.md`
-  ("arma virum" lemma search: 324 distinct loci as of 2026-09) and a search
+  ("arma virum" lemma search: 324 distinct loci as of early 2026-09; 367
+  as of 2026-09-20 after the Martial rebuild from its per-book files and
+  the September retirements; the exact search returns 21) and a search
   that exercises the store changed.
 - Files owned by the web app's account cannot be opened for writing; write
   beside them and rename over them (the directory allows it).
@@ -825,6 +827,135 @@ Conventions
   production: la 730, grc 828, en 42, cop 144, he 39, index version
   2026-09-18). Noted here only because a cache file now persists outside
   the request that created it.
+## 2026-09-20 Theme Search word index built on production (for the lexical boost)
+- What: `data/passage_index/desc_fts.sqlite`, SQLite FTS5 (BM25, Porter
+  stemming) over the gist, themes, action steps, participants and setting
+  of all 619,280 passage descriptions, keyed by window id; built with
+  `scripts/build_desc_fts.py` (branch feat/theme-lexical-boost) at 14:48
+  EDT, 36 s, 678 MB, written beside descriptions.jsonl with a rename over a
+  .tmp file. Unused by the live code until the lexical-boost PR deploys.
+- Standing rule once deployed: rebuild it after every change to
+  descriptions.jsonl (imports, retirements, description rebuilds); the app
+  compares its description count with the passage index's and refuses a
+  stale one, logging once and running without the boost.
+- Done 2026-09-20 14:48 EDT (main session).
+
+## 2026-09-20 Dates for three languages and the era badge deployed (PR #422)
+- What: `backend/author_dates.json` gains sections for Middle High German
+  (Nibelungenlied, c. 1200), Old French (Chanson de Roland, c. 1100) and
+  Italian (Dante, d. 1321), era "Medieval"; Theme Search shows a work's era
+  when it has no year (the Hebrew Bible, "Biblical", was shown as undated).
+  Merged 7e231103, pulled, bundle rebuilt in the launcher (old bundles
+  kept), WSGI reloaded 14:37 EDT (the date table is read once per process).
+- Check: /api/passages/theme-search now returns year 1200 / Medieval for
+  the Nibelungenlied and era Biblical with no year for Hebrew Bible books.
+- Done 2026-09-20 14:37 EDT (main session).
+
+## 2026-09-20 Fusion candidate-memory fix deployed (PR #416); cached results cleared
+- What: PR #416 merged 2a9301c6 and pulled on production 14:29 EDT, WSGI
+  reloaded. Backend only. Function words are no longer matching features
+  in the lemma, lemma_min1 and exact channels; every channel's candidate
+  list is bounded (lemma, exact, dictionary and rare_word gain the 50,000
+  result cap); measurement and the three accepted behaviour changes in
+  docs/DECISIONS.md (2026-09-20). NC accepted them ("Go with 416").
+- Cached fusion results cleared with `backend.cache.clear_cache_for_language`
+  (la 8, grc 3, en 1 files) so pairs recompute under the new rules; the
+  three default pairs (Aeneid 1 x Lucan 1, Paradise Lost 1 x Hyperion,
+  Iliad 1 x Argonautica 1) re-warmed through /api/fusion-search by 14:59,
+  each complete within about a minute; tops: Aeneid 1.103 / Lucan 1.416
+  (sidera fluctusque), Paradise Lost 1.225 / Hyperion 1.296 (expanded
+  wings), Iliad 1.190 / Argonautica 1.1250 (ἐρυσσάμενος φάσγανον). A first
+  warm-up attempt used text ids without the .tess suffix and did nothing.
+- Checks: 103 matcher and fusion tests; the benchmark table in
+  DECISIONS.md; whole Paradise Lost x Hyperion 2.8 GB and 1.7 min against
+  25.6 GB and 19 min before.
+- Done 2026-09-20 14:29 EDT (main session).
+
+## 2026-09-20 Three client deploys: sample searches, tab changes, King James label (PRs #419, #421, #420)
+- 14:08 EDT: PR #419 (Theme Search sample searches re-measured: funeral
+  games and a storm at sea replace the recognition chip; all five strong
+  on production) merged 29db6ca0, pulled, bundle rebuilt in the launcher
+  (old bundles kept), WSGI reloaded; served bundle index-BSdZd-fr.js
+  carries the new chips.
+- 14:19 EDT: PR #421 (tab changes start the new page clean; only the
+  first address rewrite keeps parameters, so a Theme Search query no
+  longer re-runs on every return to the tab; NC "I need 421") merged
+  2798c427 and PR #420 (the English Bible displayed as the King James
+  Bible; identifiers unchanged) merged ae948007; pulled, bundle rebuilt,
+  reloaded; served bundle index-C0oXA1QI.js carries "King James Bible"
+  six times and "World English Bible" not at all.
+- The Similarity Map bakes author labels into its cache at build time, so
+  its author row still read "World English Bible (en) (tr.)" after the
+  reload; the map cache rebuild was started 14:20 (cap 8 GB, about 27
+  minutes) and is followed by a reload. Done line below when finished.
+- Note for long-open tabs: a page loaded before a deploy keeps its old
+  bundle until reloaded; index.html now comes with Cache-Control:
+  no-cache, so a fresh load always gets the current bundle.
+
+## 2026-09-20 Corpus: the English Bible files are the King James Version (planned rename, not yet run)
+- Finding (NC, 2026-09-20, from the results page's corpus panel): the 70
+  files `texts/en/world_english_bible.*` hold the Authorized (King James)
+  Version of 1611, not the World English Bible: "In the beginning God
+  created the heaven and the earth", "Called of God an high priest after
+  the order of Melchisedec", "The LORD {is} my shepherd" with the e-text's
+  braces for supplied words. A legacy V3 label; PR #263 (2026-08-18) noted
+  it when it added the KJV New Testament under the same name and set the
+  date to 1611, and `data/text_sources.json` credits "Authorized (King
+  James) Version, 1611, Project Gutenberg".
+- Done now: the displayed name becomes "King James Bible" (display tables
+  only, PR to follow this entry).
+- Planned: rename the identifier `world_english_bible` to a King James
+  identifier in one operation: 70 text files and their tags (`<WEB ...>`),
+  the English lemma caches, the English inverted index (`add_texts_to_index
+  --replace` plus `drop_stale_index_entries`), 14,335 passage-index rows
+  (ids carry the work name), the English Quotation table, the Similarity
+  Map cache, `data/translation_pairs.json` (23 pairs name it),
+  `backend/scripture_id.py`'s book table, `data/text_genres.csv` and
+  `data/text_sources.json`, and the connector's text listing. Run in a
+  quiet slot with the next English index rebuild; record here with backups.
+
+## 2026-09-20 English line-search fold fix deployed (PR #418)
+- What: `_normalize_lemma` in `backend/app.py` applied the Latin u/v and
+  i/j fold to English queries, so "love" was looked up as "loue", "jove" as
+  "ioue", "voice" as "uoice": English line searches for any word with a v
+  or a j returned only Spenser's spellings or nothing, and the results
+  page's "Across the corpus" panel was blank for such shared words. Found
+  by NC on Paradise Lost 1.512 x Hyperion 2.182 (jove, saturn). Fold now
+  Latin only. Merged e2527dad, pulled on production, WSGI reloaded
+  13:45 EDT. No index or cache change.
+- Checks after the reload (production API): English "love" 405 lines from
+  7 authors (was 500, all Spenser), "heaven" 394 from 8 (was 120 Spenser),
+  "voice" 401 from 11 (was 0), "jove saturn" 2 (Milton 1.512, Keats
+  2.182; was 0). Latin reference searches unchanged by construction:
+  "arma virum" lemma 367 lines (Ovid 14, Vergil 24, Livy 42, Cicero 6,
+  Statius 17), exact 21 (Ovid 1, Vergil 4, Quintilian 1, Seneca 1,
+  Statius 1).
+- Done 2026-09-20 13:45 EDT (main session).
+
+## 2026-09-20 Theme Similarity Map deployed and its production cache built
+- What: PR #407 (Theme Similarity Map) merged as c4ec3491 after NC's
+  review of the preview ("looks good"); production pulled to c4ec349, the
+  frontend bundle rebuilt inside the memory launcher (cap 6 GB,
+  `scripts/keep_old_bundles.sh save` before and `restore` after, 33 older
+  bundles kept), WSGI reloaded 12:22 EDT. Until the cache existed the Map
+  tab reported that no map had been built. Then the production cache:
+  ```
+  cd /var/www/tesseraev6_flask && ~/bin/tess-job map-cache-build 8 ./venv/bin/python3 scripts/build_connections_map.py
+  ```
+  wrote `cache/connections_map/22077037-1789824674.1267781760-1789824673.db`
+  (920.2 MB; the name is the passage index fingerprint), 280,928 windows,
+  26,312 author pairs, 817 century pairs, 258 genre pairs; 27.4 minutes,
+  5.77 GB peak under the 8 GB cap. WSGI reloaded again 12:52 so the workers
+  saw the new cache; `/api/passages/map?view=author` answers with
+  `cache_built_at 2026-09-20T12:50:59` and no `stale` field.
+- Standing rule: the map cache is keyed by the passage index fingerprint,
+  so it must be REBUILT after every corpus change that touches the passage
+  index (imports, retirements, description rebuilds), with the command
+  above, followed by a WSGI reload or the "Refresh map" button. Until then
+  the site serves the most recent cache and reports it as `stale` in the
+  API (users see only the build date).
+- Done 2026-09-20 12:22 to 12:52 EDT (main session).
+
 ## 2026-09-19 Corpus connections map cache built (feat/connections-map)
 - What: `scripts/build_connections_map.py`, under a memory cap, builds
   `cache/connections_map/<index_fingerprint>.db` -- for every Latin, Greek,

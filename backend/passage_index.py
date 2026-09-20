@@ -166,6 +166,28 @@ BASELINE_MARGIN = 0.010
 # starts crowding the page again.
 PASSAGES_PER_WORK = 3
 
+# Lexical boost (NC, 2026-09-20: "adopt the light boost in production").
+# A word index over the descriptions (scripts/build_desc_fts.py, SQLite
+# FTS5 with BM25 over gist, themes, action steps, participants, setting)
+# adds a little to the cosine of windows whose description shares words
+# with the query: cosine + LEXICAL_BETA x BM25 normalised to [0, 1] over the
+# top LEXICAL_TOPN lexical hits, nothing for the rest. Measured on this
+# code path against the shipped page on the 16-query benchmark
+# (docs/DECISIONS.md, 2026-09-20): first-ten precision 0.434 -> 0.453, the
+# four held-out topoi 0.325 -> 0.375; the Odyssey on "a wife or child
+# recognizes someone long thought dead or lost" from the 63rd work to the
+# 50th, and onto the page (row 15) when the reader is given all 300
+# composed rows instead of 100. An offline harness had shown 0.506, but it
+# let a passage appear twice (whole-file and book-file copies); this path
+# collapses those, and 0.453 is the honest figure. The boost is skipped, with one logged
+# warning, when the index file is missing or was built for a different
+# set of windows, and can be turned off with THEME_LEXICAL=0.
+LEXICAL_BETA = 0.02
+LEXICAL_TOPN = 3000
+_LEX_PATH = os.path.join(_DATA_DIR, 'desc_fts.sqlite')
+_lex_lock = threading.Lock()
+_lex_state = {'checked': False, 'ok': False, 'row_by_id': None}
+
 _lock = threading.Lock()
 _state = {'loaded': False, 'ok': False, 'error': None}
 _ids = None            # list[str]
@@ -1153,6 +1175,99 @@ def expand_query(query):
     return forms
 
 
+def _lexical_words(query):
+    """Query words the word index should see: lower-cased, letters and
+    digits only, English function words dropped (the curated list in
+    backend/matcher.py; queries are English descriptions)."""
+    from backend.matcher import DEFAULT_ENGLISH_STOP_WORDS
+    words = []
+    for w in re.split(r"[^\w']+", (query or '').lower()):
+        w = w.strip("'")
+        if len(w) > 1 and w not in DEFAULT_ENGLISH_STOP_WORDS and w not in words:
+            words.append(w)
+    return words
+
+
+def _lexical_ready():
+    """Whether the word index exists and describes THIS index's windows.
+    Checked once per process; the answer is cached."""
+    with _lex_lock:
+        if _lex_state['checked']:
+            return _lex_state['ok']
+        _lex_state['checked'] = True
+        if os.environ.get('THEME_LEXICAL', '1') in ('0', 'false', 'no'):
+            logger.info('[PASSAGES] lexical boost disabled by THEME_LEXICAL')
+            return False
+        if not os.path.exists(_LEX_PATH):
+            logger.warning('[PASSAGES] no word index at %s; Theme Search runs '
+                           'without the lexical boost (scripts/build_desc_fts.py)', _LEX_PATH)
+            return False
+        try:
+            import sqlite3
+            conn = sqlite3.connect(f'file:{_LEX_PATH}?mode=ro', uri=True)
+            meta = dict(conn.execute("SELECT key, value FROM meta").fetchall())
+            conn.close()
+            n = int(meta['rows'])
+        except Exception as e:  # noqa: BLE001
+            logger.warning('[PASSAGES] word index unreadable (%s); lexical boost off', e)
+            return False
+        n_desc = sum(1 for r in _records if r.get('desc'))
+        if abs(n - n_desc) > max(50, n_desc // 100):
+            logger.warning('[PASSAGES] word index has %d descriptions, the passage '
+                           'index %d: stale, lexical boost off until it is rebuilt', n, n_desc)
+            return False
+        # An in-place edit of descriptions.jsonl keeps the count; the index
+        # records the source file's size and mtime at build time, so compare
+        # those too when the index carries them.
+        desc_path = os.path.join(_DATA_DIR, 'descriptions.jsonl')
+        if meta.get('source_size') and os.path.exists(desc_path):
+            st = os.stat(desc_path)
+            if str(st.st_size) != meta.get('source_size') or str(int(st.st_mtime)) != meta.get('source_mtime'):
+                logger.warning('[PASSAGES] word index was built from a different '
+                               'descriptions.jsonl (size or mtime differ): stale, lexical '
+                               'boost off until it is rebuilt')
+                return False
+        _lex_state['row_by_id'] = {r.get('id'): i for i, r in enumerate(_records)}
+        _lex_state['ok'] = True
+        return True
+
+
+def _lexical_boost(query, scores):
+    """Add LEXICAL_BETA x normalised BM25 to the scores of the windows whose
+    descriptions share words with the query. Returns the number of windows
+    boosted (0 when the index is absent or the query has no content words).
+    Modifies `scores` in place; call after the confidence figures are taken
+    from the unboosted scores."""
+    if not _lexical_ready():
+        return 0
+    words = _lexical_words(query)
+    if not words:
+        return 0
+    import sqlite3
+    match = ' OR '.join('"%s"' % w.replace('"', '') for w in words)
+    try:
+        conn = sqlite3.connect(f'file:{_LEX_PATH}?mode=ro', uri=True)
+        rows = conn.execute('SELECT id, bm25(desc) FROM desc WHERE desc MATCH ? '
+                            'ORDER BY bm25(desc) LIMIT ?', (match, LEXICAL_TOPN)).fetchall()
+        conn.close()
+    except Exception as e:  # noqa: BLE001
+        logger.warning('[PASSAGES] lexical lookup failed (%s); no boost this query', e)
+        return 0
+    if not rows:
+        return 0
+    vals = [-b for _, b in rows]          # bm25() is negative, lower is better
+    lo, hi = min(vals), max(vals)
+    row_by_id = _lex_state['row_by_id']
+    n = 0
+    for (wid, _), v in zip(rows, vals):
+        row = row_by_id.get(wid)
+        if row is None or scores[row] <= -1.0:   # unknown id, or masked (undescribed)
+            continue
+        scores[row] += LEXICAL_BETA * ((v - lo) / (hi - lo) if hi > lo else 1.0)
+        n += 1
+    return n
+
+
 def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
                  offset=0):
     """Theme Search: free-text description of the wanted content.
@@ -1205,6 +1320,9 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
     coherence = _cluster_coherence(scores)
     level = _confidence_level(head_lift, coherence)
     strong_at = baseline + (STRONG_LIFT if level == 'strong' else 1e9)
+    # The confidence figures above describe the embedding alone; the lexical
+    # boost then reorders the windows (see LEXICAL_BETA).
+    n_lexical = _lexical_boost(query, scores)
 
     # WHY THE PAGE IS BUILT IN TWO PASSES
     #
@@ -1260,6 +1378,7 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
         'query': query,
         'results': results,
         'strong_matches': sum(1 for r in results if r['strong']),
+        'lexical_boost': n_lexical > 0,
         'confidence': {'top': round(top, 4), 'baseline': round(baseline, 4),
                        'head_lift': round(head_lift, 4),
                        'lift': round(lift, 4),
