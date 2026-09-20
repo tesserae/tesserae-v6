@@ -15,7 +15,9 @@ Conventions
 - One heavy job at a time. Never `pkill -f`.
 - After any swap: `touch tesseraev6_flask.wsgi` so the workers reopen files.
 - Verify with the reference tests in `tests/search_reference_tests.md`
-  ("arma virum" lemma search: 324 distinct loci as of 2026-09) and a search
+  ("arma virum" lemma search: 324 distinct loci as of early 2026-09; 367
+  as of 2026-09-20 after the Martial rebuild from its per-book files and
+  the September retirements; the exact search returns 21) and a search
   that exercises the store changed.
 - Files owned by the web app's account cannot be opened for writing; write
   beside them and rename over them (the directory allows it).
