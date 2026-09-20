@@ -42,7 +42,7 @@ const EXAMPLE_SETS = {
   // Thebaid 6, the Punica, Quintus). "a wife or child recognizes someone
   // long thought dead or lost" was dropped: it rated moderate and missed the
   // Odyssey's recognitions, which the encoder ranks 63rd by work for that
-  // wording (research/theme_search/DECISIONS.md, 2026-09-20).
+  // wording (docs/DECISIONS.md, 2026-09-20, Theme Search sample searches).
   classical: [
     'a guest arrives and is welcomed with food, wine, and a bath',
     'a mother laments her dead son over his body',
