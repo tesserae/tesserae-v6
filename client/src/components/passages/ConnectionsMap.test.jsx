@@ -120,16 +120,13 @@ function mockFetch(mapPayload = MAP_PAYLOAD, pairPayload = PAIR_PAYLOAD) {
   });
 }
 
-// The grid is a SEPARATE canvas from the (sticky) row-label canvas, so its
-// own coordinate space starts at x=0 for column 0 -- no ROW_MARGIN offset.
-// jsdom's canvas 2D context is null (see below), so LabeledHeatmap's
-// dynamic column-margin measurement falls back to COL_MARGIN_MIN (90);
-// that is the fallback these tests click/hover against.
-const COL_MARGIN = 90;
-
+// The cells canvas is SEPARATE from the (sticky) row-label canvas and from
+// the frozen column-label strip, so its own coordinate space starts at x=0
+// for column 0 and y=0 for row 0: no ROW_MARGIN and (since 2026-09-19, when
+// the labels moved to their own strip) no column-margin offset either.
 function cellCenter(cellSize, i, j) {
   return { clientX: j * cellSize + cellSize / 2,
-           clientY: COL_MARGIN + i * cellSize + cellSize / 2 };
+           clientY: i * cellSize + cellSize / 2 };
 }
 
 beforeEach(() => {
@@ -363,7 +360,7 @@ describe('hovering and clicking the grid (margin-aware coordinates)', () => {
   it('clicking above the grid (over the rotated column-label area) does nothing', async () => {
     render(<ConnectionsMap />);
     const canvas = await screen.findByLabelText(/Connections map/);
-    fireEvent.click(canvas, { clientX: 20, clientY: COL_MARGIN - 10 });   // still inside the label margin
+    fireEvent.click(canvas, { clientX: 20, clientY: -1 });   // above the cells canvas: labels sit on their own strip now
     expect(global.fetch).not.toHaveBeenCalledWith(expect.stringContaining('/api/passages/map/cell'));
   });
 

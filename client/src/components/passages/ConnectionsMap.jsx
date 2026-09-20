@@ -302,7 +302,19 @@ function LabeledHeatmap({
 }) {
   const rowCanvasRef = useRef(null);
   const gridCanvasRef = useRef(null);
+  const headerCanvasRef = useRef(null);
   const [hover, setHover] = useState(null);   // {i, j} in grid coordinates
+  // Frozen column labels (NC, 2026-09-19: "the top label row needs to be
+  // frozen so that when you scroll down the graph the column labels remain
+  // visible"). The labels live on their own strip above the scroll box,
+  // stuck under the site's menu bar while the page scrolls, and slid
+  // sideways by the same amount as the grid.
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const [navHeight, setNavHeight] = useState(56);
+  useEffect(() => {
+    const nav = document.querySelector('nav');
+    if (nav) setNavHeight(Math.round(nav.getBoundingClientRect().height));
+  }, []);
 
   const nRows = rowLabels.length;
   const nCols = colLabels.length;
@@ -350,7 +362,8 @@ function LabeledHeatmap({
   }, [colLabels, colText]);
 
   const gridWidth = nCols * cellSize + rightPad;
-  const totalHeight = colMargin + nRows * cellSize;
+  const rowsHeight = nRows * cellSize;           // the row canvas and the cells canvas
+  const totalHeight = rowsHeight;                // (labels are on the header strip now)
 
   // ---- row-label canvas (sticky; never scrolls) --------------------------
   useEffect(() => {
@@ -370,14 +383,14 @@ function LabeledHeatmap({
     ctx.textBaseline = 'middle';
     rowLabels.forEach((label, i) => {
       const { base, lang } = splitLabel(label);
-      const y = colMargin + i * cellSize + cellSize / 2;
+      const y = i * cellSize + cellSize / 2;
       const active = hover && hover.i === i;
       if (active) {
         ctx.fillStyle = 'rgba(185, 28, 28, 0.16)';
-        ctx.fillRect(0, colMargin + i * cellSize, ROW_MARGIN, cellSize);
+        ctx.fillRect(0, i * cellSize, ROW_MARGIN, cellSize);
         ctx.strokeStyle = 'rgba(185, 28, 28, 0.9)';
         ctx.lineWidth = 1.5;
-        ctx.strokeRect(0.75, colMargin + i * cellSize + 0.75, ROW_MARGIN - 1.5, cellSize - 1.5);
+        ctx.strokeRect(0.75, i * cellSize + 0.75, ROW_MARGIN - 1.5, cellSize - 1.5);
         ctx.lineWidth = 1;
       }
       ctx.font = active ? LABEL_FONT_ACTIVE : LABEL_FONT;
@@ -397,9 +410,9 @@ function LabeledHeatmap({
     ctx.moveTo(ROW_MARGIN - 0.5, 0);
     ctx.lineTo(ROW_MARGIN - 0.5, totalHeight);
     ctx.stroke();
-  }, [rowLabels, cellSize, hover, colMargin, totalHeight, ambiguousBases]);
+  }, [rowLabels, cellSize, hover, totalHeight, ambiguousBases]);
 
-  // ---- grid canvas (column labels + cells; this is what scrolls) --------
+  // ---- cells canvas (this is what scrolls; the column labels are on the header strip) --------
   useEffect(() => {
     const canvas = gridCanvasRef.current;
     if (!canvas) return;
@@ -414,18 +427,18 @@ function LabeledHeatmap({
       // (NC, 2026-09-19). A tinted band plus a red outline runs the whole
       // row and the whole column, from the cell out to both label margins.
       ctx.fillStyle = 'rgba(185, 28, 28, 0.16)';
-      ctx.fillRect(0, colMargin + hover.i * cellSize, nCols * cellSize, cellSize);
-      ctx.fillRect(hover.j * cellSize, 0, cellSize, colMargin + nRows * cellSize);
+      ctx.fillRect(0, hover.i * cellSize, nCols * cellSize, cellSize);
+      ctx.fillRect(hover.j * cellSize, 0, cellSize, nRows * cellSize);
       ctx.strokeStyle = 'rgba(185, 28, 28, 0.9)';
       ctx.lineWidth = 1.5;
-      ctx.strokeRect(0.75, colMargin + hover.i * cellSize + 0.75, nCols * cellSize - 1.5, cellSize - 1.5);
-      ctx.strokeRect(hover.j * cellSize + 0.75, 0.75, cellSize - 1.5, colMargin + nRows * cellSize - 1.5);
+      ctx.strokeRect(0.75, hover.i * cellSize + 0.75, nCols * cellSize - 1.5, cellSize - 1.5);
+      ctx.strokeRect(hover.j * cellSize + 0.75, 0.75, cellSize - 1.5, nRows * cellSize - 1.5);
       ctx.lineWidth = 1;
     }
 
     for (let i = 0; i < nRows; i++) {
       for (let j = 0; j < nCols; j++) {
-        const x = j * cellSize, y = colMargin + i * cellSize;
+        const x = j * cellSize, y = i * cellSize;
         if (isDiagonalCell(rowIds, colIds, i, j)) {
           drawHatch(ctx, x, y, cellSize);
         } else {
@@ -440,14 +453,14 @@ function LabeledHeatmap({
       ctx.strokeStyle = 'rgba(255,255,255,0.6)';
       for (let k = 0; k <= nCols; k++) {
         ctx.beginPath();
-        ctx.moveTo(k * cellSize, colMargin);
-        ctx.lineTo(k * cellSize, colMargin + nRows * cellSize);
+        ctx.moveTo(k * cellSize, 0);
+        ctx.lineTo(k * cellSize, nRows * cellSize);
         ctx.stroke();
       }
       for (let k = 0; k <= nRows; k++) {
         ctx.beginPath();
-        ctx.moveTo(0, colMargin + k * cellSize);
-        ctx.lineTo(nCols * cellSize, colMargin + k * cellSize);
+        ctx.moveTo(0, k * cellSize);
+        ctx.lineTo(nCols * cellSize, k * cellSize);
         ctx.stroke();
       }
     }
@@ -460,11 +473,32 @@ function LabeledHeatmap({
       ctx.save();
       ctx.strokeStyle = '#b91c1c';   // red-700
       ctx.lineWidth = 2;
-      ctx.strokeRect(outlineCell.j * cellSize + 1, colMargin + outlineCell.i * cellSize + 1,
+      ctx.strokeRect(outlineCell.j * cellSize + 1, outlineCell.i * cellSize + 1,
                      cellSize - 2, cellSize - 2);
       ctx.restore();
     }
 
+  }, [rowLabels, colLabels, rowIds, colIds, normalised, cellSize, hover, gridWidth,
+      totalHeight, nRows, nCols, outlineCell]);
+
+  // ---- header strip: the column labels, frozen while the page scrolls ----
+  useEffect(() => {
+    const canvas = headerCanvasRef.current;
+    if (!canvas) return;
+    const ctx = sizeCanvasForDPR(canvas, gridWidth, colMargin);
+    if (!ctx) return;
+    ctx.clearRect(0, 0, gridWidth, colMargin);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, gridWidth, colMargin);
+    if (hover) {
+      // The column band continues up through the labels to the hovered name.
+      ctx.fillStyle = 'rgba(185, 28, 28, 0.16)';
+      ctx.fillRect(hover.j * cellSize, 0, cellSize, colMargin);
+      ctx.strokeStyle = 'rgba(185, 28, 28, 0.9)';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(hover.j * cellSize + 0.75, 0.75, cellSize - 1.5, colMargin - 1.5);
+      ctx.lineWidth = 1;
+    }
     // Column labels: rotated 45 degrees so more/longer names fit in the same
     // vertical space than a straight horizontal label would allow, but only
     // when they actually need it -- a handful of short labels (a books
@@ -514,8 +548,7 @@ function LabeledHeatmap({
         ctx.fillText(text, x, colMargin - 14);
       }
     });
-  }, [rowLabels, colLabels, rowIds, colIds, normalised, cellSize, hover, colMargin, gridWidth,
-      totalHeight, nRows, nCols, colText, outlineCell]);
+  }, [colLabels, cellSize, hover, colMargin, gridWidth, colText, ambiguousBases]);
 
   function cellFromEvent(e) {
     const canvas = gridCanvasRef.current;
@@ -526,7 +559,7 @@ function LabeledHeatmap({
     // too (canvas.style.width/height) regardless of the backing store's
     // actual (devicePixelRatio-scaled) width/height attributes.
     const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top - colMargin;
+    const y = e.clientY - rect.top;
     if (x < 0 || y < 0) return null;
     const j = Math.floor(x / cellSize);
     const i = Math.floor(y / cellSize);
@@ -535,7 +568,25 @@ function LabeledHeatmap({
   }
 
   return (
-    <div className="flex" style={{ width: 'max-content' }}>
+    <div>
+      {/* Frozen column labels: stuck just under the site menu bar while the
+          page scrolls, clipped on the left where the row labels sit, and
+          translated by the scroll box's own horizontal offset. */}
+      <div className="sticky z-30 bg-white border border-b-0 border-gray-200 rounded-t"
+           style={{ top: navHeight }}>
+        <div className="overflow-hidden" style={{ marginLeft: ROW_MARGIN, height: colMargin }}>
+          <canvas ref={headerCanvasRef}
+                  style={{ display: 'block', transform: `translateX(${-scrollLeft}px)` }} />
+        </div>
+        <div style={{ position: 'absolute', left: 0, top: 0, width: ROW_MARGIN, height: colMargin,
+                      background: '#ffffff', borderRight: '1px solid #e5e7eb' }} />
+      </div>
+      {/* The ONLY element that scrolls horizontally; the row-label canvas
+          inside stays fixed on its left. Vertical padding only: horizontal
+          padding would be part of the scrolling area (NC, 2026-09-19). */}
+      <div className="overflow-auto border border-t-0 border-gray-200 rounded-b pb-2 bg-white w-full"
+           onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}>
+      <div className="flex" style={{ width: 'max-content' }}>
       <canvas
         ref={rowCanvasRef}
         // Opaque background + a z-index clearly above the scrolling grid
@@ -562,6 +613,8 @@ function LabeledHeatmap({
         style={{ display: 'block', cursor: 'pointer', flexShrink: 0 }}
         aria-label={ariaLabel}
       />
+      </div>
+      </div>
     </div>
   );
 }
@@ -1100,7 +1153,7 @@ export default function ConnectionsMap() {
               padding only: a horizontal padding here (the old p-2) is part
               of the scrolling area, so the grid scrolled through it to the
               LEFT of the sticky label strip (NC, 2026-09-19). */}
-          <div className="overflow-auto border border-gray-200 rounded py-2 bg-white w-full">
+          <div>
             <LabeledHeatmap
               rowLabels={mapData.labels}
               colLabels={mapData.labels}
@@ -1178,7 +1231,7 @@ export default function ConnectionsMap() {
                 <p className="mt-2 text-sm text-gray-500">No connections at the current filters.</p>
               )}
               {cellData?.works_matrix && (
-                <div className="mt-3 overflow-auto border border-gray-200 rounded py-2 bg-white w-full">
+                <div className="mt-3">
                   <LabeledHeatmap
                     rowLabels={cellData.works_matrix.labels_a}
                     colLabels={cellData.works_matrix.labels_b}
@@ -1208,7 +1261,7 @@ export default function ConnectionsMap() {
               {booksData?.error && <p className="text-amber-700 mt-1">{booksData.error}</p>}
               {booksData && !booksData.error && (
                 booksData.ids_a?.length > 0 && booksData.ids_b?.length > 0 ? (
-                  <div className="mt-3 overflow-auto border border-gray-200 rounded py-2 bg-white w-full">
+                  <div className="mt-3">
                     <LabeledHeatmap
                       rowLabels={booksData.labels_a}
                       colLabels={booksData.labels_b}
@@ -1271,7 +1324,7 @@ export default function ConnectionsMap() {
                 {rowLabel} &mdash; {workRow.count} connection{workRow.count === 1 ? '' : 's'}
               </h3>
               {workCols.length > 0 ? (
-                <div className="mt-3 overflow-auto border border-gray-200 rounded py-2 bg-white w-full">
+                <div className="mt-3">
                   <LabeledHeatmap
                     rowLabels={[rowLabel]}
                     colLabels={workCols.map((c) => `${c.author_display}, ${c.work} (${c.language})`)}
