@@ -650,20 +650,43 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   See the list of covered works
                 </a>. A small &ldquo;Theme Search&rdquo; badge marks each covered work there.
               </p>
-              <h4 className="font-medium text-gray-900 mt-6 mb-2">The Map view</h4>
+              <h4 className="font-medium text-gray-900 mt-6 mb-2">The Similarity Map</h4>
               <p className="text-gray-700 mb-3">
-                The &ldquo;Map&rdquo; tab beside Theme Search is a picture of these same
-                connections at a larger scale: a heatmap of how strongly authors, works,
-                centuries or genres connect to one another, built from the same description
-                comparison Theme Search and Similar Passages use, not a separate signal. A link
-                between two cells means their passages&rsquo; descriptions came out close, the
-                same relationship a passage-by-passage Similar Passages lookup would show.
+                The &ldquo;Similarity Map&rdquo; tab beside Theme Search is a picture of these same
+                connections at a larger scale: a grid of how strongly authors, works, centuries
+                or genres connect to one another, built from the same description comparison
+                Theme Search and Similar Passages use, not a separate signal. A dark cell means
+                many passages of the two authors came out close in their descriptions, the same
+                relationship a passage-by-passage Similar Passages lookup would show. Authors
+                run in chronological order along both edges, so the diagonal and its
+                neighbourhood show authors talking to their contemporaries, and the far corners
+                show links across the centuries.
+              </p>
+              <p className="text-gray-700 mb-3">
+                Two ways of colouring are offered. &ldquo;Links&rdquo; colours a cell by the raw
+                number of close passage pairs, on a scale that lets the many faint cells stay
+                visible beside the few very strong ones. &ldquo;Relative to size&rdquo; divides
+                that number by what the two authors&rsquo; sizes alone would predict, so a large
+                author does not light up a whole row simply by having more passages; it is the
+                better view for spotting a small author who is unexpectedly close to another.
                 Translation pairs (the same text in two languages, such as the Vulgate and the
                 Septuagint) are hidden by default, because that signal is so much stronger than
-                allusion that it crowds out everything else; a switch shows them. Clicking a
-                cell lists the work pairs behind it, clicking a work pair lists the strongest
-                passage pairs, and clicking a passage pair opens the Reader on one of them with
-                the other showing as a connection.
+                allusion that it crowds out everything else; a switch shows them.
+              </p>
+              <p className="text-gray-700 mb-3">
+                Moving the pointer over a cell highlights its row and column and names both
+                authors, so you can read a cell in the middle of the grid without tracing back
+                to the edges. Clicking a cell opens the pair work by work below the grid;
+                clicking a work pair opens it book by book where the works have books, or
+                straight to the strongest passage pairs where they do not; and clicking a
+                passage pair opens the Reader on one passage with the other showing as a
+                connection. The browser&rsquo;s Back button unwinds these steps one at a time.
+              </p>
+              <p className="text-gray-700 mb-3">
+                The map is computed in advance from the whole passage index and stored, which is
+                why it opens at once. A line under the grid gives the date it was built, and a
+                &ldquo;Refresh map&rdquo; button reloads it, which matters only after the corpus
+                has changed and the map has been rebuilt.
               </p>
 
               <h4 className="font-medium text-gray-900 mt-6 mb-2">Reading the results</h4>

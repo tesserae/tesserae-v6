@@ -155,7 +155,7 @@ docs/DATA_OPERATIONS.md.
   coverage fetch once at +3s and once more at +10s, and show "Theme
   Search coverage is loading" instead of asserting "0 of N" while that is
   still unresolved.
-- Corpus connections map: a "Map" tab beside Theme Search showing how
+- Theme Similarity Map: a "Similarity Map" tab beside Theme Search showing how
   strongly authors, works, centuries or genres connect to one another,
   built from the same passage-index description embeddings Theme Search
   and Similar Passages already use (`backend/connections_map.py`,
@@ -170,6 +170,15 @@ docs/DATA_OPERATIONS.md.
   `backend/blueprints/mcp_manifest.py` (read-only picture of an existing
   signal, not a new tool a connector caller needs). Help page: a
   paragraph under Theme Search.
+- Similarity Map details settled with NC on the preview (2026-09-19 to 20):
+  authors in chronological order, log colour scale with a "relative to
+  size" mode, hover highlights the row and column and boxes both names,
+  frozen column headers, drill-down work by work, then book by book, then
+  passages, with the browser's Back button unwinding each step; a "Map
+  built <date>" footer with a "Refresh map" button instead of any notice
+  that the stored map is older than the corpus (the API still reports it
+  as `stale` for operators; `?refresh=1` clears the process caches). Help
+  page section "The Similarity Map".
 
 ### Data operations
 - Corpus connections map cache built for the first time

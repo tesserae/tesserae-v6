@@ -1290,7 +1290,7 @@ export default function ConnectionsMap() {
               onClick={handleRefreshMap}
               disabled={refreshingMap}
               className="text-xs bg-gray-100 text-gray-600 px-3 py-2 rounded hover:bg-gray-200 whitespace-nowrap disabled:opacity-60"
-              title="Rebuild this view from the current connections-map cache"
+              title="Reload the map from the latest stored connections"
             >
               {refreshingMap ? 'Refreshing...' : 'Refresh map'}
             </button>
@@ -1463,7 +1463,7 @@ export default function ConnectionsMap() {
                   onClick={handleRefreshMap}
                   disabled={refreshingMap}
                   className="text-xs bg-gray-100 text-gray-600 px-3 py-2 rounded hover:bg-gray-200 whitespace-nowrap disabled:opacity-60"
-                  title="Rebuild this view from the current connections-map cache"
+                  title="Reload the map from the latest stored connections"
                 >
                   {refreshingMap ? 'Refreshing...' : 'Refresh map'}
                 </button>
