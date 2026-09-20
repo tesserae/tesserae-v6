@@ -1,9 +1,9 @@
 """Identify when two passages are the same scripture in different versions.
 
 The corpus holds the Bible many times over: Hebrew, Greek in the Septuagint and
-the New Testament, Latin in the Vulgate, English in the World English Bible, and
-Coptic twice in the Sahidic and Bohairic. Content search therefore has a problem
-that no other part of the corpus has. Ask what resembles Coptic Genesis 1:1 and
+the New Testament, Latin in the Vulgate, English in the King James Bible (files
+still named world_english_bible), and Coptic twice in the Sahidic and Bohairic.
+Content search therefore has a problem that no other part of the corpus has. Ask what resembles Coptic Genesis 1:1 and
 the honest answer is Hebrew Genesis 1:1, Greek Genesis 1:1, Latin Genesis 1:1 and
 English Genesis 1:1, which is true, useless, and fills the page.
 
