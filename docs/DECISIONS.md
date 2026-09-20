@@ -62,12 +62,31 @@ works on chapter-sized units and the pair against the Aeneid runs for
 hours. That is a text-segmentation defect of the file; it is skipped in
 the measurement and listed as a corpus follow-up.
 
-**Measurement.** MEASUREMENT PENDING: before-and-after runs of
-`evaluation/fusion_memory_test/run_fusion_memory_check.py` (the
-quotation-weight harness at the production weight; prose quotations of
-Vergil, Lucan 1 and the Achilleid against the Aeneid, Odyssey 6 against
-Argonautica 3, plus English timing cases), same texts and caches, code from
-a worktree at main and one at the fix branch.
+**Measurement (2026-09-20, `evaluation/fusion_memory_test/`).** The
+quotation-weight harness run twice at the production weight on identical
+texts and caches, once with the code at main ("before") and once with this
+branch ("after"): 32 verbatim prose quotations of Vergil in Gellius,
+Macrobius, Quintilian and Servius; the Lucan 1 and Achilleid benchmarks
+against the Aeneid; Odyssey 6 against Argonautica 3.
+
+| gold set | pairs | before: found in top 10 / 50 / 100 | after: 10 / 50 / 100 | channel seconds before -> after |
+|---|---|---|---|---|
+| prose quotations of Vergil | 32 | 19 / 26 / 28 | 17 / 26 / 28 | 3,260 -> 2,300 |
+| Lucan 1 + Achilleid against the Aeneid | 266 | 6 / 14 / 20 | 6 / 14 / 20 | 240 -> 205 |
+| Odyssey 6 against Argonautica 3 | 16 | 1 / 1 / 1 | 1 / 2 / 2 | 40 -> 33 |
+
+Peak memory of the whole run: 11.3 GB before, 4.7 GB after (the before
+run sat just under its 12 GB cap on the benchmark pairs alone). Poetry
+recall is identical pair for pair. In the prose set two quotations moved
+from the top ten to the top fifty (Macrobius 4 against the Eclogues,
+Servius against the Eclogues), Macrobius 5 against the Aeneid lost one at
+50 and one at 100, Macrobius 3 gained one at 50 and Macrobius 6 one at
+100; the whole-list counts at 50 and 100 are unchanged. Six more gold
+quotations, in Seneca's Letters and De beneficiis as whole files, could
+not be run before (the window step blew a 12 GB cap) and now score 4 of 6
+in the top ten and 6 of 6 in the top fifty, the Letters against the
+Aeneid in 20 minutes at a 4.4 GB peak. English timing cases (Paradise
+Lost against Hyperion) are recorded below when run.
 
 **Deferred for NC.** A request-size guard in `/api/search` (refuse or
 queue pairs whose estimated candidate count is too large, with a plain
