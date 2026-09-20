@@ -9,6 +9,24 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-09-20
 
+### Search
+- Fusion channels no longer treat function words as matching features, and
+  their candidate lists are bounded. The lemma, lemma_min1 and exact
+  channels ran the matcher with an empty stopword set, so every pair of
+  lines or two-line windows sharing "the", "and", "qui" or "sum" became a
+  candidate held in memory (5.3 million window pairs for Paradise Lost
+  against Hyperion; a web worker at 25.6 GB for 19 minutes on 2026-09-19).
+  The curated function-word list now applies in those channels (a user's
+  own "-1" in the classic search still means no stoplist at all),
+  the matcher keeps only the top candidates by quick IDF (four times the
+  channel's cap, the set the old pre-filter kept), and lemma, exact,
+  dictionary and rare_word get the 50,000 result cap the other channels
+  have (the dictionary channel alone blew a 12 GB cap on Seneca's Letters
+  against the Aeneid; rare_word did the same on the whole of Paradise
+  Lost). Whole Paradise Lost against Hyperion: 25.6 GB and 19 minutes
+  before, 2.8 GB and 1.7 minutes after. Measurement and rationale in
+  docs/DECISIONS.md (2026-09-20).
+
 ### Site
 - Changing tabs no longer carries the previous page's query string along,
   so a Theme Search query no longer re-runs itself every time the Theme

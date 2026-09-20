@@ -178,7 +178,7 @@ Three cases are handled:
 - **Mixed** (e.g., *nec* + *priorem*): the match is treated as effectively a single-content-word match, since the function word contributes no allusion signal.
 - **All content words** (e.g., *pectore* + *curas*): no function-word penalty — only the graduated IDF curve applies.
 
-Importantly, individual channels run *without* stoplist filtering, so they cast the widest possible net. The stoplist is applied only in the scoring layer, where it shapes the ranking without reducing recall.
+Individual channels run without any frequency-based stoplist, so common content words stay matchable and the net is wide. The curated function-word list is the one exclusion: since 2026-09-20 the lemma, lemma_min1 and exact channels do not treat function words as shared words at all (an empty stopword set had let every pair of windows sharing *the* or *qui* become a candidate, so one search could hold a web worker at 25 GB). The penalty tiers above then shape the ranking of what remains.
 
 ### The result
 

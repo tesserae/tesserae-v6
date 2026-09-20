@@ -7,6 +7,127 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-09-20 Fusion channels: function words are not matching features, and candidate lists are bounded
+
+**Problem.** One fusion search of Paradise Lost (10,565 lines) against
+Hyperion held a web worker at 25.6 GB for over 19 minutes on 2026-09-19,
+and the quotation-weight sweep was killed twice at the window stage on
+whole-file prose sources. Cause, found 2026-09-20: the lemma, lemma_min1
+and exact channels ran the matcher with `stoplist_size: -1`, which meant an
+EMPTY stopword set, so "the", "and", "his", "with" (English) and "qui",
+"sum", "hic", "non" (Latin) were matching features. Every pair of two-line
+windows sharing one of them became a candidate held in memory, and the
+list grew with source units times target units. The `lemma` and `exact`
+channels also had no result cap, so every candidate was scored in full.
+
+Candidate pairs at the window stage, counted from the lemma caches
+(`count_pairs.py`, session scripts 2026-09-20):
+
+| pair | one shared word, as it was | one shared word, function words excluded | two shared words, as it was | two, excluded |
+|---|---|---|---|---|
+| Paradise Lost x Hyperion | 5,287,486 | 330,358 | 1,380,119 | 7,186 |
+| Aeneid x Lucan 1 | 1,142,943 | 584,430 | 115,664 | 28,236 |
+| Aeneid x Achilleid | 1,763,321 | 823,283 | 156,892 | 32,655 |
+| Aeneid x Metamorphoses | 22,308,739 | 9,145,844 | 2,535,778 | 393,788 |
+| Iliad x Odyssey | 61,407,496 | 24,240,161 | 11,133,128 | 1,908,090 |
+
+**Decision (five changes, one PR).**
+1. The three channels pass `exclude_function_words` with their
+   `stoplist_size: -1`, so the language's curated function-word list
+   applies in the matcher, as it already did for Coptic. A user's own -1 in
+   the classic search keeps its documented meaning (no stoplist at all). Common content words stay matchable and are
+   down-weighted by rarity in scoring (the 2026-09-19 rule, now true of the
+   channels as well as the scoring layer).
+2. The matcher keeps a bounded candidate list (`candidate_cap`, four times
+   the channel's result cap) ranked by the same quick IDF score the channel
+   runner's pre-filter used, so memory is proportional to the cap, not to
+   the text sizes. The kept set is the one the pre-filter kept.
+3. `lemma` and `exact` get the 50,000 result cap every other channel has.
+   On the two poetry benchmark pairs it does not bind (28k to 33k two-word
+   window pairs); it binds on prose sources against the Aeneid (a 287-line
+   Quintilian book produced 783,588 uncapped window results) and on very
+   long pairs such as Aeneid x Metamorphoses (394k), where the pairs
+   dropped are the lowest by quick IDF beyond the top 200,000.
+4. The `dictionary` channel is bounded the same way (cap 50,000,
+   candidates 200,000). With `include_lemma_matches` it re-finds every
+   pair sharing two content lemmas plus the synonym pairs and had no cap:
+   up to 360,126 window results per prose source against the Aeneid, and
+   the first after-fix benchmark run was killed at its 12 GB cap in this
+   channel's window step for Seneca's Letters, after the lemma channels
+   had passed the same step in under a minute at 3 GB.
+
+5. The `rare_word` channel is bounded the same way (cap 50,000). It had no
+   cap, and in English "rare" means df <= 100 of only 42 works, so every
+   shared lemma counts as rare there: Paradise Lost Book 1 against Hyperion
+   produced 431,131 window matches, and the whole poem was killed at a
+   12 GB cap in this channel after the other four were bounded. The English
+   rarity threshold itself (100 works out of 42) is a separate decision for
+   NC.
+
+**Not a fusion defect.** salutati.de_laboribus_herculis.tess has 97 units
+of median 1,232 words (one .tess line per chapter), so every channel
+works on chapter-sized units and the pair against the Aeneid runs for
+hours. That is a text-segmentation defect of the file; it is skipped in
+the measurement and listed as a corpus follow-up.
+
+**Measurement (2026-09-20, `evaluation/fusion_memory_test/`).** The
+quotation-weight harness run twice at the production weight on identical
+texts and caches, once with the code at main ("before") and once with this
+branch ("after"): 32 verbatim prose quotations of Vergil in Gellius,
+Macrobius, Quintilian and Servius; the Lucan 1 and Achilleid benchmarks
+against the Aeneid; Odyssey 6 against Argonautica 3.
+
+| gold set | pairs | before: found in top 10 / 50 / 100 | after: 10 / 50 / 100 | channel seconds before -> after |
+|---|---|---|---|---|
+| prose quotations of Vergil | 32 | 19 / 26 / 28 | 17 / 26 / 28 | 3,260 -> 2,300 |
+| Lucan 1 + Achilleid against the Aeneid | 266 | 6 / 14 / 20 | 6 / 14 / 20 | 240 -> 205 |
+| Odyssey 6 against Argonautica 3 | 16 | 1 / 1 / 1 | 1 / 2 / 2 | 40 -> 33 |
+
+Peak memory of the whole run: 11.3 GB before, 4.7 GB after (the before
+run sat just under its 12 GB cap on the benchmark pairs alone). Poetry
+recall is identical pair for pair. In the prose set two quotations moved
+from the top ten to the top fifty (Macrobius 4 against the Eclogues,
+Servius against the Eclogues), Macrobius 5 against the Aeneid lost one at
+50 and one at 100, Macrobius 3 gained one at 50 and Macrobius 6 one at
+100; the whole-list counts at 50 and 100 are unchanged. Six more gold
+quotations, in Seneca's Letters and De beneficiis as whole files, could
+not be run before (the window step blew a 12 GB cap) and now score 4 of 6
+in the top ten and 6 of 6 in the top fifty, the Letters against the
+Aeneid in 20 minutes at a 4.4 GB peak. English (production's texts and caches, no gold set, the pair that held
+a web worker at 25.6 GB for 19 minutes on 2026-09-19):
+
+| pair | before: channel seconds, process peak | after: seconds, peak |
+|---|---|---|
+| Paradise Lost Book 1 (798 lines) x Hyperion (885) | 126.5 s, 4.38 GB | 33.5 s, 2.19 GB |
+| whole Paradise Lost (10,565 lines) x Hyperion | killed at 12 GB before the fix (25.6 GB observed in production) | 102.5 s, 2.83 GB |
+
+Channel counts for Book 1: lemma line pairs 13,101 before (function words)
+against 54 after; rare_word window matches 431,131 against 50,000. The
+whole poem's top ten after the fix leads with "intestine broil" (Paradise
+Lost 2.1001, Hyperion 2.192).
+
+**Why a few prose ranks moved (traced on Macrobius 4 against the
+Eclogues with full fused lists).** The gold quotations' own scores are
+identical before and after. What changed is competitors: fifteen pairs in
+the top 200 rose (1.20 to 1.43, 0.68 to 1.16), all of them adjacent-line
+window matches of genuine Vergil quotations. The scoring layer has a
+"mixed" penalty: when any matched word is a function word, the pair is
+scored like a single-word match with its convergence bonus removed, even
+if it shares two or more content words as well. Now that function words
+are never among the matched words of the lemma, exact and dictionary
+channels, that penalty stops firing for such pairs, and multi-content-word
+matches that also shared "et", "qui" or "non" score as content-only
+matches. That is the scorer's own stated intent ("function words add zero
+allusion signal") applied consistently. It moves genuine quotation
+neighbours up beside the gold lines, so per-pair gold ranks slip a few
+places among tied pairs, while whole-list recall at 50 and 100 is
+unchanged and poetry recall is unchanged pair for pair.
+
+**Deferred for NC.** A request-size guard in `/api/search` (refuse or
+queue pairs whose estimated candidate count is too large, with a plain
+message) and a memory cap on the web workers (root). Both are visible
+behaviour changes.
+
 ## 2026-09-20 Theme Search: sample searches are measured winners; a deeper per-work re-ranking pool was tested and not adopted
 
 **Sample searches (PR #419).** The five suggestions on the Theme Search page

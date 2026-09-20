@@ -331,7 +331,12 @@ def find_dictionary_matches(source_units: List[Dict], target_units: List[Dict],
     # pairs via the index.  A "synonym pair" is (src_lemma, tgt_lemma) where
     # tgt_lemma is in the synonym set of src_lemma (and they differ, unless
     # include_lemma_matches is True).
-    matches = []
+    # Bounded candidate list (2026-09-20): the fusion runner passes
+    # candidate_cap; before, a whole-file prose source against the Aeneid
+    # produced hundreds of thousands of window pairs here (360,126 for
+    # Quintilian 9) and Seneca's Letters blew a 12 GB cap in this step.
+    from backend.matcher import BoundedCandidates
+    candidates = BoundedCandidates(settings.get('candidate_cap'), source_units, target_units)
     for src_idx, src_unit in enumerate(source_units):
         if cancellation:
             cancellation.check()
@@ -356,15 +361,16 @@ def find_dictionary_matches(source_units: List[Dict], target_units: List[Dict],
         for tgt_idx, pairs in pair_counts.items():
             if len(pairs) >= min_matches:
                 matched = {p[0] for p in pairs} | {p[1] for p in pairs}
-                matches.append({
+                candidates.add({
                     'source_idx': src_idx,
                     'target_idx': tgt_idx,
                     'matched_lemmas': list(matched),
                     'synonym_pairs': sorted(pairs),  # (source lemma, target lemma)
                     'match_basis': 'dictionary',
                 })
+    matches = candidates.result()
 
-    if max_results > 0:
+    if max_results > 0 and candidates.cap <= 0:
         matches = matches[:max_results]
 
     mode = "include_lemma" if include_lemma_matches else "synonym_only"

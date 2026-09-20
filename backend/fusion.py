@@ -768,7 +768,15 @@ CHANNEL_CONFIGS = {
         "language": "la",
         "stoplist_basis": "source_target",
         "stoplist_size": -1,
+        # function words are never matching features (2026-09-20, see
+        # backend/matcher.py find_matches and docs/DECISIONS.md)
+        "exclude_function_words": True,
         "unbounded_scoring": True,
+        # cap added 2026-09-20: the only channel without one. It binds only
+        # on very long pairs (Aeneid x Metamorphoses: 394k window pairs
+        # share two non-function lemmas; the benchmark pairs have 28k-33k)
+        # and keeps the top 200k candidates by quick IDF, like lemma_min1.
+        "max_results": 50000,
         "use_edit_distance": False,
         "use_sound": False,
         "use_pos": False,
@@ -780,6 +788,9 @@ CHANNEL_CONFIGS = {
         "language": "la",
         "stoplist_basis": "source_target",
         "stoplist_size": -1,
+        # function words are never matching features (2026-09-20, see
+        # backend/matcher.py find_matches and docs/DECISIONS.md)
+        "exclude_function_words": True,
         "unbounded_scoring": True,
         "max_results": 50000,  # cap: weight is only 0.3, diminishing returns beyond top 50K
         "use_edit_distance": False,
@@ -793,7 +804,11 @@ CHANNEL_CONFIGS = {
         "language": "la",
         "stoplist_basis": "source_target",
         "stoplist_size": -1,
+        # function words are never matching features (2026-09-20, see
+        # backend/matcher.py find_matches and docs/DECISIONS.md)
+        "exclude_function_words": True,
         "unbounded_scoring": True,
+        "max_results": 50000,  # cap added 2026-09-20, same reason as lemma
         "use_edit_distance": False,
         "use_sound": False,
         "use_pos": False,
@@ -820,6 +835,10 @@ CHANNEL_CONFIGS = {
         "language": "la",
         "include_lemma_matches": True,
         "unbounded_scoring": True,
+        # cap added 2026-09-20: with include_lemma_matches the channel
+        # re-finds every two-shared-lemma pair plus synonym pairs and had no
+        # cap; Seneca's Letters x Aeneid blew 12 GB in its window step
+        "max_results": 50000,
         "use_edit_distance": False,
         "use_sound": False,
         "use_pos": False,
@@ -859,6 +878,10 @@ CHANNEL_CONFIGS = {
         "min_matches": 1,
         "language": "la",
         "unbounded_scoring": True,
+        # cap added 2026-09-20: the channel had none; in English every shared
+        # lemma is "rare" (df <= 100 of 42 works), 431k window matches for
+        # Paradise Lost Book 1 x Hyperion, 12 GB blown for the whole poem
+        "max_results": 50000,
         "rare_word_max_occurrences": 100,
         "use_edit_distance": False,
         "use_sound": False,
@@ -1493,6 +1516,9 @@ def run_channel(channel_name, config, source_units, target_units,
         matches, _ = find_semantic_matches(source_units, target_units, settings, cancellation)
     elif match_type == "dictionary":
         from backend.semantic_similarity import find_dictionary_matches
+        cap = config.get("max_results", 0)
+        if cap > 0:
+            settings["candidate_cap"] = cap * 4  # bounded in the matcher, see the lemma branch
         matches, _ = find_dictionary_matches(source_units, target_units, settings, cancellation)
     elif match_type == "sound":
         matches, _ = matcher.find_sound_matches(source_units, target_units, settings, cancellation)
@@ -1510,10 +1536,12 @@ def run_channel(channel_name, config, source_units, target_units,
             # Tighten the threshold so the channel still discriminates.
             default_max_occ = 25 if language == 'cop' else 50
             max_occ = settings.get("rare_word_max_occurrences", default_max_occ)
+            cap = config.get("max_results", 0)
             matches = find_rare_word_matches_direct(
                 source_units, target_units,
                 language=language,
                 max_occurrences=max_occ,
+                candidate_cap=cap * 4 if cap > 0 else 0,  # bounded, see the lemma branch
             )
         except (ImportError, AttributeError):
             matches = []
@@ -1522,7 +1550,12 @@ def run_channel(channel_name, config, source_units, target_units,
             source_units, target_units, settings
         )
     else:
-        # lemma or exact
+        # lemma or exact. Bound the candidate list inside the matcher (same
+        # quick-IDF ranking and the same 4x buffer as the pre-filter below),
+        # so memory does not grow with source units times target units.
+        cap = config.get("max_results", 0)
+        if cap > 0:
+            settings["candidate_cap"] = cap * 4
         matches, _ = matcher.find_matches(source_units, target_units, settings, None, cancellation)
 
     if not matches:

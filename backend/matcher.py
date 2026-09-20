@@ -414,6 +414,8 @@ def find_crosslingual_phonetic_matches(source_units, target_units,
     return results
 
 from collections import defaultdict, Counter
+import heapq
+import math
 import os
 import json
 from backend.logging_config import get_logger
@@ -749,6 +751,50 @@ def get_curated_stoplists():
     return result
 
 
+class BoundedCandidates:
+    """A candidate list bounded to `cap` entries, ranked by the quick IDF
+    score the fusion channel runner's pre-filter uses (sum over matched
+    lemmas of log((N+1)/(df+1)) + 1, df = units containing the lemma in
+    source plus target). Memory stays proportional to the cap instead of
+    growing with source units times target units (2026-09-20). With cap 0
+    it is a plain list."""
+
+    def __init__(self, cap, source_units, target_units):
+        self.cap = int(cap or 0)
+        self.items = []
+        self.seq = 0
+        if self.cap > 0:
+            self.freq = Counter()
+            for u in source_units:
+                for lem in set(u.get('lemmas', [])):
+                    self.freq[lem] += 1
+            for u in target_units:
+                for lem in set(u.get('lemmas', [])):
+                    self.freq[lem] += 1
+            self.total = len(source_units) + len(target_units)
+
+    def quick_score(self, matched):
+        return sum(math.log((self.total + 1) / (self.freq.get(l, 1) + 1)) + 1
+                   for l in matched)
+
+    def add(self, match):
+        if self.cap <= 0:
+            self.items.append(match)
+            return
+        score = self.quick_score(match.get('matched_lemmas', []))
+        match['_quick_score'] = score
+        self.seq += 1
+        if len(self.items) < self.cap:
+            heapq.heappush(self.items, (score, self.seq, match))
+        elif score > self.items[0][0]:
+            heapq.heapreplace(self.items, (score, self.seq, match))
+
+    def result(self):
+        if self.cap <= 0:
+            return self.items
+        return [m for _, _, m in sorted(self.items, key=lambda h: h[0], reverse=True)]
+
+
 class Matcher:
     def __init__(self):
         self.synonym_dict = {}
@@ -767,6 +813,32 @@ class Matcher:
         except FileNotFoundError:
             pass
     
+    @staticmethod
+    def function_words(language):
+        """The curated function-word list for a language (articles, pronouns,
+        prepositions, conjunctions, particles, auxiliaries), as a set. Empty
+        for languages without one. This is the list a stoplist may hold and
+        nothing more (NC, 2026-09-19)."""
+        if language == 'la':
+            return DEFAULT_LATIN_STOP_WORDS
+        if language == 'grc':
+            return DEFAULT_GREEK_STOP_WORDS
+        if language == 'en':
+            return DEFAULT_ENGLISH_STOP_WORDS
+        if language == 'cop':
+            try:
+                from backend.coptic.stopwords import COPTIC_STOP_WORDS
+                return COPTIC_STOP_WORDS
+            except ImportError:
+                return set()
+        if language == 'he':
+            try:
+                from backend.hebrew.stopwords import HEBREW_STOP_WORDS
+                return HEBREW_STOP_WORDS
+            except ImportError:
+                return set()
+        return set()
+
     def build_stoplist(self, source_units, target_units, stoplist_basis='source_target', language='la', corpus_frequencies=None, match_type='lemma', cancellation=None):
         """Build stoplist using Zipf elbow detection based on specified text basis"""
         # For exact match, use tokens; otherwise use lemmas
@@ -903,7 +975,22 @@ class Matcher:
                                            cancellation=cancellation)
         
         if stoplist_size == -1:
-            stop_words = set()
+            # -1 is "no frequency-based stoplist". A user who enters it in the
+            # classic search gets exactly that (Help: "disable stoplisting
+            # entirely"). The fusion channels pass it too, with
+            # exclude_function_words set (2026-09-20): with an EMPTY set,
+            # "the", "and", "qui", "sum" were matching features and every
+            # pair of units sharing one became a candidate: 5.3 million
+            # window pairs for Paradise Lost against Hyperion, 61 million
+            # for the Iliad against the Odyssey, held in memory inside a web
+            # worker (25.6 GB observed 2026-09-19). With the flag, the
+            # language's function-word list applies, as it already did for
+            # Coptic; common content words stay matchable and are
+            # down-weighted by rarity in scoring (docs/DECISIONS.md).
+            if settings.get('exclude_function_words'):
+                stop_words = set(self.function_words(language))
+            else:
+                stop_words = set()
         elif stoplist_size > 0:
             stop_words = self.build_stoplist_manual(source_units + target_units, stoplist_size, language, match_type)
         else:
@@ -969,7 +1056,12 @@ class Matcher:
                         for syn in self.synonym_dict[feature]:
                             target_index[syn].append(i)
         
-        matches = []
+        # Bounded candidate list (fusion channels pass candidate_cap, four
+        # times their result cap). Candidates are ranked by the same quick
+        # IDF score the channel runner uses for its pre-filter, so the kept
+        # set is the one that filter would keep, but memory stays at the cap
+        # instead of growing with source units times target units.
+        candidates = BoundedCandidates(settings.get('candidate_cap'), source_units, target_units)
         
         for src_idx, src_unit in enumerate(source_units):
             if cancellation:
@@ -1015,11 +1107,12 @@ class Matcher:
                     tgt_distance = self._get_feature_span(tgt_unit, matched_features, match_type)
 
                     if src_distance <= max_distance and tgt_distance <= max_distance:
-                        matches.append({
+                        candidates.add({
                             'source_idx': src_idx,
                             'target_idx': tgt_idx,
                             'matched_lemmas': list(matched_features)
                         })
+        matches = candidates.result()
         
         return matches, len(stop_words)
     

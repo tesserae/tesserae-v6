@@ -1260,7 +1260,7 @@ def get_text_lemmas(text_id, language):
 
 
 def find_rare_word_matches_direct(source_units, target_units, language='la',
-                                   max_occurrences=50):
+                                   max_occurrences=50, candidate_cap=0):
     """Find matches based on shared rare lemmas between source and target units.
 
     Uses an inverted-index approach (like the dictionary channel): collects all
@@ -1342,8 +1342,14 @@ def find_rare_word_matches_direct(source_units, target_units, language='la',
             if lemma in rare_lemmas:
                 target_index[lemma].add(tgt_idx)
 
-    # For each source unit, find target units sharing rare lemmas via index
-    matches = []
+    # For each source unit, find target units sharing rare lemmas via index.
+    # Bounded (2026-09-20): with 42 English works every shared lemma counts
+    # as rare (df <= 100), and Paradise Lost against Hyperion produced
+    # 431,131 window matches for Book 1 alone and blew a 12 GB cap for the
+    # whole poem. The fusion runner passes candidate_cap; see
+    # backend.matcher.BoundedCandidates.
+    from backend.matcher import BoundedCandidates
+    candidates = BoundedCandidates(candidate_cap, source_units, target_units)
     for src_idx, src_lemmas in enumerate(source_lemma_sets):
         # tgt_idx -> set of shared rare lemmas
         pair_shared = defaultdict(set)
@@ -1354,11 +1360,12 @@ def find_rare_word_matches_direct(source_units, target_units, language='la',
 
         for tgt_idx, shared_rare in pair_shared.items():
             if len(shared_rare) >= 1:
-                matches.append({
+                candidates.add({
                     'source_idx': src_idx,
                     'target_idx': tgt_idx,
                     'matched_lemmas': list(shared_rare),
                 })
+    matches = candidates.result()
 
     logger.info(f"[RARE_WORD] Found {len(matches)} matches "
                 f"(source={len(source_units)}, target={len(target_units)})")
