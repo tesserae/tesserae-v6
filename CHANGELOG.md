@@ -9,6 +9,13 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-09-20
 
+### Site
+- Changing tabs no longer carries the previous page's query string along,
+  so a Theme Search query no longer re-runs itself every time the Theme
+  Search tab is reopened. Links opened at a page's own address keep their
+  parameters as before.
+
+
 ### Theme Search
 - Sample searches re-measured on production: the recognition query (rated
   moderate, and it misses the Odyssey) is replaced by "funeral games with
