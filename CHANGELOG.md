@@ -33,6 +33,12 @@ behind each, are in docs/DECISIONS.md.
   from the date table; and a work with an era but no year (the Hebrew
   Bible, "Biblical") shows the era instead of "undated".
 
+- Sample searches re-measured on production: the recognition query (rated
+  moderate, and it misses the Odyssey) is replaced by "funeral games with
+  athletic contests held in honor of the dead" (the benchmark's best theme,
+  first-ten precision 1.00) and "a storm at sea batters ships and terrifies
+  the crew"; all five chips rated strong on 2026-09-20.
+
 ### Search
 - Fusion channels no longer treat function words as matching features, and
   their candidate lists are bounded. The lemma, lemma_min1 and exact
@@ -51,16 +57,6 @@ behind each, are in docs/DECISIONS.md.
   before, 2.8 GB and 1.7 minutes after. Measurement and rationale in
   docs/DECISIONS.md (2026-09-20).
 
-### Site
-- Changing tabs no longer carries the previous page's query string along,
-  so a Theme Search query no longer re-runs itself every time the Theme
-  Search tab is reopened. Links opened at a page's own address keep their
-  parameters as before.
-- Sample searches re-measured on production: the recognition query (rated
-  moderate, and it misses the Odyssey) is replaced by "funeral games with
-  athletic contests held in honor of the dead" (the benchmark's best theme,
-  first-ten precision 1.00) and "a storm at sea batters ships and terrifies
-  the crew"; all five chips rated strong on 2026-09-20.
 - English line search: the Latin u/v and i/j spelling fold applied to
   every language but Greek, so English queries for any word with a v or a
   j were looked up in Spenser's spelling ("love" as "loue", "voice" as
@@ -68,11 +64,18 @@ behind each, are in docs/DECISIONS.md.
   Latin only. The results page's "Across the corpus" panel, blank for
   such shared words, works for English again.
 
+### Site
+- Changing tabs no longer carries the previous page's query string along,
+  so a Theme Search query no longer re-runs itself every time the Theme
+  Search tab is reopened. Links opened at a page's own address keep their
+  parameters as before.
+
 ### Corpus
 - The English Bible is displayed as the King James Bible: the files named
   world_english_bible hold the Authorized Version of 1611 (a legacy label;
   the sources registry already credits it correctly). File identifiers
   unchanged; the rename of the files is a later corpus operation.
+
 ## 2026-09-19
 
 ### Search
