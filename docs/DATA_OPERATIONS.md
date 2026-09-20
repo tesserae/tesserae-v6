@@ -477,6 +477,40 @@ Conventions
   `cyprian_pseudo.sodoma` 1; coverage answers from the sidecar; "arma
   virum" lemma search count unchanged at about 323 distinct loci.
 
+## 2026-09-19 Reader: Quotation tables rebuilt for Latin, Greek and English under the final builder rules
+- What: after the first English table (13:14) marked Hamlet III.4.192 "What
+  shall I do?" as strictly quoted by eight Bible verses and paired the Faerie
+  Queene's books with each other, the builder's rules were changed in four
+  PRs the same day (#404 decode surrogate-escaped Greek work ids; #405 part
+  files of one work count as one work, commonplace-only n-grams; #406 the
+  language stoplists feed the commonplace test; #408 and #409 a pair is
+  dropped only when EVERY shared n-gram is commonplace-only, and only for
+  English). Each Latin variant was built to a side file and compared with
+  the live table (la.db.prev-20260919) before anything was swapped.
+- Measured on Latin (strict pairs, live table 54,880): "count commonplace
+  n-grams for nothing" 51,599 (2,202 gained, 5,445 lost, the lost sample
+  being the Fathers quoting the Vulgate); "drop only all-commonplace pairs"
+  53,016 (0 gained, 1,863 lost, still including John 10.30 in Hilary);
+  English-only drop 54,571 (0 gained, 309 lost, every one a part-file pair
+  of a single work). The last is what shipped.
+- Done (Latin): 2026-09-19 20:57-21:08 EDT, `--out-db la.new.db` under a
+  12G cap in tesserae-jobs.slice, then moved into place at 21:09 and the app
+  reloaded. 308,688 pairs (54,571 strict); metadata records
+  drop_all_commonplace=auto, applied=0. Verified: Aeneid 1.1 shows 2 strict
+  and 5 possible quoting works (Salutati among them), 7.466 shows Macrobius,
+  the arma virum reference search returns 323.
+- Done (Greek, first build): 2026-09-19 19:40-20:09 EDT under a 12G cap,
+  peak 11.0 GB, 123,232 pairs (26,640 strict), built under the interim
+  "count for nothing" rule; superseded by the rebuild below.
+- Done (English, interim): 13:36 EDT (125,384 pairs) under the interim
+  rule, live from 19:37 after a reload; superseded by the rebuild below.
+- Rebuilds under the final rules (English with the all-commonplace drop,
+  Greek without): see the Done lines added when they finished.
+- Also on 2026-09-19: three attempts at the Greek build failed or were
+  stopped before these rules settled (surrogate ids 12:59 and 13:02; stopped
+  13:23 and 13:29; killed by the machine-wide pressure event 13:38). Logs
+  under ~/tesserae-backups/jobs/.
+
 ## 2026-09-19 Reader: corpus-wide reuse table built for Latin
 
 - What (code, not yet run on production): `scripts/reuse/build_reuse_table.py
