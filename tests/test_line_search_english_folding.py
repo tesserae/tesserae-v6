@@ -18,7 +18,7 @@ def test_english_lemmas_keep_v_and_j():
 
 
 def test_latin_still_folds():
-    assert _normalize_lemma('Jove', 'la') == 'Ioue'.lower() or _normalize_lemma('jove', 'la') == 'ioue'
+    assert _normalize_lemma('jove', 'la') == 'ioue'
     assert _normalize_lemma('virum', 'la') == 'uirum'
 
 
