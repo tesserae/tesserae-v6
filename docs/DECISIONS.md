@@ -88,6 +88,23 @@ in the top ten and 6 of 6 in the top fifty, the Letters against the
 Aeneid in 20 minutes at a 4.4 GB peak. English timing cases (Paradise
 Lost against Hyperion) are recorded below when run.
 
+**Why a few prose ranks moved (traced on Macrobius 4 against the
+Eclogues with full fused lists).** The gold quotations' own scores are
+identical before and after. What changed is competitors: fifteen pairs in
+the top 200 rose (1.20 to 1.43, 0.68 to 1.16), all of them adjacent-line
+window matches of genuine Vergil quotations. The scoring layer has a
+"mixed" penalty: when any matched word is a function word, the pair is
+scored like a single-word match with its convergence bonus removed, even
+if it shares two or more content words as well. Now that function words
+are never among the matched words of the lemma, exact and dictionary
+channels, that penalty stops firing for such pairs, and multi-content-word
+matches that also shared "et", "qui" or "non" score as content-only
+matches. That is the scorer's own stated intent ("function words add zero
+allusion signal") applied consistently. It moves genuine quotation
+neighbours up beside the gold lines, so per-pair gold ranks slip a few
+places among tied pairs, while whole-list recall at 50 and 100 is
+unchanged and poetry recall is unchanged pair for pair.
+
 **Deferred for NC.** A request-size guard in `/api/search` (refuse or
 queue pairs whose estimated candidate count is too large, with a plain
 message) and a memory cap on the web workers (root). Both are visible
