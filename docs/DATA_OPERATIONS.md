@@ -827,6 +827,22 @@ Conventions
   production: la 730, grc 828, en 42, cop 144, he 39, index version
   2026-09-18). Noted here only because a cache file now persists outside
   the request that created it.
+## 2026-09-20 Fusion candidate-memory fix deployed (PR #416); cached results cleared
+- What: PR #416 merged 2a9301c6 and pulled on production 14:29 EDT, WSGI
+  reloaded. Backend only. Function words are no longer matching features
+  in the lemma, lemma_min1 and exact channels; every channel's candidate
+  list is bounded (lemma, exact, dictionary and rare_word gain the 50,000
+  result cap); measurement and the three accepted behaviour changes in
+  docs/DECISIONS.md (2026-09-20). NC accepted them ("Go with 416").
+- Cached fusion results cleared with `backend.cache.clear_cache_for_language`
+  (la 8, grc 3, en 1 files) so pairs recompute under the new rules; the
+  three default pairs (Aeneid 1 x Lucan 1, Paradise Lost 1 x Hyperion,
+  Iliad 1 x Argonautica 1) re-warmed through /api/fusion-search afterwards.
+- Checks: 103 matcher and fusion tests; the benchmark table in
+  DECISIONS.md; whole Paradise Lost x Hyperion 2.8 GB and 1.7 min against
+  25.6 GB and 19 min before.
+- Done 2026-09-20 14:29 EDT (main session).
+
 ## 2026-09-20 Three client deploys: sample searches, tab changes, King James label (PRs #419, #421, #420)
 - 14:08 EDT: PR #419 (Theme Search sample searches re-measured: funeral
   games and a storm at sea replace the recognition chip; all five strong
