@@ -116,8 +116,14 @@ already penalizes function words from the curated English list):
    corpus. In a Milton search, Milton's own past tenses therefore look as
    rare as proper names, and the rarity boost rewards them.
 
-**Plan.** Rebuild the Paradise Lost and Prelude lemma caches with the
-current English lemmatizer, re-index English and its rarity table, clear
-the cached fusion results for English pairs, then re-examine the default
-pair (data operation, recorded in DATA_OPERATIONS.md when done). Rarity by
-lines rather than works stays deferred until an English gold set exists.
+**Check.** The current English lemmatizer, run on Milton's own lines,
+returns "begin, flee, stand, sit" for "began, fled, stood, sat", so the
+old caches predate it rather than reflect it.
+
+**Action (same night).** Rebuild the whole English lemma cache with the
+current lemmatizer, rebuild the English index and its rarity table, rebuild
+the English Quotation table, clear the cached search results for English,
+Latin and Greek (the Latin and Greek ones also carry the old quotation
+weight), and re-warm the default pairs. Recorded in DATA_OPERATIONS.md.
+Rarity by lines rather than works stays deferred until an English gold set
+exists to measure it against.
