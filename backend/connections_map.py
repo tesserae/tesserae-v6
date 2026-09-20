@@ -708,7 +708,7 @@ def get_pair(work_a, work_b, limit=DEFAULT_PAIR_LIMIT, book_a=None, book_b=None)
         windows = {}
         if win_ids:
             qmarks = ','.join('?' * len(win_ids))
-            for r in conn.execute(f'SELECT * FROM windows WHERE id IN ({qmarks})', tuple(win_ids)):
+            for r in conn.execute(f'SELECT * FROM windows WHERE id IN ({qmarks})', tuple(win_ids)):  # nosec B608 - placeholders only, ids bound as parameters
                 windows[r['id']] = dict(r)
 
         def side(win_id, work_key):
