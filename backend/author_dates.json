@@ -2568,5 +2568,14 @@
    "note": "d. 1938 CE",
    "year": 1938
   }
+ },
+ "gmh": {
+  "nibelungenlied": {"era": "Medieval", "note": "anonymous, c. 1200 CE", "year": 1200}
+ },
+ "fro": {
+  "chanson_de_roland": {"era": "Medieval", "note": "anonymous, c. 1100 CE (Oxford manuscript c. 1150)", "year": 1100}
+ },
+ "it": {
+  "dante": {"era": "Medieval", "note": "d. 1321", "year": 1321}
  }
 }

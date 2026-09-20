@@ -9,6 +9,13 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-09-20
 
+### Theme Search
+- Dates for the Nibelungenlied (c. 1200), the Chanson de Roland (c. 1100)
+  and Dante (d. 1321), which had none because their languages were absent
+  from the date table; and a work with an era but no year (the Hebrew
+  Bible, "Biblical") shows the era instead of "undated".
+
+
 ### Search
 - Fusion channels no longer treat function words as matching features, and
   their candidate lists are bounded. The lemma, lemma_min1 and exact
