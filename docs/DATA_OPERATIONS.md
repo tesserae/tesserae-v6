@@ -825,6 +825,30 @@ Conventions
   production: la 730, grc 828, en 42, cop 144, he 39, index version
   2026-09-18). Noted here only because a cache file now persists outside
   the request that created it.
+## 2026-09-20 Theme Similarity Map deployed and its production cache built
+- What: PR #407 (Theme Similarity Map) merged as c4ec3491 after NC's
+  review of the preview ("looks good"); production pulled to c4ec349, the
+  frontend bundle rebuilt inside the memory launcher (cap 6 GB,
+  `scripts/keep_old_bundles.sh save` before and `restore` after, 33 older
+  bundles kept), WSGI reloaded 12:22 EDT. Until the cache existed the Map
+  tab reported that no map had been built. Then the production cache:
+  ```
+  cd /var/www/tesseraev6_flask && ~/bin/tess-job map-cache-build 8 ./venv/bin/python3 scripts/build_connections_map.py
+  ```
+  wrote `cache/connections_map/22077037-1789824674.1267781760-1789824673.db`
+  (920.2 MB; the name is the passage index fingerprint), 280,928 windows,
+  26,312 author pairs, 817 century pairs, 258 genre pairs; 27.4 minutes,
+  5.77 GB peak under the 8 GB cap. WSGI reloaded again 12:52 so the workers
+  saw the new cache; `/api/passages/map?view=author` answers with
+  `cache_built_at 2026-09-20T12:50:59` and no `stale` field.
+- Standing rule: the map cache is keyed by the passage index fingerprint,
+  so it must be REBUILT after every corpus change that touches the passage
+  index (imports, retirements, description rebuilds), with the command
+  above, followed by a WSGI reload or the "Refresh map" button. Until then
+  the site serves the most recent cache and reports it as `stale` in the
+  API (users see only the build date).
+- Done 2026-09-20 12:22 to 12:52 EDT (main session).
+
 ## 2026-09-19 Corpus connections map cache built (feat/connections-map)
 - What: `scripts/build_connections_map.py`, under a memory cap, builds
   `cache/connections_map/<index_fingerprint>.db` -- for every Latin, Greek,
