@@ -7,6 +7,26 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-09-19 Standing rule: stoplists are function words only
+
+**Decision (Neil Coffee).** A stoplist holds function words (articles,
+pronouns, prepositions, conjunctions, auxiliaries, particles) and nothing
+else. A common content word such as "summer", "day", "old" or "began" is
+down-weighted by its corpus frequency in scoring, never removed from
+matching or from the shared-word count. Applies to every language and to
+every place a stoplist is used: the search channels, the fusion scoring
+layer's function-word penalty, and the Quotation table builder's
+commonplace test.
+
+**Consequence found the same day.** The curated English list in
+`backend/matcher.py` (`DEFAULT_ENGLISH_STOP_WORDS_LIST`, 202 entries)
+mixes function words with common verbs ("know", "take", "make", "go",
+"see", "come", "think", "look", "want", "give", "use", "find", "tell",
+"ask", "work", "seem", "feel", "try", "leave", "call"). The fusion scoring
+layer penalizes those as function words. To be pruned to function words in
+a following PR; the Latin (102) and Greek (167) lists to be audited by the
+same rule.
+
 ## 2026-09-19 Quotation channel weight 10 for Latin and Greek (PR #411)
 
 **Decision.** `CHANNEL_WEIGHTS['quotation']` goes from 0 to 10, so the
