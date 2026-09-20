@@ -7,6 +7,59 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-09-20 Theme Search: a lexical channel over the descriptions, adopted
+
+**Decision (NC: "adopt the light boost in production").** Theme Search
+scores each passage window by the cosine between the query's embedding and
+the window's description embedding, plus LEXICAL_BETA (0.02) times a BM25
+word-match score over the description text (gist, themes, action steps,
+participants, setting), normalised to [0, 1] over the top 3,000 word
+matches and zero elsewhere. The confidence band is still computed from the
+embedding alone. The composition (one window per work, languages
+interleaved, three windows per work) and the reader over the first hundred
+rows are unchanged.
+
+**Why.** Four tests on 2026-09-20 with the calibrated Opus judge on the
+16-query benchmark (harnesses in evaluation/theme_benchmark/composition_test/,
+private):
+
+| change | all 16 | 12 development | 4 held out |
+|---|---|---|---|
+| shipped page | 0.434 | 0.471 | 0.325 |
+| reader over a deeper per-work pool | 0.419 | 0.425 | 0.400 |
+| work score by mass of close windows | 0.391 | 0.425 | 0.287 |
+| mass relative to work size (blend) | 0.434 | 0.462 | 0.350 |
+| lexical channel, rank fusion (harness) | 0.475 | 0.483 | 0.450 |
+| lexical channel, light boost (harness) | 0.506 | 0.533 | 0.425 |
+| **light boost on the real code path (adopted)** | **0.453** | **0.479** | **0.375** |
+| the same with the reader over all 300 composed rows | 0.444 | 0.475 | 0.350 |
+
+**A correction found while re-measuring.** The first four rows come from
+an offline harness whose page composition lacked the site's collapse of
+overlapping windows, so a passage indexed twice (whole-file and book-file
+copies, 130 works) could occupy two of the ten slots and be counted twice.
+The real code path collapses them, and its figures are the honest ones:
+a gain of 0.019 over the sixteen queries and 0.050 on the four held-out
+topoi, positive on both, smaller than the harness suggested. The earlier
+negative results (deeper pool, mass, density) were measured with the same
+inflation and would only look worse without it.
+
+The case that started it: "a wife or child recognizes someone long
+thought dead or lost" returned no Odyssey, although the index describes
+Odyssey 23.199 as "a woman recognizes Odysseus through a unique sign". The
+encoder ranks the Odyssey 63rd by work for that wording; with the boost it
+is 50th on the real path, and its rows sit at 146 to 148 of the 300
+composed rows, past the 100 the reader re-scores. With the reader over all
+300 rows the Odyssey lands at row 15 of the page. Whether to deepen the
+reader (about 9 s a query instead of 4 s; precision neutral) is a separate
+decision. Judgements: 236 new Opus verdicts across the tests (about 380k
+input tokens).
+
+**Operations.** `scripts/build_desc_fts.py` writes
+`data/passage_index/desc_fts.sqlite` (about three minutes) and must be run
+after every change to descriptions.jsonl; the app compares the index's
+description count with the passage index's and refuses a stale one.
+
 ## 2026-09-20 Fusion channels: function words are not matching features, and candidate lists are bounded
 
 **Problem.** One fusion search of Paradise Lost (10,565 lines) against
