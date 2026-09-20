@@ -395,13 +395,17 @@ function App() {
     const hasValidSelection = sourceExists && targetExists;
 
     // Set defaults only when we do not already have valid selections.
-    // Whenever the corpus is ready and the remembered selection is not valid
-    // for this language (a stale id from an earlier session, or a text since
-    // retired), fall back to the defaults. The old condition also required the
-    // fields to be empty or the corpus to have just loaded, so a stale
-    // remembered pair left the English search page with no texts at all (NC,
-    // 2026-09-19).
-    const shouldSetDefaults = corpusReady && !hasValidSelection;
+    // Defaults apply when the corpus has just loaded, when nothing is chosen,
+    // or when a remembered id is STALE (not in this corpus: an earlier session's
+    // pair, or a text since retired). The stale case is new (NC, 2026-09-19: a
+    // stale remembered English pair left the page with no texts at all). A
+    // pair mid-edit, with one side chosen and valid and the other still empty,
+    // is none of these and is left alone.
+    const sourceStale = Boolean(sourceText) && !sourceExists;
+    const targetStale = Boolean(targetText) && !targetExists;
+    const nothingChosen = !sourceAuthor && !sourceText && !targetAuthor && !targetText;
+    const shouldSetDefaults = corpusReady && !hasValidSelection
+      && (corpusJustLoaded || nothingChosen || sourceStale || targetStale);
     
     if (shouldSetDefaults) {
       let defaultSourceId, defaultTargetId;
