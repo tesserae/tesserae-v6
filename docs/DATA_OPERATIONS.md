@@ -827,6 +827,19 @@ Conventions
   production: la 730, grc 828, en 42, cop 144, he 39, index version
   2026-09-18). Noted here only because a cache file now persists outside
   the request that created it.
+## 2026-09-20 Theme Search word index built on production (for the lexical boost)
+- What: `data/passage_index/desc_fts.sqlite`, SQLite FTS5 (BM25, Porter
+  stemming) over the gist, themes, action steps, participants and setting
+  of all 619,280 passage descriptions, keyed by window id; built with
+  `scripts/build_desc_fts.py` (branch feat/theme-lexical-boost) at 14:48
+  EDT, 36 s, 678 MB, written beside descriptions.jsonl with a rename over a
+  .tmp file. Unused by the live code until the lexical-boost PR deploys.
+- Standing rule once deployed: rebuild it after every change to
+  descriptions.jsonl (imports, retirements, description rebuilds); the app
+  compares its description count with the passage index's and refuses a
+  stale one, logging once and running without the boost.
+- Done 2026-09-20 14:48 EDT (main session).
+
 ## 2026-09-20 Dates for three languages and the era badge deployed (PR #422)
 - What: `backend/author_dates.json` gains sections for Middle High German
   (Nibelungenlied, c. 1200), Old French (Chanson de Roland, c. 1100) and
