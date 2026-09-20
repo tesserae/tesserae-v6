@@ -691,9 +691,14 @@ export default function ThemeSearchPage() {
                     {(() => {
                       const d = dateParts(head);
                       if (!d) {
+                        // No year, but the table may still give an era: the
+                        // Hebrew Bible is deliberately left without a year
+                        // (composition spans centuries) and carries the era
+                        // "Biblical". Show that rather than "undated" (NC,
+                        // 2026-09-20: "Why are these texts undated?").
                         return (
                           <span className="inline-block rounded bg-gray-50 border border-gray-200 px-2 py-0.5 text-sm text-gray-500">
-                            undated
+                            {head.era || 'undated'}
                           </span>
                         );
                       }
