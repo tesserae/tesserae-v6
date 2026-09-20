@@ -24,6 +24,50 @@ Conventions
 - Stamp backups to the second; a rerun must never overwrite the first
   run's backup.
 
+## 2026-09-20 Theme Search reader depth 300 deployed (PR #424), then held at 100 while its timeout is fixed
+- What: PR #424 merged ed0657d1, pulled on production, WSGI reloaded 15:16
+  EDT: the reader re-scores the whole composed list (300 rows) instead of
+  its first hundred (NC: "Give the reader all 300 composed rows").
+- Incident: for nine minutes every Theme Search answered with the reader
+  NOT applied (`reader: {applied: false}`), because the reader client's
+  fixed 6 s timeout cut off the 300-row call just before the service
+  answered (measured on production: 100 rows 2.1 s, 300 rows 6.2 s); the
+  reader service logged broken pipes. Stopgap at 15:19: `THEME_READER_K=100`
+  added to production's `.env` and WSGI reloaded; the reader applied again
+  (2.2 s). Fix: PR #425 (client timeout = max(6, 0.04 x rows)); its deploy
+  removes the `.env` line.
+- 15:25 EDT: PR #425 merged a57803b6, pulled, `THEME_READER_K=100` removed
+  from `.env`, WSGI reloaded, the three workers warmed. Checks: the reader
+  applies at 300 rows (5.9 s of a 7 s request); on "a wife or child
+  recognizes someone long thought dead or lost" the Odyssey is on the page
+  at row 14 (23.1, Eurycleia wakes Penelope with the news), and on "a
+  storm at sea batters ships and terrifies the crew" at rows 21 and 23
+  (9.67, 12.409). Neither query returned the Odyssey before today.
+- Also learned: after every reload the first request on each of the three
+  Apache workers loads the passage index (18 to 30 s); warm requests take
+  about 3 s. Warm the three workers with three requests after a reload
+  before judging latency.
+- Done 2026-09-20 15:16 (deploy), 15:19 (stopgap) EDT (main session).
+
+## 2026-09-20 Theme Search lexical boost deployed (PR #423); word index rebuilt
+- What: PR #423 merged 599fcad5 and pulled on production 15:10 EDT. The
+  word index `data/passage_index/desc_fts.sqlite` was rebuilt with the
+  final script (30 s, 619,280 descriptions, 678 MB) so it carries the
+  source file's size and mtime, which the app now checks along with the
+  description count before using it. Bundle rebuilt in the launcher (one
+  Help sentence), old bundles kept, WSGI reloaded 15:11.
+- Check: /api/passages/theme-search answers with `lexical_boost: true`;
+  the recognition query's page is unchanged in its first works (Spenser,
+  Thebaid, Heracles) and the Odyssey is still off the 25-row page at the
+  reader depth of 100 rows (PR #424 deepens the reader).
+- Standing rule: rebuild the word index after every change to
+  descriptions.jsonl, with `scripts/build_desc_fts.py`, then reload;
+  a stale index is refused and logged, and Theme Search runs without the
+  boost until it is rebuilt.
+- Method record: docs/DECISIONS.md, 2026-09-20 (four experiments, the
+  harness correction, the adopted boost).
+- Done 2026-09-20 15:10 to 15:11 EDT (main session).
+
 ## 2026-09-19 Reader: passage-density cache precompute script (planned, not yet run)
 
 - What (code, this PR; not yet run against any real index): `scripts/

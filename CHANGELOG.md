@@ -15,18 +15,12 @@ behind each, are in docs/DECISIONS.md.
   answered, so for nine minutes after the depth change every Theme Search
   ran without the reader; the depth was set back to 100 through the
   environment while this was fixed.
-
-
-### Theme Search
 - The reader re-scores the whole composed list (about 300 rows), not its
   first hundred, so a work whose rows sat past the hundred can reach the
   page: the Odyssey's recognitions on "a wife or child recognizes someone
   long thought dead or lost" were at rows 146 to 148 and land at row 15.
   Precision neutral on the 16-query benchmark (0.444 against 0.453 with
   the lexical boost at 100 rows); about 9 s a query instead of 4 s.
-
-
-### Theme Search
 - A word index over the passage descriptions (SQLite FTS5, BM25;
   `scripts/build_desc_fts.py`) adds a small lexical boost to the embedding
   similarity, so a description that shares words with the query rises a
@@ -34,14 +28,16 @@ behind each, are in docs/DECISIONS.md.
   first-ten precision 0.434 to 0.453, the four held-out topoi 0.325 to
   0.375 (docs/DECISIONS.md, 2026-09-20). The index is rebuilt after every passage-index change; the
   app refuses a stale one and runs without the boost, saying so in its log.
-
-
-### Theme Search
 - Dates for the Nibelungenlied (c. 1200), the Chanson de Roland (c. 1100)
   and Dante (d. 1321), which had none because their languages were absent
   from the date table; and a work with an era but no year (the Hebrew
   Bible, "Biblical") shows the era instead of "undated".
 
+- Sample searches re-measured on production: the recognition query (rated
+  moderate, and it misses the Odyssey) is replaced by "funeral games with
+  athletic contests held in honor of the dead" (the benchmark's best theme,
+  first-ten precision 1.00) and "a storm at sea batters ships and terrifies
+  the crew"; all five chips rated strong on 2026-09-20.
 
 ### Search
 - Fusion channels no longer treat function words as matching features, and
@@ -61,27 +57,18 @@ behind each, are in docs/DECISIONS.md.
   before, 2.8 GB and 1.7 minutes after. Measurement and rationale in
   docs/DECISIONS.md (2026-09-20).
 
-### Site
-- Changing tabs no longer carries the previous page's query string along,
-  so a Theme Search query no longer re-runs itself every time the Theme
-  Search tab is reopened. Links opened at a page's own address keep their
-  parameters as before.
-
-
-### Theme Search
-- Sample searches re-measured on production: the recognition query (rated
-  moderate, and it misses the Odyssey) is replaced by "funeral games with
-  athletic contests held in honor of the dead" (the benchmark's best theme,
-  first-ten precision 1.00) and "a storm at sea batters ships and terrifies
-  the crew"; all five chips rated strong on 2026-09-20.
-
-### Search
 - English line search: the Latin u/v and i/j spelling fold applied to
   every language but Greek, so English queries for any word with a v or a
   j were looked up in Spenser's spelling ("love" as "loue", "voice" as
   "uoice") and returned only Spenser or nothing. The fold now applies to
   Latin only. The results page's "Across the corpus" panel, blank for
   such shared words, works for English again.
+
+### Site
+- Changing tabs no longer carries the previous page's query string along,
+  so a Theme Search query no longer re-runs itself every time the Theme
+  Search tab is reopened. Links opened at a page's own address keep their
+  parameters as before.
 
 ### Corpus
 - The English Bible is displayed as the King James Bible: the files named
