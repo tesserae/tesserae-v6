@@ -24,6 +24,25 @@ Conventions
 - Stamp backups to the second; a rerun must never overwrite the first
   run's backup.
 
+## 2026-09-20 Theme Search lexical boost deployed (PR #423); word index rebuilt
+- What: PR #423 merged 599fcad5 and pulled on production 15:10 EDT. The
+  word index `data/passage_index/desc_fts.sqlite` was rebuilt with the
+  final script (30 s, 619,280 descriptions, 678 MB) so it carries the
+  source file's size and mtime, which the app now checks along with the
+  description count before using it. Bundle rebuilt in the launcher (one
+  Help sentence), old bundles kept, WSGI reloaded 15:11.
+- Check: /api/passages/theme-search answers with `lexical_boost: true`;
+  the recognition query's page is unchanged in its first works (Spenser,
+  Thebaid, Heracles) and the Odyssey is still off the 25-row page at the
+  reader depth of 100 rows (PR #424 deepens the reader).
+- Standing rule: rebuild the word index after every change to
+  descriptions.jsonl, with `scripts/build_desc_fts.py`, then reload;
+  a stale index is refused and logged, and Theme Search runs without the
+  boost until it is rebuilt.
+- Method record: docs/DECISIONS.md, 2026-09-20 (four experiments, the
+  harness correction, the adopted boost).
+- Done 2026-09-20 15:10 to 15:11 EDT (main session).
+
 ## 2026-09-19 Reader: passage-density cache precompute script (planned, not yet run)
 
 - What (code, this PR; not yet run against any real index): `scripts/
