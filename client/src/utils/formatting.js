@@ -85,7 +85,7 @@ const ENGLISH_AUTHORS = {
   bunyan: 'Bunyan', coleridge: 'Coleridge', cowper: 'Cowper',
   ebrowning: 'Elizabeth Barrett Browning', shelley: 'Shelley',
   wordsworth: 'Wordsworth', carr: 'Carroll', swift: 'Swift',
-  shake: 'Shakespeare', web: 'World English Bible',
+  shake: 'Shakespeare', web: 'King James Bible',
 };
 
 // The work token(s) of those tags, keyed the same way (a multi-token work is
@@ -128,10 +128,10 @@ const englishWorkMetadata = {
   'faerie': { author: 'Spenser', title: 'The Faerie Queene' },
   'canterbury': { author: 'Chaucer', title: 'The Canterbury Tales' },
   'beowulf': { author: 'Anonymous', title: 'Beowulf' },
-  'pentateuch': { author: 'World English Bible', title: 'Pentateuch' },
-  'prophets': { author: 'World English Bible', title: 'Prophets' },
-  'revelation': { author: 'World English Bible', title: 'Revelation' },
-  'writings': { author: 'World English Bible', title: 'Writings' },
+  'pentateuch': { author: 'King James Bible', title: 'Pentateuch' },
+  'prophets': { author: 'King James Bible', title: 'Prophets' },
+  'revelation': { author: 'King James Bible', title: 'Revelation' },
+  'writings': { author: 'King James Bible', title: 'Writings' },
   'iliad': { author: 'Homer (trans.)', title: 'Iliad' },
   'odyssey': { author: 'Homer (trans.)', title: 'Odyssey' },
   'aeneid': { author: 'Vergil (trans.)', title: 'Aeneid' },
@@ -623,7 +623,7 @@ export const formatReference = (ref, language = null) => {
         const workTokens = prefix.slice(1);
         const workKey = workTokens.map(key).join(' ');
         const title = ENGLISH_WORKS[workKey]
-          || (author === 'World English Bible'
+          || (author === 'King James Bible'
             ? workTokens.join(' ')
             : workTokens.map((w) => w.replace(/\.+$/, '')).join(' '));
         return appendLocation(`${author}, ${title}`, location);

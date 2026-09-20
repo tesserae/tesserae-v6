@@ -650,7 +650,7 @@ DISPLAY_NAMES = {
     'hamlet': 'Hamlet',
     'milton': 'Milton',
     'paradise_lost': 'Paradise Lost',
-    'world_english_bible': 'World English Bible',
+    'world_english_bible': 'King James Bible',
     'pentateuch': 'Pentateuch',
     'prophets': 'Prophets',
     'revelation': 'Revelation',

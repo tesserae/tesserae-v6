@@ -23,9 +23,9 @@ describe('formatReference for English tags', () => {
   });
 
   it('handles Bible books, including numbered ones', () => {
-    expect(formatReference('WEB Genesis 1.1', 'en')).toBe('World English Bible, Genesis 1.1');
-    expect(formatReference('WEB 1 Kings 2.3', 'en')).toBe('World English Bible, 1 Kings 2.3');
-    expect(formatReference('WEB Song of Solomon 2.1', 'en')).toBe('World English Bible, Song of Solomon 2.1');
+    expect(formatReference('WEB Genesis 1.1', 'en')).toBe('King James Bible, Genesis 1.1');
+    expect(formatReference('WEB 1 Kings 2.3', 'en')).toBe('King James Bible, 1 Kings 2.3');
+    expect(formatReference('WEB Song of Solomon 2.1', 'en')).toBe('King James Bible, Song of Solomon 2.1');
   });
 
   it('still handles the work-first tags', () => {

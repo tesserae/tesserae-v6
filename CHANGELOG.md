@@ -27,6 +27,13 @@ behind each, are in docs/DECISIONS.md.
   before, 2.8 GB and 1.7 minutes after. Measurement and rationale in
   docs/DECISIONS.md (2026-09-20).
 
+### Site
+- Changing tabs no longer carries the previous page's query string along,
+  so a Theme Search query no longer re-runs itself every time the Theme
+  Search tab is reopened. Links opened at a page's own address keep their
+  parameters as before.
+
+
 ### Theme Search
 - Sample searches re-measured on production: the recognition query (rated
   moderate, and it misses the Odyssey) is replaced by "funeral games with
@@ -41,6 +48,12 @@ behind each, are in docs/DECISIONS.md.
   "uoice") and returned only Spenser or nothing. The fold now applies to
   Latin only. The results page's "Across the corpus" panel, blank for
   such shared words, works for English again.
+
+### Corpus
+- The English Bible is displayed as the King James Bible: the files named
+  world_english_bible hold the Authorized Version of 1611 (a legacy label;
+  the sources registry already credits it correctly). File identifiers
+  unchanged; the rename of the files is a later corpus operation.
 
 ## 2026-09-19
 
