@@ -379,10 +379,24 @@ function LabeledHeatmap({
     return count;
   }, [rowLabels, colLabels]);
 
+  // In a nested works grid every column reads "Plutarch, <title>": the author
+  // is already in the heading, and the repeated prefix made the slanted
+  // titles collide and run off the right edge (NC, 2026-09-19). When every
+  // column label shares the same "Author, " prefix it is dropped from the
+  // column labels only; row labels keep it (there is room).
+  const commonColPrefix = useMemo(() => {
+    if (colLabels.length < 2) return '';
+    const heads = colLabels.map((l) => {
+      const i = String(l).indexOf(', ');
+      return i > 0 ? String(l).slice(0, i + 2) : null;
+    });
+    return heads.every((h) => h && h === heads[0]) ? heads[0] : '';
+  }, [colLabels]);
   const colText = useCallback((label) => {
     const { base, lang } = splitLabel(label);
-    return lang && ambiguousBases[base] > 1 ? `${base} (${lang})` : base;
-  }, [ambiguousBases]);
+    const shown = commonColPrefix && base.startsWith(commonColPrefix) ? base.slice(commonColPrefix.length) : base;
+    return lang && ambiguousBases[base] > 1 ? `${shown} (${lang})` : shown;
+  }, [ambiguousBases, commonColPrefix]);
 
   // The rotated column labels can run past the canvas's own right edge and
   // (if long enough) need more than the default vertical room too. Both are
@@ -533,15 +547,9 @@ function LabeledHeatmap({
     ctx.clearRect(0, 0, gridWidth, colMargin);
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, gridWidth, colMargin);
-    if (hover) {
-      // The column band continues up through the labels to the hovered name.
-      ctx.fillStyle = 'rgba(185, 28, 28, 0.16)';
-      ctx.fillRect(hover.j * cellSize, 0, cellSize, colMargin);
-      ctx.strokeStyle = 'rgba(185, 28, 28, 0.9)';
-      ctx.lineWidth = 1.5;
-      ctx.strokeRect(hover.j * cellSize + 0.75, 0.75, cellSize - 1.5, colMargin - 1.5);
-      ctx.lineWidth = 1;
-    }
+    // No vertical band up here: with slanted names it crossed the boxed name
+    // at an angle and read as two different highlights (NC, 2026-09-19). The
+    // boxed name alone marks the column; the band runs through the cells.
     // Column labels: rotated 45 degrees so more/longer names fit in the same
     // vertical space than a straight horizontal label would allow, but only
     // when they actually need it -- a handful of short labels (a books
@@ -899,6 +907,12 @@ export default function ConnectionsMap() {
       const res = await fetch(`/api/passages/map/books?${params}`);
       const json = await res.json();
       setBooksData(json);
+      // A pair of single-book works (Plato's Epistles against Plutarch's
+      // Aratus) has no books grid to show; go straight to the passages
+      // instead of a "no book-level data" notice (NC, 2026-09-19).
+      if (!json.error && (!json.ids_a?.length || !json.ids_b?.length)) {
+        loadPair(workA, workB);
+      }
     } catch (e) {
       setError(e.message || 'the books grid could not be loaded');
     } finally {
@@ -1345,7 +1359,7 @@ export default function ConnectionsMap() {
                     />
                   </div>
                 ) : (
-                  <p className="mt-2 text-sm text-gray-500">No book-level data at the current filters.</p>
+                  <p className="mt-2 text-sm text-gray-500">No book divisions to show for this pair; the passages are listed below.</p>
                 )
               )}
               <ColorLegend legend={booksShown.legend} />
