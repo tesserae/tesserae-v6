@@ -35,7 +35,14 @@ Conventions
   reader service logged broken pipes. Stopgap at 15:19: `THEME_READER_K=100`
   added to production's `.env` and WSGI reloaded; the reader applied again
   (2.2 s). Fix: PR #425 (client timeout = max(6, 0.04 x rows)); its deploy
-  removes the `.env` line. Done line below when deployed.
+  removes the `.env` line.
+- 15:25 EDT: PR #425 merged a57803b6, pulled, `THEME_READER_K=100` removed
+  from `.env`, WSGI reloaded, the three workers warmed. Checks: the reader
+  applies at 300 rows (5.9 s of a 7 s request); on "a wife or child
+  recognizes someone long thought dead or lost" the Odyssey is on the page
+  at row 14 (23.1, Eurycleia wakes Penelope with the news), and on "a
+  storm at sea batters ships and terrifies the crew" at rows 21 and 23
+  (9.67, 12.409). Neither query returned the Odyssey before today.
 - Also learned: after every reload the first request on each of the three
   Apache workers loads the passage index (18 to 30 s); warm requests take
   about 3 s. Warm the three workers with three requests after a reload
