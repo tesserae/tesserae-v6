@@ -862,6 +862,10 @@ def main():
     ap.add_argument('--keep-index-db', action='store_true',
                      help='keep the intermediate n-gram index db (for debugging) instead of deleting it')
     args = ap.parse_args()
+    # Resolve the per-language switch once, so the same value is used for the
+    # run and recorded in the table's metadata (auto = English only).
+    drop_all_commonplace = (args.drop_all_commonplace == 'on'
+                            or (args.drop_all_commonplace == 'auto' and args.language == 'en'))
 
     os.makedirs(OUT_DIR, exist_ok=True)
     out_db = args.out_db or os.path.join(OUT_DIR, f'{args.language}.db')
@@ -889,8 +893,7 @@ def main():
             index_db_path, args.min_shared, args.min_jaccard,
             args.min_shared_override, args.min_containment, args.rare_max_df,
             args.rare_min_containment, commonplace_hashes,
-            drop_all_commonplace=(args.drop_all_commonplace == 'on'
-                                  or (args.drop_all_commonplace == 'auto' and args.language == 'en')))
+            drop_all_commonplace=drop_all_commonplace)
 
         corpus_version = get_corpus_version(args.language)
         built_at = datetime.now(timezone.utc).isoformat()
@@ -907,6 +910,7 @@ def main():
             'rare_max_df': args.rare_max_df,
             'rare_min_containment': args.rare_min_containment,
             'drop_all_commonplace': args.drop_all_commonplace,
+            'drop_all_commonplace_applied': int(drop_all_commonplace),
             'commonplace_ngrams': index_stats['commonplace_ngrams'],
             'works_indexed': index_stats['works_indexed'],
             'lines_indexed': index_stats['lines_indexed'],
