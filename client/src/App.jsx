@@ -290,10 +290,22 @@ function App() {
     }
   }, []);
 
+  // The first run of this effect is the page load: an alias address such as
+  // /corpus?theme=1 is rewritten to its page's own path and MUST keep its
+  // parameters (the deep link into Browse Corpus depends on it). Every later
+  // run is a tab change, and a tab change starts the new page clean: the
+  // query string used to be carried along, so after one Theme Search its
+  // "?query=..." followed the visitor to Search, Read and back, and Theme
+  // Search re-ran the old query every time its tab was opened (NC,
+  // 2026-09-20: "Every time I come back to theme search I get the same
+  // previous query autofilled").
+  const pathSyncedOnce = useRef(false);
   useEffect(() => {
     const newPath = pageTypeToPath[pageType] || '/';
+    const firstRun = !pathSyncedOnce.current;
+    pathSyncedOnce.current = true;
     if (window.location.pathname !== newPath) {
-      window.history.pushState({}, '', newPath + window.location.search);
+      window.history.pushState({}, '', firstRun ? newPath + window.location.search : newPath);
     }
   }, [pageType]);
 
