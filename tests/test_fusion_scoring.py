@@ -552,7 +552,7 @@ class TestWeightProfileFirewall:
         # English differs from Latin in sound and edit distance (off) and, since
         # 2026-09-19, in quotation (Latin 10, English 0 pending measurement).
         assert all(en[k] == latin[k] for k in latin
-                   if k not in ('sound', 'edit_distance', 'quotation')))
+                   if k not in ('sound', 'edit_distance', 'quotation'))
 
     def test_none_and_unknown_default_to_latin_epic(self):
         from backend.fusion import get_weight_profile, WEIGHT_PROFILES
