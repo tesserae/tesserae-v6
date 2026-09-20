@@ -163,7 +163,7 @@ docs/DATA_OPERATIONS.md.
   the work pairs behind it, click a work pair for the strongest passage
   pairs, click a passage pair to open the Reader. Translation pairs (the
   same text in two languages) are flagged two ways -- a curated list
-  (`data/translation_pairs.json`, 456 pairs) and a
+  (`data/translation_pairs.json`, 730 pairs) and a
   heuristic (window-order correlation) -- and hidden by default. New
   routes `/api/passages/map`, `/api/passages/map/cell`,
   `/api/passages/map/pair`, `/api/passages/map/work`, all site-only in

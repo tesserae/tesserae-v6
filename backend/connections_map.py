@@ -28,6 +28,7 @@ import json
 import os
 import re
 import sqlite3
+from urllib.parse import urlencode
 
 from backend.logging_config import get_logger
 from backend.passage_index import index_fingerprint
@@ -744,9 +745,14 @@ def get_pair(work_a, work_b, limit=DEFAULT_PAIR_LIMIT, book_a=None, book_b=None)
                 'ref_end': w.get('ref_end'),
                 'gist': w.get('gist'),
                 'author_display': m['author_display'],
-                'reader_url': (f"/read?work={work_key}.tess&lang={w.get('language') or m['language']}"
-                              f"&ref={w.get('ref_start') or ''}&refEnd={w.get('ref_end') or w.get('ref_start') or ''}"
-                              f"&tab=similar"),
+                # URL-encoded (loci carry spaces and dots, "hom. il. 4.446")
+                'reader_url': '/read?' + urlencode({
+                    'work': f"{work_key}.tess",
+                    'lang': w.get('language') or m['language'],
+                    'ref': w.get('ref_start') or '',
+                    'refEnd': w.get('ref_end') or w.get('ref_start') or '',
+                    'tab': 'similar',
+                }),
             }
 
         pairs = []
