@@ -16,9 +16,9 @@ Match on the **identity** of word forms or dictionary headwords within a textual
 
 | Channel | Signal | Criterion |
 |---------|--------|-----------|
-| **lemma** | Shared dictionary headwords | ≥ 2 shared lemmata after frequency-based stoplist filtering |
+| **lemma** | Shared dictionary headwords | ≥ 2 shared lemmata that are not function words |
 | **lemma_min1** | Single shared headword | ≥ 1 shared lemma (high-recall, low-precision variant) |
-| **exact** | Identical surface tokens | ≥ 2 shared orthographic forms after stoplist filtering |
+| **exact** | Identical surface tokens | ≥ 2 shared orthographic forms that are not function words |
 | **rare_word** | Shared low-frequency lemmata | ≥ 2 shared lemmata with corpus frequency ≤ 100 |
 
 **Key property**: Lexical channels require the matching tokens to **co-occur within a single textual unit**. A match between units (s_i, t_j) means that both units contain the relevant lemmata or forms. When an allusion is split across a line break (enjambment), the matching tokens are distributed between s_i and s_{i+1}, and neither line alone meets the co-occurrence threshold. Combining them into a 2-line window recovers the match.
@@ -162,7 +162,7 @@ Three penalty tiers based on stoplist classification:
 
 Content words are counted from the unique surface-form word sets (not the raw lemma dictionary, which may contain duplicate entries like *fata* and *fatum* for the same surface word).
 
-Importantly, individual channels run **without** stoplist filtering — they cast the widest possible net. The stoplist is applied only in the scoring layer, shaping the ranking without reducing recall.
+Individual channels run without any frequency-based stoplist, so common content words stay matchable and cast a wide net. Since 2026-09-20 the curated function-word list itself is excluded from matching in the lemma, lemma_min1 and exact channels (before that, an empty stopword set let every pair of windows sharing "the" or "qui" become a candidate, and one search could hold a web worker at 25 GB; see docs/DECISIONS.md). The penalty tiers above then shape the ranking of what remains.
 
 ### Per-channel candidate pruning
 

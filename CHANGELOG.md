@@ -7,6 +7,22 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-09-20
+
+### Search
+- Fusion channels no longer treat function words as matching features, and
+  their candidate lists are bounded. The lemma, lemma_min1 and exact
+  channels ran the matcher with an empty stopword set, so every pair of
+  lines or two-line windows sharing "the", "and", "qui" or "sum" became a
+  candidate held in memory (5.3 million window pairs for Paradise Lost
+  against Hyperion; a web worker at 25.6 GB for 19 minutes on 2026-09-19).
+  The curated function-word list now applies in those channels (a user's
+  own "-1" in the classic search still means no stoplist at all),
+  the matcher keeps only the top candidates by quick IDF (four times the
+  channel's cap, the set the old pre-filter kept), and lemma and exact get
+  the 50,000 result cap the other channels have. Measurement and rationale
+  in docs/DECISIONS.md (2026-09-20).
+
 ## 2026-09-19
 
 ### Search

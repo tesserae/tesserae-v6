@@ -7,6 +7,58 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-09-20 Fusion channels: function words are not matching features, and candidate lists are bounded
+
+**Problem.** One fusion search of Paradise Lost (10,565 lines) against
+Hyperion held a web worker at 25.6 GB for over 19 minutes on 2026-09-19,
+and the quotation-weight sweep was killed twice at the window stage on
+whole-file prose sources. Cause, found 2026-09-20: the lemma, lemma_min1
+and exact channels ran the matcher with `stoplist_size: -1`, which meant an
+EMPTY stopword set, so "the", "and", "his", "with" (English) and "qui",
+"sum", "hic", "non" (Latin) were matching features. Every pair of two-line
+windows sharing one of them became a candidate held in memory, and the
+list grew with source units times target units. The `lemma` and `exact`
+channels also had no result cap, so every candidate was scored in full.
+
+Candidate pairs at the window stage, counted from the lemma caches
+(`count_pairs.py`, session scripts 2026-09-20):
+
+| pair | one shared word, as it was | one shared word, function words excluded | two shared words, as it was | two, excluded |
+|---|---|---|---|---|
+| Paradise Lost x Hyperion | 5,287,486 | 330,358 | 1,380,119 | 7,186 |
+| Aeneid x Lucan 1 | 1,142,943 | 584,430 | 115,664 | 28,236 |
+| Aeneid x Achilleid | 1,763,321 | 823,283 | 156,892 | 32,655 |
+| Aeneid x Metamorphoses | 22,308,739 | 9,145,844 | 2,535,778 | 393,788 |
+| Iliad x Odyssey | 61,407,496 | 24,240,161 | 11,133,128 | 1,908,090 |
+
+**Decision (three changes, one PR).**
+1. The three channels pass `exclude_function_words` with their
+   `stoplist_size: -1`, so the language's curated function-word list
+   applies in the matcher, as it already did for Coptic. A user's own -1 in
+   the classic search keeps its documented meaning (no stoplist at all). Common content words stay matchable and are
+   down-weighted by rarity in scoring (the 2026-09-19 rule, now true of the
+   channels as well as the scoring layer).
+2. The matcher keeps a bounded candidate list (`candidate_cap`, four times
+   the channel's result cap) ranked by the same quick IDF score the channel
+   runner's pre-filter used, so memory is proportional to the cap, not to
+   the text sizes. The kept set is the one the pre-filter kept.
+3. `lemma` and `exact` get the 50,000 result cap every other channel has.
+   On the benchmark pairs it does not bind (28k to 33k two-word window
+   pairs); it binds on very long pairs such as Aeneid x Metamorphoses
+   (394k), where the pairs dropped are the 200,000-plus lowest by IDF.
+
+**Measurement.** MEASUREMENT PENDING: before-and-after runs of
+`evaluation/fusion_memory_test/run_fusion_memory_check.py` (the
+quotation-weight harness at the production weight; prose quotations of
+Vergil, Lucan 1 and the Achilleid against the Aeneid, Odyssey 6 against
+Argonautica 3, plus English timing cases), same texts and caches, code from
+a worktree at main and one at the fix branch.
+
+**Deferred for NC.** A request-size guard in `/api/search` (refuse or
+queue pairs whose estimated candidate count is too large, with a plain
+message) and a memory cap on the web workers (root). Both are visible
+behaviour changes.
+
 ## 2026-09-19 Standing rule: stoplists are function words only
 
 **Decision (Neil Coffee).** A stoplist holds function words (articles,

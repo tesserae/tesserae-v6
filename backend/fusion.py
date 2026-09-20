@@ -768,7 +768,15 @@ CHANNEL_CONFIGS = {
         "language": "la",
         "stoplist_basis": "source_target",
         "stoplist_size": -1,
+        # function words are never matching features (2026-09-20, see
+        # backend/matcher.py find_matches and docs/DECISIONS.md)
+        "exclude_function_words": True,
         "unbounded_scoring": True,
+        # cap added 2026-09-20: the only channel without one. It binds only
+        # on very long pairs (Aeneid x Metamorphoses: 394k window pairs
+        # share two non-function lemmas; the benchmark pairs have 28k-33k)
+        # and keeps the top 200k candidates by quick IDF, like lemma_min1.
+        "max_results": 50000,
         "use_edit_distance": False,
         "use_sound": False,
         "use_pos": False,
@@ -780,6 +788,9 @@ CHANNEL_CONFIGS = {
         "language": "la",
         "stoplist_basis": "source_target",
         "stoplist_size": -1,
+        # function words are never matching features (2026-09-20, see
+        # backend/matcher.py find_matches and docs/DECISIONS.md)
+        "exclude_function_words": True,
         "unbounded_scoring": True,
         "max_results": 50000,  # cap: weight is only 0.3, diminishing returns beyond top 50K
         "use_edit_distance": False,
@@ -793,7 +804,11 @@ CHANNEL_CONFIGS = {
         "language": "la",
         "stoplist_basis": "source_target",
         "stoplist_size": -1,
+        # function words are never matching features (2026-09-20, see
+        # backend/matcher.py find_matches and docs/DECISIONS.md)
+        "exclude_function_words": True,
         "unbounded_scoring": True,
+        "max_results": 50000,  # cap added 2026-09-20, same reason as lemma
         "use_edit_distance": False,
         "use_sound": False,
         "use_pos": False,
@@ -1522,7 +1537,12 @@ def run_channel(channel_name, config, source_units, target_units,
             source_units, target_units, settings
         )
     else:
-        # lemma or exact
+        # lemma or exact. Bound the candidate list inside the matcher (same
+        # quick-IDF ranking and the same 4x buffer as the pre-filter below),
+        # so memory does not grow with source units times target units.
+        cap = config.get("max_results", 0)
+        if cap > 0:
+            settings["candidate_cap"] = cap * 4
         matches, _ = matcher.find_matches(source_units, target_units, settings, None, cancellation)
 
     if not matches:
