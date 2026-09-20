@@ -31,7 +31,7 @@ Candidate pairs at the window stage, counted from the lemma caches
 | Aeneid x Metamorphoses | 22,308,739 | 9,145,844 | 2,535,778 | 393,788 |
 | Iliad x Odyssey | 61,407,496 | 24,240,161 | 11,133,128 | 1,908,090 |
 
-**Decision (three changes, one PR).**
+**Decision (four changes, one PR).**
 1. The three channels pass `exclude_function_words` with their
    `stoplist_size: -1`, so the language's curated function-word list
    applies in the matcher, as it already did for Coptic. A user's own -1 in
@@ -43,9 +43,24 @@ Candidate pairs at the window stage, counted from the lemma caches
    runner's pre-filter used, so memory is proportional to the cap, not to
    the text sizes. The kept set is the one the pre-filter kept.
 3. `lemma` and `exact` get the 50,000 result cap every other channel has.
-   On the benchmark pairs it does not bind (28k to 33k two-word window
-   pairs); it binds on very long pairs such as Aeneid x Metamorphoses
-   (394k), where the pairs dropped are the 200,000-plus lowest by IDF.
+   On the two poetry benchmark pairs it does not bind (28k to 33k two-word
+   window pairs); it binds on prose sources against the Aeneid (a 287-line
+   Quintilian book produced 783,588 uncapped window results) and on very
+   long pairs such as Aeneid x Metamorphoses (394k), where the pairs
+   dropped are the lowest by quick IDF beyond the top 200,000.
+4. The `dictionary` channel is bounded the same way (cap 50,000,
+   candidates 200,000). With `include_lemma_matches` it re-finds every
+   pair sharing two content lemmas plus the synonym pairs and had no cap:
+   up to 360,126 window results per prose source against the Aeneid, and
+   the first after-fix benchmark run was killed at its 12 GB cap in this
+   channel's window step for Seneca's Letters, after the lemma channels
+   had passed the same step in under a minute at 3 GB.
+
+**Not a fusion defect.** salutati.de_laboribus_herculis.tess has 97 units
+of median 1,232 words (one .tess line per chapter), so every channel
+works on chapter-sized units and the pair against the Aeneid runs for
+hours. That is a text-segmentation defect of the file; it is skipped in
+the measurement and listed as a corpus follow-up.
 
 **Measurement.** MEASUREMENT PENDING: before-and-after runs of
 `evaluation/fusion_memory_test/run_fusion_memory_check.py` (the

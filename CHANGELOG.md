@@ -19,9 +19,10 @@ behind each, are in docs/DECISIONS.md.
   The curated function-word list now applies in those channels (a user's
   own "-1" in the classic search still means no stoplist at all),
   the matcher keeps only the top candidates by quick IDF (four times the
-  channel's cap, the set the old pre-filter kept), and lemma and exact get
-  the 50,000 result cap the other channels have. Measurement and rationale
-  in docs/DECISIONS.md (2026-09-20).
+  channel's cap, the set the old pre-filter kept), and lemma, exact and
+  dictionary get the 50,000 result cap the other channels have (the
+  dictionary channel alone blew a 12 GB cap on Seneca's Letters against
+  the Aeneid). Measurement and rationale in docs/DECISIONS.md (2026-09-20).
 
 ## 2026-09-19
 
