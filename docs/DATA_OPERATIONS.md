@@ -827,6 +827,28 @@ Conventions
   production: la 730, grc 828, en 42, cop 144, he 39, index version
   2026-09-18). Noted here only because a cache file now persists outside
   the request that created it.
+## 2026-09-20 Corpus: the English Bible files are the King James Version (planned rename, not yet run)
+- Finding (NC, 2026-09-20, from the results page's corpus panel): the 70
+  files `texts/en/world_english_bible.*` hold the Authorized (King James)
+  Version of 1611, not the World English Bible: "In the beginning God
+  created the heaven and the earth", "Called of God an high priest after
+  the order of Melchisedec", "The LORD {is} my shepherd" with the e-text's
+  braces for supplied words. A legacy V3 label; PR #263 (2026-08-18) noted
+  it when it added the KJV New Testament under the same name and set the
+  date to 1611, and `data/text_sources.json` credits "Authorized (King
+  James) Version, 1611, Project Gutenberg".
+- Done now: the displayed name becomes "King James Bible" (display tables
+  only, PR to follow this entry).
+- Planned: rename the identifier `world_english_bible` to a King James
+  identifier in one operation: 70 text files and their tags (`<WEB ...>`),
+  the English lemma caches, the English inverted index (`add_texts_to_index
+  --replace` plus `drop_stale_index_entries`), 14,335 passage-index rows
+  (ids carry the work name), the English Quotation table, the Similarity
+  Map cache, `data/translation_pairs.json` (23 pairs name it),
+  `backend/scripture_id.py`'s book table, `data/text_genres.csv` and
+  `data/text_sources.json`, and the connector's text listing. Run in a
+  quiet slot with the next English index rebuild; record here with backups.
+
 ## 2026-09-20 English line-search fold fix deployed (PR #418)
 - What: `_normalize_lemma` in `backend/app.py` applied the Latin u/v and
   i/j fold to English queries, so "love" was looked up as "loue", "jove" as
