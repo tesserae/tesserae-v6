@@ -222,12 +222,18 @@ CHANNEL_WEIGHTS = {
                             #   syntactic patterns; rises when semantic recovery adds 2nd channel)
     "lemma_min1": 0.3,      # lexical: single shared lemma (low — very high recall, very
                             #   noisy; serves as a catch-all for otherwise missed pairs)
-    "quotation": 0.0,       # lexical: runs of 3+ consecutive identical surface tokens.
-                            #   DEFAULT WEIGHT IS 0 to avoid affecting Latin/Greek
-                            #   classical-poetry benchmarks. The quotation channel is
-                            #   intended primarily for biblical-prose; enabled and
-                            #   weighted via WEIGHT_PROFILES["biblical_coptic"] below.
-                            #   Set the per-search weight via the profile mechanism.
+    "quotation": 10.0,      # lexical: runs of 3+ consecutive identical surface tokens.
+                            #   Was 0 until 2026-09-19 (kept off to protect the Latin
+                            #   poetry benchmarks). Measured that day on 32 prose
+                            #   quotations of Vergil (Gellius, Macrobius, Quintilian,
+                            #   Servius) against Lucan 1 and the Achilleid vs the Aeneid
+                            #   (evaluation/quotation_weight_test/REPORT.md): at 10,
+                            #   first-ten recall of the quotations 8 -> 19 of 32 and
+                            #   recall at 100 14 -> 28, for one Lucan pair lost at rank
+                            #   100 and none in the top ten; 35 (the Coptic value) found
+                            #   all 32 but cost three poetry pairs in the top ten. NC
+                            #   approved 10. Greek is unaffected either way (the
+                            #   channel finds no runs in the Homer-Apollonius gold).
 }
 
 
@@ -260,7 +266,9 @@ WEIGHT_PROFILES = {
     # English (edit_distance in particular yields many loose fuzzy matches), so
     # the conservative default is 0 — English fusion output is unchanged unless
     # a user opts in. All other weights match latin_epic.
-    "english": {**dict(CHANNEL_WEIGHTS), "sound": 0.0, "edit_distance": 0.0},
+    # English keeps quotation at 0: the 2026-09-19 measurement covered Latin
+    # and Greek only. Re-measure before turning it on here.
+    "english": {**dict(CHANNEL_WEIGHTS), "sound": 0.0, "edit_distance": 0.0, "quotation": 0.0},
 
     # Best-composite result from Phase 9 optimization (iter 16, seed 314).
     # 50-iter biblical-bias search over log-uniform [0.1×, 10×]; semantic and
