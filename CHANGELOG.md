@@ -10,6 +10,15 @@ behind each, are in docs/DECISIONS.md.
 ## 2026-09-20
 
 ### Theme Search
+- The reader re-scores the whole composed list (about 300 rows), not its
+  first hundred, so a work whose rows sat past the hundred can reach the
+  page: the Odyssey's recognitions on "a wife or child recognizes someone
+  long thought dead or lost" were at rows 146 to 148 and land at row 15.
+  Precision neutral on the 16-query benchmark (0.444 against 0.453 with
+  the lexical boost at 100 rows); about 9 s a query instead of 4 s.
+
+
+### Theme Search
 - A word index over the passage descriptions (SQLite FTS5, BM25;
   `scripts/build_desc_fts.py`) adds a small lexical boost to the embedding
   similarity, so a description that shares words with the query rises a
