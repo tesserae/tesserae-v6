@@ -33,7 +33,7 @@ WORKS = [
     ('novum_testamentum.matthaeus', 'grc', 'novum_testamentum', 'Novum Testamentum',
      None, None, None, None, None, 40, 40, 1.0),
     ('world_english_bible.new_testament', 'en', 'world_english_bible',
-     'World English Bible', None, None, None, None, None, 50, 40, 0.8),
+     'King James Bible', None, None, None, None, None, 50, 40, 0.8),
 ]
 
 # work_a, work_b, lang_a, lang_b, count, count_notrans, curated, heuristic
@@ -313,7 +313,7 @@ def test_map_author_view_marks_the_world_english_bible_label_translated(client, 
     status, body = _get(client, '/api/passages/map', view='author', translations=1)
     assert status == 200
     idx = body['ids'].index('world_english_bible::en')
-    assert body['labels'][idx].startswith('World English Bible')
+    assert body['labels'][idx].startswith('King James Bible')
     assert body['labels'][idx].endswith('(tr.)')
 
 

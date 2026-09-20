@@ -31,6 +31,12 @@ behind each, are in docs/DECISIONS.md.
   Latin only. The results page's "Across the corpus" panel, blank for
   such shared words, works for English again.
 
+### Corpus
+- The English Bible is displayed as the King James Bible: the files named
+  world_english_bible hold the Authorized Version of 1611 (a legacy label;
+  the sources registry already credits it correctly). File identifiers
+  unchanged; the rename of the files is a later corpus operation.
+
 ## 2026-09-19
 
 ### Search
