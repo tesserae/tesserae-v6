@@ -510,7 +510,17 @@ Conventions
   a reload. Verified: Hamlet III.4.192 "What shall I do?" has no quotations
   (eight Bible verses on the first build); Bunyan, Pilgrim's Progress 1.2035
   is still strictly matched to Revelation 22.14.
-- Done (Greek, final): see the line added when the rebuild finished.
+- Done (Greek, final): 2026-09-19 21:51-22:11 EDT under a 12G cap (final rule:
+  all-commonplace drop off for Greek, part files one work), 114,359 pairs
+  (27,427 strict; 86,932 via the rare rule), live after a reload. Iliad 1.1
+  is quoted by Aelius Aristides. Known Greek residue for a later pass:
+  duplicate copies pair with themselves (two Aesops; Libanius whole and in
+  parts under different base names) and the per-book Septuagint and New
+  Testament files count as separate works, unlike the whole-file Vulgate.
+- Memory record for these builds: Latin peaks 9.2 to 11.9 GB in the cgroup
+  (file cache counted), Greek 11.0 GB, English 1.2 GB; a MemoryHigh one
+  gigabyte under the cap throttled the Greek build to a crawl and was
+  removed from the launcher.
 - Also on 2026-09-19: three attempts at the Greek build failed or were
   stopped before these rules settled (surrogate ids 12:59 and 13:02; stopped
   13:23 and 13:29; killed by the machine-wide pressure event 13:38). Logs
