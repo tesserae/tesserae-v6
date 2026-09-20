@@ -4,7 +4,8 @@ Newest first. Every pull request adds a line here; production data
 operations that are not code (index rebuilds, cache rebuilds, corpus
 repairs) are listed under "Data operations" with the script that did them,
 so the state of the live site can be reconstructed from this file and
-docs/DATA_OPERATIONS.md.
+docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
+behind each, are in docs/DECISIONS.md.
 
 ## 2026-09-19
 

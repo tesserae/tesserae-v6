@@ -477,6 +477,40 @@ Conventions
   `cyprian_pseudo.sodoma` 1; coverage answers from the sidecar; "arma
   virum" lemma search count unchanged at about 323 distinct loci.
 
+## 2026-09-19 English: lemma caches, index and Quotation table rebuilt after the noun-only lemmatizer fix (PR #413)
+- Why: the batch cache builder lemmatized English as nouns only, so every
+  English lemma cache kept past tenses ("stood", "went", "fled", "began")
+  while the index builder reduced them; "began" had a document frequency
+  of 2 works against 28 for "begin", and in a Milton search his own verbs
+  ranked like proper names (docs/DECISIONS.md, 2026-09-19 English entry).
+- Steps, from the production checkout, each under the memory launcher
+  (`~/bin/tess-job`, cap 8G, tesserae-jobs.slice), Tessa stopped for the
+  period (23:38 to the end):
+  1. `scripts/build_inverted_index.py --language en --force` (23:40 to
+     23:42, 2.6 minutes; previous index kept as
+     ~/tesserae-backups/en_index.db.prev-20260919): 164 texts, 33,434
+     lemmas in lemma_doc_freq; "begin" 28, "flee" 25, "stand" 30 works;
+     "began", "fled", "stood" gone.
+  2. `scripts/batch_lemma_cache.py en --force` with the fixed builder
+     (after #413 merged; an earlier run at 23:39 with the unfixed builder
+     is superseded): all 164 English caches.
+  3. App reloaded; `scripts/reuse/build_reuse_table.py --language en`
+     rebuilt on the new caches.
+  4. Cached search results cleared for English, Latin and Greek
+     (`backend.cache.clear_cache_for_language`; the Latin and Greek ones
+     also carried the pre-#411 quotation weight), and the three default
+     pairs re-warmed.
+- Done: index 23:40-23:42 EDT (2.6 min); caches with the fixed builder
+  23:46-23:47 (164 files; "Fled over Adria" now lemmatizes to "flee ...");
+  English Quotation table 23:47-23:49 (83 s, 116,302 pairs, 113,707 via the
+  rare rule); cached search results cleared 23:50 (47 files: en 5, la 36,
+  grc 6); default pairs re-warmed by 23:53 (Latin Aeneid 1 x Lucan 1, English
+  Paradise Lost 1 x Hyperion, Greek Iliad 1 x Argonautica 1). Check on the
+  English default pair: before, the top ten held "began, read", "fled,
+  over" and "summer, day"; after, it opens with "expanded wings" (P.L. 1.20
+  / Hyperion 1.29), "dire event", "old Saturn", "far within", "high Gods",
+  "palace, court", "awaiting command". Tessa restarted 23:54.
+
 ## 2026-09-19 Reader: Quotation tables rebuilt for Latin, Greek and English under the final builder rules
 - What: after the first English table (13:14) marked Hamlet III.4.192 "What
   shall I do?" as strictly quoted by eight Bible verses and paired the Faerie
