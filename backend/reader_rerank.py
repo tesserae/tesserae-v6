@@ -89,7 +89,7 @@ def _reader_texts(results):
     return out
 
 
-def apply(query, results, k=None, timeout=6.0):
+def apply(query, results, k=None, timeout=None):
     """Re-rank the top `k` of `results` by reader score, index score as the
     tiebreak. `results` is assumed already sorted by index score.
 
@@ -99,6 +99,13 @@ def apply(query, results, k=None, timeout=6.0):
     meta {'applied': True, 'k': k, 'ms': elapsed, 'model': MODEL_ID}. Never raises.
     """
     k = DEFAULT_K if k is None else k
+    if timeout is None:
+        # The reader scores about 50 passages a second on this machine (100
+        # rows 2.1 s, 300 rows 6.2 s measured 2026-09-20). A fixed 6 s cut
+        # the 300-row call off just before it answered, so every Theme
+        # Search ran without the reader for nine minutes after the depth
+        # change; the client's timeout now grows with the rows sent.
+        timeout = max(6.0, 0.04 * k)
     if not results:
         return results, {'applied': False}
 

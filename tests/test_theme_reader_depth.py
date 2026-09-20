@@ -28,3 +28,21 @@ def test_env_can_still_set_the_depth(monkeypatch):
 def test_route_fetches_a_hundred_works_for_the_reader():
     from backend.blueprints import passages
     assert passages.READER_HEADS == 100
+
+
+def test_reader_timeout_grows_with_the_rows_sent(monkeypatch):
+    from backend import reader_rerank as rr
+    seen = {}
+
+    def fake_score(query, passages, timeout=6.0):
+        seen['timeout'] = timeout
+        return {p['id']: 0.5 for p in passages}
+    monkeypatch.setattr(rr.reader_client, 'score', fake_score)
+    monkeypatch.setattr(rr, '_reader_texts', lambda results: {r['id']: 't' for r in results})
+    rows = [{'id': f'w{i}', 'score': 1.0 - i / 1000} for i in range(300)]
+    rr.apply('q', rows, k=300)
+    assert seen['timeout'] == 12.0
+    rr.apply('q', rows[:100], k=100)
+    assert seen['timeout'] == 6.0
+    rr.apply('q', rows, k=300, timeout=3.0)
+    assert seen['timeout'] == 3.0

@@ -10,6 +10,14 @@ behind each, are in docs/DECISIONS.md.
 ## 2026-09-20
 
 ### Theme Search
+- The reader client's timeout grows with the rows sent (6 s for 100,
+  12 s for 300). A fixed 6 s cut the 300-row call off just as it
+  answered, so for nine minutes after the depth change every Theme Search
+  ran without the reader; the depth was set back to 100 through the
+  environment while this was fixed.
+
+
+### Theme Search
 - The reader re-scores the whole composed list (about 300 rows), not its
   first hundred, so a work whose rows sat past the hundred can reach the
   page: the Odyssey's recognitions on "a wife or child recognizes someone
