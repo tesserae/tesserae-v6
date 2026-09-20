@@ -827,6 +827,17 @@ Conventions
   production: la 730, grc 828, en 42, cop 144, he 39, index version
   2026-09-18). Noted here only because a cache file now persists outside
   the request that created it.
+## 2026-09-20 Dates for three languages and the era badge deployed (PR #422)
+- What: `backend/author_dates.json` gains sections for Middle High German
+  (Nibelungenlied, c. 1200), Old French (Chanson de Roland, c. 1100) and
+  Italian (Dante, d. 1321), era "Medieval"; Theme Search shows a work's era
+  when it has no year (the Hebrew Bible, "Biblical", was shown as undated).
+  Merged 7e231103, pulled, bundle rebuilt in the launcher (old bundles
+  kept), WSGI reloaded 14:37 EDT (the date table is read once per process).
+- Check: /api/passages/theme-search now returns year 1200 / Medieval for
+  the Nibelungenlied and era Biblical with no year for Hebrew Bible books.
+- Done 2026-09-20 14:37 EDT (main session).
+
 ## 2026-09-20 Fusion candidate-memory fix deployed (PR #416); cached results cleared
 - What: PR #416 merged 2a9301c6 and pulled on production 14:29 EDT, WSGI
   reloaded. Backend only. Function words are no longer matching features
