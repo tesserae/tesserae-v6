@@ -90,6 +90,25 @@ function fmtCount(n) {
 
 function ColorLegend({ legend }) {
   if (!legend || !legend.high) return null;
+  if (legend.mode === 'lift') {
+    return (
+      <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-gray-500">
+        <span>1&times;</span>
+        <div
+          className="h-2 w-28 rounded-sm border border-gray-200"
+          style={{ background: `linear-gradient(to right, ${cellColor(0.05)}, `
+            + `${cellColor(0.5)}, ${cellColor(1)})` }}
+          aria-hidden="true"
+        />
+        <span>{legend.high.toFixed(1)}&times;</span>
+        <span className="text-gray-400">
+          &middot; links relative to what the two sizes alone would predict: 1&times; is
+          chance, the typical connected cell is {legend.mid.toFixed(1)}&times;, the strongest{' '}
+          {legend.high.toFixed(1)}&times;
+        </span>
+      </div>
+    );
+  }
   if (legend.low === legend.high) {
     // One cell, or every cell alike: a ramp from 5057 to 5057 says nothing.
     return <div className="mt-2 text-[11px] text-gray-500">{fmtCount(legend.high)} links in each cell</div>;
@@ -294,6 +313,30 @@ function drawHatch(ctx, x, y, size) {
     ctx.stroke();
   }
   ctx.restore();
+}
+
+// Colour relative to size (NC, 2026-09-19: "are the scores normalized?" -- they
+// were not). For each cell, the observed link count over what the two sizes
+// alone would predict: row total x column total / grand total, the
+// independence expectation. 1x means "as much as chance"; the ramp runs on a
+// log2 scale from 1x up to the strongest cell, and cells at or under 1x stay
+// pale. Big authors no longer light up a whole row just by being big.
+function liftScale(counts) {
+  const n = counts?.length || 0;
+  if (!n) return { normalised: counts || [], legend: null, lift: null };
+  const m = counts[0].length;
+  const rowSum = counts.map((r) => r.reduce((a, b) => a + b, 0));
+  const colSum = Array.from({ length: m }, (_, j) => counts.reduce((a, r) => a + (r[j] || 0), 0));
+  const total = rowSum.reduce((a, b) => a + b, 0);
+  const lift = counts.map((r, i) => r.map((v, j) =>
+    (v > 0 && rowSum[i] > 0 && colSum[j] > 0 && total > 0) ? (v * total) / (rowSum[i] * colSum[j]) : 0));
+  const vals = lift.flat().filter((v) => v > 0).sort((a, b) => a - b);
+  if (!vals.length) return { normalised: lift, legend: null, lift };
+  const hi = vals[vals.length - 1];
+  const mid = vals[vals.length >> 1];
+  const denom = Math.log2(Math.max(hi, 2));
+  const normalised = lift.map((r) => r.map((v) => (v <= 1 ? (v > 0 ? 0.05 : 0) : Math.min(1, Math.log2(v) / denom))));
+  return { normalised, legend: { low: 1, mid, high: hi, mode: 'lift' }, lift };
 }
 
 function LabeledHeatmap({
@@ -623,6 +666,7 @@ export default function ConnectionsMap() {
   const [view, setView] = useState('author');
   const [languages, setLanguages] = useState([]);   // [] means "all"
   const [showTranslations, setShowTranslations] = useState(false);
+  const [colorMode, setColorMode] = useState('links');   // 'links' (raw count) or 'lift' (relative to size)
   const [top, setTop] = useState(50);
 
   const [mapData, setMapData] = useState(null);
@@ -793,6 +837,15 @@ export default function ConnectionsMap() {
     return null;
   };
 
+  // The three grids' colours under the chosen mode. 'links' uses the server's
+  // log scale as before; 'lift' recomputes from the raw counts client-side.
+  const shownFor = (data) => (colorMode === 'lift' && data?.counts
+    ? liftScale(data.counts)
+    : { normalised: data?.normalised, legend: data?.legend, lift: null });
+  const mapShown = useMemo(() => shownFor(mapData), [mapData, colorMode]);          // eslint-disable-line react-hooks/exhaustive-deps
+  const worksShown = useMemo(() => shownFor(cellData?.works_matrix), [cellData, colorMode]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const booksShown = useMemo(() => shownFor(booksData), [booksData, colorMode]);    // eslint-disable-line react-hooks/exhaustive-deps
+
   const onHoverMatrix = (cell, evt) => {
     if (!cell || !mapData) { setHoverInfo(null); return; }
     const idA = mapData.ids[cell.i], idB = mapData.ids[cell.j];
@@ -800,6 +853,7 @@ export default function ConnectionsMap() {
     setHoverInfo({
       labelA: mapData.labels[cell.i], labelB: mapData.labels[cell.j],
       count, normalised: mapData.normalised[cell.i][cell.j],
+      lift: mapShown.lift ? mapShown.lift[cell.i][cell.j] : null,
       diagonalText: idA === idB ? diagonalTextForView(view, count) : null,
       x: evt?.clientX, y: evt?.clientY,
     });
@@ -812,6 +866,7 @@ export default function ConnectionsMap() {
     setHoverInfo({
       labelA: wm.labels_a[cell.i], labelB: wm.labels_b[cell.j],
       count: wm.counts[cell.i][cell.j], normalised: wm.normalised[cell.i][cell.j],
+      lift: worksShown.lift ? worksShown.lift[cell.i][cell.j] : null,
       diagonalText: idA === idB ? 'same work, excluded' : null,
       x: evt?.clientX, y: evt?.clientY,
     });
@@ -822,6 +877,7 @@ export default function ConnectionsMap() {
     setHoverInfo({
       labelA: `book ${booksData.labels_a[cell.i]}`, labelB: `book ${booksData.labels_b[cell.j]}`,
       count: booksData.counts[cell.i][cell.j], normalised: booksData.normalised[cell.i][cell.j],
+      lift: booksShown.lift ? booksShown.lift[cell.i][cell.j] : null,
       diagonalText: null,
       x: evt?.clientX, y: evt?.clientY,
     });
@@ -1062,6 +1118,18 @@ export default function ConnectionsMap() {
           Show translation pairs
         </label>
 
+        <span className="inline-flex rounded border border-gray-300 overflow-hidden"
+              title="Links: the raw number of nearest-neighbour links, on a log colour scale. Relative to size: that number divided by what the two sizes alone would predict, so a big author does not light up a whole row just by being big.">
+          <span className="px-2 py-0.5 text-xs text-gray-500 bg-gray-50 border-r border-gray-300">Colour by</span>
+          {[['links', 'links'], ['lift', 'relative to size']].map(([v, label]) => (
+            <button key={v} type="button" onClick={() => setColorMode(v)} aria-pressed={colorMode === v}
+                    className={`px-2 py-0.5 text-xs ${colorMode === v
+                      ? 'bg-red-700 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'}`}>
+              {label}
+            </button>
+          ))}
+        </span>
+
         {!startWork && (
           <label className="flex items-center gap-1 text-gray-700"
                  title={ORDER_NOTE[view] || ORDER_NOTE.author}>
@@ -1134,7 +1202,8 @@ export default function ConnectionsMap() {
             <div className="mt-1 text-gray-700">{hoverInfo.diagonalText}</div>
           ) : (
             <div className="mt-1 text-gray-700">
-              {hoverInfo.count} links
+              {hoverInfo.count} links{hoverInfo.lift != null && hoverInfo.lift > 0
+                ? `, ${hoverInfo.lift.toFixed(1)}\u00d7 what the two sizes predict` : ''}
             </div>
           )}
         </div>
@@ -1159,7 +1228,7 @@ export default function ConnectionsMap() {
               colLabels={mapData.labels}
               rowIds={mapData.ids}
               colIds={mapData.ids}
-              normalised={mapData.normalised}
+              normalised={mapShown.normalised}
               cellSize={cellSize}
               onHover={onHoverMatrix}
               onCellClick={onClickMatrixCell}
@@ -1167,7 +1236,7 @@ export default function ConnectionsMap() {
               ariaLabel={`Connections map, ${view} view`}
             />
           </div>
-          <ColorLegend legend={mapData.legend} />
+          <ColorLegend legend={mapShown.legend} />
           {mapData.translation_pairs_hidden > 0 && (
             <p className="mt-2 text-[11px] text-gray-500">
               {mapData.translation_pairs_hidden} translation-pair link
@@ -1237,7 +1306,7 @@ export default function ConnectionsMap() {
                     colLabels={cellData.works_matrix.labels_b}
                     rowIds={cellData.works_matrix.ids_a}
                     colIds={cellData.works_matrix.ids_b}
-                    normalised={cellData.works_matrix.normalised}
+                    normalised={worksShown.normalised}
                     cellSize={cellSizeFor(Math.max(
                       cellData.works_matrix.ids_a.length, cellData.works_matrix.ids_b.length))}
                     onHover={onHoverWorksMatrix}
@@ -1247,7 +1316,7 @@ export default function ConnectionsMap() {
                   />
                 </div>
               )}
-              <ColorLegend legend={cellData?.works_matrix?.legend} />
+              <ColorLegend legend={worksShown.legend} />
             </div>
           )}
 
@@ -1267,7 +1336,7 @@ export default function ConnectionsMap() {
                       colLabels={booksData.labels_b}
                       rowIds={booksData.ids_a}
                       colIds={booksData.ids_b}
-                      normalised={booksData.normalised}
+                      normalised={booksShown.normalised}
                       cellSize={cellSizeFor(Math.max(booksData.ids_a.length, booksData.ids_b.length))}
                       onHover={onHoverBooks}
                       onCellClick={onClickBooksCell}
@@ -1279,7 +1348,7 @@ export default function ConnectionsMap() {
                   <p className="mt-2 text-sm text-gray-500">No book-level data at the current filters.</p>
                 )
               )}
-              <ColorLegend legend={booksData?.legend} />
+              <ColorLegend legend={booksShown.legend} />
             </div>
           )}
 
