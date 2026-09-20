@@ -504,8 +504,13 @@ Conventions
   "count for nothing" rule; superseded by the rebuild below.
 - Done (English, interim): 13:36 EDT (125,384 pairs) under the interim
   rule, live from 19:37 after a reload; superseded by the rebuild below.
-- Rebuilds under the final rules (English with the all-commonplace drop,
-  Greek without): see the Done lines added when they finished.
+- Done (English, final): 2026-09-19 21:20-21:21 EDT under an 8G cap, 81 s,
+  101,835 pairs (2,542 strict; 3,860,431 candidate pairs dropped because
+  every shared n-gram was commonplace-only; metadata applied=1), live after
+  a reload. Verified: Hamlet III.4.192 "What shall I do?" has no quotations
+  (eight Bible verses on the first build); Bunyan, Pilgrim's Progress 1.2035
+  is still strictly matched to Revelation 22.14.
+- Done (Greek, final): see the line added when the rebuild finished.
 - Also on 2026-09-19: three attempts at the Greek build failed or were
   stopped before these rules settled (surrogate ids 12:59 and 13:02; stopped
   13:23 and 13:29; killed by the machine-wide pressure event 13:38). Logs
