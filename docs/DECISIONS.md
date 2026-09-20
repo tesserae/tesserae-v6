@@ -7,6 +7,46 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-09-20 Theme Search: a lexical channel over the descriptions, adopted
+
+**Decision (NC: "adopt the light boost in production").** Theme Search
+scores each passage window by the cosine between the query's embedding and
+the window's description embedding, plus LEXICAL_BETA (0.02) times a BM25
+word-match score over the description text (gist, themes, action steps,
+participants, setting), normalised to [0, 1] over the top 3,000 word
+matches and zero elsewhere. The confidence band is still computed from the
+embedding alone. The composition (one window per work, languages
+interleaved, three windows per work) and the reader over the first hundred
+rows are unchanged.
+
+**Why.** Four tests on 2026-09-20 with the calibrated Opus judge on the
+16-query benchmark (harnesses in evaluation/theme_benchmark/composition_test/,
+private):
+
+| change | all 16 | 12 development | 4 held out |
+|---|---|---|---|
+| shipped page | 0.434 | 0.471 | 0.325 |
+| reader over a deeper per-work pool | 0.419 | 0.425 | 0.400 |
+| work score by mass of close windows | 0.391 | 0.425 | 0.287 |
+| mass relative to work size (blend) | 0.434 | 0.462 | 0.350 |
+| lexical channel, rank fusion | 0.475 | 0.483 | 0.450 |
+| lexical channel, light boost (adopted) | 0.506 | 0.533 | 0.425 |
+
+The case that started it: "a wife or child recognizes someone long
+thought dead or lost" returned no Odyssey, although the index describes
+Odyssey 23.199 as "a woman recognizes Odysseus through a unique sign". The
+encoder ranks the Odyssey 63rd by work for that wording; with the boost it
+is 16th. The reader still places its windows below the page, so the
+Odyssey is not yet on that page; the boost is the first change that raised
+the page's own precision while moving that case in the right direction.
+Judgements: 214 new Opus verdicts across the four tests (about 330k input
+tokens).
+
+**Operations.** `scripts/build_desc_fts.py` writes
+`data/passage_index/desc_fts.sqlite` (about three minutes) and must be run
+after every change to descriptions.jsonl; the app compares the index's
+description count with the passage index's and refuses a stale one.
+
 ## 2026-09-20 Fusion channels: function words are not matching features, and candidate lists are bounded
 
 **Problem.** One fusion search of Paradise Lost (10,565 lines) against

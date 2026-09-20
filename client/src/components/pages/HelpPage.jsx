@@ -565,7 +565,10 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 Describe what happens in a passage, in your own words, and Theme Search finds
                 passages that match the description rather than the wording. Because it works
                 from content, results come back in every indexed language at once and usually
-                share no vocabulary with what you typed, or with each other.
+                share no vocabulary with what you typed, or with each other. The comparison is
+                between your description and a short description written for each passage; a
+                passage whose description also shares words with yours gets a small extra
+                credit, which helps when a scene is described in the same terms you used.
               </p>
               <p className="text-gray-700 mb-4">
                 Results open with the strongest matches first; a toggle switches to oldest-first
