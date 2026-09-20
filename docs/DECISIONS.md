@@ -31,7 +31,7 @@ Candidate pairs at the window stage, counted from the lemma caches
 | Aeneid x Metamorphoses | 22,308,739 | 9,145,844 | 2,535,778 | 393,788 |
 | Iliad x Odyssey | 61,407,496 | 24,240,161 | 11,133,128 | 1,908,090 |
 
-**Decision (four changes, one PR).**
+**Decision (five changes, one PR).**
 1. The three channels pass `exclude_function_words` with their
    `stoplist_size: -1`, so the language's curated function-word list
    applies in the matcher, as it already did for Coptic. A user's own -1 in
@@ -55,6 +55,14 @@ Candidate pairs at the window stage, counted from the lemma caches
    the first after-fix benchmark run was killed at its 12 GB cap in this
    channel's window step for Seneca's Letters, after the lemma channels
    had passed the same step in under a minute at 3 GB.
+
+5. The `rare_word` channel is bounded the same way (cap 50,000). It had no
+   cap, and in English "rare" means df <= 100 of only 42 works, so every
+   shared lemma counts as rare there: Paradise Lost Book 1 against Hyperion
+   produced 431,131 window matches, and the whole poem was killed at a
+   12 GB cap in this channel after the other four were bounded. The English
+   rarity threshold itself (100 works out of 42) is a separate decision for
+   NC.
 
 **Not a fusion defect.** salutati.de_laboribus_herculis.tess has 97 units
 of median 1,232 words (one .tess line per chapter), so every channel
@@ -85,8 +93,18 @@ Servius against the Eclogues), Macrobius 5 against the Aeneid lost one at
 quotations, in Seneca's Letters and De beneficiis as whole files, could
 not be run before (the window step blew a 12 GB cap) and now score 4 of 6
 in the top ten and 6 of 6 in the top fifty, the Letters against the
-Aeneid in 20 minutes at a 4.4 GB peak. English timing cases (Paradise
-Lost against Hyperion) are recorded below when run.
+Aeneid in 20 minutes at a 4.4 GB peak. English (production's texts and caches, no gold set, the pair that held
+a web worker at 25.6 GB for 19 minutes on 2026-09-19):
+
+| pair | before: channel seconds, process peak | after: seconds, peak |
+|---|---|---|
+| Paradise Lost Book 1 (798 lines) x Hyperion (885) | 126.5 s, 4.38 GB | 33.5 s, 2.19 GB |
+| whole Paradise Lost (10,565 lines) x Hyperion | killed at 12 GB before the fix (25.6 GB observed in production) | 102.5 s, 2.83 GB |
+
+Channel counts for Book 1: lemma line pairs 13,101 before (function words)
+against 54 after; rare_word window matches 431,131 against 50,000. The
+whole poem's top ten after the fix leads with "intestine broil" (Paradise
+Lost 2.1001, Hyperion 2.192).
 
 **Why a few prose ranks moved (traced on Macrobius 4 against the
 Eclogues with full fused lists).** The gold quotations' own scores are
