@@ -35,12 +35,20 @@ import ConnectionsMap from './ConnectionsMap';
  * scripts exist for this in evaluation/probe_sets/.
  */
 const EXAMPLE_SETS = {
-  // Latin, Greek and English. The set the production site has always shown.
+  // Latin, Greek and English. Re-measured on production 2026-09-20 (NC:
+  // "suggested sample searches ... that are known winners"): every query
+  // here rated STRONG that day, and the funeral games query is the one the
+  // 16-theme benchmark scores best (first-ten precision 1.00; Iliad 23,
+  // Thebaid 6, the Punica, Quintus). "a wife or child recognizes someone
+  // long thought dead or lost" was dropped: it rated moderate and missed the
+  // Odyssey's recognitions, which the encoder ranks 63rd by work for that
+  // wording (docs/DECISIONS.md, 2026-09-20, Theme Search sample searches).
   classical: [
     'a guest arrives and is welcomed with food, wine, and a bath',
     'a mother laments her dead son over his body',
-    'a wife or child recognizes someone long thought dead or lost',
     'a warrior arms himself before battle, piece by piece',
+    'funeral games with athletic contests held in honor of the dead',
+    'a storm at sea batters ships and terrifies the crew',
   ],
   // Persian, Urdu and Arabic, with Coptic alongside. Measured 2026-09-09:
   // all four rated strong, and three of the four return Coptic passages too.
