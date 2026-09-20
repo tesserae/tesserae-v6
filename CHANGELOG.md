@@ -9,6 +9,12 @@ docs/DATA_OPERATIONS.md.
 ## 2026-09-19
 
 ### Search
+- The batch lemma-cache builder's English path lemmatized every word as a
+  noun, so past tenses ("stood", "went", "fled", "began") stayed as they
+  were in the English caches while the index builder reduced them; in a
+  Milton search Milton's own verbs then looked as rare as proper names and
+  ranked high. The fast path now applies the main processor's noun-or-verb
+  rule. English caches, index and Quotation table rebuilt (DATA_OPERATIONS).
 - The quotation channel now carries weight 10 in the Latin and Greek fusion
   profile (it was 0). Measured on 32 prose quotations of Vergil (Gellius,
   Macrobius, Quintilian, Servius): first-ten recall 8 to 19, recall at 100

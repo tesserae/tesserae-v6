@@ -201,10 +201,25 @@ class FastTextProcessor:
                 continue
 
             if self.english_lemmatizer:
+                # Same rule as backend/text_processor.py's _nltk_english_lemmatize:
+                # WordNet lemmatizes as a NOUN unless told otherwise, so the
+                # default call left every past tense alone ("stood", "went",
+                # "fled", "began"), which is how the English caches came to
+                # disagree with the index and made Milton's verbs look as rare
+                # as proper names in fusion scoring (2026-09-19). Try noun and
+                # verb, prefer the verb reading when it changes the token.
+                low = token.lower()
                 try:
-                    lemma = self.english_lemmatizer.lemmatize(token.lower())
+                    lemma_n = self.english_lemmatizer.lemmatize(low, pos='n')
+                    lemma_v = self.english_lemmatizer.lemmatize(low, pos='v')
+                    if lemma_v != low and len(lemma_v) < len(lemma_n):
+                        lemma = lemma_v
+                    elif lemma_n != low:
+                        lemma = lemma_n
+                    else:
+                        lemma = lemma_v
                 except Exception:
-                    lemma = token.lower()
+                    lemma = low
             else:
                 lemma = token.lower()
 
