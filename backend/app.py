@@ -1096,13 +1096,25 @@ def _normalize_latin_lemma(lem):
 
 
 def _normalize_lemma(lem, language='la'):
-    """Normalize a lemma for index lookup. Handles Latin u/v/j/i and Greek diacritics."""
+    """Normalize a lemma for index lookup. Handles Latin u/v/j/i and Greek diacritics.
+
+    Latin folding applies to Latin ONLY (2026-09-20). It used to fall through
+    to every other language, so an English query "love" became "loue",
+    "jove" became "ioue" and "voice" became "uoice": the English line search
+    then returned only Spenser's spellings (love: 500 Spenser lines and no
+    other author; voice: nothing at all), and the results page's corpus
+    panel was blank for any shared word with a v or a j. The English index
+    stores lemmas as written ("love" 2,193 postings in 124 works, "loue" 553
+    in 6), so the query must stay as written too.
+    """
     if language == 'grc':
         import unicodedata
         decomposed = unicodedata.normalize('NFD', lem)
         stripped = ''.join(c for c in decomposed if unicodedata.category(c) != 'Mn')
         return stripped.lower().replace('ς', 'σ')
-    return _normalize_latin_lemma(lem)
+    if language == 'la':
+        return _normalize_latin_lemma(lem)
+    return lem.lower()
 
 
 def _score_v3_idf(shared_lemmas, corpus_frequencies, total_corpus_words,
