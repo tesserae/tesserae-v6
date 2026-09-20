@@ -627,7 +627,7 @@ DEFAULT_GREEK_STOP_WORDS_LIST = [
 ]
 
 DEFAULT_ENGLISH_STOP_WORDS_LIST = [
-    # English function words, 220 entries (2026-09-19, NC's rule: a
+    # English function words, 274 entries (2026-09-19, NC's rule: a
     # stoplist holds function words only; common content words are
     # down-weighted by frequency in scoring, never removed; see
     # docs/DECISIONS.md, 2026-09-19).
@@ -654,6 +654,16 @@ DEFAULT_ENGLISH_STOP_WORDS_LIST = [
     'herself', 'himself', 'itself', 'myself', 'ourselves', 'themselves',
     'yourself', 'yourselves', 'off', 'once', 'only', 'ought', 'over', 'through',
     'under',
+    # Snowball's contractions too: the English tokenizer keeps "don't",
+    # "aren't" and "'tis" as single tokens (checked 2026-09-20), so the
+    # contracted forms have to be listed as such to count as function words.
+    "aren't", "can't", "couldn't", "didn't", "doesn't", "don't", "hadn't",
+    "hasn't", "haven't", "he'd", "he'll", "he's", "here's", "how's", "i'd",
+    "i'll", "i'm", "i've", "isn't", "it's", "let's", "mustn't", "shan't",
+    "she'd", "she'll", "she's", "shouldn't", "that's", "there's", "they'd",
+    "they'll", "they're", "they've", "wasn't", "we'd", "we'll", "we're",
+    "we've", "weren't", "what's", "when's", "where's", "who's", "why's",
+    "won't", "wouldn't", "you'd", "you'll", "you're", "you've",
     # Part 2, the same function words in their Early Modern inflections
     # (second-person pronouns and their possessives; -st and -th auxiliary
     # forms; 'tis/'twas contractions; place and manner adverbs; discourse
@@ -677,6 +687,7 @@ DEFAULT_ENGLISH_STOP_WORDS_LIST = [
     'until', 'till', 'shall', 'should', 'may', 'might', 'must', 'need', 'dare',
     'let', 'lest', 'nor', 'neither', 'either', 'none', 'any', 'many', 'few',
     'less', 'least',
+    "'tis", "'twas", "'twere", "'twill", "'twould"
 ]
 
 DEFAULT_LATIN_STOP_WORDS = set(DEFAULT_LATIN_STOP_WORDS_LIST)
