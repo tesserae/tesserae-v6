@@ -161,6 +161,31 @@ MANIFEST = {
                   "Reader is showing, not a search a tool caller runs independently. Latin "
                   "only as of 2026-09-19 (cache/reuse_pairs/la.db)."),
     },
+    '/api/passages/map': {
+        'site_only': True,
+        'reason': ('Corpus connections map heatmap matrix (authors/works/centuries/genres) '
+                  'for the Theme Search "Map" view; a canvas visualization, not tool output.'),
+    },
+    '/api/passages/map/cell': {
+        'site_only': True,
+        'reason': 'Drill-down list behind one connections-map matrix cell; reachable only by clicking the heatmap.',
+    },
+    '/api/passages/map/pair': {
+        'site_only': True,
+        'reason': ('Passage pairs behind one connections-map work pair, with Reader deep links; '
+                  'reachable only from the map UI, and similar_passages already answers the '
+                  'underlying "what resembles this passage" question for a tool caller.'),
+    },
+    '/api/passages/map/work': {
+        'site_only': True,
+        'reason': ('One work\'s connections-map row, for the map\'s "start from one work" picker; '
+                  'a corpus-browsing aid, not something a tool caller asks for by work id.'),
+    },
+    '/api/passages/map/books': {
+        'site_only': True,
+        'reason': ('Books x books heatmap for one connections-map work pair, the third nested-grid '
+                  'drill-down level; reachable only by clicking through the map UI.'),
+    },
     '/api/rare-word-cloud': {
         'site_only': True,
         'reason': 'Word-cloud visualization data (sizes/weights for rendering); visual.',

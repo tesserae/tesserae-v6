@@ -287,13 +287,25 @@ export default function ReaderPage() {
     const end = j >= i ? j : i;
     setSelection({ startIdx: i, endIdx: end, refStart: units[i].ref,
                    refEnd: units[end].ref, lineCount: end - i + 1 });
+    // Open the results panel on the requested tab exactly as a click on the
+    // text would (TextPane's own onSelect sets panelTab + popupOpen the same
+    // way) -- arriving via a URL is not a click, so nothing else would set
+    // them. The connections map's own reader_url (a selection plus
+    // tab=similar) otherwise landed with the passage highlighted and NO
+    // panel at all, not merely one scrolled out of view (NC, 2026-09-19).
+    if (wantedTab) setPanelTab(wantedTab);
+    setPopupOpen(true);
     // Let the line render before scrolling to it.
     const id = window.setTimeout(() => {
+      // Bring the card itself on screen first (a separate scroll context from
+      // the text pane), then centre the line inside it; landing deep in a long
+      // work otherwise left the page where it was (NC, 2026-09-19).
+      contentRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' });
       const el = document.getElementById(`line-${cssRef(units[i].ref)}`);
       if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
     }, 120);
     return () => window.clearTimeout(id);
-  }, [wantedRef, wantedRefEnd, units, visibleCount]);
+  }, [wantedRef, wantedRefEnd, wantedTab, units, visibleCount]);
 
   // "Go to line" from the ReaderNav strip (NC, 2026-09-19). A typed locus is
   // matched against the line refs of the open text: the whole ref ("verg.

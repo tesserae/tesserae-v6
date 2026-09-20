@@ -46,7 +46,7 @@ async function search(text) {
   fireEvent.change(screen.getByPlaceholderText(/a warrior arms himself/), {
     target: { value: text },
   });
-  fireEvent.click(screen.getByRole('button', { name: /search/i }));
+  fireEvent.click(screen.getByRole('button', { name: /^search/i }));   // the submit ("Search" or "Searching…"), not the Theme Search tab
   await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
     expect.stringContaining('/api/passages/theme-search')));
 }

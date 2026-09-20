@@ -140,6 +140,108 @@ describe('arriving from Theme Search, which is how NC hit it', () => {
   });
 });
 
+// --------------------------------------------------------------------------
+// Landing with a selection + tab=similar (NC, 2026-09-19): the results panel
+// is `position: sticky` inside the reader's own card, but the text scrolls
+// in its OWN inner pane -- centering the selected line in that inner pane
+// alone never brings the card (and so the sticky panel) onto screen when the
+// reader opens deep in a long work. The card itself must also be scrolled
+// into view.
+// --------------------------------------------------------------------------
+
+describe('arriving from a passage pair with a selection and tab=similar', () => {
+  const FROM_PAIR =
+    '/read?work=ovid.tristia.part.3.tess&lang=la'
+    + '&ref=' + encodeURIComponent('ov. tr. 3.1')
+    + '&refEnd=' + encodeURIComponent('ov. tr. 3.1')
+    + '&tab=similar&q=' + encodeURIComponent('connections map: Vergil');
+
+  it('scrolls the reader card into view, not only the selected line', async () => {
+    window.history.replaceState({}, '', FROM_PAIR);
+    const scrolled = [];
+    window.HTMLElement.prototype.scrollIntoView = function (opts) {
+      scrolled.push({ testid: this.getAttribute?.('data-testid') || null, opts });
+    };
+    await mountReader();
+    await waitFor(() => expect(scrolled.some((s) => s.testid === 'reader-content')).toBe(true));
+    const cardScroll = scrolled.find((s) => s.testid === 'reader-content');
+    expect(cardScroll.opts).toMatchObject({ block: 'start' });
+    // The line itself still centers, inside its own scrolling pane, exactly
+    // as before -- this is additive, not a replacement.
+    expect(scrolled.some((s) => s.opts?.block === 'center')).toBe(true);
+  });
+
+});
+
+// --------------------------------------------------------------------------
+// The panel itself (NC, 2026-09-19): "still shows NO right-hand panel at
+// all, not merely scrolled away" -- the Similar/Parallels/Translation tabs
+// were absent, not just off screen. readerLinkForWindow() in
+// ConnectionsMap.jsx builds this exact URL shape (work, lang, ref, refEnd,
+// tab=similar, q) for a passage pair's reader_url; reproduced here with a
+// multi-line span deep in a long work (18.427-18.438, matching NC's own
+// example) rather than the single-line span the scroll-fix test above uses.
+// Fixed by opening the panel on arrival exactly as a click on the text does
+// (setPanelTab + setPopupOpen), not leaving it to a prop-fallback chain that
+// nothing here was actually exercising end to end.
+// --------------------------------------------------------------------------
+
+describe('the reader_url a connections-map passage pair produces', () => {
+  // Exactly what ConnectionsMap.jsx's readerLinkForWindow() builds for
+  // Homer Iliad 18.427-18.438 connected to a Fall of Troy passage:
+  // `/read?work=homer.iliad.tess&lang=grc&ref=hom.+il.+18.427&refEnd=hom.+il.+18.438&tab=similar&q=connections+map%3A+Quintus+Smyrnaeus`
+  const MAP_URL = '/read?' + new URLSearchParams({
+    work: 'homer.iliad.tess', lang: 'grc',
+    ref: 'hom. il. 18.427', refEnd: 'hom. il. 18.438',
+    tab: 'similar', q: 'connections map: Quintus Smyrnaeus',
+  }).toString();
+
+  function mockLongIliadText() {
+    const units = [];
+    for (let n = 1; n <= 450; n++) units.push({ ref: `hom. il. 18.${n}`, text: `line ${n}` });
+    const reply = (obj) => Promise.resolve({
+      ok: true, json: () => Promise.resolve(obj), text: () => Promise.resolve(JSON.stringify(obj)) });
+    global.fetch = vi.fn((url) => {
+      const u = String(url);
+      if (u.startsWith('/api/text/')) return reply({ units, metadata: { display_name: 'Iliad' } });
+      if (u.includes('/authors?')) return reply(AUTHORS);
+      if (u.includes('/texts?')) return reply([]);
+      if (u.startsWith('/api/languages')) return reply({ languages: [{ code: 'la' }, { code: 'grc' }] });
+      return reply({});
+    });
+  }
+
+  it('opens the panel on the Similar Passages tab, not just the placeholder', async () => {
+    mockLongIliadText();
+    window.history.replaceState({}, '', MAP_URL);
+    await mountReader();
+
+    // The tab bar itself is always in the DOM (a separate, earlier fix), so
+    // the real regression check is that the panel is showing CONTENT for the
+    // selection -- the "select a passage" placeholder must be gone, and the
+    // Similar Passages tab must be the active one.
+    await waitFor(() => expect(document.getElementById('line-hom-il-18-427')).toBeTruthy());
+    expect(screen.queryByText(/Select a passage in the text to see what the corpus connects/))
+      .toBeNull();
+    const similarTab = screen.getByRole('button', { name: 'Similar Passages' });
+    expect(similarTab.className).toMatch(/text-red-700/);
+    // popupOpen is set exactly as a click would set it -- without this, the
+    // selection toolbar (gated on popupOpen && selection) never appears on
+    // a URL-only arrival, only on a real click in the text.
+    expect(screen.getByRole('toolbar', { name: 'What to do with the selected passage' }))
+      .toBeTruthy();
+  });
+
+  it('loads the selected multi-line passage (18.427-18.438), not just its first line', async () => {
+    mockLongIliadText();
+    window.history.replaceState({}, '', MAP_URL);
+    await mountReader();
+    await waitFor(() => expect(document.querySelector('[id^="line-hom"]')).toBeTruthy());
+    expect(document.body.textContent).toContain('line 427');
+    expect(document.body.textContent).toContain('line 438');
+  });
+});
+
 describe('the arrival banner is one-shot', () => {
   const FROM_THEME =
     '/read?work=ovid.tristia.part.3.tess&lang=la'
