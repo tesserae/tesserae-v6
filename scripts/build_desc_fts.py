@@ -67,6 +67,11 @@ def build(src, out):
         n += len(batch)
     conn.execute("INSERT INTO meta VALUES ('rows', ?)", (str(n),))
     conn.execute("INSERT INTO meta VALUES ('source', ?)", (os.path.abspath(src),))
+    st = os.stat(src)
+    # size and mtime of the source, so the app can tell an in-place edit of
+    # descriptions.jsonl that kept the count the same (auto-review, 2026-09-20)
+    conn.execute("INSERT INTO meta VALUES ('source_size', ?)", (str(st.st_size),))
+    conn.execute("INSERT INTO meta VALUES ('source_mtime', ?)", (str(int(st.st_mtime)),))
     conn.execute("INSERT INTO meta VALUES ('built_at', ?)", (time.strftime('%Y-%m-%dT%H:%M:%S'),))
     conn.commit()
     conn.execute("INSERT INTO desc(desc) VALUES('optimize')")

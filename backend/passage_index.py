@@ -1205,8 +1205,9 @@ def _lexical_ready():
         try:
             import sqlite3
             conn = sqlite3.connect(f'file:{_LEX_PATH}?mode=ro', uri=True)
-            n = int(conn.execute("SELECT value FROM meta WHERE key='rows'").fetchone()[0])
+            meta = dict(conn.execute("SELECT key, value FROM meta").fetchall())
             conn.close()
+            n = int(meta['rows'])
         except Exception as e:  # noqa: BLE001
             logger.warning('[PASSAGES] word index unreadable (%s); lexical boost off', e)
             return False
@@ -1215,6 +1216,17 @@ def _lexical_ready():
             logger.warning('[PASSAGES] word index has %d descriptions, the passage '
                            'index %d: stale, lexical boost off until it is rebuilt', n, n_desc)
             return False
+        # An in-place edit of descriptions.jsonl keeps the count; the index
+        # records the source file's size and mtime at build time, so compare
+        # those too when the index carries them.
+        desc_path = os.path.join(_DATA_DIR, 'descriptions.jsonl')
+        if meta.get('source_size') and os.path.exists(desc_path):
+            st = os.stat(desc_path)
+            if str(st.st_size) != meta.get('source_size') or str(int(st.st_mtime)) != meta.get('source_mtime'):
+                logger.warning('[PASSAGES] word index was built from a different '
+                               'descriptions.jsonl (size or mtime differ): stale, lexical '
+                               'boost off until it is rebuilt')
+                return False
         _lex_state['row_by_id'] = {r.get('id'): i for i, r in enumerate(_records)}
         _lex_state['ok'] = True
         return True

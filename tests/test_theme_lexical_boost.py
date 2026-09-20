@@ -39,6 +39,7 @@ def fake_index(tmp_path, monkeypatch):
     n, _ = build(str(src), str(out))
     assert n == 3
     monkeypatch.setattr(PI, '_LEX_PATH', str(out))
+    monkeypatch.setattr(PI, '_DATA_DIR', str(tmp_path))   # the index's source file lives here
     monkeypatch.setattr(PI, '_records', RECORDS)
     monkeypatch.setattr(PI, '_lex_state', {'checked': False, 'ok': False, 'row_by_id': None})
     monkeypatch.delenv('THEME_LEXICAL', raising=False)
@@ -91,3 +92,22 @@ def test_env_switch_turns_it_off(fake_index, monkeypatch):
 def test_lexical_words_drop_function_words():
     assert PI._lexical_words('a wife or child recognizes someone long thought dead or lost') == \
         ['wife', 'child', 'recognizes', 'someone', 'long', 'thought', 'dead', 'lost']
+
+
+def test_best_word_match_gets_the_largest_boost(fake_index):
+    # 'storm sea ships' matches window c fully, window a and b not at all
+    scores = np.array([0.5, 0.5, 0.5, -1.0])
+    n = PI._lexical_boost('a storm at sea batters the ships', scores)
+    assert n >= 1
+    assert scores[2] == pytest.approx(0.5 + PI.LEXICAL_BETA)   # the best match gets the full beta
+    assert scores[2] > scores[0] and scores[2] > scores[1]
+
+
+def test_edited_source_file_makes_the_index_stale(fake_index, tmp_path, monkeypatch):
+    # the fixture built the index from tmp_path/descriptions.jsonl; rewrite that file
+    src = tmp_path / 'descriptions.jsonl'
+    with open(src, 'a', encoding='utf-8') as fh:
+        fh.write(' ' * 10)
+    monkeypatch.setattr(PI, '_lex_state', {'checked': False, 'ok': False, 'row_by_id': None})
+    scores = np.array([0.5, 0.5, 0.5, -1.0])
+    assert PI._lexical_boost('storm at sea', scores) == 0
