@@ -861,7 +861,11 @@ Conventions
 - Cached fusion results cleared with `backend.cache.clear_cache_for_language`
   (la 8, grc 3, en 1 files) so pairs recompute under the new rules; the
   three default pairs (Aeneid 1 x Lucan 1, Paradise Lost 1 x Hyperion,
-  Iliad 1 x Argonautica 1) re-warmed through /api/fusion-search afterwards.
+  Iliad 1 x Argonautica 1) re-warmed through /api/fusion-search by 14:59,
+  each complete within about a minute; tops: Aeneid 1.103 / Lucan 1.416
+  (sidera fluctusque), Paradise Lost 1.225 / Hyperion 1.296 (expanded
+  wings), Iliad 1.190 / Argonautica 1.1250 (ἐρυσσάμενος φάσγανον). A first
+  warm-up attempt used text ids without the .tess suffix and did nothing.
 - Checks: 103 matcher and fusion tests; the benchmark table in
   DECISIONS.md; whole Paradise Lost x Hyperion 2.8 GB and 1.7 min against
   25.6 GB and 19 min before.
