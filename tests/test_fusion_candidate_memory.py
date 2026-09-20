@@ -120,7 +120,7 @@ def test_candidate_cap_larger_than_matches_changes_nothing_but_order():
 
 
 def test_every_lemma_channel_has_a_result_cap():
-    for name in ('lemma', 'lemma_min1', 'exact', 'dictionary'):
+    for name in ('lemma', 'lemma_min1', 'exact', 'dictionary', 'rare_word'):
         assert fusion.CHANNEL_CONFIGS[name].get('max_results', 0) > 0, name
 
 
@@ -175,4 +175,32 @@ def test_run_channel_passes_the_cap_to_the_dictionary_channel(monkeypatch):
     monkeypatch.setattr(ss, 'find_dictionary_matches', fake)
     cfg = dict(fusion.CHANNEL_CONFIGS['dictionary'])
     out = fusion.run_channel('dictionary', cfg, [unit('a', 'x')], [unit('b', 'y')], None, None, 'src', 'tgt')
+    assert out == [] and seen['candidate_cap'] == cfg['max_results'] * 4
+
+
+def test_rare_word_channel_bounds_its_candidates(monkeypatch):
+    import backend.blueprints.hapax as hx
+    monkeypatch.setattr(hx, 'get_document_frequencies_batch', lambda lemmas, language: {l: 3 for l in lemmas})
+    words = ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta']
+    src = [unit(f's{i}', f'{words[i]} filler{i}') for i in range(6)]
+    tgt = [unit(f't{j}', ' '.join(words[:j + 1])) for j in range(6)]
+    full = hx.find_rare_word_matches_direct(src, tgt, language='la', max_occurrences=50)
+    assert len(full) == 21
+    capped = hx.find_rare_word_matches_direct(src, tgt, language='la', max_occurrences=50, candidate_cap=5)
+    assert len(capped) == 5
+    scores = [m['_quick_score'] for m in capped]
+    assert scores == sorted(scores, reverse=True)
+    full_pairs = {(x['source_idx'], x['target_idx']) for x in full}
+    assert all((m['source_idx'], m['target_idx']) in full_pairs for m in capped)
+
+
+def test_run_channel_passes_the_cap_to_the_rare_word_channel(monkeypatch):
+    import backend.blueprints.hapax as hx
+    seen = {}
+
+    def fake(src, tgt, language='la', max_occurrences=50, candidate_cap=0):
+        seen['candidate_cap'] = candidate_cap; return []
+    monkeypatch.setattr(hx, 'find_rare_word_matches_direct', fake)
+    cfg = dict(fusion.CHANNEL_CONFIGS['rare_word'])
+    out = fusion.run_channel('rare_word', cfg, [unit('a', 'x')], [unit('b', 'y')], None, None, 'src', 'tgt')
     assert out == [] and seen['candidate_cap'] == cfg['max_results'] * 4

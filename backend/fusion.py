@@ -878,6 +878,10 @@ CHANNEL_CONFIGS = {
         "min_matches": 1,
         "language": "la",
         "unbounded_scoring": True,
+        # cap added 2026-09-20: the channel had none; in English every shared
+        # lemma is "rare" (df <= 100 of 42 works), 431k window matches for
+        # Paradise Lost Book 1 x Hyperion, 12 GB blown for the whole poem
+        "max_results": 50000,
         "rare_word_max_occurrences": 100,
         "use_edit_distance": False,
         "use_sound": False,
@@ -1532,10 +1536,12 @@ def run_channel(channel_name, config, source_units, target_units,
             # Tighten the threshold so the channel still discriminates.
             default_max_occ = 25 if language == 'cop' else 50
             max_occ = settings.get("rare_word_max_occurrences", default_max_occ)
+            cap = config.get("max_results", 0)
             matches = find_rare_word_matches_direct(
                 source_units, target_units,
                 language=language,
                 max_occurrences=max_occ,
+                candidate_cap=cap * 4 if cap > 0 else 0,  # bounded, see the lemma branch
             )
         except (ImportError, AttributeError):
             matches = []
