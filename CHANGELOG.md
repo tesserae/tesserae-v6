@@ -8,6 +8,17 @@ docs/DATA_OPERATIONS.md.
 
 ## 2026-09-19
 
+### Search
+- The quotation channel now carries weight 10 in the Latin and Greek fusion
+  profile (it was 0). Measured on 32 prose quotations of Vergil (Gellius,
+  Macrobius, Quintilian, Servius): first-ten recall 8 to 19, recall at 100
+  14 to 28, for one Lucan pair lost at rank 100 on the poetry benchmarks and
+  none in the top ten (evaluation/quotation_weight_test/REPORT.md). English
+  keeps 0 until measured.
+- The search page falls back to its default text pair whenever the
+  remembered selection is not valid for the language; a stale remembered
+  pair used to leave the English page with no texts chosen.
+
 ### Reader
 - Quotation table builder: the "all shared n-grams commonplace" drop is now
   per language (`--drop-all-commonplace auto|on|off`, auto = English only).

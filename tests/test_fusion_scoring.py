@@ -549,8 +549,10 @@ class TestWeightProfileFirewall:
         latin = WEIGHT_PROFILES['latin_epic']
         assert en == WEIGHT_PROFILES['english']
         assert en['sound'] == 0.0 and en['edit_distance'] == 0.0
+        # English differs from Latin in sound and edit distance (off) and, since
+        # 2026-09-19, in quotation (Latin 10, English 0 pending measurement).
         assert all(en[k] == latin[k] for k in latin
-                   if k not in ('sound', 'edit_distance'))
+                   if k not in ('sound', 'edit_distance', 'quotation'))
 
     def test_none_and_unknown_default_to_latin_epic(self):
         from backend.fusion import get_weight_profile, WEIGHT_PROFILES
@@ -562,11 +564,14 @@ class TestWeightProfileFirewall:
         assert get_weight_profile(language='la', profile_name='biblical_coptic') \
             == WEIGHT_PROFILES['biblical_coptic']
 
-    def test_quotation_inert_for_latin(self):
-        # The quotation channel must carry zero weight under the Latin profile,
-        # so it cannot alter Latin/Greek scoring.
+    def test_quotation_weight_for_latin_and_english(self):
+        # 2026-09-19: the quotation channel carries weight 10 under the Latin
+        # profile (measured: prose quotations of Vergil first-ten recall 8 -> 19
+        # of 32 for one Lucan pair lost at rank 100; NC approved), and stays at
+        # 0 for English, which was not measured.
         from backend.fusion import get_weight_profile
-        assert get_weight_profile(language='la').get('quotation', 0.0) == 0.0
+        assert get_weight_profile(language='la').get('quotation', 0.0) == 10.0
+        assert get_weight_profile(language='en').get('quotation', 0.0) == 0.0
 
 
 # ── Quotation channel + rarity-bypass (Coptic biblical-prose path) ──────────
@@ -615,8 +620,8 @@ class TestScoringConstants:
     def test_channel_weights_positive(self):
         from backend.fusion import CHANNEL_WEIGHTS
         for name, weight in CHANNEL_WEIGHTS.items():
-            # The quotation channel defaults to 0.0 in CHANNEL_WEIGHTS; it is
-            # enabled and weighted per-search via WEIGHT_PROFILES (biblical_coptic).
+            # The quotation channel is 10.0 by default since 2026-09-19 (0 before);
+            # the English profile overrides it back to 0.
             if name == "quotation":
                 assert weight >= 0, f"Channel {name} has negative weight {weight}"
                 continue
