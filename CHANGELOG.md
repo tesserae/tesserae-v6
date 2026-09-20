@@ -16,6 +16,14 @@ behind each, are in docs/DECISIONS.md.
   first-ten precision 1.00) and "a storm at sea batters ships and terrifies
   the crew"; all five chips rated strong on 2026-09-20.
 
+### Search
+- English line search: the Latin u/v and i/j spelling fold applied to
+  every language but Greek, so English queries for any word with a v or a
+  j were looked up in Spenser's spelling ("love" as "loue", "voice" as
+  "uoice") and returned only Spenser or nothing. The fold now applies to
+  Latin only. The results page's "Across the corpus" panel, blank for
+  such shared words, works for English again.
+
 ## 2026-09-19
 
 ### Search
