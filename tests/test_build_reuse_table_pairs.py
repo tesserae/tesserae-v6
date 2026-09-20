@@ -258,12 +258,14 @@ def test_repair_surrogates_recovers_a_greek_file_name_and_leaves_clean_text_alon
     assert mod._repair_surrogates('bad\ud800id', 'fallback') == ('fallback', True)
 
 
-def test_commonplace_only_ngrams_count_for_no_rule_and_no_total(tmp_path):
+def test_a_pair_whose_shared_ngrams_are_all_commonplace_is_dropped(tmp_path):
     """English table, 2026-09-19: Hamlet III.4.192 "What shall I do?" came out
     strictly "quoted" by eight Bible verses, because the run "what shall i do"
-    gave shared >= 2 with a high Jaccard. N-grams made only of commonplace
-    words must count toward nothing: neither the shared count nor the lines'
-    n-gram totals."""
+    gave shared >= 4 with full containment. A pair whose EVERY shared n-gram is
+    commonplace-only is dropped; a pair that also shares a content n-gram
+    keeps all its n-grams in the count (the first fix, counting commonplace
+    n-grams for nothing, lost 5,445 genuine Latin pairs, mostly the Fathers
+    quoting the Vulgate)."""
     run = ['what', 'shall', 'i', 'do']
     a = list(run)                                   # Hamlet's line IS the run
     b = ['pilate', 'saith', 'unto', 'them'] + run + ['with', 'jesus']
@@ -326,3 +328,27 @@ def test_stoplist_words_count_as_commonplace_even_when_rare_in_the_sample(tmp_pa
                                        max_df=200, commonplace_ratio=1.5, language='cop')
     assert hash_ngram(('what', 'shall', 'i')) not in commonplace2
     assert _fold('Ἀγαμέμνων') == 'αγαμεμνων' and _fold('Vergilius') == 'uergilius'
+
+
+def test_a_pair_with_one_content_ngram_keeps_its_commonplace_ngrams_in_the_count(tmp_path):
+    """John 1.3 in Augustine: the shared wording is mostly commonplace words,
+    with one content-bearing run. All shared n-grams count, so the pair meets
+    the strict rule that the same fixture would fail if the commonplace ones
+    were discarded."""
+    shared_run = ['omnia', 'per', 'ipsum', 'facta', 'sunt', 'et', 'sine', 'ipso']
+    a = list(shared_run)
+    b = ['scriptum', 'est'] + shared_run + ['nihil', 'inquit']
+    from build_reuse_table import gen_ngrams as gn
+    # every n-gram of the run counts as commonplace except the ones holding 'facta'
+    commonplace = {hash_ngram(g) for g in gn(shared_run) if 'facta' not in g}
+    db = _fixture_db(tmp_path, {
+        0: ('jerome.vulgate', 'Vulgate John.1.3', a),
+        1: ('augustine.confessiones', 'augustine.confessiones 7.13', b),
+    })
+    pair_info, _, _ = find_pairs(
+        db, min_shared=2, min_jaccard=0.15, min_shared_override=4, min_containment=0.5,
+        rare_max_df=20, rare_min_containment=0.06, commonplace_hashes=commonplace)
+    pairs = _pairs_between(pair_info, 'jerome.vulgate', 'augustine.confessiones')
+    assert pairs, "one content n-gram among many commonplace ones keeps the pair"
+    shared, jaccard = pairs[0]
+    assert shared == len(list(gn(shared_run))), "all shared n-grams counted, not only the content one"

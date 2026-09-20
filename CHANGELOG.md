@@ -9,6 +9,13 @@ docs/DATA_OPERATIONS.md.
 ## 2026-09-19
 
 ### Reader
+- Quotation table builder: the commonplace rule is now "drop a pair only when
+  every shared n-gram is commonplace-only". The earlier "count commonplace
+  n-grams for nothing" removed Hamlet's function-word matches but, rebuilt on
+  Latin, also lost 5,445 strict pairs, mostly the Fathers quoting the Vulgate
+  in wording made of common words (Augustine, Conf. 7.13 and John 1.3). All
+  shared n-grams count again for the totals and the shared count; the pair is
+  refused only if none of them carries a content word.
 - Quotation table builder: a word also counts as commonplace when it is in
   the language's stoplist (the cross-lingual function-word lists in
   backend/synonym_dict.py, accent-stripped and u/v folded). The data-driven
