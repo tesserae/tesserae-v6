@@ -604,7 +604,8 @@ def find_pairs(index_db_path, min_shared, min_jaccard, min_shared_override, min_
     # the rare-single-ngram rule; ngram_hash lets that rule also check
     # commonplace_hashes for a shared==1 pair's one contributing n-gram
     # (MIN(ngram_hash) in a single-row group is just that row's hash).
-    conn.execute("CREATE TABLE pair_hits (a INTEGER, b INTEGER, group_size INTEGER, ngram_hash INTEGER)")
+    conn.execute("CREATE TABLE pair_hits (a INTEGER, b INTEGER, group_size INTEGER, ngram_hash INTEGER, "
+                 "commonplace INTEGER)")
     commonplace_hashes = commonplace_hashes or frozenset()
     n_commonplace_groups_skipped = 0
     hit_batch = []
@@ -617,20 +618,24 @@ def find_pairs(index_db_path, min_shared, min_jaccard, min_shared_override, min_
     def flush_hits():
         nonlocal hit_batch
         if hit_batch:
-            conn.executemany("INSERT INTO pair_hits VALUES (?,?,?,?)", hit_batch)
+            conn.executemany("INSERT INTO pair_hits VALUES (?,?,?,?,?)", hit_batch)
             hit_batch = []
 
     def flush_group(lines_in_group):
         nonlocal n_pair_increments, n_commonplace_groups_skipped
         # An n-gram made only of commonplace words ("what shall i do", "et in
-        # illo") is evidence of nothing: it used to count toward the strict
-        # rules and the n-gram totals, so Hamlet III.4.192 came out "quoted"
-        # by eight Bible verses (English table, 2026-09-19). Such n-grams now
-        # count for no rule and for neither line's total, so a line of pure
-        # function words has no n-grams at all rather than a few worthless ones.
-        if current_hash in commonplace_hashes:
+        # illo") is evidence of nothing ON ITS OWN: Hamlet III.4.192 came out
+        # "quoted" by eight Bible verses on the first English build
+        # (2026-09-19). A first fix counted such n-grams for nothing at all,
+        # but on the Latin corpus that threw away 5,445 strict pairs, most of
+        # them the Fathers quoting the Vulgate in wording that is itself made
+        # of commonplace words (Augustine, Conf. 7.13 ~ John 1.3). So they
+        # count as before, for the totals and the shared count, and are only
+        # FLAGGED here; find_pairs drops a pair whose shared n-grams are ALL
+        # commonplace-only and nothing else.
+        is_commonplace = 1 if current_hash in commonplace_hashes else 0
+        if is_commonplace:
             n_commonplace_groups_skipped += 1
-            return
         L = len(lines_in_group)
         for lid in lines_in_group:
             line_ngram_count[lid] += 1
@@ -644,7 +649,7 @@ def find_pairs(index_db_path, min_shared, min_jaccard, min_shared_override, min_
                     continue
                 if a > b:
                     a, b = b, a
-                hit_batch.append((a, b, L, current_hash))
+                hit_batch.append((a, b, L, current_hash, is_commonplace))
                 n_pair_increments += 1
                 if len(hit_batch) >= HIT_BATCH:
                     flush_hits()
@@ -664,7 +669,7 @@ def find_pairs(index_db_path, min_shared, min_jaccard, min_shared_override, min_
     conn.commit()
 
     print(f"[build_reuse_table] pairs: {n_ngrams_processed} n-grams scanned "
-          f"({n_commonplace_groups_skipped} commonplace-word-only n-grams counted for nothing), "
+          f"({n_commonplace_groups_skipped} commonplace-word-only n-grams flagged), "
           f"{n_pair_increments} pair-occurrences written, elapsed {time.time()-t0:.1f}s")
 
     print("[build_reuse_table] pairs: aggregating candidate pairs (SQL GROUP BY, not a Python dict)...")
@@ -677,9 +682,16 @@ def find_pairs(index_db_path, min_shared, min_jaccard, min_shared_override, min_
     n_kept_via_rare_single = 0
     n_excluded_commonplace_rare = 0
     n_candidate_pairs = 0
-    for a, b, shared, min_gdf, single_ngram_hash in conn.execute(
-            "SELECT a, b, COUNT(*), MIN(group_size), MIN(ngram_hash) FROM pair_hits GROUP BY a, b"):
+    n_excluded_all_commonplace = 0
+    for a, b, shared, min_gdf, single_ngram_hash, n_commonplace in conn.execute(
+            "SELECT a, b, COUNT(*), MIN(group_size), MIN(ngram_hash), SUM(commonplace) "
+            "FROM pair_hits GROUP BY a, b"):
         n_candidate_pairs += 1
+        if n_commonplace >= shared:
+            # Every shared n-gram is commonplace-only: a run of function words
+            # in common and nothing else. No rule may keep it.
+            n_excluded_all_commonplace += 1
+            continue
         na = line_ngram_count[a]
         nb = line_ngram_count[b]
         union = na + nb - shared
@@ -716,8 +728,9 @@ def find_pairs(index_db_path, min_shared, min_jaccard, min_shared_override, min_
           f"shared>={min_shared_override} but containment<{min_containment} and jaccard<{min_jaccard}; "
           f"{n_kept_via_rare_single} kept via the rare-single-ngram rule (shared==1, line-df<"
           f"{rare_max_df}, containment>={rare_min_containment}); {n_excluded_commonplace_rare} more "
-          f"would have qualified for that rule but were excluded as commonplace-word-only), "
-          f"elapsed {time.time()-t0:.1f}s")
+          f"would have qualified for that rule but were excluded as commonplace-word-only; "
+          f"{n_excluded_all_commonplace} candidate pairs dropped because every shared n-gram was "
+          f"commonplace-only), elapsed {time.time()-t0:.1f}s")
 
     pair_by_seq = {}
     pair_info = []
@@ -766,6 +779,7 @@ def find_pairs(index_db_path, min_shared, min_jaccard, min_shared_override, min_
         'candidate_cross_work_pairs': n_candidate_pairs,
         'pairs_kept': len(pair_info),
         'candidates_excluded_by_containment_gate': n_excluded_by_raw_override,
+        'candidates_excluded_all_commonplace': n_excluded_all_commonplace,
         'pairs_kept_via_rare_single_ngram': n_kept_via_rare_single,
         'rows_in_spans_gt1': n_spans,
         'lines_with_at_least_one_other_work': len(line_to_other_works),
