@@ -59,6 +59,7 @@ data/la_mqdq_temp/
 !data/text_descriptions.json
 !data/lemma_tables/
 !data/text_genres.csv
+!data/translation_pairs.json
 cache/
 backend/embeddings/
 

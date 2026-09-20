@@ -1,0 +1,5117 @@
+{
+  "generated_from": "scripts/generate_scripture_translation_pairs.py, from backend/scripture_id.py's book-name table and the actual .tess files under texts/, for every pair of the seven scripture versions (Hebrew, Septuagint, Greek NT, Vulgate, Bohairic, Sahidic, World English Bible) -- not sampled, exhaustive. Plus one hand-added literary pair (Eobanus/Homer).",
+  "note": "Curated translation/paraphrase pairs. A pair here or matching the heuristic in aligned_candidates.txt is treated as a translation pair by the connections map UI (hidden by default).",
+  "count": 730,
+  "pairs": [
+    {
+      "work_a": "eobanus.iliad",
+      "work_b": "homer.iliad",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "verse paraphrase of Homer (16th c. Latin Iliad)"
+    },
+    {
+      "work_a": "bohairic.abdias",
+      "work_b": "hebrew_bible.obadiah",
+      "language_a": "cop",
+      "language_b": "he",
+      "reason": "scripture translation (OBA)"
+    },
+    {
+      "work_a": "bohairic.abdias",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (OBA)"
+    },
+    {
+      "work_a": "bohairic.abdias",
+      "work_b": "sahidic.obadiah",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (OBA)"
+    },
+    {
+      "work_a": "bohairic.abdias",
+      "work_b": "septuaginta.abdias",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (OBA)"
+    },
+    {
+      "work_a": "bohairic.abdias",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (OBA)"
+    },
+    {
+      "work_a": "bohairic.acts",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (ACT)"
+    },
+    {
+      "work_a": "bohairic.acts",
+      "work_b": "novum_testamentum.actus_apostolorum",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (ACT)"
+    },
+    {
+      "work_a": "bohairic.acts",
+      "work_b": "sahidica.acts_of_the_apostles",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (ACT)"
+    },
+    {
+      "work_a": "bohairic.acts",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (ACT)"
+    },
+    {
+      "work_a": "bohairic.aggaeus",
+      "work_b": "hebrew_bible.haggai",
+      "language_a": "cop",
+      "language_b": "he",
+      "reason": "scripture translation (HAG)"
+    },
+    {
+      "work_a": "bohairic.aggaeus",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (HAG)"
+    },
+    {
+      "work_a": "bohairic.aggaeus",
+      "work_b": "sahidic.haggai",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (HAG)"
+    },
+    {
+      "work_a": "bohairic.aggaeus",
+      "work_b": "septuaginta.aggaeus",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (HAG)"
+    },
+    {
+      "work_a": "bohairic.aggaeus",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (HAG)"
+    },
+    {
+      "work_a": "bohairic.amos",
+      "work_b": "hebrew_bible.amos",
+      "language_a": "cop",
+      "language_b": "he",
+      "reason": "scripture translation (AMO)"
+    },
+    {
+      "work_a": "bohairic.amos",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (AMO)"
+    },
+    {
+      "work_a": "bohairic.amos",
+      "work_b": "sahidic.amos",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (AMO)"
+    },
+    {
+      "work_a": "bohairic.amos",
+      "work_b": "septuaginta.amos",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (AMO)"
+    },
+    {
+      "work_a": "bohairic.amos",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (AMO)"
+    },
+    {
+      "work_a": "bohairic.colossians",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (COL)"
+    },
+    {
+      "work_a": "bohairic.colossians",
+      "work_b": "novum_testamentum.ad_colossenses",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (COL)"
+    },
+    {
+      "work_a": "bohairic.colossians",
+      "work_b": "sahidica.colossians",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (COL)"
+    },
+    {
+      "work_a": "bohairic.colossians",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (COL)"
+    },
+    {
+      "work_a": "bohairic.daniel",
+      "work_b": "hebrew_bible.daniel",
+      "language_a": "cop",
+      "language_b": "he",
+      "reason": "scripture translation (DAN)"
+    },
+    {
+      "work_a": "bohairic.daniel",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (DAN)"
+    },
+    {
+      "work_a": "bohairic.daniel",
+      "work_b": "sahidic.daniel",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (DAN)"
+    },
+    {
+      "work_a": "bohairic.daniel",
+      "work_b": "septuaginta.daniel_theodotionis",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (DAN)"
+    },
+    {
+      "work_a": "bohairic.daniel",
+      "work_b": "septuaginta.daniel_translatio_graeca",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (DAN)"
+    },
+    {
+      "work_a": "bohairic.daniel",
+      "work_b": "world_english_bible.writings",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (DAN)"
+    },
+    {
+      "work_a": "bohairic.deuteronomium",
+      "work_b": "hebrew_bible.deuteronomy",
+      "language_a": "cop",
+      "language_b": "he",
+      "reason": "scripture translation (DEU)"
+    },
+    {
+      "work_a": "bohairic.deuteronomium",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (DEU)"
+    },
+    {
+      "work_a": "bohairic.deuteronomium",
+      "work_b": "sahidic.deuteronomy",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (DEU)"
+    },
+    {
+      "work_a": "bohairic.deuteronomium",
+      "work_b": "septuaginta.deuteronomion",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (DEU)"
+    },
+    {
+      "work_a": "bohairic.deuteronomium",
+      "work_b": "world_english_bible.pentateuch",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (DEU)"
+    },
+    {
+      "work_a": "bohairic.ephesians",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (EPH)"
+    },
+    {
+      "work_a": "bohairic.ephesians",
+      "work_b": "novum_testamentum.ad_ephesios",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (EPH)"
+    },
+    {
+      "work_a": "bohairic.ephesians",
+      "work_b": "sahidica.ephesians",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (EPH)"
+    },
+    {
+      "work_a": "bohairic.ephesians",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (EPH)"
+    },
+    {
+      "work_a": "bohairic.exodus",
+      "work_b": "hebrew_bible.exodus",
+      "language_a": "cop",
+      "language_b": "he",
+      "reason": "scripture translation (EXO)"
+    },
+    {
+      "work_a": "bohairic.exodus",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (EXO)"
+    },
+    {
+      "work_a": "bohairic.exodus",
+      "work_b": "sahidic.exodus",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (EXO)"
+    },
+    {
+      "work_a": "bohairic.exodus",
+      "work_b": "septuaginta.exodus",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (EXO)"
+    },
+    {
+      "work_a": "bohairic.exodus",
+      "work_b": "world_english_bible.pentateuch",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (EXO)"
+    },
+    {
+      "work_a": "bohairic.ezechiel",
+      "work_b": "hebrew_bible.ezekiel",
+      "language_a": "cop",
+      "language_b": "he",
+      "reason": "scripture translation (EZK)"
+    },
+    {
+      "work_a": "bohairic.ezechiel",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (EZK)"
+    },
+    {
+      "work_a": "bohairic.ezechiel",
+      "work_b": "sahidic.ezekiel",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (EZK)"
+    },
+    {
+      "work_a": "bohairic.ezechiel",
+      "work_b": "septuaginta.ezechiel",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (EZK)"
+    },
+    {
+      "work_a": "bohairic.ezechiel",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (EZK)"
+    },
+    {
+      "work_a": "bohairic.galathians",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (GAL)"
+    },
+    {
+      "work_a": "bohairic.galathians",
+      "work_b": "novum_testamentum.ad_galatas",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (GAL)"
+    },
+    {
+      "work_a": "bohairic.galathians",
+      "work_b": "sahidica.galatians",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (GAL)"
+    },
+    {
+      "work_a": "bohairic.galathians",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (GAL)"
+    },
+    {
+      "work_a": "bohairic.genesis",
+      "work_b": "hebrew_bible.genesis",
+      "language_a": "cop",
+      "language_b": "he",
+      "reason": "scripture translation (GEN)"
+    },
+    {
+      "work_a": "bohairic.genesis",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (GEN)"
+    },
+    {
+      "work_a": "bohairic.genesis",
+      "work_b": "sahidic.genesis",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (GEN)"
+    },
+    {
+      "work_a": "bohairic.genesis",
+      "work_b": "septuaginta.genesis",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (GEN)"
+    },
+    {
+      "work_a": "bohairic.genesis",
+      "work_b": "world_english_bible.pentateuch",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (GEN)"
+    },
+    {
+      "work_a": "bohairic.habacuc",
+      "work_b": "hebrew_bible.habakkuk",
+      "language_a": "cop",
+      "language_b": "he",
+      "reason": "scripture translation (HAB)"
+    },
+    {
+      "work_a": "bohairic.habacuc",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (HAB)"
+    },
+    {
+      "work_a": "bohairic.habacuc",
+      "work_b": "sahidic.habakkuk",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (HAB)"
+    },
+    {
+      "work_a": "bohairic.habacuc",
+      "work_b": "septuaginta.habacuc",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (HAB)"
+    },
+    {
+      "work_a": "bohairic.habacuc",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (HAB)"
+    },
+    {
+      "work_a": "bohairic.hebrews",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (HEB)"
+    },
+    {
+      "work_a": "bohairic.hebrews",
+      "work_b": "novum_testamentum.ad_hebraeos",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (HEB)"
+    },
+    {
+      "work_a": "bohairic.hebrews",
+      "work_b": "sahidica.hebrews",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (HEB)"
+    },
+    {
+      "work_a": "bohairic.hebrews",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (HEB)"
+    },
+    {
+      "work_a": "bohairic.i_corinthians",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (1CO)"
+    },
+    {
+      "work_a": "bohairic.i_corinthians",
+      "work_b": "novum_testamentum.ad_corinthios_i",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (1CO)"
+    },
+    {
+      "work_a": "bohairic.i_corinthians",
+      "work_b": "sahidica.1corinthians",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (1CO)"
+    },
+    {
+      "work_a": "bohairic.i_corinthians",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (1CO)"
+    },
+    {
+      "work_a": "bohairic.i_john",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (1JN)"
+    },
+    {
+      "work_a": "bohairic.i_john",
+      "work_b": "novum_testamentum.ioannis_i",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (1JN)"
+    },
+    {
+      "work_a": "bohairic.i_john",
+      "work_b": "sahidica.1_john",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (1JN)"
+    },
+    {
+      "work_a": "bohairic.i_john",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (1JN)"
+    },
+    {
+      "work_a": "bohairic.i_peter",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (1PE)"
+    },
+    {
+      "work_a": "bohairic.i_peter",
+      "work_b": "novum_testamentum.petri_i",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (1PE)"
+    },
+    {
+      "work_a": "bohairic.i_peter",
+      "work_b": "sahidica.1_peter",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (1PE)"
+    },
+    {
+      "work_a": "bohairic.i_peter",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (1PE)"
+    },
+    {
+      "work_a": "bohairic.i_thessalonians",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (1TH)"
+    },
+    {
+      "work_a": "bohairic.i_thessalonians",
+      "work_b": "novum_testamentum.ad_thessalonicenses_i",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (1TH)"
+    },
+    {
+      "work_a": "bohairic.i_thessalonians",
+      "work_b": "sahidica.1_thessalonians",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (1TH)"
+    },
+    {
+      "work_a": "bohairic.i_thessalonians",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (1TH)"
+    },
+    {
+      "work_a": "bohairic.i_timothy",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (1TI)"
+    },
+    {
+      "work_a": "bohairic.i_timothy",
+      "work_b": "novum_testamentum.ad_timotheum_i",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (1TI)"
+    },
+    {
+      "work_a": "bohairic.i_timothy",
+      "work_b": "sahidica.1_timothy",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (1TI)"
+    },
+    {
+      "work_a": "bohairic.i_timothy",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (1TI)"
+    },
+    {
+      "work_a": "bohairic.ieremias",
+      "work_b": "hebrew_bible.jeremiah",
+      "language_a": "cop",
+      "language_b": "he",
+      "reason": "scripture translation (JER)"
+    },
+    {
+      "work_a": "bohairic.ieremias",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (JER)"
+    },
+    {
+      "work_a": "bohairic.ieremias",
+      "work_b": "sahidic.jeremiah",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (JER)"
+    },
+    {
+      "work_a": "bohairic.ieremias",
+      "work_b": "septuaginta.jeremias",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (JER)"
+    },
+    {
+      "work_a": "bohairic.ieremias",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (JER)"
+    },
+    {
+      "work_a": "bohairic.ii_corinthians",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (2CO)"
+    },
+    {
+      "work_a": "bohairic.ii_corinthians",
+      "work_b": "novum_testamentum.ad_corinthios_ii",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (2CO)"
+    },
+    {
+      "work_a": "bohairic.ii_corinthians",
+      "work_b": "sahidica.2_corinthians",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (2CO)"
+    },
+    {
+      "work_a": "bohairic.ii_corinthians",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (2CO)"
+    },
+    {
+      "work_a": "bohairic.ii_john",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (2JN)"
+    },
+    {
+      "work_a": "bohairic.ii_john",
+      "work_b": "novum_testamentum.ioannis_ii",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (2JN)"
+    },
+    {
+      "work_a": "bohairic.ii_john",
+      "work_b": "sahidica.2_john",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (2JN)"
+    },
+    {
+      "work_a": "bohairic.ii_john",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (2JN)"
+    },
+    {
+      "work_a": "bohairic.ii_peter",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (2PE)"
+    },
+    {
+      "work_a": "bohairic.ii_peter",
+      "work_b": "novum_testamentum.petri_ii",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (2PE)"
+    },
+    {
+      "work_a": "bohairic.ii_peter",
+      "work_b": "sahidica.2_peter",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (2PE)"
+    },
+    {
+      "work_a": "bohairic.ii_peter",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (2PE)"
+    },
+    {
+      "work_a": "bohairic.ii_thessalonians",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (2TH)"
+    },
+    {
+      "work_a": "bohairic.ii_thessalonians",
+      "work_b": "novum_testamentum.ad_thessalonicenses_ii",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (2TH)"
+    },
+    {
+      "work_a": "bohairic.ii_thessalonians",
+      "work_b": "sahidica.2_thessalonians",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (2TH)"
+    },
+    {
+      "work_a": "bohairic.ii_thessalonians",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (2TH)"
+    },
+    {
+      "work_a": "bohairic.ii_timothy",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (2TI)"
+    },
+    {
+      "work_a": "bohairic.ii_timothy",
+      "work_b": "novum_testamentum.ad_timotheum_ii",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (2TI)"
+    },
+    {
+      "work_a": "bohairic.ii_timothy",
+      "work_b": "sahidica.2_timothy",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (2TI)"
+    },
+    {
+      "work_a": "bohairic.ii_timothy",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (2TI)"
+    },
+    {
+      "work_a": "bohairic.iii_john",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (3JN)"
+    },
+    {
+      "work_a": "bohairic.iii_john",
+      "work_b": "novum_testamentum.ioannis_iii",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (3JN)"
+    },
+    {
+      "work_a": "bohairic.iii_john",
+      "work_b": "sahidica.3_john",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (3JN)"
+    },
+    {
+      "work_a": "bohairic.iii_john",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (3JN)"
+    },
+    {
+      "work_a": "bohairic.iob",
+      "work_b": "hebrew_bible.job",
+      "language_a": "cop",
+      "language_b": "he",
+      "reason": "scripture translation (JOB)"
+    },
+    {
+      "work_a": "bohairic.iob",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (JOB)"
+    },
+    {
+      "work_a": "bohairic.iob",
+      "work_b": "sahidic.job",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (JOB)"
+    },
+    {
+      "work_a": "bohairic.iob",
+      "work_b": "septuaginta.job",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (JOB)"
+    },
+    {
+      "work_a": "bohairic.iob",
+      "work_b": "world_english_bible.writings",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (JOB)"
+    },
+    {
+      "work_a": "bohairic.ioel",
+      "work_b": "hebrew_bible.joel",
+      "language_a": "cop",
+      "language_b": "he",
+      "reason": "scripture translation (JOL)"
+    },
+    {
+      "work_a": "bohairic.ioel",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (JOL)"
+    },
+    {
+      "work_a": "bohairic.ioel",
+      "work_b": "sahidic.joel",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (JOL)"
+    },
+    {
+      "work_a": "bohairic.ioel",
+      "work_b": "septuaginta.joel",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (JOL)"
+    },
+    {
+      "work_a": "bohairic.ioel",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (JOL)"
+    },
+    {
+      "work_a": "bohairic.ionas",
+      "work_b": "hebrew_bible.jonah",
+      "language_a": "cop",
+      "language_b": "he",
+      "reason": "scripture translation (JON)"
+    },
+    {
+      "work_a": "bohairic.ionas",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (JON)"
+    },
+    {
+      "work_a": "bohairic.ionas",
+      "work_b": "sahidic.jonah",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (JON)"
+    },
+    {
+      "work_a": "bohairic.ionas",
+      "work_b": "septuaginta.jonas",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (JON)"
+    },
+    {
+      "work_a": "bohairic.ionas",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (JON)"
+    },
+    {
+      "work_a": "bohairic.isaias",
+      "work_b": "hebrew_bible.isaiah",
+      "language_a": "cop",
+      "language_b": "he",
+      "reason": "scripture translation (ISA)"
+    },
+    {
+      "work_a": "bohairic.isaias",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (ISA)"
+    },
+    {
+      "work_a": "bohairic.isaias",
+      "work_b": "sahidic.isaiah",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (ISA)"
+    },
+    {
+      "work_a": "bohairic.isaias",
+      "work_b": "septuaginta.isaias",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (ISA)"
+    },
+    {
+      "work_a": "bohairic.isaias",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (ISA)"
+    },
+    {
+      "work_a": "bohairic.james",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (JAS)"
+    },
+    {
+      "work_a": "bohairic.james",
+      "work_b": "novum_testamentum.iacobi",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (JAS)"
+    },
+    {
+      "work_a": "bohairic.james",
+      "work_b": "sahidica.james",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (JAS)"
+    },
+    {
+      "work_a": "bohairic.james",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (JAS)"
+    },
+    {
+      "work_a": "bohairic.john",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (JHN)"
+    },
+    {
+      "work_a": "bohairic.john",
+      "work_b": "novum_testamentum.ioannes",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (JHN)"
+    },
+    {
+      "work_a": "bohairic.john",
+      "work_b": "sahidica.john",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (JHN)"
+    },
+    {
+      "work_a": "bohairic.john",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (JHN)"
+    },
+    {
+      "work_a": "bohairic.jude",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (JUD)"
+    },
+    {
+      "work_a": "bohairic.jude",
+      "work_b": "novum_testamentum.iudae",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (JUD)"
+    },
+    {
+      "work_a": "bohairic.jude",
+      "work_b": "sahidica.jude",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (JUD)"
+    },
+    {
+      "work_a": "bohairic.jude",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (JUD)"
+    },
+    {
+      "work_a": "bohairic.lamentationes",
+      "work_b": "hebrew_bible.lamentations",
+      "language_a": "cop",
+      "language_b": "he",
+      "reason": "scripture translation (LAM)"
+    },
+    {
+      "work_a": "bohairic.lamentationes",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (LAM)"
+    },
+    {
+      "work_a": "bohairic.lamentationes",
+      "work_b": "sahidic.lamentations",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (LAM)"
+    },
+    {
+      "work_a": "bohairic.lamentationes",
+      "work_b": "septuaginta.threni_seu_lamentationes",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (LAM)"
+    },
+    {
+      "work_a": "bohairic.lamentationes",
+      "work_b": "world_english_bible.writings",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (LAM)"
+    },
+    {
+      "work_a": "bohairic.leviticus",
+      "work_b": "hebrew_bible.leviticus",
+      "language_a": "cop",
+      "language_b": "he",
+      "reason": "scripture translation (LEV)"
+    },
+    {
+      "work_a": "bohairic.leviticus",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (LEV)"
+    },
+    {
+      "work_a": "bohairic.leviticus",
+      "work_b": "sahidic.leviticus",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (LEV)"
+    },
+    {
+      "work_a": "bohairic.leviticus",
+      "work_b": "septuaginta.levitikon",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (LEV)"
+    },
+    {
+      "work_a": "bohairic.leviticus",
+      "work_b": "world_english_bible.pentateuch",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (LEV)"
+    },
+    {
+      "work_a": "bohairic.luke",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (LUK)"
+    },
+    {
+      "work_a": "bohairic.luke",
+      "work_b": "novum_testamentum.lucas",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (LUK)"
+    },
+    {
+      "work_a": "bohairic.luke",
+      "work_b": "sahidica.luke",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (LUK)"
+    },
+    {
+      "work_a": "bohairic.luke",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (LUK)"
+    },
+    {
+      "work_a": "bohairic.malachias",
+      "work_b": "hebrew_bible.malachi",
+      "language_a": "cop",
+      "language_b": "he",
+      "reason": "scripture translation (MAL)"
+    },
+    {
+      "work_a": "bohairic.malachias",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (MAL)"
+    },
+    {
+      "work_a": "bohairic.malachias",
+      "work_b": "septuaginta.malachias",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (MAL)"
+    },
+    {
+      "work_a": "bohairic.malachias",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (MAL)"
+    },
+    {
+      "work_a": "bohairic.mark",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (MRK)"
+    },
+    {
+      "work_a": "bohairic.mark",
+      "work_b": "novum_testamentum.marcus",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (MRK)"
+    },
+    {
+      "work_a": "bohairic.mark",
+      "work_b": "sahidica.mark",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (MRK)"
+    },
+    {
+      "work_a": "bohairic.mark",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (MRK)"
+    },
+    {
+      "work_a": "bohairic.matthew",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (MAT)"
+    },
+    {
+      "work_a": "bohairic.matthew",
+      "work_b": "novum_testamentum.matthaeus",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (MAT)"
+    },
+    {
+      "work_a": "bohairic.matthew",
+      "work_b": "sahidica.matthew",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (MAT)"
+    },
+    {
+      "work_a": "bohairic.matthew",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (MAT)"
+    },
+    {
+      "work_a": "bohairic.michaeas",
+      "work_b": "hebrew_bible.micah",
+      "language_a": "cop",
+      "language_b": "he",
+      "reason": "scripture translation (MIC)"
+    },
+    {
+      "work_a": "bohairic.michaeas",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (MIC)"
+    },
+    {
+      "work_a": "bohairic.michaeas",
+      "work_b": "sahidic.micah",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (MIC)"
+    },
+    {
+      "work_a": "bohairic.michaeas",
+      "work_b": "septuaginta.michaeas",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (MIC)"
+    },
+    {
+      "work_a": "bohairic.michaeas",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (MIC)"
+    },
+    {
+      "work_a": "bohairic.nahum",
+      "work_b": "hebrew_bible.nahum",
+      "language_a": "cop",
+      "language_b": "he",
+      "reason": "scripture translation (NAM)"
+    },
+    {
+      "work_a": "bohairic.nahum",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (NAM)"
+    },
+    {
+      "work_a": "bohairic.nahum",
+      "work_b": "sahidic.nahum",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (NAM)"
+    },
+    {
+      "work_a": "bohairic.nahum",
+      "work_b": "septuaginta.nahum",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (NAM)"
+    },
+    {
+      "work_a": "bohairic.nahum",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (NAM)"
+    },
+    {
+      "work_a": "bohairic.numeri",
+      "work_b": "hebrew_bible.numbers",
+      "language_a": "cop",
+      "language_b": "he",
+      "reason": "scripture translation (NUM)"
+    },
+    {
+      "work_a": "bohairic.numeri",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (NUM)"
+    },
+    {
+      "work_a": "bohairic.numeri",
+      "work_b": "sahidic.numbers",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (NUM)"
+    },
+    {
+      "work_a": "bohairic.numeri",
+      "work_b": "septuaginta.arithmoi",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (NUM)"
+    },
+    {
+      "work_a": "bohairic.numeri",
+      "work_b": "world_english_bible.pentateuch",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (NUM)"
+    },
+    {
+      "work_a": "bohairic.osee",
+      "work_b": "hebrew_bible.hosea",
+      "language_a": "cop",
+      "language_b": "he",
+      "reason": "scripture translation (HOS)"
+    },
+    {
+      "work_a": "bohairic.osee",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (HOS)"
+    },
+    {
+      "work_a": "bohairic.osee",
+      "work_b": "sahidic.hosea",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (HOS)"
+    },
+    {
+      "work_a": "bohairic.osee",
+      "work_b": "septuaginta.osee",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (HOS)"
+    },
+    {
+      "work_a": "bohairic.osee",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (HOS)"
+    },
+    {
+      "work_a": "bohairic.philemon",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (PHM)"
+    },
+    {
+      "work_a": "bohairic.philemon",
+      "work_b": "novum_testamentum.ad_philemonem",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (PHM)"
+    },
+    {
+      "work_a": "bohairic.philemon",
+      "work_b": "sahidica.philemon",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (PHM)"
+    },
+    {
+      "work_a": "bohairic.philemon",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (PHM)"
+    },
+    {
+      "work_a": "bohairic.philippians",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (PHP)"
+    },
+    {
+      "work_a": "bohairic.philippians",
+      "work_b": "novum_testamentum.ad_philippenses",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (PHP)"
+    },
+    {
+      "work_a": "bohairic.philippians",
+      "work_b": "sahidica.philippians",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (PHP)"
+    },
+    {
+      "work_a": "bohairic.philippians",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (PHP)"
+    },
+    {
+      "work_a": "bohairic.psalmi",
+      "work_b": "hebrew_bible.psalms",
+      "language_a": "cop",
+      "language_b": "he",
+      "reason": "scripture translation (PSA)"
+    },
+    {
+      "work_a": "bohairic.psalmi",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (PSA)"
+    },
+    {
+      "work_a": "bohairic.psalmi",
+      "work_b": "sahidic.psalms",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (PSA)"
+    },
+    {
+      "work_a": "bohairic.psalmi",
+      "work_b": "septuaginta.psalmi",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (PSA)"
+    },
+    {
+      "work_a": "bohairic.psalmi",
+      "work_b": "world_english_bible.writings",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (PSA)"
+    },
+    {
+      "work_a": "bohairic.revelation",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (REV)"
+    },
+    {
+      "work_a": "bohairic.revelation",
+      "work_b": "novum_testamentum.apocalypsis",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (REV)"
+    },
+    {
+      "work_a": "bohairic.revelation",
+      "work_b": "sahidica.revelation",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (REV)"
+    },
+    {
+      "work_a": "bohairic.revelation",
+      "work_b": "world_english_bible.revelation",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (REV)"
+    },
+    {
+      "work_a": "bohairic.romans",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (ROM)"
+    },
+    {
+      "work_a": "bohairic.romans",
+      "work_b": "novum_testamentum.ad_romanos",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (ROM)"
+    },
+    {
+      "work_a": "bohairic.romans",
+      "work_b": "sahidica.romans",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (ROM)"
+    },
+    {
+      "work_a": "bohairic.romans",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (ROM)"
+    },
+    {
+      "work_a": "bohairic.sophonias",
+      "work_b": "hebrew_bible.zephaniah",
+      "language_a": "cop",
+      "language_b": "he",
+      "reason": "scripture translation (ZEP)"
+    },
+    {
+      "work_a": "bohairic.sophonias",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (ZEP)"
+    },
+    {
+      "work_a": "bohairic.sophonias",
+      "work_b": "sahidic.zephaniah",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (ZEP)"
+    },
+    {
+      "work_a": "bohairic.sophonias",
+      "work_b": "septuaginta.sophonias",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (ZEP)"
+    },
+    {
+      "work_a": "bohairic.sophonias",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (ZEP)"
+    },
+    {
+      "work_a": "bohairic.titus",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (TIT)"
+    },
+    {
+      "work_a": "bohairic.titus",
+      "work_b": "novum_testamentum.ad_titum",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (TIT)"
+    },
+    {
+      "work_a": "bohairic.titus",
+      "work_b": "sahidica.titus",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (TIT)"
+    },
+    {
+      "work_a": "bohairic.titus",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (TIT)"
+    },
+    {
+      "work_a": "bohairic.zacharias",
+      "work_b": "hebrew_bible.zechariah",
+      "language_a": "cop",
+      "language_b": "he",
+      "reason": "scripture translation (ZEC)"
+    },
+    {
+      "work_a": "bohairic.zacharias",
+      "work_b": "jerome.vulgate",
+      "language_a": "cop",
+      "language_b": "la",
+      "reason": "scripture translation (ZEC)"
+    },
+    {
+      "work_a": "bohairic.zacharias",
+      "work_b": "sahidic.zechariah",
+      "language_a": "cop",
+      "language_b": "cop",
+      "reason": "scripture translation (ZEC)"
+    },
+    {
+      "work_a": "bohairic.zacharias",
+      "work_b": "septuaginta.zacharias",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (ZEC)"
+    },
+    {
+      "work_a": "bohairic.zacharias",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (ZEC)"
+    },
+    {
+      "work_a": "hebrew_bible.1_chronicles",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (1CH)"
+    },
+    {
+      "work_a": "hebrew_bible.1_chronicles",
+      "work_b": "sahidic.i_chronicles",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (1CH)"
+    },
+    {
+      "work_a": "hebrew_bible.1_chronicles",
+      "work_b": "septuaginta.paralipomenon_i_sive_chronicon_i",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (1CH)"
+    },
+    {
+      "work_a": "hebrew_bible.1_chronicles",
+      "work_b": "world_english_bible.writings",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (1CH)"
+    },
+    {
+      "work_a": "hebrew_bible.1_kings",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (1KI)"
+    },
+    {
+      "work_a": "hebrew_bible.1_kings",
+      "work_b": "sahidic.i_kings",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (1KI)"
+    },
+    {
+      "work_a": "hebrew_bible.1_kings",
+      "work_b": "septuaginta.basileion_g",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (1KI)"
+    },
+    {
+      "work_a": "hebrew_bible.1_kings",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (1KI)"
+    },
+    {
+      "work_a": "hebrew_bible.1_samuel",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (1SA)"
+    },
+    {
+      "work_a": "hebrew_bible.1_samuel",
+      "work_b": "sahidic.i_samuel",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (1SA)"
+    },
+    {
+      "work_a": "hebrew_bible.1_samuel",
+      "work_b": "septuaginta.basileion_a",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (1SA)"
+    },
+    {
+      "work_a": "hebrew_bible.1_samuel",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (1SA)"
+    },
+    {
+      "work_a": "hebrew_bible.2_chronicles",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (2CH)"
+    },
+    {
+      "work_a": "hebrew_bible.2_chronicles",
+      "work_b": "sahidic.ii_chronicles",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (2CH)"
+    },
+    {
+      "work_a": "hebrew_bible.2_chronicles",
+      "work_b": "septuaginta.paralipomenon_b",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (2CH)"
+    },
+    {
+      "work_a": "hebrew_bible.2_chronicles",
+      "work_b": "world_english_bible.writings",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (2CH)"
+    },
+    {
+      "work_a": "hebrew_bible.2_kings",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (2KI)"
+    },
+    {
+      "work_a": "hebrew_bible.2_kings",
+      "work_b": "sahidic.ii_kings",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (2KI)"
+    },
+    {
+      "work_a": "hebrew_bible.2_kings",
+      "work_b": "septuaginta.basileion_d",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (2KI)"
+    },
+    {
+      "work_a": "hebrew_bible.2_kings",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (2KI)"
+    },
+    {
+      "work_a": "hebrew_bible.2_samuel",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (2SA)"
+    },
+    {
+      "work_a": "hebrew_bible.2_samuel",
+      "work_b": "sahidic.ii_samuel",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (2SA)"
+    },
+    {
+      "work_a": "hebrew_bible.2_samuel",
+      "work_b": "septuaginta.basileion_b",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (2SA)"
+    },
+    {
+      "work_a": "hebrew_bible.2_samuel",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (2SA)"
+    },
+    {
+      "work_a": "hebrew_bible.amos",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (AMO)"
+    },
+    {
+      "work_a": "hebrew_bible.amos",
+      "work_b": "sahidic.amos",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (AMO)"
+    },
+    {
+      "work_a": "hebrew_bible.amos",
+      "work_b": "septuaginta.amos",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (AMO)"
+    },
+    {
+      "work_a": "hebrew_bible.amos",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (AMO)"
+    },
+    {
+      "work_a": "hebrew_bible.daniel",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (DAN)"
+    },
+    {
+      "work_a": "hebrew_bible.daniel",
+      "work_b": "sahidic.daniel",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (DAN)"
+    },
+    {
+      "work_a": "hebrew_bible.daniel",
+      "work_b": "septuaginta.daniel_theodotionis",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (DAN)"
+    },
+    {
+      "work_a": "hebrew_bible.daniel",
+      "work_b": "septuaginta.daniel_translatio_graeca",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (DAN)"
+    },
+    {
+      "work_a": "hebrew_bible.daniel",
+      "work_b": "world_english_bible.writings",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (DAN)"
+    },
+    {
+      "work_a": "hebrew_bible.deuteronomy",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (DEU)"
+    },
+    {
+      "work_a": "hebrew_bible.deuteronomy",
+      "work_b": "sahidic.deuteronomy",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (DEU)"
+    },
+    {
+      "work_a": "hebrew_bible.deuteronomy",
+      "work_b": "septuaginta.deuteronomion",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (DEU)"
+    },
+    {
+      "work_a": "hebrew_bible.deuteronomy",
+      "work_b": "world_english_bible.pentateuch",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (DEU)"
+    },
+    {
+      "work_a": "hebrew_bible.ecclesiastes",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (ECC)"
+    },
+    {
+      "work_a": "hebrew_bible.ecclesiastes",
+      "work_b": "sahidic.ecclesiastes",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (ECC)"
+    },
+    {
+      "work_a": "hebrew_bible.ecclesiastes",
+      "work_b": "world_english_bible.writings",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (ECC)"
+    },
+    {
+      "work_a": "hebrew_bible.esther",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (EST)"
+    },
+    {
+      "work_a": "hebrew_bible.esther",
+      "work_b": "sahidic.esther",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (EST)"
+    },
+    {
+      "work_a": "hebrew_bible.esther",
+      "work_b": "septuaginta.esther",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (EST)"
+    },
+    {
+      "work_a": "hebrew_bible.esther",
+      "work_b": "world_english_bible.writings",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (EST)"
+    },
+    {
+      "work_a": "hebrew_bible.exodus",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (EXO)"
+    },
+    {
+      "work_a": "hebrew_bible.exodus",
+      "work_b": "sahidic.exodus",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (EXO)"
+    },
+    {
+      "work_a": "hebrew_bible.exodus",
+      "work_b": "septuaginta.exodus",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (EXO)"
+    },
+    {
+      "work_a": "hebrew_bible.exodus",
+      "work_b": "world_english_bible.pentateuch",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (EXO)"
+    },
+    {
+      "work_a": "hebrew_bible.ezekiel",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (EZK)"
+    },
+    {
+      "work_a": "hebrew_bible.ezekiel",
+      "work_b": "sahidic.ezekiel",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (EZK)"
+    },
+    {
+      "work_a": "hebrew_bible.ezekiel",
+      "work_b": "septuaginta.ezechiel",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (EZK)"
+    },
+    {
+      "work_a": "hebrew_bible.ezekiel",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (EZK)"
+    },
+    {
+      "work_a": "hebrew_bible.ezra",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (EZR)"
+    },
+    {
+      "work_a": "hebrew_bible.ezra",
+      "work_b": "septuaginta.esdras_b",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (EZR)"
+    },
+    {
+      "work_a": "hebrew_bible.ezra",
+      "work_b": "world_english_bible.writings",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (EZR)"
+    },
+    {
+      "work_a": "hebrew_bible.genesis",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (GEN)"
+    },
+    {
+      "work_a": "hebrew_bible.genesis",
+      "work_b": "sahidic.genesis",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (GEN)"
+    },
+    {
+      "work_a": "hebrew_bible.genesis",
+      "work_b": "septuaginta.genesis",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (GEN)"
+    },
+    {
+      "work_a": "hebrew_bible.genesis",
+      "work_b": "world_english_bible.pentateuch",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (GEN)"
+    },
+    {
+      "work_a": "hebrew_bible.habakkuk",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (HAB)"
+    },
+    {
+      "work_a": "hebrew_bible.habakkuk",
+      "work_b": "sahidic.habakkuk",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (HAB)"
+    },
+    {
+      "work_a": "hebrew_bible.habakkuk",
+      "work_b": "septuaginta.habacuc",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (HAB)"
+    },
+    {
+      "work_a": "hebrew_bible.habakkuk",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (HAB)"
+    },
+    {
+      "work_a": "hebrew_bible.haggai",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (HAG)"
+    },
+    {
+      "work_a": "hebrew_bible.haggai",
+      "work_b": "sahidic.haggai",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (HAG)"
+    },
+    {
+      "work_a": "hebrew_bible.haggai",
+      "work_b": "septuaginta.aggaeus",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (HAG)"
+    },
+    {
+      "work_a": "hebrew_bible.haggai",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (HAG)"
+    },
+    {
+      "work_a": "hebrew_bible.hosea",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (HOS)"
+    },
+    {
+      "work_a": "hebrew_bible.hosea",
+      "work_b": "sahidic.hosea",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (HOS)"
+    },
+    {
+      "work_a": "hebrew_bible.hosea",
+      "work_b": "septuaginta.osee",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (HOS)"
+    },
+    {
+      "work_a": "hebrew_bible.hosea",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (HOS)"
+    },
+    {
+      "work_a": "hebrew_bible.isaiah",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (ISA)"
+    },
+    {
+      "work_a": "hebrew_bible.isaiah",
+      "work_b": "sahidic.isaiah",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (ISA)"
+    },
+    {
+      "work_a": "hebrew_bible.isaiah",
+      "work_b": "septuaginta.isaias",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (ISA)"
+    },
+    {
+      "work_a": "hebrew_bible.isaiah",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (ISA)"
+    },
+    {
+      "work_a": "hebrew_bible.jeremiah",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (JER)"
+    },
+    {
+      "work_a": "hebrew_bible.jeremiah",
+      "work_b": "sahidic.jeremiah",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (JER)"
+    },
+    {
+      "work_a": "hebrew_bible.jeremiah",
+      "work_b": "septuaginta.jeremias",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (JER)"
+    },
+    {
+      "work_a": "hebrew_bible.jeremiah",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (JER)"
+    },
+    {
+      "work_a": "hebrew_bible.job",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (JOB)"
+    },
+    {
+      "work_a": "hebrew_bible.job",
+      "work_b": "sahidic.job",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (JOB)"
+    },
+    {
+      "work_a": "hebrew_bible.job",
+      "work_b": "septuaginta.job",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (JOB)"
+    },
+    {
+      "work_a": "hebrew_bible.job",
+      "work_b": "world_english_bible.writings",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (JOB)"
+    },
+    {
+      "work_a": "hebrew_bible.joel",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (JOL)"
+    },
+    {
+      "work_a": "hebrew_bible.joel",
+      "work_b": "sahidic.joel",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (JOL)"
+    },
+    {
+      "work_a": "hebrew_bible.joel",
+      "work_b": "septuaginta.joel",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (JOL)"
+    },
+    {
+      "work_a": "hebrew_bible.joel",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (JOL)"
+    },
+    {
+      "work_a": "hebrew_bible.jonah",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (JON)"
+    },
+    {
+      "work_a": "hebrew_bible.jonah",
+      "work_b": "sahidic.jonah",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (JON)"
+    },
+    {
+      "work_a": "hebrew_bible.jonah",
+      "work_b": "septuaginta.jonas",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (JON)"
+    },
+    {
+      "work_a": "hebrew_bible.jonah",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (JON)"
+    },
+    {
+      "work_a": "hebrew_bible.joshua",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (JOS)"
+    },
+    {
+      "work_a": "hebrew_bible.joshua",
+      "work_b": "sahidic.joshua",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (JOS)"
+    },
+    {
+      "work_a": "hebrew_bible.joshua",
+      "work_b": "septuaginta.josue",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (JOS)"
+    },
+    {
+      "work_a": "hebrew_bible.joshua",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (JOS)"
+    },
+    {
+      "work_a": "hebrew_bible.judges",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (JDG)"
+    },
+    {
+      "work_a": "hebrew_bible.judges",
+      "work_b": "sahidic.judges",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (JDG)"
+    },
+    {
+      "work_a": "hebrew_bible.judges",
+      "work_b": "septuaginta.kritai",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (JDG)"
+    },
+    {
+      "work_a": "hebrew_bible.judges",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (JDG)"
+    },
+    {
+      "work_a": "hebrew_bible.lamentations",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (LAM)"
+    },
+    {
+      "work_a": "hebrew_bible.lamentations",
+      "work_b": "sahidic.lamentations",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (LAM)"
+    },
+    {
+      "work_a": "hebrew_bible.lamentations",
+      "work_b": "septuaginta.threni_seu_lamentationes",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (LAM)"
+    },
+    {
+      "work_a": "hebrew_bible.lamentations",
+      "work_b": "world_english_bible.writings",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (LAM)"
+    },
+    {
+      "work_a": "hebrew_bible.leviticus",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (LEV)"
+    },
+    {
+      "work_a": "hebrew_bible.leviticus",
+      "work_b": "sahidic.leviticus",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (LEV)"
+    },
+    {
+      "work_a": "hebrew_bible.leviticus",
+      "work_b": "septuaginta.levitikon",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (LEV)"
+    },
+    {
+      "work_a": "hebrew_bible.leviticus",
+      "work_b": "world_english_bible.pentateuch",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (LEV)"
+    },
+    {
+      "work_a": "hebrew_bible.malachi",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (MAL)"
+    },
+    {
+      "work_a": "hebrew_bible.malachi",
+      "work_b": "septuaginta.malachias",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (MAL)"
+    },
+    {
+      "work_a": "hebrew_bible.malachi",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (MAL)"
+    },
+    {
+      "work_a": "hebrew_bible.micah",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (MIC)"
+    },
+    {
+      "work_a": "hebrew_bible.micah",
+      "work_b": "sahidic.micah",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (MIC)"
+    },
+    {
+      "work_a": "hebrew_bible.micah",
+      "work_b": "septuaginta.michaeas",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (MIC)"
+    },
+    {
+      "work_a": "hebrew_bible.micah",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (MIC)"
+    },
+    {
+      "work_a": "hebrew_bible.nahum",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (NAM)"
+    },
+    {
+      "work_a": "hebrew_bible.nahum",
+      "work_b": "sahidic.nahum",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (NAM)"
+    },
+    {
+      "work_a": "hebrew_bible.nahum",
+      "work_b": "septuaginta.nahum",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (NAM)"
+    },
+    {
+      "work_a": "hebrew_bible.nahum",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (NAM)"
+    },
+    {
+      "work_a": "hebrew_bible.nehemiah",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (NEH)"
+    },
+    {
+      "work_a": "hebrew_bible.nehemiah",
+      "work_b": "world_english_bible.writings",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (NEH)"
+    },
+    {
+      "work_a": "hebrew_bible.numbers",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (NUM)"
+    },
+    {
+      "work_a": "hebrew_bible.numbers",
+      "work_b": "sahidic.numbers",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (NUM)"
+    },
+    {
+      "work_a": "hebrew_bible.numbers",
+      "work_b": "septuaginta.arithmoi",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (NUM)"
+    },
+    {
+      "work_a": "hebrew_bible.numbers",
+      "work_b": "world_english_bible.pentateuch",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (NUM)"
+    },
+    {
+      "work_a": "hebrew_bible.obadiah",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (OBA)"
+    },
+    {
+      "work_a": "hebrew_bible.obadiah",
+      "work_b": "sahidic.obadiah",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (OBA)"
+    },
+    {
+      "work_a": "hebrew_bible.obadiah",
+      "work_b": "septuaginta.abdias",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (OBA)"
+    },
+    {
+      "work_a": "hebrew_bible.obadiah",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (OBA)"
+    },
+    {
+      "work_a": "hebrew_bible.proverbs",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (PRO)"
+    },
+    {
+      "work_a": "hebrew_bible.proverbs",
+      "work_b": "sahidic.proverbs",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (PRO)"
+    },
+    {
+      "work_a": "hebrew_bible.proverbs",
+      "work_b": "septuaginta.proverbia",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (PRO)"
+    },
+    {
+      "work_a": "hebrew_bible.proverbs",
+      "work_b": "world_english_bible.writings",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (PRO)"
+    },
+    {
+      "work_a": "hebrew_bible.psalms",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (PSA)"
+    },
+    {
+      "work_a": "hebrew_bible.psalms",
+      "work_b": "sahidic.psalms",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (PSA)"
+    },
+    {
+      "work_a": "hebrew_bible.psalms",
+      "work_b": "septuaginta.psalmi",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (PSA)"
+    },
+    {
+      "work_a": "hebrew_bible.psalms",
+      "work_b": "world_english_bible.writings",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (PSA)"
+    },
+    {
+      "work_a": "hebrew_bible.ruth",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (RUT)"
+    },
+    {
+      "work_a": "hebrew_bible.ruth",
+      "work_b": "sahidic.ruth",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (RUT)"
+    },
+    {
+      "work_a": "hebrew_bible.ruth",
+      "work_b": "septuaginta.ruth",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (RUT)"
+    },
+    {
+      "work_a": "hebrew_bible.ruth",
+      "work_b": "world_english_bible.writings",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (RUT)"
+    },
+    {
+      "work_a": "hebrew_bible.song_of_songs",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (SNG)"
+    },
+    {
+      "work_a": "hebrew_bible.song_of_songs",
+      "work_b": "sahidic.song_of_solomon",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (SNG)"
+    },
+    {
+      "work_a": "hebrew_bible.song_of_songs",
+      "work_b": "septuaginta.canticum",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (SNG)"
+    },
+    {
+      "work_a": "hebrew_bible.song_of_songs",
+      "work_b": "world_english_bible.writings",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (SNG)"
+    },
+    {
+      "work_a": "hebrew_bible.zechariah",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (ZEC)"
+    },
+    {
+      "work_a": "hebrew_bible.zechariah",
+      "work_b": "sahidic.zechariah",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (ZEC)"
+    },
+    {
+      "work_a": "hebrew_bible.zechariah",
+      "work_b": "septuaginta.zacharias",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (ZEC)"
+    },
+    {
+      "work_a": "hebrew_bible.zechariah",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (ZEC)"
+    },
+    {
+      "work_a": "hebrew_bible.zephaniah",
+      "work_b": "jerome.vulgate",
+      "language_a": "he",
+      "language_b": "la",
+      "reason": "scripture translation (ZEP)"
+    },
+    {
+      "work_a": "hebrew_bible.zephaniah",
+      "work_b": "sahidic.zephaniah",
+      "language_a": "he",
+      "language_b": "cop",
+      "reason": "scripture translation (ZEP)"
+    },
+    {
+      "work_a": "hebrew_bible.zephaniah",
+      "work_b": "septuaginta.sophonias",
+      "language_a": "he",
+      "language_b": "grc",
+      "reason": "scripture translation (ZEP)"
+    },
+    {
+      "work_a": "hebrew_bible.zephaniah",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "he",
+      "language_b": "en",
+      "reason": "scripture translation (ZEP)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.actus_apostolorum",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (ACT)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.ad_colossenses",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (COL)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.ad_corinthios_i",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (1CO)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.ad_corinthios_ii",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (2CO)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.ad_ephesios",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (EPH)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.ad_galatas",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (GAL)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.ad_hebraeos",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (HEB)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.ad_philemonem",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (PHM)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.ad_philippenses",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (PHP)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.ad_romanos",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (ROM)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.ad_thessalonicenses_i",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (1TH)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.ad_thessalonicenses_ii",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (2TH)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.ad_timotheum_i",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (1TI)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.ad_timotheum_ii",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (2TI)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.ad_titum",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (TIT)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.apocalypsis",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (REV)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.iacobi",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (JAS)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.ioannes",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (JHN)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.ioannis_i",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (1JN)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.ioannis_ii",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (2JN)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.ioannis_iii",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (3JN)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.iudae",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (JUD)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.lucas",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (LUK)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.marcus",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (MRK)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.matthaeus",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (MAT)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.petri_i",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (1PE)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "novum_testamentum.petri_ii",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (2PE)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.amos",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (AMO)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.baruch",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (BAR)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.daniel",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (DAN)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.deuteronomy",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (DEU)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.ecclesiastes",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (ECC)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.esther",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (EST)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.exodus",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (EXO)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.ezekiel",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (EZK)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.genesis",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (GEN)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.habakkuk",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (HAB)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.haggai",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (HAG)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.hosea",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (HOS)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.i_chronicles",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (1CH)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.i_kings",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (1KI)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.i_samuel",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (1SA)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.ii_chronicles",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (2CH)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.ii_kings",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (2KI)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.ii_maccabees",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (2MA)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.ii_samuel",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (2SA)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.isaiah",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (ISA)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.jeremiah",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (JER)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.job",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (JOB)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.joel",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (JOL)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.jonah",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (JON)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.joshua",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (JOS)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.judges",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (JDG)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.judith",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (JDT)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.lamentations",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (LAM)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.leviticus",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (LEV)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.micah",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (MIC)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.nahum",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (NAM)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.numbers",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (NUM)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.obadiah",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (OBA)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.prayer_of_manasses",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (MAN)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.proverbs",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (PRO)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.psalms",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (PSA)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.ruth",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (RUT)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.sirach",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (SIR)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.song_of_solomon",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (SNG)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.tobit",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (TOB)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.wisdom",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (WIS)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.zechariah",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (ZEC)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidic.zephaniah",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (ZEP)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.1_john",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (1JN)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.1_peter",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (1PE)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.1_thessalonians",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (1TH)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.1_timothy",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (1TI)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.1corinthians",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (1CO)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.2_corinthians",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (2CO)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.2_john",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (2JN)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.2_peter",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (2PE)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.2_thessalonians",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (2TH)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.2_timothy",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (2TI)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.3_john",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (3JN)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.acts_of_the_apostles",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (ACT)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.colossians",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (COL)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.ephesians",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (EPH)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.galatians",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (GAL)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.hebrews",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (HEB)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.james",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (JAS)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.john",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (JHN)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.jude",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (JUD)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.luke",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (LUK)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.mark",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (MRK)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.matthew",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (MAT)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.philemon",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (PHM)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.philippians",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (PHP)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.revelation",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (REV)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.romans",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (ROM)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "sahidica.titus",
+      "language_a": "la",
+      "language_b": "cop",
+      "reason": "scripture translation (TIT)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.abdias",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (OBA)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.aggaeus",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (HAG)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.amos",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (AMO)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.arithmoi",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (NUM)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.baruch",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (BAR)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.basileion_a",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (1SA)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.basileion_b",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (2SA)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.basileion_d",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (2KI)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.basileion_g",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (1KI)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.canticum",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (SNG)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.daniel_theodotionis",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (DAN)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.daniel_translatio_graeca",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (DAN)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.deuteronomion",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (DEU)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.ecclesiasticus",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (SIR)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.esdras_b",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (EZR)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.esther",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (EST)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.exodus",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (EXO)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.ezechiel",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (EZK)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.genesis",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (GEN)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.habacuc",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (HAB)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.isaias",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (ISA)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.jeremias",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (JER)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.job",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (JOB)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.joel",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (JOL)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.jonas",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (JON)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.josue",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (JOS)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.judith",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (JDT)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.kritai",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (JDG)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.levitikon",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (LEV)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.machabaeorum_b",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (2MA)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.machabaeorum_i",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (1MA)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.malachias",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (MAL)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.michaeas",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (MIC)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.nahum",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (NAM)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.osee",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (HOS)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.paralipomenon_b",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (2CH)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.paralipomenon_i_sive_chronicon_i",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (1CH)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.proverbia",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (PRO)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.psalmi",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (PSA)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.ruth",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (RUT)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.sapientia_salomonis",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (WIS)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.sophonias",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (ZEP)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.threni_seu_lamentationes",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (LAM)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.tobias",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (TOB)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "septuaginta.zacharias",
+      "language_a": "la",
+      "language_b": "grc",
+      "reason": "scripture translation (ZEC)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "la",
+      "language_b": "en",
+      "reason": "scripture translation (1CO, 1JN, 1PE, 1TH, 1TI, 2CO, 2JN, 2PE, 2TH, 2TI, 3JN, ACT, COL, EPH, GAL, HEB, JAS, JHN, JUD, LUK, MAT, MRK, PHM, PHP, ROM, TIT)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "world_english_bible.pentateuch",
+      "language_a": "la",
+      "language_b": "en",
+      "reason": "scripture translation (DEU, EXO, GEN, LEV, NUM)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "la",
+      "language_b": "en",
+      "reason": "scripture translation (1KI, 1SA, 2KI, 2SA, AMO, EZK, HAB, HAG, HOS, ISA, JDG, JER, JOL, JON, JOS, MAL, MIC, NAM, OBA, ZEC, ZEP)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "world_english_bible.revelation",
+      "language_a": "la",
+      "language_b": "en",
+      "reason": "scripture translation (REV)"
+    },
+    {
+      "work_a": "jerome.vulgate",
+      "work_b": "world_english_bible.writings",
+      "language_a": "la",
+      "language_b": "en",
+      "reason": "scripture translation (1CH, 2CH, DAN, ECC, EST, EZR, JOB, LAM, NEH, PRO, PSA, RUT, SNG)"
+    },
+    {
+      "work_a": "novum_testamentum.actus_apostolorum",
+      "work_b": "sahidica.acts_of_the_apostles",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (ACT)"
+    },
+    {
+      "work_a": "novum_testamentum.actus_apostolorum",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (ACT)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_colossenses",
+      "work_b": "sahidica.colossians",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (COL)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_colossenses",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (COL)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_corinthios_i",
+      "work_b": "sahidica.1corinthians",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (1CO)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_corinthios_i",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (1CO)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_corinthios_ii",
+      "work_b": "sahidica.2_corinthians",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (2CO)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_corinthios_ii",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (2CO)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_ephesios",
+      "work_b": "sahidica.ephesians",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (EPH)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_ephesios",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (EPH)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_galatas",
+      "work_b": "sahidica.galatians",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (GAL)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_galatas",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (GAL)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_hebraeos",
+      "work_b": "sahidica.hebrews",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (HEB)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_hebraeos",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (HEB)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_philemonem",
+      "work_b": "sahidica.philemon",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (PHM)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_philemonem",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (PHM)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_philippenses",
+      "work_b": "sahidica.philippians",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (PHP)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_philippenses",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (PHP)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_romanos",
+      "work_b": "sahidica.romans",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (ROM)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_romanos",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (ROM)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_thessalonicenses_i",
+      "work_b": "sahidica.1_thessalonians",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (1TH)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_thessalonicenses_i",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (1TH)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_thessalonicenses_ii",
+      "work_b": "sahidica.2_thessalonians",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (2TH)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_thessalonicenses_ii",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (2TH)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_timotheum_i",
+      "work_b": "sahidica.1_timothy",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (1TI)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_timotheum_i",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (1TI)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_timotheum_ii",
+      "work_b": "sahidica.2_timothy",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (2TI)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_timotheum_ii",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (2TI)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_titum",
+      "work_b": "sahidica.titus",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (TIT)"
+    },
+    {
+      "work_a": "novum_testamentum.ad_titum",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (TIT)"
+    },
+    {
+      "work_a": "novum_testamentum.apocalypsis",
+      "work_b": "sahidica.revelation",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (REV)"
+    },
+    {
+      "work_a": "novum_testamentum.apocalypsis",
+      "work_b": "world_english_bible.revelation",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (REV)"
+    },
+    {
+      "work_a": "novum_testamentum.iacobi",
+      "work_b": "sahidica.james",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (JAS)"
+    },
+    {
+      "work_a": "novum_testamentum.iacobi",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (JAS)"
+    },
+    {
+      "work_a": "novum_testamentum.ioannes",
+      "work_b": "sahidica.john",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (JHN)"
+    },
+    {
+      "work_a": "novum_testamentum.ioannes",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (JHN)"
+    },
+    {
+      "work_a": "novum_testamentum.ioannis_i",
+      "work_b": "sahidica.1_john",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (1JN)"
+    },
+    {
+      "work_a": "novum_testamentum.ioannis_i",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (1JN)"
+    },
+    {
+      "work_a": "novum_testamentum.ioannis_ii",
+      "work_b": "sahidica.2_john",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (2JN)"
+    },
+    {
+      "work_a": "novum_testamentum.ioannis_ii",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (2JN)"
+    },
+    {
+      "work_a": "novum_testamentum.ioannis_iii",
+      "work_b": "sahidica.3_john",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (3JN)"
+    },
+    {
+      "work_a": "novum_testamentum.ioannis_iii",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (3JN)"
+    },
+    {
+      "work_a": "novum_testamentum.iudae",
+      "work_b": "sahidica.jude",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (JUD)"
+    },
+    {
+      "work_a": "novum_testamentum.iudae",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (JUD)"
+    },
+    {
+      "work_a": "novum_testamentum.lucas",
+      "work_b": "sahidica.luke",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (LUK)"
+    },
+    {
+      "work_a": "novum_testamentum.lucas",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (LUK)"
+    },
+    {
+      "work_a": "novum_testamentum.marcus",
+      "work_b": "sahidica.mark",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (MRK)"
+    },
+    {
+      "work_a": "novum_testamentum.marcus",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (MRK)"
+    },
+    {
+      "work_a": "novum_testamentum.matthaeus",
+      "work_b": "sahidica.matthew",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (MAT)"
+    },
+    {
+      "work_a": "novum_testamentum.matthaeus",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (MAT)"
+    },
+    {
+      "work_a": "novum_testamentum.petri_i",
+      "work_b": "sahidica.1_peter",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (1PE)"
+    },
+    {
+      "work_a": "novum_testamentum.petri_i",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (1PE)"
+    },
+    {
+      "work_a": "novum_testamentum.petri_ii",
+      "work_b": "sahidica.2_peter",
+      "language_a": "grc",
+      "language_b": "cop",
+      "reason": "scripture translation (2PE)"
+    },
+    {
+      "work_a": "novum_testamentum.petri_ii",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (2PE)"
+    },
+    {
+      "work_a": "sahidic.amos",
+      "work_b": "septuaginta.amos",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (AMO)"
+    },
+    {
+      "work_a": "sahidic.amos",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (AMO)"
+    },
+    {
+      "work_a": "sahidic.baruch",
+      "work_b": "septuaginta.baruch",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (BAR)"
+    },
+    {
+      "work_a": "sahidic.bel_and_the_dragon",
+      "work_b": "septuaginta.bel_et_draco_theodotionis",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (BEL)"
+    },
+    {
+      "work_a": "sahidic.bel_and_the_dragon",
+      "work_b": "septuaginta.bel_et_draco_translatio_graeca",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (BEL)"
+    },
+    {
+      "work_a": "sahidic.daniel",
+      "work_b": "septuaginta.daniel_theodotionis",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (DAN)"
+    },
+    {
+      "work_a": "sahidic.daniel",
+      "work_b": "septuaginta.daniel_translatio_graeca",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (DAN)"
+    },
+    {
+      "work_a": "sahidic.daniel",
+      "work_b": "world_english_bible.writings",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (DAN)"
+    },
+    {
+      "work_a": "sahidic.deuteronomy",
+      "work_b": "septuaginta.deuteronomion",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (DEU)"
+    },
+    {
+      "work_a": "sahidic.deuteronomy",
+      "work_b": "world_english_bible.pentateuch",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (DEU)"
+    },
+    {
+      "work_a": "sahidic.ecclesiastes",
+      "work_b": "world_english_bible.writings",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (ECC)"
+    },
+    {
+      "work_a": "sahidic.epistle_of_jeremiah",
+      "work_b": "septuaginta.epistula_jeremiae",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (LJE)"
+    },
+    {
+      "work_a": "sahidic.esther",
+      "work_b": "septuaginta.esther",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (EST)"
+    },
+    {
+      "work_a": "sahidic.esther",
+      "work_b": "world_english_bible.writings",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (EST)"
+    },
+    {
+      "work_a": "sahidic.exodus",
+      "work_b": "septuaginta.exodus",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (EXO)"
+    },
+    {
+      "work_a": "sahidic.exodus",
+      "work_b": "world_english_bible.pentateuch",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (EXO)"
+    },
+    {
+      "work_a": "sahidic.ezekiel",
+      "work_b": "septuaginta.ezechiel",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (EZK)"
+    },
+    {
+      "work_a": "sahidic.ezekiel",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (EZK)"
+    },
+    {
+      "work_a": "sahidic.genesis",
+      "work_b": "septuaginta.genesis",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (GEN)"
+    },
+    {
+      "work_a": "sahidic.genesis",
+      "work_b": "world_english_bible.pentateuch",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (GEN)"
+    },
+    {
+      "work_a": "sahidic.habakkuk",
+      "work_b": "septuaginta.habacuc",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (HAB)"
+    },
+    {
+      "work_a": "sahidic.habakkuk",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (HAB)"
+    },
+    {
+      "work_a": "sahidic.haggai",
+      "work_b": "septuaginta.aggaeus",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (HAG)"
+    },
+    {
+      "work_a": "sahidic.haggai",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (HAG)"
+    },
+    {
+      "work_a": "sahidic.hosea",
+      "work_b": "septuaginta.osee",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (HOS)"
+    },
+    {
+      "work_a": "sahidic.hosea",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (HOS)"
+    },
+    {
+      "work_a": "sahidic.i_chronicles",
+      "work_b": "septuaginta.paralipomenon_i_sive_chronicon_i",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (1CH)"
+    },
+    {
+      "work_a": "sahidic.i_chronicles",
+      "work_b": "world_english_bible.writings",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (1CH)"
+    },
+    {
+      "work_a": "sahidic.i_kings",
+      "work_b": "septuaginta.basileion_g",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (1KI)"
+    },
+    {
+      "work_a": "sahidic.i_kings",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (1KI)"
+    },
+    {
+      "work_a": "sahidic.i_samuel",
+      "work_b": "septuaginta.basileion_a",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (1SA)"
+    },
+    {
+      "work_a": "sahidic.i_samuel",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (1SA)"
+    },
+    {
+      "work_a": "sahidic.ii_chronicles",
+      "work_b": "septuaginta.paralipomenon_b",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (2CH)"
+    },
+    {
+      "work_a": "sahidic.ii_chronicles",
+      "work_b": "world_english_bible.writings",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (2CH)"
+    },
+    {
+      "work_a": "sahidic.ii_kings",
+      "work_b": "septuaginta.basileion_d",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (2KI)"
+    },
+    {
+      "work_a": "sahidic.ii_kings",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (2KI)"
+    },
+    {
+      "work_a": "sahidic.ii_maccabees",
+      "work_b": "septuaginta.machabaeorum_b",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (2MA)"
+    },
+    {
+      "work_a": "sahidic.ii_samuel",
+      "work_b": "septuaginta.basileion_b",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (2SA)"
+    },
+    {
+      "work_a": "sahidic.ii_samuel",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (2SA)"
+    },
+    {
+      "work_a": "sahidic.isaiah",
+      "work_b": "septuaginta.isaias",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (ISA)"
+    },
+    {
+      "work_a": "sahidic.isaiah",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (ISA)"
+    },
+    {
+      "work_a": "sahidic.jeremiah",
+      "work_b": "septuaginta.jeremias",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (JER)"
+    },
+    {
+      "work_a": "sahidic.jeremiah",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (JER)"
+    },
+    {
+      "work_a": "sahidic.job",
+      "work_b": "septuaginta.job",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (JOB)"
+    },
+    {
+      "work_a": "sahidic.job",
+      "work_b": "world_english_bible.writings",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (JOB)"
+    },
+    {
+      "work_a": "sahidic.joel",
+      "work_b": "septuaginta.joel",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (JOL)"
+    },
+    {
+      "work_a": "sahidic.joel",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (JOL)"
+    },
+    {
+      "work_a": "sahidic.jonah",
+      "work_b": "septuaginta.jonas",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (JON)"
+    },
+    {
+      "work_a": "sahidic.jonah",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (JON)"
+    },
+    {
+      "work_a": "sahidic.joshua",
+      "work_b": "septuaginta.josue",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (JOS)"
+    },
+    {
+      "work_a": "sahidic.joshua",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (JOS)"
+    },
+    {
+      "work_a": "sahidic.judges",
+      "work_b": "septuaginta.kritai",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (JDG)"
+    },
+    {
+      "work_a": "sahidic.judges",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (JDG)"
+    },
+    {
+      "work_a": "sahidic.judith",
+      "work_b": "septuaginta.judith",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (JDT)"
+    },
+    {
+      "work_a": "sahidic.lamentations",
+      "work_b": "septuaginta.threni_seu_lamentationes",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (LAM)"
+    },
+    {
+      "work_a": "sahidic.lamentations",
+      "work_b": "world_english_bible.writings",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (LAM)"
+    },
+    {
+      "work_a": "sahidic.leviticus",
+      "work_b": "septuaginta.levitikon",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (LEV)"
+    },
+    {
+      "work_a": "sahidic.leviticus",
+      "work_b": "world_english_bible.pentateuch",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (LEV)"
+    },
+    {
+      "work_a": "sahidic.micah",
+      "work_b": "septuaginta.michaeas",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (MIC)"
+    },
+    {
+      "work_a": "sahidic.micah",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (MIC)"
+    },
+    {
+      "work_a": "sahidic.nahum",
+      "work_b": "septuaginta.nahum",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (NAM)"
+    },
+    {
+      "work_a": "sahidic.nahum",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (NAM)"
+    },
+    {
+      "work_a": "sahidic.numbers",
+      "work_b": "septuaginta.arithmoi",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (NUM)"
+    },
+    {
+      "work_a": "sahidic.numbers",
+      "work_b": "world_english_bible.pentateuch",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (NUM)"
+    },
+    {
+      "work_a": "sahidic.obadiah",
+      "work_b": "septuaginta.abdias",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (OBA)"
+    },
+    {
+      "work_a": "sahidic.obadiah",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (OBA)"
+    },
+    {
+      "work_a": "sahidic.proverbs",
+      "work_b": "septuaginta.proverbia",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (PRO)"
+    },
+    {
+      "work_a": "sahidic.proverbs",
+      "work_b": "world_english_bible.writings",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (PRO)"
+    },
+    {
+      "work_a": "sahidic.psalms",
+      "work_b": "septuaginta.psalmi",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (PSA)"
+    },
+    {
+      "work_a": "sahidic.psalms",
+      "work_b": "world_english_bible.writings",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (PSA)"
+    },
+    {
+      "work_a": "sahidic.ruth",
+      "work_b": "septuaginta.ruth",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (RUT)"
+    },
+    {
+      "work_a": "sahidic.ruth",
+      "work_b": "world_english_bible.writings",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (RUT)"
+    },
+    {
+      "work_a": "sahidic.sirach",
+      "work_b": "septuaginta.ecclesiasticus",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (SIR)"
+    },
+    {
+      "work_a": "sahidic.song_of_solomon",
+      "work_b": "septuaginta.canticum",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (SNG)"
+    },
+    {
+      "work_a": "sahidic.song_of_solomon",
+      "work_b": "world_english_bible.writings",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (SNG)"
+    },
+    {
+      "work_a": "sahidic.susanna",
+      "work_b": "septuaginta.susanna_theodotionis",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (SUS)"
+    },
+    {
+      "work_a": "sahidic.susanna",
+      "work_b": "septuaginta.susanna_translatio_graeca",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (SUS)"
+    },
+    {
+      "work_a": "sahidic.tobit",
+      "work_b": "septuaginta.tobias",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (TOB)"
+    },
+    {
+      "work_a": "sahidic.wisdom",
+      "work_b": "septuaginta.sapientia_salomonis",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (WIS)"
+    },
+    {
+      "work_a": "sahidic.zechariah",
+      "work_b": "septuaginta.zacharias",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (ZEC)"
+    },
+    {
+      "work_a": "sahidic.zechariah",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (ZEC)"
+    },
+    {
+      "work_a": "sahidic.zephaniah",
+      "work_b": "septuaginta.sophonias",
+      "language_a": "cop",
+      "language_b": "grc",
+      "reason": "scripture translation (ZEP)"
+    },
+    {
+      "work_a": "sahidic.zephaniah",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (ZEP)"
+    },
+    {
+      "work_a": "sahidica.1_john",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (1JN)"
+    },
+    {
+      "work_a": "sahidica.1_peter",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (1PE)"
+    },
+    {
+      "work_a": "sahidica.1_thessalonians",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (1TH)"
+    },
+    {
+      "work_a": "sahidica.1_timothy",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (1TI)"
+    },
+    {
+      "work_a": "sahidica.1corinthians",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (1CO)"
+    },
+    {
+      "work_a": "sahidica.2_corinthians",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (2CO)"
+    },
+    {
+      "work_a": "sahidica.2_john",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (2JN)"
+    },
+    {
+      "work_a": "sahidica.2_peter",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (2PE)"
+    },
+    {
+      "work_a": "sahidica.2_thessalonians",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (2TH)"
+    },
+    {
+      "work_a": "sahidica.2_timothy",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (2TI)"
+    },
+    {
+      "work_a": "sahidica.3_john",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (3JN)"
+    },
+    {
+      "work_a": "sahidica.acts_of_the_apostles",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (ACT)"
+    },
+    {
+      "work_a": "sahidica.colossians",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (COL)"
+    },
+    {
+      "work_a": "sahidica.ephesians",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (EPH)"
+    },
+    {
+      "work_a": "sahidica.galatians",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (GAL)"
+    },
+    {
+      "work_a": "sahidica.hebrews",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (HEB)"
+    },
+    {
+      "work_a": "sahidica.james",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (JAS)"
+    },
+    {
+      "work_a": "sahidica.john",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (JHN)"
+    },
+    {
+      "work_a": "sahidica.jude",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (JUD)"
+    },
+    {
+      "work_a": "sahidica.luke",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (LUK)"
+    },
+    {
+      "work_a": "sahidica.mark",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (MRK)"
+    },
+    {
+      "work_a": "sahidica.matthew",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (MAT)"
+    },
+    {
+      "work_a": "sahidica.philemon",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (PHM)"
+    },
+    {
+      "work_a": "sahidica.philippians",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (PHP)"
+    },
+    {
+      "work_a": "sahidica.revelation",
+      "work_b": "world_english_bible.revelation",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (REV)"
+    },
+    {
+      "work_a": "sahidica.romans",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (ROM)"
+    },
+    {
+      "work_a": "sahidica.titus",
+      "work_b": "world_english_bible.new_testament",
+      "language_a": "cop",
+      "language_b": "en",
+      "reason": "scripture translation (TIT)"
+    },
+    {
+      "work_a": "septuaginta.abdias",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (OBA)"
+    },
+    {
+      "work_a": "septuaginta.aggaeus",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (HAG)"
+    },
+    {
+      "work_a": "septuaginta.amos",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (AMO)"
+    },
+    {
+      "work_a": "septuaginta.arithmoi",
+      "work_b": "world_english_bible.pentateuch",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (NUM)"
+    },
+    {
+      "work_a": "septuaginta.basileion_a",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (1SA)"
+    },
+    {
+      "work_a": "septuaginta.basileion_b",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (2SA)"
+    },
+    {
+      "work_a": "septuaginta.basileion_d",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (2KI)"
+    },
+    {
+      "work_a": "septuaginta.basileion_g",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (1KI)"
+    },
+    {
+      "work_a": "septuaginta.canticum",
+      "work_b": "world_english_bible.writings",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (SNG)"
+    },
+    {
+      "work_a": "septuaginta.daniel_theodotionis",
+      "work_b": "world_english_bible.writings",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (DAN)"
+    },
+    {
+      "work_a": "septuaginta.daniel_translatio_graeca",
+      "work_b": "world_english_bible.writings",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (DAN)"
+    },
+    {
+      "work_a": "septuaginta.deuteronomion",
+      "work_b": "world_english_bible.pentateuch",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (DEU)"
+    },
+    {
+      "work_a": "septuaginta.esdras_b",
+      "work_b": "world_english_bible.writings",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (EZR)"
+    },
+    {
+      "work_a": "septuaginta.esther",
+      "work_b": "world_english_bible.writings",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (EST)"
+    },
+    {
+      "work_a": "septuaginta.exodus",
+      "work_b": "world_english_bible.pentateuch",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (EXO)"
+    },
+    {
+      "work_a": "septuaginta.ezechiel",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (EZK)"
+    },
+    {
+      "work_a": "septuaginta.genesis",
+      "work_b": "world_english_bible.pentateuch",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (GEN)"
+    },
+    {
+      "work_a": "septuaginta.habacuc",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (HAB)"
+    },
+    {
+      "work_a": "septuaginta.isaias",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (ISA)"
+    },
+    {
+      "work_a": "septuaginta.jeremias",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (JER)"
+    },
+    {
+      "work_a": "septuaginta.job",
+      "work_b": "world_english_bible.writings",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (JOB)"
+    },
+    {
+      "work_a": "septuaginta.joel",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (JOL)"
+    },
+    {
+      "work_a": "septuaginta.jonas",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (JON)"
+    },
+    {
+      "work_a": "septuaginta.josue",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (JOS)"
+    },
+    {
+      "work_a": "septuaginta.kritai",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (JDG)"
+    },
+    {
+      "work_a": "septuaginta.levitikon",
+      "work_b": "world_english_bible.pentateuch",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (LEV)"
+    },
+    {
+      "work_a": "septuaginta.malachias",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (MAL)"
+    },
+    {
+      "work_a": "septuaginta.michaeas",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (MIC)"
+    },
+    {
+      "work_a": "septuaginta.nahum",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (NAM)"
+    },
+    {
+      "work_a": "septuaginta.osee",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (HOS)"
+    },
+    {
+      "work_a": "septuaginta.paralipomenon_b",
+      "work_b": "world_english_bible.writings",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (2CH)"
+    },
+    {
+      "work_a": "septuaginta.paralipomenon_i_sive_chronicon_i",
+      "work_b": "world_english_bible.writings",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (1CH)"
+    },
+    {
+      "work_a": "septuaginta.proverbia",
+      "work_b": "world_english_bible.writings",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (PRO)"
+    },
+    {
+      "work_a": "septuaginta.psalmi",
+      "work_b": "world_english_bible.writings",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (PSA)"
+    },
+    {
+      "work_a": "septuaginta.ruth",
+      "work_b": "world_english_bible.writings",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (RUT)"
+    },
+    {
+      "work_a": "septuaginta.sophonias",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (ZEP)"
+    },
+    {
+      "work_a": "septuaginta.threni_seu_lamentationes",
+      "work_b": "world_english_bible.writings",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (LAM)"
+    },
+    {
+      "work_a": "septuaginta.zacharias",
+      "work_b": "world_english_bible.prophets",
+      "language_a": "grc",
+      "language_b": "en",
+      "reason": "scripture translation (ZEC)"
+    }
+  ]
+}

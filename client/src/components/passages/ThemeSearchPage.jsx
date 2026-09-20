@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { chronological, byBestMatch, dateParts } from '../../utils/chronology';
 import { coverageCounts, fetchCoveredWorks } from '../../utils/passageCoverage';
 import ThemeExport from './ThemeExport';
+import ConnectionsMap from './ConnectionsMap';
 
 /**
  * Theme Search: describe a passage in your own words, get passages that match
@@ -34,12 +35,20 @@ import ThemeExport from './ThemeExport';
  * scripts exist for this in evaluation/probe_sets/.
  */
 const EXAMPLE_SETS = {
-  // Latin, Greek and English. The set the production site has always shown.
+  // Latin, Greek and English. Re-measured on production 2026-09-20 (NC:
+  // "suggested sample searches ... that are known winners"): every query
+  // here rated STRONG that day, and the funeral games query is the one the
+  // 16-theme benchmark scores best (first-ten precision 1.00; Iliad 23,
+  // Thebaid 6, the Punica, Quintus). "a wife or child recognizes someone
+  // long thought dead or lost" was dropped: it rated moderate and missed the
+  // Odyssey's recognitions, which the encoder ranks 63rd by work for that
+  // wording (docs/DECISIONS.md, 2026-09-20, Theme Search sample searches).
   classical: [
     'a guest arrives and is welcomed with food, wine, and a bath',
     'a mother laments her dead son over his body',
-    'a wife or child recognizes someone long thought dead or lost',
     'a warrior arms himself before battle, piece by piece',
+    'funeral games with athletic contests held in honor of the dead',
+    'a storm at sea batters ships and terrifies the crew',
   ],
   // Persian, Urdu and Arabic, with Coptic alongside. Measured 2026-09-09:
   // all four rated strong, and three of the four return Coptic passages too.
@@ -406,12 +415,47 @@ export default function ThemeSearchPage() {
 
   const band = data && BAND[data.confidence?.level];
 
+  // 'search' is Theme Search itself; 'map' is a picture of the same
+  // connections at a larger scale (see client/src/components/passages/
+  // ConnectionsMap.jsx). Read from the URL so a link to /theme-search?tab=map
+  // lands on the map directly.
+  const [tab, setTab] = useState(() => {
+    const p = new URLSearchParams(window.location.search);
+    return p.get('tab') === 'map' ? 'map' : 'search';
+  });
+  const setTabAndUrl = (t) => {
+    setTab(t);
+    const p = new URLSearchParams(window.location.search);
+    if (t === 'map') p.set('tab', 'map'); else p.delete('tab');
+    window.history.replaceState({}, '', `/theme-search${p.toString() ? `?${p}` : ''}`);
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-2xl font-semibold text-gray-900">Theme Search</h1>
       <span className="ml-2 align-middle rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-800">
         Beta
       </span>
+
+      <div className="mt-4 inline-flex rounded border border-gray-300 overflow-hidden text-sm">
+        {[['search', 'Theme Search'], ['map', 'Similarity Map']].map(([v, label]) => (
+          <button
+            key={v}
+            onClick={() => setTabAndUrl(v)}
+            aria-pressed={tab === v}
+            className={`px-3 py-1.5 font-medium ${tab === v ? 'bg-red-700 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'map' ? (
+        <div className="mt-4">
+          <ConnectionsMap />
+        </div>
+      ) : (
+      <>
       <p className="mt-2 text-sm text-gray-600 leading-relaxed">
         Describe what happens in a passage and this finds passages that match the
         description.
@@ -775,6 +819,8 @@ export default function ThemeSearchPage() {
           </p>
           )}
         </div>
+      )}
+      </>
       )}
     </div>
   );

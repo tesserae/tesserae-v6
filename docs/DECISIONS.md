@@ -128,6 +128,40 @@ queue pairs whose estimated candidate count is too large, with a plain
 message) and a memory cap on the web workers (root). Both are visible
 behaviour changes.
 
+## 2026-09-20 Theme Search: sample searches are measured winners; a deeper per-work re-ranking pool was tested and not adopted
+
+**Sample searches (PR #419).** The five suggestions on the Theme Search page
+for the Latin, Greek and English site are queries that rated "strong" on
+production on 2026-09-20 and whose first works are the expected ones: a
+guest welcomed with food, wine and a bath; a mother lamenting her dead son;
+a warrior arming piece by piece; funeral games (the theme the 16-query
+benchmark scores best, first-ten precision 1.00); a storm at sea. The
+former chip "a wife or child recognizes someone long thought dead or lost"
+rated moderate and did not return the Odyssey's recognitions.
+
+**Why the Odyssey misses that query.** The passage index describes the
+scenes accurately (23.199 "a woman recognizes Odysseus through a unique
+sign", 19.466 "recognized by his nurse", 16.181 "reveals his identity to
+Telemachus"), but the description encoder ranks the Odyssey 63rd among
+works for that wording across all languages (25th within Greek), and the
+head of the page is one window per work chosen by cosine. Theme Search has
+no word-matching bonus: the score is the cosine between the query's
+embedding and each description's embedding. The distilled cross-encoder
+that reorders the top hundred then places the Odyssey's cosine-best window
+(23.232, the reunion and the delayed dawn) low. Wordings that name the
+scene's own features find it at once ("a man is recognized by an old scar":
+Odyssey at ranks 2, 4 and 5).
+
+**Deeper per-work pool for the re-ranker: tested, not adopted.** On the 16
+benchmark queries, judged with the calibrated Opus judge (80 new pairs):
+shipped page 0.434 first-ten precision; reader sees all 300 composed rows
+0.447; 40 works with 8 windows each 0.419; the same grouped by work 0.388.
+Within noise or worse, and none reaches a work the encoder ranks 63rd.
+Harness: evaluation/theme_benchmark/composition_test/run_deep_per_work.py.
+Ideas still open: a work-level score that pools a work's several close
+windows instead of taking its single best, and a lexical channel over the
+descriptions fused with the cosine ranking.
+
 ## 2026-09-19 Standing rule: stoplists are function words only
 
 **Decision (Neil Coffee).** A stoplist holds function words (articles,

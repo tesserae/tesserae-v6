@@ -825,6 +825,45 @@ Conventions
   production: la 730, grc 828, en 42, cop 144, he 39, index version
   2026-09-18). Noted here only because a cache file now persists outside
   the request that created it.
+## 2026-09-19 Corpus connections map cache built (feat/connections-map)
+- What: `scripts/build_connections_map.py`, under a memory cap, builds
+  `cache/connections_map/<index_fingerprint>.db` -- for every Latin, Greek,
+  English, Coptic and Hebrew passage window at the fine scale, the top 10
+  nearest windows in OTHER works by cosine over the passage index's own
+  description embeddings (same signal as Theme Search/Similar Passages),
+  excluding the same work, its part files, and other versions of the same
+  scripture passage. Writes window-level edges plus work/author/century/
+  genre aggregates, and flags translation pairs from a curated seed
+  (`data/translation_pairs.json`, 456 pairs: WEB/Septuagint/Greek NT/
+  Vulgate, Eobanus's Latin Iliad/Homer, Coptic and Hebrew scripture against
+  their Greek/Latin/English versions) plus a heuristic (>=40% of the
+  smaller work's windows linked, Spearman of window position >=0.80 --
+  candidates not already curated are written to
+  `cache/connections_map/aligned_candidates.txt` for review).
+  Command:
+  ```
+  systemd-run --user --scope -p MemoryMax=10G \
+      venv/bin/python3 scripts/build_connections_map.py
+  ```
+- Cost: 38.1 minutes, 5.86 GB peak under the 10 GB cap, 285,307 windows
+  (162,757 Latin, 79,118 Greek, 30,155 English, 9,462 Coptic, 3,848 Hebrew),
+  2,853,070 edges kept, 122,292 work pairs (390 curated + 153
+  heuristic-flagged translation pairs, the rest genuine allusive
+  connections), 26,484 author pairs, 817 century pairs, 258 genre pairs,
+  db size 935.7 MB.
+- Done 2026-09-19 in the `feat/connections-map` worktree (`~/tesserae-map`),
+  against the same passage index production reads (symlinked read-only
+  from `/var/www/tesseraev6_flask/data/passage_index`); not yet run on
+  production. Production needs this run once now, then again after every
+  passage-index rebuild (new texts added to the content index, or a
+  re-describe) -- the same rhythm the density cache under
+  `cache/passage_density/` already follows, since both are keyed off
+  `backend.passage_index.index_fingerprint()`.
+- Checks: `tests/test_connections_map.py` (17 tests, fixture db) and
+  `tests/test_mcp_parity.py` both pass; `/api/passages/map`,
+  `/api/passages/map/cell`, `/api/passages/map/pair`,
+  `/api/passages/map/work` all verified against the real built cache on
+  the preview instance (port 8082).
 
 ## 2026-09-18 Theme Search re-ranker service installed (PR #382, with #383)
 - What: copy the trained checkpoint
