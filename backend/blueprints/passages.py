@@ -47,6 +47,7 @@ _MAX_LIMIT = 100
 # scholar would have to be quite determined to reach, and unbounded would let
 # a request walk the whole ranking one `_rank` call at a time.
 _MAX_OFFSET = 5000
+READER_HEADS = 100   # works fetched for the reader's 300 rows (3 rows each)
 
 
 def _int_arg(name, default, lo=1, hi=_MAX_LIMIT):
@@ -101,9 +102,12 @@ def theme_search():
     # past K are served in index order as before, which the re-rank does not
     # touch. Scores are deterministic, so each page re-ranks the same K the
     # same way at the cost of one reader call per page.
-    K = reader_rerank.DEFAULT_K
+    K = reader_rerank.DEFAULT_K   # rows the reader re-scores (300: the whole composed list)
     reader_on = bool(os.environ.get('THEME_READER_URL')) and _reader_wanted() and offset < K
-    fetch = max(offset + limit, K) if reader_on else limit
+    # `fetch` counts WORKS (find_by_text's limit is one head per work, three
+    # rows each), so a hundred works give the reader its 300 rows; a deeper
+    # page asks for more works.
+    fetch = max(offset + limit, READER_HEADS) if reader_on else limit
     fetch_offset = 0 if reader_on else offset
     try:
         out = passage_index.find_by_text(

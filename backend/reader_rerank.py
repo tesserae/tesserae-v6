@@ -20,7 +20,15 @@ from backend.logging_config import get_logger
 
 logger = get_logger('reader_rerank')
 
-DEFAULT_K = int(os.environ.get('THEME_READER_K', '100'))
+# Rows the reader re-scores: the whole composed list (about 100 works x 3
+# windows) since 2026-09-20, not its first hundred rows. Measured on the
+# 16-query benchmark: precision neutral (0.444 against 0.453 at 100), and a
+# work whose rows sit past the first hundred can now reach the page: the
+# Odyssey's recognitions on "a wife or child recognizes someone long
+# thought dead or lost" were at rows 146 to 148 and landed at row 15 once
+# the reader saw them. About 9 s a query instead of 4 s (NC: "Give the
+# reader all 300 composed rows"). The reader service accepts up to 400.
+DEFAULT_K = int(os.environ.get('THEME_READER_K', '300'))
 # Named in the reproducible citation so a re-ranked search can be re-run
 # the same way; change it when the checkpoint changes.
 MODEL_ID = os.environ.get('THEME_READER_MODEL', 'minilm-distill-2026-09-17')
