@@ -149,7 +149,7 @@ The multiplier is **squared** before application to the base score, making the p
 
 ### Function-word stoplist
 
-A curated stoplist of function words (66 Latin, 88 Greek, 60 English — pronouns, conjunctions, prepositions, common verbs) identifies function words in the scoring layer. This is more precise than IDF thresholds: the word *tum* ("then," IDF ~0.3) and *pectore* ("in the breast," IDF ~0.4) have similar frequencies, but only the first is a function word.
+A curated stoplist of function words (91 Latin, 202 Greek, 220 English — pronouns, conjunctions, prepositions, auxiliaries, particles; never common content words, which are down-weighted by frequency instead; sources in docs/DECISIONS.md) identifies function words in the scoring layer. This is more precise than IDF thresholds: the word *tum* ("then," IDF ~0.3) and *pectore* ("in the breast," IDF ~0.4) have similar frequencies, but only the first is a function word.
 
 Three penalty tiers based on stoplist classification:
 

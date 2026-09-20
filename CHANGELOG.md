@@ -10,6 +10,14 @@ behind each, are in docs/DECISIONS.md.
 ## 2026-09-19
 
 ### Search
+- English function-word list rebuilt from sources (220 words): the Snowball
+  stopword list plus the same words in their Early Modern inflections after
+  Barber, Early Modern English (1997). Seven content verbs the old list held
+  (get, go, know, make, say, see, take) are gone, 27 Snowball function words
+  it lacked are in, two duplicates removed. Rule recorded in
+  docs/DECISIONS.md: stoplists are function words only; common content
+  words are down-weighted, never removed. Help page and docs carry the
+  sources; the list itself is visible on the Help page and at /api/stoplists.
 - The batch lemma-cache builder's English path lemmatized every word as a
   noun, so past tenses ("stood", "went", "fled", "began") stayed as they
   were in the English caches while the index builder reduced them; in a

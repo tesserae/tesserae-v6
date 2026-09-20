@@ -627,32 +627,56 @@ DEFAULT_GREEK_STOP_WORDS_LIST = [
 ]
 
 DEFAULT_ENGLISH_STOP_WORDS_LIST = [
-    # Modern common words
-    'the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'i',
-    'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you', 'do', 'at',
-    'this', 'but', 'his', 'by', 'from', 'they', 'we', 'say', 'her', 'she',
-    'or', 'an', 'will', 'my', 'one', 'all', 'would', 'there', 'their', 'what',
-    'so', 'up', 'out', 'if', 'about', 'who', 'get', 'which', 'go', 'me',
-    'when', 'make', 'can', 'like', 'no', 'just', 'him', 'know', 'take', 'into',
-    'your', 'some', 'could', 'them', 'see', 'other', 'than', 'then', 'now', 'its',
-    'is', 'am', 'are', 'was', 'were', 'been', 'being', 'has', 'had', 'having',
-    # Possessive and object pronouns (function words; keep demos off "our", "us", etc.)
-    'our', 'ours', 'us', 'mine', 'yours', 'hers', 'theirs', 'whom', 'whose',
-    'these', 'those',
-    # Early Modern / Archaic English (Shakespeare, Milton, etc.)
+    # English function words, 220 entries (2026-09-19, NC's rule: a
+    # stoplist holds function words only; common content words are
+    # down-weighted by frequency in scoring, never removed; see
+    # docs/DECISIONS.md, 2026-09-19).
+    #
+    # Part 1, modern function words: the Snowball English stopword list
+    # (Porter, snowball.tartarus.org/algorithms/english/stop.txt; 174
+    # entries, 124 plain words once contractions are set aside, since the
+    # tokenizer splits them), the published list NLTK, Lucene and R reuse,
+    # plus the determiners, quantifiers, degree adverbs and interjections
+    # the earlier list carried. Seven content verbs the earlier list held
+    # (get, go, know, make, say, see, take) are removed by the rule above.
+    # Order is roughly by frequency so a manual stoplist of N words takes
+    # the commonest N.
+    'the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'i', 'it',
+    'for', 'not', 'on', 'with', 'he', 'as', 'you', 'do', 'at', 'this', 'but',
+    'his', 'by', 'from', 'they', 'we', 'her', 'she', 'or', 'an', 'will',
+    'my', 'one', 'all', 'would', 'there', 'their', 'what', 'so', 'up', 'out',
+    'if', 'about', 'who', 'which', 'me', 'when', 'can', 'like', 'no', 'just',
+    'him', 'into', 'your', 'some', 'could', 'them', 'other', 'than', 'then',
+    'now', 'its', 'is', 'am', 'are', 'was', 'were', 'been', 'being', 'has',
+    'had', 'having', 'our', 'ours', 'us', 'mine', 'yours', 'hers', 'theirs',
+    'whom', 'whose', 'these', 'those', 'above', 'again', 'against', 'below',
+    'between', 'cannot', 'did', 'does', 'doing', 'down', 'during', 'further',
+    'herself', 'himself', 'itself', 'myself', 'ourselves', 'themselves',
+    'yourself', 'yourselves', 'off', 'once', 'only', 'ought', 'over', 'through',
+    'under',
+    # Part 2, the same function words in their Early Modern inflections
+    # (second-person pronouns and their possessives; -st and -th auxiliary
+    # forms; 'tis/'twas contractions; place and manner adverbs; discourse
+    # particles), following the pronoun and auxiliary paradigms in Charles
+    # Barber, Early Modern English (Edinburgh, 1997) and the Cambridge
+    # History of the English Language, vol. III. No published list combines
+    # both parts; Voyant's Taporware list, the common one with archaic
+    # forms, holds 571 entries including content words and only thou, thee,
+    # thy.
     'thou', 'thee', 'thy', 'thine', 'thyself', 'ye', 'art', 'doth', 'dost',
     'hath', 'hast', 'shalt', 'wilt', 'canst', 'wouldst', 'shouldst', 'couldst',
     'didst', 'hadst', 'mayst', 'mightst', 'wast', 'wert', 'wherefore', 'wherein',
     'whereon', 'thereof', 'therein', 'herein', 'hereby', 'hither', 'thither',
     'whither', 'hence', 'thence', 'ere', 'oft', 'nay', 'yea', 'aye', 'prithee',
     'methinks', 'forsooth', 'verily', 'tis', 'twas', 'twere', 'twill', 'twould',
-    'o', 'oh', 'ah', 'alas', 'lo', 'behold', 'nought', 'naught', 'upon', 'unto',
-    'hither', 'hence', 'thus', 'such', 'each', 'every', 'both', 'own', 'same',
-    'much', 'more', 'most', 'yet', 'still', 'even', 'also', 'too', 'very',
-    'here', 'how', 'why', 'where', 'whence', 'whether', 'while', 'whilst',
-    'though', 'although', 'because', 'since', 'before', 'after', 'until', 'till',
-    'shall', 'should', 'may', 'might', 'must', 'need', 'dare', 'let', 'lest',
-    'nor', 'neither', 'either', 'none', 'any', 'many', 'few', 'less', 'least'
+    'o', 'oh', 'ah', 'alas', 'lo', 'behold', 'nought', 'naught', 'upon',
+    'unto', 'thus', 'such', 'each', 'every', 'both', 'own',
+    'same', 'much', 'more', 'most', 'yet', 'still', 'even', 'also', 'too',
+    'very', 'here', 'how', 'why', 'where', 'whence', 'whether', 'while',
+    'whilst', 'though', 'although', 'because', 'since', 'before', 'after',
+    'until', 'till', 'shall', 'should', 'may', 'might', 'must', 'need', 'dare',
+    'let', 'lest', 'nor', 'neither', 'either', 'none', 'any', 'many', 'few',
+    'less', 'least',
 ]
 
 DEFAULT_LATIN_STOP_WORDS = set(DEFAULT_LATIN_STOP_WORDS_LIST)
