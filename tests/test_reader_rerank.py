@@ -196,9 +196,11 @@ def test_meta_names_the_model(monkeypatch):
     assert meta['applied'] is True and meta['model'] == reader_rerank.MODEL_ID
 
 
-def test_pages_inside_the_top_hundred_come_from_one_reranked_list(monkeypatch):
+def test_pages_inside_the_reranked_list_come_from_one_reranked_list(monkeypatch):
     """A passage promoted into page one must not appear again on page two,
-    and one demoted off page one must land on page two."""
+    and one demoted off page one must land on page two. The reader now covers
+    the whole composed list (300 rows, DEFAULT_K), so a page at offset 100 is
+    still cut from that one re-ranked list; a page at offset 300 is not."""
     from backend.app import app
     from backend.blueprints import passages as P
     monkeypatch.setenv('THEME_READER_URL', 'http://127.0.0.1:1')
@@ -218,11 +220,18 @@ def test_pages_inside_the_top_hundred_come_from_one_reranked_list(monkeypatch):
     p1 = c.get(f'{path}?q=x&limit=25&offset=0').get_json()['results']
     p2 = c.get(f'{path}?q=x&limit=25&offset=25').get_json()['results']
     p5 = c.get(f'{path}?q=x&limit=25&offset=100').get_json()['results']
+    p13 = c.get(f'{path}?q=x&limit=25&offset=300').get_json()['results']
     ids1, ids2 = [r['id'] for r in p1], [r['id'] for r in p2]
     assert ids1[0] == 'w30' and 'w30' not in ids2 and 'w0' not in ids1
     assert len(ids1) == 25 and len(ids2) == 25 and not set(ids1) & set(ids2)
-    assert calls[0] == (100, 0) and calls[1] == (100, 0) and calls[2] == (25, 100)
-    assert [r['id'] for r in p5][0] == 'w100'
+    # inside the reader's 300 rows: fetched from offset 0 (READER_HEADS works,
+    # or offset+limit when that is more), re-ranked, then sliced
+    assert calls[0] == (100, 0) and calls[1] == (100, 0) and calls[2] == (125, 0)
+    # w0 was demoted to the very end of the re-ranked list, so the page at
+    # offset 100 starts one row later than the index order would give
+    assert [r['id'] for r in p5][0] == 'w101'
+    # past the reader's reach: plain index order from that offset
+    assert calls[3] == (25, 300) and [r['id'] for r in p13][0] == 'w300'
 
 
 

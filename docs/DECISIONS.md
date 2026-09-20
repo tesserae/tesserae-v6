@@ -7,6 +7,25 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-09-20 Theme Search: the reader re-scores all 300 composed rows
+
+**Decision (NC: "Give the reader all 300 composed rows").** The page is
+composed as about 100 works with three windows each, in order of each
+work's best score with languages interleaved; the reader then re-scores
+rows and the page shows the first 25. It used to re-score the first 100
+rows. It now re-scores the whole composed list (READER_HEADS = 100 works,
+DEFAULT_K = 300 rows; THEME_READER_K still overrides).
+
+**Why.** With the lexical boost in place, measured on the real code path
+over the 16-query benchmark: first-ten precision 0.444 at 300 rows against
+0.453 at 100 (neutral within noise for sixteen queries; 0.350 against
+0.375 on the four held-out topoi). What changes is reach: a work whose
+rows sit past the first hundred can now be lifted by the reader. The
+Odyssey's recognitions on "a wife or child recognizes someone long thought
+dead or lost" sat at rows 146 to 148 of the composed list, unseen; with
+all rows re-scored the Odyssey lands at row 15 of the page. Cost: about
+9 s a query against 4 s (the reader service accepts up to 400 passages).
+
 ## 2026-09-20 Theme Search: a lexical channel over the descriptions, adopted
 
 **Decision (NC: "adopt the light boost in production").** Theme Search

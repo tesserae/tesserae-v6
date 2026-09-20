@@ -10,6 +10,23 @@ behind each, are in docs/DECISIONS.md.
 ## 2026-09-20
 
 ### Theme Search
+- The reader client's timeout grows with the rows sent (6 s for 100,
+  12 s for 300). A fixed 6 s cut the 300-row call off just as it
+  answered, so for nine minutes after the depth change every Theme Search
+  ran without the reader; the depth was set back to 100 through the
+  environment while this was fixed.
+
+
+### Theme Search
+- The reader re-scores the whole composed list (about 300 rows), not its
+  first hundred, so a work whose rows sat past the hundred can reach the
+  page: the Odyssey's recognitions on "a wife or child recognizes someone
+  long thought dead or lost" were at rows 146 to 148 and land at row 15.
+  Precision neutral on the 16-query benchmark (0.444 against 0.453 with
+  the lexical boost at 100 rows); about 9 s a query instead of 4 s.
+
+
+### Theme Search
 - A word index over the passage descriptions (SQLite FTS5, BM25;
   `scripts/build_desc_fts.py`) adds a small lexical boost to the embedding
   similarity, so a description that shares words with the query rises a
