@@ -24,6 +24,24 @@ Conventions
 - Stamp backups to the second; a rerun must never overwrite the first
   run's backup.
 
+## 2026-09-20 Theme Search reader depth 300 deployed (PR #424), then held at 100 while its timeout is fixed
+- What: PR #424 merged ed0657d1, pulled on production, WSGI reloaded 15:16
+  EDT: the reader re-scores the whole composed list (300 rows) instead of
+  its first hundred (NC: "Give the reader all 300 composed rows").
+- Incident: for nine minutes every Theme Search answered with the reader
+  NOT applied (`reader: {applied: false}`), because the reader client's
+  fixed 6 s timeout cut off the 300-row call just before the service
+  answered (measured on production: 100 rows 2.1 s, 300 rows 6.2 s); the
+  reader service logged broken pipes. Stopgap at 15:19: `THEME_READER_K=100`
+  added to production's `.env` and WSGI reloaded; the reader applied again
+  (2.2 s). Fix: PR #425 (client timeout = max(6, 0.04 x rows)); its deploy
+  removes the `.env` line. Done line below when deployed.
+- Also learned: after every reload the first request on each of the three
+  Apache workers loads the passage index (18 to 30 s); warm requests take
+  about 3 s. Warm the three workers with three requests after a reload
+  before judging latency.
+- Done 2026-09-20 15:16 (deploy), 15:19 (stopgap) EDT (main session).
+
 ## 2026-09-20 Theme Search lexical boost deployed (PR #423); word index rebuilt
 - What: PR #423 merged 599fcad5 and pulled on production 15:10 EDT. The
   word index `data/passage_index/desc_fts.sqlite` was rebuilt with the
