@@ -500,7 +500,16 @@ Conventions
      (`backend.cache.clear_cache_for_language`; the Latin and Greek ones
      also carried the pre-#411 quotation weight), and the three default
      pairs re-warmed.
-- Done lines: added below when each step finished.
+- Done: index 23:40-23:42 EDT (2.6 min); caches with the fixed builder
+  23:46-23:47 (164 files; "Fled over Adria" now lemmatizes to "flee ...");
+  English Quotation table 23:47-23:49 (83 s, 116,302 pairs, 113,707 via the
+  rare rule); cached search results cleared 23:50 (47 files: en 5, la 36,
+  grc 6); default pairs re-warmed by 23:53 (Latin Aeneid 1 x Lucan 1, English
+  Paradise Lost 1 x Hyperion, Greek Iliad 1 x Argonautica 1). Check on the
+  English default pair: before, the top ten held "began, read", "fled,
+  over" and "summer, day"; after, it opens with "expanded wings" (P.L. 1.20
+  / Hyperion 1.29), "dire event", "old Saturn", "far within", "high Gods",
+  "palace, court", "awaiting command". Tessa restarted 23:54.
 
 ## 2026-09-19 Reader: Quotation tables rebuilt for Latin, Greek and English under the final builder rules
 - What: after the first English table (13:14) marked Hamlet III.4.192 "What
