@@ -171,12 +171,15 @@ PASSAGES_PER_WORK = 3
 # FTS5 with BM25 over gist, themes, action steps, participants, setting)
 # adds a little to the cosine of windows whose description shares words
 # with the query: cosine + LEXICAL_BETA x BM25 normalised to [0, 1] over the
-# top LEXICAL_TOPN lexical hits, nothing for the rest. Measured on the
-# 16-query benchmark against the shipped page (docs/DECISIONS.md,
-# 2026-09-20): first-ten precision 0.434 -> 0.506, the four held-out topoi
-# 0.325 -> 0.425; the Odyssey on "a wife or child recognizes someone long
-# thought dead or lost" from the 63rd work to the 16th. Rank fusion (RRF)
-# scored 0.475 and was not chosen. The boost is skipped, with one logged
+# top LEXICAL_TOPN lexical hits, nothing for the rest. Measured on this
+# code path against the shipped page on the 16-query benchmark
+# (docs/DECISIONS.md, 2026-09-20): first-ten precision 0.434 -> 0.453, the
+# four held-out topoi 0.325 -> 0.375; the Odyssey on "a wife or child
+# recognizes someone long thought dead or lost" from the 63rd work to the
+# 50th, and onto the page (row 15) when the reader is given all 300
+# composed rows instead of 100. An offline harness had shown 0.506, but it
+# let a passage appear twice (whole-file and book-file copies); this path
+# collapses those, and 0.453 is the honest figure. The boost is skipped, with one logged
 # warning, when the index file is missing or was built for a different
 # set of windows, and can be turned off with THEME_LEXICAL=0.
 LEXICAL_BETA = 0.02

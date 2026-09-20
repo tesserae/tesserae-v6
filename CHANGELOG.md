@@ -13,10 +13,9 @@ behind each, are in docs/DECISIONS.md.
 - A word index over the passage descriptions (SQLite FTS5, BM25;
   `scripts/build_desc_fts.py`) adds a small lexical boost to the embedding
   similarity, so a description that shares words with the query rises a
-  little. Measured on the 16-query benchmark: first-ten precision 0.434 to
-  0.506, the four held-out topoi 0.325 to 0.425; the Odyssey on the
-  recognition query from the 63rd work to the 16th (docs/DECISIONS.md,
-  2026-09-20). The index is rebuilt after every passage-index change; the
+  little. Measured on the real code path on the 16-query benchmark:
+  first-ten precision 0.434 to 0.453, the four held-out topoi 0.325 to
+  0.375 (docs/DECISIONS.md, 2026-09-20). The index is rebuilt after every passage-index change; the
   app refuses a stale one and runs without the boost, saying so in its log.
 
 
