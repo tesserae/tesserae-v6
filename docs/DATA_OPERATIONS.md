@@ -825,6 +825,24 @@ Conventions
   production: la 730, grc 828, en 42, cop 144, he 39, index version
   2026-09-18). Noted here only because a cache file now persists outside
   the request that created it.
+## 2026-09-20 English line-search fold fix deployed (PR #418)
+- What: `_normalize_lemma` in `backend/app.py` applied the Latin u/v and
+  i/j fold to English queries, so "love" was looked up as "loue", "jove" as
+  "ioue", "voice" as "uoice": English line searches for any word with a v
+  or a j returned only Spenser's spellings or nothing, and the results
+  page's "Across the corpus" panel was blank for such shared words. Found
+  by NC on Paradise Lost 1.512 x Hyperion 2.182 (jove, saturn). Fold now
+  Latin only. Merged e2527dad, pulled on production, WSGI reloaded
+  13:45 EDT. No index or cache change.
+- Checks after the reload (production API): English "love" 405 lines from
+  7 authors (was 500, all Spenser), "heaven" 394 from 8 (was 120 Spenser),
+  "voice" 401 from 11 (was 0), "jove saturn" 2 (Milton 1.512, Keats
+  2.182; was 0). Latin reference searches unchanged by construction:
+  "arma virum" lemma 367 lines (Ovid 14, Vergil 24, Livy 42, Cicero 6,
+  Statius 17), exact 21 (Ovid 1, Vergil 4, Quintilian 1, Seneca 1,
+  Statius 1).
+- Done 2026-09-20 13:45 EDT (main session).
+
 ## 2026-09-20 Theme Similarity Map deployed and its production cache built
 - What: PR #407 (Theme Similarity Map) merged as c4ec3491 after NC's
   review of the preview ("looks good"); production pulled to c4ec349, the
