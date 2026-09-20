@@ -23,9 +23,29 @@ commonplace test.
 mixes function words with common verbs ("know", "take", "make", "go",
 "see", "come", "think", "look", "want", "give", "use", "find", "tell",
 "ask", "work", "seem", "feel", "try", "leave", "call"). The fusion scoring
-layer penalizes those as function words. To be pruned to function words in
-a following PR; the Latin (102) and Greek (167) lists to be audited by the
-same rule.
+layer penalizes those as function words. Proposed replacement (2026-09-19, awaiting NC): the Snowball English
+stopword list (Porter's Snowball project, `snowball.tartarus.org/algorithms/
+english/stop.txt`, 174 entries, 124 once contractions are set aside), a
+published function-word list widely reused (NLTK, Lucene, R), PLUS the
+early modern inflections of the same function words that the current list
+already carries (thou, thee, thy, thine, ye; art, wast, wert; hath, hast,
+hadst; doth, dost, didst; shalt, wilt, canst, mayst, mightst, shouldst,
+wouldst, couldst; 'tis, 'twas, 'twere, 'twill, 'twould; ere, oft, unto,
+whilst, hither, thither, whence, thence, wherefore, whereon, wherein,
+whereof, hereby, herein, therein, thereof; nay, yea, prithee, forsooth,
+verily, methinks, lo, behold, alas, ah, oh, o), which follow the pronoun
+and auxiliary paradigms of Early Modern English as set out in Charles
+Barber, Early Modern English (Edinburgh, 1997) and the Cambridge History of
+the English Language, vol. III. Net change against the current 202-word
+list: add the 27 Snowball words it lacks (above, again, against, below,
+between, cannot, did, does, doing, down, during, further, herself, himself,
+itself, myself, off, once, only, ought, ourselves, over, themselves,
+through, under, yourself, yourselves); remove the 7 content verbs (get, go,
+know, make, say, see, take). No published list combines both parts; the
+Voyant/Taporware list, the only common one with early modern forms, has
+571 entries including content words (make, take, see, find, thing) and only
+three archaic forms (thou, thee, thy). The Latin (102) and Greek (167)
+lists to be audited by the same rule.
 
 ## 2026-09-19 Quotation channel weight 10 for Latin and Greek (PR #411)
 
