@@ -475,7 +475,8 @@ def build_index(cache_data, index_db_path, max_df, commonplace_ratio=0.08, langu
 
 
 def find_pairs(index_db_path, min_shared, min_jaccard, min_shared_override, min_containment,
-               rare_max_df=20, rare_min_containment=0.06, commonplace_hashes=None):
+               rare_max_df=20, rare_min_containment=0.06, commonplace_hashes=None,
+               drop_all_commonplace=True):
     """Stage 2: stream postings ordered by ngram_hash, accumulate cross-work
     shared-ngram counts, score by jaccard/containment, chain adjacent kept
     pairs into spans. Returns (pair_info, line_to_other_works, stats).
@@ -687,9 +688,15 @@ def find_pairs(index_db_path, min_shared, min_jaccard, min_shared_override, min_
             "SELECT a, b, COUNT(*), MIN(group_size), MIN(ngram_hash), SUM(commonplace) "
             "FROM pair_hits GROUP BY a, b"):
         n_candidate_pairs += 1
-        if n_commonplace >= shared:
+        if drop_all_commonplace and n_commonplace >= shared:
             # Every shared n-gram is commonplace-only: a run of function words
-            # in common and nothing else. No rule may keep it.
+            # in common and nothing else. No rule may keep it. English only by
+            # default (2026-09-19): on Latin the same rule removed 1,863 strict
+            # pairs and no junk, among them genuine short scripture quotations
+            # made entirely of common words (John 10.30 "ego et pater unum
+            # sumus" in Hilary), while English function-word runs ("what shall
+            # I do") were the whole problem. The commonplace set still guards
+            # the rare-single rule in every language.
             n_excluded_all_commonplace += 1
             continue
         na = line_ngram_count[a]
@@ -847,6 +854,10 @@ def main():
                           'against Seneca Ep. 113.25); rarity alone with no containment floor '
                           'floods (measured 6.4M pairs on the live Latin corpus, see find_pairs)')
     ap.add_argument('--out-db', default=None)
+    ap.add_argument('--drop-all-commonplace', choices=['auto', 'on', 'off'], default='auto',
+                    help='drop a candidate pair whose shared n-grams are all commonplace-only '
+                         '(function-word runs). auto = on for English, off for Latin and Greek, '
+                         'where the rule removed genuine scripture quotations and no junk (2026-09-19).')
     ap.add_argument('--stats-out', default=None)
     ap.add_argument('--keep-index-db', action='store_true',
                      help='keep the intermediate n-gram index db (for debugging) instead of deleting it')
@@ -877,7 +888,9 @@ def main():
         pair_info, line_to_other_works, pair_stats = find_pairs(
             index_db_path, args.min_shared, args.min_jaccard,
             args.min_shared_override, args.min_containment, args.rare_max_df,
-            args.rare_min_containment, commonplace_hashes)
+            args.rare_min_containment, commonplace_hashes,
+            drop_all_commonplace=(args.drop_all_commonplace == 'on'
+                                  or (args.drop_all_commonplace == 'auto' and args.language == 'en')))
 
         corpus_version = get_corpus_version(args.language)
         built_at = datetime.now(timezone.utc).isoformat()
@@ -893,6 +906,7 @@ def main():
             'min_containment': args.min_containment,
             'rare_max_df': args.rare_max_df,
             'rare_min_containment': args.rare_min_containment,
+            'drop_all_commonplace': args.drop_all_commonplace,
             'commonplace_ngrams': index_stats['commonplace_ngrams'],
             'works_indexed': index_stats['works_indexed'],
             'lines_indexed': index_stats['lines_indexed'],

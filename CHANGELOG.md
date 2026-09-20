@@ -9,6 +9,12 @@ docs/DATA_OPERATIONS.md.
 ## 2026-09-19
 
 ### Reader
+- Quotation table builder: the "all shared n-grams commonplace" drop is now
+  per language (`--drop-all-commonplace auto|on|off`, auto = English only).
+  Measured on Latin it removed 1,863 strict pairs and gained none, among them
+  genuine short scripture quotations made entirely of common words (John
+  10.30 "ego et pater unum sumus" in Hilary); the English function-word junk
+  it was written for does not occur in Latin or Greek at that scale.
 - Quotation table builder: the commonplace rule is now "drop a pair only when
   every shared n-gram is commonplace-only". The earlier "count commonplace
   n-grams for nothing" removed Hamlet's function-word matches but, rebuilt on

@@ -352,3 +352,23 @@ def test_a_pair_with_one_content_ngram_keeps_its_commonplace_ngrams_in_the_count
     assert pairs, "one content n-gram among many commonplace ones keeps the pair"
     shared, jaccard = pairs[0]
     assert shared == len(list(gn(shared_run))), "all shared n-grams counted, not only the content one"
+
+
+def test_all_commonplace_drop_can_be_switched_off_for_latin(tmp_path):
+    """Latin and Greek keep short scripture quotations made only of common
+    words ("ego et pater unum sumus", John 10.30 in Hilary); the drop is an
+    English rule."""
+    run = ['ego', 'et', 'pater', 'unum', 'sumus']
+    a = list(run)
+    b = ['dicit', 'enim', 'dominus'] + run + ['inquit']
+    commonplace = {hash_ngram(g) for g in gen_ngrams(run)}
+    db = _fixture_db(tmp_path, {
+        0: ('jerome.vulgate', 'Vulgate John.10.30', a),
+        1: ('hilary_of_poitiers.fragmenta_historica', 'hilary. frag_historia. 2.17.1.3', b),
+    })
+    kw = dict(min_shared=2, min_jaccard=0.15, min_shared_override=4, min_containment=0.5,
+              rare_max_df=20, rare_min_containment=0.06, commonplace_hashes=commonplace)
+    on, _, _ = find_pairs(db, drop_all_commonplace=True, **kw)
+    off, _, _ = find_pairs(db, drop_all_commonplace=False, **kw)
+    assert _pairs_between(on, 'jerome.vulgate', 'hilary_of_poitiers.fragmenta_historica') == []
+    assert _pairs_between(off, 'jerome.vulgate', 'hilary_of_poitiers.fragmenta_historica') != []
