@@ -61,8 +61,6 @@ behind each, are in docs/DECISIONS.md.
   athletic contests held in honor of the dead" (the benchmark's best theme,
   first-ten precision 1.00) and "a storm at sea batters ships and terrifies
   the crew"; all five chips rated strong on 2026-09-20.
-
-### Search
 - English line search: the Latin u/v and i/j spelling fold applied to
   every language but Greek, so English queries for any word with a v or a
   j were looked up in Spenser's spelling ("love" as "loue", "voice" as
