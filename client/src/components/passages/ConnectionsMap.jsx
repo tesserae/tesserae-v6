@@ -165,23 +165,20 @@ function locusOnly(ref) {
   return m ? m[1] : ref;
 }
 
-// Staleness fallback (NC, 2026-09-19): a corpus edit changes the passage
-// index's fingerprint long before a ~40-minute rebuild can catch up, so the
-// backend serves the most recently built cache present instead of refusing
-// outright, marking every response `stale`. `cache_built_at` is an ISO-ish
-// timestamp ("2026-09-18T21:50:00"); only the date reads as a notice.
-// window_diff is counted over the SAME population the cache itself covers
-// (backend.connections_map._stale_info), a true before/after rather than an
-// estimate, so the notice states it plainly rather than hedging.
-// A discreet footer, not a warning (NC, 2026-09-19): a reader browsing the
-// map has no use for "this cache is stale" or a window count that means
-// nothing without the internals behind it -- that belongs in the API
-// response (`stale`) for an operator to read, not in front of a user. One
-// grey line under the grid, stating what was used, is enough.
-function staleFooterText(stale) {
-  if (!stale) return null;
-  const date = (stale.cache_built_at || '').split('T')[0] || 'an earlier build';
-  return `Connections computed from the index of ${date}.`;
+// Build-date footer (NC, 2026-09-20): the backend can silently fall back to
+// an older cache (a corpus edit changes the passage index's fingerprint long
+// before a ~40-minute rebuild can catch up -- see backend/connections_map.py
+// _resolve_path()), and that used to surface here as a "stale" notice. The
+// owner does not want any notion of staleness in front of users: every map
+// response now carries `cache_built_at` (an ISO-ish timestamp,
+// "2026-09-18T21:50:00") regardless of whether the cache is current, and
+// this reads only the date, phrased as a plain fact rather than a warning.
+// The `stale` field itself still comes back from the API for an operator to
+// read; it is never surfaced here.
+function mapBuiltFooterText(cacheBuiltAt) {
+  if (!cacheBuiltAt) return null;
+  const date = (cacheBuiltAt || '').split('T')[0];
+  return date ? `Map built ${date}.` : null;
 }
 
 // The backend bakes "Name (lang)" into author/century labels (see
@@ -680,6 +677,14 @@ export default function ConnectionsMap() {
   const [mapData, setMapData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  // "Refresh map" (NC, 2026-09-20): re-runs whichever top-level load is
+  // currently showing (the matrix, or a "start from one work" row) with
+  // ?refresh=1, which clears the backend's process-level caches (see
+  // connections_map.reset_process_caches()) so a freshly built cache and the
+  // current window ids are picked up without a process restart. Tracked
+  // separately from `loading` so the button's own "Refreshing…" label and
+  // disabled state do not depend on the generic map-load spinner.
+  const [refreshingMap, setRefreshingMap] = useState(false);
 
   // {labelA, labelB, count, normalised, x, y} for the tooltip that follows
   // the cursor; x/y are the raw client coordinates.
@@ -752,22 +757,31 @@ export default function ConnectionsMap() {
 
   const langParam = languages.length ? languages.join(',') : '';
 
-  const loadMap = useCallback(async () => {
-    setLoading(true);
+  // `refresh` (NC, 2026-09-20) uses `refreshingMap`, not `loading`, and skips
+  // the drill-down reset: the grid section below is gated on `!loading`, so
+  // routing a refresh through the ordinary `loading` flag would hide the
+  // whole grid (and the "Refresh map" button along with it) for as long as
+  // the request is in flight, instead of the button alone reading
+  // "Refreshing…" as the owner asked for.
+  const loadMap = useCallback(async (refresh = false) => {
+    if (refresh) setRefreshingMap(true); else setLoading(true);
     setError(null);
-    setSelectedCell(null);
-    setCellData(null);
-    setTopOutline(null);
-    setWorksOutline(null);
-    setSelectedWorkCell(null);
-    setBooksData(null);
-    setBooksOutline(null);
-    setSelectedPair(null);
-    setPairData(null);
+    if (!refresh) {
+      setSelectedCell(null);
+      setCellData(null);
+      setTopOutline(null);
+      setWorksOutline(null);
+      setSelectedWorkCell(null);
+      setBooksData(null);
+      setBooksOutline(null);
+      setSelectedPair(null);
+      setPairData(null);
+    }
     try {
       const params = new URLSearchParams({ view, top: String(top) });
       if (langParam) params.set('languages', langParam);
       if (showTranslations) params.set('translations', '1');
+      if (refresh) params.set('refresh', '1');
       const res = await fetch(`/api/passages/map?${params}`);
       const json = await res.json();
       if (json.error) setError(json.error);
@@ -775,7 +789,7 @@ export default function ConnectionsMap() {
     } catch (e) {
       setError(e.message || 'the connections map could not be loaded');
     } finally {
-      setLoading(false);
+      if (refresh) setRefreshingMap(false); else setLoading(false);
     }
   }, [view, langParam, showTranslations, top]);
 
@@ -801,17 +815,20 @@ export default function ConnectionsMap() {
     return workOptions.filter((w) => w.toLowerCase().includes(q)).slice(0, 25);
   }, [workQuery, workOptions]);
 
-  const loadWorkRow = useCallback(async (work) => {
-    setLoading(true);
+  const loadWorkRow = useCallback(async (work, refresh = false) => {
+    if (refresh) setRefreshingMap(true); else setLoading(true);
     setError(null);
-    setStartWork(work);
-    setWorkRow(null);
-    setSelectedPair(null);
-    setPairData(null);
+    if (!refresh) {
+      setStartWork(work);
+      setWorkRow(null);
+      setSelectedPair(null);
+      setPairData(null);
+    }
     try {
       const params = new URLSearchParams({ work });
       if (langParam) params.set('languages', langParam);
       if (showTranslations) params.set('translations', '1');
+      if (refresh) params.set('refresh', '1');
       const res = await fetch(`/api/passages/map/work?${params}`);
       const json = await res.json();
       if (json.error) setError(json.error);
@@ -819,9 +836,16 @@ export default function ConnectionsMap() {
     } catch (e) {
       setError(e.message || 'that work could not be loaded');
     } finally {
-      setLoading(false);
+      if (refresh) setRefreshingMap(false); else setLoading(false);
     }
   }, [langParam, showTranslations]);
+
+  // Re-runs whichever top-level load is currently on screen with
+  // ?refresh=1 -- see the refreshingMap state declaration above.
+  const handleRefreshMap = useCallback(() => {
+    if (startWork) loadWorkRow(startWork, true);
+    else loadMap(true);
+  }, [startWork, loadWorkRow, loadMap]);
 
   const clearStartWork = () => {
     setStartWork(null);
@@ -1258,9 +1282,19 @@ export default function ConnectionsMap() {
               translation pairs&rdquo; to include them.
             </p>
           )}
-          {mapData.stale && (
-            <p className="mt-1 text-[11px] text-gray-400">{staleFooterText(mapData.stale)}</p>
-          )}
+          <p className="mt-1 text-[11px] text-gray-400 flex items-center gap-2">
+            {mapBuiltFooterText(mapData.cache_built_at) && (
+              <span>{mapBuiltFooterText(mapData.cache_built_at)}</span>
+            )}
+            <button
+              onClick={handleRefreshMap}
+              disabled={refreshingMap}
+              className="text-xs bg-gray-100 text-gray-600 px-3 py-2 rounded hover:bg-gray-200 whitespace-nowrap disabled:opacity-60"
+              title="Rebuild this view from the current connections-map cache"
+            >
+              {refreshingMap ? 'Refreshing...' : 'Refresh map'}
+            </button>
+          </p>
 
           {/* Century/genre views: unchanged -- the flat list of work pairs
               behind the clicked cell, clicking one loads its passage pairs.
@@ -1421,9 +1455,19 @@ export default function ConnectionsMap() {
               ) : (
                 <p className="mt-2 text-sm text-gray-500">No connections at the current filters.</p>
               )}
-              {workRow.stale && (
-                <p className="mt-1 text-[11px] text-gray-400">{staleFooterText(workRow.stale)}</p>
-              )}
+              <p className="mt-1 text-[11px] text-gray-400 flex items-center gap-2">
+                {mapBuiltFooterText(workRow.cache_built_at) && (
+                  <span>{mapBuiltFooterText(workRow.cache_built_at)}</span>
+                )}
+                <button
+                  onClick={handleRefreshMap}
+                  disabled={refreshingMap}
+                  className="text-xs bg-gray-100 text-gray-600 px-3 py-2 rounded hover:bg-gray-200 whitespace-nowrap disabled:opacity-60"
+                  title="Rebuild this view from the current connections-map cache"
+                >
+                  {refreshingMap ? 'Refreshing...' : 'Refresh map'}
+                </button>
+              </p>
             </div>
           )}
           {workRow?.error && <p className="text-amber-700 text-sm">{workRow.error}</p>}

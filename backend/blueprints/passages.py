@@ -497,6 +497,11 @@ def _map_translations():
     return raw in ('1', 'true', 'yes')
 
 
+def _map_refresh():
+    raw = (request.args.get('refresh') or '').strip().lower()
+    return raw in ('1', 'true', 'yes')
+
+
 @passages_bp.route('/passages/map')
 def connections_map_route():
     """The matrix for one view: authors, works, centuries or genres.
@@ -505,7 +510,13 @@ def connections_map_route():
     counts unless ?translations=1 is passed, since the strongest signal in
     this data is "the same text in two languages", which would otherwise
     swamp the allusive relationships a scholar is looking for.
+
+    ?refresh=1 clears the module's process-level caches first (see
+    connections_map.reset_process_caches()), so a newly built cache and the
+    current window ids are picked up without a process restart.
     """
+    if _map_refresh():
+        connections_map.reset_process_caches()
     if not connections_map.is_available():
         return jsonify({'error': 'the connections map has not been built for '
                                  'this index'}), 404
@@ -519,7 +530,12 @@ def connections_map_route():
 
 @passages_bp.route('/passages/map/cell')
 def connections_map_cell_route():
-    """The work pairs behind one matrix cell (view + the two entity ids)."""
+    """The work pairs behind one matrix cell (view + the two entity ids).
+
+    ?refresh=1 clears the module's process-level caches first (see
+    connections_map.reset_process_caches())."""
+    if _map_refresh():
+        connections_map.reset_process_caches()
     if not connections_map.is_available():
         return jsonify({'error': 'the connections map has not been built for '
                                  'this index'}), 404
@@ -542,7 +558,12 @@ def connections_map_pair_route():
     the unordered window pair, work_a's window always on the left (NC,
     2026-09-19 -- see connections_map.get_pair). `book_a`/`book_b` filter to
     one cell of the books x books drill-down (`/passages/map/books`).
+
+    ?refresh=1 clears the module's process-level caches first (see
+    connections_map.reset_process_caches()).
     """
+    if _map_refresh():
+        connections_map.reset_process_caches()
     work_a = (request.args.get('work_a') or '').strip()
     work_b = (request.args.get('work_b') or '').strip()
     if not connections_map.is_available():
@@ -566,7 +587,12 @@ def connections_map_books_route():
     blocks of 100 lines labelled by the block's own first line. Computed from
     the edges/windows tables already in the cache -- no schema change, no
     rebuild required.
+
+    ?refresh=1 clears the module's process-level caches first (see
+    connections_map.reset_process_caches()).
     """
+    if _map_refresh():
+        connections_map.reset_process_caches()
     if not connections_map.is_available():
         return jsonify({'error': 'the connections map has not been built for '
                                  'this index'}), 404
@@ -578,7 +604,12 @@ def connections_map_books_route():
 
 @passages_bp.route('/passages/map/work')
 def connections_map_work_route():
-    """One work's connections by work, for a "start from one work" view."""
+    """One work's connections by work, for a "start from one work" view.
+
+    ?refresh=1 clears the module's process-level caches first (see
+    connections_map.reset_process_caches())."""
+    if _map_refresh():
+        connections_map.reset_process_caches()
     if not connections_map.is_available():
         return jsonify({'error': 'the connections map has not been built for '
                                  'this index'}), 404

@@ -219,16 +219,19 @@ def _stale_info(conn, meta):
 
 
 def _connect_for_request():
-    """(conn, stale) for the current request -- see _resolve_path(). conn is
-    None (with stale None too) only when nothing is available at all,
-    matching is_available()'s own check."""
+    """(conn, stale, meta) for the current request -- see _resolve_path().
+    conn is None (with stale and meta None too) only when nothing is
+    available at all, matching is_available()'s own check. meta is the
+    connected cache's own meta table, read unconditionally (not only on a
+    stale fallback) so every response can report cache_built_at."""
     path, is_stale = _resolve_path()
     if path is None:
-        return None, None
+        return None, None, None
     conn = sqlite3.connect(path)
     conn.row_factory = sqlite3.Row
-    stale = _stale_info(conn, _meta_from_conn(conn)) if is_stale else None
-    return conn, stale
+    meta = _meta_from_conn(conn)
+    stale = _stale_info(conn, meta) if is_stale else None
+    return conn, stale, meta
 
 
 def _unavailable():
@@ -238,11 +241,26 @@ def _unavailable():
                      'present to fall back to)'}
 
 
-def _with_stale(result, stale):
-    """Attach the staleness notice to a result dict, when there is one."""
+def _with_stale(result, stale, meta=None):
+    """Attach cache_built_at (from `meta`, whether or not the cache is
+    stale) and the staleness notice (only when there is one) to a result
+    dict."""
+    if meta:
+        result['cache_built_at'] = meta.get('built_at')
     if stale:
         result['stale'] = stale
     return result
+
+
+def reset_process_caches():
+    """Clear the process-level caches (_current_ids_cache,
+    _curated_pairs_cache) so a newly built connections-map cache and the
+    passage index's current window ids are picked up without a process
+    restart. Called by the map routes when a request carries ?refresh=1
+    (NC, 2026-09-20 -- see the "Refresh map" button)."""
+    global _current_ids_cache, _curated_pairs_cache
+    _current_ids_cache = None
+    _curated_pairs_cache = None
 
 
 _TRAILING_LOCUS = re.compile(r'(\d+(?:\.\d+)*)\s*$')
@@ -449,7 +467,7 @@ def _rows(conn, languages=None):
 def get_map(view, languages=None, top=DEFAULT_TOP, translations=False):
     if view not in VIEWS:
         return {'error': f'unknown view {view!r}; choose one of {", ".join(VIEWS)}'}
-    conn, stale = _connect_for_request()
+    conn, stale, meta = _connect_for_request()
     if conn is None:
         return _unavailable()
     top = max(2, min(int(top or DEFAULT_TOP), MAX_TOP))
@@ -546,7 +564,7 @@ def get_map(view, languages=None, top=DEFAULT_TOP, translations=False):
             'normalised': normalised,
             'translation_pairs_hidden': 0 if translations else n_translation_pairs_excluded,
             'index_fingerprint': index_fingerprint(),
-        }, stale)
+        }, stale, meta)
     finally:
         conn.close()
 
@@ -570,7 +588,7 @@ def get_cell(view, a, b, languages=None, translations=False):
         return {'error': f'unknown view {view!r}; choose one of {", ".join(VIEWS)}'}
     if not (a and b):
         return {'error': 'a and b are required'}
-    conn, stale = _connect_for_request()
+    conn, stale, meta = _connect_for_request()
     if conn is None:
         return _unavailable()
     try:
@@ -623,7 +641,7 @@ def get_cell(view, a, b, languages=None, translations=False):
             }
 
         return _with_stale({'view': view, 'a': a, 'b': b, 'work_pairs': out, 'count': len(out),
-                           'works_matrix': works_matrix}, stale)
+                           'works_matrix': works_matrix}, stale, meta)
     finally:
         conn.close()
 
@@ -652,7 +670,7 @@ def get_pair(work_a, work_b, limit=DEFAULT_PAIR_LIMIT, book_a=None, book_b=None)
     """
     if not (work_a and work_b):
         return {'error': 'work_a and work_b are required'}
-    conn, stale = _connect_for_request()
+    conn, stale, meta = _connect_for_request()
     if conn is None:
         return _unavailable()
     limit = max(1, min(int(limit or DEFAULT_PAIR_LIMIT), MAX_PAIR_LIMIT))
@@ -761,7 +779,7 @@ def get_pair(work_a, work_b, limit=DEFAULT_PAIR_LIMIT, book_a=None, book_b=None)
             'meta_b': {'language': wmeta[work_b]['language'], 'author_display': wmeta[work_b]['author_display']},
             'count': len(pairs),
             'pairs': pairs,
-        }, stale)
+        }, stale, meta)
     finally:
         conn.close()
 
@@ -776,7 +794,7 @@ def get_books_map(work_a, work_b):
     """
     if not (work_a and work_b):
         return {'error': 'work_a and work_b are required'}
-    conn, stale = _connect_for_request()
+    conn, stale, meta = _connect_for_request()
     if conn is None:
         return _unavailable()
     try:
@@ -834,7 +852,7 @@ def get_books_map(work_a, work_b):
             'ids_a': ids_a, 'labels_a': [books_a[i] for i in ids_a],
             'ids_b': ids_b, 'labels_b': [books_b[i] for i in ids_b],
             'counts': counts, 'normalised': normalised, 'legend': legend,
-        }, stale)
+        }, stale, meta)
     finally:
         conn.close()
 
@@ -842,7 +860,7 @@ def get_books_map(work_a, work_b):
 def get_work_connections(work, languages=None, translations=False, limit=50):
     if not work:
         return {'error': 'work is required'}
-    conn, stale = _connect_for_request()
+    conn, stale, meta = _connect_for_request()
     if conn is None:
         return _unavailable()
     limit = max(1, min(int(limit or 50), 500))
@@ -880,14 +898,14 @@ def get_work_connections(work, languages=None, translations=False, limit=50):
             'window_count': me['window_count'], 'total_links': me['total_links'],
             'connections': out[:limit],
             'count': len(out),
-        }, stale)
+        }, stale, meta)
     finally:
         conn.close()
 
 
 def meta():
     """Build-time meta (built_at, counts) for a status display."""
-    conn, stale = _connect_for_request()
+    conn, stale, meta = _connect_for_request()
     if conn is None:
         return _unavailable()
     try:

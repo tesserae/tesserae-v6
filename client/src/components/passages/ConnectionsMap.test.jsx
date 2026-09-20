@@ -28,8 +28,16 @@ const MAP_PAYLOAD = {
   index_fingerprint: 'abc',
 };
 
+// Every map response now carries cache_built_at whether or not the backend
+// cache is stale (NC, 2026-09-20) -- see mapBuiltFooterText in
+// ConnectionsMap.jsx.
+const BUILT_MAP_PAYLOAD = { ...MAP_PAYLOAD, cache_built_at: '2026-09-18T21:50:00' };
+
+// `stale` itself still comes back from the API for an operator to read; this
+// fixture carries it specifically to prove it never leaks into the UI (see
+// 'never shows the word "stale" anywhere in the page' below).
 const STALE_MAP_PAYLOAD = {
-  ...MAP_PAYLOAD,
+  ...BUILT_MAP_PAYLOAD,
   stale: {
     cache_built_at: '2026-09-18T21:50:00', cache_window_count: 603594,
     current_window_count: 603592, window_diff: 2,
@@ -182,34 +190,58 @@ describe('loading the map', () => {
     expect(screen.queryByText(/percentile rank/)).toBeNull();
   });
 
-  it('shows a discreet footer under the grid when the response carries `stale`, no warning tone', async () => {
-    // NC, 2026-09-19: the yellow "stale" notice must not show to users at
-    // all -- a plain grey one-liner under the grid, no window count, no
-    // warning styling; the full stale object stays in the API response for
-    // an operator to read.
-    global.fetch = mockFetch(STALE_MAP_PAYLOAD);
+  it('shows a "Map built <date>." footer under the grid, no warning tone', async () => {
+    // NC, 2026-09-20: no notion of "stale" in front of users at all -- a
+    // plain grey one-liner under the grid stating the cache's build date,
+    // whether or not the backend happened to fall back to an older cache.
+    global.fetch = mockFetch(BUILT_MAP_PAYLOAD);
     render(<ConnectionsMap />);
-    const footer = await screen.findByText('Connections computed from the index of 2026-09-18.');
-    expect(footer.className).toContain('text-gray-400');
-    expect(footer.className).not.toMatch(/amber|yellow|red/);
-    // No window count anywhere near it, and no warning language.
-    expect(screen.queryByText(/window/)).toBeNull();
-    expect(screen.queryByText(/changed/)).toBeNull();
-    expect(screen.queryByText(/slightly off/)).toBeNull();
+    const footer = await screen.findByText('Map built 2026-09-18.');
+    expect(footer.closest('p').className).toContain('text-gray-400');
+    expect(footer.closest('p').className).not.toMatch(/amber|yellow|red/);
   });
 
-  it('places the stale footer under the grid, after the translation-pairs note', async () => {
-    global.fetch = mockFetch(STALE_MAP_PAYLOAD);
+  it('places the build-date footer under the grid, after the translation-pairs note', async () => {
+    global.fetch = mockFetch(BUILT_MAP_PAYLOAD);
     render(<ConnectionsMap />);
     const grid = await screen.findByLabelText(/Connections map, author view/);
-    const footer = await screen.findByText('Connections computed from the index of 2026-09-18.');
+    const footer = await screen.findByText('Map built 2026-09-18.');
     expect(grid.compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it('shows no stale footer for an ordinary (non-stale) response', async () => {
+  it('omits the build-date text (but keeps the Refresh map button) when cache_built_at is missing', async () => {
     render(<ConnectionsMap />);
     await waitFor(() => expect(screen.getByLabelText(/Connections map/)).toBeTruthy());
-    expect(screen.queryByText(/Connections computed from the index of/)).toBeNull();
+    expect(screen.queryByText(/Map built/)).toBeNull();
+    expect(screen.getByRole('button', { name: 'Refresh map' })).toBeTruthy();
+  });
+
+  it('clicking "Refresh map" issues a fetch whose URL contains refresh=1', async () => {
+    render(<ConnectionsMap />);
+    await waitFor(() => expect(screen.getByLabelText(/Connections map/)).toBeTruthy());
+    fireEvent.click(screen.getByRole('button', { name: 'Refresh map' }));
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      expect.stringMatching(/^\/api\/passages\/map\?.*refresh=1/)));
+  });
+
+  it('shows "Refreshing..." and disables the button while the refresh request is in flight', async () => {
+    render(<ConnectionsMap />);
+    await waitFor(() => expect(screen.getByLabelText(/Connections map/)).toBeTruthy());
+    let resolveRefresh;
+    global.fetch = vi.fn(() => new Promise((resolve) => { resolveRefresh = resolve; }));
+    fireEvent.click(screen.getByRole('button', { name: 'Refresh map' }));
+    const refreshingButton = await screen.findByRole('button', { name: 'Refreshing...' });
+    expect(refreshingButton).toBeDisabled();
+    resolveRefresh({ json: () => Promise.resolve(BUILT_MAP_PAYLOAD) });
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Refresh map' })).toBeTruthy());
+  });
+
+  it('never renders the word "stale" anywhere in the document, even when the API sends `stale`', async () => {
+    global.fetch = mockFetch(STALE_MAP_PAYLOAD);
+    render(<ConnectionsMap />);
+    await waitFor(() => expect(screen.getByLabelText(/Connections map/)).toBeTruthy());
+    await screen.findByText('Map built 2026-09-18.');
+    expect(document.body.textContent.toLowerCase()).not.toContain('stale');
   });
 
   it('switching to the work view refetches with view=work', async () => {

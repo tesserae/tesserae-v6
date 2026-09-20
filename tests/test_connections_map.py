@@ -965,3 +965,47 @@ def test_books_map_skips_an_edge_whose_window_has_been_retired(client, nested_fi
                         work_a='statius.thebaid', work_b='vergil.aeneid')
     assert status == 200
     assert body['counts'][0][0] == 1
+
+
+# --------------------------------------------------------------------------
+# `cache_built_at` + `?refresh=1` (NC, 2026-09-20): the owner does not want
+# any notion of "stale" in front of users, so every map response now names
+# the cache's own build date whether or not it is stale, and a `refresh=1`
+# query param clears the module's process-level caches (reset_process_
+# caches()) so a freshly built cache and the passage index's current window
+# ids are picked up without a process restart. The `stale` field itself is
+# unchanged (still absent on an exact fingerprint match, still present on a
+# fallback) -- covered by the staleness tests above.
+# --------------------------------------------------------------------------
+
+def test_reset_process_caches_clears_both_module_caches(monkeypatch):
+    monkeypatch.setattr(connections_map, '_current_ids_cache', {'some-id'})
+    monkeypatch.setattr(connections_map, '_curated_pairs_cache', {('a', 'b')})
+    connections_map.reset_process_caches()
+    assert connections_map._current_ids_cache is None
+    assert connections_map._curated_pairs_cache is None
+
+
+def test_map_route_reports_cache_built_at_even_on_an_exact_non_stale_match(client, fixture_db):
+    status, body = _get(client, '/api/passages/map', view='work')
+    assert status == 200
+    assert 'stale' not in body
+    assert body['cache_built_at'] == '2026-09-18T00:00:00'
+
+
+def test_map_route_with_refresh_param_resets_caches_and_returns_cache_built_at(
+        client, fixture_db, monkeypatch):
+    calls = []
+    monkeypatch.setattr(connections_map, 'reset_process_caches', lambda: calls.append(True))
+    status, body = _get(client, '/api/passages/map', view='work', refresh=1)
+    assert status == 200
+    assert calls == [True]
+    assert body['cache_built_at'] == '2026-09-18T00:00:00'
+
+
+def test_map_route_without_refresh_param_does_not_reset_caches(client, fixture_db, monkeypatch):
+    calls = []
+    monkeypatch.setattr(connections_map, 'reset_process_caches', lambda: calls.append(True))
+    status, body = _get(client, '/api/passages/map', view='work')
+    assert status == 200
+    assert calls == []
