@@ -2,7 +2,8 @@ export const STOPLIST_INFO = {
   description: "The Default stoplist combines curated function words with automatic high-frequency detection using Zipf's law. In Fusion mode, the curated stoplist also plays a key role in scoring: it identifies function-word matches so they can be ranked below content-word matches.",
 
   howItWorks: [
-    "Curated words: Pronouns, articles, conjunctions, prepositions, common verbs",
+    "Curated words: function words only (pronouns, articles, conjunctions, prepositions, auxiliaries, particles); common content words are down-weighted by frequency, never removed",
+    "English list: the Snowball stopword list (Porter) plus the same words in their Early Modern forms (thou, thee, hath, doth, wilt, 'tis, ere, unto) after Barber, Early Modern English (1997); sources and history in docs/DECISIONS.md in the repository",
     "Zipf detection: Automatically identifies 10-50 additional high-frequency words from your selected texts",
     "The two lists are combined to filter out noise while preserving meaningful vocabulary",
     "In Fusion mode: the curated list is used in the scoring layer to penalize function-word-only matches (e.g., sharing tum + nec) while preserving content-word matches (e.g., pectore + curas)"

@@ -170,7 +170,7 @@ The fused score is then scaled by a **rarity multiplier** based on the geometric
 
 ### Function-word handling
 
-A critical refinement is the use of a **curated function-word stoplist** (66 Latin words, 88 Greek, 60 English) to distinguish function words from content words in the scoring layer. Pure frequency cannot make this distinction: the word *tum* ("then") and the word *pectore* ("in the breast") both appear in many texts, but only the first is a function word. The stoplist provides the precision that frequency alone cannot.
+A critical refinement is the use of a **curated function-word stoplist** (91 Latin words, 202 Greek, 275 English; the English list is the Snowball stopword list plus the same words in their Early Modern forms, sources in docs/DECISIONS.md) to distinguish function words from content words in the scoring layer. Pure frequency cannot make this distinction: the word *tum* ("then") and the word *pectore* ("in the breast") both appear in many texts, but only the first is a function word. The stoplist provides the precision that frequency alone cannot.
 
 Three cases are handled:
 
@@ -206,7 +206,7 @@ Within each channel, individual results are scored using a formula that rewards 
 
 **Distance** also matters: matched words that appear close together within their respective lines score higher than matched words at opposite ends. If both *arma* and *uir* appear in the first three words of each line, that tight clustering strengthens the signal.
 
-**Curated stoplists** provide a layer of precision that pure frequency cannot. IDF alone treats all common words the same — but the word *tum* ("then") and the word *pectore* ("in the breast") have similar corpus frequencies while carrying very different allusion potential. The system uses a curated list of 66 Latin function words (pronouns, conjunctions, prepositions, and common verbs), plus corresponding lists for Greek (88 words) and English (60 words), to cleanly identify function words in the fusion scoring layer. Matches built entirely on function words are heavily penalized; matches where a function word co-occurs with a content word are scored on the content word alone. Critically, the stoplist is applied only during scoring, not during channel matching — so no potential match is missed, only downranked.
+**Curated stoplists** provide a layer of precision that pure frequency cannot. IDF alone treats all common words the same — but the word *tum* ("then") and the word *pectore* ("in the breast") have similar corpus frequencies while carrying very different allusion potential. The system uses a curated list of 91 Latin function words (pronouns, conjunctions, prepositions, auxiliaries), plus corresponding lists for Greek (202 words) and English (275 words: the Snowball stopword list plus the same words in their Early Modern forms; sources in docs/DECISIONS.md), to cleanly identify function words in the fusion scoring layer. Matches built entirely on function words are heavily penalized; matches where a function word co-occurs with a content word are scored on the content word alone. Critically, the stoplist is applied only during scoring, not during channel matching — so no potential match is missed, only downranked.
 
 The practical result: on the Valerius Flaccus benchmark, 9 of the top 10 results are genuine commentary-attested parallels, and on the Lucan benchmark, 5 of the top 10 are genuine — a level of precision that makes browsing from the top of the list a productive scholarly activity.
 
