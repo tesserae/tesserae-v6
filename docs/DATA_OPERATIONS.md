@@ -269,6 +269,41 @@ Conventions
   under-reports how many book files already exist for any work using a
   non-numeric or lettered part label.
 
+## 2026-09-21 One Latin u/v and i/j rule deployed (PR #451); density precompute unblocked and running
+- What: PR #451 merged 8d9b25b, pulled, WSGI touched 16:45 EDT. Five
+  implementations of the Latin orthographic fold, three of them named
+  `normalize_latin`, replaced by `backend/latin_orthography.py`:
+  `fold_latin` (lowercase, v to u, j to i) for anything compared with the
+  lemma tables or the index, and `fold_latin_surface` (case kept, archaic
+  word-final -om to -um) for searching printed text. The split is forced by
+  the stored data: all 111,739 keys in `latin_lemmas.json` are lowercase
+  with no v or j, and the table holds BOTH `diuom` (a form of deus) and
+  `diuum` (a form of diuus), so folding -om before a lookup returns a
+  different word rather than missing.
+- Effect, measured on the corpus before the change: 1,705 function-word
+  occurrences were escaping the Latin stoplist because the matcher ignored
+  j, 1,691 of them `jam` for `iam`; and the distance filter kept case, so a
+  capitalised line-opening word never matched the lowercase word the index
+  returned.
+- Checks on production, before and after the deploy, identical: "arma
+  virum" lemma 367 at `max_results` 1000 and exact 21; Lucan 1 against
+  Aeneid 1 returns the same 152 results, the same pairs, the same scores
+  and the same top result (luc. 1.13 with verg. aen. 1.368). A j-spelled
+  query, "jam satis", answers with 357 results. The classical core is
+  unchanged, which is what the measurement predicted: j spellings live in
+  the 325 medieval and early-modern Latin files.
+- Chris applied `chmod g+w` to `cache/passage_density`,
+  `cache/lexical_density` and `cache/rare_words` at about 16:16 EDT
+  (ticket #108315), so the Reader's gutter can be precomputed offline for
+  the first time. `scripts/precompute_passage_density.py --language la`
+  started 16:38 in a tess-job scope (cap 8G, peak 5.2 GB, about 3.5 seconds
+  a work, 1,719 works, log `~/tesserae-backups/jobs/density-la.log`). Greek,
+  English, Coptic and Hebrew follow, one at a time. After this the first
+  open of a text is instant for every work, until the next corpus change,
+  which invalidates the cache by design.
+- Chris asks that a new request go in a NEW ticket rather than as a reply
+  to an existing one.
+
 ## 2026-09-21 Code review fixes deployed (PRs #439 to #445); Hebrew rare-words cache built
 - What: the seven pull requests from the September code review merged and
   deployed after NC's demo, in two steps. Backend first (PR #439, 24
