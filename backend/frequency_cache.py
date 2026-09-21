@@ -6,6 +6,7 @@ from datetime import datetime
 
 from backend.logging_config import get_logger
 from backend.utils import safe_listdir
+from backend.work_names import base_work, is_part
 
 logger = get_logger('frequency_cache')
 
@@ -30,10 +31,8 @@ def deduplicate_text_files(text_files):
     
     deduplicated = []
     for f in text_files:
-        if '.part.' in f:
-            parts = f.split('.part.')
-            base = parts[0]
-            if base in full_versions:
+        if is_part(f):
+            if base_work(f) in full_versions:
                 continue
         deduplicated.append(f)
     

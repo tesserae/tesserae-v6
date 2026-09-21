@@ -23,6 +23,7 @@ import threading
 
 from backend.assistant import searches
 from backend.logging_config import get_logger
+from backend.work_names import base_work
 
 logger = get_logger('assistant.corpus_lookup')
 
@@ -144,7 +145,7 @@ def book_of(row, number):
     """
     if not row or not number:
         return None
-    base = str(row.get('id') or '').replace('.tess', '').split('.part.')[0]
+    base = base_work(row.get('id') or '')
     want = f'{base}.part.{int(number)}'
     for r in _all_texts(row.get('language')):
         if str(r.get('id') or '').replace('.tess', '') == want:

@@ -33,6 +33,7 @@ from urllib.parse import urlencode
 from backend.logging_config import get_logger
 from backend.passage_index import index_fingerprint
 from backend.utils import format_display_name
+from backend.work_names import base_work
 
 logger = get_logger('connections_map')
 
@@ -207,7 +208,7 @@ def _stale_info(conn, meta):
         parts = window_id.split(':')
         if len(parts) < 2 or parts[1] != 'fine':
             continue
-        work = parts[0].split('.part.')[0]   # norm_work(), matching the works table's own ids
+        work = base_work(parts[0])   # matching the works table's own ids
         if work in cache_works:
             current_n += 1
     cache_n = meta.get('subset_windows')

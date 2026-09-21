@@ -40,6 +40,7 @@ from backend.utils import resolve_text_path
 from backend.lemma_cache import load_units_cached
 from backend.services import log_search, get_user_location
 from backend.blueprints.async_poll import SearchInputError
+from backend.work_names import base_work, is_part, sql_base_work
 
 logger = get_logger('hapax')
 
@@ -663,11 +664,8 @@ def deduplicate_locations(locations):
     deduplicated = []
     for loc in locations:
         text_id = loc.get('text_id', '')
-        if '.part.' in text_id:
-            parts = text_id.split('.part.')
-            base = parts[0]
-            if base in full_versions:
-                continue
+        if is_part(text_id) and base_work(text_id) in full_versions:
+            continue
         deduplicated.append(loc)
     
     return deduplicated
@@ -1058,12 +1056,9 @@ def _base_filename_expr(alias='t'):
     so COUNT(DISTINCT ...) counts each work once regardless of how it was
     partitioned for indexing.
     """
-    fn = f"{alias}.filename"
-    return (
-        f"CASE WHEN instr({fn}, '.part.') > 0 "
-        f"THEN substr({fn}, 1, instr({fn}, '.part.') - 1) || '.tess' "
-        f"ELSE {fn} END"
-    )
+    # The same collapse as backend/work_names.base_work, kept beside it so
+    # the SQL and the Python cannot drift apart.
+    return sql_base_work(f"{alias}.filename")
 
 
 def get_document_frequency(lemma, language):
