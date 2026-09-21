@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { cssRef } from './refId';
 import ReaderHeader from './ReaderHeader';
-import ReaderNav, { ReaderEndNav, sectionsFor } from './ReaderNav';
+import ReaderNav, { ReaderEndNav, ReaderFloatNav, sectionsFor, bookFileFor } from './ReaderNav';
 import SelectionToolbar, { scopeFor } from './SelectionToolbar';
 import { useCorpus } from '../../hooks';
 import { LoadingSpinner } from '../common';
@@ -98,6 +98,9 @@ export default function ReaderPage() {
       .catch((e) => setFullTr({ available: false, reason: e.message }));
   }, [focusView, fullTr, work, language]);
   const [cameFrom, setCameFrom] = useState(() => paramOr('q', ''));
+  // Arrival from the Similarity Map: the other side of the connection that
+  // was clicked, shown in the banner, with a link back to the map tab.
+  const [mapFrom, setMapFrom] = useState(() => paramOr('map', ''));
   const [units, setUnits] = useState([]);
   // How many lines are drawn; grows as the reader scrolls (see TextPane).
   const [visibleCount, setVisibleCount] = useState(READER_STEP);
@@ -220,7 +223,7 @@ export default function ReaderPage() {
     // had been found by a search the reader had long since left. They are read
     // into state at mount, so dropping them from the URL here costs nothing and
     // `at` carries the position instead.
-    ['ref', 'refEnd', 'tab', 'q'].forEach((k) => p.delete(k));
+    ['ref', 'refEnd', 'tab', 'q', 'map'].forEach((k) => p.delete(k));
     const url = `${window.location.pathname}?${p}`;
     const key = `${work}|${language}`;
     const movedToAnotherText = lastKeyRef.current !== null && lastKeyRef.current !== key;
@@ -346,10 +349,22 @@ export default function ReaderPage() {
     return () => window.clearTimeout(id);
   }, [jumpRef, units, visibleCount]);
   const sections = useMemo(() => sectionsFor(hierarchy, work), [hierarchy, work]);
+  // Books one at a time (NC, 2026-09-20: the whole-file Punica ran seventeen
+  // books together, 7.745 followed by 8.1 with no heading). A work that also
+  // exists as book files opens on the book that holds the requested line, or
+  // on Book 1; the book files carry the previous/next navigation. Links from
+  // Theme Search and the Similarity Map name the whole file, so this is where
+  // they are turned into a book.
+  useEffect(() => {
+    if (!work || !sections.length) return;
+    const target = bookFileFor(sections, work, wantedRef || jumpRef);
+    if (target && target !== work) setWork(target);
+  }, [work, sections, wantedRef, jumpRef]);
   const changeBook = useCallback((file) => {
     setWork(file);
     setSelection(null);
     setCameFrom('');
+    setMapFrom('');
     setJumpRef('');   // a jump aimed at the book being left must not fire in the next
   }, []);
 
@@ -421,7 +436,7 @@ export default function ReaderPage() {
       {error && <p className="p-6 text-red-700">{error}</p>}
 
       {!loading && !error && (
-        <div ref={contentRef} className="flex flex-col lg:flex-row" style={{ minHeight: '32rem' }}>
+        <div ref={contentRef} data-testid="reader-content" className="flex flex-col lg:flex-row" style={{ minHeight: '32rem' }}>
           <div className="flex flex-col flex-1 min-w-0">
             {/* Previous/next book, go to line, back to top: sticky, so the way
                 out of a long text is always on screen (NC, 2026-09-19). */}
@@ -440,6 +455,24 @@ export default function ReaderPage() {
                 banner outliving its arrival is the thing NC actually sees, and
                 it should not take a correct URL to be rid of it. It goes on the
                 first click of the ×, and the reader is never stuck with it. */}
+            {mapFrom && !cameFrom && (
+              <p className="px-3 py-2 text-xs text-gray-700 border-b border-gray-200 bg-red-50 flex items-center gap-2">
+                <span className="min-w-0">
+                  From the Similarity Map: a passage connected with{' '}
+                  <span className="font-medium">{mapFrom}</span>
+                  {selection?.lineCount > 1 && (
+                    <span className="text-gray-500">{' '}&middot; the passage is selected below</span>
+                  )}
+                  <a href="/theme-search?tab=map" className="ml-2 text-red-700 hover:underline">
+                    back to the map
+                  </a>
+                </span>
+                <button onClick={() => setMapFrom('')} aria-label="Dismiss"
+                        className="ml-auto shrink-0 text-gray-500 hover:text-gray-700 text-base leading-none px-1">
+                  ×
+                </button>
+              </p>
+            )}
             {cameFrom && (
               <p className="px-3 py-2 text-xs text-gray-700 border-b border-gray-200 bg-red-50 flex items-center gap-2">
                 <span className="min-w-0">
@@ -481,6 +514,11 @@ export default function ReaderPage() {
                 <span className="inline-block w-[9px] h-[7px] rounded-sm"
                       style={{ backgroundColor: '#7c6bb0' }} />
                 similar passages
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="inline-flex items-center justify-center text-[9px] font-bold leading-none
+                                 text-red-700 bg-gray-100 border border-gray-300 rounded px-1 py-[2px]">2</span>
+                quoted by that many other works; click a box to see them
               </span>
               <span className="ml-auto flex items-center gap-1">
                 <span className="text-gray-500 mr-2">darker = more connections</span>
@@ -624,6 +662,9 @@ export default function ReaderPage() {
           )}
           {units.length > 0 && shownUnits.length >= units.length && (
             <ReaderEndNav sections={sections} work={work} onWork={changeBook} />
+          )}
+          {!loading && !error && units.length > 0 && (
+            <ReaderFloatNav sections={sections} work={work} onWork={changeBook} />
           )}
           </div>
           <ResultsPanel

@@ -75,3 +75,33 @@ describe('ReaderEndNav', () => {
     expect(screen.getByLabelText('Back to top')).toBeInTheDocument();
   });
 });
+
+describe('books one at a time (2026-09-20)', () => {
+  const withWhole = [
+    { file: 'silius_italicus.punica.tess', label: 'Punica' },
+    { file: 'silius_italicus.punica.part.1.tess', label: 'Book 1' },
+    { file: 'silius_italicus.punica.part.8.tess', label: 'Book 8' },
+  ];
+  it('bookSections skips the whole-file copy when book files exist', async () => {
+    const { bookSections } = await import('./ReaderNav');
+    expect(bookSections(withWhole).map((s) => s.label)).toEqual(['Book 1', 'Book 8']);
+    expect(bookSections(sections)).toEqual(sections);
+  });
+  it('bookFileFor sends a whole-file work to the book that holds the ref, else Book 1', async () => {
+    const { bookFileFor } = await import('./ReaderNav');
+    expect(bookFileFor(withWhole, 'silius_italicus.punica.tess', 'sil. 8.135')).toBe('silius_italicus.punica.part.8.tess');
+    expect(bookFileFor(withWhole, 'silius_italicus.punica.tess', '')).toBe('silius_italicus.punica.part.1.tess');
+    expect(bookFileFor(withWhole, 'silius_italicus.punica.part.8.tess', 'sil. 8.1')).toBe('');
+    expect(bookFileFor([{ file: 'catullus.carmina.tess', label: 'Carmina' }], 'catullus.carmina.tess', '1.1')).toBe('');
+  });
+  it('the floating navigator offers top, end and the neighbouring books', async () => {
+    const { ReaderFloatNav } = await import('./ReaderNav');
+    const onWork = vi.fn();
+    render(<ReaderFloatNav sections={withWhole} work="silius_italicus.punica.part.1.tess" onWork={onWork} />);
+    expect(screen.getByLabelText('Back to top')).toBeTruthy();
+    expect(screen.getByLabelText('To the end')).toBeTruthy();
+    fireEvent.click(screen.getByLabelText('Next: Book 8'));
+    expect(onWork).toHaveBeenCalledWith('silius_italicus.punica.part.8.tess');
+    expect(screen.getByLabelText('No previous book')).toBeDisabled();
+  });
+});

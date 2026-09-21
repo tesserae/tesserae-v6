@@ -25,6 +25,34 @@ export function sectionsFor(hierarchy, work) {
   return [];
 }
 
+/** The per-book files among `sections`. The corpus hierarchy lists a work's
+ *  whole-file copy as a section too (labelled with the work's title), and
+ *  stepping through books must skip it; a work held only as one file keeps
+ *  its single section. */
+export function bookSections(sections) {
+  const parts = (sections || []).filter((s) => /\.part\.\d+\.tess$/.test(s.file || ''));
+  return parts.length ? parts : (sections || []);
+}
+
+/** For a whole-file work that also exists as book files: the book file that
+ *  holds `ref` (a locus like "sil. 8.135" names book 8), or the first book
+ *  when no ref is given. '' when `work` already is a book file or the work
+ *  has no book files (NC, 2026-09-20: works with books are read one book at
+ *  a time; the whole-file Punica ran seventeen books together). */
+export function bookFileFor(sections, work, ref) {
+  const id = String(work || '');
+  if (/\.part\.\d+\.tess$/.test(id)) return '';
+  const base = id.replace(/\.tess$/, '');
+  const mine = (sections || []).filter((s) => (s.file || '').startsWith(`${base}.part.`));
+  if (!mine.length) return '';
+  const m = /(\d+)\.\d+/.exec(String(ref || ''));
+  if (m) {
+    const hit = mine.find((s) => s.file === `${base}.part.${m[1]}.tess`);
+    if (hit) return hit.file;
+  }
+  return mine[0].file;
+}
+
 function neighbours(sections, work) {
   const i = sections.findIndex((s) => s.file === work);
   if (i < 0) return { prev: null, next: null };
@@ -40,8 +68,9 @@ const linkCls = 'px-1.5 py-0.5 rounded border border-gray-300 bg-white text-gray
   + 'disabled:cursor-default whitespace-nowrap';
 
 function BookLinks({ sections, work, onWork, size }) {
-  const { prev, next } = neighbours(sections, work);
-  if (sections.length < 2) return null;
+  const books = bookSections(sections);
+  const { prev, next } = neighbours(books, work);
+  if (books.length < 2) return null;
   const go = (s) => { onWork(s.file); scrollToTop(); };
   return (
     <>
@@ -117,6 +146,47 @@ export function ReaderEndNav({ sections, work, onWork }) {
               aria-label="Back to top">
         &#9650; Back to top
       </button>
+    </div>
+  );
+}
+
+function scrollToEnd() {
+  window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+}
+
+const floatCls = 'w-9 h-9 rounded-full border border-gray-300 bg-white/95 shadow text-gray-700 '
+  + 'text-sm leading-none hover:bg-gray-100 disabled:opacity-40 disabled:hover:bg-white '
+  + 'disabled:cursor-default';
+
+/** A small fixed cluster at the bottom left of the window, on screen wherever
+ *  the reader is in the text: to the top, to the end, and the previous and
+ *  next book (NC, 2026-09-20: "we still don't have a way of navigating up and
+ *  down the page easily"). Fixed positioning does not depend on the sticky
+ *  strip, whose behaviour NC could not see. Hidden on phones, where the
+ *  bottom sheet lives. */
+export function ReaderFloatNav({ sections, work, onWork }) {
+  const books = bookSections(sections);
+  const { prev, next } = neighbours(books, work);
+  const go = (s) => { onWork(s.file); scrollToTop(); };
+  return (
+    <div className="hidden md:flex fixed bottom-4 left-4 z-30 flex-col gap-1 print:hidden"
+         role="navigation" aria-label="Reader navigation">
+      <button type="button" className={floatCls} onClick={scrollToTop}
+              aria-label="Back to top" title="Back to top">&#9650;</button>
+      <button type="button" className={floatCls} onClick={scrollToEnd}
+              aria-label="To the end" title="To the end">&#9660;</button>
+      {books.length > 1 && (
+        <>
+          <button type="button" className={floatCls} disabled={!prev}
+                  onClick={() => prev && go(prev)}
+                  aria-label={prev ? `Previous: ${prev.label}` : 'No previous book'}
+                  title={prev ? prev.label : 'No previous book'}>&#8249;</button>
+          <button type="button" className={floatCls} disabled={!next}
+                  onClick={() => next && go(next)}
+                  aria-label={next ? `Next: ${next.label}` : 'No next book'}
+                  title={next ? next.label : 'No next book'}>&#8250;</button>
+        </>
+      )}
     </div>
   );
 }

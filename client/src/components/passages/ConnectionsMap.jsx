@@ -139,7 +139,11 @@ function readerLinkForWindow(w, other) {
     ref: w.ref_start || '',
     refEnd: w.ref_end || w.ref_start || '',
     tab: 'similar',
-    q: other ? `connections map: ${other.author_display || other.work}` : '',
+    // Its own parameter, not `q`: the Reader's "back to results" link re-ran
+    // `q` as a Theme Search, so a reader who came from the map landed on a
+    // search for "connections map: Vergil" (NC, 2026-09-20). The Reader now
+    // shows "from the Similarity Map" and links back to the map tab.
+    map: other ? (other.author_display || other.work) : '',
   });
   return `/read?${params.toString()}`;
 }
