@@ -36,6 +36,37 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+## 2026-09-21 Code review fixes deployed (PRs #439 to #445); Hebrew rare-words cache built
+- What: the seven pull requests from the September code review merged and
+  deployed after NC's demo, in two steps. Backend first (PR #439, 24
+  unreachable route handlers deleted from `backend/app.py`, about 970
+  lines): pulled, WSGI touched 15:04 EDT. Then the front end as one bundle
+  (PRs #441 Saved Searches dialog, #440 dialog semantics and `aria-current`,
+  #443 one shared source for language display names, #445 Hebrew in the
+  Corpus Browser and the Rare Words Explorer): pulled, rebuilt in a 6 GB
+  tess-job scope with `keep_old_bundles.sh` save and restore,
+  `index-Kz4J11UL.js`, WSGI touched 15:14 EDT, workers warmed. Scripts and
+  records (#442 corpus-script safety helper, #444 `docs/OPEN_WORK.md`)
+  needed no deploy step.
+- Data step for #445: the Hebrew rare-words cache
+  (`cache/rare_words/he.json`) was 25 bytes, because the builder had a
+  branch for every language except Hebrew. The file is owned by the web
+  app's account and is not writable by the deploy user, so it was
+  regenerated the way the code already self-heals: the first request for
+  Hebrew rare words after the deploy rebuilt it, as the web app's own user.
+  25 bytes to 773,168 bytes, 3,935 words from 5,962 lemmas. The old file is
+  kept at `~/tesserae-backups/notes_2026-09-21/`.
+- Checks: "arma virum" lemma 367 at `max_results` 1000 and exact 21, before
+  and after, unchanged; every route the deleted handlers had shadowed still
+  answers (`/api/texts`, `/api/authors`, `/api/texts/hierarchy`,
+  `/api/frequencies/la`, and `/api/admin/settings` answering 401 as it
+  should); the served bundle carries the new strings; Hebrew lists its 39
+  works; the Reader gutter is still warm; Theme Search answers in about 7
+  seconds once the workers are warm.
+- Note for the next deploy: `cache/rare_words/` has the same permission
+  shape as `cache/passage_density` and `cache/lexical_density`, so the
+  request to the system administrator should cover all three.
+
 ## 2026-09-21 Corpus: 87 damaged lines repaired in book files (PR #435, run 07:09 EDT)
 - What: `scripts/corpus/repair_part_file_defects_2026-09-21.py` (new, dry run
   by default) takes the whole file's own line as the correction for six
