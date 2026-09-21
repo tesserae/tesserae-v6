@@ -76,6 +76,10 @@ behind each, are in docs/DECISIONS.md.
   the sources registry already credits it correctly). File identifiers
   unchanged; the rename of the files is a later corpus operation.
 
+### Reader
+- Kline's translation added for Punica 9-17 and the gaps of 1-8,
+  non-commercial licence, attribution shown per passage.
+
 ## 2026-09-19
 
 ### Search

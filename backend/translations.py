@@ -83,6 +83,20 @@ def available_works():
     return sorted(_build_index().keys())
 
 
+def _source_attribution(src):
+    """A short, human-readable attribution string for one entry in `sources`.
+
+    Prefers an explicit `short_attribution` (set on sources that need a
+    licence caveat, e.g. a non-commercial translation), and otherwise falls
+    back to "translator (year)"."""
+    disp = (src or {}).get('short_attribution')
+    if disp:
+        return disp
+    translator = (src or {}).get('translator') or ''
+    year = (src or {}).get('year')
+    return f'{translator} ({year})' if year else translator
+
+
 def for_passage(work, refs):
     """English for a selection.
 
@@ -118,7 +132,24 @@ def for_passage(work, refs):
                 'reason': 'This work has a translation, but not for the selected lines.',
                 'work': _norm_work(work)}
 
-    src = (data.get('sources') or [{}])[0]
+    sources_list = data.get('sources') or [{}]
+    unit_sources = data.get('unit_sources')
+    if unit_sources:
+        # Distinct sources actually behind the units served, in the order
+        # first encountered, so a mixed passage credits every translator
+        # whose words are in it (and only those).
+        served_src_indices = []
+        for i in seen:
+            si = unit_sources[i] if i < len(unit_sources) else 0
+            if si not in served_src_indices:
+                served_src_indices.append(si)
+        served_srcs = [sources_list[si] if si < len(sources_list) else {}
+                       for si in served_src_indices]
+        attribution = ' and '.join(_source_attribution(s) for s in served_srcs)
+        src = served_srcs[0]
+    else:
+        src = sources_list[0]
+        attribution = data.get('attribution')
     per_unit = data.get('mean_source_lines_per_translation_unit') or 1
     coarse = per_unit and per_unit > 3
     # Some translations carry no subdivision below the book. Lucretius' smallest
@@ -146,7 +177,7 @@ def for_passage(work, refs):
         'translator': src.get('translator'),
         'year': src.get('year'),
         'license': data.get('license'),
-        'attribution': data.get('attribution'),
+        'attribution': attribution,
         'alignment_confidence': data.get('alignment_confidence'),
         'approximate': bool(coarse),
         'block_only': bool(block),

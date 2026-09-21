@@ -14270,7 +14270,8 @@
     "e_source": "Perseus",
     "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0674",
     "print_source": "Walter Coventry Summers and John Percival Postgate, Silius Italicus. Corpus Poetarum Latinorum Vol. 2.. London. Sumptibus G. Bell et Filiorum. 1905.",
-    "added_by": "V3 Legacy Import"
+    "added_by": "V3 Legacy Import",
+    "note": "Aligned English translation (Reader Translation tab): J. D. Duff (1927 Loeb, public domain) for most of books 1-8; A. S. Kline for books 9-17 and the remaining gaps in 1-8, from https://www.poetryintranslation.com/PITBR/Latin/ItalicusPunicahome.php, freely reproducible for any non-commercial purpose, not to be re-licensed under Creative Commons."
   },
   {
     "author": "Smaragdus",
