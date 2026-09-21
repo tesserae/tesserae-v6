@@ -9,6 +9,21 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-09-21
 
+### Repository
+- New text files are visible to git again. `texts/` was ignored wholesale,
+  which never untracked the 3,484 files already committed but silently hid
+  every new one: an imported text did not show up in `git status`, was
+  skipped by `git add texts/`, and was never committed, while the index
+  build and the deploy after it behaved as though it had shipped. The
+  languages that ship are now listed one by one; Persian, Urdu and Arabic
+  stay ignored on purpose, as do scratch folders inside a language
+  directory, the runtime caches and the pre-computed embeddings (those are
+  recomputable, and a run writes gigabytes).
+- The developer and contributor guides no longer tell you to build the
+  front end with `cd client && npm run build`, which cannot work: there is
+  no `package.json` under `client/`, and the build runs from the repository
+  root.
+
 ### Site
 - Tessa, the assistant, was mounted twice on every page: two copies asked the
   assistant service for its status on each page load, shared one stored

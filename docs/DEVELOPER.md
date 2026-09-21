@@ -39,11 +39,13 @@ python -c "import nltk; nltk.download('wordnet'); nltk.download('averaged_percep
 ### 3. Frontend Setup
 
 ```bash
-cd client
 npm install
 npm run build
-cd ..
 ```
+
+Both commands run from the repository ROOT. Vite's config sets
+`root: 'client'` and writes the bundle to `dist/`; `client/` has no
+`package.json`, so `cd client` first makes both commands fail.
 
 ### 4. Database Setup
 
@@ -332,7 +334,6 @@ pytest backend/tests/
 ### Run Frontend Tests
 
 ```bash
-cd client
 npm test
 ```
 
@@ -384,7 +385,7 @@ data/
 
 ### Manual Deployment
 
-1. Build frontend: `cd client && npm run build`
+1. Build frontend: `npm run build` (from the repository root)
 2. Set `FLASK_ENV=production`
 3. Use Gunicorn: `gunicorn -b 0.0.0.0:5000 main:app`
 
@@ -418,7 +419,6 @@ python main.py
 ### Frontend Not Updating
 
 ```bash
-cd client
 npm run build
 # Hard refresh browser (Ctrl+Shift+R)
 ```
