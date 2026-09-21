@@ -341,20 +341,6 @@ export function expandLocus(locus) {
   return { author, work, reference };
 }
 
-export function formatLocus(locus, authorOverride = null) {
-  const expanded = expandLocus(locus);
-  
-  const parts = [];
-  if (expanded.work) {
-    parts.push(expanded.work);
-  }
-  if (expanded.reference) {
-    parts.push(expanded.reference);
-  }
-  
-  return parts.join(' ') || locus;
-}
-
 export function formatFullCitation(author, locus) {
   const expanded = expandLocus(locus);
   const displayAuthor = author || expanded.author || 'Unknown';

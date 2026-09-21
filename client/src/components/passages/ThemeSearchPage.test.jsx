@@ -78,6 +78,32 @@ describe('results are labelled with a real author and title', () => {
   });
 });
 
+describe('the per-result language badge (code review 2026-09-21, finding 3)', () => {
+  it('labels a Hebrew result "Hebrew", not the raw code "he"', async () => {
+    global.fetch = vi.fn((url) => {
+      const u = String(url);
+      if (u.startsWith('/api/languages')) {
+        return Promise.resolve({ json: () => Promise.resolve({ languages: [] }) });
+      }
+      if (u.startsWith('/api/passages/theme-search')) {
+        return Promise.resolve({ json: () => Promise.resolve({
+          query: 'x', confidence: { level: 'high' },
+          results: [{ id: 'w1', language: 'he', work: 'genesis',
+                      display_name: 'Genesis', ref_start: '1.1', score: 0.9 }],
+        }) });
+      }
+      return Promise.resolve({ json: () => Promise.resolve({}) });
+    });
+    await search('x');
+    await waitFor(() => expect(screen.getByText('Genesis')).toBeTruthy());
+    // "Hebrew" also appears as a language-picker checkbox label, so this
+    // checks that it appears (not raw "he" anywhere), rather than that it
+    // appears exactly once.
+    expect(screen.getAllByText('Hebrew').length).toBeGreaterThan(0);
+    expect(screen.queryByText('he')).toBeNull();
+  });
+});
+
 /**
  * The "N of M works" coverage line under the language row used to render
  * only when exactly one covered language (Latin, Greek, English, Coptic)

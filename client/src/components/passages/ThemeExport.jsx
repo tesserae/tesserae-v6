@@ -1,11 +1,6 @@
 import { useState } from 'react';
 import { CiteButton } from '../common';
-
-const LANG_NAMES = {
-  la: 'Latin', grc: 'Greek', en: 'English', he: 'Hebrew', cop: 'Coptic',
-  fa: 'Persian', ur: 'Urdu', ar: 'Arabic',
-  it: 'Italian', fro: 'Old French', gmh: 'Middle High German',
-};
+import { LANGUAGE_NAMES as LANG_NAMES } from '../../utils/languageNames';
 
 /**
  * Taking a Theme Search away with you.

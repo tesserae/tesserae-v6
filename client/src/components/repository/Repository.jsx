@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { LoadingSpinner, Modal } from '../common';
+import { LANGUAGE_NAMES } from '../../utils/languageNames';
 
 /**
  * Normalize Latin text for matching using platform standard (u/v equivalence).
@@ -535,7 +536,9 @@ export default function Repository({ user, isAdmin = false }) {
     setExpandedWorks(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const langNames = { la: 'Latin', grc: 'Greek', en: 'English', cross: 'Greek-Latin' };
+  // 'cross' is a repository grouping, not a real language, so it stays a
+  // local addition on top of the shared table.
+  const langNames = { ...LANGUAGE_NAMES, cross: 'Greek-Latin' };
 
   const exportCSV = useCallback(() => {
     const params = buildRepositoryParams(1);

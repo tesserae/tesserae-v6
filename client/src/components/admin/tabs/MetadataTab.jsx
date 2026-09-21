@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { LoadingSpinner } from '../../common';
+import { languageName } from '../../../utils/languageNames';
 
 export default function MetadataTab({ authHeaders }) {
   const [corpusTexts, setCorpusTexts] = useState([]);
@@ -239,7 +240,7 @@ export default function MetadataTab({ authHeaders }) {
                   <tr key={text.id} className={`hover:bg-gray-50 ${text.has_override ? 'bg-amber-50' : ''}`}>
                     <td className="px-2 py-1.5 truncate" title={text.author}>{text.author}</td>
                     <td className="px-2 py-1.5 truncate" title={text.title}>{text.title}</td>
-                    <td className="px-2 py-1.5">{text.language === 'la' ? 'Latin' : text.language === 'grc' ? 'Greek' : 'English'}</td>
+                    <td className="px-2 py-1.5">{languageName(text.language)}</td>
                     <td className="px-2 py-1.5">
                       <span className={`px-1.5 py-0.5 rounded text-xs ${text.text_type === 'prose' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}`}>
                         {text.text_type}

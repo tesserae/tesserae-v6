@@ -3,12 +3,7 @@ import { chronological, dateParts } from '../../utils/chronology';
 import { LoadingSpinner } from '../common';
 import { ResultsInsight } from '../assistant';
 import { displayRef } from './refId';
-
-const LANG_LABEL = {
-  la: 'Latin', grc: 'Greek', he: 'Hebrew', en: 'English', cop: 'Coptic',
-  fa: 'Persian', ur: 'Urdu', it: 'Italian', fro: 'Old French',
-  gmh: 'Middle High German',
-};
+import { LANGUAGE_NAMES as LANG_LABEL } from '../../utils/languageNames';
 
 /** Parse a response as JSON, failing with a message a reader can act on.
  *  While the server reloads, Apache answers API calls with an HTML error

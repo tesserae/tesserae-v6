@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { languageName } from '../../utils/languageNames';
 
 export default function TextCredits() {
   const [entries, setEntries] = useState([]);
@@ -214,8 +215,6 @@ export default function TextCredits() {
 }
 
 
-const LANGUAGE_LABEL = { la: 'Latin', grc: 'Greek' };
-
 /** A work's file slug as a readable name: "silius_italicus.punica" ->
  *  "Silius Italicus, Punica". */
 function workLabel(slug) {
@@ -252,7 +251,7 @@ export function TranslationCredits({ translations, open, onToggle }) {
         <div className="mt-3 grid gap-4 sm:grid-cols-2">
           {Object.entries(translations).map(([lang, works]) => (
             <div key={lang}>
-              <h4 className="font-medium text-gray-900 mb-1">{LANGUAGE_LABEL[lang] || lang}</h4>
+              <h4 className="font-medium text-gray-900 mb-1">{languageName(lang) || lang}</h4>
               <ul className="text-sm text-gray-700 space-y-0.5">
                 {Object.entries(works).sort(([a], [b]) => a.localeCompare(b)).map(([slug, info]) => (
                   <li key={slug}>

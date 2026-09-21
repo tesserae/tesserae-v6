@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { LoadingSpinner } from '../common';
 import { baseWorkId, coverageCounts, fetchCoveredWorks } from '../../utils/passageCoverage';
+import { languageName } from '../../utils/languageNames';
+import { ERA_ORDER_BY_LANG } from '../../utils/eras';
 
 // Languages the corpus tabs offer, read from the URL's `language` param so
 // a link (Help, Theme Search) can land here already on the right tab.
@@ -50,50 +52,24 @@ export default function CorpusBrowser() {
     { code: 'cop', label: 'Coptic' }
   ];
 
-  const erasByLanguage = {
-    la: [
-      { id: 'all', label: 'All Eras' },
-      { id: 'republic', label: 'Republic' },
-      { id: 'augustan', label: 'Augustan' },
-      { id: 'early_imperial', label: 'Early Imperial' },
-      { id: 'later_imperial', label: 'Later Imperial' },
-      { id: 'late_antique', label: 'Late Antique' },
-      { id: 'early_medieval', label: 'Early Medieval' },
-      { id: 'carolingian', label: 'Carolingian' },
-      { id: 'unknown', label: 'Unknown' }
-    ],
-    grc: [
-      { id: 'all', label: 'All Eras' },
-      { id: 'archaic', label: 'Archaic' },
-      { id: 'classical', label: 'Classical' },
-      { id: 'hellenistic', label: 'Hellenistic' },
-      { id: 'early_imperial', label: 'Early Imperial' },
-      { id: 'later_imperial', label: 'Later Imperial' },
-      { id: 'late_antique', label: 'Late Antique' },
-      { id: 'unknown', label: 'Unknown' }
-    ],
-    en: [
-      { id: 'all', label: 'All Eras' },
-      { id: 'medieval', label: 'Medieval' },
-      { id: 'renaissance', label: 'Renaissance' },
-      { id: 'early_modern', label: 'Early Modern' },
-      { id: 'restoration', label: 'Restoration' },
-      { id: 'eighteenth_century', label: '18th Century' },
-      { id: 'romantic', label: 'Romantic' },
-      { id: 'victorian', label: 'Victorian' },
-      { id: 'unknown', label: 'Unknown' }
-    ],
-    cop: [
-      { id: 'all', label: 'All Eras' },
-      { id: 'early_coptic', label: 'Early Coptic' },
-      { id: 'classical_coptic', label: 'Classical Coptic' },
-      { id: 'late_antique_coptic', label: 'Late Antique Coptic' },
-      { id: 'bohairic_medieval', label: 'Bohairic / Medieval' },
-      { id: 'unknown', label: 'Unknown' }
-    ]
-  };
-  
-  const eras = erasByLanguage[language] || erasByLanguage.la;
+  // The era filter's id for a label is the same lowercase/underscore form
+  // `normalizeEra` (below) derives from a work's raw `era` field, so the
+  // dropdown always lines up with what a work can actually be tagged with.
+  const eraId = (label) => label.toLowerCase().replace(/\s+/g, '_');
+
+  // Era options for the filter dropdown, per language. This used to be a
+  // second, hand-written era table that had drifted from `utils/eras.js`
+  // (English's "18th Century" here didn't match any work, which is tagged
+  // "Neoclassical" or "Augustan" by the backend; Hebrew had no entry at
+  // all). Reading from the one shared table means the dropdown can't go
+  // stale like that again (code review 2026-09-21, finding 4).
+  const eras = [
+    { id: 'all', label: 'All Eras' },
+    ...(ERA_ORDER_BY_LANG[language] || ERA_ORDER_BY_LANG.la).map((label) => ({
+      id: eraId(label),
+      label,
+    })),
+  ];
 
   const formatEraLabel = (era) => {
     if (!era || era === 'unknown') return '';
@@ -318,11 +294,6 @@ export default function CorpusBrowser() {
     }
   };
 
-  const getLanguageName = (lang) => {
-    const names = { la: 'Latin', grc: 'Greek', en: 'English', cop: 'Coptic' };
-    return names[lang] || lang;
-  };
-
   return (
     <div className="space-y-4">
       <div className="flex overflow-x-auto scrollbar-hide border-b">
@@ -383,7 +354,7 @@ export default function CorpusBrowser() {
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold text-gray-900">
-            {getLanguageName(language)} Corpus
+            {languageName(language)} Corpus
           </h2>
           <p className="text-sm text-gray-500">
             {stats?.[language]?.texts || corpus.length} texts
@@ -441,7 +412,7 @@ export default function CorpusBrowser() {
       {coveredOnly && coverageCount.total > 0 && (
         <div className="flex flex-wrap items-center justify-between gap-2 border border-purple-200 bg-purple-50 rounded px-3 py-2 mb-2">
           <h3 className="text-sm font-medium text-purple-900">
-            Works covered by Theme Search: {coverageCount.covered} of {coverageCount.total} in {getLanguageName(language)}
+            Works covered by Theme Search: {coverageCount.covered} of {coverageCount.total} in {languageName(language)}
           </h3>
           <div className="flex gap-2">
             <button

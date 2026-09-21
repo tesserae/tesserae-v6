@@ -445,11 +445,6 @@ export default function LineSearch({ language }) {
     }
   };
 
-  const getLanguageName = (lang) => {
-    const names = { la: 'Latin', grc: 'Greek', en: 'English', cop: 'Coptic' };
-    return names[lang] || lang;
-  };
-
   const extractLineNumber = (locus) => {
     if (!locus) return '';
     const match = locus.match(/[\d]+(?:[.\-:]+[\d\w]+)*$/);

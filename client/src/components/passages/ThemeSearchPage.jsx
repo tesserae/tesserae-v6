@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { chronological, byBestMatch, dateParts } from '../../utils/chronology';
 import { coverageCounts, fetchCoveredWorks } from '../../utils/passageCoverage';
+import { LANGUAGE_NAMES as LANG_LABEL } from '../../utils/languageNames';
 import ThemeExport from './ThemeExport';
 import ConnectionsMap from './ConnectionsMap';
 
@@ -138,12 +139,6 @@ function byWork(results) {
   return groups;
 }
 
-const LANG_LABEL = {
-  la: 'Latin', grc: 'Greek', he: 'Hebrew', cop: 'Coptic',
-  en: 'English', fa: 'Persian', ur: 'Urdu', ar: 'Arabic',
-  it: 'Italian', fro: 'Old French', gmh: 'Middle High German',
-};
-
 /** "Latin, Greek, English and Coptic" -- used for the fixed coverage
  *  sentence shown when the picker is narrowed to one language Browse Corpus
  *  doesn't cover (Hebrew, Persian, Urdu). */
@@ -153,20 +148,15 @@ function joinLangNames(codes) {
   return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
 }
 
-// Order as the rest of the site uses: Latin, Greek, English, then the others.
+// Order as the rest of the site uses: Latin, Greek, English, then the
+// others. The order is local to this picker; the names themselves come
+// from the one shared table (this used to be a fourth hand-written copy of
+// the same code -> name lookup, missed by the 2026-09-21 code review's
+// finding 3, which caught two other copies but not this one).
+const LANG_CHOICE_ORDER = ['la', 'grc', 'en', 'he', 'cop', 'fa', 'ur', 'ar', 'it', 'fro', 'gmh'];
 const LANG_CHOICES = [
   ['', 'All languages'],
-  ['la', 'Latin'],
-  ['grc', 'Greek'],
-  ['en', 'English'],
-  ['he', 'Hebrew'],
-  ['cop', 'Coptic'],
-  ['fa', 'Persian'],
-  ['ur', 'Urdu'],
-  ['ar', 'Arabic'],
-  ['it', 'Italian'],
-  ['fro', 'Old French'],
-  ['gmh', 'Middle High German'],
+  ...LANG_CHOICE_ORDER.map((code) => [code, LANG_LABEL[code] || code]),
 ];
 
 // The passage index on production has held Persian and Urdu windows since
