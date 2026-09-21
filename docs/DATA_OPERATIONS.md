@@ -24,6 +24,55 @@ Conventions
 - Stamp backups to the second; a rerun must never overwrite the first
   run's backup.
 
+## 2026-09-21 Corpus: 87 damaged lines repaired in book files (planned, not yet run)
+- What: `scripts/corpus/repair_part_file_defects_2026-09-21.py` (new, dry run
+  by default) takes the whole file's own line as the correction for six
+  defects the 2026-09-21 whole-vs-book comparison found: Pliny's seven book
+  files, 77 lines whose Greek was mojibake (UTF-8 read as Latin-1);
+  Claudian's De Consulatu Stilichonis 2 lines and De Raptu Proserpinae 3,
+  same corruption; `cicero.philippicae.part.7.tess` line 1 missing its
+  opening `<` (so `cic. phil. 7.1` was never indexed from that file, the
+  same class as the Isocrates doubled bracket of 2026-09-20); three
+  references in Orosius' book files 1 and 3 with the author prefix doubled
+  (`paulus_paulus_orosius.`); and `galen.natural_faculties.part.1.tess`
+  missing its first line. 14 files, 87 lines. Verified in the branch:
+  `check_whole_vs_parts.py` now passes Cicero, both Claudians and Galen;
+  Pliny and Orosius still fail for the two reasons left alone on purpose
+  (Pliny's preface has no book file; Orosius' two copies differ in em dashes
+  and spacing before punctuation).
+- Left alone deliberately, needing a decision, written up in
+  `research/corpus/WHOLE_VS_PARTS_2026-09-21.md` (local): twelve works whose
+  book files omit whole sections (the Vulgate's second psalter, 2,554 lines;
+  Arnobius books 1 and 6; Paulinus 2a and 2b; the prefaces of Gellius,
+  Priscian, Sedulius, Augustine twice and Pliny), and the works where the
+  two copies are simply different transcriptions (Ovid's curly quotes, the
+  Georgics' diaereses, Arrian's stray section numbers).
+- Store impact: the three Orosius references change, so they are added to
+  `scripts/corpus/apply_whole_vs_parts_refs.py`'s targets (the four targets
+  applied on 2026-09-20 report 0 on a re-run; the script is idempotent).
+  Everything else is a text change inside a line that keeps its reference,
+  except the two lines that appear for the first time in a book file
+  (`cic. phil. 7.1`, `gal. nat.fac. 1.1`), which the reindex adds.
+- Production steps, in order, each inside a tess-job scope:
+  1. `git pull` on production `main`.
+  2. Delete the lemma cache entries for the 14 changed files (the helper in
+     the 2026-09-20 entry below, with this file list), then
+     `scripts/batch_lemma_cache.py la` and `... grc`.
+  3. `scripts/corpus/add_texts_to_index.py --replace` for the 13 Latin files
+     on a copy of `la_index.db`, and for
+     `galen.natural_faculties.part.1.tess` on a copy of `grc_index.db`, then
+     swap each with a stamped `.bak-part_defects-<STAMP>`.
+  4. `scripts/corpus/apply_whole_vs_parts_refs.py --root .` (dry run: expect
+     0 for the 2026-09-20 targets and 3 references for Orosius), then
+     `--apply --tag part_defects-<STAMP>`.
+  5. Reference test: "arma virum" lemma 367 at `max_results` 1000, exact 21.
+     Spot checks: `plin. nat. 1.24` serves Greek, not mojibake;
+     `cic. phil. 7.1` and `gal. nat.fac. 1.1` are served by their book files.
+  6. `touch tesseraev6_flask.wsgi`, then warm the three workers.
+  7. Note: the passage index keeps the old window TEXT for the repaired
+     Pliny and Claudian lines until windows are rebuilt for those works, and
+     the two newly indexed lines get windows at the next description batch.
+
 ## 2026-09-20 Corpus: four works' whole files and book files made consistent; byte-order marks removed from four files (PR #432, run 2026-09-21 00:20)
 - What changed in each `.tess` file (already committed; text unchanged
   except where noted):
