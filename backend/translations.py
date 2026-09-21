@@ -83,6 +83,20 @@ def available_works():
     return sorted(_build_index().keys())
 
 
+def _source_attribution(src):
+    """A short, human-readable attribution string for one entry in `sources`.
+
+    Prefers an explicit `short_attribution` (set on sources that need a
+    licence caveat, e.g. a non-commercial translation), and otherwise falls
+    back to "translator (year)"."""
+    disp = (src or {}).get('short_attribution')
+    if disp:
+        return disp
+    translator = (src or {}).get('translator') or ''
+    year = (src or {}).get('year')
+    return f'{translator} ({year})' if year else translator
+
+
 def for_passage(work, refs):
     """English for a selection.
 
@@ -97,7 +111,7 @@ def for_passage(work, refs):
     data = _load(work)
     if not data:
         return {'available': False,
-                'reason': 'No aligned public-domain translation for this work.',
+                'reason': 'No aligned open translation for this work.',
                 'work': _norm_work(work)}
 
     ref_to_unit = data.get('ref_to_unit') or {}
@@ -118,7 +132,42 @@ def for_passage(work, refs):
                 'reason': 'This work has a translation, but not for the selected lines.',
                 'work': _norm_work(work)}
 
-    src = (data.get('sources') or [{}])[0]
+    sources_list = data.get('sources') or [{}]
+    unit_sources = data.get('unit_sources')
+    if unit_sources and len(unit_sources) != len(units):
+        # A per-unit source list that is not parallel to the units cannot be
+        # trusted: a licensed unit could be credited as public domain. Fall
+        # back to the file-level attribution, which names every translator.
+        logger.warning('%s: unit_sources has %d entries for %d units; ignored',
+                       _norm_work(work), len(unit_sources), len(units))
+        unit_sources = None
+    licence = data.get('license')
+    if unit_sources:
+        # Distinct sources actually behind the units served, in the order
+        # first encountered, so a mixed passage credits every translator
+        # whose words are in it (and only those).
+        served_src_indices = []
+        for i in seen:
+            si = unit_sources[i] if i < len(unit_sources) else 0
+            if si not in served_src_indices:
+                served_src_indices.append(si)
+        served_srcs = [sources_list[si] if si < len(sources_list) else {}
+                       for si in served_src_indices]
+        attribution = ' and '.join(_source_attribution(s) for s in served_srcs)
+        src = served_srcs[0]
+        # The licence shown is the one for the words served: a passage taken
+        # wholly from a non-commercial translation carries that translation's
+        # own terms, not the file's summary of both.
+        own = []
+        for s_ in served_srcs:
+            lic = s_.get('license')
+            if lic and lic not in own:
+                own.append(lic)
+        if own:
+            licence = ' '.join(own)
+    else:
+        src = sources_list[0]
+        attribution = data.get('attribution')
     per_unit = data.get('mean_source_lines_per_translation_unit') or 1
     coarse = per_unit and per_unit > 3
     # Some translations carry no subdivision below the book. Lucretius' smallest
@@ -145,8 +194,8 @@ def for_passage(work, refs):
         'lines_matched': matched,
         'translator': src.get('translator'),
         'year': src.get('year'),
-        'license': data.get('license'),
-        'attribution': data.get('attribution'),
+        'license': licence,
+        'attribution': attribution,
         'alignment_confidence': data.get('alignment_confidence'),
         'approximate': bool(coarse),
         'block_only': bool(block),

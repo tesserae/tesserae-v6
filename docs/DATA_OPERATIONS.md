@@ -24,6 +24,57 @@ Conventions
 - Stamp backups to the second; a rerun must never overwrite the first
   run's backup.
 
+## 2026-09-20 Silius Italicus Punica: A. S. Kline translation added for books 9-17 and the gaps of 1-8
+- What: `data/translations/la__silius_italicus.punica.json` rebuilt to add
+  A. S. Kline's Poetry in Translation rendering of Punica (fetched from
+  https://www.poetryintranslation.com/PITBR/Latin/ItalicusPunicahome.php,
+  book pages ItalicusPunicaBKI.php through BKXVII.php, raw HTML kept at
+  `~/tesserae-backups/kline_silius_2026-09-20/raw/`) alongside J. D. Duff's
+  existing 1927 public-domain Loeb translation of books 1-8. Kline's
+  section headings ("Book IX:1-38 ...") give the exact Latin line range
+  each section translates; every such range was parsed and mapped to the
+  matching `sil. B.L` refs.
+- Source: 17 book pages, one fetch each, 2 s apart, polite User-Agent.
+  Kline's copyright note on every page: "Translated by A. S. Kline (c)
+  Copyright 2018 All Rights Reserved"; site-wide licence statement: "This
+  work may be freely reproduced, stored and transmitted, electronically or
+  otherwise, for any non-commercial purpose."
+- Counts: 233 new Kline units added (210 Duff units kept unchanged, 443
+  total). All 6,436 `sil. 9.*`-`sil. 17.*` refs in
+  `texts/la/silius_italicus.punica.tess` mapped (coverage_books_9_17 =
+  1.0); 234 gap refs in books 1-8 (8.130-157, 8.224, 8.513-563, 8.671-676
+  and smaller gaps in books 1, 3-7) mapped to Kline sections. Combined
+  `n_translated` 12,193 against `n_tess_refs` 12,192 (coverage computed as
+  1.0001: one pre-existing Duff-mapped ref, `sil. 8.224a`, a bare
+  closing-quote line, was never counted in `n_tess_refs`'s digit-only
+  convention -- a pre-existing quirk in the original file, not introduced
+  here). Name check (proper-name survival, `scripts/translations/proper_names.py`,
+  same method as the file's own stored `name_check_hit_rate`): 100 random
+  Kline units, hit rate 0.98 (n=100 tested) -- higher than the Loeb's
+  0.74-0.81 range because each Kline unit's line range is stated directly
+  by the translator rather than reconstructed from running headers.
+- Licence: A. S. Kline's terms permit free non-commercial reproduction,
+  storage, transmission, distribution and display; forbid re-licensing
+  under Creative Commons. NC decision 2026-09-20: acceptable for this free,
+  non-commercial site, on the condition that attribution is shown on every
+  display, the licence text travels with the data (`sources[1].license` and
+  `.copyright` in the JSON), and the file is excluded from any future
+  Creative Commons-licensed data release of Tesserae's aligned
+  translations.
+- Backend: `backend/translations.py` `for_passage` now reads a file's
+  `unit_sources` (per-unit index into `sources`) when present and credits
+  only the sources behind the units actually served, instead of always
+  crediting `sources[0]`; unchanged for files without `unit_sources`.
+  Tests: `tests/test_translations_unit_sources.py`.
+- Production steps (after the PR merges): copy
+  `data/translations/la__silius_italicus.punica.json` from this operation
+  into production's `data/translations/` (this directory is not tracked in
+  git, per `.gitignore`, and is deployed by file copy, not `git pull`). The
+  app reads translation files at request time with no server reload
+  needed; the on-disk copy also feeds `available()`'s per-language listing,
+  cached against the directory's mtimes, so it need not be warmed either.
+- Done 2026-09-20 (PR branch `data/silius-kline-9-17`, not yet merged).
+
 ## 2026-09-20 Theme Search reader depth 300 deployed (PR #424), then held at 100 while its timeout is fixed
 - What: PR #424 merged ed0657d1, pulled on production, WSGI reloaded 15:16
   EDT: the reader re-scores the whole composed list (300 rows) instead of
