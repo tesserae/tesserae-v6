@@ -131,6 +131,9 @@ behind each, are in docs/DECISIONS.md.
   scope (listed in the PR for a follow-up). The store-side ref rename these four needed
   (`scripts/corpus/apply_whole_vs_parts_refs.py`) is prepared but not yet
   run on production; see docs/DATA_OPERATIONS.md.
+- Four files began with a byte-order mark that hid their first line from
+  the indexes (Aretaeus, Confucius Sinarum Philosophus part 2, Macrobius'
+  fragment, Ovid's Ibis); the mark is removed.
 
 ### Reader
 - Kline's translation added for Punica 9-17 and the gaps of 1-8,

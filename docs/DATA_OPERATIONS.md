@@ -56,6 +56,25 @@ Conventions
     (234 rows there against 235 expected): that is a stale-index symptom,
     not a `.tess`-file problem, and the reindex step below (lemma cache +
     `add_texts_to_index.py --replace`) resolves it with no separate fix.
+- Byte-order marks (found by the main session while reviewing this PR):
+  four text files began with a UTF-8 byte-order mark, so their first line
+  did not parse as a tagged line and was missing from the inverted index
+  and the passage index (production, read-only: Aretaeus 17 of 18 lines
+  indexed, Confucius part 2 234 of 235, Macrobius fragment 11 of 12,
+  Ovid Ibis 641 of 642; the first ref of each absent from `window_texts`).
+  The mark is removed from `grc/aretaeus.signorum_acutorum_morbum.tess`,
+  `la/couplet_et_alii.confucius_sinarum_philosophus.part.2.tess`,
+  `la/macrobius.fragment.tess` and `la/ovid.ibis.tess` (text otherwise
+  unchanged). This is also why the brief said Confucius part 2 lacked its
+  first line: it was there, hidden behind the mark. Those four files join
+  the lemma-cache and reindex lists below; their first lines get passage
+  windows at the next description batch.
+- Follow-ups for NC, not done here: (1) Confucius part 2 has 40 non-blank
+  lines without a tag (headings and paragraph continuations), which the
+  parser drops; the file needs re-segmenting. (2) The checker finds 20
+  more works whose whole file and book files disagree in content or
+  refs (list in the PR body and in the checker's output); each needs a
+  look before a fix, since some are edition differences.
 - Verification:
   - `scripts/corpus/check_whole_vs_parts.py` (new): PASS on all four
     named works after the fix. Run against the whole corpus: 137
@@ -160,6 +179,10 @@ Conventions
          ('grc', 'dionysius_halicarnassensis.antiquitates_romanae.part.12.books_12-20.tess'),
          ('la', 'couplet_et_alii.confucius_sinarum_philosophus.part.1.tess'),
          ('la', 'couplet_et_alii.confucius_sinarum_philosophus.tess'),
+         ('grc', 'aretaeus.signorum_acutorum_morbum.tess'),
+         ('la', 'couplet_et_alii.confucius_sinarum_philosophus.part.2.tess'),
+         ('la', 'macrobius.fragment.tess'),
+         ('la', 'ovid.ibis.tess'),
      ]
      for lang, fn in files:
          p = get_cache_path(fn, lang)
@@ -188,7 +211,8 @@ Conventions
        --cache-dir cache/lemmas \
        --replace isocrates.letters.part.2.tess isocrates.letters.part.3.tess \
                  hyperides.speeches.tess \
-                 dionysius_halicarnassensis.antiquitates_romanae.part.12.books_12-20.tess
+                 dionysius_halicarnassensis.antiquitates_romanae.part.12.books_12-20.tess \
+                 aretaeus.signorum_acutorum_morbum.tess
      mv data/inverted_index/grc_index.db data/inverted_index/grc_index.db.bak-whole_vs_parts-<STAMP>
      mv data/inverted_index/grc_index.db.new data/inverted_index/grc_index.db
 
@@ -197,7 +221,9 @@ Conventions
        --db data/inverted_index/la_index.db.new --language la \
        --cache-dir cache/lemmas \
        --replace couplet_et_alii.confucius_sinarum_philosophus.part.1.tess \
-                 couplet_et_alii.confucius_sinarum_philosophus.tess
+                 couplet_et_alii.confucius_sinarum_philosophus.tess \
+                 couplet_et_alii.confucius_sinarum_philosophus.part.2.tess \
+                 macrobius.fragment.tess ovid.ibis.tess
      mv data/inverted_index/la_index.db data/inverted_index/la_index.db.bak-whole_vs_parts-<STAMP>
      mv data/inverted_index/la_index.db.new data/inverted_index/la_index.db
      ```
