@@ -27,11 +27,22 @@ The caps lemmata are RESTORED into the text: they are Sweeney's text and
 they are quotations of the Thebaid, exactly what an intertext tool wants.
 
 Usage: repair_lactantius_placidus.py --xml dlt000323.xml \
-    --current texts/la/lactantius_placidus....tess --out new.tess
+    --current texts/la/lactantius_placidus....tess --out new.tess --apply
+
+Safety (2026-09-21, code audit finding #2): dry run by default (reports the
+verification counts and stops); --apply writes --out, after a dated backup
+of --out via scripts/corpus/corpus_safety.py if a file already sits there.
+Previously --out was written by default and only --report-only (still
+accepted, as a synonym for omitting --apply) opted out.
 """
 import argparse
+import os
 import re
+import sys
 import xml.etree.ElementTree as ET
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from corpus_safety import add_apply_argument, backup, atomic_write  # noqa: E402
 
 
 def strip_ns(tag):
@@ -114,8 +125,13 @@ def main():
     ap.add_argument('--xml', required=True)
     ap.add_argument('--current', required=True)
     ap.add_argument('--out', required=True)
-    ap.add_argument('--report-only', action='store_true')
+    ap.add_argument('--report-only', action='store_true',
+                     help='deprecated synonym for omitting --apply; kept for '
+                          'anyone who already scripts this flag')
+    add_apply_argument(ap)
+    ap.add_argument('--tag', default=None, help='backup suffix (default: a timestamp)')
     args = ap.parse_args()
+    apply_ = args.apply and not args.report_only
 
     clean = unit_texts(args.xml)
     cur = current_units(args.current)
@@ -147,11 +163,13 @@ def main():
         print(f'  clean : {new[:160]}')
     if mismatches:
         raise SystemExit(f'{len(mismatches)} mismatched units: NOT writing')
-    if args.report_only:
+    lines = [f'<{ref}>\t{new}\n' for (ref, _old), new in zip(cur, clean)]
+    if not apply_:
+        print(f'dry run; would write {args.out} ({len(cur)} units, same refs); '
+              'pass --apply to write (a dated backup is made first if it exists)')
         return
-    with open(args.out, 'w', encoding='utf-8') as out:
-        for (ref, _old), new in zip(cur, clean):
-            out.write(f'<{ref}>\t{new}\n')
+    backup(args.out, tag=args.tag or 'lactantius')
+    atomic_write(args.out, lines)
     print(f'wrote {args.out} ({len(cur)} units, same refs)')
 
 

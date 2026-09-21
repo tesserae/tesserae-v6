@@ -23,6 +23,16 @@ Conventions
   beside them and rename over them (the directory allows it).
 - Stamp backups to the second; a rerun must never overwrite the first
   run's backup.
+- Use `scripts/corpus/corpus_safety.py` to meet this convention rather than
+  hand-rolling it: `add_apply_argument`/`make_parser` gives a script
+  `--apply` with dry run as the default, `backup(path, tag)` makes the
+  dated, collision-safe backup, and `atomic_write(path, data)` writes
+  beside the target and renames over it without translating line endings
+  (reading or writing a file in Python's default text mode silently
+  rewrites `\r\n` to `\n`, which is how a corpus PR lost Windows line
+  endings on 2026-09-20). `scripts/corpus/apply_whole_vs_parts_refs.py`
+  and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
+  hand and are the models the helper matches.
 
 ## 2026-09-21 Corpus: 87 damaged lines repaired in book files (PR #435, run 07:09 EDT)
 - What: `scripts/corpus/repair_part_file_defects_2026-09-21.py` (new, dry run
