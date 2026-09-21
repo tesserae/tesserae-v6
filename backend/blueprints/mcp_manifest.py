@@ -387,6 +387,11 @@ MANIFEST = {
                   "get_passage returns bounded excerpts by design, which fits the connector's "
                   "response-size budget where an unbounded whole-work dump would not."),
     },
+    '/api/text/<path:text_id>/book-for': {
+        'site_only': True,
+        'reason': ("Reader navigation: which book file of a whole-file work holds a line, so "
+                  "the Reader opens that book; get_passage takes any work id and range directly."),
+    },
     '/api/text/<path:text_id>/lines': {
         'site_only': True,
         'reason': ("Older raw line-browsing endpoint for the corpus text viewer, without the "

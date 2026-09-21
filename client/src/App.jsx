@@ -343,8 +343,17 @@ function App() {
       setPageType('admin');
       return;
     }
+    // The Read tab clicked while the Reader is open used to do nothing (the
+    // page type did not change, so no effect ran). It now takes the Reader
+    // back to its starting page: a clean address and the language's opening
+    // text (NC, 2026-09-20).
+    if (nextPageType === 'read' && pageType === 'read') {
+      window.history.pushState({}, '', '/read');
+      window.dispatchEvent(new Event('tesserae:reader-home'));
+      return;
+    }
     setPageType(nextPageType);
-  }, [adminSessionChecked, adminSessionActive]);
+  }, [adminSessionChecked, adminSessionActive, pageType]);
 
   // Open the Help page at the "Use with your AI" section.
   const openAiHelp = useCallback(() => {

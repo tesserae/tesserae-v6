@@ -129,6 +129,24 @@ describe('the matched words are marked in the passage', () => {
     expect(marks).toContain('classem');
   });
 
+  it('marks a Latin word spelt with v or j when the match was reported with u or i', async () => {
+    // Silius' "cateruas" matched Vergil's "catervas"; the Vergil line came
+    // back unmarked because the two texts spell the same word differently
+    // (NC, 2026-09-20). u/v and i/j are one letter each for the marking.
+    global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve({
+      results: [{ author: 'Vergil', work: 'Aeneid', year: -19,
+                  text_id: 'vergil.aeneid.part.7.tess', locus: '7.804',
+                  matched_words: ['equitum', 'cateruas', 'iuuenem'],
+                  text: 'agmen agens equitum et florentis aere catervas, juvenem' }],
+    }) }));
+    mount();
+    await screen.findByText(/Vergil/);
+    const marks = [...document.querySelectorAll('mark')].map((m) => m.textContent.toLowerCase());
+    expect(marks).toContain('catervas');
+    expect(marks).toContain('juvenem');
+    expect(marks).toContain('equitum');
+  });
+
   it('does not mark a word merely contained in a longer one', async () => {
     global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve({
       results: [{ author: 'Test', work: 'W', text_id: 'w.tess', locus: '1.1',
