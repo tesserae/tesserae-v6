@@ -9,6 +9,12 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-09-21
 
+### Site
+- The "Saved Searches" button on the search page opens its dialog again. It
+  had done nothing at all when clicked: the dialog was rendered without the
+  one property that tells it to draw itself, so it returned nothing and no
+  error appeared anywhere.
+
 ### Repository
 - New text files are visible to git again. `texts/` was ignored wholesale,
   which never untracked the 3,484 files already committed but silently hid

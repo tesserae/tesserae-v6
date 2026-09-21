@@ -59,8 +59,12 @@ const SavedSearches = ({
         Saved Searches ({savedSearches.length})
       </button>
 
+      {/* isOpen is required: Modal returns null without it, so this dialog
+          never appeared at all and the "Saved Searches" button did nothing
+          when clicked (found 2026-09-21). The showModal test below decides
+          whether the dialog is rendered; isOpen tells Modal to draw it. */}
       {showModal && (
-        <Modal onClose={() => setShowModal(false)} title="Saved Searches">
+        <Modal isOpen onClose={() => setShowModal(false)} title="Saved Searches">
           <div className="space-y-4">
             {canSave && (
               <div className="bg-gray-50 p-4 rounded border">
