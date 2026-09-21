@@ -24,7 +24,7 @@ Conventions
 - Stamp backups to the second; a rerun must never overwrite the first
   run's backup.
 
-## 2026-09-21 Corpus: 87 damaged lines repaired in book files (planned, not yet run)
+## 2026-09-21 Corpus: 87 damaged lines repaired in book files (PR #435, run 07:09 EDT)
 - What: `scripts/corpus/repair_part_file_defects_2026-09-21.py` (new, dry run
   by default) takes the whole file's own line as the correction for six
   defects the 2026-09-21 whole-vs-book comparison found: Pliny's seven book
@@ -73,6 +73,30 @@ Conventions
      Pliny and Claudian lines until windows are rebuilt for those works, and
      the two newly indexed lines get windows at the next description batch.
 
+- Done 2026-09-21 07:09 EDT, by the main session, in the order above, each
+  step in a tess-job scope (caps 8 GB): PR #435 merged b7ef13e and pulled;
+  14 lemma cache entries deleted and rebuilt (`la`, then `grc`); reindex on
+  copies then swapped, backup tag `part_defects-20260921-070756` (Orosius
+  book 1 289 lines and book 3 299 lines unchanged in count, Philippic 7 now
+  27 lines and 1,696 postings against 26 and 1,617, Galen book 1 now 17
+  lines and 4,168 postings against 16 and 4,104; `lemma_doc_freq` rebuilt
+  for both languages); remap dry run reported 0 for the inverted index (the
+  reindex had already done it) and 3 references, 4 windows and 4
+  descriptions for Orosius, applied under the same tag, and a second dry run
+  reported 0 everywhere; WSGI touched and the three workers warmed.
+- Checks on production: "arma virum" lemma 367 at `max_results` 1000 and
+  exact 21, unchanged; `plin. nat. 1.24` serves `ὀρνιθογονίαν` instead of
+  mojibake; `cicero.philippicae.part.7.tess` serves 27 lines starting at
+  `cic. phil. 7.1`; `galen.natural_faculties.part.1.tess` serves 17 lines
+  starting at `gal. nat.fac. 1.1`; no doubled `paulus_paulus_orosius`
+  reference is left in the Orosius book files.
+- Correction made during review, before the merge: the first version of the
+  repair script read the files in Python's text mode, which silently turned
+  Windows line endings into Unix ones and so rewrote every line of five
+  files (458, 519, 261, 461 and 26 lines) although only 10 to 23 in each
+  were being repaired. The script now reads and writes with `newline=''`, and
+  a repaired line keeps its own ending; the committed diff is exactly the 87
+  repaired lines plus the one inserted Galen line.
 ## 2026-09-20 Corpus: four works' whole files and book files made consistent; byte-order marks removed from four files (PR #432, run 2026-09-21 00:20)
 - What changed in each `.tess` file (already committed; text unchanged
   except where noted):
