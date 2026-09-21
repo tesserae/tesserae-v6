@@ -99,7 +99,8 @@ const Navigation = ({
           <div className="flex items-center justify-between">
             <button
               onClick={() => setPageType('admin')}
-              className="px-3 py-2 font-medium text-sm border-b-2 border-red-700 text-red-700"
+              aria-current="page"
+              className="px-3 py-2 font-semibold text-sm border-b-2 border-red-700 text-red-700"
             >
               Admin Panel
             </button>
@@ -134,10 +135,11 @@ const Navigation = ({
               <button
                 key={tab.code}
                 onClick={() => setPageType(tab.code)}
-                className={`px-2 sm:px-4 py-2 sm:py-3 font-medium text-xs sm:text-sm border-b-2 whitespace-nowrap ${
-                  pageType === tab.code 
-                    ? 'border-red-700 text-red-700' 
-                    : 'border-transparent text-gray-500 hover:text-red-600'
+                aria-current={pageType === tab.code ? 'page' : undefined}
+                className={`px-2 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm border-b-2 whitespace-nowrap ${
+                  pageType === tab.code
+                    ? 'border-red-700 text-red-700 font-semibold'
+                    : 'border-transparent text-gray-500 hover:text-red-600 font-medium'
                 }`}
               >
                 {tab.label}
@@ -178,9 +180,10 @@ const Navigation = ({
                 <button
                   key={tab.code}
                   onClick={() => handleLanguageClick(tab.code)}
+                  aria-current={activeTab === tab.code ? 'true' : undefined}
                   className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-t whitespace-nowrap ${
-                    activeTab === tab.code 
-                      ? 'bg-white text-red-700 border-t border-l border-r border-gray-200' 
+                    activeTab === tab.code
+                      ? 'bg-white text-red-700 border-t border-l border-r border-gray-200'
                       : 'text-gray-600 hover:text-red-600'
                   }`}
                 >

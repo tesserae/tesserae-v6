@@ -28,6 +28,15 @@ behind each, are in docs/DECISIONS.md.
 - Tessa, the assistant, was mounted twice on every page: two copies asked the
   assistant service for its status on each page load, shared one stored
   conversation, and drew the floating button on top of itself. One copy now.
+- The popup used for Save Parallel, adding or editing an intertext in the
+  Repository, and the rare-word definition viewer now announces itself as a
+  dialog, and pressing Escape closes it. Opening it moves the keyboard focus
+  inside, tabbing no longer escapes into the page behind it, and closing it
+  returns focus to whatever button opened it. None of this changes how the
+  popup looks or works with a mouse.
+- The highlighted tab in the top navigation and the language row is no longer
+  shown by color alone: it now also reads slightly bolder, and screen readers
+  are told which one is selected. No layout change.
 
 ### Theme Search
 - The Similarity Map on a phone: the column of work names took a fixed 190
