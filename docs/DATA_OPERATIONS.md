@@ -8,6 +8,8 @@ by default, a dated backup beside the file it replaces, and a copy-and-
 rename swap so the live app never reads a half-written file. This file
 lists every such operation, newest first, with the script and the backup
 name. CHANGELOG.md carries the one-line summary; the detail is here.
+OPEN_WORK.md beside this file lists what is known to be wrong or unfinished
+and not yet done.
 
 Conventions
 - Run as the deploy user from the production root with the production venv,
