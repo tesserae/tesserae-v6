@@ -7,6 +7,40 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-09-20 Translations: public domain first, then open non-commercial with attribution (Silius books 9 to 17)
+
+**Decision (NC: "If it's legal and appropriate, we should use Kline").**
+The Reader's aligned translations come, in this order of preference, from
+(1) public-domain texts, (2) translations whose author grants free
+non-commercial reproduction, storage, transmission and display, credited
+by name on the Reader and in the sources registry, and never included in
+the site's own CC-licensed data releases. Silius Italicus, Punica books
+9 to 17, is the first case of (2): A. S. Kline's translation
+(poetryintranslation.com), whose licence note permits exactly those uses
+for non-commercial purposes and asks for attribution. Books 1 to 8 keep
+J. D. Duff's Loeb translation (1927, public domain); Duff's second volume
+(1934) enters the US public domain on 2030-01-01 and can replace Kline
+then if the site prefers a uniform translator.
+
+**Why.** The site is a free scholarly service with no commercial use, so
+Kline's terms fit. The alternatives were measured first. Thomas Ross's
+1661 verse translation, the only complete public-domain English Punica,
+exists as a CC0 EEBO-TCP transcription (A60230: 19,149 verse lines, about
+400 small illegible gaps) and could be aligned by book and by proper
+names, but it is a 17th-century paraphrase without line numbers, which a
+reader of the Latin cannot follow line for line. Kline's section headings
+("Book IX:1-38") carry exact Latin line ranges, so his units align to the
+Latin at section level with no guessing.
+
+**Rules that follow.**
+- Each aligned translation records its source per unit (`unit_sources`)
+  so a work with two translators credits the right one on every passage.
+- The data releases under Downloads exclude non-PD translations; the
+  Reader displays them with the translator's name and a link to the
+  source page.
+- A future public-domain replacement (Duff vol. II in 2030) is a swap of
+  the same units, recorded in `DATA_OPERATIONS.md`.
+
 ## 2026-09-20 Theme Search: the reader re-scores all 300 composed rows
 
 **Decision (NC: "Give the reader all 300 composed rows").** The page is
