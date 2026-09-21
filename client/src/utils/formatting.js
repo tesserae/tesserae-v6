@@ -26,11 +26,6 @@ export const formatScore = (score) => {
   return score.toFixed(2);
 };
 
-export const formatLocus = (locus) => {
-  if (!locus) return '';
-  return locus.replace(/<\/?.*?>/g, '');
-};
-
 export const highlightMatches = (text, matches) => {
   if (!matches || matches.length === 0) return text;
   let result = text;
@@ -39,15 +34,6 @@ export const highlightMatches = (text, matches) => {
     result = result.replace(regex, '<mark class="bg-yellow-200 px-0.5 rounded">$1</mark>');
   });
   return result;
-};
-
-export const getLanguageName = (code) => {
-  const names = {
-    'la': 'Latin',
-    'grc': 'Greek',
-    'en': 'English'
-  };
-  return names[code] || code;
 };
 
 export const getEraName = (era) => {

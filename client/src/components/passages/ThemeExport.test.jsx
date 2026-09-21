@@ -72,6 +72,16 @@ describe('the export offers itself only when there is something to export', () =
   });
 });
 
+describe('the Cite label names the language, not the raw code', () => {
+  it('says "Hebrew", not "he" (code review 2026-09-21, finding 3)', () => {
+    render(<ThemeExport query="warrior arming" language="he" count={2} />);
+    fireEvent.click(screen.getByText('Cite'));
+    const citation = screen.getByLabelText('Citation text').value;
+    expect(citation).toContain('Hebrew');
+    expect(citation).not.toContain(' he ');
+  });
+});
+
 describe('the CSV link carries the search', () => {
   it('asks for csv, the query, and the language filter', () => {
     render(<ThemeExport query="warrior arming" language="grc" count={3} />);

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { LANGUAGE_NAMES as LANG_LABEL } from '../../utils/languageNames';
 
 /**
  * The Reader's header: where you are, and how to go somewhere else.
@@ -18,13 +19,10 @@ import { useEffect, useMemo, useState } from 'react';
  * showing one disabled control on every prose text.
  */
 
-// Latin, Greek, English first, as everywhere else on the site.
+// Latin, Greek, English first, as everywhere else on the site. This is a
+// display order, not a name lookup, so it stays local; the names themselves
+// come from the one shared table (utils/languageNames.js).
 const LANG_ORDER = ['la', 'grc', 'en', 'he', 'cop', 'fa', 'ur', 'ar', 'it', 'fro', 'gmh'];
-const LANG_LABEL = {
-  la: 'Latin', grc: 'Greek', en: 'English', he: 'Hebrew',
-  cop: 'Coptic', fa: 'Persian', ur: 'Urdu', ar: 'Arabic',
-  it: 'Italian', fro: 'Old French', gmh: 'Middle High German',
-};
 
 function Select({ label, value, options, onChange, disabled }) {
   return (

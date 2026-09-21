@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import GeographicMap from './GeographicMap';
 import { formatTesseraeIdentifier } from '../../../utils/textNames';
+import { LANGUAGE_NAMES } from '../../../utils/languageNames';
 
 const TESSERAE_RED = '#b91c1c';
 const TESSERAE_GOLD = '#d97706';
@@ -40,18 +41,13 @@ const AnalyticsTab = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const LANG_NAMES = { 
-    la: 'Latin', 
-    grc: 'Greek', 
-    en: 'English',
-    cop: 'Coptic',
-    ar: 'Arabic',
-    he: 'Hebrew',
-    ur: 'Urdu',
-    fa: 'Farsi',
-    el: 'Modern Greek',
-    syr: 'Syriac'
-  };
+  // The shared table names every language the site actually serves; `el`
+  // and `syr` below are not corpus languages Tesserae serves, but codes that
+  // have shown up in raw analytics data, so they stay as a local addition
+  // rather than in utils/languageNames.js. This also fixes 'fa' silently
+  // reading "Farsi" here while the rest of the site said "Persian" (code
+  // review 2026-09-21, finding 3/4).
+  const LANG_NAMES = { ...LANGUAGE_NAMES, el: 'Modern Greek', syr: 'Syriac' };
 
   const exportToCSV = () => {
     if (!data) return;

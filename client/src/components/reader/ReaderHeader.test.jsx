@@ -104,6 +104,17 @@ describe('the dropdowns actually change something', () => {
     fireEvent.change(sel, { target: { value: 'grc' } });
     expect(onLanguage).toHaveBeenCalledWith('grc');
   });
+
+  it('labels a served Hebrew option "Hebrew", not the raw code (code review 2026-09-21, finding 3)', async () => {
+    global.fetch = vi.fn(() =>
+      Promise.resolve({ json: () => Promise.resolve({ languages: [
+        { code: 'la' }, { code: 'grc' }, { code: 'en' }, { code: 'he' }] }) }));
+    mount();
+    const sel = await screen.findByLabelText('Language');
+    const heOption = [...sel.options].find((o) => o.value === 'he');
+    expect(heOption).toBeTruthy();
+    expect(heOption.textContent).toBe('Hebrew');
+  });
 });
 
 describe('a work with no books shows no Book control', () => {

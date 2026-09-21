@@ -70,6 +70,20 @@ behind each, are in docs/DECISIONS.md.
   line. In every case the work's whole file already had the sound version,
   which is what the repair uses.
 
+### Language names
+- Browse Corpus and the Rare Words Explorer showed the raw code "he" or "fa"
+  in their headings instead of "Hebrew" or "Persian" whenever those
+  languages reach those pages, and the admin Corpus Metadata table showed
+  "English" for every Coptic or Hebrew work. A code review found the site
+  had accumulated a dozen separate places that each spelled out their own
+  list of language codes and names by hand, several missing the newer
+  languages and one (an admin analytics export) calling Persian "Farsi"
+  where the rest of the site says "Persian." All of them now read from the
+  one shared list. Browse Corpus's era filter had also drifted from the
+  site's own era list: English's "18th Century" option matched no work,
+  since the site tags that period Neoclassical or Augustan, so it now reads
+  from the same shared list too and offers the eras that are actually there.
+
 ## 2026-09-20
 
 ### Reader

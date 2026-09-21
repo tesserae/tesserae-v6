@@ -1,4 +1,10 @@
-export const LANG_NAMES = { la: 'Latin', grc: 'Greek', en: 'English' };
+import { LANGUAGE_NAMES } from '../../utils/languageNames';
+
+// Re-exported under this file's existing name so RequestsTab, CacheTab and
+// StatsTab don't need to change their imports; the values now come from the
+// one shared table instead of a second, narrower copy that only covered
+// Latin, Greek and English (code review 2026-09-21, finding 3/4).
+export const LANG_NAMES = LANGUAGE_NAMES;
 
 export const CACHE_IMPACT_INFO = {
   search: {

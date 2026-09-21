@@ -48,6 +48,40 @@ afterEach(() => {
   window.history.replaceState({}, '', '/');
 });
 
+// Corpus Browser used to define its own `getLanguageName`, hardcoded to
+// { la, grc, en, cop }, instead of importing the shared `languageName`
+// (code review 2026-09-21, finding 3). Its language tabs only ever offer
+// those four languages, so a Hebrew heading is not reachable through this
+// page today -- that gap is real, but it's a separate product decision
+// (whether to add a Hebrew tab here at all), not this bug. What the fix
+// does guarantee is that the heading for every language this page DOES
+// offer comes from the one shared table, so the bug can't reappear the
+// moment a fifth tab is added.
+describe('the corpus heading names the language from the shared table', () => {
+  it('shows "Greek Corpus" for the Greek tab, not a raw or stale name', async () => {
+    render(<CorpusBrowser />);
+    await waitFor(() => expect(screen.getByText('Vergil')).toBeTruthy());
+    fireEvent.click(screen.getByRole('button', { name: 'Greek' }));
+    await waitFor(() => expect(screen.getByText('Greek Corpus')).toBeTruthy());
+  });
+});
+
+// The era filter used to be a second, hand-written table (finding 4) that
+// had drifted from utils/eras.js: English's "18th Century" matched no work
+// (the backend tags that period "Neoclassical" or "Augustan"). It's now
+// derived from the shared table, so the two can't drift apart again.
+describe('the era filter comes from the shared era table', () => {
+  it('offers "Neoclassical" for English, not the old, unmatched "18th Century"', async () => {
+    window.history.replaceState({}, '', '/corpus?language=en');
+    render(<CorpusBrowser />);
+    await waitFor(() => expect(screen.getByDisplayValue('All Eras')).toBeTruthy());
+    const eraSelect = screen.getByDisplayValue('All Eras');
+    const labels = [...eraSelect.options].map((o) => o.textContent);
+    expect(labels).toContain('Neoclassical');
+    expect(labels).not.toContain('18th Century');
+  });
+});
+
 describe('the Theme Search coverage badge', () => {
   it('marks a covered work and leaves an uncovered one alone', async () => {
     render(<CorpusBrowser />);

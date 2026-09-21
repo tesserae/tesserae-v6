@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { LANGUAGE_NAMES } from '../../utils/languageNames';
 
 /**
  * The corpus connections map: a picture of Theme Search's own connections
@@ -36,11 +37,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
  */
 
 // Production language tab order (Latin, Greek, English, then the others),
-// same convention client/src/components/layout/Navigation.jsx uses.
-const LANGUAGES = [
-  ['la', 'Latin'], ['grc', 'Greek'], ['en', 'English'],
-  ['cop', 'Coptic'], ['he', 'Hebrew'],
-];
+// same convention client/src/components/layout/Navigation.jsx uses. Only
+// these five, because the Connections Map is production-only; the names
+// themselves come from the one shared table, not a fifth hand-written copy
+// (2026-09-21 code review, finding 3).
+const CONNECTIONS_MAP_LANGUAGE_ORDER = ['la', 'grc', 'en', 'cop', 'he'];
+const LANGUAGES = CONNECTIONS_MAP_LANGUAGE_ORDER.map((code) => [code, LANGUAGE_NAMES[code] || code]);
 
 const VIEWS = [
   ['author', 'Authors'], ['work', 'Works'],

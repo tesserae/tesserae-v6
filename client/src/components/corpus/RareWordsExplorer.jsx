@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { LoadingSpinner, Modal } from '../common';
 import { getDictionaryUrl } from '../../utils/linkUtils';
+import { languageName } from '../../utils/languageNames';
 
 function capitalizeWords(text) {
   if (!text) return '';
@@ -223,11 +224,6 @@ export default function RareWordsExplorer() {
     a.click();
   }, [language, maxOccurrences, sortBy, sortOrder]);
 
-  const getLanguageName = (lang) => {
-    const names = { la: 'Latin', grc: 'Greek', en: 'English', cop: 'Coptic' };
-    return names[lang] || lang;
-  };
-
   const getDictionaryName = (lang) => {
     if (lang === 'en') return 'Wiktionary';
     if (lang === 'cop') return 'Coptic Dictionary';
@@ -260,7 +256,7 @@ export default function RareWordsExplorer() {
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div>
           <h2 className="text-xl font-semibold text-gray-900">
-            Rare Words Explorer ({getLanguageName(language)})
+            Rare Words Explorer ({languageName(language)})
           </h2>
           <p className="text-sm text-gray-500 mt-1">
             Find rare vocabulary across the corpus
