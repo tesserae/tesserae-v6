@@ -7,6 +7,15 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-09-21
+
+### Theme Search
+- The Similarity Map on a phone: the column of work names took a fixed 190
+  pixels, leaving about 200 for the map itself. On a narrow screen the names
+  now take a third of the width and truncate to fit, and the slanted labels
+  along the top truncate sooner, which also lowers the header strip. Desktop
+  is unchanged.
+
 ## 2026-09-20
 
 ### Reader
