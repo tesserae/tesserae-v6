@@ -21,6 +21,7 @@ from backend.utils import (
     infer_coptic_dialect,
 )
 from backend.frequency_cache import get_corpus_frequencies, recalculate_language_frequencies
+from backend.work_names import base_work
 
 logger = get_logger('corpus')
 
@@ -208,7 +209,10 @@ def get_text_descriptions():
     by_lang = load_descriptions().get(language, {})
     work = request.args.get('work')
     if work:
-        base = re.sub(r'\.part\.\d+$', '', work.replace('.tess', ''))
+        # was re.sub(r'\.part\.\d+$', ...), which left 215 part files with a
+        # label after the number (pindar.odes.part.2.nemeans) uncollapsed, so
+        # their work's description was never found.
+        base = base_work(work)
         return jsonify({'description': by_lang.get(base)})
     return jsonify({'descriptions': by_lang})
 

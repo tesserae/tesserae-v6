@@ -9,6 +9,15 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-09-21
 
+### Search
+- How a multi-part work is collapsed to its own name is now decided in one
+  place instead of fourteen. Three different rules were in use and one of
+  them was wrong: it required the part number to end the name, so the 215
+  files whose part carries a label, such as Pindar's Nemeans or the books
+  of the Vulgate, were never recognised as belonging to their work. Their
+  descriptions, translations and counts were looked up under a name nothing
+  holds. Nothing errored, which is why it went unnoticed.
+
 ### Reader
 - The Reader says why it is waiting. Opening a text for the first time takes
   a few minutes to work out where the rest of the corpus connects to it,

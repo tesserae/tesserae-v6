@@ -49,6 +49,7 @@ can be transplanted into a wholly different setting).
 """
 from backend.logging_config import get_logger
 from backend import passage_index
+from backend.work_names import base_work
 
 logger = get_logger('context_channel')
 
@@ -182,7 +183,7 @@ def _pair_baseline(src_work, tgt_work):
         # Fall back to the work group when a part file is named, since that is
         # what the index keys on.
         if not rows and '.part.' in work:
-            rows = passage_index._by_work.get(work.split('.part.')[0]) or []
+            rows = passage_index._by_work.get(base_work(work)) or []
         return [i for i in rows if passage_index._records[i].get('scale') == 'fine']
 
     a, b = fine_rows(src_work), fine_rows(tgt_work)

@@ -17,6 +17,7 @@ import os
 import threading
 
 from backend.logging_config import get_logger
+from backend.work_names import base_work, work_id
 
 logger = get_logger('translations')
 
@@ -52,9 +53,11 @@ def _build_index():
 
 
 def _norm_work(work):
-    # Callers hand us a work name either bare (vergil.aeneid) or with the language
-    # directory the corpus files sit in (la/vergil.aeneid). Both mean the same work.
-    return (work or '').replace('.tess', '').split('/')[-1]
+    # A part is a real text here, so the part is KEPT: vergil.aeneid.part.6
+    # has its own aligned translation. The fallback to the whole work is a
+    # separate step below, which is the distinction backend/work_names.py
+    # draws between work_id and base_work.
+    return work_id(work)
 
 
 def _load(work):
@@ -66,7 +69,7 @@ def _load(work):
     fn = idx.get(key)
     if not fn:
         # A part file (vergil.aeneid.part.6) may be covered by its whole work.
-        base = key.split('.part.')[0]
+        base = base_work(key)
         fn = idx.get(base)
     data = None
     if fn:
@@ -238,7 +241,7 @@ def available(language):
     out = {}
     for name, _ in sig:
         base = name[len(language) + 2:-5]
-        base = base.split('.part.')[0]
+        base = base_work(base)
         try:
             with open(os.path.join(_DIR, name), encoding='utf-8') as fh:
                 data = json.load(fh)

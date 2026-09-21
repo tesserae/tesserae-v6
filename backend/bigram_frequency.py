@@ -9,6 +9,7 @@ import math
 from collections import Counter
 from datetime import datetime
 from backend.logging_config import get_logger
+from backend.work_names import base_work, is_part
 
 logger = get_logger('bigram_frequency')
 
@@ -126,7 +127,8 @@ def calculate_bigram_frequencies(language, text_processor, progress_callback=Non
             if '.part.' not in f:
                 base = f.replace('.tess', '')
                 full_versions.add(base)
-        text_files = [f for f in text_files if '.part.' not in f or f.split('.part.')[0] not in full_versions]
+        text_files = [f for f in text_files
+                      if not is_part(f) or base_work(f) not in full_versions]
     
     total_docs = len(text_files)
     print(f"Calculating bigram frequencies for {language}: {total_docs} texts...")

@@ -26,6 +26,7 @@ import threading
 
 from backend import scripture_id
 from backend.logging_config import get_logger
+from backend.work_names import base_work
 
 logger = get_logger('passage_index')
 
@@ -207,12 +208,7 @@ def _norm_work(work):
     shenoute.a22.tess never did: its Similar Passages answered "no indexed
     window covers that passage" for every selection. Strip the language
     directory and the .tess suffix explicitly, then collapse parts."""
-    w = (work or '')
-    if '/' in w:
-        w = w.rsplit('/', 1)[-1]
-    if w.endswith('.tess'):
-        w = w[:-5]
-    return w.split('.part.')[0]
+    return base_work(work)
 
 
 def _ref_numbers(ref):
