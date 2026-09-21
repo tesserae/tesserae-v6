@@ -83,3 +83,19 @@ describe('the /corpus deep link into Browse Corpus', () => {
     });
   });
 });
+
+// --------------------------------------------------------------------------
+// The assistant dock was rendered twice in App.jsx, once before the footer
+// and once after (2026-08 to 2026-09-21): two docks asked the assistant
+// service for their own status on every page load, shared one sessionStorage
+// key for the conversation, and drew the floating button on top of itself.
+describe('the assistant is mounted once', () => {
+  it('asks the assistant service for its status once per page load', async () => {
+    render(<App />);
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+    const statusCalls = global.fetch.mock.calls
+      .map(([url]) => String(url))
+      .filter((url) => url.startsWith('/api/assistant/status'));
+    expect(statusCalls.length).toBeLessThanOrEqual(1);
+  });
+});

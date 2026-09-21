@@ -9,6 +9,11 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-09-21
 
+### Site
+- Tessa, the assistant, was mounted twice on every page: two copies asked the
+  assistant service for its status on each page load, shared one stored
+  conversation, and drew the floating button on top of itself. One copy now.
+
 ### Theme Search
 - The Similarity Map on a phone: the column of work names took a fixed 190
   pixels, leaving about 200 for the map itself. On a narrow screen the names
