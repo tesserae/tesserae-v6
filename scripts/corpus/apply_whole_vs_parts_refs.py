@@ -138,6 +138,14 @@ def _couplet_prefix(ref):
     return new + ref[len(old):] if ref.startswith(old) else ref
 
 
+def _orosius_prefix(ref):
+    """``paulus_paulus_orosius. X`` -> "paulus_orosius. X" (2026-09-21: three
+    references in the book files carried the author prefix twice)."""
+    old = 'paulus_paulus_orosius.'
+    new = 'paulus_orosius.'
+    return new + ref[len(old):] if ref.startswith(old) else ref
+
+
 # Each entry: key used in reports, language, the .tess filename (index
 # lookup) / work name (passage index + reuse table lookup), and the remap
 # function applied to every ref belonging to that file/work.
@@ -169,6 +177,23 @@ TARGETS = [
         'filename': 'couplet_et_alii.confucius_sinarum_philosophus.part.1.tess',
         'work': 'couplet_et_alii.confucius_sinarum_philosophus.part.1',
         'remap': _couplet_prefix,
+    },
+    # 2026-09-21: the same pattern for Orosius. The four entries above are
+    # already applied on production, so a run now reports 0 for them and
+    # remaps only these; the script is idempotent by design.
+    {
+        'name': 'paulus_orosius.historiae_adversum_paganos.part.1',
+        'language': 'la',
+        'filename': 'paulus_orosius.historiae_adversum_paganos.part.1.tess',
+        'work': 'paulus_orosius.historiae_adversum_paganos.part.1',
+        'remap': _orosius_prefix,
+    },
+    {
+        'name': 'paulus_orosius.historiae_adversum_paganos.part.3',
+        'language': 'la',
+        'filename': 'paulus_orosius.historiae_adversum_paganos.part.3.tess',
+        'work': 'paulus_orosius.historiae_adversum_paganos.part.3',
+        'remap': _orosius_prefix,
     },
 ]
 

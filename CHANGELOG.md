@@ -15,6 +15,16 @@ behind each, are in docs/DECISIONS.md.
   now take a third of the width and truncate to fit, and the slanted labels
   along the top truncate sooner, which also lowers the header strip. Desktop
   is unchanged.
+### Corpus
+- Eighty-seven damaged lines repaired in book files, found by comparing
+  every work's whole file with its book files. Greek words inside Pliny's
+  Natural History (77 lines) and three lines of Claudian were mojibake, the
+  usual symptom of a file read in the wrong character encoding; Philippic 7
+  was missing the opening bracket of its first line, so that line was not
+  indexed from that file; three lines of Orosius carried the author's name
+  twice in their reference; and Galen's first book was missing its first
+  line. In every case the work's whole file already had the sound version,
+  which is what the repair uses.
 
 ## 2026-09-20
 
