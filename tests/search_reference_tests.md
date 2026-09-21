@@ -1,7 +1,25 @@
 # Tesserae V6 Search Reference Tests
 
-This document contains reference test cases to verify search functionality is working correctly.
-Run these tests manually after any changes to search or indexing code.
+Two of these now run themselves, and the third is still for a person.
+
+    python scripts/reference_search_check.py        # the real corpus, a running site
+    pytest tests/test_search_reference.py           # the machinery, on a fixture index
+
+`scripts/reference_search_check.py` asks a running site the reference query
+and exits non-zero if an author is missing or the count collapses. Run it at
+the end of any deploy that touches search, indexing or text processing.
+`tests/test_search_reference.py` builds a miniature index in the real schema
+and runs the lookup code over it, so continuous integration can check the
+wiring without a 2 GB index; it cannot see the corpus and says nothing about
+recall.
+
+THE RESULT CAP MATTERS, and it caught us out on 2026-09-21. A lemma search
+deduplicates across a whole work and its book files AFTER applying the cap,
+so the same query answers 323 at `max_results` 500 and 367 at 1,000. Every
+figure below is at 1,000.
+
+This document remains the record of what the numbers mean and when they
+changed.
 
 ## Line Search (Lemma Mode)
 
