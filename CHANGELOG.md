@@ -45,6 +45,17 @@ behind each, are in docs/DECISIONS.md.
   twice in their reference; and Galen's first book was missing its first
   line. In every case the work's whole file already had the sound version,
   which is what the repair uses.
+- A shared helper (`scripts/corpus/corpus_safety.py`) now gives any
+  corpus-mutating script the three things the safety convention in
+  `docs/DATA_OPERATIONS.md` asks for: a dry run by default, a dated backup
+  that a rerun never overwrites, and a write-beside-and-rename swap that
+  never leaves a half-written file. The audit of 2026-09-21 found that
+  fewer than half the scripts under `scripts/corpus/` followed the
+  convention, including `fix_hebrew_clitic_spacing.py`, which overwrote a
+  `.tess` file in place with no backup at all. That script and
+  `repair_lactantius_placidus.py` now use the helper; both were checked
+  against the pre-change scripts on fixture data and produce byte-for-byte
+  identical output when run with the new write flag.
 
 ## 2026-09-20
 
