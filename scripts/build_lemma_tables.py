@@ -20,9 +20,9 @@ TREEBANK_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'lemma_tables')
 SYNTAX_DB = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'inverted_index', 'syntax_latin.db')
 
-def normalize_latin(word):
-    """Normalize Latin orthography (j→i, v→u, lowercase)"""
-    return word.lower().replace('j', 'i').replace('v', 'u')
+# One shared rule, backend/latin_orthography.py. The tables this script
+# writes are WHY that rule is what it is: every key it stores is folded here.
+from backend.latin_orthography import fold_latin as normalize_latin  # noqa: E402
 
 def normalize_greek(word):
     """Normalize Greek (lowercase, strip diacritics for matching)"""

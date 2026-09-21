@@ -16,6 +16,19 @@ behind each, are in docs/DECISIONS.md.
   note now appears after a few seconds, names the text, and says the wait
   happens once. Nothing appears for a text whose answer is already stored,
   which is the usual case and returns instantly.
+### Search
+- Latin u and v, i and j are now decided in one place instead of five. The
+  rules had drifted apart, so the same two words could count as the same in
+  one part of a search and different in another. Two real effects, both
+  measured on the corpus: a function word spelled with a j, such as the
+  1,691 occurrences of "jam" for "iam", was not recognised as a function
+  word and was matched on as though it carried meaning, 1,705 occurrences in
+  all; and a word at the start of a line, which editions capitalise, did not
+  match its own lemma when the distance between matched words was measured,
+  so pairs were measured from the wrong place. Searching the printed text
+  keeps its own rule, including the old spelling of "divom" for "divum",
+  which must not be applied to a dictionary lookup: the dictionary has both,
+  and they are different words.
 
 ### Site
 - The "Saved Searches" button on the search page opens its dialog again. It
