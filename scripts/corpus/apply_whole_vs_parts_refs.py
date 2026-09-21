@@ -258,7 +258,8 @@ def passage_index(root, apply_, tag, report):
         conn_ro = sqlite3.connect(f'file:{wdb}?mode=ro', uri=True)
 
         # table `lines` (work, ord, ref, text) -- ref updated in place.
-        lines_updates = []  # (new_ref, work, old_ref, ord)  -- ord disambiguates dup refs
+        lines_updates = []  # (new_ref, work, ord)  -- ord is the row key
+        pi_collisions = []
         n_lines = 0
         for work, remap in remap_by_work.items():
             existing = {r for (r,) in conn_ro.execute(
@@ -268,12 +269,19 @@ def passage_index(root, apply_, tag, report):
                 new_ref = remap(old_ref)
                 if new_ref == old_ref:
                     continue
-                if new_ref in existing and new_ref != old_ref:
-                    report.append(f'  WARNING: window_texts.db lines: {work} ord {ord_}: '
-                                   f'new ref {new_ref!r} already present for this work')
+                if new_ref in existing:
+                    # Same rule as the inverted index: a target ref already
+                    # present for the work is a collision, and the apply
+                    # refuses rather than overwrite (review of PR #432).
+                    pi_collisions.append((work, ord_, old_ref, new_ref))
+                    continue
                 lines_updates.append((new_ref, work, ord_))
                 n_lines += 1
         report.append(f'  window_texts.db lines: {n_lines} ref(s) to remap')
+        if pi_collisions:
+            report.append(f'  window_texts.db lines: {len(pi_collisions)} COLLISION(S), see below')
+            for c in pi_collisions:
+                report.append(f'    COLLISION: {c}')
 
         # table `window_texts` (id, language, work, ref_start, ref_end, text)
         wt_updates = []  # (new_rs, new_re, rowid)
@@ -292,6 +300,9 @@ def passage_index(root, apply_, tag, report):
         report.append(f'  window_texts.db window_texts: {n_wt} of {len(rows)} row(s) to remap')
 
         if apply_:
+            if pi_collisions:
+                raise SystemExit(f'window_texts.db: refusing to apply, {len(pi_collisions)} '
+                                  f'collision(s) found (see report above)')
             backup(wdb, apply_, tag)
             conn = sqlite3.connect(wdb)
             conn.executemany('update lines set ref=? where work=? and ord=?', lines_updates)

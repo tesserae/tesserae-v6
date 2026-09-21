@@ -125,8 +125,7 @@ behind each, are in docs/DECISIONS.md.
   in every case except Dionysius, where the missing line was inserted. A
   new check script, `scripts/corpus/check_whole_vs_parts.py`, confirms the
   fix and, run against the whole corpus, found 137 works pairing a whole
-  file with book files (not the 122 this task started counting from — see
-  docs/DATA_OPERATIONS.md), of which 117 already agree and, beyond this
+  file with book files, of which 117 already agree and, beyond this
   batch's four, 20 more disagree pre-existing and out of this batch's
   scope (listed in the PR for a follow-up). The store-side ref rename these four needed
   (`scripts/corpus/apply_whole_vs_parts_refs.py`) is prepared but not yet

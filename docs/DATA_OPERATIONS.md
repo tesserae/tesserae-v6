@@ -82,14 +82,12 @@ Conventions
     but no matching whole file (a separate, pre-existing, out-of-scope
     situation — e.g. `anthologia_graeca`, the `libanius` split files,
     `spenser.faerie_queene`) and are skipped; of the remaining **137**
-    that DO have a matching whole file, **117 pass, 20 fail**. This is 15
-    more works than the "122" this task's brief started from, and the
-    discrepancy is not explained by group size (only one group has a
-    single part file), encoding, or a looser check (refs are compared as
-    multisets, tolerating a benign repeated ref as long as both sides
-    repeat it the same number of times) — flagged here rather than
-    guessed at; the 122 figure may have come from a narrower or manual
-    survey. The 20 failures are pre-existing whole-vs-parts mismatches
+    that DO have a matching whole file, **117 pass, 20 fail**. The 122 of
+    the first survey counted only book files named exactly `.part.N.tess`;
+    this checker also accepts `.part.N.<suffix>.tess` (the King James
+    collections' books, the Vulgate's, Pindar's, Suetonius' lives,
+    Dionysius' part 12), which adds the 15. The 20 failures are
+    pre-existing whole-vs-parts mismatches
     OUTSIDE this batch's scope (not requested, not touched): `apuleius.
     metamorphoses`, `arnobius.adversus_nationes`, `arrian.anabasis`,
     `augustine.de_doctrina_christiana`, `augustine.de_trinitate`,
