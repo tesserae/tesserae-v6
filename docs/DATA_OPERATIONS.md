@@ -24,7 +24,7 @@ Conventions
 - Stamp backups to the second; a rerun must never overwrite the first
   run's backup.
 
-## 2026-09-20 Corpus: four works' whole files and book files made consistent (planned, not yet run)
+## 2026-09-20 Corpus: four works' whole files and book files made consistent; byte-order marks removed from four files (PR #432, run 2026-09-21 00:20)
 - What changed in each `.tess` file (already committed; text unchanged
   except where noted):
   - `texts/grc/isocrates.letters.part.2.tess` (24 lines) and `.part.3.tess`
@@ -255,6 +255,32 @@ Conventions
      equivalent); they are searchable immediately via lemma/exact search
      once steps 3-4 finish, just not yet as Similar-Passages or
      Theme-Search windows.
+- Done 2026-09-21 00:20 EDT, by the main session, in the order above,
+  every step inside a tess-job scope (caps 8 GB): PR #432 merged 50e32c6
+  and pulled; ten lemma cache entries deleted and rebuilt (`grc` then
+  `la`); reindex on copies then swapped (Greek: Isocrates parts 2 and 3
+  24 and 6 lines, Hyperides 152, Dionysius part 12 369 lines (was 368),
+  Aretaeus 18 (was 17); Latin: Confucius part 1 10 lines, part 2 235 (was
+  234), whole 255, Macrobius fragment 12 (was 11), Ovid Ibis 642 (was
+  641); `lemma_doc_freq` rebuilt for both); remap dry run matched the
+  inspection exactly (inverted index 0 left after the reindex; passage
+  index 192 line refs, 40 of 40 windows, 40 of 40 descriptions; Greek
+  reuse table 68 pair rows and 38 line counts; Latin reuse 0; fusion
+  cache 0), then applied with backup tag `whole_vs_parts-20260921-001840`;
+  a second dry run reported 0 everywhere; WSGI touched and the three
+  workers warmed.
+- Backups: `grc_index.db.bak-whole_vs_parts-20260921-001622`,
+  `la_index.db.bak-whole_vs_parts-20260921-001622`, and the remap
+  script's `.bak-whole_vs_parts-20260921-001840` copies of
+  `window_texts.db`, `descriptions.jsonl` and `cache/reuse_pairs/grc.db`.
+- Checks: reference searches unchanged before and after ("arma virum"
+  lemma 367 at `max_results` 1000, exact 21; note that at the 500 cap the
+  lemma search reports 323 because the cap applies before the whole-work
+  and per-book copies are merged, so the reference figure must be taken
+  at 1000); `/api/text` now serves `hyp. speeches. 1.1` as the first
+  Hyperides line, `isoc. letters 2.1` without the bracket, the first line
+  of Aretaeus, Confucius part 2, Macrobius' fragment and the Ibis, and
+  Dionysius 16.1.0.
 ## 2026-09-20 Reader: server-side book lookup, Read tab restart, marking, legend, Help, translators (PR #430) deployed
 - What: PR #430 merged a103ede, pulled on production, bundle rebuilt (`npm run
   build` from the repo root inside a 6 GB tess-job scope,
