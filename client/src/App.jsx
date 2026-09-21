@@ -1211,7 +1211,10 @@ function App() {
         })()}
       </Modal>
 
-      <AssistantDock />
+      {/* Tessa is mounted ONCE, after the footer. A second copy sat here
+          from 2026-08 until 2026-09-21: two docks fetched their own session
+          on every page load and shared one sessionStorage key, and the
+          floating button was drawn twice on top of itself. */}
 
       <footer className="bg-gray-100 border-t mt-8 py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
