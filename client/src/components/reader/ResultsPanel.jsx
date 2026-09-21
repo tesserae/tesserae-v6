@@ -561,7 +561,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                 {r.text && (
                   <p className="text-xs text-gray-700 mt-1.5 leading-snug">
                     <Marked text={clip(r.text, r.matched_words)}
-                            words={r.matched_words} />
+                            words={r.matched_words} latin={language === 'la'} />
                   </p>
                 )}
               </button>
@@ -815,19 +815,27 @@ function BoldSpans({ text, spans }) {
  *  Whole-word and case-insensitive. Not stem matching: `matched_words` are the
  *  forms as they appear in THIS passage, so they are already the right shape.
  */
-function Marked({ text, words }) {
+function Marked({ text, words, latin = false }) {
   const list = (words || []).filter(Boolean);
   if (!text) return null;
   if (!list.length) return <>{text}</>;
+  // In Latin the matched word is reported in the SOURCE text's spelling, and
+  // the two texts may not agree on u/v and i/j: Silius' "cateruas" against
+  // Vergil's "catervas" left the Vergil line unmarked (NC, 2026-09-20). Each
+  // u or v in the pattern matches either letter, and i or j likewise.
+  const fold = (w) => (latin ? w.toLowerCase().replace(/v/g, 'u').replace(/j/g, 'i') : w.toLowerCase());
+  const pattern = (w) => (latin
+    ? escapeRe(w).replace(/[uv]/gi, '[uvUV]').replace(/[ij]/gi, '[ijIJ]')
+    : escapeRe(w));
   const alt = [...new Set(list)]
     .sort((a, b) => b.length - a.length)          // longest first, so a short
-    .map(escapeRe)                                // word cannot eat a longer one
+    .map(pattern)                                 // word cannot eat a longer one
     .join('|');
   const parts = String(text).split(new RegExp(`(?<![\\p{L}])(${alt})(?![\\p{L}])`, 'giu'));
   return (
     <>
       {parts.map((p, i) => (
-        list.some((w) => w.toLowerCase() === p.toLowerCase())
+        list.some((w) => fold(w) === fold(p))
           ? <mark key={i} className="bg-red-100 text-red-900 font-semibold rounded-sm px-[1px]">{p}</mark>
           : <span key={i}>{p}</span>
       ))}

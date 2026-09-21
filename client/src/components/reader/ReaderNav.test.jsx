@@ -105,3 +105,18 @@ describe('books one at a time (2026-09-20)', () => {
     expect(screen.getByLabelText('No previous book')).toBeDisabled();
   });
 });
+
+
+describe('book files with a suffix after their number (2026-09-20)', () => {
+  it('counts dionysius part.12.books_12-20 as a book', async () => {
+    const { bookSections, bookFileFor } = await import('./ReaderNav');
+    const sections = [
+      { file: 'dion.ant.tess', label: 'Whole' },
+      { file: 'dion.ant.part.1.tess', label: 'Book 1' },
+      { file: 'dion.ant.part.12.books_12-20.tess', label: 'Books 12-20' },
+    ];
+    expect(bookSections(sections).map((s) => s.file)).toEqual([
+      'dion.ant.part.1.tess', 'dion.ant.part.12.books_12-20.tess']);
+    expect(bookFileFor(sections, 'dion.ant.part.12.books_12-20.tess', 'dion. ant 15.1.1')).toBe('');
+  });
+});

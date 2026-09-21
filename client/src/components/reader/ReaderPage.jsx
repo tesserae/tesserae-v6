@@ -357,9 +357,42 @@ export default function ReaderPage() {
   // they are turned into a book.
   useEffect(() => {
     if (!work || !sections.length) return;
-    const target = bookFileFor(sections, work, wantedRef || jumpRef);
-    if (target && target !== work) setWork(target);
-  }, [work, sections, wantedRef, jumpRef]);
+    const guess = bookFileFor(sections, work, wantedRef || jumpRef);
+    if (!guess) return;                 // not a whole file with books
+    // The book number cannot be read off the line reference (Alcuin's part
+    // 97 holds poems 97 to 101, the Verrines' part 3 holds "2.2.x"), so the
+    // server looks the line up in the book files; the guess stands in only
+    // if the server cannot answer.
+    let dead = false;
+    const ref = wantedRef || jumpRef;
+    const q = new URLSearchParams({ language, ref: ref || '' });
+    fetch(`/api/text/${encodeURIComponent(work)}/book-for?${q}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (dead) return;
+        const target = (d && d.file) || guess;
+        if (target !== work) setWork(target);
+      })
+      .catch(() => { if (!dead && guess !== work) setWork(guess); });
+    return () => { dead = true; };
+  }, [work, sections, wantedRef, jumpRef, language]);
+
+  // The Read tab, clicked while the Reader is already open, starts the
+  // Reader over (NC, 2026-09-20: "Clicking on Read from anywhere in the
+  // reader does nothing. It should bring user back to a starting Read
+  // page."). App.jsx sends this event instead of re-mounting the page.
+  useEffect(() => {
+    const onHome = () => {
+      setWork(PREFERRED_WORK[language] || DEFAULT_WORK);
+      setSelection(null);
+      setCameFrom('');
+      setMapFrom('');
+      setPopupOpen(false);
+      window.scrollTo({ top: 0 });
+    };
+    window.addEventListener('tesserae:reader-home', onHome);
+    return () => window.removeEventListener('tesserae:reader-home', onHome);
+  }, [language]);
   const changeBook = useCallback((file) => {
     setWork(file);
     setSelection(null);
@@ -515,13 +548,22 @@ export default function ReaderPage() {
                       style={{ backgroundColor: '#7c6bb0' }} />
                 similar passages
               </span>
-              <span className="flex items-center gap-1.5">
+              {/* "darker = more connections" is about the two gutter columns
+                  only, so it sits with them, before the quotation boxes (NC,
+                  2026-09-20). The boxes come in two forms and both are named:
+                  solid for a line quoted elsewhere, dashed for a possible echo. */}
+              <span className="text-gray-500">darker = more connections</span>
+              <span className="flex items-center gap-1.5 border-l border-gray-300 pl-4">
                 <span className="inline-flex items-center justify-center text-[9px] font-bold leading-none
                                  text-red-700 bg-gray-100 border border-gray-300 rounded px-1 py-[2px]">2</span>
-                quoted by that many other works; click a box to see them
+                quoted by that many other works
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="inline-flex items-center justify-center text-[9px] font-bold leading-none
+                                 text-gray-500 bg-white border border-dashed border-gray-300 rounded px-1 py-[2px]">2</span>
+                possible echo (one rare shared phrase); click a box to see them
               </span>
               <span className="ml-auto flex items-center gap-1">
-                <span className="text-gray-500 mr-2">darker = more connections</span>
                 <button
                   onClick={() => setFocusView('source')}
                   className={`px-1.5 py-0.5 rounded text-[11px] font-medium border ${

@@ -21,6 +21,31 @@ behind each, are in docs/DECISIONS.md.
   that quote the line, click to see them.
 - A passage opened from the Similarity Map says so and links back to the
   map; its link used to re-run "connections map: Vergil" as a Theme Search.
+- The Read tab, clicked while the Reader is open, takes the Reader back to
+  its starting page; it used to do nothing.
+- Which book holds a line is now looked up by the server in the book files
+  instead of read off the line number, which was wrong for Alcuin and
+  Theodulf (a book file may hold several poems), the Verrines (part 3 is
+  actio 2 book 2) and Hyperides (whole file and parts tag lines
+  differently); book files with a suffix after their number count too.
+- In Verbal Parallels a Latin word spelt with v or j is marked even when
+  the match was reported in the other text's u or i spelling ("catervas"
+  for "cateruas").
+- The key above the text keeps "darker = more connections" with the two
+  gutter colours it describes, and names both forms of quotation box:
+  solid for a quotation, dashed for a possible echo (one rare shared
+  phrase).
+
+### Help and About
+- The Reader help describes the quotation boxes (solid and dashed), the
+  Reuse tab, reading a work book by book and the floating navigator; its
+  gutter key text matches the key on the page (colours, not the old W and
+  C letters). The Translation tab note says translators are named under
+  each passage and that a few open non-commercial translations are used
+  with attribution.
+- The Sources page has a Translations block: the translation policy in
+  plain words and, on request, the list of every translated work with its
+  translator, per language, drawn from the same files the Reader credits.
 
 
 ### Theme Search

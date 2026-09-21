@@ -30,7 +30,7 @@ export function sectionsFor(hierarchy, work) {
  *  stepping through books must skip it; a work held only as one file keeps
  *  its single section. */
 export function bookSections(sections) {
-  const parts = (sections || []).filter((s) => /\.part\.\d+\.tess$/.test(s.file || ''));
+  const parts = (sections || []).filter((s) => /\.part\.\d+(\.[^.]+)?\.tess$/.test(s.file || ''));
   return parts.length ? parts : (sections || []);
 }
 
@@ -41,7 +41,7 @@ export function bookSections(sections) {
  *  a time; the whole-file Punica ran seventeen books together). */
 export function bookFileFor(sections, work, ref) {
   const id = String(work || '');
-  if (/\.part\.\d+\.tess$/.test(id)) return '';
+  if (/\.part\.\d+(\.[^.]+)?\.tess$/.test(id)) return '';
   const base = id.replace(/\.tess$/, '');
   const mine = (sections || []).filter((s) => (s.file || '').startsWith(`${base}.part.`));
   if (!mine.length) return '';

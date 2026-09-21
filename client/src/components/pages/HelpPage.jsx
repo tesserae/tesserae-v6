@@ -806,11 +806,11 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </p>
               <ul className="list-disc pl-5 text-gray-700 space-y-2 mb-3">
                 <li>
-                  <strong>W, in red: shared wording.</strong> Another passage in the corpus uses
+                  <strong>Red: verbal parallels.</strong> Another passage in the corpus uses
                   some of the same words as this line.
                 </li>
                 <li>
-                  <strong>C, in purple: similar content.</strong> Another passage describes
+                  <strong>Purple: similar passages.</strong> Another passage describes
                   something similar, whether or not it shares any words.
                 </li>
               </ul>
@@ -819,6 +819,35 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 each answer arrives, so one may be marked while the other is still working.
                 Clicking a mark selects that line and opens the matching panel tab: a red mark
                 opens Verbal Parallels, a purple one opens Similar Passages.
+              </p>
+
+              <h4 className="font-medium text-gray-900 mt-6 mb-2">The quotation boxes</h4>
+              <p className="text-gray-700 mb-3">
+                A small numbered box beside a line means the line is quoted elsewhere in the
+                corpus. The number is how many other works quote it. The boxes come in two forms:
+              </p>
+              <ul className="list-disc pl-5 text-gray-700 space-y-2 mb-3">
+                <li>
+                  <strong>A solid box</strong> marks a quotation: another work shares two or more
+                  distinctive words with this line, or a longer run of its wording.
+                </li>
+                <li>
+                  <strong>A dashed box</strong> marks a possible echo: another work shares one rare
+                  phrase with this line, which is weaker evidence and more often a coincidence.
+                </li>
+              </ul>
+              <p className="text-gray-700 mb-3">
+                Click a box to open the <strong>Reuse</strong> tab, which lists the works that quote
+                the line with the shared words marked. The boxes are only as good as the quotation
+                tables behind them, which are built for Latin, Greek and English.
+              </p>
+
+              <h4 className="font-medium text-gray-900 mt-6 mb-2">Moving around a long work</h4>
+              <p className="text-gray-700 mb-3">
+                Works held in books open one book at a time. The strip above the text moves to the
+                previous or next book or to a typed line, and a small navigator at the bottom left
+                of the screen (on a desktop) goes to the top or the end of the book or to its
+                neighbours. A link into a long work opens the book that holds the line it points to.
               </p>
 
               <h4 className="font-medium text-gray-900 mt-6 mb-2">Selecting text</h4>
@@ -869,8 +898,12 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   full Line Search page applies no such filter.
                 </li>
                 <li>
-                  <strong>Translation</strong> shows the aligned public-domain English where one
-                  exists. Coverage is partial: over half of the Greek corpus and nearly half of the Latin, so some passages have none.
+                  <strong>Translation</strong> shows the aligned English where one exists, with
+                  the translator named under it. Most are public domain; a few are open translations
+                  used with attribution under their non-commercial terms (Silius Italicus books 9 to
+                  17, A. S. Kline). Coverage is partial: over half of the Greek corpus and nearly
+                  half of the Latin, so some passages have none. The translators are listed on the
+                  Sources page under About.
                 </li>
                 <li>
                   <strong>Reuse</strong> lists other works that repeat a line closely enough to

@@ -321,6 +321,91 @@ def get_text_content(text_id):
         return jsonify({'error': str(e)}), 500
 
 
+# Which book file holds a line of a whole-file work (Reader, 2026-09-20).
+# The Reader shows works held in books one book at a time. A link to the
+# whole file with a line reference (a Similar Passages hit, a search result,
+# the Similarity Map) has to open the book that holds that line, and the
+# book number cannot be read off the reference: Alcuin's part 97 holds poems
+# 97 to 101, Cicero's Verrines part 3 holds actio 2 book 2 (refs "2.2.x"),
+# Hyperides' whole file tags lines "hyp. 1.1" while its parts say
+# "hyp. speeches. 1.1". So the server looks the line up in the part files.
+# Part files are read once per worker; the whole corpus of parts is small.
+_book_refs_cache = {}
+_TAG_RE = re.compile(r'^<+([^>]*)>')
+
+
+def _ref_key(ref):
+    """The locus of a reference, so that "hyp. 1.1" and "hyp. speeches. 1.1"
+    compare equal: the last whitespace-separated token, lowercased."""
+    ref = (ref or '').strip().lower()
+    return ref.rsplit(None, 1)[-1] if ref else ''
+
+
+def _book_files(language, base):
+    """[(file name, set of refs, set of locus keys)] for the .part.N files."""
+    key = (language, base)
+    hit = _book_refs_cache.get(key)
+    if hit is not None:
+        return hit
+    lang_dir = os.path.join(_texts_dir, language)
+    out = []
+    try:
+        names = os.listdir(lang_dir)
+    except OSError:
+        names = []
+    pat = re.compile(r'^' + re.escape(base) + r'\.part\.(\d+)(?:\.[^.]+)?\.tess$')
+    numbered = []
+    for name in names:
+        m = pat.match(name)
+        if m:
+            numbered.append((int(m.group(1)), name))
+    for _, name in sorted(numbered):
+        refs, keys = set(), set()
+        try:
+            with open(os.path.join(lang_dir, name), encoding='utf-8', errors='replace') as fh:
+                for line in fh:
+                    m = _TAG_RE.match(line)
+                    if m:
+                        refs.add(m.group(1).strip().lower())
+                        keys.add(_ref_key(m.group(1)))
+        except OSError:
+            continue
+        out.append((name, refs, keys))
+    _book_refs_cache[key] = out
+    return out
+
+
+@corpus_bp.route('/text/<path:text_id>/book-for')
+def get_book_for_line(text_id):
+    """The book file of a whole-file work that holds a given line.
+
+    Query: ref (the line reference, optional). Returns {"file": name} when a
+    book holds the line, {"file": first book} when the work has books but the
+    line was not found (or no ref was given), and {"file": null} when the
+    work has no book files."""
+    language = request.args.get('language', 'la')
+    base = re.sub(r'\.tess$', '', text_id)
+    if re.search(r'\.part\.\d+', base):
+        return jsonify({'file': None, 'found': False})
+    books = _book_files(language, base)
+    if not books:
+        return jsonify({'file': None, 'found': False})
+    ref = (request.args.get('ref') or '').strip().lower()
+    if ref:
+        # The whole reference first: in a Bible or in Suetonius every book
+        # starts at "1.1", so the locus alone would name the wrong book.
+        for name, refs, _ in books:
+            if ref in refs:
+                return jsonify({'file': name, 'found': True})
+        # Then the locus alone, for a whole file that tags its lines with a
+        # different prefix from its parts (Hyperides).
+        want = _ref_key(ref)
+        for name, _, keys in books:
+            if want in keys:
+                return jsonify({'file': name, 'found': True})
+    return jsonify({'file': books[0][0], 'found': False})
+
+
 @corpus_bp.route('/frequencies/<language>')
 def get_frequencies(language):
     """Get corpus frequencies for a language"""

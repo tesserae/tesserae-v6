@@ -8,6 +8,21 @@ export default function TextCredits() {
   const [error, setError] = useState('');
   const [filter, setFilter] = useState('');
   const [query, setQuery] = useState('');
+  // Translators (NC, 2026-09-20: Kline was named only where his translation
+  // appeared; the credits page named no translator at all). Every aligned
+  // translation is now listed here as well, per language.
+  const [translations, setTranslations] = useState(null);
+  const [showTranslations, setShowTranslations] = useState(false);
+  useEffect(() => {
+    let dead = false;
+    Promise.all(['la', 'grc'].map((lang) =>
+      fetch(`/api/passages/translations?language=${lang}`)
+        .then((r) => (r.ok ? r.json() : { works: {} }))
+        .then((d) => [lang, d.works || {}])
+        .catch(() => [lang, {}])))
+      .then((pairs) => { if (!dead) setTranslations(Object.fromEntries(pairs)); });
+    return () => { dead = true; };
+  }, []);
   const [pageSize, setPageSize] = useState(50);
   const queryVersionRef = useRef(0);
 
@@ -105,6 +120,9 @@ export default function TextCredits() {
         This is a work in progress.
       </p>
 
+      <TranslationCredits translations={translations} open={showTranslations}
+                          onToggle={() => setShowTranslations((v) => !v)} />
+
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
         <input
           type="text"
@@ -189,6 +207,62 @@ export default function TextCredits() {
           >
             {loadingMore ? 'Loading…' : `Show More (${totalEntries - entries.length} remaining)`}
           </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+const LANGUAGE_LABEL = { la: 'Latin', grc: 'Greek' };
+
+/** A work's file slug as a readable name: "silius_italicus.punica" ->
+ *  "Silius Italicus, Punica". */
+function workLabel(slug) {
+  const [author, ...rest] = String(slug).split('.');
+  const cap = (s) => s.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  return rest.length ? `${cap(author)}, ${cap(rest.join(' '))}` : cap(author);
+}
+
+/** The translators behind the Reader's Translation tab, listed per language.
+ *  The list comes from the aligned translation files themselves, so it is
+ *  exactly what the Reader credits under each passage. */
+export function TranslationCredits({ translations, open, onToggle }) {
+  const total = translations
+    ? Object.values(translations).reduce((n, works) => n + Object.keys(works).length, 0)
+    : 0;
+  return (
+    <div className="mb-6 border border-gray-200 rounded-lg p-4 bg-gray-50">
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">Translations</h3>
+      <p className="text-sm text-gray-700 leading-relaxed mb-2">
+        The Reader's Translation tab shows English aligned to the original, and names the translator
+        under each passage. We use public-domain translations first (Loeb volumes now out of copyright,
+        Perseus, older editions). Where none exists we use an open translation whose author permits
+        free non-commercial reproduction with attribution, as A. S. Kline does for Silius Italicus,
+        Punica books 9 to 17; such translations are credited on every passage and are not included in
+        our downloadable data releases.
+      </p>
+      {translations && (
+        <button type="button" onClick={onToggle}
+                className="text-sm text-red-700 hover:underline">
+          {open ? 'Hide the list' : `List the ${total} translated works and their translators`}
+        </button>
+      )}
+      {open && translations && (
+        <div className="mt-3 grid gap-4 sm:grid-cols-2">
+          {Object.entries(translations).map(([lang, works]) => (
+            <div key={lang}>
+              <h4 className="font-medium text-gray-900 mb-1">{LANGUAGE_LABEL[lang] || lang}</h4>
+              <ul className="text-sm text-gray-700 space-y-0.5">
+                {Object.entries(works).sort(([a], [b]) => a.localeCompare(b)).map(([slug, info]) => (
+                  <li key={slug}>
+                    <span className="text-gray-900">{workLabel(slug)}</span>
+                    {info.attribution ? <span className="text-gray-600">: {info.attribution}</span> : null}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       )}
     </div>
