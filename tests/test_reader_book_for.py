@@ -30,6 +30,9 @@ def texts(tmp_path, monkeypatch):
     (la / 'dion.ant.part.1.tess').write_text('<dion. ant 1.1.1> p\n', encoding='utf-8')
     (la / 'dion.ant.part.12.books_12-20.tess').write_text('<dion. ant 15.1.1> q\n', encoding='utf-8')
     (la / 'lone.work.tess').write_text('<lone. 1.1> z\n', encoding='utf-8')
+    (la / 'suet.lives.tess').write_text('<suet. vit. 1.1> v\n<suet. tit. 1.1> t\n', encoding='utf-8')
+    (la / 'suet.lives.part.9.vitellius.tess').write_text('<suet. vit. 1.1> v\n', encoding='utf-8')
+    (la / 'suet.lives.part.11.titus.tess').write_text('<suet. tit. 1.1> t\n', encoding='utf-8')
     monkeypatch.setattr(corpus, '_texts_dir', str(tmp_path))
     monkeypatch.setattr(corpus, '_book_refs_cache', {})
     return app.test_client()
@@ -66,3 +69,10 @@ def test_no_ref_or_unknown_ref_opens_the_first_book(texts):
 def test_a_work_without_books_and_a_part_file_answer_null(texts):
     assert _get(texts, 'lone.work.tess', 'lone. 1.1') == {'file': None, 'found': False}
     assert _get(texts, 'cicero.verrines.part.2.tess', 'cic. ver. 2.1.1') == {'file': None, 'found': False}
+
+
+def test_the_whole_reference_wins_when_books_share_a_locus(texts):
+    """Every life in Suetonius, every book of a Bible, starts at 1.1: the
+    locus alone would send Titus 1.1 to Vitellius."""
+    assert _get(texts, 'suet.lives.tess', 'suet. tit. 1.1')['file'] == 'suet.lives.part.11.titus.tess'
+    assert _get(texts, 'suet.lives.tess', 'suet. vit. 1.1')['file'] == 'suet.lives.part.9.vitellius.tess'

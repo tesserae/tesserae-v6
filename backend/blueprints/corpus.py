@@ -342,7 +342,7 @@ def _ref_key(ref):
 
 
 def _book_files(language, base):
-    """[(file name, set of ref keys)] for the .part.N files of a work."""
+    """[(file name, set of refs, set of locus keys)] for the .part.N files."""
     key = (language, base)
     hit = _book_refs_cache.get(key)
     if hit is not None:
@@ -360,16 +360,17 @@ def _book_files(language, base):
         if m:
             numbered.append((int(m.group(1)), name))
     for _, name in sorted(numbered):
-        keys = set()
+        refs, keys = set(), set()
         try:
             with open(os.path.join(lang_dir, name), encoding='utf-8', errors='replace') as fh:
                 for line in fh:
                     m = _TAG_RE.match(line)
                     if m:
+                        refs.add(m.group(1).strip().lower())
                         keys.add(_ref_key(m.group(1)))
         except OSError:
             continue
-        out.append((name, keys))
+        out.append((name, refs, keys))
     _book_refs_cache[key] = out
     return out
 
@@ -389,9 +390,17 @@ def get_book_for_line(text_id):
     books = _book_files(language, base)
     if not books:
         return jsonify({'file': None, 'found': False})
-    want = _ref_key(request.args.get('ref', ''))
-    if want:
-        for name, keys in books:
+    ref = (request.args.get('ref') or '').strip().lower()
+    if ref:
+        # The whole reference first: in a Bible or in Suetonius every book
+        # starts at "1.1", so the locus alone would name the wrong book.
+        for name, refs, _ in books:
+            if ref in refs:
+                return jsonify({'file': name, 'found': True})
+        # Then the locus alone, for a whole file that tags its lines with a
+        # different prefix from its parts (Hyperides).
+        want = _ref_key(ref)
+        for name, _, keys in books:
             if want in keys:
                 return jsonify({'file': name, 'found': True})
     return jsonify({'file': books[0][0], 'found': False})
