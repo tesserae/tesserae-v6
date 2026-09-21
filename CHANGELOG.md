@@ -23,6 +23,15 @@ behind each, are in docs/DECISIONS.md.
   front end with `cd client && npm run build`, which cannot work: there is
   no `package.json` under `client/`, and the build runs from the repository
   root.
+### Internal
+- About 970 lines of `backend/app.py` deleted: 24 web-address handlers that
+  Flask could never reach, because the blueprint files registered the same
+  addresses earlier in the same file. They had drifted from the live
+  versions (the dead admin routes checked a weaker password path), so
+  anyone debugging one of those addresses could have read, changed and
+  tested the wrong function without noticing. Every remaining address was
+  checked to answer with exactly the same function as before, in both
+  deployment modes.
 
 ### Site
 - Tessa, the assistant, was mounted twice on every page: two copies asked the
