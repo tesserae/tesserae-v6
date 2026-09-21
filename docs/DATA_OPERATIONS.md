@@ -24,6 +24,27 @@ Conventions
 - Stamp backups to the second; a rerun must never overwrite the first
   run's backup.
 
+## 2026-09-20 Reader: books one at a time, floating navigator, map arrival (PR #427) deployed
+- What: PR #427 merged ba50a79, pulled on production, bundle rebuilt
+  (`npm run build` from the repo root inside a 6 GB tess-job scope,
+  `scripts/keep_old_bundles.sh save` before and `restore` after, 39 older
+  bundles kept), WSGI touched 22:58 EDT, three workers warmed with Theme
+  Search requests (26 s each cold). Front-end only: a whole-file work that
+  also has `.part.N` files opens the book holding the requested line; a
+  fixed navigator (Back to top, To the end, previous and next book); the
+  gutter key explains the numbered quotation boxes; the Theme Similarity
+  Map's Reader links carry `map=<author>` and the Reader links back to the
+  map tab (the old `q=connections map: X` link ran a Theme Search).
+- Checks: served bundle index-B32cJMMc.js carries the new strings; Theme
+  Search answers 25 rows with reader and lexical boost applied on all
+  three workers.
+- Corpus follow-ups found while verifying the book rule (whole files whose
+  numbering does not match their parts: Alcuin and Theodulf carmina,
+  Cicero Verrines whole file, Confucius Sinarum Philosophus; label
+  differences in Hyperides and Isocrates; Dionysius
+  `part.12.books_12-20.tess` naming) are listed for a corpus batch.
+- Done 2026-09-20 22:58 EDT.
+
 ## 2026-09-20 Silius Italicus Punica: A. S. Kline translation added for books 9-17 and the gaps of 1-8
 - What: `data/translations/la__silius_italicus.punica.json` rebuilt to add
   A. S. Kline's Poetry in Translation rendering of Punica (fetched from
@@ -73,7 +94,18 @@ Conventions
   app reads translation files at request time with no server reload
   needed; the on-disk copy also feeds `available()`'s per-language listing,
   cached against the directory's mtimes, so it need not be warmed either.
-- Done 2026-09-20 (PR branch `data/silius-kline-9-17`, not yet merged).
+- Done 2026-09-20 23:07 EDT: PR #428 merged 1efa645 (with a follow-up
+  commit: the licence returned follows the words served, and a
+  `unit_sources` list not parallel to the units is ignored), production
+  pulled, the old file backed up to
+  `~/tesserae-backups/kline_silius_2026-09-20/la__silius_italicus.punica.json.before_kline_20260920_230733`
+  (453,113 bytes), the new file (993,089 bytes) copied beside it and
+  renamed over it, bundle rebuilt for the Reader wording
+  (index-Cte8wXfH.js, keep_old_bundles save/restore), WSGI touched.
+  Checks through `/api/passages/translation`: sil. 9.1, 8.140 and 17.654
+  answer with Kline's text, "A. S. Kline (Poetry in Translation),
+  non-commercial use only" and Kline's licence; sil. 1.1 answers with
+  Duff (1927) as before.
 
 ## 2026-09-20 Theme Search reader depth 300 deployed (PR #424), then held at 100 while its timeout is fixed
 - What: PR #424 merged ed0657d1, pulled on production, WSGI reloaded 15:16
