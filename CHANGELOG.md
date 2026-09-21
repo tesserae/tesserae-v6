@@ -114,6 +114,23 @@ behind each, are in docs/DECISIONS.md.
   world_english_bible hold the Authorized Version of 1611 (a legacy label;
   the sources registry already credits it correctly). File identifiers
   unchanged; the rename of the files is a later corpus operation.
+- Four works whose whole file and book files disagreed (found while
+  verifying today's book-by-book Reader rule) are now consistent: Isocrates'
+  Letters (parts 2 and 3 had every line tagged with a doubled bracket),
+  Hyperides' Speeches (the whole file was missing the "speeches." segment
+  its own part files use), Dionysius of Halicarnassus' Antiquitates
+  Romanae (one line, 16.1.0, was missing from the part 12-20 file), and the
+  Couplet et alii Confucius Sinarum Philosophus (part 1's lines carried a
+  shortened "Couplet." tag instead of "Couplet et alii."). Text unchanged
+  in every case except Dionysius, where the missing line was inserted. A
+  new check script, `scripts/corpus/check_whole_vs_parts.py`, confirms the
+  fix and, run against the whole corpus, found 137 works pairing a whole
+  file with book files (not the 122 this task started counting from — see
+  docs/DATA_OPERATIONS.md), of which 117 already agree and, beyond this
+  batch's four, 20 more disagree pre-existing and out of this batch's
+  scope (listed in the PR for a follow-up). The store-side ref rename these four needed
+  (`scripts/corpus/apply_whole_vs_parts_refs.py`) is prepared but not yet
+  run on production; see docs/DATA_OPERATIONS.md.
 
 ### Reader
 - Kline's translation added for Punica 9-17 and the gaps of 1-8,

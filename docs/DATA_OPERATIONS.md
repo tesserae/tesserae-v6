@@ -24,6 +24,213 @@ Conventions
 - Stamp backups to the second; a rerun must never overwrite the first
   run's backup.
 
+## 2026-09-20 Corpus: four works' whole files and book files made consistent (planned, not yet run)
+- What changed in each `.tess` file (already committed; text unchanged
+  except where noted):
+  - `texts/grc/isocrates.letters.part.2.tess` (24 lines) and `.part.3.tess`
+    (6 lines): every line's tag carried a doubled leading bracket,
+    `<<isoc. letters 2.1>` instead of `<isoc. letters 2.1>`. Fixed by
+    stripping the extra `<` from every line.
+  - `texts/grc/hyperides.speeches.tess` (152 lines, the WHOLE file only —
+    its six part files were already correct): tags read `<hyp. 1.1>`
+    instead of `<hyp. speeches. 1.1>`, the form every part file uses.
+    Fixed by inserting `speeches. ` after `hyp. ` in every tag.
+  - `texts/grc/dionysius_halicarnassensis.antiquitates_romanae.part.12.books_12-20.tess`:
+    was missing line `<dion_hal. ant_rom 16.1.0>` (present in the whole
+    file at line 4076). Fixed by inserting that line verbatim before the
+    part file's `16.1.2` line (16.1.1 does not exist in either file).
+  - `texts/la/couplet_et_alii.confucius_sinarum_philosophus.part.1.tess`
+    (10 lines): tags read `<Couplet. Confucius. X>` instead of the
+    `Couplet et alii. Confucius.` prefix the whole file and parts 2-3 use.
+    Fixed by replacing the prefix on all 10 lines.
+  - NOT changed, contrary to the initial brief: the whole Confucius file's
+    `proem. decl. titulus` line, believed missing from part.2. It is
+    already the first line of `part.2.tess` in this checkout (confirmed
+    byte-for-byte against the whole file); inserting it again would have
+    duplicated it. The refs-as-multisets check
+    (`scripts/corpus/check_whole_vs_parts.py`) confirms the whole file and
+    its three parts already match exactly once part.1's tag prefix is
+    fixed — no insert needed for Confucius. Separately, PRODUCTION's
+    passage index (`window_texts.db`, read-only inspection 2026-09-20) IS
+    missing this line for `couplet_et_alii.confucius_sinarum_philosophus.part.2`
+    (234 rows there against 235 expected): that is a stale-index symptom,
+    not a `.tess`-file problem, and the reindex step below (lemma cache +
+    `add_texts_to_index.py --replace`) resolves it with no separate fix.
+- Verification:
+  - `scripts/corpus/check_whole_vs_parts.py` (new): PASS on all four
+    named works after the fix. Run against the whole corpus: 137
+    whole+parts groups found under `texts/`, of which 15 have book files
+    but no matching whole file (a separate, pre-existing, out-of-scope
+    situation — e.g. `anthologia_graeca`, the `libanius` split files,
+    `spenser.faerie_queene`) and are skipped; of the remaining **137**
+    that DO have a matching whole file, **117 pass, 20 fail**. This is 15
+    more works than the "122" this task's brief started from, and the
+    discrepancy is not explained by group size (only one group has a
+    single part file), encoding, or a looser check (refs are compared as
+    multisets, tolerating a benign repeated ref as long as both sides
+    repeat it the same number of times) — flagged here rather than
+    guessed at; the 122 figure may have come from a narrower or manual
+    survey. The 20 failures are pre-existing whole-vs-parts mismatches
+    OUTSIDE this batch's scope (not requested, not touched): `apuleius.
+    metamorphoses`, `arnobius.adversus_nationes`, `arrian.anabasis`,
+    `augustine.de_doctrina_christiana`, `augustine.de_trinitate`,
+    `cicero.philippicae`, `claudian.de_consulatu_stilichonis`, `claudian.
+    de_raptu_proserpinae`, `dracontius.romulea`, `galen.natural_faculties`,
+    `gellius.attic_nights`, `jerome.vulgate`, `ovid.metamorphoses`,
+    `paulinus_of_aquileia.carmina`, `paulus_orosius.
+    historiae_adversum_paganos`, `pliny_the_elder.naturalis_historia`,
+    `priscian.carmen_in_laudem_Anastasii_imperatoris`, `prudentius.
+    peristephanon`, `sedulius.carmen_paschale`, `vergil.georgics`. Flagged
+    for a follow-up batch, not fixed here. Alcuin's and Theodulf's
+    `carmina` and Cicero's Verrines (`cicero.divinatio_in_c_verrem`) PASS,
+    as expected going in.
+  - `scripts/corpus/validate_tess.py` run on all six changed/touched
+    files, before and after the edit: all six FAIL both before and after,
+    for a PRE-EXISTING reason unrelated to this fix — most of the corpus's
+    Greek/Latin `.tess` files (these six included) separate the tag from
+    the text with a literal space, not the tab `validate_tess.py`
+    requires, and the Confucius files additionally mix tabs and spaces
+    line to line. Edit introduced no new validator failures (same failure
+    shape and count before/after on every file); the space-delimiter issue
+    itself is out of scope for this task (never listed as something to
+    change) and is noted here for a possible separate cleanup.
+  - Store inspection (production, read-only, 2026-09-20) and the counts a
+    dry run of the new remap script reports against a COPY of these
+    stores (`~/tesserae-backups/whole_vs_parts_2026-09-20/test/`, built
+    from full copies of `grc_index.db` 2.5G and `la_index.db` 1.9G, both
+    under the 3G cutoff for a fixture instead, plus `window_texts.db`
+    2.9G and a `descriptions.jsonl` subset for the four affected works,
+    and the `grc.db`/`la.db` reuse tables):
+    - `grc_index.db` `lines`/`postings`: isocrates part.2/part.3 refs are
+      stored WITH the doubled bracket baked in, e.g. `<isoc. letters 2.1`
+      (leading `<`, no trailing `>`) — 30 `lines` rows, matching
+      `postings` rows keyed the same way. `hyperides.speeches` (whole
+      only) stored as `hyp. 1.1` etc — 152 `lines` rows. Dry run: 182
+      `lines` refs, 8,428 `postings` rows (182 distinct refs) to remap.
+    - `la_index.db`: `couplet_et_alii...part.1` stored as `Couplet.
+      Confucius. X` — 10 `lines` rows. Dry run: 10 `lines` refs, 795
+      `postings` rows to remap.
+    - `window_texts.db`: `lines` table 192 refs to remap (182 grc + 10
+      la); `window_texts` table 40 of 40 rows for these four works need
+      `ref_start`/`ref_end` remapped.
+    - `descriptions.jsonl`: 40 of 40 records for these four works need
+      `ref_start`/`ref_end` remapped.
+    - `cache/reuse_pairs/`: isocrates part.2/part.3 and confucius part.1
+      have ZERO rows in the reuse tables (too short to register a reuse
+      candidate) — no remap needed for those three. `hyperides.speeches`
+      (whole) has 68 `pairs` rows (13 as `work_a`, 55 as `work_b`) and 38
+      `line_counts` rows under the old `hyp. LOCUS` naming — these DO need
+      the rename and the new script includes them (schema and location
+      from `backend/reuse_table.py`: `cache/reuse_pairs/<lang>.db`,
+      tables `pairs(work_a, line_a_ref, work_b, line_b_ref, ...)` and
+      `line_counts(work, line_ref, n_works)`). No collisions found.
+    - Cached fusion/theme-search JSON results: 0 name any of the four
+      touched files.
+  - `scripts/corpus/apply_whole_vs_parts_refs.py` (new) --apply run
+    against the same test copy reproduced every count above with no
+    errors; a re-run afterward (dry run) reported 0 remaining in every
+    store, confirming the remap is idempotent and complete. Backups
+    written as `<file>.bak-test1` beside each store in the test copy.
+  - `tests/test_apply_whole_vs_parts_refs.py` (new): 3 passed (dry run
+    makes no changes; apply remaps every store correctly and leaves
+    unrelated/already-correct rows alone; a collision refuses the apply
+    with zero writes), run via
+    `~/bin/tess-job --fg corpusfix-tests 4 venv/bin/python -m pytest -q
+    tests/test_apply_whole_vs_parts_refs.py`.
+  - The live reference-test run ("arma virum") is NOT run as part of this
+    change: no backend or indexing code changed, and the store-side fix is
+    a prepared, not-yet-applied script (below). It is the last step of the
+    production sequence.
+- Production steps, in order (NOT run by this session; production-touching
+  steps stay with the main session per project policy):
+  1. `git pull` on `main` (brings in the four corrected `.tess` files, the
+     two new scripts, and this doc).
+  2. Delete the six changed/added files' stale lemma cache entries (the
+     cache key is a hash of the FILENAME, not the content, so the paths
+     below are exact and stable regardless of the edit):
+     ```
+     cd /var/www/tesseraev6_flask
+     venv/bin/python -c "
+     from backend.lemma_cache import get_cache_path
+     import os
+     files = [
+         ('grc', 'isocrates.letters.part.2.tess'),
+         ('grc', 'isocrates.letters.part.3.tess'),
+         ('grc', 'hyperides.speeches.tess'),
+         ('grc', 'dionysius_halicarnassensis.antiquitates_romanae.part.12.books_12-20.tess'),
+         ('la', 'couplet_et_alii.confucius_sinarum_philosophus.part.1.tess'),
+         ('la', 'couplet_et_alii.confucius_sinarum_philosophus.tess'),
+     ]
+     for lang, fn in files:
+         p = get_cache_path(fn, lang)
+         if os.path.exists(p):
+             os.remove(p)
+             print('removed', p)
+         else:
+             print('not cached:', p)
+     "
+     ```
+  3. Rebuild the lemma cache for the two affected languages, one at a
+     time, each in its own capped scope:
+     ```
+     systemd-run --user --scope -p MemoryMax=8G -p MemorySwapMax=0 \
+       venv/bin/python scripts/batch_lemma_cache.py grc
+     systemd-run --user --scope -p MemoryMax=8G -p MemorySwapMax=0 \
+       venv/bin/python scripts/batch_lemma_cache.py la
+     ```
+     (peak under 4G per the standing memory note; 8G cap per that note's
+     convention).
+  4. Reindex the six files on a COPY of each inverted index, then swap:
+     ```
+     cp data/inverted_index/grc_index.db data/inverted_index/grc_index.db.new
+     venv/bin/python scripts/corpus/add_texts_to_index.py \
+       --db data/inverted_index/grc_index.db.new --language grc \
+       --cache-dir cache/lemmas \
+       --replace isocrates.letters.part.2.tess isocrates.letters.part.3.tess \
+                 hyperides.speeches.tess \
+                 dionysius_halicarnassensis.antiquitates_romanae.part.12.books_12-20.tess
+     mv data/inverted_index/grc_index.db data/inverted_index/grc_index.db.bak-whole_vs_parts-<STAMP>
+     mv data/inverted_index/grc_index.db.new data/inverted_index/grc_index.db
+
+     cp data/inverted_index/la_index.db data/inverted_index/la_index.db.new
+     venv/bin/python scripts/corpus/add_texts_to_index.py \
+       --db data/inverted_index/la_index.db.new --language la \
+       --cache-dir cache/lemmas \
+       --replace couplet_et_alii.confucius_sinarum_philosophus.part.1.tess \
+                 couplet_et_alii.confucius_sinarum_philosophus.tess
+     mv data/inverted_index/la_index.db data/inverted_index/la_index.db.bak-whole_vs_parts-<STAMP>
+     mv data/inverted_index/la_index.db.new data/inverted_index/la_index.db
+     ```
+     This reindex alone brings `lines`/`postings` to the new refs for
+     these six files AND fixes the stale-index Confucius `titulus` row
+     noted above; step 5 below is then a no-op for the inverted index (it
+     touches the passage index and reuse tables only, which
+     `add_texts_to_index.py` does not) but is still needed for those.
+  5. Run the new remap script for the passage index and reuse tables,
+     dry run first:
+     ```
+     systemd-run --user --scope -p MemoryMax=4G -p MemorySwapMax=0 \
+       venv/bin/python scripts/corpus/apply_whole_vs_parts_refs.py --root .
+     ```
+     then, once the dry-run counts match this doc's inspection above:
+     ```
+     systemd-run --user --scope -p MemoryMax=4G -p MemorySwapMax=0 \
+       venv/bin/python scripts/corpus/apply_whole_vs_parts_refs.py --root . \
+       --apply --tag whole_vs_parts-<STAMP>
+     ```
+  6. Verify: `tests/search_reference_tests.md`'s "arma virum" checks (367
+     distinct loci for the lemma search, 21 for the exact search — see
+     the Conventions note above) plus a line search for one of the four
+     works (e.g. Hyperides, `hyp. speeches. 1.1`) to confirm the new refs
+     resolve.
+  7. `touch tesseraev6_flask.wsgi` so the three Apache workers reopen the
+     swapped index files.
+  8. The two inserted lines (Dionysius' 16.1.0, and none for Confucius —
+     see above) get no passage-index windows/descriptions until the next
+     description batch runs (`scripts/corpus/describe_windows.py` or
+     equivalent); they are searchable immediately via lemma/exact search
+     once steps 3-4 finish, just not yet as Similar-Passages or
+     Theme-Search windows.
 ## 2026-09-20 Reader: server-side book lookup, Read tab restart, marking, legend, Help, translators (PR #430) deployed
 - What: PR #430 merged a103ede, pulled on production, bundle rebuilt (`npm run
   build` from the repo root inside a 6 GB tess-job scope,
