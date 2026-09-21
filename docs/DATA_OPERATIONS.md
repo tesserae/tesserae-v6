@@ -24,6 +24,23 @@ Conventions
 - Stamp backups to the second; a rerun must never overwrite the first
   run's backup.
 
+## 2026-09-20 Reader: server-side book lookup, Read tab restart, marking, legend, Help, translators (PR #430) deployed
+- What: PR #430 merged a103ede, pulled on production, bundle rebuilt (`npm run
+  build` from the repo root inside a 6 GB tess-job scope,
+  `scripts/keep_old_bundles.sh save` before and `restore` after), WSGI
+  touched, three workers warmed. Backend: new route
+  `GET /api/text/<work>/book-for?ref=` (which book file holds a line,
+  full reference first, locus alone as the fallback; part files read once
+  per worker). Front end: the Read tab restarts the Reader; the Reader asks
+  the route before opening a book; Verbal Parallels marks Latin words
+  across u/v and i/j; legend order and the dashed "possible echo" box;
+  Help (quotation boxes, navigator, translation note); Sources page
+  Translations block.
+- Checks: `book-for` on production for `cicero.divinatio_in_c_verrem.tess`
+  ref `cic. ver. 2.2.1` -> part 3, `hyperides.speeches.tess` ref `hyp. 2.1` ->
+  part 2; the served bundle carries the new strings.
+- Done 2026-09-20 23:50 EDT.
+
 ## 2026-09-20 Reader: books one at a time, floating navigator, map arrival (PR #427) deployed
 - What: PR #427 merged ba50a79, pulled on production, bundle rebuilt
   (`npm run build` from the repo root inside a 6 GB tess-job scope,
