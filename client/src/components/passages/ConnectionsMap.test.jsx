@@ -611,3 +611,30 @@ describe('canvas sizing for devicePixelRatio', () => {
     expect(gridCanvas.width).toBe(Math.round(parseFloat(gridCanvas.style.width)));
   });
 });
+
+// --------------------------------------------------------------------------
+// NC, 2026-09-21, from a phone: "the theme search map is hard to see. Some
+// white space to the left of the vertical labels is taking up too much room
+// and crowding out the actual graph on the right and the titles may be
+// formatted so they're too long as well."
+describe('the name column gives the grid room on a phone', () => {
+  it('keeps the full 190px column on a desktop width', async () => {
+    const { mapLabelGeometry } = await import('./ConnectionsMap');
+    expect(mapLabelGeometry(1280)).toMatchObject({ rowMargin: 190, labelCap: 220, narrow: false });
+    expect(mapLabelGeometry(640).narrow).toBe(false);
+  });
+
+  it('gives a phone a third of the width for names, and truncates sooner', async () => {
+    const { mapLabelGeometry } = await import('./ConnectionsMap');
+    const phone = mapLabelGeometry(390);
+    expect(phone.narrow).toBe(true);
+    expect(phone.rowMargin).toBe(125);          // was 190: 65px more grid
+    expect(phone.labelCap).toBe(110);           // shorter labels, lower header strip
+  });
+
+  it('never leaves the names less than 84px, however narrow the screen', async () => {
+    const { mapLabelGeometry } = await import('./ConnectionsMap');
+    expect(mapLabelGeometry(240).rowMargin).toBe(84);
+    expect(mapLabelGeometry(120).rowMargin).toBe(84);
+  });
+});

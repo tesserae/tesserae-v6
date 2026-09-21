@@ -223,6 +223,41 @@ const LABEL_COLOR = '#374151';           // gray-700
 const LABEL_COLOR_ACTIVE = '#111827';    // gray-900
 const LABEL_FONT_ACTIVE = `bold ${LABEL_FONT}`;
 
+/** How wide the row-name column should be, and how soon a label truncates.
+ *
+ *  NC, 2026-09-21, from a phone: "the theme search map is hard to see. Some
+ *  white space to the left of the vertical labels is taking up too much room
+ *  and crowding out the actual graph on the right and the titles may be
+ *  formatted so they're too long as well." The name column was a flat 190
+ *  CSS pixels, which on a 390-pixel screen left about 200 for the grid. On a
+ *  narrow screen it takes a third of the width instead (never under 84), and
+ *  labels truncate to fit it. The column labels truncate sooner too, which
+ *  also lowers the rotated header strip and the empty corner above the names.
+ */
+export function mapLabelGeometry(viewportWidth) {
+  const narrow = viewportWidth < 640;
+  if (!narrow) return { rowMargin: ROW_MARGIN, labelCap: LABEL_CAP, narrow };
+  return {
+    rowMargin: Math.max(84, Math.min(ROW_MARGIN, Math.round(viewportWidth * 0.32))),
+    labelCap: 110,
+    narrow,
+  };
+}
+
+function useViewportWidth() {
+  const [w, setW] = useState(() => (typeof window === 'undefined' ? 1024 : window.innerWidth));
+  useEffect(() => {
+    const onResize = () => setW(window.innerWidth);
+    window.addEventListener('resize', onResize);
+    window.addEventListener('orientationchange', onResize);
+    return () => {
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('orientationchange', onResize);
+    };
+  }, []);
+  return w;
+}
+
 function cellSizeFor(n) {
   return Math.max(MIN_CELL, Math.min(MAX_CELL, 900 / Math.max(1, n)));
 }
@@ -348,6 +383,7 @@ function LabeledHeatmap({
   const gridCanvasRef = useRef(null);
   const headerCanvasRef = useRef(null);
   const [hover, setHover] = useState(null);   // {i, j} in grid coordinates
+  const { rowMargin, labelCap } = mapLabelGeometry(useViewportWidth());
   // Frozen column labels (NC, 2026-09-19: "the top label row needs to be
   // frozen so that when you scroll down the graph the column labels remain
   // visible"). The labels live on their own strip above the scroll box,
@@ -411,13 +447,13 @@ function LabeledHeatmap({
     for (const label of colLabels) {
       maxW = Math.max(maxW, mctx.measureText(colText(label)).width);
     }
-    maxW = Math.min(maxW, LABEL_CAP);
+    maxW = Math.min(maxW, labelCap);
     const rad = Math.PI / 4;   // the labels are rotated 45 degrees
     return {
       colMargin: Math.max(COL_MARGIN_MIN, Math.ceil(maxW * Math.sin(rad) + 26)),
       rightPad: Math.max(40, Math.ceil(maxW * Math.cos(rad) + 16)),
     };
-  }, [colLabels, colText]);
+  }, [colLabels, colText, labelCap]);
 
   const gridWidth = nCols * cellSize + rightPad;
   const rowsHeight = nRows * cellSize;           // the row canvas and the cells canvas
@@ -427,15 +463,15 @@ function LabeledHeatmap({
   useEffect(() => {
     const canvas = rowCanvasRef.current;
     if (!canvas) return;
-    const ctx = sizeCanvasForDPR(canvas, ROW_MARGIN, totalHeight);
+    const ctx = sizeCanvasForDPR(canvas, rowMargin, totalHeight);
     // jsdom (the test environment) does not implement a 2D canvas context
     // unless the optional native `canvas` package is installed, so this
     // draw pass is skipped rather than throwing there; the surrounding UI
     // (labels list, hover panel, click handling) is what the tests exercise.
     if (!ctx) return;
-    ctx.clearRect(0, 0, ROW_MARGIN, totalHeight);
+    ctx.clearRect(0, 0, rowMargin, totalHeight);
     ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, ROW_MARGIN, totalHeight);   // opaque: sits over the scrolling grid
+    ctx.fillRect(0, 0, rowMargin, totalHeight);   // opaque: sits over the scrolling grid
 
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
@@ -445,30 +481,30 @@ function LabeledHeatmap({
       const active = hover && hover.i === i;
       if (active) {
         ctx.fillStyle = 'rgba(185, 28, 28, 0.16)';
-        ctx.fillRect(0, i * cellSize, ROW_MARGIN, cellSize);
+        ctx.fillRect(0, i * cellSize, rowMargin, cellSize);
         ctx.strokeStyle = 'rgba(185, 28, 28, 0.9)';
         ctx.lineWidth = 1.5;
-        ctx.strokeRect(0.75, i * cellSize + 0.75, ROW_MARGIN - 1.5, cellSize - 1.5);
+        ctx.strokeRect(0.75, i * cellSize + 0.75, rowMargin - 1.5, cellSize - 1.5);
         ctx.lineWidth = 1;
       }
       ctx.font = active ? LABEL_FONT_ACTIVE : LABEL_FONT;
       ctx.fillStyle = active ? LABEL_COLOR_ACTIVE : LABEL_COLOR;
       const showLang = lang && ambiguousBases[base] > 1;
-      ctx.fillText(truncateToWidth(ctx, base, ROW_MARGIN - (showLang ? 40 : 14)), ROW_MARGIN - 8, y);
+      ctx.fillText(truncateToWidth(ctx, base, rowMargin - (showLang ? 40 : 14)), rowMargin - 8, y);
       if (showLang) {
         ctx.font = '8px sans-serif';
         ctx.fillStyle = '#9ca3af';                            // gray-400, small type
-        ctx.fillText(lang, ROW_MARGIN - 8, y + 9);
+        ctx.fillText(lang, rowMargin - 8, y + 9);
       }
     });
     // A thin rule so the sticky panel reads as attached to the grid rather
     // than floating disconnected from it while scrolled.
     ctx.strokeStyle = '#e5e7eb';
     ctx.beginPath();
-    ctx.moveTo(ROW_MARGIN - 0.5, 0);
-    ctx.lineTo(ROW_MARGIN - 0.5, totalHeight);
+    ctx.moveTo(rowMargin - 0.5, 0);
+    ctx.lineTo(rowMargin - 0.5, totalHeight);
     ctx.stroke();
-  }, [rowLabels, cellSize, hover, totalHeight, ambiguousBases]);
+  }, [rowLabels, cellSize, hover, totalHeight, ambiguousBases, rowMargin]);
 
   // ---- cells canvas (this is what scrolls; the column labels are on the header strip) --------
   useEffect(() => {
@@ -565,7 +601,7 @@ function LabeledHeatmap({
     colLabels.forEach((label, j) => {
       const active = hover && hover.j === j;
       const x = j * cellSize + cellSize / 2;
-      const text = truncateToWidth(ctx, colText(label), LABEL_CAP);
+      const text = truncateToWidth(ctx, colText(label), labelCap);
       ctx.font = active ? LABEL_FONT_ACTIVE : LABEL_FONT;
       // The same highlight the row label gets (NC, 2026-09-19: "not the same
       // on rows and columns"): a tinted, outlined box behind the hovered
@@ -600,7 +636,7 @@ function LabeledHeatmap({
         ctx.fillText(text, x, colMargin - 14);
       }
     });
-  }, [colLabels, cellSize, hover, colMargin, gridWidth, colText, ambiguousBases]);
+  }, [colLabels, cellSize, hover, colMargin, gridWidth, colText, ambiguousBases, labelCap]);
 
   function cellFromEvent(e) {
     const canvas = gridCanvasRef.current;
@@ -626,11 +662,11 @@ function LabeledHeatmap({
           translated by the scroll box's own horizontal offset. */}
       <div className="sticky z-30 bg-white border border-b-0 border-gray-200 rounded-t"
            style={{ top: navHeight }}>
-        <div className="overflow-hidden" style={{ marginLeft: ROW_MARGIN, height: colMargin }}>
+        <div className="overflow-hidden" style={{ marginLeft: rowMargin, height: colMargin }}>
           <canvas ref={headerCanvasRef}
                   style={{ display: 'block', transform: `translateX(${-scrollLeft}px)` }} />
         </div>
-        <div style={{ position: 'absolute', left: 0, top: 0, width: ROW_MARGIN, height: colMargin,
+        <div style={{ position: 'absolute', left: 0, top: 0, width: rowMargin, height: colMargin,
                       background: '#ffffff', borderRight: '1px solid #e5e7eb' }} />
       </div>
       {/* The ONLY element that scrolls horizontally; the row-label canvas
