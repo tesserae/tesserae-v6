@@ -9,6 +9,14 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-09-21
 
+### Reader
+- The Reader says why it is waiting. Opening a text for the first time takes
+  a few minutes to work out where the rest of the corpus connects to it,
+  because every passage in the text is compared with the whole corpus. A
+  note now appears after a few seconds, names the text, and says the wait
+  happens once. Nothing appears for a text whose answer is already stored,
+  which is the usual case and returns instantly.
+
 ### Site
 - The "Saved Searches" button on the search page opens its dialog again. It
   had done nothing at all when clicked: the dialog was rendered without the

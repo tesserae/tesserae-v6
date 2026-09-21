@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { cssRef } from './refId';
 
 /**
@@ -12,7 +12,9 @@ import { cssRef } from './refId';
  * wording, in substance, or both. A line dark in both columns is the strongest
  * intertextual signal the interface can give without running a search.
  */
-export default function ConnectionGutter({ work, units, onSelectLine }) {
+const SLOW_AFTER_MS = 4000;
+
+export default function ConnectionGutter({ work, units, onSelectLine, onSlowLoad }) {
   const [content, setContent] = useState({});   // ref -> 0..1
   const [verbal, setVerbal] = useState({});     // ref -> 0..1
   // Loading has to look different from "loaded, nothing here". Both used to
@@ -23,6 +25,34 @@ export default function ConnectionGutter({ work, units, onSelectLine }) {
   // is opened, so this is the common case, not an edge one.
   const [loadingContent, setLoadingContent] = useState(true);
   const [loadingVerbal, setLoadingVerbal] = useState(true);
+
+  // TELL THE READER WHEN THE FIRST LOAD IS THE SLOW ONE.
+  //
+  // The violet column is computed by comparing every passage of this work
+  // against the whole corpus, which takes between 80 seconds and about four
+  // minutes the first time any given text is opened (NC saw it on 2026-09-21
+  // and asked for "a note that says it takes a few minutes the first time").
+  // Afterwards the answer is cached and arrives instantly, and the cache
+  // survives restarts -- but it is keyed on the whole index, so every corpus
+  // change starts the clock again for every work.
+  //
+  // Nothing is said for the first few seconds: a warm text answers in well
+  // under one, and a notice that flashes up on every page open would be
+  // worse than no notice at all. SLOW_AFTER_MS is the line between "this is
+  // normal" and "you should know why you are waiting".
+  // The ref, not the state, decides at the moment the timer fires: a fetch
+  // that resolves in the same tick as the timeout would otherwise report a
+  // slow load that never happened.
+  const contentPendingRef = useRef(true);
+  useEffect(() => { contentPendingRef.current = loadingContent; }, [loadingContent]);
+  useEffect(() => {
+    if (!onSlowLoad) return undefined;
+    if (!loadingContent) { onSlowLoad(false); return undefined; }
+    const timer = window.setTimeout(() => {
+      if (contentPendingRef.current) onSlowLoad(true);
+    }, SLOW_AFTER_MS);
+    return () => window.clearTimeout(timer);
+  }, [loadingContent, work, onSlowLoad]);
 
   useEffect(() => {
     if (!work) return;

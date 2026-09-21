@@ -111,6 +111,9 @@ export default function ReaderPage() {
   // cannot loop if the default itself is broken.
   const failedWorkRef = useRef(null);
   const [metadata, setMetadata] = useState(null);
+  // The gutter says when its first computation is the slow one; see the
+  // comment on SLOW_AFTER_MS in ConnectionGutter.
+  const [gutterSlow, setGutterSlow] = useState(false);
   const [selection, setSelection] = useState(null);
   // "Quoted in N works": per-line reuse counts for the currently open work,
   // from the corpus-wide reuse table (Latin only as of 2026-09-19; a 404
@@ -355,6 +358,8 @@ export default function ReaderPage() {
   // on Book 1; the book files carry the previous/next navigation. Links from
   // Theme Search and the Similarity Map name the whole file, so this is where
   // they are turned into a book.
+  useEffect(() => { setGutterSlow(false); }, [work]);
+
   useEffect(() => {
     if (!work || !sections.length) return;
     const guess = bookFileFor(sections, work, wantedRef || jumpRef);
@@ -488,6 +493,15 @@ export default function ReaderPage() {
                 banner outliving its arrival is the thing NC actually sees, and
                 it should not take a correct URL to be rid of it. It goes on the
                 first click of the ×, and the reader is never stuck with it. */}
+            {gutterSlow && (
+              <p className="px-3 py-1.5 text-[11px] text-gray-600 border-b border-gray-200 bg-amber-50">
+                Working out where the rest of the corpus connects to
+                {' '}<span className="font-medium">{metadata?.display_name || 'this text'}</span>.
+                The first time a text is opened this takes a few minutes, because
+                every passage in it is compared with the whole corpus. After that
+                it is instant, and the text itself is readable now.
+              </p>
+            )}
             {mapFrom && !cameFrom && (
               <p className="px-3 py-2 text-xs text-gray-700 border-b border-gray-200 bg-red-50 flex items-center gap-2">
                 <span className="min-w-0">
@@ -634,6 +648,7 @@ export default function ReaderPage() {
             <ConnectionGutter
               work={work.replace('.tess', '')}
               units={shownUnits}
+              onSlowLoad={setGutterSlow}
               onSelectLine={(u, which) => {
                 const i = units.findIndex((x) => x.ref === u.ref);
                 const sel = { startIdx: i, endIdx: i, refStart: u.ref,
