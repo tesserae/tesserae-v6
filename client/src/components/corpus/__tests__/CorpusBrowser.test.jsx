@@ -221,3 +221,57 @@ describe('the Theme Search coverage badge', () => {
     });
   });
 });
+
+// Hebrew as a Corpus Browser tab (added 2026-09-21). The live corpus is 39
+// Hebrew Bible books, one author ("Hebrew Bible"), one era ("Biblical").
+const HEBREW_TEXTS = [
+  { id: 'hebrew_bible.genesis.tess', author: 'Hebrew Bible', title: 'Genesis', era: 'Biblical', line_count: 1533 },
+  { id: 'hebrew_bible.exodus.tess', author: 'Hebrew Bible', title: 'Exodus', era: 'Biblical', line_count: 1213 },
+];
+
+function mockFetchWithHebrew(url) {
+  if (url.startsWith('/api/texts?language=he')) {
+    return Promise.resolve({ json: () => Promise.resolve(HEBREW_TEXTS) });
+  }
+  return mockFetch(url);
+}
+
+describe('the Hebrew tab', () => {
+  it('appears in the language tabs, after English and before Coptic', () => {
+    render(<CorpusBrowser />);
+    const tabs = screen.getAllByRole('button').map((b) => b.textContent);
+    const order = ['Latin', 'Greek', 'English', 'Hebrew', 'Coptic'].filter((l) => tabs.includes(l));
+    expect(order).toEqual(['Latin', 'Greek', 'English', 'Hebrew', 'Coptic']);
+  });
+
+  it('asks the API for language=he when chosen, and renders a Hebrew work name', async () => {
+    global.fetch = vi.fn(mockFetchWithHebrew);
+    render(<CorpusBrowser />);
+
+    await waitFor(() => expect(screen.getByText('Latin Corpus')).toBeTruthy());
+    fireEvent.click(screen.getByText('Hebrew'));
+
+    await waitFor(() =>
+      expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('/api/texts?language=he')));
+    await waitFor(() => expect(screen.getByText('Hebrew Corpus')).toBeTruthy());
+
+    fireEvent.click(screen.getByText('Hebrew Bible'));
+    await waitFor(() => expect(screen.getByText('Genesis')).toBeTruthy());
+    expect(screen.getByText('Exodus')).toBeTruthy();
+  });
+
+  it('offers a Biblical era option, not the Latin era list, once Hebrew is chosen', async () => {
+    global.fetch = vi.fn(mockFetchWithHebrew);
+    render(<CorpusBrowser />);
+
+    await waitFor(() => expect(screen.getByText('Latin Corpus')).toBeTruthy());
+    fireEvent.click(screen.getByText('Hebrew'));
+
+    await waitFor(() => expect(screen.getByText('Hebrew Corpus')).toBeTruthy());
+    const eraSelect = screen.getByDisplayValue('All Eras');
+    const optionLabels = Array.from(eraSelect.querySelectorAll('option')).map((o) => o.textContent);
+    expect(optionLabels).toEqual(['All Eras', 'Biblical', 'Unknown']);
+    // The Latin-only "Republic"/"Augustan" options must not leak into Hebrew's list.
+    expect(optionLabels).not.toContain('Republic');
+  });
+});

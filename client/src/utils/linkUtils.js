@@ -12,6 +12,10 @@ export function getDictionaryUrl(word, language) {
   if (language === 'cop') {
     return `https://coptic-dictionary.org/results.cgi?quick_search=${encodeURIComponent(word)}`;
   }
+  // Hebrew: Wiktionary carries Biblical Hebrew entries, same as English.
+  if (language === 'he') {
+    return `https://en.wiktionary.org/wiki/${encodeURIComponent(word)}`;
+  }
   // Latin and Greek both use Logeion
   return `https://logeion.uchicago.edu/${encodeURIComponent(word)}`;
 }
