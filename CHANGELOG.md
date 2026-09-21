@@ -9,6 +9,20 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-09-20
 
+### Reader
+- Works held in books open one book at a time: a whole-file work that also
+  exists as book files (the Punica, the Aeneid, the Iliad and about 130
+  others) opens on the book that holds the requested line, or on Book 1,
+  so the books no longer run together and the previous/next links apply.
+- A floating navigator at the bottom left of the window (to the top, to
+  the end, previous and next book) that stays on screen wherever the
+  reader is in the text.
+- The gutter key now explains the numbered boxes: the count of other works
+  that quote the line, click to see them.
+- A passage opened from the Similarity Map says so and links back to the
+  map; its link used to re-run "connections map: Vergil" as a Theme Search.
+
+
 ### Theme Search
 - The reader client's timeout grows with the rows sent (6 s for 100,
   12 s for 300). A fixed 6 s cut the 300-row call off just as it

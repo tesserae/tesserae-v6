@@ -154,7 +154,7 @@ describe('arriving from a passage pair with a selection and tab=similar', () => 
     '/read?work=ovid.tristia.part.3.tess&lang=la'
     + '&ref=' + encodeURIComponent('ov. tr. 3.1')
     + '&refEnd=' + encodeURIComponent('ov. tr. 3.1')
-    + '&tab=similar&q=' + encodeURIComponent('connections map: Vergil');
+    + '&tab=similar&map=' + encodeURIComponent('Vergil');
 
   it('scrolls the reader card into view, not only the selected line', async () => {
     window.history.replaceState({}, '', FROM_PAIR);
@@ -189,11 +189,11 @@ describe('arriving from a passage pair with a selection and tab=similar', () => 
 describe('the reader_url a connections-map passage pair produces', () => {
   // Exactly what ConnectionsMap.jsx's readerLinkForWindow() builds for
   // Homer Iliad 18.427-18.438 connected to a Fall of Troy passage:
-  // `/read?work=homer.iliad.tess&lang=grc&ref=hom.+il.+18.427&refEnd=hom.+il.+18.438&tab=similar&q=connections+map%3A+Quintus+Smyrnaeus`
+  // `/read?work=homer.iliad.tess&lang=grc&ref=hom.+il.+18.427&refEnd=hom.+il.+18.438&tab=similar&map=Quintus+Smyrnaeus` (the `map` parameter since 2026-09-20; it used to be `q=connections map: ...`, which the Theme Search then ran as a query)
   const MAP_URL = '/read?' + new URLSearchParams({
     work: 'homer.iliad.tess', lang: 'grc',
     ref: 'hom. il. 18.427', refEnd: 'hom. il. 18.438',
-    tab: 'similar', q: 'connections map: Quintus Smyrnaeus',
+    tab: 'similar', map: 'Quintus Smyrnaeus',
   }).toString();
 
   function mockLongIliadText() {
@@ -223,7 +223,9 @@ describe('the reader_url a connections-map passage pair produces', () => {
     await waitFor(() => expect(document.getElementById('line-hom-il-18-427')).toBeTruthy());
     expect(screen.queryByText(/Select a passage in the text to see what the corpus connects/))
       .toBeNull();
-    const similarTab = screen.getByRole('button', { name: 'Similar Passages' });
+    // The tab strip shows short labels since PR #397 ("Similar", full name in
+    // the title attribute).
+    const similarTab = screen.getByRole('button', { name: 'Similar' });
     expect(similarTab.className).toMatch(/text-red-700/);
     // popupOpen is set exactly as a click would set it -- without this, the
     // selection toolbar (gated on popupOpen && selection) never appears on
