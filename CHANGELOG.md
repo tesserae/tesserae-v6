@@ -107,11 +107,7 @@ behind each, are in docs/DECISIONS.md.
 - The Rare Words Explorer's dictionary link sent every non-Latin,
   non-Greek, non-Coptic, non-English word to Logeion, a Greek and Latin
   lexicon; Hebrew words now link to Wiktionary instead, as English words
-  already do. The Explorer itself does not yet return any Hebrew words at
-  any occurrence threshold: its rare-word cache builder has extraction
-  logic for Latin, Greek, English and Coptic but none for Hebrew, so the
-  tab is ready but empty until that is built. Filed as a follow-up rather
-  than built here.
+  already do.
 
 ## 2026-09-20
 

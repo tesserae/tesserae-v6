@@ -1,4 +1,5 @@
 /**
+<<<<<<< HEAD
  * Rare Words Explorer used to define its own `getLanguageName`, hardcoded
  * to { la, grc, en, cop }, instead of importing the shared `languageName`
  * (code review 2026-09-21, finding 3). Its language tabs only ever offer
@@ -7,6 +8,20 @@
  * product decision, not this bug fix). What this pins down is that the
  * heading for every language the page DOES offer is read from the one
  * shared table, so the bug can't reappear the moment a fifth tab is added.
+=======
+ * Rare Words Explorer: the Hebrew tab (added 2026-09-21).
+ *
+ * Hebrew is a fully supported search language (40 .tess files, its own
+ * index) but the Explorer's tabs hardcoded to Latin/Greek/English/Coptic.
+ * These tests check the tab shows up in the right place, that choosing it
+ * queries the API for language=he, and that a Hebrew word's row renders.
+ *
+ * These tests stub /api/rare-lemmata-full directly rather than depend on
+ * the live cache. The cache builder's own Hebrew extraction rule (which
+ * lemmas qualify as rare) is covered separately in
+ * tests/test_rare_words_hebrew.py, against backend/blueprints/hapax.py's
+ * regenerate_rare_words_cache().
+>>>>>>> 8e002bc6 (Fix stale comments left behind by the Hebrew rare-words backend fix)
  */
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
