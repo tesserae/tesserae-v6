@@ -36,9 +36,7 @@ import os
 import json
 import re
 import math
-import time
 import threading
-from collections import defaultdict
 from datetime import datetime
 
 # Application modules
@@ -63,26 +61,12 @@ def natural_sort_key(s):
 from backend.text_processor import TextProcessor
 from backend.matcher import Matcher
 from backend.scorer import Scorer
-from backend.utils import (
-    get_text_metadata, build_text_hierarchy, clean_cts_reference, resolve_text_path,
-    apply_text_list_filters, exact_phrase_pattern, strip_hebrew_pointing,
-    exact_search_text, format_short_locus
-)
-from backend.cache import (
-    get_cached_results, save_cached_results, 
-    get_cache_stats, clear_cache
-)
-from backend.frequency_cache import (
-    get_corpus_frequencies, initialize_all_caches,
-    recalculate_language_frequencies
-)
+from backend.utils import get_text_metadata, clean_cts_reference, resolve_text_path, exact_phrase_pattern, strip_hebrew_pointing, exact_search_text, format_short_locus
+from backend.cache import get_cache_stats
+from backend.frequency_cache import get_corpus_frequencies, initialize_all_caches
 from backend.bigram_frequency import initialize_bigram_caches
 from backend.distance_filter import passes_distance_filter, is_prose_text as is_prose_text_unified
-from backend.lemma_cache import (
-    get_cached_units, save_cached_units, get_file_hash,
-    rebuild_lemma_cache, get_cache_stats as get_lemma_cache_stats,
-    clear_lemma_cache
-)
+from backend.lemma_cache import get_cached_units, save_cached_units, get_file_hash
 from backend.feature_extractor import feature_extractor
 
 # =============================================================================
@@ -847,6 +831,31 @@ def health():
     return jsonify({"status": "ok", "message": "Tesserae V6 is running"})
 
 
+def _current_bundle():
+    """The JS bundle a fresh visitor would be served.
+
+    Lets a running page notice it is out of date. Apache falls back to
+    index.html for any path it cannot find, so a stale page asking for a
+    deleted bundle gets 200 with Content-Type text/html -- the page pretending
+    to be JavaScript -- and nothing runs at all.
+    """
+    import re as _re
+    import time as _time
+    now = _time.time()
+    if not _BUILD['name'] or now - _BUILD['checked'] > 30:
+        try:
+            with open(os.path.join(STATIC_FOLDER, 'index.html'), encoding='utf-8') as fh:
+                head = fh.read(8192)
+            m = _re.search(r'/assets/(index-[A-Za-z0-9_-]+\.js)', head)
+            _BUILD['name'] = m.group(1) if m else None
+        except OSError:
+            _BUILD['name'] = None
+        _BUILD['checked'] = now
+    return _BUILD['name']
+
+
+
+
 @api_route('/health')
 def api_health():
     """API health check endpoint"""
@@ -874,8 +883,6 @@ def _current_bundle():
             _BUILD['name'] = None
         _BUILD['checked'] = now
     return _BUILD['name']
-
-
 @api_route('/version')
 def api_version():
     """Get version and last updated info from git"""
@@ -977,106 +984,11 @@ def check_meter():
     
     return jsonify({'available': True})
 
-@api_route('/texts')
-def get_texts():
-    language = request.args.get('language', 'la')
-    lang_dir = os.path.join(TEXTS_DIR, language)
-    
-    if not os.path.exists(lang_dir):
-        return jsonify([])
-    
-    lang_dates = AUTHOR_DATES.get(language, {})
-    texts = []
-    for filename in sorted(os.listdir(lang_dir)):
-        if filename.endswith('.tess'):
-            metadata = get_text_metadata(os.path.join(lang_dir, filename))
-            # Fill era/year from author_dates (keyed by the filename's first
-            # component) when a per-text override didn't set them. This is how
-            # Coptic gets its eras, since it has no per-text era overrides.
-            if metadata.get('era') is None or metadata.get('year') is None:
-                info = lang_dates.get(filename.split('.')[0].lower(), {})
-                if metadata.get('era') is None:
-                    metadata['era'] = info.get('era')
-                if metadata.get('year') is None:
-                    metadata['year'] = info.get('year')
-            texts.append(metadata)
-
-    texts.sort(key=lambda x: (x['author'], x['title']))
-
-    # Optional server-side author filter / pagination / compaction (absent params
-    # → full list, so the web app is unaffected). Lets AI-agent clients request
-    # e.g. ?author=Vergil instead of pulling the whole corpus.
-    texts = apply_text_list_filters(texts, request.args)
-
-    return jsonify(texts)
-
-@api_route('/authors')
-def get_authors():
-    language = request.args.get('language', 'la')
-    lang_dir = os.path.join(TEXTS_DIR, language)
-    
-    if not os.path.exists(lang_dir):
-        return jsonify([])
-    
-    authors = {}
-    for filename in os.listdir(lang_dir):
-        if filename.endswith('.tess'):
-            metadata = get_text_metadata(os.path.join(lang_dir, filename))
-            author = metadata['author']
-            if author not in authors:
-                authors[author] = []
-            authors[author].append(metadata)
-    
-    result = []
-    for author in sorted(authors.keys()):
-        result.append({
-            'name': author,
-            'works': sorted(authors[author], key=lambda x: natural_sort_key(x['title']))
-        })
-    
-    return jsonify(result)
 
 @api_route('/author-dates')
 def get_public_author_dates():
     """Get author dates for timeline visualization (public endpoint)"""
     return jsonify(AUTHOR_DATES)
-
-@api_route('/texts/hierarchy')
-def get_texts_hierarchy():
-    """Get hierarchical text structure: Author -> Work -> Parts"""
-    language = request.args.get('language', 'la')
-    lang_dir = os.path.join(TEXTS_DIR, language)
-    
-    if not os.path.exists(lang_dir):
-        return jsonify({'authors': []})
-    
-    texts = []
-    for filename in os.listdir(lang_dir):
-        if filename.endswith('.tess'):
-            metadata = get_text_metadata(os.path.join(lang_dir, filename))
-            texts.append(metadata)
-    
-    hierarchy = build_text_hierarchy(texts)
-    
-    result = []
-    for author_key in sorted(hierarchy.keys()):
-        author_data = hierarchy[author_key]
-        works = []
-        for work_key in sorted(author_data['works'].keys(), key=natural_sort_key):
-            work_data = author_data['works'][work_key]
-            works.append({
-                'work_key': work_key,
-                'work': work_data['work'],
-                'whole_text': work_data['whole_text'],
-                'parts': work_data['parts']
-            })
-        result.append({
-            'author_key': author_key,
-            'author': author_data['author'],
-            'works': works
-        })
-    
-    return jsonify({'authors': result})
 
 
 # =============================================================================
@@ -1296,182 +1208,11 @@ def _evaluate_line_candidate(unit, ref, filename, filtered_source_lemmas, query_
 # These routes handle the core search functionality for finding parallel
 # passages between source and target texts using various matching algorithms.
 
-@api_route('/search', methods=['POST'])
-def search():
-    try:
-        data = request.get_json()
-        source_id = data.get('source')
-        target_id = data.get('target')
-        language = data.get('language', 'la')
-        settings = data.get('settings', {})
-        if 'bigram_boost' in data:
-            settings['bigram_boost'] = data['bigram_boost']
-        
-        if not source_id or not target_id:
-            return jsonify({"error": "Please select both source and target texts"})
-        
-        source_path = resolve_text_path(TEXTS_DIR, language, source_id)
-        target_path = resolve_text_path(TEXTS_DIR, language, target_id)
-        
-        if not source_path or not target_path:
-            return jsonify({"error": "Text files not found"})
-        
-        settings['language'] = language
-        
-        # Apply prose-aware max_distance defaults if not explicitly set
-        if 'max_distance' not in settings or settings.get('max_distance') == 999:
-            if is_prose_text_unified(source_id) or is_prose_text_unified(target_id):
-                settings['max_distance'] = PROSE_MAX_DISTANCE
-            else:
-                settings['max_distance'] = POETRY_MAX_DISTANCE
-        
-        cached_results, cached_meta = get_cached_results(
-            source_id, target_id, language, settings
-        )
-        
-        if cached_results is not None:
-            max_results = settings.get('max_results', 0)
-            display_results = cached_results[:max_results] if max_results > 0 else cached_results
-            user_id = current_user.id if current_user and current_user.is_authenticated else None
-            city, country, _ip = get_user_location()
-            match_type_raw = settings.get('match_type', 'lemma')
-            match_labels = {
-                'lemma': 'Dictionary Form (Lemma)', 'exact': 'Exact Match',
-                'semantic': 'AI Semantic', 'v3_synonyms': 'Dictionary (V3 Synonyms)',
-                'synonyms': 'Dictionary (V3 Synonyms)', 'sound': 'Sound Matching',
-                'edit_distance': 'Edit Distance'
-            }
-            log_search(match_labels.get(match_type_raw, 'Dictionary Form (Lemma)'), language, source_id, target_id, None, 
-                      match_type_raw, len(cached_results), True, user_id, city, country, _ip)
-            meta = cached_meta or {}
-            return jsonify({
-                "results": display_results,
-                "total_matches": len(cached_results),
-                "source_lines": meta.get('source_lines', 0),
-                "target_lines": meta.get('target_lines', 0),
-                "stoplist_size": meta.get('stoplist_size', 0),
-                "cached": True
-            })
-        
-        source_unit_type = settings.get('source_unit_type', 'line')
-        target_unit_type = settings.get('target_unit_type', 'line')
-        
-        source_units = get_processed_units(source_id, language, source_unit_type, text_processor)
-        target_units = get_processed_units(target_id, language, target_unit_type, text_processor)
-        
-        corpus_frequencies = None
-        stoplist_basis = settings.get('stoplist_basis', 'source_target')
-        if stoplist_basis == 'corpus':
-            freq_data = get_corpus_frequencies(language, text_processor)
-            if freq_data:
-                corpus_frequencies = freq_data.get('frequencies', {})
-        
-        match_type = settings.get('match_type', 'lemma')
-        
-        if match_type == 'sound':
-            matches, stoplist_size = matcher.find_sound_matches(
-                source_units, target_units, settings
-            )
-        elif match_type == 'edit_distance':
-            matches, stoplist_size = matcher.find_edit_distance_matches(
-                source_units, target_units, settings
-            )
-        elif match_type == 'semantic':
-            from backend.semantic_similarity import find_semantic_matches
-            matches, stoplist_size = find_semantic_matches(
-                source_units, target_units, settings
-            )
-        else:
-            matches, stoplist_size = matcher.find_matches(
-                source_units, target_units, settings, 
-                corpus_frequencies=corpus_frequencies
-            )
-        
-        scored_results = scorer.score_matches(matches, source_units, target_units, settings, source_id, target_id)
-        
-        scored_results.sort(key=lambda x: x['overall_score'], reverse=True)
-        
-        metadata = {
-            'source_lines': len(source_units),
-            'target_lines': len(target_units),
-            'stoplist_size': stoplist_size
-        }
-        
-        save_cached_results(source_id, target_id, language, settings, 
-                          scored_results, metadata)
-        
-        max_results = settings.get('max_results', 0)
-        display_results = scored_results[:max_results] if max_results > 0 else scored_results
-        
-        user_id = current_user.id if current_user and current_user.is_authenticated else None
-        city, country, _ip = get_user_location()
-        match_type_raw = settings.get('match_type', 'lemma')
-        match_labels = {
-            'lemma': 'Dictionary Form (Lemma)', 'exact': 'Exact Match',
-            'semantic': 'AI Semantic', 'v3_synonyms': 'Dictionary (V3 Synonyms)',
-            'synonyms': 'Dictionary (V3 Synonyms)', 'sound': 'Sound Matching',
-            'edit_distance': 'Edit Distance'
-        }
-        log_search(match_labels.get(match_type_raw, 'Dictionary Form (Lemma)'), language, source_id, target_id, None,
-                  match_type_raw, len(scored_results), False, user_id, city, country, _ip)
-        
-        return jsonify({
-            "results": display_results,
-            "total_matches": len(scored_results),
-            "source_lines": len(source_units),
-            "target_lines": len(target_units),
-            "stoplist_size": stoplist_size,
-            "cached": False
-        })
-        
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        return jsonify({"error": str(e)})
 
 @api_route('/cache/stats')
 def cache_stats():
     return jsonify(get_cache_stats())
 
-@api_route('/cache/clear', methods=['POST'])
-def cache_clear():
-    count = clear_cache()
-    return jsonify({"cleared": count})
-
-@api_route('/stoplist', methods=['POST'])
-def get_stoplist():
-    """Get the computed stoplist for given texts and settings"""
-    data = request.get_json() or {}
-    source_id = data.get('source', '')
-    target_id = data.get('target', '')
-    language = data.get('language', 'la')
-    stoplist_basis = data.get('stoplist_basis', 'source_target')
-    stoplist_size = data.get('stoplist_size', 0)
-    
-    if stoplist_size == -1:
-        return jsonify({'stopwords': [], 'count': 0})
-    
-    try:
-        source_units = get_processed_units(source_id, language, 'line', text_processor)
-        target_units = get_processed_units(target_id, language, 'line', text_processor)
-        
-        corpus_frequencies = None
-        if stoplist_basis == 'corpus':
-            freq_data = get_corpus_frequencies(language, text_processor)
-            if freq_data:
-                corpus_frequencies = freq_data.get('frequencies', {})
-        
-        if stoplist_size > 0:
-            stopwords = matcher.build_stoplist_manual(source_units + target_units, stoplist_size, language)
-        else:
-            stopwords = matcher.build_stoplist(source_units, target_units, stoplist_basis, language, corpus_frequencies)
-        
-        return jsonify({
-            'stopwords': sorted(list(stopwords)),
-            'count': len(stopwords)
-        })
-    except Exception as e:
-        return jsonify({'error': str(e), 'stopwords': []})
 
 @api_route('/stats')
 def get_stats():
@@ -1492,45 +1233,6 @@ def get_stats():
     
     return jsonify(stats)
 
-@api_route('/text/<path:text_id>')
-def get_text_content(text_id):
-    """Get the full content of a text file"""
-    language = request.args.get('language', 'la')
-    filepath = resolve_text_path(TEXTS_DIR, language, text_id)
-    
-    if not filepath:
-        return jsonify({'error': 'Text not found'}), 404
-    
-    try:
-        with open(filepath, 'r', encoding='utf-8') as f:
-            content = f.read()
-        
-        lines = []
-        for line in content.split('\n'):
-            line = line.strip()
-            if not line:
-                continue
-            
-            ref = ''
-            text = line
-            if line.startswith('<') and '>' in line:
-                end_tag = line.index('>')
-                ref = line[1:end_tag].strip()
-                text = line[end_tag+1:].strip()
-            
-            lines.append({'ref': ref, 'text': text})
-        
-        metadata = get_text_metadata(filepath)
-        
-        return jsonify({
-            'id': text_id,
-            'author': metadata.get('author', ''),
-            'title': metadata.get('title', ''),
-            'lines': lines,
-            'line_count': len(lines)
-        })
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
 @api_route('/text/<path:text_id>/lines')
 def get_text_lines(text_id):
@@ -1571,136 +1273,6 @@ def get_text_lines(text_id):
         })
     except Exception as e:
         return jsonify({'error': str(e), 'lines': []}), 500
-
-
-@api_route('/frequencies/<language>')
-def get_frequencies(language):
-    """Get cached corpus frequencies for a language"""
-    freq_data = get_corpus_frequencies(language, text_processor)
-    if freq_data:
-        return jsonify({
-            'language': language,
-            'total_lemmas': freq_data.get('total_lemmas', 0),
-            'unique_lemmas': len(freq_data.get('frequencies', {})),
-            'text_count': freq_data.get('text_count', 0),
-            'last_updated': freq_data.get('last_updated'),
-            'top_50': list(freq_data.get('frequencies', {}).items())[:50]
-        })
-    return jsonify({'error': 'No frequency data available'}), 404
-
-@api_route('/frequencies/recalculate', methods=['POST'])
-def recalculate_frequencies():
-    """Recalculate corpus frequencies for a language"""
-    data = request.get_json() or {}
-    language = data.get('language', 'la')
-    
-    result = recalculate_language_frequencies(language, text_processor)
-    if result:
-        return jsonify({
-            'success': True,
-            'language': language,
-            'unique_lemmas': len(result.get('frequencies', {})),
-            'total_lemmas': result.get('total_lemmas', 0)
-        })
-    return jsonify({'error': 'Failed to recalculate frequencies'}), 500
-
-@api_route('/texts/preview', methods=['POST'])
-def preview_text():
-    """Preview how text will be chunked into units"""
-    data = request.get_json() or {}
-    raw_text = data.get('text', '')
-    language = data.get('language', 'la')
-    author = data.get('author', 'unknown')
-    work = data.get('work', 'untitled')
-    
-    lines = raw_text.strip().split('\n')
-    units = []
-    errors = []
-    
-    for i, line in enumerate(lines, 1):
-        line = line.strip()
-        if not line:
-            continue
-        
-        if line.startswith('<') and '>' in line:
-            tag_end = line.index('>') + 1
-            tag = line[:tag_end]
-            text = line[tag_end:].strip()
-            units.append({
-                'line_num': i,
-                'tag': tag,
-                'text': text,
-                'valid': True
-            })
-        else:
-            auto_tag = f"<{author}.{work}.{len(units)+1}>"
-            units.append({
-                'line_num': i,
-                'tag': auto_tag,
-                'text': line,
-                'valid': True,
-                'auto_tagged': True
-            })
-    
-    return jsonify({
-        'units': units,
-        'total_lines': len(units),
-        'errors': errors
-    })
-
-@api_route('/texts/add', methods=['POST'])
-def add_text():
-    """Add a new text to the corpus"""
-    data = request.get_json() or {}
-    language = data.get('language', 'la')
-    author = data.get('author', '').strip()
-    work = data.get('work', '').strip()
-    content = data.get('content', '')
-    
-    if not author or not work:
-        return jsonify({'error': 'Author and work title are required'}), 400
-    
-    if not content.strip():
-        return jsonify({'error': 'Text content is required'}), 400
-    
-    safe_author = ''.join(c if c.isalnum() or c in '._-' else '_' for c in author.lower())
-    safe_work = ''.join(c if c.isalnum() or c in '._-' else '_' for c in work.lower())
-    filename = f"{safe_author}.{safe_work}.tess"
-    
-    lang_dir = os.path.join(TEXTS_DIR, language)
-    os.makedirs(lang_dir, exist_ok=True)
-    
-    filepath = os.path.join(lang_dir, filename)
-    
-    if os.path.exists(filepath):
-        return jsonify({'error': f'Text "{author} - {work}" already exists'}), 409
-    
-    lines = content.strip().split('\n')
-    formatted_lines = []
-    
-    for i, line in enumerate(lines, 1):
-        line = line.strip()
-        if not line:
-            continue
-        
-        if line.startswith('<') and '>' in line:
-            formatted_lines.append(line)
-        else:
-            tag = f"<{safe_author}.{safe_work}.{i}>"
-            formatted_lines.append(f"{tag} {line}")
-    
-    with open(filepath, 'w', encoding='utf-8') as f:
-        f.write('\n'.join(formatted_lines))
-    
-    app_logger.info(f"Recalculating {language} corpus frequencies after adding {filename}...")
-    recalculate_language_frequencies(language, text_processor)
-    
-    return jsonify({
-        'success': True,
-        'filename': filename,
-        'language': language,
-        'lines': len(formatted_lines)
-    })
 
 
 # =============================================================================
@@ -2907,167 +2479,6 @@ def submit_feedback():
         app_logger.error(f"Failed to submit feedback: {e}")
         return jsonify({'error': str(e)}), 500
 
-@api_route('/admin/login', methods=['POST'])
-def admin_login():
-    """Verify admin password"""
-    # Legacy admin login brute-force protection (process-local).
-    if not hasattr(admin_login, '_attempts'):
-        admin_login._attempts = defaultdict(list)      # key -> [timestamps]
-        admin_login._lockouts = {}                     # key -> lockout_until_epoch
-        admin_login._lock = threading.Lock()
-
-    max_attempts = int(os.environ.get('ADMIN_LOGIN_MAX_ATTEMPTS', '5'))
-    window_seconds = int(os.environ.get('ADMIN_LOGIN_WINDOW_SECONDS', '900'))
-    lockout_seconds = int(os.environ.get('ADMIN_LOGIN_LOCKOUT_SECONDS', '900'))
-
-    def _client_ip():
-        forwarded_for = (request.headers.get('X-Forwarded-For') or '').split(',')[0].strip()
-        return forwarded_for or request.remote_addr or 'unknown'
-
-    def _keys(email):
-        normalized_email = (email or '').strip().lower() or 'unknown'
-        ip = _client_ip()
-        return [f"ip:{ip}", f"email:{normalized_email}", f"combo:{ip}|{normalized_email}"]
-
-    def _prune(now):
-        cutoff = now - window_seconds
-        for k, ts_list in list(admin_login._attempts.items()):
-            recent = [ts for ts in ts_list if ts >= cutoff]
-            if recent:
-                admin_login._attempts[k] = recent
-            else:
-                admin_login._attempts.pop(k, None)
-        for k, until in list(admin_login._lockouts.items()):
-            if until <= now:
-                admin_login._lockouts.pop(k, None)
-
-    data = request.get_json() or {}
-    password = data.get('password', '')
-    email = (data.get('email') or data.get('username') or '').strip().lower()
-
-    with admin_login._lock:
-        now = time.time()
-        _prune(now)
-        retry_after = [max(0, int(admin_login._lockouts[k] - now)) for k in _keys(email) if k in admin_login._lockouts]
-        if retry_after:
-            return (
-                jsonify({'error': 'Too many login attempts. Please try again later.'}),
-                429,
-                {'Retry-After': str(max(retry_after))}
-            )
-    
-    if not ADMIN_PASSWORD:
-        return jsonify({'error': 'Admin password not configured'}), 500
-    
-    if password == ADMIN_PASSWORD:
-        with admin_login._lock:
-            for k in _keys(email):
-                admin_login._attempts.pop(k, None)
-                admin_login._lockouts.pop(k, None)
-        return jsonify({'success': True})
-    else:
-        with admin_login._lock:
-            now = time.time()
-            _prune(now)
-            for k in _keys(email):
-                attempts = admin_login._attempts[k]
-                attempts.append(now)
-                if len(attempts) >= max_attempts:
-                    admin_login._lockouts[k] = now + lockout_seconds
-        return jsonify({'error': 'Invalid password'}), 401
-
-@api_route('/admin/author-dates', methods=['GET'])
-def get_author_dates():
-    """Get all author dates (admin only)"""
-    password = request.headers.get('X-Admin-Password', '')
-    if password != ADMIN_PASSWORD:
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    return jsonify(AUTHOR_DATES)
-
-@api_route('/admin/author-dates/<language>/<author_key>', methods=['PUT'])
-def update_author_date(language, author_key):
-    """Update or add an author date entry (admin only)"""
-    global AUTHOR_DATES
-    password = request.headers.get('X-Admin-Password', '')
-    if password != ADMIN_PASSWORD:
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    data = request.get_json() or {}
-    year = data.get('year')
-    era = data.get('era', 'Unknown')
-    note = data.get('note', '')
-    
-    if language not in AUTHOR_DATES:
-        AUTHOR_DATES[language] = {}
-    
-    AUTHOR_DATES[language][author_key] = {
-        'year': int(year) if year is not None and year != '' else None,
-        'era': era,
-        'note': note
-    }
-    
-    with open(author_dates_path, 'w') as f:
-        json.dump(AUTHOR_DATES, f, indent=2)
-    
-    return jsonify({'success': True})
-
-@api_route('/admin/author-dates/<language>/<author_key>', methods=['DELETE'])
-def delete_author_date(language, author_key):
-    """Delete an author date entry (admin only)"""
-    global AUTHOR_DATES
-    password = request.headers.get('X-Admin-Password', '')
-    if password != ADMIN_PASSWORD:
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    if language in AUTHOR_DATES and author_key in AUTHOR_DATES[language]:
-        del AUTHOR_DATES[language][author_key]
-        with open(author_dates_path, 'w') as f:
-            json.dump(AUTHOR_DATES, f, indent=2)
-        return jsonify({'success': True})
-    
-    return jsonify({'error': 'Entry not found'}), 404
-
-@api_route('/admin/lemma-cache/stats', methods=['GET'])
-def lemma_cache_stats():
-    """Get lemma cache statistics (admin only)"""
-    password = request.headers.get('X-Admin-Password', '')
-    if password != ADMIN_PASSWORD:
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    return jsonify(get_lemma_cache_stats())
-
-@api_route('/admin/lemma-cache/rebuild', methods=['POST'])
-def rebuild_lemma_cache_endpoint():
-    """Rebuild lemma cache for a language (admin only)"""
-    password = request.headers.get('X-Admin-Password', '')
-    if password != ADMIN_PASSWORD:
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    data = request.get_json() or {}
-    language = data.get('language', 'la')
-    
-    global processed_cache
-    processed_cache = {}
-    
-    result = rebuild_lemma_cache(language, text_processor)
-    return jsonify(result)
-
-@api_route('/admin/lemma-cache/clear', methods=['POST'])
-def clear_lemma_cache_endpoint():
-    """Clear lemma cache (admin only)"""
-    password = request.headers.get('X-Admin-Password', '')
-    if password != ADMIN_PASSWORD:
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    data = request.get_json() or {}
-    language = data.get('language')
-    
-    global processed_cache
-    processed_cache = {}
-    
-    result = clear_lemma_cache(language)
-    return jsonify(result)
 
 @api_route('/features/weights', methods=['GET'])
 def get_feature_weights():
@@ -3118,375 +2529,6 @@ def toggle_feature():
         return jsonify({'success': True, 'enabled_features': enabled_features})
     else:
         return jsonify({'error': 'Failed to save'}), 500
-
-@api_route('/admin/feedback', methods=['GET'])
-def get_feedback():
-    """Get all feedback submissions (admin only)"""
-    password = request.headers.get('X-Admin-Password', '')
-    if password != ADMIN_PASSWORD:
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    try:
-        with get_db_cursor(commit=False) as cur:
-            cur.execute('''
-                SELECT id, name, email, feedback_type, message, status, created_at, admin_notes, responded_by, responded_at
-                FROM feedback
-                ORDER BY created_at DESC
-            ''')
-            rows = cur.fetchall()
-        
-        feedback_list = []
-        for row in rows:
-            feedback_list.append({
-                'id': row[0],
-                'name': row[1],
-                'email': row[2],
-                'type': row[3],
-                'message': row[4],
-                'status': row[5] or 'pending',
-                'created_at': row[6].isoformat() if row[6] else None,
-                'admin_notes': row[7],
-                'responded_by': row[8],
-                'responded_at': row[9].isoformat() if row[9] else None
-            })
-        return jsonify(feedback_list)
-    except Exception as e:
-        app_logger.error(f"Failed to get feedback: {e}")
-        return jsonify({'error': str(e)}), 500
-
-@api_route('/admin/feedback/<int:feedback_id>', methods=['PUT'])
-def update_feedback(feedback_id):
-    """Update feedback status (admin only)"""
-    password = request.headers.get('X-Admin-Password', '')
-    if password != ADMIN_PASSWORD:
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    data = request.get_json() or {}
-    status = data.get('status')
-    if status:
-        status = status.strip().lower()
-        if status in ('new', 'open'):
-            status = 'pending'
-        elif status in ('resolved', 'done', 'closed'):
-            status = 'responded'
-        elif status not in ('pending', 'in_progress', 'responded'):
-            return jsonify({'error': 'Invalid status'}), 400
-    admin_notes = data.get('admin_notes')
-    
-    try:
-        with get_db_cursor() as cur:
-            if status and admin_notes is not None:
-                if status == 'responded':
-                    cur.execute(
-                        '''
-                        UPDATE feedback
-                        SET status = %s, admin_notes = %s, responded_by = %s, responded_at = %s
-                        WHERE id = %s
-                        ''',
-                        (status, admin_notes, 'admin', datetime.now(), feedback_id),
-                    )
-                elif status == 'pending':
-                    cur.execute(
-                        '''
-                        UPDATE feedback
-                        SET status = %s, admin_notes = %s, responded_by = NULL, responded_at = NULL
-                        WHERE id = %s
-                        ''',
-                        (status, admin_notes, feedback_id),
-                    )
-                else:
-                    cur.execute('UPDATE feedback SET status = %s, admin_notes = %s WHERE id = %s', (status, admin_notes, feedback_id))
-            elif status:
-                if status == 'responded':
-                    cur.execute(
-                        '''
-                        UPDATE feedback
-                        SET status = %s, responded_by = %s, responded_at = %s
-                        WHERE id = %s
-                        ''',
-                        (status, 'admin', datetime.now(), feedback_id),
-                    )
-                elif status == 'pending':
-                    cur.execute(
-                        '''
-                        UPDATE feedback
-                        SET status = %s, responded_by = NULL, responded_at = NULL
-                        WHERE id = %s
-                        ''',
-                        (status, feedback_id),
-                    )
-                else:
-                    cur.execute('UPDATE feedback SET status = %s WHERE id = %s', (status, feedback_id))
-            elif admin_notes is not None:
-                cur.execute('UPDATE feedback SET admin_notes = %s WHERE id = %s', (admin_notes, feedback_id))
-        return jsonify({'success': True})
-    except Exception as e:
-        app_logger.error(f"Failed to update feedback: {e}")
-        return jsonify({'error': str(e)}), 500
-
-@api_route('/admin/settings', methods=['GET'])
-def get_settings():
-    """Get admin settings (admin only)"""
-    password = request.headers.get('X-Admin-Password', '')
-    if password != ADMIN_PASSWORD:
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    try:
-        with get_db_cursor(commit=False) as cur:
-            cur.execute('SELECT key, value FROM settings')
-            rows = cur.fetchall()
-        
-        settings = {row[0]: row[1] for row in rows}
-        return jsonify(settings)
-    except Exception as e:
-        app_logger.error(f"Failed to get settings: {e}")
-        return jsonify({'error': str(e)}), 500
-
-@api_route('/admin/settings', methods=['POST'])
-def update_settings():
-    """Update admin settings (admin only)"""
-    password = request.headers.get('X-Admin-Password', '')
-    if password != ADMIN_PASSWORD:
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    data = request.get_json() or {}
-    
-    try:
-        with get_db_cursor() as cur:
-            for key, value in data.items():
-                cur.execute('''
-                    INSERT INTO settings (key, value) VALUES (%s, %s)
-                    ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
-                ''', (key, value))
-        return jsonify({'success': True})
-    except Exception as e:
-        app_logger.error(f"Failed to update settings: {e}")
-        return jsonify({'error': str(e)}), 500
-
-@api_route('/admin/user-data', methods=['GET'])
-def get_user_data():
-    """Get all data for a user by email (GDPR data export)"""
-    password = request.headers.get('X-Admin-Password', '')
-    if password != ADMIN_PASSWORD:
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    email = request.args.get('email', '').strip().lower()
-    if not email:
-        return jsonify({'error': 'Email required'}), 400
-    
-    try:
-        from backend.models import User, SavedSearch
-        result = {'email': email, 'found': False}
-        
-        user = User.query.filter(User.email.ilike(email)).first()
-        if user:
-            result['found'] = True
-            result['profile'] = {
-                'id': user.id,
-                'replit_id': user.replit_id,
-                'name': user.name,
-                'email': user.email,
-                'profile_image': user.profile_image,
-                'institution': user.institution,
-                'created_at': str(user.created_at) if user.created_at else None
-            }
-            
-            saved = SavedSearch.query.filter_by(user_id=user.id).all()
-            result['saved_searches'] = [{
-                'id': s.id,
-                'name': s.name,
-                'created_at': str(s.created_at) if s.created_at else None,
-                'settings': s.settings
-            } for s in saved]
-            
-            with get_db_cursor(commit=False) as cur:
-                cur.execute('SELECT COUNT(*) FROM search_logs WHERE user_id = %s', (user.id,))
-                count_row = cur.fetchone()
-                result['search_logs'] = count_row[0] if count_row else 0
-        
-        with get_db_cursor(commit=False) as cur:
-            cur.execute('SELECT id, name, feedback_type, message, status, created_at FROM feedback WHERE email ILIKE %s', (email,))
-            feedback_rows = cur.fetchall()
-            result['feedback'] = [{
-                'id': row[0],
-                'name': row[1],
-                'type': row[2],
-                'message': row[3],
-                'status': row[4],
-                'created_at': str(row[5]) if row[5] else None
-            } for row in feedback_rows]
-            
-            if feedback_rows and not result['found']:
-                result['found'] = True
-        
-        return jsonify(result)
-    except Exception as e:
-        app_logger.error(f"Failed to get user data: {e}")
-        return jsonify({'error': str(e)}), 500
-
-@api_route('/admin/analytics', methods=['GET'])
-def get_analytics():
-    """Get search analytics (admin only)"""
-    password = request.headers.get('X-Admin-Password', '')
-    if password != ADMIN_PASSWORD:
-        return jsonify({'error': 'Unauthorized'}), 401
-    
-    try:
-        with get_db_cursor(commit=False) as cur:
-            # Total searches
-            cur.execute('SELECT COUNT(*) FROM search_logs')
-            row = cur.fetchone()
-            total_searches = row[0] if row else 0
-            
-            # Searches by type
-            cur.execute('''
-                SELECT search_type, COUNT(*) as count 
-                FROM search_logs 
-                GROUP BY search_type 
-                ORDER BY count DESC
-            ''')
-            by_type = [{'type': row[0], 'count': row[1]} for row in cur.fetchall()]
-            
-            # Searches by language
-            cur.execute('''
-                SELECT language, COUNT(*) as count 
-                FROM search_logs 
-                GROUP BY language 
-                ORDER BY count DESC
-            ''')
-            by_language = [{'language': row[0], 'count': row[1]} for row in cur.fetchall()]
-            
-            # Searches per day (last 30 days)
-            cur.execute('''
-                SELECT 
-                    DATE(created_at) as day, 
-                    COUNT(*) as count,
-                    COUNT(DISTINCT COALESCE(user_id, client_ip)) as users,
-                    COUNT(CASE WHEN cached = TRUE THEN 1 END) as cache_hits,
-                    COUNT(CASE WHEN cached = FALSE THEN 1 END) as cache_misses
-                FROM search_logs 
-                WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
-                GROUP BY DATE(created_at) 
-                ORDER BY day DESC
-            ''')
-            per_day = [{
-                'date': str(row[0]), 
-                'count': row[1],
-                'users': row[2],
-                'cache_hits': row[3],
-                'cache_misses': row[4]
-            } for row in cur.fetchall()]
-            
-            # Top source texts
-            cur.execute('''
-                SELECT source_text, COUNT(*) as count 
-                FROM search_logs 
-                WHERE source_text IS NOT NULL
-                GROUP BY source_text 
-                ORDER BY count DESC 
-                LIMIT 10
-            ''')
-            top_sources = [{'text': row[0], 'count': row[1]} for row in cur.fetchall()]
-            
-            # Top target texts
-            cur.execute('''
-                SELECT target_text, COUNT(*) as count 
-                FROM search_logs 
-                WHERE target_text IS NOT NULL
-                GROUP BY target_text 
-                ORDER BY count DESC 
-                LIMIT 10
-            ''')
-            top_targets = [{'text': row[0], 'count': row[1]} for row in cur.fetchall()]
-            
-            # Recent line search queries
-            cur.execute('''
-                SELECT query_text, language, created_at 
-                FROM search_logs 
-                WHERE search_type = 'line_search' AND query_text IS NOT NULL
-                ORDER BY created_at DESC 
-                LIMIT 20
-            ''')
-            recent_queries = [{'query': row[0], 'language': row[1], 'date': str(row[2])} 
-                             for row in cur.fetchall()]
-            
-            # Match type usage
-            cur.execute('''
-                SELECT match_type, COUNT(*) as count 
-                FROM search_logs 
-                WHERE match_type IS NOT NULL
-                GROUP BY match_type 
-                ORDER BY count DESC
-            ''')
-            by_match_type = [{'type': row[0], 'count': row[1]} for row in cur.fetchall()]
-            
-            # Cached vs non-cached
-            cur.execute('''
-                SELECT cached, COUNT(*) as count 
-                FROM search_logs 
-                GROUP BY cached
-            ''')
-            cache_stats = {row[0]: row[1] for row in cur.fetchall()}
-            
-            # Unique users (logged in)
-            cur.execute('''
-                SELECT COUNT(DISTINCT user_id) 
-                FROM search_logs 
-                WHERE user_id IS NOT NULL
-            ''')
-            row = cur.fetchone()
-            unique_users = row[0] if row else 0
-            
-            # Searches today
-            cur.execute('''
-                SELECT COUNT(*) 
-                FROM search_logs 
-                WHERE DATE(created_at) = CURRENT_DATE
-            ''')
-            row = cur.fetchone()
-            searches_today = row[0] if row else 0
-            
-            # Top countries
-            cur.execute('''
-                SELECT country, COUNT(*) as count 
-                FROM search_logs 
-                WHERE country IS NOT NULL
-                GROUP BY country 
-                ORDER BY count DESC 
-                LIMIT 15
-            ''')
-            top_countries = [{'country': row[0], 'count': row[1]} for row in cur.fetchall()]
-            
-            # Top cities
-            cur.execute('''
-                SELECT city, country, COUNT(*) as count 
-                FROM search_logs 
-                WHERE city IS NOT NULL
-                GROUP BY city, country 
-                ORDER BY count DESC 
-                LIMIT 20
-            ''')
-            top_cities = [{'city': row[0], 'country': row[1], 'count': row[2]} for row in cur.fetchall()]
-        
-        return jsonify({
-            'total_searches': total_searches,
-            'searches_today': searches_today,
-            'unique_users': unique_users,
-            'by_type': by_type,
-            'by_language': by_language,
-            'by_match_type': by_match_type,
-            'per_day': per_day,
-            'top_sources': top_sources,
-            'top_targets': top_targets,
-            'recent_queries': recent_queries,
-            'cache_hits': cache_stats.get(True, 0),
-            'cache_misses': cache_stats.get(False, 0),
-            'top_countries': top_countries,
-            'top_cities': top_cities
-        })
-    except Exception as e:
-        app_logger.error(f"Failed to get analytics: {e}")
-        return jsonify({'error': str(e)}), 500
 
 
 def create_app():
