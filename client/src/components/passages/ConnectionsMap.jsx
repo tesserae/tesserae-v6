@@ -244,10 +244,20 @@ export function mapLabelGeometry(viewportWidth) {
   };
 }
 
-function useViewportWidth() {
-  const [w, setW] = useState(() => (typeof window === 'undefined' ? 1024 : window.innerWidth));
+/** The geometry for the current screen, recomputed on resize but only
+ *  re-rendered when it actually changes: dragging a desktop window would
+ *  otherwise redraw both canvases on every pixel, and the geometry only
+ *  moves when the 640-pixel line is crossed or a phone is turned. */
+function useLabelGeometry() {
+  const [geo, setGeo] = useState(
+    () => mapLabelGeometry(typeof window === 'undefined' ? 1024 : window.innerWidth));
   useEffect(() => {
-    const onResize = () => setW(window.innerWidth);
+    const onResize = () => {
+      const next = mapLabelGeometry(window.innerWidth);
+      setGeo((prev) => (prev.rowMargin === next.rowMargin && prev.labelCap === next.labelCap
+        ? prev : next));
+    };
+    onResize();
     window.addEventListener('resize', onResize);
     window.addEventListener('orientationchange', onResize);
     return () => {
@@ -255,7 +265,7 @@ function useViewportWidth() {
       window.removeEventListener('orientationchange', onResize);
     };
   }, []);
-  return w;
+  return geo;
 }
 
 function cellSizeFor(n) {
@@ -383,7 +393,7 @@ function LabeledHeatmap({
   const gridCanvasRef = useRef(null);
   const headerCanvasRef = useRef(null);
   const [hover, setHover] = useState(null);   // {i, j} in grid coordinates
-  const { rowMargin, labelCap } = mapLabelGeometry(useViewportWidth());
+  const { rowMargin, labelCap } = useLabelGeometry();
   // Frozen column labels (NC, 2026-09-19: "the top label row needs to be
   // frozen so that when you scroll down the graph the column labels remain
   // visible"). The labels live on their own strip above the scroll box,
