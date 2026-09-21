@@ -52,9 +52,10 @@ def get_max_distance(text_id: str, language: str = 'la') -> int:
     return POETRY_MAX_DISTANCE
 
 
-def normalize_latin(s: str) -> str:
-    """Normalize Latin text for comparison (v->u, j->i)"""
-    return s.replace('v', 'u').replace('j', 'i')
+# One shared rule, backend/latin_orthography.py. This used to keep case, so a
+# capitalised word at the start of a line did not match its lowercase self
+# when the distance filter compared matched words.
+from backend.latin_orthography import fold_latin as normalize_latin  # noqa: E402
 
 def normalize_greek(s: str) -> str:
     """Normalize Greek text by removing diacritics and combining characters."""

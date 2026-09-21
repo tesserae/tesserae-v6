@@ -57,20 +57,11 @@ def normalize_greek(text: str) -> str:
     decomposed = unicodedata.normalize('NFD', text)
     return ''.join(ch for ch in decomposed if not unicodedata.combining(ch))
 
-def normalize_latin(text: str) -> str:
-    """
-    Normalize Latin orthographic variants for searching.
-    - v/u and j/i equivalence (classical convention variation)
-    - Word-final -om → -um (archaic genitive plural/accusative singular,
-      e.g. divom → divum, servom → servum, quom → quum)
-    Normalizing both the search pattern and the text being searched
-    ensures matches regardless of which convention the text uses.
-    """
-    text = text.replace('v', 'u').replace('V', 'U').replace('j', 'i').replace('J', 'I')
-    text = re.sub(r'om\b', 'um', text)
-    text = re.sub(r'Om\b', 'Um', text)
-    text = re.sub(r'OM\b', 'UM', text)
-    return text
+# One shared rule, backend/latin_orthography.py. This is the SURFACE form:
+# case is kept and the archaic word-final -om folds to -um, so a search for
+# "divum" finds "diuom". It must never be used for a lemma or an index key,
+# because the tables hold "diuom" itself.
+from backend.latin_orthography import fold_latin_surface as normalize_latin  # noqa: E402
 
 
 TEXTS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts')

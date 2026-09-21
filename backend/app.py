@@ -1002,9 +1002,9 @@ POETRY_MAX_DISTANCE = 20
 PROSE_MAX_DISTANCE = 4
 
 
-def _normalize_latin_lemma(lem):
-    """Normalize Latin u/v and i/j for lemma comparison."""
-    return lem.replace('v', 'u').replace('j', 'i')
+# One shared rule, backend/latin_orthography.py. This used to keep case,
+# which a lemma from the tables never has.
+from backend.latin_orthography import fold_latin as _normalize_latin_lemma  # noqa: E402
 
 
 def _normalize_lemma(lem, language='la'):

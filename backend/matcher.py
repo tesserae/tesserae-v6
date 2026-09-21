@@ -27,10 +27,10 @@ def normalize_greek(text):
     normalized = unicodedata.normalize('NFD', text)
     return ''.join(c for c in normalized if unicodedata.category(c) != 'Mn').lower()
 
-def normalize_latin(text):
-    """Normalize Latin text for stoplist comparison (u/v equivalence)"""
-    # Classical Latin texts often use 'u' where modern editions use 'v'
-    return text.lower().replace('v', 'u')
+# One shared rule, backend/latin_orthography.py. This used to fold v to u and
+# leave i and j alone, so a stoplist holding "iam" did not recognise a text's
+# "jam" while every other part of the pipeline did.
+from backend.latin_orthography import fold_latin as normalize_latin  # noqa: E402
 
 
 # ── Greek-to-Latin transliteration ───────────────────────────────────────
