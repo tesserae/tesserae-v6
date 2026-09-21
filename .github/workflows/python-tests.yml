@@ -30,6 +30,13 @@ jobs:
           python -m py_compile main.py
           python -m compileall backend/ -q
 
+      # tests/test_endpoints.py is excluded because it needs a database and a
+      # built corpus index, neither of which exists here; it skips rather than
+      # fails, but the skips are noise. It runs on the server, where those
+      # exist. Everything else runs, including tests/test_search_reference.py,
+      # which checks the reference search's machinery against a miniature
+      # index. The reference search over the real corpus is
+      # scripts/reference_search_check.py, run at the end of a deploy.
       - name: Run tests with pytest
         run: |
           pytest tests/ --ignore=tests/test_endpoints.py --cov=backend --cov-report=term-missing -v

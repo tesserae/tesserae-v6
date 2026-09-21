@@ -17,6 +17,13 @@ behind each, are in docs/DECISIONS.md.
   of the Vulgate, were never recognised as belonging to their work. Their
   descriptions, translations and counts were looked up under a name nothing
   holds. Nothing errored, which is why it went unnoticed.
+### Internal
+- The reference search is checked by machine now, not by memory. It has said
+  since August that a search for "arma virum" must return Ovid, Quintilian
+  and Seneca, and nothing ran it. A script now asks a running site and fails
+  loudly if an author disappears or the count collapses, and a test runs the
+  same lookup machinery over a miniature index so every change is checked
+  automatically.
 
 ### Reader
 - The Reader says why it is waiting. Opening a text for the first time takes
