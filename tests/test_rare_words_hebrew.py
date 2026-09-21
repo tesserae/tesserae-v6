@@ -36,6 +36,14 @@ FREQUENCIES = {
 @pytest.fixture
 def written(tmp_path, monkeypatch):
     """Run the regeneration against the fixture frequencies, in a temp dir."""
+    # regenerate_rare_words_cache imports load_frequency_cache INSIDE the
+    # function (hapax.py:1551), so the module-level name on `hapax` is not
+    # the one it calls. Patch the source module instead; patching `hapax`
+    # silently did nothing and every test here errored on the real cache
+    # being absent.
+    import backend.frequency_cache as frequency_cache
+    monkeypatch.setattr(frequency_cache, 'load_frequency_cache',
+                        lambda language: {'frequencies': FREQUENCIES})
     monkeypatch.setattr(hapax, 'load_frequency_cache',
                         lambda language: {'frequencies': FREQUENCIES})
     monkeypatch.setattr(hapax, 'clear_rare_words_memory_cache', lambda language: None)
