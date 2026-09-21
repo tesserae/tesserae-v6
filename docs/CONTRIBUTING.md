@@ -23,7 +23,7 @@ Tesserae V6 is a Flask + React web application for detecting textual parallels a
 3. **Set up your environment:**
    - Python 3.12+, Node.js 18+
    - `pip install -r requirements.txt`
-   - `cd client && npm install`
+   - `npm install` (from the repository root; there is no package.json under client/)
    - Copy `.env.example` to `.env` and fill in database credentials (ask Neil)
 
 ## Development Workflow
@@ -47,8 +47,17 @@ Tesserae V6 is a Flask + React web application for detecting textual parallels a
 
 4. **Build the frontend if you changed any client/ files:**
    ```
-   cd client && npm run build
+   npm run build
    ```
+   Run it from the repository ROOT, not from `client/`. Vite's config sets
+   `root: 'client'` and writes to `dist/`, and `client/` has no
+   `package.json` of its own, so `cd client && npm run build` fails.
+
+5. **Adding texts, embeddings or other corpus files?** They are committed to
+   this repository (see `docs/DATA_FILES_REFERENCE.md`). Check `git status`
+   shows every new file before you commit: a stray ignore rule used to hide
+   new files under `texts/` and `backend/embeddings/` so they were never
+   committed at all, which is why those rules are gone.
 
 ## Submitting Your Work
 

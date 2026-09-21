@@ -47,9 +47,32 @@ node_modules/
 *.tsbuildinfo
 
 # Large data directories (excluded from GitHub)
-# Total ~4.7GB - too large for GitHub, share separately
-# See docs/DATA_FILES_REFERENCE.md for complete list and instructions
-texts/
+# See docs/DATA_FILES_REFERENCE.md for the complete list and instructions.
+#
+# The corpus SHIPS in this repository (3,484 .tess files, about 477 MB, a
+# deliberate choice that file records). A blanket `texts/` rule did not
+# untrack any of it -- it only hid the NEXT file: a newly imported text did
+# not appear in `git status`, was skipped by `git add texts/`, and was never
+# committed unless somebody remembered `git add -f`, while the index build,
+# the lemma cache and the deploy that followed all behaved as though it had
+# shipped. Corpus import is this project's most frequent change, so the
+# languages that ship are visible to git, one directory at a time:
+texts/*
+!texts/la/
+!texts/grc/
+!texts/en/
+!texts/cop/
+!texts/he/
+!texts/it/
+!texts/gmh/
+!texts/fro/
+# Languages still in development (Persian, Urdu, Arabic) stay ignored on
+# purpose: they are not to reach production, and an ignore rule is a poor
+# guard but a useful reminder. Add the directory above when one ships.
+#
+# Scratch directories inside a language folder (a dated set of files pulled
+# out of the corpus, say) are not part of the corpus:
+texts/*/_*/
 # data/* rather than data/ so single curated files can be un-ignored below
 # (git cannot re-include a child of an ignored DIRECTORY).
 data/*
@@ -61,7 +84,6 @@ data/la_mqdq_temp/
 !data/text_genres.csv
 !data/translation_pairs.json
 cache/
-backend/embeddings/
 
 # Private/local files
 .private/
@@ -78,7 +100,6 @@ docs/ARTICLE_METHODS_DRAFT.md
 docs/PRIVATE_DEPLOYMENT_MANUAL.md
 
 # Search cache (regenerated at runtime)
-cache/
 
 # UD treebank source data (large, download separately)
 data/treebanks/
@@ -93,7 +114,14 @@ evaluation/
 !tests/
 !tests/**
 
-# Pre-computed embeddings (too large for Git)
+# Pre-computed embeddings: 1,704 files, about 2 GB, ARE committed already
+# (docs/DATA_FILES_REFERENCE.md calls that a deliberate choice for ease of
+# setup), and they stay tracked -- an ignore rule never untracks anything.
+# The directory stays ignored for what comes NEXT, because an embedding run
+# writes gigabytes of binary files that can always be recomputed from the
+# texts, and 3.6 GB of them appearing in `git status` would bury everything
+# else. Committing a new one is therefore a deliberate act: `git add -f`.
+# Unlike a text file, nothing is lost if it never reaches git.
 backend/embeddings/
 
 # Research directory (private plans, writing, evaluation output)
