@@ -105,3 +105,25 @@ def test_file_without_unit_sources_is_unchanged(monkeypatch):
     assert out['year'] == 1900
     # falls straight back to the file's own top-level attribution, as before
     assert out['attribution'] == 'Translator A (1900)'
+
+
+def test_licence_follows_the_words_served(monkeypatch):
+    """A passage taken wholly from the non-commercial source carries that
+    source's own licence; one from the public-domain source, whose entry has
+    no licence of its own, falls back to the file's summary licence."""
+    _patch_load(monkeypatch, {'testwork': FIXTURE_MIXED})
+    kline_only = translations.for_passage('testwork', ['wk. 1.2'])
+    assert kline_only['license'] == 'Free for any non-commercial purpose.'
+    duff_only = translations.for_passage('testwork', ['wk. 1.1'])
+    assert duff_only['license'] == 'Mixed licence text.'
+
+
+def test_unit_sources_not_parallel_to_units_is_ignored(monkeypatch):
+    """If the per-unit list drifts from the units it must not be trusted: a
+    licensed unit could then be credited to the public-domain translator.
+    The file-level attribution, which names both, is used instead."""
+    broken = dict(FIXTURE_MIXED, unit_sources=[0, 1])
+    _patch_load(monkeypatch, {'testwork': broken})
+    out = translations.for_passage('testwork', ['wk. 1.2'])
+    assert out['attribution'] == 'Translator A (1900) and Translator B (Publisher B)'
+    assert out['license'] == 'Mixed licence text.'

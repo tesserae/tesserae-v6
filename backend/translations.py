@@ -111,7 +111,7 @@ def for_passage(work, refs):
     data = _load(work)
     if not data:
         return {'available': False,
-                'reason': 'No aligned public-domain translation for this work.',
+                'reason': 'No aligned open translation for this work.',
                 'work': _norm_work(work)}
 
     ref_to_unit = data.get('ref_to_unit') or {}
@@ -134,6 +134,14 @@ def for_passage(work, refs):
 
     sources_list = data.get('sources') or [{}]
     unit_sources = data.get('unit_sources')
+    if unit_sources and len(unit_sources) != len(units):
+        # A per-unit source list that is not parallel to the units cannot be
+        # trusted: a licensed unit could be credited as public domain. Fall
+        # back to the file-level attribution, which names every translator.
+        logger.warning('%s: unit_sources has %d entries for %d units; ignored',
+                       _norm_work(work), len(unit_sources), len(units))
+        unit_sources = None
+    licence = data.get('license')
     if unit_sources:
         # Distinct sources actually behind the units served, in the order
         # first encountered, so a mixed passage credits every translator
@@ -147,6 +155,16 @@ def for_passage(work, refs):
                        for si in served_src_indices]
         attribution = ' and '.join(_source_attribution(s) for s in served_srcs)
         src = served_srcs[0]
+        # The licence shown is the one for the words served: a passage taken
+        # wholly from a non-commercial translation carries that translation's
+        # own terms, not the file's summary of both.
+        own = []
+        for s_ in served_srcs:
+            lic = s_.get('license')
+            if lic and lic not in own:
+                own.append(lic)
+        if own:
+            licence = ' '.join(own)
     else:
         src = sources_list[0]
         attribution = data.get('attribution')
@@ -176,7 +194,7 @@ def for_passage(work, refs):
         'lines_matched': matched,
         'translator': src.get('translator'),
         'year': src.get('year'),
-        'license': data.get('license'),
+        'license': licence,
         'attribution': attribution,
         'alignment_confidence': data.get('alignment_confidence'),
         'approximate': bool(coarse),
