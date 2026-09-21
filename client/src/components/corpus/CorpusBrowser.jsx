@@ -6,7 +6,10 @@ import { ERA_ORDER_BY_LANG } from '../../utils/eras';
 
 // Languages the corpus tabs offer, read from the URL's `language` param so
 // a link (Help, Theme Search) can land here already on the right tab.
-const VALID_LANGUAGES = ['la', 'grc', 'en', 'cop'];
+// Order matches the rest of the site: Latin, Greek, English, then the
+// others in the order they were added (Hebrew 2026-09-21, before Coptic
+// per the Reader's LANG_ORDER and Theme Search's LANG_CHOICES).
+const VALID_LANGUAGES = ['la', 'grc', 'en', 'he', 'cop'];
 
 export default function CorpusBrowser() {
   // A link can open this page with the Theme Search filter already on and a
@@ -49,6 +52,7 @@ export default function CorpusBrowser() {
     { code: 'la', label: 'Latin' },
     { code: 'grc', label: 'Greek' },
     { code: 'en', label: 'English' },
+    { code: 'he', label: 'Hebrew' },
     { code: 'cop', label: 'Coptic' }
   ];
 
@@ -172,6 +176,8 @@ export default function CorpusBrowser() {
 
   // Era ordering for all languages (roughly chronological across cultures)
   const eraOrder = [
+    // Hebrew Bible predates the classical eras below
+    'biblical',
     // Greek
     'archaic', 'classical', 'hellenistic',
     // Latin  

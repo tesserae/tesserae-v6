@@ -1620,6 +1620,32 @@ def regenerate_rare_words_cache(language):
                     continue
                 rare_words.append({'lemma': clean, 'display': clean, 'count': count})
 
+    elif language == 'he':
+        # Hebrew joined the Rare Words Explorer on 2026-09-21 (NC: "Hebrew
+        # should be offered in Corpus Browser and Rare Words Explorer"). The
+        # page had no Hebrew data at all before that: this function had a
+        # branch for every other language and none for Hebrew, so the cache
+        # it wrote was an empty list and the page would have shown nothing.
+        #
+        # The frequency cache holds consonantal lemmas with no vowel points,
+        # which is what the search pipeline produces, so the lemma is also
+        # the display form. Two filters, both for the same reason the other
+        # languages have them: a single letter is a clitic or a numeral
+        # rather than a word, and anything outside the Hebrew letter block
+        # is a transcription artifact (maqaf, cantillation, verse numbers)
+        # rather than a lemma. The curated function-word list is the same one
+        # the fusion channels use.
+        from backend.hebrew.stopwords import HEBREW_STOP_WORDS
+        hebrew_letters = re.compile(r'[\u05d0-\u05ea]+')
+        for lemma, count in frequencies.items():
+            if 1 <= count <= 10:
+                if len(lemma) < 2:
+                    continue
+                if not hebrew_letters.fullmatch(lemma):
+                    continue
+                if lemma in HEBREW_STOP_WORDS:
+                    continue
+                rare_words.append({'lemma': lemma, 'display': lemma, 'count': count})
     elif language == 'cop':
         from backend.coptic.stopwords import COPTIC_STOP_WORDS
         for lemma, (count, first_file, first_ref) in frequencies.items():

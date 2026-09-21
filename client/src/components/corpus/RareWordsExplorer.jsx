@@ -85,6 +85,7 @@ export default function RareWordsExplorer() {
     { code: 'la', label: 'Latin' },
     { code: 'grc', label: 'Greek' },
     { code: 'en', label: 'English' },
+    { code: 'he', label: 'Hebrew' },
     { code: 'cop', label: 'Coptic' }
   ];
 
@@ -227,6 +228,7 @@ export default function RareWordsExplorer() {
   const getDictionaryName = (lang) => {
     if (lang === 'en') return 'Wiktionary';
     if (lang === 'cop') return 'Coptic Dictionary';
+    if (lang === 'he') return 'Wiktionary';
     return 'Logeion';
   };
 

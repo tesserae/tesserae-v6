@@ -12,9 +12,16 @@ export const ERA_ORDER_BY_LANG = {
   grc: ['Archaic', 'Classical', 'Hellenistic', 'Early Imperial', 'Later Imperial', 'Late Antique', 'Late Imperial', 'Unknown'],
   en:  ['Medieval', 'Renaissance', 'Early Modern', 'Restoration', 'Augustan', 'Neoclassical', 'Romantic', 'Victorian', 'Modern', 'Unknown'],
   cop: ['Early Coptic', 'Classical Coptic', 'Late Antique Coptic', 'Bohairic Medieval', 'Unknown'],
+  // Hebrew joined the Corpus Browser on 2026-09-21. Every one of the 39
+  // Hebrew Bible books is tagged Biblical, so that plus Unknown is the whole
+  // list until something later is added. Without a key here the filter fell
+  // back to the Latin eras, which is the same gap Coptic had.
+  he:  ['Biblical', 'Unknown'],
 };
 
 export const ERA_COLORS = {
+  // Hebrew
+  'Biblical': 'rgba(90, 122, 92, 0.7)',
   // Greek (existing)
   'Archaic': 'rgba(155, 35, 53, 0.7)',
   'Classical': 'rgba(224, 123, 0, 0.7)',

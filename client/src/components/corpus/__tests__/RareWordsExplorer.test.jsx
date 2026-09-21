@@ -39,3 +39,30 @@ describe('the heading names the language from the shared table', () => {
     expect(screen.queryByText('Rare Words Explorer (cop)')).toBeNull();
   });
 });
+
+// Hebrew joined this page on 2026-09-21 (NC asked for it). Merged in from
+// the Hebrew branch after the shared-language-name work landed first.
+describe('the Hebrew tab', () => {
+  it('appears in the language tabs, after English and before Coptic', async () => {
+    render(<RareWordsExplorer />);
+    await waitFor(() => expect(screen.getByText('exiguus')).toBeTruthy());
+    const tabs = screen.getAllByRole('button').filter((b) =>
+      ['Latin', 'Greek', 'English', 'Hebrew', 'Coptic'].includes(b.textContent));
+    expect(tabs.map((b) => b.textContent)).toEqual(['Latin', 'Greek', 'English', 'Hebrew', 'Coptic']);
+  });
+
+  it('asks the API for language=he when chosen, and renders a Hebrew word row', async () => {
+    render(<RareWordsExplorer />);
+    await waitFor(() => expect(screen.getByText('exiguus')).toBeTruthy());
+
+    fireEvent.click(screen.getByText('Hebrew'));
+
+    await waitFor(() =>
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.stringContaining('language=he'),
+        expect.anything()
+      ));
+    await waitFor(() => expect(screen.getByText('Rare Words Explorer (Hebrew)')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText(HEBREW_WORDS.words[0].lemma)).toBeTruthy());
+  });
+});

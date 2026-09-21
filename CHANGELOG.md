@@ -83,6 +83,35 @@ behind each, are in docs/DECISIONS.md.
   site's own era list: English's "18th Century" option matched no work,
   since the site tags that period Neoclassical or Augustan, so it now reads
   from the same shared list too and offers the eras that are actually there.
+### Corpus Browser and Rare Words Explorer
+- Hebrew is now a tab on both pages, placed after English and before
+  Coptic, matching the order already used in the Reader's language picker
+  and Theme Search's language checkboxes. Both pages hardcoded their tabs
+  to Latin, Greek, English and Coptic even though Hebrew has shipped
+  elsewhere on the site since August, so it was unreachable from either
+  page.
+- The Rare Words Explorer can actually show Hebrew now. Its list is built
+  by a step on the server that had a rule for Latin, Greek, English and
+  Coptic and none for Hebrew, so it produced an empty list: the page would
+  have shown a Hebrew tab with nothing in it. Hebrew words counted ten
+  times or fewer in the corpus now qualify, leaving out single letters,
+  transcription marks and the curated list of function words.
+- Corpus Browser's era filter offers Biblical for Hebrew instead of
+  falling back to the Latin era list, which is what happened before the
+  filter had a Hebrew entry at all (the same gap already fixed for Coptic
+  in a prior release). The live Hebrew corpus is 39 Hebrew Bible books, all
+  one era, so Biblical plus Unknown is the whole list for now.
+- Both pages now read language display names from the shared
+  `languageNames.js` helper instead of a local, hand-rolled copy that did
+  not know about Hebrew.
+- The Rare Words Explorer's dictionary link sent every non-Latin,
+  non-Greek, non-Coptic, non-English word to Logeion, a Greek and Latin
+  lexicon; Hebrew words now link to Wiktionary instead, as English words
+  already do. The Explorer itself does not yet return any Hebrew words at
+  any occurrence threshold: its rare-word cache builder has extraction
+  logic for Latin, Greek, English and Coptic but none for Hebrew, so the
+  tab is ready but empty until that is built. Filed as a follow-up rather
+  than built here.
 
 ## 2026-09-20
 
