@@ -10,6 +10,12 @@ behind each, are in docs/DECISIONS.md.
 ## 2026-09-22
 
 ### Corpus
+- Four Greek texts had English translators' notes and Latin apparatus
+  pasted into the Greek itself, where the search treated them as part of
+  the text. They are removed (#446). Five Greek capitals that a scanner had
+  read as Latin lookalikes are corrected, so Miletus and Naxos now match
+  those names elsewhere in the corpus. The Greek index has to be rebuilt
+  before this reaches the live site.
 - Arnobius book 1, Arnobius book 6 and the preface to Pliny's Natural
   History now appear in Similar Passages and in Theme Search. Those three
   books had text but no stored passages, so they were invisible to both.

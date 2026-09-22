@@ -10,6 +10,11 @@ Last rewritten 2026-09-21, corpus section revised 2026-09-22.
 
 ## Corpus
 
+- **The Greek index needs rebuilding for PR #446.** Four Greek texts were
+  cleaned of pasted-in English notes and Latin apparatus, and five Greek
+  capitals misread as Latin were corrected, but the live index still holds
+  the old spellings until it is rebuilt. Due in the same operation as the
+  window batch below.
 - **68 Latin book files have no stored passages of their own.** They have
   text and index entries, but nothing in the passage index, so Similar
   Passages and Theme Search cannot reach them and the Reader had been
@@ -34,6 +39,12 @@ Last rewritten 2026-09-21, corpus section revised 2026-09-22.
   one line per chapter, median 1,232 words, which makes any comparison
   against it enormously expensive. `couplet_et_alii.confucius_sinarum_philosophus.part.2`
   has 40 non-blank lines with no reference tag, which the parser drops.
+- **Ranking: a third shared word lowers the score** (issue #465). The
+  scorer divides by the number of matched words, so the score is a mean
+  rather than a sum, against the published 2012 method its own header
+  cites. On Aeneid 1 against Lucan 1, the two three-word results score
+  0.538 and 0.468 while 25 two-word results tie at the 1.0 ceiling. PR #459
+  is held until this is decided, so its tests do not freeze the behaviour.
 - **Rarity in English is not meaningful yet.** A word counts as rare at a
   document frequency of 100 or fewer, and the English corpus has 42 works,
   so every shared word qualifies.

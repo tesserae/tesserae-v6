@@ -36,6 +36,31 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+## 2026-09-22 Old backups deleted, newest two of each kept (run 12:05 EDT)
+
+- On NC's instruction, after the disk reached 90% full. Every data operation
+  leaves a dated backup beside the file it replaces and nothing had ever
+  removed one, so 343 copies had accumulated across `data/passage_index`,
+  `data/inverted_index` and `cache`, 222 GB in all. The oldest was from
+  January.
+- Rule applied: for each file, keep the two most recent backups, delete the
+  rest. 135 files deleted, 199 GB freed. The filesystem went from 90% to
+  82% full, 283 GB free to 482 GB.
+- Checks before deleting: the list was printed and read in full; no live
+  file appeared in it; every group kept two copies, so nothing is down to a
+  single copy or none; this morning's five backups
+  (`window_texts.db.bak-textrefresh-20260922-071229`,
+  `window_texts.db.bak-win3-20260922-072536`, and the `ids.json`,
+  `embeddings.npy` and `descriptions.jsonl` copies tagged
+  `win3-20260922`) were confirmed in the keep list first.
+- Checks after: the site answers on the home page and the corpus status
+  endpoint, and the margin recompute running at the time was unaffected.
+- The list of what was deleted is `/tmp/claude-128144/bak_delete.txt` on
+  Marvin, which does not survive a reboot. The rule itself is the record:
+  newest two of each file.
+- NOT automated. If this is worth doing on a schedule rather than by hand,
+  it wants a script with a dry run like the other corpus operations.
+
 ## 2026-09-22 Passage index: quoted wording refreshed, three books given passages (run 07:12 to 07:30 EDT)
 
 Two operations, both on NC's instruction ("Yes" to the two window jobs), run
