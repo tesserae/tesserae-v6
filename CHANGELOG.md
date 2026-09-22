@@ -9,6 +9,26 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-09-22
 
+### Search
+- A word counts as rare when it appears in at most 12% of the works in its
+  own language's corpus, instead of a fixed 100 works in every language.
+  100 was chosen for Latin, which holds 744 works. English holds 42, and its
+  commonest word appears in all of them, so nothing could fail the test and
+  every shared word counted as rare. Latin, Greek and Coptic barely move;
+  English and Hebrew get a threshold that can exclude a word for the first
+  time. This is also what caused an English comparison to produce 431,000
+  matches and exhaust 12 GB of memory in September.
+
+### Documentation
+- The settings behind a search are now findable from the site. The Help
+  page's fusion section links to the three documents that carry them: how
+  the search works, how the channels are combined, and the dated decisions
+  log with the measurement behind each choice.
+- "How Tesserae Searches" gains a section on how rarity is measured, which
+  had never been written down: a continuous scale that scores every result,
+  a separate yes-or-no gate used by one channel, and the fact that the two
+  count different things.
+
 ### Corpus
 - Four Greek texts had English translators' notes and Latin apparatus
   pasted into the Greek itself, where the search treated them as part of

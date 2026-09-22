@@ -7,6 +7,53 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-09-22 "Rare" is a share of the corpus, not a fixed number of works
+
+**Question.** The rare-vocabulary channel admitted a word as rare when it
+appeared in 100 works or fewer, a work being a text with its parts
+collapsed. The number was the same for every language.
+
+**Measurement.** Work counts from each language's own index, 2026-09-22.
+
+| language | works | old cut-off | as a share | new cut-off |
+|---|---|---|---|---|
+| Latin | 744 | 100 | 13% | 89 |
+| Greek | 853 | 100 | 12% | 102 |
+| Coptic | 180 | 25 | 14% | 22 |
+| English | 42 | 100 | 238% | 5 |
+| Hebrew | 39 | 100 | 256% | 5 |
+
+100 was chosen against Latin. In English it admitted everything: the
+commonest English word appears in all 42 English works, so no word could
+fail the test and the channel stopped discriminating. `backend/fusion.py`
+already carried the consequence in a comment: 431,000 window matches for
+*Paradise Lost* Book 1 against *Hyperion* and 12 GB of memory, which is why
+the channel was capped in September. The cap treated the symptom.
+
+**Choice.** 12% of the works in that language's corpus
+(`hapax.RARE_WORD_SHARE`), at least 2, falling back to 100 when the corpus
+size cannot be read. One share reproduces all three cut-offs that had been
+set by hand, including Coptic's 25, which existed because sub-word
+tokenisation inflates its document counts. That is what makes it the rule
+underneath them rather than a fourth special case. A caller may still pass
+`rare_word_max_occurrences` to override it for a single search.
+
+**Not affected.** The sliding scale that scores every result, which is a
+continuous inverse document frequency with no cut-off anywhere. The gate
+belongs to one channel. The two also count different things: the scale
+counts how many times a word occurs, the gate counts in how many works it
+appears. Both are now described in `HOW_TESSERAE_SEARCHES.md` under "How
+rarity is measured".
+
+**Open, noticed while checking this.** `frequency_source` decides what the
+sliding scale counts against. The main search sends `corpus`; the default in
+the scoring code is `texts`, meaning only the two texts being compared.
+Anything calling the scorer without the setting therefore judges rarity
+locally rather than against the corpus. Not investigated yet.
+
+NC, on the measurement above ("We can proceed with your fix making it a
+percentage for rare word").
+
 ## 2026-09-20 Translations: public domain first, then open non-commercial with attribution (Silius books 9 to 17)
 
 **Decision (NC: "If it's legal and appropriate, we should use Kline").**
