@@ -66,9 +66,14 @@ before doing it.
     rekey_verity_paradise_lost.py      --    --    --    --   reads its
         source read-only and writes ONLY a separate output path, never the
         file it read; the safe pattern by construction, nothing to add
-    renumber_paradise_lost.py          BACKWARDS  no  no  yes  writes are
-        the DEFAULT and --dry-run must be passed to avoid them, opposite of
-        the convention; NOT converted here, see the PR body for why
+    renumber_paradise_lost.py          yes   yes   yes   yes  CONVERTED
+        2026-09-22. Writes used to be the DEFAULT, with --dry-run needed to
+        avoid them and no backup taken, so a run made out of curiosity
+        rewrote thirteen corpus files and left nothing to go back to. It now
+        takes --apply, backs each file up and swaps by rename. --dry-run is
+        still accepted and still means a dry run. Its hardcoded line totals
+        stay: they are the text's real counts and they are what stops it
+        touching anything when the file is not what it expects
     repair_lactantius_placidus.py      no*   no    no    yes  *has a
         --report-only flag, but writing is the default; CONVERTED in this
         PR
