@@ -36,6 +36,33 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+## 2026-09-21 Corpus: book files made canonical, comparison script corrected
+- Extended the same evening by the main session, after checking the agent's
+  findings against the corpus: the comparison script only recognised books
+  numbered with digits, so eleven files named for their content
+  (`.part.pr`, `.part.praef`, `.part.preface`, `.part.fragments`,
+  `.part.21a.old_latin_psalms`) read as missing across eight works. With the
+  pattern widened, 132 of 137 works agreed rather than the 117 an earlier
+  count reported, and the analysis that asked for twelve works' book files
+  to be generated was wrong about ten of them.
+- With that corrected, NC's rule was applied to the works where the book
+  files are demonstrably the better text, by
+  `scripts/corpus/regenerate_whole_from_parts.py` (new, dry run by default):
+  Apuleius (two lines split differently), Arnobius (the whole file read
+  "cur erg6" for "cur ergo"), Prudentius (a running header glued into a
+  line), and, after repair, the Georgics.
+- The Georgics needed the opposite treatment first. 42 of its 43
+  differences were mojibake in the BOOK files ("Lenaeeâtuis" for
+  "Lenaee—tuis"), so `repair_part_file_defects_2026-09-21.py` repaired them
+  from the whole file, and only then was the whole file rebuilt from them.
+  Regenerating first would have written the corruption into the canonical
+  copy.
+- Arrian's Anabasis is left alone and stays failing the check: its book
+  files split two merged lines correctly but carry stray apparatus digits
+  inside the Greek in two other places, so neither copy is simply better.
+  A decision for NC.
+- After all of it: 136 of 137 works stored both ways agree.
+
 ## 2026-09-21 Corpus: missing book files generated; book files made canonical (planned, not yet run)
 - What: `research/corpus/WHOLE_VS_PARTS_2026-09-21.md` listed 12 works whose
   book files were said to be missing whole sections, and named 4 of the

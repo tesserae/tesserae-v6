@@ -10,6 +10,25 @@ behind each, are in docs/DECISIONS.md.
 ## 2026-09-21
 
 ### Corpus
+- Where a work is stored twice, as one file and as separate books, the books
+  are now the authority and the single file is rebuilt from them, which is
+  what a reader of one book sees. Six works were rebuilt: Apuleius,
+  Arnobius, Prudentius, Ovid's Metamorphoses, Orosius and the Georgics. The
+  differences were an OCR error reading "erg6" for "ergo", a running header
+  glued into a line, lines split in two places, curly quotation marks, and
+  spacing before punctuation.
+- The Georgics went the other way first, because its book files held 42
+  corrupted lines where the single file was sound, so those were repaired
+  before the file was rebuilt from them.
+- Pliny's preface and Arnobius book 6 had no book file at all and now do.
+  Arnobius book 1 existed under a misspelled name and is renamed.
+- The check that compares the two copies was only recognising books numbered
+  with digits, so eleven files named for what they hold, a preface, the
+  fragments, the Old Latin Psalms, looked missing when they were present.
+  That is why an earlier count of works needing repair was far too high: of
+  137 works stored both ways, 136 now agree.
+
+### Corpus
 - Prepared, not yet run: the two remaining works with genuinely missing
   book files get them (Arnobius' Against the Nations book 6, and the
   preface of Pliny's Natural History), and Arnobius book 1 is restored to
