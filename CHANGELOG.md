@@ -10,6 +10,14 @@ behind each, are in docs/DECISIONS.md.
 ## 2026-09-21
 
 ### Internal
+- Three small correctness fixes from the code review, none of which showed
+  as a failure: the syntax database connection is now closed even when a row
+  cannot be read, failed logins are written to the application log rather
+  than to standard output where nobody sees them, and an exception clause
+  that caught everything, including a request to shut the server down, now
+  catches only errors.
+
+### Internal
 - The administrative panel has tests for the first time. It holds the powers
   with the most reach in the project, deleting a user, granting roles,
   resetting a password, and it had none. The 37 new tests cover who is

@@ -2373,7 +2373,11 @@ def submit_request():
                     try:
                         file.seek(0)
                         content = file.read().decode('latin-1')
-                    except:
+                    # `except Exception`, not a bare except: a bare one also
+                    # swallows KeyboardInterrupt and SystemExit, so a worker
+                    # being shut down mid-upload answered with a polite error
+                    # instead of stopping (code review, 2026-09-21).
+                    except Exception:
                         return jsonify({'error': 'Could not read file. Please ensure it is a plain text file.'}), 400
     else:
         data = request.get_json() or {}

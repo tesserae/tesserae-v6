@@ -177,11 +177,15 @@ def logged_in(blueprint, token):
         else:
             user_claims = jwt.decode(token['id_token'], options={"verify_signature": False})
     except Exception as e:
-        print(f"JWT validation failed, falling back to unverified decode: {e}")
+        # The logger, not print: under Apache and mod_wsgi a print does not
+        # reliably reach the application log, so a run of failed logins, which
+        # is worth noticing whether it is a bug or an attack, went unseen
+        # wherever the logs are actually read (code review, 2026-09-21).
+        logger.warning("JWT validation failed, falling back to unverified decode: %s", e)
         try:
             user_claims = jwt.decode(token['id_token'], options={"verify_signature": False})
         except Exception as e2:
-            print(f"JWT decode failed completely: {e2}")
+            logger.error("JWT decode failed completely: %s", e2)
             return redirect('/')
     user = save_user(user_claims)
     login_user(user)
