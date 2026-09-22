@@ -11,13 +11,17 @@ A backup exists to undo the operation that made it. Once that operation has
 been verified -- the reference tests pass, the site answers, the figures in
 docs/DATA_OPERATIONS.md check out -- an older copy earns nothing, and the
 underlying data is rebuildable from the texts and the scripts in any case.
-So the rule is: keep the most recent copy of each file, and keep a second
-one while it is still fresh enough that the operation behind it might yet
-be questioned.
+So the rule is: keep the most recent copy of each file and delete the rest,
+with room to keep more when an operation is still being watched.
 
-    keep the newest copy of each file
-    keep the second-newest as well if it is younger than --keep-days
+    keep the --keep newest copies of each file (default 1)
+    keep any further copy only while it is younger than --keep-days
     delete everything else
+
+The defaults keep one copy per file and nothing else, which is the rule NC
+approved on 2026-09-22. A second copy buys little: an operation is verified
+the same day it runs, and the copy underneath it is a backup of a state
+that was already superseded once.
 
 NEVER leaves a file with no backup at all. The newest copy of each file is
 kept whatever its age, which is the difference between this and the
@@ -52,7 +56,8 @@ from scripts.corpus.corpus_safety import add_apply_argument  # noqa: E402
 
 # Where backups accumulate. Relative to the repository root.
 DEFAULT_ROOTS = ('data/passage_index', 'data/inverted_index', 'cache')
-DEFAULT_KEEP_DAYS = 30
+DEFAULT_KEEP = 1
+DEFAULT_KEEP_DAYS = 0
 DAY = 86400
 
 # A backup suffix is `.bak` or `.pre-...`, with whatever tag follows, to the
@@ -97,19 +102,23 @@ def collect(roots):
     return groups
 
 
-def plan(groups, keep_days, now=None):
-    """(keep, drop), each a list of (mtime, size, path)."""
+def plan(groups, keep_days=DEFAULT_KEEP_DAYS, keep=DEFAULT_KEEP, now=None):
+    """(keep, drop), each a list of (mtime, size, path).
+
+    The newest copy is always kept, whatever its age and whatever `keep` is,
+    so no file is ever left without a fallback.
+    """
     now = time.time() if now is None else now
-    keep, drop = [], []
+    kept, drop = [], []
     for copies in groups.values():
         for i, rec in enumerate(copies):
-            if i == 0:
-                keep.append(rec)                       # newest, always
-            elif i == 1 and (now - rec[0]) < keep_days * DAY:
-                keep.append(rec)                       # second, while fresh
+            if i == 0 or i < keep:
+                kept.append(rec)
+            elif keep_days and (now - rec[0]) < keep_days * DAY:
+                kept.append(rec)
             else:
                 drop.append(rec)
-    return keep, drop
+    return kept, drop
 
 
 def gb(n):
@@ -121,21 +130,26 @@ def main(argv=None):
     p.add_argument('--root', default='.', help='repository root (default: .)')
     p.add_argument('--roots', nargs='*', default=list(DEFAULT_ROOTS),
                    help='directories to walk, relative to --root')
+    p.add_argument('--keep', type=int, default=DEFAULT_KEEP,
+                   help=f'copies of each file to keep regardless of age '
+                        f'(default: {DEFAULT_KEEP}; the newest is always kept)')
     p.add_argument('--keep-days', type=int, default=DEFAULT_KEEP_DAYS,
-                   help=f'keep a second copy while it is younger than this '
-                        f'many days (default: {DEFAULT_KEEP_DAYS})')
+                   help=f'also keep further copies while they are younger '
+                        f'than this many days (default: {DEFAULT_KEEP_DAYS}, off)')
     add_apply_argument(p, 'delete the backups listed (default: report only)')
     args = p.parse_args(argv)
 
     os.chdir(args.root)
     groups = collect(args.roots)
-    keep, drop = plan(groups, args.keep_days)
+    keep, drop = plan(groups, args.keep_days, args.keep)
 
     total = sum(s for v in groups.values() for _t, s, _p in v)
     print(f'{sum(len(v) for v in groups.values())} backup copies of '
           f'{len(groups)} files, {gb(total):.1f} GB')
-    print(f'rule: keep the newest of each, and a second while it is under '
-          f'{args.keep_days} days old')
+    rule = f'keep the newest {args.keep} of each file'
+    if args.keep_days:
+        rule += f', and any further copy under {args.keep_days} days old'
+    print('rule: ' + rule)
     print()
     if not drop:
         print('nothing to delete')
