@@ -99,3 +99,44 @@ class TestTheRule:
         _write(tmp_path, 'la_index.db.bak-old', 200)
         keep, drop = plan(collect([str(tmp_path)]))
         assert live not in {r[2] for r in keep + drop}
+
+
+# main() end to end: the refusal and the deletion itself, which the plan-level
+# tests above do not reach. The automated review of PR #466 asked for these,
+# and the script had already deleted 12.5 GB of production data by then.
+class TestTheScriptItself:
+    def test_a_dry_run_deletes_nothing(self, tmp_path, capsys):
+        from scripts.prune_backups import main
+        new = _write(tmp_path, 'x.db.bak-a', 1)
+        old = _write(tmp_path, 'x.db.bak-b', 90)
+        assert main(['--root', str(tmp_path), '--roots', '.']) == 0
+        assert os.path.exists(new) and os.path.exists(old)
+        out = capsys.readouterr().out
+        assert 'would delete' in out and 'dry run' in out
+
+    def test_apply_deletes_only_what_it_listed(self, tmp_path, capsys):
+        from scripts.prune_backups import main
+        new = _write(tmp_path, 'x.db.bak-a', 1)
+        old = _write(tmp_path, 'x.db.bak-b', 90)
+        older = _write(tmp_path, 'x.db.bak-c', 200)
+        assert main(['--root', str(tmp_path), '--roots', '.', '--apply']) == 0
+        assert os.path.exists(new)
+        assert not os.path.exists(old)
+        assert not os.path.exists(older)
+        assert 'GB freed' in capsys.readouterr().out
+
+    def test_it_refuses_rather_than_empty_a_group(self, tmp_path, capsys, monkeypatch):
+        """The guard that stands between a grouping bug and a lost last copy.
+        Forced here by making plan() return every copy as a deletion."""
+        import scripts.prune_backups as pb
+        only = _write(tmp_path, 'x.db.bak-a', 1)
+        monkeypatch.setattr(pb, 'plan', lambda groups, *a, **k: (
+            [], [rec for v in groups.values() for rec in v]))
+        assert pb.main(['--root', str(tmp_path), '--roots', '.', '--apply']) == 2
+        assert os.path.exists(only), 'refused, so nothing may have been deleted'
+        assert 'REFUSING' in capsys.readouterr().err
+
+    def test_a_root_that_holds_nothing_is_safe(self, tmp_path, capsys):
+        from scripts.prune_backups import main
+        assert main(['--root', str(tmp_path), '--roots', 'no_such_dir']) == 0
+        assert 'nothing to delete' in capsys.readouterr().out

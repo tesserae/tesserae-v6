@@ -11,11 +11,13 @@ A backup exists to undo the operation that made it. Once that operation has
 been verified -- the reference tests pass, the site answers, the figures in
 docs/DATA_OPERATIONS.md check out -- an older copy earns nothing, and the
 underlying data is rebuildable from the texts and the scripts in any case.
-So the rule is: keep the most recent copy of each file and delete the rest,
-with room to keep more when an operation is still being watched.
+So the rule is: keep the most recent copy of each file and delete the rest.
+While an operation is still being watched, `--keep 2` or `--keep-days N`
+holds the copy underneath it, and neither is on by default.
 
     keep the --keep newest copies of each file (default 1)
     keep any further copy only while it is younger than --keep-days
+        (default 0, which is off: no grace period unless you ask for one)
     delete everything else
 
 The defaults keep one copy per file and nothing else, which is the rule NC
@@ -139,7 +141,19 @@ def main(argv=None):
     add_apply_argument(p, 'delete the backups listed (default: report only)')
     args = p.parse_args(argv)
 
-    os.chdir(args.root)
+    # The working directory is process-wide and this is called from tests as
+    # well as from the command line, so it is restored before returning. The
+    # paths collected are relative to --root, so the whole of the work has to
+    # happen inside the chdir, not just the walk.
+    was = os.getcwd()
+    try:
+        os.chdir(args.root)
+        return _run(args)
+    finally:
+        os.chdir(was)
+
+
+def _run(args):
     groups = collect(args.roots)
     keep, drop = plan(groups, args.keep_days, args.keep)
 
