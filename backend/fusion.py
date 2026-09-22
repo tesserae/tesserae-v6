@@ -1007,39 +1007,44 @@ def _load_syntax_for_text(db_path, text_filename):
         conn = sqlite3.connect(uri, uri=True)
     cur = conn.cursor()
 
+    # try/finally, so a row with unreadable JSON cannot leave the connection
+    # open. Every early return closed it by hand and the success path closed
+    # it at the end, but an exception from fetchall or from json.loads walked
+    # straight past all three, and a leaked SQLite handle can hold a file
+    # lock that outlives the request (code review, 2026-09-21).
     try:
-        cur.execute("SELECT text_id FROM texts WHERE filename = ?", (text_filename,))
-    except sqlite3.OperationalError:
+        try:
+            cur.execute("SELECT text_id FROM texts WHERE filename = ?", (text_filename,))
+        except sqlite3.OperationalError:
+            conn.close()
+            # Retry with immutable read-only
+            uri = f"file:{db_path}?mode=ro&immutable=1"
+            conn = sqlite3.connect(uri, uri=True)
+            cur = conn.cursor()
+            cur.execute("SELECT text_id FROM texts WHERE filename = ?", (text_filename,))
+        row = cur.fetchone()
+        if not row:
+            return {}
+
+        text_id = row[0]
+        cur.execute(
+            "SELECT ref, tokens, lemmas, upos, heads, deprels, feats "
+            "FROM syntax WHERE text_id = ?",
+            (text_id,),
+        )
+
+        parses = {}
+        for ref, tokens, lemmas, upos, heads, deprels, feats in cur.fetchall():
+            parses[ref] = {
+                "tokens": json.loads(tokens) if tokens else [],
+                "lemmas": json.loads(lemmas) if lemmas else [],
+                "upos": json.loads(upos) if upos else [],
+                "heads": json.loads(heads) if heads else [],
+                "deprels": json.loads(deprels) if deprels else [],
+                "feats": json.loads(feats) if feats else [],
+            }
+    finally:
         conn.close()
-        # Retry with immutable read-only
-        uri = f"file:{db_path}?mode=ro&immutable=1"
-        conn = sqlite3.connect(uri, uri=True)
-        cur = conn.cursor()
-        cur.execute("SELECT text_id FROM texts WHERE filename = ?", (text_filename,))
-    row = cur.fetchone()
-    if not row:
-        conn.close()
-        return {}
-
-    text_id = row[0]
-    cur.execute(
-        "SELECT ref, tokens, lemmas, upos, heads, deprels, feats "
-        "FROM syntax WHERE text_id = ?",
-        (text_id,),
-    )
-
-    parses = {}
-    for ref, tokens, lemmas, upos, heads, deprels, feats in cur.fetchall():
-        parses[ref] = {
-            "tokens": json.loads(tokens) if tokens else [],
-            "lemmas": json.loads(lemmas) if lemmas else [],
-            "upos": json.loads(upos) if upos else [],
-            "heads": json.loads(heads) if heads else [],
-            "deprels": json.loads(deprels) if deprels else [],
-            "feats": json.loads(feats) if feats else [],
-        }
-
-    conn.close()
     # Evict oldest entries if cache exceeds limit
     if len(_SYNTAX_PARSE_CACHE) >= _SYNTAX_CACHE_MAX:
         oldest = next(iter(_SYNTAX_PARSE_CACHE))
