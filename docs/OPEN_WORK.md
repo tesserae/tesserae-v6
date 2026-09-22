@@ -6,23 +6,32 @@ in `DATA_OPERATIONS.md`, decisions that change what the site returns are in
 `DECISIONS.md`, and released changes are in `../CHANGELOG.md`. This file is
 the forward-looking companion to those three.
 
-Last rewritten 2026-09-21.
+Last rewritten 2026-09-21, corpus section revised 2026-09-22.
 
 ## Corpus
 
-- **Twelve works have book files that omit whole sections.** The Reader
-  shows works one book at a time, so those lines cannot be displayed at
-  all. The largest case is the Vulgate's second psalter, 2,554 lines, and
-  Arnobius' books 1 and 6 have no book file; the rest are prefaces
-  (Gellius, Pliny, Priscian, Sedulius, Augustine twice) and Dracontius'
-  fragments. Generating the missing files is mechanical. They then need
-  index rows and a description batch.
-- **Some works exist twice in different transcriptions.** A work's whole
-  file and its book files are not always the same text: Ovid's whole file
-  uses curly quotes, the Georgics' whole file writes diaereses, Arrian's
-  book files keep stray section numbers from the source. The proposal on
-  the table is to make the book files canonical and regenerate the whole
-  file from them.
+- **The Greek index needs rebuilding for PR #446.** Four Greek texts were
+  cleaned of pasted-in English notes and Latin apparatus, and five Greek
+  capitals misread as Latin were corrected, but the live index still holds
+  the old spellings until it is rebuilt. Due in the same operation as the
+  window batch below.
+- **68 Latin book files have no stored passages of their own.** They have
+  text and index entries, but nothing in the passage index, so Similar
+  Passages and Theme Search cannot reach them and the Reader had been
+  showing them another book's margin marks (fixed in code; the marks are
+  now absent rather than wrong). The list includes Statius' Achilleid book
+  1 at 958 lines, all five books of Sedulius' Carmen paschale, twelve lives
+  of Suetonius and nine books of Valerius Maximus. The cure is one batch:
+  build the windows, describe them locally, append once, then recompute the
+  Reader's margin cache once.
+- **42 Coptic files have no stored passages either.** Nine are aggregates
+  whose individual books are indexed (`sahidic.bible`, `bohairic.ot` and
+  the like) and want no windows of their own. The rest are real works that
+  are simply absent: most of the Shenoute pieces, the Gospel of Thomas, the
+  Book of Bartholomew, Theodosius of Alexandria, the Canons of John.
+- **60 more files are shorter than four lines**, which is below the window
+  geometry's floor, so they cannot be described at all. Catullus 85, 93 and
+  94 are among them. Nothing to fix unless the floor changes.
 - **The passage index holds 130 works twice**, once as a whole file and
   once as book files, so one passage can appear twice in a result list
   under two names.
@@ -30,6 +39,12 @@ Last rewritten 2026-09-21.
   one line per chapter, median 1,232 words, which makes any comparison
   against it enormously expensive. `couplet_et_alii.confucius_sinarum_philosophus.part.2`
   has 40 non-blank lines with no reference tag, which the parser drops.
+- **Ranking: a third shared word lowers the score** (issue #465). The
+  scorer divides by the number of matched words, so the score is a mean
+  rather than a sum, against the published 2012 method its own header
+  cites. On Aeneid 1 against Lucan 1, the two three-word results score
+  0.538 and 0.468 while 25 two-word results tie at the 1.0 ceiling. PR #459
+  is held until this is decided, so its tests do not freeze the behaviour.
 - **Rarity in English is not meaningful yet.** A word counts as rare at a
   document frequency of 100 or fewer, and the English corpus has 42 works,
   so every shared word qualifies.
