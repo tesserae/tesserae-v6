@@ -117,3 +117,29 @@ class TestTheWorkCount:
     def test_an_unreadable_index_counts_zero_rather_than_raising(self, monkeypatch):
         monkeypatch.setattr(hapax, 'get_connection', lambda _l: None)
         assert hapax.corpus_work_count('nope') == 0
+
+    def test_a_failed_read_is_not_remembered(self, monkeypatch):
+        """Caching a zero would pin the worker to the fallback threshold for
+        its whole life, which for English is the behaviour being fixed. One
+        unlucky read at startup must not undo it silently."""
+        monkeypatch.setattr(hapax, 'get_connection', lambda _l: None)
+        assert hapax.corpus_work_count('en') == 0
+        assert 'en' not in hapax._work_count_cache
+
+        class Row(list):
+            pass
+
+        class Cur:
+            def execute(self, *a, **k):
+                return self
+
+            def fetchone(self):
+                return Row([42])
+
+        class Conn:
+            def cursor(self):
+                return Cur()
+
+        monkeypatch.setattr(hapax, 'get_connection', lambda _l: Conn())
+        assert hapax.corpus_work_count('en') == 42
+        assert hapax._work_count_cache['en'] == 42

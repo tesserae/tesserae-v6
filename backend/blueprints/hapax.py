@@ -1108,7 +1108,13 @@ def corpus_work_count(language):
             n = int(row[0]) if row and row[0] else 0
     except Exception as e:                                       # noqa: BLE001
         logger.warning('[RARE_WORD] could not count works for %s: %s', language, e)
-    _work_count_cache[language] = n
+    # A FAILURE IS NOT CACHED. Caching a zero would pin this worker to the
+    # fallback threshold for its whole life, which for English is the very
+    # behaviour this replaces: 100 against 42 works admits every word. One
+    # unlucky read at startup would therefore undo the fix silently and for
+    # good. Only a real answer is remembered; a failure is retried next time.
+    if n > 0:
+        _work_count_cache[language] = n
     return n
 
 
