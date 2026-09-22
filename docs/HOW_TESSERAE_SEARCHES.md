@@ -144,7 +144,7 @@ A second path within the syntax channel — **structural fingerprint matching** 
 
 ### Rare Vocabulary
 
-Some allusions are signaled by the shared use of an uncommon word — a term that appears in fewer than 100 texts across the entire corpus. When two lines share such a rare lemma, the connection is unlikely to be coincidental. The word *quercus* ("oak"), for instance, is distinctive enough that finding it in both Lucan 1.136 and Vergil, *Aeneid* 9.681 is meaningful evidence of a deliberate echo.
+Some allusions are signaled by the shared use of an uncommon word — a term that appears in only a small share of the corpus. The cut-off is **12% of the works in that language's corpus**, so it is a different number in each language: 89 works in Latin, 102 in Greek, 22 in Coptic, 5 in English, 5 in Hebrew (2026-09-22 figures; see "How rarity is measured" below and docs/DECISIONS.md). When two lines share such a rare lemma, the connection is unlikely to be coincidental. The word *quercus* ("oak"), for instance, is distinctive enough that finding it in both Lucan 1.136 and Vergil, *Aeneid* 9.681 is meaningful evidence of a deliberate echo.
 
 Because proper nouns (personal names, place names) are often rare in the corpus but may not signal genuine allusion, the rare word search offers an option to exclude them. The system identifies proper nouns using both a capitalization-based heuristic and a curated gazetteer of over 1,500 Greek and Latin names compiled from Wikidata mythological entities, the Pleiades gazetteer of ancient places, and manual curation of major epic figures and Olympian deities.
 
@@ -167,6 +167,43 @@ The convergence bonus is modulated by word rarity: it is weighted by the minimum
 ### Rarity scoring
 
 The fused score is then scaled by a **rarity multiplier** based on the geometric mean corpus IDF of the matched words. Common-word pairs receive a steep penalty (the multiplier is squared, so a pair with multiplier 0.3 is reduced to 9% of its base score), while rare-word pairs are preserved at full strength or receive a modest boost. This graduated curve ensures that results are ranked not just by how many channels agree but by how meaningful the shared vocabulary is.
+
+### How rarity is measured
+
+Two different measures are at work, and they answer different questions.
+
+**A sliding scale, used to score every result.** Each shared word carries an
+inverse document frequency: the rarer the word, the higher the number, on a
+continuous scale with no cut-off anywhere. In an *Aeneid* against *Bellum
+civile* search, *quantum* scores 8.52 and *possum* 6.91. A match's score is
+the mean of its shared words' values, scaled down as the words sit further
+apart. This is what orders the results you see.
+
+**A yes-or-no gate, used by the rare-vocabulary channel only.** Before that
+one channel looks at a word, it asks whether the word appears in few enough
+works to count as rare at all. Words that fail are ignored by that channel;
+they still contribute to every other channel and to the score above.
+
+The two count different things. The sliding scale counts **how many times** a
+word occurs. The gate counts **in how many works** it appears, with a work's
+parts (`homer.iliad.part.1`) collapsed into the work, so a long poem indexed
+in twenty-four pieces is not mistaken for twenty-four separate attestations.
+
+The gate's cut-off was a fixed 100 works for every language until
+2026-09-22. That number was chosen against Latin, where it means "in at most
+13% of the corpus", and it was applied unchanged to English, which holds 42
+works in total. The commonest English word appears in all 42, so nothing
+could fail the test and every shared word counted as rare. It is now a share
+of each language's own corpus, which reproduces the numbers that had been
+set by hand for Latin, Greek and Coptic while giving English and Hebrew a
+threshold that can actually exclude a word.
+
+**What the sliding scale counts against** is a setting, `frequency_source`.
+Set to `corpus`, which is what the main search sends, a word's frequency is
+its frequency across the whole corpus of that language. Set to `texts`,
+which is the default inside the scoring code, it is the word's frequency
+within the two texts being compared, so rarity is judged locally rather than
+against the corpus.
 
 ### Function-word handling
 

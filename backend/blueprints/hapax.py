@@ -1061,6 +1061,77 @@ def _base_filename_expr(alias='t'):
     return sql_base_work(f"{alias}.filename")
 
 
+# How rare is "rare"? A share of the corpus, not a fixed count.
+#
+# The rare_word channel called a lemma rare at a document frequency of 100 or
+# fewer, where a document is a work (parts collapsed, see
+# _base_filename_expr). That number was chosen against Latin, which holds 744
+# works, so it meant "in at most 13% of the corpus". Applied unchanged to
+# English, which holds 42 works, it meant "in at most 238% of the corpus":
+# the commonest word in English, `the`, sits in all 42, so nothing could fail
+# the test and every shared word counted as rare. Hebrew, at 39 works, had the
+# same problem. Coptic already carried a hand-set 25 for a different reason.
+#
+# One share reproduces all three hand-set numbers, which is the sign it is the
+# rule underneath them (measured 2026-09-22):
+#
+#     language  works  old threshold  0.12 x works
+#     la          744            100            89
+#     grc         853            100           102
+#     cop         180             25            22
+#     en           42            100             5
+#     he           39            100             5
+#
+# So Latin, Greek and Coptic keep very nearly the behaviour they have, and
+# English and Hebrew get a threshold that can actually exclude a word.
+RARE_WORD_SHARE = 0.12
+_work_count_cache = {}
+
+
+def corpus_work_count(language):
+    """How many distinct works the language's index holds, parts collapsed.
+
+    Memoized: the answer changes only when a text is added, which restarts
+    the app. Returns 0 when the index is unavailable, and callers fall back
+    rather than dividing by it.
+    """
+    if language in _work_count_cache:
+        return _work_count_cache[language]
+    n = 0
+    try:
+        conn = get_connection(language)
+        if conn:
+            expr = _base_filename_expr('t')
+            row = conn.cursor().execute(
+                f'SELECT COUNT(DISTINCT {expr}) FROM texts t'  # nosec B608
+            ).fetchone()
+            n = int(row[0]) if row and row[0] else 0
+    except Exception as e:                                       # noqa: BLE001
+        logger.warning('[RARE_WORD] could not count works for %s: %s', language, e)
+    # A FAILURE IS NOT CACHED. Caching a zero would pin this worker to the
+    # fallback threshold for its whole life, which for English is the very
+    # behaviour this replaces: 100 against 42 works admits every word. One
+    # unlucky read at startup would therefore undo the fix silently and for
+    # good. Only a real answer is remembered; a failure is retried next time.
+    if n > 0:
+        _work_count_cache[language] = n
+    return n
+
+
+def rare_word_threshold(language, share=RARE_WORD_SHARE):
+    """The document frequency at or below which a lemma counts as rare here.
+
+    At least 2, so a corpus small enough to round down to 1 still admits a
+    word shared by the two texts being compared, which is the whole point of
+    the channel. Falls back to the historical 100 when the corpus size is
+    unknown, which is the behaviour this replaces.
+    """
+    works = corpus_work_count(language)
+    if not works:
+        return 100
+    return max(2, round(works * share))
+
+
 def get_document_frequency(lemma, language):
     """Get the number of distinct texts that contain this lemma (document frequency).
     Uses the inverted index for accurate corpus-wide rarity measurement.

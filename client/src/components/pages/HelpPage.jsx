@@ -1300,6 +1300,25 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </p>
               </div>
 
+              <div className="mt-4 bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-medium text-gray-900 mb-2">The settings behind these results</h4>
+                <p className="text-gray-700 text-sm">
+                  Every choice this page summarises is written down in full, with the measurement behind it:
+                  what each channel does and how word rarity is judged in{' '}
+                  <a href="https://github.com/tesserae/tesserae-v6/blob/main/docs/HOW_TESSERAE_SEARCHES.md"
+                     target="_blank" rel="noopener noreferrer"
+                     className="text-red-700 underline hover:text-red-800">How Tesserae Searches</a>,
+                  how the channels are weighted and combined in{' '}
+                  <a href="https://github.com/tesserae/tesserae-v6/blob/main/docs/FUSION_ARCHITECTURE.md"
+                     target="_blank" rel="noopener noreferrer"
+                     className="text-red-700 underline hover:text-red-800">Fusion Architecture</a>,
+                  and why each setting is what it is, dated and with the numbers that decided it, in the{' '}
+                  <a href="https://github.com/tesserae/tesserae-v6/blob/main/docs/DECISIONS.md"
+                     target="_blank" rel="noopener noreferrer"
+                     className="text-red-700 underline hover:text-red-800">decisions log</a>.
+                </p>
+              </div>
+
               <div className="mt-4 bg-amber-50 p-4 rounded-lg">
                 <h4 className="font-medium text-amber-800 mb-2">Individual Channels</h4>
                 <p className="text-amber-700 text-sm">
