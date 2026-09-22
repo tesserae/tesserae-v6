@@ -10,6 +10,12 @@
 export const ERA_ORDER_BY_LANG = {
   la:  ['Republic', 'Augustan', 'Early Imperial', 'Later Imperial', 'Late Antique', 'Early Medieval', 'Carolingian', 'Medieval', 'Renaissance', 'Modern', 'Unknown'],
   grc: ['Archaic', 'Classical', 'Hellenistic', 'Early Imperial', 'Later Imperial', 'Late Antique', 'Late Imperial', 'Unknown'],
+  // No 'Nineteenth century' here. One author carried that label, Poe, and a
+  // century is not a period in the same series as the rest. He was retagged
+  // Romantic in backend/author_dates.json on 2026-09-22, which is where the
+  // standard accounts place him (American Romanticism, and Dark Romanticism
+  // in particular) and where his neighbours in this corpus already sit:
+  // Coleridge 1834 and Wordsworth 1850, both Romantic.
   en:  ['Medieval', 'Renaissance', 'Early Modern', 'Restoration', 'Augustan', 'Neoclassical', 'Romantic', 'Victorian', 'Modern', 'Unknown'],
   cop: ['Early Coptic', 'Classical Coptic', 'Late Antique Coptic', 'Bohairic Medieval', 'Unknown'],
   // Hebrew joined the Corpus Browser on 2026-09-21. Every one of the 39
@@ -62,4 +68,22 @@ export function orderEras(language, eraCounts) {
   const inOrder = order.filter(era => eraCounts[era] > 0);
   const extras = Object.keys(eraCounts).filter(era => eraCounts[era] > 0 && !order.includes(era));
   return [...inOrder, ...extras];
+}
+
+
+// Where an era sorts, for a list ordered chronologically. Same contract as
+// orderEras: a label the table does not know is never dropped, it goes last,
+// so an unexpected or missing era still sorts somewhere sensible instead of
+// disappearing or landing first.
+//
+// This exists because CorpusBrowser kept its own second copy of the order and
+// wrote it in snake_case ('early_imperial') while the backend sends labels
+// ('Early Imperial'), so every lookup missed and the era sort had no effect
+// at all. For Latin, Greek and English the fallback to year hid it; for
+// Hebrew, where no work has a year, and for Coptic, where 140 of 187 have
+// none, "chronological" was alphabetical by author.
+export function eraRank(language, era) {
+  const order = ERA_ORDER_BY_LANG[language] || ERA_ORDER_BY_LANG.la;
+  const i = order.indexOf(era);
+  return i === -1 ? order.length : i;
 }

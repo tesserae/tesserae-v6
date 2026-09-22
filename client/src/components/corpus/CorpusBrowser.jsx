@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { LoadingSpinner } from '../common';
 import { baseWorkId, coverageCounts, fetchCoveredWorks } from '../../utils/passageCoverage';
 import { languageName } from '../../utils/languageNames';
-import { ERA_ORDER_BY_LANG } from '../../utils/eras';
+import { ERA_ORDER_BY_LANG, eraRank } from '../../utils/eras';
 
 // Languages the corpus tabs offer, read from the URL's `language` param so
 // a link (Help, Theme Search) can land here already on the right tab.
@@ -174,32 +174,18 @@ export default function CorpusBrowser() {
     return Object.values(groups);
   }, [corpus]);
 
-  // Era ordering for all languages (roughly chronological across cultures)
-  const eraOrder = [
-    // Hebrew Bible predates the classical eras below
-    'biblical',
-    // Greek
-    'archaic', 'classical', 'hellenistic',
-    // Latin  
-    'republic', 'augustan', 'early_imperial', 'later_imperial', 'late_antique',
-    // Coptic (3rd–14th c.)
-    'early_coptic', 'classical_coptic', 'late_antique_coptic', 'bohairic_medieval',
-    // Medieval (Latin & English)
-    'early_medieval', 'carolingian', 'medieval',
-    // English
-    'renaissance', 'early_modern', 'restoration', 'eighteenth_century', 'romantic', 'victorian',
-    // Fallback
-    'unknown'
-  ];
-
   const sortedAuthors = useMemo(() => {
     const sorted = [...groupedByAuthor];
     if (sortOrder === 'alphabetical') {
       return sorted.sort((a, b) => a.author.localeCompare(b.author));
     } else {
       return sorted.sort((a, b) => {
-        const eraA = eraOrder.indexOf(a.era);
-        const eraB = eraOrder.indexOf(b.era);
+        // The rank comes from the one shared table in utils/eras.js, which
+        // holds the era LABELS the backend sends ('Early Imperial'). This
+        // used to be a second copy written in snake_case, so nothing ever
+        // matched and the era step did nothing.
+        const eraA = eraRank(language, a.era);
+        const eraB = eraRank(language, b.era);
         if (eraA !== eraB) return eraA - eraB;
         // Within same era, sort by year (earliest first), then alphabetically
         const yearA = a.year ?? 9999;
@@ -208,7 +194,7 @@ export default function CorpusBrowser() {
         return a.author.localeCompare(b.author);
       });
     }
-  }, [groupedByAuthor, sortOrder]);
+  }, [groupedByAuthor, sortOrder, language]);
 
   const normalizeEra = (era) => {
     if (!era) return 'unknown';
