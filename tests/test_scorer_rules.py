@@ -53,6 +53,16 @@ def score_one(source, target, matched, settings=None, corpus=None):
     return results[0]
 
 
+def value(result):
+    """The score a ranked list is sorted by.
+
+    The result carries `overall_score` (after the feature boosts) and
+    `base_score` (before them); there is no plain `score`, which is what the
+    first version of these tests assumed.
+    """
+    return result['overall_score']
+
+
 class TestRarity:
     def test_a_rare_shared_word_beats_a_common_one(self):
         """The whole idea of the ranking: two texts sharing "hapax" tell you
@@ -63,11 +73,11 @@ class TestRarity:
 
         src = unit('a.1', ['communis', 'alius'])
         tgt = unit('b.1', ['communis', 'alius'])
-        common_score = score_one(src, tgt, ['communis', 'alius'], corpus=corpus)['score']
+        common_score = value(score_one(src, tgt, ['communis', 'alius'], corpus=corpus))
 
         src2 = unit('a.2', ['rarus', 'alius'])
         tgt2 = unit('b.2', ['rarus', 'alius'])
-        rare_score = score_one(src2, tgt2, ['rarus', 'alius'], corpus=corpus)['score']
+        rare_score = value(score_one(src2, tgt2, ['rarus', 'alius'], corpus=corpus))
 
         assert rare_score > common_score
 
@@ -78,12 +88,12 @@ class TestDistance:
         twenty words apart are usually a coincidence."""
         near_src = unit('a.1', ['arma', 'uirum', 'cano'])
         near_tgt = unit('b.1', ['arma', 'uirum', 'refero'])
-        near = score_one(near_src, near_tgt, ['arma', 'uirum'])['score']
+        near = value(score_one(near_src, near_tgt, ['arma', 'uirum']))
 
         filler = ['quidam'] * 18
         far_src = unit('a.2', ['arma'] + filler + ['uirum'])
         far_tgt = unit('b.2', ['arma'] + filler + ['uirum'])
-        far = score_one(far_src, far_tgt, ['arma', 'uirum'])['score']
+        far = value(score_one(far_src, far_tgt, ['arma', 'uirum']))
 
         assert near > far
 
@@ -105,8 +115,8 @@ class TestHowManyWordsAreShared:
     def test_three_shared_words_beat_two(self):
         src = unit('a.1', ['arma', 'uirum', 'cano', 'troia'])
         tgt = unit('b.1', ['arma', 'uirum', 'cano', 'roma'])
-        two = score_one(src, tgt, ['arma', 'uirum'])['score']
-        three = score_one(src, tgt, ['arma', 'uirum', 'cano'])['score']
+        two = value(score_one(src, tgt, ['arma', 'uirum']))
+        three = value(score_one(src, tgt, ['arma', 'uirum', 'cano']))
         assert three > two
 
 
@@ -118,7 +128,8 @@ class TestTheScoreStaysInRange:
         src = unit('a.1', tokens)
         tgt = unit('b.1', tokens)
         result = score_one(src, tgt, tokens)
-        assert 0.0 <= result['score'] <= 1.0
+        assert 0.0 <= value(result) <= 1.0
+        assert 0.0 <= result['base_score'] <= 1.0
 
 
 class TestTheEvidenceComesWithTheScore:
