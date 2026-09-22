@@ -390,7 +390,7 @@ describe('per-language defaults', () => {
     fireEvent.change(await screen.findByLabelText('Language'),
                      { target: { value: 'grc' } });
     await waitFor(() =>
-      expect(asked).toContain('apollonius.argonautica.part.1.tess'));
+      expect(asked).toContain('apollonius_rhodius.argonautica.part.1.tess'));
   });
 
   it('switching back to Latin opens Aeneid 1', async () => {
@@ -398,7 +398,7 @@ describe('per-language defaults', () => {
     fireEvent.change(await screen.findByLabelText('Language'),
                      { target: { value: 'grc' } });
     await waitFor(() =>
-      expect(asked).toContain('apollonius.argonautica.part.1.tess'));
+      expect(asked).toContain('apollonius_rhodius.argonautica.part.1.tess'));
     fireEvent.change(await screen.findByLabelText('Language'),
                      { target: { value: 'la' } });
     await waitFor(() =>
