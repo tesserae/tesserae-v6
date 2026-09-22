@@ -46,16 +46,30 @@ scripts/corpus/rekey_verity_paradise_lost.py re-keys Verity's own numbering
 to match, for a fairer check.
 
 Usage:
-    venv/bin/python scripts/corpus/renumber_paradise_lost.py [--dry-run]
+    venv/bin/python scripts/corpus/renumber_paradise_lost.py            # report
+    venv/bin/python scripts/corpus/renumber_paradise_lost.py --apply    # write
 
 Run from anywhere; paths are resolved relative to the repository root (two
-directories up from this file). With --dry-run, prints the per-book report
-and writes nothing. Without it, rewrites the whole-file .tess and all twelve
-part files in place.
+directories up from this file). A dry run is the DEFAULT: it prints the
+per-book report and writes nothing. --apply rewrites the whole-file .tess
+and all twelve part files, each backed up first and replaced by rename.
+
+Until 2026-09-22 this was the other way round. The script wrote thirteen
+corpus files in place unless --dry-run was passed, and took no backup, so a
+run made out of curiosity rewrote the corpus and left nothing to go back to.
+It kept its own writing code rather than using scripts/corpus/corpus_safety,
+which is what that module exists for. The hardcoded line totals stay: they
+are this text's real counts and they are the guard that stops the script
+touching anything if the file is not what it expects.
 """
 import os
 import re
 import sys
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__)))))
+
+from scripts.corpus.corpus_safety import atomic_write, backup  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 EN_DIR = os.path.join(ROOT, 'texts', 'en')
@@ -65,7 +79,10 @@ TOTAL_LINES = 10565  # after dropping the one whitespace-only row (was 10566)
 
 TAG_RE = re.compile(r'^<Milton P\.L\. (\d+)\.(\d+)>\t(.*)$')
 
-DRY_RUN = '--dry-run' in sys.argv
+# A dry run is the default. --dry-run is still accepted, and still means a
+# dry run, so a command copied from the old docstring does the safe thing.
+APPLY = '--apply' in sys.argv and '--dry-run' not in sys.argv
+BACKUP_TAG = 'renumber-pl'
 
 
 def load_whole():
@@ -120,18 +137,21 @@ def format_line(book, line, text):
 
 def write_whole(new_units):
     path = os.path.join(EN_DIR, WHOLE_NAME)
-    with open(path, 'w', encoding='utf-8') as f:
-        for book, line, text in new_units:
-            f.write(format_line(book, line, text))
+    saved = backup(path, BACKUP_TAG)
+    atomic_write(path, [format_line(b, l, t) for b, l, t in new_units])
+    return saved
 
 
 def write_parts(new_units):
+    saved = []
     for book in range(1, N_BOOKS + 1):
         path = os.path.join(EN_DIR, f'milton.paradise_lost.part.{book}.tess')
         rows = [(b, l, t) for (b, l, t) in new_units if b == book]
-        with open(path, 'w', encoding='utf-8') as f:
-            for b, l, t in rows:
-                f.write(format_line(b, l, t))
+        was = backup(path, BACKUP_TAG)
+        if was:
+            saved.append(was)
+        atomic_write(path, [format_line(b, l, t) for b, l, t in rows])
+    return saved
 
 
 def main():
@@ -162,13 +182,15 @@ def main():
         new_range = f'{book}.1 - {book}.{r["count"]}'
         print(f'{book:>4}  {old_first:>15}  {new_range:>18}  {r["count"]:>6}  {old_dupes:>12}')
 
-    if DRY_RUN:
-        print('\n--dry-run: nothing written.')
+    if not APPLY:
+        print(f'\ndry run: nothing written. {WHOLE_NAME} and {N_BOOKS} part '
+              f'files under {EN_DIR} would be rewritten. Pass --apply.')
         return
 
-    write_whole(new_units)
-    write_parts(new_units)
+    saved = [write_whole(new_units)] + write_parts(new_units)
     print(f'\nWrote {WHOLE_NAME} and {N_BOOKS} part files under {EN_DIR}.')
+    print(f'Backups: {len([s for s in saved if s])} files, '
+          f'*.bak-{BACKUP_TAG}-<timestamp> beside each.')
 
 
 if __name__ == '__main__':
