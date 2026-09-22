@@ -5,6 +5,8 @@ Caches search results for instant repeated queries
 import os
 import json
 import hashlib
+
+from backend.score_bounds import UNBOUNDED_DEFAULT
 from datetime import datetime
 
 CACHE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'cache')
@@ -36,7 +38,7 @@ def get_cache_key(source_id, target_id, language, settings):
         'target_unit_type': settings.get('target_unit_type', 'line'),
         'stoplist_basis': settings.get('stoplist_basis', 'source_target'),
         'bigram_boost': settings.get('bigram_boost', False),
-        'unbounded_scoring': settings.get('unbounded_scoring', False),
+        'unbounded_scoring': settings.get('unbounded_scoring', UNBOUNDED_DEFAULT),
         'custom_stopwords': settings.get('custom_stopwords', ''),
         'freq_basis': settings.get('freq_basis', 'corpus'),
     }

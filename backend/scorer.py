@@ -4,13 +4,25 @@ Tesserae V6 - Scorer
 Implements the V3-style scoring algorithm for ranking textual parallels.
 Score combines word rarity (IDF) with proximity metrics (distance between matches).
 
-Scoring Formula:
-    score = sum(log(corpus_size / word_frequency)) / (1 + log(distance))
-    
+Scoring Formula, as implemented:
+    score = sum(IDF) / log(mean_distance + 1) / (n_matched * log(total_words + 1))
+
     Where:
     - Higher IDF (rarer words) = higher score
     - Shorter distance between matches = higher score
-    - More matching words = higher score
+    - More matching words does NOT raise the score.
+
+THE LAST LINE USED TO SAY THE OPPOSITE, and the opposite is what Coffee et
+al. (2012) describes. The divisor carries `n_matched`, so the sum of the
+matched words' rarity becomes their MEAN, and an extra shared word raises
+the score only when that word is rarer than the words already counted. On
+Lucan 1 against Aeneid 1 the two results sharing three words score 0.538 and
+0.468 while results sharing two average 0.746. Whether the mean or the sum
+is wanted is an open question, with the measurement, in issue #465; this
+docstring now describes the code rather than the intention.
+
+Scores are NOT capped at 1.0. See backend/score_bounds.py for what the cap
+cost and why it went (2026-09-22, docs/DECISIONS.md).
 
 Additional Features:
     - Bigram boost: Rewards co-occurring word pairs
@@ -27,6 +39,7 @@ import math
 from backend.logging_config import get_logger
 from backend.feature_extractor import feature_extractor
 from backend.bigram_frequency import calculate_bigram_boost, is_bigram_cache_available
+from backend.score_bounds import is_unbounded
 
 logger = get_logger('scorer')
 
@@ -257,7 +270,7 @@ class Scorer:
                 
                 n_items = (n_scored + len(lemmas_to_score)) if match_basis == 'dictionary' else len(matched_lemmas)
                 max_score = max(1, n_items) * math.log(total_words + 1) if total_words > 0 else 1
-                unbounded = settings.get('unbounded_scoring', False)
+                unbounded = is_unbounded(settings)
                 normalized_score = (raw_score / max_score) if max_score > 0 else 0
                 if not unbounded:
                     normalized_score = min(normalized_score, 1.0)

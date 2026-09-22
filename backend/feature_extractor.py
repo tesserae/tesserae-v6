@@ -13,6 +13,7 @@ import json
 import os
 
 from backend.logging_config import get_logger
+from backend.score_bounds import is_unbounded
 
 logger = get_logger('feature_extractor')
 
@@ -596,7 +597,7 @@ class FeatureExtractor:
             boost *= (1.0 + syntax_weight * features['syntax_score'])
         
         result = base_score * boost
-        if settings.get('unbounded_scoring', False):
+        if is_unbounded(settings):
             return result
         return min(result, 1.0)
 
