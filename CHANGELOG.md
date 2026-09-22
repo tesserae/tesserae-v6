@@ -18,6 +18,13 @@ behind each, are in docs/DECISIONS.md.
   deleted, a session that has been revoked stops working at once, a failed
   deletion is rolled back rather than left half done, and repeated wrong
   passwords are locked out.
+### Reader
+- The coloured margin now answers for the book you are reading whichever way
+  the text is named. Asked with the file name as it appears on disk, it fell
+  back to the whole work, so a reader of Philippic 7 could have been shown
+  marks belonging to Philippics 1 through 14. The Reader itself always asked
+  the other way, so nobody saw it; anything else calling the same address
+  did.
 
 ### Search
 - How a multi-part work is collapsed to its own name is now decided in one
