@@ -9,6 +9,13 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-09-21
 
+### Site
+- Switching language tabs quickly no longer shows the wrong corpus. Clicking
+  Latin, then Greek, then English left three requests in the air, and
+  whichever answered last won rather than whichever was asked for last, so
+  the author and text pickers could list one language's works under another
+  language's tab with nothing to say so.
+
 ### Internal
 - The administrative panel has tests for the first time. It holds the powers
   with the most reach in the project, deleting a user, granting roles,

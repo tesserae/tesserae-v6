@@ -8,9 +8,20 @@ export const useCorpus = (language) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const retryCountRef = useRef(0);
+  // WHICH LANGUAGE THE ANSWER HAS TO BE FOR.
+  //
+  // Clicking Latin, then Greek, then English leaves three requests in the
+  // air at once, and whichever lands last used to win, not whichever was
+  // asked for last. The pickers could then show one language's texts under
+  // another language's tab, with nothing to say so. Every setter below is
+  // now behind this check, and a late answer for a language nobody is
+  // looking at any more is dropped, including the automatic retry, which
+  // otherwise re-asked for the abandoned language two seconds later.
+  const wantedLanguageRef = useRef(language);
 
   const loadCorpus = useCallback((lang) => {
     if (!lang) return;
+    const stale = () => wantedLanguageRef.current !== lang;
 
     setLoading(true);
     setError(null);
@@ -20,6 +31,7 @@ export const useCorpus = (language) => {
       fetchAuthors(lang)
     ])
       .then(([corpusData, authorsData]) => {
+        if (stale()) return;
         const texts = Array.isArray(corpusData) ? corpusData : (corpusData.texts || []);
         setCorpus(texts);
 
@@ -65,12 +77,13 @@ export const useCorpus = (language) => {
         setLoading(false);
       })
       .catch(err => {
+        if (stale()) return;
         // One automatic retry: a transient authors-fetch failure used to
         // leave the Reader's dropdowns empty (placeholder Author/Work) until
         // a full reload, with no way to recover from the page.
         if (retryCountRef.current < 1) {
           retryCountRef.current += 1;
-          setTimeout(() => loadCorpus(lang), 2000);
+          setTimeout(() => { if (!stale()) loadCorpus(lang); }, 2000);
           return;
         }
         setError(err.message || 'Failed to load corpus data');
@@ -79,6 +92,7 @@ export const useCorpus = (language) => {
   }, []);
 
   useEffect(() => {
+    wantedLanguageRef.current = language;
     setCorpus([]);
     setAuthors([]);
     setHierarchy([]);
