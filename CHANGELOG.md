@@ -27,6 +27,12 @@ behind each, are in docs/DECISIONS.md.
   fragments, the Old Latin Psalms, looked missing when they were present.
   That is why an earlier count of works needing repair was far too high: of
   137 works stored both ways, 136 now agree.
+- Arrian's Anabasis replaced with the canonical text of the same edition,
+  Roos 1907, from the Perseus TEI rather than a scrape of a reading page.
+  The old file was missing two sections, carried stray editorial numbers
+  inside the Greek on 27 lines, and printed a percent sign where the edition
+  has a dagger. The new one restores the two sections and the editor's own
+  brackets.
 
 ### Corpus
 - Prepared, not yet run: the two remaining works with genuinely missing

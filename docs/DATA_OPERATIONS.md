@@ -36,6 +36,34 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+## 2026-09-21 Corpus: Arrian's Anabasis re-imported from the canonical Perseus TEI (planned, not yet run)
+- Why: the whole file and the book files disagreed and neither was simply
+  better, so NC asked for a good copy. The file in the corpus came from the
+  Perseus reading interface: it lacked `arr. an. 6.24.3` and `7.24.2`, kept
+  stray apparatus digits inside the Greek on 27 lines, and wrote `%` where
+  the edition prints a dagger.
+- Source: `PerseusDL/canonical-greekLit`,
+  `data/tlg0074/tlg001/tlg0074.tlg001.perseus-grc2.xml`, 1.18 MB, the text
+  of A. G. Roos (Teubner 1907). The printed edition is public domain; the
+  digital edition is CC BY-SA 4.0, which is recorded in
+  `backend/text_sources.json` with attribution. Any Creative Commons data
+  release that includes this file must carry the same licence.
+- Converted by `scripts/corpus/arrian_from_perseus_tei.py` (new): notes,
+  apparatus and page and line breaks are dropped, the citation keeps our own
+  `<arr. an. BOOK.CHAPTER.SECTION>` with each book's preface as chapter 0,
+  and the punctuation is written the way the rest of the Greek corpus writes
+  it (plain apostrophe for elision, colon for the raised stop), because the
+  lemma caches and the index were built on that convention.
+- Counts: 1,406 lines against 1,404, the difference being the two restored
+  sections. Split into the same seven book files. 760 lines are identical to
+  the old file, 644 differ in punctuation alone, and 181 differ in substance,
+  nearly all of them the removal of an apparatus digit or the restoration of
+  the editor's brackets. Two stray digits remain, against 27 before.
+- After this, `check_whole_vs_parts.py` passes all 137 works stored both ways.
+- Production steps: the same ones listed in the entry below, with
+  `arrian.anabasis.tess` and its seven book files added to the lemma-cache
+  and reindex lists for Greek.
+
 ## 2026-09-21 Corpus: book files made canonical, comparison script corrected
 - Extended the same evening by the main session, after checking the agent's
   findings against the corpus: the comparison script only recognised books
