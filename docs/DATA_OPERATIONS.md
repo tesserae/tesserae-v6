@@ -56,10 +56,24 @@ Conventions
 - Checks after: the site answers on the home page and the corpus status
   endpoint, and the margin recompute running at the time was unaffected.
 - The list of what was deleted is `/tmp/claude-128144/bak_delete.txt` on
-  Marvin, which does not survive a reboot. The rule itself is the record:
-  newest two of each file.
-- NOT automated. If this is worth doing on a schedule rather than by hand,
-  it wants a script with a dry run like the other corpus operations.
+  Marvin, which does not survive a reboot. The rule itself is the record.
+- SECOND PASS the same morning, 12:40 EDT, after NC judged 208 copies still
+  too many and asked for the rule to be written down. The rule is now
+  `scripts/prune_backups.py` (PR #466), dry run by default: keep the newest
+  copy of each file, delete the rest, and never leave a file without one.
+  It deleted a further 103 copies and 12.5 GB, leaving 105 copies and
+  10.4 GB, one per file. The filesystem ended at 82% full with 491 GB free,
+  from 90% and 283 GB this morning.
+- The by-hand pass grouped backups by name and got one spelling wrong: a
+  plain `la_index.db.bak` with nothing after it was read as a file of its
+  own rather than as a backup of `la_index.db`. That made the report claim
+  five files were about to lose their only copy when they were not. The
+  script fixes it and pins all six spellings in `tests/test_prune_backups.py`.
+- What the second pass gave up: `window_texts.db.bak-textrefresh-20260922-071229`,
+  the copy made before this morning's wording refresh. Both of the morning's
+  operations were verified before it went, and
+  `scripts/corpus/refresh_window_text.py` rebuilds the stored wording from
+  the .tess files, so the backup was not the only way back.
 
 ## 2026-09-22 Passage index: quoted wording refreshed, three books given passages (run 07:12 to 07:30 EDT)
 
