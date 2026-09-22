@@ -40,7 +40,14 @@ import os
 import re
 import sys
 
-PART_RE = re.compile(r'^(?P<base>.+)\.part\.(?P<n>\d+)(?:\.[^.]+)*\.tess$')
+# A part's label is not always a number. The corpus names a preface
+# `.part.pr`, `.part.praef` or `.part.preface`, fragments `.part.fragments`,
+# and the Vulgate's second psalter `.part.21a.old_latin_psalms`. A pattern
+# that insisted on digits reported eleven such files, across eight works, as
+# missing content when the content was there all along, and that is what sent
+# the 2026-09-21 analysis looking for book files to generate that already
+# existed (found while acting on it).
+PART_RE = re.compile(r'^(?P<base>.+)\.part\.(?P<n>[0-9]+[a-z]?|[a-z_]+)(?:\.[^.]+)*\.tess$')
 LINE_RE = re.compile(r'^\s*<([^>]+)>\s?(.*)$')
 
 

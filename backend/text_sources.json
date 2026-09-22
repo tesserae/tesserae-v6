@@ -1738,10 +1738,12 @@
   {
     "author": "Arrian",
     "work": "Anabasis",
-    "e_source": "Perseus",
-    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0530",
+    "e_source": "Perseus (canonical TEI)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/blob/master/data/tlg0074/tlg001/tlg0074.tlg001.perseus-grc2.xml",
     "print_source": "A.G. Roos. Flavii Arriani Anabasis Alexandri. Teubner: Leipzig. 1907.",
-    "added_by": "V3 Legacy Import"
+    "added_by": "V3 Legacy Import; re-imported 2026-09-21",
+    "license": "Digital edition CC BY-SA 4.0 (Perseus Digital Library). The printed text, Roos 1907, is public domain.",
+    "note": "Replaced 2026-09-21 from the canonical XML. The previous file came from the reading interface and carried 27 lines with stray apparatus digits inside the Greek, lacked two sections (6.24.3 and 7.24.2), and wrote % where the edition has a dagger. Converted by scripts/corpus/arrian_from_perseus_tei.py, which drops notes and apparatus and matches the corpus punctuation convention."
   },
   {
     "author": "Arrian",

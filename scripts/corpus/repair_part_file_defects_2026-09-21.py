@@ -49,6 +49,12 @@ MOJIBAKE_WORKS = [
     ('la', 'pliny_the_elder.naturalis_historia'),
     ('la', 'claudian.de_consulatu_stilichonis'),
     ('la', 'claudian.de_raptu_proserpinae'),
+    # Added 2026-09-21 evening. NC's rule is that book files are canonical,
+    # and for the Georgics they are not fit to be: 42 of their 43 differences
+    # from the whole file are mojibake ("Lenaeeâtuis" for "Lenaee—tuis"),
+    # so the whole file repairs them rather than the other way about. The
+    # 43rd is a diaeresis, aëre against aere, which this leaves alone.
+    ('la', 'vergil.georgics'),
 ]
 
 OROSIUS = ('la', 'paulus_orosius.historiae_adversum_paganos')

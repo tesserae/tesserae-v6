@@ -9,7 +9,52 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-09-21
 
-### Site
+### Corpus
+- Where a work is stored twice, as one file and as separate books, the books
+  are now the authority and the single file is rebuilt from them, which is
+  what a reader of one book sees. Six works were rebuilt: Apuleius,
+  Arnobius, Prudentius, Ovid's Metamorphoses, Orosius and the Georgics. The
+  differences were an OCR error reading "erg6" for "ergo", a running header
+  glued into a line, lines split in two places, curly quotation marks, and
+  spacing before punctuation.
+- The Georgics went the other way first, because its book files held 42
+  corrupted lines where the single file was sound, so those were repaired
+  before the file was rebuilt from them.
+- Pliny's preface and Arnobius book 6 had no book file at all and now do.
+  Arnobius book 1 existed under a misspelled name and is renamed.
+- The check that compares the two copies was only recognising books numbered
+  with digits, so eleven files named for what they hold, a preface, the
+  fragments, the Old Latin Psalms, looked missing when they were present.
+  That is why an earlier count of works needing repair was far too high: of
+  137 works stored both ways, 136 now agree.
+- Arrian's Anabasis replaced with the canonical text of the same edition,
+  Roos 1907, from the Perseus TEI rather than a scrape of a reading page.
+  The old file was missing two sections, carried stray editorial numbers
+  inside the Greek on 27 lines, and printed a percent sign where the edition
+  has a dagger. The new one restores the two sections and the editor's own
+  brackets.
+
+### Corpus
+- Prepared, not yet run: the two remaining works with genuinely missing
+  book files get them (Arnobius' Against the Nations book 6, and the
+  preface of Pliny's Natural History), and Arnobius book 1 is restored to
+  the group under its correct filename, having been sitting under a
+  misspelled name all along. Checking the corpus first found that ten of
+  the twelve works on the 2026-09-21 missing-book-files list already have
+  complete book files: their prefaces and fragment sections exist under
+  names such as `.part.pr.` or `.part.preface.` that the comparison
+  script's filename pattern does not recognize as a book file, so it
+  reported them as missing when they were not. Also prepared: Ovid's
+  Metamorphoses and Orosius' Histories Against the Pagans get their whole
+  file regenerated from their book files, now the canonical copy, removing
+  the curly-quote and em-dash spelling differences between the two copies
+  of each work. Vergil's Georgics and Arrian's Anabasis were left alone:
+  checking first found the Georgics' book files are mostly corrupted
+  encoding, not the plain diaeresis difference expected, and Arrian's book
+  files are a mixed improvement (two merged lines correctly split) and
+  regression (two lines with a stray digit from the critical apparatus
+  left in the text), so neither is a clean case for making the book files
+  canonical.
 - Switching language tabs quickly no longer shows the wrong corpus. Clicking
   Latin, then Greek, then English left three requests in the air, and
   whichever answered last won rather than whichever was asked for last, so
