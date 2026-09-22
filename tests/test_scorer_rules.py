@@ -13,7 +13,7 @@ today's numbers happen to be:
 
   a rarer shared word is worth more than a common one
   words close together are worth more than the same words far apart
-  more shared words are worth more than fewer
+  an extra shared word helps only if it is rarer than the rest
   a score never leaves 0 to 1
   the words that earned the score are reported with it
 
@@ -111,13 +111,40 @@ class TestDistance:
         assert scorer._calculate_distance(line, {'alpha'}, {}) == 1
 
 
-class TestHowManyWordsAreShared:
-    def test_three_shared_words_beat_two(self):
-        src = unit('a.1', ['arma', 'uirum', 'cano', 'troia'])
-        tgt = unit('b.1', ['arma', 'uirum', 'cano', 'roma'])
-        two = value(score_one(src, tgt, ['arma', 'uirum']))
-        three = value(score_one(src, tgt, ['arma', 'uirum', 'cano']))
-        assert three > two
+class TestWhatAnExtraSharedWordDoes:
+    """NOT "more words always score higher", which is what I assumed before
+    writing this and is not what the scorer does.
+
+    The score is the mean rarity of the shared words, scaled down as they sit
+    further apart. Adding a word therefore raises the score only if that word
+    is rarer than the ones already counted, and lowers it if it is commoner
+    or if it stretches the span. That is a defensible rule, and it is the
+    rule this code implements, so it is the one pinned here.
+    """
+
+    @staticmethod
+    def _corpus():
+        # 'passim' is everywhere, 'rarus' is not, 'medius' is in between.
+        everywhere = [unit(f'c.{i}', ['passim', 'medius']) for i in range(60)]
+        middling = [unit(f'm.{i}', ['medius']) for i in range(20)]
+        scarce = [unit('r.1', ['rarus'])]
+        return [everywhere, middling, scarce]
+
+    def test_adding_a_rarer_word_raises_the_score(self):
+        src = unit('a.1', ['medius', 'passim', 'rarus'])
+        tgt = unit('b.1', ['medius', 'passim', 'rarus'])
+        without = value(score_one(src, tgt, ['medius', 'passim'], corpus=self._corpus()))
+        with_rare = value(score_one(src, tgt, ['medius', 'passim', 'rarus'],
+                                    corpus=self._corpus()))
+        assert with_rare > without
+
+    def test_adding_a_commoner_word_does_not_raise_it(self):
+        src = unit('a.1', ['rarus', 'medius', 'passim'])
+        tgt = unit('b.1', ['rarus', 'medius', 'passim'])
+        rare_pair = value(score_one(src, tgt, ['rarus', 'medius'], corpus=self._corpus()))
+        plus_common = value(score_one(src, tgt, ['rarus', 'medius', 'passim'],
+                                      corpus=self._corpus()))
+        assert plus_common <= rare_pair
 
 
 class TestTheScoreStaysInRange:
