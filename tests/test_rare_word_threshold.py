@@ -102,16 +102,28 @@ class TestTheChannelUsesIt:
 
 
 class TestTheWorkCount:
-    def test_it_is_memoized(self, monkeypatch):
+    def test_a_real_answer_is_memoized(self, monkeypatch):
+        """Counted once per language, not once per search."""
         calls = []
+
+        class Cur:
+            def execute(self, *a, **k):
+                return self
+
+            def fetchone(self):
+                return [744]
+
+        class Conn:
+            def cursor(self):
+                return Cur()
 
         def fake_conn(language):
             calls.append(language)
-            return None
+            return Conn()
 
         monkeypatch.setattr(hapax, 'get_connection', fake_conn)
-        hapax.corpus_work_count('la')
-        hapax.corpus_work_count('la')
+        assert hapax.corpus_work_count('la') == 744
+        assert hapax.corpus_work_count('la') == 744
         assert len(calls) == 1
 
     def test_an_unreadable_index_counts_zero_rather_than_raising(self, monkeypatch):
