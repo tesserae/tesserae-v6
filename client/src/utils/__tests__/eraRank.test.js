@@ -52,13 +52,21 @@ describe('eraRank', () => {
 });
 
 describe('the English table covers what the corpus is tagged with', () => {
-  it('ranks Nineteenth century between Romantic and Victorian', () => {
-    // One work carries it: Poe's The Raven, 1849. Romantic runs to 1850 in
-    // the corpus and Victorian starts at 1889.
-    expect(eraRank('en', 'Romantic'))
-      .toBeLessThan(eraRank('en', 'Nineteenth century'));
-    expect(eraRank('en', 'Nineteenth century'))
-      .toBeLessThan(eraRank('en', 'Victorian'));
+  it('has no century label among the period names', () => {
+    // 'Nineteenth century' was carried by one author, Poe, and a century is
+    // not a period in the same series as Romantic and Victorian. He is
+    // tagged Romantic in backend/author_dates.json as of 2026-09-22.
+    expect(ERA_ORDER_BY_LANG.en).not.toContain('Nineteenth century');
+    expect(ERA_ORDER_BY_LANG.en).toContain('Romantic');
+  });
+
+  it('would still place a stray century label last rather than lose it', () => {
+    const last = Math.max(...ERA_ORDER_BY_LANG.en.map((e) => eraRank('en', e)));
+    expect(eraRank('en', 'Nineteenth century')).toBeGreaterThan(last - 1);
+  });
+
+  it('keeps Romantic before Victorian, which is where Poe now sits', () => {
+    expect(eraRank('en', 'Romantic')).toBeLessThan(eraRank('en', 'Victorian'));
   });
 });
 

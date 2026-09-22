@@ -10,11 +10,13 @@
 export const ERA_ORDER_BY_LANG = {
   la:  ['Republic', 'Augustan', 'Early Imperial', 'Later Imperial', 'Late Antique', 'Early Medieval', 'Carolingian', 'Medieval', 'Renaissance', 'Modern', 'Unknown'],
   grc: ['Archaic', 'Classical', 'Hellenistic', 'Early Imperial', 'Later Imperial', 'Late Antique', 'Late Imperial', 'Unknown'],
-  // 'Nineteenth century' ranks between Romantic and Victorian. One work
-  // carries it, Poe's The Raven (1849); Romantic runs to 1850 and Victorian
-  // starts at 1889 in the corpus, so that is where it belongs. Ranking the
-  // label is preferred to retagging the work, which is an editorial call.
-  en:  ['Medieval', 'Renaissance', 'Early Modern', 'Restoration', 'Augustan', 'Neoclassical', 'Romantic', 'Nineteenth century', 'Victorian', 'Modern', 'Unknown'],
+  // No 'Nineteenth century' here. One author carried that label, Poe, and a
+  // century is not a period in the same series as the rest. He was retagged
+  // Romantic in backend/author_dates.json on 2026-09-22, which is where the
+  // standard accounts place him (American Romanticism, and Dark Romanticism
+  // in particular) and where his neighbours in this corpus already sit:
+  // Coleridge 1834 and Wordsworth 1850, both Romantic.
+  en:  ['Medieval', 'Renaissance', 'Early Modern', 'Restoration', 'Augustan', 'Neoclassical', 'Romantic', 'Victorian', 'Modern', 'Unknown'],
   cop: ['Early Coptic', 'Classical Coptic', 'Late Antique Coptic', 'Bohairic Medieval', 'Unknown'],
   // Hebrew joined the Corpus Browser on 2026-09-21. Every one of the 39
   // Hebrew Bible books is tagged Biblical, so that plus Unknown is the whole
