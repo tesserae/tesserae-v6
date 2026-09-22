@@ -36,6 +36,64 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+## 2026-09-22 Rarity rule deployed; Greek texts cleaned in the index (run 11:20 to 11:40 EDT)
+
+Production moved from `e2561ed` to `236f797` (PRs #446, #452, #464, #470).
+NC: "If it passes, proceed with deploy."
+
+### Deploy
+- The margin recompute was stopped first to free the job slot for the
+  frontend build, at 2,605 works of 3,308. It resumes by skipping what it
+  has already written, and restarted at 2,611, so nothing was lost.
+- `scripts/keep_old_bundles.sh save` (49 files), pull, `npm run build`
+  inside a job scope, `keep_old_bundles.sh restore` (48 older bundles kept,
+  attic holds 8), `touch tesseraev6_flask.wsgi`. New bundle
+  `index-Bogsq6c1.js`; an older bundle still answers 200, so a stale page
+  does not go blank.
+
+### The rarity rule
+- A word is rare at 12% of the works in its own language's corpus, not a
+  fixed 100. Confirmed live: Latin 744 works to a threshold of 89, Greek 853
+  to 102, Coptic 180 to 22, English 42 to 5, Hebrew 39 to 5.
+- **The search results cache had to be cleared**, and this is the part worth
+  remembering. The threshold is computed rather than passed in the settings,
+  so the cache key did not change and every cached search kept answering
+  under the old rule. The first check after the deploy looked like a
+  failure for that reason. 45 cached searches, 737 MB, deleted
+  (`cache/*.json`; 33 Latin, 8 Greek, 1 English, 1 Hebrew, 2 unlabelled).
+  Any change that alters results without changing the cache key needs the
+  same step.
+- Measured before and after on the pair the September memory blowout came
+  from, Paradise Lost book 1 against Hyperion: the rare-word channel fired
+  on 4,821 of 5,000 results before and 71 after. The surviving matches are
+  `wing`+`expand`, `soft`+`flute`+`dorian`, `lay`+`prone`.
+
+### Greek texts cleaned in the index (PR #446, merged earlier today)
+- The pull brought four cleaned `texts/grc/` files. Their lemma caches were
+  keyed on the old content, so all four were stale and none of the new
+  content was cached.
+- Four stale entries deleted from `cache/lemmas/grc/`, rebuilt with
+  `scripts/batch_lemma_cache.py --language grc` (4 built, 1,264 already
+  cached, 0 errors).
+- `scripts/corpus/add_texts_to_index.py --db <copy> --language grc
+  --cache-dir cache/lemmas --replace <4 files>` on a copy, then swapped.
+  Backup `grc_index.db.bak-grc-notes-20260922-113651`. Postings fell where
+  the apparatus went: Agatharchides 12,724 to 12,722, Gregory 13,063 to
+  13,061, Scylax 4,809 to 4,806, pseudo-Dicaearchus unchanged.
+  `lemma_doc_freq` rebuilt, 499,543 lemmas.
+- Two details cost a retry each and are worth writing down: the script wants
+  the index's own filename, without the `texts/grc/` prefix, and
+  `--cache-dir` must be `cache/lemmas`, because the script appends the
+  language itself.
+
+### Checks
+- `scripts/reference_search_check.py` passes against production, before and
+  after the index swap.
+- Gregory's Oration 30.9 serves 116 units with the English footnote and the
+  inserted Greek gloss both gone.
+- The home page and the new bundle both answer 200.
+- The margin recompute restarted and is running.
+
 ## 2026-09-22 Old backups deleted, newest two of each kept (run 12:05 EDT)
 
 - On NC's instruction, after the disk reached 90% full. Every data operation
