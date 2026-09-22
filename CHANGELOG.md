@@ -10,6 +10,13 @@ behind each, are in docs/DECISIONS.md.
 ## 2026-09-21
 
 ### Corpus
+- The wording quoted by Similar Passages and Theme Search is refreshed for
+  the works corrected last night. Of 5,980 stored passages across those
+  works, 353 quoted the superseded text, almost all of it punctuation. The
+  words themselves are unchanged, so the passages keep their existing
+  descriptions rather than being sent through a language model again.
+
+### Corpus
 - Where a work is stored twice, as one file and as separate books, the books
   are now the authority and the single file is rebuilt from them, which is
   what a reader of one book sees. Six works were rebuilt: Apuleius,
