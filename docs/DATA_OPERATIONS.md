@@ -36,6 +36,42 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+## 2026-09-21 Corpus: book files canonical, Arrian re-imported (PR #460, run 23:00 to 23:20 EDT)
+- Done by the main session overnight, on NC's instruction ("generate the
+  missing book files. Make the book files for the canonical copy." and
+  "Find a good copy of Arrian's Anabasis online. Do that pull request to get
+  it on production."). PR #460 merged e0ec5c2 and pulled.
+- Lemma caches: 20 entries deleted (18 changed or new files, plus the
+  misspelled `arnobius_advesus_nationes.part.1.tess` whose file is gone) and
+  rebuilt for Latin and Greek.
+- Inverted indexes rebuilt on copies and swapped, backups
+  `la_index.db.bak-canonical-20260921-231348` and the Greek equivalent:
+  Latin 10 files replaced and 3 added (Arnobius book 6, Pliny's preface, and
+  Arnobius book 1 under its corrected name), Greek 8 Arrian files replaced.
+  `lemma_doc_freq` rebuilt for both.
+- One stale entry dropped afterwards with
+  `scripts/corpus/drop_stale_index_entries.py --language la --apply`: the
+  misspelled Arnobius filename, 65 lines and 7,379 postings. Backup
+  `la_index.db.bak-stale-20260921-2313`. Latin texts 1,643 to 1,642, and the
+  eight Arnobius entries now all spell the author correctly.
+- Checks: `scripts/reference_search_check.py` passes (lemma 367 over 63
+  authors, exact 21 over 11); `check_whole_vs_parts.py` passes all 137
+  works; Arrian book 6 serves 174 lines including the restored
+  `arr. an. 6.24.3`, book 1 serves 248 from `1.0.1`; a Greek search of
+  Arrian book 1 against Iliad 1 returns 338 results in 1.6 s. WSGI touched,
+  front-end bundle rebuilt (`index-Dd5J60As.js`) because the corpus-picker
+  fix of PR #457 was waiting on it.
+- NOT invalidated, contrary to what was expected: the Reader's density
+  caches survived, because their fingerprint is taken from the passage index
+  files rather than the inverted index, and the passage index is untouched
+  by a .tess change until its windows are rebuilt. The Latin pass reported
+  1,719 of 1,719 already cached.
+- FOLLOW-UP, not done tonight: the passage index still holds the OLD text
+  for the 20 changed files, so Similar Passages and Theme Search quote the
+  superseded wording for those works, and the two new book files have no
+  windows at all. Both need a window and description rebuild for those
+  works.
+
 ## 2026-09-21 Corpus: Arrian's Anabasis re-imported from the canonical Perseus TEI (planned, not yet run)
 - Why: the whole file and the book files disagreed and neither was simply
   better, so NC asked for a good copy. The file in the corpus came from the
