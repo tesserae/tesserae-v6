@@ -7,14 +7,30 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-09-22
+
+### Corpus
+- Arnobius book 1, Arnobius book 6 and the preface to Pliny's Natural
+  History now appear in Similar Passages and in Theme Search. Those three
+  books had text but no stored passages, so they were invisible to both.
+  Nineteen passages were read and described locally and added to the index.
+- Adding them changes the passage index, and the Reader's margin marks are
+  cached against it, so every work's margin is being computed again. Until
+  that finishes a work opened for the first time is slow.
+
 ## 2026-09-21
 
 ### Corpus
 - The wording quoted by Similar Passages and Theme Search is refreshed for
-  the works corrected last night. Of 5,980 stored passages across those
-  works, 353 quoted the superseded text, almost all of it punctuation. The
-  words themselves are unchanged, so the passages keep their existing
-  descriptions rather than being sent through a language model again.
+  the works corrected last night. Across those works 2,526 stored passages
+  quoted the superseded text and were rewritten. Four in five differ only
+  in punctuation. The rest lose a printed page or line number that the
+  scanned edition had dropped into the middle of a word, so a word such as
+  the Greek for "he orders" is whole again instead of broken in two. No
+  passage changed its sense, so they keep their existing descriptions
+  rather than being sent through a language model again. An earlier
+  version of this entry said 353 passages, which counted only the opening
+  of each passage rather than all of it.
 
 ### Corpus
 - Where a work is stored twice, as one file and as separate books, the books

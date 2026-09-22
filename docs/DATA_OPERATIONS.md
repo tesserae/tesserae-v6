@@ -36,6 +36,74 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+## 2026-09-22 Passage index: quoted wording refreshed, three books given passages (run 07:12 to 07:30 EDT)
+
+Two operations, both on NC's instruction ("Yes" to the two window jobs), run
+one at a time through `~/bin/tess-job`.
+
+### Quoted wording refreshed for the 20 works corrected on 2026-09-21
+- `scripts/corpus/refresh_window_text.py --root . --works-file <list> --apply`
+  (PR #462, merged e2561ed). Backup
+  `data/passage_index/window_texts.db.bak-textrefresh-20260922-071229`.
+- 2,526 windows and 2,453 lines updated. The dry run I reported to NC
+  beforehand said 353, which was wrong: that count compared only the first
+  60 characters of a window's first line, while the script compares the
+  whole rebuilt window.
+- Classified before applying: 1,979 windows differ in punctuation only and
+  547 in words. Every word difference is an apparatus number removed and
+  the word it had split rejoined, for example
+  `παραγ 5 γέλλει` to `παραγγέλλει` in Arrian. Lowest word-level similarity
+  over all 2,526 is 0.913 (Orosius, `hist.adv.pag. 2.7.6`); none is below
+  0.80, so no passage changed sense and none was re-described.
+- Verified: a second dry run reports `0 window(s) and 0 line(s) would be
+  updated`; the live Reader serves the repaired `παραγγέλλει` in Arrian
+  book 1.
+
+### Passages built for the three works that had none
+- `arnobius.adversus_nationes.part.1`, `arnobius.adversus_nationes.part.6`
+  and `pliny_the_elder.naturalis_historia.part.0.preface` had text but no
+  windows, so Similar Passages and Theme Search could not see them. They
+  are the three files added to the Latin index on 2026-09-21.
+- `scripts/corpus/build_batch_windows.py --language la --index-db
+  data/inverted_index/la_index.db --lemma-table
+  data/lemma_tables/latin_lemmas.json --upsert-db
+  data/passage_index/window_texts.db`: 19 windows (Arnobius book 1: 14,
+  book 6: 4, Pliny's preface: 1). `window_texts` 619,056 to 619,075.
+  Backup `window_texts.db.bak-win3-20260922-072536`.
+- `scripts/corpus/describe_windows.py` against the local llama-server on
+  port 8081 (Qwen3-30B-A3B-Instruct-2507-Q4_K_M), stamp
+  `qwen3-30b-a3b-local-2026-09-22`, temperature 0: 19 described, 0 failed,
+  8.0 minutes. No paid API and no GPU rental.
+- `scripts/corpus/apply_passage_rows.py --index data/passage_index
+  --sidecar <sidecar> --mode append --tag win3-20260922`: index 619,034 to
+  619,053 ids and vectors, lockstep asserted before and after. Backups
+  `ids.json.bak-win3-20260922`, `embeddings.npy.bak-win3-20260922`,
+  `descriptions.jsonl.bak-win3-20260922`.
+- `scripts/build_desc_fts.py` rebuilt afterwards because
+  `descriptions.jsonl` changed: 619,299 rows, 678 MB, 34s. Skipping this
+  silently disables Theme Search's lexical boost.
+- `touch tesseraev6_flask.wsgi`, then checked: Similar Passages answers for
+  all three works, and Arnobius returns Augustine's City of God and
+  Tertullian's Apology.
+
+### Consequence: the Reader's margin cache had to be rebuilt
+- `cache/passage_density` is keyed on the size and mtime of `ids.json` and
+  `embeddings.npy` (`backend.passage_index.index_fingerprint`), so adding
+  19 rows invalidated all 3,305 precomputed margins.
+- `scripts/precompute_passage_density.py --language all --only-missing`
+  relaunched for 3,308 works under a 10G cap, log
+  `~/tesserae-backups/jobs/density.log`. About 5 seconds per work and a
+  5.2 GB peak, so roughly five hours. Until it finishes, a work opened in
+  the Reader for the first time pays the cold cost again.
+- Note for the next import: build windows for every new file in the same
+  operation that adds the text, so the margin cache is invalidated once
+  rather than twice.
+
+### Housekeeping noted, not done
+- `data/passage_index` holds 116 GB, of which 108 GB is `.bak-*` files from
+  past operations, and the filesystem is 89% full. A retention rule (keep
+  the newest two per file, say) is NC's call, so nothing was deleted.
+
 ## 2026-09-21 Corpus: book files canonical, Arrian re-imported (PR #460, run 23:00 to 23:20 EDT)
 - Done by the main session overnight, on NC's instruction ("generate the
   missing book files. Make the book files for the canonical copy." and

@@ -6,23 +6,27 @@ in `DATA_OPERATIONS.md`, decisions that change what the site returns are in
 `DECISIONS.md`, and released changes are in `../CHANGELOG.md`. This file is
 the forward-looking companion to those three.
 
-Last rewritten 2026-09-21.
+Last rewritten 2026-09-21, corpus section revised 2026-09-22.
 
 ## Corpus
 
-- **Twelve works have book files that omit whole sections.** The Reader
-  shows works one book at a time, so those lines cannot be displayed at
-  all. The largest case is the Vulgate's second psalter, 2,554 lines, and
-  Arnobius' books 1 and 6 have no book file; the rest are prefaces
-  (Gellius, Pliny, Priscian, Sedulius, Augustine twice) and Dracontius'
-  fragments. Generating the missing files is mechanical. They then need
-  index rows and a description batch.
-- **Some works exist twice in different transcriptions.** A work's whole
-  file and its book files are not always the same text: Ovid's whole file
-  uses curly quotes, the Georgics' whole file writes diaereses, Arrian's
-  book files keep stray section numbers from the source. The proposal on
-  the table is to make the book files canonical and regenerate the whole
-  file from them.
+- **68 Latin book files have no stored passages of their own.** They have
+  text and index entries, but nothing in the passage index, so Similar
+  Passages and Theme Search cannot reach them and the Reader had been
+  showing them another book's margin marks (fixed in code; the marks are
+  now absent rather than wrong). The list includes Statius' Achilleid book
+  1 at 958 lines, all five books of Sedulius' Carmen paschale, twelve lives
+  of Suetonius and nine books of Valerius Maximus. The cure is one batch:
+  build the windows, describe them locally, append once, then recompute the
+  Reader's margin cache once.
+- **42 Coptic files have no stored passages either.** Nine are aggregates
+  whose individual books are indexed (`sahidic.bible`, `bohairic.ot` and
+  the like) and want no windows of their own. The rest are real works that
+  are simply absent: most of the Shenoute pieces, the Gospel of Thomas, the
+  Book of Bartholomew, Theodosius of Alexandria, the Canons of John.
+- **60 more files are shorter than four lines**, which is below the window
+  geometry's floor, so they cannot be described at all. Catullus 85, 93 and
+  94 are among them. Nothing to fix unless the floor changes.
 - **The passage index holds 130 works twice**, once as a whole file and
   once as book files, so one passage can appear twice in a result list
   under two names.
