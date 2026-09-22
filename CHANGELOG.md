@@ -9,6 +9,16 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-09-21
 
+### Internal
+- The administrative panel has tests for the first time. It holds the powers
+  with the most reach in the project, deleting a user, granting roles,
+  resetting a password, and it had none. The 37 new tests cover who is
+  allowed to act and the things that must never happen: an administrator
+  cannot delete their own account, the last two senior accounts cannot be
+  deleted, a session that has been revoked stops working at once, a failed
+  deletion is rolled back rather than left half done, and repeated wrong
+  passwords are locked out.
+
 ### Search
 - How a multi-part work is collapsed to its own name is now decided in one
   place instead of fourteen. Three different rules were in use and one of
