@@ -82,11 +82,16 @@ class TestLoginFailuresReachTheLog:
         """Under Apache and mod_wsgi a print does not reliably reach the
         application log, so a run of failed logins went unseen."""
         import inspect
+        import re
 
         from backend import replit_auth
         source = inspect.getsource(replit_auth)
         assert 'logger' in source
-        assert 'print(' not in source, 'a print is back in the authentication path'
+        # A word boundary, because "blueprint(" contains "print(" and the
+        # module is full of blueprints. The first version of this test failed
+        # on make_replit_blueprint().
+        calls = re.findall(r'(?<![\w.])print\s*\(', source)
+        assert calls == [], 'a print is back in the authentication path'
 
 
 class TestNoBareExceptionClauses:
