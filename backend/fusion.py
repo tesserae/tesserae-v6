@@ -879,10 +879,17 @@ CHANNEL_CONFIGS = {
         "language": "la",
         "unbounded_scoring": True,
         # cap added 2026-09-20: the channel had none; in English every shared
-        # lemma is "rare" (df <= 100 of 42 works), 431k window matches for
-        # Paradise Lost Book 1 x Hyperion, 12 GB blown for the whole poem
+        # lemma was "rare" (df <= 100 of 42 works), 431k window matches for
+        # Paradise Lost Book 1 x Hyperion, 12 GB blown for the whole poem.
+        # The cap stays, but the cause is fixed below: the threshold is no
+        # longer a fixed 100 for every language.
         "max_results": 50000,
-        "rare_word_max_occurrences": 100,
+        # No rare_word_max_occurrences here any more. A fixed 100 was set
+        # against Latin's 744 works and overrode the per-language default,
+        # which is why English called every shared word rare. The threshold
+        # now comes from hapax.rare_word_threshold, computed from the size of
+        # the language's own corpus. A caller may still pass this setting to
+        # override it for a single search.
         "use_edit_distance": False,
         "use_sound": False,
         "use_pos": False,
@@ -1535,11 +1542,12 @@ def run_channel(channel_name, config, source_units, target_units,
         try:
             from backend.blueprints.hapax import find_rare_word_matches_direct
             language = settings.get("language", "la")
-            # Coptic uses sub-word tokenisation, which inflates per-document
-            # token counts ~2-3x and pushes many morphemes above the default
-            # rarity threshold while remaining "rare" in absolute terms.
-            # Tighten the threshold so the channel still discriminates.
-            default_max_occ = 25 if language == 'cop' else 50
+            # "Rare" is a share of the corpus, not a fixed count. See
+            # hapax.rare_word_threshold. Coptic's hand-set 25, for sub-word
+            # tokenisation that inflates its document counts, is reproduced by
+            # the share itself: 0.12 of its 180 works is 22.
+            from backend.blueprints.hapax import rare_word_threshold
+            default_max_occ = rare_word_threshold(language)
             max_occ = settings.get("rare_word_max_occurrences", default_max_occ)
             cap = config.get("max_results", 0)
             matches = find_rare_word_matches_direct(
