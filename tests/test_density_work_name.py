@@ -47,11 +47,17 @@ def index(tmp_path, monkeypatch):
     monkeypatch.setattr(passage_index, '_DENSITY_CACHE', str(tmp_path))
     monkeypatch.setitem(passage_index._state, 'loaded', True)
     monkeypatch.setitem(passage_index._state, 'ok', True)
-    # the density figure itself needs the embeddings; stub the scoring so these
-    # tests are about WHICH windows are answered for, not their values.
-    monkeypatch.setattr(passage_index, '_row_scores',
-                        lambda *a, **k: __import__('numpy').zeros(len(RECORDS), dtype='float32'),
-                        raising=False)
+    # The density figure needs the embeddings. Stub the scoring, so these
+    # tests are about WHICH windows are answered for rather than their
+    # values: _row_scores yields (row index, scores across the whole corpus)
+    # for each row it is given.
+    import numpy as np
+
+    def fake_row_scores(rows, *a, **k):
+        for row in rows:
+            yield row, np.zeros(len(RECORDS), dtype='float32')
+
+    monkeypatch.setattr(passage_index, '_row_scores', fake_row_scores, raising=False)
     return tmp_path
 
 
