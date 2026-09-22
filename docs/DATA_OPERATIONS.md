@@ -36,6 +36,148 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+## 2026-09-21 Corpus: missing book files generated; book files made canonical (planned, not yet run)
+- What: `research/corpus/WHOLE_VS_PARTS_2026-09-21.md` listed 12 works whose
+  book files were said to be missing whole sections, and named 4 of the
+  6 Group B works (differing transcriptions) as candidates to make the book
+  files canonical. Checking every claim against the repository (not just
+  running `check_whole_vs_parts.py`, which has a filename-pattern bug: it
+  only recognizes a part file as `.part.<digits>...tess`, so a part file
+  named `.part.pr.tess`, `.part.praef.tess`, `.part.preface.tess`,
+  `.part.fragments.tess`, or with a lettered suffix like `.part.2a.tess`
+  is invisible to it) found:
+  - 10 of the 12 "missing book file" works already have complete book
+    files under such a name: `jerome.vulgate` (Old Latin Psalms is
+    `.part.21a.old_latin_psalms.tess`, Psalm 151 is `.part.21b.psalm.tess`,
+    Laodiceans is `.part.73a.epistle_of_paul_to_the_laodicians.tess`),
+    `paulinus_of_aquileia.carmina` (`.part.2a.tess`, `.part.2b.tess`),
+    `gellius.attic_nights` (`.part.pr.tess`), `priscian.carmen_in_laudem_
+    Anastasii_imperatoris` (`.part.preface.tess`), `sedulius.carmen_
+    paschale` (`.part.praef.tess`), `augustine.de_doctrina_christiana` and
+    `augustine.de_trinitate` (`.part.praef.tess` each), and
+    `dracontius.romulea` (`.part.fragments.tess`). No file was touched for
+    any of these 8 works. `cicero.philippicae` and `galen.natural_
+    faculties` were already fixed by PR #435 (confirmed: both pass
+    `check_whole_vs_parts.py` on main). Only two works had a genuine gap:
+    `arnobius.adversus_nationes` book 6 (27 lines, nowhere in the repo
+    under any name) and `pliny_the_elder.naturalis_historia`'s preface
+    (7 lines). Arnobius book 1 (65 lines) also turned out to already exist,
+    verbatim and byte-identical to the whole file, under the misspelled,
+    differently-punctuated name `arnobius_advesus_nationes.part.1.tess`
+    (missing the "r" in "adversus", and `_part` instead of `.part`), which
+    is why the checker's own glob for `arnobius.adversus_nationes.part.*`
+    never found it.
+  - Of the 4 Group B works, checking which copy is better before acting
+    (as instructed for Arrian) found the same question applied to Vergil:
+    `vergil.georgics`'s 44 differing lines are not mainly the diaeresis
+    difference the analysis document described. 42 of the 44 are the book
+    files' em dashes and curly quotes stored as mojibake (`Lenaeeâ\x80\x94`
+    for `Lenaee—`); only 2 are the diaeresis case (`aeriae` for `aëriae`).
+    Regenerating the whole file from the book files as instructed would
+    have replaced 42 correct lines with corrupted ones, so `vergil.georgics`
+    was left untouched pending a decision on the mojibake, same as
+    `arrian.anabasis` (below). `ovid.metamorphoses` and
+    `paulus_orosius.historiae_adversum_paganos` had no such surprise: their
+    differences are cleanly curly-vs-straight quotes and em-dash/spacing
+    respectively, so both were regenerated.
+- Files changed:
+  - New: `texts/la/arnobius.adversus_nationes.part.6.tess` (27 lines, copied
+    verbatim from the whole file's `arnobius. adversus_nationes. 6.*`
+    lines, LF line endings matching the whole file and its siblings).
+  - New: `texts/la/pliny_the_elder.naturalis_historia.part.0.preface.tess`
+    (7 lines, copied verbatim from the whole file's `plin. nat. preface.*`
+    lines; kept the whole file's CRLF line endings even though this work's
+    other book files are LF, per "copy verbatim including line endings").
+    Named `part.0.preface` rather than treating the preface as book 1: it
+    sorts before `part.1.books_1-5.tess` and reads as what it is.
+  - Renamed: `texts/la/arnobius_advesus_nationes.part.1.tess` ->
+    `texts/la/arnobius.adversus_nationes.part.1.tess` (git mv only, content
+    byte-identical, confirmed against the whole file's book-1 lines before
+    the rename).
+  - Regenerated (concatenated from their own book files, in part order,
+    `newline=''` throughout so no line ending changed):
+    `texts/la/ovid.metamorphoses.tess` (12,010 -> 12,011 raw lines; the
+    +1 is a harmless trailing blank line carried in from book 15, which
+    itself ends in a blank line like every other book file; content lines
+    unchanged at 11,996 either side, confirmed by `validate_tess.py`'s own
+    count). `texts/la/paulus_orosius.historiae_adversum_paganos.tess`
+    (2,362 -> 2,362 lines, unchanged).
+  - Not changed: `vergil.georgics.tess` and `arrian.anabasis.tess`, and
+    none of their book files.
+- A defect worth a decision, found in the Ovid regeneration: the whole
+  file's `ov. met. 4.767a` and `4.768` are a bracketed, sub-lettered pair
+  marking a couplet the apparatus treats as a spurious interpolation
+  (`[quaerit Abantiades: quaerenti protinus unus` / `narrat ... virorum]`).
+  The book file has no such marking: both lines are tagged `4.768` (a
+  duplicate reference) and the brackets are gone. Canonicalizing the book
+  files as instructed carries this forward; the interpolation marking is
+  now only in git history, not in the corpus. Flagging for NC rather than
+  fixing, since restoring it means deciding whether to keep the duplicate
+  reference or renumber, which is a scholarly-apparatus call.
+- Arnobius, left as found: `arnobius. adversus_nationes. 2.76` differs by
+  one character between the whole file (`cur erg6, inquit`) and
+  `part.2.tess` (`cur ergo, inquit`) already on main, unrelated to the
+  missing-book-file work above. Not touched, per "do not alter any existing
+  file in job A"; `check_whole_vs_parts.py arnobius.adversus_nationes`
+  still reports 1 failing line for this reason alone.
+- Verification run in the branch: `check_whole_vs_parts.py` on every work
+  above: PASS for `pliny_the_elder.naturalis_historia`,
+  `ovid.metamorphoses`, `paulus_orosius.historiae_adversum_paganos`;
+  `arnobius.adversus_nationes` fails only on the pre-existing 2.76 line
+  above (book 1 and 6 both verified present and correct by a name-agnostic
+  multiset comparison script, since the checker's own regex would still
+  miss a differently-named file). Full-corpus re-run: 124 passed, 13 failed
+  (was 121 passed, 16 failed on main), the 3 fewer failures being exactly
+  the 3 works fixed; no new failures anywhere else. `validate_tess.py` on
+  every created or changed file: all report the same `[FAIL]` (space
+  instead of tab between reference and text) that every file in the corpus
+  already reports, confirmed by running it on an untouched sibling book
+  file of each work and on the pre-change version of each changed file;
+  no new class of error. CRLF/LF byte counts compared before and after for
+  every changed file: unchanged (`ovid.metamorphoses.tess` 0 CRLF/12,010
+  LF before and 0/12,011 after, matching the one added blank line;
+  `paulus_orosius...tess` 0/2,361 both; `arnobius...part.1.tess` 0/65
+  both). New files: the Arnobius book 6 file is 0 CRLF/27 LF; the Pliny
+  preface file is 7 CRLF/0 LF, matching the whole file it was copied from.
+- Sample changed lines, Ovid (`ov. met.`): 1.182 `"Non ego pro mundi regno`
+  was `"Non ego...` (curly opening quote to straight); 1.198 `Lycaon?"` was
+  `Lycaon?"` (curly closing quote to straight); 1.209 `"Ille quidem poenas`
+  was `"Ille quidem...` (same). Sample changed lines, Orosius (`hist.adv.
+  pag.`): 3.1.3 `seruire ? — si non` -> `seruire? si non` (space before
+  the question mark and the em dash both dropped); 3.8.6 `potuisset —;` ->
+  `potuisset;` (the dangling em dash before the semicolon dropped); 4.13.9
+  `fugisse ?` -> `fugisse?` (space before the question mark dropped).
+- Not run against production. Production steps, in order, once approved:
+  1. `git pull` on production `main`.
+  2. Delete the lemma cache entries for the 5 changed/new files
+     (`arnobius.adversus_nationes.part.1.tess`,
+     `arnobius.adversus_nationes.part.6.tess`,
+     `pliny_the_elder.naturalis_historia.part.0.preface.tess`,
+     `ovid.metamorphoses.tess`, `paulus_orosius.historiae_adversum_
+     paganos.tess`) and rebuild: `scripts/batch_lemma_cache.py la` (all
+     five are Latin).
+  3. Reindex on a copy of `la_index.db`: `scripts/corpus/
+     add_texts_to_index.py --replace arnobius.adversus_nationes.part.1.tess
+     ovid.metamorphoses.tess paulus_orosius.historiae_adversum_paganos.tess`
+     (the renamed and regenerated files) and `--add
+     arnobius.adversus_nationes.part.6.tess pliny_the_elder.
+     naturalis_historia.part.0.preface.tess` (the two new files) on the
+     same copy, then swap the copy in for the live index.
+  4. Note: the two new book files (Arnobius book 6, Pliny's preface) have
+     no passage-index windows until a description batch runs for them, so
+     neither will appear in Theme Search or Similar Passages until then.
+  5. Rebuild the density caches for Latin (`scripts/precompute_passage_
+     density.py`), because the index fingerprint changed.
+  6. `python scripts/reference_search_check.py`.
+  7. `touch tesseraev6_flask.wsgi`.
+- Left for a later decision, not part of this operation: `vergil.georgics`
+  (mojibake in the book files, mostly not diaereses) and `arrian.anabasis`
+  (book files are a mixed improvement/regression, not clearly better), the
+  Group C `arnobius. adversus_nationes. 2.76` one-character mismatch, and
+  the `check_whole_vs_parts.py` filename-pattern bug itself, which
+  under-reports how many book files already exist for any work using a
+  non-numeric or lettered part label.
+
 ## 2026-09-21 Code review fixes deployed (PRs #439 to #445); Hebrew rare-words cache built
 - What: the seven pull requests from the September code review merged and
   deployed after NC's demo, in two steps. Backend first (PR #439, 24

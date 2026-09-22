@@ -9,7 +9,27 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-09-21
 
-### Site
+### Corpus
+- Prepared, not yet run: the two remaining works with genuinely missing
+  book files get them (Arnobius' Against the Nations book 6, and the
+  preface of Pliny's Natural History), and Arnobius book 1 is restored to
+  the group under its correct filename, having been sitting under a
+  misspelled name all along. Checking the corpus first found that ten of
+  the twelve works on the 2026-09-21 missing-book-files list already have
+  complete book files: their prefaces and fragment sections exist under
+  names such as `.part.pr.` or `.part.preface.` that the comparison
+  script's filename pattern does not recognize as a book file, so it
+  reported them as missing when they were not. Also prepared: Ovid's
+  Metamorphoses and Orosius' Histories Against the Pagans get their whole
+  file regenerated from their book files, now the canonical copy, removing
+  the curly-quote and em-dash spelling differences between the two copies
+  of each work. Vergil's Georgics and Arrian's Anabasis were left alone:
+  checking first found the Georgics' book files are mostly corrupted
+  encoding, not the plain diaeresis difference expected, and Arrian's book
+  files are a mixed improvement (two merged lines correctly split) and
+  regression (two lines with a stray digit from the critical apparatus
+  left in the text), so neither is a clean case for making the book files
+  canonical.
 - Switching language tabs quickly no longer shows the wrong corpus. Clicking
   Latin, then Greek, then English left three requests in the air, and
   whichever answered last won rather than whichever was asked for last, so
