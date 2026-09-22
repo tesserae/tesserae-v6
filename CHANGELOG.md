@@ -9,6 +9,16 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-09-21
 
+### Internal
+- The scoring code has tests for the first time. It decides how good a
+  parallel is, so every ranked list on the site is its judgement, and it had
+  none. The 15 new tests state the rules in the form a reader would: a rarer
+  shared word counts for more than a common one, words close together count
+  for more than the same words far apart, three shared words beat two, a
+  score stays between nothing and one, and every result carries the words it
+  was scored on. They test the order of results rather than the exact
+  numbers, so tuning stays possible and reversing a rule does not.
+
 ### Site
 - Switching language tabs quickly no longer shows the wrong corpus. Clicking
   Latin, then Greek, then English left three requests in the air, and
