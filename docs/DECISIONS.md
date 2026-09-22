@@ -7,6 +7,50 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-09-22 A parallel's score is no longer capped at 1.0
+
+**Question.** `backend/scorer.py` ended with `min(score, 1.0)`, so every
+result that computed above 1.0 was flattened to exactly 1.0 and results the
+scoring had already separated became indistinguishable.
+
+**Measurement.** Lucan book 1 against all twelve books of the Aeneid, lemma
+search, `min_matches=2`, run against production. 1,923 results, 47 of them
+among the 213 commentator-attested parallels in
+`evaluation/benchmarks/lucan_vergil_lexical_benchmark.json`.
+
+| | |
+|---|---|
+| Results at the ceiling | 317 of 1,923 (16%) |
+| Attested parallels inside that block | 20 of 47 |
+| Block size within one search | 19 to 35 results, arbitrary order |
+
+Letting the scores through ranks 5 of those 20 first in their block and 13
+in the top half. Counting ties at their average rank, attested parallels in
+the top ten of a search rise from 5 to 13, and the mean rank of an attested
+parallel improves from 54.7 to 52.6.
+
+**Choice.** The ceiling is off by default, in one place
+(`backend/score_bounds.py`), read by the scorer, the feature extractor and
+the cache key. A caller may still pass `unbounded_scoring: False`.
+
+**Scope.** Smaller than it sounds. `backend/fusion.py` already set
+`unbounded_scoring: True` on every channel, and the interface defaults to
+fusion, so the search most people run was never capped and already returns
+scores up to about 1.43. Only a single-channel search was affected, which is
+what a reader gets after changing the match type away from fusion. The
+ceiling was an inconsistency between two code paths rather than a decision
+anyone made.
+
+**Consequence.** Results cached before this change were scored under the
+ceiling. They are keyed on the setting, so they are not found again rather
+than served.
+
+**Also corrected.** The scorer's header claimed that more matching words
+raise the score. The divisor carries the match count, so they do not. It now
+describes the code and points at issue #465 for whether the code is right.
+
+NC, on the measurement above.
+
 ## 2026-09-22 "Rare" is a share of the corpus, not a fixed number of works
 
 **Question.** The rare-vocabulary channel admitted a word as rare when it

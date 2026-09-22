@@ -10,6 +10,21 @@ behind each, are in docs/DECISIONS.md.
 ## 2026-09-22
 
 ### Search
+- A parallel's score is no longer flattened at 1.0. On a single-channel
+  search a sixth of the results computed above that and were all given the
+  same number, so between 19 and 35 results per search arrived in no
+  particular order. Twenty of the 47 parallels the commentators attest, out
+  of the Lucan benchmark, were sitting in that undifferentiated block.
+  Releasing the scores puts thirteen of those twenty in the top half of
+  their block and lifts attested parallels in the top ten of a search from
+  five to thirteen. The default fusion search was never affected, because it
+  had already switched the ceiling off for itself, and that inconsistency
+  between the two paths is what this removes. Results cached under the old
+  ceiling are not reused.
+- The scorer's own description of its formula said that more matching words
+  raise the score. The code divides by the number of matching words, so they
+  do not. The description now matches the code, and whether the code is
+  right is an open question with the measurement attached (issue #465).
 - A word counts as rare when it appears in at most 12% of the works in its
   own language's corpus, instead of a fixed 100 works in every language.
   100 was chosen for Latin, which holds 744 works. English holds 42, and its
