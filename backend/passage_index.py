@@ -26,7 +26,7 @@ import threading
 
 from backend import scripture_id
 from backend.logging_config import get_logger
-from backend.work_names import base_work
+from backend.work_names import base_work, work_id
 
 logger = get_logger('passage_index')
 
@@ -1515,6 +1515,14 @@ def connection_density(work, scale='fine'):
     # an answer that is a small JSON file and needs nothing from the index. With
     # Apache recycling workers every 1000 requests, the Reader went back to
     # taking thirteen seconds at intervals, for nothing.
+    # The caller may hand us the corpus filename or the bare work id. The
+    # index stores the bare form, so `vergil.aeneid.part.6.tess` used to miss
+    # the exact match below and fall through to the whole-work group, which
+    # is precisely what that fallback's comment says must not happen: book 3
+    # and book 7 densities painted beside book 6's lines. The Reader strips
+    # the suffix itself and was never affected; anything else calling the
+    # endpoint was (found 2026-09-21 while precomputing the cache).
+    work = work_id(work)
     cache_path = _density_cache_path(work, scale)
     try:
         with open(cache_path, encoding='utf-8') as fh:
