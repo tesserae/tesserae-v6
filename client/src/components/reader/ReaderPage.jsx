@@ -21,7 +21,7 @@ const DEFAULT_LANGUAGE = 'la';
 // Where each language's corpus opens when no work is chosen yet.
 const PREFERRED_WORK = {
   la: DEFAULT_WORK,
-  grc: 'apollonius.argonautica.part.1.tess',
+  grc: 'apollonius_rhodius.argonautica.part.1.tess',
   // Fully resourced texts (translation + content windows + parallels), so the
   // Reader's first impression of a corpus is its best one. NC hit Coptic
   // opening on an untranslated, unindexed apocryphon.
