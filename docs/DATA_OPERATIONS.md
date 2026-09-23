@@ -36,6 +36,76 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+## 2026-09-22 to 09-23 Passages built for the 68 book files that had none
+
+The 68 Latin book files with no stored passages of their own, plus Ennodius'
+Carmina 2, which had none either. Until now the Reader served them another
+book's margin marks and neither Similar Passages nor Theme Search could
+reach them.
+
+### Windows and descriptions
+- `scripts/corpus/build_batch_windows.py` over 69 files: 1,720 windows.
+- Described on a rented GPU, on NC's word ("Rent the GPU for an hour").
+  RunPod A100 80GB PCIe, SECURE, $1.59/h, Montreal, 13:01 to 14:21 EDT,
+  **$2.12**. 1,709 windows in 9.0 minutes at 0.31s each, 0 failed, 32 in
+  parallel, `Qwen/Qwen2.5-32B-Instruct-AWQ` under vLLM. The other 11 had
+  been done locally beforehand and were skipped by the sidecar.
+- Local rate for comparison, measured the same day on the llama-server that
+  also serves Tessa: 32s per window one at a time, 23s with six in flight,
+  because that server runs a single slot. 1,720 windows would have taken
+  eleven hours.
+- **Three environment failures cost about 40 minutes of the paid hour**, and
+  the runbook in memory is updated so the next job skips them:
+  1. `pip install vllm` now brings CUDA 13 wheels and upgrades torch with
+     it. The host driver is 12.8, so the engine refused to start with "the
+     NVIDIA driver on your system is too old". Pin `vllm==0.10.2`, which
+     brings `torch 2.8.0+cu128`.
+  2. That vLLM then failed on a newer transformers with
+     `Qwen2Tokenizer has no attribute all_special_tokens_extended`. Pin
+     `transformers==4.55.2`.
+  3. A `nohup ... &` sent as an ssh command did not survive the session
+     closing, and I did not check, so the pod sat idle. Write a script file
+     and launch it with `setsid`, then confirm the process exists before
+     walking away.
+- Pod terminated at 14:21 and `list-pods` confirmed empty.
+
+### Applied to the index
+- `build_batch_windows.py --upsert-db`: 1,720 rows, `window_texts`
+  619,075 to 620,795. Backup `window_texts.db.bak-win68-20260922-*`.
+- `scripts/corpus/apply_passage_rows.py --mode append --tag win68-20260922`:
+  index 619,053 to **620,773** ids and vectors, lockstep asserted.
+  Backups `ids.json`, `embeddings.npy` and `descriptions.jsonl`
+  `.bak-win68-20260922`.
+
+### Finished after the reboot, 2026-09-23
+Marvin rebooted at 23:00 on 2026-09-22 (Chris, ticket #108315) with the last
+three steps outstanding.
+
+- All three user services, Apache and PostgreSQL came back on their own. The
+  site and the health endpoint answer.
+- **`desc_fts.sqlite` was stale by seven hours** and rebuilt: 621,019 rows,
+  679 MB, 32s. Theme Search's lexical boost is silently dropped while it is
+  stale, which is the second time that has bitten; it is a step of any
+  operation that writes `descriptions.jsonl`, not an afterthought.
+- The margin cache held 4 files for the current index out of 6,693, so the
+  Reader was cold everywhere. `precompute_passage_density.py --language all
+  --only-missing` restarted over **3,377** works, up from 3,308 because of
+  the new ones.
+- PR #463 merged and deployed, with `touch tesseraev6_flask.wsgi`. It stops
+  a book file borrowing the whole work's marks, and it was held until these
+  passages existed so the Reader went from wrong marks to right ones with no
+  empty phase.
+
+### Checks
+- Statius' Achilleid book 1, Sedulius' Carmen paschale book 1 and Suetonius'
+  Augustus all answer for Similar Passages, having answered for nothing
+  before.
+- Suetonius' Augustus margin returns 40 windows starting at
+  `suet. vit. aug. 1.1` with no `suet. vit. jul.` reference left in it.
+  Before #463 it returned the Julius book's marks.
+- "arma virum" returns 367 over 63 authors on the lemma search and 21 over
+  11 on the exact search, the expected figures.
+
 ## 2026-09-22 Rarity rule deployed; Greek texts cleaned in the index (run 11:20 to 11:40 EDT)
 
 Production moved from `e2561ed` to `236f797` (PRs #446, #452, #464, #470).

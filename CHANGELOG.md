@@ -23,6 +23,19 @@ behind each, are in docs/DECISIONS.md.
   production, so no live result changes. There was no test of this code
   before. There is one now.
 
+## 2026-09-23
+
+### Reader
+- Sixty-eight books that had no passages of their own now have them, so
+  Similar Passages and Theme Search can reach them and their margin marks
+  are their own. Statius' Achilleid book 1, all five books of Sedulius'
+  Carmen paschale, twelve lives of Suetonius and nine books of Valerius
+  Maximus were among them. Until now the margin showed whatever the whole
+  work held, so opening Suetonius' life of Augustus drew the marks belonging
+  to the life of Julius.
+- A book with no passages of its own now shows an empty margin rather than
+  another book's (#463).
+
 ## 2026-09-22
 
 ### Search

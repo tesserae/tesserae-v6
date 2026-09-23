@@ -10,25 +10,11 @@ Last rewritten 2026-09-21, corpus section revised 2026-09-22.
 
 ## Corpus
 
-- **The Greek index needs rebuilding for PR #446.** Four Greek texts were
-  cleaned of pasted-in English notes and Latin apparatus, and five Greek
-  capitals misread as Latin were corrected, but the live index still holds
-  the old spellings until it is rebuilt. Due in the same operation as the
-  window batch below.
-- **68 Latin book files have no stored passages of their own.** They have
-  text and index entries, but nothing in the passage index, so Similar
-  Passages and Theme Search cannot reach them and the Reader had been
-  showing them another book's margin marks (fixed in code; the marks are
-  now absent rather than wrong). The list includes Statius' Achilleid book
-  1 at 958 lines, all five books of Sedulius' Carmen paschale, twelve lives
-  of Suetonius and nine books of Valerius Maximus. The cure is one batch:
-  build the windows, describe them locally, append once, then recompute the
-  Reader's margin cache once.
-- **42 Coptic files have no stored passages either.** Nine are aggregates
-  whose individual books are indexed (`sahidic.bible`, `bohairic.ot` and
-  the like) and want no windows of their own. The rest are real works that
-  are simply absent: most of the Shenoute pieces, the Gospel of Thomas, the
-  Book of Bartholomew, Theodosius of Alexandria, the Canons of John.
+- **33 Coptic works have no stored passages.** The Latin gap was closed on
+  2026-09-22: all 68 Latin book files, and Ennodius' Carmina 2, were given
+  their own passages. Coptic is what remains, and nine of the 42 files
+  without passages are aggregates whose individual books are indexed
+  (`sahidic.bible`, `bohairic.ot` and the like) and want none of their own.
 - **60 more files are shorter than four lines**, which is below the window
   geometry's floor, so they cannot be described at all. Catullus 85, 93 and
   94 are among them. Nothing to fix unless the floor changes.
