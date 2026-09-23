@@ -3636,102 +3636,102 @@
     "title": "Conica",
     "added_date": "2026-01-22"
   },
-  "archim\u00e8de.de_sphaera_et_cylindro.tess": {
+  "archimedes.de_sphaera_et_cylindro.tess": {
     "source": "first1k_greek",
     "source_name": "First1KGreek - Open Greek and Latin Project",
     "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
     "urn": "urn:cts:greekLit:tlg0552.tlg001.1st1K-grc1",
-    "author": "Archim\u00e8de",
+    "author": "Archimedes",
     "title": "De sphaera et cylindro",
     "added_date": "2026-01-22"
   },
-  "archim\u00e8de.dimensio_circuli.tess": {
+  "archimedes.dimensio_circuli.tess": {
     "source": "first1k_greek",
     "source_name": "First1KGreek - Open Greek and Latin Project",
     "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
     "urn": "urn:cts:greekLit:tlg0552.tlg002.1st1K-grc1",
-    "author": "Archim\u00e8de",
+    "author": "Archimedes",
     "title": "Dimensio circuli",
     "added_date": "2026-01-22"
   },
-  "archim\u00e8de.de_conoidibus_et_sphaeroidibus.tess": {
+  "archimedes.de_conoidibus_et_sphaeroidibus.tess": {
     "source": "first1k_greek",
     "source_name": "First1KGreek - Open Greek and Latin Project",
     "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
     "urn": "urn:cts:greekLit:tlg0552.tlg003.1st1K-grc1",
-    "author": "Archim\u00e8de",
+    "author": "Archimedes",
     "title": "De conoidibus et sphaeroidibus",
     "added_date": "2026-01-22"
   },
-  "archim\u00e8de.de_lineis_spiralibus.tess": {
+  "archimedes.de_lineis_spiralibus.tess": {
     "source": "first1k_greek",
     "source_name": "First1KGreek - Open Greek and Latin Project",
     "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
     "urn": "urn:cts:greekLit:tlg0552.tlg004.1st1K-grc1",
-    "author": "Archim\u00e8de",
+    "author": "Archimedes",
     "title": "De lineis spiralibus",
     "added_date": "2026-01-22"
   },
-  "archim\u00e8de.de_planorum_aequilibriis.tess": {
+  "archimedes.de_planorum_aequilibriis.tess": {
     "source": "first1k_greek",
     "source_name": "First1KGreek - Open Greek and Latin Project",
     "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
     "urn": "urn:cts:greekLit:tlg0552.tlg005.1st1K-grc1",
-    "author": "Archim\u00e8de",
+    "author": "Archimedes",
     "title": "De planorum aequilibriis",
     "added_date": "2026-01-22"
   },
-  "archim\u00e8de.arenarius.tess": {
+  "archimedes.arenarius.tess": {
     "source": "first1k_greek",
     "source_name": "First1KGreek - Open Greek and Latin Project",
     "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
     "urn": "urn:cts:greekLit:tlg0552.tlg006.1st1K-grc1",
-    "author": "Archim\u00e8de",
+    "author": "Archimedes",
     "title": "Arenarius",
     "added_date": "2026-01-22"
   },
-  "archim\u00e8de.quadratura_parabolae.tess": {
+  "archimedes.quadratura_parabolae.tess": {
     "source": "first1k_greek",
     "source_name": "First1KGreek - Open Greek and Latin Project",
     "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
     "urn": "urn:cts:greekLit:tlg0552.tlg007.1st1K-grc1",
-    "author": "Archim\u00e8de",
+    "author": "Archimedes",
     "title": "Quadratura parabolae",
     "added_date": "2026-01-22"
   },
-  "archim\u00e8de.de_corporibus_fluitantibus.tess": {
+  "archimedes.de_corporibus_fluitantibus.tess": {
     "source": "first1k_greek",
     "source_name": "First1KGreek - Open Greek and Latin Project",
     "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
     "urn": "urn:cts:greekLit:tlg0552.tlg008.1st1K-grc1",
-    "author": "Archim\u00e8de",
+    "author": "Archimedes",
     "title": "De corporibus fluitantibus",
     "added_date": "2026-01-22"
   },
-  "archim\u00e8de.ad_eratosthenem_methodus.tess": {
+  "archimedes.ad_eratosthenem_methodus.tess": {
     "source": "first1k_greek",
     "source_name": "First1KGreek - Open Greek and Latin Project",
     "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
     "urn": "urn:cts:greekLit:tlg0552.tlg010.1st1K-grc1",
-    "author": "Archim\u00e8de",
+    "author": "Archimedes",
     "title": "Ad Eratosthenem methodus",
     "added_date": "2026-01-22"
   },
-  "archim\u00e8de.liber_assumptorum.tess": {
+  "archimedes.liber_assumptorum.tess": {
     "source": "first1k_greek",
     "source_name": "First1KGreek - Open Greek and Latin Project",
     "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
     "urn": "urn:cts:greekLit:tlg0552.tlg011.1st1K-grc1",
-    "author": "Archim\u00e8de",
+    "author": "Archimedes",
     "title": "Liber assumptorum",
     "added_date": "2026-01-22"
   },
-  "archim\u00e8de.problema_bovinum.tess": {
+  "archimedes.problema_bovinum.tess": {
     "source": "first1k_greek",
     "source_name": "First1KGreek - Open Greek and Latin Project",
     "source_url": "https://github.com/OpenGreekAndLatin/First1KGreek",
     "urn": "urn:cts:greekLit:tlg0552.tlg012.1st1K-grc1",
-    "author": "Archim\u00e8de",
+    "author": "Archimedes",
     "title": "Problema bovinum",
     "added_date": "2026-01-22"
   },
