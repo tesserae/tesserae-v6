@@ -22,7 +22,17 @@
     <meta name="twitter:card" content="summary">
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="icon" type="image/jpeg" href="/tesserae-icon.jpg">
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- The Reader asks for Gentium Book Plus and until 2026-09-23 nothing
+         loaded it, so every reader fell through to Georgia. Georgia has no
+         polytonic Greek and no Hebrew at all, which is why Greek rendered
+         badly (and differently on different machines, since the browser fell
+         back per character to whatever the system had) and why Hebrew looked
+         tiny beside Latin at the same size. Gentium carries a greek-ext
+         subset covering U+1F00-1FFF, the polytonic block; Noto Serif Hebrew
+         and Noto Sans Coptic cover the two scripts it does not. Google serves
+         each subset separately, so a reader of Latin never fetches the
+         Hebrew or Coptic files. -->
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&family=Gentium+Book+Plus:wght@400;700&family=Inter:wght@400;500;600&family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Coptic&family=Noto+Serif+Hebrew:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div id="root"></div>

@@ -127,9 +127,25 @@ export default function TextPane({ units, language, selection, onSelect, total, 
       className="flex-1 px-6 py-6 overflow-y-auto reader-text"
       onKeyUp={(e) => { if (e.shiftKey) readSelection(); }}
     >
+      {/* Gentium Book Plus carries Latin, polytonic Greek and Cyrillic, and
+          nothing else here does: Georgia, the old fallback, has no polytonic
+          Greek and no Hebrew, so Greek fell back character by character to
+          whatever the reader's machine held and Hebrew borrowed a system face
+          that sits smaller than Latin at the same size. Hebrew and Coptic
+          follow Gentium in the stack because Gentium covers neither, and the
+          browser drops through per character to the first family that has the
+          glyph. `lang` is set so the browser picks the right glyph shapes and
+          breaks lines by the right rules, which it cannot infer from the
+          characters alone. */}
       <div
         className="max-w-3xl"
-        style={{ fontFamily: '"Gentium Book Plus", Georgia, serif', fontSize: '1.06rem', lineHeight: 1.75 }}
+        style={{
+          fontFamily: '"Gentium Book Plus", "Noto Serif Hebrew", '
+            + '"Noto Sans Coptic", Georgia, serif',
+          fontSize: '1.06rem',
+          lineHeight: 1.75,
+        }}
+        lang={language || undefined}
         dir={rtl ? 'rtl' : 'ltr'}
       >
         {units.map((u, i) => {
