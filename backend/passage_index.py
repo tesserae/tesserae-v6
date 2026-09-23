@@ -26,7 +26,7 @@ import threading
 
 from backend import scripture_id
 from backend.logging_config import get_logger
-from backend.work_names import base_work, work_id
+from backend.work_names import base_work, is_part, work_id
 
 logger = get_logger('passage_index')
 
@@ -1543,8 +1543,18 @@ def connection_density(work, scale='fine'):
     # looking at one book: collapsing vergil.aeneid.part.6 into vergil.aeneid
     # would paint book 3 and book 7 densities beside book 6's lines. Fall back to
     # the whole work group only when the caller names the group itself.
+    #
+    # THAT RULE WAS STATED HERE BUT NOT ENFORCED (2026-09-22). `exact or
+    # fallback` only holds the line while the book file HAS windows of its own;
+    # when it has none the fallback ran anyway and served the whole work's, which
+    # is the very thing the paragraph above forbids. 68 Latin book files are in
+    # that state, every one of them with the whole work indexed, so asking for
+    # Suetonius' Augustus returned windows referenced `suet. vit. jul.`: the
+    # Julius book's marks painted beside Augustus' lines. A book file now gets
+    # its own windows or none, and none is honest. The fix for the missing marks
+    # is to build those files their windows, not to borrow another book's.
     exact = [i for i in range(len(_records)) if _records[i].get('work') == work]
-    rows = exact or (_by_work.get(_norm_work(work)) or [])
+    rows = exact if is_part(work) else (exact or (_by_work.get(_norm_work(work)) or []))
     rows = [i for i in rows if not scale or _records[i].get('scale') == scale]
     if not rows:
         return {'work': work, 'windows': []}

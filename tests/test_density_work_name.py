@@ -94,3 +94,50 @@ def test_both_spellings_write_one_cache_file(index):
     passage_index.connection_density('cicero.philippicae.part.7.tess')
     files = sorted(os.listdir(index))
     assert len([f for f in files if 'part.7' in f]) == 1, files
+
+
+# A book file with no windows of its own, alongside a whole work that has
+# them: the state 68 Latin book files were in on 2026-09-22.
+UNBUILT = [
+    {'id': 'j1', 'work': 'suetonius.de_vita_caesarum', 'scale': 'fine',
+     'ref_start': 'suet. vit. jul. 1.1', 'ref_end': 'suet. vit. jul. 1.4',
+     'language': 'la'},
+    {'id': 'j2', 'work': 'suetonius.de_vita_caesarum', 'scale': 'fine',
+     'ref_start': 'suet. vit. jul. 7.2', 'ref_end': 'suet. vit. jul. 7.5',
+     'language': 'la'},
+]
+
+
+@pytest.fixture
+def unbuilt_index(tmp_path, monkeypatch):
+    monkeypatch.setattr(passage_index, '_records', UNBUILT)
+    by_work = {}
+    for i, r in enumerate(UNBUILT):
+        by_work.setdefault(passage_index._norm_work(r['work']), []).append(i)
+        by_work.setdefault(r['work'], []).append(i)
+    monkeypatch.setattr(passage_index, '_by_work', by_work)
+    monkeypatch.setattr(passage_index, '_DENSITY_CACHE', str(tmp_path))
+    monkeypatch.setitem(passage_index._state, 'loaded', True)
+    monkeypatch.setitem(passage_index._state, 'ok', True)
+    import numpy as np
+
+    def fake_row_scores(rows, *a, **k):
+        for row in rows:
+            yield row, np.zeros(len(UNBUILT), dtype='float32')
+
+    monkeypatch.setattr(passage_index, '_row_scores', fake_row_scores, raising=False)
+    return tmp_path
+
+
+def test_a_book_with_no_windows_does_not_borrow_another_books(unbuilt_index):
+    """Augustus asked, Julius answered. The gutter drew Julius' marks beside
+    Augustus' lines, because the whole-work fallback ran for a part file."""
+    out = passage_index.connection_density(
+        'suetonius.de_vita_caesarum.part.2.augustus')
+    assert _refs(out) == []
+    assert out['windows'] == []
+
+
+def test_the_whole_work_still_answers_when_only_it_is_built(unbuilt_index):
+    out = passage_index.connection_density('suetonius.de_vita_caesarum')
+    assert _refs(out) == ['suet. vit. jul. 1.1', 'suet. vit. jul. 7.2']
