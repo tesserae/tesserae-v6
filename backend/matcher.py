@@ -728,6 +728,10 @@ def get_curated_stoplists():
     also carries a ``display`` list: the same words in the form meant for
     reading. For Greek that is the polytonic (accented) form; for Latin and
     English it is identical to ``words``.
+
+    Hebrew and Coptic are plugin languages: their stoplists are sets that
+    exist in ``fusion._STOPLISTS`` only once the plugin has registered, so
+    they are included only then, sorted, with ``dir`` set for the page.
     """
     stoplists = (
         ('la', 'Latin', DEFAULT_LATIN_STOP_WORDS_LIST),
@@ -748,7 +752,36 @@ def get_curated_stoplists():
             'display': display,
             'count': len(deduped),
         }
+
+    from backend import fusion
+    for language, label, direction in _PLUGIN_STOPLISTS:
+        words = fusion._STOPLISTS.get(language)
+        if not words:
+            continue
+        ordered = sorted(words)
+        if language == 'cop':
+            display = [w.translate(_COPTIC_DISPLAY) for w in ordered]
+        else:
+            display = list(ordered)
+        result[language] = {
+            'label': label,
+            'words': ordered,
+            'display': display,
+            'count': len(ordered),
+            'dir': direction,
+        }
     return result
+
+
+_PLUGIN_STOPLISTS = (
+    ('he', 'Hebrew', 'rtl'),
+    ('cop', 'Coptic', 'ltr'),
+)
+
+# normalize_coptic moves shei..dei (U+03E2-03EF) to U+2CB2-2CBF, which are
+# other letters (Dialect-P Alef .. Old Coptic Oou). Matching is unaffected
+# because both sides are normalized alike; for reading, map them back.
+_COPTIC_DISPLAY = {0x2CB2 + i: 0x03E2 + i for i in range(14)}
 
 
 class BoundedCandidates:
