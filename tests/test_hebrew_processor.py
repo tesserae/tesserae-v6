@@ -161,3 +161,49 @@ def test_real_stanza_keeps_lemmas_on_their_own_words(monkeypatch):
     assert lemmas[0] == lemmas[2] == 'עציון'
     assert lemmas[1] == 'רבשקה'
     assert lemmas[3] == 'קבר'
+
+
+# Part-of-speech tags (#482): they came from Stanza on the whole verse, matched
+# one for one although Stanza splits off prefixes, so after the first prefix
+# every tag sat on the wrong word. They now come from the BHSA table.
+
+def no_stanza_calls(text):
+    raise AssertionError(f'Stanza called for {text!r}')
+
+
+def test_verse_gets_the_right_tags(stanza):
+    # וַיֹּאמֶר אֱלֹהִים בָּאָרֶץ וּבַבְּהֵמָה: Stanza used to give CCONJ, VERB, NOUN, ADP.
+    stanza(no_stanza_calls)
+    _, tokens = tokenize_hebrew('וַיֹּ֥אמֶר אֱלֹהִ֖ים בָּאָֽרֶץ וּבַבְּהֵמָ֛ה')
+    assert processor.get_pos_tags(tokens) == ['VERB', 'NOUN', 'NOUN', 'NOUN']
+
+
+def test_tags_follow_the_stem_not_the_prefix(stanza):
+    stanza(no_stanza_calls)
+    assert processor.get_pos_tags(['ה', 'ו', 'ב', 'ישראל', 'לא']) == \
+        ['DET', 'CCONJ', 'ADP', 'PROPN', 'PART']
+
+
+def test_every_bhsa_label_has_a_tag():
+    labels = set(processor._get_pos_table().values())
+    assert labels <= set(processor._BHSA_TO_UPOS)
+
+
+def test_misses_take_stanzas_tag_for_their_own_word(stanza):
+    stanza(fake_stanza())
+    tags = processor.get_pos_tags(['ויאמר', 'קברותיך', 'בעציון', 'הארץ'])
+    assert tags == ['VERB', 'NOUN', 'PROPN', 'NOUN']
+
+
+def test_without_stanza_misses_are_unknown(stanza):
+    stanza(False)
+    assert processor.get_pos_tags(['ויאמר', 'בעציון']) == ['VERB', 'UNK']
+
+
+def test_handler_returns_one_tag_per_token(stanza):
+    stanza(fake_stanza())
+    verse = 'וּבְכׇל־הָרֶ֛מֶשׂ הָרֹמֵ֥שׂ עַל־הָאָ֖רֶץ (הוצא) [הַיְצֵ֣א] אִתָּ֑ךְ וְשָֽׁרְצ֣וּ בָאָ֔רֶץ'
+    _, tokens, lemmas, tags, variants = \
+        processor.HebrewLanguageHandler().tokenize_and_lemmatize(verse)
+    assert len(tags) == len(tokens) == len(lemmas) == len(variants)
+    assert 'UNK' not in tags
