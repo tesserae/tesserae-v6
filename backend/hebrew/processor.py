@@ -49,8 +49,8 @@ def _get_lemma_table():
 def _get_stanza():
     """Lazy-load the Stanza Hebrew pipeline.
 
-    Stanza is an OPTIONAL fallback lemmatizer (~8% of tokens not in the BHSA
-    lookup table). If it is not installed (e.g. absent from the production
+    Stanza is an OPTIONAL fallback lemmatizer (about 0.1% of tokens are not in
+    the BHSA lookup table, mostly rare proper names). If it is not installed (e.g. absent from the production
     environment) or fails to load, Hebrew degrades gracefully to the lookup
     table plus surface forms rather than erroring the search.
     """
@@ -189,6 +189,57 @@ def _lookup_lemma(form, table):
     return None
 
 
+# Universal POS tags Stanza gives the prefixes (ו, ה, ב/כ/ל/מ, ש) and the
+# pronoun suffixes it splits off a word. The stem is the first word of a token
+# outside these.
+_CLITIC_UPOS = {'ADP', 'CCONJ', 'SCONJ', 'DET', 'PRON'}
+
+
+# Stanza results per normalized word, so a word gets the same lemma wherever it
+# occurs and each distinct word is analysed once per process.
+_stanza_cache = {}
+
+
+def _stanza_word(nlp, word):
+    """Stanza's (lemma, upos) for one normalized word, or None when its output
+    is not a single token covering the word."""
+    if word not in _stanza_cache:
+        result = None
+        try:
+            doc = nlp(word)
+            tokens = [t for sent in doc.sentences for t in sent.tokens]
+            if len(tokens) == 1 and (tokens[0].start_char, tokens[0].end_char) == (0, len(word)):
+                parts = tokens[0].words
+                stem = next((w for w in parts if w.upos not in _CLITIC_UPOS), None)
+                if stem is None:
+                    stem = max(parts, key=lambda w: len(w.text))
+                result = (normalize_hebrew(stem.lemma or stem.text), stem.upos or 'UNK')
+        except Exception as e:
+            logger.warning(f'Stanza fallback failed on {word!r}: {e}')
+        _stanza_cache[word] = result
+    return _stanza_cache[word]
+
+
+def _stanza_by_word(words):
+    """Run Stanza on each normalized word and return one (lemma, upos) per
+    word, or None where Stanza is unavailable or its output cannot be used.
+
+    Stanza splits one word into several syntactic words, prefixes and suffixes
+    alike (בירושל → ב + ירושל, קברותיך → קברותי + ך). The missed words of a line
+    used to go to Stanza as one string with its words matched to ours one for
+    one, so every lemma after the first split landed on the wrong word (#481).
+    Each word now goes on its own: the missed words of a line are not a
+    sentence, and in a batch Stanza's analysis of a word changes with its
+    neighbours (קברותיך splits alone but not beside רבשקה), so the same word
+    could get different lemmas in different lines. Within the word the stem is
+    the first syntactic word that is not a clitic, or else the longest.
+    """
+    nlp = _get_stanza()
+    if not nlp:
+        return [None] * len(words)
+    return [_stanza_word(nlp, word) for word in words]
+
+
 def lemmatize_hebrew(tokens):
     """Lemmatize Hebrew tokens using BHSA table with Stanza fallback.
 
@@ -216,35 +267,11 @@ def lemmatize_hebrew(tokens):
             stanza_indices.append(i)
 
     # Stanza fallback for tokens not in BHSA table
-    if stanza_needed:
-        nlp = _get_stanza()
-        if nlp:
-            try:
-                text = ' '.join(stanza_needed)
-                doc = nlp(text)
-                stanza_lemmas = []
-                for sent in doc.sentences:
-                    for word in sent.words:
-                        stanza_lemmas.append(
-                            normalize_hebrew(word.lemma) if word.lemma else normalize_hebrew(word.text)
-                        )
+    for idx, hit in zip(stanza_indices, _stanza_by_word(stanza_needed)):
+        if hit is not None:
+            lemmas[idx] = hit[0]
 
-                # Align Stanza output back to our indices
-                for j, idx in enumerate(stanza_indices):
-                    if j < len(stanza_lemmas):
-                        lemmas[idx] = stanza_lemmas[j]
-                    else:
-                        lemmas[idx] = normalize_hebrew(tokens[idx])
-            except Exception as e:
-                logger.warning(f'Stanza fallback failed: {e}')
-                for idx in stanza_indices:
-                    lemmas[idx] = normalize_hebrew(tokens[idx])
-        else:
-            # No Stanza available - use normalized form
-            for idx in stanza_indices:
-                lemmas[idx] = normalize_hebrew(tokens[idx])
-
-    # Ensure no None values remain
+    # Tokens Stanza could not lemmatize keep their normalized form
     return [l if l is not None else normalize_hebrew(tokens[i]) for i, l in enumerate(lemmas)]
 
 
