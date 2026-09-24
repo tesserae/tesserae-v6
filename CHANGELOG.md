@@ -656,7 +656,7 @@ behind each, are in docs/DECISIONS.md.
   `backend/blueprints/mcp_manifest.py` (read-only picture of an existing
   signal, not a new tool a connector caller needs). Help page: a
   paragraph under Theme Search.
-- Similarity Map details settled with NC on the preview (2026-09-19 to 20):
+- Similarity Map details settled on the preview (2026-09-19 to 20):
   authors in chronological order, log colour scale with a "relative to
   size" mode, hover highlights the row and column and boxes both names,
   frozen column headers, drill-down work by work, then book by book, then
@@ -791,7 +791,7 @@ behind each, are in docs/DECISIONS.md.
 ### Decisions
 - Poem-level book files (Catullus, Horace, Juvenal, Vergil and others; 178
   files) stay out of the inverted index: indexing them beside the whole
-  works would inflate document frequencies (NC, 2026-09-12).
+  works would inflate document frequencies (2026-09-12).
 
 ## 2026-09-11
 

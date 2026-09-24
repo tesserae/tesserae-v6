@@ -49,7 +49,7 @@ than served.
 raise the score. The divisor carries the match count, so they do not. It now
 describes the code and points at issue #465 for whether the code is right.
 
-NC, on the measurement above.
+Adopted on the measurement above.
 
 ## 2026-09-22 "Rare" is a share of the corpus, not a fixed number of works
 
@@ -95,12 +95,11 @@ the scoring code is `texts`, meaning only the two texts being compared.
 Anything calling the scorer without the setting therefore judges rarity
 locally rather than against the corpus. Not investigated yet.
 
-NC, on the measurement above ("We can proceed with your fix making it a
-percentage for rare word").
+Adopted on the measurement above.
 
 ## 2026-09-20 Translations: public domain first, then open non-commercial with attribution (Silius books 9 to 17)
 
-**Decision (NC: "If it's legal and appropriate, we should use Kline").**
+**Decision.**
 The Reader's aligned translations come, in this order of preference, from
 (1) public-domain texts, (2) translations whose author grants free
 non-commercial reproduction, storage, transmission and display, credited
@@ -134,7 +133,7 @@ Latin at section level with no guessing.
 
 ## 2026-09-20 Theme Search: the reader re-scores all 300 composed rows
 
-**Decision (NC: "Give the reader all 300 composed rows").** The page is
+**Decision.** The page is
 composed as about 100 works with three windows each, in order of each
 work's best score with languages interleaved; the reader then re-scores
 rows and the page shows the first 25. It used to re-score the first 100
@@ -153,7 +152,7 @@ all rows re-scored the Odyssey lands at row 15 of the page. Cost: about
 
 ## 2026-09-20 Theme Search: a lexical channel over the descriptions, adopted
 
-**Decision (NC: "adopt the light boost in production").** Theme Search
+**Decision.** Theme Search
 scores each passage window by the cosine between the query's embedding and
 the window's description embedding, plus LEXICAL_BETA (0.02) times a BM25
 word-match score over the description text (gist, themes, action steps,
@@ -258,8 +257,8 @@ Candidate pairs at the window stage, counted from the lemma caches
    shared lemma counts as rare there: Paradise Lost Book 1 against Hyperion
    produced 431,131 window matches, and the whole poem was killed at a
    12 GB cap in this channel after the other four were bounded. The English
-   rarity threshold itself (100 works out of 42) is a separate decision for
-   NC.
+   rarity threshold itself (100 works out of 42) is a separate decision,
+   taken on 2026-09-22 and recorded above.
 
 **Not a fusion defect.** salutati.de_laboribus_herculis.tess has 97 units
 of median 1,232 words (one .tess line per chapter), so every channel
@@ -320,7 +319,7 @@ neighbours up beside the gold lines, so per-pair gold ranks slip a few
 places among tied pairs, while whole-list recall at 50 and 100 is
 unchanged and poetry recall is unchanged pair for pair.
 
-**Deferred for NC.** A request-size guard in `/api/search` (refuse or
+**Deferred.** A request-size guard in `/api/search` (refuse or
 queue pairs whose estimated candidate count is too large, with a plain
 message) and a memory cap on the web workers (root). Both are visible
 behaviour changes.
@@ -361,7 +360,7 @@ descriptions fused with the cosine ranking.
 
 ## 2026-09-19 Standing rule: stoplists are function words only
 
-**Decision (Neil Coffee).** A stoplist holds function words (articles,
+**Decision.** A stoplist holds function words (articles,
 pronouns, prepositions, conjunctions, auxiliaries, particles) and nothing
 else. A common content word such as "summer", "day", "old" or "began" is
 down-weighted by its corpus frequency in scoring, never removed from
@@ -375,7 +374,7 @@ commonplace test.
 mixes function words with common verbs ("know", "take", "make", "go",
 "see", "come", "think", "look", "want", "give", "use", "find", "tell",
 "ask", "work", "seem", "feel", "try", "leave", "call"). The fusion scoring
-layer penalizes those as function words. Adopted (NC, 2026-09-19 23:58, "Go ahead with that stop list"). The list, 275 words (220 plain words plus 50 Snowball contractions and five apostrophe forms, since the tokenizer keeps contractions whole), is the Snowball English
+layer penalizes those as function words. Adopted 2026-09-19. The list, 275 words (220 plain words plus 50 Snowball contractions and five apostrophe forms, since the tokenizer keeps contractions whole), is the Snowball English
 stopword list (Porter's Snowball project, `snowball.tartarus.org/algorithms/
 english/stop.txt`, 174 entries, 124 once contractions are set aside), a
 published function-word list widely reused (NLTK, Lucene, R), PLUS the
@@ -404,7 +403,7 @@ lists to be audited by the same rule.
 **Decision.** `CHANNEL_WEIGHTS['quotation']` goes from 0 to 10, so the
 Latin and Greek fusion profile (`latin_epic`) scores runs of three or more
 identical words. The English profile pins it at 0 until measured. Approved
-by Neil Coffee on 2026-09-19.
+on 2026-09-19.
 
 **Measurement.** A gold set of 42 verbatim prose quotations of Vergil was
 built from the corpus's own texts (Gellius, Macrobius, Quintilian, Seneca,
