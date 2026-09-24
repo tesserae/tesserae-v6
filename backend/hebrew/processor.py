@@ -5,6 +5,8 @@ Provides tokenization, normalization, and lemmatization for Hebrew text.
 Uses a two-tier lemmatization system:
 1. Primary: BHSA lookup table (data/lemma_tables/hebrew_lemmas.json)
 2. Fallback: Stanza Hebrew pipeline (Modern Hebrew model, less accurate on Biblical)
+Part-of-speech tags follow the same two tiers, from the BHSA table
+data/lemma_tables/hebrew_pos.json.
 
 Key Hebrew-specific processing:
 - Nikkud (vowel points) stripping for consistent matching
@@ -24,26 +26,40 @@ logger = get_logger('hebrew.processor')
 # Stanza pipeline - lazy loaded
 _stanza_nlp = None
 
-# BHSA lemma lookup table - lazy loaded
+# BHSA lemma and part-of-speech lookup tables - lazy loaded
 _hebrew_lemma_table = None
+_hebrew_pos_table = None
+
+
+def _load_table(filename, what):
+    table_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+        'data', 'lemma_tables', filename
+    )
+    if os.path.exists(table_path):
+        with open(table_path, 'r', encoding='utf-8') as f:
+            table = json.load(f)
+        logger.info(f'Hebrew {what} table loaded: {len(table)} entries')
+        return table
+    logger.warning(f'Hebrew {what} table not found at {table_path}')
+    return {}
 
 
 def _get_lemma_table():
     """Lazy-load the BHSA Hebrew lemma lookup table."""
     global _hebrew_lemma_table
     if _hebrew_lemma_table is None:
-        table_path = os.path.join(
-            os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-            'data', 'lemma_tables', 'hebrew_lemmas.json'
-        )
-        if os.path.exists(table_path):
-            with open(table_path, 'r', encoding='utf-8') as f:
-                _hebrew_lemma_table = json.load(f)
-            logger.info(f'Hebrew lemma table loaded: {len(_hebrew_lemma_table)} entries')
-        else:
-            _hebrew_lemma_table = {}
-            logger.warning(f'Hebrew lemma table not found at {table_path}')
+        _hebrew_lemma_table = _load_table('hebrew_lemmas.json', 'lemma')
     return _hebrew_lemma_table
+
+
+def _get_pos_table():
+    """Lazy-load the BHSA Hebrew part-of-speech lookup table. Its keys are the
+    same consonantal forms as the lemma table's; its values are BHSA labels."""
+    global _hebrew_pos_table
+    if _hebrew_pos_table is None:
+        _hebrew_pos_table = _load_table('hebrew_pos.json', 'part-of-speech')
+    return _hebrew_pos_table
 
 
 def _get_stanza():
@@ -178,7 +194,8 @@ _HE_PREFIX = set('והבכלמש')
 
 
 def _lookup_lemma(form, table):
-    """Table lookup with Hebrew clitic-prefix stripping on a miss."""
+    """Table lookup with Hebrew clitic-prefix stripping on a miss. Used for
+    both the lemma and the part-of-speech table, which share their keys."""
     if form in table:
         return table[form]
     for k in (1, 2, 3):
@@ -275,33 +292,56 @@ def lemmatize_hebrew(tokens):
     return [l if l is not None else normalize_hebrew(tokens[i]) for i, l in enumerate(lemmas)]
 
 
+# BHSA part-of-speech labels mapped to the Universal POS tags the other
+# languages' taggers produce.
+_BHSA_TO_UPOS = {
+    'verb': 'VERB',
+    'subs': 'NOUN',    # substantive
+    'nmpr': 'PROPN',   # proper noun
+    'adjv': 'ADJ',
+    'advb': 'ADV',
+    'prep': 'ADP',
+    'conj': 'CCONJ',
+    'art': 'DET',
+    'prps': 'PRON',    # personal pronoun
+    'prde': 'PRON',    # demonstrative pronoun
+    'prin': 'PRON',    # interrogative pronoun
+    'inrg': 'ADV',     # interrogative particle
+    'nega': 'PART',    # negative particle
+    'intj': 'INTJ',
+}
+
+
 def get_pos_tags(tokens, language='he'):
-    """Get POS tags for Hebrew tokens using Stanza."""
+    """Get POS tags for Hebrew tokens: the BHSA table first, with the same
+    prefix stripping as lemmas (so ויאמר is tagged as יאמר, a verb), and
+    Stanza only for tokens the table lacks.
+
+    Tags used to come from Stanza on the whole verse, matched to our tokens one
+    for one although Stanza splits prefixes into words of their own, so after
+    the first prefix every tag sat on the wrong token (#482). It was also a
+    Modern Hebrew model, run on every verse.
+    """
     if not tokens:
         return []
 
-    nlp = _get_stanza()
-    if not nlp:
-        return ['UNK'] * len(tokens)
-
-    try:
-        text = ' '.join(tokens)
-        doc = nlp(text)
-
-        tags = []
-        for sent in doc.sentences:
-            for word in sent.words:
-                tags.append(word.upos or 'UNK')
-
-        if len(tags) == len(tokens):
-            return tags
-        elif len(tags) > len(tokens):
-            return tags[:len(tokens)]
+    table = _get_pos_table()
+    tags = []
+    missed_indices, missed_words = [], []
+    for i, token in enumerate(tokens):
+        normalized = normalize_hebrew(token)
+        label = _lookup_lemma(normalized, table)
+        if label is not None:
+            tags.append(_BHSA_TO_UPOS.get(label, 'X'))
         else:
-            return tags + ['UNK'] * (len(tokens) - len(tags))
+            tags.append('UNK')
+            missed_indices.append(i)
+            missed_words.append(normalized)
 
-    except Exception:
-        return ['UNK'] * len(tokens)
+    for i, hit in zip(missed_indices, _stanza_by_word(missed_words)):
+        if hit is not None:
+            tags[i] = hit[1]
+    return tags
 
 
 class HebrewLanguageHandler:
