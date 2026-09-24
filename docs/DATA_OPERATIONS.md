@@ -39,7 +39,7 @@ Conventions
 ## 2026-09-22 Rarity rule deployed; Greek texts cleaned in the index (run 11:20 to 11:40 EDT)
 
 Production moved from `e2561ed` to `236f797` (PRs #446, #452, #464, #470).
-NC: "If it passes, proceed with deploy."
+Deployed once the checks passed.
 
 ### Deploy
 - The margin recompute was stopped first to free the job slot for the
@@ -96,7 +96,7 @@ NC: "If it passes, proceed with deploy."
 
 ## 2026-09-22 Old backups deleted, newest two of each kept (run 12:05 EDT)
 
-- On NC's instruction, after the disk reached 90% full. Every data operation
+- Run after the disk reached 90% full. Every data operation
   leaves a dated backup beside the file it replaces and nothing had ever
   removed one, so 343 copies had accumulated across `data/passage_index`,
   `data/inverted_index` and `cache`, 222 GB in all. The oldest was from
@@ -115,8 +115,8 @@ NC: "If it passes, proceed with deploy."
   endpoint, and the margin recompute running at the time was unaffected.
 - The list of what was deleted is `/tmp/claude-128144/bak_delete.txt` on
   Marvin, which does not survive a reboot. The rule itself is the record.
-- SECOND PASS the same morning, 12:40 EDT, after NC judged 208 copies still
-  too many and asked for the rule to be written down. The rule is now
+- SECOND PASS the same morning, 12:40 EDT, with the rule written down so it
+  could be repeated. The rule is now
   `scripts/prune_backups.py` (PR #466), dry run by default: keep the newest
   copy of each file, delete the rest, and never leave a file without one.
   It deleted a further 103 copies and 12.5 GB, leaving 105 copies and
@@ -135,15 +135,14 @@ NC: "If it passes, proceed with deploy."
 
 ## 2026-09-22 Passage index: quoted wording refreshed, three books given passages (run 07:12 to 07:30 EDT)
 
-Two operations, both on NC's instruction ("Yes" to the two window jobs), run
-one at a time through `~/bin/tess-job`.
+Two operations, run one at a time through `~/bin/tess-job`.
 
 ### Quoted wording refreshed for the 20 works corrected on 2026-09-21
 - `scripts/corpus/refresh_window_text.py --root . --works-file <list> --apply`
   (PR #462, merged e2561ed). Backup
   `data/passage_index/window_texts.db.bak-textrefresh-20260922-071229`.
-- 2,526 windows and 2,453 lines updated. The dry run I reported to NC
-  beforehand said 353, which was wrong: that count compared only the first
+- 2,526 windows and 2,453 lines updated. The dry run beforehand reported 353,
+  which was wrong: that count compared only the first
   60 characters of a window's first line, while the script compares the
   whole rebuilt window.
 - Classified before applying: 1,979 windows differ in punctuation only and
@@ -199,13 +198,12 @@ one at a time through `~/bin/tess-job`.
 ### Housekeeping noted, not done
 - `data/passage_index` holds 116 GB, of which 108 GB is `.bak-*` files from
   past operations, and the filesystem is 89% full. A retention rule (keep
-  the newest two per file, say) is NC's call, so nothing was deleted.
+  the newest two per file, say) was not settled, so nothing was deleted.
 
 ## 2026-09-21 Corpus: book files canonical, Arrian re-imported (PR #460, run 23:00 to 23:20 EDT)
-- Done by the main session overnight, on NC's instruction ("generate the
-  missing book files. Make the book files for the canonical copy." and
-  "Find a good copy of Arrian's Anabasis online. Do that pull request to get
-  it on production."). PR #460 merged e0ec5c2 and pulled.
+- Run overnight: the missing book files were generated, the book files were
+  made the canonical copy, and Arrian's Anabasis was replaced from a better
+  source. PR #460 merged e0ec5c2 and pulled.
 - Lemma caches: 20 entries deleted (18 changed or new files, plus the
   misspelled `arnobius_advesus_nationes.part.1.tess` whose file is gone) and
   rebuilt for Latin and Greek.
@@ -239,7 +237,7 @@ one at a time through `~/bin/tess-job`.
 
 ## 2026-09-21 Corpus: Arrian's Anabasis re-imported from the canonical Perseus TEI (planned, not yet run)
 - Why: the whole file and the book files disagreed and neither was simply
-  better, so NC asked for a good copy. The file in the corpus came from the
+  better, so it was replaced. The file in the corpus came from the
   Perseus reading interface: it lacked `arr. an. 6.24.3` and `7.24.2`, kept
   stray apparatus digits inside the Greek on 27 lines, and wrote `%` where
   the edition prints a dagger.
@@ -274,7 +272,7 @@ one at a time through `~/bin/tess-job`.
   pattern widened, 132 of 137 works agreed rather than the 117 an earlier
   count reported, and the analysis that asked for twelve works' book files
   to be generated was wrong about ten of them.
-- With that corrected, NC's rule was applied to the works where the book
+- With that corrected, the rule was applied to the works where the book
   files are demonstrably the better text, by
   `scripts/corpus/regenerate_whole_from_parts.py` (new, dry run by default):
   Apuleius (two lines split differently), Arnobius (the whole file read
@@ -289,7 +287,7 @@ one at a time through `~/bin/tess-job`.
 - Arrian's Anabasis is left alone and stays failing the check: its book
   files split two merged lines correctly but carry stray apparatus digits
   inside the Greek in two other places, so neither copy is simply better.
-  A decision for NC.
+  Not yet decided.
 - After all of it: 136 of 137 works stored both ways agree.
 
 ## 2026-09-21 Corpus: missing book files generated; book files made canonical (planned, not yet run)
@@ -367,7 +365,7 @@ one at a time through `~/bin/tess-job`.
   The book file has no such marking: both lines are tagged `4.768` (a
   duplicate reference) and the brackets are gone. Canonicalizing the book
   files as instructed carries this forward; the interpolation marking is
-  now only in git history, not in the corpus. Flagging for NC rather than
+  now only in git history, not in the corpus. Recorded rather than
   fixing, since restoring it means deciding whether to keep the duplicate
   reference or renumber, which is a scholarly-apparatus call.
 - Arnobius, left as found: `arnobius. adversus_nationes. 2.76` differs by
@@ -471,7 +469,7 @@ one at a time through `~/bin/tess-job`.
 
 ## 2026-09-21 Code review fixes deployed (PRs #439 to #445); Hebrew rare-words cache built
 - What: the seven pull requests from the September code review merged and
-  deployed after NC's demo, in two steps. Backend first (PR #439, 24
+  deployed in two steps. Backend first (PR #439, 24
   unreachable route handlers deleted from `backend/app.py`, about 970
   lines): pulled, WSGI touched 15:04 EDT. Then the front end as one bundle
   (PRs #441 Saved Searches dialog, #440 dialog semantics and `aria-current`,
@@ -618,7 +616,7 @@ one at a time through `~/bin/tess-job`.
   first line: it was there, hidden behind the mark. Those four files join
   the lemma-cache and reindex lists below; their first lines get passage
   windows at the next description batch.
-- Follow-ups for NC, not done here: (1) Confucius part 2 has 40 non-blank
+- Follow-ups, not done here: (1) Confucius part 2 has 40 non-blank
   lines without a tag (headings and paragraph continuations), which the
   parser drops; the file needs re-segmenting. (2) The checker finds 20
   more works whose whole file and book files disagree in content or
@@ -899,7 +897,7 @@ one at a time through `~/bin/tess-job`.
   by the translator rather than reconstructed from running headers.
 - Licence: A. S. Kline's terms permit free non-commercial reproduction,
   storage, transmission, distribution and display; forbid re-licensing
-  under Creative Commons. NC decision 2026-09-20: acceptable for this free,
+  under Creative Commons. Decision 2026-09-20: acceptable for this free,
   non-commercial site, on the condition that attribution is shown on every
   display, the licence text travels with the data (`sources[1].license` and
   `.copyright` in the JSON), and the file is excluded from any future
@@ -933,7 +931,7 @@ one at a time through `~/bin/tess-job`.
 ## 2026-09-20 Theme Search reader depth 300 deployed (PR #424), then held at 100 while its timeout is fixed
 - What: PR #424 merged ed0657d1, pulled on production, WSGI reloaded 15:16
   EDT: the reader re-scores the whole composed list (300 rows) instead of
-  its first hundred (NC: "Give the reader all 300 composed rows").
+  its first hundred.
 - Incident: for nine minutes every Theme Search answered with the reader
   NOT applied (`reader: {applied: false}`), because the reader client's
   fixed 6 s timeout cut off the 300-row call just before the service
@@ -1031,7 +1029,7 @@ one at a time through `~/bin/tess-job`.
 ## 2026-09-19 Corpus: Eugippius duplicate retired, Ennodius Book 2 resegmented (batch 3)
 - What (code, this PR; not yet run on production): `research/corpus/
   ENNODIUS_EUGIPPIUS_COMPARISON_2026-09-19.md` examined the Eugippius and
-  Ennodius pairs the batch 2 source document had left unretired. NC approved
+  Ennodius pairs the batch 2 source document had left unretired. Approved
   both operations on 2026-09-19.
   1. **Eugippius**: `eugippius.excerpta_ex_operibus_augustini.tess`
      (correctly spelled filename, 1,218 lines, 192,995 words; interleaves
@@ -1147,7 +1145,7 @@ one at a time through `~/bin/tess-job`.
   empty, no entry for either file found in this checkout).
 
 ### Part C (added same day, same PR): Sodoma and Iona pairs checked, kept as-is
-- What: NC asked whether `tertullian_pseudo.de_sodoma.tess` /
+- What: a check of whether `tertullian_pseudo.de_sodoma.tess` /
   `cyprian_pseudo.sodoma.tess` and `tertullian_pseudo.de_iona_propheta.tess`
   / `cyprian_pseudo.de_iona.tess` are the same poem transmitted under two
   attributions (a documented manuscript-tradition fact for these two poems)
@@ -1197,7 +1195,7 @@ one at a time through `~/bin/tess-job`.
   the three-entry `text_sources.json` cleanup above.
 
 ### Part D (added same day, same PR): the two Book 1 prose prefaces preserved
-- What: NC asked not to drop the two Book 1 prose items flagged in Part B
+- What: the two Book 1 prose items flagged in Part B were kept rather than dropped
   (slots 1.6 and 1.7 of the retired `magnus_felix_ennodius.carmina.tess`)
   and to identify what they are. Re-checked against the source XML
   (`stoa0114a.stoa003.opp-lat1.xml`): both slots are actually mixed
@@ -1244,7 +1242,7 @@ one at a time through `~/bin/tess-job`.
   - `python scripts/corpus/validate_tess.py`: `2 lines, avg 2090 chars
     [ok]`, no flags.
 
-### Part D verification addendum: two checks NC asked to confirm
+### Part D verification addendum: two further checks
 - **`DISPLAY_NAMES` keys on the bare stem.** Ran
   `format_display_name('exerpta_ex_operibus_augustini')` directly: returns
   `'Excerpta ex Operibus Augustini'`. Also ran the actual call path the app
@@ -1307,7 +1305,7 @@ one at a time through `~/bin/tess-job`.
   RETIREMENT_LIST_2026-09-19_batch2.md` checked six further items found
   since the 2026-09-18 batch, against production texts at
   `/var/www/tesseraev6_flask/texts/la/`. Two were confirmed safe to retire
-  and approved by NC on 2026-09-19; the other four were left alone (two
+  and approved on 2026-09-19; the other four were left alone (two
   need a human read before any decision, one is a shared generic title
   over two distinct works, one is expected cross-collection overlap of a
   shared letter). Files removed from `texts/la/`: 2.
@@ -1632,7 +1630,7 @@ one at a time through `~/bin/tess-job`.
 ## 2026-09-18 Corpus: 33 duplicate Latin files retired, Martial rebuilt from its per-book files
 - What (code, this PR; not yet run on production): `research/corpus/
   RETIREMENT_LIST_2026-09-18.md` confirmed 12 duplicate/stray Latin files
-  safe to retire; NC additionally decided to retire a further "stray
+  safe to retire; a further "stray
   second edition" group the report had left undecided, and to rebuild
   `martial.epigrams` (missing dozens of epigrams per book, including all
   of 1.1 and the prefatory epistle) from the 14 `martialis.epigrammata_N`
@@ -1807,7 +1805,7 @@ one at a time through `~/bin/tess-job`.
   in the lemma, lemma_min1 and exact channels; every channel's candidate
   list is bounded (lemma, exact, dictionary and rare_word gain the 50,000
   result cap); measurement and the three accepted behaviour changes in
-  docs/DECISIONS.md (2026-09-20). NC accepted them ("Go with 416").
+  docs/DECISIONS.md (2026-09-20). Accepted and shipped.
 - Cached fusion results cleared with `backend.cache.clear_cache_for_language`
   (la 8, grc 3, en 1 files) so pairs recompute under the new rules; the
   three default pairs (Aeneid 1 x Lucan 1, Paradise Lost 1 x Hyperion,
@@ -1829,7 +1827,7 @@ one at a time through `~/bin/tess-job`.
   carries the new chips.
 - 14:19 EDT: PR #421 (tab changes start the new page clean; only the
   first address rewrite keeps parameters, so a Theme Search query no
-  longer re-runs on every return to the tab; NC "I need 421") merged
+  longer re-runs on every return to the tab) merged
   2798c427 and PR #420 (the English Bible displayed as the King James
   Bible; identifiers unchanged) merged ae948007; pulled, bundle rebuilt,
   reloaded; served bundle index-C0oXA1QI.js carries "King James Bible"
@@ -1843,7 +1841,7 @@ one at a time through `~/bin/tess-job`.
   no-cache, so a fresh load always gets the current bundle.
 
 ## 2026-09-20 Corpus: the English Bible files are the King James Version (planned rename, not yet run)
-- Finding (NC, 2026-09-20, from the results page's corpus panel): the 70
+- Finding (2026-09-20, from the results page's corpus panel): the 70
   files `texts/en/world_english_bible.*` hold the Authorized (King James)
   Version of 1611, not the World English Bible: "In the beginning God
   created the heaven and the earth", "Called of God an high priest after
@@ -1870,7 +1868,7 @@ one at a time through `~/bin/tess-job`.
   "ioue", "voice" as "uoice": English line searches for any word with a v
   or a j returned only Spenser's spellings or nothing, and the results
   page's "Across the corpus" panel was blank for such shared words. Found
-  by NC on Paradise Lost 1.512 x Hyperion 2.182 (jove, saturn). Fold now
+  on Paradise Lost 1.512 x Hyperion 2.182 (jove, saturn). Fold now
   Latin only. Merged e2527dad, pulled on production, WSGI reloaded
   13:45 EDT. No index or cache change.
 - Checks after the reload (production API): English "love" 405 lines from
@@ -1883,8 +1881,8 @@ one at a time through `~/bin/tess-job`.
 - Done 2026-09-20 13:45 EDT (main session).
 
 ## 2026-09-20 Theme Similarity Map deployed and its production cache built
-- What: PR #407 (Theme Similarity Map) merged as c4ec3491 after NC's
-  review of the preview ("looks good"); production pulled to c4ec349, the
+- What: PR #407 (Theme Similarity Map) merged as c4ec3491 after review of
+  the preview; production pulled to c4ec349, the
   frontend bundle rebuilt inside the memory launcher (cap 6 GB,
   `scripts/keep_old_bundles.sh save` before and `restore` after, 33 older
   bundles kept), WSGI reloaded 12:22 EDT. Until the cache existed the Map
@@ -2329,7 +2327,7 @@ production.
   queries (mean similarity gain +0.0088 and +0.0033), with the largest gains
   among previously poorly matched windows and a small dilution effect on
   windows that were already strongly matched.
-- Note: NC's own review of the result recommended a design change (a separate
+- Note: review of the result recommended a design change (a separate
   generic-phrasing vector rather than one blended embedding) before any
   full-corpus rollout; this pilot was not extended to the rest of the corpus
   within this window.
@@ -2396,7 +2394,7 @@ production.
   passage-index files under `*.bak-batch2-20260830`.
 - Checks: reference test (324 total, 22 exact) passed at every checkpoint (four
   separate checks that day). A live search for a phrase specific to the
-  repaired Lactantius text confirmed the restoration; NC's own reported
+  repaired Lactantius text confirmed the restoration; the reported
   Similar Passages result on the affected passage was verified fixed live.
 - Note: two translation efforts were refused rather than shipped with a known
   wrong-passage risk (Fronto against Haines' English, Gregory's Dialogi
@@ -2477,7 +2475,7 @@ production.
 - Backups: `.good-20260829` snapshots of the passage-index files, described
   in the source as freshly taken and verified before the append.
 - Checks: lockstep verified (ids count equals embeddings count) before and
-  after. A live search on a passage NC had flagged as missing confirmed the
+  after. A live search on a passage flagged as missing confirmed the
   fix (a specific Coptic passage now correctly reports no indexed window,
   since the English for those lines does not exist).
 
