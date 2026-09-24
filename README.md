@@ -97,6 +97,10 @@ See [docs/DATA_FILES_REFERENCE.md](docs/DATA_FILES_REFERENCE.md) for full detail
 
 - [API Reference](docs/API.md) - REST API endpoints
 - [Developer Guide](docs/DEVELOPER.md) - Setup and architecture
+- [Decisions](docs/DECISIONS.md) - why the site returns what it returns, with the measurement behind each choice
+- [Data operations](docs/DATA_OPERATIONS.md) - every change made to the live data, with its backups and checks
+- [Open work](docs/OPEN_WORK.md) - what is known to be wrong or unfinished
+- [Review tools](scripts/review/README.md) - the checks that catch the mistakes we keep repeating, before a reader has to
 
 ## Project Structure
 
