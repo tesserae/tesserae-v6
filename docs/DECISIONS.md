@@ -7,6 +7,33 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-09-25 Hebrew: the Stanza fallback is off, and the index is built the way the server runs
+
+**Question.** Words the BHSA lookup table does not have can be handed to
+Stanza, an optional analyser, for a guessed dictionary form. Should the
+fallback be on?
+
+**Observation.** Stanza is listed in requirements.txt but was never
+installed in the production environment, and because the fallback is
+optional nothing reported it. The Hebrew index, built where Stanza was
+installed, carried its guesses. Live queries did not. Measured on
+2026-09-25 by building the index both ways from the same texts: 200 of
+305,550 tokens (0.065 percent) take a different lemma with Stanza than
+without. Every one is a word the table lacks, mostly rare names and
+unusual forms. Installing Stanza on production would load a language model
+in each of three web workers, the pattern the query encoder was moved out
+of the web app to avoid.
+
+**Decision.** Off unless `TESSERAE_HEBREW_STANZA=1` is set, on the server
+and at build time alike (`backend/hebrew/processor.py`). The production
+index was rebuilt without it the same day and swapped in, so the index and
+the live server now agree on every word. A fraction of a percent of Hebrew
+words keep their surface form instead of a guessed lemma.
+
+**Effect.** Jerusalem, the case that started the Hebrew work, is unchanged:
+625 postings on one lemma. Tests: `tests/test_hebrew_processor.py`, the
+default-off case and the switch.
+
 ## 2026-09-25 Part-of-speech classes come from one table per tag scheme, and an untagged word abstains
 
 **Question.** The part-of-speech boost compares the class of a shared word
