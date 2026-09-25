@@ -36,6 +36,78 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+## 2026-09-25 Deploy of seven merges, Hebrew index rebuilt, backups pruned, orphan window rows removed (run 10:32 to 10:35 EDT)
+
+### Deploy
+- Production moved from 74d7e04 to 5fbad92: #490, #476, #489, #488, #485,
+  #475, #491. `keep_old_bundles.sh save` (53 files), pull, bundle rebuilt
+  inside an 8 GB job scope, `restore` (52 older bundles kept beside the new
+  one), `touch tesseraev6_flask.wsgi` at 10:34:37. New bundle
+  `index-D-eqbase.js`. The home page answered 200 on the first request and
+  the served page asks for the new bundle.
+- `scripts/reference_search_check.py` passed against production after the
+  reload.
+
+### Hebrew index rebuilt
+- Two merges changed what the index holds for Hebrew, the joiner fix (#485)
+  and the fallback alignment (#491), so it was rebuilt ONCE for the pair.
+  Built in a separate checkout (`~/tesserae-hebuild`,
+  `scripts/build_inverted_index.py --language he --force`, 24 seconds) so
+  the live file was never removed mid-build, verified, then copied in.
+  Backup `he_index.db.bak-jerusalem-20260925-1032`.
+- Built with the dev venv, which has Stanza 1.11.0 and the Hebrew model,
+  after confirming the pipeline loads there. The live index had been built
+  that way: a third of its tokens fall outside the lookup table's exact keys
+  and carry real lemmas, including the shifted-lemma signature the
+  alignment fix removes, and without Stanza an unknown word keeps its own
+  form. Production's venv does not have Stanza, although requirements.txt
+  lists it, so live queries are lemmatized without the fallback while the
+  index has it. Open decision, recorded in the open-work list.
+- Before: 39 texts, 23,206 lines, 268,161 postings, 5,870 lemmas. After:
+  39 texts, 23,206 lines, 267,621 postings, 5,921 lemmas, same text set,
+  integrity ok. Jerusalem: 481 postings on the truncated lemma and 118 on
+  the correct one before, 0 and 625 after. One-letter tokens carrying a
+  lemma of three letters or more, the misalignment signature: 519 before,
+  0 after. The rare name from the alignment issue keeps its 16 postings.
+- Stale caches cleared, with a detour. The 8 Hebrew lemma caches in
+  `cache/lemmas/he/` and the 4 cached Hebrew searches in `cache/*.json` were
+  built under the old tokenizer and are keyed on file content, not tokenizer
+  version, so they would have kept serving old tokens for those 8 books.
+  The deploy script's `rm` failed on the lemma caches: that directory was
+  created by the web server and belongs to it, mode 755. The parent
+  `cache/lemmas/` is ours and writable, so the directory was renamed aside
+  (`he.stale-tokenizer-20260925`) and a fresh `he/` created with group write
+  (mode 2775, group tessdev, which the web server user belongs to). A
+  Reader load of Jonah then wrote a fresh cache into it, written by the web
+  server user, confirming the server can fill it. The four search caches
+  were deleted directly, `cache/` being writable. The stale directory stays
+  until someone with the right permissions removes it. This is the third
+  deploy step the cache ownership has blocked (see the open request for
+  group write on the web-server-created cache directories).
+
+### Backups pruned
+- `scripts/prune_backups.py --apply`, the rule from #466 (keep the newest
+  copy of each file), deleted 10 copies, 16.2 GB: two `window_texts.db`,
+  three `grc_index.db`, and the win3 and win68 generations of the passage
+  index. Four August copies outside the rule's naming
+  (`.rollback-2026-08-27`, `.good-20260829`, 3.2 GB) were removed by hand,
+  superseded by three later generations. Disk free went from 468 to 487 GB.
+  The passage index directory holds 11 GB.
+
+### Orphan window rows removed
+- `window_texts.db` held 23 rows for windows not in the index: 14 Persian
+  from an earlier multilingual build, 7 Coptic of `shenoute.a22`, 2 Latin of
+  `cassiodorus.variae__praefatio_i_`. Saved to a JSON file outside the web
+  root, then deleted. 620,795 rows to 620,772 against 620,773 windows. The
+  Persian windows that ARE in the index, 218,589 of them, and their rows in
+  the `lines` table are untouched. The one window with no stored text,
+  `chanson_de_roland.chanson_de_roland:fine:336`, remains open because the
+  window text builder has no single-work mode.
+
+### The passage density job
+- Paused at work 1,863 of 3,377 to free the job slot for the bundle and
+  index builds, restarted at 10:35. It skips finished works.
+
 ## 2026-09-23 Archimedes renamed inside the passage index (run 13:24 EDT)
 
 ### What and why

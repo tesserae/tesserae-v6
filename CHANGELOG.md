@@ -22,6 +22,37 @@ behind each, are in docs/DECISIONS.md.
   word is left out of the count. The boost is off by default and in
   production, so no live result changes. There was no test of this code
   before. There is one now.
+- Hebrew: Jerusalem is read as one word. A combining grapheme joiner
+  (U+034F) sits inside the name 562 times across 23 files, and the tokenizer
+  split the word at it, so the index held the name under a truncated lemma
+  481 times and under the correct one 118 times. A search for Jerusalem
+  reached fewer than one occurrence in five. The joiner is now removed
+  before tokenizing (#485). After the rebuild the correct lemma carries 625
+  postings and the truncated one none. A live search returns 611 lines.
+- Hebrew: a word outside the lookup table that goes to the Stanza fallback
+  keeps its own lemma. The fallback was fed all the unknown words of a
+  verse joined into one string and its output re-split, so a word Stanza
+  chose to split or join shifted every lemma after it by one, and a rare
+  name took the lemma of the word before it. Each word now goes through on
+  its own, and parts of speech come from the lookup table's own tagging
+  where it has the word (#491, replacing #486). In the live index, 519
+  one-letter tokens carried a lemma of three letters or more before the
+  rebuild. None do now.
+- The Help page shows the Hebrew and Coptic stoplists beside the Latin,
+  Greek and English ones, Hebrew reading right to left, and the Coptic
+  letters shown as themselves rather than as the code points the matcher
+  normalises them to (#488).
+- Line Search: in the line list, a Hebrew or Coptic line's tag no longer runs
+  into its text. Those tags carry the text's whole identifier with no
+  spaces, so they could not wrap inside their column. The list now shows the
+  locus alone, as the results below it already did, and Hebrew lines are
+  right-aligned (#489).
+
+### Corpus
+- A script renames a work inside the passage index without re-describing
+  it. It rewrites the window ids, the description records and the four
+  columns of the window text table, runs dry by default and leaves dated
+  backups. It was used for Archimedes on 23 September (#476).
 
 ## 2026-09-23
 
