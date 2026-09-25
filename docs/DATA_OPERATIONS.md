@@ -36,6 +36,40 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+## 2026-09-23 Archimedes renamed inside the passage index (run 13:24 EDT)
+
+### What and why
+- PR #474 filed eleven Archimedes works under `archimedes` instead of the
+  French `archimède`. The passage index still carried the old name in every
+  place it stores a work: window ids (`ids.json`), the `work` field of
+  `descriptions.jsonl`, and the `work`, `id`, `ref_start` and `ref_end`
+  columns of `window_texts.db` plus its `lines` table. Left alone, the
+  Reader and Similar Passages would have looked the twelve works up under a
+  name the corpus no longer used.
+- Run with `scripts/corpus/rename_work_in_passage_index.py archimède
+  archimedes --apply` (PR #476). The embeddings are untouched, because the
+  windows' content did not change, so nothing was re-described.
+
+### Checks
+- Zero rows remain under the old name in any of the four columns of
+  `window_texts.db` or in its `lines` table. `ids.json` and
+  `descriptions.jsonl` contain the old name zero times. 184 window rows now
+  sit under `archimedes.*` across eleven works.
+- References were rewritten because Greek line tags carry the work name
+  (`archimède.arenarius 1` became `archimedes.arenarius 1`). A work whose
+  tags do not carry its name, as Latin `verg. aen. 1.1` does not, is
+  correctly left alone by the same rule.
+- Backups: `ids.json`, `descriptions.jsonl` and `window_texts.db` copied
+  beside the originals with the suffix `.bak-archimedes-20260923-132446`.
+  The index loader opens fixed file names, so backup copies in the directory
+  are never read. They are covered by the pruning rule
+  (`scripts/prune_backups.py`, roots include `data/passage_index`).
+- Rewriting `ids.json` changed its modification time, which is half of the
+  fingerprint the passage density cache is keyed on. Every work's cached
+  density therefore went stale, and the passage density job
+  (`scripts/precompute_passage_density.py`) has to run again. It was started
+  the same day and restarted on 2026-09-25 after a memory stop.
+
 ## 2026-09-22 to 09-23 Passages built for the 68 book files that had none
 
 The 68 Latin book files with no stored passages of their own, plus Ennodius'
@@ -45,7 +79,7 @@ reach them.
 
 ### Windows and descriptions
 - `scripts/corpus/build_batch_windows.py` over 69 files: 1,720 windows.
-- Described on a rented GPU, on NC's word ("Rent the GPU for an hour").
+- Described on a rented GPU, about an hour of use.
   RunPod A100 80GB PCIe, SECURE, $1.59/h, Montreal, 13:01 to 14:21 EDT,
   **$2.12**. 1,709 windows in 9.0 minutes at 0.31s each, 0 failed, 32 in
   parallel, `Qwen/Qwen2.5-32B-Instruct-AWQ` under vLLM. The other 11 had
@@ -105,6 +139,17 @@ three steps outstanding.
   Before #463 it returned the Julius book's marks.
 - "arma virum" returns 367 over 63 authors on the lemma search and 21 over
   11 on the exact search, the expected figures.
+
+### Two counts that differ by 22, and why
+- The index holds 620,773 windows and `window_texts.db` holds 620,795 rows.
+  The table has 23 rows for windows that are not in the index: 14 Persian
+  windows (attar, bidel, ferdowsi, khaghani, nizami, rumi, saeb, sanai
+  diwans) left from an earlier multilingual build, 7 Coptic windows of
+  `shenoute.a22`, and 2 Latin windows of `cassiodorus.variae__praefatio_i_`.
+  It lacks one window the index has, `chanson_de_roland.chanson_de_roland:
+  fine:336`, whose text the Reader therefore cannot show. Both counts are
+  correct. They measure different files. The 23 orphan rows and the one
+  missing text are listed as open work.
 
 ## 2026-09-22 Rarity rule deployed; Greek texts cleaned in the index (run 11:20 to 11:40 EDT)
 
