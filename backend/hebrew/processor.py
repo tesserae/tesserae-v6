@@ -71,6 +71,13 @@ def _get_stanza():
     return _stanza_nlp if _stanza_nlp is not False else None
 
 
+# Combining grapheme joiner (U+034F). The pointed text writes Jerusalem as
+# יְרוּשָׁלַ͏ִם with a CGJ between the patah and the hiriq so both vowels stay on
+# the lamed (562 times in texts/he). It lies outside the Hebrew block, so it
+# must be removed before words are split or Jerusalem breaks in two (#480).
+_CGJ = '\u034F'
+
+
 def normalize_hebrew(text):
     """Normalize Hebrew text for consistent matching.
 
@@ -80,6 +87,7 @@ def normalize_hebrew(text):
     """
     # NFC first so composed forms are handled consistently
     text = unicodedata.normalize('NFC', text)
+    text = text.replace(_CGJ, '')
     # Strip nikkud (U+0591-U+05BD, U+05BF-U+05C7) - vowel points and cantillation
     text = re.sub(r'[\u0591-\u05BD\u05BF-\u05C7]', '', text)
     # Strip maqaf (Hebrew hyphen U+05BE) - treat hyphenated words as separate
@@ -119,6 +127,7 @@ def tokenize_hebrew_with_variants(text):
     """
     text = re.sub(r'<[^>]+>', '', text)
     text = re.sub(r'\{[^}]*\}', ' ', text)
+    text = text.replace(_CGJ, '')
 
     original, variants = [], []
     last = 0
