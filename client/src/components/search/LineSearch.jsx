@@ -8,6 +8,16 @@ import { orderEras, ERA_COLORS } from '../../utils/eras';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+// Hebrew and Coptic loci embed the full text id (e.g.
+// "hebrew_bible.1_samuel.1.1"); strip that redundant stem so the citation
+// reads "1.1". Loci without the stem (e.g. "verg. aen. 1.1") pass through.
+function displayLocus(locus, textId) {
+  const stem = (textId || '').replace(/\.tess$/, '');
+  return stem && (locus || '').startsWith(stem + '.')
+    ? locus.slice(stem.length + 1)
+    : (locus || '');
+}
+
 export default function LineSearch({ language }) {
   const [mode, setMode] = useState('browse');
   const [query, setQuery] = useState('');
@@ -807,12 +817,7 @@ export default function LineSearch({ language }) {
 
               <div className="divide-y divide-gray-200">
                 {filteredResults.slice(0, displayLimit).map((result, i) => {
-                  // Coptic loci embed the full text id (e.g. "pseudo.athanasius.discourses.24");
-                  // strip that redundant filename stem so the citation reads "Discourses, 24".
-                  const stem = (result.text_id || '').replace(/\.tess$/, '');
-                  const displayLocus = stem && (result.locus || '').startsWith(stem + '.')
-                    ? result.locus.slice(stem.length + 1)
-                    : (result.locus || '');
+                  const locus = displayLocus(result.locus, result.text_id);
                   return (
                   <div key={i} className="p-4 hover:bg-gray-50">
                     <div className="flex flex-col sm:flex-row sm:items-start gap-2">
@@ -824,7 +829,7 @@ export default function LineSearch({ language }) {
                           {result.author}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {result.work}, {displayLocus}
+                          {result.work}, {locus}
                         </div>
                         {result.era && (
                           <span className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-600 rounded mt-1 inline-block">
@@ -1042,10 +1047,10 @@ export default function LineSearch({ language }) {
                     className="p-3 hover:bg-amber-50 cursor-pointer flex gap-3"
                     onClick={() => selectLineForSearch(line)}
                   >
-                    <span className="text-xs text-gray-500 w-16 flex-shrink-0 text-right">
-                      {line.locus}
+                    <span className="text-xs text-gray-500 w-16 flex-shrink-0 text-right break-words">
+                      {displayLocus(line.locus, selectedWork)}
                     </span>
-                    <span className="text-sm text-gray-700 flex-1">{decodeEntities(line.text)}</span>
+                    <span className="text-sm text-gray-700 flex-1 min-w-0" dir="auto">{decodeEntities(line.text)}</span>
                   </div>
                 ))}
               </div>
