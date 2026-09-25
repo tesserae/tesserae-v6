@@ -7,6 +7,22 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-09-25
+
+### Search
+- The part-of-speech boost filed every proper noun among the pronouns,
+  because it told tag schemes apart by prefix and `PROPN` begins with `PR`.
+  A name therefore matched a pronoun and failed to match a noun (issue
+  #487). Reading the stored tags showed more. Greek, and Latin where it is
+  tagged, use the nine-position Perseus code, of which only the noun and
+  verb positions were recognised, so adjectives, adverbs, pronouns,
+  prepositions, conjunctions, articles and participles all collapsed into
+  one class that matched itself. Untagged words, 82 percent of stored Latin
+  tags, did the same. Each scheme is now matched exactly, and an untagged
+  word is left out of the count. The boost is off by default and in
+  production, so no live result changes. There was no test of this code
+  before. There is one now.
+
 ## 2026-09-22
 
 ### Search

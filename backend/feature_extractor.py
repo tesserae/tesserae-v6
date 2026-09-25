@@ -32,6 +32,58 @@ DEFAULT_FEATURE_WEIGHTS = {
 
 WEIGHTS_FILE = os.path.join(os.path.dirname(__file__), 'feature_weights.json')
 
+# The class the part-of-speech boost gives a word nobody tagged. It is not
+# 'OTHER', because OTHER is a real class that matches itself, and two
+# untagged words must not count as agreeing.
+UNKNOWN_POS = 'UNK'
+
+# The three tag schemes the corpus actually stores, read from the lemma
+# cache on 2026-09-25 rather than assumed. Prefix tests were how the old
+# normaliser told them apart, and 'PROPN' starting with 'PR' filed every
+# proper noun among the pronouns (#487). Each scheme is now matched exactly.
+
+# Hebrew: Universal Dependencies. Numerals go with nouns, auxiliaries with
+# verbs.
+_UNIVERSAL_POS = {
+    'NOUN': 'NOUN', 'PROPN': 'NOUN', 'NUM': 'NOUN',
+    'VERB': 'VERB', 'AUX': 'VERB',
+    'ADJ': 'ADJ', 'ADV': 'ADV',
+    'ADP': 'PREP', 'PREP': 'PREP',
+    'CCONJ': 'CONJ', 'SCONJ': 'CONJ', 'CONJ': 'CONJ',
+    'PRON': 'PRON', 'DET': 'DET',
+    'PART': 'OTHER', 'INTJ': 'OTHER', 'PUNCT': 'OTHER', 'SYM': 'OTHER',
+    'X': 'OTHER', 'OTHER': 'OTHER',
+}
+
+# English where tagged: Penn Treebank.
+_PENN_POS = {
+    'NN': 'NOUN', 'NNS': 'NOUN', 'NNP': 'NOUN', 'NNPS': 'NOUN', 'CD': 'NOUN',
+    'VB': 'VERB', 'VBD': 'VERB', 'VBG': 'VERB', 'VBN': 'VERB', 'VBP': 'VERB',
+    'VBZ': 'VERB', 'MD': 'VERB',
+    'JJ': 'ADJ', 'JJR': 'ADJ', 'JJS': 'ADJ',
+    'RB': 'ADV', 'RBR': 'ADV', 'RBS': 'ADV', 'WRB': 'ADV',
+    'IN': 'PREP', 'TO': 'PREP',
+    'CC': 'CONJ',
+    'PRP': 'PRON', 'PRP$': 'PRON', 'WP': 'PRON', 'WP$': 'PRON',
+    'DT': 'DET', 'WDT': 'DET', 'PDT': 'DET',
+    'UH': 'OTHER', 'RP': 'OTHER', 'FW': 'OTHER', 'EX': 'OTHER',
+    'POS': 'OTHER', 'LS': 'OTHER', 'SYM': 'OTHER',
+}
+
+# Greek, and Latin where tagged: the nine-position Perseus treebank code
+# ('N-S---MA-', 'V3SPIA---'). Position one is the word class. A participle
+# goes with the verb, a numeral with the noun, the article with the
+# determiners. Particles, interjections, exclamations and punctuation are
+# OTHER. A blank first position is a word the tagger gave up on.
+_PERSEUS_POS = {
+    'N': 'NOUN', 'M': 'NOUN',
+    'V': 'VERB', 'T': 'VERB',
+    'A': 'ADJ', 'D': 'ADV', 'R': 'PREP', 'C': 'CONJ',
+    'P': 'PRON', 'L': 'DET',
+    'G': 'OTHER', 'I': 'OTHER', 'E': 'OTHER', 'U': 'OTHER', 'X': 'OTHER',
+}
+_PERSEUS_LENGTH = 9
+
 def load_feature_weights():
     """Load feature weights from JSON config file"""
     try:
@@ -107,7 +159,9 @@ class FeatureExtractor:
                 if src_idx < len(src_pos) and tgt_idx < len(tgt_pos):
                     src_pos_tag = self._normalize_pos(src_pos[src_idx])
                     tgt_pos_tag = self._normalize_pos(tgt_pos[tgt_idx])
-                    
+                    if UNKNOWN_POS in (src_pos_tag, tgt_pos_tag):
+                        # A word nobody tagged says nothing either way.
+                        continue
                     if src_pos_tag == tgt_pos_tag:
                         pos_matches += 1
                     total_matches += 1
@@ -118,34 +172,26 @@ class FeatureExtractor:
         return pos_matches / total_matches
     
     def _normalize_pos(self, pos_tag):
-        """
-        Normalize POS tags to broad categories for comparison.
-        Different taggers use different schemes, so we normalize to:
-        NOUN, VERB, ADJ, ADV, PREP, CONJ, PRON, OTHER
+        """Reduce a tag from any of the three stored schemes to one class.
+
+        The classes are NOUN, VERB, ADJ, ADV, PREP, CONJ, PRON, DET and
+        OTHER, plus UNKNOWN_POS for a word nobody tagged. The tables at the
+        top of the module say which scheme maps where, and
+        tests/test_pos_normalisation.py holds the real tags each language
+        stores.
         """
         if not pos_tag:
-            return 'OTHER'
-        
-        pos_tag = pos_tag.upper()
-        
-        if pos_tag.startswith('N') or pos_tag in ('NN', 'NNS', 'NNP', 'NNPS', 'NOUN'):
-            return 'NOUN'
-        elif pos_tag.startswith('V') or pos_tag in ('VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ', 'VERB'):
-            return 'VERB'
-        elif pos_tag.startswith('ADJ') or pos_tag in ('JJ', 'JJR', 'JJS'):
-            return 'ADJ'
-        elif pos_tag.startswith('ADV') or pos_tag in ('RB', 'RBR', 'RBS'):
-            return 'ADV'
-        elif pos_tag in ('IN', 'PREP', 'ADP'):
-            return 'PREP'
-        elif pos_tag in ('CC', 'CONJ', 'CCONJ', 'SCONJ'):
-            return 'CONJ'
-        elif pos_tag.startswith('PR') or pos_tag in ('PRP', 'PRP$', 'WP', 'WP$', 'PRON'):
-            return 'PRON'
-        elif pos_tag in ('DET', 'DT', 'WDT'):
-            return 'DET'
-        else:
-            return 'OTHER'
+            return UNKNOWN_POS
+        tag = pos_tag.upper()
+        if tag == UNKNOWN_POS:
+            return UNKNOWN_POS
+        if tag in _UNIVERSAL_POS:
+            return _UNIVERSAL_POS[tag]
+        if tag in _PENN_POS:
+            return _PENN_POS[tag]
+        if len(tag) == _PERSEUS_LENGTH:
+            return _PERSEUS_POS.get(tag[0], UNKNOWN_POS)
+        return UNKNOWN_POS
     
     def calculate_edit_distance_score(self, source_unit, target_unit, matched_lemmas):
         """

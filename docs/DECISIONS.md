@@ -7,6 +7,42 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-09-25 Part-of-speech classes come from one table per tag scheme, and an untagged word abstains
+
+**Question.** The part-of-speech boost compares the class of a shared word
+in the source with its class in the target. Which class does each stored
+tag belong to, and what does a word nobody tagged contribute?
+
+**Observation.** Sampling 25 lemma-cache files per language on 2026-09-25
+found three tag schemes in use. Hebrew stores Universal Dependencies tags
+throughout. English stores Penn Treebank tags in 3 of 14 files and `UNK`
+elsewhere, 85 percent of its tokens. Greek stores the nine-position Perseus
+treebank code for 42 percent of its tokens and `Unk` for the rest. Latin
+stores `UNK` for 82 percent of its tokens and the Perseus code in 4 of 25
+files. The normaliser told these apart by prefix. `PROPN` begins with `PR`
+and was classed as a pronoun (issue #487). Of the Perseus code only the `N`
+and `V` positions were recognised, so seven other word classes became
+OTHER, which matches itself. `UNK` also became OTHER, so two untagged words
+counted as agreeing.
+
+**Decision.** Each scheme is matched exactly against its own table in
+`backend/feature_extractor.py`. Proper nouns and numerals class with nouns.
+Auxiliaries and participles class with verbs. The article classes with
+determiners. Particles, interjections, exclamations and punctuation are
+OTHER. A tag from no scheme, a blank Perseus position, or `UNK` is UNKNOWN,
+and a pair with an unknown on either side is left out of both the numerator
+and the denominator, so an untagged word neither helps nor hurts. If every
+shared word is untagged the boost is 0.
+
+**Effect.** None on live results, because the boost is not in
+`enabled_features` in production or in the defaults. Where it is switched
+on, a Hebrew name now agrees with a noun rather than a pronoun, and a Greek
+adjective no longer agrees with a preposition. The 20 cases in
+`tests/test_pos_normalisation.py` are drawn from the stored tags.
+
+**Open.** Whether the boost should be on at all, given how little of Latin
+and English is tagged, is not decided here.
+
 ## 2026-09-22 A parallel's score is no longer capped at 1.0
 
 **Question.** `backend/scorer.py` ended with `min(score, 1.0)`, so every
