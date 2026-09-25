@@ -16,7 +16,7 @@ fallback be on?
 **Observation.** Stanza is listed in requirements.txt but was never
 installed in the production environment, and because the fallback is
 optional nothing reported it. The Hebrew index, built where Stanza was
-installed, carried its guesses; live queries did not. Measured on
+installed, carried its guesses. Live queries did not. Measured on
 2026-09-25 by building the index both ways from the same texts: 200 of
 305,550 tokens (0.065 percent) take a different lemma with Stanza than
 without. Every one is a word the table lacks, mostly rare names and
