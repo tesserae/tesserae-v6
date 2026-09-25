@@ -23,6 +23,38 @@ behind each, are in docs/DECISIONS.md.
   production, so no live result changes. There was no test of this code
   before. There is one now.
 
+## 2026-09-23
+
+### Reader
+- Sixty-eight books that had no passages of their own now have them, so
+  Similar Passages and Theme Search can reach them and their margin marks
+  are their own. Statius' Achilleid book 1, all five books of Sedulius'
+  Carmen paschale, twelve lives of Suetonius and nine books of Valerius
+  Maximus were among them. Until now the margin showed whatever the whole
+  work held, so opening Suetonius' life of Augustus drew the marks belonging
+  to the life of Julius.
+- A book with no passages of its own now shows an empty margin rather than
+  another book's (#463).
+- The Reader asked for a typeface nobody had loaded. It named Gentium Book
+  Plus, the page fetched only Crimson Pro, Inter and Noto Sans, so every
+  reader fell through to Georgia, which has no polytonic Greek and no Hebrew.
+  Greek fell back glyph by glyph to whatever the machine held and Hebrew
+  borrowed a system face that sits small at the same size. Two reported
+  faults, one missing link. Gentium Book Plus, Noto Serif Hebrew and Noto
+  Sans Coptic now load, and the reading pane tells the browser which
+  language it is showing (#477).
+- Switching the Reader to Greek lands on the Argonautica again. The retiring
+  of duplicate texts on 10 September removed the copy the Reader's default
+  pointed at, so the failed load fell back to the first Greek author in the
+  list (#472).
+
+### Corpus
+- Archimedes is one author, not two. Eleven works imported under the French
+  form of his name are filed with the twelfth under the Latin form, 826 line
+  tags and the provenance entries with them, no text changed (#474). The
+  passage index was renamed to match the same afternoon, see
+  docs/DATA_OPERATIONS.md.
+
 ## 2026-09-22
 
 ### Search
