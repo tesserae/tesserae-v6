@@ -144,3 +144,24 @@ def test_curated_stoplists_endpoint(app_instance):
     display_map = _get_greek_display_map()
     unmapped = [w for w in grc["words"] if w not in display_map]
     assert not unmapped, f"Greek words missing from display map: {unmapped}"
+
+
+def test_curated_stoplists_include_registered_plugins(app_instance):
+    """Hebrew and Coptic lists reach the Help page once their plugins register."""
+    from backend import fusion
+    from backend.matcher import get_curated_stoplists
+
+    stoplists = get_curated_stoplists()
+    for language in ("he", "cop"):
+        if language not in fusion._STOPLISTS:
+            continue
+        entry = stoplists[language]
+        assert entry["words"] == sorted(fusion._STOPLISTS[language])
+        assert len(entry["display"]) == entry["count"] == len(entry["words"])
+    if "he" in fusion._STOPLISTS:
+        assert stoplists["he"]["dir"] == "rtl"
+    if "cop" in fusion._STOPLISTS:
+        # The display form puts shei..dei back in U+03E2-03EF, where the
+        # letters actually live; the matcher's normalized form does not.
+        shown = "".join(stoplists["cop"]["display"])
+        assert not any(0x2CB2 <= ord(ch) <= 0x2CBF for ch in shown)

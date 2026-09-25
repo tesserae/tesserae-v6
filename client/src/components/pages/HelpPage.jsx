@@ -174,16 +174,24 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
         }
 
         const payload = await response.json();
+        // Latin, Greek and English are always served. Hebrew and Coptic
+        // appear only when their plugin is registered, so a missing plugin
+        // language drops its card rather than the whole section.
         const languageCards = [
-          ['la', 'latin'],
-          ['grc', 'greek'],
-          ['en', 'english']
-        ].map(([language, key]) => {
+          ['la', 'latin', true],
+          ['grc', 'greek', true],
+          ['en', 'english', true],
+          ['he', 'hebrew', false],
+          ['cop', 'coptic', false]
+        ].flatMap(([language, key, required]) => {
           const stoplist = payload.stoplists?.[language];
           if (!stoplist || !Array.isArray(stoplist.words)) {
-            throw new Error('The stoplist response is incomplete');
+            if (required) {
+              throw new Error('The stoplist response is incomplete');
+            }
+            return [];
           }
-          return { key, label: stoplist.label, data: stoplist };
+          return [{ key, language, label: stoplist.label, data: stoplist }];
         });
 
         if (!cancelled) {
@@ -1672,7 +1680,8 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               <h4 className="font-medium text-gray-900 mt-6 mb-2">Curated Stop Words by Language</h4>
               <p className="text-gray-600 text-sm mb-3">
                 Expand a language to see every curated entry. Greek entries are shown in polytonic (accented) form;
-                the matcher itself filters on the accentless normalized form.
+                the matcher itself filters on the accentless normalized form. Hebrew entries are consonantal (no vowel
+                points), as the matcher compares them.
               </p>
               {curatedStoplists === null && !stoplistsError ? (
                 <p className="text-sm text-gray-500" role="status">Loading the current curated stoplists…</p>
@@ -1682,7 +1691,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </p>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
-                  {curatedStoplists.map(({ key, label, data }) => {
+                  {curatedStoplists.map(({ key, language, label, data }) => {
                     const isExpanded = Boolean(expandedStoplists[key]);
                     return (
                       <div key={key} className="bg-gray-50 rounded-lg p-3">
@@ -1703,7 +1712,12 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                             id={`${key}-curated-stoplist`}
                             className="mt-3 max-h-72 overflow-y-auto rounded border border-gray-200 bg-white p-2"
                           >
-                            <div className="flex flex-wrap gap-1" aria-label={`Full curated ${label} stoplist`}>
+                            <div
+                              className="flex flex-wrap gap-1"
+                              aria-label={`Full curated ${label} stoplist`}
+                              lang={language}
+                              dir={data.dir}
+                            >
                               {data.words.map((word, i) => (
                                 <code key={word} className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-700">
                                   {data.display?.[i] ?? word}
@@ -1712,7 +1726,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                             </div>
                           </div>
                         ) : (
-                          <p className="text-xs text-gray-500 italic mt-1">
+                          <p className="text-xs text-gray-500 italic mt-1" lang={language} dir={data.dir}>
                             {(data.display ?? data.words).slice(0, 13).join(', ')}...
                           </p>
                         )}
