@@ -106,7 +106,18 @@ Conventions
 
 ### The passage density job
 - Paused at work 1,863 of 3,377 to free the job slot for the bundle and
-  index builds, restarted at 10:35. It skips finished works.
+  index builds, restarted at 10:35. It skips finished works. FINISHED 12:45:
+  1,509 computed, 1,868 already cached, 0 failed, 3,377 total. Every work in
+  the passage index has its gutter density stored for the current index.
+
+### Hebrew index rebuilt again without Stanza (14:59 EDT)
+- Following the decision recorded in DECISIONS.md the same day, the index
+  was rebuilt from the same texts with the production environment, which has
+  no Stanza, and swapped in: 39 texts, 23,206 lines, 267,637 postings, 5,980
+  lemmas, integrity ok, Jerusalem 0 and 625 as before. The Stanza-built copy
+  is kept as `he_index.db.bak-stanza-built-20260925-1459`. 200 tokens of
+  305,550 differ in lemma between the two builds. wsgi touched 14:59:51,
+  home page 200, live Jerusalem search 611 lines.
 
 ## 2026-09-23 Archimedes renamed inside the passage index (run 13:24 EDT)
 

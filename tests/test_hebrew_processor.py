@@ -152,7 +152,27 @@ def test_a_word_gets_the_same_lemma_whatever_its_neighbours(stanza):
     assert lemmatize_hebrew(['קברותיך']) == ['קבר']
 
 
+def test_stanza_is_off_unless_asked_for(monkeypatch):
+    # The production environment never had Stanza and the index was built
+    # where it was installed, so query and index disagreed on the words the
+    # table lacks. Off by default, they agree; the switch is explicit.
+    monkeypatch.setattr(processor, '_stanza_nlp', None)
+    monkeypatch.delenv('TESSERAE_HEBREW_STANZA', raising=False)
+    assert processor._get_stanza() is None
+    assert lemmatize_hebrew(['שקדמתמז']) == ['שקדמתמז']
+
+
+def test_the_switch_is_read_only_when_loading(monkeypatch):
+    # A pipeline already in place (a test fake, or one loaded with the
+    # switch on) is used regardless of the environment.
+    monkeypatch.delenv('TESSERAE_HEBREW_STANZA', raising=False)
+    monkeypatch.setattr(processor, '_stanza_nlp', fake_stanza())
+    monkeypatch.setattr(processor, '_stanza_cache', {})
+    assert processor._get_stanza() is not None
+
+
 def test_real_stanza_keeps_lemmas_on_their_own_words(monkeypatch):
+    monkeypatch.setenv('TESSERAE_HEBREW_STANZA', '1')
     monkeypatch.setattr(processor, '_stanza_nlp', None)
     monkeypatch.setattr(processor, '_stanza_cache', {})
     if processor._get_stanza() is None:

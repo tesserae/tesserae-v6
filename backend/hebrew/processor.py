@@ -65,13 +65,25 @@ def _get_pos_table():
 def _get_stanza():
     """Lazy-load the Stanza Hebrew pipeline.
 
-    Stanza is an OPTIONAL fallback lemmatizer (about 0.1% of tokens are not in
-    the BHSA lookup table, mostly rare proper names). If it is not installed (e.g. absent from the production
-    environment) or fails to load, Hebrew degrades gracefully to the lookup
-    table plus surface forms rather than erroring the search.
+    Stanza is an OPTIONAL fallback lemmatizer for the words the BHSA lookup
+    table does not have (about 0.1% of tokens, mostly rare proper names), and
+    it is OFF unless TESSERAE_HEBREW_STANZA=1 is set. Where it is off, not
+    installed, or fails to load, Hebrew uses the lookup table plus surface
+    forms. The index and the live server must agree on this, so whoever
+    turns it on for a build has to turn it on for serving too.
     """
     global _stanza_nlp
     if _stanza_nlp is None:
+        if os.environ.get('TESSERAE_HEBREW_STANZA') != '1':
+            # Off unless asked for. The production environment never had
+            # Stanza, so live queries were lemmatized without it while the
+            # index, built where it was installed, had it: a fraction of a
+            # percent of words (200 of 305,550 measured 2026-09-25) disagreed
+            # between query and index. Off everywhere, they agree.
+            logger.info('Hebrew Stanza fallback is off (TESSERAE_HEBREW_STANZA=1 turns it on); '
+                        'lookup table plus surface forms')
+            _stanza_nlp = False
+            return None
         try:
             import stanza
             _stanza_nlp = stanza.Pipeline(

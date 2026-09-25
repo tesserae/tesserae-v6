@@ -48,6 +48,12 @@ behind each, are in docs/DECISIONS.md.
   locus alone, as the results below it already did, and Hebrew lines are
   right-aligned (#489).
 
+- Hebrew: the optional Stanza fallback for words the lookup table lacks is
+  off unless asked for, on the server and at build time alike. The
+  production server never had Stanza while the index was built with it, so
+  the two disagreed on a fraction of a percent of words (200 of 305,550).
+  The index was rebuilt without it, and they now agree.
+
 ### Corpus
 - A script renames a work inside the passage index without re-describing
   it. It rewrites the window ids, the description records and the four
