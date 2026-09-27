@@ -44,22 +44,13 @@ from backend.work_names import base_work, is_part, sql_base_work
 
 logger = get_logger('hapax')
 
-# Coptic lemmatization normalizes the seven Coptic-only letters into the
-# "dialect-P" Coptic block (ϣ→ⲳ, ϩ→ⲹ, ϫ→ⲻ, …). For display we reverse that so
-# results show the manuscript letterforms scholars recognize. Built from the
-# forward map, so there is no hand-typed Coptic here.
-try:
-    from backend.coptic.processor import _LEGACY_TO_COPTIC as _COPTIC_LEGACY_MAP
-    _COPTIC_TO_MANUSCRIPT = {v: k for k, v in _COPTIC_LEGACY_MAP.items()}
-except Exception:  # pragma: no cover - coptic package optional
-    _COPTIC_TO_MANUSCRIPT = {}
+# Coptic collation. Traditional Coptic alphabetical order puts the seven
+# Coptic-only letters (ϣ ϥ ϧ ϩ ϫ ϭ ϯ, U+03E2-03EF) after the Greek-derived
+# ones (U+2C80-2CB1). Their code points sort them first, so the sort key moves
+# them, and only the sort key: nothing stored or shown is changed (until
+# 2026-09-27 the stored forms themselves sat in the higher block, issue #493).
+_COPTIC_COLLATE = {0x03E2 + k: 0x2CB2 + k for k in range(14)}
 
-
-def _coptic_manuscript_form(text):
-    """Restore manuscript Coptic letterforms from the normalized lemma alphabet."""
-    if not text or not _COPTIC_TO_MANUSCRIPT:
-        return text
-    return ''.join(_COPTIC_TO_MANUSCRIPT.get(ch, ch) for ch in text)
 
 # Greek display forms: normalized lemma -> accented form for display
 _greek_display_forms = None
@@ -1541,20 +1532,6 @@ def _is_coptic_aggregate(base):
     return bool(re.search(r'\.(bible|ot|nt)$', base))
 
 
-def _coptic_manuscript_form(lemma):
-    """Convert a normalized Coptic lemma back to manuscript spelling for display.
-
-    normalize_coptic() maps the legacy 'Greek and Coptic' block letters (ϣ ϥ ϩ
-    ϫ ϭ …) into the Coptic block for matching. Reverse that 1:1 map so the Rare
-    Words Explorer shows the letterforms used in the source texts. (The
-    supralinear stroke, stripped during normalization, is conventionally omitted
-    in lemma citation.)
-    """
-    from backend.coptic.processor import _LEGACY_TO_COPTIC
-    inv = {v: k for k, v in _LEGACY_TO_COPTIC.items()}
-    return ''.join(inv.get(c, c) for c in lemma)
-
-
 def _clean_coptic_lemma(lem):
     """Trim leading/trailing non-Coptic-block characters (whitespace, editorial
     brackets/parentheses, verse-number digits, dots) so tokenization and
@@ -1563,7 +1540,7 @@ def _clean_coptic_lemma(lem):
     import re
     if not lem:
         return ''
-    return re.sub(r'^[^Ⲁ-⳿]+|[^Ⲁ-⳿]+$', '', lem)
+    return re.sub(r'^[^Ⲁ-⳿Ϣ-ϯ]+|[^Ⲁ-⳿Ϣ-ϯ]+$', '', lem)
 
 
 def _coptic_rare_frequencies():
@@ -1723,12 +1700,12 @@ def regenerate_rare_words_cache(language):
                 # Must be entirely Coptic-block letters — reject transcription
                 # artifacts (lacuna brackets [...], parentheses, verse digits,
                 # internal dots) that the lemma cache carries from critical editions.
-                if not re.fullmatch(r'[Ⲁ-⳿]+', lemma):
+                if not re.fullmatch(r'[Ⲁ-⳿Ϣ-ϯ]+', lemma):
                     continue
                 parts = first_file.replace('.tess', '').split('.')
                 rare_words.append({
                     'lemma': lemma,                             # normalized form, for index lookup
-                    'display': _coptic_manuscript_form(lemma),  # manuscript spelling for display
+                    'display': lemma,                           # the normalised form is the manuscript spelling
                     'count': count,
                     'first_author': parts[0] if parts else first_file,
                     'first_work': '.'.join(parts[1:]) if len(parts) > 1 else '',
@@ -1811,12 +1788,10 @@ def _get_rare_lemmata_matching(language, max_occ):
 
 def _rare_lemmata_sort_key(word, sort_by, language='la'):
     if language == 'cop':
-        # Collate Coptic by the normalized lemma: the Coptic Unicode block orders
-        # the Greek-derived letters first and the Demotic-derived letters
-        # (ϣ ϥ ϩ ϫ ϭ …) last — traditional Coptic alphabetical order. The
-        # manuscript display puts those letters in the legacy block, which would
-        # (wrongly) sort them first.
-        lemma = word.get('lemma', word.get('display', '')).lstrip('*')
+        # Collate Coptic in traditional alphabetical order: the Greek-derived
+        # letters first, the seven Coptic-only letters (ϣ ϥ ϧ ϩ ϫ ϭ ϯ) last.
+        # By code point they would sort first, so the key moves them.
+        lemma = word.get('lemma', word.get('display', '')).lstrip('*').translate(_COPTIC_COLLATE)
     else:
         lemma = word.get('display', word.get('lemma', '')).lstrip('*').casefold()
     if sort_by == 'frequency':
@@ -2425,12 +2400,6 @@ def _compute_rare_bigrams(source_id, target_id, language, min_rarity, limit, sto
             # Get proper dictionary forms for display
             dict_form1 = get_dictionary_form(lemma1, language)
             dict_form2 = get_dictionary_form(lemma2, language)
-            if language == 'cop':
-                # Show manuscript letterforms (ϣ, ϩ, ϫ …) rather than the
-                # normalized dialect-P block used internally for matching.
-                dict_form1 = _coptic_manuscript_form(dict_form1)
-                dict_form2 = _coptic_manuscript_form(dict_form2)
-
             # Get actual matched words from all locations for highlighting
             src_locs = source_bigram_locations[bg_key]
             tgt_locs = target_bigram_locations[bg_key]

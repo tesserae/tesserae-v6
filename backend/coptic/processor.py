@@ -7,7 +7,7 @@ as the primary lemmatization source. No Stanza model exists for Coptic.
 
 Key Coptic-specific processing:
 - Supralinear stroke stripping (combining overline U+0305)
-- Dual Unicode block normalization (legacy U+03E2-03EF -> primary U+2C80-2CFF)
+- The seven Coptic-only letters stay at U+03E2-03EF; U+2CB2-2CBF are editorial marks and are stripped
 - Case folding (Unicode has upper/lowercase Coptic, manuscripts are unicameral)
 - NFC normalization
 - Per-tess-file sub-word lemma cache (Coptic SCRIPTORIUM CoNLL-U), keyed by
@@ -92,23 +92,21 @@ def get_subword_units_for_ref(tess_basename, ref):
         return None
     return list(tokens), list(lemmas)
 
-# Mapping from legacy "Greek and Coptic" block (U+03E2-03EF) to primary Coptic block (U+2C80-2CFF)
-_LEGACY_TO_COPTIC = {
-    '\u03E2': '\u2CB2',  # Shei
-    '\u03E3': '\u2CB3',
-    '\u03E4': '\u2CB4',  # Fei
-    '\u03E5': '\u2CB5',
-    '\u03E6': '\u2CB6',  # Khei
-    '\u03E7': '\u2CB7',
-    '\u03E8': '\u2CB8',  # Hori
-    '\u03E9': '\u2CB9',
-    '\u03EA': '\u2CBA',  # Gangia
-    '\u03EB': '\u2CBB',
-    '\u03EC': '\u2CBC',  # Shima
-    '\u03ED': '\u2CBD',
-    '\u03EE': '\u2CBE',  # Dei
-    '\u03EF': '\u2CBF',
-}
+# The seven Coptic-only letters (shei, fei, khei, hori, gangia, shima, dei)
+# have exactly one home in Unicode: U+03E2-03EF in the "Greek and Coptic"
+# block. Until 2026-09-27 this module moved them to U+2CB2-2CBF, believing
+# those to be the same letters in the Coptic block. They are not: Unicode
+# names them Dialect-P alef, Old Coptic ain, cryptogrammic eie, Dialect-P
+# kapa, Dialect-P ni, cryptogrammic ni and Old Coptic oou. Matching was
+# unharmed, because both sides were moved alike, but every stored normalised
+# form carried the wrong letters (issue #493). U+03E2-03EF is the normal form.
+#
+# In our texts U+2CB2-2CBF occur only as editorial marks (a standalone ⲻ, a
+# run of them, ':ⲻⲁⲗⲗⲁ'), never as letters, and the tokenizer counted them as
+# letters, so ':ⲻⲁⲗⲗⲁ' indexed as a word beginning with gangia. They are
+# stripped.
+STRAY_MARKS = re.compile('[\u2CB2-\u2CBF]')
+COPTIC_LETTER_CLASS = '\u2C80-\u2CB1\u03E2-\u03EF'   # the 24 Greek-derived letters and the 7 Coptic ones
 
 
 def _get_lemma_table():
@@ -133,16 +131,16 @@ def normalize_coptic(text):
     """Normalize Coptic text for consistent matching.
 
     - NFC normalization
-    - Map legacy Unicode block characters to primary Coptic block
+    - Leave the seven Coptic-only letters at U+03E2-03EF, their only code points
+    - Strip U+2CB2-2CBF, which our texts use only as editorial marks
     - Strip supralinear stroke (combining overline U+0305 and others)
     - Strip other combining marks (U+0300-U+036F range, except those meaningful for Coptic)
     - Lowercase
     """
     # NFC first
     text = unicodedata.normalize('NFC', text)
-    # Map legacy block characters
-    for legacy, primary in _LEGACY_TO_COPTIC.items():
-        text = text.replace(legacy, primary)
+    # Editorial marks that share code points with letters we never see as letters
+    text = STRAY_MARKS.sub('', text)
     # Strip combining overline (supralinear stroke) and other combining marks
     # U+0305 = combining overline, U+035E = combining double macron
     # Also strip general combining diacriticals that appear in some digitizations
@@ -164,8 +162,8 @@ def tokenize_coptic(text, preserve_case=False):
         return [], []
 
     # Coptic Unicode blocks:
-    # U+2C80-U+2CFF (primary Coptic block)
-    # U+03E2-U+03EF (legacy, in Greek and Coptic block)
+    # U+2C80-U+2CFF (Coptic block; U+2CB2-2CBF within it are marks here, removed by normalize_coptic)
+    # U+03E2-U+03EF (the seven Coptic-only letters, in the Greek and Coptic block)
     # U+0300-U+036F (combining marks, for supralinear strokes)
     # Also catch Coptic fraction/number characters
     tokens = re.findall(

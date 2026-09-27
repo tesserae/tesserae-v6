@@ -33,18 +33,9 @@ sys.path.insert(0, PROJECT_ROOT)
 SCRIPTORIUM_DIR = '/tmp/coptic_scriptorium'
 
 
-def normalize_coptic(text):
-    text = unicodedata.normalize('NFC', text)
-    legacy_map = {
-        '\u03E2': '\u2CB2', '\u03E3': '\u2CB3', '\u03E4': '\u2CB4', '\u03E5': '\u2CB5',
-        '\u03E6': '\u2CB6', '\u03E7': '\u2CB7', '\u03E8': '\u2CB8', '\u03E9': '\u2CB9',
-        '\u03EA': '\u2CBA', '\u03EB': '\u2CBB', '\u03EC': '\u2CBC', '\u03ED': '\u2CBD',
-        '\u03EE': '\u2CBE', '\u03EF': '\u2CBF',
-    }
-    for legacy, primary in legacy_map.items():
-        text = text.replace(legacy, primary)
-    text = re.sub(r'[\u0300-\u036F]', '', text)
-    return text.lower()
+# One normaliser for Coptic, the backend's, so this script cannot drift from
+# what the site stores (issue #493 was three copies of one wrong map).
+from backend.coptic.processor import normalize_coptic  # noqa: E402
 
 
 def strip_greek_accents(s):
