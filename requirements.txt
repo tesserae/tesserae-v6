@@ -25,3 +25,4 @@ matplotlib>=3.3
 reportlab==4.5.1
 arabic-reshaper==3.0.0
 python-bidi==0.6.11
+lxml

@@ -24,6 +24,17 @@ behind each, are in docs/DECISIONS.md.
   of the scoring rule is now part of every results cache key, so a future
   change to the formula can no longer serve old scores from the cache.
 
+### Corpus
+- The Septuagint's Lamentations has its text back. Eighty-eight of its 150
+  verses held nothing but the acrostic letter name, because the converter
+  that brings texts in from Open Greek and Latin kept only the paragraphs of
+  a verse and dropped its lines, and Swete's edition marks the letter as a
+  paragraph and the verse as lines. The converter now keeps both in order,
+  the file is regenerated from the same source with the same 150 references
+  (664 words become 2,447), and a converter test holds the rule. The
+  Septuagint's own introductory sentence before 1.1, which the converter
+  has never carried for chapter-level prose, is still absent (issue #276).
+
 ## 2026-09-25
 
 ### Search

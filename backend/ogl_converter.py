@@ -141,7 +141,9 @@ def extract_sections(root) -> list:
         while current is not None:
             if hasattr(current, 'get'):
                 n = current.get('n')
-                if n:
+                # The edition division carries the work's URN as its n; a
+                # citation is the chain of textpart numbers beneath it.
+                if n and ':' not in n:
                     path_parts.insert(0, n)
             current = current.getparent()
         return '.'.join(path_parts) if path_parts else '1'
@@ -150,7 +152,8 @@ def extract_sections(root) -> list:
         base_citation = get_citation_path(div)
         
         paragraphs = div.findall('./tei:p', TEI_NS)
-        if paragraphs:
+        lines = div.findall('./tei:l', TEI_NS) + div.findall('./tei:lg', TEI_NS)
+        if paragraphs and not lines:
             for i, p in enumerate(paragraphs, 1):
                 text = get_text_from_element(p)
                 text = normalize_text(text)
@@ -159,6 +162,23 @@ def extract_sections(root) -> list:
                     if citation not in seen_citations:
                         sections.append({'citation': citation, 'text': text})
                         seen_citations.add(citation)
+        elif paragraphs and lines:
+            # A leaf that mixes paragraphs and lines is one section with all
+            # of them in document order. Swete's Lamentations gives each verse
+            # a paragraph holding the acrostic letter and then the verse as
+            # lines; taking the paragraphs alone left 88 of 150 verses as a
+            # bare letter name (issue #276).
+            parts = []
+            for child in div:
+                tag = etree.QName(child.tag).localname if isinstance(child.tag, str) else ''
+                if tag in ('p', 'l', 'lg'):
+                    part = normalize_text(get_text_from_element(child))
+                    if part:
+                        parts.append(part)
+            text = ' '.join(parts)
+            if text and base_citation not in seen_citations:
+                sections.append({'citation': base_citation, 'text': text})
+                seen_citations.add(base_citation)
         else:
             text = get_text_from_element(div)
             text = normalize_text(text)
