@@ -5,21 +5,23 @@ Implements the V3-style scoring algorithm for ranking textual parallels.
 Score combines word rarity (IDF) with proximity metrics (distance between matches).
 
 Scoring Formula, as implemented:
-    score = sum(IDF) / log(mean_distance + 1) / (n_matched * log(total_words + 1))
+    score = sum(IDF) / log(mean_distance + 1) / log(total_words + 1)
 
     Where:
     - Higher IDF (rarer words) = higher score
     - Shorter distance between matches = higher score
-    - More matching words does NOT raise the score.
+    - More matching words = higher score
 
-THE LAST LINE USED TO SAY THE OPPOSITE, and the opposite is what Coffee et
-al. (2012) describes. The divisor carries `n_matched`, so the sum of the
-matched words' rarity becomes their MEAN, and an extra shared word raises
-the score only when that word is rarer than the words already counted. On
-Lucan 1 against Aeneid 1 the two results sharing three words score 0.538 and
-0.468 while results sharing two average 0.746. Whether the mean or the sum
-is wanted is an open question, with the measurement, in issue #465; this
-docstring now describes the code rather than the intention.
+The last line is the rule Coffee et al. (2012) describes, and it holds
+again since 2026-09-27. Until then the divisor also carried the number of
+matched words, which turned the sum of their rarity into a mean, so a third
+shared word raised the score only when it was rarer than the two already
+counted and lowered it otherwise. Measured on Lucan 1 against the whole
+Aeneid before the change: results sharing three words averaged 0.534 against
+0.704 for two. After it: 1.601 against 1.409, and the commentator-attested
+parallels moved up (three more into the top half, mean rank 541 to 473),
+with the fusion search unharmed. Issue #465 and docs/DECISIONS.md hold the
+full measurement.
 
 Scores are NOT capped at 1.0. See backend/score_bounds.py for what the cap
 cost and why it went (2026-09-22, docs/DECISIONS.md).
@@ -268,8 +270,10 @@ class Scorer:
                 
                 raw_score = total_freq_score * distance_factor
                 
-                n_items = (n_scored + len(lemmas_to_score)) if match_basis == 'dictionary' else len(matched_lemmas)
-                max_score = max(1, n_items) * math.log(total_words + 1) if total_words > 0 else 1
+                # The corpus term alone. Dividing by the number of matched words as
+                # well made this a mean, so a third shared word lowered the score
+                # unless it was rarer than the first two (#465, changed 2026-09-27).
+                max_score = math.log(total_words + 1) if total_words > 0 else 1
                 unbounded = is_unbounded(settings)
                 normalized_score = (raw_score / max_score) if max_score > 0 else 0
                 if not unbounded:
