@@ -7,6 +7,35 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-09-27 Coptic: U+03E2 to U+03EF is the normal form of the seven Coptic-only letters
+
+**Question.** Unicode has the Greek-derived Coptic letters at U+2C80 to
+U+2CB1 and the seven Coptic-only letters (ϣ ϥ ϧ ϩ ϫ ϭ ϯ) at U+03E2 to
+U+03EF. Which code points should stored Coptic forms use?
+
+**Observation.** The normaliser moved the seven to U+2CB2 to U+2CBF in the
+belief that these were the same letters in the Coptic block. Unicode names
+them Dialect-P alef, Old Coptic ain, cryptogrammic eie, Dialect-P kapa,
+Dialect-P ni, cryptogrammic ni and Old Coptic oou. Because query and text
+were moved alike, no search was affected, but every stored form was wrong,
+11,722 of 29,323 index lemmas among them, and anyone reading the
+dictionaries outside Tesserae received the wrong letters. Twelve texts use
+U+2CBB and two neighbours as editorial marks, which the tokenizer counted
+as letters, so a mark glued to a word changed the word.
+
+**Decision.** The seven letters stay at U+03E2 to U+03EF, their only code
+points. U+2CB2 to U+2CBF are stripped by the normaliser as marks. There is
+one normaliser, in `backend/coptic/processor.py`, and the interface and the
+build scripts use it rather than copies. Traditional Coptic alphabetical
+order, the seven letters last, is kept in the Rare Words Explorer by its
+sort key, not by the stored form.
+
+**Consequences.** Every stored Coptic form changes, so the dictionaries and
+stoplist are corrected in the same change (`scripts/corpus/restore_coptic_letters.py`,
+a one-to-one reversal) and the lemma caches, the Coptic index and the rare
+words cache are rebuilt at deploy, recorded in DATA_OPERATIONS.md. Tests:
+`tests/test_coptic_letters.py`.
+
 ## 2026-09-27 A third shared word raises the score: the sum, not the mean
 
 **Question.** The lemma score sums the rarity (IDF) of the words two lines

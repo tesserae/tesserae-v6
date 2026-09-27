@@ -17,7 +17,7 @@ in trivial morpheme overlap.
 
 Coverage is intentionally aggressive: any morpheme that contributes
 function-class meaning rather than referential content is in. Borderline
-content lemmas (e.g. ⲽⲟⲓⲥ "lord", ⲣⲱⲙⲉ "man", ⲛⲟⲩⲧⲉ "god") are
+content lemmas (e.g. ϭⲟⲓⲥ "lord", ⲣⲱⲙⲉ "man", ⲛⲟⲩⲧⲉ "god") are
 NOT stoplisted even though they're frequent — those represent real
 content overlap when shared.
 """
@@ -31,8 +31,7 @@ COPTIC_STOP_WORDS = {
     'ⲛ',         # def. art. pl. / genitive linker / preposition "of"
     'ⲟⲩ',        # indef. art. sg. / "what"
     'ⲡⲓ',        # Bohairic def. art. masc.
-    'ϯ',         # Bohairic def. art. fem.  (legacy block)
-    'ⲿ',         # Bohairic def. art. fem.  (normalised form of ϯ)
+    'ϯ',         # Bohairic def. art. fem.
     'ⲛⲓ',        # Bohairic def. art. pl.
     'ⲡⲉ',        # is / masc. copula / poss. art. "your(2)"
     'ⲧⲉ',        # is / fem. copula
@@ -44,7 +43,7 @@ COPTIC_STOP_WORDS = {
     'ⲡⲟⲩ',       # poss. art. "their"
     'ⲡⲉⲛ',       # poss. art. "our"
     'ⲡⲉⲩ',       # poss. art. "their"
-    'ⲡⲉⲵ',       # poss. art. "his"
+    'ⲡⲉϥ',       # poss. art. "his"
     'ⲡⲉⲥ',       # poss. art. "her"
     'ⲛⲟⲩ',       # poss. art. pl.
     'ⲡⲉⲧⲛ',      # poss. art. "your(pl)" m.
@@ -57,34 +56,34 @@ COPTIC_STOP_WORDS = {
     'ⲙⲛ',        # with / and (Sahidic)
     'ⲛⲉⲙ',       # with / and (Bohairic)
     'ⲛⲧⲉ',       # of / belonging to
-    'ⲹⲛ',        # in (Sahidic)
-    'ⲷⲉⲛ',       # in (Bohairic)
-    'ⲹⲓ',        # on / upon
-    'ⲹⲓⲧⲛ',      # through / by means of (instrumental)
-    'ⲹⲓⲧⲙ',      # through / by (variant before labials)
-    'ⲉⲻⲛ',       # upon
-    'ⲉⲻⲉⲛ',      # upon (variant)
+    'ϩⲛ',        # in (Sahidic)
+    'ϧⲉⲛ',       # in (Bohairic)
+    'ϩⲓ',        # on / upon
+    'ϩⲓⲧⲛ',      # through / by means of (instrumental)
+    'ϩⲓⲧⲙ',      # through / by (variant before labials)
+    'ⲉϫⲛ',       # upon
+    'ⲉϫⲉⲛ',      # upon (variant)
     'ⲛⲥⲁ',       # after / behind
-    'ⲹⲁ',        # to / until
+    'ϩⲁ',        # to / until
     'ⲙⲡⲉ',       # before
     'ⲙⲡ',        # before (variant)
     'ⲉⲡ',        # to (the)
     'ⲉⲡⲉ',       # to (the)
     'ⲉⲡⲓ',       # to (the, Bohairic)
-    'ⲡⲉⲻⲉ',      # to (the) — variant of ⲉⲡⲉ
+    'ⲡⲉϫⲉ',      # to (the) — variant of ⲉⲡⲉ
     'ⲕⲁⲧⲁ',      # according to (Greek κατά). Coptic Kappa U+2C95.
     'ⲡⲁⲣⲁ',      # contrary to (Greek παρά)
     'ⲉⲧⲃⲉ',      # because of / about
 
     # ---- Directional adverbs / particles ----
     'ⲉⲃⲟⲗ',      # out / forth
-    'ⲉⲹⲟⲩⲛ',     # in / inside
-    'ⲉⲹⲣⲁⲓ',     # up / down (depending on vector)
-    'ⲉⲡⲁⲹⲟⲩ',    # back / behind
+    'ⲉϩⲟⲩⲛ',     # in / inside
+    'ⲉϩⲣⲁⲓ',     # up / down (depending on vector)
+    'ⲉⲡⲁϩⲟⲩ',    # back / behind
     'ⲡⲉ',        # there / abroad (homophone with copula above; same form)
     'ⲙⲁ',        # place
     'ⲙⲙⲁⲩ',      # there
-    'ⲙⲙⲟⲵ',      # of him / object pronoun
+    'ⲙⲙⲟϥ',      # of him / object pronoun
     'ⲙⲙⲟⲥ',      # of her / object pronoun
     'ⲙⲙⲟⲟⲩ',     # of them
     'ⲙⲙⲱⲧⲛ',     # of you (pl)
@@ -93,7 +92,7 @@ COPTIC_STOP_WORDS = {
     'ⲁⲛⲟⲕ',      # I
     'ⲛⲧⲟⲕ',      # you (m)
     'ⲛⲧⲟ',       # you (f)
-    'ⲛⲧⲟⲵ',      # he
+    'ⲛⲧⲟϥ',      # he
     'ⲛⲧⲟⲥ',      # she
     'ⲁⲛⲟⲛ',      # we
     'ⲛⲧⲱⲧⲛ',     # you (pl)
@@ -101,13 +100,13 @@ COPTIC_STOP_WORDS = {
     # Bohairic equivalents (the ⲑ-series)
     'ⲛⲑⲟⲕ',      # you (m)
     'ⲛⲑⲟ',       # you (f)
-    'ⲛⲑⲟⲵ',      # he
+    'ⲛⲑⲟϥ',      # he
     'ⲛⲑⲟⲥ',      # she
     'ⲛⲑⲱⲧⲉⲛ',    # you (pl)
     'ⲛⲑⲱⲟⲩ',     # they
 
     # ---- Suffix-pronoun-like clitics that appear as standalone tokens ----
-    'ⲵ',         # 3sg masc bound pronoun
+    'ϥ',         # 3sg masc bound pronoun
     'ⲥ',         # 3sg fem bound pronoun
     'ⲩ',         # 3pl bound pronoun
     'ⲕ',         # 2sg masc bound pronoun
@@ -132,21 +131,21 @@ COPTIC_STOP_WORDS = {
 
     # ---- Conjunctions / discourse particles ----
     'ⲁⲩⲱ',       # and (Sahidic)
-    'ⲟⲩⲟⲹ',      # and (Bohairic) — top-20 most frequent token
+    'ⲟⲩⲟϩ',      # and (Bohairic) — top-20 most frequent token
     'ⲇⲉ',        # but / and (Greek δέ)
     'ⲅⲁⲣ',       # for (Greek γάρ)
     'ⲁⲗⲗⲁ',      # but (Greek ἀλλά)
     'ⲙⲉⲛ',       # μέν
     'ⲏ',         # or
     'ⲉⲓⲧⲉ',      # whether...whether
-    'ⲽⲉ',        # then / now / so (also "now" — Greek δη?)
-    'ⲻⲉ',        # that / because (subordinator; was ϫⲉ)
+    'ϭⲉ',        # then / now / so (also "now" — Greek δη?)
+    'ϫⲉ',        # that / because (subordinator; was ϫⲉ)
     'ⲉⲡⲓⲇⲏ',     # since (Greek ἐπειδή)
     'ⲱⲥⲇⲉ',      # so that (Greek ὥστε)
     'ⲕⲁⲓ',       # also / even (Greek καί). Coptic Kappa U+2C95.
     'ⲱⲥ',        # as / like (Greek ὡς)
     'ⲡⲗⲏⲛ',      # however (Greek πλήν)
-    'ⲻⲓⲛ',       # since / from (temporal/spatial)
+    'ϫⲓⲛ',       # since / from (temporal/spatial)
     'ⲧⲉⲛⲟⲩ',     # now (temporal adverb)
 
     # ---- Relative / circumstantial / converter morphemes ----
@@ -156,10 +155,10 @@ COPTIC_STOP_WORDS = {
     'ⲉⲧ',        # relative prefix
     'ⲛⲉⲣⲉ',      # past circumstantial
     'ⲛⲧⲉⲣⲉ',     # temporal "when"
-    'ⲉⲵ',        # circumstantial + 3sg
+    'ⲉϥ',        # circumstantial + 3sg
     'ⲉⲩ',        # circumstantial + 3pl
-    'ⲛⲽⲓ',       # subject-marker particle "the one who"
-    'ⲿ',         # auxiliary I (perfect/preterit; also U+2CBF Bohairic article — same form)
+    'ⲛϭⲓ',       # subject-marker particle "the one who"
+    'ϯ',         # auxiliary I (perfect/preterit), the same form as the Bohairic article above
 
     # ---- Auxiliary / tense-aspect-mood morphemes ----
     'ⲁ',         # perfect auxiliary
@@ -170,23 +169,23 @@ COPTIC_STOP_WORDS = {
     'ⲉⲣⲉ',       # subjunctive (also relative above)
     'ⲙⲁⲣⲉ',      # imperative-let
     'ⲙⲡⲣ',       # negative imperative
-    'ⲉⲣⲳⲁⲛ',     # conditional
-    'ⲉⲩⲳⲁⲛ',     # conditional + 3pl
-    'ⲳⲁⲣⲉ',      # habitual aspect auxiliary "habitually / often"
+    'ⲉⲣϣⲁⲛ',     # conditional
+    'ⲉⲩϣⲁⲛ',     # conditional + 3pl
+    'ϣⲁⲣⲉ',      # habitual aspect auxiliary "habitually / often"
 
     # ---- Negation ----
     'ⲁⲛ',        # negative postclitic
     'ⲧⲙ',        # negative infinitive
 
     # ---- High-frequency light verbs / copula-like ----
-    'ⲳⲱⲡⲉ',      # to be / become (Sahidic)
-    'ⲳⲱⲡⲓ',      # to be / become (Bohairic)
+    'ϣⲱⲡⲉ',      # to be / become (Sahidic)
+    'ϣⲱⲡⲓ',      # to be / become (Bohairic)
     'ⲉⲓ',        # to come
     'ⲉⲓⲣⲉ',      # to do (Sahidic)
     'ⲓⲣⲓ',       # to do (Bohairic)
-    'ⲡⲉⲻⲉ',      # to say (suppletive form)
-    'ⲻⲱ',        # to say
-    'ⲽⲱ',        # to put / leave
+    'ⲡⲉϫⲉ',      # to say (suppletive form)
+    'ϫⲱ',        # to say
+    'ϭⲱ',        # to put / leave
     'ⲟⲩⲱⲙ',      # to eat (very high freq, mostly biblical)
 
     # ---- Reciprocal / reflexive ----
@@ -207,7 +206,7 @@ COPTIC_STOP_WORDS = {
 
     # ---- Common short interjections / discourse markers ----
     'ⲉⲓⲥ',       # behold
-    'ⲉⲓⲥⲹⲏⲏⲧⲉ',  # behold!
+    'ⲉⲓⲥϩⲏⲏⲧⲉ',  # behold!
 
     # ---- Greek loanword particles / very-high-frequency loanwords ----
     'ⲇⲉ',        # δέ (already above)

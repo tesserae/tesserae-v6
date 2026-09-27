@@ -71,9 +71,9 @@ def transliterate_greek_to_latin(token):
 # phonetically identical to Greek letters, just at a different Unicode
 # codepoint (the Coptic block U+2C80-U+2CB1).  The remaining 7 letters are
 # Coptic-specific (shei ϣ, fei ϥ, khei ϧ, hori ϩ, gangia ϫ, shima ϭ, dei ϯ);
-# they live at U+03E2-U+03EF in the legacy "Greek and Coptic" block, and
-# also at U+2CB2-U+2CBF in the primary Coptic block.  Texts in our corpus
-# mix both encodings.
+# they live at U+03E2-U+03EF in the "Greek and Coptic" block, their only
+# code points; U+2CB2-U+2CBF are different letters, and the normaliser no
+# longer confuses the two (issue #493).
 #
 # The Coptic-specific letters are mapped to their nearest Greek phonetic
 # equivalent.  These are heuristic choices — Coptic phonology had sounds
@@ -96,17 +96,9 @@ _COPTIC_TO_GREEK = {
     'ⲗ': 'λ', 'ⲙ': 'μ', 'ⲛ': 'ν', 'ⲝ': 'ξ', 'ⲟ': 'ο',
     'ⲡ': 'π', 'ⲣ': 'ρ', 'ⲥ': 'σ', 'ⲧ': 'τ',
     'ⲩ': 'υ', 'ⲫ': 'φ', 'ⲭ': 'χ', 'ⲯ': 'ψ', 'ⲱ': 'ω',
-    # Coptic-specific letters in the primary Coptic block (U+2CB2-U+2CBF)
-    # These are the secondary encoding for shei/fei/khei/hori/gangia/shima/dei
-    'ⲳ': 'σ',   # U+2CB3 dialect-P alef — used by some converters as shei
-    'ⲵ': 'φ',   # U+2CB5 old Coptic ain — used by some converters as fei
-    'ⲷ': 'χ',   # U+2CB7 cryptogrammic eie — used as khei
-    'ⲹ': '',    # U+2CB9 dialect-P kapa — used as hori, drop
-    'ⲻ': 'γ',   # U+2CBB dialect-P ni — used as gangia
-    'ⲽ': 'κ',   # U+2CBD cryptogrammic ni — used as shima
-    'ⲿ': 'τι',  # U+2CBF old Coptic oou — used as dei
-    # Coptic-specific letters in the legacy "Greek and Coptic" block
-    # (U+03E2-U+03EF) — most actual SCRIPTORIUM texts use these
+    # The seven Coptic-only letters, at U+03E2-U+03EF, their only code points.
+    # (Until 2026-09-27 the normaliser moved them to U+2CB2-U+2CBF, seven other
+    # letters, and this map carried both; issue #493.)
     'ϣ': 'σ',
     'ϥ': 'φ',
     'ϧ': 'χ',
@@ -759,10 +751,7 @@ def get_curated_stoplists():
         if not words:
             continue
         ordered = sorted(words)
-        if language == 'cop':
-            display = [w.translate(_COPTIC_DISPLAY) for w in ordered]
-        else:
-            display = list(ordered)
+        display = list(ordered)
         result[language] = {
             'label': label,
             'words': ordered,
@@ -778,10 +767,6 @@ _PLUGIN_STOPLISTS = (
     ('cop', 'Coptic', 'ltr'),
 )
 
-# normalize_coptic moves shei..dei (U+03E2-03EF) to U+2CB2-2CBF, which are
-# other letters (Dialect-P Alef .. Old Coptic Oou). Matching is unaffected
-# because both sides are normalized alike; for reading, map them back.
-_COPTIC_DISPLAY = {0x2CB2 + i: 0x03E2 + i for i in range(14)}
 
 
 class BoundedCandidates:

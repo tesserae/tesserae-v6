@@ -24,6 +24,24 @@ behind each, are in docs/DECISIONS.md.
   of the scoring rule is now part of every results cache key, so a future
   change to the formula can no longer serve old scores from the cache.
 
+### Coptic
+- The seven Coptic-only letters (shei, fei, khei, hori, gangia, shima, dei)
+  are stored as themselves. The normaliser had moved them from their only
+  Unicode code points, U+03E2 to U+03EF, to U+2CB2 to U+2CBF, which Unicode
+  assigns to seven different letters. Matching was unaffected, since both
+  sides were moved alike, but every stored form carried the wrong letters:
+  11,722 of the 29,323 lemmas in the Coptic index, 7,791 entries across the
+  three Coptic dictionaries, and the stoplist, and two display work-arounds
+  existed only to move them back for the reader. The normaliser now leaves
+  them in place and strips U+2CB2 to U+2CBF, which in our texts occur only
+  as editorial marks and were being read as letters, so that ':ⲻⲁⲗⲗⲁ' indexed
+  as a word beginning with gangia. Dictionaries and stoplist are corrected
+  in place, the interface's copy of the map and two dictionary-building
+  scripts now use the one backend normaliser, the work-arounds are gone,
+  and the Rare Words Explorer keeps traditional Coptic order through its
+  sort key alone. The Coptic caches and index are rebuilt at deploy (issue
+  #493).
+
 ### Corpus
 - The Septuagint's Lamentations has its text back. Eighty-eight of its 150
   verses held nothing but the acrostic letter name, because the converter

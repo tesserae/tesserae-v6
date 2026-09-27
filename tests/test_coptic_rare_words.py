@@ -1,7 +1,7 @@
 """Unit tests for the Coptic rare-words helpers in backend/blueprints/hapax.py.
 
 Pure-function tests (no server, DB, or corpus needed):
-  - _coptic_manuscript_form: normalized lemma -> manuscript spelling
+  - the normalised Coptic form is the manuscript spelling (no reverse map)
   - _is_coptic_aggregate: excludes combined/duplicate corpus files
   - _clean_coptic_lemma: trims transcription-artifact edges
 
@@ -13,23 +13,24 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 
-class TestCopticManuscriptForm:
-    def test_reverses_normalized_special_letters(self):
-        from backend.blueprints.hapax import _coptic_manuscript_form
-        # normalized ⲳⲏⲣⲉ (son) -> manuscript ϣⲏⲣⲉ; ⲹⲛ (in) -> ϩⲛ
-        assert _coptic_manuscript_form('ⲳⲏⲣⲉ') == 'ϣⲏⲣⲉ'
-        assert _coptic_manuscript_form('ⲹⲛ') == 'ϩⲛ'
-        assert _coptic_manuscript_form('ⲡⲉⲵ') == 'ⲡⲉϥ'
+class TestCopticFormsAreManuscriptForms:
+    """Since 2026-09-27 the normalised form IS the manuscript spelling: the seven
+    Coptic-only letters stay at U+03E2-03EF, so nothing has to be mapped back
+    for display (issue #493)."""
 
-    def test_roundtrips_with_normalize_coptic(self):
-        from backend.blueprints.hapax import _coptic_manuscript_form
+    def test_normalised_words_keep_their_letters(self):
         from backend.coptic.processor import normalize_coptic
-        for norm in ['ⲳⲏⲣⲉ', 'ⲥⲹⲓⲙⲉ', 'ⲉⲹⲣⲁⲓ', 'ⲛⲧⲟⲵ']:
-            assert normalize_coptic(_coptic_manuscript_form(norm)) == norm
+        assert normalize_coptic('ϣⲏⲣⲉ') == 'ϣⲏⲣⲉ'
+        assert normalize_coptic('ϩⲛ') == 'ϩⲛ'
+        assert normalize_coptic('ⲡⲉϥ') == 'ⲡⲉϥ'
+
+    def test_the_display_work_around_is_gone(self):
+        import backend.blueprints.hapax as hapax
+        assert not hasattr(hapax, '_coptic_manuscript_form')
 
     def test_plain_letters_unchanged(self):
-        from backend.blueprints.hapax import _coptic_manuscript_form
-        assert _coptic_manuscript_form('ⲣⲱⲙⲉ') == 'ⲣⲱⲙⲉ'  # "man" — no special letters
+        from backend.coptic.processor import normalize_coptic
+        assert normalize_coptic('ⲣⲱⲙⲉ') == 'ⲣⲱⲙⲉ'  # "man", no special letters
 
 
 class TestIsCopticAggregate:
@@ -66,16 +67,16 @@ class TestCleanCopticLemma:
 
 
 class TestCopticCollation:
-    """_rare_lemmata_sort_key collates Coptic by the normalized lemma so the
-    Demotic-derived letters (ϣ ϥ ϩ ϫ ϭ) sort last, as in traditional Coptic
-    order — not first, as they would by the manuscript display's legacy block."""
+    """_rare_lemmata_sort_key collates Coptic in traditional order: the seven
+    Coptic-only letters (ϣ ϥ ϧ ϩ ϫ ϭ ϯ) sort last, although their code points
+    (U+03E2-03EF) would put them first."""
 
     def _order(self, language):
         from backend.blueprints.hapax import _rare_lemmata_sort_key
         recs = [
-            {'lemma': 'ⲳⲏⲣⲉ', 'display': 'ϣⲏⲣⲉ', 'count': 1},   # shai
+            {'lemma': 'ϣⲏⲣⲉ', 'display': 'ϣⲏⲣⲉ', 'count': 1},   # shai
             {'lemma': 'ⲁⲣⲭⲏ', 'display': 'ⲁⲣⲭⲏ', 'count': 1},   # alfa
-            {'lemma': 'ⲹⲛ', 'display': 'ϩⲛ', 'count': 1},        # hori
+            {'lemma': 'ϩⲛ', 'display': 'ϩⲛ', 'count': 1},        # hori
             {'lemma': 'ⲣⲱⲙⲉ', 'display': 'ⲣⲱⲙⲉ', 'count': 1},   # ro
         ]
         return [r['display'] for r in sorted(recs, key=lambda w: _rare_lemmata_sort_key(w, 'lemma', language))]
@@ -84,7 +85,7 @@ class TestCopticCollation:
         assert self._order('cop') == ['ⲁⲣⲭⲏ', 'ⲣⲱⲙⲉ', 'ϣⲏⲣⲉ', 'ϩⲛ']
 
     def test_non_coptic_unchanged_uses_display(self):
-        # For non-cop the key is the display (legacy block), so ϣ/ϩ sort first
+        # For non-cop the key is the display by code point, so ϣ/ϩ sort first
         assert self._order('la')[0] in ('ϣⲏⲣⲉ', 'ϩⲛ')
 
 
