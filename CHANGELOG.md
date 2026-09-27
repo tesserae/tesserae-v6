@@ -7,6 +7,23 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-09-27
+
+### Search
+- A third shared word now raises a parallel's score instead of lowering it.
+  The score summed the rarity of the shared words and then divided by how
+  many there were, which made it an average, so an extra shared word helped
+  only when it was rarer than the ones already counted. That contradicted
+  the method the code cites and its own description. Measured on Lucan 1
+  against the whole Aeneid before the change, results sharing three words
+  averaged 0.53 against 0.70 for two. After it, 1.60 against 1.41, and the
+  commentator-attested parallels moved up, three more into the top half and
+  seventy places in mean rank, while the fusion search held or improved at
+  every depth. The scorer's description now matches the code, and the rules
+  the scorer promises have tests for the first time (issue #465). The name
+  of the scoring rule is now part of every results cache key, so a future
+  change to the formula can no longer serve old scores from the cache.
+
 ## 2026-09-25
 
 ### Search

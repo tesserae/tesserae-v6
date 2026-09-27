@@ -7,6 +7,63 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-09-27 A third shared word raises the score: the sum, not the mean
+
+**Question.** The lemma score sums the rarity (IDF) of the words two lines
+share and divides by a corpus term. The code also divided by the number of
+shared words, which made the sum a mean. Should it?
+
+**Observation.** Under the mean an extra shared word raised the score only
+when it was rarer than the words already counted. Aeneid 1 against Lucan 1
+on 2026-09-22, 150 two-word results averaged 0.746 and the two three-word
+results scored 0.538 and 0.468 (issue #465). This contradicts Coffee et al.
+(2012), which the scorer cites, and the scorer's own docstring at the time.
+
+**Measurement, 2026-09-27.** Lucan book 1 against the whole Aeneid on a test
+checkout of main with the divisor switchable, data from production, results
+cache bypassed.
+
+Lemma search, at least two shared words, no ceiling: 2,088 results and 50
+of the 213 attested parallels under either rule, order only differing.
+
+| | mean | sum |
+|---|---|---|
+| attested in the top 10 | 6 | 6 |
+| attested in the top 50 | 14 | 14 |
+| attested in the top half | 40 | 43 |
+| mean rank of an attested parallel | 541.5 | 473.1 |
+| median rank | 396 | 344 |
+| mean score, two shared words (2,058) | 0.704 | 1.409 |
+| mean score, three shared words (29) | 0.534 | 1.601 |
+| the one four-word result | 0.494 | 1.975 |
+
+Fusion search, every channel, about 204,000 results, 75 s a run:
+
+| | mean | sum |
+|---|---|---|
+| P@10 | 50% | 60% |
+| P@50 | 26% | 28% |
+| P@100 | 18% | 17% |
+| R@500 | 20.2% | 20.2% |
+| R@1000 | 25.8% | 25.8% |
+| R@5000 | 41.8% | 41.3% |
+
+**Decision.** The sum. The divisor is the corpus term alone
+(`backend/scorer.py`). Both searches improve or hold, and the code again
+does what its description and the published method say. Scores roughly
+double for two-word matches. Nothing downstream depended on the old scale
+in any way the fusion benchmark could see.
+
+**Consequences.** Every lemma and fusion score changes. The results cache
+is keyed on the search settings, which the rule is not, so at the rarity
+deploy of 2026-09-22 cached searches kept answering under the old rule
+until the files were deleted by hand. The rule's name
+(`SCORING_RULE` in `backend/score_bounds.py`) is now part of every cache
+key, so a changed rule orphans the old entries by itself and no clear can
+be forgotten. `tests/test_scorer_rules.py` pins the rules the scorer
+promises, including this one and the key. Data: `research/threads/465_measurement/` (kept outside the
+repository).
+
 ## 2026-09-25 Hebrew: the Stanza fallback is off, and the index is built the way the server runs
 
 **Question.** Words the BHSA lookup table does not have can be handed to

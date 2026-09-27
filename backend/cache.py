@@ -6,7 +6,7 @@ import os
 import json
 import hashlib
 
-from backend.score_bounds import UNBOUNDED_DEFAULT
+from backend.score_bounds import UNBOUNDED_DEFAULT, SCORING_RULE
 from datetime import datetime
 
 CACHE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'cache')
@@ -41,6 +41,10 @@ def get_cache_key(source_id, target_id, language, settings):
         'unbounded_scoring': settings.get('unbounded_scoring', UNBOUNDED_DEFAULT),
         'custom_stopwords': settings.get('custom_stopwords', ''),
         'freq_basis': settings.get('freq_basis', 'corpus'),
+        # Not a setting: the rule the scores were computed under. A changed
+        # rule gives every search a new key, so no manual cache clear is
+        # needed and none can be forgotten (backend/score_bounds.py).
+        'scoring_rule': SCORING_RULE,
     }
     # Advanced fusion knobs (channel weight overrides + on/off switches) are
     # only added to the key when actually supplied, so a default search keeps a

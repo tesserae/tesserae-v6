@@ -35,6 +35,17 @@ Recorded in docs/DECISIONS.md, 2026-09-22.
 # settings to restore the ceiling for one search.
 UNBOUNDED_DEFAULT = True
 
+# The name of the scoring rule in force, written into every results cache
+# key. When the rule changes, the scores change while the settings do not,
+# so without this the cache keeps serving results computed under the old
+# rule until someone remembers to delete the files. That happened at the
+# rarity deploy of 2026-09-22. Change this string whenever the formula
+# changes and the old entries are simply never found again.
+#   sum-2026-09-27: the divisor is the corpus term alone; a third shared
+#   word raises the score (issue #465). Before it, the sum was also divided
+#   by the number of shared words.
+SCORING_RULE = 'sum-2026-09-27'
+
 
 def is_unbounded(settings):
     """True when this search's scores may exceed 1.0."""
