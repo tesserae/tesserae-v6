@@ -36,6 +36,58 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+## 2026-09-27 Coptic letters restored across every stored form (run 14:51 to 14:57 EDT)
+
+### What and why
+- PR #501 (issue #493): the normaliser had moved the seven Coptic-only
+  letters from U+03E2 to U+03EF to U+2CB2 to U+2CBF, seven different
+  letters, so every stored Coptic form carried the wrong ones. The code now
+  leaves them in place and strips U+2CB2 to U+2CBF as the editorial marks
+  they are in our texts. Every stored form therefore had to change at once.
+
+### Steps
+- Production pulled to a3910f2. Bundle rebuilt inside a job scope
+  (`index-Cl5x7DJs.js`), 53 older bundles kept beside it.
+- `data/lemma_tables/coptic_lemmas.json` copied in (1,361,051 bytes, 30,085
+  entries), corrected with `scripts/corpus/restore_coptic_letters.py`.
+  Production had never had this file, so the live server had lemmatized
+  Coptic queries without a table while the index was built with one.
+- The 209 files in `cache/lemmas/cop/` are the SCRIPTORIUM annotations
+  themselves, not derived data, so they were corrected rather than rebuilt:
+  backed up whole to
+  `~/tesserae-backups/coptic_annotation_caches_pre493_20260927-1451.tar.gz`
+  (36.7 MB), then each replaced by its corrected copy. 4,971,308 letters
+  moved, part of them stored as JSON escapes, none left.
+- `cop_index.db` rebuilt in a separate tree from the corrected annotations
+  with the seven aggregate files set aside, exactly as the live index
+  excludes them, then swapped in. Backup `cop_index.db.bak-letters-20260927-1451`.
+  Before and after are identical in shape: 180 texts, 70,842 lines,
+  1,466,155 postings, 29,323 distinct lemmas. Lemmas carrying the wrong
+  block: 11,722 before, none after. Integrity ok. An earlier rebuild attempt
+  with no annotation files present produced 165,534 lemmas from bare
+  surface forms and was discarded.
+- `cache/rare_words/cop.json` and the cached Coptic searches removed.
+- `cache/frequencies/cop.json`, the per-language word-frequency table the
+  Rare Words Explorer reads, still held 15,404 wrong letters after all of
+  the above and was corrected in place (29,323 keys, none wrong after,
+  backup `~/tesserae-backups/coptic_frequencies_cop_pre493_20260927-1456.json`).
+  An earlier scan missed this directory through a misspelled pattern.
+- `touch tesseraev6_flask.wsgi` at 14:51:52, again at 14:55:41 and 14:56:45.
+- The dev checkout's own lemma table and 193 annotation files corrected the
+  same way, so no later build regresses.
+
+### Checks
+- Home page 200 on the new bundle. `scripts/reference_search_check.py` passed.
+- Coptic lemma search for ϫⲟⲉⲓⲥ returns 20 lines. The Help page stoplist
+  shows 143 entries, 32 with the seven letters, none from the wrong block.
+- Rare Words Explorer for Coptic: 22,573 rare lemmas, the sample now reads
+  "(ϩⲟⲩⲛ" with hori, none with a wrong-block letter.
+
+### Found and not fixed here
+- Exact-mode Line Search returns nothing for Coptic, for words with and
+  without the seven letters, although the exact pattern matches the raw
+  lines when tested directly. Not touched by this change. Issue #502.
+
 ## 2026-09-27 Lamentations regenerated and re-indexed, and the cache-builder fix pulled (run 13:40 to 13:46 EDT)
 
 ### What and why
