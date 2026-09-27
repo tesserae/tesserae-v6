@@ -36,6 +36,43 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+## 2026-09-27 Lamentations regenerated and re-indexed, and the cache-builder fix pulled (run 13:40 to 13:46 EDT)
+
+### What and why
+- PR #499 regenerated `texts/grc/septuaginta.threni_seu_lamentationes.tess`
+  from its Open Greek and Latin source through the fixed converter: 88 of
+  its 150 verses had held nothing but the acrostic letter name (issue
+  #276). Same 150 references, 664 words to 2,447. Production pulled to
+  12ef551. Earlier the same day PR #498 (the cache builder registers plugin
+  languages and refuses unknown ones, issue #495) was pulled as cad17de, a
+  script only, no reload.
+
+### Steps
+- The file's Greek lemma cache, ours, deleted and rebuilt with
+  `scripts/batch_lemma_cache.py grc` (1 built, 1,267 already cached, 0
+  errors). The rebuilt builder reported the plugin languages it registered.
+- `scripts/corpus/add_texts_to_index.py --db <copy> --language grc
+  --cache-dir cache/lemmas --replace septuaginta.threni_seu_lamentationes.tess`
+  on a copy of `grc_index.db`, then swapped. Backup
+  `grc_index.db.bak-threni-20260927-1345`. The text's entry went from 146
+  lines and 603 postings to 150 lines and 2,019 postings, and the index
+  from 11,116,118 to 11,117,534 postings. `lemma_doc_freq` was rebuilt,
+  499,650 lemmas. Integrity ok.
+- `touch tesseraev6_flask.wsgi` at 13:45:56.
+
+### Checks
+- Home page 200. `scripts/reference_search_check.py` passed.
+- An exact search for the opening words of 1.1 (ἐκάθισεν μόνη) finds
+  Lamentations 1.1 and a line of Clement's Paedagogus that quotes it.
+
+### Not done, and why
+- The book's 33 passage windows still carry text and descriptions made
+  from the bare letter names ("a listing of letters, alphabet,
+  enumeration"). `scripts/corpus/refresh_window_text.py` was not used: it
+  is for wording changes that leave meaning intact, and here the meaning
+  changed entirely. The windows need a describer run, which is a decision
+  about spending (a rented GPU for minutes, or the free route).
+
 ## 2026-09-27 Deploy of the summed scoring rule (run 11:46 EDT)
 
 ### Deploy
