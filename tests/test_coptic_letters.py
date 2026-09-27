@@ -82,6 +82,20 @@ class TestTheRestoreTool:
         assert mod.count_wrong('ⲳⲏⲣⲉ ⲹⲛ') == 2
         assert mod.restore('ⲣⲱⲙⲉ') == 'ⲣⲱⲙⲉ'
 
+    def test_json_escapes_are_restored_too(self):
+        # The annotation caches were written by json.dump, which escapes
+        # non-ASCII, so shei sits in them as the six characters \u2cb3.
+        import importlib.util, json
+        spec = importlib.util.spec_from_file_location(
+            'restore', os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                    'scripts', 'corpus', 'restore_coptic_letters.py'))
+        mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+        raw = json.dumps({'tokens': ['ⲳⲏⲣⲉ', 'ⲹⲛ'], 'text': 'ϣⲏⲣⲉ ϩⲛ'})   # escapes both
+        assert '\\u2cb3' in raw
+        fixed = mod.restore(raw)
+        assert json.loads(fixed) == {'tokens': ['ϣⲏⲣⲉ', 'ϩⲛ'], 'text': 'ϣⲏⲣⲉ ϩⲛ'}
+        assert mod.count_wrong(raw) == 2 and mod.count_wrong(fixed) == 0
+
 
 class TestTheMatcherAndTheHelpPage:
     def test_the_greek_shadow_map_knows_the_seven_letters_once(self):
