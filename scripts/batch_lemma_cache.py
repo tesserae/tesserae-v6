@@ -29,6 +29,34 @@ from backend.lemma_cache import (
     get_file_hash, save_cached_units,
     get_cached_units, get_cache_stats, TEXTS_DIR
 )
+from backend.text_processor import _LANGUAGE_HANDLERS
+
+
+def register_plugin_languages():
+    """Register the plugin languages (Coptic, Hebrew, and any others present).
+
+    The web app does this when backend/app.py is imported. A script that
+    imports the processor directly gets an empty handler table, and until
+    2026-09-26 this one then sent every non-Latin language to the Latin
+    tokenizer, which strips non-Latin letters, and wrote caches of empty
+    units in zero seconds without a word of complaint (issue #495).
+    """
+    for module in ('backend.coptic', 'backend.hebrew', 'backend.persian',
+                   'backend.urdu', 'backend.arabic'):
+        try:
+            mod = __import__(module, fromlist=['register'])
+            mod.register()
+        except ImportError:
+            continue
+    return sorted(_LANGUAGE_HANDLERS)
+
+
+BUILT_IN_LANGUAGES = ('la', 'grc', 'en')
+
+
+def all_units_empty(units):
+    """True when a file produced units but not one of them has a token."""
+    return bool(units) and not any(u.get('tokens') for u in units)
 
 
 class FastTextProcessor:
@@ -237,16 +265,29 @@ class FastTextProcessor:
 
     def process_file(self, filepath, language, unit_type):
         """Process a .tess file, returns list of unit dicts (no POS tagging)."""
-        # Choose tokenizer + lemmatizer
+        # Choose the analyser. A plugin language uses its own handler, as the
+        # web app does; anything else that is not built in is refused, not
+        # quietly treated as Latin (issue #495).
         if language == 'grc':
-            tokenize = self.tokenize_greek
-            lemmatize = self.greek_lemmatize
+            tokenize, lemmatize = self.tokenize_greek, self.greek_lemmatize
         elif language == 'en':
-            tokenize = self.tokenize_english
-            lemmatize = self.english_lemmatize
+            tokenize, lemmatize = self.tokenize_english, self.english_lemmatize
+        elif language == 'la':
+            tokenize, lemmatize = self.tokenize_latin, self.latin_lemmatize
+        elif language in _LANGUAGE_HANDLERS:
+            tokenize = lemmatize = None
         else:
-            tokenize = self.tokenize_latin
-            lemmatize = self.latin_lemmatize
+            raise ValueError(f"no analyser for language {language!r}: not built in "
+                             f"({', '.join(BUILT_IN_LANGUAGES)}) and no plugin registered "
+                             f"({', '.join(sorted(_LANGUAGE_HANDLERS)) or 'none'})")
+
+        def analyse(text):
+            if tokenize is None:
+                result = _LANGUAGE_HANDLERS[language].tokenize_and_lemmatize(text)
+                original_tokens, tokens, lemmas = result[0], result[1], result[2]
+                return original_tokens, tokens, lemmas
+            original_tokens, tokens = tokenize(text)
+            return original_tokens, tokens, lemmatize(tokens)
 
         # Read raw lines
         raw_lines = []
@@ -269,8 +310,7 @@ class FastTextProcessor:
                 if self._ends_sentence(text, language):
                     combined = ' '.join(buf_texts)
                     combined_ref = buf_refs[0] if len(buf_refs) == 1 else f"{buf_refs[0]}-{buf_refs[-1]}"
-                    original_tokens, tokens = tokenize(combined)
-                    lemmas = lemmatize(tokens)
+                    original_tokens, tokens, lemmas = analyse(combined)
                     units.append({
                         'ref': combined_ref,
                         'text': combined,
@@ -286,8 +326,7 @@ class FastTextProcessor:
             if buf_refs:
                 combined = ' '.join(buf_texts)
                 combined_ref = buf_refs[0] if len(buf_refs) == 1 else f"{buf_refs[0]}-{buf_refs[-1]}"
-                original_tokens, tokens = tokenize(combined)
-                lemmas = lemmatize(tokens)
+                original_tokens, tokens, lemmas = analyse(combined)
                 units.append({
                     'ref': combined_ref,
                     'text': combined,
@@ -299,8 +338,7 @@ class FastTextProcessor:
                 })
         else:  # line
             for ref, text in raw_lines:
-                original_tokens, tokens = tokenize(text)
-                lemmas = lemmatize(tokens)
+                original_tokens, tokens, lemmas = analyse(text)
                 units.append({
                     'ref': ref,
                     'text': text,
@@ -352,6 +390,11 @@ def rebuild_language(tp, language, force=False):
         try:
             file_hash = get_file_hash(filepath)
             units_line = tp.process_file(filepath, language, 'line')
+            if all_units_empty(units_line):
+                # On 2026-09-26 a 6,236-line Arabic file cached as 6,236 empty
+                # units in zero seconds and reached the index with 0 postings.
+                raise ValueError(f'{len(units_line)} units and not one token: '
+                                 'the analyser did not run on this text')
             units_phrase = tp.process_file(filepath, language, 'phrase')
             if not save_cached_units(text_file, language, units_line, units_phrase, file_hash):
                 # Counted as an error, not as built: on 2026-09-13 two caches
@@ -387,6 +430,8 @@ def rebuild_language(tp, language, force=False):
 def main():
     force = '--force' in sys.argv
     languages = [a for a in sys.argv[1:] if a != '--force']
+    registered = register_plugin_languages()
+    print(f"  Plugin languages registered: {', '.join(registered) or 'none'}")
     if not languages:
         languages = ['la', 'grc', 'en']
 
