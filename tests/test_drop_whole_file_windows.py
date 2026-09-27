@@ -131,3 +131,20 @@ def test_allow_incomplete_drops_the_covering_whole_too(index):
     assert 'catullus.carmina:fine:0' not in ids
     assert 'catullus.carmina.part.1:fine:0' in ids
     assert 'lucan.bellum_civile:fine:0' in ids
+
+
+def test_a_failure_in_the_database_leaves_the_index_files_untouched(index):
+    """The files are moved into place inside the same transaction as the row
+    deletion, so a database that cannot take the deletion leaves ids,
+    embeddings and descriptions exactly as they were."""
+    idx, texts = index
+    con = sqlite3.connect(idx / 'window_texts.db')
+    con.execute('DROP TABLE window_texts')
+    con.commit()
+    con.close()
+    with pytest.raises(sqlite3.OperationalError):
+        tool.apply(str(idx), ['vergil.aeneid'], 'test')
+    assert json.load(open(idx / 'ids.json')) == IDS
+    assert np.load(idx / 'embeddings.npy').shape[0] == len(IDS)
+    assert sum(1 for _ in open(idx / 'descriptions.jsonl')) == len(IDS)
+    assert not [f for f in os.listdir(idx) if '.tmp' in f]

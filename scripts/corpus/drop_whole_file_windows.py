@@ -165,25 +165,39 @@ def apply(index, drop, tag):
     ids_tmp = ids_path + '.tmp'
     json.dump([ids[i] for i in keep], open(ids_tmp, 'w', encoding='utf-8'))
 
-    # All three written in full before any is moved into place, so a failure
-    # above leaves the live index untouched.
-    os.replace(tmp, emb_path)
-    os.replace(desc_tmp, desc_path)
-    os.replace(ids_tmp, ids_path)
-
+    # The window-text rows go inside one transaction that is committed only
+    # after the three files are in place, so a failure anywhere leaves either
+    # the old index whole or the new one whole, never the files changed and
+    # the rows still there. The three files are written in full above before
+    # any is moved, for the same reason.
+    n_expected = count_rows(index, drop)
     con = sqlite3.connect(os.path.join(index, 'window_texts.db'))
-    marks = ','.join('?' * len(drop))
-    cur = con.execute(
-        f'DELETE FROM window_texts WHERE work IN ({marks})', drop)  # nosec B608
-    n_win = cur.rowcount
-    con.commit()
-    con.close()
+    try:
+        marks = ','.join('?' * len(drop))
+        cur = con.execute(
+            f'DELETE FROM window_texts WHERE work IN ({marks})', drop)  # nosec B608
+        n_win = cur.rowcount
+        assert n_win == n_expected, \
+            f'deleted {n_win} window_texts rows, counted {n_expected} beforehand'
+        os.replace(tmp, emb_path)
+        os.replace(desc_tmp, desc_path)
+        os.replace(ids_tmp, ids_path)
+        con.commit()
+    except BaseException:
+        con.rollback()
+        for leftover in (tmp, desc_tmp, ids_tmp):
+            if os.path.exists(leftover):
+                os.remove(leftover)
+        raise
+    finally:
+        con.close()
 
     after = json.load(open(ids_path, encoding='utf-8'))
     emb2 = np.load(emb_path, mmap_mode='r')
     assert len(after) == len(keep) == emb2.shape[0], \
         f'ids {len(after)}, kept {len(keep)}, embedding rows {emb2.shape[0]}'
     assert not any(work_of(w) in drop_set for w in after)
+    assert n_before - len(after) == sum(1 for w in ids if work_of(w) in drop_set)
     return {'windows before': n_before, 'windows after': len(after),
             'windows dropped': n_before - len(after),
             'descriptions dropped': n_desc_dropped,
