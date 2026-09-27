@@ -6,7 +6,7 @@ in `DATA_OPERATIONS.md`, decisions that change what the site returns are in
 `DECISIONS.md`, and released changes are in `../CHANGELOG.md`. This file is
 the forward-looking companion to those three.
 
-Last rewritten 2026-09-21, corpus section revised 2026-09-22.
+Last rewritten 2026-09-21, corpus section revised 2026-09-22, brought up to date 2026-09-27.
 
 ## Corpus
 
@@ -25,15 +25,6 @@ Last rewritten 2026-09-21, corpus section revised 2026-09-22.
   one line per chapter, median 1,232 words, which makes any comparison
   against it enormously expensive. `couplet_et_alii.confucius_sinarum_philosophus.part.2`
   has 40 non-blank lines with no reference tag, which the parser drops.
-- **Ranking: a third shared word lowers the score** (issue #465). The
-  scorer divides by the number of matched words, so the score is a mean
-  rather than a sum, against the published 2012 method its own header
-  cites. On Aeneid 1 against Lucan 1, the two three-word results score
-  0.538 and 0.468 while 25 two-word results tie at the 1.0 ceiling. PR #459
-  is held until this is decided, so its tests do not freeze the behaviour.
-- **Rarity in English is not meaningful yet.** A word counts as rare at a
-  document frequency of 100 or fewer, and the English corpus has 42 works,
-  so every shared word qualifies.
 - **The English Bible files are named `world_english_bible` but hold the
   King James text.** The display name is corrected; renaming 70 files,
   their index entries and their windows is a separate operation.
@@ -88,6 +79,18 @@ first.
   flag opts out of writing, the opposite of every other corpus script, and
   it keeps no backup.
 
+- **`scripts/batch_lemma_cache.py` writes empty caches for plugin languages**
+  (issue #495). It handles Latin, Greek and English itself and sends every
+  other code to the Latin tokenizer, which strips non-Latin letters, so a
+  Hebrew, Coptic, Persian, Urdu or Arabic file caches as empty units in zero
+  seconds and reports success. The plugins register only when the web app
+  module is imported. The script should register them or refuse, and treat
+  a file with no tokens as an error.
+- **One passage window has no stored text**
+  (`chanson_de_roland.chanson_de_roland:fine:336`), so the Reader cannot
+  show it. The window-text builder has no single-work mode, so it waits for
+  the next full build.
+
 ## Infrastructure
 
 - **The Reader's gutter is slow the first time a text is opened**, between
@@ -96,8 +99,11 @@ first.
   afterwards. The cache is keyed by a fingerprint of the whole index, by
   design, because adding one text changes the figure for every work, so
   every corpus import invalidates all of it. A batch script precomputes the
-  whole corpus offline; it needs group write on two cache directories,
-  which is a server-administrator change.
+  whole corpus offline and has run over all 3,377 works, so no reader pays
+  the cost until the index next changes. The cache directories it needs are
+  group-writable since 25 September. What remains is that any directory the
+  web server creates afresh is not, which blocked a deploy step once. The
+  fix is a group-writable umask for the server's service.
 - **After any corpus change**, the word index behind Theme Search
   (`data/passage_index/desc_fts.sqlite`) must be rebuilt in the same
   session. It is staleness-checked against the descriptions file, and a

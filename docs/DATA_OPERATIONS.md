@@ -36,6 +36,30 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+## 2026-09-27 Deploy of the summed scoring rule (run 11:46 EDT)
+
+### Deploy
+- Production moved from af59abe to 24016ad, PR #496 only: `backend/scorer.py`
+  no longer divides the summed word rarity by the number of shared words,
+  `backend/score_bounds.py` names the rule in force and `backend/cache.py`
+  writes that name into every results cache key. No client change, no
+  bundle. `touch tesseraev6_flask.wsgi` at 11:46:21. Home page 200.
+- `scripts/reference_search_check.py` passed after the reload.
+
+### Checks
+- Live, cache bypassed, Lucan 1 against the whole Aeneid, lemma search,
+  two shared words: 2,086 results, top score 3.445 (1.723 before), mean
+  score by shared-word count 2: 1.409, 3: 1.601, 4: 1.975 (before 0.704,
+  0.534, 0.494). These are the figures the test checkout predicted
+  (docs/DECISIONS.md, 2026-09-27).
+- The results cache was NOT cleared by hand and did not need to be: the rule
+  name in the key means the entries written under the old rule are never
+  looked up again. They remain on disk as ordinary files until the pruning
+  rule or a later clear removes them.
+- Cross-language check before the merge, Iliad 1 against Aeneid 1 against
+  the Knauer gold: identical under both rules (419 results, same three
+  attested pairs at the same ranks), so the dictionary path is untouched.
+
 ## 2026-09-25 Deploy of seven merges, Hebrew index rebuilt, backups pruned, orphan window rows removed (run 10:32 to 10:35 EDT)
 
 ### Deploy
@@ -118,6 +142,12 @@ Conventions
   is kept as `he_index.db.bak-stanza-built-20260925-1459`. 200 tokens of
   305,550 differ in lemma between the two builds. wsgi touched 14:59:51,
   home page 200, live Jerusalem search 611 lines.
+
+### Later the same day, 15:14 EDT
+- PR #494 pulled (af59abe) and the app reloaded with `touch
+  tesseraev6_flask.wsgi`. No bundle. Home page 200, reference search passed,
+  live Jerusalem search 611 lines, unchanged. The Hebrew fallback is now off
+  in code as well as in fact.
 
 ## 2026-09-23 Archimedes renamed inside the passage index (run 13:24 EDT)
 
