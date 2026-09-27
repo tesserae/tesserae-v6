@@ -131,6 +131,9 @@ def apply(index, drop, tag):
         src = os.path.join(index, name)
         shutil.copy2(src, f'{src}.bak-{tag}-{stamp}')
 
+    # Counted before anything is written, so a database that cannot answer
+    # stops the run while the index is still untouched.
+    n_expected = count_rows(index, drop)
     ids_path = os.path.join(index, 'ids.json')
     ids = json.load(open(ids_path, encoding='utf-8'))
     keep = [i for i, wid in enumerate(ids) if work_of(wid) not in drop_set]
@@ -170,7 +173,6 @@ def apply(index, drop, tag):
     # the old index whole or the new one whole, never the files changed and
     # the rows still there. The three files are written in full above before
     # any is moved, for the same reason.
-    n_expected = count_rows(index, drop)
     con = sqlite3.connect(os.path.join(index, 'window_texts.db'))
     try:
         marks = ','.join('?' * len(drop))
