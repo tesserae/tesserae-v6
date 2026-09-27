@@ -20,7 +20,9 @@ behind each, are in docs/DECISIONS.md.
   commentator-attested parallels moved up, three more into the top half and
   seventy places in mean rank, while the fusion search held or improved at
   every depth. The scorer's description now matches the code, and the rules
-  the scorer promises have tests for the first time (issue #465).
+  the scorer promises have tests for the first time (issue #465). The name
+  of the scoring rule is now part of every results cache key, so a future
+  change to the formula can no longer serve old scores from the cache.
 
 ## 2026-09-25
 

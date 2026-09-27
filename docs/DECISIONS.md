@@ -54,10 +54,14 @@ does what its description and the published method say. Scores roughly
 double for two-word matches. Nothing downstream depended on the old scale
 in any way the fusion benchmark could see.
 
-**Consequences.** Every lemma and fusion score changes, so the search
-results cache is cleared at deploy (the cache key does not carry the rule).
-`tests/test_scorer_rules.py` pins the rules the scorer promises, including
-this one. Data: `research/threads/465_measurement/` (kept outside the
+**Consequences.** Every lemma and fusion score changes. The results cache
+is keyed on the search settings, which the rule is not, so at the rarity
+deploy of 2026-09-22 cached searches kept answering under the old rule
+until the files were deleted by hand. The rule's name
+(`SCORING_RULE` in `backend/score_bounds.py`) is now part of every cache
+key, so a changed rule orphans the old entries by itself and no clear can
+be forgotten. `tests/test_scorer_rules.py` pins the rules the scorer
+promises, including this one and the key. Data: `research/threads/465_measurement/` (kept outside the
 repository).
 
 ## 2026-09-25 Hebrew: the Stanza fallback is off, and the index is built the way the server runs

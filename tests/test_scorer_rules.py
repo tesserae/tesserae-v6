@@ -218,3 +218,22 @@ class TestCountingTheCorpus:
         freqs = scorer.get_text_frequencies([unit('a.1', ['arma', 'arma', 'uirum'])])
         assert freqs['arma'] == 2
         assert freqs['uirum'] == 1
+
+
+class TestARuleChangeCannotServeStaleScores:
+    """The results cache is keyed on the search settings, and a change to the
+    scoring formula changes no setting. At the rarity deploy of 2026-09-22
+    every cached search kept answering under the old rule until the files
+    were deleted by hand. The rule's name is now part of the key."""
+
+    def test_the_cache_key_carries_the_scoring_rule(self, monkeypatch):
+        from backend import cache
+        settings = {'match_type': 'lemma', 'min_matches': 2}
+        before = cache.get_cache_key('a.tess', 'b.tess', 'la', settings)
+        monkeypatch.setattr(cache, 'SCORING_RULE', 'some-other-rule')
+        after = cache.get_cache_key('a.tess', 'b.tess', 'la', settings)
+        assert before != after
+
+    def test_the_rule_in_force_is_the_sum(self):
+        from backend.score_bounds import SCORING_RULE
+        assert SCORING_RULE.startswith('sum-')
