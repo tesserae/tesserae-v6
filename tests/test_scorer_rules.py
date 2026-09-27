@@ -237,3 +237,21 @@ class TestARuleChangeCannotServeStaleScores:
     def test_the_rule_in_force_is_the_sum(self):
         from backend.score_bounds import SCORING_RULE
         assert SCORING_RULE.startswith('sum-')
+
+
+class TestTheSumDirectly:
+    """Order tests say which rule is in force. This one says how much: two
+    shared words of equal rarity, side by side, score exactly twice one of
+    them. Under the mean they scored the same."""
+
+    def test_two_equal_words_score_twice_one(self):
+        corpus = [[unit(f'c.{i}', ['alpha', 'beta', 'filler']) for i in range(10)],
+                  [unit('d.1', ['alpha', 'beta'])]]
+        src = unit('a.1', ['alpha', 'beta'])
+        tgt = unit('b.1', ['alpha', 'beta'])
+        one = score_one(src, tgt, ['alpha'], corpus=corpus)['base_score']
+        two = score_one(src, tgt, ['alpha', 'beta'], corpus=corpus)['base_score']
+        # 'alpha' and 'beta' appear in the same lines, so their rarity is equal,
+        # and the two-word span of 1 carries the same distance factor as the
+        # single-word floor of 1.
+        assert two == pytest.approx(2 * one)
