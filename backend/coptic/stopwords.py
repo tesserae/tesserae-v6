@@ -31,8 +31,7 @@ COPTIC_STOP_WORDS = {
     'ⲛ',         # def. art. pl. / genitive linker / preposition "of"
     'ⲟⲩ',        # indef. art. sg. / "what"
     'ⲡⲓ',        # Bohairic def. art. masc.
-    'ϯ',         # Bohairic def. art. fem.  (legacy block)
-    'ϯ',         # Bohairic def. art. fem.  (normalised form of ϯ)
+    'ϯ',         # Bohairic def. art. fem.
     'ⲛⲓ',        # Bohairic def. art. pl.
     'ⲡⲉ',        # is / masc. copula / poss. art. "your(2)"
     'ⲧⲉ',        # is / fem. copula
@@ -159,7 +158,7 @@ COPTIC_STOP_WORDS = {
     'ⲉϥ',        # circumstantial + 3sg
     'ⲉⲩ',        # circumstantial + 3pl
     'ⲛϭⲓ',       # subject-marker particle "the one who"
-    'ϯ',         # auxiliary I (perfect/preterit; also U+2CBF Bohairic article — same form)
+    'ϯ',         # auxiliary I (perfect/preterit), the same form as the Bohairic article above
 
     # ---- Auxiliary / tense-aspect-mood morphemes ----
     'ⲁ',         # perfect auxiliary
