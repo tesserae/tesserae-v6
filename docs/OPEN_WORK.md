@@ -18,9 +18,14 @@ Last rewritten 2026-09-21, corpus section revised 2026-09-22, brought up to date
 - **60 more files are shorter than four lines**, which is below the window
   geometry's floor, so they cannot be described at all. Catullus 85, 93 and
   94 are among them. Nothing to fix unless the floor changes.
-- **The passage index holds 130 works twice**, once as a whole file and
+- **The passage index holds 137 works twice**, once as a whole file and
   once as book files, so one passage can appear twice in a result list
-  under two names.
+  under two names. Decided 2026-09-27: the book files' windows stay and the
+  whole file's go (docs/DECISIONS.md). The tool is
+  `scripts/corpus/drop_whole_file_windows.py`. The operation waits for the
+  next index change so the cache rebuilds run once. Eight works keep both
+  copies until fifteen short book files (one to five lines each) have
+  windows of their own.
 - **Two files need re-segmenting.** `salutati.de_laboribus_herculis` has
   one line per chapter, median 1,232 words, which makes any comparison
   against it enormously expensive. `couplet_et_alii.confucius_sinarum_philosophus.part.2`

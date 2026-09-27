@@ -7,6 +7,38 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-09-27 A work stored as a whole file and as book files keeps only the books' windows
+
+**Observation.** 137 works are stored both ways, and the passage index held
+each of them twice: 113,850 whole-file windows beside 112,185 book-file
+windows, a third of the 620,773-window index. The same lines were described
+and embedded twice under two names. A Similar Passages list could show one
+passage twice, the result ranking carried a collapse step to hide that, and
+the connections map and every count by work counted these works double.
+
+**Decision.** The book files are the canonical copies (the decision of
+2026-09-21, from which the whole files were regenerated), so their windows
+stay and the whole file's are dropped. The Reader's whole-work view draws
+its gutter marks from the books' windows through the existing whole-work
+fallback in `connection_density`, and a selection in that view maps to a
+book window the same way. The references are the same line references, so
+the marks fall on the same lines.
+
+**Exception.** Eight works have a book file with no windows of its own: a
+two-line poem of Catullus, a preface, a set of fragments, fifteen files of
+one to five lines in all. The whole file's windows are the only ones
+covering those lines, so those eight keep both copies until the fifteen
+files have windows. The tool refuses them unless told otherwise.
+
+**Tool.** `scripts/corpus/drop_whole_file_windows.py`, dry run by default.
+It backs up the four index files, drops ids, embedding rows, descriptions
+and window-text rows in step with count checks, leaves the works' line rows
+alone, and reports what it kept and why. Tests in
+`tests/test_drop_whole_file_windows.py`. The dry run against the live
+index names 129 works and 110,631 windows. The operation and the cache
+rebuilds it forces (word index, passage density, connections map) are
+recorded in DATA_OPERATIONS.md when run.
+
 ## 2026-09-27 Coptic: U+03E2 to U+03EF is the normal form of the seven Coptic-only letters
 
 **Question.** Unicode has the Greek-derived Coptic letters at U+2C80 to

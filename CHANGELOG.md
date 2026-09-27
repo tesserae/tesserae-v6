@@ -9,6 +9,14 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-09-27
 
+### Passage index
+- A tool to drop a work's whole-file windows from the passage index once
+  its book files carry their own (`scripts/corpus/drop_whole_file_windows.py`,
+  dry run by default, refusing any work whose book files are not all
+  indexed). 129 works are stored both ways with full book coverage, 110,631
+  duplicate windows. Ends the double entry a passage could get in Similar
+  Passages under two names. Decision in docs/DECISIONS.md. (#504)
+
 ### Search
 - A third shared word now raises a parallel's score instead of lowering it.
   The score summed the rarity of the shared words and then divided by how
