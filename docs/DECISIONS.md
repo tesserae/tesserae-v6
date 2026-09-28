@@ -7,6 +7,31 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-09-28 Hebrew stoplist: entries that can never match are removed (#483 §1)
+
+**Observation.** The Hebrew stoplist (`backend/hebrew/stopwords.py`) is
+compared against lemmas, but ten of its 64 distinct entries were prefixed
+surface forms or forms the BHSA table never gives as a lemma, so they
+stopped nothing: ויהי (becomes היה), והנה (הנה), לפני (פנה), אחרי (אחר),
+כאשר (אשר), ההוא (הוא), ההיא (היא), האם (אם), אתם (את), אתן (נתן). Three
+entries were also listed twice (את, אל, אין).
+
+**Decision.** Remove the ten and the duplicates; the list is now 54
+entries. Their lemmas were not added in their place. Six (הנה, אחר, אשר,
+הוא, היא, את) are already on the list; the other four (היה "be", פנה
+"face", אם "if"/"mother", נתן "give") are content words or homographs of
+one, and the standing rule keeps content words off stoplists.
+
+**Effect.** None on results: the removed entries never matched a lemma.
+The homograph entries (אל, עם, את, על, שם) and the pointed-form lookup
+that would separate them are §2–3 of #483 and still open.
+
+**Left open.** The list as a whole is due for review: which Hebrew words
+belong on it, including whether any of the four content-word lemmas above
+should be, is not settled by this change. The interrogative entry אנה is
+kept as it stands although BHSA gives its lemma as אן; אן is not added
+until that review.
+
 ## 2026-09-27 Persian and Urdu stay in the all-languages Theme Search default
 
 **Question.** Whether the Persian (218,589 windows) and Urdu passage
