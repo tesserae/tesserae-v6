@@ -7,6 +7,19 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-09-27 Persian and Urdu stay in the all-languages Theme Search default
+
+**Question.** Whether the Persian (218,589 windows) and Urdu passage
+windows should be left out of Theme Search's default all-languages page,
+since Persian alone is more than a third of the index and its two largest
+works held most of a page before the per-work composition rule.
+
+**Decision.** They stay in. The page is composed one window per work and
+then by language round-robin (see the composition entries), so a large
+language no longer crowds the page, and a scholar reading across
+literatures should see what the corpus holds without opting in. Anyone
+who wants one literature has the language filter.
+
 ## 2026-09-27 A work stored as a whole file and as book files keeps only the books' windows
 
 **Observation.** 137 works are stored both ways, and the passage index held

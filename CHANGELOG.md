@@ -7,6 +7,18 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-09-28
+
+### Data operations
+- The passage index no longer holds a work twice. The whole-file windows of
+  129 works stored both as one file and as book files were dropped
+  (`scripts/corpus/drop_whole_file_windows.py`), 620,773 windows to
+  510,142, the word index rebuilt and the density and connections-map
+  caches recomputed. Eight works keep both copies until fifteen short book
+  files have windows of their own. The Septuagint's Lamentations has fresh
+  descriptions for its restored text, the first batch described by the
+  free local model. docs/DATA_OPERATIONS.md, 2026-09-28.
+
 ## 2026-09-27
 
 ### Passage index
