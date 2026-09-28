@@ -88,10 +88,17 @@ Conventions
 - The index fingerprint changed, so the passage density cache and the
   connections map are being recomputed in one 8 GB job started 06:55
   (`scripts/precompute_passage_density.py --language all`, then
-  `scripts/build_connections_map.py`). Until the density job reaches a
-  work, the first Reader visit to it computes the gutter live, and the map
-  serves its previous build marked stale. Completion figures are added
-  below when the job ends.
+  `scripts/build_connections_map.py`). Until the density job reached a
+  work, the first Reader visit to it computed the gutter live, and the map
+  served its previous build marked stale.
+- The job finished at 10:37. Density pass 06:55 to 10:22: 3,247 works
+  computed, 1 already cached, 0 failed, peak 4.6 GB, 14,801 cache files
+  (239 MB). Connections map 10:22 to 10:37: 2,031,530 kept edges, 26,555
+  author pairs, 821 century pairs, 259 genre pairs, cache
+  `18165036-1790592845.1044770944-1790592832.db` (688 MB), peak 4.3 GB.
+  The map page reports that fingerprint, matching the live index, and no
+  longer marks its data stale. The previous map cache (920 MB) remains as
+  the fallback for a stale index and can go after a week.
 - The passage-index data release under Downloads predates this change and
   will be regenerated.
 
