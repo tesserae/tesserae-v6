@@ -36,6 +36,65 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+## 2026-09-28 Lamentations described again, and the whole-file windows dropped from the passage index (run 06:52 to 06:55 EDT, caches recomputing after)
+
+### Lamentations rows replaced
+- The 33 windows of the Septuagint's Lamentations, rebuilt from the
+  restored text on 2026-09-27, were described overnight by the local
+  assistant model on this machine (`scripts/corpus/describe_windows.py`
+  against the assistant's own endpoint, 33 of 33 in 16.8 minutes, no
+  failures, no cost), and the new descriptions and their embeddings were
+  written in place with `scripts/corpus/apply_passage_rows.py --mode
+  replace --tag lamentations-20260928`. Same 33 ids as before. Backups
+  `embeddings.npy.bak-lamentations-20260928` and
+  `descriptions.jsonl.bak-lamentations-20260928`.
+- The stored window and line text of the work was refreshed from the
+  restored file with `scripts/corpus/build_batch_windows.py --upsert-db`
+  (33 window rows replaced, 150 line rows rewritten). Line 1.2 carried the
+  bare acrostic letter before and carries its verse now. Backup
+  `window_texts.db.bak-lamentations-20260928`.
+- This is the first production description batch made with the free local
+  model. Descriptions of the same passages in the Vulgate, made with the
+  paid model in August, are the comparison. The local model matches on
+  theme and situation and is weaker on proper names. It writes a city
+  where the paid model named Jerusalem, and leaves the setting blank on
+  two of the 33 windows.
+
+### Whole-file windows dropped
+- Following the decision of 2026-09-27 (DECISIONS.md),
+  `scripts/corpus/drop_whole_file_windows.py --index data/passage_index
+  --texts texts --tag whole-windows-20260928 --apply` (PR #504, merged
+  and pulled first) removed the whole-file windows of the 129 works whose
+  book files all have windows of their own. 620,773 windows before,
+  510,142 after: 110,631 windows, 110,640 description rows (nine were
+  duplicate rows for dropped windows) and 110,631 window-text rows. The
+  works' line rows were left in place. Backups of all four index files
+  carry `.bak-whole-windows-20260928-20260928-065331` (5.6 GB in all).
+- Eight works keep both copies because a book file of theirs has no
+  windows: `alcuin.carmina` (73), `appian.foreign_wars` (1),
+  `augustine.de_trinitate` (praef), `catullus.carmina` (85, 93, 94, 105,
+  106, 112), `dracontius.romulea` (fragments),
+  `hegesippus_pseudo.de_excidio_hierosolymitano` (0), `plato.epistles`
+  (10, 12), `william_of_tyre.historia_rerum_in_partibus_transmarinis_gestarum`
+  (0, 23). Fifteen files of one to five lines.
+- The word index was rebuilt (`scripts/build_desc_fts.py`, 510,379 rows,
+  29 seconds) and the app reloaded at 06:55.
+- Checks after the reload. The whole Aeneid answers the gutter request
+  with 1,643 windows drawn from its twelve book files (first call 68
+  seconds, uncached). Similar Passages from a whole-work selection (Aeneid
+  1.1 to 1.12) returns results. A Theme Search for a warrior arming scene
+  in Latin shows 25 rows and none under a whole-file name. Every reference
+  search passes.
+- The index fingerprint changed, so the passage density cache and the
+  connections map are being recomputed in one 8 GB job started 06:55
+  (`scripts/precompute_passage_density.py --language all`, then
+  `scripts/build_connections_map.py`). Until the density job reaches a
+  work, the first Reader visit to it computes the gutter live, and the map
+  serves its previous build marked stale. Completion figures are added
+  below when the job ends.
+- The passage-index data release under Downloads predates this change and
+  will be regenerated.
+
 ## 2026-09-27 Coptic letters restored across every stored form (run 14:51 to 14:57 EDT)
 
 ### What and why
