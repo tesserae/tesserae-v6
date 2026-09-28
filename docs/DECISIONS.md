@@ -7,6 +7,41 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-09-28 Hebrew stoplist: עם and שם come off, אל, את and על stay (#483 §2)
+
+**Question.** Hebrew lemmas are consonantal, so one stoplist entry stops
+every word with those consonants. Five entries collapse a function word
+with a content word. Which should stay stopped until lemmas can tell them
+apart?
+
+**Measurement.** Every word in BHSA (ETCBC/bhsa via Text-Fabric), grouped
+by the consonants of its lexeme, Hebrew and Aramaic together:
+
+| Entry | Function readings | Content readings | Content share |
+|---|---|---|---|
+| עם | "with" 1,071 | "people" 1,881 | 64% |
+| שם | "there" 834 | "name" 876, Shem 17 | 52% |
+| אל | "to" 5,517, "not" 730, "these" 10, "where" 1 | "God" (El) 235, "power" 5, "nothingness" 1 | 3.7% |
+| את | object marker 10,987, "with" 878, "you" 57 | "ploughshare" 5, "sign" 3 | 0.1% |
+| על | "upon" 5,870 | "yoke" 40, "height" 9 | 0.8% |
+
+**Decision.** Remove עם and שם: stopping them discarded more content
+words than function words. Keep את and על, which are almost wholly
+function words. Keep אל for now: its content reading is El (the usual word
+for God, אלהים, is a separate lemma and is not stopped), and unstopping it
+would admit some 6,250 occurrences of "to" and "not" to recover 235. The
+list is now 52 entries.
+
+**Revisit** when lemmas are looked up by pointed form (#483 §2–3, fix C),
+which would separate אֵל from אֶל and עַם from עִם so each function reading
+can be stopped alone.
+
+**Effect.** The stoplist is applied at search time, so no index rebuild is
+needed, but cached Hebrew results must be cleared: the cache key does not
+include the stoplist. The classic lemma matcher's automatic mode also adds
+a frequency cutoff (the Zipf elbow over the two texts), which can still
+stop עם or שם in a long pair; that mechanism is unchanged.
+
 ## 2026-09-28 Hebrew stoplist: entries that can never match are removed (#483 §1)
 
 **Observation.** The Hebrew stoplist (`backend/hebrew/stopwords.py`) is
@@ -17,7 +52,7 @@ stopped nothing: ויהי (becomes היה), והנה (הנה), לפני (פנה)
 entries were also listed twice (את, אל, אין).
 
 **Decision.** Remove the ten and the duplicates; the list is now 54
-entries. Their lemmas were not added in their place. Six (הנה, אחר, אשר,
+entries (52 after the entry above). Their lemmas were not added in their place. Six (הנה, אחר, אשר,
 הוא, היא, את) are already on the list; the other four (היה "be", פנה
 "face", אם "if"/"mother", נתן "give") are content words or homographs of
 one, and the standing rule keeps content words off stoplists.
