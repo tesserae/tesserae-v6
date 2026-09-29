@@ -1,8 +1,8 @@
 /**
  * The header's dropdowns have to actually change something.
  *
- * NC reloaded the Reader and reported "the dropdowns are all frozen". They
- * rendered with the right values, and every argument I made from the data said
+ * The Reader's dropdowns appeared frozen after a reload. They
+ * rendered with the right values, and every argument made from the data said
  * they should work, so the only way to settle it was to mount the thing and
  * fire a change at it.
  */

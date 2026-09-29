@@ -1,7 +1,7 @@
 /**
  * Changing a dropdown has to load a different text.
  *
- * NC: "I reloaded and the dropdowns are all frozen." ReaderHeader passes its own
+ * The dropdowns appeared frozen after a reload. ReaderHeader passes its own
  * tests, so if anything is frozen it is here, where the choice becomes a fetch.
  */
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
@@ -112,7 +112,7 @@ describe('the Reader loads what the dropdowns choose', () => {
   });
 });
 
-describe('arriving from Theme Search, which is how NC hit it', () => {
+describe('arriving from Theme Search', () => {
   const FROM_THEME =
     '/read?work=ovid.tristia.part.3.tess&lang=la'
     + '&ref=' + encodeURIComponent('ov. tr. 3.1')
@@ -141,7 +141,7 @@ describe('arriving from Theme Search, which is how NC hit it', () => {
 });
 
 // --------------------------------------------------------------------------
-// Landing with a selection + tab=similar (NC, 2026-09-19): the results panel
+// Landing with a selection + tab=similar (2026-09-19): the results panel
 // is `position: sticky` inside the reader's own card, but the text scrolls
 // in its OWN inner pane -- centering the selected line in that inner pane
 // alone never brings the card (and so the sticky panel) onto screen when the
@@ -174,13 +174,13 @@ describe('arriving from a passage pair with a selection and tab=similar', () => 
 });
 
 // --------------------------------------------------------------------------
-// The panel itself (NC, 2026-09-19): "still shows NO right-hand panel at
-// all, not merely scrolled away" -- the Similar/Parallels/Translation tabs
+// The panel itself (2026-09-19): it still showed NO right-hand panel at
+// all, not merely scrolled away -- the Similar/Parallels/Translation tabs
 // were absent, not just off screen. readerLinkForWindow() in
 // ConnectionsMap.jsx builds this exact URL shape (work, lang, ref, refEnd,
 // tab=similar, q) for a passage pair's reader_url; reproduced here with a
-// multi-line span deep in a long work (18.427-18.438, matching NC's own
-// example) rather than the single-line span the scroll-fix test above uses.
+// multi-line span deep in a long work (18.427-18.438) rather than the
+// single-line span the scroll-fix test above uses.
 // Fixed by opening the panel on arrival exactly as a click on the text does
 // (setPanelTab + setPopupOpen), not leaving it to a prop-fallback chain that
 // nothing here was actually exercising end to end.
@@ -338,9 +338,9 @@ describe('the arrival banner can always be got rid of', () => {
 });
 
 describe('Back inside the Reader comes back to the Reader', () => {
-  // NC: "I did one reader search, clicked the link on a related work that came
-  // up in the tab for verbal parallels. When I clicked the back button from
-  // there, it didn't take me back but to the main regular search page."
+  // Following a related-work link from the Verbal Parallels tab and then
+  // clicking back took the reader to the main search page instead of back
+  // into the Reader.
   //
   // The cause was replaceState on every change, so moving between texts left no
   // history entry at all. jsdom keeps a real history stack, so this is testable.
@@ -407,8 +407,8 @@ describe('per-language defaults', () => {
 });
 
 describe('clicking a "quoted in N works" mark', () => {
-  // NC: "the marks show, but clicking on them does nothing," and his
-  // screenshot had the results panel closed. The mark sits inside the same
+  // The marks showed but clicking on them did nothing, with the results
+  // panel closed. The mark sits inside the same
   // line the reader can also drag-select, and clicking it used to start (and
   // release) that drag too, so the panel's own onSelect briefly won the race
   // against onReuseClick and landed on Verbal Parallels instead of Reuse --

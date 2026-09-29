@@ -5,7 +5,7 @@ guess is wrong wherever the book files are not numbered by that number
 (Alcuin's part 97 holds poems 97 to 101; Cicero's Verrines part 3 holds
 actio 2 book 2, refs "2.2.x") and wherever the whole file and its parts tag
 lines differently (Hyperides: "hyp. 1.1" against "hyp. speeches. 1.1").
-The server looks the line up in the part files instead (NC, 2026-09-20)."""
+The server looks the line up in the part files instead (2026-09-20)."""
 import os
 import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

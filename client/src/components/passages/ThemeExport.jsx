@@ -73,7 +73,7 @@ export default function ThemeExport({ query, language, count, corpusVersion, ran
       {/* PDF FIRST, because it is what people mean by "download". The printable
           page renders the scripts better -- a browser shapes Arabic and lays
           out right-to-left text more faithfully than any PDF library -- but it
-          is not a file you can send to a colleague, which is what NC asked for. */}
+          is not a file you can send to a colleague, which a downloadable file is for. */}
       <a
         href={params('pdf')}
         className="text-xs font-semibold text-red-700 border border-red-200 bg-red-50
@@ -99,7 +99,7 @@ export default function ThemeExport({ query, language, count, corpusVersion, ran
       {/* A link that reproduces this search. The page already reads query and
           languages from the address, so the contract existed and nothing
           offered it: sharing a Theme Search meant sending a screenshot
-          (NC, 2026-09-08). Confirmed in place rather than with a browser
+          (2026-09-08). Confirmed in place rather than with a browser
           alert, which blocks the page and has to be dismissed. */}
       <button
         onClick={() => {

@@ -7,7 +7,7 @@
  * page offers is now read from that one table, so the bug cannot reappear
  * the moment another tab is added.
  *
- * Two, Hebrew is now one of those tabs (NC asked for it on 2026-09-21).
+ * Two, Hebrew is now one of those tabs, added 2026-09-21.
  * Hebrew is a fully supported search language with its own index, and the
  * tabs had simply never included it. These tests check that the tab appears
  * in the right place, that choosing it asks the API for language=he, and
@@ -49,7 +49,7 @@ describe('the heading names the language from the shared table', () => {
   });
 });
 
-// Hebrew joined this page on 2026-09-21 (NC asked for it). This block
+// Hebrew joined this page on 2026-09-21. This block
 // brings its own stub: the shared one above answers every language with an
 // empty list, which is all the heading tests need, while these have to tell
 // a Latin answer from a Hebrew one.

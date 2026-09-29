@@ -64,7 +64,7 @@ _ABOUT_THE_TOOL = (
     # NAMING THE SITE ITSELF. "tell me about the site's search capabilities"
     # matched none of the above, so it was not recognised as a question about
     # the tool: it inherited "arma virumque" from the previous turn and Tessa
-    # ran a corpus search instead of answering. NC caught it.
+    # ran a corpus search instead of answering. This was caught and fixed.
     #
     # These are deliberately narrow. This tuple gates two things -- routing to
     # the guide, and discarding the carried subject -- and a phrase common in
@@ -121,7 +121,7 @@ def _is_about_the_tool(question):
 
 
 # MODEL ROUTING. Off by default: this replaces the branch every question takes,
-# and it turns on only once NC has seen it run.
+# and it turns on only once it has been observed running correctly.
 #
 # The judgments below -- what kind of question this is, and whether it carries
 # the previous subject -- were substring matches over 130 literal phrases.
@@ -587,9 +587,9 @@ def _carried_phrase(question, history):
     # questions, handles how-to, and falls back to the Help page. For "tell me
     # about the site's search capabilities" the two disagreed: the list said
     # False, so the question inherited "arma virumque" from the previous turn
-    # and Tessa ran a corpus search for it instead of describing the site. NC
-    # caught it. Every question the documentation answers was affected, not
-    # just that phrasing.
+    # and Tessa ran a corpus search for it instead of describing the site.
+    # Every question the documentation answers was affected, not just that
+    # phrasing.
     #
     # The fix is in _ABOUT_THE_TOOL, which now names the site itself. Guarding
     # here on _is_about_the_site instead was the obvious move and the wrong one:
@@ -836,8 +836,8 @@ def _handoff_sentence(facts):
 
     WHY THIS EXISTS
 
-    NC: "why does it take so long to just find the right search and click it?
-    This takes longer than the user doing it manually?" Correct, and it was.
+    Finding and running the right search took longer than doing it manually,
+    once phrasing the hand-off through the model was counted in.
 
     A hand-off answer carries no information the model was not handed: both
     texts were resolved in code, the corpus was confirmed to hold them, and the
@@ -1274,9 +1274,9 @@ def answer_stream(question, on_step=None, history=None, offered_phrase=None):
                     # matched. Now that the results themselves live on the
                     # search pages, an answer that quotes nothing has nothing
                     # worth marking, and highlighting scattered words in prose
-                    # is just noise. NC: "It does highlight phrases, though
-                    # that's mostly not necessary now that we refer them to the
-                    # search panels."
+                    # is just noise. Highlighting phrases is mostly not
+                    # necessary now that results are referred to the search
+                    # panels.
                     'highlight': (_highlight_terms(all_facts)
                                   if _wants_listing(asked) else []),
                     # Controls that open the real search page with the real
@@ -1457,8 +1457,8 @@ def _prepare(question, step, history=None, offered_phrase=None):
     #
     # My first attempt ran rare_words instead, because it was the only
     # comparison tool she had, and reported its output as though it answered the
-    # question. It does not: it is one lexical pass, and NC rightly asked why we
-    # were talking about rare lemmata at all. A single-channel word overlap is
+    # question. It does not: it is one lexical pass, and rare-lemma overlap is
+    # the wrong basis for comparing two poems. A single-channel word overlap is
     # not a comparison of two poems.
     #
     # So the texts are resolved, the census confirms the corpus holds them, and

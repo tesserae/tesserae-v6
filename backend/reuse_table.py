@@ -428,9 +428,9 @@ def line(language, work, ref):
     kept only by the rare-single-ngram rule, which requires shared==1
     exactly. Since shared==1 is never reachable through the other two
     rules, the tier is fully determined by `shared` already in this row --
-    no rebuild or schema change needed to add it. NC, after reviewing a
-    30-pair sample of the rare-single rule's yield: "a quarter genuine is
-    too noisy for the Reader mark" -- the Reuse tab lists strict pairs
+    no rebuild or schema change needed to add it. A 30-pair sample of the
+    rare-single rule's yield found only a quarter genuine, too noisy for the
+    Reader mark, so the Reuse tab lists strict pairs
     first with no heading (unchanged from before tiering) and possible
     pairs in a separate, collapsed "Possible echoes" section."""
     if not is_available(language):

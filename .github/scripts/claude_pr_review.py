@@ -54,7 +54,7 @@ def build_prompt(pr_number, pr_title, pr_author, pr_body, pr_files, diff) -> str
     if len(pr_files) > 30:
         files_summary += f"\n  - ... and {len(pr_files) - 30} more files"
 
-    return f"""You are doing a first-pass code review of a pull request to the Tesserae V6 repository on behalf of the maintainer Neil Coffee. Your review is a digest that helps Neil decide whether to merge, request changes, or look more carefully. You are not the final approver.
+    return f"""You are doing a first-pass code review of a pull request to the Tesserae V6 repository on behalf of the maintainer. Your review is a digest that helps the maintainer decide whether to merge, request changes, or look more carefully. You are not the final approver.
 
 # Tesserae V6 context
 
@@ -71,10 +71,10 @@ Tesserae V6 is a multi-channel intertextual search system for classical language
 1. **Scope.** Is the diff focused on one change, or sprawling?
 2. **Untouched expectations.** Are the right paths touched and are out-of-scope paths left alone?
 3. **Risk classification.** Using the table above, what is the overall risk?
-4. **Specific things Neil should verify.** Two or three concrete items, with file:line references.
+4. **Specific things the maintainer should verify.** Two or three concrete items, with file:line references.
 5. **Cleanliness.** Any obvious code-quality issues, missing tests, dead code, or commented-out debug statements? Any chance of conflict with the production-deploy workflow (frontend rebuild, WSGI touch)?
 6. **Connector parity.** Does the diff add or change a public API route (a new `@*.route(...)` outside admin/auth)? If so, flag whether `backend/blueprints/mcp_http.py` TOOLS and `backend/blueprints/mcp_manifest.py` were updated to match — `tests/test_mcp_parity.py` should fail the build if not, but call it out anyway.
-7. **Merge recommendation.** One of: ready to merge, request changes, needs Neil's judgment.
+7. **Merge recommendation.** One of: ready to merge, request changes, needs the maintainer's judgment.
 
 # PR being reviewed
 
@@ -110,9 +110,9 @@ Write a single markdown comment, structured as follows. No preamble, no signoff.
 - file.py:line — specific thing to verify.
 - file.py:line — another.
 
-**Recommendation.** Ready to merge / Request changes (and what changes) / Needs Neil's judgment (and why).
+**Recommendation.** Ready to merge / Request changes (and what changes) / Needs the maintainer's judgment (and why).
 
-_This is an automated review. Neil reviews and approves the actual merge._
+_This is an automated review. The maintainer reviews and approves the actual merge._
 ```
 """
 

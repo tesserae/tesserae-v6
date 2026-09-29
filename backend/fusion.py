@@ -231,8 +231,8 @@ CHANNEL_WEIGHTS = {
                             #   first-ten recall of the quotations 8 -> 19 of 32 and
                             #   recall at 100 14 -> 28, for one Lucan pair lost at rank
                             #   100 and none in the top ten; 35 (the Coptic value) found
-                            #   all 32 but cost three poetry pairs in the top ten. NC
-                            #   approved 10. Greek is unaffected either way (the
+                            #   all 32 but cost three poetry pairs in the top ten. 10 was
+                            #   adopted. Greek is unaffected either way (the
                             #   channel finds no runs in the Homer-Apollonius gold).
 }
 

@@ -14,7 +14,7 @@ import { LANGUAGE_NAMES } from '../../utils/languageNames';
  *
  * Reds and greys only, no blue anywhere: the site-wide color rule.
  *
- * ROW AND COLUMN LABELS (NC, after looking at the first version): a grid of
+ * ROW AND COLUMN LABELS (after review of the first version): a grid of
  * colored cells with nothing naming the rows or columns cannot be read at
  * all, whatever the color scale shows. LabeledHeatmap below draws the
  * author/work/century/genre display names -- the same names Browse Corpus
@@ -24,7 +24,7 @@ import { LANGUAGE_NAMES } from '../../utils/languageNames';
  * at the deepest "Top" setting, and it is the same component whether the
  * grid is the full NxN matrix or the single row "start from one work" view.
  *
- * TWO CANVASES, NOT ONE (NC's second look, 2026-09-19): the grid is wider
+ * TWO CANVASES, NOT ONE (from a second look, 2026-09-19): the grid is wider
  * than the page at any real "Top" setting, and a single canvas scrolled
  * horizontally took the row names off screen with it -- exactly the labels
  * a reader needs while reading a column deep in the grid. The row-label
@@ -50,7 +50,7 @@ const VIEWS = [
 ];
 
 // "Top 50" read as a ranking, when the grid does not show a ranking at all
-// (NC, 2026-09-19): the Top N control still CHOOSES the N most-connected
+// (2026-09-19): the Top N control still CHOOSES the N most-connected
 // entities, but the rows/columns are then displayed in date order (see
 // backend/connections_map.py get_map's own chronological sort), so a plain
 // number label looked like the rows would be sorted by strength. The noun
@@ -78,7 +78,7 @@ function cellColor(v) {
   return `rgb(${rgb.join(',')})`;
 }
 
-// A small legend under every grid (NC, 2026-09-19): colour is each cell's
+// A small legend under every grid (2026-09-19): colour is each cell's
 // count on a LOG scale (backend.connections_map._log_scale), so each step
 // of shade stands for roughly the same ratio of links and only the largest
 // counts go fully dark. A linear count/max scale had left nearly every cell
@@ -143,14 +143,14 @@ function readerLinkForWindow(w, other) {
     tab: 'similar',
     // Its own parameter, not `q`: the Reader's "back to results" link re-ran
     // `q` as a Theme Search, so a reader who came from the map landed on a
-    // search for "connections map: Vergil" (NC, 2026-09-20). The Reader now
+    // search for "connections map: Vergil" (2026-09-20). The Reader now
     // shows "from the Similarity Map" and links back to the map tab.
     map: other ? (other.author_display || other.work) : '',
   });
   return `/read?${params.toString()}`;
 }
 
-// Author and work in full, then the reference (NC, 2026-09-19): the
+// Author and work in full, then the reference (2026-09-19): the
 // passage-pair list must read as a citation, not a raw work-id slug. `title`
 // is the backend's format_display_name-formatted title (falls back to the
 // raw work id for a payload from before that field existed).
@@ -160,8 +160,8 @@ function passageLabel(w) {
   return w.author_display ? `${w.author_display}, ${title}` : title;
 }
 
-// The abbreviation belongs in a citation, not the display text (NC,
-// 2026-09-19): "Homer, Iliad 18.427", not "Homer, Iliad, hom. il. 18.427".
+// The abbreviation belongs in a citation, not the display text
+// (2026-09-19): "Homer, Iliad 18.427", not "Homer, Iliad, hom. il. 18.427".
 // Same trailing-locus pattern backend/connections_map.py's _book_of uses,
 // so a ref this can't parse (no trailing digits at all) falls back to
 // showing it whole rather than silently dropping it.
@@ -171,7 +171,7 @@ function locusOnly(ref) {
   return m ? m[1] : ref;
 }
 
-// Build-date footer (NC, 2026-09-20): the backend can silently fall back to
+// Build-date footer (2026-09-20): the backend can silently fall back to
 // an older cache (a corpus edit changes the passage index's fingerprint long
 // before a ~40-minute rebuild can catch up -- see backend/connections_map.py
 // _resolve_path()), and that used to surface here as a "stale" notice. The
@@ -217,8 +217,8 @@ const MAX_CELL = 28;
 const LABEL_FONT = '11px sans-serif';
 const LABEL_CAP = 220;   // widest a label is allowed to measure before truncation kicks in
 
-// One fill colour and one font for every label, row or column (NC,
-// 2026-09-19: the row-label canvas and the rotated column labels on the
+// One fill colour and one font for every label, row or column
+// (2026-09-19): the row-label canvas and the rotated column labels on the
 // grid canvas must not diverge -- both read off these same four constants,
 // nowhere else).
 const LABEL_COLOR = '#374151';           // gray-700
@@ -227,10 +227,10 @@ const LABEL_FONT_ACTIVE = `bold ${LABEL_FONT}`;
 
 /** How wide the row-name column should be, and how soon a label truncates.
  *
- *  NC, 2026-09-21, from a phone: "the theme search map is hard to see. Some
- *  white space to the left of the vertical labels is taking up too much room
- *  and crowding out the actual graph on the right and the titles may be
- *  formatted so they're too long as well." The name column was a flat 190
+ *  On a phone (2026-09-21), the theme search map was hard to see: white
+ *  space to the left of the vertical labels took up too much room, crowding
+ *  out the actual graph on the right, and titles ran too long. The name
+ *  column was a flat 190
  *  CSS pixels, which on a 390-pixel screen left about 200 for the grid. On a
  *  narrow screen it takes a third of the width instead (never under 84), and
  *  labels truncate to fit it. The column labels truncate sooner too, which
@@ -286,7 +286,7 @@ function measureCtx() {
   return _measureCtx;
 }
 
-// Crisp labels on a high-resolution screen (NC, 2026-09-19): sized only by
+// Crisp labels on a high-resolution screen (2026-09-19): sized only by
 // their CSS pixel dimensions, a canvas's backing store is that many DEVICE
 // pixels regardless of the screen's actual pixel density, so on a 2x/3x
 // display the browser upscales a 1x bitmap and every label blurs -- while
@@ -317,7 +317,7 @@ function sizeCanvasForDPR(canvas, cssWidth, cssHeight) {
  * single-row "start from one work" view -- same drawing code, same label
  * treatment, so a reader learns the grid once.
  */
-// The diagonal (NC, 2026-09-19): a same-author or same-work cell is drawn
+// The diagonal (2026-09-19): a same-author or same-work cell is drawn
 // hatched and grey rather than colored by its count, because a reader who
 // sees a hot cell on the diagonal reads it as "these two correlate", when a
 // same-author cell in fact counts only links between that author's OWN
@@ -332,7 +332,7 @@ function isDiagonalCell(rowIds, colIds, i, j) {
   return !!(rowIds && colIds && rowIds[i] !== undefined && rowIds[i] === colIds[j]);
 }
 
-// Column labels rotate 45 degrees only when they need to (NC, 2026-09-19:
+// Column labels rotate 45 degrees only when they need to (2026-09-19:
 // forcing a slant on labels that don't need it -- a books grid's "1", "2"
 // -- reads as italic, not as an ordinary upright heading). Pure and exported
 // so it can be tested without a real canvas: `ctx` is anything with a
@@ -363,8 +363,8 @@ function drawHatch(ctx, x, y, size) {
   ctx.restore();
 }
 
-// Colour relative to size (NC, 2026-09-19: "are the scores normalized?" -- they
-// were not). For each cell, the observed link count over what the two sizes
+// Colour relative to size (2026-09-19: the raw scores are not normalized).
+// For each cell, the observed link count over what the two sizes
 // alone would predict: row total x column total / grand total, the
 // independence expectation. 1x means "as much as chance"; the ramp runs on a
 // log2 scale from 1x up to the strongest cell, and cells at or under 1x stay
@@ -396,9 +396,9 @@ function LabeledHeatmap({
   const headerCanvasRef = useRef(null);
   const [hover, setHover] = useState(null);   // {i, j} in grid coordinates
   const { rowMargin, labelCap } = useLabelGeometry();
-  // Frozen column labels (NC, 2026-09-19: "the top label row needs to be
-  // frozen so that when you scroll down the graph the column labels remain
-  // visible"). The labels live on their own strip above the scroll box,
+  // Frozen column labels (2026-09-19): the column-label row needs to stay
+  // visible while the grid below it scrolls. The labels live on their own
+  // strip above the scroll box,
   // stuck under the site's menu bar while the page scrolls, and slid
   // sideways by the same amount as the grid.
   const [scrollLeft, setScrollLeft] = useState(0);
@@ -430,7 +430,7 @@ function LabeledHeatmap({
 
   // In a nested works grid every column reads "Plutarch, <title>": the author
   // is already in the heading, and the repeated prefix made the slanted
-  // titles collide and run off the right edge (NC, 2026-09-19). When every
+  // titles collide and run off the right edge (2026-09-19). When every
   // column label shares the same "Author, " prefix it is dropped from the
   // column labels only; row labels keep it (there is room).
   const commonColPrefix = useMemo(() => {
@@ -530,7 +530,7 @@ function LabeledHeatmap({
     if (hover) {
       // Stronger than the first version (8%): from the middle of a fifty-
       // author grid the faint bands did not lead the eye to the two names
-      // (NC, 2026-09-19). A tinted band plus a red outline runs the whole
+      // (2026-09-19). A tinted band plus a red outline runs the whole
       // row and the whole column, from the cell out to both label margins.
       ctx.fillStyle = 'rgba(185, 28, 28, 0.16)';
       ctx.fillRect(0, hover.i * cellSize, nCols * cellSize, cellSize);
@@ -571,7 +571,7 @@ function LabeledHeatmap({
       }
     }
 
-    // The clicked cell stays outlined after the click (NC, 2026-09-19: it
+    // The clicked cell stays outlined after the click (2026-09-19: it
     // was not clear a new grid had appeared below) -- a persistent marker
     // distinct from the hover band, so the parent grid keeps showing exactly
     // which cell the drill-down below it came from.
@@ -597,15 +597,15 @@ function LabeledHeatmap({
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, gridWidth, colMargin);
     // No vertical band up here: with slanted names it crossed the boxed name
-    // at an angle and read as two different highlights (NC, 2026-09-19). The
+    // at an angle and read as two different highlights (2026-09-19). The
     // boxed name alone marks the column; the band runs through the cells.
     // Column labels: rotated 45 degrees so more/longer names fit in the same
     // vertical space than a straight horizontal label would allow, but only
     // when they actually need it -- a handful of short labels (a books
     // grid's "1", "2", ...) draws upright, exactly like the row labels and
-    // exactly the same font, same as every other grid (NC, 2026-09-19:
-    // "every grid must draw its labels with the same LabeledHeatmap code
-    // path and the same upright font as the top grid"). The canvas's own
+    // exactly the same font, same as every other grid (2026-09-19 rule:
+    // every grid draws its labels with the same LabeledHeatmap code path
+    // and the same upright font as the top grid). The canvas's own
     // colMargin/rightPad (computed above from the longest label) is sized
     // generously enough for either orientation, so it does not change here.
     ctx.font = LABEL_FONT;
@@ -615,8 +615,8 @@ function LabeledHeatmap({
       const x = j * cellSize + cellSize / 2;
       const text = truncateToWidth(ctx, colText(label), labelCap);
       ctx.font = active ? LABEL_FONT_ACTIVE : LABEL_FONT;
-      // The same highlight the row label gets (NC, 2026-09-19: "not the same
-      // on rows and columns"): a tinted, outlined box behind the hovered
+      // The same highlight the row label gets (2026-09-19: row and column
+      // highlights had diverged): a tinted, outlined box behind the hovered
       // name, drawn in the label's own orientation.
       const boxFor = (w, h) => {
         ctx.fillStyle = 'rgba(185, 28, 28, 0.16)';
@@ -683,14 +683,14 @@ function LabeledHeatmap({
       </div>
       {/* The ONLY element that scrolls horizontally; the row-label canvas
           inside stays fixed on its left. Vertical padding only: horizontal
-          padding would be part of the scrolling area (NC, 2026-09-19). */}
+          padding would be part of the scrolling area (2026-09-19). */}
       <div className="overflow-auto border border-t-0 border-gray-200 rounded-b pb-2 bg-white w-full"
            onScroll={(e) => setScrollLeft(e.currentTarget.scrollLeft)}>
       <div className="flex" style={{ width: 'max-content' }}>
       <canvas
         ref={rowCanvasRef}
         // Opaque background + a z-index clearly above the scrolling grid
-        // canvas (NC, 2026-09-19: cells were showing through the sticky row
+        // canvas (2026-09-19: cells were showing through the sticky row
         // strip on horizontal scroll) -- the canvas already paints its own
         // white background and a thin rule at its right edge, but the DOM
         // element carries the same as CSS too, so the boundary holds even
@@ -729,7 +729,7 @@ export default function ConnectionsMap() {
   const [mapData, setMapData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  // "Refresh map" (NC, 2026-09-20): re-runs whichever top-level load is
+  // "Refresh map" (2026-09-20): re-runs whichever top-level load is
   // currently showing (the matrix, or a "start from one work" row) with
   // ?refresh=1, which clears the backend's process-level caches (see
   // connections_map.reset_process_caches()) so a freshly built cache and the
@@ -752,7 +752,7 @@ export default function ConnectionsMap() {
   const [pairData, setPairData] = useState(null);
 
   // The clicked cell in each grid, outlined persistently in that SAME grid
-  // (NC, 2026-09-19) so it stays visible once the next grid appears below --
+  // (2026-09-19) so it stays visible once the next grid appears below --
   // {i, j} grid coordinates, one per level.
   const [topOutline, setTopOutline] = useState(null);
   const [worksOutline, setWorksOutline] = useState(null);
@@ -767,7 +767,7 @@ export default function ConnectionsMap() {
   const cellSectionRef = useRef(null);
   const booksSectionRef = useRef(null);
   const pairSectionRef = useRef(null);
-  // block: 'start' (NC, 2026-09-19), not 'nearest' -- the new grid's own
+  // block: 'start' (2026-09-19), not 'nearest' -- the new grid's own
   // heading needs to land at the top of the viewport, not merely somewhere
   // visible, or a tall parent grid can leave it looking like nothing moved.
   useEffect(() => {
@@ -781,9 +781,9 @@ export default function ConnectionsMap() {
   }, [selectedPair]);
 
   // Browser Back unwinds the drill-down one level at a time instead of
-  // leaving the map (NC, 2026-09-19: "the back button goes all the way back
-  // to the start of the full map, not the subordinate maps I clicked
-  // through"). Each drill step pushes a history entry carrying the
+  // leaving the map (2026-09-19 fix): back used to jump straight to the
+  // start of the full map, skipping the subordinate maps drilled through.
+  // Each drill step pushes a history entry carrying the
   // selections at that depth; popstate restores them (and refetches a level
   // whose data is gone). The base entry is stamped depth 0 on mount so the
   // first Back lands on the top grid rather than on the previous page.
@@ -809,7 +809,7 @@ export default function ConnectionsMap() {
 
   const langParam = languages.length ? languages.join(',') : '';
 
-  // `refresh` (NC, 2026-09-20) uses `refreshingMap`, not `loading`, and skips
+  // `refresh` (2026-09-20) uses `refreshingMap`, not `loading`, and skips
   // the drill-down reset: the grid section below is gated on `!loading`, so
   // routing a refresh through the ordinary `loading` flag would hide the
   // whole grid (and the "Refresh map" button along with it) for as long as
@@ -967,7 +967,7 @@ export default function ConnectionsMap() {
     });
   };
 
-  // Third level: books x books for one work pair (NC, 2026-09-19). Reached
+  // Third level: books x books for one work pair (2026-09-19). Reached
   // either from the Authors view's nested works matrix, or straight from a
   // Works-view top-grid cell -- "or a cell of the Works view" -- since the
   // top grid there is already work-by-work, the finest grain it can offer.
@@ -985,7 +985,7 @@ export default function ConnectionsMap() {
       setBooksData(json);
       // A pair of single-book works (Plato's Epistles against Plutarch's
       // Aratus) has no books grid to show; go straight to the passages
-      // instead of a "no book-level data" notice (NC, 2026-09-19).
+      // instead of a "no book-level data" notice (2026-09-19).
       if (!json.error && (!json.ids_a?.length || !json.ids_b?.length)) {
         loadPair(workA, workB);
       }
@@ -1113,8 +1113,8 @@ export default function ConnectionsMap() {
     return () => window.removeEventListener('popstate', onPop);
   }, [loadCell, loadBooks]);   // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Author and work in full for the pair-list breadcrumb too (NC,
-  // 2026-09-19), read off the first loaded pair's own windows (which already
+  // Author and work in full for the pair-list breadcrumb too
+  // (2026-09-19), read off the first loaded pair's own windows (which already
   // carry the backend's formatted title) rather than the raw work ids
   // `selectedPair` is set with before the fetch resolves.
   const pairHeading = () => {
@@ -1177,7 +1177,7 @@ export default function ConnectionsMap() {
         </span>
 
         <span className="flex flex-wrap items-center gap-1">
-          {/* A button, not a caption (NC, 2026-09-19): selected by default,
+          {/* A button, not a caption (2026-09-19): selected by default,
               mutually exclusive with the language buttons -- picking a
               specific language deselects it, and it always reads as
               selected exactly when no specific language is chosen. */}
@@ -1233,7 +1233,7 @@ export default function ConnectionsMap() {
         )}
       </div>
 
-      {/* One short sentence rather than a sidebar full of it (NC: give the
+      {/* One short sentence rather than a sidebar full of it (give the
           map the whole width) -- everything past "hover" used to live
           beside the grid; now it lives below, once a cell is chosen. */}
       <p className="mt-2 text-xs text-gray-500">
@@ -1311,7 +1311,7 @@ export default function ConnectionsMap() {
               left of THIS box as it scrolls (position: sticky). Vertical
               padding only: a horizontal padding here (the old p-2) is part
               of the scrolling area, so the grid scrolled through it to the
-              LEFT of the sticky label strip (NC, 2026-09-19). */}
+              LEFT of the sticky label strip (2026-09-19). */}
           <div>
             <LabeledHeatmap
               rowLabels={mapData.labels}
@@ -1389,7 +1389,7 @@ export default function ConnectionsMap() {
               cell here drills to the books level below. */}
           {selectedCell && view === 'author' && (
             <div ref={cellSectionRef} className="mt-4">
-              {/* A breadcrumb, not just a caption (NC, 2026-09-19): naming
+              {/* A breadcrumb, not just a caption (2026-09-19): naming
                   what is being compared makes it plain a new grid appeared
                   below the one just clicked, rather than nothing happening. */}
               <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">

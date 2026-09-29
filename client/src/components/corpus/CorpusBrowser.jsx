@@ -15,7 +15,7 @@ export default function CorpusBrowser() {
   // A link can open this page with the Theme Search filter already on and a
   // language chosen (`/corpus?theme=1&language=la`), so Help and Theme
   // Search can point straight at "the list" instead of describing where to
-  // find the checkbox (NC 2026-09-18: "I don't see a separate list").
+  // find the checkbox (2026-09-18: the separate list was not visible).
   const [language, setLanguage] = useState(() => {
     const lang = new URLSearchParams(window.location.search).get('language');
     return VALID_LANGUAGES.includes(lang) ? lang : 'la';
@@ -24,7 +24,7 @@ export default function CorpusBrowser() {
   const [loading, setLoading] = useState(true);
   const [searchFilter, setSearchFilter] = useState('');
   const [selectedEra, setSelectedEra] = useState('all');
-  // Alphabetical by default (NC 2026-08-30): finding a known author is the
+  // Alphabetical by default (2026-08-30): finding a known author is the
   // common case, and era order buries the back half of the alphabet.
   const [sortOrder, setSortOrder] = useState('alphabetical');
   const [expandedAuthors, setExpandedAuthors] = useState(new Set());

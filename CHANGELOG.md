@@ -9,6 +9,13 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-09-28
 
+### Housekeeping
+- Comments, docstrings and test descriptions state the outcome or the rule
+  and no longer name or quote anyone: 237 lines in 67 files rewritten, code
+  unchanged. The automated pull-request review addresses the maintainer by
+  role. The working list and the research notes are no longer in the
+  repository (#510, #511).
+
 ### Data operations
 - The passage index no longer holds a work twice. The whole-file windows of
   129 works stored both as one file and as book files were dropped

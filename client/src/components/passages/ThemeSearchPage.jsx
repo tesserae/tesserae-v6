@@ -26,7 +26,7 @@ import ConnectionsMap from './ConnectionsMap';
  * and they are Homeric and Virgilian topoi. On a preview serving Coptic,
  * Persian, Urdu and Arabic, two of them came back "the corpus does not appear
  * to contain passages of this kind": the page was offering a first-time
- * visitor four suggestions and failing on half of them (NC, 2026-09-09). It is
+ * visitor four suggestions and failing on half of them (2026-09-09). It is
  * the same fault as the Latin authors that once appeared in the Persian tab, a
  * fixed list that does not follow what is served.
  *
@@ -36,8 +36,8 @@ import ConnectionsMap from './ConnectionsMap';
  * scripts exist for this in evaluation/probe_sets/.
  */
 const EXAMPLE_SETS = {
-  // Latin, Greek and English. Re-measured on production 2026-09-20 (NC:
-  // "suggested sample searches ... that are known winners"): every query
+  // Latin, Greek and English. Re-measured on production 2026-09-20 against the
+  // requirement that suggested sample searches be known winners: every query
   // here rated STRONG that day, and the funeral games query is the one the
   // 16-theme benchmark scores best (first-ten precision 1.00; Iliad 23,
   // Thebaid 6, the Punica, Quintus). "a wife or child recognizes someone
@@ -272,7 +272,7 @@ export default function ThemeSearchPage() {
   const [error, setError] = useState(null);
 
   // How deep the ranked list goes. 25 at first; Show more steps it up to the
-  // API's cap of 100. NC reached the bottom of the 25 hunting Genesis 22,
+  // API's cap of 100. Hunting Genesis 22 once reached the bottom of the 25,
   // which sat just below the cutoff, with no way to page deeper.
   const [limit, setLimit] = useState(25);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -496,7 +496,7 @@ export default function ThemeSearchPage() {
             // Re-run only a search that has already been run, so changing the
             // languages refines the list on screen. Typing a query and then
             // picking languages used to start the search before the reader
-            // pressed Search (NC, 2026-09-06).
+            // pressed Search (2026-09-06).
             if (data && query.trim()) run(query, next);
           };
           return (
@@ -684,8 +684,9 @@ export default function ThemeSearchPage() {
                         // No year, but the table may still give an era: the
                         // Hebrew Bible is deliberately left without a year
                         // (composition spans centuries) and carries the era
-                        // "Biblical". Show that rather than "undated" (NC,
-                        // 2026-09-20: "Why are these texts undated?").
+                        // "Biblical". Show that rather than "undated"
+                        // (2026-09-20: these texts were otherwise showing as
+                        // undated).
                         return (
                           <span className="inline-block rounded bg-gray-50 border border-gray-200 px-2 py-0.5 text-sm text-gray-500">
                             {head.era || 'undated'}

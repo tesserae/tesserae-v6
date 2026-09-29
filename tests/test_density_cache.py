@@ -1,6 +1,6 @@
 """The Reader's gutter must not pay for the index it does not need.
 
-NC reported the Reader's dropdowns "all frozen". The dropdowns were fine; the
+The Reader's dropdowns went "all frozen." The dropdowns were fine; the
 server was not. /api/passages/density took 18 seconds on EVERY request, because
 its cache directory sat under data/passage_index/, which is owned by
 ncoffee:zodfaculty while the web user tess-flask is in tess-flask, users and

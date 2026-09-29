@@ -1,6 +1,6 @@
 """Regression tests for work-key and reference parsing in the passage index.
 
-Both bugs were found by NC in one Coptic reading session (2026-08-29):
+Both bugs were found in one Coptic reading session (2026-08-29):
 selections in shenoute.a22 answered "no indexed window covers that passage"
 for every selection, and the selection header displayed lines 1-3 as
 "22.1-22.3". Pure function tests; no index files required.

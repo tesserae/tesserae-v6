@@ -29,7 +29,7 @@ const MAP_PAYLOAD = {
 };
 
 // Every map response now carries cache_built_at whether or not the backend
-// cache is stale (NC, 2026-09-20) -- see mapBuiltFooterText in
+// cache is stale (2026-09-20) -- see mapBuiltFooterText in
 // ConnectionsMap.jsx.
 const BUILT_MAP_PAYLOAD = { ...MAP_PAYLOAD, cache_built_at: '2026-09-18T21:50:00' };
 
@@ -50,7 +50,7 @@ const CELL_PAYLOAD = {
     { work_a: 'homer.iliad', work_b: 'vergil.aeneid', count: 6, is_translation: false },
   ],
   count: 1,
-  // The second heatmap (NC, 2026-09-19): Homer's one work against Vergil's.
+  // The second heatmap (2026-09-19): Homer's one work against Vergil's.
   works_matrix: {
     ids_a: ['homer.iliad'], labels_a: ['Homer, iliad'],
     ids_b: ['vergil.aeneid'], labels_b: ['Vergil, aeneid'],
@@ -191,7 +191,7 @@ describe('loading the map', () => {
   });
 
   it('shows a "Map built <date>." footer under the grid, no warning tone', async () => {
-    // NC, 2026-09-20: no notion of "stale" in front of users at all -- a
+    // 2026-09-20: no notion of "stale" in front of users at all -- a
     // plain grey one-liner under the grid stating the cache's build date,
     // whether or not the backend happened to fall back to an older cache.
     global.fetch = mockFetch(BUILT_MAP_PAYLOAD);
@@ -253,7 +253,7 @@ describe('loading the map', () => {
 });
 
 // --------------------------------------------------------------------------
-// "Show the N most connected authors" (NC, 2026-09-19): a bare "Top 50"
+// "Show the N most connected authors" (2026-09-19): a bare "Top 50"
 // read as a ranking when the grid does not display one at all -- the N is a
 // selection, but the rows/columns are then shown in date order.
 // --------------------------------------------------------------------------
@@ -298,7 +298,7 @@ describe('the "most connected" control', () => {
 });
 
 // --------------------------------------------------------------------------
-// "All languages" is a button (NC, 2026-09-19): selected by default, mutually
+// "All languages" is a button (2026-09-19): selected by default, mutually
 // exclusive with the individual language buttons.
 // --------------------------------------------------------------------------
 
@@ -367,7 +367,7 @@ describe('hovering and clicking the grid (margin-aware coordinates)', () => {
     expect(cellCall).toContain('a=homer%3A%3Agrc');
     expect(cellCall).toContain('b=vergil%3A%3Ala');
 
-    // A SECOND heatmap, not a plain list (NC, 2026-09-19): rows Homer's
+    // A SECOND heatmap, not a plain list (2026-09-19): rows Homer's
     // works, columns Vergil's works.
     const worksCanvas = await screen.findByLabelText(/Works of Homer \(grc\) by works of Vergil \(la\)/);
     expect(canvas.compareDocumentPosition(worksCanvas) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -400,8 +400,8 @@ describe('hovering and clicking the grid (margin-aware coordinates)', () => {
     render(<ConnectionsMap />);
     const canvas = await screen.findByLabelText(/Connections map, author view/);
     fireEvent.click(canvas, cellCenter(28, 0, 1));
-    // "Homer (grc) x Vergil (la), works" -- NC's own example format, comma
-    // before the level name, so it reads as a breadcrumb trail.
+    // "Homer (grc) x Vergil (la), works" -- comma before the level name,
+    // so it reads as a breadcrumb trail.
     expect(await screen.findByText('Work by work: Homer (grc) × Vergil (la)')).toBeTruthy();
   });
 
@@ -448,9 +448,9 @@ describe('hovering and clicking the grid (margin-aware coordinates)', () => {
 
     expect(await screen.findByText('Achilles rages.')).toBeTruthy();
     expect(screen.getByText('Arms and the man.')).toBeTruthy();
-    // Author and work in full, then the reference (NC, 2026-09-19) --
-    // "Homer, Iliad 1.1", not "Homer, Iliad, hom. il. 1.1" (NC, 2026-09-19:
-    // strip the abbreviation, show only the locus, space not comma).
+    // Author and work in full, then the reference (2026-09-19) --
+    // "Homer, Iliad 1.1", not "Homer, Iliad, hom. il. 1.1": the abbreviation
+    // is stripped, showing only the locus, space not comma.
     expect(screen.getByText('Homer, Iliad 1.1')).toBeTruthy();
     expect(screen.getByText('Vergil, Aeneid 1.1')).toBeTruthy();
     expect(screen.getByText('Passages: Homer, Iliad × Vergil, Aeneid')).toBeTruthy();
@@ -464,7 +464,7 @@ describe('hovering and clicking the grid (margin-aware coordinates)', () => {
   it('strips the abbreviation from the displayed locus, keeping it only in the link title', async () => {
     // "Homer, Iliad 18.427", not "Homer, Iliad, hom. il. 18.427" -- the
     // abbreviation belongs in the citation (the link's title attribute),
-    // not the display text (NC, 2026-09-19).
+    // not the display text (2026-09-19).
     const abbreviatedPair = {
       ...PAIR_PAYLOAD,
       pairs: [{
@@ -550,9 +550,9 @@ describe('starting from one work', () => {
 });
 
 // --------------------------------------------------------------------------
-// Column label orientation (NC, 2026-09-19): "every grid must draw its
+// Column label orientation (2026-09-19 rule): every grid draws its
 // labels with the same LabeledHeatmap code path and the same upright font
-// as the top grid" -- a handful of short labels (a books grid's "1", "2")
+// as the top grid -- a handful of short labels (a books grid's "1", "2")
 // draws upright rather than rotated 45 degrees, so it does not read as
 // italic; a grid with many/long labels (the top grid's authors and works)
 // still rotates, exactly as before.
@@ -578,7 +578,7 @@ describe('column label orientation', () => {
 });
 
 // --------------------------------------------------------------------------
-// Crisp labels on a high-resolution screen (NC, 2026-09-19): a canvas's
+// Crisp labels on a high-resolution screen (2026-09-19): a canvas's
 // backing store must be sized by devicePixelRatio, not just its CSS size, or
 // the browser upscales a 1x bitmap and every label blurs. sizeCanvasForDPR
 // sets canvas.width/height (the DOM sets these unconditionally, even without
@@ -613,10 +613,9 @@ describe('canvas sizing for devicePixelRatio', () => {
 });
 
 // --------------------------------------------------------------------------
-// NC, 2026-09-21, from a phone: "the theme search map is hard to see. Some
-// white space to the left of the vertical labels is taking up too much room
-// and crowding out the actual graph on the right and the titles may be
-// formatted so they're too long as well."
+// On a phone (2026-09-21), the theme search map was hard to see: white
+// space to the left of the vertical labels took up too much room, crowding
+// out the actual graph on the right, and titles ran too long.
 describe('the name column gives the grid room on a phone', () => {
   it('keeps the full 190px column on a desktop width', async () => {
     const { mapLabelGeometry } = await import('./ConnectionsMap');

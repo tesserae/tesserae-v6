@@ -26,8 +26,8 @@ logger = get_logger('reader_rerank')
 # work whose rows sit past the first hundred can now reach the page: the
 # Odyssey's recognitions on "a wife or child recognizes someone long
 # thought dead or lost" were at rows 146 to 148 and landed at row 15 once
-# the reader saw them. About 9 s a query instead of 4 s (NC: "Give the
-# reader all 300 composed rows"). The reader service accepts up to 400.
+# the reader saw them. About 9 s a query instead of 4 s, trading latency to
+# give the reader all 300 composed rows. The reader service accepts up to 400.
 DEFAULT_K = int(os.environ.get('THEME_READER_K', '300'))
 # Named in the reproducible citation so a re-ranked search can be re-run
 # the same way; change it when the checkpoint changes.

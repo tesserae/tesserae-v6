@@ -5,8 +5,8 @@ WHY
 Tessa's guide half knew about the SEARCHES and nothing else. It had never heard
 of the Reader or Theme Search, so "how do I read the Aeneid?" fell through to a
 corpus listing, and every gap got closed by adding another keyword to another
-tuple in agent.py. NC, correctly: "Is this thing so dumb that we really have to
-preprogram every response? It won't be enough to just feed it the help Page?"
+tuple in agent.py, which raised the real question: would feeding the model
+the Help page directly be enough, instead of preprogramming every response?
 
 Mostly it is enough. The model explains things well when it has something true
 to explain from, and the Help page is 44,000 characters of exactly that,

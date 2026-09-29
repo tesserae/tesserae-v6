@@ -456,7 +456,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
   // The same invitation under every language: the measured figures are a
   // first indication, the articles with full details are in preparation, and
-  // specialists' feedback and help are wanted (NC, 2026-09-13).
+  // specialists' feedback and help are wanted (2026-09-13).
   const Invitation = ({ language }) => (
     <p className="text-gray-600 text-sm mt-2 border-l-2 border-gray-300 pl-3">
       These figures are a first indication of how {language} search performs; articles with full

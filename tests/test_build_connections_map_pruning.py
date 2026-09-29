@@ -1,5 +1,5 @@
-"""Tests for scripts/build_connections_map.py's cache retention (NC,
-2026-09-19): a build keeps the cache it just wrote plus exactly one older
+"""Tests for scripts/build_connections_map.py's cache retention
+(2026-09-19): a build keeps the cache it just wrote plus exactly one older
 one (the fallback backend.connections_map._resolve() serves when a corpus
 edit changes index_fingerprint() before the next ~40-minute rebuild lands),
 and deletes anything older than that.

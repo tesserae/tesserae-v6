@@ -1533,7 +1533,7 @@ def line_search():
             # Verbal Parallels tab sends the whole selection as one query; six
             # Aeneid lines lemmatize to 40 lemmas, whose posting lists union to
             # 269,850 candidate lines and 97 seconds of search (measured
-            # 2026-08-29, NC watching the spinner). Two shared words out of 40
+            # 2026-08-29). Two shared words out of 40
             # is also a commonplace, not a parallel. So above a cap the query
             # keeps only its rarest lemmas by corpus document frequency, which
             # is both the fast search and the Tesserae-shaped question: lines

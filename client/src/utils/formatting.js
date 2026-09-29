@@ -598,7 +598,7 @@ export const formatReference = (ref, language = null) => {
       // for the other shape, "hamlet 3.1", where the first token is the work,
       // so on a Milton tag it took "Milton" as the work, found nothing, and
       // joined the rest with periods: "Milton P.L..1.225", "Keats
-      // Hyperion.1.296" (NC, 2026-09-10, preparing a talk). The locus is the
+      // Hyperion.1.296" (2026-09-10). The locus is the
       // last token; everything before it is author and work.
       const location = formatLocation(parts[parts.length - 1]);
       const prefix = parts.slice(0, -1);

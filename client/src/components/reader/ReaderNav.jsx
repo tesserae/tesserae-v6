@@ -1,6 +1,6 @@
 /**
- * In-text navigation for the Reader (NC, 2026-09-19: "the only option from
- * the bottom of a text is a long scroll back up").
+ * In-text navigation for the Reader (2026-09-19): previously the only option
+ * from the bottom of a text was a long scroll back up.
  *
  * ReaderNav is a thin strip that sticks to the top of the text column while
  * the page scrolls: previous and next book, a "go to line" box, and Back to
@@ -37,7 +37,7 @@ export function bookSections(sections) {
 /** For a whole-file work that also exists as book files: the book file that
  *  holds `ref` (a locus like "sil. 8.135" names book 8), or the first book
  *  when no ref is given. '' when `work` already is a book file or the work
- *  has no book files (NC, 2026-09-20: works with books are read one book at
+ *  has no book files (2026-09-20: works with books are read one book at
  *  a time; the whole-file Punica ran seventeen books together). */
 export function bookFileFor(sections, work, ref) {
   const id = String(work || '');
@@ -160,10 +160,10 @@ const floatCls = 'w-9 h-9 rounded-full border border-gray-300 bg-white/95 shadow
 
 /** A small fixed cluster at the bottom left of the window, on screen wherever
  *  the reader is in the text: to the top, to the end, and the previous and
- *  next book (NC, 2026-09-20: "we still don't have a way of navigating up and
- *  down the page easily"). Fixed positioning does not depend on the sticky
- *  strip, whose behaviour NC could not see. Hidden on phones, where the
- *  bottom sheet lives. */
+ *  next book (2026-09-20): there was no way to navigate up and down the
+ *  page easily. Fixed positioning does not depend on the sticky strip,
+ *  which did not behave reliably. Hidden on phones, where the bottom
+ *  sheet lives. */
 export function ReaderFloatNav({ sections, work, onWork }) {
   const books = bookSections(sections);
   const { prev, next } = neighbours(books, work);

@@ -576,7 +576,7 @@ def _cache_built_at(path):
 
 def prune_old_caches(db_path):
     """Keep the cache just built plus exactly one older one, delete the
-    rest (NC, 2026-09-19).
+    rest (2026-09-19).
 
     backend.connections_map falls back to the most recently built cache
     present when a corpus edit changes index_fingerprint() before the next

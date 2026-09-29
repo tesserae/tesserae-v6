@@ -621,7 +621,7 @@ DEFAULT_GREEK_STOP_WORDS_LIST = [
 ]
 
 DEFAULT_ENGLISH_STOP_WORDS_LIST = [
-    # English function words, 275 entries (2026-09-19, NC's rule: a
+    # English function words, 275 entries (2026-09-19 rule: a
     # stoplist holds function words only; common content words are
     # down-weighted by frequency in scoring, never removed; see
     # docs/DECISIONS.md, 2026-09-19).
@@ -836,7 +836,7 @@ class Matcher:
         """The curated function-word list for a language (articles, pronouns,
         prepositions, conjunctions, particles, auxiliaries), as a set. Empty
         for languages without one. This is the list a stoplist may hold and
-        nothing more (NC, 2026-09-19)."""
+        nothing more (2026-09-19)."""
         if language == 'la':
             return DEFAULT_LATIN_STOP_WORDS
         if language == 'grc':

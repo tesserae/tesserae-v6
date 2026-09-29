@@ -1,8 +1,8 @@
 /**
  * Exporting a Theme Search.
  *
- * NC: "We need some sort of export function for theme search. The export should
- * include the original passages, properly labeled, in chronological order."
+ * The export function for Theme Search needed to include the original
+ * passages, properly labeled, in chronological order.
  *
  * The thing most worth pinning down is that the passage TEXT reaches the
  * document, since the whole point is that a Theme Search result otherwise

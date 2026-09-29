@@ -18,8 +18,8 @@ awkward cases are all present at once:
 
 The earlier export sidestepped all of this by handing the job to the browser,
 which solves it properly and for free. That remains the better-rendered route.
-This exists because NC asked for a real downloadable file, and a printable page
-is not one.
+This exists because a real downloadable file was wanted, not just a printable
+page.
 
 WHAT MAKES IT CORRECT
 

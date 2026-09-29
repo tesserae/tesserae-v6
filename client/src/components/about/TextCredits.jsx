@@ -9,8 +9,8 @@ export default function TextCredits() {
   const [error, setError] = useState('');
   const [filter, setFilter] = useState('');
   const [query, setQuery] = useState('');
-  // Translators (NC, 2026-09-20: Kline was named only where his translation
-  // appeared; the credits page named no translator at all). Every aligned
+  // Translators (2026-09-20): Kline was named only where his translation
+  // appeared; the credits page named no translator at all. Every aligned
   // translation is now listed here as well, per language.
   const [translations, setTranslations] = useState(null);
   const [showTranslations, setShowTranslations] = useState(false);

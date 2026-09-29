@@ -196,8 +196,8 @@ export default function ReaderHeader({
 /** The range's end, shortened to what differs from its start:
  *  "verg. aen. 6.263"-"verg. aen. 6.301" -> "301". The old version kept the
  *  trailing digit run of the end ref alone, which read digits out of the WORK
- *  name: "shenoute.a22.1"-"shenoute.a22.3" displayed as "22.1-22.3" (NC hit
- *  it in Coptic, where several of Shenoute's canons are numbered works). */
+ *  name: "shenoute.a22.1"-"shenoute.a22.3" displayed as "22.1-22.3" (hit
+ *  in Coptic, where several of Shenoute's canons are numbered works). */
 function shortRef(refEnd, refStart) {
   const a = String(refStart || '');
   const b = String(refEnd || '');

@@ -567,7 +567,7 @@ class TestWeightProfileFirewall:
     def test_quotation_weight_for_latin_and_english(self):
         # 2026-09-19: the quotation channel carries weight 10 under the Latin
         # profile (measured: prose quotations of Vergil first-ten recall 8 -> 19
-        # of 32 for one Lucan pair lost at rank 100; NC approved), and stays at
+        # of 32 for one Lucan pair lost at rank 100; adopted), and stays at
         # 0 for English, which was not measured.
         from backend.fusion import get_weight_profile
         assert get_weight_profile(language='la').get('quotation', 0.0) == 10.0

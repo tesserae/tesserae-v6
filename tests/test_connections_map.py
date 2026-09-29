@@ -167,7 +167,7 @@ def test_map_work_view_cell_value_is_symmetric(client, fixture_db):
 
 
 # --------------------------------------------------------------------------
-# Log colour scale + legend (NC, 2026-09-19): a linear count/max scale left
+# Log colour scale + legend (2026-09-19): a linear count/max scale left
 # nearly every cell pale; percentile rank then made the top fifth of cells
 # fully dark. Colour is now log(1 + count) / log(1 + largest count), and the
 # response carries a legend naming the low/middle/high raw counts. Fixture
@@ -250,7 +250,7 @@ def test_map_century_view_groups_by_century_and_language(client, fixture_db):
 
 
 # --------------------------------------------------------------------------
-# Chronological ordering (NC, 2026-09-19): the Top N control still chooses
+# Chronological ordering (2026-09-19): the Top N control still chooses
 # entities by link count, but the grid then displays them in date order --
 # BCE first, undated authors/works last -- rather than by how connected they
 # happen to be, so a reader can trace a line of descent across the row.
@@ -261,8 +261,8 @@ def test_map_author_view_orders_rows_chronologically_bce_first(client, fixture_d
     assert status == 200
     # Homer (-750), World English Bible (scripture override -600, by its OT
     # source), Vergil (-19), Novum Testamentum (scripture override 80),
-    # Statius (96) -- NC, 2026-09-19: scripture entities sort by the text
-    # they transmit, not by an edition/translation date.
+    # Statius (96) -- scripture entities sort by the text
+    # they transmit, not by an edition/translation date (2026-09-19).
     assert body['ids'] == [
         'homer::grc', 'world_english_bible::en', 'vergil::la',
         'novum_testamentum::grc', 'statius::la',
@@ -279,8 +279,8 @@ def test_map_work_view_orders_rows_chronologically(client, fixture_db):
 
 
 # --------------------------------------------------------------------------
-# Scripture/translation date overrides (NC, 2026-09-19): "Bibles sort late"
-# -- author_dates.json dates the EDITION, not the text it transmits.
+# Scripture/translation date overrides (2026-09-19): Bibles sorted late
+# because author_dates.json dates the EDITION, not the text it transmits.
 # --------------------------------------------------------------------------
 
 def test_scripture_override_table_covers_the_named_entities():
@@ -304,8 +304,8 @@ def test_scripture_override_is_keyed_by_work_before_author():
 
 
 def test_scripture_override_does_not_touch_a_real_author():
-    # Eobanus versified Homer but is an author, not a Bible -- NC's own
-    # example of what must NOT be overridden.
+    # Eobanus versified Homer but is an author, not a Bible -- an example
+    # of what must NOT be overridden.
     assert connections_map._scripture_override('eobanus.theocritus', 'la', 'eobanus') is None
 
 
@@ -374,9 +374,9 @@ def test_cell_404s_when_no_cache_is_built(client, monkeypatch, tmp_path):
 
 
 # --------------------------------------------------------------------------
-# Live curated-pairs overlay (NC, 2026-09-19): "World English Bible against
-# the Hebrew Bible and the Septuagint are the darkest cells... check why the
-# curated and heuristic flags miss them." A cache's own is_translation_
+# Live curated-pairs overlay (2026-09-19): World English Bible against
+# the Hebrew Bible and the Septuagint were the darkest cells, with the
+# curated and heuristic flags missing them. A cache's own is_translation_
 # curated/is_translation_heuristic columns and count_notrans are baked in at
 # BUILD time from whatever data/translation_pairs.json held THEN; fixing the
 # JSON does nothing to an already-built cache until the next ~40-minute
@@ -462,7 +462,7 @@ def test_pair_returns_window_level_edges_with_reader_urls(client, fixture_db):
 
 
 def test_pair_windows_carry_a_proper_title(client, fixture_db):
-    # NC, 2026-09-19: the passage-pair list must show "author and work in
+    # 2026-09-19: the passage-pair list must show "author and work in
     # full, then the reference" -- a proper title, not the raw work slug.
     status, body = _get(client, '/api/passages/map/pair',
                         work_a='homer.iliad', work_b='vergil.aeneid')
@@ -481,7 +481,7 @@ def test_work_label_uses_a_proper_title_not_the_raw_slug():
 
 
 # --------------------------------------------------------------------------
-# Dedup + correct side ordering (NC, 2026-09-19): the fixture's EDGES table
+# Dedup + correct side ordering (2026-09-19): the fixture's EDGES table
 # carries the Homer x Vergil pair twice -- once found from Homer's own
 # neighbour search (grc-1 -> la-1, score 0.91) and once from Vergil's
 # (la-1 -> grc-1, score 0.90) -- because cosine similarity is symmetric and
@@ -556,7 +556,7 @@ def test_work_route_reports_a_plain_error_for_an_unknown_work(client, fixture_db
 
 
 # --------------------------------------------------------------------------
-# _book_of (NC, 2026-09-19): the grouping key for the third drill-down level.
+# _book_of (2026-09-19): the grouping key for the third drill-down level.
 # --------------------------------------------------------------------------
 
 def test_book_of_multi_level_ref_uses_the_first_level():
@@ -578,7 +578,7 @@ def test_book_of_no_locus_number_is_none():
 
 
 # --------------------------------------------------------------------------
-# Nested grids (NC, 2026-09-19): a second fixture with two works for one
+# Nested grids (2026-09-19): a second fixture with two works for one
 # author and multi-book refs, kept separate from `fixture_db` above so that
 # fixture's exact-order assertions stay untouched.
 # --------------------------------------------------------------------------
@@ -677,7 +677,7 @@ def test_cell_author_view_includes_a_works_matrix(client, nested_fixture_db):
     assert wm['ids_b'] == ['vergil.aeneid', 'vergil.georgics']
     assert wm['counts'] == [[6, 3]]
     assert wm['normalised'][0][0] == 1.0
-    # Proper titles, not the raw underscored slug (NC, 2026-09-19).
+    # Proper titles, not the raw underscored slug (2026-09-19).
     assert wm['labels_a'] == ['Homer, Iliad']
     assert wm['labels_b'] == ['Vergil, Aeneid', 'Vergil, Georgics']
 
@@ -757,7 +757,7 @@ def test_pair_book_filter_excludes_the_other_book_pair(client, nested_fixture_db
 
 
 # --------------------------------------------------------------------------
-# Staleness fallback (NC, 2026-09-19): a corpus edit changes
+# Staleness fallback (2026-09-19): a corpus edit changes
 # index_fingerprint() long before a ~40-minute rebuild can catch up. When no
 # cache matches exactly, the most recently built cache present is served
 # instead of a flat "not built", marked `stale` in the response.
@@ -784,7 +784,7 @@ def _isolate_cache_dir(monkeypatch, cache_dir, exact_path, current_ids):
 
 def test_stale_window_count_compares_the_same_population_add_and_remove(
         client, monkeypatch, tmp_path):
-    """NC, 2026-09-19 correction: window_diff must be a true before/after of
+    """Corrected 2026-09-19: window_diff must be a true before/after of
     the SAME population (fine-scale windows of works this cache covers), not
     the cache's own five-work subset against the whole corpus (which could
     read "changed by 300,000 windows" for a two-window edit). Fixture: one
@@ -887,8 +887,8 @@ def test_map_prefers_the_most_recently_built_cache_among_several_stale_ones(
 def test_map_uses_the_exact_match_with_no_stale_notice_when_one_exists(
         client, monkeypatch, tmp_path):
     # An older cache sits right next to the current one -- the exact match
-    # must win outright, with no `stale` key at all (NC: "keep the exact
-    # match path as is when it matches").
+    # must win outright, with no `stale` key at all: the exact match path
+    # stays as is when it matches.
     cache_dir = tmp_path / 'cache'
     cache_dir.mkdir()
     exact_path = str(cache_dir / 'current-fingerprint.db')
@@ -919,7 +919,7 @@ def test_meta_reports_stale_when_falling_back(monkeypatch, tmp_path):
 
 
 # --------------------------------------------------------------------------
-# Window-existence filtering (NC, 2026-09-19): a retired window can still
+# Window-existence filtering (2026-09-19): a retired window can still
 # sit in an old (or even the current) cache's edges table; the drill-down
 # must never link the Reader to a passage the corpus no longer has.
 # --------------------------------------------------------------------------
@@ -968,8 +968,8 @@ def test_books_map_skips_an_edge_whose_window_has_been_retired(client, nested_fi
 
 
 # --------------------------------------------------------------------------
-# `cache_built_at` + `?refresh=1` (NC, 2026-09-20): the owner does not want
-# any notion of "stale" in front of users, so every map response now names
+# `cache_built_at` + `?refresh=1` (2026-09-20): no notion of "stale" should
+# appear in front of users, so every map response now names
 # the cache's own build date whether or not it is stale, and a `refresh=1`
 # query param clears the module's process-level caches (reset_process_
 # caches()) so a freshly built cache and the passage index's current window
