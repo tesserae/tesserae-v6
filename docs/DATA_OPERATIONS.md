@@ -34,6 +34,22 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+## 2026-09-28 Evening deploy of the comment rewrite, and the repository cleared of working material (23:53 EDT)
+
+- Production moved from a658e39 to 9b59058: #510 (the task-list copy
+  removed from docs/), #511 (25 research notes and three working drafts
+  untracked, none of them part of the running site), #512 (237 comment
+  and docstring lines rewritten to state outcomes and rules). Bundle
+  rebuilt inside an 8 GB job (8.8 s), 54 older bundles kept beside the new
+  `index-BFId7Yxm.js`, wsgi touched 23:53:50. Home page 200 on the first
+  request and the served page asks for the new bundle. Every reference
+  search passed.
+- The same day, 282 of the repository's 285 branches were deleted after a
+  verified bundle backup of every reference was taken: 270 belonged to
+  merged or closed pull requests and 12 had no pull request. `main` and the
+  two open pull requests remain. The two open branches were brought up to
+  date with `main` so their tips carry none of the removed files.
+
 ## 2026-09-28 Lamentations described again, and the whole-file windows dropped from the passage index (run 06:52 to 06:55 EDT, caches recomputing after)
 
 ### Lamentations rows replaced
