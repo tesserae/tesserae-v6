@@ -440,6 +440,10 @@ def _find_dictionary_matches_fast(source_units, target_units, source_language,
                                                      cancellation)
 
 
+# Medial Hebrew letter -> its word-final form (kaf, mem, nun, pe, tsade).
+_HEBREW_FINAL_FORMS = dict(zip('כמנפצ', 'ךםןףץ'))
+
+
 def _find_csv_dictionary_matches(source_units, target_units, source_language,
                                  target_language, cancellation=None):
     """Dictionary matching for Coptic-Greek using a CSV-based dictionary.
@@ -489,6 +493,10 @@ def _find_csv_dictionary_matches(source_units, target_units, source_language,
             w2 = row[1].strip()
             if w1.startswith('#'):
                 continue  # skip CSV comment/header lines (hebrew_latin.csv has them)
+            if new_lang == 'he' and w1 and w1[-1] in _HEBREW_FINAL_FORMS:
+                # The CATSS-derived keys write word-final kaf/mem/nun/pe/tsade in
+                # medial form (אברהמ); the lemmatizer writes the final form (#517).
+                w1 = w1[:-1] + _HEBREW_FINAL_FORMS[w1[-1]]
             if w1 and w2 and len(w1) >= 2 and len(w2) >= 2:
                 if col2_lang == 'la':
                     # Latin: fold u/v and j/i to match the Latin index; no Greek
