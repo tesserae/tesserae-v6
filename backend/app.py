@@ -1868,8 +1868,13 @@ def line_search():
                                             matched_words.append(word)
                                             matched_lemmas.add(word)
                                 
-                                # Skip results with fewer than 2 unique matching lemmas (like pairwise search)
-                                if len(matched_lemmas) < 2:
+                                # Co-occurrence (lemma/regex) search needs at least 2 distinct
+                                # lemmas — a single word in isolation is not a co-occurrence.
+                                # Exact-phrase search is different: the user asked for that
+                                # specific phrase, so a single-word query is a complete and
+                                # valid match and must not be dropped here (issue #502: Coptic
+                                # single-word exact queries returned nothing).
+                                if search_type != 'exact' and len(matched_lemmas) < 2:
                                     continue
                                 
                                 # Exclude source line if specified (normalize both sides for robust matching)
