@@ -14,7 +14,9 @@ export default function PerformanceTab() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null); // {type: 'success'|'error', text: '...'}
   const [stressTestToggling, setStressTestToggling] = useState(false);
-  const [initialLoaded, setInitialLoaded] = useState(false);
+  // isDirty: true while the admin has unsaved edits; polls do not overwrite controls
+  // while dirty. Cleared on successful apply or reset so polling resumes.
+  const [isDirty, setIsDirty] = useState(false);
 
   const fetchStatus = async () => {
     try {
@@ -59,16 +61,19 @@ export default function PerformanceTab() {
     }
   };
 
+  // Sync controls from every poll — but only while the admin has no unsaved edits.
+  // Once isDirty is true (a control was touched) the 5s poll still runs but its
+  // values are held back so in-progress edits are not overwritten. isDirty is
+  // cleared by a successful Apply or Reset, at which point polls resume syncing.
   useEffect(() => {
-    if (status && !initialLoaded) {
+    if (status && !isDirty) {
       setMaxSearches(status.max_searches);
       setMemThreshold(status.memory_threshold_gb);
       setQueueTimeout(status.queue_timeout);
       setEmergencyFloor(status.emergency_ram_floor_gb);
       setReaperEnabled(Boolean(status.reaper_enabled));
-      setInitialLoaded(true);
     }
-  }, [status, initialLoaded]);
+  }, [status, isDirty]);
 
 
 
@@ -97,6 +102,7 @@ export default function PerformanceTab() {
       const data = await res.json();
       if (res.ok) {
         setMessage({ type: 'success', text: 'Concurrency settings updated successfully.' });
+        setIsDirty(false);
         if (data.max_searches) setMaxSearches(data.max_searches);
         if (data.memory_threshold_gb) setMemThreshold(data.memory_threshold_gb);
         if (data.queue_timeout) setQueueTimeout(data.queue_timeout);
@@ -148,6 +154,7 @@ export default function PerformanceTab() {
       const data = await res.json();
       if (res.ok) {
         setMessage({ type: 'success', text: 'Settings reset to defaults.' });
+        setIsDirty(false);
         if (data.max_searches) setMaxSearches(data.max_searches);
         if (data.memory_threshold_gb) setMemThreshold(data.memory_threshold_gb);
         if (data.queue_timeout) setQueueTimeout(data.queue_timeout);
@@ -188,6 +195,9 @@ export default function PerformanceTab() {
   };
 
   const getCapacityColor = (active, max) => {
+    // Active count exceeds the configured cap: searches are draining naturally.
+    // Use amber rather than red — it is a transient settling state, not a crisis.
+    if (active > max) return 'bg-amber-500';
     const pct = max > 0 ? (active / max) * 100 : 0;
     if (pct > 80) return 'bg-red-500';
     if (pct >= 50) return 'bg-amber-500';
@@ -222,7 +232,14 @@ export default function PerformanceTab() {
     );
   }
 
-  const capacityPct = status ? Math.min((status.active_searches / status.max_searches) * 100, 100) : 0;
+  // isDraining: the configured cap was lowered while searches were already running.
+  // Running searches will finish; new ones are gated to max_searches. The count
+  // will drain down on its own — no admin action is needed unless desired.
+  const isDraining = Boolean(status && status.active_searches > status.max_searches);
+  // Cap the bar width at 100% visually; the label text handles the over-max case.
+  const capacityPct = status
+    ? Math.min((status.active_searches / status.max_searches) * 100, 100)
+    : 0;
 
   return (
     <div className="space-y-6">
@@ -240,8 +257,13 @@ export default function PerformanceTab() {
               <Zap className="w-4 h-4 text-gray-500" />
               <span className="text-sm text-gray-600">Active Searches</span>
             </div>
-            <div className="text-2xl font-bold text-gray-900">
+            <div className="text-2xl font-bold text-gray-900 flex items-baseline gap-2">
               {status?.active_searches ?? 0} / {status?.max_searches ?? '?'}
+              {isDraining && (
+                <span className="text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">
+                  draining
+                </span>
+              )}
             </div>
             <div className="mt-2 w-full bg-gray-200 rounded-full h-2.5">
               <div
@@ -249,7 +271,13 @@ export default function PerformanceTab() {
                 style={{ width: `${capacityPct}%` }}
               />
             </div>
-            <p className="text-xs text-gray-500 mt-1">{capacityPct.toFixed(0)}% capacity</p>
+            {isDraining ? (
+              <p className="text-xs text-amber-700 mt-1">
+                Over cap — running searches will finish; new ones are gated to {status.max_searches}.
+              </p>
+            ) : (
+              <p className="text-xs text-gray-500 mt-1">{capacityPct.toFixed(0)}% capacity</p>
+            )}
           </div>
 
           {/* Queue Settings Card */}
@@ -394,6 +422,11 @@ export default function PerformanceTab() {
         <h3 className="font-medium text-gray-900 mb-4 flex items-center gap-2">
           <Settings className="w-4 h-4" />
           Concurrency Controls
+          {isDirty && (
+            <span className="text-xs font-normal text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded ml-1">
+              unsaved changes · auto-sync paused
+            </span>
+          )}
         </h3>
         <div className="bg-gray-50 p-4 rounded space-y-4">
           {/* Max Simultaneous Searches */}
@@ -410,7 +443,7 @@ export default function PerformanceTab() {
               max="50"
               step="1"
               value={maxSearches}
-              onChange={e => setMaxSearches(Number(e.target.value))}
+              onChange={e => { setMaxSearches(Number(e.target.value)); setIsDirty(true); }}
               className="w-full"
             />
             <div className="flex justify-between text-xs text-gray-500 mt-1">
@@ -431,7 +464,7 @@ export default function PerformanceTab() {
               max={128}
               step={0.5}
               value={memThreshold}
-              onChange={e => setMemThreshold(Number(e.target.value))}
+              onChange={e => { setMemThreshold(Number(e.target.value)); setIsDirty(true); }}
               className="w-32 border rounded px-3 py-2 text-sm"
             />
           </div>
@@ -448,7 +481,7 @@ export default function PerformanceTab() {
               max={status?.max_emergency_floor_gb || 16.0}
               step={0.5}
               value={emergencyFloor}
-              onChange={e => setEmergencyFloor(Number(e.target.value))}
+              onChange={e => { setEmergencyFloor(Number(e.target.value)); setIsDirty(true); }}
               className="w-32 border rounded px-3 py-2 text-sm"
             />
             <p className="text-xs text-gray-500 mt-1">
@@ -462,7 +495,7 @@ export default function PerformanceTab() {
               <input
                 type="checkbox"
                 checked={reaperEnabled}
-                onChange={e => setReaperEnabled(e.target.checked)}
+                onChange={e => { setReaperEnabled(e.target.checked); setIsDirty(true); }}
                 className="rounded text-red-700 focus:ring-red-500 h-4 w-4"
               />
               Enable Automatic Memory Reaper
@@ -485,7 +518,7 @@ export default function PerformanceTab() {
               max={3600}
               step={30}
               value={queueTimeout}
-              onChange={e => setQueueTimeout(Number(e.target.value))}
+              onChange={e => { setQueueTimeout(Number(e.target.value)); setIsDirty(true); }}
               className="w-32 border rounded px-3 py-2 text-sm"
             />
           </div>
