@@ -7,6 +7,22 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-09-29
+
+### Corpus
+- `backend/ogl_converter.py` now also reads the older TEI shape used by
+  Corpus Corporum and MGH-derived files (numbered `div1`..`div7` nesting
+  keyed by `@n`/`@id` instead of P5's `type="edition"`/`type="textpart"`,
+  no default namespace or the TEI P4 namespace, leaf text in `<p>`, `<l>`,
+  or `<ab>`, and `<milestone>`-marked sections with or without a paragraph
+  wrapper), gated so it only runs when the existing P5 path finds nothing.
+  Checked against the existing verse-line tests (still pass unchanged) and
+  22 new synthetic-fixture tests, then used to stage 7 of 8 surveyed Latin
+  batch-1 works from Corpus Corporum into a scratch directory (not
+  imported; licensing still open, see research/corpus/). Varro's De
+  Lingua Latina is left out: its own source file's book divisions are
+  corrupted from book 7 onward.
+
 ## 2026-09-28
 
 ### Housekeeping
