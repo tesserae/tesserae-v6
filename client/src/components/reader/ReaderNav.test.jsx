@@ -1,5 +1,5 @@
 /**
- * ReaderNav: previous/next book, go to line, back to top (NC, 2026-09-19).
+ * ReaderNav: previous/next book, go to line, back to top (2026-09-19).
  */
 import { describe, expect, it, vi, afterEach } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';

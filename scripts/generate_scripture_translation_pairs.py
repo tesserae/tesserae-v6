@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Regenerate data/translation_pairs.json's scripture pairs, exhaustively.
 
-NC, 2026-09-19: the connections map still showed the World English Bible
+As of 2026-09-19, the connections map still showed the World English Bible
 against the Hebrew Bible and the Septuagint, and the Bohairic against the
 World English Bible, as the DARKEST cells with translation pairs hidden --
 because the curated list that hides them only had a handful of sampled
@@ -163,7 +163,7 @@ def main():
     print(f'\n{len(pairs) - len(HAND_ADDED)} scripture pairs generated '
          f'({len(HAND_ADDED)} hand-added literary pair kept), {len(pairs)} total.')
 
-    # The three cells NC named, checked directly.
+    # The three cells named as the motivating example, checked directly.
     checks = [
         ('world_english_bible.pentateuch', 'hebrew_bible.genesis'),
         ('world_english_bible.pentateuch', 'hebrew_bible.leviticus'),

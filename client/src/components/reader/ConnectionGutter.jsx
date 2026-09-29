@@ -30,8 +30,9 @@ export default function ConnectionGutter({ work, units, onSelectLine, onSlowLoad
   //
   // The violet column is computed by comparing every passage of this work
   // against the whole corpus, which takes between 80 seconds and about four
-  // minutes the first time any given text is opened (NC saw it on 2026-09-21
-  // and asked for "a note that says it takes a few minutes the first time").
+  // minutes the first time any given text is opened. This was observed on
+  // 2026-09-21, which prompted a note saying it takes a few minutes the
+  // first time.
   // Afterwards the answer is cached and arrives instantly, and the cache
   // survives restarts -- but it is keyed on the whole index, so every corpus
   // change starts the clock again for every work.
@@ -105,7 +106,7 @@ export default function ConnectionGutter({ work, units, onSelectLine, onSlowLoad
   // line-height 1.75, that is 1.855rem, and taller still when it wraps. The
   // two columns drifted apart by about a line every twenty, and in a
   // ninety-line Arabic ode the last tiles sat six lines above their text
-  // (NC, 2026-09-06). The text pane's line elements are measured after
+  // (2026-09-06). The text pane's line elements are measured after
   // layout, again when fonts finish loading and whenever the pane resizes,
   // and every tile is placed at its own line's top with its line's height.
   const [positions, setPositions] = useState(null);
@@ -161,7 +162,7 @@ export default function ConnectionGutter({ work, units, onSelectLine, onSlowLoad
           phone, so a reader saw two columns of coloured squares and had no way
           to find out what they were.
 
-          This used to be the letters W and C, which NC caught: the legend above
+          This used to be the letters W and C: the legend above
           says "verbal parallels" and "similar passages", so W and C were a
           second, private naming the reader had to map onto the first -- and the
           C was drawn in amber while its own column is violet, so the one hint

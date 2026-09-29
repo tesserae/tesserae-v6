@@ -5,8 +5,8 @@ The corpus copy of lactantius_placidus.in_statii_thebaida_commentum.tess
 (digilibLT DLT000323, Sweeney's 1997 Teubner text) lost every capital
 letter in conversion: 'Europam dicit, quam Iuppiter rapuit' became
 'uropam dicit, quam uppiter rapuit', and the ALL-CAPS Statius lemmata
-that head each scholion ('SIDONIOS R(APTVS)') vanished entirely. NC found
-it through a Similar Passages card whose scholion had no readable names.
+that head each scholion ('SIDONIOS R(APTVS)') vanished entirely. This was
+found through a Similar Passages card whose scholion had no readable names.
 
 digilibLT's current site serves the TEI anonymously
 (https://digiliblt.uniupo.it/teidocs/idno/DLT000323/format/xml), same

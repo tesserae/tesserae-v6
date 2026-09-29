@@ -167,7 +167,7 @@ BASELINE_MARGIN = 0.010
 # starts crowding the page again.
 PASSAGES_PER_WORK = 3
 
-# Lexical boost (NC, 2026-09-20: "adopt the light boost in production").
+# Lexical boost (2026-09-20: the light boost was adopted in production).
 # A word index over the descriptions (scripts/build_desc_fts.py, SQLite
 # FTS5 with BM25 over gist, themes, action steps, participants, setting)
 # adds a little to the cosine of windows whose description shares words
@@ -875,7 +875,7 @@ def _interleave_languages(heads, pool):
     ranking. A single global cutoff lets the biggest corpora own the page:
     "a parent sacrifices a child" filled every slot with Greek tragedy and
     Latin epic while the Akedah, the top Hebrew result, sat past the cutoff
-    (NC, 2026-08-31). Measured on the 74-instance pilot benchmark at rank
+    (2026-08-31). Measured on the 74-instance pilot benchmark at rank
     100: global cutoff 15, appended per-language guarantee 15, promoted
     guarantee 15-18, deeper per-work groups 15 and worse at the head, and
     THIS round-robin 18 with the head intact, so it shipped. Languages with
@@ -1474,7 +1474,7 @@ def find_similar_to_passage(work, ref_start=None, ref_end=None, limit=15,
 # this directory could never be created, the cache was NEVER written, and every
 # single Reader page load recomputed an 18-second matrix multiply against the
 # whole corpus. Three Apache workers, CPU-bound under the GIL, and the site
-# stops answering: NC reported the Reader's dropdowns "all frozen", which is
+# stops answering: the Reader's dropdowns went "all frozen", which is
 # what a wedged server looks like from the browser.
 #
 # The identical mistake put query_expansions.jsonl in the same directory a few

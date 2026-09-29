@@ -10,8 +10,8 @@ import { useEffect, useState } from 'react';
  * file that is no longer there. Apache falls back to index.html for any unknown
  * path, which means the request returns 200 OK with Content-Type text/html: the
  * PAGE, pretending to be JavaScript. The browser tries to execute HTML, fails at
- * parse, and nothing runs at all. No app, no error handler, no message. NC hit
- * this twice in one day and both times it looked like the feature was broken.
+ * parse, and nothing runs at all. No app, no error handler, no message. This
+ * happened twice in one day, and both times it looked like the feature was broken.
  *
  * Keeping old bundles on disk stops the hard failure: a stale page then loads
  * its old JavaScript and works, one version behind. This tells the reader that

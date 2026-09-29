@@ -238,7 +238,7 @@ def ask_stream():
                         # paraphrase a good answer into a worse one, at seven to
                         # fourteen seconds a time. Where the reader asked the
                         # page's question, the page answers, instantly and in
-                        # NC's words rather than a model's.
+                        # the Help page's own words rather than a model's.
                         direct = None
                         try:
                             direct = site_help.direct_answer(question)

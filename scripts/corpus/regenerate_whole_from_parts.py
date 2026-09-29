@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Rebuild a work's whole file from its book files, which are canonical.
 
-NC's decision, 2026-09-21: "Make the book files for the canonical copy."
+Decision, 2026-09-21: treat the book files as the canonical copy.
 Where a work exists twice, as `X.tess` and as `X.part.*.tess`, and the two
 copies disagree, the book files are the text and the whole file is rebuilt
 from them.

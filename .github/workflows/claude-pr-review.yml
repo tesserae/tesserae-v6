@@ -2,7 +2,7 @@ name: Claude PR review (instant first pass)
 
 # This workflow runs a Claude first-pass review on every PR open and update.
 # The review is posted as a comment on the PR. It is informational only.
-# Neil retains the merge decision.
+# The maintainer retains the merge decision.
 #
 # Required secrets:
 #   ANTHROPIC_API_KEY  - set at Settings > Secrets and variables > Actions

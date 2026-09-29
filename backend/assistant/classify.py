@@ -2,11 +2,10 @@
 
 WHY THIS EXISTS
 
-NC: "We discussed earlier that the idea was that the AI would do at least a
-little bit of thinking, but it seems now we're having to hardcode every rule.
-What's the deal?"
+The assistant was meant to let the model do at least a little of the
+thinking, but nearly every rule was ending up hardcoded instead.
 
-The deal, measured: agent.py had grown to 1,748 lines holding 130 literal
+Measured: agent.py had grown to 1,748 lines holding 130 literal
 phrases across 9 lists, and it decided what a question meant by substring
 match. Adding "site" to one of those lists was the fix for the bug that
 prompted the question, and it would not have been the last.
@@ -27,8 +26,8 @@ WHAT MADE THE OLD BEHAVIOUR HARMFUL RATHER THAN MERELY INCOMPLETE
 
 A list that failed to match did not fall through to something that could think.
 It fell into a *different* branch that assumed the question was a follow-up. So
-a miss was not a shrug, it was a confident wrong answer: NC asked about the
-site's search capabilities and watched Tessa search the corpus for "arma
+a miss was not a shrug, it was a confident wrong answer: a question about the
+site's search capabilities was met with Tessa searching the corpus for "arma
 virumque", inherited from the previous turn.
 
 Hence `UNSURE`. When the model is unavailable or answers with nonsense, this

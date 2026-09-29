@@ -45,7 +45,7 @@ VERDICTS = {
 # prose and the badge above it use one vocabulary.
 # Channel names in the words the search settings panel uses, so the prose
 # says "spelling" and "meaning" rather than "edit_distance" and "semantic".
-# The internal names leaked into the narration on production (NC, 2026-09-10).
+# The internal names leaked into the narration on production (2026-09-10).
 CHANNEL_WORDS = {
     'lemma': 'shared words',
     'lemma_min1': 'a single shared word',
@@ -150,7 +150,7 @@ def summarize_results(results, source_id=None, target_id=None, limit=25):
     # In a two-text comparison every match lands in the one target, so the
     # count is not a finding. The narration used to report "all 25 of the
     # top-ranked parallels landing in Lucan" for Vergil against Lucan, which
-    # could not have been otherwise (NC, 2026-09-10). Only report a spread.
+    # could not have been otherwise (2026-09-10). Only report a spread.
     if len(tgt_works) < 2:
         tgt_works = collections.Counter()
     if len(src_works) < 2:

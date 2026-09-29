@@ -57,7 +57,7 @@ def _cache_dir():
     return _CACHE_DIR
 
 
-# Staleness fallback (NC, 2026-09-19): a small corpus edit (even a two-window
+# Staleness fallback (2026-09-19): a small corpus edit (even a two-window
 # retirement) changes index_fingerprint(), and a full rebuild runs 35-45
 # minutes (scripts/build_connections_map.py's own estimate). Refusing to
 # answer until that rebuild finishes made the map unusable after any edit at
@@ -113,7 +113,7 @@ _current_ids_cache = None
 
 def _current_ids():
     """The passage index's own current window ids, loaded once per process
-    (NC, 2026-09-19) -- reused both to filter drill-down edges against
+    (2026-09-19) -- reused both to filter drill-down edges against
     windows the corpus no longer has (get_pair, get_books_map) and to report
     the current window count next to a stale cache's own count. Loaded once,
     not re-checked against the file's mtime: a long-running worker is meant
@@ -138,7 +138,7 @@ def _curated_pairs():
     """The curated translation-pair set (data/translation_pairs.json),
     loaded once per process and checked LIVE against every work_pairs row --
     not only the is_translation_curated column a cache baked in at build
-    time. NC, 2026-09-19: the curated list itself was missing most scripture
+    time. As of 2026-09-19, the curated list itself was missing most scripture
     book pairs (the World English Bible's coarse Pentateuch/Prophets/
     Writings groupings against most of the Hebrew Bible and Septuagint, and
     the Bohairic against the same), so those cells stayed dark with
@@ -191,10 +191,10 @@ def is_available():
 def _stale_info(conn, meta):
     """The staleness notice for a fallback cache already open as `conn`.
 
-    NC, 2026-09-19 (correction to the first version of this, which compared
-    the cache's own five-language fine-scale subset count against the WHOLE
-    current index -- every language, both scales -- and so could report a
-    six-figure "window_diff" for a two-window edit): `current_window_count`
+    Corrected 2026-09-19: the first version of this compared the cache's own
+    five-language fine-scale subset count against the WHOLE current index --
+    every language, both scales -- and so could report a six-figure
+    "window_diff" for a two-window edit. `current_window_count`
     is now counted over exactly the same population `cache_window_count`
     covers, filtering the current ids.json (already loaded once, see
     _current_ids()) down to fine-scale ids whose work belongs to THIS
@@ -259,7 +259,7 @@ def reset_process_caches():
     _curated_pairs_cache) so a newly built connections-map cache and the
     passage index's current window ids are picked up without a process
     restart. Called by the map routes when a request carries ?refresh=1
-    (NC, 2026-09-20 -- see the "Refresh map" button)."""
+    (2026-09-20 -- see the "Refresh map" button)."""
     global _current_ids_cache, _curated_pairs_cache
     _current_ids_cache = None
     _curated_pairs_cache = None
@@ -270,7 +270,7 @@ _TRAILING_LOCUS = re.compile(r'(\d+(?:\.\d+)*)\s*$')
 
 def _book_of(ref_start):
     """The "book" a ref belongs to, for the third (books x books) drill-down
-    level (NC, 2026-09-19): the first level of a window's ref_start, e.g.
+    level (2026-09-19): the first level of a window's ref_start, e.g.
     "hom. il. 4.446" -> book "4". A ref carrying only one numeric level (a
     bare line number, no book/chapter prefix) is split instead into blocks of
     100 lines labelled by the block's own first line.
@@ -318,7 +318,7 @@ def _log_scale(counts):
     """(normalised, legend) for a counts matrix, colour on a LOG scale:
     normalised = log(1 + count) / log(1 + largest count).
 
-    History (NC, 2026-09-19). A linear count/max scale left almost every
+    History (2026-09-19). A linear count/max scale left almost every
     cell the same pale grey: a handful of huge counts (Homer x Quintus
     Smyrnaeus, over 20,000 links) flattened the ordinary few-hundred-link
     cells. Percentile rank fixed that but overshot: by construction it
@@ -363,13 +363,13 @@ def _work_label(work, author_display):
     the one piece of that machinery that is pure string formatting -- no file
     I/O beyond a static dict already imported into the process -- so titles
     here match Browse Corpus's own ("Iliad", "Fall of Troy") rather than a
-    bare underscores-to-spaces slug (NC, 2026-09-19: "must be proper titles").
+    bare underscores-to-spaces slug (2026-09-19: titles must be proper titles).
     """
     rest = work.split('.', 1)[1] if '.' in work else work
     return f"{author_display}, {format_display_name(rest)}"
 
 
-# Scripture/translation date overrides (NC, 2026-09-19): author_dates.json
+# Scripture/translation date overrides (2026-09-19): author_dates.json
 # dates an AUTHOR, but several of this corpus's scripture entities are not
 # authors in that sense -- an edition or translation transmits a text far
 # older (or, for a modern translation, far newer) than any date attached to
@@ -524,7 +524,7 @@ def get_map(view, languages=None, top=DEFAULT_TOP, translations=False):
             pair_weight[key] = pair_weight.get(key, 0) + weight
 
         # The Top N control still chooses the N most-connected entities by
-        # link count; ONLY the display order changes below. NC (owner),
+        # link count; ONLY the display order changes below. Decision
         # 2026-09-19: rows/columns should read chronologically, not by how
         # connected an author happens to be, so a scholar can trace a line
         # of descent across the grid rather than hunt for a name.
@@ -572,7 +572,7 @@ def get_map(view, languages=None, top=DEFAULT_TOP, translations=False):
 
 
 def get_cell(view, a, b, languages=None, translations=False):
-    """The work pairs behind one matrix cell, plus (NC, 2026-09-19) a
+    """The work pairs behind one matrix cell, plus (2026-09-19) a
     works x works matrix over the same rows for the UI's "second heatmap":
     clicking an author-by-author cell drills into a grid of that author's
     works against the other author's, rather than a flat list. `work_pairs`
@@ -656,8 +656,8 @@ def get_pair(work_a, work_b, limit=DEFAULT_PAIR_LIMIT, book_a=None, book_b=None)
     find window j in work_b a neighbour, and separately window j can find
     window i a neighbour of ITS OWN, and because cosine similarity is
     symmetric that is very often the identical passage pair recorded twice,
-    not two different findings. NC, 2026-09-19, reported exactly this: the
-    same pair "once in each direction". Fixed here two ways:
+    not two different findings: the same pair could turn up "once in each
+    direction" in the raw edges. Fixed here two ways:
       * deduplicated on the UNORDERED window pair, keeping the higher-scoring
         (or first-seen, when scores tie) occurrence;
       * `window_a` in the response always names the side belonging to the
@@ -699,7 +699,7 @@ def get_pair(work_a, work_b, limit=DEFAULT_PAIR_LIMIT, book_a=None, book_b=None)
         rows = conn.execute(query, params).fetchall()
 
         # Skip an edge whose window no longer exists in the CURRENT passage
-        # index (NC, 2026-09-19): a cache -- current or a stale fallback --
+        # index (2026-09-19): a cache -- current or a stale fallback --
         # can name a window a corpus edit since retired, and the drill-down
         # must never link the Reader to a passage that is not there any
         # more. current_ids empty means ids.json could not be read, which is
@@ -738,8 +738,8 @@ def get_pair(work_a, work_b, limit=DEFAULT_PAIR_LIMIT, book_a=None, book_b=None)
             return {
                 'window_id': win_id,
                 'work': work_key,
-                # Proper title (NC, 2026-09-19: "author and work in full,
-                # then the reference"), not the bare underscored slug.
+                # Proper title (2026-09-19: author and work in full, then
+                # the reference), not the bare underscored slug.
                 'title': format_display_name(rest),
                 'language': w.get('language') or m['language'],
                 'ref_start': w.get('ref_start'),
@@ -793,7 +793,7 @@ def get_pair(work_a, work_b, limit=DEFAULT_PAIR_LIMIT, book_a=None, book_b=None)
 
 def get_books_map(work_a, work_b):
     """Books x books heatmap for one work pair -- the third drill-down level
-    (NC, 2026-09-19). A "book" is _book_of(ref_start): the first level of a
+    (2026-09-19). A "book" is _book_of(ref_start): the first level of a
     window's locus, or a block of 100 lines for a ref with only one level.
     Cell = number of edges (deduplicated the same way get_pair is) between
     windows of those two books. Built entirely from the edges/windows tables
@@ -822,8 +822,8 @@ def get_books_map(work_a, work_b):
             WHERE (e.work_a=? AND e.work_b=?) OR (e.work_a=? AND e.work_b=?)
         ''', (work_a, work_b, work_b, work_a)).fetchall()
 
-        # Skip an edge whose window the current corpus no longer has (NC,
-        # 2026-09-19) -- see the matching comment in get_pair.
+        # Skip an edge whose window the current corpus no longer has
+        # (2026-09-19) -- see the matching comment in get_pair.
         current_ids = _current_ids()
 
         seen = set()

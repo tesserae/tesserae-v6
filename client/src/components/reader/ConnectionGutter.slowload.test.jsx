@@ -1,5 +1,5 @@
-// NC, 2026-09-21, after waiting on the Reader before a demo: "can we have a
-// note that says it takes a few minutes the first time to load a text?"
+// After waiting on the Reader before a demo (2026-09-21), a note was added
+// saying it takes a few minutes the first time to load a text.
 //
 // The violet gutter column is computed against the whole corpus, so the first
 // open of any text costs between 80 seconds and about four minutes; every

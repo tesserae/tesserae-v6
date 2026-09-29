@@ -121,9 +121,9 @@ TOOLS = {
         #
         # /hapax-search is what the site's own Rare Words search uses, and it
         # works: the same pair returns 186 real results -- alcathoum, belidae,
-        # echionium, exsaturabile, interfata, menoetes. I had assumed the site
-        # shared the broken endpoint and said so; NC had tested it and knew
-        # otherwise. The endpoint was the bug, not the feature.
+        # echionium, exsaturabile, interfata, menoetes. The initial assumption
+        # that the site shared the broken endpoint was wrong. Testing showed
+        # the endpoint itself was the bug. The feature worked fine.
         'run': lambda a: _get('/hapax-search', {
             'source': a['source'] if str(a['source']).endswith('.tess')
                       else f"{a['source']}.tess",

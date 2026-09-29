@@ -23,8 +23,8 @@ const PREFERRED_WORK = {
   la: DEFAULT_WORK,
   grc: 'apollonius_rhodius.argonautica.part.1.tess',
   // Fully resourced texts (translation + content windows + parallels), so the
-  // Reader's first impression of a corpus is its best one. NC hit Coptic
-  // opening on an untranslated, unindexed apocryphon.
+  // Reader's first impression of a corpus is its best one, rather than an
+  // untranslated, unindexed Coptic apocryphon.
   cop: 'shenoute.abraham.tess',
   he: 'hebrew_bible.genesis.tess',
   en: 'milton.paradise_lost.part.1.tess',
@@ -72,7 +72,7 @@ export default function ReaderPage() {
   const [wantedTab] = useState(() => paramOr('tab', ''));
   // Which language is the READING column. 'source' is the classical page;
   // 'english' puts the translation in the middle and the original in the
-  // side panel. NC: "We need a place where the English is the focus."
+  // side panel, for when the English translation is meant to be the focus.
   const [focusView, setFocusView] = useState(() => paramOr('view', 'source'));
   const [fullTr, setFullTr] = useState(null);
   useEffect(() => { setFullTr(null); }, [work]);
@@ -200,10 +200,9 @@ export default function ReaderPage() {
 
   // Keep the URL in step, so any passage is linkable and Back works.
   //
-  // BACK USED TO LEAVE THE READER ENTIRELY. NC: "I did one reader search,
-  // clicked the link on a related work that came up in the tab for verbal
-  // parallels. When I clicked the back button from there, it didn't take me
-  // back but to the main regular search page." This wrote every change with
+  // BACK USED TO LEAVE THE READER ENTIRELY. Following a related-work link from
+  // the Verbal Parallels tab and then clicking back took the reader to the
+  // main search page instead of back into the Reader. This wrote every change with
   // replaceState, which overwrites the current history entry instead of adding
   // one, so moving from the Aeneid to Caesar left no trace and Back went to
   // whatever preceded the Reader. The comment above it claimed Back worked.
@@ -244,7 +243,7 @@ export default function ReaderPage() {
   // URL and leave the page showing the text the reader had navigated away from.
   // A server that serves only some languages (the preview) must not open on
   // the Aeneid: the text endpoint served it while the header showed Coptic and
-  // no author or work (NC, 2026-09-07). If the language in hand is not served,
+  // no author or work (2026-09-07). If the language in hand is not served,
   // the Reader moves to the first served language and its preferred work.
   useEffect(() => {
     let dead = false;
@@ -298,14 +297,14 @@ export default function ReaderPage() {
     // way) -- arriving via a URL is not a click, so nothing else would set
     // them. The connections map's own reader_url (a selection plus
     // tab=similar) otherwise landed with the passage highlighted and NO
-    // panel at all, not merely one scrolled out of view (NC, 2026-09-19).
+    // panel at all, not merely one scrolled out of view (2026-09-19).
     if (wantedTab) setPanelTab(wantedTab);
     setPopupOpen(true);
     // Let the line render before scrolling to it.
     const id = window.setTimeout(() => {
       // Bring the card itself on screen first (a separate scroll context from
       // the text pane), then centre the line inside it; landing deep in a long
-      // work otherwise left the page where it was (NC, 2026-09-19).
+      // work otherwise left the page where it was (2026-09-19).
       contentRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' });
       const el = document.getElementById(`line-${cssRef(units[i].ref)}`);
       if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
@@ -313,7 +312,7 @@ export default function ReaderPage() {
     return () => window.clearTimeout(id);
   }, [wantedRef, wantedRefEnd, wantedTab, units, visibleCount]);
 
-  // "Go to line" from the ReaderNav strip (NC, 2026-09-19). A typed locus is
+  // "Go to line" from the ReaderNav strip (2026-09-19). A typed locus is
   // matched against the line refs of the open text: the whole ref ("verg.
   // aen. 6.851"), its locus after the work tag ("6.851"), or, for a bare
   // number, the last segment (".851"), which is unambiguous inside a single
@@ -352,7 +351,7 @@ export default function ReaderPage() {
     return () => window.clearTimeout(id);
   }, [jumpRef, units, visibleCount]);
   const sections = useMemo(() => sectionsFor(hierarchy, work), [hierarchy, work]);
-  // Books one at a time (NC, 2026-09-20: the whole-file Punica ran seventeen
+  // Books one at a time (2026-09-20): the whole-file Punica ran seventeen
   // books together, 7.745 followed by 8.1 with no heading). A work that also
   // exists as book files opens on the book that holds the requested line, or
   // on Book 1; the book files carry the previous/next navigation. Links from
@@ -383,9 +382,9 @@ export default function ReaderPage() {
   }, [work, sections, wantedRef, jumpRef, language]);
 
   // The Read tab, clicked while the Reader is already open, starts the
-  // Reader over (NC, 2026-09-20: "Clicking on Read from anywhere in the
-  // reader does nothing. It should bring user back to a starting Read
-  // page."). App.jsx sends this event instead of re-mounting the page.
+  // Reader over (2026-09-20): clicking Read from anywhere in the reader used
+  // to do nothing, when it should bring the reader back to a starting Read
+  // page. App.jsx sends this event instead of re-mounting the page.
   useEffect(() => {
     const onHome = () => {
       setWork(PREFERRED_WORK[language] || DEFAULT_WORK);
@@ -416,7 +415,7 @@ export default function ReaderPage() {
     // Reader asked for it in Greek, and the fetch would fail on a page that was
     // only mid-change.
     if (work || corpusLoading || !hierarchy?.length) return;
-    // Each language opens on its signature text (NC: Latin on Aeneid 1,
+    // Each language opens on its signature text (Latin on Aeneid 1,
     // Greek on Argonautica 1), not on whichever author sorts first. If the
     // preferred file is missing or broken the failed-work guard has already
     // recorded it, and the hierarchy scan below takes over.
@@ -446,7 +445,7 @@ export default function ReaderPage() {
     // container that the results panel's `position: sticky` attaches to, so
     // the panel could never ride the window. Deep in a text the panel sat
     // above the fold and the Reader looked as if it had no side tabs at all
-    // (NC, 2026-09-19, arriving from the connections map).
+    // (2026-09-19, arriving from the connections map).
     <div className="bg-white rounded-lg shadow overflow-clip">
       <ReaderHeader
         language={language}
@@ -477,7 +476,7 @@ export default function ReaderPage() {
         <div ref={contentRef} data-testid="reader-content" className="flex flex-col lg:flex-row" style={{ minHeight: '32rem' }}>
           <div className="flex flex-col flex-1 min-w-0">
             {/* Previous/next book, go to line, back to top: sticky, so the way
-                out of a long text is always on screen (NC, 2026-09-19). */}
+                out of a long text is always on screen (2026-09-19). */}
             <ReaderNav sections={sections} work={work} onWork={changeBook} onJump={jumpTo} />
             {/* The key for the gutter marks. The gutter itself is nine pixels
                 wide per column and can only carry a letter, and its tooltip does
@@ -490,7 +489,7 @@ export default function ReaderPage() {
                 that they should be able to weigh against the passage. */}
             {/* DISMISSIBLE, and it does not depend on the URL staying clean.
                 Stripping the arrival parameters is right and is tested, but the
-                banner outliving its arrival is the thing NC actually sees, and
+                banner outliving its arrival is the thing a reader actually sees, and
                 it should not take a correct URL to be rid of it. It goes on the
                 first click of the ×, and the reader is never stuck with it. */}
             {gutterSlow && (
@@ -532,7 +531,7 @@ export default function ReaderPage() {
                   )}
                   {/* The search itself goes back in the address, so the page
                       re-runs it; a bare /theme-search landed on an empty form
-                      (NC, 2026-09-07). */}
+                      (2026-09-07). */}
                   <a href={`/theme-search?query=${encodeURIComponent(cameFrom)}`}
                      className="ml-2 text-red-700 hover:underline">
                     back to results
@@ -563,8 +562,8 @@ export default function ReaderPage() {
                 similar passages
               </span>
               {/* "darker = more connections" is about the two gutter columns
-                  only, so it sits with them, before the quotation boxes (NC,
-                  2026-09-20). The boxes come in two forms and both are named:
+                  only, so it sits with them, before the quotation boxes
+                  (2026-09-20). The boxes come in two forms and both are named:
                   solid for a line quoted elsewhere, dashed for a possible echo. */}
               <span className="text-gray-500">darker = more connections</span>
               <span className="flex items-center gap-1.5 border-l border-gray-300 pl-4">
@@ -686,7 +685,7 @@ export default function ReaderPage() {
                   // popup offers for it, so the panel opens on Verbal
                   // Parallels; a span asks for similar passages. The panel
                   // used to stay on Similar Passages for a single line while
-                  // the popup said "Find shared wording" (NC, 2026-09-06).
+                  // the popup said "Find shared wording" (2026-09-06).
                   if (sel) setPanelTab(sel.lineCount === 1 ? 'verbal' : 'similar');
                   setPopupOpen(!!sel);
                   // The reader has chosen their own passage, so the note about
@@ -699,7 +698,7 @@ export default function ReaderPage() {
                 // used to sit at the top of the pane whatever was selected, so
                 // it covered the opening lines of the text.
                 // Desktop only. On a phone it piled up with the browser's own
-                // copy toolbar and the results sheet (NC, 2026-09-07); the
+                // copy toolbar and the results sheet (2026-09-07); the
                 // sheet's tabs already do what the toolbar offers there.
                 <div className="hidden lg:block absolute left-10 z-20"
                      style={{ top: `${(selection?.anchorTop ?? 0) + 8}px` }}>

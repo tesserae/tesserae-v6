@@ -1,7 +1,7 @@
 """The guide answers from the Help page, not from a second copy in a prompt.
 
-NC: "Is this thing so dumb that we really have to preprogram every response? It
-won't be enough to just feed it the help Page?" Mostly it is enough, and this is
+The question was whether it would be enough to just feed the model the Help
+page directly, instead of preprogramming every response. Mostly it is enough, and this is
 that: the Help page is 44,000 characters describing every feature, kept current
 because readers use it. Hand-copying any of it into a prompt would create a
 second version to keep in step, and the copy is the one that goes stale.

@@ -116,7 +116,7 @@ def stream(system, user, max_tokens=MAX_TOKENS_GUIDE, temperature=0.2):
 # checked against the references we actually gave it.
 # A citation with an optional range tail ("Aeneid 1.107–110"). The tail has
 # to be part of the match: when the guard replaced "Aeneid 1.1" and left
-# "–107" behind, the page read "that passage–107" (NC, 2026-09-10).
+# "–107" behind, the page read "that passage–107" (2026-09-10).
 _REF_PATTERN = re.compile(
     r'\b([A-Z][a-z]+\.?\s+[A-Z]?[a-z]*\.?\s*\d+\.\d+(?:\s*[-–—]\s*\d+(?:\.\d+)?)?)\b')
 

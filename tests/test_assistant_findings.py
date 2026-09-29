@@ -1,6 +1,6 @@
 """The facts block handed to the results assistant.
 
-Three things went wrong on production (NC, 2026-09-10, Vergil Aeneid 1 against
+Three things went wrong on production (2026-09-10, Vergil Aeneid 1 against
 Lucan 1): the prose said "EVIDENCE VERDICT confirms this as VERBATIM", copying
 a label from the facts; it reported "all 25 of the top-ranked parallels landing
 in Lucan", which in a two-text comparison cannot be otherwise; and it asked for

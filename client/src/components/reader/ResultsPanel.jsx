@@ -140,7 +140,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   /* VERBAL PARALLELS: the selection's own wording, searched across the corpus.
    *
    * This tab said "Wiring in progress" for as long as the Reader has existed,
-   * which NC found by opening it. The red gutter beside the text was already
+   * a state found by opening it. The red gutter beside the text was already
    * live, but that is a DENSITY measure -- how distinctive each line's
    * vocabulary is -- and it never had the parallels themselves behind it. The
    * marks pointed at something the panel could not show.
@@ -222,8 +222,8 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
 
   const tabs = [
     // Short labels so the four tabs fit one row without a scrollbar a
-    // reader has no way to know is there ("If users can't see all of them
-    // they won't know they're there," NC, 2026-09-19) -- matches
+    // reader has no way to know is there (users who cannot see all of them
+    // will not know they're there, 2026-09-19) -- matches
     // feat/scholarship-tab's wording. The full name is the title attribute.
     ['similar', 'Similar', 'Similar Passages'],
     ['verbal', 'Parallels', 'Verbal Parallels'],
@@ -240,7 +240,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
     // viewport and scrolls its own contents.
     // On a phone the panel used to be stacked UNDER the whole text, so its
     // tabs sat 798 lines down and the Reader looked as if it had no results
-    // (NC, 2026-09-07). Below the lg breakpoint it is now a sheet fixed to
+    // (2026-09-07). Below the lg breakpoint it is now a sheet fixed to
     // the bottom of the screen, shown once something is selected, with its
     // own close control; with nothing selected it stays out of the way.
     <aside className={`w-full lg:w-96 border-t lg:border-t-0 lg:border-l border-gray-200 bg-gray-50
@@ -251,7 +251,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
           on a phone. The strip WRAPS to a second line rather than scrolling
           when the tabs do not all fit one row: a scrollbar here was easy to
           miss entirely, so a reader could open the Reader and never learn
-          the Reuse tab existed (NC, 2026-09-19). */}
+          the Reuse tab existed (2026-09-19). */}
       <div className="flex items-center flex-wrap shrink-0 border-b border-gray-200 text-sm pr-20 lg:pr-0">
         {(selection || sheetOpen) && (
           <button
@@ -432,8 +432,8 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                     ))}
                   </div>
                 )}
-                {/* SAID OUTRIGHT. NC: "nothing indicates that their titles are
-                    clickable." The whole card has always been a button, which
+                {/* SAID OUTRIGHT: nothing indicated that titles were
+                    clickable. The whole card has always been a button, which
                     is invisible; Theme Search says this in words on every
                     result and the Reader should not be quieter about the same
                     action. */}
@@ -547,9 +547,9 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                     ))}
                   </div>
                 )}
-                {/* NO "Open in Reader" line here. NC: "we don't need the link
-                    under each verbal parallel result saying 'view in reader'
-                    when that is what clicking the work name does." The title
+                {/* NO "Open in Reader" line here: the link under each verbal
+                    parallel result saying 'view in reader' was redundant,
+                    since clicking the work name does the same thing. The title
                     carries the link colour and underlines on hover, which is
                     the affordance; a second one under every card was clutter in
                     a list where the passage text is the thing to read. */}
@@ -658,7 +658,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
               // behavior); possible pairs -- one rare shared phrase, kept
               // only by the rare-single-ngram rule -- behind a collapsed
               // section, since a 30-pair sample of that rule's yield was
-              // still mostly coincidental (NC, 2026-09-19).
+              // still mostly coincidental (2026-09-19).
               const strict = reuse.quotations.filter((q) => q.tier !== 'possible');
               const possible = reuse.quotations.filter((q) => q.tier === 'possible');
               return (
@@ -801,7 +801,7 @@ function BoldSpans({ text, spans }) {
 
 /** Mark the matched words inside a quoted passage.
  *
- *  NC: "Matching words in reader are not highlighted." The card named them in
+ *  Matching words in the reader were not highlighted. The card named them in
  *  chips above the quotation but left the quotation itself unmarked, so on a
  *  prose hit the reader had to scan a paragraph hunting for the two words that
  *  earned it a place in the list. Some of those paragraphs run past three
@@ -816,7 +816,7 @@ function Marked({ text, words, latin = false }) {
   if (!list.length) return <>{text}</>;
   // In Latin the matched word is reported in the SOURCE text's spelling, and
   // the two texts may not agree on u/v and i/j: Silius' "cateruas" against
-  // Vergil's "catervas" left the Vergil line unmarked (NC, 2026-09-20). Each
+  // Vergil's "catervas" left the Vergil line unmarked (2026-09-20). Each
   // u or v in the pattern matches either letter, and i or j likewise.
   const fold = (w) => (latin ? w.toLowerCase().replace(/v/g, 'u').replace(/j/g, 'i') : w.toLowerCase());
   const pattern = (w) => (latin

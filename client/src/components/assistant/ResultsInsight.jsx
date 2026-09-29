@@ -151,7 +151,7 @@ export default function ResultsInsight({ results, source, target, className = ''
  * What the reader sees while the model has not yet produced a word: a
  * spinner, what is being done, and the seconds so far. A local model takes
  * ten to thirty seconds to read a long prompt before its first word, and a
- * bare blinking cursor for that long reads as a dead page (NC, 2026-09-07).
+ * bare blinking cursor for that long reads as a dead page (2026-09-07).
  */
 export function WorkingLine({ label }) {
   const [seconds, setSeconds] = useState(0);

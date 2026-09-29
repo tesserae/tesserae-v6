@@ -20,7 +20,7 @@ holds the copy underneath it, and neither is on by default.
         (default 0, which is off: no grace period unless you ask for one)
     delete everything else
 
-The defaults keep one copy per file and nothing else, which is the rule NC
+The defaults keep one copy per file and nothing else, the rule
 approved on 2026-09-22. A second copy buys little: an operation is verified
 the same day it runs, and the copy underneath it is a backup of a state
 that was already superseded once.

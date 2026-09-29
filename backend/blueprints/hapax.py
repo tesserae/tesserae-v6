@@ -1664,8 +1664,9 @@ def regenerate_rare_words_cache(language):
                 rare_words.append({'lemma': clean, 'display': clean, 'count': count})
 
     elif language == 'he':
-        # Hebrew joined the Rare Words Explorer on 2026-09-21 (NC: "Hebrew
-        # should be offered in Corpus Browser and Rare Words Explorer"). The
+        # Hebrew joined the Rare Words Explorer on 2026-09-21, per the decision
+        # that Hebrew should be offered in both Corpus Browser and Rare Words
+        # Explorer. The
         # page had no Hebrew data at all before that: this function had a
         # branch for every other language and none for Hebrew, so the cache
         # it wrote was an empty list and the page would have shown nothing.

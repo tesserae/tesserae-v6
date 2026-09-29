@@ -3,8 +3,8 @@
 `regenerate_rare_words_cache` in backend/blueprints/hapax.py had a branch for
 Latin, Greek, English and Coptic and none for Hebrew, so it wrote an empty
 list and the page would have shown nothing for a language the site otherwise
-serves in full (39 books, its own index, its own Reader). NC asked for Hebrew
-on 2026-09-21; these tests cover the branch that answers that.
+serves in full (39 books, its own index, its own Reader). Hebrew was added
+to the Explorer on 2026-09-21; these tests cover the branch that answers that.
 
 They feed a small frequency cache rather than the real one, so they say what
 the rule is instead of what today's corpus happens to contain.

@@ -1,5 +1,5 @@
 """Tests for scripts/generate_scripture_translation_pairs.py's core logic
-(NC, 2026-09-19): the generator that replaced a sampled, incomplete curated
+(2026-09-19): the generator that replaced a sampled, incomplete curated
 translation-pairs list with an exhaustive one, built from
 backend/scripture_id.py's own book-name table.
 

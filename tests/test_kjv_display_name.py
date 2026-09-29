@@ -1,5 +1,5 @@
 """The 70 world_english_bible.* files hold the Authorized (King James) Version
-of 1611, a legacy mislabel (NC, 2026-09-20). File identifiers are unchanged;
+of 1611, a legacy mislabel (2026-09-20). File identifiers are unchanged;
 only the display name users see is fixed, in backend.utils.DISPLAY_NAMES via
 format_display_name.
 """

@@ -16,7 +16,7 @@ export default function TextPane({ units, language, selection, onSelect, total, 
                                     reuseMarks, onReuseClick }) {
   // LONG TEXTS ARRIVE IN STRETCHES. Hafez's diwan is 9,502 lines and Anvari's
   // 26,616; drawing every line and gutter tile at once froze a phone and
-  // crashed its tab (NC, 2026-09-07). The page draws what it has been given
+  // crashed its tab (2026-09-07). The page draws what it has been given
   // and asks for more when the reader nears the end, or when they press the
   // button. `total` is the whole text's line count, `onMore` extends it.
   const sentinelRef = useRef(null);
@@ -35,7 +35,7 @@ export default function TextPane({ units, language, selection, onSelect, total, 
   // a click in Anvari took several seconds to show its highlight.
   // PAINT WHILE DRAGGING. The browser's own selection colour is hidden in
   // the text (index.css), so until the mouse was released nothing showed and
-  // a reader could not see what they were selecting (NC, 2026-09-07). A
+  // a reader could not see what they were selecting (2026-09-07). A
   // mouse drag is now tracked line by line and the page's band follows it;
   // on release the dragged span is what gets selected.
   const [drag, setDrag] = useState(null);   // { anchor, current } during a mouse drag
@@ -118,7 +118,7 @@ export default function TextPane({ units, language, selection, onSelect, total, 
   // off, so there is no finger drag to read. A selectionchange listener that
   // read the selection during a MOUSE drag re-rendered the lines mid-drag
   // and made the browser's highlight jump from the first line to the second
-  // (NC, 2026-09-07); it is gone.
+  // (2026-09-07); it is gone.
   const paneRef = useRef(null);
 
   return (
@@ -174,7 +174,7 @@ export default function TextPane({ units, language, selection, onSelect, total, 
                 if (!coarse) return;   // the mouse path selects on mousedown/mouseup above
                 // TOUCH SCREENS SELECT BY TAPPING. Native text selection is
                 // off there (see index.css), so the phone's own Copy bar
-                // never appears over the page (NC, 2026-09-07). A tap
+                // never appears over the page (2026-09-07). A tap
                 // selects a line; a tap on another line extends the span
                 // to it; a tap inside the span narrows it to that line.
                 if (selection && (i < selLo || i > selHi)) {
@@ -200,8 +200,9 @@ export default function TextPane({ units, language, selection, onSelect, total, 
                   that ends it fired onSelect (panel -> Verbal Parallels)
                   moments before the click fired onReuseClick (panel ->
                   Reuse). The two usually raced to the right answer, but only
-                  by luck of event order, which is why NC saw it do nothing:
-                  a slow render between mouseup and click let Verbal win.
+                  by luck of event order: a slow render between mouseup and
+                  click let Verbal win, which could make a click appear to do
+                  nothing.
 
                   TIERED (2026-09-19): reuseMarks[ref] is now
                   {n_works, n_possible_works} -- n_works counts only STRICT
@@ -211,7 +212,7 @@ export default function TextPane({ units, language, selection, onSelect, total, 
                   three-word match is real evidence, but weaker than the
                   two-or-more-shared-word matches the solid mark stands for,
                   and a 30-pair sample of that rule's yield was still mostly
-                  coincidental, NC 2026-09-19). A line with any strict pair
+                  coincidental, 2026-09-19). A line with any strict pair
                   gets the solid mark (unchanged); only a line with NO
                   strict pair but at least one possible one gets a lighter,
                   dashed-outline mark instead -- never both at once. */}

@@ -2,7 +2,7 @@
  * The Verbal Parallels tab.
  *
  * It sat on the words "Wiring in progress" from the day the Reader shipped,
- * and NC found it by opening the tab. These tests cover the two things that
+ * a state found by opening the tab. These tests cover the two things that
  * were easy to get wrong when wiring it up: the query is the SELECTED lines
  * rather than the whole work, and a line must not be returned as a parallel to
  * itself.
@@ -93,7 +93,7 @@ describe('the tab searches the corpus for the selection', () => {
   });
 
   it('makes the work name the thing you click', async () => {
-    // This used to assert an "Open in Reader" line under every card. NC had it
+    // This used to assert an "Open in Reader" line under every card. It was
     // removed: the work name is already the link, so the extra line was
     // clutter. The affordance now has to live on the title itself.
     mount();
@@ -132,7 +132,7 @@ describe('the matched words are marked in the passage', () => {
   it('marks a Latin word spelt with v or j when the match was reported with u or i', async () => {
     // Silius' "cateruas" matched Vergil's "catervas"; the Vergil line came
     // back unmarked because the two texts spell the same word differently
-    // (NC, 2026-09-20). u/v and i/j are one letter each for the marking.
+    // (2026-09-20). u/v and i/j are one letter each for the marking.
     global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve({
       results: [{ author: 'Vergil', work: 'Aeneid', year: -19,
                   text_id: 'vergil.aeneid.part.7.tess', locus: '7.804',
@@ -172,8 +172,8 @@ describe('the way out to the full search tools', () => {
   });
 
   it('does not repeat "Open in Reader" under every card', async () => {
-    // NC: the work name is already the link, so a second one per card is
-    // clutter. Similar Passages keeps its own, which NC asked for separately.
+    // The work name is already the link, so a second one per card is
+    // clutter. Similar Passages keeps its own, added separately.
     mount();
     await screen.findByText(/Caesar/);
     expect(screen.queryByText(/Open in Reader/)).toBeNull();

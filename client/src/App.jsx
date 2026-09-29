@@ -296,9 +296,9 @@ function App() {
   // run is a tab change, and a tab change starts the new page clean: the
   // query string used to be carried along, so after one Theme Search its
   // "?query=..." followed the visitor to Search, Read and back, and Theme
-  // Search re-ran the old query every time its tab was opened (NC,
-  // 2026-09-20: "Every time I come back to theme search I get the same
-  // previous query autofilled").
+  // Search re-ran the old query every time its tab was opened
+  // (2026-09-20). Returning to Theme Search kept autofilling the previous
+  // query.
   const pathSyncedOnce = useRef(false);
   useEffect(() => {
     const newPath = pageTypeToPath[pageType] || '/';
@@ -346,7 +346,7 @@ function App() {
     // The Read tab clicked while the Reader is open used to do nothing (the
     // page type did not change, so no effect ran). It now takes the Reader
     // back to its starting page: a clean address and the language's opening
-    // text (NC, 2026-09-20).
+    // text (2026-09-20).
     if (nextPageType === 'read' && pageType === 'read') {
       window.history.pushState({}, '', '/read');
       window.dispatchEvent(new Event('tesserae:reader-home'));
@@ -418,8 +418,8 @@ function App() {
     // Set defaults only when we do not already have valid selections.
     // Defaults apply when the corpus has just loaded, when nothing is chosen,
     // or when a remembered id is STALE (not in this corpus: an earlier session's
-    // pair, or a text since retired). The stale case is new (NC, 2026-09-19: a
-    // stale remembered English pair left the page with no texts at all). A
+    // pair, or a text since retired). The stale case is new (2026-09-19): a
+    // stale remembered English pair left the page with no texts at all. A
     // pair mid-edit, with one side chosen and valid and the other still empty,
     // is none of these and is left alone.
     const sourceStale = Boolean(sourceText) && !sourceExists;
@@ -659,7 +659,7 @@ function App() {
           language: activeTab,
           // The two texts being compared used to be left out, so the corpus
           // map and its timeline never showed the very authors in question
-          // (NC, 2026-09-07: Mir and Iqbal missing). They are included and
+          // (2026-09-07: Mir and Iqbal were missing). They are included and
           // the chart marks them.
           exclude_texts: []
         })

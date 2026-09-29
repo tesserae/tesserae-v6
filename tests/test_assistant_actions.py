@@ -416,11 +416,10 @@ def test_two_named_authors_compare_by_author():
 # --- a hand-off does not call the model at all -----------------------------
 
 def test_the_handoff_sentence_is_written_in_code():
-    """NC: 'why does it take so long to just find the right search and click it?
-    This takes longer than the user doing it manually?' It did: eleven of the
-    fourteen seconds were a 30B model on a CPU phrasing a fact it had been
-    handed. A hand-off carries no information the model was not given, so it is
-    composed here instead."""
+    """Finding and running the right search took longer than doing it manually:
+    eleven of the fourteen seconds were a 30B model on a CPU phrasing a fact it
+    had been handed. A hand-off carries no information the model was not given,
+    so it is composed here instead."""
     from backend.assistant.agent import _handoff_sentence
     text = _handoff_sentence([{
         'kind': 'TWO TEXTS THE READER WANTS COMPARED.',

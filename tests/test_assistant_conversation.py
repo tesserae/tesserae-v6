@@ -183,7 +183,7 @@ def test_guardrails_clean_on_a_listing_answer(client, route):
 
 
 def test_a_question_about_the_site_does_not_inherit_the_last_phrase(client, route):
-    """NC asked Tessa to describe the site and got a search for arma virumque.
+    """A question about the site returned a search for arma virumque instead.
 
     The carry-over guard tested `_is_about_the_tool`, a bare substring list that
     named connectors and CSV but never the site itself, so "tell me about the

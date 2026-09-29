@@ -3,9 +3,9 @@
  * "Reuse") so all four fit one row, and the strip WRAPS to a second line
  * rather than scrolling if it still overflows at a narrow width.
  *
- * NC, looking at Aeneid 1.1 on the preview: "the panel's tab bar now
- * overflows and needs a scroll slider... If users can't see all of them
- * they won't know they're there." A hidden horizontal scroll is exactly
+ * On the preview, viewing Aeneid 1.1, the panel's tab bar overflowed and
+ * needed a scroll slider: users who cannot see all of the tabs will not
+ * know they're there. A hidden horizontal scroll is exactly
  * that failure mode -- nothing on screen says there is a fourth tab past
  * the edge. Wrapping keeps every tab visible instead.
  */

@@ -3,8 +3,8 @@
  *
  * It lived only in ThemeSearchPage, so the Reader grew its own list of
  * cross-language results ordered by score with no dates at all -- the same kind
- * of list behaving differently on two pages of one site. NC: "What order are
- * these similar passages in? Should be chronological."
+ * of list behaving differently on two pages of one site. The similar-passages
+ * order needed to be chronological, not a raw score order.
  */
 import { describe, expect, it } from 'vitest';
 import { chronological, byBestMatch, dateParts } from './chronology';

@@ -559,8 +559,8 @@ def connections_map_pair_route():
     score, and a `reader_url` per side built the same way Similar Passages'
     "Open in Reader" links are (work + language + ref span, landing on the
     Similar Passages tab so the connection is visible live). Deduplicated on
-    the unordered window pair, work_a's window always on the left (NC,
-    2026-09-19 -- see connections_map.get_pair). `book_a`/`book_b` filter to
+    the unordered window pair, work_a's window always on the left (2026-09-19
+    convention -- see connections_map.get_pair). `book_a`/`book_b` filter to
     one cell of the books x books drill-down (`/passages/map/books`).
 
     ?refresh=1 clears the module's process-level caches first (see
