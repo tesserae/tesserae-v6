@@ -146,3 +146,6 @@ tests/__pycache__/
 # bundle, and a pull could collide with the host's own build output
 # (2026-09-09). Every asset in it comes from client/public or the build.
 dist/
+
+# Working documents under evaluation/ are local; the scripts and data stay tracked.
+evaluation/probe_sets/*.md
