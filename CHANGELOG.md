@@ -7,6 +7,15 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-09-29
+
+### Corpus
+- The text converter also reads the older TEI shape used by Corpus Corporum
+  and MGH-derived files (numbered `div1` to `div7` nesting, no namespace or
+  the TEI P4 one, sections marked by milestones, leaf text in paragraphs or
+  verse lines), tried only when the modern shape yields nothing, so no
+  existing file converts differently. 22 new tests on synthetic fixtures.
+
 ## 2026-09-28
 
 ### Housekeeping
