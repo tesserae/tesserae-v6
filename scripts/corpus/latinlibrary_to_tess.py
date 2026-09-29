@@ -641,7 +641,7 @@ def obsequens(page, abbrev, out):
     next source paragraph with no anchor of its own. So anchors and text are
     tokenized as one continuous stream across paragraph breaks, not per
     paragraph. Consular-year headings ('<b>...coss. [...]</b>', no anchor)
-    are kept as bracketed context on the entry then being accumulated. The
+    are the editor's and are dropped from the text. The
     anchor name is used as the reference verbatim, including the source's
     own letter-suffixed entries for a numbering gap ('27a', '27b', each
     with their own '27a.2' etc.): that is the traditional citation for this
@@ -658,9 +658,9 @@ def obsequens(page, abbrev, out):
         if pending_ref is not None:
             body = ' '.join(p for p in parts if p).strip()
             body = re.sub(rf'^{re.escape(pending_ref)}\.?\s*', '', body)
-            if pending_year:
-                body = f'[{pending_year}] {body}'
-                pending_year = ''
+            # The page's consular-year headings are the editor's, not the
+            # author's, so they are not written into the searchable text.
+            pending_year = ''
             if body:
                 ref = pending_ref
                 if ref in used:

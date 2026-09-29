@@ -10,9 +10,6 @@ behind each, are in docs/DECISIONS.md.
 ## 2026-09-29
 
 ### Corpus
-## 2026-09-29
-
-### Corpus
 - Nine Latin works added: three Pseudo-Caesar continuations of the civil-war
   commentaries (De Bello Africo, Alexandrino, Hispaniensi; Perseus/OGL
   canonical-latinLit, CC BY-SA 4.0), Vegetius' Epitoma Rei Militaris (4
