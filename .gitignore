@@ -133,6 +133,13 @@ docs/HOW_TESSERAE_SEARCHES.md
 CLAUDE.md
 server.log
 
+# Local AI agent tooling and knowledge graphs (private, machine-specific)
+.agents/
+graphify-out/
+
+# Ad-hoc result exports
+*.csv
+
 # Search concurrency lock files (runtime only)
 tmp/search_slots/
 backend/models/
