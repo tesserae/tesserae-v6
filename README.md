@@ -134,7 +134,7 @@ tesserae-v6/
 │   └── lemma_tables/       # Latin/Greek lemma lookup tables
 ├── texts/                   # .tess text files (3,500+ works)
 ├── evaluation/              # Evaluation scripts and benchmarks
-├── research/                # Scholarly work, studies, session notes
+├── research/                # Local only, not in the repository: notes and studies
 ├── docs/                    # Documentation
 └── embedding_toolkit/       # Semantic embedding tools
 ```
