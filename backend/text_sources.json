@@ -16490,5 +16490,77 @@
     "e_source_url": "https://la.wikisource.org/wiki/Africa",
     "print_source": "After Nicola Festa, ed., Africa (Edizione nazionale delle opere di Francesco Petrarca I). Florence, 1926; Wikisource credits petrarca.letteraturaoperaomnia.org as its immediate source.",
     "added_by": "V6 Import (Latin batch 2026-08-30)"
+  },
+  {
+    "author": "Pseudo-Caesar",
+    "work": "De Bello Africo",
+    "e_source": "Perseus",
+    "e_source_url": "https://github.com/PerseusDL/canonical-latinLit/blob/master/data/phi0426/phi001/phi0426.phi001.perseus-lat1.xml",
+    "print_source": "[Pseudo-]Caesar: Alexandrian, African and Spanish Wars. A. G. Way, editor. William Heinemann Ltd.: London; Harvard University Press: Cambridge, MA, 1955.",
+    "added_by": "V6 Import (Latin batch 2026-09-29)"
+  },
+  {
+    "author": "Pseudo-Caesar",
+    "work": "De Bello Alexandrino",
+    "e_source": "Perseus",
+    "e_source_url": "https://github.com/PerseusDL/canonical-latinLit/blob/master/data/phi0428/phi001/phi0428.phi001.perseus-lat1.xml",
+    "print_source": "[Pseudo-]Caesar: Alexandrian, African and Spanish Wars. A. G. Way, editor. William Heinemann Ltd.: London; Harvard University Press: Cambridge, MA, 1955.",
+    "added_by": "V6 Import (Latin batch 2026-09-29)"
+  },
+  {
+    "author": "Pseudo-Caesar",
+    "work": "De Bello Hispaniensi",
+    "e_source": "Perseus",
+    "e_source_url": "https://github.com/PerseusDL/canonical-latinLit/blob/master/data/phi0430/phi001/phi0430.phi001.perseus-lat1.xml",
+    "print_source": "[Pseudo-]Caesar: Alexandrian, African and Spanish Wars. A. G. Way, editor. William Heinemann Ltd.: London; Harvard University Press: Cambridge, MA, 1955.",
+    "added_by": "V6 Import (Latin batch 2026-09-29)"
+  },
+  {
+    "author": "Vegetius",
+    "work": "Epitoma Rei Militaris",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/vegetius.html",
+    "print_source": "",
+    "added_by": "V6 Import (Latin batch 2026-09-29)"
+  },
+  {
+    "author": "Grattius",
+    "work": "Cynegetica",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/grattius.html",
+    "print_source": "",
+    "added_by": "V6 Import (Latin batch 2026-09-29)"
+  },
+  {
+    "author": "Germanicus",
+    "work": "Aratea",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/germanicus.html",
+    "print_source": "",
+    "added_by": "V6 Import (Latin batch 2026-09-29)"
+  },
+  {
+    "author": "Solinus",
+    "work": "Collectanea Rerum Memorabilium",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/solinus5.html",
+    "print_source": "Theodor Mommsen, ed., C. Iulii Solini Collectanea Rerum Memorabilium, 2nd ed. Berlin: Weidmann, 1895.",
+    "added_by": "V6 Import (Latin batch 2026-09-29)"
+  },
+  {
+    "author": "Censorinus",
+    "work": "De Die Natali",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/censorinus.html",
+    "print_source": "",
+    "added_by": "V6 Import (Latin batch 2026-09-29)"
+  },
+  {
+    "author": "Julius Obsequens",
+    "work": "Liber de Prodigiis",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/obsequens.html",
+    "print_source": "",
+    "added_by": "V6 Import (Latin batch 2026-09-29)"
   }
 ]
