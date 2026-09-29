@@ -578,6 +578,31 @@ def _find_csv_dictionary_matches(source_units, target_units, source_language,
                             'target_indices': [tgt_pos],
                         })
 
+    # Deduplicate: collapse multiple hits of the same (source_lemma, target_lemma)
+    # pair per line pair, merging their position lists.  The Greek-Latin path
+    # already does this (see line ~795); the CSV path was missing it, causing a
+    # repeated source lemma (e.g. כל twice in a line) to produce duplicate
+    # word-match entries that inflate the average rarity score (#521).
+    for key in results:
+        if cancellation:
+            cancellation.check()
+        seen = {}
+        deduped = []
+        for wm in results[key]:
+            pair_key = (wm['source_lemma'], wm['target_lemma'])
+            if pair_key not in seen:
+                seen[pair_key] = wm
+                deduped.append(wm)
+            else:
+                existing = seen[pair_key]
+                for si in wm['source_indices']:
+                    if si not in existing['source_indices']:
+                        existing['source_indices'].append(si)
+                for ti in wm['target_indices']:
+                    if ti not in existing['target_indices']:
+                        existing['target_indices'].append(ti)
+        results[key] = deduped
+
     logger.info(f"Dictionary found {len(results)} pairs (minimal stoplist filtering)")
     return dict(results)
 
@@ -1058,7 +1083,11 @@ def _crosslingual_fusion_core(params, source_units, target_units, settings,
     # Phonetic acts only as a convergence booster on pairs already found by
     # semantic or dictionary.
     recovery_keys = set(dict_by_pair.keys()) - set(sem_by_pair.keys())
-    if recovery_keys:
+    # Hebrew (BEREL) and Coptic embeddings are not in the same vector space as
+    # SPhilBERTa (la/grc/en).  Cosine between them is geometrically meaningless
+    # and can push spurious pairs above 0.4, so skip recovery entirely (#522).
+    _INCOMPATIBLE_VECTOR_LANGS = {'he', 'cop'}
+    if recovery_keys and not (_INCOMPATIBLE_VECTOR_LANGS & {source_language, target_language}):
         try:
             from backend.embedding_storage import load_embeddings
             import numpy as np

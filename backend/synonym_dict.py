@@ -62,7 +62,11 @@ for word in _CROSSLINGUAL_STOPLIST_GREEK_RAW:
     CROSSLINGUAL_STOPLIST_GREEK.add(word.replace('ς', 'σ'))
     CROSSLINGUAL_STOPLIST_GREEK.add(word.replace('σ', 'ς'))
 
-CROSSLINGUAL_STOPLIST_LATIN = {
+# Raw entries use classical spelling; the set is built u/i-folded so it matches
+# the text processor's lemma convention (v→u, j→i) on all three consumers:
+# _find_csv_dictionary_matches, _find_greek_latin_dictionary_matches_fast,
+# and _find_english_dictionary_matches (#520).
+_CROSSLINGUAL_STOPLIST_LATIN_RAW = {
     # Conjunctions and particles
     'et', 'atque', 'ac', 'que', 'sed', 'at', 'autem', 'aut', 'vel', 'nec', 'neque', 'nam', 'enim', 'igitur', 'ergo', 'tamen', 'quoque', 'quidem',
     # Negations
@@ -80,6 +84,9 @@ CROSSLINGUAL_STOPLIST_LATIN = {
     'olim', 'nunc', 'tunc', 'tum', 'iam', 'semper', 'umquam', 'numquam', 'adhuc', 'mox', 'tandem',
     # Common adverbs/particles
     'sic', 'ita', 'tam', 'quam', 'magis', 'minus', 'bene', 'male', 'valde', 'nimis',
+}
+CROSSLINGUAL_STOPLIST_LATIN = {
+    w.replace('v', 'u').replace('j', 'i') for w in _CROSSLINGUAL_STOPLIST_LATIN_RAW
 }
 
 CROSSLINGUAL_STOPLIST_ENGLISH = {
