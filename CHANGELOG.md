@@ -10,6 +10,18 @@ behind each, are in docs/DECISIONS.md.
 ## 2026-09-29
 
 ### Corpus
+- Nine Latin works added: three Pseudo-Caesar continuations of the civil-war
+  commentaries (De Bello Africo, Alexandrino, Hispaniensi; Perseus/OGL
+  canonical-latinLit, CC BY-SA 4.0), Vegetius' Epitoma Rei Militaris (4
+  books, The Latin Library), and five short Latin Library texts (Grattius'
+  Cynegetica, Germanicus' Aratea, Solinus' Collectanea Rerum Memorabilium,
+  Censorinus' De Die Natali, Julius Obsequens' Liber de Prodigiis). Cicero's
+  In Verrem and the Carmina Priapea were dropped from the candidate list
+  after the duplicate check found both already in the corpus under other
+  names. `scripts/corpus/latinlibrary_to_tess.py` gained handlers for all
+  five Latin Library shapes. Metadata in `backend/text_sources.json` and
+  `data/text_genres.csv`; per-text blurbs and the index/window rebuild are
+  still owed.
 - The text converter also reads the older TEI shape used by Corpus Corporum
   and MGH-derived files (numbered `div1` to `div7` nesting, no namespace or
   the TEI P4 one, sections marked by milestones, leaf text in paragraphs or

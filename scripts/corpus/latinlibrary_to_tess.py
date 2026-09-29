@@ -31,6 +31,36 @@ Reference schemes (stable, matching each text's citation structure):
   sidonius.carmina              sidon. carm.   poem.line
   isidore.etymologiae           isid. orig.    book.chapter.section
                                                (.0 = chapter rubric)
+  vegetius.epitoma_rei_militaris veg. mil.     book.chapter (arabic; source
+                                               numerals are roman). All
+                                               front matter before chapter I
+                                               goes to '.pr.N' in document
+                                               order: for books 2-4 that is
+                                               just the capitula list (all
+                                               its own chapter headings in
+                                               one paragraph, not chapter
+                                               text) then the book preface,
+                                               so '.pr.1' = capitula,
+                                               '.pr.2' = preface; book 1
+                                               carries an extra work-wide
+                                               preface and a one-line
+                                               epigraph ahead of its own
+                                               capitula and preface, so
+                                               '.pr.1'/'.pr.2' = those two,
+                                               '.pr.3' = capitula, '.pr.4' =
+                                               the book 1 preface proper. A
+                                               paragraph with no numeral
+                                               that follows chapters already
+                                               under way (book 3's closing
+                                               dedication after its titled
+                                               'REGULAE BELLORUM GENERALES'
+                                               chapter; book 4's transition
+                                               from land to naval warfare
+                                               between chapters 30 and 31)
+                                               is appended to the preceding
+                                               chapter's line rather than
+                                               given its own reference, to
+                                               keep references monotonic.
 
 Usage:
   python latinlibrary_to_tess.py --src <dir with downloaded pages> --out <dir>
@@ -57,6 +87,12 @@ MANIFEST = {
     'sidonius.epistulae': [f'sidonius{b}.html' for b in range(1, 10)],
     'sidonius.carmina': ['sidoniuscarmina.html'],
     'isidore.etymologiae': [f'isidore_{b}.shtml' for b in range(1, 21)],
+    'vegetius.epitoma_rei_militaris': [f'vegetius{b}.html' for b in range(1, 5)],
+    'grattius.cynegetica': ['grattius.html'],
+    'germanicus.aratea': ['germanicus.html'],
+    'solinus.collectanea_rerum_memorabilium': ['solinus5.html'],
+    'censorinus.de_die_natali': ['censorinus.html'],
+    'obsequens.liber_de_prodigiis': ['obsequens.html'],
 }
 
 ABBREV = {
@@ -72,6 +108,12 @@ ABBREV = {
     'sidonius.epistulae': 'sidon. epist.',
     'sidonius.carmina': 'sidon. carm.',
     'isidore.etymologiae': 'isid. orig.',
+    'vegetius.epitoma_rei_militaris': 'veg. mil.',
+    'grattius.cynegetica': 'grat. cyn.',
+    'germanicus.aratea': 'germ. arat.',
+    'solinus.collectanea_rerum_memorabilium': 'solin.',
+    'censorinus.de_die_natali': 'censorin.',
+    'obsequens.liber_de_prodigiis': 'obseq.',
 }
 
 ROMAN_RE = re.compile(r'^([IVXLCDM]+)\.?$')
@@ -450,6 +492,205 @@ def isidore_stream(page, abbrev, book, out):
             flush(out, abbrev, f'{book}.{chap}.{pieces[j]}', [pieces[j + 1].strip()])
 
 
+def vegetius(page, abbrev, book, out):
+    """Vegetius Epitoma Rei Militaris: plain (non-bold) 'ROMAN. text' chapter
+    markers. The first roman-numeral-led paragraph in each book is a
+    capitula list (it runs through every chapter heading in one block, e.g.
+    'I. ... II. ... III. ...') rather than chapter I itself. It and any
+    preface paragraphs before real chapter I are numbered '.pr.N' in
+    document order (see module docstring for what each N is per book), kept
+    under one string tag so references stay monotonic. A closing chapter
+    can be parenthesised, bare '(XXVIII.)' (book 1) or with its own rubric
+    '(XXVI. REGULAE BELLORUM GENERALES)' (book 3). A paragraph with no
+    numeral that follows chapters already under way (book 3's closing
+    dedication, book 4's land-to-naval transition) is appended to the
+    preceding chapter's text rather than given its own reference."""
+    pre = 0
+    seen_capitula = False
+    chap = None
+    last_num = 0
+    for attrs, inner in paragraphs(page):
+        if is_noise(attrs, inner):
+            continue
+        txt = clean(inner)
+        if not txt:
+            continue
+        m = re.match(r'^\(([IVXLCDM]+)\.\s*([^)]*)\)\s*(.*)', txt, re.S)
+        if m and roman_to_int(m.group(1)) is not None:
+            num_str, rubric, rest = m.group(1), m.group(2).strip(), m.group(3).strip()
+            body = ' '.join(t for t in (rubric, rest) if t)
+        else:
+            m = re.match(r'^([IVXLCDM]+)\.\s+(.*)', txt, re.S)
+            num_str, body = (m.group(1), m.group(2)) if m and roman_to_int(m.group(1)) is not None else (None, None)
+        if num_str is not None:
+            if not seen_capitula:
+                seen_capitula = True
+                pre += 1
+                flush(out, abbrev, f'{book}.pr.{pre}', [txt])
+                continue
+            num = roman_to_int(num_str)
+            if num <= last_num:
+                num = last_num + 1  # source misprint: keep numbering forward
+            last_num = num
+            chap = num
+            flush(out, abbrev, f'{book}.{chap}', [body])
+            continue
+        if chap is None:
+            pre += 1
+            flush(out, abbrev, f'{book}.pr.{pre}', [txt])
+        elif out:
+            out[-1] = (out[-1][0], f'{out[-1][1]} {txt}')
+
+
+def single_poem_verse(page, abbrev, out):
+    """Grattius Cynegetica and Germanicus Aratea: single-book continuous
+    verse, one line per '<br>'. Line-number spans every 5 lines
+    ('<span style="font-size: 80%;">N</span>', with leading &nbsp; padding)
+    are editorial and dropped rather than kept as text."""
+    n = 0
+    for attrs, inner in paragraphs(page):
+        if is_noise(attrs, inner):
+            continue
+        body = re.sub(r'(?:&nbsp;)*<span[^>]*>\s*\d+\s*</span>', '', inner)
+        txt = clean(body, keep_breaks=True)
+        for verse in txt.split('\n'):
+            verse = verse.strip()
+            if not verse:
+                continue
+            n += 1
+            flush(out, abbrev, str(n), [verse])
+
+
+def solinus(page, abbrev, out):
+    """Solinus Collectanea (Mommsen 2nd ed., thelatinlibrary's single-page
+    'solinus5.html'): a dedication heading (dropped) opens a preface of
+    plain arabic-numbered sections ('pr'); '<b>ROMAN.</b>' opens each
+    chapter, immediately followed by its own arabic section numbering:
+    '<b>I.</b>1 Sunt qui...'. Sections and the paragraphs between them are
+    concatenated into one stream per chapter, since a section can span
+    several source paragraphs, then re-split at each inline 'N ' marker."""
+    chapters = []
+    cur, parts = 'pr', []
+    for attrs, inner in paragraphs(page):
+        if is_noise(attrs, inner):
+            continue
+        txt = clean(inner)
+        if not txt or re.fullmatch(r'(?i)SOLINVS ADVENTO SALVTEM', txt):
+            continue
+        # the source is inconsistent about whether the period after the
+        # roman numeral sits inside or outside '<b>...</b>' ('VI.</b>1' vs
+        # 'VII</b>.1'); clean() turns the closing tag into a space either
+        # way, so tolerate a space before the period too.
+        m = re.match(r'^([IVXLCDM]+)\s*\.\s*(.*)', txt, re.S)
+        if m and roman_to_int(m.group(1)) is not None:
+            if parts:
+                chapters.append((cur, ' '.join(parts)))
+            cur, parts = roman_to_int(m.group(1)), [m.group(2)]
+        else:
+            parts.append(txt)
+    if parts:
+        chapters.append((cur, ' '.join(parts)))
+
+    sect_rx = re.compile(r'(?:^|(?<=\s))(\d+)\s+(?=[A-Z\[*])')
+    for chap, text in chapters:
+        marks = list(sect_rx.finditer(text))
+        if not marks:
+            flush(out, abbrev, f'{chap}.1', [text])
+            continue
+        for i, mk in enumerate(marks):
+            start = mk.end()
+            end = marks[i + 1].start() if i + 1 < len(marks) else len(text)
+            body = text[start:end].strip()
+            if body:
+                flush(out, abbrev, f'{chap}.{mk.group(1)}', [body])
+
+
+def censorinus(page, abbrev, out):
+    """Censorinus De Die Natali: single (undivided) book; bold roman-numeral
+    chapter markers, one paragraph per chapter (same shape as
+    chapter_bold_prose, but with no book level since the work has none)."""
+    chap, par = 'pr', 0
+    last_num = 0
+    for attrs, inner in paragraphs(page):
+        if is_noise(attrs, inner):
+            continue
+        m = re.match(r'(?is)\s*(?:<a[^>]*>\s*</a>\s*)?<b>\s*([IVXLCDM]+)\s*\.?\s*(.*?)</b>\s*(.*)',
+                     inner)
+        if m and roman_to_int(m.group(1)) is not None:
+            chap = roman_to_int(m.group(1))
+            if chap <= last_num:
+                chap = last_num + 1  # source misprint: keep numbering forward
+            last_num = chap
+            par = 0
+            rubric = clean(m.group(2))
+            rest = clean(m.group(3))
+            text = ' '.join(t for t in (rubric, rest) if t)
+            if text:
+                par += 1
+                flush(out, abbrev, f'{chap}.{par}', [text])
+            continue
+        par += 1
+        flush(out, abbrev, f'{chap}.{par}', [clean(inner)])
+
+
+def obsequens(page, abbrev, out):
+    """Julius Obsequens: every entry's anchor is placed as a TRAILING marker
+    at the end of the PRECEDING entry's html ('...habita.<a name="2"></a>'),
+    pointing forward, rather than opening its own text (only the very first
+    entry opens with its own anchor); an entry's actual text then starts the
+    next source paragraph with no anchor of its own. So anchors and text are
+    tokenized as one continuous stream across paragraph breaks, not per
+    paragraph. Consular-year headings ('<b>...coss. [...]</b>', no anchor)
+    are the editor's and are dropped from the text. The
+    anchor name is used as the reference verbatim, including the source's
+    own letter-suffixed entries for a numbering gap ('27a', '27b', each
+    with their own '27a.2' etc.): that is the traditional citation for this
+    work, kept even though the generic validator's numeric-only
+    monotonicity check will (correctly, harmlessly) flag the handful of
+    transitions into a lettered entry as non-monotonic."""
+    used = set()
+    pending_ref = None
+    pending_year = ''
+    parts = []
+
+    def emit_pending():
+        nonlocal pending_ref, parts, pending_year
+        if pending_ref is not None:
+            body = ' '.join(p for p in parts if p).strip()
+            body = re.sub(rf'^{re.escape(pending_ref)}\.?\s*', '', body)
+            # The page's consular-year headings are the editor's, not the
+            # author's, so they are not written into the searchable text.
+            pending_year = ''
+            if body:
+                ref = pending_ref
+                if ref in used:
+                    # source misprint: an anchor name reused (e.g. two
+                    # '<a name="15.4">' in a row); disambiguate forward
+                    base, n = ref, 1
+                    while f'{base}.{n}' in used:
+                        n += 1
+                    ref = f'{base}.{n}'
+                used.add(ref)
+                flush(out, abbrev, ref, [body])
+        parts = []
+
+    for attrs, inner in paragraphs(page):
+        if is_noise(attrs, inner):
+            continue
+        if '<b>' in inner.lower() and '<a name' not in inner.lower():
+            txt = clean(inner)
+            if txt:
+                pending_year = txt
+            continue
+        pieces = re.split(r'(?is)<a\s+name="([^"]+)"\s*>\s*</a>', inner)
+        parts.append(clean(pieces[0]))
+        for i in range(1, len(pieces), 2):
+            emit_pending()
+            pending_ref = pieces[i]
+            parts = [clean(pieces[i + 1]) if i + 1 < len(pieces) else '']
+    emit_pending()
+
+
 # ---------------------------------------------------------------- driver
 
 def convert(work, src):
@@ -496,6 +737,17 @@ def convert(work, src):
             if len(out) - before < 5:
                 del out[before:]
                 isidore_stream(page, abbrev, book, out)
+        elif work == 'vegetius.epitoma_rei_militaris':
+            book = int(re.search(r'vegetius(\d)', page_file).group(1))
+            vegetius(page, abbrev, book, out)
+        elif work in ('grattius.cynegetica', 'germanicus.aratea'):
+            single_poem_verse(page, abbrev, out)
+        elif work == 'solinus.collectanea_rerum_memorabilium':
+            solinus(page, abbrev, out)
+        elif work == 'censorinus.de_die_natali':
+            censorinus(page, abbrev, out)
+        elif work == 'obsequens.liber_de_prodigiis':
+            obsequens(page, abbrev, out)
         else:
             raise SystemExit(f'no handler for {work}')
     return out
