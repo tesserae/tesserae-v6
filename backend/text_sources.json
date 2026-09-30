@@ -5551,9 +5551,10 @@
     "e_source": "Corpus Corporum (Vollmer's edition)",
     "e_source_url": "https://mlat.uzh.ch/php_modules/download.php?type=file-xml&idno=16685",
     "print_source": "F. Vollmer, ed., Monumenta Germaniae Historica, Auctores Antiquissimi 14. Berlin, 1905.",
-    "added_by": "Claude batch 2026-09-30",
+    "added_by": "Caitlin Diddams",
     "license": "Text public domain; Corpus Corporum annotations CC BY 4.0",
-    "note": "Replaced 2026-09-30, re-sourced from Musisque Deoque. 973 of 974 references carry over; the previous file's final line (974) has no counterpart in this source."
+    "note": "Replaced 2026-09-30, re-sourced from Musisque Deoque. 973 of 974 references carry over; the previous file's final line (974) has no counterpart in this source.",
+    "replaced_by": "re-sourcing batch 2026-09-30"
   },
   {
     "author": "Dracontius",
@@ -5569,9 +5570,10 @@
     "e_source": "Corpus Corporum (Migne, Patrologia Latina 60, 1847)",
     "e_source_url": "https://mlat.uzh.ch/php_modules/download.php?type=file-xml&idno=7702",
     "print_source": "J.-P. Migne, ed., Patrologia Latina, vol. 60. Paris, 1847.",
-    "added_by": "Claude batch 2026-09-30",
+    "added_by": "Caitlin Diddams",
     "license": "Public domain",
-    "note": "Replaced 2026-09-30, re-sourced from Musisque Deoque. Corpus Corporum's Vollmer-edition digitization of this poem (idno 16685) has internal line duplication and does not match the previous file's line count, so Migne's text (idno 7702) was used instead; all 316 of 316 references match the previous file exactly."
+    "note": "Replaced 2026-09-30, re-sourced from Musisque Deoque. Corpus Corporum's Vollmer-edition digitization of this poem (idno 16685) has internal line duplication and does not match the previous file's line count, so Migne's text (idno 7702) was used instead; all 316 of 316 references match the previous file exactly.",
+    "replaced_by": "re-sourcing batch 2026-09-30"
   },
   {
     "author": "Eberhardus Alemannus",
@@ -12660,9 +12662,10 @@
     "e_source": "Perseus Digital Library, canonical-latinLit (Thomson's text)",
     "e_source_url": "https://raw.githubusercontent.com/PerseusDL/canonical-latinLit/master/data/stoa0238/stoa005/stoa0238.stoa005.perseus-lat2.xml",
     "print_source": "H. J. Thomson, ed., Prudentius, vol. 1, Loeb Classical Library. London: William Heinemann / Cambridge, MA: Harvard University Press, 1949.",
-    "added_by": "Claude batch 2026-09-30",
+    "added_by": "Caitlin Diddams",
     "license": "CC BY-SA 4.0 (Perseus Digital Library, canonical-latinLit repository licence)",
-    "note": "Replaced 2026-09-30, re-sourced from Musisque Deoque. Converted from the Perseus TEI by backend/ogl_converter.py (fixed the same run to emit one line per <l> for bare-verse TEI rather than flattening a division into one line). 1152 of 1152 references match the previous file exactly; text identical after case/spelling normalization."
+    "note": "Replaced 2026-09-30, re-sourced from Musisque Deoque. Converted from the Perseus TEI by backend/ogl_converter.py (fixed the same run to emit one line per <l> for bare-verse TEI rather than flattening a division into one line). 1152 of 1152 references match the previous file exactly; text identical after case/spelling normalization.",
+    "replaced_by": "re-sourcing batch 2026-09-30"
   },
   {
     "author": "Prudentius",
@@ -12678,9 +12681,10 @@
     "e_source": "Perseus Digital Library, canonical-latinLit (Thomson's text)",
     "e_source_url": "https://raw.githubusercontent.com/PerseusDL/canonical-latinLit/master/data/stoa0238/stoa007/stoa0238.stoa007.perseus-lat2.xml",
     "print_source": "H. J. Thomson, ed., Prudentius, vol. 1, Loeb Classical Library. London: William Heinemann / Cambridge, MA: Harvard University Press, 1949.",
-    "added_by": "Claude batch 2026-09-30",
+    "added_by": "Caitlin Diddams",
     "license": "CC BY-SA 4.0 (Perseus Digital Library, canonical-latinLit repository licence)",
-    "note": "Replaced 2026-09-30, re-sourced from Musisque Deoque. Numbering changes at two points versus the previous file: book 1 from line 354 (the previous file split one hexameter across two citation numbers there) and book 2 from line 330 (the Perseus/Thomson text has no line 329). 1942 of 1944 references carry over unchanged; see docs/DATA_OPERATIONS.md for the renumbering detail."
+    "note": "Replaced 2026-09-30, re-sourced from Musisque Deoque. Numbering changes at two points versus the previous file: book 1 from line 354 (the previous file split one hexameter across two citation numbers there) and book 2 from line 330 (the Perseus/Thomson text has no line 329). 1942 of 1944 references carry over unchanged; see docs/DATA_OPERATIONS.md for the renumbering detail.",
+    "replaced_by": "re-sourcing batch 2026-09-30"
   },
   {
     "author": "Prudentius",
@@ -12688,9 +12692,10 @@
     "e_source": "Perseus Digital Library, canonical-latinLit (Thomson's text)",
     "e_source_url": "https://raw.githubusercontent.com/PerseusDL/canonical-latinLit/master/data/stoa0238/stoa008/stoa0238.stoa008.perseus-lat2.xml",
     "print_source": "H. J. Thomson, ed., Prudentius, vol. 1, Loeb Classical Library. London: William Heinemann / Cambridge, MA: Harvard University Press, 1949.",
-    "added_by": "Claude batch 2026-09-30",
+    "added_by": "Caitlin Diddams",
     "license": "CC BY-SA 4.0 (Perseus Digital Library, canonical-latinLit repository licence)",
-    "note": "Replaced 2026-09-30, re-sourced from Musisque Deoque. 196 of 196 references match the previous file exactly; text identical after case/spelling normalization."
+    "note": "Replaced 2026-09-30, re-sourced from Musisque Deoque. 196 of 196 references match the previous file exactly; text identical after case/spelling normalization.",
+    "replaced_by": "re-sourcing batch 2026-09-30"
   },
   {
     "author": "Prudentius",
@@ -12698,9 +12703,10 @@
     "e_source": "Perseus Digital Library, canonical-latinLit (Thomson's text)",
     "e_source_url": "https://raw.githubusercontent.com/PerseusDL/canonical-latinLit/master/data/stoa0238/stoa009/stoa0238.stoa009.perseus-lat2.xml",
     "print_source": "H. J. Thomson, ed., Prudentius, vol. 1, Loeb Classical Library. London: William Heinemann / Cambridge, MA: Harvard University Press, 1949.",
-    "added_by": "Claude batch 2026-09-30",
+    "added_by": "Caitlin Diddams",
     "license": "CC BY-SA 4.0 (Perseus Digital Library, canonical-latinLit repository licence)",
-    "note": "Replaced 2026-09-30, re-sourced from Musisque Deoque. 34 of 34 references match the previous file exactly; text identical after case/spelling normalization."
+    "note": "Replaced 2026-09-30, re-sourced from Musisque Deoque. 34 of 34 references match the previous file exactly; text identical after case/spelling normalization.",
+    "replaced_by": "re-sourcing batch 2026-09-30"
   },
   {
     "author": "Prudentius",
@@ -12708,9 +12714,10 @@
     "e_source": "Perseus Digital Library, canonical-latinLit (Thomson's text)",
     "e_source_url": "https://raw.githubusercontent.com/PerseusDL/canonical-latinLit/master/data/stoa0238/stoa006/stoa0238.stoa006.perseus-lat2.xml",
     "print_source": "H. J. Thomson, ed., Prudentius, vol. 1, Loeb Classical Library. London: William Heinemann / Cambridge, MA: Harvard University Press, 1949.",
-    "added_by": "Claude batch 2026-09-30",
+    "added_by": "Caitlin Diddams",
     "license": "CC BY-SA 4.0 (Perseus Digital Library, canonical-latinLit repository licence)",
-    "note": "Replaced 2026-09-30, re-sourced from Musisque Deoque. Perseus labels the preface \"pr\" and the main poem \"1\"; relabeled to book 1/2 to match the existing citation scheme. 1029 of 1029 references match the previous file exactly; text identical after case/spelling normalization."
+    "note": "Replaced 2026-09-30, re-sourced from Musisque Deoque. Perseus labels the preface \"pr\" and the main poem \"1\"; relabeled to book 1/2 to match the existing citation scheme. 1029 of 1029 references match the previous file exactly; text identical after case/spelling normalization.",
+    "replaced_by": "re-sourcing batch 2026-09-30"
   },
   {
     "author": "Prudentius",
