@@ -9,6 +9,13 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-09-29
 
+### Data operations
+- The nine works of #516 are live in every search path: Latin index 1,655
+  texts, 697 passage windows described on UB's campus AI service and
+  appended (510,839 windows), word index, density and map caches
+  recomputed. `lxml` installed in the production environment. Details in
+  docs/DATA_OPERATIONS.md, 2026-09-29.
+
 ### Corpus
 - Nine Latin works added: three Pseudo-Caesar continuations of the civil-war
   commentaries (De Bello Africo, Alexandrino, Hispaniensi; Perseus/OGL

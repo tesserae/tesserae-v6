@@ -34,6 +34,59 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+## 2026-09-29 Classical Latin batch imported end to end, the converter extension, and the overnight caches (12:00 to 03:07 EDT)
+
+### Texts and index
+- Nine Latin works in thirteen files (#516): the three Pseudo-Caesar
+  continuations (De bello Africo, Alexandrino and Hispaniensi, from
+  Perseus under CC BY-SA 4.0), Vegetius' Epitoma rei militaris as a whole file and four
+  book files, Grattius' Cynegetica, Germanicus' Aratea, Solinus'
+  Collectanea, Censorinus' De die natali and Julius Obsequens' Liber de
+  prodigiis (The Latin Library, edition not stated, the same basis as the
+  August imports). All validated. The Obsequens conversion drops the
+  editor's consular-year headings, which a first pass had written into the
+  text.
+- Lemma caches built for the thirteen files (`scripts/batch_lemma_cache.py
+  la`, 8 GB job). `la_index.db` extended on a copy with
+  `scripts/corpus/add_texts_to_index.py --add` (12 GB job) and swapped in:
+  1,642 to 1,655 texts, 929,629 to 932,825 lines, 16,908,692 to 17,011,699
+  postings, lemma_doc_freq rebuilt (331,087 lemmas), integrity ok. Backup
+  `la_index.db.bak-classical-batch-20260929`.
+- Rare-bigram table rebuilt (`scripts/corpus/rebuild_bigrams.py la`, 101 s,
+  783 works, 3,828,137 bigrams), backup by the script's own naming. The
+  app was reloaded after the index swap and again after the bigram swap.
+  Every reference search passed, and a live lemma search of Grattius
+  against the Georgics returned fifty parallels.
+
+### Passage windows and descriptions
+- 697 windows built for the nine works (`scripts/corpus/build_batch_windows.py`,
+  Vegetius by book only, following the books-canonical rule) and their text
+  stored (`window_texts.db` backup `.bak-classical-batch-20260929`, table
+  510,838 rows).
+- Described at 20:17 by Qwen 3.8 27B on UB's BullsAI gateway (thinking
+  off, the production prompt, stamp `qwen38-bullsai-20260930`): 697 of 697
+  in 4.6 minutes, no failures, the first production descriptions from that
+  service. Appended to the passage index at 21:46 with
+  `scripts/corpus/apply_passage_rows.py --mode append --tag
+  classical-batch-20260929`: 510,142 to 510,839 windows, ids and vectors in
+  step, backups `.bak-classical-batch-20260929`.
+- `desc_fts.sqlite` rebuilt (511,076 rows, 29 s), app reloaded 21:52. A
+  Theme Search for a general training raw recruits returned Vegetius book 1
+  among its 25 rows on the live site. Reference searches passed.
+- Density cache recomputed for every work (23:25 to 02:52: 3,259 computed,
+  1 cached, 0 failed) and the connections map rebuilt (02:52 to 03:07,
+  peak 4.3 GB). The map page serves the new fingerprint with no stale flag.
+
+### Also that day
+- #515 merged and pulled: the text converter reads the older Corpus
+  Corporum and MGH TEI shape. Script-time code, no reload.
+- `lxml` 6.1.3 installed into the production environment, which had lacked
+  it although requirements.txt has listed it since the Lamentations fix.
+  `stanza` and `sentence-transformers` remain deliberately absent (the
+  encoder is a separate service and the Hebrew fallback is switched off).
+- Per-text descriptions for the nine works added to
+  `data/text_descriptions.json` in the same pull request.
+
 ## 2026-09-28 Evening deploy of the comment rewrite, and the repository cleared of working material (23:53 EDT)
 
 - Production moved from a658e39 to 9b59058: #510 (the task-list copy
