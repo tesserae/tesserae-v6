@@ -107,6 +107,54 @@ def _id_words(text_id):
     return re.sub(r'[._]+', ' ', s).strip()
 
 
+
+def _author_holdings(question, max_works=12):
+    """What the corpus holds by an author the question names, with the site's
+    own blurbs, so the model names real works.
+
+    Asked about Dracontius, the model called his Romulea "Romulus et Remus"
+    and, under the older prompt, "Romulus et Helena": plausible titles that do
+    not exist. The corpus listing and data/text_descriptions.json are the
+    authority on what this site holds, and the prompt tells the model to name
+    works only from this list.
+    """
+    from backend.assistant import corpus_lookup
+    from backend.blueprints.corpus import load_descriptions
+    hits = corpus_lookup.named_texts(question)
+    authors = []
+    for h in hits or []:
+        a = str(h.get('author') or '').strip()
+        if a and a.lower() not in [x.lower() for x in authors]:
+            authors.append(a)
+    if not authors:
+        return ''
+    rows = corpus_lookup._all_texts()
+    blurbs = load_descriptions()
+    out = []
+    for author in authors:
+        works = [r for r in rows if str(r.get('author') or '').lower() == author.lower()]
+        if not works:
+            continue
+        seen, lines = set(), []
+        for r in works:
+            tid = str(r.get('id') or r.get('filename') or r.get('text_id') or '')
+            base = tid[:-5] if tid.endswith('.tess') else tid
+            base = base.split('.part.')[0]
+            if not base or base in seen:
+                continue
+            seen.add(base)
+            title = str(r.get('title') or r.get('work') or base)
+            lang = str(r.get('language') or '')
+            blurb = (blurbs.get(lang) or {}).get(base) or ''
+            lines.append(f'- {title}' + (f': {str(blurb)[:300]}' if blurb else ''))
+            if len(lines) >= max_works:
+                break
+        if lines:
+            out.append(f'WHAT THIS SITE HOLDS BY {author.upper()} (name works only from this list; '
+                       f'the blurbs are the site\'s own facts about the texts):\n' + '\n'.join(lines))
+    return '\n\n'.join(out)
+
+
 def _with_help(question):
     """The question, preceded by the Help sections that bear on it.
 
@@ -127,6 +175,12 @@ def _with_help(question):
             parts.append(block)
     except Exception as e:                               # noqa: BLE001
         logger.info('[ASSISTANT] help lookup failed: %s', e)
+    try:
+        block = _author_holdings(question)
+        if block:
+            parts.append(block)
+    except Exception as e:                               # noqa: BLE001
+        logger.info('[ASSISTANT] holdings lookup failed: %s', e)
 
     # The Help page is the authority on what the site DOES, and it can still
     # leave a reader stuck: it says a Coptic text can be searched against the
