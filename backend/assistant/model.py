@@ -1,8 +1,14 @@
-"""Client for the locally served open model, plus the guardrails around it.
+"""Client for the assistant's open model, plus the guardrails around it.
 
-The model runs on this machine under llama-server (an OpenAI-compatible HTTP
-server), so nothing leaves the building and there is no API key or per-query
-cost. Qwen3-30B-A3B-Instruct is the intended model: it activates about 3.3B of
+The model is reached over an OpenAI-compatible HTTP endpoint. Two arrangements
+are supported by configuration alone. On this machine, llama-server on port
+8081 (the default): nothing leaves the building and there is no API key. On
+the university's own AI platform, its gateway with a key: still no per-query
+cost to the project, a far larger model, and answers in about two seconds
+instead of fifteen, at the price of 25 GB of this machine's memory given back.
+Settings: TESSERAE_LLM_URL, TESSERAE_LLM_MODEL, TESSERAE_LLM_API_KEY (sent as
+a bearer token when set) and TESSERAE_LLM_EXTRA_JSON (request fields merged
+into every call, for example the flag that turns a model's thinking mode off). Qwen3-30B-A3B-Instruct is the intended model: it activates about 3.3B of
 its 30.5B parameters per token, so on this CPU it generates at roughly the speed
 of a 3B model while reasoning far better. Apache-2.0.
 
@@ -13,6 +19,7 @@ the product, and the assistant is help on top of them.
 import json
 import os
 import re
+import time
 import urllib.error
 import urllib.request
 
@@ -20,10 +27,40 @@ from backend.logging_config import get_logger
 
 logger = get_logger('assistant.model')
 
-ENDPOINT = os.environ.get('TESSERAE_LLM_URL', 'http://127.0.0.1:8081')
+ENDPOINT = os.environ.get('TESSERAE_LLM_URL', 'http://127.0.0.1:8081').rstrip('/')
 MODEL_NAME = os.environ.get('TESSERAE_LLM_MODEL', 'local')
+API_KEY = os.environ.get('TESSERAE_LLM_API_KEY', '').strip()
+try:
+    EXTRA_FIELDS = json.loads(os.environ.get('TESSERAE_LLM_EXTRA_JSON') or '{}')
+except ValueError:
+    EXTRA_FIELDS = {}
 _HEALTH_TIMEOUT = 2
 _GEN_TIMEOUT = 180
+# The availability probe is called several times per request. Against a remote
+# gateway each probe is a round trip, so its answer is kept for a short while.
+_AVAILABILITY_TTL = 20
+_availability = {'at': 0.0, 'ok': False}
+
+
+def _headers():
+    h = {'Content-Type': 'application/json'}
+    if API_KEY:
+        h['Authorization'] = 'Bearer ' + API_KEY
+    return h
+
+
+def _body(system, user, max_tokens, temperature, stream=False):
+    body = {
+        'model': MODEL_NAME,
+        'messages': [{'role': 'system', 'content': system},
+                     {'role': 'user', 'content': user}],
+        'temperature': temperature,
+        'max_tokens': max_tokens,
+    }
+    if stream:
+        body['stream'] = True
+    body.update(EXTRA_FIELDS)
+    return json.dumps(body).encode()
 
 # Generation stays short on purpose. A small model asked for a paragraph writes a
 # good paragraph; asked for an essay it starts inventing to fill the space, and
@@ -35,31 +72,37 @@ MAX_TOKENS_ANALYZE = 420
 
 
 def is_available():
-    """True when the local model server answers. Cheap enough to call per request."""
+    """True when the model server answers its health check.
+
+    llama-server answers {"status": "ok"}; the gateway answers 200 with its own
+    JSON. Either counts. The answer is cached for _AVAILABILITY_TTL seconds.
+    """
+    now = time.time()
+    if now - _availability['at'] < _AVAILABILITY_TTL:
+        return _availability['ok']
+    ok = False
     try:
         # A fixed http(s) endpoint from configuration, never user input.
-        with urllib.request.urlopen(f'{ENDPOINT}/health', timeout=_HEALTH_TIMEOUT) as r:  # nosec B310
-            return json.loads(r.read()).get('status') == 'ok'
+        req = urllib.request.Request(f'{ENDPOINT}/health', headers=_headers())
+        with urllib.request.urlopen(req, timeout=_HEALTH_TIMEOUT) as r:  # nosec B310
+            payload = json.loads(r.read() or b'{}')
+        status = payload.get('status') if isinstance(payload, dict) else None
+        ok = status in (None, 'ok')
     except Exception:
-        return False
+        ok = False
+    _availability.update(at=now, ok=ok)
+    return ok
 
 
 def complete(system, user, max_tokens=MAX_TOKENS_GUIDE, temperature=0.2):
-    """One turn against the local model. Returns text, or None when unavailable."""
-    body = json.dumps({
-        'model': MODEL_NAME,
-        'messages': [{'role': 'system', 'content': system},
-                     {'role': 'user', 'content': user}],
-        'temperature': temperature,
-        'max_tokens': max_tokens,
-    }).encode()
-    req = urllib.request.Request(f'{ENDPOINT}/v1/chat/completions', data=body,
-                                 headers={'Content-Type': 'application/json'})
+    """One turn against the model. Returns text, or None when unavailable."""
+    body = _body(system, user, max_tokens, temperature)
+    req = urllib.request.Request(f'{ENDPOINT}/v1/chat/completions', data=body, headers=_headers())
     try:
         # A fixed http(s) endpoint from configuration, never user input.
         with urllib.request.urlopen(req, timeout=_GEN_TIMEOUT) as r:  # nosec B310
             payload = json.loads(r.read())
-        return payload['choices'][0]['message']['content'].strip()
+        return (payload['choices'][0]['message'].get('content') or '').strip() or None
     except (urllib.error.URLError, OSError, KeyError, ValueError) as e:
         logger.warning('[ASSISTANT] generation failed: %s', e)
         return None
@@ -74,16 +117,8 @@ def stream(system, user, max_tokens=MAX_TOKENS_GUIDE, temperature=0.2):
     instead of watching a spinner, and generation at 16 tokens per second
     outpaces reading speed. Yields plain text chunks; the caller frames them.
     """
-    body = json.dumps({
-        'model': MODEL_NAME,
-        'messages': [{'role': 'system', 'content': system},
-                     {'role': 'user', 'content': user}],
-        'temperature': temperature,
-        'max_tokens': max_tokens,
-        'stream': True,
-    }).encode()
-    req = urllib.request.Request(f'{ENDPOINT}/v1/chat/completions', data=body,
-                                 headers={'Content-Type': 'application/json'})
+    body = _body(system, user, max_tokens, temperature, stream=True)
+    req = urllib.request.Request(f'{ENDPOINT}/v1/chat/completions', data=body, headers=_headers())
     try:
         # A fixed http(s) endpoint from configuration, never user input.
         with urllib.request.urlopen(req, timeout=_GEN_TIMEOUT) as resp:  # nosec B310
