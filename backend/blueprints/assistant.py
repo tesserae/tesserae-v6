@@ -150,8 +150,10 @@ def _author_holdings(question, max_works=12):
             if len(lines) >= max_works:
                 break
         if lines:
-            out.append(f'WHAT THIS SITE HOLDS BY {author.upper()} (name works only from this list; '
-                       f'the blurbs are the site\'s own facts about the texts):\n' + '\n'.join(lines))
+            out.append(f'WHAT THIS SITE HOLDS BY {author.upper()} (name works only from this list. '
+                       f'A blurb after a title is the site\'s own account of that text and may be '
+                       f'relied on. Where a title has no blurb, say only that the site holds the '
+                       f'work and do not describe its contents):\n' + '\n'.join(lines))
     return '\n\n'.join(out)
 
 
