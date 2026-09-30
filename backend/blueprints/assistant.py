@@ -20,7 +20,7 @@ import re
 from flask import Blueprint, Response, jsonify, request, session
 
 from backend.logging_config import get_logger
-from backend.assistant import (actions, agent, findings, model, prompts,
+from backend.assistant import (actions, agent, background_check, findings, model, prompts, record,
                                router, site_help)
 
 logger = get_logger('blueprints.assistant')
@@ -276,10 +276,12 @@ def ask_stream():
         if not question:
             yield _sse('error', {'error': 'question is required'})
             return
+        streamed = []
         try:
             for kind, payload in agent.answer_stream(question, history=history,
                                                      offered_phrase=offered_phrase):
                 if kind == 'chunk':
+                    streamed.append(payload)
                     yield _sse('chunk', {'text': payload})
                 elif kind == 'step':
                     yield _sse('step', {'text': payload})
@@ -308,21 +310,33 @@ def ask_stream():
                                                 'actions': actions.suggest(question)})
                             return
                         yield _sse('step', {'text': 'no search applies; explaining instead'})
-                        for piece in model.stream(prompts.guide_system(),
-                                                  _with_help(question),
+                        material = _with_help(question)
+                        pieces = []
+                        for piece in model.stream(prompts.guide_system(), material,
                                                   max_tokens=model.MAX_TOKENS_GUIDE):
+                            pieces.append(piece)
                             yield _sse('chunk', {'text': piece})
+                        text = ''.join(pieces).strip()
+                        revised, background = background_check.review(text, material)
+                        record.record('ask', question, revised, model_used=True,
+                                      fell_back_to_guide=True, background=background)
                         # The guide half now hands over too. Nothing was
                         # searched, so the actions come from what the QUESTION
                         # asks for -- resolved against texts the corpus really
                         # holds, and omitted where a name cannot be resolved.
-                        yield _sse('done', {'searches_run': [],
-                                            'fell_back_to_guide': True,
-                                            'actions': actions.suggest(question)})
+                        done = {'searches_run': [], 'fell_back_to_guide': True,
+                                'background': background,
+                                'actions': actions.suggest(question)}
+                        if revised != text:
+                            done['text'] = revised
+                        yield _sse('done', done)
                         return
                     # Pass the terms worth marking through to the page, so a
                     # listing of Latin lines shows what actually matched.
                     _remember_offer(payload)
+                    record.record('ask', question, ''.join(streamed), model_used=True,
+                                  searches_run=payload.get('searches_run'),
+                                  guardrails=payload.get('guardrails'))
                     yield _sse('done', {**payload,
                                         'highlight': payload.get('highlight') or [],
                                         'actions': payload.get('actions') or []})
@@ -352,12 +366,16 @@ def guide():
                        "content but not the wording."),
             'source': 'fallback', 'model_used': False})
 
-    text = model.complete(prompts.guide_system(), _with_help(question),
+    material = _with_help(question)
+    text = model.complete(prompts.guide_system(), material,
                           max_tokens=model.MAX_TOKENS_GUIDE)
     if not text:
         return jsonify({'error': 'the assistant could not answer just now',
                         'model_used': False})
-    return jsonify({'answer': text, 'source': 'model', 'model_used': True})
+    text, background = background_check.review(text, material)
+    record.record('guide', question, text, model_used=True, background=background)
+    return jsonify({'answer': text, 'source': 'model', 'model_used': True,
+                    'background': background})
 
 
 @assistant_bp.route('/assistant/analyze', methods=['POST'])
@@ -399,15 +417,21 @@ def analyze():
     text, access_removed = model.strip_access_talk(text)
     text = model.trim_to_sentence(text)
     ok_numbers, invented = model.numbers_preserved(block, text, question)
-
+    background = {'checked': False}
+    if 'background' in text.lower():
+        text, background = background_check.review(text, block)
+    guardrails = {'references_removed': removed,
+                  'access_sentences_removed': access_removed,
+                  'unsupported_numbers': invented,
+                  'clean': not removed and not access_removed and ok_numbers}
+    record.record('analyze', question, text, model_used=True, guardrails=guardrails,
+                  background=background, n_results=len(results))
     return jsonify({
         'facts': facts,
         'answer': text,
         'model_used': True,
-        'guardrails': {'references_removed': removed,
-                       'access_sentences_removed': access_removed,
-                       'unsupported_numbers': invented,
-                       'clean': not removed and not access_removed and ok_numbers},
+        'guardrails': guardrails,
+        'background': background,
     })
 
 
@@ -444,10 +468,21 @@ def guide_stream():
                                          'The Help page explains each search.'})
             yield _sse('done', {'source': 'fallback', 'model_used': False})
             return
-        for piece in model.stream(prompts.guide_system(), _with_help(question),
+        material = _with_help(question)
+        collected = []
+        for piece in model.stream(prompts.guide_system(), material,
                                   max_tokens=model.MAX_TOKENS_GUIDE):
+            collected.append(piece)
             yield _sse('chunk', {'text': piece})
-        yield _sse('done', {'source': 'model', 'model_used': True})
+        text = ''.join(collected).strip()
+        revised, background = background_check.review(text, material)
+        record.record('guide', question, revised, model_used=True, background=background)
+        done = {'source': 'model', 'model_used': True, 'background': background}
+        # The words have already streamed; when the check changed a sentence
+        # the final event carries the revised text and the page replaces it.
+        if revised != text:
+            done['text'] = revised
+        yield _sse('done', done)
 
     return Response(generate(), mimetype='text/event-stream',
                     headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no'})
@@ -498,11 +533,16 @@ def analyze_stream():
         # The words have already streamed to the page, so when a guard cut
         # something the final event carries the cleaned text and the page
         # replaces what it showed. Without this the guard only wrote a log line.
-        done = {'model_used': True,
-                'guardrails': {'references_removed': removed,
-                               'access_sentences_removed': access_removed,
-                               'unsupported_numbers': invented,
-                               'clean': not removed and not access_removed and ok_numbers}}
+        background = {'checked': False}
+        if 'background' in cleaned.lower():
+            cleaned, background = background_check.review(cleaned, block)
+        guardrails = {'references_removed': removed,
+                      'access_sentences_removed': access_removed,
+                      'unsupported_numbers': invented,
+                      'clean': not removed and not access_removed and ok_numbers}
+        record.record('analyze', question, cleaned, model_used=True, guardrails=guardrails,
+                      background=background, n_results=len(results))
+        done = {'model_used': True, 'guardrails': guardrails, 'background': background}
         if cleaned != text.strip():
             done['text'] = cleaned
         yield _sse('done', done)

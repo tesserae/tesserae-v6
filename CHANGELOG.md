@@ -36,6 +36,13 @@ behind each, are in docs/DECISIONS.md.
   closes #520, #521, #522)
 
 ### Assistant
+- Two checks on the assistant's accuracy. Every exchange is kept on the
+  server, without any identifier, for a weekly reading
+  (`scripts/assistant_record_review.py`), and a second pass asks the model
+  which specific claims in an answer (a date, an attribution, a title, a
+  work's contents) the material it was shown does not support, and replaces
+  or drops those sentences before the page keeps them. The Privacy page
+  says so and no longer names a hosting company the site left. (#532)
 - Tessa's prompts ask for judgement as well as report, now that a larger
   model answers: which parallels look like deliberate allusion and which
   like the stock of the genre, why a genuine one would matter, background
