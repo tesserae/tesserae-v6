@@ -1141,11 +1141,12 @@ FUSION_POLL_SECONDS = 20
 FUSION_PAGE = 25
 
 
-def _fusion_results(source_id, target_id, language, source_name, target_name):
-    """Generator: yields step events while the run is in progress; returns
-    the first page of results, or None when it did not finish in time."""
+def _fusion_results(source_id, target_id, language, source_name, target_name, step=None):
+    """The first page of the comparison, or None when it did not finish in
+    time. Progress goes through step(text), the same channel _prepare uses."""
     import time as _time
     from backend.assistant import searches as _searches
+    step = step or (lambda text: None)
     try:
         page = _searches.fusion_page(source_id, target_id, language, FUSION_PAGE)
     except Exception as e:                                  # noqa: BLE001
@@ -1153,8 +1154,8 @@ def _fusion_results(source_id, target_id, language, source_name, target_name):
         return None
     if page is not None:
         return page
-    yield ('step', f'running the full comparison of {source_name} with {target_name}; '
-                   f'the first run of a pair takes a minute or two')
+    step(f'running the full comparison of {source_name} with {target_name}; '
+         f'the first run of a pair takes a minute or two')
     waited = 0
     while waited < FUSION_WAIT_SECONDS:
         _time.sleep(FUSION_POLL_SECONDS)
@@ -1166,7 +1167,7 @@ def _fusion_results(source_id, target_id, language, source_name, target_name):
             return None
         if page is not None:
             return page
-        yield ('step', 'still running')
+        step('still running')
     return None
 
 
@@ -1263,6 +1264,12 @@ def answer_stream(question, on_step=None, history=None, offered_phrase=None):
     prep = prep_result
     if prep.get('error') or prep.get('needs_model_only'):
         yield ('done', prep)
+        return
+
+    if prep.get('fusion_results'):
+        src, tgt = prep['fusion_pair']
+        yield from _read_results(prep['fusion_results'], src, tgt, question,
+                                 prep['facts'], prep['ran'])
         return
 
     block, all_facts, ran = prep['block'], prep['facts'], prep['ran']
@@ -1606,14 +1613,17 @@ def _prepare(question, step, history=None, offered_phrase=None):
             # just started, and READ it with the results prompt instead of
             # handing over a link. Whole authors and cross-language pairs still
             # hand over: the first has no single search, the second no route.
+            # _prepare runs in a worker thread and reports progress through
+            # step(); it must return a dict, never yield. The reading itself
+            # happens in answer_stream, which streams.
             if not by_author and pair[0].get('language') and pair[0].get('language') == pair[1].get('language'):
-                results = yield from _fusion_results(
+                results = _fusion_results(
                     pair[0].get('id'), pair[1].get('id'), pair[0].get('language'),
                     pair[0].get('display_name') or pair[0].get('id'),
-                    pair[1].get('display_name') or pair[1].get('id'))
+                    pair[1].get('display_name') or pair[1].get('id'), step)
                 if results:
-                    yield from _read_results(results, pair[0], pair[1], question, all_facts, ran)
-                    return
+                    return {'fusion_results': results, 'fusion_pair': (pair[0], pair[1]),
+                            'facts': all_facts, 'ran': ran, 'block': ''}
 
     # A TEXT THE READER WANTS TO OPEN goes to the Reader.
     #
