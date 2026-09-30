@@ -9,6 +9,11 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-09-30
 
+### Corpus
+- Seven Latin poetic texts (Prudentius five works, Dracontius Orestes and
+  Satisfactio) re-sourced from Musisque Deoque to Perseus and Corpus
+  Corporum. The converter keeps one line per verse in bare-verse TEI.
+
 ### Search
 - An exact-phrase Line Search of a single word returns its lines again. The
   two-lemma rule that belongs to co-occurrence searches no longer applies to

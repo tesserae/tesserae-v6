@@ -34,6 +34,67 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+## 2026-09-30 Corpus: seven Prudentius and Dracontius texts re-sourced from Musisque Deoque (planned, not yet run)
+- Why: Musisque Deoque's edition of these seven works is replaced with
+  openly licensed text from Perseus (the five Prudentius works) and
+  Corpus Corporum (Dracontius's Orestes and Satisfactio), so the corpus
+  carries a clear licence for each. Full staging comparison in
+  `backend/text_sources.json` (per-work `note` field) and the PR
+  description.
+- Source, Prudentius (Apotheosis, Hamartigenia, Contra Symmachum,
+  Dittochaeon, Epilogus): `PerseusDL/canonical-latinLit`, author group
+  `stoa0238`, H. J. Thomson's text (the Loeb edition), CC BY-SA 4.0 at the
+  repository level. Converted with `backend/ogl_converter.py`, whose P5
+  path is fixed in this PR. A leaf division of bare `<l>` verse lines with
+  no `<p>` wrapper and no `verse`-typed subtype (the shape all five files
+  use) now yields one output line per `<l>`, cited by the line's own `@n`,
+  instead of flattening the whole division into one line. A leaf marked
+  subtype `verse` (one verse typeset across several `<l>` elements, e.g.
+  Lamentations) is unaffected.
+- Source, Dracontius Orestes: Corpus Corporum idno 16685 (Vollmer's 1905
+  MGH edition), text held public domain, Corpus Corporum's own annotations
+  CC BY 4.0.
+- Source, Dracontius Satisfactio: Corpus Corporum idno 7702 (Migne,
+  Patrologia Latina 60, 1847), public domain. Idno 16685 carries the same
+  poem too, but that digitization repeats two of its lines verbatim at a
+  second position each, inflating its count well past the current file's.
+  The Migne text matches line for line instead, at the cost of an older,
+  less rigorous edition than Vollmer's.
+- Counts (old lines / new lines, references shared / missing / new):
+  Apotheosis 1152/1152, 1152/0/0. Hamartigenia 1029/1029, 1029/0/0.
+  Dittochaeon 196/196, 196/0/0. Epilogus 34/34, 34/0/0. Orestes 974/973,
+  973/1/0 (the old file's final line has no counterpart in the source).
+  Satisfactio 316/316, 316/0/0. All six are identical or near-identical in
+  wording once spelling and orthography are normalized. See
+  `backend/text_sources.json` for the per-work figure.
+- Contra Symmachum: 1944 old lines against 1943 new, 1942 references
+  shared, 2 missing, 1 new. Its numbering changes at two points, both
+  independent of the source swap. Book 1 shifts from line 354, where the
+  old file had split one hexameter ("hoc tamen utcumque est tolerabile,
+  quid," / "quod et ipsae") across two citation numbers that Perseus and
+  the traditional numbering treat as one line. Book 2 shifts from line
+  330, where Perseus's text (and the manuscript tradition) has no line
+  329. From each
+  point on, every citation number in the old file runs one ahead of the
+  new one until the next shift. Split into `part.1.tess` (746 lines) and
+  `part.2.tess` (1197 lines) to match the existing book files.
+- Excluded from this PR, staying on Musisque Deoque: Dracontius's Romulea
+  (ten parts plus fragments) and De Laudibus Dei, held for a second pass.
+  Romulea's candidate source has no machine-readable per-poem division and
+  needed hand reconstruction, with several residual line-count gaps not
+  fully resolved. De Laudibus Dei's two candidate sources do not reconcile
+  with the current file's line numbering at any offset. Priscian's two
+  poems and Ennius's Annales are untouched. No open source holding either
+  Priscian poem was found, and none was sought for Ennius.
+- Production steps after this PR is pulled. Rebuild the Latin inverted
+  index, the Latin lemma cache, and the passage index for the affected
+  files (`prudentius.apotheosis`, `prudentius.hamartigenia`,
+  `prudentius.contra_symmachum` and its two part files,
+  `prudentius.dittochaeon`, `prudentius.epilogus`, `dracontius.orestes`,
+  `dracontius.satisfactio`), each inside its own capped `systemd-run`
+  scope per the memory rules above, one job at a time. Verify with the
+  reference tests in `tests/search_reference_tests.md` afterward.
+
 ## 2026-09-30 Deploy of four search fixes (07:25 EDT)
 
 - Production moved from c522d02 to c4c7800: #509, #524, #507, #525 (see
