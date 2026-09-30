@@ -1219,6 +1219,82 @@ def _read_results(results, src, tgt, question, all_facts, ran):
     yield ('done', done)
 
 
+
+_THEME_PAIR_INTENT = ('theme search', 'theme comparison', 'by theme', 'in theme', 'themes',
+                      'thematic', 'by content', 'in content', 'same kind of scene',
+                      'similar passages', 'same scenes', 'scenes they share',
+                      'what happens in', 'situations')
+
+
+def _theme_pair_intent(question):
+    """True for a question about what two texts share in content."""
+    q = (question or '').lower()
+    return any(t in q for t in _THEME_PAIR_INTENT)
+
+
+def _theme_facts_block(out, limit=12):
+    """The computed facts and the best pairs of a Theme Comparison, as text
+    for the results prompt: references and the site's descriptions only."""
+    wa, wb = out.get('work_a') or {}, out.get('work_b') or {}
+    conf = out.get('confidence') or {}
+    name = lambda w: (f"{w.get('author_display')}, {w.get('title')}" if w.get('author_display') else w.get('work', '?'))  # noqa: E731
+    lines = ['COMPUTED FACTS',
+             f"- Theme Comparison of {name(wa)} ({out.get('n_a')} passages) with "
+             f"{name(wb)} ({out.get('n_b')} passages), by content.",
+             f"- Confidence reading, computed by the engine: {conf.get('level')} "
+             f"(top pair {conf.get('top')}, baseline {conf.get('baseline')}, head lift {conf.get('head_lift')}).",
+             '', 'PAIRS (reference and the site\'s description of each passage; there are no quotations):']
+    refs = set()
+    for p in (out.get('pairs') or [])[:limit]:
+        a, b = p.get('a') or {}, p.get('b') or {}
+        ra = a.get('ref_start') or ''
+        rb = b.get('ref_start') or ''
+        refs.update({ra, rb, str(a.get('work') or ''), str(b.get('work') or '')})
+        lines.append(f"- score {p.get('score')}{' (strong)' if p.get('strong') else ''}: "
+                     f"{ra}: {a.get('gist') or ''} || {rb}: {b.get('gist') or ''}")
+    return '\n'.join(lines), refs
+
+
+def _read_theme_comparison(out, a, b, question, all_facts, ran):
+    """Generator: read a Theme Comparison with its own prompt and the guards,
+    then offer the page that shows the pairs and the Reader."""
+    from backend.assistant import prompts as _prompts
+    from urllib.parse import urlencode as _urlencode
+    block, allowed = _theme_facts_block(out)
+    ask = f'{block}\n\nThe scholar asks: {question}' if question else f'{block}\n\nSay what these two works share in content.'
+    yield ('step', f"reading the {min(len(out.get('pairs') or []), 12)} best pairs")
+    collected = []
+    for piece in model.stream(_prompts.THEME_COMPARE_SYSTEM, ask,
+                              max_tokens=model.MAX_TOKENS_ANALYZE, temperature=0.0):
+        collected.append(piece)
+        yield ('chunk', piece)
+    text = ''.join(collected)
+    cleaned, removed = model.strip_unsupported_references(text, allowed)
+    cleaned, access_removed = model.strip_access_talk(cleaned)
+    cleaned = model.trim_to_sentence(cleaned)
+    ok_numbers, invented = model.numbers_preserved(block, cleaned, question)
+    a_id = str(a.get('id') or '').replace('.tess', '')
+    b_id = str(b.get('id') or '').replace('.tess', '')
+    all_facts.append({'kind': 'A THEME COMPARISON, read above.', 'search': 'theme_compare',
+                      'n_pairs': len(out.get('pairs') or []), 'work_a': a_id, 'work_b': b_id,
+                      'confidence': out.get('confidence')})
+    controls = [{'kind': 'theme_compare', 'label': 'Open the Theme Comparison',
+                 'detail': f"{out.get('n_a')} passages against {out.get('n_b')}, by content",
+                 'url': f"/theme-search?{_urlencode({'compare': a_id, 'with': b_id})}"}]
+    controls += [c for c in (actions.build(all_facts, question) or []) if c.get('kind') != 'theme_compare']
+    done = {'searches_run': ran, 'facts': all_facts, 'highlight': [],
+            'theme_compare': {'work_a': a_id, 'work_b': b_id, 'n_pairs': len(out.get('pairs') or []),
+                              'confidence': out.get('confidence')},
+            'actions': controls, 'offered_variants': False, 'offer_phrase': None,
+            'guardrails': {'references_removed': removed, 'access_sentences_removed': access_removed,
+                           'unsupported_numbers': invented, 'fabricated_quotes': [],
+                           'mispaired_quotes': [],
+                           'clean': not removed and not access_removed and ok_numbers}}
+    if cleaned != text.strip():
+        done['text'] = cleaned
+    yield ('done', done)
+
+
 def answer_stream(question, on_step=None, history=None, offered_phrase=None):
     """Same loop, but yield the answer as it is written.
 
@@ -1264,6 +1340,12 @@ def answer_stream(question, on_step=None, history=None, offered_phrase=None):
     prep = prep_result
     if prep.get('error') or prep.get('needs_model_only'):
         yield ('done', prep)
+        return
+
+    if prep.get('theme_compare'):
+        a, b = prep['theme_pair']
+        yield from _read_theme_comparison(prep['theme_compare'], a, b, question,
+                                          prep['facts'], prep['ran'])
         return
 
     if prep.get('fusion_results'):
@@ -1565,6 +1647,45 @@ def _prepare(question, step, history=None, offered_phrase=None):
     # which also means the answer arrives immediately.
     # The classifier's verdict counts as compare intent too, so a phrasing the
     # list has never seen still reaches the right search.
+    # A THEME COMPARISON: two named texts and a question about what they share
+    # in content ("what does theme search show about these two books"). Runs
+    # the pairwise Theme Comparison and hands its pairs to answer_stream to
+    # read; the ordinary two-text comparison below is about wording.
+    if _theme_pair_intent(question) and not compare_done:
+        try:
+            from backend.assistant import corpus_lookup
+            tpair = corpus_lookup.named_texts(question, limit=2)
+        except Exception as e:                              # noqa: BLE001
+            logger.info('[ASSISTANT] theme pair lookup failed: %s', e)
+            tpair = []
+        # "What does theme search show about these two books?" names no book:
+        # the two were named a turn or two earlier, so look back through the
+        # reader's own turns for the most recent pair.
+        if len(tpair) < 2 and history:
+            for turn in reversed(history):
+                if turn.get('role') == 'user':
+                    try:
+                        earlier = corpus_lookup.named_texts(turn.get('text') or '', limit=2)
+                    except Exception:                       # noqa: BLE001
+                        earlier = []
+                    if len(earlier) == 2:
+                        tpair = earlier
+                        break
+        if len(tpair) == 2 and not all(p.get('matched') == 'author' for p in tpair):
+            a_id = str(tpair[0].get('id') or '').replace('.tess', '')
+            b_id = str(tpair[1].get('id') or '').replace('.tess', '')
+            step(f"comparing {tpair[0].get('display_name') or a_id} with "
+                 f"{tpair[1].get('display_name') or b_id} by content")
+            try:
+                out = searches.run('theme_compare', {'work_a': a_id, 'work_b': b_id, 'limit': 25})
+            except searches.SearchError as e:
+                logger.info('[ASSISTANT] theme comparison failed: %s', e)
+                out = None
+            if out and out.get('pairs'):
+                ran.append('theme_compare')
+                return {'theme_compare': out, 'theme_pair': (tpair[0], tpair[1]),
+                        'facts': all_facts, 'ran': ran, 'block': ''}
+
     _compare_intent = (any(t in question.lower() for t in actions._COMPARE_INTENT)
                        or _decided(decision, 'kind', None) == 'compare')
     if _compare_intent:
