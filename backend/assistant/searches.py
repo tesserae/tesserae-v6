@@ -149,6 +149,20 @@ TOOLS = {
             'query': a['query'], 'limit': int(a.get('limit') or 25),
             **({'languages': a['languages']} if a.get('languages') else {})}),
     },
+    'theme_compare': {
+        'what': 'Two works or books read against each other by CONTENT: every '
+                'passage of one scored against every passage of the other on '
+                'the Similar Passages vectors, the best pairs returned with both '
+                'descriptions. Use when a question asks what two named texts '
+                'share in theme, scene or situation rather than in wording. '
+                'Works across languages.',
+        'args': {'work_a': 'work id of the first text (see list_texts)',
+                 'work_b': 'work id of the second text',
+                 'limit': 'optional, pairs to return (default 25)'},
+        'run': lambda a: _get('/passages/compare', {
+            'work_a': a['work_a'], 'work_b': a['work_b'],
+            'limit': int(a.get('limit') or 25)}),
+    },
     'list_texts': {
         'what': 'What the corpus actually holds in a language. Use FIRST when '
                 'the user asks an open question about a language or period, so '
