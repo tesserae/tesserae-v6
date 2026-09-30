@@ -248,3 +248,137 @@ describe('the covered-works line under the language row', () => {
     expect(screen.queryByText(/Searches \d+ of \d+ works/)).toBeNull();
   });
 });
+
+/**
+ * Compare Two Works: reads two works, or books, against each other by
+ * content (GET /api/passages/compare). Built on the same TextSelector +
+ * useCorpus pair the classic Search page's Source/Target pickers use.
+ */
+describe('Compare two works', () => {
+  const AUTHORS_LA = {
+    authors: [
+      {
+        author: 'Vergil',
+        works: [{
+          work_key: 'aeneid', work: 'Aeneid', author_key: 'vergil',
+          id: 'vergil.aeneid.tess', title: 'Aeneid', is_part: false,
+        }],
+      },
+      {
+        author: 'Lucan',
+        works: [{
+          work_key: 'bellum_civile', work: 'Bellum Civile', author_key: 'lucan',
+          id: 'lucan.bellum_civile.tess', title: 'Bellum Civile', is_part: false,
+        }],
+      },
+    ],
+  };
+
+  const COMPARE_RESULT = {
+    work_a: { work: 'vergil.aeneid', display_name: 'Vergil, Aeneid' },
+    work_b: { work: 'lucan.bellum_civile', display_name: 'Lucan, Bellum Civile' },
+    scale: 'fine', n_a: 125, n_b: 115,
+    pairs: [{
+      score: 0.925, lift: 0.078, strong: true,
+      a: { id: 'a1', work: 'vergil.aeneid', language: 'la', ref_start: '1.1', ref_end: '1.5',
+           gist: 'A storm scatters the fleet.', themes: ['storm'],
+           display_name: 'Vergil, Aeneid', reader_url: '/read?work=vergil.aeneid.tess' },
+      b: { id: 'b1', work: 'lucan.bellum_civile', language: 'la', ref_start: '5.1', ref_end: '5.4',
+           gist: 'A storm threatens the ships.', themes: ['storm'],
+           display_name: 'Lucan, Bellum Civile', reader_url: '/read?work=lucan.bellum_civile.tess' },
+    }],
+    confidence: { top: 0.9246, baseline: 0.8466, head_lift: 0.0719, level: 'strong' },
+  };
+
+  // A fake Response with both .json() (how ThemeSearchPage's own fetches
+  // read a body) and .ok/.text() (how useCorpus's fetchAuthors/fetchCorpus
+  // read one, via utils/api.js's jsonFetch) -- the two callers that share
+  // /api/texts?language= here need both.
+  function fakeResponse(data) {
+    return Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve(data),
+      text: () => Promise.resolve(JSON.stringify(data)),
+    });
+  }
+
+  function mockFetchFor(extra) {
+    return vi.fn((url) => {
+      const u = String(url);
+      if (u.startsWith('/api/languages')) return fakeResponse({ languages: [] });
+      if (u.startsWith('/api/authors')) return fakeResponse(AUTHORS_LA);
+      if (u.startsWith('/api/texts')) return fakeResponse([]);
+      if (extra) {
+        const hit = extra(u);
+        if (hit) return hit;
+      }
+      return fakeResponse({});
+    });
+  }
+
+  function openComparePane() {
+    render(<ThemeSearchPage />);
+    fireEvent.click(screen.getByRole('button', { name: 'Compare two works' }));
+  }
+
+  function pickWork(sideLabel, authorName, workId) {
+    const authorInput = screen.getByLabelText(`${sideLabel} author`);
+    fireEvent.focus(authorInput);
+    // SearchableAuthorSelect picks an author on pointerdown, not click, so
+    // the selection reaches the page (2026-09-08's fix for a blur race).
+    fireEvent.pointerDown(screen.getByRole('button', { name: authorName }));
+    const workSelect = screen.getByLabelText(`${sideLabel} Work`);
+    fireEvent.change(workSelect, { target: { value: workId } });
+  }
+
+  beforeEach(() => {
+    window.history.replaceState(null, '', '/theme-search');
+  });
+
+  it('shows a language and work picker for each side, and a disabled Compare button until both are chosen', async () => {
+    global.fetch = mockFetchFor();
+    openComparePane();
+    expect(await screen.findByLabelText('First work author')).toBeTruthy();
+    expect(screen.getByLabelText('Second work author')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Compare', exact: true })).toBeDisabled();
+  });
+
+  it('calls /api/passages/compare with the two chosen works, and renders the pairs and the confidence line', async () => {
+    global.fetch = mockFetchFor((u) => {
+      if (u.startsWith('/api/passages/compare')) {
+        return Promise.resolve({ json: () => Promise.resolve(COMPARE_RESULT) });
+      }
+      return null;
+    });
+    openComparePane();
+    await screen.findByLabelText('First work author');
+
+    pickWork('First work', 'Vergil', 'vergil.aeneid.tess');
+    pickWork('Second work', 'Lucan', 'lucan.bellum_civile.tess');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Compare', exact: true }));
+
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/api/passages/compare?work_a=vergil.aeneid.tess&work_b=lucan.bellum_civile.tess'));
+
+    expect(await screen.findByText('A storm scatters the fleet.')).toBeTruthy();
+    expect(screen.getByText('A storm threatens the ships.')).toBeTruthy();
+    expect(screen.getByText(/share passages of the same kind well above their general resemblance/))
+      .toBeTruthy();
+    expect(screen.getByText(/125 windows.*against 115 windows/)).toBeTruthy();
+  });
+
+  it('reads compare= and with= from the URL and runs the comparison directly', async () => {
+    window.history.replaceState(null, '', '/theme-search?compare=vergil.aeneid&with=lucan.bellum_civile');
+    global.fetch = mockFetchFor((u) => {
+      if (u.startsWith('/api/passages/compare')) {
+        return Promise.resolve({ json: () => Promise.resolve(COMPARE_RESULT) });
+      }
+      return null;
+    });
+    render(<ThemeSearchPage />);
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/api/passages/compare?work_a=vergil.aeneid&work_b=lucan.bellum_civile'));
+    expect(await screen.findByText('A storm scatters the fleet.')).toBeTruthy();
+  });
+});

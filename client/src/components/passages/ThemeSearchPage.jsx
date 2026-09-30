@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { chronological, byBestMatch, dateParts } from '../../utils/chronology';
 import { coverageCounts, fetchCoveredWorks } from '../../utils/passageCoverage';
 import { LANGUAGE_NAMES as LANG_LABEL } from '../../utils/languageNames';
+import { useCorpus } from '../../hooks';
+import TextSelector from '../search/TextSelector';
 import ThemeExport from './ThemeExport';
 import ConnectionsMap from './ConnectionsMap';
 
@@ -163,6 +165,131 @@ const LANG_CHOICES = [
 // 2026-08-25 by design, while word search does not serve those languages, so
 // /api/languages does not list them. They stay on offer here regardless.
 const INDEX_ONLY = ['fa', 'ur'];
+
+/** Plain-language readings of the /api/passages/compare confidence level,
+ *  for a reader who has no other way to tell "these two works genuinely
+ *  echo each other" from "everything resembles everything a little". */
+const COMPARE_LEVEL_TEXT = {
+  strong: 'The two works share passages of the same kind well above their '
+        + 'general resemblance.',
+  moderate: 'Some passages match in kind; read the top of the list with care.',
+  low: 'Little beyond general resemblance; the pairs below are the closest '
+     + 'the two come.',
+};
+
+/** One side of a comparison pair: author/title, the reference span, the
+ *  gist, and a link into the Reader. Same fields Theme Search's own result
+ *  rows use (`_result` in backend/passage_index.py supplies both). */
+function CompareSideCard({ side }) {
+  if (!side) return null;
+  const span = side.ref_end && side.ref_end !== side.ref_start
+    ? `${side.ref_start}–${side.ref_end}` : side.ref_start;
+  return (
+    <div className="min-w-0">
+      <div className="text-[10px] uppercase tracking-wide text-gray-500">
+        {LANG_LABEL[side.language] || side.language}
+      </div>
+      <div className="font-medium text-gray-900 text-sm">
+        {side.display_name || side.work}
+      </div>
+      {side.reader_url && (
+        <a href={side.reader_url} target="_blank" rel="noreferrer"
+           className="text-sm text-red-800 hover:text-red-900 hover:underline">
+          {span} · Open in Reader
+        </a>
+      )}
+      {side.gist && (
+        <p className="mt-0.5 text-sm text-gray-700 leading-snug">{side.gist}</p>
+      )}
+      {!!(side.themes || []).length && (
+        <div className="mt-1 flex flex-wrap gap-1">
+          {side.themes.slice(0, 5).map((t) => (
+            <span key={t} className="text-[11px] bg-gray-100 text-gray-600 rounded px-1.5 py-0.5">
+              {t}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** A language select plus the same author/work pickers the classic Search
+ *  page uses (TextSelector, fed by useCorpus) -- one language at a time
+ *  because the corpus is organized by language, but any language pair is
+ *  allowed since content matching does not need shared vocabulary. */
+function CompareWorkPicker({ label, langChoices, language, setLanguage,
+                              author, setAuthor, text, setText }) {
+  const { authors, hierarchy, loading, getTextsForAuthor } = useCorpus(language);
+  return (
+    <div className="border border-gray-200 rounded p-3 bg-white space-y-3">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          {label} language
+        </label>
+        <select
+          value={language}
+          onChange={(e) => { setLanguage(e.target.value); setAuthor(''); setText(''); }}
+          className="w-full border rounded px-2 py-2 text-base sm:text-sm"
+        >
+          {langChoices.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+        </select>
+      </div>
+      {loading ? (
+        <p className="text-xs text-gray-500">Loading texts…</p>
+      ) : (
+        <TextSelector
+          label={label}
+          language={language}
+          authors={authors}
+          selectedAuthor={author}
+          setSelectedAuthor={setAuthor}
+          selectedText={text}
+          setSelectedText={setText}
+          hierarchy={hierarchy}
+          fetchTexts={getTextsForAuthor}
+        />
+      )}
+    </div>
+  );
+}
+
+function csvCell(v) {
+  const s = String(v ?? '');
+  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+/** The pairs table as a downloadable CSV. Built client-side straight from
+ *  the response already on screen: there is no compare-specific export
+ *  route the way Theme Search's own results have one (ThemeExport, backed
+ *  by /api/passages/export), and one work's worth of pairs is small enough
+ *  that a server round trip buys nothing. */
+function downloadComparePairsCsv(data) {
+  const rows = [[
+    'score', 'strong',
+    'work_a', 'title_a', 'ref_start_a', 'ref_end_a', 'gist_a',
+    'work_b', 'title_b', 'ref_start_b', 'ref_end_b', 'gist_b',
+  ]];
+  for (const p of data.pairs || []) {
+    rows.push([
+      p.score, p.strong ? 'yes' : 'no',
+      p.a?.work, p.a?.display_name || p.a?.title || '', p.a?.ref_start, p.a?.ref_end, p.a?.gist || '',
+      p.b?.work, p.b?.display_name || p.b?.title || '', p.b?.ref_start, p.b?.ref_end, p.b?.gist || '',
+    ]);
+  }
+  // A BOM, same reason ThemeExport's CSV carries one: without it Excel turns
+  // Greek, Coptic and Persian text into mojibake.
+  const csv = '﻿' + rows.map((r) => r.map(csvCell).join(',')).join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `theme-comparison-${data.work_a?.work || 'a'}-vs-${data.work_b?.work || 'b'}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
 
 export default function ThemeSearchPage() {
   const [query, setQuery] = useState('');
@@ -407,18 +534,78 @@ export default function ThemeSearchPage() {
 
   // 'search' is Theme Search itself; 'map' is a picture of the same
   // connections at a larger scale (see client/src/components/passages/
-  // ConnectionsMap.jsx). Read from the URL so a link to /theme-search?tab=map
-  // lands on the map directly.
+  // ConnectionsMap.jsx); 'compare' reads two whole works, or two books,
+  // against each other (backend/passage_index.py compare_works). Read from
+  // the URL so a link to /theme-search?tab=map, or one carrying
+  // compare=<id>&with=<id>, lands there directly.
   const [tab, setTab] = useState(() => {
     const p = new URLSearchParams(window.location.search);
-    return p.get('tab') === 'map' ? 'map' : 'search';
+    if (p.get('tab') === 'map') return 'map';
+    if ((p.get('compare') || '').trim() && (p.get('with') || '').trim()) return 'compare';
+    return p.get('tab') === 'compare' ? 'compare' : 'search';
   });
   const setTabAndUrl = (t) => {
     setTab(t);
     const p = new URLSearchParams(window.location.search);
-    if (t === 'map') p.set('tab', 'map'); else p.delete('tab');
+    if (t === 'map' || t === 'compare') p.set('tab', t); else p.delete('tab');
+    if (t !== 'compare') { p.delete('compare'); p.delete('with'); }
     window.history.replaceState({}, '', `/theme-search${p.toString() ? `?${p}` : ''}`);
   };
+
+  // Compare Two Works: pick a language, author and work on each side (the
+  // same TextSelector/useCorpus pair the classic Search page's Source/Target
+  // pickers use), run the comparison, and show the best-matching passage
+  // pairs with the confidence block the route reports.
+  const compareLangChoices = LANG_CHOICE_ORDER
+    .filter((c) => !served || served.includes(c) || INDEX_ONLY.includes(c))
+    .map((c) => [c, LANG_LABEL[c] || c]);
+  const [cmpLangA, setCmpLangA] = useState('la');
+  const [cmpAuthorA, setCmpAuthorA] = useState('');
+  const [cmpTextA, setCmpTextA] = useState('');
+  const [cmpLangB, setCmpLangB] = useState('la');
+  const [cmpAuthorB, setCmpAuthorB] = useState('');
+  const [cmpTextB, setCmpTextB] = useState('');
+  const [cmpData, setCmpData] = useState(null);
+  const [cmpRunning, setCmpRunning] = useState(false);
+  const [cmpError, setCmpError] = useState(null);
+
+  const runCompare = useCallback(async (workA, workB) => {
+    const a = (workA || '').trim();
+    const b = (workB || '').trim();
+    if (!a || !b || cmpRunning) return;
+    setCmpRunning(true);
+    setCmpError(null);
+    setCmpData(null);
+    try {
+      const res = await fetch(
+        `/api/passages/compare?work_a=${encodeURIComponent(a)}&work_b=${encodeURIComponent(b)}`);
+      const json = await res.json();
+      if (json.error) setCmpError(json.error);
+      else {
+        setCmpData(json);
+        const p = new URLSearchParams({ compare: a, with: b, tab: 'compare' });
+        window.history.replaceState({}, '', `/theme-search?${p.toString()}`);
+      }
+    } catch (e) {
+      setCmpError(e.message || 'the comparison could not be run');
+    } finally {
+      setCmpRunning(false);
+    }
+  }, [cmpRunning]);
+
+  // Arriving from a link that already names both works (Tessa, a bookmark, a
+  // colleague): run the comparison rather than making the reader repick both
+  // sides in the pickers, which the ids alone don't populate.
+  const ranCompareFromUrl = useRef(false);
+  useEffect(() => {
+    if (ranCompareFromUrl.current) return;
+    ranCompareFromUrl.current = true;
+    const p = new URLSearchParams(window.location.search);
+    const a = (p.get('compare') || '').trim();
+    const b = (p.get('with') || '').trim();
+    if (!a || !b) return;
+    runCompare(a, b);
+  }, [runCompare]);
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -428,7 +615,7 @@ export default function ThemeSearchPage() {
       </span>
 
       <div className="mt-4 inline-flex rounded border border-gray-300 overflow-hidden text-sm">
-        {[['search', 'Theme Search'], ['map', 'Similarity Map']].map(([v, label]) => (
+        {[['search', 'Theme Search'], ['map', 'Similarity Map'], ['compare', 'Compare two works']].map(([v, label]) => (
           <button
             key={v}
             onClick={() => setTabAndUrl(v)}
@@ -443,6 +630,121 @@ export default function ThemeSearchPage() {
       {tab === 'map' ? (
         <div className="mt-4">
           <ConnectionsMap />
+        </div>
+      ) : tab === 'compare' ? (
+        <div className="mt-4">
+          <p className="text-sm text-gray-600 leading-relaxed">
+            Pick two works, or two books, and see which passages match each other
+            in content. This works across languages: the two sides need not
+            share a single word to be found alike.
+          </p>
+
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <CompareWorkPicker
+              label="First work" langChoices={compareLangChoices}
+              language={cmpLangA} setLanguage={setCmpLangA}
+              author={cmpAuthorA} setAuthor={setCmpAuthorA}
+              text={cmpTextA} setText={setCmpTextA}
+            />
+            <CompareWorkPicker
+              label="Second work" langChoices={compareLangChoices}
+              language={cmpLangB} setLanguage={setCmpLangB}
+              author={cmpAuthorB} setAuthor={setCmpAuthorB}
+              text={cmpTextB} setText={setCmpTextB}
+            />
+          </div>
+
+          <button
+            onClick={() => runCompare(cmpTextA, cmpTextB)}
+            disabled={cmpRunning || !cmpTextA || !cmpTextB}
+            className="mt-4 px-4 py-2 rounded bg-red-700 text-white text-sm font-medium hover:bg-red-800 disabled:opacity-40"
+          >
+            {cmpRunning ? 'Comparing…' : 'Compare'}
+          </button>
+
+          {/* The full comparison of two whole poems can take up to about
+              twelve seconds the first time (a matrix of every window of one
+              against every window of the other). The N-against-N phrasing
+              only becomes available once the response lands -- at which
+              point this spinner is already gone and the counts line below
+              shows it -- so the plain form is what shows while waiting. */}
+          {cmpRunning && (
+            <p className="mt-4 flex items-center gap-2 text-sm text-gray-500 italic">
+              <span className="w-4 h-4 border-2 border-gray-200 border-t-red-700 rounded-full animate-spin" />
+              Comparing…
+            </p>
+          )}
+
+          {cmpError && (
+            <div className="mt-4 rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+              {cmpError}
+            </div>
+          )}
+
+          {cmpData && !cmpRunning && (
+            <div className="mt-6">
+              {cmpData.confidence?.level && (
+                <div className={`rounded border px-3 py-2 text-sm ${
+                  (BAND[cmpData.confidence.level] || BAND.unrated).className}`}>
+                  <strong className="font-semibold">
+                    {(BAND[cmpData.confidence.level] || BAND.unrated).label}.
+                  </strong>{' '}
+                  {COMPARE_LEVEL_TEXT[cmpData.confidence.level]
+                    || 'The corpus holds passages of this kind.'}
+                </div>
+              )}
+
+              <p className="mt-2 text-xs text-gray-500">
+                {cmpData.n_a} windows of {cmpData.work_a?.display_name || cmpData.work_a?.work}{' '}
+                against {cmpData.n_b} windows of{' '}
+                {cmpData.work_b?.display_name || cmpData.work_b?.work}.
+              </p>
+
+              {!!(cmpData.pairs || []).length && (
+                <div className="mt-3">
+                  <button
+                    onClick={() => downloadComparePairsCsv(cmpData)}
+                    className="text-xs font-semibold text-gray-700 border border-gray-300 bg-white
+                               rounded px-3 py-1.5 hover:bg-gray-50"
+                  >
+                    Download CSV
+                  </button>
+                </div>
+              )}
+
+              {!(cmpData.pairs || []).length && (
+                <p className="mt-4 text-sm text-gray-600">
+                  No matching passage pairs came back for these two works.
+                </p>
+              )}
+
+              <ul className="mt-4 space-y-3">
+                {(cmpData.pairs || []).map((pair, i) => (
+                  <li key={`${pair.a?.id || i}-${pair.b?.id || i}`}
+                      className="border border-gray-200 rounded p-3 bg-white">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs text-gray-500">score {pair.score?.toFixed?.(3) ?? pair.score}</span>
+                      {pair.strong && (
+                        <span className="text-[10px] bg-red-50 text-red-800 border border-red-200 rounded px-1.5 py-0.5 font-medium">
+                          strong
+                        </span>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <CompareSideCard side={pair.a} />
+                      <CompareSideCard side={pair.b} />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+
+              <p className="mt-5 text-xs text-gray-500 leading-relaxed">
+                These summaries are written by a language model from the passage
+                itself, so treat them as a finding aid rather than as evidence.
+                Read the passage before citing it.
+              </p>
+            </div>
+          )}
         </div>
       ) : (
       <>
