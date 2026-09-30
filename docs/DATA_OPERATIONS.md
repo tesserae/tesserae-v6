@@ -34,6 +34,56 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+## 2026-09-30 The assistant moved to the campus AI gateway, seven re-sourced Latin poems rebuilt into the live indexes, whole-corpus re-description begun (14:35 to 14:56 EDT)
+
+### Assistant
+- #528 merged and pulled (14:35). The rebuilt page deployed with the
+  previous bundles kept (`scripts/keep_old_bundles.sh save` and `restore`).
+  Four settings added to the production environment file: gateway URL,
+  model `Qwen/Qwen3.8-27B-FP8`, key, and the request field that turns the
+  model's thinking off. App reloaded. Live check: the status route reports
+  the model available, and two questions that need the model were answered
+  in 2.2 s and 1.4 s with the model in use. The local model server
+  (`tesserae-assistant`, llama-server, about 25 GB) was stopped and
+  disabled at 14:47 after a like-for-like run of ten questions. Its unit
+  file remains, and removing the four settings and reloading returns the
+  assistant to it.
+
+### Texts and index
+- #529 merged and pulled (14:45): nine files for seven works replaced under
+  `texts/la/` (Prudentius Apotheosis, Hamartigenia, Contra Symmachum whole
+  and two book files, Dittochaeon, Epilogus, and Dracontius Orestes and
+  Satisfactio), all validated. Stored window wording refreshed for the
+  seven works with `scripts/corpus/refresh_window_text.py` (1,308 windows
+  examined, 751 updated, 3,500 lines, backup
+  `window_texts.db.bak-textrefresh-20260930-144830`). Descriptions and
+  vectors kept, since the wording changes are spelling and punctuation
+  except in Contra Symmachum, whose numbering shifts by one line from
+  1.354 and from 2.330. Its windows keep their descriptions until the
+  corpus re-description below reaches them.
+- Lemma caches built for the nine files (`scripts/batch_lemma_cache.py la`,
+  8 GB job, 14:47 to 14:49). `la_index.db` copied, the nine files replaced
+  in the copy with `scripts/corpus/add_texts_to_index.py --replace` (12 GB
+  job, 14:50 to 14:51, 1,655 texts, 932,822 lines, lemma_doc_freq rebuilt
+  with 331,096 lemmas, integrity ok), swapped in at 14:52 with backup
+  `la_index.db.bak-mqdq-20260930`, app reloaded. Latin frequency cache
+  recalculated through the app's own route (83 s, 1,833 texts).
+  Rare-bigram table rebuilt (`scripts/corpus/rebuild_bigrams.py la`, 101 s,
+  783 works, 3,828,161 bigrams), app reloaded again. Every reference search
+  passed after the index swap, and a live lemma search of the new
+  Apotheosis against the Aeneid returned twenty parallels.
+
+### Passage descriptions
+- Whole-corpus re-description with GLM 5.3 Flash on the campus gateway
+  began at 14:17 with a metered first thousand windows (994 described, 6
+  without a parseable answer after four tries, 28.7 min, about 6.5 quota
+  units) and continues as a detached job in chunks of 20,000 windows with
+  24 requests in flight, sleeping through the daily quota reset. Output
+  accumulates outside the index; nothing in the live index changes until
+  the run completes and the descriptions are applied in one operation with
+  `scripts/corpus/apply_passage_rows.py --mode replace`, followed by the
+  retrieval and pairwise measurements. Expected duration about a week.
+
 ## 2026-09-30 Corpus: seven Prudentius and Dracontius texts re-sourced from Musisque Deoque (planned, not yet run)
 - Why: Musisque Deoque's edition of these seven works is replaced with
   openly licensed text from Perseus (the five Prudentius works) and
