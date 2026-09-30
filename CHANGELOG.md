@@ -43,6 +43,11 @@ behind each, are in docs/DECISIONS.md.
   sentence on where her model runs is updated. (#528)
 
 ### Data operations
+- Afternoon: the assistant switched to the campus AI gateway and its local
+  model server retired; the seven re-sourced Latin poems rebuilt into the
+  Latin index, lemma caches, frequency cache, rare-bigram table and stored
+  window text; the whole-corpus passage re-description with GLM 5.3 Flash
+  begun (docs/DATA_OPERATIONS.md, 2026-09-30 afternoon entry).
 - The four fixes above pulled onto production and the app reloaded, 07:25
   EDT, no bundle change. Reference searches passed. The Coptic single-word
   exact search returns 500 lines on the live site.
