@@ -269,7 +269,8 @@ def fusion_page(source, target, language, limit=25):
     data = _get('/fusion-search', {'source': _id(source), 'target': _id(target),
                                    'language': language or 'la', 'limit': int(limit)})
     if isinstance(data, dict) and data.get('status') == 'complete':
-        return data.get('results') or []
+        # The route names its page 'parallels'; older callers read 'results'.
+        return data.get('parallels') or data.get('results') or []
     return None
 
 

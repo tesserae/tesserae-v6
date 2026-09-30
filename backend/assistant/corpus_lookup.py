@@ -61,6 +61,11 @@ def _all_texts(language=None):
                 logger.info('[GUIDE] could not list %s: %s', code, e)
                 rows = []
             rows = rows if isinstance(rows, list) else []
+            # The listing route does not repeat the language on every row,
+            # and callers group and route by it, so it is stamped here.
+            for r in rows:
+                if isinstance(r, dict) and not r.get('language'):
+                    r['language'] = code
             with _lock:
                 _texts[code] = rows
         out += rows

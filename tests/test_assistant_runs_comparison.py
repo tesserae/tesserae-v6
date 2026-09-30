@@ -28,21 +28,30 @@ def _drain(gen):
 
 def test_fusion_results_returns_a_cached_page_at_once(monkeypatch):
     monkeypatch.setattr(searches, 'fusion_page', lambda s, t, l, n: RESULTS)
-    events, page = _drain(agent._fusion_results(SRC['id'], TGT['id'], 'la', 'A', 'B'))
-    assert page == RESULTS and events == []
+    steps = []
+    page = agent._fusion_results(SRC['id'], TGT['id'], 'la', 'A', 'B', steps.append)
+    assert page == RESULTS and steps == []
 
 
 def test_fusion_results_waits_then_gives_up(monkeypatch):
-    calls = []
+    calls, steps = [], []
     monkeypatch.setattr(searches, 'fusion_page', lambda s, t, l, n: calls.append(1) or None)
     monkeypatch.setattr(agent, 'FUSION_WAIT_SECONDS', 40)
     monkeypatch.setattr(agent, 'FUSION_POLL_SECONDS', 20)
     import time
     monkeypatch.setattr(time, 'sleep', lambda s: None)
-    events, page = _drain(agent._fusion_results(SRC['id'], TGT['id'], 'la', 'A', 'B'))
+    page = agent._fusion_results(SRC['id'], TGT['id'], 'la', 'A', 'B', steps.append)
     assert page is None
-    assert events[0][0] == 'step' and 'first run' in events[0][1]
+    assert 'first run' in steps[0] and steps[-1] == 'still running'
     assert len(calls) == 3
+
+
+def test_prepare_stays_a_plain_function():
+    """_prepare runs in a worker thread and its dict is merged with
+    update(); a yield anywhere inside it turns it into a generator and the
+    merge silently produces a dict with no block (2026-09-30, live)."""
+    import inspect
+    assert not inspect.isgeneratorfunction(agent._prepare)
 
 
 def test_read_results_streams_a_reading_and_hands_over_the_control(monkeypatch):
