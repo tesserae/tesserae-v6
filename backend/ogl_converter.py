@@ -541,7 +541,8 @@ def _extract_sections_p5(root) -> list:
         base_citation = get_citation_path(div)
         
         paragraphs = div.findall('./tei:p', TEI_NS)
-        lines = div.findall('./tei:l', TEI_NS) + div.findall('./tei:lg', TEI_NS)
+        bare_lines = div.findall('./tei:l', TEI_NS)
+        lines = bare_lines + div.findall('./tei:lg', TEI_NS)
         if paragraphs and not lines:
             for i, p in enumerate(paragraphs, 1):
                 text = get_text_from_element(p)
@@ -551,6 +552,29 @@ def _extract_sections_p5(root) -> list:
                     if citation not in seen_citations:
                         sections.append({'citation': citation, 'text': text})
                         seen_citations.add(citation)
+        elif (bare_lines and not paragraphs and div.findall('./tei:lg', TEI_NS) == []
+              and (div.get('subtype') or div.get('type') or '').lower() != 'verse'):
+            # A leaf whose only children are bare <l> verse lines with no <p>
+            # wrapper (the normal shape for Perseus canonical-latinLit poetry)
+            # was previously flattened into one giant section per leaf div,
+            # losing per-verse citation entirely. Split one tess line per
+            # <l>, citation = base_citation + '.' + the line's own @n (or a
+            # 1-based positional fallback if @n is missing), matching the
+            # corpus's verse convention (e.g. "verg. aen. 1.1"). Excludes a
+            # leaf marked subtype/type "verse": that is a single verse
+            # typeset across several <l> elements (e.g. Lamentations), an
+            # already-atomic unit that must stay one section (issue #276),
+            # matching the legacy TEI path's same distinction.
+            for i, l in enumerate(bare_lines, 1):
+                text = normalize_text(get_text_from_element(l))
+                if not text:
+                    continue
+                n = l.get('n')
+                suffix = normalize_citation_token(n) if n else str(i)
+                citation = f"{base_citation}.{suffix}"
+                if citation not in seen_citations:
+                    sections.append({'citation': citation, 'text': text})
+                    seen_citations.add(citation)
         elif paragraphs and lines:
             # A leaf that mixes paragraphs and lines is one section with all
             # of them in document order. Swete's Lamentations gives each verse
