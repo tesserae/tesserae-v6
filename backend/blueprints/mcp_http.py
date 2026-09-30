@@ -764,6 +764,67 @@ def _t_similar_passages(a):
     return out
 
 
+def _t_theme_compare(a):
+    """Two whole works, or two books, read against each other by CONTENT.
+
+    Every indexed window of work_a is scored against every window of work_b;
+    the closest pairs come back with a confidence block saying how much these
+    two works echo each other beyond their general resemblance to each other.
+
+    Unlike theme_search and similar_passages, this route answers with a real
+    HTTP error status (404 for a work with no described windows, 400 for a
+    missing id) rather than a 200 carrying an error field, so this calls
+    requests directly instead of the shared `_get` helper and reads the JSON
+    body either way -- the body carries the same error message regardless of
+    status code.
+    """
+    params = {'work_a': a.get('work_a') or '', 'work_b': a.get('work_b') or ''}
+    for k in ('scale', 'limit'):
+        if a.get(k):
+            params[k] = a[k]
+    r = requests.get(f"{API_BASE}/passages/compare", params=params, timeout=_TIMEOUT)
+    try:
+        d = r.json()
+    except ValueError:
+        r.raise_for_status()
+        raise
+
+    def _side(w):
+        if not w:
+            return w
+        return {'work': w.get('work'), 'language': w.get('language'),
+                'author': w.get('author'), 'title': w.get('title'),
+                'display_name': w.get('display_name'),
+                'ref_start': normalize_ref(w.get('ref_start')),
+                'ref_end': normalize_ref(w.get('ref_end')),
+                'gist': w.get('gist'), 'themes': w.get('themes')}
+
+    def _work(key):
+        w = d.get(key) or {}
+        return {'work': w.get('work'), 'author': w.get('author'),
+                'title': w.get('title'), 'display_name': w.get('display_name')}
+
+    out = {'work_a': _work('work_a'), 'work_b': _work('work_b'),
+           'scale': d.get('scale'), 'n_a': d.get('n_a'), 'n_b': d.get('n_b'),
+           'confidence': d.get('confidence'),
+           'pairs': [{'score': p.get('score'), 'lift': p.get('lift'),
+                      'strong': p.get('strong'),
+                      'a': _side(p.get('a')), 'b': _side(p.get('b'))}
+                     for p in (d.get('pairs') or [])]}
+    if d.get('error'):
+        out['error'] = d['error']
+    out['presentation'] = (
+        "Pairs match in CONTENT (scene, theme, situation), not wording, so a "
+        "cross-language pair shares no vocabulary. `strong` marks a pair that "
+        "stands well above the two works' general resemblance to EACH OTHER "
+        "(see `confidence`); at confidence level 'low' the two works show "
+        "little beyond that general resemblance, so present the pairs as the "
+        "closest the two come rather than as findings. Each `gist` is a "
+        "machine-written summary -- fetch the lines with get_passage before "
+        "quoting either side.")
+    return out
+
+
 # --------------------------------------------------------------------------
 # describe_text: what a text is and where it came from
 # --------------------------------------------------------------------------
@@ -1010,6 +1071,23 @@ TOOLS = [
                                     "languages": _STR},
                      "required": ["work"]},
      "fn": _t_similar_passages},
+    {"name": "theme_compare",
+     "description": ("Two whole works, or two books, read against each other by CONTENT: "
+                     "every indexed window of work_a scored against every window of work_b, "
+                     "returning the closest-matching passage pairs. Give two work ids from "
+                     "list_texts (either language, and the two need not match -- content "
+                     "matching needs no shared vocabulary, so this finds a Greek and a Latin "
+                     "epic's shared scenes as readily as two Latin ones). Check `confidence`: "
+                     "at level 'low' the two works resemble each other little beyond their "
+                     "general similarity, so present the pairs as the closest the two come "
+                     "rather than as findings; `strong` on a pair marks one that stands well "
+                     "above that general resemblance. A comparison of two whole long poems can "
+                     "take up to about twelve seconds the first time."),
+     "inputSchema": {"type": "object",
+                     "properties": {"work_a": _STR, "work_b": _STR, "scale": _STR,
+                                    "limit": {"type": "integer"}},
+                     "required": ["work_a", "work_b"]},
+     "fn": _t_theme_compare},
     {"name": "rare_pairs",
      "description": "Rare two-word combinations shared by two texts (distinctive collocations), ranked by rarity. Fast two-text comparison.",
      "inputSchema": {"type": "object", "properties": {"source": _STR, "target": _STR, "language": _STR},
