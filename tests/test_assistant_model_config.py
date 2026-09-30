@@ -84,3 +84,27 @@ def test_llama_server_status_not_ok_means_unavailable(monkeypatch):
 
     monkeypatch.setattr(m.urllib.request, 'urlopen', lambda req, timeout=0: _Resp())
     assert m.is_available() is False
+
+
+def test_extra_fields_cannot_replace_the_request_itself(monkeypatch):
+    m = _reload(monkeypatch, TESSERAE_LLM_EXTRA_JSON='{"model": "other", "stream": true, "top_p": 0.9}')
+    assert m.EXTRA_FIELDS == {'top_p': 0.9}
+    body = json.loads(m._body('s', 'u', 10, 0.2))
+    assert body['model'] == 'local' and 'stream' not in body and body['top_p'] == 0.9
+
+
+def test_non_json_object_health_body_means_unavailable(monkeypatch):
+    m = _reload(monkeypatch)
+
+    class _Resp:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+        def read(self):
+            return b'"<html>login</html>"'
+
+    monkeypatch.setattr(m.urllib.request, 'urlopen', lambda req, timeout=0: _Resp())
+    assert m.is_available() is False

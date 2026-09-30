@@ -30,8 +30,14 @@ logger = get_logger('assistant.model')
 ENDPOINT = os.environ.get('TESSERAE_LLM_URL', 'http://127.0.0.1:8081').rstrip('/')
 MODEL_NAME = os.environ.get('TESSERAE_LLM_MODEL', 'local')
 API_KEY = os.environ.get('TESSERAE_LLM_API_KEY', '').strip()
+# Fields the client sets itself; configuration may add to a request, not
+# replace these.
+_RESERVED_FIELDS = ('model', 'messages', 'temperature', 'max_tokens', 'stream')
 try:
     EXTRA_FIELDS = json.loads(os.environ.get('TESSERAE_LLM_EXTRA_JSON') or '{}')
+    if not isinstance(EXTRA_FIELDS, dict):
+        EXTRA_FIELDS = {}
+    EXTRA_FIELDS = {k: v for k, v in EXTRA_FIELDS.items() if k not in _RESERVED_FIELDS}
 except ValueError:
     EXTRA_FIELDS = {}
 _HEALTH_TIMEOUT = 2
@@ -86,8 +92,10 @@ def is_available():
         req = urllib.request.Request(f'{ENDPOINT}/health', headers=_headers())
         with urllib.request.urlopen(req, timeout=_HEALTH_TIMEOUT) as r:  # nosec B310
             payload = json.loads(r.read() or b'{}')
-        status = payload.get('status') if isinstance(payload, dict) else None
-        ok = status in (None, 'ok')
+        # llama-server: {"status": "ok"}. The gateway: a JSON object of its
+        # own with no status key. Anything that is not a JSON object (a
+        # login page, an error page served as 200) is not a model server.
+        ok = isinstance(payload, dict) and payload.get('status') in (None, 'ok')
     except Exception:
         ok = False
     _availability.update(at=now, ok=ok)
