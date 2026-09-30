@@ -36,6 +36,11 @@ behind each, are in docs/DECISIONS.md.
   closes #520, #521, #522)
 
 ### Assistant
+- Asked to compare two texts, Tessa now runs the comparison and reads its
+  first page, waiting up to a hundred seconds if the run has just started,
+  instead of only handing over the control that opens it. The copy that
+  called her search help now says search, read, interpret, and the results
+  page invites the reader to ask her what the evidence shows. (#533)
 - Two checks on the assistant's accuracy. Every exchange is kept on the
   server, without any identifier, for a weekly reading
   (`scripts/assistant_record_review.py`), and a second pass asks the model
