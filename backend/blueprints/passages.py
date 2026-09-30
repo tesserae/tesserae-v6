@@ -408,7 +408,7 @@ def compare_works_route():
     work_a = (request.args.get('work_a') or '').strip().replace('.tess', '')
     work_b = (request.args.get('work_b') or '').strip().replace('.tess', '')
     if not work_a or not work_b:
-        return jsonify({'error': 'work_a and work_b are required', 'pairs': []}), 400
+        return jsonify({'error': 'work_a and work_b are required', 'pairs': []})
     scale = (request.args.get('scale') or 'fine').strip()
     if scale not in ('fine', 'coarse'):
         scale = 'fine'
@@ -423,8 +423,9 @@ def compare_works_route():
                 'work': f"{w.get('work')}.tess", 'lang': w.get('language') or '',
                 'ref': w.get('ref_start') or '', 'refEnd': w.get('ref_end') or w.get('ref_start') or '',
                 'tab': 'similar'})
-    status = 200 if not out.get('error') else (404 if 'no described' in out['error'] else 400)
-    return jsonify(out), status
+    # Like every route in this blueprint: 200 with an `error` field, so a page
+    # or a connector reads one shape whatever happened.
+    return jsonify(out)
 
 
 @passages_bp.route('/passages/lexical-density')

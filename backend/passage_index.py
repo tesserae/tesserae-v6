@@ -1417,7 +1417,6 @@ def find_similar_to_window(window_id, limit=15, languages=None,
     }
 
 
-
 # --------------------------------------------------------------------------
 # Theme comparison: two works, by content
 # --------------------------------------------------------------------------
@@ -1491,6 +1490,12 @@ def compare_works(work_a, work_b, scale='fine', limit=50, per_window=3):
     for lo in range(0, len(rows_a), COMPARE_BLOCK):
         chunk = rows_a[lo:lo + COMPARE_BLOCK]
         S = np.asarray(_emb[chunk], dtype=np.float32) @ E_b.T
+        # A strided sample of the matrix for the baseline: deterministic, so the
+        # level does not flip between runs, and the whole matrix when it is
+        # small (the stride is 1 below 20,000 cells). Memory at the ceiling of
+        # COMPARE_MAX_CELLS is E_b (n_b x dims float32, tens of MB for the
+        # largest work) plus one block of 512 rows of scores, never the whole
+        # matrix.
         if len(sample) < 200_000:
             sample.append(S.ravel()[:: max(1, S.size // 20_000)])
         k = min(per_window, S.shape[1])

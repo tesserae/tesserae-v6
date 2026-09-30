@@ -1219,7 +1219,6 @@ def _read_results(results, src, tgt, question, all_facts, ran):
     yield ('done', done)
 
 
-
 _THEME_PAIR_INTENT = ('theme search', 'theme comparison', 'by theme', 'in theme', 'themes',
                       'thematic', 'by content', 'in content', 'same kind of scene',
                       'similar passages', 'same scenes', 'scenes they share',
