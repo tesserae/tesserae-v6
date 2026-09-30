@@ -30,6 +30,13 @@ behind each, are in docs/DECISIONS.md.
   embeddings live in a different space from the Latin and Greek ones. (#525,
   closes #520, #521, #522)
 
+### Assistant
+- Tessa's model client can reach a keyed OpenAI-compatible gateway as well as
+  the local model server, by configuration alone. It adds a bearer key, extra
+  request fields (a model's thinking switch), a broader health check and a
+  twenty-second availability cache. Unset, nothing changes. The Help page's
+  sentence on where her model runs is updated. (#528)
+
 ### Data operations
 - The four fixes above pulled onto production and the app reloaded, 07:25
   EDT, no bundle change. Reference searches passed. The Coptic single-word
