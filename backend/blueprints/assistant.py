@@ -206,9 +206,10 @@ def status():
     return jsonify({
         'available': model.is_available(),
         'router_only': not model.is_available(),
-        'note': ('The assistant explains the searches and reads results. It works from '
-                 'the search engine output only, and it does not know classical '
-                 'scholarship independently.'),
+        'note': ('Tessa explains the site, runs searches, and reads results: which '
+                 'parallels look like deliberate allusion and which like the stock of a '
+                 'genre, and why one would matter. She cites only what the searches return; '
+                 'what she adds from general knowledge she marks as background.'),
     })
 
 

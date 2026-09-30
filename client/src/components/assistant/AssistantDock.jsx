@@ -233,7 +233,7 @@ export default function AssistantDock() {
         <span className="hidden sm:block text-left leading-tight">
           <span className="block text-base font-semibold">Tessa</span>
           <span className="block text-[11px] font-medium text-red-100">
-            Search help &amp; site guide
+            Search, read, interpret
           </span>
         </span>
       </button>
@@ -250,7 +250,7 @@ export default function AssistantDock() {
           <span className="flex items-center justify-center w-6 h-6 rounded-md bg-red-700 text-white text-xs font-semibold leading-none">
             T
           </span>
-          Tessa &middot; Search help &amp; site guide
+          Tessa &middot; Search, read, interpret
           <span className="text-[9px] font-semibold uppercase tracking-wide text-amber-700 align-super">
             beta
           </span>
@@ -339,7 +339,7 @@ export default function AssistantDock() {
         <input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder="Ask about a text, a phrase, or how the site works"
+          placeholder="Ask about a text or a phrase, what a set of results means, or how the site works"
           className="flex-1 text-sm px-2 py-1.5 rounded border border-gray-300 focus:outline-none focus:ring-1 focus:ring-red-600"
         />
         <button

@@ -1126,6 +1126,98 @@ def _summarise(name, raw):
     return {'kind': name, 'raw_size': len(results)}
 
 
+
+# --------------------------------------------------------------------------
+# Running the comparison the reader asked for
+# --------------------------------------------------------------------------
+# Until 2026-09-30 a "compare X and Y" was answered with a sentence and a
+# control that opened the search: the local model took twenty seconds to say
+# anything, and the full comparison can take minutes the first time. With the
+# model on the campus gateway the reading takes two seconds, so where the
+# comparison is cached, or finishes within the wait below, the assistant runs
+# it and reads the first page; where it is still running she says so and the
+# control still opens it.
+FUSION_WAIT_SECONDS = 100
+FUSION_POLL_SECONDS = 20
+FUSION_PAGE = 25
+
+
+def _fusion_results(source_id, target_id, language, source_name, target_name):
+    """Generator: yields step events while the run is in progress; returns
+    the first page of results, or None when it did not finish in time."""
+    import time as _time
+    from backend.assistant import searches as _searches
+    try:
+        page = _searches.fusion_page(source_id, target_id, language, FUSION_PAGE)
+    except Exception as e:                                  # noqa: BLE001
+        logger.info('[ASSISTANT] fusion fetch failed: %s', e)
+        return None
+    if page is not None:
+        return page
+    yield ('step', f'running the full comparison of {source_name} with {target_name}; '
+                   f'the first run of a pair takes a minute or two')
+    waited = 0
+    while waited < FUSION_WAIT_SECONDS:
+        _time.sleep(FUSION_POLL_SECONDS)
+        waited += FUSION_POLL_SECONDS
+        try:
+            page = _searches.fusion_page(source_id, target_id, language, FUSION_PAGE)
+        except Exception as e:                              # noqa: BLE001
+            logger.info('[ASSISTANT] fusion poll failed: %s', e)
+            return None
+        if page is not None:
+            return page
+        yield ('step', 'still running')
+    return None
+
+
+def _read_results(results, src, tgt, question, all_facts, ran):
+    """Generator: read the first page of a comparison with the results prompt
+    and the same guards the results page uses, then hand over the control
+    that opens the full list."""
+    from backend.assistant import findings as _findings
+    from backend.assistant import prompts as _prompts
+    src_id = str(src.get('id') or '')
+    tgt_id = str(tgt.get('id') or '')
+    facts = _findings.summarize_results(results, source_id=src_id, target_id=tgt_id,
+                                        limit=len(results))
+    block = _findings.format_for_narration(facts, passages=results)
+    ask = (f'{block}\n\nThe scholar asks: {question}' if question
+           else f'{block}\n\nAnalyse what this evidence supports.')
+    yield ('step', f'reading the first {len(results)} parallels')
+    collected = []
+    for piece in model.stream(_prompts.ANALYZE_SYSTEM, ask,
+                              max_tokens=model.MAX_TOKENS_ANALYZE, temperature=0.0):
+        collected.append(piece)
+        yield ('chunk', piece)
+    text = ''.join(collected)
+    allowed = {src_id, tgt_id, src_id.replace('.tess', ''), tgt_id.replace('.tess', '')}
+    for r in results:
+        for side in ('source', 'target'):
+            ref = _findings._ref_of(r, side)
+            if ref:
+                allowed.add(ref)
+    cleaned, removed = model.strip_unsupported_references(text, allowed)
+    cleaned, access_removed = model.strip_access_talk(cleaned)
+    cleaned = model.trim_to_sentence(cleaned)
+    ok_numbers, invented = model.numbers_preserved(block, cleaned, question)
+    ran.append('fusion_search')
+    all_facts.append({'kind': 'THE FIRST PAGE OF THE FULL COMPARISON, read above.',
+                      'search': 'fusion_search', 'n_results': len(results),
+                      'source': src_id, 'target': tgt_id})
+    done = {'searches_run': ran, 'facts': all_facts, 'highlight': [],
+            'read_results': {'source': src_id, 'target': tgt_id, 'n': len(results)},
+            'actions': actions.build(all_facts, question) or actions.suggest(question),
+            'offered_variants': False, 'offer_phrase': None,
+            'guardrails': {'references_removed': removed,
+                           'access_sentences_removed': access_removed,
+                           'unsupported_numbers': invented,
+                           'fabricated_quotes': [], 'mispaired_quotes': [],
+                           'clean': not removed and not access_removed and ok_numbers}}
+    if cleaned != text.strip():
+        done['text'] = cleaned
+    yield ('done', done)
+
 def answer_stream(question, on_step=None, history=None, offered_phrase=None):
     """Same loop, but yield the answer as it is written.
 
@@ -1509,6 +1601,19 @@ def _prepare(question, step, history=None, offered_phrase=None):
             })
             ran.append('resolved both texts')
             compare_done = True
+            # RUN IT, WHEN IT CAN BE RUN. Two texts in one language: fetch the
+            # full comparison's first page, waiting a short while if the run has
+            # just started, and READ it with the results prompt instead of
+            # handing over a link. Whole authors and cross-language pairs still
+            # hand over: the first has no single search, the second no route.
+            if not by_author and pair[0].get('language') and pair[0].get('language') == pair[1].get('language'):
+                results = yield from _fusion_results(
+                    pair[0].get('id'), pair[1].get('id'), pair[0].get('language'),
+                    pair[0].get('display_name') or pair[0].get('id'),
+                    pair[1].get('display_name') or pair[1].get('id'))
+                if results:
+                    yield from _read_results(results, pair[0], pair[1], question, all_facts, ran)
+                    return
 
     # A TEXT THE READER WANTS TO OPEN goes to the Reader.
     #

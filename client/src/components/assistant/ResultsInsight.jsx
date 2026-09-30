@@ -53,7 +53,7 @@ export default function ResultsInsight({ results, source, target, className = ''
         title={`Tessa reads ${scopeLabel} parallels in this list and summarizes what they show, starting from the computed figures. You can widen the scope once the panel is open. Nothing runs until you click.`}
         className={`text-sm text-red-700 hover:text-red-900 font-medium underline decoration-dotted underline-offset-4 ${className}`}
       >
-        What does this evidence show?
+        Ask Tessa: what does this evidence show?
       </button>
     );
   }
