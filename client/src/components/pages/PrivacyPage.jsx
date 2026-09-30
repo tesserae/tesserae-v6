@@ -35,9 +35,12 @@ export default function PrivacyPage() {
         <section>
           <h2 className="text-lg font-semibold text-gray-900 mb-2">Data Storage</h2>
           <p>
-            Your data is stored securely on Replit's infrastructure. Search configurations may be 
-            stored locally in your browser's localStorage for convenience. Intertext contributions 
-            you mark as "public" will be visible to other users.
+            Your data is stored on the University at Buffalo server that runs this site. Search
+            configurations may be stored locally in your browser's localStorage for convenience.
+            Intertext contributions you mark as "public" will be visible to other users. Questions
+            put to Tessa, the assistant, and her answers are kept on the server without any
+            identifier, so that a sample can be read for accuracy; her model runs on the
+            university's own AI platform, so the text of a question does not leave campus.
           </p>
         </section>
 

@@ -149,3 +149,6 @@ dist/
 
 # Working documents under evaluation/ are local; the scripts and data stay tracked.
 evaluation/probe_sets/*.md
+
+# The assistant's answer record and other runtime logs stay on the server.
+logs/

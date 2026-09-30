@@ -7,6 +7,31 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-09-30 The assistant's accuracy is checked and recorded, not sampled (#532)
+
+**Question.** The guards check citations, quotations and figures against
+the material the assistant was given. Once she may add general knowledge
+as background, a wrong century or a misattributed work carries none of
+those and passes. What checks that?
+
+**Check.** A second pass with the same model and the same material, asked
+only for specific claims (a date, century or reign, an attribution, a
+title, a work's contents) the material does not support, with a revision
+that removes or softens the specific. Tried on a live answer about
+Dracontius it removed "priest, active in the sixth century" and left "a
+late antique Latin poet" and the judgement that he imitated Vergil, which
+is the intended line: specifics are checked, judgements are hers. A first
+version flagged the period word and the judgement too and gutted a fair
+answer, so a filter now keeps a finding only when the sentence carries a
+date-like token or the claim names a title, attribution or contents. The
+pass takes about two and a half seconds after the answer.
+
+**Decision.** Every answer runs through the check, and every exchange is
+kept on the server with no identifier for a weekly sample reading. A
+graded question set for the live site follows separately. The check is
+a net, not a proof: a correct date it happens not to flag is a correct
+date, and a wrong one it misses is what the weekly reading is for.
+
 ## 2026-09-30 The assistant is asked to judge, not only to report (#531)
 
 **Question.** The assistant's prompts were written for a model with about
