@@ -20,6 +20,7 @@ import re
 from flask import Blueprint, Response, jsonify, request, session
 
 from backend.logging_config import get_logger
+from backend import work_names
 from backend.assistant import (actions, agent, background_check, findings, model, prompts, record,
                                router, site_help)
 
@@ -138,8 +139,7 @@ def _author_holdings(question, max_works=12):
         seen, lines = set(), []
         for r in works:
             tid = str(r.get('id') or r.get('filename') or r.get('text_id') or '')
-            base = tid[:-5] if tid.endswith('.tess') else tid
-            base = base.split('.part.')[0]
+            base = work_names.base_work(tid)
             if not base or base in seen:
                 continue
             seen.add(base)
@@ -206,9 +206,10 @@ def status():
     return jsonify({
         'available': model.is_available(),
         'router_only': not model.is_available(),
-        'note': ('The assistant explains the searches and reads results. It works from '
-                 'the search engine output only, and it does not know classical '
-                 'scholarship independently.'),
+        'note': ('Tessa explains the site, runs searches, and reads results: which '
+                 'parallels look like deliberate allusion and which like the stock of a '
+                 'genre, and why one would matter. She cites only what the searches return; '
+                 'what she adds from general knowledge she marks as background.'),
     })
 
 

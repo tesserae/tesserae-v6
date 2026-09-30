@@ -257,6 +257,22 @@ def find_works(probes):
     return out
 
 
+def fusion_page(source, target, language, limit=25):
+    """One page of the full comparison, or None while it is still running.
+
+    The fusion route answers a cached pair at once and otherwise starts the
+    run and says so. Ids need their .tess suffix here.
+    """
+    def _id(x):
+        x = str(x or '')
+        return x if x.endswith('.tess') else x + '.tess'
+    data = _get('/fusion-search', {'source': _id(source), 'target': _id(target),
+                                   'language': language or 'la', 'limit': int(limit)})
+    if isinstance(data, dict) and data.get('status') == 'complete':
+        return data.get('results') or []
+    return None
+
+
 def run(name, args):
     """Run one chosen search. Raises SearchError; never invents a result."""
     spec = TOOLS.get(name)

@@ -7,6 +7,26 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-09-30 The assistant runs the comparison she is asked for (#533)
+
+**Question.** Asked to compare two texts, the assistant said the corpus
+held both and offered a control that opened the search. That was right
+for a model that took twenty seconds to write a sentence and a search
+that can take minutes. Is it still right with the model on the gateway?
+
+**Check.** A cached pair's first page comes back from the fusion route at
+once, and the results prompt reads twenty-five parallels in two to four
+seconds with every guard reporting clean (the Statius against Aeneid
+reading in the 2026-09-30 prompt entry). An uncached pair starts its run
+on the first request and most finish within a minute or two.
+
+**Decision.** For two texts in one language she fetches the first page,
+waits up to a hundred seconds with a word to the reader while the run
+starts, reads the page with the results prompt and its guards, and still
+offers the control that opens the full list. Whole authors and
+cross-language pairs hand over as before. The site's copy about her
+says search, read, interpret, since that is now what she does.
+
 ## 2026-09-30 The assistant's accuracy is checked and recorded, not sampled (#532)
 
 **Question.** The guards check citations, quotations and figures against
