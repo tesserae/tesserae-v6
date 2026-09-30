@@ -7,6 +7,34 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-09-30 The assistant's model moves to the university's AI platform (#528)
+
+**Question.** The assistant's model (Qwen3-30B-A3B under llama-server on
+the web server's CPU) holds about 25 GB of memory, takes 15 to 20 seconds
+to a finished paragraph, and forces every other heavy job on the machine
+to run one at a time. The university's own AI platform serves larger open
+models over an OpenAI-compatible gateway at no cost to the project. Is an
+answer from there as good, and how fast?
+
+**Check.** Ten of the assistant's typical questions (eight on using the
+site, two reading a fixed set of search results) were put through her own
+prompts to four gateway models. Qwen 3.8 27B with thinking off answered in
+1.1 to 2.0 seconds and kept every rule. It named the right tool, declined
+the request for scholarship with the right reason, said when the help
+material it was given did not cover a question, and read the results
+without invention. GPT-OSS 120B was fuller but explained a score from its
+own knowledge, which the prompt forbids, and once returned nothing when
+its reasoning consumed the token cap. GLM 5.3 Flash reasons before it
+speaks and produced no visible text within the cap. Gemma 4 E4B misstated
+what the help covered. A like-for-like run against the local model
+follows the same day.
+
+**Decision.** The client is made configurable for a keyed gateway with the
+local server as the unchanged default. Production moves to Qwen 3.8 with
+thinking off on the campus gateway, and the local model server is stopped,
+returning its memory to the machine. Questions stay on campus. The Help
+page says so.
+
 ## 2026-09-28 Hebrew stoplist: עם and שם come off, אל, את and על stay (#483 §2)
 
 **Question.** Hebrew lemmas are consonantal, so one stoplist entry stops
