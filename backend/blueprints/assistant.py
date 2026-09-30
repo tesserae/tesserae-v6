@@ -20,6 +20,7 @@ import re
 from flask import Blueprint, Response, jsonify, request, session
 
 from backend.logging_config import get_logger
+from backend import work_names
 from backend.assistant import (actions, agent, background_check, findings, model, prompts, record,
                                router, site_help)
 
@@ -138,8 +139,7 @@ def _author_holdings(question, max_works=12):
         seen, lines = set(), []
         for r in works:
             tid = str(r.get('id') or r.get('filename') or r.get('text_id') or '')
-            base = tid[:-5] if tid.endswith('.tess') else tid
-            base = base.split('.part.')[0]
+            base = work_names.base_work(tid)
             if not base or base in seen:
                 continue
             seen.add(base)

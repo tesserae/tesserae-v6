@@ -1126,7 +1126,6 @@ def _summarise(name, raw):
     return {'kind': name, 'raw_size': len(results)}
 
 
-
 # --------------------------------------------------------------------------
 # Running the comparison the reader asked for
 # --------------------------------------------------------------------------
@@ -1217,6 +1216,7 @@ def _read_results(results, src, tgt, question, all_facts, ran):
     if cleaned != text.strip():
         done['text'] = cleaned
     yield ('done', done)
+
 
 def answer_stream(question, on_step=None, history=None, offered_phrase=None):
     """Same loop, but yield the answer as it is written.
