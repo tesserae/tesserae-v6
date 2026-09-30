@@ -73,8 +73,11 @@ def _body(system, user, max_tokens, temperature, stream=False):
 # on CPU every extra sentence costs seconds.
 # 220 cut the "how do I use my own AI" answer off mid-sentence, and that answer
 # now stands in for a banner that used to be on every page, so it has to finish.
-MAX_TOKENS_GUIDE = 700
-MAX_TOKENS_ANALYZE = 420
+# Raised 2026-09-30 with the move to the gateway model: answers may now run to
+# two paragraphs when a question asks for judgement, and the gateway writes
+# them in a second or two.
+MAX_TOKENS_GUIDE = 900
+MAX_TOKENS_ANALYZE = 900
 
 
 def is_available():

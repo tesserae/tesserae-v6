@@ -973,8 +973,12 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               <h4 className="font-medium text-gray-900 mt-6 mb-2">For advanced analysis</h4>
               <p className="text-gray-700 mb-3">
                 Tessa runs on an open model hosted on the university's own AI platform, so
-                your questions stay on campus and she answers in a second or two. She works
-                from what the searches return, which limits how deeply she can interpret. If you want advanced AI analysis of search results,
+                your questions stay on campus and she answers in a second or two. She reads
+                the results a search returns and will say which parallels look like deliberate
+                allusion and which like the common stock of a genre, and why one would matter.
+                What she will not do is supply a citation, a quotation or a figure of her own:
+                everything she cites comes from the results in front of her, and anything she
+                adds from general knowledge she marks as background. If you want advanced AI analysis of search results,
                 such as weighing which parallels are genuine allusions or drafting an
                 interpretation, the best way is to connect your own latest-model AI directly to
                 Tesserae and let it run the searches itself. The instructions are on the{' '}
