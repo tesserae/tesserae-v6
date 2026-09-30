@@ -418,7 +418,7 @@ def analyze():
     text = model.trim_to_sentence(text)
     ok_numbers, invented = model.numbers_preserved(block, text, question)
     background = {'checked': False}
-    if 'background' in text.lower():
+    if background_check.worth_checking(text):
         text, background = background_check.review(text, block)
     guardrails = {'references_removed': removed,
                   'access_sentences_removed': access_removed,
@@ -534,7 +534,7 @@ def analyze_stream():
         # something the final event carries the cleaned text and the page
         # replaces what it showed. Without this the guard only wrote a log line.
         background = {'checked': False}
-        if 'background' in cleaned.lower():
+        if background_check.worth_checking(cleaned):
             cleaned, background = background_check.review(cleaned, block)
         guardrails = {'references_removed': removed,
                       'access_sentences_removed': access_removed,

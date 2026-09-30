@@ -70,3 +70,9 @@ def test_review_is_off_when_disabled(monkeypatch):
     monkeypatch.setattr(background_check.model, 'complete', lambda *a, **k: called.append(1) or '{}')
     text, verdict = background_check.review('Anything.', 'material')
     assert text == 'Anything.' and verdict == {'checked': False} and not called
+
+
+def test_worth_checking_fires_on_background_or_dates_not_on_line_numbers():
+    assert background_check.worth_checking('As background, Lucan wrote under Nero.')
+    assert background_check.worth_checking('Statius wrote in the first century AD.')
+    assert not background_check.worth_checking('Aeneid 1.150 and Lucan 1.8 share furor.')

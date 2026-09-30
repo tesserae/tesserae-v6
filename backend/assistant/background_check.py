@@ -43,6 +43,13 @@ SYSTEM = (
 _MAX_TOKENS = 700
 
 
+def worth_checking(text):
+    """A results reading is checked when it reaches beyond the results: a
+    sentence marked as background, or a date, century or reign, which the
+    computed facts never contain. Line numbers alone are not a reason."""
+    return bool(re.search(r'background|centur|\bBC\b|\bAD\b|\breign|\bdied\b|\bborn\b', text or '', re.I))
+
+
 def enabled():
     return (os.environ.get('TESSERAE_ASSISTANT_BACKGROUND_CHECK') or '').strip() != '0'
 
