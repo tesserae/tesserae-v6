@@ -7,6 +7,34 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-09-30
+
+### Search
+- An exact-phrase Line Search of a single word returns its lines again. The
+  two-lemma rule that belongs to co-occurrence searches no longer applies to
+  exact searches, so a one-word Coptic query that returned nothing returns
+  its 500 lines. (#509, closes #502)
+- Hebrew cross-lingual dictionaries match lemmas written with final letters.
+  The Hebrew-Greek and Hebrew-Latin tables write a word-final kaf, mem, nun,
+  pe or tsade in medial form, so 1,125 and 552 keys could never match the
+  lemmatizer's output. The loader now converts them. (#524, closes #517)
+- Hebrew stoplist: ten entries that could never match a lemma removed, and
+  the words for "with" and "there" taken off because as consonantal lemmas
+  they cover "people" and "name" more often than the function words.
+  Measured over the whole Hebrew Bible, decision recorded in
+  docs/DECISIONS.md. (#507, part of #483)
+- Cross-lingual dictionary matching: duplicate word matches for a lemma
+  repeated in a line are collapsed, so they no longer inflate rarity scores.
+  The Latin stoplist is folded to the u and i spelling the lemmas use. The
+  vector-similarity recovery step is skipped for Hebrew and Coptic, whose
+  embeddings live in a different space from the Latin and Greek ones. (#525,
+  closes #520, #521, #522)
+
+### Data operations
+- The four fixes above pulled onto production and the app reloaded, 07:25
+  EDT, no bundle change. Reference searches passed. The Coptic single-word
+  exact search returns 500 lines on the live site.
+
 ## 2026-09-29
 
 ### Data operations
