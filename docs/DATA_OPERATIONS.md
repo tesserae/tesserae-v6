@@ -34,6 +34,16 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+## 2026-09-30 Deploy of four search fixes (07:25 EDT)
+
+- Production moved from c522d02 to c4c7800: #509, #524, #507, #525 (see
+  CHANGELOG 2026-09-30). Backend and stoplist changes only, so a pull and a
+  wsgi touch, no bundle rebuild. Every reference search passed. The Coptic
+  single-word exact Line Search that returned nothing (#502) returns 500
+  lines. Hebrew cross-lingual searches now match the dictionaries' medial-
+  spelled keys. The stoplist change takes effect at search time and needs
+  no index rebuild.
+
 ## 2026-09-29 Classical Latin batch imported end to end, the converter extension, and the overnight caches (12:00 to 03:07 EDT)
 
 ### Texts and index
