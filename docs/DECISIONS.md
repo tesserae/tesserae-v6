@@ -7,7 +7,7 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
-## 2026-09-30 Theme Comparison: two works read against each other by content
+## 2026-09-30 Theme Comparison, two works read against each other by content
 
 **Question.** Theme Search reads the whole corpus against a description a
 reader writes. Asked what two named books share in content, the site had
@@ -17,22 +17,22 @@ works directly?
 **Check.** Every passage window of one work scored against every window of
 the other on the Similar Passages vectors, in blocks, each window of the
 first work keeping its three best partners, pairs deduplicated on the
-unordered pair. A whole work stored as book files gathers its books; a
+unordered pair. A whole work stored as book files gathers its books, and a
 named book keeps to its own windows. On the live index, Aeneid 1 against
 Lucan 1 puts Jupiter's prophecy (1.289) beside Lucan's prophecies (1.661,
-1.31) and the storm beside the panicked exodus; the whole Aeneid against
+1.31) and the storm beside the panicked exodus. The whole Aeneid against
 the whole Bellum Civile puts storms with storms, a leader rallying troops
 with the same, battle chaos with battle chaos, in a tenth of a second
-once the index is loaded; Metamorphoses 1 against Hesiod's Theogony,
+once the index is loaded. Metamorphoses 1 against Hesiod's Theogony,
 across languages, puts the cosmogonies together.
 
-**Decision.** Shipped as Theme Comparison: a "Compare two works" mode on
+**Decision.** Shipped as Theme Comparison, with a "Compare two works" mode on
 the Theme Search page, the route /api/passages/compare, the connector tool
 theme_compare, and a path in the assistant that runs it for a question
 about what two texts share in content and reads the best pairs from the
 descriptions alone. Confidence reads the pair's own score matrix, the
 median as baseline and the mean of the top ten above it as head lift,
-with the Theme Search lift thresholds; this is a convention carried over,
+with the Theme Search lift thresholds. This is a convention carried over,
 not a fit, until a graded sheet of pairs exists. Pairs beyond forty
 million cells are refused with advice to compare books.
 

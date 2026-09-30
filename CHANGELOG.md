@@ -35,7 +35,7 @@ behind each, are in docs/DECISIONS.md.
   embeddings live in a different space from the Latin and Greek ones. (#525,
   closes #520, #521, #522)
 - Theme Comparison: two works or books read against each other by content,
-  on the Theme Search page and in the connector as theme_compare (#TBD)
+  on the Theme Search page and in the connector as theme_compare (#535)
 
 ### Assistant
 - Asked to compare two texts, Tessa now runs the comparison and reads its
