@@ -36,6 +36,13 @@ behind each, are in docs/DECISIONS.md.
   closes #520, #521, #522)
 
 ### Assistant
+- Tessa's prompts ask for judgement as well as report, now that a larger
+  model answers: which parallels look like deliberate allusion and which
+  like the stock of the genre, why a genuine one would matter, background
+  marked as background. She sees ten passages instead of five, may write
+  two paragraphs, is handed the corpus's holdings for any author a
+  question names, and every citation, quotation and number guard still
+  runs. The Help page says what she does. (#531)
 - Tessa's model client can reach a keyed OpenAI-compatible gateway as well as
   the local model server, by configuration alone. It adds a bearer key, extra
   request fields (a model's thinking switch), a broader health check and a
