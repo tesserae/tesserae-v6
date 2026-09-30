@@ -1417,6 +1417,117 @@ def find_similar_to_window(window_id, limit=15, languages=None,
     }
 
 
+
+# --------------------------------------------------------------------------
+# Theme comparison: two works, by content
+# --------------------------------------------------------------------------
+# Asked "what does Theme Search show about these two books", the assistant
+# could only say that Theme Search reads the whole corpus. This is the pairwise
+# form: every window of one work scored against every window of the other on
+# the same vectors Similar Passages uses, the best pairs returned with both
+# descriptions, so that the two poems can be read against each other by what
+# happens in them rather than by shared words. Live, not from the connections
+# map, so a pair of books works as well as a pair of works and nothing has to
+# be prebuilt.
+COMPARE_PAIR_LIMIT = 200
+COMPARE_BLOCK = 512
+COMPARE_MAX_CELLS = 40_000_000   # rows_a x rows_b beyond this is refused
+
+
+def _rows_for_work(work, scale=None):
+    """Row indexes for a work or a book file. A whole work stored as book
+    files (vergil.aeneid) gathers its books' windows."""
+    key = _norm_work(work)
+    rows = list(_by_work.get(key) or [])
+    if not rows:
+        prefix = key + '.part.'
+        for k, v in _by_work.items():
+            if k.startswith(prefix):
+                rows.extend(v)
+    # _norm_work folds a book into its work, so asked for one book, keep only
+    # the windows whose own record names that book.
+    asked = str(work or '').replace('.tess', '')
+    if '.part.' in asked:
+        rows = [r for r in rows if str(_records[r].get('work') or '') == asked]
+    if scale:
+        rows = [r for r in rows if (_records[r].get('scale') or 'fine') == scale]
+    if _undescribed:
+        rows = [r for r in rows if r not in _undescribed]
+    return sorted(rows)
+
+
+def compare_works(work_a, work_b, scale='fine', limit=50, per_window=3):
+    """The passage pairs of two works that most resemble each other in content.
+
+    Returns pairs ordered by score, each window of work_a contributing at
+    most `per_window` partners, deduplicated on the unordered pair. The
+    confidence block reads the whole score matrix: `baseline` is its median,
+    `head_lift` the mean of the top ten above it, and `level` follows the
+    Theme Search convention that a lift of STRONG_LIFT or more is strong.
+    """
+    _ensure_loaded()
+    if not _state['ok']:
+        return {'error': _state['error'], 'pairs': []}
+    import numpy as np
+    limit = max(1, min(int(limit or 50), COMPARE_PAIR_LIMIT))
+    per_window = max(1, min(int(per_window or 3), 10))
+    rows_a = _rows_for_work(work_a, scale)
+    rows_b = _rows_for_work(work_b, scale)
+    if scale == 'fine' and (not rows_a or not rows_b):
+        rows_a = rows_a or _rows_for_work(work_a, 'coarse')
+        rows_b = rows_b or _rows_for_work(work_b, 'coarse')
+    if not rows_a or not rows_b:
+        missing = work_a if not rows_a else work_b
+        return {'error': f'no described passage windows for {missing}', 'pairs': [],
+                'n_a': len(rows_a), 'n_b': len(rows_b)}
+    if len(rows_a) * len(rows_b) > COMPARE_MAX_CELLS:
+        return {'error': 'these two works are too large to compare window by window '
+                         'in one request; compare a book of each', 'pairs': [],
+                'n_a': len(rows_a), 'n_b': len(rows_b)}
+    E_b = np.asarray(_emb[rows_b], dtype=np.float32)
+    idx_b = np.asarray(rows_b)
+    candidates = []
+    sample = []
+    for lo in range(0, len(rows_a), COMPARE_BLOCK):
+        chunk = rows_a[lo:lo + COMPARE_BLOCK]
+        S = np.asarray(_emb[chunk], dtype=np.float32) @ E_b.T
+        if len(sample) < 200_000:
+            sample.append(S.ravel()[:: max(1, S.size // 20_000)])
+        k = min(per_window, S.shape[1])
+        top = np.argpartition(-S, k - 1, axis=1)[:, :k]
+        for i, row_a in enumerate(chunk):
+            for j in top[i]:
+                candidates.append((float(S[i, j]), row_a, int(idx_b[j])))
+    flat = np.concatenate(sample) if sample else np.zeros(1, dtype=np.float32)
+    baseline = float(np.median(flat))
+    candidates.sort(key=lambda c: -c[0])
+    seen, pairs = set(), []
+    for score, ra, rb in candidates:
+        key = (min(ra, rb), max(ra, rb))
+        if key in seen:
+            continue
+        seen.add(key)
+        lift = score - baseline
+        pairs.append({'score': round(score, 4), 'lift': round(lift, 4),
+                      'strong': bool(lift >= STRONG_LIFT),
+                      'a': _result(ra, score), 'b': _result(rb, score)})
+        if len(pairs) >= limit:
+            break
+    head = [p['score'] for p in pairs[:10]]
+    head_lift = (sum(head) / len(head) - baseline) if head else 0.0
+    level = ('strong' if head_lift >= STRONG_LIFT else
+             'moderate' if head_lift >= STRONG_LIFT / 2 else 'low')
+    return {
+        'work_a': {'work': _norm_work(work_a), **_naming(_norm_work(work_a))},
+        'work_b': {'work': _norm_work(work_b), **_naming(_norm_work(work_b))},
+        'scale': (_records[rows_a[0]].get('scale') or 'fine'),
+        'n_a': len(rows_a), 'n_b': len(rows_b),
+        'pairs': pairs,
+        'confidence': {'top': round(head[0], 4) if head else None,
+                       'baseline': round(baseline, 4),
+                       'head_lift': round(head_lift, 4), 'level': level},
+    }
+
 def window_for_passage(work, ref_start=None, ref_end=None, prefer='fine'):
     """Map a reader selection to the index window that best covers it.
 

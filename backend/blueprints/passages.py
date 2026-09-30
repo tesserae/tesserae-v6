@@ -20,6 +20,7 @@ Endpoints (all GET, all under the app's API prefix):
 Every route answers 200 with an `error` field rather than raising, so a missing
 or half-built index degrades the Reader's panel instead of breaking the page.
 """
+from urllib.parse import urlencode
 import csv
 import io
 import os
@@ -394,6 +395,38 @@ def similar_passages():
 # stale deploy, which cost an hour on 2026-08-27. Moving them would be the tidier
 # fix and would break every existing caller, so the prefixed path is added
 # alongside rather than instead. See issue #275.
+@passages_bp.route('/passages/compare')
+def compare_works_route():
+    """Theme comparison of two works or books, by content rather than words.
+
+    GET /api/passages/compare?work_a=vergil.aeneid.part.1&work_b=lucan.bellum_civile.part.1
+        [&scale=fine|coarse&limit=50&per_window=3]
+    Every window of work_a is scored against every window of work_b on the
+    Similar Passages vectors; the best pairs come back with both windows'
+    descriptions and a confidence block (median baseline, head lift, level).
+    """
+    work_a = (request.args.get('work_a') or '').strip().replace('.tess', '')
+    work_b = (request.args.get('work_b') or '').strip().replace('.tess', '')
+    if not work_a or not work_b:
+        return jsonify({'error': 'work_a and work_b are required', 'pairs': []}), 400
+    scale = (request.args.get('scale') or 'fine').strip()
+    if scale not in ('fine', 'coarse'):
+        scale = 'fine'
+    out = passage_index.compare_works(
+        work_a, work_b, scale=scale,
+        limit=_int_arg('limit', 50, lo=1, hi=passage_index.COMPARE_PAIR_LIMIT),
+        per_window=_int_arg('per_window', 3, lo=1, hi=10))
+    for p in out.get('pairs') or []:
+        for side in ('a', 'b'):
+            w = p[side]
+            w['reader_url'] = '/read?' + urlencode({
+                'work': f"{w.get('work')}.tess", 'lang': w.get('language') or '',
+                'ref': w.get('ref_start') or '', 'refEnd': w.get('ref_end') or w.get('ref_start') or '',
+                'tab': 'similar'})
+    status = 200 if not out.get('error') else (404 if 'no described' in out['error'] else 400)
+    return jsonify(out), status
+
+
 @passages_bp.route('/passages/lexical-density')
 @passages_bp.route('/lexical-density')
 def lexical_density_route():
