@@ -700,6 +700,20 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 has changed and the map has been rebuilt.
               </p>
 
+              <h4 className="font-medium text-gray-900 mt-6 mb-2">Comparing two works</h4>
+              <p className="text-gray-700 mb-3">
+                The &ldquo;Compare two works&rdquo; tab beside the search box reads two whole
+                works, or two books, against each other rather than against a description you
+                write. Pick a work on each side and the page finds which of their passage
+                windows resemble each other most in content. It works across languages the same
+                way the rest of Theme Search does, so a Latin epic and a Greek one can be
+                compared for shared scenes even though they share no vocabulary. A
+                &ldquo;strong&rdquo; mark on a pair means it stands well above the two
+                works&rsquo; general resemblance to each other, and the confidence line above
+                the results says whether the two works genuinely echo one another or only
+                resemble each other the ordinary amount most texts do.
+              </p>
+
               <h4 className="font-medium text-gray-900 mt-6 mb-2">Reading the results</h4>
               <ul className="list-disc pl-5 text-gray-700 space-y-2 mb-3">
                 <li>
