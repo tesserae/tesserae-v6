@@ -185,7 +185,7 @@ def summarize_results(results, source_id=None, target_id=None, limit=25):
     return facts
 
 
-def format_for_narration(facts, passages=None, max_passages=5):
+def format_for_narration(facts, passages=None, max_passages=10, text_chars=400):
     """Render computed facts as the prompt block the model narrates.
 
     Plain text rather than JSON on purpose: asking a small model to reason inside
@@ -247,6 +247,6 @@ def format_for_narration(facts, passages=None, max_passages=5):
             t = p.get('target_text') or p.get('target', {}).get('text', '')
             sr = _ref_of(p, 'source')
             tr = _ref_of(p, 'target')
-            lines.append(f'- {sr}: "{str(s)[:180]}"')
-            lines.append(f'  {tr}: "{str(t)[:180]}"')
+            lines.append(f'- {sr}: "{str(s)[:text_chars]}"')
+            lines.append(f'  {tr}: "{str(t)[:text_chars]}"')
     return '\n'.join(lines)

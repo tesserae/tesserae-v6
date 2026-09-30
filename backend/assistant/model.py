@@ -73,8 +73,11 @@ def _body(system, user, max_tokens, temperature, stream=False):
 # on CPU every extra sentence costs seconds.
 # 220 cut the "how do I use my own AI" answer off mid-sentence, and that answer
 # now stands in for a banner that used to be on every page, so it has to finish.
-MAX_TOKENS_GUIDE = 700
-MAX_TOKENS_ANALYZE = 420
+# Raised 2026-09-30 with the move to the gateway model: answers may now run to
+# two paragraphs when a question asks for judgement, and the gateway writes
+# them in a second or two.
+MAX_TOKENS_GUIDE = 900
+MAX_TOKENS_ANALYZE = 900
 
 
 def is_available():
@@ -339,8 +342,16 @@ def numbers_preserved(source_text, generated, question=''):
     # "one" is left out: it is idiomatic far more often than numeric ("one of
     # the works", "no one"), and flagging it would train the reader to ignore
     # the warning, which is worse than not checking.
+    gen_lower = (generated or '').lower()
+    # A compound in words ("twenty-five") is one number, not two. Read it as
+    # its value first, so "twenty-five results" is supported by "25" in the
+    # facts instead of being flagged as an invented twenty and an invented five.
+    for tens, units in re.findall(r'\b(twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)[- ](one|two|three|four|five|six|seven|eight|nine)\b', gen_lower):
+        value = _WORD_NUMBERS.get(tens, 0) + _WORD_NUMBERS.get(units, 0)
+        if str(value) in src_nums:
+            gen_lower = gen_lower.replace(f'{tens}-{units}', ' ').replace(f'{tens} {units}', ' ')
     for word, value in _WORD_NUMBERS.items():
-        if not re.search(rf'\b{word}\b', (generated or '').lower()):
+        if not re.search(rf'\b{word}\b', gen_lower):
             continue
         if re.search(rf'\b{word}\b', source.lower()) or str(value) in src_nums:
             continue

@@ -7,6 +7,35 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-09-30 The assistant is asked to judge, not only to report (#531)
+
+**Question.** The assistant's prompts were written for a model with about
+three billion parameters active, and confined it to naming searches and
+putting computed facts into prose. With a 27-billion-parameter model
+answering, can it be asked to weigh the parallels it is shown without
+losing the one property that matters, that it never supplies a citation,
+a quotation or a figure of its own?
+
+**Check.** Old prompt against new on the same gateway model: three real
+result sets (Lucan 1 against Aeneid 1, Thebaid 1 against Aeneid 1,
+Metamorphoses 1 against De rerum natura 1), the default reading and three
+questions each, plus eight guide questions. The guards stripped no
+reference on either side and found every quotation in the passages
+given. Number flags fell from twelve to seven, most of them the words
+"twenty-five" for a 25 in the facts, which the guard now reads as one
+number. Shown ten passages of up to 400 characters instead of five of
+180, the new prompt found and explained the Thebaid 1.473 "meminisse
+iuvet" against Aeneid 1.203 "meminisse iuvabit" echo, which the old one
+never saw. Asked about a lesser-known author, the model invented a title
+twice. Handing it the corpus's list of that author's works, with the
+site's blurbs where they exist, stopped the invented titles. It did not
+stop a wrong date offered from general knowledge.
+
+**Decision.** The new prompts ship. Background about authors is marked as
+background and draws on the site's own blurbs, which exist today only for
+texts imported since late August. Writing blurbs for the rest of the
+corpus is the follow-up, recorded separately when done.
+
 ## 2026-09-30 The assistant's model moves to the university's AI platform (#528)
 
 **Question.** The assistant's model (Qwen3-30B-A3B under llama-server on

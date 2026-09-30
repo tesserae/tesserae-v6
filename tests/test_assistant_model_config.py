@@ -108,3 +108,14 @@ def test_non_json_object_health_body_means_unavailable(monkeypatch):
 
     monkeypatch.setattr(m.urllib.request, 'urlopen', lambda req, timeout=0: _Resp())
     assert m.is_available() is False
+
+
+def test_number_guard_reads_compound_words_as_one_number(monkeypatch):
+    m = _reload(monkeypatch)
+    facts = 'Results: 25 parallels. Lucan 1.8 against Aeneid 1.150.'
+    ok, invented = m.numbers_preserved(facts, 'Across the twenty-five parallels none is verbatim.')
+    assert ok and invented == []
+    ok, invented = m.numbers_preserved(facts, 'Across the thirty-two parallels none is verbatim.')
+    assert not ok and 'thirty' in invented and 'two' in invented
+    ok, invented = m.numbers_preserved(facts, 'All but two are epic stock.')
+    assert not ok and invented == ['two']
