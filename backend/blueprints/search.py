@@ -146,7 +146,7 @@ def _parse_search_request(data):
     for key in ['match_type', 'min_matches', 'max_results', 'max_distance',
                 'stoplist_basis', 'stoplist_size', 'source_unit_type', 'target_unit_type',
                 'use_meter', 'use_pos', 'use_syntax', 'use_sound', 'use_edit_distance',
-                'bigram_boost', 'custom_stopwords']:
+                'bigram_boost', 'custom_stopwords', 'hebrew_greek_route']:
         if key in data and key not in settings:
             settings[key] = data[key]
 
@@ -1000,9 +1000,98 @@ def _handle_crosslingual_fusion(params, source_units, target_units, settings,
 
 def _crosslingual_fusion_core(params, source_units, target_units, settings,
                               cancellation=None, req_meta=None):
+    """Dispatch a cross-lingual search to the Septuagint pivot, the direct
+    dictionary route, or both, then hand off to :func:`_direct_crosslingual_core`.
+
+    For a Hebrew-Greek pair, ``settings['hebrew_greek_route']`` chooses the
+    route (see backend/lxx_pivot.py for why the pivot exists):
+      'septuagint' (default): pivot through the LXX when the Hebrew text has a
+        routed Septuagint counterpart; otherwise the direct route answers.
+        Unchanged from the pre-2026-09-30 behaviour.
+      'direct': always the dictionary route, the same path an unmapped book
+        already took.
+      'both': run the pivot (if a counterpart exists) and the direct route,
+        and merge: pivot results first, then direct results for a Hebrew line
+        the pivot did not already answer. Every merged result carries
+        ``route``: 'septuagint' or 'direct', so the page can label it.
+    Every other language pair ignores the setting and always takes the direct
+    route.
+    """
+    if cancellation:
+        cancellation.check()
+
+    source_language = params['source_language']
+    target_language = params['target_language']
+    lang_pair = frozenset((source_language, target_language))
+    if lang_pair not in VALID_CROSSLINGUAL_PAIRS:
+        return {"error": f"Unsupported cross-lingual pair: {source_language} -> {target_language}. "
+                f"Supported: grc-la, la-en, grc-en"}
+
+    is_he_grc = lang_pair == frozenset(('he', 'grc'))
+    hebrew_greek_route = settings.get('hebrew_greek_route', 'septuagint') if is_he_grc else 'septuagint'
+    if hebrew_greek_route not in ('septuagint', 'direct', 'both'):
+        hebrew_greek_route = 'septuagint'
+
+    # --- Septuagint pivot for Hebrew-Greek biblical pairs ---
+    # Skipped when the caller asked for the direct route only, or when
+    # disabled (TESSERAE_LXX_PIVOT=0). Returns None (no routed counterpart,
+    # or pivot not attempted), in which case the direct route answers.
+    pivot_out = None
+    if (is_he_grc and hebrew_greek_route in ('septuagint', 'both')
+            and os.environ.get('TESSERAE_LXX_PIVOT', '1') not in ('0', 'false', 'no')):
+        pivot_out = _lxx_pivot_core(params, source_units, target_units, settings)
+
+    if pivot_out is not None and hebrew_greek_route == 'septuagint':
+        return pivot_out
+
+    if pivot_out is None:
+        # 'direct' route, or 'both' with no routed Septuagint counterpart for
+        # this book (nothing to merge: behaves exactly like 'direct').
+        return _direct_crosslingual_core(params, source_units, target_units,
+                                         settings, cancellation, req_meta)
+
+    # hebrew_greek_route == 'both', and the pivot found a counterpart: run the
+    # direct route too and merge, pivot results first, then direct results
+    # for a Hebrew line the pivot did not already answer.
+    he_side = 'source' if source_language == 'he' else 'target'
+    for r in pivot_out['results']:
+        r['route'] = 'septuagint'
+    covered_hebrew_lines = {
+        format_short_locus(r[he_side]['hebrew_ref'])
+        for r in pivot_out['results']
+        if isinstance(r.get(he_side), dict) and r[he_side].get('hebrew_ref')
+    }
+
+    direct_out = _direct_crosslingual_core(params, source_units, target_units,
+                                           settings, cancellation, req_meta)
+    merged = list(pivot_out['results'])
+    for r in (direct_out.get('results') or []):
+        half = r.get(he_side)
+        # Both sides as short loci ("22.6"): the pivot's hebrew_ref carries the
+        # work stem, the direct route's ref may or may not.
+        key = format_short_locus(half.get('ref')) if isinstance(half, dict) and half.get('ref') else None
+        if key is not None and key in covered_hebrew_lines:
+            continue
+        r['route'] = 'direct'
+        merged.append(r)
+
+    merged_out = dict(direct_out)
+    merged_out.update({
+        'results': merged,
+        'total_matches': len(merged),
+        'via_septuagint': True,
+        'septuagint_text': pivot_out.get('septuagint_text'),
+        'hebrew_greek_route': 'both',
+    })
+    return merged_out
+
+
+def _direct_crosslingual_core(params, source_units, target_units, settings,
+                              cancellation=None, req_meta=None):
     """Multi-channel cross-lingual fusion: semantic + dictionary + syntax + phonetic.
 
-    Supports Greek-Latin, Latin-English, and Greek-English pairs.
+    Supports Greek-Latin, Latin-English, Greek-English, and (as the direct,
+    non-pivoted route) Hebrew-Greek pairs.
     Phonetic channel (Greek-Latin only): transliterates Greek → Latin alphabet,
     then runs token-level edit distance to catch phonetic echoes (e.g. μῆνιν/mene).
     Runs all applicable channels, merges by (source_idx, target_idx), and
@@ -1050,15 +1139,6 @@ def _crosslingual_fusion_core(params, source_units, target_units, settings,
     if lang_pair not in VALID_CROSSLINGUAL_PAIRS:
         return {"error": f"Unsupported cross-lingual pair: {source_language} -> {target_language}. "
                 f"Supported: grc-la, la-en, grc-en"}
-
-    # --- Septuagint pivot for Hebrew-Greek biblical pairs ---
-    # Falls through to the direct route when the Hebrew text has no routed
-    # Septuagint counterpart, or when disabled (TESSERAE_LXX_PIVOT=0).
-    if (lang_pair == frozenset(('he', 'grc'))
-            and os.environ.get('TESSERAE_LXX_PIVOT', '1') not in ('0', 'false', 'no')):
-        pivot_out = _lxx_pivot_core(params, source_units, target_units, settings)
-        if pivot_out is not None:
-            return pivot_out
 
     is_greek_latin = lang_pair == frozenset(('grc', 'la'))
     has_english = 'en' in lang_pair
@@ -2100,18 +2180,23 @@ def crosslingual_search_poll():
         min_matches = int(data.get('min_matches', 2))
     except (TypeError, ValueError):
         min_matches = 2
+    hebrew_greek_route = data.get('hebrew_greek_route', 'septuagint')
+    if hebrew_greek_route not in ('septuagint', 'direct', 'both'):
+        hebrew_greek_route = 'septuagint'
 
-    # Full ranked list cached once per (pair, languages, min_matches); pagination
-    # slices this cached list per request, so offset/limit are NOT part of the key.
+    # Full ranked list cached once per (pair, languages, min_matches, route);
+    # pagination slices this cached list per request, so offset/limit are NOT
+    # part of the key.
     RANKED_CAP = 2000
     key = make_job_key('xlingual', source, target,
-                       source_language, target_language, min_matches, RANKED_CAP)
+                       source_language, target_language, min_matches, RANKED_CAP,
+                       hebrew_greek_route)
 
     def compute():
         req = {'source': source, 'target': target,
                'source_language': source_language, 'target_language': target_language,
                'match_type': 'crosslingual_fusion', 'min_matches': min_matches,
-               'max_results': RANKED_CAP}
+               'max_results': RANKED_CAP, 'hebrew_greek_route': hebrew_greek_route}
         params = _parse_search_request(req)
         settings = params['settings']
         su, tu = _load_units(params)

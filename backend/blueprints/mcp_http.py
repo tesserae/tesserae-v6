@@ -535,6 +535,9 @@ def _xlang_params(a):
     p = {'source': a.get('source'), 'target': a.get('target'),
          'source_language': a.get('source_language', 'grc'),
          'target_language': a.get('target_language', 'la')}
+    route = a.get('hebrew_greek_route')
+    if route in ('septuagint', 'direct', 'both'):
+        p['hebrew_greek_route'] = route
     try:
         mm = int(a.get('min_matches')) if a.get('min_matches') is not None else None
         if mm is not None:
@@ -1164,12 +1167,18 @@ TOOLS = [
                      "limit (up to 200) and offset (25, 50, ...) to page deeper into the ranking. Each "
                      "parallel usually shares no surface word, so present the kind of similarity "
                      "(meaning, dictionary sense, grammar, sound), not just shared tokens. web_url opens "
-                     "the same comparison in the web app's Cross-Language view."),
+                     "the same comparison in the web app's Cross-Language view. For a Hebrew-Greek pair "
+                     "only, hebrew_greek_route picks how the search is answered: 'septuagint' (default) "
+                     "pivots through the Septuagint text when the Hebrew book has one; 'direct' always "
+                     "uses the dictionary route; 'both' runs both and merges, each parallel carrying "
+                     "route so you can say which found it."),
      "inputSchema": {"type": "object",
                      "properties": {"source": _STR, "target": _STR,
                                     "source_language": _STR, "target_language": _STR,
                                     "min_matches": {"type": "integer"},
-                                    "offset": {"type": "integer"}, "limit": {"type": "integer"}},
+                                    "offset": {"type": "integer"}, "limit": {"type": "integer"},
+                                    "hebrew_greek_route": {"type": "string",
+                                                           "enum": ["septuagint", "direct", "both"]}},
                      "required": ["source", "target", "source_language", "target_language"]},
      "fn": _t_cross_language},
     {"name": "submit_feature_request",

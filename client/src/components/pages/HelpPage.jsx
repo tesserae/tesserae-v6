@@ -1201,12 +1201,17 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   verse it translates. Each result shows the Septuagint line where the match was found together with
                   the Hebrew verse behind it, and a notice above the results says the routing was used.
                 </p>
-                <p className="text-blue-800 text-sm">
+                <p className="text-blue-800 text-sm mb-2">
                   On a benchmark of the 22 explicitly marked citations of Isaiah in Romans, this routing finds 15 in
                   the top 100 results and 9 in the top ten, where the direct word-for-word route found none in the top
                   100. A few books are not routed because their Septuagint versification diverges too far from the
                   Hebrew (Jeremiah, Ezra-Nehemiah, Ecclesiastes, Lamentations); those fall back to the direct
                   dictionary search.
+                </p>
+                <p className="text-blue-800 text-sm">
+                  A Route control on a Hebrew → Greek search lets you choose how it is answered: through the
+                  Septuagint (the default above), directly by dictionary only, or both at once with each result
+                  labelled by the route that found it.
                 </p>
               </div>
 

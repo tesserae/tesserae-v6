@@ -83,6 +83,7 @@ data/la_mqdq_temp/
 !data/lemma_tables/
 !data/text_genres.csv
 !data/translation_pairs.json
+!data/proposals/
 cache/
 
 # Private/local files
