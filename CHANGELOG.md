@@ -9,6 +9,26 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-01
 
+### Hebrew
+- Homographs are told apart by their vowel points (#483). One consonantal
+  spelling often covers several words (אל is "to", "not" and "God", עם is
+  "with" and "people", מלך is "king" and "he reigned"), and the lemma table
+  keyed by consonants gave 5.2% of BHSA's word occurrences the wrong lemma.
+  The lemmatizer and tagger now look a word up by its pointed form first
+  (`data/lemma_tables/hebrew_lemmas_pointed.json`, `hebrew_pos_pointed.json`,
+  built with the consonantal tables by `scripts/corpus/build_hebrew_tables.py`)
+  and by consonants when that misses. Homographs carry a superscript numeral
+  in order of frequency (אל, אל², אל³), and `hebrew_homographs.json` lists
+  every group with its gloss. The cross-language dictionaries, keyed by consonants,
+  are reached through the numeral-stripped form. The stoplist stops the
+  function readings only: it had stopped אף "nose" and נגד "report" for
+  "even" and "opposite", and had left עם "with" and שם "there" off because
+  their one lemma also meant "people" and "name". Wrong lemmas on BHSA fall
+  from 21,687 occurrences to 4,804. On the held-out doublet 2 Samuel 22 =
+  Psalm 18 (51 verse pairs) the default search finds 10, 35, 40 and 47 of
+  them in the top 10, 50, 100 and 500, against 10, 36, 43 and 47 before.
+  The one large mover is the pair whose extra shared word was עם "with",
+  now stopped as the function word it is.
 ### Help and Tessa
 - Tessa's dock reads "AI Assistant" under her name.
 - The system schematic says which path is Theme Search's alone (the query

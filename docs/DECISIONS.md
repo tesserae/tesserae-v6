@@ -7,6 +7,69 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-10-01 Hebrew homographs are separate lemmas, read from the vowel points (#483)
+
+**Question.** The Hebrew lemma table was keyed by consonants and kept the
+first lemma BHSA listed for a spelling, so words that share their letters
+collapsed into one lemma. Issue #483 named the cost. Stopping אל for
+the preposition also stopped אל "God", and מלך "he reigned" was tagged as
+the noun "king". Three ways were open. Leave ambiguous words off the stoplist
+and accept the noise, keep one lemma per spelling but mark homographs in
+the table without a way to choose between them, or read the vowel points,
+which the text has and the lemmatizer discarded.
+
+**Measurement.** On BHSA's 420,102 word occurrences, 3,430 consonantal
+spellings cover more than one lexeme and 21,687 occurrences (5.2%) take the
+wrong lemma under the majority reading. Keyed by pointed form, 1,408 keys
+remain ambiguous and 4,804 occurrences (1.1%) take the wrong reading. A
+pointed table built from BHSA finds 99.3% of the 328,822 words in texts/he
+once the two editions' conventions are folded into the key: holam written
+before or on the waw, dagesh present or absent, holam haser for waw and
+qamats qatan as their plain marks.
+
+On the held-out doublet 2 Samuel 22 = Psalm 18 (51 verse pairs, current
+code on both sides, the old and the new Hebrew index) the default search
+finds 10, 35, 40, 47, 48 and 49 of them in the top 10, 50, 100, 500, 1,000
+and 5,000, against 10, 36, 43, 47, 47 and 49 before. Forty pairs moved,
+twenty-four down and sixteen up, most by a few places. The one large mover
+is 22.27 = 18.27 (13th to 71st): its shared words were ברר, עקש and עם, and
+עם "with" is now the stopped preposition עם² while the old lemma, which also
+meant "people", had passed as a content word. Two pairs gained correct
+lemmas the old table could not give (22.30 = 18.30: "I run", אָרֻץ, had been
+read as "land", and the prefix in בְכָה as "weep"). The doublet is a
+near-verbatim parallel and does not measure what the change is for, which
+is correct lemmas for one word in twenty, correct tags, a stoplist that
+stops function readings only, and fewer pairs built on a shared spelling
+with different meanings. The lemma-only configuration of the benchmark
+cannot be read across this change: in its merged line-and-window mode
+three gold pairs that the lemma matcher does produce (checked directly)
+fall out of the result list, and in line mode they are present at ranks
+76, 85 and 102.
+
+**Decision.** Pointed lookup first, consonantal fallback. A lemma is the
+consonantal spelling. When a spelling covers several lexemes the most
+frequent keeps the bare spelling and the others carry a superscript numeral
+in order of BHSA frequency (אל, אל², אל³, and עם "people", עם² "with"). The
+numeral is part of the lemma everywhere lemmas are stored or compared, and
+is stripped only where a lookup is keyed by consonants (the cross-language
+dictionaries). The bare spelling goes to the most frequent reading rather
+than to a fixed part of speech, because an unpointed query (a reader
+typing אל) should find the reading it most often means, and the stoplist
+names the rest by number. The stoplist stops function readings only.
+
+**Rejected.** Marking homographs with BHSA's own symbols (אל=, אל/) was
+rejected: the slash and bracket mark part of speech, not identity, and the
+symbols would reach the display. A fixed part-of-speech order for the bare
+form was rejected for the reason above. Rebuilding the dictionaries by
+homograph was deferred: they are keyed by consonants from CATSS and the
+aligned verses, and the stripped lookup loses nothing they had.
+
+**Left open.** Unpointed queries take the majority reading, so a line search
+for אל does not also find אל³. A query-time expansion to the whole homograph
+group is the follow-up. Latin and Greek have the same collapse in a smaller
+way (the lemma tables keep one lemma per form) and could use the same
+mechanism with a different disambiguating signal.
+
 ## 2026-09-30 Theme Comparison, two works read against each other by content
 
 **Question.** Theme Search reads the whole corpus against a description a
