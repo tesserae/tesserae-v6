@@ -62,6 +62,53 @@ def _get_pos_table():
     return _hebrew_pos_table
 
 
+# The pointed tables (#483). One consonantal spelling often covers several
+# words: אל is "to", "not" and "God", עם is "with" and "people", מלך is
+# "king" and "he reigned". On BHSA 5.2% of word occurrences got the wrong
+# lemma from the consonantal table. The text is pointed, and the vowel points
+# settle four fifths of those cases, so a word is looked up by its pointed
+# form first (these tables) and by its consonants only when that misses.
+# Built by scripts/corpus/build_hebrew_tables.py together with the
+# consonantal tables, so the four agree on which lemma a word gets.
+_hebrew_pointed_lemma_table = None
+_hebrew_pointed_pos_table = None
+
+
+def _get_pointed_lemma_table():
+    global _hebrew_pointed_lemma_table
+    if _hebrew_pointed_lemma_table is None:
+        _hebrew_pointed_lemma_table = _load_table('hebrew_lemmas_pointed.json', 'pointed lemma')
+    return _hebrew_pointed_lemma_table
+
+
+def _get_pointed_pos_table():
+    global _hebrew_pointed_pos_table
+    if _hebrew_pointed_pos_table is None:
+        _hebrew_pointed_pos_table = _load_table('hebrew_pos_pointed.json', 'pointed part-of-speech')
+    return _hebrew_pointed_pos_table
+
+
+# Homographs that share a consonantal spelling carry a superscript numeral in
+# order of BHSA frequency: אל (to), אל² (not), אל³ (God). The numeral is part
+# of the lemma string everywhere lemmas are stored or compared; base_lemma
+# gives the consonants back for lookups keyed by consonants alone (the
+# cross-language dictionaries).
+SUPERSCRIPTS = '²³⁴⁵⁶⁷⁸⁹'
+_SUPERSCRIPT_RE = re.compile('[' + SUPERSCRIPTS + ']+$')
+
+
+def base_lemma(lemma):
+    """A Hebrew lemma without its homograph numeral: אל³ -> אל."""
+    return _SUPERSCRIPT_RE.sub('', lemma or '')
+
+
+def is_hebrew_lemma(text):
+    """Whether `text` is a lemma this module produces: Hebrew letters, with
+    an optional homograph numeral. The rare-words page uses it to tell lemmas
+    from transcription artifacts."""
+    return bool(re.fullmatch('[א-ת]+[' + SUPERSCRIPTS + ']?', text or ''))
+
+
 def _get_stanza():
     """Lazy-load the Stanza Hebrew pipeline.
 
@@ -123,6 +170,33 @@ def normalize_hebrew(text):
     # Strip sof pasuq (U+05C3) and other punctuation marks
     text = text.replace('\u05C3', '')
     return text
+
+
+# Marks that are not lexical: accents (U+0591-U+05AF), meteg (U+05BD), rafe
+# (U+05BF), paseq (U+05C0), sof pasuq (U+05C3), upper and lower dots and nun
+# hafukha (U+05C4-U+05C6). The vowel points U+05B0-U+05BB and the shin and
+# sin dots U+05C1-U+05C2 stay.
+_NON_LEXICAL_MARKS_RE = re.compile(r'[\u0591-\u05AF\u05BD\u05BF\u05C0\u05C3-\u05C6]')
+
+
+def pointed_key(text):
+    """The pointed lookup key for one word: its vowel points kept, everything
+    else that varies between editions removed.
+
+    BHSA and the Miqra text differ in conventions, and the key folds them:
+    holam haser for waw (U+05BA) becomes holam, qamats qatan (U+05C7) becomes
+    qamats, the dagesh, mappiq and shuruq dot (U+05BC) are dropped, and a holam
+    written on the letter before a waw (BHSA) is moved onto the waw (Sefaria),
+    since both spell the same vowel letter. Maqaf becomes a space, so a key
+    holds one word. Measured 2026-10-01: a BHSA table under this key finds
+    99.3% of the words in texts/he.
+    """
+    text = unicodedata.normalize('NFD', text or '')
+    text = text.replace(_CGJ, '')
+    text = _NON_LEXICAL_MARKS_RE.sub('', text)
+    text = text.replace('\u05BA', '\u05B9').replace('\u05C7', '\u05B8').replace('\u05BC', '')
+    text = text.replace('\u05B9\u05D5', '\u05D5\u05B9')
+    return unicodedata.normalize('NFC', text).replace('\u05BE', ' ').strip()
 
 
 # Hebrew Unicode block: U+0590-U+05FF (Hebrew), U+FB1D-U+FB4F (presentation forms).
@@ -218,6 +292,45 @@ def _lookup_lemma(form, table):
     return None
 
 
+# One letter with the points that sit on it, for stripping a clitic prefix
+# from a pointed form (the prefix takes its own vowel: בְּ, הַ, וְ).
+_POINTED_LETTER = r'[א-ת][ְ-ׇּׁׂ]*'
+_POINTED_PREFIX_RES = [re.compile('^(?:%s){%d}' % (_POINTED_LETTER, k)) for k in (1, 2, 3)]
+
+
+def _lookup_pointed(key, table):
+    """Pointed-table lookup with the same clitic-prefix stripping as the
+    consonantal one, done on pointed letters so the prefix's own vowel goes
+    with it. None when the pointed form is unknown (an unpointed query, a
+    pointing the table lacks)."""
+    if key in table:
+        return table[key]
+    consonants = normalize_hebrew(key)
+    for k, prefix_re in enumerate(_POINTED_PREFIX_RES, start=1):
+        if len(consonants) <= k + 1:
+            break
+        m = prefix_re.match(key)
+        if not m or not all(c in _HE_PREFIX for c in normalize_hebrew(m.group(0))):
+            break
+        rest = key[m.end():]
+        if rest in table:
+            return table[rest]
+    return None
+
+
+def _lookup(token, pointed_table, table):
+    """A token's table value: by pointed form first, then by consonants. The
+    token may carry points and accents (a word of the text) or none at all (a
+    typed query); either way the consonantal path answers when the pointed
+    one cannot."""
+    key = pointed_key(token)
+    if key and key != normalize_hebrew(token).strip():
+        hit = _lookup_pointed(key, pointed_table)
+        if hit is not None:
+            return hit
+    return _lookup_lemma(normalize_hebrew(token), table)
+
+
 # Universal POS tags Stanza gives the prefixes (ו, ה, ב/כ/ל/מ, ש) and the
 # pronoun suffixes it splits off a word. The stem is the first word of a token
 # outside these.
@@ -279,6 +392,7 @@ def lemmatize_hebrew(tokens):
         return []
 
     table = _get_lemma_table()
+    pointed_table = _get_pointed_lemma_table()
     lemmas = []
 
     # Tokens that need Stanza fallback
@@ -287,7 +401,7 @@ def lemmatize_hebrew(tokens):
 
     for i, token in enumerate(tokens):
         normalized = normalize_hebrew(token)
-        lemma = _lookup_lemma(normalized, table)
+        lemma = _lookup(token, pointed_table, table)
         if lemma is not None:
             lemmas.append(lemma)
         else:
@@ -338,11 +452,12 @@ def get_pos_tags(tokens, language='he'):
         return []
 
     table = _get_pos_table()
+    pointed_table = _get_pointed_pos_table()
     tags = []
     missed_indices, missed_words = [], []
     for i, token in enumerate(tokens):
         normalized = normalize_hebrew(token)
-        label = _lookup_lemma(normalized, table)
+        label = _lookup(token, pointed_table, table)
         if label is not None:
             tags.append(_BHSA_TO_UPOS.get(label, 'X'))
         else:
@@ -376,9 +491,13 @@ class HebrewLanguageHandler:
         position, empty elsewhere), so the index builder can post the ketiv
         lemma on the same verse position as the qere."""
         original_tokens, tokens, variant_forms = tokenize_hebrew_with_variants(text)
-        lemmas = lemmatize_hebrew(tokens)
+        # The ORIGINAL tokens go to the lemmatizer and the tagger: they carry
+        # the vowel points that tell homographs apart (#483). Both normalize
+        # internally, so the consonantal fallback is unchanged. The ketiv
+        # variants are consonantal already.
+        lemmas = lemmatize_hebrew(original_tokens)
         variant_lemmas = [lemmatize_hebrew(vf) if vf else [] for vf in variant_forms]
-        pos_tags = get_pos_tags(tokens)
+        pos_tags = get_pos_tags(original_tokens)
         return original_tokens, tokens, lemmas, pos_tags, variant_lemmas
 
     def tokenize(self, text, preserve_case=False):

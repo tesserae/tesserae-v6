@@ -2,6 +2,11 @@
 """
 Extract Hebrew lemma table and demo .tess files from BHSA via Text-Fabric.
 
+SUPERSEDED for the tables (2026-10-01, #483): scripts/corpus/build_hebrew_tables.py
+builds the consonantal AND pointed tables with homographs told apart. The
+texts under texts/he now come from Sefaria, not from this script; do not
+rerun it to regenerate them.
+
 Produces:
   - data/lemma_tables/hebrew_lemmas.json  (word-form -> lemma mapping)
   - texts/he/*.tess                        (biblical books in .tess format)
