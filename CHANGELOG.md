@@ -9,6 +9,12 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-01
 
+### Scripts
+- `scripts/corpus/rebuild_bigrams.py` registers the plugin languages before
+  counting, and refuses to swap in a table with no bigrams. Without the
+  registration a Hebrew or Coptic rebuild fell through to the Latin
+  tokenizer and wrote an empty table over the live one.
+
 ### Hebrew
 - Homographs are told apart by their vowel points (#483). One consonantal
   spelling often covers several words (אל is "to", "not" and "God", עם is
