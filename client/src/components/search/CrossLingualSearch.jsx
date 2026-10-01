@@ -58,6 +58,11 @@ export default function CrossLingualSearch() {
   const [targetSection, setTargetSection] = useState('');
 
   const [minMatches, setMinMatches] = useState(2);
+  // Hebrew -> Greek only: how a biblical search is answered (see
+  // backend/lxx_pivot.py). 'septuagint' (default) pivots through the LXX
+  // text when the Hebrew book has one; 'direct' always uses the dictionary
+  // route; 'both' runs both and merges, labelling each result's route.
+  const [hebrewGreekRoute, setHebrewGreekRoute] = useState('septuagint');
   const [displayLimit, setDisplayLimit] = useState(50);
   const [sortBy, setSortBy] = useState('score');
   const [showDistributionChart, setShowDistributionChart] = useState(false);
@@ -100,6 +105,7 @@ export default function CrossLingualSearch() {
           target_language: currentPair.target,
           match_type: 'crosslingual_fusion',
           min_matches: minMatches,
+          hebrew_greek_route: hebrewGreekRoute,
           search_id: searchId,
         }),
         signal: controller.signal
@@ -127,7 +133,7 @@ export default function CrossLingualSearch() {
       abortRef.current = null;
       setSearchLoading(false);
     }
-  }, [sourceSection, targetSection, minMatches, currentPair]);
+  }, [sourceSection, targetSection, minMatches, hebrewGreekRoute, currentPair]);
 
   const cancelSearch = useCallback(() => {
     if (abortRef.current) {
@@ -159,6 +165,16 @@ export default function CrossLingualSearch() {
       }
     }
   }, [minMatches, sourceSection, targetSection, searchLoading, doSearch]);
+
+  const prevHebrewGreekRouteRef = useRef(hebrewGreekRoute);
+  useEffect(() => {
+    if (prevHebrewGreekRouteRef.current !== hebrewGreekRoute) {
+      prevHebrewGreekRouteRef.current = hebrewGreekRoute;
+      if (hasSearchedRef.current && sourceSection && targetSection && !searchLoading) {
+        doSearch();
+      }
+    }
+  }, [hebrewGreekRoute, sourceSection, targetSection, searchLoading, doSearch]);
 
   useEffect(() => {
     if (searchLoading) {
@@ -240,6 +256,7 @@ export default function CrossLingualSearch() {
     setResults([]);
     setPivotNote(null);
     setChartFilter(null);
+    setHebrewGreekRoute('septuagint');
     hasSearchedRef.current = false;
     const pair = LANG_PAIRS.find(p => p.key === newKey) || LANG_PAIRS[0];
     setDefaultsForLang(hierarchy[pair.source], pair.source, setSourceAuthor, setSourceWork, setSourceSection);
@@ -521,6 +538,21 @@ export default function CrossLingualSearch() {
               <option value={4}>4+ words</option>
             </select>
           </div>
+          {currentPair.key === 'he-grc' && (
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-600 whitespace-nowrap">Route:</label>
+              <select
+                value={hebrewGreekRoute}
+                onChange={(e) => setHebrewGreekRoute(e.target.value)}
+                className="px-2 py-1.5 border rounded text-sm"
+                title="How to answer a Hebrew to Greek search"
+              >
+                <option value="septuagint">Through the Septuagint (default)</option>
+                <option value="direct">Directly</option>
+                <option value="both">Both</option>
+              </select>
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -636,6 +668,11 @@ export default function CrossLingualSearch() {
                   {result.features?.n_channels === 2 && (
                     <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
                       2-channel
+                    </span>
+                  )}
+                  {result.route && (
+                    <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                      {result.route === 'septuagint' ? 'Via Septuagint' : 'Direct'}
                     </span>
                   )}
                 </div>
