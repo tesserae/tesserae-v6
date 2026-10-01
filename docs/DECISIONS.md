@@ -37,8 +37,12 @@ the Hebrew morphology, and the attribution file names the repository and
 the CCAT analysis it derives from.
 
 **Left open.** The 1,336 conflicts, to be read by eye. The proper names
-still unresolved, which would need a names table. The full Greek rebuild
-that applies this table and the tokenizer fix to the index.
+still unresolved, which would need a names table. Lemma spellings that
+differ between the two sources for one verb (γίνομαι in the Koine
+morphology, γίγνομαι in the treebanks), which keep a Septuagint form and a
+classical form of the same verb apart until a spelling map joins them. The
+full Greek rebuild that applies this table and the tokenizer fix to the
+index.
 
 ## 2026-10-01 Hebrew-Greek dictionary candidates pass through a model judge and a reader, never straight in (#519)
 
