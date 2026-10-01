@@ -41,7 +41,7 @@ near-verbatim parallel and does not measure what the change is for, which
 is correct lemmas for one word in twenty, correct tags, a stoplist that
 stops function readings only, and fewer pairs built on a shared spelling
 with different meanings. The lemma-only configuration of the benchmark
-cannot be read across this change: in its merged line-and-window mode
+cannot be read across this change. In its merged line-and-window mode
 three gold pairs that the lemma matcher does produce (checked directly)
 fall out of the result list, and in line mode they are present at ranks
 76, 85 and 102.
