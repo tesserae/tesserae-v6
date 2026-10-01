@@ -34,7 +34,7 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
-## 2026-09-30 Per-text blurbs written for the corpus works that had none (16:29 to 23:47 EDT)
+## 2026-09-30 Per-text blurbs written for the corpus works that had none (16:29 EDT 2026-09-30 to 01:15 EDT 2026-10-01)
 
 ### Descriptions
 - Ran `scripts/corpus/describe_works.py` from a worktree, not production, to
@@ -52,29 +52,37 @@ Conventions
   written blurb after four retry passes for items that failed every try
   (43, then 5, then 2, then 1 remained stuck. The character cap fixed the
   last two).
-- Checked every blurb with Qwen 3.8 (thinking off) against the same inputs,
-  asking it to list claims the inputs do not support: 116 ok, 1,467
-  flagged, run twice for 15 that errored on the first pass (13 of which
-  then also flagged). The flagged rate is high because the check can only
-  verify against the same narrow excerpt the writer saw, not the work's
-  full text, so true detail past the opening (named characters, later
-  plot, a work's traditional title, dates known generally but not stated
-  in the inputs) reads as unsupported. Sampling the flagged list found
-  very few actual errors. Full counts, the held-back list and twenty
-  sample blurbs are in the pull request description.
-- Merged only the 116 checked-ok blurbs into a NEW
-  `data/text_descriptions.json`: 4 English (a new top-level key, English
-  had no blurbs before), 83 Latin, 29 Greek. Existing entries stayed
+- First checked every blurb with Qwen 3.8 (thinking off) for any claim the
+  inputs do not support: 116 ok, 1,467 flagged. That check was too strict.
+  It can only verify against the same narrow excerpt the writer saw, not
+  the work's full text, so true detail past the opening (named characters,
+  later plot, a work's traditional title, a date known generally but not
+  stated in the inputs) read as unsupported. These results are kept for
+  the record at `checks_strict.jsonl`, not used for the merge below.
+- Re-ran the check with a different question: does the blurb CONTRADICT
+  the inputs, or state something a reference work would not say, rather
+  than merely add detail the inputs cannot confirm. Result: 689 ok, 894
+  flagged, run twice for 13 that errored on the first pass (11 of which
+  then also flagged). Sampling the flagged list still finds some
+  overcautious flags, but also genuine catches, among them a blurb that
+  quoted a line from the wrong speaker, one that named a title at odds
+  with the source record, and one that described plot events the opening
+  excerpt rules out.
+  Full counts, the held-back list and sample blurbs are in the pull
+  request description.
+- Merged the 689 checked-ok blurbs into a NEW `data/text_descriptions.json`
+  built from the pre-batch file: 33 English (a new top-level key, English
+  had no blurbs before), 355 Latin, 301 Greek. Existing entries stayed
   untouched, and new keys were sorted after the existing ones in each
   language. Nothing in the live index or app changed, since this is corpus
   metadata only, read at request time.
 - Run data kept outside the repository at
   `~/tesserae-backups/jobs/blurbs_2026-09-30/` (`blurbs.jsonl`,
-  `checks.jsonl`): every write and check call, resume-safe, so a rerun can
-  pick up the other 1,467 works under a revised check without repeating
-  the write pass. Key spend rose from 45.97 to 115.64 of the 500/day
-  budget over the session (about 69.7 units for the write pass, its
-  retries, the check pass and its retries combined), shared with a
+  `checks.jsonl`, `checks_strict.jsonl`): every write and check call,
+  resume-safe. Key spend rose from 45.97 to 115.64 of that day's 500-unit
+  budget for the write pass and the first check, then the daily reset at
+  2026-10-01 00:00 UTC gave a fresh 500, against which the second check
+  and its retries drew the key to 160.4, shared throughout with a
   concurrent, unrelated whole-corpus passage re-description job on the
   same key.
 
