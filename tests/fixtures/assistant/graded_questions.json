@@ -678,7 +678,10 @@
       "historical context",
       "causal link"
     ],
-    "notes": "Prompt forbids discussing whether the later author knew/had access to the earlier text."
+    "notes": "Prompt forbids discussing whether the later author knew/had access to the earlier text. A sentence about access that the guard removed is tolerated: the guard did its job.",
+    "tolerate_guardrails": [
+      "access_sentences_removed"
+    ]
   },
   {
     "id": "analyze_met_drn_kind_of_connection",
