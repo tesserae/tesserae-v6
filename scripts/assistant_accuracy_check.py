@@ -126,7 +126,13 @@ def grade(item, answer, resp):
 
     if item['mode'] == 'analyze':
         guardrails = (resp or {}).get('guardrails') or {}
-        if not guardrails.get('clean'):
+        # An item may accept the removal of a sentence about access: the
+        # question invites one, the guard exists to remove it, and a reading
+        # that is otherwise clean has done what it should.
+        tolerated = set(item.get('tolerate_guardrails') or [])
+        offending = {k for k, v in guardrails.items()
+                     if k != 'clean' and v and k not in tolerated}
+        if not guardrails.get('clean') and offending:
             reasons.append(f'guardrails.clean is not true: {guardrails}')
 
     return reasons
