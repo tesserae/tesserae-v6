@@ -1,0 +1,1781 @@
+{
+  "source": "statius.thebaid.part.1.tess",
+  "target": "vergil.aeneid.part.1.tess",
+  "results": [
+    {
+      "base_score": 2.7737085504339523,
+      "features": {
+        "bigram_boost": 0.0,
+        "combined_score": 0.5441176470588235,
+        "edit_distance_score": 0.8333333333333334,
+        "lemma_count": 2,
+        "meter_score": 0.0,
+        "pos_score": 0.0,
+        "shared_rare_bigrams": [],
+        "sound_score": 0.6875,
+        "source_scansion": null,
+        "source_syntax": null,
+        "syntax_score": 0.0,
+        "target_scansion": null,
+        "target_syntax": null
+      },
+      "matched_words": [
+        {
+          "frequency": 2,
+          "idf": 9.047935950220294,
+          "lemma": "refundo",
+          "source_word": "refusa",
+          "target_word": "refusa"
+        },
+        {
+          "frequency": 4,
+          "idf": 8.537110326454304,
+          "lemma": "stagnum",
+          "source_word": "stagnoque",
+          "target_word": "stagna"
+        }
+      ],
+      "overall_score": 3.2908896239002825,
+      "source": {
+        "highlight_indices": [
+          3,
+          4
+        ],
+        "ref": "stat. theb. 1.359",
+        "text": "aggeribus tenuere morae, stagnoque refusa est",
+        "tokens": [
+          "aggeribus",
+          "tenuere",
+          "morae",
+          "stagnoque",
+          "refusa",
+          "est"
+        ]
+      },
+      "source_distance": 1,
+      "target": {
+        "highlight_indices": [
+          0,
+          1
+        ],
+        "ref": "verg. aen. 1.126",
+        "text": "stagna refusa vadis, graviter commotus; et alto",
+        "tokens": [
+          "stagna",
+          "refusa",
+          "uadis",
+          "grauiter",
+          "commotus",
+          "et",
+          "alto"
+        ]
+      },
+      "target_distance": 1
+    },
+    {
+      "base_score": 2.6004232345611986,
+      "features": {
+        "bigram_boost": 0.0,
+        "combined_score": 0.6249999999999999,
+        "edit_distance_score": 0.875,
+        "lemma_count": 2,
+        "meter_score": 0.0,
+        "pos_score": 0.0,
+        "shared_rare_bigrams": [],
+        "sound_score": 1.0,
+        "source_scansion": null,
+        "source_syntax": null,
+        "syntax_score": 0.0,
+        "target_scansion": null,
+        "target_syntax": null
+      },
+      "matched_words": [
+        {
+          "frequency": 14,
+          "idf": 7.438498037786193,
+          "lemma": "ago",
+          "source_word": "agite",
+          "target_word": "age"
+        },
+        {
+          "frequency": 2,
+          "idf": 9.047935950220294,
+          "lemma": "immo",
+          "source_word": "immo",
+          "target_word": "immo"
+        }
+      ],
+      "overall_score": 3.218023752769483,
+      "source": {
+        "highlight_indices": [
+          0,
+          1
+        ],
+        "ref": "stat. theb. 1.468",
+        "text": "immo agite, et positis, quas nox inopinaque suasit",
+        "tokens": [
+          "immo",
+          "agite",
+          "et",
+          "positis",
+          "quas",
+          "nox",
+          "inopinaque",
+          "suasit"
+        ]
+      },
+      "source_distance": 1,
+      "target": {
+        "highlight_indices": [
+          0,
+          1
+        ],
+        "ref": "verg. aen. 1.753",
+        "text": "\"Immo age, et a prima dic, hospes, origine nobis",
+        "tokens": [
+          "immo",
+          "age",
+          "et",
+          "a",
+          "prima",
+          "dic",
+          "hospes",
+          "origine",
+          "nobis"
+        ]
+      },
+      "target_distance": 1
+    },
+    {
+      "base_score": 2.5550468271516547,
+      "features": {
+        "bigram_boost": 0.0,
+        "combined_score": 0.6470588235294118,
+        "edit_distance_score": 1.0,
+        "lemma_count": 2,
+        "meter_score": 0.0,
+        "pos_score": 0.0,
+        "shared_rare_bigrams": [],
+        "sound_score": 1.0,
+        "source_scansion": null,
+        "source_syntax": null,
+        "syntax_score": 0.0,
+        "target_scansion": null,
+        "target_syntax": null
+      },
+      "matched_words": [
+        {
+          "frequency": 19,
+          "idf": 7.150815965334412,
+          "lemma": "pater",
+          "source_word": "pater",
+          "target_word": "pater"
+        },
+        {
+          "frequency": 2,
+          "idf": 9.047935950220294,
+          "lemma": "omnipotens",
+          "source_word": "omnipotens",
+          "target_word": "omnipotens"
+        }
+      ],
+      "overall_score": 3.1938085339395683,
+      "source": {
+        "highlight_indices": [
+          1,
+          2
+        ],
+        "ref": "stat. theb. 1.248",
+        "text": "Sic pater omnipotens, ast illi saucia dictis",
+        "tokens": [
+          "sic",
+          "pater",
+          "omnipotens",
+          "ast",
+          "illi",
+          "saucia",
+          "dictis"
+        ]
+      },
+      "source_distance": 1,
+      "target": {
+        "highlight_indices": [
+          1,
+          2
+        ],
+        "ref": "verg. aen. 1.60",
+        "text": "Sed pater omnipotens speluncis abdidit atris,",
+        "tokens": [
+          "sed",
+          "pater",
+          "omnipotens",
+          "speluncis",
+          "abdidit",
+          "atris"
+        ]
+      },
+      "target_distance": 1
+    },
+    {
+      "base_score": 2.526289048920578,
+      "features": {
+        "bigram_boost": 0.0,
+        "combined_score": 0.6470588235294118,
+        "edit_distance_score": 1.0,
+        "lemma_count": 2,
+        "meter_score": 0.0,
+        "pos_score": 0.0,
+        "shared_rare_bigrams": [],
+        "sound_score": 1.0,
+        "source_scansion": null,
+        "source_syntax": null,
+        "syntax_score": 0.0,
+        "target_scansion": null,
+        "target_syntax": null
+      },
+      "matched_words": [
+        {
+          "frequency": 11,
+          "idf": 7.6616415891004035,
+          "lemma": "haud",
+          "source_word": "haud",
+          "target_word": "haud"
+        },
+        {
+          "frequency": 5,
+          "idf": 8.354788769660349,
+          "lemma": "equidem",
+          "source_word": "equidem",
+          "target_word": "equidem"
+        }
+      ],
+      "overall_score": 3.1578613111507225,
+      "source": {
+        "highlight_indices": [
+          2,
+          3
+        ],
+        "ref": "stat. theb. 1.285",
+        "text": "reddidit haec: equidem haud rebar te mente secunda",
+        "tokens": [
+          "reddidit",
+          "haec",
+          "equidem",
+          "haud",
+          "rebar",
+          "te",
+          "mente",
+          "secunda"
+        ]
+      },
+      "source_distance": 1,
+      "target": {
+        "highlight_indices": [
+          2,
+          3
+        ],
+        "ref": "verg. aen. 1.335",
+        "text": "Tum Venus: \"Haud equidem tali me dignor honore;",
+        "tokens": [
+          "tum",
+          "uenus",
+          "haud",
+          "equidem",
+          "tali",
+          "me",
+          "dignor",
+          "honore"
+        ]
+      },
+      "target_distance": 1
+    },
+    {
+      "base_score": 2.515699093374205,
+      "features": {
+        "bigram_boost": 0.0,
+        "combined_score": 0.6470588235294118,
+        "edit_distance_score": 1.0,
+        "lemma_count": 2,
+        "meter_score": 0.0,
+        "pos_score": 0.0,
+        "shared_rare_bigrams": [],
+        "sound_score": 1.0,
+        "source_scansion": null,
+        "source_syntax": null,
+        "syntax_score": 0.0,
+        "target_scansion": null,
+        "target_syntax": null
+      },
+      "matched_words": [
+        {
+          "frequency": 6,
+          "idf": 8.20063808983309,
+          "lemma": "dolor",
+          "source_word": "dolorem",
+          "target_word": "dolorem"
+        },
+        {
+          "frequency": 10,
+          "idf": 7.748652966090033,
+          "lemma": "cor",
+          "source_word": "corde",
+          "target_word": "corde"
+        }
+      ],
+      "overall_score": 3.1446238667177564,
+      "source": {
+        "highlight_indices": [
+          3,
+          4
+        ],
+        "ref": "stat. theb. 1.249",
+        "text": "flammato versans inopinum corde dolorem",
+        "tokens": [
+          "flammato",
+          "uersans",
+          "inopinum",
+          "corde",
+          "dolorem"
+        ]
+      },
+      "source_distance": 1,
+      "target": {
+        "highlight_indices": [
+          5,
+          6
+        ],
+        "ref": "verg. aen. 1.209",
+        "text": "spem voltu simulat, premit altum corde dolorem.",
+        "tokens": [
+          "spem",
+          "uoltu",
+          "simulat",
+          "premit",
+          "altum",
+          "corde",
+          "dolorem"
+        ]
+      },
+      "target_distance": 1
+    },
+    {
+      "base_score": 2.6643776887928037,
+      "features": {
+        "bigram_boost": 0.0,
+        "combined_score": 0.5168067226890756,
+        "edit_distance_score": 0.8333333333333334,
+        "lemma_count": 2,
+        "meter_score": 0.0,
+        "pos_score": 0.0,
+        "shared_rare_bigrams": [],
+        "sound_score": 0.5714285714285714,
+        "source_scansion": null,
+        "source_syntax": null,
+        "syntax_score": 0.0,
+        "target_scansion": null,
+        "target_syntax": null
+      },
+      "matched_words": [
+        {
+          "frequency": 4,
+          "idf": 8.537110326454304,
+          "lemma": "memini",
+          "source_word": "meminisse",
+          "target_word": "meminisse"
+        },
+        {
+          "frequency": 5,
+          "idf": 8.354788769660349,
+          "lemma": "iuuo",
+          "source_word": "iuuet",
+          "target_word": "iuuabit"
+        }
+      ],
+      "overall_score": 3.1147843933268247,
+      "source": {
+        "highlight_indices": [
+          1,
+          2
+        ],
+        "ref": "stat. theb. 1.473",
+        "text": "ut meminisse iuvet.” nec vana voce locutus",
+        "tokens": [
+          "ut",
+          "meminisse",
+          "iuuet",
+          "nec",
+          "uana",
+          "uoce",
+          "locutus"
+        ]
+      },
+      "source_distance": 1,
+      "target": {
+        "highlight_indices": [
+          5,
+          6
+        ],
+        "ref": "verg. aen. 1.203",
+        "text": "mittite: forsan et haec olim meminisse iuvabit.",
+        "tokens": [
+          "mittite",
+          "forsan",
+          "et",
+          "haec",
+          "olim",
+          "meminisse",
+          "iuuabit"
+        ]
+      },
+      "target_distance": 1
+    },
+    {
+      "base_score": 2.410519289509977,
+      "features": {
+        "bigram_boost": 0.0,
+        "combined_score": 0.6470588235294118,
+        "edit_distance_score": 1.0,
+        "lemma_count": 2,
+        "meter_score": 0.0,
+        "pos_score": 0.0,
+        "shared_rare_bigrams": [],
+        "sound_score": 1.0,
+        "source_scansion": null,
+        "source_syntax": null,
+        "syntax_score": 0.0,
+        "target_scansion": null,
+        "target_syntax": null
+      },
+      "matched_words": [
+        {
+          "frequency": 5,
+          "idf": 8.354788769660349,
+          "lemma": "frons",
+          "source_word": "fronte",
+          "target_word": "fronte"
+        },
+        {
+          "frequency": 24,
+          "idf": 6.927672414020202,
+          "lemma": "sub",
+          "source_word": "sub",
+          "target_word": "sub"
+        }
+      ],
+      "overall_score": 3.0131491118874716,
+      "source": {
+        "highlight_indices": [
+          4,
+          5
+        ],
+        "ref": "stat. theb. 1.186",
+        "text": "cernis, ut erectum torva sub fronte minetur",
+        "tokens": [
+          "cernis",
+          "ut",
+          "erectum",
+          "torua",
+          "sub",
+          "fronte",
+          "minetur"
+        ]
+      },
+      "source_distance": 1,
+      "target": {
+        "highlight_indices": [
+          0,
+          1
+        ],
+        "ref": "verg. aen. 1.166",
+        "text": "Fronte sub adversa scopulis pendentibus antrum,",
+        "tokens": [
+          "fronte",
+          "sub",
+          "aduersa",
+          "scopulis",
+          "pendentibus",
+          "antrum"
+        ]
+      },
+      "target_distance": 1
+    },
+    {
+      "base_score": 2.590243503152184,
+      "features": {
+        "bigram_boost": 0.0,
+        "combined_score": 0.4983660130718954,
+        "edit_distance_score": 0.75,
+        "lemma_count": 2,
+        "meter_score": 0.0,
+        "pos_score": 0.0,
+        "shared_rare_bigrams": [],
+        "sound_score": 0.5555555555555556,
+        "source_scansion": null,
+        "source_syntax": null,
+        "syntax_score": 0.0,
+        "target_scansion": null,
+        "target_syntax": null
+      },
+      "matched_words": [
+        {
+          "frequency": 5,
+          "idf": 8.354788769660349,
+          "lemma": "foueo",
+          "source_word": "fouisti",
+          "target_word": "fotum"
+        },
+        {
+          "frequency": 7,
+          "idf": 8.067106697208567,
+          "lemma": "gremium",
+          "source_word": "gremio",
+          "target_word": "gremio"
+        }
+      ],
+      "overall_score": 3.0003653911512793,
+      "source": {
+        "highlight_indices": [
+          0,
+          1
+        ],
+        "ref": "stat. theb. 1.61",
+        "text": "fovisti gremio et traiectum vulnere plantas",
+        "tokens": [
+          "fouisti",
+          "gremio",
+          "et",
+          "traiectum",
+          "uulnere",
+          "plantas"
+        ]
+      },
+      "source_distance": 1,
+      "target": {
+        "highlight_indices": [
+          2,
+          3
+        ],
+        "ref": "verg. aen. 1.692",
+        "text": "inrigat, et fotum gremio dea tollit in altos",
+        "tokens": [
+          "inrigat",
+          "et",
+          "fotum",
+          "gremio",
+          "dea",
+          "tollit",
+          "in",
+          "altos"
+        ]
+      },
+      "target_distance": 1
+    },
+    {
+      "base_score": 2.395485910779703,
+      "features": {
+        "bigram_boost": 0.0,
+        "combined_score": 0.6470588235294118,
+        "edit_distance_score": 1.0,
+        "lemma_count": 2,
+        "meter_score": 0.0,
+        "pos_score": 0.0,
+        "shared_rare_bigrams": [],
+        "sound_score": 1.0,
+        "source_scansion": null,
+        "source_syntax": null,
+        "syntax_score": 0.0,
+        "target_scansion": null,
+        "target_syntax": null
+      },
+      "matched_words": [
+        {
+          "frequency": 10,
+          "idf": 7.748652966090033,
+          "lemma": "pars",
+          "source_word": "parte",
+          "target_word": "parte"
+        },
+        {
+          "frequency": 14,
+          "idf": 7.438498037786193,
+          "lemma": "alius",
+          "source_word": "alia",
+          "target_word": "alia"
+        }
+      ],
+      "overall_score": 2.994357388474629,
+      "source": {
+        "highlight_indices": [
+          0,
+          1
+        ],
+        "ref": "stat. theb. 1.527",
+        "text": "parte alia iuvenes siccati vulnera lymphis",
+        "tokens": [
+          "parte",
+          "alia",
+          "iuuenes",
+          "siccati",
+          "uulnera",
+          "lymphis"
+        ]
+      },
+      "source_distance": 1,
+      "target": {
+        "highlight_indices": [
+          0,
+          1
+        ],
+        "ref": "verg. aen. 1.474",
+        "text": "Parte alia fugiens amissis Troilus armis,",
+        "tokens": [
+          "parte",
+          "alia",
+          "fugiens",
+          "amissis",
+          "troilus",
+          "armis"
+        ]
+      },
+      "target_distance": 1
+    },
+    {
+      "base_score": 2.476058994189775,
+      "features": {
+        "bigram_boost": 0.0,
+        "combined_score": 0.5764705882352941,
+        "edit_distance_score": 1.0,
+        "lemma_count": 2,
+        "meter_score": 0.0,
+        "pos_score": 0.0,
+        "shared_rare_bigrams": [],
+        "sound_score": 0.7000000000000001,
+        "source_scansion": null,
+        "source_syntax": null,
+        "syntax_score": 0.0,
+        "target_scansion": null,
+        "target_syntax": null
+      },
+      "matched_words": [
+        {
+          "frequency": 8,
+          "idf": 7.949323661552184,
+          "lemma": "inferus",
+          "source_word": "imis",
+          "target_word": "imis"
+        },
+        {
+          "frequency": 10,
+          "idf": 7.748652966090033,
+          "lemma": "sedes",
+          "source_word": "sedibus",
+          "target_word": "sedibus"
+        }
+      ],
+      "overall_score": 2.983651087998679,
+      "source": {
+        "highlight_indices": [
+          5,
+          6
+        ],
+        "ref": "stat. theb. 1.228",
+        "text": "nesciat et totiens excitam a sedibus imis",
+        "tokens": [
+          "nesciat",
+          "et",
+          "totiens",
+          "excitam",
+          "a",
+          "sedibus",
+          "imis"
+        ]
+      },
+      "source_distance": 1,
+      "target": {
+        "highlight_indices": [
+          4,
+          5
+        ],
+        "ref": "verg. aen. 1.84",
+        "text": "Incubuere mari, totumque a sedibus imis",
+        "tokens": [
+          "incubuere",
+          "mari",
+          "totumque",
+          "a",
+          "sedibus",
+          "imis"
+        ]
+      },
+      "target_distance": 1
+    },
+    {
+      "base_score": 2.590243503152184,
+      "features": {
+        "bigram_boost": 0.0,
+        "combined_score": 0.4817927170868347,
+        "edit_distance_score": 0.8333333333333334,
+        "lemma_count": 2,
+        "meter_score": 0.0,
+        "pos_score": 0.0,
+        "shared_rare_bigrams": [],
+        "sound_score": 0.4226190476190476,
+        "source_scansion": null,
+        "source_syntax": null,
+        "syntax_score": 0.0,
+        "target_scansion": null,
+        "target_syntax": null
+      },
+      "matched_words": [
+        {
+          "frequency": 5,
+          "idf": 8.354788769660349,
+          "lemma": "foueo",
+          "source_word": "fouisti",
+          "target_word": "fouet"
+        },
+        {
+          "frequency": 7,
+          "idf": 8.067106697208567,
+          "lemma": "gremium",
+          "source_word": "gremio",
+          "target_word": "gremio"
+        }
+      ],
+      "overall_score": 2.9703000647754063,
+      "source": {
+        "highlight_indices": [
+          0,
+          1
+        ],
+        "ref": "stat. theb. 1.61",
+        "text": "fovisti gremio et traiectum vulnere plantas",
+        "tokens": [
+          "fouisti",
+          "gremio",
+          "et",
+          "traiectum",
+          "uulnere",
+          "plantas"
+        ]
+      },
+      "source_distance": 1,
+      "target": {
+        "highlight_indices": [
+          3,
+          4
+        ],
+        "ref": "verg. aen. 1.718",
+        "text": "haeret et interdum gremio fovet, inscia Dido,",
+        "tokens": [
+          "haeret",
+          "et",
+          "interdum",
+          "gremio",
+          "fouet",
+          "inscia",
+          "dido"
+        ]
+      },
+      "target_distance": 1
+    },
+    {
+      "base_score": 2.358956556189442,
+      "features": {
+        "bigram_boost": 0.0,
+        "combined_score": 0.6215686274509803,
+        "edit_distance_score": 0.9666666666666666,
+        "lemma_count": 2,
+        "meter_score": 0.0,
+        "pos_score": 0.0,
+        "shared_rare_bigrams": [],
+        "sound_score": 0.9166666666666667,
+        "source_scansion": null,
+        "source_syntax": null,
+        "syntax_score": 0.0,
+        "target_scansion": null,
+        "target_syntax": null
+      },
+      "matched_words": [
+        {
+          "frequency": 12,
+          "idf": 7.581598881426866,
+          "lemma": "parens",
+          "source_word": "parenti",
+          "target_word": "parentis"
+        },
+        {
+          "frequency": 15,
+          "idf": 7.373959516648622,
+          "lemma": "cura",
+          "source_word": "cura",
+          "target_word": "cura"
+        }
+      ],
+      "overall_score": 2.911345549763803,
+      "source": {
+        "highlight_indices": [
+          5,
+          6
+        ],
+        "ref": "stat. theb. 1.400",
+        "text": "tantum in corde sedens aegrescit cura parenti.",
+        "tokens": [
+          "tantum",
+          "in",
+          "corde",
+          "sedens",
+          "aegrescit",
+          "cura",
+          "parenti"
+        ]
+      },
+      "source_distance": 1,
+      "target": {
+        "highlight_indices": [
+          5,
+          6
+        ],
+        "ref": "verg. aen. 1.646",
+        "text": "omnis in Ascanio cari stat cura parentis.",
+        "tokens": [
+          "omnis",
+          "in",
+          "ascanio",
+          "cari",
+          "stat",
+          "cura",
+          "parentis"
+        ]
+      },
+      "target_distance": 1
+    },
+    {
+      "base_score": 2.408430105432157,
+      "features": {
+        "bigram_boost": 0.0,
+        "combined_score": 0.5764705882352941,
+        "edit_distance_score": 1.0,
+        "lemma_count": 2,
+        "meter_score": 0.0,
+        "pos_score": 0.0,
+        "shared_rare_bigrams": [],
+        "sound_score": 0.7000000000000001,
+        "source_scansion": null,
+        "source_syntax": null,
+        "syntax_score": 0.0,
+        "target_scansion": null,
+        "target_syntax": null
+      },
+      "matched_words": [
+        {
+          "frequency": 7,
+          "idf": 8.067106697208567,
+          "lemma": "causa",
+          "source_word": "causae",
+          "target_word": "causae"
+        },
+        {
+          "frequency": 18,
+          "idf": 7.202109259721963,
+          "lemma": "ira",
+          "source_word": "irarum",
+          "target_word": "irarum"
+        }
+      ],
+      "overall_score": 2.902158277045749,
+      "source": {
+        "highlight_indices": [
+          1,
+          2
+        ],
+        "ref": "stat. theb. 1.302",
+        "text": "hinc causae irarum, certo reliqua ordine ducam.”",
+        "tokens": [
+          "hinc",
+          "causae",
+          "irarum",
+          "certo",
+          "reliqua",
+          "ordine",
+          "ducam"
+        ]
+      },
+      "source_distance": 1,
+      "target": {
+        "highlight_indices": [
+          2,
+          3
+        ],
+        "ref": "verg. aen. 1.25",
+        "text": "necdum etiam causae irarum saevique dolores",
+        "tokens": [
+          "necdum",
+          "etiam",
+          "causae",
+          "irarum",
+          "saeuique",
+          "dolores"
+        ]
+      },
+      "target_distance": 1
+    },
+    {
+      "base_score": 2.395485910779703,
+      "features": {
+        "bigram_boost": 0.0,
+        "combined_score": 0.5843137254901961,
+        "edit_distance_score": 1.0,
+        "lemma_count": 2,
+        "meter_score": 0.0,
+        "pos_score": 0.0,
+        "shared_rare_bigrams": [],
+        "sound_score": 0.7333333333333334,
+        "source_scansion": null,
+        "source_syntax": null,
+        "syntax_score": 0.0,
+        "target_scansion": null,
+        "target_syntax": null
+      },
+      "matched_words": [
+        {
+          "frequency": 10,
+          "idf": 7.748652966090033,
+          "lemma": "ante",
+          "source_word": "ante",
+          "target_word": "ante"
+        },
+        {
+          "frequency": 14,
+          "idf": 7.438498037786193,
+          "lemma": "alius",
+          "source_word": "alios",
+          "target_word": "alios"
+        }
+      ],
+      "overall_score": 2.898537952043441,
+      "source": {
+        "highlight_indices": [
+          2,
+          3
+        ],
+        "ref": "stat. theb. 1.553",
+        "text": "caelicolas, Phoebum ante alios, Phoebum omnis ad aram",
+        "tokens": [
+          "caelicolas",
+          "phoebum",
+          "ante",
+          "alios",
+          "phoebum",
+          "omnis",
+          "ad",
+          "aram"
+        ]
+      },
+      "source_distance": 1,
+      "target": {
+        "highlight_indices": [
+          2,
+          3
+        ],
+        "ref": "verg. aen. 1.347",
+        "text": "Pygmalion, scelere ante alios immanior omnes.",
+        "tokens": [
+          "pygmalion",
+          "scelere",
+          "ante",
+          "alios",
+          "immanior",
+          "omnes"
+        ]
+      },
+      "target_distance": 1
+    },
+    {
+      "base_score": 2.485920398362781,
+      "features": {
+        "bigram_boost": 0.0,
+        "combined_score": 0.4954248366013072,
+        "edit_distance_score": 0.888888888888889,
+        "lemma_count": 2,
+        "meter_score": 0.0,
+        "pos_score": 0.0,
+        "shared_rare_bigrams": [],
+        "sound_score": 0.43888888888888894,
+        "source_scansion": null,
+        "source_syntax": null,
+        "syntax_score": 0.0,
+        "target_scansion": null,
+        "target_syntax": null
+      },
+      "matched_words": [
+        {
+          "frequency": 30,
+          "idf": 6.712561034403257,
+          "lemma": "dico",
+          "source_word": "dictis",
+          "target_word": "dictis"
+        },
+        {
+          "frequency": 2,
+          "idf": 9.047935950220294,
+          "lemma": "maereo",
+          "source_word": "maerentem",
+          "target_word": "maerentia"
+        }
+      ],
+      "overall_score": 2.870547526665023,
+      "source": {
+        "highlight_indices": [
+          3,
+          4
+        ],
+        "ref": "stat. theb. 1.75",
+        "text": "non regere aut dictis maerentem flectere adorti,",
+        "tokens": [
+          "non",
+          "regere",
+          "aut",
+          "dictis",
+          "maerentem",
+          "flectere",
+          "adorti"
+        ]
+      },
+      "source_distance": 1,
+      "target": {
+        "highlight_indices": [
+          2,
+          3
+        ],
+        "ref": "verg. aen. 1.197",
+        "text": "dividit, et dictis maerentia pectora mulcet:",
+        "tokens": [
+          "diuidit",
+          "et",
+          "dictis",
+          "maerentia",
+          "pectora",
+          "mulcet"
+        ]
+      },
+      "target_distance": 1
+    },
+    {
+      "base_score": 2.3740657854101928,
+      "features": {
+        "bigram_boost": 0.0,
+        "combined_score": 0.5773420479302831,
+        "edit_distance_score": 1.0,
+        "lemma_count": 2,
+        "meter_score": 0.0,
+        "pos_score": 0.0,
+        "shared_rare_bigrams": [],
+        "sound_score": 0.7037037037037037,
+        "source_scansion": null,
+        "source_syntax": null,
+        "syntax_score": 0.0,
+        "target_scansion": null,
+        "target_syntax": null
+      },
+      "matched_words": [
+        {
+          "frequency": 20,
+          "idf": 7.10202580116498,
+          "lemma": "altus",
+          "source_word": "alta",
+          "target_word": "alta"
+        },
+        {
+          "frequency": 8,
+          "idf": 7.949323661552184,
+          "lemma": "caput",
+          "source_word": "capita",
+          "target_word": "capita"
+        }
+      ],
+      "overall_score": 2.8620681968556214,
+      "source": {
+        "highlight_indices": [
+          1,
+          2
+        ],
+        "ref": "stat. theb. 1.356",
+        "text": "Arcadiae capita alta madent; ruit agmine magno",
+        "tokens": [
+          "arcadiae",
+          "capita",
+          "alta",
+          "madent",
+          "ruit",
+          "agmine",
+          "magno"
+        ]
+      },
+      "source_distance": 1,
+      "target": {
+        "highlight_indices": [
+          3,
+          4
+        ],
+        "ref": "verg. aen. 1.189",
+        "text": "ductoresque ipsos primum, capita alta ferentis",
+        "tokens": [
+          "ductoresque",
+          "ipsos",
+          "primum",
+          "capita",
+          "alta",
+          "ferentis"
+        ]
+      },
+      "target_distance": 1
+    },
+    {
+      "base_score": 2.421401610463331,
+      "features": {
+        "bigram_boost": 0.0,
+        "combined_score": 0.5309873949579832,
+        "edit_distance_score": 0.7232142857142857,
+        "lemma_count": 2,
+        "meter_score": 0.0,
+        "pos_score": 0.0,
+        "shared_rare_bigrams": [],
+        "sound_score": 0.7142857142857143,
+        "source_scansion": null,
+        "source_syntax": null,
+        "syntax_score": 0.0,
+        "target_scansion": null,
+        "target_syntax": null
+      },
+      "matched_words": [
+        {
+          "frequency": 27,
+          "idf": 6.814343728713199,
+          "lemma": "tuus",
+          "source_word": "tuos",
+          "target_word": "tua"
+        },
+        {
+          "frequency": 4,
+          "idf": 8.537110326454304,
+          "lemma": "supplex",
+          "source_word": "supplexue",
+          "target_word": "supplex"
+        }
+      ],
+      "overall_score": 2.855956720912554,
+      "source": {
+        "highlight_indices": [
+          3,
+          4
+        ],
+        "ref": "stat. theb. 1.643",
+        "text": "non missus, Thymbraee, tuos supplexve penates",
+        "tokens": [
+          "non",
+          "missus",
+          "thymbraee",
+          "tuos",
+          "supplexue",
+          "penates"
+        ]
+      },
+      "source_distance": 1,
+      "target": {
+        "highlight_indices": [
+          4,
+          5
+        ],
+        "ref": "verg. aen. 1.666",
+        "text": "ad te confugio et supplex tua numina posco.",
+        "tokens": [
+          "ad",
+          "te",
+          "confugio",
+          "et",
+          "supplex",
+          "tua",
+          "numina",
+          "posco"
+        ]
+      },
+      "target_distance": 1
+    },
+    {
+      "base_score": 2.386204934462802,
+      "features": {
+        "bigram_boost": 0.0,
+        "combined_score": 0.5524064171122994,
+        "edit_distance_score": 0.8636363636363636,
+        "lemma_count": 2,
+        "meter_score": 0.0,
+        "pos_score": 0.0,
+        "shared_rare_bigrams": [],
+        "sound_score": 0.7,
+        "source_scansion": null,
+        "source_syntax": null,
+        "syntax_score": 0.0,
+        "target_scansion": null,
+        "target_syntax": null
+      },
+      "matched_words": [
+        {
+          "frequency": 34,
+          "idf": 6.5912001773989894,
+          "lemma": "terra",
+          "source_word": "terris",
+          "target_word": "terra"
+        },
+        {
+          "frequency": 4,
+          "idf": 8.537110326454304,
+          "lemma": "consisto",
+          "source_word": "consistere",
+          "target_word": "consistere"
+        }
+      ],
+      "overall_score": 2.8428377878304567,
+      "source": {
+        "highlight_indices": [
+          4,
+          5
+        ],
+        "ref": "stat. theb. 1.279",
+        "text": "Creta tuos. me Tantaleis consistere terris,",
+        "tokens": [
+          "creta",
+          "tuos",
+          "me",
+          "tantaleis",
+          "consistere",
+          "terris"
+        ]
+      },
+      "source_distance": 1,
+      "target": {
+        "highlight_indices": [
+          4,
+          5
+        ],
+        "ref": "verg. aen. 1.629",
+        "text": "iactatam hac demum voluit consistere terra.",
+        "tokens": [
+          "iactatam",
+          "hac",
+          "demum",
+          "uoluit",
+          "consistere",
+          "terra"
+        ]
+      },
+      "target_distance": 1
+    },
+    {
+      "base_score": 2.308726501458639,
+      "features": {
+        "bigram_boost": 0.0,
+        "combined_score": 0.6139705882352942,
+        "edit_distance_score": 0.8125,
+        "lemma_count": 2,
+        "meter_score": 0.0,
+        "pos_score": 0.0,
+        "shared_rare_bigrams": [],
+        "sound_score": 1.0,
+        "source_scansion": null,
+        "source_syntax": null,
+        "syntax_score": 0.0,
+        "target_scansion": null,
+        "target_syntax": null
+      },
+      "matched_words": [
+        {
+          "frequency": 10,
+          "idf": 7.748652966090033,
+          "lemma": "sequor",
+          "source_word": "sequuntur",
+          "target_word": "secutus"
+        },
+        {
+          "frequency": 25,
+          "idf": 6.888451700866922,
+          "lemma": "fatum",
+          "source_word": "fata",
+          "target_word": "fata"
+        }
+      ],
+      "overall_score": 2.8426195049209495,
+      "source": {
+        "highlight_indices": [
+          5,
+          6
+        ],
+        "ref": "stat. theb. 1.213",
+        "text": "pondus adest verbis, et vocem fata sequuntur—:",
+        "tokens": [
+          "pondus",
+          "adest",
+          "uerbis",
+          "et",
+          "uocem",
+          "fata",
+          "sequuntur"
+        ]
+      },
+      "source_distance": 1,
+      "target": {
+        "highlight_indices": [
+          5,
+          6
+        ],
+        "ref": "verg. aen. 1.382",
+        "text": "matre dea monstrante viam, data fata secutus;",
+        "tokens": [
+          "matre",
+          "dea",
+          "monstrante",
+          "uiam",
+          "data",
+          "fata",
+          "secutus"
+        ]
+      },
+      "target_distance": 1
+    },
+    {
+      "base_score": 2.6809963179712706,
+      "features": {
+        "bigram_boost": 0.0,
+        "combined_score": 0.41198752228163993,
+        "edit_distance_score": 0.5568181818181819,
+        "lemma_count": 2,
+        "meter_score": 0.0,
+        "pos_score": 0.0,
+        "shared_rare_bigrams": [],
+        "sound_score": 0.3333333333333333,
+        "source_scansion": null,
+        "source_syntax": null,
+        "syntax_score": 0.0,
+        "target_scansion": null,
+        "target_syntax": null
+      },
+      "matched_words": [
+        {
+          "frequency": 2,
+          "idf": 9.047935950220294,
+          "lemma": "humus",
+          "source_word": "humo",
+          "target_word": "humi"
+        },
+        {
+          "frequency": 8,
+          "idf": 7.949323661552184,
+          "lemma": "fundo",
+          "source_word": "fusus",
+          "target_word": "fundat"
+        }
+      ],
+      "overall_score": 2.815046133869834,
+      "source": {
+        "highlight_indices": [
+          0,
+          1
+        ],
+        "ref": "stat. theb. 1.407",
+        "text": "fusus humo gelida partem prior hospes habebat,",
+        "tokens": [
+          "fusus",
+          "humo",
+          "gelida",
+          "partem",
+          "prior",
+          "hospes",
+          "habebat"
+        ]
+      },
+      "source_distance": 1,
+      "target": {
+        "highlight_indices": [
+          1,
+          2
+        ],
+        "ref": "verg. aen. 1.193",
+        "text": "corpora fundat humi, et numerum cum navibus aequet.",
+        "tokens": [
+          "corpora",
+          "fundat",
+          "humi",
+          "et",
+          "numerum",
+          "cum",
+          "nauibus",
+          "aequet"
+        ]
+      },
+      "target_distance": 1
+    },
+    {
+      "base_score": 2.4392770677410534,
+      "features": {
+        "bigram_boost": 0.0,
+        "combined_score": 0.4696969696969697,
+        "edit_distance_score": 0.7727272727272727,
+        "lemma_count": 2,
+        "meter_score": 0.0,
+        "pos_score": 0.0,
+        "shared_rare_bigrams": [],
+        "sound_score": 0.4166666666666667,
+        "source_scansion": null,
+        "source_syntax": null,
+        "syntax_score": 0.0,
+        "target_scansion": null,
+        "target_syntax": null
+      },
+      "matched_words": [
+        {
+          "frequency": 24,
+          "idf": 6.927672414020202,
+          "lemma": "sub",
+          "source_word": "sub",
+          "target_word": "sub"
+        },
+        {
+          "frequency": 4,
+          "idf": 8.537110326454304,
+          "lemma": "rupes",
+          "source_word": "rupibus",
+          "target_word": "rupe"
+        }
+      ],
+      "overall_score": 2.780221476073041,
+      "source": {
+        "highlight_indices": [
+          3,
+          4
+        ],
+        "ref": "stat. theb. 1.719",
+        "text": "frugiferum, seu Persei sub rupibus antri",
+        "tokens": [
+          "frugiferum",
+          "seu",
+          "persei",
+          "sub",
+          "rupibus",
+          "antri"
+        ]
+      },
+      "source_distance": 1,
+      "target": {
+        "highlight_indices": [
+          4,
+          5
+        ],
+        "ref": "verg. aen. 1.310",
+        "text": "Classem in convexo nemorum sub rupe cavata",
+        "tokens": [
+          "classem",
+          "in",
+          "conuexo",
+          "nemorum",
+          "sub",
+          "rupe",
+          "cauata"
+        ]
+      },
+      "target_distance": 1
+    },
+    {
+      "base_score": 2.283312970591106,
+      "features": {
+        "bigram_boost": 0.0,
+        "combined_score": 0.5798319327731092,
+        "edit_distance_score": 1.0,
+        "lemma_count": 2,
+        "meter_score": 0.0,
+        "pos_score": 0.0,
+        "shared_rare_bigrams": [],
+        "sound_score": 0.7142857142857143,
+        "source_scansion": null,
+        "source_syntax": null,
+        "syntax_score": 0.0,
+        "target_scansion": null,
+        "target_syntax": null
+      },
+      "matched_words": [
+        {
+          "frequency": 27,
+          "idf": 6.814343728713199,
+          "lemma": "animus",
+          "source_word": "animo",
+          "target_word": "animo"
+        },
+        {
+          "frequency": 11,
+          "idf": 7.6616415891004035,
+          "lemma": "uis",
+          "source_word": "uis",
+          "target_word": "uis"
+        }
+      ],
+      "overall_score": 2.7562849430706926,
+      "source": {
+        "highlight_indices": [
+          3,
+          4
+        ],
+        "ref": "stat. theb. 1.379",
+        "text": "pectore; dat stimulos animo vis maesta timoris,",
+        "tokens": [
+          "pectore",
+          "dat",
+          "stimulos",
+          "animo",
+          "uis",
+          "maesta",
+          "timoris"
+        ]
+      },
+      "source_distance": 1,
+      "target": {
+        "highlight_indices": [
+          2,
+          3
+        ],
+        "ref": "verg. aen. 1.529",
+        "text": "non ea vis animo, nec tanta superbia victis.",
+        "tokens": [
+          "non",
+          "ea",
+          "uis",
+          "animo",
+          "nec",
+          "tanta",
+          "superbia",
+          "uictis"
+        ]
+      },
+      "target_distance": 1
+    },
+    {
+      "base_score": 2.386204934462802,
+      "features": {
+        "bigram_boost": 0.0,
+        "combined_score": 0.49292929292929294,
+        "edit_distance_score": 0.8636363636363636,
+        "lemma_count": 2,
+        "meter_score": 0.0,
+        "pos_score": 0.0,
+        "shared_rare_bigrams": [],
+        "sound_score": 0.4472222222222222,
+        "source_scansion": null,
+        "source_syntax": null,
+        "syntax_score": 0.0,
+        "target_scansion": null,
+        "target_syntax": null
+      },
+      "matched_words": [
+        {
+          "frequency": 34,
+          "idf": 6.5912001773989894,
+          "lemma": "terra",
+          "source_word": "terris",
+          "target_word": "terra"
+        },
+        {
+          "frequency": 4,
+          "idf": 8.537110326454304,
+          "lemma": "consisto",
+          "source_word": "consistere",
+          "target_word": "consistere"
+        }
+      ],
+      "overall_score": 2.7523608507320754,
+      "source": {
+        "highlight_indices": [
+          4,
+          5
+        ],
+        "ref": "stat. theb. 1.279",
+        "text": "Creta tuos. me Tantaleis consistere terris,",
+        "tokens": [
+          "creta",
+          "tuos",
+          "me",
+          "tantaleis",
+          "consistere",
+          "terris"
+        ]
+      },
+      "source_distance": 1,
+      "target": {
+        "highlight_indices": [
+          4,
+          5
+        ],
+        "ref": "verg. aen. 1.541",
+        "text": "bella cient, primaque vetant consistere terra.",
+        "tokens": [
+          "bella",
+          "cient",
+          "primaque",
+          "uetant",
+          "consistere",
+          "terra"
+        ]
+      },
+      "target_distance": 1
+    },
+    {
+      "base_score": 2.366728132548627,
+      "features": {
+        "bigram_boost": 0.0,
+        "combined_score": 0.5064425770308124,
+        "edit_distance_score": 0.8571428571428572,
+        "lemma_count": 2,
+        "meter_score": 0.0,
+        "pos_score": 0.0,
+        "shared_rare_bigrams": [],
+        "sound_score": 0.5095238095238096,
+        "source_scansion": null,
+        "source_syntax": null,
+        "syntax_score": 0.0,
+        "target_scansion": null,
+        "target_syntax": null
+      },
+      "matched_words": [
+        {
+          "frequency": 21,
+          "idf": 7.055505785530087,
+          "lemma": "teneo",
+          "source_word": "tenentem",
+          "target_word": "tenens"
+        },
+        {
+          "frequency": 8,
+          "idf": 7.949323661552184,
+          "lemma": "sceptrum",
+          "source_word": "sceptra",
+          "target_word": "sceptra"
+        }
+      ],
+      "overall_score": 2.75047619404044,
+      "source": {
+        "highlight_indices": [
+          4,
+          5
+        ],
+        "ref": "stat. theb. 1.140",
+        "text": "fortunam transire iubent, ut sceptra tenentem",
+        "tokens": [
+          "fortunam",
+          "transire",
+          "iubent",
+          "ut",
+          "sceptra",
+          "tenentem"
+        ]
+      },
+      "source_distance": 1,
+      "target": {
+        "highlight_indices": [
+          0,
+          1
+        ],
+        "ref": "verg. aen. 1.57",
+        "text": "sceptra tenens, mollitque animos et temperat iras.",
+        "tokens": [
+          "sceptra",
+          "tenens",
+          "mollitque",
+          "animos",
+          "et",
+          "temperat",
+          "iras"
+        ]
+      },
+      "target_distance": 1
+    },
+    {
+      "base_score": 2.2447681004533835,
+      "features": {
+        "bigram_boost": 0.0,
+        "combined_score": 0.713235294117647,
+        "edit_distance_score": 1.0,
+        "lemma_count": 3,
+        "meter_score": 0.0,
+        "pos_score": 0.0,
+        "shared_rare_bigrams": [],
+        "sound_score": 0.78125,
+        "source_scansion": null,
+        "source_syntax": null,
+        "syntax_score": 0.0,
+        "target_scansion": null,
+        "target_syntax": null
+      },
+      "matched_words": [
+        {
+          "frequency": 25,
+          "idf": 6.888451700866922,
+          "lemma": "sui",
+          "source_word": "sibi",
+          "target_word": "sibi"
+        },
+        {
+          "frequency": 16,
+          "idf": 7.313334894832187,
+          "lemma": "mens",
+          "source_word": "mens",
+          "target_word": "mens"
+        },
+        {
+          "frequency": 5,
+          "idf": 8.354788769660349,
+          "lemma": "conscius",
+          "source_word": "conscia",
+          "target_word": "conscia"
+        }
+      ],
+      "overall_score": 2.732303672270603,
+      "source": {
+        "highlight_indices": [
+          4,
+          5,
+          6
+        ],
+        "ref": "stat. theb. 1.466",
+        "text": "ille refert contra, sed mens sibi conscia fati",
+        "tokens": [
+          "ille",
+          "refert",
+          "contra",
+          "sed",
+          "mens",
+          "sibi",
+          "conscia",
+          "fati"
+        ]
+      },
+      "source_distance": 2,
+      "target": {
+        "highlight_indices": [
+          4,
+          5,
+          6
+        ],
+        "ref": "verg. aen. 1.604",
+        "text": "usquam iustitia est et mens sibi conscia recti,",
+        "tokens": [
+          "usquam",
+          "iustitia",
+          "est",
+          "et",
+          "mens",
+          "sibi",
+          "conscia",
+          "recti"
+        ]
+      },
+      "target_distance": 2
+    }
+  ]
+}
