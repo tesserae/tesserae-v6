@@ -9,6 +9,12 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-01
 
+### Help
+- A "How the system is built" topic under Reference & tools: a plain-text
+  chart of every machine part (the server, its two helper services, the
+  BullsAI gateway and compute), the data each reads, and the recurrent and
+  one-off jobs.
+
 ### Infrastructure
 - Stanza is pinned below 1.15. The 1.15.0 release of 2026-10-01 changed how
   the Hebrew model splits prefixed words, and an unpinned install made the
