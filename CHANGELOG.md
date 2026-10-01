@@ -19,6 +19,11 @@ behind each, are in docs/DECISIONS.md.
   Corporum. The converter keeps one line per verse in bare-verse TEI.
 
 ### Search
+- Hebrew-Greek dictionary: twenty-six equivalents for the commonest Hebrew
+  words that the CATSS-derived list lacked (ποιέω for עשה, ἕως for עד, νῦν
+  for עתה, πατάσσω for נכה and others), chosen from the pairs that co-occur
+  far above chance across 20,240 aligned Hebrew and Septuagint verses
+  (#519). The full list of candidates stays under data/proposals/. (#538)
 - Hebrew-to-Greek search can route around the Septuagint pivot. A new
   setting answers the search through the Septuagint (default, unchanged),
   directly by dictionary, or both at once with each result labelled by the
