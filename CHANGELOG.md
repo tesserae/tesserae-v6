@@ -7,6 +7,20 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-01
+
+### Search
+- Formula filter: a parallel's shared words carry a formula_count, the
+  number of corpus works where they recur together (a shared bigram of the
+  two rarest shared lemmas, or one lemma's own count when only one is
+  shared). A new search setting hides parallels above a chosen count or
+  shows only those at or above it, so a set phrase like a Hebrew narrative
+  formula can be hidden as clutter or isolated as the object of study. The
+  "Formulas" control sits beside the stoplist settings, and a grey "in N
+  works" tag marks each counted result. Measured on the cached Aeneid 1 vs.
+  Lucan 1 fusion run: 36 of the top 100 parallels had no bigram-table entry,
+  42 recurred in more than 5 works, 21 in more than 20.
+
 ## 2026-09-30
 
 ### Tests

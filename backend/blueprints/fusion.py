@@ -32,6 +32,7 @@ from backend.cache import (get_cached_results, save_cached_results,
 from backend.concurrency_gate import SearchSlot, get_cancellation_message
 
 from backend.search_cancellation import SearchCancellation, SearchCancelled
+from backend.formula_filter import annotate_formula_counts, apply_formula_filter
 
 logger = get_logger('fusion')
 
@@ -106,6 +107,11 @@ def search_fusion_stream():
             freq_basis = data.get('freq_basis', 'corpus')  # corpus | meter | text_pair
             if freq_basis not in ('corpus', 'meter', 'text_pair'):
                 freq_basis = 'corpus'
+            # Formula filter: hide (formula_max) or isolate (formula_only) rows
+            # by how many works share their shared wording. None/False (no
+            # value sent) disables it, so a plain search is unaffected.
+            formula_max = data.get('formula_max')
+            formula_only = bool(data.get('formula_only', False))
             # Name the pair at the start: a long or memory-heavy search is
             # otherwise anonymous in the log until its first channel reports.
             logger.info('[FUSION] stream start: %s x %s (%s) max_results=%s use_meter=%s',
@@ -189,14 +195,20 @@ def search_fusion_stream():
                 yield send_event("progress", {
                     "step": "Loading cached fusion results", "detail": ""
                 })
-                display = cached_results[:max_results] if max_results > 0 else cached_results
+                # Annotate here too: a cache entry written before this feature
+                # shipped has no formula_count on its rows yet. Cheap and
+                # idempotent (an already-annotated row is just overwritten).
+                annotate_formula_counts(cached_results, language)
+                filtered_results, formula_hidden = apply_formula_filter(
+                    cached_results, formula_max, formula_only)
+                display = filtered_results[:max_results] if max_results > 0 else filtered_results
                 meta = cached_meta or {}
-                
+
                 # Log the cached search
                 log_search('fusion_search', language, source_id, target_id, None,
-                           'fusion', len(cached_results), True, req_user_id, req_city, req_country, req_ip)
-                           
-                yield f"data: {json.dumps({'type': 'complete', 'results': display, 'total_matches': len(cached_results), 'total_candidates': meta.get('total_candidates'), 'source_lines': meta.get('source_lines', 0), 'target_lines': meta.get('target_lines', 0), 'elapsed_time': round(time.time() - start_time, 2), 'cached': True, 'fusion': True})}\n\n"
+                           'fusion', len(filtered_results), True, req_user_id, req_city, req_country, req_ip)
+
+                yield f"data: {json.dumps({'type': 'complete', 'results': display, 'total_matches': len(filtered_results), 'total_candidates': meta.get('total_candidates'), 'source_lines': meta.get('source_lines', 0), 'target_lines': meta.get('target_lines', 0), 'elapsed_time': round(time.time() - start_time, 2), 'cached': True, 'fusion': True, 'formula_filter': {'max': formula_max, 'only': formula_only, 'hidden': formula_hidden}})}\n\n"
                 return
 
             # Concurrency gate: wait for a slot before starting heavy work.
@@ -253,6 +265,7 @@ def search_fusion_stream():
             # intermediate results as each channel completes
             final_results = []
             final_total = None
+            final_formula_hidden = 0
             for event_type, evt_data in iter_fusion_search(
                 source_units=source_units,
                 target_units=target_units,
@@ -265,6 +278,11 @@ def search_fusion_stream():
                 max_results=max_results,
                 source_path=source_path,
                 target_path=target_path,
+                # formula_max/formula_only are NOT threaded in here: the cache
+                # key below does not vary on them, so the cached list must stay
+                # the one true (unfiltered) ranking for the pair at this
+                # max_results — the filter is applied after caching, below,
+                # same as the GET poll route's ref/score filters.
                 user_settings={'use_meter': use_meter},
                 freq_basis=freq_basis,
                 cancellation=cancellation,
@@ -325,9 +343,13 @@ def search_fusion_stream():
                     final_results = evt_data["results"]
                     final_total = evt_data.get("total_results")
 
-            # Cache final results. total_candidates is the pre-cap count of scored
-            # parallels (final_results is capped at max_results); agents quote it as
-            # the true size of the comparison.
+            # Cache final results UNFILTERED (the formula filter is a display
+            # choice, applied below, after caching — the cache key does not
+            # vary on formula_max/formula_only, so a filtered request must
+            # never be what gets stored, or a later plain request would
+            # silently inherit someone else's filter). total_candidates is the
+            # pre-cap count of scored parallels (final_results is capped at
+            # max_results); agents quote it as the true size of the comparison.
             metadata = {
                 'source_lines': len(source_units),
                 'target_lines': len(target_units),
@@ -339,22 +361,28 @@ def search_fusion_stream():
                 final_results, metadata
             )
 
+            # Formula filter, applied over the cached (capped) list for display.
+            display_results, formula_hidden = apply_formula_filter(
+                final_results, formula_max, formula_only)
+
             # Log the search
             log_search('fusion_search', language, source_id, target_id, None,
-                       'fusion', len(final_results), False, req_user_id, req_city, req_country, req_ip)
+                       'fusion', len(display_results), False, req_user_id, req_city, req_country, req_ip)
 
             elapsed_time = round(time.time() - start_time, 2)
 
             complete = {
                 "type": "complete",
-                "results": final_results,
-                "total_matches": len(final_results),
+                "results": display_results,
+                "total_matches": len(display_results),
                 "total_candidates": final_total,   # pre-cap count (results are capped)
                 "source_lines": len(source_units),
                 "target_lines": len(target_units),
                 "elapsed_time": elapsed_time,
                 "fusion": True,
                 "mode": mode,
+                "formula_filter": {"max": formula_max, "only": formula_only,
+                                   "hidden": formula_hidden},
             }
             yield f"data: {json.dumps(complete)}\n\n"
 
@@ -533,6 +561,8 @@ def _slim_fusion_result(r, language=None):
         'matched': matched,
         'matched_words': mw,
         'matched_lemmas': r.get('matched_lemmas'),
+        'formula_count': r.get('formula_count'),
+        'formula_basis': r.get('formula_basis'),
     }
 
 
@@ -771,6 +801,10 @@ def fusion_search_get():
         def _norm(s):
             return ' '.join((s or '').split()).lower()
 
+        # Annotate here too: a cache entry written before formula_count existed
+        # has no such field on its rows yet. Cheap and idempotent.
+        annotate_formula_counts(cached_results, language)
+
         results = cached_results
         src_pfx = _norm(request.args.get('source_ref_prefix', ''))
         tgt_pfx = _norm(request.args.get('target_ref_prefix', ''))
@@ -778,12 +812,19 @@ def fusion_search_get():
             min_score = float(request.args.get('min_score')) if request.args.get('min_score') else None
         except (TypeError, ValueError):
             min_score = None
+        formula_max = request.args.get('formula_max')
+        try:
+            formula_max = int(formula_max) if formula_max not in (None, '') else None
+        except (TypeError, ValueError):
+            formula_max = None
+        formula_only = request.args.get('formula_only', '').lower() in ('1', 'true', 'yes')
         if src_pfx:
             results = [r for r in results if src_pfx in _norm((r.get('source') or {}).get('ref'))]
         if tgt_pfx:
             results = [r for r in results if tgt_pfx in _norm((r.get('target') or {}).get('ref'))]
         if min_score is not None:
             results = [r for r in results if (r.get('fused_score') or 0) >= min_score]
+        results, formula_hidden = apply_formula_filter(results, formula_max, formula_only)
         results = results[:display_max]
 
         try:
@@ -798,7 +839,9 @@ def fusion_search_get():
         page = results[offset:offset + limit]
         applied = {k: v for k, v in (('source_ref_prefix', src_pfx),
                                      ('target_ref_prefix', tgt_pfx),
-                                     ('min_score', min_score)) if v}
+                                     ('min_score', min_score),
+                                     ('formula_max', formula_max),
+                                     ('formula_only', formula_only or None)) if v}
         # True comparison size vs the capped ranked list, and a per-book
         # distribution over the whole ranking — enough for an agent to draw the
         # distribution and cite the real size without paging thousands of results.
@@ -826,6 +869,7 @@ def fusion_search_get():
             'by_book': by_book,               # per-book distribution for both texts
             'offset': offset, 'limit': limit, 'showing': len(page),
             'filters': applied,
+            'formula_filter': {'max': formula_max, 'only': formula_only, 'hidden': formula_hidden},
             'parallels': [_slim_fusion_result(r, language) for r in page],
         })
 

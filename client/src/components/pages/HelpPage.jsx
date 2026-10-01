@@ -1629,6 +1629,14 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   </dd>
                 </div>
                 <div>
+                  <dt className="font-medium text-gray-900">Formulas</dt>
+                  <dd className="text-gray-600 text-sm mt-1">
+                    A result's shared words can repeat a set phrase, like a biblical narrative formula,
+                    rather than a one-off echo. The Formulas setting can hide parallels whose shared
+                    wording recurs in more than a chosen number of corpus works, or show only those.
+                  </dd>
+                </div>
+                <div>
                   <dt className="font-medium text-gray-900">Unit Type (Line/Phrase)</dt>
                   <dd className="text-gray-600 text-sm mt-1">
                     Compare by poetic lines (default) or prose sentences. Phrase mode splits on punctuation.

@@ -73,6 +73,7 @@ import numpy as np
 from backend.logging_config import get_logger
 from backend.matcher import DEFAULT_LATIN_STOP_WORDS, DEFAULT_GREEK_STOP_WORDS, DEFAULT_ENGLISH_STOP_WORDS
 from backend.search_cancellation import cancellable_pool_map
+from backend.formula_filter import annotate_formula_counts, apply_formula_filter
 try:
     from backend.coptic.stopwords import COPTIC_STOP_WORDS
 except ImportError:
@@ -2279,6 +2280,26 @@ def _recover_semantic_for_structural(line_channel_results, source_units,
                     f"skipped {len(pairs_to_check) - len(recovered)} below threshold)")
 
 
+def _cap_with_formula_filter(results, max_results, user_settings):
+    """Apply the formula hide/show-only filter over the FULL result set, then
+    cap to max_results.
+
+    Filtering before the cap (rather than after) keeps a hidden or excluded
+    row from eating a page slot it would otherwise occupy — the same reason
+    other post-filters run before pagination. user_settings carries
+    formula_max/formula_only the same way it already carries weights_profile
+    and use_meter; a caller that sets neither gets today's behavior
+    unchanged (no filtering, same total/cap as before this existed).
+
+    Returns (capped_results, total_after_filter, hidden_count).
+    """
+    formula_max = (user_settings or {}).get('formula_max')
+    formula_only = bool((user_settings or {}).get('formula_only', False))
+    filtered, hidden = apply_formula_filter(results, formula_max, formula_only)
+    capped = filtered[:max_results] if max_results > 0 else filtered
+    return capped, len(filtered), hidden
+
+
 def fuse_results(channel_results, weights=None, convergence_bonus=None,
                   idf_floor=None, idf_threshold=None,
                   convergence_idf_power=None, min_idf_threshold=None,
@@ -2759,6 +2780,14 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
     if confirm_context:
         merged = apply_context_confirmation(merged, language=language,
                                             source_id=source_id, target_id=target_id)
+
+    # formula_count: how many works share this result's shared wording (the
+    # two rarest shared lemmas as a bigram, or the one lemma's own work count
+    # with a single shared lemma). One table lookup per row against a table
+    # loaded once per language; see backend/formula_filter.py. Every fusion
+    # consumer (the streaming endpoint, the poll endpoint, the LXX pivot)
+    # bottoms out in this function, so annotating here covers all of them.
+    annotate_formula_counts(merged, language)
     return merged
 
 
@@ -3397,10 +3426,11 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
                                  source_id=source_id, target_id=target_id,
                                  confirm_context=False)
             preview_cap = min(max_results, 500) if max_results > 0 else 500
-            top = fused[:preview_cap]
+            top, preview_total, _preview_hidden = _cap_with_formula_filter(
+                fused, preview_cap, user_settings)
             yield ("intermediate", {
                 "results": top,
-                "total_results": len(fused),
+                "total_results": preview_total,
                 "channels_done": list(line_channel_results.keys()),
                 "channels_total": total_line,
                 "phase": "line",
@@ -3470,8 +3500,8 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
                                source_id=source_id, target_id=target_id)
 
     if mode == 'line':
-        final = line_fused[:max_results] if max_results > 0 else line_fused
-        yield ("complete", {"results": final, "total_results": len(line_fused)})
+        final, total, hidden = _cap_with_formula_filter(line_fused, max_results, user_settings)
+        yield ("complete", {"results": final, "total_results": total, "formula_hidden": hidden})
         return
 
     # The window pass was designed for poetry, where allusions span line
@@ -3496,8 +3526,8 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
     if both_prose and mode == 'merged':
         logger.info(f"[FUSION] Skipping window pass: both {source_id} and "
                     f"{target_id} are prose")
-        final = line_fused[:max_results] if max_results > 0 else line_fused
-        yield ("complete", {"results": final, "total_results": len(line_fused)})
+        final, total, hidden = _cap_with_formula_filter(line_fused, max_results, user_settings)
+        yield ("complete", {"results": final, "total_results": total, "formula_hidden": hidden})
         return
 
     # --- Pass 2: Window-level (co-occurrence channels only) ---
@@ -3550,14 +3580,14 @@ def iter_fusion_search(source_units, target_units, matcher, scorer,
         window_fused, annotate_for_merge=(mode != 'window'))
 
     if mode == 'window':
-        final = window_fused[:max_results] if max_results > 0 else window_fused
-        yield ("complete", {"results": final, "total_results": len(window_fused)})
+        final, total, hidden = _cap_with_formula_filter(window_fused, max_results, user_settings)
+        yield ("complete", {"results": final, "total_results": total, "formula_hidden": hidden})
         return
 
     # --- Merge: line results first, then novel window results ---
     merged = merge_line_and_window(line_fused, window_fused)
-    final = merged[:max_results] if max_results > 0 else merged
-    yield ("complete", {"results": final, "total_results": len(merged)})
+    final, total, hidden = _cap_with_formula_filter(merged, max_results, user_settings)
+    yield ("complete", {"results": final, "total_results": total, "formula_hidden": hidden})
 
 
 def run_fusion_search(source_units, target_units, matcher, scorer,
@@ -3566,7 +3596,7 @@ def run_fusion_search(source_units, target_units, matcher, scorer,
                       source_path=None, target_path=None,
                       progress_callback=None,
                       source_language=None, target_language=None,
-                      freq_basis='corpus'):
+                      freq_basis='corpus', formula_max=None, formula_only=False):
     """Run two-pass weighted fusion search.
 
     Pass 1 (line-level): All 9 channels run on individual verse lines.
@@ -3675,7 +3705,8 @@ def run_fusion_search(source_units, target_units, matcher, scorer,
                                source_id=source_id, target_id=target_id)
 
     if mode == 'line':
-        return line_fused[:max_results] if max_results > 0 else line_fused
+        kept, _hidden = apply_formula_filter(line_fused, formula_max, formula_only)
+        return kept[:max_results] if max_results > 0 else kept
 
     # Skip the window pass on prose-vs-prose pairs (see iter_fusion_search
     # for rationale).
@@ -3692,7 +3723,8 @@ def run_fusion_search(source_units, target_units, matcher, scorer,
     if both_prose and mode == 'merged':
         logger.info(f"[FUSION] Skipping window pass: both {source_id} and "
                     f"{target_id} are prose")
-        return line_fused[:max_results] if max_results > 0 else line_fused
+        kept, _hidden = apply_formula_filter(line_fused, formula_max, formula_only)
+        return kept[:max_results] if max_results > 0 else kept
 
     # --- Pass 2: Window-level (lexical channels only) ---
     # Only lexical channels benefit from windowing — see module docstring
@@ -3717,9 +3749,11 @@ def run_fusion_search(source_units, target_units, matcher, scorer,
         window_fused, annotate_for_merge=(mode != 'window'))
 
     if mode == 'window':
-        return window_fused[:max_results] if max_results > 0 else window_fused
+        kept, _hidden = apply_formula_filter(window_fused, formula_max, formula_only)
+        return kept[:max_results] if max_results > 0 else kept
 
     # --- Merge: line results first, then novel window results ---
     merged = merge_line_and_window(line_fused, window_fused)
 
-    return merged[:max_results] if max_results > 0 else merged
+    kept, _hidden = apply_formula_filter(merged, formula_max, formula_only)
+    return kept[:max_results] if max_results > 0 else kept
