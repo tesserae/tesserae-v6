@@ -67,7 +67,7 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
-## 2026-10-01 Septuagint κοὶ corrected: Greek index rows, lemma caches and stored wording refreshed for 15 books (run 11:11 to 11:14 EDT)
+## 2026-10-01 Septuagint κοὶ corrected, Greek index rows, lemma caches and stored wording refreshed for 15 books (run 11:11 to 11:14 EDT)
 
 ### What and why
 - PR #554 (issue #523) corrected 158 occurrences of κοὶ and κοί to καὶ and
