@@ -123,12 +123,12 @@ export default function SystemChart() {
         <Box
           x={270} y={420} w={185} h={80}
           title="Query encoder"
-          lines={['turns a Theme Search query', 'into a vector', 'multilingual-e5-large, port 8090']}
+          lines={['turns a Theme Search query', 'into a vector', 'multilingual-e5-large']}
         />
         <Box
           x={475} y={420} w={185} h={80}
           title="Reader"
-          lines={['re-ranks Theme Search results', 'a trained MiniLM cross-encoder', 'port 8091']}
+          lines={['re-ranks Theme Search results', 'a trained MiniLM cross-encoder']}
         />
 
         {/* Column 3: BullsAI */}
@@ -146,7 +146,7 @@ export default function SystemChart() {
           ]}
         />
         <Box
-          x={735} y={290} w={190} h={210}
+          x={735} y={290} w={190} h={176}
           title="Compute"
           lines={[
             'GPUs allotted job by job, from a',
@@ -158,8 +158,6 @@ export default function SystemChart() {
             'whole-corpus comparisons',
             'description batches too large',
             'for the gateway',
-            '',
-            'in place of rented GPUs',
           ]}
         />
 
@@ -184,25 +182,21 @@ export default function SystemChart() {
           <text x="36" y="710">Failures become graded test questions</text>
 
           <text x="356" y="596" fontWeight="600" fill={INK}>One-off, when the corpus changes</text>
-          <text x="356" y="614">one job at a time, each under a memory cap</text>
-          <text x="356" y="634">convert the text to .tess, build its lemma cache,</text>
-          <text x="356" y="648">add it to the inverted index and the word tables</text>
-          <text x="356" y="668">cut it into passage windows, describe them</text>
-          <text x="356" y="682">(gateway), encode them, append to the index</text>
-          <text x="356" y="702">rebuild the connections map and reuse table,</text>
-          <text x="356" y="716">write the work's blurb</text>
+          <text x="356" y="614">convert the text to .tess, build its lemma cache,</text>
+          <text x="356" y="628">add it to the inverted index and the word tables</text>
+          <text x="356" y="648">cut it into passage windows, describe them</text>
+          <text x="356" y="662">(gateway), encode them, append to the index</text>
+          <text x="356" y="682">rebuild the connections map and reuse table,</text>
+          <text x="356" y="696">write the work's blurb</text>
 
-          <text x="676" y="596" fontWeight="600" fill={INK}>One-off, elsewhere</text>
-          <text x="676" y="614">BullsAI compute, or a rented GPU: vectors</text>
-          <text x="676" y="628">for whole corpora, re-ranker training</text>
-          <text x="676" y="648">a paid model: judging in evaluation</text>
-          <text x="676" y="662">studies only, never on the live site</text>
-          <text x="676" y="682">temporary preview sites for collaborators,</text>
-          <text x="676" y="696">a tunnel from the server, days at a time</text>
+          <text x="676" y="596" fontWeight="600" fill={INK}>One-off, on BullsAI compute</text>
+          <text x="676" y="614">vectors for whole corpora</text>
+          <text x="676" y="628">re-ranker training</text>
+          <text x="676" y="642">whole-corpus comparisons</text>
         </g>
         <Line d="M560 570 V540 H668 V300 H660" dashed label="rebuilds" lx={674} ly={420} anchor="start" />
         <Line d="M830 570 V535 H930 V140 H925" dashed />
-        <Line d="M880 570 V500" dashed label="runs" lx={874} ly={558} anchor="end" />
+        <Line d="M880 570 V466" dashed label="runs" lx={874} ly={558} anchor="end" />
 
         {/* Legend */}
         <g fontSize="10" fill={MUTED}>
