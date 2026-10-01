@@ -119,3 +119,12 @@ def test_number_guard_reads_compound_words_as_one_number(monkeypatch):
     assert not ok and 'thirty' in invented and 'two' in invented
     ok, invented = m.numbers_preserved(facts, 'All but two are epic stock.')
     assert not ok and invented == ['two']
+
+
+def test_number_guard_lets_a_definite_two_pass_but_not_a_count(monkeypatch):
+    m = _reload(monkeypatch)
+    facts = 'Lucan 1.8 against Aeneid 1.150. 25 results.'
+    ok, invented = m.numbers_preserved(facts, 'The shared word sits between the two lines, and both of these two passages describe a storm.')
+    assert ok and invented == []
+    ok, invented = m.numbers_preserved(facts, 'All but two of the parallels are epic stock.')
+    assert not ok and invented == ['two']
