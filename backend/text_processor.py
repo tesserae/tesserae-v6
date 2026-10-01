@@ -45,6 +45,12 @@ logger = get_logger('text_processor')
 # Loaded lazily on first use to speed up server startup
 LATIN_LEMMA_TABLE = None
 GREEK_LEMMA_TABLE = None
+
+# Punctuation and spacing diacritics that live inside the Greek Unicode
+# blocks and so survive the letter filter in tokenize_greek: ano teleia and
+# middle dot, the Greek question mark, and the spacing breathings, accents
+# and koronis of the Extended block.
+_GREEK_STRAY_MARKS_RE = re.compile('[\u0387\u00b7\u037e\u1fbd-\u1fc1\u1fcd-\u1fcf\u1fdd-\u1fdf\u1fed-\u1fef\u1ffd\u1ffe]')
 LATIN_REVERSE_LEMMA = None
 GREEK_REVERSE_LEMMA = None
 _lemma_tables_loaded = False
@@ -522,6 +528,16 @@ class TextProcessor:
             text: The text to tokenize
             preserve_case: If True, returns (original_tokens, normalized_tokens) tuple
         """
+        # Marks inside the Greek blocks that are punctuation or spacing
+        # diacritics, not letters: the ano teleia (U+0387, and its
+        # compatibility form U+00B7), the Greek question mark (U+037E) and
+        # the spacing breathings and accents of the Extended block (U+1FBD
+        # to U+1FFE). Left in, they rode along on the word: the Septuagint
+        # text writes "αὐτοῦ·" and "᾿Ισραήλ", which the index then held as
+        # the tokens "αυτου·" and "᾿ισραηλ", lemmatized as themselves
+        # (measured 2026-10-01: 12% of Septuagint tokens carried a lemma
+        # that is no lemma, these among the most frequent).
+        text = _GREEK_STRAY_MARKS_RE.sub(' ', text)
         # First extract original tokens before lowercasing
         original_text = re.sub(r'[^\u0300-\u036f\u0370-\u03ff\u1f00-\u1fff\s]', '', text)
         original_tokens = original_text.split()
