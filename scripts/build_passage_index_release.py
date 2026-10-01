@@ -18,7 +18,7 @@ record carries its language, and reassembly is concatenation, for which
 `merge_index.py` already exists and checks its own invariants.
 
 A commercial user can take Latin, Greek and English and have a working system.
-Under a single NC bundle they could take nothing.
+Under a single non-commercial bundle they could take nothing.
 
 WHAT EACH SLICE CONTAINS
 ------------------------
@@ -43,6 +43,9 @@ import sys
 from collections import Counter
 
 import numpy as np
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from backend.restricted_texts import is_restricted  # noqa: E402
 
 INDEX = '/home/ncoffee/tesserae-scene/data/passage_index'
 OUT = '/home/ncoffee/tesserae-scene/data/releases/passage_index'
@@ -175,6 +178,20 @@ def main():
                 print(f'  {lang}: WITHHELD from the release (no licence entry)')
             continue
         rows = [n for n, i in enumerate(ids) if recs.get(i, {}).get('language') == lang]
+        # A release leaves the project. A window drawn from a text held under
+        # an indexing-and-search-only licence (data/restricted_texts.json)
+        # stays out of it, the same guarantee the per-language text downloads
+        # give: the vectors and the machine description are both derived from
+        # the restricted text and would carry it past the server.
+        kept, withheld = [], 0
+        for n in rows:
+            if is_restricted(recs.get(ids[n], {}).get('work') or ''):
+                withheld += 1
+            else:
+                kept.append(n)
+        rows = kept
+        if withheld:
+            print(f'  {lang}: {withheld} window(s) withheld, licensed for indexing and search only')
         if not rows:
             continue
         d = os.path.join(OUT, lang)
@@ -215,6 +232,7 @@ def main():
             'embedding_dim': int(v_emb.shape[1]),
             'licence': short,
             'descriptions_with_unverified_names': flagged,
+            'restricted_windows_withheld': withheld,
             'files': {f: {'bytes': os.path.getsize(os.path.join(d, f)),
                           'sha256': sha256(os.path.join(d, f))}
                       for f in ('ids.json', 'embeddings.npy', 'descriptions.jsonl')},

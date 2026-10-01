@@ -8,22 +8,41 @@ import tempfile
 from io import BytesIO
 from flask import Blueprint, send_file, jsonify, Response, after_this_request
 
+from backend import restricted_texts
+
 downloads_bp = Blueprint('downloads', __name__)
 
 TEXTS_DIR = 'texts'
 EMBEDDINGS_DIR = 'backend/embeddings'
 
-def create_zip_from_directory(directory, prefix=''):
-    """Create a zip file from a directory and return as BytesIO"""
+RESTRICTED_NOTE = (
+    'licensed for indexing and search only on the Tesserae site; not for redistribution')
+
+def create_zip_from_directory(directory, prefix='', skip_files=None):
+    """Create a zip file from a directory and return as BytesIO.
+
+    `skip_files`, when given, is a set of filenames (not paths) at the top
+    level of `directory` to leave out -- how a restricted text, which must
+    stay on the server but never in a bundle anyone can walk off with, is
+    withheld from a directory download without the caller needing to copy the
+    directory first.
+    """
+    skip_files = skip_files or set()
     memory_file = BytesIO()
     with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
         for root, dirs, files in os.walk(directory):
             for file in files:
+                if file in skip_files:
+                    continue
                 file_path = os.path.join(root, file)
                 arcname = os.path.relpath(file_path, directory)
                 if prefix:
                     arcname = os.path.join(prefix, arcname)
                 zf.write(file_path, arcname)
+        if skip_files:
+            zf.writestr(
+                os.path.join(prefix, 'README_RESTRICTED.txt') if prefix else 'README_RESTRICTED.txt',
+                f'{len(skip_files)} text(s) withheld from this download: {RESTRICTED_NOTE}.\n')
     memory_file.seek(0)
     return memory_file
 
@@ -32,19 +51,24 @@ def download_texts(language):
     """Download all texts for a language as a zip file"""
     if language not in ['la', 'grc', 'en', 'cop', 'he']:
         return jsonify({'error': 'Invalid language. Use: la, grc, en, cop, he'}), 400
-    
+
     lang_dir = os.path.join(TEXTS_DIR, language)
     if not os.path.exists(lang_dir):
         return jsonify({'error': f'No texts found for {language}'}), 404
-    
+
     try:
-        zip_buffer = create_zip_from_directory(lang_dir, f'texts_{language}')
-        return send_file(
+        skip = set(restricted_texts.filenames(language, texts_root=TEXTS_DIR))
+        zip_buffer = create_zip_from_directory(lang_dir, f'texts_{language}', skip_files=skip)
+        response = send_file(
             zip_buffer,
             mimetype='application/zip',
             as_attachment=True,
             download_name=f'tesserae_texts_{language}.zip'
         )
+        if skip:
+            response.headers['X-Tesserae-Restricted-Withheld'] = (
+                f'{len(skip)} text(s) withheld: {RESTRICTED_NOTE}.')
+        return response
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -247,10 +271,15 @@ def download_info():
         lang_dir = os.path.join(TEXTS_DIR, lang)
         if os.path.exists(lang_dir):
             files = [f for f in os.listdir(lang_dir) if f.endswith('.tess')]
-            info['texts'][lang] = {
-                'count': len(files),
+            restricted = set(restricted_texts.filenames(lang, texts_root=TEXTS_DIR))
+            entry = {
+                'count': len(files) - len(restricted),
                 'available': True
             }
+            if restricted:
+                entry['restricted_withheld'] = len(restricted)
+                entry['restricted_note'] = RESTRICTED_NOTE
+            info['texts'][lang] = entry
         else:
             info['texts'][lang] = {'count': 0, 'available': False}
     
