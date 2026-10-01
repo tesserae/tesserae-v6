@@ -38,7 +38,7 @@ behind each, are in docs/DECISIONS.md.
   on the Theme Search page and in the connector as theme_compare (#535)
 - Theme Comparison shows the shared wording inside each pair when the
   word-level comparison is cached, and word-level results carry the theme
-  lift of their surrounding passages (#TBD)
+  lift of their surrounding passages (#541)
 
 ### Assistant
 - Asked to compare two texts, Tessa now runs the comparison and reads its

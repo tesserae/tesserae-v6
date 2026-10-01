@@ -1617,6 +1617,18 @@ def _pair_baseline(work_a, work_b, scale='fine'):
     return baseline
 
 
+
+_row_by_id = None
+
+
+def _row_of(window_id):
+    """Row index of a window id, from a dict built once. A list.index() scan
+    over half a million ids per lookup made a page of results cost seconds."""
+    global _row_by_id
+    if _row_by_id is None or len(_row_by_id) != len(_ids or []):
+        _row_by_id = {wid: i for i, wid in enumerate(_ids or [])}
+    return _row_by_id.get(window_id)
+
 def pair_lift(work_a, ref_a, work_b, ref_b, scale='fine'):
     """The Theme Comparison reading of one word-level result: the cosine
     between the fine windows that cover ref_a (in work_a) and ref_b (in
@@ -1637,10 +1649,9 @@ def pair_lift(work_a, ref_a, work_b, ref_b, scale='fine'):
     wid_b = window_for_passage(work_b, ref_b, ref_b, prefer=scale)
     if not wid_a or not wid_b:
         return None
-    try:
-        row_a = _ids.index(wid_a)
-        row_b = _ids.index(wid_b)
-    except ValueError:
+    row_a = _row_of(wid_a)
+    row_b = _row_of(wid_b)
+    if row_a is None or row_b is None:
         return None
     import numpy as np
     score = float(np.dot(np.asarray(_emb[row_a], dtype=np.float32),
