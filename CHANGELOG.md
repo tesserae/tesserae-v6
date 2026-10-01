@@ -10,6 +10,11 @@ behind each, are in docs/DECISIONS.md.
 ## 2026-10-01
 
 ### Help
+- The system schematic simplified: port numbers, the memory-cap note and
+  the entries on paid models and preview sites are out, and the compute
+  column names only what it does.
+
+### Help
 - A "How the system is built" topic under Reference & tools: a drawn
   schematic of every machine part (the server, its two helper services, the
   BullsAI gateway and compute), the data each reads, and the recurrent and
