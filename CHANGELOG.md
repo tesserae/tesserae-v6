@@ -9,6 +9,10 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-01
 
+### Data operations
+- Hebrew index, lemma cache, frequency table and bigram table rebuilt for
+  the homograph lemmas of #552 (docs/DATA_OPERATIONS.md, 2026-10-01).
+
 ### Scripts
 - `scripts/corpus/rebuild_bigrams.py` registers the plugin languages before
   counting, and refuses to swap in a table with no bigrams. Without the
