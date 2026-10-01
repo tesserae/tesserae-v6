@@ -711,7 +711,11 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 &ldquo;strong&rdquo; mark on a pair means it stands well above the two
                 works&rsquo; general resemblance to each other, and the confidence line above
                 the results says whether the two works genuinely echo one another or only
-                resemble each other the ordinary amount most texts do.
+                resemble each other the ordinary amount most texts do. When a word-level search
+                of the same two works has already been run, each pair also lists the shared
+                wording found inside it, with a link to run that search when none exists yet. A
+                word-level result can likewise carry a small &ldquo;theme&rdquo; badge showing
+                how much its own two lines resemble each other in content.
               </p>
 
               <h4 className="font-medium text-gray-900 mt-6 mb-2">Reading the results</h4>

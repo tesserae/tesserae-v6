@@ -1572,6 +1572,99 @@ def window_for_passage(work, ref_start=None, ref_end=None, prefer='fine'):
     return best
 
 
+# Process-lifetime, not persisted: (norm_work_a, norm_work_b, scale) -> the
+# median baseline compare_works would compute for that pair, or None when the
+# pair can't be compared (missing windows, or too large). Small (one float per
+# pair of works anyone has asked pair_lift about) and never invalidated within
+# a process, same as _DENSITY_CACHE's in-memory sibling would be if it had one;
+# a fresh deploy clears it along with everything else compare_works reads.
+_PAIR_BASELINE_CACHE = {}
+
+
+def _pair_baseline(work_a, work_b, scale='fine'):
+    """The general-resemblance baseline between two works' windows, cached so a
+    page of pair_lift calls over the same two works (backend/blueprints/
+    passages.py /passages/pair-lift, 25 word-level results = one page) costs
+    one score-matrix pass rather than one per row. Same computation and same
+    convention (median of a strided sample of the score matrix) as
+    compare_works's own baseline; kept separate because compare_works also
+    needs the per-row top-k candidates in the same pass and this doesn't."""
+    key = (_norm_work(work_a), _norm_work(work_b), scale)
+    if key in _PAIR_BASELINE_CACHE:
+        return _PAIR_BASELINE_CACHE[key]
+    _ensure_loaded()
+    if not _state['ok']:
+        return None
+    import numpy as np
+    rows_a = _rows_for_work(work_a, scale)
+    rows_b = _rows_for_work(work_b, scale)
+    if scale == 'fine' and (not rows_a or not rows_b):
+        rows_a = rows_a or _rows_for_work(work_a, 'coarse')
+        rows_b = rows_b or _rows_for_work(work_b, 'coarse')
+    if not rows_a or not rows_b or len(rows_a) * len(rows_b) > COMPARE_MAX_CELLS:
+        _PAIR_BASELINE_CACHE[key] = None
+        return None
+    E_b = np.asarray(_emb[rows_b], dtype=np.float32)
+    sample = []
+    for lo in range(0, len(rows_a), COMPARE_BLOCK):
+        chunk = rows_a[lo:lo + COMPARE_BLOCK]
+        S = np.asarray(_emb[chunk], dtype=np.float32) @ E_b.T
+        if len(sample) < 200_000:
+            sample.append(S.ravel()[:: max(1, S.size // 20_000)])
+    flat = np.concatenate(sample) if sample else np.zeros(1, dtype=np.float32)
+    baseline = float(np.median(flat))
+    _PAIR_BASELINE_CACHE[key] = baseline
+    return baseline
+
+
+
+_row_by_id = None
+
+
+def _row_of(window_id):
+    """Row index of a window id, from a dict built once. A list.index() scan
+    over half a million ids per lookup made a page of results cost seconds."""
+    global _row_by_id
+    if _row_by_id is None or len(_row_by_id) != len(_ids or []):
+        _row_by_id = {wid: i for i, wid in enumerate(_ids or [])}
+    return _row_by_id.get(window_id)
+
+def pair_lift(work_a, ref_a, work_b, ref_b, scale='fine'):
+    """The Theme Comparison reading of one word-level result: the cosine
+    between the fine windows that cover ref_a (in work_a) and ref_b (in
+    work_b), and its lift above the two works' general resemblance to each
+    other (_pair_baseline). Lets a fusion-search result that shares wording
+    also say whether it sits in a thematically close stretch of the two
+    works, or is isolated wording in otherwise unrelated passages.
+
+    Returns None when either line falls outside every indexed window (no
+    content coverage there) or the pair can't be compared at all; otherwise a
+    dict with `score`, `lift`, and `level` (None lift/level when the pair is
+    too large to baseline, same ceiling compare_works applies).
+    """
+    _ensure_loaded()
+    if not _state['ok']:
+        return None
+    wid_a = window_for_passage(work_a, ref_a, ref_a, prefer=scale)
+    wid_b = window_for_passage(work_b, ref_b, ref_b, prefer=scale)
+    if not wid_a or not wid_b:
+        return None
+    row_a = _row_of(wid_a)
+    row_b = _row_of(wid_b)
+    if row_a is None or row_b is None:
+        return None
+    import numpy as np
+    score = float(np.dot(np.asarray(_emb[row_a], dtype=np.float32),
+                         np.asarray(_emb[row_b], dtype=np.float32)))
+    baseline = _pair_baseline(work_a, work_b, scale)
+    if baseline is None:
+        return {'score': round(score, 4), 'lift': None, 'level': None}
+    lift = score - baseline
+    level = ('strong' if lift >= STRONG_LIFT else
+             'moderate' if lift >= STRONG_LIFT / 2 else 'low')
+    return {'score': round(score, 4), 'lift': round(lift, 4), 'level': level}
+
+
 def find_similar_to_passage(work, ref_start=None, ref_end=None, limit=15,
                             languages=None, scale='fine',
                             suppress_other_versions=True):

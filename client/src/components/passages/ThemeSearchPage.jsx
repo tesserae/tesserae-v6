@@ -568,6 +568,12 @@ export default function ThemeSearchPage() {
   const [cmpData, setCmpData] = useState(null);
   const [cmpRunning, setCmpRunning] = useState(false);
   const [cmpError, setCmpError] = useState(null);
+  // Shared wording inside each pair: joins the theme comparison against
+  // whatever word-level (fusion) comparison of the same two works is already
+  // cached, see backend/blueprints/passages.py _attach_phrase_parallels. On
+  // by default since the join costs nothing when nothing is cached (one
+  // lookup per distinct book pair, not a fresh search).
+  const [showPhrases, setShowPhrases] = useState(true);
 
   const runCompare = useCallback(async (workA, workB) => {
     const a = (workA || '').trim();
@@ -577,8 +583,9 @@ export default function ThemeSearchPage() {
     setCmpError(null);
     setCmpData(null);
     try {
-      const res = await fetch(
-        `/api/passages/compare?work_a=${encodeURIComponent(a)}&work_b=${encodeURIComponent(b)}`);
+      const params = new URLSearchParams({ work_a: a, work_b: b });
+      if (showPhrases) params.set('with_phrases', '1');
+      const res = await fetch(`/api/passages/compare?${params.toString()}`);
       const json = await res.json();
       if (json.error) setCmpError(json.error);
       else {
@@ -591,7 +598,7 @@ export default function ThemeSearchPage() {
     } finally {
       setCmpRunning(false);
     }
-  }, [cmpRunning]);
+  }, [cmpRunning, showPhrases]);
 
   // Arriving from a link that already names both works (Tessa, a bookmark, a
   // colleague): run the comparison rather than making the reader repick both
@@ -654,10 +661,20 @@ export default function ThemeSearchPage() {
             />
           </div>
 
+          <label className="mt-4 flex items-center gap-2 text-sm text-gray-700">
+            <input
+              type="checkbox"
+              checked={showPhrases}
+              onChange={(e) => setShowPhrases(e.target.checked)}
+              className="rounded border-gray-300"
+            />
+            Show shared wording inside pairs
+          </label>
+
           <button
             onClick={() => runCompare(cmpTextA, cmpTextB)}
             disabled={cmpRunning || !cmpTextA || !cmpTextB}
-            className="mt-4 px-4 py-2 rounded bg-red-700 text-white text-sm font-medium hover:bg-red-800 disabled:opacity-40"
+            className="mt-3 px-4 py-2 rounded bg-red-700 text-white text-sm font-medium hover:bg-red-800 disabled:opacity-40"
           >
             {cmpRunning ? 'Comparing…' : 'Compare'}
           </button>
@@ -700,6 +717,16 @@ export default function ThemeSearchPage() {
                 {cmpData.work_b?.display_name || cmpData.work_b?.work}.
               </p>
 
+              {cmpData.phrases && cmpData.phrases.available === false && (
+                <p className="mt-2 text-xs text-gray-500">
+                  No word-level comparison of these two works is cached yet.{' '}
+                  <a href={cmpData.phrases.run_url}
+                     className="text-red-800 hover:text-red-900 hover:underline">
+                    Run the word-level comparison of these two works
+                  </a>
+                </p>
+              )}
+
               {!!(cmpData.pairs || []).length && (
                 <div className="mt-3">
                   <button
@@ -734,6 +761,31 @@ export default function ThemeSearchPage() {
                       <CompareSideCard side={pair.a} />
                       <CompareSideCard side={pair.b} />
                     </div>
+                    {!!(pair.phrases || []).length && (
+                      <div className="mt-3 pt-3 border-t border-gray-100">
+                        <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1">
+                          Shared wording inside this pair
+                        </div>
+                        <ul className="space-y-1">
+                          {pair.phrases.map((ph, j) => (
+                            <li key={j} className="text-xs text-gray-700">
+                              <span className="text-gray-500">{ph.source_ref}</span>
+                              {' · '}
+                              <span className="text-gray-500">{ph.target_ref}</span>
+                              {' — '}
+                              <span className="font-semibold text-gray-900">
+                                {(ph.matched_words || []).map((w) => (
+                                  typeof w === 'object' ? (w.lemma || w.word || w.display || '') : w
+                                )).filter(Boolean).join(', ')}
+                              </span>
+                              {typeof ph.score === 'number' && (
+                                <span className="text-gray-400"> (score {ph.score.toFixed(2)})</span>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </li>
                 ))}
               </ul>

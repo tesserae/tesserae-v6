@@ -55,6 +55,9 @@ MANIFEST = {
     '/api/passages/compare': {
         'tools': ['theme_compare'],
     },
+    '/api/passages/pair-lift': {
+        'tools': ['theme_pair_lift'],
+    },
     '/api/passages/translation': {
         'tools': ['get_passage'],
         'note': "get_passage(translation=true) calls this route for the fetched lines' refs.",

@@ -395,15 +395,142 @@ def similar_passages():
 # stale deploy, which cost an hour on 2026-08-27. Moving them would be the tidier
 # fix and would break every existing caller, so the prefixed path is added
 # alongside rather than instead. See issue #275.
+
+# -- Phrase parallels inside a theme-comparison pair -----------------------
+#
+# The two "echo each other" tools, Theme Comparison (content) and fusion
+# search (wording), have never answered a question together: of the passage
+# pairs Theme Comparison surfaces, which ones ALSO share actual words? That
+# needs a cached fusion run over the same two texts to already exist --
+# running one live from this route would turn a sub-second comparison into a
+# multi-minute one -- so this only ever JOINS against whatever is already in
+# cache/, the way a page that has already run the word-level comparison, or
+# whose server has, gets it for free.
+_PHRASE_LOOKUP_CAP = 50     # distinct per-window work pairs probed for a cache hit
+_PHRASES_PER_PAIR = 10      # phrase parallels kept per theme pair, highest score first
+
+
+def _fusion_cache_for_book_pair(work_a, work_b, language_a, language_b):
+    """Cached fusion rows for one (book-level) work pair, tried in both
+    directions, or None if neither is cached.
+
+    Cross-lingual theme pairs (a Latin passage matched to a Greek one by
+    content) are skipped: fusion search's cache key assumes one language for
+    both sides (see _default_fusion_cache_settings), and the dedicated
+    cross-lingual search is a different endpoint entirely, so there is no
+    single-language settings dict to build for them. Returns (rows,
+    a_is_source) so the caller knows which side of each cached row is work_a's.
+    """
+    if not language_a or language_a != language_b:
+        return None
+    from backend.blueprints.fusion import _default_fusion_cache_settings, _poll_use_meter
+    from backend.cache import get_cached_results
+    a_id = work_a if work_a.endswith('.tess') else f'{work_a}.tess'
+    b_id = work_b if work_b.endswith('.tess') else f'{work_b}.tess'
+    use_meter = _poll_use_meter(a_id, b_id, language_a)
+    # Same settings dict the plain GET /fusion-search poll builds for a caller
+    # that passes no overrides -- the exact path the Search page's results are
+    # cached under, so a pair already run there is found here unchanged.
+    settings = _default_fusion_cache_settings(language_a, 5000, use_meter)
+    rows, _meta = get_cached_results(a_id, b_id, language_a, settings)
+    if rows:
+        return rows, True
+    rows, _meta = get_cached_results(b_id, a_id, language_a, settings)
+    if rows:
+        return rows, False
+    return None
+
+
+def _ref_within_window(work, ref, ref_start, ref_end):
+    """Same ref-to-number covering test window_for_passage uses: ref's
+    trailing numeric coordinates (stripped of the work name) fall between the
+    window's start and end coordinates."""
+    want = passage_index._ref_numbers_in(work, ref)
+    lo = passage_index._ref_numbers_in(work, ref_start)
+    hi = passage_index._ref_numbers_in(work, ref_end)
+    if not (want and lo and hi):
+        return False
+    return lo <= want <= hi
+
+
+def _compare_run_url(work_a, work_b, language):
+    a_id = work_a if work_a.endswith('.tess') else f'{work_a}.tess'
+    b_id = work_b if work_b.endswith('.tess') else f'{work_b}.tess'
+    return '/?' + urlencode({'lang': language or '', 'source': a_id, 'target': b_id})
+
+
+def _attach_phrase_parallels(out, work_a, work_b):
+    """Joins cached word-level (fusion) results onto `out['pairs']`, in place.
+
+    Looks up the cache once per distinct (window_a.work, window_b.work) pair
+    actually present among the theme pairs -- a whole work compared as books
+    this way costs one lookup per book pair involved, not one per theme pair
+    -- capped at _PHRASE_LOOKUP_CAP. When nothing is cached anywhere, every
+    pair is left alone and `out['phrases']` says so with a link that opens the
+    word-level comparison ready to run. When something is cached, every pair
+    whose book combination hit the cache gets its `phrases` list (possibly
+    empty, when no cached parallel's two lines land inside both windows).
+    """
+    pairs = out.get('pairs') or []
+    combos = []
+    for p in pairs:
+        wa = (p.get('a') or {}).get('work')
+        wb = (p.get('b') or {}).get('work')
+        if wa and wb and (wa, wb) not in combos:
+            combos.append((wa, wb))
+        if len(combos) >= _PHRASE_LOOKUP_CAP:
+            break
+    cache_by_combo = {}
+    for wa, wb in combos:
+        la = next((p['a'].get('language') for p in pairs if p['a'].get('work') == wa), None)
+        lb = next((p['b'].get('language') for p in pairs if p['b'].get('work') == wb), None)
+        cache_by_combo[(wa, wb)] = _fusion_cache_for_book_pair(wa, wb, la, lb)
+    if not any(v is not None for v in cache_by_combo.values()):
+        language = pairs[0]['a'].get('language') if pairs else None
+        out['phrases'] = {'available': False,
+                          'run_url': _compare_run_url(work_a, work_b, language)}
+        return
+    pairs_with_phrases = 0
+    for p in pairs:
+        a_rec, b_rec = p.get('a') or {}, p.get('b') or {}
+        wa, wb = a_rec.get('work'), b_rec.get('work')
+        hit = cache_by_combo.get((wa, wb))
+        if hit is None:
+            continue
+        rows, a_is_source = hit
+        found = []
+        for row in rows:
+            s, t = row.get('source') or {}, row.get('target') or {}
+            if a_is_source:
+                a_ref, b_ref = s.get('ref'), t.get('ref')
+                a_text, b_text = s.get('text'), t.get('text')
+            else:
+                a_ref, b_ref = t.get('ref'), s.get('ref')
+                a_text, b_text = t.get('text'), s.get('text')
+            if _ref_within_window(wa, a_ref, a_rec.get('ref_start'), a_rec.get('ref_end')) and \
+               _ref_within_window(wb, b_ref, b_rec.get('ref_start'), b_rec.get('ref_end')):
+                found.append({'source_ref': a_ref, 'target_ref': b_ref,
+                              'matched_words': row.get('matched_words'),
+                              'score': row.get('fused_score'),
+                              'source_text': a_text, 'target_text': b_text})
+        if found:
+            found.sort(key=lambda x: -(x.get('score') or 0))
+            p['phrases'] = found[:_PHRASES_PER_PAIR]
+            pairs_with_phrases += 1
+    out['phrases'] = {'available': True, 'pairs_with_phrases': pairs_with_phrases}
+
+
 @passages_bp.route('/passages/compare')
 def compare_works_route():
     """Theme comparison of two works or books, by content rather than words.
 
     GET /api/passages/compare?work_a=vergil.aeneid.part.1&work_b=lucan.bellum_civile.part.1
-        [&scale=fine|coarse&limit=50&per_window=3]
+        [&scale=fine|coarse&limit=50&per_window=3&with_phrases=1]
     Every window of work_a is scored against every window of work_b on the
     Similar Passages vectors; the best pairs come back with both windows'
     descriptions and a confidence block (median baseline, head lift, level).
+    with_phrases=1 additionally joins each pair against any already-cached
+    word-level (fusion) comparison of the two works, see _attach_phrase_parallels.
     """
     work_a = (request.args.get('work_a') or '').strip().replace('.tess', '')
     work_b = (request.args.get('work_b') or '').strip().replace('.tess', '')
@@ -412,6 +539,7 @@ def compare_works_route():
     scale = (request.args.get('scale') or 'fine').strip()
     if scale not in ('fine', 'coarse'):
         scale = 'fine'
+    with_phrases = (request.args.get('with_phrases') or '').strip().lower() in ('1', 'true', 'yes')
     out = passage_index.compare_works(
         work_a, work_b, scale=scale,
         limit=_int_arg('limit', 50, lo=1, hi=passage_index.COMPARE_PAIR_LIMIT),
@@ -423,9 +551,40 @@ def compare_works_route():
                 'work': f"{w.get('work')}.tess", 'lang': w.get('language') or '',
                 'ref': w.get('ref_start') or '', 'refEnd': w.get('ref_end') or w.get('ref_start') or '',
                 'tab': 'similar'})
+    if with_phrases and not out.get('error') and out.get('pairs'):
+        _attach_phrase_parallels(out, work_a, work_b)
     # Like every route in this blueprint: 200 with an `error` field, so a page
     # or a connector reads one shape whatever happened.
     return jsonify(out)
+
+
+@passages_bp.route('/passages/pair-lift', methods=['POST'])
+def pair_lift_route():
+    """The Theme Comparison reading of up to 100 word-level result pairs.
+
+    POST /api/passages/pair-lift {"pairs": [{"work_a","ref_a","work_b","ref_b"}, ...]}
+    For each pair, the cosine between the fine passage windows covering ref_a
+    (in work_a) and ref_b (in work_b), and its lift above the two works'
+    general resemblance (backend.passage_index.pair_lift, which caches the
+    baseline per work pair so a page of 25 results costs one matrix pass).
+    Returns {"results": [{"score","lift","level"}, ...]} in request order,
+    with null score/lift/level where no indexed window covers one of the lines.
+    """
+    body = request.get_json(silent=True) or {}
+    pairs = body.get('pairs')
+    if not isinstance(pairs, list) or not pairs:
+        return jsonify({'error': 'pairs is required (a non-empty list)', 'results': []})
+    results = []
+    for p in pairs[:100]:
+        out = None
+        if isinstance(p, dict):
+            work_a = str(p.get('work_a') or '').strip().replace('.tess', '')
+            work_b = str(p.get('work_b') or '').strip().replace('.tess', '')
+            ref_a, ref_b = p.get('ref_a'), p.get('ref_b')
+            if work_a and work_b and ref_a and ref_b:
+                out = passage_index.pair_lift(work_a, ref_a, work_b, ref_b)
+        results.append(out or {'score': None, 'lift': None, 'level': None})
+    return jsonify({'results': results})
 
 
 @passages_bp.route('/passages/lexical-density')

@@ -828,6 +828,35 @@ def _t_theme_compare(a):
     return out
 
 
+def _t_theme_pair_lift(a):
+    """The theme_compare reading of one or more word-level (fusion_search /
+    compare_texts) result pairs: whether the matched lines also sit in a
+    thematically close stretch of the two works, or are isolated shared
+    wording in otherwise unrelated passages.
+
+    Takes up to 100 {work_a, ref_a, work_b, ref_b} pairs -- exactly the
+    source/target work ids and refs a fusion_search or compare_texts result
+    carries -- and returns the CONTENT-similarity cosine of the fine passage
+    windows around each pair's two lines, and its lift above the two works'
+    general resemblance to each other (the same measure theme_compare uses).
+    """
+    pairs = a.get('pairs')
+    if not isinstance(pairs, list) or not pairs:
+        return {'error': 'pairs is required (a non-empty list of {work_a, ref_a, work_b, ref_b})'}
+    d = _post('/passages/pair-lift', {'pairs': pairs[:100]})
+    out = {'results': d.get('results') or []}
+    if d.get('error'):
+        out['error'] = d['error']
+    out['presentation'] = (
+        "`level` 'strong' means this specific pair of lines resembles each other in "
+        "CONTENT well beyond how much the two works resemble each other in general; "
+        "'moderate' or 'low' means less so. A null score/lift/level means no indexed "
+        "passage window covers one of the two lines -- say so rather than treating it "
+        "as a weak reading."
+    )
+    return out
+
+
 # --------------------------------------------------------------------------
 # describe_text: what a text is and where it came from
 # --------------------------------------------------------------------------
@@ -1091,6 +1120,23 @@ TOOLS = [
                                     "limit": {"type": "integer"}},
                      "required": ["work_a", "work_b"]},
      "fn": _t_theme_compare},
+    {"name": "theme_pair_lift",
+     "description": ("For up to 100 word-level result pairs (the work_a/ref_a/work_b/ref_b "
+                     "a fusion_search or compare_texts result carries), the CONTENT-similarity "
+                     "reading of each pair: the cosine of the fine passage windows around the "
+                     "two lines, and its lift above the two works' general resemblance to each "
+                     "other (the same measure theme_compare uses). Use this to say whether a "
+                     "word-level parallel also sits in a thematically close stretch of the two "
+                     "works, or is isolated shared wording. `level` ('strong'/'moderate'/'low') "
+                     "is null when no indexed passage window covers one of the two lines."),
+     "inputSchema": {"type": "object",
+                     "properties": {"pairs": {"type": "array", "items": {
+                         "type": "object",
+                         "properties": {"work_a": _STR, "ref_a": _STR,
+                                        "work_b": _STR, "ref_b": _STR},
+                         "required": ["work_a", "ref_a", "work_b", "ref_b"]}}},
+                     "required": ["pairs"]},
+     "fn": _t_theme_pair_lift},
     {"name": "rare_pairs",
      "description": "Rare two-word combinations shared by two texts (distinctive collocations), ranked by rarity. Fast two-text comparison.",
      "inputSchema": {"type": "object", "properties": {"source": _STR, "target": _STR, "language": _STR},

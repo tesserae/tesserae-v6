@@ -161,6 +161,41 @@ const SearchResults = ({
     pinToFirstPage: loading,
   });
 
+  // Theme Comparison's reading of each visible word-level result: one POST
+  // per page (not per row) to /api/passages/pair-lift, keyed by position in
+  // visibleItems. Never blocks the page -- results fill in whenever they
+  // arrive, and a failed or empty response just means no badges render.
+  const [pairLifts, setPairLifts] = useState({});
+  useEffect(() => {
+    setPairLifts({});
+    const workA = sourceTextInfo?.id;
+    const workB = targetTextInfo?.id;
+    const rows = (visibleItems || []).slice(0, 100);
+    // Skip while fusion is still streaming: the visible set (held to page 1)
+    // keeps growing underneath this effect, which would fire one request per
+    // intermediate event instead of one per rendered page.
+    if (loading || !workA || !workB || !rows.length) return undefined;
+    let cancelled = false;
+    const pairs = rows.map((r) => ({
+      work_a: workA, ref_a: r.source_locus || r.source?.ref,
+      work_b: workB, ref_b: r.target_locus || r.target?.ref,
+    }));
+    fetch('/api/passages/pair-lift', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pairs }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (cancelled) return;
+        const map = {};
+        (data?.results || []).forEach((r, idx) => { if (r && r.level) map[idx] = r; });
+        setPairLifts(map);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [visibleItems, sourceTextInfo?.id, targetTextInfo?.id, loading]);
+
   const paginationProps = {
     currentPage,
     totalPages,
@@ -1191,6 +1226,17 @@ const SearchResults = ({
               <span className="text-sm text-gray-600">
                 Score: <span className="font-medium">{(r.fused_score ?? r.score ?? r.overall_score)?.toFixed(2) || '-'}</span>
               </span>
+              {pairLifts[i] && typeof pairLifts[i].lift === 'number' && (
+                <span
+                  title="How much this pair's two lines resemble each other in content, above the two works' general resemblance to each other"
+                  className={`text-xs px-2 py-0.5 rounded ${
+                    pairLifts[i].level === 'strong'
+                      ? 'bg-red-50 text-red-800 border border-red-200 font-medium'
+                      : 'bg-gray-100 text-gray-600'}`}
+                >
+                  theme {pairLifts[i].lift >= 0 ? '+' : ''}{pairLifts[i].lift.toFixed(2)}
+                </span>
+              )}
               {r.channels && r.channels.length > 0 && (
                 <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
                   {r.channels.length} channel{r.channels.length !== 1 ? 's' : ''}
