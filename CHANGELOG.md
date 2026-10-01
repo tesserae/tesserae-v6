@@ -9,6 +9,11 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-01
 
+### Admin
+- The Performance tab's concurrency controls keep following the server
+  after the first load, and when running searches exceed a lowered cap the
+  card says the system is draining and shows the count (#148).
+
 ### Corpus
 - Septuagint text: 262 occurrences of a bare κα, on 244 lines of 11 books,
   corrected to καὶ, the same class of error as the κοὶ of #554 and found
