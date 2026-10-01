@@ -19,6 +19,15 @@ behind each, are in docs/DECISIONS.md.
   Corporum. The converter keeps one line per verse in bare-verse TEI.
 
 ### Search
+- Hebrew-to-Greek search can route around the Septuagint pivot. A new
+  setting answers the search through the Septuagint (default, unchanged),
+  directly by dictionary, or both at once with each result labelled by the
+  route that found it. Added to the Cross-Language form and the connector.
+  (#536)
+- Hebrew-Latin dictionary rebuilt from the main Greek-Latin dictionary and
+  the curated pairs Greek-to-Latin search itself uses, not only the two
+  small V6-additions CSVs. 20,631 to 29,907 lines. Vulgate Genesis token
+  coverage 42.7 to 59.3 percent. (#536, closes #518)
 - An exact-phrase Line Search of a single word returns its lines again. The
   two-lemma rule that belongs to co-occurrence searches no longer applies to
   exact searches, so a one-word Coptic query that returned nothing returns
