@@ -101,10 +101,15 @@ anything is deleted, with a dated backup kept of each file it removes.
   Thucydides 43.4% to 42.1%, the Iliad 36.7% to 36.6%. Distinct lemmas per
   text fell with it, which is the invented stems leaving.
 - The production environment has no CLTK, so no backoff lemmatizer took
-  part in this build or in live queries; the index and the queries agree.
-  The remaining surface-form share, a third to a half of tokens in
-  classical texts, is the treebank table's coverage and is recorded as an
-  open item.
+  part in this build or in live queries, and the index and the queries
+  agree. The surface-form shares above include every word whose lemma is
+  its own form (particles, prepositions, uninflected forms), so they
+  overstate the gap. Counting only tokens whose form is in neither lemma
+  table, the unresolved share is 4.3% of the Iliad, 10.7% of the Republic,
+  10.6% of Thucydides, 15.1% across Plutarch and 14.4% of the whole Greek
+  index (2.04 million of 14.19 million tokens, each work counted once).
+  That gap is the open item; a table built from the GLAUx corpus covers
+  90% of it and waits in a branch.
 
 ## 2026-10-01 Septuagint κοὶ corrected, Greek index rows, lemma caches and stored wording refreshed for 15 books (run 11:11 to 11:14 EDT)
 
