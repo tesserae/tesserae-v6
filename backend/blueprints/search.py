@@ -42,6 +42,7 @@ from backend.matcher import get_curated_stoplists
 from backend.search_cancellation import (
     SearchCancellation, SearchCancelled, request_cancellation,
 )
+from backend.formula_filter import annotate_formula_counts, apply_formula_filter
 
 logger = get_logger('search')
 
@@ -146,7 +147,8 @@ def _parse_search_request(data):
     for key in ['match_type', 'min_matches', 'max_results', 'max_distance',
                 'stoplist_basis', 'stoplist_size', 'source_unit_type', 'target_unit_type',
                 'use_meter', 'use_pos', 'use_syntax', 'use_sound', 'use_edit_distance',
-                'bigram_boost', 'custom_stopwords', 'hebrew_greek_route']:
+                'bigram_boost', 'custom_stopwords', 'hebrew_greek_route',
+                'formula_max', 'formula_only']:
         if key in data and key not in settings:
             settings[key] = data[key]
 
@@ -283,6 +285,18 @@ def _finalize_results(scored_results, source_units, target_units, stoplist_size,
         }
         save_cached_results(source_id, target_id, language, settings, scored_results, metadata)
 
+    # formula_count: annotated on every row (skipped for cross-lingual pairs,
+    # whose two sides use different lemma tables), then the hide/show-only
+    # filter is applied over the FULL result set before paging, so max_results
+    # pages the filtered set rather than letting hidden rows eat the page.
+    is_crosslingual = (settings.get('source_language') and settings.get('target_language')
+                       and settings['source_language'] != settings['target_language'])
+    formula_language = None if is_crosslingual else language
+    annotate_formula_counts(scored_results, formula_language)
+    formula_max = settings.get('formula_max')
+    formula_only = bool(settings.get('formula_only'))
+    scored_results, formula_hidden = apply_formula_filter(scored_results, formula_max, formula_only)
+
     max_results = settings.get('max_results', 0)
     display_results = scored_results[:max_results] if max_results > 0 else scored_results
 
@@ -304,6 +318,9 @@ def _finalize_results(scored_results, source_units, target_units, stoplist_size,
         "target_lines": len(target_units),
         "stoplist_size": stoplist_size,
         "cached": cached,
+        "formula_filter": {
+            "max": formula_max, "only": formula_only, "hidden": formula_hidden,
+        },
         # Stamped so a result can be cited reproducibly: the same search on the
         # same corpus version gives the same answer, and the corpus does change
         # as texts are added and lemmatization improves (2026-09-08).
@@ -1850,6 +1867,7 @@ def search_stream():
                 "target_lines": response_data["target_lines"],
                 "stoplist_size": response_data["stoplist_size"],
                 "corpus_version": response_data.get("corpus_version"),
+                "formula_filter": response_data.get("formula_filter"),
                 "elapsed_time": elapsed_time
             }
             yield f"data: {json.dumps(result)}\n\n"

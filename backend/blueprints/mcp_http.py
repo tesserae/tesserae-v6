@@ -244,7 +244,8 @@ def _fusion_poll(params, budget):
             # Surface filter context when present (count is after filters; total is
             # the full result set before them). total_candidates/capped give the
             # true comparison size; by_book lets an agent draw the distribution.
-            for k in ('total', 'total_candidates', 'capped', 'by_book', 'limit', 'filters'):
+            for k in ('total', 'total_candidates', 'capped', 'by_book', 'limit', 'filters',
+                     'formula_filter'):
                 if d.get(k) is not None and d.get(k) != {}:
                     out[k] = d.get(k)
             return out
@@ -282,6 +283,16 @@ def _fusion_params(a):
             p['min_score'] = float(a.get('min_score'))
     except (TypeError, ValueError):
         pass
+    # Formula filter: hide (formula_max) or isolate (formula_only) parallels by
+    # how many works in the corpus share their shared wording — see
+    # backend/formula_filter.py. Omitted -> no filtering, same as before.
+    try:
+        if a.get('formula_max') is not None and str(a.get('formula_max')).strip() != '':
+            p['formula_max'] = int(a.get('formula_max'))
+    except (TypeError, ValueError):
+        pass
+    if a.get('formula_only'):
+        p['formula_only'] = True
     # Two of the site's Advanced settings panel options that ARE wired into
     # fusion search (see backend/blueprints/fusion.py fusion_search_get):
     # per-side unit type, and per-channel weight overrides. Omitted ->
@@ -1193,14 +1204,21 @@ TOOLS = [
                      "weight for just those channels — channels are edit_distance, sound, exact, lemma, "
                      "dictionary, semantic, rare_word, syntax, syntax_structural, lemma_min1, quotation. "
                      "Omit all three for today's default behavior; a non-default combination gets its own "
-                     "cache entry, so the first run on a new combination takes the full few minutes again."),
+                     "cache entry, so the first run on a new combination takes the full few minutes again. "
+                     "formula_max/formula_only filter by how many corpus works share a parallel's shared "
+                     "wording (its formula_count) — set formula_max to hide parallels recurring in more "
+                     "than that many works (clutter from set phrases like a Hebrew narrative formula), or "
+                     "add formula_only to see ONLY those recurring ones (useful for studying the formulas "
+                     "themselves). Omit both for no filtering."),
      "inputSchema": {"type": "object",
                      "properties": {"source": _STR, "target": _STR, "language": _STR,
                                     "offset": {"type": "integer"}, "limit": {"type": "integer"},
                                     "source_ref_prefix": _STR, "target_ref_prefix": _STR,
                                     "min_score": {"type": "number"},
                                     "source_unit_type": _STR, "target_unit_type": _STR,
-                                    "weights": {"type": "object"}},
+                                    "weights": {"type": "object"},
+                                    "formula_max": {"type": "integer"},
+                                    "formula_only": {"type": "boolean"}},
                      "required": ["source", "target", "language"]},
      "fn": _t_fusion_search},
     {"name": "cross_language",
