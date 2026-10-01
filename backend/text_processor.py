@@ -110,6 +110,26 @@ def load_lemma_tables():
             logger.info(f"Loaded {len(GREEK_LEMMA_TABLE)} Greek lemma mappings from UD treebanks")
         except Exception as e:
             logger.error(f"Failed to load Greek lemma table: {e}")
+        # Koine forms the treebank table lacks (2026-10-01): built from the
+        # Rahlfs Septuagint morphology (data/lemma_tables/GREEK_KOINE_LICENSE.txt).
+        # The treebank table wins wherever both have a form; the Koine table
+        # fills the gaps, which on the Septuagint were 11% of tokens, four
+        # fifths of them covered here. Forms where the two disagree are kept
+        # for review in greek_koine_conflicts.json and not applied.
+        koine_path = os.path.join(base_dir, 'data', 'lemma_tables', 'greek_koine_lemmas.json')
+        if os.path.exists(koine_path):
+            try:
+                with open(koine_path, 'r', encoding='utf-8') as f:
+                    koine = json.load(f)
+                added = 0
+                for form, lemma in koine.items():
+                    if form not in GREEK_LEMMA_TABLE:
+                        GREEK_LEMMA_TABLE[form] = lemma
+                        GREEK_REVERSE_LEMMA.setdefault(lemma, set()).add(form)
+                        added += 1
+                logger.info(f"Added {added} Koine Greek lemma mappings from the Septuagint morphology")
+            except Exception as e:
+                logger.error(f"Failed to load Koine Greek lemma table: {e}")
     else:
         logger.warning(f"Greek lemma table not found at {greek_path}")
     

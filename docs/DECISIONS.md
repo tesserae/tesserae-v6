@@ -7,6 +7,43 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-10-01 Koine forms get a second lemma table, and the treebank table keeps the last word
+
+**Question.** The Greek lemma table comes from Ancient Greek treebanks and
+has little Koine in it. On the Septuagint the lemmatizer falls to the CLTK
+backoff, which invents stems (υμνειτοσ for ὑμνεῖτε, λημψοσ for λήμψομαι),
+or leaves the surface form. Measured on the production index, 71,572 of
+589,484 Septuagint tokens (12.1%) carried a lemma that is no known lemma,
+40,733 of them the surface form itself. Dictionary candidates drawn from
+the Septuagint inherited the invented stems.
+
+**Measurement.** Of the unresolved tokens, 5,837 were tokenizer artifacts
+(the ano teleia and the spacing breathing kept on the word, fixed
+separately). A table built from the Rahlfs Septuagint morphology (31,069
+forms the treebank table lacks) resolves 53,164 of the remaining 66,035
+(80.5%). What is left is inflected proper names for the most part. On the
+Greek New Testament the treebank table already covers all but 0.35% of
+tokens. 1,336 forms are in both tables with different lemmas: some are
+Koine readings that are better (ἄγε as the imperative of ἄγω, not a lemma
+of its own), and some are homograph ambiguities (ἀγών "contest" against
+the participle of ἄγω) that a lookup table cannot settle either way.
+
+**Decision.** The Koine table is loaded after the treebank table and fills
+only the forms it lacks. The treebank table wins on every shared form, so
+no lemma in a classical text changes, and the conflicts are kept in a file for
+review and not applied. The source carries a Creative Commons
+Attribution-NonCommercial-ShareAlike licence, the same family of terms as
+the Hebrew morphology, and the attribution file names the repository and
+the CCAT analysis it derives from.
+
+**Left open.** The 1,336 conflicts, to be read by eye. The proper names
+still unresolved, which would need a names table. Lemma spellings that
+differ between the two sources for one verb (γίνομαι in the Koine
+morphology, γίγνομαι in the treebanks), which keep a Septuagint form and a
+classical form of the same verb apart until a spelling map joins them. The
+full Greek rebuild that applies this table and the tokenizer fix to the
+index.
+
 ## 2026-10-01 Hebrew-Greek dictionary candidates pass through a model judge and a reader, never straight in (#519)
 
 **Question.** The 1,787 Hebrew-Greek pairs proposed from verse alignment

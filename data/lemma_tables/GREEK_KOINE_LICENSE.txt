@@ -1,0 +1,42 @@
+Koine Greek lemma table: source licence and attribution
+=========================================================
+
+data/lemma_tables/greek_koine_lemmas.json and
+data/lemma_tables/greek_koine_conflicts.json are built by
+scripts/corpus/build_greek_koine_table.py from word-occurrence and lexicon
+data published in the GitHub repository:
+
+    eliranwong/LXX-Rahlfs-1935
+    https://github.com/eliranwong/LXX-Rahlfs-1935
+    Copyright 2017 Eliran Wong
+
+That repository is licensed under a Creative Commons
+Attribution-NonCommercial-ShareAlike 4.0 International License
+(CC BY-NC-SA 4.0): https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+Files used here (branch master):
+  - 01_wordlist_unicode/text_accented.csv  (word occurrences, accented)
+  - 02_lexemes/OSSP_lexemes.csv            (per-occurrence lexeme/lemma)
+  - 02_lexemes/Lex_LXXno.csv               (per-occurrence lexeme id)
+  - 09a_LXX_lexicon/01-04.csv              (lexicon: lemma text + part of
+                                             speech, including proper-noun
+                                             marking, keyed by lexeme id)
+
+Per the source repository's own README, this material is itself a
+derivative work. Two upstream sources are acknowledged by name there and
+are acknowledged again here:
+
+  - The CATSS/CCAT morphologically analyzed Septuagint text (LXXM), the
+    computer form of the Septuagint (Rahlfs 1935) prepared by the
+    Thesaurus Linguae Graecae (TLG) project (dir. T. Brunner, UC Irvine)
+    and morphologically analyzed by CATSS under the direction of Robert
+    Kraft, University of Pennsylvania (CCAT):
+    http://ccat.sas.upenn.edu/gopher/text/religion/biblical/lxxmorph/
+  - The Open Scriptures Septuagint Project (lexeme integration), shared by
+    David Troidl: https://github.com/openscriptures/GreekResources
+
+Because the CC BY-NC-SA 4.0 licence is NonCommercial and ShareAlike, any
+redistribution of greek_koine_lemmas.json or greek_koine_conflicts.json
+(or of a lemma table built from them) must carry the same attribution and
+licence terms, and must not be used commercially without separate
+permission from Eliran Wong / the CATSS and OSSP source projects.

@@ -16,6 +16,17 @@ behind each, are in docs/DECISIONS.md.
   `data/proposals/septuagint_ka_2026-10-01.csv`; no other word changed.
   Index rows and stored wording refreshed in the Greek rebuild that
   follows the tokenizer and Koine table changes.
+### Greek
+- A Koine lemma table for the forms the treebank table lacks:
+  `data/lemma_tables/greek_koine_lemmas.json`, 31,069 forms built by
+  `scripts/corpus/build_greek_koine_table.py` from the Rahlfs Septuagint
+  morphology repository (Creative Commons Attribution-NonCommercial-ShareAlike
+  4.0, a derivative of the CCAT analysis, attribution in
+  `GREEK_KOINE_LICENSE.txt`). The treebank table wins wherever both have a
+  form, and the 1,336 forms where the two disagree are kept in
+  `greek_koine_conflicts.json` and not applied. On the production index 11%
+  of Septuagint tokens carried a lemma that is no known lemma, and the table
+  covers four fifths of them. Greek lemma caches and index to be rebuilt.
 
 ### Dictionaries
 - Hebrew-Greek: 74 equivalents added from the second pass on the 1,787
