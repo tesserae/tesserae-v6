@@ -27,6 +27,22 @@ behind each, are in docs/DECISIONS.md.
   after the first load, and when running searches exceed a lowered cap the
   card says the system is draining and shows the count (#148).
 
+### Greek
+- A classical lemma table for the forms neither the treebank table nor the
+  Koine table covers: `data/lemma_tables/greek_classical_lemmas.json`,
+  365,997 forms built by `scripts/corpus/build_greek_classical_table.py`
+  from the GLAUx treebank corpus, 936 treebank files of ancient Greek
+  literature published by the Perseids Project under a Creative Commons
+  Attribution-ShareAlike licence, attribution in
+  `GREEK_CLASSICAL_LICENSE.txt`. It loads after the treebank table and the
+  Koine table and fills only what both still lack, and the 6,136 forms
+  where it disagrees with an existing table are kept in
+  `greek_classical_conflicts.json` for review and not applied. The forms
+  neither existing table covered were 14.4% of all Greek tokens on the
+  production index, and the new table resolves 90% of them, the Iliad and
+  Thucydides covered almost entirely. Greek lemma caches and index to be
+  rebuilt.
+
 ### Corpus
 - Septuagint text: 262 occurrences of a bare κα, on 244 lines of 11 books,
   corrected to καὶ, the same class of error as the κοὶ of #554 and found

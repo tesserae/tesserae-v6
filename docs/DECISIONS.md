@@ -7,6 +7,48 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-10-01 Classical forms get a third lemma table, behind the treebank and the Koine tables
+
+**Question.** Even with the treebank table and the new Koine table, a share
+of Greek tokens still carry no real lemma, mostly in classical authors the
+treebank table under-covers. How large is that share, and can a lookup
+table close it without the CLTK backoff that invents stems.
+
+**Measurement.** Forms in neither table were 4.3% of the Iliad, 10.7% of
+the Republic, 10.6% of Thucydides, 15.1% across Plutarch, 2.3% of the
+Septuagint, and 14.4% of the whole Greek index (2.04 million of 14.19
+million tokens, each work counted once). A table built from the GLAUx
+treebank corpus, 936 treebanks of ancient Greek spanning classical through
+late antique texts, resolves 90.2% of them, all of the Iliad, 99.4% of
+Thucydides, 91.5% of Plutarch, and only 16.2% of the Septuagint, since
+GLAUx's texts are classical Greek, a different register from the
+Septuagint's Koine. 200,583 tokens are still left, most of them crasis
+forms such as τἀληθῆ (τὸ plus ἀληθῆ), which a lemma lookup table cannot
+split, or technical terms the corpus does not cover.
+
+**Decision.** The classical table is a third table in the chain, loaded
+after the treebank table and the Koine table and filling only what both
+still lack. The treebank table and the Koine table keep the last word on
+every form either already has, so no existing lemma changes. The 6,136
+forms where GLAUx disagrees with an existing table are kept in a file for
+review and not applied.
+
+**Rejected.** Installing the CLTK backoff lemmatizer on production for the
+remaining classical gap. It invents a stem for any form it cannot otherwise
+lemmatize, and the Greek rebuild this morning removed exactly those
+invented stems from the index once a real table covered the forms behind
+them.
+
+**Left open.** The 6,136 conflicts, to be read by eye. The crasis forms,
+which call for a word splitter that a flat lookup table does not provide.
+A spelling map between
+sources that write one verb two ways (γίνομαι in the Koine morphology and
+this table, γίγνομαι in the treebank table), which keeps related forms
+apart until it exists. Side finding from this measurement: 29 works,
+among them the Iliad, the Odyssey, the Republic, Thucydides and Herodotus,
+sit in the Greek index both whole and as parts, counted once per work
+throughout.
+
 ## 2026-10-01 The Hebrew-Latin bridge is filtered by attestation and a judged remainder (HE.5)
 
 **Question.** `hebrew_latin.csv` reached Latin through Greek, Hebrew to Greek

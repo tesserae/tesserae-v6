@@ -1,0 +1,46 @@
+Classical Greek lemma table: source licence and attribution
+=============================================================
+
+data/lemma_tables/greek_classical_lemmas.json and
+data/lemma_tables/greek_classical_conflicts.json are built by
+scripts/corpus/build_greek_classical_table.py from the per-word form/lemma
+annotations in 936 treebank XML files published in the GitHub repository:
+
+    perseids-publications/glaux-trees
+    https://github.com/perseids-publications/glaux-trees
+
+That repository publishes the GLAUx corpus:
+
+    Alek Keersmaekers, "GLAUx: a large-scale automatically lemmatized and
+    parsed corpus of Ancient Greek." KU Leuven / Perseids Project.
+    https://github.com/alekkeersmaekers/glaux
+    See also: Keersmaekers (2021), "The GLAUx corpus: methodological
+    issues in designing a long-term, diverse, multi-layered corpus of
+    Ancient Greek," ACL Anthology 2021.lchange-1.6.
+
+The repository carries two separate licence files:
+
+  - LICENSE (MIT): covers the repository's own publishing-template code,
+    Copyright (c) 2018 The Perseids Project. Not relevant to the data
+    extracted here.
+  - TREEBANK_LICENSE: covers the treebank XML data itself. The file's full
+    text, as published at
+    https://github.com/perseids-publications/glaux-trees/blob/master/TREEBANK_LICENSE ,
+    is the Creative Commons Attribution-ShareAlike 4.0 International
+    Public License (CC BY-SA 4.0):
+    https://creativecommons.org/licenses/by-sa/4.0/legalcode
+
+    Note: the repository's own README.md describes the treebank licence
+    as "CC0 1.0" (pointing to this same TREEBANK_LICENSE file), which
+    appears to be stale boilerplate inherited from the generic
+    "treebank-template" repository this one was built from and does not
+    match the file's actual content. This licence file treats the
+    TREEBANK_LICENSE file's text (CC BY-SA 4.0) as authoritative, since
+    CC BY-SA requires attribution and share-alike redistribution while CC0
+    would not, and the stricter reading governs.
+
+Because CC BY-SA 4.0 requires attribution and share-alike redistribution,
+any redistribution of greek_classical_lemmas.json or
+greek_classical_conflicts.json (or of a lemma table built from them) must
+credit Alek Keersmaekers and the GLAUx corpus / perseids-publications/glaux-trees
+as above, and must be shared under CC BY-SA 4.0 or a compatible licence.
