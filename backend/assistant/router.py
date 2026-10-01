@@ -99,6 +99,14 @@ _META = (
 )
 
 
+def _has(term, q):
+    """Whole-word match of a term (one word or several) in the normalised
+    question. Plain substring matching sent "rare words across the whole
+    corpus" to the cross-language answer, because "cross" is inside
+    "across" (graded set, 2026-09-30)."""
+    return re.search(r'(?<![a-z0-9])' + re.escape(term) + r'(?![a-z0-9])', q) is not None
+
+
 def route(question):
     """Return a canned answer when the question clearly matches one, else None.
 
@@ -108,11 +116,11 @@ def route(question):
     q = _norm(question)
     if not q.strip():
         return None
-    if any(m in q for m in _META):
+    if any(_has(m, q) for m in _META):
         return None
-    if any(a in q for a in _ADVICE):
+    if any(_has(a, q) for a in _ADVICE):
         return None
     for rule in _RULES:
-        if all(any(term in q for term in group) for group in rule['all']):
+        if all(any(_has(term, q) for term in group) for group in rule['all']):
             return rule['answer']
     return None

@@ -355,6 +355,17 @@ def numbers_preserved(source_text, generated, question=''):
             continue
         if re.search(rf'\b{word}\b', source.lower()) or str(value) in src_nums:
             continue
+        # "between the two lines", "both of these two passages": a definite
+        # phrase pointing at the things under discussion, not a count the
+        # model produced. Every search here is about two texts, so "the two"
+        # was flagged on correct answers (graded set, 2026-09-30). A bare
+        # count ("all but two", "two of the instances") is still flagged.
+        in_compound = re.search(rf'\b{word}-(?:one|two|three|four|five|six|seven|eight|nine)\b|'
+                                rf'\b(?:twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)-{word}\b', gen_lower)
+        occurrences = re.findall(rf'(?:\b(?:the|these|those|both|either|neither|each of the)\s+)?\b{word}\b', gen_lower)
+        if (not in_compound and occurrences
+                and all(o.split()[0] in ('the', 'these', 'those', 'both', 'either', 'neither', 'each') for o in occurrences)):
+            continue
         invented.add(word)
 
     if invented:
