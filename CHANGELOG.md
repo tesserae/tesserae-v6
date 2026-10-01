@@ -25,6 +25,13 @@ behind each, are in docs/DECISIONS.md.
   lemmatizer artifact, and the remaining 128 were read by hand: 97 kept, 23
   of them already present. Among the additions: עד with αἰών, μάρτυς and
   μέχρι, אשרי with μακάριος, מאד with σφοδρός, שבע with ὄμνυμι and ἕβδομος.
+### Greek
+- The Greek tokenizer treats the ano teleia, the middle dot, the Greek
+  question mark and the spacing breathings and accents of the Extended
+  block as word boundaries. They sit inside the Greek Unicode blocks and
+  had ridden along on the word: the Septuagint text writes "αὐτοῦ·" and
+  "᾿Ισραήλ", which the index held as the tokens "αυτου·" and "᾿ισραηλ",
+  lemmatized as themselves. Greek lemma caches and index to be rebuilt.
 
 ### Data operations
 - Hebrew index, lemma cache, frequency table and bigram table rebuilt for
