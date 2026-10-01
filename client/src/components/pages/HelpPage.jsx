@@ -953,12 +953,12 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
             <div className="prose max-w-none">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Tessa, the assistant</h3>
               <p className="text-gray-700 mb-4">
-                Tessa does two things: she <strong>explains how this site works</strong>, and she
+                Tessa does two things. She <strong>explains how this site works</strong>, and she
                 <strong> runs searches against this corpus and reports what came back</strong>.
                 Ask her how to set up a search, what a result means, or where a phrase occurs.
-                She can bring a little general background to an answer, but what she reports is
-                anchored to the searches she actually ran. She is not a chatbot with opinions
-                about classical literature, and she is not a substitute for reading.
+                She brings a little general background to an answer, and what she reports is
+                anchored to the searches she ran. The judgement about what a parallel means
+                is yours.
               </p>
 
               <h4 className="font-medium text-gray-900 mt-6 mb-2">What she can do</h4>
@@ -980,28 +980,22 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
               <h4 className="font-medium text-gray-900 mt-6 mb-2">How to trust her</h4>
               <p className="text-gray-700 mb-3">
-                Every answer is checked before you see it. Citations must come from a search that
-                actually ran, numbers must appear in the results, and any line of text she quotes
-                must match the passage word for word. She runs on a model hosted on this server,
-                so nothing you ask is sent anywhere else.
-              </p>
-              <p className="text-gray-700 mb-3">
-                She still cannot read the literature for you. She reports what the searches
-                returned, and the judgement about what it means is yours.
+                Every answer is checked before you see it. Citations come from a search that
+                ran, numbers appear in the results, and any line of text she quotes matches the
+                passage word for word. She runs on an open model hosted on the university's own
+                AI platform, so your questions stay on campus.
               </p>
 
               <h4 className="font-medium text-gray-900 mt-6 mb-2">For advanced analysis</h4>
               <p className="text-gray-700 mb-3">
-                Tessa runs on an open model hosted on the university's own AI platform, so
-                your questions stay on campus and she answers in a second or two. She reads
-                the results a search returns and will say which parallels look like deliberate
-                allusion and which like the common stock of a genre, and why one would matter.
-                What she will not do is supply a citation, a quotation or a figure of her own:
-                everything she cites comes from the results in front of her, and anything she
-                adds from general knowledge she marks as background. If you want advanced AI analysis of search results,
-                such as weighing which parallels are genuine allusions or drafting an
-                interpretation, the best way is to connect your own latest-model AI directly to
-                Tesserae and let it run the searches itself. The instructions are on the{' '}
+                Tessa answers in a second or two. She reads the results a search returns and
+                will say which parallels look like deliberate allusion and which like the common
+                stock of a genre, and why one would matter. Everything she cites comes from the
+                results in front of her, and anything she adds from general knowledge she marks
+                as background. For advanced AI analysis of search results, such as weighing
+                which parallels are genuine allusions or drafting an interpretation, connect
+                your own latest-model AI directly to Tesserae and let it run the searches
+                itself. The instructions are on the{' '}
                 <button onClick={() => setActiveSection('ai-guide')} className="text-red-600 hover:underline">Use with your AI</button>{' '}
                 page, and Tessa can walk you through the setup.
               </p>

@@ -9,6 +9,12 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-01
 
+### Help
+- The Tessa page says what she does and where she runs (an open model on the
+  university's AI platform, questions stay on campus). The paragraph that
+  still placed her on the Tesserae server, and the sentences that described
+  her by what she is not, are gone.
+
 ### Admin
 - The Performance tab's concurrency controls keep following the server
   after the first load, and when running searches exceed a lowered cap the
