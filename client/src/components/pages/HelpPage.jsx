@@ -1175,9 +1175,9 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 <h4 className="font-medium text-amber-900 mb-1">Reading and matching Hebrew</h4>
                 <ul className="list-disc list-inside space-y-1 text-amber-900 text-sm">
                   <li>Hebrew reads <strong>right-to-left</strong>, and results are shown that way.</li>
-                  <li>The text is fully vowel-pointed, but matching works on the <strong>consonantal words</strong>: vowel points (nikkud) and cantillation marks are set aside, so a match is found regardless of pointing.</li>
+                  <li>The text is fully vowel-pointed. Word matching works on the <strong>consonantal words</strong>, with vowel points (nikkud) and cantillation marks set aside, so a match is found regardless of pointing. The dictionary form of a word is read from its points first, so words that share a spelling are told apart: אֶל "to", אַל "not" and אֵל "God" are three dictionary forms, shown as אל, אל² and אל³.</li>
                   <li>Words joined by a maqaf (the Hebrew hyphen) are treated as separate words.</li>
-                  <li>Dictionary forms come from the <strong>ETCBC/BHSA</strong> morphology (about 92% of words), with an automatic fallback for the rest.</li>
+                  <li>Dictionary forms come from the <strong>ETCBC/BHSA</strong> morphology, looked up by pointed form for 99% of words and by consonants for the rest.</li>
                 </ul>
               </div>
 

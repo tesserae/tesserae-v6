@@ -461,6 +461,16 @@ def _find_dictionary_matches_fast(source_units, target_units, source_language,
 _HEBREW_FINAL_FORMS = dict(zip('כמנפצ', 'ךםןףץ'))
 
 
+def _hebrew_base_lemma(lemma):
+    """A Hebrew lemma without its homograph numeral (אל³ -> אל), via the
+    Hebrew plugin when it is present; the lemma itself otherwise."""
+    try:
+        from backend.hebrew.processor import base_lemma
+    except ImportError:
+        return lemma
+    return base_lemma(lemma)
+
+
 def _find_csv_dictionary_matches(source_units, target_units, source_language,
                                  target_language, cancellation=None):
     """Dictionary matching for Coptic-Greek using a CSV-based dictionary.
@@ -576,6 +586,11 @@ def _find_csv_dictionary_matches(source_units, target_units, source_language,
                 lemma_n = lemma_n.lower().replace('v', 'u').replace('j', 'i')
             if lemma_n in tgt_stop or len(lemma_n) < 2:
                 continue
+            if target_language == 'he' and lemma_n:
+                # The dictionaries are keyed by consonants; a Hebrew lemma
+                # may carry a homograph numeral (אל³ for "God", #483), so
+                # the index is keyed by the consonants the dictionary knows.
+                lemma_n = _hebrew_base_lemma(lemma_n)
             target_index[lemma_n].append((ti, pos))
 
     # Scan source units and find matches
@@ -590,6 +605,10 @@ def _find_csv_dictionary_matches(source_units, target_units, source_language,
             if src_key in src_stop or len(src_key) < 2:
                 continue
             translations = src_dict.get(src_key, set())
+            if not translations and source_language == 'he':
+                # Same reason as on the target side: the dictionary knows
+                # the consonants, the lemma may carry a homograph numeral.
+                translations = src_dict.get(_hebrew_base_lemma(src_key), set())
             for translation in translations:
                 if translation in tgt_stop:
                     continue

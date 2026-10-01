@@ -1680,12 +1680,14 @@ def regenerate_rare_words_cache(language):
         # rather than a lemma. The curated function-word list is the same one
         # the fusion channels use.
         from backend.hebrew.stopwords import HEBREW_STOP_WORDS
-        hebrew_letters = re.compile(r'[\u05d0-\u05ea]+')
+        from backend.hebrew.processor import is_hebrew_lemma
         for lemma, count in frequencies.items():
             if 1 <= count <= 10:
                 if len(lemma) < 2:
                     continue
-                if not hebrew_letters.fullmatch(lemma):
+                # Hebrew letters, with the homograph numeral a lemma may
+                # carry (\u05d0\u05dc\u00b3, #483); anything else is an artifact.
+                if not is_hebrew_lemma(lemma):
                     continue
                 if lemma in HEBREW_STOP_WORDS:
                     continue
