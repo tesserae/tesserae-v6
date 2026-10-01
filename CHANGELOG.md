@@ -9,6 +9,13 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-01
 
+### Help and Tessa
+- Tessa's dock reads "AI Assistant" under her name.
+- The system schematic says which path is Theme Search's alone (the query
+  encoder and the Reader) and which jobs go where: corpus jobs rebuild the
+  data on disk, describing batches go to the gateway, GPU jobs run on the
+  compute.
+
 ### Help
 - The system schematic simplified: port numbers, the memory-cap note and
   the entries on paid models and preview sites are out, and the compute

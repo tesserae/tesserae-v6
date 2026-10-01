@@ -233,7 +233,7 @@ export default function AssistantDock() {
         <span className="hidden sm:block text-left leading-tight">
           <span className="block text-base font-semibold">Tessa</span>
           <span className="block text-[11px] font-medium text-red-100">
-            Search, read, interpret
+            AI Assistant
           </span>
         </span>
       </button>
@@ -250,7 +250,7 @@ export default function AssistantDock() {
           <span className="flex items-center justify-center w-6 h-6 rounded-md bg-red-700 text-white text-xs font-semibold leading-none">
             T
           </span>
-          Tessa &middot; Search, read, interpret
+          Tessa &middot; AI Assistant
           <span className="text-[9px] font-semibold uppercase tracking-wide text-amber-700 align-super">
             beta
           </span>
