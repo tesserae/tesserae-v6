@@ -45,6 +45,9 @@ behind each, are in docs/DECISIONS.md.
   lemmatized as themselves. Greek lemma caches and index to be rebuilt.
 
 ### Data operations
+- Full Greek rebuild for #558, #559 and #560: lemma caches, index, frequency
+  and bigram tables, stored wording of the κα books (docs/DATA_OPERATIONS.md,
+  2026-10-01).
 - Hebrew index, lemma cache, frequency table and bigram table rebuilt for
   the homograph lemmas of #552 (docs/DATA_OPERATIONS.md, 2026-10-01).
 - Greek index rows, lemma caches and stored passage wording refreshed for
