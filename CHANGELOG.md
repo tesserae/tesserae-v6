@@ -9,6 +9,10 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-09-30
 
+### Tests
+- A graded set of forty questions checks the assistant's facts and refusals
+  against the live site, `scripts/assistant_accuracy_check.py`.
+
 ### Corpus
 - Seven Latin poetic texts (Prudentius five works, Dracontius Orestes and
   Satisfactio) re-sourced from Musisque Deoque to Perseus and Corpus

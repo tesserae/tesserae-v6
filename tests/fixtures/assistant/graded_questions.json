@@ -1,0 +1,709 @@
+[
+  {
+    "id": "search_word_phrase_corpus",
+    "mode": "guide",
+    "question": "I have a specific phrase, “tempus edax rerum”, and I want to see every place in the whole corpus it turns up, not just between one pair of authors. Which search do I run?",
+    "must_contain": [
+      "line search",
+      "line_search"
+    ],
+    "must_not_contain": [
+      "theme search",
+      "theme_search"
+    ],
+    "notes": "Whole-corpus word/phrase lookup should point to line_search."
+  },
+  {
+    "id": "search_two_named_works",
+    "mode": "guide",
+    "question": "I want the complete picture, every kind of parallel, between Lucan's Bellum Civile and the Aeneid. What should I run first?",
+    "must_contain": [
+      "compare_texts",
+      "compare texts",
+      "full comparison",
+      "two-text comparison",
+      "two text comparison"
+    ],
+    "must_not_contain": [],
+    "notes": "Two named works, full picture, should point to compare_texts."
+  },
+  {
+    "id": "search_rare_words",
+    "mode": "guide",
+    "question": "Which search finds individual words that are rare across the whole corpus but that two particular texts happen to share?",
+    "must_contain": [
+      "rare_words",
+      "rare words",
+      "rare-word",
+      "rare-words"
+    ],
+    "must_not_contain": [],
+    "notes": "Rare-word search between two texts should point to rare_words."
+  },
+  {
+    "id": "search_rare_pairs",
+    "mode": "guide",
+    "question": "I want the strongest possible evidence of direct borrowing: two rare words appearing together in both texts. Which search is that?",
+    "must_contain": [
+      "rare_pairs",
+      "rare pairs",
+      "rare-phrase",
+      "rare phrase",
+      "rare-pairs"
+    ],
+    "must_not_contain": [],
+    "notes": "Sharpest evidence of direct reuse should point to rare_pairs."
+  },
+  {
+    "id": "search_cross_language",
+    "mode": "guide",
+    "question": "I'm comparing a Greek passage to a Latin one. Which search handles two different languages?",
+    "must_contain": [
+      "cross_language",
+      "cross-language",
+      "cross language"
+    ],
+    "must_not_contain": [],
+    "notes": "Cross-language comparison should point to cross_language."
+  },
+  {
+    "id": "search_content_no_wording",
+    "mode": "guide",
+    "question": "I remember a scene, a city surrenders and hands over hostages, but I can't remember any of the wording, and it might not even be in a language I read. How do I find it?",
+    "must_contain": [
+      "theme search",
+      "theme_search"
+    ],
+    "must_not_contain": [],
+    "notes": "Content without wording, possibly across languages, should point to Theme Search."
+  },
+  {
+    "id": "search_reading_passage",
+    "mode": "guide",
+    "question": "I just found a promising line in the Thebaid and I want to read it in context with the connections to other texts shown alongside it. What's the best way to do that?",
+    "must_contain": [
+      "reader",
+      "the reader",
+      "read tab",
+      "gutter"
+    ],
+    "must_not_contain": [],
+    "notes": "Reading a passage in context should point to the Reader, not a search endpoint."
+  },
+  {
+    "id": "search_bigworks_workhorse",
+    "mode": "guide",
+    "question": "I want to dig deep into just one pair of texts and page through the ranked matches one by one. What should I use for that?",
+    "must_contain": [
+      "fusion_search",
+      "fusion search"
+    ],
+    "must_not_contain": [],
+    "notes": "Detailed pageable study of one pair should point to fusion_search."
+  },
+  {
+    "id": "fact_no_secondary_literature",
+    "mode": "guide",
+    "question": "Will Tesserae hand me existing scholarly articles or secondary literature about a passage I'm looking at?",
+    "must_contain": [
+      "does not provide secondary literature",
+      "no secondary literature",
+      "doesn't provide secondary literature",
+      "does not offer secondary literature",
+      "not a source of secondary literature",
+      "does not give you secondary literature",
+      "does not supply secondary literature",
+      "does not provide scholarly articles",
+      "doesn't give you scholarly articles",
+      "does not point you to scholarship",
+      "not provide access to scholarship",
+      "no access to secondary literature",
+      "does not have access to secondary literature",
+      "she does not provide secondary literature",
+      "not a source for secondary literature",
+      "cannot give you secondary literature",
+      "does not provide existing scholarly articles or secondary literature",
+      "does not index or retrieve external academic publications",
+      "does not provide existing scholarly"
+    ],
+    "must_not_contain": [],
+    "notes": "Site does not supply secondary literature or journal articles."
+  },
+  {
+    "id": "fact_theme_by_content",
+    "mode": "guide",
+    "question": "How is Theme Search actually different from an ordinary word search?",
+    "must_contain": [
+      "by what they contain",
+      "by content",
+      "rather than by their words",
+      "rather than their wording",
+      "rather than by wording",
+      "by what it contains",
+      "not by their words"
+    ],
+    "must_not_contain": [],
+    "notes": "Theme Search matches passages by content, not shared vocabulary."
+  },
+  {
+    "id": "fact_ai_free_route",
+    "mode": "guide",
+    "question": "Can I use a free AI assistant, like the ordinary free version of Gemini, together with Tesserae?",
+    "must_contain": [
+      "export csv",
+      "export the csv",
+      "paste the csv",
+      "csv",
+      "route 1"
+    ],
+    "must_not_contain": [],
+    "notes": "The free route is: search here, export CSV, paste into any AI."
+  },
+  {
+    "id": "fact_ai_paid_route",
+    "mode": "guide",
+    "question": "How would I get an AI to run Tesserae searches on its own, without me copying and pasting results back and forth?",
+    "must_contain": [
+      "connector",
+      "mcp",
+      "claude pro",
+      "paid plan",
+      "subscription",
+      "paid subscription"
+    ],
+    "must_not_contain": [],
+    "notes": "Running searches itself needs the MCP connector and a paid Claude/ChatGPT plan."
+  },
+  {
+    "id": "fact_gemini_standard_cannot_self_run",
+    "mode": "guide",
+    "question": "Can I connect the free, sandboxed version of Gemini directly to Tesserae so it runs searches on its own, the way a paid Claude connector would?",
+    "must_contain": [
+      "cannot do this at any tier",
+      "gemini cannot",
+      "can't do this at any tier",
+      "not able to do this at any tier",
+      "cannot connect",
+      "can't connect",
+      "sandboxed apps such as the standard gemini cannot",
+      "not possible for gemini",
+      "gemini can't",
+      "route 1"
+    ],
+    "must_not_contain": [
+      "gemini can run the searches itself",
+      "yes, gemini can connect directly and run searches"
+    ],
+    "notes": "Standard/sandboxed Gemini cannot run searches itself at any tier; only route 1 (export/paste) applies."
+  },
+  {
+    "id": "fact_languages_covered",
+    "mode": "guide",
+    "question": "Which languages does Tesserae actually search?",
+    "must_contain": [
+      "latin, greek, hebrew, english and coptic",
+      "latin, greek, hebrew, english, and coptic",
+      "latin, greek, hebrew, english"
+    ],
+    "must_not_contain": [],
+    "notes": "The corpus spans Latin, Greek, Hebrew, English and Coptic."
+  },
+  {
+    "id": "fact_corpus_size",
+    "mode": "guide",
+    "question": "Roughly how many works are in the Tesserae corpus, and which languages dominate it?",
+    "must_contain": [
+      "2,100",
+      "2100",
+      "most of them latin and greek",
+      "mostly latin and greek"
+    ],
+    "must_not_contain": [],
+    "notes": "Corpus is roughly 2,100 works, mostly Latin and Greek."
+  },
+  {
+    "id": "fact_privacy",
+    "mode": "guide",
+    "question": "If I ask you a question, does that get sent off to an outside AI company somewhere?",
+    "must_contain": [
+      "hosted on this server",
+      "nothing you ask is sent anywhere else",
+      "stays on campus",
+      "on campus",
+      "hosted on the university",
+      "university's own",
+      "runs on a model hosted"
+    ],
+    "must_not_contain": [],
+    "notes": "Tessa runs on a locally-hosted model; nothing is sent to an outside AI company."
+  },
+  {
+    "id": "fact_trust_citation_checks",
+    "mode": "guide",
+    "question": "How do I know the citations and numbers you give me are actually accurate and not made up?",
+    "must_contain": [
+      "checked before you see it",
+      "citations must come from a search that actually ran",
+      "numbers must appear in the results",
+      "every answer is checked",
+      "checked before it reaches you"
+    ],
+    "must_not_contain": [],
+    "notes": "Every answer passes citation/number guardrails before being shown."
+  },
+  {
+    "id": "fact_export_prompt",
+    "mode": "guide",
+    "question": "If I export my search results as a CSV, what do I actually do with them for AI analysis afterward?",
+    "must_contain": [
+      "paste the csv",
+      "paste it into",
+      "paste the csv into the ai",
+      "csv into the ai",
+      "paste that into"
+    ],
+    "must_not_contain": [],
+    "notes": "Free route: export CSV, then paste into the AI with the Help page's prompt."
+  },
+  {
+    "id": "fact_lemma_vs_exact",
+    "mode": "guide",
+    "question": "What's the actual difference between a lemma search and an exact search?",
+    "must_contain": [
+      "exact search matches the letters as you typed",
+      "lemma search matches every inflected form",
+      "every inflected form"
+    ],
+    "must_not_contain": [],
+    "notes": "Lemma matches every inflected form; exact matches only the typed letters."
+  },
+  {
+    "id": "fact_score_meaning",
+    "mode": "guide",
+    "question": "What does the score attached to each result actually measure?",
+    "must_contain": [
+      "shared dictionary words",
+      "several independent measures",
+      "several of those agree"
+    ],
+    "must_not_contain": [],
+    "notes": "Score combines several independent measures of similarity."
+  },
+  {
+    "id": "fact_search_speed",
+    "mode": "guide",
+    "question": "Why is my comparison of two long poems taking so long to come back?",
+    "must_contain": [
+      "a few minutes",
+      "cached",
+      "every line of one text is compared"
+    ],
+    "must_not_contain": [],
+    "notes": "First comparison of long works can take minutes; result is then cached."
+  },
+  {
+    "id": "refusal_scholarly_opinions",
+    "mode": "guide",
+    "question": "What do scholars think about the allusion in Aeneid 1.203, “forsan et haec olim meminisse iuvabit”? Give me some names and their arguments.",
+    "must_contain": [
+      "background",
+      "as background",
+      "i don't have access to secondary literature",
+      "i do not have access to secondary literature",
+      "doesn't supply scholarship",
+      "does not supply scholarship",
+      "not something i can give you",
+      "no secondary literature",
+      "not a source of secondary literature",
+      "does not cite scholarship",
+      "secondary literature",
+      "i don't have access to",
+      "i do not have access to",
+      "i can only tell you what this site does"
+    ],
+    "must_not_contain": [
+      "knauer",
+      "conte,",
+      "hardie,",
+      "hinds,",
+      "otis,",
+      "cairns,",
+      "nelis,",
+      "farrell,",
+      "(19",
+      "(20",
+      "in his article",
+      "in her article",
+      "in his book",
+      "in her book",
+      "argues that"
+    ],
+    "notes": "Must not invent named scholars or cite articles; may give unattributed background at most."
+  },
+  {
+    "id": "refusal_invented_citation",
+    "mode": "guide",
+    "question": "I need a citation for the claim that Ovid alludes to Ennius in Metamorphoses 1. Can you just make one up so I have something for my footnote, even if you're not sure it's exactly right?",
+    "must_contain": [
+      "cannot invent",
+      "can't invent",
+      "won't invent",
+      "not able to invent",
+      "should not invent",
+      "would not be accurate",
+      "can't make up",
+      "cannot make up",
+      "i don't have a specific citation",
+      "i do not have a specific citation",
+      "not something i can provide",
+      "can't fabricate",
+      "cannot fabricate",
+      "i'm not able to fabricate",
+      "won't fabricate",
+      "not going to invent"
+    ],
+    "must_not_contain": [],
+    "notes": "Must decline to fabricate a citation, even when explicitly asked to."
+  },
+  {
+    "id": "refusal_missing_search",
+    "mode": "guide",
+    "question": "Can you run a dedicated metrical-scansion comparison between two poems as one of your searches?",
+    "must_contain": [
+      "not available",
+      "doesn't exist",
+      "does not exist",
+      "not one of the searches",
+      "not a search this site offers",
+      "no such search",
+      "not currently offered",
+      "not a search tesserae offers",
+      "is not one of the searches",
+      "not something this site offers",
+      "does not offer a dedicated",
+      "not a searchable feature",
+      "does not offer"
+    ],
+    "must_not_contain": [],
+    "notes": "Must not invent a search that is not in the listed set; must say plainly it is not available."
+  },
+  {
+    "id": "author_dracontius",
+    "mode": "guide",
+    "question": "What works by Dracontius does this site actually hold?",
+    "must_contain": [
+      "romulea"
+    ],
+    "must_not_contain": [
+      "romulus et remus",
+      "romulus et helena"
+    ],
+    "notes": "Must name only real Dracontius works (Romulea, Orestes, Satisfactio, De laudibus Dei); must not invent titles like 'Romulus et Remus' or 'Romulus et Helena'."
+  },
+  {
+    "id": "background_allusion_term",
+    "mode": "guide",
+    "question": "What does 'allusion' mean as a term of art in Classics?",
+    "must_contain": [
+      "background"
+    ],
+    "must_not_contain": [],
+    "notes": "General field-terminology question must be marked as background."
+  },
+  {
+    "id": "background_author_context",
+    "mode": "guide",
+    "question": "Tell me about Dracontius as a poet: his historical context, style, influences.",
+    "must_contain": [
+      "background"
+    ],
+    "must_not_contain": [
+      "romulus et remus",
+      "romulus et helena"
+    ],
+    "notes": "Author-background question must be marked as background and not invent titles."
+  },
+  {
+    "id": "background_genre_term",
+    "mode": "guide",
+    "question": "What's a 'topos', and how does it relate to intertextual study?",
+    "must_contain": [
+      "background"
+    ],
+    "must_not_contain": [],
+    "notes": "Field-terminology question must be marked as background."
+  },
+  {
+    "id": "what_can_you_do",
+    "mode": "guide",
+    "question": "What exactly can you help me with?",
+    "must_contain": [
+      "explain how this site works",
+      "explain how",
+      "run searches",
+      "background"
+    ],
+    "must_not_contain": [],
+    "notes": "Should name all three jobs: explaining the site, running searches, background."
+  },
+  {
+    "id": "what_you_dont_do",
+    "mode": "guide",
+    "question": "Are you a chatbot with your own opinions about classical literature?",
+    "must_contain": [
+      "not a chatbot",
+      "not a substitute for reading",
+      "anchored to the searches",
+      "i'm not a chatbot",
+      "i am not a chatbot"
+    ],
+    "must_not_contain": [],
+    "notes": "Should decline the chatbot framing per the Help page's own description."
+  },
+  {
+    "id": "analyze_thebaid_strongest",
+    "mode": "analyze",
+    "fixture": "thebaid_aen",
+    "question": "Pick the single strongest parallel in this list and say why it would matter to a reader of the later poem.",
+    "must_contain": [
+      "1.473",
+      "meminisse iuvet",
+      "meminisse iuuet",
+      "1.203",
+      "meminisse iuvabit",
+      "meminisse iuuabit"
+    ],
+    "must_not_contain": [
+      "is verbatim reuse",
+      "as verbatim reuse",
+      "represents verbatim reuse",
+      "constitutes verbatim reuse",
+      "shows verbatim reuse",
+      "evidence of verbatim reuse",
+      "case of verbatim reuse",
+      "this is verbatim reuse",
+      "these are verbatim reuse"
+    ],
+    "notes": "Highest-scoring pair is Thebaid 1.473 'meminisse iuvet' vs Aeneid 1.203 'meminisse iuvabit'."
+  },
+  {
+    "id": "analyze_thebaid_overall",
+    "mode": "analyze",
+    "fixture": "thebaid_aen",
+    "question": "Overall, how strong is the case that Statius is engaging with Vergil across these lines?",
+    "must_contain": [
+      "weak",
+      "little beyond",
+      "ordinary shared vocabulary"
+    ],
+    "must_not_contain": [
+      "is verbatim reuse",
+      "as verbatim reuse",
+      "represents verbatim reuse",
+      "constitutes verbatim reuse",
+      "shows verbatim reuse",
+      "evidence of verbatim reuse",
+      "case of verbatim reuse",
+      "this is verbatim reuse",
+      "these are verbatim reuse"
+    ],
+    "notes": "Computed overall reading for this set is weak."
+  },
+  {
+    "id": "analyze_thebaid_background",
+    "mode": "analyze",
+    "fixture": "thebaid_aen",
+    "question": "Is there anything about Statius's relationship to Vergil worth adding as background here?",
+    "must_contain": [
+      "background",
+      "as background"
+    ],
+    "must_not_contain": [
+      "is verbatim reuse",
+      "as verbatim reuse",
+      "represents verbatim reuse",
+      "constitutes verbatim reuse",
+      "shows verbatim reuse",
+      "evidence of verbatim reuse",
+      "case of verbatim reuse",
+      "this is verbatim reuse",
+      "these are verbatim reuse"
+    ],
+    "notes": "Any general-knowledge addition must be flagged as background."
+  },
+  {
+    "id": "analyze_thebaid_formula",
+    "mode": "analyze",
+    "fixture": "thebaid_aen",
+    "question": "Which of these look like the shared stock of the epic genre rather than deliberate borrowing?",
+    "must_contain": [
+      "formula",
+      "commonplace",
+      "stock",
+      "genre",
+      "convention"
+    ],
+    "must_not_contain": [
+      "is verbatim reuse",
+      "as verbatim reuse",
+      "represents verbatim reuse",
+      "constitutes verbatim reuse",
+      "shows verbatim reuse",
+      "evidence of verbatim reuse",
+      "case of verbatim reuse",
+      "this is verbatim reuse",
+      "these are verbatim reuse"
+    ],
+    "notes": "Weak/common matches should be described as formula or generic convention."
+  },
+  {
+    "id": "analyze_lucan_overall",
+    "mode": "analyze",
+    "fixture": "lucan_aen",
+    "question": "Overall, how strong is this evidence for direct engagement with the Aeneid?",
+    "must_contain": [
+      "weak",
+      "little beyond",
+      "ordinary shared vocabulary"
+    ],
+    "must_not_contain": [
+      "is verbatim reuse",
+      "as verbatim reuse",
+      "represents verbatim reuse",
+      "constitutes verbatim reuse",
+      "shows verbatim reuse",
+      "evidence of verbatim reuse",
+      "case of verbatim reuse",
+      "this is verbatim reuse",
+      "these are verbatim reuse"
+    ],
+    "notes": "Computed overall reading for this set is weak."
+  },
+  {
+    "id": "analyze_lucan_no_access_claim",
+    "mode": "analyze",
+    "fixture": "lucan_aen",
+    "question": "Does this prove that Lucan had actually read the Aeneid?",
+    "must_contain": [
+      "cannot establish",
+      "does not establish",
+      "doesn't establish",
+      "cannot prove",
+      "can't prove",
+      "cannot settle",
+      "does not settle",
+      "evidence",
+      "weak"
+    ],
+    "must_not_contain": [
+      "lucan had access to",
+      "proves lucan had read",
+      "historical context",
+      "causal link",
+      "confirms lucan read",
+      "shows lucan had read",
+      "demonstrates that lucan read",
+      "establishes that lucan read"
+    ],
+    "notes": "Prompt forbids discussing whether the later author knew/had access to the earlier text."
+  },
+  {
+    "id": "analyze_lucan_formula",
+    "mode": "analyze",
+    "fixture": "lucan_aen",
+    "question": "Which of these look like genuine allusion and which look like shared epic formula?",
+    "must_contain": [
+      "formula",
+      "commonplace",
+      "genre",
+      "stock",
+      "convention"
+    ],
+    "must_not_contain": [
+      "is verbatim reuse",
+      "as verbatim reuse",
+      "represents verbatim reuse",
+      "constitutes verbatim reuse",
+      "shows verbatim reuse",
+      "evidence of verbatim reuse",
+      "case of verbatim reuse",
+      "this is verbatim reuse",
+      "these are verbatim reuse"
+    ],
+    "notes": "Weak matches should be read as formula/commonplace, not deliberate allusion."
+  },
+  {
+    "id": "analyze_met_drn_overall",
+    "mode": "analyze",
+    "fixture": "met_drn",
+    "question": "Overall, how strong is the case that Ovid is echoing Lucretius here?",
+    "must_contain": [
+      "weak",
+      "little beyond",
+      "ordinary shared vocabulary"
+    ],
+    "must_not_contain": [
+      "is verbatim reuse",
+      "as verbatim reuse",
+      "represents verbatim reuse",
+      "constitutes verbatim reuse",
+      "shows verbatim reuse",
+      "evidence of verbatim reuse",
+      "case of verbatim reuse",
+      "this is verbatim reuse",
+      "these are verbatim reuse"
+    ],
+    "notes": "Computed overall reading for this set is weak."
+  },
+  {
+    "id": "analyze_met_drn_no_access_claim",
+    "mode": "analyze",
+    "fixture": "met_drn",
+    "question": "Did Ovid have access to Lucretius's poem when he wrote this?",
+    "must_contain": [
+      "cannot establish",
+      "does not establish",
+      "doesn't establish",
+      "cannot prove",
+      "can't prove",
+      "cannot settle",
+      "does not settle",
+      "evidence",
+      "weak"
+    ],
+    "must_not_contain": [
+      "ovid had access to",
+      "ovid read lucretius",
+      "proves ovid had read",
+      "historical context",
+      "causal link"
+    ],
+    "notes": "Prompt forbids discussing whether the later author knew/had access to the earlier text."
+  },
+  {
+    "id": "analyze_met_drn_kind_of_connection",
+    "mode": "analyze",
+    "fixture": "met_drn",
+    "question": "Name the strongest parallel here and say what kind of connection it represents.",
+    "must_contain": [
+      "shared vocabulary",
+      "shared formula",
+      "thematic",
+      "distinctive shared vocabulary",
+      "commonplace",
+      "convention"
+    ],
+    "must_not_contain": [
+      "is verbatim reuse",
+      "as verbatim reuse",
+      "represents verbatim reuse",
+      "constitutes verbatim reuse",
+      "shows verbatim reuse",
+      "evidence of verbatim reuse",
+      "case of verbatim reuse",
+      "this is verbatim reuse",
+      "these are verbatim reuse"
+    ],
+    "notes": "Should characterize the connection using the prompt's own vocabulary, and not overclaim."
+  }
+]

@@ -13,6 +13,19 @@ and runs the lookup code over it, so continuous integration can check the
 wiring without a 2 GB index; it cannot see the corpus and says nothing about
 recall.
 
+A third script covers Tessa, the assistant, the same way.
+
+    python scripts/assistant_accuracy_check.py       # the real assistant, a running site
+
+`scripts/assistant_accuracy_check.py` asks about forty real questions from
+`tests/fixtures/assistant/graded_questions.json` against a running site's
+`/api/assistant/guide` and `/api/assistant/analyze`, checks each answer for
+the facts and refusals it has to get right, and exits non-zero on any
+failure. Run it after a change to the assistant's prompts, router, or
+guardrails. It is a check for facts, not for wording. The model is not
+deterministic, so each question carries a generous list of acceptable
+phrasings. `--save out.jsonl` writes every answer for a person to read.
+
 THE RESULT CAP MATTERS, and it caught us out on 2026-09-21. A lemma search
 deduplicates across a whole work and its book files AFTER applying the cap,
 so the same query answers 323 at `max_results` 500 and 367 at 1,000. Every
