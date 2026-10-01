@@ -36,6 +36,9 @@ behind each, are in docs/DECISIONS.md.
   closes #520, #521, #522)
 - Theme Comparison: two works or books read against each other by content,
   on the Theme Search page and in the connector as theme_compare (#535)
+- Theme Comparison shows the shared wording inside each pair when the
+  word-level comparison is cached, and word-level results carry the theme
+  lift of their surrounding passages (#TBD)
 
 ### Assistant
 - Asked to compare two texts, Tessa now runs the comparison and reads its
