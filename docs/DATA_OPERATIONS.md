@@ -67,6 +67,39 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-01 Septuagint κοὶ corrected: Greek index rows, lemma caches and stored wording refreshed for 15 books (run 11:11 to 11:14 EDT)
+
+### What and why
+- PR #554 (issue #523) corrected 158 occurrences of κοὶ and κοί to καὶ and
+  καί in 15 Septuagint books: the 157 listed in
+  `data/proposals/septuagint_koi_2026-09-30.csv` and one in the Psalms of
+  Solomon (5.16) that a paragraph mark had hidden from the search. No other
+  word changed. Production pulled to ec31171.
+
+### Steps
+- Greek lemma caches: `scripts/batch_lemma_cache.py grc` rebuilt the 15
+  changed files by content hash (1,253 already cached, 2 seconds).
+- Index: `grc_index.db` copied, the 15 files replaced in the copy with
+  `scripts/corpus/add_texts_to_index.py --replace`, `lemma_doc_freq`
+  rebuilt (498,554 lemmas), integrity ok, swapped in. Backup
+  `grc_index.db.bak-kai-20261001-1111`. After: 1,268 texts, 478,011 lines,
+  11,118,254 postings. The corrected Genesis 22.6 line in the index now
+  reads καὶ τὸ πῦρ.
+- Stored passage wording: `scripts/corpus/refresh_window_text.py` over the
+  15 works, 473 windows and 152 lines updated (a spelling change leaves the
+  descriptions and vectors valid). No Septuagint window holds a standalone
+  κοὶ any more.
+- `touch tesseraev6_flask.wsgi` at 11:13:56.
+
+### A false start, recorded
+- The deploy chain first ran at 11:00 on an unmerged pull request: the
+  merge had been refused for a changelog conflict and the chain did not
+  check the merge result before pulling. It rebuilt the Greek index from
+  the then-current caches and swapped it in (backup
+  `grc_index.db.bak-kai-20261001-1100`), a change of a few postings and no
+  text, and refreshed nothing. The chain now stops unless the pull request
+  reports itself merged.
+
 ## 2026-10-01 Hebrew homographs, index, lemma cache, frequency and bigram tables rebuilt (run 10:48 to 10:56 EDT)
 
 ### Deploy
