@@ -1209,6 +1209,13 @@ const SearchResults = ({
                   dangerouslySetInnerHTML={{ __html: r.source_text || r.source_snippet || renderHighlightedText(r.source, language, r.matched_words, true, r.target) }}
                 />
                 {r.features?.source_scansion && renderScansion(r.features.source_scansion)}
+                {/* Licensed for indexing and search only (data/restricted_texts.json):
+                    the licence requires this line wherever the text's passages
+                    are shown, so it follows the passage, not just the work's
+                    own page. */}
+                {sourceTextInfo?.restricted && (
+                  <div className="text-[10px] text-gray-400 mt-1">{sourceTextInfo.credit}</div>
+                )}
               </div>
               <div>
                 <div className="text-xs text-gray-500 mb-1">Target</div>
@@ -1219,6 +1226,9 @@ const SearchResults = ({
                   dangerouslySetInnerHTML={{ __html: r.target_text || r.target_snippet || renderHighlightedText(r.target, language, r.matched_words, false, r.source) }}
                 />
                 {r.features?.target_scansion && renderScansion(r.features.target_scansion)}
+                {targetTextInfo?.restricted && (
+                  <div className="text-[10px] text-gray-400 mt-1">{targetTextInfo.credit}</div>
+                )}
               </div>
             </div>
 
