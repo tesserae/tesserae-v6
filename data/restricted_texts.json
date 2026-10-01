@@ -1,0 +1,4 @@
+{
+  "_comment": "Texts licensed for indexing and search only, never for redistribution. Each entry holds the fixed credit line the site must show wherever the text's passages appear, and the licence terms under which it is held. backend/restricted_texts.py reads this file; scripts/corpus/restricted_texts_gitignore.py turns it into the .gitignore block that keeps these texts out of the public repository and backend/blueprints/downloads.py out of the per-language downloads. The text id is the filename under texts/<lang>/ without the .tess extension and without a .part.N suffix (so one entry covers every part of a multi-file work).",
+  "texts": {}
+}
