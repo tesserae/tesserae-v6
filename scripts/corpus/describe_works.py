@@ -4,14 +4,13 @@
 data/text_descriptions.json maps language -> work id -> blurb (Browse Corpus,
 the Reader). ~698 Latin, 843 Greek, 42 English works have none. GLM 5.3 Flash
 writes each blurb from the work's opening lines and source record; Qwen 3.8
-checks it against the same inputs for unsupported claims; only checked-ok
-blurbs get merged. Run from the worktree ~/tesserae-blurbs, never /var/www.
-Key: ~/.config/tesserae/bullsai.env, never written out. Modes, each
-resume-safe over its own JSONL log under ~/tesserae-backups/jobs/blurbs_2026-09-30/:
+checks it for contradictions against the same inputs; only checked-ok
+blurbs get merged. Run from ~/tesserae-blurbs, never /var/www.
+Key: ~/.config/tesserae/bullsai.env, never written out. Modes (resume-safe
+over their own JSONL log under ~/tesserae-backups/jobs/blurbs_2026-09-30/):
   (no flag)  write blurbs -> blurbs.jsonl   [--lang en|la|grc] [--limit N]
-  --check    Qwen flags unsupported claims -> checks.jsonl   [--limit N]
-  --merge    NEW data/text_descriptions.json: existing entries kept, new
-             blurbs added only where checked ok, sorted after the rest.
+  --check    Qwen flags contradictions -> checks.jsonl   [--limit N]
+  --merge    NEW data/text_descriptions.json, new blurbs sorted after the rest, kept only where checked ok
 
 Run 2026-09-30; counts and checks are in CHANGELOG.md and DATA_OPERATIONS.md.
 """
@@ -45,11 +44,13 @@ SYS_WRITE = (
     "say so plainly ('of uncertain date', 'attributed to') or leave it out. Use British or American "
     "spelling consistently within the blurb. Reply with JSON only: {\"blurb\": \"...\"}")
 SYS_CHECK = (
-    "You fact-check a short orientation blurb for a classical-text corpus against the inputs it was "
-    "written from. List every claim in the blurb about the work's author, date, contents or genre that "
-    "the inputs do not support (an invented date, a wrong author, a claim about contents not shown in "
-    "the opening lines or source record). Do not flag plausible inferences clearly grounded in the "
-    "inputs. Reply with JSON only: {\"unsupported\": [\"...\"], \"ok\": true or false}")
+    "You fact-check a short orientation blurb for a classical-text corpus against the inputs it was written "
+    "from: the opening excerpt, the author and title from the source record, the language, era, and genre "
+    "row. Does the blurb CONTRADICT any of those inputs, or state something a reference work would not say "
+    "about this text? List only contradictions and implausible specifics: a wrong author or title, a wrong "
+    "language or century, a plot or contents claim at odds with the opening, an invented companion work. A "
+    "true detail beyond the excerpt, of the kind a reference entry gives, is NOT a flag. Reply with JSON "
+    "only: {\"unsupported\": [\"...\"], \"ok\": true or false}")
 
 def api_key():
     for line in open(os.path.expanduser('~/.config/tesserae/bullsai.env'), encoding='utf-8'):
@@ -90,7 +91,7 @@ def ask_with_retries(model, system, user, max_tokens, extra=None, tries=3):
 
 def norm(s):
     return re.sub(r'[^a-z0-9]+', ' ', (s or '').lower()).strip()
-TAG_RE = re.compile(r'^<[^>]*>\s*')  # citation tag: some corpora delimit it with a tab, some with spaces
+TAG_RE = re.compile(r'^<[^>]*>\s*')  # citation tag: tab-delimited in some corpora, space-delimited in others
 def strip_tag(line):
     return TAG_RE.sub('', line.rstrip('\n'), count=1)
 def count_lines(path):
