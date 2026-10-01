@@ -18,6 +18,14 @@ behind each, are in docs/DECISIONS.md.
   counting, and refuses to swap in a table with no bigrams. Without the
   registration a Hebrew or Coptic rebuild fell through to the Latin
   tokenizer and wrote an empty table over the live one.
+### Corpus
+- Septuagint text: 158 occurrences of κοὶ (and κοί) corrected to καὶ (καί)
+  across 15 books (#523). The 157 in
+  `data/proposals/septuagint_koi_2026-09-30.csv` plus one in the Psalms of
+  Solomon that a paragraph mark had hidden from the search. No other word
+  changed, and standalone κοὶ no longer occurs in the Septuagint files. The
+  Greek index rows, lemma caches and passage-window text for the 15 books
+  are refreshed in the matching data operation.
 
 ### Hebrew
 - Homographs are told apart by their vowel points (#483). One consonantal
