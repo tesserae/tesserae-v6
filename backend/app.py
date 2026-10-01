@@ -1007,6 +1007,30 @@ PROSE_MAX_DISTANCE = 4
 from backend.latin_orthography import fold_latin as _normalize_latin_lemma  # noqa: E402
 
 
+def _hebrew_unpointed_fallbacks(query, query_lemmas, stopwords):
+    """For a Hebrew query, the index fallback forms that let a word typed
+    without vowel points match every homograph reading of its consonants.
+    Returns (fallback_forms or None, query_lemmas), where a lemma the
+    stoplist would drop is replaced by its first content reading so that a
+    bare אל in a longer query still finds אל³ "God"."""
+    from backend.hebrew.processor import homograph_readings, is_unpointed, lemmatize_hebrew
+    fallbacks = {}
+    lemmas = set(query_lemmas)
+    for token in query.split():
+        if not is_unpointed(token):
+            continue
+        for lemma in lemmatize_hebrew([token]):
+            readings = [r for r in homograph_readings(lemma) if r not in stopwords] or [lemma]
+            canonical = lemma if lemma in readings else readings[0]
+            others = set(readings) - {canonical}
+            if canonical != lemma and lemma in lemmas:
+                lemmas.discard(lemma)
+                lemmas.add(canonical)
+            if others:
+                fallbacks[canonical] = others
+    return (fallbacks or None), lemmas
+
+
 def _normalize_lemma(lem, language='la'):
     """Normalize a lemma for index lookup. Handles Latin u/v/j/i and Greek diacritics.
 
@@ -1515,6 +1539,13 @@ def line_search():
             else:
                 query_lemmas = set(_normalize_lemma(t, language) for t in query.lower().split())
             
+            # A Hebrew query typed without vowel points: each lemma also
+            # matches its other homograph readings (אל typed bare finds "to",
+            # "not" and "God"), through the index's fallback forms.
+            query_fallback_forms = None
+            if language == 'he' and search_type == 'lemma':
+                query_fallback_forms, query_lemmas = _hebrew_unpointed_fallbacks(query, query_lemmas, stopwords)
+
             # Filter out stopwords from query lemmas (like pairwise search)
             content_lemmas = query_lemmas - stopwords
             filtered_query_lemmas = content_lemmas
@@ -1609,7 +1640,7 @@ def line_search():
             # fast-path guard below, but max(1,...) makes that safety explicit).
             min_matched = max(1, min(2, len(filtered_query_lemmas)))
             if search_type == 'lemma' and is_index_available(language) and len(filtered_query_lemmas) >= 1:
-                candidates = find_co_occurring_lemmas(list(filtered_query_lemmas), language, min_matches=min_matched)
+                candidates = find_co_occurring_lemmas(list(filtered_query_lemmas), language, min_matches=min_matched, fallback_forms=query_fallback_forms)
                 use_indexed_lines = has_lines_data(language)
                 
                 # Group candidates by text

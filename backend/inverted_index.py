@@ -131,11 +131,15 @@ def lookup_lemmas(lemmas, language, fallback_forms=None):
                            orig.replace('i', 'j'), orig.replace('j', 'i')]:
                 expanded_lemmas.add(variant)
                 lemma_mapping[variant] = orig
-            if fallback_forms and orig in fallback_forms:
-                fb_list = list(fallback_forms[orig])[:30]
-                for fb in fb_list:
-                    expanded_lemmas.add(fb)
-                    lemma_mapping[fb] = orig
+        # Fallback forms apply in every language (until 2026-10-01 only in
+        # Latin, so the Hebrew homograph readings a bare query expands to
+        # were ignored); the u/v and i/j spellings are Latin's alone.
+        if fallback_forms and orig in fallback_forms:
+            fb_list = list(fallback_forms[orig])[:30]
+            for fb in fb_list:
+                expanded_lemmas.add(fb)
+                lemma_mapping[fb] = orig
+                if language == 'la':
                     for variant in [fb.replace('u', 'v'), fb.replace('v', 'u'),
                                    fb.replace('i', 'j'), fb.replace('j', 'i')]:
                         expanded_lemmas.add(variant)
