@@ -210,6 +210,10 @@ function CompareSideCard({ side }) {
           ))}
         </div>
       )}
+      {/* Licensed for indexing and search only (data/restricted_texts.json). */}
+      {side.restricted && (
+        <p className="mt-1 text-[10px] text-gray-400">{side.credit}</p>
+      )}
     </div>
   );
 }

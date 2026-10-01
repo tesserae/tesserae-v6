@@ -171,7 +171,13 @@ export default function TextCredits() {
                 <td className="px-2 sm:px-4 py-2 text-gray-900 font-medium whitespace-nowrap">{entry.author}</td>
                 <td className="px-2 sm:px-4 py-2 text-gray-700">{entry.work}</td>
                 <td className="px-2 sm:px-4 py-2 whitespace-nowrap">
-                  {entry.e_source_url ? (
+                  {/* Licensed for indexing and search only
+                      (data/restricted_texts.json): there is no e-text or
+                      print source to credit here, only the fixed credit line
+                      and licence words the holder's terms require. */}
+                  {entry.restricted ? (
+                    <span className="text-gray-500 text-xs italic">{entry.credit}</span>
+                  ) : entry.e_source_url ? (
                     <a
                       href={entry.e_source_url}
                       target="_blank"
@@ -184,7 +190,9 @@ export default function TextCredits() {
                     <span className="text-gray-700">{entry.e_source}</span>
                   )}
                 </td>
-                <td className="px-2 sm:px-4 py-2 text-gray-600 text-xs">{entry.print_source}</td>
+                <td className="px-2 sm:px-4 py-2 text-gray-600 text-xs">
+                  {entry.restricted ? entry.license : entry.print_source}
+                </td>
                 <td className="px-2 sm:px-4 py-2 text-gray-600 whitespace-nowrap">{entry.added_by}</td>
               </tr>
             ))}

@@ -432,6 +432,10 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                     ))}
                   </div>
                 )}
+                {/* Licensed for indexing and search only (data/restricted_texts.json). */}
+                {r.restricted && (
+                  <p className="text-[10px] text-gray-400 mt-1">{r.credit}</p>
+                )}
                 {/* SAID OUTRIGHT: nothing indicated that titles were
                     clickable. The whole card has always been a button, which
                     is invisible; Theme Search says this in words on every

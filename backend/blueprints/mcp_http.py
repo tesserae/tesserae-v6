@@ -113,6 +113,12 @@ def _t_list_texts(a):
         # an empty rare-pairs result.
         if t.get('dialect'):
             entry['dialect'] = t.get('dialect')
+        # Licensed for indexing and search only (data/restricted_texts.json):
+        # a connector client quotes passages the same way the site does, so it
+        # needs the same credit line the site is required to show beside one.
+        if t.get('restricted'):
+            entry['restricted'] = True
+            entry['credit'] = t.get('credit')
         out.append(entry)
         if len(out) >= limit:
             break

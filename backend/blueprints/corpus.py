@@ -22,6 +22,7 @@ from backend.utils import (
 )
 from backend.frequency_cache import get_corpus_frequencies, recalculate_language_frequencies
 from backend.work_names import base_work
+import backend.restricted_texts as restricted_texts
 
 logger = get_logger('corpus')
 
@@ -115,6 +116,12 @@ def get_texts():
             # comparison (which shares no vocabulary) is legible in the listing.
             if language == 'cop':
                 metadata['dialect'] = infer_coptic_dialect(filename, metadata.get('author'))
+            # Licensed for indexing and search only (data/restricted_texts.json):
+            # the file sits on disk and behaves like any other text, but the
+            # client must show its credit line wherever a passage of it appears.
+            if restricted_texts.is_restricted(filename):
+                metadata['restricted'] = True
+                metadata['credit'] = restricted_texts.credit_for(filename)
             texts.append(metadata)
 
     texts.sort(key=lambda x: (x['author'], x['title']))
@@ -199,7 +206,9 @@ def get_provenance():
 
 @corpus_bp.route('/text-descriptions')
 def get_text_descriptions():
-    """Orientation blurbs for a language's works, or one work's blurb.
+    """Orientation blurbs for a language's works, or one work's blurb -- also
+    the Reader header's text-metadata lookup, so a restricted work's credit
+    line is exposed here too (?language=la&work=x -> restricted, credit).
 
     ?language=la           -> {"descriptions": {work_id: blurb, ...}}
     ?language=la&work=x    -> {"description": blurb or null}
@@ -213,8 +222,49 @@ def get_text_descriptions():
         # label after the number (pindar.odes.part.2.nemeans) uncollapsed, so
         # their work's description was never found.
         base = base_work(work)
-        return jsonify({'description': by_lang.get(base)})
+        result = {'description': by_lang.get(base)}
+        if restricted_texts.is_restricted(base):
+            result['restricted'] = True
+            result['credit'] = restricted_texts.credit_for(base)
+        return jsonify(result)
     return jsonify({'descriptions': by_lang})
+
+
+_LANGUAGES_WITH_TEXTS = ('la', 'grc', 'en', 'cop', 'he', 'it', 'gmh', 'fro')
+
+
+def _restricted_credit_entries():
+    """One credits-page entry per restricted work actually on this server,
+    built from the file itself (author/title, the same source the corpus
+    listing uses) rather than from text_sources.json, which never carries a
+    restricted work's provenance -- its print/e-text sourcing is not public
+    information the way the rest of the corpus's is. What the Sources page
+    owes a restricted work instead is the fixed credit line and the licence
+    words, which is what this entry carries in place of e_source/print_source.
+    """
+    entries = []
+    seen_ids = set()
+    for language in _LANGUAGES_WITH_TEXTS:
+        files = restricted_texts.filenames(language, texts_root=_texts_dir)
+        # One row per WORK, not per file: a multi-file work's parts would
+        # otherwise repeat the same credit line once per book.
+        files.sort(key=lambda f: ('.part.' in f, f))  # whole file, if any, first
+        for filename in files:
+            text_id = base_work(filename[:-len('.tess')] if filename.endswith('.tess') else filename)
+            if text_id in seen_ids:
+                continue
+            seen_ids.add(text_id)
+            metadata = get_text_metadata(os.path.join(_texts_dir, language, filename))
+            entries.append({
+                'author': metadata.get('author', ''),
+                'work': metadata.get('work') or metadata.get('title', ''),
+                'restricted': True,
+                'credit': restricted_texts.credit_for(filename),
+                'license': restricted_texts.license_for(filename),
+                'e_source': None,
+                'print_source': None,
+            })
+    return entries
 
 
 @corpus_bp.route('/text-credits')
@@ -238,6 +288,8 @@ def get_text_credits():
     else:
         logger.warning("text_sources.json not found at %s", TEXT_SOURCES_FILE)
         sources = []
+
+    sources = sources + _restricted_credit_entries()
 
     if query:
         sources = [

@@ -25,6 +25,7 @@ import re
 import threading
 
 from backend import scripture_id
+from backend import restricted_texts
 from backend.logging_config import get_logger
 from backend.work_names import base_work, is_part, work_id
 
@@ -698,8 +699,15 @@ def _naming(work):
     author = m.get('author')
     title = m.get('title') or m.get('work')
     display = ', '.join(x for x in (author, title) if x)
-    return {'author': author, 'title': title,
-            'display_name': m.get('display_name') or display or None}
+    out = {'author': author, 'title': title,
+           'display_name': m.get('display_name') or display or None}
+    # Licensed for indexing and search only: Similar Passages, Theme Search
+    # and Theme Comparison all build their result cards from this function,
+    # so flagging it here is the one place that reaches every one of them.
+    if restricted_texts.is_restricted(work):
+        out['restricted'] = True
+        out['credit'] = restricted_texts.credit_for(work)
+    return out
 
 
 def _result(row, score, strong=None, extra=None):

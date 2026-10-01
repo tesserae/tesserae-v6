@@ -142,3 +142,33 @@ describe('the header does not repeat itself', () => {
     expect(screen.getByText('2 lines')).toBeTruthy();
   });
 });
+
+describe('a restricted text (data/restricted_texts.json)', () => {
+  it('shows the licence credit line beneath the header', async () => {
+    global.fetch = vi.fn((url) => {
+      if (String(url).includes('/api/text-descriptions')) {
+        return Promise.resolve({ json: () => Promise.resolve({
+          description: 'An orientation blurb.',
+          restricted: true,
+          credit: 'Source: Test Licence Holder (example.invalid)',
+        }) });
+      }
+      return Promise.resolve({ json: () => Promise.resolve({ languages: [{ code: 'la' }] }) });
+    });
+    mount();
+    expect(await screen.findByText('Source: Test Licence Holder (example.invalid)'))
+      .toBeInTheDocument();
+  });
+
+  it('shows no credit line for an ordinary text', async () => {
+    global.fetch = vi.fn((url) => {
+      if (String(url).includes('/api/text-descriptions')) {
+        return Promise.resolve({ json: () => Promise.resolve({ description: 'A blurb.' }) });
+      }
+      return Promise.resolve({ json: () => Promise.resolve({ languages: [{ code: 'la' }] }) });
+    });
+    mount();
+    await screen.findByLabelText('About this text');
+    expect(screen.queryByText(/^Source: /)).not.toBeInTheDocument();
+  });
+});

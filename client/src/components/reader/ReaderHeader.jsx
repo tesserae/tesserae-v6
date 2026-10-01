@@ -56,15 +56,24 @@ export default function ReaderHeader({
   // appears when there is something to show.
   const [about, setAbout] = useState(null);
   const [aboutOpen, setAboutOpen] = useState(false);
+  // Licensed for indexing and search only (data/restricted_texts.json): the
+  // same lookup that fetches the orientation blurb carries this work's credit
+  // line, so one request answers both.
+  const [credit, setCredit] = useState(null);
   useEffect(() => {
     setAbout(null);
     setAboutOpen(false);
+    setCredit(null);
     if (!work) return undefined;
     let dead = false;
     const p = new URLSearchParams({ language: language || 'la', work });
     fetch(`/api/text-descriptions?${p}`)
       .then((r) => r.json())
-      .then((d) => { if (!dead) setAbout(d.description || null); })
+      .then((d) => {
+        if (dead) return;
+        setAbout(d.description || null);
+        setCredit(d.restricted ? d.credit : null);
+      })
       .catch(() => {});
     return () => { dead = true; };
   }, [work, language]);
@@ -187,6 +196,11 @@ export default function ReaderHeader({
     {aboutOpen && about && (
       <p className="px-4 py-2 text-sm text-gray-700 border-b border-gray-200 bg-gray-50">
         {about}
+      </p>
+    )}
+    {credit && (
+      <p className="px-4 py-1 text-[11px] text-gray-400 border-b border-gray-200">
+        {credit}
       </p>
     )}
     </>

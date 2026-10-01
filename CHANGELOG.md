@@ -38,6 +38,25 @@ behind each, are in docs/DECISIONS.md.
   Lucan 1 fusion run: 36 of the top 100 parallels had no bigram-table entry,
   42 recurred in more than 5 works, 21 in more than 20.
 
+### Corpus
+- A text can now be licensed for indexing and search only: it sits on the
+  server under `texts/<lang>/` like any other text and every search, the
+  Reader and the passage windows treat it the same way, but it never reaches
+  the public repository or a downloadable bundle. A registry
+  (`data/restricted_texts.json`, empty by default) names which texts these
+  are. `backend/restricted_texts.py` is the one place that answers whether a
+  given text is one of them. Enforced at both exits a text could otherwise
+  leave by: the per-language texts download and the passage-index release
+  script withhold a restricted text and report how many were withheld.
+  `scripts/corpus/restricted_texts_gitignore.py` turns a registry entry into
+  a `.gitignore` rule so it is never committed. Wherever a passage is shown
+  (search results, the Reader header, Similar Passages, Theme Comparison,
+  and the Sources page) a small credit line now appears beneath it when the
+  text is restricted. `scripts/corpus/remove_restricted_text.py` is the
+  removal procedure for when a licence ends. It is a dry run by default,
+  reporting what it would remove from the texts, the lemma cache, the
+  inverted index and the passage index before anything is deleted.
+
 ## 2026-09-30
 
 ### Tests
