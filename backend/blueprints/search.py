@@ -2232,6 +2232,11 @@ def crosslingual_search_poll():
             'source_lines': core.get('source_lines', len(su)),
             'target_lines': core.get('target_lines', len(tu)),
             'results': results,
+            # Stored with the job so the page learns which route answered.
+            'via_septuagint': core.get('via_septuagint'),
+            'septuagint_text': core.get('septuagint_text'),
+            'hebrew_greek_route': core.get('hebrew_greek_route', hebrew_greek_route),
+            'total_matches': core.get('total_matches', len(results)),
         }
 
     try:
