@@ -9,6 +9,14 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-01
 
+### Corpus
+- Septuagint text: 262 occurrences of a bare κα, on 244 lines of 11 books,
+  corrected to καὶ, the same class of error as the κοὶ of #554 and found
+  while measuring the Greek lemmatizer on the Septuagint. The list is
+  `data/proposals/septuagint_ka_2026-10-01.csv`; no other word changed.
+  Index rows and stored wording refreshed in the Greek rebuild that
+  follows the tokenizer and Koine table changes.
+
 ### Dictionaries
 - Hebrew-Greek: 74 equivalents added from the second pass on the 1,787
   verse-alignment candidates of #519 (`backend/synonymy/v6_additions/hebrew_greek.csv`,
