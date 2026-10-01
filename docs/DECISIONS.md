@@ -7,6 +7,44 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-10-01 The Hebrew-Latin bridge is filtered by attestation and a judged remainder (HE.5)
+
+**Question.** `hebrew_latin.csv` reached Latin through Greek, Hebrew to Greek
+by the CATSS alignment and Greek to Latin by the dictionaries, so Greek
+polysemy let wrong pairs through. Gold reached argentum through a Greek
+word glossed both ways, and six reached quattuor. Of the 29,901 bridged pairs,
+how many are real equivalents, and how to find them without reading all.
+
+**Measurement.** The Vulgate is a translation of the Hebrew, so a pair that
+occurs in the same aligned verse is attested. Across 35 books with matching
+Vulgate files (20,128 aligned verses, Psalms left out for its numbering),
+6,719 pairs are attested at least once. The other 23,182 went to
+a model judge (Qwen 3.8 on the gateway and Qwen3-8B on the BullsAI GPU,
+each pair with the Hebrew word's BHSA glosses), and 5,435 were judged
+equivalents at high confidence. 4,293 pairs carried CATSS's medial-letter
+spelling of a final letter (אדונ), which the first attestation and the
+first judging never matched. Both were redone with the spelling converted,
+and the judge's yes rate on them rose from 9% to the general 26%.
+1,770 judged-yes pairs have a Hebrew side that is no BHSA lemma
+(inflected forms the bridge inherited) and are left out. Sample reading of
+the kept judge-yes pairs found most right and some loose (עבדה "work"
+against facinus). Of the dropped, nearly all were wrong.
+
+**Decision.** The shipped dictionary keeps the attested pairs and the
+judged, lemma-keyed yes pairs, 10,384 in all. The 19,517 dropped
+are listed with their reasons in `data/proposals/hebrew_latin_dropped_2026-10-01.csv`.
+The gateway and the GPU judged the same pool with the same prompt, and the
+GPU model is the same family at a smaller size.
+
+**Rejected.** Keeping the whole bridge for recall. Two thirds of it was
+noise, and noise in a dictionary channel costs precision on every
+cross-language search. Rebuilding the bridge from scratch. The attested
+core is the same thing, found cheaper.
+
+**Left open.** Psalms attestation (the numbering offset), the judge's loose
+positives, and a direct Hebrew-Latin lexicon source if one with an open
+licence appears.
+
 ## 2026-10-01 Koine forms get a second lemma table, and the treebank table keeps the last word
 
 **Question.** The Greek lemma table comes from Ancient Greek treebanks and
