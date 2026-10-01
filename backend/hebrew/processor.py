@@ -97,6 +97,35 @@ SUPERSCRIPTS = '²³⁴⁵⁶⁷⁸⁹'
 _SUPERSCRIPT_RE = re.compile('[' + SUPERSCRIPTS + ']+$')
 
 
+_hebrew_homograph_groups = None
+
+
+def homograph_readings(lemma):
+    """Every lemma that shares the consonants of `lemma`, the lemma itself
+    included: אל -> [אל, אל², אל³, ...]. A query typed without vowel points
+    (the way most people type Hebrew) has only its consonants, so the
+    consonantal lookup gives it the commonest reading and the others are
+    lost; the search expands such a query to all of them (#483 follow-up)."""
+    global _hebrew_homograph_groups
+    if _hebrew_homograph_groups is None:
+        groups = {}
+        for key in _load_table('hebrew_homographs.json', 'homograph'):
+            groups.setdefault(base_lemma(key), []).append(key)
+        _hebrew_homograph_groups = groups
+    base = base_lemma(lemma)
+    readings = _hebrew_homograph_groups.get(base)
+    if not readings:
+        return [lemma]
+    return list(readings) if lemma in readings else [lemma] + list(readings)
+
+
+def is_unpointed(token):
+    """True when a Hebrew token carries no vowel points or accents, so its
+    reading cannot be told from the spelling (a typed query, a few unpointed
+    texts)."""
+    return pointed_key(token) == normalize_hebrew(token).strip()
+
+
 def base_lemma(lemma):
     """A Hebrew lemma without its homograph numeral: אל³ -> אל."""
     return _SUPERSCRIPT_RE.sub('', lemma or '')

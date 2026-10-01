@@ -9,6 +9,13 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-01
 
+### Hebrew
+- A Line Search word typed without vowel points matches every homograph
+  reading of its consonants: a bare אל finds אל "to", אל² "not" and אל³
+  "God", where it found only the commonest reading. A reading the stoplist
+  drops gives way to the first content reading, so אל in a longer query
+  still reaches "God". Pointed queries are unchanged.
+
 ### Help
 - The Tessa page says what she does and where she runs (an open model on the
   university's AI platform, questions stay on campus). The paragraph that
