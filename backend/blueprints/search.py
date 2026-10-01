@@ -1067,7 +1067,9 @@ def _crosslingual_fusion_core(params, source_units, target_units, settings,
     merged = list(pivot_out['results'])
     for r in (direct_out.get('results') or []):
         half = r.get(he_side)
-        key = half.get('ref') if isinstance(half, dict) else None
+        # Both sides as short loci ("22.6"): the pivot's hebrew_ref carries the
+        # work stem, the direct route's ref may or may not.
+        key = format_short_locus(half.get('ref')) if isinstance(half, dict) and half.get('ref') else None
         if key is not None and key in covered_hebrew_lines:
             continue
         r['route'] = 'direct'
