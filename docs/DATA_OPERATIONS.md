@@ -67,6 +67,47 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-01 Hebrew homographs, index, lemma cache, frequency and bigram tables rebuilt (run 10:48 to 10:56 EDT)
+
+### Deploy
+- Production moved to ff5014e (#552, Hebrew homographs told apart by their
+  vowel points). `keep_old_bundles.sh save` (9 files), pull, the data
+  operation below inside an 8 GB job scope, `restore` (7 older bundles
+  kept), bundle rebuilt, `touch tesseraev6_flask.wsgi` at 10:49:45.
+
+### Index
+- Built in the worktree `~/tesserae-hebrew3` with
+  `scripts/build_inverted_index.py --language he --force` (12 seconds),
+  verified (integrity ok), copied in over the live file with the backup
+  `he_index.db.bak-homographs-20261001-1049`. Before: 39 texts, 23,206
+  lines, 267,637 postings, 5,980 lemmas. After: 39 texts, 23,206 lines,
+  269,079 postings, 8,161 lemmas. The split readings, in postings: אל
+  4,204, אל² 579 and אל³ 304. עם 1,670 and עם² 941. מלך 2,058 and מלך² 284.
+
+### Caches
+- `cache/lemmas/he/`: the 6 files there (built by the web server under the
+  old tables) moved to `cache/lemmas/he.bak-homographs-20261001-1049/`, all
+  39 rebuilt with `scripts/batch_lemma_cache.py he --force`.
+- `cache/frequencies/he.json` (the web server's, 5,962 lemmas) moved aside
+  as `he.json.bak-homographs-20261001-1049` and recomputed from the new
+  lemmas: 8,115 lemmas. The live rare-words list for Hebrew now holds
+  5,827 rare lemmas, 1,476 of them numbered readings.
+- One cached Hebrew cross-language search removed from `cache/`.
+- `cache/bigrams/he_bigrams.json`: the first rebuild wrote a table of 0
+  bigrams over the live one, because `scripts/corpus/rebuild_bigrams.py`
+  did not register the plugin languages and Hebrew fell through to the
+  Latin tokenizer. The August table was restored from the script's own
+  backup (`he_bigrams.json.pre-rebuild-20261001-1049.bak`) one minute
+  later. After PR #553 (the script registers the plugin languages and
+  refuses an empty table) was merged and pulled, the rebuild ran again
+  inside an 8 GB job scope: 39 texts, 98,351 distinct bigrams, 282,346
+  occurrences, 6 seconds, backup `he_bigrams.json.pre-rebuild-20261001-1056.bak`.
+  21,959 of its keys carry a numbered reading. App reloaded at 10:56:24.
+
+### Checks
+- A live lemma search of 2 Samuel against Psalms answers with the numbered
+  lemmas among its matched words (קדם², שאול², מות² on 22.6 = 18.6).
+
 ## 2026-09-30 Per-text blurbs written for the corpus works that had none (16:29 EDT 2026-09-30 to 01:15 EDT 2026-10-01)
 
 ### Descriptions
