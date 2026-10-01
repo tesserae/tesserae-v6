@@ -34,6 +34,52 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+## 2026-09-30 Evening deploys, 16:27 to 2026-10-01 00:10 EDT (assistant, Theme Comparison, Hebrew)
+
+### Assistant
+- #531 (16:27, page rebuilt): prompts that judge as well as report, ten
+  passages of 400 characters, token caps 900, the corpus holdings handed
+  to the model for a named author. Live check: a reading of Thebaid 1
+  against Aeneid 1 picked out 1.473 against 1.203, guards clean.
+- #532 (17:29, page rebuilt): every exchange recorded under
+  logs/assistant/ with no identifier (99 exchanges by 17:40), the
+  background check of specific claims, the Privacy page corrected.
+- #533 and #534 (17:45 and 17:54): a requested comparison is run and its
+  first page read. #533 alone broke every comparison question for nine
+  minutes (a yield inside the threaded preparation), #534 repaired it,
+  live check passed. The copy now reads "Search, read, interpret".
+- #540 (23:57): the router matches whole words, the number guard lets a
+  definite "the two" pass. Live rerun of the graded set's failures: all
+  resolved with #542.
+
+### Theme Comparison
+- #535 (18:35, page rebuilt): the pairwise form of Theme Search, route
+  /api/passages/compare, page tab, connector tool, assistant path. The live
+  check on Aeneid 1 against Lucan 1 gave moderate confidence, prophecy pairs first.
+- #541 (00:10, page rebuilt): shared wording inside each pair from the
+  cached word-level comparison, pair lift beside word-level results. In the
+  live check nine of ten pairs carried their parallels for the cached Aeneid 1
+  against Lucan 1.
+
+### Hebrew
+- #536 (23:10, page rebuilt): the Hebrew-Greek route as a choice
+  (Septuagint default, direct, both), the Hebrew-Latin bridge rebuilt
+  with the main dictionary (hebrew_latin.csv 20,631 to 29,907 lines and
+  Vulgate Genesis coverage 42.7 to 59.3 percent). Four cached Hebrew
+  result files cleared. Proposals for #519 and #523 under data/proposals/.
+- #538 (23:20): twenty-six Hebrew-Greek equivalents added to
+  hebrew_greek.csv from the aligned-verse evidence. Cached Hebrew results
+  cleared again (none remained).
+
+### Jobs
+- The whole-corpus re-description with GLM 5.3 Flash restarted at 22:27
+  with 64 requests in flight (from 24), 1.5 windows a second, 35,000 of
+  510,839 by midnight. The demo site's reservation lowered in place from
+  16 to 8 GB at 22:30.
+- Per-text blurbs: 1,583 written (about 70 quota units). The check pass
+  rerun as a contradiction test after a coverage test passed only 116;
+  draft pull request #539, not merged, awaiting the maintainer's reading.
+
 ## 2026-09-30 The assistant moved to the campus AI gateway, seven re-sourced Latin poems rebuilt into the live indexes, whole-corpus re-description begun (14:35 to 14:56 EDT)
 
 ### Assistant
