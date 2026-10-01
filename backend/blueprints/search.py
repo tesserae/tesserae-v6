@@ -2258,6 +2258,13 @@ def crosslingual_search_poll():
             'source_lines': d.get('source_lines'), 'target_lines': d.get('target_lines'),
             'offset': offset, 'limit': limit, 'showing': len(page),
             'parallels': page,
+            # The Hebrew-Greek route fields travelled with the direct POST
+            # answer but not with the polled one, so a polled search showed no
+            # Septuagint note and no route (found live, 2026-10-01).
+            'via_septuagint': d.get('via_septuagint'),
+            'septuagint_text': d.get('septuagint_text'),
+            'hebrew_greek_route': d.get('hebrew_greek_route'),
+            'total_matches': d.get('total_matches', len(allres)),
         }
 
     return poll('xlingual', key, compute, transform)
