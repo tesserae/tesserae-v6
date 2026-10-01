@@ -30,7 +30,7 @@ the participle of ἄγω) that a lookup table cannot settle either way.
 
 **Decision.** The Koine table is loaded after the treebank table and fills
 only the forms it lacks. The treebank table wins on every shared form, so
-no lemma in a classical text changes; the conflicts are kept in a file for
+no lemma in a classical text changes, and the conflicts are kept in a file for
 review and not applied. The source carries a Creative Commons
 Attribution-NonCommercial-ShareAlike licence, the same family of terms as
 the Hebrew morphology, and the attribution file names the repository and
