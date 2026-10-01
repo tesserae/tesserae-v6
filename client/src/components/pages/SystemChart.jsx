@@ -112,10 +112,10 @@ export default function SystemChart() {
           <text x="282" y="353">connections map, reuse table</text>
           <text x="282" y="369">database: accounts, Repository</text>
           <text x="478" y="229" fontWeight="600" fill={INK}>Passage index</text>
-          <text x="478" y="245">510,839 windows, each with its</text>
+          <text x="478" y="245">one window per passage, with its</text>
           <text x="478" y="259">text, a description and a vector</text>
           <text x="478" y="285" fontWeight="600" fill={INK}>Work descriptions</text>
-          <text x="478" y="301">one blurb per work, 759 so far</text>
+          <text x="478" y="301">one blurb per work</text>
           <text x="478" y="327" fontWeight="600" fill={INK}>Languages</text>
           <text x="478" y="343">Latin, Greek, English,</text>
           <text x="478" y="357">Coptic, Hebrew</text>
@@ -134,7 +134,7 @@ export default function SystemChart() {
         {/* Column 3: BullsAI */}
         <Panel x={720} y={50} w={220} h={470} label="BullsAI, the campus AI platform" />
         <Box
-          x={735} y={70} w={190} h={176}
+          x={735} y={70} w={190} h={134}
           title="Gateway"
           lines={[
             'hosted open models, one address',
@@ -143,25 +143,23 @@ export default function SystemChart() {
             'passage descriptions, one pass',
             'over the corpus (GLM 5.3 Flash)',
             'work descriptions, one pass',
-            '',
-            '500 units a day, reset at',
-            'midnight UTC',
           ]}
         />
         <Box
           x={735} y={290} w={190} h={210}
           title="Compute"
           lines={[
-            'GPUs allotted job by job',
+            'GPUs allotted job by job, from a',
+            'command-line tool on the server',
             '',
-            'a project workspace and a',
-            'command-line tool on the server,',
-            'set up October 2026',
+            'one-off jobs:',
+            'vectors for newly added texts',
+            'training the Reader re-ranker',
+            'whole-corpus comparisons',
+            'description batches too large',
+            'for the gateway',
             '',
-            'planned: vectors for new texts,',
-            're-ranker training, whole-corpus',
-            'comparisons. Replaces rented',
-            'GPUs for one-off work.',
+            'in place of rented GPUs',
           ]}
         />
 
@@ -195,7 +193,7 @@ export default function SystemChart() {
           <text x="356" y="716">write the work's blurb</text>
 
           <text x="676" y="596" fontWeight="600" fill={INK}>One-off, elsewhere</text>
-          <text x="676" y="614">rented GPU or BullsAI compute: vectors</text>
+          <text x="676" y="614">BullsAI compute, or a rented GPU: vectors</text>
           <text x="676" y="628">for whole corpora, re-ranker training</text>
           <text x="676" y="648">a paid model: judging in evaluation</text>
           <text x="676" y="662">studies only, never on the live site</text>
@@ -204,6 +202,7 @@ export default function SystemChart() {
         </g>
         <Line d="M560 570 V540 H668 V300 H660" dashed label="rebuilds" lx={674} ly={420} anchor="start" />
         <Line d="M830 570 V535 H930 V140 H925" dashed />
+        <Line d="M880 570 V500" dashed label="runs" lx={874} ly={558} anchor="end" />
 
         {/* Legend */}
         <g fontSize="10" fill={MUTED}>
