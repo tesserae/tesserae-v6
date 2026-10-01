@@ -12,6 +12,9 @@ behind each, are in docs/DECISIONS.md.
 ### Data operations
 - Hebrew index, lemma cache, frequency table and bigram table rebuilt for
   the homograph lemmas of #552 (docs/DATA_OPERATIONS.md, 2026-10-01).
+- Greek index rows, lemma caches and stored passage wording refreshed for
+  the 15 Septuagint books corrected in #554 (docs/DATA_OPERATIONS.md,
+  2026-10-01).
 
 ### Scripts
 - `scripts/corpus/rebuild_bigrams.py` registers the plugin languages before
