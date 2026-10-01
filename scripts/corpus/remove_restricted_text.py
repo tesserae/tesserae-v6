@@ -11,7 +11,8 @@ manual steps someone has to remember in order:
     1. the work's .tess files under texts/<lang>/ (whole file and book parts)
     2. its lemma cache files under cache/lemmas/<lang>/
     3. its rows in each language's inverted index (data/inverted_index/)
-    4. its windows in the passage index (data/passage_index/)
+    4. its windows in the passage index (data/passage_index/), including
+       the stored passage text in window_texts.db
     5. its entry in data/restricted_texts.json
 
 Dry run by default, like every script under scripts/corpus/ that writes to
@@ -133,8 +134,28 @@ def plan_passage_windows(text_id, root):
                 works[r['id']] = r.get('work')
     matching_rows = [n for n, wid in enumerate(ids)
                      if base_work(works.get(wid) or wid.split(':', 1)[0]) == text_id]
+    # window_texts.db holds the passage TEXT itself (the Reader and Similar
+    # Passages read it from there), so it is the one file here that would
+    # keep a copy of the licensed text after the vectors were gone.
+    texts_db = os.path.join(index_dir, 'window_texts.db')
+    text_works = []
+    if os.path.exists(texts_db):
+        con = sqlite3.connect(f'file:{texts_db}?mode=ro', uri=True)
+        try:
+            tables = {r[0] for r in con.execute(
+                "select name from sqlite_master where type='table'")}
+            seen = set()
+            for table in ('window_texts', 'lines'):
+                if table in tables:
+                    for (w,) in con.execute(f'select distinct work from {table}'):  # nosec B608
+                        if w and base_work(w) == text_id:
+                            seen.add(w)
+            text_works = sorted(seen)
+        finally:
+            con.close()
     return {'present': True, 'index_dir': index_dir, 'window_count': len(matching_rows),
-            'rows': matching_rows}
+            'rows': matching_rows, 'texts_db': texts_db if os.path.exists(texts_db) else None,
+            'text_works': text_works}
 
 
 def plan_removal(text_id, root='.'):
@@ -180,6 +201,9 @@ def format_plan(plan):
         lines.append(f"  passage index: not present on this checkout ({pw['index_dir']})")
     else:
         lines.append(f"  passage index: {pw['window_count']} window(s)")
+        if pw.get('texts_db'):
+            lines.append(f"  window texts: {len(pw.get('text_works') or [])} work id(s) "
+                          f"in {os.path.basename(pw['texts_db'])}")
     return '\n'.join(lines)
 
 
@@ -260,6 +284,28 @@ def apply_removal(plan, tag=None):
             np.save(emb_path, emb[keep_rows])
         report.append(f"passage index: removed {pw['window_count']} window(s)")
 
+    if pw.get('texts_db') and pw.get('text_works'):
+        texts_db = pw['texts_db']
+        works = pw['text_works']
+        marks = ','.join('?' * len(works))
+        new_path = texts_db + '.new'
+        import shutil
+        shutil.copy2(texts_db, new_path)
+        con = sqlite3.connect(new_path)
+        tables = {r[0] for r in con.execute("select name from sqlite_master where type='table'")}
+        removed = 0
+        for table in ('window_texts', 'lines'):
+            if table in tables:
+                removed += con.execute(f'delete from {table} where work in ({marks})', works).rowcount  # nosec B608
+        con.commit()
+        assert con.execute('pragma integrity_check').fetchone()[0] == 'ok'
+        con.execute('VACUUM')
+        con.close()
+        b = backup(texts_db, tag=tag)
+        os.replace(new_path, texts_db)
+        report.append(f"window_texts.db: removed {removed} row(s) of text for "
+                      f"{len(works)} work id(s) (backup: {b})")
+
     registry, registry_path = load_registry(root)
     if plan['text_id'] in registry:
         backup(registry_path, tag=tag)
@@ -309,6 +355,9 @@ def main():
     print(data_operations_lines(plan, report))
     print('\nThen regenerate .gitignore\'s restricted-texts block:')
     print('  venv/bin/python scripts/corpus/restricted_texts_gitignore.py')
+    print('and rebuild the two derived tables that still carry the work:')
+    print('  venv/bin/python scripts/build_desc_fts.py            (description word index)')
+    print('  venv/bin/python scripts/corpus/rebuild_docfreq.py    (lemma document frequencies)')
 
 
 if __name__ == '__main__':

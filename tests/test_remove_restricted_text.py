@@ -79,6 +79,22 @@ def fixture_root(tmp_path):
             work = wid.split(':', 1)[0]
             fh.write(json.dumps({'id': wid, 'work': work, 'desc': {'gist': f'gist {i}'}}) + '\n')
 
+    con = sqlite3.connect(passage_dir / 'window_texts.db')
+    con.execute('create table window_texts (id text primary key, language text, work text, '
+                'ref_start text, ref_end text, text text)')
+    con.execute('create table lines (work text, ord integer, ref text, text text)')
+    con.executemany('insert into window_texts values (?, ?, ?, ?, ?, ?)', [
+        (ids[0], 'la', 'heldwork.history.part.1', '1', '1', 'line one'),
+        (ids[1], 'la', 'heldwork.history.part.2', '1', '1', 'line two'),
+        (ids[2], 'la', 'ordinary.poem', '1', '1', 'a line'),
+    ])
+    con.executemany('insert into lines values (?, ?, ?, ?)', [
+        ('heldwork.history.part.1', 0, '1', 'line one'),
+        ('ordinary.poem', 0, '1', 'a line'),
+    ])
+    con.commit()
+    con.close()
+
     return root
 
 
@@ -151,6 +167,14 @@ def test_apply_removes_only_the_restricted_work_everywhere(fixture_root):
     assert [d['id'] for d in descs] == ['ordinary.poem:fine:0']
     emb = np.load(fixture_root / 'data' / 'passage_index' / 'embeddings.npy')
     assert emb.shape[0] == 1
+
+    # The stored passage text is gone too: window_texts.db is where the
+    # Reader reads the licensed words from, so leaving it would keep a copy.
+    con = sqlite3.connect(fixture_root / 'data' / 'passage_index' / 'window_texts.db')
+    assert con.execute('select work from window_texts').fetchall() == [('ordinary.poem',)]
+    assert con.execute('select work from lines').fetchall() == [('ordinary.poem',)]
+    con.close()
+    assert any('window_texts.db' in line for line in report)
 
     # Registry entry gone.
     registry, _ = rrt.load_registry(str(fixture_root))

@@ -2372,10 +2372,9 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 <div>
                   <h4 className="font-medium text-gray-900">Are all the texts in the corpus downloadable?</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    Most are, under the licenses listed on the Sources page under About. A small number come to
-                    us under a license that allows searching but not redistribution, searchable like any other
-                    text but left out of the per-language downloads, with their credit and license terms shown
-                    on the Sources page.
+                    Most are, under the licenses listed on the Sources page under About. A text that comes to
+                    us under a license for searching only is searchable like any other text and left out of
+                    the per-language downloads. Its credit and license terms appear on the Sources page.
                   </p>
                 </div>
                 <div>
