@@ -9,6 +9,15 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-01
 
+### Dictionaries
+- Hebrew-Greek: 74 equivalents added from the second pass on the 1,787
+  verse-alignment candidates of #519 (`backend/synonymy/v6_additions/hebrew_greek.csv`,
+  comment line dated 2026-10-01). A model judged each pair with its BHSA
+  glosses, 88 of its 216 yes rows were dropped because the Greek side was a
+  lemmatizer artifact, and the remaining 128 were read by hand: 97 kept, 23
+  of them already present. Among the additions: עד with αἰών, μάρτυς and
+  μέχρι, אשרי with μακάριος, מאד with σφοδρός, שבע with ὄμνυμι and ἕβδομος.
+
 ### Data operations
 - Hebrew index, lemma cache, frequency table and bigram table rebuilt for
   the homograph lemmas of #552 (docs/DATA_OPERATIONS.md, 2026-10-01).

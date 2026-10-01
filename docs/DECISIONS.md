@@ -7,6 +7,38 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+## 2026-10-01 Hebrew-Greek dictionary candidates pass through a model judge and a reader, never straight in (#519)
+
+**Question.** The 1,787 Hebrew-Greek pairs proposed from verse alignment
+(co-occurrence at least 10, lift at least 5) are mostly neighbours, not
+translations: Pharaoh beside Egypt, flock beside shepherd, king beside
+book. The first pass had taken 26 by hand. How to get the rest of the real
+equivalents out without reading 1,787 rows.
+
+**Measurement.** A triangulation through Latin (the Greek word's Latin
+translations meeting the Hebrew word's) passed 32 and was wrong on about
+a third of them, and in doing so exposed errors in the Hebrew-Latin bridge
+(gold reaching argentum, six reaching quattuor), which is now its own
+item. A model judge (Qwen 3.8 on the gateway, no reasoning, each pair with
+the Hebrew word's BHSA glosses) answered yes to 216 of 1,787 at high
+confidence. Of those, 88 had a Greek side that is no lemma at all (υιρι,
+ελαλησ, γαη): the candidate generator's Greek lemmatizer leaves many
+Septuagint forms unlemmatized. The 128 left were read one by one: 97 are
+translation equivalents in some sense of the Hebrew word, 31 are not
+(metonymies such as אכל with ἄρτος, neighbours such as בקר with πρόβατον
+and אהל with μαρτύριον, and plain judge errors such as אתה with εἰ).
+
+**Decision.** Candidates reach the dictionary only after the judge, the
+artifact filter and a reading. The 74 pairs not already present are added
+with a dated comment line naming the method. The 88 artifact rows are not
+added even where the sense is right, because a dictionary of real lemmas is
+what the file is, and the index tokens behind those forms are a
+lemmatization problem to fix at its source.
+
+**Left open.** The Greek lemmatizer's coverage of Septuagint forms, which
+both pollutes candidates and leaves those tokens reachable only by their
+surface form. The Hebrew-Latin bridge audit (HE.5 on the private list).
+
 ## 2026-10-01 Hebrew homographs are separate lemmas, read from the vowel points (#483)
 
 **Question.** The Hebrew lemma table was keyed by consonants and kept the
