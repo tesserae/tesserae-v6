@@ -359,7 +359,7 @@ describe('Compare two works', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Compare', exact: true }));
 
     await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
-      '/api/passages/compare?work_a=vergil.aeneid.tess&work_b=lucan.bellum_civile.tess'));
+      '/api/passages/compare?work_a=vergil.aeneid.tess&work_b=lucan.bellum_civile.tess&with_phrases=1'));
 
     expect(await screen.findByText('A storm scatters the fleet.')).toBeTruthy();
     expect(screen.getByText('A storm threatens the ships.')).toBeTruthy();
@@ -378,7 +378,79 @@ describe('Compare two works', () => {
     });
     render(<ThemeSearchPage />);
     await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
-      '/api/passages/compare?work_a=vergil.aeneid&work_b=lucan.bellum_civile'));
+      '/api/passages/compare?work_a=vergil.aeneid&work_b=lucan.bellum_civile&with_phrases=1'));
     expect(await screen.findByText('A storm scatters the fleet.')).toBeTruthy();
+  });
+
+  it('shows the shared wording inside a pair when the word-level comparison is cached', async () => {
+    const withPhrases = {
+      ...COMPARE_RESULT,
+      phrases: { available: true, pairs_with_phrases: 1 },
+      pairs: [{
+        ...COMPARE_RESULT.pairs[0],
+        phrases: [{
+          source_ref: 'verg. aen. 1.3', target_ref: 'lucan. 5.2',
+          matched_words: [{ lemma: 'tempestas' }, 'ventus'],
+          score: 4.5, source_text: 'src', target_text: 'tgt',
+        }],
+      }],
+    };
+    global.fetch = mockFetchFor((u) => {
+      if (u.startsWith('/api/passages/compare')) {
+        return Promise.resolve({ json: () => Promise.resolve(withPhrases) });
+      }
+      return null;
+    });
+    openComparePane();
+    await screen.findByLabelText('First work author');
+    pickWork('First work', 'Vergil', 'vergil.aeneid.tess');
+    pickWork('Second work', 'Lucan', 'lucan.bellum_civile.tess');
+    fireEvent.click(screen.getByRole('button', { name: 'Compare', exact: true }));
+
+    expect(await screen.findByText('Shared wording inside this pair')).toBeTruthy();
+    expect(screen.getByText('tempestas, ventus')).toBeTruthy();
+    expect(screen.getByText(/verg\. aen\. 1\.3/)).toBeTruthy();
+    expect(screen.getByText(/lucan\. 5\.2/)).toBeTruthy();
+    expect(screen.getByText(/score 4\.50/)).toBeTruthy();
+  });
+
+  it('offers to run the word-level comparison when nothing is cached yet', async () => {
+    const noPhrases = {
+      ...COMPARE_RESULT,
+      phrases: { available: false, run_url: '/?lang=la&source=vergil.aeneid.tess&target=lucan.bellum_civile.tess' },
+    };
+    global.fetch = mockFetchFor((u) => {
+      if (u.startsWith('/api/passages/compare')) {
+        return Promise.resolve({ json: () => Promise.resolve(noPhrases) });
+      }
+      return null;
+    });
+    openComparePane();
+    await screen.findByLabelText('First work author');
+    pickWork('First work', 'Vergil', 'vergil.aeneid.tess');
+    pickWork('Second work', 'Lucan', 'lucan.bellum_civile.tess');
+    fireEvent.click(screen.getByRole('button', { name: 'Compare', exact: true }));
+
+    const link = await screen.findByRole('link', { name: 'Run the word-level comparison of these two works' });
+    expect(link.getAttribute('href')).toBe('/?lang=la&source=vergil.aeneid.tess&target=lucan.bellum_civile.tess');
+    expect(screen.queryByText('Shared wording inside this pair')).toBeNull();
+  });
+
+  it('unchecking "Show shared wording inside pairs" omits with_phrases from the request', async () => {
+    global.fetch = mockFetchFor((u) => {
+      if (u.startsWith('/api/passages/compare')) {
+        return Promise.resolve({ json: () => Promise.resolve(COMPARE_RESULT) });
+      }
+      return null;
+    });
+    openComparePane();
+    await screen.findByLabelText('First work author');
+    fireEvent.click(screen.getByLabelText('Show shared wording inside pairs'));
+    pickWork('First work', 'Vergil', 'vergil.aeneid.tess');
+    pickWork('Second work', 'Lucan', 'lucan.bellum_civile.tess');
+    fireEvent.click(screen.getByRole('button', { name: 'Compare', exact: true }));
+
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
+      '/api/passages/compare?work_a=vergil.aeneid.tess&work_b=lucan.bellum_civile.tess'));
   });
 });
