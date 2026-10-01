@@ -130,6 +130,30 @@ def load_lemma_tables():
                 logger.info(f"Added {added} Koine Greek lemma mappings from the Septuagint morphology")
             except Exception as e:
                 logger.error(f"Failed to load Koine Greek lemma table: {e}")
+
+        # Classical forms neither the treebank table nor the Koine table
+        # covers (2026-10-01): built from the GLAUx treebank corpus, 936
+        # treebank files of ancient Greek literature published by the
+        # Perseids Project, under a Creative Commons Attribution-ShareAlike
+        # licence (data/lemma_tables/GREEK_CLASSICAL_LICENSE.txt). The
+        # treebank table wins first, then the Koine table, on any form
+        # either already has; this table only fills what is still missing.
+        # Forms where GLAUx disagrees with an existing table are kept for
+        # review in greek_classical_conflicts.json and not applied.
+        classical_path = os.path.join(base_dir, 'data', 'lemma_tables', 'greek_classical_lemmas.json')
+        if os.path.exists(classical_path):
+            try:
+                with open(classical_path, 'r', encoding='utf-8') as f:
+                    classical = json.load(f)
+                added = 0
+                for form, lemma in classical.items():
+                    if form not in GREEK_LEMMA_TABLE:
+                        GREEK_LEMMA_TABLE[form] = lemma
+                        GREEK_REVERSE_LEMMA.setdefault(lemma, set()).add(form)
+                        added += 1
+                logger.info(f"Added {added} classical Greek lemma mappings from the GLAUx treebank corpus")
+            except Exception as e:
+                logger.error(f"Failed to load classical Greek lemma table: {e}")
     else:
         logger.warning(f"Greek lemma table not found at {greek_path}")
     
