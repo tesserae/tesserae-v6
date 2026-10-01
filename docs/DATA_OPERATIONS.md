@@ -34,6 +34,39 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+## Restricted texts: how they are held
+
+Some texts arrive under a licence that allows them to sit in the index and
+be searched. They may never be copied elsewhere, as a standalone download, a
+copy in the public repository, or a text passed on to someone else. Such a
+text lives on
+the production server under `texts/<lang>/` exactly like any other text, and
+every search, the Reader and the passage windows treat it the same way.
+What differs is everywhere the text could otherwise leave the server.
+
+`data/restricted_texts.json` is the registry: an id, a holder, a fixed
+credit line, the licence terms, and when the licence was added (and, if it
+has ended, when). It ships empty and is read through one module,
+`backend/restricted_texts.py`, so every other guardrail asks the same
+question of that one module.
+
+Two exits are closed. The registry never reaches the public repository:
+`scripts/corpus/restricted_texts_gitignore.py` turns each entry into the
+`.gitignore` rule that keeps its files out, regenerated whenever the
+registry changes. And it never reaches a bundle anyone can take away: the
+per-language texts download and the passage-index release script both
+leave a restricted text out and report how many were withheld and why.
+
+Wherever a passage is shown, its credit line follows it: in search results,
+the Reader header, Similar Passages, Theme Comparison, and the Sources
+page, a restricted text carries the registry's fixed credit line in place
+of (or beside) its usual citation.
+
+When a licence ends, `scripts/corpus/remove_restricted_text.py` is the
+removal procedure: dry run by default, reporting what it would take out of
+the texts, the lemma cache, the inverted index and the passage index before
+anything is deleted, with a dated backup kept of each file it removes.
+
 ## 2026-09-30 Per-text blurbs written for the corpus works that had none (16:29 EDT 2026-09-30 to 01:15 EDT 2026-10-01)
 
 ### Descriptions
