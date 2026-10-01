@@ -48,10 +48,13 @@ behind each, are in docs/DECISIONS.md.
   of them already present. Among the additions: עד with αἰών, μάρτυς and
   μέχρι, אשרי with μακάριος, מאד with σφοδρός, שבע with ὄμνυμι and ἕβδομος.
 - Hebrew-Latin: the bridged dictionary of 29,901 pairs is filtered to
-  9,783. Pairs attested in an aligned Hebrew/Vulgate verse across 35
-  books stay, unattested pairs stay when two models independently judged
-  them translation equivalents at high confidence and the Hebrew side is
-  a dictionary form,
+  5,922. Pairs that share aligned Hebrew/Vulgate verses across 36 books
+  (Psalms now included through Jerome's psalter from the Hebrew) stay when
+  they co-occur well above chance and a model judge does not reject them,
+  which removes frequent companions such as gold against argentum.
+  Unattested pairs stay when two models independently judged them
+  translation equivalents at high confidence and the Hebrew side is a
+  dictionary form,
   and the rest are listed with reasons in
   `data/proposals/hebrew_latin_dropped_2026-10-01.csv` (HE.5). The medial-
   letter spellings the bridge inherited from CATSS are now matched as the

@@ -46,10 +46,28 @@ noise, and noise in a dictionary channel costs precision on every
 cross-language search. Rebuilding the bridge from scratch. The attested
 core is the same thing, found cheaper.
 
-**Left open.** Attestation by shared verse keeps frequent companions
-(gold still reaches argentum, because gold and silver share many verses).
-A frequency-aware test would catch them. Psalms attestation (the numbering
-offset), the judges' loose positives, and a direct Hebrew-Latin lexicon source if one with an open
+**Third build, the same evening.** Attestation by shared verse alone kept
+frequent companions: gold reached argentum (98 shared verses) and three
+reached quinquaginta. The attestation was recomputed with each word's
+verse frequency, over 36 books once Psalms was added through Jerome's
+psalter from the Hebrew (`jerome.vulgate.part.21a`, Vulgate numbering
+mapped psalm by psalm, the merged and split psalms 9 to 10, 114 to 116
+and 147 left out), 22,548 aligned verses. A pair's lift is its shared
+verses over the number chance would give. Of 6,882 attested pairs, 1,393
+co-occur at chance level (lift under 2, or a single verse with lift under
+5) and are out. The 27B judge then read every attested pair: 1,991 it
+rejected at high confidence are out, companions among them (gold with
+argentum at lift 35, three with triginta), at the cost of a few true pairs
+it misreads (קדם "ancient times" against antiquus). A rescue for
+rejected pairs whose Latin word had no stronger Hebrew partner was tried
+and dropped, because the rescued pairs were mostly collocations (Ashkelon
+against Gaza). A single shared verse counts only when the judge confirms
+it (573 kept, 573 not). The dictionary now holds 5,922 pairs: 2,925
+attested and 2,997 judged. Each dropped pair's reason is in the dropped
+list.
+
+**Left open.** The judge's false rejections among attested pairs, for the
+Hebrew specialist to read, the judges' loose positives, and a direct Hebrew-Latin lexicon source if one with an open
 licence appears.
 
 ## 2026-10-01 Koine forms get a second lemma table, and the treebank table keeps the last word
