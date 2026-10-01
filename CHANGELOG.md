@@ -37,6 +37,12 @@ behind each, are in docs/DECISIONS.md.
 - Seven Latin poetic texts (Prudentius five works, Dracontius Orestes and
   Satisfactio) re-sourced from Musisque Deoque to Perseus and Corpus
   Corporum. The converter keeps one line per verse in bare-verse TEI.
+- Per-text blurbs written for 33 English, 355 Latin and 301 Greek works that
+  had none, by GLM 5.3 Flash on the campus gateway from each work's opening
+  lines and source record, checked by a second model (Qwen 3.8) for
+  contradictions and implausible specifics against the same inputs rather
+  than for unverified detail. 894 of 1,583 attempted were held back.
+  `scripts/corpus/describe_works.py`.
 
 ### Search
 - Hebrew-Greek dictionary: twenty-six equivalents for the commonest Hebrew

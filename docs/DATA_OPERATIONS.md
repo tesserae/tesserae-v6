@@ -34,6 +34,58 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+## 2026-09-30 Per-text blurbs written for the corpus works that had none (16:29 EDT 2026-09-30 to 01:15 EDT 2026-10-01)
+
+### Descriptions
+- Ran `scripts/corpus/describe_works.py` from a worktree, not production, to
+  write `data/text_descriptions.json` blurbs for every work under
+  `texts/{la,grc,en}` with none: 698 Latin, 843 Greek, 42 English, 1,583
+  works in scope. GLM 5.3 Flash on the campus BullsAI gateway wrote each
+  blurb from the work's opening lines (capped at 40 lines or about 3,000
+  characters, whichever comes first, after a fix mid-run: a prose work's
+  single `.tess` line can be a whole paragraph, and two works' opening
+  excerpts ran to 11,900 and 161,600 characters before the cap, which made
+  the model reason without ever finishing), the filename-derived author and
+  title, the matching `backend/text_sources.json` record when one could be
+  matched (exact or close author/work match, about 90% of works), and the
+  `data/text_genres.csv` row when present. 1,583 of 1,583 works got a
+  written blurb after four retry passes for items that failed every try
+  (43, then 5, then 2, then 1 remained stuck. The character cap fixed the
+  last two).
+- First checked every blurb with Qwen 3.8 (thinking off) for any claim the
+  inputs do not support: 116 ok, 1,467 flagged. That check was too strict.
+  It can only verify against the same narrow excerpt the writer saw, not
+  the work's full text, so true detail past the opening (named characters,
+  later plot, a work's traditional title, a date known generally but not
+  stated in the inputs) read as unsupported. These results are kept for
+  the record at `checks_strict.jsonl`, not used for the merge below.
+- Re-ran the check with a different question: does the blurb CONTRADICT
+  the inputs, or state something a reference work would not say, rather
+  than merely add detail the inputs cannot confirm. Result: 689 ok, 894
+  flagged, run twice for 13 that errored on the first pass (11 of which
+  then also flagged). Sampling the flagged list still finds some
+  overcautious flags, but also genuine catches, among them a blurb that
+  quoted a line from the wrong speaker, one that named a title at odds
+  with the source record, and one that described plot events the opening
+  excerpt rules out.
+  Full counts, the held-back list and sample blurbs are in the pull
+  request description.
+- Merged the 689 checked-ok blurbs into a NEW `data/text_descriptions.json`
+  built from the pre-batch file: 33 English (a new top-level key, English
+  had no blurbs before), 355 Latin, 301 Greek. Existing entries stayed
+  untouched, and new keys were sorted after the existing ones in each
+  language. Nothing in the live index or app changed, since this is corpus
+  metadata only, read at request time.
+- Run data kept outside the repository at
+  `~/tesserae-backups/jobs/blurbs_2026-09-30/` (`blurbs.jsonl`,
+  `checks.jsonl`, `checks_strict.jsonl`): every write and check call,
+  resume-safe. Key spend rose from 45.97 to 115.64 of that day's 500-unit
+  budget for the write pass and the first check, then the daily reset at
+  2026-10-01 00:00 UTC gave a fresh 500, against which the second check
+  and its retries drew the key to 160.4, shared throughout with a
+  concurrent, unrelated whole-corpus passage re-description job on the
+  same key.
+
 ## 2026-09-30 Evening deploys, 16:27 to 2026-10-01 00:10 EDT (assistant, Theme Comparison, Hebrew)
 
 ### Assistant
