@@ -9,6 +9,12 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-01
 
+### Infrastructure
+- Stanza is pinned below 1.15. The 1.15.0 release of 2026-10-01 changed how
+  the Hebrew model splits prefixed words, and an unpinned install made the
+  test suite fail on every pull request opened after the release. Local and
+  production installs run older versions and are unaffected.
+
 ### Search
 - Formula filter: a parallel's shared words carry a formula_count, the
   number of corpus works where they recur together (a shared bigram of the

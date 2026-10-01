@@ -10,7 +10,7 @@ flask-dance
 flask-login
 Flask-SQLAlchemy
 PyJWT
-stanza
+stanza<1.15
 sentence-transformers>=2.6.0
 pycountry==24.6.1
 matplotlib>=3.3
