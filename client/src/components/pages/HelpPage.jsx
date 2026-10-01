@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { STOPLIST_INFO } from '../../data/stoplists';
 import FusionFlowchart from '../search/FusionFlowchart';
+import SystemChart from './SystemChart';
 
 const AI_SCHEMA_URL = 'https://tesserae.caset.buffalo.edu/tesserae-data/tesserae-openapi.yaml';
 
@@ -374,6 +375,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
     { id: 'repository', label: 'Repository', group: 'Reference & tools' },
     { id: 'upload-text', label: 'Upload Your Text', group: 'Reference & tools' },
     { id: 'faq', label: 'FAQ', group: 'Reference & tools' },
+    { id: 'how-built', label: 'How the system is built', group: 'Reference & tools' },
     { id: 'feedback', label: 'Send Feedback', group: 'Reference & tools' }
   ];
 
@@ -2294,6 +2296,28 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </ul>
               </div>
             </div>
+          )}
+
+          {activeSection === 'how-built' && (
+            <section>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">How the system is built</h3>
+              <p className="text-gray-700 mb-4">
+                Tesserae runs on one server at the University at Buffalo, with two small helper
+                services beside it and, since autumn 2026, the university's shared AI platform
+                (BullsAI) for the language model work. The diagram shows every machine part, what
+                data each reads, and which jobs run on a schedule and which run once when the
+                corpus changes. Solid lines are paths taken during a request, dashed lines are jobs. Nothing in the live site calls a paid service.
+              </p>
+              <SystemChart />
+              <p className="text-gray-600 text-sm mt-4">
+                The code is public at{' '}
+                <a href="https://github.com/tesserae/tesserae-v6" className="text-red-700 hover:underline" target="_blank" rel="noopener noreferrer">
+                  github.com/tesserae/tesserae-v6
+                </a>
+                . The changelog there lists every change to the live site, and docs/DATA_OPERATIONS.md
+                records each rebuild of the indexes and caches.
+              </p>
+            </section>
           )}
 
           {activeSection === 'faq' && (
