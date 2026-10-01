@@ -93,6 +93,27 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
     setSettings((prev) => ({ ...prev, channel_weights: {}, disabled_channels: [] }));
   };
   const isDirty = overrideCount > 0 || disabledCount > 0;
+
+  // Formula filter: hide or isolate parallels whose shared words recur across
+  // many works (set phrases like a biblical narrative formula). Derived from
+  // two settings fields (formula_max, formula_only) rather than its own
+  // tri-state field, so "no filtering" is just formula_max === null/undefined
+  // — the same shape the backend reads.
+  const formulaMax = settings.formula_max ?? null;
+  const formulaOnly = !!settings.formula_only;
+  const formulaMode = formulaMax == null ? 'all' : (formulaOnly ? 'only' : 'hide');
+  const setFormulaMode = (mode) => {
+    setSettings(prev => {
+      if (mode === 'all') return { ...prev, formula_max: null, formula_only: false };
+      const threshold = prev.formula_max ?? 5;
+      return { ...prev, formula_max: threshold, formula_only: mode === 'only' };
+    });
+  };
+  const setFormulaThreshold = (raw) => {
+    const val = raw.replace(/[^0-9]/g, '');
+    setSettings(prev => ({ ...prev, formula_max: val === '' ? '' : Math.max(1, parseInt(val)) }));
+  };
+
   const handleChange = (key, value) => {
     const updates = { [key]: value };
     
@@ -328,6 +349,61 @@ const SearchSettings = ({ settings, setSettings, showAdvanced, setShowAdvanced, 
             <p className="text-xs text-gray-500 mt-1">Use dictionary forms (lemmata): {stopwordExamples[language] || stopwordExamples.la}</p>
           </div>
           )}
+
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Formulas
+            </label>
+            <p className="text-xs text-gray-500 mb-2">
+              A result's shared words can recur across many works (a set phrase, like a Hebrew
+              narrative formula) rather than mark a one-off echo. Formula counts show how many
+              works in the corpus share a result's shared wording.
+            </p>
+            <div className="flex flex-col gap-1.5">
+              <label className="flex items-center gap-2 text-sm text-gray-700">
+                <input type="radio" name="formula_mode" checked={formulaMode === 'all'}
+                  onChange={() => setFormulaMode('all')}
+                  className="border-gray-300" />
+                Show all (default)
+              </label>
+              <label className="flex items-center gap-2 text-sm text-gray-700">
+                <input type="radio" name="formula_mode" checked={formulaMode === 'hide'}
+                  onChange={() => setFormulaMode('hide')}
+                  className="border-gray-300" />
+                <span>Hide formulas that recur in more than</span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  disabled={formulaMode !== 'hide'}
+                  value={formulaMode === 'hide' ? (formulaMax ?? '') : ''}
+                  onChange={(e) => setFormulaThreshold(e.target.value)}
+                  onBlur={() => { if (formulaMode === 'hide' && (formulaMax === '' || !formulaMax)) setFormulaThreshold('5'); }}
+                  onFocus={() => { if (formulaMode !== 'hide') setFormulaMode('hide'); }}
+                  className={`w-16 border rounded px-2 py-1 text-sm text-center ${formulaMode !== 'hide' ? 'bg-gray-100 text-gray-400' : ''}`}
+                />
+                <span>works</span>
+              </label>
+              <label className="flex items-center gap-2 text-sm text-gray-700">
+                <input type="radio" name="formula_mode" checked={formulaMode === 'only'}
+                  onChange={() => setFormulaMode('only')}
+                  className="border-gray-300" />
+                <span>Show only formulas (</span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  disabled={formulaMode !== 'only'}
+                  value={formulaMode === 'only' ? (formulaMax ?? '') : ''}
+                  onChange={(e) => setFormulaThreshold(e.target.value)}
+                  onBlur={() => { if (formulaMode === 'only' && (formulaMax === '' || !formulaMax)) setFormulaThreshold('5'); }}
+                  onFocus={() => { if (formulaMode !== 'only') setFormulaMode('only'); }}
+                  className={`w-16 border rounded px-2 py-1 text-sm text-center ${formulaMode !== 'only' ? 'bg-gray-100 text-gray-400' : ''}`}
+                />
+                <span>or more works)</span>
+              </label>
+            </div>
+          </div>
 
           <div className="sm:col-span-2 pt-2 border-t">
             <p className="text-xs text-gray-500 mb-2">{settings.match_type === 'fusion' ? 'Fusion score boosting:' : 'Score boosting and matching features:'}</p>

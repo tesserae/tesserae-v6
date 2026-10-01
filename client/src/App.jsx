@@ -169,7 +169,12 @@ function App() {
     // Advanced: fusion channels the user has turned OFF via the on/off
     // switches. Empty => every channel runs (default). Only sent to the
     // backend when non-empty (see request-building below).
-    disabled_channels: []
+    disabled_channels: [],
+    // Formula filter: null/false => no filtering (default). Set together by
+    // SearchSettings' "Formulas" control (hide rows recurring in more than
+    // formula_max works, or show only those at/above it).
+    formula_max: null,
+    formula_only: false
   });
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
   
