@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { STOPLIST_INFO } from '../../data/stoplists';
 import FusionFlowchart from '../search/FusionFlowchart';
+import SystemChart from './SystemChart';
 
 const AI_SCHEMA_URL = 'https://tesserae.caset.buffalo.edu/tesserae-data/tesserae-openapi.yaml';
 
@@ -105,82 +106,6 @@ function CopyBlock({ text, label = 'Copy' }) {
     </div>
   );
 }
-
-// The system chart for the 'how-built' help section. Plain text, kept
-// under 80 columns; update it when a part is added or retired.
-const SYSTEM_CHART = `TESSERAE, THE MACHINERY                                      October 2026
-
-  YOU                          THE SERVER (at the University at Buffalo)
-  ---                          -----------------------------------------
-  browser ------------------>  web server, three Python workers
-    the Tesserae page          |   phrase, line and rare-word search
-                               |   cross-language search
-  an AI assistant ---------->  |   Reader, Similar Passages, Theme Search
-    through the connector      |   Tessa, Repository, uploads, downloads
-                               |   connector: the searches offered as tools
-                               |
-                               +-- data read on request
-                               |     texts            Latin, Greek, English,
-                               |                      Coptic, Hebrew (.tess)
-                               |     lemma caches     one per text, prebuilt
-                               |     inverted index   lemma -> lines
-                               |     word tables      frequencies, bigrams,
-                               |                      formula counts
-                               |     dictionaries     synonyms, cross-language
-                               |                      word pairs (CSV)
-                               |     line vectors     the semantic channel
-                               |     passage index    510,839 windows: text,
-                               |                      description, vector
-                               |     connections map  which works echo which
-                               |     work blurbs      one per work
-                               |     database         accounts, Repository
-                               |
-                               +-- helper services on the same machine
-                               |     query encoder    turns a Theme Search query
-                               |     (port 8090)      into a vector (e5-large)
-                               |     reader           re-ranks Theme Search
-                               |     (port 8091)      results (MiniLM cross-encoder)
-                               |
-                               +-- calls over the campus network
-                                     BullsAI gateway  Tessa's answers (Qwen 3.8)
-                                                      and her second pass, which
-                                                      checks dates, attributions
-
-  BULLSAI (the university's shared AI platform, free to the project)
-  -----------------------------------------------------------------
-  gateway: hosted open models      compute: GPUs allotted job by job
-    behind one address               a project workspace and a
-    Tessa, live, each request        command-line tool, set up
-    descriptions of every passage    October 2026; first test job run
-      window, GLM 5.3 Flash,         planned: vectors for new texts,
-      one pass, about a week         re-ranker training, whole-corpus
-    work blurbs, one pass            comparisons
-    500 units a day, reset           replaces rented GPUs for
-      at midnight UTC                one-off work
-
-  JOBS
-  ----
-  recurrent
-    each request       results cache; Tessa's background check
-    each code change   GitHub runs the tests, the build and an
-                       automated review; production pulls the
-                       merged code
-    weekly             review of Tessa's recorded exchanges;
-                       failures become graded test questions
-  one-off, on the server when the corpus changes
-  (one job at a time, each under a memory cap)
-    convert text -> .tess -> lemma cache -> inverted index
-    -> frequency and bigram tables -> passage windows:
-    describe (gateway), encode (e5), append to the index
-    -> connections map, reuse table, work blurb
-  one-off, elsewhere
-    rented GPU or BullsAI compute   vectors for whole corpora,
-                                    re-ranker training
-    paid model (Anthropic)          judging in evaluation studies
-                                    only, never on the live site
-    temporary preview sites         a tunnel from the server, for
-                                    collaborators, days at a time
-`;
 
 export default function HelpPage({ initialSection = null, onSectionConsumed } = {}) {
   const [activeSection, setActiveSection] = useState(initialSection || 'getting-started');
@@ -2379,11 +2304,11 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               <p className="text-gray-700 mb-4">
                 Tesserae runs on one server at the University at Buffalo, with two small helper
                 services beside it and, since autumn 2026, the university's shared AI platform
-                (BullsAI) for the language model work. The chart shows every machine part, what
+                (BullsAI) for the language model work. The diagram shows every machine part, what
                 data each reads, and which jobs run on a schedule and which run once when the
-                corpus changes. Nothing in the live site calls a paid service.
+                corpus changes. Solid lines are paths taken during a request, dashed lines are jobs. Nothing in the live site calls a paid service.
               </p>
-              <pre className="text-xs leading-snug bg-gray-50 border border-gray-200 rounded p-4 overflow-x-auto">{SYSTEM_CHART}</pre>
+              <SystemChart />
               <p className="text-gray-600 text-sm mt-4">
                 The code is public at{' '}
                 <a href="https://github.com/tesserae/tesserae-v6" className="text-red-700 hover:underline" target="_blank" rel="noopener noreferrer">
