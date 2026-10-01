@@ -67,6 +67,45 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-01 Full Greek rebuild for the tokenizer fix, the κα correction and the Koine lemma table (run 14:52 to 15:52 EDT)
+
+### What and why
+- Three merges changed what the Greek index holds: #558 (the tokenizer no
+  longer keeps the ano teleia and the spacing breathings on a word), #559
+  (262 bare κα corrected to καὶ in 11 Septuagint books) and #560 (the Koine
+  lemma table for forms the treebank table lacks). Production pulled to
+  be6ccc4. One rebuild served all three.
+
+### Steps
+- Built in a fresh worktree of the same commit (`~/tesserae-grcbuild`) so
+  the live index was never removed mid-build, inside a 12 GB job scope.
+  Lemma caches: `scripts/batch_lemma_cache.py grc --force`, 1,268 files in
+  100 seconds, peak 0.4 GB. Index: `scripts/build_inverted_index.py
+  --language grc --force`, 52 minutes, peak 1.6 GB. The copy verified
+  (integrity ok) and swapped in; backup `grc_index.db.bak-greek-20261001-1152`.
+  The production lemma caches moved aside to `cache/lemmas/grc.bak-greek-20261001-1152/`
+  and the new ones copied in. Greek frequency table recomputed (464,732
+  lemmas), bigram table rebuilt (`scripts/corpus/rebuild_bigrams.py grc`,
+  3,250,475 distinct bigrams, 92 seconds). Stored passage wording refreshed
+  for the 11 κα books (617 windows, 244 lines). App reloaded 15:52:05;
+  `scripts/reference_search_check.py` passed.
+- Before: 1,268 texts, 478,011 lines, 11,118,254 postings, 498,554 lemmas.
+  After: 1,268 texts, 478,011 lines, 11,063,906 postings, 464,732 lemmas.
+  The token "αυτου·" has no postings now (240 before); ὑμνέω has 471 where
+  the invented stem υμνειτοσ had stood.
+
+### Checked afterwards
+- The share of tokens whose lemma is their own surface form fell in every
+  text sampled, Septuagint and classical alike: Genesis 48.6% to 41.2%,
+  Plutarch's Alexander 47.6% to 45.1%, Plato's Republic 48.9% to 46.9%,
+  Thucydides 43.4% to 42.1%, the Iliad 36.7% to 36.6%. Distinct lemmas per
+  text fell with it, which is the invented stems leaving.
+- The production environment has no CLTK, so no backoff lemmatizer took
+  part in this build or in live queries; the index and the queries agree.
+  The remaining surface-form share, a third to a half of tokens in
+  classical texts, is the treebank table's coverage and is recorded as an
+  open item.
+
 ## 2026-10-01 Septuagint κοὶ corrected, Greek index rows, lemma caches and stored wording refreshed for 15 books (run 11:11 to 11:14 EDT)
 
 ### What and why
