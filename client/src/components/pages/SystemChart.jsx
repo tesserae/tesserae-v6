@@ -161,12 +161,14 @@ export default function SystemChart() {
           ]}
         />
 
-        {/* Request paths (solid) */}
+        {/* Request paths (solid). Every search reads the data; only Theme
+            Search also goes through the two helper services. */}
         <Line d="M210 77 H270" accent />
         <Line d="M210 177 H240 V116 H270" accent />
-        <Line d="M465 162 V196" accent />
+        <Line d="M465 162 V196" accent label="every search" lx={472} ly={183} anchor="start" />
         <Line d="M270 116 H258 V460 H270" accent />
         <Line d="M258 460 V510 H567 V500" accent />
+        <text x="270" y="409" fontSize="10" fill={ACCENT}>Theme Search only: the query is encoded, the results re-ranked</text>
         <Line d="M660 100 H735" accent label="Tessa" lx={697} ly={113} />
 
         {/* Jobs (dashed) */}
@@ -194,9 +196,12 @@ export default function SystemChart() {
           <text x="676" y="628">re-ranker training</text>
           <text x="676" y="642">whole-corpus comparisons</text>
         </g>
-        <Line d="M560 570 V540 H668 V300 H660" dashed label="rebuilds" lx={674} ly={420} anchor="start" />
-        <Line d="M830 570 V535 H930 V140 H925" dashed />
-        <Line d="M880 570 V466" dashed label="runs" lx={874} ly={558} anchor="end" />
+        {/* Jobs (dashed), each column to the part it works on: the corpus
+            jobs rebuild the data on disk and send their describing to the
+            gateway; the GPU jobs run on the compute. */}
+        <Line d="M560 570 V540 H668 V300 H660" dashed label="corpus jobs rebuild the data" lx={552} ly={549} anchor="end" />
+        <Line d="M640 570 V552 H930 V140 H925" dashed label="describing batches go to the gateway" lx={866} ly={546} anchor="end" />
+        <Line d="M880 570 V466" dashed label="GPU jobs" lx={874} ly={566} anchor="end" />
 
         {/* Legend */}
         <g fontSize="10" fill={MUTED}>
