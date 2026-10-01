@@ -47,6 +47,14 @@ def test_key_of_an_unpointed_word_is_its_consonants():
     assert pointed_key('אל') == 'אל'
 
 
+def test_a_word_with_marks_but_no_vowels_takes_the_consonantal_path():
+    # A dagesh or an accent alone carries no vowel information, so the key
+    # collapses to the consonants and the consonantal table answers, with
+    # the majority reading and no numeral.
+    assert pointed_key('מלּך') == 'מלך'
+    assert lemmatize_hebrew(['מלּך', 'מל֣ך']) == ['מלך', 'מלך']
+
+
 # --- homographs --------------------------------------------------------------
 
 def test_el_to_el_not_and_el_god_are_three_lemmas():

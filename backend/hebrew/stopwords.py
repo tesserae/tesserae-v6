@@ -9,18 +9,20 @@ BHSA tables can produce. Prefixed surface forms (ויהי, והנה, לפני, �
 lemmatization and were removed (#483); their lemmas are either already
 here or are content words (היה, פנה, אם, נתן) that must not be stopped.
 Homographs (#483, 2026-10-01). Words that share a consonantal spelling are
-now separate lemmas: the most frequent reading keeps the bare spelling and
-the others carry a superscript numeral in order of BHSA frequency
-(data/lemma_tables/hebrew_homographs.json has every group with its gloss).
-So an entry here stops ONE reading. The bare spelling is the function word
-in most groups (אל "to", את the object marker, על "upon", עד "unto"), and
-the content readings (אל³ "God", עד² "witness", בין² "understand") are no
-longer stopped with it. Where the function reading is the numbered one it
-is listed by number: עם² "with" (עם is "people"), שם² "there" (שם is
-"name"), אף² "even" (אף is "nose"), נגד² "opposite" (נגד is "report"),
-אל² "not", את² "together with", ה² the interrogative and הנה² "here". The pronoun reading of הנה
-("they") never wins a pointed key, so it has no lemma to stop. The first two had been left off the list entirely because
-the bare lemma covered the content word too.
+now separate lemmas. The most frequent reading keeps the bare spelling and
+the others carry a superscript numeral in order of BHSA frequency;
+data/lemma_tables/hebrew_homographs.json lists every group with its gloss.
+An entry here therefore stops ONE reading. In most groups the bare
+spelling is the function word (אל "to", את the object marker, על "upon",
+עד "unto"), so the content readings (אל³ "God", עד² "witness", בין²
+"understand") are no longer stopped with it. Where the function reading
+is a numbered one, the entry carries the number: אל² "not", את² "together
+with", עם² "with", שם² "there", אף² "even", נגד² "opposite", ה² the
+interrogative, הנה² "here". The pronoun reading of הנה ("they") never wins
+a pointed key, so it has no lemma to stop. Before this change אף and נגד
+stopped "nose" and "report" along with "even" and "opposite", and עם and
+שם were left off the list because their one lemma also meant "people"
+and "name".
 """
 
 HEBREW_STOP_WORDS = {
