@@ -302,6 +302,16 @@ export default function CorpusSearchResults({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
                 <div>
                   {(() => {
+                    // The server's own citation (issue #566), carried through
+                    // from the clicked result; fall back to the old
+                    // tag-parsing formatter only when a result predates it.
+                    if (query.source?.citation) {
+                      return (
+                        <div className="text-xs font-bold text-amber-700 mb-1">
+                          Source: {query.source.citation}
+                        </div>
+                      );
+                    }
                     const citation = formatFullCitation(null, query.source?.ref);
                     return (
                       <div className="text-xs font-bold text-amber-700 mb-1">
@@ -313,6 +323,13 @@ export default function CorpusSearchResults({
                 </div>
                 <div>
                   {(() => {
+                    if (query.target?.citation) {
+                      return (
+                        <div className="text-xs font-bold text-red-700 mb-1">
+                          Target: {query.target.citation}
+                        </div>
+                      );
+                    }
                     const citation = formatFullCitation(null, query.target?.ref);
                     return (
                       <div className="text-xs font-bold text-red-700 mb-1">
@@ -439,6 +456,22 @@ export default function CorpusSearchResults({
                   </span>
                   <div className="sm:w-48 flex-shrink-0">
                     {(() => {
+                      // The server now sends author/title and a cleaned locus
+                      // directly (issue #566), so use them as-is; only a
+                      // result cached before this shipped (no `citation`)
+                      // still needs the old tag-parsing fallback.
+                      if (result.citation) {
+                        return (
+                          <>
+                            <div className="text-sm font-medium text-gray-900">{result.author}</div>
+                            <div className="text-xs text-gray-500">
+                              {result.title && <span className="italic">{result.title}</span>}
+                              {result.title && result.locus && ' '}
+                              {result.locus}
+                            </div>
+                          </>
+                        );
+                      }
                       const citation = formatFullCitation(result.author, result.locus);
                       return (
                         <>

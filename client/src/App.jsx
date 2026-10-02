@@ -632,8 +632,13 @@ function App() {
             typeof w === 'object' ? (w.lemma || w.word || '') : w
           ).filter(Boolean);
       queryInfo = {
-        source: { ref: result.source_locus || result.source?.ref, text: result.source_text || result.source?.text },
-        target: { ref: result.target_locus || result.target?.ref, text: result.target_text || result.target?.text },
+        // citation: the server's own "<Author>, <Work title> <locus>" string
+        // (issue #566), carried through so the Source/Target header below
+        // can show it instead of re-parsing ref client-side.
+        source: { ref: result.source_locus || result.source?.ref, text: result.source_text || result.source?.text,
+                  citation: result.source?.citation },
+        target: { ref: result.target_locus || result.target?.ref, text: result.target_text || result.target?.text,
+                  citation: result.target?.citation },
         lemmas
       };
     }

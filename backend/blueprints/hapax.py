@@ -36,7 +36,7 @@ from backend.logging_config import get_logger
 from backend.frequency_cache import load_frequency_cache
 from backend.inverted_index import get_connection
 from backend.text_processor import get_latin_lemma_table, get_greek_lemma_table
-from backend.utils import resolve_text_path
+from backend.utils import resolve_text_path, format_short_locus, build_citation
 from backend.lemma_cache import load_units_cached
 from backend.services import log_search, get_user_location
 from backend.blueprints.async_poll import SearchInputError
@@ -136,6 +136,18 @@ def _extract_bigram_locations(units, make_bigram_key_fn, language):
                     'words': [lemmas[i], lemmas[i+1]]
                 })
     return bigram_locations
+
+
+def _annotate_bigram_locations(locations_by_key, text_id):
+    """Add the server-built `citation`/`locus` fields (issue #566) to every
+    location dict in a bigram-key -> [location] map, in place. Additive only:
+    `ref` is left exactly as `_extract_bigram_locations` built it."""
+    for locs in locations_by_key.values():
+        for loc in locs:
+            ref = loc.get('ref', '')
+            loc['locus'] = format_short_locus(ref)
+            loc['citation'] = build_citation(text_id, ref)
+    return locations_by_key
 
 
 def _dedup_locations_by_ref(locations):
@@ -1290,6 +1302,12 @@ def lookup_lemma_locations(lemma, language):
                 'author': author.replace('_', ' ').title(),
                 'work': work_title.replace('_', ' ').title(),
                 'ref': ref,
+                # Additive, server-built citation/locus (issue #566) beside
+                # the author/work this function has always computed itself
+                # from the filename -- ref unchanged so nothing that reads it
+                # breaks.
+                'locus': format_short_locus(ref),
+                'citation': build_citation(filename, ref),
                 'text': line_text or '',
                 'positions': json.loads(positions_json) if positions_json else []
             })
@@ -2055,11 +2073,17 @@ def _scan_text_lemma_locations(text_id, language, lemmas_of_interest):
         present = wanted.intersection(lems)
         for lem in present:
             positions = [i for i, l in enumerate(lems) if l == lem]
+            ref = u.get('ref', '')
             out[lem].append({
                 'text_id': text_id,
                 'author': author,
                 'work': work,
-                'ref': u.get('ref', ''),
+                'ref': ref,
+                # Additive, server-built citation/locus (issue #566); ref
+                # unchanged. See lookup_lemma_locations above, whose location
+                # shape this matches.
+                'locus': format_short_locus(ref),
+                'citation': build_citation(text_id, ref),
                 'text': u.get('text', ''),
                 'positions': positions,
             })
@@ -2299,8 +2323,10 @@ def _compute_rare_bigrams(source_id, target_id, language, min_rarity, limit, sto
     source_units = load_units_cached(source_path, language, _text_processor, unit_type='line')
     target_units = load_units_cached(target_path, language, _text_processor, unit_type='line')
 
-    source_bigram_locations = _extract_bigram_locations(source_units, make_bigram_key, language)
-    target_bigram_locations = _extract_bigram_locations(target_units, make_bigram_key, language)
+    source_bigram_locations = _annotate_bigram_locations(
+        _extract_bigram_locations(source_units, make_bigram_key, language), source_id)
+    target_bigram_locations = _annotate_bigram_locations(
+        _extract_bigram_locations(target_units, make_bigram_key, language), target_id)
 
     dynamic_stopwords = set()
     if use_stoplist and stoplist_size > 0:

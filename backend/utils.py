@@ -305,6 +305,12 @@ def format_short_locus(raw_ref):
     ref = str(raw_ref).strip()
     tail = ref.split()[-1] if ref.split() else ref
 
+    # One corpus text (Aristotle's Divisiones Aristoteleae) cites by section
+    # AND column, encoded in the tag as "A.18_col2" -- no other .tess file
+    # uses this convention. Render the column marker with a space instead of
+    # carrying the underscore into display ("A.18 col. 2").
+    tail = re.sub(r'_col(\d+)\b', r' col. \1', tail)
+
     # CTS URN anywhere in the tail: reuse the URN-aware cleaner.
     if 'urn:cts:' in tail:
         return clean_cts_reference(tail)
@@ -323,6 +329,37 @@ def format_short_locus(raw_ref):
         return '.'.join(numeric)
 
     return tail
+
+
+def build_citation(text_id, ref):
+    """The server's one citation string for a result row: "<Author>, <Work
+    title> <locus>", built from `get_text_metadata(text_id)` and
+    `format_short_locus(ref)`.
+
+    This is the single source of truth issue #566 asks for: every endpoint
+    that used to hand the browser a raw `.tess` tag and let
+    `formatReference`/`expandLocus` guess the author, work and locus from it
+    (right for texts in their hand-kept abbreviation tables, debris for
+    everything else -- doubled dots, raw file ids, CTS URNs) now calls this
+    instead, the way Line Search's citation has always been built.
+
+    `text_id` is the filename (with or without the .tess suffix, with or
+    without a directory -- get_text_metadata only reads the basename) and
+    `ref` is the raw tag content. Never raises: a metadata or locus failure
+    falls back to the bare text_id plus whatever format_short_locus could
+    make of ref, so a citation always renders as *something* rather than
+    breaking the row that needed it.
+    """
+    try:
+        metadata = get_text_metadata(text_id)
+        display = metadata.get('display_name') or metadata.get('author') or text_id
+    except Exception:
+        display = text_id
+    try:
+        locus = format_short_locus(ref)
+    except Exception:
+        locus = str(ref or '')
+    return f"{display} {locus}".strip() if locus else display
 
 
 _REF_WS = re.compile(r'\s+')
