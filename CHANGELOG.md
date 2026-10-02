@@ -9,6 +9,12 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-01
 
+### Tessa
+- A request the campus gateway refuses (HTTP 429, or 502 and 503) is retried
+  up to four times with a short pause before the assistant gives up. On the
+  evening of 2026-10-01 the gateway refused about four requests in ten,
+  intermittently, and half of Tessa's answers failed.
+
 ### Hebrew
 - A Line Search word typed without vowel points matches every homograph
   reading of its consonants: a bare אל finds אל "to", אל² "not" and אל³
