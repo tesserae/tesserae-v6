@@ -35,6 +35,11 @@ FIRST_RUN_DIR = os.path.expanduser('~/tesserae-backups/jobs/blurbs_2026-09-30')
 JOB_DIR = os.environ.get('BLURBS_JOB_DIR', FIRST_RUN_DIR)
 OPENING_LINES = int(os.environ.get('BLURBS_OPENING_LINES', '40'))
 OPENING_CHARS = int(os.environ.get('BLURBS_OPENING_CHARS', '3000'))
+SAMPLE_WHOLE = os.environ.get('BLURBS_SAMPLE_WHOLE') == '1'
+# BLURBS_WHOLE=1: the complete text of the work goes to the model (every part file, in order),
+# up to BLURBS_WHOLE_CHARS; a longer work is cut to equal thirds from its start, middle and end.
+WHOLE = os.environ.get('BLURBS_WHOLE') == '1'
+WHOLE_CHARS = int(os.environ.get('BLURBS_WHOLE_CHARS', '450000'))
 BLURBS_PATH = os.path.join(JOB_DIR, 'blurbs.jsonl')
 CHECKS_PATH = os.path.join(JOB_DIR, 'checks.jsonl')
 LANGS = ['en', 'la', 'grc']
@@ -43,7 +48,8 @@ SYS_WRITE = (
     "You write short orientation blurbs for a corpus of classical and literary texts used by scholars "
     "hunting textual parallels. Given a work's language, author, title, source record, genre/era/meter "
     "if known, its opening lines, total line count and number of book files, write two to four sentences "
-    "of plain scholarly English saying what the text is, roughly when and by whom, and what it contains. "
+    "of plain scholarly English saying what the text is, roughly when and by whom, and what it contains "
+    "as a whole, in proportion: at most one sentence on how it opens, the rest on the work's full course and contents. "
     "Describe, do not recommend: say nothing about who should read it, why anyone would care, what it "
     "offers readers or scholars, or its value for any purpose; no sentence about intertexts, parallels, "
     "allusion-hunting or comparison. Do not name the edition, editor or line count unless the work's "
@@ -163,6 +169,30 @@ def build_input(lang, work, work_files, genres, by_pair, by_author):
                 chars += len(text)
             if len(lines) >= OPENING_LINES or chars >= OPENING_CHARS:
                 break
+    if WHOLE:
+        order = parts if parts else [primary]
+        full = []
+        for f in order:
+            full.extend(t for t in (strip_tag(r).strip() for r in open(os.path.join(d, f), encoding='utf-8', errors='replace')) if t)
+        text_all = '\n'.join(full)
+        if len(text_all) > WHOLE_CHARS:
+            third = WHOLE_CHARS // 3; mid = len(text_all) // 2
+            text_all = (text_all[:third] + '\n[... omitted ...]\n' + text_all[mid - third // 2: mid + third // 2]
+                        + '\n[... omitted ...]\n' + text_all[-third:])
+        lines = text_all.split('\n')
+    elif SAMPLE_WHOLE:
+        # The opening alone makes the model describe the opening (2026-10-02,
+        # a fifth of blurb sentences were about it): add a slice from the
+        # middle and one from the end of the work's last file, marked.
+        last = parts[-1] if parts else primary
+        all_lines = [strip_tag(r).strip() for r in open(os.path.join(d, last), encoding='utf-8', errors='replace')]
+        all_lines = [t for t in all_lines if t]
+        mid_src = [strip_tag(r).strip() for r in open(os.path.join(d, parts[len(parts) // 2] if parts else primary), encoding='utf-8', errors='replace')]
+        mid_src = [t for t in mid_src if t]
+        half = max(OPENING_LINES // 4, 10)
+        mid = mid_src[len(mid_src) // 2: len(mid_src) // 2 + half]
+        end = all_lines[-half:]
+        lines = lines[:OPENING_LINES // 2] + ['[... from the middle of the work ...]'] + mid + ['[... the end of the work ...]'] + end
     author_raw = work.split('.')[0]
     author_disp = format_display_name(author_raw)
     work_disp = format_display_name(work[len(author_raw) + 1:] if '.' in work else work)
@@ -182,7 +212,11 @@ def render_user_prompt(inp):
         lines.append(f"Era: {g.get('era', '')}; meter: {g.get('meter', '')}; genre: {g.get('genre', '')}")
     lines.append(f"Total lines in the work: {inp['total_lines']}")
     lines.append(f"Number of book files: {inp['num_book_files']}")
-    lines.append("Opening lines:\n" + '\n'.join(inp['opening_lines'][:OPENING_LINES]))
+    if WHOLE:
+        lines.append("The complete text (cut to its beginning, middle and end where marked):\n" + '\n'.join(inp['opening_lines']))
+    else:
+        label = "Excerpts (the opening, a passage from the middle, the end):" if SAMPLE_WHOLE else "Opening lines:"
+        lines.append(label + "\n" + '\n'.join(inp['opening_lines'][:OPENING_LINES + 2 + 2 * max(OPENING_LINES // 4, 10)]))
     return '\n'.join(lines)
 
 def scope_for_lang(lang, existing_works):
@@ -221,7 +255,7 @@ def run_pool(todo, worker, out_path, concurrency, tally):
 
 def describe_one(inp):
     t0 = time.time()
-    obj = ask_with_retries(WRITE_MODEL, SYS_WRITE, render_user_prompt(inp), 2500)
+    obj = ask_with_retries(WRITE_MODEL, SYS_WRITE, render_user_prompt(inp), int(os.environ.get("BLURBS_WRITE_TOKENS", "2500")))
     base = {'language': inp['language'], 'work': inp['work'], 'author': inp['author'], 'title': inp['title']}
     if obj and obj.get('blurb'):
         return {**base, 'blurb': obj['blurb'].strip(), 'model': WRITE_MODEL, 'ms': int((time.time() - t0) * 1000)}
