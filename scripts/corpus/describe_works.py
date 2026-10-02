@@ -237,6 +237,11 @@ def cmd_write(args):
     if getattr(args, 'rewrite_all', False):
         # Every work in scope, with or without a blurb: the neutral rewrite of 2026-10-02.
         existing = {lang: {} for lang in LANGS}
+    if getattr(args, 'only_file', None):
+        # A retry over named works: lines of "<lang>\t<work>" (the neutral rewrite's flagged and missing ones).
+        held = {tuple(l.rstrip('\n').split('\t')) for l in open(args.only_file, encoding='utf-8') if '\t' in l}
+        existing = {lang: {} for lang in LANGS}
+        print(f'retry: {len(held)} works listed', flush=True)
     if getattr(args, 'second_pass', False):
         first = jsonl_latest(os.path.join(FIRST_RUN_DIR, 'checks.jsonl'), 'ok')
         held = {k for k, r in first.items() if not r.get('ok')}
@@ -313,6 +318,7 @@ def main():
     ap.add_argument('--concurrency', type=int, default=16)
     for flag in ('--check', '--merge', '--second-pass', '--rewrite-all', '--replace-existing'):
         ap.add_argument(flag, action='store_true')
+    ap.add_argument('--only-file')
     args = ap.parse_args()
     (cmd_merge if args.merge else cmd_check if args.check else cmd_write)(args)
 
