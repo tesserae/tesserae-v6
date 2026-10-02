@@ -67,6 +67,41 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-02 Septuagint line tags: 21 files retagged, index rows, passage references and map caches rewritten (run 10:24 to 10:30 EDT)
+
+### What and why
+- #578 (issue #564) retagged the 21 Septuagint files that still carried
+  CTS-URN line tags to the plain form the other 34 use
+  (`<septuaginta.genesis 1.1>`), 13,729 lines, text unchanged. The
+  reference string is stored in several places, so each had to follow.
+  Production pulled to e267a63.
+
+### Steps
+- Greek lemma caches: `scripts/batch_lemma_cache.py grc` rebuilt the 21
+  changed files by content hash (2 seconds).
+- Index: `grc_index.db` copied, the 21 files replaced in the copy with
+  `scripts/corpus/add_texts_to_index.py --replace`, `lemma_doc_freq`
+  rebuilt (223,784 lemmas), integrity ok, swapped in, with the backup
+  `grc_index.db.bak-lxxrefs-20261002-1024`. After: 1,268 texts, 478,011
+  lines, 10,862,058 postings. Genesis line refs now read
+  `septuaginta.genesis 1.1`.
+- Stored references: `scripts/corpus/retag_septuagint_refs.py --apply`
+  rewrote 20,098 values in `window_texts.db` (13,730 line refs, 3,184
+  windows' start and end), 6,368 in `descriptions.jsonl` and 4,550 in each
+  of the two connections-map caches, each store backed up first with the
+  suffix `.bak-lxxrefs-20261002-102838`.
+- `touch tesseraev6_flask.wsgi` at 10:29:42, and `scripts/reference_search_check.py`
+  passed.
+
+### Checked afterwards
+- No Septuagint reference in the old form remains in the texts, the index,
+  the passage index or the map caches. The scan found one other text with
+  URN line tags, `aelius_herodianus.on_enclitics.tess` (26 lines), which is
+  not part of this change and is listed as open work.
+- The first two runs stopped before touching anything: the replace step
+  wants bare filenames and the lemma cache root. The script was corrected
+  and rerun.
+
 ## 2026-10-01 Full Greek rebuild for the classical lemma table (run 19:46 to 20:34 EDT)
 
 ### What and why

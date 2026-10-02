@@ -9,6 +9,12 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-02
 
+### Data operations
+- Septuagint retag (#578): lemma caches and index rows for 21 files,
+  stored references in the passage index and the map caches rewritten
+  (run 10:24 to 10:30 EDT). Backups `grc_index.db.bak-lxxrefs-20261002-1024`
+  and `*.bak-lxxrefs-20261002-102838`. Record in docs/DATA_OPERATIONS.md.
+
 ### Texts
 - The 21 Septuagint files that still carried CTS-URN line tags
   (`<septuaginta.tlg001 urn:cts:greekLit:tlg0527.tlg001.1st1K-grc1.1.1>`) are
