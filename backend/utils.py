@@ -734,6 +734,25 @@ PART_LABEL_OVERRIDES = {
     'paulinus_of_aquileia.carmina': 'Poem',
 }
 
+def format_part_label(label):
+    """The display form of the label a part file carries after its number:
+    books_21-30 -> Books 21-30, 1_chronicles -> 1 Chronicles, vespasian ->
+    Vespasian, ad_lentulum -> Ad Lentulum, 91-100 -> 91-100."""
+    import re as _re
+    text = label.replace('_', ' ').strip()
+    m = _re.match(r'^books?\s+(\d+\s*-\s*\d+)$', text, _re.I)
+    if m:
+        return f'Books {m.group(1).replace(" ", "")}'
+    small = {'the', 'for', 'of', 'and', 'to', 'in', 'on', 'a', 'an', 'et', 'ad', 'de', 'in'}
+    words = []
+    for i, w in enumerate(text.split()):
+        if _re.match(r'^[\d\-]+$', w) or (i > 0 and w.lower() in small):
+            words.append(w if i == 0 or not w.lower() in small else w.lower())
+        else:
+            words.append(w[:1].upper() + w[1:])
+    return ' '.join(words)
+
+
 def parse_part_number(part_str, label='Book'):
     """Parse part number and return display label"""
     part_str = part_str.lower()
@@ -791,7 +810,15 @@ def get_text_metadata(filepath):
                 part_num = parts[part_idx + 1]
                 work_part_key = f"{author_raw}.{'.'.join(parts[1:part_idx])}"
                 part_label = PART_LABEL_OVERRIDES.get(work_part_key, 'Book')
-                part_display = parse_part_number(part_num, label=part_label)
+                # A label after the number names the part (books_21-30,
+                # vespasian, 1_chronicles, preface) and is what readers
+                # know; the bare number was a file-ordering convenience
+                # and mislabelled 11 works and two Bibles (#565, #564).
+                part_tail = '.'.join(parts[part_idx + 2:])
+                if part_tail:
+                    part_display = format_part_label(part_tail)
+                else:
+                    part_display = parse_part_number(part_num, label=part_label)
                 is_part = True
         else:
             work_raw = '.'.join(parts[1:])
