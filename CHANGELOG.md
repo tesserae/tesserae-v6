@@ -69,6 +69,14 @@ behind each, are in docs/DECISIONS.md.
   Kritai, Machabaeorum G) (#564, display overrides in
   `backend/text_metadata_overrides.json`).
 
+### Corpus
+- Per-text blurbs, second pass: 621 of the 894 works held back by the first
+  check (#539) now have a blurb in `data/text_descriptions.json` (Greek 375,
+  Latin 240, English 6), written by GLM 5.3 Flash from an 80-line opening
+  and checked for contradictions by Qwen 3.8; 257 are still held back and 16
+  returned no blurb. `scripts/corpus/describe_works.py` gained the
+  second-pass mode (`--second-pass`, `BLURBS_JOB_DIR`, `BLURBS_OPENING_LINES`).
+
 ### Texts
 - A part file that carries a label after its number is titled by the label:
   Livy "Books 21-30", Suetonius "Vespasian", Pliny "Preface", the
