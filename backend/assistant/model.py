@@ -93,7 +93,7 @@ def is_available():
     try:
         # A fixed http(s) endpoint from configuration, never user input.
         req = urllib.request.Request(f'{ENDPOINT}/health', headers=_headers())
-        with urllib.request.urlopen(req, timeout=_HEALTH_TIMEOUT) as r:  # nosec B310
+        with _open(req, _HEALTH_TIMEOUT) as r:
             payload = json.loads(r.read() or b'{}')
         # llama-server: {"status": "ok"}. The gateway: a JSON object of its
         # own with no status key. Anything that is not a JSON object (a
@@ -105,13 +105,34 @@ def is_available():
     return ok
 
 
+# The campus gateway refuses a request with HTTP 429 when a budget check
+# fails, and on 2026-10-01 evening it did so for about four requests in ten,
+# intermittently, while letting the rest through. A refused request is
+# retried a few times after a short pause before the assistant gives up.
+_RETRY_STATUSES = (429, 502, 503)
+_RETRY_TRIES = 4
+_RETRY_PAUSE = 1.5
+
+
+def _open(req, timeout):
+    """urlopen with retries on a refused or unavailable upstream."""
+    for attempt in range(_RETRY_TRIES):
+        try:
+            return urllib.request.urlopen(req, timeout=timeout)  # nosec B310
+        except urllib.error.HTTPError as e:
+            if e.code not in _RETRY_STATUSES or attempt == _RETRY_TRIES - 1:
+                raise
+            logger.info('[ASSISTANT] upstream %s, retry %d', e.code, attempt + 1)
+            time.sleep(_RETRY_PAUSE * (attempt + 1))
+
+
 def complete(system, user, max_tokens=MAX_TOKENS_GUIDE, temperature=0.2):
     """One turn against the model. Returns text, or None when unavailable."""
     body = _body(system, user, max_tokens, temperature)
     req = urllib.request.Request(f'{ENDPOINT}/v1/chat/completions', data=body, headers=_headers())
     try:
         # A fixed http(s) endpoint from configuration, never user input.
-        with urllib.request.urlopen(req, timeout=_GEN_TIMEOUT) as r:  # nosec B310
+        with _open(req, _GEN_TIMEOUT) as r:
             payload = json.loads(r.read())
         return (payload['choices'][0]['message'].get('content') or '').strip() or None
     except (urllib.error.URLError, OSError, KeyError, ValueError) as e:
@@ -132,7 +153,7 @@ def stream(system, user, max_tokens=MAX_TOKENS_GUIDE, temperature=0.2):
     req = urllib.request.Request(f'{ENDPOINT}/v1/chat/completions', data=body, headers=_headers())
     try:
         # A fixed http(s) endpoint from configuration, never user input.
-        with urllib.request.urlopen(req, timeout=_GEN_TIMEOUT) as resp:  # nosec B310
+        with _open(req, _GEN_TIMEOUT) as resp:
             for raw in resp:
                 line = raw.decode('utf-8', 'replace').strip()
                 if not line.startswith('data:'):
