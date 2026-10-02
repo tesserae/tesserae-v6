@@ -637,7 +637,7 @@ export default function ReaderPage() {
                         <p className="text-[10px] text-gray-500 mb-0.5">{b.ref_start}
                           {b.ref_end !== b.ref_start ? ` – ${b.ref_end}` : ''}</p>
                         <p className="text-[15px] leading-relaxed text-gray-900"
-                           style={{ fontFamily: 'Georgia, serif' }}>{b.text}</p>
+                           style={{ fontFamily: '"Noto Sans", "Noto Serif Hebrew", "Noto Sans Coptic", sans-serif' }}>{b.text}</p>
                       </div>
                     );
                   })}

@@ -126,21 +126,23 @@ export default function TextPane({ units, language, selection, onSelect, total, 
       className="flex-1 px-6 py-6 overflow-y-auto reader-text"
       onKeyUp={(e) => { if (e.shiftKey) readSelection(); }}
     >
-      {/* Gentium Book Plus carries Latin, polytonic Greek and Cyrillic, and
-          nothing else here does: Georgia, the old fallback, has no polytonic
-          Greek and no Hebrew, so Greek fell back character by character to
-          whatever the reader's machine held and Hebrew borrowed a system face
-          that sits smaller than Latin at the same size. Hebrew and Coptic
-          follow Gentium in the stack because Gentium covers neither, and the
-          browser drops through per character to the first family that has the
-          glyph. `lang` is set so the browser picks the right glyph shapes and
-          breaks lines by the right rules, which it cannot infer from the
-          characters alone. */}
+      {/* Noto Sans, the face the rest of the site uses, because it is the one
+          that draws this corpus's Greek correctly. Many texts store accents as
+          separate combining marks (790 Greek files carry U+0300, the combining
+          grave). Google's Gentium Book Plus, used here until 2026-10-01, lists
+          U+0300 in its Vietnamese subset's unicode-range but that file has no
+          such glyph, so the browser drew every grave in a fallback face,
+          detached from its letter ("Σιδω` ν", #473). Noto Sans's subset files
+          do contain it. Hebrew and Coptic follow because Noto Sans covers
+          neither, and the browser drops through per character to the first
+          family that has the glyph. `lang` is set so the browser picks the
+          right glyph shapes and breaks lines by the right rules, which it
+          cannot infer from the characters alone. */}
       <div
         className="max-w-3xl"
         style={{
-          fontFamily: '"Gentium Book Plus", "Noto Serif Hebrew", '
-            + '"Noto Sans Coptic", Georgia, serif',
+          fontFamily: '"Noto Sans", "Noto Serif Hebrew", '
+            + '"Noto Sans Coptic", sans-serif',
           fontSize: '1.06rem',
           lineHeight: 1.75,
         }}

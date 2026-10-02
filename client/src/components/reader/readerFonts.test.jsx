@@ -12,6 +12,12 @@ import path from 'node:path';
 // than Latin at the same size. Those were reported as two separate faults
 // (Greek renders badly, Hebrew is tiny) and were one missing font link.
 //
+// Loading Gentium was not the end of it (#473). Gentium's Google subsets list
+// U+0300, the combining grave, in their unicode-range without containing the
+// glyph, so in the many texts that store accents as combining marks every
+// grave was drawn detached from its letter. The pane now uses Noto Sans, the
+// face the rest of the site uses, whose subsets do contain it.
+//
 // These tests read the files rather than render, because what went wrong was
 // the relationship between two files that never refer to each other.
 
@@ -28,7 +34,7 @@ function familiesRequested() {
 }
 
 function familiesUsedByThePane() {
-  const m = pane.match(/fontFamily:\s*([\s\S]*?),\n\s*fontSize/);
+  const m = pane.match(/fontFamily:\s*([\s\S]*?),\r?\n\s*fontSize/);
   if (!m) return [];
   // The value is written as a concatenation over two lines, so join it back
   // into one string, drop the quotes, and read it as the comma-separated
@@ -37,7 +43,7 @@ function familiesUsedByThePane() {
   const joined = m[1].replace(/\s*\+\s*/g, '').replace(/['"]/g, '')
     .replace(/\s+/g, ' ');
   return joined.split(',').map((f) => f.trim())
-    .filter((f) => f && f !== 'serif');
+    .filter((f) => f && f !== 'serif' && f !== 'sans-serif');
 }
 
 describe('every font the Reader asks for is actually loaded', () => {
@@ -54,22 +60,25 @@ describe('every font the Reader asks for is actually loaded', () => {
     }
   });
 
-  it('loads Gentium Book Plus, which is what covers polytonic Greek', () => {
-    expect(familiesRequested()).toContain('Gentium Book Plus');
+  it('loads Noto Sans, which draws decomposed polytonic Greek correctly', () => {
+    expect(familiesRequested()).toContain('Noto Sans');
   });
 
-  it('covers Hebrew, which Gentium does not', () => {
+  it('covers Hebrew, which Noto Sans does not', () => {
     expect(familiesRequested()).toContain('Noto Serif Hebrew');
     expect(familiesUsedByThePane()).toContain('Noto Serif Hebrew');
   });
 
-  it('covers Coptic, which Gentium does not either', () => {
+  it('covers Coptic, which Noto Sans does not either', () => {
     expect(familiesRequested()).toContain('Noto Sans Coptic');
     expect(familiesUsedByThePane()).toContain('Noto Sans Coptic');
   });
 
-  it('keeps Gentium first, so Latin and Greek get the reading face', () => {
-    expect(familiesUsedByThePane()[0]).toBe('Gentium Book Plus');
+  it('puts Noto Sans first, the same face as the rest of the site', () => {
+    // Not Gentium Book Plus: its web subsets claim the combining grave without
+    // containing it, which detached every grave accent in the Reader (#473).
+    expect(familiesUsedByThePane()[0]).toBe('Noto Sans');
+    expect(familiesUsedByThePane()).not.toContain('Gentium Book Plus');
   });
 });
 
