@@ -1,6 +1,6 @@
 {
   "_description": "Per-text metadata overrides. Keyed by text filename (e.g. 'eobanus.heroidum.tess'). Fields: text_type (poetry/prose), display_author, display_work, year, era, notes. Only include fields you want to override.",
-  "_last_updated": "2026-05-01",
+  "_last_updated": "2026-10-02",
   "bohairic.abdias.tess": {
     "display_author": "Bohairic Coptic",
     "display_work": "Obadiah"
@@ -560,5 +560,225 @@
   "pseudo.timothy.tess": {
     "display_author": "Pseudo-Timothy",
     "display_work": "Homily"
+  },
+  "septuaginta.abdias.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Obadiah"
+  },
+  "septuaginta.aggaeus.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Haggai"
+  },
+  "septuaginta.amos.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Amos"
+  },
+  "septuaginta.arithmoi.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Numbers"
+  },
+  "septuaginta.baruch.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Baruch"
+  },
+  "septuaginta.basileion_a.tess": {
+    "display_author": "Septuagint",
+    "display_work": "1 Kingdoms (1 Samuel)"
+  },
+  "septuaginta.basileion_b.tess": {
+    "display_author": "Septuagint",
+    "display_work": "2 Kingdoms (2 Samuel)"
+  },
+  "septuaginta.basileion_d.tess": {
+    "display_author": "Septuagint",
+    "display_work": "4 Kingdoms (2 Kings)"
+  },
+  "septuaginta.basileion_g.tess": {
+    "display_author": "Septuagint",
+    "display_work": "3 Kingdoms (1 Kings)"
+  },
+  "septuaginta.bel_et_draco_theodotionis.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Bel and the Dragon (Theodotion)"
+  },
+  "septuaginta.bel_et_draco_translatio_graeca.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Bel and the Dragon (Old Greek)"
+  },
+  "septuaginta.canticum.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Song of Songs"
+  },
+  "septuaginta.daniel_theodotionis.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Daniel (Theodotion)"
+  },
+  "septuaginta.daniel_translatio_graeca.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Daniel (Old Greek)"
+  },
+  "septuaginta.deuteronomion.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Deuteronomy"
+  },
+  "septuaginta.ecclesiasticus.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Sirach (Ecclesiasticus)"
+  },
+  "septuaginta.epistula_jeremiae.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Letter of Jeremiah"
+  },
+  "septuaginta.esdras_a.tess": {
+    "display_author": "Septuagint",
+    "display_work": "1 Esdras"
+  },
+  "septuaginta.esdras_b.tess": {
+    "display_author": "Septuagint",
+    "display_work": "2 Esdras (Ezra and Nehemiah)"
+  },
+  "septuaginta.esther.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Esther"
+  },
+  "septuaginta.exodus.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Exodus"
+  },
+  "septuaginta.ezechiel.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Ezekiel"
+  },
+  "septuaginta.genesis.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Genesis"
+  },
+  "septuaginta.habacuc.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Habakkuk"
+  },
+  "septuaginta.isaias.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Isaiah"
+  },
+  "septuaginta.jeremias.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Jeremiah"
+  },
+  "septuaginta.job.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Job"
+  },
+  "septuaginta.joel.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Joel"
+  },
+  "septuaginta.jonas.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Jonah"
+  },
+  "septuaginta.josue.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Joshua"
+  },
+  "septuaginta.judith.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Judith"
+  },
+  "septuaginta.kritai.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Judges"
+  },
+  "septuaginta.levitikon.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Leviticus"
+  },
+  "septuaginta.machabaeorum_b.tess": {
+    "display_author": "Septuagint",
+    "display_work": "2 Maccabees"
+  },
+  "septuaginta.machabaeorum_d.tess": {
+    "display_author": "Septuagint",
+    "display_work": "4 Maccabees"
+  },
+  "septuaginta.machabaeorum_g.tess": {
+    "display_author": "Septuagint",
+    "display_work": "3 Maccabees"
+  },
+  "septuaginta.machabaeorum_i.tess": {
+    "display_author": "Septuagint",
+    "display_work": "1 Maccabees"
+  },
+  "septuaginta.malachias.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Malachi"
+  },
+  "septuaginta.michaeas.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Micah"
+  },
+  "septuaginta.nahum.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Nahum"
+  },
+  "septuaginta.odae.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Odes"
+  },
+  "septuaginta.osee.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Hosea"
+  },
+  "septuaginta.paralipomenon_b.tess": {
+    "display_author": "Septuagint",
+    "display_work": "2 Chronicles"
+  },
+  "septuaginta.paralipomenon_i_sive_chronicon_i.tess": {
+    "display_author": "Septuagint",
+    "display_work": "1 Chronicles"
+  },
+  "septuaginta.proverbia.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Proverbs"
+  },
+  "septuaginta.psalmi.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Psalms"
+  },
+  "septuaginta.psalmi_salomonis.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Psalms of Solomon"
+  },
+  "septuaginta.ruth.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Ruth"
+  },
+  "septuaginta.sapientia_salomonis.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Wisdom of Solomon"
+  },
+  "septuaginta.sophonias.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Zephaniah"
+  },
+  "septuaginta.susanna_theodotionis.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Susanna (Theodotion)"
+  },
+  "septuaginta.susanna_translatio_graeca.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Susanna (Old Greek)"
+  },
+  "septuaginta.threni_seu_lamentationes.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Lamentations"
+  },
+  "septuaginta.tobias.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Tobit"
+  },
+  "septuaginta.zacharias.tess": {
+    "display_author": "Septuagint",
+    "display_work": "Zechariah"
   }
 }
