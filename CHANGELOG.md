@@ -97,6 +97,11 @@ behind each, are in docs/DECISIONS.md.
   lemmatized as themselves. Greek lemma caches and index to be rebuilt.
 
 ### Data operations
+- Full Greek rebuild for the classical lemma table (#571), 19:46 to 20:34
+  EDT: lemma caches, index (221,708 distinct lemmas, from 464,732, as
+  unresolved surface forms fold into dictionary forms), frequency table and
+  bigram table. Backups `grc_index.db.bak-greek-20261001-1946` and
+  `cache/lemmas/grc.bak-greek-20261001-1946/`. Record in docs/DATA_OPERATIONS.md.
 - Full Greek rebuild for #558, #559 and #560: lemma caches, index, frequency
   and bigram tables, stored wording of the κα books (docs/DATA_OPERATIONS.md,
   2026-10-01).

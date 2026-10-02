@@ -67,6 +67,39 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-01 Full Greek rebuild for the classical lemma table (run 19:46 to 20:34 EDT)
+
+### What and why
+- #571 added the classical lemma table built from the GLAUx treebank corpus,
+  loaded after the treebank and Koine tables and filling only what both
+  lack. Production pulled to 4610086. The forms neither earlier table
+  covered were 14.4% of all Greek tokens, and the new table resolves 90% of
+  them (measured read-only before the build, per work).
+
+### Steps
+- Built in a fresh worktree of the same commit (`~/tesserae-grcbuild`),
+  inside a 12 GB job scope, with the same script as the morning rebuild
+  minus the stored-wording step. Lemma caches: `scripts/batch_lemma_cache.py
+  grc --force`, 1,270 files. Index: `scripts/build_inverted_index.py
+  --language grc --force`, 41 minutes, peak 1.7 GB. The copy verified
+  (integrity ok) and swapped in. Backup `grc_index.db.bak-greek-20261001-1946`.
+  Production lemma caches moved aside to `cache/lemmas/grc.bak-greek-20261001-1946/`
+  and the new ones copied in. Greek frequency table recomputed (221,708
+  lemmas), bigram table rebuilt (`scripts/corpus/rebuild_bigrams.py grc`,
+  2,428,434 distinct bigrams, 85 seconds). App reloaded 20:34:06, and
+  `scripts/reference_search_check.py` passed.
+- Before: 1,268 texts, 478,011 lines, 11,063,906 postings, 464,732 lemmas.
+  After: 1,268 texts, 478,011 lines, 10,860,180 postings, 221,708 lemmas.
+  The fall in distinct lemmas is the unresolved surface forms, each of
+  which had counted as a lemma of its own, folding into dictionary forms:
+  ἐφάνησαν has no postings of its own now and φαίνω has 10,890.
+
+### Checked afterwards
+- Reference searches pass. The per-work unresolved share was not remeasured
+  tonight. The read-only measurement before the build is in the #571
+  record. The 6,136 forms where the new table disagrees with an existing
+  one were not applied and remain for review.
+
 ## 2026-10-01 Full Greek rebuild for the tokenizer fix, the κα correction and the Koine lemma table (run 11:52 to 12:52 EDT)
 
 ### What and why
