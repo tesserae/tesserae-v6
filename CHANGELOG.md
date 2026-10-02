@@ -10,6 +10,15 @@ behind each, are in docs/DECISIONS.md.
 ## 2026-10-02
 
 ### Texts
+- The 55 Septuagint files show readers' book names, the Greek book's
+  conventional English name with the Hebrew Bible's name in brackets where
+  the two differ: "1 Kingdoms (1 Samuel)", "3 Kingdoms (1 Kings)", "Judges",
+  "3 Maccabees", "Lamentations", "Daniel (Theodotion)"; the author shows as
+  "Septuagint". They had shown transliterated file names (Basileion G,
+  Kritai, Machabaeorum G) (#564, display overrides in
+  `backend/text_metadata_overrides.json`).
+
+### Texts
 - A part file that carries a label after its number is titled by the label:
   Livy "Books 21-30", Suetonius "Vespasian", Pliny "Preface", the
   Vulgate's "1 Chronicles", the English Bible's "Matthew" (#565, and the
