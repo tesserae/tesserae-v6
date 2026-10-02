@@ -51,7 +51,7 @@ behind each, are in docs/DECISIONS.md.
   Corpus search; the server-side citation builder now passes the same sweep
   (`scripts/review/check_result_citations.py`) at zero. The browser's old
   tag-parsing tables stay as a fallback for results cached before this
-  shipped. (#576)
+  shipped. (#577)
 
 ## 2026-10-01
 
