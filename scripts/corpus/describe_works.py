@@ -43,8 +43,11 @@ SYS_WRITE = (
     "You write short orientation blurbs for a corpus of classical and literary texts used by scholars "
     "hunting textual parallels. Given a work's language, author, title, source record, genre/era/meter "
     "if known, its opening lines, total line count and number of book files, write two to four sentences "
-    "of plain scholarly English saying what the text is, roughly when and by whom, what it contains, and "
-    "why a reader of intertexts might care. Rules: no first person; never call it 'this text'; no hedging "
+    "of plain scholarly English saying what the text is, roughly when and by whom, and what it contains. "
+    "Describe, do not recommend: say nothing about who should read it, why anyone would care, what it "
+    "offers readers or scholars, or its value for any purpose; no sentence about intertexts, parallels, "
+    "allusion-hunting or comparison. Do not name the edition, editor or line count unless the work's "
+    "identity depends on it. Rules: no first person; never call it 'this text'; no hedging "
     "like 'it is believed'; no bullet points; no citations of modern scholarship; never invent a specific "
     "date or author fact the inputs do not give -- where the date or author is uncertain in the inputs, "
     "say so plainly ('of uncertain date', 'attributed to') or leave it out. Use British or American "
@@ -231,6 +234,9 @@ def cmd_write(args):
     genres = load_genres()
     by_pair, by_author = load_text_sources()
     held = None
+    if getattr(args, 'rewrite_all', False):
+        # Every work in scope, with or without a blurb: the neutral rewrite of 2026-10-02.
+        existing = {lang: {} for lang in LANGS}
     if getattr(args, 'second_pass', False):
         first = jsonl_latest(os.path.join(FIRST_RUN_DIR, 'checks.jsonl'), 'ok')
         held = {k for k, r in first.items() if not r.get('ok')}
@@ -280,8 +286,9 @@ def cmd_merge(args):
     existing = json.load(open(out_path, encoding='utf-8'))
     blurbs, checks = jsonl_latest(BLURBS_PATH, 'blurb'), jsonl_latest(CHECKS_PATH, 'ok')
     added, held_back = {}, []
+    replace = getattr(args, 'replace_existing', False)
     for (lang, work), rec in blurbs.items():
-        if work in existing.get(lang, {}):
+        if work in existing.get(lang, {}) and not replace:
             continue
         chk = checks.get((lang, work))
         if chk and chk.get('ok') and not chk.get('error'):
@@ -304,7 +311,7 @@ def main():
     ap.add_argument('--lang', choices=LANGS)
     ap.add_argument('--limit', type=int, default=0)
     ap.add_argument('--concurrency', type=int, default=16)
-    for flag in ('--check', '--merge', '--second-pass'):
+    for flag in ('--check', '--merge', '--second-pass', '--rewrite-all', '--replace-existing'):
         ap.add_argument(flag, action='store_true')
     args = ap.parse_args()
     (cmd_merge if args.merge else cmd_check if args.check else cmd_write)(args)
