@@ -10,6 +10,14 @@ behind each, are in docs/DECISIONS.md.
 ## 2026-10-02
 
 ### Texts
+- The 21 Septuagint files that still carried CTS-URN line tags
+  (`<septuaginta.tlg001 urn:cts:greekLit:tlg0527.tlg001.1st1K-grc1.1.1>`) are
+  retagged to the plain form the other 34 use (`<septuaginta.genesis 1.1>`),
+  13,729 lines; the stored references in the passage index and the
+  connections-map caches follow through
+  `scripts/corpus/retag_septuagint_refs.py`, and the search index rows and
+  lemma caches are rebuilt for the 21 files (#564, data operation recorded
+  in docs/DATA_OPERATIONS.md).
 - The 55 Septuagint files show readers' book names, the Greek book's
   conventional English name with the Hebrew Bible's name in brackets where
   the two differ: "1 Kingdoms (1 Samuel)", "3 Kingdoms (1 Kings)", "Judges",
