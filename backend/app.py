@@ -2312,6 +2312,9 @@ def corpus_search():
             if not os.path.exists(filepath):
                 continue
             metadata = get_text_metadata(filepath)
+            # Computed once per text, not once per row: a result page can
+            # hold a couple thousand rows sharing the same handful of texts.
+            display_name = metadata.get('display_name') or metadata.get('author') or filename
             author_key = filename.split('.')[0].lower()
             author_info = lang_dates.get(author_key, {})
             author_year = author_info.get('year')
@@ -2351,12 +2354,23 @@ def corpus_search():
                 for i, lemma in enumerate(token_lemmas):
                     if lemma in lemma_set:
                         matched_indices.append(i)
-                
+
+                # Clean locus + full citation, the same way Line Search builds
+                # them (same formula as backend.utils.build_citation, inlined
+                # here with the per-text display_name computed once above
+                # rather than once per row). `locus` used to be the raw .tess
+                # tag, which is what made the browser's tag-parsing fallback
+                # necessary in the first place (issue #566); the server now
+                # does the job here instead.
+                clean_locus = format_short_locus(ref)
+                citation = f"{display_name} {clean_locus}".strip() if clean_locus else display_name
+
                 results.append({
                     'text_id': filename,
                     'author': metadata['author'],
                     'title': metadata['title'],
-                    'locus': ref,
+                    'locus': clean_locus,
+                    'citation': citation,
                     'text': text,
                     'matched_lemmas': list(matching_lemmas),
                     'highlight_indices': matched_indices,

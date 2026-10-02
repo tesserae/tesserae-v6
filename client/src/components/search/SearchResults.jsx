@@ -13,6 +13,18 @@ import * as d3 from 'd3';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+// The server now builds the full "<Author>, <Work title> <locus>" citation
+// itself (issue #566) and attaches it to each side as `citation`, the same
+// way Line Search has always shown it. Use that when a result carries it;
+// fall back to the old tag-parsing formatReference() only for results from
+// before this shipped (cached searches, saved parallels). side is 'source'
+// or 'target'.
+const citationFor = (r, side, language) => {
+  const s = r[side];
+  if (s && s.citation) return s.citation;
+  return formatReference(r[`${side}_locus`] || s?.ref, language);
+};
+
 const SearchResults = ({
   results,
   loading,
@@ -1100,7 +1112,7 @@ const SearchResults = ({
             >
               {(results || []).map((r, i) => (
                 <option key={i} value={i}>
-                  #{i + 1} · {formatReference(r.source_locus || r.source?.ref, language)} ↔ {formatReference(r.target_locus || r.target?.ref, language)}
+                  #{i + 1} · {citationFor(r, 'source', language)} ↔ {citationFor(r, 'target', language)}
                 </option>
               ))}
             </select>
@@ -1202,7 +1214,7 @@ const SearchResults = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <div className="text-xs text-gray-500 mb-1 leading-none">Source</div>
-                <div className="font-medium text-gray-900">{formatReference(r.source_locus || r.source?.ref, language)}</div>
+                <div className="font-medium text-gray-900">{citationFor(r, 'source', language)}</div>
                 <div
                   className="text-gray-700 mt-1"
                   dir={language === 'he' ? 'rtl' : undefined}
@@ -1219,7 +1231,7 @@ const SearchResults = ({
               </div>
               <div>
                 <div className="text-xs text-gray-500 mb-1">Target</div>
-                <div className="font-medium text-gray-900">{formatReference(r.target_locus || r.target?.ref, language)}</div>
+                <div className="font-medium text-gray-900">{citationFor(r, 'target', language)}</div>
                 <div
                   className="text-gray-700 mt-1"
                   dir={language === 'he' ? 'rtl' : undefined}

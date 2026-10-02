@@ -48,13 +48,46 @@ logger = get_logger('scorer')
 class Scorer:
     def __init__(self):
         self.corpus_frequencies = {}
+        # filename -> "Author, Work title" (get_text_metadata's own
+        # display_name). A text-vs-text search builds this at most twice
+        # (source, target) no matter how many of its rows share the file, and
+        # a corpus-wide response amortizes it over one call per distinct text
+        # rather than per row -- a result page can hold two thousand rows.
+        # Kept for the life of the process: the value is static for a given
+        # filename (it only changes if metadata/overrides are edited, which
+        # already requires a restart to pick up elsewhere).
+        self._display_name_cache = {}
 
-    def _build_result_side(self, unit, highlight_indices):
+    def _display_name_for(self, text_id):
+        """Memoized `get_text_metadata(text_id)['display_name']`. Never raises;
+        falls back to the bare filename so a citation always has an author
+        slot even if metadata lookup fails."""
+        if not text_id:
+            return ''
+        cached = self._display_name_cache.get(text_id)
+        if cached is not None:
+            return cached
+        try:
+            from backend.utils import get_text_metadata
+            display = get_text_metadata(text_id).get('display_name') or text_id
+        except Exception:
+            display = text_id
+        self._display_name_cache[text_id] = display
+        return display
+
+    def _build_result_side(self, unit, highlight_indices, text_id=None):
         """Serialize a scored unit for API responses.
 
         Some unit types, such as phrase units, carry `line_refs` without
         window-specific `line_token_counts`. Treat both as optional metadata
         instead of assuming they always travel together.
+
+        When `text_id` (the source or target filename for this side) is
+        given, also attach the server-built `citation` ("<Author>, <Work
+        title> <locus>") and the cleaned `locus` alone, the same way Line
+        Search has always built its citation beside the locus
+        (backend/app.py format_short_locus). `ref` is left exactly as it
+        was so nothing that reads it breaks.
         """
         side = {
             'ref': unit['ref'],
@@ -66,8 +99,17 @@ class Scorer:
             side['line_refs'] = unit['line_refs']
         if 'line_token_counts' in unit:
             side['line_token_counts'] = unit['line_token_counts']
+        if text_id:
+            try:
+                from backend.utils import format_short_locus
+                locus = format_short_locus(unit['ref'])
+                display = self._display_name_for(text_id)
+                side['locus'] = locus
+                side['citation'] = f"{display} {locus}".strip() if locus else display
+            except Exception:
+                logger.warning("Could not build citation for %s / %r", text_id, unit.get('ref'))
         return side
-    
+
     def build_corpus_frequencies(self, units_list):
         """Build corpus-wide frequency table from multiple texts"""
         all_lemmas = []
@@ -305,8 +347,8 @@ class Scorer:
                 features['shared_rare_bigrams'] = shared_rare_bigrams
                 
                 results.append({
-                    'source': self._build_result_side(src_unit, src_highlight_indices),
-                    'target': self._build_result_side(tgt_unit, tgt_highlight_indices),
+                    'source': self._build_result_side(src_unit, src_highlight_indices, text_id=self._current_source_id),
+                    'target': self._build_result_side(tgt_unit, tgt_highlight_indices, text_id=self._current_target_id),
                     'matched_words': word_scores,
                     'source_distance': src_distance,
                     'target_distance': tgt_distance,
@@ -360,24 +402,10 @@ class Scorer:
         }
 
         return {
-            'source': {
-                'ref': src_unit['ref'],
-                'text': src_unit['text'],
-                'tokens': src_unit['tokens'],
-                'highlight_indices': src_highlight_indices,
-                **({'line_refs': src_unit['line_refs'],
-                    'line_token_counts': src_unit['line_token_counts']}
-                   if 'line_refs' in src_unit else {}),
-            },
-            'target': {
-                'ref': tgt_unit['ref'],
-                'text': tgt_unit['text'],
-                'tokens': tgt_unit['tokens'],
-                'highlight_indices': tgt_highlight_indices,
-                **({'line_refs': tgt_unit['line_refs'],
-                    'line_token_counts': tgt_unit['line_token_counts']}
-                   if 'line_refs' in tgt_unit else {}),
-            },
+            'source': self._build_result_side(src_unit, src_highlight_indices,
+                                               text_id=self._current_source_id),
+            'target': self._build_result_side(tgt_unit, tgt_highlight_indices,
+                                               text_id=self._current_target_id),
             'matched_words': word_scores,
             'quotation_run_length': run_length,
             'quotation_run_text': run_text,
@@ -433,8 +461,8 @@ class Scorer:
         }
         
         return {
-            'source': self._build_result_side(src_unit, src_highlight_indices),
-            'target': self._build_result_side(tgt_unit, tgt_highlight_indices),
+            'source': self._build_result_side(src_unit, src_highlight_indices, text_id=self._current_source_id),
+            'target': self._build_result_side(tgt_unit, tgt_highlight_indices, text_id=self._current_target_id),
             'matched_words': word_scores,
             'shared_trigrams': shared_trigrams,
             'source_distance': 1,
@@ -485,8 +513,8 @@ class Scorer:
         }
         
         return {
-            'source': self._build_result_side(src_unit, src_highlight_indices),
-            'target': self._build_result_side(tgt_unit, tgt_highlight_indices),
+            'source': self._build_result_side(src_unit, src_highlight_indices, text_id=self._current_source_id),
+            'target': self._build_result_side(tgt_unit, tgt_highlight_indices, text_id=self._current_target_id),
             'matched_words': word_scores,
             'source_distance': 1,
             'target_distance': 1,
@@ -612,10 +640,12 @@ class Scorer:
             'source': self._build_result_side(
                 {**src_unit, 'tokens': source_tokens},
                 source_highlights,
+                text_id=self._current_source_id,
             ),
             'target': self._build_result_side(
                 {**tgt_unit, 'tokens': target_tokens},
                 target_highlights,
+                text_id=self._current_target_id,
             ),
             'matched_words': matched_words,
             'source_distance': 0,
@@ -690,10 +720,12 @@ class Scorer:
             'source': self._build_result_side(
                 {**src_unit, 'tokens': source_tokens},
                 source_highlights,
+                text_id=self._current_source_id,
             ),
             'target': self._build_result_side(
                 {**tgt_unit, 'tokens': target_tokens},
                 target_highlights,
+                text_id=self._current_target_id,
             ),
             'matched_words': matched_words,
             'source_distance': 0,
@@ -754,10 +786,12 @@ class Scorer:
             'source': self._build_result_side(
                 {**src_unit, 'tokens': source_tokens},
                 source_highlights,
+                text_id=self._current_source_id,
             ),
             'target': self._build_result_side(
                 {**tgt_unit, 'tokens': target_tokens},
                 target_highlights,
+                text_id=self._current_target_id,
             ),
             'matched_words': matched_words,
             'source_distance': 0,

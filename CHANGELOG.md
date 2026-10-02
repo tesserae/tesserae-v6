@@ -40,6 +40,19 @@ behind each, are in docs/DECISIONS.md.
   files, had shown "Book N" by file order. Files with a bare number are
   unchanged.
 
+### Search
+- Search result cards and Corpus search show `Author, Work title locus` for
+  every text, built on the server the way Line Search has always built it,
+  instead of the browser guessing author and work from the raw `.tess` tag.
+  The guess broke on any text outside the browser's hand-kept abbreviation
+  tables: doubled dots (`Ach..Tat..1.1.0`), raw file-id slugs
+  (`bohairic.i_corinthians.1.1`), CTS URNs. A sweep of the first, middle and
+  last tag of all 3,496 texts found 1,551 broken on search cards and 634 in
+  Corpus search; the server-side citation builder now passes the same sweep
+  (`scripts/review/check_result_citations.py`) at zero. The browser's old
+  tag-parsing tables stay as a fallback for results cached before this
+  shipped. (#577)
+
 ## 2026-10-01
 
 ### Tessa
