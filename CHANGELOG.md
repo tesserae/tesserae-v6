@@ -7,6 +7,16 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-02
+
+### Texts
+- A part file that carries a label after its number is titled by the label:
+  Livy "Books 21-30", Suetonius "Vespasian", Pliny "Preface", the
+  Vulgate's "1 Chronicles", the English Bible's "Matthew" (#565, and the
+  Vulgate and English Bible rows of #564). Eleven works and two Bibles, 219
+  files, had shown "Book N" by file order. Files with a bare number are
+  unchanged.
+
 ## 2026-10-01
 
 ### Tessa
