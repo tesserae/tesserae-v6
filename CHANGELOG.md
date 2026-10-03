@@ -9,6 +9,36 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-03
 
+### Corpus
+- Fixed 208,992 breathing and accent marks in 774 Greek files that were
+  stored before the Greek vowel, or rho, they belong to (stored as
+  ` ̔Ηροδότου`, should read `Ἡροδότου`), the result of a conversion
+  convention that wrote the mark to the left of a letter. 207,362 of these
+  sat before a capital, 1,630 before a lowercase word-initial vowel at a
+  line start or after a space, the same fault (Strabo: marks before "ετι"
+  for "ἔτι"). `scripts/corpus/fix_greek_capital_marks.py` moves each run of
+  marks onto its letter and composes the precomposed form with NFC. A
+  breathing or accent only ever belongs on a vowel, or a rough breathing on
+  rho, so the fix is restricted to those letters: a mark before any other
+  consonant, capital or lowercase, is left exactly as stored. Achilles
+  Tatius 2.11.3 is the case that set this restriction: ` ̓μέθυστος` is a
+  damaged ἀμέθυστος missing its alpha, and an earlier, wider version of
+  this fix moved the smooth breathing onto the following mu, producing the
+  nonsense `μ̓έθυστος`. The restriction leaves 97 capital-consonant and
+  1,074 lowercase-consonant cases untouched, on top of about 130 further
+  cases where an accent or breathing sits on a consonant mid-word, a space
+  with no letter following, or a non-Greek character. All of these, 1,347
+  cases in 133 files, are listed in
+  `data/proposals/greek_stray_marks_2026-10-03.csv` for manual correction
+  against an edition. This pull request does not change them. A sample of
+  twenty affected lines, checked against the production tokenizer, showed
+  the surface token wrong in all twenty cases (breaking exact-match and
+  display) and the lemma wrong in one of twenty, where the word fell
+  through the lookup table to the neural fallback. The Greek lemma caches,
+  the Greek search index, and the stored passage wording for the changed
+  files are rebuilt in a data operation after this merges (the maintainer
+  runs it).
+
 ### Downloads
 - The licence box states the current terms: open digital editions named
   on the Sources page, the Hebrew Bible text under CC BY-SA 4.0, translations
