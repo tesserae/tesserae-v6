@@ -67,6 +67,42 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-03 Full Greek rebuild for the breathing and accent fix (run 10:23 to 11:30 EDT)
+
+### What and why
+- #590 (issue #580) moved 208,992 breathing and accent marks in 774 Greek
+  files onto the vowel, or rho, they belong to, and composed the
+  precomposed letter (` ̔Ηροδότου` became `Ἡροδότου`). The stored form had
+  tokenized as a stray mark plus a bare capital, so those words carried the
+  wrong lemma or none. Every Greek derived store had to follow. Production
+  pulled to d30a559.
+
+### Steps
+- Greek lemma caches: `scripts/batch_lemma_cache.py grc --force`, 1,268
+  files, 97 seconds, peak 0.5 GB.
+- Index: `scripts/build_inverted_index.py --language grc --force` in a
+  worktree at the same commit, 56 minutes, peak 1.7 GB. After: 1,268
+  texts, 478,011 lines, 10,860,180 postings, 221,708 lemmas, with
+  `lemma_doc_freq` rebuilt. Integrity ok, swapped in, with the backup
+  `grc_index.db.bak-greek-20261003-1023`.
+- Greek bigram table rebuilt (900 documents, 13,685,991 bigrams, 88
+  seconds) and the Greek frequency table (221,708 lemmas). No cached Greek
+  search needed removing.
+- Stored passage wording: `scripts/corpus/refresh_window_text.py` rewrote
+  the text of 21,395 passage windows and 65,807 lines in `window_texts.db`
+  for the 459 works whose files changed, so the Reader, Similar Passages
+  and Theme Search show the corrected letters.
+- `touch tesseraev6_flask.wsgi` at 11:30, and `scripts/reference_search_check.py`
+  passed.
+
+### Checked afterwards
+- `scripts/corpus/scan_greek_capital_marks.py` over the production texts:
+  1,268 files, 0 occurrences remaining.
+- The 1,347 marks on consonants or spaces (part B of the issue) are not
+  touched by this operation. They are listed in
+  `data/proposals/greek_stray_marks_2026-10-03.csv` for a reader to settle
+  by hand.
+
 ## 2026-10-02 Septuagint line tags: 21 files retagged, index rows, passage references and map caches rewritten (run 10:24 to 10:30 EDT)
 
 ### What and why
