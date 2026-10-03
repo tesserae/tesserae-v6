@@ -23,7 +23,7 @@ import threading
 
 from backend.assistant import searches
 from backend.logging_config import get_logger
-from backend.work_names import base_work
+from backend.work_names import base_work, is_part
 
 logger = get_logger('assistant.corpus_lookup')
 
@@ -191,6 +191,18 @@ def named_texts(question, language=None, limit=2):
         """
         if not hit or hit.get('id') in seen:
             return False
+        # "Silius Italicus Punica 1": the author's name resolves first, to his
+        # one work whole, and the title with its book number comes after. The
+        # later, narrower hit replaces the whole-work hit (2026-10-03: Tessa ran
+        # Aeneid 1 against all seventeen books of the Punica).
+        hid = str(hit.get('id') or '')
+        if is_part(hid):
+            base = base_work(hid)
+            for i, earlier in enumerate(found):
+                if base_work(earlier.get('id') or '') == base and not is_part(earlier.get('id') or ''):
+                    seen.add(hid)
+                    found[i] = hit
+                    return True
         author = str(hit.get('author') or '').lower()
         if hit.get('matched') == 'author' and author in authors_used:
             return False
@@ -210,8 +222,10 @@ def named_texts(question, language=None, limit=2):
         if hit and num:
             hit = book_of(hit, num) or hit
         take(hit)
-        if len(found) >= limit:
-            return found
+        # No early return here: a later run can narrow an earlier hit to a
+        # book (see take), so every capitalised run is read first.
+    if len(found) >= limit:
+        return found[:limit]
     # Then bare lowercase words, for "compare vergil and ovid".
     for w in _norm(question).split():
         if w in _NOISE or len(w) < 4:

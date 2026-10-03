@@ -9,6 +9,15 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-03
 
+### Tessa
+- "compare Aeneid 1 and Silius Italicus Punica 1" now compares the two first
+  books. The author's name resolved first, to the whole Punica, and the
+  two-text limit stopped the reading before "Punica 1" could narrow it, so
+  Tessa ran one book against seventeen and reported the comparison still
+  running. A later, narrower mention of a text now replaces the whole-work
+  hit, and every capitalised name in the question is read before the limit
+  applies.
+
 ### Help
 - "How the system is built" says how the server reaches the two BullsAI
   parts: the gateway with a project key that carries a daily allowance, the
