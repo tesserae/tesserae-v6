@@ -30,7 +30,7 @@ def test_fusion_results_returns_a_cached_page_at_once(monkeypatch):
     monkeypatch.setattr(searches, 'fusion_page', lambda s, t, l, n: RESULTS)
     steps = []
     page = agent._fusion_results(SRC['id'], TGT['id'], 'la', 'A', 'B', steps.append)
-    assert page == RESULTS and steps == []
+    assert page == RESULTS and steps == ['running the comparison of A with B']
 
 
 def test_fusion_results_waits_then_gives_up(monkeypatch):
@@ -42,7 +42,8 @@ def test_fusion_results_waits_then_gives_up(monkeypatch):
     monkeypatch.setattr(time, 'sleep', lambda s: None)
     page = agent._fusion_results(SRC['id'], TGT['id'], 'la', 'A', 'B', steps.append)
     assert page == agent.FUSION_RUNNING
-    assert 'first run' in steps[0] and steps[-1] == 'still running'
+    assert steps[0] == 'running the comparison of A with B'
+    assert 'first run' in steps[1] and steps[-1] == 'still running'
     assert len(calls) == 3
 
 
