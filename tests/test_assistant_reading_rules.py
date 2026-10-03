@@ -10,5 +10,6 @@ def test_u_v_rule_present():
 
 
 def test_convention_claims_need_a_fact():
-    assert 'only when a fact given to you shows it' in prompts.ANALYZE_SYSTEM
+    assert 'a hedge is not a fact' in prompts.ANALYZE_SYSTEM
+    assert '"likely", "probably" or "may"' in prompts.ANALYZE_SYSTEM
     assert '"appears" or "seems"' in prompts.ANALYZE_SYSTEM

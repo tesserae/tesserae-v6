@@ -10,6 +10,10 @@ behind each, are in docs/DECISIONS.md.
 ## 2026-10-03
 
 ### Tessa
+- When reading results she reports the engine's commonness figures as what
+  the data says and no longer writes that a parallel "likely" reflects
+  convention or allusion; anything beyond the figures goes in a sentence
+  beginning "As background".
 - Her health check of the campus model service allows eight seconds and
   keeps her available for three minutes after a good answer, so one slow
   reply under load no longer turns every question into "the assistant is
