@@ -7,6 +7,14 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-03
+
+### Tessa
+- Her health check of the campus model service allows eight seconds and
+  keeps her available for three minutes after a good answer, so one slow
+  reply under load no longer turns every question into "the assistant is
+  not running just now" for the next twenty seconds.
+
 ## 2026-10-02
 
 ### Tessa

@@ -40,12 +40,13 @@ try:
     EXTRA_FIELDS = {k: v for k, v in EXTRA_FIELDS.items() if k not in _RESERVED_FIELDS}
 except ValueError:
     EXTRA_FIELDS = {}
-_HEALTH_TIMEOUT = 2
+_HEALTH_TIMEOUT = 8  # the gateway's health answer took over two seconds under our own batch load (3 Oct)
 _GEN_TIMEOUT = 180
 # The availability probe is called several times per request. Against a remote
 # gateway each probe is a round trip, so its answer is kept for a short while.
 _AVAILABILITY_TTL = 20
-_availability = {'at': 0.0, 'ok': False}
+_AVAILABILITY_GRACE = 180  # a failed health check within this many seconds of a good one does not mark the model unavailable
+_availability = {'at': 0.0, 'ok': False, 'last_ok': 0.0}
 
 
 def _headers():
@@ -101,6 +102,14 @@ def is_available():
         ok = isinstance(payload, dict) and payload.get('status') in (None, 'ok')
     except Exception:
         ok = False
+    if ok:
+        _availability['last_ok'] = now
+    elif now - _availability.get('last_ok', 0.0) < _AVAILABILITY_GRACE:
+        # One slow or refused health answer, minutes after a good one, is the
+        # gateway under load, not the model gone; saying "not running" for
+        # the next twenty seconds was the wrong reading (3 Oct, during our
+        # own hundred-request batch).
+        ok = True
     _availability.update(at=now, ok=ok)
     return ok
 
