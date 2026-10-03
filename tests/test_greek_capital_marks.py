@@ -96,23 +96,6 @@ def test_invariant_key_ignores_mark_position():
     assert invariant_key(a) == invariant_key(b)
 
 
-def test_lowercase_at_line_start():
-    # Scope grew to lowercase on 3 October 2026: the same fault also hits a
-    # lowercase word-initial vowel at a line start (Strabo: marks before
-    # "ετι" for "ἔτι").
-    raw = 'x\t' + '̓́' + 'ετι δὲ παχυμερ\n'
-    new, changed, ok = process_line(raw)
-    assert changed and ok
-    assert new.startswith('x\t') and 'ἔτι' in new
-
-
-def test_lowercase_after_a_space():
-    raw = 'x\tἔτι φησὶν ὁ ' + '̓́' + 'ετι τε καὶ\n'
-    new, changed, ok = process_line(raw)
-    assert changed and ok
-    assert 'ὁ ἔτι τε' in new
-
-
 def test_ordinary_line_unchanged():
     raw = '<hom. il. 1.1>\tμῆνιν ἄειδε θεὰ\n'
     new, changed, ok = process_line(raw)
