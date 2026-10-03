@@ -9,6 +9,13 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-03
 
+### Downloads
+- The licence box states the current terms: open digital editions named
+  on the Sources page, the Hebrew Bible text under CC BY-SA 4.0, translations
+  public domain or non-commercial with attribution, and the derived tables'
+  terms (BHSA CC BY-NC, Koine CC BY-NC-SA, GLAUx CC BY-SA, MQDQ CC BY-NC-ND).
+  It had named PHI Latin Texts, which the corpus does not hold.
+
 ### Tessa
 - When reading results she reports the engine's commonness figures as what
   the data says and no longer writes that a parallel "likely" reflects
