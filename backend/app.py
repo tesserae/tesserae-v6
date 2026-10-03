@@ -517,6 +517,7 @@ from backend.blueprints import (
 )
 from backend.blueprints.intertext import intertext_bp
 from backend.blueprints.downloads import downloads_bp
+from backend.blueprints.job_uploads import job_uploads_bp
 from backend.blueprints.hapax import hapax_bp, init_hapax_blueprint
 from backend.blueprints.batch import batch_bp, init_batch_blueprint
 from backend.blueprints.api_docs import api_docs_bp
@@ -592,6 +593,7 @@ app.register_blueprint(search_bp, url_prefix=API_PREFIX or None)
 app.register_blueprint(corpus_bp, url_prefix=API_PREFIX or None)
 app.register_blueprint(intertext_bp, url_prefix=intertext_prefix)
 app.register_blueprint(downloads_bp, url_prefix=API_PREFIX or None)
+app.register_blueprint(job_uploads_bp, url_prefix=API_PREFIX or None)
 app.register_blueprint(hapax_bp, url_prefix=API_PREFIX or None)
 app.register_blueprint(batch_bp, url_prefix=batch_prefix)
 app.register_blueprint(api_docs_bp, url_prefix=API_PREFIX or None)
