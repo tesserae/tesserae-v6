@@ -56,6 +56,13 @@ behind each, are in docs/DECISIONS.md.
   reply under load no longer turns every question into "the assistant is
   not running just now" for the next twenty seconds.
 
+### Data operations
+- 2026-10-03 10:23 to 11:30 EDT: full Greek rebuild after #590 (lemma caches,
+  index with `lemma_doc_freq`, bigram and frequency tables) and the stored
+  wording of 21,395 passage windows refreshed for the 459 changed works.
+  Scan afterwards: 0 misplaced marks remain in 1,268 files. Record in
+  docs/DATA_OPERATIONS.md.
+
 ## 2026-10-02
 
 ### Tessa
