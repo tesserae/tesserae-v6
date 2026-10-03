@@ -9,6 +9,13 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-02
 
+### Tessa
+- "Compare book 1 of each" scopes the comparison to the two books; the
+  whole works had been compared, a run of many minutes. When a comparison
+  outlasts her wait she now says it is still running and points at the
+  results page, where the same run appears when it finishes, in place of
+  the stock sentence that the corpus holds both texts.
+
 ### Data operations
 - Septuagint retag (#578): lemma caches and index rows for 21 files,
   stored references in the passage index and the map caches rewritten

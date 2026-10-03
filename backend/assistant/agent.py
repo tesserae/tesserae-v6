@@ -868,6 +868,11 @@ def _handoff_sentence(facts):
                 return (f'{name} is in the corpus. The Reader shows it with its '
                         f'connections to the rest of the corpus alongside.')
             return None
+        if str(f.get('kind') or '').startswith('THE COMPARISON IS STILL RUNNING'):
+            src, tgt = f.get('source'), f.get('target')
+            return (f'The full comparison of {src} with {tgt} is still running on the '
+                    f'server; a first run of a large pair takes several minutes. Open it '
+                    f'below and the results appear there when it finishes.')
         if not str(f.get('kind') or '').startswith('TWO TEXTS'):
             continue
         src, tgt = f.get('source'), f.get('target')
@@ -1139,6 +1144,7 @@ def _summarise(name, raw):
 FUSION_WAIT_SECONDS = 100
 FUSION_POLL_SECONDS = 20
 FUSION_PAGE = 25
+FUSION_RUNNING = 'running'  # _fusion_results: the run outlasted the wait and goes on
 
 
 def _fusion_results(source_id, target_id, language, source_name, target_name, step=None):
@@ -1168,7 +1174,7 @@ def _fusion_results(source_id, target_id, language, source_name, target_name, st
         if page is not None:
             return page
         step('still running')
-    return None
+    return FUSION_RUNNING
 
 
 def _read_results(results, src, tgt, question, all_facts, ran):
@@ -1695,6 +1701,15 @@ def _prepare(question, step, history=None, offered_phrase=None):
             logger.info('[ASSISTANT] compare lookup failed: %s', e)
             pair = []
         if len(pair) == 2:
+            # "book 1 of each": the number applies to both texts. Comparing
+            # the whole works instead widened a two-book question to the
+            # twelve books of the Aeneid against the seventeen of the Punica,
+            # a run of many minutes, which then outlasted the wait (2 Oct).
+            shared = corpus_lookup.shared_book_number(question)
+            if shared:
+                scoped = [corpus_lookup.book_of(p, shared) for p in pair]
+                if all(scoped):
+                    pair = scoped
             by_author = all(p.get('matched') == 'author' for p in pair)
             all_facts.append({
                 'kind': 'TWO TEXTS THE READER WANTS COMPARED. They are both in '
@@ -1741,7 +1756,15 @@ def _prepare(question, step, history=None, offered_phrase=None):
                     pair[0].get('id'), pair[1].get('id'), pair[0].get('language'),
                     pair[0].get('display_name') or pair[0].get('id'),
                     pair[1].get('display_name') or pair[1].get('id'), step)
-                if results:
+                if results == FUSION_RUNNING:
+                    # The run is still going on the server. Say so, and point
+                    # at the results page, which shows the same run when it
+                    # finishes; a stock "the corpus holds both" was the wrong
+                    # answer to a reader who had already waited (2 Oct).
+                    all_facts[-1]['kind'] = ('THE COMPARISON IS STILL RUNNING on the server. '
+                                             'Say so and point at the control; report no result.')
+                    all_facts[-1]['still_running'] = True
+                elif results:
                     return {'fusion_results': results, 'fusion_pair': (pair[0], pair[1]),
                             'facts': all_facts, 'ran': ran, 'block': ''}
 
