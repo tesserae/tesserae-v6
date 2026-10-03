@@ -23,7 +23,7 @@ import threading
 
 from backend.assistant import searches
 from backend.logging_config import get_logger
-from backend.work_names import base_work
+from backend.work_names import base_work, is_part
 
 logger = get_logger('assistant.corpus_lookup')
 
@@ -196,10 +196,10 @@ def named_texts(question, language=None, limit=2):
         # later, narrower hit replaces the whole-work hit (2026-10-03: Tessa ran
         # Aeneid 1 against all seventeen books of the Punica).
         hid = str(hit.get('id') or '')
-        if '.part.' in hid:
-            base = hid.split('.part.')[0]
+        if is_part(hid):
+            base = base_work(hid)
             for i, earlier in enumerate(found):
-                if str(earlier.get('id') or '').replace('.tess', '') == base:
+                if base_work(earlier.get('id') or '') == base and not is_part(earlier.get('id') or ''):
                     seen.add(hid)
                     found[i] = hit
                     return True

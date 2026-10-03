@@ -29,16 +29,40 @@ def test_still_running_sentence():
     assert 'still running' in s and 'Vergil, Aeneid' in s and 'Open it below' in s
 
 
-def test_author_name_then_title_with_book_number_narrows_to_the_book():
+
+def _row(id_, author, title, part=False):
+    key = author.lower().replace(' ', '_')
+    return {'id': id_, 'language': 'la', 'author': author, 'author_key': key, 'title': title,
+            'work_key': title.lower().replace(' ', '_'), 'is_part': part}
+
+
+ROWS = [
+    _row('vergil.aeneid.tess', 'Vergil', 'Aeneid'),
+    _row('vergil.aeneid.part.1.tess', 'Vergil', 'Aeneid', True),
+    _row('vergil.aeneid.part.6.tess', 'Vergil', 'Aeneid', True),
+    _row('silius_italicus.punica.tess', 'Silius Italicus', 'Punica'),
+    _row('silius_italicus.punica.part.1.tess', 'Silius Italicus', 'Punica', True),
+    _row('silius_italicus.punica.part.3.tess', 'Silius Italicus', 'Punica', True),
+    _row('statius.thebaid.tess', 'Statius', 'Thebaid'),
+    _row('statius.thebaid.part.12.tess', 'Statius', 'Thebaid', True),
+    _row('statius.silvae.tess', 'Statius', 'Silvae'),
+    _row('lucan.bellum_civile.tess', 'Lucan', 'Bellum Civile'),
+    _row('ovid.metamorphoses.tess', 'Ovid', 'Metamorphoses'),
+]
+
+
+def test_author_name_then_title_with_book_number_narrows_to_the_book(monkeypatch):
     """"compare Aeneid 1 and Silius Italicus Punica 1" (3 Oct 2026): the
     author's name resolved first to the whole Punica, and the two-text limit
     stopped the scan before "Punica 1" could narrow it. Tessa then ran Aeneid 1
     against all seventeen books and outlasted her wait."""
-    hits = corpus_lookup.named_texts('compare Aeneid 1 and Silius Italicus Punica 1', 'la')
-    assert [h['id'] for h in hits] == ['vergil.aeneid.part.1.tess', 'silius_italicus.punica.part.1.tess']
-    # The same narrowing, with the number on the first text instead.
-    hits = corpus_lookup.named_texts('Silius Italicus Punica 3 against Lucan', 'la')
-    assert hits[0]['id'] == 'silius_italicus.punica.part.3.tess'
-    # Unchanged cases: an author alone stays whole, a repeated name is not a second text.
-    assert [h['id'] for h in corpus_lookup.named_texts('echoes of Vergil in Statius', 'la')] == ['vergil.aeneid.tess', 'statius.silvae.tess']
-    assert len(corpus_lookup.named_texts('what about Statius Thebaid?', 'la')) == 1
+    monkeypatch.setattr(corpus_lookup, '_all_texts', lambda language=None: ROWS)
+    ids = lambda q: [h['id'] for h in corpus_lookup.named_texts(q, 'la')]
+    assert ids('compare Aeneid 1 and Silius Italicus Punica 1') == ['vergil.aeneid.part.1.tess', 'silius_italicus.punica.part.1.tess']
+    # The number on the first text instead.
+    assert ids('Silius Italicus Punica 3 against Lucan') == ['silius_italicus.punica.part.3.tess', 'lucan.bellum_civile.tess']
+    # More than two names: the first two in order of mention still win.
+    assert ids('compare Vergil Aeneid 1 and Ovid Metamorphoses and Lucan') == ['vergil.aeneid.part.1.tess', 'ovid.metamorphoses.tess']
+    # Unchanged: an author alone stays whole, a repeated name is not a second text.
+    assert ids('echoes of Vergil in Statius') == ['vergil.aeneid.tess', 'statius.silvae.tess']
+    assert len(ids('what about Statius Thebaid?')) == 1
