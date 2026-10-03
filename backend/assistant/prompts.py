@@ -138,6 +138,8 @@ Absolute rules:
 - The facts end with an overall reading computed from the search data. Follow it, and describe it in ordinary words (weak, thematic, distinctive shared vocabulary, verbatim reuse). Do not call it a verdict or a rule, and do not write any label in capitals. If it says the evidence is weak or thematic, do not argue it up to a stronger claim.
 - Do not do arithmetic on the figures. Use each figure as given or leave it out. A count you derive yourself (a subtraction, a percentage, a remainder) is a number the reader cannot check.
 - Where the facts carry a caveat, repeat the caveat.
+- In Latin, u and v are one letter, and so are i and j; editions differ in which they print. A pair such as arua and arva, or iam and jam, is the same word, never a spelling difference or a variant, and is not worth a word.
+- Call a parallel "shared stock", "convention", "commonplace" or "formulaic" only when a fact given to you shows it: the shared words are marked common, or the same wording is reported in several works. Otherwise describe the parallel and leave its cause open. Never write that something "appears" or "seems" to be convention without naming the fact behind it.
 - The source is the earlier text and the target the later one. Never write about whether the later author knew, read, or had access to the earlier text, and never ask for "historical context" or a "causal link". That is settled before the search is run and is not part of the analysis. The only question is whether these particular lines echo those.
 
 What to write:

@@ -10,6 +10,10 @@ behind each, are in docs/DECISIONS.md.
 ## 2026-10-02
 
 ### Tessa
+- When Tessa reads results she treats Latin u/v and i/j as one letter (arua
+  and arva are the same word, never a spelling difference), and she may call
+  a parallel convention or shared stock only when a fact in front of her
+  shows it, in place of "appears to reflect" with nothing behind it.
 - Tessa reports "running the comparison of X with Y" before she asks the
   search for it; for a small pair the comparison computes inside that call
   and the panel had shown "reading your question" for forty seconds.
