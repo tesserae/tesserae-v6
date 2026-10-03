@@ -12,11 +12,14 @@ def test_shared_book_number():
     assert corpus_lookup.shared_book_number('Thebaid 12 and Aeneid 6') is None
 
 
-def test_book_of_finds_the_part_file():
-    row = corpus_lookup.resolve_one('Aeneid', language='la')
-    assert row is not None
-    book = corpus_lookup.book_of(row, 1)
-    assert book and str(book['id']).startswith('vergil.aeneid.part.1')
+def test_book_of_finds_the_part_file(monkeypatch):
+    rows = [{'id': 'vergil.aeneid.tess', 'language': 'la'},
+            {'id': 'vergil.aeneid.part.1.tess', 'language': 'la'},
+            {'id': 'vergil.aeneid.part.2.tess', 'language': 'la'}]
+    monkeypatch.setattr(corpus_lookup, '_all_texts', lambda language=None: rows)
+    book = corpus_lookup.book_of(rows[0], 1)
+    assert book and book['id'] == 'vergil.aeneid.part.1.tess'
+    assert corpus_lookup.book_of(rows[0], 9) is None
 
 
 def test_still_running_sentence():
