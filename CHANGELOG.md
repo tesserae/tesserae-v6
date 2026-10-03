@@ -9,25 +9,6 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-03
 
-### Corpus
-- Fixed 207,459 breathing and accent marks in 772 Greek files that were
-  stored before the capital letter they belong to (` ̔Ηροδότου` instead of
-  `Ἡροδότου`), the result of a conversion convention that wrote the mark to
-  the left of a capital. `scripts/corpus/fix_greek_capital_marks.py` moves
-  each run of marks onto its capital and composes the precomposed letter
-  with NFC. A sample of twenty affected lines, checked against the
-  production tokenizer, showed the surface token wrong in all twenty cases
-  (breaking exact-match and display) and the lemma wrong in one of twenty,
-  where the word fell through the lookup table to the neural fallback.
-  About 130 further cases, where an accent or breathing sits on a
-  consonant, a space or a non-Greek character and looks like an OCR or
-  typing error, are listed in
-  `data/proposals/greek_stray_marks_2026-10-03.csv` for manual correction
-  against an edition; this pull request does not change them. The Greek
-  lemma caches, the Greek search index, and the stored passage wording for
-  the changed files are rebuilt in a data operation after this merges (the
-  maintainer runs it).
-
 ### Downloads
 - The licence box states the current terms: open digital editions named
   on the Sources page, the Hebrew Bible text under CC BY-SA 4.0, translations
