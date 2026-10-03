@@ -158,6 +158,19 @@ def book_of(row, number):
     return None
 
 
+def shared_book_number(question):
+    """A book number the reader applies to every text named: "book 1 of each
+    Vergil's Aeneid and Silius' Punica", "book 6 of both", "compare book 1 of
+    the Aeneid with the Punica". None when the question carries no such
+    number. A number right after a name ("Thebaid 12") is handled by
+    named_texts and is not this case."""
+    q = (question or '').lower()
+    m = re.search(r'\bbooks?\s+(\d{1,2})\s+(?:of\s+)?(?:each|both)\b', q)
+    if not m:
+        m = re.search(r'\bbook\s+(\d{1,2})\s+of\b', q)
+    return int(m.group(1)) if m else None
+
+
 def named_texts(question, language=None, limit=2):
     """Texts a question appears to name, in the order they are mentioned.
 

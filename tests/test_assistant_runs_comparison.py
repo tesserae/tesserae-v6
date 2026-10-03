@@ -41,7 +41,7 @@ def test_fusion_results_waits_then_gives_up(monkeypatch):
     import time
     monkeypatch.setattr(time, 'sleep', lambda s: None)
     page = agent._fusion_results(SRC['id'], TGT['id'], 'la', 'A', 'B', steps.append)
-    assert page is None
+    assert page == agent.FUSION_RUNNING
     assert 'first run' in steps[0] and steps[-1] == 'still running'
     assert len(calls) == 3
 
