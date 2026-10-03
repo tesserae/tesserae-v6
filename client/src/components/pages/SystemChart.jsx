@@ -134,7 +134,7 @@ export default function SystemChart() {
         {/* Column 3: BullsAI */}
         <Panel x={720} y={50} w={220} h={470} label="BullsAI, the campus AI platform" />
         <Box
-          x={735} y={70} w={190} h={134}
+          x={735} y={70} w={190} h={148}
           title="Gateway"
           lines={[
             'hosted open models, one address',
@@ -143,10 +143,12 @@ export default function SystemChart() {
             'passage descriptions, one pass',
             'over the corpus (GLM 5.3 Flash)',
             'work descriptions, one pass',
+            '',
+            'access: a key, a daily allowance',
           ]}
         />
         <Box
-          x={735} y={290} w={190} h={176}
+          x={735} y={290} w={190} h={204}
           title="Compute"
           lines={[
             'GPUs allotted job by job, from a',
@@ -158,6 +160,9 @@ export default function SystemChart() {
             'whole-corpus comparisons',
             'description batches too large',
             'for the gateway',
+            '',
+            'access: a service account, so',
+            'the server starts jobs itself',
           ]}
         />
 
@@ -201,7 +206,7 @@ export default function SystemChart() {
             gateway; the GPU jobs run on the compute. */}
         <Line d="M560 570 V540 H668 V300 H660" dashed label="corpus jobs rebuild the data" lx={552} ly={549} anchor="end" />
         <Line d="M640 570 V552 H930 V140 H925" dashed label="describing batches go to the gateway" lx={866} ly={546} anchor="end" />
-        <Line d="M880 570 V466" dashed label="GPU jobs" lx={874} ly={566} anchor="end" />
+        <Line d="M880 570 V494" dashed label="GPU jobs" lx={874} ly={566} anchor="end" />
 
         {/* Legend */}
         <g fontSize="10" fill={MUTED}>

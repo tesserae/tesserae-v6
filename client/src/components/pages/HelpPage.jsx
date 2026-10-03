@@ -2303,6 +2303,19 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 corpus changes. Solid lines are paths taken during a request, dashed lines are jobs. Nothing in the live site calls a paid service.
               </p>
               <SystemChart />
+              <p className="text-gray-700 text-sm mt-4">
+                The two BullsAI parts are reached in different ways, and the difference matters to
+                anyone setting up a similar system. The gateway is a web address that serves
+                several open language models. The server calls it with a key issued to the project,
+                and the key carries a daily allowance of requests, so a large batch is planned
+                around the allowance and a slow week costs nothing. The compute side allots whole
+                graphics cards to jobs the server submits with a command-line tool. A person's
+                sign-in to that tool expires after a few hours, which was enough for a job watched
+                from a desk and not for a run that goes through the night. The platform's
+                administrators therefore issued the project a service account, a machine identity
+                with its own credential, that the server holds and uses to start jobs itself. No
+                credential of either kind is in the public code or in this page.
+              </p>
               <p className="text-gray-600 text-sm mt-4">
                 The code is public at{' '}
                 <a href="https://github.com/tesserae/tesserae-v6" className="text-red-700 hover:underline" target="_blank" rel="noopener noreferrer">
