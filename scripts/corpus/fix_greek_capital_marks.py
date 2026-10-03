@@ -1,16 +1,23 @@
 #!/usr/bin/env python3
 """Issue #580, part A: move combining breathing/accent marks that are
-stored before the Greek capital letter they belong to onto the capital,
-then apply NFC so the result is the precomposed letter where one exists.
+stored before the Greek letter they belong to onto that letter, then apply
+NFC so the result is the precomposed letter where one exists.
 
 A run of combining marks (U+0300-U+036F) that sits between a space, a tab,
-or the start of a line, and a Greek capital (U+0391-U+03A9, U+0386,
-U+0388-U+038F) is moved onto that capital, preserving the marks' own
-relative order (which is already the canonical order: it is the same order
-Unicode decomposition uses for the precomposed letter). Where a precomposed
-letter exists in the U+1F08-U+1FFC range, NFC produces it. Where none
-exists (breathing on a consonant other than rho, say), the marks are left
-after the capital as combining characters, in that same canonical order.
+or the start of a line, and a Greek letter is moved onto that letter,
+preserving the marks' own relative order (which is already the canonical
+order: it is the same order Unicode decomposition uses for the precomposed
+letter). Where a precomposed letter exists in the U+1F00-U+1FFC range, NFC
+produces it. Where none exists (breathing on a consonant other than rho,
+say), the marks are left after the letter as combining characters, in that
+same canonical order.
+
+Scope grew to lowercase on 3 October 2026: the original fix only matched a
+Greek CAPITAL (U+0391-U+03A9, U+0386, U+0388-U+038F) after the marks, since
+that was the issue's reported pattern. The same encoding fault also hits a
+lowercase word-initial vowel at a line start (Strabo: marks before "ετι"
+for "ἔτι"), so the pattern now matches any Greek letter in the basic block
+and its accented forms, capital or lowercase.
 
 The line tag inside <...> is never touched; only the text after it is
 scanned and changed.
@@ -38,9 +45,13 @@ import sys
 import unicodedata
 
 COMBINING_RUN = r'[̀-ͯ]+'
-GREEK_CAPITAL = r'[Α-ΩΆΈ-Ώ]'
+# Basic Greek block letters and their accented forms, capital or lowercase:
+# capitals Α-Ρ, Σ-Ω plus Ϊ Ϋ, the accented capitals Ά Έ Ή Ί Ό Ύ Ώ, lowercase
+# α-ω, and the accented/diaeresis lowercase forms ά έ ή ί ΐ ϊ ϋ ό ύ ώ. Skips
+# U+03A2, which is unassigned.
+GREEK_LETTER = r'[ΆΈ-ΊΌΎ-ΡΣ-ώ]'
 PATTERN = re.compile(
-    r'(?:(?<=[ \t])|^)(' + COMBINING_RUN + r')(' + GREEK_CAPITAL + r')',
+    r'(?:(?<=[ \t])|^)(' + COMBINING_RUN + r')(' + GREEK_LETTER + r')',
     re.MULTILINE,
 )
 
