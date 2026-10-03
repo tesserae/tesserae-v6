@@ -9,6 +9,16 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-03
 
+### Jobs
+- A GPU job on the campus cluster can return its result file: `PUT
+  /api/jobs/upload/<job>/<name>` with the job's token in `X-Job-Token`
+  stores the body under `data/job_uploads/<job>/` and answers with the size
+  and SHA-256. The token is a file the maintainer writes before submitting
+  the job (`scripts/jobs/new_upload_token.py`), compared in constant time;
+  names are plain tokens, the body streams to disk, and one upload is
+  capped at 512 MB so a large result goes in parts. Until now the cluster
+  could fetch our inputs but return only log lines.
+
 ### Tessa
 - Two more reading rules: "suggests", "suggesting", "reinforcing the idea"
   and "supports a reading" count as hedges like "likely" and "may", and
