@@ -1153,6 +1153,11 @@ def _fusion_results(source_id, target_id, language, source_name, target_name, st
     import time as _time
     from backend.assistant import searches as _searches
     step = step or (lambda text: None)
+    # Say what is happening BEFORE the first fetch. For a small pair the
+    # search route computes the comparison inside this call, forty seconds
+    # or so, and the panel kept showing "reading your question" the whole
+    # time (2 Oct).
+    step(f'running the comparison of {source_name} with {target_name}')
     try:
         page = _searches.fusion_page(source_id, target_id, language, FUSION_PAGE)
     except Exception as e:                                  # noqa: BLE001
@@ -1160,8 +1165,8 @@ def _fusion_results(source_id, target_id, language, source_name, target_name, st
         return None
     if page is not None:
         return page
-    step(f'running the full comparison of {source_name} with {target_name}; '
-         f'the first run of a pair takes a minute or two')
+    step(f'still running the full comparison of {source_name} with {target_name}; '
+         f'the first run of a large pair takes several minutes')
     waited = 0
     while waited < FUSION_WAIT_SECONDS:
         _time.sleep(FUSION_POLL_SECONDS)

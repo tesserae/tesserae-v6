@@ -10,6 +10,9 @@ behind each, are in docs/DECISIONS.md.
 ## 2026-10-02
 
 ### Tessa
+- Tessa reports "running the comparison of X with Y" before she asks the
+  search for it; for a small pair the comparison computes inside that call
+  and the panel had shown "reading your question" for forty seconds.
 - "Compare book 1 of each" scopes the comparison to the two books; the
   whole works had been compared, a run of many minutes. When a comparison
   outlasts her wait she now says it is still running and points at the
