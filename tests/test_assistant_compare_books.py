@@ -27,3 +27,18 @@ def test_still_running_sentence():
               'target': 'Silius Italicus, Punica', 'still_running': True}]
     s = agent._handoff_sentence(facts)
     assert 'still running' in s and 'Vergil, Aeneid' in s and 'Open it below' in s
+
+
+def test_author_name_then_title_with_book_number_narrows_to_the_book():
+    """"compare Aeneid 1 and Silius Italicus Punica 1" (3 Oct 2026): the
+    author's name resolved first to the whole Punica, and the two-text limit
+    stopped the scan before "Punica 1" could narrow it. Tessa then ran Aeneid 1
+    against all seventeen books and outlasted her wait."""
+    hits = corpus_lookup.named_texts('compare Aeneid 1 and Silius Italicus Punica 1', 'la')
+    assert [h['id'] for h in hits] == ['vergil.aeneid.part.1.tess', 'silius_italicus.punica.part.1.tess']
+    # The same narrowing, with the number on the first text instead.
+    hits = corpus_lookup.named_texts('Silius Italicus Punica 3 against Lucan', 'la')
+    assert hits[0]['id'] == 'silius_italicus.punica.part.3.tess'
+    # Unchanged cases: an author alone stays whole, a repeated name is not a second text.
+    assert [h['id'] for h in corpus_lookup.named_texts('echoes of Vergil in Statius', 'la')] == ['vergil.aeneid.tess', 'statius.silvae.tess']
+    assert len(corpus_lookup.named_texts('what about Statius Thebaid?', 'la')) == 1
