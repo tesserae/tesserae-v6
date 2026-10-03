@@ -10,6 +10,9 @@ behind each, are in docs/DECISIONS.md.
 ## 2026-10-03
 
 ### Tessa
+- Two more reading rules: "suggests", "suggesting", "reinforcing the idea"
+  and "supports a reading" count as hedges like "likely" and "may", and
+  authors are spelled as the site spells them (Vergil, never Virgil).
 - "compare Aeneid 1 and Silius Italicus Punica 1" now compares the two first
   books. The author's name resolved first, to the whole Punica, and the
   two-text limit stopped the reading before "Punica 1" could narrow it, so
