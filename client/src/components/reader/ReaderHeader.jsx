@@ -180,7 +180,7 @@ export default function ReaderHeader({
               ? 'border-red-300 bg-red-50 text-red-800'
               : 'border-gray-300 text-gray-600 hover:border-gray-400 hover:text-gray-800'}`}
         >
-          About
+          About this text
         </button>
       )}
 
@@ -194,9 +194,15 @@ export default function ReaderHeader({
       </span>
     </div>
     {aboutOpen && about && (
-      <p className="px-4 py-2 text-sm text-gray-700 border-b border-gray-200 bg-gray-50">
-        {about}
-      </p>
+      <div className="border-b border-gray-200 bg-gray-50 px-4 py-3">
+        {/* A description runs 80 to 130 words. At the header's full width
+            that is a two-line slab of 300-character lines. Prose width
+            (about 65 characters) and a looser line height let it read as
+            a note (2026-10-03). */}
+        <p className="max-w-prose text-sm leading-relaxed text-gray-700">
+          {about}
+        </p>
+      </div>
     )}
     {credit && (
       <p className="px-4 py-1 text-[11px] text-gray-400 border-b border-gray-200">

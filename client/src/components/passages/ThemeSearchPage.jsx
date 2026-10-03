@@ -306,10 +306,10 @@ export default function ThemeSearchPage() {
   // headed straight for one of them.
   const [language, setLanguage] = useState(() => {
     const p = new URLSearchParams(window.location.search);
-    // Mirrors the "arriving from a link with the search already in it"
-    // effect below: the language only carries over when a query does too,
-    // matching what that effect will go on to run.
-    if (!(p.get('query') || '').trim()) return '';
+    // The language carries over whether or not a query does: Browse Corpus's
+    // "Theme Search" badge links here with languages= alone (2026-10-03),
+    // and the "arriving from a link with the search already in it" effect
+    // below runs the query, when there is one, in this same language.
     return (p.get('languages') || '').split(',').map((x) => x.trim()).filter(Boolean).join(',');
   });
   // Only the languages this server serves are offered (a preview serves a

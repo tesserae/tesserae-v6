@@ -487,12 +487,12 @@ export default function CorpusBrowser() {
                             aria-expanded={openDescs.has(text.id)}
                             aria-label={`About ${text.title}`}
                             title="What is this text?"
-                            className={`text-[10px] font-bold uppercase tracking-wide rounded px-1 ${
+                            className={`text-[10px] font-bold uppercase tracking-wide rounded px-1 whitespace-nowrap ${
                               openDescs.has(text.id)
                                 ? 'bg-red-100 text-red-800 hover:bg-red-200'
                                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
                           >
-                            About
+                            About this text
                           </button>
                         )}
                         {translationOf(text.id) && (
@@ -506,20 +506,21 @@ export default function CorpusBrowser() {
                           </a>
                         )}
                         {isCovered(text.id) && (
-                          <span
+                          <a
+                            href={`/theme-search?languages=${encodeURIComponent(language)}`}
                             className="text-[10px] font-bold uppercase tracking-wide bg-purple-100
-                                       text-purple-800 rounded px-1"
-                            title="Covered by Theme Search and Similar Passages"
+                                       text-purple-800 rounded px-1 whitespace-nowrap hover:bg-purple-200"
+                            title="Covered by Theme Search and Similar Passages. Open Theme Search."
                           >
                             Theme Search
-                          </span>
+                          </a>
                         )}
                         {text.line_count && (
                           <span className="text-xs text-gray-500">{text.line_count} lines</span>
                         )}
                       </div>
                       {blurb && openDescs.has(text.id) && (
-                        <p className="px-3 pb-2 pl-8 pr-4 text-xs text-gray-600 leading-relaxed">
+                        <p className="max-w-prose px-3 pb-3 pl-8 pr-4 text-sm leading-relaxed text-gray-700">
                           {blurb}
                         </p>
                       )}
