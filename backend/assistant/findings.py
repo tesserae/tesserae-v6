@@ -249,4 +249,44 @@ def format_for_narration(facts, passages=None, max_passages=10, text_chars=400):
             tr = _ref_of(p, 'target')
             lines.append(f'- {sr}: "{str(s)[:text_chars]}"')
             lines.append(f'  {tr}: "{str(t)[:text_chars]}"')
+            note = pair_evidence_note(p)
+            if note:
+                lines.append(f'  {note}')
     return '\n'.join(lines)
+
+
+def pair_evidence_note(result):
+    """One line of facts about a pair's shared words, so a reading can say
+    "common" or "rare" from the engine's figures and not from memory.
+
+    On 2 October 2026 the model called "Latio ... intulerit" the common
+    stock of epic about the founding of Rome. The engine's figures said the
+    opposite: both lemmas occur a handful of times in the corpus, and the
+    pairing recurs nowhere else. The figures were not in the block, so the
+    model reached for what it knew. Now they are.
+    """
+    words = result.get('matched_words') or []
+    parts = []
+    for w in words[:6]:
+        if not isinstance(w, dict):
+            continue
+        lemma = w.get('lemma') or w.get('source_word') or ''
+        freq = w.get('frequency')
+        if not lemma:
+            continue
+        if isinstance(freq, (int, float)):
+            band = ('rare' if freq <= 20 else 'uncommon' if freq <= 200 else 'common')
+            parts.append(f'{lemma} ({band}, {int(freq)} occurrences in the corpus)')
+        else:
+            parts.append(str(lemma))
+    out = []
+    if parts:
+        out.append('shared words: ' + ', '.join(parts))
+    fc = result.get('formula_count')
+    if isinstance(fc, int):
+        if fc <= 1:
+            out.append('this pairing of words occurs in no other work in the corpus')
+        else:
+            out.append(f'this pairing of words recurs in {fc} works in the corpus'
+                       + (', a common pairing' if fc >= 5 else ''))
+    return '; '.join(out) if out else ''

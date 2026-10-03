@@ -10,6 +10,10 @@ behind each, are in docs/DECISIONS.md.
 ## 2026-10-02
 
 ### Tessa
+- Every pair Tessa reads now carries the engine's figures on its shared
+  words (rare, uncommon or common, with the corpus count) and on how many
+  works the pairing recurs in, so a verdict of convention or allusion rests
+  on the data in front of her.
 - When Tessa reads results she treats Latin u/v and i/j as one letter (arua
   and arva are the same word, never a spelling difference), and she may call
   a parallel convention or shared stock only when a fact in front of her
