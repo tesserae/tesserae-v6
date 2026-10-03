@@ -9,6 +9,17 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-03
 
+### Browse Corpus and Reader
+- The button that opens a work's description now reads "About this text"
+  in both places (it read "About", which said too little, especially in the
+  Reader's header). The description itself is set at a reading width of
+  about 65 characters with a looser line height, in a slightly larger type
+  in Browse Corpus, where it had run the full width of the page as a slab
+  of 300-character lines. The "Theme Search" badge on a covered work, a
+  plain label until now, opens Theme Search with that language chosen, and
+  the Theme Search page takes the language from such a link whether or not
+  a query comes with it.
+
 ### Corpus
 - Fixed 208,992 breathing and accent marks in 774 Greek files that were
   stored before the Greek vowel, or rho, they belong to (stored as

@@ -93,7 +93,17 @@ describe('the Theme Search coverage badge', () => {
     await waitFor(() => expect(screen.getAllByText('Theme Search').length).toBe(2));
     // Two Vergil parts collapse to one covered work, so both rows get the
     // badge; Cicero's single work does not.
-    expect(screen.queryAllByTitle('Covered by Theme Search and Similar Passages').length).toBe(2);
+    expect(screen.queryAllByTitle("Covered by Theme Search and Similar Passages. Open Theme Search.").length).toBe(2);
+  });
+
+  it('the badge is a link that opens Theme Search with this language chosen', async () => {
+    render(<CorpusBrowser />);
+    await waitFor(() => expect(screen.getByText('Vergil')).toBeTruthy());
+    fireEvent.click(screen.getByText('Vergil'));
+    await waitFor(() => expect(screen.getAllByText('Theme Search').length).toBe(2));
+    const badge = screen.getAllByText('Theme Search')[0];
+    expect(badge.tagName).toBe('A');
+    expect(badge.getAttribute('href')).toBe('/theme-search?languages=la');
   });
 
   it('shows a coverage count under the corpus heading', async () => {
