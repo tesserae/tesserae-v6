@@ -52,6 +52,56 @@ _models = {}
 _embeddings_cache = {}
 _lemma_embeddings_cache = {}
 
+
+# The full similarity matrix of a large pair does not fit in memory: Hafez's
+# Diwan against Saeb's (9,502 x 157,780 lines, Persian, 2026-10-03) is a
+# 6 GB float32 table, built twice over by the division that normalised it,
+# and it killed the demo server at a 20 GB cap three times in an hour. The
+# matrix is only ever read a row at a time for its top entries, so it is
+# computed in blocks of rows against pre-normalised vectors and never held
+# whole. A block of 512 rows against 157,780 columns is 323 MB.
+SIMILARITY_BLOCK_ROWS = 512
+
+
+def _unit_rows(m):
+    m = np.asarray(m, dtype=np.float32)
+    return m / (np.linalg.norm(m, axis=1, keepdims=True) + 1e-8)
+
+
+def iter_similarity_blocks(source_embeddings, target_embeddings, cancellation=None,
+                           block_rows=SIMILARITY_BLOCK_ROWS):
+    """Yield (first_row_index, cosine block) for successive blocks of source rows."""
+    src = _unit_rows(source_embeddings)
+    tgt_t = _unit_rows(target_embeddings).T
+    for start in range(0, src.shape[0], block_rows):
+        if cancellation:
+            cancellation.check()
+        yield start, src[start:start + block_rows] @ tgt_t
+
+
+def top_pairs_by_block(source_embeddings, target_embeddings, top_n_per_source, min_score,
+                       cancellation=None, block_rows=SIMILARITY_BLOCK_ROWS):
+    """(source_idx, target_idx, cosine) for each source row's best targets at or
+    above min_score, at most top_n_per_source per row, computed block by block.
+    Same pairs as the full-matrix version, in the same per-row order."""
+    out = []
+    want = max(1, top_n_per_source * 2)
+    for start, block in iter_similarity_blocks(source_embeddings, target_embeddings, cancellation, block_rows):
+        k = min(want, block.shape[1])
+        for r in range(block.shape[0]):
+            row = block[r]
+            cand = np.argpartition(-row, k - 1)[:k] if k < row.shape[0] else np.arange(row.shape[0])
+            cand = cand[np.argsort(-row[cand], kind='stable')]
+            count = 0
+            for tgt_idx in cand:
+                sim = float(row[tgt_idx])
+                if sim >= min_score:
+                    out.append((start + r, int(tgt_idx), sim))
+                    count += 1
+                    if count >= top_n_per_source:
+                        break
+    return out
+
 def get_model(language: str = 'la'):
     """
     Lazily load the appropriate sentence transformer model based on language.
@@ -222,35 +272,16 @@ def find_semantic_matches(source_units: List[Dict], target_units: List[Dict],
             logger.error(f"Error computing embeddings: {e}")
             return [], 0
     
-    logger.info(f"Computing similarity matrix ({len(source_embeddings)} x {len(target_embeddings)})...")
+    logger.info(f"Computing similarity in blocks ({len(source_embeddings)} x {len(target_embeddings)})...")
 
-    similarity_matrix = np.dot(source_embeddings, target_embeddings.T)
-    source_norms = np.linalg.norm(source_embeddings, axis=1, keepdims=True)
-    target_norms = np.linalg.norm(target_embeddings, axis=1, keepdims=True)
-    similarity_matrix = similarity_matrix / (source_norms @ target_norms.T + 1e-8)
-
-    matches = []
-
-    for src_idx in range(len(source_embeddings)):
-        if cancellation:
-            cancellation.check()
-        row = similarity_matrix[src_idx]
-        top_indices = np.argsort(row)[::-1][:top_n_per_source * 2]
-
-        count = 0
-        for tgt_idx in top_indices:
-            sim = float(row[tgt_idx])
-            if sim >= min_score:
-                matches.append({
-                    'source_idx': int(src_idx),
-                    'target_idx': int(tgt_idx),
-                    'matched_lemmas': [],
-                    'match_basis': 'semantic',
-                    'semantic_score': sim
-                })
-                count += 1
-                if count >= top_n_per_source:
-                    break
+    matches = [{
+        'source_idx': src_idx,
+        'target_idx': tgt_idx,
+        'matched_lemmas': [],
+        'match_basis': 'semantic',
+        'semantic_score': sim,
+    } for src_idx, tgt_idx, sim in top_pairs_by_block(
+        source_embeddings, target_embeddings, top_n_per_source, min_score, cancellation)]
 
     matches.sort(key=lambda x: x.get('semantic_score', 0), reverse=True)
 
@@ -480,37 +511,18 @@ def find_crosslingual_matches(source_units: List[Dict], target_units: List[Dict]
             logger.error(f"Error computing cross-lingual embeddings: {e}")
             return [], 0
     
-    logger.info(f"Computing similarity matrix ({len(source_embeddings)} x {len(target_embeddings)})...")
+    logger.info(f"Computing similarity in blocks ({len(source_embeddings)} x {len(target_embeddings)})...")
 
-    similarity_matrix = np.dot(source_embeddings, target_embeddings.T)
-    source_norms = np.linalg.norm(source_embeddings, axis=1, keepdims=True)
-    target_norms = np.linalg.norm(target_embeddings, axis=1, keepdims=True)
-    similarity_matrix = similarity_matrix / (source_norms @ target_norms.T + 1e-8)
-
-    matches = []
-
-    for src_idx in range(len(source_embeddings)):
-        if cancellation:
-            cancellation.check()
-        row = similarity_matrix[src_idx]
-        top_indices = np.argsort(row)[::-1][:top_n_per_source * 2]
-
-        count = 0
-        for tgt_idx in top_indices:
-            sim = float(row[tgt_idx])
-            if sim >= min_score:
-                matches.append({
-                    'source_idx': int(src_idx),
-                    'target_idx': int(tgt_idx),
-                    'matched_lemmas': [],
-                    'match_basis': 'semantic_cross',
-                    'semantic_score': sim,
-                    'source_language': source_language,
-                    'target_language': target_language
-                })
-                count += 1
-                if count >= top_n_per_source:
-                    break
+    matches = [{
+        'source_idx': src_idx,
+        'target_idx': tgt_idx,
+        'matched_lemmas': [],
+        'match_basis': 'semantic_cross',
+        'semantic_score': sim,
+        'source_language': source_language,
+        'target_language': target_language,
+    } for src_idx, tgt_idx, sim in top_pairs_by_block(
+        source_embeddings, target_embeddings, top_n_per_source, min_score, cancellation)]
 
     matches.sort(key=lambda x: x.get('semantic_score', 0), reverse=True)
 
