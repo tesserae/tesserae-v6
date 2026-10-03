@@ -1192,7 +1192,8 @@ def _read_results(results, src, tgt, question, all_facts, ran):
     tgt_id = str(tgt.get('id') or '')
     facts = _findings.summarize_results(results, source_id=src_id, target_id=tgt_id,
                                         limit=len(results))
-    block = _findings.format_for_narration(facts, passages=results)
+    block = _findings.format_for_narration(facts, passages=results,
+                                           language=src.get('language') or tgt.get('language'))
     ask = (f'{block}\n\nThe scholar asks: {question}' if question
            else f'{block}\n\nAnalyse what this evidence supports.')
     yield ('step', f'reading the first {len(results)} parallels')
