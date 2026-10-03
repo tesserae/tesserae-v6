@@ -17,6 +17,7 @@ import hashlib
 import hmac
 import os
 import re
+import uuid
 
 from flask import Blueprint, jsonify, request
 
@@ -51,7 +52,10 @@ def upload(job, name):
     folder = os.path.join(UPLOAD_ROOT, job)
     os.makedirs(folder, exist_ok=True)
     final = os.path.join(folder, name)
-    partial = final + '.part'
+    # A unique partial name, so two retries of the same part cannot write
+    # into one file; a finished upload of the same name replaces the earlier
+    # one, which is what a retry wants.
+    partial = f'{final}.{uuid.uuid4().hex}.part'
     digest = hashlib.sha256()
     size = 0
     with open(partial, 'wb') as out:

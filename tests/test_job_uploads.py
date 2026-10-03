@@ -26,7 +26,7 @@ def test_right_token_stores_the_file_and_reports_its_hash(client):
     assert r.status_code == 200, r.data
     assert r.json['bytes'] == 10000 and r.json['sha256'] == hashlib.sha256(body).hexdigest()
     assert (root / 'embed-1' / 'part-000.npy').read_bytes() == body
-    assert not (root / 'embed-1' / 'part-000.npy.part').exists()
+    assert [f.name for f in (root / 'embed-1').iterdir() if f.name.endswith('.part')] == []
 
 
 def test_wrong_or_missing_token_is_refused(client):
