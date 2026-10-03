@@ -185,7 +185,7 @@ def summarize_results(results, source_id=None, target_id=None, limit=25):
     return facts
 
 
-def format_for_narration(facts, passages=None, max_passages=10, text_chars=400):
+def format_for_narration(facts, passages=None, max_passages=10, text_chars=400, language=None):
     """Render computed facts as the prompt block the model narrates.
 
     Plain text rather than JSON on purpose: asking a small model to reason inside
@@ -249,34 +249,60 @@ def format_for_narration(facts, passages=None, max_passages=10, text_chars=400):
             tr = _ref_of(p, 'target')
             lines.append(f'- {sr}: "{str(s)[:text_chars]}"')
             lines.append(f'  {tr}: "{str(t)[:text_chars]}"')
-            note = pair_evidence_note(p)
+            note = pair_evidence_note(p, language)
             if note:
                 lines.append(f'  {note}')
     return '\n'.join(lines)
 
 
-def pair_evidence_note(result):
+_doc_freq_cache = {}
+
+
+def _corpus_doc_freq(language):
+    """lemma -> number of texts in the language's index that contain it, and
+    the number of texts; from the index's lemma_doc_freq table. Cached for
+    the process; empty when the index is not available."""
+    if language in _doc_freq_cache:
+        return _doc_freq_cache[language]
+    table, total = {}, 0
+    try:
+        from backend.inverted_index import get_connection
+        con = get_connection(language)
+        if con is not None:
+            total = con.execute('SELECT COUNT(*) FROM texts').fetchone()[0]
+            table = dict(con.execute('SELECT lemma, df FROM lemma_doc_freq').fetchall())
+    except Exception:  # noqa: BLE001
+        table, total = {}, 0
+    _doc_freq_cache[language] = (table, total)
+    return table, total
+
+
+def pair_evidence_note(result, language=None):
     """One line of facts about a pair's shared words, so a reading can say
     "common" or "rare" from the engine's figures and not from memory.
 
     On 2 October 2026 the model called "Latio ... intulerit" the common
-    stock of epic about the founding of Rome. The engine's figures said the
-    opposite: both lemmas occur a handful of times in the corpus, and the
-    pairing recurs nowhere else. The figures were not in the block, so the
-    model reached for what it knew. Now they are.
+    stock of epic about the founding of Rome, with nothing in its block
+    about how common the words are. The measure that answers that question
+    is corpus-wide: in how many of the language's texts does the lemma
+    occur (the index's lemma_doc_freq). The per-pair 'frequency' the scorer
+    carries counts occurrences within the two texts compared and says
+    nothing about the corpus, so it is not used here.
     """
     words = result.get('matched_words') or []
+    table, total = _corpus_doc_freq(language) if language else ({}, 0)
     parts = []
     for w in words[:6]:
         if not isinstance(w, dict):
             continue
         lemma = w.get('lemma') or w.get('source_word') or ''
-        freq = w.get('frequency')
         if not lemma:
             continue
-        if isinstance(freq, (int, float)):
-            band = ('rare' if freq <= 20 else 'uncommon' if freq <= 200 else 'common')
-            parts.append(f'{lemma} ({band}, {int(freq)} occurrences in the corpus)')
+        df = table.get(lemma)
+        if total and df is not None:
+            share = df / total
+            band = 'rare' if share < 0.02 else 'uncommon' if share < 0.15 else 'common'
+            parts.append(f'{lemma} ({band}: in {df} of {total} {language_name(language)} texts)')
         else:
             parts.append(str(lemma))
     out = []
@@ -290,3 +316,7 @@ def pair_evidence_note(result):
             out.append(f'this pairing of words recurs in {fc} works in the corpus'
                        + (', a common pairing' if fc >= 5 else ''))
     return '; '.join(out) if out else ''
+
+
+def language_name(code):
+    return {'la': 'Latin', 'grc': 'Greek', 'en': 'English', 'he': 'Hebrew', 'cop': 'Coptic'}.get(code or '', '')
