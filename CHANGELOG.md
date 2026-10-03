@@ -9,6 +9,14 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-03
 
+### Help
+- "How the system is built" says how the server reaches the two BullsAI
+  parts: the gateway with a project key that carries a daily allowance, the
+  compute with a service account that lets the server start GPU jobs on its
+  own, since a person's sign-in expires after a few hours. Both boxes in the
+  diagram carry an access line. No credential appears anywhere in the page
+  or the code.
+
 ### Browse Corpus and Reader
 - The button that opens a work's description now reads "About this text"
   in both places (it read "About", which said too little, especially in the
