@@ -9,6 +9,16 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-03
 
+### Blurbs
+- 1,559 of the 1,649 work descriptions rewritten for readability: three to
+  nine sentences of at most 40 words, no list over four items, no Latin or
+  Greek quoted except a title, each Latin or Greek title glossed in English
+  at its first mention (199 glosses, every one checked, 8 corrected or
+  removed), and the sentence explaining a title or a work's background
+  restored where the complete-text rewrite had dropped it. Across the
+  changed descriptions the longest sentence fell from a median of 55 words
+  to 27. 90 descriptions keep their text; two more were edited by hand.
+
 ### Jobs
 - A GPU job on the campus cluster can return its result file: `PUT
   /api/jobs/upload/<job>/<name>` with the job's token in `X-Job-Token`
