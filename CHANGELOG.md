@@ -32,6 +32,18 @@ behind each, are in docs/DECISIONS.md.
   in the repository. Nothing is served yet: no language handler is
   registered for `ar`, `fa` or `ur`, so none of the three appears in the
   corpus list, Browse Corpus, Theme Search or downloads.
+- The per-language modules for Arabic, Persian and Urdu (tokenizers,
+  normalizers, stoplists, the shared Perso-Arabic comparison form and the
+  poetics/form-matching module) are now in the repository as new files
+  under `backend/arabic/`, `backend/persian/`, `backend/urdu/`,
+  `backend/perso_arabic.py`, `backend/poetics.py`,
+  `backend/served_languages.py` and `backend/surface_lemmas.py`, each with
+  its own `register()` function in the same pattern as Hebrew and Coptic.
+  Registered by nothing: no file on main calls `register()` for these three
+  languages, so they serve nothing yet and the corpus list, Browse Corpus,
+  Theme Search and downloads are unchanged. The hook points that will call
+  them, add the `form` fusion channel and apply the curated stoplists are a
+  later pull request.
 
 ### Data operations
 - 2026-10-04 12:45 to 12:51 EDT: the Herodian On Enclitics line tags
