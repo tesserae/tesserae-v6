@@ -7,6 +7,14 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-04
+
+### Data operations
+- 2026-10-04 08:12 to 08:18 EDT: 175 more passage windows received their
+  new description and vector in the live index (510,759 of 510,839 now
+  carry the re-described text, 80 keep the August text); word index
+  rebuilt. Record in docs/DATA_OPERATIONS.md.
+
 ## 2026-10-03
 
 ### Blurbs
