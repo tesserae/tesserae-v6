@@ -16,6 +16,30 @@ const EN_SYNTAX_EXAMPLES = {
   wild: 'lov*', wildFind: 'love, lover, etc.', single: 'w?r',
   and: 'love AND war', or: 'king OR queen', prox: 'love ~ death', phrase: '"the quality of mercy"',
 };
+// Persian, Urdu and Arabic examples use words every diwan has (dil "heart",
+// ishq "love", gul "rose", bulbul "nightingale"; qalb, hubb, layl, nahar).
+// Each was checked against the corpus on 2026-09-06.
+const FA_SYNTAX_EXAMPLES = {
+  wild: 'دل*', wildFind: 'دل، دلبر، دلدار، etc.', single: 'دل?',
+  and: 'عشق AND دل', or: 'گل OR بلبل', prox: 'می ~ ساقی', phrase: '"دل من"',
+};
+const UR_SYNTAX_EXAMPLES = {
+  wild: 'دل*', wildFind: 'دل، دلبر، دلدار، etc.', single: 'دل?',
+  and: 'عشق AND دل', or: 'گل OR بلبل', prox: 'عشق ~ دل', phrase: '"دل کی"',
+};
+const AR_SYNTAX_EXAMPLES = {
+  wild: 'قلب*', wildFind: 'قلب، قلبي، قلوب، etc.', single: 'قل?',
+  and: 'الله AND رسول', or: 'ليل OR نهار', prox: 'الله ~ رسول', phrase: '"رسول الله"',
+};
+const SYNTAX_EXAMPLES_BY_LANGUAGE = {
+  la: LA_SYNTAX_EXAMPLES, en: EN_SYNTAX_EXAMPLES,
+  fa: FA_SYNTAX_EXAMPLES, ur: UR_SYNTAX_EXAMPLES, ar: AR_SYNTAX_EXAMPLES,
+};
+const ARABIC_SCRIPT = new Set(['fa', 'ur', 'ar']);
+const TEXT_ID_EXAMPLES = {
+  fa: 'hafez.diwan', ur: 'ghalib.diwan_wikisource', ar: 'busiri.burda',
+  grc: 'homer.iliad', en: 'milton.paradise_lost', cop: 'shenoute.abraham',
+};
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { orderEras, ERA_COLORS } from '../../utils/eras';
@@ -231,7 +255,8 @@ const WildcardSearch = ({ language }) => {
   };
 
   const languageLabel = languageName(language);
-  const syntaxEx = language === 'grc' ? GREEK_SYNTAX_EXAMPLES : language === 'en' ? EN_SYNTAX_EXAMPLES : LA_SYNTAX_EXAMPLES;
+  const syntaxEx = language === 'grc' ? GREEK_SYNTAX_EXAMPLES : (SYNTAX_EXAMPLES_BY_LANGUAGE[language] || LA_SYNTAX_EXAMPLES);
+  const arabicScript = ARABIC_SCRIPT.has(language);
 
   return (
     <div className="space-y-4">
@@ -264,6 +289,22 @@ const WildcardSearch = ({ language }) => {
             <li><code className="bg-gray-200 px-1 rounded">OR</code> either term (e.g., <code>{syntaxEx.or}</code>)</li>
             <li><code className="bg-gray-200 px-1 rounded">~</code> proximity search (e.g., <code>{syntaxEx.prox}</code>, within ~100 characters)</li>
             <li><code className="bg-gray-200 px-1 rounded">"..."</code> exact phrase (e.g., <code>{syntaxEx.phrase}</code>)</li>
+            {arabicScript && (
+              <li className="text-gray-500 pt-1">
+                To type {languageLabel}, switch your computer's keyboard to a {languageLabel} layout
+                (on a Mac: System Settings, Keyboard, Input Sources; on Windows: Settings, Time &amp; Language,
+                Language). Or copy a word from any passage on this site and paste it here. Vowel marks are
+                ignored, so a word matches with or without them.
+              </li>
+            )}
+            {language === 'ar' && (
+              <li className="text-gray-500">
+                Arabic writes the article and prepositions attached to the word (القلب, بحب), and a plain
+                word matches only the bare form: <code>قلب</code> finds 60 lines, <code>*قلب*</code> finds 337.
+                Put <code>*</code> on both sides of each word in AND and proximity searches too:
+                <code>*قلب* AND *حب*</code>.
+              </li>
+            )}
           </ul>
         )}
       </div>

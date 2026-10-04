@@ -163,6 +163,15 @@ class TestUrduTokenizer:
         assert len(lemmas) == len(tokens) == len(pos_tags) == 4
 
 
+<<<<<<< HEAD
+=======
+@pytest.mark.skip(
+    reason="stage 2b: backend.text_processor.TextProcessor._tokenize_and_lemmatize "
+           "returns a 5-tuple on main (no hemistich_breaks) and process_line() does "
+           "not set a hemistich_breaks key; the hemistich-break propagation hook for "
+           "Persian/Urdu/Arabic line splitting is not yet applied to text_processor.py."
+)
+>>>>>>> origin/main
 class TestTextProcessorHemistichPropagation:
     """Confirm text_processor.py's dispatcher (the shared module) carries the
     6th tuple element through additively -- Latin/Greek/English/Coptic/Hebrew

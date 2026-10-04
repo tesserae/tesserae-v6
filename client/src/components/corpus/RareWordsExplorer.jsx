@@ -81,13 +81,29 @@ export default function RareWordsExplorer() {
     }
   }, [viewerOpen, viewerLoading, viewerLines]);
 
-  const languageTabs = [
+  // Served languages come from /api/languages; the page opens on the first
+  // served one (a preview may not serve Latin).
+  const ALL_LANGUAGE_TABS = [
     { code: 'la', label: 'Latin' },
     { code: 'grc', label: 'Greek' },
     { code: 'en', label: 'English' },
     { code: 'he', label: 'Hebrew' },
-    { code: 'cop', label: 'Coptic' }
+    { code: 'cop', label: 'Coptic' },
+    { code: 'fa', label: 'Persian' },
+    { code: 'ur', label: 'Urdu' },
+    { code: 'ar', label: 'Arabic' }
   ];
+  const [languageTabs, setLanguageTabs] = useState(ALL_LANGUAGE_TABS);
+  useEffect(() => {
+    fetch('/api/languages').then(r => r.json()).then(data => {
+      const codes = (data.languages || []).map(l => l.code);
+      const served = ALL_LANGUAGE_TABS.filter(t => codes.includes(t.code));
+      if (served.length) {
+        setLanguageTabs(served);
+        if (!codes.includes(language)) setLanguage(served[0].code);
+      }
+    }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -225,8 +241,12 @@ export default function RareWordsExplorer() {
     a.click();
   }, [language, maxOccurrences, sortBy, sortOrder]);
 
+
   const getDictionaryName = (lang) => {
-    if (lang === 'en') return 'Wiktionary';
+    if (lang === 'fa') return 'Vajehyab';
+    if (lang === 'ur') return 'Rekhta Dictionary';
+    if (lang === 'ar') return 'Almaany';
+    if (['en', 'he'].includes(lang)) return 'Wiktionary';
     if (lang === 'cop') return 'Coptic Dictionary';
     if (lang === 'he') return 'Wiktionary';
     return 'Logeion';

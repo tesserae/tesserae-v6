@@ -23,6 +23,41 @@ export const ERA_ORDER_BY_LANG = {
   // list until something later is added. Without a key here the filter fell
   // back to the Latin eras, which is the same gap Coptic had.
   he:  ['Biblical', 'Unknown'],
+  // Persian dynastic era labels. Persian OVERVIEW.md ("19 authors dated as of
+  // 2026-08-25 ... with dynastic era labels (Samanid, Ghaznavid, Seljuk,
+  // Ilkhanid, Timurid, Safavid, Mughal, Modern). These labels are editorial
+  // and want a specialist.") names most of these; the authoritative source is
+  // backend/author_dates.json itself, whose fa entries (editorial-2026-08-25,
+  // 19 of the corpus's 20 authors dated, the 20th -- fa/iqbal -- added Phase 3
+  // by identity with fa/iqbal_lahori) use a finer set including two labels the
+  // OVERVIEW.md summary omitted (Khwarazmian, "Seljuk of Rum"). Order below is
+  // chronological by each label's earliest attested author year in that file
+  // (Samanid 941 -> Ghaznavid 1020 -> Seljuk 1088 -> Khwarazmian 1221 ->
+  // "Seljuk of Rum" 1273 -> Ilkhanid 1292 -> Muzaffarid 1390 -> Timurid 1492 ->
+  // Safavid 1676 -> Mughal 1720 -> Modern 1938). Still "editorial and wants a
+  // specialist" per the source note -- not independently re-verified here.
+  fa:  ['Samanid', 'Ghaznavid', 'Seljuk', 'Khwarazmian', 'Seljuk of Rum', 'Ilkhanid',
+        'Muzaffarid', 'Timurid', 'Safavid', 'Mughal', 'Modern', 'Unknown'],
+  // Arabic: 'Pre-Islamic' and 'Early Islamic' are sourced (research/languages/
+  // arabic/OVERVIEW.md + backend/author_dates.json's editorial-2026-08-25
+  // imruulqais/tarafa/quran rows). al-Busiri (13th c.) and Ahmad Shawqi
+  // (d. 1932), added to author_dates.json Phase 3, have sourced DATES but no
+  // sourced era-CATEGORY name for medieval/modern Arabic literary periods, so
+  // both carry era 'Unknown' rather than an invented label -- flagged for a
+  // specialist, same as Persian's dynastic labels.
+  // 2026-09-06: the Arabic Wikisource import (Mutanabbi, Abu Nuwas, the
+  // Mu'allaqat, al-Nawawi and others) brought authors from every classical
+  // period, so the list now runs Pre-Islamic -> Early Islamic (to 661) ->
+  // Umayyad -> Abbasid -> Andalusi -> Mamluk -> Modern, the standard
+  // dynastic periodization of Arabic literary history.
+  ar:  ['Pre-Islamic', 'Early Islamic', 'Umayyad', 'Abbasid', 'Andalusi', 'Mamluk', 'Modern', 'Unknown'],
+  // Urdu: backend/author_dates.json's ur entries (editorial-2026-08-25 for
+  // ghalib/iqbal, Phase 3 for mir by identity with ghalib's bucket -- Mir,
+  // 1723-1810, lived entirely within it) use exactly two labels: 'Mughal /
+  // Colonial' (Mir, Ghalib) and 'Modern' (Iqbal). No finer period scheme (e.g.
+  // splitting Mughal from Colonial) is sourced anywhere in the workspaces or
+  // research notes, so none is invented here.
+  ur:  ['Mughal / Colonial', 'Modern', 'Unknown'],
 };
 
 export const ERA_COLORS = {
@@ -56,6 +91,28 @@ export const ERA_COLORS = {
   'Classical Coptic': 'rgba(170, 110, 70, 0.7)',
   'Late Antique Coptic': 'rgba(139, 69, 19, 0.7)',
   'Bohairic Medieval': 'rgba(110, 90, 130, 0.7)',
+  // added: Persian dynastic eras (see ERA_ORDER_BY_LANG.fa for sourcing)
+  'Samanid': 'rgba(180, 140, 60, 0.7)',
+  'Ghaznavid': 'rgba(160, 90, 50, 0.7)',
+  'Seljuk': 'rgba(140, 60, 90, 0.7)',
+  'Khwarazmian': 'rgba(120, 100, 40, 0.7)',
+  'Seljuk of Rum': 'rgba(160, 80, 110, 0.7)',
+  'Ilkhanid': 'rgba(110, 70, 130, 0.7)',
+  'Muzaffarid': 'rgba(90, 130, 60, 0.7)',
+  'Timurid': 'rgba(180, 70, 70, 0.7)',
+  'Safavid': 'rgba(20, 130, 100, 0.7)',
+  'Mughal': 'rgba(150, 110, 30, 0.7)',
+  // added: Urdu era (distinct key from Persian's plain 'Mughal' -- Urdu's
+  // sourced bucket spans Mughal AND colonial British India, see
+  // ERA_ORDER_BY_LANG.ur)
+  'Mughal / Colonial': 'rgba(130, 90, 40, 0.7)',
+  // added: Arabic eras
+  'Pre-Islamic': 'rgba(100, 60, 30, 0.7)',
+  'Early Islamic': 'rgba(40, 130, 90, 0.7)',
+  'Umayyad': 'rgba(60, 110, 150, 0.7)',
+  'Abbasid': 'rgba(120, 70, 40, 0.7)',
+  'Andalusi': 'rgba(170, 100, 60, 0.7)',
+  'Mamluk': 'rgba(100, 80, 120, 0.7)',
   // fallback
   'Unknown': 'rgba(128, 128, 128, 0.7)',
 };

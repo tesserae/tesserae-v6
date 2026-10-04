@@ -24,6 +24,16 @@ behind each, are in docs/DECISIONS.md.
   six ported suites pass, two assumptions in them updated to main's current
   constants (the quotation weight, twelve channels).
 
+### Interface
+- The pages know Persian, Urdu and Arabic: tabs in Browse Corpus and the
+  Rare Words Explorer, era lists for the three, right-to-left text and the
+  Arabic-script folding used to highlight matches, the refrain, rhyme and
+  meter badges on a result pair, inflected-form hints in Line Search, the
+  Arabic-script font in PDF exports, dictionary links for the three, and
+  Downloads entries. Only the demo branch's language-related changes were
+  taken; main's own citations, help text, sample searches and era table
+  stand. Nothing shows until a server serves one of the languages.
+
 ### Tessa
 - "Are you still working?", "is it done?" and the like, asked after a
   comparison that outlasted her wait, are now answered about that

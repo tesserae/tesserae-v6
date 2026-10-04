@@ -47,7 +47,10 @@ const PREFERRED_WORK = {
  * Reader in turn, so the corpus can be followed by association.
  */
 export default function ReaderPage() {
-  const [work, setWork] = useState(() => paramOr('work', DEFAULT_WORK));
+  // No work named in the address: leave it empty and let the preferred-work
+  // effect below choose by language. Defaulting to the Aeneid here opened
+  // Latin under an Arabic address (/read?lang=ar) (NC, 2026-09-07).
+  const [work, setWork] = useState(() => paramOr('work', ''));
   const [language, setLanguage] = useState(() => paramOr('lang', DEFAULT_LANGUAGE));
   const { hierarchy, loading: corpusLoading } = useCorpus(language);
   // Where a link asked us to land. Theme Search sends the reader here with a

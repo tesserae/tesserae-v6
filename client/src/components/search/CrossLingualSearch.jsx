@@ -3,6 +3,9 @@ import { LoadingSpinner, SearchableAuthorSelect } from '../common';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { createSearchId, requestSearchCancellation } from '../../utils/api';
+import { dirFor } from '../../utils/rtl';
+import { exportRowsToPDF } from '../../utils/exportResults';
+import { ResultsInsight } from '../assistant';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -22,6 +25,9 @@ const LANG_PAIRS = [
   { key: 'grc-en', source: 'grc', target: 'en', label: 'Greek → English' },
   { key: 'he-grc', source: 'he', target: 'grc', label: 'Hebrew → Greek' },
   { key: 'he-la', source: 'he', target: 'la', label: 'Hebrew → Latin' },
+  { key: 'fa-ur', source: 'fa', target: 'ur', label: 'Persian → Urdu' },
+  { key: 'ar-fa', source: 'ar', target: 'fa', label: 'Arabic → Persian' },
+  { key: 'ar-ur', source: 'ar', target: 'ur', label: 'Arabic → Urdu' },
 ];
 
 const LANG_LABELS = {
@@ -29,6 +35,9 @@ const LANG_LABELS = {
   la: { name: 'Latin', color: 'red', bgClass: 'bg-red-50', textClass: 'text-red-700', refClass: 'text-red-600', btnClass: 'bg-red-700 text-white' },
   en: { name: 'English', color: 'red', bgClass: 'bg-red-50', textClass: 'text-red-700', refClass: 'text-red-600', btnClass: 'bg-red-700 text-white' },
   he: { name: 'Hebrew', color: 'red', bgClass: 'bg-red-50', textClass: 'text-red-700', refClass: 'text-red-600', btnClass: 'bg-red-700 text-white' },
+  fa: { name: 'Persian', color: 'red', bgClass: 'bg-red-50', textClass: 'text-red-700', refClass: 'text-red-600', btnClass: 'bg-red-700 text-white' },
+  ur: { name: 'Urdu', color: 'red', bgClass: 'bg-red-50', textClass: 'text-red-700', refClass: 'text-red-600', btnClass: 'bg-red-700 text-white' },
+  ar: { name: 'Arabic', color: 'red', bgClass: 'bg-red-50', textClass: 'text-red-700', refClass: 'text-red-600', btnClass: 'bg-red-700 text-white' },
 };
 
 const LANG_DEFAULTS = {
@@ -36,6 +45,11 @@ const LANG_DEFAULTS = {
   la: { author: 'vergil', work: 'aeneid', part: '.part.1.' },
   en: { author: 'milton', work: 'paradise_lost', part: null },
   he: { author: 'hebrew_bible', work: 'ruth', part: null },
+  fa: { author: 'hafez', work: 'diwan', part: null },
+  ur: { author: 'ghalib', work: 'diwan_wikisource', part: null },
+  // Al-Baqara, the longest sura: 158 parallels to Hafez and 22 to Ghalib in
+  // about two seconds. Al-Fatiha's seven verses gave eight and one.
+  ar: { author: 'quran', work: 'al_baqara', part: null },
 };
 
 export default function CrossLingualSearch() {
@@ -50,6 +64,12 @@ export default function CrossLingualSearch() {
   const [error, setError] = useState(null);
 
   const [langPair, setLangPair] = useState('grc-la');
+  // The pairs this server can actually search, from /api/languages. A
+  // preview serving only Persian, Urdu and Arabic used to open on Greek ->
+  // Latin with empty menus, and the text lists were fetched for a fixed four
+  // languages, so the Persian and Urdu menus were empty everywhere
+  // (2026-09-06). Falls back to the full list if the request fails.
+  const [pairs, setPairs] = useState(LANG_PAIRS);
   const [sourceAuthor, setSourceAuthor] = useState('');
   const [sourceWork, setSourceWork] = useState('');
   const [sourceSection, setSourceSection] = useState('');
@@ -75,9 +95,42 @@ export default function CrossLingualSearch() {
   const abortRef = useRef(null);
   const activeSearchId = useRef(null);
 
-  const currentPair = LANG_PAIRS.find(p => p.key === langPair) || LANG_PAIRS[0];
+  const currentPair = pairs.find(p => p.key === langPair) || pairs[0];
   const srcLang = LANG_LABELS[currentPair.source];
   const tgtLang = LANG_LABELS[currentPair.target];
+
+  // Persian, Urdu and Arabic pairs match on a different footing from the
+  // classical ones, and the page used to describe every pair as SPhilBERTa
+  // plus a translation dictionary. Said honestly per pair (NC, 2026-09-07).
+  const sharedScript = ['fa', 'ur', 'ar'].includes(currentPair.source)
+    && ['fa', 'ur', 'ar'].includes(currentPair.target);
+  const channelNote = sharedScript
+    ? 'Combines AI semantic matching (multilingual-e5) with shared-vocabulary matching: '
+      + 'a word counts when the same word, after spelling normalization, appears in both '
+      + 'lines. Pairs detected by both channels are boosted.'
+    : ['he', 'cop'].includes(currentPair.source) || ['he', 'cop'].includes(currentPair.target)
+      ? 'Combines AI semantic matching with a cross-lingual dictionary built from aligned '
+        + 'texts. Pairs detected by both channels are boosted.'
+      : 'Combines AI semantic matching (SPhilBERTa) with cross-lingual dictionary lookup. '
+        + 'Pairs detected by both channels are boosted.';
+
+  // "Hafez, Diwan" for the chosen text, so a result reads "Hafez, Diwan 1626"
+  // rather than a bare line number. The Persian, Urdu and Arabic reference tags
+  // carry no author abbreviation, unlike "verg. aen. 1.1", so the locus alone
+  // named nothing (NC, 2026-09-07).
+  const textName = (lang, authorKey, workKey) => {
+    const author = (hierarchy[lang] || []).find(a => a.author_key === authorKey);
+    const work = author?.works?.find(w => w.work_key === workKey);
+    return [author?.author, work?.work].filter(Boolean).join(', ');
+  };
+  const srcName = textName(currentPair.source, sourceAuthor, sourceWork);
+  const tgtName = textName(currentPair.target, targetAuthor, targetWork);
+  const withName = (name, ref) => (name ? `${name} ${ref || ''}`.trim() : (ref || ''));
+  // Names are fixed when the search runs, so changing the menus afterwards
+  // does not relabel results that came from the earlier choice.
+  const namesRef = useRef({ src: '', tgt: '' });
+  namesRef.current = { src: srcName, tgt: tgtName };
+  const [resultNames, setResultNames] = useState({ src: '', tgt: '' });
 
   const doSearch = useCallback(async () => {
     if (!sourceSection || !targetSection) {
@@ -689,18 +742,18 @@ export default function CrossLingualSearch() {
                       </div>
                     )}
                     {result.source?.tokens && result.source?.highlight_indices?.length > 0 ? (
-                      <div className="text-gray-700 mt-1" dir={currentPair.source === 'he' ? 'rtl' : undefined} dangerouslySetInnerHTML={{ __html: highlightTokens(result.source.tokens, result.source.highlight_indices) }} />
+                      <div className="text-gray-700 mt-1" dir={dirFor(currentPair.source)} dangerouslySetInnerHTML={{ __html: highlightTokens(result.source.tokens, result.source.highlight_indices) }} />
                     ) : (
-                      <div className="text-gray-700 mt-1" dir={currentPair.source === 'he' ? 'rtl' : undefined}>{result.source?.text || result.source_text || ''}</div>
+                      <div className="text-gray-700 mt-1" dir={dirFor(currentPair.source)}>{result.source?.text || result.source_text || ''}</div>
                     )}
                   </div>
                   <div>
                     <div className="text-xs text-gray-500 mb-1">Target</div>
-                    <div className="font-medium text-gray-900">{result.target?.ref || result.target_locus}</div>
+                    <div className="font-medium text-gray-900">{withName(resultNames.tgt, result.target?.ref || result.target_locus)}</div>
                     {result.target?.tokens && result.target?.highlight_indices?.length > 0 ? (
-                      <div className="text-gray-700 mt-1" dir={currentPair.target === 'he' ? 'rtl' : undefined} dangerouslySetInnerHTML={{ __html: highlightTokens(result.target.tokens, result.target.highlight_indices) }} />
+                      <div className="text-gray-700 mt-1" dir={dirFor(currentPair.target)} dangerouslySetInnerHTML={{ __html: highlightTokens(result.target.tokens, result.target.highlight_indices) }} />
                     ) : (
-                      <div className="text-gray-700 mt-1" dir={currentPair.target === 'he' ? 'rtl' : undefined}>{result.target?.text || result.target_text || ''}</div>
+                      <div className="text-gray-700 mt-1" dir={dirFor(currentPair.target)}>{result.target?.text || result.target_text || ''}</div>
                     )}
                   </div>
                 </div>

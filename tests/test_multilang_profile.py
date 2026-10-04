@@ -29,10 +29,14 @@ def test_persian_ghazal_shape_and_intent():
     assert set(p) == set(CHANNEL_WEIGHTS)
     assert p['rare_word'] < CHANNEL_WEIGHTS['rare_word']
     assert p['lemma'] > CHANNEL_WEIGHTS['lemma']
+<<<<<<< HEAD
     # The default quotation weight was 0 when this profile was written; main
     # set it to 10 on 2026-09-19 (measured on prose quotations of Vergil), so
     # only the profile's own value is asserted here.
     assert p['quotation'] > 0
+=======
+    assert p['quotation'] > 0 and CHANNEL_WEIGHTS['quotation'] == 0
+>>>>>>> origin/main
 
 
 def test_other_language_defaults_unchanged():

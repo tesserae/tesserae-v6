@@ -48,13 +48,31 @@ export default function CorpusBrowser() {
   const [selectedSource, setSelectedSource] = useState(null);
   const [selectedTarget, setSelectedTarget] = useState(null);
 
-  const languageTabs = [
+  // Every language the site knows; the served subset comes from
+  // /api/languages (a preview serves a few), and the page opens on the first
+  // served one. The fixed four-entry list opened a Persian-only preview on
+  // Latin, whose "not served" reply is not a list, and the page went blank.
+  const ALL_LANGUAGE_TABS = [
     { code: 'la', label: 'Latin' },
     { code: 'grc', label: 'Greek' },
     { code: 'en', label: 'English' },
     { code: 'he', label: 'Hebrew' },
-    { code: 'cop', label: 'Coptic' }
+    { code: 'cop', label: 'Coptic' },
+    { code: 'fa', label: 'Persian' },
+    { code: 'ur', label: 'Urdu' },
+    { code: 'ar', label: 'Arabic' }
   ];
+  const [languageTabs, setLanguageTabs] = useState(ALL_LANGUAGE_TABS);
+  useEffect(() => {
+    fetch('/api/languages').then(r => r.json()).then(data => {
+      const codes = (data.languages || []).map(l => l.code);
+      const served = ALL_LANGUAGE_TABS.filter(t => codes.includes(t.code));
+      if (served.length) {
+        setLanguageTabs(served);
+        if (!codes.includes(language)) setLanguage(served[0].code);
+      }
+    }).catch(() => {});
+  }, []);
 
   // The era filter's id for a label is the same lowercase/underscore form
   // `normalizeEra` (below) derives from a work's raw `era` field, so the
@@ -285,6 +303,7 @@ export default function CorpusBrowser() {
       window.location.href = '/';
     }
   };
+
 
   return (
     <div className="space-y-4">
