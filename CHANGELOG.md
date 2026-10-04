@@ -19,6 +19,14 @@ behind each, are in docs/DECISIONS.md.
   changed descriptions the longest sentence fell from a median of 55 words
   to 27. 90 descriptions keep their text; two more were edited by hand.
 
+### Search
+- The semantic channel computes similarity in blocks of 512 source rows
+  against pre-normalised vectors, never the whole matrix. A pair of 9,502
+  by 157,780 lines (two Persian diwans, all results) built a 6 GB table
+  twice over and was killed at a 20 GB memory cap three times in an hour on
+  the demo server; the same code ran on the live site. The pairs returned
+  are the same as before, in the same order (test).
+
 ### Jobs
 - A GPU job on the campus cluster can return its result file: `PUT
   /api/jobs/upload/<job>/<name>` with the job's token in `X-Job-Token`
