@@ -67,6 +67,38 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-04 Herodian On Enclitics line tags: the derived stores retagged (run 12:45 to 12:51 EDT)
+
+### What and why
+- #603 retagged the 26 lines of `texts/grc/aelius_herodianus.on_enclitics.tess`
+  from a CTS-URN form to the plain `<aelius_herodianus.on_enclitics N>`,
+  the last Greek file found carrying URN tags (the Septuagint's 21 were done
+  on 2 October). Text unchanged. The reference string lives in several
+  stores, so each followed. Production pulled to b5a8cf3.
+
+### Steps
+- Greek lemma cache: `scripts/batch_lemma_cache.py grc` rebuilt the one
+  changed file by content hash.
+- Index: `grc_index.db` copied, the file replaced in the copy with
+  `scripts/corpus/add_texts_to_index.py --replace`, `lemma_doc_freq`
+  rebuilt (221,709 lemmas), integrity ok, swapped in, backup
+  `grc_index.db.bak-herodianrefs-20261004-1245`. After: 1,268 texts,
+  478,011 lines, 10,860,180 postings. The file's refs now read
+  `aelius_herodianus.on_enclitics 1` and so on, and no URN ref remains.
+- Stored references: `scripts/corpus/retag_septuagint_refs.py --work herodian
+  --apply` rewrote 34 values in `window_texts.db`, 8 in
+  `descriptions.jsonl` and 8 in each of the two connections-map caches,
+  each store backed up first.
+- `touch tesseraev6_flask.wsgi` at 12:51, and `scripts/reference_search_check.py` passed.
+
+### Checked afterwards
+- No URN reference remains in the text, the index, the passage index or
+  the map caches.
+- A first run at 12:38 stopped at the integrity assertion on the index
+  copy before any swap, with the lemma cache already rebuilt; the second
+  run, from a fresh copy, passed the same check and completed. The
+  Tessa change #602 was pulled and reloaded at 12:51 right after.
+
 ## 2026-10-04 Passage descriptions: the windows described after the swap (run 08:12 to 08:18 EDT)
 
 ### What and why

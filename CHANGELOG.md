@@ -25,6 +25,10 @@ behind each, are in docs/DECISIONS.md.
   in a data operation after this merges.
 
 ### Data operations
+- 2026-10-04 12:45 to 12:51 EDT: the Herodian On Enclitics line tags
+  followed into the Greek index (one file replaced, `lemma_doc_freq`
+  rebuilt, backup kept), the passage index and the map caches; no URN
+  reference remains anywhere. Record in docs/DATA_OPERATIONS.md.
 - 2026-10-04 08:12 to 08:18 EDT: 175 more passage windows received their
   new description and vector in the live index (510,759 of 510,839 now
   carry the re-described text, 80 keep the August text); word index
