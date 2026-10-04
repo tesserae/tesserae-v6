@@ -1,3 +1,5 @@
+import Pagination from '../common/Pagination';
+import { usePagination } from '../../hooks/usePagination';
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { LoadingSpinner } from '../common';
 import { normalizeGreek } from '../../utils/greekUtils';
@@ -28,7 +30,6 @@ export default function LineSearch({ language }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchType, setSearchType] = useState('lemma');
-  const [displayLimit, setDisplayLimit] = useState(50);
   const [showTimeline, setShowTimeline] = useState(true);
   const [eraFilter, setEraFilter] = useState(null);
   const [authorFilter, setAuthorFilter] = useState(null);
@@ -74,7 +75,7 @@ export default function LineSearch({ language }) {
       }
     };
   }, [loading]);
-  const [browseDisplayLimit, setBrowseDisplayLimit] = useState(100);
+  const browsePagination = usePagination(browseLines, { initialPageSize: 100, resetKey: browseLines });
   const [showAuthorDropdown, setShowAuthorDropdown] = useState(false);
   const [showWorkDropdown, setShowWorkDropdown] = useState(false);
   
@@ -554,6 +555,10 @@ export default function LineSearch({ language }) {
     });
   }, [deduplicatedResults, eraFilter, authorFilter, showPoetry, showProse, sortOrder]);
 
+  // Result identity changes on completion, even when the same query is run again.
+  const paginationResetKey = useMemo(() => ({}), [results, eraFilter, authorFilter, showPoetry, showProse, sortOrder]);
+  const pagination = usePagination(filteredResults, { resetKey: paginationResetKey });
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-lg inline-flex">
@@ -819,13 +824,13 @@ export default function LineSearch({ language }) {
               )}
 
               <div className="divide-y divide-gray-200">
-                {filteredResults.slice(0, displayLimit).map((result, i) => {
+                {pagination.visibleItems.map((result, i) => {
                   const locus = displayLocus(result.locus, result.text_id);
                   return (
                   <div key={i} className="p-4 hover:bg-gray-50">
                     <div className="flex flex-col sm:flex-row sm:items-start gap-2">
                       <span className="text-xs text-gray-500 min-w-[2.5rem] text-right shrink-0 leading-none" style={{paddingTop: '1px'}}>
-                        {i + 1}.
+                        {pagination.startIndex + i + 1}.
                       </span>
                       <div className="sm:w-48 flex-shrink-0 min-w-0 break-words">
                         <div className="text-sm font-medium text-gray-900">
@@ -848,16 +853,7 @@ export default function LineSearch({ language }) {
                   );
                 })}
               </div>
-              {filteredResults.length > displayLimit && (
-                <div className="px-4 py-3 bg-gray-50 text-center">
-                  <button
-                    onClick={() => setDisplayLimit(displayLimit + 50)}
-                    className="text-amber-600 hover:text-amber-800 text-sm"
-                  >
-                    Show more ({displayLimit} of {filteredResults.length})
-                  </button>
-                </div>
-              )}
+              <Pagination {...pagination} idPrefix="linesearch" />
             </div>
           )}
         </>
@@ -1044,7 +1040,7 @@ export default function LineSearch({ language }) {
                 </span>
               </div>
               <div className="max-h-96 overflow-y-auto divide-y">
-                {browseLines.slice(0, browseDisplayLimit).map((line, i) => (
+                {browsePagination.visibleItems.map((line, i) => (
                   <div
                     key={i}
                     className="p-3 hover:bg-amber-50 cursor-pointer flex gap-3"
@@ -1057,16 +1053,7 @@ export default function LineSearch({ language }) {
                   </div>
                 ))}
               </div>
-              {browseLines.length > browseDisplayLimit && (
-                <div className="px-4 py-2 bg-gray-50 border-t text-center">
-                  <button
-                    onClick={() => setBrowseDisplayLimit(browseDisplayLimit + 100)}
-                    className="text-amber-600 hover:text-amber-800 text-sm"
-                  >
-                    Show more ({browseDisplayLimit} of {browseLines.length})
-                  </button>
-                </div>
-              )}
+              <Pagination {...browsePagination} idPrefix="line-browse" itemLabel="lines" />
             </div>
           )}
         </div>

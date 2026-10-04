@@ -33,7 +33,7 @@ export const normalizePageSize = (value, fallback = DEFAULT_PAGE_SIZE) =>
  * @param {number} options.initialPageSize  Starting size when uncontrolled.
  * @param {number} options.pageSize         Controlled size; enables controlled mode.
  * @param {Function} options.onPageSizeChange  Called with a number in controlled mode.
- * @param {string} options.resetKey     Any change returns to page 1. Use a value that
+ * @param {*} options.resetKey     Any change returns to page 1. Use a value that
  *                                      changes once per new result set, so a fresh
  *                                      search with the same result count still resets.
  * @param {boolean} options.pinToFirstPage  Force page 1 (used while a search streams).
@@ -64,14 +64,13 @@ export const usePagination = (items, options = {}) => {
 
   // Return to page 1 when the caller signals a new result set, or when the page
   // size changes. Compared against a ref so it does not fire on mount.
-  const resetSignal = `${resetKey ?? ''}|${pageSize}`;
-  const prevResetSignal = useRef(resetSignal);
+  const prevResetSignal = useRef({ resetKey, pageSize });
   useEffect(() => {
-    if (prevResetSignal.current !== resetSignal) {
-      prevResetSignal.current = resetSignal;
+    if (!Object.is(prevResetSignal.current.resetKey, resetKey) || prevResetSignal.current.pageSize !== pageSize) {
+      prevResetSignal.current = { resetKey, pageSize };
       setCurrentPage(1);
     }
-  }, [resetSignal]);
+  }, [resetKey, pageSize]);
 
   // Keep the stored page valid when the page count shrinks (filters, a smaller
   // result set). The render-time clamp below already guards `visibleItems`;
@@ -127,6 +126,9 @@ export const usePagination = (items, options = {}) => {
     setPage,
     setPageSize,
     resetPage,
+    hasNextPage: effectivePage < totalPages,
+    hasPreviousPage: effectivePage > 1,
+    loading: false,
   };
 };
 
@@ -237,6 +239,9 @@ export const useServerPagination = (resultSet, options = {}, fetchPage) => {
     resetPage: useCallback(() => setCurrentPage(1), []),
     pageLoading,
     pageError,
+    loading: pageLoading,
+    hasNextPage: effectivePage < totalPages,
+    hasPreviousPage: effectivePage > 1,
   };
 };
 

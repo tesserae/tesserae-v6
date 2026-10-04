@@ -268,3 +268,16 @@ describe('usePagination', () => {
     expect(result.current.pageSize).toBe(DEFAULT_PAGE_SIZE);
   });
 });
+
+it('resets on result identity changes and stays put for unrelated renders', () => {
+  const items = makeItems(125);
+  const { result, rerender } = renderHook(({ items }) => usePagination(items, { resetKey: items }), { initialProps: { items } });
+  act(() => result.current.setPage(3));
+  rerender({ items });
+  expect(result.current.currentPage).toBe(3);
+  rerender({ items: [...items] });
+  expect(result.current.currentPage).toBe(1);
+  expect(result.current.loading).toBe(false);
+  expect(result.current.hasPreviousPage).toBe(false);
+  expect(result.current.hasNextPage).toBe(true);
+});
