@@ -7,6 +7,23 @@ repository; this file is the record a later reader can find. Operational
 history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
+
+## 2026-10-03: the passage descriptions are the GLM 5.3 Flash set
+
+Every passage window's description was rewritten from the window's own
+text by GLM 5.3 Flash, chosen on 2026-09-30 by a blind pairwise
+judgement on 100 windows a pair: it beat the August descriptions 96 to 4
+and Qwen 3.8 93 to 7 with no invented proper name in 300. Retrieval on
+the sixteen-query benchmark, every top-ten pair judged by the judge fixed
+on 2026-09-15 against 97 hand grades, moved from 0.381 to 0.403 precision
+at ten (nine queries up, five down, two level), as expected: retrieval
+compares vectors that keep a description's topic and lose its detail, so
+the rewrite's gain is in the text shown beside each result. The
+descriptions went live on 2026-10-03 (docs/DATA_OPERATIONS.md). Windows
+are still cut by line count; in the Latin poem collections 8,862 of
+18,139 straddle two poems (Martial 91 percent), kept for now and to be
+cut at poem boundaries at the next index rebuild.
+
 ## 2026-10-01 Classical forms get a third lemma table, behind the treebank and the Koine tables
 
 **Question.** Even with the treebank table and the new Koine table, a share

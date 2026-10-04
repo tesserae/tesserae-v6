@@ -116,6 +116,11 @@ behind each, are in docs/DECISIONS.md.
   not running just now" for the next twenty seconds.
 
 ### Data operations
+- 2026-10-03 23:30 to 23:35 EDT: the passage descriptions behind Theme
+  Search and Similar Passages replaced by the whole-corpus re-description
+  (GLM 5.3 Flash; 510,584 of 510,839 windows), with their vectors and the
+  word index, after retrieval measured level or slightly better (precision
+  at ten 0.381 to 0.403). Record in docs/DATA_OPERATIONS.md.
 - 2026-10-03 10:23 to 11:30 EDT: full Greek rebuild after #590 (lemma caches,
   index with `lemma_doc_freq`, bigram and frequency tables) and the stored
   wording of 21,395 passage windows refreshed for the 459 changed works.

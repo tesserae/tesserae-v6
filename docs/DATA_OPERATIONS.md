@@ -67,6 +67,56 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-03 Passage descriptions replaced by the whole-corpus re-description (swap run 23:30 to 23:35 EDT)
+
+### What and why
+- Every passage window's description was rewritten by a hosted open model
+  (GLM 5.3 Flash on the campus gateway) from the window's own text, after
+  a blind head-to-head on 2026-09-30 in which it beat the August
+  descriptions 96 to 4 and put no invented proper name into 300
+  descriptions. The run went from 2026-09-30 14:55 to 2026-10-03 14:52
+  plus two sweeps. 510,584 of 510,839 windows carry the new text; 255
+  keep the August text until a small second operation.
+- Retrieval measured before the swap on the sixteen-query benchmark
+  (9,485 windows described in both sets, every top-ten pair judged):
+  precision at ten 0.381 with the August descriptions, 0.403 with the
+  new, 0.400 to 0.442 on the twelve development queries, 0.325 to 0.287
+  on the four held-out (forty pairs). Level or slightly better; the gain
+  of the rewrite is in the text readers see.
+
+### Steps
+- Vectors: the new descriptions encoded with the production encoder
+  (intfloat/multilingual-e5-large, the index's own blob text and prefix)
+  on one campus GPU in 448 seconds, returned through `/api/jobs/upload`
+  in eleven parts whose SHA-256 each matched the job's report, and
+  checked against the local encoder (cosine 1.00000 on a sample). The
+  612 windows described after that run were encoded locally.
+- A working copy of the index received the rows in place
+  (`apply_passage_vectors.py` in the job folder, then
+  `scripts/corpus/apply_passage_rows.py --mode replace` for the 612), ids
+  unchanged: 510,839 ids, 510,839 vectors.
+- `descriptions.jsonl` cleaned to exactly one record per indexed id
+  (production's file had held 229 duplicated ids and 14 records for
+  windows no longer indexed; the application read the last record per
+  id, so nothing had shown).
+- `scripts/build_desc_fts.py --source <clean file>` built the word index
+  (510,839 descriptions, 29 s, 634 MB) before anything moved.
+- Backups `descriptions.jsonl.bak-glm-20261003-2330`,
+  `embeddings.npy.bak-glm-20261003-2330`,
+  `desc_fts.sqlite.bak-glm-20261003-2330`; then the three files copied in
+  by rename swaps at 23:31:42, `touch tesseraev6_flask.wsgi`, and
+  `scripts/reference_search_check.py` passed.
+
+### Checked afterwards
+- Theme Search on the live site answers with the new text: "a storm
+  scatters the fleet at sea" returns Silius Italicus, Punica 17.247 ("A
+  violent sea-storm, with warring winds, thunder, lightning, and darkness,
+  overwhelms the fleet and shatters the mast over the helmsman's head")
+  and Livy 37.12.12.
+- A first attempt at 23:16 was stopped in its checking step before
+  touching anything: the check rebuilt a set of all ids for every line
+  and would have taken hours. Corrected and rerun.
+
 ## 2026-10-03 Full Greek rebuild for the breathing and accent fix (run 10:23 to 11:30 EDT)
 
 ### What and why
