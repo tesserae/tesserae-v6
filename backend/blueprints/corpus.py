@@ -231,6 +231,14 @@ def get_text_descriptions():
 
 
 _LANGUAGES_WITH_TEXTS = ('la', 'grc', 'en', 'cop', 'he', 'it', 'gmh', 'fro')
+# Development languages join the list only when TESSERAE_LANGUAGES opts them in
+# (see backend/app.py, where their handlers register under the same rule).
+try:
+    from backend.served_languages import allowed_languages as _served_allowed
+    _LANGUAGES_WITH_TEXTS = _LANGUAGES_WITH_TEXTS + tuple(
+        c for c in ('fa', 'ur', 'ar') if c in (_served_allowed() or set()))
+except ImportError:
+    pass
 
 
 def _restricted_credit_entries():

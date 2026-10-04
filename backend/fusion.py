@@ -235,6 +235,11 @@ CHANNEL_WEIGHTS = {
                             #   all 32 but cost three poetry pairs in the top ten. 10 was
                             #   adopted. Greek is unaffected either way (the
                             #   channel finds no runs in the Homer-Apollonius gold).
+    "form": 0.0,            # whole-poem: refrain-and-rhyme (radif/qafia) agreement,
+                            #   Persian and Urdu ghazals only (backend/poetics.py).
+                            #   DEFAULT WEIGHT IS 0 -- meaningless outside fa/ur
+                            #   (CHANNEL_LANGUAGE_SUPPORT gates it to those two
+                            #   anyway). Enabled via WEIGHT_PROFILES["persian_ghazal"].
 }
 
 
@@ -291,6 +296,7 @@ WEIGHT_PROFILES = {
         "syntax_structural": 0.081,
         "lemma_min1":        0.088,
         "quotation":        35.052,    # cranked from baseline 0.0, verbatim runs dominate
+        "form":              0.0,      # not meaningful outside fa/ur ghazals
     },
 
     # Biblical GREEK profile, 2026-08-27. The biblical_coptic values adopted
@@ -319,6 +325,7 @@ WEIGHT_PROFILES = {
         "syntax_structural": 0.081,
         "lemma_min1":        0.088,
         "quotation":        35.052,
+        "form":              0.0,      # not meaningful outside fa/ur ghazals
     },
 
     # Hebrew default, added 2026-08-30. The biblical_greek values adopted on
@@ -343,6 +350,44 @@ WEIGHT_PROFILES = {
         "syntax_structural": 0.081,
         "lemma_min1":        0.088,
         "quotation":        35.052,
+        "form":              0.0,      # not meaningful outside fa/ur ghazals
+    },
+
+    # Persian, Urdu and Arabic, 2026-09-05. These languages ran on the
+    # latin_epic defaults until Phase 5 validation showed single-rare-word
+    # coincidences (names, rare inflected forms) tying at the score ceiling
+    # in ghazal corpora. Most of that flood turned out to be common words the
+    # curated stoplists had not been reaching (fixed 52d56fe); with that in
+    # place a weight sweep over captured channel results found the landscape
+    # nearly flat, and this hand-set profile was chosen among sane candidates
+    # by the same metrics: rare_word halved twice, lemma doubled, sound and
+    # edit_distance eased, quotation enabled. Kept the Rumi->Iqbal and both
+    # Busiri->Qur'an gold pairs at ranks 1-2, all three Urdu radif tests at
+    # rank 1, and moved the Hafez->Iqbal pair from rank 10,737 to 3,085.
+    # Record: research/languages/PHASE6_PREP_2026-09-05.md, item 4.
+    "persian_ghazal": {
+        "edit_distance":     1.0,
+        "sound":             3.0,
+        "exact":             1.0,
+        "lemma":             4.0,
+        "dictionary":        0.5,      # 2026-09-05: Arabic root equivalence (runs only for ar
+                                        # among these three). Re-fused on the Burda-Qur'an
+                                        # capture: 0.5 gains near-quotations deep in the list
+                                        # (@1000 7->8, @5000 15->17) with no loss on quotations;
+                                        # 1.0 and above trade quotations away (ISRI roots are crude).
+        "semantic":          3.0,      # 2026-09-05 starting value: multilingual-e5 line
+                                        # embeddings (scripts/precompute_e5_multilang.py),
+                                        # own similarity floor in semantic_similarity.py.
+        "rare_word":         2.0,
+        "syntax":            0.3,
+        "syntax_structural": 0.5,
+        "lemma_min1":        0.2,
+        "quotation":         5.0,
+        "form":             16.0,      # 2026-09-05, starting value for the new
+                                        # refrain-and-rhyme channel (backend/poetics.py).
+                                        # To be fit on the javab benchmarks
+                                        # (research/languages/persian/urdu javab_recall
+                                        # json files) once real-corpus runs are done.
     },
 
     # Experimental profile, 2026-05-17. Designed to surface paraphrase and
@@ -392,6 +437,7 @@ WEIGHT_PROFILES = {
         "syntax_structural": 0.154,
         "lemma_min1":        0.009,
         "quotation":        13.449,   # lower than biblical_coptic 35.1
+        "form":              0.0,     # not meaningful outside fa/ur ghazals
     },
 }
 
@@ -415,6 +461,8 @@ def get_weight_profile(language=None, corpus_type=None, profile_name=None):
         return dict(WEIGHT_PROFILES["biblical_hebrew"])
     if language == "en":
         return dict(WEIGHT_PROFILES["english"])
+    if language in ("fa", "ur", "ar"):
+        return dict(WEIGHT_PROFILES["persian_ghazal"])
     return dict(WEIGHT_PROFILES["latin_epic"])
 
 
@@ -671,6 +719,16 @@ def _single_word_penalty(word_idf, log_reference_n):
 # multi-channel inflation that made common-word pairs score so high.
 NO_SIGNIFICANT_WORDS_PENALTY = 0.50
 
+# Channels whose contribution to a pair's score bypasses the rarity
+# multiplier entirely (added back unscaled at score-assembly time -- see
+# "quotation_score_contrib" in fuse_results). Quotation's long verbatim run
+# is distinctive even in common vocabulary; form's radif/qafia agreement is
+# whole-poem structural evidence with no per-word rarity to penalize in the
+# first place. The accumulator key stays named "quotation_score_contrib"
+# (rather than being renamed) so nothing else about fuse_results' internals
+# has to change for a second bypass channel to use it.
+_RARITY_BYPASS_CHANNELS = ('quotation', 'form')
+
 # ---------------------------------------------------------------------------
 # Channel classification for two-pass architecture
 # ---------------------------------------------------------------------------
@@ -700,6 +758,7 @@ CHANNEL_ORDER = [
     "lemma",         # fast, high quality — gives first results immediately
     "exact",         # fast, high precision
     "quotation",     # fast, very high precision for verbatim runs (biblical-text fix)
+    "form",          # fast, whole-poem refrain-and-rhyme match (fa/ur ghazals only)
     "rare_word",     # fast, sparse
     "dictionary",    # fast-medium
     "syntax",        # fast, DB lookup
@@ -714,13 +773,32 @@ CHANNEL_ORDER = [
 # If a channel's required resource is missing for the search language, it is
 # skipped and not counted in the "N channels" progress message.
 CHANNEL_LANGUAGE_SUPPORT = {
-    "dictionary":    {"la", "grc", "cop"},  # Latin/Greek synonym pairs; Coptic uses Coptic Wordnet (Slaughter et al. 2019)
-    "sound":         {"la", "grc", "cop", "en", "he"},  # character trigram Jaccard similarity (language-agnostic)
-    "edit_distance": {"la", "grc", "cop", "en", "he"},  # Levenshtein fuzzy matching (language-agnostic)
+    "dictionary":    {"la", "grc", "cop", "ar"},  # Latin/Greek synonym pairs; Coptic uses Coptic Wordnet (Slaughter et al. 2019);
+                                             # Arabic (2026-09-05): root equivalence, backend/arabic/roots.py. fa/ur: nothing yet
+    "sound":         {"la", "grc", "cop", "en", "he", "fa", "ur", "ar"},  # character trigram Jaccard similarity (language-agnostic)
+    "edit_distance": {"la", "grc", "cop", "en", "he", "fa", "ur", "ar"},  # Levenshtein fuzzy matching (language-agnostic)
     "syntax":        {"la", "grc", "cop"},  # requires syntax DB (syntax_latin.db / syntax_greek.db / syntax_coptic.db)
-    "semantic":      {"la", "grc", "en", "cop", "he"},  # SPhilBERTa (la/grc/en) + multilingual-e5-large (cop) + fine-tuned MiqraBERT (he)
-    "quotation":     {"la", "grc", "cop", "en", "he"},  # runs of identical tokens — language-agnostic
+                                             # fa/ur/ar excluded: no syntax DB
+    "semantic":      {"la", "grc", "en", "cop", "he", "fa", "ur", "ar"},  # SPhilBERTa (la/grc/en) + multilingual-e5-large (cop, fa, ur, ar) + fine-tuned MiqraBERT (he)
+                                             # fa/ur/ar excluded: no semantic model wired for these languages (AUDIT_2026-09-03.md)
+    "quotation":     {"la", "grc", "cop", "en", "he", "fa", "ur", "ar"},  # runs of identical tokens — language-agnostic
+    "form":          {"fa", "ur", "ar"},  # refrain-and-rhyme (radif/qafia) for Persian and
+                                           # Urdu ghazals; rhyme-letter (rawi) only for Arabic
+                                           # qasidas (one poem per text file). backend/poetics.py
 }
+
+# Persian/Urdu/Arabic (fa/ur/ar), added 2026-09-03 (deploy plan Phase 3, gap A2
+# code half): registered for exactly the language-agnostic channels the
+# 2026-09-03 audit found actually runnable on these three (sound,
+# edit_distance, quotation here, plus lemma/lemma_min1/exact/rare_word, which
+# are unrestricted and already ran for every language before this change).
+# That is 7 of 11 channels, matching every one of the old dev-branch findings
+# (tesserae-persian, tesserae-multilang) exactly. dictionary/syntax/semantic
+# are deliberately NOT added: no cross-lingual synonym CSV, no syntax DB, and
+# no semantic embedding model exists for fa/ur/ar in this codebase yet.
+# No WEIGHT_PROFILES entry is added for any of the three: neither source
+# workspace had one (Urdu explicitly falls through to latin_epic per its own
+# audit note), so none is invented here.
 
 
 def get_channels_for_language(language):
@@ -901,6 +979,11 @@ CHANNEL_CONFIGS = {
         "language": "la",
         "quotation_min_run": 3,
         "quotation_max_results": 50000,
+    },
+    "form": {
+        "match_type": "form",
+        "language": "la",  # overridden per-search below, like every other channel config
+        "form_max_results": 50000,
     },
 }
 
@@ -1563,6 +1646,9 @@ def run_channel(channel_name, config, source_units, target_units,
         matches, _ = matcher.find_quotation_matches(
             source_units, target_units, settings
         )
+    elif match_type == "form":
+        from backend.poetics import find_form_matches
+        matches, _ = find_form_matches(source_units, target_units, settings)
     else:
         # lemma or exact. Bound the candidate list inside the matcher (same
         # quick-IDF ranking and the same 4x buffer as the pre-filter below),
@@ -2384,7 +2470,7 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
             # when its individual tokens are common; bypassing the rarity
             # penalty for that contribution prevents common-vocabulary verbatim
             # quotations from being suppressed.
-            if ch_name == "quotation":
+            if ch_name in _RARITY_BYPASS_CHANNELS:
                 pair_scores[key]["quotation_score_contrib"] += contribution
             pair_scores[key]["channels"].append(ch_name)
             if raw_score > 0:
@@ -2411,6 +2497,10 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
             if raw_score > pair_scores[key]["best_score"]:
                 pair_scores[key]["best_result"] = r
                 pair_scores[key]["best_score"] = raw_score
+            # The form channel's refrain/rhyme/meter record survives even when
+            # another channel supplies the displayed result.
+            if r.get("poetics"):
+                pair_scores[key]["poetics"] = r["poetics"]
 
     _t1 = _time.time()
     logger.info(f"[FUSION] Accumulated {len(pair_scores):,} unique pairs from "
@@ -2753,6 +2843,8 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
     merged = []
     for (rs, rt), info in sorted_pairs:
         result = dict(info["best_result"]) if info["best_result"] else {}
+        if info.get("poetics"):
+            result["poetics"] = info["poetics"]
         # Merge highlights from all channels into the result
         if "source" in result:
             result["source"] = dict(result["source"])

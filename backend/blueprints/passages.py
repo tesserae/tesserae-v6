@@ -14,8 +14,9 @@ Endpoints (all GET, all under the app's API prefix):
                                      same ranking. Default 0, unchanged response.
     /passages/similar                ?work=&ref_start=&ref_end=  (or ?window=)
     /passages/density                ?work=&scale=
-    /passages/export                 ?q=...&format=json|csv  the same search,
-                                     with the source passages, oldest first
+    /passages/export                 ?q=...&format=json|csv|pdf&languages=
+                                     &order=score|date  the same search, with
+                                     the source passages, in the page's order
 
 Every route answers 200 with an `error` field rather than raising, so a missing
 or half-built index degrades the Reader's panel instead of breaking the page.
@@ -183,13 +184,49 @@ _LANG_NAME = {'la': 'Latin', 'grc': 'Greek', 'en': 'English', 'he': 'Hebrew',
               'it': 'Italian', 'fro': 'Old French', 'gmh': 'Middle High German'}
 
 
-def _export_rows(results, texts):
-    """Flatten results into labelled rows carrying their source passage."""
+def _order():
+    """'score' (strongest first, the page's default) or 'date' (oldest first)."""
+    o = (request.args.get('order') or '').strip().lower()
+    return o if o in ('score', 'date') else 'date'
+
+
+_ORDER_LABEL = {'score': 'strongest match first',
+                'date': 'oldest first; undated last'}
+
+
+def _by_score(results):
+    """Strongest first, the page's Best-match order: works ranked by their best
+    passage, each work's passages kept together (client utils/chronology.js)."""
+    best = {}
+    for r in results:
+        w = r.get('work') or ''
+        best[w] = max(best.get(w, 0), r.get('score') or 0)
+    return sorted(results, key=lambda r: (-best.get(r.get('work') or '', 0),
+                                          r.get('work') or '',
+                                          -(r.get('score') or 0)))
+
+
+def _export_rows(results, texts, order='date'):
+    """Flatten results into labelled rows carrying their source passage.
+
+    The rows follow the order the reader chose on the page. The export used to
+    be oldest first regardless, so a Best-match list on screen came out as a
+    different document (NC, 2026-09-07).
+    """
     rows = []
-    for i, r in enumerate(_chronological(results), start=1):
-        locus = r.get('ref_start') or ''
-        if r.get('ref_end') and r['ref_end'] != locus:
-            locus = f"{locus}-{r['ref_end']}"
+    ordered = _by_score(results) if order == 'score' else _chronological(results)
+    for i, r in enumerate(ordered, start=1):
+        # Without the work id the reference tags repeat ("mir.kulliyat_wikisource
+        # .ghazal.341.8-mir.kulliyat_wikisource.ghazal.343.7" was half the line).
+        prefix = f"{r.get('work') or ''}."
+        start = str(r.get('ref_start') or '')
+        end = str(r.get('ref_end') or '')
+        if prefix != '.':
+            start = start[len(prefix):] if start.startswith(prefix) else start
+            end = end[len(prefix):] if end.startswith(prefix) else end
+        locus = start
+        if end and end != start:
+            locus = f"{start}-{end}"
         rows.append({
             'n': i,
             'author': r.get('author') or '',
@@ -294,7 +331,11 @@ def export_theme_search():
 
     results = out.get('results') or []
     texts = window_texts.texts_for([r.get('id') for r in results])
-    rows = _export_rows(results, texts)
+    order = _order()
+    rows = _export_rows(results, texts, order)
+    langs = _languages()
+    lang_label = (', '.join(_LANG_NAME.get(x, x) for x in langs)
+                  if langs else 'all languages')
     missing = sum(1 for r in rows if r['text'] == '[source text unavailable]')
     if missing:
         logger.warning('[PASSAGES] export: %d of %d passages had no source text',
@@ -312,6 +353,8 @@ def export_theme_search():
             body = theme_pdf.build({'query': q, 'count': len(rows),
                                     'missing_text': missing,
                                     'confidence': out.get('confidence'),
+                                    'order_label': _ORDER_LABEL[order],
+                                    'languages_label': lang_label,
                                     'results': rows})
         except Exception as e:                                   # noqa: BLE001
             logger.exception('[PASSAGES] pdf export failed')
@@ -345,7 +388,8 @@ def export_theme_search():
         'missing_text': missing,
         'confidence': out.get('confidence'),
         'note': out.get('note'),
-        'order': 'chronological, oldest first; undated last',
+        'order': _ORDER_LABEL[order],
+        'languages': lang_label,
         'results': rows,
     })
 

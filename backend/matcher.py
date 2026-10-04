@@ -409,6 +409,7 @@ from collections import defaultdict, Counter
 import heapq
 import math
 import os
+import re
 import json
 from backend.logging_config import get_logger
 from backend.zipf import find_zipf_elbow
@@ -424,6 +425,71 @@ def _get_trigrams(token):
         return set()
     token = token.lower()
     return set(token[i:i+3] for i in range(len(token) - 2))
+
+
+# ---------------------------------------------------------------------------
+# Sound channel: per-language acceptance gate / per-source cap, and the
+# Arabic-script normalization gap.
+#
+# Measured on Busiri's Burda x the 114 Qur'an suras (44 gold pairs,
+# research/languages/ngram_chain_test/REPORT_2026-09-18.md sections 3, 10,
+# 12): the whole-line trigram Jaccard floor of 0.25, tuned for Latin/Greek/
+# English/Coptic/Hebrew line lengths, discards 43 of 44 gold pairs before
+# fusion ever sees them (short Arabic-script verses rarely clear 0.25
+# whole-line Jaccard even when they share a genuinely quoted phrase, because
+# the shared trigrams sit inside a union that also contains every other word
+# in both lines). Latin/Greek/English/Coptic/Hebrew keep the original,
+# unmeasured-here defaults exactly as they were. See
+# research/languages/SOUND_GATE_ARABIC_2026-09-18.md (dev checkout,
+# git-ignored) for the measurement: swept 0.05/0.10/0.15 at cap 50 on the
+# Busiri/Qur'an gold set, using the same pooled whole-corpus notion of
+# "rank" the production fused search reports (not a per-query-line rank).
+# 0.05 dominated or tied 0.10 and 0.15 at every recall cutoff tested (@10
+# through @5000), so it was chosen; the cap of 50 is as specified in the
+# task.
+SOUND_CHANNEL_LANGUAGE_PARAMS = {
+    'ar': {'min_sound_score': 0.05, 'sound_top_n': 50},
+    'fa': {'min_sound_score': 0.05, 'sound_top_n': 50},
+    'ur': {'min_sound_score': 0.05, 'sound_top_n': 50},
+}
+_SOUND_DEFAULT_MIN_SCORE = 0.25
+_SOUND_DEFAULT_TOP_N = 10
+
+# Arabic-script languages whose token normalization (ArabicLanguageHandler /
+# PersianLanguageHandler / UrduLanguageHandler, each language's own
+# normalize_* function) already strips harakat, unifies alef variants, maps
+# alef maqsura to ya, and strips tatweel before tokens ever reach the sound
+# channel -- but none of the three map ta marbuta (ة) to ha (ه), and none
+# strip the extra Qur'anic-annotation/rare-hamza harakat range U+0653-U+065F
+# (maddah, hamza above/below, small waw/ya, inverted damma/fatha, wavy hamza
+# below -- present in Uthmani Qur'an text more than in ordinary prose). Both
+# gaps are closed here, for the sound channel only, so a scribal ة/ه spelling
+# variant or a leftover rare mark doesn't desync every trigram crossing it.
+# Persian- and Urdu-specific letters (پ چ ژ گ ک ی ٹ ڈ ڑ ں ے ھ ...) are not
+# touched -- only these two script-wide, language-agnostic operations are
+# added, matching research/languages/ngram_chain_test/ngram_chain.py's
+# normalize_arabic_script.
+_SOUND_ARABIC_SCRIPT_LANGUAGES = {'ar', 'fa', 'ur'}
+_SOUND_EXTRA_HARAKAT_RE = re.compile('[ٓ-ٟ]')
+_SOUND_TA_MARBUTA_RE = re.compile('ة')  # ة
+
+
+def _sound_channel_extra_normalize(token):
+    """Close the ta-marbuta and rare-harakat gap between each language's own
+    normalize_* output and ngram_chain.py's normalize_arabic_script, for the
+    sound channel's trigram extraction only."""
+    token = _SOUND_TA_MARBUTA_RE.sub('ه', token)  # ة -> ه
+    token = _SOUND_EXTRA_HARAKAT_RE.sub('', token)
+    return token
+
+
+def get_sound_channel_defaults(language):
+    """Per-language default acceptance gate + per-source cap for
+    find_sound_matches. Returns (min_sound_score, sound_top_n)."""
+    params = SOUND_CHANNEL_LANGUAGE_PARAMS.get(language)
+    if params:
+        return params['min_sound_score'], params['sound_top_n']
+    return _SOUND_DEFAULT_MIN_SCORE, _SOUND_DEFAULT_TOP_N
 
 
 def _sound_chunk_worker(args):
@@ -688,6 +754,27 @@ DEFAULT_LATIN_STOP_WORDS = set(DEFAULT_LATIN_STOP_WORDS_LIST)
 DEFAULT_GREEK_STOP_WORDS = set(DEFAULT_GREEK_STOP_WORDS_LIST)
 DEFAULT_ENGLISH_STOP_WORDS = set(DEFAULT_ENGLISH_STOP_WORDS_LIST)
 
+# Languages whose curated stoplist lives in a plugin package. Kept as an
+# explicit list so that no other language's stoplist path changes.
+_PLUGIN_STOPLIST_LANGUAGES = ('fa', 'ur', 'ar')
+
+
+def _plugin_stoplist(language):
+    """Curated stoplist for a plugin language, or an empty set if unavailable."""
+    try:
+        if language == 'fa':
+            from backend.persian.stopwords import PERSIAN_STOP_WORDS
+            return PERSIAN_STOP_WORDS
+        if language == 'ur':
+            from backend.urdu.stopwords import URDU_STOP_WORDS
+            return URDU_STOP_WORDS
+        if language == 'ar':
+            from backend.arabic.stopwords import ARABIC_STOP_WORDS
+            return ARABIC_STOP_WORDS
+    except ImportError:
+        pass
+    return set()
+
 
 _greek_display_map = None
 
@@ -927,6 +1014,13 @@ class Matcher:
                 base_stops = set()
             if len(freq) < 2000:
                 zipf_stops = set()
+        elif language in _PLUGIN_STOPLIST_LANGUAGES:
+            # Persian, Urdu and Arabic previously fell through to the English
+            # list, so their curated stoplists never reached same-language
+            # matching and the top "matches" were forms of be/say/do.
+            base_stops = _plugin_stoplist(language)
+            if len(freq) < 2000:
+                zipf_stops = set()
         else:
             base_stops = DEFAULT_ENGLISH_STOP_WORDS
 
@@ -967,6 +1061,8 @@ class Matcher:
                 base_stops = set(list(HEBREW_STOP_WORDS)[:stoplist_size])
             except ImportError:
                 base_stops = set()
+        elif language in _PLUGIN_STOPLIST_LANGUAGES:
+            base_stops = set(list(_plugin_stoplist(language))[:stoplist_size])
         else:
             base_stops = set(DEFAULT_ENGLISH_STOP_WORDS_LIST[:stoplist_size])
         
@@ -1030,6 +1126,13 @@ class Matcher:
                 stop_words = stop_words | COPTIC_STOP_WORDS
             except Exception:
                 pass
+
+        # Fusion asks the lexical channels for no automatic stoplist
+        # (stoplist_size -1) and relies on IDF weighting instead; that leaves
+        # Persian, Urdu and Arabic function words matching as content. Merge
+        # the curated list on every path for these languages, as for Coptic.
+        if language in _PLUGIN_STOPLIST_LANGUAGES:
+            stop_words = stop_words | _plugin_stoplist(language)
 
         # Create normalized stopwords sets for language-specific matching
         if language == 'grc':
@@ -1141,15 +1244,24 @@ class Matcher:
         Parallelized for large text pairs.
         """
         settings = settings or {}
-        min_sound_score = settings.get('min_sound_score', 0.25)
+        language = settings.get('language')
+        _default_min_score, _default_top_n = get_sound_channel_defaults(language)
+        min_sound_score = settings.get('min_sound_score', _default_min_score)
         max_results = settings.get('max_results', 500)
-        top_n_per_source = settings.get('sound_top_n', 10)
+        top_n_per_source = settings.get('sound_top_n', _default_top_n)
+        apply_arabic_script_normalize = language in _SOUND_ARABIC_SCRIPT_LANGUAGES
+
+        def _prep_tokens(tokens):
+            tokens = [t for t in tokens if len(t) >= 3]
+            if apply_arabic_script_normalize:
+                tokens = [_sound_channel_extra_normalize(t) for t in tokens]
+            return tokens
 
         src_trigram_cache = []
         for src_unit in source_units:
             if cancellation:
                 cancellation.check()
-            src_tokens = [t for t in src_unit.get('tokens', []) if len(t) >= 3]
+            src_tokens = _prep_tokens(src_unit.get('tokens', []))
             src_trigrams = set()
             for token in src_tokens:
                 src_trigrams.update(_get_trigrams(token))
@@ -1159,7 +1271,7 @@ class Matcher:
         for tgt_unit in target_units:
             if cancellation:
                 cancellation.check()
-            tgt_tokens = [t for t in tgt_unit.get('tokens', []) if len(t) >= 3]
+            tgt_tokens = _prep_tokens(tgt_unit.get('tokens', []))
             tgt_trigrams = set()
             for token in tgt_tokens:
                 tgt_trigrams.update(_get_trigrams(token))
@@ -1316,6 +1428,18 @@ class Matcher:
                         }
 
         matches = list(best_per_pair.values())
+
+        # Persian, Urdu and Arabic: a run made only of function words
+        # ("hamān ... ast ke būd") is formulaic, not quotation. Coptic keeps
+        # such runs by design (its verbatim quotations live in function
+        # morphemes); these languages do not.
+        language = settings.get('language', 'la')
+        if language in _PLUGIN_STOPLIST_LANGUAGES:
+            curated = _plugin_stoplist(language)
+            if curated:
+                matches = [m for m in matches
+                           if any(tok.lower() not in curated for tok in m['run_text'])]
+
         # Sort by run length descending so the strongest quotations are kept first
         matches.sort(key=lambda m: -m['run_length'])
         if max_results > 0 and len(matches) > max_results:

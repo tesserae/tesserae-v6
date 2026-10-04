@@ -179,7 +179,8 @@ def _pair_baseline(src_work, tgt_work):
         return None, None
 
     def fine_rows(work):
-        rows = passage_index._by_work.get(work) or []
+        by_work = passage_index._by_work or {}   # None until the index is loaded
+        rows = by_work.get(work) or []
         # Fall back to the work group when a part file is named, since that is
         # what the index keys on.
         if not rows and '.part.' in work:

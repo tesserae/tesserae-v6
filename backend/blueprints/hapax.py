@@ -1334,6 +1334,23 @@ def get_text_lemmas(text_id, language):
         return set()
 
 
+# Languages whose rare-word test uses corpus token frequency instead of
+# document frequency (see find_rare_word_matches_direct).
+_CORPUS_FREQ_RARITY_LANGUAGES = ('fa', 'ur', 'ar')
+
+
+def _corpus_token_frequencies(lemmas, language):
+    """Corpus token counts for the given lemmas from the frequency cache;
+    a lemma missing from the cache counts as 0 (never rare)."""
+    try:
+        from backend.frequency_cache import load_frequency_cache
+        cached = load_frequency_cache(language) or {}
+        freqs = cached.get('frequencies') or {}
+    except Exception:
+        freqs = {}
+    return {l: int(freqs.get(l, 0)) for l in lemmas}
+
+
 def find_rare_word_matches_direct(source_units, target_units, language='la',
                                    max_occurrences=50, candidate_cap=0):
     """Find matches based on shared rare lemmas between source and target units.
@@ -1367,6 +1384,12 @@ def find_rare_word_matches_direct(source_units, target_units, language='la',
             manual_stoplist = COPTIC_STOP_WORDS
         except Exception:
             pass
+    elif language in _CORPUS_FREQ_RARITY_LANGUAGES:
+        try:
+            from backend.matcher import _plugin_stoplist
+            manual_stoplist = _plugin_stoplist(language)
+        except Exception:
+            pass
 
     def _accept(l):
         return len(l) > 2 and l not in manual_stoplist
@@ -1388,12 +1411,20 @@ def find_rare_word_matches_direct(source_units, target_units, language='la',
 
     # Only query doc freqs for lemmas that appear in both source and target
     shared_lemmas = all_source_lemmas & all_target_lemmas
-    if not shared_lemmas:
+    if not shared_lemmas and language != 'ar':
         logger.info("[RARE_WORD] No shared lemmas between source and target")
         return []
 
     # Batch document-frequency lookup
-    doc_freqs = get_document_frequencies_batch(shared_lemmas, language)
+    if language in _CORPUS_FREQ_RARITY_LANGUAGES:
+        # Persian, Urdu and Arabic corpora are a few dozen texts each the size
+        # of a divan, so "appears in at most N texts" holds for every lemma
+        # (on Hafez x Iqbal all 1,421 shared lemmas passed and the channel
+        # emitted 2.4 million pairs). Rarity there is corpus token frequency,
+        # from the frequency cache the index build maintains.
+        doc_freqs = _corpus_token_frequencies(shared_lemmas, language)
+    else:
+        doc_freqs = get_document_frequencies_batch(shared_lemmas, language)
 
     # Filter to rare: 1 <= doc_freq <= max_occurrences
     rare_lemmas = set()
@@ -1402,7 +1433,7 @@ def find_rare_word_matches_direct(source_units, target_units, language='la',
         if 1 <= df <= max_occurrences:
             rare_lemmas.add(lemma)
 
-    if not rare_lemmas:
+    if not rare_lemmas and language != 'ar':
         logger.info(f"[RARE_WORD] No rare lemmas (max_occ={max_occurrences}) "
                      f"among {len(shared_lemmas)} shared lemmas")
         return []
@@ -1441,6 +1472,60 @@ def find_rare_word_matches_direct(source_units, target_units, language='la',
                     'matched_lemmas': list(shared_rare),
                 })
     matches = candidates.result()
+
+    if language == 'ar':
+        # Rare ROOTS (2026-09-05): a Qur'anic near-quotation keeps the root and
+        # changes the form (saghab / masghaba, shihab / shuhub). Two lines
+        # sharing a root that is rare across the corpus share a rare word in
+        # every sense that matters, so they get this channel's weight. Pairs
+        # of different forms are handed to the scorer as a synonym pair, which
+        # scores the pair once and highlights both sides; identical forms are
+        # already covered above.
+        try:
+            from backend.arabic.roots import arabic_root, root_frequencies
+            rf, rtotal = root_frequencies()
+            src_root_forms = []
+            for lemmas in source_lemma_sets:
+                d = defaultdict(set)
+                for l in lemmas:
+                    r = arabic_root(l)
+                    if r and 1 <= rf.get(r, 0) <= max_occurrences:
+                        d[r].add(l)
+                src_root_forms.append(d)
+            tgt_root_index = defaultdict(set)
+            tgt_root_forms = []
+            for tgt_idx, lemmas in enumerate(target_lemma_sets):
+                d = defaultdict(set)
+                for l in lemmas:
+                    r = arabic_root(l)
+                    if r and 1 <= rf.get(r, 0) <= max_occurrences:
+                        d[r].add(l); tgt_root_index[r].add(tgt_idx)
+                tgt_root_forms.append(d)
+            seen = {(m['source_idx'], m['target_idx']) for m in matches}
+            n_root = 0
+            for src_idx, d in enumerate(src_root_forms):
+                pairs_by_tgt = defaultdict(list)
+                for r, forms in d.items():
+                    for tgt_idx in tgt_root_index.get(r, ()):
+                        for fs in forms:
+                            for ft in tgt_root_forms[tgt_idx][r]:
+                                if fs != ft:
+                                    pairs_by_tgt[tgt_idx].append((fs, ft))
+                for tgt_idx, pairs in pairs_by_tgt.items():
+                    if (src_idx, tgt_idx) in seen:
+                        continue
+                    matches.append({
+                        'source_idx': src_idx,
+                        'target_idx': tgt_idx,
+                        'matched_lemmas': sorted({a for a, _ in pairs} | {b for _, b in pairs}),
+                        'synonym_pairs': sorted(set(pairs)),
+                        'match_basis': 'dictionary',  # scored as pairs, once each
+                        'rare_root': True,
+                    })
+                    n_root += 1
+            logger.info(f"[RARE_WORD] {n_root} rare-root pairs added (root freq <= {max_occurrences})")
+        except Exception as e:  # roots are an extra; never break the channel
+            logger.warning(f"[RARE_WORD] rare-root pass skipped: {e}")
 
     logger.info(f"[RARE_WORD] Found {len(matches)} matches "
                 f"(source={len(source_units)}, target={len(target_units)})")
@@ -1602,6 +1687,29 @@ def _coptic_rare_frequencies():
     return {lem: (n, *first[lem]) for lem, n in counts.items()}
 
 
+def _first_locations_batch(lemmas, language, batch_size=500):
+    """lemma -> (filename, ref) of its first occurrence, in one query per
+    500 lemmas against the inverted index. Part files are not collapsed
+    (Persian, Urdu and Arabic texts are not partitioned)."""
+    conn = get_connection(language)
+    out = {}
+    if not conn:
+        return out
+    cur = conn.cursor()
+    for i in range(0, len(lemmas), batch_size):
+        batch = lemmas[i:i + batch_size]
+        placeholders = ','.join('?' for _ in batch)
+        cur.execute(
+            f'SELECT p.lemma, t.filename, p.ref FROM postings p '  # nosec B608
+            f'JOIN texts t ON p.text_id = t.text_id '
+            f'WHERE p.lemma IN ({placeholders}) ORDER BY t.filename, p.ref',
+            batch)
+        for lemma, filename, ref in cur.fetchall():
+            if lemma not in out:
+                out[lemma] = (filename, ref)
+    return out
+
+
 def regenerate_rare_words_cache(language):
     """
     Regenerate rare words cache from current frequency data.
@@ -1710,6 +1818,48 @@ def regenerate_rare_words_cache(language):
                 if lemma in HEBREW_STOP_WORDS:
                     continue
                 rare_words.append({'lemma': lemma, 'display': lemma, 'count': count})
+    elif language in _CORPUS_FREQ_RARITY_LANGUAGES:
+        # Persian, Urdu, Arabic (2026-09-06): the lemma must be letters of the
+        # script only (no digits, punctuation or Latin), at least three
+        # letters, and not a stoplisted particle. Display is the lemma itself.
+        try:
+            from backend.matcher import _plugin_stoplist
+            stop = _plugin_stoplist(language)
+        except Exception:
+            stop = set()
+        letters = re.compile(r'^[ؠ-يٮ-ۓۺ-ۿ]{3,}$')
+        # Tagger and tokenizer fragments: no word in these languages begins
+        # with a hamza carrier, noon ghunna or tatweel, and a hamza seat
+        # followed by a consonant is a broken token (2026-09-07; these led
+        # the Urdu list because count-one words sort alphabetically).
+        fragment = re.compile(r'^[ءئؤںـ]|ئ(?![یےوايى])')
+        # Over-long tokens are hemistichs whose spaces were lost (a Persian
+        # word rarely passes twelve letters; Arabic with its clitics a few more).
+        max_len = 16 if language == 'ar' else 14
+        # Only lemmas that occur as a written word somewhere in the corpus.
+        # The tagger invents lemma forms for words it does not know, and
+        # those led the Persian list (2026-09-07); the index keeps each
+        # line's tokens, so the set of written forms is one pass over it.
+        surface = set()
+        try:
+            _conn = get_connection(language)
+            if _conn:
+                for (toks,) in _conn.execute('SELECT tokens FROM lines'):
+                    if toks:
+                        surface.update(json.loads(toks))
+        except Exception as e:
+            logger.warning(f'[RARE_WORDS] no surface forms for {language}: {e}')
+        # Shown in the language's own letters: the index folds Persian and
+        # Urdu yeh and kaf to the Arabic ones, which readers of those
+        # languages do not expect and which dictionaries do not find.
+        native = str.maketrans({'ي': 'ی', 'ك': 'ک'}) if language in ('fa', 'ur') else None
+        for lemma, count in frequencies.items():
+            if (1 <= count <= 10 and lemma not in stop and letters.match(lemma)
+                    and not fragment.search(lemma) and len(lemma) <= max_len
+                    and (not surface or lemma in surface)):
+                rare_words.append({'lemma': lemma,
+                                   'display': lemma.translate(native) if native else lemma,
+                                   'count': count})
     elif language == 'cop':
         from backend.coptic.stopwords import COPTIC_STOP_WORDS
         for lemma, (count, first_file, first_ref) in frequencies.items():
@@ -1743,7 +1893,20 @@ def regenerate_rare_words_cache(language):
     # Look up first location for each rare word to get author/work info.
     # Coptic already carries provenance from _coptic_rare_frequencies (and the
     # index lookup doesn't resolve its sub-word lemmas), so skip it here.
-    if language != 'cop':
+    if language in _CORPUS_FREQ_RARITY_LANGUAGES:
+        # Tens of thousands of words (Persian: ~100,000 lemmas seen ten times
+        # or fewer). One index query per word, each reading line text from
+        # the file, would take hours inside a web request. One batched query
+        # over the postings table finds every word's first occurrence.
+        logger.info(f"Looking up first locations for {len(seen)} rare words (batched)...")
+        for lemma, (filename, ref) in _first_locations_batch(list(seen.keys()), language).items():
+            word_data = seen[lemma]
+            parts = filename.replace('.tess', '').split('.')
+            word_data['first_author'] = parts[0] if parts else filename
+            word_data['first_work'] = '.'.join(parts[1:]) if len(parts) > 1 else ''
+            word_data['first_locus'] = ref
+            word_data['text_id'] = filename
+    elif language != 'cop':
         logger.info(f"Looking up first locations for {len(seen)} rare words...")
         for lemma, word_data in seen.items():
             try:
@@ -1816,6 +1979,13 @@ def _rare_lemmata_sort_key(word, sort_by, language='la'):
     else:
         lemma = word.get('display', word.get('lemma', '')).lstrip('*').casefold()
     if sort_by == 'frequency':
+        if language in _CORPUS_FREQ_RARITY_LANGUAGES:
+            # Among words of equal count, ordinary-length words first: the
+            # alphabetical head of the count-one words in Arabic script is
+            # where the tagger's short fragments collect, and the longest are
+            # hemistichs run together. Seven letters is the middle of the band
+            # real words occupy; ties are then alphabetical.
+            return (word.get('count', 0), abs(len(lemma) - 7), lemma)
         return (word.get('count', 0), lemma)
     if sort_by == 'author':
         return (word.get('first_author', '').casefold(), lemma)
@@ -2109,7 +2279,22 @@ def _compute_rare_words(source_id, target_id, language, source_language, target_
 
     # Use document frequency (how many texts contain the lemma) for rarity,
     # not token frequency. A word in 3 texts is rare; a word in 500 is not.
-    doc_freqs = get_document_frequencies_batch(shared_lemmas, source_language)
+    if source_language in _CORPUS_FREQ_RARITY_LANGUAGES:
+        # Same rule as the fusion rare_word channel (find_rare_word_matches_direct):
+        # these corpora are a few dozen diwan-sized texts, so "in at most 50
+        # texts" is true of every word. On the preview, Hafez x Iqbal spent
+        # eleven minutes looking up thousands of ordinary words one by one.
+        # Rarity here is corpus token frequency, and the language's stoplist
+        # and two-letter tokens are dropped first.
+        try:
+            from backend.matcher import _plugin_stoplist
+            stop = _plugin_stoplist(source_language)
+        except Exception:
+            stop = set()
+        shared_lemmas = {l for l in shared_lemmas if len(l) > 2 and l not in stop}
+        doc_freqs = _corpus_token_frequencies(shared_lemmas, source_language)
+    else:
+        doc_freqs = get_document_frequencies_batch(shared_lemmas, source_language)
 
     shared_rare = {l for l in shared_lemmas
                    if 1 <= doc_freqs.get(l, 0) <= max_occ}

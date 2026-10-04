@@ -824,6 +824,23 @@ def safe_listdir(directory):
         return []
     return [fix_surrogate_escapes(e) for e in entries]
 
+# Source names that ended up inside work ids ("mir.kulliyat_wikisource",
+# "ghalib.diwan_pritchett"). They say where the file came from, which belongs
+# in the credits and the text description, and they were showing as part of
+# the title ("Kulliyat Wikisource"). Dropped from the display name; the id is
+# untouched. Where an author has several editions of one work (Ghalib's three
+# diwans) text_metadata_overrides.json gives each a distinguishing label.
+# (NC, 2026-09-07: "Do we need 'Wikisource' in the work title?")
+_SOURCE_SUFFIXES = ('_wikisource', '_pritchett')
+
+
+def _strip_source_suffix(work_raw):
+    for s in _SOURCE_SUFFIXES:
+        if work_raw.endswith(s) and len(work_raw) > len(s):
+            return work_raw[:-len(s)]
+    return work_raw
+
+
 def get_text_metadata(filepath):
     """Extract metadata from a .tess filename with hierarchical structure"""
     filename = fix_surrogate_escapes(os.path.basename(filepath))
@@ -859,8 +876,8 @@ def get_text_metadata(filepath):
                 is_part = True
         else:
             work_raw = '.'.join(parts[1:])
-        
-        work = format_display_name(work_raw) if work_raw else 'Unknown'
+
+        work = format_display_name(_strip_source_suffix(work_raw)) if work_raw else 'Unknown'
     else:
         work = format_display_name(name)
     

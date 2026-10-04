@@ -452,7 +452,6 @@ class TestRealTextSlices:
 # 5. Fusion wiring
 # ---------------------------------------------------------------------------
 
-@pytest.mark.skip(reason=_FORM_CHANNEL_SKIP)
 class TestFusionWiring:
     def test_form_registered_for_fa_ur_ar_only(self):
         for lang in ('fa', 'ur', 'ar'):
@@ -485,7 +484,6 @@ class TestFusionWiring:
 # 6. Bypass: form contribution must skip the rarity multiplier
 # ---------------------------------------------------------------------------
 
-@pytest.mark.skip(reason=_FORM_CHANNEL_SKIP)
 class TestRarityBypass:
     def test_form_score_bypasses_rarity_multiplier(self):
         result = {
@@ -620,7 +618,6 @@ class TestArabicRhymeLetter:
         m, st = find_form_matches(src, src, {'language': 'fa'})
         assert st['poem_pairs'] == 0 and m == []
 
-    @pytest.mark.skip(reason=_FORM_CHANNEL_SKIP)
     def test_arabic_registered_for_form(self):
         assert 'form' in get_channels_for_language('ar')
 

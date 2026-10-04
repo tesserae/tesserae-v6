@@ -312,6 +312,13 @@ def status():
         'model': EMBED_MODEL,
         'strong_lift': STRONG_LIFT,
         'weak_lift': WEAK_LIFT,
+        'head_weak': HEAD_WEAK,
+        'head_strong': HEAD_STRONG,
+        'confidence_mode': CONF_MODE,
+        'combined_weak': COMBINED_WEAK,
+        'combined_strong': COMBINED_STRONG,
+        'fitted_at_windows': FITTED_AT_WINDOWS,
+        'confidence_file': _state.get('confidence_file'),
     }
 
 
@@ -473,6 +480,7 @@ def _ensure_loaded():
             for i, r in enumerate(_records):
                 _by_work.setdefault(_norm_work(r.get('work')), []).append(i)
             _state['ok'] = True
+            _apply_index_confidence()
             # WINDOWS WITH NO DESCRIPTION ARE POISON. 128 records were never
             # described, and an empty description embeds near the centre of the
             # space, so it is weakly similar to EVERYTHING. They dominated any
@@ -974,6 +982,48 @@ HEAD_WEAK = 0.0750             # below this, the top ten are not a group
 HEAD_STRONG = 0.1006           # above every absent subject in either probe set
 
 
+def _apply_index_confidence():
+    """An index may carry its own fitted bands in confidence.json beside
+    ids.json (2026-09-06): head_weak, head_strong, fitted_at_windows. A slice
+    of the index served elsewhere (the Persian/Urdu/Arabic preview) has a
+    different median for every lift to be measured against, so the numbers
+    fitted for the full index are wrong there; a file next to the index says
+    what they are for THAT index, and production, which has no such file,
+    keeps its constants."""
+    global HEAD_WEAK, HEAD_STRONG, FITTED_AT_WINDOWS, CONF_MODE, COMBINED_WEIGHT, COMBINED_WEAK, COMBINED_STRONG
+    path = os.path.join(_DATA_DIR, 'confidence.json')
+    if not os.path.exists(path):
+        return
+    try:
+        import json
+        d = json.load(open(path, encoding='utf-8'))
+        HEAD_WEAK = float(d['head_weak'])
+        HEAD_STRONG = float(d['head_strong'])
+        FITTED_AT_WINDOWS = int(d.get('fitted_at_windows') or len(_ids or []))
+        if d.get('mode') == 'combined':
+            CONF_MODE = 'combined'
+            COMBINED_WEIGHT = float(d.get('coherence_weight', 10.0))
+            COMBINED_WEAK = float(d['combined_weak'])
+            COMBINED_STRONG = float(d['combined_strong'])
+        _state['confidence_file'] = path
+        logger.info('[PASSAGES] confidence bands from %s: mode %s, head weak %.4f strong %.4f, combined weak %s strong %s, fitted at %d windows',
+                    path, CONF_MODE, HEAD_WEAK, HEAD_STRONG, COMBINED_WEAK, COMBINED_STRONG, FITTED_AT_WINDOWS)
+    except Exception:
+        logger.warning('[PASSAGES] confidence.json unreadable; keeping the built-in bands', exc_info=True)
+
+
+# An index's confidence.json may switch the rule to the combined score
+# (head_lift*10 + (coherence-0.85)*weight) with its own two boundaries. On the
+# Persian/Urdu/Arabic slice head lift alone separates present from absent
+# subjects poorly (64% on 50 probes): subjects the corpus is saturated with sit
+# close to everything, so their lift over the median is small even when the
+# top hits are exact, and the agreement of the top group carries the signal.
+CONF_MODE = 'head'
+COMBINED_WEIGHT = 10.0
+COMBINED_WEAK = None
+COMBINED_STRONG = None
+
+
 def _confidence_level(head_lift, coherence):
     """Graded, never certain. Works for one word or for a sentence.
 
@@ -981,6 +1031,13 @@ def _confidence_level(head_lift, coherence):
     """
     if coherence >= DEGENERATE_COHERENCE:
         return 'low'
+    if CONF_MODE == 'combined' and COMBINED_WEAK is not None:
+        combined = head_lift * 10.0 + (coherence - 0.85) * COMBINED_WEIGHT
+        if combined < COMBINED_WEAK:
+            return 'low'
+        if combined >= COMBINED_STRONG:
+            return 'strong'
+        return 'moderate'
     if head_lift < HEAD_WEAK:
         return 'low'
     if head_lift >= HEAD_STRONG:

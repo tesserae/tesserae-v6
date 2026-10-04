@@ -9,6 +9,21 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-04
 
+### Languages
+- The search engine's hook points for Persian, Urdu and Arabic, ported from
+  the development branch onto the current code: the per-language stoplist
+  dispatch in the matcher, the sound channel's gate and cap for Arabic
+  script, the form channel (refrain and rhyme for ghazals, default weight 0,
+  enabled by the persian_ghazal profile), the Arabic root rarity in the
+  scorer, the per-search e5 floor in the semantic channel, the cross-script
+  dictionary channel and inflected-form line search, the rare-words list
+  rules, the hemistich marks in the text processor, and the passage index
+  and Theme Search paths for the three languages. The three languages
+  register, and join the corpus list, only when TESSERAE_LANGUAGES names
+  them, so production carries the code and serves nothing new. Tests: the
+  six ported suites pass, two assumptions in them updated to main's current
+  constants (the quotation weight, twelve channels).
+
 ### Interface
 - The pages know Persian, Urdu and Arabic: tabs in Browse Corpus and the
   Rare Words Explorer, era lists for the three, right-to-left text and the

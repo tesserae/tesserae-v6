@@ -70,7 +70,10 @@ def line_density(work, language='la', use_cache=True):
             return {'error': f'work {work} not in the {language} index', 'lines': []}
         text_id = row[0]
         total_texts = cur.execute('SELECT COUNT(*) FROM texts').fetchone()[0] or 1
-        common_cut = max(2, int(total_texts * COMMON_LEMMA_SHARE))
+        # A floor of five: ten per cent of a 28-text Persian corpus is two,
+        # which left only lemmas in exactly two works, and the gutter read
+        # empty for every Persian and Urdu text (2026-09-06).
+        common_cut = max(5, int(total_texts * COMMON_LEMMA_SHARE))
 
         # One pass over this work's lines, one lookup per distinct lemma.
         lines = cur.execute(

@@ -167,8 +167,18 @@ def get_cached_stopwords(language, count=50):
     return set()
 
 def initialize_all_caches(text_processor):
-    """Initialize frequency caches for all languages at startup"""
+    """Initialize frequency caches for all languages at startup.
+
+    Honors TESSERAE_LANGUAGES (2026-09-06): a server that does not serve a
+    language must not lemmatize its whole corpus in-process at every start.
+    On the preview machine this was recomputing Latin (813 texts) after each
+    restart, several gigabytes and hours of CPU, and getting the app killed.
+    """
+    raw = (os.environ.get('TESSERAE_LANGUAGES') or '').strip()
+    allowed = {x.strip() for x in raw.split(',') if x.strip()} if raw else None
     for lang in ['la', 'grc', 'en']:
+        if allowed is not None and lang not in allowed:
+            continue
         lang_dir = os.path.join(TEXTS_DIR, lang)
         if os.path.exists(lang_dir):
             get_corpus_frequencies(lang, text_processor)

@@ -37,7 +37,6 @@ def _units(lines):
     return [{'ref': f'x.{i}', 'tokens': l.split(), 'lemmas': l.split()} for i, l in enumerate(lines)]
 
 
-@pytest.mark.skip(reason=_MATCHER_SKIP)
 def test_persian_stoplist_uses_curated_list():
     from backend.persian.stopwords import PERSIAN_STOP_WORDS
     m = Matcher()
@@ -52,7 +51,6 @@ def test_persian_stoplist_uses_curated_list():
     assert not (sl & DEFAULT_ENGLISH_STOP_WORDS)
 
 
-@pytest.mark.skip(reason=_MATCHER_SKIP)
 def test_persian_small_pair_gets_no_zipf_entries():
     from backend.persian.stopwords import PERSIAN_STOP_WORDS
     m = Matcher()
@@ -62,7 +60,6 @@ def test_persian_small_pair_gets_no_zipf_entries():
     assert sl == PERSIAN_STOP_WORDS
 
 
-@pytest.mark.skip(reason=_MATCHER_SKIP)
 def test_urdu_and_arabic_use_their_curated_lists():
     from backend.urdu.stopwords import URDU_STOP_WORDS
     from backend.arabic.stopwords import ARABIC_STOP_WORDS
@@ -98,7 +95,6 @@ def test_arabic_stoplist_covers_clitic_forms():
         assert normalize_arabic(form) not in ARABIC_STOP_WORDS, form
 
 
-@pytest.mark.skip(reason=_MATCHER_SKIP)
 def test_fusion_path_applies_curated_list_for_plugin_languages():
     """Fusion calls find_matches with stoplist_size -1 (no automatic list);
     the curated list must still be merged for fa/ur/ar, and Latin must still
@@ -117,7 +113,6 @@ def test_fusion_path_applies_curated_list_for_plugin_languages():
     assert {'arma', 'uir', 'cano'} <= {w for r in res for w in r['matched_lemmas']}
 
 
-@pytest.mark.skip(reason=_MATCHER_SKIP)
 def test_quotation_runs_of_only_stopwords_dropped_for_plugin_languages():
     m = Matcher()
     fa = _units(['همان بود است كه'])
@@ -153,7 +148,6 @@ def test_english_and_unknown_languages_unchanged():
     assert DEFAULT_ENGLISH_STOP_WORDS <= sl_unknown
 
 
-@pytest.mark.skip(reason=_HAPAX_SKIP)
 def test_rare_word_rarity_is_corpus_frequency_for_plugin_languages(monkeypatch):
     """fa/ur/ar: a lemma is rare when its corpus token count is small, not
     when it appears in few texts; the curated stoplist is applied; Latin
