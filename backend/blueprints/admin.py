@@ -513,17 +513,28 @@ def get_users():
                 """
             )
             rows = cur.fetchall()
+            # All role assignments in one statement, not one connection per user.
+            cur.execute(
+                """
+                SELECT ur.user_id, r.name
+                FROM user_roles ur
+                JOIN roles r ON r.id = ur.role_id
+                ORDER BY r.name
+                """
+            )
+            roles_by_user = defaultdict(list)
+            for user_id, role_name in cur.fetchall():
+                roles_by_user[user_id].append(_normalize_role_name(role_name))
 
         users = []
         for row in rows:
             user_id, email, first_name, last_name = row
-            roles = _get_user_roles(user_id)
             name = f"{first_name or ''} {last_name or ''}".strip() or None
             users.append({
                 "id": user_id,
                 "email": email,
                 "name": name,
-                "roles": roles,
+                "roles": roles_by_user.get(user_id, []),
             })
         return jsonify({"users": users})
     except Exception as e:
