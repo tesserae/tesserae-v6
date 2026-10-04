@@ -119,15 +119,33 @@ function App() {
   const [activeTab, setActiveTab] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     const lang = params.get('lang') || params.get('language');
-    if (lang && ['la', 'grc', 'en', 'cop', 'he', 'cross'].includes(lang)) {
+    const known = ['la', 'grc', 'en', 'cop', 'he', 'fa', 'ur', 'ar', 'cross'];
+    if (lang && known.includes(lang)) {
       return lang;
     }
     const sessionLang = getSessionValue('activeTab', '');
-    if (sessionLang && ['la', 'grc', 'en', 'cop', 'he', 'cross'].includes(sessionLang)) {
+    if (sessionLang && known.includes(sessionLang)) {
       return sessionLang;
     }
     return 'la';
   });
+  // The languages this server actually serves (2026-09-06). A preview that
+  // holds only some languages reports them, and a tab for a language it
+  // cannot serve is swapped for the first it can, instead of hanging on
+  // "Loading corpus".
+  const [servedLanguages, setServedLanguages] = useState(null);
+  useEffect(() => {
+    fetch('/api/languages').then(r => r.json()).then(data => {
+      const codes = (data.languages || []).map(l => l.code);
+      if (codes.length) setServedLanguages(codes);
+    }).catch(() => {});
+  }, []);
+  useEffect(() => {
+    if (!servedLanguages) return;
+    if (activeTab !== 'cross' && !servedLanguages.includes(activeTab)) {
+      setActiveTab(servedLanguages[0]);
+    }
+  }, [servedLanguages, activeTab]);
   const [searchMode, setSearchMode] = useState(() => {
     const gotoTab = sessionStorage.getItem('tesserae_goto_tab');
     if (gotoTab && ['parallel', 'line', 'string', 'hapax', 'bigram'].includes(gotoTab)) {
@@ -407,8 +425,13 @@ function App() {
       return;
     }
     
-    // Corpus is ready when not loading and has data
-    const corpusReady = !corpusLoading && corpus.length > 0;
+    // Corpus is ready when not loading, has data, AND belongs to the active
+    // tab. Right after a tab change the previous language's list is still in
+    // hand for a render or two; treating it as ready set the new tab's
+    // defaults from the wrong corpus (Urdu opened with Persian ids and so
+    // with empty fields, 2026-09-06).
+    const corpusReady = !corpusLoading && corpus.length > 0
+      && (!corpus[0]?.language || corpus[0].language === activeTab);
     const corpusJustLoaded = corpusReady && corpusLoadedForTabRef.current !== activeTab;
     
     if (corpusJustLoaded) {
@@ -447,6 +470,18 @@ function App() {
       } else if (activeTab === 'he') {
         defaultSourceId = 'hebrew_bible.ruth.tess';
         defaultTargetId = 'hebrew_bible.1_samuel.tess';
+      } else if (activeTab === 'fa') {
+        // Cached showcase pairs (2026-09-06). Without these the fallback
+        // below picked the first two Persian texts alphabetically, Anvari
+        // against Attar's 196,000 lines, five billion line pairs.
+        defaultSourceId = 'hafez.diwan.tess';
+        defaultTargetId = 'iqbal.zabur_e_ajam.tess';
+      } else if (activeTab === 'ur') {
+        defaultSourceId = 'ghalib.diwan_wikisource.tess';
+        defaultTargetId = 'iqbal.bang_e_dra.tess';
+      } else if (activeTab === 'ar') {
+        defaultSourceId = 'quran.al_waqia.tess';
+        defaultTargetId = 'busiri.burda.tess';
       } else {
         defaultSourceId = 'vergil.aeneid.part.1.tess';
         defaultTargetId = 'lucan.bellum_civile.part.1.tess';

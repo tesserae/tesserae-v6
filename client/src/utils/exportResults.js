@@ -59,21 +59,32 @@ export function exportRowsToPDF(title, subtitle, headers, rows, options = {}) {
       .replace(/>/g, '&gt;');
   };
 
-  const renderCell = (c) => htmlCells ? (c == null ? '' : String(c)) : escape(c);
+  // A cell in a right-to-left script is laid out right to left on its own.
+  // The document itself stays left to right, so the column order and the
+  // headings read the same for every language; setting dir="rtl" on the
+  // whole page mirrored the table and put the "#" column on the far right.
+  const RTL_CHARS = /[֐-ࣿיִ-﷿ﹰ-﻿]/;
+  const renderCell = (c) => {
+    const inner = htmlCells ? (c == null ? '' : String(c)) : escape(c);
+    const plain = htmlCells ? inner.replace(/<[^>]*>/g, '') : inner;
+    return RTL_CHARS.test(plain)
+      ? `<td dir="rtl" style="text-align:right">${inner}</td>`
+      : `<td>${inner}</td>`;
+  };
 
   const colGroup = (colWidths && colWidths.length === headers.length)
     ? `<colgroup>${colWidths.map(w => `<col style="width:${escape(w)}">`).join('')}</colgroup>`
     : '';
   const headRow = `<tr>${headers.map(h => `<th>${escape(h)}</th>`).join('')}</tr>`;
   const bodyRows = rows.map(r =>
-    `<tr>${r.map(c => `<td>${renderCell(c)}</td>`).join('')}</tr>`
+    `<tr>${r.map(c => renderCell(c)).join('')}</tr>`
   ).join('');
 
   const langAttr = lang ? ` lang="${escape(lang)}"` : '';
   const dateStr = new Date().toLocaleString();
 
   const html = `<!doctype html>
-<html${langAttr} dir="${dir}">
+<html${langAttr} dir="ltr">
 <head>
 <meta charset="utf-8">
 <title>${escape(title)}</title>
@@ -93,7 +104,7 @@ export function exportRowsToPDF(title, subtitle, headers, rows, options = {}) {
   table { border-collapse: collapse; width: 100%; font-size: 9pt; table-layout: fixed; }
   th, td {
     border: 1px solid #bbb; padding: 3pt 5pt; vertical-align: top;
-    text-align: ${dir === 'rtl' ? 'right' : 'left'};
+    text-align: left;
     word-break: break-word; overflow-wrap: anywhere;
   }
   th { background: #f3f3f3; font-weight: 600; }

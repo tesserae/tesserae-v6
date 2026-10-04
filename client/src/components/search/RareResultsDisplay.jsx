@@ -9,7 +9,9 @@ import { Bar } from 'react-chartjs-2';
 import { formatElapsedTime } from '../../utils/formatting';
 import { displayGreekWithFinalSigma } from '../../utils/greekUtils';
 import { normalizeCoptic } from '../../utils/copticUtils';
-import { getDictionaryUrl } from '../../utils/linkUtils';
+import { foldArabicScript, stripEdgePunctuation, isArabicScriptLanguage, arabicTokenMatches } from '../../utils/arabicScript';
+import { exportRowsToPDF } from '../../utils/exportResults';
+import { getDictionaryUrl, dictionaryLinkTitle } from '../../utils/linkUtils';
 import { Pagination } from '../common';
 import { usePagination } from '../../hooks/usePagination';
 
@@ -43,6 +45,36 @@ const highlightMatchedWords = (text, matchedWords, lemma1, lemma2, positions, la
       return hit
         ? <span key={i}><span className="bg-yellow-200 px-0.5 rounded font-medium">{part}</span></span>
         : part;
+    });
+  }
+
+  // Persian, Urdu, Arabic: \w does not match the script, and the engine's
+  // normalized forms differ from the page's spelling (Arabic vs Persian kaf,
+  // vowel marks, attached articles). Compare folded forms; see utils/arabicScript.
+  if (isArabicScriptLanguage(language)) {
+    const targets = new Set();
+    [lemma1, lemma2].forEach(l => { if (l) targets.add(foldArabicScript(stripEdgePunctuation(l))); });
+    (matchedWords || []).forEach(w => {
+      const word = typeof w === 'object' ? (w.lemma || w.word) : w;
+      if (word) targets.add(foldArabicScript(stripEdgePunctuation(word)));
+    });
+    targets.delete('');
+    if (targets.size === 0) return text;
+    return text.split(/(\s+)/).map((part, i) => {
+      if (/^\s*$/.test(part)) return part;
+      const core = stripEdgePunctuation(part);
+      const cmp = foldArabicScript(core);
+      let hit = false;
+      for (const t of targets) { if (arabicTokenMatches(cmp, t)) { hit = true; break; } }
+      if (!hit) return part;
+      const start = part.indexOf(core);
+      const before = part.slice(0, start);
+      const after = part.slice(start + core.length);
+      return (
+        <span key={i}>
+          {before}<span className="bg-yellow-200 px-0.5 rounded font-medium">{core}</span>{after}
+        </span>
+      );
     });
   }
 
@@ -205,7 +237,10 @@ const RareResultsDisplay = ({
   const title = isHapax ? 'Shared Rare Words' : 'Shared Rare Pairs';
 
   const getDictionaryName = (lang) => {
-    if (lang === 'en') return 'Wiktionary';
+    if (lang === 'fa') return 'Vajehyab';
+    if (lang === 'ur') return 'Rekhta Dictionary';
+    if (lang === 'ar') return 'Almaany';
+    if (['en', 'he'].includes(lang)) return 'Wiktionary';
     if (lang === 'cop') return 'Coptic Dictionary';
     return 'Logeion';
   };

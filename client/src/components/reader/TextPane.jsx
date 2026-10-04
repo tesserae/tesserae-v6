@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { cssRef } from './refId';
-
-const RTL = new Set(['he']);
+import { RTL_LANGS as RTL } from '../../utils/rtl';
 
 /**
  * The reading surface: the text itself, with selection.

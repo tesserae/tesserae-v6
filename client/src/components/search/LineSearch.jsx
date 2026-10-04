@@ -1,6 +1,9 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { LoadingSpinner } from '../common';
 import { normalizeGreek } from '../../utils/greekUtils';
+import { dirFor } from '../../utils/rtl';
+import { exportRowsToPDF } from '../../utils/exportResults';
+import { languageName } from '../../utils/languageNames';
 import CopticSearchInput from './CopticSearchInput';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
@@ -837,7 +840,7 @@ export default function LineSearch({ language }) {
                           </span>
                         )}
                       </div>
-                      <div className="flex-1 min-w-0 break-words text-gray-700" dir={language === 'he' ? 'rtl' : undefined}>
+                      <div className="flex-1 min-w-0 break-words text-gray-700" dir={dirFor(language)}>
                         {highlightMatches(result.text, result.matched_words || query.split(/\s+/))}
                       </div>
                     </div>
