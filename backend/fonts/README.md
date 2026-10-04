@@ -3,6 +3,16 @@
 `NotoSansCoptic-Regular.ttf` — Copyright 2022 The Noto Project Authors,
 SIL Open Font License 1.1 (https://scripts.sil.org/OFL). 90 KB.
 
+`NotoNaskhArabic-Variable.ttf` — Copyright 2022 The Noto Project Authors,
+SIL Open Font License 1.1. 300 KB. The variable font from google/fonts
+(`ofl/notonaskharabic/NotoNaskhArabic[wght].ttf`), whose default instance is
+Regular. Used for Persian, Urdu and Arabic passages (added 2026-09-07): DejaVu
+Sans has the Arabic letters but none of the Urdu ones (heh goal, yeh barree,
+retroflex consonants) or their joined forms, so Urdu lines printed with boxes.
+Noto Naskh Arabic carries every presentation form the reshaper produces.
+Noto Nastaliq Urdu was tried first and rejected: it has no presentation-form
+glyphs at all, so it cannot be used through arabic_reshaper.
+
 ## Why it lives here rather than on the machine
 
 It was originally read from `~/.local/share/fonts/`, which worked in

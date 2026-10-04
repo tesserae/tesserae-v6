@@ -1,0 +1,419 @@
+{
+ "1": {
+  "wikisource": 1,
+  "score": 0.981,
+  "runner_up": 0.368,
+  "confidence": "high"
+ },
+ "6": {
+  "wikisource": 7,
+  "score": 0.981,
+  "runner_up": 0.374,
+  "confidence": "high"
+ },
+ "10": {
+  "wikisource": 11,
+  "score": 0.984,
+  "runner_up": 0.381,
+  "confidence": "high"
+ },
+ "13": {
+  "wikisource": 14,
+  "score": 1.0,
+  "runner_up": 0.427,
+  "confidence": "high"
+ },
+ "15": {
+  "wikisource": 16,
+  "score": 0.99,
+  "runner_up": 0.43,
+  "confidence": "high"
+ },
+ "18": {
+  "wikisource": 20,
+  "score": 0.972,
+  "runner_up": 0.385,
+  "confidence": "high"
+ },
+ "27": {
+  "wikisource": 29,
+  "score": 0.941,
+  "runner_up": 0.383,
+  "confidence": "high"
+ },
+ "28": {
+  "wikisource": 30,
+  "score": 0.949,
+  "runner_up": 0.404,
+  "confidence": "high"
+ },
+ "33": {
+  "wikisource": 35,
+  "score": 0.99,
+  "runner_up": 0.462,
+  "confidence": "high"
+ },
+ "37": {
+  "wikisource": 39,
+  "score": 0.661,
+  "runner_up": 0.359,
+  "confidence": "high"
+ },
+ "39": {
+  "wikisource": 41,
+  "score": 0.649,
+  "runner_up": 0.306,
+  "confidence": "high"
+ },
+ "40": {
+  "wikisource": 42,
+  "score": 0.634,
+  "runner_up": 0.323,
+  "confidence": "high"
+ },
+ "45": {
+  "wikisource": 49,
+  "score": 0.662,
+  "runner_up": 0.355,
+  "confidence": "high"
+ },
+ "46": {
+  "wikisource": 50,
+  "score": 0.649,
+  "runner_up": 0.364,
+  "confidence": "high"
+ },
+ "47": {
+  "wikisource": 51,
+  "score": 0.651,
+  "runner_up": 0.331,
+  "confidence": "high"
+ },
+ "54": {
+  "wikisource": 66,
+  "score": 0.906,
+  "runner_up": 0.336,
+  "confidence": "high"
+ },
+ "61": {
+  "wikisource": 76,
+  "score": 0.652,
+  "runner_up": 0.318,
+  "confidence": "high"
+ },
+ "64": {
+  "wikisource": 79,
+  "score": 0.648,
+  "runner_up": 0.344,
+  "confidence": "high"
+ },
+ "80": {
+  "wikisource": 98,
+  "score": 0.662,
+  "runner_up": 0.321,
+  "confidence": "high"
+ },
+ "91": {
+  "wikisource": 110,
+  "score": 0.645,
+  "runner_up": 0.345,
+  "confidence": "high"
+ },
+ "92": {
+  "wikisource": 111,
+  "score": 0.6,
+  "runner_up": 0.323,
+  "confidence": "high"
+ },
+ "95": {
+  "wikisource": null,
+  "score": 0.406,
+  "runner_up": 0.386,
+  "confidence": "unmatched",
+  "note": "no Wikisource ghazal with this matla; Wikisource numbering has gaps (103, 149, 265, 275-291)"
+ },
+ "100": {
+  "wikisource": 119,
+  "score": 0.654,
+  "runner_up": 0.347,
+  "confidence": "high"
+ },
+ "101": {
+  "wikisource": 120,
+  "score": 0.613,
+  "runner_up": 0.331,
+  "confidence": "high"
+ },
+ "103": {
+  "wikisource": 122,
+  "score": 0.675,
+  "runner_up": 0.377,
+  "confidence": "high"
+ },
+ "105": {
+  "wikisource": 124,
+  "score": 0.671,
+  "runner_up": 0.317,
+  "confidence": "high"
+ },
+ "107": {
+  "wikisource": 126,
+  "score": 0.662,
+  "runner_up": 0.329,
+  "confidence": "high"
+ },
+ "109": {
+  "wikisource": 128,
+  "score": 0.893,
+  "runner_up": 0.422,
+  "confidence": "high"
+ },
+ "117": {
+  "wikisource": 143,
+  "score": 0.663,
+  "runner_up": 0.368,
+  "confidence": "high"
+ },
+ "118": {
+  "wikisource": 144,
+  "score": 0.646,
+  "runner_up": 0.309,
+  "confidence": "high"
+ },
+ "124": {
+  "wikisource": 151,
+  "score": 0.693,
+  "runner_up": 0.327,
+  "confidence": "high"
+ },
+ "131": {
+  "wikisource": 162,
+  "score": 0.649,
+  "runner_up": 0.35,
+  "confidence": "high"
+ },
+ "133": {
+  "wikisource": 164,
+  "score": 0.675,
+  "runner_up": 0.345,
+  "confidence": "high"
+ },
+ "138": {
+  "wikisource": 169,
+  "score": 0.653,
+  "runner_up": 0.333,
+  "confidence": "high"
+ },
+ "140": {
+  "wikisource": 171,
+  "score": 0.653,
+  "runner_up": 0.38,
+  "confidence": "high"
+ },
+ "141": {
+  "wikisource": 172,
+  "score": 0.645,
+  "runner_up": 0.35,
+  "confidence": "high"
+ },
+ "142": {
+  "wikisource": 173,
+  "score": 0.663,
+  "runner_up": 0.303,
+  "confidence": "high"
+ },
+ "143": {
+  "wikisource": 174,
+  "score": 0.646,
+  "runner_up": 0.318,
+  "confidence": "high"
+ },
+ "147": {
+  "wikisource": 178,
+  "score": 0.662,
+  "runner_up": 0.327,
+  "confidence": "high"
+ },
+ "152": {
+  "wikisource": 183,
+  "score": 0.656,
+  "runner_up": 0.348,
+  "confidence": "high"
+ },
+ "155": {
+  "wikisource": 186,
+  "score": 0.632,
+  "runner_up": 0.314,
+  "confidence": "high"
+ },
+ "156": {
+  "wikisource": 187,
+  "score": 0.679,
+  "runner_up": 0.329,
+  "confidence": "high"
+ },
+ "158": {
+  "wikisource": 189,
+  "score": 0.648,
+  "runner_up": 0.376,
+  "confidence": "high"
+ },
+ "164": {
+  "wikisource": 195,
+  "score": 0.805,
+  "runner_up": 0.418,
+  "confidence": "high"
+ },
+ "165": {
+  "wikisource": 196,
+  "score": 0.651,
+  "runner_up": 0.294,
+  "confidence": "high"
+ },
+ "166": {
+  "wikisource": 197,
+  "score": 0.615,
+  "runner_up": 0.281,
+  "confidence": "high"
+ },
+ "167": {
+  "wikisource": 198,
+  "score": 0.65,
+  "runner_up": 0.312,
+  "confidence": "high"
+ },
+ "169": {
+  "wikisource": 200,
+  "score": 0.638,
+  "runner_up": 0.319,
+  "confidence": "high"
+ },
+ "177": {
+  "wikisource": 209,
+  "score": 0.939,
+  "runner_up": 0.436,
+  "confidence": "high"
+ },
+ "179": {
+  "wikisource": 202,
+  "score": 0.613,
+  "runner_up": 0.373,
+  "confidence": "high"
+ },
+ "180": {
+  "wikisource": 211,
+  "score": 0.621,
+  "runner_up": 0.386,
+  "confidence": "high"
+ },
+ "182": {
+  "wikisource": 213,
+  "score": 0.648,
+  "runner_up": 0.298,
+  "confidence": "high"
+ },
+ "185": {
+  "wikisource": 216,
+  "score": 0.654,
+  "runner_up": 0.331,
+  "confidence": "high"
+ },
+ "186": {
+  "wikisource": 217,
+  "score": 0.658,
+  "runner_up": 0.35,
+  "confidence": "high"
+ },
+ "187": {
+  "wikisource": 218,
+  "score": 0.671,
+  "runner_up": 0.345,
+  "confidence": "high"
+ },
+ "189": {
+  "wikisource": 220,
+  "score": 0.636,
+  "runner_up": 0.361,
+  "confidence": "high"
+ },
+ "197": {
+  "wikisource": 228,
+  "score": 0.6,
+  "runner_up": 0.338,
+  "confidence": "high"
+ },
+ "199": {
+  "wikisource": 230,
+  "score": 0.64,
+  "runner_up": 0.344,
+  "confidence": "high"
+ },
+ "200": {
+  "wikisource": 231,
+  "score": 0.648,
+  "runner_up": 0.294,
+  "confidence": "high"
+ },
+ "206": {
+  "wikisource": 237,
+  "score": 0.616,
+  "runner_up": 0.333,
+  "confidence": "high"
+ },
+ "218": {
+  "wikisource": 249,
+  "score": 0.623,
+  "runner_up": 0.333,
+  "confidence": "high"
+ },
+ "221": {
+  "wikisource": 252,
+  "score": 0.623,
+  "runner_up": 0.336,
+  "confidence": "high"
+ },
+ "222": {
+  "wikisource": 253,
+  "score": 0.674,
+  "runner_up": 0.338,
+  "confidence": "high"
+ },
+ "223": {
+  "wikisource": 254,
+  "score": 0.646,
+  "runner_up": 0.319,
+  "confidence": "high"
+ },
+ "224": {
+  "wikisource": 255,
+  "score": 0.671,
+  "runner_up": 0.331,
+  "confidence": "high"
+ },
+ "225": {
+  "wikisource": 256,
+  "score": 0.645,
+  "runner_up": 0.309,
+  "confidence": "high"
+ },
+ "226": {
+  "wikisource": 257,
+  "score": 0.643,
+  "runner_up": 0.307,
+  "confidence": "high"
+ },
+ "231": {
+  "wikisource": 262,
+  "score": 0.627,
+  "runner_up": 0.321,
+  "confidence": "high"
+ },
+ "_meta": {
+  "built": "2026-09-05",
+  "method": "opening two lines, normalize_urdu + strip punctuation/diacritics/spaces, difflib ratio; high = score>=0.85 or (score>=0.55 and margin over runner-up>=0.2)",
+  "pritchett_ghazals": 234,
+  "wikisource_ghazals": 272,
+  "mapped": 67,
+  "unmatched": 1
+ }
+}

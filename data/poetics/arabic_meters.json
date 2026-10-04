@@ -1,0 +1,7246 @@
+{
+ "abid_ibn_al_abras.muallaqa": {
+  "meter": "البسيط",
+  "share": 0.609,
+  "n_verses": 92,
+  "votes": {
+   "البسيط": 56,
+   "الرجز": 18,
+   "الكامل": 6,
+   "موشح": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "abu_firas.diwan_wikisource.1": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الوافر": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "abu_firas.diwan_wikisource.2": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 30,
+  "votes": {
+   "الطويل": 30
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "abu_firas.diwan_wikisource.3": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الطويل": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "abu_firas.diwan_wikisource.4": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "البسيط": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "abu_firas.diwan_wikisource.5": {
+  "meter": "الرجز",
+  "share": 0.5,
+  "n_verses": 4,
+  "votes": {
+   "الرجز": 2,
+   "الكامل": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "abu_firas.diwan_wikisource.6": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الكامل": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "abu_firas.diwan_wikisource.7": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 10,
+  "votes": {
+   "الطويل": 10
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "abu_firas.diwan_wikisource.9": {
+  "meter": "الكامل",
+  "share": 0.923,
+  "n_verses": 26,
+  "votes": {
+   "الكامل": 24,
+   "الرجز": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "abu_firas.diwan_wikisource.10": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الكامل": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "abu_nuwas.diwan_wikisource.1": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 11,
+  "votes": {
+   "البسيط": 11
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "abu_nuwas.diwan_wikisource.2": {
+  "meter": "الرمل",
+  "share": 0.25,
+  "n_verses": 12,
+  "votes": {
+   "الرمل": 3,
+   "المتقارب": 3,
+   "الخفيف": 2,
+   "موشح": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "abu_nuwas.diwan_wikisource.3": {
+  "meter": "البسيط",
+  "share": 0.833,
+  "n_verses": 6,
+  "votes": {
+   "البسيط": 5,
+   "موشح": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "abu_nuwas.diwan_wikisource.4": {
+  "meter": "الوافر",
+  "share": 0.333,
+  "n_verses": 6,
+  "votes": {
+   "الوافر": 2,
+   "الطويل": 2,
+   "المواليا": 1,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "abu_nuwas.diwan_wikisource.5": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الخفيف": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "abu_tammam.diwan_wikisource.1": {
+  "meter": "البسيط",
+  "share": 0.986,
+  "n_verses": 71,
+  "votes": {
+   "البسيط": 70,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "abu_tammam.diwan_wikisource.2": {
+  "meter": "البسيط",
+  "share": 0.625,
+  "n_verses": 8,
+  "votes": {
+   "البسيط": 5,
+   "الكامل": 1,
+   "المواليا": 1,
+   "الطويل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "al_asha.muallaqa": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 132,
+  "votes": {
+   "البسيط": 132
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.5": {
+  "meter": "الهزج",
+  "share": 0.667,
+  "n_verses": 6,
+  "votes": {
+   "الهزج": 4,
+   "المتدارك": 1,
+   "الرمل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.6": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.7": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الطويل": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.9": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "الطويل": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.10": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 19,
+  "votes": {
+   "الطويل": 19
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.11": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 15,
+  "votes": {
+   "الطويل": 15
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.13": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الوافر": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.14": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 21,
+  "votes": {
+   "الطويل": 21
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.15": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الطويل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.16": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 30,
+  "votes": {
+   "الكامل": 30
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.19": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "المتقارب": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.20": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الوافر": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.22": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "البسيط": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.25": {
+  "meter": "الرمل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الرمل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.26": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.28": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "المتقارب": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.29": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الوافر": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.32": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "المتقارب": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.33": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "المتقارب": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.37": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الوافر": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.38": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "البسيط": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.40": {
+  "meter": "الرمل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الرمل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.42": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.46": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الكامل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.49": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الخفيف": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.50": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 19,
+  "votes": {
+   "البسيط": 19
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.51": {
+  "meter": "الكامل",
+  "share": 0.833,
+  "n_verses": 6,
+  "votes": {
+   "الكامل": 5,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.54": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "البسيط": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.56": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الكامل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.57": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 10,
+  "votes": {
+   "الكامل": 10
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.59": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "البسيط": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.61": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 12,
+  "votes": {
+   "الوافر": 12
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.62": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "الوافر": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.63": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "الطويل": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.66": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.69": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "البسيط": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.72": {
+  "meter": "الهزج",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الهزج": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.75": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الكامل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.78": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الوافر": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.81": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الوافر": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.82": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.86": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الوافر": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.90": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الطويل": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.92": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الوافر": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.97": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.101": {
+  "meter": "الهزج",
+  "share": 0.857,
+  "n_verses": 7,
+  "votes": {
+   "الهزج": 6,
+   "الخفيف": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.104": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.107": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "المتقارب": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.108": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "البسيط": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.110": {
+  "meter": "الرجز",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الرجز": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.111": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 14,
+  "votes": {
+   "الكامل": 14
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.112": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الوافر": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.120": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الكامل": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.122": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "البسيط": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.125": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 22,
+  "votes": {
+   "الطويل": 22
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.126": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 26,
+  "votes": {
+   "الطويل": 26
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.127": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "البسيط": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.129": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الوافر": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.131": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 13,
+  "votes": {
+   "الطويل": 13
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.132": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "البسيط": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.134": {
+  "meter": "السريع",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "السريع": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.136": {
+  "meter": "الكامل",
+  "share": 0.75,
+  "n_verses": 4,
+  "votes": {
+   "الكامل": 3,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.137": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "البسيط": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.139": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الكامل": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.140": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.142": {
+  "meter": "السريع",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "السريع": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.144": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الخفيف": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.147": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الطويل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.148": {
+  "meter": "الوافر",
+  "share": 0.929,
+  "n_verses": 14,
+  "votes": {
+   "الوافر": 13,
+   "الطويل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.150": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.151": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الوافر": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.153": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 10,
+  "votes": {
+   "الطويل": 10
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.154": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الوافر": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.156": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 17,
+  "votes": {
+   "الطويل": 17
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.158": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الكامل": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.159": {
+  "meter": "السريع",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "السريع": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ali_ibn_abi_talib.diwan_wikisource.162": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "المتقارب": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "amr_ibn_kulthum.diwan_wikisource.1": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "الوافر": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "amr_ibn_kulthum.diwan_wikisource.2": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "الوافر": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "amr_ibn_kulthum.diwan_wikisource.3": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الطويل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "amr_ibn_kulthum.diwan_wikisource.4": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الكامل": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "amr_ibn_kulthum.muallaqa": {
+  "meter": "الوافر",
+  "share": 0.99,
+  "n_verses": 103,
+  "votes": {
+   "الوافر": 102,
+   "الخفيف": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "antara.muallaqa": {
+  "meter": "الكامل",
+  "share": 0.987,
+  "n_verses": 75,
+  "votes": {
+   "الكامل": 74,
+   "الطويل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "barudi.diwan_wikisource.1": {
+  "meter": "الكامل",
+  "share": 0.953,
+  "n_verses": 43,
+  "votes": {
+   "الكامل": 41,
+   "الطويل": 1,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "barudi.diwan_wikisource.2": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 50,
+  "votes": {
+   "الطويل": 50
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "barudi.diwan_wikisource.3": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 27,
+  "votes": {
+   "الطويل": 27
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "barudi.diwan_wikisource.4": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 32,
+  "votes": {
+   "الوافر": 32
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "barudi.diwan_wikisource.5": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "barudi.diwan_wikisource.6": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 12,
+  "votes": {
+   "الطويل": 12
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "barudi.diwan_wikisource.7": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 29,
+  "votes": {
+   "الطويل": 29
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "barudi.diwan_wikisource.8": {
+  "meter": "الرمل",
+  "share": 1.0,
+  "n_verses": 19,
+  "votes": {
+   "الرمل": 19
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "barudi.diwan_wikisource.9": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "البسيط": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "barudi.diwan_wikisource.10": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 52,
+  "votes": {
+   "الطويل": 52
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "barudi.diwan_wikisource.11": {
+  "meter": "السريع",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "السريع": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "bashshar.diwan_wikisource.1": {
+  "meter": "الهزج",
+  "share": 0.724,
+  "n_verses": 29,
+  "votes": {
+   "الهزج": 21,
+   "الوافر": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "bashshar.diwan_wikisource.2": {
+  "meter": "السريع",
+  "share": 1.0,
+  "n_verses": 19,
+  "votes": {
+   "السريع": 19
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "busiri.burda": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 159,
+  "votes": {
+   "البسيط": 159
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "harith_ibn_hilliza.muallaqa": {
+  "meter": "الخفيف",
+  "share": 0.951,
+  "n_verses": 164,
+  "votes": {
+   "الخفيف": 156,
+   "الرمل": 4,
+   "الكامل": 2,
+   "المديد": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hassan_ibn_thabit.diwan_wikisource.1": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 18,
+  "votes": {
+   "البسيط": 18
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hassan_ibn_thabit.diwan_wikisource.2": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "الكامل": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hassan_ibn_thabit.diwan_wikisource.3": {
+  "meter": "المتقارب",
+  "share": 0.444,
+  "n_verses": 9,
+  "votes": {
+   "المتقارب": 4,
+   "الطويل": 4,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hassan_ibn_thabit.diwan_wikisource.4": {
+  "meter": "الكامل",
+  "share": 0.895,
+  "n_verses": 19,
+  "votes": {
+   "الكامل": 17,
+   "الرجز": 1,
+   "المواليا": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hassan_ibn_thabit.diwan_wikisource.5": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 46,
+  "votes": {
+   "الطويل": 46
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hassan_ibn_thabit.diwan_wikisource.6": {
+  "meter": "الطويل",
+  "share": 0.842,
+  "n_verses": 19,
+  "votes": {
+   "الطويل": 16,
+   "الرجز": 1,
+   "المواليا": 1,
+   "الخفيف": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hassan_ibn_thabit.diwan_wikisource.7": {
+  "meter": "الطويل",
+  "share": 0.778,
+  "n_verses": 9,
+  "votes": {
+   "الطويل": 7,
+   "الرجز": 1,
+   "موشح": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hassan_ibn_thabit.diwan_wikisource.8": {
+  "meter": "الكامل",
+  "share": 0.824,
+  "n_verses": 17,
+  "votes": {
+   "الكامل": 14,
+   "البسيط": 2,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hassan_ibn_thabit.diwan_wikisource.9": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 33,
+  "votes": {
+   "الوافر": 33
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hassan_ibn_thabit.diwan_wikisource.10": {
+  "meter": "الكامل",
+  "share": 0.75,
+  "n_verses": 8,
+  "votes": {
+   "الكامل": 6,
+   "الرجز": 1,
+   "موشح": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.1": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 11,
+  "votes": {
+   "الخفيف": 11
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.2": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الكامل": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.3": {
+  "meter": "المتقارب",
+  "share": 0.889,
+  "n_verses": 9,
+  "votes": {
+   "المتقارب": 8,
+   "الوافر": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.4": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الوافر": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.6": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 16,
+  "votes": {
+   "الطويل": 16
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.10": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.11": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 26,
+  "votes": {
+   "الطويل": 26
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.12": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "الطويل": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.13": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.14": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 20,
+  "votes": {
+   "الطويل": 20
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.15": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.17": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "البسيط": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.18": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الكامل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.19": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 14,
+  "votes": {
+   "الطويل": 14
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.20": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 42,
+  "votes": {
+   "الطويل": 42
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.21": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 23,
+  "votes": {
+   "الطويل": 23
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.22": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 16,
+  "votes": {
+   "الطويل": 16
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.23": {
+  "meter": "السريع",
+  "share": 0.8,
+  "n_verses": 5,
+  "votes": {
+   "السريع": 4,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.25": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الوافر": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.26": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الوافر": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.27": {
+  "meter": "الطويل",
+  "share": 0.75,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 3,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.28": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 16,
+  "votes": {
+   "البسيط": 16
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.29": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 20,
+  "votes": {
+   "الطويل": 20
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.30": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الطويل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.31": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "الطويل": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.32": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الطويل": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.33": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 17,
+  "votes": {
+   "الطويل": 17
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.34": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.35": {
+  "meter": "الكامل",
+  "share": 0.875,
+  "n_verses": 8,
+  "votes": {
+   "الكامل": 7,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.36": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الوافر": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "hatim_al_tai.diwan_wikisource.37": {
+  "meter": "الطويل",
+  "share": 0.909,
+  "n_verses": 11,
+  "votes": {
+   "الطويل": 10,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.1": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "الطويل": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.2": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "البسيط": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.4": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 10,
+  "votes": {
+   "الوافر": 10
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.5": {
+  "meter": "الرجز",
+  "share": 0.63,
+  "n_verses": 27,
+  "votes": {
+   "الرجز": 17,
+   "الكامل": 2,
+   "المجتث": 2,
+   "البسيط": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.6": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "البسيط": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.7": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الخفيف": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.9": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 44,
+  "votes": {
+   "الطويل": 44
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.10": {
+  "meter": "الرمل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الرمل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.11": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 16,
+  "votes": {
+   "الوافر": 16
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.12": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 46,
+  "votes": {
+   "الطويل": 46
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.13": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "الطويل": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.14": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الوافر": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.15": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 16,
+  "votes": {
+   "الطويل": 16
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.16": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "الطويل": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.17": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الطويل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.18": {
+  "meter": "الطويل",
+  "share": 0.833,
+  "n_verses": 6,
+  "votes": {
+   "الطويل": 5,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.19": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.20": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 43,
+  "votes": {
+   "الكامل": 43
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.21": {
+  "meter": "المجتث",
+  "share": 0.84,
+  "n_verses": 25,
+  "votes": {
+   "المجتث": 21,
+   "الكامل": 2,
+   "الرجز": 1,
+   "موشح": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.22": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 33,
+  "votes": {
+   "الكامل": 33
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.25": {
+  "meter": "الطويل",
+  "share": 0.967,
+  "n_verses": 30,
+  "votes": {
+   "الطويل": 29,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.26": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الطويل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.27": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "الكامل": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.28": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الكامل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.29": {
+  "meter": "الكامل",
+  "share": 0.973,
+  "n_verses": 37,
+  "votes": {
+   "الكامل": 36,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.30": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 23,
+  "votes": {
+   "الكامل": 23
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.32": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 28,
+  "votes": {
+   "الطويل": 28
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.35": {
+  "meter": "الكامل",
+  "share": 0.889,
+  "n_verses": 9,
+  "votes": {
+   "الكامل": 8,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.36": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "البسيط": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.37": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 14,
+  "votes": {
+   "الكامل": 14
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.38": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 11,
+  "votes": {
+   "الوافر": 11
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.40": {
+  "meter": "المنسرح",
+  "share": 1.0,
+  "n_verses": 34,
+  "votes": {
+   "المنسرح": 34
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.41": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "الكامل": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.42": {
+  "meter": "الكامل",
+  "share": 0.966,
+  "n_verses": 59,
+  "votes": {
+   "الكامل": 57,
+   "الطويل": 1,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.43": {
+  "meter": "السريع",
+  "share": 0.926,
+  "n_verses": 27,
+  "votes": {
+   "السريع": 25,
+   "الرجز": 1,
+   "المديد": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.44": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 22,
+  "votes": {
+   "الخفيف": 22
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.45": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "الخفيف": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.46": {
+  "meter": "موشح",
+  "share": 0.7,
+  "n_verses": 20,
+  "votes": {
+   "موشح": 14,
+   "الرجز": 4,
+   "الكامل": 1,
+   "المواليا": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.47": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "المتقارب": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.50": {
+  "meter": "موشح",
+  "share": 0.815,
+  "n_verses": 27,
+  "votes": {
+   "موشح": 22,
+   "المجتث": 3,
+   "الكامل": 1,
+   "الخفيف": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.51": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "الطويل": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.52": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "الطويل": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.53": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 15,
+  "votes": {
+   "البسيط": 15
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.54": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "الخفيف": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.56": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 20,
+  "votes": {
+   "الكامل": 20
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.57": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 10,
+  "votes": {
+   "الكامل": 10
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.58": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الطويل": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.59": {
+  "meter": "السريع",
+  "share": 0.8,
+  "n_verses": 15,
+  "votes": {
+   "السريع": 12,
+   "الكامل": 2,
+   "المتقارب": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.60": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 20,
+  "votes": {
+   "الطويل": 20
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.61": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 45,
+  "votes": {
+   "الكامل": 45
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.63": {
+  "meter": "البسيط",
+  "share": 0.966,
+  "n_verses": 89,
+  "votes": {
+   "البسيط": 86,
+   "الرجز": 3
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.64": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الطويل": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.65": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "البسيط": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.66": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 19,
+  "votes": {
+   "الوافر": 19
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.67": {
+  "meter": "موشح",
+  "share": 0.593,
+  "n_verses": 27,
+  "votes": {
+   "موشح": 16,
+   "المتقارب": 5,
+   "الوافر": 3,
+   "الخفيف": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.68": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الكامل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.69": {
+  "meter": "موشح",
+  "share": 0.704,
+  "n_verses": 27,
+  "votes": {
+   "موشح": 19,
+   "الكامل": 2,
+   "المقتضب": 2,
+   "الطويل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.70": {
+  "meter": "المجتث",
+  "share": 0.438,
+  "n_verses": 16,
+  "votes": {
+   "المجتث": 7,
+   "موشح": 4,
+   "الرجز": 2,
+   "المتدارك": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.71": {
+  "meter": "البسيط",
+  "share": 0.981,
+  "n_verses": 53,
+  "votes": {
+   "البسيط": 52,
+   "السريع": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.72": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 11,
+  "votes": {
+   "الكامل": 11
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.73": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.74": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.75": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "البسيط": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.76": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "الطويل": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.78": {
+  "meter": "الرمل",
+  "share": 1.0,
+  "n_verses": 11,
+  "votes": {
+   "الرمل": 11
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.81": {
+  "meter": "موشح",
+  "share": 0.741,
+  "n_verses": 27,
+  "votes": {
+   "موشح": 20,
+   "الكامل": 3,
+   "الدوبيت": 1,
+   "المجتث": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.83": {
+  "meter": "الخفيف",
+  "share": 0.719,
+  "n_verses": 32,
+  "votes": {
+   "الخفيف": 23,
+   "موشح": 6,
+   "الرمل": 3
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.86": {
+  "meter": "السريع",
+  "share": 1.0,
+  "n_verses": 16,
+  "votes": {
+   "السريع": 16
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.88": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الكامل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.89": {
+  "meter": "موشح",
+  "share": 0.5,
+  "n_verses": 12,
+  "votes": {
+   "موشح": 6,
+   "السريع": 3,
+   "الكامل": 2,
+   "المجتث": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.90": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 21,
+  "votes": {
+   "الطويل": 21
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.92": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 11,
+  "votes": {
+   "المتقارب": 11
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.93": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 40,
+  "votes": {
+   "البسيط": 40
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.94": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الكامل": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.95": {
+  "meter": "الطويل",
+  "share": 0.958,
+  "n_verses": 48,
+  "votes": {
+   "الطويل": 46,
+   "موشح": 1,
+   "شعر حر": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.97": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 25,
+  "votes": {
+   "البسيط": 25
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.99": {
+  "meter": "الرجز",
+  "share": 0.556,
+  "n_verses": 27,
+  "votes": {
+   "الرجز": 15,
+   "المجتث": 3,
+   "الكامل": 3,
+   "موشح": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.102": {
+  "meter": "موشح",
+  "share": 0.417,
+  "n_verses": 12,
+  "votes": {
+   "موشح": 5,
+   "الكامل": 3,
+   "الرجز": 3,
+   "السريع": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.103": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 45,
+  "votes": {
+   "البسيط": 45
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.104": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 11,
+  "votes": {
+   "الطويل": 11
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.106": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 12,
+  "votes": {
+   "الكامل": 12
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.107": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 18,
+  "votes": {
+   "البسيط": 18
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.108": {
+  "meter": "موشح",
+  "share": 0.385,
+  "n_verses": 13,
+  "votes": {
+   "موشح": 5,
+   "البسيط": 3,
+   "المجتث": 2,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.110": {
+  "meter": "البسيط",
+  "share": 0.818,
+  "n_verses": 22,
+  "votes": {
+   "البسيط": 18,
+   "المديد": 1,
+   "المنسرح": 1,
+   "موشح": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.111": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 17,
+  "votes": {
+   "الكامل": 17
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.112": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "الكامل": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.114": {
+  "meter": "موشح",
+  "share": 0.556,
+  "n_verses": 27,
+  "votes": {
+   "موشح": 15,
+   "المتقارب": 6,
+   "الكامل": 3,
+   "الرجز": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.115": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 49,
+  "votes": {
+   "الخفيف": 49
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.116": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الكامل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.117": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الكامل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.118": {
+  "meter": "موشح",
+  "share": 0.222,
+  "n_verses": 27,
+  "votes": {
+   "موشح": 6,
+   "الرجز": 6,
+   "الكامل": 6,
+   "السريع": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.119": {
+  "meter": "الرمل",
+  "share": 0.963,
+  "n_verses": 27,
+  "votes": {
+   "الرمل": 26,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.120": {
+  "meter": "موشح",
+  "share": 0.481,
+  "n_verses": 27,
+  "votes": {
+   "موشح": 13,
+   "المتقارب": 6,
+   "الخفيف": 2,
+   "السريع": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.121": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الطويل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.122": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "الطويل": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.123": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الكامل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.126": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 14,
+  "votes": {
+   "المتقارب": 14
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.127": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الكامل": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.128": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "البسيط": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.131": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 51,
+  "votes": {
+   "المتقارب": 51
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.133": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الطويل": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.134": {
+  "meter": "الكامل",
+  "share": 0.9,
+  "n_verses": 30,
+  "votes": {
+   "الكامل": 27,
+   "الطويل": 2,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.136": {
+  "meter": "المنسرح",
+  "share": 1.0,
+  "n_verses": 16,
+  "votes": {
+   "المنسرح": 16
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.137": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 11,
+  "votes": {
+   "الكامل": 11
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.138": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "البسيط": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.139": {
+  "meter": "الرمل",
+  "share": 1.0,
+  "n_verses": 14,
+  "votes": {
+   "الرمل": 14
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.141": {
+  "meter": "الرجز",
+  "share": 0.407,
+  "n_verses": 27,
+  "votes": {
+   "الرجز": 11,
+   "الكامل": 10,
+   "موشح": 5,
+   "المتقارب": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.142": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "البسيط": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.143": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "الكامل": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.144": {
+  "meter": "موشح",
+  "share": 0.524,
+  "n_verses": 21,
+  "votes": {
+   "موشح": 11,
+   "البسيط": 6,
+   "الرجز": 2,
+   "المنسرح": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.145": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 37,
+  "votes": {
+   "الكامل": 37
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.146": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "البسيط": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.147": {
+  "meter": "المجتث",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "المجتث": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.148": {
+  "meter": "الكامل",
+  "share": 0.95,
+  "n_verses": 20,
+  "votes": {
+   "الكامل": 19,
+   "الرمل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.149": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الطويل": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.150": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الطويل": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.151": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 19,
+  "votes": {
+   "الكامل": 19
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.152": {
+  "meter": "الطويل",
+  "share": 0.921,
+  "n_verses": 89,
+  "votes": {
+   "الطويل": 82,
+   "الكامل": 2,
+   "البسيط": 1,
+   "موشح": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.153": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 42,
+  "votes": {
+   "الكامل": 42
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_sahl.diwan_wikisource.154": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 14,
+  "votes": {
+   "الطويل": 14
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "ibn_zaydun.nuniyya": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 48,
+  "votes": {
+   "البسيط": 48
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.1": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 12,
+  "votes": {
+   "الطويل": 12
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.2": {
+  "meter": "المتقارب",
+  "share": 0.977,
+  "n_verses": 86,
+  "votes": {
+   "المتقارب": 84,
+   "الرجز": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.3": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 26,
+  "votes": {
+   "الوافر": 26
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.4": {
+  "meter": "الطويل",
+  "share": 0.952,
+  "n_verses": 42,
+  "votes": {
+   "الطويل": 40,
+   "الكامل": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.5": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 10,
+  "votes": {
+   "الطويل": 10
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.6": {
+  "meter": "الطويل",
+  "share": 0.973,
+  "n_verses": 74,
+  "votes": {
+   "الطويل": 72,
+   "الكامل": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.7": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 108,
+  "votes": {
+   "الطويل": 108
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.8": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "الطويل": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.9": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الوافر": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.10": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 28,
+  "votes": {
+   "الطويل": 28
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.11": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 26,
+  "votes": {
+   "الطويل": 26
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.12": {
+  "meter": "الطويل",
+  "share": 0.96,
+  "n_verses": 50,
+  "votes": {
+   "الطويل": 48,
+   "الكامل": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.13": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 14,
+  "votes": {
+   "المتقارب": 14
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.14": {
+  "meter": "المنسرح",
+  "share": 0.8,
+  "n_verses": 10,
+  "votes": {
+   "المنسرح": 8,
+   "السريع": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.15": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الوافر": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.16": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 32,
+  "votes": {
+   "الطويل": 32
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.17": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 44,
+  "votes": {
+   "الكامل": 44
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.18": {
+  "meter": "الطويل",
+  "share": 0.982,
+  "n_verses": 110,
+  "votes": {
+   "الطويل": 108,
+   "الكامل": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.19": {
+  "meter": "الطويل",
+  "share": 0.889,
+  "n_verses": 18,
+  "votes": {
+   "الطويل": 16,
+   "الخفيف": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.20": {
+  "meter": "الرمل",
+  "share": 1.0,
+  "n_verses": 16,
+  "votes": {
+   "الرمل": 16
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.21": {
+  "meter": "المديد",
+  "share": 1.0,
+  "n_verses": 22,
+  "votes": {
+   "المديد": 22
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.22": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 108,
+  "votes": {
+   "الطويل": 108
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.23": {
+  "meter": "الطويل",
+  "share": 0.8,
+  "n_verses": 30,
+  "votes": {
+   "الطويل": 24,
+   "الكامل": 4,
+   "الرجز": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.24": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 32,
+  "votes": {
+   "الطويل": 32
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.25": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "الوافر": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.26": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 10,
+  "votes": {
+   "الوافر": 10
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.27": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 38,
+  "votes": {
+   "الطويل": 38
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.28": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 42,
+  "votes": {
+   "الكامل": 42
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.29": {
+  "meter": "الطويل",
+  "share": 0.882,
+  "n_verses": 34,
+  "votes": {
+   "الطويل": 30,
+   "الكامل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.30": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.diwan_wikisource.31": {
+  "meter": "السريع",
+  "share": 0.9,
+  "n_verses": 20,
+  "votes": {
+   "السريع": 18,
+   "الكامل": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "imru_al_qais.muallaqa": {
+  "meter": "الطويل",
+  "share": 0.987,
+  "n_verses": 78,
+  "votes": {
+   "الطويل": 77,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.1": {
+  "meter": "الكامل",
+  "share": 0.933,
+  "n_verses": 15,
+  "votes": {
+   "الكامل": 14,
+   "الطويل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.3": {
+  "meter": "الطويل",
+  "share": 0.957,
+  "n_verses": 23,
+  "votes": {
+   "الطويل": 22,
+   "الخفيف": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.6": {
+  "meter": "الطويل",
+  "share": 0.909,
+  "n_verses": 11,
+  "votes": {
+   "الطويل": 10,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.7": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الوافر": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.8": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 23,
+  "votes": {
+   "الطويل": 23
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.9": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الطويل": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.10": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الطويل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.12": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 42,
+  "votes": {
+   "الطويل": 42
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.13": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 23,
+  "votes": {
+   "الطويل": 23
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.14": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الطويل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.15": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 10,
+  "votes": {
+   "الطويل": 10
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.16": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.17": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 19,
+  "votes": {
+   "الطويل": 19
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.18": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 28,
+  "votes": {
+   "الطويل": 28
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.19": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "الطويل": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.21": {
+  "meter": "الطويل",
+  "share": 0.955,
+  "n_verses": 22,
+  "votes": {
+   "الطويل": 21,
+   "الخفيف": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.24": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الطويل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.25": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 18,
+  "votes": {
+   "الطويل": 18
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.28": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "الوافر": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.30": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الكامل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.34": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.36": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.37": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الطويل": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.38": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 10,
+  "votes": {
+   "المتقارب": 10
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.39": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الوافر": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.40": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.41": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 26,
+  "votes": {
+   "الطويل": 26
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.42": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.43": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الطويل": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.44": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الطويل": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.45": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "الطويل": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.46": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 34,
+  "votes": {
+   "الطويل": 34
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.47": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الكامل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.49": {
+  "meter": "الخفيف",
+  "share": 0.846,
+  "n_verses": 13,
+  "votes": {
+   "الخفيف": 11,
+   "المديد": 1,
+   "المتقارب": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.50": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الطويل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.51": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "الكامل": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.52": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "الطويل": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.53": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 16,
+  "votes": {
+   "الطويل": 16
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.54": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 13,
+  "votes": {
+   "البسيط": 13
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.55": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الكامل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.56": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الكامل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.57": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الطويل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.58": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الطويل": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.60": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.63": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الكامل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.64": {
+  "meter": "الطويل",
+  "share": 0.8,
+  "n_verses": 5,
+  "votes": {
+   "الطويل": 4,
+   "الخفيف": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.65": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 24,
+  "votes": {
+   "الطويل": 24
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.66": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "البسيط": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.72": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.73": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الخفيف": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.74": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.79": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "البسيط": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.81": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 18,
+  "votes": {
+   "الوافر": 18
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.84": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الطويل": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.86": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 11,
+  "votes": {
+   "الطويل": 11
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.89": {
+  "meter": "الرجز",
+  "share": 0.357,
+  "n_verses": 14,
+  "votes": {
+   "الرجز": 5,
+   "الكامل": 3,
+   "السريع": 3,
+   "البسيط": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "jamil_buthayna.diwan_wikisource.92": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 16,
+  "votes": {
+   "الكامل": 16
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "kaab.banat_suad": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 59,
+  "votes": {
+   "البسيط": 59
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.1": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الطويل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.2": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الطويل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.3": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 12,
+  "votes": {
+   "الطويل": 12
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.4": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 10,
+  "votes": {
+   "الكامل": 10
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.5": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "المتقارب": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.6": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 10,
+  "votes": {
+   "الطويل": 10
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.7": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 12,
+  "votes": {
+   "المتقارب": 12
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.8": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الوافر": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.9": {
+  "meter": "الوافر",
+  "share": 0.857,
+  "n_verses": 7,
+  "votes": {
+   "الوافر": 6,
+   "الطويل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.10": {
+  "meter": "الوافر",
+  "share": 0.947,
+  "n_verses": 19,
+  "votes": {
+   "الوافر": 18,
+   "المتقارب": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.11": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 12,
+  "votes": {
+   "الوافر": 12
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.12": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "الطويل": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.13": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 12,
+  "votes": {
+   "الوافر": 12
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.14": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "الوافر": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.15": {
+  "meter": "السريع",
+  "share": 0.714,
+  "n_verses": 7,
+  "votes": {
+   "السريع": 5,
+   "الرجز": 1,
+   "المتقارب": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.17": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "الكامل": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.18": {
+  "meter": "الطويل",
+  "share": 0.75,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 3,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.19": {
+  "meter": "السريع",
+  "share": 0.92,
+  "n_verses": 25,
+  "votes": {
+   "السريع": 23,
+   "الرجز": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.20": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "البسيط": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.22": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الطويل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.23": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 10,
+  "votes": {
+   "الطويل": 10
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.24": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "المتقارب": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.25": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الطويل": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.26": {
+  "meter": "المتقارب",
+  "share": 0.968,
+  "n_verses": 31,
+  "votes": {
+   "المتقارب": 30,
+   "السريع": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.27": {
+  "meter": "المتقارب",
+  "share": 0.909,
+  "n_verses": 11,
+  "votes": {
+   "المتقارب": 10,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.28": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الوافر": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.29": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "الوافر": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.30": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 21,
+  "votes": {
+   "الوافر": 21
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.31": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "البسيط": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.32": {
+  "meter": "المتقارب",
+  "share": 0.917,
+  "n_verses": 12,
+  "votes": {
+   "المتقارب": 11,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.33": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الوافر": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.34": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 15,
+  "votes": {
+   "المتقارب": 15
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.36": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "البسيط": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.37": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 13,
+  "votes": {
+   "البسيط": 13
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.38": {
+  "meter": "الرمل",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الرمل": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.40": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 36,
+  "votes": {
+   "البسيط": 36
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.41": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 11,
+  "votes": {
+   "البسيط": 11
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.44": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 17,
+  "votes": {
+   "الخفيف": 17
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.45": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 10,
+  "votes": {
+   "الطويل": 10
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.46": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 10,
+  "votes": {
+   "الطويل": 10
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.47": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 12,
+  "votes": {
+   "الطويل": 12
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.48": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "البسيط": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.49": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الخفيف": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.50": {
+  "meter": "الرمل",
+  "share": 0.944,
+  "n_verses": 18,
+  "votes": {
+   "الرمل": 17,
+   "الطويل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.51": {
+  "meter": "الكامل",
+  "share": 0.75,
+  "n_verses": 8,
+  "votes": {
+   "الكامل": 6,
+   "المجتث": 1,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.52": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الطويل": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.53": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 12,
+  "votes": {
+   "الوافر": 12
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.54": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الكامل": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.56": {
+  "meter": "البسيط",
+  "share": 0.923,
+  "n_verses": 26,
+  "votes": {
+   "البسيط": 24,
+   "موشح": 1,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.57": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "البسيط": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.58": {
+  "meter": "السريع",
+  "share": 1.0,
+  "n_verses": 15,
+  "votes": {
+   "السريع": 15
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.59": {
+  "meter": "السريع",
+  "share": 1.0,
+  "n_verses": 26,
+  "votes": {
+   "السريع": 26
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.60": {
+  "meter": "البسيط",
+  "share": 0.923,
+  "n_verses": 13,
+  "votes": {
+   "البسيط": 12,
+   "عامي": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.61": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 20,
+  "votes": {
+   "الكامل": 20
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.62": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "البسيط": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.63": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "البسيط": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.64": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "البسيط": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.65": {
+  "meter": "البسيط",
+  "share": 0.75,
+  "n_verses": 12,
+  "votes": {
+   "البسيط": 9,
+   "الرجز": 1,
+   "عامي": 1,
+   "الوافر": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.66": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 11,
+  "votes": {
+   "البسيط": 11
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.67": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "البسيط": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.68": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "البسيط": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "khansa.diwan_wikisource.69": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 15,
+  "votes": {
+   "الوافر": 15
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "labid.muallaqa": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 176,
+  "votes": {
+   "الكامل": 176
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "maarri.diwan_wikisource.1": {
+  "meter": "الطويل",
+  "share": 0.9,
+  "n_verses": 20,
+  "votes": {
+   "الطويل": 18,
+   "شعر حر": 1,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "maarri.diwan_wikisource.2": {
+  "meter": "الطويل",
+  "share": 0.9,
+  "n_verses": 10,
+  "votes": {
+   "الطويل": 9,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "maarri.diwan_wikisource.3": {
+  "meter": "المنسرح",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "المنسرح": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "maarri.diwan_wikisource.5": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 10,
+  "votes": {
+   "الخفيف": 10
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "maarri.diwan_wikisource.6": {
+  "meter": "المنسرح",
+  "share": 0.857,
+  "n_verses": 7,
+  "votes": {
+   "المنسرح": 6,
+   "شعر حر": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.1": {
+  "meter": "السريع",
+  "share": 0.971,
+  "n_verses": 35,
+  "votes": {
+   "السريع": 34,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.3": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الوافر": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.5": {
+  "meter": "المنسرح",
+  "share": 0.977,
+  "n_verses": 43,
+  "votes": {
+   "المنسرح": 42,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.7": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الطويل": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.8": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الوافر": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.9": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 39,
+  "votes": {
+   "الخفيف": 39
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.10": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 12,
+  "votes": {
+   "المتقارب": 12
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.12": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 10,
+  "votes": {
+   "الوافر": 10
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.13": {
+  "meter": "البسيط",
+  "share": 0.979,
+  "n_verses": 48,
+  "votes": {
+   "البسيط": 47,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.14": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.15": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 43,
+  "votes": {
+   "الوافر": 43
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.16": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "المتقارب": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.17": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الكامل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.19": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "البسيط": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.20": {
+  "meter": "المنسرح",
+  "share": 0.976,
+  "n_verses": 42,
+  "votes": {
+   "المنسرح": 41,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.21": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 20,
+  "votes": {
+   "المتقارب": 20
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.22": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 25,
+  "votes": {
+   "البسيط": 25
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.23": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 31,
+  "votes": {
+   "الطويل": 31
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.24": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 25,
+  "votes": {
+   "الكامل": 25
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.25": {
+  "meter": "الكامل",
+  "share": 0.973,
+  "n_verses": 37,
+  "votes": {
+   "الكامل": 36,
+   "البسيط": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.26": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الوافر": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.27": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 15,
+  "votes": {
+   "المتقارب": 15
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.29": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 20,
+  "votes": {
+   "الطويل": 20
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.30": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 10,
+  "votes": {
+   "الطويل": 10
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.31": {
+  "meter": "المنسرح",
+  "share": 0.978,
+  "n_verses": 46,
+  "votes": {
+   "المنسرح": 45,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.34": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 41,
+  "votes": {
+   "الطويل": 41
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.35": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 15,
+  "votes": {
+   "البسيط": 15
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.36": {
+  "meter": "المنسرح",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "المنسرح": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.37": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 28,
+  "votes": {
+   "البسيط": 28
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.39": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 40,
+  "votes": {
+   "الطويل": 40
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.40": {
+  "meter": "الطويل",
+  "share": 0.979,
+  "n_verses": 47,
+  "votes": {
+   "الطويل": 46,
+   "المتقارب": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.42": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 42,
+  "votes": {
+   "البسيط": 42
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.43": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الكامل": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.44": {
+  "meter": "الطويل",
+  "share": 0.973,
+  "n_verses": 37,
+  "votes": {
+   "الطويل": 36,
+   "البسيط": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.45": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الكامل": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.47": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 36,
+  "votes": {
+   "المتقارب": 36
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.48": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 34,
+  "votes": {
+   "الطويل": 34
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.49": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الطويل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.50": {
+  "meter": "الكامل",
+  "share": 0.976,
+  "n_verses": 41,
+  "votes": {
+   "الكامل": 40,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.51": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الوافر": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.52": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "البسيط": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.54": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 18,
+  "votes": {
+   "الكامل": 18
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.55": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الوافر": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.56": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "البسيط": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.58": {
+  "meter": "المنسرح",
+  "share": 1.0,
+  "n_verses": 10,
+  "votes": {
+   "المنسرح": 10
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.59": {
+  "meter": "الكامل",
+  "share": 0.975,
+  "n_verses": 40,
+  "votes": {
+   "الكامل": 39,
+   "البسيط": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.60": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الكامل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.62": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 10,
+  "votes": {
+   "الوافر": 10
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.63": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.64": {
+  "meter": "الكامل",
+  "share": 0.938,
+  "n_verses": 16,
+  "votes": {
+   "الكامل": 15,
+   "الخفيف": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.65": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 45,
+  "votes": {
+   "الكامل": 45
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.68": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 36,
+  "votes": {
+   "الطويل": 36
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.69": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الكامل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.71": {
+  "meter": "الطويل",
+  "share": 0.6,
+  "n_verses": 5,
+  "votes": {
+   "الطويل": 3,
+   "البسيط": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.72": {
+  "meter": "السريع",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "السريع": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.73": {
+  "meter": "المنسرح",
+  "share": 0.975,
+  "n_verses": 40,
+  "votes": {
+   "المنسرح": 39,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.74": {
+  "meter": "المنسرح",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "المنسرح": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.75": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 48,
+  "votes": {
+   "الطويل": 48
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.76": {
+  "meter": "المنسرح",
+  "share": 0.939,
+  "n_verses": 49,
+  "votes": {
+   "المنسرح": 46,
+   "الرمل": 1,
+   "السريع": 1,
+   "الخفيف": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.78": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 28,
+  "votes": {
+   "المتقارب": 28
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.79": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الطويل": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.81": {
+  "meter": "الوافر",
+  "share": 0.975,
+  "n_verses": 40,
+  "votes": {
+   "الوافر": 39,
+   "الخفيف": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.82": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 15,
+  "votes": {
+   "الوافر": 15
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.83": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 18,
+  "votes": {
+   "الخفيف": 18
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.84": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 30,
+  "votes": {
+   "المتقارب": 30
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.85": {
+  "meter": "الكامل",
+  "share": 0.97,
+  "n_verses": 33,
+  "votes": {
+   "الكامل": 32,
+   "الطويل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.86": {
+  "meter": "الكامل",
+  "share": 0.98,
+  "n_verses": 49,
+  "votes": {
+   "الكامل": 48,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.88": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "الوافر": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.89": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 42,
+  "votes": {
+   "الطويل": 42
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.91": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الوافر": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.93": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 52,
+  "votes": {
+   "المتقارب": 52
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.99": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 42,
+  "votes": {
+   "الخفيف": 42
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.101": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 24,
+  "votes": {
+   "الخفيف": 24
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.102": {
+  "meter": "الرمل",
+  "share": 0.889,
+  "n_verses": 9,
+  "votes": {
+   "الرمل": 8,
+   "الخفيف": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.103": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 13,
+  "votes": {
+   "الكامل": 13
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.104": {
+  "meter": "المنسرح",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "المنسرح": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.105": {
+  "meter": "الكامل",
+  "share": 0.976,
+  "n_verses": 41,
+  "votes": {
+   "الكامل": 40,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.106": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 42,
+  "votes": {
+   "الوافر": 42
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.107": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 49,
+  "votes": {
+   "الكامل": 49
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.108": {
+  "meter": "الكامل",
+  "share": 0.975,
+  "n_verses": 40,
+  "votes": {
+   "الكامل": 39,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.110": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الطويل": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.111": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 47,
+  "votes": {
+   "الكامل": 47
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.112": {
+  "meter": "الكامل",
+  "share": 0.8,
+  "n_verses": 5,
+  "votes": {
+   "الكامل": 4,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.113": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الكامل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.115": {
+  "meter": "الوافر",
+  "share": 0.976,
+  "n_verses": 42,
+  "votes": {
+   "الوافر": 41,
+   "المتقارب": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.116": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 47,
+  "votes": {
+   "الوافر": 47
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.117": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.118": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "المتقارب": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.119": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 16,
+  "votes": {
+   "البسيط": 16
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.120": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 25,
+  "votes": {
+   "البسيط": 25
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.121": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 25,
+  "votes": {
+   "البسيط": 25
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.122": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 29,
+  "votes": {
+   "الطويل": 29
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.124": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 47,
+  "votes": {
+   "الطويل": 47
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.125": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الخفيف": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.127": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 11,
+  "votes": {
+   "الطويل": 11
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.128": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 40,
+  "votes": {
+   "الخفيف": 40
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.130": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.131": {
+  "meter": "الكامل",
+  "share": 0.971,
+  "n_verses": 34,
+  "votes": {
+   "الكامل": 33,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.132": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 34,
+  "votes": {
+   "البسيط": 34
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.133": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 39,
+  "votes": {
+   "البسيط": 39
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.134": {
+  "meter": "الرجز",
+  "share": 0.917,
+  "n_verses": 12,
+  "votes": {
+   "الرجز": 11,
+   "البسيط": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.135": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 36,
+  "votes": {
+   "الخفيف": 36
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.136": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 31,
+  "votes": {
+   "الطويل": 31
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.138": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 43,
+  "votes": {
+   "الطويل": 43
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.139": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 39,
+  "votes": {
+   "البسيط": 39
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.140": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 33,
+  "votes": {
+   "الكامل": 33
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.141": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 45,
+  "votes": {
+   "الخفيف": 45
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.142": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الوافر": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.144": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 11,
+  "votes": {
+   "المتقارب": 11
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.145": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 17,
+  "votes": {
+   "الوافر": 17
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.146": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الوافر": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.149": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 15,
+  "votes": {
+   "الكامل": 15
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.150": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 39,
+  "votes": {
+   "الكامل": 39
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.152": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الوافر": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.153": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الكامل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.154": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 10,
+  "votes": {
+   "الخفيف": 10
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.155": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 37,
+  "votes": {
+   "الخفيف": 37
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.156": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 42,
+  "votes": {
+   "الوافر": 42
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.157": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 31,
+  "votes": {
+   "البسيط": 31
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.158": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 66,
+  "votes": {
+   "الوافر": 66
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.159": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "البسيط": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.160": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 27,
+  "votes": {
+   "الطويل": 27
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.161": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الكامل": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.163": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 16,
+  "votes": {
+   "الوافر": 16
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.164": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 31,
+  "votes": {
+   "الطويل": 31
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.165": {
+  "meter": "البسيط",
+  "share": 0.982,
+  "n_verses": 55,
+  "votes": {
+   "البسيط": 54,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.166": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 46,
+  "votes": {
+   "الطويل": 46
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.167": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 43,
+  "votes": {
+   "الطويل": 43
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.168": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 29,
+  "votes": {
+   "البسيط": 29
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.170": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 13,
+  "votes": {
+   "الكامل": 13
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.172": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 48,
+  "votes": {
+   "البسيط": 48
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.173": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 43,
+  "votes": {
+   "الوافر": 43
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.176": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 44,
+  "votes": {
+   "الوافر": 44
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.177": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.178": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 45,
+  "votes": {
+   "الطويل": 45
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.179": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 41,
+  "votes": {
+   "الطويل": 41
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.181": {
+  "meter": "المنسرح",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "المنسرح": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.182": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 20,
+  "votes": {
+   "الكامل": 20
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.184": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 44,
+  "votes": {
+   "المتقارب": 44
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.185": {
+  "meter": "الكامل",
+  "share": 0.979,
+  "n_verses": 47,
+  "votes": {
+   "الكامل": 46,
+   "الطويل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.187": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 11,
+  "votes": {
+   "البسيط": 11
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.190": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الخفيف": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.191": {
+  "meter": "المنسرح",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "المنسرح": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.192": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 41,
+  "votes": {
+   "البسيط": 41
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.193": {
+  "meter": "المتقارب",
+  "share": 0.889,
+  "n_verses": 9,
+  "votes": {
+   "المتقارب": 8,
+   "السريع": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.194": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 14,
+  "votes": {
+   "الطويل": 14
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.196": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 40,
+  "votes": {
+   "الطويل": 40
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.197": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 38,
+  "votes": {
+   "الخفيف": 38
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.198": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 47,
+  "votes": {
+   "الطويل": 47
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.199": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 36,
+  "votes": {
+   "الخفيف": 36
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.201": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 10,
+  "votes": {
+   "الطويل": 10
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.202": {
+  "meter": "الوافر",
+  "share": 0.652,
+  "n_verses": 23,
+  "votes": {
+   "الوافر": 15,
+   "الطويل": 3,
+   "المتقارب": 2,
+   "الكامل": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.203": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "المتقارب": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.204": {
+  "meter": "الخفيف",
+  "share": 0.977,
+  "n_verses": 43,
+  "votes": {
+   "الخفيف": 42,
+   "المديد": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.205": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 41,
+  "votes": {
+   "الكامل": 41
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.206": {
+  "meter": "المنسرح",
+  "share": 1.0,
+  "n_verses": 38,
+  "votes": {
+   "المنسرح": 38
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.210": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 46,
+  "votes": {
+   "البسيط": 46
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.212": {
+  "meter": "الطويل",
+  "share": 0.968,
+  "n_verses": 31,
+  "votes": {
+   "الطويل": 30,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.213": {
+  "meter": "المنسرح",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "المنسرح": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.214": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 36,
+  "votes": {
+   "الطويل": 36
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.215": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.216": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الوافر": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.217": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 43,
+  "votes": {
+   "الطويل": 43
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.218": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "المتقارب": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.219": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 37,
+  "votes": {
+   "الطويل": 37
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.220": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الوافر": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.222": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 42,
+  "votes": {
+   "الكامل": 42
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.223": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 42,
+  "votes": {
+   "الطويل": 42
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.226": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 12,
+  "votes": {
+   "الوافر": 12
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.227": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 28,
+  "votes": {
+   "الكامل": 28
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.229": {
+  "meter": "الطويل",
+  "share": 0.97,
+  "n_verses": 66,
+  "votes": {
+   "الطويل": 64,
+   "الكامل": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.230": {
+  "meter": "الرجز",
+  "share": 0.966,
+  "n_verses": 59,
+  "votes": {
+   "الرجز": 57,
+   "موشح": 1,
+   "البسيط": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.232": {
+  "meter": "المجتث",
+  "share": 0.949,
+  "n_verses": 39,
+  "votes": {
+   "المجتث": 37,
+   "الرجز": 1,
+   "البسيط": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.233": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 14,
+  "votes": {
+   "البسيط": 14
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.235": {
+  "meter": "المنسرح",
+  "share": 1.0,
+  "n_verses": 27,
+  "votes": {
+   "المنسرح": 27
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.236": {
+  "meter": "الرجز",
+  "share": 1.0,
+  "n_verses": 28,
+  "votes": {
+   "الرجز": 28
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.237": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 42,
+  "votes": {
+   "الخفيف": 42
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.240": {
+  "meter": "الوافر",
+  "share": 0.972,
+  "n_verses": 36,
+  "votes": {
+   "الوافر": 35,
+   "البسيط": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.241": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الطويل": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.245": {
+  "meter": "الوافر",
+  "share": 0.979,
+  "n_verses": 48,
+  "votes": {
+   "الوافر": 47,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.246": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 39,
+  "votes": {
+   "الطويل": 39
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.247": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 37,
+  "votes": {
+   "الوافر": 37
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.248": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 42,
+  "votes": {
+   "الوافر": 42
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.249": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "البسيط": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.250": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 46,
+  "votes": {
+   "البسيط": 46
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.251": {
+  "meter": "الطويل",
+  "share": 0.977,
+  "n_verses": 43,
+  "votes": {
+   "الطويل": 42,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.254": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 39,
+  "votes": {
+   "الطويل": 39
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.255": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 15,
+  "votes": {
+   "الطويل": 15
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.256": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 42,
+  "votes": {
+   "الطويل": 42
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.257": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 44,
+  "votes": {
+   "الوافر": 44
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.258": {
+  "meter": "الطويل",
+  "share": 0.75,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 3,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.259": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 28,
+  "votes": {
+   "البسيط": 28
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.260": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 30,
+  "votes": {
+   "الكامل": 30
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.261": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 27,
+  "votes": {
+   "الطويل": 27
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.263": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 38,
+  "votes": {
+   "البسيط": 38
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.266": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "المتقارب": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.268": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الكامل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.270": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "البسيط": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.271": {
+  "meter": "الرجز",
+  "share": 0.833,
+  "n_verses": 12,
+  "votes": {
+   "الرجز": 10,
+   "البسيط": 1,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.272": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الوافر": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.273": {
+  "meter": "الوافر",
+  "share": 1.0,
+  "n_verses": 5,
+  "votes": {
+   "الوافر": 5
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.274": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 42,
+  "votes": {
+   "الطويل": 42
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.275": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الطويل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.276": {
+  "meter": "الرجز",
+  "share": 0.893,
+  "n_verses": 28,
+  "votes": {
+   "الرجز": 25,
+   "الرمل": 1,
+   "الكامل": 1,
+   "السريع": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.278": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "المتقارب": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.279": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 44,
+  "votes": {
+   "البسيط": 44
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "mutanabbi.diwan_wikisource.285": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 10,
+  "votes": {
+   "المتقارب": 10
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "nabigha.muallaqa": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 100,
+  "votes": {
+   "البسيط": 100
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.1": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 24,
+  "votes": {
+   "الخفيف": 24
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.2": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 14,
+  "votes": {
+   "الخفيف": 14
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.3": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 18,
+  "votes": {
+   "المتقارب": 18
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.4": {
+  "meter": "الرمل",
+  "share": 1.0,
+  "n_verses": 21,
+  "votes": {
+   "الرمل": 21
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.5": {
+  "meter": "الرمل",
+  "share": 0.5,
+  "n_verses": 22,
+  "votes": {
+   "الرمل": 11,
+   "شعر التفعيلة": 4,
+   "موشح": 4,
+   "الطويل": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.6": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 18,
+  "votes": {
+   "البسيط": 18
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.7": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 26,
+  "votes": {
+   "الخفيف": 26
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.8": {
+  "meter": "الرمل",
+  "share": 1.0,
+  "n_verses": 22,
+  "votes": {
+   "الرمل": 22
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.9": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 14,
+  "votes": {
+   "الخفيف": 14
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.10": {
+  "meter": "الرمل",
+  "share": 1.0,
+  "n_verses": 14,
+  "votes": {
+   "الرمل": 14
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.11": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 12,
+  "votes": {
+   "الخفيف": 12
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.12": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "الخفيف": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.13": {
+  "meter": "الخفيف",
+  "share": 0.981,
+  "n_verses": 54,
+  "votes": {
+   "الخفيف": 53,
+   "شعر التفعيلة": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.14": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 53,
+  "votes": {
+   "المتقارب": 53
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.15": {
+  "meter": "الرمل",
+  "share": 0.903,
+  "n_verses": 72,
+  "votes": {
+   "الرمل": 65,
+   "موشح": 3,
+   "شعر التفعيلة": 2,
+   "شعر حر": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.16": {
+  "meter": "الخفيف",
+  "share": 0.982,
+  "n_verses": 55,
+  "votes": {
+   "الخفيف": 54,
+   "شعر حر": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.17": {
+  "meter": "الطويل",
+  "share": 0.75,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 3,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.18": {
+  "meter": "الخفيف",
+  "share": 0.884,
+  "n_verses": 43,
+  "votes": {
+   "الخفيف": 38,
+   "الرجز": 2,
+   "الكامل": 2,
+   "شعر حر": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.19": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 24,
+  "votes": {
+   "المتقارب": 24
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.20": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "المتقارب": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.21": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 18,
+  "votes": {
+   "البسيط": 18
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.22": {
+  "meter": "الرمل",
+  "share": 0.853,
+  "n_verses": 34,
+  "votes": {
+   "الرمل": 29,
+   "الكامل": 2,
+   "شعر حر": 1,
+   "شعر التفعيلة": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.23": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الكامل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.24": {
+  "meter": "السريع",
+  "share": 0.806,
+  "n_verses": 36,
+  "votes": {
+   "السريع": 29,
+   "الكامل": 2,
+   "الرجز": 2,
+   "المتقارب": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.25": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 27,
+  "votes": {
+   "البسيط": 27
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.26": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 15,
+  "votes": {
+   "الكامل": 15
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.27": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الخفيف": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.28": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "الكامل": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.29": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 19,
+  "votes": {
+   "الخفيف": 19
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.30": {
+  "meter": "الكامل",
+  "share": 0.957,
+  "n_verses": 70,
+  "votes": {
+   "الكامل": 67,
+   "شعر التفعيلة": 2,
+   "عامي": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.31": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "البسيط": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.33": {
+  "meter": "الخفيف",
+  "share": 0.833,
+  "n_verses": 30,
+  "votes": {
+   "الخفيف": 25,
+   "الوافر": 2,
+   "شعر حر": 1,
+   "شعر التفعيلة": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.34": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 19,
+  "votes": {
+   "الكامل": 19
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.35": {
+  "meter": "الطويل",
+  "share": 0.8,
+  "n_verses": 5,
+  "votes": {
+   "الطويل": 4,
+   "الخفيف": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.36": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 24,
+  "votes": {
+   "المتقارب": 24
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.37": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 12,
+  "votes": {
+   "المتقارب": 12
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.38": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 31,
+  "votes": {
+   "الخفيف": 31
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.39": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 14,
+  "votes": {
+   "البسيط": 14
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.40": {
+  "meter": "الخفيف",
+  "share": 0.485,
+  "n_verses": 33,
+  "votes": {
+   "الخفيف": 16,
+   "موشح": 5,
+   "السريع": 3,
+   "شعر حر": 3
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.41": {
+  "meter": "المجتث",
+  "share": 0.9,
+  "n_verses": 20,
+  "votes": {
+   "المجتث": 18,
+   "الرجز": 1,
+   "الرمل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.42": {
+  "meter": "الكامل",
+  "share": 0.846,
+  "n_verses": 13,
+  "votes": {
+   "الكامل": 11,
+   "الطويل": 1,
+   "الرمل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.43": {
+  "meter": "موشح",
+  "share": 0.667,
+  "n_verses": 12,
+  "votes": {
+   "موشح": 8,
+   "الرمل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.44": {
+  "meter": "الكامل",
+  "share": 0.972,
+  "n_verses": 71,
+  "votes": {
+   "الكامل": 69,
+   "البسيط": 1,
+   "شعر حر": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.45": {
+  "meter": "الخفيف",
+  "share": 0.875,
+  "n_verses": 24,
+  "votes": {
+   "الخفيف": 21,
+   "الرمل": 2,
+   "المقتضب": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.46": {
+  "meter": "المنسرح",
+  "share": 0.436,
+  "n_verses": 39,
+  "votes": {
+   "المنسرح": 17,
+   "موشح": 7,
+   "الرجز": 4,
+   "البسيط": 3
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.47": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الطويل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.48": {
+  "meter": "المتقارب",
+  "share": 0.978,
+  "n_verses": 45,
+  "votes": {
+   "المتقارب": 44,
+   "الطويل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.49": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "البسيط": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.50": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 59,
+  "votes": {
+   "الخفيف": 59
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.51": {
+  "meter": "الرمل",
+  "share": 0.875,
+  "n_verses": 16,
+  "votes": {
+   "الرمل": 14,
+   "الخفيف": 1,
+   "موشح": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.52": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 34,
+  "votes": {
+   "المتقارب": 34
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.53": {
+  "meter": "الخفيف",
+  "share": 0.984,
+  "n_verses": 63,
+  "votes": {
+   "الخفيف": 62,
+   "شعر حر": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.54": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 14,
+  "votes": {
+   "الخفيف": 14
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.55": {
+  "meter": "الكامل",
+  "share": 0.947,
+  "n_verses": 38,
+  "votes": {
+   "الكامل": 36,
+   "شعر التفعيلة": 1,
+   "المتقارب": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.56": {
+  "meter": "الرمل",
+  "share": 0.867,
+  "n_verses": 15,
+  "votes": {
+   "الرمل": 13,
+   "موشح": 1,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.57": {
+  "meter": "المتقارب",
+  "share": 0.853,
+  "n_verses": 34,
+  "votes": {
+   "المتقارب": 29,
+   "شعر حر": 2,
+   "الوافر": 1,
+   "الطويل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.58": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الكامل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.60": {
+  "meter": "الخفيف",
+  "share": 0.95,
+  "n_verses": 20,
+  "votes": {
+   "الخفيف": 19,
+   "شعر حر": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.61": {
+  "meter": "الخفيف",
+  "share": 0.97,
+  "n_verses": 33,
+  "votes": {
+   "الخفيف": 32,
+   "الرمل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.62": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 10,
+  "votes": {
+   "الكامل": 10
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.63": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الطويل": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.64": {
+  "meter": "السريع",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "السريع": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.67": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "الخفيف": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.68": {
+  "meter": "المجتث",
+  "share": 0.955,
+  "n_verses": 22,
+  "votes": {
+   "المجتث": 21,
+   "موشح": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.69": {
+  "meter": "المتقارب",
+  "share": 0.875,
+  "n_verses": 24,
+  "votes": {
+   "المتقارب": 21,
+   "شعر التفعيلة": 1,
+   "موشح": 1,
+   "السريع": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.70": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 22,
+  "votes": {
+   "البسيط": 22
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.71": {
+  "meter": "المتدارك",
+  "share": 0.833,
+  "n_verses": 30,
+  "votes": {
+   "المتدارك": 25,
+   "الكامل": 4,
+   "شعر التفعيلة": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.72": {
+  "meter": "الخفيف",
+  "share": 0.988,
+  "n_verses": 80,
+  "votes": {
+   "الخفيف": 79,
+   "شعر حر": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.73": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "الكامل": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.74": {
+  "meter": "الكامل",
+  "share": 0.944,
+  "n_verses": 18,
+  "votes": {
+   "الكامل": 17,
+   "السريع": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.75": {
+  "meter": "الرمل",
+  "share": 1.0,
+  "n_verses": 24,
+  "votes": {
+   "الرمل": 24
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.76": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 20,
+  "votes": {
+   "الخفيف": 20
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.77": {
+  "meter": "الطويل",
+  "share": 0.714,
+  "n_verses": 7,
+  "votes": {
+   "الطويل": 5,
+   "الخفيف": 1,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.78": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 14,
+  "votes": {
+   "البسيط": 14
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.79": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 28,
+  "votes": {
+   "الكامل": 28
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.80": {
+  "meter": "الكامل",
+  "share": 0.971,
+  "n_verses": 35,
+  "votes": {
+   "الكامل": 34,
+   "الخفيف": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.81": {
+  "meter": "الرمل",
+  "share": 0.882,
+  "n_verses": 34,
+  "votes": {
+   "الرمل": 30,
+   "الكامل": 2,
+   "شعر التفعيلة": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.82": {
+  "meter": "الخفيف",
+  "share": 0.55,
+  "n_verses": 40,
+  "votes": {
+   "الخفيف": 22,
+   "شعر حر": 9,
+   "شعر التفعيلة": 8,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.83": {
+  "meter": "المجتث",
+  "share": 0.685,
+  "n_verses": 54,
+  "votes": {
+   "المجتث": 37,
+   "شعر التفعيلة": 5,
+   "الكامل": 2,
+   "المتقارب": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.84": {
+  "meter": "الخفيف",
+  "share": 0.556,
+  "n_verses": 9,
+  "votes": {
+   "الخفيف": 5,
+   "موشح": 1,
+   "الرمل": 1,
+   "الطويل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.85": {
+  "meter": "السريع",
+  "share": 0.833,
+  "n_verses": 12,
+  "votes": {
+   "السريع": 10,
+   "شعر التفعيلة": 1,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.86": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 11,
+  "votes": {
+   "الكامل": 11
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.87": {
+  "meter": "الرمل",
+  "share": 1.0,
+  "n_verses": 7,
+  "votes": {
+   "الرمل": 7
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.88": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 32,
+  "votes": {
+   "الخفيف": 32
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.89": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 20,
+  "votes": {
+   "الكامل": 20
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.90": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الخفيف": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.91": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "الكامل": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.92": {
+  "meter": "الرمل",
+  "share": 0.857,
+  "n_verses": 14,
+  "votes": {
+   "الرمل": 12,
+   "المجتث": 1,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.93": {
+  "meter": "الرمل",
+  "share": 0.905,
+  "n_verses": 21,
+  "votes": {
+   "الرمل": 19,
+   "السريع": 1,
+   "الخفيف": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.94": {
+  "meter": "الرمل",
+  "share": 0.8,
+  "n_verses": 30,
+  "votes": {
+   "الرمل": 24,
+   "موشح": 4,
+   "شعر التفعيلة": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.96": {
+  "meter": "الرمل",
+  "share": 1.0,
+  "n_verses": 40,
+  "votes": {
+   "الرمل": 40
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.97": {
+  "meter": "المتقارب",
+  "share": 0.393,
+  "n_verses": 28,
+  "votes": {
+   "المتقارب": 11,
+   "الرمل": 10,
+   "موشح": 2,
+   "شعر حر": 2
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.98": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 35,
+  "votes": {
+   "الكامل": 35
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.99": {
+  "meter": "الكامل",
+  "share": 0.968,
+  "n_verses": 31,
+  "votes": {
+   "الكامل": 30,
+   "الوافر": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.100": {
+  "meter": "الكامل",
+  "share": 0.972,
+  "n_verses": 36,
+  "votes": {
+   "الكامل": 35,
+   "السريع": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.101": {
+  "meter": "المجتث",
+  "share": 1.0,
+  "n_verses": 24,
+  "votes": {
+   "المجتث": 24
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.102": {
+  "meter": "الرمل",
+  "share": 0.75,
+  "n_verses": 4,
+  "votes": {
+   "الرمل": 3,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.103": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 4,
+  "votes": {
+   "المتقارب": 4
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.104": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 15,
+  "votes": {
+   "الطويل": 15
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.105": {
+  "meter": "الخفيف",
+  "share": 0.972,
+  "n_verses": 36,
+  "votes": {
+   "الخفيف": 35,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.106": {
+  "meter": "الكامل",
+  "share": 0.927,
+  "n_verses": 96,
+  "votes": {
+   "الكامل": 89,
+   "الرجز": 2,
+   "شعر التفعيلة": 2,
+   "الرمل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shabbi.diwan_wikisource.107": {
+  "meter": "الكامل",
+  "share": 0.872,
+  "n_verses": 39,
+  "votes": {
+   "الكامل": 34,
+   "المتقارب": 2,
+   "الطويل": 1,
+   "الخفيف": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shanfara.lamiyyat_al_arab": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 69,
+  "votes": {
+   "الطويل": 69
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shawqi.diwan_wikisource.1": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 82,
+  "votes": {
+   "الخفيف": 82
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shawqi.diwan_wikisource.2": {
+  "meter": "الرمل",
+  "share": 0.889,
+  "n_verses": 36,
+  "votes": {
+   "الرمل": 32,
+   "الخفيف": 3,
+   "الوافر": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shawqi.diwan_wikisource.3": {
+  "meter": "الخفيف",
+  "share": 1.0,
+  "n_verses": 110,
+  "votes": {
+   "الخفيف": 110
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shawqi.diwan_wikisource.4": {
+  "meter": "الكامل",
+  "share": 0.939,
+  "n_verses": 49,
+  "votes": {
+   "الكامل": 46,
+   "الطويل": 2,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shawqi.diwan_wikisource.5": {
+  "meter": "الرمل",
+  "share": 1.0,
+  "n_verses": 13,
+  "votes": {
+   "الرمل": 13
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shawqi.diwan_wikisource.6": {
+  "meter": "المتقارب",
+  "share": 1.0,
+  "n_verses": 29,
+  "votes": {
+   "المتقارب": 29
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shawqi.diwan_wikisource.7": {
+  "meter": "السريع",
+  "share": 0.967,
+  "n_verses": 30,
+  "votes": {
+   "السريع": 29,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shawqi.diwan_wikisource.8": {
+  "meter": "الكامل",
+  "share": 0.967,
+  "n_verses": 30,
+  "votes": {
+   "الكامل": 29,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shawqi.diwan_wikisource.9": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 8,
+  "votes": {
+   "الطويل": 8
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shawqi.diwan_wikisource.10": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "الكامل": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shawqi.diwan_wikisource.11": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 45,
+  "votes": {
+   "الكامل": 45
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shawqi.diwan_wikisource.13": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 16,
+  "votes": {
+   "الكامل": 16
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shawqi.diwan_wikisource.14": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 6,
+  "votes": {
+   "الطويل": 6
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shawqi.diwan_wikisource.15": {
+  "meter": "الرمل",
+  "share": 1.0,
+  "n_verses": 9,
+  "votes": {
+   "الرمل": 9
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shawqi.diwan_wikisource.16": {
+  "meter": "الكامل",
+  "share": 0.393,
+  "n_verses": 514,
+  "votes": {
+   "الكامل": 202,
+   "شعر حر": 193,
+   "الطويل": 32,
+   "شعر التفعيلة": 19
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shawqi.diwan_wikisource.17": {
+  "meter": "الرمل",
+  "share": 1.0,
+  "n_verses": 13,
+  "votes": {
+   "الرمل": 13
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shawqi.diwan_wikisource.18": {
+  "meter": "الكامل",
+  "share": 0.985,
+  "n_verses": 66,
+  "votes": {
+   "الكامل": 65,
+   "الرجز": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shawqi.diwan_wikisource.19": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 131,
+  "votes": {
+   "الكامل": 131
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shawqi.diwan_wikisource.20": {
+  "meter": "الكامل",
+  "share": 1.0,
+  "n_verses": 13,
+  "votes": {
+   "الكامل": 13
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "shawqi.nahj_al_burda": {
+  "meter": "البسيط",
+  "share": 1.0,
+  "n_verses": 190,
+  "votes": {
+   "البسيط": 190
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "tarafa.muallaqa": {
+  "meter": "الطويل",
+  "share": 0.992,
+  "n_verses": 120,
+  "votes": {
+   "الطويل": 119,
+   "الكامل": 1
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ },
+ "zuhayr.muallaqa": {
+  "meter": "الطويل",
+  "share": 1.0,
+  "n_verses": 62,
+  "votes": {
+   "الطويل": 62
+  },
+  "model": "Yah216/Arabic_poem_meter_classification"
+ }
+}

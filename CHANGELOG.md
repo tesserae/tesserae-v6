@@ -23,6 +23,15 @@ behind each, are in docs/DECISIONS.md.
   tags are now the plain form every other Greek file uses, with the line
   text unchanged. The stored references derived from the file are rebuilt
   in a data operation after this merges.
+- Lemma tables, poetics data and a font added for Arabic, Persian and Urdu:
+  three surface-lemma tables, ten poetics data files, and the Arabic-script
+  font `NotoNaskhArabic-Variable.ttf`, all new files. Metadata entries for
+  the 194 works in these languages were added to `data/text_descriptions.json`,
+  `data/text_genres.csv` and `backend/author_dates.json`, leaving every
+  existing entry in those files unchanged. The text files themselves are not
+  in the repository. Nothing is served yet: no language handler is
+  registered for `ar`, `fa` or `ur`, so none of the three appears in the
+  corpus list, Browse Corpus, Theme Search or downloads.
 
 ### Data operations
 - 2026-10-04 12:45 to 12:51 EDT: the Herodian On Enclitics line tags
