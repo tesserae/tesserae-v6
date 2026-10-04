@@ -621,8 +621,10 @@ class TestScoringConstants:
         from backend.fusion import CHANNEL_WEIGHTS
         for name, weight in CHANNEL_WEIGHTS.items():
             # The quotation channel is 10.0 by default since 2026-09-19 (0 before);
-            # the English profile overrides it back to 0.
-            if name == "quotation":
+            # the English profile overrides it back to 0. The form channel
+            # (refrain and rhyme, Persian and Urdu ghazals) is 0 by default and
+            # enabled through the persian_ghazal profile.
+            if name in ("quotation", "form"):
                 assert weight >= 0, f"Channel {name} has negative weight {weight}"
                 continue
             assert weight > 0, f"Channel {name} has non-positive weight {weight}"
@@ -645,10 +647,11 @@ class TestScoringConstants:
 
     def test_ten_channels_defined(self):
         from backend.fusion import CHANNEL_WEIGHTS
-        # 10 core channels plus the quotation channel added for biblical/Coptic
-        # verbatim-run detection (default weight 0.0, enabled via WEIGHT_PROFILES).
-        assert len(CHANNEL_WEIGHTS) == 11, (
-            f"Expected 11 channels, found {len(CHANNEL_WEIGHTS)}: "
+        # 10 core channels plus the quotation channel (biblical/Coptic verbatim
+        # runs) and the form channel (Persian and Urdu refrain and rhyme, default
+        # weight 0.0, enabled via WEIGHT_PROFILES).
+        assert len(CHANNEL_WEIGHTS) == 12, (
+            f"Expected 12 channels, found {len(CHANNEL_WEIGHTS)}: "
             f"{list(CHANNEL_WEIGHTS.keys())}"
         )
 
@@ -657,7 +660,7 @@ class TestScoringConstants:
         expected = {
             "edit_distance", "sound", "exact", "lemma", "dictionary",
             "semantic", "rare_word", "syntax", "syntax_structural", "lemma_min1",
-            "quotation",
+            "quotation", "form",
         }
         assert set(CHANNEL_WEIGHTS.keys()) == expected
 

@@ -55,6 +55,13 @@ _FONT_CANDIDATES = {
                             'fonts', 'NotoSansCoptic-Regular.ttf'),
                '/usr/share/fonts/truetype/noto/NotoSansCoptic-Regular.ttf',
                os.path.expanduser('~/.local/share/fonts/NotoSansCoptic-Regular.ttf')],
+    # Persian, Urdu and Arabic. DejaVu Sans has the Arabic letters but not the
+    # Urdu ones (heh goal, yeh barree, and their joined forms), so a Mir ghazal
+    # in the export had a box wherever those letters fell (NC, 2026-09-07).
+    # Noto Naskh Arabic covers every joined form the reshaper produces.
+    'arabic': [os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            'fonts', 'NotoNaskhArabic-Variable.ttf'),
+               '/usr/share/fonts/truetype/noto/NotoNaskhArabic-Regular.ttf'],
 }
 
 _LANG_NAME = {'la': 'Latin', 'grc': 'Greek', 'en': 'English', 'he': 'Hebrew',
@@ -86,22 +93,31 @@ def _register_fonts():
         return
     from reportlab.pdfbase import pdfmetrics
     from reportlab.pdfbase.ttfonts import TTFont
-    for name, key in (('Tess', 'body'), ('Tess-Bold', 'bold'), ('TessCoptic', 'coptic')):
+    for name, key in (('Tess', 'body'), ('Tess-Bold', 'bold'),
+                      ('TessCoptic', 'coptic'), ('TessArabic', 'arabic')):
         path = _first_existing(_FONT_CANDIDATES[key])
         if path:
             pdfmetrics.registerFont(TTFont(name, path))
-        elif key != 'coptic':
+            _have.add(name)
+        elif key in ('body', 'bold'):
             raise RuntimeError(f'no font found for {key}')
         else:
-            # Coptic falls back to the body font, which lacks the glyphs. Said
-            # out loud, because the failure is otherwise invisible: the PDF
-            # renders empty boxes and nobody can tell why.
-            logger.warning('[THEMEPDF] no Coptic font; Coptic passages will not render')
+            # The script falls back to the body font, which lacks the glyphs.
+            # Said out loud, because the failure is otherwise invisible: the
+            # PDF renders empty boxes and nobody can tell why.
+            logger.warning('[THEMEPDF] no %s font; those passages will not render', key)
     _registered = True
 
 
+_have = set()
+
+
 def _font_for(language):
-    return 'TessCoptic' if language == 'cop' else 'Tess'
+    if language == 'cop' and 'TessCoptic' in _have:
+        return 'TessCoptic'
+    if language in _ARABIC_SCRIPT and 'TessArabic' in _have:
+        return 'TessArabic'
+    return 'Tess'
 
 
 def _shape(text, language):
@@ -164,7 +180,9 @@ def build(payload):
     flow = [Paragraph('Tesserae Theme Search', title),
             Paragraph(f"&ldquo;{_esc(payload.get('query'))}&rdquo;", query)]
     conf = (payload.get('confidence') or {}).get('level')
-    bits = [f"{payload.get('count', 0)} passages", 'oldest first']
+    bits = [f"{payload.get('count', 0)} passages",
+            payload.get('languages_label') or 'all languages',
+            payload.get('order_label') or 'oldest first']
     if conf:
         bits.append(f'confidence: {conf}')
     if payload.get('missing_text'):

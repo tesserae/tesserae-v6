@@ -608,7 +608,7 @@ app.register_blueprint(reuse_bp, url_prefix=API_PREFIX or None)
 app_logger.info(f"Blueprints registered (API_PREFIX='{API_PREFIX}', env={DEPLOYMENT_ENV})")
 
 # =============================================================================
-# PLUGIN LANGUAGES (Coptic, Hebrew)
+# PLUGIN LANGUAGES (Coptic, Hebrew, Persian, Urdu, Arabic)
 # =============================================================================
 try:
     from backend.coptic import register as register_coptic
@@ -619,6 +619,25 @@ except ImportError:
 try:
     from backend.hebrew import register as register_hebrew
     register_hebrew()
+except ImportError:
+    pass
+
+# Persian, Urdu and Arabic are DEVELOPMENT languages (ported from the demo
+# branch in October 2026): their modules live in the repository but register
+# only when TESSERAE_LANGUAGES names them. Production leaves the variable
+# unset and so never serves them until the maintainer opens them.
+try:
+    from backend.served_languages import allowed_languages as _served_allowed
+    _opted_in = _served_allowed() or set()
+    if 'fa' in _opted_in:
+        from backend.persian import register as register_persian
+        register_persian()
+    if 'ur' in _opted_in:
+        from backend.urdu import register as register_urdu
+        register_urdu()
+    if 'ar' in _opted_in:
+        from backend.arabic import register as register_arabic
+        register_arabic()
 except ImportError:
     pass
 
@@ -919,6 +938,15 @@ def api_version():
                         "bundle": _current_bundle()})
 
 
+def _allowed_languages():
+    """Optional allow-list from TESSERAE_LANGUAGES (comma-separated codes).
+    A preview machine that holds only some languages' indexes sets it so the
+    site never offers, or tries to list, a language it cannot serve (2026-09-06:
+    the preview's home page hung on the Latin text list)."""
+    from backend.served_languages import allowed_languages
+    return allowed_languages()
+
+
 @api_route('/languages')
 def api_languages():
     """Return available languages and cross-lingual pairs.
@@ -957,6 +985,47 @@ def api_languages():
                 ])
     except ImportError:
         pass
+    # Persian/Urdu/Arabic (2026-09-05): the three share a script and much
+    # vocabulary, so their cross-language pairs work through a shared
+    # comparison form (backend/perso_arabic.py) rather than a dictionary CSV.
+    # The pairs are appended below once the languages are known to be present.
+    try:
+        from backend.persian import PERSIAN_ENABLED
+        if PERSIAN_ENABLED:
+            texts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts', 'fa')
+            if os.path.isdir(texts_dir):
+                languages.append({'code': 'fa', 'label': 'Persian'})
+    except ImportError:
+        pass
+    try:
+        from backend.urdu import URDU_ENABLED
+        if URDU_ENABLED:
+            texts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts', 'ur')
+            if os.path.isdir(texts_dir):
+                languages.append({'code': 'ur', 'label': 'Urdu'})
+    except ImportError:
+        pass
+    try:
+        from backend.arabic import ARABIC_ENABLED
+        if ARABIC_ENABLED:
+            texts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'texts', 'ar')
+            if os.path.isdir(texts_dir):
+                languages.append({'code': 'ar', 'label': 'Arabic'})
+    except ImportError:
+        pass
+    present = {l['code'] for l in languages}
+    for src, tgt, label in (('fa', 'ur', 'Persian → Urdu'),
+                            ('ar', 'fa', 'Arabic → Persian'),
+                            ('ar', 'ur', 'Arabic → Urdu')):
+        if src in present and tgt in present:
+            crosslingual_pairs.append({'key': f'{src}-{tgt}', 'source': src, 'target': tgt, 'label': label})
+    allowed = _allowed_languages()
+    if allowed:
+        order = [x.strip() for x in os.environ.get('TESSERAE_LANGUAGES', '').split(',') if x.strip()]
+        languages = sorted((l for l in languages if l['code'] in allowed),
+                           key=lambda l: order.index(l['code']))   # the allow-list's order is the tab order
+        crosslingual_pairs = [p for p in crosslingual_pairs
+                              if p['source'] in allowed and p['target'] in allowed]
     return jsonify({'languages': languages, 'crosslingual_pairs': crosslingual_pairs})
 
 
@@ -1530,8 +1599,22 @@ def line_search():
                     # normalized surface forms (the language's own normalizer,
                     # the one the index lemmas went through); nouns and most
                     # words are their own lemma, and no tagger runs here.
-                    query_lemmas = set(_base_normalize(t, language) for t in query_tokens)
-                    query_lemmas.discard('')
+                    from backend.perso_arabic import _base_normalize
+                    from backend.surface_lemmas import lemma_for
+                    query_lemmas = set()
+                    for t in query_tokens:
+                        n = _base_normalize(t, language)
+                        if not n:
+                            continue
+                        # The lemma the tagger gave this form when it built the
+                        # index, from a table over the lemma caches. Without it
+                        # an inflected form ("الديار") matched nothing, since
+                        # the index is keyed by lemma ("دار"). The lemma
+                        # replaces the form: the search wants every query
+                        # lemma in the line, so a form that is not itself a
+                        # lemma would rule every line out (2026-09-08).
+                        lem = lemma_for(n, language)
+                        query_lemmas.add(lem or n)
                 else:
                     for token in query_tokens:
                         lemmas = text_processor.lemmatize_word(token, language)
@@ -2456,6 +2539,24 @@ def submit_request():
         from backend.hebrew import HEBREW_ENABLED
         if HEBREW_ENABLED:
             allowed_languages.add('hebrew')
+    except ImportError:
+        pass
+    try:
+        from backend.persian import PERSIAN_ENABLED
+        if PERSIAN_ENABLED:
+            allowed_languages.add('persian')
+    except ImportError:
+        pass
+    try:
+        from backend.urdu import URDU_ENABLED
+        if URDU_ENABLED:
+            allowed_languages.add('urdu')
+    except ImportError:
+        pass
+    try:
+        from backend.arabic import ARABIC_ENABLED
+        if ARABIC_ENABLED:
+            allowed_languages.add('arabic')
     except ImportError:
         pass
 

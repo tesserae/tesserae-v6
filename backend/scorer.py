@@ -45,6 +45,16 @@ from backend.score_bounds import is_unbounded
 
 logger = get_logger('scorer')
 
+
+def _rhyme_word(unit, radif_start, has_radif):
+    """The surface word carrying the rhyme: the token before the refrain, or
+    the last token when the match is on the rhyme letter alone."""
+    toks = unit.get('original_tokens') or unit.get('tokens') or []
+    idx = radif_start - 1 if has_radif else radif_start
+    if 0 <= idx < len(toks):
+        return toks[idx]
+    return ''
+
 class Scorer:
     def __init__(self):
         self.corpus_frequencies = {}
@@ -183,6 +193,9 @@ class Scorer:
                 # tests/test_quotation_scoring.py, which goes through the scorer.
                 result = self._score_quotation_match(match, src_unit, tgt_unit, settings)
                 results.append(result)
+            elif match_basis == 'form' or match_type == 'form':
+                result = self._score_form_match(match, src_unit, tgt_unit, settings)
+                results.append(result)
             elif match_basis == 'sound' or match_type == 'sound':
                 result = self._score_sound_match(match, src_unit, tgt_unit, settings)
                 results.append(result)
@@ -271,6 +284,15 @@ class Scorer:
                         used_t.add(b_lem)
                         idf = (math.log((total_words + 1) / (freq.get(a_lem, 1) + 1)) + 1
                                + math.log((total_words + 1) / (freq.get(b_lem, 1) + 1)) + 1) / 2
+                        if settings.get('language') == 'ar':
+                            # Arabic root pairs: rarity of the ROOT across the
+                            # corpus, not of the two word forms. A rare form of a
+                            # common root (yastaghfirun of gh-f-r) is not rare.
+                            from backend.arabic.roots import arabic_root, root_frequencies
+                            rf, rtotal = root_frequencies()
+                            r = arabic_root(a_lem)
+                            if r and rtotal:
+                                idf = math.log((rtotal + 1) / (rf.get(r, 1) + 1)) + 1
                         src_word = next((src_tokens_list[i] for i, l in enumerate(src_match_list) if l == a_lem and i < len(src_tokens_list)), a_lem)
                         tgt_word = next((tgt_tokens_list[i] for i, l in enumerate(tgt_match_list) if l == b_lem and i < len(tgt_tokens_list)), b_lem)
                         word_scores.append({
@@ -415,6 +437,88 @@ class Scorer:
             'base_score': quotation_score,
             'features': features,
             'match_basis': 'quotation',
+        }
+
+    def _score_form_match(self, match, src_unit, tgt_unit, settings):
+        """Score a form-channel match (refrain-and-rhyme / radif-qafia agreement).
+
+        Score is the raw form_score attached by find_form_matches (1.0 for
+        radif+qafia agreement, 0.5 for radif-only agreement). Deliberately
+        does NOT use IDF, distance, or any boost -- a shared radif and qafia
+        is whole-poem structural evidence, not a per-word rarity signal, and
+        this match has no words behind it for a rarity penalty to apply to.
+        """
+        form_score = match.get('form_score', 0.0)
+        radif = match.get('radif', '')
+        radif_len = match.get('radif_len', 0)
+        s_pos = match.get('source_position', 0)
+        t_pos = match.get('target_position', 0)
+
+        src_highlight_indices = list(range(s_pos, s_pos + radif_len))
+        tgt_highlight_indices = list(range(t_pos, t_pos + radif_len))
+
+        radif_tokens = radif.split() if radif else []
+        word_scores = []
+        for i, tok in enumerate(radif_tokens):
+            word_scores.append({
+                'lemma': tok,
+                'source_word': tok,
+                'target_word': tok,
+                'frequency': 0,
+                'idf': 0,
+                'run_position': i,
+            })
+
+        features = {
+            'lemma_count': 0,
+            'pos_score': 0.0,
+            'edit_distance_score': 0.0,
+            'sound_score': 0.0,
+            'form_score': form_score,
+            'combined_score': form_score,
+        }
+
+        return {
+            'source': {
+                'ref': src_unit['ref'],
+                'text': src_unit['text'],
+                'tokens': src_unit['tokens'],
+                'highlight_indices': src_highlight_indices,
+                **({'line_refs': src_unit['line_refs'],
+                    'line_token_counts': src_unit['line_token_counts']}
+                   if 'line_refs' in src_unit else {}),
+            },
+            'target': {
+                'ref': tgt_unit['ref'],
+                'text': tgt_unit['text'],
+                'tokens': tgt_unit['tokens'],
+                'highlight_indices': tgt_highlight_indices,
+                **({'line_refs': tgt_unit['line_refs'],
+                    'line_token_counts': tgt_unit['line_token_counts']}
+                   if 'line_refs' in tgt_unit else {}),
+            },
+            'matched_words': word_scores,
+            'source_distance': 1,
+            'target_distance': 1,
+            'overall_score': form_score,
+            'base_score': form_score,
+            'features': features,
+            'match_basis': 'form',
+            # What the result card colours (2026-09-06): the refrain tokens,
+            # the rhyme word before them (or the rhyme-letter word for Arabic,
+            # where radif_len is 1 and the position is the last token), and
+            # the meter label when both poems carry the same one.
+            'poetics': {
+                'radif': radif,
+                'radif_len': radif_len,
+                'qafia': match.get('qafia', ''),
+                'meter': match.get('meter'),
+                'source_radif_start': s_pos,
+                'target_radif_start': t_pos,
+                'rhyme_only': not radif,
+                'source_rhyme_word': _rhyme_word(src_unit, s_pos, bool(radif)),
+                'target_rhyme_word': _rhyme_word(tgt_unit, t_pos, bool(radif)),
+            },
         }
 
     def _score_sound_match(self, match, src_unit, tgt_unit, settings):

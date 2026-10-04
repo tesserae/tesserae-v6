@@ -65,6 +65,13 @@ VALID_CROSSLINGUAL_PAIRS.add(frozenset(('cop', 'grc')))
 # Latin Vulgate). Corpus/text checks at search time handle absence gracefully.
 VALID_CROSSLINGUAL_PAIRS.add(frozenset(('he', 'grc')))
 VALID_CROSSLINGUAL_PAIRS.add(frozenset(('he', 'la')))
+# Perso-Arabic pairs (2026-09-05): Persian, Urdu and Arabic share a script and
+# much vocabulary, so their dictionary channel is identity after a shared
+# normalization (backend/perso_arabic.py) rather than a translation list.
+SHARED_SCRIPT_LANGUAGES = frozenset(('fa', 'ur', 'ar'))
+VALID_CROSSLINGUAL_PAIRS.add(frozenset(('fa', 'ur')))
+VALID_CROSSLINGUAL_PAIRS.add(frozenset(('ar', 'fa')))
+VALID_CROSSLINGUAL_PAIRS.add(frozenset(('ar', 'ur')))
 
 # Module-level references to shared components (injected via init_search_blueprint)
 _matcher = None       # Matcher: Finds parallel passages between texts
@@ -445,6 +452,12 @@ def _find_dictionary_matches_fast(source_units, target_units, source_language,
                                                 source_language, target_language,
                                                 cancellation)
 
+    # --- Persian / Urdu / Arabic: shared vocabulary, no dictionary needed ---
+    if lang_pair <= SHARED_SCRIPT_LANGUAGES:
+        return _find_shared_script_matches(source_units, target_units,
+                                           source_language, target_language,
+                                           cancellation)
+
     # --- Coptic-Greek and Hebrew (he-grc / he-la) pairs: CSV dictionary path ---
     if 'cop' in lang_pair or 'he' in lang_pair:
         return _find_csv_dictionary_matches(source_units, target_units,
@@ -469,6 +482,166 @@ def _hebrew_base_lemma(lemma):
     except ImportError:
         return lemma
     return base_lemma(lemma)
+def _find_shared_script_matches(source_units, target_units, source_language,
+                                target_language, cancellation=None):
+    """Dictionary channel for Persian, Urdu and Arabic pairs: a word matches
+    across the pair when it is the same word (backend/perso_arabic.py gives
+    the shared comparison form and its spelling variants). Both the lemma and
+    the surface token are tried at every position, because a Qur'anic phrase
+    inside a Persian or Urdu line is Arabic that the Persian or Urdu
+    lemmatizer does not know. Returns the same shape as the CSV path:
+    {(src_idx, tgt_idx): [word match dicts]} with token positions, so the
+    translated-run score sees consecutive shared words."""
+    from collections import defaultdict
+    from backend.perso_arabic import cross_form, cross_variants, cross_stoplist
+
+    src_stop = cross_stoplist(source_language)
+    tgt_stop = cross_stoplist(target_language)
+    # Two-letter content words are the heart of this vocabulary (dil, gul,
+    # jan, shab, lab); function words are handled by the curated stoplists.
+    min_len = 2
+
+    stop = src_stop | tgt_stop
+
+    def forms(unit, lang):
+        toks = unit.get('tokens', []) or []
+        lems = unit.get('lemmas', []) or []
+        out = []
+        for pos, tok in enumerate(toks):
+            lem = lems[pos] if pos < len(lems) else tok
+            fs = set()
+            for w in (lem, tok):
+                if not w:
+                    continue
+                canon_w = cross_form(w, lang)
+                if canon_w in stop:
+                    # A function word contributes only its own form (for
+                    # phrase extension), never a spelling variant: ke/na
+                    # must not become "ket"/"net" and count as content.
+                    fs.add(canon_w)
+                    continue
+                fs |= cross_variants(w, lang)
+            fs = {f for f in fs if len(f) >= min_len}
+            # The canonical form leads so that a matched pair is recorded
+            # under it rather than under a spelling variant.
+            lead = [c for c in (cross_form(lem, lang), cross_form(tok, lang)) if c in fs]
+            ordered = list(dict.fromkeys(lead)) + sorted(fs - set(lead))
+            out.append((pos, ordered))
+        return out
+
+    target_forms = []  # per target unit: list of (pos, forms) including function words
+    target_index = defaultdict(list)
+    for ti, unit in enumerate(target_units):
+        if cancellation:
+            cancellation.check()
+        tf = forms(unit, target_language)
+        target_forms.append(tf)
+        for pos, fs in tf:
+            for f in fs:
+                if f in tgt_stop:
+                    continue
+                target_index[f].append((ti, pos))
+
+    results = defaultdict(list)
+    source_forms = []
+    for si, unit in enumerate(source_units):
+        if cancellation:
+            cancellation.check()
+        sf = forms(unit, source_language)
+        source_forms.append(sf)
+        seen = set()
+        for pos, fs in sf:
+            for f in fs:
+                if f in src_stop or f not in target_index:
+                    continue
+                for ti, tpos in target_index[f]:
+                    if (ti, pos, tpos) in seen:
+                        continue
+                    seen.add((ti, pos, tpos))
+                    results[(si, ti)].append({
+                        'source_lemma': f,
+                        'target_lemma': f,
+                        'source_indices': [pos],
+                        'target_indices': [tpos],
+                    })
+
+    # A quoted phrase carries its function words ("inna lillahi wa-inna
+    # ilayhi raji'un" is three function words around two content words).
+    # For pairs that already share a content word, extend each matched
+    # position outward through adjacent positions whose forms agree on both
+    # sides, function words included, so the translated-run score sees the
+    # whole phrase. Function words never create a pair on their own.
+    for (si, ti), wms in results.items():
+        if cancellation:
+            cancellation.check()
+        sf = {p: set(f) for p, f in source_forms[si]}; tf = {p: set(f) for p, f in target_forms[ti]}
+        have = {(wm['source_indices'][0], wm['target_indices'][0]) for wm in wms}
+        frontier = list(have)
+        while frontier:
+            sp, tp = frontier.pop()
+            for d in (-1, 1):
+                a, b = sp + d, tp + d
+                if (a, b) in have or a not in sf or b not in tf:
+                    continue
+                shared = sf[a] & tf[b]
+                if not shared:
+                    continue
+                f = sorted(shared)[0]
+                have.add((a, b)); frontier.append((a, b))
+                wms.append({'source_lemma': f, 'target_lemma': f,
+                            'source_indices': [a], 'target_indices': [b],
+                            'function_word': f in src_stop or f in tgt_stop})
+
+    # Verbatim runs (2026-09-05): a quoted phrase made mostly of function
+    # words (la ilaha illa; min kulli bab) shares no two content words, yet
+    # three shared words in a row are evidence in their own right. Index the
+    # target's three-word sequences over ALL forms and pair any source line
+    # that repeats one, extending the run both ways; on 124 verbatim
+    # Qur'anic phrases in Persian and Urdu lines, 26 of the 28 with fewer
+    # than two content words were missed before this pass.
+    tgt_tri = defaultdict(list)
+    for ti, tf in enumerate(target_forms):
+        seq = [(pos, set(fs)) for pos, fs in tf if fs]
+        for i in range(len(seq) - 2):
+            for a in seq[i][1]:
+                for b in seq[i + 1][1]:
+                    for c in seq[i + 2][1]:
+                        tgt_tri[(a, b, c)].append((ti, seq[i][0], seq[i + 1][0], seq[i + 2][0]))
+    run_pairs = 0
+    for si, sf in enumerate(source_forms):
+        if cancellation:
+            cancellation.check()
+        seq = [(pos, set(fs)) for pos, fs in sf if fs]
+        hit = {}
+        for i in range(len(seq) - 2):
+            for a in seq[i][1]:
+                for b in seq[i + 1][1]:
+                    for c in seq[i + 2][1]:
+                        for ti, p0, p1, p2 in tgt_tri.get((a, b, c), ()):
+                            hit.setdefault(ti, set()).update({(seq[i][0], p0, a), (seq[i + 1][0], p1, b), (seq[i + 2][0], p2, c)})
+        for ti, triples in hit.items():
+            wms = results.setdefault((si, ti), [])
+            have = {(wm['source_indices'][0], wm['target_indices'][0]) for wm in wms}
+            for sp, tp, f in sorted(triples):
+                if (sp, tp) in have:
+                    continue
+                have.add((sp, tp))
+                wms.append({'source_lemma': f, 'target_lemma': f, 'source_indices': [sp], 'target_indices': [tp],
+                            'function_word': f in stop, 'run': True})
+            run_pairs += 1
+
+    # Keep pairs with at least two distinct shared content words, or a
+    # verbatim run of three or more. The two-word gate downstream counts all
+    # matched words, so a run passes it. Single content words alone are
+    # dropped here: on two full divans they are hundreds of thousands (Hafez
+    # x Ghalib produced 528,395 pairs and the app was killed at its memory cap).
+    kept = {}
+    for key, wms in results.items():
+        content = {wm['source_lemma'] for wm in wms if not wm.get('function_word')}
+        if len(content) >= 2 or _longest_translated_run(wms) >= 3:
+            kept[key] = wms
+    logger.info(f"Shared-script dictionary ({source_language}-{target_language}) found {len(results)} pairs ({run_pairs} with a verbatim run), {len(kept)} kept")
+    return kept
 
 
 def _find_csv_dictionary_matches(source_units, target_units, source_language,
@@ -1234,7 +1407,11 @@ def _direct_crosslingual_core(params, source_units, target_units, settings,
                     si, ti = key
                     if si < len(src_emb) and ti < len(tgt_emb):
                         cosine = float(np.dot(src_emb[si], tgt_emb[ti]))
-                        if cosine > 0.4:
+                        if lang_pair <= SHARED_SCRIPT_LANGUAGES:
+                            # multilingual-e5 band: rescale as the channel does
+                            from backend.semantic_similarity import E5_RESCALE_FLOOR, E5_RESCALE_SPAN
+                            cosine = max(0.0, min(1.0, (cosine - E5_RESCALE_FLOOR) / E5_RESCALE_SPAN))
+                        if cosine > 0.4 or (lang_pair <= SHARED_SCRIPT_LANGUAGES and cosine > 0):
                             sem_by_pair[key] = cosine
                             recovered += 1
                 logger.info(f"Semantic recovery: {recovered}/{len(recovery_keys)} dictionary-only pairs got cosine scores")

@@ -35,6 +35,9 @@ from typing import List, Dict, Tuple, Optional
 import json
 
 from backend.logging_config import get_logger
+# Arabic root channel: above this many line pairs a match needs two shared roots.
+_ARABIC_SINGLE_ROOT_MAX_PAIRS = 2_000_000
+
 logger = get_logger('semantic_similarity')
 
 LATIN_GREEK_MODEL = "bowphs/SPhilBerta"
@@ -44,6 +47,162 @@ ENGLISH_MODEL = "all-MiniLM-L6-v2"
 # with it. Falls back to base MiqraBERT if the fine-tuned dir is absent.
 _HE_FINETUNED = os.path.join(os.path.dirname(__file__), 'models', 'miqrabert-hebrew-thematic')
 HEBREW_MODEL = _HE_FINETUNED if os.path.isdir(_HE_FINETUNED) else "davidmsmiley/MiqraBERT"
+# Persian, Urdu and Arabic (2026-09-05): multilingual-e5-large, the model the
+# Coptic corpus was embedded with (it has no Coptic vocabulary, but covers all
+# three of these). Stored embeddings carry the "passage: " prefix the model
+# expects (scripts/precompute_e5_multilang.py); the real-time fallback applies
+# the same prefix. e5 cosines are compressed (unrelated lines score about 0.75
+# to 0.8), so these languages get their own similarity floor and top-n, see
+# E5_SEMANTIC_SETTINGS. Coptic keeps its historical path so that the deployed
+# system stays the one the Coptic article evaluated.
+E5_MODEL = "intfloat/multilingual-e5-large"
+E5_LANGUAGES = ('fa', 'ur', 'ar')
+E5_PREFIX = "passage: "
+# Measured 2026-09-05 on Hafez x Zabur-e Ajam (9,502 x 1,252 lines): mean cosine
+# 0.847, 99th percentile 0.893, 99.9th 0.907. The floor sits at the 99.9th
+# percentile; scores fed to fusion are rescaled from the compressed band so
+# the channel discriminates inside it: 0.90 -> 0.33, 0.925 -> 0.5, 1.0 -> 1.0.
+E5_SEMANTIC_SETTINGS = {'min_semantic_score': 0.90, 'semantic_top_n': 10}
+E5_RESCALE_FLOOR, E5_RESCALE_SPAN = 0.85, 0.15
+# The band differs by language (Burda x Qur'an: mean 0.878, p99.9 0.941), so
+# the floor is set per search at this percentile of the pair's own similarity
+# matrix (never below the fixed floor), and scores are rescaled above it.
+E5_FLOOR_PERCENTILE = 99.9
+
+
+
+# The full similarity matrix of a large pair does not fit in memory: Hafez's
+# Diwan against Saeb's (9,502 x 157,780 lines, Persian, 2026-10-03) is a
+# 6 GB float32 table, built twice over by the division that normalised it,
+# and it killed this demo server at a 20 GB cap three times in an hour. The
+# matrix is only ever read a row at a time for its top entries, so it is
+# computed in blocks of rows against pre-normalised vectors and never held
+# whole. The e5 per-search floor, a percentile of the whole matrix until
+# now, is taken from a sample of up to 512 evenly spaced source rows.
+SIMILARITY_BLOCK_ROWS = 512
+
+
+def _unit_rows(m):
+    m = np.asarray(m, dtype=np.float32)
+    return m / (np.linalg.norm(m, axis=1, keepdims=True) + 1e-8)
+
+
+def iter_similarity_blocks(source_embeddings, target_embeddings, cancellation=None,
+                           block_rows=SIMILARITY_BLOCK_ROWS):
+    src = _unit_rows(source_embeddings)
+    tgt_t = _unit_rows(target_embeddings).T
+    for start in range(0, src.shape[0], block_rows):
+        if cancellation:
+            cancellation.check()
+        yield start, src[start:start + block_rows] @ tgt_t
+
+
+def sampled_percentile(source_embeddings, target_embeddings, percentile, rows=SIMILARITY_BLOCK_ROWS):
+    """The percentile of the cosine matrix, from up to `rows` evenly spaced source rows (exact below that)."""
+    src = np.asarray(source_embeddings, dtype=np.float32)
+    if src.shape[0] > rows:
+        src = src[np.linspace(0, src.shape[0] - 1, rows).astype(int)]
+    block = _unit_rows(src) @ _unit_rows(target_embeddings).T
+    return float(np.percentile(block, percentile))
+
+
+def top_pairs_by_block(source_embeddings, target_embeddings, top_n_per_source, min_score,
+                       cancellation=None, block_rows=SIMILARITY_BLOCK_ROWS):
+    out = []
+    want = max(1, top_n_per_source * 2)
+    for start, block in iter_similarity_blocks(source_embeddings, target_embeddings, cancellation, block_rows):
+        k = min(want, block.shape[1])
+        for r in range(block.shape[0]):
+            row = block[r]
+            cand = np.argpartition(-row, k - 1)[:k] if k < row.shape[0] else np.arange(row.shape[0])
+            cand = cand[np.argsort(-row[cand], kind='stable')]
+            count = 0
+            for tgt_idx in cand:
+                sim = float(row[tgt_idx])
+                if sim >= min_score:
+                    out.append((start + r, int(tgt_idx), sim))
+                    count += 1
+                    if count >= top_n_per_source:
+                        break
+    return out
+
+def _rows_for_units(text_path, language, units):
+    """Row indices into a text's stored embeddings for these units, matched by
+    ref through the .meta.json line_refs, so a subset or a chunk of a text
+    (a benchmark run over 2,500-line slices, say) reads the right rows. None
+    when the metadata is missing or any ref is absent (caller then slices
+    from the top, the historical behavior for whole-text searches)."""
+    try:
+        import json
+        from backend.embedding_storage import get_metadata_path
+        mp = get_metadata_path(text_path, language)
+        if not os.path.exists(mp):
+            return None
+        refs = _META_REFS_CACHE.get(mp)
+        if refs is None:
+            with open(mp, encoding='utf-8') as f:
+                refs = json.load(f).get('line_refs') or []
+            _META_REFS_CACHE[mp] = refs
+        pos = {r: i for i, r in enumerate(refs)}
+        rows = [pos.get(u.get('ref')) for u in units]
+        if any(r is None for r in rows):
+            return None
+        return rows
+    except Exception as e:  # pragma: no cover
+        logger.warning(f"ref-based embedding alignment failed for {text_path}: {e}")
+        return None
+
+
+_META_REFS_CACHE = {}
+_GATHER_CACHE = {}
+
+
+def _gather_by_ref(units, language):
+    """Embeddings for units drawn from SEVERAL texts (a target of all 114
+    suras, say), each line read from its own text's stored vectors, the
+    file found from the ref (components before the trailing numbers:
+    'quran.al_waqia.56.23' -> texts/<lang>/quran.al_waqia.tess). None if any
+    unit's file or ref is missing."""
+    import re as _re
+    import numpy as np
+    from backend.embedding_storage import load_embeddings, get_metadata_path, EMBEDDINGS_DIR
+    rows = []
+    for u in units:
+        ref = u.get('ref') or ''
+        parts = ref.split('.')
+        while parts and _re.fullmatch(r'\d+', parts[-1]):
+            parts.pop()
+        stem = '.'.join(parts)
+        if not stem:
+            return None
+        key = (stem, language)
+        ent = _GATHER_CACHE.get(key)
+        if ent is None:
+            fake_path = os.path.join('texts', language, stem + '.tess')
+            arr = load_embeddings(fake_path, language)
+            mp = get_metadata_path(fake_path, language)
+            if arr is None or not os.path.exists(mp):
+                return None
+            import json
+            with open(mp, encoding='utf-8') as f:
+                refs = json.load(f).get('line_refs') or []
+            ent = (arr, {r: i for i, r in enumerate(refs)})
+            _GATHER_CACHE[key] = ent
+        arr, pos = ent
+        i = pos.get(ref)
+        if i is None:
+            return None
+        rows.append(arr[i])
+    return np.vstack(rows) if rows else None
+
+
+def model_name_for(language: str) -> str:
+    """Which sentence-transformer serves a language's semantic channel."""
+    if language == 'he':
+        return HEBREW_MODEL
+    if language in E5_LANGUAGES:
+        return E5_MODEL
+    return LATIN_GREEK_MODEL
 CACHE_DIR = os.path.join(os.path.dirname(__file__), 'semantic_cache')
 EMBEDDINGS_CACHE_FILE = os.path.join(CACHE_DIR, 'embeddings_cache.json')
 LEMMA_CACHE_FILE = os.path.join(CACHE_DIR, 'lemma_embeddings.json')
@@ -119,7 +278,7 @@ def get_model(language: str = 'la'):
 
     # Use SPhilBERTa for all languages to share embedding space, except Hebrew,
     # which uses its own within-language fine-tuned MiqraBERT.
-    model_name = HEBREW_MODEL if language == 'he' else LATIN_GREEK_MODEL
+    model_name = model_name_for(language)
     
     if model_name not in _models:
         try:
@@ -150,6 +309,8 @@ def encode_texts(texts: List[str], show_progress: bool = False, language: str = 
         return None
     
     try:
+        if language in E5_LANGUAGES:
+            texts = [E5_PREFIX + t for t in texts]
         embeddings = model.encode(texts, show_progress_bar=show_progress)
         return embeddings
     except Exception as e:
@@ -207,6 +368,10 @@ def find_semantic_matches(source_units: List[Dict], target_units: List[Dict],
     if cancellation:
         cancellation.check()
     language = settings.get('language', 'la')
+    if language in E5_LANGUAGES:
+        # The shared CHANNEL_CONFIGS floor (0.5) would accept every e5 pair.
+        settings = {**settings, **{k: v for k, v in E5_SEMANTIC_SETTINGS.items()
+                                   if k not in settings.get('_explicit', ())}}
     min_score = settings.get('min_semantic_score', 0.6)
     max_results = settings.get('max_results', 500)
     top_n_per_source = settings.get('semantic_top_n', 10)
@@ -225,8 +390,30 @@ def find_semantic_matches(source_units: List[Dict], target_units: List[Dict],
             
             source_all = load_embeddings(source_path, language)
             target_all = load_embeddings(target_path, language)
+            if language in E5_LANGUAGES:
+                # A side made of several texts has no single file: gather.
+                if source_all is None:
+                    g = _gather_by_ref(source_units, language)
+                    if g is not None:
+                        source_all, source_indices = g, list(range(len(g)))
+                if target_all is None:
+                    g = _gather_by_ref(target_units, language)
+                    if g is not None:
+                        target_all, target_indices = g, list(range(len(g)))
             
             if source_all is not None and target_all is not None:
+                if source_indices is None and len(source_units) != len(source_all):
+                    source_indices = _rows_for_units(source_path, language, source_units)
+                    if source_indices is None and language in E5_LANGUAGES:
+                        g = _gather_by_ref(source_units, language)
+                        if g is not None:
+                            source_all, source_indices = g, list(range(len(g)))
+                if target_indices is None and len(target_units) != len(target_all):
+                    target_indices = _rows_for_units(target_path, language, target_units)
+                    if target_indices is None and language in E5_LANGUAGES:
+                        g = _gather_by_ref(target_units, language)
+                        if g is not None:
+                            target_all, target_indices = g, list(range(len(g)))
                 if source_indices is not None:
                     source_embeddings = source_all[source_indices]
                 else:
@@ -274,14 +461,34 @@ def find_semantic_matches(source_units: List[Dict], target_units: List[Dict],
     
     logger.info(f"Computing similarity in blocks ({len(source_embeddings)} x {len(target_embeddings)})...")
 
-    matches = [{
-        'source_idx': src_idx,
-        'target_idx': tgt_idx,
-        'matched_lemmas': [],
-        'match_basis': 'semantic',
-        'semantic_score': sim,
-    } for src_idx, tgt_idx, sim in top_pairs_by_block(
-        source_embeddings, target_embeddings, top_n_per_source, min_score, cancellation)]
+    matches = []
+
+    e5_floor = None
+    if language in E5_LANGUAGES:
+        if len(source_embeddings) * len(target_embeddings) >= 10000:
+            # Per-search floor at the 99.9th percentile of the pair's own
+            # similarities, from a sample of rows, never below the fixed
+            # floor. Small matrices keep the fixed band.
+            e5_floor = float(max(min_score, sampled_percentile(source_embeddings, target_embeddings, E5_FLOOR_PERCENTILE)))
+            min_score = e5_floor
+            logger.info(f"e5 semantic floor for this search: {e5_floor:.3f} (p{E5_FLOOR_PERCENTILE}, sampled)")
+        else:
+            e5_floor = E5_RESCALE_FLOOR
+
+    for src_idx, tgt_idx, sim in top_pairs_by_block(source_embeddings, target_embeddings, top_n_per_source, min_score, cancellation):
+        score = sim
+        if e5_floor is not None:
+            # 0 at the floor, 1 at cosine 1.0, so the channel
+            # discriminates inside the band it admits.
+            score = max(0.0, min(1.0, (sim - e5_floor) / max(1e-6, 1.0 - e5_floor)))
+        matches.append({
+            'source_idx': src_idx,
+            'target_idx': tgt_idx,
+            'matched_lemmas': [],
+            'match_basis': 'semantic',
+            'semantic_score': score,
+            'cosine': sim,
+        })
 
     matches.sort(key=lambda x: x.get('semantic_score', 0), reverse=True)
 
@@ -341,6 +548,22 @@ def find_dictionary_matches(source_units: List[Dict], target_units: List[Dict],
         lookup = get_coptic_lookup()
         from backend.coptic.stopwords import COPTIC_STOP_WORDS
         stopwords = COPTIC_STOP_WORDS
+    elif language == 'ar':
+        # Root equivalence (backend/arabic/roots.py): words of one root are
+        # this channel's "synonyms". A single shared root is the signal a
+        # near-quotation leaves, so the default minimum is one pair here.
+        from backend.arabic.roots import build_root_lookup
+        from backend.fusion import _STOPLISTS
+        stopwords = _STOPLISTS.get('ar', set())
+        lookup = build_root_lookup(source_units, target_units, stopwords)
+        # One shared root on a small comparison (a qasida against a sura, the
+        # measured case); two on a large one. Whole diwans on both sides
+        # (2026-09-06: Mutanabbi's 5,474 verses against Shawqi's 1,400) gave
+        # 292,000 single-root pairs and took the app past its memory cap.
+        n_pairs = len(source_units) * len(target_units)
+        min_matches = 1 if n_pairs <= _ARABIC_SINGLE_ROOT_MAX_PAIRS else 2
+        if min_matches == 2:
+            logger.info(f"Arabic root channel: {n_pairs:,} line pairs, requiring two shared roots")
     else:
         return [], 0
 
@@ -446,8 +669,11 @@ def find_crosslingual_matches(source_units: List[Dict], target_units: List[Dict]
     source_indices = settings.get('source_line_indices')
     target_indices = settings.get('target_line_indices')
     
-    if source_language not in ('la', 'grc', 'en') or target_language not in ('la', 'grc', 'en'):
-        logger.warning(f"Cross-lingual matching only supports Latin (la), Greek (grc), and English (en)")
+    classical = ('la', 'grc', 'en')
+    shared_e5 = source_language in E5_LANGUAGES and target_language in E5_LANGUAGES
+    if not shared_e5 and (source_language not in classical or target_language not in classical):
+        logger.warning(f"Cross-lingual matching only supports Latin (la), Greek (grc), and English (en), "
+                       f"or pairs among Persian, Urdu and Arabic")
         return [], 0
     
     if source_language == target_language:
@@ -465,6 +691,19 @@ def find_crosslingual_matches(source_units: List[Dict], target_units: List[Dict]
             
             source_all = load_embeddings(source_path, source_language)
             target_all = load_embeddings(target_path, target_language)
+            # Persian/Urdu/Arabic sides made of several texts (all 114 suras),
+            # or chunks of a text: gather rows by ref, as the same-language
+            # channel does.
+            if source_language in E5_LANGUAGES:
+                if source_all is None or (source_indices is None and len(source_units) != len(source_all)):
+                    g = _gather_by_ref(source_units, source_language)
+                    if g is not None:
+                        source_all, source_indices = g, list(range(len(g)))
+            if target_language in E5_LANGUAGES:
+                if target_all is None or (target_indices is None and len(target_units) != len(target_all)):
+                    g = _gather_by_ref(target_units, target_language)
+                    if g is not None:
+                        target_all, target_indices = g, list(range(len(g)))
             
             if source_all is not None and target_all is not None:
                 if source_indices is not None:
@@ -485,9 +724,9 @@ def find_crosslingual_matches(source_units: List[Dict], target_units: List[Dict]
     if source_embeddings is None or target_embeddings is None:
         if cancellation:
             cancellation.check()
-        model = get_model('la')
+        model = get_model(source_language if source_language in E5_LANGUAGES else 'la')
         if model is None:
-            logger.warning("SPhilBERTa model not available for cross-lingual matching")
+            logger.warning("Cross-lingual embedding model not available")
             return [], 0
         
         source_texts = [u.get('text', '') for u in source_units]
@@ -513,16 +752,35 @@ def find_crosslingual_matches(source_units: List[Dict], target_units: List[Dict]
     
     logger.info(f"Computing similarity in blocks ({len(source_embeddings)} x {len(target_embeddings)})...")
 
-    matches = [{
-        'source_idx': src_idx,
-        'target_idx': tgt_idx,
-        'matched_lemmas': [],
-        'match_basis': 'semantic_cross',
-        'semantic_score': sim,
-        'source_language': source_language,
-        'target_language': target_language,
-    } for src_idx, tgt_idx, sim in top_pairs_by_block(
-        source_embeddings, target_embeddings, top_n_per_source, min_score, cancellation)]
+    matches = []
+
+    e5_floor = None
+    if source_language in E5_LANGUAGES and target_language in E5_LANGUAGES:
+        # Shared multilingual-e5 space: same per-search floor and rescaling
+        # as the same-language channel, the percentile taken from a sample
+        # of rows (see sampled_percentile).
+        if len(source_embeddings) * len(target_embeddings) >= 10000:
+            e5_floor = float(max(E5_SEMANTIC_SETTINGS['min_semantic_score'],
+                                 sampled_percentile(source_embeddings, target_embeddings, E5_FLOOR_PERCENTILE)))
+        else:
+            e5_floor = E5_RESCALE_FLOOR
+        min_score = max(min_score, e5_floor)
+        logger.info(f"e5 cross-lingual floor: {e5_floor:.3f}")
+
+    for src_idx, tgt_idx, sim in top_pairs_by_block(source_embeddings, target_embeddings, top_n_per_source, min_score, cancellation):
+        score = sim
+        if e5_floor is not None:
+            score = max(0.0, min(1.0, (sim - e5_floor) / max(1e-6, 1.0 - e5_floor)))
+        matches.append({
+            'source_idx': src_idx,
+            'target_idx': tgt_idx,
+            'matched_lemmas': [],
+            'match_basis': 'semantic_cross',
+            'semantic_score': score,
+            'cosine': sim,
+            'source_language': source_language,
+            'target_language': target_language
+        })
 
     matches.sort(key=lambda x: x.get('semantic_score', 0), reverse=True)
 
