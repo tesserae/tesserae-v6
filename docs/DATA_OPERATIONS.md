@@ -67,6 +67,25 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-04 Passage descriptions: the windows described after the swap (run 08:12 to 08:18 EDT)
+
+### What and why
+- 255 windows had kept their August description at the 3 October swap
+  after three gateway failures each. Two more tries this morning (16 in
+  flight, the second with a token budget of 8,000 against 3,000) described
+  175 of them; 80 keep the August text, all ordinary passages (140 of the
+  168 that failed the morning sweep were Latin), on which the model
+  returned no parseable description in every try.
+
+### Steps
+- `scripts/corpus/apply_passage_rows.py --mode replace` on the live index
+  with the 175 records: vectors from the local encoder, rows replaced in
+  place, `descriptions.jsonl` rewritten (510,664 kept + 175 replaced =
+  510,839), backups `*.bak-glm-delta-20261004-0812`. Index after: 510,839
+  ids, 510,839 vectors, 510,839 description rows.
+- `scripts/build_desc_fts.py` rebuilt the word index (510,839 rows, 32 s).
+- `touch tesseraev6_flask.wsgi` at 08:18, and `scripts/reference_search_check.py` passed.
+
 ## 2026-10-03 Passage descriptions replaced by the whole-corpus re-description (swap run 23:30 to 23:35 EDT)
 
 ### What and why
