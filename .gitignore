@@ -137,6 +137,8 @@ server.log
 
 # Search concurrency lock files (runtime only)
 tmp/search_slots/
+# Paged search result snapshots (runtime only, backend/result_pages.py)
+tmp/search_results/
 backend/models/
 
 # Build artefacts of the test run, not the tests themselves.

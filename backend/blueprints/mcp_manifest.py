@@ -302,6 +302,15 @@ MANIFEST = {
         'reason': ("POST SSE-streaming variant for the browser's live progress bar; "
                   "fusion_search polls GET /fusion-search instead, sharing the same cache."),
     },
+    '/api/search-results/<result_id>': {
+        'site_only': True,
+        'reason': ("Later pages of a browser search that asked for page_size; fusion_search "
+                  "already pages its own results with offset/limit on GET /fusion-search."),
+    },
+    '/api/search-results/<result_id>/export': {
+        'site_only': True,
+        'reason': "Feeds the results page's CSV/PDF export buttons with every stored row.",
+    },
 
     # -- SITE_ONLY: settings / config / ops --------------------------------------------
     '/api/stoplist': {

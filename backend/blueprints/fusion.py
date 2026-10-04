@@ -33,6 +33,7 @@ from backend.concurrency_gate import SearchSlot, get_cancellation_message
 
 from backend.search_cancellation import SearchCancellation, SearchCancelled
 from backend.formula_filter import annotate_formula_counts, apply_formula_filter
+from backend import result_pages
 
 logger = get_logger('fusion')
 
@@ -71,6 +72,14 @@ def search_fusion_stream():
 
     req_user_id = current_user.id if current_user and current_user.is_authenticated else None
     req_city, req_country, req_ip = get_user_location()
+    page_size = result_pages.requested_page_size(data)
+
+    def complete_event(result):
+        # Paged requests get the first page + a result_id; the rest stays on
+        # the server (backend/result_pages.py). Unpaged requests are unchanged.
+        if page_size:
+            result_pages.paginate_payload(result, page_size)
+        return f"data: {json.dumps(result)}\n\n"
 
     def generate():
         slot = None
@@ -208,7 +217,7 @@ def search_fusion_stream():
                 log_search('fusion_search', language, source_id, target_id, None,
                            'fusion', len(filtered_results), True, req_user_id, req_city, req_country, req_ip)
 
-                yield f"data: {json.dumps({'type': 'complete', 'results': display, 'total_matches': len(filtered_results), 'total_candidates': meta.get('total_candidates'), 'source_lines': meta.get('source_lines', 0), 'target_lines': meta.get('target_lines', 0), 'elapsed_time': round(time.time() - start_time, 2), 'cached': True, 'fusion': True, 'formula_filter': {'max': formula_max, 'only': formula_only, 'hidden': formula_hidden}})}\n\n"
+                yield complete_event({'type': 'complete', 'results': display, 'total_matches': len(filtered_results), 'total_candidates': meta.get('total_candidates'), 'source_lines': meta.get('source_lines', 0), 'target_lines': meta.get('target_lines', 0), 'elapsed_time': round(time.time() - start_time, 2), 'cached': True, 'fusion': True, 'formula_filter': {'max': formula_max, 'only': formula_only, 'hidden': formula_hidden}})
                 return
 
             # Concurrency gate: wait for a slot before starting heavy work.
@@ -384,7 +393,9 @@ def search_fusion_stream():
                 "formula_filter": {"max": formula_max, "only": formula_only,
                                    "hidden": formula_hidden},
             }
-            yield f"data: {json.dumps(complete)}\n\n"
+            # Last chance to honour a cancel before a paged snapshot is written.
+            cancellation.check()
+            yield complete_event(complete)
 
         except GeneratorExit:
             if cancellation is not None:

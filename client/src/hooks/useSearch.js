@@ -3,6 +3,9 @@ import { searchTexts, searchTextsStream, searchFusionStream, searchHapax, search
 
 export const useSearch = () => {
   const [results, setResults] = useState([]);
+  // Set when the server kept the full list and sent one page (result_id);
+  // null when `results` is the whole list (previews, rare words, legacy).
+  const [resultSet, setResultSet] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [progress, setProgress] = useState(0);
@@ -58,6 +61,7 @@ export const useSearch = () => {
     activeSearchId.current = searchId;
     setLoading(true);
     setError(null);
+    setResultSet(null);
     setProgress(0);
     setProgressText('');
     setSearchStats(null);
@@ -139,6 +143,13 @@ export const useSearch = () => {
       
       if (activeSearchId.current === searchId) {
         setResults(data.results || []);
+        setResultSet(data.result_id ? {
+          id: data.result_id,
+          total: data.result_total ?? 0,
+          pageSize: data.page_size,
+          firstPage: data.results || [],
+          aggregates: data.aggregates || null,
+        } : null);
         setSearchStats({
           elapsed_time: data.elapsed_time,
           source_lines: data.source_lines,
@@ -177,6 +188,7 @@ export const useSearch = () => {
     activeSearchId.current = searchId;
     setLoading(true);
     setError(null);
+    setResultSet(null);
     
     try {
       const data = await searchSemanticCross({ ...params, search_id: searchId }, controller.signal);
@@ -209,6 +221,7 @@ export const useSearch = () => {
     abortController.current = controller;
     setLoading(true);
     setError(null);
+    setResultSet(null);
     
     try {
       const data = await searchHapax(params, controller.signal);
@@ -240,6 +253,7 @@ export const useSearch = () => {
     abortController.current = controller;
     setLoading(true);
     setError(null);
+    setResultSet(null);
 
     try {
       const data = await searchBigrams(params, controller.signal);
@@ -281,12 +295,14 @@ export const useSearch = () => {
 
   const clearResults = useCallback(() => {
     setResults([]);
+    setResultSet(null);
     setError(null);
     setHasSearched(false);
   }, []);
 
   return {
     results,
+    resultSet,
     loading,
     error,
     progress,
