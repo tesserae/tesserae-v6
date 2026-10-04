@@ -692,7 +692,7 @@ def _dating(work, language):
     # (date contested; ...)" was left with an open parenthesis. The note is
     # shown as written; clean the table rows instead.
     return {'year': info.get('year'), 'era': info.get('era'),
-            'date_note': note or None}
+            'date_note': info.get('note')}
 
 
 def _naming(work):
