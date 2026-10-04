@@ -106,8 +106,17 @@ docs/PRIVATE_DEPLOYMENT_MANUAL.md
 # UD treebank source data (large, download separately)
 data/treebanks/
 
-# Evaluation benchmark data (large analysis/benchmark JSON files)
-evaluation/
+# Evaluation benchmark data (large analysis/benchmark JSON files).
+# evaluation/* rather than evaluation/ so the already-tracked subdirectories
+# below, and the one offline-measurement script added under theme_benchmark/,
+# can be un-ignored (git cannot re-include a child of an ignored directory,
+# same reason data/ below is data/*).
+evaluation/*
+!evaluation/scripts/
+!evaluation/benchmarks/
+!evaluation/results/
+!evaluation/probe_sets/
+!evaluation/README.md
 # Tests ARE tracked, even though the research notes around them are not. A
 # regression test that lives only on one machine cannot stop a regression: the
 # quotation-channel test would have caught an eleven-week production outage, and
@@ -115,6 +124,17 @@ evaluation/
 !evaluation/scripts/reference_test_arma.py
 !tests/
 !tests/**
+
+# evaluation/theme_benchmark/ stays ignored (it holds the pilot gold set,
+# pilot_gold.json, and is not meant to reach the public repository) except
+# for the one offline measurement script and its result file:
+!evaluation/theme_benchmark/
+evaluation/theme_benchmark/*
+!evaluation/theme_benchmark/offline_gold_recall.py
+!evaluation/theme_benchmark/runs/
+evaluation/theme_benchmark/runs/*
+!evaluation/theme_benchmark/runs/offline_gold_recall/
+!evaluation/theme_benchmark/runs/offline_gold_recall/results.json
 
 # Pre-computed embeddings: 1,704 files, about 2 GB, ARE committed already
 # (docs/DATA_FILES_REFERENCE.md calls that a deliberate choice for ease of

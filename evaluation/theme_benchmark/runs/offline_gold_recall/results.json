@@ -1,0 +1,1938 @@
+{
+  "generated_at": "2026-10-04 12:37:04 -0400",
+  "files": {
+    "new_embeddings": "/var/www/tesseraev6_flask/data/passage_index/embeddings.npy",
+    "old_embeddings": "/var/www/tesseraev6_flask/data/passage_index/embeddings.npy.bak-glm-20261003-2330",
+    "ids": "/var/www/tesseraev6_flask/data/passage_index/ids.json",
+    "descriptions_for_metadata": "/var/www/tesseraev6_flask/data/passage_index/descriptions.jsonl",
+    "gold_path": "/home/ncoffee/tesserae-v6-dev/evaluation/theme_benchmark/pilot_gold.json"
+  },
+  "n_rows": 510839,
+  "n_query_forms": 28,
+  "n_motifs": 26,
+  "elapsed_seconds": 129.73117756843567,
+  "per_motif": [
+    {
+      "motif": "annunciation_barren",
+      "form": "generic",
+      "n_gold": 4,
+      "instance_languages": [
+        "he"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 4,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 4,
+            "ranks": [
+              31
+            ]
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 2,
+            "r@50": 4,
+            "r@100": 4,
+            "n_gold": 4,
+            "ranks": [
+              1,
+              4,
+              12,
+              29
+            ]
+          },
+          "new": {
+            "r@10": 4,
+            "r@50": 4,
+            "r@100": 4,
+            "n_gold": 4,
+            "ranks": [
+              2,
+              6,
+              9,
+              10
+            ]
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 4,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 4,
+            "ranks": [
+              2
+            ]
+          }
+        }
+      }
+    },
+    {
+      "motif": "anointing",
+      "form": "generic",
+      "n_gold": 2,
+      "instance_languages": [
+        "he"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          }
+        }
+      }
+    },
+    {
+      "motif": "anointing",
+      "form": "named",
+      "n_gold": 2,
+      "instance_languages": [
+        "he"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          }
+        }
+      }
+    },
+    {
+      "motif": "aristeia",
+      "form": "generic",
+      "n_gold": 1,
+      "instance_languages": [
+        "grc"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          }
+        }
+      }
+    },
+    {
+      "motif": "arming",
+      "form": "generic",
+      "n_gold": 5,
+      "instance_languages": [
+        "grc",
+        "la"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 2,
+            "r@50": 5,
+            "r@100": 5,
+            "n_gold": 5,
+            "ranks": [
+              3,
+              9,
+              11,
+              12,
+              47
+            ]
+          },
+          "new": {
+            "r@10": 4,
+            "r@50": 4,
+            "r@100": 4,
+            "n_gold": 5,
+            "ranks": [
+              3,
+              4,
+              5,
+              8
+            ]
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 2,
+            "r@50": 5,
+            "r@100": 5,
+            "n_gold": 5,
+            "ranks": [
+              3,
+              9,
+              11,
+              12,
+              47
+            ]
+          },
+          "new": {
+            "r@10": 4,
+            "r@50": 4,
+            "r@100": 4,
+            "n_gold": 5,
+            "ranks": [
+              3,
+              4,
+              5,
+              8
+            ]
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 5,
+            "r@50": 5,
+            "r@100": 5,
+            "n_gold": 5,
+            "ranks": [
+              1,
+              3,
+              4,
+              5,
+              10
+            ]
+          },
+          "new": {
+            "r@10": 4,
+            "r@50": 4,
+            "r@100": 4,
+            "n_gold": 5,
+            "ranks": [
+              1,
+              2,
+              3,
+              4
+            ]
+          }
+        }
+      }
+    },
+    {
+      "motif": "battle",
+      "form": "generic",
+      "n_gold": 2,
+      "instance_languages": [
+        "he"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 1,
+            "n_gold": 2,
+            "ranks": [
+              63
+            ]
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          }
+        }
+      }
+    },
+    {
+      "motif": "betrothal_at_well",
+      "form": "generic",
+      "n_gold": 4,
+      "instance_languages": [
+        "he"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 0,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 4,
+            "ranks": [
+              48
+            ]
+          },
+          "new": {
+            "r@10": 1,
+            "r@50": 2,
+            "r@100": 2,
+            "n_gold": 4,
+            "ranks": [
+              7,
+              27
+            ]
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 2,
+            "r@50": 2,
+            "r@100": 4,
+            "n_gold": 4,
+            "ranks": [
+              1,
+              5,
+              57,
+              58
+            ]
+          },
+          "new": {
+            "r@10": 2,
+            "r@50": 4,
+            "r@100": 4,
+            "n_gold": 4,
+            "ranks": [
+              1,
+              6,
+              26,
+              33
+            ]
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 4,
+            "ranks": [
+              1
+            ]
+          },
+          "new": {
+            "r@10": 2,
+            "r@50": 2,
+            "r@100": 2,
+            "n_gold": 4,
+            "ranks": [
+              1,
+              6
+            ]
+          }
+        }
+      }
+    },
+    {
+      "motif": "betrothal_at_well",
+      "form": "named",
+      "n_gold": 4,
+      "instance_languages": [
+        "he"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 2,
+            "n_gold": 4,
+            "ranks": [
+              6,
+              83
+            ]
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 4,
+            "ranks": [
+              14
+            ]
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 2,
+            "r@50": 3,
+            "r@100": 3,
+            "n_gold": 4,
+            "ranks": [
+              1,
+              10,
+              32
+            ]
+          },
+          "new": {
+            "r@10": 1,
+            "r@50": 4,
+            "r@100": 4,
+            "n_gold": 4,
+            "ranks": [
+              1,
+              12,
+              14,
+              37
+            ]
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 2,
+            "r@50": 2,
+            "r@100": 2,
+            "n_gold": 4,
+            "ranks": [
+              1,
+              10
+            ]
+          },
+          "new": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 4,
+            "ranks": [
+              1
+            ]
+          }
+        }
+      }
+    },
+    {
+      "motif": "call_narrative",
+      "form": "generic",
+      "n_gold": 1,
+      "instance_languages": [
+        "he"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          }
+        }
+      }
+    },
+    {
+      "motif": "covenant",
+      "form": "generic",
+      "n_gold": 3,
+      "instance_languages": [
+        "he"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 3,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 1,
+            "n_gold": 3,
+            "ranks": [
+              67
+            ]
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 3,
+            "ranks": [
+              7
+            ]
+          },
+          "new": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 3,
+            "ranks": [
+              6
+            ]
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 3,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 3,
+            "ranks": [
+              1
+            ]
+          }
+        }
+      }
+    },
+    {
+      "motif": "dawn_formula",
+      "form": "generic",
+      "n_gold": 2,
+      "instance_languages": [
+        "grc"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 2,
+            "ranks": [
+              16
+            ]
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          }
+        }
+      }
+    },
+    {
+      "motif": "divine_council",
+      "form": "generic",
+      "n_gold": 4,
+      "instance_languages": [
+        "grc",
+        "la"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 1,
+            "r@50": 3,
+            "r@100": 3,
+            "n_gold": 4,
+            "ranks": [
+              1,
+              13,
+              28
+            ]
+          },
+          "new": {
+            "r@10": 2,
+            "r@50": 3,
+            "r@100": 4,
+            "n_gold": 4,
+            "ranks": [
+              1,
+              3,
+              29,
+              85
+            ]
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 1,
+            "r@50": 3,
+            "r@100": 3,
+            "n_gold": 4,
+            "ranks": [
+              1,
+              13,
+              28
+            ]
+          },
+          "new": {
+            "r@10": 2,
+            "r@50": 3,
+            "r@100": 4,
+            "n_gold": 4,
+            "ranks": [
+              1,
+              3,
+              29,
+              85
+            ]
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 3,
+            "r@50": 3,
+            "r@100": 3,
+            "n_gold": 4,
+            "ranks": [
+              1,
+              5,
+              10
+            ]
+          },
+          "new": {
+            "r@10": 2,
+            "r@50": 4,
+            "r@100": 4,
+            "n_gold": 4,
+            "ranks": [
+              1,
+              3,
+              17,
+              45
+            ]
+          }
+        }
+      }
+    },
+    {
+      "motif": "duel",
+      "form": "generic",
+      "n_gold": 1,
+      "instance_languages": [
+        "grc"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          }
+        }
+      }
+    },
+    {
+      "motif": "ekphrasis",
+      "form": "generic",
+      "n_gold": 5,
+      "instance_languages": [
+        "grc",
+        "la"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 5,
+            "ranks": [
+              10
+            ]
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 5,
+            "ranks": []
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 5,
+            "ranks": [
+              10
+            ]
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 5,
+            "ranks": []
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 5,
+            "ranks": [
+              1
+            ]
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 5,
+            "ranks": []
+          }
+        }
+      }
+    },
+    {
+      "motif": "embassy_messenger",
+      "form": "generic",
+      "n_gold": 1,
+      "instance_languages": [
+        "grc"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          }
+        }
+      }
+    },
+    {
+      "motif": "funeral_games",
+      "form": "generic",
+      "n_gold": 3,
+      "instance_languages": [
+        "grc",
+        "la"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 3,
+            "ranks": [
+              1
+            ]
+          },
+          "new": {
+            "r@10": 1,
+            "r@50": 2,
+            "r@100": 2,
+            "n_gold": 3,
+            "ranks": [
+              7,
+              27
+            ]
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 3,
+            "ranks": [
+              1
+            ]
+          },
+          "new": {
+            "r@10": 1,
+            "r@50": 2,
+            "r@100": 2,
+            "n_gold": 3,
+            "ranks": [
+              7,
+              27
+            ]
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 3,
+            "ranks": [
+              1
+            ]
+          },
+          "new": {
+            "r@10": 2,
+            "r@50": 2,
+            "r@100": 2,
+            "n_gold": 3,
+            "ranks": [
+              2,
+              8
+            ]
+          }
+        }
+      }
+    },
+    {
+      "motif": "katabasis",
+      "form": "generic",
+      "n_gold": 6,
+      "instance_languages": [
+        "grc",
+        "la"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 2,
+            "n_gold": 6,
+            "ranks": [
+              51,
+              74
+            ]
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 6,
+            "ranks": [
+              29
+            ]
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 2,
+            "n_gold": 6,
+            "ranks": [
+              51,
+              74
+            ]
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 6,
+            "ranks": [
+              29
+            ]
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 2,
+            "r@50": 2,
+            "r@100": 2,
+            "n_gold": 6,
+            "ranks": [
+              2,
+              4
+            ]
+          },
+          "new": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 6,
+            "ranks": [
+              10
+            ]
+          }
+        }
+      }
+    },
+    {
+      "motif": "lament",
+      "form": "generic",
+      "n_gold": 7,
+      "instance_languages": [
+        "grc",
+        "he",
+        "la"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 7,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 1,
+            "n_gold": 7,
+            "ranks": [
+              70
+            ]
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 7,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 1,
+            "n_gold": 7,
+            "ranks": [
+              70
+            ]
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 7,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 7,
+            "ranks": [
+              3
+            ]
+          }
+        }
+      }
+    },
+    {
+      "motif": "metamorphosis",
+      "form": "generic",
+      "n_gold": 2,
+      "instance_languages": [
+        "la"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 1,
+            "n_gold": 2,
+            "ranks": [
+              97
+            ]
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 1,
+            "n_gold": 2,
+            "ranks": [
+              73
+            ]
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 2,
+            "ranks": [
+              40
+            ]
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 0,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 2,
+            "ranks": [
+              22
+            ]
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          }
+        }
+      }
+    },
+    {
+      "motif": "prophecy",
+      "form": "generic",
+      "n_gold": 3,
+      "instance_languages": [
+        "he",
+        "la"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 3,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 3,
+            "ranks": []
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 3,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 3,
+            "ranks": []
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 3,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 3,
+            "ranks": []
+          }
+        }
+      }
+    },
+    {
+      "motif": "recognition",
+      "form": "generic",
+      "n_gold": 2,
+      "instance_languages": [
+        "grc"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          }
+        }
+      }
+    },
+    {
+      "motif": "sacrifice",
+      "form": "generic",
+      "n_gold": 1,
+      "instance_languages": [
+        "he"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          }
+        }
+      }
+    },
+    {
+      "motif": "sea_voyage",
+      "form": "generic",
+      "n_gold": 2,
+      "instance_languages": [
+        "grc"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 0,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 2,
+            "ranks": [
+              23
+            ]
+          },
+          "new": {
+            "r@10": 1,
+            "r@50": 2,
+            "r@100": 2,
+            "n_gold": 2,
+            "ranks": [
+              6,
+              42
+            ]
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 0,
+            "r@50": 1,
+            "r@100": 2,
+            "n_gold": 2,
+            "ranks": [
+              12,
+              74
+            ]
+          },
+          "new": {
+            "r@10": 1,
+            "r@50": 2,
+            "r@100": 2,
+            "n_gold": 2,
+            "ranks": [
+              5,
+              22
+            ]
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 2,
+            "ranks": [
+              2
+            ]
+          },
+          "new": {
+            "r@10": 2,
+            "r@50": 2,
+            "r@100": 2,
+            "n_gold": 2,
+            "ranks": [
+              1,
+              6
+            ]
+          }
+        }
+      }
+    },
+    {
+      "motif": "storm",
+      "form": "generic",
+      "n_gold": 4,
+      "instance_languages": [
+        "grc",
+        "la"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 4,
+            "ranks": [
+              1
+            ]
+          },
+          "new": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 4,
+            "ranks": [
+              3
+            ]
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 4,
+            "ranks": [
+              1
+            ]
+          },
+          "new": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 4,
+            "ranks": [
+              3
+            ]
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 4,
+            "ranks": [
+              1
+            ]
+          },
+          "new": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 4,
+            "ranks": [
+              1
+            ]
+          }
+        }
+      }
+    },
+    {
+      "motif": "supplication",
+      "form": "generic",
+      "n_gold": 5,
+      "instance_languages": [
+        "grc",
+        "la"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 5,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 5,
+            "ranks": [
+              7
+            ]
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 5,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 5,
+            "ranks": [
+              7
+            ]
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 5,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 5,
+            "ranks": [
+              1
+            ]
+          }
+        }
+      }
+    },
+    {
+      "motif": "teichoscopia",
+      "form": "generic",
+      "n_gold": 1,
+      "instance_languages": [
+        "grc"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 1,
+            "n_gold": 1,
+            "ranks": [
+              76
+            ]
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 1,
+            "n_gold": 1,
+            "ranks": [
+              61
+            ]
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 1,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 1,
+            "ranks": [
+              19
+            ]
+          }
+        }
+      }
+    },
+    {
+      "motif": "theophany",
+      "form": "generic",
+      "n_gold": 2,
+      "instance_languages": [
+        "he"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 1,
+            "r@100": 2,
+            "n_gold": 2,
+            "ranks": [
+              44,
+              83
+            ]
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 2,
+            "ranks": [
+              10
+            ]
+          },
+          "new": {
+            "r@10": 2,
+            "r@50": 2,
+            "r@100": 2,
+            "n_gold": 2,
+            "ranks": [
+              3,
+              6
+            ]
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 0,
+            "n_gold": 2,
+            "ranks": []
+          },
+          "new": {
+            "r@10": 2,
+            "r@50": 2,
+            "r@100": 2,
+            "n_gold": 2,
+            "ranks": [
+              1,
+              2
+            ]
+          }
+        }
+      }
+    },
+    {
+      "motif": "xenia_feast",
+      "form": "generic",
+      "n_gold": 1,
+      "instance_languages": [
+        "grc"
+      ],
+      "conditions": {
+        "all": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 1,
+            "n_gold": 1,
+            "ranks": [
+              94
+            ]
+          },
+          "new": {
+            "r@10": 0,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 1,
+            "ranks": [
+              16
+            ]
+          }
+        },
+        "native": {
+          "old": {
+            "r@10": 0,
+            "r@50": 0,
+            "r@100": 1,
+            "n_gold": 1,
+            "ranks": [
+              54
+            ]
+          },
+          "new": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 1,
+            "ranks": [
+              10
+            ]
+          }
+        },
+        "gold_works": {
+          "old": {
+            "r@10": 0,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 1,
+            "ranks": [
+              19
+            ]
+          },
+          "new": {
+            "r@10": 1,
+            "r@50": 1,
+            "r@100": 1,
+            "n_gold": 1,
+            "ranks": [
+              8
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "totals": {
+    "all": {
+      "r@10": {
+        "old": 7,
+        "new": 11
+      },
+      "r@50": {
+        "old": 14,
+        "new": 20
+      },
+      "r@100": {
+        "old": 19,
+        "new": 25
+      }
+    },
+    "native": {
+      "r@10": {
+        "old": 14,
+        "new": 21
+      },
+      "r@50": {
+        "old": 23,
+        "new": 32
+      },
+      "r@100": {
+        "old": 31,
+        "new": 35
+      }
+    },
+    "gold_works": {
+      "r@10": {
+        "old": 17,
+        "new": 22
+      },
+      "r@50": {
+        "old": 19,
+        "new": 25
+      },
+      "r@100": {
+        "old": 19,
+        "new": 25
+      }
+    }
+  },
+  "n_gold_total": {
+    "all": 80,
+    "native": 80,
+    "gold_works": 80
+  },
+  "note": "peak RSS is reported by /usr/bin/time around the whole process in the wrapper that invokes this script"
+}

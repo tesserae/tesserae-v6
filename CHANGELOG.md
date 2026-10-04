@@ -9,6 +9,15 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-04
 
+### Evaluation
+- `evaluation/theme_benchmark/offline_gold_recall.py` measures, offline and
+  read-only, whether the passage descriptions written on 2026-10-03 retrieve
+  the Theme Search pilot gold set better than the descriptions they
+  replaced, by scoring the two sets of pre-computed vectors against the
+  gold set's queries directly (cosine, top 100), with no server call except
+  the local query encoder. Result in
+  `evaluation/theme_benchmark/runs/offline_gold_recall/results.json`.
+
 ### Data operations
 - 2026-10-04 08:12 to 08:18 EDT: 175 more passage windows received their
   new description and vector in the live index (510,759 of 510,839 now
