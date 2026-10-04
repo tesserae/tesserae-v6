@@ -1144,6 +1144,44 @@ def _summarise(name, raw):
 FUSION_WAIT_SECONDS = 100
 FUSION_POLL_SECONDS = 20
 FUSION_PAGE = 25
+# "Are you still working?" names no text. After a comparison that outlasted
+# the wait, it is a question about THAT comparison (NC, 2 Oct 2026 night),
+# and the right answer is the result if the run has finished, or an honest
+# "still running" if not. A stock answer about the tool was the wrong one.
+_STATUS_WORDS = ('still working', 'still running', 'still going', 'are you done', 'is it done',
+                 'is it finished', 'did it finish', 'finished yet', 'done yet', 'any results',
+                 'anything yet', 'results yet', 'how is it going', "how's it going", 'any update',
+                 'update?', 'status?', 'what happened', 'where are we', 'are you there',
+                 'did you finish', 'is the search done', 'is the comparison done')
+
+
+def _status_question(question):
+    q = ' '.join((question or '').lower().split())
+    return len(q) <= 80 and any(w in q for w in _STATUS_WORDS)
+
+
+def _earlier_pair(history):
+    """The two texts the reader last named, and the book number they shared,
+    from the reader's own earlier turns (most recent first)."""
+    from backend.assistant import corpus_lookup
+    for turn in reversed(history or []):
+        if turn.get('role') != 'user':
+            continue
+        text = turn.get('text') or ''
+        try:
+            earlier = corpus_lookup.named_texts(text, limit=2)
+        except Exception:                                   # noqa: BLE001
+            earlier = []
+        if len(earlier) == 2:
+            shared = corpus_lookup.shared_book_number(text)
+            if shared:
+                scoped = [corpus_lookup.book_of(p, shared) for p in earlier]
+                if all(scoped):
+                    earlier = scoped
+            return earlier
+    return None
+
+
 FUSION_RUNNING = 'running'  # _fusion_results: the run outlasted the wait and goes on
 
 
@@ -1697,8 +1735,10 @@ def _prepare(question, step, history=None, offered_phrase=None):
                 return {'theme_compare': out, 'theme_pair': (tpair[0], tpair[1]),
                         'facts': all_facts, 'ran': ran, 'block': ''}
 
+    _status_pair = _earlier_pair(history) if (history and _status_question(question)) else None
     _compare_intent = (any(t in question.lower() for t in actions._COMPARE_INTENT)
-                       or _decided(decision, 'kind', None) == 'compare')
+                       or _decided(decision, 'kind', None) == 'compare'
+                       or bool(_status_pair))
     if _compare_intent:
         try:
             from backend.assistant import corpus_lookup
@@ -1706,6 +1746,11 @@ def _prepare(question, step, history=None, offered_phrase=None):
         except Exception as e:                              # noqa: BLE001
             logger.info('[ASSISTANT] compare lookup failed: %s', e)
             pair = []
+        if len(pair) < 2 and _status_pair:
+            # The question is about the comparison the reader asked for a
+            # turn ago. Fetch it: finished runs answer at once from the cache.
+            pair = _status_pair
+            step('checking on the comparison you asked for')
         if len(pair) == 2:
             # "book 1 of each": the number applies to both texts. Comparing
             # the whole works instead widened a two-book question to the

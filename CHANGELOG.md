@@ -9,6 +9,14 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-04
 
+### Tessa
+- "Are you still working?", "is it done?" and the like, asked after a
+  comparison that outlasted her wait, are now answered about that
+  comparison: the two texts come from the reader's earlier turn (with any
+  shared book number), the finished run is read from the cache at once,
+  and an unfinished one is reported as still running. Before, a question
+  that named no text got a stock answer about the tool.
+
 ### Data operations
 - 2026-10-04 08:12 to 08:18 EDT: 175 more passage windows received their
   new description and vector in the live index (510,759 of 510,839 now
