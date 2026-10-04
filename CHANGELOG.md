@@ -9,6 +9,14 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-04
 
+### Tessa
+- "Are you still working?", "is it done?" and the like, asked after a
+  comparison that outlasted her wait, are now answered about that
+  comparison: the two texts come from the reader's earlier turn (with any
+  shared book number), the finished run is read from the cache at once,
+  and an unfinished one is reported as still running. Before, a question
+  that named no text got a stock answer about the tool.
+
 ### Corpus
 - `texts/grc/aelius_herodianus.on_enclitics.tess` carried CTS-URN line tags
   on all 26 lines, the same fault #578 fixed in 21 Septuagint files. The

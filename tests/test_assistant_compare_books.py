@@ -66,3 +66,24 @@ def test_author_name_then_title_with_book_number_narrows_to_the_book(monkeypatch
     # Unchanged: an author alone stays whole, a repeated name is not a second text.
     assert ids('echoes of Vergil in Statius') == ['vergil.aeneid.tess', 'statius.silvae.tess']
     assert len(ids('what about Statius Thebaid?')) == 1
+
+
+def test_status_question_is_recognised():
+    assert agent._status_question('are you still working?')
+    assert agent._status_question('Is it done yet')
+    assert agent._status_question('any results?')
+    assert not agent._status_question('compare the Aeneid and the Punica')
+    assert not agent._status_question('what is Tesserae?')
+
+
+def test_earlier_pair_comes_from_the_readers_last_two_text_turn(monkeypatch):
+    monkeypatch.setattr(corpus_lookup, '_all_texts', lambda language=None: ROWS)
+    history = [{'role': 'user', 'text': 'compare book 1 of each the Aeneid and the Punica'},
+               {'role': 'assistant', 'text': 'The full comparison is still running on the server.'},
+               {'role': 'user', 'text': 'thanks'}]
+    pair = agent._earlier_pair(history)
+    assert [p['id'] for p in pair] == ['vergil.aeneid.part.1.tess', 'silius_italicus.punica.part.1.tess']
+    assert agent._earlier_pair([{'role': 'user', 'text': 'hello'}]) is None
+    # Two texts named for another reason are not a comparison to check on.
+    assert agent._earlier_pair([{'role': 'user', 'text': 'tell me about the Aeneid and the Punica'}]) is None
+    assert not agent._status_question('what happened at Cannae?')
