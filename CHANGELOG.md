@@ -17,6 +17,13 @@ behind each, are in docs/DECISIONS.md.
   and an unfinished one is reported as still running. Before, a question
   that named no text got a stock answer about the tool.
 
+### Corpus
+- `texts/grc/aelius_herodianus.on_enclitics.tess` carried CTS-URN line tags
+  on all 26 lines, the same fault #578 fixed in 21 Septuagint files. The
+  tags are now the plain form every other Greek file uses, with the line
+  text unchanged. The stored references derived from the file are rebuilt
+  in a data operation after this merges.
+
 ### Data operations
 - 2026-10-04 08:12 to 08:18 EDT: 175 more passage windows received their
   new description and vector in the live index (510,759 of 510,839 now
