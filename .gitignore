@@ -66,9 +66,14 @@ texts/*
 !texts/it/
 !texts/gmh/
 !texts/fro/
-# Languages still in development (Persian, Urdu, Arabic) stay ignored on
-# purpose: they are not to reach production, and an ignore rule is a poor
-# guard but a useful reminder. Add the directory above when one ships.
+!texts/ar/
+!texts/fa/
+!texts/ur/
+# Persian, Urdu and Arabic text files are tracked as of the 2026-10-04 data
+# port, but no language handler is registered for ar, fa or ur yet, so none
+# of the three is served: they do not appear in the corpus list, Browse
+# Corpus, Theme Search or downloads. Registering a language is a separate,
+# later step.
 #
 # Scratch directories inside a language folder (a dated set of files pulled
 # out of the corpus, say) are not part of the corpus:
@@ -85,6 +90,7 @@ data/la_mqdq_temp/
 !data/translation_pairs.json
 !data/proposals/
 !data/restricted_texts.json
+!data/poetics/
 cache/
 
 # Private/local files

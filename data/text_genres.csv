@@ -1711,3 +1711,197 @@ germanicus.aratea.tess,germanicus,aratea,Early Imperial,hexameter,didactic,manua
 solinus.collectanea_rerum_memorabilium.tess,solinus,collectanea_rerum_memorabilium,Later Imperial,prose,technical,manual
 censorinus.de_die_natali.tess,censorinus,de_die_natali,Later Imperial,prose,technical,manual
 obsequens.liber_de_prodigiis.tess,obsequens,liber_de_prodigiis,Late Antique,prose,historiography,manual
+anvari.diwan.tess,anvari,diwan,Seljuk,unknown,panegyric,auto
+attar.diwan.tess,attar,diwan,Khwarazmian,unknown,lyric,auto
+bidel.diwan.tess,bidel,diwan,Mughal,unknown,lyric,auto
+farrokhi.diwan.tess,farrokhi,diwan,Ghaznavid,unknown,panegyric,auto
+ferdowsi.diwan.tess,ferdowsi,diwan,Ghaznavid,unknown,epic,auto
+hafez.diwan.tess,hafez,diwan,Muzaffarid,unknown,lyric,auto
+iqbal.armaghan_e_hijaz_persian.tess,iqbal,armaghan_e_hijaz_persian,Modern,unknown,lyric,auto
+iqbal.asrar_e_khudi.tess,iqbal,asrar_e_khudi,Modern,unknown,philosophy,auto
+iqbal.javid_nama.tess,iqbal,javid_nama,Modern,unknown,philosophy,auto
+iqbal_lahori.diwan.tess,iqbal_lahori,diwan,Modern,unknown,lyric,auto
+iqbal.pas_cheh_bayad_kard.tess,iqbal,pas_cheh_bayad_kard,Modern,unknown,philosophy,auto
+iqbal.payam_e_mashriq.tess,iqbal,payam_e_mashriq,Modern,unknown,lyric,auto
+iqbal.rumuz_e_bekhudi.tess,iqbal,rumuz_e_bekhudi,Modern,unknown,philosophy,auto
+iqbal.zabur_e_ajam.tess,iqbal,zabur_e_ajam,Modern,unknown,lyric,auto
+jami.diwan.tess,jami,diwan,Timurid,unknown,lyric,auto
+khaghani.diwan.tess,khaghani,diwan,Seljuk,unknown,panegyric,auto
+khayyam.diwan.tess,khayyam,diwan,Seljuk,unknown,lyric,auto
+manuchehri.diwan.tess,manuchehri,diwan,Ghaznavid,unknown,panegyric,auto
+naser_khosrow.diwan.tess,naser_khosrow,diwan,Seljuk,unknown,philosophy,auto
+nizami.diwan.tess,nizami,diwan,Seljuk,unknown,lyric,auto
+parvin.diwan.tess,parvin,diwan,Modern,unknown,didactic,auto
+rudaki.diwan.tess,rudaki,diwan,Samanid,unknown,lyric,auto
+rumi.diwan.tess,rumi,diwan,Seljuk of Rum,unknown,lyric,auto
+rumi.masnavi.part.1.tess,rumi,masnavi,Seljuk of Rum,unknown,didactic,auto
+saadi.bustan.part.1.tess,saadi,bustan,Ilkhanid,unknown,didactic,auto
+saadi.diwan.tess,saadi,diwan,Ilkhanid,unknown,lyric,auto
+saeb.diwan.tess,saeb,diwan,Safavid,unknown,lyric,auto
+sanai.diwan.tess,sanai,diwan,Seljuk,unknown,lyric,auto
+iqbal.armaghan_e_hijaz_urdu.tess,iqbal,armaghan_e_hijaz_urdu,Modern,unknown,lyric,auto
+iqbal.bal_e_jibril.tess,iqbal,bal_e_jibril,Modern,unknown,lyric,auto
+iqbal.bang_e_dra.tess,iqbal,bang_e_dra,Modern,unknown,lyric,auto
+iqbal.zarb_e_kaleem.tess,iqbal,zarb_e_kaleem,Modern,unknown,philosophy,auto
+mir.kulliyat_wikisource.tess,mir,kulliyat_wikisource,Mughal / Colonial,unknown,lyric,auto
+busiri.burda.tess,busiri,burda,Unknown,unknown,panegyric,auto
+imru_al_qais.muallaqa.tess,imru_al_qais,muallaqa,Pre-Islamic,unknown,lyric,auto
+shawqi.nahj_al_burda.tess,shawqi,nahj_al_burda,Unknown,unknown,panegyric,auto
+tarafa.muallaqa.tess,tarafa,muallaqa,Pre-Islamic,unknown,lyric,auto
+quran.abasa.tess,quran,abasa,Early Islamic,unknown,scripture,auto
+quran.ad_duha.tess,quran,ad_duha,Early Islamic,unknown,scripture,auto
+quran.ad_dukhan.tess,quran,ad_dukhan,Early Islamic,unknown,scripture,auto
+quran.adh_dhariyat.tess,quran,adh_dhariyat,Early Islamic,unknown,scripture,auto
+quran.al_adiyat.tess,quran,al_adiyat,Early Islamic,unknown,scripture,auto
+quran.al_ahqaf.tess,quran,al_ahqaf,Early Islamic,unknown,scripture,auto
+quran.al_ahzab.tess,quran,al_ahzab,Early Islamic,unknown,scripture,auto
+quran.al_ala.tess,quran,al_ala,Early Islamic,unknown,scripture,auto
+quran.al_alaq.tess,quran,al_alaq,Early Islamic,unknown,scripture,auto
+quran.al_anam.tess,quran,al_anam,Early Islamic,unknown,scripture,auto
+quran.al_anbiya.tess,quran,al_anbiya,Early Islamic,unknown,scripture,auto
+quran.al_anfal.tess,quran,al_anfal,Early Islamic,unknown,scripture,auto
+quran.al_ankabut.tess,quran,al_ankabut,Early Islamic,unknown,scripture,auto
+quran.al_araf.tess,quran,al_araf,Early Islamic,unknown,scripture,auto
+quran.al_asr.tess,quran,al_asr,Early Islamic,unknown,scripture,auto
+quran.al_balad.tess,quran,al_balad,Early Islamic,unknown,scripture,auto
+quran.al_baqara.tess,quran,al_baqara,Early Islamic,unknown,scripture,auto
+quran.al_bayyina.tess,quran,al_bayyina,Early Islamic,unknown,scripture,auto
+quran.al_buruj.tess,quran,al_buruj,Early Islamic,unknown,scripture,auto
+quran.al_fajr.tess,quran,al_fajr,Early Islamic,unknown,scripture,auto
+quran.al_falaq.tess,quran,al_falaq,Early Islamic,unknown,scripture,auto
+quran.al_fath.tess,quran,al_fath,Early Islamic,unknown,scripture,auto
+quran.al_fatiha.tess,quran,al_fatiha,Early Islamic,unknown,scripture,auto
+quran.al_fil.tess,quran,al_fil,Early Islamic,unknown,scripture,auto
+quran.al_furqan.tess,quran,al_furqan,Early Islamic,unknown,scripture,auto
+quran.al_ghashiya.tess,quran,al_ghashiya,Early Islamic,unknown,scripture,auto
+quran.al_hadid.tess,quran,al_hadid,Early Islamic,unknown,scripture,auto
+quran.al_hajj.tess,quran,al_hajj,Early Islamic,unknown,scripture,auto
+quran.al_haqqa.tess,quran,al_haqqa,Early Islamic,unknown,scripture,auto
+quran.al_hashr.tess,quran,al_hashr,Early Islamic,unknown,scripture,auto
+quran.al_hijr.tess,quran,al_hijr,Early Islamic,unknown,scripture,auto
+quran.al_hujurat.tess,quran,al_hujurat,Early Islamic,unknown,scripture,auto
+quran.al_humaza.tess,quran,al_humaza,Early Islamic,unknown,scripture,auto
+quran.al_ikhlas.tess,quran,al_ikhlas,Early Islamic,unknown,scripture,auto
+quran.al_imran.tess,quran,al_imran,Early Islamic,unknown,scripture,auto
+quran.al_infitar.tess,quran,al_infitar,Early Islamic,unknown,scripture,auto
+quran.al_insan.tess,quran,al_insan,Early Islamic,unknown,scripture,auto
+quran.al_inshiqaq.tess,quran,al_inshiqaq,Early Islamic,unknown,scripture,auto
+quran.al_isra.tess,quran,al_isra,Early Islamic,unknown,scripture,auto
+quran.al_jathiya.tess,quran,al_jathiya,Early Islamic,unknown,scripture,auto
+quran.al_jinn.tess,quran,al_jinn,Early Islamic,unknown,scripture,auto
+quran.al_jumua.tess,quran,al_jumua,Early Islamic,unknown,scripture,auto
+quran.al_kafirun.tess,quran,al_kafirun,Early Islamic,unknown,scripture,auto
+quran.al_kahf.tess,quran,al_kahf,Early Islamic,unknown,scripture,auto
+quran.al_kawthar.tess,quran,al_kawthar,Early Islamic,unknown,scripture,auto
+quran.al_layl.tess,quran,al_layl,Early Islamic,unknown,scripture,auto
+quran.al_maarij.tess,quran,al_maarij,Early Islamic,unknown,scripture,auto
+quran.al_maida.tess,quran,al_maida,Early Islamic,unknown,scripture,auto
+quran.al_masad.tess,quran,al_masad,Early Islamic,unknown,scripture,auto
+quran.al_maun.tess,quran,al_maun,Early Islamic,unknown,scripture,auto
+quran.al_muddaththir.tess,quran,al_muddaththir,Early Islamic,unknown,scripture,auto
+quran.al_mujadila.tess,quran,al_mujadila,Early Islamic,unknown,scripture,auto
+quran.al_mulk.tess,quran,al_mulk,Early Islamic,unknown,scripture,auto
+quran.al_muminun.tess,quran,al_muminun,Early Islamic,unknown,scripture,auto
+quran.al_mumtahina.tess,quran,al_mumtahina,Early Islamic,unknown,scripture,auto
+quran.al_munafiqun.tess,quran,al_munafiqun,Early Islamic,unknown,scripture,auto
+quran.al_mursalat.tess,quran,al_mursalat,Early Islamic,unknown,scripture,auto
+quran.al_mutaffifin.tess,quran,al_mutaffifin,Early Islamic,unknown,scripture,auto
+quran.al_muzzammil.tess,quran,al_muzzammil,Early Islamic,unknown,scripture,auto
+quran.al_qadr.tess,quran,al_qadr,Early Islamic,unknown,scripture,auto
+quran.al_qalam.tess,quran,al_qalam,Early Islamic,unknown,scripture,auto
+quran.al_qamar.tess,quran,al_qamar,Early Islamic,unknown,scripture,auto
+quran.al_qaria.tess,quran,al_qaria,Early Islamic,unknown,scripture,auto
+quran.al_qasas.tess,quran,al_qasas,Early Islamic,unknown,scripture,auto
+quran.al_qiyama.tess,quran,al_qiyama,Early Islamic,unknown,scripture,auto
+quran.al_waqia.tess,quran,al_waqia,Early Islamic,unknown,scripture,auto
+quran.an_naba.tess,quran,an_naba,Early Islamic,unknown,scripture,auto
+quran.an_nahl.tess,quran,an_nahl,Early Islamic,unknown,scripture,auto
+quran.an_najm.tess,quran,an_najm,Early Islamic,unknown,scripture,auto
+quran.an_naml.tess,quran,an_naml,Early Islamic,unknown,scripture,auto
+quran.an_nas.tess,quran,an_nas,Early Islamic,unknown,scripture,auto
+quran.an_nasr.tess,quran,an_nasr,Early Islamic,unknown,scripture,auto
+quran.an_naziat.tess,quran,an_naziat,Early Islamic,unknown,scripture,auto
+quran.an_nisa.tess,quran,an_nisa,Early Islamic,unknown,scripture,auto
+quran.an_nur.tess,quran,an_nur,Early Islamic,unknown,scripture,auto
+quran.ar_rad.tess,quran,ar_rad,Early Islamic,unknown,scripture,auto
+quran.ar_rahman.tess,quran,ar_rahman,Early Islamic,unknown,scripture,auto
+quran.ar_rum.tess,quran,ar_rum,Early Islamic,unknown,scripture,auto
+quran.as_saff.tess,quran,as_saff,Early Islamic,unknown,scripture,auto
+quran.as_saffat.tess,quran,as_saffat,Early Islamic,unknown,scripture,auto
+quran.as_sajda.tess,quran,as_sajda,Early Islamic,unknown,scripture,auto
+quran.ash_shams.tess,quran,ash_shams,Early Islamic,unknown,scripture,auto
+quran.ash_sharh.tess,quran,ash_sharh,Early Islamic,unknown,scripture,auto
+quran.ash_shuara.tess,quran,ash_shuara,Early Islamic,unknown,scripture,auto
+quran.ash_shura.tess,quran,ash_shura,Early Islamic,unknown,scripture,auto
+quran.at_taghabun.tess,quran,at_taghabun,Early Islamic,unknown,scripture,auto
+quran.at_tahrim.tess,quran,at_tahrim,Early Islamic,unknown,scripture,auto
+quran.at_takathur.tess,quran,at_takathur,Early Islamic,unknown,scripture,auto
+quran.at_takwir.tess,quran,at_takwir,Early Islamic,unknown,scripture,auto
+quran.at_talaq.tess,quran,at_talaq,Early Islamic,unknown,scripture,auto
+quran.at_tariq.tess,quran,at_tariq,Early Islamic,unknown,scripture,auto
+quran.at_tawba.tess,quran,at_tawba,Early Islamic,unknown,scripture,auto
+quran.at_tin.tess,quran,at_tin,Early Islamic,unknown,scripture,auto
+quran.at_tur.tess,quran,at_tur,Early Islamic,unknown,scripture,auto
+quran.az_zalzala.tess,quran,az_zalzala,Early Islamic,unknown,scripture,auto
+quran.az_zukhruf.tess,quran,az_zukhruf,Early Islamic,unknown,scripture,auto
+quran.az_zumar.tess,quran,az_zumar,Early Islamic,unknown,scripture,auto
+quran.fatir.tess,quran,fatir,Early Islamic,unknown,scripture,auto
+quran.fussilat.tess,quran,fussilat,Early Islamic,unknown,scripture,auto
+quran.ghafir.tess,quran,ghafir,Early Islamic,unknown,scripture,auto
+quran.hud.tess,quran,hud,Early Islamic,unknown,scripture,auto
+quran.ibrahim.tess,quran,ibrahim,Early Islamic,unknown,scripture,auto
+quran.luqman.tess,quran,luqman,Early Islamic,unknown,scripture,auto
+quran.maryam.tess,quran,maryam,Early Islamic,unknown,scripture,auto
+quran.muhammad.tess,quran,muhammad,Early Islamic,unknown,scripture,auto
+quran.nuh.tess,quran,nuh,Early Islamic,unknown,scripture,auto
+quran.qaf.tess,quran,qaf,Early Islamic,unknown,scripture,auto
+quran.quraysh.tess,quran,quraysh,Early Islamic,unknown,scripture,auto
+quran.saba.tess,quran,saba,Early Islamic,unknown,scripture,auto
+quran.sad.tess,quran,sad,Early Islamic,unknown,scripture,auto
+quran.ta_ha.tess,quran,ta_ha,Early Islamic,unknown,scripture,auto
+quran.ya_sin.tess,quran,ya_sin,Early Islamic,unknown,scripture,auto
+quran.yunus.tess,quran,yunus,Early Islamic,unknown,scripture,auto
+quran.yusuf.tess,quran,yusuf,Early Islamic,unknown,scripture,auto
+kaab.banat_suad.tess,kaab,banat_suad,Unknown,unknown,panegyric,phase6-2026-09-05
+ghalib.diwan_wikisource.tess,ghalib,diwan_wikisource,Mughal / Colonial,unknown,lyric,phase6-2026-09-05
+akbar.kulliyat_wikisource.tess,akbar,kulliyat_wikisource,Modern,unknown,satire,wikisource-2026-09-06
+anis.marsiye_wikisource.tess,anis,marsiye_wikisource,Mughal / Colonial,unknown,elegy,wikisource-2026-09-06
+atish.diwan_wikisource.tess,atish,diwan_wikisource,Mughal / Colonial,unknown,lyric,wikisource-2026-09-06
+dagh.diwan_wikisource.tess,dagh,diwan_wikisource,Mughal / Colonial,unknown,lyric,wikisource-2026-09-06
+dard.diwan_wikisource.tess,dard,diwan_wikisource,Mughal / Colonial,unknown,lyric,wikisource-2026-09-06
+hali.kulliyat_wikisource.tess,hali,kulliyat_wikisource,Mughal / Colonial,unknown,lyric,wikisource-2026-09-06
+insha.diwan_wikisource.tess,insha,diwan_wikisource,Mughal / Colonial,unknown,lyric,wikisource-2026-09-06
+nazeer.kulliyat_wikisource.tess,nazeer,kulliyat_wikisource,Mughal / Colonial,unknown,lyric,wikisource-2026-09-06
+sauda.kulliyat_wikisource.tess,sauda,kulliyat_wikisource,Mughal / Colonial,unknown,lyric,wikisource-2026-09-06
+wali.diwan_wikisource.tess,wali,diwan_wikisource,Mughal / Colonial,unknown,lyric,wikisource-2026-09-06
+zafar.diwan_wikisource.tess,zafar,diwan_wikisource,Mughal / Colonial,unknown,lyric,wikisource-2026-09-06
+zauq.diwan_wikisource.tess,zauq,diwan_wikisource,Mughal / Colonial,unknown,lyric,wikisource-2026-09-06
+abid_ibn_al_abras.muallaqa.tess,abid_ibn_al_abras,muallaqa,Pre-Islamic,unknown,lyric,wikisource-2026-09-06
+abu_firas.diwan_wikisource.tess,abu_firas,diwan_wikisource,Abbasid,unknown,lyric,wikisource-2026-09-06
+abu_nuwas.diwan_wikisource.tess,abu_nuwas,diwan_wikisource,Abbasid,unknown,lyric,wikisource-2026-09-06
+abu_tammam.diwan_wikisource.tess,abu_tammam,diwan_wikisource,Abbasid,unknown,lyric,wikisource-2026-09-06
+al_asha.muallaqa.tess,al_asha,muallaqa,Pre-Islamic,unknown,lyric,wikisource-2026-09-06
+ali_ibn_abi_talib.diwan_wikisource.tess,ali_ibn_abi_talib,diwan_wikisource,Early Islamic,unknown,lyric,wikisource-2026-09-06
+amr_ibn_kulthum.diwan_wikisource.tess,amr_ibn_kulthum,diwan_wikisource,Pre-Islamic,unknown,lyric,wikisource-2026-09-06
+amr_ibn_kulthum.muallaqa.tess,amr_ibn_kulthum,muallaqa,Pre-Islamic,unknown,lyric,wikisource-2026-09-06
+antara.muallaqa.tess,antara,muallaqa,Pre-Islamic,unknown,lyric,wikisource-2026-09-06
+barudi.diwan_wikisource.tess,barudi,diwan_wikisource,Modern,unknown,lyric,wikisource-2026-09-06
+bashshar.diwan_wikisource.tess,bashshar,diwan_wikisource,Abbasid,unknown,lyric,wikisource-2026-09-06
+harith_ibn_hilliza.muallaqa.tess,harith_ibn_hilliza,muallaqa,Pre-Islamic,unknown,lyric,wikisource-2026-09-06
+hassan_ibn_thabit.diwan_wikisource.tess,hassan_ibn_thabit,diwan_wikisource,Early Islamic,unknown,lyric,wikisource-2026-09-06
+hatim_al_tai.diwan_wikisource.tess,hatim_al_tai,diwan_wikisource,Pre-Islamic,unknown,lyric,wikisource-2026-09-06
+ibn_sahl.diwan_wikisource.tess,ibn_sahl,diwan_wikisource,Andalusi,unknown,lyric,wikisource-2026-09-06
+ibn_zaydun.nuniyya.tess,ibn_zaydun,nuniyya,Andalusi,unknown,lyric,wikisource-2026-09-06
+imru_al_qais.diwan_wikisource.tess,imru_al_qais,diwan_wikisource,Pre-Islamic,unknown,lyric,wikisource-2026-09-06
+jamil_buthayna.diwan_wikisource.tess,jamil_buthayna,diwan_wikisource,Umayyad,unknown,lyric,wikisource-2026-09-06
+khansa.diwan_wikisource.tess,khansa,diwan_wikisource,Early Islamic,unknown,elegy,wikisource-2026-09-06
+labid.muallaqa.tess,labid,muallaqa,Pre-Islamic,unknown,lyric,wikisource-2026-09-06
+maarri.diwan_wikisource.tess,maarri,diwan_wikisource,Abbasid,unknown,lyric,wikisource-2026-09-06
+mutanabbi.diwan_wikisource.tess,mutanabbi,diwan_wikisource,Abbasid,unknown,panegyric,wikisource-2026-09-06
+nabigha.muallaqa.tess,nabigha,muallaqa,Pre-Islamic,unknown,lyric,wikisource-2026-09-06
+nawawi.arbain.tess,nawawi,arbain,Mamluk,unknown,scripture,wikisource-2026-09-06
+nawawi.riyad_al_salihin.tess,nawawi,riyad_al_salihin,Mamluk,unknown,scripture,wikisource-2026-09-06
+shabbi.diwan_wikisource.tess,shabbi,diwan_wikisource,Modern,unknown,lyric,wikisource-2026-09-06
+shanfara.lamiyyat_al_arab.tess,shanfara,lamiyyat_al_arab,Pre-Islamic,unknown,lyric,wikisource-2026-09-06
+shawqi.diwan_wikisource.tess,shawqi,diwan_wikisource,Modern,unknown,lyric,wikisource-2026-09-06
+zuhayr.muallaqa.tess,zuhayr,muallaqa,Pre-Islamic,unknown,lyric,wikisource-2026-09-06

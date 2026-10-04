@@ -1,10 +1,160 @@
 {
  "ar": {
+  "abid_ibn_al_abras": {
+   "added": "wikisource-2026-09-06",
+   "era": "Pre-Islamic",
+   "note": "Abid ibn al-Abras, d. c. 555 CE (Arabic Wikisource; Arabic era labels added 2026-09-06: Pre-Islamic, Early Islamic (to 661), Umayyad, Abbasid, Andalusi, Mamluk, Modern)",
+   "year": 555
+  },
+  "abu_firas": {
+   "added": "wikisource-2026-09-06",
+   "era": "Abbasid",
+   "note": "Abu Firas al-Hamdani, d. 968 CE (Arabic Wikisource; Arabic era labels added 2026-09-06: Pre-Islamic, Early Islamic (to 661), Umayyad, Abbasid, Andalusi, Mamluk, Modern)",
+   "year": 968
+  },
+  "abu_nuwas": {
+   "added": "wikisource-2026-09-06",
+   "era": "Abbasid",
+   "note": "Abu Nuwas, d. c. 814 CE (Arabic Wikisource; Arabic era labels added 2026-09-06: Pre-Islamic, Early Islamic (to 661), Umayyad, Abbasid, Andalusi, Mamluk, Modern)",
+   "year": 814
+  },
+  "abu_tammam": {
+   "added": "wikisource-2026-09-06",
+   "era": "Abbasid",
+   "note": "Abu Tammam, d. 845 CE (Arabic Wikisource; Arabic era labels added 2026-09-06: Pre-Islamic, Early Islamic (to 661), Umayyad, Abbasid, Andalusi, Mamluk, Modern)",
+   "year": 845
+  },
+  "al_asha": {
+   "added": "wikisource-2026-09-06",
+   "era": "Pre-Islamic",
+   "note": "al-A'sha Maymun, d. c. 625 CE (Arabic Wikisource; Arabic era labels added 2026-09-06: Pre-Islamic, Early Islamic (to 661), Umayyad, Abbasid, Andalusi, Mamluk, Modern)",
+   "year": 625
+  },
+  "ali_ibn_abi_talib": {
+   "added": "wikisource-2026-09-06",
+   "era": "Early Islamic",
+   "note": "Ali ibn Abi Talib, d. 661 CE; the diwan attributed to him is a later compilation (Arabic Wikisource; Arabic era labels added 2026-09-06: Pre-Islamic, Early Islamic (to 661), Umayyad, Abbasid, Andalusi, Mamluk, Modern)",
+   "year": 661
+  },
+  "amr_ibn_kulthum": {
+   "added": "wikisource-2026-09-06",
+   "era": "Pre-Islamic",
+   "note": "Amr ibn Kulthum, d. c. 584 CE (Arabic Wikisource; Arabic era labels added 2026-09-06: Pre-Islamic, Early Islamic (to 661), Umayyad, Abbasid, Andalusi, Mamluk, Modern)",
+   "year": 584
+  },
+  "antara": {
+   "added": "wikisource-2026-09-06",
+   "era": "Pre-Islamic",
+   "note": "Antara ibn Shaddad, d. c. 608 CE (Arabic Wikisource; Arabic era labels added 2026-09-06: Pre-Islamic, Early Islamic (to 661), Umayyad, Abbasid, Andalusi, Mamluk, Modern)",
+   "year": 608
+  },
+  "barudi": {
+   "added": "wikisource-2026-09-06",
+   "era": "Modern",
+   "note": "Mahmud Sami al-Barudi, d. 1904 CE (Arabic Wikisource; Arabic era labels added 2026-09-06: Pre-Islamic, Early Islamic (to 661), Umayyad, Abbasid, Andalusi, Mamluk, Modern)",
+   "year": 1904
+  },
+  "bashshar": {
+   "added": "wikisource-2026-09-06",
+   "era": "Abbasid",
+   "note": "Bashshar ibn Burd, d. 783 CE (Arabic Wikisource; Arabic era labels added 2026-09-06: Pre-Islamic, Early Islamic (to 661), Umayyad, Abbasid, Andalusi, Mamluk, Modern)",
+   "year": 783
+  },
+  "busiri": {
+   "added": "phase3-2026-09-03",
+   "era": "Mamluk",
+   "note": "al-Busiri, d. 1294/95 CE; no sourced era-category name for medieval Arabic literary periods; era set 2026-09-06 under the new Arabic labels",
+   "year": 1295
+  },
+  "harith_ibn_hilliza": {
+   "added": "wikisource-2026-09-06",
+   "era": "Pre-Islamic",
+   "note": "al-Harith ibn Hilliza, d. c. 570 CE (Arabic Wikisource; Arabic era labels added 2026-09-06: Pre-Islamic, Early Islamic (to 661), Umayyad, Abbasid, Andalusi, Mamluk, Modern)",
+   "year": 570
+  },
+  "hassan_ibn_thabit": {
+   "added": "wikisource-2026-09-06",
+   "era": "Early Islamic",
+   "note": "Hassan ibn Thabit, d. c. 674 CE (Arabic Wikisource; Arabic era labels added 2026-09-06: Pre-Islamic, Early Islamic (to 661), Umayyad, Abbasid, Andalusi, Mamluk, Modern)",
+   "year": 674
+  },
+  "hatim_al_tai": {
+   "added": "wikisource-2026-09-06",
+   "era": "Pre-Islamic",
+   "note": "Hatim al-Ta'i, d. c. 578 CE (Arabic Wikisource; Arabic era labels added 2026-09-06: Pre-Islamic, Early Islamic (to 661), Umayyad, Abbasid, Andalusi, Mamluk, Modern)",
+   "year": 578
+  },
+  "ibn_sahl": {
+   "added": "wikisource-2026-09-06",
+   "era": "Andalusi",
+   "note": "Ibn Sahl al-Andalusi, d. 1251 CE (Arabic Wikisource; Arabic era labels added 2026-09-06: Pre-Islamic, Early Islamic (to 661), Umayyad, Abbasid, Andalusi, Mamluk, Modern)",
+   "year": 1251
+  },
+  "ibn_zaydun": {
+   "added": "wikisource-2026-09-06",
+   "era": "Andalusi",
+   "note": "Ibn Zaydun, d. 1071 CE (Arabic Wikisource; Arabic era labels added 2026-09-06: Pre-Islamic, Early Islamic (to 661), Umayyad, Abbasid, Andalusi, Mamluk, Modern)",
+   "year": 1071
+  },
+  "imru_al_qais": {
+   "added": "editorial-2026-08-25",
+   "era": "Pre-Islamic",
+   "note": "d. c. 550 CE",
+   "year": 550
+  },
   "imruulqais": {
    "added": "editorial-2026-08-25",
    "era": "Pre-Islamic",
    "note": "d. c. 550 CE",
    "year": 550
+  },
+  "jamil_buthayna": {
+   "added": "wikisource-2026-09-06",
+   "era": "Umayyad",
+   "note": "Jamil ibn Ma'mar (Jamil Buthayna), d. 701 CE (Arabic Wikisource; Arabic era labels added 2026-09-06: Pre-Islamic, Early Islamic (to 661), Umayyad, Abbasid, Andalusi, Mamluk, Modern)",
+   "year": 701
+  },
+  "kaab": {
+   "added": "phase6-2026-09-05",
+   "era": "Early Islamic",
+   "note": "Ka'b ibn Zuhayr, d. c. 662 CE; Banat Su'ad, the original Burda, from Arabic Wikisource; era set 2026-09-06 under the new Arabic labels",
+   "year": 662
+  },
+  "khansa": {
+   "added": "wikisource-2026-09-06",
+   "era": "Early Islamic",
+   "note": "al-Khansa, d. c. 645 CE (Arabic Wikisource; Arabic era labels added 2026-09-06: Pre-Islamic, Early Islamic (to 661), Umayyad, Abbasid, Andalusi, Mamluk, Modern)",
+   "year": 645
+  },
+  "labid": {
+   "added": "wikisource-2026-09-06",
+   "era": "Pre-Islamic",
+   "note": "Labid ibn Rabi'a, d. c. 661 CE; the mu'allaqa is pre-Islamic (Arabic Wikisource; Arabic era labels added 2026-09-06: Pre-Islamic, Early Islamic (to 661), Umayyad, Abbasid, Andalusi, Mamluk, Modern)",
+   "year": 661
+  },
+  "maarri": {
+   "added": "wikisource-2026-09-06",
+   "era": "Abbasid",
+   "note": "Abu al-Ala al-Ma'arri, d. 1057 CE (Arabic Wikisource; Arabic era labels added 2026-09-06: Pre-Islamic, Early Islamic (to 661), Umayyad, Abbasid, Andalusi, Mamluk, Modern)",
+   "year": 1057
+  },
+  "mutanabbi": {
+   "added": "wikisource-2026-09-06",
+   "era": "Abbasid",
+   "note": "al-Mutanabbi, d. 965 CE (Arabic Wikisource; Arabic era labels added 2026-09-06: Pre-Islamic, Early Islamic (to 661), Umayyad, Abbasid, Andalusi, Mamluk, Modern)",
+   "year": 965
+  },
+  "nabigha": {
+   "added": "wikisource-2026-09-06",
+   "era": "Pre-Islamic",
+   "note": "al-Nabigha al-Dhubyani, d. c. 604 CE (Arabic Wikisource; Arabic era labels added 2026-09-06: Pre-Islamic, Early Islamic (to 661), Umayyad, Abbasid, Andalusi, Mamluk, Modern)",
+   "year": 604
+  },
+  "nawawi": {
+   "added": "wikisource-2026-09-06",
+   "era": "Mamluk",
+   "note": "Yahya ibn Sharaf al-Nawawi, d. 1277 CE (Arabic Wikisource; Arabic era labels added 2026-09-06: Pre-Islamic, Early Islamic (to 661), Umayyad, Abbasid, Andalusi, Mamluk, Modern)",
+   "year": 1277
   },
   "quran": {
    "added": "editorial-2026-08-25",
@@ -12,11 +162,35 @@
    "note": "revealed 610-632 CE",
    "year": 632
   },
+  "shabbi": {
+   "added": "wikisource-2026-09-06",
+   "era": "Modern",
+   "note": "Abu al-Qasim al-Shabbi, d. 1934 CE (Arabic Wikisource; Arabic era labels added 2026-09-06: Pre-Islamic, Early Islamic (to 661), Umayyad, Abbasid, Andalusi, Mamluk, Modern)",
+   "year": 1934
+  },
+  "shanfara": {
+   "added": "wikisource-2026-09-06",
+   "era": "Pre-Islamic",
+   "note": "al-Shanfara, d. c. 525 CE (Arabic Wikisource; Arabic era labels added 2026-09-06: Pre-Islamic, Early Islamic (to 661), Umayyad, Abbasid, Andalusi, Mamluk, Modern)",
+   "year": 525
+  },
+  "shawqi": {
+   "added": "phase3-2026-09-03",
+   "era": "Modern",
+   "note": "Ahmad Shawqi, d. 1932 CE; no sourced era-category name for modern Arabic literary periods; era set 2026-09-06 under the new Arabic labels",
+   "year": 1932
+  },
   "tarafa": {
    "added": "editorial-2026-08-25",
    "era": "Pre-Islamic",
    "note": "d. c. 564 CE",
    "year": 564
+  },
+  "zuhayr": {
+   "added": "wikisource-2026-09-06",
+   "era": "Pre-Islamic",
+   "note": "Zuhayr ibn Abi Sulma, d. c. 609 CE (Arabic Wikisource; Arabic era labels added 2026-09-06: Pre-Islamic, Early Islamic (to 661), Umayyad, Abbasid, Andalusi, Mamluk, Modern)",
+   "year": 609
   }
  },
  "cop": {
@@ -320,6 +494,12 @@
    "era": "Muzaffarid",
    "note": "d. c. 1390 CE",
    "year": 1390
+  },
+  "iqbal": {
+   "added": "phase3-2026-09-03",
+   "era": "Modern",
+   "note": "Muhammad Iqbal, d. 1938 CE -- same author as fa/iqbal_lahori and ur/iqbal; covers the 7 re-filed Persian-titled works (armaghan_e_hijaz_persian, asrar_e_khudi, javid_nama, pas_cheh_bayad_kard, payam_e_mashriq, rumuz_e_bekhudi, zabur_e_ajam)",
+   "year": 1938
   },
   "iqbal_lahori": {
    "added": "editorial-2026-08-25",
@@ -2551,17 +2731,95 @@
   }
  },
  "ur": {
+  "akbar": {
+   "added": "wikisource-2026-09-06",
+   "era": "Modern",
+   "note": "Akbar Allahabadi, d. 1921 CE (Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern)",
+   "year": 1921
+  },
+  "anis": {
+   "added": "wikisource-2026-09-06",
+   "era": "Mughal / Colonial",
+   "note": "Mir Babar Ali Anis, d. 1874 CE (Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern)",
+   "year": 1874
+  },
+  "atish": {
+   "added": "wikisource-2026-09-06",
+   "era": "Mughal / Colonial",
+   "note": "Khwaja Haidar Ali Atish, d. 1847 CE (Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern)",
+   "year": 1847
+  },
+  "dagh": {
+   "added": "wikisource-2026-09-06",
+   "era": "Mughal / Colonial",
+   "note": "Dagh Dehlvi, d. 1905 CE (Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern)",
+   "year": 1905
+  },
+  "dard": {
+   "added": "wikisource-2026-09-06",
+   "era": "Mughal / Colonial",
+   "note": "Khwaja Mir Dard, d. 1785 CE (Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern)",
+   "year": 1785
+  },
   "ghalib": {
    "added": "editorial-2026-08-25",
    "era": "Mughal / Colonial",
    "note": "d. 1869 CE",
    "year": 1869
   },
+  "hali": {
+   "added": "wikisource-2026-09-06",
+   "era": "Mughal / Colonial",
+   "note": "Altaf Husain Hali, d. 1914 CE (Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern)",
+   "year": 1914
+  },
+  "insha": {
+   "added": "wikisource-2026-09-06",
+   "era": "Mughal / Colonial",
+   "note": "Insha Allah Khan Insha, d. 1817 CE (Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern)",
+   "year": 1817
+  },
   "iqbal": {
    "added": "editorial-2026-08-25",
    "era": "Modern",
    "note": "d. 1938 CE",
    "year": 1938
+  },
+  "mir": {
+   "added": "phase3-2026-09-03",
+   "era": "Mughal / Colonial",
+   "note": "Mir Taqi Mir, d. 1810 CE",
+   "year": 1810
+  },
+  "nazeer": {
+   "added": "wikisource-2026-09-06",
+   "era": "Mughal / Colonial",
+   "note": "Nazeer Akbarabadi, d. 1830 CE (Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern)",
+   "year": 1830
+  },
+  "sauda": {
+   "added": "wikisource-2026-09-06",
+   "era": "Mughal / Colonial",
+   "note": "Mirza Muhammad Rafi Sauda, d. 1781 CE (Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern)",
+   "year": 1781
+  },
+  "wali": {
+   "added": "wikisource-2026-09-06",
+   "era": "Mughal / Colonial",
+   "note": "Wali Muhammad Wali (Wali Dakhani), d. 1707 CE (Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern)",
+   "year": 1707
+  },
+  "zafar": {
+   "added": "wikisource-2026-09-06",
+   "era": "Mughal / Colonial",
+   "note": "Bahadur Shah Zafar, d. 1862 CE (Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern)",
+   "year": 1862
+  },
+  "zauq": {
+   "added": "wikisource-2026-09-06",
+   "era": "Mughal / Colonial",
+   "note": "Muhammad Ibrahim Zauq, d. 1854 CE (Urdu Wikisource; era rule: died before 1920 -> Mughal / Colonial, later -> Modern)",
+   "year": 1854
   }
  },
  "gmh": {

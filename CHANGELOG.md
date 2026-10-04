@@ -9,6 +9,18 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-04
 
+### Corpus
+- Text files and metadata tables for Arabic, Persian and Urdu added to the
+  repository: 148 Arabic, 28 Persian and 18 Urdu works under `texts/`, three
+  surface-lemma tables, ten poetics data files, and one Arabic-script font,
+  all ported byte for byte from the `feature/multilang-integration` demo
+  branch. Entries for these texts were added to `data/text_descriptions.json`,
+  `data/text_genres.csv` and `backend/author_dates.json`, leaving every
+  existing entry in those three files untouched. None of this is served yet:
+  no language handler is registered for `ar`, `fa` or `ur`, so the three
+  languages do not appear in the corpus list, Browse Corpus, Theme Search or
+  downloads. Registering the languages is a later stage.
+
 ### Data operations
 - 2026-10-04 08:12 to 08:18 EDT: 175 more passage windows received their
   new description and vector in the live index (510,759 of 510,839 now
