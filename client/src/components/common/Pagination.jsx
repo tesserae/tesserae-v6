@@ -40,7 +40,7 @@ const pageButtonClass = (isActive) =>
  * Presentational pagination controls.
  *
  * Owns no results and performs no data fetching — every interaction is handed
- * back to the caller, which slices an array it already holds in memory.
+ * back to the caller, which slices an array it holds or fetches the page from the server.
  *
  * @param {number} currentPage    1-based active page.
  * @param {number} totalPages     Total page count (>= 1).
@@ -53,6 +53,7 @@ const pageButtonClass = (isActive) =>
  * @param {boolean} disabled      Disables every control (e.g. while streaming).
  * @param {string} idPrefix       Keeps label/select ids unique across instances.
  * @param {string} itemLabel      Noun used in the summary line.
+ * @param {number[]} pageSizeOptions Sizes offered; must match what a server-backed caller accepts.
  */
 const Pagination = ({
   currentPage,
@@ -65,6 +66,7 @@ const Pagination = ({
   disabled = false,
   idPrefix = 'pagination',
   itemLabel = 'results',
+  pageSizeOptions = PAGE_SIZE_OPTIONS,
 }) => {
   if (!totalResults || totalResults <= 0) return null;
 
@@ -143,7 +145,7 @@ const Pagination = ({
           disabled={disabled}
           className="border rounded px-2 py-1.5 text-xs sm:text-sm disabled:opacity-50"
         >
-          {PAGE_SIZE_OPTIONS.map((size) => (
+          {pageSizeOptions.map((size) => (
             <option key={size} value={size}>
               {size}
             </option>

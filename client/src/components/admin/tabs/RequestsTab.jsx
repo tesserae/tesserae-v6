@@ -1,10 +1,20 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { LANG_NAMES } from '../adminConstants';
+import Pagination from '../../common/Pagination';
 
 const REQUEST_STATUSES = ['pending', 'approved', 'rejected', 'completed'];
 
-// Sort order in the table: work still to do first, finished work last.
-const STATUS_WEIGHT = { pending: 0, rejected: 1, approved: 2, completed: 3 };
+// Must match REQUEST_PAGE_SIZES in backend/blueprints/admin.py.
+const PAGE_SIZES = [25, 50, 100, 500];
+
+// [label, sort_by, sort_order]; the backend whitelists the same fields.
+// 'status' is the long-standing order: work still to do first, finished work last.
+const SORT_OPTIONS = {
+  status: ['Open work first', 'status', 'asc'],
+  newest: ['Newest submitted', 'created_at', 'desc'],
+  oldest: ['Oldest submitted', 'created_at', 'asc'],
+  edited: ['Recently edited', 'admin_updated_at', 'desc']
+};
 
 const STATUS_BADGE = {
   pending: 'bg-amber-100 text-amber-700',
@@ -13,53 +23,78 @@ const STATUS_BADGE = {
   completed: 'bg-green-100 text-green-700'
 };
 
-export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
+const parseApiResponse = async (response, fallbackMessage) => {
+  let data = null;
+  try {
+    data = await response.json();
+  } catch (_ignored) {
+    data = null;
+  }
+  if (!response.ok || data?.error) {
+    const reason = data?.error || data?.message || response.statusText || fallbackMessage;
+    const error = new Error(reason);
+    error.status = response.status;
+    throw error;
+  }
+  return data;
+};
+
+export default function RequestsTab({ authHeaders, onRefresh }) {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [editingRequest, setEditingRequest] = useState(null);
   const [savingRequest, setSavingRequest] = useState(false);
   const [tessPreview, setTessPreview] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [hideCompleted, setHideCompleted] = useState(true);
+  const [query, setQuery] = useState({ page: 1, perPage: 50, status: 'all', hideCompleted: true, sort: 'status' });
+  const [list, setList] = useState({ requests: [], total: 0, pages: 0, pending_count: 0 });
+  const [listLoading, setListLoading] = useState(true);
+  const [listError, setListError] = useState('');
+  const [reloadKey, setReloadKey] = useState(0);
+  const [openingId, setOpeningId] = useState(null);
+  const detailController = useRef(null);
+  const { status: statusFilter, hideCompleted } = query;
 
   const normalizedStatus = (status) => (status || 'pending').toLowerCase();
 
-  const filteredAndSortedRequests = useMemo(() => {
-    const filtered = textRequests.filter((request) => {
-      const s = normalizedStatus(request.status);
-      if (statusFilter !== 'all') return s === statusFilter;
-      return !(hideCompleted && s === 'completed');
+  // Any filter, sort or size change starts again from page 1.
+  const changeQuery = (patch) => setQuery(q => ({ ...q, page: 1, ...patch }));
+  const reloadList = () => setReloadKey(k => k + 1);
+
+  useEffect(() => {
+    // Aborting on cleanup means a superseded response can never overwrite a newer one.
+    const controller = new AbortController();
+    const [, sortBy, sortOrder] = SORT_OPTIONS[query.sort];
+    const params = new URLSearchParams({
+      page: String(query.page),
+      per_page: String(query.perPage),
+      status: query.status,
+      hide_completed: query.hideCompleted ? '1' : '0',
+      sort_by: sortBy,
+      sort_order: sortOrder
     });
+    setListLoading(true);
+    setListError('');
+    fetch(`/api/admin/requests?${params}`, { credentials: 'include', signal: controller.signal })
+      .then(res => parseApiResponse(res, 'Failed to load text requests'))
+      .then(data => {
+        if (controller.signal.aborted) return;
+        // Completing or deleting the last row of the last page leaves it empty: step back.
+        if (data.requests.length === 0 && query.page > 1 && data.total > 0) {
+          setQuery(q => ({ ...q, page: data.pages }));
+          return;
+        }
+        setList(data);
+        setListLoading(false);
+      })
+      .catch(err => {
+        if (controller.signal.aborted) return;
+        console.error('Failed to load text requests:', err);
+        setListError(err.message || 'Failed to load text requests');
+        setListLoading(false);
+      });
+    return () => controller.abort();
+  }, [query, reloadKey]);
 
-    const statusWeight = (status) => {
-      const s = normalizedStatus(status);
-      return STATUS_WEIGHT[s] !== undefined ? STATUS_WEIGHT[s] : 1;
-    };
-
-    return [...filtered].sort((a, b) => {
-      const byStatus = statusWeight(a.status) - statusWeight(b.status);
-      if (byStatus !== 0) return byStatus;
-
-      const aTime = new Date(a.created_at || 0).getTime();
-      const bTime = new Date(b.created_at || 0).getTime();
-      return bTime - aTime;
-    });
-  }, [textRequests, statusFilter, hideCompleted]);
-
-  const parseApiResponse = async (response, fallbackMessage) => {
-    let data = null;
-    try {
-      data = await response.json();
-    } catch (_ignored) {
-      data = null;
-    }
-    if (!response.ok || data?.error) {
-      const reason = data?.error || data?.message || response.statusText || fallbackMessage;
-      const error = new Error(reason);
-      error.status = response.status;
-      throw error;
-    }
-    return data;
-  };
+  useEffect(() => () => detailController.current?.abort(), []);
 
   const approveRequest = async (requestId) => {
     try {
@@ -81,7 +116,7 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
         body: JSON.stringify({ status })
       });
       await parseApiResponse(res, 'Failed to update request status');
-      onRefresh();
+      reloadList();
     } catch (err) {
       window.alert(err.message || 'Failed to update request status');
       console.error('Failed to update request status:', err);
@@ -98,7 +133,7 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
         headers: authHeaders
       });
       await parseApiResponse(res, 'Failed to delete text request');
-      onRefresh();
+      reloadList();
       setSelectedRequest(null);
     } catch (err) {
       window.alert(err.message || 'Failed to delete request');
@@ -106,24 +141,41 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
     }
   };
 
-  const openRequestDetails = (request) => {
-    setSelectedRequest(request);
-    setEditingRequest({
-      official_author: request.official_author || request.author || '',
-      official_work: request.official_work || request.work || '',
-      approved_filename: request.approved_filename || request.suggested_filename || '',
-      text_date: request.text_date || '',
-      status: normalizedStatus(request.status),
-      admin_notes: request.admin_notes || '',
-      content: request.content || '',
-      author_era: request.author_era || '',
-      author_year: request.author_year != null ? String(request.author_year) : '',
-      e_source: request.e_source || '',
-      e_source_url: request.e_source_url || '',
-      print_source: request.print_source || '',
-      added_by: request.added_by || ''
-    });
-    updateTessPreview(request.content || '', request.official_author || request.author, request.official_work || request.work);
+  // List rows carry no content, so the modal opens only once the full request has
+  // arrived -- otherwise saving would send content: '' and wipe the stored text.
+  const openRequestDetails = async ({ id }) => {
+    detailController.current?.abort();
+    const controller = new AbortController();
+    detailController.current = controller;
+    setOpeningId(id);
+    try {
+      const res = await fetch(`/api/admin/requests/${id}`, { credentials: 'include', signal: controller.signal });
+      const request = await parseApiResponse(res, 'Failed to load text request');
+      if (controller.signal.aborted) return;
+      setSelectedRequest(request);
+      setEditingRequest({
+        official_author: request.official_author || request.author || '',
+        official_work: request.official_work || request.work || '',
+        approved_filename: request.approved_filename || request.suggested_filename || '',
+        text_date: request.text_date || '',
+        status: normalizedStatus(request.status),
+        admin_notes: request.admin_notes || '',
+        content: request.content || '',
+        author_era: request.author_era || '',
+        author_year: request.author_year != null ? String(request.author_year) : '',
+        e_source: request.e_source || '',
+        e_source_url: request.e_source_url || '',
+        print_source: request.print_source || '',
+        added_by: request.added_by || ''
+      });
+      updateTessPreview(request.content || '', request.official_author || request.author, request.official_work || request.work);
+    } catch (err) {
+      if (controller.signal.aborted) return;
+      window.alert(err.message || 'Failed to load text request');
+      console.error('Failed to load text request:', err);
+    } finally {
+      if (detailController.current === controller) setOpeningId(null);
+    }
   };
 
   const updateTessPreview = (rawContent, author, work) => {
@@ -175,7 +227,7 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
         body: JSON.stringify(editingRequest)
       });
       await parseApiResponse(res, 'Failed to save request changes');
-      onRefresh();
+      reloadList();
       setSelectedRequest(null);
     } catch (err) {
       window.alert(err.message || 'Failed to save request changes');
@@ -242,7 +294,8 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
         }
       }
 
-      onRefresh();
+      reloadList();
+      onRefresh(); // corpus totals changed
       setSelectedRequest(null);
     } catch (err) {
       const message = saveCompleted
@@ -271,14 +324,14 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
           <h3 className="font-medium text-gray-900">Text Requests</h3>
           <div className="flex items-center gap-3">
             <div className="text-sm text-gray-500">
-              {textRequests.filter(r => normalizedStatus(r.status) === 'pending').length} pending
+              {list.pending_count} pending
             </div>
             <div className="flex items-center gap-2">
               <label htmlFor="request-status-filter" className="text-xs text-gray-500 uppercase">Filter</label>
               <select
                 id="request-status-filter"
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
+                onChange={(e) => changeQuery({ status: e.target.value })}
                 className="border rounded px-2 py-1 text-sm"
               >
                 <option value="all">All</option>
@@ -287,12 +340,25 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
                 ))}
               </select>
             </div>
+            <div className="flex items-center gap-2">
+              <label htmlFor="request-sort" className="text-xs text-gray-500 uppercase">Sort</label>
+              <select
+                id="request-sort"
+                value={query.sort}
+                onChange={(e) => changeQuery({ sort: e.target.value })}
+                className="border rounded px-2 py-1 text-sm"
+              >
+                {Object.entries(SORT_OPTIONS).map(([value, [label]]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
+            </div>
             <label className="flex items-center gap-1.5 text-xs text-gray-500">
               <input
                 type="checkbox"
                 checked={hideCompleted}
                 disabled={statusFilter !== 'all'}
-                onChange={e => setHideCompleted(e.target.checked)}
+                onChange={e => changeQuery({ hideCompleted: e.target.checked })}
                 className="rounded h-3.5 w-3.5 disabled:opacity-40"
               />
               Hide completed
@@ -300,8 +366,30 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
           </div>
         </div>
 
+        <Pagination
+          currentPage={query.page}
+          totalPages={list.pages}
+          totalResults={list.total}
+          pageSize={query.perPage}
+          onPageChange={(page) => setQuery(q => ({ ...q, page }))}
+          onPageSizeChange={(perPage) => changeQuery({ perPage })}
+          disabled={listLoading}
+          idPrefix="requests"
+          itemLabel="requests"
+          pageSizeOptions={PAGE_SIZES}
+        />
+
+        {listError && (
+          <div role="alert" className="flex items-center justify-between bg-red-50 border border-red-200 rounded px-3 py-2 text-sm text-red-700">
+            <span>{listError}</span>
+            <button onClick={reloadList} className="px-2 py-1 text-xs bg-white border border-red-300 rounded hover:bg-red-100">
+              Retry
+            </button>
+          </div>
+        )}
+
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
+          <table aria-busy={listLoading} className={`min-w-full divide-y divide-gray-200 ${listLoading ? 'opacity-60' : ''}`}>
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
@@ -314,13 +402,13 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredAndSortedRequests.length === 0 ? (
+              {list.requests.length === 0 ? (
                 <tr>
                   <td colSpan="7" className="px-3 py-8 text-center text-sm text-gray-500">
-                    No text requests for this filter
+                    {listLoading ? 'Loading text requests...' : listError ? '-' : 'No text requests for this filter'}
                   </td>
                 </tr>
-              ) : filteredAndSortedRequests.map(request => (
+              ) : list.requests.map(request => (
                 <tr key={request.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => openRequestDetails(request)}>
                   <td className="px-3 py-2 whitespace-nowrap">
                     <span className={`px-2 py-0.5 text-xs rounded ${
@@ -342,9 +430,10 @@ export default function RequestsTab({ authHeaders, textRequests, onRefresh }) {
                     <div className="flex gap-1">
                       <button
                         onClick={(e) => { e.stopPropagation(); openRequestDetails(request); }}
-                        className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                        disabled={openingId === request.id}
+                        className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 disabled:opacity-50"
                       >
-                        Review
+                        {openingId === request.id ? 'Loading...' : 'Review'}
                       </button>
                       {normalizedStatus(request.status) === 'completed' ? (
                         <button
