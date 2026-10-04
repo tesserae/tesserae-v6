@@ -1151,7 +1151,6 @@ FUSION_PAGE = 25
 _STATUS_WORDS = ('still working', 'still running', 'still going', 'are you done', 'is it done',
                  'is it finished', 'did it finish', 'finished yet', 'done yet', 'any results',
                  'anything yet', 'results yet', 'how is it going', "how's it going", 'any update',
-                 'update?', 'status?', 'what happened', 'where are we', 'are you there',
                  'did you finish', 'is the search done', 'is the comparison done')
 
 
@@ -1161,13 +1160,18 @@ def _status_question(question):
 
 
 def _earlier_pair(history):
-    """The two texts the reader last named, and the book number they shared,
-    from the reader's own earlier turns (most recent first)."""
+    """The two texts of the comparison the reader asked for, and the book
+    number they shared, from the reader's own earlier turns (most recent
+    first). Only a turn that ASKED FOR A COMPARISON counts: two texts named
+    for another reason are not a run to check on, and fetching a page for
+    them would start one (the review of #602)."""
     from backend.assistant import corpus_lookup
     for turn in reversed(history or []):
         if turn.get('role') != 'user':
             continue
         text = turn.get('text') or ''
+        if not any(t in text.lower() for t in actions._COMPARE_INTENT):
+            continue
         try:
             earlier = corpus_lookup.named_texts(text, limit=2)
         except Exception:                                   # noqa: BLE001
@@ -1748,7 +1752,10 @@ def _prepare(question, step, history=None, offered_phrase=None):
             pair = []
         if len(pair) < 2 and _status_pair:
             # The question is about the comparison the reader asked for a
-            # turn ago. Fetch it: finished runs answer at once from the cache.
+            # turn ago. The pair is resolved the same way and scoped to the
+            # same books, so fusion_page below asks for the same run: a
+            # finished run answers at once from the cache, an unfinished
+            # one waits the usual while and is then reported as still running.
             pair = _status_pair
             step('checking on the comparison you asked for')
         if len(pair) == 2:

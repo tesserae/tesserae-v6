@@ -84,3 +84,6 @@ def test_earlier_pair_comes_from_the_readers_last_two_text_turn(monkeypatch):
     pair = agent._earlier_pair(history)
     assert [p['id'] for p in pair] == ['vergil.aeneid.part.1.tess', 'silius_italicus.punica.part.1.tess']
     assert agent._earlier_pair([{'role': 'user', 'text': 'hello'}]) is None
+    # Two texts named for another reason are not a comparison to check on.
+    assert agent._earlier_pair([{'role': 'user', 'text': 'tell me about the Aeneid and the Punica'}]) is None
+    assert not agent._status_question('what happened at Cannae?')
