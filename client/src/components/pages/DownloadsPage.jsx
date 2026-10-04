@@ -34,7 +34,10 @@ const DownloadsPage = () => {
     { code: 'grc', name: 'Greek', texts: '~1,290', embeddings: true },
     { code: 'en', name: 'English', texts: '~160', embeddings: false },
     { code: 'cop', name: 'Coptic', texts: '~185', embeddings: false },
-    { code: 'he', name: 'Hebrew', texts: '~40', embeddings: false }
+    { code: 'he', name: 'Hebrew', texts: '~40', embeddings: false },
+    { code: 'fa', name: 'Persian', texts: '28', embeddings: true },
+    { code: 'ur', name: 'Urdu', texts: '18', embeddings: true },
+    { code: 'ar', name: 'Arabic', texts: '148', embeddings: true },
   ];
 
   return (
@@ -74,7 +77,9 @@ const DownloadsPage = () => {
         <div className="bg-white rounded-lg shadow p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Semantic Embeddings</h3>
           <p className="text-sm text-gray-600 mb-4">
-            Pre-computed sentence embeddings for semantic search. Uses SPhilBERTa for Latin/Greek.
+            Pre-computed line embeddings for semantic search: SPhilBERTa for Latin and Greek,
+            multilingual-e5-large for Persian, Urdu and Arabic. One .npy array plus a .meta.json
+            of line references per text.
           </p>
           <div className="space-y-3">
             {languages.filter(l => l.embeddings).map(lang => (

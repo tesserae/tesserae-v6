@@ -365,8 +365,12 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
     { id: 'tessa', label: 'Tessa, the assistant', group: 'Reading & content' },
 
     { id: 'languages', label: 'Languages', group: 'Languages' },
-    { id: 'coptic', label: 'Coptic (in depth)', group: 'Languages' },
-    { id: 'hebrew', label: 'Hebrew (in depth)', group: 'Languages' },
+    { id: 'coptic', label: 'Coptic', group: 'Languages' },
+    { id: 'hebrew', label: 'Hebrew', group: 'Languages' },
+    { id: 'persian', label: 'Persian', group: 'Languages' },
+    { id: 'urdu', label: 'Urdu', group: 'Languages' },
+    { id: 'arabic', label: 'Arabic', group: 'Languages' },
+    { id: 'poetics', label: 'Poetic form: Persian, Urdu, Arabic', group: 'Languages' },
     { id: 'cross-lingual', label: 'Cross-Language Search', group: 'Languages' },
 
     { id: 'ai-guide', label: 'Use with your AI', group: 'Reference & tools' },
@@ -753,7 +757,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </li>
               </ul>
 
-              <h4 className="font-medium text-gray-900 mt-6 mb-2">What the confidence band means</h4>
+              <h4 className="text-base font-semibold text-gray-900 mt-6 mb-2">What the confidence band means</h4>
               <p className="text-gray-700 mb-3">
                 A search always returns its closest matches, even when the corpus holds nothing
                 of the kind, so the band tells you which situation you are in. It combines how
@@ -781,7 +785,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 corpus.
               </p>
 
-              <h4 className="font-medium text-gray-900 mt-6 mb-2">Limits worth knowing</h4>
+              <h4 className="text-base font-semibold text-gray-900 mt-6 mb-2">Limits worth knowing</h4>
               <ul className="list-disc pl-5 text-gray-700 space-y-2">
                 <li>
                   <strong>The summaries are machine-written.</strong> Treat them as a finding aid,
@@ -1004,14 +1008,15 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'languages' && (
             <div className="prose max-w-none">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Languages</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-1 pb-2 border-b border-gray-200">Languages</h3>
               <p className="text-gray-700 mb-5">
-                Tesserae searches five languages. They share the same search types, but differ in how much of the corpus
-                is covered and which detection channels have data to work with.
+                Tesserae searches eight languages. They share the same search types, but differ in how much of the corpus
+                is covered and which detection channels have data to work with. Each language has its own page in this
+                section; Persian, Urdu and Arabic also share a page on poetic form.
               </p>
               <div className="space-y-5">
                 <div className="border-l-4 border-red-500 pl-4">
-                  <h4 className="font-medium text-gray-900">Latin</h4>
+                  <h4 className="text-base font-semibold text-gray-900">Latin</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     The largest and best-developed corpus (~1,400 texts). All eleven channels are available, and every text has been
                     grammatically parsed, so the syntax channels contribute. Latin has the most thoroughly evaluated results
@@ -1033,30 +1038,60 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   <Invitation language="Greek" />
                 </div>
                 <div className="border-l-4 border-emerald-500 pl-4">
-                  <h4 className="font-medium text-gray-900">English</h4>
+                  <h4 className="text-base font-semibold text-gray-900">English</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     A small corpus (about a dozen texts), useful mainly for translations and demonstrations. The vocabulary and
                     meaning channels apply; there is no syntax data.
                   </p>
                 </div>
                 <div className="border-l-4 border-amber-500 pl-4">
-                  <h4 className="font-medium text-gray-900">Coptic</h4>
+                  <h4 className="text-base font-semibold text-gray-900">Coptic</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Sahidic and Bohairic (~180 texts) — the Coptic Bible plus monastic literature (Shenoute of Atripe and Besa).
                     Coptic is tuned for <strong>quotation and close reuse</strong> rather than allusion, with a verbatim-quotation
                     channel, sub-word lemmatization, and grammatical parses wired into the syntax channel. You can also search a
                     Coptic text against the Greek corpus to surface its Greek source. See{' '}
-                    <button onClick={() => setActiveSection('coptic')} className="text-red-600 hover:underline">Coptic (in depth)</button>.
+                    <button onClick={() => setActiveSection('coptic')} className="text-red-600 hover:underline">the Coptic page</button>.
                   </p>
                 </div>
                 <div className="border-l-4 border-amber-500 pl-4">
-                  <h4 className="font-medium text-gray-900">Hebrew</h4>
+                  <h4 className="text-base font-semibold text-gray-900">Hebrew</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     The full Hebrew Bible — all 39 books of the Tanakh — in the Miqra according to the Masorah (Aleppo
                     Codex). Hebrew reads right-to-left, and its fully vowel-pointed text is matched on the consonantal
                     words, so vowel points and cantillation marks do not affect a match. You can also search the Hebrew
                     Bible against the Greek Septuagint and the Latin Vulgate. See{' '}
-                    <button onClick={() => setActiveSection('hebrew')} className="text-red-600 hover:underline">Hebrew (in depth)</button>.
+                    <button onClick={() => setActiveSection('hebrew')} className="text-red-600 hover:underline">the Hebrew page</button>.
+                  </p>
+                </div>
+                <div className="border-l-4 border-rose-500 pl-4">
+                  <h4 className="text-base font-semibold text-gray-900">Persian</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Twenty-eight divans, about 943,000 lines, from Rudaki to Iqbal. Nine channels run, including the
+                    refrain-and-rhyme channel that finds answer poems; poem boundaries and meters for the major divans
+                    come from Ganjoor. See{' '}
+                    <button onClick={() => setActiveSection('persian')} className="text-red-600 hover:underline">the Persian page</button>
+                    {' '}and{' '}
+                    <button onClick={() => setActiveSection('poetics')} className="text-red-600 hover:underline">Poetic form</button>.
+                  </p>
+                </div>
+                <div className="border-l-4 border-rose-500 pl-4">
+                  <h4 className="text-base font-semibold text-gray-900">Urdu</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    Twenty texts, about 63,000 lines: Wali, Mir, Sauda, Dard, Insha, Nazeer, Atish, Zauq, Zafar, Ghalib,
+                    Anis, Dagh, Hali, Akbar Allahabadi and Iqbal. Nine channels run, refrain and rhyme among them, and the
+                    Persian → Urdu cross-language search follows borrowed phrases. See{' '}
+                    <button onClick={() => setActiveSection('urdu')} className="text-red-600 hover:underline">the Urdu page</button>.
+                  </p>
+                </div>
+                <div className="border-l-4 border-rose-500 pl-4">
+                  <h4 className="text-base font-semibold text-gray-900">Arabic</h4>
+                  <p className="text-gray-600 text-sm mt-1">
+                    The Qur'an (one text per sura), the pre-Islamic odes, al-Mutanabbi and the classical diwans, the
+                    Burda tradition, two hadith collections and the modern revival: 148 texts, about 25,000 verses. Ten
+                    channels run, including a root channel for near-quotation and rhyme-and-meter matching of answer
+                    poems; Arabic → Persian and Arabic → Urdu find Qur'anic and hadith phrases inside later verse. See{' '}
+                    <button onClick={() => setActiveSection('arabic')} className="text-red-600 hover:underline">the Arabic page</button>.
                   </p>
                 </div>
               </div>
@@ -1236,16 +1271,238 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
             </div>
           )}
 
+          {activeSection === 'persian' && (
+            <div className="prose max-w-none">
+              <h3 className="text-2xl font-bold text-gray-900 mb-1 pb-2 border-b border-gray-200">Persian Search</h3>
+              <p className="text-gray-700 mb-4">
+                Tesserae searches classical Persian poetry: the divans of Rudaki, Ferdowsi, Manuchehri, Farrokhi,
+                Naser Khosrow, Sanai, Anvari, Khaqani, Nizami, Attar, Rumi, Saadi, Hafez, Jami, Saeb and Bidel,
+                Khayyam's quatrains, Parvin, and the Persian works of Muhammad Iqbal (Payam-e Mashriq, Zabur-e Ajam,
+                Asrar-e Khudi, Rumuz-e Bekhudi, Javid Nama, Pas cheh bayad kard, Armaghan-e Hijaz and his Persian
+                divan). About 943,000 lines in 28 texts. You can compare any two, for instance a classical divan
+                against Iqbal to see how a twentieth-century poet answers his predecessors.
+              </p>
+
+              <div className="my-4 bg-amber-50 border border-amber-200 p-4 rounded-lg">
+                <h4 className="text-base font-semibold text-amber-900 mb-1">Reading and matching Persian</h4>
+                <ul className="list-disc list-inside space-y-1 text-amber-900 text-sm">
+                  <li>Persian reads <strong>right-to-left</strong>, and results are shown that way.</li>
+                  <li><strong>Each line is a hemistich</strong> (misra), so a couplet occupies two consecutive lines and a
+                    result may cite either half.</li>
+                  <li>Matching works on <strong>normalized</strong> forms: Persian and Arabic letter variants (ye, kaf, the
+                    alef forms) are folded together, so spelling differences between editions do not block a match.</li>
+                  <li>Dictionary forms come from the Stanza Persian model; a curated list of about 90 function words
+                    (prepositions, pronouns, the copula, the commonest auxiliaries) is set aside so that lines are not
+                    matched on "was" and "is".</li>
+                </ul>
+              </div>
+
+              <p className="text-gray-700 mb-2">
+                A Persian search runs <strong>nine of the site's detection channels</strong>, each looking for a different kind of
+                resemblance between two lines, then fuses their scores (see 
+                <button onClick={() => setActiveSection('fusion-search')} className="text-red-600 hover:underline">How Fusion Search Works</button>
+                 and the channel catalog under 
+                <button onClick={() => setActiveSection('match-types')} className="text-red-600 hover:underline">Match Types</button>):
+              </p>
+              <ul className="list-disc ml-6 space-y-1 text-gray-700 text-sm mb-4">
+                <li><strong>Shared vocabulary</strong> (two or more dictionary forms in common, and a second channel for a single shared form) — the most heavily weighted evidence.</li>
+                <li><strong>Exact words</strong> — the same surface forms, spelling and all.</li>
+                <li><strong>Quotation</strong> — runs of three or more identical consecutive words: tazmin, iqtibas, a borrowed hemistich.</li>
+                <li><strong>Rare words</strong> — shared uncommon vocabulary, weighted below Latin's because a divan is full of names and rare forms that coincide by chance.</li>
+                <li><strong>Sound</strong> and <strong>spelling similarity</strong> — words that sound or look alike.</li>
+                <li><strong>Semantic</strong> — lines the multilingual model finds alike in content even when they share no words.</li>
+                <li><strong>Refrain &amp; rhyme</strong> — a channel of its own, run on every search in these languages: it segments each text into poems, reads each poem's refrain, rhyme and meter, and pairs poems that share them, so answer poems rise to the top even when their wording differs. It is explained in full, with the poetics behind it, under 
+                  <button onClick={() => setActiveSection('poetics')} className="text-red-600 hover:underline">Poetic form: Persian, Urdu, Arabic</button>.</li>
+              </ul>
+
+              <div className="mt-4 bg-blue-50 p-4 rounded-lg">
+                <h4 className="text-base font-semibold text-blue-800 mb-1">Answer poems (javab, istiqbal)</h4>
+                <p className="text-blue-800 text-sm mb-2">
+                  Persian poets answer one another by writing a new ghazal in the same meter, with the same rhyme and the
+                  same radif, the word or phrase that ends every couplet. A <em>refrain &amp; rhyme</em> method reads each
+                  poem's radif, rhyme and meter (poem boundaries and meters come from Ganjoor for Hafez, Saadi, Rumi and
+                  Iqbal) and pairs poems that share them, opening line against opening line, whatever their wording.
+                  Iqbal's <em>andāz</em> ghazal, which keeps Hafez's form and changes the words, now leads a
+                  Hafez-against-Zabur-e-Ajam search, and two poems on the same refrain but different meters are set
+                  apart. Refrain-less ghazals are not paired this way. Lines that share no words can still be paired by
+                  the <em>semantic</em> method when their content is alike; that method is new and its weighting provisional.
+                </p>
+                <p className="text-blue-800 text-sm">
+                  Good first searches: Hafez against Iqbal's Zabur-e Ajam; Rumi against Iqbal's Persian divan;
+                  Saadi against Ferdowsi. Persian → Urdu on the Cross-Language tab finds the Persian phrases Ghalib
+                  carried into Urdu; Arabic → Persian finds Iqbal's Qur'anic quotations inside his Persian lines.
+                </p>
+              </div>
+
+              <div className="mt-4 bg-gray-50 p-4 rounded-lg">
+                <h4 className="text-base font-semibold text-gray-800 mb-1">Sources and licenses</h4>
+                <p className="text-gray-700 text-sm">
+                  The classical divans come from the Chronological Persian Poetry Dataset, derived from Ganjoor.net
+                  (CC-BY-SA 4.0 as declared by that dataset); Iqbal's Persian works from the Iqbal Demystified
+                  dataset. Full source and license details are on the About page.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {activeSection === 'urdu' && (
+            <div className="prose max-w-none">
+              <h3 className="text-2xl font-bold text-gray-900 mb-1 pb-2 border-b border-gray-200">Urdu Search</h3>
+              <p className="text-gray-700 mb-4">
+                Tesserae searches the three poets at the center of the Urdu ghazal tradition: Mir Taqi Mir (the
+                kulliyat, nearly 22,000 lines), Mirza Ghalib (the divan, in an edition numbered by ghazal and in an
+                older edition arranged by refrain), and Muhammad Iqbal's Urdu collections (Bang-e Dara, Bal-e Jibril,
+                Zarb-e Kalim, Armaghan-e Hijaz). About 34,000 lines in 8 texts.
+              </p>
+
+              <div className="my-4 bg-amber-50 border border-amber-200 p-4 rounded-lg">
+                <h4 className="text-base font-semibold text-amber-900 mb-1">Reading and matching Urdu</h4>
+                <ul className="list-disc list-inside space-y-1 text-amber-900 text-sm">
+                  <li>Urdu reads <strong>right-to-left</strong>, and results are shown that way.</li>
+                  <li><strong>Each line is a hemistich</strong>; the two halves of a couplet are consecutive lines.</li>
+                  <li>Matching works on normalized forms: Urdu ye, kaf and he are folded to their Arabic-script
+                    counterparts, so an edition's spelling habits do not block a match.</li>
+                  <li>A curated list of 80 function words (postpositions, pronouns, the auxiliaries "is", "was",
+                    "does") is set aside before matching.</li>
+                  <li>Ghalib's divan is the Urdu Wikisource edition, numbered by ghazal and couplet as in the
+                    standard printed divan, so a result can be cited by ghazal number.</li>
+                </ul>
+              </div>
+
+              <p className="text-gray-700 mb-2">
+                A Urdu search runs <strong>nine of the site's detection channels</strong>, each looking for a different kind of
+                resemblance between two lines, then fuses their scores (see 
+                <button onClick={() => setActiveSection('fusion-search')} className="text-red-600 hover:underline">How Fusion Search Works</button>
+                 and the channel catalog under 
+                <button onClick={() => setActiveSection('match-types')} className="text-red-600 hover:underline">Match Types</button>):
+              </p>
+              <ul className="list-disc ml-6 space-y-1 text-gray-700 text-sm mb-4">
+                <li><strong>Shared vocabulary</strong> (two or more dictionary forms in common, and a second channel for a single shared form) — the most heavily weighted evidence.</li>
+                <li><strong>Exact words</strong> — the same surface forms, spelling and all.</li>
+                <li><strong>Quotation</strong> — runs of three or more identical consecutive words: tazmin, iqtibas, a borrowed hemistich.</li>
+                <li><strong>Rare words</strong> — shared uncommon vocabulary, weighted below Latin's because a divan is full of names and rare forms that coincide by chance.</li>
+                <li><strong>Sound</strong> and <strong>spelling similarity</strong> — words that sound or look alike.</li>
+                <li><strong>Semantic</strong> — lines the multilingual model finds alike in content even when they share no words.</li>
+                <li><strong>Refrain &amp; rhyme</strong> — a channel of its own, run on every search in these languages: it segments each text into poems, reads each poem's refrain, rhyme and meter, and pairs poems that share them, so answer poems rise to the top even when their wording differs. It is explained in full, with the poetics behind it, under 
+                  <button onClick={() => setActiveSection('poetics')} className="text-red-600 hover:underline">Poetic form: Persian, Urdu, Arabic</button>.</li>
+              </ul>
+
+              <div className="mt-4 bg-blue-50 p-4 rounded-lg">
+                <h4 className="text-base font-semibold text-blue-800 mb-1">Shared refrains between Ghalib and Mir</h4>
+                <p className="text-blue-800 text-sm mb-2">
+                  The Urdu ghazal answers earlier ghazals by taking over their radif, the refrain that ends every
+                  couplet. When the refrain is distinctive (<em>rakhte hain</em>, <em>hotā hai</em>, <em>chāhiye</em>), a
+                  Ghalib-against-Mir search puts the refrain-sharing couplets at the top of the list; when the refrain
+                  is a single common word (<em>hai</em>, <em>kā</em>, <em>thā</em>), it is set aside as a function word and
+                  the search falls back to the other words the couplets share, which is usually the right result.
+                </p>
+                <p className="text-blue-800 text-sm">
+                  Good first searches: Ghalib (numbered edition) against Mir; Iqbal's Bang-e Dara against Ghalib.
+                  On the Cross-Language tab, Persian → Urdu searches the Persian divans against the Urdu ones through
+                  their shared vocabulary (Hafez against Ghalib puts Ghalib's Persian phrases at the top), and
+                  Arabic → Urdu finds Qur'anic phrases inside Urdu lines.
+                </p>
+              </div>
+
+              <div className="mt-4 bg-gray-50 p-4 rounded-lg">
+                <h4 className="text-base font-semibold text-gray-800 mb-1">Sources and licenses</h4>
+                <p className="text-gray-700 text-sm">
+                  Mir's kulliyat, Ghalib's divan and the twelve poets added in September come from Urdu Wikisource
+                  (public-domain poetry, transcription CC-BY-SA 4.0); Iqbal's Urdu works from the Iqbal Demystified
+                  dataset. Full details on the About page.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {activeSection === 'arabic' && (
+            <div className="prose max-w-none">
+              <h3 className="text-2xl font-bold text-gray-900 mb-1 pb-2 border-b border-gray-200">Arabic Search</h3>
+              <p className="text-gray-700 mb-4">
+                Tesserae searches the Qur'an (all 114 suras, stored one sura per text) together with the poems of
+                the Burda tradition, Ka'b ibn Zuhayr's <em>Banat Su'ad</em>, al-Busiri's <em>Qasidat al-Burda</em> and
+                Ahmad Shawqi's <em>Nahj al-Burda</em>, and the Mu'allaqat of Imru' al-Qais and Tarafa. About 6,800
+                verses in 119 texts.
+              </p>
+
+              <div className="my-4 bg-amber-50 border border-amber-200 p-4 rounded-lg">
+                <h4 className="text-base font-semibold text-amber-900 mb-1">Reading and matching Arabic</h4>
+                <ul className="list-disc list-inside space-y-1 text-amber-900 text-sm">
+                  <li>Arabic reads <strong>right-to-left</strong>, and results are shown that way.</li>
+                  <li>Each poem line is a full verse (bayt) with its two hemistichs separated by a bar; each Qur'an line
+                    is one aya.</li>
+                  <li>Matching works on normalized forms: hamza variants are folded to alef, alef maqsura to ya, and
+                    vowel marks are removed.</li>
+                  <li>Dictionary forms come from the Stanza Arabic model. Attached particles (<em>wa-</em>, <em>fa-</em>,
+                    <em>ka-</em>, <em>li-</em>, <em>bi-</em>) and pronoun endings stay on the word, so the function-word
+                    list covers those forms too.</li>
+                </ul>
+              </div>
+
+              <p className="text-gray-700 mb-2">
+                A Arabic search runs <strong>ten of the site's detection channels</strong>, each looking for a different kind of
+                resemblance between two lines, then fuses their scores (see 
+                <button onClick={() => setActiveSection('fusion-search')} className="text-red-600 hover:underline">How Fusion Search Works</button>
+                 and the channel catalog under 
+                <button onClick={() => setActiveSection('match-types')} className="text-red-600 hover:underline">Match Types</button>):
+              </p>
+              <ul className="list-disc ml-6 space-y-1 text-gray-700 text-sm mb-4">
+                <li><strong>Shared vocabulary</strong> (two or more dictionary forms in common, and a second channel for a single shared form) — the most heavily weighted evidence.</li>
+                <li><strong>Exact words</strong> — the same surface forms, spelling and all.</li>
+                <li><strong>Quotation</strong> — runs of three or more identical consecutive words: tazmin, iqtibas, a borrowed hemistich.</li>
+                <li><strong>Rare words</strong> — shared uncommon vocabulary, weighted below Latin's because a divan is full of names and rare forms that coincide by chance.</li>
+                <li><strong>Sound</strong> and <strong>spelling similarity</strong> — words that sound or look alike.</li>
+                <li><strong>Semantic</strong> — lines the multilingual model finds alike in content even when they share no words.</li>
+                <li><strong>Roots</strong> (Arabic only) — words of one root in different forms, the trace a near-quotation leaves; a single shared root counts on a small comparison, two on a large one.</li>
+                <li><strong>Refrain &amp; rhyme</strong> — a channel of its own, run on every search in these languages: it segments each text into poems, reads each poem's refrain, rhyme and meter, and pairs poems that share them, so answer poems rise to the top even when their wording differs. It is explained in full, with the poetics behind it, under 
+                  <button onClick={() => setActiveSection('poetics')} className="text-red-600 hover:underline">Poetic form: Persian, Urdu, Arabic</button>.</li>
+              </ul>
+
+              <div className="mt-4 bg-blue-50 p-4 rounded-lg">
+                <h4 className="text-base font-semibold text-blue-800 mb-1">Qur'anic quotation (iqtibas) and answer poems (mu'arada)</h4>
+                <p className="text-blue-800 text-sm mb-2">
+                  Searching the Burda against a sura finds the Qur'anic phrases woven into the poem: <em>qāba
+                  qawsayn</em> (Q 53:9) at verse 107, the hidden pearl <em>lu'lu' maknūn</em> (Q 56:23) at verse 57,
+                  the flood of the dam <em>sayl al-'arim</em> (Q 34:16) at verse 86, the sacred months, <em>zahrat
+                  al-dunyā</em>, <em>qurrat 'ayn</em>. On a check of the two best-known quotations, both are the top two
+                  results.
+                </p>
+                <p className="text-blue-800 text-sm">
+                  A mu'arada answers an earlier poem in its meter and rhyme. Each poem's rhyme letter is read from its
+                  verses and its meter from a classifier of classical Arabic verse; a single-poem text (the Burda, a
+                  Mu'allaqa) is one poem, and a diwan (al-Mutanabbi's 286 poems, Shawqi's) is split on its poem
+                  numbers, each poem with its own meter. So the Burda against Nahj al-Burda is tagged
+                  <em>refrain &amp; rhyme</em> at the top (both <em>basīṭ</em>, rhyme <em>-mi</em>), while two poems that
+                  share only a rhyme letter across different meters are not paired at all. Below the form tag, the wording matches
+                  are the motifs the poems share: the slanderers, the lion, the camel-driver between Ka'b and Busiri.
+                  A Qur'anic phrase used in a different grammatical form (same root) is matched through a root
+                  dictionary, which is coarse: many such near-quotations still rank low. Good first searches:
+                  al-Waqi'a or an-Najm against the Burda; the Burda against Nahj al-Burda; on the Cross-Language tab,
+                  al-Baqara against Iqbal's Rumuz-e Bekhudi (Arabic → Persian).
+                </p>
+              </div>
+
+              <div className="mt-4 bg-gray-50 p-4 rounded-lg">
+                <h4 className="text-base font-semibold text-gray-800 mb-1">Sources and licenses</h4>
+                <p className="text-gray-700 text-sm">
+                  The Qur'an text is the Tanzil Project's (CC-BY 3.0, verbatim); the Burda poems and the Mu'allaqat
+                  come from Arabic Wikisource (public-domain poems, transcription CC-BY-SA 4.0). Full details on the
+                  About page.
+                </p>
+              </div>
+            </div>
+          )}
+
           {activeSection === 'fusion-search' && (
             <div className="prose max-w-none">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">How Fusion Search Works</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-1 pb-2 border-b border-gray-200">How Fusion Search Works</h3>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-sm text-blue-900">
                 <strong>A note on examples:</strong> this section — and the ones that follow — uses <strong>Latin</strong> for its
                 examples, but the same process applies to Greek, English, and Coptic. Where a language differs (for instance, Greek
                 and English have no syntax data, and Coptic is tuned for quotation), it is noted along the way.
               </div>
               <p className="text-gray-700 mb-4">
-                Tesserae's default search — <strong>Phrases</strong> — runs <strong>ten independent detection channels</strong> and combines their results.
+                Tesserae's default search — <strong>Phrases</strong> — runs <strong>up to eleven independent detection channels</strong> (nine for Persian and Urdu, ten for Arabic, since two of them need language resources those texts do not have) and combines their results.
                 Each channel looks for a different kind of textual similarity — shared vocabulary, phonetic echo, semantic meaning,
                 grammatical structure, and more. By fusing these signals, the system finds parallels that no single method could detect alone.
                 The diagram below walks through the whole process step by step.
@@ -1936,9 +2193,136 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
             </div>
           )}
 
+          {activeSection === 'poetics' && (
+            <div className="prose max-w-none">
+              <h3 className="text-2xl font-bold text-gray-900 mb-1 pb-2 border-b border-gray-200">Poetic form in Persian, Urdu and Arabic, and how Tesserae reads it</h3>
+              <nav className="my-3 text-sm text-gray-700" aria-label="On this page">
+                <span className="font-semibold mr-2">On this page:</span>
+                {[['poetics-forms', 'The forms'], ['poetics-line', 'How a line is built'], ['poetics-reuse', 'The kinds of reuse'],
+                  ['poetics-reads', 'How Tesserae reads each of them'], ['poetics-measured', 'How well it works']].map(([id, label], k) => (
+                  <span key={id}>{k > 0 && ' · '}<button onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="text-red-600 hover:underline">{label}</button></span>
+                ))}
+              </nav>
+              <p className="text-gray-700 mb-4">
+                Arabic, Persian and Urdu are three unrelated languages that share one script and one poetic system.
+                Arabic supplied the script and the meters. Persian, an Indo-European language that adopted the Arabic
+                script and much Arabic vocabulary after the Islamic conquest, built the ghazal and its refrain. Urdu,
+                the spoken language of the north Indian cities, took the Persian system whole in the eighteenth century,
+                forms, meters, images and words, while Persian remained the language of court and learning until the
+                1830s; so a poet writing in both, as Ghalib and Iqbal did, is the ordinary case, much as Petrarch wrote
+                Latin and Italian. This page explains the forms and the kinds of reuse they carry, and then how each
+                Tesserae method reads them. The three language pages give the sources and the searches to try.
+              </p>
+
+              <div className="mt-4 bg-gray-50 p-4 rounded-lg">
+                <h4 id="poetics-forms" className="text-base font-semibold text-gray-800 mb-2">The forms</h4>
+                <ul className="list-disc ml-5 text-gray-700 text-sm space-y-1">
+                  <li><strong>Ghazal.</strong> A short lyric of about five to fifteen couplets, each a self-contained thought. The
+                    form of Hafez, Mir, Ghalib and Iqbal.</li>
+                  <li><strong>Qasida.</strong> The long Arabic ode, often in praise; the <em>Burda</em> and <em>Banat Su'ad</em> are qasidas.</li>
+                  <li><strong>Masnavi.</strong> Rhymed couplets, each with its own rhyme, for long narrative and didactic poems
+                    (Rumi's <em>Masnavi</em>, Ferdowsi, Iqbal's <em>Asrar-e Khudi</em>).</li>
+                  <li><strong>Rubai.</strong> The four-line quatrain (Khayyam).</li>
+                </ul>
+              </div>
+
+              <div className="mt-4 bg-gray-50 p-4 rounded-lg">
+                <h4 id="poetics-line" className="text-base font-semibold text-gray-800 mb-2">How a line is built</h4>
+                <p className="text-gray-700 text-sm mb-2">
+                  The unit is the couplet (<em>bayt</em>), made of two half-lines (<em>misra</em>), each a complete
+                  metrical line; manuscripts write the two side by side, modern books one under the other. In a ghazal
+                  or qasida the whole poem keeps one rhyme. In Persian and Urdu the rhyme has two parts: the
+                  <em>qafia</em>, the rhyming syllable, and the <em>radif</em>, a word or phrase repeated identically
+                  after it, a refrain built into the line. Both half-lines of the opening couplet carry rhyme and
+                  refrain; after that only the second half-line of each couplet does. The last couplet usually names
+                  the poet. Meter is quantitative, long and short syllables as in Latin and Greek, borrowed from Arabic,
+                  and one meter runs through a whole poem. In our files Persian and Urdu lines are half-lines (a couplet
+                  is two consecutive lines) except in Iqbal's collections, where a line is a couplet with a bar between
+                  its halves; Arabic lines are whole verses.
+                </p>
+                <p className="text-gray-700 text-sm">
+                  Example, Hafez (our lines 881 to 888), refrain <em>shumā</em> "you", rhyme <em>-ān</em>: "O radiance
+                  of the moon of beauty, from your shining face, <em>rakhshān shumā</em> / the luster of loveliness
+                  comes from the dimple of your chin, <em>zanakhdān shumā</em> / ... what is your command?
+                  <em>farmān shumā</em>". Iqbal's answer to it (Zabur-e Ajam 118) keeps <em>-ān shumā</em> at every
+                  couplet's end and shares almost no other word: "O youth of Persia, my life and your life,
+                  <em>jān shumā</em> / like the tulip's lamp I burn in your avenue, <em>khiyābān shumā</em>".
+                </p>
+              </div>
+
+              <div className="mt-4 bg-gray-50 p-4 rounded-lg">
+                <h4 id="poetics-reuse" className="text-base font-semibold text-gray-800 mb-2">The kinds of reuse</h4>
+                <ul className="list-disc ml-5 text-gray-700 text-sm space-y-1">
+                  <li><strong>Scriptural quotation</strong> (<em>iqtibas</em>): Qur'anic phrases woven into a poem, in Arabic
+                    even inside a Persian or Urdu line. The Burda's "hidden pearl" (Q 56:23); Iqbal's <em>fī l-qiṣāṣ
+                    ḥayāt</em> (Q 2:179).</li>
+                  <li><strong>Answer poems</strong> (<em>javab</em>, <em>nazira</em> in Persian and Urdu; <em>mu'arada</em> in
+                    Arabic): a new poem in the model's meter, rhyme and refrain, honoring or contesting it, with little
+                    shared wording. Iqbal answers Hafez; Ghalib writes on Mir's refrains; Shawqi's <em>Nahj al-Burda</em>
+                    answers al-Busiri, whose <em>Burda</em> looks back to Ka'b's.</li>
+                  <li><strong>Embedded lines</strong> (<em>tazmin</em>): a famous couplet quoted inside a new poem.</li>
+                  <li><strong>The shared image stock</strong>: nightingale and rose, moth and candle, the fire and smoke of the
+                    sigh, wine and the Magian tavern. Common property, weak evidence alone, strong in combination.</li>
+                </ul>
+              </div>
+
+              <div className="mt-4 bg-gray-50 p-4 rounded-lg">
+                <h4 id="poetics-reads" className="text-base font-semibold text-gray-800 mb-2">How Tesserae reads each of them</h4>
+                <ul className="list-disc ml-5 text-gray-800 text-sm space-y-2">
+                  <li><strong>Quotation and embedded lines</strong> are found by the wording methods every language has:
+                    shared dictionary forms, identical words, runs of three or more identical words in a row (the
+                    <em>quotation</em> tag), rare shared words, sound and spelling similarity. Function words
+                    (<em>ast</em>, <em>rā</em>, <em>hai</em>, <em>wa-</em>) are set aside by a curated list for each language.</li>
+                  <li><strong>Answer poems</strong> are found by the <em>refrain &amp; rhyme</em> method, which runs on every
+                    Persian, Urdu and Arabic search. It groups lines into poems (by the file's numbering where it has
+                    one; for the line-numbered Persian divans by poem boundaries fetched from Ganjoor, which also give
+                    each poem's meter; for Arabic a classifier of classical verse gives each poem its meter, a
+                    single-poem file counting as one poem and a diwan being split on its poem numbers), reads each
+                    poem's refrain, rhyme and meter, and pairs poems that share them, opening line
+                    against opening line, with the poem's other line pairs sharing a smaller part of the score. A form
+                    that many poems carry (the Urdu refrain <em>hai</em>) is discounted by how common it is; a shared
+                    refrain across two different meters keeps a small part of the score, since an answer keeps its
+                    model's meter. In Arabic, where a qasida has no refrain, the signature is the rhyme letter and the
+                    meter, and both must agree. Refrain-less ghazals are not paired this way, and Urdu has no meter
+                    source yet.
+                    In the result list such a pair carries <em>Refrain</em>, <em>Rhyme</em> and <em>Meter</em> badges:
+                    the shared refrain is marked in yellow in both lines, the rhyme word before it in rose, and the
+                    meter badge appears only when both poems carry the same label.</li>
+                  <li><strong>Near-quotation in Arabic</strong> (the same root in a different form, <em>yastaghfirūn</em> /
+                    <em>al-ghafūr</em>) is matched through roots from a rule-based stemmer, which is coarse; many
+                    documented near-quotations still rank low.</li>
+                  <li><strong>Shared imagery</strong> is read by the <em>semantic</em> method: each line has a vector from a
+                    multilingual model, and lines whose vectors are alike beyond the top tenth of a percent of the
+                    pair's line pairs are matched, with no words in common required. It does not see a quoted phrase
+                    inside a line, and its weighting is provisional.</li>
+                  <li><strong>Across the three languages</strong> (Cross-Language tab: Persian → Urdu, Arabic → Persian, Arabic →
+                    Urdu), no dictionary is needed: the languages are matched through the vocabulary they share, after
+                    the spelling conventions are reconciled (Urdu's extra letters, Arabic's <em>tā' marbūṭa</em>), on
+                    both the dictionary form and the surface word, so a Qur'anic phrase inside a Persian line matches
+                    the Arabic. A matched phrase extends through its function words so <em>innā lillāhi wa-innā
+                    ilayhi rāji'ūn</em> is seen whole. A pair needs two shared words; native Urdu words have no Persian
+                    counterpart.</li>
+                </ul>
+              </div>
+
+              <div className="mt-4 bg-gray-50 p-4 rounded-lg">
+                <h4 id="poetics-measured" className="text-base font-semibold text-gray-800 mb-1">How well it works, measured so far</h4>
+                <p className="text-gray-700 text-sm">
+                  Persian, seven documented answer poems (Hafez to Iqbal): all seven in the top ten. Arabic, 44
+                  documented Burda–Qur'an pairings: the verbatim quotations at ranks 1 to 3 and all six in the top
+                  5,000; near-quotations mostly deep in the list; allusions out of reach. Urdu, 23 refrains Ghalib
+                  shares with Mir: six in the top ten. Cross-language and imagery have no benchmark yet; on inspection,
+                  Arabic → Persian puts Iqbal's Qur'anic quotations at the top, and Persian → Urdu puts the Persian
+                  phrases Ghalib carried into Urdu at the top. The benchmarks are small and new; where a documented
+                  connection is missing, please tell us the loci.
+                </p>
+              </div>
+            </div>
+          )}
+
           {activeSection === 'cross-lingual' && (
             <div className="prose max-w-none">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Cross-Lingual Search (Greek↔Latin)</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-1 pb-2 border-b border-gray-200">Cross-Lingual Search (Greek↔Latin)</h3>
               <p className="text-gray-700 mb-4">
                 The Greek↔Latin tab enables searching for parallels <em>across languages</em> —
                 finding how Greek texts influenced Latin authors or vice versa. The search uses

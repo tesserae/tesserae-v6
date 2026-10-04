@@ -6,6 +6,7 @@ import { languageName } from '../../utils/languageNames';
 import { displayGreekWithFinalSigma } from '../../utils/greekUtils';
 import { normalizeCoptic } from '../../utils/copticUtils';
 import { exportRowsToPDF } from '../../utils/exportResults';
+import { isRTL, dirFor } from '../../utils/rtl';
 import { ResultsInsight } from '../assistant';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
@@ -358,7 +359,7 @@ const SearchResults = ({
     const sourceLabel = sourceTextInfo ? `${sourceTextInfo.author || ''} ${sourceTextInfo.title || sourceTextInfo.work || ''}`.trim() : '';
     const targetLabel = targetTextInfo ? `${targetTextInfo.author || ''} ${targetTextInfo.title || targetTextInfo.work || ''}`.trim() : '';
     const subtitle = sourceLabel && targetLabel ? `${sourceLabel} vs ${targetLabel}` : '';
-    const rtl = language === 'he';  // Hebrew is right-to-left (Coptic/Greek/Latin are LTR)
+    const rtl = isRTL(language);  // he/fa/ur/ar are right-to-left (Coptic/Greek/Latin/English are LTR)
     // Headers are ['#', 'Source Locus', 'Source Text', 'Target Locus',
     // 'Target Text', 'Score', 'Matched Words', 'Channels']. Widths chosen
     // to minimise row height: each column gets width roughly proportional to
@@ -677,7 +678,7 @@ const SearchResults = ({
     }
   };
 
-  const renderHighlightedText = (textData, language = null, matchedWords = [], isSource = true, otherTextData = null) => {
+  const renderHighlightedText = (textData, language = null, matchedWords = [], isSource = true, otherTextData = null, poetics = null) => {
     if (!textData) return '';
 
     if (typeof textData === 'string') return textData;
@@ -747,6 +748,43 @@ const SearchResults = ({
         }
       });
     }
+
+    // Poetics (fa/ur/ar, 2026-09-06): the rhyme word sits just before the
+    // refrain (or is the last word when the match is rhyme-letter only);
+    // it gets its own colour, the refrain keeps the usual highlight.
+    const rhymeWords = new Set();
+    if (poetics) {
+      const named = isSource ? poetics.source_rhyme_word : poetics.target_rhyme_word;
+      if (named) rhymeWords.add(String(named).toLowerCase());
+      else if (tokens && tokens.length) {
+        const start = isSource ? poetics.source_radif_start : poetics.target_radif_start;
+        const idx = poetics.rhyme_only ? start : start - 1;
+        if (idx >= 0 && idx < tokens.length && tokens[idx]) rhymeWords.add(String(tokens[idx]).toLowerCase());
+      } else if (text) {
+        // results cached before the rhyme word was named: take it from the
+        // line itself, the word before the refrain (or the last word)
+        const words = text.split('\n')[0].split(/\s+/).filter(Boolean);
+        const n = poetics.rhyme_only ? 0 : (poetics.radif_len || 0);
+        const idx = words.length - 1 - n;
+        if (idx >= 0) rhymeWords.add(words[idx].toLowerCase());
+      }
+    }
+    // Compare in one script form: the stored tokens are normalized (Persian
+    // yeh and kaf folded to the Arabic letters, alef variants to alef) while
+    // the displayed line keeps its own spelling, so fold both the same way.
+    const foldScript = (w) => w
+      .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED\u0640\u200C\u200F\u200E]/g, '')
+      .replace(/[\u064A\u06CC\u0649\u06D2\u06D3]/g, '\u06CC')
+      .replace(/[\u0643\u06A9]/g, '\u06A9')
+      .replace(/[\u0622\u0623\u0625\u0671]/g, '\u0627')
+      .replace(/[\u06C1\u06BE\u06C3\u0629]/g, '\u0647')
+      .replace(/\u06BA/g, '\u0646');
+    const isRhymeWord = (word) => {
+      if (!rhymeWords.size) return false;
+      const n = foldScript(word.toLowerCase().replace(/[.,;:!?'"()\u2014\u2013\u060C\u061B\u061F\u06D4-]+$/, ''));
+      for (const rw of rhymeWords) if (foldScript(rw) === n) return true;
+      return false;
+    };
 
     // Helper to check if a word matches any highlight word or contains sound n-grams
     const shouldHighlight = (word) => {
@@ -1182,7 +1220,7 @@ const SearchResults = ({
                       <span className="text-gray-500">
                         {[l.work && l.work.replace(/_/g, ' '), l.locus].filter(Boolean).join(' ')}
                       </span>
-                      {l.text && <span className="text-gray-700" dir={language === 'he' ? 'rtl' : undefined}> — {renderInstanceText(l.text, l.matched_words, language)}</span>}
+                      {l.text && <span className="text-gray-700" dir={dirFor(language)}> — {renderInstanceText(l.text, l.matched_words, language)}</span>}
                     </div>
                   ))}
                 </div>
@@ -1200,6 +1238,16 @@ const SearchResults = ({
 
       <div className="flex-1 min-w-0 w-full">
       <Pagination {...paginationProps} variant="full" idPrefix="parallels-top" />
+      {/* Colour legend for the poetic languages (2026-09-06): yellow is a word
+          shared by both lines, rose is each line's rhyme word, which is
+          usually a different word on the two sides. */}
+      {['fa', 'ur', 'ar'].includes(language) && visibleItems.some(r => r.poetics) && (
+        <p className="text-xs text-gray-600 mb-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span className="font-medium">Colours:</span>
+          <span><mark className="bg-yellow-200 px-1 rounded">yellow</mark> a word both lines share (the refrain, or a matched word)</span>
+          <span><mark className="bg-rose-200 px-1 rounded">rose</mark> each line's rhyme word, the word before the refrain; the same rhyme, usually different words</span>
+        </p>
+      )}
       <div className="space-y-3">
         {visibleItems.map((r, i) => (
           <div
@@ -1217,8 +1265,8 @@ const SearchResults = ({
                 <div className="font-medium text-gray-900">{citationFor(r, 'source', language)}</div>
                 <div
                   className="text-gray-700 mt-1"
-                  dir={language === 'he' ? 'rtl' : undefined}
-                  dangerouslySetInnerHTML={{ __html: r.source_text || r.source_snippet || renderHighlightedText(r.source, language, r.matched_words, true, r.target) }}
+                  dir={dirFor(language)}
+                  dangerouslySetInnerHTML={{ __html: r.source_text || r.source_snippet || renderHighlightedText(r.source, language, r.matched_words, true, r.target, r.poetics) }}
                 />
                 {r.features?.source_scansion && renderScansion(r.features.source_scansion)}
                 {/* Licensed for indexing and search only (data/restricted_texts.json):
@@ -1234,8 +1282,8 @@ const SearchResults = ({
                 <div className="font-medium text-gray-900">{citationFor(r, 'target', language)}</div>
                 <div
                   className="text-gray-700 mt-1"
-                  dir={language === 'he' ? 'rtl' : undefined}
-                  dangerouslySetInnerHTML={{ __html: r.target_text || r.target_snippet || renderHighlightedText(r.target, language, r.matched_words, false, r.source) }}
+                  dir={dirFor(language)}
+                  dangerouslySetInnerHTML={{ __html: r.target_text || r.target_snippet || renderHighlightedText(r.target, language, r.matched_words, false, r.source, r.poetics) }}
                 />
                 {r.features?.target_scansion && renderScansion(r.features.target_scansion)}
                 {targetTextInfo?.restricted && (
@@ -1275,6 +1323,21 @@ const SearchResults = ({
                   title="How many works in the corpus share this result's shared wording — a high count marks a recurring formula rather than a one-off echo"
                 >
                   in {r.formula_count} work{r.formula_count !== 1 ? 's' : ''}
+                </span>
+              )}
+              {r.poetics && r.poetics.radif && (
+                <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded" title="Shared refrain (radif), highlighted in yellow">
+                  Refrain: <span dir="rtl">{r.poetics.radif}</span>
+                </span>
+              )}
+              {r.poetics && r.poetics.qafia && (
+                <span className="text-xs bg-rose-100 text-rose-800 px-2 py-0.5 rounded" title={r.poetics.rhyme_only ? 'Shared rhyme letter (rawi); the rhyme word is marked in rose' : 'Shared rhyme (qafia); the rhyme word is marked in rose'}>
+                  Rhyme: <span dir="rtl">{r.poetics.rhyme_only ? r.poetics.qafia : '\u2026' + r.poetics.qafia}</span>
+                </span>
+              )}
+              {r.poetics && r.poetics.meter && (
+                <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded" title="Both poems carry this meter label">
+                  Meter: <span dir="rtl">{r.poetics.meter}</span>
                 </span>
               )}
               {r.matched_words && r.matched_words.length > 0 && (
