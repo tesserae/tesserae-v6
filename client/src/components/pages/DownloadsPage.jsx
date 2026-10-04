@@ -36,7 +36,7 @@ const DownloadsPage = () => {
     { code: 'cop', name: 'Coptic', texts: '~185', embeddings: false },
     { code: 'he', name: 'Hebrew', texts: '~40', embeddings: false },
     { code: 'fa', name: 'Persian', texts: '28', embeddings: true },
-    { code: 'ur', name: 'Urdu', texts: '20', embeddings: true },
+    { code: 'ur', name: 'Urdu', texts: '18', embeddings: true },
     { code: 'ar', name: 'Arabic', texts: '148', embeddings: true },
   ];
 

@@ -304,7 +304,6 @@ export default function CorpusBrowser() {
     }
   };
 
-  const getLanguageName = languageName;   // "fa Corpus" read as a code until 2026-09-07
 
   return (
     <div className="space-y-4">

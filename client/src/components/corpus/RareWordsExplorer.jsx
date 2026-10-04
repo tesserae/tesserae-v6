@@ -241,7 +241,6 @@ export default function RareWordsExplorer() {
     a.click();
   }, [language, maxOccurrences, sortBy, sortOrder]);
 
-  const getLanguageName = languageName;
 
   const getDictionaryName = (lang) => {
     if (lang === 'fa') return 'Vajehyab';
