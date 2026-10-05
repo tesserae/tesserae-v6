@@ -16,6 +16,14 @@ behind each, are in docs/DECISIONS.md.
   reread only when the file's modification time or size changes (#612, a
   collaborator's change).
 
+### Data operations
+- 2026-10-05 06:18 to 06:20 EDT: the Persian, Urdu and Arabic texts, inverted
+  indexes, lemma caches, bigram and frequency tables and line embeddings
+  copied into production from the development checkout, unserved: the
+  languages endpoint is unchanged until TESSERAE_LANGUAGES names them.
+  Record in docs/DATA_OPERATIONS.md.
+
+
 ## 2026-10-04
 
 ### Languages

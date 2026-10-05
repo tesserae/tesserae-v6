@@ -67,6 +67,35 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-05 Persian, Urdu and Arabic stores copied into production, unserved (run 06:18 to 06:20 EDT)
+
+### What and why
+- The code for the three development languages reached main in #606,
+  #608, #611 and #613 and registers only when TESSERAE_LANGUAGES names a
+  language. This operation put the data beside it so that opening a
+  language later is a setting and a reload. Nothing is served: the
+  languages endpoint lists la, grc, en, cop and he as before.
+
+### Steps
+- From the development checkout, by rsync into the production tree:
+  `texts/fa` (28 files), `texts/ur` (18), `texts/ar` (149, the whole-Qur'an
+  file among them because the Arabic index holds it); the inverted indexes
+  `fa_index.db` (848 MB), `ur_index.db` (71 MB), `ar_index.db` (62 MB); the
+  lemma caches `cache/lemmas/{fa,ur,ar}` (1.5 GB, 106 MB, 121 MB); the bigram
+  tables `cache/bigrams/{fa,ur,ar}_bigrams.json`; the frequency tables
+  `cache/frequencies/{fa,ur,ar}.json`; and the line embeddings for the
+  semantic channel `backend/embeddings/{fa,ur,ar}` (3.7 GB, 233 MB, 104 MB).
+  Group set to the application's group, read permission given.
+- No reload (nothing reads these files while the languages are unserved).
+
+### Checked afterwards
+- `/api/languages` on the live site unchanged. Disk free after: 276 GB.
+- Still to come before the languages open: the passage windows for the
+  three languages appended to the passage index with their vectors (the
+  describing is 7,474 of 19,978 done and waits on the gateway's team
+  budget), and a licence check of the text sources, the whole-Qur'an file
+  included.
+
 ## 2026-10-04 Herodian On Enclitics line tags: the derived stores retagged (run 12:45 to 12:51 EDT)
 
 ### What and why
