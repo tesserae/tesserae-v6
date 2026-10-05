@@ -7,6 +7,15 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-05
+
+### Admin and corpus
+- The admin user listing fetches every user's roles in one query where it
+  made one query per user (#609, a collaborator's change).
+- The Text Credits page's parsed metadata is cached between requests and
+  reread only when the file's modification time or size changes (#612, a
+  collaborator's change).
+
 ## 2026-10-04
 
 ### Languages
