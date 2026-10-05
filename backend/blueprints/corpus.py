@@ -6,6 +6,7 @@ from flask import Blueprint, jsonify, request
 import os
 import re
 import json
+import threading
 from pathlib import Path
 
 from backend.logging_config import get_logger
@@ -46,6 +47,31 @@ def get_author_dates():
         _author_dates_mtime = current_mtime
     return _author_dates_cache
 
+
+# Per worker process, not shared across mod_wsgi processes: each one parses the
+# file once, then again only when its (path, mtime_ns, size) changes -- e.g. the
+# admin upload rewriting it. Callers must not mutate the returned list.
+_text_sources_cache = (None, [])
+_text_sources_lock = threading.Lock()
+
+def get_text_sources():
+    """Load text_sources.json, reparsing only when the file changes."""
+    global _text_sources_cache
+    try:
+        st = TEXT_SOURCES_FILE.stat()
+    except FileNotFoundError:
+        logger.warning("text_sources.json not found at %s", TEXT_SOURCES_FILE)
+        return []
+    key = (str(TEXT_SOURCES_FILE), st.st_mtime_ns, st.st_size)
+    if _text_sources_cache[0] == key:
+        return _text_sources_cache[1]
+    with _text_sources_lock:
+        if _text_sources_cache[0] != key:
+            # A parse error propagates (as before) and leaves the old key, so
+            # the next request retries rather than serving stale data.
+            with open(TEXT_SOURCES_FILE, 'r', encoding='utf-8') as f:
+                _text_sources_cache = (key, json.load(f))
+        return _text_sources_cache[1]
 
 
 corpus_bp = Blueprint('corpus', __name__)
@@ -290,14 +316,7 @@ def get_text_credits():
         return jsonify({'error': 'limit must be one of 25, 50, 100, or 500'}), 400
 
     query = request.args.get('query', '').strip().casefold()
-    if TEXT_SOURCES_FILE.exists():
-        with open(TEXT_SOURCES_FILE, 'r', encoding='utf-8') as f:
-            sources = json.load(f)
-    else:
-        logger.warning("text_sources.json not found at %s", TEXT_SOURCES_FILE)
-        sources = []
-
-    sources = sources + _restricted_credit_entries()
+    sources = get_text_sources() + _restricted_credit_entries()  # new list; cache untouched
 
     if query:
         sources = [
