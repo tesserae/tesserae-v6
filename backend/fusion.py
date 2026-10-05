@@ -2450,6 +2450,10 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
         "all_source_highlights": set(),
         "all_target_highlights": set(),
         "all_matched_words": {},
+        # Per-channel token positions: {ch_name: {"source": set, "target": set}}.
+        # Kept alongside the merged highlight sets so consumers can apply distinct
+        # rendering (e.g. bold for lemma, italic for sound) without re-running the search.
+        "channel_token_attrs": {},
     })
 
     import time as _time
@@ -2479,10 +2483,19 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
             # Accumulate highlight indices from all channels
             src = r.get("source", {})
             tgt = r.get("target", {})
-            for idx in src.get("highlight_indices", []):
+            src_indices = src.get("highlight_indices", [])
+            tgt_indices = tgt.get("highlight_indices", [])
+            for idx in src_indices:
                 pair_scores[key]["all_source_highlights"].add(idx)
-            for idx in tgt.get("highlight_indices", []):
+            for idx in tgt_indices:
                 pair_scores[key]["all_target_highlights"].add(idx)
+            # Also track the same indices per channel so the payload carries
+            # per-channel token attribution (which words each channel matched).
+            ch_attrs = pair_scores[key]["channel_token_attrs"]
+            if ch_name not in ch_attrs:
+                ch_attrs[ch_name] = {"source": set(), "target": set()}
+            ch_attrs[ch_name]["source"].update(src_indices)
+            ch_attrs[ch_name]["target"].update(tgt_indices)
 
             # Accumulate matched words (dedup by lemma, prefer entries with source_word)
             for mw in r.get("matched_words", []):
@@ -2863,6 +2876,10 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
         result["fused_score"] = round(info["score"], 4)
         result["channels"] = info["channels"]
         result["channel_count"] = len(info["channels"])
+        result["channel_token_attrs"] = {
+            ch: {"source": sorted(v["source"]), "target": sorted(v["target"])}
+            for ch, v in info.get("channel_token_attrs", {}).items()
+        }
         merged.append(result)
 
     # The passage-context pass (3,000 candidate pairs looked up in the
