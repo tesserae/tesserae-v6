@@ -1324,7 +1324,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   Iqbal) and pairs poems that share them, opening line against opening line, whatever their wording.
                   Iqbal's <em>andāz</em> ghazal, which keeps Hafez's form and changes the words, now leads a
                   Hafez-against-Zabur-e-Ajam search, and two poems on the same refrain but different meters are set
-                  apart. Refrain-less ghazals are not paired this way. Lines that share no words can still be paired by
+                  apart. Each pair of poems appears once in the results, with the poems' other refrain lines listed on the card, and a refrain and rhyme that many poems in the corpus share counts for less (the card says in how many). Refrain-less ghazals are not paired this way. Lines that share no words can still be paired by
                   the <em>semantic</em> method when their content is alike; that method is new and its weighting provisional.
                 </p>
                 <p className="text-blue-800 text-sm">

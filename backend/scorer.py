@@ -518,6 +518,13 @@ class Scorer:
                 'rhyme_only': not radif,
                 'source_rhyme_word': _rhyme_word(src_unit, s_pos, bool(radif)),
                 'target_rhyme_word': _rhyme_word(tgt_unit, t_pos, bool(radif)),
+                # One result per poem pair (2026-10-06): the poems' other
+                # refrain lines, and how many poems in the whole corpus
+                # carry this refrain and rhyme (None when no table exists).
+                'source_lines': match.get('source_lines', []),
+                'target_lines': match.get('target_lines', []),
+                'corpus_poems': match.get('form_corpus_poems'),
+                'corpus_factor': match.get('form_corpus_factor'),
             },
         }
 

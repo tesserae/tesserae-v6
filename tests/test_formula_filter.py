@@ -127,3 +127,40 @@ class TestApplyFormulaFilter:
         kept, hidden = apply_formula_filter([], formula_max=5, formula_only=True)
         assert kept == []
         assert hidden == 0
+
+
+class TestCrossLingualRows:
+    """2026-10-06: cross-lingual rows are counted from each side's own tables."""
+
+    def _row(self):
+        return [
+            {'source_lemma': 'یوسف', 'target_lemma': 'یوسف', 'idf': 2.0, 'type': 'cross_lingual'},
+            {'source_lemma': 'ثانی', 'target_lemma': 'ثانی', 'idf': 5.0, 'type': 'cross_lingual'},
+        ]
+
+    def test_larger_side_count_is_reported(self):
+        from backend.formula_filter import formula_count_for_cross_row
+        count, basis, side = formula_count_for_cross_row(
+            self._row(), 'fa', 'ur',
+            source_bigrams={'ثانی|یوسف': 3}, target_bigrams={'ثانی|یوسف': 4})
+        assert (count, basis, side) == (4, 'bigram', 'target')
+
+    def test_one_side_missing_still_counts_the_other(self):
+        from backend.formula_filter import formula_count_for_cross_row
+        count, basis, side = formula_count_for_cross_row(
+            self._row(), 'fa', 'ur',
+            source_bigrams={'ثانی|یوسف': 3}, target_bigrams={})
+        assert (count, basis, side) == (3, 'bigram', 'source')
+
+    def test_neither_side_is_null(self):
+        from backend.formula_filter import formula_count_for_cross_row
+        count, basis, side = formula_count_for_cross_row(
+            self._row(), 'fa', 'ur', source_bigrams={}, target_bigrams={})
+        assert count is None and side is None
+
+    def test_annotate_sets_fields_in_place(self, monkeypatch):
+        from backend import formula_filter as ff
+        monkeypatch.setattr(ff, 'formula_count_for_cross_row', lambda *a, **k: (7, 'bigram', 'source'))
+        rows = [{'matched_words': self._row()}]
+        ff.annotate_formula_counts_crosslingual(rows, 'fa', 'ur')
+        assert rows[0]['formula_count'] == 7 and rows[0]['formula_side'] == 'source'

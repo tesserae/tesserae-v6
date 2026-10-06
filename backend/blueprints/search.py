@@ -42,7 +42,8 @@ from backend.matcher import get_curated_stoplists
 from backend.search_cancellation import (
     SearchCancellation, SearchCancelled, request_cancellation,
 )
-from backend.formula_filter import annotate_formula_counts, apply_formula_filter
+from backend.formula_filter import (annotate_formula_counts, annotate_formula_counts_crosslingual,
+                                    apply_formula_filter)
 from backend import result_pages
 
 logger = get_logger('search')
@@ -299,8 +300,14 @@ def _finalize_results(scored_results, source_units, target_units, stoplist_size,
     # pages the filtered set rather than letting hidden rows eat the page.
     is_crosslingual = (settings.get('source_language') and settings.get('target_language')
                        and settings['source_language'] != settings['target_language'])
-    formula_language = None if is_crosslingual else language
-    annotate_formula_counts(scored_results, formula_language)
+    if is_crosslingual:
+        # Each side looked up in its own language's tables (the larger count
+        # reported), so a Persian-against-Urdu row shows how widespread its
+        # shared phrase is on either side.
+        annotate_formula_counts_crosslingual(scored_results, settings['source_language'],
+                                             settings['target_language'])
+    else:
+        annotate_formula_counts(scored_results, language)
     formula_max = settings.get('formula_max')
     formula_only = bool(settings.get('formula_only'))
     scored_results, formula_hidden = apply_formula_filter(scored_results, formula_max, formula_only)

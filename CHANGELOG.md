@@ -9,6 +9,19 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-06
 
+### Persian and Urdu search (from the first expert review)
+- The refrain-and-rhyme channel returns one result per pair of poems, the
+  opening-line pair, with the poems' other refrain lines listed on the
+  result card. Before, every line pair of the two poems was a separate
+  result, so a ranking of 200 held a handful of poem pairs repeated.
+- A shared refrain and rhyme is weighed by how many poems in the whole
+  corpus of the language carry it (scripts/build_form_signatures.py writes
+  data/poetics/form_signatures_<lang>.json; the result card shows "form in
+  N poems"). Before, rarity was measured only within the two texts.
+- Cross-language results carry the formula count (how many works share the
+  result's wording), looked up in each side's own language tables, so the
+  "in N works" badge and the hide control work for Persian against Urdu.
+
 ### Search and interface (collaborators' changes)
 - The main search results can be sent a page at a time: with a page_size the
   search stores its full ranked list for six hours and returns the first page

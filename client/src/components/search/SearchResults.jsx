@@ -1397,6 +1397,22 @@ const SearchResults = ({
                   Meter: <span dir="rtl">{r.poetics.meter}</span>
                 </span>
               )}
+              {r.poetics && r.poetics.radif && (r.poetics.source_lines || []).length + (r.poetics.target_lines || []).length > 2 && (
+                <span
+                  className="text-xs bg-yellow-50 text-yellow-800 px-2 py-0.5 rounded"
+                  title={`Refrain lines of the two poems: ${(r.poetics.source_lines || []).join(', ')} and ${(r.poetics.target_lines || []).join(', ')}. One result stands for the pair of poems.`}
+                >
+                  {(r.poetics.source_lines || []).length} + {(r.poetics.target_lines || []).length} refrain lines
+                </span>
+              )}
+              {r.poetics && r.poetics.corpus_poems != null && (
+                <span
+                  className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded"
+                  title="How many poems in the whole corpus of this language end on this refrain and rhyme; a high count marks a common form rather than one poem answering another, and the score is discounted accordingly"
+                >
+                  form in {r.poetics.corpus_poems} poem{r.poetics.corpus_poems !== 1 ? 's' : ''}
+                </span>
+              )}
               {r.matched_words && r.matched_words.length > 0 && (
                 <span className="text-sm text-gray-600">
                   Matches: <span className="font-medium">

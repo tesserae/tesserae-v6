@@ -280,6 +280,17 @@ class TestSignature:
 # 3. Matching rule
 # ---------------------------------------------------------------------------
 
+import pytest as _pytest
+from backend import poetics as _poetics
+
+
+@_pytest.fixture(autouse=True)
+def _no_corpus_tables(monkeypatch):
+    """The unit tests reason about two texts in isolation; keep the corpus-wide
+    refrain tables (data/poetics/form_signatures_<lang>.json) out of them."""
+    monkeypatch.setattr(_poetics, '_FORM_SIG_CACHE', {'fa': None, 'ur': None, 'ar': None})
+
+
 class TestMatchingRule:
     def _poem(self, mk, lines, language):
         units = [mk(r, t) for r, t in lines]
@@ -708,3 +719,63 @@ class TestArabicDiwanSegmentation:
     def test_hadith_excluded(self):
         poems = [['إنما الأعمال بالنيات وإنما لكل امرئ ما نوى'] * 6]
         assert segment_poems(self._units('nawawi.arbain', poems), 'ar') == []
+
+
+# ---------------------------------------------------------------------------
+# 6. One result per poem pair, and corpus-wide rarity (2026-10-06)
+# ---------------------------------------------------------------------------
+
+class TestOnePerPoemPair:
+    SRC = [
+        ('s.ghazal.1.1', 'الف جانان شما'), ('s.ghazal.1.2', 'ج فرمان شما'),
+        ('s.ghazal.1.3', 'ه و'), ('s.ghazal.1.4', 'ز زمان شما'),
+        ('s.ghazal.1.5', 'ط ی'), ('s.ghazal.1.6', 'ك دوران شما'),
+    ]
+    TGT = [
+        ('t.ghazal.1.1', 'م خیابان شما'), ('t.ghazal.1.2', 'ن کافرستان شما'),
+        ('t.ghazal.1.3', 'س ع'), ('t.ghazal.1.4', 'ف بیابان شما'),
+        ('t.ghazal.1.5', 'ق ر'), ('t.ghazal.1.6', 'ص ض بدخشان شما'),
+    ]
+
+    def _run(self, settings=None):
+        src = [_mk_fa(r, t) for r, t in self.SRC]
+        tgt = [_mk_fa(r, t) for r, t in self.TGT]
+        return find_form_matches(src, tgt, {'language': 'fa', **(settings or {})})
+
+    def test_one_match_per_poem_pair_listing_the_refrain_lines(self):
+        matches, stats = self._run()
+        assert stats['poem_pairs'] == 1
+        assert len(matches) == 1
+        m = matches[0]
+        # The opening-line pair carries the match ...
+        assert m['source_idx'] == 0 and m['target_idx'] == 0
+        assert m['form_score'] == 1.0
+        # ... and the poems' other refrain lines are listed on it.
+        assert m['source_lines'] == ['s.ghazal.1.1', 's.ghazal.1.2', 's.ghazal.1.4', 's.ghazal.1.6']
+        assert m['target_lines'] == ['t.ghazal.1.1', 't.ghazal.1.2', 't.ghazal.1.4', 't.ghazal.1.6']
+        assert m['form_corpus_poems'] is None and m['form_corpus_factor'] == 1.0
+
+    def test_corpus_form_factor_values(self):
+        from backend.poetics import corpus_form_factor
+        assert corpus_form_factor(None) == 1.0
+        assert corpus_form_factor(1) == 1.0
+        assert corpus_form_factor(2) == 1.0
+        assert abs(corpus_form_factor(8) - 0.5) < 1e-9
+        assert abs(corpus_form_factor(32) - 0.25) < 1e-9
+        assert abs(corpus_form_factor(200) - 0.1) < 1e-9
+
+    def test_corpus_table_discounts_a_common_form(self, monkeypatch):
+        from backend import poetics
+        table = {'signatures': {'شما|ان': 8}, 'radifs': {'شما': 20}, 'total_poems': 100}
+        monkeypatch.setattr(poetics, '_FORM_SIG_CACHE', {'fa': table})
+        matches, _ = self._run()
+        assert len(matches) == 1
+        assert matches[0]['form_corpus_poems'] == 8
+        assert abs(matches[0]['form_corpus_factor'] - 0.5) < 1e-9
+        assert abs(matches[0]['form_score'] - 0.5) < 1e-9
+
+    def test_corpus_rarity_can_be_switched_off(self, monkeypatch):
+        from backend import poetics
+        monkeypatch.setattr(poetics, '_FORM_SIG_CACHE', {'fa': {'signatures': {'شما|ان': 8}, 'radifs': {}, 'total_poems': 1}})
+        matches, _ = self._run({'form_corpus_rarity': False})
+        assert matches[0]['form_score'] == 1.0 and matches[0]['form_corpus_poems'] is None
