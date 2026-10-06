@@ -1,3 +1,5 @@
+import Pagination from '../common/Pagination';
+import useIncrementalPagination, { BATCH_PAGE_SIZE_OPTIONS } from '../../hooks/useIncrementalPagination';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { LoadingSpinner, Modal } from '../common';
 import { getDictionaryUrl } from '../../utils/linkUtils';
@@ -27,13 +29,7 @@ function extractLineNumber(ref) {
 
 export default function RareWordsExplorer() {
   const [language, setLanguage] = useState('la');
-  const [words, setWords] = useState([]);
-  const [totalWords, setTotalWords] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [loadError, setLoadError] = useState('');
   const [maxOccurrences, setMaxOccurrences] = useState(3);
-  const [pageSize, setPageSize] = useState(50);
   const [sortBy, setSortBy] = useState('frequency');
   const [sortOrder, setSortOrder] = useState('asc');
   const [expandedWord, setExpandedWord] = useState(null);
@@ -47,7 +43,6 @@ export default function RareWordsExplorer() {
   const [viewerTitle, setViewerTitle] = useState('');
   const [viewerTargetRef, setViewerTargetRef] = useState('');
   const highlightedLineRef = useRef(null);
-  const queryVersionRef = useRef(0);
 
   const openTextViewer = async (textId, word, ref, author, work) => {
     setViewerWord(word);
@@ -105,96 +100,26 @@ export default function RareWordsExplorer() {
     }).catch(() => {});
   }, []);
 
+  const fetchPage = useCallback(async ({ page, pageSize, signal }) => {
+    const params = new URLSearchParams({
+      language, max_occurrences: String(maxOccurrences), limit: String(pageSize),
+      offset: String((page - 1) * pageSize), sort_by: sortBy, sort_order: sortOrder,
+    });
+    const res = await fetch(`/api/rare-lemmata-full?${params}`, {
+      cache: 'no-store', headers: { 'Cache-Control': 'no-cache' }, signal,
+    });
+    if (!res.ok) throw new Error('Unable to load rare words. Please try again.');
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    return { items: data.words || [], total: data.total || 0 };
+  }, [language, maxOccurrences, sortBy, sortOrder]);
+  const pagination = useIncrementalPagination({ fetchPage });
+  const { visibleItems: words, loading: fetching, pageError: loadError } = pagination;
+  const loading = fetching && words.length === 0;
   useEffect(() => {
-    const controller = new AbortController();
-    let cancelled = false;
-    const queryVersion = queryVersionRef.current + 1;
-    queryVersionRef.current = queryVersion;
-
-    setWords([]);
-    setTotalWords(0);
-    setLoading(true);
-    setLoadingMore(false);
-    setLoadError('');
     setExpandedWord(null);
     setExpandedDetails({});
-    
-    const fetchWords = async () => {
-      try {
-        const params = new URLSearchParams({
-          language,
-          max_occurrences: String(maxOccurrences),
-          limit: String(pageSize),
-          offset: '0',
-          sort_by: sortBy,
-          sort_order: sortOrder
-        });
-        const url = `/api/rare-lemmata-full?${params.toString()}`;
-        const res = await fetch(url, {
-          cache: 'no-store',
-          headers: { 'Cache-Control': 'no-cache' },
-          signal: controller.signal
-        });
-        if (!res.ok) throw new Error('Failed to load rare words');
-        const data = await res.json();
-        if (data.error) throw new Error(data.error);
-        
-        if (!cancelled && queryVersionRef.current === queryVersion) {
-          setWords(data.words || []);
-          setTotalWords(data.total || 0);
-          setLoading(false);
-        }
-      } catch (err) {
-        if (!cancelled && queryVersionRef.current === queryVersion && err.name !== 'AbortError') {
-          console.error('Failed to load rare words:', err);
-          setLoadError('Unable to load rare words. Please try again.');
-          setLoading(false);
-        }
-      }
-    };
-    
-    fetchWords();
-    
-    return () => {
-      cancelled = true;
-      controller.abort();
-    };
-  }, [language, maxOccurrences, pageSize, sortBy, sortOrder]);
-
-  const loadMoreWords = async () => {
-    if (loadingMore || loading || words.length >= totalWords) return;
-
-    const queryVersion = queryVersionRef.current;
-    setLoadingMore(true);
-    setLoadError('');
-    try {
-      const params = new URLSearchParams({
-        language,
-        max_occurrences: String(maxOccurrences),
-        limit: String(pageSize),
-        offset: String(words.length),
-        sort_by: sortBy,
-        sort_order: sortOrder
-      });
-      const res = await fetch(`/api/rare-lemmata-full?${params.toString()}`, {
-        cache: 'no-store',
-        headers: { 'Cache-Control': 'no-cache' }
-      });
-      if (!res.ok) throw new Error('Failed to load more rare words');
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      if (queryVersionRef.current === queryVersion) {
-        setWords(prev => [...prev, ...(data.words || [])]);
-        setTotalWords(data.total || 0);
-      }
-    } catch (err) {
-      console.error('Failed to load more rare words:', err);
-      if (queryVersionRef.current === queryVersion) {
-        setLoadError('Unable to load more rare words. Please try again.');
-      }
-    }
-    if (queryVersionRef.current === queryVersion) setLoadingMore(false);
-  };
+  }, [fetchPage, pagination.pageSize]);
 
   const toggleWordExpand = async (lemma) => {
     if (expandedWord === lemma) {
@@ -295,17 +220,6 @@ export default function RareWordsExplorer() {
             <option value="3">Up to 3 occurrences</option>
             <option value="5">Up to 5 occurrences</option>
             <option value="10">Up to 10 occurrences</option>
-          </select>
-          <select
-            value={pageSize}
-            onChange={e => setPageSize(parseInt(e.target.value))}
-            aria-label="Words at a time"
-            className="border rounded px-3 py-2 text-sm"
-          >
-            <option value="25">25 words at a time</option>
-            <option value="50">50 words at a time</option>
-            <option value="100">100 words at a time</option>
-            <option value="500">500 words at a time</option>
           </select>
           <button
             onClick={exportCSV}
@@ -441,20 +355,8 @@ export default function RareWordsExplorer() {
             </tbody>
           </table>
           </div>
-          <div className="px-4 py-3 bg-gray-50 text-sm text-gray-500">
-            Showing {words.length} of {totalWords} words
-          </div>
-          {words.length < totalWords && (
-            <div className="px-4 pb-4 bg-gray-50 text-center">
-              <button
-                onClick={loadMoreWords}
-                disabled={loadingMore}
-                className="px-3 py-2 bg-white text-amber-700 border border-amber-200 rounded hover:bg-amber-50 text-sm disabled:opacity-50"
-              >
-                {loadingMore ? 'Loading...' : `Show more (${totalWords - words.length} remaining)`}
-              </button>
-            </div>
-          )}
+          <Pagination {...pagination} variant="more" pageSizeOptions={BATCH_PAGE_SIZE_OPTIONS}
+            idPrefix="rare-words" itemLabel="words" />
         </div>
       )}
 

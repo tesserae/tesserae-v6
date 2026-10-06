@@ -1,3 +1,5 @@
+import Pagination from '../common/Pagination';
+import { usePagination } from '../../hooks/usePagination';
 import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import { languageName } from '../../utils/languageNames';
 import { wildcardSearch } from '../../utils/api';
@@ -67,7 +69,6 @@ const WildcardSearch = ({ language }) => {
   const [sortOrder, setSortOrder] = useState('chronological');
   const [eraFilter, setEraFilter] = useState(null);
   const [authorFilter, setAuthorFilter] = useState(null);
-  const [displayLimit, setDisplayLimit] = useState(50);
   const chartRef = useRef(null);
   const authorChartRef = useRef(null);
 
@@ -86,7 +87,6 @@ const WildcardSearch = ({ language }) => {
     setError(null);
     setEraFilter(null);
     setAuthorFilter(null);
-    setDisplayLimit(50);
     
     try {
       const data = await wildcardSearch({
@@ -257,6 +257,10 @@ const WildcardSearch = ({ language }) => {
   const languageLabel = languageName(language);
   const syntaxEx = language === 'grc' ? GREEK_SYNTAX_EXAMPLES : (SYNTAX_EXAMPLES_BY_LANGUAGE[language] || LA_SYNTAX_EXAMPLES);
   const arabicScript = ARABIC_SCRIPT.has(language);
+
+  // Result identity changes on completion, even when the same query is run again.
+  const paginationResetKey = useMemo(() => ({}), [results, eraFilter, authorFilter, showPoetry, showProse, sortOrder]);
+  const pagination = usePagination(filteredResults, { resetKey: paginationResetKey });
 
   return (
     <div className="space-y-4">
@@ -486,7 +490,7 @@ const WildcardSearch = ({ language }) => {
           )}
 
           <div className="divide-y divide-gray-200 max-h-[600px] overflow-y-auto">
-            {filteredResults.slice(0, displayLimit).map((r, i) => {
+            {pagination.visibleItems.map((r, i) => {
               const refParts = r.reference?.split(/\s+/) || [];
               const locus = refParts[refParts.length - 1] || r.reference || '';
 
@@ -494,7 +498,7 @@ const WildcardSearch = ({ language }) => {
                 <div key={i} className="p-4 hover:bg-gray-50">
                   <div className="flex flex-col sm:flex-row sm:items-start gap-2">
                     <span className="text-xs text-gray-500 min-w-[2.5rem] text-right shrink-0 leading-none" style={{paddingTop: '1px'}}>
-                      {i + 1}.
+                      {pagination.startIndex + i + 1}.
                     </span>
                     <div className="sm:w-48 flex-shrink-0">
                       <div className="text-sm font-medium text-gray-900">
@@ -520,16 +524,7 @@ const WildcardSearch = ({ language }) => {
             })}
           </div>
 
-          {filteredResults.length > displayLimit && (
-            <div className="px-4 py-3 bg-gray-50 text-center">
-              <button
-                onClick={() => setDisplayLimit(displayLimit + 50)}
-                className="text-amber-600 hover:text-amber-800 text-sm"
-              >
-                Show more ({displayLimit} of {filteredResults.length})
-              </button>
-            </div>
-          )}
+          <Pagination {...pagination} idPrefix="wildcardsearch" />
         </div>
       )}
     </div>

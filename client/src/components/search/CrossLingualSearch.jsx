@@ -1,3 +1,5 @@
+import Pagination from '../common/Pagination';
+import { usePagination } from '../../hooks/usePagination';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { LoadingSpinner, SearchableAuthorSelect } from '../common';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
@@ -83,7 +85,6 @@ export default function CrossLingualSearch() {
   // text when the Hebrew book has one; 'direct' always uses the dictionary
   // route; 'both' runs both and merges, labelling each result's route.
   const [hebrewGreekRoute, setHebrewGreekRoute] = useState('septuagint');
-  const [displayLimit, setDisplayLimit] = useState(50);
   const [sortBy, setSortBy] = useState('score');
   const [showDistributionChart, setShowDistributionChart] = useState(false);
   const [distributionChartView, setDistributionChartView] = useState('target');
@@ -424,6 +425,10 @@ export default function CrossLingualSearch() {
     }
   };
 
+  // Result identity changes on completion, even when the same query is run again.
+  const paginationResetKey = useMemo(() => ({}), [results, sortBy, chartFilter]);
+  const pagination = usePagination(sortedResults, { resetKey: paginationResetKey });
+
   if (loading) {
     return <LoadingSpinner text="Loading text data..." />;
   }
@@ -704,11 +709,11 @@ export default function CrossLingualSearch() {
           )}
           
           <div className="divide-y divide-gray-200">
-            {sortedResults.slice(0, displayLimit).map((result, i) => (
+            {pagination.visibleItems.map((result, i) => (
               <div key={i} className="p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-xs text-gray-500 min-w-[2.5rem] text-right shrink-0 leading-none">
-                    {i + 1}.
+                    {pagination.startIndex + i + 1}.
                   </span>
                   <span className="text-sm font-medium text-gray-500">
                     Score: {(result.overall_score || result.score)?.toFixed(3)}
@@ -765,16 +770,7 @@ export default function CrossLingualSearch() {
               </div>
             ))}
           </div>
-          {sortedResults.length > displayLimit && (
-            <div className="px-4 py-3 bg-gray-50 text-center">
-              <button
-                onClick={() => setDisplayLimit(displayLimit + 50)}
-                className="text-amber-600 hover:text-amber-800 text-sm"
-              >
-                Show more ({displayLimit} of {sortedResults.length})
-              </button>
-            </div>
-          )}
+          <Pagination {...pagination} idPrefix="crosslingualsearch" />
         </div>
       )}
     </div>

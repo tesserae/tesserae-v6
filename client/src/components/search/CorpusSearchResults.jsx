@@ -1,3 +1,5 @@
+import Pagination from '../common/Pagination';
+import { usePagination } from '../../hooks/usePagination';
 import { useState, useCallback, useRef, useMemo } from 'react';
 import { Button } from '../common';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
@@ -72,7 +74,6 @@ export default function CorpusSearchResults({
   elapsedTime,
   language
 }) {
-  const [displayLimit, setDisplayLimit] = useState(50);
   const [showTimeline, setShowTimeline] = useState(false);
   const [eraFilter, setEraFilter] = useState(null);
   const [authorFilter, setAuthorFilter] = useState(null);
@@ -251,6 +252,10 @@ export default function CorpusSearchResults({
     if (authorFilter && (r.author || 'Unknown') !== authorFilter) return false;
     return true;
   });
+
+  // Result identity changes on completion, even when the same query is run again.
+  const paginationResetKey = useMemo(() => ({}), [results, eraFilter, authorFilter, includePoetry, includeProse]);
+  const pagination = usePagination(filteredResults, { resetKey: paginationResetKey });
 
   if (loading) {
     return (
@@ -448,11 +453,11 @@ export default function CorpusSearchResults({
           )}
 
           <div className="divide-y border rounded">
-            {filteredResults.slice(0, displayLimit).map((result, i) => (
+            {pagination.visibleItems.map((result, i) => (
               <div key={i} className="p-3 hover:bg-gray-50">
                 <div className="flex flex-col sm:flex-row sm:items-start gap-2">
                   <span className="text-xs text-gray-500 min-w-[2.5rem] text-right shrink-0 leading-none" style={{paddingTop: '1px'}}>
-                    {i + 1}.
+                    {pagination.startIndex + i + 1}.
                   </span>
                   <div className="sm:w-48 flex-shrink-0">
                     {(() => {
@@ -500,16 +505,7 @@ export default function CorpusSearchResults({
             ))}
           </div>
 
-          {filteredResults.length > displayLimit && (
-            <div className="text-center mt-4">
-              <Button
-                variant="neutral"
-                onClick={() => setDisplayLimit(prev => prev + 50)}
-              >
-                Show More ({filteredResults.length - displayLimit} remaining)
-              </Button>
-            </div>
-          )}
+          <Pagination {...pagination} idPrefix="corpussearchresults" />
         </div>
       )}
     </div>
