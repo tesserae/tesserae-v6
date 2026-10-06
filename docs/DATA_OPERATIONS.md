@@ -67,6 +67,35 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-06 Quintus Curtius: J. C. Rolfe's 1946 Loeb translation added (section-exact)
+- What: `data/translations/la__curtius_rufus.historiae_alexandri_magni.json` created on
+  production at 13:27 EDT, covering all 2,621 sections of books 3-10 of
+  `texts/la/curtius_rufus.historiae_alexandri_magni.tess` (the whole-work file also
+  serves the eight part files). 2,529 refs (96.5%) map to section-level units, 92 to
+  four whole-chapter units (3.1, 4.1, 4.8, 5.11), where the OCR's marginal section
+  numbers could not be recovered. 2,514 units stored.
+- Source: J. C. Rolfe, Quintus Curtius, History of Alexander, 2 vols, Loeb Classical
+  Library, Harvard 1946. Rights basis: HathiTrust rights "pd, Full view" (public domain
+  in the United States) for the Michigan copies mdp.39015008158415 (v.1) and
+  mdp.39015008158407 (v.2). Text: OCR of the same volumes from the archive.org item
+  quintus.-curtius.-rufus.-history.of.-alexander.-loeb.-one-vol-version_202511
+  (files Vol.1_djvu.txt, Vol.2_djvu.txt); raw copies kept outside the repository.
+- Method: `scripts/translations/align_curtius.py`. English pages separated from Latin
+  by function-word share; footnotes, apparatus, each book's synopsis and the index
+  cut; chapter starts by roman numeral; section starts by the marginal integers,
+  chosen as the longest increasing subsequence per chapter, a chapter accepted at
+  section level when at least 70% of its markers were found and missing sections
+  merged into the preceding one; validated per book against the corpus's chapter
+  counts. A final pass removed running heads, stray section numbers, footnote marks
+  and trailing OCR noise from the unit text without changing the mapping.
+- Checks: coverage 1.0; proper-name survival 0.737 on 300 sampled units (the Loeb
+  range in this corpus is 0.74-0.81); units with two or more unambiguous Latin words
+  0.48%; footnote or apparatus traces 0.16%; 19 units keep a run of OCR garble.
+- Licence: public domain in the United States; attribution "J. C. Rolfe (1946)" is
+  stored in the file and shown with every display.
+- Service: the per-work file index is built once per worker, so the Reader shows the
+  new translation after the next reload.
+
 ## 2026-10-05 Persian, Urdu and Arabic stores copied into production, unserved (run 06:18 to 06:20 EDT)
 
 ### What and why

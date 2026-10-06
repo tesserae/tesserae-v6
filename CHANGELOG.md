@@ -21,6 +21,12 @@ behind each, are in docs/DECISIONS.md.
 - Cross-language results carry the formula count (how many works share the
   result's wording), looked up in each side's own language tables, so the
   "in N works" badge and the hide control work for Persian against Urdu.
+### Translations
+- Quintus Curtius, History of Alexander (books 3-10): J. C. Rolfe's 1946 Loeb
+  translation, public domain in the United States, aligned section by section
+  (96.5% of sections exact, four chapters whole) for the Reader and the
+  translation shown beside search results (`scripts/translations/align_curtius.py`;
+  the data operation is recorded in docs/DATA_OPERATIONS.md).
 
 ### Search and interface (collaborators' changes)
 - The main search results can be sent a page at a time: with a page_size the
