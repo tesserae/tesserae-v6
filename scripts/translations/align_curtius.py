@@ -73,9 +73,35 @@ ROMAN_BOOK = {'I': 1, 'II': 2, 'III': 3, 'IV': 4, 'V': 5, 'VI': 6,
 
 TARGET_BOOKS = [3, 4, 5, 6, 7, 8, 9, 10]
 
-FOOTNOTE_LEAD = set('¢@°*©>§†‡¶#~^%­•·«»')
 OCR_DIGIT = str.maketrans({'O': '0', 'o': '0', 'l': '1', 'I': '1',
                             'S': '5', 'B': '8', 'Z': '2'})
+
+# An English page's footnote block: a lettered marker (a-f) needs a capital
+# letter after it (the article "a " / "a certain " etc. is far too common a
+# false positive otherwise -- checked against the actual OCR); a symbol
+# marker (the OCR's mangling of a superscript dagger/letter: @, deg sign,
+# cent sign, ?, *, copyright sign) does not, since footnotes often open by
+# quoting a lower-cased Latin word and none of these symbols occurs at a
+# true prose line's start in this corpus.
+FOOTNOTE_MARK_RE = re.compile(r'^(?:[a-f]\s+[A-Z]|[@°¢?*©]\s+\S)')
+
+# A Latin page's critical apparatus: either a known editor's surname (OCR
+# sometimes renders "Mützell" as "Miitzell") or the structural shape
+# "word Name; word A" (a reading, the editor who proposed it, the
+# manuscript's reading, and a one-letter manuscript siglum).
+EDITOR_NAMES = {'Modius', 'Hedicke', 'Vogel', 'Zumpt', 'Foss', 'Bentley',
+                'Warmington', 'Lauer', 'Hussner', 'Jeep', 'Mutzell',
+                'Miitzell', 'Mützell', 'Acidalius', 'Stangl'}
+APPARATUS_PATTERN = re.compile(r'\b\w+\s+[A-Z][a-zA-Z]*\s*;\s*\w+\s+[A-Z]\b')
+PAREN_CROSSREF_RE = re.compile(r'^\([A-Z][A-Za-z]*\.?[^()]*\)\.?,?\s*$')
+SEE_REF_RE = re.compile(r'^See\s+[A-Z]')
+
+
+def is_apparatus_line(s):
+    words = re.findall(r"[A-Za-zü]+", s)
+    if any(w in EDITOR_NAMES for w in words):
+        return True
+    return bool(APPARATUS_PATTERN.search(s))
 
 
 def int_to_roman(n):
@@ -147,24 +173,29 @@ def split_pages(raw_text):
 
 
 def clean_english_lines(lines):
-    """Drop footnote/junk lines, de-hyphenate, return a list of cleaned
-    lines (order preserved) still starting fresh at original line breaks
-    so chapter/section markers remain at a line's start.
+    """Drop footnote/apparatus/junk lines, return a list of cleaned lines
+    (order preserved) still starting fresh at original line breaks so
+    chapter/section markers remain at a line's start.
 
-    A page's footnote block runs from its first marker line (a stray
-    symbol -- @, degree sign, etc, the OCR's rendering of a superscript
-    letter) to the foot of the page: no main-text prose resumes after it on
-    the same page. So once that marker is seen, the REST of the chunk is
-    dropped too, not just that one line -- otherwise a footnote's own
-    continuation lines (no leading symbol of their own) read as ordinary
-    prose and splice citation Latin into the English stream."""
+    A page's tail runs from its first footnote-marker line (English page)
+    or its first critical-apparatus line (a Latin page's tail that got
+    glued onto this chunk because a running header was missed) to the foot
+    of the page: no main-text prose resumes after it. So once either marker
+    is seen, the REST of the chunk is dropped too, not just that one line --
+    otherwise a footnote's or an apparatus entry's own continuation lines
+    (no marker of their own) read as ordinary prose and splice citation
+    Latin into the English stream."""
     out = []
     for raw in lines:
         s = raw.strip()
         if not s:
             continue
-        if s[0] in FOOTNOTE_LEAD:
-            continue
+        if FOOTNOTE_MARK_RE.match(s):
+            break
+        if is_apparatus_line(s):
+            break
+        if PAREN_CROSSREF_RE.match(s) or SEE_REF_RE.match(s):
+            continue  # a standalone cross-reference line, not page-tail
         letters = sum(c.isalpha() for c in s)
         if letters < max(2, len(s) * 0.3):
             continue  # OCR junk line, mostly non-letters
@@ -211,24 +242,28 @@ INLINE_CHAP_RE = re.compile(r'^(.*[.:,]\s*)([A-Za-z0-9\[\]!|]{1,6})[.,]\s*(\S.*)
 
 def parse_book_english(lines, book, report):
     """lines: cleaned, de-hyphenated English lines for one book's span.
-    -> {chapter_label: {section_int: text}} plus pre-chapter text (book 6).
-    chapter_label is an int, except book 6's reconstructed opening which
-    the caller files as '1a'.
+    -> ({chapter_label: [line, line, ...]}, pre_chapter_lines, skipped_chapters).
+
+    This finds only CHAPTER boundaries (a roman numeral, in sequence, at a
+    line's start or inline after a quotation's colon/comma) and buckets the
+    book's lines by chapter, unmodified and in order. Section markers are
+    NOT resolved here -- a single garbled or footnote-borrowed digit must
+    not be allowed to derail every later marker in the chapter the way a
+    strict running count would, so that is done as a separate pass (see
+    `extract_sections`) that looks at a whole chapter's lines at once and
+    picks the longest increasing run of candidates.
     """
-    chapters = OrderedDict()   # label -> OrderedDict(section -> [text parts])
+    chapters = OrderedDict()   # label -> [line, line, ...]
     pre_chapter = []
     cur_chapter = None
-    cur_section = None
     expect_chapter = 1
 
-    def cell(label, sec):
-        chapters.setdefault(label, OrderedDict())
-        chapters[label].setdefault(sec, [])
-        return chapters[label][sec]
+    def bucket(label):
+        chapters.setdefault(label, [])
+        return chapters[label]
 
     RESYNC_WINDOW = 3
     skipped_chapters = []
-    buf_target = None  # list currently receiving text
     for raw_line in lines:
         # A stray leading punctuation mark (a lone comma, quote, dash) is a
         # common OCR artifact ahead of a marginal section number or a
@@ -253,41 +288,105 @@ def parse_book_english(lines, book, report):
                 if matched_val > expect_chapter:
                     skipped_chapters.extend(range(expect_chapter, matched_val))
                 cur_chapter = matched_val
-                cur_section = 1
                 expect_chapter = matched_val + 1
-                buf_target = cell(cur_chapter, cur_section)
+                buf_target = bucket(cur_chapter)
                 if rest:
                     buf_target.append(rest)
                 continue
-        m = SEC_RE.match(line)
-        if m and cur_chapter is not None:
-            digits = m.group(1).translate(OCR_DIGIT)
-            if digits.isdigit():
-                n = int(digits)
-                if n == cur_section + 1:
-                    cur_section = n
-                    buf_target = cell(cur_chapter, cur_section)
-                    buf_target.append(m.group(2))
-                    continue
         im = INLINE_CHAP_RE.match(line)
         if im and canon_numeral(im.group(2)) == int_to_roman(expect_chapter):
             prefix, rest = im.group(1), im.group(3)
-            if buf_target is not None:
-                buf_target.append(prefix)
-            elif cur_chapter is None:
+            if cur_chapter is not None:
+                bucket(cur_chapter).append(prefix)
+            else:
                 pre_chapter.append(prefix)
             cur_chapter = expect_chapter
-            cur_section = 1
             expect_chapter += 1
-            buf_target = cell(cur_chapter, cur_section)
-            buf_target.append(rest)
+            bucket(cur_chapter).append(rest)
             continue
         # continuation line
-        if buf_target is not None:
-            buf_target.append(line)
-        elif cur_chapter is None:
+        if cur_chapter is not None:
+            bucket(cur_chapter).append(line)
+        else:
             pre_chapter.append(line)
     return chapters, pre_chapter, skipped_chapters
+
+
+def lis_candidates(chapter_lines, n_max):
+    """[(line_index, value, rest_text)] for every line that opens with an
+    integer (OCR-digit-tolerant, glued or spaced) whose value could be a
+    real section number (2..n_max) -- not yet filtered for being correct,
+    just plausible. Noise (footnote numbers, cross-reference numbers) is
+    expected among these and is rejected by the longest-increasing pass,
+    not here."""
+    out = []
+    for idx, line in enumerate(chapter_lines):
+        m = SEC_RE.match(line)
+        if not m:
+            continue
+        digits = m.group(1).translate(OCR_DIGIT)
+        if not digits.isdigit():
+            continue
+        n = int(digits)
+        if 2 <= n <= n_max:
+            out.append((idx, n, m.group(2)))
+    return out
+
+
+def longest_increasing(candidates):
+    """The longest strictly-increasing-by-value subsequence of candidates
+    (candidates are already in line order), standard patience-sorting
+    O(n log n) LIS with back-pointers for reconstruction. candidates:
+    [(idx, value, rest)]."""
+    if not candidates:
+        return []
+    import bisect
+    tails_val, tails_idx, prev = [], [], [-1] * len(candidates)
+    for i, (_, v, _) in enumerate(candidates):
+        pos = bisect.bisect_left(tails_val, v)
+        if pos == len(tails_val):
+            tails_val.append(v)
+            tails_idx.append(i)
+        else:
+            tails_val[pos] = v
+            tails_idx[pos] = i
+        prev[i] = tails_idx[pos - 1] if pos > 0 else -1
+    seq, k = [], tails_idx[-1]
+    while k != -1:
+        seq.append(candidates[k])
+        k = prev[k]
+    seq.reverse()
+    return seq
+
+
+def build_section_units(chapter_lines, chosen):
+    """-> [(anchor_section, text), ...] in ascending anchor order, anchor 1
+    always first. `chosen`: the accepted [(idx, value, rest)] markers."""
+    if not chosen:
+        return [(1, ' '.join(l for l in chapter_lines if l).strip())]
+    first_idx = chosen[0][0]
+    units = [(1, ' '.join(l for l in chapter_lines[:first_idx] if l).strip())]
+    for i, (idx, v, rest) in enumerate(chosen):
+        end_idx = chosen[i + 1][0] if i + 1 < len(chosen) else len(chapter_lines)
+        parts = [rest] if rest else []
+        parts.extend(l for l in chapter_lines[idx + 1:end_idx] if l)
+        units.append((v, ' '.join(parts).strip()))
+    return units
+
+
+def sections_from_units(units, n_max):
+    """Map every corpus section 1..n_max to (mode, text): 'section' when
+    that section is itself a chosen anchor, 'section-merged' when its own
+    marker was never found and it inherits the preceding anchor's unit."""
+    import bisect
+    anchors = [a for a, _ in units]
+    out = {}
+    for s in range(1, n_max + 1):
+        j = bisect.bisect_right(anchors, s) - 1
+        j = max(j, 0)
+        mode = 'section' if anchors[j] == s else 'section-merged'
+        out[s] = (mode, units[j][1])
+    return out
 
 
 def process_volume(path, vol_label, report):
@@ -338,14 +437,45 @@ def process_volume(path, vol_label, report):
     report.append(f'{vol_label}: books found = {present_books} '
                    f'(chunk indices {[book_starts[b] for b in present_books]})')
 
+    # Each book's "CONTENTS OF BOOK <roman>" synopsis page sits right
+    # before that book's real heading -- i.e. at the numeric TAIL of the
+    # PREVIOUS book's chunk range -- and is genuine English prose (a plot
+    # summary), so it passes the language classifier and would otherwise
+    # be spliced onto the previous book's last chapter. Record where each
+    # book's synopsis starts (the chunk right after its own "CONTENTS OF
+    # BOOK" trigger) so it can be excluded from whichever span it would
+    # numerically fall into.
+    contents_idx = {}  # book -> chunk index where that book's synopsis begins
+    back_matter_idx = None  # chunk index where a GENERAL INDEX etc. begins
+    for ci, (kind, lines, trigger) in enumerate(classified):
+        if trigger:
+            m = re.match(r'CONTENTS OF BOOK\s+([IVXLC]+)', trigger.strip(), re.I)
+            if m:
+                b = ROMAN_BOOK.get(m.group(1).upper())
+                if b:
+                    contents_idx[b] = ci + 1
+        if back_matter_idx is None:
+            # A stray single-character OCR artifact ("|", a pipe) sometimes
+            # precedes the heading as its own "line", so check the first
+            # few non-blank lines, not only the very first.
+            lead = [l.strip() for l in lines if l.strip()][:3]
+            if any(re.match(r'^GENERAL INDEX\s*$', l, re.I) for l in lead):
+                back_matter_idx = ci
+
     # Build, for each present book, the ordered list of ENGLISH-classified
-    # chunks between its start chunk and the next book's start chunk
-    # (or end of file).
+    # chunks between its start chunk and the next book's start chunk (or
+    # end of file), trimmed before the next book's own CONTENTS synopsis.
     boundaries = sorted(book_starts[b] for b in present_books)
     book_lines = {}
     for i, b in enumerate(present_books):
         start = book_starts[b]
         end = boundaries[i + 1] if i + 1 < len(boundaries) else len(classified)
+        if i + 1 < len(present_books):
+            nxt_b = present_books[i + 1]
+            if nxt_b in contents_idx and start < contents_idx[nxt_b] < end:
+                end = contents_idx[nxt_b]
+        if back_matter_idx is not None and start < back_matter_idx < end:
+            end = back_matter_idx
         lines_for_book = []
         for ci in range(start, end):
             kind, lines, trigger = classified[ci]
@@ -394,12 +524,13 @@ def main():
     refs, latin_by_ref, corpus_struct = load_corpus(args.tess)
     report.append(f'corpus refs total: {len(refs)}')
 
-    all_units = {}       # (book, chap_label) -> {sec: text} (section mode)
+    all_units = {}       # (book, chap_label) -> {sec: (mode, text)}
     chapter_fallback = {}  # (book, chap_label) -> merged text (chapter mode)
     book_chapter_counts = {}
     fallback_list = []
     skipped_books = []
     chapters_with_no_text = []
+    marker_stats = []   # (book, chap_label, n_max, found, expected, pct)
 
     for book in TARGET_BOOKS:
         lines = book_lines.get(book, [])
@@ -408,13 +539,17 @@ def main():
         for c in skipped_in_book:
             chapters_with_no_text.append((book, c))
 
+        corpus_chaps = corpus_struct.get(book, {})
+
         # Re-label book 6's pre-chapter-I content as the reconstructed
-        # chapter '1a'; re-key chapter 1 stays as corpus chapter 1.
+        # chapter '1a' (a single corpus section -- always "section" mode,
+        # never put through the marker-recovery pass below); chapter 1
+        # stays as corpus chapter 1.
         labelled = OrderedDict()
         if book == 6:
             text = ' '.join(l for l in pre_chapter if l).strip()
             if text:
-                labelled['1a'] = {1: [text]}
+                labelled['1a'] = ('section', {1: ('section', text)})
             else:
                 report.append('BOOK 6: no reconstructed-opening text found '
                                'before the first numbered chapter (Loeb "I."); '
@@ -425,10 +560,24 @@ def main():
                 report.append(f'BOOK {book}: {len(leftover.split())} words '
                                f'found before chapter I (discarded, title '
                                f'material expected): {leftover[:150]!r}')
-        for lbl, secs in chapters.items():
-            labelled[lbl] = secs
 
-        corpus_chaps = corpus_struct.get(book, {})
+        for lbl, chap_lines in chapters.items():
+            corpus_secs = corpus_chaps.get(lbl, set())
+            n_max = max(corpus_secs) if corpus_secs else 0
+            candidates = lis_candidates(chap_lines, n_max)
+            chosen = longest_increasing(candidates)
+            found = len(chosen)
+            expected_markers = max(0, n_max - 1)
+            pct = (found / expected_markers * 100) if expected_markers else 100.0
+            marker_stats.append((book, lbl, n_max, found, expected_markers, pct))
+            if expected_markers == 0 or pct >= 70.0:
+                unit_list = build_section_units(chap_lines, chosen)
+                labelled[lbl] = ('section', sections_from_units(unit_list, n_max))
+            else:
+                merged = ' '.join(l for l in chap_lines if l).strip()
+                labelled[lbl] = ('chapter', merged)
+                fallback_list.append((book, lbl, found, expected_markers, pct))
+
         parsed_chap_count = len(labelled)
         corpus_chap_count = len(corpus_chaps)
         book_chapter_counts[book] = (parsed_chap_count, corpus_chap_count)
@@ -438,20 +587,19 @@ def main():
                                    sorted(map(str, corpus_chaps.keys()))))
             continue
 
-        for chap_label, secs in labelled.items():
-            corpus_secs = corpus_chaps.get(chap_label, set())
-            parsed_secs = set(secs.keys())
-            if parsed_secs == corpus_secs and corpus_secs:
-                all_units[(book, chap_label)] = {
-                    s: ' '.join(p for p in parts if p).strip()
-                    for s, parts in secs.items()}
+        for chap_label, (mode, payload) in labelled.items():
+            if mode == 'section':
+                all_units[(book, chap_label)] = payload
             else:
-                merged = ' '.join(
-                    p for s in sorted(secs.keys())
-                    for p in secs[s] if p).strip()
-                chapter_fallback[(book, chap_label)] = merged
-                fallback_list.append(
-                    (book, chap_label, sorted(parsed_secs), sorted(corpus_secs)))
+                chapter_fallback[(book, chap_label)] = payload
+
+    report.append('')
+    report.append('per-chapter section-marker recovery (expected sections, '
+                   'markers found/possible, percent):')
+    for book, lbl, n_max, found, expected_markers, pct in marker_stats:
+        report.append(f'  book {book} chapter {lbl}: expected sections '
+                       f'{n_max}, markers found {found}/{expected_markers} '
+                       f'({pct:.0f}%)')
 
     report.append('')
     report.append('per-book chapter counts (parsed vs corpus):')
@@ -467,33 +615,45 @@ def main():
                            f'corpus {c} chapters {want}')
 
     report.append('')
-    report.append(f'chapters falling back to one unit per chapter: '
-                   f'{len(fallback_list)}')
-    for book, chap, got, want in fallback_list:
-        report.append(f'  book {book} chapter {chap}: parsed sections {got} '
-                       f'vs corpus sections {want}')
+    report.append(f'chapters falling back to one unit per chapter '
+                   f'(markers found below 70%): {len(fallback_list)}')
+    for book, chap, found, expected_markers, pct in fallback_list:
+        report.append(f'  book {book} chapter {chap}: markers found '
+                       f'{found}/{expected_markers} ({pct:.0f}%)')
 
     # ---- build units / ref_to_unit -------------------------------------
+    # source index 0 = section (exact marker found), 1 = chapter (whole-
+    # chapter fallback), 2 = section-merged (marker missing, inherited the
+    # preceding found section's text).
     units, ref_to_unit, unit_sources = [], {}, []
     unit_index = {}
 
     def get_unit(text, source_idx):
-        if text not in unit_index:
-            unit_index[text] = len(units)
+        # Keyed by (text, source_idx), not text alone: a section-merged
+        # ref shares its anchor section's exact text, but must still record
+        # its own "section-merged" mode rather than silently inheriting
+        # the anchor's "section" mode through text-only deduplication.
+        key = (text, source_idx)
+        if key not in unit_index:
+            unit_index[key] = len(units)
             units.append(text)
             unit_sources.append(source_idx)
-        return unit_index[text]
+        return unit_index[key]
 
-    n_section_units = n_chapter_units = 0
+    n_section_units = n_merged_units = n_chapter_units = 0
     for ref, book, chap_label, sec in refs:
         if book not in TARGET_BOOKS:
             continue
         key = (book, chap_label)
         if key in all_units and sec in all_units[key]:
-            text = all_units[key][sec]
+            sec_mode, text = all_units[key][sec]
             if text:
-                ref_to_unit[ref] = get_unit(text, 0)
-                n_section_units += 1
+                src_idx = 0 if sec_mode == 'section' else 2
+                ref_to_unit[ref] = get_unit(text, src_idx)
+                if sec_mode == 'section':
+                    n_section_units += 1
+                else:
+                    n_merged_units += 1
             continue
         if key in chapter_fallback:
             text = chapter_fallback[key]
@@ -502,10 +662,15 @@ def main():
                 n_chapter_units += 1
 
     coverage = len(ref_to_unit) / len(refs) if refs else 0
+    n_section_level = n_section_units + n_merged_units
     report.append('')
-    report.append(f'units from section-level text: {n_section_units} refs; '
-                   f'from chapter-level fallback: {n_chapter_units} refs; '
-                   f'{len(units)} distinct units stored')
+    report.append(f'units from exact section markers: {n_section_units} refs; '
+                   f'section-merged (marker missing, inherited): '
+                   f'{n_merged_units} refs; chapter-level fallback: '
+                   f'{n_chapter_units} refs; {len(units)} distinct units stored')
+    report.append(f'section-level total (section + section-merged): '
+                   f'{n_section_level}/{len(refs)} '
+                   f'({n_section_level / len(refs):.4f})')
     report.append(f'coverage: {coverage:.4f} ({len(ref_to_unit)}/{len(refs)})')
 
     # ---- name check (300 sampled units / ref pairs) ---------------------
@@ -515,15 +680,30 @@ def main():
     report.append(f'name check: hit_rate={hit} n={n_tested} '
                    f'(of {len(pairs)} translated-ref pairs available)')
 
-    # ---- Latin-leakage check ---------------------------------------------
-    def latin_func_count(text):
-        toks = [t.lower() for t in word_tokens(text)]
-        return sum(1 for t in toks if t in LATIN_FUNC)
+    # ---- Latin-leakage check (unambiguous words only: "in", "non" etc are
+    # also ordinary English and swamp the count in a long unit) -----------
+    UNAMBIGUOUS_LATIN = set('atque quoque enim autem igitur etiam tamen '
+                             'neque quidem inquit'.split())
 
-    leaking = sum(1 for u in units if latin_func_count(u) >= 2)
+    def unambiguous_latin_count(text):
+        toks = [t.lower() for t in word_tokens(text)]
+        return sum(1 for t in toks if t in UNAMBIGUOUS_LATIN)
+
+    leaking = sum(1 for u in units if unambiguous_latin_count(u) >= 2)
     leakage_share = leaking / len(units) if units else 0
-    report.append(f'Latin leakage: {leaking}/{len(units)} units '
-                   f'({leakage_share:.4%}) contain >=2 Latin function words')
+    report.append(f'Latin leakage (unambiguous words, >=2 per unit): '
+                   f'{leaking}/{len(units)} units ({leakage_share:.4%})')
+
+    # ---- footnote/apparatus-contamination check --------------------------
+    FOOTNOTE_SIGNS_RE = re.compile(
+        r'\(Arr\.|\(Curt\.|\(Diod\.|See Cicero|' +
+        '|'.join(re.escape(n) for n in EDITOR_NAMES))
+    contaminated = sum(1 for u in units if FOOTNOTE_SIGNS_RE.search(u))
+    contaminated_share = contaminated / len(units) if units else 0
+    report.append(f'footnote/apparatus contamination: '
+                   f'{contaminated}/{len(units)} units '
+                   f'({contaminated_share:.4%}) contain "(Arr.", "(Curt.", '
+                   f'"(Diod.", "See Cicero", or an editor\'s name')
 
     # ---- requested passages ----------------------------------------------
     report.append('')
@@ -571,6 +751,24 @@ def main():
             'rights_basis': 'HathiTrust rights pd (Full view) for '
                             'mdp.39015008158415 and mdp.39015008158407',
             'short_attribution': 'J. C. Rolfe (1946)',
+        },
+        {
+            'translator': 'J. C. Rolfe',
+            'year': 1946,
+            'title': 'Quintus Curtius, History of Alexander, 2 vols '
+                     '(Loeb Classical Library)',
+            'publisher': 'Harvard University Press / William Heinemann',
+            'mode': 'section-merged',
+            'ref_composition': ['book', 'chapter', 'section'],
+            'source_url': 'https://archive.org/details/'
+                          'quintus.-curtius.-rufus.-history.of.-alexander.'
+                          '-loeb.-one-vol-version_202511',
+            'rights_basis': 'HathiTrust rights pd (Full view) for '
+                            'mdp.39015008158415 and mdp.39015008158407',
+            'short_attribution': 'J. C. Rolfe (1946)',
+            'note': 'This section\'s own marker could not be found in the '
+                    'OCR; it shares the Loeb English of the nearest '
+                    'preceding section whose marker WAS found.',
         },
     ]
     out = {
