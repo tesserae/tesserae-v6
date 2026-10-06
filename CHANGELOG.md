@@ -20,6 +20,13 @@ behind each, are in docs/DECISIONS.md.
 - The admin request listing is paginated, filtered and sorted on the server,
   with every filter and sort value checked against a fixed list (#610).
 
+- Each fused search result carries channel_token_attrs: for every channel
+  that matched the pair, the word positions it matched on each side, so a
+  display can mark lexical, sound and other matches differently without
+  searching again. Results computed before this change and served from the
+  results cache carry the field empty until the search is run again (#618,
+  a collaborator's change).
+
 ### Connector
 - The installed (stdio) connector gains the seven tools the web connector
   already had: compare_texts, theme_search, get_passage, similar_passages,
