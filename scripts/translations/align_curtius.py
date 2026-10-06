@@ -361,16 +361,20 @@ def longest_increasing(candidates):
 
 def build_section_units(chapter_lines, chosen):
     """-> [(anchor_section, text), ...] in ascending anchor order, anchor 1
-    always first. `chosen`: the accepted [(idx, value, rest)] markers."""
+    always first. `chosen`: the accepted [(idx, value, rest)] markers.
+
+    Joined with newlines, not spaces: the text-cleanup pass (rule 4, cutting
+    a unit's trailing garbage LINE) needs the original OCR line boundaries,
+    which it collapses to spaces itself once it is done with them."""
     if not chosen:
-        return [(1, ' '.join(l for l in chapter_lines if l).strip())]
+        return [(1, '\n'.join(l for l in chapter_lines if l).strip())]
     first_idx = chosen[0][0]
-    units = [(1, ' '.join(l for l in chapter_lines[:first_idx] if l).strip())]
+    units = [(1, '\n'.join(l for l in chapter_lines[:first_idx] if l).strip())]
     for i, (idx, v, rest) in enumerate(chosen):
         end_idx = chosen[i + 1][0] if i + 1 < len(chosen) else len(chapter_lines)
         parts = [rest] if rest else []
         parts.extend(l for l in chapter_lines[idx + 1:end_idx] if l)
-        units.append((v, ' '.join(parts).strip()))
+        units.append((v, '\n'.join(parts).strip()))
     return units
 
 
@@ -387,6 +391,165 @@ def sections_from_units(units, n_max):
         mode = 'section' if anchors[j] == s else 'section-merged'
         out[s] = (mode, units[j][1])
     return out
+
+
+# ---------------------------------------------------------------------------
+# Third pass: clean residual OCR noise OUT OF UNIT TEXT ONLY. None of this
+# touches which ref maps to which unit -- it runs after ref_to_unit and
+# unit_sources are already final, mutating units[i] in place, so the
+# mapping is unaffected by construction.
+# ---------------------------------------------------------------------------
+
+HEADER_FRAGMENT_RE = re.compile(
+    r'\bHISTORY\s+OF\s+ALEXANDER(\s+THE)?(\s+GREAT)?(\s+OF\s+MACEDON)?\b'
+    r'|\bQUINTUS\s+CURTIUS(\s+RUFUS)?\b'
+    r'|\bGREAT\s+OF\s+MACEDON\b'
+    r'|\bALEXANDER\s+THE\s+GREAT\b'
+    r'|\bBOOK\s+[IVX]{1,6}\b',
+    re.IGNORECASE)
+
+
+def strip_header_fragments(text):
+    new_text, n = HEADER_FRAGMENT_RE.subn(' ', text)
+    return new_text, (1 if n else 0)
+
+
+# "@ 383 2.0." etc: a footnote-style lead symbol followed by one to three
+# short digit/dot/letter tokens, appearing right after the chapter's
+# opening words (within the first ~80 characters of the unit) -- a
+# marginal date or cross-reference caught mid-sentence, not a real section
+# number (those are handled by strip_section_numbers below).
+MARGINALIA_RE = re.compile(
+    r'[@°¢©®*]\s*(?:[0-9][0-9.]{0,3}|[A-Za-z]\.){1,3}(?:\s+(?:[0-9][0-9.]{0,3}|[A-Za-z]\.)){0,2}\s*'
+    r'(?=[a-z])')
+
+
+def strip_marginalia(text):
+    head, rest = text[:80], text[80:]
+    new_head, n = MARGINALIA_RE.subn(' ', head)
+    return new_head + rest, (1 if n else 0)
+
+
+# A marginal section number sitting between a sentence end (or a footnote
+# mark) and the next capitalised word ("Celaenae.(R) 2 Through"), between
+# an ordinary word and a capitalised one ("songs of the 3 Greeks" -- no
+# punctuation precedes it at all, just a line-wrap), or glued straight onto
+# the next lower-case word ("4and"). Only the digit itself is matched (both
+# sides are zero-width lookaround), so surrounding whitespace -- including
+# a real newline -- is left untouched; that matters because this runs
+# AFTER the trailing-garbage cut (rule 4), which needs those line breaks
+# intact to tell a genuine footnote block from ordinary prose. Only
+# removed when its value is a plausible section number (1..n_max) for the
+# unit's own chapter.
+SECTION_NUM_RE = re.compile(r'(?<=\s)(\d{1,2})(?=\s+[A-Z]|[a-z])')
+
+
+def strip_section_numbers(text, n_max):
+    changed = [False]
+
+    def repl(m):
+        val = int(m.group(1))
+        if n_max and 1 <= val <= n_max:
+            changed[0] = True
+            return ''
+        return m.group(0)
+
+    new_text = SECTION_NUM_RE.sub(repl, text)
+    return new_text, (1 if changed[0] else 0)
+
+
+FOOTNOTE_SYMBOL_RE = re.compile(r'[@°¢©®*]')
+
+
+def strip_footnote_symbols(text):
+    new_text, n = FOOTNOTE_SYMBOL_RE.subn(' ', text)
+    return new_text, (1 if n else 0)
+
+
+def rejoin_hyphens(text):
+    return re.sub(r'(\w)-\s+(\w)', r'\1\2', text)
+
+
+def is_good_token(tok):
+    core = re.sub(r"^[^A-Za-z']+|[^A-Za-z']+$", '', tok)
+    return len(core) >= 2 and core.replace("'", '').isalpha()
+
+
+MAX_TRAILING_WINDOW = 8
+
+
+def _worst_failing_window(lines):
+    """The largest k (1..MAX_TRAILING_WINDOW, capped at len(lines)-1 so at
+    least one line always survives) such that the last k lines COMBINED
+    score under 60% good tokens, or 0 if none do. A short garbage footnote
+    is often two or three OCR lines (a numbered citation, then a line of
+    scanner noise) where the LAST line alone can look deceptively wordy
+    (real letters, just not real words) while the combined block is
+    plainly not prose -- so the window grows until it stops finding a
+    failure, not just a single line at a time."""
+    worst = 0
+    limit = min(len(lines) - 1, MAX_TRAILING_WINDOW)
+    for k in range(1, limit + 1):
+        toks = ' '.join(lines[-k:]).split()
+        if not toks:
+            continue
+        good = sum(1 for t in toks if is_good_token(t))
+        if good / len(toks) < 0.6:
+            worst = k
+    return worst
+
+
+def strip_trailing_garbage(text):
+    """Repeatedly drop the unit's trailing OCR line(s) while some trailing
+    window of them scores under 60% good tokens (see `_worst_failing_window`).
+    Never reduces a unit to nothing: always leaves at least one line."""
+    lines = [l for l in text.strip().split('\n') if l.strip()]
+    n_cut = 0
+    while True:
+        k = _worst_failing_window(lines)
+        if not k:
+            break
+        del lines[-k:]
+        n_cut += 1
+    return '\n'.join(lines), (1 if n_cut else 0)
+
+
+def ends_in_garbage(text):
+    lines = [l for l in text.strip().split('\n') if l.strip()]
+    return bool(_worst_failing_window(lines))
+
+
+def clean_unit_text(text, source_idx, n_max, counts):
+    orig = text
+    text, c1 = strip_header_fragments(text)
+    counts['header'] += c1
+    text, c3b = strip_marginalia(text)
+    counts['marginalia'] += c3b
+    # Trailing-garbage removal runs BEFORE the section-number strip: a
+    # footnote block's own digits (its number, a page or line citation)
+    # are exactly what makes that block fail the good-token ratio test, so
+    # stripping them first would make leftover scanner noise look more
+    # like prose than it is and let it survive.
+    text, c4 = strip_trailing_garbage(text)
+    counts['trailing'] += c4
+    c2 = 0
+    if source_idx in (1, 2):  # chapter-level and section-merged units only
+        text, c2 = strip_section_numbers(text, n_max)
+    counts['secnum'] += c2
+    text, c3 = strip_footnote_symbols(text)
+    counts['footnote'] += c3
+    text = rejoin_hyphens(text)
+    # Collapse ALL whitespace runs (including the lone newlines still
+    # separating lines at this point) down to single spaces.
+    text = re.sub(r'\s+', ' ', text).strip()
+    # Compared against the ORIGINAL with its own whitespace likewise
+    # collapsed, so a unit that is only rejoined across the newlines this
+    # pass's own text construction introduced does not count as "changed"
+    # -- only a unit an actual rule above touched does.
+    orig_collapsed = re.sub(r'\s+', ' ', orig).strip()
+    if text != orig_collapsed:
+        counts['changed'] += 1
+    return text
 
 
 def process_volume(path, vol_label, report):
@@ -547,7 +710,7 @@ def main():
         # stays as corpus chapter 1.
         labelled = OrderedDict()
         if book == 6:
-            text = ' '.join(l for l in pre_chapter if l).strip()
+            text = '\n'.join(l for l in pre_chapter if l).strip()
             if text:
                 labelled['1a'] = ('section', {1: ('section', text)})
             else:
@@ -574,7 +737,7 @@ def main():
                 unit_list = build_section_units(chap_lines, chosen)
                 labelled[lbl] = ('section', sections_from_units(unit_list, n_max))
             else:
-                merged = ' '.join(l for l in chap_lines if l).strip()
+                merged = '\n'.join(l for l in chap_lines if l).strip()
                 labelled[lbl] = ('chapter', merged)
                 fallback_list.append((book, lbl, found, expected_markers, pct))
 
@@ -627,8 +790,11 @@ def main():
     # preceding found section's text).
     units, ref_to_unit, unit_sources = [], {}, []
     unit_index = {}
+    unit_nmax = []  # parallel to units: the originating chapter's corpus
+                     # section count, N -- not part of the written schema,
+                     # used only to bound the text-cleanup pass below.
 
-    def get_unit(text, source_idx):
+    def get_unit(text, source_idx, n_max):
         # Keyed by (text, source_idx), not text alone: a section-merged
         # ref shares its anchor section's exact text, but must still record
         # its own "section-merged" mode rather than silently inheriting
@@ -638,6 +804,7 @@ def main():
             unit_index[key] = len(units)
             units.append(text)
             unit_sources.append(source_idx)
+            unit_nmax.append(n_max)
         return unit_index[key]
 
     n_section_units = n_merged_units = n_chapter_units = 0
@@ -645,11 +812,13 @@ def main():
         if book not in TARGET_BOOKS:
             continue
         key = (book, chap_label)
+        corpus_secs_here = corpus_struct.get(book, {}).get(chap_label, set())
+        n_max_here = max(corpus_secs_here) if corpus_secs_here else 0
         if key in all_units and sec in all_units[key]:
             sec_mode, text = all_units[key][sec]
             if text:
                 src_idx = 0 if sec_mode == 'section' else 2
-                ref_to_unit[ref] = get_unit(text, src_idx)
+                ref_to_unit[ref] = get_unit(text, src_idx, n_max_here)
                 if sec_mode == 'section':
                     n_section_units += 1
                 else:
@@ -658,7 +827,7 @@ def main():
         if key in chapter_fallback:
             text = chapter_fallback[key]
             if text:
-                ref_to_unit[ref] = get_unit(text, 1)
+                ref_to_unit[ref] = get_unit(text, 1, n_max_here)
                 n_chapter_units += 1
 
     coverage = len(ref_to_unit) / len(refs) if refs else 0
@@ -672,6 +841,35 @@ def main():
                    f'{n_section_level}/{len(refs)} '
                    f'({n_section_level / len(refs):.4f})')
     report.append(f'coverage: {coverage:.4f} ({len(ref_to_unit)}/{len(refs)})')
+
+    # ---- third pass: clean residual OCR noise out of unit TEXT only ------
+    # ref_to_unit and unit_sources are already final above and are not
+    # touched again here; only units[i] strings are rewritten in place.
+    clean_counts = {'header': 0, 'marginalia': 0, 'secnum': 0,
+                     'footnote': 0, 'trailing': 0, 'changed': 0}
+    for i in range(len(units)):
+        units[i] = clean_unit_text(units[i], unit_sources[i], unit_nmax[i],
+                                    clean_counts)
+
+    n_header_frag_left = sum(1 for u in units if HEADER_FRAGMENT_RE.search(u))
+    n_garbage_end_left = sum(1 for u in units if ends_in_garbage(u))
+
+    report.append('')
+    report.append('cleanup pass (units changed per rule, of '
+                   f'{len(units)} total units):')
+    report.append(f'  rule 1 (running headers removed): {clean_counts["header"]}')
+    report.append(f'  rule 2 (marginal section numbers removed, chapter/'
+                   f'merged units only): {clean_counts["secnum"]}')
+    report.append(f'  rule 3 (footnote symbols removed): '
+                   f'{clean_counts["footnote"]}')
+    report.append(f'  rule 3 (marginalia near chapter opening removed): '
+                   f'{clean_counts["marginalia"]}')
+    report.append(f'  rule 4 (trailing garbage cut): {clean_counts["trailing"]}')
+    report.append(f'  units with any change: {clean_counts["changed"]}')
+    report.append(f'units still containing a running-head fragment: '
+                   f'{n_header_frag_left} (must be 0)')
+    report.append(f'units still ending in a garbage line (rule 4 test): '
+                   f'{n_garbage_end_left} (must be 0)')
 
     # ---- name check (300 sampled units / ref pairs) ---------------------
     pairs = [(latin_by_ref[ref], units[ref_to_unit[ref]])
