@@ -51,6 +51,20 @@ behind each, are in docs/DECISIONS.md.
   taken; main's own citations, help text, sample searches and era table
   stand. Nothing shows until a server serves one of the languages.
 
+### Search
+- The results page no longer downloads every parallel to show one page of
+  them. A parallel search now asks for its page size; the server still runs
+  the whole search exactly as before, keeps the finished list on disk for
+  six hours (`tmp/search_results/`, at most 1 GB, oldest removed first) and
+  sends the first page with an id. Later pages, the Sort menu and the chart's
+  bar filter are requests to `GET /api/search-results/<id>`, which filters
+  and sorts the whole list before cutting the page. The chart counts come
+  from the server, CSV/PDF export fetches the full list when clicked, and the
+  "Across the corpus" picker lists the parallels on the current page. On a
+  1,456-row lemma search the final response fell from 3.8 MB to 0.1 MB.
+  Search time is unchanged. Requests without `page_size` (connector, agents,
+  scripts) get the same full response as before.
+
 ### Tessa
 - "Are you still working?", "is it done?" and the like, asked after a
   comparison that outlasted her wait, are now answered about that

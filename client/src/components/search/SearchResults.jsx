@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { Button, LoadingSpinner, Pagination, CiteButton } from '../common';
-import { usePagination } from '../../hooks/usePagination';
+import { usePagination, useServerPagination, MAX_PAGE_SIZE } from '../../hooks/usePagination';
+import { fetchResultPage, fetchAllResults } from '../../utils/api';
 import { formatReference, formatElapsedTime } from '../../utils/formatting';
 import { languageName } from '../../utils/languageNames';
 import { displayGreekWithFinalSigma } from '../../utils/greekUtils';
@@ -26,8 +27,13 @@ const citationFor = (r, side, language) => {
   return formatReference(r[`${side}_locus`] || s?.ref, language);
 };
 
+const EMPTY = [];
+
 const SearchResults = ({
   results,
+  // {id, total, firstPage, pageSize, aggregates} when the server holds the
+  // complete list and `results` is only its first page; null otherwise.
+  resultSet = null,
   loading,
   error,
   pageSize,
@@ -156,6 +162,25 @@ const SearchResults = ({
   const paginationResetKey = `${searchRunId ?? ''}|${sortBy ?? ''}|` +
     `${chartFilter ? `${chartFilter.mode || 'book'}:${chartFilter.view}:${chartFilter.book ?? chartFilter.label ?? ''}` : ''}`;
 
+  // Server mode: the finished list lives on the server and every page, sort
+  // and chart filter is a request to it. Client mode: fusion's streaming
+  // previews, and any response without a result_id, paged in the browser.
+  const serverMode = Boolean(resultSet) && !loading;
+  const clientPagination = usePagination(serverMode ? EMPTY : filteredResults, {
+    pageSize,
+    onPageSizeChange,
+    resetKey: paginationResetKey,
+    // While fusion streams, the array grows on every intermediate event; hold
+    // page 1 so the pointer can never trail a set that is still being built.
+    pinToFirstPage: loading,
+  });
+  const serverPagination = useServerPagination(serverMode ? resultSet : null, {
+    pageSize,
+    onPageSizeChange,
+    resetKey: paginationResetKey,
+    sort: sortBy,
+    filter: chartFilter,
+  }, fetchResultPage);
   const {
     visibleItems,
     startIndex,
@@ -165,14 +190,24 @@ const SearchResults = ({
     pageSize: activePageSize,
     setPage,
     setPageSize,
-  } = usePagination(filteredResults, {
-    pageSize,
-    onPageSizeChange,
-    resetKey: paginationResetKey,
-    // While fusion streams, the array grows on every intermediate event; hold
-    // page 1 so the pointer can never trail a set that is still being built.
-    pinToFirstPage: loading,
-  });
+  } = serverMode ? serverPagination : clientPagination;
+  // Count of the whole (unfiltered) list, and of the list after the chart filter.
+  const allCount = serverMode ? resultSet.total : activeResults.length;
+  const filteredCount = serverMode ? totalResults : filteredResults.length;
+  // Exports and Tessa read rows the browser may not hold: fetch them on demand.
+  const loadAllRows = useCallback(
+    () => (serverMode ? fetchAllResults(resultSet.id) : Promise.resolve(results || [])),
+    [serverMode, resultSet, results]
+  );
+  const loadTopRows = useCallback(
+    (n) => {
+      if (!serverMode) return Promise.resolve(activeResults.slice(0, n));
+      // A page holds at most 100 rows; "all" beyond that comes from the export.
+      if (n > MAX_PAGE_SIZE) return fetchAllResults(resultSet.id).then(rows => rows.slice(0, n));
+      return fetchResultPage(resultSet.id, { offset: 0, limit: n, sort: sortBy }).then(d => d.results || []);
+    },
+    [serverMode, resultSet, sortBy, activeResults]
+  );
 
   // Theme Comparison's reading of each visible word-level result: one POST
   // per page (not per row) to /api/passages/pair-lift, keyed by position in
@@ -216,7 +251,7 @@ const SearchResults = ({
     pageSize: activePageSize,
     onPageChange: setPage,
     onPageSizeChange: setPageSize,
-    disabled: loading,
+    disabled: loading || serverPagination.pageLoading,
   };
 
   const toggleExpand = (index) => {
@@ -258,15 +293,17 @@ const SearchResults = ({
     return formatReference(r, language);
   }, [language]);
 
-  const exportCSV = useCallback(() => {
+  const exportCSV = useCallback(async () => {
     if (!results || results.length === 0) return;
+    let allRows;
+    try { allRows = await loadAllRows(); } catch { return; }
 
     // Sort by fused_score descending — the same score the on-screen list and
     // ranking show. Falls back to score / overall_score for legacy formats.
     // Without this explicit sort the CSV could appear unordered if the API
     // serializes results in some other internal order.
     const scoreOf = (r) => r.fused_score ?? r.score ?? r.overall_score ?? 0;
-    const sorted = [...results].sort((a, b) => scoreOf(b) - scoreOf(a));
+    const sorted = [...allRows].sort((a, b) => scoreOf(b) - scoreOf(a));
     const headers = ['Rank', 'Source Locus', 'Source Text', 'Target Locus', 'Target Text', 'Score', 'Matched Words', 'Channels'];
     const rows = sorted.map((r, idx) => {
       const mw = r.matched_words || [];
@@ -293,10 +330,12 @@ const SearchResults = ({
     a.download = `tesserae_results_${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-  }, [results]);
+  }, [results, loadAllRows, highlightMatchedWords]);
 
-  const exportPDF = useCallback(() => {
+  const exportPDF = useCallback(async () => {
     if (!results || results.length === 0) return;
+    let allRows;
+    try { allRows = await loadAllRows(); } catch { return; }
     const headers = ['#', 'Source Locus', 'Source Text', 'Target Locus', 'Target Text', 'Score', 'Matched Words', 'Channels'];
     // Token-based renderer: split source/target text on whitespace, compare each
     // token against the matched-word set. Robust against any script and avoids
@@ -340,7 +379,7 @@ const SearchResults = ({
     // serialize results in a different internal order; without an explicit
     // sort the PDF could appear out of order.
     const scoreOf = (r) => r.fused_score ?? r.score ?? r.overall_score ?? 0;
-    const sorted = [...results].sort((a, b) => scoreOf(b) - scoreOf(a));
+    const sorted = [...allRows].sort((a, b) => scoreOf(b) - scoreOf(a));
     const rows = sorted.map((r, idx) => {
       const mw = r.matched_words || [];
       const sourceText = (r.source_text || r.source_snippet || r.source?.text || '').replace(/<[^>]*>/g, '');
@@ -372,7 +411,7 @@ const SearchResults = ({
       lang: language || '',
       colWidths,
     });
-  }, [results, sourceTextInfo, targetTextInfo, language]);
+  }, [results, loadAllRows, sourceTextInfo, targetTextInfo, language]);
 
   const exportDistributionChart = () => {
     if (!chartRef.current) return;
@@ -392,6 +431,17 @@ const SearchResults = ({
   const getDistributionData = useCallback(() => {
     if (!results || results.length === 0) return null;
     const isSourceView = distributionChartView === 'source';
+    const color = isSourceView ? 'rgba(185, 28, 28, 0.7)' : 'rgba(217, 119, 6, 0.7)';
+    const border = isSourceView ? 'rgb(185, 28, 28)' : 'rgb(217, 119, 6)';
+    if (serverMode) {
+      // Computed by the server over every row (backend/result_pages.distribution).
+      const d = resultSet.aggregates?.distribution?.[distributionChartView];
+      if (!d) return null;
+      return {
+        _mode: d.mode, _band: d.band, labels: d.labels,
+        datasets: [{ label: 'Parallels', data: d.counts, backgroundColor: color, borderColor: border, borderWidth: 1 }]
+      };
+    }
     // A locus like "1.469" -> book 1, line 469; a flat "469" -> line only.
     const parseLoc = (locus) => {
       const nums = (String(locus).match(/\d+/g) || []).map(Number);
@@ -400,8 +450,6 @@ const SearchResults = ({
     const pts = results.map(r => parseLoc(isSourceView
       ? (r.source_locus || r.source?.ref || '')
       : (r.target_locus || r.target?.ref || '')));
-    const color = isSourceView ? 'rgba(185, 28, 28, 0.7)' : 'rgba(217, 119, 6, 0.7)';
-    const border = isSourceView ? 'rgb(185, 28, 28)' : 'rgb(217, 119, 6)';
     const books = new Set(pts.map(p => p.book).filter(b => b != null));
 
     // Single book (e.g. Aeneid 1 vs Lucan 1): a by-book chart is one useless
@@ -431,7 +479,7 @@ const SearchResults = ({
       labels: sorted,
       datasets: [{ label: 'Parallels', data: sorted.map(k => bookData[k].count), backgroundColor: color, borderColor: border, borderWidth: 1 }]
     };
-  }, [results, distributionChartView]);
+  }, [results, distributionChartView, serverMode, resultSet]);
 
   const distributionData = getDistributionData();
   const distIsLine = distributionData?._mode === 'line';
@@ -447,7 +495,11 @@ const SearchResults = ({
       .map(w => (typeof w === 'object' ? (w.lemma || w.word || '') : String(w)).trim())
       .filter(w => /^[\p{L}]+$/u.test(w));
   };
-  const corpusHit = (results && results.length) ? results[Math.min(corpusHitIdx, results.length - 1)] : null;
+  // The picker offers the rows on screen in server mode (the browser no longer
+  // holds every row), numbered by their place in the whole list.
+  const pickerRows = serverMode ? visibleItems : (results || EMPTY);
+  const pickerOffset = serverMode ? startIndex : 0;
+  const corpusHit = pickerRows.length ? pickerRows[Math.min(corpusHitIdx, pickerRows.length - 1)] : null;
 
   useEffect(() => {
     if (sidebarMode !== 'corpus' || !showDistributionChart || loading || !corpusHit) return;
@@ -469,7 +521,7 @@ const SearchResults = ({
       .finally(() => { if (!cancelled) setCorpusLoading(false); });
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sidebarMode, corpusHitIdx, showDistributionChart, loading, language, results]);
+  }, [sidebarMode, corpusHitIdx, showDistributionChart, loading, language, pickerRows]);
 
   const CORPUS_COLOR = { backgroundColor: 'rgba(37, 99, 235, 0.7)', borderColor: 'rgb(37, 99, 235)', borderWidth: 1 };
   const getCorpusChartData = () => {
@@ -1013,11 +1065,11 @@ const SearchResults = ({
               and then fill the page, and nothing said it had finished
               (2026-09-08). "polite" so it waits for a pause in speech. */}
           <h3 className="text-lg font-semibold text-gray-900" role="status" aria-live="polite">
-            {searchStats?.total_matches && searchStats.total_matches > activeResults.length
-              ? `Top ${activeResults.length.toLocaleString()} of ${searchStats.total_matches.toLocaleString()} Parallels`
-              : `${activeResults.length} Parallel${activeResults.length !== 1 ? 's' : ''} Found`}
+            {searchStats?.total_matches && searchStats.total_matches > allCount
+              ? `Top ${allCount.toLocaleString()} of ${searchStats.total_matches.toLocaleString()} Parallels`
+              : `${allCount} Parallel${allCount !== 1 ? 's' : ''} Found`}
             {loading && fusionProgress && (pauseUpdates ? ' (paused)' : ' (partial)')}
-            {chartFilter && ` (${filteredResults.length} ${chartFilter.mode === 'line' ? `at lines ${chartFilter.label}` : `in ${chartFilter.book}`})`}
+            {chartFilter && ` (${filteredCount} ${chartFilter.mode === 'line' ? `at lines ${chartFilter.label}` : `in ${chartFilter.book}`})`}
           </h3>
           {searchStats && (
             <p className="text-sm text-gray-500">
@@ -1029,6 +1081,8 @@ const SearchResults = ({
           {!loading && (
             <ResultsInsight
               results={activeResults}
+              total={allCount}
+              loadResults={loadTopRows}
               source={sourceTextInfo?.display_name || sourceTextInfo?.name}
               target={targetTextInfo?.display_name || targetTextInfo?.name}
               className="mt-2"
@@ -1127,7 +1181,7 @@ const SearchResults = ({
           {chartFilter && (
             <div className="mt-3 flex items-center justify-between bg-amber-50 border border-amber-200 rounded px-3 py-2">
               <span className="text-sm text-amber-800">
-                Filtering to {chartFilter.mode === 'line' ? `lines ${chartFilter.label}` : chartFilter.book} ({filteredResults.length} result{filteredResults.length !== 1 ? 's' : ''})
+                Filtering to {chartFilter.mode === 'line' ? `lines ${chartFilter.label}` : chartFilter.book} ({filteredCount} result{filteredCount !== 1 ? 's' : ''})
               </span>
               <button
                 onClick={() => setChartFilter(null)}
@@ -1148,9 +1202,9 @@ const SearchResults = ({
               onChange={(e) => setCorpusHitIdx(Number(e.target.value))}
               className="w-full border rounded px-2 py-1 text-xs"
             >
-              {(results || []).map((r, i) => (
+              {pickerRows.map((r, i) => (
                 <option key={i} value={i}>
-                  #{i + 1} · {citationFor(r, 'source', language)} ↔ {citationFor(r, 'target', language)}
+                  #{pickerOffset + i + 1} · {citationFor(r, 'source', language)} ↔ {citationFor(r, 'target', language)}
                 </option>
               ))}
             </select>
@@ -1247,6 +1301,9 @@ const SearchResults = ({
           <span><mark className="bg-yellow-200 px-1 rounded">yellow</mark> a word both lines share (the refrain, or a matched word)</span>
           <span><mark className="bg-rose-200 px-1 rounded">rose</mark> each line's rhyme word, the word before the refrain; the same rhyme, usually different words</span>
         </p>
+      )}
+      {serverMode && serverPagination.pageError && (
+        <p className="text-sm text-red-700" role="alert">{serverPagination.pageError}</p>
       )}
       <div className="space-y-3">
         {visibleItems.map((r, i) => (

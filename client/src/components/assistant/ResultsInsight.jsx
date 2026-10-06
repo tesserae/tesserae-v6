@@ -19,7 +19,9 @@ import FindingsBlock from './FindingsBlock';
  */
 const SCOPES = [25, 100];
 
-export default function ResultsInsight({ results, source, target, className = '' }) {
+// `total` and `loadResults(n)` are given when the browser holds only one page
+// of a server-held list: the top n are then fetched when Tessa is asked.
+export default function ResultsInsight({ results, total: totalProp, loadResults, source, target, className = '' }) {
   const [open, setOpen] = useState(false);
   const [scope, setScope] = useState(25);
   const [question, setQuestion] = useState('');
@@ -27,14 +29,20 @@ export default function ResultsInsight({ results, source, target, className = ''
 
   if (!results?.length) return null;
 
-  const total = results.length;
+  const total = totalProp ?? results.length;
   const count = Math.min(scope, total);
   const scopeLabel = count === total ? `all ${total}` : `the top ${count} of ${total}`;
 
-  const ask = (q, n = scope) => {
+  const ask = async (q, n = scope) => {
     setOpen(true);
+    let rows;
+    try {
+      rows = loadResults ? await loadResults(n) : results.slice(0, n);
+    } catch {
+      rows = results.slice(0, n);
+    }
     run('/api/assistant/analyze-stream', {
-      results: results.slice(0, n),
+      results: rows,
       source,
       target,
       question: q || undefined,

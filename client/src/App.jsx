@@ -197,8 +197,9 @@ function App() {
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
   
   // Page size is shared by every result renderer so the choice survives a new
-  // search and a switch between parallel and rare-word results. Purely local:
-  // it is never sent to the backend and never persisted to browser storage.
+  // search and a switch between parallel and rare-word results. A parallel
+  // search sends it as page_size, so the server keeps the full result list and
+  // returns one page (backend/result_pages.py). Never persisted to storage.
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   // Bumped once per search invocation. Renderers use it to return to page 1,
   // which array length alone cannot detect when two searches return the same count.
@@ -221,6 +222,7 @@ function App() {
   const { corpus, authors, hierarchy, loading: corpusLoading, error: corpusError, retry: retryCorpus, getTextsForAuthor } = useCorpus(activeTab);
   const {
     results,
+    resultSet,
     loading: searchLoading,
     error: searchError,
     searchStats,
@@ -572,13 +574,13 @@ function App() {
     }
 
     if (searchMode === 'parallel') {
-      await search(params);
+      await search({ ...params, page_size: pageSize });
     } else if (searchMode === 'hapax') {
       await searchRareWords(params);
     } else if (searchMode === 'bigram') {
       await searchWordPairs(params);
     }
-  }, [sourceText, targetText, activeTab, corpus, corpusLoading, settings, searchMode, search, searchRareWords, searchWordPairs]);
+  }, [sourceText, targetText, activeTab, corpus, corpusLoading, settings, searchMode, search, searchRareWords, searchWordPairs, pageSize]);
 
   // Deep link: /?source=<id>&target=<id>&lang=<lang> — once the corpus for the
   // URL's language has loaded, fill both pickers (resolving each text's author,
@@ -626,9 +628,9 @@ function App() {
       delete params.disabled_channels;
     }
     if (searchMode === 'parallel') {
-      await search(params);
+      await search({ ...params, page_size: pageSize });
     }
-  }, [sourceText, targetText, activeTab, settings, searchMode, search]);
+  }, [sourceText, targetText, activeTab, settings, searchMode, search, pageSize]);
 
   const handleRegister = useCallback((result) => {
     if (!user) {
@@ -999,6 +1001,7 @@ function App() {
                 ) : (
                   <SearchResults
                     results={sortedResults}
+                    resultSet={resultSet}
                     loading={searchLoading}
                     error={searchError}
                     pageSize={pageSize}

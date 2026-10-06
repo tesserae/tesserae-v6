@@ -43,6 +43,7 @@ from backend.search_cancellation import (
     SearchCancellation, SearchCancelled, request_cancellation,
 )
 from backend.formula_filter import annotate_formula_counts, apply_formula_filter
+from backend import result_pages
 
 logger = get_logger('search')
 
@@ -1890,6 +1891,14 @@ def search_stream():
     # Capture request context variables before entering the generator
     req_user_id = current_user.id if current_user and current_user.is_authenticated else None
     req_city, req_country, req_ip = get_user_location()
+    page_size = result_pages.requested_page_size(data)
+
+    def complete_event(result):
+        # Paged requests get the first page + a result_id; the rest stays on
+        # the server (backend/result_pages.py). Unpaged requests are unchanged.
+        if page_size:
+            result_pages.paginate_payload(result, page_size)
+        return f"data: {json.dumps(result)}\n\n"
 
     def generate():
         slot = None
@@ -1948,7 +1957,7 @@ def search_stream():
                     "elapsed_time": round(time.time() - start_time, 2),
                     "cached": True
                 }
-                yield f"data: {json.dumps(result)}\n\n"
+                yield complete_event(result)
                 return
 
             # Concurrency gate: wait for a slot before starting heavy work
@@ -2040,7 +2049,7 @@ def search_stream():
                     "stoplist_size": stoplist_size,
                     "elapsed_time": round(time.time() - start_time, 2)
                 }
-                yield f"data: {json.dumps(result)}\n\n"
+                yield complete_event(result)
                 return
 
             # Score, cache, log, and return
@@ -2066,7 +2075,9 @@ def search_stream():
                 "formula_filter": response_data.get("formula_filter"),
                 "elapsed_time": elapsed_time
             }
-            yield f"data: {json.dumps(result)}\n\n"
+            # Last chance to honour a cancel before a paged snapshot is written.
+            cancellation.check()
+            yield complete_event(result)
 
         except GeneratorExit:
             if cancellation is not None:
@@ -2110,8 +2121,23 @@ def search():
 
     Matches source vs target text using the specified match_type (lemma, exact, sound,
     edit_distance, semantic, dictionary, or cross-lingual variants). Returns all results
-    at once with matched_words, scores, and highlight indices.
+    at once with matched_words, scores, and highlight indices, or, when the body
+    carries ``page_size``, the first page plus a ``result_id`` for
+    GET /search-results/<result_id>.
     """
+    response = _search_response()
+    page_size = result_pages.requested_page_size(request.get_json(silent=True))
+    if not page_size or not isinstance(response, Response) or response.status_code != 200:
+        return response
+    # Every cross-lingual handler and the cache-hit branch below return their
+    # own jsonify'd body, so paging is applied once here at the single exit.
+    payload = response.get_json(silent=True)
+    if not isinstance(payload, dict) or not isinstance(payload.get('results'), list):
+        return response
+    return jsonify(result_pages.paginate_payload(payload, page_size))
+
+
+def _search_response():
     cancellation = None
     try:
         data = request.get_json() or {}
@@ -2209,6 +2235,33 @@ def search():
     finally:
         if cancellation is not None:
             cancellation.close()
+
+
+@search_bp.route('/search-results/<result_id>', methods=['GET'])
+def search_result_page(result_id):
+    """One page of a finished, paged search (see backend/result_pages.py).
+
+    Query: offset, limit (1-100), sort (score|source_locus|target_locus), and
+    optionally filter_view (source|target) with filter_book or
+    filter_line_min + filter_line_max. Filter and sort run over the complete
+    stored list before slicing. 404 for an unknown or expired result_id.
+    """
+    rows = result_pages.load(result_id)
+    if rows is None:
+        return jsonify({'error': 'Result set not found or expired; run the search again'}), 404
+    try:
+        return jsonify(result_pages.query_page(rows, request.args))
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+
+
+@search_bp.route('/search-results/<result_id>/export', methods=['GET'])
+def search_result_export(result_id):
+    """Every stored row in score order, for the CSV / PDF export buttons."""
+    rows = result_pages.load(result_id)
+    if rows is None:
+        return jsonify({'error': 'Result set not found or expired; run the search again'}), 404
+    return jsonify({'results': result_pages.sort_rows(rows, 'score'), 'total': len(rows)})
 
 
 @search_bp.route('/stoplists', methods=['GET'])
