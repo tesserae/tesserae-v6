@@ -421,7 +421,29 @@ Authenticate as admin.
 ---
 
 ### GET `/api/admin/requests`
-List pending text upload requests.
+One page of text upload requests, list fields only (no uploaded text). Invalid values return 400.
+
+**Query Parameters:**
+- `page` (default `1`)
+- `per_page`: `25`, `50` (default), `100` or `500`
+- `status`: `all` (default), `pending`, `approved`, `rejected` or `completed`
+- `hide_completed`: `0` (default) or `1`; ignored when `status` is not `all`
+- `sort_by`: `status` (default: pending, rejected, approved, completed), `created_at` or `admin_updated_at`
+- `sort_order`: `asc` (default) or `desc`
+
+**Response:**
+```json
+{
+  "requests": [{"id": 12, "status": "pending", "author": "Vergil", "work": "Aeneid",
+                "language": "la", "created_at": "2026-08-01T00:00:00", "admin_updated_at": null}],
+  "total": 120, "pages": 3, "current_page": 1, "per_page": 50, "pending_count": 7
+}
+```
+
+---
+
+### GET `/api/admin/requests/<id>`
+One text request with every field the review form edits, including `content`. 404 if unknown.
 
 ---
 
