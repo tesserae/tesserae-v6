@@ -575,6 +575,9 @@ def _slim_fusion_result(r, language=None):
         'matched': matched,
         'matched_words': mw,
         'matched_lemmas': r.get('matched_lemmas'),
+        # Refrain-and-rhyme data for the result card (radif, rhyme, meter, the
+        # poems' other refrain lines, corpus count); None for word-level rows.
+        'poetics': r.get('poetics'),
         'formula_count': r.get('formula_count'),
         'formula_basis': r.get('formula_basis'),
     }
