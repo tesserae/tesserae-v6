@@ -405,8 +405,13 @@ class TestRealTextSlices:
         assert max(m['form_score'] for m in matches) == 1.0
         assert all(m['radif'] == 'شما' for m in matches)
 
-        src_refs = {hafez_units[m['source_idx']]['ref'] for m in matches}
-        tgt_refs = {iqbal_units[m['target_idx']]['ref'] for m in matches}
+        # One match per poem pair (2026-10-06): the refrain lines of each poem
+
+        # are listed on the match rather than emitted as separate line pairs.
+
+        src_refs = {r for m in matches for r in m['source_lines']}
+
+        tgt_refs = {r for m in matches for r in m['target_lines']}
         # The benchmark's own crude boundary was 882-907; with the Ganjoor
         # alignment in place (data/poetics/ganjoor_hafez.diwan.json) the
         # poem is bounded by Ganjoor's record, which may differ by a line.
