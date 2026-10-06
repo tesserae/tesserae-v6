@@ -567,6 +567,7 @@ def _slim_fusion_result(r, language=None):
         'fused_score': score,
         'channels': channels,
         'channel_count': len(channels) if channels else 0,
+        'channel_token_attrs': r.get('channel_token_attrs'),
         'source': {'ref': s.get('ref'), 'text': s.get('text'),
                    'citation': s.get('citation'), 'locus': s.get('locus')},
         'target': {'ref': t.get('ref'), 'text': t.get('text'),
