@@ -7,6 +7,24 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-06
+
+### Search and interface (collaborators' changes)
+- The main search results can be sent a page at a time: with a page_size the
+  search stores its full ranked list for six hours and returns the first page
+  with a result id, and further pages, sorting, filtering and the export are
+  served from that stored list without searching again. Without page_size the
+  response is as before, so the connector and scripts are unchanged (#614).
+- Pagination behaves the same way across the search results and the data
+  views (#615, rebased onto main after #614).
+- The admin request listing is paginated, filtered and sorted on the server,
+  with every filter and sort value checked against a fixed list (#610).
+
+### Connector
+- The installed (stdio) connector gains the seven tools the web connector
+  already had: compare_texts, theme_search, get_passage, similar_passages,
+  theme_compare, theme_pair_lift and describe_text (#619).
+
 ## 2026-10-05
 
 ### Admin and corpus
