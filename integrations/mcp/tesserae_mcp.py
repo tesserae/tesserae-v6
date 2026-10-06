@@ -20,10 +20,17 @@ Environment:
     TESSERAE_API_BASE  (default https://tesserae.caset.buffalo.edu/api)
 
 Guidance for the model using these tools:
-    - Typical workflow: list_texts -> (rare_pairs / rare_words to compare two
-      texts, OR fusion_search for the full weighted comparison) -> line_search
-      to test how unique a shared phrase is across the whole corpus -> interpret
-      the strongest, rarest parallels, quoting both passages and their loci.
+    - Typical workflow: list_texts -> compare_texts (all three pairwise methods
+      at once, recommended) OR rare_pairs / rare_words / fusion_search
+      individually -> line_search to test how unique a shared phrase is across
+      the whole corpus -> interpret the strongest, rarest parallels, quoting
+      both passages and their loci. For content/thematic work use theme_search
+      (find passages on a subject), theme_compare (two whole works compared by
+      content), similar_passages (content neighbours of a known passage), and
+      theme_pair_lift (content context of word-level matches). Use get_passage
+      to fetch actual lines before quoting anything from theme_search or
+      similar_passages — those return machine-written gists. Use describe_text
+      for an unfamiliar work before discussing it.
     - Keep Tesserae's results (matches, loci, rarity — transparent and
       reproducible) clearly separate from your own interpretation; attribute
       detections to Tesserae and present analysis as AI-assisted inference the
@@ -85,8 +92,10 @@ Guidance for the model using these tools:
       a quick pass (top parallels only, no per-entry corpus checks, under a
       minute). Run the full version if they don't choose.
 """
+import csv
 import os
 import json
+import re
 from urllib.parse import quote
 
 import requests
@@ -121,6 +130,33 @@ def _compare_url(source, target, language):
 
 _TIMEOUT = 60
 _FUSION_TIMEOUT = 600
+
+# Genre/meter classification from data/text_genres.csv at repo root. Optional —
+# falls back gracefully when running without the full repository.
+_TEXT_GENRES_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "data", "text_genres.csv")
+_genres_cache = {"mtime": None, "data": {}}
+
+
+def _genre_row(filename):
+    """Genre/meter row for one text file, or None when the CSV is absent."""
+    try:
+        mtime = os.path.getmtime(_TEXT_GENRES_PATH)
+    except OSError:
+        return None
+    if _genres_cache["mtime"] != mtime:
+        data = {}
+        try:
+            with open(_TEXT_GENRES_PATH, encoding="utf-8") as f:
+                for row in csv.DictReader(f):
+                    data[row["filename"]] = row
+        except (OSError, KeyError, csv.Error):
+            data = {}
+        _genres_cache["mtime"] = mtime
+        _genres_cache["data"] = data
+    return _genres_cache["data"].get(filename)
+
 
 mcp = FastMCP("tesserae")
 
@@ -394,6 +430,397 @@ def cross_language(source: str, target: str, source_language: str,
         "matched": x.get("matched_words"),
     } for x in (d.get("results") or [])[:top]]
     return {"source": source, "target": target, "count": len(parallels), "parallels": parallels}
+
+
+@mcp.tool()
+def compare_texts(source: str, target: str, language: str = "la") -> dict:
+    """Recommended for comparing two texts. Runs all three automated pairwise
+    searches — fusion (ranked parallels across ten signals), rare shared phrases,
+    and rare shared words — and returns them as labeled sections.
+
+    The rare sections return in seconds; fusion streams and can take several
+    minutes on a first run (cached afterwards). Put the earlier/model text as
+    source and the later/alluding text as target for allusion study.
+
+    Present the three sections as ONE merged list ordered by interest — fusion
+    score, rarity, and cross-method convergence. A parallel in `also_found_by`
+    was confirmed by multiple independent methods; rank those first.
+
+    Args:
+        source: source text id from list_texts.
+        target: target text id from list_texts.
+        language: la | grc | en | cop.
+    """
+    rw = rare_words(source, target, language)
+    rp = rare_pairs(source, target, language)
+    fusion = fusion_search(source, target, language, top=100)
+
+    def _norm_ref(s):
+        return " ".join((s or "").split()).lower()
+
+    rare_idx = []
+    for sec, kind, key in ((rw, "rare_word", "word"), (rp, "rare_phrase", "bigram")):
+        for it in (sec.get("results") or []):
+            srefs = {_norm_ref(x.get("ref") if isinstance(x, dict) else str(x))
+                     for x in (it.get("source_locations") or [])}
+            trefs = {_norm_ref(x.get("ref") if isinstance(x, dict) else str(x))
+                     for x in (it.get("target_locations") or [])}
+            if srefs and trefs:
+                rare_idx.append((srefs, trefs, f"{kind}:{it.get(key)}"))
+
+    for p in (fusion.get("parallels") or []):
+        sref = _norm_ref((p.get("source") or {}).get("ref"))
+        tref = _norm_ref((p.get("target") or {}).get("ref"))
+        hits = [lbl for srefs, trefs, lbl in rare_idx if sref in srefs and tref in trefs]
+        if hits:
+            p["also_found_by"] = hits
+
+    return {
+        "source": source, "target": target, "language": language,
+        "ranked_parallels": fusion,
+        "rare_phrases": rp,
+        "rare_words": rw,
+        "note": (
+            "Merge the three sections into ONE list ordered by how interesting each "
+            "parallel is — fusion score, rarity, and cross-method convergence. A "
+            "parallel in also_found_by was found by multiple independent methods and "
+            "is the strongest evidence — rank those first. Quote BOTH lines with loci, "
+            "mark shared words in bold, and give each entry its corpus context via "
+            "line_search(count_only=True). Present ~25 then offer to continue."
+        ),
+    }
+
+
+@mcp.tool()
+def theme_search(query: str, limit: int = 25, languages: str = "",
+                 offset: int = 0) -> dict:
+    """Find passages ABOUT a described subject, across Latin, Greek, Hebrew and
+    English at once — even when they share no vocabulary. Describe the scene or
+    topic in plain English ("a city surrenders and hands over hostages",
+    "grain shortage and famine relief").
+
+    Complements word-based searches: use this when the connection is one of
+    subject or scene type rather than wording. Check `confidence`: 'low' means
+    the corpus does not appear to hold this subject. Pass `offset` to page
+    deeper into the same ranking.
+
+    Args:
+        query: a sentence describing the scene or subject.
+        limit: passages to return (default 25).
+        languages: optional comma-separated filter (la, grc, he, cop, en).
+        offset: page past the normal cutoff (same ranking, not a fresh run).
+    """
+    params = {"q": query, "limit": limit}
+    if languages:
+        params["languages"] = languages
+    if offset:
+        params["offset"] = offset
+    d = _get("/passages/theme-search", params)
+    out = {
+        "query": d.get("query"),
+        "confidence": d.get("confidence"),
+        "strong_matches": d.get("strong_matches"),
+        "results": [{
+            "work": r.get("work"), "language": r.get("language"),
+            "author": r.get("author"), "title": r.get("title"),
+            "display_name": r.get("display_name"),
+            "date": r.get("date_note") or r.get("year"),
+            "ref_start": r.get("ref_start"), "ref_end": r.get("ref_end"),
+            "score": r.get("score"), "strong": r.get("strong"),
+            "gist": r.get("gist"),
+        } for r in (d.get("results") or [])],
+    }
+    if d.get("error"):
+        out["error"] = d["error"]
+    out["note"] = (
+        "Content matches: passages whose subject or scene type resembles the query, "
+        "found through descriptions rather than shared words. A cross-language hit "
+        "shares no vocabulary with the query — explain the kind of resemblance. "
+        "The gist is a machine-written summary; fetch the lines with get_passage "
+        "before quoting."
+    )
+    return out
+
+
+@mcp.tool()
+def get_passage(work: str, ref_start: str = "", ref_end: str = "",
+                context: int = 0, translation: bool = False) -> dict:
+    """The ACTUAL LINES at a reference, each with its own locus. Use this before
+    quoting anything from theme_search or similar_passages — those return a
+    machine-written gist, never the passage itself.
+
+    Takes the fields those tools emit, e.g. work="vergil.aeneid.part.6" with
+    ref_start="verg. aen. 6.258" and ref_end="verg. aen. 6.270".
+
+    Args:
+        work: work id from list_texts (e.g. "vergil.aeneid.part.6").
+        ref_start: first line reference (e.g. "verg. aen. 6.258").
+        ref_end: last line reference (e.g. "verg. aen. 6.270").
+        context: widen the window by this many lines each side.
+        translation: if True, also fetch the aligned public-domain English
+            translation the Reader shows for these lines (when available).
+    """
+    params = {"work": work}
+    if ref_start:
+        params["ref_start"] = ref_start
+    if ref_end:
+        params["ref_end"] = ref_end
+    if context:
+        params["context"] = str(context)
+    d = _get("/passages/lines", params)
+    if d.get("error"):
+        return d
+    out = {
+        "work": d.get("work"), "author": d.get("author"),
+        "title": d.get("title"), "display_name": d.get("display_name"),
+        "language": d.get("language"),
+        "lines": d.get("lines") or [],
+        "returned": d.get("returned"), "total": d.get("total"),
+        "capped": d.get("capped"), "corpus_version": d.get("corpus_version"),
+        "web_url": d.get("web_url"),
+        "note": (
+            "These are the source lines, not a summary. Quote them with the locus "
+            "shown against each line. If capped is true this is a bounded window — "
+            "say so rather than implying the passage ends here."
+        ),
+    }
+    if translation:
+        refs = [str(ln.get("ref")) for ln in (d.get("lines") or [])
+                if isinstance(ln, dict) and ln.get("ref")]
+        if refs:
+            try:
+                tr = _get("/passages/translation", {"work": work, "refs": "|".join(refs)})
+                out["translation"] = tr
+            except Exception:
+                out["translation"] = {"available": False,
+                                      "reason": "Translation lookup failed."}
+        else:
+            out["translation"] = {"available": False,
+                                  "reason": "No lines to align a translation to."}
+    return out
+
+
+@mcp.tool()
+def similar_passages(work: str, ref_start: str = "", ref_end: str = "",
+                     limit: int = 25, languages: str = "") -> dict:
+    """Passages elsewhere in the corpus whose CONTENT resembles a given passage.
+    Finds cross-language matches that share subject and situation rather than
+    words — how a Latin scene finds its Greek or Hebrew counterparts.
+
+    Args:
+        work: work id from list_texts.
+        ref_start: start of the passage (e.g. "verg. aen. 6.258").
+        ref_end: end of the passage (optional).
+        limit: results to return (default 25).
+        languages: optional comma-separated language filter (la, grc, he, cop, en).
+    """
+    params = {"work": work}
+    if ref_start:
+        params["ref_start"] = ref_start
+    if ref_end:
+        params["ref_end"] = ref_end
+    if limit != 25:
+        params["limit"] = str(limit)
+    if languages:
+        params["languages"] = languages
+    d = _get("/passages/similar", params)
+    src = d.get("source") or {}
+    out = {
+        "source": {
+            "work": src.get("work"),
+            "ref_start": src.get("ref_start"), "ref_end": src.get("ref_end"),
+            "gist": src.get("gist"),
+        },
+        "confidence": d.get("confidence"),
+        "results": [{
+            "work": r.get("work"), "language": r.get("language"),
+            "author": r.get("author"), "title": r.get("title"),
+            "display_name": r.get("display_name"),
+            "date": r.get("date_note") or r.get("year"),
+            "ref_start": r.get("ref_start"), "ref_end": r.get("ref_end"),
+            "score": r.get("score"), "strong": r.get("strong"),
+            "gist": r.get("gist"),
+        } for r in (d.get("results") or [])],
+    }
+    if d.get("error"):
+        out["error"] = d["error"]
+    out["note"] = (
+        "Content matches: passages that resemble the source in subject and situation "
+        "rather than wording. The gist is machine-written — fetch the lines with "
+        "get_passage before quoting either side."
+    )
+    return out
+
+
+@mcp.tool()
+def theme_compare(work_a: str, work_b: str, scale: str = "", limit: int = 25) -> dict:
+    """Two whole works, or two books, read against each other by CONTENT: every
+    indexed window of work_a scored against every window of work_b, returning
+    the closest-matching passage pairs. Works across languages — no shared
+    vocabulary needed. A first comparison of two long poems takes ~12 seconds.
+
+    Check `confidence`: at level 'low' the two works resemble each other little
+    beyond general similarity — present the pairs as the closest they come rather
+    than as findings. `strong` on a pair marks one that stands well above that
+    general resemblance.
+
+    Args:
+        work_a: work id of the first text (from list_texts).
+        work_b: work id of the second text.
+        scale: optional granularity override ("window" or "book").
+        limit: pairs to return (default 25).
+    """
+    params = {"work_a": work_a, "work_b": work_b}
+    if scale:
+        params["scale"] = scale
+    if limit != 25:
+        params["limit"] = str(limit)
+    r = requests.get(f"{API_BASE}/passages/compare", params=params, timeout=_TIMEOUT)
+    try:
+        d = r.json()
+    except ValueError:
+        r.raise_for_status()
+        raise
+
+    def _work_meta(key):
+        w = d.get(key) or {}
+        return {"work": w.get("work"), "author": w.get("author"),
+                "title": w.get("title"), "display_name": w.get("display_name")}
+
+    def _side(w):
+        if not w:
+            return w
+        return {"work": w.get("work"),
+                "ref_start": w.get("ref_start"), "ref_end": w.get("ref_end"),
+                "gist": w.get("gist")}
+
+    out = {
+        "work_a": _work_meta("work_a"), "work_b": _work_meta("work_b"),
+        "scale": d.get("scale"), "n_a": d.get("n_a"), "n_b": d.get("n_b"),
+        "confidence": d.get("confidence"),
+        "pairs": [{"score": p.get("score"), "lift": p.get("lift"),
+                   "strong": p.get("strong"),
+                   "a": _side(p.get("a")), "b": _side(p.get("b"))}
+                  for p in (d.get("pairs") or [])],
+    }
+    if d.get("error"):
+        out["error"] = d["error"]
+    out["note"] = (
+        "Pairs match in CONTENT (scene, theme, situation), not wording, so a "
+        "cross-language pair shares no vocabulary. strong marks a pair that "
+        "stands well above the two works' general resemblance. The gist is "
+        "machine-written — use get_passage to fetch the actual lines before quoting."
+    )
+    return out
+
+
+@mcp.tool()
+def theme_pair_lift(pairs: list) -> dict:
+    """For word-level result pairs from fusion_search or compare_texts, the
+    CONTENT-similarity reading of each pair: whether the matched lines also sit
+    in a thematically close stretch of the two works, or are isolated shared
+    wording in otherwise unrelated passages.
+
+    Takes up to 100 {work_a, ref_a, work_b, ref_b} dicts — the work and ref
+    fields a fusion_search or compare_texts result carries — and returns the
+    content-similarity score of each pair and its lift above the two works'
+    general resemblance.
+
+    Args:
+        pairs: list of {work_a, ref_a, work_b, ref_b} dicts (up to 100).
+    """
+    if not isinstance(pairs, list) or not pairs:
+        return {"error": "pairs must be a non-empty list of {work_a, ref_a, work_b, ref_b}"}
+    d = _post("/passages/pair-lift", {"pairs": pairs[:100]})
+    out = {"results": d.get("results") or []}
+    if d.get("error"):
+        out["error"] = d["error"]
+    out["note"] = (
+        "'strong' means this pair of lines resembles each other in content well "
+        "above the two works' general resemblance; 'low' means little beyond that. "
+        "A null level means no indexed passage window covers one of the two lines — "
+        "say so rather than treating it as a weak reading."
+    )
+    return out
+
+
+@mcp.tool()
+def describe_text(id: str, language: str = "la") -> dict:
+    """What a text IS and where it came from: the orientation description shown on
+    the site, the print/electronic source citation, the author's dates and era,
+    and the genre/meter classification. Give a text id from list_texts.
+
+    Use this before discussing an unfamiliar text, or when a user asks 'what is
+    this' or wants to cite an edition. Fields the corpus does not have yet come
+    back null rather than omitted, so 'no orientation written' is distinguishable
+    from a lookup failure.
+
+    Args:
+        id: text id from list_texts (e.g. "vergil.aeneid.tess" or "vergil.aeneid").
+        language: language of the text (la | grc | en | cop | he).
+    """
+    filename = id if id.endswith(".tess") else f"{id}.tess"
+    texts = _get("/texts", {"language": language})
+    if isinstance(texts, dict):
+        texts = texts.get("texts") or texts.get("results") or []
+    meta = next((t for t in (texts or []) if t.get("id") == filename), None)
+    if meta is None:
+        return {"error": f"{filename!r} not found in language {language!r} (see list_texts)"}
+
+    base = re.sub(r"\.part\.\d+$", "", filename[: -len(".tess")])
+    description = None
+    try:
+        desc = _get("/text-descriptions", {"language": language, "work": base})
+        description = desc.get("description") if isinstance(desc, dict) else None
+    except Exception:
+        pass
+
+    source = None
+    author = meta.get("author") or ""
+    work = meta.get("work") or meta.get("title") or ""
+    if author and work:
+        try:
+            credits = _get("/text-credits", {"query": author, "limit": 500, "offset": 0})
+            entries = (credits or {}).get("entries") or []
+            na, nw = author.strip().lower(), work.strip().lower()
+            source = next(
+                (e for e in entries
+                 if (e.get("author") or "").strip().lower() == na
+                 and (e.get("work") or "").strip().lower() == nw),
+                None)
+        except Exception:
+            pass
+
+    author_dates = None
+    author_key = meta.get("author_key") or ""
+    if author_key:
+        try:
+            dates = _get("/author-dates")
+            lang_dates = (dates or {}).get(language, {}) if isinstance(dates, dict) else {}
+            author_dates = (lang_dates.get(author_key)
+                            or lang_dates.get(author_key.lower()))
+        except Exception:
+            pass
+
+    genre = None
+    row = _genre_row(filename)
+    if row:
+        genre = {
+            "era": row.get("era") or None,
+            "meter": row.get("meter") or None,
+            "genre": row.get("genre") or None,
+            "confidence": row.get("confidence") or None,
+        }
+
+    return {
+        "id": filename, "author": meta.get("author"), "work": meta.get("work"),
+        "title": meta.get("title"), "language": language,
+        "year": meta.get("year"), "era": meta.get("era"),
+        "description": description,
+        "source": source,
+        "author_dates": author_dates,
+        "genre": genre,
+    }
 
 
 @mcp.tool()
