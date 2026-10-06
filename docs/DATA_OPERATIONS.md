@@ -67,6 +67,46 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-06 Semantic vectors computed for every Latin, Greek and English work that lacked them; defective vector files replaced
+- What: before today 443 of 748 Latin whole works, 284 of 845 Greek and all 41
+  English had no stored vectors, so the semantic channel returned nothing for any
+  comparison touching them (the web app carries no model by design, and the log
+  said so: "Semantic model not available for la, returning empty results"). Two GPU
+  jobs on the campus cluster (BullsAI, project tesserae, one B200) encoded every
+  line of those works with the models the site uses (bowphs/SPhilBerta for Latin
+  and Greek, all-MiniLM-L6-v2 for English), raw vectors as in the existing files.
+  Job 1 (semfill-1006, 97 s): 768 works, 586,862 lines; 767 whole-work files copied
+  into production `backend/embeddings/<lang>/` at 15:31 to 15:36 EDT
+  (sappho.fragments held back, having no lemma cache to verify against), and 1,003
+  part files derived from their whole works by reference. Job 2 (semfill2-1006,
+  22 s): 29 whole works re-encoded whose OLD vector files held the wrong number of
+  rows for their text (augustine.de_trinitate had 1 row for 624 lines,
+  macrobius.saturnalia 1 for 2,072, seneca.quaestiones_naturales 4 for 897,
+  couplet_et_alii.confucius_sinarum_philosophus 5 for 255; alcuin, claudian,
+  persius, the Achilleid and six Greek works off by one to six), replaced at 15:49
+  with 152 part files re-derived; and seven parts of petrus_riga.aurora (no whole
+  file) re-encoded on the server's processor (6,959 lines, 24 s, about 400 lines a
+  second). Old files kept in
+  `~/tesserae-backups/jobs/semantic_fill_2026-10-06/replaced_old/`.
+- Inputs: line text read from the .tess files (verified identical to the cached
+  search units, by reference and wording); job folders
+  `public_data/jobs/semantic-fill-20261006/` and `semantic-fill2-20261006/`
+  (blobs.jsonl.gz, works.json, encode_fill.py); results via the upload route (#596).
+- Checks: after the operation every vector file with a text behind it has one row
+  per text line, except three texts with a malformed line
+  (paschasius_radbertus.epitaphium_arsenii.part.2, ambrose.epistulae_variae,
+  augustine.contra_faustum), where the row count equals the cached unit count the
+  search uses. Vector norms 4.7 to 6.4 against 5.2 for the existing Latin files. A
+  fresh live comparison (Curtius 5 against Justin) logged "Using pre-computed
+  embeddings" and 21 of its top 30 parallels carry the semantic channel.
+- Left as found: 148 old vector files whose text no longer exists under that name
+  (renamed or retired works); harmless, to be archived in a later pass.
+- Service: the channel reads a work's file by path, so no reload was needed. The
+  English embeddings folder was owned by the web-app user and empty; replaced by a
+  group-writable one. The embeddings manifest (admin statistics only) was not
+  rebuilt on production. Vector files are not tracked in git.
+- Counts after: Latin 1,804 vector files, Greek 1,237, English 93.
+
 ## 2026-10-06 Quintus Curtius: J. C. Rolfe's 1946 Loeb translation added (section-exact)
 - What: `data/translations/la__curtius_rufus.historiae_alexandri_magni.json` created on
   production at 13:27 EDT, covering all 2,621 sections of books 3-10 of
