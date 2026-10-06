@@ -9,6 +9,13 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-06
 
+### Translations
+- Quintus Curtius, History of Alexander (books 3-10): J. C. Rolfe's 1946 Loeb
+  translation, public domain in the United States, aligned section by section
+  (96.5% of sections exact, four chapters whole) for the Reader and the
+  translation shown beside search results (`scripts/translations/align_curtius.py`;
+  the data operation is recorded in docs/DATA_OPERATIONS.md).
+
 ### Search and interface (collaborators' changes)
 - The main search results can be sent a page at a time: with a page_size the
   search stores its full ranked list for six hours and returns the first page
