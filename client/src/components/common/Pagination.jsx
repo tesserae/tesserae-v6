@@ -75,7 +75,6 @@ const Pagination = ({
   disabled = false,
   idPrefix = 'pagination',
   itemLabel = 'results',
-  pageSizeOptions = PAGE_SIZE_OPTIONS,
 }) => {
   if ((!totalResults || totalResults <= 0) && variant !== 'more') return null;
 
