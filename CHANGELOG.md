@@ -9,6 +9,13 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-06
 
+### Semantic channel
+- Semantic vectors now exist for every Latin, Greek and English work, so the
+  semantic channel runs in every comparison. Before, 443 Latin works, 284 Greek
+  and all 41 English had none and the channel silently returned nothing for them;
+  31 older vector files with the wrong number of rows were re-encoded and
+  replaced (data operation recorded in docs/DATA_OPERATIONS.md).
+
 ### Persian and Urdu search (from the first expert review)
 - The refrain-and-rhyme channel returns one result per pair of poems, the
   opening-line pair, with the poems' other refrain lines listed on the
