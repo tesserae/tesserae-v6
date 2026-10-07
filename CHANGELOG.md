@@ -7,6 +7,16 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-07
+
+### Rare word-pair tables
+- The rebuild counts bigrams as it reads them instead of holding every
+  occurrence in one list, which grew past the 12 GB cap for Greek; with the
+  lemma cache unused the English table comes out identical. It now reads
+  each text's units from the lemma cache, the units the search itself uses,
+  falling back to processing the file: ten times faster, and the English
+  table differs from a fresh processing run by 0.3 percent of occurrences.
+
 ## 2026-10-06
 
 - Vegio's Supplementum (`maffeo_veggio.supplementum`): line numbers made
