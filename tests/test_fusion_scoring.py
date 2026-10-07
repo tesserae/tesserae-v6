@@ -894,6 +894,19 @@ class TestCleanMatchedLemmas:
         assert _clean_matched_lemmas([], set()) == []
         assert _clean_matched_lemmas(['[QUOT:x]', 'a≈b'], set()) == []
 
+    def test_display_keeps_quotation_run_words(self):
+        """A quotation-only row (Hafez 'jan-e man o jan-e shoma' quoted by Iqbal)
+        had no matched words at all once the markup was dropped, so the corpus
+        chart called it a one-word parallel (2026-10-07). The displayed words now
+        include each run word not already present as a lemma."""
+        from backend.fusion import _display_matched_words
+        mw = {'[QUOT:جان]': {'source_word': 'جان'}, '[QUOT:من]': {'source_word': 'من'},
+              '[QUOT:شما]': {'source_word': 'شما'}, 'a~b (66%)': {}}
+        shown = sorted(m['lemma'] for m in _display_matched_words(mw, 'fa'))
+        assert shown == sorted(['جان', 'من', 'شما'])
+        mixed = {'جان': {'lemma': 'جان', 'source_word': 'جان'}, '[QUOT:جان]': {'source_word': 'جان'}}
+        assert len(_display_matched_words(mixed, 'fa')) == 1
+
     def test_dedupes(self):
         from backend.fusion import _clean_matched_lemmas
         assert _clean_matched_lemmas(['nux', 'nux', 'castanea'], set()) == \

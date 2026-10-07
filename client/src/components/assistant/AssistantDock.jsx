@@ -3,6 +3,11 @@ import useAssistantStream from './useAssistantStream';
 import { WorkingLine } from './ResultsInsight';
 import { getSessionValue, setSessionValue } from '../../utils/storage';
 
+const TUCK_KEY = 'tesserae_tessa_tucked';
+function readTucked() {
+  try { return window.localStorage.getItem(TUCK_KEY) === '1'; } catch { return false; }
+}
+
 // Openers that show what it can actually DO, not only what it can explain. It
 // runs searches now, so "where does this phrase appear" gets real loci back.
 /** The answer with the matched words marked.
@@ -156,6 +161,11 @@ export default function AssistantDock() {
   // Reopens where it was left, because taking one of Tessa's own actions
   // reloads the page and would otherwise shut her and wipe the conversation.
   const [open, setOpen] = useState(() => getSessionValue('tessa_open', '0') === '1');
+  const [tucked, setTucked] = useState(readTucked);
+  const setTuckedSaved = (v) => {
+    setTucked(v);
+    try { window.localStorage.setItem(TUCK_KEY, v ? '1' : '0'); } catch { /* storage blocked */ }
+  };
   const [turns, setTurns] = useState(loadTurns);
   const [draft, setDraft] = useState('');
   const { text, step, running, error, highlight, offer, actions, run } = useAssistantStream();
@@ -219,24 +229,43 @@ export default function AssistantDock() {
   // covering a result card. So below `sm` it becomes a plain round button and
   // the explanatory line is carried by the accessible name instead, where it
   // costs no screen.
-  if (!open) {
+  // NOT IN THE READER'S WAY (2026-10-07). The two-line pill sat permanently
+  // over the bottom-right corner of the page, where the results sidebar ends
+  // ("the Tessa assistant bubble permanently blocks reading that corner").
+  // Closed, Tessa is now a small round button everywhere, and its x tucks it
+  // into a slim tab on the right edge, remembered in this browser.
+  if (!open && tucked) {
     return (
       <button
-        onClick={() => setOpen(true)}
-        aria-label="Open Tessa, the AI assistant"
-        title="Tessa, the AI assistant"
-        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 flex items-center justify-center sm:justify-start w-14 h-14 sm:w-auto sm:h-auto sm:gap-3 sm:pl-3 sm:pr-5 sm:py-3 rounded-full sm:rounded-2xl bg-red-700 text-white shadow-xl ring-1 ring-red-900/20 transition hover:bg-red-800 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-red-400"
+        onClick={() => setTuckedSaved(false)}
+        aria-label="Show Tessa, the AI assistant"
+        title="Show Tessa, the AI assistant"
+        className="fixed right-0 top-1/2 -translate-y-1/2 z-40 px-1 py-3 rounded-l-md bg-red-700/80 text-white text-[11px] font-semibold shadow hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400 [writing-mode:vertical-rl]"
       >
-        <span className="flex items-center justify-center w-9 h-9 rounded-xl sm:bg-white/15 text-lg font-semibold leading-none">
-          T
-        </span>
-        <span className="hidden sm:block text-left leading-tight">
-          <span className="block text-base font-semibold">Tessa</span>
-          <span className="block text-[11px] font-medium text-red-100">
-            AI Assistant
-          </span>
-        </span>
+        Tessa
       </button>
+    );
+  }
+  if (!open) {
+    return (
+      <div className="fixed bottom-4 right-4 z-40 group">
+        <button
+          onClick={() => setOpen(true)}
+          aria-label="Open Tessa, the AI assistant"
+          title="Tessa, the AI assistant"
+          className="flex items-center justify-center w-11 h-11 rounded-full bg-red-700 text-white text-lg font-semibold shadow-lg ring-1 ring-red-900/20 transition hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-400"
+        >
+          T
+        </button>
+        <button
+          onClick={() => setTuckedSaved(true)}
+          aria-label="Tuck Tessa away to the side of the page"
+          title="Tuck away"
+          className="absolute -top-2 -left-2 w-5 h-5 rounded-full bg-white text-gray-600 border border-gray-300 text-xs leading-none shadow opacity-0 group-hover:opacity-100 focus:opacity-100 transition"
+        >
+          ×
+        </button>
+      </div>
     );
   }
 

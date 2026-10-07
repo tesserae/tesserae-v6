@@ -96,6 +96,16 @@ _STOPLISTS = {
 # and sound-channel trigrams ('[xyz]'). A real lemma contains none of these
 # characters. Used to derive a clean matched-lemma list for corpus-search.
 _MATCHED_LEMMA_MARKUP_RE = re.compile(r'[\[\]()~≈%:\s]')
+# A quotation-run token ('[QUOT:jan]') carries a real word: the run's own surface
+# form. Dropping it with the rest of the markup left quotation-only rows with no
+# matched words at all (2026-10-07: Hafez "jan-e man o jan-e shoma" quoted by
+# Iqbal showed as sharing one word, with no corpus chart and no works count).
+_QUOT_RE = re.compile(r'^\[QUOT:(.+)\]$')
+
+
+def _quotation_word(lemma):
+    m = _QUOT_RE.match(lemma or '')
+    return m.group(1) if m else None
 
 
 def _display_matched_words(mw_dict, language):
@@ -127,8 +137,12 @@ def _display_matched_words(mw_dict, language):
                    if unicodedata.combining(c))
 
     chosen = {}  # norm -> (lemma, mw)
+    quoted = []  # (word, mw) from quotation-run markers, added after real lemmas
     for lemma, mw in mw_dict.items():
         if not lemma or _MATCHED_LEMMA_MARKUP_RE.search(lemma):
+            word = _quotation_word(lemma)
+            if word:
+                quoted.append((word, mw))
             continue
         norm = _norm(lemma)
         prev = chosen.get(norm)
@@ -142,6 +156,11 @@ def _display_matched_words(mw_dict, language):
         )
         if better:
             chosen[norm] = (lemma, mw)
+    # A quoted word not already present as a lemma is shown as itself.
+    for word, mw in quoted:
+        norm = _norm(word)
+        if norm not in chosen:
+            chosen[norm] = (word, {**mw, 'lemma': word})
     return [mw for _, mw in chosen.values()]
 
 
