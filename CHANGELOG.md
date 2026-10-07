@@ -9,6 +9,19 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Help brought up to date; connector names Persian and Urdu
+- Help: Persian and Urdu in the language lists; Arabic shown as indexed but not
+  yet open, with its page left out of the menu until the site serves it; the
+  Cross-Language page covers all seven open pairs; the Urdu page describes the
+  eighteen texts now held; corpus, passage and parse counts match the live site
+  (one figure per fact); the Reader section describes the two Similar Passages
+  groups, opening a result at its passage with a way back, and the possible-echo
+  rule; the English corpus is described correctly (the King James Bible, not a
+  modern translation); the AI setup text lists eleven signals and the Persian
+  and Urdu codes.
+- Connector: tool descriptions name Persian (fa), Urdu (ur) and the fa-ur pair,
+  and Theme Search is described as covering every served language.
+
 ### Corpus chart counts every work, not the first 500 lines
 - Line search now returns `by_work_all`, the number of co-occurring lines in
   every work (a work held whole and in books counted once), taken from the

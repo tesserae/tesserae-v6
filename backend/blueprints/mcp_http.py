@@ -648,7 +648,7 @@ def _t_theme_search(a):
 
     Free-text content search: describe what you are looking for ("a city sues for
     peace and hands over hostages") and get passages whose CONTENT matches, in
-    Latin, Greek, Hebrew, and English at once. Pass offset to page PAST the
+    every served language at once. Pass offset to page PAST the
     normal cutoff -- results offset+1 to offset+limit of the SAME ranking, not
     a fresh run. Results reached only by paging come back with strong:false
     even when the raw score would otherwise qualify, since the confidence band
@@ -1037,7 +1037,7 @@ def _t_submit_feature_request(a):
 _STR = {"type": "string"}
 TOOLS = [
     {"name": "get_languages",
-     "description": "List Tesserae's languages (la Latin, grc Greek, en English, cop Coptic, he Hebrew, where each is installed) and cross-language pairs. The set can grow, so call this rather than assuming a fixed list.",
+     "description": "List Tesserae's languages (la Latin, grc Greek, en English, cop Coptic, he Hebrew, fa Persian, ur Urdu, where each is installed) and cross-language pairs. The set can grow, so call this rather than assuming a fixed list.",
      "inputSchema": {"type": "object", "properties": {}},
      "fn": _t_get_languages},
     {"name": "list_texts",
@@ -1231,7 +1231,7 @@ TOOLS = [
      "description": ("Cross-language parallels between two texts in DIFFERENT languages (e.g. a Greek "
                      "source behind a Latin poem, or a Hebrew source behind a Greek Septuagint). Give "
                      "source/target ids (from list_texts) and their languages (supported pairs: grc-la, "
-                     "la-en, grc-en, and where installed he-grc/he-la, cop-grc). A first run on a large "
+                     "la-en, grc-en, and where installed he-grc/he-la, cop-grc, fa-ur). A first run on a large "
                      "pair takes a few minutes and returns status 'running' (cached after); call again "
                      "with the same arguments to retrieve it. Returns ~25 parallels by default; pass "
                      "limit (up to 200) and offset (25, 50, ...) to page deeper into the ranking. Each "
