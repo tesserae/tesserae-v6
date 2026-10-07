@@ -9,6 +9,12 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-06
 
+### Sources page
+- 297 works that had no entry on the Sources page are credited (166 Greek,
+  99 Latin, 32 English), each with its digital source and, where known, the
+  print edition, traced from the import records; credited to "Tesserae
+  Project". Nine works remain untraced.
+
 ### Text descriptions
 - About-this-text descriptions for Erchempert's verse martyrology,
   Callimachus' Iambi and Philo's Allegories of the Laws, the three works the
