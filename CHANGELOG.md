@@ -13,6 +13,12 @@ behind each, are in docs/DECISIONS.md.
 - About-this-text descriptions for Erchempert's verse martyrology,
   Callimachus' Iambi and Philo's Allegories of the Laws, the three works the
   coverage checker found without one.
+### Corpus browser
+- Dates and eras for authors the browser showed as undated: pseudo-Caesar,
+  Censorinus, Germanicus, Grattius, Obsequens, Solinus, Vegetius, Francis
+  Glass and the Confucius Sinarum Philosophus; the Septuagint books (filed
+  under the key "septuagint") now show the Hellenistic date their entry
+  already carried.
 
 ### Menus
 - Every menu that lists names (Reader author, work and book; Search work and

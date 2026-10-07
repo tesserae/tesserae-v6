@@ -27,6 +27,7 @@ Exit status 1 when any required store is missing for any text checked.
 import argparse, csv, glob, json, os, re, sqlite3, sys
 import numpy as np
 
+MIN_WINDOW_LINES = 10
 REQUIRED = ['text', 'lemmas', 'index', 'bigrams', 'vectors', 'windows', 'described', 'winvec', 'connmap', 'sources', 'browser', 'genres', 'blurb']
 # freq: the app recomputes a stale frequency table on the first search that needs it,
 # so a stale table is reported but is not a gap.
@@ -134,12 +135,18 @@ def main():
         # whole file's own windows were dropped so a passage is not indexed
         # twice); a whole work with parts is covered when every part is.
         parts_of_whole = [f for f in files_all if f.startswith(base + '.part.')] if not is_part else []
-        if parts_of_whole:
+        if n_lines < MIN_WINDOW_LINES:
+            # too short to make a passage window at all (a one-line epigram, a hypothesis)
+            r['windows'] = r['described'] = r['winvec'] = True
+        elif parts_of_whole and win_counts.get(base, 0) > 0:
+            # the whole work carries windows; very short parts cannot have their own
+            r['windows'] = r['described'] = r['winvec'] = True
+        elif parts_of_whole:
             pw = [win_counts.get(pf[:-5], 0) for pf in parts_of_whole]
             r['windows'] = all(n > 0 for n in pw)
             r['described'] = all(desc_counts.get(pf[:-5], 0) >= win_counts.get(pf[:-5], 0) for pf in parts_of_whole) and r['windows']
             r['winvec'] = all(vec_counts.get(pf[:-5], 0) >= win_counts.get(pf[:-5], 0) for pf in parts_of_whole) and r['windows']
-        else:
+        elif not (n_lines < MIN_WINDOW_LINES):
             nw = win_counts.get(base, 0); r['windows'] = nw > 0 or (is_part and win_counts.get(whole, 0) > 0)
             r['described'] = (desc_counts.get(base, 0) >= nw) if nw else r['windows']
             r['winvec'] = (vec_counts.get(base, 0) >= nw) if nw else r['windows']
