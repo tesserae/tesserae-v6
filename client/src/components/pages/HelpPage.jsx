@@ -791,7 +791,8 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </ul>
               <p className="text-gray-700 mb-3">
                 To cleanly separate function words from content words, the scoring uses a <strong>curated stoplist</strong> of
-                66 Latin, 88 Greek, and 60 English function words (pronouns, conjunctions, prepositions, and common verbs like <em>sum</em>).
+                function words for each language (91 Latin, 195 Greek, 275 English, with lists for Coptic, Hebrew, Persian and Urdu; pronouns,
+                conjunctions, prepositions, and common verbs like <em>sum</em>), all shown on the Stoplists page.
                 Matches where all shared words are function words (e.g., sharing only <em>tum</em> + <em>inde</em>) are heavily
                 penalized. Matches where a function word co-occurs with a content word (e.g., <em>nec</em> + <em>priorem</em>)
                 are scored on the content word alone — the function word adds no allusion signal.
@@ -830,8 +831,8 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               <div className="mt-6 bg-gray-50 p-4 rounded-lg">
                 <h4 className="text-lg font-semibold text-gray-900 mb-2">Performance</h4>
                 <p className="text-gray-700 text-sm">
-                  Evaluated against five benchmark datasets (862 parallels from published commentaries), fusion search finds <strong>92% of known parallels</strong> —
-                  up from ~27% in Tesserae V3. On the Valerius Flaccus benchmark, 9 of the top 10 results are attested in scholarly commentary.
+                  Evaluated against five benchmark datasets (862 parallels from published commentaries), fusion search finds <strong>92% of known Latin parallels</strong> —
+                  up from ~27% in Tesserae V3. Other languages are measured separately, on the How well does it work? page. On the Valerius Flaccus benchmark, 9 of the top 10 results are attested in scholarly commentary.
                 </p>
               </div>
 
@@ -899,14 +900,14 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   <p className="text-sm text-gray-700"><strong>Syntax:</strong> Compares grammatical dependency structures (parsed by LatinPipe) to detect parallel sentence construction. Includes a structural fingerprint path that matches lines with identical grammatical patterns even when they share no vocabulary — catching allusions built on structural imitation with complete lexical substitution. Because many unrelated Latin lines share common syntactic patterns, structural matches are confirmed by a two-tier gate: they must have either a dictionary synonym pair between the two lines or high semantic similarity (cosine ≥ 0.70). In validation testing on Vergil's <em>Georgics</em> 3 vs. Lucretius <em>DRN</em> 6, this gate preserved all meaningful structural parallels while filtering over 90% of coincidental pattern matches.</p>
                 </div>
                 <div className="border-l-4 border-gray-300 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Rare Vocabulary:</strong> Flags shared words that appear in fewer than 100 texts corpus-wide. A rare shared word is unlikely to be coincidence.</p>
+                  <p className="text-sm text-gray-700"><strong>Rare Vocabulary:</strong> Flags shared words that appear in fewer than about one in eight works of the language (roughly 100 for Latin and Greek, 6 for English). A rare shared word is unlikely to be coincidence.</p>
                 </div>
                 <div className="border-l-4 border-gray-300 pl-3">
-                  <p className="text-sm text-gray-700"><strong>Verbatim Quotation (Coptic):</strong> Finds runs of three or more identical consecutive words. This channel is used for Coptic, where authors most often engage their sources by direct quotation — it catches scriptural quotations even when the author gives no citation. See the <em>Coptic Search</em> section for details.</p>
+                  <p className="text-sm text-gray-700"><strong>Verbatim Quotation:</strong> Finds runs of three or more identical consecutive words, in every language. It carries the most weight of any channel, because an exact run is the strongest sign of quotation, and it matters most where authors quote their sources directly, as Coptic writers quote scripture without citation. See the <em>Coptic Search</em> section for an example.</p>
                 </div>
               </div>
               <p className="text-gray-600 text-sm mt-3">
-                These channels run for Latin, Greek, and English; Coptic adds the verbatim-quotation channel above.
+                Which channels run depends on the data a language has: the synonym dictionary needs a synonym list and the syntax channels need grammatical parses. Each language's page says which it has.
               </p>
 
               <p className="text-gray-700 mb-4">
@@ -996,7 +997,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 <div>
                   <dt className="font-medium text-gray-900">Max Results</dt>
                   <dd className="text-gray-600 text-sm mt-1">
-                    Maximum number of results to return (default: 5,000). Set to 0 for unlimited.
+                    Maximum number of results to return. The default, 0, returns them all.
                     For most comparisons, the top 5,000 results capture all significant parallels.
                   </dd>
                 </div>
@@ -1730,7 +1731,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   <p className="text-gray-600 text-sm mt-1">
                     The best-developed corpus: 848 works (1,832 files, counting books held separately). All eleven channels
                     are available, and 1,433 of the files are grammatically parsed, so the syntax channels contribute for most pairs. Latin has the most thoroughly evaluated results
-                    (about 92 percent recall across five standard Latin allusion benchmarks, as of September 2026;
+                    (about 92 percent recall across five standard Latin allusion benchmarks, as of August 2026;
                     see <button type="button" onClick={() => setActiveSection('how-well')} className="text-red-700 hover:underline">How well does it work?</button>).
                   </p>
                   <Invitation language="Latin" />
@@ -1809,7 +1810,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   <h4 className="text-lg font-semibold text-gray-900">Arabic</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     The Qur'an (one text per sura), the pre-Islamic odes, al-Mutanabbi and the classical diwans, the
-                    Burda tradition, two hadith collections and the modern revival: 148 texts, about 25,000 verses. Ten
+                    Burda tradition, two hadith collections and the modern revival: 149 texts, about 31,700 lines. Ten
                     channels run, including a root channel for near-quotation and rhyme-and-meter matching of answer
                     poems; Arabic → Persian and Arabic → Urdu find Qur'anic and hadith phrases inside later verse. See{' '}
                     <button onClick={() => setActiveSection('arabic')} className="text-red-600 hover:underline">the Arabic page</button>.
@@ -2052,7 +2053,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 <p className="text-blue-800 text-sm">
                   Good first searches: Hafez against Iqbal's Zabur-e Ajam; Rumi against Iqbal's Persian divan;
                   Saadi against Ferdowsi. Persian → Urdu on the Cross-Language tab finds the Persian phrases Ghalib
-                  carried into Urdu; Arabic → Persian finds Iqbal's Qur'anic quotations inside his Persian lines.
+                  carried into Urdu. When Arabic opens, Arabic → Persian will find Iqbal's Qur'anic quotations inside his Persian lines.
                 </p>
               </div>
 
@@ -2121,8 +2122,8 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 <p className="text-blue-800 text-sm">
                   Good first searches: Ghalib (numbered edition) against Mir; Iqbal's Bang-e Dara against Ghalib.
                   On the Cross-Language tab, Persian → Urdu searches the Persian divans against the Urdu ones through
-                  their shared vocabulary (Hafez against Ghalib puts Ghalib's Persian phrases at the top), and
-                  Arabic → Urdu finds Qur'anic phrases inside Urdu lines.
+                  their shared vocabulary and their shared refrains (Hafez against Ghalib puts Ghalib's ghazal in Hafez's
+                  form and his Persian phrases at the top). When Arabic opens, Arabic → Urdu will find Qur'anic phrases inside Urdu lines.
                 </p>
               </div>
 
@@ -2149,8 +2150,8 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               <p className="text-gray-700 mb-4">
                 Tesserae searches the Qur'an (all 114 suras, stored one sura per text) together with the poems of
                 the Burda tradition, Ka'b ibn Zuhayr's <em>Banat Su'ad</em>, al-Busiri's <em>Qasidat al-Burda</em> and
-                Ahmad Shawqi's <em>Nahj al-Burda</em>, and the Mu'allaqat of Imru' al-Qais and Tarafa. About 6,800
-                verses in 119 texts.
+                Ahmad Shawqi's <em>Nahj al-Burda</em>, the pre-Islamic odes, al-Mutanabbi and the classical poets, two hadith
+                collections and the modern revival: 149 texts, about 31,700 lines.
               </p>
 
               <div className="my-4 bg-amber-50 border border-amber-200 p-4 rounded-lg">
@@ -2383,9 +2384,9 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </ul>
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Greek and Latin in detail</h4>
               <p className="text-gray-700 mb-4">
-                Greek and Latin search finds how Greek texts influenced Latin authors or the reverse. The search uses
-                two-channel fusion, combining AI semantic matching with dictionary-based vocabulary
-                lookup. Pairs detected by both channels receive a convergence bonus, pushing the
+                Greek and Latin search finds how Greek texts influenced Latin authors or the reverse. The search combines
+                four channels, described below: AI semantic matching, a Greek-Latin dictionary, cross-lingual syntax and
+                phonetic transliteration. Pairs detected by more than one channel receive a convergence bonus, pushing the
                 most confident matches to the top.
               </p>
               <div className="space-y-4">
@@ -2436,7 +2437,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                     Pairs found by multiple channels receive a convergence bonus that boosts their score. For example, <em>Odyssey</em> 1.1 /
                     {' '}<em>Aeneid</em> 1.1 is detected semantically (48% cosine) and confirmed by dictionary matches
                     (ἄνδρα→virum, ἔννεπε→cano), so the convergence bonus pushes it above pairs detected by only one channel.
-                    The "Min Dictionary Matches" filter lets you require a minimum number
+                    The "Min Matches" setting lets you require a minimum number
                     of dictionary word matches — set to 1 to include semantic-only pairs, or raise it to focus on
                     vocabulary-confirmed parallels.
                   </p>
@@ -2465,7 +2466,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   <li><strong>~40%</strong> of gold-standard parallels found in top 50 (per-target-line ranking)</li>
                   <li><strong>~24%</strong> found in top 10</li>
                   <li>Only 31% of scholarly parallels have any shared vocabulary across languages</li>
-                  <li>The remaining ~60% are thematic/narrative echoes beyond the reach of current lexical and AI methods</li>
+                  <li>94% are found somewhere in the full ranking: most of the parallels outside the top 50 share no words and are found through meaning, but rank lower</li>
                 </ul>
                 <p className="text-gray-700 text-sm mt-2">
                   For comparison, the Latin fusion system achieves 91.9% recall across five benchmarks using
@@ -2624,8 +2625,8 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   AI-assisted interpretation you have checked.
                 </p>
                 <p className="text-gray-700 text-sm mt-2">
-                  Tesserae hands your AI ready-made charts, but you are also free to ask it for its own charts or a
-                  different cut of the results — whatever view you want. Those are your AI's own rendering, not
+                  Tesserae hands your AI a link to the same results in the site's own interactive view, not a chart. You can
+                  ask your AI to draw its own charts or a different cut of the results, whatever view you want. Those are your AI's own rendering, not
                   official Tesserae figures, so treat them like any AI output you would check before relying on it.
                 </p>
               </div>
@@ -2735,7 +2736,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               <p className="text-gray-600 text-sm mb-2">When you want to cast a wider net:</p>
               <ul className="list-disc list-inside text-gray-600 text-sm space-y-2 ml-2">
                 <li><strong>Select complete works</strong>: Search entire texts rather than individual books</li>
-                <li><strong>Increase max results</strong>: The default is 5,000. Set to 0 for unlimited results.</li>
+                <li><strong>Results are not capped</strong>: by default every result is returned. Set Max Results to a number to keep only the top ones.</li>
                 <li><strong>Use the Lines tab</strong>: Search a single line against every text in its language</li>
                 <li><strong>Try Rare Words or Rare Pairs</strong>: These specialized modes find distinctive vocabulary connections that complement Fusion</li>
               </ul>
@@ -3081,7 +3082,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   <h4 className="text-lg font-semibold text-gray-900">What is Fusion search and should I use it?</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Fusion is the default search mode. It runs eleven independent detection channels simultaneously
-                    and combines their results, finding 92% of known parallels in benchmark tests. Unless you need
+                    and combines their results, finding 92% of known parallels in the Latin benchmark tests. Unless you need
                     to isolate a specific detection method, Fusion is recommended for general use.
                   </p>
                 </div>
