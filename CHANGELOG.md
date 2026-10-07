@@ -9,6 +9,15 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Similar Passages: same people and places (trial, behind a switch)
+- With `?names=1` on a Reader address, the Similar tab shows two groups:
+  passages in other works that share rare proper names with the selection
+  (ranked by scene similarity and the names' rarity, each card naming the
+  shared names, commentaries on a work set aside), then the usual
+  same-kind-of-scene results without those passages. `/passages/similar`
+  gains a `same_names` field when asked with `same_names=1`; without it the
+  response is unchanged. Reads `data/passage_index/window_names.db`.
+
 ### Rare word-pair tables
 - The rebuild counts bigrams as it reads them instead of holding every
   occurrence in one list, which grew past the 12 GB cap for Greek; with the
