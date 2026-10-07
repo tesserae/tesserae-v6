@@ -127,6 +127,8 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   // once the fetch itself reports weak -- see the effect below.
   const [namesOpen, setNamesOpen] = useState(true);
   const [sceneOpen, setSceneOpen] = useState(true);
+  // Which "In other languages" section is open (one at a time, closed by default).
+  const [langOpen, setLangOpen] = useState(null);
   const [commentaryOpen, setCommentaryOpen] = useState(false);
   const namesDefaultSet = useRef(false);
   useEffect(() => {
@@ -154,6 +156,8 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
       limit: String(simLimit),
     });
     if (namesFlag) params.set('same_names', '1');
+    // Per-language sections under the main list (2026-10-07).
+    params.set('by_language', '1');
     fetch(`/api/passages/similar?${params}`)
       .then(asJson)
       .then((d) => {
@@ -462,6 +466,34 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
               >
                 Show more matches
               </button>
+            )}
+            {!loading && similar?.by_language && Object.keys(similar.by_language).length > 0
+              && (!namesFlag || !similar?.same_names || sceneOpen) && (
+              /* IN OTHER LANGUAGES (2026-10-07). The main list ranks every
+                 language together, so the largest corpora fill it: an Urdu
+                 passage got 28 Persian matches and 2 Urdu ones. Each language
+                 with few results above gets a button here, ordered by its best
+                 match, opening that language's five best. The same for every
+                 language, so Latin shows its Greek and English this way. */
+              <div className="pt-1">
+                <p className="text-[11px] font-semibold text-gray-600 mb-1">In other languages</p>
+                <div className="flex flex-wrap gap-1 mb-1">
+                  {Object.entries(similar.by_language)
+                    .sort((a, b) => (b[1][0]?.score || 0) - (a[1][0]?.score || 0))
+                    .map(([lang, rows]) => (
+                      <button key={lang} onClick={() => setLangOpen((o) => (o === lang ? null : lang))}
+                              aria-expanded={langOpen === lang}
+                              className={`text-[11px] px-2 py-0.5 rounded border ${langOpen === lang
+                                ? 'bg-red-700 text-white border-red-700'
+                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'}`}>
+                        {LANG_LABEL[lang] || lang} &middot; {rows.length}
+                      </button>
+                    ))}
+                </div>
+                {langOpen && (similar.by_language[langOpen] || []).map((r) => (
+                  <SimilarResultCard key={r.id} r={r} onOpenPassage={onOpenPassage} />
+                ))}
+              </div>
             )}
             <p className="text-[11px] text-gray-500 pt-1 leading-snug">
               These passages match in content, not wording, so a match in another language

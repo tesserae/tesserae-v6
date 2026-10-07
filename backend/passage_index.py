@@ -19,6 +19,7 @@ Embeddings are memory-mapped, so the resident cost is the id/description tables
 rather than the matrix. Loading is lazy: nothing touches disk until the first
 query, and a missing index degrades to "unavailable" instead of failing import.
 """
+from collections import Counter
 import json
 import math
 import os
@@ -1483,9 +1484,31 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
     }
 
 
+# How many results each "in other languages" section holds (find_similar_to_window).
+BY_LANGUAGE_K = 5
+
+
+def _index_languages():
+    """The languages present in the passage index, cached once loaded."""
+    langs = _state.get('languages')
+    if langs is None:
+        langs = sorted({r.get('language') for r in _records if r.get('language')})
+        _state['languages'] = langs
+    return langs
+
+
 def find_similar_to_window(window_id, limit=15, languages=None,
-                           include_same_work=False, suppress_other_versions=True):
-    """Similar Passages, given an index window id."""
+                           include_same_work=False, suppress_other_versions=True,
+                           by_language=False):
+    """Similar Passages, given an index window id.
+
+    by_language (2026-10-07): also return, for every served language with fewer
+    than BY_LANGUAGE_K results in the main list, that language's best matches
+    above the ranking's similarity floor. The main list ranks all languages
+    together, and the largest corpora fill it: an Urdu passage from Mir got 28
+    Persian matches and 2 Urdu ones, because the index holds 220,000 Persian
+    windows and 15,000 Urdu. The same rule serves every language, so a Latin
+    passage shows its Greek and English matches the same way."""
     _ensure_loaded()
     if not _state['ok']:
         return {'error': _state['error'], 'results': []}
@@ -1509,7 +1532,24 @@ def find_similar_to_window(window_id, limit=15, languages=None,
     results = _rank(scores, limit, exclude_work=exclude, languages=languages,
                     baseline=baseline, exclude_span=exclude_span)
     top = results[0]['score'] if results else baseline
+    by_lang = {}
+    if by_language:
+        shown = {r.get('id') for r in results}
+        counts = Counter(r.get('language') for r in results)
+        held = held_languages()
+        for lang in _index_languages():
+            if lang in held or (languages and lang not in languages):
+                continue
+            if counts.get(lang, 0) >= BY_LANGUAGE_K:
+                continue
+            sub = _rank(scores, BY_LANGUAGE_K + counts.get(lang, 0), exclude_work=exclude,
+                        languages=[lang], baseline=baseline, exclude_span=exclude_span)
+            sub = [r for r in sub if r.get('id') not in shown][:BY_LANGUAGE_K]
+            if sub:      # every row _rank returns already clears the similarity floor
+                by_lang[lang] = sub
+    out_extra = {'by_language': by_lang} if by_language else {}
     return {
+        **out_extra,
         'source': _result(row, 1.0, strong=True),
         'results': results,
         'confidence': {'top': round(float(top), 4), 'baseline': round(baseline, 4),
@@ -1922,13 +1962,14 @@ def pair_lift(work_a, ref_a, work_b, ref_b, scale='fine'):
 
 def find_similar_to_passage(work, ref_start=None, ref_end=None, limit=15,
                             languages=None, scale='fine',
-                            suppress_other_versions=True):
+                            suppress_other_versions=True, by_language=False):
     """Similar Passages, given a reader selection (work + reference span)."""
     wid = window_for_passage(work, ref_start, ref_end, prefer=scale)
     if not wid:
         return {'error': 'no indexed window covers that passage', 'results': []}
     return find_similar_to_window(wid, limit=limit, languages=languages,
-                                  suppress_other_versions=suppress_other_versions)
+                                  suppress_other_versions=suppress_other_versions,
+                                  by_language=by_language)
 
 
 # UNDER cache/, NOT beside the index.

@@ -837,8 +837,8 @@ def get_curated_stoplists():
         words = fusion._STOPLISTS.get(language)
         if not words:
             continue
-        ordered = sorted(words)
-        display = list(ordered)
+        ordered = sorted(w for w in words if any(ch.isalpha() for ch in w))
+        display = _plugin_display_words(language, ordered) if language in ('fa', 'ur') else list(ordered)
         result[language] = {
             'label': label,
             'words': ordered,
@@ -852,7 +852,26 @@ def get_curated_stoplists():
 _PLUGIN_STOPLISTS = (
     ('he', 'Hebrew', 'rtl'),
     ('cop', 'Coptic', 'ltr'),
+    ('fa', 'Persian', 'rtl'),
+    ('ur', 'Urdu', 'rtl'),
 )
+
+
+def _plugin_display_words(language, words):
+    """The words as a reader expects them. Persian and Urdu lists are folded to
+    Arabic letter forms for matching (Persian ye and kaf to the Arabic ones) and
+    carry punctuation tokens; the page shows the lists as typed, letters only
+    (2026-10-07)."""
+    raw = None
+    try:
+        if language == 'fa':
+            from backend.persian.stopwords import _RAW_STOP_WORDS as raw
+        elif language == 'ur':
+            from backend.urdu.stopwords import _RAW_STOP_WORDS as raw
+    except ImportError:
+        raw = None
+    pool = raw if raw else words
+    return sorted(w for w in pool if any(ch.isalpha() for ch in w))
 
 
 

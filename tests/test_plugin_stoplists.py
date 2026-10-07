@@ -174,3 +174,22 @@ def test_standalone_punctuation_marks_are_stopwords():
     from backend.arabic.stopwords import ARABIC_STOP_WORDS
     for mark in ('\u060c', '\u061f', '\u061b', '\u06d4'):
         assert mark in PERSIAN_STOP_WORDS and mark in URDU_STOP_WORDS and mark in ARABIC_STOP_WORDS
+
+
+def test_curated_stoplists_endpoint_shows_persian_and_urdu_when_registered():
+    """The Help page's stoplist cards come from get_curated_stoplists; Persian
+    and Urdu were registered for matching but never listed there (2026-10-07).
+    The displayed words are letters only, in the spelling the lists were typed."""
+    from backend import fusion
+    from backend.matcher import get_curated_stoplists
+    from backend.persian import register as reg_fa
+    from backend.urdu import register as reg_ur
+    reg_fa(); reg_ur()
+    out = get_curated_stoplists()
+    for code, label in (('fa', 'Persian'), ('ur', 'Urdu')):
+        assert code in out, code
+        entry = out[code]
+        assert entry['label'] == label and entry['dir'] == 'rtl'
+        assert entry['count'] >= 60
+        assert all(any(ch.isalpha() for ch in w) for w in entry['display'])
+    assert 'که' in out['fa']['display']          # typed with Persian kaf, shown so

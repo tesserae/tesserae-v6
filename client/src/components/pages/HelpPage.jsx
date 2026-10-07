@@ -187,15 +187,17 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
         }
 
         const payload = await response.json();
-        // Latin, Greek and English are always served. Hebrew and Coptic
-        // appear only when their plugin is registered, so a missing plugin
+        // Latin, Greek and English are always served. Hebrew, Coptic, Persian
+        // and Urdu appear only when their plugin is registered, so a missing plugin
         // language drops its card rather than the whole section.
         const languageCards = [
           ['la', 'latin', true],
           ['grc', 'greek', true],
           ['en', 'english', true],
           ['he', 'hebrew', false],
-          ['cop', 'coptic', false]
+          ['cop', 'coptic', false],
+          ['fa', 'persian', false],
+          ['ur', 'urdu', false]
         ].flatMap(([language, key, required]) => {
           const stoplist = payload.stoplists?.[language];
           if (!stoplist || !Array.isArray(stoplist.words)) {
@@ -936,7 +938,10 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   of scene</strong> follows, ranked on content alone. The names are found by their
                   capital letters, and the first group covers Latin, Greek and English for now. Persian,
                   Urdu, Hebrew and Coptic passages show the second group only. Fifteen
-                  passages show at first, and <strong>Show more matches</strong> extends the list.
+                  passages show at first, and <strong>Show more matches</strong> extends the list. Below the list,
+                  <strong> In other languages</strong> offers a button for each language with few matches in
+                  the list, ordered by its best match, which opens that language's five closest passages. The
+                  largest corpora otherwise fill the list: an Urdu passage would show mostly Persian.
                 </li>
                 <li>
                   <strong>Verbal parallels</strong> lists corpus lines that share your
@@ -2351,8 +2356,13 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                     the spelling conventions are reconciled (Urdu's extra letters, Arabic's <em>tā' marbūṭa</em>), on
                     both the dictionary form and the surface word, so a Qur'anic phrase inside a Persian line matches
                     the Arabic. A matched phrase extends through its function words so <em>innā lillāhi wa-innā
-                    ilayhi rāji'ūn</em> is seen whole. A pair needs two shared words; native Urdu words have no Persian
-                    counterpart.</li>
+                    ilayhi rāji'ūn</em> is seen whole. A pair needs two shared words, and native Urdu words have no
+                    Persian counterpart. Between Persian and Urdu, two poems that share refrain and rhyme are matched
+                    too, as within one language, unless the refrain is only function words: Urdu
+                    <em> huā</em> ("became") is spelled like Persian <em>havā</em> ("air"), so a shared spelling there
+                    proves nothing. A refrain translated from Persian into Urdu (<em>ast</em> as <em>hai</em>) is not
+                    matched, because without the meter, which the Urdu texts do not carry, those forms are too common
+                    to be evidence.</li>
                 </ul>
               </div>
 
@@ -2393,9 +2403,10 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 <li><strong>Persian and Urdu</strong>: no dictionary is needed. Urdu poetry borrows Persian
                   vocabulary and phrases, so the two are matched on the words they share once their spelling
                   conventions are reconciled, together with a meaning model that reads both. Hafez against Ghalib
-                  puts Ghalib's reworkings of Hafez's phrases at the top. Refrain and rhyme are matched within
-                  each language only, so an Urdu ghazal answering a Persian one is found through its words, not
-                  its form. See{' '}
+                  puts Ghalib's reworkings of Hafez's phrases at the top. Refrain and rhyme are matched across the
+                  pair as well, when an Urdu ghazal keeps a Persian ghazal's refrain and rhyme: Ghalib's ghazal 64
+                  keeps Hafez's refrain <span dir="rtl">دوست</span> and his rhyme in -ār. Urdu refrains are usually
+                  Urdu words, so such shared forms are rare, about ten poem pairs across the two corpora. See{' '}
                   <button onClick={() => setActiveSection('poetics')} className="text-red-600 hover:underline">Poetic form</button>.</li>
               </ul>
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Greek and Latin in detail</h4>
