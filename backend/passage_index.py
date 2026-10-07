@@ -202,7 +202,7 @@ _lex_state = {'checked': False, 'ok': False, 'row_by_id': None}
 # cached (not reopened per call) because every query needs it.
 _NAMES_PATH = os.path.join(_DATA_DIR, 'window_names.db')
 _names_lock = threading.Lock()
-_names_state = {'checked': False, 'conn': None, 'df': None, 'N': 0}
+_names_state = {'checked': False, 'conn': None, 'df': None, 'N': 0, 'N_by_lang': {}}
 NAMES_IDF_THRESHOLD = 4.5   # a name rarer than roughly 1 window in 90 counts
 NAMES_LAMBDA = 0.008        # weight of the shared-name-rarity term in scoring
 NAMES_WEAK_STRENGTH = 2.0   # below this summed rarity, flag the group as weak
@@ -1578,8 +1578,13 @@ def _ensure_names_loaded():
             import sqlite3
             conn = sqlite3.connect(f'file:{_NAMES_PATH}?mode=ro', uri=True,
                                    check_same_thread=False)
-            row = conn.execute("SELECT value FROM meta WHERE key='windows'").fetchone()
-            n = int(row[0]) if row else 0
+            meta = dict(conn.execute('SELECT key, value FROM meta'))
+            n = int(meta.get('windows') or 0)
+            # Per-script-group totals (windows_he, windows_cop, windows_fa,
+            # windows_ur); a language without one uses 'windows' (Latin, Greek,
+            # English). See scripts/corpus/build_window_names.py.
+            n_by_lang = {k[len('windows_'):]: int(v) for k, v in meta.items()
+                         if k.startswith('windows_') and str(v).isdigit()}
             df = dict(conn.execute('SELECT k, df FROM name_df'))
         except Exception as e:  # noqa: BLE001 -- a bad name index must not break Similar Passages
             logger.warning('[PASSAGES] window_names.db unreadable (%s); "same '
@@ -1588,6 +1593,7 @@ def _ensure_names_loaded():
         _names_state['conn'] = conn
         _names_state['df'] = df
         _names_state['N'] = n
+        _names_state['N_by_lang'] = n_by_lang
         return conn
 
 
@@ -1629,7 +1635,8 @@ def same_names_for_window(wid, limit=12):
     for k, form in src_rows:
         src_form.setdefault(k, form)
 
-    df, n = _names_state['df'], _names_state['N']
+    df = _names_state['df']
+    n = _names_state.get('N_by_lang', {}).get(src.get('language')) or _names_state['N']
     rare = {k: _name_idf(k, df, n) for k in src_form}
     rare = {k: v for k, v in rare.items() if v > NAMES_IDF_THRESHOLD}
     strength = sum(v - NAMES_IDF_THRESHOLD for v in rare.values())

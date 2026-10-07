@@ -222,7 +222,11 @@ def test_main_builds_names_for_every_new_language(tmp_path, monkeypatch):
     assert by_window['fa1:fine:0'] == {'يوسف': 'يوسف'}
     assert by_window['ur1:fine:0'] == {'علي': 'علي'}, \
         'می must be excluded by the ghazal stoplist even though it is always PROPN-tagged'
-    assert meta['windows'] == '5'
+    # One window per language in the fixture: Latin keeps its own total, each
+    # new script group its own, Persian and Urdu sharing one (2026-10-07).
+    assert meta['windows'] == '1'
+    assert meta['windows_he'] == '1' and meta['windows_cop'] == '1'
+    assert meta['windows_fa'] == meta['windows_ur'] == '2'
     assert os.path.exists(out + '.done')
 
 

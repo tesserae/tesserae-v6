@@ -935,9 +935,11 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   name the same rare people or places as your selection, so Arrian's account of Alexander at
                   Celaenae appears beside Curtius'. Commentaries on a work are set aside, and the group
                   starts collapsed when the selection's names are few or very famous. <strong>Same kind
-                  of scene</strong> follows, ranked on content alone. The names are found by their
-                  capital letters, and the first group covers Latin, Greek and English for now. Persian,
-                  Urdu, Hebrew and Coptic passages show the second group only. Fifteen
+                  of scene</strong> follows, ranked on content alone. Names are found by capital
+                  letters in Latin, Greek and English, by the part-of-speech tags of the Hebrew and Coptic
+                  corpora (proper nouns in the Hebrew Bible's morphology and in Coptic Scriptorium's
+                  annotation), and in Persian and Urdu, which have no capitals, by the tagger's proper-noun
+                  tags plus a short list of prophets, lovers of romance and, for Urdu, the figures of Karbala. Fifteen
                   passages show at first, and <strong>Show more matches</strong> extends the list. Below the list,
                   <strong> In other languages</strong> offers a button for each language with few matches in
                   the list, ordered by its best match, which opens that language's five closest passages. The

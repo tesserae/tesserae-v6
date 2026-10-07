@@ -291,6 +291,14 @@ def main(out_path):
         if len(batch) > 200000: out.executemany('insert into window_names values (?,?,?)', batch); batch = []
     out.executemany('insert into window_names values (?,?,?)', batch)
     print(f'la/grc/en pass {time.time()-t0:.0f}s: {n} windows', flush=True)
+    # RARITY IS COUNTED PER SCRIPT GROUP (2026-10-07). The reader scores a name by
+    # log(windows / windows naming it); with one total for every language, adding
+    # 250,000 Hebrew, Coptic, Persian and Urdu windows made each Latin name look
+    # twice as rare and shifted Latin results. Each group keeps its own total in
+    # meta: 'windows' for Latin, Greek and English (as before), 'windows_he',
+    # 'windows_cop', and one shared Persian and Urdu total, since the two write
+    # names the same way and share name keys.
+    group_n = {'base': n}
 
     # -----------------------------------------------------------------
     # Hebrew: the BHSA nmpr table directly, no threshold.
@@ -308,6 +316,7 @@ def main(out_path):
             he_n += 1
         out.executemany('insert into window_names values (?,?,?)', he_batch)
         n += he_n
+        group_n['he'] = he_n
         print(f'Hebrew {time.time()-t0:.0f}s: {len(he_names)} BHSA proper-noun forms, '
               f'{he_n} windows, {len(he_batch)} window-name pairs', flush=True)
     else:
@@ -327,6 +336,7 @@ def main(out_path):
             cop_n += 1
         out.executemany('insert into window_names values (?,?,?)', cop_batch)
         n += cop_n
+        group_n['cop'] = cop_n
         print(f'Coptic {time.time()-t0:.0f}s: {len(cop_names)} purity-filtered PROPN forms, '
               f'{cop_n} windows, {len(cop_batch)} window-name pairs', flush=True)
     else:
@@ -348,6 +358,7 @@ def main(out_path):
             fa_n += 1
         out.executemany('insert into window_names values (?,?,?)', fa_batch)
         n += fa_n
+        group_n['fa_ur'] = group_n.get('fa_ur', 0) + fa_n
         print(f'Persian {time.time()-t0:.0f}s: {len(fa_names)} names (purity + lexicon), '
               f'{fa_n} windows, {len(fa_batch)} window-name pairs', flush=True)
     else:
@@ -370,6 +381,7 @@ def main(out_path):
             ur_n += 1
         out.executemany('insert into window_names values (?,?,?)', ur_batch)
         n += ur_n
+        group_n['fa_ur'] = group_n.get('fa_ur', 0) + ur_n
         print(f'Urdu {time.time()-t0:.0f}s: {len(ur_names)} names (purity + lexicon - stoplist), '
               f'{ur_n} windows, {len(ur_batch)} window-name pairs', flush=True)
     else:
@@ -382,7 +394,11 @@ def main(out_path):
     out.execute('create index ix_wn_id on window_names(id)'); out.execute('create index ix_wn_k on window_names(k)')
     out.execute('drop table if exists name_df'); out.execute('create table name_df (k text primary key, df integer)')
     out.executemany('insert into name_df values (?,?)', df.items()); out.execute('create table if not exists meta (key text, value text)')
-    out.execute("insert into meta values ('windows', ?)", (str(n),)); out.commit()
+    meta_rows = [('windows', str(group_n['base']))]
+    for lang, group in (('he', 'he'), ('cop', 'cop'), ('fa', 'fa_ur'), ('ur', 'fa_ur')):
+        if group in group_n:
+            meta_rows.append((f'windows_{lang}', str(group_n[group])))
+    out.executemany('insert into meta values (?, ?)', meta_rows); out.commit()
     print(f'total {time.time()-t0:.0f}s: {n} windows, {sum(df.values())} window-name pairs, {len(df)} keys')
     open(out_path + '.done', 'w').write('ok')
 
