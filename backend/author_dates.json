@@ -498,13 +498,7 @@
   "iqbal": {
    "added": "phase3-2026-09-03",
    "era": "Modern",
-   "note": "Muhammad Iqbal, d. 1938 CE -- same author as fa/iqbal_lahori and ur/iqbal; covers the 7 re-filed Persian-titled works (armaghan_e_hijaz_persian, asrar_e_khudi, javid_nama, pas_cheh_bayad_kard, payam_e_mashriq, rumuz_e_bekhudi, zabur_e_ajam)",
-   "year": 1938
-  },
-  "iqbal_lahori": {
-   "added": "editorial-2026-08-25",
-   "era": "Modern",
-   "note": "d. 1938 CE",
+   "note": "Muhammad Iqbal, d. 1938 CE -- same author as ur/iqbal; covers 8 Persian-titled works (armaghan_e_hijaz_persian, asrar_e_khudi, diwan, javid_nama, pas_cheh_bayad_kard, payam_e_mashriq, rumuz_e_bekhudi, zabur_e_ajam). diwan was filed separately as fa/iqbal_lahori (editorial-2026-08-25) until the 2026-10-07 rename merged it under this id; that entry is removed here, not duplicated.",
    "year": 1938
   },
   "jami": {
