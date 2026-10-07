@@ -9,6 +9,22 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Iqbal's diwan renamed into his other Persian works
+- The Persian divan filed separately as `iqbal_lahori.diwan` (Ganjoor's Iqbal
+  collection) is renamed `iqbal.diwan`, joining the seven other Persian-titled
+  works already filed under `iqbal`. The two filings split one poet's charts
+  and lists in two; the rename merges them under one author key.
+  `backend/author_dates.json`, `client/src/utils/eras.js`,
+  `data/poetics/form_signatures_fa.json`, `data/text_descriptions.json` and
+  `data/text_genres.csv` updated; `data/poetics/ganjoor_iqbal_lahori.diwan.json`
+  moved to `ganjoor_iqbal.diwan.json` with its ref ids rewritten. A new
+  production script, `scripts/corpus/rename_work.py`, does the equivalent
+  rename everywhere a work's name is held outside git (the `.tess` file and
+  its line tags, the inverted index, the lemma cache, the passage index, the
+  embeddings): dry run by default, `--apply` to act, every file backed up
+  first. Production run (the `.tess`, the index, the caches) is a follow-up
+  data operation, not part of this pull request.
+
 ### Help brought up to date; connector names Persian and Urdu
 - Help: Persian and Urdu in the language lists; Arabic shown as indexed but not
   yet open, with its page left out of the menu until the site serves it; the
