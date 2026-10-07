@@ -116,10 +116,10 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
 
   // "Same people and places" (research/specs/2026-10-07_names_panel_spec.md):
   // a second grouping, by shared rare proper names rather than content alone,
-  // behind the ?names=1 page flag. Read once -- this is a page-level flag set
-  // by whoever opened the Reader, not something that changes mid-session.
+  // on by default since 2026-10-07 (trialled behind ?names=1 first); ?names=0
+  // turns it off for comparison. Read once per page.
   const [namesFlag] = useState(
-    () => new URLSearchParams(window.location.search).get('names') === '1',
+    () => new URLSearchParams(window.location.search).get('names') !== '0',
   );
   // Both groups default open; "Same people and places" starts collapsed
   // when the server flags it weak (a thin or single famous name gives a

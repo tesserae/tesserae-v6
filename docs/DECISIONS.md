@@ -8,6 +8,50 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-07: Similar Passages shows "same people and places" above "same kind of scene"
+
+Similar Passages ranked windows by content alone, and the descriptions name
+no one by design ("a commander", "a city"), so a passage's direct parallels
+could rank below generic scenes of the same kind: for Curtius 3.1 (Alexander
+at Celaenae) Arrian's account of the same event (1.28-29) was not in the top
+100. The Similar tab now shows first the windows of other works that share
+rare proper names with the selection, ranked by content similarity plus the
+names' rarity (log of windows over windows containing the name, above a
+threshold), commentaries on a work set aside, and then the content-ranked
+list without those windows. A word counts as a name in a language when it is
+capitalised mid-line in nearly all its uses there, judged per language and on
+whole word forms as well as stems. Tested on twelve passages in three rounds:
+the first group found Arrian 1.28 and Livy 38.13 for Curtius 3.1, Suetonius
+and Claudian for the Rubicon, Apuleius 6.19 for the Golden Bough, Eobanus'
+Latin version of Iliad 22 for Hector's death. Weak where a passage's only
+names are very famous (Hector, Hannibal): that group starts collapsed.
+Trialled behind a switch, then made the default.
+
+## 2026-10-06: Persian and Urdu refrain-and-rhyme matches, one per poem pair; set phrases shown, not penalised
+
+From the first expert review (Walt Hakala, 90 graded pairs: one Wrong, nine
+Plausible for set phrases, 72 Good). The refrain-and-rhyme channel emitted
+every line pair of two poems sharing a refrain, so a ranking of 200 held a
+handful of poem pairs repeated; it now emits one result per poem pair, and a
+shared refrain and rhyme is discounted by how many poems in the whole corpus
+carry it (factor sqrt(2/n)). Retest: every pair graded Good still found, the
+Wrong pair out of the top 200. Set phrases were not penalised: neither corpus
+frequency (Good pairs share phrases found in 10-12 of 28 Persian works,
+Plausible ones in 1-2) nor a language-model judgement separated the expert's
+Good from his Plausible pairs, so a discount would demote good results as
+readily as weak ones. The count of works sharing a result's wording is shown
+instead, with the existing control to hide common phrases. Arabic is held out
+of results until a reader grades it.
+
+## 2026-10-06: a Reader selection is matched to its passage window by every reference coordinate
+
+The match compared only the last two numbers of a reference and searched every
+book of a work, so in works cited book.chapter.section a selection could get
+another book's window (Curtius 3.1.1 matched 10.1.1). It now compares every
+coordinate, within the book being read; on 600 random windows used as
+selections, 599 resolve to their own book and one to the identical window of
+its book file.
+
 ## 2026-10-03: the passage descriptions are the GLM 5.3 Flash set
 
 Every passage window's description was rewritten from the window's own

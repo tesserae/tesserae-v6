@@ -227,7 +227,8 @@ def enrich_metadata_with_author_dates(metadata, author_dates):
     normalized_author_key = normalize_author_date_key(author_key)
     # A work may carry its own date ("anonymus.carmen_de_pippino"), which wins
     # over its author's: anonymous works share one author key but not one date.
-    work_key = (metadata.get('work_key') or '').split('.part.')[0]
+    from backend.work_names import base_work
+    work_key = base_work(metadata.get('work_key') or '')
     work_info = author_dates.get(f'{author_key}.{work_key}') if work_key else None
     author_info = work_info or (
         author_dates.get(author_key)
