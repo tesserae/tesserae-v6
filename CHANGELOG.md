@@ -9,6 +9,21 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Help: readable headings, one style per level, tidier contents
+- Sidebar group labels are bold and dark with a rule above each group, and the
+  entries sit indented under them. The labels had been smaller and lighter than
+  the entries. This restores the fix approved on 2026-09-06, which was made on a
+  branch that never merged.
+- One style per level: every section title (24px bold, ruled), every subsection
+  (18px semibold, above the 16px body; five competing styles before), every box
+  label (small bold capitals in the box's colour).
+- Boxes follow one colour rule: amber for cautions, blue for worked examples,
+  gray for reference. Ten boxes in other colours were brought into it.
+- Titles match the sidebar ("The Types of Search", "Repository", "Languages
+  overview"). The cross-language card in The Types of Search links to the full
+  page instead of repeating it. Understanding Results explains the "in N works"
+  badge, the Formulas setting and the refrain and rhyme colours.
+
 ### Names rarity per script; how names are found, documented
 - "Same people and places" counts a name's rarity within its script group, so
   extending the names index to Hebrew, Coptic, Persian and Urdu leaves Latin,
