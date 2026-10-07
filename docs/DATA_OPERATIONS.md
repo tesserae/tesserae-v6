@@ -67,6 +67,13 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-07 Connection map rebuilt with Persian and Urdu (15:25 to 16:12 EDT)
+- `scripts/build_connections_map.py` with the language list of #658 (la, grc, en,
+  cop, he, fa, ur): 371,354 fine windows in 1,838 works, 46.2 min, peak 7.3 GB
+  under a 10 GB cap. The coverage checker then reports every Persian and Urdu text
+  present in every store (28 and 18 texts, nothing missing), including the Sources
+  credits added in #660.
+
 ## 2026-10-07 Names index extended to Hebrew, Coptic, Persian and Urdu (15:37 to 15:59 EDT)
 - Built with `scripts/corpus/build_window_names.py` (#659) to
   `data/passage_index/window_names.db.new` on production (21 min, peak 1.9 GB):
