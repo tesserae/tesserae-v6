@@ -211,7 +211,7 @@ def _export_rows(results, texts, order='date'):
 
     The rows follow the order the reader chose on the page. The export used to
     be oldest first regardless, so a Best-match list on screen came out as a
-    different document (NC, 2026-09-07).
+    different document in the download.
     """
     rows = []
     ordered = _by_score(results) if order == 'score' else _chronological(results)
@@ -411,6 +411,11 @@ def similar_passages():
     # Latin. A scholar comparing versions can ask for them with
     # ?include_other_versions=1.
     include_versions = (request.args.get('include_other_versions') or '').lower() in ('1', 'true', 'yes')
+    # "Same people and places": a second grouping, behind this parameter, for
+    # windows sharing rare proper names with the selection rather than only
+    # content similarity (backend/passage_index.py:same_names_for_window).
+    # Omitted, the response is byte-for-byte what it has always been.
+    same_names_requested = (request.args.get('same_names') or '').strip() in ('1', 'true', 'yes')
     if window:
         out = passage_index.find_similar_to_window(
             window, limit=limit, languages=langs, include_same_work=include_same,
@@ -422,6 +427,15 @@ def similar_passages():
             suppress_other_versions=not include_versions)
     else:
         return jsonify({'error': 'work or window is required', 'results': []})
+    if same_names_requested:
+        src_wid = window or (out.get('source') or {}).get('id')
+        same_names = passage_index.same_names_for_window(src_wid) if src_wid else None
+        out['same_names'] = same_names
+        if same_names:
+            exclude = {r.get('id') for r in same_names.get('results', [])}
+            exclude |= {r.get('id') for r in same_names.get('commentaries', [])}
+            out['results'] = [r for r in out.get('results', [])
+                              if r.get('id') not in exclude]
     out['presentation'] = (
         'These passages resemble the selection in CONTENT (scene type, theme, '
         'situation) rather than in wording. Say what kind of resemblance each '
