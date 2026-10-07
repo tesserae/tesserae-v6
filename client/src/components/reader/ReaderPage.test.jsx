@@ -76,6 +76,19 @@ async function mountReader() {
   await waitFor(() => expect(screen.getByLabelText('Author')).toBeTruthy());
 }
 
+// Author/Work/Book are SearchableSelect (type-to-find), not a plain
+// <select>, since 2026-10-06: the visible control is a text input showing
+// the chosen option's LABEL, and `fireEvent.change` on it only types a
+// filter rather than choosing anything. This drives it the way a user does
+// -- focus to open the full list, then click the option carrying the given
+// value (exposed as `data-value` on each option button so a test can find
+// it without matching on label text).
+async function chooseOption(labelText, value) {
+  fireEvent.focus(await screen.findByLabelText(labelText));
+  const option = screen.getAllByRole('option').find((o) => o.dataset.value === value);
+  fireEvent.pointerDown(option);
+}
+
 describe('the Reader loads what the dropdowns choose', () => {
   it('opens the work named in the URL', async () => {
     await mountReader();
@@ -84,31 +97,27 @@ describe('the Reader loads what the dropdowns choose', () => {
 
   it('choosing another book loads that book', async () => {
     await mountReader();
-    fireEvent.change(await screen.findByLabelText('Book'),
-                     { target: { value: 'ovid.tristia.part.4.tess' } });
+    await chooseOption('Book', 'ovid.tristia.part.4.tess');
     await waitFor(() => expect(asked).toContain('ovid.tristia.part.4.tess'));
   });
 
   it('choosing another work loads that work', async () => {
     await mountReader();
-    fireEvent.change(await screen.findByLabelText('Work'),
-                     { target: { value: 'amores' } });
+    await chooseOption('Work', 'amores');
     await waitFor(() => expect(asked).toContain('ovid.amores.tess'));
   });
 
   it('choosing another author loads that author', async () => {
     await mountReader();
-    fireEvent.change(await screen.findByLabelText('Author'),
-                     { target: { value: 'vergil' } });
+    await chooseOption('Author', 'vergil');
     await waitFor(() => expect(asked).toContain('vergil.aeneid.tess'));
   });
 
   it('the dropdown then SHOWS the text that is open', async () => {
     await mountReader();
-    fireEvent.change(await screen.findByLabelText('Book'),
-                     { target: { value: 'ovid.tristia.part.4.tess' } });
+    await chooseOption('Book', 'ovid.tristia.part.4.tess');
     await waitFor(() =>
-      expect(screen.getByLabelText('Book').value).toBe('ovid.tristia.part.4.tess'));
+      expect(screen.getByLabelText('Book').value).toBe('Book 4'));
   });
 });
 
@@ -122,8 +131,7 @@ describe('arriving from Theme Search', () => {
   it('still lets the dropdowns change the text', async () => {
     window.history.replaceState({}, '', FROM_THEME);
     await mountReader();
-    fireEvent.change(await screen.findByLabelText('Book'),
-                     { target: { value: 'ovid.tristia.part.4.tess' } });
+    await chooseOption('Book', 'ovid.tristia.part.4.tess');
     await waitFor(() => expect(asked).toContain('ovid.tristia.part.4.tess'));
   });
 
@@ -271,8 +279,7 @@ describe('the arrival banner is one-shot', () => {
     window.history.replaceState({}, '', FROM_THEME);
     await mountReader();
     await screen.findByText(/Found by Theme Search/);
-    fireEvent.change(await screen.findByLabelText('Work'),
-                     { target: { value: 'amores' } });
+    await chooseOption('Work', 'amores');
     await waitFor(() =>
       expect(screen.queryByText(/Found by Theme Search/)).toBeNull());
   });
@@ -348,16 +355,14 @@ describe('Back inside the Reader comes back to the Reader', () => {
   it('opening another text adds a history entry', async () => {
     await mountReader();
     const before = window.history.length;
-    fireEvent.change(await screen.findByLabelText('Author'),
-                     { target: { value: 'vergil' } });
+    await chooseOption('Author', 'vergil');
     await waitFor(() => expect(asked).toContain('vergil.aeneid.tess'));
     expect(window.history.length).toBeGreaterThan(before);
   });
 
   it('going Back loads the text that was open before', async () => {
     await mountReader();
-    fireEvent.change(await screen.findByLabelText('Author'),
-                     { target: { value: 'vergil' } });
+    await chooseOption('Author', 'vergil');
     await waitFor(() => expect(asked).toContain('vergil.aeneid.tess'));
 
     asked.length = 0;
@@ -366,7 +371,7 @@ describe('Back inside the Reader comes back to the Reader', () => {
     await waitFor(() => expect(asked).toContain('ovid.tristia.part.3.tess'));
     // and the page must actually show it, not just hold the URL
     await waitFor(() =>
-      expect(screen.getByLabelText('Author').value).toBe('ovid'));
+      expect(screen.getByLabelText('Author').value).toBe('Ovid'));
   });
 
   it('adds exactly one entry per text, not one per render', async () => {
@@ -377,8 +382,7 @@ describe('Back inside the Reader comes back to the Reader', () => {
     // stack's shape rather than of this component.
     window.history.pushState({}, '', window.location.href);
     const before = window.history.length;
-    fireEvent.change(await screen.findByLabelText('Book'),
-                     { target: { value: 'ovid.tristia.part.4.tess' } });
+    await chooseOption('Book', 'ovid.tristia.part.4.tess');
     await waitFor(() => expect(asked).toContain('ovid.tristia.part.4.tess'));
     expect(window.history.length - before).toBe(1);
   });

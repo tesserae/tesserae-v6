@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { LANGUAGE_NAMES as LANG_LABEL } from '../../utils/languageNames';
+import SearchableSelect from '../common/SearchableSelect';
 
 /**
  * The Reader's header: where you are, and how to go somewhere else.
@@ -152,22 +153,51 @@ export default function ReaderHeader({
 
       <Select label="Language" value={language} options={langOptions}
               onChange={(v) => onLanguage(v)} />
-      <Select label="Author" value={here.author} options={authorOptions}
-              onChange={(v) => {
-                const entry = (hierarchy || []).find(
-                  (a) => (a.author_key || a.author) === v);
-                const next = firstOf(entry);
-                if (next) onWork(next);
-              }} />
-      <Select label="Work" value={here.workKey} options={workOptions}
-              onChange={(v) => {
-                const w = (authorEntry?.works || []).find((x) => x.work_key === v);
-                const next = (w?.sections || [])[0]?.file;
-                if (next) onWork(next);
-              }} />
+      <div className="flex items-center">
+        <SearchableSelect
+          ariaLabel="Author"
+          value={here.author}
+          options={authorOptions}
+          placeholder="Author"
+          disabled={!authorOptions.length}
+          onChange={(v) => {
+            const entry = (hierarchy || []).find(
+              (a) => (a.author_key || a.author) === v);
+            const next = firstOf(entry);
+            if (next) onWork(next);
+          }}
+          className="max-w-[11rem] truncate rounded border border-gray-300 bg-white px-2 py-1 text-sm
+                     text-gray-800 hover:border-gray-400 disabled:bg-gray-50 disabled:text-gray-500"
+        />
+      </div>
+      <div className="flex items-center">
+        <SearchableSelect
+          ariaLabel="Work"
+          value={here.workKey}
+          options={workOptions}
+          placeholder="Work"
+          disabled={!workOptions.length}
+          onChange={(v) => {
+            const w = (authorEntry?.works || []).find((x) => x.work_key === v);
+            const next = (w?.sections || [])[0]?.file;
+            if (next) onWork(next);
+          }}
+          className="max-w-[11rem] truncate rounded border border-gray-300 bg-white px-2 py-1 text-sm
+                     text-gray-800 hover:border-gray-400 disabled:bg-gray-50 disabled:text-gray-500"
+        />
+      </div>
       {bookOptions.length > 1 && (
-        <Select label="Book" value={work} options={bookOptions}
-                onChange={(v) => onWork(v)} />
+        <div className="flex items-center">
+          <SearchableSelect
+            ariaLabel="Book"
+            value={work}
+            options={bookOptions}
+            placeholder="Book"
+            onChange={(v) => onWork(v)}
+            className="max-w-[11rem] truncate rounded border border-gray-300 bg-white px-2 py-1 text-sm
+                       text-gray-800 hover:border-gray-400 disabled:bg-gray-50 disabled:text-gray-500"
+          />
+        </div>
       )}
       {about && (
         <button

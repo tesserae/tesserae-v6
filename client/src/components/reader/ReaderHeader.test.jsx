@@ -62,17 +62,38 @@ beforeEach(() => {
       { code: 'la' }, { code: 'grc' }, { code: 'en' }] }) }));
 });
 
+// Author/Work/Book are now SearchableSelect (type-to-find), not a plain
+// <select>: the visible control is a text input showing the chosen option's
+// LABEL (not its raw value/key), and a `fireEvent.change` on it only types a
+// filter rather than choosing anything. `chooseOption` drives it the way a
+// user does -- focus to open the full list, then click the option carrying
+// the given value (exposed as `data-value` on each option button precisely
+// so tests can find it without matching on label text) -- and `optionValues`
+// reads back what the open list currently offers.
+function chooseOption(labelText, value) {
+  fireEvent.focus(screen.getByLabelText(labelText));
+  const option = screen.getAllByRole('option').find((o) => o.dataset.value === value);
+  fireEvent.pointerDown(option);
+}
+
+function optionValues(labelText) {
+  fireEvent.focus(screen.getByLabelText(labelText));
+  return screen.getAllByRole('option')
+    .filter((o) => o.dataset.value !== undefined)
+    .map((o) => o.dataset.value);
+}
+
 describe('the dropdowns reflect the open text', () => {
   it('shows the author, work and book of the work that is open', () => {
     mount();
-    expect(screen.getByLabelText('Author').value).toBe('ovid');
-    expect(screen.getByLabelText('Work').value).toBe('tristia');
-    expect(screen.getByLabelText('Book').value).toBe('ovid.tristia.part.3.tess');
+    expect(screen.getByLabelText('Author').value).toBe('Ovid');
+    expect(screen.getByLabelText('Work').value).toBe('Tristia');
+    expect(screen.getByLabelText('Book').value).toBe('Book 3');
   });
 
   it('offers every author, not only the current one', () => {
     mount();
-    const opts = [...screen.getByLabelText('Author').options].map((o) => o.value);
+    const opts = optionValues('Author');
     expect(opts).toContain('ovid');
     expect(opts).toContain('vergil');
   });
@@ -81,20 +102,19 @@ describe('the dropdowns reflect the open text', () => {
 describe('the dropdowns actually change something', () => {
   it('choosing another author opens that author', () => {
     const { onWork } = mount();
-    fireEvent.change(screen.getByLabelText('Author'), { target: { value: 'vergil' } });
+    chooseOption('Author', 'vergil');
     expect(onWork).toHaveBeenCalledWith('vergil.aeneid.tess');
   });
 
   it('choosing another work opens that work', () => {
     const { onWork } = mount();
-    fireEvent.change(screen.getByLabelText('Work'), { target: { value: 'amores' } });
+    chooseOption('Work', 'amores');
     expect(onWork).toHaveBeenCalledWith('ovid.amores.tess');
   });
 
   it('choosing another book opens that book', () => {
     const { onWork } = mount();
-    fireEvent.change(screen.getByLabelText('Book'), {
-      target: { value: 'ovid.tristia.part.4.tess' } });
+    chooseOption('Book', 'ovid.tristia.part.4.tess');
     expect(onWork).toHaveBeenCalledWith('ovid.tristia.part.4.tess');
   });
 
