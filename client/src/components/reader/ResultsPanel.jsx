@@ -647,7 +647,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
           <>
             <p className="text-[11px] text-gray-500 leading-snug">
               Lines sharing enough word-triples with this line to count as a quotation
-              or near-quotation, computed once over the corpus. Latin for now.
+              or near-quotation, computed once over the corpus. Latin, Greek and English.
             </p>
             {reuseLoading && <LoadingSpinner />}
             {reuseError && <p className="text-sm text-red-700">{reuseError}</p>}

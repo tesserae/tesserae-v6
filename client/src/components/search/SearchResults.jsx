@@ -501,6 +501,21 @@ const SearchResults = ({
   const pickerOffset = serverMode ? startIndex : 0;
   const corpusHit = pickerRows.length ? pickerRows[Math.min(corpusHitIdx, pickerRows.length - 1)] : null;
 
+  // OPEN ON A ROW THE CHART CAN DRAW (2026-10-07). The corpus chart needs two
+  // shared words, and Persian and Urdu results lead with refrain-and-rhyme
+  // rows that share one (the refrain), so the chart opened on "shares only one
+  // word" and looked as if it never worked. When a new list arrives, pick the
+  // first row with two or more shared words; the reader can still choose any.
+  const pickerKey = `${pickerOffset}|${pickerRows.length}|${pickerRows[0]?.source_locus || pickerRows[0]?.source?.ref || ''}`;
+  const lastPickerKey = useRef('');
+  useEffect(() => {
+    if (!pickerRows.length || lastPickerKey.current === pickerKey) return;
+    lastPickerKey.current = pickerKey;
+    const first = pickerRows.findIndex((r) => sharedLemmasOf(r).length >= 2);
+    setCorpusHitIdx(first >= 0 ? first : 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pickerKey]);
+
   useEffect(() => {
     if (sidebarMode !== 'corpus' || !showDistributionChart || loading || !corpusHit) return;
     const words = sharedLemmasOf(corpusHit);
@@ -1205,6 +1220,7 @@ const SearchResults = ({
               {pickerRows.map((r, i) => (
                 <option key={i} value={i}>
                   #{pickerOffset + i + 1} · {citationFor(r, 'source', language)} ↔ {citationFor(r, 'target', language)}
+                  {sharedLemmasOf(r).length < 2 ? ' (one word, no chart)' : ''}
                 </option>
               ))}
             </select>
