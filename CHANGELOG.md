@@ -9,6 +9,18 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Sources page credits every Persian and Urdu text
+- `backend/text_sources.json` had no entries for any of the 28 Persian or
+  18 Urdu texts, so the Sources page credited nothing for either language.
+  Added one entry per work (28 + 18): the Chronological Persian Poetry
+  Dataset (CC BY-SA 4.0, built on Ganjoor) for 21 Persian works, the Iqbal
+  Demystified Dataset for 11 Iqbal works across both languages (no LICENSE
+  file, served as is per the 2026-09-03 decision), and Urdu Wikisource
+  (CC BY-SA 4.0) for the other 14 Urdu works, Ghalib and Mir among them.
+  Every source URL checked (`curl -sI`) before adding it.
+- `scripts/corpus/verify_text_coverage.py -l fa --all` and `-l ur --all` now
+  report `sources ok` for all 46 texts.
+
 ### "Same people and places" extended to Hebrew, Coptic, Persian and Urdu
 - `scripts/corpus/build_window_names.py` (behind Similar Passages' "Same
   people and places" group) now marks names in four more languages, each
