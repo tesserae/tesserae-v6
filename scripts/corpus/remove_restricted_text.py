@@ -35,6 +35,7 @@ import argparse
 import glob
 import json
 import os
+import re
 import sqlite3
 import sys
 import time
@@ -74,15 +75,23 @@ def find_text_files(text_id, root):
     return found
 
 
+# The lemma cache names a file two ways: `<stem>.json`, and `<stem>-<32 hex>.json`
+# keyed by a hash of the file's content. The first run against real data
+# (2026-10-07, a duplicate fragment) found only the plain name and left the
+# hashed copy on disk, which a licence ending would not allow.
+_CACHE_HASH = re.compile(r'-[0-9a-f]{32}$')
+
+
 def find_lemma_cache_files(text_id, root):
-    """Every cache/lemmas/<lang>/<...>.json belonging to this work."""
+    """Every cache/lemmas/<lang>/<...>.json belonging to this work, under
+    either naming."""
     found = []
     for lang in LANGUAGES:
         lang_dir = os.path.join(root, 'cache', 'lemmas', lang)
         if not os.path.isdir(lang_dir):
             continue
         for fn in sorted(os.listdir(lang_dir)):
-            if fn.endswith('.json') and base_work(fn[:-len('.json')]) == text_id:
+            if fn.endswith('.json') and base_work(_CACHE_HASH.sub('', fn[:-len('.json')])) == text_id:
                 found.append((lang, fn))
     return found
 
