@@ -9,6 +9,10 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-06
 
+### Text descriptions
+- About-this-text descriptions for Erchempert's verse martyrology,
+  Callimachus' Iambi and Philo's Allegories of the Laws, the three works the
+  coverage checker found without one.
 ### Corpus browser
 - Dates and eras for authors the browser showed as undated: pseudo-Caesar,
   Censorinus, Germanicus, Grattius, Obsequens, Solinus, Vegetius, Francis
