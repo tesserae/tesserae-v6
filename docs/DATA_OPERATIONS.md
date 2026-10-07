@@ -67,6 +67,64 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-07 Persian and Urdu served on production; preview server closed (08:05 to 08:15 EDT)
+- What: production's `.env` gains `TESSERAE_LANGUAGES=la,grc,en,cop,he,fa,ur,it,gmh,fro`,
+  which registers the Persian and Urdu handlers, adds their tabs after Hebrew
+  and adds the Persian against Urdu pair (backend/served_languages.py). Arabic
+  is left out, so it stays unserved and its passage windows stay held. The
+  stores were copied in on 2026-10-05 and the windows appended on 2026-10-06.
+  Backup of the old file: `~/tesserae-backups/env.prod.bak-20261007-0805`.
+  To undo, remove the line and reload.
+- Checked afterwards: `/api/languages` lists la, grc, en, cop, he, fa, ur with
+  the pairs grc-la, la-en, grc-en, cop-grc, he-grc, he-la, fa-ur. 28 Persian
+  and 18 Urdu texts are listed. A Hafez against Saadi search, a Khayyam
+  against Hafez combined search, a Persian against Urdu search (Iqbal, 1,300
+  parallels) and a Persian Theme Search all return results. Every reference
+  search passed. The web app has no Stanza model, so Persian and Urdu typed
+  queries use the normalised word forms, as the preview did.
+- The preview server and its tunnel were stopped, which frees its 20 GB
+  memory allowance for jobs.
+- Persian and Urdu phrase tables rebuilt with `scripts/corpus/rebuild_bigrams.py`
+  (Persian 34 s, peak 2.1 GB, 1,420,609 keys, unchanged; Urdu 3 s, 176,629
+  keys). Backups `*.pre-rebuild-20261007-*.bak`.
+
+## 2026-10-07 Duplicate Augustine fragment removed from every store (08:17 to 08:43 EDT)
+- What: `unknown.corpus_scriptorum_ecclesiasticorum_latin`, 20 lines of
+  Augustine, De natura et gratia 32 to 46 from the CSEL edition, which the
+  corpus holds whole (#645). Removed with
+  `scripts/corpus/remove_restricted_text.py unknown.corpus_scriptorum_ecclesiasticorum_latin --apply`,
+  its first run on real data (3 min, peak 3.1 GB): the text file, its lemma
+  cache, 20 lines and 1 text from `la_index.db` (backup
+  `la_index.db.bak-removed-20261007-20261007-081825`), 3 passage windows from
+  ids.json, embeddings.npy and descriptions.jsonl, and 23 rows from
+  window_texts.db, each backed up beside itself as `*.bak-removed-20261007-*`.
+  The passage index went from 530,817 to 530,814 windows, with ids and vector
+  rows checked in step afterwards.
+- The script missed the lemma cache's content-hashed copy
+  (`<work>-<hash>.json`), which was moved by hand. The finder is fixed in #647.
+  The file's backups, that copy and its vector file were moved to
+  `~/tesserae-backups/retired_duplicates_2026-10-07/`.
+- Rebuilt afterwards: keyword index (`scripts/build_desc_fts.py`, 530,814
+  rows, 31 s, backup `desc_fts.sqlite.bak-removed-20261007`); Latin
+  lemma_doc_freq (`scripts/corpus/rebuild_docfreq.py --language la --apply`,
+  1,654 files, 752 works, backup `la_index.db.bak-docfreq-20261007-082418`);
+  names index (`scripts/corpus/build_window_names.py`, 265,214 windows, 19 min,
+  peak 4.6 GB, backup `window_names.db.bak-removed-20261007`); connection map
+  (`scripts/build_connections_map.py`, finished 08:38, peak 4.5 GB).
+- After: app reloaded, every reference search passed, the fragment is gone from
+  the Latin text list, and a Latin Theme Search returns results.
+
+## 2026-10-07 Morning rebuilds after the night window
+- Latin and Greek phrase tables rebuilt with the corrected builder (#639,
+  counts as it reads and reads the lemma cache): Latin at 06:44 (165 MB), now
+  with the Vegio supplement; Greek at 06:46 (412 MB), now with the work it
+  lacked. Both under 4 GB.
+- Names index for the two-group Similar Passages installed at 07:01
+  (`data/passage_index/window_names.db`, built by
+  `scripts/corpus/build_window_names.py`).
+- The Paschasius Radbertus book file, converted from carriage-return line
+  endings in #641, has a fresh lemma cache.
+
 ## 2026-10-07 Night window: Vegio relabel moved through the stores; connection map rebuilt
 - Window: the preview server was stopped 02:00 to 02:56 (tunnel kept) so the
   jobs below had memory; every step under `~/bin/tess-job`.
