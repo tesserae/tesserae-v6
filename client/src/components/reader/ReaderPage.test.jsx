@@ -479,3 +479,53 @@ describe('clicking a "quoted in N works" mark', () => {
     expect(await screen.findByText(/a repeated line, quoted at length/)).toBeTruthy();
   });
 });
+
+// --------------------------------------------------------------------------
+
+describe('opening a Similar Passages result, and coming back', () => {
+  // NC 2026-10-07: from Curtius to the Alexandreis through Similar, "there was
+  // no back button to go back to Curtius Rufus". The result also opened the
+  // other work at its top instead of at the passage.
+  const CURTIUS = Array.from({ length: 40 }, (_, k) => ({ ref: `curt. 3.${k + 1}`, text: `curtius ${k + 1}` }));
+  const ALEX = Array.from({ length: 400 }, (_, k) => ({ ref: `alex. 1.${k + 1}`, text: `alexandreis ${k + 1}` }));
+
+  function mockTwoWorks() {
+    const reply = (obj) => Promise.resolve({
+      ok: true, json: () => Promise.resolve(obj), text: () => Promise.resolve(JSON.stringify(obj)) });
+    global.fetch = vi.fn((url) => {
+      const u = String(url);
+      if (u.startsWith('/api/text/curtius')) return reply({ units: CURTIUS, metadata: { display_name: 'Quintus Curtius, Histories' } });
+      if (u.startsWith('/api/text/walter')) return reply({ units: ALEX, metadata: { display_name: 'Walter of Chatillon, Alexandreis' } });
+      if (u.startsWith('/api/passages/similar')) {
+        return reply({ results: [{ id: 'w1', work: 'walter.alexandreis', language: 'la',
+          display_name: 'Walter of Chatillon, Alexandreis', ref_start: 'alex. 1.300',
+          ref_end: 'alex. 1.305', score: 0.8, description: 'a scene' }] });
+      }
+      if (u.includes('/authors?')) return reply(AUTHORS);
+      if (u.includes('/texts?')) return reply([]);
+      if (u.startsWith('/api/languages')) return reply({ languages: [{ code: 'la' }, { code: 'grc' }] });
+      return reply({});
+    });
+  }
+
+  it('lands on the passage, offers a way back, and Back returns to the line left', async () => {
+    mockTwoWorks();
+    window.history.replaceState({}, '', '/read?' + new URLSearchParams({
+      work: 'curtius.historiae.tess', lang: 'la', ref: 'curt. 3.20', tab: 'similar' }));
+    await mountReader();
+    fireEvent.click(await screen.findByText('Walter of Chatillon, Alexandreis'));
+
+    // The Alexandreis opens AT the passage: line 300 is drawn and selected.
+    await waitFor(() => expect(document.getElementById('line-alex-1-300')).toBeTruthy());
+    expect(window.location.search).toContain('work=walter.alexandreis.tess');
+    await waitFor(() => expect(new URLSearchParams(window.location.search).get('at')).toBe('alex. 1.300'));
+
+    // The banner names where the reader came from and offers the way back.
+    const banner = await screen.findByTestId('reader-back-banner');
+    expect(banner.textContent).toContain('Quintus Curtius, Histories 3.20');
+    fireEvent.click(screen.getByRole('button', { name: 'back to Quintus Curtius, Histories' }));
+    await waitFor(() => expect(new URLSearchParams(window.location.search).get('at')).toBe('curt. 3.20'));
+    expect(window.location.search).toContain('work=curtius.historiae.tess');
+    expect(screen.queryByTestId('reader-back-banner')).toBeNull();
+  });
+});
