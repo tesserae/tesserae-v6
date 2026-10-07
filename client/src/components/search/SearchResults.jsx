@@ -79,6 +79,9 @@ const SearchResults = ({
   const [corpusData, setCorpusData] = useState(null);
   const [corpusLoading, setCorpusLoading] = useState(false);
   const [corpusSelectedAuthor, setCorpusSelectedAuthor] = useState(null);
+  // Lines fetched for a clicked author or work whose lines fell outside the
+  // first 500 the chart's search returned: { key, loci } (2026-10-07).
+  const [corpusExtraLoci, setCorpusExtraLoci] = useState(null);
   // Pin the sidebar via inline style (guaranteed to apply) only at the >=lg width
   // where the two-column layout is active; on narrow screens it flows normally.
   const [isWideLayout, setIsWideLayout] = useState(false);
@@ -530,6 +533,9 @@ const SearchResults = ({
     })
       .then(res => res.json())
       .then(d => { if (!cancelled) setCorpusData({ query, corpus_version: d.corpus_version,
+        // Every work's count (by_work_all), so the chart covers the whole corpus
+        // even when the line list below stops at 500 (2026-10-07).
+        byWork: d.by_work_all || null, linesAll: d.lines_all ?? null,
         loci: (d.results || []).map(x => ({ era: x.era, year: x.year, author: x.author,
           work: x.work, locus: x.locus, text: x.text, matched_words: x.matched_words || [] })) }); })
       .catch(() => { if (!cancelled) setCorpusData({ query, loci: [], error: true }); })
@@ -538,16 +544,45 @@ const SearchResults = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sidebarMode, corpusHitIdx, showDistributionChart, loading, language, pickerRows]);
 
+  // The rows the corpus chart counts: one per work with its full count when the
+  // server sent them, else one per loaded line. A common pair (Persian "man ast")
+  // filled the 500-line list from two or three poets, and the chart left out
+  // the authors being compared.
+  const corpusCountRows = (cd) => (cd?.byWork?.length
+    ? cd.byWork.map(w => ({ author: w.author, work: w.work, era: w.era, year: w.year, n: w.count }))
+    : (cd?.loci || []).map(l => ({ author: l.author, work: l.work, era: l.era, year: l.year, n: 1 })));
+  // A clicked author or work with no line among the 500 loaded: fetch its own
+  // lines, so the list under the chart is never empty for a bar that is drawn.
+  useEffect(() => {
+    if (!corpusSelectedAuthor || !corpusData?.byWork?.length) return;
+    const byWork = corpusGroupBy === 'work';
+    const has = (corpusData.loci || []).some(l => ((byWork ? l.work : l.author) || 'Unknown') === corpusSelectedAuthor);
+    if (has) return;
+    const key = `${byWork ? 'w' : 'a'}|${corpusSelectedAuthor}`;
+    let cancelled = false;
+    fetch('/api/line-search', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: corpusData.query, language, search_type: 'lemma', max_results: 200,
+        ...(byWork ? { work: corpusSelectedAuthor } : { author: corpusSelectedAuthor }) }),
+    })
+      .then(res => res.json())
+      .then(d => { if (!cancelled) setCorpusExtraLoci({ key, loci: (d.results || []).map(x => ({ era: x.era, year: x.year,
+        author: x.author, work: x.work, locus: x.locus, text: x.text, matched_words: x.matched_words || [] })) }); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [corpusSelectedAuthor, corpusData, corpusGroupBy, language]);
+
   const CORPUS_COLOR = { backgroundColor: 'rgba(37, 99, 235, 0.7)', borderColor: 'rgb(37, 99, 235)', borderWidth: 1 };
   const getCorpusChartData = () => {
-    if (!corpusData || !corpusData.loci || !corpusData.loci.length) return null;
+    const countRows = corpusCountRows(corpusData);
+    if (!countRows.length) return null;
     if (corpusGroupBy === 'author' || corpusGroupBy === 'work') {
       const datedYear = (l) => (l.year != null && l.year < 9999 ? l.year : null);
       const agg = {}; // author (or work) -> { count, year }
-      corpusData.loci.forEach(l => {
+      countRows.forEach(l => {
         const a = (corpusGroupBy === 'work' ? l.work : l.author) || 'Unknown';
         if (!agg[a]) agg[a] = { count: 0, year: datedYear(l) };
-        agg[a].count++;
+        agg[a].count += l.n;
         if (agg[a].year == null) { const y = datedYear(l); if (y != null) agg[a].year = y; }
       });
       let authors = Object.keys(agg);
@@ -561,7 +596,7 @@ const SearchResults = ({
         datasets: [{ label: 'Occurrences', data: authors.map(a => agg[a].count), ...CORPUS_COLOR }] };
     }
     const byEra = {};
-    corpusData.loci.forEach(l => { const e = l.era || 'Unknown'; byEra[e] = (byEra[e] || 0) + 1; });
+    countRows.forEach(l => { const e = l.era || 'Unknown'; byEra[e] = (byEra[e] || 0) + l.n; });
     const eras = Object.keys(byEra).sort((a, b) => (ERA_ORDER[a] ?? 50) - (ERA_ORDER[b] ?? 50));
     return { labels: eras, datasets: [{ label: 'Occurrences', data: eras.map(e => byEra[e]), ...CORPUS_COLOR }] };
   };
@@ -609,12 +644,13 @@ const SearchResults = ({
     const host = timelineRef.current;
     if (!host) return;
     host.innerHTML = '';
-    if (!corpusData || !corpusData.loci || !corpusData.loci.length) return;
+    const countRows = corpusCountRows(corpusData);
+    if (!countRows.length) return;
     const datedYear = (l) => (l.year != null && l.year < 9999 ? l.year : null);
     const agg = {};
-    corpusData.loci.forEach(l => {
+    countRows.forEach(l => {
       const a = l.author || 'Unknown';
-      (agg[a] = agg[a] || { count: 0, year: datedYear(l) }).count++;
+      (agg[a] = agg[a] || { count: 0, year: datedYear(l) }).count += l.n;
       if (agg[a].year == null) { const y = datedYear(l); if (y != null) agg[a].year = y; }
     });
     let data = Object.entries(agg).map(([author, v]) => ({ author, count: v.count, year: v.year }))
@@ -1271,7 +1307,9 @@ const SearchResults = ({
             <p className="text-xs text-gray-500 mt-1">Showing the 30 most-cited {corpusIsWork ? 'works' : 'authors, in chronological order'}.</p>
           )}
           {corpusSelectedAuthor && corpusData && corpusData.loci && (() => {
-            const rows = corpusData.loci.filter(l => ((corpusIsWork ? l.work : l.author) || 'Unknown') === corpusSelectedAuthor);
+            const loaded = corpusData.loci.filter(l => ((corpusIsWork ? l.work : l.author) || 'Unknown') === corpusSelectedAuthor);
+            const extra = corpusExtraLoci && corpusExtraLoci.key === `${corpusIsWork ? 'w' : 'a'}|${corpusSelectedAuthor}` ? corpusExtraLoci.loci : null;
+            const rows = loaded.length ? loaded : (extra || []);
             return (
               <div className="mt-2 border-t pt-2">
                 <div className="flex items-center justify-between mb-1">
@@ -1299,7 +1337,10 @@ const SearchResults = ({
           })()}
           {corpusData && corpusData.loci && corpusData.loci.length > 0 && (
             <p className="text-xs text-gray-500 mt-2">
-              These words co-occur in {corpusData.loci.length} corpus lines{corpusData.corpus_version ? ` (corpus version ${corpusData.corpus_version})` : ''}.
+              {corpusData.linesAll != null && corpusData.byWork?.length
+                ? `These words occur together in ${corpusData.linesAll.toLocaleString()} corpus lines across ${corpusData.byWork.length} works; the chart counts them all.`
+                : `These words co-occur in ${corpusData.loci.length} corpus lines.`}
+              {corpusData.corpus_version ? ` Corpus version ${corpusData.corpus_version}.` : ''}
             </p>
           )}
           </>)}

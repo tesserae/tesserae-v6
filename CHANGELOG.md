@@ -9,6 +9,17 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Corpus chart counts every work, not the first 500 lines
+- Line search now returns `by_work_all`, the number of co-occurring lines in
+  every work (a work held whole and in books counted once), taken from the
+  index lines it already gathers, and `lines_all`, their total.
+- The search results' "Across the corpus" chart (timeline, era, work) draws
+  from those counts. It had drawn from the first 500 lines in index order, so
+  for a common pair such as the Persian refrain "man ast" (4,759 lines in 25
+  works) it showed two or three poets and left out Hafez and Iqbal, the poets
+  being compared. Clicking an author whose lines were not among the 500 loaded
+  fetches that author's own lines, and the caption gives the true total.
+
 ### The site remembers your language
 - The search page and the Reader open in the language chosen last, kept in the
   browser's own storage (no account, nothing sent to the server). "Open in" at

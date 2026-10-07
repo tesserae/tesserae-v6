@@ -1463,6 +1463,33 @@ def rare_focus_filter(results, language):
         return results, 0, []
 
 
+def _count_candidates_by_work(text_candidates, language, lang_dates):
+    """[{work_id, author, work, year, era, count}] for every work holding a
+    co-occurring line, newest-last by year (see line_search). A whole file wins
+    over its book files; book files alone are summed."""
+    import re as _re_w
+    groups = {}
+    for filename, matches in text_candidates.items():
+        base = _re_w.sub(r'\.part\.[^/]*$', '', filename[:-5] if filename.endswith('.tess') else filename)
+        g = groups.setdefault(base, {'whole': None, 'parts': 0, 'file': filename})
+        if '.part.' in filename:
+            g['parts'] += len(matches)
+        else:
+            g['whole'] = len(matches)
+            g['file'] = filename
+    out = []
+    for base, g in groups.items():
+        count = g['whole'] if g['whole'] is not None else g['parts']
+        filepath = resolve_text_path(TEXTS_DIR, language, g['file'])
+        meta = get_text_metadata(filepath) if filepath else {}
+        info = lang_dates.get(base.split('.')[0].lower(), {})
+        out.append({'work_id': base, 'author': meta.get('author') or base.split('.')[0],
+                    'work': meta.get('title') or base, 'year': info.get('year'),
+                    'era': info.get('era', 'Unknown'), 'count': count})
+    out.sort(key=lambda w: (w['year'] if w['year'] is not None else 9999, w['author'], w['work']))
+    return out
+
+
 @api_route('/line-search', methods=['GET', 'POST'])
 def line_search():
     """
@@ -1715,6 +1742,7 @@ def line_search():
 
             results = []
             seen_results = set()
+            by_work_all = None
             
             # FAST PATH: Use inverted index if available (O(1) lookup vs O(n) scan).
             # A single-word query (one content lemma) has nothing to co-occur with,
@@ -1734,6 +1762,17 @@ def line_search():
                     if filename not in text_candidates:
                         text_candidates[filename] = []
                     text_candidates[filename].append((ref, matching_lemmas, positions))
+
+                # EVERY WORK'S COUNT, NOT JUST THE FIRST 500 LINES (2026-10-07).
+                # The line list stops at max_results in index order, so for a
+                # common pair (Persian "man ast") it held lines from two or three
+                # poets and the corpus chart left out the very authors compared.
+                # The index already returned every co-occurring line, so counting
+                # them per work costs nothing. A work held both whole and in book
+                # files is counted once: the whole file when present, else the sum
+                # of its books. Counted before the line-level distance filter, so
+                # these are the lines that contain the words, a ceiling on matches.
+                by_work_all = _count_candidates_by_work(text_candidates, language, lang_dates)
                 
                 for filename, matches in text_candidates.items():
                     filepath = resolve_text_path(TEXTS_DIR, language, filename)
@@ -2116,6 +2155,9 @@ def line_search():
                     'note': ('Passage-sized query: searched on its '
                              f'{len(filtered_query_lemmas)} rarest words'),
                 }
+            if by_work_all is not None:
+                payload['by_work_all'] = by_work_all
+                payload['lines_all'] = sum(w['count'] for w in by_work_all)
             if not count_only:
                 payload['results'] = results
             return jsonify(payload)
