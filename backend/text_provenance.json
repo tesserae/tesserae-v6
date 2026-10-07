@@ -226,14 +226,6 @@
       "date_added": "2026-01-21T22:31:02.649542",
       "language": "la"
     },
-    "unknown.corpus_scriptorum_ecclesiasticorum_latin": {
-      "source": "csel",
-      "original_id": "stoa0040.stoa054.opp-lat2.xml",
-      "author": "Unknown",
-      "title": "Corpus Scriptorum Ecclesiasticorum Latinorum (CSEL)",
-      "date_added": "2026-01-21T22:31:02.683297",
-      "language": "la"
-    },
     "augustine.de_peccatorum_meritis_et_remissione_et_d": {
       "source": "csel",
       "original_id": "stoa0040.stoa057.opp-lat1.xml",

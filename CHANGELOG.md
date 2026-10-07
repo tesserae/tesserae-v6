@@ -9,6 +9,14 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Duplicate Augustine fragment retired
+- `texts/la/unknown.corpus_scriptorum_ecclesiasticorum_latin.tess`, a
+  20-line excerpt listed as "Unknown", is chapters 32 to 46 of Augustine's
+  De natura et gratia from the CSEL edition (volume 60), a work the corpus
+  already holds whole. Its file, genre row, description, provenance and
+  credit entries are removed; the index, passage windows, vectors and lemma
+  cache are cleared on production (docs/DATA_OPERATIONS.md, 2026-10-07).
+
 ### Reader type
 - The Reader's Gentium is served from the site itself (SIL's Gentium Book
   7.000, compressed to WOFF2 with its data unchanged, licence in
