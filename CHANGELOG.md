@@ -10,6 +10,9 @@ behind each, are in docs/DECISIONS.md.
 ## 2026-10-06
 
 ### Theme Search
+- 19,978 more Persian, Urdu and Arabic passage windows in the index (Urdu
+  coverage grows from 2,150 windows to 14,759); Arabic is held out of results
+  (data operation recorded in docs/DATA_OPERATIONS.md).
 - Arabic passage windows are held out of Theme Search and Similar Passages
   until a reader has graded Arabic (`held_languages()` in
   backend/passage_index.py; TESSERAE_HELD_LANGUAGES overrides; a server that

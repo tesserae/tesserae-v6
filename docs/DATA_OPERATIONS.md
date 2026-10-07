@@ -67,6 +67,29 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-06 Persian, Urdu and Arabic passage windows appended to the passage index (port stage 4b)
+- What: 19,978 passage windows the production index lacked (Urdu 12,609, Arabic
+  5,759, Persian 1,610; production already held 218,401 Persian, 2,150 Urdu and 32
+  Arabic from August) appended at 19:16 EDT: `ids.json`, `embeddings.npy` and
+  `descriptions.jsonl` grew in lockstep from 510,839 to 530,817; their wording went
+  into `window_texts.db` (19,978 rows) and the Reader's `lines` table gained 86,381
+  lines for 164 works that had none. Backups `<file>.bak-mlw-20261006` of all four
+  files. Keyword index rebuilt with `scripts/build_desc_fts.py` (530,817 rows, 33 s)
+  at 20:23, backup `desc_fts.sqlite.bak-mlw-20261006`; app reloaded each time.
+- Descriptions: GLM 5.3 Flash on the campus gateway, the describer of the 3 October
+  corpus re-description, 0 failures (the last 10,797 in 41 minutes once the gateway's
+  team budget was set to reset daily).
+- Vectors: multilingual-e5-large on the campus GPU (job mlwin-1006, 39 s), over the
+  same text the index encodes (`"query: " + blob_for(desc)`, checked identical to the
+  3 October job's input on 200 windows), results via the upload route (#596).
+- Arabic held: Arabic is not yet graded, so #626 keeps Arabic windows out of Theme
+  Search and Similar Passages on this server; they stay indexed.
+- Checks: lockstep asserted before and after; every reference search passed after
+  each reload; an All-languages Theme Search returns Persian and Urdu windows and no
+  Arabic.
+- Service change the same evening: the query encoder and Reader services were
+  restarted to clear 2 GB of idle swap and set to `MemorySwapMax=0`.
+
 ## 2026-10-06 Semantic vectors computed for every Latin, Greek and English work that lacked them; defective vector files replaced
 - What: before today 443 of 748 Latin whole works, 284 of 845 Greek and all 41
   English had no stored vectors, so the semantic channel returned nothing for any
