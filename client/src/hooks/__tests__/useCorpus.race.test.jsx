@@ -77,6 +77,8 @@ describe('switching language tabs quickly', () => {
 
     await waitFor(() => expect(result.current.corpus.length).toBe(1));
     expect(result.current.corpus[0].author).toBe('Homer');
-    expect(result.current.authors[0].name).toBe('Homer');
+    // The hook hands authors out as { author, author_key, ... } (useCorpus.js);
+    // `name` is the API's field, not the hook's.
+    expect(result.current.authors[0].author).toBe('Homer');
   });
 });

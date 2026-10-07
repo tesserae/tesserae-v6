@@ -9,6 +9,11 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Test fix: corpus picker race test reads the hook's author field
+- `useCorpus.race.test.jsx` read `authors[0].name`, the API's field, where the
+  hook hands out `author`; it failed on main for that reason alone. The hook is
+  unchanged.
+
 ### Reader: a Similar or Verbal Parallels result opens at its passage, with a way back
 - Opening a result in another work used to land at that work's first line and
   leave no way back but the browser. It now opens at the passage, selected, under
