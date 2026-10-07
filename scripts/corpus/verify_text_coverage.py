@@ -150,7 +150,8 @@ def main():
             nw = win_counts.get(base, 0); r['windows'] = nw > 0 or (is_part and win_counts.get(whole, 0) > 0)
             r['described'] = (desc_counts.get(base, 0) >= nw) if nw else r['windows']
             r['winvec'] = (vec_counts.get(base, 0) >= nw) if nw else r['windows']
-        r['connmap'] = True if is_part else (whole in conn_works)
+        # a text too short for passage windows cannot appear in the connection map
+        r['connmap'] = True if (is_part or n_lines < MIN_WINDOW_LINES) else (whole in conn_works)
         g = genres.get(fn) or genres.get(whole + '.tess')
         r['genres'] = (g is not None) if lang == 'la' else True     # genre table is Latin-only
         m = api_meta.get(fn) or api_meta.get(whole + '.tess') or {}

@@ -1334,6 +1334,18 @@
    "note": "c. 3rd cent. BCE (key used by the corpus files)",
    "year": -250,
    "added": "coverage-2026-10-06"
+  },
+  "anonymous.geographiae_expositio_compendiaria": {
+   "era": "Late Antique",
+   "note": "anonymous summary of geography, 3rd-6th c. CE",
+   "year": 400,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymous.stadiasmus_magni_maris": {
+   "era": "Later Imperial",
+   "note": "c. 3rd c. CE",
+   "year": 250,
+   "added": "coverage-2026-10-07"
   }
  },
  "he": {
@@ -2778,6 +2790,186 @@
    "note": "wrote c. 383-450 CE",
    "year": 400,
    "added": "coverage-2026-10-06"
+  },
+  "anonymi.planctus_de_obitu_Karoli": {
+   "era": "Carolingian",
+   "note": "lament for Charlemagne, after his death in 814",
+   "year": 814,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymous.breviarius_de_hierosolyma": {
+   "era": "Late Antique",
+   "note": "pilgrim's guide to Jerusalem, c. 500 CE",
+   "year": 500,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymous.itinerarium_hierosolymitanum": {
+   "era": "Late Antique",
+   "note": "the Bordeaux pilgrim's itinerary, 333 CE",
+   "year": 333,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymous.laudes_domini": {
+   "era": "Late Antique",
+   "note": "early 4th c. CE, under Constantine",
+   "year": 320,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymous.s_silviae_peregrinatio": {
+   "era": "Late Antique",
+   "note": "Egeria's pilgrimage, c. 381-384 CE",
+   "year": 383,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmen_ad_agobardum": {
+   "era": "Carolingian",
+   "note": "9th c. (to Agobard of Lyon, d. 840)",
+   "year": 830,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmen_ad_ludovicum_pium": {
+   "era": "Carolingian",
+   "note": "9th c. (to Louis the Pious, r. 814-840)",
+   "year": 825,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmen_de_aquilegia": {
+   "era": "Carolingian",
+   "note": "lament for Aquileia, late 8th c.",
+   "year": 790,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmen_de_compoti_ratione": {
+   "era": "Carolingian",
+   "note": "computus poem, 8th-9th c.",
+   "year": 800,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmen_de_conversione_saxonum": {
+   "era": "Carolingian",
+   "note": "c. 777 CE",
+   "year": 777,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmen_de_exordio_francorum": {
+   "era": "Carolingian",
+   "note": "9th c.",
+   "year": 830,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmen_de_nynia_episcopo": {
+   "era": "Early Medieval",
+   "note": "miracles of Nynia (Ninian) of Whithorn, 8th c.",
+   "year": 780,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmen_de_pippino": {
+   "era": "Carolingian",
+   "note": "on Pippin of Italy's victory over the Avars, 796 CE",
+   "year": 796,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmen_de_temporum_ratione": {
+   "era": "Carolingian",
+   "note": "8th-9th c.",
+   "year": 800,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmen_de_timone_comite": {
+   "era": "Carolingian",
+   "note": "9th c.",
+   "year": 830,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmina_augiensia": {
+   "era": "Carolingian",
+   "note": "Reichenau poems, 9th c.",
+   "year": 830,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmina_bibliothecarum_et_psalteriorum": {
+   "era": "Carolingian",
+   "note": "8th-9th c.",
+   "year": 800,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmina_cenomanensia": {
+   "era": "Carolingian",
+   "note": "Le Mans poems, 9th c.",
+   "year": 840,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmina_libris_saec_viii_adiecta": {
+   "era": "Early Medieval",
+   "note": "verses added to 8th-century books",
+   "year": 750,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmina_de_ludovico_ii": {
+   "era": "Carolingian",
+   "note": "on Louis II of Italy (r. 850-875)",
+   "year": 870,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.corneli_translationes": {
+   "era": "Carolingian",
+   "note": "9th c.",
+   "year": 850,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.hymnus_nynie_episcopi": {
+   "era": "Early Medieval",
+   "note": "8th c.",
+   "year": 780,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.karolus_magnus_et_leo_papa": {
+   "era": "Carolingian",
+   "note": "c. 800 CE",
+   "year": 800,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.laudes_mediolanensis_civitatis": {
+   "era": "Early Medieval",
+   "note": "c. 739 CE",
+   "year": 739,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.laudes_veronensis_civitatis": {
+   "era": "Carolingian",
+   "note": "c. 796-805 CE",
+   "year": 800,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.tituli_metrici_saeculi_viii": {
+   "era": "Early Medieval",
+   "note": "8th c.",
+   "year": 750,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.translatio_sancti_mercurii": {
+   "era": "Early Medieval",
+   "note": "c. 768 CE (relics brought to Benevento)",
+   "year": 768,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.translatio_xii_martyrum": {
+   "era": "Early Medieval",
+   "note": "c. 760 CE (Benevento)",
+   "year": 760,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.versus_ad_ebonem_remensem": {
+   "era": "Carolingian",
+   "note": "9th c. (to Ebbo of Reims, d. 851)",
+   "year": 830,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.versus_de_eversione_monasterii_glonnensis": {
+   "era": "Carolingian",
+   "note": "on the Norse sack of Saint-Florent-le-Vieil, 853",
+   "year": 853,
+   "added": "coverage-2026-10-07"
   }
  },
  "ur": {
