@@ -204,7 +204,7 @@ UR_LEXICON = parse_lexicon([
     'عیسی\tJesus', 'محمد\tMuhammad', 'مریم\tMary',
     'مجنوں\tMajnun (epithet)', 'قیس\tQais (Majnun\'s given name)',
     'لیلیٰ\tLayla', 'شیریں\tShirin', 'فرہاد\tFarhad',
-    'حسین\tHusayn ibn Ali', 'حسن\tHasan ibn Ali', 'علی\tAli',
+    'حسین\tHusayn ibn Ali', 'علی\tAli',
     'فاطمہ\tFatima', 'عباس\tAbbas ibn Ali', 'زینب\tZaynab bint Ali',
     'یزید\tYazid I', 'کربلا\tKarbala (place)',
 ])
@@ -240,16 +240,14 @@ UR_LEXICON = parse_lexicon([
 # OTHER_SCRIPTS_REPORT.md ("the purity filter helps less here"); an
 # exhaustive stoplist chasing every such word is a separate, open-ended
 # piece of work, not scoped to this spec.
-# Also left in deliberately: polysemous words that
-# are a real name in some uses and a common noun in others (حسن "Hasan ibn
-# Ali" / "beauty", جلال "Jalal" / "majesty", پیر "a saint" / "an elder") --
-# a blanket stoplist entry would also remove the genuine name use, and حسن
-# in particular is in UR_LEXICON specifically for Anis's marsiye (Karbala);
-# the eye check (PR body) found it producing more noise than signal outside
-# that genre, noted there rather than solved by a stoplist that cannot tell
-# the two uses apart.
+# Also left in deliberately: polysemous words that are a real name in some
+# uses and a common noun in others (جلال "Jalal" / "majesty", پیر "a saint" /
+# "an elder"). The exception is حسن: "beauty" in nearly every ghazal and the
+# name Hasan ibn Ali only in Anis's marsiye, so it is removed from UR_LEXICON
+# and stoplisted (2026-10-07 review), giving up the marsiye uses to keep the
+# ghazal windows from being linked on a shared word for beauty.
 URDU_GHAZAL_STOPLIST = frozenset(normalize_urdu(w) for w in [
-    'می', 'لعل', 'شبنم', 'برگ', 'محبوب', 'لالہ', 'نرگس', 'گلزار', 'غنچۂ',
+    'حسن', 'می', 'لعل', 'شبنم', 'برگ', 'محبوب', 'لالہ', 'نرگس', 'گلزار', 'غنچۂ',
     'چاندني', 'نكہت', 'مژگان', 'انجم', 'یاقوت',
 ])
 
