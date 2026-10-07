@@ -47,8 +47,7 @@ AUTHOR_DATES_PATH = os.path.join(BASE_DIR, 'backend', 'author_dates.json')
 # (2026-10-07). At 0.002 the rule removes 28% of Latin and 25% of Greek
 # possible echoes and almost no English ones (180 of 113,707), where lines
 # are short; strict pairs are untouched. docs/DECISIONS.md, 2026-10-07.
-POSSIBLE_MIN_JACCARD = 0.002
-_KEEP_PAIR = '(shared > 1 OR jaccard >= ?)'
+POSSIBLE_MIN_JACCARD = 0.002   # the queries' `(shared > 1 OR jaccard >= ?)`
 
 _connections = {}
 _author_dates = None
@@ -463,11 +462,11 @@ def line(language, work, ref):
     work = _resolve_work(language, work)
     try:
         rows = conn.execute(
-            f"""SELECT work_b AS other_work, line_b_ref AS other_ref, shared, jaccard, span_len
-                 FROM pairs WHERE work_a = ? AND line_a_ref = ? AND {_KEEP_PAIR}
+            """SELECT work_b AS other_work, line_b_ref AS other_ref, shared, jaccard, span_len
+                 FROM pairs WHERE work_a = ? AND line_a_ref = ? AND (shared > 1 OR jaccard >= ?)
                UNION ALL
                SELECT work_a AS other_work, line_a_ref AS other_ref, shared, jaccard, span_len
-                 FROM pairs WHERE work_b = ? AND line_b_ref = ? AND {_KEEP_PAIR}
+                 FROM pairs WHERE work_b = ? AND line_b_ref = ? AND (shared > 1 OR jaccard >= ?)
                ORDER BY shared DESC""",
             (work, ref, POSSIBLE_MIN_JACCARD, work, ref, POSSIBLE_MIN_JACCARD)
         ).fetchall()
@@ -540,11 +539,11 @@ def marks(language, work, ref_start=None, ref_end=None):
     work = _resolve_work(language, work)
     try:
         rows = conn.execute(
-            f"""SELECT line_a_ref AS ref, work_b AS other, shared FROM pairs
-                 WHERE work_a = ? AND {_KEEP_PAIR}
+            """SELECT line_a_ref AS ref, work_b AS other, shared FROM pairs
+                 WHERE work_a = ? AND (shared > 1 OR jaccard >= ?)
                UNION ALL
                SELECT line_b_ref AS ref, work_a AS other, shared FROM pairs
-                 WHERE work_b = ? AND {_KEEP_PAIR}""",
+                 WHERE work_b = ? AND (shared > 1 OR jaccard >= ?)""",
             (work, POSSIBLE_MIN_JACCARD, work, POSSIBLE_MIN_JACCARD)
         ).fetchall()
     except sqlite3.DatabaseError as e:
