@@ -324,11 +324,22 @@ describe('Compare two works', () => {
   function pickWork(sideLabel, authorName, workId) {
     const authorInput = screen.getByLabelText(`${sideLabel} author`);
     fireEvent.focus(authorInput);
-    // SearchableAuthorSelect picks an author on pointerdown, not click, so
-    // the selection reaches the page (2026-09-08's fix for a blur race).
-    fireEvent.pointerDown(screen.getByRole('button', { name: authorName }));
-    const workSelect = screen.getByLabelText(`${sideLabel} Work`);
-    fireEvent.change(workSelect, { target: { value: workId } });
+    // SearchableSelect (SearchableAuthorSelect's base since 2026-10-06) picks
+    // an option on pointerdown, not click, so the selection reaches the page
+    // (2026-09-08's fix for a blur race); its option buttons carry
+    // role="option", not the button element's implicit role. The always-
+    // present mobile <select> also has options with that implicit role, so
+    // this is scoped to ones carrying data-value (only the custom list sets
+    // it).
+    fireEvent.pointerDown(screen.getAllByRole('option')
+      .find((o) => o.textContent === authorName && o.dataset.value !== undefined));
+    // The Work menu is a SearchableSelect too: open it, then click the
+    // option carrying this value (exposed as data-value so the test does not
+    // have to know the rendered label).
+    const workInput = screen.getByLabelText(`${sideLabel} Work`);
+    fireEvent.focus(workInput);
+    const workOption = screen.getAllByRole('option').find((o) => o.dataset.value === workId);
+    fireEvent.pointerDown(workOption);
   }
 
   beforeEach(() => {

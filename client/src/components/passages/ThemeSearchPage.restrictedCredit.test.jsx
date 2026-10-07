@@ -59,11 +59,20 @@ function openComparePane() {
 }
 
 function pickWork(sideLabel, authorName, workId) {
+  // SearchableSelect (SearchableAuthorSelect's base since 2026-10-06): option
+  // buttons carry role="option", not the button element's implicit role, and
+  // the Work menu is the same control, opened and driven the same way.
   const authorInput = screen.getByLabelText(`${sideLabel} author`);
   fireEvent.focus(authorInput);
-  fireEvent.pointerDown(screen.getByRole('button', { name: authorName }));
-  const workSelect = screen.getByLabelText(`${sideLabel} Work`);
-  fireEvent.change(workSelect, { target: { value: workId } });
+  // The always-present mobile <select> also has options with the implicit
+  // "option" role, so this is scoped to ones carrying data-value (only the
+  // custom list sets it).
+  fireEvent.pointerDown(screen.getAllByRole('option')
+    .find((o) => o.textContent === authorName && o.dataset.value !== undefined));
+  const workInput = screen.getByLabelText(`${sideLabel} Work`);
+  fireEvent.focus(workInput);
+  const workOption = screen.getAllByRole('option').find((o) => o.dataset.value === workId);
+  fireEvent.pointerDown(workOption);
 }
 
 beforeEach(() => {

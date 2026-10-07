@@ -137,10 +137,18 @@ it('LineSearch browse list preserves its 100-line default and resets on a new lo
     return { json: async () => ({ lines: Array.from({ length: 125 }, (_, i) => ({ locus: `1.${i + 1}`, text: `${tag}-row-${i + 1}` })) }) };
   });
   render(<LineSearch language="la" />);
-  await waitFor(() => expect(screen.getByPlaceholderText('Type to search authors...')).toBeEnabled());
-  const author = screen.getAllByRole('combobox').find(s => [...s.options].some(o => o.text === 'Select author...'));
+  // Author/Work are SearchableSelect since 2026-10-06: a real <select> (the
+  // phone fallback) alongside a text-input combobox (the desktop control,
+  // with no .options), both matching role=combobox in a test environment
+  // that does not evaluate the sm: breakpoint -- so this is scoped to actual
+  // <select> elements before reading .options off them.
+  const findNativeSelect = (match) => screen.getAllByRole('combobox')
+    .filter(s => s.tagName === 'SELECT')
+    .find(s => [...s.options].some(match));
+  await waitFor(() => expect(findNativeSelect(o => o.text === 'Select author...')).toBeEnabled());
+  const author = findNativeSelect(o => o.text === 'Select author...');
   fireEvent.change(author, { target: { value: 'Poet' } });
-  const work = screen.getAllByRole('combobox').find(s => [...s.options].some(o => o.value === 'poet.work'));
+  const work = findNativeSelect(o => o.value === 'poet.work');
   fireEvent.change(work, { target: { value: 'poet.work' } });
   fireEvent.click(screen.getByRole('button', { name: 'Load Lines' }));
   await screen.findByText('a-row-1');

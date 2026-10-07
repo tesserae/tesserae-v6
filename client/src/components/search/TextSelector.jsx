@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo, useCallback, useId } from 'react';
-import { SearchableAuthorSelect } from '../common';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { SearchableAuthorSelect, SearchableSelect } from '../common';
 
 const TextSelector = ({
   label,
@@ -12,13 +12,6 @@ const TextSelector = ({
   hierarchy,
   fetchTexts
 }) => {
-  // The labels above these menus were plain text sitting next to them, so
-  // assistive software announced two unnamed menus and a blind reader could
-  // not tell the source text from the target (2026-09-08). useId gives each
-  // instance its own id, which matters because the page renders two.
-  const uid = useId();
-  const workId = `${uid}-work`;
-  const textId = `${uid}-text`;
   const [filter, setFilter] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
   const [texts, setTexts] = useState([]);
@@ -35,6 +28,34 @@ const TextSelector = ({
     if (!hierarchy) return null;
     return hierarchy.find(a => a.author_key === selectedAuthor);
   }, [hierarchy, selectedAuthor]);
+
+  // Flattened for SearchableSelect, which filters by label rather than by
+  // an optgroup's visual grouping; the work name is folded into each
+  // section's own label instead (as the old optgroup's option text already
+  // did), so "Book 3" is still found by typing the work's name.
+  const workOptions = useMemo(() => {
+    if (!authorHierarchy || !authorHierarchy.works) return [];
+    const opts = [];
+    for (const work of authorHierarchy.works) {
+      for (const section of work.sections) {
+        let displayLabel;
+        if (section.label === '(Complete)' || section.label === work.work) {
+          displayLabel = `${work.work} (Complete)`;
+        } else if (section.label.startsWith('Book ') || section.label.startsWith('Part ')) {
+          displayLabel = `${work.work}, ${section.label}`;
+        } else {
+          displayLabel = section.label.includes(work.work) ? section.label : `${work.work}, ${section.label}`;
+        }
+        opts.push({ value: section.file, label: displayLabel });
+      }
+    }
+    return opts;
+  }, [authorHierarchy]);
+
+  const textOptions = useMemo(
+    () => texts.map(text => ({ value: text.id, label: text.title })),
+    [texts]
+  );
 
   // When the author changes, clear the selected work so the user must pick one
   const handleAuthorChange = useCallback((newAuthor) => {
@@ -64,57 +85,33 @@ const TextSelector = ({
       
       {authorHierarchy && authorHierarchy.works && (
         <div>
-          <label htmlFor={workId} className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             {label} Work
           </label>
-          <select
-            id={workId}
+          <SearchableSelect
+            ariaLabel={`${label} Work`}
             value={selectedText}
-            onChange={(e) => setSelectedText(e.target.value)}
+            onChange={setSelectedText}
+            options={workOptions}
+            placeholder="Select a work..."
             className="w-full border rounded px-2 py-2 text-base sm:text-sm"
-          >
-            <option value="">Select a work...</option>
-            {authorHierarchy.works.map(work => (
-              <optgroup key={work.work_key} label={work.work}>
-                {work.sections.map(section => {
-                  let displayLabel;
-                  if (section.label === '(Complete)' || section.label === work.work) {
-                    displayLabel = `${work.work} (Complete)`;
-                  } else if (section.label.startsWith('Book ') || section.label.startsWith('Part ')) {
-                    displayLabel = `${work.work}, ${section.label}`;
-                  } else {
-                    displayLabel = section.label.includes(work.work) ? section.label : `${work.work}, ${section.label}`;
-                  }
-                  return (
-                    <option key={section.file} value={section.file}>
-                      {displayLabel}
-                    </option>
-                  );
-                })}
-              </optgroup>
-            ))}
-          </select>
+          />
         </div>
       )}
 
       {!authorHierarchy && texts.length > 0 && (
         <div>
-          <label htmlFor={textId} className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             {label} Text
           </label>
-          <select
-            id={textId}
+          <SearchableSelect
+            ariaLabel={`${label} Text`}
             value={selectedText}
-            onChange={(e) => setSelectedText(e.target.value)}
+            onChange={setSelectedText}
+            options={textOptions}
+            placeholder="Select a text..."
             className="w-full border rounded px-2 py-2 text-base sm:text-sm"
-          >
-            <option value="">Select a text...</option>
-            {texts.map(text => (
-              <option key={text.id} value={text.id}>
-                {text.title}
-              </option>
-            ))}
-          </select>
+          />
         </div>
       )}
     </div>

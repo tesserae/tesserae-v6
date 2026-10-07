@@ -1,7 +1,7 @@
 import Pagination from '../common/Pagination';
 import { usePagination } from '../../hooks/usePagination';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { LoadingSpinner, SearchableAuthorSelect } from '../common';
+import { LoadingSpinner, SearchableAuthorSelect, SearchableSelect } from '../common';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { createSearchId, requestSearchCancellation } from '../../utils/api';
@@ -479,42 +479,38 @@ export default function CrossLingualSearch() {
             </div>
             <div>
               <label className="block text-sm text-gray-600 mb-1">Work</label>
-              <select
+              <SearchableSelect
+                ariaLabel="Source Work"
                 value={sourceWork}
-                onChange={e => {
-                  setSourceWork(e.target.value);
-                  if (e.target.value) {
-                    const { wholeText, parts } = getWorkParts(hierarchy[currentPair.source], sourceAuthor, e.target.value);
+                onChange={(v) => {
+                  setSourceWork(v);
+                  if (v) {
+                    const { wholeText, parts } = getWorkParts(hierarchy[currentPair.source], sourceAuthor, v);
                     setSourceSection(wholeText || parts[0]?.id || '');
                   } else {
                     setSourceSection('');
                   }
                 }}
+                options={getAuthorWorks(hierarchy[currentPair.source], sourceAuthor).map(w => ({ value: w.work_key, label: w.work }))}
+                placeholder="Select a work..."
                 className="w-full border rounded px-3 py-2"
-              >
-                <option value="">Select a work...</option>
-                {getAuthorWorks(hierarchy[currentPair.source], sourceAuthor).map(w => (
-                  <option key={w.work_key} value={w.work_key}>{w.work}</option>
-                ))}
-              </select>
+              />
             </div>
             <div>
               <label className="block text-sm text-gray-600 mb-1">Section</label>
-              <select
+              <SearchableSelect
+                ariaLabel="Source Section"
                 value={sourceSection}
-                onChange={e => setSourceSection(e.target.value)}
-                className="w-full border rounded px-3 py-2"
-              >
-                {(() => {
+                onChange={setSourceSection}
+                options={(() => {
                   const { wholeText, parts, workName } = getWorkParts(hierarchy[currentPair.source], sourceAuthor, sourceWork);
-                  return (
-                    <>
-                      {wholeText && <option value={wholeText}>{workName} (Complete)</option>}
-                      {parts.map(p => <option key={p.id} value={p.id}>{p.display}</option>)}
-                    </>
-                  );
+                  const opts = [];
+                  if (wholeText) opts.push({ value: wholeText, label: `${workName} (Complete)` });
+                  for (const p of parts) opts.push({ value: p.id, label: p.display });
+                  return opts;
                 })()}
-              </select>
+                className="w-full border rounded px-3 py-2"
+              />
             </div>
           </div>
         </div>
@@ -536,42 +532,38 @@ export default function CrossLingualSearch() {
             </div>
             <div>
               <label className="block text-sm text-gray-600 mb-1">Work</label>
-              <select
+              <SearchableSelect
+                ariaLabel="Target Work"
                 value={targetWork}
-                onChange={e => {
-                  setTargetWork(e.target.value);
-                  if (e.target.value) {
-                    const { wholeText, parts } = getWorkParts(hierarchy[currentPair.target], targetAuthor, e.target.value);
+                onChange={(v) => {
+                  setTargetWork(v);
+                  if (v) {
+                    const { wholeText, parts } = getWorkParts(hierarchy[currentPair.target], targetAuthor, v);
                     setTargetSection(wholeText || parts[0]?.id || '');
                   } else {
                     setTargetSection('');
                   }
                 }}
+                options={getAuthorWorks(hierarchy[currentPair.target], targetAuthor).map(w => ({ value: w.work_key, label: w.work }))}
+                placeholder="Select a work..."
                 className="w-full border rounded px-3 py-2"
-              >
-                <option value="">Select a work...</option>
-                {getAuthorWorks(hierarchy[currentPair.target], targetAuthor).map(w => (
-                  <option key={w.work_key} value={w.work_key}>{w.work}</option>
-                ))}
-              </select>
+              />
             </div>
             <div>
               <label className="block text-sm text-gray-600 mb-1">Section</label>
-              <select
+              <SearchableSelect
+                ariaLabel="Target Section"
                 value={targetSection}
-                onChange={e => setTargetSection(e.target.value)}
-                className="w-full border rounded px-3 py-2"
-              >
-                {(() => {
+                onChange={setTargetSection}
+                options={(() => {
                   const { wholeText, parts, workName } = getWorkParts(hierarchy[currentPair.target], targetAuthor, targetWork);
-                  return (
-                    <>
-                      {wholeText && <option value={wholeText}>{workName} (Complete)</option>}
-                      {parts.map(p => <option key={p.id} value={p.id}>{p.display}</option>)}
-                    </>
-                  );
+                  const opts = [];
+                  if (wholeText) opts.push({ value: wholeText, label: `${workName} (Complete)` });
+                  for (const p of parts) opts.push({ value: p.id, label: p.display });
+                  return opts;
                 })()}
-              </select>
+                className="w-full border rounded px-3 py-2"
+              />
             </div>
           </div>
         </div>
