@@ -763,6 +763,19 @@ def _result(row, score, strong=None, extra=None):
     return out
 
 
+# Languages whose passage windows are held back from Theme Search and Similar
+# Passages on this server (2026-10-06: Arabic, until a reader has graded it;
+# the windows are indexed so opening it needs no rebuild). A server that serves
+# the language through TESSERAE_LANGUAGES (the preview) shows it regardless.
+# Override with TESSERAE_HELD_LANGUAGES (comma-separated; empty for none).
+def held_languages():
+    from backend.served_languages import allowed_languages
+    raw = os.environ.get('TESSERAE_HELD_LANGUAGES')
+    held = {'ar'} if raw is None else {x.strip() for x in raw.split(',') if x.strip()}
+    served = allowed_languages()
+    return held - served if served else held
+
+
 def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
           dedup=True, baseline=None, strong_at=None, exclude_span=None,
           per_work=None, only_works=None, offset=0):
@@ -797,6 +810,7 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
     floor = baseline + BASELINE_MARGIN
     if strong_at is None:
         strong_at = baseline + STRONG_LIFT
+    held = held_languages()
     order = np.argsort(-scores)
     seen = {}          # work -> [(start, end)] already taken, for overlap dedup
     per_work_count = {}
@@ -821,6 +835,8 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
         if per_work is not None and per_work_count.get(work, 0) >= per_work:
             continue
         if languages and r.get('language') not in languages:
+            continue
+        if held and r.get('language') in held:
             continue
         if scale and r.get('scale') != scale:
             continue
