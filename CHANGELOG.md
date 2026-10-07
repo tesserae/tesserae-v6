@@ -9,6 +9,10 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Similarity Map includes Persian and Urdu
+- `scripts/build_connections_map.py` and the map page's language list now include
+  Persian and Urdu, served since today; the map is rebuilt on production with them.
+
 ### Quotation rows show their words; Tessa out of the way; safer passage rename
 - Quotation-only results now list the words of the quoted run. They had no
   matched words once the scorer's markers were dropped, so the corpus chart

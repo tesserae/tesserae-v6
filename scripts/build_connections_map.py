@@ -56,7 +56,10 @@ CACHE_DIR = os.path.join(ROOT, 'cache', 'connections_map')
 TRANSLATION_PAIRS_PATH = os.path.join(ROOT, 'data', 'translation_pairs.json')
 ALIGNED_CANDIDATES_PATH = os.path.join(CACHE_DIR, 'aligned_candidates.txt')
 
-LANGUAGES = ('la', 'grc', 'en', 'cop', 'he')
+# The served languages (2026-10-07: Persian and Urdu added when they went live;
+# Arabic stays out while it is held). About 439,000 fine windows with them, up
+# from 204,000, so the run takes roughly four times as long.
+LANGUAGES = ('la', 'grc', 'en', 'cop', 'he', 'fa', 'ur')
 SCALE = 'fine'
 TOPK = 10
 QUERY_CHUNK_ROWS = 1500   # cap on rows scored per BLAS call (memory control)

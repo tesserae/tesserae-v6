@@ -41,7 +41,7 @@ import { LANGUAGE_NAMES } from '../../utils/languageNames';
 // these five, because the Connections Map is production-only; the names
 // themselves come from the one shared table, not a fifth hand-written copy
 // (2026-09-21 code review, finding 3).
-const CONNECTIONS_MAP_LANGUAGE_ORDER = ['la', 'grc', 'en', 'cop', 'he'];
+const CONNECTIONS_MAP_LANGUAGE_ORDER = ['la', 'grc', 'en', 'cop', 'he', 'fa', 'ur'];
 const LANGUAGES = CONNECTIONS_MAP_LANGUAGE_ORDER.map((code) => [code, LANGUAGE_NAMES[code] || code]);
 
 const VIEWS = [
