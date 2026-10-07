@@ -9,6 +9,18 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Coverage gaps closed
+- A work can carry its own date in `backend/author_dates.json`
+  (`author.work`), which wins over its author's; dates added for 30
+  anonymous Latin works (Carolingian poems, pilgrim itineraries) and two
+  anonymous Greek geographies, which the browser showed as undated.
+- Six Latin works gain genre rows; the Paschasius Radbertus book file
+  had old-style line endings (carriage returns only) and is converted.
+- The Sources page lists the eleven works whose source is not yet traced,
+  marked "Source to be confirmed".
+- The coverage checker no longer expects texts under ten lines in the
+  connection map.
+
 ### Similar Passages: same people and places (trial, behind a switch)
 - With `?names=1` on a Reader address, the Similar tab shows two groups:
   passages in other works that share rare proper names with the selection
