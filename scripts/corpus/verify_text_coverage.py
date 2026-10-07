@@ -91,8 +91,9 @@ def main():
         if '.bak' in db: continue
         try:
             c = sqlite3.connect(f'file:{db}?mode=ro', uri=True)
-            conn_works = {r[0] for r in c.execute('select work from works where language=?', (lang,))}
-        except Exception: pass
+            conn_works |= {r[0] for r in c.execute('select work from works where language=?', (lang,))}
+        except Exception as e:
+            print(f'(connection map {db} unreadable: {e})')
     import urllib.request
     api_meta = {}
     try:
@@ -146,7 +147,8 @@ def main():
         g = genres.get(fn) or genres.get(whole + '.tess')
         r['genres'] = (g is not None) if lang == 'la' else True     # genre table is Latin-only
         m = api_meta.get(fn) or api_meta.get(whole + '.tess') or {}
-        r['browser'] = bool(m) and bool(m.get('era')) and m.get('era') != 'Unknown' and bool(m.get('text_type')) if api_meta else True
+        # no metadata from the site: report the column as unknown, never as ok
+        r['browser'] = (bool(m) and bool(m.get('era')) and m.get('era') != 'Unknown' and bool(m.get('text_type'))) if api_meta else 'no-api'
         ma, mw = (m.get('author') or '').strip().casefold(), (m.get('work') or m.get('title') or '').strip().casefold()
         r['sources'] = (ma, mw) in src_keys or any(sa == ma and (sw.startswith(mw) or mw.startswith(sw)) for sa, sw in src_keys if ma and mw and sw)
         r['blurb'] = (base in blurbs) or (whole in blurbs)
