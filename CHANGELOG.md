@@ -9,7 +9,19 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-06
 
+### Reader: Similar Passages for a selection
+- A Reader selection is matched to the passage window that covers it by
+  every reference coordinate, within the book being read. It compared only
+  the last two numbers and searched every book, so in works cited
+  book.chapter.section (Curtius, Livy, Ammianus and others) a selection
+  could get another book's window: Curtius 3.1.1-4 showed Similar Passages
+  for 10.1.1-12. The same match feeds the fusion search's context channel
+  and the connector's theme_pair_lift.
+
 ### Theme Search
+- 19,978 more Persian, Urdu and Arabic passage windows in the index (Urdu
+  coverage grows from 2,150 windows to 14,759); Arabic is held out of results
+  (data operation recorded in docs/DATA_OPERATIONS.md).
 - Arabic passage windows are held out of Theme Search and Similar Passages
   until a reader has graded Arabic (`held_languages()` in
   backend/passage_index.py; TESSERAE_HELD_LANGUAGES overrides; a server that

@@ -1614,38 +1614,67 @@ def compare_works(work_a, work_b, scale='fine', limit=50, per_window=3):
                        'head_lift': round(head_lift, 4), 'level': level},
     }
 
+def _ref_coords_in(work, ref):
+    """EVERY numeric coordinate of `ref`, with the work name stripped first
+    (as _ref_numbers_in does), for locating a span inside one work."""
+    s = str(ref or '')
+    w = _norm_work(work)
+    for prefix in (str(work or ''), w):
+        if prefix and s.startswith(prefix):
+            s = s[len(prefix):]
+            break
+    nums = re.findall(r'\d+', s)
+    return tuple(int(n) for n in nums) if nums else _ref_coords(ref)
+
+
 def window_for_passage(work, ref_start=None, ref_end=None, prefer='fine'):
     """Map a reader selection to the index window that best covers it.
 
     The Reader hands us a work and a reference span; the index is built on fixed
     overlapping windows, so we choose the window of the requested scale whose
-    reference range covers the most of the selection.
+    reference range covers the selection, starting closest to it.
+
+    2026-10-06: this compared only the LAST TWO numbers of each reference and
+    searched every book of the work, so Curtius 3.1.1-3.1.4 matched the window
+    10.1.1-10.1.12 (both read as 1.1) and the Reader showed Similar Passages for
+    Book 10 under a Book 3 selection. It now compares every coordinate and,
+    when the caller names a book file that has windows of its own, looks only
+    at that book's windows.
     """
     _ensure_loaded()
     if not _state['ok']:
         return None
-    rows = _by_work.get(_norm_work(work)) or []
+    wid_work = work_id(work)
+    group = _by_work.get(_norm_work(work)) or []
+    exact = [row for row in group if _records[row].get('work') == wid_work]
+    rows = exact if (is_part(wid_work) and exact) else group
     if not rows:
         return None
-    want = _ref_numbers_in(work, ref_start) or ()
-    want_end = _ref_numbers_in(work, ref_end) or want
+    want = _ref_coords_in(work, ref_start) or ()
+    want_end = _ref_coords_in(work, ref_end) or want
     best, best_key = None, None
     for row in rows:
         r = _records[row]
         if prefer and r.get('scale') != prefer:
             continue
-        lo = _ref_numbers_in(r.get('work'), r.get('ref_start'))
-        hi = _ref_numbers_in(r.get('work'), r.get('ref_end'))
+        lo = _ref_coords_in(r.get('work'), r.get('ref_start'))
+        hi = _ref_coords_in(r.get('work'), r.get('ref_end'))
         if not (lo and hi):
             continue
         if not want:
             return r.get('id')
-        # same book (or no book component) and the window brackets the selection
-        covers = lo <= want <= hi or (want <= lo <= want_end)
+        # Compare on the depth both references share, from the left (book
+        # before chapter before line), so a work whose references vary in depth
+        # (a preface cited 1.pr, a poem 1.1.3) still finds its window.
+        n = min(len(lo), len(hi), len(want), len(want_end))
+        lo, hi, wn, we = lo[:n], hi[:n], want[:n], want_end[:n]
+        covers = lo <= wn <= hi or (wn <= lo <= we)
         if not covers:
             continue
-        # prefer the window whose start sits closest to the selection start
-        key = abs((lo[-1] if lo else 0) - (want[-1] if want else 0))
+        # prefer the window that starts at or just before the selection start;
+        # a window starting after it (it only overlaps the selection's tail)
+        # ranks below every window that brackets the start
+        key = (0, tuple(-x for x in lo)) if lo <= wn else (1, lo)
         if best_key is None or key < best_key:
             best, best_key = r.get('id'), key
     if best is None and prefer:
