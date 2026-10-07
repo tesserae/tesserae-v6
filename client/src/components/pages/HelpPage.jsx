@@ -1057,7 +1057,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 with no account, and a link that names a language still opens in that language.
               </p>
               <div className="space-y-5">
-                <div className="border-l-4 border-red-500 pl-4">
+                <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Latin</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     The best-developed corpus: 848 works (1,832 files, counting books held separately). All eleven channels
@@ -1067,7 +1067,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   </p>
                   <Invitation language="Latin" />
                 </div>
-                <div className="border-l-4 border-blue-500 pl-4">
+                <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Greek</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     A large corpus: 885 works (1,268 files, counting books held separately). Vocabulary, sound, meaning, and
@@ -1079,14 +1079,14 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   </p>
                   <Invitation language="Greek" />
                 </div>
-                <div className="border-l-4 border-emerald-500 pl-4">
+                <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">English</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     52 works (164 files): the King James Bible, Spenser, Shakespeare, Milton, Bunyan, Swift and the
                     Romantic poets, among others. The vocabulary and meaning channels apply, and there is no syntax data.
                   </p>
                 </div>
-                <div className="border-l-4 border-amber-500 pl-4">
+                <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Coptic</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Sahidic and Bohairic (187 texts), the Coptic Bible plus monastic literature (Shenoute of Atripe and Besa).
@@ -1096,7 +1096,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                     <button onClick={() => setActiveSection('coptic')} className="text-red-600 hover:underline">the Coptic page</button>.
                   </p>
                 </div>
-                <div className="border-l-4 border-amber-500 pl-4">
+                <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Hebrew</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     The full Hebrew Bible — all 39 books of the Tanakh — in the Miqra according to the Masorah (Aleppo
@@ -1106,7 +1106,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                     <button onClick={() => setActiveSection('hebrew')} className="text-red-600 hover:underline">the Hebrew page</button>.
                   </p>
                 </div>
-                <div className="border-l-4 border-rose-500 pl-4">
+                <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Persian</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Twenty-eight divans, about 943,000 lines, from Rudaki to Iqbal. Nine channels run, including the
@@ -1117,7 +1117,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                     <button onClick={() => setActiveSection('poetics')} className="text-red-600 hover:underline">Poetic form</button>.
                   </p>
                 </div>
-                <div className="border-l-4 border-rose-500 pl-4">
+                <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Urdu</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Eighteen texts, about 59,000 lines: Wali, Mir, Sauda, Dard, Insha, Nazeer, Atish, Zauq, Zafar, Ghalib,
@@ -1137,7 +1137,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </div>
                 )}
                 {arabicServed && (
-                <div className="border-l-4 border-rose-500 pl-4">
+                <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Arabic</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     The Qur'an (one text per sura), the pre-Islamic odes, al-Mutanabbi and the classical diwans, the
@@ -1684,7 +1684,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               <p className="text-gray-700 mb-6">Tesserae offers six search modes on the search page, plus Theme Search and the Reader on their own tabs:</p>
 
               <div className="space-y-6">
-                <div className="border-l-4 border-red-500 pl-4">
+                <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Phrases (Parallel Search)</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Compare a source text against a target text. The default match type is <strong>Fusion — All Channels</strong>, which
@@ -1700,7 +1700,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   </p>
                 </div>
 
-                <div className="border-l-4 border-purple-500 pl-4">
+                <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Theme Search <span className="text-xs text-gray-500">(its own tab)</span></h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Describe what happens in a passage, in your own words, and find passages that match
@@ -1714,7 +1714,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   </p>
                 </div>
 
-                <div className="border-l-4 border-gray-400 pl-4">
+                <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Read <span className="text-xs text-gray-500">(its own tab)</span></h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Read a text with a gutter showing where the rest of the corpus connects to each line,
@@ -1727,7 +1727,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   </p>
                 </div>
 
-                <div className="border-l-4 border-blue-500 pl-4">
+                <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Lines (Line Search)</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Search for parallels to a specific line across the entire corpus. Select a line from any text,
@@ -1746,7 +1746,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   </div>
                 </div>
 
-                <div className="border-l-4 border-amber-500 pl-4">
+                <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Rare Words</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Finds words that appear in fewer than 50 texts corpus-wide but are shared between your source
@@ -1760,7 +1760,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   </div>
                 </div>
 
-                <div className="border-l-4 border-purple-500 pl-4">
+                <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Rare Pairs</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Discovers unusual word combinations (bigrams) that appear together in very few texts.
@@ -1771,7 +1771,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   </p>
                 </div>
 
-                <div className="border-l-4 border-amber-500 pl-4">
+                <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">String Search</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Wildcard and boolean search across the entire corpus. Perfect for finding
@@ -1805,7 +1805,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   </div>
                 </div>
 
-                <div className="border-l-4 border-blue-500 pl-4">
+                <div className="border-l-4 border-gray-300 pl-4">
                   <h4 className="text-lg font-semibold text-gray-900">Cross-Language Search</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Compares a text in one language with a text in another. Seven pairs are open: Greek and Latin,
@@ -1835,34 +1835,34 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </p>
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">The Detection Channels</h4>
               <div className="space-y-3">
-                <div className="border-l-4 border-red-400 pl-3">
+                <div className="border-l-4 border-gray-300 pl-3">
                   <p className="text-sm text-gray-700"><strong>Lemma (2-word):</strong> The classic Tesserae approach — finds lines sharing two or more content-word dictionary forms. The workhorse channel for direct verbal echo.</p>
                 </div>
-                <div className="border-l-4 border-red-400 pl-3">
+                <div className="border-l-4 border-gray-300 pl-3">
                   <p className="text-sm text-gray-700"><strong>Lemma (1-word):</strong> Same method, but requires only one shared word. Catches allusions built around a single pivotal term, like Lucan's <em>canimus</em> echoing Vergil's <em>cano</em>.</p>
                 </div>
-                <div className="border-l-4 border-red-400 pl-3">
+                <div className="border-l-4 border-gray-300 pl-3">
                   <p className="text-sm text-gray-700"><strong>Exact:</strong> Matches identical surface forms (not lemmatized). Catches verbatim quotation and formulaic borrowing.</p>
                 </div>
-                <div className="border-l-4 border-blue-400 pl-3">
+                <div className="border-l-4 border-gray-300 pl-3">
                   <p className="text-sm text-gray-700"><strong>Semantic (AI):</strong> Uses SPhilBERTa neural embeddings to detect lines with similar meaning, even with completely different vocabulary.</p>
                 </div>
-                <div className="border-l-4 border-blue-400 pl-3">
+                <div className="border-l-4 border-gray-300 pl-3">
                   <p className="text-sm text-gray-700"><strong>Dictionary:</strong> Detects synonym substitution (<em>uariatio</em>) using 23,833 curated Latin word pairs — e.g., <em>gladius/ensis</em>, <em>mare/pontus</em>.</p>
                 </div>
-                <div className="border-l-4 border-amber-400 pl-3">
+                <div className="border-l-4 border-gray-300 pl-3">
                   <p className="text-sm text-gray-700"><strong>Sound:</strong> Measures phonetic similarity via character trigram patterns. Detects alliteration, assonance, and phonetic echo.</p>
                 </div>
-                <div className="border-l-4 border-amber-400 pl-3">
+                <div className="border-l-4 border-gray-300 pl-3">
                   <p className="text-sm text-gray-700"><strong>Edit Distance:</strong> Fuzzy character-level matching for morphological variants — <em>ferrea</em> matching <em>ferratos</em>, <em>belligeri</em> matching <em>belli</em>.</p>
                 </div>
-                <div className="border-l-4 border-purple-400 pl-3">
+                <div className="border-l-4 border-gray-300 pl-3">
                   <p className="text-sm text-gray-700"><strong>Syntax:</strong> Compares grammatical dependency structures (parsed by LatinPipe) to detect parallel sentence construction. Includes a structural fingerprint path that matches lines with identical grammatical patterns even when they share no vocabulary — catching allusions built on structural imitation with complete lexical substitution. Because many unrelated Latin lines share common syntactic patterns, structural matches are confirmed by a two-tier gate: they must have either a dictionary synonym pair between the two lines or high semantic similarity (cosine ≥ 0.70). In validation testing on Vergil's <em>Georgics</em> 3 vs. Lucretius <em>DRN</em> 6, this gate preserved all meaningful structural parallels while filtering over 90% of coincidental pattern matches.</p>
                 </div>
-                <div className="border-l-4 border-purple-400 pl-3">
+                <div className="border-l-4 border-gray-300 pl-3">
                   <p className="text-sm text-gray-700"><strong>Rare Vocabulary:</strong> Flags shared words that appear in fewer than 100 texts corpus-wide. A rare shared word is unlikely to be coincidence.</p>
                 </div>
-                <div className="border-l-4 border-green-500 pl-3">
+                <div className="border-l-4 border-gray-300 pl-3">
                   <p className="text-sm text-gray-700"><strong>Verbatim Quotation (Coptic):</strong> Finds runs of three or more identical consecutive words. This channel is used for Coptic, where authors most often engage their sources by direct quotation — it catches scriptural quotations even when the author gives no citation. See the <em>Coptic Search</em> section for details.</p>
                 </div>
               </div>

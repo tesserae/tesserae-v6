@@ -9,6 +9,10 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Help: one colour for the card bars
+- The cards in Help carried thirteen different left-bar colours that meant
+  nothing to a reader. They now share one light gray bar.
+
 ### Help: readable headings, one style per level, tidier contents
 - Sidebar group labels are bold and dark with a rule above each group, and the
   entries sit indented under them. The labels had been smaller and lighter than
