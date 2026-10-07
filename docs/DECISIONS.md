@@ -8,6 +8,24 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-07: Persian and Urdu are served on the main site; Arabic stays held
+
+Persian and Urdu joined the main site's languages after two rounds of
+review by a reader of both. In the second round, ninety ranked pairs were
+graded, thirty per sheet, ten each from the top, middle and margin of the
+ranking. Persian, Hafez against Iqbal: 30 Good. Urdu, Ghalib against Iqbal:
+22 Good, 6 Plausible, 1 Wrong, 1 blank. Persian against Urdu, Hafez against
+Ghalib: 20 Good, 9 Plausible, 1 blank. That is one Wrong in 89 graded pairs.
+Counted as distinct judgments, since one refrain-and-rhyme poem pair
+filled several rows, the ninety rows are 8 poem pairs and 46 word-level
+pairs. Every Plausible verdict named a set phrase or compound, not a
+retrieval error. Neither the corpus frequency of the phrase nor a language
+model could separate those from the Good pairs, so set phrases are shown
+with a count of the works sharing the wording and are not penalised (entry
+of 2026-10-06). The reader graded only six Arabic pairs and declined to
+judge further, so Arabic's passage windows stay held from Theme Search and
+Similar Passages and its tab stays off until another reader grades it.
+
 ## 2026-10-07: Similar Passages shows "same people and places" above "same kind of scene"
 
 Similar Passages ranked windows by content alone, and the descriptions name
