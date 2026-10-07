@@ -378,7 +378,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
     { id: 'reader', label: 'The Reader', group: 'Reading & content' },
     { id: 'tessa', label: 'Tessa, the assistant', group: 'Reading & content' },
 
-    { id: 'languages', label: 'Languages', group: 'Languages' },
+    { id: 'languages', label: 'Languages overview', group: 'Languages' },
     { id: 'coptic', label: 'Coptic', group: 'Languages' },
     { id: 'hebrew', label: 'Hebrew', group: 'Languages' },
     { id: 'persian', label: 'Persian', group: 'Languages' },
@@ -498,16 +498,19 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
             {sections.filter((section) => section.id !== 'arabic' || arabicServed).map((section, i, shown) => (
               <li key={section.id}>
                 {(i === 0 || shown[i - 1].group !== section.group) && (
-                  <p className="px-3 pt-4 pb-1 text-[0.68rem] font-semibold uppercase tracking-wider text-gray-400 first:pt-1">
+                  // Group labels read as headings: darker and bolder than the items, a
+                  // rule above each group, items indented under it (2026-10-07; the
+                  // same fix was approved 2026-09-06 on a branch that never merged).
+                  <p className={`px-3 pb-1 text-xs font-bold uppercase tracking-wider text-gray-700 ${i === 0 ? 'pt-1' : 'mt-3 pt-4 border-t border-gray-200'}`}>
                     {section.group}
                   </p>
                 )}
                 <button
                   onClick={() => setActiveSection(section.id)}
-                  className={`w-full text-left px-3 py-2 rounded text-sm ${
+                  className={`w-full text-left pl-6 pr-3 py-1.5 rounded text-sm ${
                     activeSection === section.id
-                      ? 'bg-red-100 text-red-700'
-                      : 'text-gray-600 hover:bg-gray-100'
+                      ? 'bg-red-100 text-red-700 font-semibold'
+                      : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 >
                   {section.label}
@@ -520,7 +523,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
         <div ref={contentRef} className="flex-1 p-6">
           {activeSection === 'getting-started' && (
             <div className="prose max-w-none">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Getting Started</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Getting Started</h3>
               <p className="text-gray-700 mb-4">
                 Tesserae offers several kinds of search. Most people start with the default — <strong>Phrases</strong>, which
                 compares two texts and finds the passages most similar to each other. Here is the quick path:
@@ -534,7 +537,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 <li><strong>Run the search:</strong> click "Find Parallels." Results are ranked by confidence, matched words are highlighted, and badges show which methods detected each pair.</li>
               </ol>
               <div className="mt-6 bg-amber-50 p-4 rounded-lg">
-                <h4 className="font-medium text-amber-800 mb-2">Tip</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-amber-800 mb-2">Tip</h4>
                 <p className="text-amber-700 text-sm">Start with a smaller section (e.g., Book 1) rather than complete works for faster results. Large comparisons like the full Aeneid vs. Metamorphoses can take up to 15 minutes on first run; subsequent searches are cached.</p>
               </div>
               <div className="mt-4 bg-gray-50 p-4 rounded-lg">
@@ -547,7 +550,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'how-well' && (
             <div className="prose max-w-none">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">How well does it work?</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">How well does it work?</h3>
               <p className="text-gray-700 mb-4">
                 Every figure below was measured against a published list of parallels or a test set, and
                 each is dated, because the corpus and the scoring change. Recall is the share of a
@@ -588,7 +591,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'theme-search' && (
             <div className="prose max-w-none">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Theme Search</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Theme Search</h3>
               <p className="text-gray-700 mb-4">
                 Describe what happens in a passage, in your own words, and Theme Search finds
                 passages that match the description rather than the wording. Because it works
@@ -607,7 +610,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 across traditions.
               </p>
 
-              <h4 className="font-medium text-gray-900 mt-6 mb-2">How it works</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How it works</h4>
               <p className="text-gray-700 mb-3">
                 Every text in the corpus is cut into overlapping <strong>passage windows</strong>:
                 twelve lines starting a new window every six, and a coarser thirty lines every
@@ -636,7 +639,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 Hebrew, Persian and Urdu, with a few works in Italian, Old French and Middle
                 High German.
               </p>
-              <h4 className="font-medium text-gray-900 mt-6 mb-2">Names and paraphrases</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Names and paraphrases</h4>
               <p className="text-gray-700 mb-3">
                 The descriptions name the people in a passage, so a name is precise and a
                 paraphrase is broad. &ldquo;Tiresias&rdquo; finds the passages where he
@@ -649,7 +652,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 turns out to be kin&rdquo;. When a search finds less than you expect, try the
                 name, then the scene in its own words.
               </p>
-              <h4 className="font-medium text-gray-900 mt-6 mb-2">The reading step</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">The reading step</h4>
               <p className="text-gray-700 mb-3">
                 Comparing descriptions is quick and shallow, so the first page is then read. A
                 small model on our own server takes the hundred passages that scored highest,
@@ -674,7 +677,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 index never appears in either feature, whatever it contains.
               </p>
 
-              <h4 className="font-medium text-gray-900 mt-6 mb-2">Which works Theme Search covers</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Which works Theme Search covers</h4>
               <p className="text-gray-700 mb-3">
                 Theme Search covers the works that have passage descriptions, not the whole
                 corpus. The list is in Browse Corpus:{' '}
@@ -682,7 +685,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   See the list of covered works
                 </a>. A small &ldquo;Theme Search&rdquo; badge marks each covered work there.
               </p>
-              <h4 className="font-medium text-gray-900 mt-6 mb-2">The Similarity Map</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">The Similarity Map</h4>
               <p className="text-gray-700 mb-3">
                 The &ldquo;Similarity Map&rdquo; tab beside Theme Search is a picture of these same
                 connections at a larger scale: a grid of how strongly authors, works, centuries
@@ -721,7 +724,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 has changed and the map has been rebuilt.
               </p>
 
-              <h4 className="font-medium text-gray-900 mt-6 mb-2">Comparing two works</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Comparing two works</h4>
               <p className="text-gray-700 mb-3">
                 The &ldquo;Compare two works&rdquo; tab beside the search box reads two whole
                 works, or two books, against each other rather than against a description you
@@ -739,7 +742,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 how much its own two lines resemble each other in content.
               </p>
 
-              <h4 className="font-medium text-gray-900 mt-6 mb-2">Reading the results</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Reading the results</h4>
               <ul className="list-disc pl-5 text-gray-700 space-y-2 mb-3">
                 <li>
                   <strong>Results are ordered oldest first</strong>, with the author&rsquo;s date at
@@ -772,7 +775,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </li>
               </ul>
 
-              <h4 className="text-base font-semibold text-gray-900 mt-6 mb-2">What the confidence band means</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">What the confidence band means</h4>
               <p className="text-gray-700 mb-3">
                 A search always returns its closest matches, even when the corpus holds nothing
                 of the kind, so the band tells you which situation you are in. It combines how
@@ -800,7 +803,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 corpus.
               </p>
 
-              <h4 className="text-base font-semibold text-gray-900 mt-6 mb-2">Limits worth knowing</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Limits worth knowing</h4>
               <ul className="list-disc pl-5 text-gray-700 space-y-2">
                 <li>
                   <strong>The summaries are machine-written.</strong> Treat them as a finding aid,
@@ -833,7 +836,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'reader' && (
             <div className="prose max-w-none">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">The Reader</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">The Reader</h3>
               <p className="text-gray-700 mb-4">
                 The Reader shows a text one line at a time with two things beside it: a gutter of
                 marks showing where the rest of the corpus connects to each line, and a panel of
@@ -846,7 +849,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 Corpus. Coverage is growing: recently added works get theirs first.
               </p>
 
-              <h4 className="font-medium text-gray-900 mt-6 mb-2">The gutter</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">The gutter</h4>
               <p className="text-gray-700 mb-3">
                 Two narrow columns run down the left of the text, and the key above the text says
                 what they are:
@@ -868,7 +871,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 opens Verbal Parallels, a purple one opens Similar Passages.
               </p>
 
-              <h4 className="font-medium text-gray-900 mt-6 mb-2">The quotation boxes</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">The quotation boxes</h4>
               <p className="text-gray-700 mb-3">
                 A small numbered box beside a line means the line is quoted elsewhere in the
                 corpus. The number is how many other works quote it. The boxes come in two forms:
@@ -890,7 +893,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 tables behind them, which are built for Latin, Greek and English.
               </p>
 
-              <h4 className="font-medium text-gray-900 mt-6 mb-2">Moving around a long work</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Moving around a long work</h4>
               <p className="text-gray-700 mb-3">
                 Works held in books open one book at a time. The strip above the text moves to the
                 previous or next book or to a typed line, and a small navigator at the bottom left
@@ -898,7 +901,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 neighbours. A link into a long work opens the book that holds the line it points to.
               </p>
 
-              <h4 className="font-medium text-gray-900 mt-6 mb-2">Selecting text</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Selecting text</h4>
               <p className="text-gray-700 mb-3">
                 Select lines the way you would select any text: click and drag across them, or
                 double-click a single word. A small toolbar appears under the selection with a
@@ -926,7 +929,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 Escape, or use the toolbar&rsquo;s ×.
               </p>
 
-              <h4 className="font-medium text-gray-900 mt-6 mb-2">The panel</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">The panel</h4>
               <ul className="list-disc pl-5 text-gray-700 space-y-2 mb-3">
                 <li>
                   <strong>Similar passages</strong> lists passages elsewhere in the corpus whose
@@ -989,7 +992,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'tessa' && (
             <div className="prose max-w-none">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Tessa, the assistant</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Tessa, the assistant</h3>
               <p className="text-gray-700 mb-4">
                 Tessa does two things. She <strong>explains how this site works</strong>, and she
                 <strong> runs searches against this corpus and reports what came back</strong>.
@@ -999,7 +1002,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 is yours.
               </p>
 
-              <h4 className="font-medium text-gray-900 mt-6 mb-2">What she can do</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">What she can do</h4>
               <ul className="list-disc pl-5 text-gray-700 space-y-2 mb-3">
                 <li>
                   Explain how the site works, including how to connect your own AI to it. She
@@ -1016,7 +1019,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 <li>Follow up. Ask &ldquo;what about Eobanus?&rdquo; and she keeps the thread.</li>
               </ul>
 
-              <h4 className="font-medium text-gray-900 mt-6 mb-2">How to trust her</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How to trust her</h4>
               <p className="text-gray-700 mb-3">
                 Every answer is checked before you see it. Citations come from a search that
                 ran, numbers appear in the results, and any line of text she quotes matches the
@@ -1024,7 +1027,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 AI platform, so your questions stay on campus.
               </p>
 
-              <h4 className="font-medium text-gray-900 mt-6 mb-2">For advanced analysis</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">For advanced analysis</h4>
               <p className="text-gray-700 mb-3">
                 Tessa answers in a second or two. She reads the results a search returns and
                 will say which parallels look like deliberate allusion and which like the common
@@ -1042,7 +1045,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'languages' && (
             <div className="prose max-w-none">
-              <h3 className="text-2xl font-bold text-gray-900 mb-1 pb-2 border-b border-gray-200">Languages</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Languages</h3>
               <p className="text-gray-700 mb-5">
                 Tesserae searches seven languages: Latin, Greek, English, Coptic, Hebrew, Persian and Urdu. Arabic is indexed and waiting for a specialist's review before it opens. They share the same search types, but differ in how much of the corpus
                 is covered and which detection channels have data to work with. Each language has its own page in this
@@ -1055,7 +1058,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </p>
               <div className="space-y-5">
                 <div className="border-l-4 border-red-500 pl-4">
-                  <h4 className="text-base font-semibold text-gray-900">Latin</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Latin</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     The best-developed corpus: 848 works (1,832 files, counting books held separately). All eleven channels
                     are available, and 1,433 of the files are grammatically parsed, so the syntax channels contribute for most pairs. Latin has the most thoroughly evaluated results
@@ -1065,7 +1068,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   <Invitation language="Latin" />
                 </div>
                 <div className="border-l-4 border-blue-500 pl-4">
-                  <h4 className="font-medium text-gray-900">Greek</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Greek</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     A large corpus: 885 works (1,268 files, counting books held separately). Vocabulary, sound, meaning, and
                     rare-word channels all work; searches are accent-insensitive, so you can enter text with or without
@@ -1077,14 +1080,14 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   <Invitation language="Greek" />
                 </div>
                 <div className="border-l-4 border-emerald-500 pl-4">
-                  <h4 className="text-base font-semibold text-gray-900">English</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">English</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     52 works (164 files): the King James Bible, Spenser, Shakespeare, Milton, Bunyan, Swift and the
                     Romantic poets, among others. The vocabulary and meaning channels apply, and there is no syntax data.
                   </p>
                 </div>
                 <div className="border-l-4 border-amber-500 pl-4">
-                  <h4 className="text-base font-semibold text-gray-900">Coptic</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Coptic</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Sahidic and Bohairic (187 texts), the Coptic Bible plus monastic literature (Shenoute of Atripe and Besa).
                     Coptic is tuned for <strong>quotation and close reuse</strong> rather than allusion, with a verbatim-quotation
@@ -1094,7 +1097,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   </p>
                 </div>
                 <div className="border-l-4 border-amber-500 pl-4">
-                  <h4 className="text-base font-semibold text-gray-900">Hebrew</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Hebrew</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     The full Hebrew Bible — all 39 books of the Tanakh — in the Miqra according to the Masorah (Aleppo
                     Codex). Hebrew reads right-to-left, and its fully vowel-pointed text is matched on the consonantal
@@ -1104,7 +1107,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   </p>
                 </div>
                 <div className="border-l-4 border-rose-500 pl-4">
-                  <h4 className="text-base font-semibold text-gray-900">Persian</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Persian</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Twenty-eight divans, about 943,000 lines, from Rudaki to Iqbal. Nine channels run, including the
                     refrain-and-rhyme channel that finds answer poems; poem boundaries and meters for the major divans
@@ -1115,7 +1118,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   </p>
                 </div>
                 <div className="border-l-4 border-rose-500 pl-4">
-                  <h4 className="text-base font-semibold text-gray-900">Urdu</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Urdu</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Eighteen texts, about 59,000 lines: Wali, Mir, Sauda, Dard, Insha, Nazeer, Atish, Zauq, Zafar, Ghalib,
                     Anis, Dagh, Hali, Akbar Allahabadi and Iqbal. Nine channels run, refrain and rhyme among them, and the
@@ -1125,7 +1128,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </div>
                 {!arabicServed && (
                 <div className="border-l-4 border-gray-300 pl-4">
-                  <h4 className="text-base font-semibold text-gray-900">Arabic (not yet open)</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Arabic (not yet open)</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     The Arabic corpus (the Qur'an, the pre-Islamic odes, the classical diwans and the Burda tradition)
                     is indexed but not yet searchable here. It opens once a specialist has graded its results, as two
@@ -1135,7 +1138,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 )}
                 {arabicServed && (
                 <div className="border-l-4 border-rose-500 pl-4">
-                  <h4 className="text-base font-semibold text-gray-900">Arabic</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Arabic</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     The Qur'an (one text per sura), the pre-Islamic odes, al-Mutanabbi and the classical diwans, the
                     Burda tradition, two hadith collections and the modern revival: 148 texts, about 25,000 verses. Ten
@@ -1155,7 +1158,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'coptic' && (
             <div className="prose max-w-none">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Coptic Search</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Coptic Search</h3>
               <p className="text-gray-700 mb-4">
                 Tesserae searches Sahidic Coptic alongside Latin, Greek, and English. The Coptic corpus combines the
                 Coptic Bible with major works of monastic literature — the sermons and letters of Shenoute of Atripe
@@ -1175,9 +1178,9 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </p>
               <Invitation language="Coptic" />
 
-              <div className="my-4 bg-green-50 border border-green-200 p-4 rounded-lg">
-                <h4 className="font-medium text-green-800 mb-1">Verbatim-quotation detection</h4>
-                <p className="text-green-800 text-sm">
+              <div className="my-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-2">Verbatim-quotation detection</h4>
+                <p className="text-gray-700 text-sm">
                   Coptic search's standout feature finds runs of identical consecutive words, catching direct
                   scriptural quotations even where the author gives no citation. In practice the highest-ranked
                   Coptic results are reliable quotations.
@@ -1196,7 +1199,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </ul>
 
               <div className="mt-4 bg-blue-50 p-4 rounded-lg">
-                <h4 className="font-medium text-blue-800 mb-1">Coptic → Greek</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-blue-800 mb-1">Coptic → Greek</h4>
                 <p className="text-blue-800 text-sm">
                   Because much of Coptic scripture and literature was translated from Greek, you can search a Coptic
                   text against the Greek corpus to surface the Greek source behind a translation. Choose the
@@ -1205,7 +1208,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </div>
 
               <div className="mt-4 bg-gray-50 p-4 rounded-lg">
-                <h4 className="font-medium text-gray-800 mb-1">Searching the whole corpus</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-1">Searching the whole corpus</h4>
                 <p className="text-gray-700 text-sm">
                   From any result you can search the entire Coptic corpus for the words a parallel shares, to see
                   where else they occur. All of Shenoute's works are also available as a single combined text, so you
@@ -1214,7 +1217,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </div>
 
               <div className="mt-4 bg-amber-50 border border-amber-200 p-4 rounded-lg">
-                <h4 className="font-medium text-amber-900 mb-1">Typing Coptic (Line Search &amp; String Search)</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-amber-800 mb-1">Typing Coptic (Line Search &amp; String Search)</h4>
                 <p className="text-amber-900 text-sm mb-2">
                   No Coptic keyboard is needed. On the word-entry boxes, type in Latin using the{' '}
                   <strong>Leipzig-Jerusalem</strong> transliteration and the Coptic appears as you type
@@ -1235,7 +1238,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'hebrew' && (
             <div className="prose max-w-none">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Hebrew Search</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Hebrew Search</h3>
               <p className="text-gray-700 mb-4">
                 Tesserae searches the Hebrew Bible alongside Latin, Greek, English, and Coptic. The corpus is the
                 full Tanakh — all 39 books — in the Miqra according to the Masorah (MAM) edition, based on the
@@ -1252,7 +1255,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               <Invitation language="Hebrew" />
 
               <div className="my-4 bg-amber-50 border border-amber-200 p-4 rounded-lg">
-                <h4 className="font-medium text-amber-900 mb-1">Reading and matching Hebrew</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-amber-800 mb-1">Reading and matching Hebrew</h4>
                 <ul className="list-disc list-inside space-y-1 text-amber-900 text-sm">
                   <li>Hebrew reads <strong>right-to-left</strong>, and results are shown that way.</li>
                   <li>The text is fully vowel-pointed. Word matching works on the <strong>consonantal words</strong>, with vowel points (nikkud) and cantillation marks set aside, so a match is found regardless of pointing. The dictionary form of a word is read from its points first, so words that share a spelling are told apart: אֶל "to", אַל "not" and אֵל "God" are three dictionary forms, shown as אל, אל² and אל³.</li>
@@ -1272,7 +1275,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </ul>
 
               <div className="mt-4 bg-blue-50 p-4 rounded-lg">
-                <h4 className="font-medium text-blue-800 mb-1">Hebrew → Greek and Hebrew → Latin</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-blue-800 mb-1">Hebrew → Greek and Hebrew → Latin</h4>
                 <p className="text-blue-800 text-sm mb-2">
                   On the Cross-Language tab you can search the Hebrew Bible against the Greek New Testament or the Latin
                   Vulgate, to see how a Hebrew passage was quoted, rendered, or echoed. Hebrew-to-Greek uses the
@@ -1302,7 +1305,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </div>
 
               <div className="mt-4 bg-gray-50 p-4 rounded-lg">
-                <h4 className="font-medium text-gray-800 mb-1">Where words recur, by book</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-1">Where words recur, by book</h4>
                 <p className="text-gray-700 text-sm">
                   From any result you can search the whole Hebrew Bible for the words a parallel shares. Because the
                   biblical books carry no fixed dates, the distribution chart groups the hits <strong>by book</strong>
@@ -1311,7 +1314,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </div>
 
               <div className="mt-4 bg-gray-50 p-4 rounded-lg">
-                <h4 className="font-medium text-gray-800 mb-1">Sources and licenses</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-1">Sources and licenses</h4>
                 <p className="text-gray-700 text-sm">
                   The Hebrew text is from Sefaria (Miqra according to the Masorah / Aleppo Codex, CC-BY-SA); the
                   morphology is from ETCBC/BHSA (CC-BY-NC); the meaning model is MiqraBERT (D. M. Smiley), fine-tuned
@@ -1324,7 +1327,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'persian' && (
             <div className="prose max-w-none">
-              <h3 className="text-2xl font-bold text-gray-900 mb-1 pb-2 border-b border-gray-200">Persian Search</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Persian Search</h3>
               <p className="text-gray-700 mb-4">
                 Tesserae searches classical Persian poetry: the divans of Rudaki, Ferdowsi, Manuchehri, Farrokhi,
                 Naser Khosrow, Sanai, Anvari, Khaqani, Nizami, Attar, Rumi, Saadi, Hafez, Jami, Saeb and Bidel,
@@ -1335,7 +1338,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </p>
 
               <div className="my-4 bg-amber-50 border border-amber-200 p-4 rounded-lg">
-                <h4 className="text-base font-semibold text-amber-900 mb-1">Reading and matching Persian</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-amber-800 mb-1">Reading and matching Persian</h4>
                 <ul className="list-disc list-inside space-y-1 text-amber-900 text-sm">
                   <li>Persian reads <strong>right-to-left</strong>, and results are shown that way.</li>
                   <li><strong>Each line is a hemistich</strong> (misra), so a couplet occupies two consecutive lines and a
@@ -1367,7 +1370,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </ul>
 
               <div className="mt-4 bg-blue-50 p-4 rounded-lg">
-                <h4 className="text-base font-semibold text-blue-800 mb-1">Answer poems (javab, istiqbal)</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-blue-800 mb-1">Answer poems (javab, istiqbal)</h4>
                 <p className="text-blue-800 text-sm mb-2">
                   Persian poets answer one another by writing a new ghazal in the same meter, with the same rhyme and the
                   same radif, the word or phrase that ends every couplet. A <em>refrain &amp; rhyme</em> method reads each
@@ -1386,7 +1389,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </div>
 
               <div className="mt-4 bg-gray-50 p-4 rounded-lg">
-                <h4 className="text-base font-semibold text-gray-800 mb-1">Sources and licenses</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-1">Sources and licenses</h4>
                 <p className="text-gray-700 text-sm">
                   The classical divans come from the Chronological Persian Poetry Dataset, derived from Ganjoor.net
                   (CC-BY-SA 4.0 as declared by that dataset); Iqbal's Persian works from the Iqbal Demystified
@@ -1398,7 +1401,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'urdu' && (
             <div className="prose max-w-none">
-              <h3 className="text-2xl font-bold text-gray-900 mb-1 pb-2 border-b border-gray-200">Urdu Search</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Urdu Search</h3>
               <p className="text-gray-700 mb-4">
                 Tesserae searches eighteen Urdu texts, about 59,000 lines, by fifteen poets from Wali Dakhani to
                 Iqbal: Wali, Mir Taqi Mir (the kulliyat, nearly 22,000 lines), Sauda, Dard, Insha, Nazeer Akbarabadi,
@@ -1407,7 +1410,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </p>
 
               <div className="my-4 bg-amber-50 border border-amber-200 p-4 rounded-lg">
-                <h4 className="text-base font-semibold text-amber-900 mb-1">Reading and matching Urdu</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-amber-800 mb-1">Reading and matching Urdu</h4>
                 <ul className="list-disc list-inside space-y-1 text-amber-900 text-sm">
                   <li>Urdu reads <strong>right-to-left</strong>, and results are shown that way.</li>
                   <li><strong>Each line is a hemistich</strong>; the two halves of a couplet are consecutive lines.</li>
@@ -1439,7 +1442,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </ul>
 
               <div className="mt-4 bg-blue-50 p-4 rounded-lg">
-                <h4 className="text-base font-semibold text-blue-800 mb-1">Shared refrains between Ghalib and Mir</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-blue-800 mb-1">Shared refrains between Ghalib and Mir</h4>
                 <p className="text-blue-800 text-sm mb-2">
                   The Urdu ghazal answers earlier ghazals by taking over their radif, the refrain that ends every
                   couplet. When the refrain is distinctive (<em>rakhte hain</em>, <em>hotā hai</em>, <em>chāhiye</em>), a
@@ -1456,7 +1459,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </div>
 
               <div className="mt-4 bg-gray-50 p-4 rounded-lg">
-                <h4 className="text-base font-semibold text-gray-800 mb-1">Sources and licenses</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-1">Sources and licenses</h4>
                 <p className="text-gray-700 text-sm">
                   Mir's kulliyat, Ghalib's divan and the twelve poets added in September come from Urdu Wikisource
                   (public-domain poetry, transcription CC-BY-SA 4.0); Iqbal's Urdu works from the Iqbal Demystified
@@ -1468,7 +1471,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'arabic' && (
             <div className="prose max-w-none">
-              <h3 className="text-2xl font-bold text-gray-900 mb-1 pb-2 border-b border-gray-200">Arabic Search</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Arabic Search</h3>
               {!arabicServed && (
                 <p className="text-sm text-amber-900 bg-amber-50 border border-amber-200 rounded px-3 py-2 mb-4">
                   Arabic is not yet open on this site. The corpus is indexed and waits for a specialist to grade its
@@ -1483,7 +1486,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </p>
 
               <div className="my-4 bg-amber-50 border border-amber-200 p-4 rounded-lg">
-                <h4 className="text-base font-semibold text-amber-900 mb-1">Reading and matching Arabic</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-amber-800 mb-1">Reading and matching Arabic</h4>
                 <ul className="list-disc list-inside space-y-1 text-amber-900 text-sm">
                   <li>Arabic reads <strong>right-to-left</strong>, and results are shown that way.</li>
                   <li>Each poem line is a full verse (bayt) with its two hemistichs separated by a bar; each Qur'an line
@@ -1516,7 +1519,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </ul>
 
               <div className="mt-4 bg-blue-50 p-4 rounded-lg">
-                <h4 className="text-base font-semibold text-blue-800 mb-1">Qur'anic quotation (iqtibas) and answer poems (mu'arada)</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-blue-800 mb-1">Qur'anic quotation (iqtibas) and answer poems (mu'arada)</h4>
                 <p className="text-blue-800 text-sm mb-2">
                   Searching the Burda against a sura finds the Qur'anic phrases woven into the poem: <em>qāba
                   qawsayn</em> (Q 53:9) at verse 107, the hidden pearl <em>lu'lu' maknūn</em> (Q 56:23) at verse 57,
@@ -1540,7 +1543,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </div>
 
               <div className="mt-4 bg-gray-50 p-4 rounded-lg">
-                <h4 className="text-base font-semibold text-gray-800 mb-1">Sources and licenses</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-1">Sources and licenses</h4>
                 <p className="text-gray-700 text-sm">
                   The Qur'an text is the Tanzil Project's (CC-BY 3.0, verbatim); the Burda poems and the Mu'allaqat
                   come from Arabic Wikisource (public-domain poems, transcription CC-BY-SA 4.0). Full details on the
@@ -1552,7 +1555,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'fusion-search' && (
             <div className="prose max-w-none">
-              <h3 className="text-2xl font-bold text-gray-900 mb-1 pb-2 border-b border-gray-200">How Fusion Search Works</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">How Fusion Search Works</h3>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-sm text-blue-900">
                 <strong>A note on examples:</strong> this section — and the ones that follow — uses <strong>Latin</strong> for its
                 examples, but the same process applies to Greek, English, and Coptic. Where a language differs (for instance, Greek
@@ -1573,7 +1576,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 <button onClick={() => setActiveSection('match-types')} className="text-red-600 hover:underline">Match Types</button>.
               </p>
 
-              <h4 className="text-lg font-medium text-gray-900 mt-6 mb-3">How Results Are Combined</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How Results Are Combined</h4>
               <p className="text-gray-700 mb-3">
                 Each channel produces its own candidate list with scores. The fusion step combines them using <strong>weighted score fusion</strong>:
                 each channel's score is multiplied by a weight reflecting its precision, and the weighted scores are summed. Channels that produce
@@ -1587,7 +1590,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 while pairs whose weakest word is very common receive a reduced bonus proportional to that word's frequency.
               </p>
 
-              <h4 className="text-lg font-medium text-gray-900 mt-6 mb-3">Rarity Scoring and Function-Word Handling</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Rarity Scoring and Function-Word Handling</h4>
               <p className="text-gray-700 mb-3">
                 Not all shared words carry equal weight as evidence of allusion. Sharing the rare word <em>quercus</em> ("oak")
                 is far more significant than sharing <em>et</em> ("and"). Fusion scoring applies a <strong>three-layer rarity system</strong>:
@@ -1610,7 +1613,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 without penalizing <em>pectore</em> (a content word that happens to be common).
               </p>
 
-              <h4 className="text-lg font-medium text-gray-900 mt-6 mb-3">Frequency Baseline</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Frequency Baseline</h4>
               <p className="text-gray-700 mb-3">
                 By default, word rarity is measured against the <strong>full Latin corpus</strong>.
                 This means a word like <em>arma</em> that appears in 57% of all Latin texts gets a low rarity score.
@@ -1631,7 +1634,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 same pairs are found — but it changes how they are ranked.
               </p>
 
-              <h4 className="text-lg font-medium text-gray-900 mt-6 mb-3">Sliding Windows</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Sliding Windows</h4>
               <p className="text-gray-700 mb-3">
                 Poets don't always confine allusions to a single line. To catch vocabulary split across line breaks (enjambment),
                 the system also searches <strong>two-line sliding windows</strong> — each consecutive pair of lines merged into one unit.
@@ -1639,7 +1642,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </p>
 
               <div className="mt-6 bg-gray-50 p-4 rounded-lg">
-                <h4 className="font-medium text-gray-900 mb-2">Performance</h4>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">Performance</h4>
                 <p className="text-gray-700 text-sm">
                   Evaluated against five benchmark datasets (862 parallels from published commentaries), fusion search finds <strong>92% of known parallels</strong> —
                   up from ~27% in Tesserae V3. On the Valerius Flaccus benchmark, 9 of the top 10 results are attested in scholarly commentary.
@@ -1647,7 +1650,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </div>
 
               <div className="mt-4 bg-gray-50 p-4 rounded-lg">
-                <h4 className="font-medium text-gray-900 mb-2">The settings behind these results</h4>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">The settings behind these results</h4>
                 <p className="text-gray-700 text-sm">
                   Every choice this page summarises is written down in full, with the measurement behind it:
                   what each channel does and how word rarity is judged in{' '}
@@ -1666,7 +1669,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </div>
 
               <div className="mt-4 bg-amber-50 p-4 rounded-lg">
-                <h4 className="font-medium text-amber-800 mb-2">Individual Channels</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-amber-800 mb-2">Individual Channels</h4>
                 <p className="text-amber-700 text-sm">
                   You can also run individual channels (Lemma, Exact, Semantic, etc.) by changing the Match Type dropdown.
                   This is useful when you want to isolate a specific kind of similarity, but fusion is recommended for general use.
@@ -1677,12 +1680,12 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'search-modes' && (
             <div className="prose max-w-none">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Search Modes</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">The Types of Search</h3>
               <p className="text-gray-700 mb-6">Tesserae offers six search modes on the search page, plus Theme Search and the Reader on their own tabs:</p>
 
               <div className="space-y-6">
                 <div className="border-l-4 border-red-500 pl-4">
-                  <h4 className="font-medium text-gray-900">Phrases (Parallel Search)</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Phrases (Parallel Search)</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Compare a source text against a target text. The default match type is <strong>Fusion — All Channels</strong>, which
                     runs eleven independent detection methods (lemma, single-lemma, exact, semantic, dictionary, sound,
@@ -1698,7 +1701,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </div>
 
                 <div className="border-l-4 border-purple-500 pl-4">
-                  <h4 className="font-medium text-gray-900">Theme Search <span className="text-xs text-gray-500">(its own tab)</span></h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Theme Search <span className="text-xs text-gray-500">(its own tab)</span></h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Describe what happens in a passage, in your own words, and find passages that match
                     the description rather than the wording. Results come back in every indexed language
@@ -1712,7 +1715,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </div>
 
                 <div className="border-l-4 border-gray-400 pl-4">
-                  <h4 className="font-medium text-gray-900">Read <span className="text-xs text-gray-500">(its own tab)</span></h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Read <span className="text-xs text-gray-500">(its own tab)</span></h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Read a text with a gutter showing where the rest of the corpus connects to each line,
                     by wording and by content, and a panel of those connections plus the translation where
@@ -1725,7 +1728,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </div>
 
                 <div className="border-l-4 border-blue-500 pl-4">
-                  <h4 className="font-medium text-gray-900">Lines (Line Search)</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Lines (Line Search)</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Search for parallels to a specific line across the entire corpus. Select a line from any text,
                     or type/paste Latin or Greek text directly. For Greek, you can enter text with or without diacritics.
@@ -1744,7 +1747,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </div>
 
                 <div className="border-l-4 border-amber-500 pl-4">
-                  <h4 className="font-medium text-gray-900">Rare Words</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Rare Words</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Finds words that appear in fewer than 50 texts corpus-wide but are shared between your source
                     and target texts. These low-frequency words often indicate meaningful textual connections.
@@ -1758,7 +1761,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </div>
 
                 <div className="border-l-4 border-purple-500 pl-4">
-                  <h4 className="font-medium text-gray-900">Rare Pairs</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Rare Pairs</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Discovers unusual word combinations (bigrams) that appear together in very few texts.
                     Even if individual words are common, their pairing may be distinctive.
@@ -1769,7 +1772,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </div>
 
                 <div className="border-l-4 border-amber-500 pl-4">
-                  <h4 className="font-medium text-gray-900">String Search</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">String Search</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Wildcard and boolean search across the entire corpus. Perfect for finding
                     specific words, word patterns, or co-occurrences.
@@ -1803,21 +1806,19 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </div>
 
                 <div className="border-l-4 border-blue-500 pl-4">
-                  <h4 className="font-medium text-gray-900">Cross-Language Search</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Cross-Language Search</h4>
                   <p className="text-gray-600 text-sm mt-1">
-                    Finds parallels between texts in two languages: Greek and Latin, Latin and English, Greek and
-                    English, Coptic and Greek, Hebrew and Greek, Hebrew and Latin, and Persian and Urdu. For Greek and Latin: Combines
-                    AI semantic matching (SPhilBERTa neural embeddings) with a four-layer Greek-Latin
-                    dictionary (925 curated pairs, 34,500+ V3 entries, proper names, and cognate detection).
-                    Pairs detected by multiple channels receive a convergence bonus.
+                    Compares a text in one language with a text in another. Seven pairs are open: Greek and Latin,
+                    Latin and English, Greek and English, Coptic and Greek, Hebrew and Greek, Hebrew and Latin, and
+                    Persian and Urdu.
                   </p>
                   <p className="text-gray-500 text-sm mt-2">
-                    <strong>Use for:</strong> Tracing how Latin authors adapted Greek sources — e.g., Vergil echoing Homer.
-                    See{' '}
+                    <strong>Use for:</strong> tracing how one language's writers adapted another's, such as Vergil
+                    echoing Homer, or Ghalib reworking Hafez. How each pair is matched is on the{' '}
                     <button onClick={() => setActiveSection('cross-lingual')} className="text-red-600 hover:underline">
-                      Cross-Lingual Search
+                      Cross-Language Search
                     </button>
-                    {' '}for details.
+                    {' '}page.
                   </p>
                 </div>
               </div>
@@ -1826,13 +1827,13 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'match-types' && (
             <div className="prose max-w-none">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Match Types</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Match Types</h3>
               <p className="text-gray-700 mb-4">
                 The default Phrases search runs all channels together (<strong>Fusion</strong>). You can also run a
                 <strong> single method</strong> on its own — choose it from the Match Type dropdown — when you want just one kind of
                 match, such as only exact quotations or only sound. Here is what each method (channel) detects:
               </p>
-              <h4 className="text-lg font-medium text-gray-900 mt-6 mb-3">The Detection Channels</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">The Detection Channels</h4>
               <div className="space-y-3">
                 <div className="border-l-4 border-red-400 pl-3">
                   <p className="text-sm text-gray-700"><strong>Lemma (2-word):</strong> The classic Tesserae approach — finds lines sharing two or more content-word dictionary forms. The workhorse channel for direct verbal echo.</p>
@@ -1875,7 +1876,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </p>
 
               <div className="mt-6 border-t pt-4" id="regex-help">
-                <h4 className="font-medium text-gray-900 mb-2">Regular Expressions (Line Search)</h4>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">Regular Expressions (Line Search)</h4>
                 <p className="text-gray-600 text-sm mb-3">
                   In Line Search mode, the <strong>Regular expression</strong> option lets you search with patterns instead of
                   literal text. A regular expression (or "regex") is a sequence of characters that defines a search pattern.
@@ -1905,7 +1906,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'settings' && (
             <div className="prose max-w-none">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Search Settings</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Search Settings</h3>
               <div className="bg-amber-50 p-4 rounded-lg border border-amber-200 mb-4">
                 <p className="text-amber-700 text-sm">
                   <strong>Note:</strong> In Fusion mode (the default), most settings below are managed automatically by the
@@ -1962,7 +1963,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </div>
               </dl>
 
-              <h4 className="text-lg font-semibold text-gray-900 mt-8 mb-2">Advanced: Channels &amp; weights</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Advanced: Channels &amp; weights</h4>
               <p className="text-gray-700 text-sm mb-3">
                 The Phrases (fusion) search blends several detection methods — called <em>channels</em> (shared words,
                 sound, meaning, syntax, rare vocabulary, and more). Under <strong>Search Settings → Advanced —
@@ -2002,12 +2003,12 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'stoplists' && (
             <div className="prose max-w-none">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Stoplists</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Stoplists</h3>
               <p className="text-gray-700 mb-4">
                 {STOPLIST_INFO.description}
               </p>
-              <div className="bg-red-50 p-4 rounded-lg border border-red-200 mb-4">
-                <h4 className="font-medium text-red-900 mb-1">Stoplists in Fusion Mode</h4>
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-2">Stoplists in Fusion Mode</h4>
                 <p className="text-gray-700 text-sm">
                   In Fusion mode, stoplists play a dual role. Individual channels run without stoplist filtering (to maximize recall),
                   but the <strong>fusion scoring layer</strong> uses the curated function-word stoplist to identify and penalize
@@ -2017,14 +2018,14 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </p>
               </div>
               
-              <h4 className="font-medium text-gray-900 mt-6 mb-2">How the Default Stoplist Works</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">How the Default Stoplist Works</h4>
               <ul className="list-disc list-inside text-gray-600 text-sm space-y-1 ml-2">
                 {STOPLIST_INFO.howItWorks.map((item, i) => (
                   <li key={i}>{item}</li>
                 ))}
               </ul>
 
-              <h4 className="font-medium text-gray-900 mt-6 mb-2">Curated Stop Words by Language</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Curated Stop Words by Language</h4>
               <p className="text-gray-600 text-sm mb-3">
                 Expand a language to see every curated entry. Greek entries are shown in polytonic (accented) form;
                 the matcher itself filters on the accentless normalized form. Hebrew entries are consonantal (no vowel
@@ -2083,7 +2084,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </div>
               )}
 
-              <h4 className="font-medium text-gray-900 mt-6 mb-2">Stoplist Options</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Stoplist Options</h4>
               <dl className="space-y-3">
                 <div>
                   <dt className="font-medium text-gray-700 text-sm">Default</dt>
@@ -2099,7 +2100,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </div>
               </dl>
 
-              <h4 className="font-medium text-gray-900 mt-6 mb-2">Stoplist Basis</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Stoplist Basis</h4>
               <p className="text-gray-600 text-sm">
                 Choose which text(s) to analyze for building the stoplist:
               </p>
@@ -2110,7 +2111,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 <li><strong>Full Corpus</strong>: Uses pre-computed frequencies from all texts in the corpus</li>
               </ul>
 
-              <h4 className="font-medium text-gray-900 mt-6 mb-2">Custom Stopwords</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Custom Stopwords</h4>
               <p className="text-gray-600 text-sm">
                 Add your own comma-separated list of words to exclude from matching. 
                 These are added to whatever stoplist you've configured above.
@@ -2123,10 +2124,10 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'results' && (
             <div className="prose max-w-none">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Understanding Results</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Understanding Results</h3>
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-medium text-gray-900">Score</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Score</h4>
                   <p className="text-gray-600 text-sm mb-2">
                     Higher scores indicate more significant parallels. The scoring method depends on the search mode:
                   </p>
@@ -2148,7 +2149,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   </div>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">Reading the Scores</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Reading the Scores</h4>
                   <p className="text-gray-600 text-sm mb-2">
                     The score ranks the results of a single search from most to least likely to be a real
                     connection. Read the list from the top and stop where the results stop being useful.
@@ -2176,7 +2177,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">Channel Badges</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Channel Badges</h4>
                   <p className="text-gray-600 text-sm">
                     In Fusion mode, each result displays colored badges showing which channels detected it.
                     More badges generally indicates a stronger, more reliable parallel. Badges are grouped by category:
@@ -2187,16 +2188,26 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                     <li><span className="text-amber-600 font-medium">Amber</span> — Sound channels (sound, edit distance)</li>
                     <li><span className="text-purple-600 font-medium">Purple</span> — Structure channels (syntax)</li>
                   </ul>
+                  <p className="text-gray-600 text-sm mt-2">
+                    A gray <strong>in N works</strong> badge says how many works in the corpus share the result's
+                    wording. A high count marks a recurring formula or set phrase rather than a one-off echo. The
+                    <strong> Formulas</strong> setting under Search Settings can hide formulas that recur in more than a
+                    chosen number of works, or show only them.
+                  </p>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">Highlighting</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Highlighting</h4>
                   <ul className="list-disc list-inside text-gray-600 text-sm mt-1">
                     <li><span className="bg-yellow-200 px-1 rounded">Yellow</span> — Matched lemmas (shared dictionary forms)</li>
                     <li><span className="bg-indigo-200 px-1 rounded">Indigo</span> — Synonym matches (dictionary or semantic similarity)</li>
+                    <li>In Persian, Urdu and Arabic, a refrain-and-rhyme result marks the shared refrain in
+                      <span className="bg-yellow-200 px-1 rounded"> yellow</span> and each line's rhyme word in
+                      <span className="bg-rose-200 px-1 rounded"> rose</span>, with Refrain, Rhyme and Meter badges. See{' '}
+                      <button onClick={() => setActiveSection('poetics')} className="text-red-600 hover:underline">Poetic form</button>.</li>
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">Actions</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Actions</h4>
                   <ul className="list-disc list-inside text-gray-600 text-sm mt-1">
                     <li><strong>Export CSV</strong>: Download all results as a spreadsheet</li>
                     <li><strong>Search Corpus</strong>: Find these matched words across all texts</li>
@@ -2209,13 +2220,13 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'best-practices' && (
             <div className="prose max-w-none">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Search Tips</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Search Tips</h3>
               <p className="text-gray-700 mb-4">
                 Tips for getting the most out of Tesserae. The default Fusion mode handles most settings
                 automatically, but these strategies can help refine your results.
               </p>
 
-              <h4 className="font-medium text-gray-900 mt-6 mb-3">Getting Started</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Getting Started</h4>
               <ul className="list-disc list-inside text-gray-600 text-sm space-y-2 ml-2">
                 <li><strong>Use Fusion (the default)</strong>: It runs eleven channels and finds far more parallels than any single method. Start here.</li>
                 <li><strong>Start small, then expand</strong>: Begin with a single book comparison, then broaden to complete works</li>
@@ -2223,7 +2234,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 <li><strong>Check channel badges</strong>: Results flagged by many independent channels are the most reliable</li>
               </ul>
 
-              <h4 className="font-medium text-gray-900 mt-6 mb-3">Narrowing Down Results</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Narrowing Down Results</h4>
               <p className="text-gray-600 text-sm mb-2">When you have too many results or want more precision:</p>
               <ul className="list-disc list-inside text-gray-600 text-sm space-y-2 ml-2">
                 <li><strong>Select smaller text sections</strong>: Choose individual books instead of complete works (e.g., "Aeneid, Book 1" rather than "Aeneid (Complete)")</li>
@@ -2232,7 +2243,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 <li><strong>Try individual channels</strong>: Switch from Fusion to a specific match type (Lemma, Semantic, etc.) to isolate one kind of similarity</li>
               </ul>
 
-              <h4 className="font-medium text-gray-900 mt-6 mb-3">Expanding Results</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Expanding Results</h4>
               <p className="text-gray-600 text-sm mb-2">When you want to cast a wider net:</p>
               <ul className="list-disc list-inside text-gray-600 text-sm space-y-2 ml-2">
                 <li><strong>Select complete works</strong>: Search entire texts rather than individual books</li>
@@ -2241,7 +2252,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 <li><strong>Try Rare Words or Rare Pairs</strong>: These specialized modes find distinctive vocabulary connections that complement Fusion</li>
               </ul>
 
-              <h4 className="font-medium text-gray-900 mt-6 mb-3">General Tips</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">General Tips</h4>
               <ul className="list-disc list-inside text-gray-600 text-sm space-y-2 ml-2">
                 <li><strong>Export for analysis</strong>: Download CSV files to analyze results in spreadsheet software</li>
                 <li><strong>Check the corpus</strong>: Use "Search Corpus" on a result to see where else those words co-occur</li>
@@ -2253,7 +2264,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'poetics' && (
             <div className="prose max-w-none">
-              <h3 className="text-2xl font-bold text-gray-900 mb-1 pb-2 border-b border-gray-200">Poetic form in Persian, Urdu and Arabic, and how Tesserae reads it</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Poetic form in Persian, Urdu and Arabic, and how Tesserae reads it</h3>
               <nav className="my-3 text-sm text-gray-700" aria-label="On this page">
                 <span className="font-semibold mr-2">On this page:</span>
                 {[['poetics-forms', 'The forms'], ['poetics-line', 'How a line is built'], ['poetics-reuse', 'The kinds of reuse'],
@@ -2386,7 +2397,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'cross-lingual' && (
             <div className="prose max-w-none">
-              <h3 className="text-2xl font-bold text-gray-900 mb-1 pb-2 border-b border-gray-200">Cross-Language Search</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Cross-Language Search</h3>
               <p className="text-gray-700 mb-4">
                 The Cross-Language tab compares a text in one language with a text in another. Seven pairs
                 are open, and each works through what its two languages have in common:
@@ -2419,50 +2430,50 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 most confident matches to the top.
               </p>
               <div className="space-y-4">
-                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                  <h4 className="font-medium text-blue-800 mb-2">Channel 1: AI Semantic</h4>
-                  <p className="text-blue-700 text-sm">
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-2">Channel 1: AI Semantic</h4>
+                  <p className="text-gray-700 text-sm">
                     Uses the SPhilBERTa neural model, trained on parallel Greek-Latin texts, to find conceptually
                     similar passages. Detects thematic connections and paraphrased ideas even where
                     no direct vocabulary correspondence exists. Results show a cosine similarity percentage.
                   </p>
                 </div>
-                <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-                  <h4 className="font-medium text-amber-900 mb-2">Channel 2: Greek↔Latin Dictionary</h4>
-                  <p className="text-amber-700 text-sm mb-2">
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-2">Channel 2: Greek↔Latin Dictionary</h4>
+                  <p className="text-gray-700 text-sm mb-2">
                     Finds shared vocabulary across languages using four matching layers:
                   </p>
-                  <ul className="text-amber-700 text-sm space-y-1 ml-4 list-disc list-inside">
+                  <ul className="text-gray-700 text-sm space-y-1 ml-4 list-disc list-inside">
                     <li><strong>Curated pairs</strong> — 925 hand-verified Greek-Latin translation equivalences across 17 semantic categories (e.g., ἀνήρ→vir, ἐνέπω→cano, μένος→furor)</li>
                     <li><strong>V3 dictionary</strong> — 34,500+ Greek-Latin word pairs from Lewis & Short / LSJ</li>
                     <li><strong>Proper names</strong> — 1,500+ Greek-Latin name pairs from Wikidata and the Pleiades gazetteer (e.g., Ἀχιλλεύς→Achilles)</li>
                     <li><strong>Cognate detection</strong> — automatic transliteration matching (e.g., Greek <em>philosophia</em> → Latin <em>philosophia</em>)</li>
                   </ul>
-                  <p className="text-amber-700 text-sm mt-2">
+                  <p className="text-gray-700 text-sm mt-2">
                     Matched dictionary words are highlighted in the results. Scores use word rarity (IDF)
                     so rare vocabulary matches rank higher than common ones.
                   </p>
                 </div>
-                <div className="bg-teal-50 p-4 rounded-lg border border-teal-200">
-                  <h4 className="font-medium text-teal-900 mb-2">Channel 3: Cross-Lingual Syntax</h4>
-                  <p className="text-teal-700 text-sm">
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-2">Channel 3: Cross-Lingual Syntax</h4>
+                  <p className="text-gray-700 text-sm">
                     Compares grammatical dependency structures across languages. Because Universal Dependencies labels
                     (nsubj, obj, obl, etc.) are language-independent, lines with identical dependency patterns are
                     matched directly — no shared vocabulary needed.
                   </p>
                 </div>
-                <div className="bg-violet-50 p-4 rounded-lg border border-violet-200">
-                  <h4 className="font-medium text-violet-900 mb-2">Channel 4: Phonetic Transliteration</h4>
-                  <p className="text-violet-700 text-sm">
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-2">Channel 4: Phonetic Transliteration</h4>
+                  <p className="text-gray-700 text-sm">
                     Transliterates Greek tokens to Latin characters (e.g., μῆνιν → <em>menin</em>, Ἀχιλλεύς → <em>achileus</em>)
                     and compares them by edit distance against Latin tokens. Detects phonetic echoes across the script
                     boundary, such as Homer's μῆνιν echoed in Vergil's <em>Mene</em>. Acts as a convergence booster —
                     strengthens pairs already found by semantic or dictionary channels.
                   </p>
                 </div>
-                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                  <h4 className="font-medium text-green-800 mb-2">Fusion &amp; Convergence</h4>
-                  <p className="text-green-700 text-sm">
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <h4 className="text-sm font-semibold uppercase tracking-wide text-blue-800 mb-2">Fusion &amp; Convergence</h4>
+                  <p className="text-blue-800 text-sm">
                     Pairs found by multiple channels receive a convergence bonus that boosts their score. For example, <em>Odyssey</em> 1.1 /
                     {' '}<em>Aeneid</em> 1.1 is detected semantically (48% cosine) and confirmed by dictionary matches
                     (ἄνδρα→virum, ἔννεπε→cano), so the convergence bonus pushes it above pairs detected by only one channel.
@@ -2473,7 +2484,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </div>
               </div>
               <div className="mt-4 bg-gray-50 p-4 rounded-lg">
-                <h4 className="font-medium text-gray-900 mb-2">Greek Input</h4>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">Greek Input</h4>
                 <p className="text-gray-700 text-sm">
                   Greek text can be entered with or without diacritics (accents, breathings, iota subscript).
                   The search normalizes diacritics automatically, so <em>ἄνδρα</em> and <em>ανδρα</em> are treated identically.
@@ -2485,19 +2496,19 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   to discover how Vergil adapted Homeric themes and vocabulary.
                 </p>
               </div>
-              <div className="mt-4 bg-purple-50 p-4 rounded-lg border border-purple-200">
-                <h4 className="font-medium text-purple-800 mb-2">What to Expect: Benchmark Results</h4>
-                <p className="text-purple-700 text-sm mb-2">
+              <div className="mt-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-2">What to Expect: Benchmark Results</h4>
+                <p className="text-gray-700 text-sm mb-2">
                   Cross-lingual detection is substantially harder than same-language matching. Tested against
                   Knauer's catalog of 412 parallels between Vergil's <em>Aeneid</em> Book 1 and Homer's <em>Iliad</em>:
                 </p>
-                <ul className="text-purple-700 text-sm space-y-1 ml-4 list-disc list-inside">
+                <ul className="text-gray-700 text-sm space-y-1 ml-4 list-disc list-inside">
                   <li><strong>~40%</strong> of gold-standard parallels found in top 50 (per-target-line ranking)</li>
                   <li><strong>~24%</strong> found in top 10</li>
                   <li>Only 31% of scholarly parallels have any shared vocabulary across languages</li>
                   <li>The remaining ~60% are thematic/narrative echoes beyond the reach of current lexical and AI methods</li>
                 </ul>
-                <p className="text-purple-700 text-sm mt-2">
+                <p className="text-gray-700 text-sm mt-2">
                   For comparison, the Latin fusion system achieves 91.9% recall across five benchmarks using
                   eleven channels. Cross-lingual search uses four channels: semantic embeddings, dictionary,
                   cross-lingual syntax (structural fingerprint matching via Universal Dependencies),
@@ -2509,7 +2520,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'syntax-texts' && (
             <div className="prose max-w-none">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Syntax</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Syntax</h3>
               <p className="text-gray-700 mb-3">
                 Syntax matching compares the <strong>grammatical structure</strong> of two lines — how the words relate as
                 subjects, objects, and modifiers — rather than which words they use. In the Fusion search it works as
@@ -2525,8 +2536,8 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 checkbox in Search Settings can also apply it as a simple on/off boost.
               </p>
 
-              <div className="bg-red-50 p-4 rounded border border-red-200 mb-4">
-                <h4 className="font-medium text-red-800 mb-2">Latin — Full Coverage</h4>
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-2">Latin — Full Coverage</h4>
                 <p className="text-sm text-gray-700">
                   <strong>1,433 of the 1,832 Latin files</strong> (639,000+ lines) have been parsed for syntactic
                   dependencies using LatinPipe, a Latin dependency parser. Syntax matching works for any pair of
@@ -2534,15 +2545,15 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </p>
               </div>
 
-              <div className="bg-amber-50 p-4 rounded border border-amber-200 mb-4">
-                <h4 className="font-medium text-amber-800 mb-2">Coptic — Available</h4>
+              <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-2">Coptic — Available</h4>
                 <p className="text-sm text-gray-700">
                   The Coptic corpus (187 Sahidic and Bohairic texts, 186 of them parsed) is grammatically parsed and wired into the same syntax
                   channels, so Coptic searches use syntax the same way Latin does.
                 </p>
               </div>
               <div className="bg-amber-50 p-4 rounded border border-amber-200 mb-4">
-                <h4 className="font-medium text-amber-800 mb-2">Greek — Partial</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-amber-800 mb-2">Greek — Partial</h4>
                 <p className="text-sm text-gray-700">
                   650 of the 1,268 Greek files in the corpus have been parsed (239,000+ lines), using Stanza with
                   the {' '}<code className="bg-gray-200 px-1 rounded">grc_proiel</code> model. Homer is among them.
@@ -2551,7 +2562,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </p>
               </div>
               <div className="bg-gray-50 p-4 rounded border border-gray-200 mb-4">
-                <h4 className="font-medium text-gray-800 mb-2">English — Not Yet</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-2">English — Not Yet</h4>
                 <p className="text-sm text-gray-700">
                   English texts have not been parsed for grammar, so the syntax channels contribute nothing for English —
                   its other channels still run normally. (Because grammatical labels are language-independent,
@@ -2560,7 +2571,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </div>
 
               <div className="bg-gray-50 p-4 rounded mb-4">
-                <h4 className="font-medium text-gray-900 mb-2">How It Works</h4>
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">How It Works</h4>
                 <p className="text-sm text-gray-600">
                   Each line is represented as a set of dependency relation patterns (e.g., <code className="bg-gray-200 px-1 rounded">nsubj→VERB</code>,
                   {' '}<code className="bg-gray-200 px-1 rounded">amod→NOUN</code>). Lines with similar grammatical structures
@@ -2571,7 +2582,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </div>
 
               <div className="bg-blue-50 p-4 rounded border border-blue-200">
-                <h4 className="font-medium text-blue-800 mb-2">Credits</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-blue-800 mb-2">Credits</h4>
                 <p className="text-sm text-gray-700">
                   Latin syntactic annotations are produced by <strong>LatinPipe</strong> (Straka & Straková, Charles University),
                   a neural dependency parser trained on Universal Dependencies treebanks. The parser processes raw Latin text
@@ -2583,7 +2594,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'ai-guide' && (
             <div className="prose max-w-none">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Use Tesserae with your AI assistant</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Use Tesserae with your AI assistant</h3>
               <p className="text-gray-700 mb-4">
                 Any AI can help you with Tesserae. The free way, which works with any assistant including free ones and
                 sandboxed apps like the standard Gemini, is to run the search here and let the AI interpret the results.
@@ -2607,7 +2618,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 methods agreed, so the AI has what it needs to weigh them. You stay in control of the searching.
               </p>
 
-              <h4 className="text-lg font-semibold text-gray-900 mt-8 mb-2">Have the AI run the searches for you</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Have the AI run the searches for you</h4>
               <p className="text-gray-700 text-sm mb-4">
                 To skip the copying and let the assistant search on its own, it has to reach the Tesserae API, which
                 today means a <strong>basic paid subscription</strong> to Claude or ChatGPT. Sandboxed apps such as the
@@ -2720,7 +2731,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               </div>
 
               <div className="bg-amber-50 p-4 rounded border border-amber-200">
-                <h4 className="font-medium text-amber-900 mb-2">A note on scholarly use</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-amber-800 mb-2">A note on scholarly use</h4>
                 <p className="text-gray-700 text-sm">
                   Tesserae's results are transparent and reproducible — anyone can re-run a search and inspect why a
                   parallel ranked where it did. Whatever your AI concludes from there is its own product. When you
@@ -2738,12 +2749,12 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'repository' && (
             <div className="prose max-w-none">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Intertext Repository</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Repository</h3>
               <p className="text-gray-700 mb-4">
                 Save discovered parallels to build a personal collection and optionally share with the scholarly community.
               </p>
               <div className="bg-blue-50 p-4 rounded border border-blue-200 mb-4">
-                <h4 className="font-medium text-blue-800 mb-2">How to Register an Intertext</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-blue-800 mb-2">How to Register an Intertext</h4>
                 <ol className="list-decimal list-inside text-gray-700 text-sm space-y-1">
                   <li>Click "Register" on any search result</li>
                   <li>Rate the scholarly significance (1-5 scale based on Coffee et al. 2012)</li>
@@ -2752,7 +2763,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </ol>
               </div>
               <div className="bg-gray-50 p-4 rounded">
-                <h4 className="font-medium text-gray-800 mb-2">Scoring Scale (Coffee et al. 2012)</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700 mb-2">Scoring Scale (Coffee et al. 2012)</h4>
                 <ul className="text-sm text-gray-600 space-y-1">
                   <li><strong>1</strong> - Minimal similarity, possibly coincidental</li>
                   <li><strong>2</strong> - Some shared vocabulary</li>
@@ -2766,7 +2777,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'how-built' && (
             <section>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">How the system is built</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">How the system is built</h3>
               <p className="text-gray-700 mb-4">
                 Tesserae runs on one server at the University at Buffalo, with two small helper
                 services beside it and, since autumn 2026, the university's shared AI platform
@@ -2801,10 +2812,10 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'faq' && (
             <div className="prose max-w-none">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Frequently Asked Questions</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Frequently Asked Questions</h3>
               <div className="space-y-6">
                 <div>
-                  <h4 className="font-medium text-gray-900">What is Fusion search and should I use it?</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">What is Fusion search and should I use it?</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Fusion is the default search mode. It runs eleven independent detection channels simultaneously
                     and combines their results, finding 92% of known parallels in benchmark tests. Unless you need
@@ -2812,7 +2823,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   </p>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">Why is my search taking so long?</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Why is my search taking so long?</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Fusion search runs eleven channels, which takes longer than a single-channel search.
                     Try searching smaller sections (e.g., individual books) for faster results. Large text pairs
@@ -2821,7 +2832,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   </p>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">What does "Refresh results" do?</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">What does "Refresh results" do?</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Search results are cached so that repeating the same search is instant. The "Refresh results"
                     button (shown at the top of your results) clears the cached results for that search and runs it
@@ -2830,7 +2841,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   </p>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">What does "Search queued" mean?</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">What does "Search queued" mean?</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     When the server is already running heavy searches for other users, your search is placed in a
                     queue to prevent the server from running out of memory. You'll see a "Search queued" message
@@ -2839,7 +2850,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   </p>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">Can I request a text that's not in the corpus?</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Can I request a text that's not in the corpus?</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Yes! Use the{' '}
                     <button onClick={() => setActiveSection('upload-text')} className="text-red-600 hover:underline">
@@ -2849,7 +2860,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   </p>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">Are all the texts in the corpus downloadable?</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Are all the texts in the corpus downloadable?</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Most are, under the licenses listed on the Sources page under About. A text that comes to
                     us under a license for searching only is searchable like any other text and left out of
@@ -2857,20 +2868,20 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   </p>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">How do I save my results?</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">How do I save my results?</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Use "Export CSV" to download results as a spreadsheet, or "Register" to save individual parallels to the Intertext Repository.
                   </p>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">What's the difference between Phrases and Lines search?</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">What's the difference between Phrases and Lines search?</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     Phrases compares two specific texts against each other. Lines searches a single line
                     (selected from a text or typed in) against every text in its language.
                   </p>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">How does the scoring work?</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">How does the scoring work?</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     In Fusion mode, each channel's score is multiplied by a weight and summed, with a convergence
                     bonus for pairs found by multiple channels. In individual channel mode, the V3-style algorithm
@@ -2878,7 +2889,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                   </p>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900">Does syntax matching work for Greek and English?</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">Does syntax matching work for Greek and English?</h4>
                   <p className="text-gray-600 text-sm mt-1">
                     For Greek, yes, on about half the corpus: 650 of the 1,268 Greek files are parsed,
                     Homer among them, so syntax matching works where both texts are parsed. For English, no:
@@ -2893,7 +2904,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'upload-text' && (
             <div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Upload Your Text</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Upload Your Text</h3>
               <p className="text-gray-600 mb-4">
                 Have a text you'd like to add to the Tesserae corpus? Upload it here and we'll review it for inclusion.
                 Pre-formatting your text speeds up the process significantly.
@@ -2901,7 +2912,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               
               {/* Formatting Instructions */}
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                <h4 className="font-semibold text-blue-900 mb-2">Text Formatting Guidelines</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-blue-800 mb-2">Text Formatting Guidelines</h4>
                 <p className="text-blue-800 text-sm mb-3">
                   Tesserae uses a simple <code className="bg-blue-100 px-1 rounded">.tess</code> format. 
                   Each line should have a section tag followed by the text content.
@@ -2933,7 +2944,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               
               {/* Text Formatter Utility */}
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
-                <h4 className="font-semibold text-amber-900 mb-3">Text Formatter Utility</h4>
+                <h4 className="text-sm font-semibold uppercase tracking-wide text-amber-800 mb-3">Text Formatter Utility</h4>
                 <p className="text-amber-900 text-sm mb-4">
                   Paste your plain text below and we'll convert it to .tess format automatically.
                 </p>
@@ -3089,7 +3100,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 )}
               </div>
               
-              <h4 className="font-semibold text-gray-900 mb-3">Submit Your Formatted Text</h4>
+              <h4 className="text-lg font-semibold text-gray-900 mb-3">Submit Your Formatted Text</h4>
               <form onSubmit={submitTextRequest} className="space-y-4 max-w-lg">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -3188,7 +3199,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
           {activeSection === 'feedback' && (
             <div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Send Feedback</h3>
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Send Feedback</h3>
               <p className="text-gray-600 mb-4">Have a suggestion, found a bug, or want to share your experience? We'd love to hear from you.</p>
               
               <form onSubmit={submitFeedback} className="space-y-4 max-w-lg">
