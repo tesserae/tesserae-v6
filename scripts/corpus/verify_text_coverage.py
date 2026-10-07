@@ -13,7 +13,7 @@ Stores checked (the ones the site reads at request time):
   described descriptions.jsonl has every window of the work
   winvec    ids.json (the passage vectors) has every window of the work
   connmap   whole works only: cache/connections_map/*.db works table has the work
-  sources   data/text_sources.json has an entry (Sources page credits)
+  sources   backend/text_sources.json has an entry (Sources page credits)
   genres    data/text_genres.csv has the file (browser era, meter, genre)
   blurb     data/text_descriptions.json[<lang>][<base>] (About this text)
   dates     backend/author_dates.json[<lang>][<author>] (optional, reported as '-')
@@ -106,7 +106,7 @@ def main():
     genres = {}
     if os.path.exists('data/text_genres.csv'):
         for r in csv.DictReader(open('data/text_genres.csv', encoding='utf-8')): genres[r['filename']] = r
-    sources = json.load(open('data/text_sources.json')) if os.path.exists('data/text_sources.json') else []
+    sources = json.load(open('backend/text_sources.json')) if os.path.exists('backend/text_sources.json') else []
     sources = sources if isinstance(sources, list) else sources.get('entries', [])
     src_keys = {(e.get('author', '').strip().casefold(), e.get('work', '').strip().casefold()) for e in sources}
     blurbs = (json.load(open('data/text_descriptions.json')).get(lang) or {}) if os.path.exists('data/text_descriptions.json') else {}
