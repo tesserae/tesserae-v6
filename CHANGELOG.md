@@ -9,6 +9,12 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Help: Fusion page names every served language
+- The Fusion page's note on examples now lists Hebrew, Persian and Urdu beside
+  Greek, English and Coptic, and says correctly which channels Persian and Urdu
+  run (nine: eight of the eleven plus refrain and rhyme) and that Greek has syntax
+  data for about half its texts.
+
 ### Help: section blocks reordered to match the sidebar
 - In HelpPage.jsx the content block for each section sat in an order
   unrelated to the sidebar's `sections` array, making the file hard to

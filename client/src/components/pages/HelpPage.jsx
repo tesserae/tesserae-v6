@@ -741,11 +741,14 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">How Fusion Search Works</h3>
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-sm text-blue-900">
                 <strong>A note on examples:</strong> this section — and the ones that follow — uses <strong>Latin</strong> for its
-                examples, but the same process applies to Greek, English, and Coptic. Where a language differs (for instance, Greek
-                and English have no syntax data, and Coptic is tuned for quotation), it is noted along the way.
+                examples, but the same process applies to Greek, English, Coptic, Hebrew, Persian and Urdu. Where a language
+                differs, it is noted along the way: English has no syntax data and Greek has it for about half its texts, Coptic is
+                tuned for quotation, and Persian and Urdu add a refrain-and-rhyme channel for the ghazal.
               </div>
               <p className="text-gray-700 mb-4">
-                Tesserae's default search — <strong>Phrases</strong> — runs <strong>up to eleven independent detection channels</strong> (nine for Persian and Urdu, ten for Arabic, since two of them need language resources those texts do not have) and combines their results.
+                Tesserae's default search — <strong>Phrases</strong> — runs <strong>up to eleven independent detection channels</strong> and combines their results. Persian and Urdu
+                run nine: eight of the eleven, all but the synonym dictionary and the two syntax channels, which need resources
+                those languages do not yet have, plus a refrain-and-rhyme channel of their own.
                 Each channel looks for a different kind of textual similarity — shared vocabulary, phonetic echo, semantic meaning,
                 grammatical structure, and more. By fusing these signals, the system finds parallels that no single method could detect alone.
                 The diagram below walks through the whole process step by step.
