@@ -9,6 +9,16 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Help: corrections from a claim-by-claim audit
+- Sixteen statements corrected against the code and the live site: stoplist
+  sizes, the rare-vocabulary threshold (about one in eight works, not a fixed
+  100), the quotation channel (every language, not Coptic only), the Max Results
+  default (all results, not 5,000), the Latin qualifier on the 92 percent figure
+  and its date, one consistent Arabic count (149 texts), Arabic pairs described as
+  opening with Arabic, the cross-language setting's real name (Min Matches), four
+  Greek-Latin channels not two, the Knauer benchmark (94 percent found somewhere
+  in the ranking), and what the AI connector returns (a link, not charts).
+
 ### Help: Fusion page names every served language
 - The Fusion page's note on examples now lists Hebrew, Persian and Urdu beside
   Greek, English and Coptic, and says correctly which channels Persian and Urdu
