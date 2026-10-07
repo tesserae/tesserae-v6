@@ -9,6 +9,13 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-06
 
+### Theme Search
+- Arabic passage windows are held out of Theme Search and Similar Passages
+  until a reader has graded Arabic (`held_languages()` in
+  backend/passage_index.py; TESSERAE_HELD_LANGUAGES overrides; a server that
+  serves Arabic through TESSERAE_LANGUAGES, the preview, still shows them).
+  The windows stay indexed, so opening Arabic needs no rebuild.
+
 ### Semantic channel
 - Semantic vectors now exist for every Latin, Greek and English work, so the
   semantic channel runs in every comparison. Before, 443 Latin works, 284 Greek
