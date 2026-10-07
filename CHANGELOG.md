@@ -9,6 +9,13 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-06
 
+### Menus
+- Every menu that lists names (Reader author, work and book; Search work and
+  text; Line Search author and work; Cross-language work and section) opens
+  as a full list on click and also narrows as you type: names starting with
+  the typed letters first, then names containing them, ignoring case and
+  accents (shared `SearchableSelect` component; phones keep the native menu).
+
 ### Reader: Similar Passages for a selection
 - A Reader selection is matched to the passage window that covers it by
   every reference coordinate, within the book being read. It compared only
