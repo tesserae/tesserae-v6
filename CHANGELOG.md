@@ -9,6 +9,15 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Reader type
+- The Reader's Gentium is served from the site itself (SIL's Gentium Book
+  7.000, compressed to WOFF2 with its data unchanged, licence in
+  `client/public/fonts/gentium-book/OFL.txt`). Google's copy lacked the
+  free-standing combining accents the corpus stores, so grave accents drew
+  detached from their vowels; the diagnosis is John James's (#624). Each
+  style is about 360 KB, fetched only by pages that use it and shown with
+  `font-display: swap`, so text appears at once in the fallback.
+
 ### Coverage gaps closed
 - A work can carry its own date in `backend/author_dates.json`
   (`author.work`), which wins over its author's; dates added for 30

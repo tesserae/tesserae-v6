@@ -143,7 +143,7 @@ export default function ReaderHeader({
     <>
     <div className="flex items-center gap-2 px-4 py-2 border-b border-gray-200 flex-wrap">
       <span className="font-semibold tracking-wide text-gray-900 mr-1"
-            style={{ fontFamily: '"Gentium Book Plus", Georgia, serif' }}>
+            style={{ fontFamily: '"Gentium Book", Georgia, serif' }}>
         TESSERAE <span className="text-red-700">READER</span>
       </span>
       <span className="rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px]
