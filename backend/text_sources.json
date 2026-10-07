@@ -19039,5 +19039,419 @@
     "e_source_url": "",
     "print_source": "",
     "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anvari",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Attar",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Bidel",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Farrokhi",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Ferdowsi",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Hafez",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Iqbal",
+    "work": "Armaghan E Hijaz Persian",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/AzeemGhumman/iqbal-demystified-dataset",
+    "print_source": "Iqbal Academy Pakistan (per the dataset's own README; not independently verified)",
+    "added_by": "Tesserae Project",
+    "license": "No LICENSE file on the dataset repository; the author (d. 1938) is public domain, and the maintainer's README informally invites reuse. Served as is (decision recorded 2026-09-03, research/languages/LICENSING_DECISION_MEMO_2026-09-03.md)."
+  },
+  {
+    "author": "Iqbal",
+    "work": "Asrar E Khudi",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/AzeemGhumman/iqbal-demystified-dataset",
+    "print_source": "Iqbal Academy Pakistan (per the dataset's own README; not independently verified)",
+    "added_by": "Tesserae Project",
+    "license": "No LICENSE file on the dataset repository; the author (d. 1938) is public domain, and the maintainer's README informally invites reuse. Served as is (decision recorded 2026-09-03, research/languages/LICENSING_DECISION_MEMO_2026-09-03.md)."
+  },
+  {
+    "author": "Iqbal",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "Ganjoor's Iqbal collection; filed as iqbal.diwan since 2026-10-07, formerly iqbal_lahori.diwan.",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Iqbal",
+    "work": "Javid Nama",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/AzeemGhumman/iqbal-demystified-dataset",
+    "print_source": "Iqbal Academy Pakistan (per the dataset's own README; not independently verified)",
+    "added_by": "Tesserae Project",
+    "license": "No LICENSE file on the dataset repository; the author (d. 1938) is public domain, and the maintainer's README informally invites reuse. Served as is (decision recorded 2026-09-03, research/languages/LICENSING_DECISION_MEMO_2026-09-03.md)."
+  },
+  {
+    "author": "Iqbal",
+    "work": "Pas Cheh Bayad Kard",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/AzeemGhumman/iqbal-demystified-dataset",
+    "print_source": "Iqbal Academy Pakistan (per the dataset's own README; not independently verified)",
+    "added_by": "Tesserae Project",
+    "license": "No LICENSE file on the dataset repository; the author (d. 1938) is public domain, and the maintainer's README informally invites reuse. Served as is (decision recorded 2026-09-03, research/languages/LICENSING_DECISION_MEMO_2026-09-03.md)."
+  },
+  {
+    "author": "Iqbal",
+    "work": "Payam E Mashriq",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/AzeemGhumman/iqbal-demystified-dataset",
+    "print_source": "Iqbal Academy Pakistan (per the dataset's own README; not independently verified)",
+    "added_by": "Tesserae Project",
+    "license": "No LICENSE file on the dataset repository; the author (d. 1938) is public domain, and the maintainer's README informally invites reuse. Served as is (decision recorded 2026-09-03, research/languages/LICENSING_DECISION_MEMO_2026-09-03.md)."
+  },
+  {
+    "author": "Iqbal",
+    "work": "Rumuz E Bekhudi",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/AzeemGhumman/iqbal-demystified-dataset",
+    "print_source": "Iqbal Academy Pakistan (per the dataset's own README; not independently verified)",
+    "added_by": "Tesserae Project",
+    "license": "No LICENSE file on the dataset repository; the author (d. 1938) is public domain, and the maintainer's README informally invites reuse. Served as is (decision recorded 2026-09-03, research/languages/LICENSING_DECISION_MEMO_2026-09-03.md)."
+  },
+  {
+    "author": "Iqbal",
+    "work": "Zabur E Ajam",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/AzeemGhumman/iqbal-demystified-dataset",
+    "print_source": "Iqbal Academy Pakistan (per the dataset's own README; not independently verified)",
+    "added_by": "Tesserae Project",
+    "license": "No LICENSE file on the dataset repository; the author (d. 1938) is public domain, and the maintainer's README informally invites reuse. Served as is (decision recorded 2026-09-03, research/languages/LICENSING_DECISION_MEMO_2026-09-03.md)."
+  },
+  {
+    "author": "Jami",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Khaghani",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Khayyam",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Manuchehri",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Naser Khosrow",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Nizami",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Parvin",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Rudaki",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Rumi",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Rumi",
+    "work": "Masnavi",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "Opening of the Masnavi-ye Ma'navi; one part filed.",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Saadi",
+    "work": "Bustan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "Opening of the Bustan; one part filed.",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Saadi",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Saeb",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Sanai",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Akbar",
+    "work": "Kulliyat",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:اکبر_الہ_آبادی",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Anis",
+    "work": "Marsiye",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:میر_انیس",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Atish",
+    "work": "Diwan",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:حیدر_علی_آتش",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Dagh",
+    "work": "Diwan",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:داغ_دہلوی",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Dard",
+    "work": "Diwan",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:خواجہ_میر_درد",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Ghalib",
+    "work": "Diwan",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:مرزا_اسد_اللہ_خان_غالب",
+    "print_source": "Numbered by ghazal and couplet (272 ghazals); the citable edition. An earlier radif-organized Wikisource extraction and a Pritchett edition were both retired 2026-09-07 to avoid serving one work three times.",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Hali",
+    "work": "Kulliyat",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:الطاف_حسین_حالی",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Insha",
+    "work": "Diwan",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:انشاء_اللہ_خان_انشا",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Iqbal",
+    "work": "Armaghan E Hijaz Urdu",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/AzeemGhumman/iqbal-demystified-dataset",
+    "print_source": "Iqbal Academy Pakistan (per the dataset's own README; not independently verified)",
+    "added_by": "Tesserae Project",
+    "license": "No LICENSE file on the dataset repository; the author (d. 1938) is public domain, and the maintainer's README informally invites reuse. Served as is (decision recorded 2026-09-03, research/languages/LICENSING_DECISION_MEMO_2026-09-03.md)."
+  },
+  {
+    "author": "Iqbal",
+    "work": "Bal E Jibril",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/AzeemGhumman/iqbal-demystified-dataset",
+    "print_source": "Iqbal Academy Pakistan (per the dataset's own README; not independently verified)",
+    "added_by": "Tesserae Project",
+    "license": "No LICENSE file on the dataset repository; the author (d. 1938) is public domain, and the maintainer's README informally invites reuse. Served as is (decision recorded 2026-09-03, research/languages/LICENSING_DECISION_MEMO_2026-09-03.md)."
+  },
+  {
+    "author": "Iqbal",
+    "work": "Bang E Dra",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/AzeemGhumman/iqbal-demystified-dataset",
+    "print_source": "Iqbal Academy Pakistan (per the dataset's own README; not independently verified)",
+    "added_by": "Tesserae Project",
+    "license": "No LICENSE file on the dataset repository; the author (d. 1938) is public domain, and the maintainer's README informally invites reuse. Served as is (decision recorded 2026-09-03, research/languages/LICENSING_DECISION_MEMO_2026-09-03.md)."
+  },
+  {
+    "author": "Iqbal",
+    "work": "Zarb E Kaleem",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/AzeemGhumman/iqbal-demystified-dataset",
+    "print_source": "Iqbal Academy Pakistan (per the dataset's own README; not independently verified)",
+    "added_by": "Tesserae Project",
+    "license": "No LICENSE file on the dataset repository; the author (d. 1938) is public domain, and the maintainer's README informally invites reuse. Served as is (decision recorded 2026-09-03, research/languages/LICENSING_DECISION_MEMO_2026-09-03.md)."
+  },
+  {
+    "author": "Mir",
+    "work": "Kulliyat",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:میر_تقی_میر",
+    "print_source": "343 ghazals, numbered independently of any other edition. Re-sourced from Wikisource 2026-09-04/05 after an earlier Rekhta corpus was found to carry an explicit no-redistribution notice; the Rekhta copy was never committed or served (research/languages/LICENSING_DECISION_MEMO_2026-09-03.md).",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Nazeer",
+    "work": "Kulliyat",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:نظیر_اکبر_آبادی",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Sauda",
+    "work": "Kulliyat",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:مرزا_محمد_رفیع_سودا",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Wali",
+    "work": "Diwan",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:ولی_دکنی",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Zafar",
+    "work": "Diwan",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:بہادر_شاہ_ظفر",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Zauq",
+    "work": "Diwan",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:محمد_ابراہیم_ذوق",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
   }
 ]
