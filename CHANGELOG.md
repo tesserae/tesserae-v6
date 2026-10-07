@@ -9,6 +9,13 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### The site remembers your language
+- The search page and the Reader open in the language chosen last, kept in the
+  browser's own storage (no account, nothing sent to the server). "Open in" at
+  the end of the language tabs fixes a start language instead, for a reader who
+  visits other languages but always starts in one. A link that names a language
+  or a work still opens there. Help describes it under Languages.
+
 ### Reuse tab: Greek highlights, fewer empty "possible echoes"; Persian corpus chart
 - Greek reuse lines now highlight their shared words. The Greek text stores
   accents as separate marks after their letters, and the word-edge test treated

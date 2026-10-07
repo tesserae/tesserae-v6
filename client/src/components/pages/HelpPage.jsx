@@ -1014,6 +1014,11 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 is covered and which detection channels have data to work with. Each language has its own page in this
                 section; Persian, Urdu and Arabic also share a page on poetic form.
               </p>
+              <p className="text-gray-700 mb-5">
+                The search page and the Reader open in the language you chose last. To always start in one language,
+                set <strong>Open in</strong> at the end of the language tabs. The choice is kept in your browser only,
+                with no account, and a link that names a language still opens in that language.
+              </p>
               <div className="space-y-5">
                 <div className="border-l-4 border-red-500 pl-4">
                   <h4 className="text-base font-semibold text-gray-900">Latin</h4>

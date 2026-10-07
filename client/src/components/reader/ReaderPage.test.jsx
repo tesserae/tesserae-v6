@@ -410,6 +410,31 @@ describe('per-language defaults', () => {
   });
 });
 
+describe('the remembered start language (NC 2026-10-07)', () => {
+  afterEach(() => { window.localStorage.clear(); });
+
+  it('a bare /read opens in the language chosen last', async () => {
+    window.localStorage.setItem('tesserae_last_language', 'grc');
+    window.history.replaceState({}, '', '/read');
+    await mountReader();
+    await waitFor(() =>
+      expect(asked).toContain('apollonius_rhodius.argonautica.part.1.tess'));
+  });
+
+  it('a link that names a work keeps its own language', async () => {
+    window.localStorage.setItem('tesserae_last_language', 'grc');
+    await mountReader();   // beforeEach set /read?work=ovid.tristia.part.3.tess&lang=la
+    await waitFor(() => expect(asked).toContain('ovid.tristia.part.3.tess'));
+    expect(asked).not.toContain('apollonius_rhodius.argonautica.part.1.tess');
+  });
+
+  it('choosing a language in the Reader is remembered', async () => {
+    await mountReader();
+    fireEvent.change(await screen.findByLabelText('Language'), { target: { value: 'grc' } });
+    expect(window.localStorage.getItem('tesserae_last_language')).toBe('grc');
+  });
+});
+
 describe('clicking a "quoted in N works" mark', () => {
   // The marks showed but clicking on them did nothing, with the results
   // panel closed. The mark sits inside the same
