@@ -720,6 +720,13 @@ export default function CrossLingualSearch() {
                       2-channel
                     </span>
                   )}
+                  {result.poetics?.radif && (
+                    <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded"
+                          title="The two poems share refrain and rhyme: an answer poem, or one written in the other's form">
+                      Refrain: <span dir="rtl">{result.poetics.radif}</span>
+                      {result.poetics.qafia ? <> &middot; rhyme <span dir="rtl">-{result.poetics.qafia}</span></> : null}
+                    </span>
+                  )}
                   {result.route && (
                     <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
                       {result.route === 'septuagint' ? 'Via Septuagint' : 'Direct'}

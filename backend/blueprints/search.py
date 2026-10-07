@@ -1544,7 +1544,29 @@ def _direct_crosslingual_core(params, source_units, target_units, settings,
     # coincidences).  Only include phonetic pairs that also have semantic,
     # dictionary, or syntax support.  Semantic recovery above ensures phonetic
     # pairs with cosine > 0.4 get sem_by_pair entries, so they participate.
-    all_keys = set(sem_by_pair.keys()) | set(dict_by_pair.keys()) | set(syntax_by_pair.keys())
+    # --- Refrain and rhyme across Persian and Urdu (2026-10-07) ---
+    # A poem pair sharing refrain and rhyme in the shared letter forms
+    # (backend/poetics.find_cross_form_matches). It enters the fusion on its own,
+    # like the single-language form channel, which bypasses the word-count
+    # gates: two poems in one form need share no other word.
+    form_by_pair = {}
+    if lang_pair == frozenset(('fa', 'ur')):
+        try:
+            from backend.poetics import find_cross_form_matches
+            form_matches, _ = find_cross_form_matches(
+                source_units, target_units, source_language, target_language, settings)
+            for m in form_matches:
+                key = (m['source_idx'], m['target_idx'])
+                if m['form_score'] > form_by_pair.get(key, {}).get('form_score', 0):
+                    form_by_pair[key] = m
+            logger.info(f"Cross form found {len(form_by_pair)} refrain-and-rhyme poem pairs")
+        except SearchCancelled:
+            raise
+        except Exception as e:
+            logger.error(f"Cross form channel failed: {e}")
+
+    all_keys = (set(sem_by_pair.keys()) | set(dict_by_pair.keys()) | set(syntax_by_pair.keys())
+                | set(form_by_pair.keys()))
 
     SEMANTIC_WEIGHT = 1.2
     DICTIONARY_WEIGHT = 2.0
@@ -1563,6 +1585,11 @@ def _direct_crosslingual_core(params, source_units, target_units, settings,
     # regress recall. Tunable, like the weights above; generic across all pairs.
     RUN_WEIGHT = float(settings.get('crosslingual_run_weight', 3.0)) if settings else 3.0
     CONVERGENCE_BONUS = 0.5  # additive bonus when multiple channels fire
+    # A refrain-and-rhyme pair unique on both sides (form_score 1.0) ranks with the
+    # best dictionary-plus-meaning pairs (about 4.6 to 4.8 on Hafez against Ghalib);
+    # a common form is discounted inside form_score already. Only ten such poem
+    # pairs exist across the whole Persian and Urdu corpora (2026-10-07).
+    FORM_WEIGHT = 5.0
 
     fused = []
     for key in all_keys:
@@ -1607,7 +1634,9 @@ def _direct_crosslingual_core(params, source_units, target_units, settings,
             dict_score = 0.0
             dict_word_count = 0
             dict_wms = None
-        if not has_dict and min_matches > 1:
+        form_match = form_by_pair.get(key)
+        has_form = form_match is not None
+        if not has_dict and min_matches > 1 and not has_form:
             continue  # User requires dictionary confirmation; skip semantic-only pairs
 
         # Two-lemma gate (see header comment). Record gate state before the
@@ -1615,7 +1644,7 @@ def _direct_crosslingual_core(params, source_units, target_units, settings,
         # decision uses the original lemma count.
         gate_lemma_count = dict_word_count
         lemma_gate_triggered = gate_lemma_count < crosslingual_min_lemma_matches
-        if lemma_gate_triggered and crosslingual_lemma_gate == 'exclude':
+        if lemma_gate_triggered and crosslingual_lemma_gate == 'exclude' and not has_form:
             continue
 
         # Phonetic score: average similarity of matched token pairs
@@ -1624,7 +1653,7 @@ def _direct_crosslingual_core(params, source_units, target_units, settings,
             phonetic_score = sum(m['similarity'] for m in phonetic_matches) / len(phonetic_matches)
 
         # Skip pairs with no channel
-        if not has_semantic and not has_dict and not has_syntax and not has_phonetic:
+        if not has_semantic and not has_dict and not has_syntax and not has_phonetic and not has_form:
             continue
 
         # Translated-run boost: longest run of in-order translated words in this pair
@@ -1636,13 +1665,16 @@ def _direct_crosslingual_core(params, source_units, target_units, settings,
         score = ((cosine * SEMANTIC_WEIGHT) + (dict_score * DICTIONARY_WEIGHT)
                  + (syntax_score * SYNTAX_WEIGHT) + (phonetic_score * PHONETIC_WEIGHT)
                  + (run_score * RUN_WEIGHT))
+        form_score = form_match['form_score'] if has_form else 0.0
+        score += form_score * FORM_WEIGHT
         n_channels = ((1 if has_semantic else 0) + (1 if has_dict else 0)
-                      + (1 if has_syntax else 0) + (1 if has_phonetic else 0))
+                      + (1 if has_syntax else 0) + (1 if has_phonetic else 0)
+                      + (1 if has_form else 0))
         if n_channels >= 2:
             score += CONVERGENCE_BONUS
 
         # Apply two-lemma gate penalty (soft-mode) after the score is composed.
-        if lemma_gate_triggered and crosslingual_lemma_gate == 'penalty':
+        if lemma_gate_triggered and crosslingual_lemma_gate == 'penalty' and not has_form:
             score *= crosslingual_penalty_factor
 
         # Build result
@@ -1760,7 +1792,13 @@ def _direct_crosslingual_core(params, source_units, target_units, settings,
                         mw_entry['latin_word'] = src_orig
                 matched_words.append(mw_entry)
 
-        if not matched_words:
+        if has_form:
+            # Colour the refrain on both lines, as the single-language card does.
+            s_pos, t_pos = form_match['source_position'], form_match['target_position']
+            source_highlights.extend(range(s_pos, s_pos + form_match['radif_len']))
+            target_highlights.extend(range(t_pos, t_pos + form_match['target_radif_len']))
+
+        if not matched_words and not has_form:
             matched_words = [{
                 'type': 'semantic_cross',
                 'similarity': cosine,
@@ -1777,6 +1815,8 @@ def _direct_crosslingual_core(params, source_units, target_units, settings,
             channels.append(f'syntax ({syntax_score:.2f})')
         if has_phonetic:
             channels.append(f'phonetic ({len(phonetic_matches)} tokens)')
+        if has_form:
+            channels.append(f"refrain and rhyme ({form_match['radif']})")
 
         fused.append({
             'source': {
@@ -1799,12 +1839,23 @@ def _direct_crosslingual_core(params, source_units, target_units, settings,
                 'dict_score': dict_score,
                 'syntax_score': syntax_score,
                 'phonetic_score': phonetic_score,
+                'form_score': form_score,
                 'n_channels': n_channels,
                 'lemma_gate_triggered': lemma_gate_triggered,
                 'lemma_match_count': gate_lemma_count,
             },
             'channels': ', '.join(channels),
-            'match_basis': 'crosslingual_fusion'
+            'match_basis': 'crosslingual_fusion',
+            **({'poetics': {
+                'radif': form_match['radif'],
+                'target_radif': form_match['target_radif'],
+                'qafia': form_match['qafia'],
+                'meter': form_match['meter'],
+                'source_lines': form_match['source_lines'],
+                'target_lines': form_match['target_lines'],
+                'corpus_poems': form_match['form_corpus_poems'],
+                'form_score': form_match['form_score'],
+            }} if has_form else {}),
         })
 
     fused.sort(key=lambda x: x['overall_score'], reverse=True)

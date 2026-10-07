@@ -9,6 +9,18 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Persian and Urdu: refrain and rhyme across the pair; stoplists listed
+- The Persian against Urdu search matches two poems that share refrain and
+  rhyme in the shared letter forms (`backend/poetics.find_cross_form_matches`),
+  as the single-language search does, excluding refrains of function words.
+  Ten poem pairs across the two corpora, among them Hafez and Ghalib on "dost".
+  Result cards show the refrain (docs/DECISIONS.md).
+- The Persian and Urdu function-word stoplists, already used in matching, are
+  listed on the Help page's Stoplists section.
+- Similar Passages: an "In other languages" row under the list, one button per
+  language with few results in it, opening that language's five best matches,
+  for every language alike (docs/DECISIONS.md).
+
 ### Iqbal's diwan renamed into his other Persian works
 - The Persian divan filed separately as `iqbal_lahori.diwan` (Ganjoor's Iqbal
   collection) is renamed `iqbal.diwan`, joining the seven other Persian-titled

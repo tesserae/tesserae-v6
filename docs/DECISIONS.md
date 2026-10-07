@@ -26,6 +26,42 @@ of 2026-10-06). The reader graded only six Arabic pairs and declined to
 judge further, so Arabic's passage windows stay held from Theme Search and
 Similar Passages and its tab stays off until another reader grades it.
 
+## 2026-10-07: Similar Passages adds per-language sections, the same for every language
+
+The Similar list ranks every language together by content, so the corpora
+with the most passages fill it. An Urdu passage from Mir returned 28 Persian
+matches and 2 Urdu ones, because the index holds about 220,000 Persian
+windows and 15,000 Urdu. Rather than a rule for Persian and Urdu alone, every
+selection now also gets, for each served language with fewer than five
+results in the list, that language's five best matches above the ranking's
+similarity floor, shown as one collapsed row of language buttons ordered by
+best match. A Persian passage from Hafez then offers Urdu (Ghalib, Dagh)
+first, and a Latin passage from Curtius offers Persian (Ferdowsi, Nizami),
+Greek and Hebrew. The main list and its order are unchanged. The sections
+reuse the scores already computed, about a third of a second for all
+languages together.
+
+## 2026-10-07: refrain and rhyme are matched across Persian and Urdu, identical forms only
+
+The Persian against Urdu search had two channels, shared words and meaning,
+so an Urdu ghazal written in a Persian ghazal's form was found only through
+its words. It now has a third: two poems whose refrain and rhyme are the
+same in the shared letter forms (backend/perso_arabic.cross_form), scored
+like the single-language form channel (unique on both sides 1.0, discounted
+by how many poems carry the form in the two texts and in the two corpora,
+and by a meter mismatch where both poems are labelled), with weight 5.0
+against dictionary 2.0 and meaning 1.2. Measured on the corpus tables: 19 of
+2,633 Urdu poems share refrain and rhyme with a Persian poem. Two of the
+first results were homographs of function words (Urdu hua "became" and
+Persian hava "air"), so a refrain made only of words on either language's
+stoplist is excluded. Across all 504 Persian and Urdu text pairs ten poem
+pairs remain, among them Hafez's "dost" ghazal and Ghalib's ghazal 64,
+Saeb's "ahista ahista" line and Wali's ghazal 31, and Saadi and Dagh on
+"pargar-e dil" and "parvardigar-e dil". A translated refrain (Persian ast,
+Urdu hai) with the same rhyme would match 198 Urdu poems, too many to be
+evidence without the meter, which the Urdu texts do not carry, so it is not
+matched.
+
 ## 2026-10-07: a possible echo must overlap its passage by at least 0.002
 
 The Reuse tab's "possible echoes" are pairs kept by one shared rare

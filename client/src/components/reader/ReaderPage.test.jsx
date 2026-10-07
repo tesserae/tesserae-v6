@@ -554,3 +554,35 @@ describe('opening a Similar Passages result, and coming back', () => {
     expect(screen.queryByTestId('reader-back-banner')).toBeNull();
   });
 });
+
+describe('Similar Passages: in other languages', () => {
+  it('shows a button per language and opens that language\'s matches', async () => {
+    const units = Array.from({ length: 30 }, (_, k) => ({ ref: `mir 1.${k + 1}`, text: `line ${k + 1}` }));
+    const reply = (obj) => Promise.resolve({
+      ok: true, json: () => Promise.resolve(obj), text: () => Promise.resolve(JSON.stringify(obj)) });
+    global.fetch = vi.fn((url) => {
+      const u = String(url);
+      if (u.startsWith('/api/text/')) return reply({ units, metadata: { display_name: 'Mir, Kulliyat' } });
+      if (u.startsWith('/api/passages/similar')) {
+        expect(u).toContain('by_language=1');
+        return reply({
+          results: [{ id: 'p1', work: 'hafez.diwan', language: 'fa', display_name: 'Hafez, Diwan',
+            ref_start: 'hafez.diwan.1', ref_end: 'hafez.diwan.2', score: 0.96 }],
+          by_language: { ur: [{ id: 'u1', work: 'dagh.diwan', language: 'ur', display_name: 'Dagh, Diwan',
+            ref_start: 'dagh.diwan.3', ref_end: 'dagh.diwan.4', score: 0.95 }] },
+        });
+      }
+      if (u.includes('/authors?')) return reply(AUTHORS);
+      if (u.includes('/texts?')) return reply([]);
+      if (u.startsWith('/api/languages')) return reply({ languages: [{ code: 'la' }, { code: 'ur' }, { code: 'fa' }] });
+      return reply({});
+    });
+    window.history.replaceState({}, '', '/read?' + new URLSearchParams({
+      work: 'mir.kulliyat.tess', lang: 'ur', ref: 'mir 1.5', tab: 'similar' }));
+    await mountReader();
+    const urdu = await screen.findByRole('button', { name: /Urdu · 1/ });
+    expect(screen.queryByText('Dagh, Diwan')).toBeNull();
+    fireEvent.click(urdu);
+    expect(await screen.findByText('Dagh, Diwan')).toBeTruthy();
+  });
+});
