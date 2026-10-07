@@ -8,6 +8,7 @@ import { LoadingSpinner } from '../common';
 import TextPane from './TextPane';
 import ConnectionGutter from './ConnectionGutter';
 import ResultsPanel, { shortRef as shortLocus } from './ResultsPanel';
+import { startLanguage, rememberLanguage } from '../../utils/languagePreference';
 
 // Book 1, not book 6: the Reader opens where a reader expects a poem to start,
 // and "arma virumque cano" is the line most visitors will recognise.
@@ -18,6 +19,7 @@ const DEFAULT_WORK = 'vergil.aeneid.part.1.tess';
 // whole-work files arrive in stretches.
 const READER_STEP = 1000;
 const DEFAULT_LANGUAGE = 'la';
+const READER_LANGUAGES = ['la', 'grc', 'en', 'cop', 'he', 'fa', 'ur', 'ar', 'it', 'gmh', 'fro'];
 // Where each language's corpus opens when no work is chosen yet.
 const PREFERRED_WORK = {
   la: DEFAULT_WORK,
@@ -51,7 +53,11 @@ export default function ReaderPage() {
   // effect below choose by language. Defaulting to the Aeneid here opened
   // Latin under an Arabic address (/read?lang=ar) (NC, 2026-09-07).
   const [work, setWork] = useState(() => paramOr('work', ''));
-  const [language, setLanguage] = useState(() => paramOr('lang', DEFAULT_LANGUAGE));
+  // A link that names a work keeps its own language (or the default); a bare
+  // /read opens in the reader's start language (utils/languagePreference.js).
+  const [language, setLanguage] = useState(() => paramOr('lang',
+    (new URLSearchParams(window.location.search).get('work') ? null : startLanguage(READER_LANGUAGES))
+    || DEFAULT_LANGUAGE));
   const { hierarchy, loading: corpusLoading } = useCorpus(language);
   // Where a link asked us to land. Theme Search sends the reader here with a
   // specific passage in mind, and dropping them at line 1 of the work would
@@ -489,6 +495,7 @@ export default function ReaderPage() {
       <ReaderHeader
         language={language}
         onLanguage={(code) => {
+          rememberLanguage(code);
           // A language of its own, so every corpus is reachable. Changing it
           // clears the work: the previous text is not in the new language, and
           // leaving it named left the header describing something not open.

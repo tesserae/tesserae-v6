@@ -16,6 +16,7 @@ import { AssistantDock } from './components/assistant';
 import VisualizationsPage from './components/pages/VisualizationsPage';
 import { useCorpus, useSearch, DEFAULT_PAGE_SIZE } from './hooks';
 import { getSessionValue, setSessionValue } from './utils/storage';
+import { startLanguage } from './utils/languagePreference';
 
 // What each page is called in the browser tab, the bookmark and the history.
 const PAGE_TITLES = {
@@ -127,7 +128,9 @@ function App() {
     if (sessionLang && known.includes(sessionLang)) {
       return sessionLang;
     }
-    return 'la';
+    // A new visit opens in the reader's chosen start language, or the one they
+    // used last (utils/languagePreference.js, kept in this browser only).
+    return startLanguage(known) || 'la';
   });
   // The languages this server actually serves (2026-09-06). A preview that
   // holds only some languages reports them, and a tab for a language it
@@ -803,7 +806,7 @@ function App() {
           return;
         }
         setPageTypeWithGuard('search');
-        setActiveTab('la');
+        setActiveTab(startLanguage(['la', 'grc', 'en', 'cop', 'he', 'fa', 'ur', 'ar', 'cross']) || 'la');
         setSourceAuthor('');
         setSourceText('');
         setTargetAuthor('');
