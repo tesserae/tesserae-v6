@@ -9,6 +9,26 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### "Same people and places" extended to Hebrew, Coptic, Persian and Urdu
+- `scripts/corpus/build_window_names.py` (behind Similar Passages' "Same
+  people and places" group) now marks names in four more languages, each
+  from its own existing source rather than a new tagger run: Hebrew from the
+  BHSA `nmpr` table already in `data/lemma_tables/hebrew_pos.json`; Coptic
+  from `data/inverted_index/syntax_coptic.db`'s hand-curated UD tags, kept
+  where a form is tagged PROPN at least 85% of the time and seen twice;
+  Persian and Urdu from the Stanza tags already cached per line in
+  `cache/lemmas/{fa,ur}/`, same 85%/3-occurrence purity rule, unioned with a
+  short hand-built lexicon (Quranic/biblical figures, Persian and Urdu
+  ghazal's stock beloved names, Karbala names for Urdu) and, for Urdu only,
+  minus a hand stoplist of stock ghazal nature-images (wine, a ruby, dew, a
+  leaf, a tulip, stars, eyelashes...) that the tagger treats almost as
+  consistently as a real name. Latin, Greek and English are unchanged,
+  confirmed byte-for-byte identical against the live index. Arabic stays
+  held (Stanza finds no proper nouns at all in its 132-line corpus).
+- Unit tests in `tests/test_build_window_names_other_scripts.py` cover the
+  new per-language logic with toy fixtures, including an end-to-end
+  `main()` run and the Urdu stoplist/lexicon precedence.
+
 ### Similarity Map includes Persian and Urdu
 - `scripts/build_connections_map.py` and the map page's language list now include
   Persian and Urdu, served since today; the map is rebuilt on production with them.
