@@ -9,6 +9,10 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-06
 
+- Vegio's Supplementum (`maffeo_veggio.supplementum`): line numbers made
+  sequential within each book. The file carried numbers with their trailing
+  zero lost (1.10 written 1.1, 1.100 written 1.10), so 16 references repeated.
+
 ### Corpus
 - The text filed as Polignac, "Imitatio", is Maffeo Vegio's Aeneid
   supplement (book 13, opening "Turnus ut extremo devictus Marte profudit"),
