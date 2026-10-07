@@ -9,6 +9,13 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Names rarity per script; how names are found, documented
+- "Same people and places" counts a name's rarity within its script group, so
+  extending the names index to Hebrew, Coptic, Persian and Urdu leaves Latin,
+  Greek and English results unchanged. The builder writes one total per group
+  and the reader uses the selected passage's.
+- docs/DECISIONS.md and Help describe how names are found in each language.
+
 ### Sources page credits every Persian and Urdu text
 - `backend/text_sources.json` had no entries for any of the 28 Persian or
   18 Urdu texts, so the Sources page credited nothing for either language.

@@ -47,7 +47,7 @@ def _reset_names_state(monkeypatch):
     """Every test gets its own 'process-lifetime' name-index cache, never a
     connection left open by a previous test or pointed at a previous tmp db."""
     monkeypatch.setattr(pi, '_names_state',
-                        {'checked': False, 'conn': None, 'df': None, 'N': 0})
+                        {'checked': False, 'conn': None, 'df': None, 'N': 0, 'N_by_lang': {}})
     monkeypatch.setattr(pi, '_row_by_id', None)
     monkeypatch.setitem(pi._state, 'loaded', True)
     monkeypatch.setitem(pi._state, 'ok', True)
@@ -291,3 +291,21 @@ def test_route_same_names_null_when_index_absent(monkeypatch, tmp_path):
     r = client.get(f'{_route()}?window=rsrc:fine:0&same_names=1')
     got = json.loads(r.get_data())
     assert got['same_names'] is None
+
+
+def test_rarity_uses_the_source_languages_own_window_total(monkeypatch, tmp_path):
+    """Each script group keeps its own window total (meta windows_<lang>), so adding
+    Persian and Urdu windows does not make every Latin name look rarer (2026-10-07).
+    The Latin source keeps N=1000; with a separate, smaller Urdu total the same
+    df gives a lower rarity for an Urdu source."""
+    db = str(tmp_path / 'window_names.db')
+    _build_names_db(db, NAME_ROWS, NAME_DF)
+    con = sqlite3.connect(db)
+    con.execute("INSERT INTO meta VALUES ('windows_ur', '50')")
+    con.commit(); con.close()
+    monkeypatch.setattr(pi, '_NAMES_PATH', db)
+    _install(monkeypatch, RECORDS, EMB)
+    out = pi.same_names_for_window('src:fine:0')            # Latin: unchanged
+    assert out['strength'] == pytest.approx((IDF_CELAI - 4.5) + (IDF_KLAND - 4.5), abs=1e-3)
+    assert pi._names_state['N_by_lang'] == {'ur': 50}
+    assert pi._names_state['N'] == N_WINDOWS

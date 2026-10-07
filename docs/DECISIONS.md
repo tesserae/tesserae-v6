@@ -8,6 +8,47 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-07: how names are found for "same people and places" in each language
+
+The Similar Passages group "Same people and places" links passages in other
+works that name the same rare people or places. It needs to know which words
+are names, and the method differs by script.
+
+- Latin, Greek and English: capital letters. A word counts as a name when it
+  is capitalised mid-line in at least 85 percent of its uses (judged on the
+  stem, five letters after transliteration) or in 90 percent of the uses of
+  its exact form. Unchanged from the first version.
+- Hebrew: the ETCBC/BHSA morphology already in data/lemma_tables/hebrew_pos.json
+  marks proper nouns (part of speech nmpr). Its 2,164 name forms are matched on
+  the consonantal form the Hebrew index uses. Known weakness: consonantal
+  homographs, such as a form that is both "her judges" and the name
+  Shephatiah.
+- Coptic: the Coptic Scriptorium part-of-speech tags already in the Coptic
+  syntax database. A form counts when it is tagged PROPN in at least 85 percent
+  of at least two tagged uses, which gives 1,742 forms. Occasional common nouns are
+  mistagged.
+- Persian and Urdu: neither script has capitals, so the part-of-speech tags that
+  the Stanza tagger wrote into the lemma caches when the texts were imported
+  are used, with the same purity rule (PROPN in at least 85 percent of at least
+  three uses). A short hand list is added: the Qur'anic prophets, the lovers of
+  Persian and Urdu romance (Majnun, Layla, Shirin, Farhad, Zuleikha, Khizr) and,
+  for Urdu, the figures of Karbala. Urdu then removes a hand stoplist of stock
+  ghazal images the tagger reads as names (wine, ruby, dew, narcissus and
+  others), and the word husn, which is "beauty" in nearly every ghazal and the
+  name Hasan only in the marsiyas. This gives 362 Persian and 557 Urdu name forms.
+- Arabic: not done while Arabic is held. The tagger found no names in the
+  Arabic corpus, so it will need a hand list.
+
+Rarity is counted within each script group (Latin, Greek and English together,
+Hebrew, Coptic, and Persian and Urdu together, which share name spellings), so
+adding the new languages did not change Latin, Greek or English results: their
+rows are identical to the previous index. Names now mark 5,240 of 5,372 Hebrew
+passage windows, 7,523 of 13,200 Coptic, about 81,800 of 220,011 Persian and
+about 10,600 of 14,759 Urdu. Checked by eye on fifteen random windows per
+language and on known cases (a Genesis passage naming Abraham links to 1
+Chronicles 1, Exodus 6, Psalm 105 and Joshua 24, a Hafez passage naming
+Joseph links through Zuleikha to Saeb and Sanai).
+
 ## 2026-10-07: Persian and Urdu are served on the main site; Arabic stays held
 
 Persian and Urdu joined the main site's languages after two rounds of

@@ -67,6 +67,30 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-07 Names index extended to Hebrew, Coptic, Persian and Urdu (15:37 to 15:59 EDT)
+- Built with `scripts/corpus/build_window_names.py` (#659) to
+  `data/passage_index/window_names.db.new` on production (21 min, peak 1.9 GB):
+  518,556 windows, 2,254,993 window-name pairs. Latin, Greek and English rows
+  checked identical to the live file (SHA-256 over sorted rows).
+- The build wrote one window total for all languages, which would have made
+  every Latin name look twice as rare. The meta table was set by hand to the
+  per-group totals the fixed builder now writes (windows 265,214 for la/grc/en,
+  windows_he 5,372, windows_cop 13,200, windows_fa and windows_ur 234,770) before
+  the swap at 15:59 (backup `window_names.db.bak-other-scripts-20261007`).
+- After reload: a Genesis window naming Abraham and a Hafez window naming Joseph
+  return their "same people and places" groups.
+
+## 2026-10-07 Backups pruned; weekly pruning scheduled (15:08 to 15:16 EDT)
+- `scripts/prune_backups.py --keep 1 --keep-days 3 --apply` (the rule of #466):
+  64 copies, 79.8 GB deleted; 128 copies, 28.7 GB kept. Superseded snapshots in
+  the home backup folder removed by hand (about 35 GB: a test copy of
+  2026-09-20, the June index snapshots, an old staged passage index, two
+  frequency-table builds, three old vector copies). Disk free 175 GB to 289 GB.
+- A weekly user timer now runs the rule every Sunday at 03:30, keeping the
+  newest copy of each file and anything under seven days old
+  (`~/.config/systemd/user/tess-prune-backups.timer`, log under
+  `~/tesserae-backups/jobs/prune/`). The rule had only ever been run by hand.
+
 ## 2026-10-07 Persian work iqbal_lahori.diwan renamed iqbal.diwan in every store (14:21 to 14:44 EDT)
 - What: Iqbal's Ganjoor collection was filed under the author prefix
   `iqbal_lahori`, so lists and charts showed "Iqbal Lahori" beside "Iqbal" for
