@@ -9,6 +9,14 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Help: section blocks reordered to match the sidebar
+- In HelpPage.jsx the content block for each section sat in an order
+  unrelated to the sidebar's `sections` array, making the file hard to
+  edit (2026-10-07 Help audit, item 7). Blocks moved, nothing else
+  changed: reader-visible output is identical. Verified mechanically
+  (same ids, each block byte-identical by SHA-256, code outside the
+  blocks unchanged, new order equals the sidebar order).
+
 ### Help: one colour for the card bars
 - The cards in Help carried thirteen different left-bar colours that meant
   nothing to a reader. They now share one light gray bar.
