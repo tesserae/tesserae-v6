@@ -9,6 +9,15 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Reader: a Similar or Verbal Parallels result opens at its passage, with a way back
+- Opening a result in another work used to land at that work's first line and
+  leave no way back but the browser. It now opens at the passage, selected, under
+  a banner naming the passage left ("Opened from Quintus Curtius, Histories
+  3.20") with a "back to" link that returns to that passage. The browser's
+  Back button also returns to the line left instead of the top of the work.
+- The arrival selection applies once, so drawing more lines while scrolling no
+  longer reselects it over a line the reader has since clicked.
+
 ### Text removal finds every lemma cache file
 - `scripts/corpus/remove_restricted_text.py` matched only `<work>.json` in the
   lemma cache and missed the content-hashed `<work>-<hash>.json` the cache also

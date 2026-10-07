@@ -1026,7 +1026,7 @@ function sameWork(a, b) {
 }
 
 /** Trailing book.line of a reference tag, which is what a reader recognises. */
-function shortRef(ref) {
+export function shortRef(ref) {
   if (!ref) return '';
   const m = String(ref).match(/(\d+[.:]\d+)\s*$/);
   return m ? m[1] : String(ref).split(/\s+/).pop();
