@@ -9,6 +9,19 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Reuse tab: Greek highlights, fewer empty "possible echoes"; Persian corpus chart
+- Greek reuse lines now highlight their shared words. The Greek text stores
+  accents as separate marks after their letters, and the word-edge test treated
+  a mark as a non-letter, so a word ending in one never matched.
+- A possible echo (one shared rare word-triple) needs a word-triple overlap of
+  at least 0.002 with the other passage to be listed or counted in the gutter.
+  This drops matches buried in long prose paragraphs, such as Argonautica 1.2
+  beside a paragraph of Galen on the stomach (docs/DECISIONS.md).
+- The search results' "Across the corpus" chart opens on the first parallel
+  with two or more shared words, and the menu marks one-word rows. Persian and
+  Urdu lists lead with one-word refrain matches, so the chart had opened empty.
+- The Reuse tab and Help no longer say Latin only.
+
 ### Test fix: corpus picker race test reads the hook's author field
 - `useCorpus.race.test.jsx` read `authors[0].name`, the API's field, where the
   hook hands out `author`; it failed on main for that reason alone. The hook is

@@ -26,6 +26,20 @@ of 2026-10-06). The reader graded only six Arabic pairs and declined to
 judge further, so Arabic's passage windows stay held from Theme Search and
 Similar Passages and its tab stays off until another reader grades it.
 
+## 2026-10-07: a possible echo must overlap its passage by at least 0.002
+
+The Reuse tab's "possible echoes" are pairs kept by one shared rare
+word-triple. In long prose units that rule admits almost anything: for
+Argonautica 1.2 the list held paragraphs of Galen, Aretaeus, Plutarch and
+Aelius Aristides of up to 1,139 words, each sharing "kata stoma kai" and
+nothing visible besides. Possible echoes are now shown, and counted in the
+Reader's gutter, only when the pair's word-triple Jaccard is at least 0.002.
+Measured on the built tables: this removes 72,441 of 254,117 Latin possible
+echoes (28%), 21,610 of 86,932 Greek (25%) and 180 of 113,707 English, whose
+lines are short. Strict pairs (two or more shared triples) are unchanged. The
+filter is applied when the table is read, so no rebuild is needed and the
+value can be moved.
+
 ## 2026-10-07: Similar Passages shows "same people and places" above "same kind of scene"
 
 Similar Passages ranked windows by content alone, and the descriptions name
