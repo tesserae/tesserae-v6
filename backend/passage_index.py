@@ -20,6 +20,7 @@ rather than the matrix. Loading is lazy: nothing touches disk until the first
 query, and a missing index degrades to "unavailable" instead of failing import.
 """
 import json
+import math
 import os
 import re
 import threading
@@ -189,6 +190,24 @@ LEXICAL_TOPN = 3000
 _LEX_PATH = os.path.join(_DATA_DIR, 'desc_fts.sqlite')
 _lex_lock = threading.Lock()
 _lex_state = {'checked': False, 'ok': False, 'row_by_id': None}
+
+# "Same people and places": a second Similar-Passages grouping, by shared rare
+# proper names rather than by content embedding alone (research/theme_search/
+# names_panel/NOTES.md). The name index (window_names.db, built offline by
+# research/theme_search/names_panel/build_names.py) is optional: when it is
+# absent the feature is simply off and nothing else about Similar Passages
+# changes. Opened once per process and kept open, same convention as
+# _lex_state above for desc_fts.sqlite, except here the connection itself is
+# cached (not reopened per call) because every query needs it.
+_NAMES_PATH = os.path.join(_DATA_DIR, 'window_names.db')
+_names_lock = threading.Lock()
+_names_state = {'checked': False, 'conn': None, 'df': None, 'N': 0}
+NAMES_IDF_THRESHOLD = 4.5   # a name rarer than roughly 1 window in 90 counts
+NAMES_LAMBDA = 0.008        # weight of the shared-name-rarity term in scoring
+NAMES_WEAK_STRENGTH = 2.0   # below this summed rarity, flag the group as weak
+NAMES_COMMENTARY_MARKERS = (
+    'lactantius_placidus', 'servius', 'scholia', 'donatus', 'porphyrio',
+    'pseudo_acro', 'commentar')
 
 _lock = threading.Lock()
 _state = {'loaded': False, 'ok': False, 'error': None}
@@ -1495,6 +1514,132 @@ def find_similar_to_window(window_id, limit=15, languages=None,
         'results': results,
         'confidence': {'top': round(float(top), 4), 'baseline': round(baseline, 4),
                        'lift': round(float(top) - baseline, 4)},
+    }
+
+
+def _ensure_names_loaded():
+    """Open window_names.db once per process; return the cached connection,
+    or None if the file is absent or unreadable (the feature is simply off).
+
+    Caches the connection itself plus the name_df table (as a dict) and the
+    window count from meta, read once, so every call after the first costs no
+    disk access beyond the per-window lookups the caller itself does."""
+    if _names_state['checked']:
+        return _names_state['conn']
+    with _names_lock:
+        if _names_state['checked']:
+            return _names_state['conn']
+        _names_state['checked'] = True
+        if not os.path.exists(_NAMES_PATH):
+            logger.info('[PASSAGES] no name index at %s; "same people and '
+                       'places" is off', _NAMES_PATH)
+            return None
+        try:
+            import sqlite3
+            conn = sqlite3.connect(f'file:{_NAMES_PATH}?mode=ro', uri=True,
+                                   check_same_thread=False)
+            row = conn.execute("SELECT value FROM meta WHERE key='windows'").fetchone()
+            n = int(row[0]) if row else 0
+            df = dict(conn.execute('SELECT k, df FROM name_df'))
+        except Exception as e:  # noqa: BLE001 -- a bad name index must not break Similar Passages
+            logger.warning('[PASSAGES] window_names.db unreadable (%s); "same '
+                           'people and places" is off', e)
+            return None
+        _names_state['conn'] = conn
+        _names_state['df'] = df
+        _names_state['N'] = n
+        return conn
+
+
+def _name_idf(k, df, n):
+    return math.log(n / (1 + df.get(k, 0))) if n else 0.0
+
+
+def same_names_for_window(wid, limit=12):
+    """The "same people and places" grouping for a Similar Passages window:
+    other windows that share RARE proper names with this one, scored by
+    content similarity plus a bonus for the rarity of what they share.
+
+    Returns None when the name index is missing or the window itself is not
+    in the passage index (the feature does not apply, nothing else changes).
+    Otherwise a dict: 'results' (up to `limit`, shaped like find_similar_to_
+    window's, each carrying 'shared_names'), 'commentaries' (up to 5 more,
+    for works that comment on a text rather than tell their own story, kept
+    separate so they do not crowd out independent witnesses), 'strength'
+    (summed rarity of the source window's own rare names) and 'weak' (True
+    when that strength is thin -- a famous single name, say -- so the caller
+    can show the group collapsed).
+    """
+    _ensure_loaded()
+    if not _state['ok']:
+        return None
+    conn = _ensure_names_loaded()
+    if conn is None:
+        return None
+    row = _row_of(wid)
+    if row is None:
+        return None
+    import numpy as np
+    src = _records[row]
+    src_work = _norm_work(src.get('work'))
+    qvec = np.asarray(_emb[row], dtype=np.float32)
+
+    src_rows = conn.execute('SELECT k, form FROM window_names WHERE id=?', (wid,)).fetchall()
+    src_form = {}
+    for k, form in src_rows:
+        src_form.setdefault(k, form)
+
+    df, n = _names_state['df'], _names_state['N']
+    rare = {k: _name_idf(k, df, n) for k in src_form}
+    rare = {k: v for k, v in rare.items() if v > NAMES_IDF_THRESHOLD}
+    strength = sum(v - NAMES_IDF_THRESHOLD for v in rare.values())
+
+    cand_keys = {}  # row index -> set of shared keys
+    if rare:
+        held = held_languages()
+        marks = ','.join('?' * len(rare))
+        hits = conn.execute(
+            f'SELECT id, k FROM window_names WHERE k IN ({marks})',  # nosec B608 -- marks is a run of '?', values are bound params
+            list(rare.keys())).fetchall()
+        for cwid, k in hits:
+            if cwid == wid:
+                continue
+            crow = _row_of(cwid)
+            if crow is None or crow in _undescribed:
+                continue
+            crec = _records[crow]
+            if (crec.get('scale') or 'fine') != 'fine':
+                continue
+            if _norm_work(crec.get('work')) == src_work:
+                continue
+            if crec.get('language') in held:
+                continue
+            cand_keys.setdefault(crow, set()).add(k)
+
+    scored = []
+    for crow, ks in cand_keys.items():
+        cvec = np.asarray(_emb[crow], dtype=np.float32)
+        score = float(np.dot(qvec, cvec)) + NAMES_LAMBDA * sum(
+            rare[k] - NAMES_IDF_THRESHOLD for k in ks)
+        shared = [src_form[k] for k in sorted(ks, key=lambda k: -rare[k])]
+        scored.append((score, crow, shared))
+    scored.sort(key=lambda x: -x[0])
+
+    def is_commentary(crow):
+        work = str(_records[crow].get('work') or '')
+        return any(marker in work for marker in NAMES_COMMENTARY_MARKERS)
+
+    main = [s for s in scored if not is_commentary(s[1])]
+    commentary = [s for s in scored if is_commentary(s[1])]
+    results = [_result(r, sc, extra={'shared_names': shared})
+              for sc, r, shared in main[:limit]]
+    commentaries = [_result(r, sc, extra={'shared_names': shared})
+                   for sc, r, shared in commentary[:5]]
+    return {
+        'results': results,
+        'commentaries': commentaries,
+        'strength': round(strength, 4),
+        'weak': strength < NAMES_WEAK_STRENGTH,
     }
 
 
