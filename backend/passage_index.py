@@ -1663,15 +1663,18 @@ def window_for_passage(work, ref_start=None, ref_end=None, prefer='fine'):
             continue
         if not want:
             return r.get('id')
-        if len(lo) != len(want):
-            continue   # a different citation depth cannot be compared
-        covers = lo <= want <= hi or (want <= lo <= want_end)
+        # Compare on the depth both references share, from the left (book
+        # before chapter before line), so a work whose references vary in depth
+        # (a preface cited 1.pr, a poem 1.1.3) still finds its window.
+        n = min(len(lo), len(hi), len(want), len(want_end))
+        lo, hi, wn, we = lo[:n], hi[:n], want[:n], want_end[:n]
+        covers = lo <= wn <= hi or (wn <= lo <= we)
         if not covers:
             continue
         # prefer the window that starts at or just before the selection start;
         # a window starting after it (it only overlaps the selection's tail)
         # ranks below every window that brackets the start
-        key = (0, tuple(-x for x in lo)) if lo <= want else (1, lo)
+        key = (0, tuple(-x for x in lo)) if lo <= wn else (1, lo)
         if best_key is None or key < best_key:
             best, best_key = r.get('id'), key
     if best is None and prefer:
