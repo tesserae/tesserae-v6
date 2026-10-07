@@ -9,6 +9,18 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Quotation rows show their words; Tessa out of the way; safer passage rename
+- Quotation-only results now list the words of the quoted run. They had no
+  matched words once the scorer's markers were dropped, so the corpus chart
+  called "jan-e man o jan-e shoma" (Hafez, quoted by Iqbal) a one-word parallel.
+- The corpus chart's word filter keeps words with combining marks or the
+  zero-width joiner, which Persian and Urdu words carry.
+- Closed, Tessa is a small round button, and its x tucks it into a slim tab on
+  the right edge, remembered in the browser. The two-line pill covered the
+  corner of every page.
+- `scripts/corpus/rename_work_in_passage_index.py` updates window_texts.db on a
+  copy and swaps it in, since the live file is held open by the web workers.
+
 ### Persian and Urdu: refrain and rhyme across the pair; stoplists listed
 - The Persian against Urdu search matches two poems that share refrain and
   rhyme in the shared letter forms (`backend/poetics.find_cross_form_matches`),

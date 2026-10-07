@@ -157,7 +157,14 @@ def main(argv=None):
             kept += 1
     os.replace(tmp, desc_path)
 
-    db = os.path.join(index, 'window_texts.db')
+    # ON A COPY, then swapped in (2026-10-07). Updating the live file in place
+    # failed with "database is locked" on production, where the web workers hold
+    # it open, and left ids.json and descriptions.jsonl renamed while the
+    # passage texts were not. The swap is an atomic rename; open readers keep
+    # the old file until the app reloads.
+    live_db = os.path.join(index, 'window_texts.db')
+    db = live_db + '.renaming'
+    shutil.copy2(live_db, db)
     con = sqlite3.connect(db)
     like = old + '.%'
     cut = len(old) + 1
@@ -177,7 +184,12 @@ def main(argv=None):
         'WHERE work LIKE ?',
         (new + '.', cut + 1, like, new + '.', cut + 1, like))
     con.commit()
+    ok = con.execute('PRAGMA quick_check').fetchone()[0] == 'ok'
     con.close()
+    if not ok:
+        os.remove(db)
+        raise SystemExit('window_texts copy failed its integrity check; live file untouched')
+    os.replace(db, live_db)
 
     after_old = count_affected(index, old)
     after_new = count_affected(index, new)

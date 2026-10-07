@@ -67,6 +67,30 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-07 Persian work iqbal_lahori.diwan renamed iqbal.diwan in every store (14:21 to 14:44 EDT)
+- What: Iqbal's Ganjoor collection was filed under the author prefix
+  `iqbal_lahori`, so lists and charts showed "Iqbal Lahori" beside "Iqbal" for
+  his seven other Persian works. The repository side merged in #655; the
+  stores were renamed with `scripts/corpus/rename_work.py --root
+  /var/www/tesseraev6_flask --language fa --old iqbal_lahori.diwan --new
+  iqbal.diwan --apply` (dry run first). Note the collection overlaps the seven
+  works: 4,513 of its 16,274 half-lines appear word for word in them.
+- Renamed by the script: texts/fa (16,274 line tags), fa_index.db (texts row,
+  16,274 lines, 100,347 postings), the lemma cache (new content-hashed name),
+  ids.json and descriptions.jsonl (3,797 windows). Backups
+  `*.bak-rename-20261007-*`; the old text and lemma cache files moved to
+  `~/tesserae-backups/rename_iqbal_2026-10-07/`.
+- The script stopped at window_texts.db with "database is locked": the web
+  workers hold it open. The same update was then made on a copy (3,797 windows,
+  16,274 lines, quick_check ok) and swapped in at 14:25 (backup
+  `window_texts.db.bak-rename-20261007-142330`). The script now works on a copy
+  and swaps it in. The vector files were renamed by hand (meta paths and line
+  refs rewritten).
+- Rebuilt afterwards: keyword index (530,814 rows), Persian phrase table
+  (1,420,609 keys), connection map (14.3 min, peak 4.4 GB). App reloaded; every
+  reference search passed; the Persian text list shows all eight Persian works
+  under "Iqbal", and the corpus chart counts him once (251 lines for "man ast").
+
 ## 2026-10-07 Persian and Urdu served on production; preview server closed (08:05 to 08:15 EDT)
 - What: production's `.env` gains `TESSERAE_LANGUAGES=la,grc,en,cop,he,fa,ur,it,gmh,fro`,
   which registers the Persian and Urdu handlers, adds their tabs after Hebrew

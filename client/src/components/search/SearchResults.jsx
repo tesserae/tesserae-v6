@@ -496,7 +496,9 @@ const SearchResults = ({
     const raw = (r?.matched_lemmas && r.matched_lemmas.length) ? r.matched_lemmas : (r?.matched_words || []);
     return raw
       .map(w => (typeof w === 'object' ? (w.lemma || w.word || '') : String(w)).trim())
-      .filter(w => /^[\p{L}]+$/u.test(w));
+      // Letters plus combining marks and the zero-width joiner, which Persian
+      // and Urdu words carry (mi-gasht is written with one), and Greek accents.
+      .filter(w => /^[\p{L}\p{M}\u200c]+$/u.test(w));
   };
   // The picker offers the rows on screen in server mode (the browser no longer
   // holds every row), numbered by their place in the whole list.

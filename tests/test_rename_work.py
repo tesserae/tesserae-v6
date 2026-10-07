@@ -312,3 +312,23 @@ def test_passage_index_unsupported_when_work_title_changes(tmp_path, capsys):
     assert rc == 0
     out = capsys.readouterr().out
     assert 'supported' in out.lower() or 'own pass' in out.lower()
+
+
+def test_apply_succeeds_while_a_reader_holds_the_passage_texts_open(root):
+    """Production's web workers keep window_texts.db open. Updating it in place
+    failed with "database is locked" (2026-10-07) and left the passage index half
+    renamed; the rename now updates a copy and swaps it in."""
+    db = os.path.join(root, 'data', 'passage_index', 'window_texts.db')
+    reader = sqlite3.connect(db, timeout=0.1)
+    reader.execute('BEGIN')
+    reader.execute('SELECT count(*) FROM window_texts').fetchone()   # holds a shared lock
+    try:
+        rc = rw.main(['--root', root, '--language', LANG, '--old', OLD, '--new', NEW, '--apply'])
+    finally:
+        reader.rollback()
+        reader.close()
+    assert rc == 0
+    wcon = sqlite3.connect(db)
+    works = {r[0] for r in wcon.execute('SELECT DISTINCT work FROM window_texts')}
+    assert NEW in works and OLD not in works
+    assert not os.path.exists(db + '.renaming')
