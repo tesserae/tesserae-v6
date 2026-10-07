@@ -50,6 +50,12 @@ def fixture_root(tmp_path):
     (root / 'cache' / 'lemmas' / 'la').mkdir(parents=True)
     (root / 'cache' / 'lemmas' / 'la' / 'heldwork.history.part.1.json').write_text('{}')
     (root / 'cache' / 'lemmas' / 'la' / 'heldwork.history.part.2.json').write_text('{}')
+    # The content-hashed name the cache also writes.
+    (root / 'cache' / 'lemmas' / 'la' / ('heldwork.history.part.2-' + 'a' * 32 + '.json')).write_text('{}')
+    # A whole-work hashed name, the case the 2026-10-07 run missed: no
+    # `.part.` for base_work to cut at, so the hash must be stripped first.
+    (root / 'cache' / 'lemmas' / 'la' / ('heldwork.history-' + 'c' * 32 + '.json')).write_text('{}')
+    (root / 'cache' / 'lemmas' / 'la' / ('ordinary.poem-' + 'b' * 32 + '.json')).write_text('{}')
     (root / 'cache' / 'lemmas' / 'la' / 'ordinary.poem.json').write_text('{}')
 
     index_dir = root / 'data' / 'inverted_index'
@@ -104,7 +110,9 @@ def test_plan_finds_every_file_and_row_for_the_work(fixture_root):
     assert sorted(fn for _, fn in plan['text_files']) == [
         'heldwork.history.part.1.tess', 'heldwork.history.part.2.tess']
     assert sorted(fn for _, fn in plan['lemma_cache_files']) == [
-        'heldwork.history.part.1.json', 'heldwork.history.part.2.json']
+        'heldwork.history-' + 'c' * 32 + '.json',
+        'heldwork.history.part.1.json', 'heldwork.history.part.2-' + 'a' * 32 + '.json',
+        'heldwork.history.part.2.json']
     assert plan['index']['la']['present'] is True
     assert plan['index']['la']['line_count'] == 2
     assert len(plan['index']['la']['matching_text_ids']) == 2
@@ -151,7 +159,7 @@ def test_apply_removes_only_the_restricted_work_everywhere(fixture_root):
     # Lemma cache gone, ordinary one untouched.
     lemma_dir = fixture_root / 'cache' / 'lemmas' / 'la'
     remaining_json = sorted(p.name for p in lemma_dir.iterdir() if p.suffix == '.json')
-    assert remaining_json == ['ordinary.poem.json']
+    assert remaining_json == ['ordinary.poem-' + 'b' * 32 + '.json', 'ordinary.poem.json']
 
     # Index rows gone for the restricted text_ids, kept for the ordinary one.
     con = sqlite3.connect(fixture_root / 'data' / 'inverted_index' / 'la_index.db')

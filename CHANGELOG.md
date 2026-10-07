@@ -9,6 +9,14 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Text removal finds every lemma cache file
+- `scripts/corpus/remove_restricted_text.py` matched only `<work>.json` in the
+  lemma cache and missed the content-hashed `<work>-<hash>.json` the cache also
+  writes, for a work without book files. Found on its first run against real
+  data, the duplicate Augustine fragment, where the hashed copy was removed by
+  hand. A licence ending requires every copy deleted, so the finder now strips
+  the hash before matching; the test covers both names.
+
 ### Duplicate Augustine fragment retired
 - `texts/la/unknown.corpus_scriptorum_ecclesiasticorum_latin.tess`, a
   20-line excerpt listed as "Unknown", is chapters 32 to 46 of Augustine's
