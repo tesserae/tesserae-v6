@@ -72,9 +72,9 @@ afterEach(() => {
   window.history.pushState({}, '', '/');
 });
 
-describe('without the flag, the tab is exactly as today', () => {
+describe('with ?names=0, the tab is the plain list', () => {
   beforeEach(() => {
-    window.history.pushState({}, '', '/reader');
+    window.history.pushState({}, '', '/reader?names=0');
     global.fetch = vi.fn((url) => {
       sent = url;
       return Promise.resolve({
@@ -103,9 +103,9 @@ describe('without the flag, the tab is exactly as today', () => {
   });
 });
 
-describe('with ?names=1, same_names present and not weak', () => {
+describe('by default, same_names present and not weak', () => {
   beforeEach(() => {
-    window.history.pushState({}, '', '/reader?names=1');
+    window.history.pushState({}, '', '/reader');
     global.fetch = vi.fn((url) => {
       sent = url;
       return Promise.resolve({
@@ -149,9 +149,9 @@ describe('with ?names=1, same_names present and not weak', () => {
   });
 });
 
-describe('with ?names=1 and a weak same_names group', () => {
+describe('by default, with a weak same_names group', () => {
   beforeEach(() => {
-    window.history.pushState({}, '', '/reader?names=1');
+    window.history.pushState({}, '', '/reader');
     global.fetch = vi.fn((url) => {
       sent = url;
       return Promise.resolve({

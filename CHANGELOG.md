@@ -9,6 +9,13 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Similar Passages: two groups by default
+- The Reader's Similar tab now opens with "Same people and places" above
+  "Same kind of scene" for every reader (trialled behind ?names=1 earlier
+  today; ?names=0 shows the single list for comparison). The name index's
+  builder is `scripts/corpus/build_window_names.py`, run after any change to
+  the passage index.
+
 ### Similar Passages: same people and places (trial, behind a switch)
 - With `?names=1` on a Reader address, the Similar tab shows two groups:
   passages in other works that share rare proper names with the selection
