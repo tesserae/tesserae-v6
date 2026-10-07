@@ -67,6 +67,34 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-07 Night window: Vegio relabel moved through the stores; connection map rebuilt
+- Window: the preview server was stopped 02:00 to 02:56 (tunnel kept) so the
+  jobs below had memory; every step under `~/bin/tess-job`.
+- Vegio relabel (#636, #637: `polignac.imitatio` is Vegio's Aeneid supplement,
+  now `maffeo_veggio.supplementum`, lines renumbered): lemma cache built;
+  Latin index: the scheduled add pointed at the wrong cache folder and added
+  nothing, then `drop_stale_index_entries.py` removed the old file (backup
+  `la_index.db.bak-stale-20261007-0201`); at 02:05 the supplement was added to
+  a copy with the correct `--cache-dir cache/lemmas` (1,655 texts, 932,838
+  lines, lemma_doc_freq rebuilt, quick_check ok) and swapped in (backup
+  `la_index.db.bak-vegiofix-20261007`). Vectors renamed (716 rows, refs from
+  the renumbered file). Passage index: 166 windows renamed in ids.json,
+  descriptions.jsonl and window_texts.db (backups `.bak-vegio-20261007`); 159
+  had their references re-located by matching their first and last lines in
+  the renumbered file, 7 kept a mechanically rewritten reference (to check);
+  the Reader's lines for the work replaced (716). Keyword index rebuilt.
+- Latin rare-phrase table rebuilt at 02:05, before the corrected index swap, so
+  it lacks the supplement: rerun at the next window.
+- Greek rare-phrase table: rebuild killed at its 12 GB cap after 9 minutes (it
+  took 88 s on 2026-10-03); the live table is unchanged and still lacks one
+  work. Cause under investigation.
+- Connection map rebuilt (`scripts/build_connections_map.py`, 19.1 min, peak
+  4.4 GB, 708 MB), now including the works added since 30 September; old cache
+  removed.
+- After: app reloaded, every reference search passed, preview restarted on its
+  address; the coverage check passes for the supplement except the Latin
+  rare-phrase table.
+
 ## 2026-10-06 Persian, Urdu and Arabic passage windows appended to the passage index (port stage 4b)
 - What: 19,978 passage windows the production index lacked (Urdu 12,609, Arabic
   5,759, Persian 1,610; production already held 218,401 Persian, 2,150 Urdu and 32
