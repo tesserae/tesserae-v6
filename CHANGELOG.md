@@ -9,6 +9,11 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-06
 
+### Text descriptions
+- About-this-text descriptions for Erchempert's verse martyrology,
+  Callimachus' Iambi and Philo's Allegories of the Laws, the three works the
+  coverage checker found without one.
+
 ### Menus
 - Every menu that lists names (Reader author, work and book; Search work and
   text; Line Search author and work; Cross-language work and section) opens
