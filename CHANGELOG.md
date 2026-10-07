@@ -9,6 +9,14 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-06
 
+### Corpus
+- The text filed as Polignac, "Imitatio", is Maffeo Vegio's Aeneid
+  supplement (book 13, opening "Turnus ut extremo devictus Marte profudit"),
+  a second edition beside `maffeo_veggio.aeneid`. Renamed to
+  `maffeo_veggio.supplementum` with line tags `vegg. supp.`; credits, genre
+  and description follow. The index, passage windows and vectors are moved
+  by the data operation recorded in docs/DATA_OPERATIONS.md.
+
 ### Sources page
 - 297 works that had no entry on the Sources page are credited (166 Greek,
   99 Latin, 32 English), each with its digital source and, where known, the
