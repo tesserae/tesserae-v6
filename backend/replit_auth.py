@@ -136,6 +136,7 @@ def make_replit_blueprint():
     @bp.route("/logout")
     def logout():
         del bp.token
+        session.clear()  # also ends any admin session held in the same cookie
         logout_user()
 
         end_session_endpoint = issuer_url + "/session/end"
