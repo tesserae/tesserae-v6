@@ -85,6 +85,8 @@ data/la_mqdq_temp/
 !data/translation_pairs.json
 !data/proposals/
 !data/restricted_texts.json
+!data/documents/
+!data/documents/*
 cache/
 
 # Private/local files

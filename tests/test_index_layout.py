@@ -1,4 +1,5 @@
 """Tests for scripts/documents/index_layout.py."""
+import json
 import os
 import sys
 
@@ -6,14 +7,19 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from scripts.documents.index_layout import (
     TESS_LINE_RE,
+    century_of,
     classify,
     clean_text,
+    find_oversized_short_buckets,
     local_id,
     long_doc_tess_lines,
     region_of,
+    short_bucket_filename,
+    short_bucket_key,
     short_doc_tess_line,
     slugify,
     tag_prefix,
+    validate_full_corpus_regex,
 )
 
 
@@ -76,3 +82,50 @@ def test_region_of_slugifies_findspot_region():
     assert region_of(rec) == "dalmatia"
     rec2 = _rec(findspot={})
     assert region_of(rec2) == "unknown_region"
+
+
+def test_century_of_handles_ad_bc_and_undated():
+    assert century_of(None) == "undated"
+    assert century_of(1) == "1_ad"
+    assert century_of(100) == "1_ad"
+    assert century_of(101) == "2_ad"
+    assert century_of(-1) == "1_bc"
+    assert century_of(-100) == "1_bc"
+    assert century_of(-101) == "2_bc"
+
+
+def test_find_oversized_short_buckets_over_threshold(tmp_path, monkeypatch):
+    import scripts.documents.index_layout as il
+    monkeypatch.setattr(il, "BUCKET_SPLIT_THRESHOLD", 2)
+    path = tmp_path / "toy.jsonl"
+    with open(path, "w", encoding="utf-8") as f:
+        for i in range(3):
+            f.write(json.dumps(_rec(id=f"edh:{i}", edh_id=f"H{i}",
+                                      findspot={"region": "Roma"})) + "\n")
+        f.write(json.dumps(_rec(id="edh:x", edh_id="Hx",
+                                  findspot={"region": "Dalmatia"})) + "\n")
+    oversized = find_oversized_short_buckets(str(path), threshold=2)
+    assert oversized == {("edh", "roma")}
+
+
+def test_short_bucket_key_splits_only_oversized_buckets():
+    rec_roma = _rec(findspot={"region": "Roma"}, date_not_before=101)
+    rec_dalmatia = _rec(findspot={"region": "Dalmatia"}, date_not_before=101)
+    oversized = {("edh", "roma")}
+    assert short_bucket_key(rec_roma, oversized) == ("edh", "roma", "2_ad")
+    assert short_bucket_key(rec_dalmatia, oversized) == ("edh", "dalmatia")
+
+
+def test_short_bucket_filename_includes_century_only_when_split():
+    assert short_bucket_filename(("edh", "roma")) == "roma"
+    assert short_bucket_filename(("edh", "roma", "2_ad")) == "roma__2_ad"
+
+
+def test_validate_full_corpus_regex_reports_zero_failures_on_clean_corpus(tmp_path):
+    path = tmp_path / "toy.jsonl"
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(json.dumps(_rec(lines=[{"text": "Dis Manibus."}])) + "\n")
+    result = validate_full_corpus_regex(str(path))
+    assert result["all_lines_matched_tess_regex"] is True
+    assert result["total_lines_checked"] == 1
+    assert result["regex_failures"] == []

@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """Lemmatizer gaps on the documentary corpus: Roman numerals, personal
 names, and gap/fragment tokens (stage 1 found these as the three
-recurring kinds of unlemmatized token; see
-research/historians/DOCUMENTS_STAGE1_REPORT.md).
+recurring kinds of unlemmatized token).
 
 (a) Roman numerals (sequences of I, V, X, L, C, D, M, case-insensitive,
     with the classical V/U interchange) are classified as numerals,
@@ -39,7 +38,7 @@ compared against. The "after" pass instead tokenizes with
 gap-aware) and lemmatizes each surviving token directly
 (`_latin_lemmatize`/`_greek_lemmatize` on a one-token list), which is the
 correct order for any real pipeline and is the fix this script
-recommends (see DOCUMENTS_STAGE2_REPORT.md).
+recommends for production use.
 
 Does not touch backend/ or /var/www. Imports backend.text_processor
 read-only, the same functions the live search index uses, exactly as

@@ -110,31 +110,88 @@ def pick_date_source(edh_rec, edr_rec):
     return "edh"
 
 
-def pick_place_source(edh_rec, edr_rec):
-    """Rule: prefer the record that names an ancient_place (not just a
-    modern_place) over one that does not; then prefer the one with a
-    pleiades_id; then a region string; ties break toward EDR, because EDR
-    is the source weighted toward Italy and specifically curates findspot
-    detail for Italian material, which is where most of the EDH/EDR
-    overlap sits (both catalogue widely, but the shared ids are
-    disproportionately Italian: see report for the sample evidence)."""
-    def score(rec):
-        fs = rec.get("findspot") or {}
-        s = 0
-        if fs.get("ancient_place"):
-            s += 4
-        if fs.get("pleiades_id"):
-            s += 2
-        if fs.get("region"):
-            s += 1
-        return s
+def load_edh_place_links(path):
+    """Load places_crosswalk.py's edh_place_links.tsv (edh_id, tm_place_id,
+    pleiades_id, ancient_place_text) into edh_id -> {"place_tm_id": int|None,
+    "place_pleiades_id": str|None}. Returns {} if path is falsy (the
+    attachment step is then a no-op, used by callers/tests that do not
+    pass --edh-place-links)."""
+    if not path:
+        return {}
+    links = {}
+    with open(path, "r", encoding="utf-8") as f:
+        header = f.readline()
+        for line in f:
+            parts = line.rstrip("\n").split("\t")
+            if len(parts) < 3:
+                continue
+            edh_id, tm_place_id, pleiades_id = parts[0], parts[1], parts[2]
+            links[edh_id] = {
+                "place_tm_id": int(tm_place_id) if tm_place_id else None,
+                "place_pleiades_id": pleiades_id or None,
+            }
+    return links
 
-    sh, sr = score(edh_rec), score(edr_rec)
-    if sh > sr:
+
+def attach_place_links(rec, place_links):
+    """Set `place_tm_id`/`place_pleiades_id` on `rec` from `place_links`
+    (keyed by `edh_id`), regardless of which source's findspot TEXT ends
+    up displayed for this record later. Mutates and returns `rec`. A
+    record with no `edh_id`, or an `edh_id` place_links has no entry for,
+    gets both fields set to None (not left absent), so every record in
+    the merged corpus carries the same schema."""
+    link = place_links.get(rec.get("edh_id")) if rec.get("edh_id") else None
+    rec["place_tm_id"] = link["place_tm_id"] if link else None
+    rec["place_pleiades_id"] = link["place_pleiades_id"] if link else None
+    return rec
+
+
+def pick_place_source(edh_rec, edr_rec):
+    """Rule (revised 2026-10-08, PR #670 review): prefer the record whose
+    findspot is more SPECIFIC, not EDR by default. Specificity, in
+    order:
+
+    1. Has a resolved place identifier (`place_pleiades_id`, attached by
+       `attach_place_links` from the Trismegistos-to-Pleiades crosswalk;
+       see places_crosswalk.py). This stage's data has no per-document
+       coordinate field to check directly (stage 1's converter never
+       extracted one; recorded here as a known gap against the review
+       request's "has coordinates or a Pleiades id" wording), so a
+       resolved identifier is the only machine-checkable specificity
+       signal available. EDR never has one (confirmed over its full
+       raw-XML export, see places_crosswalk.py), so this now resolves
+       almost every case in EDH's favor when EDH has a Trismegistos
+       place reference at all (82.1% of EDH documents; see the places
+       crosswalk report).
+    2. Longer named place (`ancient_place` text length; `region` text
+       length if `ancient_place` is empty on both sides). A longer name
+       is usually the more specific one (e.g. "Latium et Campania cum
+       insulis (Regio I)" versus "Latium et Campania (Regio I)"), though
+       this is a proxy, not a semantic check.
+    3. A remaining tie breaks to EDH (changed from the previous EDR
+       default; arbitrary either way at this point since nothing in the
+       data distinguishes the two, recorded for determinism only)."""
+    def has_place_id(rec):
+        return bool(rec.get("place_pleiades_id"))
+
+    def name_len(rec):
+        fs = rec.get("findspot") or {}
+        ancient = fs.get("ancient_place") or ""
+        region = fs.get("region") or ""
+        return len(ancient) if ancient else len(region)
+
+    edh_id, edr_id = has_place_id(edh_rec), has_place_id(edr_rec)
+    if edh_id and not edr_id:
         return "edh"
-    if sr > sh:
+    if edr_id and not edh_id:
         return "edr"
-    return "edr"
+
+    lh, lr = name_len(edh_rec), name_len(edr_rec)
+    if lh > lr:
+        return "edh"
+    if lr > lh:
+        return "edr"
+    return "edh"
 
 
 def merge_edh_edr_pair(edh_rec, edr_rec):
@@ -167,6 +224,14 @@ def merge_edh_edr_pair(edh_rec, edr_rec):
         "total_chars": text_from.get("total_chars"),
         "gap_count": text_from.get("gap_count"),
         "supplied_share": text_from.get("supplied_share"),
+        # Attached from EDH regardless of which source's findspot TEXT
+        # is displayed above (provenance.findspot): the identifier and
+        # the display text are different sub-fields (2026-10-08 review).
+        # EDR never carries either field (no place identifier anywhere
+        # in its raw export), so these are always None when they are
+        # not EDH's.
+        "place_tm_id": edh_rec.get("place_tm_id"),
+        "place_pleiades_id": edh_rec.get("place_pleiades_id"),
         "provenance": {
             "text": text_src,
             "date": date_src,
@@ -214,12 +279,22 @@ def main(argv=None):
     ap.add_argument("--output", required=True, help="merged corpus JSONL (all sources)")
     ap.add_argument("--sample-out", default=None, help="field-comparison sample JSONL")
     ap.add_argument("--sample-size", type=int, default=50)
+    ap.add_argument("--edh-place-links", default=None,
+                     help="places_crosswalk.py's edh_place_links.tsv; when "
+                          "given, every EDH-derived record (merged or "
+                          "EDH-only) carries place_tm_id/place_pleiades_id "
+                          "regardless of which source's findspot text is "
+                          "chosen (2026-10-08 review)")
     args = ap.parse_args(argv)
 
     edh = load_jsonl(args.edh)
     edr = load_jsonl(args.edr)
     papyri = load_jsonl(args.papyri) if args.papyri else []
     isicily = load_jsonl(args.isicily) if args.isicily else []
+
+    place_links = load_edh_place_links(args.edh_place_links)
+    for rec in edh:
+        attach_place_links(rec, place_links)
 
     edh_by_tm = index_by_tm(edh)
     edr_by_tm = index_by_tm(edr)
@@ -288,6 +363,8 @@ def main(argv=None):
         for tm in sorted(edr_only):
             for rec in edr_by_tm[tm]:
                 rec = dict(rec)
+                rec.setdefault("place_tm_id", None)
+                rec.setdefault("place_pleiades_id", None)
                 rec["provenance"] = {"text": "edr", "date": "edr", "findspot": "edr", "ids": "edr_only"}
                 others = overlap_flags(tm, "edr")
                 if others:
@@ -305,12 +382,16 @@ def main(argv=None):
         for rec in edr:
             if rec.get("tm_id") is None:
                 rec = dict(rec)
+                rec.setdefault("place_tm_id", None)
+                rec.setdefault("place_pleiades_id", None)
                 rec["provenance"] = {"text": "edr", "date": "edr", "findspot": "edr", "ids": "edr_only_no_tm"}
                 out.write(json.dumps(rec, ensure_ascii=False) + "\n")
                 written += 1
 
         for rec in papyri:
             rec = dict(rec)
+            rec.setdefault("place_tm_id", None)
+            rec.setdefault("place_pleiades_id", None)
             tm = rec.get("tm_id")
             if tm is not None:
                 others = overlap_flags(tm, "papyri")
@@ -320,6 +401,8 @@ def main(argv=None):
             written += 1
         for rec in isicily:
             rec = dict(rec)
+            rec.setdefault("place_tm_id", None)
+            rec.setdefault("place_pleiades_id", None)
             tm = rec.get("tm_id")
             if tm is not None:
                 others = overlap_flags(tm, "isicily")
@@ -328,6 +411,8 @@ def main(argv=None):
             out.write(json.dumps(rec, ensure_ascii=False) + "\n")
             written += 1
 
+    merged_with_pleiades = sum(
+        1 for edh_rec, _ in pairs if edh_rec.get("place_pleiades_id"))
     summary = {
         "edh_total": len(edh),
         "edr_total": len(edr),
@@ -337,6 +422,8 @@ def main(argv=None):
         "edh_tm_with_multiple_records": multi_edh,
         "edr_tm_with_multiple_records": multi_edr,
         "merged_records": merged_count,
+        "merged_records_with_pleiades_id": merged_with_pleiades,
+        "merged_records_with_pleiades_id_share": round(merged_with_pleiades / merged_count, 4) if merged_count else None,
         "total_written": written,
         "cross_source_overlap_counts": overlap_counts,
         "text_pick_counts": {

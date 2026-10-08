@@ -9,6 +9,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from scripts.documents.places_crosswalk import (
     TM_URI_RE,
     build_crosswalk_from_edh_geography,
+    find_disagreements,
     merge_crosswalks,
 )
 
@@ -62,3 +63,18 @@ def test_merge_crosswalks_agreement_counted():
     merged, stats = merge_crosswalks(primary, secondary)
     assert stats["agree"] == 1
     assert stats["disagree"] == 0
+
+
+def test_find_disagreements_lists_only_conflicting_shared_ids():
+    primary = {
+        1: {"pleiades_id": "100", "ancient_findspot": "Roma"},
+        2: {"pleiades_id": "200", "ancient_findspot": "Ostia"},
+        3: {"pleiades_id": "300", "ancient_findspot": "Only in EDH"},
+    }
+    secondary = {
+        1: {"pleiades_id": "999", "title": "Roma (different)"},  # disagree
+        2: {"pleiades_id": "200", "title": "Ostia"},              # agree
+        4: {"pleiades_id": "400", "title": "Only in Pleiades"},   # no overlap
+    }
+    rows = find_disagreements(primary, secondary)
+    assert rows == [(1, "100", "999", "Roma", "Roma (different)")]

@@ -89,8 +89,7 @@ def build_crosswalk_from_pleiades(path: str):
     records carry large nested `locations`/`connections`/`names` arrays
     that are not needed here), well over this stage's 6G job cap; ijson
     discards each place's structure as soon as its few needed fields are
-    read, and peak memory for this function alone measured under 300MB
-    (see DOCUMENTS_STAGE2_NOTES.md for the comparison)."""
+    read, and peak memory for this function alone measured under 300MB."""
     import ijson
 
     opener = gzip.open if path.endswith(".gz") else open
@@ -127,6 +126,26 @@ def merge_crosswalks(primary: dict, secondary: dict):
             merged[tm_id] = rec
             added += 1
     return merged, {"agree": agree, "disagree": disagree, "added_from_secondary": added}
+
+
+def find_disagreements(primary: dict, secondary: dict):
+    """List every tm_id both crosswalks cover with a DIFFERENT Pleiades
+    id, each as (tm_id, primary_pleiades_id, secondary_pleiades_id,
+    primary_label, secondary_label), sorted by tm_id. Used for the
+    manual spot check of which source to trust on conflict; not called
+    by `merge_crosswalks` itself (which already picks primary and only
+    tallies the count)."""
+    rows = []
+    for tm_id, prim_rec in primary.items():
+        sec_rec = secondary.get(tm_id)
+        if sec_rec and sec_rec["pleiades_id"] != prim_rec["pleiades_id"]:
+            rows.append((
+                tm_id, prim_rec["pleiades_id"], sec_rec["pleiades_id"],
+                prim_rec.get("ancient_findspot") or "",
+                sec_rec.get("title") or "",
+            ))
+    rows.sort(key=lambda r: r[0])
+    return rows
 
 
 def iter_edh_files(input_dir: str):
@@ -176,11 +195,23 @@ def main(argv=None) -> int:
     ap.add_argument("--crosswalk-out", required=True)
     ap.add_argument("--edh-place-links-out", required=True)
     ap.add_argument("--summary-out", required=True)
+    ap.add_argument("--disagreements-out", default=None,
+                     help="optional TSV of every tm_id where the EDH "
+                          "geography file and the Pleiades dump's own "
+                          "backlink disagree, for a manual spot check")
     args = ap.parse_args(argv)
 
     edh_cw = build_crosswalk_from_edh_geography(args.edh_geography_json)
     pleiades_cw = build_crosswalk_from_pleiades(args.pleiades_dump)
     crosswalk, cw_stats = merge_crosswalks(edh_cw, pleiades_cw)
+
+    if args.disagreements_out:
+        rows = find_disagreements(edh_cw, pleiades_cw)
+        with open(args.disagreements_out, "w", encoding="utf-8") as f:
+            f.write("tm_id\tedh_pleiades_id\tpleiades_dump_pleiades_id\t"
+                    "edh_label\tpleiades_dump_title\n")
+            for tm_id, p_id, s_id, p_label, s_label in rows:
+                f.write(f"{tm_id}\t{p_id}\t{s_id}\t{p_label}\t{s_label}\n")
 
     with open(args.crosswalk_out, "w", encoding="utf-8") as f:
         f.write("tm_place_id\tpleiades_id\tsource\tlabel\n")

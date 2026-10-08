@@ -1,0 +1,27 @@
+# Greek documentary formula words (stage 2 review, 2026-10-08)
+#
+# Source: document frequency of expanded words across the deduplicated
+# documentary corpus (EDH, EDR, papyri.info, I.Sicily), top 300 words by
+# language, from scripts/documents/formula_stoplist.py.
+# Method: words marked as Greek dating-formula vocabulary (the year,
+# month, and indiction-cycle words of a papyrus or inscription's own
+# date line) by hand review of that candidate list.
+# Explicitly EXCLUDES personal names.
+# Explicitly EXCLUDES numerals, including isolated single Greek
+# letters, which the Greek numeral system reuses as digits (alpha=1,
+# iota=10, kappa=20, ...; see scripts/documents/formula_stoplist.py's
+# numeral_like flag).
+#
+# USE: a SOFT penalty on matches built from these words (like a
+# function word list), not a hard stoplist.
+#
+# One word per line, lowercase with accents kept (matching the corpus's
+# own accented surface forms), not finalized for production use without
+# a second review.
+μηνὸς
+ἐτῶν
+ἔτει
+ἔτη
+ἔτος
+ἔτους
+ἰνδικτίωνος

@@ -4,8 +4,10 @@ count it across the full deduplicated corpus. Does NOT build the index
 or touch backend/ beyond reading its own tagged-line format for
 comparison (process_file's own `^<([^>]+)>\\s*(.+)$` line regex).
 
-Design (see DOCUMENTS_STAGE2_NOTES.md / DOCUMENTS_STAGE2_REPORT.md for
-the evidence behind the threshold):
+Design (the evidence behind the threshold is the per-source line-count
+distribution computed directly by this module's own full-corpus pass;
+see the numbers printed by `count_full_corpus` and the per-source
+percentiles discussed below):
 
 - A document with at most SHORT_LINE_THRESHOLD (default 10) transcribed
   lines is "short". Short documents are packed one-document-per-index-line
@@ -46,6 +48,12 @@ import sys
 from collections import Counter, defaultdict
 
 SHORT_LINE_THRESHOLD = 10
+
+# A short-document collection file over this many documents gets split
+# further, by century of date_not_before (2026-10-08 review: the first
+# full-corpus count put 39,249 documents in one file, edr/roma.tess,
+# since EDR is weighted toward Italy and Rome specifically).
+BUCKET_SPLIT_THRESHOLD = 10000
 
 TESS_LINE_RE = re.compile(r'^<([^>]+)>\s*(.+)$')
 
@@ -89,22 +97,69 @@ def region_of(rec: dict) -> str:
     return slugify(fs.get("region"))
 
 
+def century_of(date_not_before) -> str:
+    """Century label for `date_not_before` (negative = BCE, matching the
+    converted JSON's own convention): "undated" if null, else
+    "<n>_ad"/"<n>_bc" where year 1-100 AD is the 1st century AD and
+    year 1-100 BC (date_not_before -1 to -100) is the 1st century BC.
+    Used only to split an oversized short-document collection file
+    further; never changes which document counts as "short" vs "long"."""
+    if date_not_before is None:
+        return "undated"
+    y = date_not_before
+    if y > 0:
+        return f"{(y - 1) // 100 + 1}_ad"
+    if y < 0:
+        return f"{(-y - 1) // 100 + 1}_bc"
+    return "undated"
+
+
+def find_oversized_short_buckets(path: str, threshold: int = BUCKET_SPLIT_THRESHOLD):
+    """One streaming pass over the full corpus: which (source, region)
+    short-document buckets would hold more than `threshold` documents.
+    Returns a set of (source, region) tuples; callers then route those
+    specific buckets' documents through `short_bucket_key` with
+    century splitting instead of the plain (source, region) key."""
+    counts = Counter()
+    for rec in iter_records(path):
+        if classify(rec) == "short":
+            counts[(tag_prefix(rec), region_of(rec))] += 1
+    return {bucket for bucket, n in counts.items() if n > threshold}
+
+
+def short_bucket_key(rec: dict, oversized: set) -> tuple:
+    """(source, region) normally; (source, region, century) when that
+    (source, region) pair is in `oversized` (see
+    `find_oversized_short_buckets`)."""
+    source, region = tag_prefix(rec), region_of(rec)
+    if (source, region) in oversized:
+        return (source, region, century_of(rec.get("date_not_before")))
+    return (source, region)
+
+
+def short_bucket_filename(bucket: tuple) -> str:
+    """bucket is (source, region) or (source, region, century); returns
+    just the file's own basename (without the .tess extension), the
+    source is the directory, not part of the filename."""
+    if len(bucket) == 3:
+        return f"{bucket[1]}__{bucket[2]}"
+    return bucket[1]
+
+
 WHITESPACE_RE = re.compile(r"\s+")
 
 
 def clean_text(text: str) -> str:
     """Collapse any whitespace run (including a literal newline or tab)
-    to one space. Needed because 7,751 of 257,428 merged-corpus
-    documents (3.0%; 6,490 of them papyri.info, 1,028 EDR, 118 merged
-    EDH/EDR, 115 I.Sicily, ZERO EDH) carry a raw newline+tab sequence
-    inside a line's own `text` field: a stage 1 `epidoc_convert.py` bug
-    (its default "transparent container" branch copies an XML element's
-    `tail` text verbatim, including the source file's own pretty-printed
-    indentation whitespace, when that tail happens to span a line break
-    in the RAW XML). One `.tess` line must be one physical line; this
-    collapse is the fix for this script's OWN output. The upstream bug
-    in epidoc_convert.py is not fixed here (out of this step's scope,
-    and stage 1 already merged as PR #668); see the report."""
+    to one space. Originally added as a defensive fix for a bug found
+    while prototyping this layout (an element's XML tail could leak raw
+    newline/tab whitespace into a line's own `text` field, upstream in
+    `epidoc_convert.py`): 7,751 of 257,428 merged-corpus documents
+    (3.0%) were affected before that converter was fixed at the source
+    (2026-10-08 review; it now normalizes whitespace itself, so this
+    corpus no longer carries the bug at all). Kept here anyway as a
+    second line of defense: one `.tess` line must always be one
+    physical line, regardless of what upstream produces."""
     return WHITESPACE_RE.sub(" ", text).strip()
 
 
@@ -137,19 +192,19 @@ def iter_records(path):
             yield json.loads(line)
 
 
-def count_full_corpus(path: str):
-    short_by_bucket = Counter()      # (source, region) -> doc count
+def count_full_corpus(path: str, oversized: set = None):
+    if oversized is None:
+        oversized = find_oversized_short_buckets(path)
+    short_by_bucket = Counter()      # (source, region[, century]) -> doc count
     long_docs = Counter()            # source -> doc count
     long_lines = Counter()           # source -> total line count
-    total_short_lines_as_index_lines = Counter()  # source -> short docs (1 index line each)
 
     for rec in iter_records(path):
         source = tag_prefix(rec)
         cls = classify(rec)
         if cls == "short":
-            bucket = (source, region_of(rec))
+            bucket = short_bucket_key(rec, oversized)
             short_by_bucket[bucket] += 1
-            total_short_lines_as_index_lines[source] += 1
         else:
             long_docs[source] += 1
             long_lines[source] += len(rec.get("lines") or [])
@@ -159,10 +214,18 @@ def count_full_corpus(path: str):
     n_short_index_lines = sum(short_by_bucket.values())
     n_long_index_lines = sum(long_lines.values())
 
+    def bucket_label(bucket):
+        if len(bucket) == 3:
+            return f"{bucket[0]}/{bucket[1]}__{bucket[2]}"
+        return f"{bucket[0]}/{bucket[1]}"
+
     return {
         "short_line_threshold": SHORT_LINE_THRESHOLD,
-        "short_files_by_source_region": {
-            f"{s}/{r}": c for (s, r), c in sorted(short_by_bucket.items())
+        "bucket_split_threshold": BUCKET_SPLIT_THRESHOLD,
+        "oversized_buckets_split_by_century": sorted(
+            f"{s}/{r}" for s, r in oversized),
+        "short_files_by_bucket": {
+            bucket_label(b): c for b, c in sorted(short_by_bucket.items())
         },
         "n_short_collection_files": n_short_files,
         "n_short_docs_total": n_short_index_lines,
@@ -175,11 +238,18 @@ def count_full_corpus(path: str):
     }
 
 
-def write_sample(path: str, out_dir: str, sample_limit: int):
+def write_sample(path: str, out_dir: str, sample_limit: int, oversized: set = None):
     """Actually write the proposed layout for a bounded sample of
     records (not the whole corpus), and validate every written line
     against the exact regex backend/text_processor.py's process_file
-    uses to read an existing .tess file."""
+    uses to read an existing .tess file. `oversized` (normally computed
+    once over the FULL corpus by the caller, see `main`) decides which
+    (source, region) buckets get split further by century; a sample
+    this small would essentially never cross BUCKET_SPLIT_THRESHOLD on
+    its own, so passing the full corpus's own oversized set is what
+    makes the sample actually demonstrate the split."""
+    if oversized is None:
+        oversized = set()
     os.makedirs(out_dir, exist_ok=True)
     short_buckets: dict[tuple, list[str]] = defaultdict(list)
     long_files_written = 0
@@ -193,7 +263,7 @@ def write_sample(path: str, out_dir: str, sample_limit: int):
         checked += 1
         if classify(rec) == "short":
             line = short_doc_tess_line(rec)
-            short_buckets[(tag_prefix(rec), region_of(rec))].append(line)
+            short_buckets[short_bucket_key(rec, oversized)].append(line)
             if not TESS_LINE_RE.match(line):
                 regex_failures.append(line[:120])
         else:
@@ -212,10 +282,11 @@ def write_sample(path: str, out_dir: str, sample_limit: int):
             long_files_written += 1
             long_lines_written += len(lines)
 
-    for (source, region), lines in short_buckets.items():
+    for bucket, lines in short_buckets.items():
+        source = bucket[0]
         source_dir = os.path.join(out_dir, source, "short")
         os.makedirs(source_dir, exist_ok=True)
-        fpath = os.path.join(source_dir, f"{region}.tess")
+        fpath = os.path.join(source_dir, f"{short_bucket_filename(bucket)}.tess")
         with open(fpath, "w", encoding="utf-8") as f:
             for ln in lines:
                 f.write(ln + "\n")
@@ -231,6 +302,34 @@ def write_sample(path: str, out_dir: str, sample_limit: int):
     }
 
 
+def validate_full_corpus_regex(path: str, oversized: set = None):
+    """Generate every .tess line this layout would produce for the WHOLE
+    corpus (not a sample) and check each one against TESS_LINE_RE,
+    without writing any file to disk. Used to confirm the whitespace
+    fix (epidoc_convert.py, 2026-10-08 review) actually holds over the
+    full corpus, not just a 3,000-document sample."""
+    if oversized is None:
+        oversized = find_oversized_short_buckets(path)
+    total_lines = 0
+    failures = []
+    for rec in iter_records(path):
+        if classify(rec) == "short":
+            line = short_doc_tess_line(rec)
+            total_lines += 1
+            if not TESS_LINE_RE.match(line):
+                failures.append(line[:160])
+        else:
+            for line in long_doc_tess_lines(rec):
+                total_lines += 1
+                if not TESS_LINE_RE.match(line):
+                    failures.append(line[:160])
+    return {
+        "total_lines_checked": total_lines,
+        "regex_failures": failures,
+        "all_lines_matched_tess_regex": len(failures) == 0,
+    }
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                   formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -238,12 +337,19 @@ def main(argv=None) -> int:
     ap.add_argument("--sample-out-dir", required=True)
     ap.add_argument("--sample-limit", type=int, default=3000)
     ap.add_argument("--output", required=True, help="summary JSON path")
+    ap.add_argument("--skip-full-validate", action="store_true",
+                     help="skip the full-corpus regex check (it is run by "
+                          "default; the whole corpus, not a sample)")
     args = ap.parse_args(argv)
 
-    sample_result = write_sample(args.input, args.sample_out_dir, args.sample_limit)
-    full_result = count_full_corpus(args.input)
+    oversized = find_oversized_short_buckets(args.input)
+    sample_result = write_sample(args.input, args.sample_out_dir, args.sample_limit, oversized)
+    full_result = count_full_corpus(args.input, oversized)
 
     result = {"sample": sample_result, "full_corpus": full_result}
+    if not args.skip_full_validate:
+        result["full_corpus_regex_validation"] = validate_full_corpus_regex(args.input, oversized)
+
     with open(args.output, "w", encoding="utf-8") as f:
         json.dump(result, f, indent=2, ensure_ascii=False)
     print(json.dumps(result, indent=2, ensure_ascii=False), file=sys.stderr)

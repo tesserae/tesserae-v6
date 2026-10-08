@@ -60,6 +60,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 from dataclasses import dataclass, field
 from typing import Iterable, Optional
@@ -68,6 +69,34 @@ from lxml import etree
 
 TEI_NS = "http://www.tei-c.org/ns/1.0"
 NS = {"t": TEI_NS, "xml": "http://www.w3.org/XML/1998/namespace"}
+
+_WHITESPACE_RUN_RE = re.compile(r"\s+")
+
+
+def _normalize_whitespace(s: str) -> str:
+    """Collapse any run of whitespace (space, tab, newline, CR) to a
+    single regular space. Every chunk of text or tail pulled off the raw
+    XML goes through here before it is appended to a line's diplomatic
+    or expanded rendering (see `LineBuffer.add_diplomatic`/
+    `add_expanded` below), so a line's own `text` field can never
+    contain a newline or a tab, regardless of which branch of
+    `recurse()` or `_append_tail()` produced the chunk.
+
+    Fixes a bug found while prototyping the index file layout (stage 2,
+    2026-10-07): the source XML is pretty-printed, so an element's own
+    `.tail` sometimes spans a line break in the raw file (e.g. a
+    `<gap/>` followed by the next word on an indented new line of the
+    XML source); before this fix, that pretty-print whitespace rode
+    straight into the converted JSON's `text` field verbatim (confirmed
+    example: EDR Trismegistos id 122015, one line's `text` held
+    `"dono dedit.\\n\\t\\t\\t\\t\\u2588\\n\\t\\t\\t\\tSentonae"`). Measured over
+    the full corpus before this fix: 7,751 of 257,428 deduplicated
+    documents (3.0%) had at least one affected line. `add_diplomatic`/
+    `add_expanded` are the sole path every branch of `recurse()` uses to
+    accumulate text, so fixing it there fixes every branch at once, not
+    only the branch (and `_append_tail`, shared by all of them) where
+    the bug was first found."""
+    return _WHITESPACE_RUN_RE.sub(" ", s)
 
 
 def qn(tag: str) -> str:
@@ -96,9 +125,10 @@ class LineBuffer:
     restored_flags: list = field(default_factory=list)
 
     def add_diplomatic(self, s: str) -> None:
-        self.diplomatic.append(s)
+        self.diplomatic.append(_normalize_whitespace(s))
 
     def add_expanded(self, s: str, restored: bool = False) -> None:
+        s = _normalize_whitespace(s)
         self.expanded.append(s)
         self.restored_flags.extend([restored] * len(s))
 

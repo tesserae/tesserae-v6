@@ -229,3 +229,36 @@ def test_word_broken_across_a_line_is_joined(tmp_path):
     assert rec["lines"][1]["joins_previous"] is True
     assert rec["lines"][0]["joins_previous"] is False
     assert rec["text"] == "Dis Manibus sacrum"
+
+
+def test_gap_tail_whitespace_never_leaks_into_line_text(tmp_path):
+    """A <gap/> (or any element) whose .tail spans a line break in the
+    pretty-printed source XML must not leave a literal newline or tab
+    inside a line's own `text`/`diplomatic`/`expanded` fields: one .tess
+    index line must always be one physical line. This reproduces the
+    exact pattern found in EDR Trismegistos id 122015 during stage 2
+    (a <gap/> followed by the next word on an indented new source line)."""
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<TEI xmlns="http://www.tei-c.org/ns/1.0">\n'
+        '  <teiHeader><fileDesc><titleStmt><title>t</title></titleStmt>\n'
+        '  <publicationStmt><idno type="filename">X2</idno></publicationStmt>\n'
+        '  <sourceDesc><p/></sourceDesc></fileDesc></teiHeader>\n'
+        '  <text><body><div type="edition" xml:lang="la"><ab>\n'
+        '    <lb n="1"/>Sentona\n'
+        '    <lb n="2" break="no"/><gap reason="lost" unit="character" quantity="1"/>\n'
+        '\t\t\t\tSilicius\n'
+        '  </ab></div></body></text>\n'
+        '</TEI>'
+    )
+    p = tmp_path / "X2.xml"
+    p.write_text(xml, encoding="utf-8")
+    rec = epidoc_convert.convert_file(str(p), "test")
+    for ln in rec["lines"]:
+        for field in ("text", "diplomatic", "expanded"):
+            assert "\n" not in ln[field], (field, ln[field])
+            assert "\t" not in ln[field], (field, ln[field])
+    assert "\n" not in rec["text"] and "\t" not in rec["text"]
+    # The gap-split word still joins cleanly, with exactly one space
+    # where the raw newline+tabs used to leak through.
+    assert rec["lines"][1]["text"] == "█ Silicius"
