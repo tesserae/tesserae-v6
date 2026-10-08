@@ -7,6 +7,7 @@ import {
   collapseLineRuns,
   formatLineGroup,
   formatRefrainPopover,
+  formatSelectionRange,
 } from '../textNames';
 
 // Result card tidy (2026-10-08): the card showed "Vergil, Aeneid 1.1" for
@@ -19,6 +20,7 @@ import {
 const faTexts = new Map([
   ['hafez.diwan', { author: 'Hafez', title: 'Diwan' }],
   ['iqbal.zabur_e_ajam', { author: 'Iqbal', title: 'Zabur-e Ajam' }],
+  ['iqbal.asrar_e_khudi', { author: 'Iqbal', title: 'Asrar-e Khudi' }],
 ]);
 
 describe('looksLikeRawSiteId', () => {
@@ -99,6 +101,44 @@ describe('resolveDisplayCitation', () => {
     // first segment as the author, which is what expandLocus's own fallback
     // already does for an unmapped tag.
     expect(text.toLowerCase()).toContain('nobody');
+  });
+});
+
+describe('formatSelectionRange', () => {
+  // Reader header + selection toolbar readable refs (owner review of Asrar-e
+  // Khudi, 2026-10-08): both printed the raw site id and its raw end ref
+  // ("iqbal.asrar_e_khudi.1.1-.1.5") because neither had a citation string
+  // to hand `resolveDisplayCitation` -- a selection carries only refs.
+  it('resolves a Persian selection to a readable range, end shortened to what differs', () => {
+    expect(formatSelectionRange('iqbal.asrar_e_khudi.1.1', 'iqbal.asrar_e_khudi.1.5', faTexts))
+      .toBe('Iqbal, Asrar-e Khudi 1.1–5');
+  });
+
+  it('resolves a single-ref (word/line) selection with no dash', () => {
+    expect(formatSelectionRange('hafez.diwan.5097', 'hafez.diwan.5097', faTexts))
+      .toBe('Hafez, Diwan 5097');
+  });
+
+  it('defaults refEnd to refStart when omitted', () => {
+    expect(formatSelectionRange('hafez.diwan.5097', undefined, faTexts)).toBe('Hafez, Diwan 5097');
+  });
+
+  it('keeps working for Latin via the static table when no corpus map is loaded', () => {
+    expect(formatSelectionRange('verg. aen. 1.1', 'verg. aen. 1.3', null))
+      .toBe('Vergil, Aeneid 1.1–3');
+  });
+
+  it('shortens across a differing prefix, not just the trailing digits', () => {
+    // Crossing from book 1 into book 2: the whole "2.1" has to show, not
+    // just a trailing "1" that would misread as still being in book 1.
+    expect(formatSelectionRange('iqbal.asrar_e_khudi.1.9', 'iqbal.asrar_e_khudi.2.1', faTexts))
+      .toBe('Iqbal, Asrar-e Khudi 1.9–2.1');
+  });
+
+  it('falls back to the raw refs, dashed, when nothing resolves', () => {
+    const result = formatSelectionRange('nobody.knows.1', 'nobody.knows.5', null);
+    expect(result).toContain('5');
+    expect(result.toLowerCase()).toContain('nobody');
   });
 });
 

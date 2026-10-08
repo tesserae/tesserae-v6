@@ -568,6 +568,45 @@ export function resolveDisplayCitation(existingText, rawRef, corpusMap) {
   return { text: '', siteId };
 }
 
+/**
+ * The Reader header and selection toolbar's own range display: a readable
+ * citation for `refStart` (the corpus text map or the static tables,
+ * exactly as `resolveDisplayCitation` resolves a result card's), with
+ * `refEnd` shortened to only what differs from it -- "Iqbal, Asrar-e
+ * Khudi 1.1-5", not "...1.1-iqbal.asrar_e_khudi.1.5". Before this, both
+ * spots printed the raw site id and its end ref verbatim whenever no
+ * `existingText` citation had been fetched yet for the open text (owner
+ * review of Asrar-e Khudi, 2026-10-08) -- which is always true for a
+ * passage the reader just selected, since the selection carries only
+ * refs, never a citation string.
+ *
+ * Falls back to the two raw refs, dashed together, only when neither the
+ * corpus map nor the static tables resolve anything -- a reader still
+ * sees the position rather than nothing.
+ *
+ * @param {string} refStart
+ * @param {string} [refEnd] defaults to `refStart` (a single-ref selection).
+ * @param {Map|null} [corpusMap] from `useCorpusTextMap`/`loadCorpusTextMap`.
+ * @returns {string}
+ */
+export function formatSelectionRange(refStart, refEnd, corpusMap) {
+  const startId = siteIdFromRef(refStart);
+  const endId = siteIdFromRef(refEnd || refStart);
+  if (!startId) return endId;
+  const start = resolveDisplayCitation('', startId, corpusMap).text || startId;
+  if (endId === startId) return start;
+  const end = resolveDisplayCitation('', endId, corpusMap).text || endId;
+  // Shorten `end` to what differs from `start`: walk both display strings
+  // to the first differing character, then back up to the last '.' or ' '
+  // boundary before it, so "Iqbal, Asrar-e Khudi 1.1" / "...1.5" yields
+  // "5", not a mid-number cut.
+  let i = 0;
+  while (i < start.length && i < end.length && start[i] === end[i]) i += 1;
+  const cut = Math.max(end.lastIndexOf('.', i - 1), end.lastIndexOf(' ', i - 1)) + 1;
+  const tail = end.slice(cut) || end;
+  return `${start}–${tail}`;
+}
+
 /** Collapse a sorted set of line numbers into "a to b" runs, but only once a
  *  run is 3 or more lines long -- "1 to 7" is shorter than spelling out
  *  seven numbers, but "5097 to 5098" is longer than "5097, 5098" for a run

@@ -22,6 +22,7 @@
 
 import { useState } from 'react';
 import { RequestDialog } from '../common';
+import { formatSelectionRange, useCorpusTextMap } from '../../utils/textNames';
 
 const SCOPES = [
   { key: 'word', label: 'Word' },
@@ -56,12 +57,13 @@ export default function SelectionToolbar({
   selection, scope, onScope, work, language, onAct, onClose,
 }) {
   const [reportOpen, setReportOpen] = useState(false);
+  const corpusMap = useCorpusTextMap(language);
 
   if (!selection) return null;
 
   const refStart = selection.refStart;
   const refEnd = selection.refEnd || refStart;
-  const shown = refStart === refEnd ? refStart : `${refStart}–${tail(refEnd)}`;
+  const shown = formatSelectionRange(refStart, refEnd, corpusMap);
   const action = ACTION[scope] || ACTION.line;
   const word = wordOf(selection);
 
@@ -157,9 +159,4 @@ export default function SelectionToolbar({
       />
     </div>
   );
-}
-
-function tail(ref) {
-  const m = String(ref || '').match(/([\d.]+)\s*$/);
-  return m ? m[1] : ref;
 }
