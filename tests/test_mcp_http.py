@@ -178,3 +178,19 @@ def test_scholarship_tools_listed_and_callable_when_flag_is_set(monkeypatch):
                     "params": {"name": "get_commentary",
                                "arguments": {"work": "vergil.aeneid", "ref_start": "1.1"}}})
     assert r3["result"]["isError"] is False
+
+
+def test_line_search_drops_documents_params_unless_connector_switch(monkeypatch):
+    """The website's documents trial (?documents=1) is not opened to every
+    connector user: line_search forwards collection and its filters only
+    when TESSERAE_DOCUMENTS_CONNECTOR=1."""
+    from backend.blueprints import mcp_http
+    sent = []
+    monkeypatch.setattr(mcp_http, '_post', lambda path, body: sent.append(body) or {'total': 0, 'results': []})
+    args = {'query': 'dis manibus', 'language': 'la', 'collection': 'documents', 'region': 'Roma'}
+    monkeypatch.delenv('TESSERAE_DOCUMENTS_CONNECTOR', raising=False)
+    mcp_http._t_line_search(dict(args))
+    assert 'collection' not in sent[-1] and 'region' not in sent[-1]
+    monkeypatch.setenv('TESSERAE_DOCUMENTS_CONNECTOR', '1')
+    mcp_http._t_line_search(dict(args))
+    assert sent[-1]['collection'] == 'documents' and sent[-1]['region'] == 'Roma'

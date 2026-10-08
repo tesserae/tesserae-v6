@@ -1,4 +1,5 @@
 import Pagination from '../common/Pagination';
+import { getSessionValue, setSessionValue } from '../../utils/storage';
 import { usePagination } from '../../hooks/usePagination';
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { LoadingSpinner, SearchableSelect } from '../common';
@@ -49,8 +50,15 @@ export default function LineSearch({ language }) {
 
   // Documents collection (stage 3b-2, behind TESSERAE_DOCUMENTS=1): the
   // documentary corpus (inscriptions, papyri) searchable alongside or
-  // instead of literature. The control only appears once /api/languages
-  // confirms the server actually has it on.
+  // instead of literature. A trial, not yet shown to every reader:
+  // ?documents=1 switches it on and remembers that for the rest of the
+  // visit, as the Scholarship tab does, and the control appears only once
+  // /api/languages also confirms the server has it on.
+  const [documentsTrial] = useState(() => {
+    const fromUrl = new URLSearchParams(window.location.search).get('documents') === '1';
+    if (fromUrl) setSessionValue('documents_trial', '1');
+    return fromUrl || getSessionValue('documents_trial', '0') === '1';
+  });
   const [documentsEnabled, setDocumentsEnabled] = useState(false);
   const [collection, setCollection] = useState('literature');
   const [dateFrom, setDateFrom] = useState('');
@@ -62,7 +70,7 @@ export default function LineSearch({ language }) {
 
   useEffect(() => {
     fetch('/api/languages').then(r => r.json()).then(data => {
-      setDocumentsEnabled(!!data.documents_enabled);
+      setDocumentsEnabled(documentsTrial && !!data.documents_enabled);
     }).catch(() => {});
   }, []);
   const chartRef = useRef(null);
