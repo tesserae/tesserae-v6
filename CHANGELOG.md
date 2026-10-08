@@ -9,6 +9,12 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Records: scholarship sources installed, and the terms they are held on
+- `docs/DATA_OPERATIONS.md` records the installation of the commentary
+  catalogue, citation index, abbreviation table and service keys on the live
+  site. `docs/DECISIONS.md` records what the Scholarship tab draws on and the
+  licence rule for commentaries. No code change.
+
 ### De Viris Illustribus and Origo Gentis Romanae added to the Aurelius Victor corpus
 - Two pseudonymous Latin prose works transmitted with the Aurelius Victor
   corpus, from The Latin Library (edition not stated):
