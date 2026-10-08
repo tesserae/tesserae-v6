@@ -9,6 +9,15 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Documents: the credit shows each source's deposit licence
+- `scripts/documents/extract_metadata.py` takes the licence for every
+  document from the source's own deposit record, not from the sentence in
+  each file's header. EDR's headers still carry an older "reserved rights"
+  template although its 2026 deposit is CC BY 4.0, and EDH's headers give a
+  full sentence where a licence name belongs. Test added. The metadata
+  database was rebuilt (257,428 documents: EDH CC BY-SA 4.0, EDR CC BY 4.0,
+  I.Sicily CC BY 4.0, papyri.info CC BY 3.0).
+
 ### Documentary texts, stage 3b-2: documents in the corpus-wide phrase search, behind a switch
 - `backend/documents.py`: lazy, read-only access to the stage 3b-1
   documents index(es), stage 3a's metadata database, and the per-bucket
