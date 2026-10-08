@@ -88,6 +88,21 @@ export default function CiteButton({ finding, label = 'Cite', className = '' }) 
           className="absolute right-0 z-50 mt-1 w-[22rem] max-w-[85vw] rounded border border-gray-300
                      bg-white shadow-lg p-3 text-left"
         >
+          {/* One citation of the project covers a whole publication; the
+              citation built below is for a reader who wants to point to
+              this specific parallel, and stays available underneath (owner's
+              review, 2026-10-08). */}
+          <p className="text-[11px] text-gray-600 mb-2 pb-2 border-b border-gray-100 leading-snug">
+            One citation of Tesserae per publication is enough. Individual parallels do
+            not need their own.{' '}
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent('tesserae:open-how-to-cite'))}
+              className="text-red-700 hover:underline font-medium"
+            >
+              How to cite Tesserae
+            </button>
+          </p>
           <div className="flex rounded border border-gray-300 overflow-hidden mb-2">
             {CITATION_STYLES.map((s) => (
               <button

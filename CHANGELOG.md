@@ -9,6 +9,39 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Cross-Language results: the same tools as single-language results, plus citation guidance
+- The Cross-Language result card gained the same actions the single-language
+  card has: Cite (naming both sides, the language pair and the site, with
+  the "Report a problem with this result" link that already comes with
+  CiteButton), Register (recording both languages, both texts and refs, and
+  the channels, no schema change needed since `source_language`/
+  `target_language` were already independent columns), and one Search
+  Corpus action per side (a cross-language pair's two lines are in two
+  different languages, so each side searches only its own language's
+  corpus).
+- Page-level parity: pagination with a page-size control above the list and
+  navigation below it, Export PDF alongside the existing Export CSV, Refresh
+  results (clears the cache and reruns), a Share link extended with the
+  cross-language parameters (`pair`, `source`, `target`, `min_matches`, on
+  top of the existing `lang=cross`) so a shared link reopens the same
+  search, Saved Searches under its own storage key (a language pair is not
+  a language the single-language list's loader could reopen), Ask Tessa,
+  and the highlight legend with its Help link.
+- Cite popup (`client/src/components/common/CiteButton.jsx`): one sentence
+  above the citation says one citation of the project per publication is
+  enough, with a link to the About page's "How to Cite" section (now
+  `id="how-to-cite"`, and `AboutPage` takes an `initialAnchor` the same way
+  `HelpPage` already does). The same sentence and link are in Help's
+  "Reading the results" section.
+- Removed the one-line description above the Cross-Language page and the
+  em dash in the bigram description (`SearchDescription.jsx`).
+- Backend: `backend/assistant/findings.py` `_channels_of` read a
+  cross-language result's `channels` (a comma-joined string, not a list)
+  with `set()`, which silently returned a set of characters, so Tessa's
+  "Ask" on a cross-language result always computed "weak" evidence
+  regardless of what the channels actually were. It now parses that string
+  form too.
+
 ### Corpus tool fix: drop-lines-from-work keeps the passage index in lockstep and no longer over-drops scattered refs
 - `scripts/corpus/drop_lines_from_work.py` had two defects found on its
   first production run. (1) Dropping windows removed rows from
