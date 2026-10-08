@@ -1110,6 +1110,11 @@ function App() {
           </div>
         )}
 
+        {/* This tab's own showCorpusSearch branch, separate from the one
+            inside the `activeTab !== 'cross'` block above: the two
+            conditions are mutually exclusive on activeTab, so exactly one
+            of the two CorpusSearchResults renders ever mounts, never both
+            (crosslingual parity, 2026-10-08). */}
         {pageType === 'search' && activeTab === 'cross' && (
           showCorpusSearch ? (
             <CorpusSearchResults

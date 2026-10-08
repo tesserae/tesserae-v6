@@ -468,6 +468,13 @@ export default function CrossLingualSearch({ onOpenHelp, onRegister, onCorpusSea
   // doubles as this instance's "language" (SavedSearches is language-
   // agnostic), and sourceText/targetText are the chosen section ids.
   const handleLoadSavedSearch = useCallback((search) => {
+    // Cleared up front, not left for the autoRunKey effect to set: if a
+    // search already ran on this page before Load was clicked, minMatches
+    // and hebrewGreekRoute changing here would otherwise also satisfy the
+    // existing "re-run on a settings change" effects below (whose own
+    // guard is hasSearchedRef.current), firing doSearch twice more on top
+    // of the one call this triggers on purpose.
+    hasSearchedRef.current = false;
     const pair = pairs.find(p => p.key === search.language) || currentPair;
     setLangPair(pair.key);
     const srcOwner = findSectionOwner(hierarchy[pair.source] || [], search.sourceText);
@@ -909,7 +916,7 @@ export default function CrossLingualSearch({ onOpenHelp, onRegister, onCorpusSea
               <button
                 onClick={exportPDF}
                 className="text-xs bg-red-700 text-white px-3 py-1.5 rounded hover:bg-red-800"
-                title="Open print-friendly view; choose 'Save as PDF' in the print dialog."
+                title="Open print-friendly view. Choose 'Save as PDF' in the print dialog."
               >
                 Export PDF
               </button>

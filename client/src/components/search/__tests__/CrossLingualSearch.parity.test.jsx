@@ -185,3 +185,37 @@ describe('CrossLingualSearch — share link round trip', () => {
     expect(screen.getByText('Ghalib, Diwan 64.1')).toBeTruthy();
   });
 });
+
+describe('CrossLingualSearch — Saved Searches load after an earlier search', () => {
+  // A pasted share link is safe because hasSearchedRef starts false, but
+  // loading a Saved Search after the page has already searched once sets
+  // minMatches/hebrewGreekRoute alongside the sourceSection/targetSection
+  // that trigger the "re-run on a settings change" effects (whose own
+  // guard is hasSearchedRef.current, already true from the earlier
+  // search). Without clearing it first, Load could fire doSearch two or
+  // three times for one click.
+  it('runs the search exactly once more, not two or three times', async () => {
+    localStorage.setItem('tesserae_saved_crosslingual_searches', JSON.stringify([{
+      id: 1, name: 'My search', created_at: new Date().toISOString(),
+      language: 'fa-ur',
+      sourceAuthor: 'hafez', sourceText: 'hafez.diwan.tess',
+      targetAuthor: 'ghalib', targetText: 'ghalib.diwan_wikisource.tess',
+      settings: { min_matches: 4, hebrew_greek_route: 'direct' },
+    }]));
+    await runPersianUrduSearch();
+    global.fetch.mockClear();
+
+    fireEvent.click(screen.getByRole('button', { name: /Saved Searches/ }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Load' }));
+
+    await waitFor(() => {
+      const calls = global.fetch.mock.calls.filter(([url]) => String(url).includes('/api/search'));
+      expect(calls.length).toBe(1);
+    });
+    // Give any extra, wrongly-fired call a moment it would need to appear.
+    await new Promise((r) => setTimeout(r, 50));
+    const calls = global.fetch.mock.calls.filter(([url]) => String(url).includes('/api/search'));
+    expect(calls.length).toBe(1);
+    expect(JSON.parse(calls[0][1].body).min_matches).toBe(4);
+  });
+});
