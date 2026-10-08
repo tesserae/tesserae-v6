@@ -9,6 +9,23 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Corpus tool: drop specific lines from a work across every store that names a line by its ref
+- `scripts/corpus/drop_lines_from_work.py`, following an audit of Persian
+  and Urdu imports that found a signed, dated modern editor's essay
+  bundled into a diwan file alongside the poem it prefaces. Dry run by
+  default; `--apply` rewrites the `.tess` file (remaining lines keep their
+  original ref labels, nothing renumbered), the matching rows of the
+  language's inverted index (with `lemma_doc_freq` recomputed under the
+  canonical per-work rule), the matching rows of the work's embeddings
+  `.npy`/`.meta.json` (dropped by ref, not recomputed: the surviving
+  rows' text did not change), and any passage window whose span touches a
+  dropped ref, with its description and vector rows. Prints the
+  whole-language/whole-corpus follow-up (lemma cache rebuild, bigram
+  rebuild, names-index and connections-map rebuild) it does not attempt
+  itself. Backups and copy-modify-swap throughout, per
+  `scripts/corpus/corpus_safety.py`. Tests only, against a fixture; not
+  yet run against production. `tests/test_drop_lines_from_work.py`.
+
 ### Result card tidy, second pass: hover popovers, one legend line, Search Corpus highlighting
 - `client/src/components/common/InfoBadge.jsx`: no more info icon or help
   cursor on every badge; the badge itself is the trigger. A popover opens
