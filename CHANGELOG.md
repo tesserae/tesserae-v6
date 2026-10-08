@@ -9,6 +9,21 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Translation aligner: Iqbal's Asrar-e Khudi from Nicholson's 1920 translation
+- `scripts/translations/align_asrar_nicholson.py` plus its shared
+  `write_aligned.py` helper, which writes the served (compact) shape
+  `backend/translations.py` reads (`units` + `ref_to_unit`) directly, the
+  same fields the earlier Latin and Greek aligners record inline. Aligns
+  R. A. Nicholson's *The Secrets of the Self* (Project Gutenberg 57317,
+  public domain, 1920) to `texts/fa/iqbal.asrar_e_khudi.tess` couplet for
+  couplet in 17 of 19 sections (the Prologue needs a hemistich offset for
+  our opening epigraph), one section in blocks of two couplets, and
+  leaves Nicholson's section XVII untranslated rather than misaligned
+  (43 couplets in his English against 61 of ours). 872/872 refs covered;
+  its output is already installed on production as
+  `data/translations/fa__iqbal.asrar_e_khudi.json` (not tracked in git).
+  This PR ports the script itself to `main` for reproducibility.
+
 ### Reuse table builder confirmed language-generic; Persian and Urdu built on the dev checkout
 - `scripts/reuse/build_reuse_table.py` and `backend/reuse_table.py` named
   no language anywhere in either (both already drive off `--language`
