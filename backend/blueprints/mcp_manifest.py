@@ -50,6 +50,10 @@ MANIFEST = {
     '/api/languages': {
         'tools': ['get_languages'],
     },
+    '/api/corpus-version': {
+        'site_only': True,
+        'reason': 'The date stamp for the Cite popup; connector tools already return corpus_version with their counts.',
+    },
     '/api/texts': {
         'tools': ['list_texts'],
     },
