@@ -1,0 +1,836 @@
+[
+ {
+  "query": "a lover passionately addresses the beloved",
+  "language": "fa",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "the beauty of the beloved's face",
+  "language": "fa",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "wine and drunkenness as a path to God",
+  "language": "fa",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "separation from the beloved causes grief",
+  "language": "fa",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "praise of God and mystical devotion",
+  "language": "fa",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "love",
+  "language": "fa",
+  "bucket": "pervasive_short",
+  "present": true
+ },
+ {
+  "query": "wine",
+  "language": "fa",
+  "bucket": "pervasive_short",
+  "present": true
+ },
+ {
+  "query": "a lover waits at the beloved's door all night",
+  "language": "fa",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a nightingale sings to a rose",
+  "language": "fa",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "the cupbearer is asked to pour wine at dawn",
+  "language": "fa",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a moth is drawn to the candle flame and burns",
+  "language": "fa",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a dervish renounces the world for love of God",
+  "language": "fa",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "airplanes flying overhead",
+  "language": "fa",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a stock market crash",
+  "language": "fa",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a smartphone",
+  "language": "fa",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a locomotive crosses a bridge",
+  "language": "fa",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a photograph is developed",
+  "language": "fa",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "airplanes",
+  "language": "fa",
+  "bucket": "absent_short",
+  "present": false
+ },
+ {
+  "query": "a lover passionately addresses the beloved",
+  "language": "ur",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "the beauty of the beloved's face",
+  "language": "ur",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "wine and the cupbearer at the tavern",
+  "language": "ur",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "separation from the beloved causes grief",
+  "language": "ur",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "praise of God and mystical devotion",
+  "language": "ur",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "love",
+  "language": "ur",
+  "bucket": "pervasive_short",
+  "present": true
+ },
+ {
+  "query": "wine",
+  "language": "ur",
+  "bucket": "pervasive_short",
+  "present": true
+ },
+ {
+  "query": "a lover waits at the beloved's door all night",
+  "language": "ur",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a nightingale sings to a rose",
+  "language": "ur",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "the cupbearer is asked to pour wine at dawn",
+  "language": "ur",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a moth is drawn to the candle flame and burns",
+  "language": "ur",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a poet laments the beloved's indifference",
+  "language": "ur",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "airplanes flying overhead",
+  "language": "ur",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a stock market crash",
+  "language": "ur",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a smartphone",
+  "language": "ur",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a locomotive crosses a bridge",
+  "language": "ur",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a photograph is developed",
+  "language": "ur",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "airplanes",
+  "language": "ur",
+  "bucket": "absent_short",
+  "present": false
+ },
+ {
+  "query": "war between two armies",
+  "language": "la",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "a storm at sea batters ships and terrifies the crew",
+  "language": "la",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "the anger of the gods punishes mortals",
+  "language": "la",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "the pain and longing of exile",
+  "language": "la",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "love turns to obsession and ruin",
+  "language": "la",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "war",
+  "language": "la",
+  "bucket": "pervasive_short",
+  "present": true
+ },
+ {
+  "query": "a warrior arms himself piece by piece before battle",
+  "language": "la",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a guest arrives and is welcomed with food, wine, and a bath",
+  "language": "la",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "funeral games with athletic contests held in honor of the dead",
+  "language": "la",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a messenger arrives breathless with news of disaster",
+  "language": "la",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "an old nurse recognizes her former charge by a scar",
+  "language": "la",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "airplanes flying overhead",
+  "language": "la",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a stock market crash",
+  "language": "la",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a telegraph operator sends a message",
+  "language": "la",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a smartphone",
+  "language": "la",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a locomotive crosses a bridge",
+  "language": "la",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "airplanes",
+  "language": "la",
+  "bucket": "absent_short",
+  "present": false
+ },
+ {
+  "query": "war between two armies",
+  "language": "grc",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "a storm at sea batters ships and terrifies the crew",
+  "language": "grc",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "the wrath of the gods punishes mortals",
+  "language": "grc",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "grief for a fallen comrade",
+  "language": "grc",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "a hero wins glory in battle",
+  "language": "grc",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "war",
+  "language": "grc",
+  "bucket": "pervasive_short",
+  "present": true
+ },
+ {
+  "query": "a warrior arms himself piece by piece before battle",
+  "language": "grc",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a mother laments her dead son over his body",
+  "language": "grc",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a wife recognizes her husband returned after long absence",
+  "language": "grc",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a chorus sings of fate and the gods' justice",
+  "language": "grc",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "an oracle gives an ambiguous prophecy",
+  "language": "grc",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "airplanes flying overhead",
+  "language": "grc",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a stock market crash",
+  "language": "grc",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a photograph is developed",
+  "language": "grc",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a smartphone",
+  "language": "grc",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "an election campaign",
+  "language": "grc",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "airplanes",
+  "language": "grc",
+  "bucket": "absent_short",
+  "present": false
+ },
+ {
+  "query": "the beauty of nature in springtime",
+  "language": "en",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "sin and the fall of man",
+  "language": "en",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "a journey toward salvation",
+  "language": "en",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "love and longing for the beloved",
+  "language": "en",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "divine judgment and the wrath of God",
+  "language": "en",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "love",
+  "language": "en",
+  "bucket": "pervasive_short",
+  "present": true
+ },
+ {
+  "query": "a pilgrim meets a tempter on the road",
+  "language": "en",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "an angel appears to warn of coming danger",
+  "language": "en",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a shepherd watches his flock at night",
+  "language": "en",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a battle between angels and demons",
+  "language": "en",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a garden described in loving detail",
+  "language": "en",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "airplanes flying overhead",
+  "language": "en",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a stock market crash",
+  "language": "en",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a smartphone",
+  "language": "en",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "an automobile drives down the street",
+  "language": "en",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a space rocket launches",
+  "language": "en",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "airplanes",
+  "language": "en",
+  "bucket": "absent_short",
+  "present": false
+ },
+ {
+  "query": "praise of God in song",
+  "language": "he",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "a covenant between God and the people",
+  "language": "he",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "the exodus from slavery in Egypt",
+  "language": "he",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "sin and repentance before God",
+  "language": "he",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "a psalm of lament crying out to God",
+  "language": "he",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "God",
+  "language": "he",
+  "bucket": "pervasive_short",
+  "present": true
+ },
+ {
+  "query": "a prophet denounces the people's idolatry",
+  "language": "he",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a king is anointed by a prophet",
+  "language": "he",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a woman gives birth to a long-awaited son",
+  "language": "he",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a battle commanded directly by God",
+  "language": "he",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a famine forces a family to leave their land",
+  "language": "he",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "airplanes flying overhead",
+  "language": "he",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a stock market crash",
+  "language": "he",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a smartphone",
+  "language": "he",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a locomotive crosses a bridge",
+  "language": "he",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "an election campaign",
+  "language": "he",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "airplanes",
+  "language": "he",
+  "bucket": "absent_short",
+  "present": false
+ },
+ {
+  "query": "renunciation of the world for a life of prayer",
+  "language": "cop",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "fasting and ascetic discipline",
+  "language": "cop",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "a demon tempts a monk in the desert",
+  "language": "cop",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "a miracle of healing performed by a saint",
+  "language": "cop",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "praise of God and devotion to Christ",
+  "language": "cop",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "prayer",
+  "language": "cop",
+  "bucket": "pervasive_short",
+  "present": true
+ },
+ {
+  "query": "a monk renounces his family to join a monastery",
+  "language": "cop",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a bishop rebukes a congregation for sin",
+  "language": "cop",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a martyr is tortured for refusing to recant",
+  "language": "cop",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a monk is visited by an angel in a vision",
+  "language": "cop",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a woman disguises herself as a monk",
+  "language": "cop",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "airplanes flying overhead",
+  "language": "cop",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a stock market crash",
+  "language": "cop",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a smartphone",
+  "language": "cop",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a locomotive crosses a bridge",
+  "language": "cop",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "an election campaign",
+  "language": "cop",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "airplanes",
+  "language": "cop",
+  "bucket": "absent_short",
+  "present": false
+ },
+ {
+  "query": "a lover passionately addresses the beloved",
+  "language": "all",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "war between two armies",
+  "language": "all",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "a storm at sea batters ships and terrifies the crew",
+  "language": "all",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "praise of God in song",
+  "language": "all",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "sin and repentance before God",
+  "language": "all",
+  "bucket": "pervasive",
+  "present": true
+ },
+ {
+  "query": "love",
+  "language": "all",
+  "bucket": "pervasive_short",
+  "present": true
+ },
+ {
+  "query": "a nightingale sings to a rose",
+  "language": "all",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a lover waits at the beloved's door all night",
+  "language": "all",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a guest arrives and is welcomed with food, wine, and a bath",
+  "language": "all",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "funeral games with athletic contests held in honor of the dead",
+  "language": "all",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a demon tempts a monk in the desert",
+  "language": "all",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "a prophet denounces the people's idolatry",
+  "language": "all",
+  "bucket": "specific",
+  "present": true
+ },
+ {
+  "query": "airplanes flying overhead",
+  "language": "all",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a stock market crash",
+  "language": "all",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a smartphone",
+  "language": "all",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "a space rocket launches",
+  "language": "all",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "an election campaign",
+  "language": "all",
+  "bucket": "absent",
+  "present": false
+ },
+ {
+  "query": "airplanes",
+  "language": "all",
+  "bucket": "absent_short",
+  "present": false
+ }
+]

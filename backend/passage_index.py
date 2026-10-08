@@ -217,6 +217,7 @@ _undescribed = set()   # row indices with no description: excluded from results
 _records = None        # list[dict] in embedding-row order
 _emb = None            # np.memmap (N, D) float16
 _by_work = None        # work -> list[row index]
+_by_language = None    # language code -> np.int64 array of row indices
 _model = None
 
 
@@ -463,7 +464,7 @@ def works_for_language(language):
 
 
 def _ensure_loaded():
-    global _ids, _records, _emb, _by_work
+    global _ids, _records, _emb, _by_work, _by_language
     if _state['loaded']:
         return
     with _lock:
@@ -497,8 +498,15 @@ def _ensure_loaded():
                 logger.error('[PASSAGES] %s', _state['error'])
                 return
             _by_work = {}
+            by_lang_lists = {}
             for i, r in enumerate(_records):
                 _by_work.setdefault(_norm_work(r.get('work')), []).append(i)
+                by_lang_lists.setdefault(r.get('language'), []).append(i)
+            # One language's row indices, for a single-language Theme Search
+            # to measure its OWN score distribution rather than borrowing the
+            # whole, multilingual corpus's (see _language_rows below).
+            _by_language = {lg: np.asarray(rows, dtype=np.int64)
+                            for lg, rows in by_lang_lists.items() if lg}
             _state['ok'] = True
             _apply_index_confidence()
             # WINDOWS WITH NO DESCRIPTION ARE POISON. 128 records were never
@@ -953,6 +961,22 @@ def _interleave_languages(heads, pool):
     return out
 
 
+def _coherence_of_rows(rows):
+    """How much a chosen set of windows (given as global row indices) agree
+    with each other. The arithmetic _cluster_coherence runs on the top-k of
+    the whole corpus; factored out so a single-language Theme Search can run
+    the same measure on the top-k of ONE LANGUAGE's rows instead (see
+    _language_rows)."""
+    import numpy as np
+    block = np.asarray(_emb[rows], dtype=np.float32)
+    norms = np.linalg.norm(block, axis=1, keepdims=True)
+    norms[norms == 0] = 1.0
+    block = block / norms
+    sim = block @ block.T
+    n = len(rows)
+    return float((sim.sum() - n) / (n * n - n)) if n > 1 else 0.0
+
+
 def _cluster_coherence(scores, k=COHERENCE_K):
     """How much the top-k results agree with each other.
 
@@ -962,13 +986,20 @@ def _cluster_coherence(scores, k=COHERENCE_K):
     """
     import numpy as np
     top = np.argsort(-scores)[:k]
-    block = np.asarray(_emb[top], dtype=np.float32)
-    norms = np.linalg.norm(block, axis=1, keepdims=True)
-    norms[norms == 0] = 1.0
-    block = block / norms
-    sim = block @ block.T
-    n = len(top)
-    return float((sim.sum() - n) / (n * n - n)) if n > 1 else 0.0
+    return _coherence_of_rows(top)
+
+
+def _language_rows(languages):
+    """Row indices for ONE selected language, or None when the request does
+    not narrow to exactly one.
+
+    Multi-language and the default "all languages" search keep measuring
+    confidence against the whole corpus, which is what the bands below were
+    fitted against. A single-language search is measured against that one
+    language's own rows instead -- see _is_pervasive for why."""
+    if not languages or len(languages) != 1 or not _by_language:
+        return None
+    return _by_language.get(languages[0])
 
 
 # A description is a sentence. Below this, the confidence signals are not
@@ -1017,6 +1048,75 @@ DEGENERATE_COHERENCE = 0.995   # no structure at all: nothing resembles the quer
 HEAD_WEAK = 0.0750             # below this, the top ten are not a group
 HEAD_STRONG = 0.1006           # above every absent subject in either probe set
 
+# PERVASIVE THEMES, FITTED ON LATIN AND GREEK, MISREAD IN A LYRIC CORPUS
+# (2026-10-08). head_lift and coherence above were measured against the whole,
+# multilingual index, including for a search the caller narrowed to one
+# language. That is backwards for a language where the asked-about theme is
+# common: a Persian search for "passionate love" came back Rumi, Rudaki, and
+# Anvari addressing the beloved -- on topic by any reading -- yet scored LOW
+# (head_lift 0.0522, coherence 0.8996), because the one number the whole
+# measure rests on, the corpus median, was the median of ALL 600,000-plus
+# windows in seven languages, most of which are not love poetry. Every
+# language this was probed against (fa, ur, la, grc, en, he, cop, and "all
+# languages" with no filter) reported the IDENTICAL confidence block for the
+# identical query text, because `languages` never reached the statistics at
+# all, only the results list.
+#
+# THE FIRST FIX TRIED WAS WRONG, AND MEASURING IT SAID SO BEFORE IT SHIPPED.
+# Recomputing head_lift AND coherence from the searched language's own rows
+# (rather than just checking whether its baseline sits above the whole
+# corpus's) was tried first and measured against production
+# (evaluation/scripts/calibrate_confidence.py, the 139-query set in
+# evaluation/probe_sets/theme_confidence_2026-10-08.json, read-only against
+# the live index): it helped Persian, Urdu, Hebrew, and Coptic a great deal,
+# but it made Latin, Greek, and English WORSE than the existing, unfixed
+# rule (la 64.7% -> 52.9%, grc 64.7% -> 52.9%, en 47.1% -> 41.2%), because one
+# language's own windows cluster more tightly in this embedding than the
+# whole, heterogeneous seven-language corpus does, so head_lift measured
+# within a single language reads lower across the board, present subjects
+# and absent ones alike, not only for a genuinely pervasive theme. The
+# absolute thresholds above (HEAD_WEAK, HEAD_STRONG) were fitted on the
+# cross-lingual measure and do not transfer to a same-language one.
+#
+# WHAT SHIPPED INSTEAD, below: head_lift and coherence stay the whole-corpus
+# measure, UNCHANGED, for every search including a single-language one. A
+# single-language search ADDITIONALLY compares that language's own median
+# score for the query (_language_rows) against the whole corpus's median for
+# the SAME query (PERVASIVE_EXCESS_BASELINE). This can only ever promote a
+# 'low' or 'moderate' call to 'pervasive'; it is never asked to produce
+# 'low' or 'moderate' itself, so it cannot make a language's accuracy worse
+# than the unfixed rule already measured for it, only better. Measured on
+# the same 139-query set, at PERVASIVE_EXCESS_BASELINE = 0.005 (the widest
+# flat plateau in a sweep from 0.0 to 0.015; zero absent queries in the set
+# crossed 0.0031, so nothing in this set would have been wrongly promoted
+# anywhere in that plateau):
+#
+#     language   existing rule   this fix   pervasive-labelled
+#     Coptic          52.9%        94.1%       10 of 17
+#     English         47.1%        47.1%        0 of 17
+#     Persian         61.1%        94.4%        9 of 18
+#     Greek           64.7%        64.7%        1 of 17
+#     Hebrew          52.9%       100.0%        9 of 17
+#     Latin           64.7%        64.7%        0 of 17
+#     Urdu            72.2%        88.9%        7 of 18
+#     unfiltered      83.3%        83.3%        0 of 18 (unaffected: see below)
+#     ALL             62.6%        79.9%       36 of 139
+#
+# English and Latin are unchanged because no query tried against them this
+# time sat far enough above the whole corpus's own median to cross the
+# threshold -- not because the mechanism excludes them. Greek promoted once,
+# to 'pervasive' from an already-correct 'moderate', so its accuracy did not
+# move either. A later probe that found a genuinely pervasive Latin or Greek
+# theme (the sea-storm topos is common enough in Latin epic to be a
+# candidate) would be expected to promote more there.
+#
+# PERVASIVE_EXCESS_BASELINE is a property of the CURRENT, roughly 531,000-
+# window index and this probe set; refit it, the same way, after a corpus-
+# wide re-describe or a substantial size change, with
+# evaluation/scripts/calibrate_confidence.py --sweep against this same
+# probe set (or a larger one built the same way).
+PERVASIVE_EXCESS_BASELINE = 0.005
+
 
 def _apply_index_confidence():
     """An index may carry its own fitted bands in confidence.json beside
@@ -1060,10 +1160,34 @@ COMBINED_WEAK = None
 COMBINED_STRONG = None
 
 
+def _is_pervasive(level, coherence, lang_baseline, global_baseline):
+    """Should a 'low' or 'moderate' call be promoted to 'pervasive' instead?
+
+    `lang_baseline` is the median score within the searched language alone;
+    `global_baseline` is the median across the whole, multilingual corpus for
+    the SAME query. Either missing (no single language narrowed the search)
+    means the question does not apply. A 'strong' call is never promoted (it
+    is already the best outcome), and a degenerate-coherence 'low' is never
+    promoted either: no structure in the results at all is the absence of a
+    match, not a common one, whatever the two baselines say. See
+    PERVASIVE_EXCESS_BASELINE above for the threshold and the measurement
+    behind it."""
+    if level == 'strong' or coherence >= DEGENERATE_COHERENCE:
+        return False
+    if lang_baseline is None or global_baseline is None:
+        return False
+    return (lang_baseline - global_baseline) >= PERVASIVE_EXCESS_BASELINE
+
+
 def _confidence_level(head_lift, coherence):
     """Graded, never certain. Works for one word or for a sentence.
 
-    head_lift is the mean of the top ten scores above the corpus median.
+    head_lift is the mean of the top ten scores above the corpus median,
+    always the WHOLE corpus's median, even for a single-language search (see
+    PERVASIVE THEMES above for why that stayed unchanged). A single-language
+    search's own 'pervasive' promotion is applied afterward, by the caller,
+    with _is_pervasive -- this function only ever returns the three outcomes
+    it always has.
     """
     if coherence >= DEGENERATE_COHERENCE:
         return 'low'
@@ -1103,19 +1227,57 @@ _UNCALIBRATED = (
     'strong/moderate/low label is.')
 
 
-def _confidence_note(level):
+# Names used only to write the pervasive-theme note in plain language (e.g.
+# "the Persian corpus"). Mirrors the code -> name tables already kept in
+# theme_pdf.py and blueprints/scholarship.py; a shared module would be
+# cleaner, but three small, independent copies already exist in this
+# codebase and this note is the only thing in this file that needs one.
+_LANGUAGE_NAME = {
+    'la': 'Latin', 'grc': 'Greek', 'en': 'English', 'cop': 'Coptic',
+    'he': 'Hebrew', 'fa': 'Persian', 'ur': 'Urdu', 'ar': 'Arabic',
+    'it': 'Italian', 'fro': 'Old French', 'gmh': 'Middle High German',
+}
+
+# A query of a few words is answered badly (see QUERY EXPANSION below): the
+# index holds full-sentence descriptions, and a bare noun or two is not on
+# the same footing as a sentence. Measured on probe queries built for this
+# fix, a single word ("love", "wine", "prayer") read 'low' or 'pervasive'
+# where the same subject written as a sentence read 'moderate' or 'strong'.
+# Rather than silently answer a short query worse, say so.
+_SHORT_QUERY_WORDS = 3
+
+
+def _is_short_query(query):
+    return len(re.findall(r'\w+', query or '')) <= _SHORT_QUERY_WORDS
+
+
+_SHORT_QUERY_HINT = (
+    ' This search was only a few words. Theme Search matches a full sentence '
+    'much better than a single word or short phrase: try describing who does '
+    'what, and where.')
+
+
+def _confidence_note(level, query=None, language=None):
     drift = _calibration_drift()
+    base = _confidence_note_fitted(level, language)
     if drift:
         now, _ = drift
         warning = _UNCALIBRATED.format(fitted=FITTED_AT_WINDOWS, now=now)
-        base = _confidence_note_fitted(level)
-        return f'{warning} {base}' if base else warning
-    return _confidence_note_fitted(level)
+        base = f'{warning} {base}' if base else warning
+    if base and level != 'strong' and query is not None and _is_short_query(query):
+        base += _SHORT_QUERY_HINT
+    return base
 
 
-def _confidence_note_fitted(level):
+def _confidence_note_fitted(level, language=None):
     if level == 'strong':
         return None
+    if level == 'pervasive':
+        name = _LANGUAGE_NAME.get(language) if language else None
+        corpus = f'the {name} corpus' if name else 'this part of the corpus'
+        return (f'This theme runs through much of {corpus}, so these are typical '
+                'examples. To find a particular kind of passage, describe what '
+                'happens in it: who, doing what, where.')
     if level == 'moderate':
         return ('Moderate confidence: the corpus holds passages of this kind, but the '
                 'match is looser than a clear case. Read the results before relying on them.')
@@ -1416,6 +1578,16 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
     head_lift = float(np.sort(scores)[-k:].mean()) - baseline
     coherence = _cluster_coherence(scores)
     level = _confidence_level(head_lift, coherence)
+    # A search narrowed to ONE language gets an ADDITIONAL check, on top of
+    # the whole-corpus level above, never in place of it: see the PERVASIVE
+    # THEMES comment above HEAD_WEAK/HEAD_STRONG for why head_lift and
+    # coherence themselves stay whole-corpus even here. `lang_rows` is None
+    # for a multi-language or unfiltered ("all languages") search.
+    lang_rows = _language_rows(languages)
+    if lang_rows is not None and len(lang_rows):
+        lang_baseline = float(np.median(scores[lang_rows]))
+        if _is_pervasive(level, coherence, lang_baseline, baseline):
+            level = 'pervasive'
     strong_at = baseline + (STRONG_LIFT if level == 'strong' else 1e9)
     # The confidence figures above describe the embedding alone; the lexical
     # boost then reorders the windows (see LEXICAL_BETA).
@@ -1480,7 +1652,8 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
                        'head_lift': round(head_lift, 4),
                        'lift': round(lift, 4),
                        'coherence': round(coherence, 4), 'level': level},
-        'note': _confidence_note(level),
+        'note': _confidence_note(level, query=query,
+                                 language=languages[0] if lang_rows is not None else None),
     }
 
 

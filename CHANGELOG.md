@@ -9,6 +9,34 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Theme Search: a third confidence outcome for a theme common in one language
+- A Theme Search narrowed to one language (`languages=fa`, etc.) used to
+  report the SAME confidence numbers as the unfiltered, whole-corpus
+  search for the identical query text, because the language filter never
+  reached the statistics, only the results list: a Persian search for
+  "passionate love" returned Rumi, Rudaki, and Anvari addressing the
+  beloved and still reported "the corpus does not appear to contain
+  passages of this kind." A single-language search now additionally
+  checks whether that language's own median score for the query sits well
+  above the whole corpus's, and promotes a `low`/`moderate` call to a
+  third outcome, `pervasive` ("this theme runs through much of the
+  Persian corpus..."), when it does; it can only ever promote, never
+  demote, so it cannot make any language's accuracy worse than before.
+  Measured on a 139-query labeled set, read-only against production:
+  62.6% to 79.9% overall, with Coptic, Persian, and Hebrew each gaining
+  30-47 points and Latin, Greek, and English unchanged. A query of three
+  words or fewer that doesn't score as a clear match now also gets a line
+  suggesting a full sentence instead. See docs/DECISIONS.md, 2026-10-08.
+  `backend/passage_index.py`, `evaluation/scripts/calibrate_confidence.py`
+  (new), tests in `tests/test_theme_confidence_classification.py`.
+
+### Theme Search page: the language-coverage line now names the languages this server actually serves
+- The line under the language chips named a fixed four languages (Latin,
+  Greek, English, Coptic) regardless of what the server actually
+  indexed, so a Hebrew, Persian, or Urdu reader was told their language
+  wasn't covered at all even once it was. It now reads the server's own
+  `/api/languages` list. `client/src/components/passages/ThemeSearchPage.jsx`.
+
 ### Cite popup opens toward the side with room
 - On cards whose Cite button sits near the left edge of the page (the
   Cross-Language results), the popup opened off-screen. It now opens to the
