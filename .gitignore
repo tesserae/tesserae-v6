@@ -88,6 +88,7 @@ data/la_mqdq_temp/
 !data/documents/
 data/documents/*
 !data/documents/formula_words_*.txt
+!data/commentaries/
 cache/
 
 # Private/local files
