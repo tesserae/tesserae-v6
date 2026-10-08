@@ -22,7 +22,10 @@ export const foldArabicScript = (s) => String(s || '')
   .replace(/ں/g, 'ن');
 
 // Punctuation at either end of a token, Latin and Arabic-script alike.
-const EDGE = /^[\s.,;:!?'"()\[\]—–،؛؟۔«»-]+|[\s.,;:!?'"()\[\]—–،؛؟۔«»-]+$/g;
+// ٫ and ٬ (Arabic decimal and thousands separators) added alongside the
+// comma, semicolon, question mark, Urdu full stop and guillemets already
+// here (result card tidy, second pass, 2026-10-08).
+const EDGE = /^[\s.,;:!?'"()\[\]—–،؛؟۔«»٫٬-]+|[\s.,;:!?'"()\[\]—–،؛؟۔«»٫٬-]+$/g;
 
 export const stripEdgePunctuation = (s) => String(s || '').replace(EDGE, '');
 

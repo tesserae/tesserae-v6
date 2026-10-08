@@ -246,7 +246,7 @@ export default function ScholarshipTab({ work, language, selection, units, secon
               article); in journals from before 1923 by the site&rsquo;s own citation index (journal
               article, before 1923, JSTOR); and in Google Books (book page). Subscription articles open
               under your own access. Copy for Zotero puts the reference on the clipboard (in Zotero: File,
-              Import from Clipboard). Sources and licences are on the Sources page.
+              Import from Clipboard). Sources and licenses are on the Sources page.
             </p>
             {data.books?.hathitrust_url && (
               <p className="text-[11px] text-gray-500 mt-2 leading-snug">

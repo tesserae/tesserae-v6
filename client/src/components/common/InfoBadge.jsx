@@ -1,30 +1,39 @@
 import { useEffect, useId, useRef, useState } from 'react';
 
+const HOVER_OPEN_DELAY = 150;
+
 /**
  * A small badge that carries its own explanation, instead of a native
  * `title` tooltip.
  *
- * Owner's review of the result card (2026-10-08): a `title` attribute shows
- * nothing for a second or two, gives no sign anything is there, and does
- * nothing at all on a phone. InfoBadge opens its popover at once (no
- * meaningful delay) on hover, on keyboard focus, and on tap, which toggles
- * it; Escape or a tap outside closes it. Every badge carries the same small
- * info mark and a "help" cursor, so the explanation is visible before
- * anyone hovers.
+ * Second pass (result card tidy, 2026-10-08): the first pass carried a
+ * visible "i" mark and a help cursor on every badge, which read as
+ * clickable when it only opens on hover. Following the Nielsen Norman
+ * Group's tooltip guidance and Carbon/Inclusive Components' hover-vs-toggle
+ * distinction, a hover popover gets no icon at all; the badge itself is the
+ * trigger. It opens after a short delay on hover (long enough that moving
+ * the pointer across the card does not flicker every badge it crosses), at
+ * once on keyboard focus, and at once on tap, which toggles it. It stays
+ * open while the pointer is over the badge or the popover, and closes on
+ * leaving both, on Escape, or on a tap outside (WCAG 2.1 SC 1.4.13).
  *
  * @param {ReactNode} children the badge's visible label.
- * @param {string} [heading] a bold one-line heading for the popover.
- * @param {ReactNode} [explanation] the popover body. A string is split on
- *   blank lines into separate paragraphs; any other node is used as given
- *   (for a list, or other structured content).
+ * @param {ReactNode} [explanation] the popover body: one short sentence. A
+ *   string is split on blank lines into separate paragraphs; any other node
+ *   is used as given.
+ * @param {ReactNode} [extra] optional compact content shown after the
+ *   explanation and before the "More" link (e.g. the refrain's own line
+ *   lists, which are the information the badge stands for).
+ * @param {{anchor: string, onClick: () => void}} [more] a "More" link to
+ *   the matching Help section anchor.
  * @param {ReactNode} [footer] one final, muted line, e.g. "Site ID: ...".
  * @param {string} [className] classes for the badge's own look (background,
- *   text colour, size) -- InfoBadge adds only the affordance and layout.
+ *   text color, size) -- InfoBadge adds only the affordance and layout.
  * @param {string} [label] an accessible name for the trigger when the
  *   visible children are not already a readable label (defaults to none,
  *   which lets the children speak for themselves).
  */
-export default function InfoBadge({ children, heading, explanation, footer, className = '', label }) {
+export default function InfoBadge({ children, explanation, extra, more, footer, className = '', label }) {
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const [clicked, setClicked] = useState(false);
@@ -32,6 +41,7 @@ export default function InfoBadge({ children, heading, explanation, footer, clas
   const [align, setAlign] = useState('left');
   const wrapRef = useRef(null);
   const triggerRef = useRef(null);
+  const hoverTimerRef = useRef(null);
   // Escape returns focus to the trigger for accessibility, but a plain
   // `.focus()` call fires a real focus event that would otherwise re-open
   // the popover it just closed; this flag tells the next onFocus to skip.
@@ -39,6 +49,25 @@ export default function InfoBadge({ children, heading, explanation, footer, clas
   const popoverId = useId();
 
   const open = hovered || focused || clicked;
+
+  const clearHoverTimer = () => {
+    if (hoverTimerRef.current) {
+      clearTimeout(hoverTimerRef.current);
+      hoverTimerRef.current = null;
+    }
+  };
+
+  const onMouseEnter = () => {
+    clearHoverTimer();
+    hoverTimerRef.current = setTimeout(() => setHovered(true), HOVER_OPEN_DELAY);
+  };
+
+  const onMouseLeave = () => {
+    clearHoverTimer();
+    setHovered(false);
+  };
+
+  useEffect(() => clearHoverTimer, []);
 
   // Keeps the popover inside the viewport: flips above the badge when there
   // is not enough room below, and right-aligns when the 22rem box would run
@@ -48,7 +77,7 @@ export default function InfoBadge({ children, heading, explanation, footer, clas
     const trigger = triggerRef.current;
     if (trigger && typeof window !== 'undefined') {
       const rect = trigger.getBoundingClientRect();
-      const POPOVER_H = 180;
+      const POPOVER_H = 160;
       const POPOVER_W = 352; // 22rem at the default 16px root
       setPosition(
         rect.bottom + POPOVER_H > window.innerHeight && rect.top > POPOVER_H ? 'top' : 'bottom'
@@ -85,8 +114,8 @@ export default function InfoBadge({ children, heading, explanation, footer, clas
     <span
       ref={wrapRef}
       className="relative inline-block"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       <button
         ref={triggerRef}
@@ -100,14 +129,9 @@ export default function InfoBadge({ children, heading, explanation, footer, clas
         }}
         onBlur={() => setFocused(false)}
         onClick={() => setClicked((v) => !v)}
-        className={`cursor-help inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded ${className}`}
+        className={`inline-flex items-center text-xs px-2 py-0.5 rounded ${className}`}
       >
         {children}
-        <svg aria-hidden="true" viewBox="0 0 16 16" width="10" height="10" className="shrink-0 opacity-70" fill="none">
-          <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
-          <rect x="7.25" y="7" width="1.5" height="5" rx="0.5" fill="currentColor" />
-          <circle cx="8" cy="4.6" r="1" fill="currentColor" />
-        </svg>
       </button>
       {open && (
         <div
@@ -118,12 +142,23 @@ export default function InfoBadge({ children, heading, explanation, footer, clas
                      ${position === 'top' ? 'bottom-full mb-1' : 'top-full mt-1'}
                      ${align === 'right' ? 'right-0' : 'left-0'}`}
         >
-          {heading && <p className="font-semibold text-gray-900 mb-1 leading-snug">{heading}</p>}
           {paragraphs
             ? paragraphs.map((p, idx) => (
                 <p key={idx} className="text-gray-700 leading-snug mb-1 last:mb-0">{p}</p>
               ))
             : explanation != null && <div className="text-gray-700 leading-snug">{explanation}</div>}
+          {extra && <div className="text-gray-600 text-xs leading-snug mt-1">{extra}</div>}
+          {more && (
+            <p className="mt-1">
+              <button
+                type="button"
+                onClick={more.onClick}
+                className="text-xs text-amber-700 hover:text-amber-900 underline"
+              >
+                More
+              </button>
+            </p>
+          )}
           {footer && (
             <p className="text-[11px] text-gray-500 mt-2 pt-1.5 border-t border-gray-100">{footer}</p>
           )}

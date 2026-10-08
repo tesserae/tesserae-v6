@@ -52,6 +52,13 @@ const matchedWordsAreRefrain = (r) => {
   });
 };
 
+// Builds an InfoBadge `more` link to the matching label in the Help page's
+// "Reading the results" section (result card tidy, second pass, 2026-10-08).
+const helpMore = (onOpenHelp, anchor) => ({
+  anchor,
+  onClick: () => onOpenHelp && onOpenHelp('reading-results', anchor),
+});
+
 const EMPTY = [];
 
 const SearchResults = ({
@@ -66,6 +73,7 @@ const SearchResults = ({
   searchRunId,
   onRegister,
   onCorpusSearch,
+  onOpenHelp,
   onRerunFresh,
   sortBy,
   setSortBy,
@@ -1383,28 +1391,30 @@ const SearchResults = ({
 
       <div className="flex-1 min-w-0 w-full">
       <Pagination {...paginationProps} variant="full" idPrefix="parallels-top" />
-      {/* Colour legend for the poetic languages (2026-09-06): yellow is a word
-          shared by both lines, rose is each line's rhyme word, which is
-          usually a different word on the two sides. */}
-      {['fa', 'ur', 'ar'].includes(language) && visibleItems.some(r => r.poetics) && (
-        <p className="text-xs text-gray-600 mb-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-          <span className="font-medium">Colours:</span>
-          <span><mark className="bg-yellow-200 px-1 rounded">yellow</mark> a word both lines share (the refrain, or a matched word)</span>
-          <span><mark className="bg-rose-200 px-1 rounded">rose</mark> each line's rhyme word, the word before the refrain; the same rhyme, usually different words</span>
-        </p>
-      )}
-      {/* Badge-colour legend (result card tidy, 2026-10-08): every badge on
-          a result card now carries an explanation (hover, focus, or tap the
-          small (i) mark), and its colour marks one of three categories
-          consistently, instead of mixing with no pattern. */}
+      {/* One legend line in place of the old "Colours" and "Badge colours"
+          pair (result card tidy, second pass, 2026-10-08): the highlight
+          colors when a poetic result is on screen, then a single hint that
+          every label opens its own explanation, then a link to the fuller
+          version in Help. */}
       {visibleItems.length > 0 && (
-        <p className="text-xs text-gray-600 mb-2 flex flex-wrap items-center gap-x-3 gap-y-1">
-          <span className="font-medium">Badge colours:</span>
-          {['fa', 'ur', 'ar'].includes(language) && (
-            <span><mark className="bg-yellow-100 text-yellow-800 px-1 rounded">yellow</mark>/<mark className="bg-rose-100 text-rose-800 px-1 rounded">rose</mark>/<mark className="bg-purple-100 text-purple-700 px-1 rounded">purple</mark> the poem's form (refrain, rhyme, meter)</span>
+        <p className="text-xs text-gray-600 mb-2 flex flex-wrap items-center gap-x-1 gap-y-1">
+          <span className="font-medium">Highlights:</span>
+          {['fa', 'ur', 'ar'].includes(language) && visibleItems.some(r => r.poetics) ? (
+            <>
+              <span><mark className="bg-yellow-200 px-1 rounded">yellow</mark> shared word,</span>
+              <span><mark className="bg-rose-200 px-1 rounded">rose</mark> rhyme word.</span>
+            </>
+          ) : (
+            <span><mark className="bg-yellow-200 px-1 rounded">yellow</mark> shared word.</span>
           )}
-          <span><mark className="bg-gray-100 text-gray-600 px-1 rounded">gray</mark> how common the shared wording or form is</span>
-          <span><mark className="bg-blue-100 text-blue-700 px-1 rounded">blue</mark> evidence for the match (channels, theme)</span>
+          <span>Hover over or tap any label for its meaning.</span>
+          <button
+            type="button"
+            onClick={() => onOpenHelp && onOpenHelp('reading-results')}
+            className="text-amber-700 hover:text-amber-900 underline"
+          >
+            Reading the results
+          </button>
         </p>
       )}
       {serverMode && serverPagination.pageError && (
@@ -1456,24 +1466,27 @@ const SearchResults = ({
 
             {/* Row 1: the score, then the poem's-form badges (refrain, rhyme,
                 meter, refrain lines) -- the group that shares the highlight
-                legend's yellow/rose/purple. Row 2: how-common, then the
-                evidence badges (channels, theme), then the action buttons,
-                right-aligned (result card tidy, 2026-10-08: every badge is
-                an InfoBadge, so colour marks a category consistently rather
-                than mixing with no pattern). */}
+                legend's yellow/rose. Row 2: how-common, then the evidence
+                badges (channels, theme), then the action buttons in their
+                own non-wrapping group at the right, so they shrink the gaps
+                around them before ever dropping to a third row at desktop
+                widths (result card tidy, second pass, 2026-10-08). Every
+                badge's popover is one short sentence with a "More" link into
+                Help; InfoBadge carries no icon, so the badge itself is the
+                trigger. */}
             <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t">
               <InfoBadge
                 className="bg-white text-gray-600 px-0"
-                heading="Score"
-                explanation="The combined strength of this match across every channel that found it (lemma, sound, meaning, and the rest). A higher score is a stronger candidate for a real textual connection, but it is a ranking aid, not a verdict -- read the two lines."
+                explanation="How strong the match is overall; results are ranked by it."
+                more={helpMore(onOpenHelp, 'score')}
               >
                 Score: <span className="font-medium">{(r.fused_score ?? r.score ?? r.overall_score)?.toFixed(2) || '-'}</span>
               </InfoBadge>
               {r.poetics && r.poetics.radif && (
                 <InfoBadge
                   className="bg-yellow-100 text-yellow-800"
-                  heading="Refrain (radif)"
-                  explanation="The two lines end on the same refrain: a word or short phrase repeated at the end of many lines in both poems, highlighted in yellow in the text above. Persian and Urdu ghazals often carry a refrain (radif) through the whole poem, so sharing it is strong evidence that one poem answers or echoes the other."
+                  explanation="The refrain (radif) both poems end on."
+                  more={helpMore(onOpenHelp, 'refrain')}
                 >
                   Refrain: <span dir="rtl">{r.poetics.radif}</span>
                 </InfoBadge>
@@ -1481,10 +1494,10 @@ const SearchResults = ({
               {r.poetics && r.poetics.qafia && (
                 <InfoBadge
                   className="bg-rose-100 text-rose-800"
-                  heading={r.poetics.rhyme_only ? 'Rhyme letter (rawi)' : 'Rhyme (qafia)'}
                   explanation={r.poetics.rhyme_only
-                    ? 'The two poems share the same rhyme letter (rawi), the final consonant every line rhymes on, marked in rose in the text above. This is weaker evidence than sharing the full rhyme syllable.'
-                    : 'The two poems share the same rhyme (qafia), the syllable or word right before the refrain that every line rhymes on, marked in rose in the text above.'}
+                    ? 'The rhyme letter (rawi) both poems share, weaker evidence than the full rhyme.'
+                    : 'The rhyme (qafiya) both poems share, before the refrain.'}
+                  more={helpMore(onOpenHelp, 'rhyme')}
                 >
                   Rhyme: <span dir="rtl">{r.poetics.rhyme_only ? r.poetics.qafia : '…' + r.poetics.qafia}</span>
                 </InfoBadge>
@@ -1492,8 +1505,8 @@ const SearchResults = ({
               {r.poetics && r.poetics.meter && (
                 <InfoBadge
                   className="bg-purple-100 text-purple-700"
-                  heading="Meter"
-                  explanation="Both poems carry this same named meter label. Shared meter alone is common and proves little by itself, but combined with a shared refrain or rhyme it strengthens the case that one poem is answering the other."
+                  explanation="Both poems carry this meter label."
+                  more={helpMore(onOpenHelp, 'meter')}
                 >
                   Meter: <span dir="rtl">{r.poetics.meter}</span>
                 </InfoBadge>
@@ -1501,114 +1514,118 @@ const SearchResults = ({
               {r.features?.meter_score > 0 && (
                 <InfoBadge
                   className="bg-purple-100 text-purple-700"
-                  heading="Metrical confirmation"
-                  explanation="The two lines scan in the same classical meter, checked independently of the words they share. The percentage is how much of the line's scansion the two sides agree on; a high percentage is corroborating evidence, not the match itself."
+                  explanation="How much the two lines' scansion agrees, checked independently of shared words."
+                  more={helpMore(onOpenHelp, 'meter')}
                 >
                   Metrical: {(r.features.meter_score * 100).toFixed(0)}%
                 </InfoBadge>
               )}
               {r.poetics && r.poetics.radif && (r.poetics.source_lines || []).length + (r.poetics.target_lines || []).length > 2 && (() => {
-                const refrainPopover = formatRefrainPopover(r.poetics, corpusMap);
+                const refrainLines = formatRefrainPopover(r.poetics, corpusMap);
                 return (
                   <InfoBadge
                     className="bg-yellow-50 text-yellow-800"
-                    heading={refrainPopover.heading}
-                    explanation={refrainPopover.explanation}
+                    explanation="Every line where the two poems share this refrain; one result stands for the set."
+                    extra={refrainLines.lines.map((line, idx) => <div key={idx}>{line}</div>)}
+                    more={helpMore(onOpenHelp, 'refrain-lines')}
                   >
                     {(r.poetics.source_lines || []).length} + {(r.poetics.target_lines || []).length} refrain lines
                   </InfoBadge>
                 );
               })()}
             </div>
-            <div className="flex flex-wrap items-center gap-2 mt-2">
-              {(typeof r.formula_count === 'number' || r.poetics?.corpus_poems != null) && (
-                <span className="text-xs text-gray-500 font-medium">How common:</span>
-              )}
-              {typeof r.formula_count === 'number' && (
-                <InfoBadge
-                  className="bg-gray-100 text-gray-600"
-                  heading={`In ${r.formula_count} work${r.formula_count !== 1 ? 's' : ''}`}
-                  explanation={`${r.formula_count} work${r.formula_count !== 1 ? 's' : ''} in the whole ${languageName(language)} corpus contain the shared wording this result is built on. A high number marks a common expression rather than a pointed echo. Settings > Show Advanced > Formulas can hide common ones.`}
-                >
-                  in {r.formula_count} work{r.formula_count !== 1 ? 's' : ''}
-                </InfoBadge>
-              )}
-              {r.poetics && r.poetics.corpus_poems != null && (
-                <InfoBadge
-                  className="bg-gray-100 text-gray-600"
-                  heading={`Form in ${r.poetics.corpus_poems} poem${r.poetics.corpus_poems !== 1 ? 's' : ''}`}
-                  explanation={`${r.poetics.corpus_poems} poem${r.poetics.corpus_poems !== 1 ? 's' : ''} in the whole ${languageName(language)} corpus end on this same refrain and rhyme. A high number marks a common form rather than one poem specifically answering another, and the score is discounted accordingly.`}
-                >
-                  form in {r.poetics.corpus_poems} poem{r.poetics.corpus_poems !== 1 ? 's' : ''}
-                </InfoBadge>
-              )}
-              {r.channels && r.channels.length > 0 && (
-                <InfoBadge
-                  className="bg-blue-100 text-blue-700"
-                  heading={r.channels.map((ch) => channelLabel(ch)).join(' + ')}
-                  explanation={`Tesserae found this pair through ${r.channels.length === 1 ? 'one method of comparison' : `${r.channels.length} independent methods of comparison`} (${r.channels.map((ch) => channelLabel(ch).toLowerCase()).join(', ')}). Agreement between independent methods is stronger evidence of a real connection than any one method alone.`}
-                >
-                  {r.channels.map((ch) => channelLabel(ch).toLowerCase()).join(' + ')}
-                </InfoBadge>
-              )}
-              {pairLifts[i] && typeof pairLifts[i].lift === 'number' && (
-                <InfoBadge
-                  className={`bg-blue-100 text-blue-700 ${pairLifts[i].level === 'strong' ? 'font-semibold' : ''}`}
-                  heading="Theme lift"
-                  explanation="How much this pair's two lines resemble each other in content, above the two works' general resemblance to each other. A positive number means the lines are more alike in theme than two random lines from the same two works; it is independent evidence from the wording-based channels above."
-                >
-                  theme {pairLifts[i].lift >= 0 ? '+' : ''}{pairLifts[i].lift.toFixed(2)}
-                </InfoBadge>
-              )}
-              {r.matched_words && r.matched_words.length > 0 && !matchedWordsAreRefrain(r) && (
-                <span className="text-sm text-gray-600">
-                  Matches: <span className="font-medium">
-                    {r.matched_words.map(w => {
-                      const word = typeof w === 'object' ? (w.lemma || w.word || w.display || JSON.stringify(w)) : w;
-                      return displayGreekWithFinalSigma(word);
-                    }).join(', ')}
+            <div className="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
+              <div className="flex flex-wrap items-center gap-2 flex-1 min-w-0">
+                {(typeof r.formula_count === 'number' || r.poetics?.corpus_poems != null) && (
+                  <span className="text-xs text-gray-500 font-medium">How common:</span>
+                )}
+                {typeof r.formula_count === 'number' && (
+                  <InfoBadge
+                    className="bg-gray-100 text-gray-600"
+                    explanation="How many works in the corpus contain this shared wording; high means common."
+                    more={helpMore(onOpenHelp, 'works-count')}
+                  >
+                    in {r.formula_count} work{r.formula_count !== 1 ? 's' : ''}
+                  </InfoBadge>
+                )}
+                {r.poetics && r.poetics.corpus_poems != null && (
+                  <InfoBadge
+                    className="bg-gray-100 text-gray-600"
+                    explanation="How many poems in the corpus end on this refrain and rhyme."
+                    more={helpMore(onOpenHelp, 'form-count')}
+                  >
+                    form in {r.poetics.corpus_poems} poem{r.poetics.corpus_poems !== 1 ? 's' : ''}
+                  </InfoBadge>
+                )}
+                {r.channels && r.channels.length > 0 && (
+                  <InfoBadge
+                    className="bg-blue-100 text-blue-700"
+                    explanation="Which kinds of evidence found this match."
+                    more={helpMore(onOpenHelp, 'channels')}
+                  >
+                    {r.channels.map((ch) => channelLabel(ch).toLowerCase()).join(' + ')}
+                  </InfoBadge>
+                )}
+                {pairLifts[i] && typeof pairLifts[i].lift === 'number' && (
+                  <InfoBadge
+                    className={`bg-blue-100 text-blue-700 ${pairLifts[i].level === 'strong' ? 'font-semibold' : ''}`}
+                    explanation="How much closer in content these lines are than the two works overall."
+                    more={helpMore(onOpenHelp, 'theme')}
+                  >
+                    theme {pairLifts[i].lift >= 0 ? '+' : ''}{pairLifts[i].lift.toFixed(2)}
+                  </InfoBadge>
+                )}
+                {r.matched_words && r.matched_words.length > 0 && !matchedWordsAreRefrain(r) && (
+                  <span className="text-sm text-gray-600">
+                    Matches: <span className="font-medium">
+                      {r.matched_words.map(w => {
+                        const word = typeof w === 'object' ? (w.lemma || w.word || w.display || JSON.stringify(w)) : w;
+                        return displayGreekWithFinalSigma(word);
+                      }).join(', ')}
+                    </span>
                   </span>
-                </span>
-              )}
-              <div className="flex-1"></div>
-              {r.match_basis !== 'semantic' && onCorpusSearch && (
-                <Button
-                  variant="tertiary"
-                  size="sm"
-                  onClick={() => onCorpusSearch(r)}
-                  title="Find these words together in other texts"
-                >
-                  Search Corpus
-                </Button>
-              )}
-              {onRegister && (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => onRegister(r)}
-                  title="Save this parallel to the Repository"
-                >
-                  Register
-                </Button>
-              )}
-              {/* A parallel is the thing a scholar actually puts in a footnote,
-                  so Cite belongs on the parallel and not only on the page
-                  (interface audit, 2026-09-08). */}
-              <CiteButton
-                finding={{
-                  kind: 'fusion search',
-                  source: displayLocus(r.source_locus || r.source?.ref, sourceTextInfo),
-                  target: displayLocus(r.target_locus || r.target?.ref, targetTextInfo),
-                  language: languageName(language),
-                  score: r.fused_score ?? r.score ?? r.overall_score,
-                  channels: Array.isArray(r.channels) ? r.channels.join(', ') : (r.channels || ''),
-                  corpusVersion: searchStats?.corpus_version,
-                  url: typeof window !== 'undefined' ? window.location.href : '',
-                  siteId: [siteIdFromRef(r.source_locus || r.source?.ref),
-                           siteIdFromRef(r.target_locus || r.target?.ref)]
-                    .filter(Boolean).join(' ~ '),
-                }}
-              />
+                )}
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                {r.match_basis !== 'semantic' && onCorpusSearch && (
+                  <Button
+                    variant="tertiary"
+                    size="sm"
+                    onClick={() => onCorpusSearch(r)}
+                    title="Find these words together in other texts"
+                  >
+                    Search Corpus
+                  </Button>
+                )}
+                {onRegister && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => onRegister(r)}
+                    title="Save this parallel to the Repository"
+                  >
+                    Register
+                  </Button>
+                )}
+                {/* A parallel is the thing a scholar actually puts in a footnote,
+                    so Cite belongs on the parallel and not only on the page
+                    (interface audit, 2026-09-08). */}
+                <CiteButton
+                  finding={{
+                    kind: 'fusion search',
+                    source: displayLocus(r.source_locus || r.source?.ref, sourceTextInfo),
+                    target: displayLocus(r.target_locus || r.target?.ref, targetTextInfo),
+                    language: languageName(language),
+                    score: r.fused_score ?? r.score ?? r.overall_score,
+                    channels: Array.isArray(r.channels) ? r.channels.join(', ') : (r.channels || ''),
+                    corpusVersion: searchStats?.corpus_version,
+                    url: typeof window !== 'undefined' ? window.location.href : '',
+                    siteId: [siteIdFromRef(r.source_locus || r.source?.ref),
+                             siteIdFromRef(r.target_locus || r.target?.ref)]
+                      .filter(Boolean).join(' ~ '),
+                  }}
+                />
+              </div>
             </div>
             </div>{/* flex-1 */}
             </div>{/* flex row-number wrapper */}

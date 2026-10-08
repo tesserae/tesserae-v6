@@ -162,6 +162,8 @@ describe('SearchResults — refrain-lines popover', () => {
     render(<SearchResults {...baseProps} language="fa" results={[row]} />);
     const badge = await screen.findByText('3 + 3 refrain lines');
     fireEvent.click(badge.closest('button'));
-    expect(await screen.findByText('one result stands for the pair.', { exact: false })).toBeInTheDocument();
+    expect(await screen.findByText('one result stands for the set.', { exact: false })).toBeInTheDocument();
+    expect(screen.getByText('Hafez, Diwan: lines 5097, 5098, 5100')).toBeInTheDocument();
+    expect(screen.getByText('Iqbal, Zabur-e Ajam 26: lines 1 to 3')).toBeInTheDocument();
   });
 });
