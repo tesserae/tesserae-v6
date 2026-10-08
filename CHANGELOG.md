@@ -9,6 +9,11 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Cite popup opens toward the side with room
+- On cards whose Cite button sits near the left edge of the page (the
+  Cross-Language results), the popup opened off-screen. It now opens to the
+  right when there is no room on the left.
+
 ### Translation aligner: Iqbal's Asrar-e Khudi from Nicholson's 1920 translation
 - `scripts/translations/align_asrar_nicholson.py` plus its shared
   `write_aligned.py` helper, which writes the served (compact) shape
