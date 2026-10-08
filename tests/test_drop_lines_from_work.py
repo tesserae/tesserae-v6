@@ -273,6 +273,22 @@ def test_apply_drops_the_matching_embeddings_rows_and_keeps_lockstep(fixture_roo
     assert np.array_equal(np.load(backups[0]), orig_emb)
 
 
+def test_apply_drops_ids_and_descriptions_when_embeddings_npy_is_simply_absent(fixture_root):
+    """A checkout with ids.json/descriptions.jsonl but no embeddings.npy at
+    all (a partial fixture, or a build predating that store) must still
+    drop the windows normally -- there is nothing to assert lockstep
+    against, not a mismatch to refuse over."""
+    os.remove(fixture_root / 'data' / 'passage_index' / 'embeddings.npy')
+
+    plan = dlw.plan_drop('fa', 'poem.tess', DROP, root=str(fixture_root))
+    assert plan['windows']['emb_present'] is False
+    dlw.apply_drop(plan, tag='test')  # must not raise LockstepError
+
+    ids = json.loads((fixture_root / 'data' / 'passage_index' / 'ids.json').read_text())
+    assert set(ids) == {'poem:fine:0', 'poem:fine:3', 'other:fine:0'}
+    assert not (fixture_root / 'data' / 'passage_index' / 'embeddings.npy').exists()
+
+
 def test_apply_forced_embeddings_mismatch_aborts_and_restores_everything(fixture_root):
     """A pre-existing mismatch between embeddings.npy and ids.json (the
     exact shape of the 2026-10-08 incident, one step removed: here it is
