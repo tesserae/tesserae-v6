@@ -2,10 +2,10 @@
 """Saadi's Gulistan, embedded whole inside texts/fa/saadi.diwan.tess, from
 Edward B. Eastwick's 1880 translation.
 
-Today's prose audit (research/languages/2026-10-08_persian_prose_audit.md)
-found the Gulistan's prose bundled into the larger diwan file, refs
-`.29808` to `.32003`. Checking that range against the Persian confirms it
-is not merely the audit's flagged *prose* lines: `.29808` is the Gulistan's
+A prose audit of the Persian and Urdu corpus found the Gulistan's prose
+bundled into the larger diwan file, refs `.29808` to `.32003`. Checking
+that range against the Persian confirms it is not merely the audit's
+flagged *prose* lines: `.29808` is the Gulistan's
 own opening sentence ("Praise be to the glorious and almighty God...") and
 `.32003` is its own closing sentence ("The book of the Gulistan is
 finished..."), so the whole range -- prose and the verse epigrams
