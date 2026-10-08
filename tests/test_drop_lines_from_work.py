@@ -143,7 +143,11 @@ def test_format_plan_is_readable(fixture_root):
     text = dlw.format_plan(dlw.plan_drop('fa', 'poem.tess', DROP, root=str(fixture_root)))
     assert 'poem.tess' in text
     assert '2 of 7' in text
-    assert 'batch_lemma_cache.py fa --force' in text
+    assert 'rebuild in place' in text
+    assert 'rebuild_bigrams.py fa' in text
+    # Lemma cache is rebuilt by this script now, not left as a whole-
+    # language follow-up command for the operator to run by hand.
+    assert 'batch_lemma_cache.py fa --force' not in text
 
 
 # ---------------------------------------------------------------------------
@@ -207,15 +211,33 @@ def test_apply_drops_the_matching_vector_rows_and_updates_meta(fixture_root):
     assert np.array_equal(arr, original[[0, 1, 2, 5, 6]])
 
 
-def test_apply_removes_the_stale_lemma_cache_file(fixture_root):
+def test_apply_rebuilds_the_lemma_cache_instead_of_leaving_it_deleted(fixture_root):
+    """The fixture's existing cache file lives under a made-up name (not
+    the real hash of 'poem.tess'/'fa') -- exactly the "legacy, differently
+    named" case rebuild_work_lemma_cache treats as superseded once the
+    real canonical path has a fresh cache: backed up, then removed, never
+    left as a permanent orphan and never left simply deleted for a lazy
+    rebuild to maybe get around to."""
     plan = dlw.plan_drop('fa', 'poem.tess', DROP, root=str(fixture_root))
-    dlw.apply_drop(plan, tag='test')
+    report = dlw.apply_drop(plan, tag='test')
+    assert not any(line.startswith(dlw.LEMMA_CACHE_BLOCKED_PREFIX) for line in report)
 
     lemma_dir = fixture_root / 'cache' / 'lemmas' / 'fa'
+    canonical = dlw.get_cache_path('poem.tess', 'fa', cache_dir=str(fixture_root / 'cache' / 'lemmas'))
     remaining = sorted(p.name for p in lemma_dir.iterdir() if p.suffix == '.json')
-    assert remaining == ['other.json']
-    assert any(p.name.startswith(('poem-' + 'a' * 32 + '.json') + '.bak-test-')
-               for p in lemma_dir.iterdir())
+    assert remaining == sorted(['other.json', os.path.basename(canonical)])
+
+    # The old (fake-named) file is gone, but only after a backup.
+    old_name = 'poem-' + 'a' * 32 + '.json'
+    assert not (lemma_dir / old_name).exists()
+    assert any(p.name.startswith(old_name + '.bak-test-') for p in lemma_dir.iterdir())
+
+    # The freshly rebuilt cache, at the REAL hashed path, reflects the
+    # file as it is AFTER the drop: the dropped refs are gone, everything
+    # else survives, under its original ref label.
+    cache = json.loads(open(canonical, encoding='utf-8').read())
+    assert [u['ref'] for u in cache['units_line']] == ['poem.1', 'poem.2', 'poem.3', 'poem.4', 'poem.5']
+    assert cache['file_hash'] == dlw.get_file_hash(str(fixture_root / 'texts' / 'fa' / 'poem.tess'))
 
 
 def test_apply_drops_overlapping_windows_and_their_description_and_vector_rows(fixture_root):
@@ -414,3 +436,134 @@ def test_contiguous_runs_groups_adjacent_positions_and_splits_gaps():
     assert dlw._contiguous_runs([1, 2, 3]) == [(1, 3)]
     assert dlw._contiguous_runs([0, 6]) == [(0, 0), (6, 6)]
     assert dlw._contiguous_runs([1, 2, 5, 6, 9]) == [(1, 2), (5, 6), (9, 9)]
+
+
+# ---------------------------------------------------------------------------
+# rebuild_work_lemma_cache (2026-10-08 fix): the cache is rebuilt in place,
+# not deleted -- its filename hashes the work's PATH-like text_id, not its
+# content, so a plain delete left no way to tell, from the filesystem
+# alone, whether the next request would ever rebuild it (it would -- but
+# only lazily, and not at all for a language whose processor cannot even
+# be imported where the delete happened, e.g. Urdu's Stanza pipeline,
+# deliberately absent from production).
+# ---------------------------------------------------------------------------
+def test_rebuild_succeeds_and_the_cache_reflects_the_dropped_lines(tmp_path):
+    (tmp_path / 'texts' / 'en').mkdir(parents=True)
+    tess = ('<lemtest.1>\tone two three\n'
+            '<lemtest.2>\tfour five six\n'
+            '<lemtest.3>\tseven eight nine\n'
+            '<lemtest.4>\tten eleven twelve\n')
+    (tmp_path / 'texts' / 'en' / 'lemtest.tess').write_text(tess, encoding='utf-8')
+
+    cache_lang_dir = tmp_path / 'cache' / 'lemmas' / 'en'
+    cache_lang_dir.mkdir(parents=True)
+    canonical = dlw.get_cache_path('lemtest.tess', 'en',
+                                   cache_dir=str(tmp_path / 'cache' / 'lemmas'))
+    # A stale cache already sitting at the REAL canonical path -- the
+    # ordinary case, since that path never changes across the edit.
+    with open(canonical, 'w', encoding='utf-8') as fh:
+        fh.write(json.dumps({'text_id': 'lemtest.tess', 'language': 'en',
+                             'file_hash': 'stale-hash',
+                             'units_line': [{'ref': 'STALE-UNIT'}], 'units_phrase': []}))
+    # Plus a pre-hash-scheme legacy file under the old plain naming.
+    legacy = cache_lang_dir / 'lemtest.json'
+    legacy.write_text('{"legacy": true}', encoding='utf-8')
+
+    plan = dlw.plan_drop('en', 'lemtest.tess', ['lemtest.2'], root=str(tmp_path))
+    assert sorted(plan['lemma_cache']['files']) == sorted([os.path.basename(canonical), 'lemtest.json'])
+
+    report = dlw.apply_drop(plan, tag='test')
+    assert not any(line.startswith(dlw.LEMMA_CACHE_BLOCKED_PREFIX) for line in report)
+
+    # The canonical file now holds a real rebuild: the dropped line is
+    # gone, the other three keep their original ref labels, and the
+    # stored file_hash matches the file AFTER the drop.
+    new_cache = json.loads(open(canonical, encoding='utf-8').read())
+    assert [u['ref'] for u in new_cache['units_line']] == ['lemtest.1', 'lemtest.3', 'lemtest.4']
+    assert all(u['tokens'] for u in new_cache['units_line']), new_cache['units_line']
+    assert new_cache['language'] == 'en'
+    assert new_cache['file_hash'] == dlw.get_file_hash(str(tmp_path / 'texts' / 'en' / 'lemtest.tess'))
+
+    # The canonical file's OWN prior (stale) content was backed up before
+    # being overwritten -- it was overwritten in place, not renamed.
+    canonical_backups = list(cache_lang_dir.glob(os.path.basename(canonical) + '.bak-test-*'))
+    assert len(canonical_backups) == 1
+    assert 'STALE-UNIT' in canonical_backups[0].read_text(encoding='utf-8')
+
+    # The legacy file is superseded now that the canonical path has a
+    # fresh cache: backed up, then removed, not left as permanent debris.
+    assert not legacy.exists()
+    legacy_backups = list(cache_lang_dir.glob('lemtest.json.bak-test-*'))
+    assert len(legacy_backups) == 1
+    assert '"legacy": true' in legacy_backups[0].read_text(encoding='utf-8')
+
+
+def test_rebuild_blocked_by_import_error_leaves_the_old_cache_untouched(tmp_path, monkeypatch):
+    (tmp_path / 'texts' / 'ur').mkdir(parents=True)
+    tess = '<work.1>\tkeep one\n<work.2>\tdrop this\n<work.3>\tkeep two\n'
+    (tmp_path / 'texts' / 'ur' / 'work.tess').write_text(tess, encoding='utf-8')
+
+    cache_lang_dir = tmp_path / 'cache' / 'lemmas' / 'ur'
+    cache_lang_dir.mkdir(parents=True)
+    canonical = dlw.get_cache_path('work.tess', 'ur', cache_dir=str(tmp_path / 'cache' / 'lemmas'))
+    old_content = json.dumps({'text_id': 'work.tess', 'language': 'ur',
+                              'file_hash': 'old-hash', 'units_line': [], 'units_phrase': []})
+    with open(canonical, 'w', encoding='utf-8') as fh:
+        fh.write(old_content)
+
+    class _NoStanzaProcessor:
+        """Stands in for scripts.batch_lemma_cache.FastTextProcessor in an
+        environment where Stanza (Urdu's analyser) is not installed --
+        exactly backend/urdu/processor.py's `import stanza` failing deep
+        inside tokenize_and_lemmatize, propagated unmodified."""
+        def process_file(self, *a, **kw):
+            raise ImportError("No module named 'stanza'")
+
+    monkeypatch.setattr(dlw, '_get_lemma_rebuild_processor', lambda: _NoStanzaProcessor())
+
+    plan = dlw.plan_drop('ur', 'work.tess', ['work.2'], root=str(tmp_path))
+    report = dlw.apply_drop(plan, tag='test')
+
+    blocked_lines = [line for line in report if line.startswith(dlw.LEMMA_CACHE_BLOCKED_PREFIX)]
+    assert len(blocked_lines) == 1
+    assert "No module named 'stanza'" in blocked_lines[0]
+    assert 'scripts/batch_lemma_cache.py ur --force' in blocked_lines[0]
+
+    # Nothing was deleted, backed up, or rewritten: the old cache is
+    # bit-for-bit what it was before apply_drop ran.
+    assert open(canonical, encoding='utf-8').read() == old_content
+    assert not list(cache_lang_dir.glob('*.bak-*'))
+    assert sorted(p.name for p in cache_lang_dir.iterdir()) == [os.path.basename(canonical)]
+
+    # An unrelated store (the text itself) is not held hostage by the
+    # lemma cache being blocked -- it has already been dropped.
+    text = (tmp_path / 'texts' / 'ur' / 'work.tess').read_text(encoding='utf-8')
+    assert text == '<work.1>\tkeep one\n<work.3>\tkeep two\n'
+
+
+def test_main_exits_nonzero_when_the_lemma_cache_rebuild_is_blocked(tmp_path, monkeypatch, capsys):
+    (tmp_path / 'texts' / 'ur').mkdir(parents=True)
+    (tmp_path / 'texts' / 'ur' / 'work.tess').write_text(
+        '<work.1>\tkeep\n<work.2>\tdrop\n<work.3>\tkeep\n', encoding='utf-8')
+    (tmp_path / 'cache' / 'lemmas' / 'ur').mkdir(parents=True)
+    canonical = dlw.get_cache_path('work.tess', 'ur', cache_dir=str(tmp_path / 'cache' / 'lemmas'))
+    with open(canonical, 'w', encoding='utf-8') as fh:
+        fh.write('{}')
+
+    class _NoStanzaProcessor:
+        def process_file(self, *a, **kw):
+            raise ImportError("No module named 'stanza'")
+
+    monkeypatch.setattr(dlw, '_get_lemma_rebuild_processor', lambda: _NoStanzaProcessor())
+    monkeypatch.setattr(sys, 'argv', ['drop_lines_from_work.py', 'ur', 'work.tess',
+                                      '--refs', 'work.2', '--apply', '--root', str(tmp_path)])
+
+    with pytest.raises(SystemExit) as exc_info:
+        dlw.main()
+    assert exc_info.value.code != 0
+    assert exc_info.value.code is not None
+
+    out = capsys.readouterr().out
+    assert dlw.LEMMA_CACHE_BLOCKED_PREFIX in out
+    # Everything else still ran and was reported before the exit.
+    assert 'text: rewrote' in out
