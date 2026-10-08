@@ -1611,6 +1611,7 @@ const SearchResults = ({
                     so Cite belongs on the parallel and not only on the page
                     (interface audit, 2026-09-08). */}
                 <CiteButton
+                  showReportLink
                   finding={{
                     kind: 'fusion search',
                     source: displayLocus(r.source_locus || r.source?.ref, sourceTextInfo),

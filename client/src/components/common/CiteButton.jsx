@@ -31,7 +31,7 @@ function contextFromFinding(finding) {
  * @param {object} finding fields described in utils/citation.js
  * @param {string} [label] the button's text
  */
-export default function CiteButton({ finding, label = 'Cite', className = '' }) {
+export default function CiteButton({ finding, label = 'Cite', className = '', showReportLink = false }) {
   const [open, setOpen] = useState(false);
   const [style, setStyle] = useState('reproducible');
   const [copied, setCopied] = useState(false);
@@ -87,6 +87,18 @@ export default function CiteButton({ finding, label = 'Cite', className = '' }) 
       >
         {label}
       </button>
+      {showReportLink && (
+        // A marked link on the card itself: readers do not think to look
+        // inside Cite to report a problem.
+        <button
+          type="button"
+          onClick={() => setReportOpen(true)}
+          className="ml-2 inline-flex items-center gap-1 text-xs text-red-700 hover:underline align-middle"
+        >
+          <svg aria-hidden="true" viewBox="0 0 16 16" width="12" height="12" fill="none" className="shrink-0"><path d="M11 2.5l2.5 2.5L6 12.5H3.5V10L11 2.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg>
+          Report a problem
+        </button>
+      )}
       {open && (
         <div
           ref={boxRef}
