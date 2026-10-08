@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic test fixture, not a real papyri.info record (id 99999 does
+     not exist in DDbDP). Added for stage 3a to exercise the DDbDP-level
+     bibl fallback (scripts/documents/extract_metadata.py's
+     extract_principal_edition_ddbdp) for a document whose paired HGV
+     metadata record carries no principalEdition div, unlike every
+     real-data fixture already in this folder, which happens to have an
+     empty <sourceDesc><p/></sourceDesc> (8666.xml, 16901.xml) and so
+     never takes this fallback path. -->
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xml:lang="en">
+  <teiHeader>
+      <fileDesc>
+         <titleStmt>
+            <title>p.test.99.9999</title>
+         </titleStmt>
+         <publicationStmt>
+            <authority>Duke Collaboratory for Classics Computing (DC3)</authority>
+            <idno type="filename">99999</idno>
+            <idno type="HGV">99999</idno>
+            <idno type="TM">99999</idno>
+            <availability>
+               <p>&#169; Duke Databank of Documentary Papyri. This work is licensed under a
+          <ref type="license" target="http://creativecommons.org/licenses/by/3.0/">Creative
+          Commons Attribution 3.0 License</ref>.</p>
+            </availability>
+         </publicationStmt>
+         <sourceDesc>
+            <p>
+               <bibl>P.Test. 99 9999</bibl>
+            </p>
+         </sourceDesc>
+      </fileDesc>
+      <profileDesc>
+         <langUsage>
+            <language ident="en">English</language>
+            <language ident="grc">Greek</language>
+         </langUsage>
+      </profileDesc>
+  </teiHeader>
+  <text>
+      <body><div xml:lang="grc" type="edition" xml:space="preserve">
+<ab>
+<lb n="1"/>testing text
+</ab>
+      </div></body>
+  </text>
+</TEI>
