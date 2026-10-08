@@ -9,6 +9,15 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Cross-Language: Persian to Urdu no longer crashes the page; only served pairs shown
+- `CrossLingualSearch.jsx` fetched text lists for a fixed four languages
+  (Greek, Latin, English, Hebrew), so choosing Persian -> Urdu found no list
+  and the page went blank, and it showed the Arabic pairs although the
+  server does not serve Arabic. It now reads the served pairs from
+  `/api/languages`, shows only those, loads a list for every language in
+  them, and guards the menus against a missing list. Test added (fails on
+  the old code).
+
 ### Result card: the info mark drawn as an icon, and Iqbal's titles with -e
 - The info mark on explained badges is a small drawn icon in place of the
   circled-i character, which showed as an empty box where a font lacks it.
