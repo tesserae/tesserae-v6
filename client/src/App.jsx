@@ -657,7 +657,7 @@ function App() {
       window.dispatchEvent(new CustomEvent('open-public-auth-modal', {
         detail: {
           mode: 'login',
-          message: 'Need to sign in to add to repository',
+          message: 'Sign in',
         }
       }));
       return;

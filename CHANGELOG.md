@@ -9,6 +9,12 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Sign-in box: plain wording
+- The sign-in box opened by Register is titled "Sign in", and the note for
+  accounts created by the site's administrators now reads "If we created
+  your account for you, you will be asked to choose a new password after
+  you sign in."
+
 ### Corpus tool: drop specific lines from a work across every store that names a line by its ref
 - `scripts/corpus/drop_lines_from_work.py`, following an audit of Persian
   and Urdu imports that found a signed, dated modern editor's essay

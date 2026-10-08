@@ -480,7 +480,7 @@ const Header = ({ user, setUser, onLogoClick }) => {
             </p>
             {!isRegister && (
               <div className="bg-amber-50 border border-amber-200 text-amber-700 px-3 py-2 rounded text-xs mb-3">
-                If your account was bootstrapped, you may be required to reset your password after signing in.
+                If we created your account for you, you will be asked to choose a new password after you sign in.
               </div>
             )}
             
