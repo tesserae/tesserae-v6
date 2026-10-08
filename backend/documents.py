@@ -272,7 +272,7 @@ def meta(doc_id):
     if conn is None or not doc_id:
         return None
     try:
-        row = conn.execute(f"SELECT {_META_FIELDS} FROM documents WHERE id = ?",
+        row = conn.execute(f"SELECT {_META_FIELDS} FROM documents WHERE id = ?",  # nosec B608
                             (doc_id,)).fetchone()
     except Exception as e:                                         # noqa: BLE001
         logger.error(f"documents metadata lookup failed for {doc_id!r}: {e}")
