@@ -8,6 +8,28 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-08: what the Scholarship tab draws on, and on what terms
+- Sources:
+  - open scholarly metadata (OpenAlex, Crossref, and Unpaywall for legal
+    open-access copies);
+  - open full text through CORE;
+  - book pages through Google Books, with a HathiTrust search link;
+  - an offline citation index built from public-domain early journal
+    literature;
+  - commentaries held on the site.
+- Subscription articles are linked by DOI and through the reader's own
+  library link, never copied.
+- Commentaries are installed only when their licence permits reuse (public
+  domain, or an open licence such as CC BY-SA, credited on the sources
+  list). Texts whose licence is unknown or restrictive are left out.
+- No paid service sits in the request path. The external services used are
+  free, with keys held in the server environment only.
+- Machine translation of a commentary note is made on request by the local
+  model, marked as unreviewed, cached, and offered only for notes the site
+  holds.
+- The tab and the connector tools stay behind their switches until they
+  have been tried and the Help text written.
+
 ## 2026-10-07: how names are found for "same people and places" in each language
 
 The Similar Passages group "Same people and places" links passages in other

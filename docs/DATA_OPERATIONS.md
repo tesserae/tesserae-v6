@@ -67,6 +67,34 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-08 Scholarship sources installed on the live site (about 23:10 EDT)
+- What: the Reader's Scholarship tab (opt-in, `?scholarship=1`) went live
+  with Servius only. Installed beside it, outside git: the remaining
+  commentary catalogue (389 files added to `data/commentaries/`, 393 in all:
+  the Perseus open commentaries on Latin and Greek works, CC BY-SA; the
+  Sefaria Tanakh commentators, filtered to texts whose stated licence
+  permits reuse; Matthew Henry from CCEL, public domain; public-domain
+  English editions read from scans for Milton, Shakespeare, Spenser, Keats,
+  Wordsworth and Vergil); the offline citation index
+  (`data/citation_index/citations.db`, 25 MB, article-to-passage citations
+  extracted from the pre-1923 JSTOR Early Journal Content released for free
+  reuse, 24 classical, biblical and English journals, 82.5% precision on a
+  40-citation hand-checked sample); and the citation abbreviation table
+  (`data/citations/abbreviations.json`, GPL-3.0, used on the server and not
+  redistributed). Two keys added to the production environment for book-page
+  search (Google Books) and open full text (CORE); the keys are not recorded
+  here. Every commentary file's work id was checked against the live texts
+  first (all match; scripture uses one key across Bible versions).
+- Scripts: none (files copied with `rsync --ignore-existing`, so the
+  Servius files tracked in git were left untouched).
+- Backups: the production environment file was copied before the keys were
+  added. The data was additive, so no other backup was needed.
+- Checks: reference test passed after reload. Live lookups returned
+  commentators for the Aeneid, Iliad and Paradise Lost, citation-index hits
+  for Aeneid 4.1, book pages, and full-text results; the credits list
+  (`/api/scholarship/sources`) answers in under a second.
+- Note: the full-text key expires on 14 October 2026 and must be renewed.
+
 ## 2026-10-08 Two Aurelius Victor minor works, TO BE APPLIED (prepared in a dev worktree, not yet run on production)
 
 ### What and why
