@@ -127,10 +127,21 @@ def _t_list_texts(a):
 
 def _t_line_search(a):
     count_only = bool(a.get('count_only'))
-    d = _post('/line-search', {'query': a.get('query', ''),
-                               'language': a.get('language', 'la'),
-                               'search_type': a.get('search_type', 'lemma'),
-                               'count_only': count_only})
+    body = {'query': a.get('query', ''),
+            'language': a.get('language', 'la'),
+            'search_type': a.get('search_type', 'lemma'),
+            'count_only': count_only}
+    # Documents collection (stage 3b-2), behind the server's own
+    # TESSERAE_DOCUMENTS=1 switch: forwarded as-is when the caller sets
+    # them, same as every other optional line_search parameter. With the
+    # switch off, or `collection` left out, the site ignores these and the
+    # response is the literature-only one this tool has always returned.
+    if a.get('collection'):
+        body['collection'] = a.get('collection')
+    for key in ('date_from', 'date_to', 'region', 'text_type', 'material', 'source'):
+        if a.get(key) is not None:
+            body[key] = a.get(key)
+    d = _post('/line-search', body)
     out = {'query': a.get('query'), 'total': d.get('total'),
            'distinct_loci': d.get('distinct_loci'), 'capped': d.get('capped'),
            'corpus_version': d.get('corpus_version')}
@@ -150,14 +161,32 @@ def _t_line_search(a):
     # When the corpus scan hit the cap, `total` is a floor — report "N+".
     if d.get('capped'):
         out['total_at_least'] = d.get('total_at_least', d.get('total'))
+    # Documents collection: a documents-only response carries no literary
+    # `total`/`distinct_loci` meaning (see backend/documents.py and the
+    # stage 3b-2 notes); 'both' adds documents_total alongside the
+    # literature-only total above. Always included when present, even
+    # under count_only, since this IS the count being asked for.
+    if d.get('collection') in ('documents', 'both'):
+        out['collection'] = d.get('collection')
+    if d.get('documents_total') is not None:
+        out['documents_total'] = d.get('documents_total')
     if not count_only:
-        out['results'] = [{'locus': normalize_ref(r.get('locus')), 'author': r.get('author'),
-                           'work': r.get('work'), 'text': r.get('text'),
-                           'matched_words': r.get('matched_words'),
-                           # era + year let you chart WHERE ACROSS TIME the phrase
-                           # recurs (a period/author timeline), same as the web app.
-                           'era': r.get('era'), 'year': r.get('year')}
-                          for r in (d.get('results') or [])[:40]]
+        out['results'] = [
+            ({'locus': normalize_ref(r.get('locus')), 'collection': 'documents',
+              'doc_id': r.get('doc_id'), 'text': r.get('text'),
+              'matched_words': r.get('matched_words'),
+              'credit': r.get('credit'),
+              'date_not_before': r.get('date_not_before'), 'date_not_after': r.get('date_not_after'),
+              'place': r.get('ancient_place') or r.get('modern_place'), 'region': r.get('region'),
+              'text_type_label': r.get('text_type_label'), 'material_label': r.get('material_label')}
+             if r.get('collection') == 'documents' else
+             {'locus': normalize_ref(r.get('locus')), 'author': r.get('author'),
+              'work': r.get('work'), 'text': r.get('text'),
+              'matched_words': r.get('matched_words'),
+              # era + year let you chart WHERE ACROSS TIME the phrase
+              # recurs (a period/author timeline), same as the web app.
+              'era': r.get('era'), 'year': r.get('year')})
+            for r in (d.get('results') or [])[:40]]
         # A live, interactive version of this search (timeline + filters) in the web app.
         out['web_url'] = _line_search_url(a.get('query'), a.get('language', 'la'),
                                           a.get('search_type', 'lemma'))
@@ -1090,10 +1119,13 @@ TOOLS = [
                      "required": ["language"]},
      "fn": _t_list_texts},
     {"name": "line_search",
-     "description": "Find corpus lines sharing words with a phrase (corpus-wide). The uniqueness check: few results (total) means distinctive wording. Counts collapse whole-work vs per-book/poem duplicates of the same line, AND same-passage duplicates that differ only by author/work spelling (e.g. cyprian vs cyprian_saint), so total is a true distinct-loci count. Set count_only:true to get just the counts (total, distinct_loci, capped) with no results payload — use this to quantify a commonplace cheaply; fetch full results only when the count is small enough to characterize. `capped` is true when the scan hit the result cap (default 500): then `total` is a floor (`total_at_least`) — treat it as 'at least N', not exact. SINGLE-WORD queries: a query that LITERALLY has one word can't co-occur with anything, so count_only returns `single_word:true` with `total` = the number of works that contain the word (a corpus document frequency, `unit:\"works\"`) — report as 'appears in N works', not co-occurring places; an all-stopword single word returns `unquantified:true` (total null). WITHOUT count_only, a single-word query LISTS every line that contains the word (capped like any search) — use it to see the actual occurrences. A MULTI-word query is always a co-occurrence count even if one word is too common to index alone: it returns the normal pair count plus `filtered_common_words` naming the common word(s) that were down-weighted — the count is real; say the pairing leans on the other word. Every response carries `corpus_version` (a date stamp of the corpus state); when the user is recording a count for use elsewhere, quote it with the number (e.g. '8 places, corpus version 2026-08-16'). search_type: 'lemma' (default) matches lines that share 2+ of the query's LEMMAS anywhere on the line — use this for words that co-occur but are NOT adjacent (e.g. 'Scythiam arces', 'lolium avenae'); 'exact' matches the query as an ADJACENT whole-word phrase (stopwords included literally, so 'ad Scythiam' matches only that contiguous phrase; a Latin enclitic on the final word is allowed, so 'arma virum' hits 'arma virumque') — for non-adjacent words use lemma; 'regex'. ENJAMBMENT: line_search only matches WITHIN a single line, so a phrase that straddles a line break (verse enjambment) is invisible to it — if an exact search of a verse phrase returns nothing, the words may run across the line end, so try a lemma search of the words or string_search/regex on each half before concluding it is absent. Each result carries `era` and `year` for its author, so you can chart WHERE ACROSS TIME the phrase recurs (a period or author timeline) — do that when a distribution over time would help the user see it. The response also carries `web_url`: a link that opens this same search in the Tesserae web app, which draws the timeline live and lets the user click a period or author to see just those citations. Offer that link when a visual or interactive view would help.",
+     "description": "Find corpus lines sharing words with a phrase (corpus-wide). The uniqueness check: few results (total) means distinctive wording. Counts collapse whole-work vs per-book/poem duplicates of the same line, AND same-passage duplicates that differ only by author/work spelling (e.g. cyprian vs cyprian_saint), so total is a true distinct-loci count. Set count_only:true to get just the counts (total, distinct_loci, capped) with no results payload — use this to quantify a commonplace cheaply; fetch full results only when the count is small enough to characterize. `capped` is true when the scan hit the result cap (default 500): then `total` is a floor (`total_at_least`) — treat it as 'at least N', not exact. SINGLE-WORD queries: a query that LITERALLY has one word can't co-occur with anything, so count_only returns `single_word:true` with `total` = the number of works that contain the word (a corpus document frequency, `unit:\"works\"`) — report as 'appears in N works', not co-occurring places; an all-stopword single word returns `unquantified:true` (total null). WITHOUT count_only, a single-word query LISTS every line that contains the word (capped like any search) — use it to see the actual occurrences. A MULTI-word query is always a co-occurrence count even if one word is too common to index alone: it returns the normal pair count plus `filtered_common_words` naming the common word(s) that were down-weighted — the count is real; say the pairing leans on the other word. Every response carries `corpus_version` (a date stamp of the corpus state); when the user is recording a count for use elsewhere, quote it with the number (e.g. '8 places, corpus version 2026-08-16'). search_type: 'lemma' (default) matches lines that share 2+ of the query's LEMMAS anywhere on the line — use this for words that co-occur but are NOT adjacent (e.g. 'Scythiam arces', 'lolium avenae'); 'exact' matches the query as an ADJACENT whole-word phrase (stopwords included literally, so 'ad Scythiam' matches only that contiguous phrase; a Latin enclitic on the final word is allowed, so 'arma virum' hits 'arma virumque') — for non-adjacent words use lemma; 'regex'. ENJAMBMENT: line_search only matches WITHIN a single line, so a phrase that straddles a line break (verse enjambment) is invisible to it — if an exact search of a verse phrase returns nothing, the words may run across the line end, so try a lemma search of the words or string_search/regex on each half before concluding it is absent. Each result carries `era` and `year` for its author, so you can chart WHERE ACROSS TIME the phrase recurs (a period or author timeline) — do that when a distribution over time would help the user see it. The response also carries `web_url`: a link that opens this same search in the Tesserae web app, which draws the timeline live and lets the user click a period or author to see just those citations. Offer that link when a visual or interactive view would help. `collection` ('literature' default, 'documents', or 'both'; Latin/Greek only, and only when the server has this on) also searches the documentary corpus (inscriptions, papyri): a document result carries `doc_id`, `credit` (licence/source/principal edition — ALWAYS show this when quoting a document), `date_not_before`/`date_not_after`, `place`, `region`, `text_type_label`, `material_label` instead of author/work/era/year. Narrow it with `date_from`/`date_to` (years, negative for BC), `region`/`text_type`/`material`/`source` (substring filters). 'both' adds `documents_total` alongside the literature-only `total`.",
      "inputSchema": {"type": "object",
                      "properties": {"query": _STR, "language": _STR, "search_type": _STR,
-                                    "count_only": {"type": "boolean"}},
+                                    "count_only": {"type": "boolean"},
+                                    "collection": _STR, "date_from": {"type": "integer"},
+                                    "date_to": {"type": "integer"}, "region": _STR,
+                                    "text_type": _STR, "material": _STR, "source": _STR},
                      "required": ["query", "language"]},
      "fn": _t_line_search},
     {"name": "string_search",

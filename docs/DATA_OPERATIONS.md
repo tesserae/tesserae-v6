@@ -67,6 +67,38 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-08 Documentary texts in the corpus-wide phrase search (TO BE APPLIED, not yet on production)
+- What: PR for documents stage 3b-2 adds `backend/documents.py` and an
+  optional `collection` parameter to `/api/line-search`, both inert unless
+  `TESSERAE_DOCUMENTS=1` is set on the server. Installing it on production
+  is a separate step from merging the code, listed here so it is not
+  forgotten: copying the stage 3b-1 build's output (built dark, never
+  previously copied anywhere near `/var/www`) into place, and setting the
+  env line.
+- Files to copy (read-only once in place; nothing here is written to by
+  the running app):
+  - `la_documents_index.db` (266 MB) and `grc_documents_index.db` (775 MB)
+    into production's `data/inverted_index/` (the SAME directory the
+    literary `la_index.db`/`grc_index.db` already live in — the suffixed
+    filename is what keeps them apart; `backend/documents.py` refuses to
+    open or write a literary-named file).
+  - `metadata.db` (252 MB, stage 3a) into production's
+    `data/documents/metadata.db` (new directory).
+  - The restored-word sidecars (about 70 MB total, 264 files) into
+    production's `data/documents/restored/<la|grc>/`, preserving the
+    `<source>__<bucket>.restored_words.jsonl` filenames stage 3b-1's
+    `write_document_tess.py` gave them.
+  - `data/documents/formula_words_la.txt` and `_grc.txt` are already
+    tracked in git (committed in stage 3b-1) and need no copy.
+- Env: add `TESSERAE_DOCUMENTS=1` to production's environment and reload
+  (`touch tesseraev6_flask.wsgi`). Until this line is set, every part of
+  this PR is unreachable and the site's behaviour is unchanged.
+- Verify after: the ten phrase searches in the stage 3b-2 spec
+  (`collection=documents` and `collection=both`) against the live site,
+  plus the existing reference tests in `tests/search_reference_tests.md`
+  with `collection` omitted, to confirm the literary path is still exactly
+  what it was before this entry.
+
 ## 2026-10-08 Origo Gentis Romanae: the 2004 tertullian.org translation added (about 01:00 EDT)
 - What: `data/translations/la__pseudo_aurelius_victor.origo_gentis_romanae.json`
   built in the development checkout, covering all 126 refs (the preface

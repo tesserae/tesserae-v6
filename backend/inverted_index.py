@@ -98,10 +98,10 @@ def set_corpus_version(conn, version):
                  "ON CONFLICT(key) DO UPDATE SET value=excluded.value", (version,))
     conn.commit()
 
-def lookup_lemmas(lemmas, language, fallback_forms=None):
+def lookup_lemmas(lemmas, language, fallback_forms=None, conn=None):
     """
     Look up multiple lemmas and return matching text locations.
-    
+
     Args:
         lemmas: List of lemmas to search for
         language: 'la', 'grc', or 'en'
@@ -109,14 +109,23 @@ def lookup_lemmas(lemmas, language, fallback_forms=None):
                        search for. Matches on fallback forms count as matches for the
                        canonical lemma. This bridges the gap between properly lemmatized
                        queries and indexes built with older/incomplete lemma tables.
-    
+        conn: Optional sqlite3 connection to use instead of this module's own
+                       get_connection(language) (stage 3b-2: backend/documents.py passes
+                       its own documents-index connection here so a documents-collection
+                       lookup reuses this exact query and the Latin u/v, i/j variant
+                       expansion below, keyed on the real `language` ('la'/'grc'), not a
+                       pseudo-language — without changing this function's own behaviour
+                       for every existing caller, which still passes no `conn` and gets
+                       get_connection(language) as before).
+
     Returns:
         Dict mapping (text_id, ref) to list of matching lemmas and positions
     """
-    conn = get_connection(language)
+    if conn is None:
+        conn = get_connection(language)
     if not conn:
         return {}
-    
+
     cursor = conn.cursor()
     results = {}
     
@@ -169,10 +178,10 @@ def lookup_lemmas(lemmas, language, fallback_forms=None):
     
     return results
 
-def find_co_occurring_lemmas(lemmas, language, min_matches=2, max_distance=None, fallback_forms=None):
+def find_co_occurring_lemmas(lemmas, language, min_matches=2, max_distance=None, fallback_forms=None, conn=None):
     """
     Find all text locations where at least min_matches of the given lemmas co-occur.
-    
+
     Args:
         lemmas: List of query lemmas
         language: 'la', 'grc', or 'en'
@@ -181,11 +190,13 @@ def find_co_occurring_lemmas(lemmas, language, min_matches=2, max_distance=None,
         fallback_forms: Optional dict mapping lemma -> set of inflected forms to also
                        search for. Matches on fallback forms count as matches for the
                        canonical lemma.
-    
+        conn: Optional sqlite3 connection, passed straight through to lookup_lemmas
+                       (see its own docstring) — every existing caller leaves this None.
+
     Returns:
         List of (filename, ref, matching_lemmas, positions_dict) tuples
     """
-    all_matches = lookup_lemmas(lemmas, language, fallback_forms=fallback_forms)
+    all_matches = lookup_lemmas(lemmas, language, fallback_forms=fallback_forms, conn=conn)
     
     results = []
     for (filename, ref), data in all_matches.items():
@@ -295,9 +306,14 @@ def get_line_data(filename, ref, language):
         }
     return None
 
-def get_lines_batch(filename, refs, language):
-    """Get multiple lines at once for efficiency"""
-    conn = get_connection(language)
+def get_lines_batch(filename, refs, language, conn=None):
+    """Get multiple lines at once for efficiency.
+
+    conn: Optional sqlite3 connection override — see lookup_lemmas' docstring
+    for why (backend/documents.py reuse); every existing caller leaves it None.
+    """
+    if conn is None:
+        conn = get_connection(language)
     if not conn:
         return {}
     
@@ -319,9 +335,14 @@ def get_lines_batch(filename, refs, language):
         }
     return results
 
-def has_lines_data(language):
-    """Check if lines table exists and has data"""
-    conn = get_connection(language)
+def has_lines_data(language, conn=None):
+    """Check if lines table exists and has data.
+
+    conn: Optional sqlite3 connection override — see lookup_lemmas' docstring
+    for why (backend/documents.py reuse); every existing caller leaves it None.
+    """
+    if conn is None:
+        conn = get_connection(language)
     if not conn:
         return False
     
