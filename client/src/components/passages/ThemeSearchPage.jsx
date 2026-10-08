@@ -236,11 +236,13 @@ function CompareWorkPicker({ label, langChoices, language, setLanguage,
   const { authors, hierarchy, loading, getTextsForAuthor } = useCorpus(language);
   return (
     <div className="border border-gray-200 rounded p-3 bg-white space-y-3">
+      <h3 className="text-base font-semibold text-gray-900">{label}</h3>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          {label} language
+          Language
         </label>
         <select
+          aria-label={`${label} language`}
           value={language}
           onChange={(e) => { setLanguage(e.target.value); setAuthor(''); setText(''); }}
           className="w-full border rounded px-2 py-2 text-base sm:text-sm"
@@ -253,6 +255,7 @@ function CompareWorkPicker({ label, langChoices, language, setLanguage,
       ) : (
         <TextSelector
           label={label}
+          plainFieldLabels
           language={language}
           authors={authors}
           selectedAuthor={author}

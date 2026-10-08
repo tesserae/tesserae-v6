@@ -9,6 +9,12 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Compare two works: a heading per side, plain field labels
+- Each side of Compare two works is headed "First work" or "Second work",
+  and its fields read "Language", "Author" and "Work" (they read "First
+  work Work" before). The main search keeps its "Source Author" style
+  labels. The side name stays in the screen-reader labels.
+
 ### Reader: readable names in the Reuse tab and in Urdu and Persian references
 - The Reuse tab names each quoting work and line the way the rest of the
   site does ("Sauda, Kulliyat 6.6", not "Sauda, Kulliyat Wikisource" over a
