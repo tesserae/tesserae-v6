@@ -75,12 +75,12 @@ anything is deleted, with a dated backup kept of each file it removes.
   forgotten: copying the stage 3b-1 build's output (built dark, never
   previously copied anywhere near `/var/www`) into place, and setting the
   env line.
-- Files to copy (read-only once in place; nothing here is written to by
-  the running app):
+- Files to copy (read-only once in place, never written by the running
+  app):
   - `la_documents_index.db` (266 MB) and `grc_documents_index.db` (775 MB)
     into production's `data/inverted_index/` (the SAME directory the
-    literary `la_index.db`/`grc_index.db` already live in — the suffixed
-    filename is what keeps them apart; `backend/documents.py` refuses to
+    literary `la_index.db`/`grc_index.db` already live in. The suffixed
+    filename keeps them apart, and `backend/documents.py` refuses to
     open or write a literary-named file).
   - `metadata.db` (252 MB, stage 3a) into production's
     `data/documents/metadata.db` (new directory).
