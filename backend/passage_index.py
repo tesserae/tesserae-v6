@@ -145,6 +145,17 @@ STRONG_COMBINED = 1.83
 # fit this file actually uses.
 FITTED_AT_WINDOWS = 530917
 FITTED_TOLERANCE = 0.15     # beyond 15% drift, stop vouching for the band
+# EVERYTHING BELOW, to the next blank line after "update both constants
+# together", is history about MODERATE_COMBINED/STRONG_COMBINED and the
+# window counts of that now-dormant design (603,594 growing to 610,670 then
+# 617,137). None of those counts describe the live index any more, and
+# FITTED_AT_WINDOWS above has already moved past them to the 2026-10-08
+# HEAD_WEAK refit's own count, 530,917 -- lower than all three despite the
+# word "growth" throughout this paragraph, because corpus consolidation work
+# between the two fits (duplicate-text and dropped-window cleanup) removed
+# more than later imports added. Kept for the reasoning it records (count
+# drift is not the only thing that invalidates a fit), not for its numbers.
+#
 # Growth since the fit, recorded rather than refitted: the Latin import batches
 # and the dual-phrasing pass brought the index to 610,670, and the vernacular
 # pilot (Commedia, Roland, Nibelungenlied) to 617,137 on 2026-09-01. That is
