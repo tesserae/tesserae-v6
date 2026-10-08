@@ -215,6 +215,85 @@ def doc_for(language, filename, ref):
     return doc_id
 
 
+def get_document_lines(language, doc_id):
+    """Every line of one document (stage 3b-1's own `lines` table, via
+    `doc_meta`), in original order, each carrying its own restored/
+    fragment token positions from the sidecar -- the data the Reader's
+    document view (stage 3b-3) needs. Returns None (not an exception, not
+    an empty dict) when the documents index for `language` is unavailable
+    or `doc_id` is not in its doc_meta table, so a caller trying several
+    languages in turn (a doc id alone does not say which) can tell "wrong
+    language, try the next one" apart from "this really is empty" --
+    which never happens, since doc_meta is only ever built from a
+    document that had at least one line (build_documents_index.py's
+    build_doc_meta loop only ever writes a doc_id it just saw a line
+    for).
+
+    `doc_meta.text_id` is the index's own INTEGER id (the `texts` table's
+    primary key, not the bucket filename) -- resolved here to the
+    filename the sidecar is keyed on. first_ref/last_ref bound a
+    CONTIGUOUS run of rows in `lines` (true by construction: doc_meta was
+    built by walking `lines` in rowid order and starting a new doc_id
+    exactly when the ref's own doc id changed -- see build_doc_meta), so
+    the two rowids of those two refs bound every line of the document;
+    MIN/MAX guards against a single-line document, where first_ref ==
+    last_ref and the two queries legitimately return the same rowid."""
+    conn = get_connection(language)
+    if conn is None or not doc_id:
+        return None
+    try:
+        row = conn.execute(
+            'SELECT text_id, first_ref, last_ref FROM doc_meta WHERE doc_id = ?',
+            (doc_id,)).fetchone()
+    except Exception as e:                                         # noqa: BLE001
+        logger.error(f"get_document_lines: doc_meta lookup failed for {language}/{doc_id!r}: {e}")
+        return None
+    if row is None:
+        return None
+    text_id, first_ref, last_ref = row['text_id'], row['first_ref'], row['last_ref']
+    try:
+        trow = conn.execute('SELECT filename FROM texts WHERE text_id = ?', (text_id,)).fetchone()
+    except Exception as e:                                         # noqa: BLE001
+        logger.error(f"get_document_lines: texts lookup failed for {language}/{doc_id!r}: {e}")
+        return None
+    if trow is None:
+        return None
+    filename = trow['filename']
+    try:
+        bounds = conn.execute(
+            'SELECT MIN(rowid), MAX(rowid) FROM lines WHERE text_id = ? AND ref IN (?, ?)',
+            (text_id, first_ref, last_ref)).fetchone()
+    except Exception as e:                                         # noqa: BLE001
+        logger.error(f"get_document_lines: bounds lookup failed for {language}/{doc_id!r}: {e}")
+        return None
+    if bounds is None or bounds[0] is None:
+        return None
+    lo, hi = min(bounds[0], bounds[1]), max(bounds[0], bounds[1])
+    try:
+        rows = conn.execute(
+            'SELECT ref, content, tokens FROM lines WHERE text_id = ? '
+            'AND rowid BETWEEN ? AND ? ORDER BY rowid',
+            (text_id, lo, hi)).fetchall()
+    except Exception as e:                                         # noqa: BLE001
+        logger.error(f"get_document_lines: lines lookup failed for {language}/{doc_id!r}: {e}")
+        return None
+    lines = []
+    for r in rows:
+        try:
+            tokens = json.loads(r['tokens']) if r['tokens'] else []
+        except Exception:                                           # noqa: BLE001
+            tokens = []
+        restored = restored_indices(language, filename, r['ref'])
+        lines.append({
+            'ref': r['ref'],
+            'text': r['content'] or '',
+            'tokens': tokens,
+            'restored_indices': restored.get('restored'),
+            'fragment_indices': restored.get('fragment'),
+        })
+    return {'filename': filename, 'lines': lines}
+
+
 # --------------------------------------------------------------------------
 # metadata.db (credit / date / place / labels)
 # --------------------------------------------------------------------------
@@ -250,6 +329,7 @@ def reset_caches():
     _sidecar_cache.clear()
     _corpus_version_cache.clear()
     meta.cache_clear()
+    display_fields.cache_clear()
 
 
 _META_FIELDS = (
@@ -305,6 +385,41 @@ def meta(doc_id):
         'object_type_label': d.get('object_type_label'),
         'material_label': d.get('material_label'),
     }
+
+
+# Every field name extract_metadata.py (stage 3a) writes to the `display`
+# EAV table's `field` column; see that script's own module docstring.
+# `image_url` is the one field a document can carry more than once.
+_DISPLAY_MULTI_FIELDS = ('image_url',)
+
+
+@lru_cache(maxsize=4096)
+def display_fields(doc_id):
+    """Stage 3a's `display` table (id, field, value -- an EAV layout,
+    since a document can have more than one image_url) for one document
+    id, as {field: value} for every field, except `image_url`, which
+    comes back as {field: [value, ...]} even when there is exactly one.
+    None when metadata.db (or its `display` table) is unavailable; an
+    empty dict when the db is reachable but this document simply has no
+    display rows (every field here is optional -- see
+    extract_metadata.py). A first-wins rule covers the never-expected case
+    of a duplicate single-valued field."""
+    conn = get_meta_connection()
+    if conn is None or not doc_id:
+        return None
+    try:
+        rows = conn.execute('SELECT field, value FROM display WHERE id = ?', (doc_id,)).fetchall()
+    except Exception as e:                                         # noqa: BLE001
+        logger.error(f"display_fields lookup failed for {doc_id!r}: {e}")
+        return None
+    out = {}
+    for r in rows:
+        field, value = r['field'], r['value']
+        if field in _DISPLAY_MULTI_FIELDS:
+            out.setdefault(field, []).append(value)
+        else:
+            out.setdefault(field, value)
+    return out
 
 
 # --------------------------------------------------------------------------

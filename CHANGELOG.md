@@ -9,6 +9,42 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Documentary texts, stage 3b-3: restored-word exclusion, a stock-formula filter, and a document Reader view
+- `/api/line-search` (documents/both): each document hit now carries
+  `matched_restored` (every matched token is one the source marked
+  restored) and `partly_restored` (some are). New optional
+  `exclude_restored=1` drops a hit whose match rests entirely on restored
+  text; the response reports `restored_excluded_count`. The card states
+  "match on restored text" for a fully-restored hit, and Line Search gets
+  a "Leave out matches on restored words" checkbox next to the existing
+  documents filters.
+- Each document hit also carries `formula_count`: how many documents in
+  the SAME documents index share its matched lemma pair or phrase,
+  computed from postings the same way line search counts co-occurrence
+  candidates (not a corpus scan), cached per query. A lemma search also
+  returns a `formula_summary` for the query as a whole. New optional
+  `hide_formulas=N` drops a hit whose `formula_count` exceeds N
+  (`formulas_hidden_count` reported); Line Search gets a "Hide stock
+  formulas" checkbox using a measured default (100 — see
+  `docs/DECISIONS.md`). The soft-penalty word lists
+  (`data/documents/formula_words_la.txt`/`_grc.txt`) are still not applied
+  as a down-rank: document hits carry no score or rank for either
+  collection to attach one to, the same finding stage 3b-2 already
+  recorded.
+- A new route, `GET /api/documents/<doc_id>` (behind `TESSERAE_DOCUMENTS=1`,
+  404 otherwise), returns one document's own lines with restored/fragment
+  positions, credit, date/place/labels, and the stage 3a display fields
+  (museum, inventory, dimensions, translation, apparatus, commentary,
+  image links). Listed `site_only` in the connector parity manifest (a
+  website trial, not yet exposed to the connector).
+- Client: clicking a document hit's citation opens a document view
+  (`/document?doc=...`) with the text (restored words marked), the
+  credit, date/place (with a Pleiades link), labels, and the display
+  fields, apparatus and commentary collapsed; a back link returns to Line
+  Search with the originating query, type and language intact. The
+  literary Reader is unchanged; this view is reachable only from a
+  document hit.
+
 ### Records: documents trial opened on the live site
 - `docs/DATA_OPERATIONS.md` records the server switch that opens the
   `?documents=1` trial. No code change.

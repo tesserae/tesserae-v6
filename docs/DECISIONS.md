@@ -8,6 +8,56 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-08: restoration exclusion, stock-formula filter, document view (stage 3b-3)
+- `hide_formulas` default threshold: measured directly against the real
+  dev documents indexes (`la_documents_index.db`/`grc_documents_index.db`),
+  counting DISTINCT documents sharing the matched lemma set via the same
+  postings lookup `formula_count` uses (`backend.documents.
+  find_co_occurring_lemmas` + `doc_for`): "dis manibus" 35,231 documents,
+  "bene merenti" 11,903, "votum solvit libens merito" 3,990, "hic situs
+  est" 3,535 (all genuine formulas) against "arma virumque" 19 and "arma
+  virumque cano" 8 (genuine parallels, not formulas). The gap between the
+  smallest formula (3,535) and the largest genuine parallel (19) spans
+  three orders of magnitude, so 100 (`DOCUMENTS_FORMULA_DEFAULT_N` in
+  `backend/app.py`) separates them with wide margin on both sides.
+- `formula_count`/`hide_formulas` apply only to the LEMMA search path.
+  'exact' search gets a best-effort version via matched token positions
+  located after the fact (`_find_exact_phrase_positions`) when the
+  resulting `matched_lemmas` is non-empty; 'regex' never populates
+  `matched_lemmas` at all (true in the literary branch too), so it has no
+  well-defined lemma pair to count and `formula_count` stays `None` for
+  those hits. `hide_formulas` never drops a hit whose `formula_count` is
+  `None`: an unmeasured count is not evidence of a formula, and silently
+  changing regex/exact document-hit behavior whenever this filter is on
+  would be a bigger change than the spec asked for. Recorded as a
+  deviation rather than building a full-corpus phrase-document scan into
+  the request path to cover the other two search types.
+- The soft-penalty word lists (`data/documents/formula_words_la.txt`/
+  `_grc.txt`, spec item 6) are STILL not applied as a down-rank. Checked
+  directly, again: `/api/line-search` computes no per-result score or
+  rank for document hits (they are appended in candidate-discovery order,
+  filtered/deduped, never sorted by any merit measure) — the identical
+  absence stage 3b-2 already found for formula words generally. Left for
+  whichever later phase gives document hits a score at all, rather than
+  inventing one now to have something to attach a penalty to.
+- `matched_restored`/`partly_restored` are computed from the matched
+  tokens' own index POSITIONS, not from re-splitting the matched word
+  strings: the lemma FAST PATH already enumerates positions while
+  building `matched_words`, so this is a byproduct of that loop, not an
+  extra pass. For 'exact', positions come from a new best-effort phrase
+  locator (`_find_exact_phrase_positions`) that mirrors
+  `exact_phrase_pattern`'s own asymmetric word-boundary rule (no trailing
+  boundary on the last word, so a Latin enclitic still matches). For
+  'regex', no position concept exists at all (the literary branch has
+  none either), so both flags are always `False` there — treated as "not
+  restored," the same safe default an exact hit the locator could not
+  place also gets, rather than guessing.
+- `exclude_restored` and `hide_formulas` apply identically under
+  `collection=documents` and `collection=both` (the same
+  `_search_documents_collection` call both paths share); the literary
+  side of `collection=both` is untouched by either parameter, matching
+  stage 3b-2's own "two insertion points only" rule.
+
 ## 2026-10-08: documents in the corpus-wide phrase search (stage 3b-2)
 - Restored-word marking uses a light dotted underline, not scholarly
   square brackets. The matched-word highlight already uses `<mark>`

@@ -185,3 +185,131 @@ describe('documents collection control', () => {
     expect(restored.closest('mark')).toBeTruthy();
   });
 });
+
+describe('stage 3b-3: restoration exclusion, formula hiding, and the document view link', () => {
+  it('shows the restoration/formula checkboxes only once Documents or Both is chosen', async () => {
+    mockFetch({ documentsEnabled: true, results: [] });
+    render(<LineSearch language="la" />);
+    await switchToSearchMode();
+    await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
+    expect(screen.queryByText('Leave out matches on restored words')).toBeNull();
+    expect(screen.queryByText('Hide stock formulas')).toBeNull();
+    await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
+    expect(screen.getByText('Leave out matches on restored words')).toBeTruthy();
+    expect(screen.getByText('Hide stock formulas')).toBeTruthy();
+  });
+
+  it('sends exclude_restored only when the checkbox is checked', async () => {
+    mockFetch({ documentsEnabled: true, results: [documentHit] });
+    render(<LineSearch language="la" />);
+    await switchToSearchMode();
+    await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
+    await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Leave out matches on restored words' }));
+    await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), 'dis manibus');
+    await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
+
+    await waitFor(() => {
+      const call = global.fetch.mock.calls.find(([u]) => String(u) === '/api/line-search');
+      const body = JSON.parse(call[1].body);
+      expect(body.exclude_restored).toBe(true);
+    });
+  });
+
+  it('sends hide_formulas with the measured default only when the checkbox is checked', async () => {
+    mockFetch({ documentsEnabled: true, results: [documentHit] });
+    render(<LineSearch language="la" />);
+    await switchToSearchMode();
+    await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
+    await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Hide stock formulas' }));
+    await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), 'dis manibus');
+    await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
+
+    await waitFor(() => {
+      const call = global.fetch.mock.calls.find(([u]) => String(u) === '/api/line-search');
+      const body = JSON.parse(call[1].body);
+      expect(body.hide_formulas).toBe(100);
+    });
+  });
+
+  it('neither checkbox sends anything when left unchecked', async () => {
+    mockFetch({ documentsEnabled: true, results: [documentHit] });
+    render(<LineSearch language="la" />);
+    await switchToSearchMode();
+    await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
+    await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
+    await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), 'dis manibus');
+    await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
+
+    await waitFor(() => {
+      const call = global.fetch.mock.calls.find(([u]) => String(u) === '/api/line-search');
+      const body = JSON.parse(call[1].body);
+      expect(body.exclude_restored).toBeUndefined();
+      expect(body.hide_formulas).toBeUndefined();
+    });
+  });
+
+  it('shows "match on restored text" only for a fully-restored hit', async () => {
+    const fullyRestored = { ...documentHit, matched_restored: true };
+    mockFetch({ documentsEnabled: true, results: [fullyRestored] });
+    render(<LineSearch language="la" />);
+    await switchToSearchMode();
+    await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
+    await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
+    await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), 'dis manibus');
+    await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
+
+    await waitFor(() => expect(screen.getByText(/Found 1 documents/)).toBeTruthy());
+    expect(screen.getByText('match on restored text')).toBeTruthy();
+  });
+
+  it('does not show "match on restored text" for a hit that is not fully restored', async () => {
+    const partial = { ...documentHit, matched_restored: false, partly_restored: true };
+    mockFetch({ documentsEnabled: true, results: [partial] });
+    render(<LineSearch language="la" />);
+    await switchToSearchMode();
+    await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
+    await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
+    await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), 'dis manibus');
+    await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
+
+    await waitFor(() => expect(screen.getByText(/Found 1 documents/)).toBeTruthy());
+    expect(screen.queryByText('match on restored text')).toBeNull();
+  });
+
+  it('the citation links to the document view with the query and language carried over', async () => {
+    mockFetch({ documentsEnabled: true, results: [documentHit] });
+    render(<LineSearch language="la" />);
+    await switchToSearchMode();
+    await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
+    await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
+    await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), 'dis manibus');
+    await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
+
+    await waitFor(() => expect(screen.getByText(/Found 1 documents/)).toBeTruthy());
+    const link = screen.getByRole('link', { name: 'AE 2001, 2169.' });
+    const href = link.getAttribute('href');
+    expect(href.startsWith('/document?')).toBe(true);
+    const params = new URLSearchParams(href.slice('/document?'.length));
+    expect(params.get('doc')).toBe('edh:HD047322');
+    expect(params.get('lang')).toBe('la');
+    expect(params.get('q')).toBe('dis manibus');
+    expect(params.get('type')).toBe('lemma');
+  });
+
+  it('carries the documents=1 trial flag on the document-view link when the trial is active', async () => {
+    mockFetch({ documentsEnabled: true, results: [documentHit], trial: true });
+    render(<LineSearch language="la" />);
+    await switchToSearchMode();
+    await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
+    await userEvent.click(screen.getByRole('button', { name: 'Documents' }));
+    await userEvent.type(screen.getByPlaceholderText('Enter word or phrase...'), 'dis manibus');
+    await userEvent.click(screen.getByRole('button', { name: 'Search Lines' }));
+
+    await waitFor(() => expect(screen.getByText(/Found 1 documents/)).toBeTruthy());
+    const link = screen.getByRole('link', { name: 'AE 2001, 2169.' });
+    const params = new URLSearchParams(link.getAttribute('href').split('?')[1]);
+    expect(params.get('documents')).toBe('1');
+  });
+});
