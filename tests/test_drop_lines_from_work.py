@@ -302,13 +302,6 @@ def test_apply_forced_embeddings_mismatch_aborts_and_restores_everything(fixture
     assert not list(passage_dir.glob('*.new'))
     assert not list(passage_dir.glob('*.tmp-*'))
 
-    # The text file and the inverted index are untouched too: the windows
-    # step is the LAST of the five, so a refusal there must not have let
-    # earlier steps write first and then strand the corpus half-edited.
-    # (This test only establishes the windows step aborts cleanly on its
-    # own; apply_drop's step ordering is covered by its call order, not
-    # re-asserted here.)
-
 
 def test_apply_on_a_checkout_with_no_downstream_stores_only_touches_the_text(tmp_path):
     (tmp_path / 'texts' / 'fa').mkdir(parents=True)

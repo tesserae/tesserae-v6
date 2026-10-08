@@ -529,6 +529,10 @@ def apply_drop(plan, tag=None):
             del arr
 
         # Validate the three stay in lockstep BEFORE anything live changes.
+        # Only stores that actually exist are compared (a checkout missing
+        # embeddings.npy entirely has nothing to drop from it and nothing
+        # to assert); the 2026-10-08 incident was a store that EXISTED and
+        # silently kept its old row count, which this catches.
         counts = {}
         if new_ids is not None:
             counts['ids.json'] = len(new_ids)
@@ -541,13 +545,17 @@ def apply_drop(plan, tag=None):
 
         # Validated; swap all four window stores in together. A failure
         # partway restores every backup rather than leaving some new and
-        # some old.
+        # some old, and cleans up every tmp/.new file this step itself
+        # created (atomic_write already cleans up its own on failure).
+        emb_tmp_npy = None
         try:
             if new_emb is not None:
                 import numpy as np
                 tmp_base = emb_path[:-len('.npy')] + f'.tmp-{os.getpid()}'
+                emb_tmp_npy = tmp_base + '.npy'
                 np.save(tmp_base, new_emb)  # np.save appends .npy itself
-                os.replace(tmp_base + '.npy', emb_path)
+                os.replace(emb_tmp_npy, emb_path)
+                emb_tmp_npy = None  # consumed by the replace; nothing left to clean up
             if new_desc_lines is not None:
                 atomic_write(win['desc_path'], new_desc_lines)
             if new_ids is not None:
@@ -556,6 +564,9 @@ def apply_drop(plan, tag=None):
             os.replace(new_wdb_path, win['wdb_path'])
         except BaseException:
             _restore_backups(backups)
+            for leftover in (emb_tmp_npy, new_wdb_path):
+                if leftover and os.path.exists(leftover):
+                    os.remove(leftover)
             raise
 
         # Post-write check against what is now actually on disk: belt and
