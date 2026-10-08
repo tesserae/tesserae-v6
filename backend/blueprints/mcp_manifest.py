@@ -111,6 +111,20 @@ MANIFEST = {
     },
     '/api/feature-request': {
         'tools': ['submit_feature_request'],
+        'note': ("Requests workflow (2026-10-08): the same route and tool also file "
+                "result-problem/text-correction/suggestion, the three entry points added "
+                "on the website. submit_feature_request's type/title/problem/desired/"
+                "example/context/contact fields already pass through unchanged."),
+    },
+    # Listed here even though the route-walk's own segment rule excludes anything
+    # with a 'requests' or 'feedback' path segment: a human reading this file for
+    # "did the requests workflow get a parity decision" should find one instead of
+    # concluding it was missed.
+    '/api/requests': {
+        'site_only': True,
+        'reason': ("Public mirror of the GitHub issues /api/feature-request files (the "
+                  "Requests page): a read-only listing with short public summaries, not "
+                  "something an agent asks about on a caller's behalf."),
     },
     '/api/provenance': {
         'tools': ['describe_text'],
