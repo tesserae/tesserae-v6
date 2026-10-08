@@ -773,3 +773,51 @@ def test_a_possible_echo_with_too_little_overlap_is_not_shown_or_counted(monkeyp
     marks = json.loads(_get(client, _route('/reuse/marks'), work='vergil.aeneid', language='la').get_data())
     row = next(m for m in marks['lines'] if m['ref'] == 'verg. aen. 1.1')
     assert row['n_works'] == 1 and row['n_possible_works'] == 1
+
+
+# --- language genericity (Persian/Urdu reuse tables, 2026-10-08) -------
+
+def test_is_available_and_the_routes_work_for_a_language_with_no_static_support(monkeypatch, tmp_path):
+    """Neither the builder (scripts/reuse/build_reuse_table.py) nor this
+    query layer names a language anywhere -- is_available() just checks
+    whether cache/reuse_pairs/<lang>.db exists and opens cleanly (see this
+    module's docstring). Proven here with Persian script and a language
+    code ('fa') that has no entry in backend/synonym_dict.py's stoplists
+    (_stopset_for in the build script falls back to an empty set), so
+    nothing about this path is Latin/Greek/English-specific."""
+    _reset_reuse_table_state(monkeypatch, tmp_path)
+    _write_lemma_cache(str(tmp_path / 'lemmas'), 'fa', 'iqbal.asrar_e_khudi', [
+        ('iqbal.asrar_e_khudi.19.20', 'هر کسی از ظن خود شد یار من از درون من نجست اسرار من'),
+    ])
+    _write_lemma_cache(str(tmp_path / 'lemmas'), 'fa', 'rumi.masnavi.part.1', [
+        ('rumi.masnavi.1.6', 'هر کسی از ظن خود شد یار من از درون من نجست اسرار من'),
+    ])
+    _write_reuse_db(
+        str(tmp_path / 'reuse_pairs'), 'fa',
+        pairs_rows=[
+            ('iqbal.asrar_e_khudi', 'iqbal.asrar_e_khudi.19.20',
+             'rumi.masnavi.part.1', 'rumi.masnavi.1.6', 10, 0.84, 1),
+        ],
+        line_counts_rows=[('iqbal.asrar_e_khudi', 'iqbal.asrar_e_khudi.19.20', 1)],
+        meta_rows=[('corpus_version', '2026-10-08'), ('language', 'fa')],
+    )
+    assert reuse_table.is_available('fa') is True
+    # A language whose table was never built answers False, same as before
+    # any language had one.
+    assert reuse_table.is_available('ur') is False
+
+    client = app.test_client()
+    r = _get(client, _route('/reuse/line'), work='iqbal.asrar_e_khudi',
+              ref='iqbal.asrar_e_khudi.19.20', language='fa')
+    assert r.status_code == 200
+    out = json.loads(r.get_data())
+    assert out['available'] is True
+    quote = out['quotations'][0]
+    assert quote['work'] == 'rumi.masnavi.part.1'
+    assert quote['ref'] == 'rumi.masnavi.1.6'
+    assert quote['text'] == 'هر کسی از ظن خود شد یار من از درون من نجست اسرار من'
+
+    marks = json.loads(_get(client, _route('/reuse/marks'), work='iqbal.asrar_e_khudi',
+                             language='fa').get_data())
+    row = next(m for m in marks['lines'] if m['ref'] == 'iqbal.asrar_e_khudi.19.20')
+    assert row['n_works'] == 1

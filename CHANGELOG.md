@@ -9,6 +9,23 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Reuse table builder confirmed language-generic; Persian and Urdu built on the dev checkout
+- `scripts/reuse/build_reuse_table.py` and `backend/reuse_table.py` named
+  no language anywhere in either (both already drive off `--language`
+  and `cache/reuse_pairs/<lang>.db`'s existence); `is_available()` for
+  Persian and Urdu was simply never tried. Dropped the stale "Latin only"
+  docstring claim and added a test exercising the whole stack (the
+  builder's own fixture shape, `is_available`, `/api/reuse/line`,
+  `/api/reuse/marks`) with Persian script and a language code with no
+  entry in the cross-lingual stoplists, so a future change cannot
+  silently reintroduce a Latin/Greek/English-only assumption.
+- Built on the dev checkout's own corpus (not production): Persian 28
+  works, 942,922 lines, 1,663,213 pairs kept, 298s, peak 6.3 GB
+  (`cache/reuse_pairs/fa.db`, 238 MB); Urdu 18 works, 58,857 lines, 38,258
+  pairs kept, 17s, peak well under 1 GB (`cache/reuse_pairs/ur.db`).
+  Neither directory is tracked in git. Production steps for both follow
+  the Latin pattern already in `docs/DATA_OPERATIONS.md`.
+
 ### Cross-Language results: the same tools as single-language results, plus citation guidance
 - The Cross-Language result card gained the same actions the single-language
   card has: Cite (naming both sides, the language pair and the site, with

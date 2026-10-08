@@ -10,8 +10,13 @@ unique within a work; corpus-hygiene duplicate files still surface as
 "reuse" until they are retired -- see the report's "Top 20 work pairs").
 
 Backs GET /api/reuse/line and GET /api/reuse/marks (backend/blueprints/reuse.py).
-Latin only as of 2026-09-19; other languages answer is_available() = False
-until their table is built.
+The builder and this query layer are language-generic (no hardcoded
+language list anywhere in either): is_available() answers False for any
+language whose table has not been built yet, and True once
+cache/reuse_pairs/<lang>.db exists and opens cleanly. Latin shipped first
+(2026-09-19); whichever other languages' tables have actually been run on
+production is a deploy fact, not a code fact -- see CHANGELOG.md for what
+has shipped.
 
 Table schema (written by the build script):
     pairs(work_a, line_a_ref, work_b, line_b_ref, shared, jaccard, span_len)
