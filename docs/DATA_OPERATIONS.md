@@ -91,7 +91,7 @@ anything is deleted, with a dated backup kept of each file it removes.
   added. The data was additive, so no other backup was needed.
 - Checks: reference test passed after reload. Live lookups returned
   commentators for the Aeneid, Iliad and Paradise Lost, citation-index hits
-  for Aeneid 4.1, book pages, and full-text results; the credits list
+  for Aeneid 4.1, book pages, and full-text results. The credits list
   (`/api/scholarship/sources`) answers in under a second.
 - Note: the full-text key expires on 14 October 2026 and must be renewed.
 
@@ -102,23 +102,23 @@ anything is deleted, with a dated backup kept of each file it removes.
   store the site reads.
 - Steps, each under `~/bin/tess-job`:
   - lemma caches (`scripts/batch_lemma_cache.py la`, only the two new files
-    computed);
+    computed).
   - Latin index extended on a copy (`scripts/corpus/add_texts_to_index.py
     --add`, text ids 1795 and 1796, 8,741 and 3,961 postings, 1,656 texts,
-    933,463 lines, lemma_doc_freq rebuilt, integrity ok) and swapped in;
-  - rare-bigram table rebuilt (`scripts/corpus/rebuild_bigrams.py la`, 87 s);
+    933,463 lines, lemma_doc_freq rebuilt, integrity ok) and swapped in.
+  - rare-bigram table rebuilt (`scripts/corpus/rebuild_bigrams.py la`, 87 s).
   - 148 passage windows built (`scripts/corpus/build_batch_windows.py
     --upsert-db`), described by Qwen 3.8 27B on the university's AI gateway
     with thinking off (stamp `qwen38-bullsai-20261008`, 148 of 148 in 1.4
     minutes), appended with `scripts/corpus/apply_passage_rows.py --mode
     append` (530,962 windows, ids, vectors and descriptions in step), and the
-    description keyword index rebuilt (`scripts/build_desc_fts.py`, 37 s);
+    description keyword index rebuilt (`scripts/build_desc_fts.py`, 37 s).
   - line vectors for both works encoded on the server's processor with
     bowphs/SPhilBerta, raw as in the existing files (519 and 126 rows, mean
-    norms 5.8 and 6.0);
+    norms 5.8 and 6.0).
   - connection map rebuilt (`scripts/build_connections_map.py`, 49 minutes,
-    peak 7.3 GB, up from 4.4 GB on 7 October as the window count grew;
-    an 8 GB cap is now too tight to leave headroom, use 10 GB).
+    peak 7.3 GB, up from 4.4 GB on 7 October as the window count grew.
+    An 8 GB cap now leaves too little headroom, so use 10 GB).
 - Dates: `backend/author_dates.json` gains a Latin entry for
   `pseudo_aurelius_victor` (Late Antique, 4th century CE) so the corpus
   browser shows an era.
@@ -126,11 +126,11 @@ anything is deleted, with a dated backup kept of each file it removes.
   `window_texts.db.bak-victor-minor-20261008`,
   `desc_fts.sqlite.bak-victor-minor-20261008`, and the passage index files'
   `.bak-victor-minor-20261008` copies made by the append script.
-- Checks: reference searches passed after each reload; the coverage check
+- Checks: reference searches passed after each reload. The coverage check
   (`scripts/corpus/verify_text_coverage.py`) passes for both works in every
   store except the browser era, which this change supplies.
 - Note: no public-domain English translation was found for De viris
-  illustribus; one exists online for the Origo and its terms are being
+  illustribus. One exists online for the Origo and its terms are being
   checked.
 
 ## 2026-10-07 Connection map rebuilt with Persian and Urdu (15:25 to 16:12 EDT)
