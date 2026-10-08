@@ -2964,6 +2964,11 @@
    "note": "on the Norse sack of Saint-Florent-le-Vieil, 853",
    "year": 853,
    "added": "coverage-2026-10-07"
+  },
+  "pseudo_aurelius_victor": {
+   "era": "Late Antique",
+   "note": "4th century CE (anonymous works transmitted with Aurelius Victor)",
+   "year": 380
   }
  },
  "ur": {

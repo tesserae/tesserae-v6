@@ -9,6 +9,12 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Aurelius Victor additions: dates entry and the record of the production steps
+- `backend/author_dates.json`: era and date for the two works transmitted
+  with Aurelius Victor, so the corpus browser shows them as Late Antique.
+- `docs/DATA_OPERATIONS.md`: the planned steps for these works replaced by
+  the record of what was run on the live site.
+
 ### Documentary texts, stage 3a: per-document metadata layer (no site change)
 - `scripts/documents/extract_metadata.py` reads the stage 2 merged
   documentary corpus plus the raw EDH/EDR/I.Sicily/papyri.info EpiDoc
