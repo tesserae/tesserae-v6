@@ -300,3 +300,16 @@ class TestResettingAPassword:
             'current_password': 'longenough1', 'new_password': 'longenough1',
             'confirm_password': 'longenough1'})
         assert resp.status_code == 400
+
+
+@pytest.mark.parametrize('path', [f'{ADMIN}/logout', f'{API_PREFIX}/auth/logout'])
+def test_any_logout_ends_both_the_admin_and_the_site_login(client, path):
+    # Rule: one cookie holds both logins, so signing out of either must
+    # clear both, or the next visit comes back signed in as admin.
+    sign_in(client)
+    with client.session_transaction() as sess:
+        sess['_user_id'] = '7'
+    client.post(path)
+    with client.session_transaction() as sess:
+        assert 'admin_user_id' not in sess
+        assert '_user_id' not in sess

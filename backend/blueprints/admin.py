@@ -364,10 +364,7 @@ def admin_me():
 def admin_logout():
     """Clear current admin session."""
     admin_email = session.get('admin_email')
-    session.pop('admin_user_id', None)
-    session.pop('admin_email', None)
-    session.pop('admin_roles', None)
-    session.modified = True
+    session.clear()  # also ends the site login held in the same cookie
     if admin_email:
         try:
             with get_db_cursor() as cur:
