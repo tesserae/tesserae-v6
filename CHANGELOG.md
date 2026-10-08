@@ -9,6 +9,23 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Documentary texts, stage 1: an EpiDoc converter, no site change
+- `scripts/documents/epidoc_convert.py` converts EpiDoc TEI-XML (the Heidelberg
+  and Roma epigraphic databases, I.Sicily, papyri.info's DDbDP and HGV
+  metadata) into one normalized JSON record per document: id, Trismegistos
+  and source-local ids, language(s), date range, findspot with a Pleiades id
+  where the source gives one, and a diplomatic/expanded/plain reading per
+  line with which characters were supplied by an editor flagged. Handles
+  `<choice>` (keeps the regularized reading), `<expan>`/`<abbr>`/`<ex>`,
+  `<supplied>`, `<gap>`, and line breaks across a word boundary
+  (`<lb break="no">`). Tests in `tests/test_epidoc_convert.py` run against
+  17 small real EpiDoc samples in `tests/fixtures/epidoc/` (credited in that
+  folder's README). No data from any source is in this repository: raw
+  downloads and converted output live outside it, documented in a local
+  `SOURCES.md`, per the open licences each source carries (CC BY-SA 4.0,
+  CC BY 4.0, CC BY 3.0). Nothing in this change touches the live site, the
+  search index, or the database.
+
 ### Help: corrections from a claim-by-claim audit
 - Sixteen statements corrected against the code and the live site: stoplist
   sizes, the rare-vocabulary threshold (about one in eight works, not a fixed
