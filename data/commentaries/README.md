@@ -17,15 +17,9 @@ distribution. Licence: Creative Commons Attribution-ShareAlike 3.0 United
 States (CC BY-SA 3.0 US). Each file carries the exact source URL and
 commit.
 
-## What is not here
+## Adding more
 
-The preview build (`research/threads/SCHOLARSHIP_PREVIEW_STATE.md`)
-installed a much larger catalogue: the rest of the Perseus commentary
-collection, Sefaria's Tanakh commentators, Matthew Henry, and several
-English literary editions assembled from scanned, OCR'd public-domain
-books. That set runs to several hundred megabytes and mixes licences file
-by file, so it was not brought into this repository. See
-`research/threads/SCHOLARSHIP_PORT_NOTES.md` for where the files live and
-how to install them on a server that wants the fuller set; no code change
-is needed, since `commentary_at()` reads every file in this directory by
-its work id regardless of who installed it.
+Further commentaries can be installed by placing more files in this same
+format into `data/commentaries/` on the server; no code change is
+needed, since `commentary_at()` reads every file in the directory by its
+work id regardless of who installed it.

@@ -91,23 +91,20 @@ behind each, are in docs/DECISIONS.md.
   carries `?scholarship=1`, which then remembers the setting in
   `sessionStorage` for the rest of the visit, the same pattern the names
   grouping used behind `?names=1`. With the flag off the panel is byte-for
-  -byte the same four tabs as before. `ScholarshipTab.jsx` (ported from
-  the preview branch `feat/scholarship-tab`) calls `GET /api/scholarship`
-  (added in the backend PR) and needs no other change to the existing
+  -byte the same four tabs as before. `ScholarshipTab.jsx` calls
+  `GET /api/scholarship` (added in the backend PR) and needs no other change to the existing
   Similar/Parallels/Translation/Reuse tabs. The cross-link that lets a
   Similar Passages or Verbal Parallels row set a second passage for a
-  "scholarship on both" lookup was left out of this port to avoid touching
-  those tabs' own rendering; `research/threads/SCHOLARSHIP_PORT_NOTES.md`
-  has the follow-up.
+  "scholarship on both" lookup was left out of this change to avoid
+  touching those tabs' own rendering; a later change can add it.
 - `data/commentaries/`: Servius on the Aeneid, Eclogues and Georgics
   (14,205 notes; Thilo-Hagen text via the Perseus Digital Library's
   open-source TEI, CC BY-SA 3.0 US), credited in
-  `data/commentaries/README.md`. The preview's much larger commentary
-  catalogue (Perseus's other authors, Sefaria, Matthew Henry, several
-  scanned English literary editions) was not brought into the repository;
-  the same README says where it lives and that no code change is needed
-  to install more of it, since the commentary loader reads every file in
-  the directory by its work id.
+  `data/commentaries/README.md`. A much larger commentary
+  catalogue exists (Perseus's other authors, Sefaria, Matthew Henry, several
+  scanned English literary editions) but was not brought into the repository;
+  the README explains how to add more, since the commentary loader reads
+  every file in the directory by its work id regardless of who installed it.
 
 ### Documentary texts, stage 1: an EpiDoc converter, no site change
 - `scripts/documents/epidoc_convert.py` converts EpiDoc TEI-XML (the Heidelberg

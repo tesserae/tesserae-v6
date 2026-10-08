@@ -218,8 +218,10 @@ export default function ScholarshipTab({ work, language, selection, units, secon
       {!loading && data && (
         <>
           <Contents data={data} pieceCount={pieces.length} />
-          <CommentarySection sections={data.commentary || []} />
-          {data.commentary2?.length > 0 && <CommentarySection sections={data.commentary2} heading="On the compared passage" />}
+          <CommentarySection sections={data.commentary || []} work={work} />
+          {data.commentary2?.length > 0 && (
+            <CommentarySection sections={data.commentary2} heading="On the compared passage" work={second?.work} />
+          )}
 
           <section id="sch-scholarship">
             <div className="flex items-baseline justify-between gap-2 flex-wrap">
@@ -483,7 +485,7 @@ function BookPieceLI({ b, passage, fallbackWords }) {
   );
 }
 
-function CommentarySection({ sections, heading = 'Commentators' }) {
+function CommentarySection({ sections, heading = 'Commentators', work }) {
   // With several commentators at a line, one is shown at a time and the
   // others are a click away, so a busy line does not become a wall of notes.
   const [picked, setPicked] = useState(0);
@@ -523,7 +525,7 @@ function CommentarySection({ sections, heading = 'Commentators' }) {
         <ul className="mt-1 space-y-2">
           {c.notes.map((n, i) => (
             <Note key={c.commentator + n.ref + i} note={n} commentator={c.commentator} language={c.language}
-                  auto={i === 0} translatable={c.language !== 'en'} />
+                  work={work} auto={i === 0} translatable={c.language !== 'en'} />
           ))}
         </ul>
       </div>
@@ -574,11 +576,11 @@ function Provenance({ source, license }) {
   );
 }
 
-function Note({ note, commentator, language, auto, translatable = true }) {
+function Note({ note, commentator, language, work, auto, translatable = true }) {
   // A translation supplied with the commentary (a person's, not the
   // model's) is shown as the English, with the original one click behind.
   if (note.text_en) return <NoteWithTranslation note={note} language={language} />;
-  return <MachineNote note={note} commentator={commentator} language={language} auto={auto} translatable={translatable} />;
+  return <MachineNote note={note} commentator={commentator} language={language} work={work} auto={auto} translatable={translatable} />;
 }
 
 function NoteWithTranslation({ note, language }) {
@@ -597,7 +599,7 @@ function NoteWithTranslation({ note, language }) {
   );
 }
 
-function MachineNote({ note, commentator, language, auto, translatable = true }) {
+function MachineNote({ note, commentator, language, work, auto, translatable = true }) {
   const [english, setEnglish] = useState(null);
   const [showLatin, setShowLatin] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -606,18 +608,21 @@ function MachineNote({ note, commentator, language, auto, translatable = true })
   const [wanted, setWanted] = useState(!!auto && translatable);
 
   useEffect(() => {
-    if (!wanted) return;
+    if (!wanted || !work || !note.ref) return;
     let cancelled = false;
     setBusy(true);
+    // work + ref name the note the route is being asked to translate; the
+    // route only ever translates a note it already holds at that span, not
+    // arbitrary text, so the exact text travels along to be checked against it.
     fetch('/api/scholarship/translate', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: note.text, commentator, language }),
+      body: JSON.stringify({ work, ref: note.ref, text: note.text, commentator, language }),
     }).then((r) => r.json())
       .then((d) => { if (!cancelled) setEnglish(d); })
       .catch(() => { if (!cancelled) setEnglish({ available: false }); })
       .finally(() => { if (!cancelled) setBusy(false); });
     return () => { cancelled = true; };
-  }, [note.text, commentator, language, wanted]);
+  }, [work, note.ref, note.text, commentator, language, wanted]);
 
   const translated = english?.available;
   return (

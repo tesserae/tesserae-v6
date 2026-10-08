@@ -89,6 +89,11 @@ data/la_mqdq_temp/
 data/documents/*
 !data/documents/formula_words_*.txt
 !data/commentaries/
+data/commentaries/*
+!data/commentaries/README.md
+!data/commentaries/servius__vergil.aeneid.json
+!data/commentaries/servius__vergil.eclogues.json
+!data/commentaries/servius__vergil.georgics.json
 cache/
 
 # Private/local files
