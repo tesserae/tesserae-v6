@@ -683,9 +683,10 @@ def build_credit(source: str, rec: dict, edh_fields: Optional[dict],
                   edr_fields: Optional[dict], single_fields: Optional[dict],
                   single_local_id: Optional[str]) -> dict:
     """Resolves licence/source-url/principal-edition per the per-source
-    rules (file's own licence/idno-URI first, SOURCES.md constants as
-    fallback; the EDH canonical URL pattern always wins over EDH's own
-    (older, since-moved) <idno type="URI"> domain, per the stage 3a spec)."""
+    rules: the licence is always the source's deposit licence from
+    SOURCE_META; the source URL is the file's own idno-URI where it has one,
+    else the source's URL pattern, except that the EDH canonical pattern
+    always wins over EDH's own older, since-moved <idno type="URI"> domain."""
     credit = {
         "licence_name": None, "licence_url": None,
         "source_name": None, "source_url": None,
@@ -700,8 +701,14 @@ def build_credit(source: str, rec: dict, edh_fields: Optional[dict],
 
     def one_source(src_key, fields, local_id):
         meta = SOURCE_META[src_key]
-        licence_name = (fields or {}).get("licence_name") or meta["licence_name"]
-        licence_url = (fields or {}).get("licence_url") or meta["licence_url"]
+        # The licence shown is always the source's own deposit licence
+        # (SOURCE_META, checked against each source's repository record), not
+        # the sentence in each file's TEI header: EDR's headers still carry
+        # the project's older "Reserved Rights" template although its 2026
+        # Zenodo deposit (DOI 10.5281/zenodo.18468635) is CC BY 4.0, and
+        # EDH's headers give a full sentence where a licence name belongs.
+        licence_name = meta["licence_name"]
+        licence_url = meta["licence_url"]
         if src_key == "edh":
             # Canonical pattern per the stage 3a spec, not EDH's own
             # (older) <idno type="URI"> domain.

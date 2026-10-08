@@ -394,3 +394,21 @@ def test_edh_edr_credit_carries_both_sources():
     assert credit["source_name_secondary"] == "Epigraphic Database Roma"
     assert credit["source_url_secondary"] == edr_fields["source_uri"]
     assert credit["principal_edition"] == "CIL VI 1"  # EDH's, preferred
+
+
+def test_credit_uses_the_deposit_licence_not_the_file_header():
+    """EDR's TEI headers still say "Reserved Rights - Free access via
+    Epigraphic Database Roma", but its 2026 Zenodo deposit is CC BY 4.0;
+    EDH's headers give a whole sentence. The credit shown must be the
+    deposit licence in both cases."""
+    edr_fields = {'licence_name': 'Reserved Rights - Free access via Epigraphic Database Roma',
+                  'licence_url': None, 'source_uri': None}
+    credit = em.build_credit('edr', {'tm_id': None}, None, None, edr_fields, 'EDR127716')
+    assert credit['licence_name'] == 'CC BY 4.0'
+    assert credit['licence_url'] == 'https://creativecommons.org/licenses/by/4.0/'
+    edh_fields = {'licence_name': 'This file is licensed under the Creative Commons Attribution-ShareAlike 4.0 license.',
+                  'licence_url': 'http://creativecommons.org/licenses/by-sa/4.0/'}
+    both = em.build_credit('edh+edr', {'tm_id': 1, 'edh_id': 'HD000001', 'edr_id': 'EDR000001'},
+                           edh_fields, edr_fields, None, None)
+    assert both['licence_name'] == 'CC BY-SA 4.0'
+    assert both['licence_name_secondary'] == 'CC BY 4.0'
