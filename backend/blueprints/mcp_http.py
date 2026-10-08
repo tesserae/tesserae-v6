@@ -745,6 +745,49 @@ def _passage_translation(work, lines):
     return out
 
 
+def _t_find_scholarship(a):
+    """Articles, chapters and books that cite a passage, or a pair of passages,
+    from the open metadata services, plus the site's own commentaries.
+
+    Nothing here is subscription content: each item carries a DOI and, where
+    one exists, a legal open copy. Band 1 cites both passages together, band 2
+    both works, band 3 the passage alone.
+    """
+    params = {}
+    for k in ('work', 'ref_start', 'ref_end', 'work2', 'ref2_start', 'ref2_end', 'limit'):
+        if a.get(k) not in (None, ''):
+            params[k] = a[k]
+    d = _get('/scholarship', params)
+    if d.get('error'):
+        return d
+    items = []
+    for r in d.get('results') or []:
+        items.append({'title': r.get('title'), 'authors': r.get('authors'), 'year': r.get('year'),
+                      'venue': r.get('venue'), 'type': r.get('type'), 'doi': r.get('doi'),
+                      'doi_url': f"https://doi.org/{r['doi']}" if r.get('doi') else None,
+                      'open_copy': r.get('oa_url'), 'band': r.get('band'), 'snippet': r.get('snippet'),
+                      'cited_by': r.get('cited_by')})
+    out = {'passage': d.get('passage'), 'passage2': d.get('passage2'), 'results': items,
+           'commentary': d.get('commentary') or [], 'commentary2': d.get('commentary2') or [],
+           'presentation': ('These are citations found by title and abstract in open metadata services, not '
+                            'a reading of the articles. Quote a snippet only as the abstract\'s own words. '
+                            'A reader opens a subscription article through the DOI or their own library; '
+                            'do not claim access to the text. Commentary notes are public-domain Latin: '
+                            'quote them as the commentator\'s words.')}
+    return out
+
+
+def _t_get_commentary(a):
+    """The public-domain commentators' notes (Servius and others) at a span of a work."""
+    params = {k: a[k] for k in ('work', 'ref_start', 'ref_end') if a.get(k) not in (None, '')}
+    d = _get('/scholarship/commentary', params)
+    if d.get('error'):
+        return d
+    d['presentation'] = ('Notes are the commentator\'s own Latin, keyed to the line; cite as '
+                         '"Servius ad Aen. 1.1" and quote the Latin rather than paraphrasing it as fact.')
+    return d
+
+
 def _t_similar_passages(a):
     """Passages elsewhere in the corpus whose content resembles a given passage.
 
@@ -1258,8 +1301,50 @@ TOOLS = [
                                     "example": _STR, "context": _STR, "contact": _STR},
                      "required": ["type"]},
      "fn": _t_submit_feature_request},
+    # Secondary scholarship: defined like any other tool (so the manifest and
+    # the parity tests in tests/test_mcp_parity.py see them unconditionally),
+    # but hidden from tools/list and refused by tools/call unless
+    # TESSERAE_SCHOLARSHIP_TOOLS=1 -- see _SCHOLARSHIP_TOOL_NAMES and
+    # _scholarship_tools_enabled() below. Absent the flag, an agent sees
+    # neither tool at all.
+    {"name": "find_scholarship",
+     "description": ("Secondary scholarship on a passage, or on a PAIR of passages (a parallel): articles, "
+                     "chapters and books whose title or abstract cite it, from the open metadata services "
+                     "(OpenAlex, Crossref) with a DOI and any legal open-access copy (Unpaywall), plus the "
+                     "site's public-domain commentaries at the span. Takes the fields get_passage takes "
+                     "(work, ref_start, ref_end) and optionally work2/ref2_start/ref2_end for the second "
+                     "passage. Results are ranked: band 1 cites both passages together, band 2 both works, "
+                     "band 3 the passage alone. Never the article text itself: a reader opens it through "
+                     "the DOI or their own library."),
+     "inputSchema": {"type": "object",
+                     "properties": {"work": _STR, "ref_start": _STR, "ref_end": _STR,
+                                    "work2": _STR, "ref2_start": _STR, "ref2_end": _STR,
+                                    "limit": {"type": "integer"}},
+                     "required": ["work", "ref_start"]},
+     "fn": _t_find_scholarship},
+    {"name": "get_commentary",
+     "description": ("The public-domain commentators' notes at a span of a work (Servius on Vergil first), "
+                     "keyed to the line, in the commentator's Latin. Same fields as get_passage."),
+     "inputSchema": {"type": "object",
+                     "properties": {"work": _STR, "ref_start": _STR, "ref_end": _STR},
+                     "required": ["work", "ref_start"]},
+     "fn": _t_get_commentary},
 ]
 _TOOLS_BY_NAME = {t["name"]: t for t in TOOLS}
+# Gated by TESSERAE_SCHOLARSHIP_TOOLS=1, re-checked per request rather than
+# once at import, so the flag can be flipped without restarting the process
+# (matches how other preview-stage features in this file are trialled).
+_SCHOLARSHIP_TOOL_NAMES = {'find_scholarship', 'get_commentary'}
+
+
+def _scholarship_tools_enabled():
+    return os.environ.get('TESSERAE_SCHOLARSHIP_TOOLS') == '1'
+
+
+def _visible_tools():
+    if _scholarship_tools_enabled():
+        return TOOLS
+    return [t for t in TOOLS if t['name'] not in _SCHOLARSHIP_TOOL_NAMES]
 
 
 # --------------------------------------------------------------------------
@@ -1314,11 +1399,13 @@ def _handle(msg):
         return _result(mid, {})
     if method == 'tools/list':
         return _result(mid, {"tools": [{"name": t["name"], "description": t["description"],
-                                        "inputSchema": t["inputSchema"]} for t in TOOLS]})
+                                        "inputSchema": t["inputSchema"]} for t in _visible_tools()]})
     if method == 'tools/call':
         name = params.get('name')
         args = params.get('arguments') or {}
         tool = _TOOLS_BY_NAME.get(name)
+        if tool and name in _SCHOLARSHIP_TOOL_NAMES and not _scholarship_tools_enabled():
+            tool = None  # same as an unknown name: the flag is off, so this tool does not exist
         if not tool:
             return _error(mid, -32602, f"Unknown tool: {name}")
         try:
