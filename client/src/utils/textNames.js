@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 const ABBREVIATION_MAP = {
   'hom': { author: 'Homer' },
   'homer': { author: 'Homer' },
@@ -390,3 +392,275 @@ export function formatTesseraeIdentifier(id) {
   return cleanId;
 }
 
+
+// ---------------------------------------------------------------------------
+// Corpus-wide display names (result card tidy, 2026-10-08).
+//
+// The card's citations and the file-naming abbreviation tables above
+// (ABBREVIATION_MAP / WORK_NAMES) were built for Latin and Greek, which the
+// site has carried the longest. Persian and Urdu (and anything else outside
+// those tables) fell through to the raw filename-shaped id -- "hafez.diwan.5097"
+// where Latin shows "Vergil, Aeneid 1.1" -- because nothing in this file knew
+// their authors or titles. The corpus list the site already serves at
+// `/api/texts?language=<lang>` carries exactly that (an `author` and a
+// `title`/`work` per text id), the same record the corpus browser and the
+// Reader's own titles read from. This section fetches that list once per
+// language, caches it, and resolves a raw ref against it.
+
+const _corpusTextCache = new Map(); // language -> Map(textId -> metadata)
+const _corpusTextPromises = new Map(); // language -> Promise
+const _corpusTextSubscribers = new Set();
+
+function _notifyCorpusTextSubscribers() {
+  _corpusTextSubscribers.forEach((fn) => {
+    try { fn(); } catch { /* a subscriber's own error is not this cache's problem */ }
+  });
+}
+
+/** Test-only: clears the cached `/api/texts` maps so a test can mock a
+ *  fresh fetch for the same language without seeing a previous test's
+ *  cached (or empty) result. The running app never needs this -- the
+ *  corpus list does not change under a page that is already open. */
+export function __resetCorpusTextMapCacheForTests() {
+  _corpusTextCache.clear();
+  _corpusTextPromises.clear();
+}
+
+/** Fetch and cache `/api/texts?language=<language>` as a Map keyed by the
+ *  text id without its `.tess` suffix, lower-cased. Resolves to an empty Map
+ *  on any failure (missing language, network error, non-array body) so a
+ *  caller never has to special-case the failure shape. */
+export function loadCorpusTextMap(language) {
+  if (!language) return Promise.resolve(new Map());
+  if (_corpusTextCache.has(language)) return Promise.resolve(_corpusTextCache.get(language));
+  if (_corpusTextPromises.has(language)) return _corpusTextPromises.get(language);
+
+  const promise = fetch(`/api/texts?language=${encodeURIComponent(language)}`)
+    .then((r) => (r && r.ok ? r.json() : []))
+    .then((list) => {
+      const map = new Map();
+      (Array.isArray(list) ? list : []).forEach((t) => {
+        const id = String(t?.id || '').replace(/\.tess$/, '').toLowerCase();
+        if (id) map.set(id, t);
+      });
+      _corpusTextCache.set(language, map);
+      _corpusTextPromises.delete(language);
+      _notifyCorpusTextSubscribers();
+      return map;
+    })
+    .catch(() => {
+      const map = new Map();
+      _corpusTextCache.set(language, map);
+      _corpusTextPromises.delete(language);
+      return map;
+    });
+  _corpusTextPromises.set(language, promise);
+  return promise;
+}
+
+/** The cached Map for a language, or null when nothing has been fetched
+ *  (and is not yet in flight) for it. Synchronous; never fetches. */
+export function getCorpusTextMapSync(language) {
+  return _corpusTextCache.get(language) || null;
+}
+
+/** React hook: the corpus text map for `language`, re-rendering once the
+ *  first fetch resolves. Kicks off the fetch itself if nothing has asked
+ *  for this language yet; returns null until it is loaded, so a caller
+ *  should keep its own fallback for that window. */
+export function useCorpusTextMap(language) {
+  const [map, setMap] = useState(() => getCorpusTextMapSync(language));
+
+  useEffect(() => {
+    if (!language) return undefined;
+    const current = getCorpusTextMapSync(language);
+    if (current) {
+      setMap(current);
+      return undefined;
+    }
+    const onUpdate = () => setMap(getCorpusTextMapSync(language));
+    _corpusTextSubscribers.add(onUpdate);
+    loadCorpusTextMap(language);
+    return () => _corpusTextSubscribers.delete(onUpdate);
+  }, [language]);
+
+  return map;
+}
+
+/** A ref/tag with any `<...>` markup stripped and whitespace trimmed -- the
+ *  raw site id a citation is built from and the value worth keeping visible
+ *  (the Cite output, a popover's last line) once the display form is a name. */
+export function siteIdFromRef(ref) {
+  return String(ref || '').replace(/<\/?.*?>/g, '').trim();
+}
+
+/** True for a ref still shaped like the internal id ("hafez.diwan.5097":
+ *  lower-case, dot-separated, no comma) rather than a resolved display
+ *  citation ("Hafez, Diwan 5097"), which always carries a comma once there
+ *  is a work, or at least a capitalized author when there is not. */
+export function looksLikeRawSiteId(text) {
+  const s = String(text || '').trim();
+  if (!s) return true;
+  if (s.includes(',')) return false;
+  return /^[a-z][a-z0-9_]*(\.[a-z0-9_]+)+$/.test(s);
+}
+
+/** Resolve a raw ref against a loaded corpus text map by trying it as
+ *  `<known text id>.<reference>`, longest id first (so "iqbal.zabur_e_ajam.26.1"
+ *  matches the id "iqbal.zabur_e_ajam", not a shorter false prefix). Returns
+ *  null when no segment-prefix of `ref` is a text id the map holds. */
+export function citationFromCorpusMap(ref, corpusMap) {
+  const clean = siteIdFromRef(ref);
+  if (!clean || !corpusMap || !corpusMap.size) return null;
+  const segs = clean.split('.');
+  for (let cut = segs.length - 1; cut >= 1; cut--) {
+    const candidate = segs.slice(0, cut).join('.').toLowerCase();
+    const meta = corpusMap.get(candidate);
+    if (meta) {
+      return {
+        author: meta.author || '',
+        work: meta.title || meta.work || '',
+        reference: segs.slice(cut).join('.'),
+        siteId: clean,
+        idCut: cut,
+      };
+    }
+  }
+  return null;
+}
+
+const _joinCitation = ({ author, work, reference }) => {
+  const head = work ? `${author}, ${work}` : author;
+  return reference ? `${head} ${reference}`.trim() : head;
+};
+
+/**
+ * The display text for one side of a result card: the server's own
+ * citation, or the frontend's static Latin/Greek/English tables, when
+ * either already reads as a name ("Vergil, Aeneid 1.1"); the corpus text
+ * map's author/title for anything that still reads as a raw id (Persian,
+ * Urdu, or any language without a static table entry); the raw id itself,
+ * once more, only if nothing above resolved it (the map has not loaded yet).
+ *
+ * @param {string} existingText what the caller already has (the server
+ *   citation, or the static-table `formatReference` result) -- may be '',
+ *   missing, or still raw.
+ * @param {string} rawRef the unformatted ref/tag this citation is for.
+ * @param {Map|null} [corpusMap] a map from `useCorpusTextMap`/`loadCorpusTextMap`.
+ * @returns {{text: string, siteId: string}}
+ */
+export function resolveDisplayCitation(existingText, rawRef, corpusMap) {
+  const siteId = siteIdFromRef(rawRef);
+  if (existingText && !looksLikeRawSiteId(existingText)) {
+    return { text: existingText, siteId };
+  }
+  const hit = citationFromCorpusMap(siteId, corpusMap);
+  if (hit) {
+    return { text: _joinCitation(hit), siteId };
+  }
+  if (existingText) {
+    return { text: existingText, siteId };
+  }
+  if (siteId) {
+    const expanded = expandLocus(siteId);
+    return { text: _joinCitation(expanded), siteId };
+  }
+  return { text: '', siteId };
+}
+
+/** Collapse a sorted set of line numbers into "a to b" runs, but only once a
+ *  run is 3 or more lines long -- "1 to 7" is shorter than spelling out
+ *  seven numbers, but "5097 to 5098" is longer than "5097, 5098" for a run
+ *  of two, so a short run is listed out instead: [1,2,3,5,7,8] ->
+ *  ["1 to 3", "5", "7", "8"]. */
+export function collapseLineRuns(nums) {
+  const uniq = [...new Set(nums)].sort((a, b) => a - b);
+  if (!uniq.length) return [];
+  const runs = [];
+  let runStart = uniq[0];
+  let prev = uniq[0];
+  const flush = () => {
+    if (prev - runStart + 1 >= 3) {
+      runs.push(`${runStart} to ${prev}`);
+    } else {
+      for (let n = runStart; n <= prev; n++) runs.push(`${n}`);
+    }
+  };
+  for (let i = 1; i <= uniq.length; i++) {
+    const n = uniq[i];
+    if (n === prev + 1) { prev = n; continue; }
+    flush();
+    runStart = n;
+    prev = n;
+  }
+  return runs;
+}
+
+/**
+ * One work's share of a refrain-lines group: the work named once, then its
+ * lines collapsed into ranges where they run consecutively. Shared by the
+ * refrain-lines popover (one call per side).
+ *
+ * @param {string[]} refs raw refs, e.g. ["hafez.diwan.5097", "hafez.diwan.5098", ...].
+ * @param {Map|null} [corpusMap]
+ * @returns {{label: string, text: string}|null}
+ */
+export function formatLineGroup(refs, corpusMap) {
+  const clean = (refs || []).map(siteIdFromRef).filter(Boolean);
+  if (!clean.length) return null;
+
+  const first = clean[0];
+  const hit = citationFromCorpusMap(first, corpusMap);
+  let workLabel;
+  let cut;
+  if (hit) {
+    workLabel = hit.work ? `${hit.author}, ${hit.work}` : hit.author;
+    cut = hit.idCut;
+  } else {
+    const expanded = expandLocus(first);
+    workLabel = expanded.work ? `${expanded.author}, ${expanded.work}` : expanded.author;
+    const refLen = expanded.reference ? expanded.reference.split('.').length : 1;
+    cut = Math.max(1, first.split('.').length - refLen);
+  }
+
+  const loci = clean.map((r) => r.split('.').slice(cut).join('.') || r);
+
+  const prefixes = new Set();
+  const lineNums = [];
+  let allNumeric = loci.length > 0;
+  loci.forEach((l) => {
+    const segs = l.split('.');
+    const last = segs[segs.length - 1];
+    if (!/^\d+$/.test(last)) { allNumeric = false; return; }
+    lineNums.push(Number(last));
+    prefixes.add(segs.slice(0, -1).join('.'));
+  });
+
+  let label = workLabel;
+  let text;
+  if (allNumeric && prefixes.size === 1) {
+    const prefix = [...prefixes][0];
+    if (prefix) label = `${workLabel} ${prefix}`;
+    text = `lines ${collapseLineRuns(lineNums).join(', ')}`;
+  } else {
+    text = `lines ${loci.join(', ')}`;
+  }
+  return { label, text };
+}
+
+/**
+ * The refrain-lines popover's content (spec: result card tidy, 2026-10-08):
+ * a heading giving both poems' line counts, the two works each named once
+ * with their lines (collapsed into ranges), and a closing sentence saying
+ * why one result stands for the whole refrain.
+ */
+export function formatRefrainPopover(poetics, corpusMap) {
+  const sourceLines = poetics?.source_lines || [];
+  const targetLines = poetics?.target_lines || [];
+  const heading = `${sourceLines.length} + ${targetLines.length} refrain lines`;
+  const groups = [formatLineGroup(sourceLines, corpusMap), formatLineGroup(targetLines, corpusMap)]
+    .filter(Boolean)
+    .map((g) => `${g.label}: ${g.text}`);
+  const note = 'The two poems share this refrain throughout; one result stands for the pair.';
+  return { heading, explanation: [...groups, note].join('\n\n') };
+}

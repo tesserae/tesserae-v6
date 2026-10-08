@@ -1,9 +1,16 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
-import { Button, LoadingSpinner, Pagination, CiteButton } from '../common';
+import { Button, LoadingSpinner, Pagination, CiteButton, InfoBadge } from '../common';
 import { usePagination, useServerPagination, MAX_PAGE_SIZE } from '../../hooks/usePagination';
 import { fetchResultPage, fetchAllResults } from '../../utils/api';
 import { formatReference, formatElapsedTime } from '../../utils/formatting';
 import { languageName } from '../../utils/languageNames';
+import {
+  useCorpusTextMap,
+  resolveDisplayCitation,
+  siteIdFromRef,
+  formatRefrainPopover,
+} from '../../utils/textNames';
+import { channelLabel } from '../../utils/channels';
 import { displayGreekWithFinalSigma } from '../../utils/greekUtils';
 import { normalizeCoptic } from '../../utils/copticUtils';
 import { exportRowsToPDF } from '../../utils/exportResults';
@@ -18,13 +25,31 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 // The server now builds the full "<Author>, <Work title> <locus>" citation
 // itself (issue #566) and attaches it to each side as `citation`, the same
 // way Line Search has always shown it. Use that when a result carries it;
-// fall back to the old tag-parsing formatReference() only for results from
-// before this shipped (cached searches, saved parallels). side is 'source'
-// or 'target'.
-const citationFor = (r, side, language) => {
+// fall back to the old tag-parsing formatReference() for results from
+// before this shipped (cached searches, saved parallels); then, if that
+// still reads as the raw internal id (Persian, Urdu, or any other language
+// without a static abbreviation table -- result card tidy, 2026-10-08),
+// resolve it against the corpus list's own author/title (`corpusMap`, from
+// `useCorpusTextMap`). side is 'source' or 'target'.
+const citationFor = (r, side, language, corpusMap) => {
   const s = r[side];
-  if (s && s.citation) return s.citation;
-  return formatReference(r[`${side}_locus`] || s?.ref, language);
+  const raw = r[`${side}_locus`] || s?.ref;
+  const existing = (s && s.citation) || (raw ? formatReference(raw, language) : '');
+  return resolveDisplayCitation(existing, raw, corpusMap).text;
+};
+
+// Whether the "Matches:" line would say nothing the Refrain badge has not
+// already shown (result card tidy, 2026-10-08): true once every matched
+// word is one of the refrain's own words, so the matched-words line is
+// omitted rather than repeating the yellow badge in plain text.
+const matchedWordsAreRefrain = (r) => {
+  const radif = String(r?.poetics?.radif || '').trim();
+  if (!radif || !r.matched_words || r.matched_words.length === 0) return false;
+  const radifWords = new Set(radif.split(/\s+/).filter(Boolean));
+  return r.matched_words.every((w) => {
+    const word = typeof w === 'object' ? (w.lemma || w.word || w.display || '') : w;
+    return radifWords.has(String(word).trim());
+  });
 };
 
 const EMPTY = [];
@@ -55,6 +80,10 @@ const SearchResults = ({
   isQueued = false,
   queuedMessage = ''
 }) => {
+  // Author/title lookup for citations that fall through the static Latin/
+  // Greek/English tables (Persian, Urdu, ...): loads once per language and
+  // re-renders this list when it arrives (result card tidy, 2026-10-08).
+  const corpusMap = useCorpusTextMap(language);
   const [expandedResults, setExpandedResults] = useState({});
   // Standing chart sidebar: open by default (remembered per session), so a live
   // graph is on the comparison page with no extra clicks. Collapse toggles it.
@@ -285,7 +314,10 @@ const SearchResults = ({
   // The locus as a citation names it: "verg. aen. 1.1" expanded by
   // formatReference. When a reference starts with the compared text's own id
   // (some corpora tag lines with the file id plus a locus), the author and
-  // title come from the text record and the id is cut away.
+  // title come from the text record and the id is cut away. Anything still
+  // raw after that (Persian, Urdu, ...) goes to the corpus list's own
+  // author/title before this falls back to the bare id (result card tidy,
+  // 2026-10-08).
   const displayLocus = useCallback((ref, info) => {
     const r = String(ref || '').replace(/<\/?.*?>/g, '').trim();
     const base = String(info?.id || '').replace(/\.tess$/, '');
@@ -293,8 +325,8 @@ const SearchResults = ({
       const name = [info.author, info.title || info.work].filter(Boolean).join(', ');
       return `${name} ${r.slice(base.length + 1)}`;
     }
-    return formatReference(r, language);
-  }, [language]);
+    return resolveDisplayCitation(formatReference(r, language), r, corpusMap).text;
+  }, [language, corpusMap]);
 
   const exportCSV = useCallback(async () => {
     if (!results || results.length === 0) return;
@@ -1257,7 +1289,7 @@ const SearchResults = ({
             >
               {pickerRows.map((r, i) => (
                 <option key={i} value={i}>
-                  #{pickerOffset + i + 1} · {citationFor(r, 'source', language)} ↔ {citationFor(r, 'target', language)}
+                  #{pickerOffset + i + 1} · {citationFor(r, 'source', language, corpusMap)} ↔ {citationFor(r, 'target', language, corpusMap)}
                   {sharedLemmasOf(r).length < 2 ? ' (one word, no chart)' : ''}
                 </option>
               ))}
@@ -1355,10 +1387,24 @@ const SearchResults = ({
           shared by both lines, rose is each line's rhyme word, which is
           usually a different word on the two sides. */}
       {['fa', 'ur', 'ar'].includes(language) && visibleItems.some(r => r.poetics) && (
-        <p className="text-xs text-gray-600 mb-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+        <p className="text-xs text-gray-600 mb-1 flex flex-wrap items-center gap-x-3 gap-y-1">
           <span className="font-medium">Colours:</span>
           <span><mark className="bg-yellow-200 px-1 rounded">yellow</mark> a word both lines share (the refrain, or a matched word)</span>
           <span><mark className="bg-rose-200 px-1 rounded">rose</mark> each line's rhyme word, the word before the refrain; the same rhyme, usually different words</span>
+        </p>
+      )}
+      {/* Badge-colour legend (result card tidy, 2026-10-08): every badge on
+          a result card now carries an explanation (hover, focus, or tap the
+          small (i) mark), and its colour marks one of three categories
+          consistently, instead of mixing with no pattern. */}
+      {visibleItems.length > 0 && (
+        <p className="text-xs text-gray-600 mb-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span className="font-medium">Badge colours:</span>
+          {['fa', 'ur', 'ar'].includes(language) && (
+            <span><mark className="bg-yellow-100 text-yellow-800 px-1 rounded">yellow</mark>/<mark className="bg-rose-100 text-rose-800 px-1 rounded">rose</mark>/<mark className="bg-purple-100 text-purple-700 px-1 rounded">purple</mark> the poem's form (refrain, rhyme, meter)</span>
+          )}
+          <span><mark className="bg-gray-100 text-gray-600 px-1 rounded">gray</mark> how common the shared wording or form is</span>
+          <span><mark className="bg-blue-100 text-blue-700 px-1 rounded">blue</mark> evidence for the match (channels, theme)</span>
         </p>
       )}
       {serverMode && serverPagination.pageError && (
@@ -1378,7 +1424,7 @@ const SearchResults = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <div className="text-xs text-gray-500 mb-1 leading-none">Source</div>
-                <div className="font-medium text-gray-900">{citationFor(r, 'source', language)}</div>
+                <div className="font-medium text-gray-900">{citationFor(r, 'source', language, corpusMap)}</div>
                 <div
                   className="text-gray-700 mt-1"
                   dir={dirFor(language)}
@@ -1395,7 +1441,7 @@ const SearchResults = ({
               </div>
               <div>
                 <div className="text-xs text-gray-500 mb-1">Target</div>
-                <div className="font-medium text-gray-900">{citationFor(r, 'target', language)}</div>
+                <div className="font-medium text-gray-900">{citationFor(r, 'target', language, corpusMap)}</div>
                 <div
                   className="text-gray-700 mt-1"
                   dir={dirFor(language)}
@@ -1408,71 +1454,113 @@ const SearchResults = ({
               </div>
             </div>
 
+            {/* Row 1: the score, then the poem's-form badges (refrain, rhyme,
+                meter, refrain lines) -- the group that shares the highlight
+                legend's yellow/rose/purple. Row 2: how-common, then the
+                evidence badges (channels, theme), then the action buttons,
+                right-aligned (result card tidy, 2026-10-08: every badge is
+                an InfoBadge, so colour marks a category consistently rather
+                than mixing with no pattern). */}
             <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t">
-              <span className="text-sm text-gray-600">
+              <InfoBadge
+                className="bg-white text-gray-600 px-0"
+                heading="Score"
+                explanation="The combined strength of this match across every channel that found it (lemma, sound, meaning, and the rest). A higher score is a stronger candidate for a real textual connection, but it is a ranking aid, not a verdict -- read the two lines."
+              >
                 Score: <span className="font-medium">{(r.fused_score ?? r.score ?? r.overall_score)?.toFixed(2) || '-'}</span>
-              </span>
-              {pairLifts[i] && typeof pairLifts[i].lift === 'number' && (
-                <span
-                  title="How much this pair's two lines resemble each other in content, above the two works' general resemblance to each other"
-                  className={`text-xs px-2 py-0.5 rounded ${
-                    pairLifts[i].level === 'strong'
-                      ? 'bg-red-50 text-red-800 border border-red-200 font-medium'
-                      : 'bg-gray-100 text-gray-600'}`}
-                >
-                  theme {pairLifts[i].lift >= 0 ? '+' : ''}{pairLifts[i].lift.toFixed(2)}
-                </span>
-              )}
-              {r.channels && r.channels.length > 0 && (
-                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
-                  {r.channels.length} channel{r.channels.length !== 1 ? 's' : ''}
-                </span>
-              )}
-              {r.features?.meter_score > 0 && (
-                <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">
-                  Metrical: {(r.features.meter_score * 100).toFixed(0)}%
-                </span>
-              )}
-              {typeof r.formula_count === 'number' && (
-                <span
-                  className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded"
-                  title="How many works in the corpus share this result's shared wording — a high count marks a recurring formula rather than a one-off echo"
-                >
-                  in {r.formula_count} work{r.formula_count !== 1 ? 's' : ''}
-                </span>
-              )}
+              </InfoBadge>
               {r.poetics && r.poetics.radif && (
-                <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded" title="Shared refrain (radif), highlighted in yellow">
+                <InfoBadge
+                  className="bg-yellow-100 text-yellow-800"
+                  heading="Refrain (radif)"
+                  explanation="The two lines end on the same refrain: a word or short phrase repeated at the end of many lines in both poems, highlighted in yellow in the text above. Persian and Urdu ghazals often carry a refrain (radif) through the whole poem, so sharing it is strong evidence that one poem answers or echoes the other."
+                >
                   Refrain: <span dir="rtl">{r.poetics.radif}</span>
-                </span>
+                </InfoBadge>
               )}
               {r.poetics && r.poetics.qafia && (
-                <span className="text-xs bg-rose-100 text-rose-800 px-2 py-0.5 rounded" title={r.poetics.rhyme_only ? 'Shared rhyme letter (rawi); the rhyme word is marked in rose' : 'Shared rhyme (qafia); the rhyme word is marked in rose'}>
-                  Rhyme: <span dir="rtl">{r.poetics.rhyme_only ? r.poetics.qafia : '\u2026' + r.poetics.qafia}</span>
-                </span>
+                <InfoBadge
+                  className="bg-rose-100 text-rose-800"
+                  heading={r.poetics.rhyme_only ? 'Rhyme letter (rawi)' : 'Rhyme (qafia)'}
+                  explanation={r.poetics.rhyme_only
+                    ? 'The two poems share the same rhyme letter (rawi), the final consonant every line rhymes on, marked in rose in the text above. This is weaker evidence than sharing the full rhyme syllable.'
+                    : 'The two poems share the same rhyme (qafia), the syllable or word right before the refrain that every line rhymes on, marked in rose in the text above.'}
+                >
+                  Rhyme: <span dir="rtl">{r.poetics.rhyme_only ? r.poetics.qafia : '…' + r.poetics.qafia}</span>
+                </InfoBadge>
               )}
               {r.poetics && r.poetics.meter && (
-                <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded" title="Both poems carry this meter label">
-                  Meter: <span dir="rtl">{r.poetics.meter}</span>
-                </span>
-              )}
-              {r.poetics && r.poetics.radif && (r.poetics.source_lines || []).length + (r.poetics.target_lines || []).length > 2 && (
-                <span
-                  className="text-xs bg-yellow-50 text-yellow-800 px-2 py-0.5 rounded"
-                  title={`Refrain lines of the two poems: ${(r.poetics.source_lines || []).join(', ')} and ${(r.poetics.target_lines || []).join(', ')}. One result stands for the pair of poems.`}
+                <InfoBadge
+                  className="bg-purple-100 text-purple-700"
+                  heading="Meter"
+                  explanation="Both poems carry this same named meter label. Shared meter alone is common and proves little by itself, but combined with a shared refrain or rhyme it strengthens the case that one poem is answering the other."
                 >
-                  {(r.poetics.source_lines || []).length} + {(r.poetics.target_lines || []).length} refrain lines
-                </span>
+                  Meter: <span dir="rtl">{r.poetics.meter}</span>
+                </InfoBadge>
+              )}
+              {r.features?.meter_score > 0 && (
+                <InfoBadge
+                  className="bg-purple-100 text-purple-700"
+                  heading="Metrical confirmation"
+                  explanation="The two lines scan in the same classical meter, checked independently of the words they share. The percentage is how much of the line's scansion the two sides agree on; a high percentage is corroborating evidence, not the match itself."
+                >
+                  Metrical: {(r.features.meter_score * 100).toFixed(0)}%
+                </InfoBadge>
+              )}
+              {r.poetics && r.poetics.radif && (r.poetics.source_lines || []).length + (r.poetics.target_lines || []).length > 2 && (() => {
+                const refrainPopover = formatRefrainPopover(r.poetics, corpusMap);
+                return (
+                  <InfoBadge
+                    className="bg-yellow-50 text-yellow-800"
+                    heading={refrainPopover.heading}
+                    explanation={refrainPopover.explanation}
+                  >
+                    {(r.poetics.source_lines || []).length} + {(r.poetics.target_lines || []).length} refrain lines
+                  </InfoBadge>
+                );
+              })()}
+            </div>
+            <div className="flex flex-wrap items-center gap-2 mt-2">
+              {(typeof r.formula_count === 'number' || r.poetics?.corpus_poems != null) && (
+                <span className="text-xs text-gray-500 font-medium">How common:</span>
+              )}
+              {typeof r.formula_count === 'number' && (
+                <InfoBadge
+                  className="bg-gray-100 text-gray-600"
+                  heading={`In ${r.formula_count} work${r.formula_count !== 1 ? 's' : ''}`}
+                  explanation={`${r.formula_count} work${r.formula_count !== 1 ? 's' : ''} in the whole ${languageName(language)} corpus contain the shared wording this result is built on. A high number marks a common expression rather than a pointed echo. Settings > Show Advanced > Formulas can hide common ones.`}
+                >
+                  in {r.formula_count} work{r.formula_count !== 1 ? 's' : ''}
+                </InfoBadge>
               )}
               {r.poetics && r.poetics.corpus_poems != null && (
-                <span
-                  className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded"
-                  title="How many poems in the whole corpus of this language end on this refrain and rhyme; a high count marks a common form rather than one poem answering another, and the score is discounted accordingly"
+                <InfoBadge
+                  className="bg-gray-100 text-gray-600"
+                  heading={`Form in ${r.poetics.corpus_poems} poem${r.poetics.corpus_poems !== 1 ? 's' : ''}`}
+                  explanation={`${r.poetics.corpus_poems} poem${r.poetics.corpus_poems !== 1 ? 's' : ''} in the whole ${languageName(language)} corpus end on this same refrain and rhyme. A high number marks a common form rather than one poem specifically answering another, and the score is discounted accordingly.`}
                 >
                   form in {r.poetics.corpus_poems} poem{r.poetics.corpus_poems !== 1 ? 's' : ''}
-                </span>
+                </InfoBadge>
               )}
-              {r.matched_words && r.matched_words.length > 0 && (
+              {r.channels && r.channels.length > 0 && (
+                <InfoBadge
+                  className="bg-blue-100 text-blue-700"
+                  heading={r.channels.map((ch) => channelLabel(ch)).join(' + ')}
+                  explanation={`Tesserae found this pair through ${r.channels.length === 1 ? 'one method of comparison' : `${r.channels.length} independent methods of comparison`} (${r.channels.map((ch) => channelLabel(ch).toLowerCase()).join(', ')}). Agreement between independent methods is stronger evidence of a real connection than any one method alone.`}
+                >
+                  {r.channels.map((ch) => channelLabel(ch).toLowerCase()).join(' + ')}
+                </InfoBadge>
+              )}
+              {pairLifts[i] && typeof pairLifts[i].lift === 'number' && (
+                <InfoBadge
+                  className={`bg-blue-100 text-blue-700 ${pairLifts[i].level === 'strong' ? 'font-semibold' : ''}`}
+                  heading="Theme lift"
+                  explanation="How much this pair's two lines resemble each other in content, above the two works' general resemblance to each other. A positive number means the lines are more alike in theme than two random lines from the same two works; it is independent evidence from the wording-based channels above."
+                >
+                  theme {pairLifts[i].lift >= 0 ? '+' : ''}{pairLifts[i].lift.toFixed(2)}
+                </InfoBadge>
+              )}
+              {r.matched_words && r.matched_words.length > 0 && !matchedWordsAreRefrain(r) && (
                 <span className="text-sm text-gray-600">
                   Matches: <span className="font-medium">
                     {r.matched_words.map(w => {
@@ -1481,15 +1569,6 @@ const SearchResults = ({
                     }).join(', ')}
                   </span>
                 </span>
-              )}
-              {r.channels && r.channels.length > 0 && (
-                <div className="flex flex-wrap gap-1 ml-1">
-                  {r.channels.map(ch => (
-                    <span key={ch} className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
-                      {ch}
-                    </span>
-                  ))}
-                </div>
               )}
               <div className="flex-1"></div>
               {r.match_basis !== 'semantic' && onCorpusSearch && (
@@ -1525,6 +1604,9 @@ const SearchResults = ({
                   channels: Array.isArray(r.channels) ? r.channels.join(', ') : (r.channels || ''),
                   corpusVersion: searchStats?.corpus_version,
                   url: typeof window !== 'undefined' ? window.location.href : '',
+                  siteId: [siteIdFromRef(r.source_locus || r.source?.ref),
+                           siteIdFromRef(r.target_locus || r.target?.ref)]
+                    .filter(Boolean).join(' ~ '),
                 }}
               />
             </div>
