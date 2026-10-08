@@ -122,7 +122,7 @@ def build_doc_meta(db_path: str) -> int:
 def build_one_language(language: str, texts_root: str, index_dir: str,
                         cache_root: str, scratch_root: str,
                         fast_greek: bool = True, resume: bool = False,
-                        verbose: bool = True) -> dict:
+                        verbose: bool = True, skip_cache: bool = False) -> dict:
     _assert_safe_dir(index_dir, "--index-dir")
     _assert_safe_dir(scratch_root, "--scratch-root")
     _assert_safe_dir(cache_root, "--cache-root")
@@ -179,15 +179,26 @@ def build_one_language(language: str, texts_root: str, index_dir: str,
     n_docs = build_doc_meta(final_db)
     doc_meta_elapsed = time.time() - t0
 
-    orig_cache = (lemma_cache_mod.TEXTS_DIR, lemma_cache_mod.CACHE_DIR)
-    lemma_cache_mod.TEXTS_DIR = texts_root
-    lemma_cache_mod.CACHE_DIR = cache_root
-    try:
-        t0 = time.time()
-        cache_result = lemma_cache_mod.rebuild_lemma_cache(language, text_processor)
-        cache_elapsed = time.time() - t0
-    finally:
-        lemma_cache_mod.TEXTS_DIR, lemma_cache_mod.CACHE_DIR = orig_cache
+    if skip_cache:
+        cache_result = {"skipped": True, "reason": "built separately (sharded)"}
+        cache_elapsed = 0.0
+    else:
+        orig_cache = (lemma_cache_mod.TEXTS_DIR, lemma_cache_mod.CACHE_DIR)
+        lemma_cache_mod.TEXTS_DIR = texts_root
+        lemma_cache_mod.CACHE_DIR = cache_root
+        try:
+            t0 = time.time()
+            # fast_mode (computed above) is the SAME flag the index build
+            # just used, so when it was applied for Greek, the cache uses
+            # the identical table-only lookup and the two agree on every
+            # lemma (the fix this follow-up round asked for).
+            cache_result = lemma_cache_mod.rebuild_lemma_cache(
+                language, text_processor,
+                fast_greek=bool(fast_mode) if language == "grc" else False,
+                build_phrase_units=False)
+            cache_elapsed = time.time() - t0
+        finally:
+            lemma_cache_mod.TEXTS_DIR, lemma_cache_mod.CACHE_DIR = orig_cache
 
     conn = sqlite3.connect(final_db)
     n_texts = conn.execute("SELECT COUNT(*) FROM texts").fetchone()[0]
@@ -228,13 +239,16 @@ def main(argv=None) -> int:
                      help="use CLTK for Greek too instead of the table-only fast mode")
     ap.add_argument("--resume", action="store_true")
     ap.add_argument("--quiet", action="store_true")
+    ap.add_argument("--skip-cache", action="store_true",
+                     help="skip the lemma-cache rebuild here (e.g. because it is "
+                          "being built separately, sharded, by build_lemma_cache_shard.py)")
     ap.add_argument("--summary-out", default=None)
     args = ap.parse_args(argv)
 
     result = build_one_language(
         args.language, args.texts_root, args.index_dir, args.cache_root,
         args.scratch_root, fast_greek=not args.no_fast_greek,
-        resume=args.resume, verbose=not args.quiet,
+        resume=args.resume, verbose=not args.quiet, skip_cache=args.skip_cache,
     )
     out = json.dumps(result, indent=2, ensure_ascii=False)
     if args.summary_out:
