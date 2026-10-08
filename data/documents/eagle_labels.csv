@@ -1,0 +1,443 @@
+# EAGLE vocabulary English labels for Tesserae V6 documentary-text metadata.
+# Source: EAGLE Network (Europeana Network of Ancient Greek and Latin
+# Epigraphy) controlled vocabularies, SKOS/RDF served at
+# https://www.eagle-network.eu/voc/<vocabulary>/lod/<id>.rdf, fetched 2026-10-07.
+# No explicit reuse licence statement was found on eagle-network.eu for the
+# vocabulary pages, the SKOS endpoint, or the site home page (all three
+# checked); the data below is the English label only, used to translate
+# EDH/EDR/I.Sicily's own German/Latin vocabulary terms, which are licensed
+# under those projects' own CC BY-SA 4.0 / CC BY 4.0 terms (see SOURCES.md,
+# not committed; the licence/URL constants are in extract_metadata.py).
+# label_source values: skos_pref_en / skos_alt_en = taken directly from the
+# EAGLE SKOS record's English prefLabel/altLabel; hand_mapped = EAGLE's own
+# SKOS record for this concept carries no English label at all (confirmed by
+# fetching it directly), translated by hand for this project, and SHOULD BE
+# RECHECKED if EAGLE ever adds one. `uri` is normalized (http, www., no
+# trailing slash or .htm/.html) so a source's scheme/suffix variants all key
+# to the same row; see extract_metadata.py's EagleLabels.normalize_uri for
+# the exact rule applied again at lookup time.
+# A manual spot-check (top-30 lists by document count in the coverage
+# report) found a handful of EAGLE SKOS records whose English
+# (xml:lang="en") altLabel is not actually English (German or
+# Hungarian text mistagged in EAGLE's own vocabulary data, confirmed by
+# fetching the record directly): label_source=hand_corrected marks
+# these; the check was not exhaustive over all 290 rows, only the ones
+# visible in the top-30-by-count lists plus a native==label string
+# match sweep, so others may remain uncaught.
+# 2026-10-08 fix: one duplicate (vocabulary, uri) row was found and
+# merged (objtyp/lod/259, from a malformed double-scheme-prefix ref the
+# normalization missed on the first pass). Every row's (vocabulary,
+# uri) pair is now unique; tests/test_extract_metadata.py asserts this.
+# 2026-10-08 addition: papyri.info/HGV's own plain-text `material` field
+# and document-type keyword (no EAGLE vocabulary ref at all) mapped to
+# English by hand, keeping the original string. `uri` for these rows is
+# a local placeholder (`local:<vocabulary>:<slug>`), not an EAGLE
+# reference: there is no EAGLE concept behind these, so there is nothing
+# to link to. label_source=hand_mapped_papyri_free_text marks them.
+# material: every distinct value found (75). typeins (papyri's
+# document-type keyword, reusing the same vocabulary bucket EDH/EDR's
+# typeins uses): the top 40 by document count, all judged clear enough
+# to translate; thousands of rarer, less certain values are left
+# unlabelled, matching the spec's own instruction.
+vocabulary,uri,native_label,english_label,label_source,doc_count
+decor,http://www.eagle-network.eu/voc/decor/lod/1000,no decoration,not present,skos_alt_en,180332
+decor,http://www.eagle-network.eu/voc/decor/lod/2000,Ja,yes,skos_alt_en,14460
+material,http://www.eagle-network.eu/voc/material/lod/10,Serpentin,ophytes,skos_alt_en,3
+material,http://www.eagle-network.eu/voc/material/lod/104,quarzarenite,quartz-sandstone,skos_alt_en,1
+material,http://www.eagle-network.eu/voc/material/lod/107,Metalle,Metal,skos_pref_en,28
+material,http://www.eagle-network.eu/voc/material/lod/108,plumbum,lead,skos_alt_en,2548
+material,http://www.eagle-network.eu/voc/material/lod/109,aes,bronze,hand_mapped,2804
+material,http://www.eagle-network.eu/voc/material/lod/11,Granit,Granite,skos_alt_en,161
+material,http://www.eagle-network.eu/voc/material/lod/110,bronze,"Bronze, gilded",skos_pref_en,2
+material,http://www.eagle-network.eu/voc/material/lod/111,Eisen,iron,skos_alt_en,92
+material,http://www.eagle-network.eu/voc/material/lod/112,Gold,Gold,skos_alt_en,188
+material,http://www.eagle-network.eu/voc/material/lod/113,Kupfer,Copper,skos_alt_en,77
+material,http://www.eagle-network.eu/voc/material/lod/114,Messing,brass,skos_alt_en,20
+material,http://www.eagle-network.eu/voc/material/lod/115,Silber,silver,skos_alt_en,429
+material,http://www.eagle-network.eu/voc/material/lod/116,Zinn,tin,hand_mapped,20
+material,http://www.eagle-network.eu/voc/material/lod/118,ceterum,other,skos_alt_en,38
+material,http://www.eagle-network.eu/voc/material/lod/119,"Bernstein, Gold",amber,skos_alt_en,2
+material,http://www.eagle-network.eu/voc/material/lod/120,Elfenbein,Ivory,skos_alt_en,7
+material,http://www.eagle-network.eu/voc/material/lod/122,Glas,glass,skos_alt_en,138
+material,http://www.eagle-network.eu/voc/material/lod/123,Holz,wood,skos_alt_en,620
+material,http://www.eagle-network.eu/voc/material/lod/124,Knochen,bone,skos_pref_en,54
+material,http://www.eagle-network.eu/voc/material/lod/125,Leder,leather,hand_corrected,32
+material,http://www.eagle-network.eu/voc/material/lod/126,tectorium,plaster (mural painting),skos_alt_en,6192
+material,http://www.eagle-network.eu/voc/material/lod/128,arenatum,fresh mortar,skos_alt_en,164
+material,http://www.eagle-network.eu/voc/material/lod/13,Syenit,szienit,skos_alt_en,5
+material,http://www.eagle-network.eu/voc/material/lod/130,creta,pottery,skos_alt_en,2045
+material,http://www.eagle-network.eu/voc/material/lod/131,Ton,Clay,skos_alt_en,5144
+material,http://www.eagle-network.eu/voc/material/lod/133,cera,wax,skos_alt_en,1
+material,http://www.eagle-network.eu/voc/material/lod/134,musivum,mosaic,skos_alt_en,429
+material,http://www.eagle-network.eu/voc/material/lod/138,unbestimmt,unknown,skos_alt_en,55571
+material,http://www.eagle-network.eu/voc/material/lod/15,Andesit,Andesite,skos_alt_en,27
+material,http://www.eagle-network.eu/voc/material/lod/16,Basalt,basalt,hand_mapped,56
+material,http://www.eagle-network.eu/voc/material/lod/2,lapis,(Local) Stone,skos_pref_en,24081
+material,http://www.eagle-network.eu/voc/material/lod/25,Porphyr,porphyry,skos_alt_en,4
+material,http://www.eagle-network.eu/voc/material/lod/28,volcanic (pietra di Fuardo),pyroclastic rocks,skos_alt_en,573
+material,http://www.eagle-network.eu/voc/material/lod/30,Tuff,(volcanic) tuff,skos_alt_en,220
+material,http://www.eagle-network.eu/voc/material/lod/300,Gagat,jet,hand_mapped,9
+material,http://www.eagle-network.eu/voc/material/lod/33,metamorphe Gesteine,Metamorphic rocks,skos_alt_en,8
+material,http://www.eagle-network.eu/voc/material/lod/365,marmor numidicum,yellow marble,skos_pref_en,6
+material,http://www.eagle-network.eu/voc/material/lod/37,Gneis,gneiss,hand_mapped,18
+material,http://www.eagle-network.eu/voc/material/lod/41,Steatit,Soapstone,skos_alt_en,52
+material,http://www.eagle-network.eu/voc/material/lod/48,marmor,marble,skos_alt_en,68549
+material,http://www.eagle-network.eu/voc/material/lod/51,Quarzit,Quartzite,skos_alt_en,9
+material,http://www.eagle-network.eu/voc/material/lod/52,Schiefer,schist,skos_alt_en,88
+material,http://www.eagle-network.eu/voc/material/lod/53,Lava,lava,hand_mapped,2
+material,http://www.eagle-network.eu/voc/material/lod/57,lapis calcarius,calcareous sandstone,skos_alt_en,218
+material,http://www.eagle-network.eu/voc/material/lod/59,Dolomit,dolostone,skos_alt_en,6
+material,http://www.eagle-network.eu/voc/material/lod/6,magmatische Gesteine,Igneous Rocks,skos_alt_en,4
+material,http://www.eagle-network.eu/voc/material/lod/60,Kalkstein,limestone,skos_alt_en,9770
+material,http://www.eagle-network.eu/voc/material/lod/64,tufa limestone,tufa-limestone,skos_alt_en,2
+material,http://www.eagle-network.eu/voc/material/lod/642,brick,Brick,skos_pref_en,2
+material,http://www.eagle-network.eu/voc/material/lod/66,limestone,Limestone,skos_pref_en,444
+material,http://www.eagle-network.eu/voc/material/lod/67,Kohlenkalk,calcareous sinter,skos_alt_en,3
+material,http://www.eagle-network.eu/voc/material/lod/68,Muschelkalk,conchiferous limestone,skos_alt_en,97
+material,http://www.eagle-network.eu/voc/material/lod/7,Aplit,aplite,hand_mapped,1
+material,http://www.eagle-network.eu/voc/material/lod/70,Oolith,ooid-limestone,skos_alt_en,129
+material,http://www.eagle-network.eu/voc/material/lod/71,lapis tiburtinus,Travertine,skos_alt_en,1846
+material,http://www.eagle-network.eu/voc/material/lod/73,breccia,Breccia,skos_alt_en,16
+material,http://www.eagle-network.eu/voc/material/lod/736,lapis basanites,basanite,hand_mapped,2
+material,http://www.eagle-network.eu/voc/material/lod/739,marmor chium,Chian marble,hand_mapped,1
+material,http://www.eagle-network.eu/voc/material/lod/74,Konglomerat,Conglomerate,skos_alt_en,66
+material,http://www.eagle-network.eu/voc/material/lod/743,marmor Parium,Parian marble,hand_mapped,1
+material,http://www.eagle-network.eu/voc/material/lod/744,marmor Phrygium,brecciated marble,skos_alt_en,4
+material,http://www.eagle-network.eu/voc/material/lod/745,marmor proconnesium,brecciated marble,skos_alt_en,9
+material,http://www.eagle-network.eu/voc/material/lod/747,marmor taenarium,Taenarian marble,hand_mapped,1
+material,http://www.eagle-network.eu/voc/material/lod/75,Sandstein,sandstone,skos_alt_en,6630
+material,http://www.eagle-network.eu/voc/material/lod/76,Kalkmergel / Mergel,Lime marl / marl,skos_alt_en,27
+material,http://www.eagle-network.eu/voc/material/lod/77,Alabaster,alabaster,hand_mapped,5
+material,http://www.eagle-network.eu/voc/material/lod/78,Kalktuff,Calcareous Tuff,skos_alt_en,13
+material,http://www.eagle-network.eu/voc/material/lod/79,Molasse,molasse,hand_mapped,4
+material,http://www.eagle-network.eu/voc/material/lod/81,Nenfro,nenfro (volcanic tuff),hand_mapped,2
+material,http://www.eagle-network.eu/voc/material/lod/82,lapis Albanus,Alban stone (peperino),hand_mapped,277
+material,http://www.eagle-network.eu/voc/material/lod/83,Trachyt,Trachyte,skos_alt_en,53
+material,http://www.eagle-network.eu/voc/material/lod/87,Minerale,mineral,hand_corrected,1
+material,http://www.eagle-network.eu/voc/material/lod/88,Achat,agate,hand_corrected,3
+material,http://www.eagle-network.eu/voc/material/lod/89,Jaspis,Jasper,skos_alt_en,22
+material,http://www.eagle-network.eu/voc/material/lod/90,Hämatit,Haematite,skos_alt_en,5
+material,http://www.eagle-network.eu/voc/material/lod/91,Heliotrop,Heliotrope,skos_alt_en,4
+material,http://www.eagle-network.eu/voc/material/lod/92,Karneol,Carnelian,skos_alt_en,20
+material,http://www.eagle-network.eu/voc/material/lod/93,Lapislazuli,lapis lazuli,hand_mapped,2
+material,http://www.eagle-network.eu/voc/material/lod/94,Magnetit,Magnetite,skos_alt_en,1
+material,http://www.eagle-network.eu/voc/material/lod/95,Onyx,onyx,hand_mapped,18
+material,http://www.eagle-network.eu/voc/material/lod/96,Opal,Opal,skos_pref_en,3
+material,http://www.eagle-network.eu/voc/material/lod/97,Sardonyx,Sardonyx,skos_alt_en,7
+material,http://www.eagle-network.eu/voc/material/lod/98,Vulkantuff,Volcanic Tuff,skos_alt_en,30
+material,local:material:alabastron,Alabastron,alabastron,hand_mapped_papyri_free_text,1
+material,local:material:blei,Blei,lead,hand_mapped_papyri_free_text,2
+material,local:material:bronzetafel,Bronzetafel,bronze tablet,hand_mapped_papyri_free_text,1
+material,local:material:chalcedon,Chalcedon,chalcedony,hand_mapped_papyri_free_text,1
+material,local:material:chrysopas,Chrysopas,chrysoprase,hand_mapped_papyri_free_text,1
+material,local:material:clay-stone,"""Clay stone""",clay stone,hand_mapped_papyri_free_text,1
+material,local:material:cuir,Cuir,leather,hand_mapped_papyri_free_text,1
+material,local:material:cuir-de-crocodile,Cuir de crocodile,crocodile leather,hand_mapped_papyri_free_text,1
+material,local:material:dipinto,Dipinto,dipinto (painted text),hand_mapped_papyri_free_text,30
+material,local:material:gazellenleder,Gazellenleder,gazelle leather,hand_mapped_papyri_free_text,1
+material,local:material:gef-ton,Gefäß (Ton),vessel (clay),hand_mapped_papyri_free_text,2
+material,local:material:gips,Gips,gypsum,hand_mapped_papyri_free_text,11
+material,local:material:goldblatt,Goldblatt,gold leaf,hand_mapped_papyri_free_text,3
+material,local:material:graffito,Graffito,graffito,hand_mapped_papyri_free_text,234
+material,local:material:hadern-paper,Hadern paper,rag paper,hand_mapped_papyri_free_text,1
+material,local:material:hadernpapier,Hadernpapier,rag paper,hand_mapped_papyri_free_text,2
+material,local:material:holz,Holz (?),wood (?),hand_mapped_papyri_free_text,94
+material,local:material:holz-b-chse,Holz (Büchse),wood (box),hand_mapped_papyri_free_text,1
+material,local:material:holz-baumrinde,Holz (Baumrinde),wood (bark),hand_mapped_papyri_free_text,1
+material,local:material:holztafel,Holztafel,wood tablet,hand_mapped_papyri_free_text,37
+material,local:material:holztafel-tabula-ansata,"Holztafel, tabula ansata.",wood tablet (tabula ansata),hand_mapped_papyri_free_text,2
+material,local:material:klapptafel,Klapptafel,folding tablet,hand_mapped_papyri_free_text,4
+material,local:material:krug,Krug,jug,hand_mapped_papyri_free_text,4
+material,local:material:leder-gazelle,Leder (Gazelle?),leather (gazelle?),hand_mapped_papyri_free_text,6
+material,local:material:leder-papyrus,Leder / Papyrus,leather/papyrus,hand_mapped_papyri_free_text,1
+material,local:material:lehmtafel,Lehmtafel,clay tablet,hand_mapped_papyri_free_text,1
+material,local:material:leinen,Leinen,linen,hand_mapped_papyri_free_text,80
+material,local:material:mumienbinde,Mumienbinde,mummy bandage,hand_mapped_papyri_free_text,9
+material,local:material:mumienbrustband,Mumienbrustband,mummy chest band,hand_mapped_papyri_free_text,1
+material,local:material:mumienh-lle,Mumienhülle,mummy wrapping,hand_mapped_papyri_free_text,9
+material,local:material:mumienkartonage,Mumienkartonage,mummy cartonnage,hand_mapped_papyri_free_text,2
+material,local:material:mumienleinwand,Mumienleinwand,mummy linen,hand_mapped_papyri_free_text,9
+material,local:material:nilkiesel,Nilkiesel,Nile pebble,hand_mapped_papyri_free_text,2
+material,local:material:ostracon,Ostracon,ostracon,hand_mapped_papyri_free_text,2
+material,local:material:ostracon-calcaire,Ostracon (calcaire),ostracon (limestone),hand_mapped_papyri_free_text,1
+material,local:material:ostracon-poterie,Ostracon (poterie),ostracon (pottery),hand_mapped_papyri_free_text,54
+material,local:material:ostrakon,Ostrakon,ostracon,hand_mapped_papyri_free_text,22587
+material,local:material:ostrakon-2,"Ostrakon,",ostracon,hand_mapped_papyri_free_text,1
+material,local:material:ostrakon-3,Ostrakon****,ostracon,hand_mapped_papyri_free_text,1
+material,local:material:ostrakon-4,Ostrakon*,ostracon,hand_mapped_papyri_free_text,1
+material,local:material:ostrakon-schiefer,Ostrakon (Schiefer),ostracon (slate),hand_mapped_papyri_free_text,1
+material,local:material:papier,Papier,paper,hand_mapped_papyri_free_text,23
+material,local:material:pappe,Pappe,cardboard,hand_mapped_papyri_free_text,2
+material,local:material:papyrus,Papyrus,papyrus,hand_mapped_papyri_free_text,39590
+material,local:material:parchemin,Parchemin,parchment,hand_mapped_papyri_free_text,2
+material,local:material:parchment,Parchment,parchment,hand_mapped_papyri_free_text,1
+material,local:material:pergament,Pergament,parchment,hand_mapped_papyri_free_text,356
+material,local:material:pergament-leder,Pergament / Leder,parchment/leather,hand_mapped_papyri_free_text,3
+material,local:material:pergament-leder-2,Pergament/ Leder,parchment/leather,hand_mapped_papyri_free_text,1
+material,local:material:pergament-oder-leder,Pergament oder Leder,parchment or leather,hand_mapped_papyri_free_text,1
+material,local:material:plasma,Plasma,plasma (chalcedony),hand_mapped_papyri_free_text,1
+material,local:material:pottery,Pottery,pottery,hand_mapped_papyri_free_text,1
+material,local:material:sandsteinplatte,Sandsteinplatte,sandstone slab,hand_mapped_papyri_free_text,1
+material,local:material:sarder,Sarder,sard,hand_mapped_papyri_free_text,1
+material,local:material:schale-ton,Schale (Ton) ?,bowl (clay) (?),hand_mapped_papyri_free_text,1
+material,local:material:schale-ton-2,Schale (Ton),bowl (clay),hand_mapped_papyri_free_text,1
+material,local:material:schiefertafel,Schiefertafel,slate tablet,hand_mapped_papyri_free_text,1
+material,local:material:schilfrohr,Schilfrohr,reed,hand_mapped_papyri_free_text,1
+material,local:material:serpentinit,Serpentinit,serpentinite,hand_mapped_papyri_free_text,1
+material,local:material:silberbecher,Silberbecher,silver cup,hand_mapped_papyri_free_text,1
+material,local:material:silberblatt,Silberblatt,silver leaf,hand_mapped_papyri_free_text,1
+material,local:material:stein,Stein,stone,hand_mapped_papyri_free_text,376
+material,local:material:stein-graffito,Stein (Graffito),stone (graffito),hand_mapped_papyri_free_text,29
+material,local:material:stein-ostrakon,Stein-Ostrakon,stone ostracon,hand_mapped_papyri_free_text,1
+material,local:material:stoff,Stoff,fabric,hand_mapped_papyri_free_text,2
+material,local:material:stuckmaske,Stuckmaske,stucco mask,hand_mapped_papyri_free_text,1
+material,local:material:terracotta,Terracotta,terracotta,hand_mapped_papyri_free_text,3
+material,local:material:tonfragment,Tonfragment,clay fragment,hand_mapped_papyri_free_text,2
+material,local:material:tongef,Tongefäß,clay vessel,hand_mapped_papyri_free_text,2
+material,local:material:topfscherbe,Topfscherbe,pottery sherd,hand_mapped_papyri_free_text,1
+material,local:material:tuch,Tuch,cloth,hand_mapped_papyri_free_text,7
+material,local:material:wachstafel,Wachstafel,wax tablet,hand_mapped_papyri_free_text,72
+material,local:material:wachstafeln,Wachstafeln,wax tablets,hand_mapped_papyri_free_text,1
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/100,columna,column,skos_alt_en,309
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/102,Ehren-/Grab-/Votivsäule,Honorific/votive column,skos_alt_en,272
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/109,corona,crown,skos_alt_en,2
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/11,aedificium,building,skos_alt_en,5402
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/112,cupa,Barrel,skos_alt_en,221
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/115,discus,Disk,skos_alt_en,1
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/116,dolium,jar,skos_alt_en,46
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/118,Diptychon,diptych,skos_alt_en,15
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/119,epistylium,Epistyl,skos_alt_en,1100
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/122,stamp,stamp,skos_alt_en,1
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/123,forma,'printed' objects,skos_alt_en,15
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/124,ostrakon,Ceramic fragment,skos_alt_en,3
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/125,fragmentum,fragment,skos_alt_en,2357
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/1251,Barren,ingot,hand_mapped,86
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/1264,anaglyphum,relief carving,hand_mapped,346
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/127,fritillus,dice box,skos_alt_en,1
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/128,gemma,gem,skos_alt_en,32
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/129,"gradus, amphiteatrum",stair,skos_alt_en,178
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/132,herma,herm,skos_alt_en,203
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/133,horologium,timepiece,skos_alt_en,14
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/135,imago,bust,skos_alt_en,71
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/136,"indumentum, cingulum",all types of clothes,skos_alt_en,2
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/139,belt,belt,skos_alt_en,1
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/140,Instrumentum domesticum,Domestic,skos_alt_en,4058
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/141,Instrumentum militare,military equipment,hand_mapped,189
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/142,Instrumentum sacrum,cult equipment,skos_alt_en,449
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/143,unknown,unknown,hand_mapped,1
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/144,labrum,basin,skos_alt_en,45
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/1440,cinerarium,cinerary urn,hand_mapped,3400
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/145,lamina,metal plaque (lamina),hand_mapped,122
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/147,Ziegel,brick,hand_mapped,1562
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/150,libra,balance (scales),skos_alt_en,4
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/1502,diploma,military diploma,hand_mapped,38
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/152,cup or oil lamp (?),oil-lamp,skos_alt_en,3
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/153,handle,Handle,skos_alt_en,1
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/154,massa,Barren,skos_alt_en,8
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/157,mensa,table,skos_alt_en,133
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/1573,lucerna,oil lamp,hand_mapped,28
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/162,mola,Mill,skos_alt_en,5
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/163,Schmuck,jewelry,skos_alt_en,546
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/17,amphora,Anfor,skos_alt_en,71
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/1752,signum,statue,hand_mapped,39
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/176,mortarium,mortar,skos_alt_en,1
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/180,aedicula,small temple,skos_alt_en,19
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/181,nummus,coin,hand_mapped,13
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/182,Olla,pot foot,skos_alt_en,3
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/183,ollarium,cinerary niche,hand_mapped,29
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/184,mosaic,Mosaic,skos_alt_en,17
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/1851,balustrade,Baluster,skos_pref_en,23
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/1876,crepidoma,Crepidoma,skos_pref_en,2
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/188,oscillum,pendent,skos_alt_en,11
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/189,parallelepipedum,Block,skos_pref_en,5164
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/190,pavimentum,pavement,skos_alt_en,452
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/1910,plinth,Plinth,skos_pref_en,9
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/1926,sima,Sima,skos_pref_en,2
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/194,pila,pillar,skos_alt_en,46
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/1951,tympanum,Tympanum,skos_pref_en,2
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/1961,rostrum,ship’s prow (rostrum),hand_mapped,1
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/1969,moulding,moulding,skos_pref_en,2
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/198,pistillum,pestle,skos_alt_en,1
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/1980,greave,greave,hand_mapped,1
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/1986,pebble,pebble,hand_mapped,3
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/199,pluteus,parapet,skos_alt_en,31
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/2,unbestimmt,unknown,skos_alt_en,36941
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/20,Ehren-/Votivbogen,Honorific/votive arch,skos_alt_en,21
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/200,pondus,weight,skos_alt_en,84
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/203,postis,jamb,skos_alt_en,12
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/206,puteal,well-head,hand_mapped,18
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/210,Fels,Cliff,skos_alt_en,334
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/211,rupes,rock,skos_alt_en,262
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/213,stone,stone,skos_alt_en,3
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/214,Sarkophag,Sarkophagous,skos_alt_en,3549
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/22,ampulla,bar,skos_alt_en,7
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/223,tomb cover,sarcophagus (lid of...),skos_alt_en,2
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/224,statua,Sculpture,skos_alt_en,110
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/226,sedile,benches,skos_alt_en,32
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/230,sepulcrum,burial building,skos_alt_en,1080
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/237,sigillum,stamp/seal,hand_mapped,9
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/24,Relief,Relief,skos_pref_en,568
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/240,signaculum,signet,skos_alt_en,560
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/241,Statue,Statue,skos_pref_en,167
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/242,silex,flint,skos_alt_en,107
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/245,sors,tablet,skos_alt_en,20
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/246,speculum,Coffin,skos_alt_en,22
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/247,sphaera,sphere,skos_alt_en,21
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/250,stela,plaque / stela,skos_alt_en,19337
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/253,suppellex,furniture,skos_alt_en,9
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/254,Bank,bench,hand_corrected,11
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/257,tabula,sheet,skos_alt_en,63225
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/259,plaque,Inscribed plaque,skos_pref_en,1343
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/263,tabula ansata,"Tabula ansata, probably part of a sarcophagus",skos_alt_en,20
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/27,ancora,anchor,skos_alt_en,6
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/275,tessella,gaming die,skos_alt_en,17
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/276,Tessera,token (tessera),hand_mapped,955
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/278,tessera hospitalis,token of hospitality (tessera hospitalis),hand_mapped,1
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/28,antefixum,Antefix,skos_pref_en,18
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/283,thesaurus,container,skos_alt_en,13
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/284,tintinnabulum,bell,skos_alt_en,3
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/29,Altar,Altar,skos_pref_en,15577
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/295,trapezophorus,support,skos_alt_en,1
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/297,tubus,pipe,skos_alt_en,958
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/305,vas,vessel,skos_alt_en,1048
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/309,Platte,Dish,skos_alt_en,640
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/312,loom weight,loom weight,hand_mapped,60
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/314,"vas, mensa, poculum","vessel, table, or cup",hand_mapped,18
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/34,funerary altar,"altar, funerary",skos_alt_en,9
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/35,Architekturteil,Architectural Element,skos_alt_en,2039
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/37,exedra,Exedra,skos_alt_en,2
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/40,Brunnen,Fountain,skos_alt_en,29
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/41,arenatum,on fresh mortar,skos_alt_en,7
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/416,wall,Wall,skos_pref_en,17
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/42,"arma, glans",weapons,hand_corrected,334
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/447,arcosolium,Tomb,skos_pref_en,1
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/448,"capsa, cista",casket,skos_alt_en,13
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/49,spatha,sword,skos_alt_en,1
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/50,sling bullet,Sling bullet,skos_alt_en,2
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/53,"basis, statua",Basis,skos_pref_en,4628
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/57,Statuenbasis,Statue base,skos_pref_en,2677
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/58,caduceus,caduceus,hand_mapped,11
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/6,aedicula,shrine (aedicula),hand_mapped,1
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/60,cancellum,screen,skos_alt_en,30
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/61,candelabrum,candelabrum,hand_mapped,6
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/63,capitulum,capital (of a column),skos_alt_en,63
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/64,column capital,"capital, abacus",skos_alt_en,4
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/67,Stadtbefestigung,Fortification,skos_alt_en,18
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/69,Honorific,Auxiliary Fort,skos_pref_en,2
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/78,Urne,cinerary urn,skos_alt_en,648
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/79,ash chest,ash urn,skos_alt_en,16
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/84,lid or cover (of an urn?),ash cist (lid of...),skos_alt_en,1
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/85,cippus,boundary/marker stone (cippus),hand_mapped,6855
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/855,later,brick,hand_mapped,156
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/86,building,aqueduct cippus,skos_alt_en,2
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/88,ritual dedication,fluvial cippus,skos_alt_en,1
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/89,Meilen-/Leugenstein,milestone,skos_alt_en,1689
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/92,funerary,boundary marker,skos_alt_en,4
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/94,clipeus,honorary shield,skos_alt_en,26
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/951,tegula,roof tile,hand_mapped,298
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/96,cochlear,spoon,skos_alt_en,2
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/97,collare,collar,skos_alt_en,40
+objtyp,http://www.eagle-network.eu/voc/objtyp/lod/98,collyrium,oculist's stamp,hand_mapped,1
+statepreserv,http://www.eagle-network.eu/voc/statepreserv/lod/13,tit. integer,inscription complete,hand_mapped,63032
+statepreserv,http://www.eagle-network.eu/voc/statepreserv/lod/15,tit. fragmentum,inscription fragmentary,hand_mapped,26734
+statepreserv,http://www.eagle-network.eu/voc/statepreserv/lod/6,tit. fragmenta inter se coniuncta,"fragments, joined",hand_corrected,2706
+statepreserv,http://www.eagle-network.eu/voc/statepreserv/lod/7,tit. fragmenta inter se non coniuncta,"fragments, not joined",hand_mapped,1330
+statepreserv,http://www.eagle-network.eu/voc/statepreserv/lod/8,tit. fragmenta partim tantum inter se coniuncta,"fragments, partly joined",hand_mapped,594
+typeins,http://www.eagle-network.eu/voc/typeins/lod/102,Meilen-/Leugenstein,Milestone,skos_alt_en,1683
+typeins,http://www.eagle-network.eu/voc/typeins/lod/105,tit. in artis operib. inscr.,caption or signature,skos_alt_en,498
+typeins,http://www.eagle-network.eu/voc/typeins/lod/106,cetera,other,skos_alt_en,7917
+typeins,http://www.eagle-network.eu/voc/typeins/lod/108,Verzeichnis,list,skos_alt_en,353
+typeins,http://www.eagle-network.eu/voc/typeins/lod/109,Beischrift,label,skos_alt_en,280
+typeins,http://www.eagle-network.eu/voc/typeins/lod/111,Sitzinschrift,Reserved benches,skos_alt_en,85
+typeins,http://www.eagle-network.eu/voc/typeins/lod/112,abecedarium,alphabet inscription,hand_mapped,1
+typeins,http://www.eagle-network.eu/voc/typeins/lod/113,Adnuntiatio,announcement,hand_mapped,3
+typeins,http://www.eagle-network.eu/voc/typeins/lod/115,Aufschrift,Sculptor's signature,skos_alt_en,1316
+typeins,http://www.eagle-network.eu/voc/typeins/lod/116,Assignationsinschrift,allotment inscription,hand_mapped,14
+typeins,http://www.eagle-network.eu/voc/typeins/lod/143,unbestimmt,unknown,hand_mapped,26685
+typeins,http://www.eagle-network.eu/voc/typeins/lod/232,honorarius,honorific inscription,hand_mapped,6401
+typeins,http://www.eagle-network.eu/voc/typeins/lod/261,Bau-/Stifterinschrift,building/dedicatory inscription,hand_mapped,3241
+typeins,http://www.eagle-network.eu/voc/typeins/lod/263,oper. publ. priv.que,public and private works,hand_mapped,4556
+typeins,http://www.eagle-network.eu/voc/typeins/lod/293,Grenzmarkierung,boundary marker,hand_mapped,240
+typeins,http://www.eagle-network.eu/voc/typeins/lod/3,Kalender,Calendar,skos_alt_en,12
+typeins,http://www.eagle-network.eu/voc/typeins/lod/311,Besitzer-/Herstellerinschrift,owner's/maker's inscription,hand_mapped,4980
+typeins,http://www.eagle-network.eu/voc/typeins/lod/359,"gift, private document",private document,skos_pref_en,3
+typeins,http://www.eagle-network.eu/voc/typeins/lod/369,ludic,agonistic / ludic,skos_pref_en,2
+typeins,http://www.eagle-network.eu/voc/typeins/lod/387,invocation,invocation,skos_pref_en,2
+typeins,http://www.eagle-network.eu/voc/typeins/lod/69,Ehreninschrift,Honorific inscription,skos_pref_en,3977
+typeins,http://www.eagle-network.eu/voc/typeins/lod/70,Elogium,eulogy inscription,hand_mapped,143
+typeins,http://www.eagle-network.eu/voc/typeins/lod/73,Akklamation,acclamation,hand_mapped,488
+typeins,http://www.eagle-network.eu/voc/typeins/lod/76,Defixio,curse,skos_alt_en,307
+typeins,http://www.eagle-network.eu/voc/typeins/lod/79,sacer,dedication,skos_alt_en,7117
+typeins,http://www.eagle-network.eu/voc/typeins/lod/80,Weihinschrift,dedicatory inscription,hand_mapped,13573
+typeins,http://www.eagle-network.eu/voc/typeins/lod/83,votive,Votive,skos_alt_en,92
+typeins,http://www.eagle-network.eu/voc/typeins/lod/85,Gebet,Prayer,skos_alt_en,56
+typeins,http://www.eagle-network.eu/voc/typeins/lod/88,dedication,Dedicatory,skos_alt_en,2
+typeins,http://www.eagle-network.eu/voc/typeins/lod/91,Militärdiplom,Military diploma,skos_alt_en,501
+typeins,http://www.eagle-network.eu/voc/typeins/lod/92,sepulcralis,Epitaph,skos_alt_en,105977
+typeins,http://www.eagle-network.eu/voc/typeins/lod/96,term. non sep.,Boundary inscription,skos_alt_en,904
+typeins,local:typeins:abrechnung,Abrechnung,account,hand_mapped_papyri_free_text,3293
+typeins,local:typeins:anweisung,Anweisung,instruction,hand_mapped_papyri_free_text,2018
+typeins,local:typeins:anzeige,Anzeige,notice,hand_mapped_papyri_free_text,250
+typeins,local:typeins:aufschrift-auf-gef-rest,Aufschrift auf Gefäßrest,inscription on a vessel fragment,hand_mapped_papyri_free_text,211
+typeins,local:typeins:aufstellung,Aufstellung,statement,hand_mapped_papyri_free_text,471
+typeins,local:typeins:auftrag,Auftrag,order,hand_mapped_papyri_free_text,300
+typeins,local:typeins:bericht,Bericht,report,hand_mapped_papyri_free_text,481
+typeins,local:typeins:bescheinigung,Bescheinigung,certificate,hand_mapped_papyri_free_text,245
+typeins,local:typeins:brief,Brief,letter,hand_mapped_papyri_free_text,2776
+typeins,local:typeins:brief-2,Brief (?),letter (?),hand_mapped_papyri_free_text,188
+typeins,local:typeins:brief-amtlich,Brief (amtlich),letter (official),hand_mapped_papyri_free_text,1260
+typeins,local:typeins:brief-gesch-ftlich,Brief (geschäftlich),letter (business),hand_mapped_papyri_free_text,765
+typeins,local:typeins:brief-privat,Brief (privat),letter (private),hand_mapped_papyri_free_text,3717
+typeins,local:typeins:brief-privat-2,Brief (privat?),letter (private?),hand_mapped_papyri_free_text,186
+typeins,local:typeins:datierung,Datierung,dating,hand_mapped_papyri_free_text,179
+typeins,local:typeins:deklaration,Deklaration,declaration,hand_mapped_papyri_free_text,736
+typeins,local:typeins:eingabe,Eingabe,petition,hand_mapped_papyri_free_text,1642
+typeins,local:typeins:erkl-rung,Erklärung,declaration,hand_mapped_papyri_free_text,261
+typeins,local:typeins:fragment,Fragment,fragment,hand_mapped_papyri_free_text,760
+typeins,local:typeins:graffito-2,Graffito,graffito,hand_mapped_papyri_free_text,336
+typeins,local:typeins:lettre,Lettre,letter,hand_mapped_papyri_free_text,619
+typeins,local:typeins:lieferung,Lieferung,delivery,hand_mapped_papyri_free_text,147
+typeins,local:typeins:liste,Liste,list,hand_mapped_papyri_free_text,4223
+typeins,local:typeins:mumienetikett,Mumienetikett,mummy label,hand_mapped_papyri_free_text,2302
+typeins,local:typeins:name,Name,name,hand_mapped_papyri_free_text,711
+typeins,local:typeins:namen,Namen,names,hand_mapped_papyri_free_text,780
+typeins,local:typeins:notiz,Notiz,note,hand_mapped_papyri_free_text,1015
+typeins,local:typeins:petition,Petition,petition,hand_mapped_papyri_free_text,185
+typeins,local:typeins:protokoll,Protokoll,protocol,hand_mapped_papyri_free_text,288
+typeins,local:typeins:quittung,Quittung,receipt,hand_mapped_papyri_free_text,15823
+typeins,local:typeins:quittung-2,Quittung (?),receipt (?),hand_mapped_papyri_free_text,292
+typeins,local:typeins:quittungen,Quittungen,receipts,hand_mapped_papyri_free_text,264
+typeins,local:typeins:rechnung,Rechnung,bill,hand_mapped_papyri_free_text,283
+typeins,local:typeins:register,Register,register,hand_mapped_papyri_free_text,654
+typeins,local:typeins:schreiben-amtlich,Schreiben (amtlich),letter (official),hand_mapped_papyri_free_text,497
+typeins,local:typeins:unbestimmbar,unbestimmbar,indeterminable,hand_mapped_papyri_free_text,1515
+typeins,local:typeins:vertrag,Vertrag,contract,hand_mapped_papyri_free_text,5300
+typeins,local:typeins:vertrag-2,Vertrag (?),contract (?),hand_mapped_papyri_free_text,162
+typeins,local:typeins:zahlung,Zahlung,payment,hand_mapped_papyri_free_text,156
+writing,http://www.eagle-network.eu/voc/writing/lod/1,scalpro,chiselled,skos_alt_en,99865
+writing,http://www.eagle-network.eu/voc/writing/lod/10,pictura,painted,skos_alt_en,980
+writing,http://www.eagle-network.eu/voc/writing/lod/11,punctim,poncolt,skos_alt_en,111
+writing,http://www.eagle-network.eu/voc/writing/lod/13,signaculo,stamped,hand_mapped,87
+writing,http://www.eagle-network.eu/voc/writing/lod/14,stilo,inscribed on a soft surface,skos_alt_en,872
+writing,http://www.eagle-network.eu/voc/writing/lod/145,gepunzt,punched,hand_mapped,344
+writing,http://www.eagle-network.eu/voc/writing/lod/15,terebro,perforated or bored,skos_alt_en,1
+writing,http://www.eagle-network.eu/voc/writing/lod/152,Mosaik,mosaic,hand_mapped,169
+writing,http://www.eagle-network.eu/voc/writing/lod/16,tessellis,in mosaic tesserae,hand_mapped,444
+writing,http://www.eagle-network.eu/voc/writing/lod/167,engraved,etched (with a sharp point),skos_pref_en,1
+writing,http://www.eagle-network.eu/voc/writing/lod/17,typo,stamped/moulded,hand_mapped,64
+writing,http://www.eagle-network.eu/voc/writing/lod/18,carbone,in charcoal,hand_mapped,108
+writing,http://www.eagle-network.eu/voc/writing/lod/2,atramento,inked,skos_alt_en,101
+writing,http://www.eagle-network.eu/voc/writing/lod/20,cetera,other,hand_mapped,33
+writing,http://www.eagle-network.eu/voc/writing/lod/21,unbestimmt,unknown,hand_mapped,81250
+writing,http://www.eagle-network.eu/voc/writing/lod/23,eingraviert,engraved,hand_mapped,163
+writing,http://www.eagle-network.eu/voc/writing/lod/3,caelo,engraved,skos_alt_en,1229
+writing,http://www.eagle-network.eu/voc/writing/lod/36,litt. alv.,channelled,skos_alt_en,117
+writing,http://www.eagle-network.eu/voc/writing/lod/4,crustis,incrusted (inlay),hand_corrected,14
+writing,http://www.eagle-network.eu/voc/writing/lod/5,litt. agem.,damascened,skos_alt_en,48
+writing,http://www.eagle-network.eu/voc/writing/lod/6,litt. app.,applied,skos_alt_en,38
+writing,http://www.eagle-network.eu/voc/writing/lod/7,Relief letters,relief,skos_alt_en,3
+writing,http://www.eagle-network.eu/voc/writing/lod/77,gestempelt,stamped,hand_mapped,1000
+writing,http://www.eagle-network.eu/voc/writing/lod/8,litt. ex forma,letters from a mould,hand_corrected,1738
+writing,http://www.eagle-network.eu/voc/writing/lod/88,geritzt / Graffito,scratched (graffito),hand_mapped,1983
+writing,http://www.eagle-network.eu/voc/writing/lod/9,litt. scariph.,scratched,skos_alt_en,6441
+writing,http://www.eagle-network.eu/voc/writing/lod/96,gemalt / Dipinto,painted (dipinto),hand_mapped,159

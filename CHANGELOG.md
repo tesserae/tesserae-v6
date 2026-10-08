@@ -9,6 +9,50 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Documentary texts, stage 3a: per-document metadata layer (no site change)
+- `scripts/documents/extract_metadata.py` reads the stage 2 merged
+  documentary corpus plus the raw EDH/EDR/I.Sicily/papyri.info EpiDoc
+  files, and writes a SQLite database (`documents` + `display` tables,
+  schema in the script's own docstring). For every document: licence
+  and a link back to the source's own page (EDH's canonical domain and
+  EDR's actual query parameter both corrected from what was assumed
+  going in), the principal edition citation, EAGLE-vocabulary text
+  type/object type/material translated to English, date range, place,
+  languages, and a verse flag. The flag is set only for I.Sicily, the
+  one source whose format marks a verse line structurally. Confirmed
+  by checking directly against the full raw export.
+  Separately, museum, inventory, dimensions, letter height,
+  layout/hand notes, apparatus, commentary, translation, and image
+  links. Every field is optional, and a missing one never drops a
+  document. 257,428 documents written, matching the stage 2 merged
+  total exactly.
+- `data/documents/eagle_labels.csv`: an English label for 290 EAGLE
+  Network vocabulary terms used across the corpus, built from EAGLE's
+  own SKOS/RDF records where one exists, by hand for the roughly 70
+  concepts EAGLE's own vocabulary carries no English label for at all,
+  plus 8 corrections where EAGLE's own data mistags a German or
+  Hungarian string as English.
+- `tests/test_extract_metadata.py`: 31 tests against
+  `tests/fixtures/epidoc/`, covering licence/source-link/citation
+  extraction per source, the EAGLE term-to-English mapping, I.Sicily's
+  translation and image links, that a document with no findable raw
+  file still gets a row of its own, and (added after the PR's own
+  automated review caught a duplicate-key bug) that
+  `eagle_labels.csv` can never hold two rows for the same vocabulary
+  term again.
+- Follow-up: papyri.info/HGV tag `material` and document type as plain
+  text with no EAGLE vocabulary link at all, so the first pass left
+  them almost entirely unmapped. Added hand-built English mappings for
+  all 75 distinct `material` values (63,856 documents: "Papyrus",
+  "Ostrakon", "Pergament"/parchment, "Wachstafel"/wax tablet, and 72
+  rarer terms) and the top 40 `text_type` keyword values by count
+  ("Quittung"/receipt, "Vertrag"/contract, "Liste"/list, and 37 more),
+  reusing the same `material`/`typeins` fallback the other three
+  sources' own ref-less free text already used. Papyri's
+  `material_label` coverage: 4.0% to 97.9%. `text_type_label`: 0.3% to
+  81.8%.
+
+
 ### Records: scholarship sources installed, and the terms they are held on
 - `docs/DATA_OPERATIONS.md` records the installation of the commentary
   catalogue, citation index, abbreviation table and service keys on the live
