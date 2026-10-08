@@ -9,6 +9,16 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Translation aligner: Rumi's Masnavi opening ("Song of the Reed") from Nicholson's 1925/1926 translation
+- `scripts/translations/align_rumi_masnavi_nicholson.py`, built on the shared
+  `write_aligned.py` helper. Our corpus holds only the eighteen-line reed-flute
+  prologue of Book I (`texts/fa/rumi.masnavi.part.1.tess`), and R. A.
+  Nicholson's English translation (public domain, published 1925/1926, more
+  than 95 years ago) numbers its couplets continuously from 1, so this is a
+  one-to-one, exact-confidence alignment with no offset or proportional
+  block. 18/18 refs covered. Its output is staged for installation as
+  `data/translations/fa__rumi.masnavi.part.1.json` (not tracked in git).
+
 ### Corpus tool fix: drop-lines-from-work rebuilds the lemma cache instead of deleting it
 - `scripts/corpus/drop_lines_from_work.py` deleted the one cached lemma
   analysis after rewriting a work's text, on the mistaken assumption that
