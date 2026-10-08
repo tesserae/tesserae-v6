@@ -43,12 +43,30 @@ pattern as remove_restricted_text.py and drop_stale_index_entries.py:
   windows   data/passage_index/window_texts.db -- the `window_texts` rows
             whose ref_start..ref_end range (by file ORDER, not by parsing
             the numbers in the ref, since Urdu's refs are
-            work.ghazal.N.M and do not sort numerically) touches ANY
-            dropped ref are removed outright, along with their rows in
-            descriptions.jsonl and ids.json (winvec) and their own cached
-            line text in window_texts.db's `lines` table. There is no
-            replacement text to re-window with, so the gap is left for
-            the overlap of neighbouring windows to cover, not patched.
+            work.ghazal.N.M and do not sort numerically) overlaps a
+            CONTIGUOUS RUN of dropped refs are removed outright, along
+            with their matching rows in ids.json, embeddings.npy and
+            descriptions.jsonl -- the three stores the running passage
+            index loads together and refuses to load at all if they
+            disagree (backend/passage_index.py's `_ensure_loaded`) -- and
+            their own cached line text in window_texts.db's `lines`
+            table. ids.json, embeddings.npy and descriptions.jsonl are
+            kept in lockstep deliberately (2026-10-08: a run of this
+            script dropped 37 windows from ids.json and descriptions.jsonl
+            but left embeddings.npy untouched, so the two counts fell out
+            of step by 37 rows and the passage index would not load
+            site-wide -- Similar Passages and Theme Search both down --
+            until the extra rows were removed by hand); apply_drop
+            computes all three together and asserts they still agree,
+            in row count, before any of the four files is swapped into
+            place, restoring every backup and refusing to finish if they
+            do not. Runs, not the first-to-last span of everything asked
+            for, is deliberate too: two scattered refs (say, two footnotes
+            many lines apart) must drop only the windows actually
+            touching each one, never everything between them.
+            There is no replacement text to re-window with, so the gap
+            left by a dropped window is left for the overlap of
+            neighbouring windows to cover, not patched.
 
 What this script does NOT do, because the data it would need is not
 self-describing by ref and a full recompute is the only honest fix -- it
@@ -107,6 +125,13 @@ from scripts.corpus.corpus_safety import (  # noqa: E402
 REF_LINE = re.compile(r'^<([^>]+)>\t(.*)$')
 
 
+class LockstepError(RuntimeError):
+    """Raised by apply_drop when ids.json, embeddings.npy and
+    descriptions.jsonl would not (or already do not) agree in row count.
+    Every backup taken so far is restored before this is raised, so the
+    live files are left exactly as they were when apply_drop was called."""
+
+
 # ---------------------------------------------------------------------------
 # PLANNING -- read-only, safe against a fixture or the real server alike.
 # ---------------------------------------------------------------------------
@@ -157,7 +182,7 @@ def plan_drop(lang, filename, refs_to_drop, root='.'):
     plan['index'] = _plan_index(root, lang, filename, refs_to_drop)
     plan['vectors'] = _plan_vectors(root, lang, filename, refs_to_drop)
     plan['lemma_cache'] = _plan_lemma_cache(root, lang, filename)
-    plan['windows'] = _plan_windows(root, lang, filename, order, lo, hi)
+    plan['windows'] = _plan_windows(root, lang, filename, order, drop_positions)
     return plan
 
 
@@ -213,14 +238,43 @@ def _plan_lemma_cache(root, lang, filename):
     return {'present': True, 'files': files, 'dir': lang_dir}
 
 
-def _plan_windows(root, lang, filename, order, lo, hi):
-    """Windows (and their description/vector/cached-text rows) whose
-    ref_start..ref_end span, read back by FILE ORDER (not by parsing the
-    ref string -- Urdu's ghazal.N.M refs do not sort numerically), overlaps
-    [lo, hi]."""
+def _contiguous_runs(positions):
+    """Group sorted, deduplicated file-order position ints into (lo, hi)
+    runs of CONSECUTIVE integers. Two dropped refs 69 lines apart are two
+    one-line runs, not one 70-line run -- the distinction a scattered
+    `--refs` (two unrelated footnotes) needs and a single `--ref-range`
+    (one contiguous block) never notices, since it is one run already."""
+    runs = []
+    start = prev = None
+    for p in positions:
+        if start is None:
+            start = prev = p
+        elif p == prev + 1:
+            prev = p
+        else:
+            runs.append((start, prev))
+            start = prev = p
+    if start is not None:
+        runs.append((start, prev))
+    return runs
+
+
+def _plan_windows(root, lang, filename, order, drop_positions):
+    """Windows (and their ids.json/embeddings.npy/descriptions.jsonl/
+    cached-text rows) whose ref_start..ref_end span, read back by FILE
+    ORDER (not by parsing the ref string -- Urdu's ghazal.N.M refs do not
+    sort numerically), overlaps ANY contiguous run of `drop_positions`.
+
+    Deliberately NOT "overlaps the span from the first dropped position to
+    the last": two scattered refs (e.g. two footnotes many lines apart)
+    must only take the windows that touch one of them, not the ~193
+    windows for everything printed between the two footnotes that this
+    script would otherwise have planned to drop (production, 2026-10-08,
+    caught before --apply)."""
     wdb = os.path.join(root, 'data', 'passage_index', 'window_texts.db')
     desc_path = os.path.join(root, 'data', 'passage_index', 'descriptions.jsonl')
     ids_path = os.path.join(root, 'data', 'passage_index', 'ids.json')
+    emb_path = os.path.join(root, 'data', 'passage_index', 'embeddings.npy')
     base = filename[:-len('.tess')] if filename.endswith('.tess') else filename
     if not os.path.exists(wdb):
         return {'present': False, 'wdb_path': wdb}
@@ -231,15 +285,17 @@ def _plan_windows(root, lang, filename, order, lo, hi):
             (lang, base)).fetchall()
     finally:
         con.close()
+    runs = _contiguous_runs(drop_positions)
     hit_ids = []
     for wid, rs, re_ in rows:
         o1, o2 = order.get(rs), order.get(re_)
         if o1 is None or o2 is None:
             continue  # a ref outside this edit's view of the file; not our concern
-        if o1 <= hi and o2 >= lo:
+        if any(o1 <= hi and o2 >= lo for lo, hi in runs):
             hit_ids.append(wid)
     hit_ids_set = set(hit_ids)
     desc_hits = ids_hits = 0
+    emb_old_rows = None
     if os.path.exists(desc_path):
         with open(desc_path, encoding='utf-8') as fh:
             for line in fh:
@@ -251,7 +307,12 @@ def _plan_windows(root, lang, filename, order, lo, hi):
                     desc_hits += 1
     if os.path.exists(ids_path):
         ids_hits = sum(1 for wid in json.load(open(ids_path, encoding='utf-8')) if wid in hit_ids_set)
+    if os.path.exists(emb_path):
+        import numpy as np
+        emb_old_rows = int(np.load(emb_path, mmap_mode='r').shape[0])
     return {'present': True, 'wdb_path': wdb, 'desc_path': desc_path, 'ids_path': ids_path,
+            'emb_path': emb_path, 'emb_present': emb_old_rows is not None,
+            'emb_old_rows': emb_old_rows,
             'window_ids': hit_ids, 'total_windows': len(rows),
             'description_rows': desc_hits, 'winvec_rows': ids_hits}
 
@@ -282,8 +343,11 @@ def format_plan(plan):
     if not win.get('present'):
         lines.append(f"  windows: not present ({win.get('wdb_path')})")
     else:
+        emb_note = (f"{win['winvec_rows']} embeddings.npy row(s) of {win['emb_old_rows']}"
+                    if win.get('emb_present') else 'embeddings.npy not present')
         lines.append(f"  windows: {len(win['window_ids'])} of {win['total_windows']} window(s) overlap; "
-                     f"{win['description_rows']} description row(s), {win['winvec_rows']} winvec row(s)")
+                     f"{win['description_rows']} description row(s), {win['winvec_rows']} ids.json row(s), "
+                     f"{emb_note}")
     lines.append('')
     lines.append('  NOT done by this script (whole-language/whole-corpus; run after --apply):')
     lines.append(f"    venv/bin/python scripts/batch_lemma_cache.py {plan['lang']} --force")
@@ -294,6 +358,16 @@ def format_plan(plan):
         lines.append('    systemd-run --user --scope -p MemoryMax=10G '
                      'venv/bin/python3 scripts/build_connections_map.py')
     return '\n'.join(lines)
+
+
+def _restore_backups(backups):
+    """backups: {live_path: backup_path_or_None}. Copies each backup back
+    over its live path -- an abort must leave every file exactly as it was
+    before apply_drop touched it. A None value means the file did not
+    exist before this call and is left alone, never invented."""
+    for live_path, b in backups.items():
+        if b and os.path.exists(b):
+            shutil.copy2(b, live_path)
 
 
 # ---------------------------------------------------------------------------
@@ -383,14 +457,21 @@ def apply_drop(plan, tag=None):
         os.remove(path)
         report.append(f"lemma cache: removed {path} (backup: {b}; stale, orphaned by the content change)")
 
-    # 5. windows
+    # 5. windows -- ids.json, embeddings.npy and descriptions.jsonl are kept
+    # in lockstep (module docstring, 2026-10-08): all three are prepared
+    # here and their row counts compared BEFORE any of the four window
+    # stores is swapped into place; every backup taken is restored, and
+    # LockstepError raised, rather than leaving the index able to load with
+    # the wrong passage behind an id or (worse) refusing to load at all.
     win = plan['windows']
     if win.get('present') and win['window_ids']:
         hit = set(win['window_ids'])
-        bwdb = backup(win['wdb_path'], tag=tag)
-        new_path = win['wdb_path'] + '.new'
-        shutil.copy2(win['wdb_path'], new_path)
-        con = sqlite3.connect(new_path)
+        backups = {win['wdb_path']: backup(win['wdb_path'], tag=tag)}
+
+        # window_texts.db -- deletions prepared in a copy; not swapped in yet.
+        new_wdb_path = win['wdb_path'] + '.new'
+        shutil.copy2(win['wdb_path'], new_wdb_path)
+        con = sqlite3.connect(new_wdb_path)
         try:
             marks = ','.join('?' * len(hit))
             con.execute(f'delete from window_texts where id in ({marks})', list(hit))  # nosec B608
@@ -402,35 +483,119 @@ def apply_drop(plan, tag=None):
             con.execute('VACUUM')
         finally:
             con.close()
-        os.replace(win['wdb_path'], f"{win['wdb_path']}.bak-swap-{tag}")
-        os.replace(new_path, win['wdb_path'])
-        report.append(f"windows: removed {len(hit)} window(s) from {win['wdb_path']} "
-                      f"(backup: {bwdb}, pre-swap copy {win['wdb_path']}.bak-swap-{tag})")
 
-        if win['desc_path'] and os.path.exists(win['desc_path']):
-            bdesc = backup(win['desc_path'], tag=tag)
-            kept_lines, dropped = [], 0
+        def _abort(msg):
+            _restore_backups(backups)
+            if os.path.exists(new_wdb_path):
+                os.remove(new_wdb_path)
+            raise LockstepError(msg + ' Every backup has been restored; nothing was left changed.')
+
+        orig_ids, new_ids = None, None
+        if os.path.exists(win['ids_path']):
+            backups[win['ids_path']] = backup(win['ids_path'], tag=tag)
+            orig_ids = json.load(open(win['ids_path'], encoding='utf-8'))
+            new_ids = [wid for wid in orig_ids if wid not in hit]
+
+        new_desc_lines, n_desc_dropped, desc_row_count = None, 0, None
+        if os.path.exists(win['desc_path']):
+            backups[win['desc_path']] = backup(win['desc_path'], tag=tag)
+            kept, valid = [], 0
             with open(win['desc_path'], encoding='utf-8') as fh:
                 for line in fh:
                     try:
                         r = json.loads(line)
                     except ValueError:
-                        kept_lines.append(line)
+                        kept.append(line)
                         continue
                     if r.get('id') in hit:
-                        dropped += 1
+                        n_desc_dropped += 1
                         continue
-                    kept_lines.append(line)
-            atomic_write(win['desc_path'], kept_lines)
-            report.append(f"windows: dropped {dropped} row(s) from {win['desc_path']} (backup: {bdesc})")
+                    kept.append(line)
+                    if isinstance(r, dict) and 'id' in r:
+                        valid += 1
+            new_desc_lines, desc_row_count = kept, valid
 
-        if win['ids_path'] and os.path.exists(win['ids_path']):
-            bids = backup(win['ids_path'], tag=tag)
-            ids = json.load(open(win['ids_path'], encoding='utf-8'))
-            new_ids = [wid for wid in ids if wid not in hit]
-            atomic_write(win['ids_path'], json.dumps(new_ids, ensure_ascii=False))
-            report.append(f"windows: dropped {len(ids) - len(new_ids)} id(s) from "
-                          f"{win['ids_path']} (backup: {bids})")
+        new_emb = None
+        emb_path = win.get('emb_path')
+        if orig_ids is not None and emb_path and os.path.exists(emb_path):
+            import numpy as np
+            backups[emb_path] = backup(emb_path, tag=tag)
+            arr = np.load(emb_path, mmap_mode='r')
+            if arr.shape[0] != len(orig_ids):
+                _abort(f"embeddings.npy ({arr.shape[0]} rows) and ids.json ({len(orig_ids)} ids) "
+                       f"were already out of lockstep before this run touched anything.")
+            keep_mask = [wid not in hit for wid in orig_ids]
+            new_emb = np.ascontiguousarray(arr[keep_mask])
+            del arr
+
+        # Validate the three stay in lockstep BEFORE anything live changes.
+        counts = {}
+        if new_ids is not None:
+            counts['ids.json'] = len(new_ids)
+        if new_emb is not None:
+            counts['embeddings.npy'] = int(new_emb.shape[0])
+        if desc_row_count is not None:
+            counts['descriptions.jsonl'] = desc_row_count
+        if len(set(counts.values())) > 1:
+            _abort(f"ids/embeddings/descriptions would not agree after the drop ({counts}).")
+
+        # Validated; swap all four window stores in together. A failure
+        # partway restores every backup rather than leaving some new and
+        # some old.
+        try:
+            if new_emb is not None:
+                import numpy as np
+                tmp_base = emb_path[:-len('.npy')] + f'.tmp-{os.getpid()}'
+                np.save(tmp_base, new_emb)  # np.save appends .npy itself
+                os.replace(tmp_base + '.npy', emb_path)
+            if new_desc_lines is not None:
+                atomic_write(win['desc_path'], new_desc_lines)
+            if new_ids is not None:
+                atomic_write(win['ids_path'], json.dumps(new_ids, ensure_ascii=False))
+            os.replace(win['wdb_path'], f"{win['wdb_path']}.bak-swap-{tag}")
+            os.replace(new_wdb_path, win['wdb_path'])
+        except BaseException:
+            _restore_backups(backups)
+            raise
+
+        # Post-write check against what is now actually on disk: belt and
+        # suspenders against a mistake in the counting above, not only in
+        # the swap. Still refuses (and restores) rather than finishing.
+        final = {}
+        if new_ids is not None:
+            final['ids.json'] = len(json.load(open(win['ids_path'], encoding='utf-8')))
+        if new_emb is not None:
+            import numpy as np
+            final['embeddings.npy'] = int(np.load(emb_path, mmap_mode='r').shape[0])
+        if desc_row_count is not None:
+            n = 0
+            with open(win['desc_path'], encoding='utf-8') as fh:
+                for line in fh:
+                    try:
+                        r = json.loads(line)
+                    except ValueError:
+                        continue
+                    if isinstance(r, dict) and 'id' in r:
+                        n += 1
+            final['descriptions.jsonl'] = n
+        if len(set(final.values())) > 1:
+            _restore_backups(backups)
+            raise LockstepError(
+                f"post-write check found ids/embeddings/descriptions out of lockstep "
+                f"({final}) after the swap. Every backup has been restored.")
+
+        report.append(f"windows: removed {len(hit)} window(s) from {win['wdb_path']} "
+                      f"(backup: {backups[win['wdb_path']]}, pre-swap copy "
+                      f"{win['wdb_path']}.bak-swap-{tag})")
+        if new_desc_lines is not None:
+            report.append(f"windows: dropped {n_desc_dropped} row(s) from {win['desc_path']} "
+                          f"(backup: {backups[win['desc_path']]})")
+        if new_ids is not None:
+            report.append(f"windows: dropped {len(orig_ids) - len(new_ids)} id(s) from "
+                          f"{win['ids_path']} (backup: {backups[win['ids_path']]})")
+        if new_emb is not None:
+            report.append(f"windows: dropped {len(orig_ids) - len(new_ids)} row(s) from "
+                          f"{emb_path} (backup: {backups[emb_path]})")
     else:
         report.append('windows: nothing to do')
 
@@ -483,8 +648,11 @@ def main():
         print('\n(dry run; pass --apply to write)')
         return
     print()
-    for line in apply_drop(plan):
-        print(line)
+    try:
+        for line in apply_drop(plan):
+            print(line)
+    except LockstepError as e:
+        sys.exit(f'REFUSED: {e}')
 
 
 if __name__ == '__main__':
