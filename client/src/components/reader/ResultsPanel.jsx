@@ -4,6 +4,8 @@ import { LoadingSpinner } from '../common';
 import { ResultsInsight } from '../assistant';
 import { displayRef } from './refId';
 import { LANGUAGE_NAMES as LANG_LABEL } from '../../utils/languageNames';
+import { getSessionValue, setSessionValue } from '../../utils/storage';
+import ScholarshipTab from './ScholarshipTab';
 
 /** Parse a response as JSON, failing with a message a reader can act on.
  *  While the server reloads, Apache answers API calls with an HTML error
@@ -78,6 +80,16 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   // selection, so it never carries over from a line that had it open.
   const [possibleOpen, setPossibleOpen] = useState(false);
   useEffect(() => { setPossibleOpen(false); }, [selection]);
+
+  // SCHOLARSHIP: a trial tab (commentators, articles and books on the
+  // selection), not yet shown to every reader. ?scholarship=1 switches it on
+  // and remembers that for the rest of the visit in sessionStorage, the same
+  // way the names grouping was trialled behind ?names=1 first.
+  const [scholarshipFlag] = useState(() => {
+    const fromUrl = new URLSearchParams(window.location.search).get('scholarship') === '1';
+    if (fromUrl) setSessionValue('scholarship_tab', '1');
+    return fromUrl || getSessionValue('scholarship_tab', '0') === '1';
+  });
   useEffect(() => {
     if (!selection || tab !== 'reuse') return;
     const picked = (units || []).slice(selection.startIdx, selection.endIdx + 1);
@@ -265,6 +277,9 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
     ['translation', focus === 'english' ? 'Original' : 'Translation',
      focus === 'english' ? 'The original text' : 'Translation'],
     ['reuse', 'Reuse', 'Reuse'],
+    ...(scholarshipFlag
+      ? [['scholarship', 'Scholarship', 'Commentators, articles and books on the selection']]
+      : []),
   ];
 
   return (
@@ -729,6 +744,13 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
               );
             })()}
           </>
+        )}
+
+        {scholarshipFlag && selection && tab === 'scholarship' && (
+          <ScholarshipTab work={work} language={language} selection={selection} units={units} />
+        )}
+        {scholarshipFlag && !selection && tab === 'scholarship' && (
+          <p className="text-sm text-gray-500">Select a line or a span to see the scholarship on it.</p>
         )}
       </div>
     </aside>
