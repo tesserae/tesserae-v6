@@ -9,6 +9,29 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Theme Search: confidence measured within the searched language, not the whole corpus
+- A Theme Search narrowed to one language (`languages=fa`, etc.) used to
+  report the SAME confidence numbers as the unfiltered, whole-corpus
+  search for the identical query text, because the language filter never
+  reached the statistics, only the results list: a Persian search for
+  "passionate love" returned Rumi, Rudaki, and Anvari addressing the
+  beloved and still reported "the corpus does not appear to contain
+  passages of this kind." Confidence is now measured against the searched
+  language's own rows. A third outcome, `pervasive`, reports when a theme
+  runs through much of one language's own corpus (results are good but
+  generic) instead of folding that into "nothing resembles the query." A
+  query of three words or fewer that doesn't score as a clear match now
+  also gets a line suggesting a full sentence instead. See
+  docs/DECISIONS.md, 2026-10-08. `backend/passage_index.py`, tests in
+  `tests/test_theme_confidence_classification.py`.
+
+### Theme Search page: the language-coverage line now names the languages this server actually serves
+- The line under the language chips named a fixed four languages (Latin,
+  Greek, English, Coptic) regardless of what the server actually
+  indexed, so a Hebrew, Persian, or Urdu reader was told their language
+  wasn't covered at all even once it was. It now reads the server's own
+  `/api/languages` list. `client/src/components/passages/ThemeSearchPage.jsx`.
+
 ### Cite popup opens toward the side with room
 - On cards whose Cite button sits near the left edge of the page (the
   Cross-Language results), the popup opened off-screen. It now opens to the

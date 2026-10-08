@@ -247,6 +247,63 @@ describe('the covered-works line under the language row', () => {
     expect(link.getAttribute('href')).toBe('/corpus?theme=1&language=la');
     expect(screen.queryByText(/Searches \d+ of \d+ works/)).toBeNull();
   });
+
+  /**
+   * The fixed sentence used to name a hard-coded four languages
+   * (['la', 'grc', 'en', 'cop']), which went stale the moment Hebrew,
+   * Persian and Urdu were indexed too (2026-10-08): it kept telling a
+   * Hebrew reader their language wasn't covered at all. It now reads
+   * whatever /api/languages says this server serves, so a server that
+   * serves seven names all seven, and treats only a language that server
+   * genuinely doesn't serve (Arabic, reached here the way a shared link
+   * would, since the chip row itself only offers served languages) as
+   * uncovered.
+   */
+  it('names every language this server serves, not a fixed four', async () => {
+    window.history.replaceState(null, '', '/theme-search?languages=ar');
+    global.fetch = vi.fn((url) => {
+      const u = String(url);
+      if (u.startsWith('/api/languages')) {
+        return Promise.resolve({ json: () => Promise.resolve({
+          languages: [
+            { code: 'la' }, { code: 'grc' }, { code: 'en' }, { code: 'cop' },
+            { code: 'he' }, { code: 'fa' }, { code: 'ur' },
+          ],
+        }) });
+      }
+      const textsMatch = u.match(/^\/api\/texts\?language=(\w+)/);
+      if (textsMatch) {
+        const lang = textsMatch[1];
+        const n = TOTALS[lang] || 0;
+        const texts = Array.from({ length: n }, (_, i) => (
+          { id: `${lang}${i}.tess`, author: 'Author', title: `Work ${i}` }
+        ));
+        return Promise.resolve({ json: () => Promise.resolve(texts) });
+      }
+      const worksMatch = u.match(/^\/api\/passages\/works\?language=(\w+)/);
+      if (worksMatch) {
+        const lang = worksMatch[1];
+        const n = COVERED[lang] || 0;
+        const works = Array.from({ length: n }, (_, i) => `${lang}${i}`);
+        return Promise.resolve({ json: () => Promise.resolve({ works }) });
+      }
+      if (u.startsWith('/api/passages/theme-search')) {
+        return Promise.resolve({ json: () => Promise.resolve(RESULT) });
+      }
+      return Promise.resolve({ json: () => Promise.resolve({}) });
+    });
+    render(<ThemeSearchPage />);
+    // Arabic isn't offered as a chip once the server's real language list
+    // loads (the picker only offers served languages), so it is reached the
+    // way a shared link reaches it: already selected, from the URL, before
+    // that list has loaded. The sentence names the four-language fallback
+    // at first and then settles on the real seven once /api/languages
+    // answers.
+    expect(await screen.findByText(
+      /Theme Search covers works in Latin, Greek, English, Coptic, Hebrew, Persian and Urdu;/
+    )).toBeTruthy();
+    expect(screen.queryByText(/Searches \d+ of \d+ works/)).toBeNull();
+  });
 });
 
 /**

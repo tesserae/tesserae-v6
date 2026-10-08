@@ -8,6 +8,70 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-08: Theme Search confidence measured within the searched language
+
+**Decision.** A Theme Search narrowed to one language now measures
+confidence (baseline, top, lift, head_lift, coherence) against that
+language's own rows, not the whole, seven-language index. Previously the
+whole confidence block was computed from the entire corpus regardless of
+the language filter: confirmed by requesting the identical query text
+under every single-language filter and the unfiltered default, which
+returned byte-identical confidence numbers every time, because the
+language filter reached the results list but never the statistics. A third
+outcome, `pervasive`, now sits alongside the two the band already
+reported (`low`, nothing resembles the query; `strong`/`moderate`, a
+specific match): when the searched language's own median score sits well
+above the whole corpus's median for the same query, and the
+within-language head_lift alone would have read `low` or `moderate`, the
+match is now reported as a theme that runs through much of that
+language's own literature, rather than conflated with an absent subject or
+presented as a narrow, specific one. A query of three words or fewer that
+does not reach a clear match now also carries a line saying a full
+sentence is answered better than a short phrase, since the index holds
+sentence-length descriptions and scores a bare word or two worse by
+design.
+
+**Why.** A Persian search for "passionate love" returned Rumi, Rudaki, and
+Anvari addressing the beloved, on topic by any reading of the results, and
+reported "the corpus does not appear to contain passages of this kind."
+Measured against a labeled set of 139 queries (18-20 per language across
+Persian, Urdu, Latin, Greek, English, Hebrew, and Coptic, plus an
+unfiltered group), split across pervasive themes (love in Persian and Urdu
+lyric, praise of God in Hebrew scripture, war in Latin and Greek epic),
+specific scenes (a lover waiting at the beloved's door, a demon tempting a
+monk, a messenger breaking news of disaster), and absent subjects
+(airplanes, a stock market crash, a smartphone), each checked against the
+description of its top results:
+
+| language | queries | existing rule, correct |
+|---|---|---|
+| Coptic | 17 | 52.9% |
+| English | 17 | 47.1% |
+| Hebrew | 17 | 52.9% |
+| Persian | 18 | 61.1% |
+| Greek | 17 | 64.7% |
+| Latin | 17 | 64.7% |
+| Urdu | 18 | 72.2% |
+| unfiltered | 18 | 83.3% |
+| **all** | **139** | **62.6%** |
+
+Every error was a false `low` on a result confirmed on topic by reading
+its description; no absent query was ever accepted (zero false
+positives). The error was not confined to Persian and Urdu: Latin and
+Greek, the languages the bands were originally fitted on, missed at
+close to the same rate, which argues the whole-corpus bands need a wider
+refit of their own, separate from the single-language fix made here and
+not attempted in this change. The new `pervasive` branch's own threshold
+(how far a language's median must sit above the whole corpus's before a
+weak head_lift reads as a common theme rather than an absent one) is
+reasoned from the existing baseline-noise margin at this embedding's
+scale, not fitted against a live measurement, because the per-language
+score distribution it needs is produced by the service being changed and
+was not available before the change shipped. Refit it with
+`evaluation/scripts/calibrate_confidence.py` once the fix has run live,
+against the same labeled queries, saved as
+`evaluation/probe_sets/theme_confidence_2026-10-08.json`.
+
 ## 2026-10-08: requests workflow, GitHub issues as the single store
 - Scholars never need a GitHub account. GitHub issues are nonetheless the
   single store of every request (feature, language, text, bug, result
