@@ -52,6 +52,55 @@ def test_degenerate_coherence_is_low():
     assert _confidence_level(0.05, 0.999) == 'low'
 
 
+# --- HEAD_WEAK/HEAD_STRONG refit, 2026-10-08 (fixed numbers, not relative to
+# the constants) -------------------------------------------------------------
+#
+# Refit against the production index (530,917 windows) and the 178-query
+# evaluation/probe_sets/theme_confidence_2026-10-08.json (30 queries each for
+# Latin, Greek, and English, up from 17), plus the original 57-query
+# evaluation/probe_sets/combined_confidence.json kept as a regression check.
+# See backend/passage_index.py's HEAD_WEAK comment and docs/DECISIONS.md,
+# 2026-10-08, for the sweep and the measured per-language table. These pin
+# the exact plateau boundaries so a later change cannot silently widen or
+# narrow it without a test failure pointing here.
+
+def test_head_weak_is_the_refit_value():
+    assert HEAD_WEAK == 0.0738
+
+
+def test_head_strong_unchanged_by_the_refit():
+    assert HEAD_STRONG == 0.1006
+
+
+def test_just_above_the_absent_ceiling_is_not_low():
+    # "a surgeon administers ether before an operation" (absent, unfiltered),
+    # the highest-scoring absent query across both probe sets, measured at
+    # head_lift 0.073282. HEAD_WEAK must clear it.
+    assert _confidence_level(0.073282, 0.90) == 'low'
+    assert _confidence_level(0.0738, 0.90) == 'moderate'
+
+
+def test_the_three_rescued_latin_queries_are_now_moderate():
+    # "a banquet with speeches, music, and entertainment" (0.074292), "an old
+    # nurse recognizes her former charge by a scar" (0.074418), and "a lover
+    # complains of a mistress's cruelty" (0.074544): all 'low' under the prior
+    # HEAD_WEAK of 0.0750, all 'moderate' under the refit.
+    for head_lift in (0.074292, 0.074418, 0.074544):
+        assert _confidence_level(head_lift, 0.93) == 'moderate'
+
+
+def test_the_rescued_english_query_is_now_moderate():
+    # "a garden described in loving detail", 0.074782.
+    assert _confidence_level(0.074782, 0.93) == 'moderate'
+
+
+def test_head_strong_still_clears_every_absent_query():
+    # HEAD_STRONG was left unchanged because 0.1006 still sits well above the
+    # highest absent head_lift measured anywhere in either probe set
+    # (0.073282), so no absent query can reach 'strong'.
+    assert _confidence_level(0.073282, 0.90) != 'strong'
+
+
 # --- _is_pervasive: the promote-only check ----------------------------------
 
 def test_pervasive_true_when_language_baseline_well_above_global_and_level_low():

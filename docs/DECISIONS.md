@@ -8,6 +8,110 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-08: Theme Search confidence: HEAD_WEAK refit for Latin, Greek, and English
+
+**Decision.** `HEAD_WEAK`, the floor above which a Theme Search result
+counts as a match at all, moved from 0.0750 to 0.0738. `HEAD_STRONG`
+(0.1006) and the coherence degeneracy threshold (0.995) are unchanged.
+`FITTED_AT_WINDOWS`, the index size the live bands are fitted to, is now
+530,917 (the production size measured for this refit), replacing the
+603,594 recorded for the superseded combined-score design.
+
+**Why.** The pervasive-theme fix above (same day, logged just below)
+promotes a single-language search when that language's own median score
+sits far above the whole corpus's, but it only ever promotes; it cannot
+help a specific, non-pervasive scene whose language-median is not
+elevated. On the 139-query set behind that fix, Latin and Greek stayed at
+64.7% and English at 47.1%, and every remaining miss was a false `low` on
+a result confirmed on topic by reading its description, because none of
+those languages' queries are pervasive by this corpus's own statistics
+(Latin's and Greek's measured excess over the whole-corpus median tops
+out at 0.0046 and 0.0076 against the 0.005 promotion floor, mostly
+negative; English peaks at -0.0003). The underlying number the fix would
+need to move, `head_lift`, had never itself been refit against the
+current, roughly 531,000-window index; it was last fitted 2026-08-25 on
+57 queries at 603,594 windows.
+
+The labeled set was extended first, keeping every existing query, to
+carry 30 queries each for Latin, Greek, and English (was 17), split
+across pervasive themes, specific scenes, and absent subjects, each
+checked against its own top results' descriptions read against the
+production index: `evaluation/probe_sets/theme_confidence_2026-10-08.json`,
+now 178 queries. The original 57-query
+`evaluation/probe_sets/combined_confidence.json` (one word to a full
+sentence, unfiltered) was kept untouched as a regression check.
+
+`evaluation/scripts/calibrate_confidence.py` swept `HEAD_WEAK` from
+0.0400 to 0.0800 against both sets at once, read-only against the
+production index. `HEAD_STRONG` does not affect this metric: it only
+separates `moderate` from `strong`, never `low` from the rest, so sweeping
+it was not useful once that was confirmed. The absolute floor any global
+value must clear is set by the single highest-scoring ABSENT query across
+both sets and every language at once, because `head_lift` is computed
+from the whole corpus for a given query text regardless of which language
+the search is narrowed to (see the PERVASIVE THEMES design, logged
+below): "a surgeon administers ether before an operation" (unfiltered),
+head_lift 0.073282. The only flat, zero-false-positive plateau the sweep
+found sits immediately above that, `(0.073282, 0.074292]`, bounded above
+by the lowest of three Latin queries that would otherwise tip back to
+`low`. 0.0738 sits in the middle of it.
+
+| probe set | queries | old (0.0750) | new (0.0738) |
+|---|---|---|---|
+| Latin | 30 | 56.7% | 66.7% |
+| Greek | 30 | 63.3% | 63.3% |
+| English | 30 | 43.3% | 46.7% |
+| Persian | 18 | 94.4% | 94.4% |
+| Urdu | 18 | 88.9% | 88.9% |
+| Hebrew | 17 | 100.0% | 100.0% |
+| Coptic | 17 | 94.1% | 94.1% |
+| unfiltered | 18 | 83.3% | 83.3% |
+| extended set, all languages | 178 | 73.0% | 75.3% |
+| original 57-query set (regression check) | 57 | 66.7% | 68.4% |
+
+(Persian, Urdu, Hebrew, Coptic, and unfiltered figures are the already-
+shipped pervasive-promoted accuracy; the three later refits, Latin,
+Greek, English, use it too, since nothing about this change touches that
+mechanism.) Latin gained three queries ("a banquet with speeches, music,
+and entertainment," "an old nurse recognizes her former charge by a
+scar," "a lover complains of a mistress's cruelty," head_lift 0.074292 to
+0.074544) and English gained one ("a garden described in loving detail,"
+0.074782). Nothing fell on either probe set: the change can only move a
+query out of `low`, never into it, and the ceiling it respects is the
+highest-scoring absent query across both sets at once, so a regression on
+either set was not possible by construction. Zero absent queries were
+promoted to `moderate` or `strong` anywhere in either set, at either
+value.
+
+Greek did not move. Its present, non-pervasive queries' `head_lift` jumps
+directly from 0.0675 to 0.0762 in this probe set, straddling the entire
+plateau, and its own highest-scoring absent query ("a satellite orbits
+the earth," 0.070457) sits inside that gap, so no value between 0.0705
+and 0.0762 helps Greek without first crossing that query into a false
+positive, and no value below 0.0705 is reachable at all without crossing
+the global 0.073282 ceiling first. This is a property of this embedding
+and this probe set, not of Greek as a language: a probe that happened to
+include a Greek scene scoring between 0.0705 and 0.0762 would be rescued
+the same way Latin's and English's were.
+
+**Single global value, not per-language bands.** Per-language `HEAD_WEAK`
+values were measured against each language's own floor (lowest present,
+non-short-query `head_lift`) and ceiling (highest absent `head_lift`) and
+rejected: Latin's and Greek's ceilings (both 0.070457, "a satellite
+orbits the earth") and English's (0.072210, "a political election
+campaign with televised debates") are each already inside the single
+global plateau or no lower than the point the global value already
+reaches, so a language-specific override would have bought nothing beyond
+what 0.0738 already gives Latin and English, and nothing at all for
+Greek, at the cost of three numbers to maintain instead of one. The
+single global value was kept.
+
+Refit the same way after a corpus-wide re-describe or a size change past
+`FITTED_TOLERANCE` (15%), with `evaluation/scripts/calibrate_confidence.py`
+against the 178-query set (extend it further first if a new error class
+shows up) and the 57-query regression set together, and update
+`FITTED_AT_WINDOWS` alongside the two constants.
+
 ## 2026-10-08: Theme Search confidence: a single-language search promotes, never recomputes
 
 **Decision.** A Theme Search narrowed to one language now gets a third

@@ -137,8 +137,25 @@ STRONG_COMBINED = 1.83
 # live index that no longer matches gets told so in its own output rather than
 # reporting a band it has not earned. Refit with
 # evaluation/scripts/calibrate_confidence.py and update both numbers together.
-FITTED_AT_WINDOWS = 603594
+# UPDATED 2026-10-08 to 530,917, the production index size at the HEAD_WEAK
+# refit above (the live bands now in effect; MODERATE_COMBINED/STRONG_COMBINED
+# just above are not used by CONF_MODE == 'head', the shipped default, and
+# are left as a dormant record of the earlier combined-score design). This
+# tracker is shared across whichever band is active, so it now marks the
+# fit this file actually uses.
+FITTED_AT_WINDOWS = 530917
 FITTED_TOLERANCE = 0.15     # beyond 15% drift, stop vouching for the band
+# EVERYTHING BELOW, to the next blank line after "update both constants
+# together", is history about MODERATE_COMBINED/STRONG_COMBINED and the
+# window counts of that now-dormant design (603,594 growing to 610,670 then
+# 617,137). None of those counts describe the live index any more, and
+# FITTED_AT_WINDOWS above has already moved past them to the 2026-10-08
+# HEAD_WEAK refit's own count, 530,917 -- lower than all three despite the
+# word "growth" throughout this paragraph, because corpus consolidation work
+# between the two fits (duplicate-text and dropped-window cleanup) removed
+# more than later imports added. Kept for the reasoning it records (count
+# drift is not the only thing that invalidates a fit), not for its numbers.
+#
 # Growth since the fit, recorded rather than refitted: the Latin import batches
 # and the dual-phrasing pass brought the index to 610,670, and the vernacular
 # pilot (Commedia, Roland, Nibelungenlied) to 617,137 on 2026-09-01. That is
@@ -1045,8 +1062,68 @@ def _language_rows(languages):
 # on sentences alone and was unusable on keywords, where it rated "airplanes"
 # above "plague".
 DEGENERATE_COHERENCE = 0.995   # no structure at all: nothing resembles the query
-HEAD_WEAK = 0.0750             # below this, the top ten are not a group
-HEAD_STRONG = 0.1006           # above every absent subject in either probe set
+# HEAD_WEAK REFIT 2026-10-08, against the production index (530,917 windows)
+# and a 178-query probe set: evaluation/probe_sets/theme_confidence_2026-10-08.json,
+# extended that day to carry 30 Latin, 30 Greek, and 30 English queries (was
+# 17 each), plus the original 57-query evaluation/probe_sets/combined_confidence.json
+# kept as a regression check. The 139-query set behind the pervasive-theme fix
+# above had already shown Latin and Greek stuck at 64.7% and English at 47.1%,
+# every miss a false 'low' on an on-topic, non-pervasive scene (a specific
+# passage, not a theme the language is saturated with, so the pervasive
+# promotion below never applies to it: measured excess_baseline for these
+# queries runs slightly NEGATIVE to +0.0046, nowhere near PERVASIVE_EXCESS_BASELINE).
+#
+# evaluation/scripts/calibrate_confidence.py swept HEAD_WEAK from 0.0400 to
+# 0.0800 (HEAD_STRONG does not affect this: it only separates 'moderate' from
+# 'strong', never 'low' from the rest). The absolute ceiling is set by the
+# highest-scoring ABSENT query across every probe set and every language at
+# once -- "a surgeon administers ether before an operation" (unfiltered),
+# head_lift 0.073282 -- because this statistic never depends on which
+# language a search is narrowed to (see the PERVASIVE THEMES comment below):
+# the same number is computed from the whole corpus for a given query text
+# regardless of the `languages` filter, so one query anywhere in the combined
+# set can block a lower threshold everywhere. A single global value stayed
+# the stated preference (ahead of a per-language override) because one was
+# found that clears the constraint: the ONLY flat, zero-false-positive
+# plateau in the swept range is (0.073282, 0.074292], bounded above by three
+# Latin queries ("a banquet with speeches, music, and entertainment"
+# 0.074292, "an old nurse recognizes her former charge by a scar" 0.074418,
+# "a lover complains of a mistress's cruelty" 0.074544) that would otherwise
+# tip back to 'low'. 0.0738 sits in the middle of that plateau:
+#
+#     language        old (0.0750)   new (0.0738)   changed by
+#     Latin (30 q.)        56.7%          66.7%     +3 (the three above)
+#     Greek (30 q.)        63.3%          63.3%     unchanged (see below)
+#     English (30 q.)      43.3%          46.7%     +1 ("a garden described
+#                                                    in loving detail", 0.074782)
+#     Persian/Urdu/Hebrew/Coptic/unfiltered         unchanged on this probe
+#                                                    set (nothing of theirs
+#                                                    sits in the plateau)
+#     extended set, 178 q. (all languages)  73.0%     75.3%
+#     original 57 q. (combined_confidence.json, unfiltered, kept as a
+#       regression check, not touched by this fix's probe design)  66.7%  68.4%
+#
+# Both figures rose and nothing fell: the change can only ever move a query
+# OUT of 'low', never into it, and the 0.073282 ceiling it respects is the
+# highest-scoring absent query across BOTH sets at once, so no regression on
+# either set was possible by construction. Full table, including per-language
+# rows for Persian, Urdu, Hebrew, and Coptic: docs/DECISIONS.md, 2026-10-08.
+#
+# Greek did not move: its present, non-pervasive queries' head_lift jumps
+# straight from 0.0675 to 0.0762, straddling the entire plateau, so no
+# Greek query this probe set contains falls where a lower HEAD_WEAK could
+# reach it without crossing 0.073282 and promoting "a satellite orbits the
+# earth" (Greek's own highest absent score, 0.070457). That is a property of
+# THIS embedding and THIS probe set, not of Greek as a language: a probe
+# that happened to include a Greek scene scoring between 0.0705 and 0.0762
+# would be rescued by the same fix. Per-language bands were measured too
+# (evaluation/scripts/calibrate_confidence.py against each language's own
+# floor and ceiling) and rejected: Greek's floor-to-ceiling gap means no
+# per-language value helps it either, so a language-specific override would
+# have bought nothing beyond what the single global value already gives
+# Latin and English, at the cost of three numbers to maintain instead of one.
+HEAD_WEAK = 0.0738              # below this, the top ten are not a group
+HEAD_STRONG = 0.1006           # above every absent subject in either probe set (unchanged: still clears the 0.073282 ceiling by a wide margin)
 
 # PERVASIVE THEMES, FITTED ON LATIN AND GREEK, MISREAD IN A LYRIC CORPUS
 # (2026-10-08). head_lift and coherence above were measured against the whole,

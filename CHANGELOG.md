@@ -38,6 +38,18 @@ behind each, are in docs/DECISIONS.md.
   is printed, and the tool exits non-zero so this is never silently
   missed. Tests for both paths added to `tests/test_drop_lines_from_work.py`.
 
+### Theme Search: confidence bands refit for Latin, Greek, and English
+- `HEAD_WEAK` (the floor for a Theme Search result to count as a match)
+  moved from 0.0750 to 0.0738, refit against the production index
+  (530,917 windows) and an extended 178-query labeled set (30 queries
+  each for Latin, Greek, and English, was 17), with the original 57-query
+  set kept as a regression check. Latin rose from 56.7% to 66.7% and
+  English from 43.3% to 46.7%; Greek is unchanged (63.3%) because no Greek
+  query in this set sits in the safe range. `HEAD_STRONG` and
+  `FITTED_AT_WINDOWS` (now 530,917) were also reviewed; only
+  `FITTED_AT_WINDOWS` changed. Zero absent queries were promoted on either
+  probe set at either value. See `docs/DECISIONS.md`.
+
 ### Records: Persian and Urdu data operations of 2026-10-08
 - `docs/DATA_OPERATIONS.md` records the Khayyam and Ghalib removals, the
   Similar Passages and Theme Search outage and its repair, the cache and
