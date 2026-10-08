@@ -36,6 +36,9 @@ export default function CiteButton({ finding, label = 'Cite', className = '' }) 
   const [style, setStyle] = useState('reproducible');
   const [copied, setCopied] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+  // Open the popup toward whichever side has room: a Cite button near the
+  // left edge of the page (the cross-language cards) opened it off-screen.
+  const [alignLeft, setAlignLeft] = useState(false);
   const boxRef = useRef(null);
   const btnRef = useRef(null);
 
@@ -73,7 +76,11 @@ export default function CiteButton({ finding, label = 'Cite', className = '' }) 
       <button
         ref={btnRef}
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          const r = btnRef.current?.getBoundingClientRect();
+          if (r) setAlignLeft(r.right < Math.min(352, window.innerWidth * 0.85) + 16);
+          setOpen((v) => !v);
+        }}
         aria-expanded={open}
         aria-haspopup="dialog"
         className="text-xs px-2 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
@@ -85,8 +92,8 @@ export default function CiteButton({ finding, label = 'Cite', className = '' }) 
           ref={boxRef}
           role="dialog"
           aria-label="Cite this finding"
-          className="absolute right-0 z-50 mt-1 w-[22rem] max-w-[85vw] rounded border border-gray-300
-                     bg-white shadow-lg p-3 text-left"
+          className={`absolute ${alignLeft ? 'left-0' : 'right-0'} z-50 mt-1 w-[22rem] max-w-[85vw] rounded border border-gray-300
+                     bg-white shadow-lg p-3 text-left`}
         >
           {/* One citation of the project covers a whole publication; the
               citation built below is for a reader who wants to point to
