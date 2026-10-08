@@ -1,13 +1,14 @@
 import Pagination from '../common/Pagination';
 import { usePagination } from '../../hooks/usePagination';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { LoadingSpinner, SearchableAuthorSelect, SearchableSelect } from '../common';
+import { LoadingSpinner, SearchableAuthorSelect, SearchableSelect, InfoBadge } from '../common';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { createSearchId, requestSearchCancellation } from '../../utils/api';
 import { dirFor } from '../../utils/rtl';
 import { exportRowsToPDF } from '../../utils/exportResults';
 import { ResultsInsight } from '../assistant';
+import { useCorpusTextMap, resolveDisplayCitation } from '../../utils/textNames';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -99,10 +100,16 @@ export default function CrossLingualSearch() {
   const currentPair = pairs.find(p => p.key === langPair) || pairs[0];
   const srcLang = LANG_LABELS[currentPair.source];
   const tgtLang = LANG_LABELS[currentPair.target];
+  // Author/title lookup for a raw locus the fixed-author naming below does
+  // not cover (result card tidy, 2026-10-08): the source side has never
+  // carried a name, and the target side only does once a search has run.
+  const srcCorpusMap = useCorpusTextMap(currentPair.source);
+  const tgtCorpusMap = useCorpusTextMap(currentPair.target);
 
   // Persian, Urdu and Arabic pairs match on a different footing from the
   // classical ones, and the page used to describe every pair as SPhilBERTa
-  // plus a translation dictionary. Said honestly per pair (NC, 2026-09-07).
+  // plus a translation dictionary, which was not true for every pair.
+  // Describe each pair's own channels instead.
   const sharedScript = ['fa', 'ur', 'ar'].includes(currentPair.source)
     && ['fa', 'ur', 'ar'].includes(currentPair.target);
   const channelNote = sharedScript
@@ -118,7 +125,7 @@ export default function CrossLingualSearch() {
   // "Hafez, Diwan" for the chosen text, so a result reads "Hafez, Diwan 1626"
   // rather than a bare line number. The Persian, Urdu and Arabic reference tags
   // carry no author abbreviation, unlike "verg. aen. 1.1", so the locus alone
-  // named nothing (NC, 2026-09-07).
+  // named nothing.
   const textName = (lang, authorKey, workKey) => {
     const author = (hierarchy[lang] || []).find(a => a.author_key === authorKey);
     const work = author?.works?.find(w => w.work_key === workKey);
@@ -707,36 +714,73 @@ export default function CrossLingualSearch() {
                   <span className="text-xs text-gray-500 min-w-[2.5rem] text-right shrink-0 leading-none">
                     {pagination.startIndex + i + 1}.
                   </span>
-                  <span className="text-sm font-medium text-gray-500">
+                  {/* Every badge carries its own explanation and colour marks one
+                      category consistently (result card tidy, 2026-10-08): yellow/
+                      rose for the poem's form, blue for evidence, gray otherwise. */}
+                  <InfoBadge
+                    className="bg-white text-gray-600 px-0"
+                    heading="Score"
+                    explanation="The combined strength of this cross-lingual match. A higher score is a stronger candidate for a real connection, but it is a ranking aid, not a verdict -- read the two lines."
+                  >
                     Score: {(result.overall_score || result.score)?.toFixed(3)}
-                  </span>
+                  </InfoBadge>
+                  {result.poetics?.radif && (
+                    <InfoBadge
+                      className="bg-yellow-100 text-yellow-800"
+                      heading="Refrain (radif)"
+                      explanation="The two lines end on the same refrain: a word or short phrase repeated at the end of many lines in both poems. Sharing it is strong evidence that one poem answers or was written in the other's form."
+                    >
+                      Refrain: <span dir="rtl">{result.poetics.radif}</span>
+                    </InfoBadge>
+                  )}
+                  {result.poetics?.qafia && (
+                    <InfoBadge
+                      className="bg-rose-100 text-rose-800"
+                      heading="Rhyme (qafia)"
+                      explanation="The two poems share the same rhyme (qafia), the syllable or word right before the refrain that every line rhymes on."
+                    >
+                      Rhyme: <span dir="rtl">-{result.poetics.qafia}</span>
+                    </InfoBadge>
+                  )}
                   {result.features?.semantic_score > 0 && (
-                    <span className="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded">
+                    <InfoBadge
+                      className="bg-amber-100 text-amber-700"
+                      heading="Semantic similarity"
+                      explanation="How closely an AI language model judges the two lines' meaning to match, independent of shared vocabulary. The percentage is the model's similarity score."
+                    >
                       Semantic: {(result.features.semantic_score * 100).toFixed(0)}%
-                    </span>
+                    </InfoBadge>
                   )}
                   {result.features?.n_channels === 2 && (
-                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                    <InfoBadge
+                      className="bg-blue-100 text-blue-700"
+                      heading="Two methods agree"
+                      explanation={channelNote}
+                    >
                       2-channel
-                    </span>
-                  )}
-                  {result.poetics?.radif && (
-                    <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded"
-                          title="The two poems share refrain and rhyme: an answer poem, or one written in the other's form">
-                      Refrain: <span dir="rtl">{result.poetics.radif}</span>
-                      {result.poetics.qafia ? <> &middot; rhyme <span dir="rtl">-{result.poetics.qafia}</span></> : null}
-                    </span>
+                    </InfoBadge>
                   )}
                   {result.route && (
-                    <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                    <InfoBadge
+                      className="bg-gray-100 text-gray-600"
+                      heading={result.route === 'septuagint' ? 'Via Septuagint' : 'Direct'}
+                      explanation={result.route === 'septuagint'
+                        ? 'This match runs through the Greek Septuagint translation of the Hebrew Bible rather than directly between the two source languages.'
+                        : 'This match runs directly between the two languages, with no intermediate translation.'}
+                    >
                       {result.route === 'septuagint' ? 'Via Septuagint' : 'Direct'}
-                    </span>
+                    </InfoBadge>
                   )}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <div className="text-xs text-gray-500 mb-1">Source</div>
-                    <div className="font-medium text-gray-900">{result.source?.ref || result.source_locus}</div>
+                    <div className="font-medium text-gray-900">
+                      {(() => {
+                        const raw = result.source?.ref || result.source_locus;
+                        return resolveDisplayCitation(raw, raw, srcCorpusMap).text;
+                      })()}
+                    </div>
                     {(result.source?.hebrew_ref || result.target?.hebrew_ref) && (
                       <div className="text-xs text-gray-600 mt-0.5">
                         Hebrew: {result.source?.hebrew_ref || result.target?.hebrew_ref}
@@ -753,7 +797,12 @@ export default function CrossLingualSearch() {
                   </div>
                   <div>
                     <div className="text-xs text-gray-500 mb-1">Target</div>
-                    <div className="font-medium text-gray-900">{withName(resultNames.tgt, result.target?.ref || result.target_locus)}</div>
+                    <div className="font-medium text-gray-900">
+                      {(() => {
+                        const raw = result.target?.ref || result.target_locus;
+                        return resolveDisplayCitation(withName(resultNames.tgt, raw), raw, tgtCorpusMap).text;
+                      })()}
+                    </div>
                     {result.target?.tokens && result.target?.highlight_indices?.length > 0 ? (
                       <div className="text-gray-700 mt-1" dir={dirFor(currentPair.target)} dangerouslySetInnerHTML={{ __html: highlightTokens(result.target.tokens, result.target.highlight_indices) }} />
                     ) : (

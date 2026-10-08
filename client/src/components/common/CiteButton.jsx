@@ -116,6 +116,15 @@ export default function CiteButton({ finding, label = 'Cite', className = '' }) 
               </span>
             )}
           </div>
+          {/* The display citation above is a name ("Hafez, Diwan 5097"); the
+              id Tesserae actually stores it under stays available here, the
+              same way a DOI or a shelf number rides along with a readable
+              title (result card tidy, 2026-10-08). */}
+          {finding.siteId && (
+            <p className="text-[11px] text-gray-500 mt-2 pt-1.5 border-t border-gray-100">
+              Site ID: {finding.siteId}
+            </p>
+          )}
         </div>
       )}
     </span>

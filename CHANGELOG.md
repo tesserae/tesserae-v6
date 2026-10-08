@@ -9,6 +9,28 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Result card tidy: badges, explanations, citations
+- Every badge on a pair-search result card (and the matching ones on the
+  cross-lingual search page) now opens a real popover on hover, keyboard
+  focus, or tap -- `client/src/components/common/InfoBadge.jsx` -- instead
+  of a native `title` tooltip, which showed nothing for a second or two and
+  gave no sign an explanation existed. Each badge carries a small info mark
+  so the explanation is visible before anyone hovers.
+- Badge colour now marks one of three categories consistently: yellow/
+  rose/purple for the poem's form (refrain, rhyme, meter), gray for how
+  common the shared wording or form is, blue for the evidence that found
+  the match (channels, theme lift). A legend line above the results says
+  so. The channel-count badge ("2 channels") is gone; one blue badge names
+  the channels ("form + sound"). "Matches:" is omitted when the matched
+  words are exactly the refrain words a badge already shows.
+- Citations resolve "Author, Work reference" for every language, not only
+  Latin, Greek, and English: `client/src/utils/textNames.js` now falls
+  back to the corpus list (`/api/texts?language=<lang>`) for Persian, Urdu,
+  or any other language without a static abbreviation table, the same
+  author/title record the corpus browser and the Reader read from. The raw
+  site id stays available as the Cite popup's last line and the refrain-
+  lines popover names each work once with its lines collapsed into ranges.
+
 ### Documentary texts, stage 3b-3: restored-word exclusion, a stock-formula filter, and a document Reader view
 - `/api/line-search` (documents/both): each document hit now carries
   `matched_restored` (every matched token is one the source marked
