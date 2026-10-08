@@ -9,6 +9,13 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Suggest a change: visible in the header, and the in-context links marked
+- An outlined "Suggest a change" button with a pencil icon sits in the
+  header beside Sign In on every page (wider screens; the footer link
+  remains for phones). "Suggest a correction" in the Reader's selection bar
+  and "Report a problem with this result" in the Cite popup are shown as
+  red links with the same icon, where they were plain gray text.
+
 ### A per-verse Ghalib link to Frances W. Pritchett's commentary in the Translation tab
 - Her site ("A Desertful of Roses") states no licence. Her English cannot
   be copied into the site, so the Translation tab links to her own page for

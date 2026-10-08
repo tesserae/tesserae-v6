@@ -287,6 +287,17 @@ const Header = ({ user, setUser, onLogoClick }) => {
             </div>
           </button>
           <div className="flex items-center gap-2">
+            {/* Suggest a change: visible on every page, outlined so it reads as
+                a control without competing with the page (the footer link
+                alone went unseen). Opens the request dialog held in App. */}
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent('tesserae:open-suggest'))}
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 border border-white/70 text-white rounded text-sm hover:bg-white/10"
+            >
+              <svg aria-hidden="true" viewBox="0 0 16 16" width="12" height="12" fill="none" className="shrink-0"><path d="M11 2.5l2.5 2.5L6 12.5H3.5V10L11 2.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg>
+              Suggest a change
+            </button>
             {user ? (
               <div className="relative" ref={dropdownRef}>
                 <button
