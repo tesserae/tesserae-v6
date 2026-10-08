@@ -143,3 +143,38 @@ def test_content_tools_clean_malformed_refs(monkeypatch):
     gp = M._t_get_passage({'work': 'sallust.catilina', 'ref_start': 'sal. Cat. 58.15'})
     assert gp['lines'] == [{'ref': 'sal. Cat. 58.15', 'text': 'Sed ubi ...'}]
     assert M._locs([{'ref': 'pl. poen.  12', 'text': 't'}]) == [{'ref': 'pl. poen. 12', 'text': 't'}]
+
+
+def test_scholarship_tools_hidden_and_refused_when_flag_is_unset(monkeypatch):
+    monkeypatch.delenv("TESSERAE_SCHOLARSHIP_TOOLS", raising=False)
+    r = M._handle({"jsonrpc": "2.0", "id": 10, "method": "tools/list"})
+    names = {t["name"] for t in r["result"]["tools"]}
+    assert "find_scholarship" not in names and "get_commentary" not in names
+
+    r2 = M._handle({"jsonrpc": "2.0", "id": 11, "method": "tools/call",
+                    "params": {"name": "find_scholarship",
+                               "arguments": {"work": "vergil.aeneid", "ref_start": "1.1"}}})
+    assert r2["error"]["code"] == -32602
+
+    r3 = M._handle({"jsonrpc": "2.0", "id": 12, "method": "tools/call",
+                    "params": {"name": "get_commentary",
+                               "arguments": {"work": "vergil.aeneid", "ref_start": "1.1"}}})
+    assert r3["error"]["code"] == -32602
+
+
+def test_scholarship_tools_listed_and_callable_when_flag_is_set(monkeypatch):
+    monkeypatch.setenv("TESSERAE_SCHOLARSHIP_TOOLS", "1")
+    r = M._handle({"jsonrpc": "2.0", "id": 13, "method": "tools/list"})
+    names = {t["name"] for t in r["result"]["tools"]}
+    assert {"find_scholarship", "get_commentary"} <= names
+
+    monkeypatch.setattr(M, "_get", lambda path, params: {"results": []})
+    r2 = M._handle({"jsonrpc": "2.0", "id": 14, "method": "tools/call",
+                    "params": {"name": "find_scholarship",
+                               "arguments": {"work": "vergil.aeneid", "ref_start": "1.1"}}})
+    assert r2["result"]["isError"] is False
+
+    r3 = M._handle({"jsonrpc": "2.0", "id": 15, "method": "tools/call",
+                    "params": {"name": "get_commentary",
+                               "arguments": {"work": "vergil.aeneid", "ref_start": "1.1"}}})
+    assert r3["result"]["isError"] is False

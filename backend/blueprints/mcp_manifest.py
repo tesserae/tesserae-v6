@@ -26,27 +26,26 @@ Keys are Flask rule strings exactly as they appear in app.url_map (e.g.
 
 MANIFEST = {
     # -- Covered by a connector tool -------------------------------------------------
-    # /api/scholarship and /api/scholarship/commentary are placeholder
-    # site_only entries: this PR adds the routes with no connector tool yet.
-    # find_scholarship and get_commentary are a separate PR, behind
-    # TESSERAE_SCHOLARSHIP_TOOLS=1; that PR changes these two entries to
-    # {'tools': [...]}. /sources and /translate are genuinely site_only and
-    # stay that way.
+    # The backend PR (adding /api/scholarship) lands these same two routes as
+    # placeholder site_only entries, since it does not touch this file's
+    # tools. This PR is what makes the tools real: find_scholarship and
+    # get_commentary are defined in mcp_http.py TOOLS unconditionally (so
+    # this manifest and the parity tests stay consistent either way) but
+    # hidden from tools/list and refused by tools/call unless
+    # TESSERAE_SCHOLARSHIP_TOOLS=1 is set; see _visible_tools() there.
     '/api/scholarship': {
-        'site_only': True,
-        'reason': 'No connector tool yet; find_scholarship is a separate PR behind TESSERAE_SCHOLARSHIP_TOOLS=1.',
+        'tools': ['find_scholarship'],
     },
     '/api/scholarship/commentary': {
-        'site_only': True,
-        'reason': 'No connector tool yet; get_commentary is a separate PR behind TESSERAE_SCHOLARSHIP_TOOLS=1.',
+        'tools': ['get_commentary'],
     },
     '/api/scholarship/sources': {
         'site_only': True,
-        'reason': 'Credits list for the Sources page (every commentator, edition, licence); the notes themselves would come through get_commentary.',
+        'reason': 'Credits list for the Sources page (every commentator, edition, licence); the notes themselves come through get_commentary.',
     },
     '/api/scholarship/translate': {
         'site_only': True,
-        'reason': "A machine translation of one commentary note for the Reader's tab; an agent would read the Latin from get_commentary.",
+        'reason': "A machine translation of one commentary note for the Reader's tab; an agent reads the Latin from get_commentary.",
     },
     '/api/languages': {
         'tools': ['get_languages'],

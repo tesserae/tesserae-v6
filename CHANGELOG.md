@@ -9,6 +9,23 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Connector: find_scholarship and get_commentary, behind TESSERAE_SCHOLARSHIP_TOOLS=1
+- Two new MCP tools in `backend/blueprints/mcp_http.py`: `find_scholarship`
+  (articles, chapters and books that cite a passage or a pair of passages,
+  via the backend PR's `/api/scholarship`) and `get_commentary` (the
+  public-domain commentators' notes at a span, via
+  `/api/scholarship/commentary`). Both are defined in `TOOLS` unconditionally,
+  so the connector-parity manifest and its tests stay internally consistent
+  either way, but are hidden from `tools/list` and refused by `tools/call`
+  ("Unknown tool") unless the environment carries
+  `TESSERAE_SCHOLARSHIP_TOOLS=1`, checked per request. `backend/blueprints/
+  mcp_manifest.py` gained the four `/api/scholarship*` route entries
+  (two tool-covered, two site-only: the Sources credits list and the
+  on-demand note translation, neither useful to an agent). No other tool's
+  behaviour changed. Two new tests cover both flag states directly: both
+  tools absent from `tools/list` and refused by `tools/call` with the
+  flag unset, both listed and callable with it set to `1`.
+
 ### Documentary texts, stage 2: dedup, restoration tokens, formula candidates, lemmatizer gaps, places crosswalk, index layout (no site change)
 - `scripts/documents/dedupe_sources.py` merges the 10,238 Trismegistos ids
   shared between EDH and EDR into one record each (recorded per-field rule:
