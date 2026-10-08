@@ -67,6 +67,50 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-08 Persian and Urdu editorial prose removed, an outage repaired, a translation and reuse tables added
+- Khayyam (about 11:36): 142 lines removed from `khayyam.diwan` (refs .713
+  to .854), a signed 1934 editor's introduction to a Khayyam edition that
+  had been imported inside the poems. Removed with
+  `scripts/corpus/drop_lines_from_work.py` (#690) from the text, the Persian
+  index, the line vectors and 37 passage windows. The remaining lines keep
+  their references, so the gap shows where the essay stood.
+- Outage, about 11:50 to 12:35. The removal tool dropped the 37 windows from
+  `ids.json` and `descriptions.jsonl` but not from `embeddings.npy`, so the
+  passage index refused to load and Similar Passages and Theme Search failed
+  for every language. Repaired by removing the same 37 rows from
+  `embeddings.npy` by position in the pre-removal order (backup kept). The
+  tool now keeps all four window stores in step and refuses to finish
+  otherwise (#693). After any change to the passage index, the counts of
+  `ids.json`, `embeddings.npy` and `descriptions.jsonl` are compared and one
+  Similar Passages and one Theme Search request are made.
+- Ghalib (about 13:14): two Wikisource footnotes removed from
+  `ghalib.diwan_wikisource` (ghazal 62.9 and 131.22) with the repaired tool,
+  eight windows with them. The three passage index files stayed at 530,917
+  rows each. The description keyword index was rebuilt after each removal.
+- Lemma caches: the removal deleted the cached analyses of both works.
+  Urdu analysis needs a library that production does not carry, so both
+  caches were rebuilt by running production's `scripts/batch_lemma_cache.py`
+  under the development environment, writing into production's cache. The
+  Persian and Urdu rare-bigram tables were then rebuilt
+  (`scripts/corpus/rebuild_bigrams.py`).
+- Names index rebuilt (`scripts/corpus/build_window_names.py`, 17 minutes,
+  518,659 windows) and the connection map rebuilt
+  (`scripts/build_connections_map.py`, finished 14:24).
+- Translation: R. A. Nicholson's The Secrets of the Self (Macmillan, 1920,
+  via Project Gutenberg), aligned to Iqbal's Asrar-e Khudi on 2026-09-07,
+  was installed in `data/translations/` (all 872 references match the live
+  text). The aligner is now on main (#695).
+- Reuse tables for Persian and Urdu built for the first time
+  (`scripts/reuse/build_reuse_table.py --language fa` and `ur`, 13:51):
+  `fa.db` 247 MB, `ur.db` 11 MB. Asrar-e Khudi 19.20 returns 13 quotations,
+  among them its source in Rumi's Masnavi (1.6).
+- Backups: every file the removal tool changed was backed up beside it.
+  Backups of the text files, lemma caches and the pre-repair
+  `embeddings.npy` were moved out of the served folders.
+- Checks: reference searches passed after each step. Similar Passages,
+  Theme Search, Persian and Urdu line search, and the Reuse and Translation
+  tabs were also checked on the live site.
+
 ## 2026-10-08 Documents trial opened (about 07:30 EDT)
 - What: `TESSERAE_DOCUMENTS=1` added to the production environment after
   #683, so the documents option on the corpus-wide phrase search is

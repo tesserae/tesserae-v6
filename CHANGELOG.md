@@ -9,6 +9,11 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Records: Persian and Urdu data operations of 2026-10-08
+- `docs/DATA_OPERATIONS.md` records the Khayyam and Ghalib removals, the
+  Similar Passages and Theme Search outage and its repair, the cache and
+  table rebuilds, the Asrar-e Khudi translation and the new reuse tables.
+
 ### Theme Search: the "runs through the corpus" message no longer repeats itself
 - A short query that lands in the pervasive outcome showed the pervasive
   message and the short-query hint, both asking for a description of what
