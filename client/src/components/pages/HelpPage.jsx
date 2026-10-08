@@ -107,7 +107,7 @@ function CopyBlock({ text, label = 'Copy' }) {
   );
 }
 
-export default function HelpPage({ initialSection = null, onSectionConsumed } = {}) {
+export default function HelpPage({ initialSection = null, initialAnchor = null, onSectionConsumed } = {}) {
   const [activeSection, setActiveSection] = useState(initialSection || 'getting-started');
   const contentRef = useRef(null);
   // Which languages this site serves (2026-10-07). Arabic is indexed but held
@@ -123,18 +123,26 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
   }, []);
   const arabicServed = !servedLanguages || servedLanguages.includes('ar');
 
-  // If opened at a specific section (e.g. via the "use your own AI" flag),
-  // apply it once on mount and let the parent clear the request. On mobile the
-  // section list stacks above the content, so scroll to the content itself —
-  // otherwise the deep-link lands on the section nav, not the section.
+  // If opened at a specific section (e.g. via the "use your own AI" flag, or
+  // a result card's InfoBadge "More" link), apply it once on mount and let
+  // the parent clear the request. On mobile the section list stacks above
+  // the content, so scroll to the content itself -- otherwise the deep-link
+  // lands on the section nav, not the section. With an anchor id as well
+  // (result card tidy, second pass, 2026-10-08), scroll to that label's own
+  // paragraph instead, once the section has rendered.
   useEffect(() => {
     if (initialSection) {
       setActiveSection(initialSection);
       if (onSectionConsumed) onSectionConsumed();
-      // Land at the very top of the page so the site header and the section
-      // heading are both visible, rather than scrolling the content up under
-      // the sticky nav (which cut off the heading).
       requestAnimationFrame(() => {
+        const target = initialAnchor && document.getElementById(initialAnchor);
+        if (target) {
+          target.scrollIntoView({ block: 'start' });
+          return;
+        }
+        // Land at the very top of the page so the site header and the section
+        // heading are both visible, rather than scrolling the content up under
+        // the sticky nav (which cut off the heading).
         window.scrollTo({ top: 0 });
       });
     }
@@ -373,6 +381,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
     { id: 'settings', label: 'Search Settings', group: 'The Fusion (Phrases) search' },
     { id: 'stoplists', label: 'Stoplists', group: 'The Fusion (Phrases) search' },
     { id: 'results', label: 'Understanding Results', group: 'The Fusion (Phrases) search' },
+    { id: 'reading-results', label: 'Reading the results', group: 'The Fusion (Phrases) search' },
 
     { id: 'theme-search', label: 'Theme Search', group: 'Reading & content' },
     { id: 'reader', label: 'The Reader', group: 'Reading & content' },
@@ -1258,6 +1267,107 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
             </div>
           )}
 
+          {activeSection === 'reading-results' && (
+            <div className="prose max-w-none">
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Reading the results</h3>
+              <p className="text-gray-600 text-sm mb-4">
+                Every badge on a result card opens a short explanation on hover, focus, or tap. This
+                page gives the fuller version of each one.
+              </p>
+              <div className="space-y-4">
+                <div id="score">
+                  <h4 className="text-lg font-semibold text-gray-900">Score</h4>
+                  <p className="text-gray-600 text-sm">
+                    The score combines every channel that found the match (shared words, sound,
+                    meaning, and the rest) into one ranking number. A higher score is a stronger
+                    candidate for a real textual connection, but it is a ranking aid, not a verdict.
+                    Read the two passages before deciding what a match means.
+                  </p>
+                </div>
+                <div id="refrain">
+                  <h4 className="text-lg font-semibold text-gray-900">Refrain (radif)</h4>
+                  <p className="text-gray-600 text-sm">
+                    The refrain, or radif, is a word or short phrase repeated at the end of many
+                    lines in both poems. Persian and Urdu ghazals often carry a refrain through the
+                    whole poem, so two poems sharing one is good evidence that one answers or
+                    echoes the other.
+                  </p>
+                </div>
+                <div id="rhyme">
+                  <h4 className="text-lg font-semibold text-gray-900">Rhyme (qafiya)</h4>
+                  <p className="text-gray-600 text-sm">
+                    The rhyme, or qafiya, is the syllable or word right before the refrain that
+                    every line in a poem rhymes on. When only the final consonant matches rather
+                    than the full syllable, the badge reads as a rhyme letter, or rawi, which is
+                    weaker evidence.
+                  </p>
+                </div>
+                <div id="meter">
+                  <h4 className="text-lg font-semibold text-gray-900">Meter</h4>
+                  <p className="text-gray-600 text-sm">
+                    A shared named meter label is common on its own and proves little by itself.
+                    Combined with a shared refrain or rhyme, it strengthens the case that one poem
+                    answers the other. A separate metrical confirmation badge checks the two lines'
+                    scansion directly, independent of which words they share.
+                  </p>
+                </div>
+                <div id="refrain-lines">
+                  <h4 className="text-lg font-semibold text-gray-900">Refrain lines</h4>
+                  <p className="text-gray-600 text-sm">
+                    A shared refrain usually recurs across many lines in both poems, not just the
+                    one pair shown. This badge lists every line, from both works, where the two
+                    poems carry the same refrain, so one result can stand for the whole set rather
+                    than repeating it line by line.
+                  </p>
+                </div>
+                <div id="works-count">
+                  <h4 className="text-lg font-semibold text-gray-900">In N works</h4>
+                  <p className="text-gray-600 text-sm">
+                    This badge counts how many works in the whole corpus contain the shared wording
+                    a result is built on. A high count marks a common expression or formula rather
+                    than a pointed echo. The Formulas setting under Search Settings can hide results
+                    built on wording that recurs in more than a chosen number of works.
+                  </p>
+                </div>
+                <div id="form-count">
+                  <h4 className="text-lg font-semibold text-gray-900">Form in N poems</h4>
+                  <p className="text-gray-600 text-sm">
+                    This badge counts how many poems in the whole corpus end on the same refrain
+                    and rhyme as this result. A high count marks a common form that many poets
+                    used, rather than one poem specifically answering another, and the score is
+                    discounted accordingly.
+                  </p>
+                </div>
+                <div id="channels">
+                  <h4 className="text-lg font-semibold text-gray-900">Channels</h4>
+                  <p className="text-gray-600 text-sm">
+                    Tesserae finds a match through one or more independent channels: shared
+                    dictionary forms, identical words, sound, meaning, and the others described in{' '}
+                    <button onClick={() => setActiveSection('fusion-search')} className="text-red-600 hover:underline">How Fusion Search Works</button>.
+                    Agreement between independent channels is stronger evidence of a real
+                    connection than any one channel alone.
+                  </p>
+                </div>
+                <div id="theme">
+                  <h4 className="text-lg font-semibold text-gray-900">Theme</h4>
+                  <p className="text-gray-600 text-sm">
+                    This badge compares how alike two specific lines are in content against how
+                    alike the two works are overall. A positive number means the lines resemble
+                    each other in theme more than two random lines from the same two works would,
+                    independent of the wording-based channels above.
+                  </p>
+                </div>
+                <div id="highlight-colors">
+                  <h4 className="text-lg font-semibold text-gray-900">Highlight colors</h4>
+                  <ul className="list-disc list-inside text-gray-600 text-sm mt-1">
+                    <li><span className="bg-yellow-200 px-1 rounded">Yellow</span> marks a word both lines share: a matched lemma, an exact word, or a shared refrain.</li>
+                    <li><span className="bg-rose-200 px-1 rounded">Rose</span> marks each line's rhyme word, the word right before the refrain. The two sides rhyme the same way but are usually different words.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          )}
+
           {activeSection === 'theme-search' && (
             <div className="prose max-w-none">
               <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Theme Search</h3>
@@ -1363,11 +1473,11 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 many passages of the two authors came out close in their descriptions, the same
                 relationship a passage-by-passage Similar Passages lookup would show. Authors
                 run in chronological order along both edges, so the diagonal and its
-                neighbourhood show authors talking to their contemporaries, and the far corners
+                neighborhood show authors talking to their contemporaries, and the far corners
                 show links across the centuries.
               </p>
               <p className="text-gray-700 mb-3">
-                Two ways of colouring are offered. &ldquo;Links&rdquo; colours a cell by the raw
+                Two ways of coloring are offered. &ldquo;Links&rdquo; colors a cell by the raw
                 number of close passage pairs, on a scale that lets the many faint cells stay
                 visible beside the few very strong ones. &ldquo;Relative to size&rdquo; divides
                 that number by what the two authors&rsquo; sizes alone would predict, so a large
@@ -1434,7 +1544,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 </li>
                 <li>
                   <strong>&ldquo;Weak neighbor&rdquo; beside a passage</strong> is a second,
-                  narrower judgement. The band weighs the top results as a group; the tag says
+                  narrower judgment. The band weighs the top results as a group; the tag says
                   whether this one passage, on its own, stands clearly above the corpus average.
                   A strong band over a list of weak neighbors is a common and meaningful
                   outcome: the corpus holds the subject, but it is spread across many passages
@@ -1567,7 +1677,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 Works held in books open one book at a time. The strip above the text moves to the
                 previous or next book or to a typed line, and a small navigator at the bottom left
                 of the screen (on a desktop) goes to the top or the end of the book or to its
-                neighbours. A link into a long work opens the book that holds the line it points to.
+                neighbors. A link into a long work opens the book that holds the line it points to.
               </p>
 
               <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Selecting text</h4>
@@ -1667,7 +1777,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 <strong> runs searches against this corpus and reports what came back</strong>.
                 Ask her how to set up a search, what a result means, or where a phrase occurs.
                 She brings a little general background to an answer, and what she reports is
-                anchored to the searches she ran. The judgement about what a parallel means
+                anchored to the searches she ran. The judgment about what a parallel means
                 is yours.
               </p>
 
@@ -1969,7 +2079,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 <p className="text-blue-800 text-sm">
                   A Route control on a Hebrew → Greek search lets you choose how it is answered: through the
                   Septuagint (the default above), directly by dictionary only, or both at once with each result
-                  labelled by the route that found it.
+                  labeled by the route that found it.
                 </p>
               </div>
 

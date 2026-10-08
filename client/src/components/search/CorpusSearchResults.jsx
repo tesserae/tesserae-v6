@@ -4,32 +4,73 @@ import { useState, useCallback, useRef, useMemo } from 'react';
 import { Button } from '../common';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
-import { formatFullCitation } from '../../utils/textNames';
+import { formatFullCitation, useCorpusTextMap, resolveDisplayCitation } from '../../utils/textNames';
 import { formatElapsedTime } from '../../utils/formatting';
 import { displayGreekWithFinalSigma, normalizeGreek } from '../../utils/greekUtils';
 import { orderEras, ERA_COLORS } from '../../utils/eras';
+import { foldArabicScript, stripEdgePunctuation, isArabicScriptLanguage } from '../../utils/arabicScript';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const highlightLemmasInText = (text, lemmas) => {
+// Word-run ranges mirror the Persian and Urdu tokenizers' own regex
+// (backend/persian/processor.py, backend/urdu/processor.py): Arabic-script
+// letters, excluding the block's own punctuation (، ؛ ؟ ۔ and kin) and the
+// guillemets « », so a run found here lines up 1:1 with a server token
+// (result card tidy, second pass, 2026-10-08: a corpus-wide search for a
+// Persian or Urdu word showed no highlights at all, because the old code
+// split the line on whitespace and compared against Latin punctuation
+// only, so a word carrying a trailing comma, or a line carrying a
+// standalone quote mark as its own whitespace-run, never matched or threw
+// off every later word's position).
+const ARABIC_WORD_RUN = /[ؐ-ؚؠ-٩ٮ-ۓە-ۿݐ-ݿࢠ-ࣿ‌]+/g;
+
+// Splits text into ordered segments of {text, isWord}, where each `isWord`
+// segment is exactly one Persian/Urdu token in the server's own sense.
+// Everything between word-runs (spaces, punctuation) is kept verbatim so
+// the line still reads the same as the original.
+const splitArabicWordRuns = (text) => {
+  const segments = [];
+  let last = 0;
+  for (const m of text.matchAll(ARABIC_WORD_RUN)) {
+    if (m.index > last) segments.push({ text: text.slice(last, m.index), isWord: false });
+    segments.push({ text: m[0], isWord: true });
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) segments.push({ text: text.slice(last), isWord: false });
+  return segments;
+};
+
+const highlightLemmasInText = (text, lemmas, language) => {
   if (!text || !lemmas || lemmas.length === 0) return text;
-  
+
+  if (isArabicScriptLanguage(language)) {
+    const normalizedLemmas = lemmas.map(l => foldArabicScript(stripEdgePunctuation(l)).toLowerCase());
+    return splitArabicWordRuns(text).map((seg, i) => {
+      if (!seg.isWord) return <span key={i}>{seg.text}</span>;
+      const normalizedWord = foldArabicScript(seg.text).toLowerCase();
+      const isMatch = normalizedLemmas.some((lemma) => lemma && normalizedWord === lemma);
+      return isMatch
+        ? <mark key={i} className="bg-yellow-200 px-0.5 rounded">{seg.text}</mark>
+        : <span key={i}>{seg.text}</span>;
+    });
+  }
+
   const normalizedLemmas = lemmas.map(l => normalizeGreek(l));
   const words = text.split(/(\s+)/);
-  
+
   return words.map((word, i) => {
     if (/^\s+$/.test(word)) return <span key={i}>{word}</span>;
-    
+
     const normalizedWord = normalizeGreek(word.replace(/[,.;:!?'"()·]/g, ''));
     if (normalizedWord.length < 2) return <span key={i}>{word}</span>;
-    
+
     const isMatch = normalizedLemmas.some((lemma) => {
       if (normalizedWord === lemma) return true;
       if (normalizedWord.startsWith(lemma) && normalizedWord.length <= lemma.length + 3) return true;
       if (lemma.startsWith(normalizedWord) && lemma.length <= normalizedWord.length + 3) return true;
       return false;
     });
-    
+
     if (isMatch) {
       return <mark key={i} className="bg-yellow-200 px-0.5 rounded">{word}</mark>;
     }
@@ -37,27 +78,45 @@ const highlightLemmasInText = (text, lemmas) => {
   });
 };
 
-const highlightByIndices = (text, tokens, highlightIndices) => {
+const highlightByIndices = (text, tokens, highlightIndices, language) => {
   if (!tokens || !highlightIndices || highlightIndices.length === 0) {
     return text;
   }
-  
+
   const highlightSet = new Set(highlightIndices);
+
+  // Persian and Urdu: walk the same word-runs the server's own tokenizer
+  // finds, in the same order, so the Nth run here is the server's Nth
+  // token and `highlightIndices` (positions, not strings) applies
+  // directly -- no punctuation stripping needed, because the word-run
+  // regex already excludes it exactly as the server's tokenizer does.
+  if (isArabicScriptLanguage(language)) {
+    let wordIdx = 0;
+    return splitArabicWordRuns(text).map((seg, i) => {
+      if (!seg.isWord) return <span key={i}>{seg.text}</span>;
+      const isMatch = highlightSet.has(wordIdx);
+      wordIdx++;
+      return isMatch
+        ? <mark key={i} className="bg-yellow-200 px-0.5 rounded">{seg.text}</mark>
+        : <span key={i}>{seg.text}</span>;
+    });
+  }
+
   const tokensToHighlight = new Set(
     highlightIndices.map(idx => tokens[idx]?.toLowerCase()).filter(Boolean)
   );
-  
+
   const words = text.split(/(\s+)/);
   let tokenIdx = 0;
-  
+
   return words.map((word, i) => {
     if (/^\s+$/.test(word)) return <span key={i}>{word}</span>;
-    
+
     const cleanWord = word.replace(/[,.;:!?'"()·\[\]<>]/g, '').toLowerCase();
     const isMatch = tokensToHighlight.has(cleanWord);
-    
+
     tokenIdx++;
-    
+
     if (isMatch) {
       return <mark key={i} className="bg-yellow-200 px-0.5 rounded">{word}</mark>;
     }
@@ -74,6 +133,10 @@ export default function CorpusSearchResults({
   elapsedTime,
   language
 }) {
+  // Author/title lookup for a raw ref the static Latin/Greek/English
+  // tables do not cover (Persian, Urdu, ...), the same resolver the result
+  // cards use (result card tidy, second pass, 2026-10-08).
+  const corpusMap = useCorpusTextMap(language);
   const [showTimeline, setShowTimeline] = useState(false);
   const [eraFilter, setEraFilter] = useState(null);
   const [authorFilter, setAuthorFilter] = useState(null);
@@ -306,43 +369,23 @@ export default function CorpusSearchResults({
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
                 <div>
-                  {(() => {
-                    // The server's own citation (issue #566), carried through
-                    // from the clicked result; fall back to the old
-                    // tag-parsing formatter only when a result predates it.
-                    if (query.source?.citation) {
-                      return (
-                        <div className="text-xs font-bold text-amber-700 mb-1">
-                          Source: {query.source.citation}
-                        </div>
-                      );
-                    }
-                    const citation = formatFullCitation(null, query.source?.ref);
-                    return (
-                      <div className="text-xs font-bold text-amber-700 mb-1">
-                        Source: {citation.author}, <span className="italic">{citation.work}</span> {citation.reference}
-                      </div>
-                    );
-                  })()}
-                  <div className="text-sm text-gray-700">{highlightLemmasInText(query.source?.text, query.lemmas)}</div>
+                  {/* The server's own citation (issue #566), carried through
+                      from the clicked result when it reads as a name
+                      already; otherwise resolved against the corpus text
+                      map, the same resolver the result cards use, instead
+                      of the raw tag-parsing fallback that showed "hafez,
+                      diwan 5097" for Persian and Urdu (result card tidy,
+                      second pass, 2026-10-08). */}
+                  <div className="text-xs font-bold text-amber-700 mb-1">
+                    Source: {resolveDisplayCitation(query.source?.citation || '', query.source?.ref, corpusMap).text}
+                  </div>
+                  <div className="text-sm text-gray-700">{highlightLemmasInText(query.source?.text, query.lemmas, language)}</div>
                 </div>
                 <div>
-                  {(() => {
-                    if (query.target?.citation) {
-                      return (
-                        <div className="text-xs font-bold text-red-700 mb-1">
-                          Target: {query.target.citation}
-                        </div>
-                      );
-                    }
-                    const citation = formatFullCitation(null, query.target?.ref);
-                    return (
-                      <div className="text-xs font-bold text-red-700 mb-1">
-                        Target: {citation.author}, <span className="italic">{citation.work}</span> {citation.reference}
-                      </div>
-                    );
-                  })()}
-                  <div className="text-sm text-gray-700">{highlightLemmasInText(query.target?.text, query.lemmas)}</div>
+                  <div className="text-xs font-bold text-red-700 mb-1">
+                    Target: {resolveDisplayCitation(query.target?.citation || '', query.target?.ref, corpusMap).text}
+                  </div>
+                  <div className="text-sm text-gray-700">{highlightLemmasInText(query.target?.text, query.lemmas, language)}</div>
                 </div>
               </div>
               <div className="flex flex-wrap gap-1 mt-2">
@@ -497,8 +540,8 @@ export default function CorpusSearchResults({
                   </div>
                   <div className="flex-1 text-sm text-gray-700">
                     {result.tokens && result.highlight_indices && result.highlight_indices.length > 0
-                      ? highlightByIndices(result.text, result.tokens, result.highlight_indices)
-                      : highlightLemmasInText(result.text, query?.lemmas || result.matched_lemmas || [])}
+                      ? highlightByIndices(result.text, result.tokens, result.highlight_indices, language)
+                      : highlightLemmasInText(result.text, query?.lemmas || result.matched_lemmas || [], language)}
                   </div>
                 </div>
               </div>

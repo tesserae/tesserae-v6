@@ -9,6 +9,50 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Result card tidy, second pass: hover popovers, one legend line, Search Corpus highlighting
+- `client/src/components/common/InfoBadge.jsx`: no more info icon or help
+  cursor on every badge; the badge itself is the trigger. A popover opens
+  after about 150ms on hover (no flicker crossing the card), at once on
+  keyboard focus or tap, and stays open while the pointer is over the
+  badge or the popover; it closes on Escape or a tap outside. Content is
+  one short sentence plus a "More" link into Help, with no heading.
+- Every badge's explanation on `SearchResults.jsx` and
+  `CrossLingualSearch.jsx` is now one sentence; the fuller version moved
+  to a new "Reading the results" section in `HelpPage.jsx`, with an id
+  anchor per label (score, refrain, rhyme, meter, refrain-lines,
+  works-count, form-count, channels, theme) that the "More" links and the
+  new legend line both point to.
+- The old "Colours" and "Badge colours" legends are replaced with one line
+  above the results, naming the highlight colors (when a poetic result is
+  on screen) and linking to Help; badge colors themselves are unchanged.
+- The result card's second row (how-common badges, evidence badges, and
+  the Search Corpus / Register / Cite buttons) no longer wraps the buttons
+  to a third row at desktop widths: the buttons sit in their own
+  non-wrapping group at the row's right.
+- American spelling throughout `client/`: colour, licence, judgement,
+  labelled, and neighbour(hood) in user-visible text are now color,
+  license, judgment, labeled, and neighbor(hood).
+- Cross-Language (Persian -> Urdu and the other script-sharing pairs):
+  citations now show "Author, Work reference" on both the source and
+  target side (the target-only fix was never actually applied, since the
+  state that freezes the chosen texts' names was never set); a refrain-
+  and-rhyme result now marks the rhyme word in rose, not just the refrain
+  in yellow, reusing the single-language card's own position logic; the
+  settings bar's description is the per-pair sentence the page already
+  computes (SPhilBERTa only for the classical pairs) instead of one fixed
+  sentence for every pair; and badge order is Score, form (refrain,
+  rhyme), then evidence (a channel-count-and-names badge first, the
+  semantic percentage after it, both in the evidence blue rather than
+  semantic's old amber).
+- Search Corpus (`CorpusSearchResults.jsx`): a Persian or Urdu line with
+  Arabic-script punctuation attached to a word (e.g. a trailing "،") now
+  highlights correctly. The highlighter walks the same word-runs the
+  Persian/Urdu tokenizers use server-side (`backend/persian/processor.py`,
+  `backend/urdu/processor.py`), so a punctuation mark never consumes a
+  token position the way a whitespace-only split could. The query header's
+  citation now resolves through the corpus text map, the same resolver the
+  result cards use, instead of showing a raw internal id.
+
 ### Cross-Language: Persian to Urdu no longer crashes the page; only served pairs shown
 - `CrossLingualSearch.jsx` fetched text lists for a fixed four languages
   (Greek, Latin, English, Hebrew), so choosing Persian -> Urdu found no list

@@ -146,11 +146,9 @@ describe('formatRefrainPopover', () => {
       target_lines: ['iqbal.zabur_e_ajam.26.1', 'iqbal.zabur_e_ajam.26.2', 'iqbal.zabur_e_ajam.26.3',
         'iqbal.zabur_e_ajam.26.4', 'iqbal.zabur_e_ajam.26.5', 'iqbal.zabur_e_ajam.26.6', 'iqbal.zabur_e_ajam.26.7'],
     };
-    const { heading, explanation } = formatRefrainPopover(poetics, faTexts);
-    expect(heading).toBe('8 + 7 refrain lines');
-    expect(explanation).toContain('Hafez, Diwan: lines 5097, 5098, 5100, 5102, 5104, 5106, 5108, 5110');
-    expect(explanation).toContain('Iqbal, Zabur-e Ajam 26: lines 1 to 7');
-    expect(explanation).toContain('one result stands for the pair');
+    const { lines } = formatRefrainPopover(poetics, faTexts);
+    expect(lines).toContain('Hafez, Diwan: lines 5097, 5098, 5100, 5102, 5104, 5106, 5108, 5110');
+    expect(lines).toContain('Iqbal, Zabur-e Ajam 26: lines 1 to 7');
   });
 });
 

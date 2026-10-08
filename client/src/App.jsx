@@ -119,6 +119,9 @@ function App() {
   });
   // When set, HelpPage opens to this section (used by the "use your own AI" flag).
   const [helpSection, setHelpSection] = useState(null);
+  // When set alongside helpSection, HelpPage scrolls to this id within it (a
+  // result card's InfoBadge "More" link, result card tidy, 2026-10-08).
+  const [helpAnchor, setHelpAnchor] = useState(null);
   // Confirms a copied search link on the button itself, for 2.5 seconds.
   const [shareCopied, setShareCopied] = useState(false);
   const [activeTab, setActiveTab] = useState(() => {
@@ -390,6 +393,16 @@ function App() {
   // Open the Help page at the "Use with your AI" section.
   const openAiHelp = useCallback(() => {
     setHelpSection('ai-guide');
+    setPageTypeWithGuard('help');
+    window.history.pushState({}, '', '/help');
+  }, [setPageTypeWithGuard]);
+
+  // Open the Help page at a given section, optionally scrolled to one of
+  // its id anchors (a result card's InfoBadge "More" link, result card
+  // tidy, 2026-10-08).
+  const openHelpSection = useCallback((section, anchor = null) => {
+    setHelpSection(section);
+    setHelpAnchor(anchor);
     setPageTypeWithGuard('help');
     window.history.pushState({}, '', '/help');
   }, [setPageTypeWithGuard]);
@@ -1016,6 +1029,7 @@ function App() {
                     searchRunId={searchRunId}
                     onRegister={handleRegister}
                     onCorpusSearch={handleCorpusSearch}
+                    onOpenHelp={openHelpSection}
                     onRerunFresh={handleRerunFresh}
                     sortBy={sortBy}
                     setSortBy={setSortBy}
@@ -1051,7 +1065,7 @@ function App() {
         {pageType === 'search' && activeTab === 'cross' && (
           <div className="space-y-3">
             <SearchDescription mode="cross" className="px-1" />
-            <CrossLingualSearch />
+            <CrossLingualSearch onOpenHelp={openHelpSection} />
           </div>
         )}
 
@@ -1118,7 +1132,11 @@ function App() {
         )}
 
         {pageType === 'help' && (
-          <HelpPage initialSection={helpSection} onSectionConsumed={() => setHelpSection(null)} />
+          <HelpPage
+            initialSection={helpSection}
+            initialAnchor={helpAnchor}
+            onSectionConsumed={() => { setHelpSection(null); setHelpAnchor(null); }}
+          />
         )}
 
         {pageType === 'downloads' && (

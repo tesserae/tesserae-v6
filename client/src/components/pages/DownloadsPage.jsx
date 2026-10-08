@@ -949,13 +949,13 @@ const DownloadsPage = () => {
         <h4 className="font-medium text-amber-900 mb-2">License Information</h4>
         <p className="text-sm text-amber-800 mb-2">
           The texts come from open digital editions, named work by work on the Sources page with
-          the licence each carries. Most are public domain or Creative Commons Attribution (Perseus,
+          the license each carries. Most are public domain or Creative Commons Attribution (Perseus,
           CSEL, Corpus Corporum, Musisque Deoque and others). The Hebrew Bible text is CC BY-SA 4.0
           (Miqra according to the Masorah, via Sefaria). Translations are public domain or, where
           marked, free for non-commercial reproduction with attribution.
         </p>
         <p className="text-sm text-amber-800">
-          Derived data carries its sources' terms, stated in licence files inside the download: the
+          Derived data carries its sources' terms, stated in license files inside the download: the
           Hebrew morphology tables (ETCBC/BHSA, CC BY-NC 4.0), the Koine Greek lemma table
           (CC BY-NC-SA 4.0), the classical Greek lemma table (GLAUx, CC BY-SA 4.0) and the metrical
           scansion data (MQDQ/Pede Certo, CC BY-NC-ND 4.0). Everything else Tesserae produces, the

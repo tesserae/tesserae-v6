@@ -12,15 +12,40 @@ import { useCorpusTextMap, resolveDisplayCitation } from '../../utils/textNames'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const highlightTokens = (tokens, highlightIndices) => {
+// rose highlights one word (the rhyme, right before the refrain), same as
+// the single-language Persian/Urdu cards (owner's review of the live
+// Persian to Urdu page, result card tidy, second pass, 2026-10-08).
+const highlightTokens = (tokens, highlightIndices, roseIndex = -1) => {
   if (!tokens || tokens.length === 0) return '';
   const indexSet = new Set(highlightIndices || []);
-  return tokens.map((token, i) => 
-    indexSet.has(i) 
-      ? `<mark class="bg-yellow-200 px-0.5 rounded">${token}</mark>` 
-      : token
-  ).join(' ');
+  return tokens.map((token, i) => {
+    if (i === roseIndex) return `<mark class="bg-rose-200 px-0.5 rounded">${token}</mark>`;
+    return indexSet.has(i)
+      ? `<mark class="bg-yellow-200 px-0.5 rounded">${token}</mark>`
+      : token;
+  }).join(' ');
 };
+
+// The rhyme word sits one token before the refrain's own highlighted range,
+// the same position the single-language card derives it from when no named
+// rhyme word is stored (SearchResults.jsx's renderHighlightedText).
+const rhymeWordIndex = (highlightIndices) => {
+  if (!highlightIndices || highlightIndices.length === 0) return -1;
+  return Math.min(...highlightIndices) - 1;
+};
+
+// The channel badge's own names, in the same style as the main card's
+// "lemma + sound" (result card tidy, second pass, 2026-10-08).
+const CHANNEL_SCORE_LABELS = [
+  ['semantic_score', 'semantic'],
+  ['dict_score', 'vocabulary'],
+  ['syntax_score', 'syntax'],
+  ['phonetic_score', 'sound'],
+  ['form_score', 'form'],
+];
+const channelNames = (features) => CHANNEL_SCORE_LABELS
+  .filter(([key]) => features?.[key] > 0)
+  .map(([, label]) => label);
 
 const LANG_PAIRS = [
   { key: 'grc-la', source: 'grc', target: 'la', label: 'Greek → Latin' },
@@ -55,7 +80,14 @@ const LANG_DEFAULTS = {
   ar: { author: 'quran', work: 'al_baqara', part: null },
 };
 
-export default function CrossLingualSearch() {
+export default function CrossLingualSearch({ onOpenHelp }) {
+  // Builds an InfoBadge `more` link to the matching label in the Help
+  // page's "Reading the results" section (result card tidy, second pass,
+  // 2026-10-08).
+  const helpMore = (anchor) => ({
+    anchor,
+    onClick: () => onOpenHelp && onOpenHelp('reading-results', anchor),
+  });
   const [hierarchy, setHierarchy] = useState({ grc: [], la: [], en: [] });
   const [loading, setLoading] = useState(true);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -112,15 +144,15 @@ export default function CrossLingualSearch() {
   // Describe each pair's own channels instead.
   const sharedScript = ['fa', 'ur', 'ar'].includes(currentPair.source)
     && ['fa', 'ur', 'ar'].includes(currentPair.target);
-  const channelNote = sharedScript
-    ? 'Combines AI semantic matching (multilingual-e5) with shared-vocabulary matching: '
-      + 'a word counts when the same word, after spelling normalization, appears in both '
-      + 'lines. Pairs detected by both channels are boosted.'
+  // The per-pair description for the settings bar, kept to one plain
+  // sentence (owner's review of the live Persian to Urdu page, result card
+  // tidy, second pass, 2026-10-08): the channel badge on each result card
+  // now carries its own evidence, so this line does not need to repeat it.
+  const channelNoteShort = sharedScript
+    ? 'Combines AI semantic matching (multilingual-e5) with shared-vocabulary matching across the two scripts.'
     : ['he', 'cop'].includes(currentPair.source) || ['he', 'cop'].includes(currentPair.target)
-      ? 'Combines AI semantic matching with a cross-lingual dictionary built from aligned '
-        + 'texts. Pairs detected by both channels are boosted.'
-      : 'Combines AI semantic matching (SPhilBERTa) with cross-lingual dictionary lookup. '
-        + 'Pairs detected by both channels are boosted.';
+      ? 'Combines AI semantic matching with a cross-lingual dictionary built from aligned texts.'
+      : 'Combines AI semantic matching (SPhilBERTa) with cross-lingual dictionary lookup.';
 
   // "Hafez, Diwan" for the chosen text, so a result reads "Hafez, Diwan 1626"
   // rather than a bare line number. The Persian, Urdu and Arabic reference tags
@@ -180,6 +212,12 @@ export default function CrossLingualSearch() {
         } else {
           setResults(data.results || []);
           setPivotNote(data.via_septuagint ? (data.note || '') : null);
+          // Freeze the chosen texts' names for these results (owner's review
+          // of the live Persian to Urdu page, result card tidy, second pass,
+          // 2026-10-08): this call was missing, so resultNames stayed empty
+          // and every citation fell back to a bare ref with no author or
+          // work ("1693" rather than "Hafez, Diwan 1693").
+          setResultNames(namesRef.current);
         }
       }
     } catch (err) {
@@ -582,10 +620,12 @@ export default function CrossLingualSearch() {
 
       <div className="bg-white rounded-lg shadow p-4 space-y-3 sm:space-y-0 sm:flex sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <div className="space-y-2 sm:space-y-0 sm:flex sm:items-center sm:gap-4">
-          <span className="text-sm text-gray-500 block">
-            Combines AI semantic matching (SPhilBERTa) with cross-lingual dictionary lookup.
-            Pairs detected by both channels are boosted.
-          </span>
+          {/* The per-pair description computed above (channelNoteShort), not a
+              fixed sentence: Persian/Urdu/Arabic pairs run on multilingual-e5
+              plus shared-vocabulary matching, not SPhilBERTa plus a
+              cross-lingual dictionary (owner's review of the live Persian to
+              Urdu page, result card tidy, second pass, 2026-10-08). */}
+          <span className="text-sm text-gray-500 block">{channelNoteShort}</span>
           <div className="flex items-center gap-2">
             <label className="text-sm text-gray-600 whitespace-nowrap">Min Matches:</label>
             <select
@@ -718,21 +758,22 @@ export default function CrossLingualSearch() {
                   <span className="text-xs text-gray-500 min-w-[2.5rem] text-right shrink-0 leading-none">
                     {pagination.startIndex + i + 1}.
                   </span>
-                  {/* Every badge carries its own explanation and colour marks one
-                      category consistently (result card tidy, 2026-10-08): yellow/
-                      rose for the poem's form, blue for evidence, gray otherwise. */}
+                  {/* Every badge's popover is one short sentence, with a "More"
+                      link into Help where a label has its own section there
+                      (result card tidy, second pass, 2026-10-08). InfoBadge
+                      carries no icon; the badge itself is the trigger. */}
                   <InfoBadge
                     className="bg-white text-gray-600 px-0"
-                    heading="Score"
-                    explanation="The combined strength of this cross-lingual match. A higher score is a stronger candidate for a real connection, but it is a ranking aid, not a verdict -- read the two lines."
+                    explanation="How strong the match is overall; results are ranked by it."
+                    more={helpMore('score')}
                   >
                     Score: {(result.overall_score || result.score)?.toFixed(3)}
                   </InfoBadge>
                   {result.poetics?.radif && (
                     <InfoBadge
                       className="bg-yellow-100 text-yellow-800"
-                      heading="Refrain (radif)"
-                      explanation="The two lines end on the same refrain: a word or short phrase repeated at the end of many lines in both poems. Sharing it is strong evidence that one poem answers or was written in the other's form."
+                      explanation="The refrain (radif) both poems end on."
+                      more={helpMore('refrain')}
                     >
                       Refrain: <span dir="rtl">{result.poetics.radif}</span>
                     </InfoBadge>
@@ -740,37 +781,41 @@ export default function CrossLingualSearch() {
                   {result.poetics?.qafia && (
                     <InfoBadge
                       className="bg-rose-100 text-rose-800"
-                      heading="Rhyme (qafia)"
-                      explanation="The two poems share the same rhyme (qafia), the syllable or word right before the refrain that every line rhymes on."
+                      explanation="The rhyme (qafiya) both poems share, before the refrain."
+                      more={helpMore('rhyme')}
                     >
                       Rhyme: <span dir="rtl">-{result.poetics.qafia}</span>
                     </InfoBadge>
                   )}
-                  {result.features?.semantic_score > 0 && (
-                    <InfoBadge
-                      className="bg-amber-100 text-amber-700"
-                      heading="Semantic similarity"
-                      explanation="How closely an AI language model judges the two lines' meaning to match, independent of shared vocabulary. The percentage is the model's similarity score."
-                    >
-                      Semantic: {(result.features.semantic_score * 100).toFixed(0)}%
-                    </InfoBadge>
-                  )}
-                  {result.features?.n_channels === 2 && (
+                  {/* Evidence group, channel count/names first and the
+                      semantic percentage after it, since semantic is one of
+                      those channels (owner's review of the live Persian to
+                      Urdu page, result card tidy, second pass, 2026-10-08).
+                      Blue is the evidence color; yellow stays reserved for
+                      the refrain and shared words. */}
+                  {result.features?.n_channels > 0 && (
                     <InfoBadge
                       className="bg-blue-100 text-blue-700"
-                      heading="Two methods agree"
-                      explanation={channelNote}
+                      explanation="Which kinds of evidence found this match."
+                      more={helpMore('channels')}
                     >
-                      2-channel
+                      {result.features.n_channels} channel{result.features.n_channels !== 1 ? 's' : ''}: {channelNames(result.features).join(' + ')}
+                    </InfoBadge>
+                  )}
+                  {result.features?.semantic_score > 0 && (
+                    <InfoBadge
+                      className="bg-blue-100 text-blue-700"
+                      explanation="How closely an AI model judges the two lines' meaning to match, apart from shared vocabulary."
+                    >
+                      Semantic: {(result.features.semantic_score * 100).toFixed(0)}%
                     </InfoBadge>
                   )}
                   {result.route && (
                     <InfoBadge
                       className="bg-gray-100 text-gray-600"
-                      heading={result.route === 'septuagint' ? 'Via Septuagint' : 'Direct'}
                       explanation={result.route === 'septuagint'
-                        ? 'This match runs through the Greek Septuagint translation of the Hebrew Bible rather than directly between the two source languages.'
-                        : 'This match runs directly between the two languages, with no intermediate translation.'}
+                        ? 'This match runs through the Greek Septuagint rather than directly between the languages.'
+                        : 'This match runs directly between the two languages, with no translation in between.'}
                     >
                       {result.route === 'septuagint' ? 'Via Septuagint' : 'Direct'}
                     </InfoBadge>
@@ -782,7 +827,7 @@ export default function CrossLingualSearch() {
                     <div className="font-medium text-gray-900">
                       {(() => {
                         const raw = result.source?.ref || result.source_locus;
-                        return resolveDisplayCitation(raw, raw, srcCorpusMap).text;
+                        return resolveDisplayCitation(withName(resultNames.src, raw), raw, srcCorpusMap).text;
                       })()}
                     </div>
                     {(result.source?.hebrew_ref || result.target?.hebrew_ref) && (
@@ -794,7 +839,7 @@ export default function CrossLingualSearch() {
                       </div>
                     )}
                     {result.source?.tokens && result.source?.highlight_indices?.length > 0 ? (
-                      <div className="text-gray-700 mt-1" dir={dirFor(currentPair.source)} dangerouslySetInnerHTML={{ __html: highlightTokens(result.source.tokens, result.source.highlight_indices) }} />
+                      <div className="text-gray-700 mt-1" dir={dirFor(currentPair.source)} dangerouslySetInnerHTML={{ __html: highlightTokens(result.source.tokens, result.source.highlight_indices, result.poetics?.qafia ? rhymeWordIndex(result.source.highlight_indices) : -1) }} />
                     ) : (
                       <div className="text-gray-700 mt-1" dir={dirFor(currentPair.source)}>{result.source?.text || result.source_text || ''}</div>
                     )}
@@ -808,7 +853,7 @@ export default function CrossLingualSearch() {
                       })()}
                     </div>
                     {result.target?.tokens && result.target?.highlight_indices?.length > 0 ? (
-                      <div className="text-gray-700 mt-1" dir={dirFor(currentPair.target)} dangerouslySetInnerHTML={{ __html: highlightTokens(result.target.tokens, result.target.highlight_indices) }} />
+                      <div className="text-gray-700 mt-1" dir={dirFor(currentPair.target)} dangerouslySetInnerHTML={{ __html: highlightTokens(result.target.tokens, result.target.highlight_indices, result.poetics?.qafia ? rhymeWordIndex(result.target.highlight_indices) : -1) }} />
                     ) : (
                       <div className="text-gray-700 mt-1" dir={dirFor(currentPair.target)}>{result.target?.text || result.target_text || ''}</div>
                     )}

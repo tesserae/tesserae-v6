@@ -649,18 +649,16 @@ export function formatLineGroup(refs, corpusMap) {
 }
 
 /**
- * The refrain-lines popover's content (spec: result card tidy, 2026-10-08):
- * a heading giving both poems' line counts, the two works each named once
- * with their lines (collapsed into ranges), and a closing sentence saying
- * why one result stands for the whole refrain.
+ * The refrain-lines popover's extra content (result card tidy, second pass,
+ * 2026-10-08): the two works, each named once with their lines (collapsed
+ * into ranges) -- the information the "N + M refrain lines" badge stands
+ * for, shown compactly after the badge's one-sentence explanation.
  */
 export function formatRefrainPopover(poetics, corpusMap) {
   const sourceLines = poetics?.source_lines || [];
   const targetLines = poetics?.target_lines || [];
-  const heading = `${sourceLines.length} + ${targetLines.length} refrain lines`;
-  const groups = [formatLineGroup(sourceLines, corpusMap), formatLineGroup(targetLines, corpusMap)]
+  const lines = [formatLineGroup(sourceLines, corpusMap), formatLineGroup(targetLines, corpusMap)]
     .filter(Boolean)
     .map((g) => `${g.label}: ${g.text}`);
-  const note = 'The two poems share this refrain throughout; one result stands for the pair.';
-  return { heading, explanation: [...groups, note].join('\n\n') };
+  return { lines };
 }
