@@ -275,25 +275,29 @@ export default function CrossLingualSearch() {
   const loadHierarchies = async () => {
     setLoading(true);
     try {
-      const [grcRes, laRes, enRes, heRes] = await Promise.all([
-        fetch('/api/texts/hierarchy?language=grc'),
-        fetch('/api/texts/hierarchy?language=la'),
-        fetch('/api/texts/hierarchy?language=en'),
-        fetch('/api/texts/hierarchy?language=he')
-      ]);
-      const grcData = await grcRes.json();
-      const laData = await laRes.json();
-      const enData = await enRes.json();
-      const heData = await heRes.json();
-      const h = {
-        grc: grcData.authors || [],
-        la: laData.authors || [],
-        en: enData.authors || [],
-        he: heData.authors || []
-      };
+      // The text lists for every language in a pair this server serves (not
+      // a fixed four: Persian and Urdu had no lists, so choosing Persian ->
+      // Urdu crashed the page).
+      let served = LANG_PAIRS;
+      try {
+        const lr = await fetch('/api/languages');
+        const ld = await lr.json();
+        const keys = new Set((ld.crosslingual_pairs || []).map(p => p.key || `${p.source}-${p.target}`));
+        if (keys.size) served = LANG_PAIRS.filter(p => keys.has(p.key));
+      } catch (e) { /* keep the full list if the request fails */ }
+      if (served.length) {
+        setPairs(served);
+        if (!served.some(p => p.key === langPair)) setLangPair(served[0].key);
+      }
+      const langs = [...new Set(served.flatMap(p => [p.source, p.target]))];
+      const lists = await Promise.all(langs.map(lang =>
+        fetch(`/api/texts/hierarchy?language=${lang}`)
+          .then(r => r.json()).then(d => d.authors || []).catch(() => [])));
+      const h = Object.fromEntries(langs.map((lang, i) => [lang, lists[i]]));
+      const pair = served.find(p => p.key === langPair) || served[0] || currentPair;
       setHierarchy(h);
-      setDefaultsForLang(h[currentPair.source], currentPair.source, setSourceAuthor, setSourceWork, setSourceSection);
-      setDefaultsForLang(h[currentPair.target], currentPair.target, setTargetAuthor, setTargetWork, setTargetSection);
+      setDefaultsForLang(h[pair.source] || [], pair.source, setSourceAuthor, setSourceWork, setSourceSection);
+      setDefaultsForLang(h[pair.target] || [], pair.target, setTargetAuthor, setTargetWork, setTargetSection);
     } catch (err) {
       console.error('Failed to load text hierarchies:', err);
     }
@@ -301,7 +305,7 @@ export default function CrossLingualSearch() {
   };
 
   const getAuthorWorks = (authors, authorKey) => {
-    const author = authors.find(a => a.author_key === authorKey);
+    const author = (authors || []).find(a => a.author_key === authorKey);
     return author ? author.works : [];
   };
 
@@ -319,10 +323,10 @@ export default function CrossLingualSearch() {
     setChartFilter(null);
     setHebrewGreekRoute('septuagint');
     hasSearchedRef.current = false;
-    const pair = LANG_PAIRS.find(p => p.key === newKey) || LANG_PAIRS[0];
-    setDefaultsForLang(hierarchy[pair.source], pair.source, setSourceAuthor, setSourceWork, setSourceSection);
-    setDefaultsForLang(hierarchy[pair.target], pair.target, setTargetAuthor, setTargetWork, setTargetSection);
-  }, [hierarchy, setDefaultsForLang]);
+    const pair = pairs.find(p => p.key === newKey) || pairs[0];
+    setDefaultsForLang(hierarchy[pair.source] || [], pair.source, setSourceAuthor, setSourceWork, setSourceSection);
+    setDefaultsForLang(hierarchy[pair.target] || [], pair.target, setTargetAuthor, setTargetWork, setTargetSection);
+  }, [hierarchy, pairs, setDefaultsForLang]);
 
   const handleSearch = () => {
     hasSearchedRef.current = true;
@@ -452,7 +456,7 @@ export default function CrossLingualSearch() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {LANG_PAIRS.map(p => (
+          {pairs.map(p => (
             <button
               key={p.key}
               onClick={() => handleLangPairChange(p.key)}
@@ -481,7 +485,7 @@ export default function CrossLingualSearch() {
                   setSourceWork('');
                   setSourceSection('');
                 }}
-                authors={hierarchy[currentPair.source]}
+                authors={hierarchy[currentPair.source] || []}
               />
             </div>
             <div>
@@ -534,7 +538,7 @@ export default function CrossLingualSearch() {
                   setTargetWork('');
                   setTargetSection('');
                 }}
-                authors={hierarchy[currentPair.target]}
+                authors={hierarchy[currentPair.target] || []}
               />
             </div>
             <div>
