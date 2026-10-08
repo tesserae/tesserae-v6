@@ -26,6 +26,28 @@ Keys are Flask rule strings exactly as they appear in app.url_map (e.g.
 
 MANIFEST = {
     # -- Covered by a connector tool -------------------------------------------------
+    # /api/scholarship and /api/scholarship/commentary are placeholder
+    # site_only entries: this PR adds the routes with no connector tool yet.
+    # find_scholarship and get_commentary are a separate PR, behind
+    # TESSERAE_SCHOLARSHIP_TOOLS=1; that PR changes these two entries to
+    # {'tools': [...]}. /sources and /translate are genuinely site_only and
+    # stay that way.
+    '/api/scholarship': {
+        'site_only': True,
+        'reason': 'No connector tool yet; find_scholarship is a separate PR behind TESSERAE_SCHOLARSHIP_TOOLS=1.',
+    },
+    '/api/scholarship/commentary': {
+        'site_only': True,
+        'reason': 'No connector tool yet; get_commentary is a separate PR behind TESSERAE_SCHOLARSHIP_TOOLS=1.',
+    },
+    '/api/scholarship/sources': {
+        'site_only': True,
+        'reason': 'Credits list for the Sources page (every commentator, edition, licence); the notes themselves would come through get_commentary.',
+    },
+    '/api/scholarship/translate': {
+        'site_only': True,
+        'reason': "A machine translation of one commentary note for the Reader's tab; an agent would read the Latin from get_commentary.",
+    },
     '/api/languages': {
         'tools': ['get_languages'],
     },

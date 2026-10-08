@@ -9,6 +9,31 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Scholarship: a secondary-scholarship backend, no UI yet
+- `backend/scholarship.py` asks the open scholarly metadata services
+  (OpenAlex, then Crossref), Unpaywall for a legal open-access copy, and
+  Semantic Scholar/CORE full text, for articles, chapters and books that
+  cite a passage or a pair of passages, ranked by whether a piece names the
+  work and the exact locus; it also reads the site's own public-domain
+  commentaries (`data/commentaries/`) and, where one has been built, an
+  offline citation index (`data/citation_index/citations.db`, not shipped
+  here). `backend/citations/` is a citation-grammar extractor for ancient
+  texts ("Aen. 1.1", "Verg. A. I 1"), reimplemented from Matteo Romanello's
+  CitationParser rules; it degrades to finding nothing without its
+  abbreviation table (`data/citations/abbreviations.json`, GPL-3.0,
+  intentionally not committed). `backend/scripture.py` gives scripture one
+  citation key across Hebrew, Greek, Coptic and English Bible versions, so
+  a commentary on a verse serves every version. New route
+  `GET /api/scholarship` (plus `/commentary`, `/sources`, `/translate`),
+  registered in `backend/app.py`; no existing route changed. Keys are
+  environment variables only (`S2_API_KEY`, `CORE_API_KEY`,
+  `TESSERAE_CONTACT_EMAIL`, `GOOGLE_BOOKS_KEY`); nothing hard-coded beyond
+  the existing contact default. `/scholarship/translate` only ever
+  translates a note the site already holds at the given work and ref
+  (checked word for word against what `commentary_at()` returns), never
+  arbitrary submitted text. No UI: the Reader tab and the connector tools
+  are separate PRs, both behind their own switch.
+
 ### Documentary texts, stage 1: an EpiDoc converter, no site change
 - `scripts/documents/epidoc_convert.py` converts EpiDoc TEI-XML (the Heidelberg
   and Roma epigraphic databases, I.Sicily, papyri.info's DDbDP and HGV

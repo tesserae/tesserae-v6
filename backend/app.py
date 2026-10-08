@@ -371,7 +371,7 @@ def init_db():
             cur.execute('ALTER TABLE search_logs ADD COLUMN IF NOT EXISTS client_ip VARCHAR(50)')
             cur.execute('ALTER TABLE search_logs ADD COLUMN IF NOT EXISTS city VARCHAR(100)')
             cur.execute('ALTER TABLE search_logs ADD COLUMN IF NOT EXISTS country VARCHAR(100)')
-            
+
             cur.execute('''
                 CREATE INDEX IF NOT EXISTS idx_search_logs_created_at ON search_logs(created_at)
             ''')
@@ -604,6 +604,8 @@ app.register_blueprint(mcp_http_bp, url_prefix=API_PREFIX or None)
 app.register_blueprint(mcp_oauth_bp, url_prefix=API_PREFIX or None)
 app.register_blueprint(feature_request_bp, url_prefix=API_PREFIX or None)
 app.register_blueprint(reuse_bp, url_prefix=API_PREFIX or None)
+from backend.blueprints.scholarship import scholarship_bp  # noqa: E402
+app.register_blueprint(scholarship_bp, url_prefix=API_PREFIX or None)
 
 app_logger.info(f"Blueprints registered (API_PREFIX='{API_PREFIX}', env={DEPLOYMENT_ENV})")
 
