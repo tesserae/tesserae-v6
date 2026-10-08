@@ -9,6 +9,45 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-07
 
+### Documentary texts, stage 2: dedup, restoration tokens, formula candidates, lemmatizer gaps, places crosswalk, index layout (no site change)
+- `scripts/documents/dedupe_sources.py` merges the 10,238 Trismegistos ids
+  shared between EDH and EDR into one record each (recorded per-field rule:
+  text by lower supplied share, date by narrower non-null range, findspot by
+  a presence score), keeps both source ids and a provenance field, flags
+  (does not merge) the smaller cross-source overlaps with papyri.info and
+  I.Sicily. 257,428 deduplicated records.
+- `scripts/documents/restoration_tokens.py` maps character-level restoration
+  to word tokens: a gap-only token is dropped (position kept on the next
+  token), a token split by a gap becomes two excludable fragments, a token
+  is marked restored when a strict majority of its characters were supplied.
+  5.4% of all tokens touch a gap boundary; a quarter are whole supplied words.
+- `scripts/documents/formula_stoplist.py` lists the top 300 words by document
+  frequency per language with Latin/Greek formula and function words marked,
+  for review (not finalized), at `research/historians/formula_stoplist_candidates.tsv`
+  (private, not committed).
+- `scripts/documents/lemmatizer_gaps.py` classifies Roman numerals (I V X L C
+  D M letter runs), measures a 43,170-entry name-candidate list's coverage,
+  and excludes gap fragments from the unresolved tally; combined unresolved
+  share on a 200-docs-per-source rerun drops from 9.22% to 5.43%.
+- `scripts/documents/places_crosswalk.py` builds a Trismegistos-place to
+  Pleiades crosswalk from EDH's own geography file and the Pleiades dump's
+  Trismegistos backlinks (both openly licensed); EDH's Pleiades coverage
+  rises from 0.0% to 73.6%. EDR carries no place identifier anywhere in its
+  raw export (confirmed over the full 115,591 files), so its coverage stays
+  at 0.0%.
+- `scripts/documents/index_layout.py` prototypes and counts a `.tess`-format
+  file layout (one index line per short document, grouped by source and
+  region; one file per long document, line by line): 39,048 files, 1,222,656
+  index lines for the full corpus. Found and worked around (in this script's
+  own output only) a stage 1 converter bug that leaves raw newline/tab
+  whitespace inside 7,751 documents' text; the upstream fix still needs to
+  land in `epidoc_convert.py` before a real index build.
+- Added `ijson` to `requirements.txt` (streaming JSON parsing; a naive
+  `json.load` of the Pleiades dump measured 16.3GB peak memory).
+- Full account: `research/historians/DOCUMENTS_STAGE2_REPORT.md` (private).
+  No data from any source is in this repository. Nothing in this change
+  touches the live site, the search index, or the database.
+
 ### Scholarship: a secondary-scholarship backend, no UI yet
 - `backend/scholarship.py` asks the open scholarly metadata services
   (OpenAlex, then Crossref), Unpaywall for a legal open-access copy, and
