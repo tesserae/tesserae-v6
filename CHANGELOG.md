@@ -9,6 +9,60 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Documentary texts, stage 3b-1: a separate documents index, built dark (no site change)
+- `scripts/documents/write_document_tess.py`: writes the documentary
+  corpus into packed `.tess` files, one per source/region/century
+  bucket (264 files for Latin+Greek together, not one file per
+  document), reusing the existing bucketing and restoration-token
+  rules unchanged. Text is the restored reading with the gap
+  placeholder dropped (kept only as a count) and a mixed
+  gap/real-character token split into its surviving pieces; restored-
+  word and fragment positions go to a sidecar JSONL per bucket, never
+  into the `.tess` text itself. A document's own merged-corpus id is
+  its citation tag, so it joins directly against the metadata
+  database from stage 3a.
+- `scripts/documents/build_documents_index.py`: builds a SEPARATE
+  `<lang>_documents_index.db` per language by reusing the existing
+  index-build code unchanged (same schema, same per-lemma document-
+  frequency table, now scoped to the documentary corpus alone so it
+  never shifts literary word rarity), plus a new `doc_meta` table
+  mapping each document to its bucket file and line range. Guards
+  refuse to write under `/var/www` or to any literary index filename.
+- `scripts/documents/query_documents_index.py`: a dev-only lemma/
+  phrase lookup against a documents index, joined against the
+  metadata database for licence and source credit.
+- `backend/lemma_cache.py`'s `rebuild_lemma_cache()` gained three
+  optional, default-preserving parameters: `file_filter` (a subset of
+  filenames, for sharding), `fast_greek` (Greek only, the same
+  table-only lookup the index build's own fast mode uses, cutting the
+  Greek cache rebuild from 63.8s to 0.1s per ~1,500 lines and measured
+  at 100% lemma agreement with a fast-mode-built index), and
+  `build_phrase_units` (default True; False for documents, after
+  measuring `process_file`'s phrase-accumulation at 5.24 GB peak RSS
+  on one epigraphic bucket file with a 706-line unterminated run,
+  against 1.45 GB for line mode alone on the same file; nothing in
+  this stage reads a documents phrase cache entry).
+- `scripts/documents/build_lemma_cache_shard.py`: builds one shard of
+  a language's lemma cache, files balanced by line count across
+  shards (the documentary buckets are heavily skewed), so bucket files
+  cache in parallel across `tess-job` scopes.
+- A 2-bucket pilot measured real per-line costs first, before deciding
+  whether to run a full build; the initial projection (CLTK-bound
+  Greek lemma-cache rebuild, ~8.6 hours alone) exceeded the 6-hour
+  budget, so the fast-Greek and skip-phrase-units fixes above were
+  built and re-measured. Full Latin and Greek documents indexes and
+  lemma caches are now built: `la_documents_index.db` (411,466 lines,
+  160 texts, 160 cache files) and `grc_documents_index.db` (711,801
+  lines, 104 texts, 104 cache files), together well under 20 minutes
+  wall time, no concurrency slowdown measured between 4 and 7 parallel
+  Latin cache shards on this 32-core machine.
+- 54 tests across five new/extended test files, plus the existing
+  search reference wiring test, all passing. One pre-existing,
+  unrelated test failure on `main` itself (a cross-lingual pair list
+  mismatch in the assistant actions module) is untouched by this work.
+- No change to any literary index or to the live site. The literary
+  index files were checksummed before and after and are unchanged.
+
 ### Origo Gentis Romanae: a public-domain English translation added
 - `scripts/translations/align_origo.py` aligns the 2004 collaborative
   translation published at tertullian.org (ed. Roger Pearse, public
