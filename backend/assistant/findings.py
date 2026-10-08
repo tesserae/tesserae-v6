@@ -80,7 +80,28 @@ VERDICT_LABELS = {
 
 
 def _channels_of(result):
-    return set(result.get('channels') or [])
+    """Which evidence channels fired on this pair.
+
+    Single-language fusion reports this as a list of channel names. Cross-
+    language fusion (backend/blueprints/search.py, _direct_crosslingual_core)
+    reports it as one comma-joined string instead, e.g. "semantic (85%),
+    dictionary (3 words)". set() of that string returned a set of individual
+    characters, so every bucket below (verbatim, lexical, meaning, ...) came
+    up silently empty for every cross-language result, and the computed
+    verdict read "weak" regardless of what the channels actually were
+    (crosslingual parity, 2026-10-08).
+    """
+    raw = result.get('channels')
+    if isinstance(raw, str):
+        names = set()
+        for part in raw.split(','):
+            name = part.strip().split(' (')[0].strip().lower()
+            if name == 'phonetic':
+                name = 'sound'  # the closest internal bucket: sub-lexical sound evidence
+            if name:
+                names.add(name)
+        return names
+    return set(raw or [])
 
 
 def _idf_values(result):

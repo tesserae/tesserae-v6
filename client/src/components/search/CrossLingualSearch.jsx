@@ -1,14 +1,15 @@
 import Pagination from '../common/Pagination';
 import { usePagination } from '../../hooks/usePagination';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { LoadingSpinner, SearchableAuthorSelect, SearchableSelect, InfoBadge } from '../common';
+import { LoadingSpinner, SearchableAuthorSelect, SearchableSelect, InfoBadge, CiteButton, Button } from '../common';
+import SavedSearches from './SavedSearches';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { createSearchId, requestSearchCancellation } from '../../utils/api';
 import { dirFor } from '../../utils/rtl';
 import { exportRowsToPDF } from '../../utils/exportResults';
 import { ResultsInsight } from '../assistant';
-import { useCorpusTextMap, resolveDisplayCitation } from '../../utils/textNames';
+import { useCorpusTextMap, resolveDisplayCitation, siteIdFromRef } from '../../utils/textNames';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -47,6 +48,33 @@ const channelNames = (features) => CHANNEL_SCORE_LABELS
   .filter(([key]) => features?.[key] > 0)
   .map(([, label]) => label);
 
+// Resolves a URL deep link or a saved search's bare section id (text id)
+// back to the author/work keys the menus need, by walking the already
+// loaded hierarchy (parity with the single-language page's share link and
+// Saved Searches, crosslingual parity, 2026-10-08).
+const findSectionOwner = (authors, sectionId) => {
+  if (!sectionId) return null;
+  for (const author of authors || []) {
+    for (const work of author.works || []) {
+      if (work.whole_text === sectionId) return { authorKey: author.author_key, workKey: work.work_key };
+      if ((work.parts || []).some((p) => p.id === sectionId)) {
+        return { authorKey: author.author_key, workKey: work.work_key };
+      }
+    }
+  }
+  return null;
+};
+
+// One side's shared words as lemmas (falling back to the surface word),
+// for Search Corpus: each matched_words entry carries both sides
+// (backend/blueprints/search.py's crosslingual fusion always sets
+// source_word/target_word, and source_lemma/target_lemma where a channel
+// has one), so this is the one place that knows how to pull just one side
+// out of a cross-language match (crosslingual parity, 2026-10-08).
+const sideLemmas = (matchedWords, side) => (matchedWords || [])
+  .map((w) => (side === 'source' ? (w.source_lemma || w.source_word) : (w.target_lemma || w.target_word)))
+  .filter(Boolean);
+
 const LANG_PAIRS = [
   { key: 'grc-la', source: 'grc', target: 'la', label: 'Greek → Latin' },
   { key: 'la-en', source: 'la', target: 'en', label: 'Latin → English' },
@@ -80,7 +108,7 @@ const LANG_DEFAULTS = {
   ar: { author: 'quran', work: 'al_baqara', part: null },
 };
 
-export default function CrossLingualSearch({ onOpenHelp }) {
+export default function CrossLingualSearch({ onOpenHelp, onRegister, onCorpusSearch }) {
   // Builds an InfoBadge `more` link to the matching label in the Help
   // page's "Reading the results" section (result card tidy, second pass,
   // 2026-10-08).
@@ -97,6 +125,17 @@ export default function CrossLingualSearch({ onOpenHelp }) {
   // reader must know the match was found in Greek and mapped to the Hebrew.
   const [pivotNote, setPivotNote] = useState(null);
   const [error, setError] = useState(null);
+  // Stamped on the response (backend/blueprints/search.py _finalize_results)
+  // so Cite can name it, the same way the single-language card does.
+  const [corpusVersion, setCorpusVersion] = useState(null);
+  // Confirms a copied share link on the button itself, matching the
+  // single-language page's Share control (App.jsx).
+  const [shareCopied, setShareCopied] = useState(false);
+  // Bumped to re-run the search once a deep-linked or saved search's
+  // source/target section ids have settled into state (both setters landed
+  // in the same batch), rather than depending on doSearch's own closure
+  // before the state it reads has actually updated.
+  const [autoRunKey, setAutoRunKey] = useState(0);
 
   const [langPair, setLangPair] = useState('grc-la');
   // The pairs this server can actually search, from /api/languages. A
@@ -172,7 +211,7 @@ export default function CrossLingualSearch({ onOpenHelp }) {
   namesRef.current = { src: srcName, tgt: tgtName };
   const [resultNames, setResultNames] = useState({ src: '', tgt: '' });
 
-  const doSearch = useCallback(async () => {
+  const doSearch = useCallback(async (opts = {}) => {
     if (!sourceSection || !targetSection) {
       setError('Please select both source and target texts');
       return;
@@ -200,6 +239,12 @@ export default function CrossLingualSearch({ onOpenHelp }) {
           min_matches: minMatches,
           hebrew_greek_route: hebrewGreekRoute,
           search_id: searchId,
+          // Refresh results (parity with the single-language page's
+          // "Refresh results"): /api/search reads this for every match
+          // type, crosslingual_fusion included (backend/blueprints/search.py
+          // _search_response), so a stale cached answer can be bypassed here
+          // the same way.
+          skip_cache: !!opts.skipCache,
         }),
         signal: controller.signal
       });
@@ -212,6 +257,7 @@ export default function CrossLingualSearch({ onOpenHelp }) {
         } else {
           setResults(data.results || []);
           setPivotNote(data.via_septuagint ? (data.note || '') : null);
+          setCorpusVersion(data.corpus_version || null);
           // Freeze the chosen texts' names for these results (owner's review
           // of the live Persian to Urdu page, result card tidy, second pass,
           // 2026-10-08): this call was missing, so resultNames stayed empty
@@ -233,6 +279,10 @@ export default function CrossLingualSearch({ onOpenHelp }) {
       setSearchLoading(false);
     }
   }, [sourceSection, targetSection, minMatches, hebrewGreekRoute, currentPair]);
+
+  const handleRefreshResults = useCallback(() => {
+    doSearch({ skipCache: true });
+  }, [doSearch]);
 
   const cancelSearch = useCallback(() => {
     if (abortRef.current) {
@@ -274,6 +324,19 @@ export default function CrossLingualSearch({ onOpenHelp }) {
       }
     }
   }, [hebrewGreekRoute, sourceSection, targetSection, searchLoading, doSearch]);
+
+  // A share link or a loaded Saved Search sets several pieces of state at
+  // once (pair, author, work, section); this fires once they have landed,
+  // rather than racing doSearch's own closure before sourceSection/
+  // targetSection reflect the new values.
+  useEffect(() => {
+    if (!autoRunKey) return;
+    if (sourceSection && targetSection && !searchLoading) {
+      hasSearchedRef.current = true;
+      doSearch();
+      setAutoRunKey(0);
+    }
+  }, [autoRunKey, sourceSection, targetSection, searchLoading, doSearch]);
 
   useEffect(() => {
     if (searchLoading) {
@@ -332,10 +395,40 @@ export default function CrossLingualSearch({ onOpenHelp }) {
         fetch(`/api/texts/hierarchy?language=${lang}`)
           .then(r => r.json()).then(d => d.authors || []).catch(() => [])));
       const h = Object.fromEntries(langs.map((lang, i) => [lang, lists[i]]));
-      const pair = served.find(p => p.key === langPair) || served[0] || currentPair;
+
+      // Restore a shared link (lang=cross&pair=...&source=...&target=...
+      // &min_matches=...), so a pasted link reopens the same search rather
+      // than always opening on the per-language defaults (crosslingual
+      // parity, 2026-10-08). Only applied on this first load, the same way
+      // the single-language page's own deep link runs once.
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlPair = served.find(p => p.key === urlParams.get('pair'));
+      const pair = urlPair || served.find(p => p.key === langPair) || served[0] || currentPair;
+      if (urlPair) setLangPair(urlPair.key);
+
+      const urlSource = urlParams.get('source');
+      const urlTarget = urlParams.get('target');
+      const urlMinMatches = parseInt(urlParams.get('min_matches'), 10);
+      const srcOwner = findSectionOwner(h[pair.source] || [], urlSource);
+      const tgtOwner = findSectionOwner(h[pair.target] || [], urlTarget);
+
       setHierarchy(h);
-      setDefaultsForLang(h[pair.source] || [], pair.source, setSourceAuthor, setSourceWork, setSourceSection);
-      setDefaultsForLang(h[pair.target] || [], pair.target, setTargetAuthor, setTargetWork, setTargetSection);
+      if (srcOwner) {
+        setSourceAuthor(srcOwner.authorKey);
+        setSourceWork(srcOwner.workKey);
+        setSourceSection(urlSource);
+      } else {
+        setDefaultsForLang(h[pair.source] || [], pair.source, setSourceAuthor, setSourceWork, setSourceSection);
+      }
+      if (tgtOwner) {
+        setTargetAuthor(tgtOwner.authorKey);
+        setTargetWork(tgtOwner.workKey);
+        setTargetSection(urlTarget);
+      } else {
+        setDefaultsForLang(h[pair.target] || [], pair.target, setTargetAuthor, setTargetWork, setTargetSection);
+      }
+      if ([1, 2, 3, 4].includes(urlMinMatches)) setMinMatches(urlMinMatches);
+      if (srcOwner && tgtOwner) setAutoRunKey((k) => k + 1);
     } catch (err) {
       console.error('Failed to load text hierarchies:', err);
     }
@@ -370,6 +463,53 @@ export default function CrossLingualSearch({ onOpenHelp }) {
     hasSearchedRef.current = true;
     doSearch();
   };
+
+  // Saved Searches' "Load" (crosslingual parity, 2026-10-08): the pair key
+  // doubles as this instance's "language" (SavedSearches is language-
+  // agnostic), and sourceText/targetText are the chosen section ids.
+  const handleLoadSavedSearch = useCallback((search) => {
+    const pair = pairs.find(p => p.key === search.language) || currentPair;
+    setLangPair(pair.key);
+    const srcOwner = findSectionOwner(hierarchy[pair.source] || [], search.sourceText);
+    const tgtOwner = findSectionOwner(hierarchy[pair.target] || [], search.targetText);
+    if (srcOwner) {
+      setSourceAuthor(srcOwner.authorKey);
+      setSourceWork(srcOwner.workKey);
+      setSourceSection(search.sourceText);
+    }
+    if (tgtOwner) {
+      setTargetAuthor(tgtOwner.authorKey);
+      setTargetWork(tgtOwner.workKey);
+      setTargetSection(search.targetText);
+    }
+    if (search.settings?.min_matches) setMinMatches(search.settings.min_matches);
+    if (search.settings?.hebrew_greek_route) setHebrewGreekRoute(search.settings.hebrew_greek_route);
+    setResults([]);
+    setPivotNote(null);
+    setChartFilter(null);
+    if (srcOwner && tgtOwner) setAutoRunKey((k) => k + 1);
+  }, [pairs, currentPair, hierarchy]);
+
+  // Share: a link that reopens this exact search (parity with the
+  // single-language page's Share, App.jsx buildShareableUrl), extended with
+  // the cross-language parameters: the pair, the two section ids and the
+  // minimum matches. The page's own `lang=cross` already selects this tab.
+  const buildShareUrl = useCallback(() => {
+    const params = new URLSearchParams();
+    params.set('lang', 'cross');
+    params.set('pair', langPair);
+    if (sourceSection) params.set('source', sourceSection);
+    if (targetSection) params.set('target', targetSection);
+    if (minMatches) params.set('min_matches', String(minMatches));
+    return `${window.location.origin}/?${params.toString()}`;
+  }, [langPair, sourceSection, targetSection, minMatches]);
+
+  const handleShare = useCallback(() => {
+    navigator.clipboard?.writeText(buildShareUrl()).then(() => {
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2500);
+    }).catch(() => {});
+  }, [buildShareUrl]);
 
   const exportCSV = useCallback(() => {
     const headers = ['Score', 'Channels', `${srcLang.name} Locus`, `${srcLang.name} Text`, `${tgtLang.name} Locus`, `${tgtLang.name} Text`, 'Semantic', 'Matched Words'];
@@ -414,6 +554,34 @@ export default function CrossLingualSearch({ onOpenHelp }) {
       return [...filtered].sort((a, b) => (a.target?.ref || a.target_locus || '').localeCompare(b.target?.ref || b.target_locus || ''));
     }
   }, [results, sortBy, chartFilter]);
+
+  // Export PDF: parity with the single-language page's Export PDF
+  // (SearchResults.jsx), reusing the same print-friendly-window helper.
+  // Every cross-language result is already held client-side (no server
+  // paging here), so this exports sortedResults directly rather than
+  // fetching a separate "all rows" page.
+  const exportPDF = useCallback(() => {
+    if (!sortedResults.length) return;
+    const headers = ['#', `${srcLang.name} Locus`, `${srcLang.name} Text`, `${tgtLang.name} Locus`, `${tgtLang.name} Text`, 'Score', 'Matched Words', 'Channels'];
+    const escHtml = (s) => String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const rows = sortedResults.map((r, idx) => [
+      String(idx + 1),
+      escHtml(r.source?.ref || r.source_locus || ''),
+      escHtml(r.source?.text || r.source_text || ''),
+      escHtml(r.target?.ref || r.target_locus || ''),
+      escHtml(r.target?.text || r.target_text || ''),
+      (r.overall_score ?? r.score)?.toFixed(3) || '',
+      escHtml((r.matched_words || []).map(m => m.display || `${m.source_word || m.greek_word}→${m.target_word || m.latin_word}`).join('; ')),
+      escHtml(r.channels || ''),
+    ]);
+    const subtitle = `${srcLang.name} (${withName(srcName, '') || srcLang.name}) vs ${tgtLang.name} (${withName(tgtName, '') || tgtLang.name})`;
+    exportRowsToPDF('Tesserae V6: Cross-Language Results', subtitle, headers, rows, {
+      htmlCells: true,
+      dir: dirFor(currentPair.target) === 'rtl' || dirFor(currentPair.source) === 'rtl' ? 'rtl' : 'ltr',
+      colWidths: ['3%', '8%', '25%', '8%', '25%', '5%', '16%', '10%'],
+    });
+  }, [sortedResults, srcLang, tgtLang, srcName, tgtName, currentPair]);
 
   const getDistributionData = useCallback(() => {
     if (!results || results.length === 0) return null;
@@ -508,6 +676,37 @@ export default function CrossLingualSearch({ onOpenHelp }) {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Saved Searches and Share: parity with the single-language page's
+          header row (App.jsx). Saved Searches keeps its own list, under its
+          own storage key, since a pair key ("fa-ur") is not a language the
+          single-language list's loader could reopen (crosslingual parity,
+          2026-10-08). */}
+      <div className="flex items-center gap-4 -mt-2">
+        <SavedSearches
+          sourceAuthor={sourceAuthor}
+          sourceText={sourceSection}
+          targetAuthor={targetAuthor}
+          targetText={targetSection}
+          settings={{ min_matches: minMatches, hebrew_greek_route: hebrewGreekRoute }}
+          activeTab={langPair}
+          onLoad={handleLoadSavedSearch}
+          storageKey="tesserae_saved_crosslingual_searches"
+          formatLanguage={(key) => pairs.find(p => p.key === key)?.label || key}
+        />
+        {sourceSection && targetSection && (
+          <button
+            onClick={handleShare}
+            className={`text-sm flex items-center gap-1 ${shareCopied ? 'text-red-700 font-medium' : 'text-gray-500 hover:text-red-600'}`}
+            title="Copy a link that reproduces this search"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+            {shareCopied ? 'Link copied' : 'Share'}
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -707,6 +906,21 @@ export default function CrossLingualSearch({ onOpenHelp }) {
               >
                 Export CSV
               </button>
+              <button
+                onClick={exportPDF}
+                className="text-xs bg-red-700 text-white px-3 py-1.5 rounded hover:bg-red-800"
+                title="Open print-friendly view; choose 'Save as PDF' in the print dialog."
+              >
+                Export PDF
+              </button>
+              <button
+                onClick={handleRefreshResults}
+                disabled={searchLoading}
+                className="text-xs bg-gray-100 text-gray-600 px-3 py-1.5 rounded hover:bg-gray-200 disabled:opacity-50"
+                title="Clear cached results and run the search again"
+              >
+                Refresh results
+              </button>
               <span className="text-xs text-gray-500">Sort:</span>
               <select
                 value={sortBy}
@@ -719,7 +933,19 @@ export default function CrossLingualSearch({ onOpenHelp }) {
               </select>
             </div>
           </div>
-          
+
+          {!searchLoading && (
+            <div className="px-4 pt-3">
+              <ResultsInsight
+                results={sortedResults}
+                total={sortedResults.length}
+                loadResults={(n) => Promise.resolve(sortedResults.slice(0, n))}
+                source={srcName || srcLang.name}
+                target={tgtName || tgtLang.name}
+              />
+            </div>
+          )}
+
           {showDistributionChart && (
             <div className="p-4 border-b bg-gray-50">
               <div className="flex items-center gap-4 mb-3">
@@ -750,7 +976,35 @@ export default function CrossLingualSearch({ onOpenHelp }) {
               </div>
             </div>
           )}
-          
+
+          <div className="px-4">
+            <Pagination {...pagination} variant="full" idPrefix="crosslingualsearch-top" />
+            {/* One legend line, matching the single-language page's result
+                card legend (SearchResults.jsx, result card tidy, second
+                pass, 2026-10-08). */}
+            {pagination.visibleItems.length > 0 && (
+              <p className="text-xs text-gray-600 mb-2 flex flex-wrap items-center gap-x-1 gap-y-1">
+                <span className="font-medium">Highlights:</span>
+                {pagination.visibleItems.some(r => r.poetics) ? (
+                  <>
+                    <span><mark className="bg-yellow-200 px-1 rounded">yellow</mark> shared word,</span>
+                    <span><mark className="bg-rose-200 px-1 rounded">rose</mark> rhyme word.</span>
+                  </>
+                ) : (
+                  <span><mark className="bg-yellow-200 px-1 rounded">yellow</mark> shared word.</span>
+                )}
+                <span>Hover over or tap any label for its meaning.</span>
+                <button
+                  type="button"
+                  onClick={() => onOpenHelp && onOpenHelp('reading-results')}
+                  className="text-amber-700 hover:text-amber-900 underline"
+                >
+                  Reading the results
+                </button>
+              </p>
+            )}
+          </div>
+
           <div className="divide-y divide-gray-200">
             {pagination.visibleItems.map((result, i) => (
               <div key={i} className="p-4">
@@ -864,10 +1118,88 @@ export default function CrossLingualSearch({ onOpenHelp }) {
                     Matched: {result.matched_words.map(m => m.display || `${m.source_word || m.greek_word} → ${m.target_word || m.latin_word}`).join(', ')}
                   </div>
                 )}
+                {/* Action row, parity with the single-language card's own
+                    Search Corpus / Register / Cite (SearchResults.jsx,
+                    crosslingual parity, 2026-10-08). Two Search Corpus
+                    buttons, one per side, since a cross-language pair's two
+                    lines are in two different languages and each side's
+                    shared words only mean something searched against its
+                    own language's corpus. */}
+                {(() => {
+                  const srcRaw = result.source?.ref || result.source_locus;
+                  const tgtRaw = result.target?.ref || result.target_locus;
+                  const srcCitation = resolveDisplayCitation(withName(resultNames.src, srcRaw), srcRaw, srcCorpusMap).text;
+                  const tgtCitation = resolveDisplayCitation(withName(resultNames.tgt, tgtRaw), tgtRaw, tgtCorpusMap).text;
+                  const srcLemmas = sideLemmas(result.matched_words, 'source');
+                  const tgtLemmas = sideLemmas(result.matched_words, 'target');
+                  return (
+                    <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t">
+                      {onCorpusSearch && srcLemmas.length > 0 && (
+                        <Button
+                          variant="tertiary"
+                          size="sm"
+                          onClick={() => onCorpusSearch({
+                            source: { ref: srcRaw, text: result.source?.text || result.source_text },
+                            target: { ref: tgtRaw, text: result.target?.text || result.target_text },
+                            matched_lemmas: srcLemmas,
+                            language: currentPair.source,
+                          })}
+                          title={`Find these ${srcLang.name} words together in other ${srcLang.name} texts`}
+                        >
+                          Search Corpus ({srcLang.name})
+                        </Button>
+                      )}
+                      {onCorpusSearch && tgtLemmas.length > 0 && (
+                        <Button
+                          variant="tertiary"
+                          size="sm"
+                          onClick={() => onCorpusSearch({
+                            source: { ref: srcRaw, text: result.source?.text || result.source_text },
+                            target: { ref: tgtRaw, text: result.target?.text || result.target_text },
+                            matched_lemmas: tgtLemmas,
+                            language: currentPair.target,
+                          })}
+                          title={`Find these ${tgtLang.name} words together in other ${tgtLang.name} texts`}
+                        >
+                          Search Corpus ({tgtLang.name})
+                        </Button>
+                      )}
+                      {onRegister && (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => onRegister({
+                            source: { ref: srcRaw, text: result.source?.text || result.source_text, language: currentPair.source },
+                            target: { ref: tgtRaw, text: result.target?.text || result.target_text, language: currentPair.target },
+                            matched_words: result.matched_words,
+                            overall_score: result.overall_score ?? result.score,
+                            channels: result.channels,
+                          })}
+                          title="Save this parallel to the Repository"
+                        >
+                          Register
+                        </Button>
+                      )}
+                      <CiteButton
+                        finding={{
+                          kind: 'cross-language search',
+                          source: srcCitation,
+                          target: tgtCitation,
+                          language: currentPair.label,
+                          score: result.overall_score ?? result.score,
+                          channels: result.channels || '',
+                          corpusVersion: corpusVersion,
+                          url: typeof window !== 'undefined' ? window.location.href : '',
+                          siteId: [siteIdFromRef(srcRaw), siteIdFromRef(tgtRaw)].filter(Boolean).join(' ~ '),
+                        }}
+                      />
+                    </div>
+                  );
+                })()}
               </div>
             ))}
           </div>
-          <Pagination {...pagination} idPrefix="crosslingualsearch" />
+          <Pagination {...pagination} variant="nav" idPrefix="crosslingualsearch-bottom" />
         </div>
       )}
     </div>

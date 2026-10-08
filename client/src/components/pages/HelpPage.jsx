@@ -1288,6 +1288,17 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 Every badge on a result card opens a short explanation on hover, focus, or tap. This
                 page gives the fuller version of each one.
               </p>
+              <p className="text-gray-600 text-sm mb-4">
+                One citation of Tesserae per publication is enough. Individual parallels do
+                not need their own. See{' '}
+                <button
+                  type="button"
+                  onClick={() => window.dispatchEvent(new CustomEvent('tesserae:open-how-to-cite'))}
+                  className="text-red-600 hover:underline"
+                >
+                  How to cite Tesserae
+                </button>.
+              </p>
               <div className="space-y-4">
                 <div id="score">
                   <h4 className="text-lg font-semibold text-gray-900">Score</h4>

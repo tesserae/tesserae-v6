@@ -57,6 +57,11 @@ async function setup(name) {
 }
 const countRows = () => screen.getAllByText(/^[ab]-row-\d+$/).length;
 const requests = () => global.fetch.mock.calls.length + wildcardSearch.mock.calls.length;
+// CrossLingualSearch now carries pagination both above and below its result
+// list (crosslingual parity, 2026-10-08), so "Previous"/"Next"/"Go to page
+// N" each match two buttons there (one set per instance); every other
+// component here still has exactly one, so [0] is a no-op for them.
+const pageBtn = (name) => screen.getAllByRole('button', { name })[0];
 
 for (const name of ['LineSearch', 'WildcardSearch', 'CrossLingualSearch', 'CorpusSearchResults']) {
   describe(`${name} shared pagination integration`, () => {
@@ -65,55 +70,55 @@ for (const name of ['LineSearch', 'WildcardSearch', 'CrossLingualSearch', 'Corpu
       expect(countRows()).toBe(50);
       expect(screen.getByText('a-row-50')).toBeInTheDocument();
       expect(screen.queryByText('a-row-51')).toBeNull();
-      expect(screen.getByRole('button', { name: 'Previous' })).toBeDisabled();
+      expect(pageBtn('Previous')).toBeDisabled();
     });
     it('navigates numbered pages locally and preserves global rank', async () => {
       await setup(name);
       const before = requests();
-      fireEvent.click(screen.getByRole('button', { name: 'Go to page 2' }));
+      fireEvent.click(pageBtn('Go to page 2'));
       expect(screen.getByText('a-row-51')).toBeInTheDocument();
       expect(screen.queryByText('a-row-1')).toBeNull();
-      expect(screen.getByRole('button', { name: 'Go to page 2' })).toHaveAttribute('aria-current', 'page');
+      expect(pageBtn('Go to page 2')).toHaveAttribute('aria-current', 'page');
       expect(screen.getByText('51.')).toBeInTheDocument();
       expect(requests()).toBe(before);
     });
     it('moves with Next/Previous and disables Next on the last page', async () => {
       await setup(name);
       const before = requests();
-      fireEvent.click(screen.getByRole('button', { name: 'Next' }));
-      fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+      fireEvent.click(pageBtn('Next'));
+      fireEvent.click(pageBtn('Next'));
       expect(countRows()).toBe(25);
       expect(screen.getByText('a-row-101')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
-      fireEvent.click(screen.getByRole('button', { name: 'Previous' }));
+      expect(pageBtn('Next')).toBeDisabled();
+      fireEvent.click(pageBtn('Previous'));
       expect(screen.getByText('a-row-51')).toBeInTheDocument();
       expect(requests()).toBe(before);
     });
     it('uses central sizes and returns to page 1 when choosing 20', async () => {
       await setup(name);
       const before = requests();
-      fireEvent.click(screen.getByRole('button', { name: 'Go to page 3' }));
+      fireEvent.click(pageBtn('Go to page 3'));
       const select = screen.getByRole('combobox', { name: 'Show' });
       expect([...select.options].map(o => Number(o.value))).toEqual([10, 20, 50, 100]);
       fireEvent.change(select, { target: { value: '20' } });
       expect(countRows()).toBe(20);
       expect(screen.getByText('a-row-1')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Previous' })).toBeDisabled();
+      expect(pageBtn('Previous')).toBeDisabled();
       expect(requests()).toBe(before);
     });
     it('resets a later page for a new result identity, even with the same query and count', async () => {
       const { newSearch } = await setup(name);
-      fireEvent.click(screen.getByRole('button', { name: 'Go to page 3' }));
+      fireEvent.click(pageBtn('Go to page 3'));
       responseRows = rows('b');
       await act(async () => { await newSearch(); });
       await screen.findByText('b-row-1');
       expect(countRows()).toBe(50);
       expect(screen.queryByText('b-row-101')).toBeNull();
-      expect(screen.getByRole('button', { name: 'Previous' })).toBeDisabled();
+      expect(pageBtn('Previous')).toBeDisabled();
     });
     it('resets before slicing after a filter or sort change', async () => {
       await setup(name);
-      fireEvent.click(screen.getByRole('button', { name: 'Go to page 2' }));
+      fireEvent.click(pageBtn('Go to page 2'));
       const before = requests();
       if (name === 'CrossLingualSearch') {
         const select = screen.getAllByRole('combobox').find(s => [...(s.options || [])].some(o => o.value === 'score'));
@@ -123,7 +128,7 @@ for (const name of ['LineSearch', 'WildcardSearch', 'CrossLingualSearch', 'Corpu
         expect(screen.queryByText('a-row-1')).toBeNull();
         expect(screen.getByText('a-row-61')).toBeInTheDocument();
       }
-      expect(screen.getByRole('button', { name: 'Previous' })).toBeDisabled();
+      expect(pageBtn('Previous')).toBeDisabled();
       expect(countRows()).toBe(50);
       expect(requests()).toBe(before);
     });
