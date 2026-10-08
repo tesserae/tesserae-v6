@@ -9,6 +9,16 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Documents: a trial behind ?documents=1, and a separate switch for the connector
+- The Literature/Documents/Both control on the corpus-wide phrase search
+  appears only after a visit with `?documents=1` (remembered for the rest
+  of the visit), and only when the server also has documents on, the same
+  pattern as the Scholarship tab. The server switch can therefore be on
+  without every reader seeing the option.
+- The connector's `line_search` forwards `collection` and the documents
+  filters only when `TESSERAE_DOCUMENTS_CONNECTOR=1`, so the trial is not
+  opened to every connector user. Tests for both.
+
 ### Documents: the credit shows each source's deposit licence
 - `scripts/documents/extract_metadata.py` takes the licence for every
   document from the source's own deposit record, not from the sentence in

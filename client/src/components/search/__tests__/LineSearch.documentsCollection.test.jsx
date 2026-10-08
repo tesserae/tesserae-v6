@@ -45,7 +45,9 @@ const literatureHit = {
   is_poetry: true, matched_words: ['arma', 'virum'], matched_lemmas: ['arma', 'vir'],
 };
 
-function mockFetch({ documentsEnabled, results }) {
+function mockFetch({ documentsEnabled, results, trial = documentsEnabled }) {
+  // The control is a trial behind ?documents=1, remembered for the visit.
+  if (trial) window.sessionStorage.setItem('tesserae_documents_trial', '1');
   global.fetch = vi.fn(async (url, init) => {
     const u = String(url);
     if (u === '/api/languages') {
@@ -75,6 +77,14 @@ async function switchToSearchMode() {
 describe('documents collection control', () => {
   it('is absent when documents_enabled is false', async () => {
     mockFetch({ documentsEnabled: false, results: [] });
+    render(<LineSearch language="la" />);
+    await switchToSearchMode();
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/languages'));
+    expect(screen.queryByText('Search in')).toBeNull();
+  });
+
+  it('is absent without the ?documents=1 trial even when the server has documents on', async () => {
+    mockFetch({ documentsEnabled: true, results: [], trial: false });
     render(<LineSearch language="la" />);
     await switchToSearchMode();
     await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/languages'));
