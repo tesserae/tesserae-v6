@@ -126,14 +126,14 @@ class EpidocConverter:
         self.gap_count = 0
         self.supplied_chars = 0
         self.total_chars = 0
-        current = {"n": None, "buf": LineBuffer()}
+        current = {"n": None, "buf": LineBuffer(), "joins": False}
 
         def has_content(buf: LineBuffer) -> bool:
             return bool(buf.expanded_text().strip() or buf.diplomatic_text().strip())
 
         def flush():
             if current["n"] is not None or has_content(current["buf"]):
-                self._finish_line(current["n"], current["buf"])
+                self._finish_line(current["n"], current["buf"], current["joins"])
             current["buf"] = LineBuffer()
 
         def recurse(elem, restored: bool):
@@ -149,6 +149,9 @@ class EpidocConverter:
                 if current["n"] is not None or has_content(current["buf"]):
                     flush()
                 current["n"] = elem.get("n")
+                # Remember it on the new line: its first word continues the last
+                # word of the previous line (record["text"] joins them).
+                current["joins"] = elem.get("break") == "no"
                 _append_tail(elem, restored)
                 return
             if tag == "gap":
@@ -273,7 +276,7 @@ class EpidocConverter:
         flush()
         return self.lines
 
-    def _finish_line(self, n, buf: LineBuffer) -> None:
+    def _finish_line(self, n, buf: LineBuffer, joins_previous: bool = False) -> None:
         expanded_text = buf.expanded_text()
         # "text": expanded text with editorial marks removed. Our
         # add_expanded already stores plain characters (no literal bracket
@@ -307,12 +310,26 @@ class EpidocConverter:
             "expanded": expanded_text.strip(),
             "text": stripped_text,
             "restored_flags": stripped_flags,
+            "joins_previous": bool(joins_previous),
         })
 
 
 # ---------------------------------------------------------------------------
 # Shared helpers
 # ---------------------------------------------------------------------------
+
+def join_lines(lines) -> str:
+    """Join line texts into one string: a space between lines, none where a
+    line continues the previous line's last word."""
+    out = ''
+    for line in lines:
+        t = line.get('text', '')
+        if not t:
+            continue
+        if out and not line.get('joins_previous'):
+            out += ' '
+        out += t
+    return out
 
 def _text(elem) -> str:
     return "".join(elem.itertext()).strip() if elem is not None else ""
@@ -534,6 +551,10 @@ def convert_file(path: str, source: str, hgv_root=None) -> Optional[dict]:
         "findspot": {"ancient_place": None, "modern_place": None,
                       "region": None, "pleiades_id": None},
         "lines": all_lines,
+        # The whole document as one string, with a word broken across a line
+        # end (<lb break="no"/>) joined, not split (2026-10-07 review: lines
+        # joined with spaces gave "Mani bus" for "Manibus").
+        "text": join_lines(all_lines),
         "supplied_chars": supplied_chars,
         "total_chars": total_chars,
         "gap_count": gap_count,

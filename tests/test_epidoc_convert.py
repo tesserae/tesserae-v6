@@ -208,3 +208,24 @@ def test_cli_papyri_requires_meta_dir(tmp_path):
     )
     assert result.returncode != 0
     assert "meta-dir" in result.stderr
+
+
+def test_word_broken_across_a_line_is_joined(tmp_path):
+    """<lb break="no"/> marks a word that runs on from the previous line; the
+    plain text must not split it (reviewer's question on #668)."""
+    xml = """<?xml version="1.0" encoding="UTF-8"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader><fileDesc><titleStmt><title>t</title></titleStmt>
+  <publicationStmt><idno type="filename">X1</idno></publicationStmt>
+  <sourceDesc><p/></sourceDesc></fileDesc></teiHeader>
+  <text><body><div type="edition" xml:lang="la"><ab>
+    <lb n="1"/>Dis Mani
+    <lb n="2" break="no"/>bus sacrum
+  </ab></div></body></text>
+</TEI>"""
+    p = tmp_path / "X1.xml"
+    p.write_text(xml, encoding="utf-8")
+    rec = epidoc_convert.convert_file(str(p), "test")
+    assert rec["lines"][1]["joins_previous"] is True
+    assert rec["lines"][0]["joins_previous"] is False
+    assert rec["text"] == "Dis Manibus sacrum"
