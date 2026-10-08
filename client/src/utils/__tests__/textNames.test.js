@@ -198,3 +198,21 @@ describe('siteIdFromRef', () => {
     expect(siteIdFromRef('  verg. aen. 1.1  ')).toBe('verg. aen. 1.1');
   });
 });
+
+describe('section labels in Persian and Urdu references', () => {
+  const map = new Map([
+    ['ghalib.diwan_wikisource', { author: 'Ghalib', title: 'Diwan' }],
+    ['mir.kulliyat_wikisource', { author: 'Mir', title: 'Kulliyat' }],
+    ['hafez.diwan', { author: 'Hafez', title: 'Diwan' }],
+  ]);
+  it('reads a section label as a word and keeps it', () => {
+    expect(resolveDisplayCitation('', 'ghalib.diwan_wikisource.ghazal.1.1', map).text).toBe('Ghalib, Diwan, ghazal 1.1');
+    expect(resolveDisplayCitation('', 'mir.kulliyat_wikisource.tarkib_band.3.2', map).text).toBe('Mir, Kulliyat, tarkib band 3.2');
+  });
+  it('leaves plain numeric references as they were', () => {
+    expect(resolveDisplayCitation('', 'hafez.diwan.5097', map).text).toBe('Hafez, Diwan 5097');
+  });
+  it('shortens a labelled range after the label', () => {
+    expect(formatSelectionRange('ghalib.diwan_wikisource.ghazal.1.1', 'ghalib.diwan_wikisource.ghazal.1.7', map)).toBe('Ghalib, Diwan, ghazal 1.1–7');
+  });
+});

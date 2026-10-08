@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useCorpusTextMap, citationFromCorpusMap } from '../../utils/textNames';
 import { chronological, dateParts } from '../../utils/chronology';
 import { LoadingSpinner } from '../common';
 import { ResultsInsight } from '../assistant';
@@ -65,7 +66,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   useEffect(() => { setFullTranslation(null); }, [work]);
 
   // REUSE: other works whose lines verbatim-repeat the selection, from the
-  // corpus-wide reuse table (backend/reuse_table.py). Latin only for now --
+  // corpus-wide reuse table (backend/reuse_table.py). built per language --
   // a language with no table answers 404, which reads here as `available:
   // false` rather than an error, since "not built for this language" is a
   // normal state, not a failure.
@@ -694,7 +695,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
           <>
             <p className="text-[11px] text-gray-500 leading-snug">
               Lines sharing enough word-triples with this line to count as a quotation
-              or near-quotation, computed once over the corpus. Latin, Greek and English.
+              or near-quotation, computed once over the corpus.
             </p>
             {reuseLoading && <LoadingSpinner />}
             {reuseError && <p className="text-sm text-red-700">{reuseError}</p>}
@@ -899,12 +900,23 @@ function commentarySummary(commentaries) {
  *  factored out so tiering (strict shown directly, possible behind a
  *  collapsed section) does not duplicate the markup. */
 function ReuseGroups({ quotations, onOpenPassage }) {
+  // Work names and line references through the same resolver as the result
+  // cards, so "sauda.kulliyat_wikisource.6.6" reads "Sauda, Kulliyat 6.6".
+  const corpusMap = useCorpusTextMap(quotations[0]?.language);
+  const workName = (w) => {
+    const hit = citationFromCorpusMap(`${w}.0`, corpusMap);
+    return hit ? (hit.work ? `${hit.author}, ${hit.work}` : hit.author) : prettyWork(w);
+  };
+  const refName = (q) => {
+    const hit = citationFromCorpusMap(q.ref, corpusMap);
+    return hit && hit.reference ? hit.reference : q.ref;
+  };
   return (
     <div className="space-y-3">
       {groupReuseByWork(quotations).map(({ work: otherWork, year, items }) => (
         <div key={otherWork}>
           <div className="flex items-baseline gap-2 mb-1">
-            <span className="font-bold text-sm text-red-800">{prettyWork(otherWork)}</span>
+            <span className="font-bold text-sm text-red-800">{workName(otherWork)}</span>
             {year != null && (
               <span className="text-[11px] text-gray-500 tabular-nums">
                 {year < 0 ? `${Math.abs(year)} BCE` : `${year} CE`}
@@ -921,7 +933,7 @@ function ReuseGroups({ quotations, onOpenPassage }) {
                            focus:outline-none focus:ring-2 focus:ring-red-400"
               >
                 <div className="flex items-baseline gap-2 flex-wrap">
-                  <span className="text-xs text-gray-500">{q.ref}</span>
+                  <span className="text-xs text-gray-500">{refName(q)}</span>
                   {q.span_len > 1 && (
                     <span className="text-[10px] font-semibold bg-gray-100 text-gray-600 rounded px-1">
                       {q.span_len} lines

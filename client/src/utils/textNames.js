@@ -520,7 +520,7 @@ export function citationFromCorpusMap(ref, corpusMap) {
       return {
         author: meta.author || '',
         work: meta.title || meta.work || '',
-        reference: segs.slice(cut).join('.'),
+        reference: _labelledReference(segs.slice(cut).join('.')),
         siteId: clean,
         idCut: cut,
       };
@@ -529,9 +529,21 @@ export function citationFromCorpusMap(ref, corpusMap) {
   return null;
 }
 
+// A reference that opens with a section name ("ghazal.1.1", "tarkib_band.3.2"
+// in the Urdu and Persian collections) reads as words: "ghazal 1.1". The name
+// is kept because one collection can hold several numbered sections (a
+// ghazal 1.1 and a marsiya 1.1). Short leads such as "pr" (preface) are left
+// alone.
+function _labelledReference(ref) {
+  const m = /^([a-z][a-z_]{3,})\.(\d.*)$/.exec(ref || '');
+  return m ? `${m[1].replace(/_/g, ' ')} ${m[2]}` : ref;
+}
+
 const _joinCitation = ({ author, work, reference }) => {
   const head = work ? `${author}, ${work}` : author;
-  return reference ? `${head} ${reference}`.trim() : head;
+  if (!reference) return head;
+  // "Ghalib, Diwan, ghazal 1.1" but "Hafez, Diwan 5097"
+  return /^[a-z]/.test(reference) ? `${head}, ${reference}` : `${head} ${reference}`.trim();
 };
 
 /**
