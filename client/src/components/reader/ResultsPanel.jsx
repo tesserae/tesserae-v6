@@ -3,6 +3,7 @@ import { chronological, dateParts } from '../../utils/chronology';
 import { LoadingSpinner } from '../common';
 import { ResultsInsight } from '../assistant';
 import { displayRef } from './refId';
+import ScholarshipTab from './ScholarshipTab';
 
 const LANG_LABEL = {
   la: 'Latin', grc: 'Greek', he: 'Hebrew', en: 'English', cop: 'Coptic',
@@ -40,6 +41,9 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   // summary of a passage in a language they may not read. Opening on the
   // translation is the useful default there; everywhere else 'similar' is.
   const [tab, setTab] = useState(initialTab || 'similar');
+  // A second passage for the Scholarship tab: set from a Similar Passages or
+  // Verbal Parallels row, so the lookup asks for work that discusses BOTH.
+  const [second, setSecond] = useState(null);
   // Phone only: the sheet is a bare tab strip until a tab is tapped or a
   // line selected; on desktop the panel is always open.
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -188,11 +192,17 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   }, [selection, work, units, tab]);
 
   const tabs = [
-    ['similar', 'Similar Passages'],
-    ['verbal', 'Verbal Parallels'],
+    // Short labels so all four tabs fit the panel without a scrollbar; the
+    // full names sit in the title attribute (NC, 2026-09-13).
+    ['similar', 'Similar', 'Similar Passages'],
+    ['verbal', 'Parallels', 'Verbal Parallels'],
     // In the English-focused reading view the middle column IS the
     // translation, so this tab holds the original instead.
-    ['translation', focus === 'english' ? 'Original' : 'Translation'],
+    ['translation', focus === 'english' ? 'Original' : 'Translation', focus === 'english' ? 'The original text' : 'Aligned translation'],
+    // Secondary scholarship on the selected lines: the commentators the site
+    // holds, then articles, chapters and books that cite the passage, from
+    // open metadata services (preview build, 2026-09-13).
+    ['scholarship', 'Scholarship', 'Commentators, articles and books on the selection'],
   ];
 
   return (
@@ -221,11 +231,12 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
             ✕
           </button>
         )}
-        {tabs.map(([id, label]) => (
+        {tabs.map(([id, label, full]) => (
           <button
             key={id}
+            title={full || label}
             onClick={() => { setTab(id); setSheetOpen(true); }}
-            className={`px-3 py-2 font-semibold border-b-2 transition-colors ${
+            className={`px-2.5 py-2 font-semibold border-b-2 transition-colors ${
               tab === id
                 ? 'text-red-700 border-red-700'
                 : 'text-gray-500 border-transparent hover:text-gray-700'
@@ -329,6 +340,12 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                   {r.strong && (
                     <span className="ml-auto text-[11px] font-semibold text-green-700">strong</span>
                   )}
+                  <span role="link" tabIndex={0}
+                        className="text-[11px] text-red-700 hover:underline"
+                        onClick={(e) => { e.stopPropagation(); setSecond({ work: r.work, ref_start: r.ref_start, ref_end: r.ref_end, label: prettyWork(r.work) }); setTab('scholarship'); }}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); setSecond({ work: r.work, ref_start: r.ref_start, ref_end: r.ref_end, label: prettyWork(r.work) }); setTab('scholarship'); } }}>
+                    scholarship on both
+                  </span>
                 </div>
                 {r.gist && (
                   <p className="text-xs text-gray-600 mt-1 leading-snug">
@@ -481,6 +498,12 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                       {dateParts(r).date}
                     </span>
                   )}
+                  <span role="link" tabIndex={0}
+                        className="ml-auto text-[11px] text-red-700 hover:underline"
+                        onClick={(e) => { e.stopPropagation(); setSecond({ work: String(r.text_id || '').replace('.tess', ''), ref_start: r.locus, label: `${r.author}${r.work ? ', ' + r.work : ''}` }); setTab('scholarship'); }}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); setSecond({ work: String(r.text_id || '').replace('.tess', ''), ref_start: r.locus, label: `${r.author}${r.work ? ', ' + r.work : ''}` }); setTab('scholarship'); } }}>
+                    scholarship on both
+                  </span>
                 </div>
                 {/* THE MATCHED WORDS ARE THE POINT. This is a lemma search, so
                     the shared words are usually in different forms in the two
@@ -535,6 +558,13 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
           </>
         )}
 
+        {selection && tab === 'scholarship' && (
+          <ScholarshipTab work={work} language={language} selection={selection} units={units}
+                          second={second} onClearSecond={() => setSecond(null)} />
+        )}
+        {!selection && tab === 'scholarship' && (
+          <p className="text-sm text-gray-500">Select a line or a span to see the scholarship on it.</p>
+        )}
         {selection && tab === 'translation' && focus === 'english' && (
           <div className="space-y-1">
             <p className="text-[11px] text-gray-500 mb-2">

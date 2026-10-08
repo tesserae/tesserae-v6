@@ -22,6 +22,7 @@ or half-built index degrades the Reader's panel instead of breaking the page.
 """
 import csv
 import io
+import os
 from urllib.parse import quote
 
 from flask import Blueprint, Response, jsonify, request
@@ -29,7 +30,9 @@ from flask import Blueprint, Response, jsonify, request
 from backend.logging_config import get_logger
 from backend import passage_index
 from backend import lexical_density
+from backend import reader_rerank
 from backend import translations
+from backend.usage import log_event
 from backend import window_texts
 from backend import theme_pdf
 from backend.inverted_index import get_corpus_version
@@ -66,6 +69,12 @@ def _scale():
     return s if s in ('fine', 'coarse') else None
 
 
+def _reader_wanted():
+    """False only if the request opts out with ?reader=0 (or false/no/off)."""
+    raw = (request.args.get('reader') or '').strip().lower()
+    return raw not in ('0', 'false', 'no', 'off')
+
+
 @passages_bp.route('/passages/status')
 def scene_status():
     return jsonify(passage_index.status())
@@ -83,10 +92,18 @@ def theme_search():
     # on deployment this raised, Apache turned it into a bare 500, and the app
     # log was unreadable, so the cause could not be seen from the response at
     # all. An error the operator cannot read is an error they cannot fix.
+    limit = _int_arg('limit', 25)
+    offset = _int_arg('offset', 0, lo=0, hi=_MAX_OFFSET)
+    # The reader re-orders the top K of the ranking, so on the first page it
+    # needs at least K candidates to read even when the page shows fewer;
+    # the list is cut back to the requested length after the re-rank. Later
+    # pages (offset > 0) are left in index order: re-ranking each page on its
+    # own would shuffle results between pages.
+    reader_on = bool(os.environ.get('THEME_READER_URL')) and _reader_wanted() and offset == 0
+    fetch = max(limit, reader_rerank.DEFAULT_K) if reader_on else limit
     try:
         out = passage_index.find_by_text(
-            q, limit=_int_arg('limit', 25),
-            offset=_int_arg('offset', 0, lo=0, hi=_MAX_OFFSET),
+            q, limit=fetch, offset=offset,
             languages=_languages(), scale=_scale())
     except passage_index.EmbedUnavailable as e:
         # "cannot ask" is not "found nothing". Only one of those means the
@@ -106,6 +123,18 @@ def theme_search():
         'wording, so results in different languages usually share no words with '
         'the query. Lead with the work and the gist; treat a result marked '
         'strong:false as a weak neighbor rather than a finding.')
+    # Reader-at-top: re-score the head of the ranking with the trained free
+    # reader model (services/reader_server.py) and re-order it by that score.
+    # Only runs when THEME_READER_URL names a running service and the request
+    # has not opted out with ?reader=0; a disabled or unreachable reader
+    # leaves the response exactly as it was, with no 'reader' field at all,
+    # so a request made before this feature existed gets the same answer.
+    if reader_on and out.get('results'):
+        out['results'], reader_meta = reader_rerank.apply(q, out['results'])
+        out['reader'] = reader_meta
+        if fetch > limit:
+            out['results'] = out['results'][:limit]
+    log_event('theme_search', query_text=q, results_count=len(out.get('results') or []), language=','.join(_languages() or []) or None)
     return jsonify(out)
 
 
@@ -348,6 +377,7 @@ def similar_passages():
         'shows, and note that a cross-language match shares no vocabulary. '
         'A result carrying `also_in` is one scriptural passage present in several '
         'of the corpus versions, collapsed into a single entry.')
+    log_event('similar_passages', work=work or window, ref_start=request.args.get('ref_start'), ref_end=request.args.get('ref_end'), results_count=len(out.get('results') or []))
     return jsonify(out)
 
 

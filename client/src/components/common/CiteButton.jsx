@@ -13,7 +13,7 @@ import { CITATION_STYLES, buildCitation } from '../../utils/citation';
  * @param {object} finding fields described in utils/citation.js
  * @param {string} [label] the button's text
  */
-export default function CiteButton({ finding, label = 'Cite', className = '' }) {
+export default function CiteButton({ finding, label = 'Cite', className = '', buttonClassName = '' }) {
   const [open, setOpen] = useState(false);
   const [style, setStyle] = useState('reproducible');
   const [copied, setCopied] = useState(false);
@@ -57,7 +57,7 @@ export default function CiteButton({ finding, label = 'Cite', className = '' }) 
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="dialog"
-        className="text-xs px-2 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+        className={buttonClassName || "text-xs px-2 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"}
       >
         {label}
       </button>

@@ -353,6 +353,7 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
 
     { id: 'theme-search', label: 'Theme Search', group: 'Reading & content' },
     { id: 'reader', label: 'The Reader', group: 'Reading & content' },
+    { id: 'scholarship', label: 'Scholarship', group: 'Reading & content' },
     { id: 'tessa', label: 'Tessa, the assistant', group: 'Reading & content' },
 
     { id: 'languages', label: 'Languages', group: 'Languages' },
@@ -795,6 +796,98 @@ export default function HelpPage({ initialSection = null, onSectionConsumed } = 
                 Arriving from Theme Search, the Reader opens on the translation, selects the whole
                 passage that matched, and shows the search that brought you there, with a link
                 back to the results.
+              </p>
+
+            </div>
+          )}
+
+          {activeSection === 'scholarship' && (
+            <div className="prose max-w-none">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Scholarship</h3>
+              <p className="text-gray-700 mb-3">
+                The <strong>Scholarship</strong> tab gathers what has been written about the
+                selected passage, in three kinds: commentaries the site holds, journal articles,
+                and books.
+              </p>
+              <ul className="list-disc pl-5 text-gray-700 space-y-2 mb-3">
+                <li>
+                  <strong>Commentaries</strong> appear note by note for the selected lines. When
+                  more than one commentator covers a line, a row of names lets you switch between
+                  them, the ancient and medieval commentators first. Notes written in Latin, Greek
+                  or Hebrew are shown in English where a published translation exists. Otherwise
+                  the first note is translated by a machine translation model running on our own
+                  server, and the rest on request. Each such translation says so, and the original
+                  is one click away. Every commentary names its edition, its source and its
+                  licence.
+                </li>
+                <li>
+                  <strong>Articles</strong> come from OpenAlex and Crossref, which index most
+                  scholarly journals by title and abstract. Only pieces that cite the passage by
+                  its reference in the title or abstract are listed, and when you arrived from a
+                  parallel, pieces that discuss both passages come first. This finds recent work
+                  that names the passage up front and little else: measured against a known
+                  index of the Aeneid literature, it reaches about one citing article in a
+                  thousand, because most citations sit in the body of older articles that these
+                  services do not describe. A further section searches the full text of
+                  open-access papers and shows the citing sentence. Each item carries its DOI, a
+                  link to an open copy where one is known, and a link through your own library
+                  once you have entered its resolver address. <strong>Copy for Zotero</strong>{' '}
+                  puts the reference on the clipboard in a form Zotero imports.
+                </li>
+                <li>
+                  <strong>Books</strong> are found through HathiTrust and Google Books, with the
+                  page on which the passage is cited where the search can find it.
+                </li>
+              </ul>
+              <p className="text-gray-700 mb-2">The commentaries held at present, all from open sources:</p>
+              <ul className="list-disc pl-5 text-gray-700 space-y-1 mb-3">
+                <li>
+                  <strong>Through the Perseus Digital Library</strong> (CC BY-SA): Servius on
+                  Vergil, with Conington and Nettleship on the Aeneid; Leaf and Seymour on the
+                  Iliad; Merry, Riddell and Monro on the Odyssey; Allen and Sikes on the Homeric
+                  Hymns; Jebb on Sophocles; Gildersleeve on Pindar&rsquo;s Olympian and Pythian
+                  odes; How and Wells on Herodotus; Goodwin, Paley and Sandys, and Sharpley on
+                  Demosthenes; Cope on Aristotle&rsquo;s Rhetoric; Merrill on Catullus; Shorey on
+                  Horace&rsquo;s Odes; Simmons on Metamorphoses 13 and 14; an anonymous commentary
+                  of 1813 on the Heroides; Donkin on Cicero&rsquo;s Pro Roscio.
+                </li>
+                <li>
+                  <strong>Latin, from scans</strong>: T. E. Page on Aeneid I to VI, the Eclogues
+                  and the Georgics (Macmillan, 1894 to 1898); Papillon and Haigh on all of Vergil
+                  (Clarendon Press, 1892).
+                </li>
+                <li>
+                  <strong>English, from scans</strong>: Verity on Paradise Lost, Comus, Arcades,
+                  Lycidas, L&rsquo;Allegro, Il Penseroso and the Sonnets (Cambridge, 1891 to 1910);
+                  Masson on Paradise Regained (Macmillan, 1874); de S&eacute;lincourt on
+                  Keats&rsquo;s poems (Methuen, 1907) and on The Prelude (Oxford, 1926); Clark and
+                  Wright on Hamlet and Wright on Richard III and A Midsummer Night&rsquo;s Dream
+                  (Clarendon Press, 1874 to 1882); Kitchin on Books I and II of the Faerie Queene
+                  (Clarendon Press, 1867); the Johns Hopkins Variorum on Faerie Queene Books I to
+                  III (1932 to 1934, public domain in the United States, its copyright never
+                  renewed).
+                </li>
+                <li>
+                  <strong>On the Bible</strong>: Rashi, Ibn Ezra, Radak, Ramban, Sforno, Ralbag,
+                  Metzudat David, Metzudat Zion and Malbim through Sefaria, with the licence of
+                  each text shown; Matthew Henry&rsquo;s Commentary on the Whole Bible through the
+                  Christian Classics Ethereal Library. Commentaries on scripture appear whichever
+                  version you are reading: Hebrew, Septuagint, Greek New Testament, Coptic or
+                  English.
+                </li>
+              </ul>
+              <p className="text-gray-700 mb-3">
+                The sets taken from Internet Archive scans carry scanning errors, about one word
+                in ten in the Hamlet notes and a few in a hundred in the Milton ones, and Greek
+                quotations in them are garbled. Every note links to its source so the page can be
+                checked.
+              </p>
+              <p className="text-gray-600 text-sm mt-2 border-l-2 border-gray-300 pl-3">
+                If you know of an open commentary or annotated edition we should add, or would
+                like to check the notes on a text you know well, please{' '}
+                <button type="button" onClick={() => setActiveSection('feedback')} className="text-red-700 hover:underline">
+                  write to us
+                </button>.
               </p>
             </div>
           )}

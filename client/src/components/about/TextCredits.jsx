@@ -179,6 +179,7 @@ export default function TextCredits() {
           </tbody>
         </table>
       </div>
+      <ScholarshipCredits />
       {entries.length < totalEntries && (
         <div className="mt-4 text-center">
           <button
@@ -191,6 +192,84 @@ export default function TextCredits() {
           </button>
         </div>
       )}
+    </div>
+  );
+}
+
+// The commentaries and the scholarship services behind the Reader's
+// Scholarship tab, credited where they came from. The list of commentaries
+// is read from the server so it always matches what is installed.
+function ScholarshipCredits() {
+  const [rows, setRows] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/scholarship/sources').then((r) => (r.ok ? r.json() : { commentaries: [] }))
+      .then((d) => { if (!cancelled) setRows(d.commentaries || []); })
+      .catch(() => { if (!cancelled) setRows([]); });
+    return () => { cancelled = true; };
+  }, []);
+  const [open, setOpen] = useState(false);
+  if (!rows || rows.length === 0) return null;
+  const notes = rows.reduce((n, r) => n + (r.notes || 0), 0);
+  const workCount = new Set(rows.flatMap((r) => r.works)).size;
+  const works = (r) => r.works.map((w) => w.replace(/_/g, ' ').replace(/\./g, ', ')).join('; ');
+  return (
+    <div className="mt-10">
+      <h3 className="text-xl font-semibold text-gray-900 mb-3">Commentaries and scholarship</h3>
+      <p className="text-gray-700 leading-relaxed mb-4">
+        The Reader&rsquo;s Scholarship tab shows the commentaries below, note by note, with their
+        edition, source and licence. Those from the Perseus Digital Library are CC BY-SA 3.0; those
+        from Sefaria carry the licence Sefaria states for each text; Matthew Henry comes from the
+        Christian Classics Ethereal Library; the rest were taken from Internet Archive scans of
+        public-domain editions and carry scanning errors we have only partly repaired.
+      </p>
+      <p className="text-gray-700 mb-3">
+        {rows.length} commentaries on {workCount} works, {notes.toLocaleString()} notes in all.{' '}
+        <button type="button" onClick={() => setOpen((v) => !v)} className="text-red-700 hover:underline">
+          {open ? 'hide the list' : 'show the list'}
+        </button>
+      </p>
+      {open && (
+      <div className="overflow-x-auto border border-gray-200 rounded-lg">
+        <table className="w-full text-sm min-w-[600px]">
+          <thead>
+            <tr className="bg-gray-50 border-b border-gray-200">
+              <th className="text-left px-3 py-2 font-semibold text-gray-700">Commentator</th>
+              <th className="text-left px-3 py-2 font-semibold text-gray-700">Works</th>
+              <th className="text-left px-3 py-2 font-semibold text-gray-700">Edition</th>
+              <th className="text-left px-3 py-2 font-semibold text-gray-700">Source and licence</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {rows.map((r) => (
+              <tr key={r.commentator + r.edition} className="hover:bg-gray-50">
+                <td className="px-3 py-2 text-gray-900 font-medium whitespace-nowrap">{r.commentator}</td>
+                <td className="px-3 py-2 text-gray-700 text-xs">{works(r)} ({r.notes.toLocaleString()} notes)</td>
+                <td className="px-3 py-2 text-gray-600 text-xs">{r.edition}</td>
+                <td className="px-3 py-2 text-gray-600 text-xs">
+                  {/^https?:/.test(r.source) ? <a href={r.source} target="_blank" rel="noopener noreferrer" className="text-red-700 hover:underline">source</a> : r.source}
+                  {r.license ? `; ${r.license}` : ''}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      )}
+      <p className="text-gray-700 leading-relaxed mt-4">
+        Articles and chapters found by title and abstract, from OpenAlex, Crossref and Unpaywall, are
+        tagged &ldquo;article record&rdquo; in the list; the full text of open-access papers, through
+        CORE and Semantic Scholar, is tagged &ldquo;open-access article&rdquo;; and book pages, through
+        HathiTrust and Google Books, are tagged &ldquo;book page, Google Books&rdquo;. Journal articles
+        from before 1923 are held separately and searched in full text: JSTOR&rsquo;s Early Journal
+        Content, free on the Internet Archive, tagged &ldquo;journal article, before 1923, JSTOR&rdquo;.
+        Recognising a citation of an ancient text in running prose (&ldquo;Aen. 1.1&rdquo;,
+        &ldquo;Verg. A. I 1&rdquo;) follows Matteo Romanello&rsquo;s work: the rules of his CitationParser
+        grammar, reimplemented here, and the table of author and work abbreviations built from his
+        hucitlib knowledge base together with the Perseus catalogue. His Cited Loci of the Aeneid,
+        made with JSTOR Labs, served as the answer key for measuring how much of the literature the
+        tab finds. Scripture passages link to Sefaria.
+      </p>
     </div>
   );
 }

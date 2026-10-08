@@ -384,6 +384,9 @@ def init_db():
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
+            # Usage beyond the search page (Theme Search, Reader, panel, connector).
+            from backend.usage import SCHEMA as USAGE_SCHEMA
+            cur.execute(USAGE_SCHEMA)
             cur.execute('ALTER TABLE search_logs ADD COLUMN IF NOT EXISTS client_ip VARCHAR(50)')
             cur.execute('ALTER TABLE search_logs ADD COLUMN IF NOT EXISTS city VARCHAR(100)')
             cur.execute('ALTER TABLE search_logs ADD COLUMN IF NOT EXISTS country VARCHAR(100)')
@@ -616,6 +619,8 @@ app.register_blueprint(fusion_bp, url_prefix=API_PREFIX or None)
 app.register_blueprint(mcp_http_bp, url_prefix=API_PREFIX or None)
 app.register_blueprint(mcp_oauth_bp, url_prefix=API_PREFIX or None)
 app.register_blueprint(feature_request_bp, url_prefix=API_PREFIX or None)
+from backend.blueprints.scholarship import scholarship_bp  # noqa: E402
+app.register_blueprint(scholarship_bp, url_prefix=API_PREFIX or None)
 
 app_logger.info(f"Blueprints registered (API_PREFIX='{API_PREFIX}', env={DEPLOYMENT_ENV})")
 

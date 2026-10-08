@@ -455,6 +455,9 @@ describe('SearchResults — export scope', () => {
     };
 
     renderResults();
+    // Export CSV/PDF are now two entries of one "Export" control (results-page
+    // tidy-up, item 4), so opening the menu comes before choosing the entry.
+    await userEvent.click(screen.getByRole('button', { name: 'Export' }));
     await userEvent.click(screen.getByRole('button', { name: 'Export CSV' }));
 
     const dataRows = capturedCsv.trim().split('\n').slice(1); // drop header

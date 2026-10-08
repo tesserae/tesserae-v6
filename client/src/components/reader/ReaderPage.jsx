@@ -20,7 +20,7 @@ const DEFAULT_LANGUAGE = 'la';
 // Where each language's corpus opens when no work is chosen yet.
 const PREFERRED_WORK = {
   la: DEFAULT_WORK,
-  grc: 'apollonius.argonautica.part.1.tess',
+  grc: 'apollonius_rhodius.argonautica.part.1.tess',
   // Fully resourced texts (translation + content windows + parallels), so the
   // Reader's first impression of a corpus is its best one. NC hit Coptic
   // opening on an untranslated, unindexed apocryphon.
@@ -304,7 +304,12 @@ export default function ReaderPage() {
   }, []);
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
+    // overflow-clip, not overflow-hidden: hidden makes this card a scroll
+    // container, which stops the side panel's position: sticky from working,
+    // so the panel stayed at the top of the page and scrolled out of view
+    // whenever a link opened a line further down (NC, 2026-09-13). clip
+    // rounds the corners the same way without creating a scroll container.
+    <div className="bg-white rounded-lg shadow overflow-clip">
       <ReaderHeader
         language={language}
         onLanguage={(code) => {

@@ -52,6 +52,20 @@ MANIFEST = {
     '/api/passages/similar': {
         'tools': ['similar_passages'],
     },
+    '/api/scholarship': {
+        'tools': ['find_scholarship'],
+    },
+    '/api/scholarship/commentary': {
+        'tools': ['get_commentary'],
+    },
+    '/api/scholarship/sources': {
+        'site_only': True,
+        'reason': 'Credits list for the Sources page (every commentator, edition, licence); the notes themselves come through get_commentary.',
+    },
+    '/api/scholarship/translate': {
+        'site_only': True,
+        'reason': "A machine translation of one commentary note for the Reader's tab; an agent reads the Latin from get_commentary.",
+    },
     '/api/passages/translation': {
         'tools': ['get_passage'],
         'note': "get_passage(translation=true) calls this route for the fetched lines' refs.",

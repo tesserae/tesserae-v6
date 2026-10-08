@@ -4,7 +4,7 @@ import { Header, Navigation } from './components/layout';
 import { SearchModeToggle, TextSelector, SearchSettings, SearchResults, LineSearch, CrossLingualSearch, WildcardSearch, SavedSearches, CorpusSearchResults, RarePairsSettings } from './components/search';
 import RareResultsDisplay from './components/search/RareResultsDisplay';
 import SearchDescription from './components/search/SearchDescription';
-import { Modal, LoadingSpinner, UpdateBanner } from './components/common';
+import { Modal, LoadingSpinner, UpdateBanner, CiteButton } from './components/common';
 import { CorpusBrowser, RareWordsExplorer } from './components/corpus';
 import { ReaderPage } from './components/reader';
 import ThemeSearchPage from './components/passages/ThemeSearchPage';
@@ -800,6 +800,30 @@ function App() {
                       {shareCopied ? 'Link copied' : 'Share'}
                     </button>
                   )}
+                  {/* A page-level Cite beside Share: the whole comparison as a
+                      reproducible reference with the corpus version (NC,
+                      2026-09-13). Shown once a search has run, since the
+                      corpus version comes with the results. */}
+                  {sourceText && targetText && searchStats?.corpus_version && (() => {
+                    const nameOf = (id) => {
+                      const t = corpus.find((x) => x.id === id);
+                      return t ? [t.author, t.title || t.work].filter(Boolean).join(', ') : id;
+                    };
+                    return (
+                      <CiteButton
+                        label="Cite this search"
+                        className="text-sm text-gray-500 hover:text-red-600"
+                        finding={{
+                          kind: 'fusion search',
+                          source: nameOf(sourceText),
+                          target: nameOf(targetText),
+                          language: languageName(activeTab),
+                          corpusVersion: searchStats.corpus_version,
+                          url: buildShareableUrl(sourceText, targetText, sourceAuthor, targetAuthor, activeTab, settings),
+                        }}
+                      />
+                    );
+                  })()}
                 </div>
               </div>
 

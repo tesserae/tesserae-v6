@@ -6,6 +6,59 @@ repairs) are listed under "Data operations" with the script that did them,
 so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md.
 
+## Unreleased (branch feat/scholarship-tab, on the preview)
+
+### Reader: Scholarship tab
+- A fourth panel tab in the Reader. Select a passage and it shows, in date
+  order, the commentaries the site holds on those lines (ancient and
+  medieval first: Servius, Tiberius Claudius Donatus, the scholia, Rashi
+  and the other Sefaria commentators, then Conington, Page, Papillon and
+  Haigh, Verity, Masson, Kitchin, the Variorum Spenser, Clark and Wright,
+  de Sélincourt and the rest), each with its source link and licence, and
+  offers a machine translation of a note on request.
+- Below the commentaries: articles and books that cite the passage. Only
+  pieces whose text cites the selected lines are listed; the citation is
+  shown in the label and in bold in the citing sentence. Works that name
+  the poem without citing the passage are dropped. Sources: OpenAlex,
+  Crossref and Unpaywall for metadata; Semantic Scholar and CORE for the
+  full text of open papers; Google Books (with a key) and HathiTrust for
+  book pages; a local index of articles before 1923 built from JSTOR's
+  Early Journal Content (`data/citation_index/citations.db`).
+- Citation matching is done by `backend/citations/`, a reimplementation of
+  the punctuation rules of Matteo Romanello's CitationParser with an
+  abbreviation table from hucitlib and the Perseus catalogue; Romanello is
+  credited on the Sources page and on the tab.
+- Scripture: one key across versions, so a Tanakh or Vulgate verse finds
+  its commentaries whichever text is open; a link to every commentary on
+  the verse at Sefaria.
+- Copy a reference for Zotero (RIS on the clipboard); a "set my library"
+  link routes subscription articles through the reader's own resolver.
+- Help gains a Scholarship section listing the commentaries held and what
+  the article search can and cannot find; the Sources page credits every
+  commentary edition and every service.
+
+### Results page
+- Expandable rows with one action each, a legend, one toolbar, both
+  passages opening in the Reader by author and work, a page-level Cite
+  beside Share.
+
+### Reader
+- The side panel stays in view when a search link opens a line further
+  down the text.
+
+### Usage
+- `usage_events` table (`backend/usage.py`): Theme Search, Reader opens,
+  Similar Passages, Scholarship lookups and connector calls are logged
+  with language, work, reference, query and result count; no user
+  identity beyond the country already recorded. `scripts/usage_stats.py`
+  summarises it.
+
+### Data operations (to be applied on deploy; detail in docs/DATA_OPERATIONS.md)
+- Copy `data/commentaries/` (368 files) and `data/citation_index/` to
+  production; create the `usage_events` table (created by the app on
+  start); put the Google Books, CORE and Semantic Scholar keys in the
+  production `.env`.
+
 ## 2026-09-13
 
 ### Help

@@ -182,10 +182,10 @@ describe('the arrival banner is one-shot', () => {
 });
 
 describe('the side panel keeps its tabs', () => {
-  it('shows all three tabs with nothing selected', async () => {
+  it('shows all four tabs with nothing selected', async () => {
     window.history.replaceState({}, '', '/read?work=ovid.amores.tess&lang=la');
     await mountReader();
-    for (const label of ['Similar Passages', 'Verbal Parallels', 'Translation']) {
+    for (const label of ['Similar', 'Parallels', 'Translation', 'Scholarship']) {
       expect(await screen.findByRole('button', { name: label })).toBeTruthy();
     }
   });
@@ -285,7 +285,7 @@ describe('per-language defaults', () => {
     fireEvent.change(await screen.findByLabelText('Language'),
                      { target: { value: 'grc' } });
     await waitFor(() =>
-      expect(asked).toContain('apollonius.argonautica.part.1.tess'));
+      expect(asked).toContain('apollonius_rhodius.argonautica.part.1.tess'));
   });
 
   it('switching back to Latin opens Aeneid 1', async () => {
@@ -293,7 +293,7 @@ describe('per-language defaults', () => {
     fireEvent.change(await screen.findByLabelText('Language'),
                      { target: { value: 'grc' } });
     await waitFor(() =>
-      expect(asked).toContain('apollonius.argonautica.part.1.tess'));
+      expect(asked).toContain('apollonius_rhodius.argonautica.part.1.tess'));
     fireEvent.change(await screen.findByLabelText('Language'),
                      { target: { value: 'la' } });
     await waitFor(() =>

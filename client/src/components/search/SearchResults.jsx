@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
-import { Button, LoadingSpinner, Pagination, CiteButton } from '../common';
+import { LoadingSpinner, Pagination, CiteButton } from '../common';
 import { usePagination } from '../../hooks/usePagination';
 import { formatReference, formatElapsedTime } from '../../utils/formatting';
 import { languageName } from '../../utils/languageNames';
@@ -12,6 +12,99 @@ import { Bar } from 'react-chartjs-2';
 import * as d3 from 'd3';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+
+// A collapsed row shows only the first line of a passage, ellipsised. The
+// stored text can be pre-highlighted HTML with an explicit <br> between
+// verses (window results), and CSS white-space:nowrap does not stop a <br>
+// from forcing a line break, so the line is cut before the HTML is handed to
+// the browser rather than after.
+const firstLineHtml = (html) => {
+  if (!html) return html;
+  const cut = html.search(/<br\b/i);
+  return cut === -1 ? html : html.slice(0, cut);
+};
+
+/**
+ * The row's secondary actions (Register, Search Corpus, Cite) behind a
+ * three-dot button. Opens on click, not hover, so a phone and a laptop work
+ * the same way (plan section 9.4). "Open in Reader" is deliberately NOT
+ * here: it is the row's one visible action and stays outside the menu.
+ */
+function RowMenu({ r, onRegister, onCorpusSearch, citeFinding }) {
+  const [open, setOpen] = useState(false);
+  const boxRef = useRef(null);
+  const btnRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const onDown = (e) => {
+      if (boxRef.current && !boxRef.current.contains(e.target)
+          && btnRef.current && !btnRef.current.contains(e.target)) setOpen(false);
+    };
+    const onKey = (e) => {
+      if (e.key === 'Escape') { setOpen(false); btnRef.current?.focus(); }
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const canSearchCorpus = r.match_basis !== 'semantic' && !!onCorpusSearch;
+
+  return (
+    <span className="relative inline-block" ref={boxRef}>
+      <button
+        ref={btnRef}
+        type="button"
+        onClick={() => setOpen(v => !v)}
+        aria-label="More actions for this parallel"
+        aria-haspopup="true"
+        aria-expanded={open}
+        className="text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded px-1.5 py-1"
+      >
+        <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <circle cx="10" cy="4" r="1.5" />
+          <circle cx="10" cy="10" r="1.5" />
+          <circle cx="10" cy="16" r="1.5" />
+        </svg>
+      </button>
+      {open && (
+        <div
+          className="absolute right-0 z-20 mt-1 w-48 rounded border border-gray-200 bg-white shadow-lg py-1 text-left"
+        >
+          {onRegister && (
+            <button
+              type="button"
+              onClick={() => { onRegister(r); setOpen(false); }}
+              className="w-full text-left text-sm px-3 py-1.5 text-gray-700 hover:bg-gray-50"
+              title="Save this parallel to the Repository"
+            >
+              Register
+            </button>
+          )}
+          {canSearchCorpus && (
+            <button
+              type="button"
+              onClick={() => { onCorpusSearch(r); setOpen(false); }}
+              className="w-full text-left text-sm px-3 py-1.5 text-gray-700 hover:bg-gray-50"
+              title="Find these words together in other texts"
+            >
+              Search Corpus
+            </button>
+          )}
+          {/* Cite manages its own popover; closing this menu on click would
+              unmount it before it opened, so it is left to close itself
+              (Escape or a click outside, which this menu also reacts to). */}
+          <CiteButton finding={citeFinding} label="Cite" className="block w-full"
+                      buttonClassName="w-full text-left text-sm px-3 py-1.5 text-gray-700 hover:bg-gray-50" />
+        </div>
+      )}
+    </span>
+  );
+}
 
 const SearchResults = ({
   results,
@@ -52,6 +145,21 @@ const SearchResults = ({
   };
   const [distributionChartView, setDistributionChartView] = useState('target');
   const [chartFilter, setChartFilter] = useState(null);
+  // Export (CSV/PDF) grouped into one control (results-page tidy-up, item 4).
+  const [exportMenuOpen, setExportMenuOpen] = useState(false);
+  const exportMenuRef = useRef(null);
+  const exportBtnRef = useRef(null);
+  useEffect(() => {
+    if (!exportMenuOpen) return undefined;
+    const onDown = (e) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target)
+          && exportBtnRef.current && !exportBtnRef.current.contains(e.target)) setExportMenuOpen(false);
+    };
+    const onKey = (e) => { if (e.key === 'Escape') { setExportMenuOpen(false); exportBtnRef.current?.focus(); } };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('mousedown', onDown); document.removeEventListener('keydown', onKey); };
+  }, [exportMenuOpen]);
   // Sidebar has two modes: 'comparison' (where parallels fall in this pair) and
   // 'corpus' (where a chosen parallel's shared words recur across the corpus).
   const [sidebarMode, setSidebarMode] = useState('corpus');
@@ -208,6 +316,18 @@ const SearchResults = ({
       return `${name} ${r.slice(base.length + 1)}`;
     }
     return formatReference(r, language);
+  }, [language]);
+
+  // A real href into the Reader at this passage, matching the pattern Theme
+  // Search already uses (ThemeSearchPage.jsx readerLink) so the link can be
+  // opened in a new tab. null when the text record isn't loaded yet (e.g. a
+  // still-loading corpus, or a caller that doesn't pass text info).
+  const readerHref = useCallback((ref, info) => {
+    const r = String(ref || '').replace(/<\/?.*?>/g, '').trim();
+    const base = String(info?.id || '').replace(/\.tess$/, '');
+    if (!base || !r) return null;
+    const params = new URLSearchParams({ work: `${base}.tess`, lang: language || 'la', ref: r, refEnd: r });
+    return `/read?${params.toString()}`;
   }, [language]);
 
   const exportCSV = useCallback(() => {
@@ -952,34 +1072,59 @@ const SearchResults = ({
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
           <div className="flex items-center gap-2">
-            <button
-              onClick={toggleDistributionChart}
-              className={`text-xs px-3 py-2 rounded whitespace-nowrap ${showDistributionChart ? 'bg-amber-600 text-white' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'}`}
-            >
-              {showDistributionChart ? 'Hide chart' : 'Show chart'}
-            </button>
-            <button
-              onClick={exportCSV}
-              className="text-xs bg-amber-600 text-white px-3 py-2 rounded hover:bg-amber-700 whitespace-nowrap"
-            >
-              Export CSV
-            </button>
-            <button
-              onClick={exportPDF}
-              className="text-xs bg-amber-600 text-white px-3 py-2 rounded hover:bg-amber-700 whitespace-nowrap"
-              title="Open print-friendly view; choose 'Save as PDF' in the print dialog."
-            >
-              Export PDF
-            </button>
-            {onRerunFresh && !loading && (
+            {/* Charts + Rerun as one grouped control: the toggle shows/hides
+                the whole chart sidebar (comparison view AND across-the-corpus
+                view live in that one sidebar already), and Refresh sits beside
+                it rather than as its own loose button (item 4). */}
+            <div className="inline-flex rounded overflow-hidden border border-amber-200">
               <button
-                onClick={onRerunFresh}
-                className="text-xs bg-gray-100 text-gray-600 px-3 py-2 rounded hover:bg-gray-200 whitespace-nowrap"
-                title="Clear cached results and run the search again"
+                onClick={toggleDistributionChart}
+                className={`text-xs px-3 py-2 whitespace-nowrap ${showDistributionChart ? 'bg-amber-600 text-white' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'}`}
               >
-                Refresh results
+                {showDistributionChart ? 'Hide chart' : 'Show chart'}
               </button>
-            )}
+              {onRerunFresh && !loading && (
+                <button
+                  onClick={onRerunFresh}
+                  className="text-xs bg-white text-gray-600 px-3 py-2 hover:bg-gray-50 whitespace-nowrap border-l border-amber-200"
+                  title="Clear cached results and run the search again"
+                >
+                  Refresh results
+                </button>
+              )}
+            </div>
+            {/* Export: one control, CSV and PDF as its two entries (item 4). */}
+            <span className="relative inline-block">
+              <button
+                ref={exportBtnRef}
+                onClick={() => setExportMenuOpen(v => !v)}
+                aria-haspopup="true"
+                aria-expanded={exportMenuOpen}
+                className="text-xs bg-amber-600 text-white px-3 py-2 rounded hover:bg-amber-700 whitespace-nowrap"
+              >
+                Export
+              </button>
+              {exportMenuOpen && (
+                <div
+                  ref={exportMenuRef}
+                  className="absolute left-0 z-20 mt-1 w-36 rounded border border-gray-200 bg-white shadow-lg py-1 text-left"
+                >
+                  <button
+                    onClick={() => { exportCSV(); setExportMenuOpen(false); }}
+                    className="w-full text-left text-sm px-3 py-1.5 text-gray-700 hover:bg-gray-50"
+                  >
+                    Export CSV
+                  </button>
+                  <button
+                    onClick={() => { exportPDF(); setExportMenuOpen(false); }}
+                    className="w-full text-left text-sm px-3 py-1.5 text-gray-700 hover:bg-gray-50"
+                    title="Open print-friendly view; choose 'Save as PDF' in the print dialog."
+                  >
+                    Export PDF
+                  </button>
+                </div>
+              )}
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-xs sm:text-sm text-gray-600">Sort:</span>
@@ -1153,114 +1298,164 @@ const SearchResults = ({
 
       <div className="flex-1 min-w-0 w-full">
       <Pagination {...paginationProps} variant="full" idPrefix="parallels-top" />
+      {/* No legend paragraph: the row shows it can open (a chevron that turns,
+          shading on hover) and the channel count explains itself on hover
+          (NC, 2026-09-13: convey it visually, nothing garish). */}
       <div className="space-y-3">
-        {visibleItems.map((r, i) => (
+        {visibleItems.map((r, i) => {
+          const idx = startIndex + i;
+          const isExpanded = !!expandedResults[idx];
+          const sourceHtml = r.source_text || r.source_snippet || renderHighlightedText(r.source, language, r.matched_words, true, r.target);
+          const targetHtml = r.target_text || r.target_snippet || renderHighlightedText(r.target, language, r.matched_words, false, r.source);
+          const scoreVal = r.fused_score ?? r.score ?? r.overall_score;
+          const channels = r.channels || [];
+          // Both sides open in the Reader, named by author and work so the reader
+          // knows which passage each link leads to (NC, 2026-09-13).
+          const sourceReaderHref = readerHref(r.source_locus || r.source?.ref, sourceTextInfo);
+          const targetReaderHref = readerHref(r.target_locus || r.target?.ref, targetTextInfo);
+          const nameOf = (info) => [info?.author, info?.title || info?.work].filter(Boolean).join(', ') || 'this text';
+          const citeFinding = {
+            kind: 'fusion search',
+            source: displayLocus(r.source_locus || r.source?.ref, sourceTextInfo),
+            target: displayLocus(r.target_locus || r.target?.ref, targetTextInfo),
+            language: languageName(language),
+            score: scoreVal,
+            channels: Array.isArray(r.channels) ? r.channels.join(', ') : (r.channels || ''),
+            corpusVersion: searchStats?.corpus_version,
+            url: typeof window !== 'undefined' ? window.location.href : '',
+          };
+          return (
           <div
-            key={startIndex + i}
-            className="bg-white border rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow"
+            key={idx}
+            // A collapsed/expanded row that toggles on a click anywhere except
+            // a link, button, or the Cite/menu popovers (item 2). role="button"
+            // announces it as togglable to a screen reader even though it also
+            // contains real buttons and links; those keep their own semantics
+            // and their clicks never reach this handler.
+            role="button"
+            tabIndex={0}
+            aria-expanded={isExpanded}
+            onClick={(e) => {
+              if (e.target.closest('a, button, input, select, textarea, [role="dialog"]')) return;
+              toggleExpand(idx);
+            }}
+            onKeyDown={(e) => {
+              if (e.target !== e.currentTarget) return; // let a focused nested control handle its own key
+              if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExpand(idx); }
+            }}
+            className={`bg-white border rounded-lg p-3 sm:p-4 transition-colors cursor-pointer hover:bg-gray-50 ${isExpanded ? 'border-gray-300' : 'border-gray-200'}`}
           >
             <div className="flex gap-3">
               <span className="text-xs text-gray-500 min-w-[2.5rem] text-right shrink-0 leading-none" style={{paddingTop: '1px'}}>
-                {startIndex + i + 1}.
+                {idx + 1}.
               </span>
-              <div className="flex-1">
+              {/* The chevron says "this opens"; it turns when the row is open. */}
+              <svg aria-hidden="true" viewBox="0 0 20 20" fill="currentColor"
+                   className={`w-3.5 h-3.5 shrink-0 text-gray-500 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                   style={{ marginTop: '1px' }}>
+                <path fillRule="evenodd" d="M7.21 5.23a.75.75 0 011.06-.02l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 11-1.04-1.08L11.13 10 7.23 6.29a.75.75 0 01-.02-1.06z" clipRule="evenodd" />
+              </svg>
+              <div className="flex-1 min-w-0">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
+              <div className="min-w-0">
                 <div className="text-xs text-gray-500 mb-1 leading-none">Source</div>
                 <div className="font-medium text-gray-900">{formatReference(r.source_locus || r.source?.ref, language)}</div>
                 <div
-                  className="text-gray-700 mt-1"
+                  className={isExpanded ? 'text-gray-700 mt-1' : 'text-gray-700 mt-1 truncate'}
                   dir={language === 'he' ? 'rtl' : undefined}
-                  dangerouslySetInnerHTML={{ __html: r.source_text || r.source_snippet || renderHighlightedText(r.source, language, r.matched_words, true, r.target) }}
+                  dangerouslySetInnerHTML={{ __html: isExpanded ? sourceHtml : firstLineHtml(sourceHtml) }}
                 />
-                {r.features?.source_scansion && renderScansion(r.features.source_scansion)}
+                {isExpanded && r.features?.source_scansion && renderScansion(r.features.source_scansion)}
               </div>
-              <div>
+              <div className="min-w-0">
                 <div className="text-xs text-gray-500 mb-1">Target</div>
                 <div className="font-medium text-gray-900">{formatReference(r.target_locus || r.target?.ref, language)}</div>
                 <div
-                  className="text-gray-700 mt-1"
+                  className={isExpanded ? 'text-gray-700 mt-1' : 'text-gray-700 mt-1 truncate'}
                   dir={language === 'he' ? 'rtl' : undefined}
-                  dangerouslySetInnerHTML={{ __html: r.target_text || r.target_snippet || renderHighlightedText(r.target, language, r.matched_words, false, r.source) }}
+                  dangerouslySetInnerHTML={{ __html: isExpanded ? targetHtml : firstLineHtml(targetHtml) }}
                 />
-                {r.features?.target_scansion && renderScansion(r.features.target_scansion)}
+                {isExpanded && r.features?.target_scansion && renderScansion(r.features.target_scansion)}
               </div>
             </div>
 
+            {/* Expanded-only detail: channel names, matched words, meter. */}
+            {isExpanded && (
+              <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t">
+                {r.features?.meter_score > 0 && (
+                  <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">
+                    Metrical: {(r.features.meter_score * 100).toFixed(0)}%
+                  </span>
+                )}
+                {r.matched_words && r.matched_words.length > 0 && (
+                  <span className="text-sm text-gray-600">
+                    Matches: <span className="font-medium">
+                      {r.matched_words.map(w => {
+                        const word = typeof w === 'object' ? (w.lemma || w.word || w.display || JSON.stringify(w)) : w;
+                        return displayGreekWithFinalSigma(word);
+                      }).join(', ')}
+                    </span>
+                  </span>
+                )}
+                {channels.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {channels.map(ch => (
+                      <span key={ch} className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
+                        {ch}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Always-visible bar: score, channel count, and the row's one
+                action (Open in Reader) plus the menu for everything else. */}
             <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t">
               <span className="text-sm text-gray-600">
-                Score: <span className="font-medium">{(r.fused_score ?? r.score ?? r.overall_score)?.toFixed(2) || '-'}</span>
+                Score: <span className="font-medium">{scoreVal?.toFixed(2) || '-'}</span>
               </span>
-              {r.channels && r.channels.length > 0 && (
-                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
-                  {r.channels.length} channel{r.channels.length !== 1 ? 's' : ''}
+              {channels.length > 0 && (
+                <span
+                  className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded"
+                  title={`Matching methods that agree on this parallel: ${channels.join(', ')}`}
+                >
+                  {channels.length} channel{channels.length !== 1 ? 's' : ''}
                 </span>
-              )}
-              {r.features?.meter_score > 0 && (
-                <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">
-                  Metrical: {(r.features.meter_score * 100).toFixed(0)}%
-                </span>
-              )}
-              {r.matched_words && r.matched_words.length > 0 && (
-                <span className="text-sm text-gray-600">
-                  Matches: <span className="font-medium">
-                    {r.matched_words.map(w => {
-                      const word = typeof w === 'object' ? (w.lemma || w.word || w.display || JSON.stringify(w)) : w;
-                      return displayGreekWithFinalSigma(word);
-                    }).join(', ')}
-                  </span>
-                </span>
-              )}
-              {r.channels && r.channels.length > 0 && (
-                <div className="flex flex-wrap gap-1 ml-1">
-                  {r.channels.map(ch => (
-                    <span key={ch} className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
-                      {ch}
-                    </span>
-                  ))}
-                </div>
               )}
               <div className="flex-1"></div>
-              {r.match_basis !== 'semantic' && onCorpusSearch && (
-                <Button
-                  variant="tertiary"
-                  size="sm"
-                  onClick={() => onCorpusSearch(r)}
-                  title="Find these words together in other texts"
-                >
-                  Search Corpus
-                </Button>
+              {(sourceReaderHref || targetReaderHref) && (
+                <span className="text-xs text-gray-600 whitespace-nowrap">Reader:</span>
               )}
-              {onRegister && (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => onRegister(r)}
-                  title="Save this parallel to the Repository"
+              {sourceReaderHref && (
+                <a
+                  href={sourceReaderHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={`Open ${nameOf(sourceTextInfo)} at this passage in the Reader`}
+                  className="text-xs font-medium text-red-700 hover:text-red-800 hover:underline whitespace-nowrap"
                 >
-                  Register
-                </Button>
+                  {nameOf(sourceTextInfo)}
+                </a>
               )}
-              {/* A parallel is the thing a scholar actually puts in a footnote,
-                  so Cite belongs on the parallel and not only on the page
-                  (interface audit, 2026-09-08). */}
-              <CiteButton
-                finding={{
-                  kind: 'fusion search',
-                  source: displayLocus(r.source_locus || r.source?.ref, sourceTextInfo),
-                  target: displayLocus(r.target_locus || r.target?.ref, targetTextInfo),
-                  language: languageName(language),
-                  score: r.fused_score ?? r.score ?? r.overall_score,
-                  channels: Array.isArray(r.channels) ? r.channels.join(', ') : (r.channels || ''),
-                  corpusVersion: searchStats?.corpus_version,
-                  url: typeof window !== 'undefined' ? window.location.href : '',
-                }}
-              />
+              {targetReaderHref && (
+                <a
+                  href={targetReaderHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={`Open ${nameOf(targetTextInfo)} at this passage in the Reader`}
+                  className="text-xs font-medium text-red-700 hover:text-red-800 hover:underline whitespace-nowrap"
+                >
+                  {nameOf(targetTextInfo)}
+                </a>
+              )}
+              <RowMenu r={r} onRegister={onRegister} onCorpusSearch={onCorpusSearch} citeFinding={citeFinding} />
             </div>
             </div>{/* flex-1 */}
             </div>{/* flex row-number wrapper */}
           </div>
-        ))}
+          );
+        })}
       </div>
 
       <Pagination {...paginationProps} variant="nav" idPrefix="parallels-bottom" />

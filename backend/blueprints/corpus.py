@@ -308,6 +308,9 @@ def get_text_content(text_id):
         return jsonify({'error': 'Text not found'}), 404
     
     try:
+        # A text opened in the Reader (or fetched by the connector) counts as use.
+        from backend.usage import log_event
+        log_event('reader_open', language=language, work=text_id)
         units = _get_processed_units(text_id, language, unit_type, _text_processor)
         metadata = get_text_metadata(filepath)
         

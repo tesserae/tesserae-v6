@@ -1217,6 +1217,8 @@ def find_similar_to_passage(work, ref_start=None, ref_end=None, limit=15,
                             languages=None, scale='fine',
                             suppress_other_versions=True):
     """Similar Passages, given a reader selection (work + reference span)."""
+    if not _state['ok']:
+        return {'error': 'The passage index is still loading. Try again in a minute.', 'results': []}
     wid = window_for_passage(work, ref_start, ref_end, prefer=scale)
     if not wid:
         return {'error': 'no indexed window covers that passage', 'results': []}
