@@ -9,6 +9,64 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Documentary texts, stage 3b-2: documents in the corpus-wide phrase search, behind a switch
+- `backend/documents.py`: lazy, read-only access to the stage 3b-1
+  documents index(es), stage 3a's metadata database, and the per-bucket
+  restored-word sidecars, all path-configurable by env var. `enabled()`
+  reads `TESSERAE_DOCUMENTS` fresh on every call, so the switch can be
+  flipped on a running process without a restart. Everything else in this
+  entry is unreachable unless it is on.
+- `backend/inverted_index.py`: `lookup_lemmas`, `find_co_occurring_lemmas`,
+  `has_lines_data` and `get_lines_batch` gained an optional `conn=` override
+  (default `None`, every existing caller unchanged) so `backend/documents.py`
+  reuses this module's own query and Latin u/v, i/j variant-expansion logic
+  against a documents-index connection, keyed on the real language code
+  rather than a pseudo-language.
+- `backend/app.py`: `/api/line-search` gains an optional `collection`
+  (`literature` default, `documents`, `both`) and, when documents are
+  requested, `date_from`/`date_to`/`region`/`text_type`/`material`/`source`
+  filters. With `collection` omitted, or the switch off, the response is
+  unchanged byte-for-byte — the literary code path runs exactly as before;
+  the documents search is reached only through two new, additive insertion
+  points (an early return for `collection=documents`, a pre-return merge for
+  `both`). A document hit carries `collection:'documents'`, `doc_id`, a
+  credit block (licence, source, principal edition), date range, place,
+  region, type/object/material labels, and restored/fragment token
+  positions, grouped separately from literary works in
+  `documents_by_source_region`. Rarity for a document hit is left to the
+  documents index's own `lemma_doc_freq` (not computed here, since line
+  search computes no score for either collection); `rare_focus_filter`
+  (which DOES read the literary table) is applied only to literary rows.
+  Formula words (`data/documents/formula_words_la.txt`/`_grc.txt`) are NOT
+  yet applied as a penalty: line search has no per-result scoring step for
+  either collection to attach one to, so this is left for a later phase.
+- `/api/languages` reports `documents_enabled` (the switch on AND at least
+  one language's documents index actually present) so the client can show
+  the collection control.
+- `backend/blueprints/mcp_http.py`: the `line_search` connector tool gained
+  the same `collection`/filter parameters, forwarded as-is; a document
+  result in its output carries `doc_id`/`credit`/date/place/labels instead
+  of author/work/era/year, and `both` adds `documents_total` alongside the
+  literature-only `total`.
+- Client: `LineSearch.jsx` (the corpus-wide phrase search) shows a
+  Literature/Documents/Both control, and the filters, only when
+  `documents_enabled`; a document hit gets its own card (credit line
+  linking to the source record, principal edition as the citation, date and
+  place, type/object/material labels) in a section separate from literary
+  results, so no existing literary rendering path changes. Restored words
+  are marked with a light dotted underline (not the scholarly square
+  brackets): the matched-word highlight already uses `<mark>`, and the
+  corpus's own angle-bracket convention is reserved for editorial brackets
+  carried in the source text itself.
+- Unit tests for `backend/documents.py` against a tiny fixture index +
+  metadata db + sidecar (`tests/test_documents.py`); a golden check that the
+  literary response is byte-identical with the switch off and with
+  `collection` omitted; `tests/test_mcp_parity.py` still passes unchanged.
+- `docs/DATA_OPERATIONS.md`: a "to be applied" entry listing the files
+  production needs copied (the two documents indexes, the metadata
+  database, the restored-word sidecars) and the env line, for the main
+  session to apply.
+
 ### Records: the Origo translation applied on the live site
 - `docs/DATA_OPERATIONS.md`: the Origo translation entry now records the
   production step, and an older entry describes a log message in place of

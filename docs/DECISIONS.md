@@ -8,6 +8,46 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-08: documents in the corpus-wide phrase search (stage 3b-2)
+- Restored-word marking uses a light dotted underline, not scholarly
+  square brackets. The matched-word highlight already uses `<mark>`
+  (amber background); the corpus's own angle-bracket convention is
+  reserved for editorial brackets carried IN the source text itself
+  (`decodeEntities` in `LineSearch.jsx`). An underline composes cleanly
+  with both without visual collision.
+- Formula words (`data/documents/formula_words_la.txt`/`_grc.txt`) are NOT
+  applied as a penalty this phase. The spec asked for them to be applied
+  "the same way function words are penalized in line search, if line
+  search has such a penalty" — checked directly, and it does not: `/api/
+  line-search` filters/excludes stopwords but computes no per-result
+  score for either the literary or the new documents path, so there is no
+  existing penalty mechanism to extend. Left for a later phase rather than
+  inventing a new scoring step not asked for.
+- `collection='both'` does NOT fold the documents count into the existing
+  `total`/`distinct_loci` fields. Those keys have always meant "how many
+  places in the corpus" for literature alone; changing their meaning under
+  one particular parameter value would silently hand a different number
+  to a caller (the MCP connector, a saved script) that already reads
+  `total` and has not been told to expect two collections. The documents
+  count is reported separately (`documents_total`,
+  `documents_by_source_region`).
+- A document hit's matched-lemma rarity, if anything scored by it, belongs
+  to the documents index's OWN `lemma_doc_freq` table (the reason stage
+  3b-1 built a separate index at all: computing rarity over literature and
+  documents together would shift literary word rarity). Since neither
+  collection's line-search path computes a score, this has nowhere to bite
+  yet; `rare_focus_filter` (which DOES read the literary table) is applied
+  only to literary rows, never to document rows, so it is ready the day a
+  documents-side rarity measure is added without silently using the wrong
+  table in the meantime.
+- Latin's u/v, i/j spelling-variant expansion (`backend/inverted_index.py`
+  `lookup_lemmas`) now fires for documents too, keyed on the real language
+  code ('la') rather than a pseudo-language — a byproduct of giving that
+  function a connection-override parameter, not a deliberate quality
+  change, but worth recording since the stage 3b-1 dev tool
+  (`query_documents_index.py`) explicitly flagged the ABSENCE of this
+  expansion as a known limitation of its own pseudo-language reuse trick.
+
 ## 2026-10-08: what the Scholarship tab draws on, and on what terms
 - Sources:
   - open scholarly metadata (OpenAlex, Crossref, and Unpaywall for legal
