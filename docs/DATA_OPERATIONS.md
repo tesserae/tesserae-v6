@@ -67,6 +67,18 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-08 Documents trial opened (about 07:30 EDT)
+- What: `TESSERAE_DOCUMENTS=1` added to the production environment after
+  #683, so the documents option on the corpus-wide phrase search is
+  available to anyone who opens the site with `?documents=1`. Without that,
+  the option stays hidden. `TESSERAE_DOCUMENTS_CONNECTOR` is not set, so the
+  connector's `line_search` still ignores the documents parameters.
+- Backups: the environment file was copied before the change.
+- Checks: reference searches passed. Live, a "both" search for "arma
+  virumque cano" returned literary and document hits, and the same search
+  without `collection` returned the literature-only response with no
+  documents fields.
+
 ## 2026-10-08 Documentary texts in the corpus-wide phrase search (files installed about 02:30 EDT, switch off)
 - What: PR for documents stage 3b-2 adds `backend/documents.py` and an
   optional `collection` parameter to `/api/line-search`, both inert unless

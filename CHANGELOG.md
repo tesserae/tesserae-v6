@@ -9,6 +9,10 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Records: documents trial opened on the live site
+- `docs/DATA_OPERATIONS.md` records the server switch that opens the
+  `?documents=1` trial. No code change.
+
 ### Documents: a trial behind ?documents=1, and a separate switch for the connector
 - The Literature/Documents/Both control on the corpus-wide phrase search
   appears only after a visit with `?documents=1` (remembered for the rest
