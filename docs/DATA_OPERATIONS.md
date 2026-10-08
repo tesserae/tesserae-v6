@@ -67,13 +67,13 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
-## 2026-10-08 Origo Gentis Romanae: the 2004 tertullian.org translation added (planned, not yet run)
+## 2026-10-08 Origo Gentis Romanae: the 2004 tertullian.org translation added (about 01:00 EDT)
 - What: `data/translations/la__pseudo_aurelius_victor.origo_gentis_romanae.json`
   built in the development checkout, covering all 126 refs (the preface
   plus chapters I-XXIII) of
   `texts/la/pseudo_aurelius_victor.origo_gentis_romanae.tess`. This closes
-  the gap the Aurelius Victor entry below left open ("One exists online
-  for the Origo and its terms are being checked").
+  the gap the Aurelius Victor entry below left open, where the
+  translation's terms were still being checked.
 - Source: the collaborative translation (https://www.tertullian.org/fathers/origo_01_trans.htm),
   ed. Roger Pearse, 2004, from the Teubner Latin text. The page states "All material on this
   page is in the public domain - copy freely." Raw HTML was kept outside
@@ -112,6 +112,10 @@ anything is deleted, with a dated backup kept of each file it removes.
   indexed. Verify afterward with a request to the translation endpoint
   for `pseudo_aurelius_victor.origo_gentis_romanae` ref `ps-vict. orig.
   1.1`, and that the Reader's Translation tab shows it for that work.
+- Applied: the built file copied into production `data/translations/`
+  and the app reloaded. The Reader's translation route returns the English
+  for ref 1.1 with its attribution and public-domain statement. Reference
+  searches passed.
 
 ## 2026-10-08 Scholarship sources installed on the live site (about 23:10 EDT)
 - What: the Reader's Scholarship tab (opt-in, `?scholarship=1`) went live
@@ -349,7 +353,7 @@ anything is deleted, with a dated backup kept of each file it removes.
 - What: before today 443 of 748 Latin whole works, 284 of 845 Greek and all 41
   English had no stored vectors, so the semantic channel returned nothing for any
   comparison touching them (the web app carries no model by design, and the log
-  said so: "Semantic model not available for la, returning empty results"). Two GPU
+  recorded that the Latin semantic model was unavailable). Two GPU
   jobs on the campus cluster (BullsAI, project tesserae, one B200) encoded every
   line of those works with the models the site uses (bowphs/SPhilBerta for Latin
   and Greek, all-MiniLM-L6-v2 for English), raw vectors as in the existing files.

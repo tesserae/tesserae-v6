@@ -9,6 +9,11 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Records: the Origo translation applied on the live site
+- `docs/DATA_OPERATIONS.md`: the Origo translation entry now records the
+  production step, and an older entry describes a log message in place of
+  quoting it.
+
 ### Documentary texts, stage 3b-1: a separate documents index, built dark (no site change)
 - `scripts/documents/write_document_tess.py`: writes the documentary
   corpus into packed `.tess` files, one per source/region/century
