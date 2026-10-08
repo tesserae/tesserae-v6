@@ -67,6 +67,52 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-08 Origo Gentis Romanae: the 2004 tertullian.org translation added (planned, not yet run)
+- What: `data/translations/la__pseudo_aurelius_victor.origo_gentis_romanae.json`
+  built in the development checkout, covering all 126 refs (the preface
+  plus chapters I-XXIII) of
+  `texts/la/pseudo_aurelius_victor.origo_gentis_romanae.tess`. This closes
+  the gap the Aurelius Victor entry below left open ("One exists online
+  for the Origo and its terms are being checked").
+- Source: the collaborative translation (https://www.tertullian.org/fathers/origo_01_trans.htm),
+  ed. Roger Pearse, 2004, from the Teubner Latin text. The page states "All material on this
+  page is in the public domain - copy freely." Raw HTML was kept outside
+  the repository.
+- Method: `scripts/translations/align_origo.py`. The translation's own
+  chapter (roman numeral) and bracketed section markers align 1:1 to the
+  corpus's chapter.section refs in every case but three, where the
+  corpus's single Latin Library line visibly carries two of the
+  translation's numbered sections: 3.7 (translation sections [7]+[8]), 4.3
+  (translation sections [3]+[4], the corpus having no 4.4 of its own), and
+  5.3 (translation sections [3]+[4]). Each merge is listed by hand in the
+  script. Three places in 126 refs is too few to trust to an automatic
+  rule. The preface ref (`pr.1`) maps to the page's opening dedication
+  paragraph, read past the page's own title and navigation links.
+- Checks: coverage 1.0 (126 of 126 refs). Proper-name survival 0.9915 on 118
+  of the 126 pairs the check could sample, above the 0.70 threshold used
+  elsewhere for "high" confidence. No footnote or apparatus text and no
+  leftover HTML markup in any of the 126 stored units, checked against
+  every unit. `backend.translations.for_passage` called directly against
+  the built file (no server needed) returns the right English for the
+  preface, an ordinary ref (1.1), all three merged refs, and the last ref
+  (23.6), and reports unavailable for a ref outside the work.
+  `tests/test_translations_unit_sources.py` and
+  `tests/test_translation_route_alias.py` (12 tests, generic to the
+  translation module) pass unchanged.
+- Licence: public domain. Attribution "collaborative translation, ed.
+  Roger Pearse (2004)" is stored in the file and shown with every display.
+- Production steps (not yet run): copy
+  `data/translations/la__pseudo_aurelius_victor.origo_gentis_romanae.json`
+  from this operation into production's `data/translations/` (this
+  directory is not tracked in git). `touch tesseraev6_flask.wsgi` so the
+  three Apache workers rebuild their per-work file index and pick up the
+  new file (the index is built once per worker and otherwise would not
+  see it). No inverted-index, lemma-cache or passage-index rebuild is
+  needed: the file only adds an English rendering for a work already
+  indexed. Verify afterward with a request to the translation endpoint
+  for `pseudo_aurelius_victor.origo_gentis_romanae` ref `ps-vict. orig.
+  1.1`, and that the Reader's Translation tab shows it for that work.
+
 ## 2026-10-08 Scholarship sources installed on the live site (about 23:10 EDT)
 - What: the Reader's Scholarship tab (opt-in, `?scholarship=1`) went live
   with Servius only. These were installed beside it, outside git:

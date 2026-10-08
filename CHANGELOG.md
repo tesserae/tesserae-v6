@@ -9,6 +9,17 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Origo Gentis Romanae: a public-domain English translation added
+- `scripts/translations/align_origo.py` aligns the 2004 collaborative
+  translation published at tertullian.org (ed. Roger Pearse, public
+  domain) to all 126 refs of `pseudo_aurelius_victor.origo_gentis_romanae`
+  (coverage 1.0, proper-name check 0.99). Three refs where the corpus's
+  Latin Library line carries two of the translation's numbered sections
+  are merged, listed by hand in the script. Closes the gap the Aurelius
+  Victor addition below left open. The built translation file is data. It
+  stays out of git, like every other file under `data/translations/`. The
+  data operation is recorded in docs/DATA_OPERATIONS.md.
+
 ### Aurelius Victor additions: dates entry and the record of the production steps
 - `backend/author_dates.json`: era and date for the two works transmitted
   with Aurelius Victor, so the corpus browser shows them as Late Antique.
