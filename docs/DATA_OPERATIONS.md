@@ -67,7 +67,7 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
-## 2026-10-08 Documentary texts in the corpus-wide phrase search (TO BE APPLIED, not yet on production)
+## 2026-10-08 Documentary texts in the corpus-wide phrase search (files installed about 02:30 EDT, switch off)
 - What: PR for documents stage 3b-2 adds `backend/documents.py` and an
   optional `collection` parameter to `/api/line-search`, both inert unless
   `TESSERAE_DOCUMENTS=1` is set on the server. Installing it on production
@@ -98,6 +98,17 @@ anything is deleted, with a dated backup kept of each file it removes.
   plus the existing reference tests in `tests/search_reference_tests.md`
   with `collection` omitted, to confirm the literary path is still exactly
   what it was before this entry.
+- Applied, with the switch still off: both documents indexes copied into
+  `data/inverted_index/` (byte-identical to the build), `metadata.db` into
+  `data/documents/` (rebuilt the same night so every document shows its
+  source's deposit licence, see the CHANGELOG), and the 264 restored-word
+  files into `data/documents/restored/la` (160) and `grc` (104). The
+  production environment does not set `TESSERAE_DOCUMENTS`, so the site
+  reports documents as not enabled and every search is unchanged.
+  Reference searches passed. A one-off process running the production code
+  with the switch on returned document hits with edition and licence for
+  "dis manibus", "bene merenti", "arma virumque cano" (Both) and χαίρειν,
+  in 0.2 to 1.7 seconds each.
 
 ## 2026-10-08 Origo Gentis Romanae: the 2004 tertullian.org translation added (about 01:00 EDT)
 - What: `data/translations/la__pseudo_aurelius_victor.origo_gentis_romanae.json`
