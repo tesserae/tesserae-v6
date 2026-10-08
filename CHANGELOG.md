@@ -28,13 +28,11 @@ behind each, are in docs/DECISIONS.md.
   registered in `backend/app.py`; no existing route changed. Keys are
   environment variables only (`S2_API_KEY`, `CORE_API_KEY`,
   `TESSERAE_CONTACT_EMAIL`, `GOOGLE_BOOKS_KEY`); nothing hard-coded beyond
-  the existing contact default. `backend/usage.py` (ported as a dependency
-  of the new route) adds one `usage_events` table row per scholarship
-  lookup; it is not wired into any other route in this change. Ported from
-  the preview branch `feat/scholarship-tab`
-  (`research/threads/SCHOLARSHIP_PORT_NOTES.md` has the full account of
-  what else that branch held and why it stayed out). No UI: the Reader tab
-  and the connector tools are separate PRs, both behind their own switch.
+  the existing contact default. `/scholarship/translate` only ever
+  translates a note the site already holds at the given work and ref
+  (checked word for word against what `commentary_at()` returns), never
+  arbitrary submitted text. No UI: the Reader tab and the connector tools
+  are separate PRs, both behind their own switch.
 
 ### Documentary texts, stage 1: an EpiDoc converter, no site change
 - `scripts/documents/epidoc_convert.py` converts EpiDoc TEI-XML (the Heidelberg

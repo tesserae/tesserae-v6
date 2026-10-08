@@ -6,10 +6,10 @@ statistic (a single-value mode) cannot reliably tell a work's genuine-
 but-minority deeper citation convention (Tacitus' Annales/Historiae,
 book.chapter.section; every Plautus and Terence play, act.scene.line)
 apart from another work's similarly large minority of citation noise
-(cicero.pro_archia's bibliographic-abbreviation collisions). The task
-this script was written for confirmed the three already in that file by
-direct reading, the same way COMMA_CHAIN_DIAGNOSIS.md itself named
-Tacitus and Plautus as examples of the "corpus-resolution gap" problem.
+(cicero.pro_archia's bibliographic-abbreviation collisions). The three
+already in that file (Tacitus, Plautus, Terence) were confirmed by
+direct reading as genuine examples of this "corpus-resolution gap"
+problem, not derived from a statistic.
 
 This script does NOT decide which further works belong in that file --
 it only surfaces candidates, using the same noise-aware re-parse
@@ -25,12 +25,11 @@ work's own corpus depth (work_depth.json). For each: the share over
 threshold, the corpus depth, the most common deeper depth reached, and
 three example surfaces at that deeper depth.
 
-Output: writes a Markdown table to
-/home/ncoffee/tesserae-backups/ejc_index_2026-09-14/DEPTH_OVERRIDE_CANDIDATES.md
-(read-only against citations_v2.db; writes only that one report file).
+Output: writes a Markdown table to the path given by --out (read-only
+against the source database; writes only that one report file).
 
-2026-09-18 follow-up: every candidate at >=50% share was hand-read (the
-full surface list per work, not just the report's 3 examples) and six
+Candidates at 50% share or more were hand-read in full (the whole surface
+list per work, not just the report's 3 examples), and six
 were added to work_depth_overrides.json as genuine chapter.section (or
 book.chapter.section) conventions -- cicero.in_catilinam (3),
 athenaeus.deipnosophists (2), cicero.philippicae (3),
@@ -47,9 +46,9 @@ citation dimension; cicero.de_amicitia's own examples were mostly a
 different, pre-existing bug (bare "Cic. Leg." mis-resolving to this work
 instead of the uncorpused De Legibus), not evidence about this work's
 real convention; aristotle.de_memoria_et_reminiscentia was excluded
-because COMMA_CHAIN_DIAGNOSIS.md had already flagged its corpus depth as
-unreliable (based on 3 tagged lines) and its real citation practice as
-Bekker-page, not chapter-based -- confirmed again here (its first two
+because its corpus depth is already known to be unreliable (based on
+only 3 tagged lines) and its real citation practice is Bekker-page, not
+chapter-based -- confirmed again here (its first two
 "levels" are almost always the fixed placeholder 1/I/i, never a real
 varying hierarchy); ausonius.mosella is a single continuous poem with no
 chapters at all, so a second level there cannot be anything but noise.
@@ -79,7 +78,7 @@ rather than resolve to the wrong passage, which is the point of doing it
 this way instead of truncating.
 
 Usage:
-  python3 list_depth_override_candidates.py [--source PATH] [--min-citations N] [--min-share F] [--out PATH]
+  python3 list_depth_override_candidates.py --source PATH --out PATH [--min-citations N] [--min-share F]
 """
 import argparse
 import collections
@@ -95,8 +94,6 @@ from backend.citations import index as get_abbrev_index
 from backend.citations.parser import find_citations
 from backend.citations.extractor import _is_clean_split_level
 
-DEFAULT_SOURCE = "/home/ncoffee/tesserae-backups/ejc_index_2026-09-14/citations_v2.db"
-DEFAULT_OUT = "/home/ncoffee/tesserae-backups/ejc_index_2026-09-14/DEPTH_OVERRIDE_CANDIDATES.md"
 MIN_CITATIONS = 30
 MIN_SHARE = 0.15
 MAX_EXAMPLES = 3
@@ -151,10 +148,10 @@ def derive(source_path, corpus_depth_map):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--source", default=DEFAULT_SOURCE)
+    ap.add_argument("--source", required=True, help="path to the journal-citation sqlite database")
     ap.add_argument("--min-citations", type=int, default=MIN_CITATIONS)
     ap.add_argument("--min-share", type=float, default=MIN_SHARE)
-    ap.add_argument("--out", default=DEFAULT_OUT)
+    ap.add_argument("--out", required=True, help="path to write the candidates report to")
     args = ap.parse_args()
 
     if not os.path.exists(args.source):

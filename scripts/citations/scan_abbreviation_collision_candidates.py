@@ -13,8 +13,8 @@ running prose uses the same short form for something else entirely.
 
 This script does NOT decide which of these are real collisions or fix
 anything -- every one of the six fixes above needed a human to read
-actual sampled sentences (REPORT_v3.md through REPORT_v6.md) before
-acting; a short, heavily-cited abbreviation key is a lead, not a verdict.
+actual sampled sentences before acting; a short, heavily-cited
+abbreviation key is a lead, not a verdict.
 
 Criterion: every abbreviation key in the table that is (a) two or three
 letters (no spaces -- a combined "Author. Work." key is a different,
@@ -24,13 +24,12 @@ candidate work has more than MIN_CITATIONS citations in the given
 citations db (so a rarely-cited work's key isn't worth chasing). Lists
 the ten largest by citation count, each with up to five example surfaces.
 
-Output: writes a Markdown table to
-/home/ncoffee/tesserae-backups/ejc_index_2026-09-14/
-ABBREVIATION_COLLISION_CANDIDATES.md (read-only against the citations db
-and abbreviations.json; writes only that one report file).
+Output: writes a Markdown table to the path given by --out (read-only
+against the citations db and abbreviations.json; writes only that one
+report file).
 
 Usage:
-  python3 scan_abbreviation_collision_candidates.py [--db PATH] [--min-citations N] [--top N]
+  python3 scan_abbreviation_collision_candidates.py --db PATH --out PATH [--min-citations N] [--top N]
 """
 import argparse
 import collections
@@ -44,8 +43,6 @@ sys.path.insert(0, WORK)
 from backend.citations.abbrev_index import AbbrevIndex
 
 ABBREV_PATH = os.path.join(WORK, "data", "citations", "abbreviations.json")
-DEFAULT_DB = "/home/ncoffee/tesserae-backups/ejc_index_2026-09-14/citations_v6.db"
-DEFAULT_OUT = "/home/ncoffee/tesserae-backups/ejc_index_2026-09-14/ABBREVIATION_COLLISION_CANDIDATES.md"
 MIN_CITATIONS = 100
 MAX_EXAMPLES = 5
 
@@ -106,10 +103,10 @@ def scan(db_path, index, min_citations, max_examples):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--db", default=DEFAULT_DB)
+    ap.add_argument("--db", required=True, help="path to the citations sqlite database")
     ap.add_argument("--min-citations", type=int, default=MIN_CITATIONS)
     ap.add_argument("--top", type=int, default=10)
-    ap.add_argument("--out", default=DEFAULT_OUT)
+    ap.add_argument("--out", required=True, help="path to write the candidates report to")
     args = ap.parse_args()
 
     if not os.path.exists(args.db):

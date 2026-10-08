@@ -1,10 +1,8 @@
 """Derive per-work locus depth from the live corpus .tess tags.
 
 Reads every .tess file under the corpus root (default: the production
-texts directory, /var/www/tesseraev6_flask/texts/), reproducing exactly the
-method used in the read-only diagnosis at
-/home/ncoffee/tesserae-backups/ejc_index_2026-09-14/COMMA_CHAIN_DIAGNOSIS.md
-section 1:
+texts directory, /var/www/tesseraev6_flask/texts/) and counts citation
+depth by tag shape:
 
   - Whitespace-tagged files ("<verg. aen. 1.1> ..."): the work id is the
     file's own stem (folded to its base id if it's a .part.N file); the
@@ -31,8 +29,7 @@ and extractor.py):
 Run without arguments to use the default corpus root and write both files
 into backend/citations/. Pass --corpus-root to point at a different texts/
 directory, and --check <path> to diff the freshly-derived table against a
-previously saved one (used to confirm this script reproduces the
-diagnosis's own seed work_depth.json) without writing anything.
+previously saved one without writing anything.
 """
 import argparse
 import json
@@ -57,9 +54,8 @@ def fold_part(stem):
     A part file with an extra descriptive segment after the number
     ('pindar.odes.part.1.isthmeans', 'antiphon.speeches.part.2.
     first_tetralogy') is left UNFOLDED and counted as its own separate work
-    id -- confirmed empirically against the diagnosis's seed
-    work_depth.json (ejc_index_2026-09-14/COMMA_CHAIN_DIAGNOSIS.md): those
-    named parts keep their own depth entry alongside the base file's,
+    id: those named parts keep their own depth entry alongside the base
+    file's,
     because their own internal numbering genuinely differs from the base
     file's (e.g. Antiphon's Tetralogies are tagged tetralogy.speech.line
     inside their own part file, but speech.line, numbered straight through

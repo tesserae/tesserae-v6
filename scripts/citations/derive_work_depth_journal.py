@@ -5,15 +5,14 @@ depth according to the CORPUS's own .tess tagging. That is the wrong
 number for a work whose scholarly citation convention is genuinely deeper
 than this corpus tags it at -- Tacitus' Annales is tagged book.chapter but
 routinely cited book.chapter.section; Plautus' plays are tagged as one
-flat run of line numbers but routinely cited act.scene.line (see
-COMMA_CHAIN_DIAGNOSIS.md section 3, items 6-7, and REPORT_v3.md section 7,
-which confirms this is live and harming real rows: Tacitus citations
-silently losing their section number, Plautus act.scene.line citations
-fragmenting into three separate, individually-wrong single-level rows).
+flat run of line numbers but routinely cited act.scene.line. Confirmed to
+be live and harming real rows: Tacitus citations silently losing their
+section number, Plautus act.scene.line citations fragmenting into three
+separate, individually-wrong single-level rows.
 
-This script reads /home/ncoffee/tesserae-backups/ejc_index_2026-09-14/
-citations_v2.db -- the rebuilt EJC journal-citation index as it stood
-BEFORE any depth-truncation rule existed -- and re-parses each citation's
+This script reads a rebuilt journal-citation index (citations_v2.db, as it
+stood BEFORE any depth-truncation rule existed, passed with --source) and
+re-parses each citation's
 own stored `surface` text (not the already-joined `locus_start` column) to
 recover its real locus levels and separator types, the same way
 extractor.py's live depth-truncation logic does. That lets this script
@@ -44,7 +43,7 @@ strict single-value mode over ALL of a work's citations still comes out
 equal to its corpus depth for tacitus.annales (2) and plautus.stichus (1)
 -- the deeper book.chapter.section / act.scene.line convention is real
 (about a quarter and a seventh of their citations respectively, hand-
-confirmed against REPORT_v3.md's own examples) but a MINORITY, and no
+confirmed against real examples) but a MINORITY, and no
 single-value mode can surface a minority pattern by definition. No other
 automatic statistic tried (mode restricted to the over-corpus-depth
 subset, share of a work's total citations reaching the deeper form,
@@ -53,10 +52,9 @@ minority convention apart from Pro Archia's similarly large minority of
 noise without risking the same kind of regression found above on some
 OTHER work. This script's method is there for anyone who re-runs it
 later, and to record why a plain "most common depth" answer, applied
-faithfully, does not by itself relieve Tacitus or Plautus -- see the
-task's own final report for how the truncation rule was tested for those
-two works instead (an injected depth override, not this script's live
-output).
+faithfully, does not by itself relieve Tacitus or Plautus: those two
+works are handled instead by an injected depth override
+(work_depth_overrides.json), not this script's live output.
 
 Output: backend/citations/work_depth_journal.json, {work_id: modal_depth},
 for every work_id with at least MIN_CITATIONS rows in citations_v2.db.
@@ -66,7 +64,7 @@ json) AND this journal depth (falling back to the corpus depth alone when
 a work has no journal-depth entry here).
 
 Usage:
-  python3 derive_work_depth_journal.py [--source PATH] [--min-citations N]
+  python3 derive_work_depth_journal.py --source PATH [--min-citations N]
 """
 import argparse
 import collections
@@ -82,7 +80,6 @@ from backend.citations import index as get_abbrev_index
 from backend.citations.parser import find_citations
 from backend.citations.extractor import _is_clean_split_level
 
-DEFAULT_SOURCE = "/home/ncoffee/tesserae-backups/ejc_index_2026-09-14/citations_v2.db"
 MIN_CITATIONS = 10
 OUT_DIR = os.path.join(WORK, "backend", "citations")
 
@@ -147,7 +144,8 @@ def derive(source_path, min_citations, corpus_depth_map):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--source", default=DEFAULT_SOURCE)
+    ap.add_argument("--source", required=True,
+                    help="path to the rebuilt journal-citation sqlite database")
     ap.add_argument("--min-citations", type=int, default=MIN_CITATIONS)
     ap.add_argument("--out-dir", default=OUT_DIR)
     args = ap.parse_args()

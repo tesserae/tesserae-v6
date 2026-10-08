@@ -18,7 +18,7 @@ find them inside prose) does not cover:
     rule that actually parses it (a trailing "s." there falls out as a
     dangling LITERAL/`editor`, not a scope). We resolve these deliberately as
     OPEN-ENDED (locus_end=None, reason='open_ended_following_marker') rather
-    than guessing a fixed line count -- see NOTES.md.
+    than guessing a fixed line count.
   - En/em dashes as range hyphens, since running prose (unlike a curated
     citation list) mixes typography.
 
@@ -36,8 +36,8 @@ Kept from the original grammar, ported directly:
     leading digits ("124-5" -> end becomes "125"). Both are applied in
     resolver.py, not here (this module only produces the raw token strings).
 
-Fixed 2026-09-18, found on the finished JSTOR Early Journal Content index
-(see ejc_index_2026-09-14/REPORT_v2.md):
+Four defects found by running the extractor over real pre-1923 journal
+prose (JSTOR's Early Journal Content), fixed here:
   - Book lists. "Aeneid I, II", "Verg. Aen. i, ii", "Aeneid i, ii, iii" were
     parsed as one multi-level book.line locus (1.2, 1.2.3). Line numbers are
     conventionally Arabic; a comma-separated run of two or more Roman-
@@ -77,8 +77,8 @@ MAX_WORK_PREFIX_TOKENS = 4
 # 'VV.' for [Aristotle] Virtues and Vices) but overwhelmingly mean "page"/
 # "verse(s)"/"chapter"/"volume"/"note" in running English prose. Confirmed as
 # the single largest source of false positives when testing against real
-# commentary text (see NOTES.md, confusion list): a single-token match
-# against one of these is rejected outright, regardless of what the
+# commentary text: a single-token match against one of these is rejected
+# outright, regardless of what the
 # abbreviation index says, UNLESS it is combined with another token (e.g.
 # 'Hor. C.' is fine; a bare 'P.' or 'p.' by itself is not).
 GENERIC_APPARATUS_STOPLIST = {
@@ -128,8 +128,7 @@ class Ref:
                                              # start_levels. Used only by extractor.py's
                                              # depth-aware truncation, to tell a genuine
                                              # dot-joined deeper locus (never truncated
-                                             # past a corpus-resolution gap -- see
-                                             # COMMA_CHAIN_DIAGNOSIS.md section 3) from a
+                                             # past a corpus-resolution gap) from a
                                              # comma-joined chain that may bundle in noise
                                              # or several separate citations.
 
@@ -158,7 +157,7 @@ def _match_work_prefix(tokens, i, abbrev_index):
         # in real usage ('Aen.', 'OT', 'verg. aen.'). Reject an all-lowercase,
         # no-period token run: it is indistinguishable from ordinary prose
         # ('and' vs the Andocides abbreviation 'And.') and is the single
-        # biggest source of false positives in casual testing -- see NOTES.md.
+        # biggest source of false positives in casual testing.
         if not (any(c == "." for c in surface) or any(c.isupper() for c in surface)):
             continue
         if length == 1 and cand[0].text.rstrip(".").lower() in GENERIC_APPARATUS_STOPLIST:

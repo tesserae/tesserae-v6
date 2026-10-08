@@ -1,5 +1,5 @@
 """How many rows in a built citation index are over-deep on a depth-1
-work -- i.e. how many rows the 2026-09-18 depth-1 OCR-digit-join fix
+work -- i.e. how many rows the depth-1 OCR-digit-join fix
 (extractor.py._apply_work_depth, see its own docstring for the "Ar. Ach.
 1 1 24" panel fault this fixes) could affect on a rebuild.
 
@@ -14,7 +14,7 @@ Read-only against the given db; prints a summary and the ten largest
 depth-1 works by over-deep row count. Does not write anything.
 
 Usage:
-  python3 scan_depth1_overdeep.py [--db PATH] [--top N]
+  python3 scan_depth1_overdeep.py --db PATH [--top N]
 """
 import argparse
 import collections
@@ -25,7 +25,6 @@ import sys
 
 WORK = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 CITATIONS_DIR = os.path.join(WORK, "backend", "citations")
-DEFAULT_DB = "/home/ncoffee/tesserae-backups/ejc_index_2026-09-14/citations_v4.db"
 
 
 def _effective_depth(work_id, corpus_depth, inconsistent, overrides):
@@ -68,7 +67,7 @@ def scan(db_path):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--db", default=DEFAULT_DB)
+    ap.add_argument("--db", required=True, help="path to the citations sqlite database")
     ap.add_argument("--top", type=int, default=10)
     args = ap.parse_args()
 

@@ -18,8 +18,8 @@ from .resolver import resolve_ref, level_to_arabic, roman_to_int, levels_to_locu
 _DEFAULT_INDEX = None
 
 # Per-work locus depth, derived from the live corpus's own .tess tags by
-# scripts/citations/derive_work_depth.py (see that script's docstring and
-# COMMA_CHAIN_DIAGNOSIS.md section 1). {work_id: modal_depth} plus the list
+# scripts/citations/derive_work_depth.py (see that script's docstring).
+# {work_id: modal_depth} plus the list
 # of work ids whose depth is NOT consistent across the corpus (a mix of
 # depths in the tagged lines themselves, e.g. a preface tagged one level
 # shallower) -- those are never trusted for truncation, since there's no
@@ -35,8 +35,8 @@ _WORK_DEPTH_INCONSISTENT = None
 # conventionally cited MORE precisely than this corpus's own .tess tagging
 # supports (Tacitus' Annales tagged book.chapter but cited book.chapter.
 # section; Plautus tagged as one flat run of line numbers but cited act.
-# scene.line -- COMMA_CHAIN_DIAGNOSIS.md section 3 items 6-7, confirmed
-# live and harming real rows in REPORT_v3.md section 7). Truncating/
+# scene.line -- confirmed, by hand-checking real citations, to be live
+# and harming real rows when truncated). Truncating/
 # splitting those citations down to the corpus's own (shallower) depth
 # silently drops a real section number or fragments one citation into
 # several wrong ones. See _apply_work_depth: the truncate/split rule now
@@ -54,8 +54,7 @@ _WORK_DEPTH_JOURNAL = None
 # derive_work_depth_journal.py's own docstring) -- Tacitus' Annales and
 # Historiae (book.chapter.section) and every Plautus and Terence play
 # (act.scene.line, the universal convention for Roman comedy) are
-# confirmed by direct reading, the same way COMMA_CHAIN_DIAGNOSIS.md named
-# them, not derived from a statistic. scripts/citations/
+# confirmed by direct reading, not derived from a statistic. scripts/citations/
 # list_depth_override_candidates.py surfaces further candidates for this
 # file to be hand-extended later; it does not write to this file itself.
 _WORK_DEPTH_OVERRIDES = None
@@ -139,11 +138,10 @@ def _join_short_digit_levels(levels):
 def _is_clean_split_level(token):
     """A remaining, truncated-off level is safe to read as its OWN separate
     citation only when it is a plain Arabic number that isn't 4 digits (a
-    publication year, footnote number, or Stephanus/edition page number --
-    see COMMA_CHAIN_DIAGNOSIS.md section 3, items 1 and 2) or a Roman
-    numeral of two or more characters (a single Roman letter, e.g. 'C' or
-    'I', is exactly as likely to be an edition-page letter or an OCR'd
-    '(c.' abbreviation for 'circa' as a real numeral -- same section)."""
+    publication year, footnote number, or Stephanus/edition page number)
+    or a Roman numeral of two or more characters (a single Roman letter,
+    e.g. 'C' or 'I', is exactly as likely to be an edition-page letter or
+    an OCR'd '(c.' abbreviation for 'circa' as a real numeral)."""
     if token.isdigit():
         return len(token) != 4
     if is_roman_shaped(token):
@@ -156,13 +154,13 @@ def _apply_work_depth(out_dict, ref, depth_map=None, inconsistent=None, journal_
     """When a resolved citation's own locus has more levels than its work's
     known, consistent depth, truncate it to that depth. Split the
     truncated-off remainder into further whole citations ONLY in the one
-    clean case COMMA_CHAIN_DIAGNOSIS.md's own hand-check found reliable:
+    clean case a hand-check of real citations found reliable:
     the remainder is exactly a multiple of the work's depth, every
     remaining level passes _is_clean_split_level, and this citation is not
     already a range (a range's start levels reflect level-count/digit-
     shorthand borrowing from resolver._expand_range, not a comma chain, and
-    splitting one apart was the single largest source of wrong rows in
-    that diagnosis's own hand-check). Otherwise: truncate and drop the
+    splitting one apart was the single largest source of wrong rows found
+    by hand-checking real citations). Otherwise: truncate and drop the
     remainder. Always returns a non-empty list of output dicts.
 
     The truncation target depth, and the threshold a locus must exceed
@@ -182,8 +180,10 @@ def _apply_work_depth(out_dict, ref, depth_map=None, inconsistent=None, journal_
        rule fires only when the locus exceeds BOTH the corpus depth
        (depth_map, from the corpus's own .tess tags) AND the work's
        journal depth (journal_depth_map, from how this genre of journal
-       prose actually cites the work in citations_v2.db). A work with no
-       journal-depth entry (fewer than 10 citations there) falls back to
+       prose actually cites the work in a sample of pre-1923 journal
+       citations). A work with no
+       journal-depth entry (fewer than 10 citations there) falls back
+       to
        the corpus depth alone. The truncation target in this case is
        still the CORPUS depth (the shallower one), same as before this
        parameter existed.
@@ -192,16 +192,14 @@ def _apply_work_depth(out_dict, ref, depth_map=None, inconsistent=None, journal_
     deeper than the corpus's own tagging (Tacitus' Annales, book.chapter
     tagged but book.chapter.section cited; Plautus and Terence, tagged
     flat or act.scene but cited act.scene.line) from having a correct,
-    more precise locus truncated or fragmented -- see REPORT_v3.md
-    section 7.
+    more precise locus truncated or fragmented.
 
     A depth-1 work (a single running number: a line, a section...) never
     goes through the truncate/split path described above at all -- see
     the dedicated depth==1 branch below and _join_short_digit_levels's
-    own docstring for why (a fault seen live in the preview, 2026-09-18:
-    OCR splitting one multi-digit line number across whitespace, "Ar.
-    Ach. 1 1 24" for line 1124, was being truncated to line 1 and shown
-    that way in the connection panel).
+    own docstring for why: OCR splitting one multi-digit line number
+    across whitespace ("Ar. Ach. 1 1 24" for line 1124) was being
+    truncated to line 1 and shown that way in the connection panel.
 
     depth_map/inconsistent/journal_depth_map/overrides/max_line_map
     default to the loaded, cached module data; a caller (tests) may
@@ -240,10 +238,10 @@ def _apply_work_depth(out_dict, ref, depth_map=None, inconsistent=None, journal_
         # a deeper work, "truncate to the first level" is actively wrong
         # here: the first level of an over-deep depth-1 locus is very
         # often just the LEADING digits of the real number, not an
-        # independent citation on its own -- confirmed live in the
-        # preview, 2026-09-18: "Ar. Ach. 1 1 24" and "Aristoph. Ach. 1 1
-        # 28" (OCR splitting "1124"/"1128" across whitespace) were being
-        # truncated to line 1 and shown that way in the connection panel.
+        # independent citation on its own -- confirmed live: "Ar. Ach.
+        # 1 1 24" and "Aristoph. Ach. 1 1 28" (OCR splitting "1124"/
+        # "1128" across whitespace) were being truncated to line 1 and
+        # shown that way in the connection panel.
         # So a depth-1 work bypasses the comma-boundary/truncate/split
         # path entirely:
         if max_line_map is None:
@@ -269,8 +267,8 @@ def _apply_work_depth(out_dict, ref, depth_map=None, inconsistent=None, journal_
     # Tacitus "Ann. iii. 53. 7", Cicero "De Or. II, 45, 189" once past the
     # first comma) is far more likely to be a genuine attempt at a citation
     # more precise than this corpus's own tagging supports -- a corpus-
-    # resolution gap (COMMA_CHAIN_DIAGNOSIS.md section 3, item 6) -- than a
-    # fabricated locus. Every one of this task's own worked examples
+    # resolution gap -- than a fabricated locus. Every one of these
+    # worked examples
     # ("Aen. 2, 283, 10, 327", "Aen. 3.296, 7.433, 11.270", "Aen. III. 581,
     # I", "Arch. XXII, 1913") crosses the depth boundary at a comma; none
     # crosses it at a dot. Leaving a dot-joined over-deep locus untouched
@@ -316,8 +314,8 @@ def _apply_work_depth(out_dict, ref, depth_map=None, inconsistent=None, journal_
 # Plain 'Od.' (the bare, single-token abbreviation -- match_priority 2; not
 # combined with 'Hom.' at priority 1, and not the spelled-out 'Odyssey'
 # title at priority 3) genuinely competes with Horace's four-book Odes when
-# the book number is 1-4 -- about 40% of the time in a 28,612-article
-# journal sample (see HOMER_DIAGNOSIS.md section 1). Books 5-24 are
+# the book number is 1-4 -- about 40% of the time in a sample of over
+# 28,000 journal articles. Books 5-24 are
 # impossible for Horace (he wrote only four books) and are always safe.
 # A Greek-letter book number ('Od. λ 90') carries none of this risk at all
 # -- Horace's Odes are never numbered with Greek letters -- so the guard
@@ -352,11 +350,10 @@ def _od_book_1_4_needs_context(res, ref, text):
 
 
 # "Rep." with no author context is ambiguous between Cicero's De Republica
-# and Plato's Republic (both registered as candidates -- see the 2026-09-18
-# abbreviation-table fix), and the resolver correctly leaves it unresolved
-# rather than guess. REPORT_v3.md's rebuild found this costs real recall:
-# plato.respublica dropped from a wrongly-confident 839 (nearly all really
-# Plato or noise, per HOMER_DIAGNOSIS.md-style hand-checking) to 15, and a
+# and Plato's Republic (both registered as candidates), and the resolver
+# correctly leaves it unresolved rather than guess. This costs real
+# recall: plato.respublica dropped from a wrongly-confident 839 (nearly
+# all really Plato or noise, by hand-checking) to 15, and a
 # few genuine Plato citations with the author named a sentence or more
 # away (outside the author-context window) now resolve to neither work.
 #
@@ -511,8 +508,8 @@ def extract(text, index=None):
 # A depth-1 work's own bare-number citation ("Arch. 8") is, by design,
 # never touched by _apply_work_depth's over-deep guard: a single-level
 # locus for a depth-1 work matches the work's own depth EXACTLY, so it
-# was never "over-deep" in the first place. REPORT_v7.md section 5 found
-# the gap this leaves open: "Arch. 1888" (a bibliographic reference to a
+# was never "over-deep" in the first place. That leaves open the gap
+# where "Arch. 1888" (a bibliographic reference to a
 # JOURNAL's volume year, "Archaeologischer Anzeiger 1888, pp. 193 ff.")
 # resolves to cicero.pro_archia exactly the same way a genuine section
 # number would, with no range check at all -- pro_archia's own line

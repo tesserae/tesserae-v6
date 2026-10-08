@@ -1,9 +1,8 @@
-"""Citation grammar forms: the four defects found 2026-09-17 on the finished
-JSTOR Early Journal Content index (book lists, bare numbers, book spans,
+"""Citation grammar forms: four defects found on a built JSTOR Early
+Journal Content citation index (book lists, bare numbers, book spans,
 "ff."/"f."/"sqq." open-ended ranges), plus the recall forms added after
 sampling 60 pre-1923 Classics articles that mentioned Vergil/Virgil/Aeneid
-but yielded no Aeneid citation. See ejc_index_2026-09-14/REPORT_v2.md for the
-sample, the tally, and the before/after Cited Loci numbers.
+but yielded no Aeneid citation.
 
 Modeled on tests/test_scholarship.py's `_cites` tests: each assertion checks
 one citation FORM against `backend.citations.extract`, not the whole
@@ -11,9 +10,9 @@ pipeline.
 
 Needs data/citations/abbreviations.json (built from Romanello's hucitlib
 data, GPL-3.0), which is deliberately not in this repository or in CI --
-see backend/citations/__init__.py and research/threads/
-SCHOLARSHIP_PORT_NOTES.md. Skipped as a whole when that file is absent,
-rather than failing on every assertion the table would have resolved.
+see backend/citations/__init__.py. Skipped as a whole when that file is
+absent, rather than failing on every assertion the table would have
+resolved.
 """
 import pytest
 
@@ -158,8 +157,8 @@ def test_ff_after_an_explicit_range_does_not_reopen_it():
     assert hit['locus_end'] == '1.30'
 
 
-# --- Abbreviation-table fixes, 2026-09-18 ---------------------------------
-# See HOMER_DIAGNOSIS.md section 4: three abbreviations ("Rep.", "Her.",
+# --- Abbreviation-table fixes ---------------------------------------------
+# Three abbreviations ("Rep.", "Her.",
 # "Ach.") were silently resolving to the wrong author because only one
 # (wrong) candidate was registered under that key, so the resolver's own
 # ambiguity guard (two candidates tied at the same priority -> unresolved)
@@ -259,9 +258,9 @@ def test_aristophanes_new_plays_resolve():
 def test_arist_ach_recall_gap_found_by_sample_hand_check():
     # "Arist." (already a heavily ambiguous author abbreviation elsewhere
     # in the table, for ~35 Aristotle works) combined with "Ach." was a
-    # real recall gap found hand-checking the 2000-article sample run
-    # (article jstor id in ejc_index's citations.db, "cannot be inferred
-    # from Arist. Ach. 1155, where the choregus is attacked..."): only
+    # real recall gap found hand-checking a sample of real articles (one
+    # could not be inferred from "Arist. Ach. 1155, where the choregus is
+    # attacked..."): only
     # "Ar."/"Aristoph." were registered as Acharnians' disambiguators.
     hit = _one('Arist. Ach. 1155')
     assert hit is not None
@@ -286,7 +285,7 @@ def test_plut_bare_dropped_after_sample_hand_check_found_plutarch_collision():
         assert hit['work_id'] == 'aristophanes.plutus'
 
 
-# --- Homer forms, 2026-09-18 (HOMER_DIAGNOSIS.md) -------------------------
+# --- Homer forms -----------------------------------------------------------
 
 def test_il_with_roman_book_and_arabic_line_no_hom_needed():
     hit = _one('Il. ii. 100')
@@ -331,7 +330,7 @@ def test_od_book_5_to_24_accepted_without_context():
     assert hit['locus_start'] == '11.90'
 
 
-# --- Depth-aware loci, 2026-09-18 (COMMA_CHAIN_DIAGNOSIS.md) -------------
+# --- Depth-aware loci -------------------------------------------------
 # backend/citations/work_depth.json (built by
 # scripts/citations/derive_work_depth.py from the corpus's own .tess tags)
 # lets the parser tell a genuine comma-separated chain of several
@@ -414,10 +413,10 @@ def test_range_over_depth_is_truncated_never_split():
     assert results[0]['locus_end'] == '1.130'
 
 
-# --- Rep. locus-shape disambiguation, 2026-09-18 (follow-up) --------------
-# REPORT_v3.md's rebuild confirmed a real cost of registering plato.
-# respublica as a second candidate for "Rep.": bare "Rep." with no nearby
-# author name now resolves to neither work, including genuine Plato
+# --- Rep. locus-shape disambiguation (follow-up) --------------------------
+# Registering plato.respublica as a second candidate for "Rep." has a real
+# cost: bare "Rep." with no nearby author name now resolves to neither
+# work, including genuine Plato
 # citations the resolver has no author-context signal for. Stephanus
 # pagination (a page number in Plato's own printed range, 327-621, plus a
 # subdivision letter a-e) is a positive signal that needs no author name
@@ -454,8 +453,8 @@ def test_rep_letter_outside_a_to_e_stays_unresolved():
     assert not any(h['resolved'] for h in C.extract('Rep. 511 F'))
 
 
-# --- Stephanus letters not misread as Roman numerals, 2026-09-18 ---------
-# REPORT_v4.md/v5.md: Plato rows like "Rep. 514 D" and "Plato Rep. 8, 548
+# --- Stephanus letters not misread as Roman numerals -----------------------
+# Plato rows like "Rep. 514 D" and "Plato Rep. 8, 548
 # C" were resolving with the Stephanus subdivision letter misread as a
 # Roman numeral (D=500, C=100) and folded in as a fabricated extra locus
 # level. Every plato.* work is now flagged "stephanus": true in the
@@ -465,7 +464,7 @@ def test_rep_letter_outside_a_to_e_stays_unresolved():
 # through level_to_arabic. Only applies to a stephanus-flagged work, and
 # only to the letters that actually risk being misread this way (C/D are
 # Roman-numeral-shaped; A/B/E aren't, so they were already being dropped
-# safely -- see REPORT_v4.md's own account -- and still are).
+# safely, and still are).
 
 def test_stephanus_d_not_misread_as_roman_500():
     hit = _one('Rep. 514 D')
@@ -490,8 +489,8 @@ def test_stephanus_with_leading_roman_book_number():
 
 def test_stephanus_letters_a_and_e_still_drop_safely():
     # Unaffected by this fix (they aren't Roman-numeral-shaped, so they
-    # were never misread) -- confirms no regression from REPORT_v4.md's
-    # own already-correct behavior.
+    # were never misread) -- confirms no regression from the already-
+    # correct behavior.
     hit = _one('Plato Rep. 4, 425A')
     assert hit is not None
     assert hit['locus_start'] == '4.425'
@@ -510,8 +509,8 @@ def test_stephanus_flag_does_not_affect_cicero():
     assert hit['locus_start'] == '1'
 
 
-# --- Journal-vs-corpus depth, 2026-09-18 (follow-up) -----------------------
-# REPORT_v3.md's rebuild found the depth rule itself harms works whose
+# --- Journal-vs-corpus depth (follow-up) -----------------------------------
+# The depth rule itself harms works whose
 # scholarly citation convention is genuinely DEEPER than this corpus's own
 # .tess tags: Tacitus' Annales (tagged book.chapter, cited book.chapter.
 # section) had its section number silently truncated off; Plautus'
@@ -639,8 +638,8 @@ def test_cicero_pro_sestio_over_deep_locus_now_dropped_not_split():
 
 
 def test_aristotle_de_memoria_left_out_stays_excluded_from_the_curated_file():
-    # Excluded per COMMA_CHAIN_DIAGNOSIS.md's own earlier finding (depth
-    # unreliable, real convention is Bekker-page) -- not added to
+    # Excluded: its corpus depth is unreliable and its real convention
+    # is Bekker-page, not added to
     # work_depth_overrides.json, whatever the separate, auto-derived
     # journal table happens to do with it.
     import backend.citations.extractor as E
@@ -664,8 +663,8 @@ def test_plautus_stichus_kept_whole_via_curated_override():
 
 def test_override_takes_precedence_reverts_when_removed():
     # Removing tacitus.annales' override falls back to the journal/corpus
-    # depth path, reproducing REPORT_v3.md's own finding (the section
-    # number silently dropped) -- proves the override, not something
+    # depth path, reproducing the section number silently dropped --
+    # proves the override, not something
     # else, is what keeps the citation whole above.
     hits = _with_overrides_removed(
         {'tacitus.annales'},
@@ -849,7 +848,7 @@ def test_cicero_orator_and_ptolemy_musica_left_out_of_overrides():
     assert 'claudius_ptolemaeus.musica' not in overrides
 
 
-# --- "Cri."/"Dom." collisions, 2026-09-18 (REPORT_v6.md hand check) -------
+# --- "Cri."/"Dom." collisions (hand check) ---------------------------------
 # "Cri." was resolving unguarded to plato.crito, but 3/15 sampled rows
 # were Cynewulf's Old English poem "Christ" (Anglo-Saxon philology
 # articles, alongside sibling abbreviations "Beo."/"Gu."/"Dan."/"Ex."/
@@ -921,8 +920,8 @@ def test_mus_with_ptolemy_author_context_resolves():
     assert hit['work_id'] == 'claudius_ptolemaeus.musica'
 
 
-# --- Year-like single-level locus for a depth-1 work, 2026-09-19 ---------
-# REPORT_v7.md section 5: a single-level, four-digit locus for a depth-1
+# --- Year-like single-level locus for a depth-1 work -----------------------
+# A single-level, four-digit locus for a depth-1
 # work was never checked by _apply_work_depth's over-deep guard at all
 # (it matches the work's own depth exactly, so it's never "over-deep").
 # "Arch. 1888" ("Archaeologischer Anzeiger 1888, pp. 193 ff.", a journal

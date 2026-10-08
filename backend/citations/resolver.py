@@ -22,8 +22,8 @@ ROMAN_VALUES = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
 
 # Greek-letter book numbers (Homer's 24-book Iliad/Odyssey convention: the
 # Greek alphabet's own letter order gives the book number directly, Α/α=1
-# through Ω/ω=24 -- no digamma, no classical-numeral values). See
-# HOMER_DIAGNOSIS.md section 3. Keyed on the bare lowercase letter after
+# through Ω/ω=24 -- no digamma, no classical-numeral values). Keyed on
+# the bare lowercase letter after
 # accent-stripping and casefold (see greek_letter_to_int below); "ς" (final
 # sigma) is included as an alias for "σ" (both position 18), since OCR and
 # hand-typesetting sometimes render the lone book-letter with the
@@ -63,8 +63,8 @@ def greek_letter_to_int(text):
     accented) -> its 1-24 Homeric book number, or None. Deliberately never
     matches a bare Latin letter (even one historically used as a Greek-
     letter stand-in, like 'B' for Beta): those collide with real registered
-    sigla elsewhere in the abbreviation table (see HOMER_DIAGNOSIS.md
-    section 3), so only real Greek Unicode letters are accepted."""
+    sigla elsewhere in the abbreviation table, so only real Greek Unicode
+    letters are accepted."""
     core = text.rstrip(".")
     if len(core) != 1:
         return None
@@ -93,8 +93,8 @@ def level_to_arabic(level_str):
 # don't collide, but 'C'/'D' do) that ARE also valid Roman-numeral
 # letters, so level_to_arabic above would silently misread "514 D" as
 # page level 500 (D=500) rather than reading "514d" as one Stephanus
-# locus -- found live in the preview (REPORT_v4.md/v5.md): "Rep. 514 D"
-# resolving as book/page 514.500. Only ever applied to a work whose
+# locus -- found live: "Rep. 514 D" was resolving as book/page
+# 514.500. Only ever applied to a work whose
 # abbreviations.json entry sets "stephanus": true (Plato's dialogues;
 # see resolve_ref, which looks the flag up once it knows the resolved
 # work) and only when the letter directly follows a plain Arabic page

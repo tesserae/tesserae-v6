@@ -6,7 +6,7 @@ in plain Python/regex, plus two extensions the original grammar did not need:
 en/em dashes as range hyphens (running prose uses them; the original grammar,
 built for edited citation lists, only saw ASCII '-'), and treating adjacent
 whitespace between two locus-shaped tokens as an implicit level separator
-(needed for "I 1" / "i. 1" Roman-numeral-book citations -- see NOTES.md).
+(needed for "I 1" / "i. 1" Roman-numeral-book citations).
 
 A LITERAL token here corresponds to one CitationParser.LITERAL: a run of
 letters optionally capped with a trailing period, with no internal spaces

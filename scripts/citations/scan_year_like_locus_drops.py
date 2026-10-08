@@ -1,6 +1,6 @@
 """How many rows in a built citation index the year-like-locus guard
 (extractor.py._year_like_locus_should_drop, see its own docstring for the
-"Arch. 1888" fault this fixes -- REPORT_v7.md section 5) would remove on
+"Arch. 1888" fault this fixes) would remove on
 a rebuild: a single-level, four-digit Arabic locus for a depth-1 work,
 in the range a real publication year would plausibly fall in, dropped
 unless the work's own line range reaches that number and the surrounding
@@ -14,7 +14,7 @@ prints a summary and the ten largest affected works. Does not write
 anything.
 
 Usage:
-  python3 scan_year_like_locus_drops.py [--db PATH] [--top N]
+  python3 scan_year_like_locus_drops.py --db PATH [--top N]
 """
 import argparse
 import collections
@@ -26,8 +26,6 @@ WORK = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 sys.path.insert(0, WORK)
 
 from backend import citations as C
-
-DEFAULT_DB = "/home/ncoffee/tesserae-backups/ejc_index_2026-09-14/citations_v7.db"
 
 
 def would_be_dropped(work_id, locus_start, surface, sentence):
@@ -66,7 +64,7 @@ def scan(db_path):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--db", default=DEFAULT_DB)
+    ap.add_argument("--db", required=True, help="path to the citations sqlite database")
     ap.add_argument("--top", type=int, default=10)
     args = ap.parse_args()
 

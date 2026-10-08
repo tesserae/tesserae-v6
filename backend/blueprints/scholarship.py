@@ -8,9 +8,12 @@ connector's find_scholarship / get_commentary tools.
         span. The reader's library link is built client-side from a setting.
     GET /api/scholarship/commentary?work=&ref_start=&ref_end=
         the public-domain commentaries' notes at the span.
-    POST /api/scholarship/translate  {text, commentator}
-        a machine translation of one note by the local model, marked as such;
-        cached, so a note is translated once.
+    POST /api/scholarship/translate  {work, ref, text, commentator, language}
+        a machine translation of one note the site already holds at that
+        work and ref, by the local model, marked as such; cached, so a note
+        is translated once. `text` must match that note's own text exactly
+        (checked against what commentary_at returns): the route translates
+        notes the site holds, never arbitrary client-supplied text.
 """
 import hashlib
 import json
@@ -21,7 +24,6 @@ import requests
 from flask import Blueprint, jsonify, request
 
 from backend import scholarship as S
-from backend.usage import log_event
 from backend.logging_config import get_logger
 
 logger = get_logger('scholarship')
@@ -50,8 +52,6 @@ def scholarship():
         limit = 20
     out = S.find(p['work'], p['ref_start'], p['ref_end'], p['work2'], p['ref2_start'], p['ref2_end'], limit=limit, quote=p['quote'])
     out['commentary'] = S.commentary_at(p['work'], p['ref_start'], p['ref_end'])
-    log_event('scholarship', work=p['work'], ref_start=p['ref_start'], ref_end=p['ref_end'],
-              results_count=len(out.get('results') or []))
     if p['work2'] and p['ref2_start']:
         out['commentary2'] = S.commentary_at(p['work2'], p['ref2_start'], p['ref2_end'])
     return jsonify(out)
@@ -74,27 +74,54 @@ def sources():
     return jsonify({'commentaries': S.commentary_sources()})
 
 
+def _held_note(work, ref, text, commentator=None):
+    """The held commentary entry (its own commentator and language) for a
+    note at this work and ref whose text exactly matches `text`, or None.
+
+    This is the route's only access check: it never translates text the
+    caller supplies on its own, only a note commentary_at() already serves
+    for that span, so the local model is never asked to translate arbitrary
+    text a request happens to send it."""
+    if not work or not ref or not text:
+        return None
+    for entry in S.commentary_at(work, ref, ref):
+        if commentator and (entry.get('commentator') or '').strip().lower() != commentator.strip().lower():
+            continue
+        for note in entry.get('notes') or []:
+            if (note.get('text') or '').strip() == text:
+                return {'commentator': entry.get('commentator'), 'language': entry.get('language')}
+    return None
+
+
 @scholarship_bp.route('/scholarship/translate', methods=['POST'])
 def translate():
     d = request.get_json(silent=True) or {}
+    work = (d.get('work') or '').strip()
+    ref = (d.get('ref') or '').strip()
     text = (d.get('text') or '').strip()
-    who = (d.get('commentator') or 'the commentator').strip()
-    if not text:
-        return jsonify({'error': 'text is required'})
+    commentator = (d.get('commentator') or '').strip()
+    if not work or not ref or not text:
+        return jsonify({'available': False, 'reason': 'work, ref and text are required'}), 400
     if len(text) > 4000:
         text = text[:4000]
+    held = _held_note(work, ref, text, commentator)
+    if held is None:
+        return jsonify({'available': False,
+                        'reason': 'That text is not one of the notes held for this work and ref.'}), 400
+    who = commentator or held.get('commentator') or 'the commentator'
     os.makedirs(_XLAT_DIR, exist_ok=True)
-    key = hashlib.md5(text.encode('utf-8')).hexdigest()  # nosec B324
+    key = hashlib.md5((work + '|' + ref + '|' + text).encode('utf-8')).hexdigest()  # nosec B324
     path = os.path.join(_XLAT_DIR, key + '.json')
     if os.path.exists(path):
         with open(path, encoding='utf-8') as fh:
             return jsonify(json.load(fh))
-    # One user message, instruction then text: the local model translates
-    # reliably in that shape and echoed the Latin back when the instruction
-    # sat in a system message (tried 2026-09-13; about 13 s for a long note).
+    # One user message, instruction then text: tried as a system message
+    # first, and the local model echoed the original back instead of
+    # translating it; a single user message gets a clean translation.
     if len(text) > 1500:
         text = text[:1500]
-    lang = LANGUAGE_NAMES.get((d.get('language') or '').strip().lower()) or 'original'
+    lang_code = (d.get('language') or held.get('language') or '').strip().lower()
+    lang = LANGUAGE_NAMES.get(lang_code) or 'original'
     label = 'Note' if lang == 'original' else lang
     prompt = (f'Translate the following {"" if lang == "original" else lang + " "}note by {who}, a commentator on '
               'the passage cited, into plain English. Output only the English translation, nothing else; do not '
@@ -102,7 +129,7 @@ def translate():
               f'\n\n{label}:\n' + text + '\n\nEnglish:')
     try:
         r = requests.post(LLM_URL, json={'model': 'qwen3', 'temperature': 0, 'max_tokens': 500,
-                                         'messages': [{'role': 'user', 'content': prompt}]}, timeout=180)
+                                         'messages': [{'role': 'user', 'content': prompt}]}, timeout=60)
         r.raise_for_status()
         english = r.json()['choices'][0]['message']['content'].strip()
     except (requests.RequestException, KeyError, ValueError) as e:
