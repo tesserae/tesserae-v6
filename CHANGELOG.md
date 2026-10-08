@@ -22,7 +22,9 @@ behind each, are in docs/DECISIONS.md.
   mcp_manifest.py` gained the four `/api/scholarship*` route entries
   (two tool-covered, two site-only: the Sources credits list and the
   on-demand note translation, neither useful to an agent). No other tool's
-  behaviour changed.
+  behaviour changed. Two new tests cover both flag states directly: both
+  tools absent from `tools/list` and refused by `tools/call` with the
+  flag unset, both listed and callable with it set to `1`.
 
 ### Documentary texts, stage 2: dedup, restoration tokens, formula candidates, lemmatizer gaps, places crosswalk, index layout (no site change)
 - `scripts/documents/dedupe_sources.py` merges the 10,238 Trismegistos ids
