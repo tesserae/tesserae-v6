@@ -320,3 +320,24 @@ def test_translate_requires_work_and_ref(monkeypatch):
     r = c.post(path, json={'text': 'multi varie disserunt'})
     assert r.status_code == 400
     assert c.post(path, json={}).status_code == 400
+
+
+def test_commentary_sources_cached_until_a_file_changes(tmp_path, monkeypatch):
+    import json as _json
+    from backend import scholarship as S
+    monkeypatch.setattr(S, 'COMMENTARY_DIR', str(tmp_path))
+    S._sources_cache.update(stamp=None, rows=None)
+    (tmp_path / 'servius__vergil.aeneid.json').write_text(_json.dumps(
+        {'commentator': 'Servius', 'edition': 'Thilo', 'work': 'vergil.aeneid', 'units': [{}, {}]}))
+    first = S.commentary_sources()
+    assert first[0]['notes'] == 2
+    calls = []
+    real = S._commentary_sources_uncached
+    monkeypatch.setattr(S, '_commentary_sources_uncached', lambda: calls.append(1) or real())
+    assert S.commentary_sources() == first and calls == []
+    import os as _os, time as _time
+    p = tmp_path / 'servius__vergil.aeneid.json'
+    p.write_text(_json.dumps({'commentator': 'Servius', 'edition': 'Thilo', 'work': 'vergil.aeneid', 'units': [{}]}))
+    later = _time.time() + 5
+    _os.utime(p, (later, later))
+    assert S.commentary_sources()[0]['notes'] == 1 and calls == [1]
