@@ -7,6 +7,16 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-08
+
+### Scholarship: the commentary credits list is cached
+- `commentary_sources()` in `backend/scholarship.py` read and parsed every
+  commentary file on each call, which takes seconds once the full catalogue
+  (about 400 files) is installed. The rows are now kept until a commentary
+  file is added, removed or rewritten, using the same change stamp that
+  already governs the per-work commentary cache. Output unchanged. Test in
+  `tests/test_scholarship.py`.
+
 ## 2026-10-07
 
 ### Connector: find_scholarship and get_commentary, behind TESSERAE_SCHOLARSHIP_TOOLS=1

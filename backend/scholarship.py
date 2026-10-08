@@ -872,18 +872,22 @@ _commentaries = {}
 _commentaries_stamp = None
 
 
+def _commentary_dir_stamp():
+    """Changes whenever a commentary file is added, removed or rewritten in
+    place (a rewrite leaves the directory's own time unchanged)."""
+    try:
+        return (os.path.getmtime(COMMENTARY_DIR),
+                max((e.stat().st_mtime for e in os.scandir(COMMENTARY_DIR) if e.name.endswith('.json')), default=0))
+    except OSError:
+        return None
+
+
 def _load_commentaries(work):
     global _commentaries_stamp
     base = base_work(work or '')
     # Forget everything when the directory changes (a commentary added while
     # the app runs would otherwise stay invisible until a reload).
-    # The stamp covers the listing and the files: a commentary rewritten in
-    # place leaves the directory's own time unchanged.
-    try:
-        stamp = (os.path.getmtime(COMMENTARY_DIR),
-                 max((e.stat().st_mtime for e in os.scandir(COMMENTARY_DIR) if e.name.endswith('.json')), default=0))
-    except OSError:
-        stamp = None
+    stamp = _commentary_dir_stamp()
     if stamp != _commentaries_stamp:
         _commentaries.clear()
         _commentaries_stamp = stamp
@@ -933,8 +937,22 @@ def _roman(tok):
     return total
 
 
+_sources_cache = {'stamp': None, 'rows': None}
+
+
 def commentary_sources():
-    """One row per commentator and edition: works covered, note count, source, licence."""
+    """One row per commentator and edition: works covered, note count, source, licence.
+    Reading every file takes seconds once the full catalogue is installed
+    (about 400 files, 150 MB), so the rows are kept until a file changes."""
+    stamp = _commentary_dir_stamp()
+    if stamp is not None and _sources_cache['stamp'] == stamp:
+        return _sources_cache['rows']
+    rows_out = _commentary_sources_uncached()
+    _sources_cache.update(stamp=stamp, rows=rows_out)
+    return rows_out
+
+
+def _commentary_sources_uncached():
     rows = {}
     if not os.path.isdir(COMMENTARY_DIR):
         return []
