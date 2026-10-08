@@ -658,7 +658,8 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
         {selection && tab === 'translation' && focus !== 'english' && (
           <>
             {loading && <LoadingSpinner />}
-            {!loading && translation?.available === false && (
+            {!loading && translation?.available === false
+              && (translation.external_links || []).length === 0 && (
               <p className="text-sm text-gray-500">
                 {['fa', 'ur', 'ar'].includes(language)
                   ? `No English translation is aligned to any ${{ fa: 'Persian', ur: 'Urdu', ar: 'Arabic' }[language]} work yet. Aligned open translations (public-domain and non-commercial-licensed) currently cover over half of the Greek corpus and nearly half of the Latin.`
@@ -686,6 +687,26 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                   {translation.year ? `, ${translation.year}` : ''}
                   {translation.attribution ? ` \u00b7 ${translation.attribution}` : ''}
                 </p>
+              </div>
+            )}
+            {/* External links stand in where the translator's own licence does
+                not let Tesserae copy the English (e.g. Frances W. Pritchett's
+                Ghalib commentary): below the text when there is one, or on
+                their own when there is none. */}
+            {!loading && (translation?.external_links || []).length > 0 && (
+              <div className={translation.available
+                ? 'mt-2 space-y-1'
+                : 'bg-white border border-gray-200 rounded-lg p-3 space-y-1'}>
+                {translation.external_links.map((link) => (
+                  <p key={link.url} className="text-[11px] text-gray-600 leading-snug">
+                    <a href={link.url} target="_blank" rel="noopener noreferrer"
+                       className="text-red-700 underline">
+                      {link.translator || 'The translator'}&rsquo;s translation and
+                      commentary for this verse
+                    </a>
+                    {link.site_title ? `, in ${link.site_title}` : ''}
+                  </p>
+                ))}
               </div>
             )}
           </>

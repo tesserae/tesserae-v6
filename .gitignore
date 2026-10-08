@@ -83,6 +83,13 @@ data/la_mqdq_temp/
 !data/lemma_tables/
 !data/text_genres.csv
 !data/translation_pairs.json
+# data/translations/ holds one aligned-translation JSON per work (built
+# offline, not committed) EXCEPT the small links/ subdirectory: hand-sized
+# lookup tables (currently the Ghalib -> Pritchett verse-page links) that
+# belong in git like any other curated data file.
+!data/translations/
+data/translations/*
+!data/translations/links/
 !data/proposals/
 !data/restricted_texts.json
 !data/documents/
