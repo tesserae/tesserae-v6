@@ -152,14 +152,44 @@ describe('the header does not repeat itself', () => {
     expect(screen.queryByText('Ovid, Tristia, Book 3')).toBeNull();
   });
 
-  it('shows the position, which the dropdowns cannot', () => {
+  it('shows the position, which the dropdowns cannot, as a readable citation', () => {
     mount({ selection: { refStart: 'ov. tr. 3.1', refEnd: 'ov. tr. 3.4' } });
-    expect(screen.getByText(/ov\. tr\. 3\.1/)).toBeTruthy();
+    // Not the raw ref ("ov. tr. 3.1"): the static Latin table resolves the
+    // author (and would resolve the work too, from a fuller abbreviation).
+    expect(screen.queryByText(/ov\. tr\. 3\.1/)).toBeNull();
+    expect(screen.getByText('Ovid 3.1–4')).toBeTruthy();
   });
 
   it('falls back to the line count with nothing selected', () => {
     mount({ units: [{ ref: 'a' }, { ref: 'b' }] });
     expect(screen.getByText('2 lines')).toBeTruthy();
+  });
+});
+
+describe('a selection in a language with no static abbreviation table', () => {
+  // Owner review of the Reader on Iqbal's Asrar-e Khudi (2026-10-08): the
+  // header printed the raw site id ("iqbal.asrar_e_khudi.1.1-5") for
+  // Persian and Urdu, because only Latin/Greek/English have a static
+  // table -- everything else needs the corpus list's own author/title
+  // (what /api/texts?language=<lang> already carries, and what the result
+  // cards already resolve raw ids against).
+  it('resolves a Persian selection against the corpus text map, not the raw id', async () => {
+    global.fetch = vi.fn((url) => {
+      if (String(url).includes('/api/texts')) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve([
+          { id: 'iqbal.asrar_e_khudi.tess', author: 'Iqbal', title: 'Asrar-e Khudi' },
+        ]) });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({ languages: [{ code: 'fa' }] }) });
+    });
+    mount({
+      language: 'fa',
+      hierarchy: [],
+      work: 'iqbal.asrar_e_khudi.tess',
+      selection: { refStart: 'iqbal.asrar_e_khudi.1.1', refEnd: 'iqbal.asrar_e_khudi.1.5' },
+    });
+    expect(await screen.findByText('Iqbal, Asrar-e Khudi 1.1–5')).toBeTruthy();
+    expect(screen.queryByText(/iqbal\.asrar_e_khudi\.1\.1/)).toBeNull();
   });
 });
 

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { LANGUAGE_NAMES as LANG_LABEL } from '../../utils/languageNames';
 import SearchableSelect from '../common/SearchableSelect';
+import { formatSelectionRange, useCorpusTextMap } from '../../utils/textNames';
 
 /**
  * The Reader's header: where you are, and how to go somewhere else.
@@ -51,6 +52,7 @@ export default function ReaderHeader({
   language, onLanguage, hierarchy, work, onWork, units, selection,
 }) {
   const [languages, setLanguages] = useState([]);
+  const corpusMap = useCorpusTextMap(language);
 
   // A curated two-or-three-sentence orientation blurb for the open work,
   // where one exists (data/text_descriptions.json). The About button only
@@ -131,9 +133,7 @@ export default function ReaderHeader({
 
   const range = (() => {
     if (selection?.refStart) {
-      return selection.refStart === selection.refEnd
-        ? selection.refStart
-        : `${selection.refStart}–${shortRef(selection.refEnd, selection.refStart)}`;
+      return formatSelectionRange(selection.refStart, selection.refEnd, corpusMap);
     }
     if (!units?.length) return '';
     return `${units.length} lines`;
@@ -241,18 +241,4 @@ export default function ReaderHeader({
     )}
     </>
   );
-}
-
-/** The range's end, shortened to what differs from its start:
- *  "verg. aen. 6.263"-"verg. aen. 6.301" -> "301". The old version kept the
- *  trailing digit run of the end ref alone, which read digits out of the WORK
- *  name: "shenoute.a22.1"-"shenoute.a22.3" displayed as "22.1-22.3" (hit
- *  in Coptic, where several of Shenoute's canons are numbered works). */
-function shortRef(refEnd, refStart) {
-  const a = String(refStart || '');
-  const b = String(refEnd || '');
-  let i = 0;
-  while (i < a.length && i < b.length && a[i] === b[i]) i += 1;
-  const cut = Math.max(b.lastIndexOf('.', i - 1), b.lastIndexOf(' ', i - 1)) + 1;
-  return b.slice(cut) || b;
 }
