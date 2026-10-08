@@ -62,7 +62,7 @@ session to run, in the order that must hold:
             disk, and names the eager-rebuild command.
   bigrams   cache/bigrams/<lang>_bigrams.json counts rare bigrams across
             the whole language; a delete does not know what to subtract.
-            Full rebuild: scripts/rebuild_bigrams.py.
+            Full rebuild: scripts/corpus/rebuild_bigrams.py.
   freq      cache/frequencies/<lang>.json self-heals (checksum mismatch;
             see verify_text_coverage.py) -- no action needed.
   names     data/passage_index/window_names.db is built FROM window_texts.db
@@ -287,7 +287,7 @@ def format_plan(plan):
     lines.append('')
     lines.append('  NOT done by this script (whole-language/whole-corpus; run after --apply):')
     lines.append(f"    venv/bin/python scripts/batch_lemma_cache.py {plan['lang']} --force")
-    lines.append(f"    venv/bin/python scripts/rebuild_bigrams.py {plan['lang']}")
+    lines.append(f"    venv/bin/python scripts/corpus/rebuild_bigrams.py {plan['lang']}")
     if win.get('present') and win['window_ids']:
         lines.append('    venv/bin/python scripts/corpus/build_window_names.py <out.db>   '
                      '# then swap in as data/passage_index/window_names.db')
@@ -437,7 +437,7 @@ def apply_drop(plan, tag=None):
     report.append('')
     report.append('STILL NEEDED (whole-language/whole-corpus, not done by this script):')
     report.append(f"  venv/bin/python scripts/batch_lemma_cache.py {plan['lang']} --force")
-    report.append(f"  venv/bin/python scripts/rebuild_bigrams.py {plan['lang']}")
+    report.append(f"  venv/bin/python scripts/corpus/rebuild_bigrams.py {plan['lang']}")
     if win.get('present') and win['window_ids']:
         report.append('  scripts/corpus/build_window_names.py, then swap in as window_names.db')
         report.append('  systemd-run --user --scope -p MemoryMax=10G venv/bin/python3 scripts/build_connections_map.py')
