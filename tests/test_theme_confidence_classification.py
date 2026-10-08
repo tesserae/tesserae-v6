@@ -146,10 +146,13 @@ def test_short_query_hint_not_appended_to_a_full_sentence():
     assert 'only a few words' not in note
 
 
-def test_short_query_hint_appended_to_pervasive_note():
+def test_short_query_hint_not_repeated_on_pervasive_note():
+    # The pervasive note already asks the reader to describe what happens,
+    # so the short-query hint would say the same thing twice.
     note = _confidence_note('pervasive', query='wine', language='fa')
     assert 'the Persian corpus' in note
-    assert 'only a few words' in note
+    assert 'only a few words' not in note
+    assert 'who does what' in note
 
 
 def test_short_query_hint_never_appended_to_strong():

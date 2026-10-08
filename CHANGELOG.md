@@ -9,6 +9,11 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Theme Search: the "runs through the corpus" message no longer repeats itself
+- A short query that lands in the pervasive outcome showed the pervasive
+  message and the short-query hint, both asking for a description of what
+  happens. It now shows the pervasive message alone.
+
 ### Theme Search: a third confidence outcome for a theme common in one language
 - A Theme Search narrowed to one language (`languages=fa`, etc.) used to
   report the SAME confidence numbers as the unfiltered, whole-corpus

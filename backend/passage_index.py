@@ -1264,7 +1264,9 @@ def _confidence_note(level, query=None, language=None):
         now, _ = drift
         warning = _UNCALIBRATED.format(fitted=FITTED_AT_WINDOWS, now=now)
         base = f'{warning} {base}' if base else warning
-    if base and level != 'strong' and query is not None and _is_short_query(query):
+    # The pervasive note already asks for a description of what happens, so
+    # the short-query hint would repeat it.
+    if base and level not in ('strong', 'pervasive') and query is not None and _is_short_query(query):
         base += _SHORT_QUERY_HINT
     return base
 
@@ -1277,7 +1279,7 @@ def _confidence_note_fitted(level, language=None):
         corpus = f'the {name} corpus' if name else 'this part of the corpus'
         return (f'This theme runs through much of {corpus}, so these are typical '
                 'examples. To find a particular kind of passage, describe what '
-                'happens in it: who, doing what, where.')
+                'happens in it, such as who does what, and where.')
     if level == 'moderate':
         return ('Moderate confidence: the corpus holds passages of this kind, but the '
                 'match is looser than a clear case. Read the results before relying on them.')
