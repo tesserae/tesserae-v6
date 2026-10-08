@@ -4,14 +4,14 @@ import { Header, Navigation } from './components/layout';
 import { SearchModeToggle, TextSelector, SearchSettings, SearchResults, LineSearch, CrossLingualSearch, WildcardSearch, SavedSearches, CorpusSearchResults, RarePairsSettings } from './components/search';
 import RareResultsDisplay from './components/search/RareResultsDisplay';
 import SearchDescription from './components/search/SearchDescription';
-import { Modal, LoadingSpinner, UpdateBanner } from './components/common';
+import { Modal, LoadingSpinner, UpdateBanner, RequestDialog } from './components/common';
 import { CorpusBrowser, RareWordsExplorer } from './components/corpus';
 import { ReaderPage } from './components/reader';
 import DocumentView from './components/documents/DocumentView';
 import ThemeSearchPage from './components/passages/ThemeSearchPage';
 import { Repository } from './components/repository';
 import { AdminPanel } from './components/admin';
-import { AboutPage, HelpPage, DownloadsPage, PrivacyPage, ResearchPage, BlogArchivePage } from './components/pages';
+import { AboutPage, HelpPage, DownloadsPage, PrivacyPage, ResearchPage, BlogArchivePage, RequestsPage } from './components/pages';
 import TextCredits from './components/about/TextCredits';
 import { AssistantDock } from './components/assistant';
 import VisualizationsPage from './components/pages/VisualizationsPage';
@@ -36,6 +36,7 @@ const PAGE_TITLES = {
   privacy: 'Privacy',
   research: 'Research',
   'blog-archive': 'Blog Archive',
+  requests: 'Requests',
   admin: 'Admin',
 };
 
@@ -61,6 +62,7 @@ const pathToPageType = {
   '/research': 'research',
   '/blog-archive': 'blog-archive',
   '/text-credits': 'text-credits',
+  '/requests': 'requests',
   '/admin': 'admin'
 };
 
@@ -80,6 +82,7 @@ const pageTypeToPath = {
   'privacy': '/privacy',
   'research': '/research',
   'text-credits': '/text-credits',
+  'requests': '/requests',
   'admin': '/admin'
 };
 
@@ -111,6 +114,7 @@ const buildShareableUrl = (sourceText, targetText, sourceAuthor, targetAuthor, l
 
 function App() {
   const [user, setUser] = useState(null);
+  const [footerSuggestOpen, setFooterSuggestOpen] = useState(false);
   const [adminSessionActive, setAdminSessionActive] = useState(false);
   const [adminSessionChecked, setAdminSessionChecked] = useState(false);
   const [pageType, setPageType] = useState(() => {
@@ -1155,6 +1159,10 @@ function App() {
           <BlogArchivePage setPageType={setPageTypeWithGuard} />
         )}
 
+        {pageType === 'requests' && (
+          <RequestsPage />
+        )}
+
         {pageType === 'admin' && (
           <AdminPanel />
         )}
@@ -1296,8 +1304,35 @@ function App() {
       <footer className="bg-gray-100 border-t mt-8 py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
           <p>Tesserae V6</p>
+          {/* Requests workflow (2026-10-08): the one site-wide entry point to
+              the suggestion dialog, plus a link to the public Requests page
+              it feeds. Deliberately not in the main navigation. */}
+          <p className="mt-1 text-xs">
+            <button
+              type="button"
+              onClick={() => setFooterSuggestOpen(true)}
+              className="text-gray-500 hover:text-red-700 hover:underline"
+            >
+              Suggest a change
+            </button>
+            {' · '}
+            <button
+              type="button"
+              onClick={() => setPageTypeWithGuard('requests')}
+              className="text-gray-500 hover:text-red-700 hover:underline"
+            >
+              Requests
+            </button>
+          </p>
         </div>
       </footer>
+
+      <RequestDialog
+        isOpen={footerSuggestOpen}
+        onClose={() => setFooterSuggestOpen(false)}
+        type="suggestion"
+        context={{ page_url: typeof window !== 'undefined' ? window.location.href : '' }}
+      />
 
       <AssistantDock />
     </div>

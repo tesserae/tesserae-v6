@@ -7,3 +7,4 @@ export { default as Pagination } from './Pagination';
 export { default as UpdateBanner } from './UpdateBanner';
 export { default as CiteButton } from './CiteButton';
 export { default as InfoBadge } from './InfoBadge';
+export { default as RequestDialog } from './RequestDialog';

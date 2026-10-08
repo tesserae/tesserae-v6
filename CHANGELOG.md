@@ -76,6 +76,35 @@ behind each, are in docs/DECISIONS.md.
   citation now resolves through the corpus text map, the same resolver the
   result cards use, instead of showing a raw internal id.
 
+### Requests workflow: three new entry points, a public Requests page
+- A scholar can now ask for something, report a problem with a result, or
+  suggest a text correction without ever touching GitHub. One dialog
+  (`client/src/components/common/RequestDialog.jsx`) opens from: the Cite
+  popup's "Report a problem with this result" (`CiteButton.jsx`, so every
+  result card that already shows Cite gets it with no change of its own),
+  the Reader's "Suggest a correction" when a line or range is selected
+  (`SelectionToolbar.jsx`, pre-filled with the work, refs and selected
+  text), and a plain "Suggest a change" link in the footer and on the Help
+  page, with just the page URL as context.
+- `POST /api/feature-request` now accepts three new types (`result-problem`,
+  `text-correction`, `suggestion`) alongside the connector's existing
+  feature/language/text/bug/other, and files a GitHub issue for every type,
+  labelled `request` plus `request:<type>` (labels are created if the repo
+  doesn't have them yet). Contact info stays in the private DB record and
+  email only, never the issue. Free text is HTML-stripped before it reaches
+  a public issue body.
+- `GET /api/requests`: a public, read-only mirror of those GitHub issues
+  (`backend/github_requests.py`), grouped open vs. done, status mapped from
+  GitHub's own state/state_reason/labels, with the merged pull request link
+  when a "done" issue has one. Only a short line after a "Summary:" marker
+  in the issue body is ever shown. The rest of the body never leaves the
+  server. Cached in process for 10 minutes, mirrored to disk so a restarted
+  worker doesn't refetch immediately.
+- New page `/requests` ("Requests"), linked from the footer and Help, not
+  the main navigation.
+- `backend/blueprints/mcp_manifest.py`: noted the extension and the new
+  read-only route for the connector-parity tests.
+
 ### Cross-Language: Persian to Urdu no longer crashes the page; only served pairs shown
 - `CrossLingualSearch.jsx` fetched text lists for a fixed four languages
   (Greek, Latin, English, Hebrew), so choosing Persian -> Urdu found no list

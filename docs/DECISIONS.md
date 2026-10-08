@@ -8,6 +8,32 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-08: requests workflow, GitHub issues as the single store
+- Scholars never need a GitHub account. GitHub issues are nonetheless the
+  single store of every request (feature, language, text, bug, result
+  problem, correction, suggestion), and the public Requests page
+  (`/requests`, backed by `GET /api/requests`) is a read-only mirror of
+  that store, not a second database. This keeps one source of truth for
+  what has been asked for and what happened to it, recorded once, where
+  the team already works.
+- Every request type now files a GitHub issue when filing is configured
+  (previously the AI-assistant connector's `text` and `other` types did
+  not). Every entry point and every type now uses one label scheme,
+  `request` plus `request:<type>` (the connector's earlier filings carried
+  `from-ai-protocol` plus a bare type label). The Requests page reads every
+  request back with one query (`labels=request`) regardless of where it
+  came from.
+- The public listing never returns an issue's full body, only the short
+  line after an explicit "Summary:" marker if the filer's submission
+  produced one, or the title alone. Contact info was already excluded
+  from the issue body itself. This is a second, independent boundary
+  against a long or incidentally identifying free-text context ever
+  reaching the public page.
+- No email sending was added for the three new entry points, matching the
+  existing connector path: the private notification email only fires when
+  SMTP is already configured, and otherwise the submission still lands in
+  the `feedback` table.
+
 ## 2026-10-08: restoration exclusion, stock-formula filter, document view (stage 3b-3)
 - `hide_formulas` default threshold: measured directly against the real
   dev documents indexes (`la_documents_index.db`/`grc_documents_index.db`),

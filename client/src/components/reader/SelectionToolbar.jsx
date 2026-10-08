@@ -20,6 +20,9 @@
  * making the reader decide every time, and one click corrects it.
  */
 
+import { useState } from 'react';
+import { RequestDialog } from '../common';
+
 const SCOPES = [
   { key: 'word', label: 'Word' },
   { key: 'line', label: 'Line' },
@@ -52,6 +55,8 @@ export function scopeFor(selection) {
 export default function SelectionToolbar({
   selection, scope, onScope, work, language, onAct, onClose,
 }) {
+  const [reportOpen, setReportOpen] = useState(false);
+
   if (!selection) return null;
 
   const refStart = selection.refStart;
@@ -121,11 +126,35 @@ export default function SelectionToolbar({
         {shown} selected
       </span>
 
+      {/* Requests workflow (2026-10-08): a transcription fix starts from
+          exactly the passage already selected, so work/refs/text need no
+          typing in by the reader. */}
+      <button
+        type="button"
+        onClick={() => setReportOpen(true)}
+        className="text-[11px] text-gray-500 hover:text-red-700 hover:underline whitespace-nowrap"
+      >
+        Suggest a correction
+      </button>
+
       <button onClick={onClose}
               aria-label="Dismiss"
               className="text-gray-500 hover:text-gray-700 text-base leading-none px-1">
         ×
       </button>
+
+      <RequestDialog
+        isOpen={reportOpen}
+        onClose={() => setReportOpen(false)}
+        type="text-correction"
+        showCorrection
+        context={{
+          work: String(work || '').replace(/\.tess$/, ''),
+          language,
+          refs: shown,
+          selected_text: selection.text || '',
+        }}
+      />
     </div>
   );
 }

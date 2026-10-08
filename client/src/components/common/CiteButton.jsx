@@ -1,5 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
 import { CITATION_STYLES, buildCitation } from '../../utils/citation';
+import RequestDialog from './RequestDialog';
+
+/** The same finding the citation is built from, reshaped into the context
+ * block the requests-workflow dialog shows and files (requests workflow,
+ * 2026-10-08). Putting the link here, rather than in each result-card
+ * component, means every result that already offers Cite gets it for free. */
+function contextFromFinding(finding) {
+  return {
+    page_url: typeof window !== 'undefined' ? window.location.href : undefined,
+    language: finding?.language,
+    search_type: finding?.kind,
+    settings: finding?.ranking,
+    source: finding?.source,
+    target: finding?.target,
+    score: typeof finding?.score === 'number' ? finding.score.toFixed(3) : finding?.score,
+    channels: finding?.channels,
+  };
+}
 
 /**
  * "Cite" for a finding: a small control that opens the reference in three
@@ -17,6 +35,7 @@ export default function CiteButton({ finding, label = 'Cite', className = '' }) 
   const [open, setOpen] = useState(false);
   const [style, setStyle] = useState('reproducible');
   const [copied, setCopied] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
   const boxRef = useRef(null);
   const btnRef = useRef(null);
 
@@ -125,8 +144,26 @@ export default function CiteButton({ finding, label = 'Cite', className = '' }) 
               Site ID: {finding.siteId}
             </p>
           )}
+          {/* Requests workflow (2026-10-08): living here, rather than on each
+              result-card component, means every card that already shows
+              Cite gets this link with no change of its own. */}
+          <p className="mt-2 pt-1.5 border-t border-gray-100">
+            <button
+              type="button"
+              onClick={() => { setOpen(false); setReportOpen(true); }}
+              className="text-[11px] text-gray-500 hover:text-red-700 hover:underline"
+            >
+              Report a problem with this result
+            </button>
+          </p>
         </div>
       )}
+      <RequestDialog
+        isOpen={reportOpen}
+        onClose={() => setReportOpen(false)}
+        type="result-problem"
+        context={contextFromFinding(finding)}
+      />
     </span>
   );
 }

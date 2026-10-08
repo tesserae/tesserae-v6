@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { STOPLIST_INFO } from '../../data/stoplists';
 import FusionFlowchart from '../search/FusionFlowchart';
 import SystemChart from './SystemChart';
+import { RequestDialog } from '../common';
 
 const AI_SCHEMA_URL = 'https://tesserae.caset.buffalo.edu/tesserae-data/tesserae-openapi.yaml';
 
@@ -169,6 +170,10 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
   const [feedbackStatus, setFeedbackStatus] = useState(null);
+  // Requests workflow (2026-10-08): the footer-style "Suggest a change" link,
+  // separate from the Send Feedback form above (that one is a private email;
+  // this one files a public GitHub issue, see RequestDialog).
+  const [suggestDialogOpen, setSuggestDialogOpen] = useState(false);
   
   // Formatter utility state
   const [formatterAuthor, setFormatterAuthor] = useState('');
@@ -527,6 +532,15 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
               </li>
             ))}
           </ul>
+          <p className="mt-4 pt-3 border-t border-gray-200 px-3 text-xs">
+            <button
+              type="button"
+              onClick={() => setSuggestDialogOpen(true)}
+              className="text-gray-500 hover:text-red-700 hover:underline"
+            >
+              Suggest a change
+            </button>
+          </p>
         </nav>
 
         <div ref={contentRef} className="flex-1 p-6">
@@ -3360,6 +3374,12 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
           )}
         </div>
       </div>
+      <RequestDialog
+        isOpen={suggestDialogOpen}
+        onClose={() => setSuggestDialogOpen(false)}
+        type="suggestion"
+        context={{ page_url: typeof window !== 'undefined' ? window.location.href : '' }}
+      />
     </div>
   );
 }
