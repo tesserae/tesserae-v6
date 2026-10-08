@@ -9,6 +9,25 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### De Viris Illustribus and Origo Gentis Romanae added to the Aurelius Victor corpus
+- Two pseudonymous Latin prose works transmitted with the Aurelius Victor
+  corpus, from The Latin Library (edition not stated):
+  `pseudo_aurelius_victor.de_viris_illustribus.tess` (86 chapters, 519
+  lines) and `pseudo_aurelius_victor.origo_gentis_romanae.tess` (23
+  chapters plus an unnumbered preface, 126 lines). Neither work is by
+  Aurelius Victor, and the authorship of both remains unknown.
+  `scripts/corpus/latinlibrary_to_tess.py` gained two converters,
+  `de_viris_illustribus` and `origo_gentis_romanae`, each following its
+  source page's own chapter and section numbering (the first page marks
+  sections with inline `<FONT size=2>` tags, the second with plain
+  digits). Both keep the source transcription's own numbering gaps. The
+  converter documents each one. Descriptions added to
+  `data/text_descriptions.json`, provenance rows to
+  `backend/text_sources.json`, and genre and era rows (Late Antique,
+  prose, historiography) to `data/text_genres.csv`, matching the existing
+  `aurelius_victor.*` entries. Both files pass
+  `scripts/corpus/validate_tess.py`.
+
 ### Scholarship: the commentary credits list is cached
 - `commentary_sources()` in `backend/scholarship.py` read and parsed every
   commentary file on each call, which takes seconds once the full catalogue
