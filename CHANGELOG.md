@@ -9,6 +9,26 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Corpus tool fix: drop-lines-from-work keeps the passage index in lockstep and no longer over-drops scattered refs
+- `scripts/corpus/drop_lines_from_work.py` had two defects found on its
+  first production run. (1) Dropping windows removed rows from
+  `ids.json` and `descriptions.jsonl` but left `data/passage_index/
+  embeddings.npy` untouched, even though the tool's own report claimed
+  those rows were dropped; the three fell out of lockstep and the passage
+  index refused to load (Similar Passages and Theme Search both down
+  until the extra embedding rows were removed by hand). `embeddings.npy`
+  is now dropped by the same row positions, backed up first, written
+  atomically, and the three stores' row counts are asserted equal before
+  any of the four window files is swapped into place and again after,
+  aborting and restoring every backup if they ever disagree. (2) Passing
+  several scattered refs (e.g. two unrelated footnotes far apart in a
+  file) was planning drops for every window between the first and the
+  last of them, not just the windows actually touching one; windows are
+  now matched against each contiguous run of dropped refs in file order.
+  Caught in dry run against a scratch copy of production data before
+  anything was applied. Tests added for both:
+  `tests/test_drop_lines_from_work.py`.
+
 ### Sign-in box: plain wording
 - The sign-in box opened by Register is titled "Sign in", and the note for
   accounts created by the site's administrators now reads "If we created
