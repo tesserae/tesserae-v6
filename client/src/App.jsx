@@ -7,6 +7,7 @@ import SearchDescription from './components/search/SearchDescription';
 import { Modal, LoadingSpinner, UpdateBanner } from './components/common';
 import { CorpusBrowser, RareWordsExplorer } from './components/corpus';
 import { ReaderPage } from './components/reader';
+import DocumentView from './components/documents/DocumentView';
 import ThemeSearchPage from './components/passages/ThemeSearchPage';
 import { Repository } from './components/repository';
 import { AdminPanel } from './components/admin';
@@ -22,6 +23,7 @@ import { startLanguage } from './utils/languagePreference';
 const PAGE_TITLES = {
   search: 'Search',
   read: 'Reader',
+  document: 'Document',
   'theme-search': 'Theme Search',
   browse: 'Browse Corpus',
   repository: 'Repository',
@@ -40,6 +42,7 @@ const PAGE_TITLES = {
 const pathToPageType = {
   '/': 'search',
   '/read': 'read',
+  '/document': 'document',
   '/theme-search': 'theme-search',
   '/browse': 'browse',
   // Alias: Help and Theme Search link to "/corpus" for the covered-works
@@ -64,6 +67,7 @@ const pathToPageType = {
 const pageTypeToPath = {
   'search': '/',
   'read': '/read',
+  'document': '/document',
   'theme-search': '/theme-search',
   'browse': '/browse',
   'repository': '/repository',
@@ -1055,6 +1059,10 @@ function App() {
 
         {pageType === 'read' && (
           <ReaderPage />
+        )}
+
+        {pageType === 'document' && (
+          <DocumentView />
         )}
 
         {pageType === 'browse' && (

@@ -14,6 +14,13 @@ import { orderEras, ERA_COLORS } from '../../utils/eras';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+// Stage 3b-3: the "Hide stock formulas" checkbox's own fixed threshold --
+// matches backend/app.py's DOCUMENTS_FORMULA_DEFAULT_N, measured against
+// the real documents indexes (dis manibus/bene merenti/votum solvit
+// libens merito/hic situs est, thousands of sharing documents each, vs.
+// arma virumque/arma virumque cano, fewer than 20).
+const DOCUMENTS_FORMULA_DEFAULT_N = 100;
+
 // Hebrew and Coptic loci embed the full text id (e.g.
 // "hebrew_bible.1_samuel.1.1"); strip that redundant stem so the citation
 // reads "1.1". Loci without the stem (e.g. "verg. aen. 1.1") pass through.
@@ -67,6 +74,12 @@ export default function LineSearch({ language }) {
   const [docTextType, setDocTextType] = useState('');
   const [docMaterial, setDocMaterial] = useState('');
   const [docSource, setDocSource] = useState('');
+  // Stage 3b-3: leave out a hit whose match rests entirely on restored
+  // text, and hide stock formulas (matched words shared by more documents
+  // than DOCUMENTS_FORMULA_DEFAULT_N -- see the same constant's comment in
+  // backend/app.py for how that default was measured).
+  const [excludeRestored, setExcludeRestored] = useState(false);
+  const [hideFormulas, setHideFormulas] = useState(false);
 
   useEffect(() => {
     fetch('/api/languages').then(r => r.json()).then(data => {
@@ -205,6 +218,8 @@ export default function LineSearch({ language }) {
     if (docTextType.trim()) params.text_type = docTextType.trim();
     if (docMaterial.trim()) params.material = docMaterial.trim();
     if (docSource.trim()) params.source = docSource.trim();
+    if (excludeRestored) params.exclude_restored = true;
+    if (hideFormulas) params.hide_formulas = DOCUMENTS_FORMULA_DEFAULT_N;
     return params;
   };
 
@@ -644,6 +659,20 @@ export default function LineSearch({ language }) {
     return fmt(nb != null ? nb : na);
   };
 
+  // Stage 3b-3: the document Reader view, opened from a document hit's own
+  // citation. Carries the originating query/type/language (and the
+  // ?documents=1 trial flag, when it is what got this control shown at
+  // all) so the view's own "back to results" link can return here with
+  // the query intact, the same deep-link pattern Theme Search/Reader
+  // already use for "back to results" (ReaderPage.jsx's `cameFrom`/`q`).
+  const documentViewUrl = (docId) => {
+    const params = new URLSearchParams({
+      doc: docId, lang: language, q: query, type: searchType,
+    });
+    if (documentsTrial) params.set('documents', '1');
+    return `/document?${params.toString()}`;
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-lg inline-flex">
@@ -775,6 +804,20 @@ export default function LineSearch({ language }) {
                       <input type="text" value={docSource} onChange={e => setDocSource(e.target.value)}
                              placeholder="e.g., edh" className="w-full border rounded px-2 py-1.5 text-sm" />
                     </div>
+                  </div>
+                )}
+                {collection !== 'literature' && (
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-3">
+                    <label className="flex items-center gap-2 text-sm text-gray-700">
+                      <input type="checkbox" checked={excludeRestored}
+                             onChange={e => setExcludeRestored(e.target.checked)} />
+                      Leave out matches on restored words
+                    </label>
+                    <label className="flex items-center gap-2 text-sm text-gray-700">
+                      <input type="checkbox" checked={hideFormulas}
+                             onChange={e => setHideFormulas(e.target.checked)} />
+                      Hide stock formulas
+                    </label>
                   </div>
                 )}
               </div>
@@ -1015,7 +1058,9 @@ export default function LineSearch({ language }) {
                         </span>
                         <div className="sm:w-48 flex-shrink-0 min-w-0 break-words">
                           <div className="text-sm font-medium text-gray-900">
-                            {credit.principal_edition || result.doc_id}
+                            <a href={documentViewUrl(result.doc_id)} className="hover:underline">
+                              {credit.principal_edition || result.doc_id}
+                            </a>
                           </div>
                           <div className="text-xs text-gray-500">
                             {[dateLabel, place, result.region].filter(Boolean).join(' · ')}
@@ -1032,6 +1077,9 @@ export default function LineSearch({ language }) {
                         </div>
                         <div className="flex-1 min-w-0 break-words text-gray-700" dir={dirFor(language)}>
                           {renderDocumentText(result)}
+                          {result.matched_restored && (
+                            <div className="mt-1 text-xs text-sky-700">match on restored text</div>
+                          )}
                           {(credit.source_name || credit.source_url) && (
                             <div className="mt-1 text-xs text-gray-500">
                               Text:{' '}

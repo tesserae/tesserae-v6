@@ -231,3 +231,146 @@ def test_get_corpus_version_is_a_date_string(fixture_env):
 
 def test_get_connection_returns_none_for_unbuilt_language(fixture_env):
     assert docs.get_connection("grc") is None
+
+
+# --------------------------------------------------------------------------
+# get_document_lines (stage 3b-3): the document Reader view's own data
+# --------------------------------------------------------------------------
+
+def test_get_document_lines_returns_the_single_line_short_document(fixture_env):
+    r = docs.get_document_lines("la", "edh:SHORT1")
+    assert r is not None
+    assert r["filename"] == "edh__testregio.tess"
+    assert [l["ref"] for l in r["lines"]] == ["edh:SHORT1"]
+    assert r["lines"][0]["text"] == "Dis Manibus"
+    # The sidecar (fixture_env) marks token 0 restored on this exact ref.
+    assert r["lines"][0]["restored_indices"] == [0]
+    assert r["lines"][0]["fragment_indices"] == []
+
+
+def test_get_document_lines_returns_the_packed_short_doc_as_one_slash_joined_line(fixture_env):
+    # edh:LONG1 has 3 source lines, still <= SHORT_LINE_THRESHOLD (10): the
+    # real build packs every "short" document into ONE .tess line (source
+    # lines joined with " / "), not one .tess line per source line -- see
+    # write_document_tess.build_short_doc_unit. This is the behavior the
+    # fixture's OWN name ("LONG1") suggested but the real pipeline does not
+    # give until a document exceeds the threshold (next test).
+    r = docs.get_document_lines("la", "edh:LONG1")
+    assert r is not None
+    assert [l["ref"] for l in r["lines"]] == ["edh:LONG1"]
+    assert r["lines"][0]["text"] == "verbum numero 1 / verbum numero 2 / verbum numero 3"
+
+
+@pytest.fixture
+def long_doc_env(tmp_path, monkeypatch):
+    """A document with 12 source lines -- one more than
+    write_document_tess.SHORT_LINE_THRESHOLD (10) -- so the real build
+    classifies it "long" and writes one .tess row per source line, each
+    its own ref ("<doc id> <1-based line number>"), exercising
+    get_document_lines' multi-row rowid-bounded fetch for real instead of
+    the single-row short-doc case every other fixture in this file covers."""
+    corpus_path = os.path.join(tmp_path, "merged_corpus.jsonl")
+    _write_fixture_corpus(corpus_path, [
+        _rec("edh:LONGDOC", "edh", [_line(i, f"verbumnumero{i}") for i in range(1, 13)]),
+    ])
+    texts_root = os.path.join(tmp_path, "texts_documents")
+    process_corpus(corpus_path, texts_root)
+
+    index_dir = os.path.join(tmp_path, "inverted_index")
+    build_one_language("la", texts_root, index_dir,
+                        os.path.join(tmp_path, "cache_lemmas_documents"),
+                        os.path.join(tmp_path, "scratch"),
+                        fast_greek=True, verbose=False)
+
+    monkeypatch.setenv("TESSERAE_DOCUMENTS", "1")
+    monkeypatch.setenv("TESSERAE_DOCUMENTS_INDEX_DIR", index_dir)
+    monkeypatch.setenv("TESSERAE_DOCUMENTS_META", os.path.join(tmp_path, "no_metadata.db"))
+    monkeypatch.setenv("TESSERAE_DOCUMENTS_RESTORED_DIR", os.path.join(tmp_path, "restored"))
+    docs.reset_caches()
+    yield index_dir
+    docs.reset_caches()
+
+
+def test_get_document_lines_returns_every_row_of_a_true_long_document_in_order(long_doc_env):
+    r = docs.get_document_lines("la", "edh:LONGDOC")
+    assert r is not None
+    assert [l["ref"] for l in r["lines"]] == [f"edh:LONGDOC {i}" for i in range(1, 13)]
+    assert [l["text"] for l in r["lines"]] == [f"verbumnumero{i}" for i in range(1, 13)]
+    # No restoration marked anywhere in this fixture (every restored_flags
+    # entry is False) -- every line comes back with empty lists, not an
+    # error, even though a per-bucket sidecar file does exist.
+    assert all(l["restored_indices"] == [] and l["fragment_indices"] == [] for l in r["lines"])
+
+
+def test_get_document_lines_returns_none_for_unknown_doc_id(fixture_env):
+    assert docs.get_document_lines("la", "edh:NOPE") is None
+
+
+def test_get_document_lines_returns_none_without_index(tmp_path, monkeypatch):
+    monkeypatch.setenv("TESSERAE_DOCUMENTS_INDEX_DIR", str(tmp_path))
+    docs.reset_caches()
+    assert docs.get_document_lines("la", "edh:SHORT1") is None
+    docs.reset_caches()
+
+
+def test_get_document_lines_returns_none_for_empty_doc_id(fixture_env):
+    assert docs.get_document_lines("la", "") is None
+
+
+# --------------------------------------------------------------------------
+# display_fields (stage 3b-3): the display Reader panel's own data
+# --------------------------------------------------------------------------
+
+def test_display_fields_returns_none_when_display_table_missing(fixture_env):
+    # fixture_env's own _make_metadata_db builds only `documents`, matching
+    # every OTHER test in this file -- the display table is new in 3b-3 and
+    # deliberately exercised by its own metadata db below instead, so this
+    # confirms the graceful-miss path a metadata.db built before stage 3a's
+    # display table existed would hit.
+    assert docs.display_fields("edh:SHORT1") is None
+
+
+def test_display_fields_returns_none_when_metadata_db_missing(tmp_path, monkeypatch):
+    monkeypatch.setenv("TESSERAE_DOCUMENTS_META", os.path.join(tmp_path, "does_not_exist.db"))
+    docs.reset_caches()
+    assert docs.display_fields("anything") is None
+    docs.reset_caches()
+
+
+def _make_metadata_db_with_display(path, display_rows):
+    conn = sqlite3.connect(path)
+    conn.execute("CREATE TABLE documents (id TEXT PRIMARY KEY)")
+    conn.execute("CREATE TABLE display (id TEXT, field TEXT, value TEXT)")
+    for doc_id, field, value in display_rows:
+        conn.execute("INSERT INTO display (id, field, value) VALUES (?, ?, ?)",
+                     (doc_id, field, value))
+    conn.commit()
+    conn.close()
+
+
+def test_display_fields_groups_image_url_as_a_list_and_others_as_scalars(tmp_path, monkeypatch):
+    db_path = os.path.join(tmp_path, "metadata.db")
+    _make_metadata_db_with_display(db_path, [
+        ("edh:SHORT1", "museum", "Test City, Mus. Civico"),
+        ("edh:SHORT1", "inventory", "inv. 42"),
+        ("edh:SHORT1", "image_url", "https://example.org/a.jpg"),
+        ("edh:SHORT1", "image_url", "https://example.org/b.jpg"),
+        ("edh:LONG1", "museum", "Other Museum"),
+    ])
+    monkeypatch.setenv("TESSERAE_DOCUMENTS_META", db_path)
+    docs.reset_caches()
+    d = docs.display_fields("edh:SHORT1")
+    assert d["museum"] == "Test City, Mus. Civico"
+    assert d["inventory"] == "inv. 42"
+    assert d["image_url"] == ["https://example.org/a.jpg", "https://example.org/b.jpg"]
+    assert "layout_note" not in d
+    docs.reset_caches()
+
+
+def test_display_fields_returns_empty_dict_for_doc_with_no_display_rows(tmp_path, monkeypatch):
+    db_path = os.path.join(tmp_path, "metadata.db")
+    _make_metadata_db_with_display(db_path, [("edh:LONG1", "museum", "Other Museum")])
+    monkeypatch.setenv("TESSERAE_DOCUMENTS_META", db_path)
+    docs.reset_caches()
+    assert docs.display_fields("edh:SHORT1") == {}
+    docs.reset_caches()
