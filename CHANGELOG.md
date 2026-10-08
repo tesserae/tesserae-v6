@@ -9,6 +9,31 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### A per-verse Ghalib link to Frances W. Pritchett's commentary in the Translation tab
+- Her site ("A Desertful of Roses") states no licence. Her English cannot
+  be copied into the site, so the Translation tab links to her own page for
+  the matching verse, named and opening in a new tab. A passage with an
+  aligned translation still shows it, with the link added below. Ghalib has
+  no aligned translation at all, so for Ghalib the link is the only thing
+  the tab shows.
+- `scripts/build_ghalib_pritchett_links.py` builds the lookup table
+  (`data/translations/links/ur__ghalib_pritchett_links.json`) by aligning
+  `ghalib.diwan_wikisource` (272 ghazals, the only Ghalib edition that
+  ships in `texts/ur/`) against a retired, Pritchett-numbered edition kept
+  outside the repository for exactly this cross-reference. Matching goes by
+  text, not by number, at two levels. First each ghazal's opening verse,
+  then verse by verse inside each matched pair. 2,514 of 3,345 Wikisource
+  verses (75%) now link to a verse page. Most of the rest are ghazals she
+  does not cover (expected, since she covers a selection of the diwan).
+  18 Pritchett ghazals whose verse count could not be split unambiguously
+  from the local copy are left unmapped, reported, and not guessed at.
+- `backend/translation_links.py` is the new loader. `backend/translations.py`
+  `for_passage()` adds an `external_links` field, additive alongside the
+  existing `text`/`available` fields, present (as an empty list when there
+  is nothing to show) with or without an aligned translation. The MCP
+  connector's `get_passage(translation=true)` carries the same field
+  through for parity.
+
 ### Compare two works: a heading per side, plain field labels
 - Each side of Compare two works is headed "First work" or "Second work",
   and its fields read "Language", "Author" and "Work" (they read "First

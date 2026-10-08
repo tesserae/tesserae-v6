@@ -8,6 +8,56 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-08: Ghalib's Translation tab shows a Pritchett link, not copied English
+
+**Decision.** For Ghalib (`ghalib.diwan_wikisource`), the Reader's
+Translation tab shows a link to Frances W. Pritchett's "A Desertful of
+Roses" verse page. Ghalib has no aligned English translation. The link
+travels on a new `external_links` field on `/api/translation`. The field
+is additive. A
+work can carry this field, an aligned translation, both, or neither.
+`backend/translation_links.py` loads
+`data/translations/links/ur__ghalib_pritchett_links.json`, built by
+`scripts/build_ghalib_pritchett_links.py`.
+
+**Why.** Pritchett's site states no licence for her translations or
+commentary. They cannot be copied into the site the way the public-domain
+and non-commercial-licensed translations in `data/translations/` are.
+Linking to her own page for the matching verse is permitted and sends the
+reader to her full commentary.
+
+**How the link table was built.** Only `ghalib.diwan_wikisource` (272
+ghazals, Wikisource's numbering) ships in `texts/ur/`. A second edition,
+numbered exactly as Pritchett's site numbers it, was retired from the
+served corpus earlier, so a Ghalib passage could not appear three times
+over in Theme Search, Similar Passages, and cross-language results. It
+survives only outside the repository, as a cross-reference for this
+alignment. The two editions' ghazal numbers do not correspond, so matching
+goes by text, not number, at two levels. Each ghazal's opening verse first
+pairs up the ghazals. Verse by verse inside each matched pair comes next,
+against the retired edition's own text, never assumed from a shared verse
+count. That file is not uniformly one line per half-line. Some ghazals
+split each verse into two lines, others join both halves into one, and
+Pritchett appends unpublished manuscript-variant verses after the regular
+numbering for some ghazals. The real, ordered verse-label list for each of
+her 234 ghazals, confirmed against her site and including the
+"x"-numbered variants, came from her own per-ghazal index pages, fetched
+once each (one request at a time, a plain User-Agent, no site refusal
+encountered) and cached.
+
+**Result.** 2,514 of 3,345 Wikisource verses (75%) resolved to a Pritchett
+verse URL. The ghazal-pairing step reproduced, with no mismatches, all 67
+pairs already recorded in `data/poetics/ghalib_pritchett_to_wikisource_ghazal_map.json`
+from earlier work. Several verse-level matches were also checked against
+her live pages by eye (her own worked example {98,4} and the opening verse
+{1,1}) and read correctly. 18 of 234 Pritchett ghazals could not be split
+into verses unambiguously from the retired copy's line count against the
+real verse count. Most are short by exactly one verse, missing from that
+one-time copy. Two carry a stray extra line. These 18 are left unmapped,
+reported, and not guessed at. Ghazals she does not cover at all are also
+unmapped and expected, since she covers a selection of the diwan, along
+with a handful of tied, equally good verse matches.
+
 ## 2026-10-08: Theme Search confidence: HEAD_WEAK refit for Latin, Greek, and English
 
 **Decision.** `HEAD_WEAK`, the floor above which a Theme Search result

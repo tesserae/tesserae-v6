@@ -772,12 +772,18 @@ def _passage_translation(work, lines):
     except requests.exceptions.RequestException as e:
         return {'available': False, 'reason': f'Translation lookup failed: {e}'}
     if not d.get('available'):
-        return {'available': False,
+        out = {'available': False,
                 'reason': d.get('reason') or 'No aligned translation for this passage.'}
+        # A translator's own page (e.g. Pritchett's Ghalib commentary) can be
+        # linked even when no aligned translation text exists for this work.
+        if d.get('external_links'):
+            out['external_links'] = d['external_links']
+        return out
     out = {'available': True, 'translator': d.get('translator'), 'text': d.get('text')}
     # Coarse-alignment caveats: when the translation covers the passage in
     # blocks rather than line-by-line, say so rather than implying a tight fit.
-    for k in ('year', 'license', 'attribution', 'approximate', 'block_only', 'note'):
+    for k in ('year', 'license', 'attribution', 'approximate', 'block_only', 'note',
+              'external_links'):
         if d.get(k) is not None:
             out[k] = d[k]
     return out
@@ -1173,7 +1179,11 @@ TOOLS = [
                      "fetch the aligned public-domain English translation the Reader shows for "
                      "these same lines, returned as translation:{available, translator, text, "
                      "...}; when none exists, available is false with a plain reason rather than "
-                     "the field being dropped."),
+                     "the field being dropped. A translator's own page can appear as "
+                     "translation.external_links (a list of {translator, site_title, "
+                     "source_url, url}) even when available is false, for a translator whose "
+                     "licence does not permit copying the text itself (currently Frances W. "
+                     "Pritchett's Ghalib commentary)."),
      "inputSchema": {"type": "object",
                      "properties": {"work": _STR, "ref_start": _STR, "ref_end": _STR,
                                     "context": {"type": "integer"},
