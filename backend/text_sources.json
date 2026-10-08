@@ -19453,5 +19453,21 @@
     "print_source": "",
     "added_by": "Tesserae Project",
     "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Pseudo Aurelius Victor",
+    "work": "De Viris Illustribus",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/victor/victor.ill.html",
+    "print_source": "",
+    "added_by": "V6 Import (Aurelius Victor minor works, 2026-10-08)"
+  },
+  {
+    "author": "Pseudo Aurelius Victor",
+    "work": "Origo Gentis Romanae",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/victor/victor.origio.html",
+    "print_source": "",
+    "added_by": "V6 Import (Aurelius Victor minor works, 2026-10-08)"
   }
 ]
