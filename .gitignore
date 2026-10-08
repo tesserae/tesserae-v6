@@ -86,7 +86,7 @@ data/la_mqdq_temp/
 !data/proposals/
 !data/restricted_texts.json
 !data/documents/
-!data/documents/*
+!data/documents/formula_words_*.txt
 cache/
 
 # Private/local files
