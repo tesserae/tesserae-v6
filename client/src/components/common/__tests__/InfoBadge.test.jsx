@@ -20,7 +20,8 @@ describe('InfoBadge — affordance', () => {
     const trigger = screen.getByRole('button');
     expect(trigger).toHaveTextContent('Label');
     expect(trigger.className).toContain('cursor-help');
-    expect(trigger.textContent).toMatch(/ⓘ/); // the circled "i" mark
+    // the circled "i" mark, drawn as an icon so it never depends on a font
+    expect(trigger.querySelector('svg[aria-hidden="true"]')).not.toBeNull();
   });
 
   it('has role="tooltip" and ties the trigger to it with aria-describedby', () => {

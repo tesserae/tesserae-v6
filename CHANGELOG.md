@@ -9,6 +9,13 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Result card: the info mark drawn as an icon, and Iqbal's titles with -e
+- The info mark on explained badges is a small drawn icon in place of the
+  circled-i character, which showed as an empty box where a font lacks it.
+- `backend/utils.py` `DISPLAY_NAMES`: Iqbal's nine Persian and Urdu titles
+  join the connective -e to the word before it ("Zabur-e Ajam", not
+  "Zabur E Ajam"), in citations and the text lists.
+
 ### Result card tidy: badges, explanations, citations
 - Every badge on a pair-search result card (and the matching ones on the
   cross-lingual search page) now opens a real popover on hover, keyboard

@@ -103,7 +103,11 @@ export default function InfoBadge({ children, heading, explanation, footer, clas
         className={`cursor-help inline-flex items-center gap-0.5 text-xs px-2 py-0.5 rounded ${className}`}
       >
         {children}
-        <span aria-hidden="true" className="text-[10px] leading-none opacity-70">&#9432;</span>
+        <svg aria-hidden="true" viewBox="0 0 16 16" width="10" height="10" className="shrink-0 opacity-70" fill="none">
+          <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
+          <rect x="7.25" y="7" width="1.5" height="5" rx="0.5" fill="currentColor" />
+          <circle cx="8" cy="4.6" r="1" fill="currentColor" />
+        </svg>
       </button>
       {open && (
         <div
