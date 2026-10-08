@@ -1056,38 +1056,66 @@ HEAD_STRONG = 0.1006           # above every absent subject in either probe set
 # Anvari addressing the beloved -- on topic by any reading -- yet scored LOW
 # (head_lift 0.0522, coherence 0.8996), because the one number the whole
 # measure rests on, the corpus median, was the median of ALL 600,000-plus
-# windows in seven languages, most of which are not love poetry. Loosen the
-# query into a full sentence and the same bug still shows: every language this
-# was probed against (fa, ur, la, grc, en, he, cop, and "all languages" with no
-# filter) reported the IDENTICAL confidence block for the identical query text,
-# because `languages` never reached the statistics at all, only the results
-# list. Fixed below: a search narrowed to one language measures head_lift,
-# coherence, baseline and top against THAT language's own rows (_language_rows),
-# not the whole corpus. A multi-language or unfiltered search is unaffected.
+# windows in seven languages, most of which are not love poetry. Every
+# language this was probed against (fa, ur, la, grc, en, he, cop, and "all
+# languages" with no filter) reported the IDENTICAL confidence block for the
+# identical query text, because `languages` never reached the statistics at
+# all, only the results list.
 #
-# Restricting the measure does not, by itself, turn a pervasive theme's "low"
-# into "strong": a love poem competing against the REST OF PERSIAN LYRIC still
-# has a high bar to clear, because Persian lyric is largely about love already,
-# which is exactly the situation that needs its OWN answer rather than either
-# of the two the corpus already had. "Nothing like this exists" is false; "a
-# clear, specific match" overstates it; the honest answer is a third thing --
-# the theme is common here, so take what comes back as typical rather than
-# as the one precise case.
+# THE FIRST FIX TRIED WAS WRONG, AND MEASURING IT SAID SO BEFORE IT SHIPPED.
+# Recomputing head_lift AND coherence from the searched language's own rows
+# (rather than just checking whether its baseline sits above the whole
+# corpus's) was tried first and measured against production
+# (evaluation/scripts/calibrate_confidence.py, the 139-query set in
+# evaluation/probe_sets/theme_confidence_2026-10-08.json, read-only against
+# the live index): it helped Persian, Urdu, Hebrew, and Coptic a great deal,
+# but it made Latin, Greek, and English WORSE than the existing, unfixed
+# rule (la 64.7% -> 52.9%, grc 64.7% -> 52.9%, en 47.1% -> 41.2%), because one
+# language's own windows cluster more tightly in this embedding than the
+# whole, heterogeneous seven-language corpus does, so head_lift measured
+# within a single language reads lower across the board, present subjects
+# and absent ones alike, not only for a genuinely pervasive theme. The
+# absolute thresholds above (HEAD_WEAK, HEAD_STRONG) were fitted on the
+# cross-lingual measure and do not transfer to a same-language one.
 #
-# PERVASIVE_EXCESS_BASELINE operationalises that: how much higher is this one
-# language's median score for the query than the WHOLE corpus's median for the
-# same query. A theme equally rare (or equally common) everywhere scores near
-# zero here; a theme concentrated in one language's own literature, which is
-# exactly what drags its within-language head_lift down, pushes this well
-# above zero. Reasoned from the existing BASELINE_MARGIN (0.010, the floor
-# already used to tell signal from noise at this embedding's scale) rather
-# than measured against real per-language score distributions: the service
-# that holds those distributions is the one being patched, so there was
-# nothing to calibrate this against before the fix shipped. Refit with
-# evaluation/scripts/calibrate_confidence.py and a probe set built after
-# deployment once single-language queries have run for a while; record the
-# refit the way every other constant in this file has been.
-PERVASIVE_EXCESS_BASELINE = 0.015
+# WHAT SHIPPED INSTEAD, below: head_lift and coherence stay the whole-corpus
+# measure, UNCHANGED, for every search including a single-language one. A
+# single-language search ADDITIONALLY compares that language's own median
+# score for the query (_language_rows) against the whole corpus's median for
+# the SAME query (PERVASIVE_EXCESS_BASELINE). This can only ever promote a
+# 'low' or 'moderate' call to 'pervasive'; it is never asked to produce
+# 'low' or 'moderate' itself, so it cannot make a language's accuracy worse
+# than the unfixed rule already measured for it, only better. Measured on
+# the same 139-query set, at PERVASIVE_EXCESS_BASELINE = 0.005 (the widest
+# flat plateau in a sweep from 0.0 to 0.015; zero absent queries in the set
+# crossed 0.0031, so nothing in this set would have been wrongly promoted
+# anywhere in that plateau):
+#
+#     language   existing rule   this fix   pervasive-labelled
+#     Coptic          52.9%        94.1%       10 of 17
+#     English         47.1%        47.1%        0 of 17
+#     Persian         61.1%        94.4%        9 of 18
+#     Greek           64.7%        64.7%        1 of 17
+#     Hebrew          52.9%       100.0%        9 of 17
+#     Latin           64.7%        64.7%        0 of 17
+#     Urdu            72.2%        88.9%        7 of 18
+#     unfiltered      83.3%        83.3%        0 of 18 (unaffected: see below)
+#     ALL             62.6%        79.9%       36 of 139
+#
+# English and Latin are unchanged because no query tried against them this
+# time sat far enough above the whole corpus's own median to cross the
+# threshold -- not because the mechanism excludes them. Greek promoted once,
+# to 'pervasive' from an already-correct 'moderate', so its accuracy did not
+# move either. A later probe that found a genuinely pervasive Latin or Greek
+# theme (the sea-storm topos is common enough in Latin epic to be a
+# candidate) would be expected to promote more there.
+#
+# PERVASIVE_EXCESS_BASELINE is a property of the CURRENT, roughly 531,000-
+# window index and this probe set; refit it, the same way, after a corpus-
+# wide re-describe or a substantial size change, with
+# evaluation/scripts/calibrate_confidence.py --sweep against this same
+# probe set (or a larger one built the same way).
+PERVASIVE_EXCESS_BASELINE = 0.005
 
 
 def _apply_index_confidence():
@@ -1132,54 +1160,49 @@ COMBINED_WEAK = None
 COMBINED_STRONG = None
 
 
-def _is_pervasive(baseline, global_baseline):
-    """Is a weak or middling head_lift explained by the theme running through
-    much of ONE language's own corpus, rather than by nothing resembling the
-    query at all?
+def _is_pervasive(level, coherence, lang_baseline, global_baseline):
+    """Should a 'low' or 'moderate' call be promoted to 'pervasive' instead?
 
-    `baseline` is the median score within the searched language alone;
+    `lang_baseline` is the median score within the searched language alone;
     `global_baseline` is the median across the whole, multilingual corpus for
-    the SAME query. Both None (no language narrowed the search) means the
-    question does not apply. See PERVASIVE_EXCESS_BASELINE above."""
-    if baseline is None or global_baseline is None:
+    the SAME query. Either missing (no single language narrowed the search)
+    means the question does not apply. A 'strong' call is never promoted (it
+    is already the best outcome), and a degenerate-coherence 'low' is never
+    promoted either: no structure in the results at all is the absence of a
+    match, not a common one, whatever the two baselines say. See
+    PERVASIVE_EXCESS_BASELINE above for the threshold and the measurement
+    behind it."""
+    if level == 'strong' or coherence >= DEGENERATE_COHERENCE:
         return False
-    return (baseline - global_baseline) >= PERVASIVE_EXCESS_BASELINE
+    if lang_baseline is None or global_baseline is None:
+        return False
+    return (lang_baseline - global_baseline) >= PERVASIVE_EXCESS_BASELINE
 
 
-def _confidence_level(head_lift, coherence, baseline=None, global_baseline=None):
+def _confidence_level(head_lift, coherence):
     """Graded, never certain. Works for one word or for a sentence.
 
-    head_lift is the mean of the top ten scores above the corpus median (or,
-    for a single-language search, above that language's own median).
-
-    `baseline`/`global_baseline` are only given for a single-language search
-    (see _language_rows) and only matter when head_lift would otherwise read
-    'low' or 'moderate': they ask whether that is because nothing resembles
-    the query, or because the query's theme is common enough in this one
-    language that even a real, good match cannot clear much past a typical
-    passage of it. The second case is reported as 'pervasive', a third
-    outcome distinct from both 'low' (nothing resembles it) and a plain
-    'moderate'/'strong' (a specific match, clear of the ordinary run of the
-    language's own corpus).
+    head_lift is the mean of the top ten scores above the corpus median,
+    always the WHOLE corpus's median, even for a single-language search (see
+    PERVASIVE THEMES above for why that stayed unchanged). A single-language
+    search's own 'pervasive' promotion is applied afterward, by the caller,
+    with _is_pervasive -- this function only ever returns the three outcomes
+    it always has.
     """
     if coherence >= DEGENERATE_COHERENCE:
-        # No structure at all: every top result is the same distance from
-        # the query, which is the absence of a match, not a common one.
-        # Pervasiveness does not apply here.
         return 'low'
-    pervasive = _is_pervasive(baseline, global_baseline)
     if CONF_MODE == 'combined' and COMBINED_WEAK is not None:
         combined = head_lift * 10.0 + (coherence - 0.85) * COMBINED_WEIGHT
         if combined < COMBINED_WEAK:
-            return 'pervasive' if pervasive else 'low'
+            return 'low'
         if combined >= COMBINED_STRONG:
             return 'strong'
-        return 'pervasive' if pervasive else 'moderate'
+        return 'moderate'
     if head_lift < HEAD_WEAK:
-        return 'pervasive' if pervasive else 'low'
+        return 'low'
     if head_lift >= HEAD_STRONG:
         return 'strong'
-    return 'pervasive' if pervasive else 'moderate'
+    return 'moderate'
 
 
 def _calibration_drift():
@@ -1546,35 +1569,25 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
         except EmbedUnavailable:
             break
         scores = np.maximum(scores, alt)
-    global_baseline = float(np.median(scores))
-    # A search narrowed to ONE language is measured against that language's
-    # own rows, not the whole, multilingual corpus: see the PERVASIVE THEMES
-    # comment above HEAD_WEAK/HEAD_STRONG for why. `lang_rows` is None for a
-    # multi-language or unfiltered ("all languages") search, which keeps the
-    # original, whole-corpus measure unchanged.
-    lang_rows = _language_rows(languages)
-    # The GROUP at the head, not the single best hit, in both branches below:
-    # one lucky vector is not a subject, and the top hit alone is what made
-    # short queries unreadable.
-    if lang_rows is not None and len(lang_rows):
-        lang_scores = scores[lang_rows]
-        baseline = float(np.median(lang_scores))
-        top = float(lang_scores.max())
-        k = min(10, len(lang_scores))
-        head_lift = float(np.sort(lang_scores)[-k:].mean()) - baseline
-        top_rows = lang_rows[np.argsort(-lang_scores)[:COHERENCE_K]]
-        coherence = _coherence_of_rows(top_rows)
-    else:
-        baseline = global_baseline
-        top = float(scores.max())
-        k = min(10, len(scores))
-        head_lift = float(np.sort(scores)[-k:].mean()) - baseline
-        coherence = _cluster_coherence(scores)
+    baseline = float(np.median(scores))
+    top = float(scores.max())
     lift = top - baseline
-    level = _confidence_level(
-        head_lift, coherence,
-        baseline=baseline if lang_rows is not None else None,
-        global_baseline=global_baseline if lang_rows is not None else None)
+    # The GROUP at the head, not the single best hit: one lucky vector is not a
+    # subject, and the top hit alone is what made short queries unreadable.
+    k = min(10, len(scores))
+    head_lift = float(np.sort(scores)[-k:].mean()) - baseline
+    coherence = _cluster_coherence(scores)
+    level = _confidence_level(head_lift, coherence)
+    # A search narrowed to ONE language gets an ADDITIONAL check, on top of
+    # the whole-corpus level above, never in place of it: see the PERVASIVE
+    # THEMES comment above HEAD_WEAK/HEAD_STRONG for why head_lift and
+    # coherence themselves stay whole-corpus even here. `lang_rows` is None
+    # for a multi-language or unfiltered ("all languages") search.
+    lang_rows = _language_rows(languages)
+    if lang_rows is not None and len(lang_rows):
+        lang_baseline = float(np.median(scores[lang_rows]))
+        if _is_pervasive(level, coherence, lang_baseline, baseline):
+            level = 'pervasive'
     strong_at = baseline + (STRONG_LIFT if level == 'strong' else 1e9)
     # The confidence figures above describe the embedding alone; the lexical
     # boost then reorders the windows (see LEXICAL_BETA).

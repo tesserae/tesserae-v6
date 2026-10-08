@@ -5,6 +5,16 @@ weak. These exercise the classification function on fixed numbers, with no
 index loaded, per the fix for the single-language false-negative (2026-10-08):
 a Persian search for "passionate love" came back Rumi, Rudaki and Anvari
 addressing the beloved and still reported 'low'.
+
+The fix that shipped promotes 'low'/'moderate' to 'pervasive' on top of the
+existing, whole-corpus head_lift/coherence rule; it never recomputes
+head_lift or coherence from one language's own rows. An earlier version did
+recompute them and was measured, against production
+(evaluation/scripts/calibrate_confidence.py), to make Latin, Greek, and
+English WORSE than the unfixed rule, because one language's own windows
+cluster more tightly in this embedding than the whole corpus does. These
+tests pin the promote-only behaviour so that regression cannot return
+silently.
 """
 import os
 import sys
@@ -23,76 +33,59 @@ from backend.passage_index import (  # noqa: E402
 )
 
 
-# --- _is_pervasive ----------------------------------------------------------
+# --- _confidence_level is unchanged by the fix: whole-corpus only ----------
 
-def test_is_pervasive_true_when_language_baseline_well_above_global():
-    assert _is_pervasive(0.80, 0.78) is True   # 0.02 >= 0.015
-
-
-def test_is_pervasive_false_just_under_the_margin():
-    assert _is_pervasive(0.80, 0.79) is False  # 0.01 < 0.015
-
-
-def test_is_pervasive_false_at_exactly_the_margin_boundary_minus_epsilon():
-    assert _is_pervasive(0.78 + PERVASIVE_EXCESS_BASELINE - 0.001, 0.78) is False
-
-
-def test_is_pervasive_true_at_exactly_the_margin():
-    assert _is_pervasive(0.78 + PERVASIVE_EXCESS_BASELINE, 0.78) is True
-
-
-def test_is_pervasive_false_without_both_baselines():
-    assert _is_pervasive(None, 0.78) is False
-    assert _is_pervasive(0.80, None) is False
-    assert _is_pervasive(None, None) is False
-
-
-# --- _confidence_level -------------------------------------------------------
-
-def test_weak_head_lift_alone_is_low():
+def test_weak_head_lift_is_low():
     assert _confidence_level(0.05, 0.90) == 'low'
 
 
-def test_weak_head_lift_with_elevated_language_baseline_is_pervasive():
-    # Same head_lift/coherence as the previous case, but the language this
-    # search was narrowed to already resembles the query far more than the
-    # whole corpus does -- the Persian "love" case.
-    assert _confidence_level(0.05, 0.90, baseline=0.80, global_baseline=0.78) == 'pervasive'
-
-
-def test_weak_head_lift_with_baseline_only_slightly_elevated_stays_low():
-    assert _confidence_level(0.05, 0.90, baseline=0.80, global_baseline=0.79) == 'low'
-
-
-def test_moderate_head_lift_without_pervasive_signal_is_moderate():
+def test_moderate_head_lift_is_moderate():
     mid = (HEAD_WEAK + HEAD_STRONG) / 2
     assert _confidence_level(mid, 0.93) == 'moderate'
 
 
-def test_moderate_head_lift_with_pervasive_signal_is_pervasive():
-    mid = (HEAD_WEAK + HEAD_STRONG) / 2
-    assert _confidence_level(mid, 0.93, baseline=0.80, global_baseline=0.78) == 'pervasive'
+def test_strong_head_lift_is_strong():
+    assert _confidence_level(HEAD_STRONG + 0.01, 0.93) == 'strong'
 
 
-def test_strong_head_lift_is_strong_even_with_elevated_baseline():
-    # A genuinely specific match stands out even in a saturated language,
-    # and that should win over the pervasive reading, not be masked by it.
-    assert _confidence_level(HEAD_STRONG + 0.01, 0.93,
-                             baseline=0.85, global_baseline=0.78) == 'strong'
+def test_degenerate_coherence_is_low():
+    assert _confidence_level(0.05, 0.999) == 'low'
 
 
-def test_degenerate_coherence_is_low_regardless_of_baseline():
+# --- _is_pervasive: the promote-only check ----------------------------------
+
+def test_pervasive_true_when_language_baseline_well_above_global_and_level_low():
+    assert _is_pervasive('low', 0.90, 0.80, 0.78) is True   # 0.02 >= 0.005
+
+
+def test_pervasive_true_for_moderate_too():
+    assert _is_pervasive('moderate', 0.93, 0.80, 0.78) is True
+
+
+def test_pervasive_false_just_under_the_margin():
+    assert _is_pervasive('low', 0.90, 0.78 + PERVASIVE_EXCESS_BASELINE - 0.001, 0.78) is False
+
+
+def test_pervasive_true_at_exactly_the_margin():
+    assert _is_pervasive('low', 0.90, 0.78 + PERVASIVE_EXCESS_BASELINE, 0.78) is True
+
+
+def test_pervasive_never_promotes_strong():
+    # A genuinely specific match already got the best outcome; a weaker
+    # outcome must never displace it.
+    assert _is_pervasive('strong', 0.90, 0.95, 0.70) is False
+
+
+def test_pervasive_never_promotes_degenerate_coherence():
     # No structure in the results at all is the absence of a match, not a
-    # common one, so the pervasive signal must not override it.
-    assert _confidence_level(0.05, 0.999, baseline=0.90, global_baseline=0.70) == 'low'
+    # common one, however far the baselines are apart.
+    assert _is_pervasive('low', 0.999, 0.95, 0.70) is False
 
 
-def test_pervasive_requires_a_single_language_search():
-    # No baseline figures (a multi-language or "all languages" search)
-    # falls back to the original two-outcome reading.
-    assert _confidence_level(0.05, 0.90) == 'low'
-    mid = (HEAD_WEAK + HEAD_STRONG) / 2
-    assert _confidence_level(mid, 0.93) == 'moderate'
+def test_pervasive_false_without_both_baselines():
+    assert _is_pervasive('low', 0.90, None, 0.78) is False
+    assert _is_pervasive('low', 0.90, 0.80, None) is False
+    assert _is_pervasive('low', 0.90, None, None) is False
 
 
 # --- _is_short_query ----------------------------------------------------------
@@ -161,3 +154,38 @@ def test_short_query_hint_appended_to_pervasive_note():
 
 def test_short_query_hint_never_appended_to_strong():
     assert _confidence_note('strong', query='love') is None
+
+
+# --- end-to-end classification pattern, as find_by_text applies it --------
+
+def _classify(head_lift, coherence, lang_baseline=None, global_baseline=None):
+    """The exact two-step pattern find_by_text uses: the whole-corpus level
+    first, then an independent promotion check. Lets these tests pin the
+    SHAPE of the fix, not just its two halves separately."""
+    level = _confidence_level(head_lift, coherence)
+    if lang_baseline is not None and global_baseline is not None:
+        if _is_pervasive(level, coherence, lang_baseline, global_baseline):
+            level = 'pervasive'
+    return level
+
+
+def test_unfiltered_search_is_never_promoted():
+    # No language narrowed the search, so no baselines are given: behaviour
+    # is exactly the old, whole-corpus rule.
+    assert _classify(0.05, 0.90) == 'low'
+
+
+def test_single_language_weak_lift_with_elevated_baseline_promotes():
+    assert _classify(0.05, 0.90, lang_baseline=0.80, global_baseline=0.78) == 'pervasive'
+
+
+def test_single_language_weak_lift_without_elevated_baseline_stays_low():
+    # Matches the measured case for Latin, Greek, and English: the
+    # within-language baseline for these probe queries never rose far
+    # enough above the whole corpus's for promotion, so the rule correctly
+    # leaves them exactly as the unfixed rule already called them.
+    assert _classify(0.05, 0.90, lang_baseline=0.78, global_baseline=0.782) == 'low'
+
+
+def test_single_language_strong_lift_is_never_demoted_by_a_low_baseline():
+    assert _classify(HEAD_STRONG + 0.01, 0.93, lang_baseline=0.70, global_baseline=0.78) == 'strong'

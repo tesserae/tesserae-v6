@@ -8,32 +8,36 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
-## 2026-10-08: Theme Search confidence measured within the searched language
+## 2026-10-08: Theme Search confidence: a single-language search promotes, never recomputes
 
-**Decision.** A Theme Search narrowed to one language now measures
-confidence (baseline, top, lift, head_lift, coherence) against that
-language's own rows, not the whole, seven-language index. Previously the
-whole confidence block was computed from the entire corpus regardless of
-the language filter: confirmed by requesting the identical query text
-under every single-language filter and the unfiltered default, which
-returned byte-identical confidence numbers every time, because the
-language filter reached the results list but never the statistics. A third
-outcome, `pervasive`, now sits alongside the two the band already
+**Decision.** A Theme Search narrowed to one language now gets a third
+confidence outcome, `pervasive`, alongside the two the band already
 reported (`low`, nothing resembles the query; `strong`/`moderate`, a
-specific match): when the searched language's own median score sits well
-above the whole corpus's median for the same query, and the
-within-language head_lift alone would have read `low` or `moderate`, the
-match is now reported as a theme that runs through much of that
-language's own literature, rather than conflated with an absent subject or
-presented as a narrow, specific one. A query of three words or fewer that
-does not reach a clear match now also carries a line saying a full
-sentence is answered better than a short phrase, since the index holds
-sentence-length descriptions and scores a bare word or two worse by
-design.
+specific match): when the searched language's own median score for the
+query sits well above the whole corpus's median for the same query
+(`PERVASIVE_EXCESS_BASELINE`, 0.005, measured below) and the existing,
+whole-corpus rule would otherwise have called the result `low` or
+`moderate`, the match is instead reported as a theme that runs through
+much of that language's own literature, rather than conflated with an
+absent subject. `head_lift` and `coherence` themselves stay the
+whole-corpus measure for every search, including a single-language one;
+only this one promotion check is language-specific, and it can only ever
+raise a result from `low`/`moderate` to `pervasive`, never lower one. A
+query of three words or fewer that does not reach a clear match now also
+carries a line saying a full sentence is answered better than a short
+phrase, since the index holds sentence-length descriptions and scores a
+bare word or two worse by design.
 
 **Why.** A Persian search for "passionate love" returned Rumi, Rudaki, and
 Anvari addressing the beloved, on topic by any reading of the results, and
-reported "the corpus does not appear to contain passages of this kind."
+reported "the corpus does not appear to contain passages of this kind,"
+because the whole confidence block (baseline, head_lift, coherence) was
+computed from the entire, seven-language corpus regardless of the
+language filter: confirmed by requesting the identical query text under
+every single-language filter and the unfiltered default, which returned
+byte-identical confidence numbers every time, since the language filter
+reached the results list but never the statistics.
+
 Measured against a labeled set of 139 queries (18-20 per language across
 Persian, Urdu, Latin, Greek, English, Hebrew, and Coptic, plus an
 unfiltered group), split across pervasive themes (love in Persian and Urdu
@@ -41,36 +45,56 @@ lyric, praise of God in Hebrew scripture, war in Latin and Greek epic),
 specific scenes (a lover waiting at the beloved's door, a demon tempting a
 monk, a messenger breaking news of disaster), and absent subjects
 (airplanes, a stock market crash, a smartphone), each checked against the
-description of its top results:
+description of its top results, then run read-only against the real,
+roughly 531,000-window production index (`evaluation/scripts/
+calibrate_confidence.py`, saved as `evaluation/probe_sets/
+theme_confidence_2026-10-08.json`), not a dev copy:
 
-| language | queries | existing rule, correct |
-|---|---|---|
-| Coptic | 17 | 52.9% |
-| English | 17 | 47.1% |
-| Hebrew | 17 | 52.9% |
-| Persian | 18 | 61.1% |
-| Greek | 17 | 64.7% |
-| Latin | 17 | 64.7% |
-| Urdu | 18 | 72.2% |
-| unfiltered | 18 | 83.3% |
-| **all** | **139** | **62.6%** |
+| language | queries | existing rule | this fix | labelled pervasive |
+|---|---|---|---|---|
+| Coptic | 17 | 52.9% | 94.1% | 10 |
+| English | 17 | 47.1% | 47.1% | 0 |
+| Persian | 18 | 61.1% | 94.4% | 9 |
+| Greek | 17 | 64.7% | 64.7% | 1 |
+| Hebrew | 17 | 52.9% | 100.0% | 9 |
+| Latin | 17 | 64.7% | 64.7% | 0 |
+| Urdu | 18 | 72.2% | 88.9% | 7 |
+| unfiltered | 18 | 83.3% | 83.3% | 0 |
+| **all** | **139** | **62.6%** | **79.9%** | **36** |
 
-Every error was a false `low` on a result confirmed on topic by reading
-its description; no absent query was ever accepted (zero false
-positives). The error was not confined to Persian and Urdu: Latin and
-Greek, the languages the bands were originally fitted on, missed at
-close to the same rate, which argues the whole-corpus bands need a wider
-refit of their own, separate from the single-language fix made here and
-not attempted in this change. The new `pervasive` branch's own threshold
-(how far a language's median must sit above the whole corpus's before a
-weak head_lift reads as a common theme rather than an absent one) is
-reasoned from the existing baseline-noise margin at this embedding's
-scale, not fitted against a live measurement, because the per-language
-score distribution it needs is produced by the service being changed and
-was not available before the change shipped. Refit it with
-`evaluation/scripts/calibrate_confidence.py` once the fix has run live,
-against the same labeled queries, saved as
-`evaluation/probe_sets/theme_confidence_2026-10-08.json`.
+Every remaining error is a false `low` on a result confirmed on topic by
+reading its description; no absent query was ever promoted (zero false
+positives in this set). English and Latin did not move: no query tried
+against them this time sat far enough above the whole corpus's median to
+cross the threshold, not because the mechanism excludes them. Greek
+promoted once, from an already-correct `moderate`, so its accuracy did
+not move either.
+
+**The first design tried was wrong, and this same measurement caught it
+before it shipped.** Recomputing `head_lift` AND `coherence` from the
+searched language's own rows, rather than only comparing its median to the
+whole corpus's, was tried first: it helped Persian, Urdu, Hebrew, and
+Coptic the same way, but made Latin, Greek, and English WORSE than the
+existing, unfixed rule (Latin 64.7% to 52.9%, Greek 64.7% to 52.9%,
+English 47.1% to 41.2%). One language's own windows cluster more tightly
+in this embedding than the whole, heterogeneous seven-language corpus
+does, so `head_lift` measured within a single language reads lower across
+the board, for present subjects and absent ones alike, not only for a
+genuinely pervasive theme; the absolute thresholds the existing rule uses
+were fitted on the cross-lingual measure and do not transfer to a
+same-language one. The promote-only design above cannot regress a
+language's accuracy below what the existing rule already gets it, by
+construction, which is why it shipped instead.
+
+`PERVASIVE_EXCESS_BASELINE` (0.005) is the widest flat plateau in a sweep
+from 0.0 to 0.015 against the measurement above (accuracy 79.1%-80.6%
+across that plateau; the highest single point, 80.6% at 0.0035, was not
+taken, as a narrower spike one query wide); no absent query in the set
+crossed 0.0031, so nothing in the plateau risked a false positive against
+it. It is a property of the current index and this probe set; refit it
+the same way after a corpus-wide re-describe or a substantial size change,
+with `evaluation/scripts/calibrate_confidence.py --sweep` against this
+same probe set or a larger one built the same way.
 
 ## 2026-10-08: requests workflow, GitHub issues as the single store
 - Scholars never need a GitHub account. GitHub issues are nonetheless the
