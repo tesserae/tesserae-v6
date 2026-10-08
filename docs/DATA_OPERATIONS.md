@@ -75,14 +75,14 @@ anything is deleted, with a dated backup kept of each file it removes.
     Latin and Greek works under CC BY-SA, the Sefaria Tanakh commentators
     filtered to texts whose stated licence permits reuse, Matthew Henry from
     CCEL in the public domain, and public-domain English editions read from
-    scans for Milton, Shakespeare, Spenser, Keats, Wordsworth and Vergil);
+    scans for Milton, Shakespeare, Spenser, Keats, Wordsworth and Vergil).
   - the offline citation index (`data/citation_index/citations.db`, 25 MB),
     article-to-passage citations extracted from the pre-1923 JSTOR Early
     Journal Content released for free reuse, covering 24 classical, biblical
     and English journals, with 82.5% precision on a 40-citation hand-checked
-    sample;
+    sample.
   - the citation abbreviation table (`data/citations/abbreviations.json`,
-    GPL-3.0, used on the server and not redistributed);
+    GPL-3.0, used on the server and not redistributed).
   - two keys in the production environment, for book-page search (Google
     Books) and open full text (CORE). The keys are not recorded here.
 - Every commentary file's work id was checked against the live texts first.
