@@ -68,16 +68,36 @@ pattern as remove_restricted_text.py and drop_stale_index_entries.py:
             left by a dropped window is left for the overlap of
             neighbouring windows to cover, not patched.
 
+A fourth store, cache/lemmas/<lang>/, is not edited by ref at all -- it is
+REBUILT WHOLESALE for the one work, not deleted. The cache filename is a
+hash of the work's PATH-like text_id (its filename), not of the file's
+content -- see backend/lemma_cache.py's get_cache_path -- so editing the
+.tess file does not orphan the old cache file under a new name the way a
+content hash would: the stale file sits at the exact same path the
+correct one belongs at. Deleting it (the behaviour until 2026-10-08) left
+a gap a search could lazily refill, but a language whose cache build
+needs a library the production app deliberately does not carry (Urdu's
+Stanza pipeline) could not refill it there at all, and the rare-bigram
+rebuild for that work failed outright until the cache was rebuilt by hand
+under an environment that has Stanza. This script now rebuilds the one
+file's cache itself (rebuild_work_lemma_cache), right after the text
+rewrite, using the same per-file path scripts/batch_lemma_cache.py uses
+for one file (its FastTextProcessor + register_plugin_languages) and the
+same disk format backend.lemma_cache.save_cached_units writes, so the
+result is byte-for-byte what a later whole-language `batch_lemma_cache.py
+<lang> --force` run would also write for this file. A backup of the old
+cache file is taken first either way. If the language's handler cannot
+even be imported here (ImportError -- Stanza missing is the known case),
+NOTHING is deleted or overwritten: the old cache is left exactly as it
+was, the exact command to run under an environment that has the library
+is printed, and the script exits non-zero at the end so this is never
+silently missed.
+
 What this script does NOT do, because the data it would need is not
 self-describing by ref and a full recompute is the only honest fix -- it
 reports what is affected and prints the follow-up commands, for the main
 session to run, in the order that must hold:
 
-  lemmas    cache/lemmas/<lang>/ cache files are named by content hash;
-            editing the .tess file already orphans the old one (the next
-            request lemmatizes the new content under a new hash). This
-            script deletes the now-stale file so an orphan does not sit on
-            disk, and names the eager-rebuild command.
   bigrams   cache/bigrams/<lang>_bigrams.json counts rare bigrams across
             the whole language; a delete does not know what to subtract.
             Full rebuild: scripts/corpus/rebuild_bigrams.py.
@@ -114,6 +134,7 @@ import shutil
 import sqlite3
 import sys
 import time
+from datetime import datetime
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))
@@ -121,8 +142,15 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
 from scripts.corpus.corpus_safety import (  # noqa: E402
     add_apply_argument, atomic_write, backup, read_lines_preserving_eol,
 )
+from backend.lemma_cache import get_cache_path, get_file_hash  # noqa: E402
 
 REF_LINE = re.compile(r'^<([^>]+)>\t(.*)$')
+
+# Prefix every "could not rebuild, nothing touched" lemma-cache report line
+# starts with, so main() can find it in apply_drop's report and exit
+# non-zero AFTER printing everything -- the rest of apply_drop (index,
+# vectors, windows) is unrelated and must still finish and be reported.
+LEMMA_CACHE_BLOCKED_PREFIX = 'lemma cache: BLOCKED'
 
 
 class LockstepError(RuntimeError):
@@ -229,13 +257,23 @@ def _CACHE_HASH_strip(name):
 
 
 def _plan_lemma_cache(root, lang, filename):
+    """Which on-disk lemma-cache file(s) belong to this work today, plus
+    the canonical path get_cache_path computes for it NOW (before the
+    edit). That canonical path never changes across the edit -- it hashes
+    the work's path-like text_id, not its content (backend/lemma_cache.py)
+    -- so in the overwhelmingly common case `files` already names exactly
+    that one path, and rebuild_work_lemma_cache overwrites it rather than
+    renaming anything. A legacy pre-hash-scheme filename (same stripped
+    base, no hash suffix) is still found here by name so it still gets a
+    backup, even though it is not the path a rebuild writes to."""
     base = filename[:-len('.tess')] if filename.endswith('.tess') else filename
     lang_dir = os.path.join(root, 'cache', 'lemmas', lang)
+    canonical_path = get_cache_path(filename, lang, cache_dir=os.path.join(root, 'cache', 'lemmas'))
     if not os.path.isdir(lang_dir):
-        return {'present': False, 'files': []}
+        return {'present': False, 'files': [], 'canonical_path': canonical_path}
     files = [fn for fn in sorted(os.listdir(lang_dir))
              if fn.endswith('.json') and _CACHE_HASH_strip(fn[:-len('.json')]) == base]
-    return {'present': True, 'files': files, 'dir': lang_dir}
+    return {'present': True, 'files': files, 'dir': lang_dir, 'canonical_path': canonical_path}
 
 
 def _contiguous_runs(positions):
@@ -338,7 +376,13 @@ def format_plan(plan):
     else:
         lines.append(f"  vectors: {vec['matching_rows']} of {vec['old_rows']} row(s) to drop")
     lc = plan['lemma_cache']
-    lines.append(f"  lemma cache: {len(lc.get('files', []))} file(s) to remove (orphaned by the edit)")
+    n_lc = len(lc.get('files', []))
+    if n_lc:
+        lines.append(f"  lemma cache: {n_lc} file(s) to rebuild in place (same path before "
+                     f"and after -- hashed by the work's path, not its content); blocked "
+                     f"instead of rewritten if the language's processor cannot be imported here")
+    else:
+        lines.append('  lemma cache: nothing cached for this work yet, nothing to rebuild')
     win = plan['windows']
     if not win.get('present'):
         lines.append(f"  windows: not present ({win.get('wdb_path')})")
@@ -350,7 +394,6 @@ def format_plan(plan):
                      f"{emb_note}")
     lines.append('')
     lines.append('  NOT done by this script (whole-language/whole-corpus; run after --apply):')
-    lines.append(f"    venv/bin/python scripts/batch_lemma_cache.py {plan['lang']} --force")
     lines.append(f"    venv/bin/python scripts/corpus/rebuild_bigrams.py {plan['lang']}")
     if win.get('present') and win['window_ids']:
         lines.append('    venv/bin/python scripts/corpus/build_window_names.py <out.db>   '
@@ -358,6 +401,108 @@ def format_plan(plan):
         lines.append('    systemd-run --user --scope -p MemoryMax=10G '
                      'venv/bin/python3 scripts/build_connections_map.py')
     return '\n'.join(lines)
+
+
+# A single FastTextProcessor (and the plugin-language registration it
+# needs) is expensive to build -- it loads the Latin/Greek lookup tables
+# and the CLTK backoff lemmatizers -- so one process reuses it across
+# however many works it rebuilds, rather than paying that cost per call.
+_lemma_rebuild_processor = None
+_plugin_languages_registered = False
+
+
+def _get_lemma_rebuild_processor():
+    """The exact per-file text processor scripts/batch_lemma_cache.py uses
+    for one file: its own FastTextProcessor, after register_plugin_
+    languages() has registered the plugin handlers (Coptic, Hebrew,
+    Persian, Urdu, Arabic) that process_file dispatches non-built-in
+    languages to. Imported lazily, here rather than at module load, so a
+    caller that only plans or only touches the text/index/vectors/windows
+    stores never pays for it."""
+    global _lemma_rebuild_processor, _plugin_languages_registered
+    from scripts.batch_lemma_cache import FastTextProcessor, register_plugin_languages
+    if not _plugin_languages_registered:
+        register_plugin_languages()
+        _plugin_languages_registered = True
+    if _lemma_rebuild_processor is None:
+        _lemma_rebuild_processor = FastTextProcessor()
+    return _lemma_rebuild_processor
+
+
+def rebuild_work_lemma_cache(root, lang, filename, old_files, tag=None):
+    """Rebuild this one work's lemma cache after texts/<lang>/<filename>
+    has already been rewritten on disk.
+
+    `old_files` is plan['lemma_cache']['files'] from BEFORE the edit (the
+    on-disk file(s) _plan_lemma_cache found for this work) -- normally
+    exactly one, at the SAME path a rebuild writes to (get_cache_path
+    hashes the work's path-like text_id, not its content; see module
+    docstring). Each is backed up before anything is written or removed.
+    If `old_files` is empty there was nothing cached for this work yet,
+    and nothing is done.
+
+    Returns (report_lines, blocked). `blocked` is True when the
+    language's handler could not even be imported in this environment
+    (ImportError -- e.g. Urdu's Stanza pipeline, deliberately absent from
+    production): in that case NOTHING on disk is touched (no backup, no
+    delete, no write) and a report line starting with
+    LEMMA_CACHE_BLOCKED_PREFIX names the exact follow-up command. The
+    caller (apply_drop/main) is expected to exit non-zero once every
+    other step has also finished and been reported, so a block here
+    never silently passes as success.
+    """
+    if not old_files:
+        return ['lemma cache: nothing cached for this work yet, nothing to rebuild'], False
+
+    lang_dir = os.path.join(root, 'cache', 'lemmas', lang)
+    new_path = get_cache_path(filename, lang, cache_dir=os.path.join(root, 'cache', 'lemmas'))
+    filepath = os.path.join(root, 'texts', lang, filename)
+
+    try:
+        tp = _get_lemma_rebuild_processor()
+        units_line = tp.process_file(filepath, lang, 'line')
+        units_phrase = tp.process_file(filepath, lang, 'phrase')
+    except ImportError as e:
+        return [
+            f"{LEMMA_CACHE_BLOCKED_PREFIX} -- {lang!r}'s processor needs a library this "
+            f"environment does not have ({e}). Nothing was deleted or changed; the old "
+            f"cache at {os.path.join(lang_dir, old_files[0])} is untouched. Rebuild it "
+            f"from an environment where that import succeeds:\n"
+            f"    venv/bin/python scripts/batch_lemma_cache.py {lang} --force",
+        ], True
+
+    # Back up every old file for this work (normally just the one at
+    # new_path) before anything is written.
+    backups = {fn: backup(os.path.join(lang_dir, fn), tag=tag) for fn in old_files}
+
+    cache_data = {
+        'text_id': filename,
+        'language': lang,
+        'file_hash': get_file_hash(filepath),
+        'cached_at': datetime.now().isoformat(),
+        'units_line': units_line,
+        'units_phrase': units_phrase,
+    }
+    atomic_write(new_path, json.dumps(cache_data, ensure_ascii=False))
+
+    # An old file under a different (e.g. pre-hash-scheme legacy) name
+    # than new_path is now genuinely superseded -- the canonical path
+    # just written is the only one get_cached_units will ever prefer --
+    # so it is removed rather than left as dead, permanently stale debris.
+    removed_legacy = []
+    for fn in old_files:
+        old_path = os.path.join(lang_dir, fn)
+        if os.path.abspath(old_path) != os.path.abspath(new_path) and os.path.exists(old_path):
+            os.remove(old_path)
+            removed_legacy.append(old_path)
+
+    report = [f"lemma cache: rebuilt {new_path} ({len(units_line)} line unit(s), "
+              f"{len(units_phrase)} phrase unit(s); backup(s): "
+              + ', '.join(b for b in backups.values() if b) + ')']
+    if removed_legacy:
+        report.append(f"lemma cache: removed {len(removed_legacy)} superseded legacy "
+                      f"file(s): {', '.join(removed_legacy)}")
+    return report, False
 
 
 def _restore_backups(backups):
@@ -448,14 +593,13 @@ def apply_drop(plan, tag=None):
     else:
         report.append('vectors: nothing to do')
 
-    # 4. lemma cache -- delete the now-stale file(s); a correct one is
-    # rebuilt lazily on next search, or eagerly by batch_lemma_cache.py.
+    # 4. lemma cache -- rebuilt in place (see rebuild_work_lemma_cache and
+    # the module docstring); blocked instead of touched at all if this
+    # environment cannot import the language's processor.
     lc = plan['lemma_cache']
-    for fn in lc.get('files', []):
-        path = os.path.join(lc['dir'], fn)
-        b = backup(path, tag=tag)
-        os.remove(path)
-        report.append(f"lemma cache: removed {path} (backup: {b}; stale, orphaned by the content change)")
+    lemma_report, _lemma_cache_blocked = rebuild_work_lemma_cache(
+        plan['root'], plan['lang'], plan['filename'], lc.get('files', []), tag=tag)
+    report.extend(lemma_report)
 
     # 5. windows -- ids.json, embeddings.npy and descriptions.jsonl are kept
     # in lockstep (module docstring, 2026-10-08): all three are prepared
@@ -612,7 +756,6 @@ def apply_drop(plan, tag=None):
 
     report.append('')
     report.append('STILL NEEDED (whole-language/whole-corpus, not done by this script):')
-    report.append(f"  venv/bin/python scripts/batch_lemma_cache.py {plan['lang']} --force")
     report.append(f"  venv/bin/python scripts/corpus/rebuild_bigrams.py {plan['lang']}")
     if win.get('present') and win['window_ids']:
         report.append('  scripts/corpus/build_window_names.py, then swap in as window_names.db')
@@ -660,10 +803,23 @@ def main():
         return
     print()
     try:
-        for line in apply_drop(plan):
-            print(line)
+        report = apply_drop(plan)
     except LockstepError as e:
         sys.exit(f'REFUSED: {e}')
+    blocked = False
+    for line in report:
+        print(line)
+        if line.startswith(LEMMA_CACHE_BLOCKED_PREFIX):
+            blocked = True
+    if blocked:
+        # Every other store (text, index, vectors, windows) is unrelated
+        # to the lemma cache and has already finished and been reported
+        # above; only the exit code at the very end flags that this one
+        # step needs a follow-up command run somewhere else, so it is
+        # never missed.
+        sys.exit('INCOMPLETE: everything else above finished, but the lemma cache rebuild '
+                 'was blocked (see "lemma cache: BLOCKED" above) and needs the follow-up '
+                 'command it printed, run somewhere that has the missing library.')
 
 
 if __name__ == '__main__':

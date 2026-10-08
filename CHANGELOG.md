@@ -9,6 +9,25 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Corpus tool fix: drop-lines-from-work rebuilds the lemma cache instead of deleting it
+- `scripts/corpus/drop_lines_from_work.py` deleted the one cached lemma
+  analysis after rewriting a work's text, on the mistaken assumption that
+  the cache filename was a hash of the file's content (it hashes the
+  work's path, not its content -- `backend/lemma_cache.py`'s
+  `get_cache_path`), so the next request would rebuild it under a new
+  name. It does not: the stale file sits at the exact path the correct
+  one belongs at, and for a language whose cache build needs a library
+  production deliberately does not carry (Urdu's Stanza pipeline), there
+  was no next request that could rebuild it there at all -- the rare-
+  bigram rebuild for that work failed until the cache was rebuilt by hand
+  under the development environment. The tool now rebuilds the one
+  work's cache itself, right after the text rewrite, with a backup of the
+  old file kept either way. If the language's processor cannot be
+  imported in the current environment, nothing is deleted or changed: the
+  old cache is left exactly as it was, the exact command to run elsewhere
+  is printed, and the tool exits non-zero so this is never silently
+  missed. Tests for both paths added to `tests/test_drop_lines_from_work.py`.
+
 ### Records: Persian and Urdu data operations of 2026-10-08
 - `docs/DATA_OPERATIONS.md` records the Khayyam and Ghalib removals, the
   Similar Passages and Theme Search outage and its repair, the cache and
