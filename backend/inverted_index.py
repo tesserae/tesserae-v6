@@ -86,6 +86,19 @@ def get_corpus_version(language):
                 v = date.fromtimestamp(os.path.getmtime(db_path)).isoformat()
         except Exception:
             v = None
+    # The stamp in `meta` is written by full rebuilds only. Texts added or
+    # removed piece by piece change the index file without touching it, so
+    # the Latin stamp stayed at 2026-08-16 through months of additions. Use
+    # the later of the stamp and the index file's own modification date.
+    try:
+        db_path = os.path.join(INDEX_DIR, f'{language}_index.db')
+        if os.path.exists(db_path):
+            from datetime import date
+            file_day = date.fromtimestamp(os.path.getmtime(db_path)).isoformat()
+            if v is None or (len(str(v)) == 10 and file_day > str(v)):
+                v = file_day
+    except Exception:
+        pass
     _corpus_version[language] = v
     return v
 

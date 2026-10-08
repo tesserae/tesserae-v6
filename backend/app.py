@@ -949,6 +949,20 @@ def _allowed_languages():
     return allowed_languages()
 
 
+@api_route('/corpus-version')
+def api_corpus_version():
+    """The corpus version stamp (a date) for one language, for citations that
+    name the corpus state a result came from (the Cite popup's Reproducible
+    style). Read per process; an index change is picked up on reload."""
+    language = (request.args.get('language') or 'la').strip()
+    try:
+        from backend.inverted_index import get_corpus_version
+        v = get_corpus_version(language)
+    except Exception:
+        v = None
+    return jsonify({'language': language, 'corpus_version': v})
+
+
 @api_route('/languages')
 def api_languages():
     """Return available languages and cross-lingual pairs.

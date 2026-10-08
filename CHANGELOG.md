@@ -9,6 +9,15 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Citations name the corpus version for every search
+- The Cite popup on the main pair search showed no corpus version, because
+  that response carried no stamp. The page now asks a new
+  `GET /api/corpus-version?language=` route when a search finishes.
+- The stamp itself was stale (Latin read 2026-08-16): it is written only
+  by full index rebuilds, and texts added or removed since left it behind.
+  `get_corpus_version` now uses the later of the stamp and the index
+  file's own date. Tests added.
+
 ### Result cards: a "Report a problem" link beside Cite
 - Every result card on the main and Cross-Language searches shows a red
   "Report a problem" link with a pencil icon right after Cite, opening the
