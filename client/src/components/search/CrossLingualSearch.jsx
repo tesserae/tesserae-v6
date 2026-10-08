@@ -1188,6 +1188,7 @@ export default function CrossLingualSearch({ onOpenHelp, onRegister, onCorpusSea
                         </Button>
                       )}
                       <CiteButton
+                        showReportLink
                         finding={{
                           kind: 'cross-language search',
                           source: srcCitation,

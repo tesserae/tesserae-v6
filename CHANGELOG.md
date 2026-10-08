@@ -9,6 +9,12 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Result cards: a "Report a problem" link beside Cite
+- Every result card on the main and Cross-Language searches shows a red
+  "Report a problem" link with a pencil icon right after Cite, opening the
+  same request form with the result's details filled in. The link inside
+  the Cite popup stays.
+
 ### Suggest a change: visible in the header, and the in-context links marked
 - An outlined "Suggest a change" button with a pencil icon sits in the
   header beside Sign In on every page (wider screens; the footer link
