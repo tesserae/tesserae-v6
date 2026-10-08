@@ -115,6 +115,11 @@ const buildShareableUrl = (sourceText, targetText, sourceAuthor, targetAuthor, l
 function App() {
   const [user, setUser] = useState(null);
   const [footerSuggestOpen, setFooterSuggestOpen] = useState(false);
+  useEffect(() => {
+    const open = () => setFooterSuggestOpen(true);
+    window.addEventListener('tesserae:open-suggest', open);
+    return () => window.removeEventListener('tesserae:open-suggest', open);
+  }, []);
   const [adminSessionActive, setAdminSessionActive] = useState(false);
   const [adminSessionChecked, setAdminSessionChecked] = useState(false);
   const [pageType, setPageType] = useState(() => {

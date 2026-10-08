@@ -173,8 +173,9 @@ export default function CiteButton({ finding, label = 'Cite', className = '' }) 
             <button
               type="button"
               onClick={() => { setOpen(false); setReportOpen(true); }}
-              className="text-[11px] text-gray-500 hover:text-red-700 hover:underline"
+              className="inline-flex items-center gap-1 text-[11px] text-red-700 hover:underline"
             >
+              <svg aria-hidden="true" viewBox="0 0 16 16" width="12" height="12" fill="none" className="shrink-0"><path d="M11 2.5l2.5 2.5L6 12.5H3.5V10L11 2.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg>
               Report a problem with this result
             </button>
           </p>
