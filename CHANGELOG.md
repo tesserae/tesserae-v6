@@ -9,6 +9,15 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Reader: readable names in the Reuse tab and in Urdu and Persian references
+- The Reuse tab names each quoting work and line the way the rest of the
+  site does ("Sauda, Kulliyat 6.6", not "Sauda, Kulliyat Wikisource" over a
+  raw site ID), and its caption no longer limits it to Latin, Greek and
+  English.
+- References that open with a section name read as words and keep it:
+  "Ghalib, Diwan, ghazal 1.1-7", "Mir, Kulliyat, marsiya 3.2". One
+  collection can hold several numbered sections, so the name stays.
+
 ### Translation aligner: Rumi's Masnavi opening ("Song of the Reed") from Nicholson's 1925/1926 translation
 - `scripts/translations/align_rumi_masnavi_nicholson.py`, built on the shared
   `write_aligned.py` helper. Our corpus holds only the eighteen-line reed-flute
