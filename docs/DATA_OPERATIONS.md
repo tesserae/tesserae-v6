@@ -69,96 +69,71 @@ anything is deleted, with a dated backup kept of each file it removes.
 
 ## 2026-10-08 Scholarship sources installed on the live site (about 23:10 EDT)
 - What: the Reader's Scholarship tab (opt-in, `?scholarship=1`) went live
-  with Servius only. Installed beside it, outside git: the remaining
-  commentary catalogue (389 files added to `data/commentaries/`, 393 in all:
-  the Perseus open commentaries on Latin and Greek works, CC BY-SA; the
-  Sefaria Tanakh commentators, filtered to texts whose stated licence
-  permits reuse; Matthew Henry from CCEL, public domain; public-domain
-  English editions read from scans for Milton, Shakespeare, Spenser, Keats,
-  Wordsworth and Vergil); the offline citation index
-  (`data/citation_index/citations.db`, 25 MB, article-to-passage citations
-  extracted from the pre-1923 JSTOR Early Journal Content released for free
-  reuse, 24 classical, biblical and English journals, 82.5% precision on a
-  40-citation hand-checked sample); and the citation abbreviation table
-  (`data/citations/abbreviations.json`, GPL-3.0, used on the server and not
-  redistributed). Two keys added to the production environment for book-page
-  search (Google Books) and open full text (CORE); the keys are not recorded
-  here. Every commentary file's work id was checked against the live texts
-  first (all match; scripture uses one key across Bible versions).
+  with Servius only. These were installed beside it, outside git:
+  - the remaining commentary catalogue, 389 files added to
+    `data/commentaries/` for 393 in all (the Perseus open commentaries on
+    Latin and Greek works under CC BY-SA, the Sefaria Tanakh commentators
+    filtered to texts whose stated licence permits reuse, Matthew Henry from
+    CCEL in the public domain, and public-domain English editions read from
+    scans for Milton, Shakespeare, Spenser, Keats, Wordsworth and Vergil).
+  - the offline citation index (`data/citation_index/citations.db`, 25 MB),
+    article-to-passage citations extracted from the pre-1923 JSTOR Early
+    Journal Content released for free reuse, covering 24 classical, biblical
+    and English journals, with 82.5% precision on a 40-citation hand-checked
+    sample.
+  - the citation abbreviation table (`data/citations/abbreviations.json`,
+    GPL-3.0, used on the server and not redistributed).
+  - two keys in the production environment, for book-page search (Google
+    Books) and open full text (CORE). The keys are not recorded here.
+- Every commentary file's work id was checked against the live texts first.
+  All match, and scripture uses one key across Bible versions.
 - Scripts: none (files copied with `rsync --ignore-existing`, so the
   Servius files tracked in git were left untouched).
 - Backups: the production environment file was copied before the keys were
   added. The data was additive, so no other backup was needed.
 - Checks: reference test passed after reload. Live lookups returned
   commentators for the Aeneid, Iliad and Paradise Lost, citation-index hits
-  for Aeneid 4.1, book pages, and full-text results; the credits list
+  for Aeneid 4.1, book pages, and full-text results. The credits list
   (`/api/scholarship/sources`) answers in under a second.
 - Note: the full-text key expires on 14 October 2026 and must be renewed.
 
-## 2026-10-08 Two Aurelius Victor minor works, TO BE APPLIED (prepared in a dev worktree, not yet run on production)
-
-### What and why
-- Two pseudonymous works from The Latin Library, transmitted with the
-  Aurelius Victor corpus. `pseudo_aurelius_victor.de_viris_illustribus.tess`
-  has 86 chapters and 519 lines. `pseudo_aurelius_victor.origo_gentis_romanae.tess`
-  has 23 chapters plus a preface, 126 lines. Converter, descriptions,
-  provenance and genre rows are in the PR (branch
-  `corpus/aurelius-victor-minor`). This entry covers the data-side steps
-  still to run on production once it merges.
-
-### Steps prepared and verified in the dev worktree (`~/tesserae-victor`)
-- Converted with the two new handlers in
-  `scripts/corpus/latinlibrary_to_tess.py` (`--only
-  pseudo_aurelius_victor.de_viris_illustribus`, then `--only
-  pseudo_aurelius_victor.origo_gentis_romanae`). Both pass
-  `scripts/corpus/validate_tess.py`.
-- Lemma caches for the two files only, built directly against
-  `backend.lemma_cache`/`FastTextProcessor`. A full
-  `scripts/batch_lemma_cache.py la` pass was not needed here because the
-  worktree's own lemma cache was otherwise empty: 519 and 126 line units,
-  no empty-analysis failures. On production, the plain
-  `scripts/batch_lemma_cache.py la` command hashes every file, skips
-  what is already cached, and computes these two on its own, so no
-  `--only` flag is needed there.
-- `la_index.db` extended on a worktree-local copy of the production file
-  with `scripts/corpus/add_texts_to_index.py --add
-  pseudo_aurelius_victor.de_viris_illustribus.tess
-  pseudo_aurelius_victor.origo_gentis_romanae.tess --cache-dir
-  cache/lemmas --language la`. Counts went from 1,654 to 1,656 texts,
-  933,463 lines total, with 8,738 and 3,958 postings added for the two
-  files. `lemma_doc_freq` rebuilt (331,328 lemmas), integrity ok. The two
-  new text ids are 1795 and 1796.
-- Passage windows built with `scripts/corpus/build_batch_windows.py
-  --language la --index-db <the copy above> --lemma-table
-  data/lemma_tables/latin_lemmas.json --out victor_windows.json
-  texts/la/pseudo_aurelius_victor.de_viris_illustribus.tess
-  texts/la/pseudo_aurelius_victor.origo_gentis_romanae.tess`. Result: 148
-  windows (120 fine and coarse for De Viris Illustribus, 28 for Origo
-  Gentis Romanae), all with names_present. Not yet described or embedded.
-  That step needs a GPU or gateway endpoint (the 2026-09-29 classical
-  batch used Qwen 3.8 27B on UB's BullsAI gateway) and a decision on
-  cost, which stays with the main session. Once described,
-  `scripts/corpus/apply_passage_rows.py --mode append --tag
-  aurelius-victor-minor-20261008` appends them the same way the
-  2026-09-29 batch did.
-
-### Still to do on production (main session)
-1. Merge the PR, pull on production.
-2. `scripts/batch_lemma_cache.py la` (skips everything already cached,
-   computes only the two new files).
-3. Copy `la_index.db` to a working copy, run `add_texts_to_index.py --add`
-   with the two filenames as above, verify `PRAGMA integrity_check`,
-   atomic-swap in, backup tag `la_index.db.bak-victor-minor-20261008`.
-   Rebuild the rare-bigram table (`scripts/corpus/rebuild_bigrams.py la`).
-   Reload the app, run `scripts/reference_search_check.py`.
-4. Run `build_batch_windows.py` as above against the production index,
-   describe the 148 windows (gateway or GPU job, cost and scheduling is a
-   main session decision), then `apply_passage_rows.py --mode append`.
-5. Compute semantic vectors for the two whole works (bowphs/SPhilBerta,
-   the same BullsAI route as the 2026-10-06 semantic fill) so the
-   semantic channel and Similar Passages have vectors for them. The
-   2026-10-06 entry lists 148 older works still waiting on this same
-   step. These two join that list until it runs.
+## 2026-10-08 Two works transmitted with Aurelius Victor added (23:00 to 00:17 EDT)
+- What: `pseudo_aurelius_victor.de_viris_illustribus` (86 chapters, 519
+  lines) and `pseudo_aurelius_victor.origo_gentis_romanae` (preface and 23
+  chapters, 126 lines), from The Latin Library (#674), carried through every
+  store the site reads.
+- Steps, each under `~/bin/tess-job`:
+  - lemma caches (`scripts/batch_lemma_cache.py la`, only the two new files
+    computed).
+  - Latin index extended on a copy (`scripts/corpus/add_texts_to_index.py
+    --add`, text ids 1795 and 1796, 8,741 and 3,961 postings, 1,656 texts,
+    933,463 lines, lemma_doc_freq rebuilt, integrity ok) and swapped in.
+  - rare-bigram table rebuilt (`scripts/corpus/rebuild_bigrams.py la`, 87 s).
+  - 148 passage windows built (`scripts/corpus/build_batch_windows.py
+    --upsert-db`), described by Qwen 3.8 27B on the university's AI gateway
+    with thinking off (stamp `qwen38-bullsai-20261008`, 148 of 148 in 1.4
+    minutes), appended with `scripts/corpus/apply_passage_rows.py --mode
+    append` (530,962 windows, ids, vectors and descriptions in step), and the
+    description keyword index rebuilt (`scripts/build_desc_fts.py`, 37 s).
+  - line vectors for both works encoded on the server's processor with
+    bowphs/SPhilBerta, raw as in the existing files (519 and 126 rows, mean
+    norms 5.8 and 6.0).
+  - connection map rebuilt (`scripts/build_connections_map.py`, 49 minutes,
+    peak 7.3 GB, up from 4.4 GB on 7 October as the window count grew.
+    An 8 GB cap now leaves too little headroom, so use 10 GB).
+- Dates: `backend/author_dates.json` gains a Latin entry for
+  `pseudo_aurelius_victor` (Late Antique, 4th century CE) so the corpus
+  browser shows an era.
+- Backups: `la_index.db.bak-victor-minor-20261008`,
+  `window_texts.db.bak-victor-minor-20261008`,
+  `desc_fts.sqlite.bak-victor-minor-20261008`, and the passage index files'
+  `.bak-victor-minor-20261008` copies made by the append script.
+- Checks: reference searches passed after each reload. The coverage check
+  (`scripts/corpus/verify_text_coverage.py`) passes for both works in every
+  store except the browser era, which this change supplies.
+- Note: no public-domain English translation was found for De viris
+  illustribus. One exists online for the Origo and its terms are being
+  checked.
 
 ## 2026-10-07 Connection map rebuilt with Persian and Urdu (15:25 to 16:12 EDT)
 - `scripts/build_connections_map.py` with the language list of #658 (la, grc, en,
