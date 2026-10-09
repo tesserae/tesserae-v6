@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { rememberLanguage } from '../../utils/languagePreference';
 import StartLanguageControl from './StartLanguageControl';
-import useDocumentsTrial from '../../hooks/useDocumentsTrial';
+import useCollections from '../../hooks/useCollections';
+import { PAGE_NEEDS } from '../../collections/collectionsConfig';
+import CollectionsControl from './CollectionsControl';
+import { hasExplicitChoice } from '../../collections/collectionsStore';
 
 /** Tells a horizontally scrolling strip whether there is more to its right.
  *
@@ -87,7 +90,12 @@ const Navigation = ({
   // the visit) and the server switch together gate the "Inscriptions &
   // Papyri" tab -- the same two-part gate LineSearch.jsx's own documents
   // control and CorpusBrowser's Documents tab use.
-  const documentsTrial = useDocumentsTrial();
+  const { anyOn, on: collectionsOn } = useCollections();
+  // The Collections control is shown only to visitors who chose collections
+  // or came through a trial link, so the default Literary profile leaves
+  // today's public site unchanged (2026-10-09, pending the lead's decision).
+  const showCollections = hasExplicitChoice()
+    || Object.entries(collectionsOn || {}).some(([id, v]) => v && id !== 'literature');
   const [documentsEnabled, setDocumentsEnabled] = useState(false);
 
   useEffect(() => {
@@ -103,7 +111,7 @@ const Navigation = ({
       })
       .catch(() => {}); // fall back to defaults
   }, []);
-  const showInscriptionsPapyri = documentsTrial && documentsEnabled;
+  const showInscriptionsPapyri = anyOn(PAGE_NEEDS['inscriptions-papyri']) && documentsEnabled;
   const handleLanguageClick = (tabCode) => {
     if (onLanguageReset) {
       onLanguageReset();
@@ -188,6 +196,11 @@ const Navigation = ({
               </button>
             )}
           </div>
+          {showCollections && (
+            <div className="flex justify-end py-1 sm:py-0">
+              <CollectionsControl />
+            </div>
+          )}
         </div>
         
         {pageType === 'search' && (
