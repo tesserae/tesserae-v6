@@ -8,6 +8,51 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-08: a shared title needs its own author's name nearby, not just the bare title
+
+**Question.** The Scholarship tab for Apollonius Rhodius, Argonautica 1.5-17
+listed "Valerio Flaco (2016). Argonáuticas" and a Smallwood note on
+"Valerius Flaccus' Argonautica 1.5-21." Apollonius Rhodius and Valerius
+Flaccus both wrote a work called Argonautica, and the backend accepted a
+bare match on that title for either author's passage.
+
+**Check.** The corpus holds 145 titles used by more than one author
+(`backend.scholarship._load_shared_titles`, built from the corpus file
+list), including Argonautica (Apollonius Rhodius, Valerius Flaccus),
+Metamorphoses (Ovid, Apuleius) and dozens more. The live production route
+was queried read-only for Apollonius Rhodius, Argonautica 1.5-17 and
+Valerius Flaccus, Argonautica 1.1-21 on 2026-10-08. The Google Books
+channel, which has no author check of its own, returned the same eight
+books for the Apollonius page. Three were actually about Apollonius
+Rhodius (Morrison, Berkowitz, Augoustakis, each citing "A.R." or "A. R."
+next to the locus). Five were about Valerius Flaccus instead: two editions
+titled "Valerius Flaccus' Argonautica, Book 1," the Spanish
+"Argonáuticas," and the Stover and Tanner books, all four of the last
+group citing the Smallwood 1962 note on "Valerius Flaccus' Argonautica
+1.5-21."
+
+**Decision.** For a shared title, require the target author's own name or
+citation abbreviation near the match, and reject a match naming a
+competing author of the same title instead, drawing the abbreviations from
+`data/citations/abbreviations.json` (production, read-only). Most dev and
+test machines do not have that file, and the check does nothing without
+it. Rerunning the lookup against that same production data for Apollonius
+Rhodius, Argonautica 1.5-17 now keeps the three Apollonius Rhodius books
+and drops all five Valerius Flaccus ones. The same check on Valerius
+Flaccus, Argonautica 1.1-21 keeps the three Valerius Flaccus books (the two
+editions and the Spanish translation) and drops the three Apollonius
+Rhodius ones. Stover's and Tanner's books are dropped from both pages.
+Their matched snippet quotes only the Smallwood note and never names
+either poet, so nothing in it says whose Argonautica they cite.
+
+A corpus filing quirk very nearly doubled as a second, false "Aeneid"
+author. `maffeo_veggio.aeneid.tess` duplicates his own Supplementum under
+the stray title "Aeneid" and is not a real second Aeneid. The abbreviation
+table marks it `unmatched` (no author_names, no work_titles), and the
+guard drops any title-group member the table marks that way before
+deciding whether a title is really shared, so an ordinary Vergil citation
+still needs no "Vergil" nearby.
+
 ## 2026-10-08: the Documents browse scheme (kind, region, century)
 
 **Question.** The documentary corpus (inscriptions from EDH, EDR, and
