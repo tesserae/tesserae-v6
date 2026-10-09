@@ -19484,6 +19484,59 @@
     "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 0385.001)",
     "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg0385/tlg001",
     "print_source": "Dio's Roman History, vols. 3-6. Cary, Earnest, ed. London: William Heinemann; New York: G. P. Putnam's Sons, 1914-1917. (Licence: CC BY-SA 4.0; translation by Earnest Cary, Loeb, 1914-1927, from LacusCurtius.)",
+    "author": "Diodorus Siculus",
+    "work": "Bibliotheca Historica (Books 1-5, 18-20)",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 0060.001)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg0060/tlg001",
+    "print_source": "Diodori Bibliotheca Historica, Books 1-5 (perseus-grc5): Bekker, Immanuel, Ludwig Dindorf and Friedrich Vogel, eds. Leipzig: Teubner, 1888-1890. Books 18-20 (perseus-grc6): Bekker, Dindorf and Curt Theodor Fischer, eds. Leipzig: Teubner, 1903-1906. (Licence: CC BY-SA 4.0; translation by C. H. Oldfather and Russel M. Geer, Loeb, 1933-1954, from LacusCurtius.)",
+    "added_by": "V6 Import (historians, 2026-10-09)"
+  },
+  {
+    "author": "Procopius",
+    "work": "History of the Wars",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 4029.001)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg4029/tlg001",
+    "print_source": "Procopius, vols. 1-5 (History of the Wars). Dewing, Henry Bronson, ed. London: William Heinemann; New York: G. P. Putnam's Sons, 1914-1928. Loeb Classical Library. (Licence: CC BY-SA 4.0; translation by H. B. Dewing, Loeb, 1914-1928, from LacusCurtius.)",
+    "added_by": "V6 Import (historians, 2026-10-09)"
+  },
+  {
+    "author": "Zosimus",
+    "work": "Historia Nova",
+    "e_source": "Open Greek and Latin (First1KGreek, TLG 4084.001)",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/First1KGreek/tree/master/data/tlg4084/tlg001",
+    "print_source": "Zosimi Comitis et Exadvocati Fisci Historia Nova. Mendelssohn, Ludwig, ed. Leipzig: Teubner, 1887. (Licence: CC BY-SA 4.0; digitised from a scan by OCR, with 18 damaged words repaired and 2 unreadable numerals dropped. Translation: The History of Count Zosimus, London: Green and Chaplin, 1814, from the Internet Archive.)",
+    "added_by": "V6 Import (historians, 2026-10-09)"
+  },
+  {
+    "author": "Plutarch",
+    "work": "Lysander",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 0007.032)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg0007/tlg032",
+    "print_source": "Plutarch's Lives. Perrin, Bernadotte, ed. Cambridge, MA: Harvard University Press; London: William Heinemann, 1916. Loeb Classical Library. (Licence: CC BY-SA 4.0; translation by Bernadotte Perrin, Loeb, 1916, from the same repository.)",
+    "added_by": "V6 Import (historians, 2026-10-09)"
+  },
+  {
+    "author": "Plutarch",
+    "work": "Dion",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 0007.060)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg0007/tlg060",
+    "print_source": "Plutarch's Lives. Perrin, Bernadotte, ed. Cambridge, MA: Harvard University Press; London: William Heinemann, 1918. Loeb Classical Library. (Licence: CC BY-SA 4.0; translation by Bernadotte Perrin, Loeb, 1918, from the same repository.)",
+    "added_by": "V6 Import (historians, 2026-10-09)"
+  },
+  {
+    "author": "Plutarch",
+    "work": "Eumenes",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 0007.041)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg0007/tlg041",
+    "print_source": "Plutarch's Lives. Perrin, Bernadotte, ed. Cambridge, MA: Harvard University Press; London: William Heinemann, 1919. Loeb Classical Library. (Licence: CC BY-SA 4.0; translation by Bernadotte Perrin, Loeb, 1919, from the same repository.)",
+    "added_by": "V6 Import (historians, 2026-10-09)"
+  },
+  {
+    "author": "Plutarch",
+    "work": "Demosthenes",
+    "e_source": "Perseus Digital Library / Open Greek and Latin (canonical-greekLit, TLG 0007.054)",
+    "e_source_url": "https://github.com/PerseusDL/canonical-greekLit/tree/master/data/tlg0007/tlg054",
+    "print_source": "Plutarch's Lives. Perrin, Bernadotte, ed. Cambridge, MA: Harvard University Press; London: William Heinemann, 1919. Loeb Classical Library. (Licence: CC BY-SA 4.0; translation by Bernadotte Perrin, Loeb, 1919, from the same repository.)",
     "added_by": "V6 Import (historians, 2026-10-09)"
   }
 ]

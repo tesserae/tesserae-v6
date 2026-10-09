@@ -200,6 +200,132 @@ anything is deleted, with a dated backup kept of each file it removes.
   forms in the Names panel (#721: a misplaced accent no longer cuts a name
   short). Backup `~/tesserae-backups/window_names.db.bak-greekforms-20261009`.
 
+## 2026-10-09 Diodorus (books 1 to 5, 18 to 20), Procopius' Wars, Zosimus and four Plutarch Lives, steps for production (drafted with the import, NOT yet run)
+- What: `diodorus_siculus.bibliotheca_historica` (4,166 lines, 9 files),
+  `procopius.wars` (7,240 lines, 9 files), `zosimus.historia_nova` (1,071 lines,
+  7 files), `plutarch.lysander`, `plutarch.dion`, `plutarch.eumenes` and
+  `plutarch.demosthenes` (771 lines, 4 files): 29 `.tess` files in
+  `texts/grc/` that arrive with the merge, each work with an English
+  translation file under `data/translations/` that does not. Diodorus books 11
+  to 17 are not included (a decision on them is pending). The Hellenica and
+  Dio import (the entry for #733) is a separate batch with the same steps and
+  can be run in one pass with this one.
+- Sources and rights, all downloaded 2026-10-09 into
+  `~/tesserae-backups/sources/historians/`:
+  - The Greek is CC BY-SA 4.0 per the TEI headers. It comes from
+    PerseusDL/canonical-greekLit `tlg0060.tlg001.perseus-grc5` (Diodorus 1 to 5, Vogel, Teubner 1888 to
+    1890) and `perseus-grc6` (Diodorus 18 to 20, Fischer, Teubner 1903 to
+    1906), `tlg4029.tlg001.perseus-grc2` (Procopius, Dewing's Loeb Greek),
+    `tlg0007.tlg032`, `tlg041`, `tlg054` and `tlg060` `perseus-grc2`
+    (Plutarch, Perrin's Loeb Greek) and from OpenGreekAndLatin/First1KGreek
+    `tlg4084.tlg001.1st1K-grc1` (Zosimus, Mendelssohn, Teubner 1887, which
+    First1KGreek made by OCR of an Internet Archive scan).
+  - English for Diodorus: Bill Thayer's LacusCurtius transcription of the Loeb
+    volumes (pages `1A` to `5D` and `18A` to `20E` under
+    `penelope.uchicago.edu/Thayer/E/Roman/Texts/Diodorus_Siculus/`). Thayer's
+    Diodorus page states that Loeb volumes I to XI are in the public domain
+    because their copyright was not renewed, with the renewal years named
+    (volume I 1960/61, II 1962/63, III 1966/67, IX 1974/75, X 1981/82). The
+    volumes used here are I, II, III (Oldfather, 1933 to 1939) and IX, X (Geer,
+    1947 and 1954). All five are marked public domain, so no volume is skipped.
+    That rests on non-renewal, not on the date, and on Thayer's reading of the
+    1978 Copyright Act, which is the same ground the Dio volumes of #733 rest on.
+  - English for Procopius: LacusCurtius, Dewing's Loeb (1914 to 1928), pages
+    `1A` to `8J` under `.../Procopius/Wars/`. Thayer states volumes I to III
+    have lapsed and IV and V were not renewed. Book 2 chapters 5 to 10 and some
+    other pages carry his "not yet proofread" mark (`sec_for_proofing`), which
+    the aligner accepts.
+  - The English for the four Lives is Perrin's Loeb (1914 to 1926), from the Perseus
+    repository (`tlg0007.tlg032`, `041`, `054`, `060` `perseus-eng2`).
+  - English for Zosimus: "The History of Count Zosimus", London, Green and
+    Chaplin, 1814, the OCR text of Internet Archive item
+    `historyofcountzo00zosiuoft`. Public domain by date.
+  The existing "Literary texts" and "Translations" credit records cover these
+  and the per-work rows are in `backend/text_sources.json`.
+- Measured before production (all in a worktree and on scratch copies):
+  - conversion: Greek letters in the TEI body against the `.tess` lines,
+    Diodorus 1 to 5 670,405 of 670,405 and 18 to 20 456,488 of 456,488,
+    Procopius 1,191,955 of 1,192,183, Zosimus 347,749 of 347,749, Plutarch
+    0.9997 to 0.9999 (the remainder is headings). All 29 files pass
+    `scripts/corpus/validate_tess.py`.
+  - repairs: `scripts/corpus/repair_zosimus_procopius_text.py` fixes 18
+    words in Zosimus where the OCR lost a letter (20 places carried "??"
+    between breathing marks), drops 2 unreadable consular numerals (6.2.1), and
+    separates two words in Procopius 8 that a combining breathing had joined.
+    Other OCR faults in the Zosimus Greek were not searched for.
+  - Diodorus translation: 4,158 of 4,166 lines (0.9981), the other 8 being the
+    book tables of contents (chapter 0). 16 Greek sections that Thayer does not
+    mark share the English of the section before. Proper names 0.896 of 500,
+    length correlation 0.923, confidence high.
+  - Procopius translation: 7,240 of 7,240 lines, 19 sections sharing the
+    English of the one before. Proper names 0.798 of 500, length correlation
+    0.953, confidence high.
+  - Plutarch translations: exact by chapter.section, every line matched. Proper
+    names Lysander 0.943 (140), Eumenes 1.000 (90), Demosthenes 0.975 (118), Dion
+    0.818 (313). Length correlation 0.924, 0.946, 0.930, 0.930.
+  - Zosimus translation: the 1814 English has no chapter numbers, so 1,071 of
+    1,071 lines are mapped to 420 English paragraphs (314 blocks, 3.4 lines
+    each) by dynamic programming on proper names and position, recorded
+    approximate with confidence medium. Proper names 0.942 of 500. The length
+    correlation (0.08) is not meaningful for blocks. A spot check found the
+    paragraph right for four of five lines and off by a few paragraphs for one
+    (5.29.6). The scan reads well. About 5.3% of its words are not in the
+    corpus's English vocabulary, mostly names, rare words and words split across
+    lines, and a sample of 40 such words found five real OCR faults.
+  - lemma caches built in the worktree: 29 files, 7 seconds.
+  - index extension tried on a copy of `grc_index.db` with
+    `scripts/corpus/add_texts_to_index.py --add` of the 29 filenames:
+    1,268 to 1,297 texts, 478,011 to 503,736 lines (+25,725, the sum of the
+    files), lemma_doc_freq rebuilt, no errors. Lemma lookups on the copy
+    return the new works (Βελισάριος 340 postings in the Wars file, Λύσανδρος
+    77 in the Lysander, Ἀγαθοκλῆς 162 in Diodorus, Ἀλάριχος in Procopius).
+    No dev server was started, because the Greek frequency table recompute
+    killed the one tried for #733, and the Latin index and all search code are
+    untouched by this change, so the "arma virum" reference search was not rerun.
+- Steps on production, each under `~/bin/tess-job` with the caps shown:
+  1. After the merge, pull on production (the `.tess` files, descriptions,
+     provenance rows and dates arrive). `client/` is untouched.
+  2. Translations: copy the seven files into `data/translations/` (not in
+     git). They were made with `scripts/translations/align_diodorus.py`,
+     `align_procopius.py`, `align_plutarch.py` and `align_zosimus.py` and kept in
+     `~/tesserae-backups/sources/historians/translations_out/` with these
+     sha256 checksums:
+     `grc__diodorus_siculus.bibliotheca_historica.json`
+     `c355e6ce43bf1e6f41dc62644d13d7268178624d873a45c237320b22f128c192`,
+     `grc__procopius.wars.json`
+     `e553e185e3390713a3ceb975db431e1d86706187e72160f6651db9a2c781c834`,
+     `grc__zosimus.historia_nova.json`
+     `be7b99c9a54e99a94bff84a74970b81864a3a9fb7a14e01102cf071625ffbb7e`,
+     `grc__plutarch.lysander.json`
+     `08de98dccc4e2cdcdae79ff8528ff545c920b14dfc71f4c1c484b4578ab092b9`,
+     `grc__plutarch.eumenes.json`
+     `223134678eb44d0d7e279c9a55fb34a9d0ae4adb9954a1faca5557d9ddda98d8`,
+     `grc__plutarch.dion.json`
+     `8f9cc32e6b7e2a33bd6e2ba152e1e380261f2dc84d48337d457e29ec16e99b53`,
+     `grc__plutarch.demosthenes.json`
+     `f7631539f76bdcc2ae52c7f10ecc7496cf819efb8b95f7c10b033a7628a37ce1`.
+     The whole-work file serves the book files. Reloaded with the next
+     `touch tesseraev6_flask.wsgi`.
+  3. Lemma caches with `scripts/batch_lemma_cache.py grc` (cap 8G). Only the 29
+     new files are computed.
+  4. Extend the Greek index on a copy exactly as in step 4 of the #733 entry,
+     with the 29 filenames here (or all 58 in one pass), check integrity, swap
+     in, `touch tesseraev6_flask.wsgi`. Keep
+     `grc_index.db.bak-historians2-20261009`.
+  5. Rare-bigram table: `scripts/corpus/rebuild_bigrams.py grc`.
+  6. Passage windows, descriptions, vectors, names index, connection map and the
+     Greek phrase, quotation and reuse tables follow steps 6 to 8 of the #733
+     entry. Follow the lockstep check (counts in step, then one Similar
+     Passages and one Theme Search request).
+  7. Check: `scripts/corpus/verify_text_coverage.py --root <production>
+     --language grc diodorus_siculus.bibliotheca_historica procopius.wars
+     zosimus.historia_nova plutarch.lysander plutarch.dion plutarch.eumenes
+     plutarch.demosthenes`, the reference search, and a Greek line search that
+     returns the new works (for example the lemmas of "Belisarius" and
+     "Chosroes" together).
+- Backups to keep: each file replaced in steps 4 to 6, tagged
+  `bak-historians2-20261009`.
+
 ## 2026-10-08 Documentary reuse table built in dev; not yet installed on production
 - What: `scripts/reuse/build_documents_reuse_table.py` is new (feat/reuse-documents),
   pairing every literary line against the documents collection (inscriptions,
