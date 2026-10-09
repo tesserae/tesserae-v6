@@ -51,7 +51,6 @@ export default function LineSearch({ language }) {
   // byte-for-byte what it always was when no document hit is present
   // (collection='literature', the default, never returns one).
   const literatureResults = useMemo(() => results.filter(r => r.collection !== 'documents'), [results]);
-  const documentResults = useMemo(() => results.filter(r => r.collection === 'documents'), [results]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchType, setSearchType] = useState('lemma');
@@ -89,6 +88,31 @@ export default function LineSearch({ language }) {
   // backend/app.py for how that default was measured).
   const [excludeRestored, setExcludeRestored] = useState(false);
   const [hideFormulas, setHideFormulas] = useState(false);
+
+  // Stage 4 (owner's review of the live documents trial, 2026-10-08):
+  // document results are now paged and sorted SERVER-SIDE (no 500-row
+  // ceiling). `documentPageResults` holds only the current page (at most
+  // 50 rows); `docTotal`/`docOffset`/`docSort` drive the server request,
+  // and `docDistribution` carries the century/region breakdown computed
+  // over every match, not just the page.
+  const [documentPageResults, setDocumentPageResults] = useState([]);
+  const [docTotal, setDocTotal] = useState(0);
+  const [docOffset, setDocOffset] = useState(0);
+  const [docSort, setDocSort] = useState('relevance');
+  const [docDistribution, setDocDistribution] = useState({ by_century: [], by_source_region: [] });
+  const [docPageLoading, setDocPageLoading] = useState(false);
+  const [showDocDistribution, setShowDocDistribution] = useState(true);
+  const DOC_PAGE_SIZE = 50;
+  // The filters/query a documents page request needs to repeat on every
+  // page or sort change, captured once per search (handleSearch/
+  // selectLineForSearch/an example button) so paging never re-derives
+  // them from state that may have moved on since (e.g. the query box).
+  const lastDocSearchRef = useRef(null);
+  // Document hits are paged SERVER-SIDE (see documentPageResults above):
+  // this is simply that state under the name the render/JSX below uses,
+  // kept as its own binding so a page/sort change (fetchDocumentsPage)
+  // never has to touch `results` or literatureResults.
+  const documentResults = documentPageResults;
 
   useEffect(() => {
     fetch('/api/languages').then(r => r.json()).then(data => {
@@ -218,7 +242,7 @@ export default function LineSearch({ language }) {
   // only when the documents control is actually on and set away from plain
   // Literature. With the control untouched (or the server switch off) this
   // adds nothing, so a request is byte-for-byte what it always was.
-  const addCollectionParams = (params) => {
+  const addCollectionParams = (params, sortOverride) => {
     if (!documentsEnabled || collection === 'literature') return params;
     params.collection = collection;
     if (dateFrom.trim()) params.date_from = parseInt(dateFrom, 10);
@@ -229,7 +253,39 @@ export default function LineSearch({ language }) {
     if (docSource.trim()) params.source = docSource.trim();
     if (excludeRestored) params.exclude_restored = true;
     if (hideFormulas) params.hide_formulas = DOCUMENTS_FORMULA_DEFAULT_N;
+    // Stage 4: every documents/both request is explicit about paging from
+    // the first page, at the fixed 50-row page size, in the caller's
+    // current sort choice (falls back to the component's own `docSort`
+    // state when the caller does not override it -- a fresh search keeps
+    // whatever sort the reader last picked rather than silently resetting
+    // to 'relevance').
+    params.offset = 0;
+    params.limit = DOC_PAGE_SIZE;
+    params.sort = sortOverride || docSort;
     return params;
+  };
+
+  // Stage 4: pulls the document-collection fields out of a /api/line-search
+  // response (shared by every code path that can start a documents/both
+  // search: handleSearch, selectLineForSearch, and the example buttons) so
+  // the three never drift out of sync on what a fresh search resets.
+  const applyDocumentsResponse = (data, sortUsed) => {
+    if (!documentsEnabled || collection === 'literature') {
+      setDocumentPageResults([]);
+      setDocTotal(0);
+      setDocOffset(0);
+      setDocDistribution({ by_century: [], by_source_region: [] });
+      return;
+    }
+    const docRows = (data.results || []).filter(r => r.collection === 'documents');
+    setDocumentPageResults(docRows);
+    setDocTotal(data.collection === 'documents' ? (data.total ?? 0) : (data.documents_total ?? 0));
+    setDocOffset(0);
+    setDocSort(sortUsed || docSort);
+    setDocDistribution({
+      by_century: data.documents_by_century || [],
+      by_source_region: data.documents_by_source_region || [],
+    });
   };
 
   const handleSearch = async () => {
@@ -244,11 +300,112 @@ export default function LineSearch({ language }) {
         search_type: searchType
       });
 
-      if (selectedAuthor) searchParams.author = selectedAuthor;
-      if (selectedWork) searchParams.work = selectedWork;
-      if (lineStart) searchParams.line_start = parseInt(lineStart);
-      if (lineEnd) searchParams.line_end = parseInt(lineEnd);
+      // Stage 4: these filter only the literature half of a search (see
+      // the "Filter by Text" section above, hidden entirely for a
+      // Documents-only search) -- never sent when the collection is
+      // documents-only, where they could not do anything.
+      const literatureFiltersApply = !(documentsEnabled && collection === 'documents');
+      if (literatureFiltersApply) {
+        if (selectedAuthor) searchParams.author = selectedAuthor;
+        if (selectedWork) searchParams.work = selectedWork;
+        if (lineStart) searchParams.line_start = parseInt(lineStart);
+        if (lineEnd) searchParams.line_end = parseInt(lineEnd);
+      }
 
+      lastDocSearchRef.current = { ...searchParams };
+
+      const res = await fetch('/api/line-search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(searchParams)
+      });
+      const data = await res.json();
+      if (data.error) {
+        setError(data.error);
+        setResults([]);
+        applyDocumentsResponse({});
+      } else {
+        setResults(data.results || []);
+        applyDocumentsResponse(data, searchParams.sort);
+      }
+    } catch (err) {
+      setError('Search failed. Please try again.');
+      setResults([]);
+    }
+    setLoading(false);
+  };
+
+  // Stage 4: re-runs the LAST documents/both search at a new offset and/or
+  // sort, without touching the literary results already on screen (the
+  // query box, filters, etc. may have moved on since; this replays the
+  // exact params captured at search time in `lastDocSearchRef`, the same
+  // pattern selectLineForSearch's own exclude_text_id/exclude_locus need).
+  const fetchDocumentsPage = async ({ offset = 0, sort = docSort } = {}) => {
+    const base = lastDocSearchRef.current;
+    if (!base) return;
+    setDocPageLoading(true);
+    setError(null);
+    try {
+      const params = { ...base, offset, limit: DOC_PAGE_SIZE, sort };
+      const res = await fetch('/api/line-search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params)
+      });
+      const data = await res.json();
+      if (data.error) {
+        setError(data.error);
+      } else {
+        const docRows = (data.results || []).filter(r => r.collection === 'documents');
+        setDocumentPageResults(docRows);
+        setDocTotal(data.collection === 'documents' ? (data.total ?? 0) : (data.documents_total ?? 0));
+        setDocOffset(offset);
+        setDocSort(sort);
+        setDocDistribution({
+          by_century: data.documents_by_century || [],
+          by_source_region: data.documents_by_source_region || [],
+        });
+      }
+    } catch (err) {
+      setError('Search failed. Please try again.');
+    }
+    setDocPageLoading(false);
+  };
+
+  // Stage 4 (owner's review of the live documents trial, 2026-10-08): one-
+  // click example searches, verified against the live documents indexes.
+  // Shown only when the documents control is itself available (the trial
+  // flag plus the server switch -- see documentsEnabled above).
+  const DOCUMENT_EXAMPLE_SEARCHES = {
+    la: [
+      { label: '"arma virumque cano"', hint: 'Vergil’s opening, plus a Pompeii fuller’s parody of it',
+        query: 'arma virumque cano', collection: 'both', searchType: 'lemma' },
+      { label: '"conticuere omnes"', hint: 'Aeneid 2.1, scratched into Pompeian walls',
+        query: 'conticuere omnes', collection: 'both', searchType: 'exact' },
+      { label: '"sit tibi terra levis"', hint: 'an epitaph wish, with its own literary echoes',
+        query: 'sit tibi terra levis', collection: 'both', searchType: 'lemma' },
+    ],
+    grc: [
+      { label: 'οὐδεὶς ἀθάνατος', hint: '"no one is immortal", a Greek epitaph phrase',
+        query: 'οὐδεὶς ἀθάνατος', collection: 'documents', searchType: 'lemma' },
+    ],
+  };
+
+  const runExampleSearch = async (example) => {
+    setQuery(example.query);
+    setCollection(example.collection);
+    setSearchType(example.searchType);
+    setMode('search');
+    setSourceInfo(null);
+    setLoading(true);
+    setError(null);
+    setEraFilter(null);
+    try {
+      const searchParams = {
+        query: example.query, language, search_type: example.searchType,
+        collection: example.collection, offset: 0, limit: DOC_PAGE_SIZE, sort: docSort,
+      };
+      lastDocSearchRef.current = { ...searchParams };
       const res = await fetch('/api/line-search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -260,6 +417,14 @@ export default function LineSearch({ language }) {
         setResults([]);
       } else {
         setResults(data.results || []);
+        const docRows = (data.results || []).filter(r => r.collection === 'documents');
+        setDocumentPageResults(docRows);
+        setDocTotal(data.collection === 'documents' ? (data.total ?? 0) : (data.documents_total ?? 0));
+        setDocOffset(0);
+        setDocDistribution({
+          by_century: data.documents_by_century || [],
+          by_source_region: data.documents_by_source_region || [],
+        });
       }
     } catch (err) {
       setError('Search failed. Please try again.');
@@ -336,7 +501,9 @@ export default function LineSearch({ language }) {
         exclude_text_id: selectedWork,
         exclude_locus: line.locus || line.ref || ''
       });
-      
+
+      lastDocSearchRef.current = { ...searchParams };
+
       const res = await fetch('/api/line-search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -346,8 +513,10 @@ export default function LineSearch({ language }) {
       if (data.error) {
         setError(data.error);
         setResults([]);
+        applyDocumentsResponse({});
       } else {
         setResults(data.results || []);
+        applyDocumentsResponse(data, searchParams.sort);
       }
     } catch (err) {
       setError('Search failed. Please try again.');
@@ -527,6 +696,70 @@ export default function LineSearch({ language }) {
     }
   };
 
+  // Stage 4: a compact distribution chart for the documents collection, by
+  // century and by region, over EVERY match (docDistribution, computed
+  // server-side -- see backend/app.py's _tally_century/_tally_source_
+  // region), not just the current page. Same Bar component/visual style
+  // as the literary timeline above, in the site's amber/red palette
+  // rather than the era colors (this is a different kind of chart: date
+  // ranges from metadata.db, not the literary era classification).
+  const docCenturyChartData = useMemo(() => {
+    const items = docDistribution.by_century || [];
+    return {
+      labels: items.map(i => i.century),
+      datasets: [{
+        label: 'Documents',
+        data: items.map(i => i.count),
+        backgroundColor: 'rgba(180, 83, 9, 0.7)',
+        borderColor: 'rgba(180, 83, 9, 1)',
+        borderWidth: 1,
+      }],
+    };
+  }, [docDistribution]);
+
+  // documents_by_source_region is {source, region, count} (the credit
+  // archive and the Roman province/region together); the chart wants
+  // region alone, so sources sharing one region are summed here. Capped
+  // to the 10 largest regions so a query spanning the whole empire still
+  // renders a compact chart rather than a hundred thin bars.
+  const docRegionChartData = useMemo(() => {
+    const bySourceRegion = docDistribution.by_source_region || [];
+    const byRegion = {};
+    bySourceRegion.forEach(({ region, count }) => {
+      const key = region || 'unknown';
+      byRegion[key] = (byRegion[key] || 0) + count;
+    });
+    const sorted = Object.entries(byRegion).sort((a, b) => b[1] - a[1]).slice(0, 10);
+    return {
+      labels: sorted.map(([r]) => r),
+      datasets: [{
+        label: 'Documents',
+        data: sorted.map(([, c]) => c),
+        backgroundColor: 'rgba(185, 28, 28, 0.7)',
+        borderColor: 'rgba(185, 28, 28, 1)',
+        borderWidth: 1,
+      }],
+    };
+  }, [docDistribution]);
+
+  const docDistributionChartOptions = (title) => ({
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      title: { display: true, text: title },
+      tooltip: {
+        callbacks: {
+          label: (context) => `${context.parsed.y} match${context.parsed.y !== 1 ? 'es' : ''}`,
+        },
+      },
+    },
+    scales: {
+      y: { beginAtZero: true, ticks: { precision: 0 } },
+      x: { ticks: { maxRotation: 45, minRotation: 45 } },
+    },
+  });
+
   const extractLineNumber = (locus) => {
     if (!locus) return '';
     const match = locus.match(/[\d]+(?:[.\-:]+[\d\w]+)*$/);
@@ -626,7 +859,25 @@ export default function LineSearch({ language }) {
   // Result identity changes on completion, even when the same query is run again.
   const paginationResetKey = useMemo(() => ({}), [literatureResults, eraFilter, authorFilter, showPoetry, showProse, sortOrder]);
   const pagination = usePagination(filteredResults, { resetKey: paginationResetKey });
-  const docPagination = usePagination(documentResults, { initialPageSize: 50, resetKey: documentResults });
+
+  // Stage 4: documents are paged by the SERVER (docTotal/docOffset,
+  // DOC_PAGE_SIZE fixed at 50 -- see fetchDocumentsPage above), not
+  // sliced locally the way usePagination does for literature. This small
+  // shim gives the shared <Pagination> component the same prop shape
+  // (`onPageSizeChange` is a no-op: the page size here is fixed, so the
+  // "Show" selector is restricted to the single option [50]).
+  const docCurrentPage = Math.floor(docOffset / DOC_PAGE_SIZE) + 1;
+  const docTotalPages = Math.max(1, Math.ceil(docTotal / DOC_PAGE_SIZE));
+  const docPagination = {
+    currentPage: docCurrentPage,
+    totalPages: docTotalPages,
+    totalResults: docTotal,
+    pageSize: DOC_PAGE_SIZE,
+    startIndex: docTotal === 0 ? 0 : docOffset,
+    onPageChange: (page) => fetchDocumentsPage({ offset: (page - 1) * DOC_PAGE_SIZE, sort: docSort }),
+    onPageSizeChange: () => {},
+    loading: docPageLoading,
+  };
 
   // Document hit text, rendered by TOKEN POSITION (not a whitespace re-split
   // of `text`) so restored-word marking lines up with restored_indices
@@ -759,6 +1010,22 @@ export default function LineSearch({ language }) {
                   </button>
                 </div>
               )}
+              {documentsEnabled && DOCUMENT_EXAMPLE_SEARCHES[language]?.length > 0 && (
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <span className="text-xs text-gray-500">Try a documents example:</span>
+                  {DOCUMENT_EXAMPLE_SEARCHES[language].map((example) => (
+                    <button
+                      key={example.query}
+                      type="button"
+                      onClick={() => runExampleSearch(example)}
+                      title={example.hint}
+                      className="text-xs px-2.5 py-1 rounded-full border border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100"
+                    >
+                      {example.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {documentsEnabled && (language === 'la' || language === 'grc') && (
@@ -832,9 +1099,21 @@ export default function LineSearch({ language }) {
               </div>
             )}
 
+            {/* Stage 4 (owner's review, 2026-10-08): this filter (author/
+                work/line range) only ever reaches the literary search --
+                see handleSearch/selectLineForSearch, which now only add it
+                when the collection is NOT documents-only. With Documents
+                selected the section is hidden entirely (nothing here would
+                do anything); with Both it stays, relabeled, since it still
+                filters only the literature half of the results. */}
+            {!(documentsEnabled && collection === 'documents') && (
             <div className="border-t pt-4">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-medium text-gray-700">Filter by Text (Optional)</span>
+                <span className="text-sm font-medium text-gray-700">
+                  {documentsEnabled && collection === 'both'
+                    ? 'Filter the literature (optional)'
+                    : 'Filter by Text (Optional)'}
+                </span>
                 {(selectedAuthor || selectedWork || lineStart || lineEnd) && (
                   <button
                     onClick={clearFilters}
@@ -844,7 +1123,7 @@ export default function LineSearch({ language }) {
                   </button>
                 )}
               </div>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div>
                   <label className="block text-xs text-gray-500 mb-1">Author</label>
@@ -895,6 +1174,7 @@ export default function LineSearch({ language }) {
                 </div>
               </div>
             </div>
+            )}
 
             <div className="border-t pt-4 flex justify-end">
               <button
@@ -1047,13 +1327,60 @@ export default function LineSearch({ language }) {
 
           {documentResults.length > 0 && (
             <div className="bg-white rounded-lg shadow overflow-hidden">
-              <div className="px-4 py-3 bg-gray-50 flex items-center justify-between">
+              <div className="px-4 py-3 bg-gray-50 flex flex-wrap items-center justify-between gap-2">
                 <span className="text-sm text-gray-600">
-                  Found {documentResults.length} documents
+                  Found {docTotal.toLocaleString()} documents
                 </span>
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center gap-1 text-sm text-gray-600">
+                    Sort
+                    <select
+                      value={docSort}
+                      onChange={e => fetchDocumentsPage({ offset: 0, sort: e.target.value })}
+                      disabled={docPageLoading}
+                      className="text-sm border rounded px-2 py-1 disabled:opacity-50"
+                    >
+                      <option value="relevance">Relevance</option>
+                      <option value="oldest">Oldest first</option>
+                      <option value="newest">Newest first</option>
+                      <option value="region">Region</option>
+                    </select>
+                  </label>
+                  {(docDistribution.by_century?.length > 0 || docDistribution.by_source_region?.length > 0) && (
+                    <button
+                      onClick={() => setShowDocDistribution(!showDocDistribution)}
+                      className={`text-sm px-3 py-1 rounded ${showDocDistribution ? 'bg-amber-700 text-white' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'}`}
+                    >
+                      {showDocDistribution ? 'Hide Distribution' : 'Show Distribution'}
+                    </button>
+                  )}
+                </div>
               </div>
+
+              {showDocDistribution && (docCenturyChartData.labels.length > 0 || docRegionChartData.labels.length > 0) && (
+                <div className="p-4 border-b bg-gray-50 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {docCenturyChartData.labels.length > 0 && (
+                    <div>
+                      <div style={{ height: '160px' }}>
+                        <Bar data={docCenturyChartData} options={docDistributionChartOptions('By Century')} />
+                      </div>
+                    </div>
+                  )}
+                  {docRegionChartData.labels.length > 0 && (
+                    <div>
+                      <div style={{ height: '160px' }}>
+                        <Bar data={docRegionChartData} options={docDistributionChartOptions('By Region')} />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="divide-y divide-gray-200">
-                {docPagination.visibleItems.map((result, i) => {
+                {docPageLoading && (
+                  <div className="p-4 text-sm text-gray-500 text-center">Loading…</div>
+                )}
+                {documentResults.map((result, i) => {
                   const credit = result.credit || {};
                   const labels = [result.text_type_label, result.object_type_label, result.material_label]
                     .filter(Boolean);
@@ -1107,7 +1434,7 @@ export default function LineSearch({ language }) {
                   );
                 })}
               </div>
-              <Pagination {...docPagination} idPrefix="docsearch" itemLabel="documents" />
+              <Pagination {...docPagination} idPrefix="docsearch" itemLabel="documents" pageSizeOptions={[DOC_PAGE_SIZE]} />
             </div>
           )}
         </>

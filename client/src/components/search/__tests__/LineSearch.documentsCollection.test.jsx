@@ -59,7 +59,25 @@ function mockFetch({ documentsEnabled, results, trial = documentsEnabled }) {
     }
     if (u === '/api/line-search') {
       const body = init && init.body ? JSON.parse(init.body) : {};
-      return { json: async () => ({ query: body.query, total: results.length, results }) };
+      // Stage 4: the real backend reports the document collection's own
+      // TRUE total on 'total' (collection='documents') or
+      // 'documents_total' (collection='both'), not a client-counted
+      // array length -- see backend/app.py's _line_search_documents_only
+      // and the 'both' merge in line_search(). Mirrored here so this
+      // fixture exercises the same contract the real one does.
+      const collection = body.collection || 'literature';
+      const docCount = results.filter(r => r.collection === 'documents').length;
+      const litCount = results.filter(r => r.collection !== 'documents').length;
+      const payload = { query: body.query, collection, results };
+      if (collection === 'documents') {
+        payload.total = docCount;
+        payload.distinct_loci = docCount;
+      } else {
+        payload.total = litCount;
+        payload.distinct_loci = litCount;
+        if (collection === 'both') payload.documents_total = docCount;
+      }
+      return { json: async () => payload };
     }
     return { json: async () => ({}) };
   });
