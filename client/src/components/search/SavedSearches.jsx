@@ -2,15 +2,24 @@ import { useState } from 'react';
 import { languageName } from '../../utils/languageNames';
 import { Modal } from '../common';
 
-const SavedSearches = ({ 
-  sourceAuthor, sourceText, targetAuthor, targetText, 
+const SavedSearches = ({
+  sourceAuthor, sourceText, targetAuthor, targetText,
   settings, activeTab,
-  onLoad
+  onLoad,
+  // Cross-Language keeps its own list under its own key, rather than mixing
+  // its entries (keyed by a language PAIR, e.g. "fa-ur") into the
+  // single-language list, where languageName() would show a pair key raw
+  // and loading one there would set an invalid single language
+  // (crosslingual parity, 2026-10-08).
+  storageKey = 'tesserae_saved_searches',
+  // Cross-Language passes its pair's own label ("Persian → Urdu")
+  // since `activeTab` there is a pair key languageName() does not know.
+  formatLanguage = languageName,
 }) => {
   const [showModal, setShowModal] = useState(false);
   const [savedSearches, setSavedSearches] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem('tesserae_saved_searches') || '[]');
+      return JSON.parse(localStorage.getItem(storageKey) || '[]');
     } catch {
       return [];
     }
@@ -32,7 +41,7 @@ const SavedSearches = ({
     };
     const updated = [...savedSearches, newSearch];
     setSavedSearches(updated);
-    localStorage.setItem('tesserae_saved_searches', JSON.stringify(updated));
+    localStorage.setItem(storageKey, JSON.stringify(updated));
     setSaveName('');
     setShowModal(false);
   };
@@ -45,7 +54,7 @@ const SavedSearches = ({
   const handleDelete = (id) => {
     const updated = savedSearches.filter(s => s.id !== id);
     setSavedSearches(updated);
-    localStorage.setItem('tesserae_saved_searches', JSON.stringify(updated));
+    localStorage.setItem(storageKey, JSON.stringify(updated));
   };
 
   const canSave = sourceAuthor && sourceText && targetAuthor && targetText;
@@ -101,7 +110,7 @@ const SavedSearches = ({
                       <div className="font-medium text-gray-900 truncate">{search.name}</div>
                       <div className="text-xs text-gray-500">
                         {search.sourceAuthor} vs {search.targetAuthor} | {
-                          languageName(search.language)
+                          formatLanguage(search.language)
                         }
                       </div>
                       <div className="text-xs text-gray-500">

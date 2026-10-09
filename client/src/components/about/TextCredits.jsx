@@ -1,12 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import Pagination from '../common/Pagination';
+import useIncrementalPagination, { BATCH_PAGE_SIZE_OPTIONS } from '../../hooks/useIncrementalPagination';
+import { useState, useEffect, useCallback } from 'react';
 import { languageName } from '../../utils/languageNames';
 
 export default function TextCredits() {
-  const [entries, setEntries] = useState([]);
-  const [totalEntries, setTotalEntries] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [error, setError] = useState('');
   const [filter, setFilter] = useState('');
   const [query, setQuery] = useState('');
   // Translators (2026-09-20): Kline was named only where his translation
@@ -24,74 +21,22 @@ export default function TextCredits() {
       .then((pairs) => { if (!dead) setTranslations(Object.fromEntries(pairs)); });
     return () => { dead = true; };
   }, []);
-  const [pageSize, setPageSize] = useState(50);
-  const queryVersionRef = useRef(0);
 
   useEffect(() => {
     const timer = setTimeout(() => setQuery(filter), 250);
     return () => clearTimeout(timer);
   }, [filter]);
 
-  useEffect(() => {
-    const controller = new AbortController();
-    const queryVersion = queryVersionRef.current + 1;
-    queryVersionRef.current = queryVersion;
-    setLoading(true);
-    setLoadingMore(false);
-    setError('');
-
-    const params = new URLSearchParams({
-      query,
-      offset: '0',
-      limit: String(pageSize),
-    });
-
-    fetch(`/api/text-credits?${params.toString()}`, { signal: controller.signal })
-      .then(async (res) => {
-        if (!res.ok) throw new Error('Failed to load sources');
-        return res.json();
-      })
-      .then((data) => {
-        if (queryVersionRef.current !== queryVersion) return;
-        setEntries(data.entries || []);
-        setTotalEntries(data.total || 0);
-        setLoading(false);
-      })
-      .catch((err) => {
-        if (err.name === 'AbortError' || queryVersionRef.current !== queryVersion) return;
-        setError('Failed to load sources. Please try again.');
-        setLoading(false);
-      });
-
-    return () => controller.abort();
-  }, [query, pageSize]);
-
-  const loadMore = async () => {
-    if (loading || loadingMore || entries.length >= totalEntries) return;
-
-    const queryVersion = queryVersionRef.current;
-    setLoadingMore(true);
-    setError('');
-    try {
-      const params = new URLSearchParams({
-        query,
-        offset: String(entries.length),
-        limit: String(pageSize),
-      });
-      const res = await fetch(`/api/text-credits?${params.toString()}`);
-      if (!res.ok) throw new Error('Failed to load more sources');
-      const data = await res.json();
-      if (queryVersionRef.current === queryVersion) {
-        setEntries(previousEntries => [...previousEntries, ...(data.entries || [])]);
-        setTotalEntries(data.total || 0);
-      }
-    } catch (err) {
-      if (queryVersionRef.current === queryVersion) {
-        setError('Failed to load more sources. Please try again.');
-      }
-    }
-    if (queryVersionRef.current === queryVersion) setLoadingMore(false);
-  };
+  const fetchPage = useCallback(async ({ page, pageSize, signal }) => {
+    const params = new URLSearchParams({ query, offset: String((page - 1) * pageSize), limit: String(pageSize) });
+    const res = await fetch(`/api/text-credits?${params}`, { signal });
+    if (!res.ok) throw new Error('Failed to load sources. Please try again.');
+    const data = await res.json();
+    return { items: data.entries || [], total: data.total || 0 };
+  }, [query]);
+  const pagination = useIncrementalPagination({ fetchPage });
+  const { visibleItems: entries, loading: fetching, pageError: error } = pagination;
+  const loading = fetching && entries.length === 0;
 
   if (loading) {
     return (
@@ -132,20 +77,6 @@ export default function TextCredits() {
           onChange={(e) => setFilter(e.target.value)}
           className="w-full sm:w-80 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
         />
-        <select
-          value={pageSize}
-          onChange={(e) => setPageSize(Number(e.target.value))}
-          aria-label="Entries at a time"
-          className="w-fit border border-gray-300 rounded-lg px-3 py-2 text-sm"
-        >
-          <option value="25">25 entries at a time</option>
-          <option value="50">50 entries at a time</option>
-          <option value="100">100 entries at a time</option>
-          <option value="500">500 entries at a time</option>
-        </select>
-        <span className="text-sm text-gray-500">
-          Showing {entries.length} of {totalEntries} {totalEntries === 1 ? 'entry' : 'entries'}
-        </span>
       </div>
 
       {error && (
@@ -206,18 +137,8 @@ export default function TextCredits() {
           </tbody>
         </table>
       </div>
-      {entries.length < totalEntries && (
-        <div className="mt-4 text-center">
-          <button
-            type="button"
-            onClick={loadMore}
-            disabled={loadingMore}
-            className="rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {loadingMore ? 'Loading…' : `Show More (${totalEntries - entries.length} remaining)`}
-          </button>
-        </div>
-      )}
+      <Pagination {...pagination} variant="more" pageSizeOptions={BATCH_PAGE_SIZE_OPTIONS}
+        idPrefix="text-credits" itemLabel="entries" />
     </div>
   );
 }

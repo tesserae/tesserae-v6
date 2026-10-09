@@ -1198,7 +1198,7 @@ poeta_saxo.annales_de_gestis_karoli_magni.part.3.tess,poeta_saxo,annales_de_gest
 poeta_saxo.annales_de_gestis_karoli_magni.part.4.tess,poeta_saxo,annales_de_gestis_karoli_magni,Carolingian,hexameter,epic,auto
 poeta_saxo.annales_de_gestis_karoli_magni.part.5.tess,poeta_saxo,annales_de_gestis_karoli_magni,Carolingian,hexameter,epic,auto
 polignac.antilucretius.tess,polignac,antilucretius,Modern,prose,philosophy,auto
-polignac.imitatio.tess,polignac,imitatio,Modern,prose,philosophy,auto
+maffeo_veggio.supplementum.tess,maffeo_veggio,supplementum,Renaissance,hexameter,epic,auto
 pontius_diaconus.acta_proconsularia.tess,pontius_diaconus,acta_proconsularia,Later Imperial,prose,theology,auto
 pontius_diaconus.vita_caecilii_cypriani.tess,pontius_diaconus,vita_caecilii_cypriani,Later Imperial,prose,theology,auto
 priscian.carmen_in_laudem_Anastasii_imperatoris.part.1.tess,priscian,carmen_in_laudem_Anastasii_imperatoris,Late Antique,prose,technical,auto
@@ -1233,6 +1233,8 @@ prudentius.peristephanon.part.8.tess,prudentius,peristephanon,Late Antique,unkno
 prudentius.peristephanon.part.9.tess,prudentius,peristephanon,Late Antique,unknown,christian_poetry,auto
 prudentius.peristephanon.tess,prudentius,peristephanon,Late Antique,unknown,christian_poetry,auto
 prudentius.psychomachia.tess,prudentius,psychomachia,Late Antique,unknown,christian_poetry,auto
+pseudo_aurelius_victor.de_viris_illustribus.tess,pseudo_aurelius_victor,de_viris_illustribus,Late Antique,prose,historiography,auto
+pseudo_aurelius_victor.origo_gentis_romanae.tess,pseudo_aurelius_victor,origo_gentis_romanae,Late Antique,prose,historiography,auto
 pseudo_cyprian.ad_novatianum.tess,pseudo_cyprian,ad_novatianum,Later Imperial,prose,theology,auto
 pseudo_cyprian.ad_vigilium_de_iudaica_incredulitate.tess,pseudo_cyprian,ad_vigilium_de_iudaica_incredulitate,Later Imperial,prose,theology,auto
 pseudo_cyprian.adversus_judaeos.tess,pseudo_cyprian,adversus_judaeos,Later Imperial,prose,theology,auto
@@ -1495,7 +1497,6 @@ theodulf_of_orleans.carmina.part.9.tess,theodulf_of_orleans,carmina,Carolingian,
 theodulf_of_orleans.carmina.tess,theodulf_of_orleans,carmina,Carolingian,unknown,medieval,auto
 theodulf_of_orleans.epitaphia.tess,theodulf_of_orleans,epitaphia,Carolingian,unknown,medieval,auto
 tibullus.elegies.tess,tibullus,elegies,Augustan,elegiac,elegy,auto
-unknown.corpus_scriptorum_ecclesiasticorum_latin.tess,unknown,corpus_scriptorum_ecclesiasticorum_latin,unknown,prose,unclassified,auto
 valerius_flaccus.argonautica.part.1.tess,valerius_flaccus,argonautica,Early Imperial,hexameter,epic,auto
 valerius_flaccus.argonautica.part.2.tess,valerius_flaccus,argonautica,Early Imperial,hexameter,epic,auto
 valerius_flaccus.argonautica.part.3.tess,valerius_flaccus,argonautica,Early Imperial,hexameter,epic,auto
@@ -1720,7 +1721,7 @@ hafez.diwan.tess,hafez,diwan,Muzaffarid,unknown,lyric,auto
 iqbal.armaghan_e_hijaz_persian.tess,iqbal,armaghan_e_hijaz_persian,Modern,unknown,lyric,auto
 iqbal.asrar_e_khudi.tess,iqbal,asrar_e_khudi,Modern,unknown,philosophy,auto
 iqbal.javid_nama.tess,iqbal,javid_nama,Modern,unknown,philosophy,auto
-iqbal_lahori.diwan.tess,iqbal_lahori,diwan,Modern,unknown,lyric,auto
+iqbal.diwan.tess,iqbal,diwan,Modern,unknown,lyric,auto
 iqbal.pas_cheh_bayad_kard.tess,iqbal,pas_cheh_bayad_kard,Modern,unknown,philosophy,auto
 iqbal.payam_e_mashriq.tess,iqbal,payam_e_mashriq,Modern,unknown,lyric,auto
 iqbal.rumuz_e_bekhudi.tess,iqbal,rumuz_e_bekhudi,Modern,unknown,philosophy,auto
@@ -1905,3 +1906,9 @@ shabbi.diwan_wikisource.tess,shabbi,diwan_wikisource,Modern,unknown,lyric,wikiso
 shanfara.lamiyyat_al_arab.tess,shanfara,lamiyyat_al_arab,Pre-Islamic,unknown,lyric,wikisource-2026-09-06
 shawqi.diwan_wikisource.tess,shawqi,diwan_wikisource,Modern,unknown,lyric,wikisource-2026-09-06
 zuhayr.muallaqa.tess,zuhayr,muallaqa,Pre-Islamic,unknown,lyric,wikisource-2026-09-06
+ambrose.apologia_prophetae_david_ad_theodosium_augustum.tess,ambrose,apologia_prophetae_david_ad_theodosium_augustum,Late Antique,prose,theology,auto
+ambrose.de_benedictionibus_patriarcharum_liber_unus.tess,ambrose,de_benedictionibus_patriarcharum_liber_unus,Late Antique,prose,theology,auto
+cyprian.de_habitu_virginum.tess,cyprian,de_habitu_virginum,Late Antique,prose,theology,auto
+cyprian.de_unitate_ecclesiae_catholicae.tess,cyprian,de_unitate_ecclesiae_catholicae,Late Antique,prose,theology,auto
+cyprian.sententiae_episcoporum.tess,cyprian,sententiae_episcoporum,Late Antique,prose,theology,auto
+saxo_grammaticus.gesta_danorum.tess,saxo_grammaticus,gesta_danorum,Medieval,prosimetrum,history,auto

@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+
+/* Gentium Book (SIL, Open Font License, client/public/fonts/gentium-book/OFL.txt),
+   served from our own server since 2026-10-07: Google's copy lacks the free-standing
+   combining accents (U+0300...) the corpus uses, so graves drew detached from their
+   vowels (diagnosed by John James in #624). WOFF2 of the unmodified release, which the
+   licence permits under the original name. Loaded only by pages that use it. */
+@font-face { font-family: 'Gentium Book'; font-style: normal; font-weight: 400; font-display: swap; src: url('/fonts/gentium-book/GentiumBook-Regular.woff2') format('woff2'); }
+@font-face { font-family: 'Gentium Book'; font-style: normal; font-weight: 700; font-display: swap; src: url('/fonts/gentium-book/GentiumBook-Bold.woff2') format('woff2'); }
+@font-face { font-family: 'Gentium Book'; font-style: italic; font-weight: 400; font-display: swap; src: url('/fonts/gentium-book/GentiumBook-Italic.woff2') format('woff2'); }
+@font-face { font-family: 'Gentium Book'; font-style: italic; font-weight: 700; font-display: swap; src: url('/fonts/gentium-book/GentiumBook-BoldItalic.woff2') format('woff2'); }
+
 body {
   font-family: 'Noto Sans', 'Inter', system-ui, -apple-system, sans-serif;
 }

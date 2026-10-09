@@ -218,3 +218,35 @@ describe('getPageWindow — compact windowing', () => {
     expect(within(nav).getAllByRole('button')).toHaveLength(7);
   });
 });
+
+describe('shared strategy adapters', () => {
+  it('accepts hook setter names directly', async () => {
+    const setPage = vi.fn();
+    const setPageSize = vi.fn();
+    renderPagination({ onPageChange: undefined, onPageSizeChange: undefined, setPage, setPageSize });
+    await userEvent.click(screen.getByRole('button', { name: 'Next' }));
+    expect(setPage).toHaveBeenCalledWith(2);
+    await userEvent.selectOptions(screen.getByRole('combobox'), '20');
+    expect(setPageSize).toHaveBeenCalledWith(20);
+  });
+  it('renders supplied sizes and accumulating counts', async () => {
+    const loadMore = vi.fn();
+    renderPagination({ variant: 'more', visibleItems: Array(100).fill(null), pageSizeOptions: [25, 50, 100, 500], hasNextPage: true, loadMore });
+    expect(screen.getAllByRole('option').map(o => Number(o.value))).toEqual([25, 50, 100, 500]);
+    expect(screen.getByText('Showing 1–100 of 237 results')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /Show more/ }));
+    expect(loadMore).toHaveBeenCalledOnce();
+    expect(screen.queryByRole('button', { name: 'Previous' })).toBeNull();
+  });
+  it('disables all controls while loading an incremental batch', () => {
+    renderPagination({ variant: 'more', loading: true, hasNextPage: true });
+    expect(screen.getByRole('button', { name: 'Loading…' })).toBeDisabled();
+    expect(screen.getByRole('combobox')).toBeDisabled();
+  });
+  it('hides Show more after the final batch and keeps the picker for empty batches', () => {
+    renderPagination({ variant: 'more', totalResults: 0, hasNextPage: false });
+    expect(screen.queryByRole('button')).toBeNull();
+    expect(screen.getByRole('combobox')).toBeInTheDocument();
+    expect(screen.getByText('Showing 0–0 of 0 results')).toBeInTheDocument();
+  });
+});

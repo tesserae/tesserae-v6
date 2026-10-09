@@ -202,6 +202,27 @@ export const searchFusionStream = async (params, onProgress, signal, onIntermedi
   return finalResult;
 };
 
+// Pages of a finished, server-held search (see backend/result_pages.py).
+// `query` carries offset/limit/sort and the optional chart filter.
+export const fetchResultPage = async (resultId, query, signal) => {
+  const response = await fetch(
+    `${API_BASE}/search-results/${encodeURIComponent(resultId)}?${new URLSearchParams(query)}`,
+    { signal, credentials: 'same-origin' });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || `Could not load results (${response.status})`);
+  return data;
+};
+
+// Every stored row in score order, fetched only when an export is requested.
+export const fetchAllResults = async (resultId) => {
+  const response = await fetch(
+    `${API_BASE}/search-results/${encodeURIComponent(resultId)}/export`,
+    { credentials: 'same-origin' });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || `Could not load results (${response.status})`);
+  return data.results || [];
+};
+
 export const searchSemanticCross = async (params, signal) => {
   const response = await fetch(`${API_BASE}/search`, {
     method: 'POST',

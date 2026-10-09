@@ -22,6 +22,8 @@ vi.mock('../../../utils/api', () => ({
   searchSemanticCross: vi.fn(),
   searchHapax: vi.fn(),
   searchBigrams: vi.fn(),
+  fetchResultPage: vi.fn(),
+  fetchAllResults: vi.fn(),
   wildcardSearch: vi.fn(),
 }));
 

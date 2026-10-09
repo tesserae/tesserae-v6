@@ -10,6 +10,18 @@ Library carries no edition statements for most texts; provenance rows in
 backend/text_sources.json record what is known (e.g. Sidonius' carmina
 page names Luetjohann's 1887 MGH edition).
 
+Later addition (2026-10-08): the two minor works transmitted with the
+Aurelius Victor corpus but not by him, De Viris Illustribus and the Origo
+Gentis Romanae ('victor/victor.ill.html', 'victor/victor.origio.html').
+Both are pseudonymous (authorship unknown; traditionally bound with
+Aurelius Victor's own De Caesaribus and Epitome de Caesaribus, already in
+the corpus under 'aurelius_victor.*'), so their files are named
+'pseudo_aurelius_victor.*' after this repository's existing convention for
+anonymous works attached to a named author's corpus (see
+'pseudo_victor_vitensis.*'). See `de_viris_illustribus` and
+`origo_gentis_romanae` below for the two pages' differing markup and the
+numbering gaps each has in the source transcription.
+
 Reference schemes (stable, matching each text's citation structure):
   varro.de_lingua_latina        varro. ling.   book.chapter.par
   varro.res_rusticae            varro. rust.   book.chapter.par
@@ -93,6 +105,8 @@ MANIFEST = {
     'solinus.collectanea_rerum_memorabilium': ['solinus5.html'],
     'censorinus.de_die_natali': ['censorinus.html'],
     'obsequens.liber_de_prodigiis': ['obsequens.html'],
+    'pseudo_aurelius_victor.de_viris_illustribus': ['victor.ill.html'],
+    'pseudo_aurelius_victor.origo_gentis_romanae': ['victor.origio.html'],
 }
 
 ABBREV = {
@@ -114,6 +128,8 @@ ABBREV = {
     'solinus.collectanea_rerum_memorabilium': 'solin.',
     'censorinus.de_die_natali': 'censorin.',
     'obsequens.liber_de_prodigiis': 'obseq.',
+    'pseudo_aurelius_victor.de_viris_illustribus': 'ps-vict. vir. ill.',
+    'pseudo_aurelius_victor.origo_gentis_romanae': 'ps-vict. orig.',
 }
 
 ROMAN_RE = re.compile(r'^([IVXLCDM]+)\.?$')
@@ -691,6 +707,110 @@ def obsequens(page, abbrev, out):
     emit_pending()
 
 
+def de_viris_illustribus(page, abbrev, out):
+    """Pseudo-Aurelius Victor, De Viris Illustribus (thelatinlibrary's
+    single-page 'victor.ill.html'): each biographical notice is one <P>
+    block opening with a bold arabic chapter marker ('<B>N</B>'), its own
+    prose then divided by inline '<FONT size=2>n</FONT>' arabic section
+    markers. An embedded verse quotation (ch. 4, 35) breaks the source HTML
+    into extra <P> blocks carrying no marker of their own, and one
+    continuation (ch. 77 into 78, a parenthetical aside on Pompey's death)
+    likewise opens a new <P> with no leading marker; both are folded into
+    the chapter in progress by concatenating every block's raw markup until
+    the next chapter marker, before splitting on the FONT tags. Two section
+    numbers in ch. 18 (3 and 4, a quoted fable) are plain digits with no
+    FONT wrapper of their own; these are matched too (a digit immediately
+    between a closing and opening '<I>' quotation tag). Three section
+    numbers are simply absent from the source transcription with no
+    markup residue at all (ch. 8 has no '3', ch. 42 no '4', ch. 49 no
+    '13'): the numbering here keeps the source's own gaps rather than
+    renumbering forward, since nothing is missing from the TEXT, only from
+    the editor's count of it."""
+    chapters = []
+    cur, parts = 'pr', []
+    for attrs, inner in paragraphs(page):
+        if is_noise(attrs, inner):
+            continue
+        m = re.match(r'(?is)^\s*<B>\s*(\d+)\s*</B>\s*(.*)', inner)
+        if m:
+            if parts:
+                chapters.append((cur, ' '.join(parts)))
+            cur, parts = int(m.group(1)), [m.group(2)]
+        else:
+            parts.append(inner)
+    if parts:
+        chapters.append((cur, ' '.join(parts)))
+
+    sect_rx = re.compile(
+        r'(?is)<FONT\s+size=2>\s*(\d+)\s*</FONT>|(?<=</I>)\s*(\d+)\s*(?=<I>)')
+    for chap, html_text in chapters:
+        marks = list(sect_rx.finditer(html_text))
+        if not marks:
+            txt = clean(html_text)
+            if txt:
+                flush(out, abbrev, f'{chap}.1', [txt])
+            continue
+        for i, mk in enumerate(marks):
+            start = mk.end()
+            end = marks[i + 1].start() if i + 1 < len(marks) else len(html_text)
+            body = clean(html_text[start:end])
+            if body:
+                num = mk.group(1) or mk.group(2)
+                flush(out, abbrev, f'{chap}.{num}', [body])
+
+
+def origo_gentis_romanae(page, abbrev, out):
+    """Pseudo-Aurelius Victor, Origo Gentis Romanae (thelatinlibrary's
+    single-page 'victor.origio.html', mislabeled 'EPITOME DE CAESARIBUS' in
+    its own <title> tag, a stray leftover from the companion page). An
+    unnumbered dedicatory preface opens the work ('pr'), then '<b>N</b>'
+    marks each of the 23 chapters, immediately followed by its own
+    arabic-numbered sections run inline as plain text ('1 Primus...', '2
+    Isque...'), not wrapped in a tag as on the companion De Viris
+    Illustribus page. A section number sometimes opens a clause that
+    continues in lower case rather than a new sentence (e.g. ch. 13.3 'cum
+    cognovisset...'), so the split only requires the digit to be followed
+    by a letter, not a capital. Quoted verse (Vergil, Ennius, the Carmen
+    Saliare) and one marked lacuna (a row of dots, ch. 3, where the unique
+    manuscript itself is defective) break the source HTML into extra <P>
+    blocks with no marker of their own; these are folded into the section
+    in progress by concatenating every block's cleaned text until the next
+    digit marker (the lacuna dots themselves are dropped as noise, so nothing
+    marks the gap in the running text, a loss of information this converter
+    does not have a convention for and leaves marked only in this
+    docstring). Chapter 4 is missing its own '4' in the source transcription
+    (3 runs straight into 5); the gap is kept rather than renumbered, for
+    the same reason as the De Viris Illustribus gaps above."""
+    chapters = []
+    cur, parts = 'pr', []
+    for attrs, inner in paragraphs(page):
+        if is_noise(attrs, inner):
+            continue
+        m = re.match(r'(?is)^\s*<b>\s*(\d+)\s*</b>\s*,?\s*(.*)', inner)
+        if m:
+            if parts:
+                chapters.append((cur, clean(' '.join(parts))))
+            cur, parts = int(m.group(1)), [m.group(2)]
+        else:
+            parts.append(inner)
+    if parts:
+        chapters.append((cur, clean(' '.join(parts))))
+
+    sect_rx = re.compile(r'(?:^|(?<=[\s)]))(\d+)\s+(?=[A-Za-z\[(])')
+    for chap, text in chapters:
+        marks = list(sect_rx.finditer(text))
+        if not marks:
+            if text:
+                flush(out, abbrev, f'{chap}.1', [text])
+            continue
+        for i, mk in enumerate(marks):
+            start = mk.end()
+            end = marks[i + 1].start() if i + 1 < len(marks) else len(text)
+            body = text[start:end].strip()
+            if body:
+                flush(out, abbrev, f'{chap}.{mk.group(1)}', [body])
+
+
 # ---------------------------------------------------------------- driver
 
 def convert(work, src):
@@ -748,6 +868,10 @@ def convert(work, src):
             censorinus(page, abbrev, out)
         elif work == 'obsequens.liber_de_prodigiis':
             obsequens(page, abbrev, out)
+        elif work == 'pseudo_aurelius_victor.de_viris_illustribus':
+            de_viris_illustribus(page, abbrev, out)
+        elif work == 'pseudo_aurelius_victor.origo_gentis_romanae':
+            origo_gentis_romanae(page, abbrev, out)
         else:
             raise SystemExit(f'no handler for {work}')
     return out

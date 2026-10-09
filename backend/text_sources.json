@@ -12545,10 +12545,10 @@
     "added_by": "V6 Import"
   },
   {
-    "author": "Polignac",
-    "work": "Imitatio",
+    "author": "Maffeo Veggio",
+    "work": "Supplementum",
     "e_source": "The Latin Library",
-    "e_source_url": "https://www.thelatinlibrary.com",
+    "e_source_url": "https://www.thelatinlibrary.com/vegius.html",
     "print_source": "",
     "added_by": "V6 Import"
   },
@@ -15201,14 +15201,6 @@
     "added_by": "V6 Import"
   },
   {
-    "author": "Unknown",
-    "work": "Corpus Scriptorum Ecclesiasticorum Latin",
-    "e_source": "Open Greek and Latin / CSEL",
-    "e_source_url": "https://scaife.perseus.org/library/urn:cts:latinLit:stoa0040.stoa054/",
-    "print_source": "Augustine. Sancti Aureli Augustini Opera, Sectio VIII, Pars I (Corpus scriptorum ecclesiasticorum Latinorum, Volume 60). Urba, Karl; Zycha, Joseph; editors. Prague; Vienna; Leipzig: F. Tempsky; G. Freytag, 1913.",
-    "added_by": "V6 Import"
-  },
-  {
     "author": "Valerius Flaccus",
     "work": "Argonautica",
     "e_source": "Perseus",
@@ -16583,5 +16575,2899 @@
     "e_source_url": "https://www.thelatinlibrary.com/obsequens.html",
     "print_source": "",
     "added_by": "V6 Import (Latin batch 2026-09-29)"
+  },
+  {
+    "author": "Blake",
+    "work": "Songs of Experience",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/1934",
+    "print_source": "Songs of Innocence and of Experience (Gutenberg #1934)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Blake",
+    "work": "Songs of Innocence",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/1934",
+    "print_source": "Songs of Innocence and of Experience (Gutenberg #1934)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Bunyan",
+    "work": "Pilgrims Progress",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/131",
+    "print_source": "The Pilgrim's Progress (Gutenberg #131)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Coleridge",
+    "work": "Rime of the Ancient Mariner",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/151",
+    "print_source": "The Rime of the Ancient Mariner (Gutenberg #151)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Cowper",
+    "work": "The Task",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/",
+    "print_source": "",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Edgar Allan Poe",
+    "work": "The Raven",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/1065",
+    "print_source": "The Raven (Gutenberg #1065)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Keats",
+    "work": "Eve of St Agnes",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/23684",
+    "print_source": "Keats: Poems Published in 1820 (Gutenberg #23684)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Keats",
+    "work": "Fancy",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/23684",
+    "print_source": "Keats: Poems Published in 1820 (Gutenberg #23684)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Keats",
+    "work": "Hyperion",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/23684",
+    "print_source": "Keats: Poems Published in 1820 (Gutenberg #23684)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Keats",
+    "work": "Isabella",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/23684",
+    "print_source": "Keats: Poems Published in 1820 (Gutenberg #23684)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Keats",
+    "work": "Lamia",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/23684",
+    "print_source": "Keats: Poems Published in 1820 (Gutenberg #23684)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Keats",
+    "work": "Lines on the Mermaid Tavern",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/23684",
+    "print_source": "Keats: Poems Published in 1820 (Gutenberg #23684)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Keats",
+    "work": "Ode Bards of Passion",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/23684",
+    "print_source": "Keats: Poems Published in 1820 (Gutenberg #23684)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Keats",
+    "work": "Ode on a Grecian Urn",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/23684",
+    "print_source": "Keats: Poems Published in 1820 (Gutenberg #23684)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Keats",
+    "work": "Ode on Melancholy",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/23684",
+    "print_source": "Keats: Poems Published in 1820 (Gutenberg #23684)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Keats",
+    "work": "Ode to a Nightingale",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/23684",
+    "print_source": "Keats: Poems Published in 1820 (Gutenberg #23684)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Keats",
+    "work": "Ode to Psyche",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/23684",
+    "print_source": "Keats: Poems Published in 1820 (Gutenberg #23684)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Keats",
+    "work": "Robin Hood",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/23684",
+    "print_source": "Keats: Poems Published in 1820 (Gutenberg #23684)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Keats",
+    "work": "To Autumn",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/23684",
+    "print_source": "Keats: Poems Published in 1820 (Gutenberg #23684)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Milton",
+    "work": "Arcades",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/1745",
+    "print_source": "The Poetical Works of John Milton, ed. H. C. Beeching (Gutenberg #1745)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Milton",
+    "work": "Comus",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/1745",
+    "print_source": "The Poetical Works of John Milton, ed. H. C. Beeching (Gutenberg #1745)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Milton",
+    "work": "Il Penseroso",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/1745",
+    "print_source": "The Poetical Works of John Milton, ed. H. C. Beeching (Gutenberg #1745)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Milton",
+    "work": "L Allegro",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/1745",
+    "print_source": "The Poetical Works of John Milton, ed. H. C. Beeching (Gutenberg #1745)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Milton",
+    "work": "Lycidas",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/1745",
+    "print_source": "The Poetical Works of John Milton, ed. H. C. Beeching (Gutenberg #1745)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Milton",
+    "work": "Paradise Regained",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/1745",
+    "print_source": "The Poetical Works of John Milton, ed. H. C. Beeching (Gutenberg #1745)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Milton",
+    "work": "Sonnets",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/1745",
+    "print_source": "The Poetical Works of John Milton, ed. H. C. Beeching (Gutenberg #1745)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Shakespeare",
+    "work": "A Midsummer Night’s Dream",
+    "e_source": "Moby Shakespeare",
+    "e_source_url": "http://icon.shef.ac.uk/Moby/mshak.html",
+    "print_source": "W. G. Clark, The Globe Shakespeare. New York: Nelson Doubleday, Inc., 7 May 93.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Shelley",
+    "work": "Adonais",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/ebooks/10119",
+    "print_source": "Adonais (Gutenberg #10119)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "King James Bible",
+    "work": "Pentateuch",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/",
+    "print_source": "Authorized (King James) Version, 1611",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "King James Bible",
+    "work": "Prophets",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/",
+    "print_source": "Authorized (King James) Version, 1611",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "King James Bible",
+    "work": "Revelation",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/",
+    "print_source": "Authorized (King James) Version, 1611",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "King James Bible",
+    "work": "Writings",
+    "e_source": "Project Gutenberg",
+    "e_source_url": "https://www.gutenberg.org/",
+    "print_source": "Authorized (King James) Version, 1611",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Aelian",
+    "work": "Ἀποσπασμάτια",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0545.tlg004/",
+    "print_source": "Rudolf Hercher, Claudii Aeliani De Animalium Natura Libri XVII, Varia Historia, Epistolae Fragmenta., Leipzig. Teubner. 1866, Vol. 2",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Aelius Herodianus",
+    "work": "Περι Καθολικης Προσῳδιας",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0087.tlg001/",
+    "print_source": "Augustus Lentz, Grammatici Graeci, Leipzig. Teubner. 1867, Vol. 3.1",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Aeschines Sp",
+    "work": "Ἐπιστολαί",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0026.tlg004/",
+    "print_source": "Friedrich Blass, Aeschinis. Orationes., Leipzig. Teubner. 1896",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Aesop",
+    "work": "Αισώπειων Μύθων Συναγωγή",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0096.tlg002/",
+    "print_source": "Fabulae Aesopicae Collectae. Halm, Karl, editor. Leipzig: Teubner, 1872",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Alcidamas",
+    "work": "Περὶ Σοφιστῶν",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0610.perseus002/",
+    "print_source": "Friedrich Blass, Orationes et fragmenta, adiunctis Gorgiae, Antisthenis, Alcidamantis, declamationibus, Leipzig. Teubner. 1892",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Alcidamas",
+    "work": "Ὀδυσσεύς",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0610.tlg001/",
+    "print_source": "Friedrich Blass, Orationes et fragmenta, adivnctis Gorgiae, Antisthenis, Alcidamantis, declamationibvs, Lipsiae. Tevbneri. 1892",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Andocides",
+    "work": "Against Alcibiades",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0019%3aspeech%3d1",
+    "print_source": "Karl Fuhr. Orationes. Stutgardiae: Teubner. 1966.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Andocides",
+    "work": "On His Return",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0019%3aspeech%3d1",
+    "print_source": "Karl Fuhr. Orationes. Stutgardiae: Teubner. 1966.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Andocides",
+    "work": "On the Mysteries",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0019%3aspeech%3d1",
+    "print_source": "Karl Fuhr. Orationes. Stutgardiae: Teubner. 1966.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Andocides",
+    "work": "On the Peace",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0019%3aspeech%3d1",
+    "print_source": "Karl Fuhr. Orationes. Stutgardiae: Teubner. 1966.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Antisthenes",
+    "work": "Αἴας",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0051.tlg001/",
+    "print_source": "",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Antisthenes",
+    "work": "Ὀδυσσεύς",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0051.tlg002/",
+    "print_source": "",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Apollonius Dyscolus",
+    "work": "Περὶ Ἀντωνυμίας",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0082.tlg001/",
+    "print_source": "Apollonius Dyscolus. Apollonii Dyscoli Quae supersunt. Vol. 1.1. (Grammatici Graeci, Volume 2.1). Schneider, Richard; Uhlig, Gustav, editors. Leipzig: Teubner, 1878.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Appian",
+    "work": "Civil Wars",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0231",
+    "print_source": "Appian. The Civil Wars. L. Mendelssohn. Leipzig. Teubner. 1879.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Appian",
+    "work": "Foreign Wars",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A1999.01.0229%3Atext%3DReg",
+    "print_source": "L. Mendelssohn. The Foreign Wars. L. Mendelssohn. Leipzig. Teubner. 1879.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Aratus",
+    "work": "Phaenomena",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0019%3aspeech%3d1",
+    "print_source": "Arati Phaenomena. Berolini: Apvd Weidmannos. 1893.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Aretaeus",
+    "work": "Curatione Acutorum Morbum",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0019%3aspeech%3d1",
+    "print_source": "Francis Adams. The Extant Works of Aretaeus, the Cappadocian. Boston: Milford House. 1856.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Aretaeus",
+    "work": "Signorum Acutorum Morbum",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0019%3aspeech%3d1",
+    "print_source": "Francis Adams. The Extant Works of Aretaeus, the Cappadocian. Boston: Milford House. 1856.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Aristotle",
+    "work": "Αριστοτέλους Φυσικά Προβλήματα Κατ Εἶδος Συναγώγης",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0086.tlg031/",
+    "print_source": "Aristotle. Aristotelis Physica. Ross, W.D., editor. Oxford: Clarendon, 1960.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Aristotle",
+    "work": "Μηχανικά",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0086.tlg042/",
+    "print_source": "Immanuel Bekker, Aristotelis Opera, Oxford. Oxford University Press. 1837",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Aristotle",
+    "work": "Περί Χρωμάτων",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0086.tlg039/",
+    "print_source": "Immanuel Bekker, Aristotelis Opera, Oxford. Oxford University Press. 1837",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Aristotle",
+    "work": "Φυσιογνωμονικά",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0086.tlg044/",
+    "print_source": "Immanuel Bekker, Aristotelis Opera, Oxford. Oxford University Press. 1837",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Aristotle",
+    "work": "Ἐκ Τοῦ Περὶ Ἀκουστῶν",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0086.tlg043/",
+    "print_source": "Aristotle. Aristotelis De animalium motione et De animalium incessu. Jaeger, Werner, editor. Leipzig:Teubner, 1913.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Athenaeus",
+    "work": "Deipnosophists",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0405",
+    "print_source": "Charles Burton Gulick, The Deipnosophists. Cambridge, MA: Harvard University Press, 1927.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Callistratus",
+    "work": "Statuarum Descriptiones",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A2008.01.0594%3Achapter%3D1",
+    "print_source": "Flavii Philostrati Opera, Vol 2. Callistratus. Carl Ludwig Kayser. in aedibus B. G. Teubneri. Lipsiae. 1871.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Claudius Ptolemaeus",
+    "work": "Μαθηματικὴ Σύνταξις",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0363.tlg001/",
+    "print_source": "Claudius Ptolemaeus. Claudii Ptolemaei Opera quae exstant omnia, Volume 1, Part 1-2. Heiberg, J.L., editor. Leipzig: Teubner, 1898-1903.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Clement",
+    "work": "Exhortation",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0632",
+    "print_source": "Clement of Alexandria. G.W. Butterworth. Clement of Alexandria, with an English Translation by G.W. Butterworth. William Heinemann Ltd; G.P. Putnam's Sons. London; New York. 1919.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Cleonides",
+    "work": "Εἰσαγωγὴ Ἁρμονική",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg1272.tlg001/",
+    "print_source": "CLeomedes. De motu circulari corporum caelestium. Ziegler, Konrad, editor. Leipzig: Teubner, 1891.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Demetrius",
+    "work": "Elocutione",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0672",
+    "print_source": "W. Rhys Roberts,Demetrius on Style.. Cambridge: The University Press, 1902.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Demosthenes",
+    "work": "Against Aphobus 3",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0073%3aspeech%3d29",
+    "print_source": "Demosthenes. Demosthenis Orationes. ed. S. H. Butcher and W. Rennie. Oxonii. E Typographeo Clarendoniano. 1907 and 1921.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Demosthenes",
+    "work": "Against Onetor 30",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0073%3aspeech%3d30",
+    "print_source": "Demosthenes. Demosthenis Orationes. ed. S. H. Butcher and W. Rennie. Oxonii. E Typographeo Clarendoniano. 1907 and 1921.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Demosthenes",
+    "work": "Against Onetor 31",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0075%3aspeech%3d31",
+    "print_source": "Demosthenes. Demosthenis Orationes. ed. W. Rennie. Oxonii. E Typographeo Clarendoniano. 1921.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Diogenianus of Heraclea",
+    "work": "Παροιμίαι Δημώδεις Ἐκ Τῆς Διογενιανοῦ Συναγωγῆς E",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg1328.tlg001/",
+    "print_source": "Ernst von Leutsch and F. G. Schneidewin, Paroemiographi Graeci, Vol. 1, Göttingen: Vandenhoeck et Ruprecht, 1839.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Dionysius Halicarnassensis",
+    "work": "Ad Ammaeum",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0582",
+    "print_source": "Hermann Usener, Dionysii Halicarnasei Quae Exstant, Volumen Quintum. Leipzig: In Aedibus B.G. Teubneri, 1899.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Dionysius Halicarnassensis",
+    "work": "Antiquitates Romanae",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0572",
+    "print_source": "Karl Jacoby, Dionysii Halicarnasei Antiquitatum Romanarum quae supersunt, Vol I-IV. Leipzig: In Aedibus B.G. Teubneri, 1885.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Dionysius Halicarnassensis",
+    "work": "De Antiquis Oratoribus",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0576",
+    "print_source": "Hermann Usener, Dionysii Halicarnasei Quae Exstant, Volumen Quintum. Leipzig: In Aedibus B.G. Teubneri, 1899.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Dionysius Halicarnassensis",
+    "work": "De Compositione Verborum",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0586",
+    "print_source": "Ludwig Radermacher, Dionysii Halicarnasei Quae Exstant, Volumen Sextum. Leipzig: In Aedibus B.G. Teubneri, 1904.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Dionysius Halicarnassensis",
+    "work": "De Demosthene",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0580",
+    "print_source": "Hermann Usener, Dionysii Halicarnasei Quae Exstant, Volumen Quintum. Leipzig: In Aedibus B.G. Teubneri, 1899.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Dionysius Halicarnassensis",
+    "work": "De Dinarcho",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0583",
+    "print_source": "Hermann Usener, Dionysii Halicarnasei Quae Exstant, Volumen Quintum. Leipzig: In Aedibus B.G. Teubneri, 1899.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Dionysius Halicarnassensis",
+    "work": "De Isaeo",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0579",
+    "print_source": "Hermann Usener, Dionysii Halicarnasei Quae Exstant, Volumen Quintum. Leipzig: In Aedibus B.G. Teubneri, 1899.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Dionysius Halicarnassensis",
+    "work": "De Isocrate",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0578",
+    "print_source": "Hermann Usener, Dionysii Halicarnasei Quae Exstant, Volumen Quintum. Leipzig: In Aedibus B.G. Teubneri, 1899.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Dionysius Halicarnassensis",
+    "work": "De Lysia",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0577",
+    "print_source": "Hermann Usener, Dionysii Halicarnasei Quae Exstant, Volumen Quintum. Leipzig: In Aedibus B.G. Teubneri, 1899.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Dionysius Halicarnassensis",
+    "work": "De Thucydide",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0584",
+    "print_source": "Hermann Usener, Dionysii Halicarnasei Quae Exstant, Volumen Quintum. Leipzig: In Aedibus B.G. Teubneri, 1899.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Dionysius Halicarnassensis",
+    "work": "De Thucydidis Idiomatibus",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0585",
+    "print_source": "Hermann Usener, Dionysii Halicarnasei Quae Exstant, Volumen Quintum. Leipzig: In Aedibus B.G. Teubneri, 1899.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Dionysius Halicarnassensis",
+    "work": "Epistula ad Pompeium",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0587",
+    "print_source": "Ludwig Radermacher, Dionysii Halicarnasei Quae Exstant, Volumen Sextum. Leipzig: In Aedibus B.G. Teubneri, 1904.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Dionysius Halicarnassensis",
+    "work": "Libri Secundi de Antiquis Oratoribus Reliquiae",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0581",
+    "print_source": "Hermann Usener, Dionysii Halicarnasei Quae Exstant, Volumen Quintum. Leipzig: In Aedibus B.G. Teubneri, 1899.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Euripides",
+    "work": "Iphigenia Aulis",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atex%3a1999.01.0107",
+    "print_source": "Gilbert Murray, Euripidis Fabulae, vol. 3. Oxford: Clarendn Press, Oxford, 1913.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Euripides",
+    "work": "Iphigenia Tauris",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0111",
+    "print_source": "Gilbert Murray, Euripidis Fabulae, vol. 2. Oxford: Clarendon Press, Oxford, 1913.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Euripides",
+    "work": "Trojan Women",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0123",
+    "print_source": "Gilbert Murray, Euripidis Fabulae, vol. 2. Oxford: Clarendon Press, Oxford, 1913.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Eusebius Caesarea",
+    "work": "Historia Ecclesiastica",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0640",
+    "print_source": "Kirsopp Lake, Eusebius, The Ecclesiastical History, Vol 1-2. London; New York: William Heinemann; G.P. Putnam's Press; Harvard University Press, 1926-1932.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Galen",
+    "work": "Natural Faculties",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0255",
+    "print_source": "A.J. Brock, On the Natural Faculties.. Cambridge, Mass.: Harvard University Press, July 1, 2005.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Galen",
+    "work": "Περὶ Τῶν Ἐν Ταῖς Τροφαῖς Δυνάμεων",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0057.tlg079/",
+    "print_source": "Karl Gottlob Kühn, Claudii Galeni Opera Omnia, Lipsiae. Knobloch. 1827",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Gorgias of Leontini",
+    "work": "Ἑλένης Ἐγκώμιον",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0593.tlg001/",
+    "print_source": "Gorgias. Antiphontis orationes et fragmenta adiunctis Gorgiae, Antisthenis, Alcidamantis declamationibus. Blass, Friedrich, editor. Leipzig: Teubner, 1908.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Gorgias of Leontini",
+    "work": "Ὑπέρ Παλαμήδους Ἀπολογία",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0593.tlg002/",
+    "print_source": "Gorgias. Antiphontis orationes et fragmenta adiunctis Gorgiae, Antisthenis, Alcidamantis declamationibus. Blass, Friedrich, editor. Leipzig: Teubner, 1908.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Hermogenes",
+    "work": "Περὶ Τῶν Στάσεων",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0592.tlg001/",
+    "print_source": "Hermogenes. Hermogenis Opera. Rabe, Hugo, editor. Leipzig: Teubner, 1913.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Herodianus",
+    "work": "Συμπόσιον",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0015.tlg002/",
+    "print_source": "Augustus Lentz, Grammatici Graeci, Vol. 3.1, Leipzig: Teubner, 1867.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Libanius",
+    "work": "Declamations",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Richard Foerster. Libanii Opera. Lipsiae: B.G. Teubneri. 1913.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Libanius",
+    "work": "Orations",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Richard Foerster. Libanii Opera. Lipsiae: B.G. Teubneri. 1913.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Lucian",
+    "work": "Dearum Iudicium",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0451",
+    "print_source": "Karl Jacobitz, Luciani Samosatensis Opera, Vol I. Leipzig: in aedibus B. G. Teubneri, 1896.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Lucian",
+    "work": "Deorum Consilium",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0469",
+    "print_source": "Karl Jacobitz, Luciani Samosatensis Opera, Vol I. Leipzig: in aedibus B. G. Teubneri, 1896.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Lucian",
+    "work": "Iudicium Vocalium",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0433",
+    "print_source": "Karl Jacobitz, Luciani Samosatensis Opera, Vol III. Leipzig: in aedibus B. G. Teubneri, 1896.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Lucian",
+    "work": "Iuppiter Confuatus",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0436",
+    "print_source": "Karl Jacobitz, Luciani Samosatensis Opera, Vol III. Leipzig: in aedibus B. G. Teubneri, 1896.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Lucian",
+    "work": "Iuppiter Tragoedus",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0437",
+    "print_source": "Karl Jacobitz, Luciani Samosatensis Opera, Vol III. Leipzig: in aedibus B. G. Teubneri, 1896.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Lucian",
+    "work": "Marcrobii",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0430",
+    "print_source": "Karl Jacobitz, Luciani Samosatensis Opera, Vol III. Leipzig: in aedibus B. G. Teubneri, 1896.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Nicomachus of Gerasa",
+    "work": "Ἀριθμητικὴ Εἰσαγωγή",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0542.tlg001/",
+    "print_source": "Julius Pollux. Metrologicorum scriptorum reliquiae. Hultsch, Friedrich, editor. Leipzig: Teubner, 1864.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Nicomachus of Gerasa",
+    "work": "Ἐγχειρίδιον Ἁρμονικῆς",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0542.tlg002/",
+    "print_source": "Karl von Jan, Musici Scriptores Graeci, Leipzig: Teubner, 1895.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Novum Testamentum",
+    "work": "Iacobi",
+    "e_source": "SBLGNT",
+    "e_source_url": "https://sblgnt.com",
+    "print_source": "The Greek New Testament: SBL Edition, ed. M. W. Holmes (Society of Biblical Literature and Logos Bible Software, 2010).",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Novum Testamentum",
+    "work": "Ioannes",
+    "e_source": "SBLGNT",
+    "e_source_url": "https://sblgnt.com",
+    "print_source": "The Greek New Testament: SBL Edition, ed. M. W. Holmes (Society of Biblical Literature and Logos Bible Software, 2010).",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Novum Testamentum",
+    "work": "Ioannis I",
+    "e_source": "SBLGNT",
+    "e_source_url": "https://sblgnt.com",
+    "print_source": "The Greek New Testament: SBL Edition, ed. M. W. Holmes (Society of Biblical Literature and Logos Bible Software, 2010).",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Novum Testamentum",
+    "work": "Ioannis II",
+    "e_source": "SBLGNT",
+    "e_source_url": "https://sblgnt.com",
+    "print_source": "The Greek New Testament: SBL Edition, ed. M. W. Holmes (Society of Biblical Literature and Logos Bible Software, 2010).",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Novum Testamentum",
+    "work": "Ioannis III",
+    "e_source": "SBLGNT",
+    "e_source_url": "https://sblgnt.com",
+    "print_source": "The Greek New Testament: SBL Edition, ed. M. W. Holmes (Society of Biblical Literature and Logos Bible Software, 2010).",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Novum Testamentum",
+    "work": "Iudae",
+    "e_source": "SBLGNT",
+    "e_source_url": "https://sblgnt.com",
+    "print_source": "The Greek New Testament: SBL Edition, ed. M. W. Holmes (Society of Biblical Literature and Logos Bible Software, 2010).",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Novum Testamentum",
+    "work": "Lucas",
+    "e_source": "SBLGNT",
+    "e_source_url": "https://sblgnt.com",
+    "print_source": "The Greek New Testament: SBL Edition, ed. M. W. Holmes (Society of Biblical Literature and Logos Bible Software, 2010).",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Novum Testamentum",
+    "work": "Marcus",
+    "e_source": "SBLGNT",
+    "e_source_url": "https://sblgnt.com",
+    "print_source": "The Greek New Testament: SBL Edition, ed. M. W. Holmes (Society of Biblical Literature and Logos Bible Software, 2010).",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Novum Testamentum",
+    "work": "Matthaeus",
+    "e_source": "SBLGNT",
+    "e_source_url": "https://sblgnt.com",
+    "print_source": "The Greek New Testament: SBL Edition, ed. M. W. Holmes (Society of Biblical Literature and Logos Bible Software, 2010).",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Novum Testamentum",
+    "work": "Petri I",
+    "e_source": "SBLGNT",
+    "e_source_url": "https://sblgnt.com",
+    "print_source": "The Greek New Testament: SBL Edition, ed. M. W. Holmes (Society of Biblical Literature and Logos Bible Software, 2010).",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Novum Testamentum",
+    "work": "Petri II",
+    "e_source": "SBLGNT",
+    "e_source_url": "https://sblgnt.com",
+    "print_source": "The Greek New Testament: SBL Edition, ed. M. W. Holmes (Society of Biblical Literature and Logos Bible Software, 2010).",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pindar",
+    "work": "Carmina",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0161",
+    "print_source": "The Odes of Pindar including the Principal Fragments with an Introduction and an English Translation by Sir John Sandys, Litt.D., FBA.Cambridge, MA.,Harvard University Press; London, William Heinemann Ltd., 1937.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Plato",
+    "work": "Hippias Maior",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0179",
+    "print_source": "Platonis Opera, ed. John Burnet.Oxford University Press, 1903.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Plato",
+    "work": "Leges",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0165",
+    "print_source": "Platonis Opera, ed. John Burnet.Oxford University Press, 1903.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Plato",
+    "work": "Respublica",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0167",
+    "print_source": "Platonis Opera, ed. John Burnet.Oxford University Press, 1903.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Plutarch",
+    "work": "An Vitiositas ad Infelicitatem Sufficia",
+    "e_source": "Perseus",
+    "e_source_url": "",
+    "print_source": "",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Plutarch",
+    "work": "Animine an Corporis Affectiones Sint Piores",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0282",
+    "print_source": "Gregorius N. Bernardakis, Moralia. Leipzig: Teubner, 1891.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Plutarch",
+    "work": "Comparationis Aristophanes et Menandri Compendium",
+    "e_source": "Perseus",
+    "e_source_url": "",
+    "print_source": "",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Plutarch",
+    "work": "Comparison Aegisalius Pompey",
+    "e_source": "Perseus",
+    "e_source_url": "",
+    "print_source": "Synkrisis essay paired with the Lives of Agesilaus and Pompey; same uniform Perseus Plutarch corpus as every other Life and Moralia essay in this collection, this specific essay not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Plutarch",
+    "work": "Comparison Agis Cleomenes Gracchi",
+    "e_source": "Perseus",
+    "e_source_url": "",
+    "print_source": "Synkrisis essay paired with the Lives of Agis/Cleomenes and the Gracchi; same uniform Perseus Plutarch corpus, not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Plutarch",
+    "work": "Comparison Alcibiades Coriolanus",
+    "e_source": "Perseus",
+    "e_source_url": "",
+    "print_source": "Synkrisis essay paired with the Lives of Alcibiades and Coriolanus; same uniform Perseus Plutarch corpus, not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Plutarch",
+    "work": "Comparison Aristides Cato",
+    "e_source": "Perseus",
+    "e_source_url": "",
+    "print_source": "Synkrisis essay paired with the Lives of Aristides and Cato; same uniform Perseus Plutarch corpus, not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Plutarch",
+    "work": "Comparison Demetrius Antony",
+    "e_source": "Perseus",
+    "e_source_url": "",
+    "print_source": "Synkrisis essay paired with the Lives of Demetrius and Antony; same uniform Perseus Plutarch corpus, not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Plutarch",
+    "work": "Comparison of Lysander Sulla",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0100",
+    "print_source": "Bernadotte Perrin, Plutarch's Lives. Cambridge, MA: Harvard University Press, 1916.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Plutarch",
+    "work": "De E Delphos",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0242",
+    "print_source": "Gregorius N. Bernardakis, Moralia. Leipzig: Teubner, 1891.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Plutarch",
+    "work": "De Esu Carnium 2",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0380",
+    "print_source": "Gregorius N. Bernardakis, Moralia. Leipzig: Teubner, 1895.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Plutarch",
+    "work": "De Stoicorum Repugnantis",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0388",
+    "print_source": "Gregorius N. Bernardakis, Moralia. Leipzig: Teubner, 1895.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Plutarch",
+    "work": "Epitome Argumenti Stoicos",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0390",
+    "print_source": "Gregorius N. Bernardakis, Moralia. Leipzig: Teubner, 1895.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Plutarch",
+    "work": "Epitome Libri de Animae Procreatione",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0387",
+    "print_source": "Gregorius N. Bernardakis, Moralia. Leipzig: Teubner, 1895.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Plutarch",
+    "work": "Maxime cum Princibus Philsopho Esse Diserendum",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2008.01.0320",
+    "print_source": "Gregorius N. Bernardakis.Moralia. Leipzig. Teubner. 1893.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Plutarch",
+    "work": "Παροιμίαι Αἷς Ἀλεξανδρεῖς Ἐχρῶντο",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0007.tlg133/",
+    "print_source": "Plutarch. Plutarchi Chaeronensis Moralia, Vol. VI. Vernardakēs, Grēgorios N., editor. Leipzig: Teubner, 1895.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Plutarch Pseudo",
+    "work": "De Musica",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A2008.01.0401",
+    "print_source": "Plutarch.  Moralia. Gregorius N. Bernardakis. Leipzig. Teubner. 1895. 6..",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Plutarch Pseudo",
+    "work": "Placita Philosophorum",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A2008.01.0403",
+    "print_source": "Plutarch.  Moralia. Gregorius N. Bernardakis. Leipzig. Teubner. 1895. 6..",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pseudolucian",
+    "work": "Δημοσθένους Ἐγκώμιον",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0062.tlg060/",
+    "print_source": "Lucian. Luciani Samosatensis Opera, Vol. 1. Jacobitz, Karl, editor. Leipzig: Teubner, 1909.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pseudolucian",
+    "work": "Κυνικός",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0062.tlg066/",
+    "print_source": "Lucian. Luciani Samosatensis Opera, Vol. 1. Jacobitz, Karl, editor. Leipzig: Teubner, 1909.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pseudolucian",
+    "work": "Λούκιος Ἢ Ὄνος",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0062.tlg054/",
+    "print_source": "Lucian. Luciani Samosatensis Opera, Vol. 3. Jacobitz, Karl, editor. Leipzig: Teubner, 1913.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pseudolucian",
+    "work": "Φιλόπατρις Ἢ Διδασκόμενος",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0062.tlg063/",
+    "print_source": "Lucian. Luciani Samosatensis Opera, Vol. 1. Jacobitz, Karl, editor. Leipzig: Teubner, 1909.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pseudolucian",
+    "work": "Χαρίδημος Ἢ Περὶ Κάλλους",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0062.tlg067/",
+    "print_source": "Lucian. Luciani Samosatensis Opera, Vol. 1. Jacobitz, Karl, editor. Leipzig: Teubner, 1909.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pseudolucian",
+    "work": "Ἀλκυών",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0062.tlg069/",
+    "print_source": "Lucian. Luciani Samosatensis Opera, Vol. 3. Jacobitz, Karl, editor. Leipzig: Teubner, 1913.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pseudolucian",
+    "work": "Ἔρωτες",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0062.tlg053/",
+    "print_source": "Lucian. Luciani Samosatensis Opera, Vol. 2. Jacobitz, Karl, editor. Leipzig: Teubner, 1913.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Obadiah",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg040/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 3: Hosea-4 Maccabees, Psalms of Solomon, Enoch, The Odes. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1905",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Haggai",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg045/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 3: Hosea-4 Maccabees, Psalms of Solomon, Enoch, The Odes. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1905",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Amos",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg037/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 3: Hosea-4 Maccabees, Psalms of Solomon, Enoch, The Odes. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1905",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Numbers",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Baruch",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg050/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 3: Hosea-4 Maccabees, Psalms of Solomon, Enoch, The Odes. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1905",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "1 Kingdoms (1 Samuel)",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "2 Kingdoms (2 Samuel)",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "4 Kingdoms (2 Kings)",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "3 Kingdoms (1 Kings)",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Bel and the Dragon (Theodotion)",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Bel and the Dragon (Old Greek)",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg058/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 3: Hosea-4 Maccabees, Psalms of Solomon, Enoch, The Odes. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1905",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Song of Songs",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg031/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 2: I Chronicles-Tobit. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1896.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Daniel (Theodotion)",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Daniel (Old Greek)",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg056/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 3: Hosea-4 Maccabees, Psalms of Solomon, Enoch, The Odes. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1905",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Deuteronomy",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Sirach (Ecclesiasticus)",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Letter of Jeremiah",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg052/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 3: Hosea-4 Maccabees, Psalms of Solomon, Enoch, The Odes. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1905",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "1 Esdras",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "2 Esdras (Ezra and Nehemiah)",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Esther",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg019/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 2: I Chronicles-Tobit. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1896.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Exodus",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Ezekiel",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg053/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 3: Hosea-4 Maccabees, Psalms of Solomon, Enoch, The Odes. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1905",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Genesis",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Habakkuk",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg043/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 3: Hosea-4 Maccabees, Psalms of Solomon, Enoch, The Odes. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1905",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Isaiah",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg048/",
+    "print_source": "Septuaginta. The Book of Isaiah According to the Septuagint (Codex Alexandrinus). Ottley, Richard, Rusden, editor. Cambridge: C.J. Clay and Sons, 1904.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Jeremiah",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg049/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 3: Hosea-4 Maccabees, Psalms of Solomon, Enoch, The Odes. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1905",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Job",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg032/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 2: I Chronicles-Tobit. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1896.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Joel",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg039/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 3: Hosea-4 Maccabees, Psalms of Solomon, Enoch, The Odes. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1905",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Jonah",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg041/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 3: Hosea-4 Maccabees, Psalms of Solomon, Enoch, The Odes. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1905",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Joshua",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Judith",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg020/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 2: I Chronicles-Tobit. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1896.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Judges",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Leviticus",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "2 Maccabees",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "4 Maccabees",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "3 Maccabees",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "1 Maccabees",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg023/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 3: Hosea-4 Maccabees, Psalms of Solomon, Enoch, The Odes. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1905",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Malachi",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg047/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 3: Hosea-4 Maccabees, Psalms of Solomon, Enoch, The Odes. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1905",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Micah",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg038/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 3: Hosea-4 Maccabees, Psalms of Solomon, Enoch, The Odes. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1905",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Nahum",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg042/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 3: Hosea-4 Maccabees, Psalms of Solomon, Enoch, The Odes. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1905",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Odes",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg028/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 3: Hosea-4 Maccabees, Psalms of Solomon, Enoch, The Odes. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1905",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Hosea",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg036/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 3: Hosea-4 Maccabees, Psalms of Solomon, Enoch, The Odes. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1905",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "2 Chronicles",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "1 Chronicles",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg015/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 2: I Chronicles-Tobit. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1896.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Proverbs",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg029/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 2: I Chronicles-Tobit. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1896.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Psalms",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg027/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 2: I Chronicles-Tobit. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1896.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Psalms of Solomon",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Ruth",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Wisdom of Solomon",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg033/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 2: I Chronicles-Tobit. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1896.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Zephaniah",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg044/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 3: Hosea-4 Maccabees, Psalms of Solomon, Enoch, The Odes. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1905",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Susanna (Theodotion)",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint, ed. Henry Barclay Swete. Cambridge: Cambridge University Press, 1901-1905.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Susanna (Old Greek)",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg054/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 3: Hosea-4 Maccabees, Psalms of Solomon, Enoch, The Odes. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1905",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Lamentations",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg051/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 3: Hosea-4 Maccabees, Psalms of Solomon, Enoch, The Odes. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1905",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Tobit",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg021/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 2: I Chronicles-Tobit. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1896.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Septuagint",
+    "work": "Zechariah",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0527.tlg046/",
+    "print_source": "Septuaginta. The Old Testament in Greek According to the Septuagint. Volume 3: Hosea-4 Maccabees, Psalms of Solomon, Enoch, The Odes. Swete, Henry Barclay, editor. Cambridge: Cambridge University Press, 1905",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Theophrastus",
+    "work": "Περί Ὀσμών",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0093.ogl001/",
+    "print_source": "Theophrastus, Concerning Odours, Hort, Harvard, 1927",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Theophrastus",
+    "work": "Περὶ Φυτῶν Αἰτιῶν",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0093.tlg003/",
+    "print_source": "Theophrastus, Theophrasti Eresii Opera quae supersunt omnia, Volume 3, Wimmer, Teubner, 1862",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Thucydides",
+    "work": "Peleponnesian War",
+    "e_source": "Perseus",
+    "e_source_url": "https://web.archive.org/web/20240812080521/http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.01.0199",
+    "print_source": "Thucydides Historiae in Two Volumes. Oxford,\n\tOxford University Press. 1942.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Tryphon I Grammaticus",
+    "work": "Περὶ Τρόπων",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0606.tlg001/",
+    "print_source": "Rufus Soph., Ars rhetorica, Spengel, Teubner, 1853",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Zenobius Sophista",
+    "work": "Ἐπιτομὴ Ἐκ Τῶν Ταρραίου Καὶ Διδύμου Παροιμιῶν Συντ",
+    "e_source": "Open Greek and Latin / Scaife",
+    "e_source_url": "https://scaife.perseus.org/library/urn:cts:greekLit:tlg0098.tlg001/",
+    "print_source": "Zenobius Sophista. Corpus paroemiographorum Graecorum, Vol. 1. Leutsch, Ernst von; Schneidewin, Friedrich Wilhelm, editors. Göttingen: Vandenhoeck and Ruprecht, 1839.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Abelard",
+    "work": "Epistolae",
+    "e_source": "Monumenta.ch",
+    "e_source_url": "https://monumenta.ch/latein/",
+    "print_source": "Patrologia Latina 178 (Migne); per-letter editorial argumenta omitted.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Abelard",
+    "work": "Historia Calamitatum",
+    "e_source": "Monumenta.ch",
+    "e_source_url": "https://monumenta.ch/latein/",
+    "print_source": "Patrologia Latina 178 (Migne); Migne’s editorial argumentum (ch. 1) omitted, chapters 2-16 as numbered there.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Agnellus Ravennatis",
+    "work": "Liber Pontificalis",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/AGNELL%7Cpont%7C001",
+    "print_source": "O. Holder-Egger, 1878",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Alan de Insulis",
+    "work": "Anticlaudianus",
+    "e_source": "Monumenta.ch (Corpus Corporum)",
+    "e_source_url": "https://www.monumenta.ch/latein/xanfang.php?n=337",
+    "print_source": "Patrologia Latina 210 (Migne), cols. 485-576.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Alan de Insulis",
+    "work": "De Planctu Naturae",
+    "e_source": "Monumenta.ch (Corpus Corporum)",
+    "e_source_url": "https://www.monumenta.ch/latein/xanfang.php?n=337",
+    "print_source": "Patrologia Latina 210 (Migne), cols. 431-482.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Ammianus Marcellinus",
+    "work": "Res Gestae",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com",
+    "print_source": "",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Angilbert Carmina",
+    "work": "Angilbert Carmina",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/ANGIL_CE%7Ccarm%7C001",
+    "print_source": "E. Dümmler, 1881",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Angilbert Versus",
+    "work": "Angilbert Versus",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/ANGIL_CE%7Cvers%7C001",
+    "print_source": "K. Strecker, 1923)",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymi",
+    "work": "Planctus de Obitu Karoli",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/PLANCT_K%7Cplan%7C001",
+    "print_source": "E. Dümmler, 1881",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymus",
+    "work": "Carmen ad Agobardum",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/CARM_AGO%7Ccarm%7C001",
+    "print_source": "E. Dümmler, 1884",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymus",
+    "work": "Carmen ad Ludovicum Pium",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/CARM_LDW%7Ccarm%7C001",
+    "print_source": "K. Strecker, 1923",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymus",
+    "work": "Carmen de Aquilegia",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/CARM_AQU%7Ccaaq%7C001",
+    "print_source": "E. Dümmler, 1884",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymus",
+    "work": "Carmen de Compoti Ratione",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/CARM_RAT%7Ccomp%7C001",
+    "print_source": "K. Strecker, 1951",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymus",
+    "work": "Carmen de Conversione Saxonum",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/CARM_CSX%7Csaxo%7C001",
+    "print_source": "E. Dümmler, 1881",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymus",
+    "work": "Carmen de Exordio Francorum",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/CARM_GFR%7Ccarm%7C001",
+    "print_source": "E. Dümmler, 1884",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymus",
+    "work": "Carmen de Nynia Episcopo",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/CARM_NYN%7Ccarm%7C001",
+    "print_source": "K. Strecker, 1923",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymus",
+    "work": "Carmen de Pippino",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/CARM_PIP%7Cpivi%7C001",
+    "print_source": "E. Dümmler, 1881",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymus",
+    "work": "Carmen de Temporum Ratione",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/CARM_TRT%7Ccarm%7C001",
+    "print_source": "K. Strecker, 1951",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymus",
+    "work": "Carmen de Timone Comite",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/CARM_TIM%7Ccarm%7C001",
+    "print_source": "E. Dümmler, 1884",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymus",
+    "work": "Carmina Augiensia",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/CARM_AUG%7Ccarm%7C001",
+    "print_source": "K. Strecker, 1923",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymus",
+    "work": "Carmina Bibliothecarum et Psalteriorum",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/CARM_BIB%7Cvers%7C001",
+    "print_source": "L. Traube, 1886-96",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymus",
+    "work": "Carmina Cenomanensia",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "",
+    "print_source": "E. Dümmler, 1884",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymus",
+    "work": "Carmina de Ludovico II",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/CARM_LU2%7Ccarm%7C001",
+    "print_source": "L. Traube 1886-96",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymus",
+    "work": "Carmina Libris Saec VIII Adiecta",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/CARM_L1%7Ccarm%7C001",
+    "print_source": "E. Dümmler, 1881",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymus",
+    "work": "Corneli Translationes",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/TRANSL_C%7Ctran%7C001",
+    "print_source": "P. v. Winterfeld, 1899",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymus",
+    "work": "Hymnus Nynie Episcopi",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/HYMN_NYN%7Chymn%7C001",
+    "print_source": "K. Strecker, 1923",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymus",
+    "work": "Karolus Magnus et Leo Papa",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/CARM_KAR%7Ckaro%7C001",
+    "print_source": "E. Dümmler, 1881",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymus",
+    "work": "Laudes Mediolanensis Civitatis",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/LAUD_MED|laud|001",
+    "print_source": "E. Dümmler, 1881",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymus",
+    "work": "Laudes Veronensis Civitatis",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/LAUD_VER%7Claud%7C001",
+    "print_source": "E. Dümmler, 1881",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymus",
+    "work": "Tituli Metrici Saeculi VIII",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/TIT_ME1%7Ctitu%7C001",
+    "print_source": "E. Dümmler, 1881",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymus",
+    "work": "Translatio Sancti Mercurii",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/TRANSL_B%7Cmerc%7C001",
+    "print_source": "G. Waitz, 1878",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymus",
+    "work": "Translatio XII Martyrum",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/TRANSL_B|duod|001",
+    "print_source": "G. Waitz, 1878",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymus",
+    "work": "Versus ad Ebonem Remensem",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/VERS_EBO%7Cvers%7C001",
+    "print_source": "E. Dümmler, 1881",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anonymus",
+    "work": "Versus de Eversione Monasterii Glonnensis",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/VERS_GLO%7Cvers%7C001",
+    "print_source": "E. Dümmler, 1884",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Aquinas",
+    "work": "Hymni",
+    "e_source": "Latin Wikisource / Preces Latinae",
+    "e_source_url": "https://la.wikisource.org/wiki/Pange_lingua",
+    "print_source": "Pange lingua, Lauda Sion, Verbum supernum, Adoro te devote from la.wikisource; Sacris solemniis from preces-latinae.org (Liturgia Horarum text). Liturgical accents and ligatures normalized.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Aquinas",
+    "work": "Summa Theologiae 1",
+    "e_source": "Corpus Thomisticum",
+    "e_source_url": "https://www.corpusthomisticum.org/sth1001.html",
+    "print_source": "Textum Leoninum (Rome 1888) as edited by Roberto Busa and Enrique Alarcon, Corpus Thomisticum, Fundacion Tomas de Aquino.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Augustine",
+    "work": "City of God",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Bernhard Dombart. De Civitate Dei Libri XXII Vol I Lib I-XII. Lipsiae: In Aedibus B.G. Teubner. 1877.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Caesar Pseudo",
+    "work": "De Bello Africo",
+    "e_source": "Open Greek and Latin / Perseus canonical-latinLit",
+    "e_source_url": "",
+    "print_source": "Perseus/OGL canonical-latinLit carries the three pseudo-Caesarian continuations (De Bello Africo, De Bello Alexandrino, De Bello Hispaniensi); found by survey in research/corpus/LATIN_GAP_ANALYSIS_2026-09-29.md, not independently re-fetched this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Caesar Pseudo",
+    "work": "De Bello Alexandrino",
+    "e_source": "Open Greek and Latin / Perseus canonical-latinLit",
+    "e_source_url": "",
+    "print_source": "Perseus/OGL canonical-latinLit carries the three pseudo-Caesarian continuations (De Bello Africo, De Bello Alexandrino, De Bello Hispaniensi); found by survey in research/corpus/LATIN_GAP_ANALYSIS_2026-09-29.md, not independently re-fetched this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Caesar Pseudo",
+    "work": "De Bello Hispaniensi",
+    "e_source": "Open Greek and Latin / Perseus canonical-latinLit",
+    "e_source_url": "",
+    "print_source": "Perseus/OGL canonical-latinLit carries the three pseudo-Caesarian continuations (De Bello Africo, De Bello Alexandrino, De Bello Hispaniensi); found by survey in research/corpus/LATIN_GAP_ANALYSIS_2026-09-29.md, not independently re-fetched this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Cicero",
+    "work": "De Imperio Cn Pompei",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.02.0010",
+    "print_source": "Albert Clark, M. Tulli Ciceronis Orationes: Recognovit brevique adnotatione critica instruxit Albertus Curtis Clark Collegii Reginae Socius. Oxonii: e Typographeo Clarendoniano, 1908.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Cicero",
+    "work": "Divinatio in C Verrem",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.02.0012",
+    "print_source": "Albert Clark, M. Tvlli Ciceronis Orationes: Divinatio in Q. Caecilivm. In C. Verrem Recognovit brevique adnotatione critica instruxit Gvlielmvs Peterson Rector Vniversitatis MacGillianae. Oxford: e Typographeo Clarendoniano, 1917.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Cicero",
+    "work": "In L Pisonem",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.02.0013",
+    "print_source": "Albert Clark, M. Tulli Ciceronis Orationes: Recognovit brevique adnotatione critica instruxit Albertus Curtis Clark. Oxonii: e Typographeo Clarendoniano, 1909.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Cicero",
+    "work": "Paradoxa Stoicorum ad M Brutum",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a2007.01.0045",
+    "print_source": "J. G. Baiter, M. Tullii Ciceronis opera quae supersunt omnia. Leipzig: Tauchnitz, 1865.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Cicero",
+    "work": "Pro a Caecina",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.02.0013",
+    "print_source": "Albert Clark, M. Tulli Ciceronis Orationes: Recognovit brevique adnotatione critica instruxit Albertus Curtis Clark. Oxonii: e Typographeo Clarendoniano, 1909.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Cicero",
+    "work": "Pro L Flacco",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.02.0013",
+    "print_source": "Albert Clark, M. Tulli Ciceronis Orationes: Recognovit brevique adnotatione critica instruxit Albertus Curtis Clark. Oxonii: e Typographeo Clarendoniano, 1909.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Cicero",
+    "work": "Pro M Caelio",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.02.0010",
+    "print_source": "Albert Clark, M. Tulli Ciceronis Orationes: Recognovit brevique adnotatione critica instruxit Albertus Curtis Clark Collegii Reginae Socius. Oxonii: e Typographeo Clarendoniano, 1908.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Cicero",
+    "work": "Pro Q Roscio Comoedo",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.02.0013",
+    "print_source": "Albert Clark, M. Tulli Ciceronis Orationes: Recognovit brevique adnotatione critica instruxit Albertus Curtis Clark. Oxonii: e Typographeo Clarendoniano, 1909.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Cicero",
+    "work": "Pro S Roscio",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.02.0010",
+    "print_source": "Albert Clark, M. Tulli Ciceronis Orationes: Recognovit brevique adnotatione critica instruxit Albertus Curtis Clark Collegii Reginae Socius. Oxonii: e Typographeo Clarendoniano, 1908.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Cyprian",
+    "work": "De Habitu Virginum",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Wilhelm August Ritter von Hartel. S. Thasci Caecili Cypriani Opera Omnia. Vindobonae: Gerold. 1868.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Eberhard the German",
+    "work": "Laborintus",
+    "e_source": "archive.org (OCR text)",
+    "e_source_url": "https://archive.org/details/lesartspoetiquesdudouzfaral",
+    "print_source": "Edmond Faral, ed., Les arts poetiques du XIIe et du XIIIe siecle. Paris: Champion, 1924, pp. 336-377. Also known as Evrard the German (Eberhardus Alemannus); not to be confused with Evrard of Bethune (Evrardus Bethuniensis), author of the Graecismus grammar.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Ermenricus Elwagensis",
+    "work": "Epistola ad Grimaldum",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "",
+    "print_source": "E. Dümmler, K. Hampe, 1899",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Ermoldus Nigellus",
+    "work": "Carmen in Honorem Ludowici Pii",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/ERMOLD%7Cludo%7C000",
+    "print_source": "E. Dümmler, 1884",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Ermoldus Nigellus",
+    "work": "Carmen in Laudem Pippini Regis",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/ERMOLD%7Cpipp%7C001",
+    "print_source": "E. Dümmler, 1884",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Ermoldus Nigellus",
+    "work": "Carminum Appendix",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/ERMOLD%7Ccaap%7C001",
+    "print_source": "E. Dümmler, 1884",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Giraldus Floriacensis",
+    "work": "Carmina",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/GIR_FLOR%7Ccarm%7C001",
+    "print_source": "R. B. C. Huygens, 2000",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Gregorius Magnus",
+    "work": "Dialogi",
+    "e_source": "Monumenta.ch",
+    "e_source_url": "https://monumenta.ch/latein/",
+    "print_source": "Patrologia Latina 77 (Migne); the facing Greek version of Zacharias omitted.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Gregorius Magnus",
+    "work": "Regula Pastoralis",
+    "e_source": "Monumenta.ch",
+    "e_source_url": "https://monumenta.ch/latein/",
+    "print_source": "Patrologia Latina 77 (Migne).",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Hilary of Poitiers Pseudo",
+    "work": "Ad Leonem Papam",
+    "e_source": "Open Greek and Latin / CSEL",
+    "e_source_url": "",
+    "print_source": "Hilary of Poitiers \"Spuria\" volume (Open Greek and Latin / CSEL), the same source used for the genuine Hilary corpus; this specific spurious item not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Hilary of Poitiers Pseudo",
+    "work": "De Evangelico",
+    "e_source": "Open Greek and Latin / CSEL",
+    "e_source_url": "",
+    "print_source": "Hilary of Poitiers \"Spuria\" volume (Open Greek and Latin / CSEL), the same source used for the genuine Hilary corpus; this specific spurious item not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Hilary of Poitiers Pseudo",
+    "work": "De Martyrio Maccabeorum",
+    "e_source": "Open Greek and Latin / CSEL",
+    "e_source_url": "",
+    "print_source": "Hilary of Poitiers \"Spuria\" volume (Open Greek and Latin / CSEL), the same source used for the genuine Hilary corpus; this specific spurious item not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Hilary of Poitiers Pseudo",
+    "work": "Epistula ad Abram Filiam",
+    "e_source": "Open Greek and Latin / CSEL",
+    "e_source_url": "",
+    "print_source": "Hilary of Poitiers \"Spuria\" volume (Open Greek and Latin / CSEL), the same source used for the genuine Hilary corpus; this specific spurious item not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Hilary of Poitiers Pseudo",
+    "work": "Hymni",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/csel-dev/tree/master/data/stoa0149",
+    "print_source": "Alfred Leonhard Feder. S. Hilarii Episcopi Pictaviensis Opera, Pars IV. Vindobonae: Gerold. 1916.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Horace",
+    "work": "Carmina",
+    "e_source": "Perseus",
+    "e_source_url": "http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3atext%3a1999.02.0024",
+    "print_source": "Paul Shorey and Gordon J. Laing, Horace: Odes and Epodes. Chicago: Benj. H. Sanborn &amp; Co., 1919.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Hyginus",
+    "work": "Astronomica",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/hyginus.html",
+    "print_source": "Edition not stated by the source.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Isidore",
+    "work": "Etymologiae",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/isidore.html",
+    "print_source": "Edition not stated by the source.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "John Scotus Eriugena",
+    "work": "Carmina",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/IOH_SCOT%7Ccarm%7C001",
+    "print_source": "L. Traube, 1886-96",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "John Scotus Eriugena",
+    "work": "Carminum Appendix",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/IOH_SCOT%7Ccarm%7C001",
+    "print_source": "L. Traube, 1886-96",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Martialis",
+    "work": "De Spectaculis",
+    "e_source": "Perseus",
+    "e_source_url": "",
+    "print_source": "Same Perseus Martial edition as the credited Epigrams; Liber de Spectaculis is catalogued as part of the same CTS author node, not independently reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Nemesianus Pseudo",
+    "work": "De Aucupio",
+    "e_source": "LacusCurtius",
+    "e_source_url": "https://penelope.uchicago.edu/Thayer/L/Roman/Texts/Nemesianus/De_Aucupio*.html",
+    "print_source": "J. W. Duff and A. M. Duff, Minor Latin Poets (Loeb), text as transcribed by Bill Thayer.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Nigel Wireker",
+    "work": "Speculum Stultorum",
+    "e_source": "archive.org",
+    "e_source_url": "https://archive.org/details/anglolatinsatiri01wrig",
+    "print_source": "Thomas Wright, ed., The Anglo-Latin Satirical Poets and Epigrammatists of the Twelfth Century, Rolls Series 59, vol. 1. London: Longman, 1872, pp. 3-145. A later critical edition (Mozley and Raymo, 1960) is regarded by scholars as textually superior to Wright's but was not substituted here; see project log for the open question of whether to re-derive from it.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Obsequens",
+    "work": "Liber de Prodigiis",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/obsequens.html",
+    "print_source": "",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Paulus Albarus",
+    "work": "Carmina",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/PAUL_ALB%7Ccarm%7C001",
+    "print_source": "L. Traube, 1886-96",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pseudo Cyprian",
+    "work": "Ad Novatianum",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Pseudo-Cyprianic appendix, CSEL (Hartel) Cyprian edition; same source project as the genuine Cyprian corpus, specific print edition not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pseudo Cyprian",
+    "work": "Ad Vigilium de Iudaica Incredulitate",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Pseudo-Cyprianic appendix, CSEL (Hartel) Cyprian edition; same source project as the genuine Cyprian corpus, specific print edition not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pseudo Cyprian",
+    "work": "Adversus Judaeos",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Pseudo-Cyprianic appendix, CSEL (Hartel) Cyprian edition; same source project as the genuine Cyprian corpus, specific print edition not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pseudo Cyprian",
+    "work": "De Disciplina et Bono Pudicitiae",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Pseudo-Cyprianic appendix, CSEL (Hartel) Cyprian edition; same source project as the genuine Cyprian corpus, specific print edition not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pseudo Cyprian",
+    "work": "De Duplici Martyrio",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Pseudo-Cyprianic appendix, CSEL (Hartel) Cyprian edition; same source project as the genuine Cyprian corpus, specific print edition not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pseudo Cyprian",
+    "work": "De Laude Martyrii",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Pseudo-Cyprianic appendix, CSEL (Hartel) Cyprian edition; same source project as the genuine Cyprian corpus, specific print edition not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pseudo Cyprian",
+    "work": "De Montibus Sina et Sion Adversus Judaeo",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Pseudo-Cyprianic appendix, CSEL (Hartel) Cyprian edition; same source project as the genuine Cyprian corpus, specific print edition not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pseudo Cyprian",
+    "work": "De Pascha Computus",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Pseudo-Cyprianic appendix, CSEL (Hartel) Cyprian edition; same source project as the genuine Cyprian corpus, specific print edition not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pseudo Cyprian",
+    "work": "De Rebaptismate",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Pseudo-Cyprianic appendix, CSEL (Hartel) Cyprian edition; same source project as the genuine Cyprian corpus, specific print edition not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pseudo Cyprian",
+    "work": "De Singularitate Clericorum",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Pseudo-Cyprianic appendix, CSEL (Hartel) Cyprian edition; same source project as the genuine Cyprian corpus, specific print edition not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pseudo Cyprian",
+    "work": "De Spectaculis Liber",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Pseudo-Cyprianic appendix, CSEL (Hartel) Cyprian edition; same source project as the genuine Cyprian corpus, specific print edition not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pseudo Cyprian",
+    "work": "De XII Abusionibus Saeculi",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Pseudo-Cyprianic appendix, CSEL (Hartel) Cyprian edition; same source project as the genuine Cyprian corpus, specific print edition not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pseudo Cyprian",
+    "work": "Epistulae",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Pseudo-Cyprianic appendix, CSEL (Hartel) Cyprian edition; same source project as the genuine Cyprian corpus, specific print edition not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pseudo Cyprian",
+    "work": "Liber de Aleatoribus",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "http://opengreekandlatin.github.io/csel-dev/",
+    "print_source": "Pseudo-Cyprianic appendix, CSEL (Hartel) Cyprian edition; same source project as the genuine Cyprian corpus, specific print edition not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pseudo Severus Sulpicius",
+    "work": "Epistolae Septem",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "",
+    "print_source": "Same Sulpicius Severus corpus/source as \"Alia Epistula\" (Open Greek and Latin); this specific text not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pseudo Tertullian",
+    "work": "Adversus Omnes Haereses",
+    "e_source": "Open Greek and Latin",
+    "e_source_url": "https://github.com/OpenGreekAndLatin/csel-dev/tree/master/data/stoa0275",
+    "print_source": "Pseudo-Tertullian appendix, same CSEL Tertullian edition/repository as the genuine corpus; specific print edition not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pseudo Victor Vitensis",
+    "work": "Notitia Provinciarum et Civitatum Africa",
+    "e_source": "Open Greek and Latin / CSEL",
+    "e_source_url": "",
+    "print_source": "Traditionally printed together with Victor of Vita's Historia Persecutionis in the same CSEL volume (our source for that work); this appendix text not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Pseudo Victor Vitensis",
+    "work": "Passio Septem Monachorum",
+    "e_source": "Open Greek and Latin / CSEL",
+    "e_source_url": "",
+    "print_source": "Traditionally printed together with Victor of Vita's Historia Persecutionis in the same CSEL volume (our source for that work); this appendix text not individually reconfirmed this session.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Sidonius",
+    "work": "Carmina",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/sidoniuscarmina.html",
+    "print_source": "Christian Luetjohann, Gai Sollii Apollinaris Sidonii Epistulae et Carmina (MGH AA 8). Berlin, 1887 (as stated on the source page).",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Sidonius",
+    "work": "Epistulae",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/sidonius.html",
+    "print_source": "Edition not stated by the source.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Sigloardus Remensis",
+    "work": "Rhytmi",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/SIGL_REM%7Crhyt%7C001",
+    "print_source": "P. v. Winterfeld, 1899",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Thedulf of Orleans",
+    "work": "Carmina Appendix",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/THEODULF%7Ccarm%7C001",
+    "print_source": "E. Dümmler, 1881",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Venantius Fortunatus",
+    "work": "Vita Martini",
+    "e_source": "Monumenta.ch (Corpus Corporum)",
+    "e_source_url": "https://www.monumenta.ch/latein/xanfang.php?n=77",
+    "print_source": "Patrologia Latina 88 (Migne, 1850), cols. 336-426.",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Walahfrid Strabo",
+    "work": "Carmina",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/WALAHFR%7Ccarm%7C001",
+    "print_source": "E. Dümmler, 1884",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Walahfrid Strabo",
+    "work": "Carminum Appendix",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/WALAHFR%7Ccarm%7C001",
+    "print_source": "E. Dümmler, 1884",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Walahfrid Strabo",
+    "work": "Versus de Blaithmaic",
+    "e_source": "Musisque Deoque",
+    "e_source_url": "https://www.musamedievalis.it/testo/testo/codice/WALAHFR%7Cblai%7C001",
+    "print_source": "E. Dümmler, 1884",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Bernard Silvestris",
+    "work": "Cosmographia",
+    "e_source": "Source to be confirmed",
+    "e_source_url": "",
+    "print_source": "",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Commodianus",
+    "work": "Instructiones",
+    "e_source": "Source to be confirmed",
+    "e_source_url": "",
+    "print_source": "",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Cyprian",
+    "work": "De Unitate Ecclesiae Catholicae",
+    "e_source": "Source to be confirmed",
+    "e_source_url": "",
+    "print_source": "",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Geoffrey of Vinsauf",
+    "work": "Documentum",
+    "e_source": "Source to be confirmed",
+    "e_source_url": "",
+    "print_source": "",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Geoffrey of Vinsauf",
+    "work": "Poetria Nova",
+    "e_source": "Source to be confirmed",
+    "e_source_url": "",
+    "print_source": "",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Johannes Hanville",
+    "work": "Architrenius",
+    "e_source": "Source to be confirmed",
+    "e_source_url": "",
+    "print_source": "",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Matthew of Vendome",
+    "work": "Ars Versificatoria",
+    "e_source": "Source to be confirmed",
+    "e_source_url": "",
+    "print_source": "",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Saxo Grammaticus",
+    "work": "Gesta Danorum",
+    "e_source": "Source to be confirmed",
+    "e_source_url": "",
+    "print_source": "",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Walter de Chatillon",
+    "work": "Alexandreis",
+    "e_source": "Source to be confirmed",
+    "e_source_url": "",
+    "print_source": "",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Gregory of Nazianzus",
+    "work": "Theological Orations",
+    "e_source": "Source to be confirmed",
+    "e_source_url": "",
+    "print_source": "",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Phlegon",
+    "work": "De Mirabilibus",
+    "e_source": "Source to be confirmed",
+    "e_source_url": "",
+    "print_source": "",
+    "added_by": "Tesserae Project"
+  },
+  {
+    "author": "Anvari",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Attar",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Bidel",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Farrokhi",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Ferdowsi",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Hafez",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Iqbal",
+    "work": "Armaghan E Hijaz Persian",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/AzeemGhumman/iqbal-demystified-dataset",
+    "print_source": "Iqbal Academy Pakistan (per the dataset's own README; not independently verified)",
+    "added_by": "Tesserae Project",
+    "license": "No LICENSE file on the dataset repository; the author (d. 1938) is public domain, and the maintainer's README informally invites reuse. Served as is (decision recorded 2026-09-03, research/languages/LICENSING_DECISION_MEMO_2026-09-03.md)."
+  },
+  {
+    "author": "Iqbal",
+    "work": "Asrar E Khudi",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/AzeemGhumman/iqbal-demystified-dataset",
+    "print_source": "Iqbal Academy Pakistan (per the dataset's own README; not independently verified)",
+    "added_by": "Tesserae Project",
+    "license": "No LICENSE file on the dataset repository; the author (d. 1938) is public domain, and the maintainer's README informally invites reuse. Served as is (decision recorded 2026-09-03, research/languages/LICENSING_DECISION_MEMO_2026-09-03.md)."
+  },
+  {
+    "author": "Iqbal",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "Ganjoor's Iqbal collection; filed as iqbal.diwan since 2026-10-07, formerly iqbal_lahori.diwan.",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Iqbal",
+    "work": "Javid Nama",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/AzeemGhumman/iqbal-demystified-dataset",
+    "print_source": "Iqbal Academy Pakistan (per the dataset's own README; not independently verified)",
+    "added_by": "Tesserae Project",
+    "license": "No LICENSE file on the dataset repository; the author (d. 1938) is public domain, and the maintainer's README informally invites reuse. Served as is (decision recorded 2026-09-03, research/languages/LICENSING_DECISION_MEMO_2026-09-03.md)."
+  },
+  {
+    "author": "Iqbal",
+    "work": "Pas Cheh Bayad Kard",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/AzeemGhumman/iqbal-demystified-dataset",
+    "print_source": "Iqbal Academy Pakistan (per the dataset's own README; not independently verified)",
+    "added_by": "Tesserae Project",
+    "license": "No LICENSE file on the dataset repository; the author (d. 1938) is public domain, and the maintainer's README informally invites reuse. Served as is (decision recorded 2026-09-03, research/languages/LICENSING_DECISION_MEMO_2026-09-03.md)."
+  },
+  {
+    "author": "Iqbal",
+    "work": "Payam E Mashriq",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/AzeemGhumman/iqbal-demystified-dataset",
+    "print_source": "Iqbal Academy Pakistan (per the dataset's own README; not independently verified)",
+    "added_by": "Tesserae Project",
+    "license": "No LICENSE file on the dataset repository; the author (d. 1938) is public domain, and the maintainer's README informally invites reuse. Served as is (decision recorded 2026-09-03, research/languages/LICENSING_DECISION_MEMO_2026-09-03.md)."
+  },
+  {
+    "author": "Iqbal",
+    "work": "Rumuz E Bekhudi",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/AzeemGhumman/iqbal-demystified-dataset",
+    "print_source": "Iqbal Academy Pakistan (per the dataset's own README; not independently verified)",
+    "added_by": "Tesserae Project",
+    "license": "No LICENSE file on the dataset repository; the author (d. 1938) is public domain, and the maintainer's README informally invites reuse. Served as is (decision recorded 2026-09-03, research/languages/LICENSING_DECISION_MEMO_2026-09-03.md)."
+  },
+  {
+    "author": "Iqbal",
+    "work": "Zabur E Ajam",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/AzeemGhumman/iqbal-demystified-dataset",
+    "print_source": "Iqbal Academy Pakistan (per the dataset's own README; not independently verified)",
+    "added_by": "Tesserae Project",
+    "license": "No LICENSE file on the dataset repository; the author (d. 1938) is public domain, and the maintainer's README informally invites reuse. Served as is (decision recorded 2026-09-03, research/languages/LICENSING_DECISION_MEMO_2026-09-03.md)."
+  },
+  {
+    "author": "Jami",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Khaghani",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Khayyam",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Manuchehri",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Naser Khosrow",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Nizami",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Parvin",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Rudaki",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Rumi",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Rumi",
+    "work": "Masnavi",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "Opening of the Masnavi-ye Ma'navi; one part filed.",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Saadi",
+    "work": "Bustan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "Opening of the Bustan; one part filed.",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Saadi",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Saeb",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Sanai",
+    "work": "Diwan",
+    "e_source": "Chronological Persian Poetry Dataset (built on Ganjoor)",
+    "e_source_url": "https://github.com/aghasemi/ChronologicalPersianPoetryDataset",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0, declared on the dataset repository (github.com/aghasemi/ChronologicalPersianPoetryDataset); Ganjoor.net's own upstream terms for the underlying database were not independently verified."
+  },
+  {
+    "author": "Akbar",
+    "work": "Kulliyat",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:اکبر_الہ_آبادی",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Anis",
+    "work": "Marsiye",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:میر_انیس",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Atish",
+    "work": "Diwan",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:حیدر_علی_آتش",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Dagh",
+    "work": "Diwan",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:داغ_دہلوی",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Dard",
+    "work": "Diwan",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:خواجہ_میر_درد",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Ghalib",
+    "work": "Diwan",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:مرزا_اسد_اللہ_خان_غالب",
+    "print_source": "Numbered by ghazal and couplet (272 ghazals); the citable edition. An earlier radif-organized Wikisource extraction and a Pritchett edition were both retired 2026-09-07 to avoid serving one work three times.",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Hali",
+    "work": "Kulliyat",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:الطاف_حسین_حالی",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Insha",
+    "work": "Diwan",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:انشاء_اللہ_خان_انشا",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Iqbal",
+    "work": "Armaghan E Hijaz Urdu",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/AzeemGhumman/iqbal-demystified-dataset",
+    "print_source": "Iqbal Academy Pakistan (per the dataset's own README; not independently verified)",
+    "added_by": "Tesserae Project",
+    "license": "No LICENSE file on the dataset repository; the author (d. 1938) is public domain, and the maintainer's README informally invites reuse. Served as is (decision recorded 2026-09-03, research/languages/LICENSING_DECISION_MEMO_2026-09-03.md)."
+  },
+  {
+    "author": "Iqbal",
+    "work": "Bal E Jibril",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/AzeemGhumman/iqbal-demystified-dataset",
+    "print_source": "Iqbal Academy Pakistan (per the dataset's own README; not independently verified)",
+    "added_by": "Tesserae Project",
+    "license": "No LICENSE file on the dataset repository; the author (d. 1938) is public domain, and the maintainer's README informally invites reuse. Served as is (decision recorded 2026-09-03, research/languages/LICENSING_DECISION_MEMO_2026-09-03.md)."
+  },
+  {
+    "author": "Iqbal",
+    "work": "Bang E Dra",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/AzeemGhumman/iqbal-demystified-dataset",
+    "print_source": "Iqbal Academy Pakistan (per the dataset's own README; not independently verified)",
+    "added_by": "Tesserae Project",
+    "license": "No LICENSE file on the dataset repository; the author (d. 1938) is public domain, and the maintainer's README informally invites reuse. Served as is (decision recorded 2026-09-03, research/languages/LICENSING_DECISION_MEMO_2026-09-03.md)."
+  },
+  {
+    "author": "Iqbal",
+    "work": "Zarb E Kaleem",
+    "e_source": "Iqbal Demystified Dataset",
+    "e_source_url": "https://github.com/AzeemGhumman/iqbal-demystified-dataset",
+    "print_source": "Iqbal Academy Pakistan (per the dataset's own README; not independently verified)",
+    "added_by": "Tesserae Project",
+    "license": "No LICENSE file on the dataset repository; the author (d. 1938) is public domain, and the maintainer's README informally invites reuse. Served as is (decision recorded 2026-09-03, research/languages/LICENSING_DECISION_MEMO_2026-09-03.md)."
+  },
+  {
+    "author": "Mir",
+    "work": "Kulliyat",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:میر_تقی_میر",
+    "print_source": "343 ghazals, numbered independently of any other edition. Re-sourced from Wikisource 2026-09-04/05 after an earlier Rekhta corpus was found to carry an explicit no-redistribution notice; the Rekhta copy was never committed or served (research/languages/LICENSING_DECISION_MEMO_2026-09-03.md).",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Nazeer",
+    "work": "Kulliyat",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:نظیر_اکبر_آبادی",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Sauda",
+    "work": "Kulliyat",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:مرزا_محمد_رفیع_سودا",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Wali",
+    "work": "Diwan",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:ولی_دکنی",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Zafar",
+    "work": "Diwan",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:بہادر_شاہ_ظفر",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Zauq",
+    "work": "Diwan",
+    "e_source": "Urdu Wikisource",
+    "e_source_url": "https://ur.wikisource.org/wiki/مصنف:محمد_ابراہیم_ذوق",
+    "print_source": "",
+    "added_by": "Tesserae Project",
+    "license": "CC BY-SA 4.0 (Wikisource transcription, dual-licensed CC BY-SA 4.0 and GFDL under Wikisource's copyright policy); the author is public domain."
+  },
+  {
+    "author": "Pseudo Aurelius Victor",
+    "work": "De Viris Illustribus",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/victor/victor.ill.html",
+    "print_source": "",
+    "added_by": "V6 Import (Aurelius Victor minor works, 2026-10-08)"
+  },
+  {
+    "author": "Pseudo Aurelius Victor",
+    "work": "Origo Gentis Romanae",
+    "e_source": "The Latin Library",
+    "e_source_url": "https://www.thelatinlibrary.com/victor/victor.origio.html",
+    "print_source": "",
+    "added_by": "V6 Import (Aurelius Victor minor works, 2026-10-08)"
   }
 ]

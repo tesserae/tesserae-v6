@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { rememberLanguage } from '../../utils/languagePreference';
+import StartLanguageControl from './StartLanguageControl';
 
 /** Tells a horizontally scrolling strip whether there is more to its right.
  *
@@ -89,6 +91,7 @@ const Navigation = ({
     if (onLanguageReset) {
       onLanguageReset();
     }
+    rememberLanguage(tabCode);
     setActiveTab(tabCode);
   };
 
@@ -190,6 +193,10 @@ const Navigation = ({
                   {tab.label}
                 </button>
               ))}
+              <StartLanguageControl
+                languages={languageTabs.filter((t) => t.code !== 'cross')}
+                className="ml-auto pl-3 shrink-0 self-center"
+              />
             </div>
           </div>
         )}

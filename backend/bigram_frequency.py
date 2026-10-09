@@ -106,8 +106,15 @@ def calculate_bigram_frequencies(language, text_processor, progress_callback=Non
     if not os.path.exists(lang_dir):
         return {}
     
-    all_bigrams = []
+    # Counted as they come (2026-10-07): the old list of every bigram
+    # occurrence grew past 12 GB for Greek, whose rebuild then died at its cap.
+    freq = Counter()
+    total_occurrences = 0
     doc_bigrams = Counter()
+    try:
+        from backend.lemma_cache import get_cached_units
+    except ImportError:          # pragma: no cover
+        get_cached_units = None
     
     text_files = [f for f in os.listdir(lang_dir) if f.endswith('.tess')]
 
@@ -136,13 +143,17 @@ def calculate_bigram_frequencies(language, text_processor, progress_callback=Non
     for i, text_file in enumerate(text_files):
         text_path = os.path.join(lang_dir, text_file)
         try:
-            units = text_processor.process_file(text_path, language)
+            # The lemma cache holds the same units the processor would build
+            # (it is what the search itself reads); fall back to processing.
+            cached = get_cached_units(text_file, language) if get_cached_units else None
+            units = (cached or {}).get('units_line') or text_processor.process_file(text_path, language)
             doc_unique_bigrams = set()
             
             for unit in units:
                 lemmas = unit.get('lemmas', [])
                 bigrams = extract_bigrams(lemmas)
-                all_bigrams.extend(bigrams)
+                freq.update(bigrams)
+                total_occurrences += len(bigrams)
                 doc_unique_bigrams.update(bigrams)
             
             for bg in doc_unique_bigrams:
@@ -156,13 +167,12 @@ def calculate_bigram_frequencies(language, text_processor, progress_callback=Non
         elif (i + 1) % 100 == 0:
             print(f"  Processed {i + 1}/{total_docs} texts...")
     
-    freq = Counter(all_bigrams)
     frequencies = dict(freq.most_common())
     doc_freq_dict = dict(doc_bigrams.most_common())
     
-    data = save_bigram_cache(language, frequencies, len(all_bigrams), doc_freq_dict, total_docs)
-    
-    print(f"  Done: {len(frequencies)} unique bigrams, {len(all_bigrams)} total occurrences")
+    data = save_bigram_cache(language, frequencies, total_occurrences, doc_freq_dict, total_docs)
+
+    print(f"  Done: {len(frequencies)} unique bigrams, {total_occurrences} total occurrences")
     return data
 
 def get_bigram_frequencies(language, text_processor=None, force_recalculate=False):

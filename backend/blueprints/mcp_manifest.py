@@ -26,8 +26,33 @@ Keys are Flask rule strings exactly as they appear in app.url_map (e.g.
 
 MANIFEST = {
     # -- Covered by a connector tool -------------------------------------------------
+    # The backend PR (adding /api/scholarship) lands these same two routes as
+    # placeholder site_only entries, since it does not touch this file's
+    # tools. This PR is what makes the tools real: find_scholarship and
+    # get_commentary are defined in mcp_http.py TOOLS unconditionally (so
+    # this manifest and the parity tests stay consistent either way) but
+    # hidden from tools/list and refused by tools/call unless
+    # TESSERAE_SCHOLARSHIP_TOOLS=1 is set; see _visible_tools() there.
+    '/api/scholarship': {
+        'tools': ['find_scholarship'],
+    },
+    '/api/scholarship/commentary': {
+        'tools': ['get_commentary'],
+    },
+    '/api/scholarship/sources': {
+        'site_only': True,
+        'reason': 'Credits list for the Sources page (every commentator, edition, licence); the notes themselves come through get_commentary.',
+    },
+    '/api/scholarship/translate': {
+        'site_only': True,
+        'reason': "A machine translation of one commentary note for the Reader's tab; an agent reads the Latin from get_commentary.",
+    },
     '/api/languages': {
         'tools': ['get_languages'],
+    },
+    '/api/corpus-version': {
+        'site_only': True,
+        'reason': 'The date stamp for the Cite popup; connector tools already return corpus_version with their counts.',
     },
     '/api/texts': {
         'tools': ['list_texts'],
@@ -39,6 +64,11 @@ MANIFEST = {
     },
     '/api/line-search': {
         'tools': ['line_search'],
+    },
+    '/api/documents/<doc_id>': {
+        'site_only': True,
+        'reason': ('Document Reader view (stage 3b-3): website trial behind '
+                    '?documents=1, not yet exposed to the connector.'),
     },
     '/api/wildcard-search': {
         'tools': ['string_search'],
@@ -85,6 +115,20 @@ MANIFEST = {
     },
     '/api/feature-request': {
         'tools': ['submit_feature_request'],
+        'note': ("Requests workflow (2026-10-08): the same route and tool also file "
+                "result-problem/text-correction/suggestion, the three entry points added "
+                "on the website. submit_feature_request's type/title/problem/desired/"
+                "example/context/contact fields already pass through unchanged."),
+    },
+    # Listed here even though the route-walk's own segment rule excludes anything
+    # with a 'requests' or 'feedback' path segment: a human reading this file for
+    # "did the requests workflow get a parity decision" should find one instead of
+    # concluding it was missed.
+    '/api/requests': {
+        'site_only': True,
+        'reason': ("Public mirror of the GitHub issues /api/feature-request files (the "
+                  "Requests page): a read-only listing with short public summaries, not "
+                  "something an agent asks about on a caller's behalf."),
     },
     '/api/provenance': {
         'tools': ['describe_text'],
@@ -301,6 +345,15 @@ MANIFEST = {
         'site_only': True,
         'reason': ("POST SSE-streaming variant for the browser's live progress bar; "
                   "fusion_search polls GET /fusion-search instead, sharing the same cache."),
+    },
+    '/api/search-results/<result_id>': {
+        'site_only': True,
+        'reason': ("Later pages of a browser search that asked for page_size; fusion_search "
+                  "already pages its own results with offset/limit on GET /fusion-search."),
+    },
+    '/api/search-results/<result_id>/export': {
+        'site_only': True,
+        'reason': "Feeds the results page's CSV/PDF export buttons with every stored row.",
     },
 
     # -- SITE_ONLY: settings / config / ops --------------------------------------------

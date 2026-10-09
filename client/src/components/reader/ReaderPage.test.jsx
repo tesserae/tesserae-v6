@@ -76,6 +76,19 @@ async function mountReader() {
   await waitFor(() => expect(screen.getByLabelText('Author')).toBeTruthy());
 }
 
+// Author/Work/Book are SearchableSelect (type-to-find), not a plain
+// <select>, since 2026-10-06: the visible control is a text input showing
+// the chosen option's LABEL, and `fireEvent.change` on it only types a
+// filter rather than choosing anything. This drives it the way a user does
+// -- focus to open the full list, then click the option carrying the given
+// value (exposed as `data-value` on each option button so a test can find
+// it without matching on label text).
+async function chooseOption(labelText, value) {
+  fireEvent.focus(await screen.findByLabelText(labelText));
+  const option = screen.getAllByRole('option').find((o) => o.dataset.value === value);
+  fireEvent.pointerDown(option);
+}
+
 describe('the Reader loads what the dropdowns choose', () => {
   it('opens the work named in the URL', async () => {
     await mountReader();
@@ -84,31 +97,27 @@ describe('the Reader loads what the dropdowns choose', () => {
 
   it('choosing another book loads that book', async () => {
     await mountReader();
-    fireEvent.change(await screen.findByLabelText('Book'),
-                     { target: { value: 'ovid.tristia.part.4.tess' } });
+    await chooseOption('Book', 'ovid.tristia.part.4.tess');
     await waitFor(() => expect(asked).toContain('ovid.tristia.part.4.tess'));
   });
 
   it('choosing another work loads that work', async () => {
     await mountReader();
-    fireEvent.change(await screen.findByLabelText('Work'),
-                     { target: { value: 'amores' } });
+    await chooseOption('Work', 'amores');
     await waitFor(() => expect(asked).toContain('ovid.amores.tess'));
   });
 
   it('choosing another author loads that author', async () => {
     await mountReader();
-    fireEvent.change(await screen.findByLabelText('Author'),
-                     { target: { value: 'vergil' } });
+    await chooseOption('Author', 'vergil');
     await waitFor(() => expect(asked).toContain('vergil.aeneid.tess'));
   });
 
   it('the dropdown then SHOWS the text that is open', async () => {
     await mountReader();
-    fireEvent.change(await screen.findByLabelText('Book'),
-                     { target: { value: 'ovid.tristia.part.4.tess' } });
+    await chooseOption('Book', 'ovid.tristia.part.4.tess');
     await waitFor(() =>
-      expect(screen.getByLabelText('Book').value).toBe('ovid.tristia.part.4.tess'));
+      expect(screen.getByLabelText('Book').value).toBe('Book 4'));
   });
 });
 
@@ -122,8 +131,7 @@ describe('arriving from Theme Search', () => {
   it('still lets the dropdowns change the text', async () => {
     window.history.replaceState({}, '', FROM_THEME);
     await mountReader();
-    fireEvent.change(await screen.findByLabelText('Book'),
-                     { target: { value: 'ovid.tristia.part.4.tess' } });
+    await chooseOption('Book', 'ovid.tristia.part.4.tess');
     await waitFor(() => expect(asked).toContain('ovid.tristia.part.4.tess'));
   });
 
@@ -271,8 +279,7 @@ describe('the arrival banner is one-shot', () => {
     window.history.replaceState({}, '', FROM_THEME);
     await mountReader();
     await screen.findByText(/Found by Theme Search/);
-    fireEvent.change(await screen.findByLabelText('Work'),
-                     { target: { value: 'amores' } });
+    await chooseOption('Work', 'amores');
     await waitFor(() =>
       expect(screen.queryByText(/Found by Theme Search/)).toBeNull());
   });
@@ -348,16 +355,14 @@ describe('Back inside the Reader comes back to the Reader', () => {
   it('opening another text adds a history entry', async () => {
     await mountReader();
     const before = window.history.length;
-    fireEvent.change(await screen.findByLabelText('Author'),
-                     { target: { value: 'vergil' } });
+    await chooseOption('Author', 'vergil');
     await waitFor(() => expect(asked).toContain('vergil.aeneid.tess'));
     expect(window.history.length).toBeGreaterThan(before);
   });
 
   it('going Back loads the text that was open before', async () => {
     await mountReader();
-    fireEvent.change(await screen.findByLabelText('Author'),
-                     { target: { value: 'vergil' } });
+    await chooseOption('Author', 'vergil');
     await waitFor(() => expect(asked).toContain('vergil.aeneid.tess'));
 
     asked.length = 0;
@@ -366,7 +371,7 @@ describe('Back inside the Reader comes back to the Reader', () => {
     await waitFor(() => expect(asked).toContain('ovid.tristia.part.3.tess'));
     // and the page must actually show it, not just hold the URL
     await waitFor(() =>
-      expect(screen.getByLabelText('Author').value).toBe('ovid'));
+      expect(screen.getByLabelText('Author').value).toBe('Ovid'));
   });
 
   it('adds exactly one entry per text, not one per render', async () => {
@@ -377,8 +382,7 @@ describe('Back inside the Reader comes back to the Reader', () => {
     // stack's shape rather than of this component.
     window.history.pushState({}, '', window.location.href);
     const before = window.history.length;
-    fireEvent.change(await screen.findByLabelText('Book'),
-                     { target: { value: 'ovid.tristia.part.4.tess' } });
+    await chooseOption('Book', 'ovid.tristia.part.4.tess');
     await waitFor(() => expect(asked).toContain('ovid.tristia.part.4.tess'));
     expect(window.history.length - before).toBe(1);
   });
@@ -403,6 +407,31 @@ describe('per-language defaults', () => {
                      { target: { value: 'la' } });
     await waitFor(() =>
       expect(asked).toContain('vergil.aeneid.part.1.tess'));
+  });
+});
+
+describe('the remembered start language (NC 2026-10-07)', () => {
+  afterEach(() => { window.localStorage.clear(); });
+
+  it('a bare /read opens in the language chosen last', async () => {
+    window.localStorage.setItem('tesserae_last_language', 'grc');
+    window.history.replaceState({}, '', '/read');
+    await mountReader();
+    await waitFor(() =>
+      expect(asked).toContain('apollonius_rhodius.argonautica.part.1.tess'));
+  });
+
+  it('a link that names a work keeps its own language', async () => {
+    window.localStorage.setItem('tesserae_last_language', 'grc');
+    await mountReader();   // beforeEach set /read?work=ovid.tristia.part.3.tess&lang=la
+    await waitFor(() => expect(asked).toContain('ovid.tristia.part.3.tess'));
+    expect(asked).not.toContain('apollonius_rhodius.argonautica.part.1.tess');
+  });
+
+  it('choosing a language in the Reader is remembered', async () => {
+    await mountReader();
+    fireEvent.change(await screen.findByLabelText('Language'), { target: { value: 'grc' } });
+    expect(window.localStorage.getItem('tesserae_last_language')).toBe('grc');
   });
 });
 
@@ -473,5 +502,87 @@ describe('clicking a "quoted in N works" mark', () => {
     const reuseTab = screen.getByRole('button', { name: 'Reuse' });
     await waitFor(() => expect(reuseTab.className).toContain('text-red-700'));
     expect(await screen.findByText(/a repeated line, quoted at length/)).toBeTruthy();
+  });
+});
+
+// --------------------------------------------------------------------------
+
+describe('opening a Similar Passages result, and coming back', () => {
+  // NC 2026-10-07: from Curtius to the Alexandreis through Similar, "there was
+  // no back button to go back to Curtius Rufus". The result also opened the
+  // other work at its top instead of at the passage.
+  const CURTIUS = Array.from({ length: 40 }, (_, k) => ({ ref: `curt. 3.${k + 1}`, text: `curtius ${k + 1}` }));
+  const ALEX = Array.from({ length: 400 }, (_, k) => ({ ref: `alex. 1.${k + 1}`, text: `alexandreis ${k + 1}` }));
+
+  function mockTwoWorks() {
+    const reply = (obj) => Promise.resolve({
+      ok: true, json: () => Promise.resolve(obj), text: () => Promise.resolve(JSON.stringify(obj)) });
+    global.fetch = vi.fn((url) => {
+      const u = String(url);
+      if (u.startsWith('/api/text/curtius')) return reply({ units: CURTIUS, metadata: { display_name: 'Quintus Curtius, Histories' } });
+      if (u.startsWith('/api/text/walter')) return reply({ units: ALEX, metadata: { display_name: 'Walter of Chatillon, Alexandreis' } });
+      if (u.startsWith('/api/passages/similar')) {
+        return reply({ results: [{ id: 'w1', work: 'walter.alexandreis', language: 'la',
+          display_name: 'Walter of Chatillon, Alexandreis', ref_start: 'alex. 1.300',
+          ref_end: 'alex. 1.305', score: 0.8, description: 'a scene' }] });
+      }
+      if (u.includes('/authors?')) return reply(AUTHORS);
+      if (u.includes('/texts?')) return reply([]);
+      if (u.startsWith('/api/languages')) return reply({ languages: [{ code: 'la' }, { code: 'grc' }] });
+      return reply({});
+    });
+  }
+
+  it('lands on the passage, offers a way back, and Back returns to the line left', async () => {
+    mockTwoWorks();
+    window.history.replaceState({}, '', '/read?' + new URLSearchParams({
+      work: 'curtius.historiae.tess', lang: 'la', ref: 'curt. 3.20', tab: 'similar' }));
+    await mountReader();
+    fireEvent.click(await screen.findByText('Walter of Chatillon, Alexandreis'));
+
+    // The Alexandreis opens AT the passage: line 300 is drawn and selected.
+    await waitFor(() => expect(document.getElementById('line-alex-1-300')).toBeTruthy());
+    expect(window.location.search).toContain('work=walter.alexandreis.tess');
+    await waitFor(() => expect(new URLSearchParams(window.location.search).get('at')).toBe('alex. 1.300'));
+
+    // The banner names where the reader came from and offers the way back.
+    const banner = await screen.findByTestId('reader-back-banner');
+    expect(banner.textContent).toContain('Quintus Curtius, Histories 3.20');
+    fireEvent.click(screen.getByRole('button', { name: 'back to Quintus Curtius, Histories' }));
+    await waitFor(() => expect(new URLSearchParams(window.location.search).get('at')).toBe('curt. 3.20'));
+    expect(window.location.search).toContain('work=curtius.historiae.tess');
+    expect(screen.queryByTestId('reader-back-banner')).toBeNull();
+  });
+});
+
+describe('Similar Passages: in other languages', () => {
+  it('shows a button per language and opens that language\'s matches', async () => {
+    const units = Array.from({ length: 30 }, (_, k) => ({ ref: `mir 1.${k + 1}`, text: `line ${k + 1}` }));
+    const reply = (obj) => Promise.resolve({
+      ok: true, json: () => Promise.resolve(obj), text: () => Promise.resolve(JSON.stringify(obj)) });
+    global.fetch = vi.fn((url) => {
+      const u = String(url);
+      if (u.startsWith('/api/text/')) return reply({ units, metadata: { display_name: 'Mir, Kulliyat' } });
+      if (u.startsWith('/api/passages/similar')) {
+        expect(u).toContain('by_language=1');
+        return reply({
+          results: [{ id: 'p1', work: 'hafez.diwan', language: 'fa', display_name: 'Hafez, Diwan',
+            ref_start: 'hafez.diwan.1', ref_end: 'hafez.diwan.2', score: 0.96 }],
+          by_language: { ur: [{ id: 'u1', work: 'dagh.diwan', language: 'ur', display_name: 'Dagh, Diwan',
+            ref_start: 'dagh.diwan.3', ref_end: 'dagh.diwan.4', score: 0.95 }] },
+        });
+      }
+      if (u.includes('/authors?')) return reply(AUTHORS);
+      if (u.includes('/texts?')) return reply([]);
+      if (u.startsWith('/api/languages')) return reply({ languages: [{ code: 'la' }, { code: 'ur' }, { code: 'fa' }] });
+      return reply({});
+    });
+    window.history.replaceState({}, '', '/read?' + new URLSearchParams({
+      work: 'mir.kulliyat.tess', lang: 'ur', ref: 'mir 1.5', tab: 'similar' }));
+    await mountReader();
+    const urdu = await screen.findByRole('button', { name: /Urdu · 1/ });
+    expect(screen.queryByText('Dagh, Diwan')).toBeNull();
+    fireEvent.click(urdu);
+    expect(await screen.findByText('Dagh, Diwan')).toBeTruthy();
   });
 });

@@ -7,7 +7,8 @@ import { useCorpus } from '../../hooks';
 import { LoadingSpinner } from '../common';
 import TextPane from './TextPane';
 import ConnectionGutter from './ConnectionGutter';
-import ResultsPanel from './ResultsPanel';
+import ResultsPanel, { shortRef as shortLocus } from './ResultsPanel';
+import { startLanguage, rememberLanguage } from '../../utils/languagePreference';
 
 // Book 1, not book 6: the Reader opens where a reader expects a poem to start,
 // and "arma virumque cano" is the line most visitors will recognise.
@@ -18,6 +19,7 @@ const DEFAULT_WORK = 'vergil.aeneid.part.1.tess';
 // whole-work files arrive in stretches.
 const READER_STEP = 1000;
 const DEFAULT_LANGUAGE = 'la';
+const READER_LANGUAGES = ['la', 'grc', 'en', 'cop', 'he', 'fa', 'ur', 'ar', 'it', 'gmh', 'fro'];
 // Where each language's corpus opens when no work is chosen yet.
 const PREFERRED_WORK = {
   la: DEFAULT_WORK,
@@ -51,7 +53,11 @@ export default function ReaderPage() {
   // effect below choose by language. Defaulting to the Aeneid here opened
   // Latin under an Arabic address (/read?lang=ar) (NC, 2026-09-07).
   const [work, setWork] = useState(() => paramOr('work', ''));
-  const [language, setLanguage] = useState(() => paramOr('lang', DEFAULT_LANGUAGE));
+  // A link that names a work keeps its own language (or the default); a bare
+  // /read opens in the reader's start language (utils/languagePreference.js).
+  const [language, setLanguage] = useState(() => paramOr('lang',
+    (new URLSearchParams(window.location.search).get('work') ? null : startLanguage(READER_LANGUAGES))
+    || DEFAULT_LANGUAGE));
   const { hierarchy, loading: corpusLoading } = useCorpus(language);
   // Where a link asked us to land. Theme Search sends the reader here with a
   // specific passage in mind, and dropping them at line 1 of the work would
@@ -70,8 +76,15 @@ export default function ReaderPage() {
   // `ref` is what Theme Search sends; `at` is what this page writes back, so a
   // URL copied out of the address bar reselects its passage too. Reading only
   // `ref` meant the Reader wrote a position it could not itself read.
-  const [wantedRef] = useState(() => paramOr('ref', '') || paramOr('at', ''));
-  const [wantedRefEnd] = useState(() => paramOr('refEnd', ''));
+  // Settable since 2026-10-07: opening a Similar Passages or Verbal Parallels
+  // result names the passage too, and Back names the line it left, so the
+  // Reader lands on the passage instead of the top of the other work.
+  const [wantedRef, setWantedRef] = useState(() => paramOr('ref', '') || paramOr('at', ''));
+  const [wantedRefEnd, setWantedRefEnd] = useState(() => paramOr('refEnd', ''));
+  // Where a result was opened FROM, for the "back to" banner (NC 2026-10-07:
+  // from Curtius to the Alexandreis through Similar, "there was no back button
+  // to go back to Curtius Rufus").
+  const [backTo, setBackTo] = useState(null);
   const [wantedTab] = useState(() => paramOr('tab', ''));
   // Which language is the READING column. 'source' is the classical page;
   // 'english' puts the translation in the middle and the original in the
@@ -273,6 +286,11 @@ export default function ReaderPage() {
       setLanguage(p.get('lang') || 'la');
       setWork(w);
       setSelection(null);
+      // Back returns to the line the reader left, which the URL kept as `at`.
+      arrivedRef.current = '';
+      setWantedRef(p.get('at') || '');
+      setWantedRefEnd('');
+      setBackTo(null);
       setCameFrom('');
     };
     window.addEventListener('popstate', onPop);
@@ -282,8 +300,13 @@ export default function ReaderPage() {
   /** Open a result in the Reader, which is what makes the corpus browsable. */
   // Select the line the link named, once the text is in. Runs on units so it
   // fires after the fetch rather than racing it.
+  // ONCE per arrival. The effect re-runs whenever more lines are drawn, so
+  // without this a reader who clicked another line and scrolled on had the
+  // arrival passage selected again under them. Cleared on each new arrival.
+  const arrivedRef = useRef('');
   useEffect(() => {
     if (!wantedRef || !units.length) return;
+    if (arrivedRef.current === `${work}|${wantedRef}`) return;
     const i = units.findIndex((u) => u.ref === wantedRef);
     if (i < 0) return;
     // The line must be drawn before it can be selected and scrolled to.
@@ -295,6 +318,7 @@ export default function ReaderPage() {
     const end = j >= i ? j : i;
     setSelection({ startIdx: i, endIdx: end, refStart: units[i].ref,
                    refEnd: units[end].ref, lineCount: end - i + 1 });
+    arrivedRef.current = `${work}|${wantedRef}`;
     // Open the results panel on the requested tab exactly as a click on the
     // text would (TextPane's own onSelect sets panelTab + popupOpen the same
     // way) -- arriving via a URL is not a click, so nothing else would set
@@ -313,7 +337,7 @@ export default function ReaderPage() {
       if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
     }, 120);
     return () => window.clearTimeout(id);
-  }, [wantedRef, wantedRefEnd, wantedTab, units, visibleCount]);
+  }, [wantedRef, wantedRefEnd, wantedTab, units, visibleCount, work]);
 
   // "Go to line" from the ReaderNav strip (2026-09-19). A typed locus is
   // matched against the line refs of the open text: the whole ref ("verg.
@@ -437,10 +461,28 @@ export default function ReaderPage() {
 
   const openPassage = useCallback((result) => {
     if (!result?.work) return;
+    const label = metadata?.display_name || work.replace(/\.tess$/, '');
+    setBackTo({ work, language, ref: selection?.refStart || '',
+                refEnd: selection?.refEnd || '', label,
+                at: selection?.refStart ? shortLocus(selection.refStart) : '' });
+    arrivedRef.current = '';
+    setWantedRef(result.ref_start || '');
+    setWantedRefEnd(result.ref_end || '');
+    setCameFrom('');
+    setMapFrom('');
     setWork(result.work.endsWith('.tess') ? result.work : `${result.work}.tess`);
     setLanguage(result.language || 'la');
     window.scrollTo({ top: 0 });
-  }, []);
+  }, [metadata, work, language, selection]);
+  const goBack = useCallback(() => {
+    if (!backTo) return;
+    arrivedRef.current = '';
+    setWantedRef(backTo.ref);
+    setWantedRefEnd(backTo.refEnd);
+    setWork(backTo.work);
+    setLanguage(backTo.language);
+    setBackTo(null);
+  }, [backTo]);
 
   return (
     // overflow-clip, not overflow-hidden: both clip the children to the
@@ -453,6 +495,7 @@ export default function ReaderPage() {
       <ReaderHeader
         language={language}
         onLanguage={(code) => {
+          rememberLanguage(code);
           // A language of its own, so every corpus is reachable. Changing it
           // clears the work: the previous text is not in the new language, and
           // leaving it named left the header describing something not open.
@@ -517,6 +560,22 @@ export default function ReaderPage() {
                   </a>
                 </span>
                 <button onClick={() => setMapFrom('')} aria-label="Dismiss"
+                        className="ml-auto shrink-0 text-gray-500 hover:text-gray-700 text-base leading-none px-1">
+                  ×
+                </button>
+              </p>
+            )}
+            {backTo && !cameFrom && (
+              <p data-testid="reader-back-banner"
+                 className="px-3 py-2 text-xs text-gray-700 border-b border-gray-200 bg-red-50 flex items-center gap-2">
+                <span className="min-w-0">
+                  Opened from{' '}
+                  <span className="font-medium">{backTo.label}{backTo.at ? ` ${backTo.at}` : ''}</span>
+                  <button onClick={goBack} className="ml-2 text-red-700 hover:underline">
+                    back to {backTo.label}
+                  </button>
+                </span>
+                <button onClick={() => setBackTo(null)} aria-label="Dismiss"
                         className="ml-auto shrink-0 text-gray-500 hover:text-gray-700 text-base leading-none px-1">
                   ×
                 </button>

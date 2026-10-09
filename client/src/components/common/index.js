@@ -1,7 +1,10 @@
 export { default as SearchableAuthorSelect } from './SearchableAuthorSelect';
+export { default as SearchableSelect } from './SearchableSelect';
 export { default as Modal } from './Modal';
 export { default as Button } from './Button';
 export { default as LoadingSpinner } from './LoadingSpinner';
 export { default as Pagination } from './Pagination';
 export { default as UpdateBanner } from './UpdateBanner';
 export { default as CiteButton } from './CiteButton';
+export { default as InfoBadge } from './InfoBadge';
+export { default as RequestDialog } from './RequestDialog';

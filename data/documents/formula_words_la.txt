@@ -1,0 +1,79 @@
+# Latin documentary formula words (stage 2 review, 2026-10-08)
+#
+# Source: document frequency of expanded words across the deduplicated
+# documentary corpus (EDH, EDR, papyri.info, I.Sicily), top 300 words by
+# language, from scripts/documents/formula_stoplist.py.
+# Method: words marked as Latin funerary/honorific/legal formula
+# vocabulary (dis manibus, vixit annis, the Roman naming/filiation
+# formula words excluded, imperial titulature, the votive closing
+# formula) by hand review of that candidate list, plus three words
+# added by hand that the document-frequency pass did not surface on
+# its own: solvit, fronte, pedes (the votive-closing and burial-plot
+# measurement formulas, e.g. "votum solvit libens merito", "in fronte
+# pedes X in agro pedes Y").
+# Explicitly EXCLUDES personal names and praenomina/filiation forms
+# (caius, lucius, marcus, cai, luci, marci and similar): those belong in
+# a name list, not a formula list, and are tracked separately.
+# Explicitly EXCLUDES numerals.
+#
+# USE: a SOFT penalty on matches built from these words (like a function
+# word list), not a hard stoplist. A genuine parallel built partly from
+# "dis manibus" or "vixit annis" is still a real parallel; these words
+# should count for less toward a match's distinctiveness, not be thrown
+# out.
+#
+# One word per line, lowercase, not finalized for production use without
+# a second review.
+annis
+annorum
+annos
+augusto
+bene
+carissimae
+carissimo
+coniugi
+curaverunt
+curavit
+diebus
+dies
+dis
+est
+fecerunt
+fecit
+filia
+filiae
+filio
+filius
+fronte
+heres
+hic
+libens
+libertabusque
+libertis
+locus
+manibus
+marito
+maximus
+memoriae
+mensibus
+merenti
+merito
+pedes
+pius
+pontifex
+posuerunt
+posuit
+potestate
+sacrum
+sibi
+sita
+situs
+solvit
+suis
+sunt
+testamento
+tribunicia
+uxori
+vivus
+vixit
+votum

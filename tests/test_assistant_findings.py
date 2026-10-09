@@ -199,3 +199,40 @@ def test_guard_does_not_split_on_abbreviations():
     cleaned, removed = model.strip_access_talk(text)
     assert cleaned == 'The run appears at Aen. 1.146. The phrase is rare.'
     assert len(removed) == 1
+
+
+def test_channels_of_reads_the_cross_language_comma_joined_string():
+    """Cross-language fusion (backend/blueprints/search.py,
+    _direct_crosslingual_core) reports 'channels' as one comma-joined string
+    ("semantic (85%), dictionary (3 words)"), not a list. set() of that
+    string silently returned a set of individual characters, so every
+    evidence bucket (verbatim, meaning, ...) came up empty for every
+    cross-language result and the computed verdict read "weak" regardless
+    of the real evidence (crosslingual parity, 2026-10-08).
+    """
+    cross_pair = {
+        'source': {'ref': '1693'}, 'target': {'ref': '64.1'},
+        'channels': 'semantic (85%), dictionary (3 words)',
+        'matched_words': [],
+    }
+    assert findings._channels_of(cross_pair) == {'semantic', 'dictionary'}
+
+
+def test_channels_of_maps_the_cross_language_phonetic_label_to_sound():
+    cross_pair = {'channels': 'phonetic (4 tokens)'}
+    assert findings._channels_of(cross_pair) == {'sound'}
+
+
+def test_channels_of_still_reads_a_plain_list():
+    assert findings._channels_of({'channels': ['lemma', 'semantic']}) == {'lemma', 'semantic'}
+
+
+def test_cross_language_verdict_reflects_its_real_channels():
+    cross_results = [{
+        'source': {'ref': '1693', 'text': 'aval ghazal namad'},
+        'target': {'ref': '64.1', 'text': 'dovvom sher biyad'},
+        'channels': 'semantic (85%), dictionary (3 words)',
+        'matched_words': [],
+    }]
+    facts = findings.summarize_results(cross_results, 'hafez.diwan', 'ghalib.diwan_wikisource')
+    assert facts['channels_fired'] == {'semantic': 1, 'dictionary': 1}

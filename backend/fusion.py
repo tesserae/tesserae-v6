@@ -96,6 +96,16 @@ _STOPLISTS = {
 # and sound-channel trigrams ('[xyz]'). A real lemma contains none of these
 # characters. Used to derive a clean matched-lemma list for corpus-search.
 _MATCHED_LEMMA_MARKUP_RE = re.compile(r'[\[\]()~≈%:\s]')
+# A quotation-run token ('[QUOT:jan]') carries a real word: the run's own surface
+# form. Dropping it with the rest of the markup left quotation-only rows with no
+# matched words at all (2026-10-07: Hafez "jan-e man o jan-e shoma" quoted by
+# Iqbal showed as sharing one word, with no corpus chart and no works count).
+_QUOT_RE = re.compile(r'^\[QUOT:(.+)\]$')
+
+
+def _quotation_word(lemma):
+    m = _QUOT_RE.match(lemma or '')
+    return m.group(1) if m else None
 
 
 def _display_matched_words(mw_dict, language):
@@ -127,8 +137,12 @@ def _display_matched_words(mw_dict, language):
                    if unicodedata.combining(c))
 
     chosen = {}  # norm -> (lemma, mw)
+    quoted = []  # (word, mw) from quotation-run markers, added after real lemmas
     for lemma, mw in mw_dict.items():
         if not lemma or _MATCHED_LEMMA_MARKUP_RE.search(lemma):
+            word = _quotation_word(lemma)
+            if word:
+                quoted.append((word, mw))
             continue
         norm = _norm(lemma)
         prev = chosen.get(norm)
@@ -142,6 +156,11 @@ def _display_matched_words(mw_dict, language):
         )
         if better:
             chosen[norm] = (lemma, mw)
+    # A quoted word not already present as a lemma is shown as itself.
+    for word, mw in quoted:
+        norm = _norm(word)
+        if norm not in chosen:
+            chosen[norm] = (word, {**mw, 'lemma': word})
     return [mw for _, mw in chosen.values()]
 
 
@@ -2450,6 +2469,10 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
         "all_source_highlights": set(),
         "all_target_highlights": set(),
         "all_matched_words": {},
+        # Per-channel token positions: {ch_name: {"source": set, "target": set}}.
+        # Kept alongside the merged highlight sets so consumers can apply distinct
+        # rendering (e.g. bold for lemma, italic for sound) without re-running the search.
+        "channel_token_attrs": {},
     })
 
     import time as _time
@@ -2479,10 +2502,19 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
             # Accumulate highlight indices from all channels
             src = r.get("source", {})
             tgt = r.get("target", {})
-            for idx in src.get("highlight_indices", []):
+            src_indices = src.get("highlight_indices", [])
+            tgt_indices = tgt.get("highlight_indices", [])
+            for idx in src_indices:
                 pair_scores[key]["all_source_highlights"].add(idx)
-            for idx in tgt.get("highlight_indices", []):
+            for idx in tgt_indices:
                 pair_scores[key]["all_target_highlights"].add(idx)
+            # Also track the same indices per channel so the payload carries
+            # per-channel token attribution (which words each channel matched).
+            ch_attrs = pair_scores[key]["channel_token_attrs"]
+            if ch_name not in ch_attrs:
+                ch_attrs[ch_name] = {"source": set(), "target": set()}
+            ch_attrs[ch_name]["source"].update(src_indices)
+            ch_attrs[ch_name]["target"].update(tgt_indices)
 
             # Accumulate matched words (dedup by lemma, prefer entries with source_word)
             for mw in r.get("matched_words", []):
@@ -2863,6 +2895,10 @@ def fuse_results(channel_results, weights=None, convergence_bonus=None,
         result["fused_score"] = round(info["score"], 4)
         result["channels"] = info["channels"]
         result["channel_count"] = len(info["channels"])
+        result["channel_token_attrs"] = {
+            ch: {"source": sorted(v["source"]), "target": sorted(v["target"])}
+            for ch, v in info.get("channel_token_attrs", {}).items()
+        }
         merged.append(result)
 
     # The passage-context pass (3,000 candidate pairs looked up in the

@@ -113,8 +113,52 @@ _MIN_RADIF_LINES = 3
 _MIN_RADIF_FRACTION = 0.6
 _MAX_RADIF_TOKENS = 4
 # Share of the form score given to line pairs other than the two poems'
-# opening lines (see find_form_matches).
+# opening lines. Since 2026-10-06 the channel emits ONE match per poem pair
+# (the opening-line pair, with the other refrain lines listed on it), so
+# this share applies only when the opening pair itself cannot be placed
+# and a later line pair stands in for it.
 _NON_OPENING_SHARE = 0.6
+
+# Corpus-wide refrain-and-rhyme counts (scripts/build_form_signatures.py ->
+# data/poetics/form_signatures_<lang>.json): how many poems in the whole
+# corpus of a language carry a given (radif, qafia) signature. A signature
+# that only these two poems carry keeps its full score; one that dozens of
+# ghazals carry (Urdu "hai" with the rhyme "-ri": 2026-10-05 review, six of
+# thirty Urdu rows were one such poem pair) is discounted by
+# corpus_form_factor. Loaded once per language; None when no table exists,
+# in which case the factor is 1.0 and the channel behaves as before.
+_FORM_SIG_CACHE = {}
+
+
+def load_form_signatures(language):
+    """{'signatures': {'radif|qafia': poems}, 'radifs': {radif: poems},
+    'total_poems': n} for `language`, or None when no table is built."""
+    if language in _FORM_SIG_CACHE:
+        return _FORM_SIG_CACHE[language]
+    path = os.path.join(_GANJOOR_DIR, f'form_signatures_{language}.json')
+    table = None
+    if os.path.exists(path):
+        try:
+            import json
+            with open(path, encoding='utf-8') as fh:
+                table = json.load(fh)
+        except Exception:                                   # noqa: BLE001
+            table = None
+    _FORM_SIG_CACHE[language] = table
+    return table
+
+
+def corpus_form_factor(corpus_poems):
+    """Discount for a signature carried by `corpus_poems` poems across the
+    corpus: 1.0 for two or fewer (only this pair), 0.5 for eight, 0.25 for
+    thirty-two, 0.1 for two hundred."""
+    if not corpus_poems or corpus_poems <= 2:
+        return 1.0
+    return math.sqrt(2.0 / corpus_poems)
+
+
+def signature_key(radif, qafia):
+    return ' '.join(radif) + '|' + (qafia or '')
 # Share kept by a refrain-and-rhyme match whose two poems are in different meters.
 _METER_MISMATCH_SHARE = 0.3
 
@@ -609,6 +653,10 @@ def find_form_matches(source_units, target_units, settings=None):
                         })
         src_sigs = []  # the fa/ur loop below runs on nothing
 
+    sig_table = load_form_signatures(language) if settings.get('form_corpus_rarity', True) else None
+    sig_counts = (sig_table or {}).get('signatures', {})
+    radif_counts_corpus = (sig_table or {}).get('radifs', {})
+
     for s_poem, s_radif, s_qafia, s_line_idxs in src_sigs:
         if not s_radif:
             # Radif-less poems: no match in this version -- qafia alone is
@@ -620,6 +668,7 @@ def find_form_matches(source_units, target_units, settings=None):
                 base_score = 1.0
                 rarity = 1.0 / math.sqrt(src_sig_counts[(s_radif, s_qafia)]
                                          * tgt_sig_counts[(t_radif, t_qafia)])
+                corpus_poems = sig_counts.get(signature_key(s_radif, s_qafia))
             else:
                 is_single_stoplisted = (
                     len(s_radif) == 1 and all(tok in stoplist for tok in s_radif)
@@ -628,57 +677,67 @@ def find_form_matches(source_units, target_units, settings=None):
                     continue  # shared by chance, not by design
                 base_score = 0.5
                 rarity = 1.0 / math.sqrt(src_radif_counts[s_radif] * tgt_radif_counts[t_radif])
+                corpus_poems = radif_counts_corpus.get(' '.join(s_radif))
 
             # Meter, when both sides carry a label: an answer poem keeps its
             # model's meter, so a different meter is strong evidence against.
             if s_poem.meter and t_poem.meter:
                 rarity *= 1.0 if s_poem.meter == t_poem.meter else _METER_MISMATCH_SHARE
 
+            # Corpus-wide rarity of the shared form (see load_form_signatures).
+            corpus_factor = corpus_form_factor(corpus_poems) if corpus_poems else 1.0
+            rarity *= corpus_factor
+
             poem_pairs += 1
             radif_str = ' '.join(s_radif)
             radif_len = len(s_radif)
             bucket = matches_full if base_score == 1.0 else matches_half
 
-            # Only the first _MAX_LINES_PER_POEM lines of each poem are paired
-            # (2026-09-06): with whole divans on both sides a common refrain
-            # (Urdu hai) joins hundreds of poem pairs, and pairing every line
-            # with every line (Mir's 588 ghazals against Dagh's 179) filled
-            # the app's memory. The opening pair, which carries the score,
-            # is always among them.
+            # ONE match per poem pair (2026-10-06). Before this the channel
+            # emitted every (source line, target line) pair of the two poems'
+            # refrain lines, so a ranking of 200 held a handful of poem pairs
+            # repeated dozens of times (the 2026-10-05 review sheets: 24 of
+            # 30 Persian rows were five poem pairs). The opening-line pair
+            # carries the match (a ghazal is cited by its opening); the other
+            # refrain lines of each poem are listed on it for display.
+            src_lines = []   # (local order, unit idx, radif position)
             for n_s, li in enumerate(s_line_idxs[:_MAX_LINES_PER_POEM]):
                 src_idx = s_poem.unit_idxs[li]
-                src_unit = source_units[src_idx]
-                src_pos = _radif_start_position(src_unit, s_radif, normalize)
-                if src_pos is None:
-                    continue
-                for n_t, lj in enumerate(t_line_idxs[:_MAX_LINES_PER_POEM]):
-                    tgt_idx = t_poem.unit_idxs[lj]
-                    tgt_unit = target_units[tgt_idx]
-                    tgt_pos = _radif_start_position(tgt_unit, t_radif, normalize)
-                    if tgt_pos is None:
-                        continue
-                    # The pair of opening lines carries the poem-to-poem
-                    # link (a ghazal is cited by its opening); the other
-                    # line pairs of the same two poems get a reduced share
-                    # so the list is headed by one entry per poem pair and
-                    # wording overlap decides the order of the rest.
-                    opening = 1.0 if (n_s == 0 and n_t == 0) else _NON_OPENING_SHARE
-                    form_score = round(base_score * rarity * opening, 4)
-                    bucket.append({
-                        'source_idx': src_idx,
-                        'target_idx': tgt_idx,
-                        'match_basis': 'form',
-                        'form_score': form_score,
-                        'form_base': base_score,
-                        'form_rarity': round(rarity, 4),
-                        'radif': radif_str,
-                        'qafia': s_qafia,
-                        'meter': s_poem.meter if s_poem.meter == t_poem.meter else None,
-                        'source_position': src_pos,
-                        'target_position': tgt_pos,
-                        'radif_len': radif_len,
-                        'matched_lemmas': [],
-                    })
+                pos = _radif_start_position(source_units[src_idx], s_radif, normalize)
+                if pos is not None:
+                    src_lines.append((n_s, src_idx, pos))
+            tgt_lines = []
+            for n_t, lj in enumerate(t_line_idxs[:_MAX_LINES_PER_POEM]):
+                tgt_idx = t_poem.unit_idxs[lj]
+                pos = _radif_start_position(target_units[tgt_idx], t_radif, normalize)
+                if pos is not None:
+                    tgt_lines.append((n_t, tgt_idx, pos))
+            if not src_lines or not tgt_lines:
+                continue
+            n_s, src_idx, src_pos = src_lines[0]
+            n_t, tgt_idx, tgt_pos = tgt_lines[0]
+            opening = 1.0 if (n_s == 0 and n_t == 0) else _NON_OPENING_SHARE
+            form_score = round(base_score * rarity * opening, 4)
+            bucket.append({
+                'source_idx': src_idx,
+                'target_idx': tgt_idx,
+                'match_basis': 'form',
+                'form_score': form_score,
+                'form_base': base_score,
+                'form_rarity': round(rarity, 4),
+                'form_corpus_poems': corpus_poems,
+                'form_corpus_factor': round(corpus_factor, 4),
+                'radif': radif_str,
+                'qafia': s_qafia,
+                'meter': s_poem.meter if s_poem.meter == t_poem.meter else None,
+                'source_position': src_pos,
+                'target_position': tgt_pos,
+                'radif_len': radif_len,
+                'matched_lemmas': [],
+                # The poems' other refrain lines (refs), for the result card.
+                'source_lines': [source_units[i].get('ref', '') for _, i, _ in src_lines],
+                'target_lines': [target_units[i].get('ref', '') for _, i, _ in tgt_lines],
+            })
 
     matches = matches_full + matches_half
     matches.sort(key=lambda m: -m['form_score'])
@@ -691,3 +750,149 @@ def find_form_matches(source_units, target_units, settings=None):
         'poem_pairs': poem_pairs,
     }
     return matches, stats
+
+
+# ---------------------------------------------------------------------------
+# Across Persian and Urdu (2026-10-07)
+# ---------------------------------------------------------------------------
+
+_CROSS_SIG_CACHE = {}
+
+
+def _cross_key(radif, qafia, language):
+    """A poem's refrain and rhyme in the comparison letter forms shared by
+    Persian, Urdu and Arabic (backend/perso_arabic.cross_form), so that the
+    same refrain written with Urdu or Persian letters compares equal."""
+    from backend.perso_arabic import cross_form
+    return (tuple(cross_form(t, language) for t in radif), cross_form(qafia or '', language))
+
+
+def _cross_corpus_counts(language):
+    """{cross key: poems in the whole corpus of `language`} from the form
+    signature table, re-keyed in the comparison forms. Cached per language."""
+    if language in _CROSS_SIG_CACHE:
+        return _CROSS_SIG_CACHE[language]
+    table = load_form_signatures(language) or {}
+    counts = Counter()
+    for sig, n in (table.get('signatures') or {}).items():
+        radif, _, qafia = sig.partition('|')
+        if radif:
+            counts[_cross_key(tuple(radif.split()), qafia, language)] += n
+    _CROSS_SIG_CACHE[language] = counts
+    return counts
+
+
+def find_cross_form_matches(source_units, target_units, source_language, target_language,
+                            settings=None):
+    """Refrain-and-rhyme matches between a Persian and an Urdu text.
+
+    Each side is cut into poems and signed by its own language's rules
+    (segment_poems, poem_signature). A pair matches when the refrain AND the
+    rhyme are the same in the shared comparison letter forms. Urdu refrains
+    are mostly Urdu words (hai, nahin), so a shared form is rare and, when
+    it occurs, a strong sign of an answer poem or a Persian ghazal inside an
+    Urdu poet's collection: of 2,633 Urdu poems in the corpus, 19 share a
+    refrain and rhyme with a Persian poem (2026-10-07). A refrain shared
+    with a different rhyme is not matched across the pair, and neither is a
+    translated refrain (Persian ast for Urdu hai): without the meter, which
+    the Urdu texts do not carry, those forms are too common to be evidence.
+
+    Scored like the single-language channel: 1.0 for a pair unique on both
+    sides, discounted by the geometric mean of how many poems on each side
+    carry the form, by its corpus-wide frequency in the two languages, and
+    by a meter mismatch when both poems are labelled. One match per poem
+    pair, on the two poems' first refrain lines; the other refrain lines are
+    listed for display. Returns (matches, stats) in find_form_matches' shape.
+    """
+    settings = settings or {}
+    max_results = settings.get('form_max_results', 50000)
+    s_norm = _normalizer_for(source_language)
+    t_norm = _normalizer_for(target_language)
+
+    source_poems = segment_poems(source_units, source_language)
+    target_poems = segment_poems(target_units, target_language)
+    src = [(p,) + poem_signature(p, source_language) for p in source_poems]
+    tgt = [(p,) + poem_signature(p, target_language) for p in target_poems]
+
+    src_keyed = [(e, _cross_key(e[1], e[2], source_language)) for e in src if e[1]]
+    tgt_keyed = [(e, _cross_key(e[1], e[2], target_language)) for e in tgt if e[1]]
+    src_counts = Counter(k for _, k in src_keyed)
+    tgt_counts = Counter(k for _, k in tgt_keyed)
+    tgt_by_key = defaultdict(list)
+    for e, k in tgt_keyed:
+        tgt_by_key[k].append(e)
+
+    use_corpus = settings.get('form_corpus_rarity', True)
+    corpus_s = _cross_corpus_counts(source_language) if use_corpus else {}
+    corpus_t = _cross_corpus_counts(target_language) if use_corpus else {}
+
+    # A refrain made only of function words on EITHER side is not evidence
+    # across the pair: Urdu hua ("became") is spelled like Persian hava ("air"),
+    # Urdu the ("were") folds to Persian tahi ("empty"), and Persian ra (the
+    # object marker) closes thousands of ghazals. Both stoplists, compared in
+    # the shared letter forms.
+    from backend.perso_arabic import cross_stoplist
+    function_words = cross_stoplist(source_language) | cross_stoplist(target_language)
+
+    matches = []
+    poem_pairs = 0
+    for (s_poem, s_radif, s_qafia, s_line_idxs), key in src_keyed:
+        if not key[1]:
+            continue          # no rhyme: a bare refrain is too weak across languages
+        if all(tok in function_words for tok in key[0]):
+            continue
+        for t_poem, t_radif, t_qafia, t_line_idxs in tgt_by_key.get(key, []):
+            rarity = 1.0 / math.sqrt(src_counts[key] * tgt_counts[key])
+            if s_poem.meter and t_poem.meter:
+                rarity *= 1.0 if s_poem.meter == t_poem.meter else _METER_MISMATCH_SHARE
+            n_s_corpus, n_t_corpus = corpus_s.get(key), corpus_t.get(key)
+            corpus_poems = (round(math.sqrt(n_s_corpus * n_t_corpus))
+                            if n_s_corpus and n_t_corpus else None)
+            corpus_factor = corpus_form_factor(corpus_poems) if corpus_poems else 1.0
+            rarity *= corpus_factor
+
+            src_lines = []
+            for n_s, li in enumerate(s_line_idxs[:_MAX_LINES_PER_POEM]):
+                i = s_poem.unit_idxs[li]
+                pos = _radif_start_position(source_units[i], s_radif, s_norm)
+                if pos is not None:
+                    src_lines.append((n_s, i, pos))
+            tgt_lines = []
+            for n_t, lj in enumerate(t_line_idxs[:_MAX_LINES_PER_POEM]):
+                j = t_poem.unit_idxs[lj]
+                pos = _radif_start_position(target_units[j], t_radif, t_norm)
+                if pos is not None:
+                    tgt_lines.append((n_t, j, pos))
+            if not src_lines or not tgt_lines:
+                continue
+            poem_pairs += 1
+            n_s, src_idx, src_pos = src_lines[0]
+            n_t, tgt_idx, tgt_pos = tgt_lines[0]
+            opening = 1.0 if (n_s == 0 and n_t == 0) else _NON_OPENING_SHARE
+            matches.append({
+                'source_idx': src_idx,
+                'target_idx': tgt_idx,
+                'match_basis': 'form',
+                'form_score': round(rarity * opening, 4),
+                'form_base': 1.0,
+                'form_rarity': round(rarity, 4),
+                'form_corpus_poems': corpus_poems,
+                'form_corpus_factor': round(corpus_factor, 4),
+                'radif': ' '.join(s_radif),
+                'target_radif': ' '.join(t_radif),
+                'qafia': s_qafia,
+                'meter': s_poem.meter if s_poem.meter == t_poem.meter else None,
+                'source_position': src_pos,
+                'target_position': tgt_pos,
+                'radif_len': len(s_radif),
+                'target_radif_len': len(t_radif),
+                'matched_lemmas': [],
+                'source_lines': [source_units[i].get('ref', '') for _, i, _ in src_lines],
+                'target_lines': [target_units[j].get('ref', '') for _, j, _ in tgt_lines],
+            })
+
+    matches.sort(key=lambda m: -m['form_score'])
+    if max_results > 0 and len(matches) > max_results:
+        matches = matches[:max_results]
+    return matches, {'poems_source': len(source_poems), 'poems_target': len(target_poems),
+                     'poem_pairs': poem_pairs}

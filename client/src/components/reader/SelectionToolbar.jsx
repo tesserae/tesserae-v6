@@ -20,6 +20,10 @@
  * making the reader decide every time, and one click corrects it.
  */
 
+import { useState } from 'react';
+import { RequestDialog } from '../common';
+import { formatSelectionRange, useCorpusTextMap } from '../../utils/textNames';
+
 const SCOPES = [
   { key: 'word', label: 'Word' },
   { key: 'line', label: 'Line' },
@@ -52,11 +56,14 @@ export function scopeFor(selection) {
 export default function SelectionToolbar({
   selection, scope, onScope, work, language, onAct, onClose,
 }) {
+  const [reportOpen, setReportOpen] = useState(false);
+  const corpusMap = useCorpusTextMap(language);
+
   if (!selection) return null;
 
   const refStart = selection.refStart;
   const refEnd = selection.refEnd || refStart;
-  const shown = refStart === refEnd ? refStart : `${refStart}–${tail(refEnd)}`;
+  const shown = formatSelectionRange(refStart, refEnd, corpusMap);
   const action = ACTION[scope] || ACTION.line;
   const word = wordOf(selection);
 
@@ -121,16 +128,36 @@ export default function SelectionToolbar({
         {shown} selected
       </span>
 
+      {/* Requests workflow (2026-10-08): a transcription fix starts from
+          exactly the passage already selected, so work/refs/text need no
+          typing in by the reader. */}
+      <button
+        type="button"
+        onClick={() => setReportOpen(true)}
+        className="inline-flex items-center gap-1 text-[11px] text-red-700 hover:underline whitespace-nowrap"
+      >
+        <svg aria-hidden="true" viewBox="0 0 16 16" width="12" height="12" fill="none" className="shrink-0"><path d="M11 2.5l2.5 2.5L6 12.5H3.5V10L11 2.5z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" /></svg>
+        Suggest a correction
+      </button>
+
       <button onClick={onClose}
               aria-label="Dismiss"
               className="text-gray-500 hover:text-gray-700 text-base leading-none px-1">
         ×
       </button>
+
+      <RequestDialog
+        isOpen={reportOpen}
+        onClose={() => setReportOpen(false)}
+        type="text-correction"
+        showCorrection
+        context={{
+          work: String(work || '').replace(/\.tess$/, ''),
+          language,
+          refs: shown,
+          selected_text: selection.text || '',
+        }}
+      />
     </div>
   );
-}
-
-function tail(ref) {
-  const m = String(ref || '').match(/([\d.]+)\s*$/);
-  return m ? m[1] : ref;
 }

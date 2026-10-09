@@ -7,6 +7,1126 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-08
+
+### Citations name the corpus version for every search
+- The Cite popup on the main pair search showed no corpus version, because
+  that response carried no stamp. The page now asks a new
+  `GET /api/corpus-version?language=` route when a search finishes.
+- The stamp itself was stale (Latin read 2026-08-16): it is written only
+  by full index rebuilds, and texts added or removed since left it behind.
+  `get_corpus_version` now uses the later of the stamp and the index
+  file's own date. Tests added.
+
+### Result cards: a "Report a problem" link beside Cite
+- Every result card on the main and Cross-Language searches shows a red
+  "Report a problem" link with a pencil icon right after Cite, opening the
+  same request form with the result's details filled in. The link inside
+  the Cite popup stays.
+
+### Suggest a change: visible in the header, and the in-context links marked
+- An outlined "Suggest a change" button with a pencil icon sits in the
+  header beside Sign In on every page (wider screens; the footer link
+  remains for phones). "Suggest a correction" in the Reader's selection bar
+  and "Report a problem with this result" in the Cite popup are shown as
+  red links with the same icon, where they were plain gray text.
+
+### A per-verse Ghalib link to Frances W. Pritchett's commentary in the Translation tab
+- Her site ("A Desertful of Roses") states no licence. Her English cannot
+  be copied into the site, so the Translation tab links to her own page for
+  the matching verse, named and opening in a new tab. A passage with an
+  aligned translation still shows it, with the link added below. Ghalib has
+  no aligned translation at all, so for Ghalib the link is the only thing
+  the tab shows.
+- `scripts/build_ghalib_pritchett_links.py` builds the lookup table
+  (`data/translations/links/ur__ghalib_pritchett_links.json`) by aligning
+  `ghalib.diwan_wikisource` (272 ghazals, the only Ghalib edition that
+  ships in `texts/ur/`) against a retired, Pritchett-numbered edition kept
+  outside the repository for exactly this cross-reference. Matching goes by
+  text, not by number, at two levels. First each ghazal's opening verse,
+  then verse by verse inside each matched pair. 2,514 of 3,345 Wikisource
+  verses (75%) now link to a verse page. Most of the rest are ghazals she
+  does not cover (expected, since she covers a selection of the diwan).
+  18 Pritchett ghazals whose verse count could not be split unambiguously
+  from the local copy are left unmapped, reported, and not guessed at.
+- `backend/translation_links.py` is the new loader. `backend/translations.py`
+  `for_passage()` adds an `external_links` field, additive alongside the
+  existing `text`/`available` fields, present (as an empty list when there
+  is nothing to show) with or without an aligned translation. The MCP
+  connector's `get_passage(translation=true)` carries the same field
+  through for parity.
+
+### Compare two works: a heading per side, plain field labels
+- Each side of Compare two works is headed "First work" or "Second work",
+  and its fields read "Language", "Author" and "Work" (they read "First
+  work Work" before). The main search keeps its "Source Author" style
+  labels. The side name stays in the screen-reader labels.
+
+### Reader: readable names in the Reuse tab and in Urdu and Persian references
+- The Reuse tab names each quoting work and line the way the rest of the
+  site does ("Sauda, Kulliyat 6.6", not "Sauda, Kulliyat Wikisource" over a
+  raw site ID), and its caption no longer limits it to Latin, Greek and
+  English.
+- References that open with a section name read as words and keep it:
+  "Ghalib, Diwan, ghazal 1.1-7", "Mir, Kulliyat, marsiya 3.2". One
+  collection can hold several numbered sections, so the name stays.
+
+### Translation aligner: Rumi's Masnavi opening ("Song of the Reed") from Nicholson's 1925/1926 translation
+- `scripts/translations/align_rumi_masnavi_nicholson.py`, built on the shared
+  `write_aligned.py` helper. Our corpus holds only the eighteen-line reed-flute
+  prologue of Book I (`texts/fa/rumi.masnavi.part.1.tess`), and R. A.
+  Nicholson's English translation (public domain, published 1925/1926, more
+  than 95 years ago) numbers its couplets continuously from 1, so this is a
+  one-to-one, exact-confidence alignment with no offset or proportional
+  block. 18/18 refs covered. Its output is staged for installation as
+  `data/translations/fa__rumi.masnavi.part.1.json` (not tracked in git).
+
+### Corpus tool fix: drop-lines-from-work rebuilds the lemma cache instead of deleting it
+- `scripts/corpus/drop_lines_from_work.py` deleted the one cached lemma
+  analysis after rewriting a work's text, on the mistaken assumption that
+  the cache filename was a hash of the file's content (it hashes the
+  work's path, not its content -- `backend/lemma_cache.py`'s
+  `get_cache_path`), so the next request would rebuild it under a new
+  name. It does not: the stale file sits at the exact path the correct
+  one belongs at, and for a language whose cache build needs a library
+  production deliberately does not carry (Urdu's Stanza pipeline), there
+  was no next request that could rebuild it there at all -- the rare-
+  bigram rebuild for that work failed until the cache was rebuilt by hand
+  under the development environment. The tool now rebuilds the one
+  work's cache itself, right after the text rewrite, with a backup of the
+  old file kept either way. If the language's processor cannot be
+  imported in the current environment, nothing is deleted or changed: the
+  old cache is left exactly as it was, the exact command to run elsewhere
+  is printed, and the tool exits non-zero so this is never silently
+  missed. Tests for both paths added to `tests/test_drop_lines_from_work.py`.
+
+### Theme Search: confidence bands refit for Latin, Greek, and English
+- `HEAD_WEAK` (the floor for a Theme Search result to count as a match)
+  moved from 0.0750 to 0.0738, refit against the production index
+  (530,917 windows) and an extended 178-query labeled set (30 queries
+  each for Latin, Greek, and English, was 17), with the original 57-query
+  set kept as a regression check. Latin rose from 56.7% to 66.7% and
+  English from 43.3% to 46.7%; Greek is unchanged (63.3%) because no Greek
+  query in this set sits in the safe range. `HEAD_STRONG` and
+  `FITTED_AT_WINDOWS` (now 530,917) were also reviewed; only
+  `FITTED_AT_WINDOWS` changed. Zero absent queries were promoted on either
+  probe set at either value. See `docs/DECISIONS.md`.
+
+### Records: Persian and Urdu data operations of 2026-10-08
+- `docs/DATA_OPERATIONS.md` records the Khayyam and Ghalib removals, the
+  Similar Passages and Theme Search outage and its repair, the cache and
+  table rebuilds, the Asrar-e Khudi translation and the new reuse tables.
+
+### Theme Search: the "runs through the corpus" message no longer repeats itself
+- A short query that lands in the pervasive outcome showed the pervasive
+  message and the short-query hint, both asking for a description of what
+  happens. It now shows the pervasive message alone.
+
+### Theme Search: a third confidence outcome for a theme common in one language
+- A Theme Search narrowed to one language (`languages=fa`, etc.) used to
+  report the SAME confidence numbers as the unfiltered, whole-corpus
+  search for the identical query text, because the language filter never
+  reached the statistics, only the results list: a Persian search for
+  "passionate love" returned Rumi, Rudaki, and Anvari addressing the
+  beloved and still reported "the corpus does not appear to contain
+  passages of this kind." A single-language search now additionally
+  checks whether that language's own median score for the query sits well
+  above the whole corpus's, and promotes a `low`/`moderate` call to a
+  third outcome, `pervasive` ("this theme runs through much of the
+  Persian corpus..."), when it does; it can only ever promote, never
+  demote, so it cannot make any language's accuracy worse than before.
+  Measured on a 139-query labeled set, read-only against production:
+  62.6% to 79.9% overall, with Coptic, Persian, and Hebrew each gaining
+  30-47 points and Latin, Greek, and English unchanged. A query of three
+  words or fewer that doesn't score as a clear match now also gets a line
+  suggesting a full sentence instead. See docs/DECISIONS.md, 2026-10-08.
+  `backend/passage_index.py`, `evaluation/scripts/calibrate_confidence.py`
+  (new), tests in `tests/test_theme_confidence_classification.py`.
+
+### Theme Search page: the language-coverage line now names the languages this server actually serves
+- The line under the language chips named a fixed four languages (Latin,
+  Greek, English, Coptic) regardless of what the server actually
+  indexed, so a Hebrew, Persian, or Urdu reader was told their language
+  wasn't covered at all even once it was. It now reads the server's own
+  `/api/languages` list. `client/src/components/passages/ThemeSearchPage.jsx`.
+
+### Cite popup opens toward the side with room
+- On cards whose Cite button sits near the left edge of the page (the
+  Cross-Language results), the popup opened off-screen. It now opens to the
+  right when there is no room on the left.
+
+### Translation aligner: Iqbal's Asrar-e Khudi from Nicholson's 1920 translation
+- `scripts/translations/align_asrar_nicholson.py` plus its shared
+  `write_aligned.py` helper, which writes the served (compact) shape
+  `backend/translations.py` reads (`units` + `ref_to_unit`) directly, the
+  same fields the earlier Latin and Greek aligners record inline. Aligns
+  R. A. Nicholson's *The Secrets of the Self* (Project Gutenberg 57317,
+  public domain, 1920) to `texts/fa/iqbal.asrar_e_khudi.tess` couplet for
+  couplet in 17 of 19 sections (the Prologue needs a hemistich offset for
+  our opening epigraph), one section in blocks of two couplets, and
+  leaves Nicholson's section XVII untranslated rather than misaligned
+  (43 couplets in his English against 61 of ours). 872/872 refs covered;
+  its output is already installed on production as
+  `data/translations/fa__iqbal.asrar_e_khudi.json` (not tracked in git).
+  This PR ports the script itself to `main` for reproducibility.
+
+### Reuse table builder confirmed language-generic; Persian and Urdu built on the dev checkout
+- `scripts/reuse/build_reuse_table.py` and `backend/reuse_table.py` named
+  no language anywhere in either (both already drive off `--language`
+  and `cache/reuse_pairs/<lang>.db`'s existence); `is_available()` for
+  Persian and Urdu was simply never tried. Dropped the stale "Latin only"
+  docstring claim and added a test exercising the whole stack (the
+  builder's own fixture shape, `is_available`, `/api/reuse/line`,
+  `/api/reuse/marks`) with Persian script and a language code with no
+  entry in the cross-lingual stoplists, so a future change cannot
+  silently reintroduce a Latin/Greek/English-only assumption.
+- Built on the dev checkout's own corpus (not production): Persian 28
+  works, 942,922 lines, 1,663,213 pairs kept, 298s, peak 6.3 GB
+  (`cache/reuse_pairs/fa.db`, 238 MB); Urdu 18 works, 58,857 lines, 38,258
+  pairs kept, 17s, peak well under 1 GB (`cache/reuse_pairs/ur.db`).
+  Neither directory is tracked in git. Production steps for both follow
+  the Latin pattern already in `docs/DATA_OPERATIONS.md`.
+
+### Cross-Language results: the same tools as single-language results, plus citation guidance
+- The Cross-Language result card gained the same actions the single-language
+  card has: Cite (naming both sides, the language pair and the site, with
+  the "Report a problem with this result" link that already comes with
+  CiteButton), Register (recording both languages, both texts and refs, and
+  the channels, no schema change needed since `source_language`/
+  `target_language` were already independent columns), and one Search
+  Corpus action per side (a cross-language pair's two lines are in two
+  different languages, so each side searches only its own language's
+  corpus).
+- Page-level parity: pagination with a page-size control above the list and
+  navigation below it, Export PDF alongside the existing Export CSV, Refresh
+  results (clears the cache and reruns), a Share link extended with the
+  cross-language parameters (`pair`, `source`, `target`, `min_matches`, on
+  top of the existing `lang=cross`) so a shared link reopens the same
+  search, Saved Searches under its own storage key (a language pair is not
+  a language the single-language list's loader could reopen), Ask Tessa,
+  and the highlight legend with its Help link.
+- Cite popup (`client/src/components/common/CiteButton.jsx`): one sentence
+  above the citation says one citation of the project per publication is
+  enough, with a link to the About page's "How to Cite" section (now
+  `id="how-to-cite"`, and `AboutPage` takes an `initialAnchor` the same way
+  `HelpPage` already does). The same sentence and link are in Help's
+  "Reading the results" section.
+- Removed the one-line description above the Cross-Language page and the
+  em dash in the bigram description (`SearchDescription.jsx`).
+- Backend: `backend/assistant/findings.py` `_channels_of` read a
+  cross-language result's `channels` (a comma-joined string, not a list)
+  with `set()`, which silently returned a set of characters, so Tessa's
+  "Ask" on a cross-language result always computed "weak" evidence
+  regardless of what the channels actually were. It now parses that string
+  form too.
+
+### Corpus tool fix: drop-lines-from-work keeps the passage index in lockstep and no longer over-drops scattered refs
+- `scripts/corpus/drop_lines_from_work.py` had two defects found on its
+  first production run. (1) Dropping windows removed rows from
+  `ids.json` and `descriptions.jsonl` but left `data/passage_index/
+  embeddings.npy` untouched, even though the tool's own report claimed
+  those rows were dropped; the three fell out of lockstep and the passage
+  index refused to load (Similar Passages and Theme Search both down
+  until the extra embedding rows were removed by hand). `embeddings.npy`
+  is now dropped by the same row positions, backed up first, written
+  atomically, and the three stores' row counts are asserted equal before
+  any of the four window files is swapped into place and again after,
+  aborting and restoring every backup if they ever disagree. (2) Passing
+  several scattered refs (e.g. two unrelated footnotes far apart in a
+  file) was planning drops for every window between the first and the
+  last of them, not just the windows actually touching one; windows are
+  now matched against each contiguous run of dropped refs in file order.
+  Caught in dry run against a scratch copy of production data before
+  anything was applied. Tests added for both:
+  `tests/test_drop_lines_from_work.py`.
+
+### Sign-in box: plain wording
+- The sign-in box opened by Register is titled "Sign in", and the note for
+  accounts created by the site's administrators now reads "If we created
+  your account for you, you will be asked to choose a new password after
+  you sign in."
+
+### Corpus tool: drop specific lines from a work across every store that names a line by its ref
+- `scripts/corpus/drop_lines_from_work.py`, following an audit of Persian
+  and Urdu imports that found a signed, dated modern editor's essay
+  bundled into a diwan file alongside the poem it prefaces. Dry run by
+  default; `--apply` rewrites the `.tess` file (remaining lines keep their
+  original ref labels, nothing renumbered), the matching rows of the
+  language's inverted index (with `lemma_doc_freq` recomputed under the
+  canonical per-work rule), the matching rows of the work's embeddings
+  `.npy`/`.meta.json` (dropped by ref, not recomputed: the surviving
+  rows' text did not change), and any passage window whose span touches a
+  dropped ref, with its description and vector rows. Prints the
+  whole-language/whole-corpus follow-up (lemma cache rebuild, bigram
+  rebuild, names-index and connections-map rebuild) it does not attempt
+  itself. Backups and copy-modify-swap throughout, per
+  `scripts/corpus/corpus_safety.py`. Tests only, against a fixture; not
+  yet run against production. `tests/test_drop_lines_from_work.py`.
+
+### Result card tidy, second pass: hover popovers, one legend line, Search Corpus highlighting
+- `client/src/components/common/InfoBadge.jsx`: no more info icon or help
+  cursor on every badge; the badge itself is the trigger. A popover opens
+  after about 150ms on hover (no flicker crossing the card), at once on
+  keyboard focus or tap, and stays open while the pointer is over the
+  badge or the popover; it closes on Escape or a tap outside. Content is
+  one short sentence plus a "More" link into Help, with no heading.
+- Every badge's explanation on `SearchResults.jsx` and
+  `CrossLingualSearch.jsx` is now one sentence; the fuller version moved
+  to a new "Reading the results" section in `HelpPage.jsx`, with an id
+  anchor per label (score, refrain, rhyme, meter, refrain-lines,
+  works-count, form-count, channels, theme) that the "More" links and the
+  new legend line both point to.
+- The old "Colours" and "Badge colours" legends are replaced with one line
+  above the results, naming the highlight colors (when a poetic result is
+  on screen) and linking to Help; badge colors themselves are unchanged.
+- The result card's second row (how-common badges, evidence badges, and
+  the Search Corpus / Register / Cite buttons) no longer wraps the buttons
+  to a third row at desktop widths: the buttons sit in their own
+  non-wrapping group at the row's right.
+- American spelling throughout `client/`: colour, licence, judgement,
+  labelled, and neighbour(hood) in user-visible text are now color,
+  license, judgment, labeled, and neighbor(hood).
+- Cross-Language (Persian -> Urdu and the other script-sharing pairs):
+  citations now show "Author, Work reference" on both the source and
+  target side (the target-only fix was never actually applied, since the
+  state that freezes the chosen texts' names was never set); a refrain-
+  and-rhyme result now marks the rhyme word in rose, not just the refrain
+  in yellow, reusing the single-language card's own position logic; the
+  settings bar's description is the per-pair sentence the page already
+  computes (SPhilBERTa only for the classical pairs) instead of one fixed
+  sentence for every pair; and badge order is Score, form (refrain,
+  rhyme), then evidence (a channel-count-and-names badge first, the
+  semantic percentage after it, both in the evidence blue rather than
+  semantic's old amber).
+- Search Corpus (`CorpusSearchResults.jsx`): a Persian or Urdu line with
+  Arabic-script punctuation attached to a word (e.g. a trailing "،") now
+  highlights correctly. The highlighter walks the same word-runs the
+  Persian/Urdu tokenizers use server-side (`backend/persian/processor.py`,
+  `backend/urdu/processor.py`), so a punctuation mark never consumes a
+  token position the way a whitespace-only split could. The query header's
+  citation now resolves through the corpus text map, the same resolver the
+  result cards use, instead of showing a raw internal id.
+
+### Requests workflow: three new entry points, a public Requests page
+- A scholar can now ask for something, report a problem with a result, or
+  suggest a text correction without ever touching GitHub. One dialog
+  (`client/src/components/common/RequestDialog.jsx`) opens from: the Cite
+  popup's "Report a problem with this result" (`CiteButton.jsx`, so every
+  result card that already shows Cite gets it with no change of its own),
+  the Reader's "Suggest a correction" when a line or range is selected
+  (`SelectionToolbar.jsx`, pre-filled with the work, refs and selected
+  text), and a plain "Suggest a change" link in the footer and on the Help
+  page, with just the page URL as context.
+- `POST /api/feature-request` now accepts three new types (`result-problem`,
+  `text-correction`, `suggestion`) alongside the connector's existing
+  feature/language/text/bug/other, and files a GitHub issue for every type,
+  labelled `request` plus `request:<type>` (labels are created if the repo
+  doesn't have them yet). Contact info stays in the private DB record and
+  email only, never the issue. Free text is HTML-stripped before it reaches
+  a public issue body.
+- `GET /api/requests`: a public, read-only mirror of those GitHub issues
+  (`backend/github_requests.py`), grouped open vs. done, status mapped from
+  GitHub's own state/state_reason/labels, with the merged pull request link
+  when a "done" issue has one. Only a short line after a "Summary:" marker
+  in the issue body is ever shown. The rest of the body never leaves the
+  server. Cached in process for 10 minutes, mirrored to disk so a restarted
+  worker doesn't refetch immediately.
+- New page `/requests` ("Requests"), linked from the footer and Help, not
+  the main navigation.
+- `backend/blueprints/mcp_manifest.py`: noted the extension and the new
+  read-only route for the connector-parity tests.
+
+### Cross-Language: Persian to Urdu no longer crashes the page; only served pairs shown
+- `CrossLingualSearch.jsx` fetched text lists for a fixed four languages
+  (Greek, Latin, English, Hebrew), so choosing Persian -> Urdu found no list
+  and the page went blank, and it showed the Arabic pairs although the
+  server does not serve Arabic. It now reads the served pairs from
+  `/api/languages`, shows only those, loads a list for every language in
+  them, and guards the menus against a missing list. Test added (fails on
+  the old code).
+
+### Result card: the info mark drawn as an icon, and Iqbal's titles with -e
+- The info mark on explained badges is a small drawn icon in place of the
+  circled-i character, which showed as an empty box where a font lacks it.
+- `backend/utils.py` `DISPLAY_NAMES`: Iqbal's nine Persian and Urdu titles
+  join the connective -e to the word before it ("Zabur-e Ajam", not
+  "Zabur E Ajam"), in citations and the text lists.
+
+### Result card tidy: badges, explanations, citations
+- Every badge on a pair-search result card (and the matching ones on the
+  cross-lingual search page) now opens a real popover on hover, keyboard
+  focus, or tap -- `client/src/components/common/InfoBadge.jsx` -- instead
+  of a native `title` tooltip, which showed nothing for a second or two and
+  gave no sign an explanation existed. Each badge carries a small info mark
+  so the explanation is visible before anyone hovers.
+- Badge colour now marks one of three categories consistently: yellow/
+  rose/purple for the poem's form (refrain, rhyme, meter), gray for how
+  common the shared wording or form is, blue for the evidence that found
+  the match (channels, theme lift). A legend line above the results says
+  so. The channel-count badge ("2 channels") is gone; one blue badge names
+  the channels ("form + sound"). "Matches:" is omitted when the matched
+  words are exactly the refrain words a badge already shows.
+- Citations resolve "Author, Work reference" for every language, not only
+  Latin, Greek, and English: `client/src/utils/textNames.js` now falls
+  back to the corpus list (`/api/texts?language=<lang>`) for Persian, Urdu,
+  or any other language without a static abbreviation table, the same
+  author/title record the corpus browser and the Reader read from. The raw
+  site id stays available as the Cite popup's last line and the refrain-
+  lines popover names each work once with its lines collapsed into ranges.
+
+### Documentary texts, stage 3b-3: restored-word exclusion, a stock-formula filter, and a document Reader view
+- `/api/line-search` (documents/both): each document hit now carries
+  `matched_restored` (every matched token is one the source marked
+  restored) and `partly_restored` (some are). New optional
+  `exclude_restored=1` drops a hit whose match rests entirely on restored
+  text; the response reports `restored_excluded_count`. The card states
+  "match on restored text" for a fully-restored hit, and Line Search gets
+  a "Leave out matches on restored words" checkbox next to the existing
+  documents filters.
+- Each document hit also carries `formula_count`: how many documents in
+  the SAME documents index share its matched lemma pair or phrase,
+  computed from postings the same way line search counts co-occurrence
+  candidates (not a corpus scan), cached per query. A lemma search also
+  returns a `formula_summary` for the query as a whole. New optional
+  `hide_formulas=N` drops a hit whose `formula_count` exceeds N
+  (`formulas_hidden_count` reported); Line Search gets a "Hide stock
+  formulas" checkbox using a measured default (100 — see
+  `docs/DECISIONS.md`). The soft-penalty word lists
+  (`data/documents/formula_words_la.txt`/`_grc.txt`) are still not applied
+  as a down-rank: document hits carry no score or rank for either
+  collection to attach one to, the same finding stage 3b-2 already
+  recorded.
+- A new route, `GET /api/documents/<doc_id>` (behind `TESSERAE_DOCUMENTS=1`,
+  404 otherwise), returns one document's own lines with restored/fragment
+  positions, credit, date/place/labels, and the stage 3a display fields
+  (museum, inventory, dimensions, translation, apparatus, commentary,
+  image links). Listed `site_only` in the connector parity manifest (a
+  website trial, not yet exposed to the connector).
+- Client: clicking a document hit's citation opens a document view
+  (`/document?doc=...`) with the text (restored words marked), the
+  credit, date/place (with a Pleiades link), labels, and the display
+  fields, apparatus and commentary collapsed; a back link returns to Line
+  Search with the originating query, type and language intact. The
+  literary Reader is unchanged; this view is reachable only from a
+  document hit.
+
+### Records: documents trial opened on the live site
+- `docs/DATA_OPERATIONS.md` records the server switch that opens the
+  `?documents=1` trial. No code change.
+
+### Documents: a trial behind ?documents=1, and a separate switch for the connector
+- The Literature/Documents/Both control on the corpus-wide phrase search
+  appears only after a visit with `?documents=1` (remembered for the rest
+  of the visit), and only when the server also has documents on, the same
+  pattern as the Scholarship tab. The server switch can therefore be on
+  without every reader seeing the option.
+- The connector's `line_search` forwards `collection` and the documents
+  filters only when `TESSERAE_DOCUMENTS_CONNECTOR=1`, so the trial is not
+  opened to every connector user. Tests for both.
+
+### Documents: the credit shows each source's deposit licence
+- `scripts/documents/extract_metadata.py` takes the licence for every
+  document from the source's own deposit record, not from the sentence in
+  each file's header. EDR's headers still carry an older "reserved rights"
+  template although its 2026 deposit is CC BY 4.0, and EDH's headers give a
+  full sentence where a licence name belongs. Test added. The metadata
+  database was rebuilt (257,428 documents: EDH CC BY-SA 4.0, EDR CC BY 4.0,
+  I.Sicily CC BY 4.0, papyri.info CC BY 3.0).
+
+### Documentary texts, stage 3b-2: documents in the corpus-wide phrase search, behind a switch
+- `backend/documents.py`: lazy, read-only access to the stage 3b-1
+  documents index(es), stage 3a's metadata database, and the per-bucket
+  restored-word sidecars, all path-configurable by env var. `enabled()`
+  reads `TESSERAE_DOCUMENTS` fresh on every call, so the switch can be
+  flipped on a running process without a restart. Everything else in this
+  entry is unreachable unless it is on.
+- `backend/inverted_index.py`: `lookup_lemmas`, `find_co_occurring_lemmas`,
+  `has_lines_data` and `get_lines_batch` gained an optional `conn=` override
+  (default `None`, every existing caller unchanged) so `backend/documents.py`
+  reuses this module's own query and Latin u/v, i/j variant-expansion logic
+  against a documents-index connection, keyed on the real language code
+  rather than a pseudo-language.
+- `backend/app.py`: `/api/line-search` gains an optional `collection`
+  (`literature` default, `documents`, `both`) and, when documents are
+  requested, `date_from`/`date_to`/`region`/`text_type`/`material`/`source`
+  filters. With `collection` omitted, or the switch off, the response is
+  unchanged byte-for-byte — the literary code path runs exactly as before;
+  the documents search is reached only through two new, additive insertion
+  points (an early return for `collection=documents`, a pre-return merge for
+  `both`). A document hit carries `collection:'documents'`, `doc_id`, a
+  credit block (licence, source, principal edition), date range, place,
+  region, type/object/material labels, and restored/fragment token
+  positions, grouped separately from literary works in
+  `documents_by_source_region`. Rarity for a document hit is left to the
+  documents index's own `lemma_doc_freq` (not computed here, since line
+  search computes no score for either collection); `rare_focus_filter`
+  (which DOES read the literary table) is applied only to literary rows.
+  Formula words (`data/documents/formula_words_la.txt`/`_grc.txt`) are NOT
+  yet applied as a penalty: line search has no per-result scoring step for
+  either collection to attach one to, so this is left for a later phase.
+- `/api/languages` reports `documents_enabled` (the switch on AND at least
+  one language's documents index actually present) so the client can show
+  the collection control.
+- `backend/blueprints/mcp_http.py`: the `line_search` connector tool gained
+  the same `collection`/filter parameters, forwarded as-is; a document
+  result in its output carries `doc_id`/`credit`/date/place/labels instead
+  of author/work/era/year, and `both` adds `documents_total` alongside the
+  literature-only `total`.
+- Client: `LineSearch.jsx` (the corpus-wide phrase search) shows a
+  Literature/Documents/Both control, and the filters, only when
+  `documents_enabled`; a document hit gets its own card (credit line
+  linking to the source record, principal edition as the citation, date and
+  place, type/object/material labels) in a section separate from literary
+  results, so no existing literary rendering path changes. Restored words
+  are marked with a light dotted underline (not the scholarly square
+  brackets): the matched-word highlight already uses `<mark>`, and the
+  corpus's own angle-bracket convention is reserved for editorial brackets
+  carried in the source text itself.
+- Unit tests for `backend/documents.py` against a tiny fixture index +
+  metadata db + sidecar (`tests/test_documents.py`); a golden check that the
+  literary response is byte-identical with the switch off and with
+  `collection` omitted; `tests/test_mcp_parity.py` still passes unchanged.
+- `docs/DATA_OPERATIONS.md`: a "to be applied" entry listing the files
+  production needs copied (the two documents indexes, the metadata
+  database, the restored-word sidecars) and the env line, for the main
+  session to apply.
+
+### Records: the Origo translation applied on the live site
+- `docs/DATA_OPERATIONS.md`: the Origo translation entry now records the
+  production step, and an older entry describes a log message in place of
+  quoting it.
+
+### Documentary texts, stage 3b-1: a separate documents index, built dark (no site change)
+- `scripts/documents/write_document_tess.py`: writes the documentary
+  corpus into packed `.tess` files, one per source/region/century
+  bucket (264 files for Latin+Greek together, not one file per
+  document), reusing the existing bucketing and restoration-token
+  rules unchanged. Text is the restored reading with the gap
+  placeholder dropped (kept only as a count) and a mixed
+  gap/real-character token split into its surviving pieces; restored-
+  word and fragment positions go to a sidecar JSONL per bucket, never
+  into the `.tess` text itself. A document's own merged-corpus id is
+  its citation tag, so it joins directly against the metadata
+  database from stage 3a.
+- `scripts/documents/build_documents_index.py`: builds a SEPARATE
+  `<lang>_documents_index.db` per language by reusing the existing
+  index-build code unchanged (same schema, same per-lemma document-
+  frequency table, now scoped to the documentary corpus alone so it
+  never shifts literary word rarity), plus a new `doc_meta` table
+  mapping each document to its bucket file and line range. Guards
+  refuse to write under `/var/www` or to any literary index filename.
+- `scripts/documents/query_documents_index.py`: a dev-only lemma/
+  phrase lookup against a documents index, joined against the
+  metadata database for licence and source credit.
+- `backend/lemma_cache.py`'s `rebuild_lemma_cache()` gained three
+  optional, default-preserving parameters: `file_filter` (a subset of
+  filenames, for sharding), `fast_greek` (Greek only, the same
+  table-only lookup the index build's own fast mode uses, cutting the
+  Greek cache rebuild from 63.8s to 0.1s per ~1,500 lines and measured
+  at 100% lemma agreement with a fast-mode-built index), and
+  `build_phrase_units` (default True; False for documents, after
+  measuring `process_file`'s phrase-accumulation at 5.24 GB peak RSS
+  on one epigraphic bucket file with a 706-line unterminated run,
+  against 1.45 GB for line mode alone on the same file; nothing in
+  this stage reads a documents phrase cache entry).
+- `scripts/documents/build_lemma_cache_shard.py`: builds one shard of
+  a language's lemma cache, files balanced by line count across
+  shards (the documentary buckets are heavily skewed), so bucket files
+  cache in parallel across `tess-job` scopes.
+- A 2-bucket pilot measured real per-line costs first, before deciding
+  whether to run a full build; the initial projection (CLTK-bound
+  Greek lemma-cache rebuild, ~8.6 hours alone) exceeded the 6-hour
+  budget, so the fast-Greek and skip-phrase-units fixes above were
+  built and re-measured. Full Latin and Greek documents indexes and
+  lemma caches are now built: `la_documents_index.db` (411,466 lines,
+  160 texts, 160 cache files) and `grc_documents_index.db` (711,801
+  lines, 104 texts, 104 cache files), together well under 20 minutes
+  wall time, no concurrency slowdown measured between 4 and 7 parallel
+  Latin cache shards on this 32-core machine.
+- 54 tests across five new/extended test files, plus the existing
+  search reference wiring test, all passing. One pre-existing,
+  unrelated test failure on `main` itself (a cross-lingual pair list
+  mismatch in the assistant actions module) is untouched by this work.
+- No change to any literary index or to the live site. The literary
+  index files were checksummed before and after and are unchanged.
+
+### Origo Gentis Romanae: a public-domain English translation added
+- `scripts/translations/align_origo.py` aligns the 2004 collaborative
+  translation published at tertullian.org (ed. Roger Pearse, public
+  domain) to all 126 refs of `pseudo_aurelius_victor.origo_gentis_romanae`
+  (coverage 1.0, proper-name check 0.99). Three refs where the corpus's
+  Latin Library line carries two of the translation's numbered sections
+  are merged, listed by hand in the script. Closes the gap the Aurelius
+  Victor addition below left open. The built translation file is data. It
+  stays out of git, like every other file under `data/translations/`. The
+  data operation is recorded in docs/DATA_OPERATIONS.md.
+
+### Aurelius Victor additions: dates entry and the record of the production steps
+- `backend/author_dates.json`: era and date for the two works transmitted
+  with Aurelius Victor, so the corpus browser shows them as Late Antique.
+- `docs/DATA_OPERATIONS.md`: the planned steps for these works replaced by
+  the record of what was run on the live site.
+
+### Documentary texts, stage 3a: per-document metadata layer (no site change)
+- `scripts/documents/extract_metadata.py` reads the stage 2 merged
+  documentary corpus plus the raw EDH/EDR/I.Sicily/papyri.info EpiDoc
+  files, and writes a SQLite database (`documents` + `display` tables,
+  schema in the script's own docstring). For every document: licence
+  and a link back to the source's own page (EDH's canonical domain and
+  EDR's actual query parameter both corrected from what was assumed
+  going in), the principal edition citation, EAGLE-vocabulary text
+  type/object type/material translated to English, date range, place,
+  languages, and a verse flag. The flag is set only for I.Sicily, the
+  one source whose format marks a verse line structurally. Confirmed
+  by checking directly against the full raw export.
+  Separately, museum, inventory, dimensions, letter height,
+  layout/hand notes, apparatus, commentary, translation, and image
+  links. Every field is optional, and a missing one never drops a
+  document. 257,428 documents written, matching the stage 2 merged
+  total exactly.
+- `data/documents/eagle_labels.csv`: an English label for 290 EAGLE
+  Network vocabulary terms used across the corpus, built from EAGLE's
+  own SKOS/RDF records where one exists, by hand for the roughly 70
+  concepts EAGLE's own vocabulary carries no English label for at all,
+  plus 8 corrections where EAGLE's own data mistags a German or
+  Hungarian string as English.
+- `tests/test_extract_metadata.py`: 31 tests against
+  `tests/fixtures/epidoc/`, covering licence/source-link/citation
+  extraction per source, the EAGLE term-to-English mapping, I.Sicily's
+  translation and image links, that a document with no findable raw
+  file still gets a row of its own, and (added after the PR's own
+  automated review caught a duplicate-key bug) that
+  `eagle_labels.csv` can never hold two rows for the same vocabulary
+  term again.
+- Follow-up: papyri.info/HGV tag `material` and document type as plain
+  text with no EAGLE vocabulary link at all, so the first pass left
+  them almost entirely unmapped. Added hand-built English mappings for
+  all 75 distinct `material` values (63,856 documents: "Papyrus",
+  "Ostrakon", "Pergament"/parchment, "Wachstafel"/wax tablet, and 72
+  rarer terms) and the top 40 `text_type` keyword values by count
+  ("Quittung"/receipt, "Vertrag"/contract, "Liste"/list, and 37 more),
+  reusing the same `material`/`typeins` fallback the other three
+  sources' own ref-less free text already used. Papyri's
+  `material_label` coverage: 4.0% to 97.9%. `text_type_label`: 0.3% to
+  81.8%.
+
+
+### Records: scholarship sources installed, and the terms they are held on
+- `docs/DATA_OPERATIONS.md` records the installation of the commentary
+  catalogue, citation index, abbreviation table and service keys on the live
+  site. `docs/DECISIONS.md` records what the Scholarship tab draws on and the
+  licence rule for commentaries. No code change.
+
+### De Viris Illustribus and Origo Gentis Romanae added to the Aurelius Victor corpus
+- Two pseudonymous Latin prose works transmitted with the Aurelius Victor
+  corpus, from The Latin Library (edition not stated):
+  `pseudo_aurelius_victor.de_viris_illustribus.tess` (86 chapters, 519
+  lines) and `pseudo_aurelius_victor.origo_gentis_romanae.tess` (23
+  chapters plus an unnumbered preface, 126 lines). Neither work is by
+  Aurelius Victor, and the authorship of both remains unknown.
+  `scripts/corpus/latinlibrary_to_tess.py` gained two converters,
+  `de_viris_illustribus` and `origo_gentis_romanae`, each following its
+  source page's own chapter and section numbering (the first page marks
+  sections with inline `<FONT size=2>` tags, the second with plain
+  digits). Both keep the source transcription's own numbering gaps. The
+  converter documents each one. Descriptions added to
+  `data/text_descriptions.json`, provenance rows to
+  `backend/text_sources.json`, and genre and era rows (Late Antique,
+  prose, historiography) to `data/text_genres.csv`, matching the existing
+  `aurelius_victor.*` entries. Both files pass
+  `scripts/corpus/validate_tess.py`.
+
+### Scholarship: the commentary credits list is cached
+- `commentary_sources()` in `backend/scholarship.py` read and parsed every
+  commentary file on each call, which takes seconds once the full catalogue
+  (about 400 files) is installed. The rows are now kept until a commentary
+  file is added, removed or rewritten, using the same change stamp that
+  already governs the per-work commentary cache. Output unchanged. Test in
+  `tests/test_scholarship.py`.
+
+## 2026-10-07
+
+### Connector: find_scholarship and get_commentary, behind TESSERAE_SCHOLARSHIP_TOOLS=1
+- Two new MCP tools in `backend/blueprints/mcp_http.py`: `find_scholarship`
+  (articles, chapters and books that cite a passage or a pair of passages,
+  via the backend PR's `/api/scholarship`) and `get_commentary` (the
+  public-domain commentators' notes at a span, via
+  `/api/scholarship/commentary`). Both are defined in `TOOLS` unconditionally,
+  so the connector-parity manifest and its tests stay internally consistent
+  either way, but are hidden from `tools/list` and refused by `tools/call`
+  ("Unknown tool") unless the environment carries
+  `TESSERAE_SCHOLARSHIP_TOOLS=1`, checked per request. `backend/blueprints/
+  mcp_manifest.py` gained the four `/api/scholarship*` route entries
+  (two tool-covered, two site-only: the Sources credits list and the
+  on-demand note translation, neither useful to an agent). No other tool's
+  behaviour changed. Two new tests cover both flag states directly: both
+  tools absent from `tools/list` and refused by `tools/call` with the
+  flag unset, both listed and callable with it set to `1`.
+
+### Documentary texts, stage 2: dedup, restoration tokens, formula candidates, lemmatizer gaps, places crosswalk, index layout (no site change)
+- `scripts/documents/dedupe_sources.py` merges the 10,238 Trismegistos ids
+  shared between EDH and EDR into one record each (recorded per-field rule:
+  text by lower supplied share, date by narrower non-null range, findspot by
+  a resolved place identifier first, then the longer named place), keeps
+  both source ids and a provenance field, attaches EDH's Trismegistos/
+  Pleiades place identifiers to every merged record regardless of which
+  source's findspot text displays (93.78% of merged records now carry a
+  resolved Pleiades id), flags (does not merge) the smaller cross-source
+  overlaps with papyri.info and I.Sicily. 257,428 deduplicated records.
+- `scripts/documents/restoration_tokens.py` maps character-level restoration
+  to word tokens: a gap-only token is dropped (position kept on the next
+  token), a token split by a gap becomes two excludable fragments, a token
+  is marked restored when a strict majority of its characters were supplied.
+  5.4% of all tokens touch a gap boundary; a quarter are whole supplied words.
+- `scripts/documents/formula_stoplist.py` lists the top 300 words by document
+  frequency per language with Latin/Greek formula and function words marked,
+  for review (not finalized, and the candidate list itself is kept out of
+  this public repository).
+- `scripts/documents/lemmatizer_gaps.py` classifies Roman numerals (I V X L C
+  D M letter runs), measures a 43,170-entry name-candidate list's coverage,
+  and excludes gap fragments from the unresolved tally; combined unresolved
+  share on a 200-docs-per-source rerun drops from 9.22% to 5.43%.
+- `scripts/documents/places_crosswalk.py` builds a Trismegistos-place to
+  Pleiades crosswalk from EDH's own geography file and the Pleiades dump's
+  Trismegistos backlinks (both openly licensed); EDH's Pleiades coverage
+  rises from 0.0% to 73.6%. EDR carries no place identifier anywhere in its
+  raw export (confirmed over the full 115,591 files), so its coverage stays
+  at 0.0%. A 30-case spot check of the 291 entries where EDH's own file and
+  the Pleiades dump disagree confirms EDH as the more reliable source (right
+  in 11 of 30 against 3 for the other side, the rest ambiguous or
+  inconclusive).
+- `scripts/documents/index_layout.py` prototypes and counts a `.tess`-format
+  file layout (one index line per short document, grouped by source, region,
+  and (for any bucket over 10,000 documents) century of date; one file per
+  long document, line by line): 39,111 files, 1,222,573 index lines for the
+  full corpus, 0 lines failing the `.tess` format regex. Found and fixed at
+  the source a converter bug that had left raw newline/tab whitespace inside
+  7,751 documents' text (`epidoc_convert.py`'s text/tail handling now
+  collapses whitespace; all four converted sources and the merged corpus
+  were regenerated).
+- Added `ijson` to `requirements.txt` (streaming JSON parsing; a naive
+  `json.load` of the Pleiades dump measured 16.3GB peak memory).
+- `data/documents/formula_words_la.txt` and `formula_words_grc.txt`: a
+  soft-penalty (not a hard stoplist) formula-word list for documentary
+  matching, built from the reviewed candidate list plus three Latin words
+  added by hand (solvit, fronte, pedes); excludes personal names and
+  numerals by design.
+- No data from any source is in this repository. Nothing in this change
+  touches the live site, the search index, or the database.
+
+### Scholarship: a secondary-scholarship backend, no UI yet
+- `backend/scholarship.py` asks the open scholarly metadata services
+  (OpenAlex, then Crossref), Unpaywall for a legal open-access copy, and
+  Semantic Scholar/CORE full text, for articles, chapters and books that
+  cite a passage or a pair of passages, ranked by whether a piece names the
+  work and the exact locus; it also reads the site's own public-domain
+  commentaries (`data/commentaries/`) and, where one has been built, an
+  offline citation index (`data/citation_index/citations.db`, not shipped
+  here). `backend/citations/` is a citation-grammar extractor for ancient
+  texts ("Aen. 1.1", "Verg. A. I 1"), reimplemented from Matteo Romanello's
+  CitationParser rules; it degrades to finding nothing without its
+  abbreviation table (`data/citations/abbreviations.json`, GPL-3.0,
+  intentionally not committed). `backend/scripture.py` gives scripture one
+  citation key across Hebrew, Greek, Coptic and English Bible versions, so
+  a commentary on a verse serves every version. New route
+  `GET /api/scholarship` (plus `/commentary`, `/sources`, `/translate`),
+  registered in `backend/app.py`; no existing route changed. Keys are
+  environment variables only (`S2_API_KEY`, `CORE_API_KEY`,
+  `TESSERAE_CONTACT_EMAIL`, `GOOGLE_BOOKS_KEY`); nothing hard-coded beyond
+  the existing contact default. `/scholarship/translate` only ever
+  translates a note the site already holds at the given work and ref
+  (checked word for word against what `commentary_at()` returns), never
+  arbitrary submitted text. No UI: the Reader tab and the connector tools
+  are separate PRs, both behind their own switch.
+### Scholarship tab in the Reader, behind ?scholarship=1
+- A fifth Reader panel tab, "Scholarship" (commentators, articles and
+  books on the selected lines), added to `ResultsPanel.jsx` beside
+  Similar, Parallels, Translation and Reuse. Hidden unless the address
+  carries `?scholarship=1`, which then remembers the setting in
+  `sessionStorage` for the rest of the visit, the same pattern the names
+  grouping used behind `?names=1`. With the flag off the panel is byte-for
+  -byte the same four tabs as before. `ScholarshipTab.jsx` calls
+  `GET /api/scholarship` (added in the backend PR) and needs no other change to the existing
+  Similar/Parallels/Translation/Reuse tabs. The cross-link that lets a
+  Similar Passages or Verbal Parallels row set a second passage for a
+  "scholarship on both" lookup was left out of this change to avoid
+  touching those tabs' own rendering; a later change can add it.
+- `data/commentaries/`: Servius on the Aeneid, Eclogues and Georgics
+  (14,205 notes; Thilo-Hagen text via the Perseus Digital Library's
+  open-source TEI, CC BY-SA 3.0 US), credited in
+  `data/commentaries/README.md`. A much larger commentary
+  catalogue exists (Perseus's other authors, Sefaria, Matthew Henry, several
+  scanned English literary editions) but was not brought into the repository;
+  the README explains how to add more, since the commentary loader reads
+  every file in the directory by its work id regardless of who installed it.
+
+### Documentary texts, stage 1: an EpiDoc converter, no site change
+- `scripts/documents/epidoc_convert.py` converts EpiDoc TEI-XML (the Heidelberg
+  and Roma epigraphic databases, I.Sicily, papyri.info's DDbDP and HGV
+  metadata) into one normalized JSON record per document: id, Trismegistos
+  and source-local ids, language(s), date range, findspot with a Pleiades id
+  where the source gives one, and a diplomatic/expanded/plain reading per
+  line with which characters were supplied by an editor flagged. Handles
+  `<choice>` (keeps the regularized reading), `<expan>`/`<abbr>`/`<ex>`,
+  `<supplied>`, `<gap>`, and line breaks across a word boundary
+  (`<lb break="no">`). Tests in `tests/test_epidoc_convert.py` run against
+  17 small real EpiDoc samples in `tests/fixtures/epidoc/` (credited in that
+  folder's README). No data from any source is in this repository: raw
+  downloads and converted output live outside it, documented in a local
+  `SOURCES.md`, per the open licences each source carries (CC BY-SA 4.0,
+  CC BY 4.0, CC BY 3.0). Nothing in this change touches the live site, the
+  search index, or the database.
+
+### Help: corrections from a claim-by-claim audit
+- Sixteen statements corrected against the code and the live site: stoplist
+  sizes, the rare-vocabulary threshold (about one in eight works, not a fixed
+  100), the quotation channel (every language, not Coptic only), the Max Results
+  default (all results, not 5,000), the Latin qualifier on the 92 percent figure
+  and its date, one consistent Arabic count (149 texts), Arabic pairs described as
+  opening with Arabic, the cross-language setting's real name (Min Matches), four
+  Greek-Latin channels not two, the Knauer benchmark (94 percent found somewhere
+  in the ranking), and what the AI connector returns (a link, not charts).
+
+### Help: Fusion page names every served language
+- The Fusion page's note on examples now lists Hebrew, Persian and Urdu beside
+  Greek, English and Coptic, and says correctly which channels Persian and Urdu
+  run (nine: eight of the eleven plus refrain and rhyme) and that Greek has syntax
+  data for about half its texts.
+
+### Help: section blocks reordered to match the sidebar
+- In HelpPage.jsx the content block for each section sat in an order
+  unrelated to the sidebar's `sections` array, making the file hard to
+  edit (2026-10-07 Help audit, item 7). Blocks moved, nothing else
+  changed: reader-visible output is identical. Verified mechanically
+  (same ids, each block byte-identical by SHA-256, code outside the
+  blocks unchanged, new order equals the sidebar order).
+
+### Help: one colour for the card bars
+- The cards in Help carried thirteen different left-bar colours that meant
+  nothing to a reader. They now share one light gray bar.
+
+### Help: readable headings, one style per level, tidier contents
+- Sidebar group labels are bold and dark with a rule above each group, and the
+  entries sit indented under them. The labels had been smaller and lighter than
+  the entries. This restores the fix approved on 2026-09-06, which was made on a
+  branch that never merged.
+- One style per level: every section title (24px bold, ruled), every subsection
+  (18px semibold, above the 16px body; five competing styles before), every box
+  label (small bold capitals in the box's colour).
+- Boxes follow one colour rule: amber for cautions, blue for worked examples,
+  gray for reference. Ten boxes in other colours were brought into it.
+- Titles match the sidebar ("The Types of Search", "Repository", "Languages
+  overview"). The cross-language card in The Types of Search links to the full
+  page instead of repeating it. Understanding Results explains the "in N works"
+  badge, the Formulas setting and the refrain and rhyme colours.
+
+### Names rarity per script; how names are found, documented
+- "Same people and places" counts a name's rarity within its script group, so
+  extending the names index to Hebrew, Coptic, Persian and Urdu leaves Latin,
+  Greek and English results unchanged. The builder writes one total per group
+  and the reader uses the selected passage's.
+- docs/DECISIONS.md and Help describe how names are found in each language.
+
+### Sources page credits every Persian and Urdu text
+- `backend/text_sources.json` had no entries for any of the 28 Persian or
+  18 Urdu texts, so the Sources page credited nothing for either language.
+  Added one entry per work (28 + 18): the Chronological Persian Poetry
+  Dataset (CC BY-SA 4.0, built on Ganjoor) for 21 Persian works, the Iqbal
+  Demystified Dataset for 11 Iqbal works across both languages (no LICENSE
+  file, served as is per the 2026-09-03 decision), and Urdu Wikisource
+  (CC BY-SA 4.0) for the other 14 Urdu works, Ghalib and Mir among them.
+  Every source URL checked (`curl -sI`) before adding it.
+- `scripts/corpus/verify_text_coverage.py -l fa --all` and `-l ur --all` now
+  report `sources ok` for all 46 texts.
+
+### "Same people and places" extended to Hebrew, Coptic, Persian and Urdu
+- `scripts/corpus/build_window_names.py` (behind Similar Passages' "Same
+  people and places" group) now marks names in four more languages, each
+  from its own existing source rather than a new tagger run: Hebrew from the
+  BHSA `nmpr` table already in `data/lemma_tables/hebrew_pos.json`; Coptic
+  from `data/inverted_index/syntax_coptic.db`'s hand-curated UD tags, kept
+  where a form is tagged PROPN at least 85% of the time and seen twice;
+  Persian and Urdu from the Stanza tags already cached per line in
+  `cache/lemmas/{fa,ur}/`, same 85%/3-occurrence purity rule, unioned with a
+  short hand-built lexicon (Quranic/biblical figures, Persian and Urdu
+  ghazal's stock beloved names, Karbala names for Urdu) and, for Urdu only,
+  minus a hand stoplist of stock ghazal nature-images (wine, a ruby, dew, a
+  leaf, a tulip, stars, eyelashes...) that the tagger treats almost as
+  consistently as a real name. Latin, Greek and English are unchanged,
+  confirmed byte-for-byte identical against the live index. Arabic stays
+  held (Stanza finds no proper nouns at all in its 132-line corpus).
+- Unit tests in `tests/test_build_window_names_other_scripts.py` cover the
+  new per-language logic with toy fixtures, including an end-to-end
+  `main()` run and the Urdu stoplist/lexicon precedence.
+
+### Similarity Map includes Persian and Urdu
+- `scripts/build_connections_map.py` and the map page's language list now include
+  Persian and Urdu, served since today; the map is rebuilt on production with them.
+
+### Quotation rows show their words; Tessa out of the way; safer passage rename
+- Quotation-only results now list the words of the quoted run. They had no
+  matched words once the scorer's markers were dropped, so the corpus chart
+  called "jan-e man o jan-e shoma" (Hafez, quoted by Iqbal) a one-word parallel.
+- The corpus chart's word filter keeps words with combining marks or the
+  zero-width joiner, which Persian and Urdu words carry.
+- Closed, Tessa is a small round button, and its x tucks it into a slim tab on
+  the right edge, remembered in the browser. The two-line pill covered the
+  corner of every page.
+- `scripts/corpus/rename_work_in_passage_index.py` updates window_texts.db on a
+  copy and swaps it in, since the live file is held open by the web workers.
+
+### Persian and Urdu: refrain and rhyme across the pair; stoplists listed
+- The Persian against Urdu search matches two poems that share refrain and
+  rhyme in the shared letter forms (`backend/poetics.find_cross_form_matches`),
+  as the single-language search does, excluding refrains of function words.
+  Ten poem pairs across the two corpora, among them Hafez and Ghalib on "dost".
+  Result cards show the refrain (docs/DECISIONS.md).
+- The Persian and Urdu function-word stoplists, already used in matching, are
+  listed on the Help page's Stoplists section.
+- Similar Passages: an "In other languages" row under the list, one button per
+  language with few results in it, opening that language's five best matches,
+  for every language alike (docs/DECISIONS.md).
+
+### Iqbal's diwan renamed into his other Persian works
+- The Persian divan filed separately as `iqbal_lahori.diwan` (Ganjoor's Iqbal
+  collection) is renamed `iqbal.diwan`, joining the seven other Persian-titled
+  works already filed under `iqbal`. The two filings split one poet's charts
+  and lists in two; the rename merges them under one author key.
+  `backend/author_dates.json`, `client/src/utils/eras.js`,
+  `data/poetics/form_signatures_fa.json`, `data/text_descriptions.json` and
+  `data/text_genres.csv` updated; `data/poetics/ganjoor_iqbal_lahori.diwan.json`
+  moved to `ganjoor_iqbal.diwan.json` with its ref ids rewritten. A new
+  production script, `scripts/corpus/rename_work.py`, does the equivalent
+  rename everywhere a work's name is held outside git (the `.tess` file and
+  its line tags, the inverted index, the lemma cache, the passage index, the
+  embeddings): dry run by default, `--apply` to act, every file backed up
+  first. Production run (the `.tess`, the index, the caches) is a follow-up
+  data operation, not part of this pull request.
+
+### Help brought up to date; connector names Persian and Urdu
+- Help: Persian and Urdu in the language lists; Arabic shown as indexed but not
+  yet open, with its page left out of the menu until the site serves it; the
+  Cross-Language page covers all seven open pairs; the Urdu page describes the
+  eighteen texts now held; corpus, passage and parse counts match the live site
+  (one figure per fact); the Reader section describes the two Similar Passages
+  groups, opening a result at its passage with a way back, and the possible-echo
+  rule; the English corpus is described correctly (the King James Bible, not a
+  modern translation); the AI setup text lists eleven signals and the Persian
+  and Urdu codes.
+- Connector: tool descriptions name Persian (fa), Urdu (ur) and the fa-ur pair,
+  and Theme Search is described as covering every served language.
+
+### Corpus chart counts every work, not the first 500 lines
+- Line search now returns `by_work_all`, the number of co-occurring lines in
+  every work (a work held whole and in books counted once), taken from the
+  index lines it already gathers, and `lines_all`, their total.
+- The search results' "Across the corpus" chart (timeline, era, work) draws
+  from those counts. It had drawn from the first 500 lines in index order, so
+  for a common pair such as the Persian refrain "man ast" (4,759 lines in 25
+  works) it showed two or three poets and left out Hafez and Iqbal, the poets
+  being compared. Clicking an author whose lines were not among the 500 loaded
+  fetches that author's own lines, and the caption gives the true total.
+
+### The site remembers your language
+- The search page and the Reader open in the language chosen last, kept in the
+  browser's own storage (no account, nothing sent to the server). "Open in" at
+  the end of the language tabs fixes a start language instead, for a reader who
+  visits other languages but always starts in one. A link that names a language
+  or a work still opens there. Help describes it under Languages.
+
+### Reuse tab: Greek highlights, fewer empty "possible echoes"; Persian corpus chart
+- Greek reuse lines now highlight their shared words. The Greek text stores
+  accents as separate marks after their letters, and the word-edge test treated
+  a mark as a non-letter, so a word ending in one never matched.
+- A possible echo (one shared rare word-triple) needs a word-triple overlap of
+  at least 0.002 with the other passage to be listed or counted in the gutter.
+  This drops matches buried in long prose paragraphs, such as Argonautica 1.2
+  beside a paragraph of Galen on the stomach (docs/DECISIONS.md).
+- The search results' "Across the corpus" chart opens on the first parallel
+  with two or more shared words, and the menu marks one-word rows. Persian and
+  Urdu lists lead with one-word refrain matches, so the chart had opened empty.
+- The Reuse tab and Help no longer say Latin only.
+
+### Test fix: corpus picker race test reads the hook's author field
+- `useCorpus.race.test.jsx` read `authors[0].name`, the API's field, where the
+  hook hands out `author`; it failed on main for that reason alone. The hook is
+  unchanged.
+
+### Reader: a Similar or Verbal Parallels result opens at its passage, with a way back
+- Opening a result in another work used to land at that work's first line and
+  leave no way back but the browser. It now opens at the passage, selected, under
+  a banner naming the passage left ("Opened from Quintus Curtius, Histories
+  3.20") with a "back to" link that returns to that passage. The browser's
+  Back button also returns to the line left instead of the top of the work.
+- The arrival selection applies once, so drawing more lines while scrolling no
+  longer reselects it over a line the reader has since clicked.
+
+### Text removal finds every lemma cache file
+- `scripts/corpus/remove_restricted_text.py` matched only `<work>.json` in the
+  lemma cache and missed the content-hashed `<work>-<hash>.json` the cache also
+  writes, for a work without book files. Found on its first run against real
+  data, the duplicate Augustine fragment, where the hashed copy was removed by
+  hand. A licence ending requires every copy deleted, so the finder now strips
+  the hash before matching; the test covers both names.
+
+### Duplicate Augustine fragment retired
+- `texts/la/unknown.corpus_scriptorum_ecclesiasticorum_latin.tess`, a
+  20-line excerpt listed as "Unknown", is chapters 32 to 46 of Augustine's
+  De natura et gratia from the CSEL edition (volume 60), a work the corpus
+  already holds whole. Its file, genre row, description, provenance and
+  credit entries are removed; the index, passage windows, vectors and lemma
+  cache are cleared on production (docs/DATA_OPERATIONS.md, 2026-10-07).
+
+### Reader type
+- The Reader's Gentium is served from the site itself (SIL's Gentium Book
+  7.000, compressed to WOFF2 with its data unchanged, licence in
+  `client/public/fonts/gentium-book/OFL.txt`). Google's copy lacked the
+  free-standing combining accents the corpus stores, so grave accents drew
+  detached from their vowels; the diagnosis is John James's (#624). Each
+  style is about 360 KB, fetched only by pages that use it and shown with
+  `font-display: swap`, so text appears at once in the fallback.
+
+### Coverage gaps closed
+- A work can carry its own date in `backend/author_dates.json`
+  (`author.work`), which wins over its author's; dates added for 30
+  anonymous Latin works (Carolingian poems, pilgrim itineraries) and two
+  anonymous Greek geographies, which the browser showed as undated.
+- Six Latin works gain genre rows; the Paschasius Radbertus book file
+  had old-style line endings (carriage returns only) and is converted.
+- The Sources page lists the eleven works whose source is not yet traced,
+  marked "Source to be confirmed".
+- The coverage checker no longer expects texts under ten lines in the
+  connection map.
+### Similar Passages: two groups by default
+- The Reader's Similar tab now opens with "Same people and places" above
+  "Same kind of scene" for every reader (trialled behind ?names=1 earlier
+  today; ?names=0 shows the single list for comparison). The name index's
+  builder is `scripts/corpus/build_window_names.py`, run after any change to
+  the passage index.
+
+### Similar Passages: same people and places (trial, behind a switch)
+- With `?names=1` on a Reader address, the Similar tab shows two groups:
+  passages in other works that share rare proper names with the selection
+  (ranked by scene similarity and the names' rarity, each card naming the
+  shared names, commentaries on a work set aside), then the usual
+  same-kind-of-scene results without those passages. `/passages/similar`
+  gains a `same_names` field when asked with `same_names=1`; without it the
+  response is unchanged. Reads `data/passage_index/window_names.db`.
+
+### Rare word-pair tables
+- The rebuild counts bigrams as it reads them instead of holding every
+  occurrence in one list, which grew past the 12 GB cap for Greek; with the
+  lemma cache unused the English table comes out identical. It now reads
+  each text's units from the lemma cache, the units the search itself uses,
+  falling back to processing the file: ten times faster, and the English
+  table differs from a fresh processing run by 0.3 percent of occurrences.
+
+## 2026-10-06
+
+- Vegio's Supplementum (`maffeo_veggio.supplementum`): line numbers made
+  sequential within each book. The file carried numbers with their trailing
+  zero lost (1.10 written 1.1, 1.100 written 1.10), so 16 references repeated.
+
+### Corpus
+- The text filed as Polignac, "Imitatio", is Maffeo Vegio's Aeneid
+  supplement (book 13, opening "Turnus ut extremo devictus Marte profudit"),
+  a second edition beside `maffeo_veggio.aeneid`. Renamed to
+  `maffeo_veggio.supplementum` with line tags `vegg. supp.`; credits, genre
+  and description follow. The index, passage windows and vectors are moved
+  by the data operation recorded in docs/DATA_OPERATIONS.md.
+
+### Sources page
+- 297 works that had no entry on the Sources page are credited (166 Greek,
+  99 Latin, 32 English), each with its digital source and, where known, the
+  print edition, traced from the import records; credited to "Tesserae
+  Project". Nine works remain untraced.
+
+### Text descriptions
+- About-this-text descriptions for Erchempert's verse martyrology,
+  Callimachus' Iambi and Philo's Allegories of the Laws, the three works the
+  coverage checker found without one.
+### Corpus browser
+- Dates and eras for authors the browser showed as undated: pseudo-Caesar,
+  Censorinus, Germanicus, Grattius, Obsequens, Solinus, Vegetius, Francis
+  Glass and the Confucius Sinarum Philosophus; the Septuagint books (filed
+  under the key "septuagint") now show the Hellenistic date their entry
+  already carried.
+
+### Menus
+- Every menu that lists names (Reader author, work and book; Search work and
+  text; Line Search author and work; Cross-language work and section) opens
+  as a full list on click and also narrows as you type: names starting with
+  the typed letters first, then names containing them, ignoring case and
+  accents (shared `SearchableSelect` component; phones keep the native menu).
+
+### Reader: Similar Passages for a selection
+- A Reader selection is matched to the passage window that covers it by
+  every reference coordinate, within the book being read. It compared only
+  the last two numbers and searched every book, so in works cited
+  book.chapter.section (Curtius, Livy, Ammianus and others) a selection
+  could get another book's window: Curtius 3.1.1-4 showed Similar Passages
+  for 10.1.1-12. The same match feeds the fusion search's context channel
+  and the connector's theme_pair_lift.
+
+### Theme Search
+- 19,978 more Persian, Urdu and Arabic passage windows in the index (Urdu
+  coverage grows from 2,150 windows to 14,759); Arabic is held out of results
+  (data operation recorded in docs/DATA_OPERATIONS.md).
+- Arabic passage windows are held out of Theme Search and Similar Passages
+  until a reader has graded Arabic (`held_languages()` in
+  backend/passage_index.py; TESSERAE_HELD_LANGUAGES overrides; a server that
+  serves Arabic through TESSERAE_LANGUAGES, the preview, still shows them).
+  The windows stay indexed, so opening Arabic needs no rebuild.
+
+### Semantic channel
+- Semantic vectors now exist for every Latin, Greek and English work, so the
+  semantic channel runs in every comparison. Before, 443 Latin works, 284 Greek
+  and all 41 English had none and the channel silently returned nothing for them;
+  31 older vector files with the wrong number of rows were re-encoded and
+  replaced (data operation recorded in docs/DATA_OPERATIONS.md).
+
+### Persian and Urdu search (from the first expert review)
+- The refrain-and-rhyme channel returns one result per pair of poems, the
+  opening-line pair, with the poems' other refrain lines listed on the
+  result card. Before, every line pair of the two poems was a separate
+  result, so a ranking of 200 held a handful of poem pairs repeated.
+- A shared refrain and rhyme is weighed by how many poems in the whole
+  corpus of the language carry it (scripts/build_form_signatures.py writes
+  data/poetics/form_signatures_<lang>.json; the result card shows "form in
+  N poems"). Before, rarity was measured only within the two texts.
+- Cross-language results carry the formula count (how many works share the
+  result's wording), looked up in each side's own language tables, so the
+  "in N works" badge and the hide control work for Persian against Urdu.
+### Translations
+- Quintus Curtius, History of Alexander (books 3-10): J. C. Rolfe's 1946 Loeb
+  translation, public domain in the United States, aligned section by section
+  (96.5% of sections exact, four chapters whole) for the Reader and the
+  translation shown beside search results (`scripts/translations/align_curtius.py`;
+  the data operation is recorded in docs/DATA_OPERATIONS.md).
+
+### Search and interface (collaborators' changes)
+- The main search results can be sent a page at a time: with a page_size the
+  search stores its full ranked list for six hours and returns the first page
+  with a result id, and further pages, sorting, filtering and the export are
+  served from that stored list without searching again. Without page_size the
+  response is as before, so the connector and scripts are unchanged (#614).
+- Pagination behaves the same way across the search results and the data
+  views (#615, rebased onto main after #614).
+- The admin request listing is paginated, filtered and sorted on the server,
+  with every filter and sort value checked against a fixed list (#610).
+
+- Each fused search result carries channel_token_attrs: for every channel
+  that matched the pair, the word positions it matched on each side, so a
+  display can mark lexical, sound and other matches differently without
+  searching again. Results computed before this change and served from the
+  results cache carry the field empty until the search is run again (#618,
+  a collaborator's change).
+
+### Connector
+- The installed (stdio) connector gains the seven tools the web connector
+  already had: compare_texts, theme_search, get_passage, similar_passages,
+  theme_compare, theme_pair_lift and describe_text (#619).
+
 ## 2026-10-05
 
 ### Admin and corpus
@@ -50,6 +1170,20 @@ behind each, are in docs/DECISIONS.md.
   Downloads entries. Only the demo branch's language-related changes were
   taken; main's own citations, help text, sample searches and era table
   stand. Nothing shows until a server serves one of the languages.
+
+### Search
+- The results page no longer downloads every parallel to show one page of
+  them. A parallel search now asks for its page size; the server still runs
+  the whole search exactly as before, keeps the finished list on disk for
+  six hours (`tmp/search_results/`, at most 1 GB, oldest removed first) and
+  sends the first page with an id. Later pages, the Sort menu and the chart's
+  bar filter are requests to `GET /api/search-results/<id>`, which filters
+  and sorts the whole list before cutting the page. The chart counts come
+  from the server, CSV/PDF export fetches the full list when clicked, and the
+  "Across the corpus" picker lists the parallels on the current page. On a
+  1,456-row lemma search the final response fell from 3.8 MB to 0.1 MB.
+  Search time is unchanged. Requests without `page_size` (connector, agents,
+  scripts) get the same full response as before.
 
 ### Tessa
 - "Are you still working?", "is it done?" and the like, asked after a

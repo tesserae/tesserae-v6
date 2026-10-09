@@ -67,6 +67,456 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-08 Persian and Urdu editorial prose removed, an outage repaired, a translation and reuse tables added
+- Khayyam (about 11:36): 142 lines removed from `khayyam.diwan` (refs .713
+  to .854), a signed 1934 editor's introduction to a Khayyam edition that
+  had been imported inside the poems. Removed with
+  `scripts/corpus/drop_lines_from_work.py` (#690) from the text, the Persian
+  index, the line vectors and 37 passage windows. The remaining lines keep
+  their references, so the gap shows where the essay stood.
+- Outage, about 11:50 to 12:35. The removal tool dropped the 37 windows from
+  `ids.json` and `descriptions.jsonl` but not from `embeddings.npy`, so the
+  passage index refused to load and Similar Passages and Theme Search failed
+  for every language. Repaired by removing the same 37 rows from
+  `embeddings.npy` by position in the pre-removal order (backup kept). The
+  tool now keeps all four window stores in step and refuses to finish
+  otherwise (#693). After any change to the passage index, the counts of
+  `ids.json`, `embeddings.npy` and `descriptions.jsonl` are compared and one
+  Similar Passages and one Theme Search request are made.
+- Ghalib (about 13:14): two Wikisource footnotes removed from
+  `ghalib.diwan_wikisource` (ghazal 62.9 and 131.22) with the repaired tool,
+  eight windows with them. The three passage index files stayed at 530,917
+  rows each. The description keyword index was rebuilt after each removal.
+- Lemma caches: the removal deleted the cached analyses of both works.
+  Urdu analysis needs a library that production does not carry, so both
+  caches were rebuilt by running production's `scripts/batch_lemma_cache.py`
+  under the development environment, writing into production's cache. The
+  Persian and Urdu rare-bigram tables were then rebuilt
+  (`scripts/corpus/rebuild_bigrams.py`).
+- Names index rebuilt (`scripts/corpus/build_window_names.py`, 17 minutes,
+  518,659 windows) and the connection map rebuilt
+  (`scripts/build_connections_map.py`, finished 14:24).
+- Translation: R. A. Nicholson's The Secrets of the Self (Macmillan, 1920,
+  via Project Gutenberg), aligned to Iqbal's Asrar-e Khudi on 2026-09-07,
+  was installed in `data/translations/` (all 872 references match the live
+  text). The aligner is now on main (#695).
+- Reuse tables for Persian and Urdu built for the first time
+  (`scripts/reuse/build_reuse_table.py --language fa` and `ur`, 13:51):
+  `fa.db` 247 MB, `ur.db` 11 MB. Asrar-e Khudi 19.20 returns 13 quotations,
+  among them its source in Rumi's Masnavi (1.6).
+- Backups: every file the removal tool changed was backed up beside it.
+  Backups of the text files, lemma caches and the pre-repair
+  `embeddings.npy` were moved out of the served folders.
+- Checks: reference searches passed after each step. Similar Passages,
+  Theme Search, Persian and Urdu line search, and the Reuse and Translation
+  tabs were also checked on the live site.
+
+## 2026-10-08 Documents trial opened (about 07:30 EDT)
+- What: `TESSERAE_DOCUMENTS=1` added to the production environment after
+  #683, so the documents option on the corpus-wide phrase search is
+  available to anyone who opens the site with `?documents=1`. Without that,
+  the option stays hidden. `TESSERAE_DOCUMENTS_CONNECTOR` is not set, so the
+  connector's `line_search` still ignores the documents parameters.
+- Backups: the environment file was copied before the change.
+- Checks: reference searches passed. Live, a "both" search for "arma
+  virumque cano" returned literary and document hits, and the same search
+  without `collection` returned the literature-only response with no
+  documents fields.
+
+## 2026-10-08 Documentary texts in the corpus-wide phrase search (files installed about 02:30 EDT, switch off)
+- What: PR for documents stage 3b-2 adds `backend/documents.py` and an
+  optional `collection` parameter to `/api/line-search`, both inert unless
+  `TESSERAE_DOCUMENTS=1` is set on the server. Installing it on production
+  is a separate step from merging the code, listed here so it is not
+  forgotten: copying the stage 3b-1 build's output (built dark, never
+  previously copied anywhere near `/var/www`) into place, and setting the
+  env line.
+- Files to copy (read-only once in place, never written by the running
+  app):
+  - `la_documents_index.db` (266 MB) and `grc_documents_index.db` (775 MB)
+    into production's `data/inverted_index/` (the SAME directory the
+    literary `la_index.db`/`grc_index.db` already live in. The suffixed
+    filename keeps them apart, and `backend/documents.py` refuses to
+    open or write a literary-named file).
+  - `metadata.db` (252 MB, stage 3a) into production's
+    `data/documents/metadata.db` (new directory).
+  - The restored-word sidecars (about 70 MB total, 264 files) into
+    production's `data/documents/restored/<la|grc>/`, preserving the
+    `<source>__<bucket>.restored_words.jsonl` filenames stage 3b-1's
+    `write_document_tess.py` gave them.
+  - `data/documents/formula_words_la.txt` and `_grc.txt` are already
+    tracked in git (committed in stage 3b-1) and need no copy.
+- Env: add `TESSERAE_DOCUMENTS=1` to production's environment and reload
+  (`touch tesseraev6_flask.wsgi`). Until this line is set, every part of
+  this PR is unreachable and the site's behaviour is unchanged.
+- Verify after: the ten phrase searches in the stage 3b-2 spec
+  (`collection=documents` and `collection=both`) against the live site,
+  plus the existing reference tests in `tests/search_reference_tests.md`
+  with `collection` omitted, to confirm the literary path is still exactly
+  what it was before this entry.
+- Applied, with the switch still off: both documents indexes copied into
+  `data/inverted_index/` (byte-identical to the build), `metadata.db` into
+  `data/documents/` (rebuilt the same night so every document shows its
+  source's deposit licence, see the CHANGELOG), and the 264 restored-word
+  files into `data/documents/restored/la` (160) and `grc` (104). The
+  production environment does not set `TESSERAE_DOCUMENTS`, so the site
+  reports documents as not enabled and every search is unchanged.
+  Reference searches passed. A one-off process running the production code
+  with the switch on returned document hits with edition and licence for
+  "dis manibus", "bene merenti", "arma virumque cano" (Both) and χαίρειν,
+  in 0.2 to 1.7 seconds each.
+
+## 2026-10-08 Origo Gentis Romanae: the 2004 tertullian.org translation added (about 01:00 EDT)
+- What: `data/translations/la__pseudo_aurelius_victor.origo_gentis_romanae.json`
+  built in the development checkout, covering all 126 refs (the preface
+  plus chapters I-XXIII) of
+  `texts/la/pseudo_aurelius_victor.origo_gentis_romanae.tess`. This closes
+  the gap the Aurelius Victor entry below left open, where the
+  translation's terms were still being checked.
+- Source: the collaborative translation (https://www.tertullian.org/fathers/origo_01_trans.htm),
+  ed. Roger Pearse, 2004, from the Teubner Latin text. The page states "All material on this
+  page is in the public domain - copy freely." Raw HTML was kept outside
+  the repository.
+- Method: `scripts/translations/align_origo.py`. The translation's own
+  chapter (roman numeral) and bracketed section markers align 1:1 to the
+  corpus's chapter.section refs in every case but three, where the
+  corpus's single Latin Library line visibly carries two of the
+  translation's numbered sections: 3.7 (translation sections [7]+[8]), 4.3
+  (translation sections [3]+[4], the corpus having no 4.4 of its own), and
+  5.3 (translation sections [3]+[4]). Each merge is listed by hand in the
+  script. Three places in 126 refs is too few to trust to an automatic
+  rule. The preface ref (`pr.1`) maps to the page's opening dedication
+  paragraph, read past the page's own title and navigation links.
+- Checks: coverage 1.0 (126 of 126 refs). Proper-name survival 0.9915 on 118
+  of the 126 pairs the check could sample, above the 0.70 threshold used
+  elsewhere for "high" confidence. No footnote or apparatus text and no
+  leftover HTML markup in any of the 126 stored units, checked against
+  every unit. `backend.translations.for_passage` called directly against
+  the built file (no server needed) returns the right English for the
+  preface, an ordinary ref (1.1), all three merged refs, and the last ref
+  (23.6), and reports unavailable for a ref outside the work.
+  `tests/test_translations_unit_sources.py` and
+  `tests/test_translation_route_alias.py` (12 tests, generic to the
+  translation module) pass unchanged.
+- Licence: public domain. Attribution "collaborative translation, ed.
+  Roger Pearse (2004)" is stored in the file and shown with every display.
+- Production steps (not yet run): copy
+  `data/translations/la__pseudo_aurelius_victor.origo_gentis_romanae.json`
+  from this operation into production's `data/translations/` (this
+  directory is not tracked in git). `touch tesseraev6_flask.wsgi` so the
+  three Apache workers rebuild their per-work file index and pick up the
+  new file (the index is built once per worker and otherwise would not
+  see it). No inverted-index, lemma-cache or passage-index rebuild is
+  needed: the file only adds an English rendering for a work already
+  indexed. Verify afterward with a request to the translation endpoint
+  for `pseudo_aurelius_victor.origo_gentis_romanae` ref `ps-vict. orig.
+  1.1`, and that the Reader's Translation tab shows it for that work.
+- Applied: the built file copied into production `data/translations/`
+  and the app reloaded. The Reader's translation route returns the English
+  for ref 1.1 with its attribution and public-domain statement. Reference
+  searches passed.
+
+## 2026-10-08 Scholarship sources installed on the live site (about 23:10 EDT)
+- What: the Reader's Scholarship tab (opt-in, `?scholarship=1`) went live
+  with Servius only. These were installed beside it, outside git:
+  - the remaining commentary catalogue, 389 files added to
+    `data/commentaries/` for 393 in all (the Perseus open commentaries on
+    Latin and Greek works under CC BY-SA, the Sefaria Tanakh commentators
+    filtered to texts whose stated licence permits reuse, Matthew Henry from
+    CCEL in the public domain, and public-domain English editions read from
+    scans for Milton, Shakespeare, Spenser, Keats, Wordsworth and Vergil).
+  - the offline citation index (`data/citation_index/citations.db`, 25 MB),
+    article-to-passage citations extracted from the pre-1923 JSTOR Early
+    Journal Content released for free reuse, covering 24 classical, biblical
+    and English journals, with 82.5% precision on a 40-citation hand-checked
+    sample.
+  - the citation abbreviation table (`data/citations/abbreviations.json`,
+    GPL-3.0, used on the server and not redistributed).
+  - two keys in the production environment, for book-page search (Google
+    Books) and open full text (CORE). The keys are not recorded here.
+- Every commentary file's work id was checked against the live texts first.
+  All match, and scripture uses one key across Bible versions.
+- Scripts: none (files copied with `rsync --ignore-existing`, so the
+  Servius files tracked in git were left untouched).
+- Backups: the production environment file was copied before the keys were
+  added. The data was additive, so no other backup was needed.
+- Checks: reference test passed after reload. Live lookups returned
+  commentators for the Aeneid, Iliad and Paradise Lost, citation-index hits
+  for Aeneid 4.1, book pages, and full-text results. The credits list
+  (`/api/scholarship/sources`) answers in under a second.
+- Note: the full-text key expires on 14 October 2026 and must be renewed.
+
+## 2026-10-08 Two works transmitted with Aurelius Victor added (23:00 to 00:17 EDT)
+- What: `pseudo_aurelius_victor.de_viris_illustribus` (86 chapters, 519
+  lines) and `pseudo_aurelius_victor.origo_gentis_romanae` (preface and 23
+  chapters, 126 lines), from The Latin Library (#674), carried through every
+  store the site reads.
+- Steps, each under `~/bin/tess-job`:
+  - lemma caches (`scripts/batch_lemma_cache.py la`, only the two new files
+    computed).
+  - Latin index extended on a copy (`scripts/corpus/add_texts_to_index.py
+    --add`, text ids 1795 and 1796, 8,741 and 3,961 postings, 1,656 texts,
+    933,463 lines, lemma_doc_freq rebuilt, integrity ok) and swapped in.
+  - rare-bigram table rebuilt (`scripts/corpus/rebuild_bigrams.py la`, 87 s).
+  - 148 passage windows built (`scripts/corpus/build_batch_windows.py
+    --upsert-db`), described by Qwen 3.8 27B on the university's AI gateway
+    with thinking off (stamp `qwen38-bullsai-20261008`, 148 of 148 in 1.4
+    minutes), appended with `scripts/corpus/apply_passage_rows.py --mode
+    append` (530,962 windows, ids, vectors and descriptions in step), and the
+    description keyword index rebuilt (`scripts/build_desc_fts.py`, 37 s).
+  - line vectors for both works encoded on the server's processor with
+    bowphs/SPhilBerta, raw as in the existing files (519 and 126 rows, mean
+    norms 5.8 and 6.0).
+  - connection map rebuilt (`scripts/build_connections_map.py`, 49 minutes,
+    peak 7.3 GB, up from 4.4 GB on 7 October as the window count grew.
+    An 8 GB cap now leaves too little headroom, so use 10 GB).
+- Dates: `backend/author_dates.json` gains a Latin entry for
+  `pseudo_aurelius_victor` (Late Antique, 4th century CE) so the corpus
+  browser shows an era.
+- Backups: `la_index.db.bak-victor-minor-20261008`,
+  `window_texts.db.bak-victor-minor-20261008`,
+  `desc_fts.sqlite.bak-victor-minor-20261008`, and the passage index files'
+  `.bak-victor-minor-20261008` copies made by the append script.
+- Checks: reference searches passed after each reload. The coverage check
+  (`scripts/corpus/verify_text_coverage.py`) passes for both works in every
+  store except the browser era, which this change supplies.
+- Note: no public-domain English translation was found for De viris
+  illustribus. One exists online for the Origo and its terms are being
+  checked.
+
+## 2026-10-07 Connection map rebuilt with Persian and Urdu (15:25 to 16:12 EDT)
+- `scripts/build_connections_map.py` with the language list of #658 (la, grc, en,
+  cop, he, fa, ur): 371,354 fine windows in 1,838 works, 46.2 min, peak 7.3 GB
+  under a 10 GB cap. The coverage checker then reports every Persian and Urdu text
+  present in every store (28 and 18 texts, nothing missing), including the Sources
+  credits added in #660.
+
+## 2026-10-07 Names index extended to Hebrew, Coptic, Persian and Urdu (15:37 to 15:59 EDT)
+- Built with `scripts/corpus/build_window_names.py` (#659) to
+  `data/passage_index/window_names.db.new` on production (21 min, peak 1.9 GB):
+  518,556 windows, 2,254,993 window-name pairs. Latin, Greek and English rows
+  checked identical to the live file (SHA-256 over sorted rows).
+- The build wrote one window total for all languages, which would have made
+  every Latin name look twice as rare. The meta table was set by hand to the
+  per-group totals the fixed builder now writes (windows 265,214 for la/grc/en,
+  windows_he 5,372, windows_cop 13,200, windows_fa and windows_ur 234,770) before
+  the swap at 15:59 (backup `window_names.db.bak-other-scripts-20261007`).
+- After reload: a Genesis window naming Abraham and a Hafez window naming Joseph
+  return their "same people and places" groups.
+
+## 2026-10-07 Backups pruned; weekly pruning scheduled (15:08 to 15:16 EDT)
+- `scripts/prune_backups.py --keep 1 --keep-days 3 --apply` (the rule of #466):
+  64 copies, 79.8 GB deleted; 128 copies, 28.7 GB kept. Superseded snapshots in
+  the home backup folder removed by hand (about 35 GB: a test copy of
+  2026-09-20, the June index snapshots, an old staged passage index, two
+  frequency-table builds, three old vector copies). Disk free 175 GB to 289 GB.
+- A weekly user timer now runs the rule every Sunday at 03:30, keeping the
+  newest copy of each file and anything under seven days old
+  (`~/.config/systemd/user/tess-prune-backups.timer`, log under
+  `~/tesserae-backups/jobs/prune/`). The rule had only ever been run by hand.
+
+## 2026-10-07 Persian work iqbal_lahori.diwan renamed iqbal.diwan in every store (14:21 to 14:44 EDT)
+- What: Iqbal's Ganjoor collection was filed under the author prefix
+  `iqbal_lahori`, so lists and charts showed "Iqbal Lahori" beside "Iqbal" for
+  his seven other Persian works. The repository side merged in #655; the
+  stores were renamed with `scripts/corpus/rename_work.py --root
+  /var/www/tesseraev6_flask --language fa --old iqbal_lahori.diwan --new
+  iqbal.diwan --apply` (dry run first). Note the collection overlaps the seven
+  works: 4,513 of its 16,274 half-lines appear word for word in them.
+- Renamed by the script: texts/fa (16,274 line tags), fa_index.db (texts row,
+  16,274 lines, 100,347 postings), the lemma cache (new content-hashed name),
+  ids.json and descriptions.jsonl (3,797 windows). Backups
+  `*.bak-rename-20261007-*`; the old text and lemma cache files moved to
+  `~/tesserae-backups/rename_iqbal_2026-10-07/`.
+- The script stopped at window_texts.db with "database is locked": the web
+  workers hold it open. The same update was then made on a copy (3,797 windows,
+  16,274 lines, quick_check ok) and swapped in at 14:25 (backup
+  `window_texts.db.bak-rename-20261007-142330`). The script now works on a copy
+  and swaps it in. The vector files were renamed by hand (meta paths and line
+  refs rewritten).
+- Rebuilt afterwards: keyword index (530,814 rows), Persian phrase table
+  (1,420,609 keys), connection map (14.3 min, peak 4.4 GB). App reloaded; every
+  reference search passed; the Persian text list shows all eight Persian works
+  under "Iqbal", and the corpus chart counts him once (251 lines for "man ast").
+
+## 2026-10-07 Persian and Urdu served on production; preview server closed (08:05 to 08:15 EDT)
+- What: production's `.env` gains `TESSERAE_LANGUAGES=la,grc,en,cop,he,fa,ur,it,gmh,fro`,
+  which registers the Persian and Urdu handlers, adds their tabs after Hebrew
+  and adds the Persian against Urdu pair (backend/served_languages.py). Arabic
+  is left out, so it stays unserved and its passage windows stay held. The
+  stores were copied in on 2026-10-05 and the windows appended on 2026-10-06.
+  Backup of the old file: `~/tesserae-backups/env.prod.bak-20261007-0805`.
+  To undo, remove the line and reload.
+- Checked afterwards: `/api/languages` lists la, grc, en, cop, he, fa, ur with
+  the pairs grc-la, la-en, grc-en, cop-grc, he-grc, he-la, fa-ur. 28 Persian
+  and 18 Urdu texts are listed. A Hafez against Saadi search, a Khayyam
+  against Hafez combined search, a Persian against Urdu search (Iqbal, 1,300
+  parallels) and a Persian Theme Search all return results. Every reference
+  search passed. The web app has no Stanza model, so Persian and Urdu typed
+  queries use the normalised word forms, as the preview did.
+- The preview server and its tunnel were stopped, which frees its 20 GB
+  memory allowance for jobs.
+- Persian and Urdu phrase tables rebuilt with `scripts/corpus/rebuild_bigrams.py`
+  (Persian 34 s, peak 2.1 GB, 1,420,609 keys, unchanged; Urdu 3 s, 176,629
+  keys). Backups `*.pre-rebuild-20261007-*.bak`.
+
+## 2026-10-07 Duplicate Augustine fragment removed from every store (08:17 to 08:43 EDT)
+- What: `unknown.corpus_scriptorum_ecclesiasticorum_latin`, 20 lines of
+  Augustine, De natura et gratia 32 to 46 from the CSEL edition, which the
+  corpus holds whole (#645). Removed with
+  `scripts/corpus/remove_restricted_text.py unknown.corpus_scriptorum_ecclesiasticorum_latin --apply`,
+  its first run on real data (3 min, peak 3.1 GB): the text file, its lemma
+  cache, 20 lines and 1 text from `la_index.db` (backup
+  `la_index.db.bak-removed-20261007-20261007-081825`), 3 passage windows from
+  ids.json, embeddings.npy and descriptions.jsonl, and 23 rows from
+  window_texts.db, each backed up beside itself as `*.bak-removed-20261007-*`.
+  The passage index went from 530,817 to 530,814 windows, with ids and vector
+  rows checked in step afterwards.
+- The script missed the lemma cache's content-hashed copy
+  (`<work>-<hash>.json`), which was moved by hand. The finder is fixed in #647.
+  The file's backups, that copy and its vector file were moved to
+  `~/tesserae-backups/retired_duplicates_2026-10-07/`.
+- Rebuilt afterwards: keyword index (`scripts/build_desc_fts.py`, 530,814
+  rows, 31 s, backup `desc_fts.sqlite.bak-removed-20261007`); Latin
+  lemma_doc_freq (`scripts/corpus/rebuild_docfreq.py --language la --apply`,
+  1,654 files, 752 works, backup `la_index.db.bak-docfreq-20261007-082418`);
+  names index (`scripts/corpus/build_window_names.py`, 265,214 windows, 19 min,
+  peak 4.6 GB, backup `window_names.db.bak-removed-20261007`); connection map
+  (`scripts/build_connections_map.py`, finished 08:38, peak 4.5 GB).
+- After: app reloaded, every reference search passed, the fragment is gone from
+  the Latin text list, and a Latin Theme Search returns results.
+
+## 2026-10-07 Morning rebuilds after the night window
+- Latin and Greek phrase tables rebuilt with the corrected builder (#639,
+  counts as it reads and reads the lemma cache): Latin at 06:44 (165 MB), now
+  with the Vegio supplement; Greek at 06:46 (412 MB), now with the work it
+  lacked. Both under 4 GB.
+- Names index for the two-group Similar Passages installed at 07:01
+  (`data/passage_index/window_names.db`, built by
+  `scripts/corpus/build_window_names.py`).
+- The Paschasius Radbertus book file, converted from carriage-return line
+  endings in #641, has a fresh lemma cache.
+
+## 2026-10-07 Night window: Vegio relabel moved through the stores; connection map rebuilt
+- Window: the preview server was stopped 02:00 to 02:56 (tunnel kept) so the
+  jobs below had memory; every step under `~/bin/tess-job`.
+- Vegio relabel (#636, #637: `polignac.imitatio` is Vegio's Aeneid supplement,
+  now `maffeo_veggio.supplementum`, lines renumbered): lemma cache built;
+  Latin index: the scheduled add pointed at the wrong cache folder and added
+  nothing, then `drop_stale_index_entries.py` removed the old file (backup
+  `la_index.db.bak-stale-20261007-0201`); at 02:05 the supplement was added to
+  a copy with the correct `--cache-dir cache/lemmas` (1,655 texts, 932,838
+  lines, lemma_doc_freq rebuilt, quick_check ok) and swapped in (backup
+  `la_index.db.bak-vegiofix-20261007`). Vectors renamed (716 rows, refs from
+  the renumbered file). Passage index: 166 windows renamed in ids.json,
+  descriptions.jsonl and window_texts.db (backups `.bak-vegio-20261007`); 159
+  had their references re-located by matching their first and last lines in
+  the renumbered file, 7 kept a mechanically rewritten reference (to check);
+  the Reader's lines for the work replaced (716). Keyword index rebuilt.
+- Latin rare-phrase table rebuilt at 02:05, before the corrected index swap, so
+  it lacks the supplement: rerun at the next window.
+- Greek rare-phrase table: rebuild killed at its 12 GB cap after 9 minutes (it
+  took 88 s on 2026-10-03); the live table is unchanged and still lacks one
+  work. Cause under investigation.
+- Connection map rebuilt (`scripts/build_connections_map.py`, 19.1 min, peak
+  4.4 GB, 708 MB), now including the works added since 30 September; old cache
+  removed.
+- After: app reloaded, every reference search passed, preview restarted on its
+  address; the coverage check passes for the supplement except the Latin
+  rare-phrase table.
+
+## 2026-10-06 Persian, Urdu and Arabic passage windows appended to the passage index (port stage 4b)
+- What: 19,978 passage windows the production index lacked (Urdu 12,609, Arabic
+  5,759, Persian 1,610; production already held 218,401 Persian, 2,150 Urdu and 32
+  Arabic from August) appended at 19:16 EDT: `ids.json`, `embeddings.npy` and
+  `descriptions.jsonl` grew in lockstep from 510,839 to 530,817; their wording went
+  into `window_texts.db` (19,978 rows) and the Reader's `lines` table gained 86,381
+  lines for 164 works that had none. Backups `<file>.bak-mlw-20261006` of all four
+  files. Keyword index rebuilt with `scripts/build_desc_fts.py` (530,817 rows, 33 s)
+  at 20:23, backup `desc_fts.sqlite.bak-mlw-20261006`; app reloaded each time.
+- Descriptions: GLM 5.3 Flash on the campus gateway, the describer of the 3 October
+  corpus re-description, 0 failures (the last 10,797 in 41 minutes once the gateway's
+  team budget was set to reset daily).
+- Vectors: multilingual-e5-large on the campus GPU (job mlwin-1006, 39 s), over the
+  same text the index encodes (`"query: " + blob_for(desc)`, checked identical to the
+  3 October job's input on 200 windows), results via the upload route (#596).
+- Arabic held: Arabic is not yet graded, so #626 keeps Arabic windows out of Theme
+  Search and Similar Passages on this server; they stay indexed.
+- Checks: lockstep asserted before and after; every reference search passed after
+  each reload; an All-languages Theme Search returns Persian and Urdu windows and no
+  Arabic.
+- Service change the same evening: the query encoder and Reader services were
+  restarted to clear 2 GB of idle swap and set to `MemorySwapMax=0`.
+
+## 2026-10-06 Semantic vectors computed for every Latin, Greek and English work that lacked them; defective vector files replaced
+- What: before today 443 of 748 Latin whole works, 284 of 845 Greek and all 41
+  English had no stored vectors, so the semantic channel returned nothing for any
+  comparison touching them (the web app carries no model by design, and the log
+  recorded that the Latin semantic model was unavailable). Two GPU
+  jobs on the campus cluster (BullsAI, project tesserae, one B200) encoded every
+  line of those works with the models the site uses (bowphs/SPhilBerta for Latin
+  and Greek, all-MiniLM-L6-v2 for English), raw vectors as in the existing files.
+  Job 1 (semfill-1006, 97 s): 768 works, 586,862 lines; 767 whole-work files copied
+  into production `backend/embeddings/<lang>/` at 15:31 to 15:36 EDT
+  (sappho.fragments held back, having no lemma cache to verify against), and 1,003
+  part files derived from their whole works by reference. Job 2 (semfill2-1006,
+  22 s): 29 whole works re-encoded whose OLD vector files held the wrong number of
+  rows for their text (augustine.de_trinitate had 1 row for 624 lines,
+  macrobius.saturnalia 1 for 2,072, seneca.quaestiones_naturales 4 for 897,
+  couplet_et_alii.confucius_sinarum_philosophus 5 for 255; alcuin, claudian,
+  persius, the Achilleid and six Greek works off by one to six), replaced at 15:49
+  with 152 part files re-derived; and seven parts of petrus_riga.aurora (no whole
+  file) re-encoded on the server's processor (6,959 lines, 24 s, about 400 lines a
+  second). Old files kept in
+  `~/tesserae-backups/jobs/semantic_fill_2026-10-06/replaced_old/`.
+- Inputs: line text read from the .tess files (verified identical to the cached
+  search units, by reference and wording); job folders
+  `public_data/jobs/semantic-fill-20261006/` and `semantic-fill2-20261006/`
+  (blobs.jsonl.gz, works.json, encode_fill.py); results via the upload route (#596).
+- Checks: after the operation every vector file with a text behind it has one row
+  per text line, except three texts with a malformed line
+  (paschasius_radbertus.epitaphium_arsenii.part.2, ambrose.epistulae_variae,
+  augustine.contra_faustum), where the row count equals the cached unit count the
+  search uses. Vector norms 4.7 to 6.4 against 5.2 for the existing Latin files. A
+  fresh live comparison (Curtius 5 against Justin) logged "Using pre-computed
+  embeddings" and 21 of its top 30 parallels carry the semantic channel.
+- Left as found: 148 old vector files whose text no longer exists under that name
+  (renamed or retired works); harmless, to be archived in a later pass.
+- Service: the channel reads a work's file by path, so no reload was needed. The
+  English embeddings folder was owned by the web-app user and empty; replaced by a
+  group-writable one. The embeddings manifest (admin statistics only) was not
+  rebuilt on production. Vector files are not tracked in git.
+- Counts after: Latin 1,804 vector files, Greek 1,237, English 93.
+
+## 2026-10-06 Quintus Curtius: J. C. Rolfe's 1946 Loeb translation added (section-exact)
+- What: `data/translations/la__curtius_rufus.historiae_alexandri_magni.json` created on
+  production at 13:27 EDT, covering all 2,621 sections of books 3-10 of
+  `texts/la/curtius_rufus.historiae_alexandri_magni.tess` (the whole-work file also
+  serves the eight part files). 2,529 refs (96.5%) map to section-level units, 92 to
+  four whole-chapter units (3.1, 4.1, 4.8, 5.11), where the OCR's marginal section
+  numbers could not be recovered. 2,514 units stored.
+- Source: J. C. Rolfe, Quintus Curtius, History of Alexander, 2 vols, Loeb Classical
+  Library, Harvard 1946. Rights basis: HathiTrust rights "pd, Full view" (public domain
+  in the United States) for the Michigan copies mdp.39015008158415 (v.1) and
+  mdp.39015008158407 (v.2). Text: OCR of the same volumes from the archive.org item
+  quintus.-curtius.-rufus.-history.of.-alexander.-loeb.-one-vol-version_202511
+  (files Vol.1_djvu.txt, Vol.2_djvu.txt); raw copies kept outside the repository.
+- Method: `scripts/translations/align_curtius.py`. English pages separated from Latin
+  by function-word share; footnotes, apparatus, each book's synopsis and the index
+  cut; chapter starts by roman numeral; section starts by the marginal integers,
+  chosen as the longest increasing subsequence per chapter, a chapter accepted at
+  section level when at least 70% of its markers were found and missing sections
+  merged into the preceding one; validated per book against the corpus's chapter
+  counts. A final pass removed running heads, stray section numbers, footnote marks
+  and trailing OCR noise from the unit text without changing the mapping.
+- Checks: coverage 1.0; proper-name survival 0.737 on 300 sampled units (the Loeb
+  range in this corpus is 0.74-0.81); units with two or more unambiguous Latin words
+  0.48%; footnote or apparatus traces 0.16%; 19 units keep a run of OCR garble.
+- Licence: public domain in the United States; attribution "J. C. Rolfe (1946)" is
+  stored in the file and shown with every display.
+- Service: the per-work file index is built once per worker, so the Reader shows the
+  new translation after the next reload.
+
 ## 2026-10-05 Persian, Urdu and Arabic stores copied into production, unserved (run 06:18 to 06:20 EDT)
 
 ### What and why

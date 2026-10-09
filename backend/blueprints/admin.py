@@ -364,10 +364,7 @@ def admin_me():
 def admin_logout():
     """Clear current admin session."""
     admin_email = session.get('admin_email')
-    session.pop('admin_user_id', None)
-    session.pop('admin_email', None)
-    session.pop('admin_roles', None)
-    session.modified = True
+    session.clear()  # also ends the site login held in the same cookie
     if admin_email:
         try:
             with get_db_cursor() as cur:
@@ -418,63 +415,155 @@ def admin_reset_password():
     return jsonify({'success': True})
 
 
+REQUEST_PAGE_SIZES = {'25', '50', '100', '500'}
+REQUEST_STATUSES = ('pending', 'approved', 'rejected', 'completed')
+# Status is free text in the table; NULL has always been shown as pending.
+_REQUEST_STATUS_SQL = "LOWER(COALESCE(status, 'pending'))"
+# Whitelisted ORDER BY expressions -- the only SQL the sort parameters can reach.
+# 'status' is the tab's long-standing order: work still to do first.
+REQUEST_SORT_FIELDS = {
+    'status': f"CASE {_REQUEST_STATUS_SQL} WHEN 'pending' THEN 0 WHEN 'rejected' THEN 1 "
+              f"WHEN 'approved' THEN 2 WHEN 'completed' THEN 3 ELSE 1 END",
+    'created_at': 'created_at',
+    'admin_updated_at': 'admin_updated_at',
+}
+
+
 @admin_bp.route('/requests')
 def get_requests():
-    """Get all text requests (admin only)"""
+    """One page of text requests, list fields only; content comes from GET /requests/<id>."""
     if not check_admin_auth():
         return jsonify({'error': 'Unauthorized'}), 401
-    
+
+    args = request.args
+    try:
+        page = int(args.get('page', '1'))
+    except ValueError:
+        page = 0
+    per_page = args.get('per_page', '50')
+    status = args.get('status', 'all')
+    hide_completed = args.get('hide_completed', '0')
+    sort_by = args.get('sort_by', 'status')
+    sort_order = args.get('sort_order', 'asc')
+
+    if page < 1:
+        return jsonify({'error': 'page must be a positive integer'}), 400
+    if per_page not in REQUEST_PAGE_SIZES:
+        return jsonify({'error': 'per_page must be one of 25, 50, 100, or 500'}), 400
+    if status != 'all' and status not in REQUEST_STATUSES:
+        return jsonify({'error': 'status must be all, pending, approved, rejected, or completed'}), 400
+    if hide_completed not in ('0', '1'):
+        return jsonify({'error': 'hide_completed must be 0 or 1'}), 400
+    if sort_by not in REQUEST_SORT_FIELDS:
+        return jsonify({'error': 'sort_by must be status, created_at, or admin_updated_at'}), 400
+    if sort_order not in ('asc', 'desc'):
+        return jsonify({'error': 'sort_order must be asc or desc'}), 400
+    per_page = int(per_page)
+
+    where, params = 'TRUE', []
+    if status != 'all':
+        where, params = f"{_REQUEST_STATUS_SQL} = %s", [status]
+    elif hide_completed == '1':
+        where = f"{_REQUEST_STATUS_SQL} <> 'completed'"
+
+    try:
+        with get_db_cursor(commit=False) as cur:
+            # One scan: the filtered total for paging, and the all-requests pending badge.
+            cur.execute(f'''
+                SELECT COUNT(*) FILTER (WHERE {where}),
+                       COUNT(*) FILTER (WHERE {_REQUEST_STATUS_SQL} = 'pending')
+                FROM text_requests
+            ''', params)  # nosec B608 -- where/status SQL are fixed strings, values bound
+            total, pending_count = cur.fetchone()
+            rows = []
+            if (page - 1) * per_page < total:
+                cur.execute(f'''
+                    SELECT id, status, author, work, language, created_at, admin_updated_at
+                    FROM text_requests
+                    WHERE {where}
+                    ORDER BY {REQUEST_SORT_FIELDS[sort_by]} {sort_order.upper()} NULLS LAST,
+                             created_at DESC NULLS LAST, id DESC
+                    LIMIT %s OFFSET %s
+                ''', params + [per_page, (page - 1) * per_page])  # nosec B608 -- whitelisted
+                rows = cur.fetchall()
+
+        return jsonify({
+            'requests': [{
+                'id': r[0],
+                'status': r[1],
+                'author': r[2],
+                'work': r[3],
+                'language': r[4],
+                'created_at': r[5].isoformat() if r[5] else None,
+                'admin_updated_at': r[6].isoformat() if r[6] else None,
+            } for r in rows],
+            'total': total,
+            'pages': -(-total // per_page),
+            'current_page': page,
+            'per_page': per_page,
+            'pending_count': pending_count,
+        })
+    except Exception as e:
+        logger.error(f"Failed to get text requests: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@admin_bp.route('/requests/<int:request_id>', methods=['GET'])
+def get_request_detail(request_id):
+    """One text request with everything the review modal edits, including content (admin only)"""
+    if not check_admin_auth():
+        return jsonify({'error': 'Unauthorized'}), 401
+
     try:
         with get_db_cursor(commit=False) as cur:
             cur.execute('''
-                SELECT id, name, email, author, work, language, notes, content, 
+                SELECT id, name, email, author, work, language, notes, content,
                        status, created_at, reviewed_at, reviewed_by, admin_notes,
                        text_date, approved_filename, official_author, official_work,
                        admin_updated_at, author_era, author_year,
                        e_source, e_source_url, print_source, added_by
                 FROM text_requests
-                ORDER BY created_at DESC
-            ''')
-            rows = cur.fetchall()
-        
-        requests = []
-        for row in rows:
-            author = row[3]
-            work = row[4]
-            safe_author = ''.join(c if c.isalnum() or c in '._-' else '_' for c in (author or '').lower())
-            safe_work = ''.join(c if c.isalnum() or c in '._-' else '_' for c in (work or '').lower())
-            suggested_filename = f"{safe_author}.{safe_work}.tess" if author and work else ''
-            
-            requests.append({
-                'id': row[0],
-                'name': row[1],
-                'email': row[2],
-                'author': row[3],
-                'work': row[4],
-                'language': row[5],
-                'notes': row[6],
-                'content': row[7],
-                'status': row[8],
-                'created_at': row[9].isoformat() if row[9] else None,
-                'reviewed_at': row[10].isoformat() if row[10] else None,
-                'reviewed_by': row[11],
-                'admin_notes': row[12],
-                'text_date': row[13],
-                'approved_filename': row[14] or suggested_filename,
-                'official_author': row[15] or row[3],
-                'official_work': row[16] or row[4],
-                'admin_updated_at': row[17].isoformat() if row[17] else None,
-                'author_era': row[18] or '',
-                'author_year': row[19],
-                'e_source': row[20] or '',
-                'e_source_url': row[21] or '',
-                'print_source': row[22] or '',
-                'added_by': row[23] or '',
-                'suggested_filename': suggested_filename
-            })
-        return jsonify({'requests': requests})
+                WHERE id = %s
+            ''', (request_id,))
+            row = cur.fetchone()
+        if not row:
+            return jsonify({'error': 'Request not found'}), 404
+
+        author = row[3]
+        work = row[4]
+        safe_author = ''.join(c if c.isalnum() or c in '._-' else '_' for c in (author or '').lower())
+        safe_work = ''.join(c if c.isalnum() or c in '._-' else '_' for c in (work or '').lower())
+        suggested_filename = f"{safe_author}.{safe_work}.tess" if author and work else ''
+
+        return jsonify({
+            'id': row[0],
+            'name': row[1],
+            'email': row[2],
+            'author': row[3],
+            'work': row[4],
+            'language': row[5],
+            'notes': row[6],
+            'content': row[7],
+            'status': row[8],
+            'created_at': row[9].isoformat() if row[9] else None,
+            'reviewed_at': row[10].isoformat() if row[10] else None,
+            'reviewed_by': row[11],
+            'admin_notes': row[12],
+            'text_date': row[13],
+            'approved_filename': row[14] or suggested_filename,
+            'official_author': row[15] or row[3],
+            'official_work': row[16] or row[4],
+            'admin_updated_at': row[17].isoformat() if row[17] else None,
+            'author_era': row[18] or '',
+            'author_year': row[19],
+            'e_source': row[20] or '',
+            'e_source_url': row[21] or '',
+            'print_source': row[22] or '',
+            'added_by': row[23] or '',
+            'suggested_filename': suggested_filename
+        })
     except Exception as e:
-        logger.error(f"Failed to get text requests: {e}")
+        logger.error(f"Failed to get text request: {e}")
         return jsonify({'error': str(e)}), 500
 
 

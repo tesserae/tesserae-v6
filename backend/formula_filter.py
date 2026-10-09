@@ -125,6 +125,60 @@ def formula_count_for_row(matched_words, language, bigram_table=None, lemma_tabl
     return lemma_table.get(lemmas[0][0]), 'word'
 
 
+def _side_words(matched_words, side):
+    """The one side of a cross-lingual row's matched words, in the shape
+    formula_count_for_row expects: {'lemma', 'frequency'}. The cross-lingual
+    entries carry an idf per pair (higher = rarer), so frequency is its
+    negation; only the ORDER matters to the two-rarest pick."""
+    out = []
+    for mw in matched_words or []:
+        if not isinstance(mw, dict):
+            continue
+        lemma = mw.get(f'{side}_lemma') or mw.get(f'{side}_word')
+        if not lemma:
+            continue
+        idf = mw.get('idf')
+        out.append({'lemma': lemma, 'frequency': -idf if isinstance(idf, (int, float)) else 1})
+    return out
+
+
+def formula_count_for_cross_row(matched_words, source_language, target_language,
+                                source_bigrams=None, source_lemmas=None,
+                                target_bigrams=None, target_lemmas=None):
+    """Formula count for a cross-lingual row: each side's shared lemmas are
+    looked up in ITS OWN language's tables, and the larger of the two work
+    counts is reported (the phrase is at least that common on one side).
+    Returns (count, basis, side) with side 'source' or 'target' naming the
+    language whose count was reported; (None, basis, None) when neither
+    table has an entry."""
+    best = (None, None, None)
+    for side, lang, bt, lt in (('source', source_language, source_bigrams, source_lemmas),
+                               ('target', target_language, target_bigrams, target_lemmas)):
+        count, basis = formula_count_for_row(_side_words(matched_words, side), lang,
+                                             bigram_table=bt, lemma_table=lt)
+        if count is not None and (best[0] is None or count > best[0]):
+            best = (count, basis, side)
+        elif best[1] is None and basis is not None:
+            best = (None, basis, None)
+    return best
+
+
+def annotate_formula_counts_crosslingual(results, source_language, target_language):
+    """Attach formula_count/formula_basis/formula_side to cross-lingual rows,
+    in place, from each side's own per-language tables (2026-10-06, for the
+    Persian-against-Urdu results; applies to any pair whose languages have
+    tables, and leaves a row's count None where neither does)."""
+    if not source_language or not target_language:
+        return results
+    for row in results:
+        count, basis, side = formula_count_for_cross_row(row.get('matched_words'),
+                                                         source_language, target_language)
+        row['formula_count'] = count
+        row['formula_basis'] = basis
+        row['formula_side'] = side
+    return results
+
+
 def annotate_formula_counts(results, language):
     """Attach formula_count/formula_basis to each result row, in place.
 

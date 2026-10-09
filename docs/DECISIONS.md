@@ -8,6 +8,539 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-08: Ghalib's Translation tab shows a Pritchett link, not copied English
+
+**Decision.** For Ghalib (`ghalib.diwan_wikisource`), the Reader's
+Translation tab shows a link to Frances W. Pritchett's "A Desertful of
+Roses" verse page. Ghalib has no aligned English translation. The link
+travels on a new `external_links` field on `/api/translation`. The field
+is additive. A
+work can carry this field, an aligned translation, both, or neither.
+`backend/translation_links.py` loads
+`data/translations/links/ur__ghalib_pritchett_links.json`, built by
+`scripts/build_ghalib_pritchett_links.py`.
+
+**Why.** Pritchett's site states no licence for her translations or
+commentary. They cannot be copied into the site the way the public-domain
+and non-commercial-licensed translations in `data/translations/` are.
+Linking to her own page for the matching verse is permitted and sends the
+reader to her full commentary.
+
+**How the link table was built.** Only `ghalib.diwan_wikisource` (272
+ghazals, Wikisource's numbering) ships in `texts/ur/`. A second edition,
+numbered exactly as Pritchett's site numbers it, was retired from the
+served corpus earlier, so a Ghalib passage could not appear three times
+over in Theme Search, Similar Passages, and cross-language results. It
+survives only outside the repository, as a cross-reference for this
+alignment. The two editions' ghazal numbers do not correspond, so matching
+goes by text, not number, at two levels. Each ghazal's opening verse first
+pairs up the ghazals. Verse by verse inside each matched pair comes next,
+against the retired edition's own text, never assumed from a shared verse
+count. That file is not uniformly one line per half-line. Some ghazals
+split each verse into two lines, others join both halves into one, and
+Pritchett appends unpublished manuscript-variant verses after the regular
+numbering for some ghazals. The real, ordered verse-label list for each of
+her 234 ghazals, confirmed against her site and including the
+"x"-numbered variants, came from her own per-ghazal index pages, fetched
+once each (one request at a time, a plain User-Agent, no site refusal
+encountered) and cached.
+
+**Result.** 2,514 of 3,345 Wikisource verses (75%) resolved to a Pritchett
+verse URL. The ghazal-pairing step reproduced, with no mismatches, all 67
+pairs already recorded in `data/poetics/ghalib_pritchett_to_wikisource_ghazal_map.json`
+from earlier work. Several verse-level matches were also checked against
+her live pages by eye (her own worked example {98,4} and the opening verse
+{1,1}) and read correctly. 18 of 234 Pritchett ghazals could not be split
+into verses unambiguously from the retired copy's line count against the
+real verse count. Most are short by exactly one verse, missing from that
+one-time copy. Two carry a stray extra line. These 18 are left unmapped,
+reported, and not guessed at. Ghazals she does not cover at all are also
+unmapped and expected, since she covers a selection of the diwan, along
+with a handful of tied, equally good verse matches.
+
+## 2026-10-08: Theme Search confidence: HEAD_WEAK refit for Latin, Greek, and English
+
+**Decision.** `HEAD_WEAK`, the floor above which a Theme Search result
+counts as a match at all, moved from 0.0750 to 0.0738. `HEAD_STRONG`
+(0.1006) and the coherence degeneracy threshold (0.995) are unchanged.
+`FITTED_AT_WINDOWS`, the index size the live bands are fitted to, is now
+530,917 (the production size measured for this refit), replacing the
+603,594 recorded for the superseded combined-score design.
+
+**Why.** The pervasive-theme fix above (same day, logged just below)
+promotes a single-language search when that language's own median score
+sits far above the whole corpus's, but it only ever promotes; it cannot
+help a specific, non-pervasive scene whose language-median is not
+elevated. On the 139-query set behind that fix, Latin and Greek stayed at
+64.7% and English at 47.1%, and every remaining miss was a false `low` on
+a result confirmed on topic by reading its description, because none of
+those languages' queries are pervasive by this corpus's own statistics
+(Latin's and Greek's measured excess over the whole-corpus median tops
+out at 0.0046 and 0.0076 against the 0.005 promotion floor, mostly
+negative; English peaks at -0.0003). The underlying number the fix would
+need to move, `head_lift`, had never itself been refit against the
+current, roughly 531,000-window index; it was last fitted 2026-08-25 on
+57 queries at 603,594 windows.
+
+The labeled set was extended first, keeping every existing query, to
+carry 30 queries each for Latin, Greek, and English (was 17), split
+across pervasive themes, specific scenes, and absent subjects, each
+checked against its own top results' descriptions read against the
+production index: `evaluation/probe_sets/theme_confidence_2026-10-08.json`,
+now 178 queries. The original 57-query
+`evaluation/probe_sets/combined_confidence.json` (one word to a full
+sentence, unfiltered) was kept untouched as a regression check.
+
+`evaluation/scripts/calibrate_confidence.py` swept `HEAD_WEAK` from
+0.0400 to 0.0800 against both sets at once, read-only against the
+production index. `HEAD_STRONG` does not affect this metric: it only
+separates `moderate` from `strong`, never `low` from the rest, so sweeping
+it was not useful once that was confirmed. The absolute floor any global
+value must clear is set by the single highest-scoring ABSENT query across
+both sets and every language at once, because `head_lift` is computed
+from the whole corpus for a given query text regardless of which language
+the search is narrowed to (see the PERVASIVE THEMES design, logged
+below): "a surgeon administers ether before an operation" (unfiltered),
+head_lift 0.073282. The only flat, zero-false-positive plateau the sweep
+found sits immediately above that, `(0.073282, 0.074292]`, bounded above
+by the lowest of three Latin queries that would otherwise tip back to
+`low`. 0.0738 sits in the middle of it.
+
+| probe set | queries | old (0.0750) | new (0.0738) |
+|---|---|---|---|
+| Latin | 30 | 56.7% | 66.7% |
+| Greek | 30 | 63.3% | 63.3% |
+| English | 30 | 43.3% | 46.7% |
+| Persian | 18 | 94.4% | 94.4% |
+| Urdu | 18 | 88.9% | 88.9% |
+| Hebrew | 17 | 100.0% | 100.0% |
+| Coptic | 17 | 94.1% | 94.1% |
+| unfiltered | 18 | 83.3% | 83.3% |
+| extended set, all languages | 178 | 73.0% | 75.3% |
+| original 57-query set (regression check) | 57 | 66.7% | 68.4% |
+
+(Persian, Urdu, Hebrew, Coptic, and unfiltered figures are the already-
+shipped pervasive-promoted accuracy; the three later refits, Latin,
+Greek, English, use it too, since nothing about this change touches that
+mechanism.) Latin gained three queries ("a banquet with speeches, music,
+and entertainment," "an old nurse recognizes her former charge by a
+scar," "a lover complains of a mistress's cruelty," head_lift 0.074292 to
+0.074544) and English gained one ("a garden described in loving detail,"
+0.074782). Nothing fell on either probe set: the change can only move a
+query out of `low`, never into it, and the ceiling it respects is the
+highest-scoring absent query across both sets at once, so a regression on
+either set was not possible by construction. Zero absent queries were
+promoted to `moderate` or `strong` anywhere in either set, at either
+value.
+
+Greek did not move. Its present, non-pervasive queries' `head_lift` jumps
+directly from 0.0675 to 0.0762 in this probe set, straddling the entire
+plateau, and its own highest-scoring absent query ("a satellite orbits
+the earth," 0.070457) sits inside that gap, so no value between 0.0705
+and 0.0762 helps Greek without first crossing that query into a false
+positive, and no value below 0.0705 is reachable at all without crossing
+the global 0.073282 ceiling first. This is a property of this embedding
+and this probe set, not of Greek as a language: a probe that happened to
+include a Greek scene scoring between 0.0705 and 0.0762 would be rescued
+the same way Latin's and English's were.
+
+**Single global value, not per-language bands.** Per-language `HEAD_WEAK`
+values were measured against each language's own floor (lowest present,
+non-short-query `head_lift`) and ceiling (highest absent `head_lift`) and
+rejected: Latin's and Greek's ceilings (both 0.070457, "a satellite
+orbits the earth") and English's (0.072210, "a political election
+campaign with televised debates") are each already inside the single
+global plateau or no lower than the point the global value already
+reaches, so a language-specific override would have bought nothing beyond
+what 0.0738 already gives Latin and English, and nothing at all for
+Greek, at the cost of three numbers to maintain instead of one. The
+single global value was kept.
+
+Refit the same way after a corpus-wide re-describe or a size change past
+`FITTED_TOLERANCE` (15%), with `evaluation/scripts/calibrate_confidence.py`
+against the 178-query set (extend it further first if a new error class
+shows up) and the 57-query regression set together, and update
+`FITTED_AT_WINDOWS` alongside the two constants.
+
+## 2026-10-08: Theme Search confidence: a single-language search promotes, never recomputes
+
+**Decision.** A Theme Search narrowed to one language now gets a third
+confidence outcome, `pervasive`, alongside the two the band already
+reported (`low`, nothing resembles the query; `strong`/`moderate`, a
+specific match): when the searched language's own median score for the
+query sits well above the whole corpus's median for the same query
+(`PERVASIVE_EXCESS_BASELINE`, 0.005, measured below) and the existing,
+whole-corpus rule would otherwise have called the result `low` or
+`moderate`, the match is instead reported as a theme that runs through
+much of that language's own literature, rather than conflated with an
+absent subject. `head_lift` and `coherence` themselves stay the
+whole-corpus measure for every search, including a single-language one;
+only this one promotion check is language-specific, and it can only ever
+raise a result from `low`/`moderate` to `pervasive`, never lower one. A
+query of three words or fewer that does not reach a clear match now also
+carries a line saying a full sentence is answered better than a short
+phrase, since the index holds sentence-length descriptions and scores a
+bare word or two worse by design.
+
+**Why.** A Persian search for "passionate love" returned Rumi, Rudaki, and
+Anvari addressing the beloved, on topic by any reading of the results, and
+reported "the corpus does not appear to contain passages of this kind,"
+because the whole confidence block (baseline, head_lift, coherence) was
+computed from the entire, seven-language corpus regardless of the
+language filter: confirmed by requesting the identical query text under
+every single-language filter and the unfiltered default, which returned
+byte-identical confidence numbers every time, since the language filter
+reached the results list but never the statistics.
+
+Measured against a labeled set of 139 queries (18-20 per language across
+Persian, Urdu, Latin, Greek, English, Hebrew, and Coptic, plus an
+unfiltered group), split across pervasive themes (love in Persian and Urdu
+lyric, praise of God in Hebrew scripture, war in Latin and Greek epic),
+specific scenes (a lover waiting at the beloved's door, a demon tempting a
+monk, a messenger breaking news of disaster), and absent subjects
+(airplanes, a stock market crash, a smartphone), each checked against the
+description of its top results, then run read-only against the real,
+roughly 531,000-window production index (`evaluation/scripts/
+calibrate_confidence.py`, saved as `evaluation/probe_sets/
+theme_confidence_2026-10-08.json`), not a dev copy:
+
+| language | queries | existing rule | this fix | labelled pervasive |
+|---|---|---|---|---|
+| Coptic | 17 | 52.9% | 94.1% | 10 |
+| English | 17 | 47.1% | 47.1% | 0 |
+| Persian | 18 | 61.1% | 94.4% | 9 |
+| Greek | 17 | 64.7% | 64.7% | 1 |
+| Hebrew | 17 | 52.9% | 100.0% | 9 |
+| Latin | 17 | 64.7% | 64.7% | 0 |
+| Urdu | 18 | 72.2% | 88.9% | 7 |
+| unfiltered | 18 | 83.3% | 83.3% | 0 |
+| **all** | **139** | **62.6%** | **79.9%** | **36** |
+
+Every remaining error is a false `low` on a result confirmed on topic by
+reading its description; no absent query was ever promoted (zero false
+positives in this set). English and Latin did not move: no query tried
+against them this time sat far enough above the whole corpus's median to
+cross the threshold, not because the mechanism excludes them. Greek
+promoted once, from an already-correct `moderate`, so its accuracy did
+not move either.
+
+**The first design tried was wrong, and this same measurement caught it
+before it shipped.** Recomputing `head_lift` AND `coherence` from the
+searched language's own rows, rather than only comparing its median to the
+whole corpus's, was tried first: it helped Persian, Urdu, Hebrew, and
+Coptic the same way, but made Latin, Greek, and English WORSE than the
+existing, unfixed rule (Latin 64.7% to 52.9%, Greek 64.7% to 52.9%,
+English 47.1% to 41.2%). One language's own windows cluster more tightly
+in this embedding than the whole, heterogeneous seven-language corpus
+does, so `head_lift` measured within a single language reads lower across
+the board, for present subjects and absent ones alike, not only for a
+genuinely pervasive theme; the absolute thresholds the existing rule uses
+were fitted on the cross-lingual measure and do not transfer to a
+same-language one. The promote-only design above cannot regress a
+language's accuracy below what the existing rule already gets it, by
+construction, which is why it shipped instead.
+
+`PERVASIVE_EXCESS_BASELINE` (0.005) is the widest flat plateau in a sweep
+from 0.0 to 0.015 against the measurement above (accuracy 79.1%-80.6%
+across that plateau; the highest single point, 80.6% at 0.0035, was not
+taken, as a narrower spike one query wide); no absent query in the set
+crossed 0.0031, so nothing in the plateau risked a false positive against
+it. It is a property of the current index and this probe set; refit it
+the same way after a corpus-wide re-describe or a substantial size change,
+with `evaluation/scripts/calibrate_confidence.py --sweep` against this
+same probe set or a larger one built the same way.
+
+## 2026-10-08: requests workflow, GitHub issues as the single store
+- Scholars never need a GitHub account. GitHub issues are nonetheless the
+  single store of every request (feature, language, text, bug, result
+  problem, correction, suggestion), and the public Requests page
+  (`/requests`, backed by `GET /api/requests`) is a read-only mirror of
+  that store, not a second database. This keeps one source of truth for
+  what has been asked for and what happened to it, recorded once, where
+  the team already works.
+- Every request type now files a GitHub issue when filing is configured
+  (previously the AI-assistant connector's `text` and `other` types did
+  not). Every entry point and every type now uses one label scheme,
+  `request` plus `request:<type>` (the connector's earlier filings carried
+  `from-ai-protocol` plus a bare type label). The Requests page reads every
+  request back with one query (`labels=request`) regardless of where it
+  came from.
+- The public listing never returns an issue's full body, only the short
+  line after an explicit "Summary:" marker if the filer's submission
+  produced one, or the title alone. Contact info was already excluded
+  from the issue body itself. This is a second, independent boundary
+  against a long or incidentally identifying free-text context ever
+  reaching the public page.
+- No email sending was added for the three new entry points, matching the
+  existing connector path: the private notification email only fires when
+  SMTP is already configured, and otherwise the submission still lands in
+  the `feedback` table.
+
+## 2026-10-08: restoration exclusion, stock-formula filter, document view (stage 3b-3)
+- `hide_formulas` default threshold: measured directly against the real
+  dev documents indexes (`la_documents_index.db`/`grc_documents_index.db`),
+  counting DISTINCT documents sharing the matched lemma set via the same
+  postings lookup `formula_count` uses (`backend.documents.
+  find_co_occurring_lemmas` + `doc_for`): "dis manibus" 35,231 documents,
+  "bene merenti" 11,903, "votum solvit libens merito" 3,990, "hic situs
+  est" 3,535 (all genuine formulas) against "arma virumque" 19 and "arma
+  virumque cano" 8 (genuine parallels, not formulas). The gap between the
+  smallest formula (3,535) and the largest genuine parallel (19) spans
+  three orders of magnitude, so 100 (`DOCUMENTS_FORMULA_DEFAULT_N` in
+  `backend/app.py`) separates them with wide margin on both sides.
+- `formula_count`/`hide_formulas` apply only to the LEMMA search path.
+  'exact' search gets a best-effort version via matched token positions
+  located after the fact (`_find_exact_phrase_positions`) when the
+  resulting `matched_lemmas` is non-empty; 'regex' never populates
+  `matched_lemmas` at all (true in the literary branch too), so it has no
+  well-defined lemma pair to count and `formula_count` stays `None` for
+  those hits. `hide_formulas` never drops a hit whose `formula_count` is
+  `None`: an unmeasured count is not evidence of a formula, and silently
+  changing regex/exact document-hit behavior whenever this filter is on
+  would be a bigger change than the spec asked for. Recorded as a
+  deviation rather than building a full-corpus phrase-document scan into
+  the request path to cover the other two search types.
+- The soft-penalty word lists (`data/documents/formula_words_la.txt`/
+  `_grc.txt`, spec item 6) are STILL not applied as a down-rank. Checked
+  directly, again: `/api/line-search` computes no per-result score or
+  rank for document hits (they are appended in candidate-discovery order,
+  filtered/deduped, never sorted by any merit measure) — the identical
+  absence stage 3b-2 already found for formula words generally. Left for
+  whichever later phase gives document hits a score at all, rather than
+  inventing one now to have something to attach a penalty to.
+- `matched_restored`/`partly_restored` are computed from the matched
+  tokens' own index POSITIONS, not from re-splitting the matched word
+  strings: the lemma FAST PATH already enumerates positions while
+  building `matched_words`, so this is a byproduct of that loop, not an
+  extra pass. For 'exact', positions come from a new best-effort phrase
+  locator (`_find_exact_phrase_positions`) that mirrors
+  `exact_phrase_pattern`'s own asymmetric word-boundary rule (no trailing
+  boundary on the last word, so a Latin enclitic still matches). For
+  'regex', no position concept exists at all (the literary branch has
+  none either), so both flags are always `False` there — treated as "not
+  restored," the same safe default an exact hit the locator could not
+  place also gets, rather than guessing.
+- `exclude_restored` and `hide_formulas` apply identically under
+  `collection=documents` and `collection=both` (the same
+  `_search_documents_collection` call both paths share); the literary
+  side of `collection=both` is untouched by either parameter, matching
+  stage 3b-2's own "two insertion points only" rule.
+
+## 2026-10-08: documents in the corpus-wide phrase search (stage 3b-2)
+- Restored-word marking uses a light dotted underline, not scholarly
+  square brackets. The matched-word highlight already uses `<mark>`
+  (amber background); the corpus's own angle-bracket convention is
+  reserved for editorial brackets carried IN the source text itself
+  (`decodeEntities` in `LineSearch.jsx`). An underline composes cleanly
+  with both without visual collision.
+- Formula words (`data/documents/formula_words_la.txt`/`_grc.txt`) are NOT
+  applied as a penalty this phase. The spec asked for them to be applied
+  "the same way function words are penalized in line search, if line
+  search has such a penalty" — checked directly, and it does not: `/api/
+  line-search` filters/excludes stopwords but computes no per-result
+  score for either the literary or the new documents path, so there is no
+  existing penalty mechanism to extend. Left for a later phase rather than
+  inventing a new scoring step not asked for.
+- `collection='both'` does NOT fold the documents count into the existing
+  `total`/`distinct_loci` fields. Those keys have always meant "how many
+  places in the corpus" for literature alone; changing their meaning under
+  one particular parameter value would silently hand a different number
+  to a caller (the MCP connector, a saved script) that already reads
+  `total` and has not been told to expect two collections. The documents
+  count is reported separately (`documents_total`,
+  `documents_by_source_region`).
+- A document hit's matched-lemma rarity, if anything scored by it, belongs
+  to the documents index's OWN `lemma_doc_freq` table (the reason stage
+  3b-1 built a separate index at all: computing rarity over literature and
+  documents together would shift literary word rarity). Since neither
+  collection's line-search path computes a score, this has nowhere to bite
+  yet; `rare_focus_filter` (which DOES read the literary table) is applied
+  only to literary rows, never to document rows, so it is ready the day a
+  documents-side rarity measure is added without silently using the wrong
+  table in the meantime.
+- Latin's u/v, i/j spelling-variant expansion (`backend/inverted_index.py`
+  `lookup_lemmas`) now fires for documents too, keyed on the real language
+  code ('la') rather than a pseudo-language — a byproduct of giving that
+  function a connection-override parameter, not a deliberate quality
+  change, but worth recording since the stage 3b-1 dev tool
+  (`query_documents_index.py`) explicitly flagged the ABSENCE of this
+  expansion as a known limitation of its own pseudo-language reuse trick.
+
+## 2026-10-08: what the Scholarship tab draws on, and on what terms
+- Sources:
+  - open scholarly metadata (OpenAlex, Crossref, and Unpaywall for legal
+    open-access copies);
+  - open full text through CORE;
+  - book pages through Google Books, with a HathiTrust search link;
+  - an offline citation index built from public-domain early journal
+    literature;
+  - commentaries held on the site.
+- Subscription articles are linked by DOI and through the reader's own
+  library link, never copied.
+- Commentaries are installed only when their licence permits reuse (public
+  domain, or an open licence such as CC BY-SA, credited on the sources
+  list). Texts whose licence is unknown or restrictive are left out.
+- No paid service sits in the request path. The external services used are
+  free, with keys held in the server environment only.
+- Machine translation of a commentary note is made on request by the local
+  model, marked as unreviewed, cached, and offered only for notes the site
+  holds.
+- The tab and the connector tools stay behind their switches until they
+  have been tried and the Help text written.
+
+## 2026-10-07: how names are found for "same people and places" in each language
+
+The Similar Passages group "Same people and places" links passages in other
+works that name the same rare people or places. It needs to know which words
+are names, and the method differs by script.
+
+- Latin, Greek and English: capital letters. A word counts as a name when it
+  is capitalised mid-line in at least 85 percent of its uses (judged on the
+  stem, five letters after transliteration) or in 90 percent of the uses of
+  its exact form. Unchanged from the first version.
+- Hebrew: the ETCBC/BHSA morphology already in data/lemma_tables/hebrew_pos.json
+  marks proper nouns (part of speech nmpr). Its 2,164 name forms are matched on
+  the consonantal form the Hebrew index uses. Known weakness: consonantal
+  homographs, such as a form that is both "her judges" and the name
+  Shephatiah.
+- Coptic: the Coptic Scriptorium part-of-speech tags already in the Coptic
+  syntax database. A form counts when it is tagged PROPN in at least 85 percent
+  of at least two tagged uses, which gives 1,742 forms. Occasional common nouns are
+  mistagged.
+- Persian and Urdu: neither script has capitals, so the part-of-speech tags that
+  the Stanza tagger wrote into the lemma caches when the texts were imported
+  are used, with the same purity rule (PROPN in at least 85 percent of at least
+  three uses). A short hand list is added: the Qur'anic prophets, the lovers of
+  Persian and Urdu romance (Majnun, Layla, Shirin, Farhad, Zuleikha, Khizr) and,
+  for Urdu, the figures of Karbala. Urdu then removes a hand stoplist of stock
+  ghazal images the tagger reads as names (wine, ruby, dew, narcissus and
+  others), and the word husn, which is "beauty" in nearly every ghazal and the
+  name Hasan only in the marsiyas. This gives 362 Persian and 557 Urdu name forms.
+- Arabic: not done while Arabic is held. The tagger found no names in the
+  Arabic corpus, so it will need a hand list.
+
+Rarity is counted within each script group (Latin, Greek and English together,
+Hebrew, Coptic, and Persian and Urdu together, which share name spellings), so
+adding the new languages did not change Latin, Greek or English results: their
+rows are identical to the previous index. Names now mark 5,240 of 5,372 Hebrew
+passage windows, 7,523 of 13,200 Coptic, about 81,800 of 220,011 Persian and
+about 10,600 of 14,759 Urdu. Checked by eye on fifteen random windows per
+language and on known cases (a Genesis passage naming Abraham links to 1
+Chronicles 1, Exodus 6, Psalm 105 and Joshua 24, a Hafez passage naming
+Joseph links through Zuleikha to Saeb and Sanai).
+
+## 2026-10-07: Persian and Urdu are served on the main site; Arabic stays held
+
+Persian and Urdu joined the main site's languages after two rounds of
+review by a reader of both. In the second round, ninety ranked pairs were
+graded, thirty per sheet, ten each from the top, middle and margin of the
+ranking. Persian, Hafez against Iqbal: 30 Good. Urdu, Ghalib against Iqbal:
+22 Good, 6 Plausible, 1 Wrong, 1 blank. Persian against Urdu, Hafez against
+Ghalib: 20 Good, 9 Plausible, 1 blank. That is one Wrong in 89 graded pairs.
+Counted as distinct judgments, since one refrain-and-rhyme poem pair
+filled several rows, the ninety rows are 8 poem pairs and 46 word-level
+pairs. Every Plausible verdict named a set phrase or compound, not a
+retrieval error. Neither the corpus frequency of the phrase nor a language
+model could separate those from the Good pairs, so set phrases are shown
+with a count of the works sharing the wording and are not penalised (entry
+of 2026-10-06). The reader graded only six Arabic pairs and declined to
+judge further, so Arabic's passage windows stay held from Theme Search and
+Similar Passages and its tab stays off until another reader grades it.
+
+## 2026-10-07: Similar Passages adds per-language sections, the same for every language
+
+The Similar list ranks every language together by content, so the corpora
+with the most passages fill it. An Urdu passage from Mir returned 28 Persian
+matches and 2 Urdu ones, because the index holds about 220,000 Persian
+windows and 15,000 Urdu. Rather than a rule for Persian and Urdu alone, every
+selection now also gets, for each served language with fewer than five
+results in the list, that language's five best matches above the ranking's
+similarity floor, shown as one collapsed row of language buttons ordered by
+best match. A Persian passage from Hafez then offers Urdu (Ghalib, Dagh)
+first, and a Latin passage from Curtius offers Persian (Ferdowsi, Nizami),
+Greek and Hebrew. The main list and its order are unchanged. The sections
+reuse the scores already computed, about a third of a second for all
+languages together.
+
+## 2026-10-07: refrain and rhyme are matched across Persian and Urdu, identical forms only
+
+The Persian against Urdu search had two channels, shared words and meaning,
+so an Urdu ghazal written in a Persian ghazal's form was found only through
+its words. It now has a third: two poems whose refrain and rhyme are the
+same in the shared letter forms (backend/perso_arabic.cross_form), scored
+like the single-language form channel (unique on both sides 1.0, discounted
+by how many poems carry the form in the two texts and in the two corpora,
+and by a meter mismatch where both poems are labelled), with weight 5.0
+against dictionary 2.0 and meaning 1.2. Measured on the corpus tables: 19 of
+2,633 Urdu poems share refrain and rhyme with a Persian poem. Two of the
+first results were homographs of function words (Urdu hua "became" and
+Persian hava "air"), so a refrain made only of words on either language's
+stoplist is excluded. Across all 504 Persian and Urdu text pairs ten poem
+pairs remain, among them Hafez's "dost" ghazal and Ghalib's ghazal 64,
+Saeb's "ahista ahista" line and Wali's ghazal 31, and Saadi and Dagh on
+"pargar-e dil" and "parvardigar-e dil". A translated refrain (Persian ast,
+Urdu hai) with the same rhyme would match 198 Urdu poems, too many to be
+evidence without the meter, which the Urdu texts do not carry, so it is not
+matched.
+
+## 2026-10-07: a possible echo must overlap its passage by at least 0.002
+
+The Reuse tab's "possible echoes" are pairs kept by one shared rare
+word-triple. In long prose units that rule admits almost anything: for
+Argonautica 1.2 the list held paragraphs of Galen, Aretaeus, Plutarch and
+Aelius Aristides of up to 1,139 words, each sharing "kata stoma kai" and
+nothing visible besides. Possible echoes are now shown, and counted in the
+Reader's gutter, only when the pair's word-triple Jaccard is at least 0.002.
+Measured on the built tables: this removes 72,441 of 254,117 Latin possible
+echoes (28%), 21,610 of 86,932 Greek (25%) and 180 of 113,707 English, whose
+lines are short. Strict pairs (two or more shared triples) are unchanged. The
+filter is applied when the table is read, so no rebuild is needed and the
+value can be moved.
+
+## 2026-10-07: Similar Passages shows "same people and places" above "same kind of scene"
+
+Similar Passages ranked windows by content alone, and the descriptions name
+no one by design ("a commander", "a city"), so a passage's direct parallels
+could rank below generic scenes of the same kind: for Curtius 3.1 (Alexander
+at Celaenae) Arrian's account of the same event (1.28-29) was not in the top
+100. The Similar tab now shows first the windows of other works that share
+rare proper names with the selection, ranked by content similarity plus the
+names' rarity (log of windows over windows containing the name, above a
+threshold), commentaries on a work set aside, and then the content-ranked
+list without those windows. A word counts as a name in a language when it is
+capitalised mid-line in nearly all its uses there, judged per language and on
+whole word forms as well as stems. Tested on twelve passages in three rounds:
+the first group found Arrian 1.28 and Livy 38.13 for Curtius 3.1, Suetonius
+and Claudian for the Rubicon, Apuleius 6.19 for the Golden Bough, Eobanus'
+Latin version of Iliad 22 for Hector's death. Weak where a passage's only
+names are very famous (Hector, Hannibal): that group starts collapsed.
+Trialled behind a switch, then made the default.
+
+## 2026-10-06: Persian and Urdu refrain-and-rhyme matches, one per poem pair; set phrases shown, not penalised
+
+From the first expert review (Walt Hakala, 90 graded pairs: one Wrong, nine
+Plausible for set phrases, 72 Good). The refrain-and-rhyme channel emitted
+every line pair of two poems sharing a refrain, so a ranking of 200 held a
+handful of poem pairs repeated; it now emits one result per poem pair, and a
+shared refrain and rhyme is discounted by how many poems in the whole corpus
+carry it (factor sqrt(2/n)). Retest: every pair graded Good still found, the
+Wrong pair out of the top 200. Set phrases were not penalised: neither corpus
+frequency (Good pairs share phrases found in 10-12 of 28 Persian works,
+Plausible ones in 1-2) nor a language-model judgement separated the expert's
+Good from his Plausible pairs, so a discount would demote good results as
+readily as weak ones. The count of works sharing a result's wording is shown
+instead, with the existing control to hide common phrases. Arabic is held out
+of results until a reader grades it.
+
+## 2026-10-06: a Reader selection is matched to its passage window by every reference coordinate
+
+The match compared only the last two numbers of a reference and searched every
+book of a work, so in works cited book.chapter.section a selection could get
+another book's window (Curtius 3.1.1 matched 10.1.1). It now compares every
+coordinate, within the book being read; on 600 random windows used as
+selections, 599 resolve to their own book and one to the identical window of
+its book file.
+
 ## 2026-10-03: the passage descriptions are the GLM 5.3 Flash set
 
 Every passage window's description was rewritten from the window's own

@@ -125,12 +125,32 @@ def _t_list_texts(a):
     return out
 
 
+def _documents_connector_enabled():
+    """Read per call, like the scholarship tools' switch."""
+    return os.environ.get('TESSERAE_DOCUMENTS_CONNECTOR') == '1'
+
+
 def _t_line_search(a):
     count_only = bool(a.get('count_only'))
-    d = _post('/line-search', {'query': a.get('query', ''),
-                               'language': a.get('language', 'la'),
-                               'search_type': a.get('search_type', 'lemma'),
-                               'count_only': count_only})
+    body = {'query': a.get('query', ''),
+            'language': a.get('language', 'la'),
+            'search_type': a.get('search_type', 'lemma'),
+            'count_only': count_only}
+    # Documents collection (stage 3b-2): forwarded only when the connector's
+    # own switch is on (TESSERAE_DOCUMENTS_CONNECTOR=1), so the documents
+    # trial on the website, behind ?documents=1, is not opened to every
+    # connector user by the server's TESSERAE_DOCUMENTS=1. Otherwise the
+    # parameters are dropped and the response is the literature-only one
+    # this tool has always returned.
+    if not _documents_connector_enabled():
+        a = {k: v for k, v in a.items()
+             if k not in ('collection', 'date_from', 'date_to', 'region', 'text_type', 'material', 'source')}
+    if a.get('collection'):
+        body['collection'] = a.get('collection')
+    for key in ('date_from', 'date_to', 'region', 'text_type', 'material', 'source'):
+        if a.get(key) is not None:
+            body[key] = a.get(key)
+    d = _post('/line-search', body)
     out = {'query': a.get('query'), 'total': d.get('total'),
            'distinct_loci': d.get('distinct_loci'), 'capped': d.get('capped'),
            'corpus_version': d.get('corpus_version')}
@@ -150,14 +170,32 @@ def _t_line_search(a):
     # When the corpus scan hit the cap, `total` is a floor — report "N+".
     if d.get('capped'):
         out['total_at_least'] = d.get('total_at_least', d.get('total'))
+    # Documents collection: a documents-only response carries no literary
+    # `total`/`distinct_loci` meaning (see backend/documents.py and the
+    # stage 3b-2 notes); 'both' adds documents_total alongside the
+    # literature-only total above. Always included when present, even
+    # under count_only, since this IS the count being asked for.
+    if d.get('collection') in ('documents', 'both'):
+        out['collection'] = d.get('collection')
+    if d.get('documents_total') is not None:
+        out['documents_total'] = d.get('documents_total')
     if not count_only:
-        out['results'] = [{'locus': normalize_ref(r.get('locus')), 'author': r.get('author'),
-                           'work': r.get('work'), 'text': r.get('text'),
-                           'matched_words': r.get('matched_words'),
-                           # era + year let you chart WHERE ACROSS TIME the phrase
-                           # recurs (a period/author timeline), same as the web app.
-                           'era': r.get('era'), 'year': r.get('year')}
-                          for r in (d.get('results') or [])[:40]]
+        out['results'] = [
+            ({'locus': normalize_ref(r.get('locus')), 'collection': 'documents',
+              'doc_id': r.get('doc_id'), 'text': r.get('text'),
+              'matched_words': r.get('matched_words'),
+              'credit': r.get('credit'),
+              'date_not_before': r.get('date_not_before'), 'date_not_after': r.get('date_not_after'),
+              'place': r.get('ancient_place') or r.get('modern_place'), 'region': r.get('region'),
+              'text_type_label': r.get('text_type_label'), 'material_label': r.get('material_label')}
+             if r.get('collection') == 'documents' else
+             {'locus': normalize_ref(r.get('locus')), 'author': r.get('author'),
+              'work': r.get('work'), 'text': r.get('text'),
+              'matched_words': r.get('matched_words'),
+              # era + year let you chart WHERE ACROSS TIME the phrase
+              # recurs (a period/author timeline), same as the web app.
+              'era': r.get('era'), 'year': r.get('year')})
+            for r in (d.get('results') or [])[:40]]
         # A live, interactive version of this search (timeline + filters) in the web app.
         out['web_url'] = _line_search_url(a.get('query'), a.get('language', 'la'),
                                           a.get('search_type', 'lemma'))
@@ -648,7 +686,7 @@ def _t_theme_search(a):
 
     Free-text content search: describe what you are looking for ("a city sues for
     peace and hands over hostages") and get passages whose CONTENT matches, in
-    Latin, Greek, Hebrew, and English at once. Pass offset to page PAST the
+    every served language at once. Pass offset to page PAST the
     normal cutoff -- results offset+1 to offset+limit of the SAME ranking, not
     a fresh run. Results reached only by paging come back with strong:false
     even when the raw score would otherwise qualify, since the confidence band
@@ -734,15 +772,64 @@ def _passage_translation(work, lines):
     except requests.exceptions.RequestException as e:
         return {'available': False, 'reason': f'Translation lookup failed: {e}'}
     if not d.get('available'):
-        return {'available': False,
+        out = {'available': False,
                 'reason': d.get('reason') or 'No aligned translation for this passage.'}
+        # A translator's own page (e.g. Pritchett's Ghalib commentary) can be
+        # linked even when no aligned translation text exists for this work.
+        if d.get('external_links'):
+            out['external_links'] = d['external_links']
+        return out
     out = {'available': True, 'translator': d.get('translator'), 'text': d.get('text')}
     # Coarse-alignment caveats: when the translation covers the passage in
     # blocks rather than line-by-line, say so rather than implying a tight fit.
-    for k in ('year', 'license', 'attribution', 'approximate', 'block_only', 'note'):
+    for k in ('year', 'license', 'attribution', 'approximate', 'block_only', 'note',
+              'external_links'):
         if d.get(k) is not None:
             out[k] = d[k]
     return out
+
+
+def _t_find_scholarship(a):
+    """Articles, chapters and books that cite a passage, or a pair of passages,
+    from the open metadata services, plus the site's own commentaries.
+
+    Nothing here is subscription content: each item carries a DOI and, where
+    one exists, a legal open copy. Band 1 cites both passages together, band 2
+    both works, band 3 the passage alone.
+    """
+    params = {}
+    for k in ('work', 'ref_start', 'ref_end', 'work2', 'ref2_start', 'ref2_end', 'limit'):
+        if a.get(k) not in (None, ''):
+            params[k] = a[k]
+    d = _get('/scholarship', params)
+    if d.get('error'):
+        return d
+    items = []
+    for r in d.get('results') or []:
+        items.append({'title': r.get('title'), 'authors': r.get('authors'), 'year': r.get('year'),
+                      'venue': r.get('venue'), 'type': r.get('type'), 'doi': r.get('doi'),
+                      'doi_url': f"https://doi.org/{r['doi']}" if r.get('doi') else None,
+                      'open_copy': r.get('oa_url'), 'band': r.get('band'), 'snippet': r.get('snippet'),
+                      'cited_by': r.get('cited_by')})
+    out = {'passage': d.get('passage'), 'passage2': d.get('passage2'), 'results': items,
+           'commentary': d.get('commentary') or [], 'commentary2': d.get('commentary2') or [],
+           'presentation': ('These are citations found by title and abstract in open metadata services, not '
+                            'a reading of the articles. Quote a snippet only as the abstract\'s own words. '
+                            'A reader opens a subscription article through the DOI or their own library; '
+                            'do not claim access to the text. Commentary notes are public-domain Latin: '
+                            'quote them as the commentator\'s words.')}
+    return out
+
+
+def _t_get_commentary(a):
+    """The public-domain commentators' notes (Servius and others) at a span of a work."""
+    params = {k: a[k] for k in ('work', 'ref_start', 'ref_end') if a.get(k) not in (None, '')}
+    d = _get('/scholarship/commentary', params)
+    if d.get('error'):
+        return d
+    d['presentation'] = ('Notes are the commentator\'s own Latin, keyed to the line; cite as '
+                         '"Servius ad Aen. 1.1" and quote the Latin rather than paraphrasing it as fact.')
+    return d
 
 
 def _t_similar_passages(a):
@@ -1037,7 +1124,7 @@ def _t_submit_feature_request(a):
 _STR = {"type": "string"}
 TOOLS = [
     {"name": "get_languages",
-     "description": "List Tesserae's languages (la Latin, grc Greek, en English, cop Coptic, he Hebrew, where each is installed) and cross-language pairs. The set can grow, so call this rather than assuming a fixed list.",
+     "description": "List Tesserae's languages (la Latin, grc Greek, en English, cop Coptic, he Hebrew, fa Persian, ur Urdu, where each is installed) and cross-language pairs. The set can grow, so call this rather than assuming a fixed list.",
      "inputSchema": {"type": "object", "properties": {}},
      "fn": _t_get_languages},
     {"name": "list_texts",
@@ -1047,10 +1134,13 @@ TOOLS = [
                      "required": ["language"]},
      "fn": _t_list_texts},
     {"name": "line_search",
-     "description": "Find corpus lines sharing words with a phrase (corpus-wide). The uniqueness check: few results (total) means distinctive wording. Counts collapse whole-work vs per-book/poem duplicates of the same line, AND same-passage duplicates that differ only by author/work spelling (e.g. cyprian vs cyprian_saint), so total is a true distinct-loci count. Set count_only:true to get just the counts (total, distinct_loci, capped) with no results payload — use this to quantify a commonplace cheaply; fetch full results only when the count is small enough to characterize. `capped` is true when the scan hit the result cap (default 500): then `total` is a floor (`total_at_least`) — treat it as 'at least N', not exact. SINGLE-WORD queries: a query that LITERALLY has one word can't co-occur with anything, so count_only returns `single_word:true` with `total` = the number of works that contain the word (a corpus document frequency, `unit:\"works\"`) — report as 'appears in N works', not co-occurring places; an all-stopword single word returns `unquantified:true` (total null). WITHOUT count_only, a single-word query LISTS every line that contains the word (capped like any search) — use it to see the actual occurrences. A MULTI-word query is always a co-occurrence count even if one word is too common to index alone: it returns the normal pair count plus `filtered_common_words` naming the common word(s) that were down-weighted — the count is real; say the pairing leans on the other word. Every response carries `corpus_version` (a date stamp of the corpus state); when the user is recording a count for use elsewhere, quote it with the number (e.g. '8 places, corpus version 2026-08-16'). search_type: 'lemma' (default) matches lines that share 2+ of the query's LEMMAS anywhere on the line — use this for words that co-occur but are NOT adjacent (e.g. 'Scythiam arces', 'lolium avenae'); 'exact' matches the query as an ADJACENT whole-word phrase (stopwords included literally, so 'ad Scythiam' matches only that contiguous phrase; a Latin enclitic on the final word is allowed, so 'arma virum' hits 'arma virumque') — for non-adjacent words use lemma; 'regex'. ENJAMBMENT: line_search only matches WITHIN a single line, so a phrase that straddles a line break (verse enjambment) is invisible to it — if an exact search of a verse phrase returns nothing, the words may run across the line end, so try a lemma search of the words or string_search/regex on each half before concluding it is absent. Each result carries `era` and `year` for its author, so you can chart WHERE ACROSS TIME the phrase recurs (a period or author timeline) — do that when a distribution over time would help the user see it. The response also carries `web_url`: a link that opens this same search in the Tesserae web app, which draws the timeline live and lets the user click a period or author to see just those citations. Offer that link when a visual or interactive view would help.",
+     "description": "Find corpus lines sharing words with a phrase (corpus-wide). The uniqueness check: few results (total) means distinctive wording. Counts collapse whole-work vs per-book/poem duplicates of the same line, AND same-passage duplicates that differ only by author/work spelling (e.g. cyprian vs cyprian_saint), so total is a true distinct-loci count. Set count_only:true to get just the counts (total, distinct_loci, capped) with no results payload — use this to quantify a commonplace cheaply; fetch full results only when the count is small enough to characterize. `capped` is true when the scan hit the result cap (default 500): then `total` is a floor (`total_at_least`) — treat it as 'at least N', not exact. SINGLE-WORD queries: a query that LITERALLY has one word can't co-occur with anything, so count_only returns `single_word:true` with `total` = the number of works that contain the word (a corpus document frequency, `unit:\"works\"`) — report as 'appears in N works', not co-occurring places; an all-stopword single word returns `unquantified:true` (total null). WITHOUT count_only, a single-word query LISTS every line that contains the word (capped like any search) — use it to see the actual occurrences. A MULTI-word query is always a co-occurrence count even if one word is too common to index alone: it returns the normal pair count plus `filtered_common_words` naming the common word(s) that were down-weighted — the count is real; say the pairing leans on the other word. Every response carries `corpus_version` (a date stamp of the corpus state); when the user is recording a count for use elsewhere, quote it with the number (e.g. '8 places, corpus version 2026-08-16'). search_type: 'lemma' (default) matches lines that share 2+ of the query's LEMMAS anywhere on the line — use this for words that co-occur but are NOT adjacent (e.g. 'Scythiam arces', 'lolium avenae'); 'exact' matches the query as an ADJACENT whole-word phrase (stopwords included literally, so 'ad Scythiam' matches only that contiguous phrase; a Latin enclitic on the final word is allowed, so 'arma virum' hits 'arma virumque') — for non-adjacent words use lemma; 'regex'. ENJAMBMENT: line_search only matches WITHIN a single line, so a phrase that straddles a line break (verse enjambment) is invisible to it — if an exact search of a verse phrase returns nothing, the words may run across the line end, so try a lemma search of the words or string_search/regex on each half before concluding it is absent. Each result carries `era` and `year` for its author, so you can chart WHERE ACROSS TIME the phrase recurs (a period or author timeline) — do that when a distribution over time would help the user see it. The response also carries `web_url`: a link that opens this same search in the Tesserae web app, which draws the timeline live and lets the user click a period or author to see just those citations. Offer that link when a visual or interactive view would help. `collection` ('literature' default, 'documents', or 'both'; Latin/Greek only, and only when documents are enabled for the connector) also searches the documentary corpus (inscriptions, papyri): a document result carries `doc_id`, `credit` (licence/source/principal edition — ALWAYS show this when quoting a document), `date_not_before`/`date_not_after`, `place`, `region`, `text_type_label`, `material_label` instead of author/work/era/year. Narrow it with `date_from`/`date_to` (years, negative for BC), `region`/`text_type`/`material`/`source` (substring filters). 'both' adds `documents_total` alongside the literature-only `total`.",
      "inputSchema": {"type": "object",
                      "properties": {"query": _STR, "language": _STR, "search_type": _STR,
-                                    "count_only": {"type": "boolean"}},
+                                    "count_only": {"type": "boolean"},
+                                    "collection": _STR, "date_from": {"type": "integer"},
+                                    "date_to": {"type": "integer"}, "region": _STR,
+                                    "text_type": _STR, "material": _STR, "source": _STR},
                      "required": ["query", "language"]},
      "fn": _t_line_search},
     {"name": "string_search",
@@ -1089,7 +1179,11 @@ TOOLS = [
                      "fetch the aligned public-domain English translation the Reader shows for "
                      "these same lines, returned as translation:{available, translator, text, "
                      "...}; when none exists, available is false with a plain reason rather than "
-                     "the field being dropped."),
+                     "the field being dropped. A translator's own page can appear as "
+                     "translation.external_links (a list of {translator, site_title, "
+                     "source_url, url}) even when available is false, for a translator whose "
+                     "licence does not permit copying the text itself (currently Frances W. "
+                     "Pritchett's Ghalib commentary)."),
      "inputSchema": {"type": "object",
                      "properties": {"work": _STR, "ref_start": _STR, "ref_end": _STR,
                                     "context": {"type": "integer"},
@@ -1231,7 +1325,7 @@ TOOLS = [
      "description": ("Cross-language parallels between two texts in DIFFERENT languages (e.g. a Greek "
                      "source behind a Latin poem, or a Hebrew source behind a Greek Septuagint). Give "
                      "source/target ids (from list_texts) and their languages (supported pairs: grc-la, "
-                     "la-en, grc-en, and where installed he-grc/he-la, cop-grc). A first run on a large "
+                     "la-en, grc-en, and where installed he-grc/he-la, cop-grc, fa-ur). A first run on a large "
                      "pair takes a few minutes and returns status 'running' (cached after); call again "
                      "with the same arguments to retrieve it. Returns ~25 parallels by default; pass "
                      "limit (up to 200) and offset (25, 50, ...) to page deeper into the ranking. Each "
@@ -1258,8 +1352,50 @@ TOOLS = [
                                     "example": _STR, "context": _STR, "contact": _STR},
                      "required": ["type"]},
      "fn": _t_submit_feature_request},
+    # Secondary scholarship: defined like any other tool (so the manifest and
+    # the parity tests in tests/test_mcp_parity.py see them unconditionally),
+    # but hidden from tools/list and refused by tools/call unless
+    # TESSERAE_SCHOLARSHIP_TOOLS=1 -- see _SCHOLARSHIP_TOOL_NAMES and
+    # _scholarship_tools_enabled() below. Absent the flag, an agent sees
+    # neither tool at all.
+    {"name": "find_scholarship",
+     "description": ("Secondary scholarship on a passage, or on a PAIR of passages (a parallel): articles, "
+                     "chapters and books whose title or abstract cite it, from the open metadata services "
+                     "(OpenAlex, Crossref) with a DOI and any legal open-access copy (Unpaywall), plus the "
+                     "site's public-domain commentaries at the span. Takes the fields get_passage takes "
+                     "(work, ref_start, ref_end) and optionally work2/ref2_start/ref2_end for the second "
+                     "passage. Results are ranked: band 1 cites both passages together, band 2 both works, "
+                     "band 3 the passage alone. Never the article text itself: a reader opens it through "
+                     "the DOI or their own library."),
+     "inputSchema": {"type": "object",
+                     "properties": {"work": _STR, "ref_start": _STR, "ref_end": _STR,
+                                    "work2": _STR, "ref2_start": _STR, "ref2_end": _STR,
+                                    "limit": {"type": "integer"}},
+                     "required": ["work", "ref_start"]},
+     "fn": _t_find_scholarship},
+    {"name": "get_commentary",
+     "description": ("The public-domain commentators' notes at a span of a work (Servius on Vergil first), "
+                     "keyed to the line, in the commentator's Latin. Same fields as get_passage."),
+     "inputSchema": {"type": "object",
+                     "properties": {"work": _STR, "ref_start": _STR, "ref_end": _STR},
+                     "required": ["work", "ref_start"]},
+     "fn": _t_get_commentary},
 ]
 _TOOLS_BY_NAME = {t["name"]: t for t in TOOLS}
+# Gated by TESSERAE_SCHOLARSHIP_TOOLS=1, re-checked per request rather than
+# once at import, so the flag can be flipped without restarting the process
+# (matches how other preview-stage features in this file are trialled).
+_SCHOLARSHIP_TOOL_NAMES = {'find_scholarship', 'get_commentary'}
+
+
+def _scholarship_tools_enabled():
+    return os.environ.get('TESSERAE_SCHOLARSHIP_TOOLS') == '1'
+
+
+def _visible_tools():
+    if _scholarship_tools_enabled():
+        return TOOLS
+    return [t for t in TOOLS if t['name'] not in _SCHOLARSHIP_TOOL_NAMES]
 
 
 # --------------------------------------------------------------------------
@@ -1314,11 +1450,13 @@ def _handle(msg):
         return _result(mid, {})
     if method == 'tools/list':
         return _result(mid, {"tools": [{"name": t["name"], "description": t["description"],
-                                        "inputSchema": t["inputSchema"]} for t in TOOLS]})
+                                        "inputSchema": t["inputSchema"]} for t in _visible_tools()]})
     if method == 'tools/call':
         name = params.get('name')
         args = params.get('arguments') or {}
         tool = _TOOLS_BY_NAME.get(name)
+        if tool and name in _SCHOLARSHIP_TOOL_NAMES and not _scholarship_tools_enabled():
+            tool = None  # same as an unknown name: the flag is off, so this tool does not exist
         if not tool:
             return _error(mid, -32602, f"Unknown tool: {name}")
         try:

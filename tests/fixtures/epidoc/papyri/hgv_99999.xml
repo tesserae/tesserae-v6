@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic test fixture paired with 99999.xml (see the comment
+     there): an HGV metadata record that carries NO
+     div[@type='bibliography'][@subtype='principalEdition'], so
+     extract_principal_edition_hgv must return None and the caller
+     falls back to the DDbDP sourceDesc/bibl instead. -->
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xml:id="hgv99999">
+   <teiHeader>
+      <fileDesc>
+         <titleStmt>
+            <title>Test record with no principal edition on file</title>
+         </titleStmt>
+         <publicationStmt>
+            <idno type="filename">99999</idno>
+            <idno type="TM">99999</idno>
+         </publicationStmt>
+         <sourceDesc>
+            <msDesc>
+               <msIdentifier>
+                  <placeName><settlement>unbekannt</settlement></placeName>
+               </msIdentifier>
+               <physDesc>
+                  <objectDesc>
+                     <supportDesc>
+                        <support>
+                           <material>Papyrus</material>
+                        </support>
+                     </supportDesc>
+                  </objectDesc>
+               </physDesc>
+               <history>
+                  <origin>
+                     <origPlace>Oxyrhynchos</origPlace>
+                     <origDate notBefore="0001" notAfter="0100"/>
+                  </origin>
+               </history>
+            </msDesc>
+         </sourceDesc>
+      </fileDesc>
+      <profileDesc>
+         <langUsage>
+            <language ident="en">Englisch</language>
+         </langUsage>
+      </profileDesc>
+   </teiHeader>
+   <text>
+      <body>
+         <div type="bibliography" subtype="illustrations">
+            <p>keine</p>
+         </div>
+      </body>
+   </text>
+</TEI>

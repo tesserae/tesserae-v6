@@ -83,8 +83,25 @@ data/la_mqdq_temp/
 !data/lemma_tables/
 !data/text_genres.csv
 !data/translation_pairs.json
+# data/translations/ holds one aligned-translation JSON per work (built
+# offline, not committed) EXCEPT the small links/ subdirectory: hand-sized
+# lookup tables (currently the Ghalib -> Pritchett verse-page links) that
+# belong in git like any other curated data file.
+!data/translations/
+data/translations/*
+!data/translations/links/
 !data/proposals/
 !data/restricted_texts.json
+!data/documents/
+data/documents/*
+!data/documents/formula_words_*.txt
+!data/documents/eagle_labels.csv
+!data/commentaries/
+data/commentaries/*
+!data/commentaries/README.md
+!data/commentaries/servius__vergil.aeneid.json
+!data/commentaries/servius__vergil.eclogues.json
+!data/commentaries/servius__vergil.georgics.json
 cache/
 
 # Private/local files
@@ -137,6 +154,8 @@ server.log
 
 # Search concurrency lock files (runtime only)
 tmp/search_slots/
+# Paged search result snapshots (runtime only, backend/result_pages.py)
+tmp/search_results/
 backend/models/
 
 # Build artefacts of the test run, not the tests themselves.

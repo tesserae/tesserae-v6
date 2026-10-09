@@ -41,7 +41,7 @@ import { LANGUAGE_NAMES } from '../../utils/languageNames';
 // these five, because the Connections Map is production-only; the names
 // themselves come from the one shared table, not a fifth hand-written copy
 // (2026-09-21 code review, finding 3).
-const CONNECTIONS_MAP_LANGUAGE_ORDER = ['la', 'grc', 'en', 'cop', 'he'];
+const CONNECTIONS_MAP_LANGUAGE_ORDER = ['la', 'grc', 'en', 'cop', 'he', 'fa', 'ur'];
 const LANGUAGES = CONNECTIONS_MAP_LANGUAGE_ORDER.map((code) => [code, LANGUAGE_NAMES[code] || code]);
 
 const VIEWS = [
@@ -1209,8 +1209,8 @@ export default function ConnectionsMap() {
         </label>
 
         <span className="inline-flex rounded border border-gray-300 overflow-hidden"
-              title="Links: the raw number of nearest-neighbour links, on a log colour scale. Relative to size: that number divided by what the two sizes alone would predict, so a big author does not light up a whole row just by being big.">
-          <span className="px-2 py-0.5 text-xs text-gray-500 bg-gray-50 border-r border-gray-300">Colour by</span>
+              title="Links: the raw number of nearest-neighbor links, on a log color scale. Relative to size: that number divided by what the two sizes alone would predict, so a big author does not light up a whole row just by being big.">
+          <span className="px-2 py-0.5 text-xs text-gray-500 bg-gray-50 border-r border-gray-300">Color by</span>
           {[['links', 'links'], ['lift', 'relative to size']].map(([v, label]) => (
             <button key={v} type="button" onClick={() => setColorMode(v)} aria-pressed={colorMode === v}
                     className={`px-2 py-0.5 text-xs ${colorMode === v

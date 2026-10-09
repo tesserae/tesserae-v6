@@ -85,6 +85,15 @@ const BAND = {
     label: 'Moderate match',
     className: 'bg-amber-50 text-amber-800 border-amber-200',
   },
+  // A theme common enough in the searched language that a good match can't
+  // stand out from the ordinary run of that language's own corpus (2026-10-08:
+  // "passionate love" in Persian). Distinct from both a weak match (nothing
+  // resembles the query) and an ordinary moderate/strong one (a match that
+  // does stand out); see the note text in backend/passage_index.py.
+  pervasive: {
+    label: 'Common theme',
+    className: 'bg-amber-50 text-amber-800 border-amber-200',
+  },
   low: {
     label: 'Weak match',
     className: 'bg-gray-100 text-gray-700 border-gray-300',
@@ -141,9 +150,9 @@ function byWork(results) {
   return groups;
 }
 
-/** "Latin, Greek, English and Coptic" -- used for the fixed coverage
- *  sentence shown when the picker is narrowed to one language Browse Corpus
- *  doesn't cover (Hebrew, Persian, Urdu). */
+/** "Latin, Greek, English, Coptic, Hebrew, Persian and Urdu" (whatever this
+ *  server serves) -- used for the fixed coverage sentence shown when the
+ *  picker is narrowed to one language this server doesn't serve at all. */
 function joinLangNames(codes) {
   const names = codes.map((c) => LANG_LABEL[c] || c);
   if (names.length < 2) return names.join('');
@@ -227,11 +236,13 @@ function CompareWorkPicker({ label, langChoices, language, setLanguage,
   const { authors, hierarchy, loading, getTextsForAuthor } = useCorpus(language);
   return (
     <div className="border border-gray-200 rounded p-3 bg-white space-y-3">
+      <h3 className="text-base font-semibold text-gray-900">{label}</h3>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          {label} language
+          Language
         </label>
         <select
+          aria-label={`${label} language`}
           value={language}
           onChange={(e) => { setLanguage(e.target.value); setAuthor(''); setText(''); }}
           className="w-full border rounded px-2 py-2 text-base sm:text-sm"
@@ -244,6 +255,7 @@ function CompareWorkPicker({ label, langChoices, language, setLanguage,
       ) : (
         <TextSelector
           label={label}
+          plainFieldLabels
           language={language}
           authors={authors}
           selectedAuthor={author}
@@ -329,13 +341,21 @@ export default function ThemeSearchPage() {
   // and "All languages" (the default) skip it rather than show something
   // that doesn't parse or a link Browse Corpus can't honor.
   const [coverage, setCoverage] = useState(null);
-  const BROWSE_CORPUS_LANGUAGES = ['la', 'grc', 'en', 'cop'];
+  // The languages Theme Search covers are whatever this server actually
+  // serves (`served`, fetched above from /api/languages), not a fixed list.
+  // This used to be hard-coded to ['la', 'grc', 'en', 'cop'], written when
+  // that was the whole corpus; it went stale the moment Hebrew, Persian and
+  // Urdu were indexed too; and it drove the one line on this page that said
+  // so, which kept telling a Persian or Hebrew reader their language wasn't
+  // covered at all. Falls back to the original four only for the brief
+  // window before /api/languages has answered.
+  const BROWSE_CORPUS_LANGUAGES = served && served.length ? served : ['la', 'grc', 'en', 'cop'];
   // Which of the three coverage-line states applies: one covered language
   // picked alone keeps the per-language sentence; one uncovered language
-  // (Hebrew, Persian, Urdu, or any other not in Browse Corpus) alone gets
-  // the fixed sentence; "All languages" (nothing picked) or several picked
-  // together get the summed sentence. Computed here (not just above the
-  // JSX) because the aggregate fetch below needs it too.
+  // (anything this server doesn't serve) alone gets the fixed sentence;
+  // "All languages" (nothing picked) or several picked together get the
+  // summed sentence. Computed here (not just above the JSX) because the
+  // aggregate fetch below needs it too.
   const selectedLangCodes = language ? language.split(',').map((s) => s.trim()).filter(Boolean) : [];
   const singleCoveredLang = selectedLangCodes.length === 1 && BROWSE_CORPUS_LANGUAGES.includes(selectedLangCodes[0]);
   const singleUncoveredLang = selectedLangCodes.length === 1 && !singleCoveredLang;
@@ -379,10 +399,19 @@ export default function ThemeSearchPage() {
   // than refetched on every later language click -- one /api/texts and one
   // /api/passages/works call per language, four pairs total, at most once.
   const [allCoverage, setAllCoverage] = useState(null);
-  const allCoverageStarted = useRef(false);
+  // Keyed on which language LIST this was last fetched for, not a plain
+  // once-ever ref: BROWSE_CORPUS_LANGUAGES starts as the four-language
+  // fallback (before /api/languages has answered) and then becomes
+  // whatever this server actually serves. A once-ever guard would lock in
+  // on that first, stale fetch and never redo it once `served` arrives,
+  // which is exactly backwards for the thing this effect exists to keep
+  // current.
+  const allCoverageFor = useRef(null);
   useEffect(() => {
-    if (singleCoveredLang || allCoverageStarted.current) return;
-    allCoverageStarted.current = true;
+    if (singleCoveredLang) return;
+    const key = BROWSE_CORPUS_LANGUAGES.join(',');
+    if (allCoverageFor.current === key) return;
+    allCoverageFor.current = key;
     let dead = false;
     Promise.all(BROWSE_CORPUS_LANGUAGES.map((code) => (
       fetch(`/api/texts?language=${code}`).then((r) => r.json()).catch(() => []).then((texts) => {
@@ -393,9 +422,9 @@ export default function ThemeSearchPage() {
       if (dead) return;
       const total = results.reduce((sum, r) => sum + r.covered, 0);
       setAllCoverage({ total, languageCount: BROWSE_CORPUS_LANGUAGES.length });
-    }).catch(() => { allCoverageStarted.current = false; });
+    }).catch(() => { allCoverageFor.current = null; });
     return () => { dead = true; };
-  }, [singleCoveredLang]);
+  }, [singleCoveredLang, served]);
 
   const [data, setData] = useState(null);
   const [running, setRunning] = useState(false);

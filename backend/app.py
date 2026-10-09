@@ -371,7 +371,7 @@ def init_db():
             cur.execute('ALTER TABLE search_logs ADD COLUMN IF NOT EXISTS client_ip VARCHAR(50)')
             cur.execute('ALTER TABLE search_logs ADD COLUMN IF NOT EXISTS city VARCHAR(100)')
             cur.execute('ALTER TABLE search_logs ADD COLUMN IF NOT EXISTS country VARCHAR(100)')
-            
+
             cur.execute('''
                 CREATE INDEX IF NOT EXISTS idx_search_logs_created_at ON search_logs(created_at)
             ''')
@@ -604,6 +604,8 @@ app.register_blueprint(mcp_http_bp, url_prefix=API_PREFIX or None)
 app.register_blueprint(mcp_oauth_bp, url_prefix=API_PREFIX or None)
 app.register_blueprint(feature_request_bp, url_prefix=API_PREFIX or None)
 app.register_blueprint(reuse_bp, url_prefix=API_PREFIX or None)
+from backend.blueprints.scholarship import scholarship_bp  # noqa: E402
+app.register_blueprint(scholarship_bp, url_prefix=API_PREFIX or None)
 
 app_logger.info(f"Blueprints registered (API_PREFIX='{API_PREFIX}', env={DEPLOYMENT_ENV})")
 
@@ -947,6 +949,20 @@ def _allowed_languages():
     return allowed_languages()
 
 
+@api_route('/corpus-version')
+def api_corpus_version():
+    """The corpus version stamp (a date) for one language, for citations that
+    name the corpus state a result came from (the Cite popup's Reproducible
+    style). Read per process; an index change is picked up on reload."""
+    language = (request.args.get('language') or 'la').strip()
+    try:
+        from backend.inverted_index import get_corpus_version
+        v = get_corpus_version(language)
+    except Exception:
+        v = None
+    return jsonify({'language': language, 'corpus_version': v})
+
+
 @api_route('/languages')
 def api_languages():
     """Return available languages and cross-lingual pairs.
@@ -1026,7 +1042,21 @@ def api_languages():
                            key=lambda l: order.index(l['code']))   # the allow-list's order is the tab order
         crosslingual_pairs = [p for p in crosslingual_pairs
                               if p['source'] in allowed and p['target'] in allowed]
-    return jsonify({'languages': languages, 'crosslingual_pairs': crosslingual_pairs})
+
+    # Documents collection (stage 3b-2), behind TESSERAE_DOCUMENTS=1: the
+    # client reads this to decide whether to offer the Literature/Documents/
+    # Both control on the corpus-wide phrase search at all. True only when
+    # the switch is on AND at least one language actually has a built
+    # documents index -- never advertised as available with nothing to search.
+    documents_enabled = False
+    try:
+        import backend.documents as _docs_mod
+        documents_enabled = _docs_mod.enabled() and any(
+            _docs_mod.is_index_available(lang) for lang in _docs_mod.SUPPORTED_LANGUAGES)
+    except ImportError:
+        pass
+    return jsonify({'languages': languages, 'crosslingual_pairs': crosslingual_pairs,
+                    'documents_enabled': documents_enabled})
 
 
 # =============================================================================
@@ -1463,6 +1493,576 @@ def rare_focus_filter(results, language):
         return results, 0, []
 
 
+def _count_candidates_by_work(text_candidates, language, lang_dates):
+    """[{work_id, author, work, year, era, count}] for every work holding a
+    co-occurring line, newest-last by year (see line_search). A whole file wins
+    over its book files; book files alone are summed."""
+    import re as _re_w
+    groups = {}
+    for filename, matches in text_candidates.items():
+        base = _re_w.sub(r'\.part\.[^/]*$', '', filename[:-5] if filename.endswith('.tess') else filename)
+        g = groups.setdefault(base, {'whole': None, 'parts': 0, 'file': filename})
+        if '.part.' in filename:
+            g['parts'] += len(matches)
+        else:
+            g['whole'] = len(matches)
+            g['file'] = filename
+    out = []
+    for base, g in groups.items():
+        count = g['whole'] if g['whole'] is not None else g['parts']
+        filepath = resolve_text_path(TEXTS_DIR, language, g['file'])
+        meta = get_text_metadata(filepath) if filepath else {}
+        info = lang_dates.get(base.split('.')[0].lower(), {})
+        out.append({'work_id': base, 'author': meta.get('author') or base.split('.')[0],
+                    'work': meta.get('title') or base, 'year': info.get('year'),
+                    'era': info.get('era', 'Unknown'), 'count': count})
+    out.sort(key=lambda w: (w['year'] if w['year'] is not None else 9999, w['author'], w['work']))
+    return out
+
+
+# =============================================================================
+# DOCUMENTS COLLECTION (stage 3b-2/3b-3, behind TESSERAE_DOCUMENTS=1)
+# =============================================================================
+# Lets /api/line-search search the documentary corpus (inscriptions, papyri;
+# PR #678) alongside or instead of literature. See backend/documents.py for
+# the index/metadata/sidecar access this reuses. Everything below is reached
+# only when `collection` is 'documents' or 'both' AND backend.documents.enabled()
+# -- with the switch off, or collection omitted, line_search()'s literary
+# path above is completely untouched by any of this.
+#
+# Stage 3b-3 added restoration marking/exclusion, a stock-formula count and
+# filter, and the GET /api/documents/<doc_id> Reader route (further down).
+
+import unicodedata as _documents_ud
+
+# Default threshold for `hide_formulas` (spec item 5): drop a document hit
+# whose matched lemmas/phrase co-occur in MORE than this many documents in
+# the same index. Measured directly against the real dev documents indexes
+# (2026-10-08, la_documents_index.db/grc_documents_index.db), counting
+# DISTINCT documents sharing the matched lemma set via
+# backend.documents.find_co_occurring_lemmas + doc_for (the same postings
+# lookup _documents_formula_count uses):
+#   dis manibus                   35,231 documents  (a true formula)
+#   bene merenti                  11,903 documents  (a true formula)
+#   votum solvit libens merito     3,990 documents  (a true formula)
+#   hic situs est                  3,535 documents  (a true formula)
+#   arma virumque                     19 documents  (a genuine parallel)
+#   arma virumque cano                 8 documents  (a genuine parallel)
+# The gap between the smallest formula (3,535) and the largest genuine
+# parallel (19) spans three orders of magnitude, so 100 cleanly separates
+# them with wide margin on both sides.
+DOCUMENTS_FORMULA_DEFAULT_N = 100
+
+
+def _restoration_flags(matched_positions, restored_set):
+    """(matched_restored, partly_restored) for one document hit: whether
+    EVERY matched token position is one write_document_tess.py's own
+    sidecar marked restored, or only SOME are. Both False when
+    `matched_positions` is empty/None (no position information for this
+    hit -- never a reason to claim restoration either way) or when none
+    of the matched positions are restored."""
+    if not matched_positions:
+        return False, False
+    restored_matched = sum(1 for p in matched_positions if p in restored_set)
+    total = len(matched_positions)
+    return restored_matched == total, 0 < restored_matched < total
+
+
+def _normalize_token_for_phrase_match(tok):
+    """NFC + lowercase + strip leading/trailing punctuation, so a token
+    list built at index time (write_document_tess.py) can be compared
+    against an exact-search query's own words without the two text layers
+    (editorial brackets, stray punctuation) causing a false miss."""
+    tok = _documents_ud.normalize('NFC', tok or '').lower()
+    return re.sub(r'^\W+|\W+$', '', tok)
+
+
+def _find_exact_phrase_positions(tokens, query):
+    """Token-index span of an *exact*-search query inside one document
+    line's own `tokens` list, best-effort: the first contiguous run whose
+    normalized form matches the query word-for-word, with
+    exact_phrase_pattern's own asymmetric rule carried over (no trailing
+    boundary on the LAST word, so "virum" still matches a line's
+    "virumque" -- see backend/utils.py). Returns [] when the query has no
+    words, `tokens` is empty, or no such run is found (an exact hit whose
+    positions this cannot pin down -- a scan-based SLOW PATH match, not an
+    index-driven one, see _search_documents_collection -- simply carries
+    no restoration marking, rather than guessing)."""
+    words = [_normalize_token_for_phrase_match(w) for w in (query or '').split()]
+    if not words or not tokens:
+        return []
+    norm_tokens = [_normalize_token_for_phrase_match(t) for t in tokens]
+    n = len(words)
+    for i in range(len(norm_tokens) - n + 1):
+        ok = True
+        for j in range(n):
+            if j == n - 1:
+                if not norm_tokens[i + j].startswith(words[j]):
+                    ok = False
+                    break
+            elif norm_tokens[i + j] != words[j]:
+                ok = False
+                break
+        if ok:
+            return list(range(i, i + n))
+    return []
+
+
+def _documents_formula_count(language, matched_lemmas, cache):
+    """How many documents in this SAME documents index (for `language`)
+    share every one of `matched_lemmas` -- the in-N-documents count stage
+    3b-3 asks for, computed from postings the same way line search counts
+    co-occurrence candidates (backend.documents.find_co_occurring_lemmas,
+    which wraps backend.inverted_index's own index-driven lookup), never
+    a corpus scan. `cache` is a plain dict the CALLER owns for the life of
+    one request (keyed on frozenset(matched_lemmas)): a 2-3 word
+    documentary query typically produces the same matched-lemma set
+    across most of its hits, so this is usually computed once per query,
+    not once per hit, satisfying the "cached per query" requirement
+    without a module-level cache that could go stale across requests or
+    leak between languages/queries.
+
+    Returns None (never 0-as-a-guess) for an empty lemma set -- a hit
+    whose matched_lemmas is empty (the exact/regex SLOW PATH never
+    populates matched_lemmas -- see _search_documents_collection) has no
+    well-defined "documents sharing this lemma pair" count, and formula
+    hiding/display must treat that as unknown, not as "unique"."""
+    if not matched_lemmas:
+        return None
+    key = frozenset(matched_lemmas)
+    if key in cache:
+        return cache[key]
+    import backend.documents as docs
+    candidates = docs.find_co_occurring_lemmas(list(key), language, min_matches=len(key))
+    distinct_docs = set()
+    for filename, ref, _matching_lemmas, _positions in candidates:
+        d = docs.doc_for(language, filename, ref)
+        if d:
+            distinct_docs.add(d)
+    count = len(distinct_docs)
+    cache[key] = count
+    return count
+
+
+def _lemmatize_query_simple(query, language, text_processor):
+    """Query lemmas for a documents-collection search. Documents are Latin
+    or Greek only (backend.documents.SUPPORTED_LANGUAGES), so this is the
+    plain lemmatizer path line_search()'s own literary branch uses for every
+    language except Persian/Urdu/Arabic/Hebrew -- those branches never apply
+    here and are not reproduced."""
+    query_lemmas = set()
+    for token in query.lower().split():
+        lemmas = text_processor.lemmatize_word(token, language)
+        query_lemmas.update(_normalize_lemma(l, language) for l in lemmas)
+    if not query_lemmas:
+        query_lemmas = set(_normalize_lemma(t, language) for t in query.lower().split())
+    return query_lemmas
+
+
+def _document_passes_filters(m, date_from, date_to, region, text_type, material, source):
+    """True if a document hit's metadata (backend.documents.meta's return,
+    or None) satisfies every filter the caller actually set. A filter the
+    request left unset is skipped. When NO filter is active this always
+    returns True, even with m=None (an uncredited hit is still shown). When
+    at least one filter IS active and m is None, the hit cannot be
+    confirmed and is excluded -- safer than showing an unfiltered row inside
+    a filtered search."""
+    if not any([date_from is not None, date_to is not None, region, text_type, material, source]):
+        return True
+    if m is None:
+        return False
+    if date_from is not None:
+        if m.get('date_not_after') is None or m['date_not_after'] < date_from:
+            return False
+    if date_to is not None:
+        if m.get('date_not_before') is None or m['date_not_before'] > date_to:
+            return False
+    if region:
+        if not m.get('region') or region.lower() not in m['region'].lower():
+            return False
+    if text_type:
+        if not m.get('text_type_label') or text_type.lower() not in m['text_type_label'].lower():
+            return False
+    if material:
+        if not m.get('material_label') or material.lower() not in m['material_label'].lower():
+            return False
+    if source:
+        cred = m.get('credit') or {}
+        haystack = ' '.join(str(v) for v in (
+            m.get('source'), m.get('collection'),
+            cred.get('source_name'), cred.get('source_name_secondary'),
+        ) if v).lower()
+        if source.lower() not in haystack:
+            return False
+    return True
+
+
+def _document_hit(language, filename, ref, matched_words, matched_lemmas, tokens=None,
+                   matched_positions=None, formula_count=None):
+    """One documents-collection result row: credit, date, place, labels and
+    restored-word positions from backend.documents, instead of the literary
+    author/work/era/year shape. `tokens` (the line's own tokenized form, same
+    one restored_indices' positions were computed against at write time) is
+    passed through so the client can mark restored words by POSITION rather
+    than re-splitting `text` on whitespace, which would drift out of step
+    with restored_indices the moment punctuation or an elided editorial mark
+    changes the split. Returns (row, meta_or_None) -- meta is handed back so
+    the caller does not look metadata up twice for the filter check.
+
+    `matched_positions` (stage 3b-3): the matched tokens' own index
+    positions, when the caller could determine them (always true for the
+    lemma FAST PATH; best-effort via _find_exact_phrase_positions for
+    'exact'; never for 'regex' -- see _search_documents_collection), used
+    only to set matched_restored/partly_restored against the sidecar's
+    restored-token positions. `formula_count` (stage 3b-3): how many
+    documents in this index share the matched lemma pair/phrase -- see
+    _documents_formula_count; None when not computed (regex, or an exact
+    hit whose matched_lemmas came back empty)."""
+    import backend.documents as docs
+    doc_id = docs.doc_for(language, filename, ref)
+    m = docs.meta(doc_id) if doc_id else None
+    restored = docs.restored_indices(language, filename, ref)
+    matched_restored, partly_restored = _restoration_flags(
+        matched_positions, set(restored.get('restored') or []))
+    row = {
+        'collection': 'documents',
+        'doc_id': doc_id,
+        'locus': ref,
+        'text_id': filename,
+        'language': language,
+        'text': None,  # filled by the caller, which already has the line text
+        'tokens': tokens or [],
+        'matched_words': matched_words,
+        'matched_lemmas': sorted(matched_lemmas) if matched_lemmas else [],
+        'credit': (m or {}).get('credit'),
+        'date_not_before': (m or {}).get('date_not_before'),
+        'date_not_after': (m or {}).get('date_not_after'),
+        'ancient_place': (m or {}).get('ancient_place'),
+        'modern_place': (m or {}).get('modern_place'),
+        'region': (m or {}).get('region'),
+        'pleiades_id': (m or {}).get('pleiades_id'),
+        'text_type_label': (m or {}).get('text_type_label'),
+        'object_type_label': (m or {}).get('object_type_label'),
+        'material_label': (m or {}).get('material_label'),
+        'source': (m or {}).get('source'),
+        'restored_indices': restored.get('restored'),
+        'fragment_indices': restored.get('fragment'),
+        'matched_restored': matched_restored,
+        'partly_restored': partly_restored,
+        'formula_count': formula_count,
+    }
+    return row, m
+
+
+def _search_documents_collection(language, search_type, query, filtered_query_lemmas,
+                                  min_matched, max_results, date_from, date_to,
+                                  region, text_type, material, source,
+                                  exclude_restored=False, hide_formulas=None):
+    """Document hits for the documents/both collection. Mirrors the FAST PATH
+    of line_search()'s literary branch (same index-driven candidate lookup,
+    same matched-word shape) against backend.documents's own documents-index
+    connection, with document fields (credit/date/place/labels/restored
+    positions) instead of author/work/era/year.
+
+    Rarity note (spec item 3): a document hit's matched-lemma rarity belongs
+    to the DOCUMENTS index's own lemma_doc_freq table, never the literary
+    one. This function computes no score at all (same as the literary
+    branch -- line_search results are filtered/deduped and sorted by era/
+    year/author, never ranked by score), so the distinction has nowhere to
+    bite here; line_search() below applies rare_focus_filter (which DOES
+    read the LITERARY lemma_doc_freq table) only to literary rows, never to
+    the rows this function returns, for exactly that reason.
+
+    Stage 3b-3, `exclude_restored`: drop a hit whose match rests ENTIRELY on
+    restored tokens (`row['matched_restored']`, set by _document_hit from the
+    matched token positions below). A hit with no position information
+    (regex, or an exact hit _find_exact_phrase_positions could not place) is
+    never dropped by this -- matched_restored is False whenever
+    matched_positions is empty, by _restoration_flags' own contract, so
+    "unknown" and "not restored" are deliberately the same safe outcome here.
+
+    Stage 3b-3, `hide_formulas`: drop a hit whose `formula_count` (documents
+    in this SAME index sharing its matched lemmas, see
+    _documents_formula_count) exceeds this integer. A hit with
+    formula_count None (regex; or exact, whose matched_lemmas is always
+    empty -- see the SLOW PATH below) is never dropped: an unmeasured count
+    is not evidence of a formula, and silently hiding regex/exact documents
+    hits whenever this filter is on would be a much bigger behavior change
+    than the spec asked for.
+
+    Formula words (data/documents/formula_words_la.txt/_grc.txt, spec item
+    6): NOT applied as a down-rank here, and deliberately so: per the spec's
+    own condition ("if a score or rank exists ... otherwise state why not"),
+    /api/line-search computes no per-result score or rank for EITHER
+    collection (document hits are appended in candidate-discovery order, not
+    sorted by any merit measure) -- the same absence stage 3b-2 already
+    found and recorded, so there is still no mechanism for a soft penalty to
+    attach to. Recorded in docs/DECISIONS.md and the stage 3b-3 report.
+
+    Returns (results, by_source_region, stats) where by_source_region is
+    [{source, region, count}] sorted by count descending (the documents
+    analogue of _count_candidates_by_work's by_work_all), and stats is
+    {'restored_excluded_count', 'formulas_hidden_count', 'formula_summary'}
+    (formula_summary is None for a non-lemma search or an empty lemma set,
+    where "the documents sharing this query" has no single well-defined
+    lemma pair to count).
+    """
+    import backend.documents as docs
+    results = []
+    by_source_region = {}
+    stats = {'restored_excluded_count': 0, 'formulas_hidden_count': 0, 'formula_summary': None}
+    if language not in docs.SUPPORTED_LANGUAGES or not docs.is_index_available(language):
+        return results, [], stats
+    if search_type not in ('lemma', 'exact', 'regex'):
+        search_type = 'lemma'
+
+    seen = set()
+    formula_cache = {}
+
+    def _record(filename, ref, text, matched_words, matched_lemmas, tokens=None, matched_positions=None):
+        if (filename, ref) in seen:
+            return False
+        formula_count = _documents_formula_count(language, matched_lemmas, formula_cache)
+        row, m = _document_hit(language, filename, ref, matched_words, matched_lemmas, tokens=tokens,
+                                matched_positions=matched_positions, formula_count=formula_count)
+        if not _document_passes_filters(m, date_from, date_to, region, text_type, material, source):
+            return False
+        if not passes_distance_filter(text, matched_words, filename, language):
+            return False
+        if exclude_restored and row['matched_restored']:
+            stats['restored_excluded_count'] += 1
+            return False
+        if hide_formulas is not None and formula_count is not None and formula_count > hide_formulas:
+            stats['formulas_hidden_count'] += 1
+            return False
+        seen.add((filename, ref))
+        row['text'] = text
+        results.append(row)
+        key = ((m or {}).get('source') or 'unknown', (m or {}).get('region') or 'unknown')
+        by_source_region[key] = by_source_region.get(key, 0) + 1
+        return True
+
+    if search_type == 'lemma':
+        if not filtered_query_lemmas:
+            return results, [], stats
+        candidates = docs.find_co_occurring_lemmas(list(filtered_query_lemmas), language,
+                                                     min_matches=min_matched)
+        text_candidates = {}
+        for filename, ref, matching_lemmas, _positions in candidates:
+            text_candidates.setdefault(filename, []).append((ref, matching_lemmas))
+
+        for filename, matches in text_candidates.items():
+            refs_needed = [ref for ref, _ in matches]
+            lines_data = docs.get_lines_batch(filename, refs_needed, language) or {}
+            for ref, _matching_lemmas in matches:
+                line_info = lines_data.get(ref)
+                if not line_info:
+                    continue
+                text = line_info.get('text', '')
+                indexed_lemmas = set(line_info.get('lemmas') or [])
+                indexed_tokens = line_info.get('tokens') or []
+                matching_query_lemmas = indexed_lemmas & filtered_query_lemmas
+                if not matching_query_lemmas:
+                    continue
+                indexed_lemma_list = line_info.get('lemmas') or []
+                matched_positions = [i for i, lem in enumerate(indexed_lemma_list)
+                                      if lem in matching_query_lemmas and i < len(indexed_tokens)]
+                matched_words = [indexed_tokens[i] for i in matched_positions]
+                if len(set(matched_words)) < min_matched:
+                    continue
+                _record(filename, ref, text, matched_words, matching_query_lemmas, tokens=indexed_tokens,
+                        matched_positions=matched_positions)
+                if len(results) >= max_results:
+                    break
+            if len(results) >= max_results:
+                break
+        if filtered_query_lemmas:
+            stats['formula_summary'] = {
+                'query_lemmas': sorted(filtered_query_lemmas),
+                'documents_sharing_all': _documents_formula_count(
+                    language, filtered_query_lemmas, formula_cache),
+            }
+    else:
+        # exact/regex: no index path exists for these (same as the literary
+        # SLOW PATH), so scan every line of every bucket file for `language`
+        # through the documents index's own `lines` table -- reusing the
+        # SAME connection the lemma path above uses, not a texts_root walk
+        # this module has no path for.
+        conn = docs.get_connection(language)
+        if conn is None:
+            return results, [], stats
+        exact_pattern = exact_phrase_pattern(query) if search_type == 'exact' else None
+        try:
+            text_rows = conn.execute('SELECT text_id, filename FROM texts').fetchall()
+        except Exception:                                           # noqa: BLE001
+            return results, [], stats
+        for trow in text_rows:
+            filename = trow['filename']
+            try:
+                line_rows = conn.execute(
+                    'SELECT ref, content, tokens FROM lines WHERE text_id = ?', (trow['text_id'],)
+                ).fetchall()
+            except Exception:                                       # noqa: BLE001
+                continue
+            for lrow in line_rows:
+                ref, text = lrow['ref'], (lrow['content'] or '')
+                match_found = False
+                if search_type == 'exact':
+                    if exact_pattern and exact_pattern.search(exact_search_text(text)):
+                        match_found = True
+                else:
+                    try:
+                        if re.search(query, text, re.IGNORECASE):
+                            match_found = True
+                    except re.error:
+                        pass
+                if not match_found:
+                    continue
+                matched_words = query.split() if search_type == 'exact' else []
+                try:
+                    row_tokens = json.loads(lrow['tokens']) if lrow['tokens'] else []
+                except Exception:                                    # noqa: BLE001
+                    row_tokens = []
+                # Best-effort token positions for 'exact' only (see
+                # _find_exact_phrase_positions); 'regex' has no well-defined
+                # phrase span to locate, so matched_positions stays [] and
+                # matched_restored/partly_restored both come back False.
+                matched_positions = (_find_exact_phrase_positions(row_tokens, query)
+                                      if search_type == 'exact' else [])
+                _record(filename, ref, text, matched_words, set(), tokens=row_tokens,
+                        matched_positions=matched_positions)
+                if len(results) >= max_results:
+                    break
+            if len(results) >= max_results:
+                break
+
+    by_list = [{'source': k[0], 'region': k[1], 'count': v} for k, v in by_source_region.items()]
+    by_list.sort(key=lambda x: -x['count'])
+    return results, by_list, stats
+
+
+def _line_search_documents_only(query, language, search_type, max_results, count_only,
+                                 date_from, date_to, region, text_type, material, source,
+                                 search_start_time, exclude_restored=False, hide_formulas=None):
+    """Full /api/line-search response for collection='documents': the
+    documentary corpus alone, no literary search run at all. Returns a Flask
+    response directly (line_search() returns this immediately)."""
+    import time as time_module
+    import backend.documents as docs
+
+    n_query_words = len([w for w in query.split() if w.strip()])
+    filtered_query_lemmas = set()
+    filtered_common_words = []
+    if search_type == 'lemma' and language in docs.SUPPORTED_LANGUAGES:
+        from backend.matcher import DEFAULT_LATIN_STOP_WORDS, DEFAULT_GREEK_STOP_WORDS
+        stopwords = set(DEFAULT_LATIN_STOP_WORDS if language == 'la' else DEFAULT_GREEK_STOP_WORDS)
+        query_lemmas = _lemmatize_query_simple(query, language, text_processor)
+        content_lemmas = query_lemmas - stopwords
+        filtered_query_lemmas = content_lemmas if len(content_lemmas) >= 2 else query_lemmas
+        filtered_common_words = sorted(query_lemmas - content_lemmas)
+    elif language in docs.SUPPORTED_LANGUAGES:
+        filtered_query_lemmas = set(_normalize_lemma(t, language) for t in query.lower().split())
+
+    min_matched = max(1, min(2, len(filtered_query_lemmas))) if search_type == 'lemma' else 1
+
+    results, by_source_region, doc_stats = _search_documents_collection(
+        language, search_type, query, filtered_query_lemmas, min_matched, max_results,
+        date_from, date_to, region, text_type, material, source,
+        exclude_restored=exclude_restored, hide_formulas=hide_formulas)
+
+    search_time = round(time_module.time() - search_start_time, 3)
+    capped = len(results) >= max_results
+    distinct_loci = len(results)
+    payload = {
+        'collection': 'documents',
+        'total': distinct_loci,
+        'distinct_loci': distinct_loci,
+        'query': query,
+        'search_time': search_time,
+        'capped': capped,
+        'corpus_version': docs.get_corpus_version(language),
+    }
+    if capped:
+        payload['total_at_least'] = distinct_loci
+    if filtered_common_words:
+        payload['filtered_common_words'] = filtered_common_words
+    if by_source_region:
+        payload['documents_by_source_region'] = by_source_region
+        payload['lines_all'] = sum(w['count'] for w in by_source_region)
+    if exclude_restored:
+        payload['restored_excluded_count'] = doc_stats['restored_excluded_count']
+    if hide_formulas is not None:
+        payload['formulas_hidden_count'] = doc_stats['formulas_hidden_count']
+    if doc_stats['formula_summary']:
+        payload['formula_summary'] = doc_stats['formula_summary']
+    if not count_only:
+        payload['results'] = results
+    return jsonify(payload)
+
+
+@api_route('/documents/<doc_id>', methods=['GET'])
+def get_document(doc_id):
+    """Stage 3b-3's document Reader view: one documentary text's own lines
+    (from the documents index's `lines` table, via `doc_meta`), restored/
+    fragment positions per line, credit, date/place/labels, and the stage
+    3a display fields (museum, inventory, dimensions, translation,
+    apparatus, commentary, image links) from metadata.db's `display`
+    table. Behind TESSERAE_DOCUMENTS=1 (404 otherwise, same as the search
+    side of this feature being entirely absent with the switch off); a
+    live site additionally gates this at the client with the ?documents=1
+    trial (see LineSearch.jsx), same as the search control itself.
+
+    `doc_id` alone does not say which language's documents index it lives
+    in (ids are source-prefixed, e.g. "edh:HD047322", not language-coded),
+    so an explicit `?language=la|grc` is tried first; without one, every
+    language in backend.documents.SUPPORTED_LANGUAGES is tried in turn
+    and the first hit wins -- doc ids are unique across sources within a
+    language by construction (stage 3a's merged corpus id), and no case
+    of a document id colliding across la/grc has ever been seen in a real
+    build, but a future dual-language corpus could reconsider this.
+    """
+    import backend.documents as docs
+    if not docs.enabled():
+        return jsonify({'error': 'not found'}), 404
+    requested_language = (request.args.get('language') or '').strip().lower()
+    languages_to_try = ([requested_language] if requested_language in docs.SUPPORTED_LANGUAGES
+                         else list(docs.SUPPORTED_LANGUAGES))
+    doc_data = None
+    found_language = None
+    for lang in languages_to_try:
+        if not docs.is_index_available(lang):
+            continue
+        doc_data = docs.get_document_lines(lang, doc_id)
+        if doc_data is not None:
+            found_language = lang
+            break
+    if doc_data is None:
+        return jsonify({'error': 'document not found'}), 404
+
+    m = docs.meta(doc_id) or {}
+    display = docs.display_fields(doc_id)
+    payload = {
+        'doc_id': doc_id,
+        'language': found_language,
+        'text_id': doc_data['filename'],
+        'lines': doc_data['lines'],
+        'credit': m.get('credit'),
+        'collection': m.get('collection'),
+        'source': m.get('source'),
+        'date_not_before': m.get('date_not_before'),
+        'date_not_after': m.get('date_not_after'),
+        'ancient_place': m.get('ancient_place'),
+        'modern_place': m.get('modern_place'),
+        'region': m.get('region'),
+        'pleiades_id': m.get('pleiades_id'),
+        'text_type_label': m.get('text_type_label'),
+        'object_type_label': m.get('object_type_label'),
+        'material_label': m.get('material_label'),
+        'display': display or {},
+    }
+    return jsonify(payload)
+
+
 @api_route('/line-search', methods=['GET', 'POST'])
 def line_search():
     """
@@ -1509,6 +2109,55 @@ def line_search():
         if isinstance(rare_focus, str):
             rare_focus = rare_focus.strip().lower() in ('1', 'true', 'yes', 'on')
 
+        # Documents collection (stage 3b-2, behind TESSERAE_DOCUMENTS=1): search
+        # literature (default, today's exact behaviour), the documentary corpus
+        # (inscriptions/papyri), or both. Omitting `collection` entirely, or the
+        # switch being off, must leave every byte of the response unchanged —
+        # so the literary code path below is never altered by this parameter;
+        # it is only ever read at the two insertion points this stage added
+        # (the early documents-only return, and the pre-return merge for
+        # 'both'). See backend/documents.py.
+        collection = (data.get('collection') or 'literature').strip().lower()
+        if collection not in ('literature', 'documents', 'both'):
+            collection = 'literature'
+        import backend.documents as _docs_mod
+        documents_active = collection in ('documents', 'both') and _docs_mod.enabled()
+
+        def _coerce_year(v):
+            try:
+                return int(v)
+            except (TypeError, ValueError):
+                return None
+        date_from = _coerce_year(data.get('date_from')) if documents_active else None
+        date_to = _coerce_year(data.get('date_to')) if documents_active else None
+        doc_region_filter = (data.get('region') or '').strip() if documents_active else ''
+        doc_text_type_filter = (data.get('text_type') or '').strip() if documents_active else ''
+        doc_material_filter = (data.get('material') or '').strip() if documents_active else ''
+        doc_source_filter = (data.get('source') or '').strip() if documents_active else ''
+
+        # Stage 3b-3: leave out a document hit whose match rests entirely on
+        # restored text (documents/both only -- see _restoration_flags).
+        doc_exclude_restored = False
+        if documents_active:
+            doc_exclude_restored = data.get('exclude_restored', False)
+            if isinstance(doc_exclude_restored, str):
+                doc_exclude_restored = doc_exclude_restored.strip().lower() in ('1', 'true', 'yes', 'on')
+
+        # Stage 3b-3: hide a document hit whose matched lemmas/phrase co-occur
+        # in more than N documents in this same index (a stock formula --
+        # see _documents_formula_count and DOCUMENTS_FORMULA_DEFAULT_N).
+        # Off by default; the caller passes an integer (any int, including 0)
+        # to turn it on, so `0` is a valid, deliberately strict threshold, not
+        # treated as falsy-and-ignored.
+        doc_hide_formulas = None
+        if documents_active:
+            _hide_formulas_raw = data.get('hide_formulas')
+            if _hide_formulas_raw not in (None, ''):
+                try:
+                    doc_hide_formulas = int(_hide_formulas_raw)
+                except (TypeError, ValueError):
+                    doc_hide_formulas = None
+
         # Source exclusion - don't include the source line in results
         exclude_text_id = data.get('exclude_text_id', '')
         exclude_locus = data.get('exclude_locus', '')
@@ -1518,7 +2167,24 @@ def line_search():
         if query:
             import time as time_module
             search_start_time = time_module.time()
-            
+
+            # collection='documents': the documentary corpus alone, no
+            # literary search at all. Returns here; nothing below this
+            # block runs, so it cannot affect the literary path (collection
+            # omitted, or 'literature', or the switch off) in any way.
+            if collection == 'documents' and documents_active:
+                return _line_search_documents_only(
+                    query, language, search_type, max_results, count_only,
+                    date_from, date_to, doc_region_filter, doc_text_type_filter,
+                    doc_material_filter, doc_source_filter, search_start_time,
+                    exclude_restored=doc_exclude_restored, hide_formulas=doc_hide_formulas)
+            if collection == 'documents' and not documents_active:
+                # Documents requested but the switch is off, or this
+                # language has no documents index: literature's own
+                # behaviour is the only sane fallback (never a silent
+                # empty result), so fall through to it unchanged.
+                collection = 'literature'
+
             try:
                 from backend.metrical_scanner import is_prose_text
             except ImportError:
@@ -1715,6 +2381,7 @@ def line_search():
 
             results = []
             seen_results = set()
+            by_work_all = None
             
             # FAST PATH: Use inverted index if available (O(1) lookup vs O(n) scan).
             # A single-word query (one content lemma) has nothing to co-occur with,
@@ -1734,6 +2401,17 @@ def line_search():
                     if filename not in text_candidates:
                         text_candidates[filename] = []
                     text_candidates[filename].append((ref, matching_lemmas, positions))
+
+                # EVERY WORK'S COUNT, NOT JUST THE FIRST 500 LINES (2026-10-07).
+                # The line list stops at max_results in index order, so for a
+                # common pair (Persian "man ast") it held lines from two or three
+                # poets and the corpus chart left out the very authors compared.
+                # The index already returned every co-occurring line, so counting
+                # them per work costs nothing. A work held both whole and in book
+                # files is counted once: the whole file when present, else the sum
+                # of its books. Counted before the line-level distance filter, so
+                # these are the lines that contain the words, a ceiling on matches.
+                by_work_all = _count_candidates_by_work(text_candidates, language, lang_dates)
                 
                 for filename, matches in text_candidates.items():
                     filepath = resolve_text_path(TEXTS_DIR, language, filename)
@@ -2116,6 +2794,48 @@ def line_search():
                     'note': ('Passage-sized query: searched on its '
                              f'{len(filtered_query_lemmas)} rarest words'),
                 }
+            if by_work_all is not None:
+                payload['by_work_all'] = by_work_all
+                payload['lines_all'] = sum(w['count'] for w in by_work_all)
+
+            # collection='both': append the documentary corpus's own hits
+            # after the literary ones, reusing the SAME filtered_query_lemmas/
+            # min_matched this literary search already computed above (for
+            # la/grc, line_search's literary lemma extraction takes the same
+            # plain-lemmatizer path _line_search_documents_only uses on its
+            # own, so this is the identical query, not a re-derived one).
+            # 'total'/'distinct_loci' above stay LITERATURE-ONLY (unchanged
+            # meaning for every existing caller); the documents count is
+            # reported separately rather than folded in, so a connector or
+            # script already reading 'total' as "how many places in the
+            # corpus" is not silently handed a different number depending on
+            # a parameter it may not have sent.
+            if collection == 'both' and documents_active:
+                # min_matched is only ever assigned inside the FAST (index)
+                # path above; the SLOW (exact/regex, or no-index) path never
+                # sets it, so it is recomputed here with the same formula
+                # rather than assumed to exist.
+                _docs_min_matched = (max(1, min(2, len(filtered_query_lemmas)))
+                                      if search_type == 'lemma' else 1)
+                doc_results, doc_by_source_region, doc_stats = _search_documents_collection(
+                    language, search_type, query, filtered_query_lemmas, _docs_min_matched,
+                    max_results, date_from, date_to, doc_region_filter,
+                    doc_text_type_filter, doc_material_filter, doc_source_filter,
+                    exclude_restored=doc_exclude_restored, hide_formulas=doc_hide_formulas)
+                payload['collection'] = 'both'
+                payload['documents_total'] = len(doc_results)
+                if doc_by_source_region:
+                    payload['documents_by_source_region'] = doc_by_source_region
+                    payload['documents_lines_all'] = sum(w['count'] for w in doc_by_source_region)
+                if doc_exclude_restored:
+                    payload['restored_excluded_count'] = doc_stats['restored_excluded_count']
+                if doc_hide_formulas is not None:
+                    payload['formulas_hidden_count'] = doc_stats['formulas_hidden_count']
+                if doc_stats['formula_summary']:
+                    payload['formula_summary'] = doc_stats['formula_summary']
+                if not count_only:
+                    results = results + doc_results
+
             if not count_only:
                 payload['results'] = results
             return jsonify(payload)

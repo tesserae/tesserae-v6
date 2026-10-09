@@ -4,23 +4,26 @@ import { Header, Navigation } from './components/layout';
 import { SearchModeToggle, TextSelector, SearchSettings, SearchResults, LineSearch, CrossLingualSearch, WildcardSearch, SavedSearches, CorpusSearchResults, RarePairsSettings } from './components/search';
 import RareResultsDisplay from './components/search/RareResultsDisplay';
 import SearchDescription from './components/search/SearchDescription';
-import { Modal, LoadingSpinner, UpdateBanner } from './components/common';
+import { Modal, LoadingSpinner, UpdateBanner, RequestDialog } from './components/common';
 import { CorpusBrowser, RareWordsExplorer } from './components/corpus';
 import { ReaderPage } from './components/reader';
+import DocumentView from './components/documents/DocumentView';
 import ThemeSearchPage from './components/passages/ThemeSearchPage';
 import { Repository } from './components/repository';
 import { AdminPanel } from './components/admin';
-import { AboutPage, HelpPage, DownloadsPage, PrivacyPage, ResearchPage, BlogArchivePage } from './components/pages';
+import { AboutPage, HelpPage, DownloadsPage, PrivacyPage, ResearchPage, BlogArchivePage, RequestsPage } from './components/pages';
 import TextCredits from './components/about/TextCredits';
 import { AssistantDock } from './components/assistant';
 import VisualizationsPage from './components/pages/VisualizationsPage';
 import { useCorpus, useSearch, DEFAULT_PAGE_SIZE } from './hooks';
 import { getSessionValue, setSessionValue } from './utils/storage';
+import { startLanguage } from './utils/languagePreference';
 
 // What each page is called in the browser tab, the bookmark and the history.
 const PAGE_TITLES = {
   search: 'Search',
   read: 'Reader',
+  document: 'Document',
   'theme-search': 'Theme Search',
   browse: 'Browse Corpus',
   repository: 'Repository',
@@ -33,12 +36,14 @@ const PAGE_TITLES = {
   privacy: 'Privacy',
   research: 'Research',
   'blog-archive': 'Blog Archive',
+  requests: 'Requests',
   admin: 'Admin',
 };
 
 const pathToPageType = {
   '/': 'search',
   '/read': 'read',
+  '/document': 'document',
   '/theme-search': 'theme-search',
   '/browse': 'browse',
   // Alias: Help and Theme Search link to "/corpus" for the covered-works
@@ -57,12 +62,14 @@ const pathToPageType = {
   '/research': 'research',
   '/blog-archive': 'blog-archive',
   '/text-credits': 'text-credits',
+  '/requests': 'requests',
   '/admin': 'admin'
 };
 
 const pageTypeToPath = {
   'search': '/',
   'read': '/read',
+  'document': '/document',
   'theme-search': '/theme-search',
   'browse': '/browse',
   'repository': '/repository',
@@ -75,6 +82,7 @@ const pageTypeToPath = {
   'privacy': '/privacy',
   'research': '/research',
   'text-credits': '/text-credits',
+  'requests': '/requests',
   'admin': '/admin'
 };
 
@@ -106,6 +114,12 @@ const buildShareableUrl = (sourceText, targetText, sourceAuthor, targetAuthor, l
 
 function App() {
   const [user, setUser] = useState(null);
+  const [footerSuggestOpen, setFooterSuggestOpen] = useState(false);
+  useEffect(() => {
+    const open = () => setFooterSuggestOpen(true);
+    window.addEventListener('tesserae:open-suggest', open);
+    return () => window.removeEventListener('tesserae:open-suggest', open);
+  }, []);
   const [adminSessionActive, setAdminSessionActive] = useState(false);
   const [adminSessionChecked, setAdminSessionChecked] = useState(false);
   const [pageType, setPageType] = useState(() => {
@@ -114,6 +128,12 @@ function App() {
   });
   // When set, HelpPage opens to this section (used by the "use your own AI" flag).
   const [helpSection, setHelpSection] = useState(null);
+  // When set alongside helpSection, HelpPage scrolls to this id within it (a
+  // result card's InfoBadge "More" link, result card tidy, 2026-10-08).
+  const [helpAnchor, setHelpAnchor] = useState(null);
+  // When set, AboutPage scrolls to this id (the Cite popup's "How to cite
+  // Tesserae" link, crosslingual parity, 2026-10-08).
+  const [aboutAnchor, setAboutAnchor] = useState(null);
   // Confirms a copied search link on the button itself, for 2.5 seconds.
   const [shareCopied, setShareCopied] = useState(false);
   const [activeTab, setActiveTab] = useState(() => {
@@ -127,7 +147,9 @@ function App() {
     if (sessionLang && known.includes(sessionLang)) {
       return sessionLang;
     }
-    return 'la';
+    // A new visit opens in the reader's chosen start language, or the one they
+    // used last (utils/languagePreference.js, kept in this browser only).
+    return startLanguage(known) || 'la';
   });
   // The languages this server actually serves (2026-09-06). A preview that
   // holds only some languages reports them, and a tab for a language it
@@ -197,8 +219,9 @@ function App() {
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
   
   // Page size is shared by every result renderer so the choice survives a new
-  // search and a switch between parallel and rare-word results. Purely local:
-  // it is never sent to the backend and never persisted to browser storage.
+  // search and a switch between parallel and rare-word results. A parallel
+  // search sends it as page_size, so the server keeps the full result list and
+  // returns one page (backend/result_pages.py). Never persisted to storage.
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   // Bumped once per search invocation. Renderers use it to return to page 1,
   // which array length alone cannot detect when two searches return the same count.
@@ -221,6 +244,7 @@ function App() {
   const { corpus, authors, hierarchy, loading: corpusLoading, error: corpusError, retry: retryCorpus, getTextsForAuthor } = useCorpus(activeTab);
   const {
     results,
+    resultSet,
     loading: searchLoading,
     error: searchError,
     searchStats,
@@ -384,6 +408,35 @@ function App() {
     setPageTypeWithGuard('help');
     window.history.pushState({}, '', '/help');
   }, [setPageTypeWithGuard]);
+
+  // Open the Help page at a given section, optionally scrolled to one of
+  // its id anchors (a result card's InfoBadge "More" link, result card
+  // tidy, 2026-10-08).
+  const openHelpSection = useCallback((section, anchor = null) => {
+    setHelpSection(section);
+    setHelpAnchor(anchor);
+    setPageTypeWithGuard('help');
+    window.history.pushState({}, '', '/help');
+  }, [setPageTypeWithGuard]);
+
+  // Open the About page scrolled to one of its id anchors (the Cite popup's
+  // "How to cite Tesserae" link and the matching Help sentence, crosslingual
+  // parity, 2026-10-08).
+  const openAboutAnchor = useCallback((anchor) => {
+    setAboutAnchor(anchor);
+    setPageTypeWithGuard('about');
+    window.history.pushState({}, '', '/about');
+  }, [setPageTypeWithGuard]);
+
+  // CiteButton and the Help page dispatch this rather than taking a
+  // navigation prop, since both are mounted far from this component and a
+  // custom event is the existing pattern here for that (see
+  // 'open-public-auth-modal').
+  useEffect(() => {
+    const handleOpenHowToCite = () => openAboutAnchor('how-to-cite');
+    window.addEventListener('tesserae:open-how-to-cite', handleOpenHowToCite);
+    return () => window.removeEventListener('tesserae:open-how-to-cite', handleOpenHowToCite);
+  }, [openAboutAnchor]);
 
   const appLockedToAdmin = adminSessionChecked && adminSessionActive;
 
@@ -572,13 +625,13 @@ function App() {
     }
 
     if (searchMode === 'parallel') {
-      await search(params);
+      await search({ ...params, page_size: pageSize });
     } else if (searchMode === 'hapax') {
       await searchRareWords(params);
     } else if (searchMode === 'bigram') {
       await searchWordPairs(params);
     }
-  }, [sourceText, targetText, activeTab, corpus, corpusLoading, settings, searchMode, search, searchRareWords, searchWordPairs]);
+  }, [sourceText, targetText, activeTab, corpus, corpusLoading, settings, searchMode, search, searchRareWords, searchWordPairs, pageSize]);
 
   // Deep link: /?source=<id>&target=<id>&lang=<lang> — once the corpus for the
   // URL's language has loaded, fill both pickers (resolving each text's author,
@@ -626,16 +679,16 @@ function App() {
       delete params.disabled_channels;
     }
     if (searchMode === 'parallel') {
-      await search(params);
+      await search({ ...params, page_size: pageSize });
     }
-  }, [sourceText, targetText, activeTab, settings, searchMode, search]);
+  }, [sourceText, targetText, activeTab, settings, searchMode, search, pageSize]);
 
   const handleRegister = useCallback((result) => {
     if (!user) {
       window.dispatchEvent(new CustomEvent('open-public-auth-modal', {
         detail: {
           mode: 'login',
-          message: 'Need to sign in to add to repository',
+          message: 'Sign in',
         }
       }));
       return;
@@ -649,13 +702,19 @@ function App() {
   const handleCorpusSearch = useCallback(async (result) => {
     let lemmas;
     let queryInfo;
-    
+    // A cross-language card passes its own language explicitly (the source
+    // and target sides of a cross-language pair are two different
+    // languages, so there is no single activeTab to fall back to there);
+    // every other caller still searches the one language on screen.
+    const searchLanguage = (result && typeof result === 'object' && result.language) || activeTab;
+
     if (typeof result === 'string') {
       lemmas = result.split(/\s*\+\s*|\s+/).filter(Boolean);
       queryInfo = {
         source: { ref: 'Rare Word/Pair Search', text: result },
         target: { ref: '', text: '' },
-        lemmas
+        lemmas,
+        language: searchLanguage
       };
     } else {
       // Prefer the clean matched_lemmas list (real content words, markup and
@@ -674,34 +733,35 @@ function App() {
                   citation: result.source?.citation },
         target: { ref: result.target_locus || result.target?.ref, text: result.target_text || result.target?.text,
                   citation: result.target?.citation },
-        lemmas
+        lemmas,
+        language: searchLanguage
       };
     }
-    
+
     if (lemmas.length < 1) {
       alert('At least 1 word is required for corpus search');
       return;
     }
-    
+
     setCorpusSearchQuery(queryInfo);
     setCorpusSearchResults(null);
     setCorpusSearchError(null);
     setCorpusSearchLoading(true);
     setShowCorpusSearch(true);
     setCorpusSearchElapsed(0);
-    
+
     const startTime = Date.now();
     const timerInterval = setInterval(() => {
       setCorpusSearchElapsed(Math.floor((Date.now() - startTime) / 1000));
     }, 1000);
-    
+
     try {
       const res = await fetch('/api/corpus-search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           lemmas,
-          language: activeTab,
+          language: searchLanguage,
           // The two texts being compared used to be left out, so the corpus
           // map and its timeline never showed the very authors in question
           // (2026-09-07: Mir and Iqbal were missing). They are included and
@@ -736,10 +796,24 @@ function App() {
       const targetText = registerPending.target_text || registerPending.target_snippet || registerPending.target?.text || '';
       const sourceTextId = registerPending.source_text_id || registerPending.source?.text_id || sourceText?.split(' ')[0] || 'unknown';
       const targetTextId = registerPending.target_text_id || registerPending.target?.text_id || targetText?.split(' ')[0] || 'unknown';
-      
-      const matchedLemmas = (registerPending.matched_words || []).map(w => 
-        typeof w === 'object' ? (w.lemma || w.word || '') : w
-      ).filter(Boolean);
+      // A cross-language card carries its own two languages (they differ by
+      // definition); every other card shares the one language on screen.
+      // source_language/target_language are independent columns already
+      // (backend/models.py Intertext and SavedIntertext), so this needs no
+      // schema change.
+      const sourceLanguage = registerPending.source_language || registerPending.source?.language || activeTab;
+      const targetLanguage = registerPending.target_language || registerPending.target?.language || activeTab;
+
+      const matchedLemmas = (registerPending.matched_words || []).map(w => {
+        if (typeof w !== 'object') return w;
+        return w.lemma || w.word || w.source_lemma || w.target_lemma || w.display || '';
+      }).filter(Boolean);
+      // The channels a cross-language card found the parallel through (e.g.
+      // "semantic (85%), dictionary (3 words)"), carried into the existing
+      // free-text tags field so a registered cross-language parallel keeps
+      // that evidence on record (spec: owner's review, 2026-10-08).
+      const channelTags = (registerPending.channels || '')
+        .split(',').map(s => s.trim()).filter(Boolean);
 
       const res = await fetch('/api/intertexts/my', {
         method: 'POST',
@@ -751,7 +825,7 @@ function App() {
             work: registerPending.source_work || registerPending.source?.work || '',
             reference: sourceLocus,
             snippet: sourceText,
-            language: activeTab
+            language: sourceLanguage
           },
           target: {
             text_id: targetTextId,
@@ -759,9 +833,10 @@ function App() {
             work: registerPending.target_work || registerPending.target?.work || '',
             reference: targetLocus,
             snippet: targetText,
-            language: activeTab
+            language: targetLanguage
           },
           matched_lemmas: matchedLemmas,
+          tags: channelTags,
           tesserae_score: registerPending.score || registerPending.overall_score || 0,
           intertext_score: registerScore,
           notes: registerNotes.trim().slice(0, 500),
@@ -801,7 +876,7 @@ function App() {
           return;
         }
         setPageTypeWithGuard('search');
-        setActiveTab('la');
+        setActiveTab(startLanguage(['la', 'grc', 'en', 'cop', 'he', 'fa', 'ur', 'ar', 'cross']) || 'la');
         setSourceAuthor('');
         setSourceText('');
         setTargetAuthor('');
@@ -999,6 +1074,7 @@ function App() {
                 ) : (
                   <SearchResults
                     results={sortedResults}
+                    resultSet={resultSet}
                     loading={searchLoading}
                     error={searchError}
                     pageSize={pageSize}
@@ -1006,6 +1082,7 @@ function App() {
                     searchRunId={searchRunId}
                     onRegister={handleRegister}
                     onCorpusSearch={handleCorpusSearch}
+                    onOpenHelp={openHelpSection}
                     onRerunFresh={handleRerunFresh}
                     sortBy={sortBy}
                     setSortBy={setSortBy}
@@ -1032,23 +1109,45 @@ function App() {
                 query={corpusSearchQuery}
                 elapsedTime={corpusSearchElapsed}
                 onBack={() => setShowCorpusSearch(false)}
-                language={activeTab}
+                language={corpusSearchQuery?.language || activeTab}
               />
             )}
           </div>
         )}
 
+        {/* This tab's own showCorpusSearch branch, separate from the one
+            inside the `activeTab !== 'cross'` block above: the two
+            conditions are mutually exclusive on activeTab, so exactly one
+            of the two CorpusSearchResults renders ever mounts, never both
+            (crosslingual parity, 2026-10-08). */}
         {pageType === 'search' && activeTab === 'cross' && (
-          <div className="space-y-3">
-            <SearchDescription mode="cross" className="px-1" />
-            <CrossLingualSearch />
-          </div>
+          showCorpusSearch ? (
+            <CorpusSearchResults
+              results={corpusSearchResults}
+              loading={corpusSearchLoading}
+              error={corpusSearchError}
+              query={corpusSearchQuery}
+              elapsedTime={corpusSearchElapsed}
+              onBack={() => setShowCorpusSearch(false)}
+              language={corpusSearchQuery?.language || activeTab}
+            />
+          ) : (
+            <CrossLingualSearch
+              onOpenHelp={openHelpSection}
+              onRegister={handleRegister}
+              onCorpusSearch={handleCorpusSearch}
+            />
+          )
         )}
 
         {pageType === 'theme-search' && <ThemeSearchPage />}
 
         {pageType === 'read' && (
           <ReaderPage />
+        )}
+
+        {pageType === 'document' && (
+          <DocumentView />
         )}
 
         {pageType === 'browse' && (
@@ -1096,7 +1195,11 @@ function App() {
         )}
 
         {pageType === 'about' && (
-          <AboutPage onNavigate={setPageTypeWithGuard} />
+          <AboutPage
+            onNavigate={setPageTypeWithGuard}
+            initialAnchor={aboutAnchor}
+            onAnchorConsumed={() => setAboutAnchor(null)}
+          />
         )}
 
         {pageType === 'text-credits' && (
@@ -1104,7 +1207,11 @@ function App() {
         )}
 
         {pageType === 'help' && (
-          <HelpPage initialSection={helpSection} onSectionConsumed={() => setHelpSection(null)} />
+          <HelpPage
+            initialSection={helpSection}
+            initialAnchor={helpAnchor}
+            onSectionConsumed={() => { setHelpSection(null); setHelpAnchor(null); }}
+          />
         )}
 
         {pageType === 'downloads' && (
@@ -1121,6 +1228,10 @@ function App() {
 
         {pageType === 'blog-archive' && (
           <BlogArchivePage setPageType={setPageTypeWithGuard} />
+        )}
+
+        {pageType === 'requests' && (
+          <RequestsPage />
         )}
 
         {pageType === 'admin' && (
@@ -1264,8 +1375,35 @@ function App() {
       <footer className="bg-gray-100 border-t mt-8 py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center text-sm text-gray-500">
           <p>Tesserae V6</p>
+          {/* Requests workflow (2026-10-08): the one site-wide entry point to
+              the suggestion dialog, plus a link to the public Requests page
+              it feeds. Deliberately not in the main navigation. */}
+          <p className="mt-1 text-xs">
+            <button
+              type="button"
+              onClick={() => setFooterSuggestOpen(true)}
+              className="text-gray-500 hover:text-red-700 hover:underline"
+            >
+              Suggest a change
+            </button>
+            {' · '}
+            <button
+              type="button"
+              onClick={() => setPageTypeWithGuard('requests')}
+              className="text-gray-500 hover:text-red-700 hover:underline"
+            >
+              Requests
+            </button>
+          </p>
         </div>
       </footer>
+
+      <RequestDialog
+        isOpen={footerSuggestOpen}
+        onClose={() => setFooterSuggestOpen(false)}
+        type="suggestion"
+        context={{ page_url: typeof window !== 'undefined' ? window.location.href : '' }}
+      />
 
       <AssistantDock />
     </div>

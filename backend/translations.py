@@ -16,6 +16,7 @@ import json
 import os
 import threading
 
+from backend import translation_links
 from backend.logging_config import get_logger
 from backend.work_names import base_work, work_id
 
@@ -109,13 +110,18 @@ def for_passage(work, refs):
 
     Returns a dict with the translation text (deduplicated, since consecutive
     source lines often share one unit), the translator and licence, and an
-    honest note when the alignment is coarse.
+    honest note when the alignment is coarse. `external_links` is additive:
+    a translator's own page for the selection (currently Frances W.
+    Pritchett's Ghalib commentary, see backend/translation_links.py), present
+    whether or not an aligned translation is also available for this work.
     """
+    external_links = translation_links.for_refs(work, refs)
     data = _load(work)
     if not data:
         return {'available': False,
                 'reason': 'No aligned open translation for this work.',
-                'work': _norm_work(work)}
+                'work': _norm_work(work),
+                'external_links': external_links}
 
     ref_to_unit = data.get('ref_to_unit') or {}
     units = data.get('units') or []
@@ -133,7 +139,8 @@ def for_passage(work, refs):
     if not seen:
         return {'available': False,
                 'reason': 'This work has a translation, but not for the selected lines.',
-                'work': _norm_work(work)}
+                'work': _norm_work(work),
+                'external_links': external_links}
 
     sources_list = data.get('sources') or [{}]
     unit_sources = data.get('unit_sources')
@@ -204,6 +211,7 @@ def for_passage(work, refs):
         'block_only': bool(block),
         'block_lines': round(per_unit) if coarse else None,
         'note': note,
+        'external_links': external_links,
     }
 
 

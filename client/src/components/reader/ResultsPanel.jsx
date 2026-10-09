@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useCorpusTextMap, citationFromCorpusMap } from '../../utils/textNames';
 import { chronological, dateParts } from '../../utils/chronology';
 import { LoadingSpinner } from '../common';
 import { ResultsInsight } from '../assistant';
 import { displayRef } from './refId';
 import { LANGUAGE_NAMES as LANG_LABEL } from '../../utils/languageNames';
+import { getSessionValue, setSessionValue } from '../../utils/storage';
+import ScholarshipTab from './ScholarshipTab';
 
 /** Parse a response as JSON, failing with a message a reader can act on.
  *  While the server reloads, Apache answers API calls with an HTML error
@@ -63,7 +66,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   useEffect(() => { setFullTranslation(null); }, [work]);
 
   // REUSE: other works whose lines verbatim-repeat the selection, from the
-  // corpus-wide reuse table (backend/reuse_table.py). Latin only for now --
+  // corpus-wide reuse table (backend/reuse_table.py). built per language --
   // a language with no table answers 404, which reads here as `available:
   // false` rather than an error, since "not built for this language" is a
   // normal state, not a failure.
@@ -78,6 +81,16 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   // selection, so it never carries over from a line that had it open.
   const [possibleOpen, setPossibleOpen] = useState(false);
   useEffect(() => { setPossibleOpen(false); }, [selection]);
+
+  // SCHOLARSHIP: a trial tab (commentators, articles and books on the
+  // selection), not yet shown to every reader. ?scholarship=1 switches it on
+  // and remembers that for the rest of the visit in sessionStorage, the same
+  // way the names grouping was trialled behind ?names=1 first.
+  const [scholarshipFlag] = useState(() => {
+    const fromUrl = new URLSearchParams(window.location.search).get('scholarship') === '1';
+    if (fromUrl) setSessionValue('scholarship_tab', '1');
+    return fromUrl || getSessionValue('scholarship_tab', '0') === '1';
+  });
   useEffect(() => {
     if (!selection || tab !== 'reuse') return;
     const picked = (units || []).slice(selection.startIdx, selection.endIdx + 1);
@@ -114,6 +127,36 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   const [simLimit, setSimLimit] = useState(15);
   useEffect(() => { setSimLimit(15); }, [selection]);
 
+  // "Same people and places" (research/specs/2026-10-07_names_panel_spec.md):
+  // a second grouping, by shared rare proper names rather than content alone,
+  // on by default since 2026-10-07 (trialled behind ?names=1 first); ?names=0
+  // turns it off for comparison. Read once per page.
+  const [namesFlag] = useState(
+    () => new URLSearchParams(window.location.search).get('names') !== '0',
+  );
+  // Both groups default open; "Same people and places" starts collapsed
+  // when the server flags it weak (a thin or single famous name gives a
+  // crowded, low-value group). Reset for every new selection, then corrected
+  // once the fetch itself reports weak -- see the effect below.
+  const [namesOpen, setNamesOpen] = useState(true);
+  const [sceneOpen, setSceneOpen] = useState(true);
+  // Which "In other languages" section is open (one at a time, closed by default).
+  const [langOpen, setLangOpen] = useState(null);
+  const [commentaryOpen, setCommentaryOpen] = useState(false);
+  const namesDefaultSet = useRef(false);
+  useEffect(() => {
+    setSceneOpen(true);
+    setCommentaryOpen(false);
+    setNamesOpen(true);
+    namesDefaultSet.current = false;
+  }, [selection]);
+  useEffect(() => {
+    if (similar?.same_names && !namesDefaultSet.current) {
+      namesDefaultSet.current = true;
+      setNamesOpen(!similar.same_names.weak);
+    }
+  }, [similar]);
+
   useEffect(() => {
     if (!selection || tab !== 'similar') return;
     let cancelled = false;
@@ -125,6 +168,9 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
       ref_end: selection.refEnd || selection.refStart || '',
       limit: String(simLimit),
     });
+    if (namesFlag) params.set('same_names', '1');
+    // Per-language sections under the main list (2026-10-07).
+    params.set('by_language', '1');
     fetch(`/api/passages/similar?${params}`)
       .then(asJson)
       .then((d) => {
@@ -135,7 +181,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
       .catch((e) => { if (!cancelled) setError(e.message); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [selection, work, tab, simLimit]);
+  }, [selection, work, tab, simLimit, namesFlag]);
 
   /* VERBAL PARALLELS: the selection's own wording, searched across the corpus.
    *
@@ -232,6 +278,9 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
     ['translation', focus === 'english' ? 'Original' : 'Translation',
      focus === 'english' ? 'The original text' : 'Translation'],
     ['reuse', 'Reuse', 'Reuse'],
+    ...(scholarshipFlag
+      ? [['scholarship', 'Scholarship', 'Commentators, articles and books on the selection']]
+      : []),
   ];
 
   return (
@@ -335,119 +384,94 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
           <>
             {loading && <LoadingSpinner />}
             {error && <p className="text-sm text-red-700">{error}</p>}
-            {!loading && similar?.results?.length === 0 && (
+            {!loading && similar?.results?.length === 0
+              && !(namesFlag && (similar?.same_names?.results?.length > 0
+                                 || similar?.same_names?.commentaries?.length > 0)) && (
               <p className="text-sm text-gray-500">
                 No passage in the corpus resembles this selection closely.
               </p>
+            )}
+            {/* "Same people and places" (research/specs/2026-10-07_names_panel_spec.md):
+                a second grouping by shared rare proper names, behind ?names=1.
+                Ranked by the server's own score (content similarity plus a
+                shared-name-rarity bonus), so this list is NOT re-sorted
+                chronologically the way the content-only group below is --
+                the ranking itself is what the group is for. */}
+            {!loading && namesFlag && similar?.same_names && (
+              <div className="mb-3">
+                <button
+                  onClick={() => setNamesOpen((o) => !o)}
+                  className="w-full flex items-center justify-between text-xs font-semibold
+                             text-gray-700 border border-gray-200 rounded-lg px-2.5 py-1.5
+                             hover:bg-gray-100"
+                  aria-expanded={namesOpen}
+                >
+                  <span>Same people and places &middot; {similar.same_names.results.length}</span>
+                  <span aria-hidden="true">{namesOpen ? '−' : '+'}</span>
+                </button>
+                {similar.same_names.weak && (
+                  <p className="text-[11px] text-gray-500 mt-1 leading-snug">
+                    Few distinctive names in this passage
+                  </p>
+                )}
+                {namesOpen && (
+                  <div className="mt-2 space-y-2">
+                    {similar.same_names.results.length === 0 && (
+                      <p className="text-sm text-gray-500">
+                        No other work shares a distinctive name with this passage.
+                      </p>
+                    )}
+                    {similar.same_names.results.map((r) => (
+                      <SimilarResultCard key={r.id} r={r} onOpenPassage={onOpenPassage} />
+                    ))}
+                    {similar.same_names.commentaries.length > 0 && (
+                      <div>
+                        <button
+                          onClick={() => setCommentaryOpen((o) => !o)}
+                          className="w-full flex items-center justify-between text-[11px]
+                                     text-gray-500 border border-gray-100 rounded px-2 py-1
+                                     hover:bg-gray-50"
+                          aria-expanded={commentaryOpen}
+                        >
+                          <span>Commentaries: {commentarySummary(similar.same_names.commentaries)}</span>
+                          <span aria-hidden="true">{commentaryOpen ? '−' : '+'}</span>
+                        </button>
+                        {commentaryOpen && (
+                          <div className="mt-2 space-y-2">
+                            {similar.same_names.commentaries.map((r) => (
+                              <SimilarResultCard key={r.id} r={r} onOpenPassage={onOpenPassage} />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+            {!loading && namesFlag && similar?.same_names && (
+              <button
+                onClick={() => setSceneOpen((o) => !o)}
+                className="w-full flex items-center justify-between text-xs font-semibold
+                           text-gray-700 border border-gray-200 rounded-lg px-2.5 py-1.5
+                           hover:bg-gray-100 mb-2"
+                aria-expanded={sceneOpen}
+              >
+                <span>Same kind of scene &middot; {similar.results?.length ?? 0}</span>
+                <span aria-hidden="true">{sceneOpen ? '−' : '+'}</span>
+              </button>
             )}
             {/* OLDEST FIRST, like Theme Search. These results cross centuries
                 and the order they are read in is itself information: the
                 Aeneid, then Ovid reworking it, then Silius after him. Ranking
                 by score put Statius (96 CE) above Ovid (17 CE) and told the
                 reader nothing about the line of descent. */}
-            {!loading && chronological(similar?.results)?.map((r) => (
-              <button
-                key={r.id}
-                onClick={() => onOpenPassage?.(r)}
-                className="group w-full text-left bg-white border border-gray-200 rounded-lg p-3
-                           hover:border-red-400 hover:bg-red-50/40 transition-colors
-                           focus:outline-none focus:ring-2 focus:ring-red-400"
-              >
-                <div className="flex items-baseline gap-2 flex-wrap">
-                  <span className="text-[10px] font-bold uppercase tracking-wide bg-gray-100 text-gray-600 rounded px-1">
-                    {LANG_LABEL[r.language] || r.language}
-                  </span>
-                  {/* The title carries the link colour and underlines on hover,
-                      because nothing else said these cards open anything. A
-                      hover border on a div is not an affordance.
-
-                      Real name, not the file slug: the scene index sends
-                      author/title/display_name from get_text_metadata, the
-                      same source Browse Corpus and Theme Search use, so
-                      "quintus_smyrnaeus.fall_of_troy" reads as "Quintus
-                      Smyrnaeus, Fall of Troy". prettyWork is only a fallback
-                      for an older cached response that predates those
-                      fields. */}
-                  <span className="font-bold text-sm text-red-800 group-hover:underline">
-                    {r.display_name || prettyWork(r.work)}
-                  </span>
-                  <span className="text-xs text-gray-500">{shortRef(r.ref_start)}</span>
-                  {dateParts(r) && (
-                    <span className="text-[11px] text-gray-500 tabular-nums whitespace-nowrap">
-                      {dateParts(r).date}
-                    </span>
-                  )}
-                  {r.strong && (
-                    <span className="ml-auto text-[11px] font-semibold text-green-700">strong</span>
-                  )}
-                </div>
-                {r.gist && (
-                  <p className="text-xs text-gray-600 mt-1 leading-snug">
-                    {r.gist}
-                    {/* The summary named someone the passage does not. Often that
-                        is sound inference (Vergil writes virgo where the summary
-                        says Sibyl), sometimes it is the wrong person, and a
-                        served result cannot tell those apart. So it is marked
-                        rather than asserted or hidden. */}
-                    {/* Name WHICH one. The old marker only appeared when NO
-                        name could be found, so the case it exists for slipped
-                        past: Valerius Flaccus 1.1-30 is summarised as "Apollo,
-                        Cumaean Sibyl, Aeneas", Apollo and the Sibyl are both in
-                        the text, Aeneas is not, and the record passed on
-                        Apollo's strength with nothing shown to the reader. */}
-                    {!!(r.names_unverified || []).length && (
-                      <span
-                        className="ml-1 text-[10px] text-amber-700"
-                        title="This name was not found in the passage. The summary may be naming someone the text refers to indirectly, or may have the wrong person. Check the text."
-                      >
-                        (not found here: {r.names_unverified.join(', ')})
-                      </span>
-                    )}
-                    {r.names_in_text === false && !(r.names_unverified || []).length && (
-                      <span
-                        className="ml-1 text-[10px] text-amber-700 whitespace-nowrap"
-                        title="This summary names people the passage itself does not name. It may be correct inference from context, or a misidentification. Check the text."
-                      >
-                        (names unconfirmed)
-                      </span>
-                    )}
-                  </p>
-                )}
-                {/* One scriptural passage the corpus holds in several versions,
-                    collapsed into a single result. Naming the other versions is
-                    useful; giving each one its own row is not. */}
-                {r.also_in?.length > 0 && (
-                  <p className="text-[11px] text-gray-500 mt-1 leading-snug">
-                    Also in{' '}
-                    {r.also_in
-                      .map((a) => LANG_LABEL[a.language] || a.language)
-                      .filter((v, i, arr) => arr.indexOf(v) === i)
-                      .join(', ')}
-                  </p>
-                )}
-                {r.themes?.length > 0 && (
-                  <div className="flex gap-1 flex-wrap mt-1">
-                    {r.themes.slice(0, 4).map((t) => (
-                      <span key={t} className="text-[10px] bg-gray-100 text-gray-600 rounded px-1">{t}</span>
-                    ))}
-                  </div>
-                )}
-                {/* Licensed for indexing and search only (data/restricted_texts.json). */}
-                {r.restricted && (
-                  <p className="text-[10px] text-gray-400 mt-1">{r.credit}</p>
-                )}
-                {/* SAID OUTRIGHT: nothing indicated that titles were
-                    clickable. The whole card has always been a button, which
-                    is invisible; Theme Search says this in words on every
-                    result and the Reader should not be quieter about the same
-                    action. */}
-                <span className="mt-2 inline-block text-[11px] font-medium text-red-700
-                                 group-hover:underline">
-                  Open in Reader &rarr;
-                </span>
-              </button>
+            {!loading && (!namesFlag || !similar?.same_names || sceneOpen)
+              && chronological(similar?.results)?.map((r) => (
+                <SimilarResultCard key={r.id} r={r} onOpenPassage={onOpenPassage} />
             ))}
-            {!loading && similar?.results?.length >= simLimit && simLimit < 60 && (
+            {!loading && similar?.results?.length >= simLimit && simLimit < 60
+              && (!namesFlag || !similar?.same_names || sceneOpen) && (
               /* More exist below the cut: the index ranks every window, and 15
                  is only the first page. Capped at 60, where content similarity
                  has tailed into noise. */
@@ -458,6 +482,34 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
               >
                 Show more matches
               </button>
+            )}
+            {!loading && similar?.by_language && Object.keys(similar.by_language).length > 0
+              && (!namesFlag || !similar?.same_names || sceneOpen) && (
+              /* IN OTHER LANGUAGES (2026-10-07). The main list ranks every
+                 language together, so the largest corpora fill it: an Urdu
+                 passage got 28 Persian matches and 2 Urdu ones. Each language
+                 with few results above gets a button here, ordered by its best
+                 match, opening that language's five best. The same for every
+                 language, so Latin shows its Greek and English this way. */
+              <div className="pt-1">
+                <p className="text-[11px] font-semibold text-gray-600 mb-1">In other languages</p>
+                <div className="flex flex-wrap gap-1 mb-1">
+                  {Object.entries(similar.by_language)
+                    .sort((a, b) => (b[1][0]?.score || 0) - (a[1][0]?.score || 0))
+                    .map(([lang, rows]) => (
+                      <button key={lang} onClick={() => setLangOpen((o) => (o === lang ? null : lang))}
+                              aria-expanded={langOpen === lang}
+                              className={`text-[11px] px-2 py-0.5 rounded border ${langOpen === lang
+                                ? 'bg-red-700 text-white border-red-700'
+                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-100'}`}>
+                        {LANG_LABEL[lang] || lang} &middot; {rows.length}
+                      </button>
+                    ))}
+                </div>
+                {langOpen && (similar.by_language[langOpen] || []).map((r) => (
+                  <SimilarResultCard key={r.id} r={r} onOpenPassage={onOpenPassage} />
+                ))}
+              </div>
             )}
             <p className="text-[11px] text-gray-500 pt-1 leading-snug">
               These passages match in content, not wording, so a match in another language
@@ -606,7 +658,8 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
         {selection && tab === 'translation' && focus !== 'english' && (
           <>
             {loading && <LoadingSpinner />}
-            {!loading && translation?.available === false && (
+            {!loading && translation?.available === false
+              && (translation.external_links || []).length === 0 && (
               <p className="text-sm text-gray-500">
                 {['fa', 'ur', 'ar'].includes(language)
                   ? `No English translation is aligned to any ${{ fa: 'Persian', ur: 'Urdu', ar: 'Arabic' }[language]} work yet. Aligned open translations (public-domain and non-commercial-licensed) currently cover over half of the Greek corpus and nearly half of the Latin.`
@@ -636,6 +689,26 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                 </p>
               </div>
             )}
+            {/* External links stand in where the translator's own licence does
+                not let Tesserae copy the English (e.g. Frances W. Pritchett's
+                Ghalib commentary): below the text when there is one, or on
+                their own when there is none. */}
+            {!loading && (translation?.external_links || []).length > 0 && (
+              <div className={translation.available
+                ? 'mt-2 space-y-1'
+                : 'bg-white border border-gray-200 rounded-lg p-3 space-y-1'}>
+                {translation.external_links.map((link) => (
+                  <p key={link.url} className="text-[11px] text-gray-600 leading-snug">
+                    <a href={link.url} target="_blank" rel="noopener noreferrer"
+                       className="text-red-700 underline">
+                      {link.translator || 'The translator'}&rsquo;s translation and
+                      commentary for this verse
+                    </a>
+                    {link.site_title ? `, in ${link.site_title}` : ''}
+                  </p>
+                ))}
+              </div>
+            )}
           </>
         )}
 
@@ -643,7 +716,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
           <>
             <p className="text-[11px] text-gray-500 leading-snug">
               Lines sharing enough word-triples with this line to count as a quotation
-              or near-quotation, computed once over the corpus. Latin for now.
+              or near-quotation, computed once over the corpus.
             </p>
             {reuseLoading && <LoadingSpinner />}
             {reuseError && <p className="text-sm text-red-700">{reuseError}</p>}
@@ -694,21 +767,177 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
             })()}
           </>
         )}
+
+        {scholarshipFlag && selection && tab === 'scholarship' && (
+          <ScholarshipTab work={work} language={language} selection={selection} units={units} />
+        )}
+        {scholarshipFlag && !selection && tab === 'scholarship' && (
+          <p className="text-sm text-gray-500">Select a line or a span to see the scholarship on it.</p>
+        )}
       </div>
     </aside>
   );
+}
+
+/** One Similar Passages result card: content tab and, behind ?names=1, both
+ *  the "same people and places" and "same kind of scene" groups. A card
+ *  carrying `shared_names` (only the names group's cards do) gets the extra
+ *  line naming what it shares with the selection; everywhere else that field
+ *  is simply absent, so this is the same card the flag-off Reader has
+ *  always shown. */
+function SimilarResultCard({ r, onOpenPassage }) {
+  return (
+    <button
+      onClick={() => onOpenPassage?.(r)}
+      className="group w-full text-left bg-white border border-gray-200 rounded-lg p-3
+                 hover:border-red-400 hover:bg-red-50/40 transition-colors
+                 focus:outline-none focus:ring-2 focus:ring-red-400"
+    >
+      <div className="flex items-baseline gap-2 flex-wrap">
+        <span className="text-[10px] font-bold uppercase tracking-wide bg-gray-100 text-gray-600 rounded px-1">
+          {LANG_LABEL[r.language] || r.language}
+        </span>
+        {/* The title carries the link colour and underlines on hover,
+            because nothing else said these cards open anything. A
+            hover border on a div is not an affordance.
+
+            Real name, not the file slug: the scene index sends
+            author/title/display_name from get_text_metadata, the
+            same source Browse Corpus and Theme Search use, so
+            "quintus_smyrnaeus.fall_of_troy" reads as "Quintus
+            Smyrnaeus, Fall of Troy". prettyWork is only a fallback
+            for an older cached response that predates those
+            fields. */}
+        <span className="font-bold text-sm text-red-800 group-hover:underline">
+          {r.display_name || prettyWork(r.work)}
+        </span>
+        <span className="text-xs text-gray-500">{shortRef(r.ref_start)}</span>
+        {dateParts(r) && (
+          <span className="text-[11px] text-gray-500 tabular-nums whitespace-nowrap">
+            {dateParts(r).date}
+          </span>
+        )}
+        {r.strong && (
+          <span className="ml-auto text-[11px] font-semibold text-green-700">strong</span>
+        )}
+      </div>
+      {r.gist && (
+        <p className="text-xs text-gray-600 mt-1 leading-snug">
+          {r.gist}
+          {/* The summary named someone the passage does not. Often that
+              is sound inference (Vergil writes virgo where the summary
+              says Sibyl), sometimes it is the wrong person, and a
+              served result cannot tell those apart. So it is marked
+              rather than asserted or hidden. */}
+          {/* Name WHICH one. The old marker only appeared when NO
+              name could be found, so the case it exists for slipped
+              past: Valerius Flaccus 1.1-30 is summarised as "Apollo,
+              Cumaean Sibyl, Aeneas", Apollo and the Sibyl are both in
+              the text, Aeneas is not, and the record passed on
+              Apollo's strength with nothing shown to the reader. */}
+          {!!(r.names_unverified || []).length && (
+            <span
+              className="ml-1 text-[10px] text-amber-700"
+              title="This name was not found in the passage. The summary may be naming someone the text refers to indirectly, or may have the wrong person. Check the text."
+            >
+              (not found here: {r.names_unverified.join(', ')})
+            </span>
+          )}
+          {r.names_in_text === false && !(r.names_unverified || []).length && (
+            <span
+              className="ml-1 text-[10px] text-amber-700 whitespace-nowrap"
+              title="This summary names people the passage itself does not name. It may be correct inference from context, or a misidentification. Check the text."
+            >
+              (names unconfirmed)
+            </span>
+          )}
+        </p>
+      )}
+      {/* "Same people and places": the rare proper names this card shares
+          with the selection, shown in the selection's own spelling. Only
+          present on a names-group card (backend/passage_index.py,
+          same_names_for_window). */}
+      {r.shared_names?.length > 0 && (
+        <p className="text-[11px] text-gray-600 mt-1 leading-snug">
+          Shared names: {r.shared_names.join(', ')}
+        </p>
+      )}
+      {/* One scriptural passage the corpus holds in several versions,
+          collapsed into a single result. Naming the other versions is
+          useful; giving each one its own row is not. */}
+      {r.also_in?.length > 0 && (
+        <p className="text-[11px] text-gray-500 mt-1 leading-snug">
+          Also in{' '}
+          {r.also_in
+            .map((a) => LANG_LABEL[a.language] || a.language)
+            .filter((v, i, arr) => arr.indexOf(v) === i)
+            .join(', ')}
+        </p>
+      )}
+      {r.themes?.length > 0 && (
+        <div className="flex gap-1 flex-wrap mt-1">
+          {r.themes.slice(0, 4).map((t) => (
+            <span key={t} className="text-[10px] bg-gray-100 text-gray-600 rounded px-1">{t}</span>
+          ))}
+        </div>
+      )}
+      {/* Licensed for indexing and search only (data/restricted_texts.json). */}
+      {r.restricted && (
+        <p className="text-[10px] text-gray-400 mt-1">{r.credit}</p>
+      )}
+      {/* SAID OUTRIGHT: nothing indicated that titles were
+          clickable. The whole card has always been a button, which
+          is invisible; Theme Search says this in words on every
+          result and the Reader should not be quieter about the same
+          action. */}
+      <span className="mt-2 inline-block text-[11px] font-medium text-red-700
+                       group-hover:underline">
+        Open in Reader &rarr;
+      </span>
+    </button>
+  );
+}
+
+/** "Commentaries: Lactantius Placidus on Statius, 2 passages" -- one clause
+ *  per commentary work represented, so several commentators set aside at
+ *  once still read as a list rather than a bare count. */
+function commentarySummary(commentaries) {
+  const byWork = [];
+  const counts = {};
+  for (const r of commentaries) {
+    const key = r.work;
+    if (!counts[key]) {
+      counts[key] = { label: r.display_name || prettyWork(r.work), count: 0 };
+      byWork.push(key);
+    }
+    counts[key].count += 1;
+  }
+  return byWork
+    .map((key) => `${counts[key].label}, ${counts[key].count} passage${counts[key].count === 1 ? '' : 's'}`)
+    .join('; ');
 }
 
 /** The Reuse tab's per-work groups: the same card layout for either tier,
  *  factored out so tiering (strict shown directly, possible behind a
  *  collapsed section) does not duplicate the markup. */
 function ReuseGroups({ quotations, onOpenPassage }) {
+  // Work names and line references through the same resolver as the result
+  // cards, so "sauda.kulliyat_wikisource.6.6" reads "Sauda, Kulliyat 6.6".
+  const corpusMap = useCorpusTextMap(quotations[0]?.language);
+  const workName = (w) => {
+    const hit = citationFromCorpusMap(`${w}.0`, corpusMap);
+    return hit ? (hit.work ? `${hit.author}, ${hit.work}` : hit.author) : prettyWork(w);
+  };
+  const refName = (q) => {
+    const hit = citationFromCorpusMap(q.ref, corpusMap);
+    return hit && hit.reference ? hit.reference : q.ref;
+  };
   return (
     <div className="space-y-3">
       {groupReuseByWork(quotations).map(({ work: otherWork, year, items }) => (
         <div key={otherWork}>
           <div className="flex items-baseline gap-2 mb-1">
-            <span className="font-bold text-sm text-red-800">{prettyWork(otherWork)}</span>
+            <span className="font-bold text-sm text-red-800">{workName(otherWork)}</span>
             {year != null && (
               <span className="text-[11px] text-gray-500 tabular-nums">
                 {year < 0 ? `${Math.abs(year)} BCE` : `${year} CE`}
@@ -725,7 +954,7 @@ function ReuseGroups({ quotations, onOpenPassage }) {
                            focus:outline-none focus:ring-2 focus:ring-red-400"
               >
                 <div className="flex items-baseline gap-2 flex-wrap">
-                  <span className="text-xs text-gray-500">{q.ref}</span>
+                  <span className="text-xs text-gray-500">{refName(q)}</span>
                   {q.span_len > 1 && (
                     <span className="text-[10px] font-semibold bg-gray-100 text-gray-600 rounded px-1">
                       {q.span_len} lines
@@ -884,7 +1113,7 @@ function sameWork(a, b) {
 }
 
 /** Trailing book.line of a reference tag, which is what a reader recognises. */
-function shortRef(ref) {
+export function shortRef(ref) {
   if (!ref) return '';
   const m = String(ref).match(/(\d+[.:]\d+)\s*$/);
   return m ? m[1] : String(ref).split(/\s+/).pop();

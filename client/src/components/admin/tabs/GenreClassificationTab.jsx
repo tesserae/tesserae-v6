@@ -1,3 +1,5 @@
+import Pagination from '../../common/Pagination';
+import { usePagination } from '../../../hooks/usePagination';
 import { useCallback, useEffect, useState, useMemo } from 'react';
 
 const GENRE_COLORS = {
@@ -92,10 +94,6 @@ export default function GenreClassificationTab() {
   // Sorting
   const [sortBy, setSortBy] = useState('author');
   const [sortDir, setSortDir] = useState('asc');
-
-  // Pagination
-  const [page, setPage] = useState(0);
-  const PAGE_SIZE = 50;
 
   // Pending edits: { filename: { genre?, era?, meter? } }
   const [pendingEdits, setPendingEdits] = useState({});
@@ -206,12 +204,9 @@ export default function GenreClassificationTab() {
     return result;
   }, [texts, genreFilter, eraFilter, meterFilter, confidenceFilter, searchQuery, sortBy, sortDir, pendingEdits]);
 
-  // Paginated slice
-  const pageTexts = useMemo(() => {
-    return filteredTexts.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
-  }, [filteredTexts, page]);
-
-  const totalPages = Math.ceil(filteredTexts.length / PAGE_SIZE);
+  const resetKey = useMemo(() => ({}), [texts, genreFilter, eraFilter, meterFilter, confidenceFilter, searchQuery, sortBy, sortDir]);
+  const pagination = usePagination(filteredTexts, { resetKey });
+  const pageTexts = pagination.visibleItems;
 
   const handleFieldChange = (filename, field, value) => {
     if (field === 'genre' && value === '__new__') {
@@ -293,7 +288,7 @@ export default function GenreClassificationTab() {
       setSortBy(col);
       setSortDir('asc');
     }
-    setPage(0);
+    pagination.resetPage();
   };
 
   const sortArrow = (col) => {
@@ -421,7 +416,7 @@ export default function GenreClassificationTab() {
         ))}
         {activeFilterCount > 0 && (
           <button
-            onClick={() => { setGenreFilter('all'); setEraFilter('all'); setMeterFilter('all'); setPage(0); }}
+            onClick={() => { setGenreFilter('all'); setEraFilter('all'); setMeterFilter('all'); pagination.resetPage(); }}
             className="ml-auto px-2 py-1 text-xs text-gray-500 hover:text-red-600"
           >
             Clear all filters
@@ -433,7 +428,7 @@ export default function GenreClassificationTab() {
       {activeFilterSection === 'genre' && (
         <div className="flex flex-wrap gap-1.5">
           <button
-            onClick={() => { setGenreFilter('all'); setPage(0); }}
+            onClick={() => { setGenreFilter('all'); pagination.resetPage(); }}
             className={`px-2 py-1 text-xs rounded border ${
               genreFilter === 'all'
                 ? 'bg-red-700 text-white border-red-700'
@@ -445,7 +440,7 @@ export default function GenreClassificationTab() {
           {allGenres.map(g => (
             <button
               key={g}
-              onClick={() => { setGenreFilter(g); setPage(0); }}
+              onClick={() => { setGenreFilter(g); pagination.resetPage(); }}
               className={`px-2 py-1 text-xs rounded border ${
                 genreFilter === g
                   ? 'bg-red-700 text-white border-red-700'
@@ -462,7 +457,7 @@ export default function GenreClassificationTab() {
       {activeFilterSection === 'era' && (
         <div className="flex flex-wrap gap-1.5">
           <button
-            onClick={() => { setEraFilter('all'); setPage(0); }}
+            onClick={() => { setEraFilter('all'); pagination.resetPage(); }}
             className={`px-2 py-1 text-xs rounded border ${
               eraFilter === 'all'
                 ? 'bg-red-700 text-white border-red-700'
@@ -474,7 +469,7 @@ export default function GenreClassificationTab() {
           {allEras.map(e => (
             <button
               key={e}
-              onClick={() => { setEraFilter(e); setPage(0); }}
+              onClick={() => { setEraFilter(e); pagination.resetPage(); }}
               className={`px-2 py-1 text-xs rounded border ${
                 eraFilter === e
                   ? 'bg-red-700 text-white border-red-700'
@@ -491,7 +486,7 @@ export default function GenreClassificationTab() {
       {activeFilterSection === 'meter' && (
         <div className="flex flex-wrap gap-1.5">
           <button
-            onClick={() => { setMeterFilter('all'); setPage(0); }}
+            onClick={() => { setMeterFilter('all'); pagination.resetPage(); }}
             className={`px-2 py-1 text-xs rounded border ${
               meterFilter === 'all'
                 ? 'bg-red-700 text-white border-red-700'
@@ -503,7 +498,7 @@ export default function GenreClassificationTab() {
           {allMeters.map(m => (
             <button
               key={m}
-              onClick={() => { setMeterFilter(m); setPage(0); }}
+              onClick={() => { setMeterFilter(m); pagination.resetPage(); }}
               className={`px-2 py-1 text-xs rounded border ${
                 meterFilter === m
                   ? 'bg-red-700 text-white border-red-700'
@@ -521,13 +516,13 @@ export default function GenreClassificationTab() {
         <input
           type="text"
           value={searchQuery}
-          onChange={e => { setSearchQuery(e.target.value); setPage(0); }}
+          onChange={e => { setSearchQuery(e.target.value); pagination.resetPage(); }}
           placeholder="Search by author, work, or filename..."
           className="flex-1 border rounded px-3 py-1.5 text-sm"
         />
         <select
           value={confidenceFilter}
-          onChange={e => { setConfidenceFilter(e.target.value); setPage(0); }}
+          onChange={e => { setConfidenceFilter(e.target.value); pagination.resetPage(); }}
           className="border rounded px-2 py-1.5 text-sm text-gray-700"
         >
           <option value="all">All sources</option>
@@ -540,7 +535,7 @@ export default function GenreClassificationTab() {
 
       {/* Results count */}
       <div className="text-xs text-gray-500">
-        Showing {Math.min(filteredTexts.length, PAGE_SIZE)} of {filteredTexts.length} texts
+        Showing {pageTexts.length} of {filteredTexts.length} texts
         {searchQuery && ` matching "${searchQuery}"`}
       </div>
 
@@ -680,28 +675,7 @@ export default function GenreClassificationTab() {
         </table>
       </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-between items-center pt-2">
-          <button
-            onClick={() => setPage(p => Math.max(0, p - 1))}
-            disabled={page === 0}
-            className="px-3 py-1 text-xs rounded border border-gray-300 text-gray-700 disabled:opacity-50"
-          >
-            Previous
-          </button>
-          <span className="text-xs text-gray-500">
-            Page {page + 1} of {totalPages}
-          </span>
-          <button
-            onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
-            disabled={page >= totalPages - 1}
-            className="px-3 py-1 text-xs rounded border border-gray-300 text-gray-700 disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
-      )}
+      <Pagination {...pagination} idPrefix="genre-classification" itemLabel="texts" />
 
       {/* New genre modal */}
       {showNewGenre && (

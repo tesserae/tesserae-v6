@@ -498,13 +498,7 @@
   "iqbal": {
    "added": "phase3-2026-09-03",
    "era": "Modern",
-   "note": "Muhammad Iqbal, d. 1938 CE -- same author as fa/iqbal_lahori and ur/iqbal; covers the 7 re-filed Persian-titled works (armaghan_e_hijaz_persian, asrar_e_khudi, javid_nama, pas_cheh_bayad_kard, payam_e_mashriq, rumuz_e_bekhudi, zabur_e_ajam)",
-   "year": 1938
-  },
-  "iqbal_lahori": {
-   "added": "editorial-2026-08-25",
-   "era": "Modern",
-   "note": "d. 1938 CE",
+   "note": "Muhammad Iqbal, d. 1938 CE -- same author as ur/iqbal; covers 8 Persian-titled works (armaghan_e_hijaz_persian, asrar_e_khudi, diwan, javid_nama, pas_cheh_bayad_kard, payam_e_mashriq, rumuz_e_bekhudi, zabur_e_ajam). diwan was filed separately as fa/iqbal_lahori (editorial-2026-08-25) until the 2026-10-07 rename merged it under this id; that entry is removed here, not duplicated.",
    "year": 1938
   },
   "jami": {
@@ -1328,6 +1322,24 @@
    "era": "Early Imperial",
    "note": "fl. reign of Hadrian, c. 117-138 CE",
    "year": 130
+  },
+  "septuagint": {
+   "era": "Hellenistic",
+   "note": "c. 3rd cent. BCE (key used by the corpus files)",
+   "year": -250,
+   "added": "coverage-2026-10-06"
+  },
+  "anonymous.geographiae_expositio_compendiaria": {
+   "era": "Late Antique",
+   "note": "anonymous summary of geography, 3rd-6th c. CE",
+   "year": 400,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymous.stadiasmus_magni_maris": {
+   "era": "Later Imperial",
+   "note": "c. 3rd c. CE",
+   "year": 250,
+   "added": "coverage-2026-10-07"
   }
  },
  "he": {
@@ -1614,9 +1626,10 @@
    "year": 570
   },
   "couplet_et_alii": {
-   "era": "Unknown",
-   "note": "Unknown date",
-   "year": null
+   "era": "Modern",
+   "note": "Confucius Sinarum Philosophus, Paris 1687",
+   "year": 1687,
+   "added": "coverage-2026-10-06"
   },
   "curtius_rufus": {
    "era": "Early Imperial",
@@ -1825,9 +1838,10 @@
    "year": 1100
   },
   "glass": {
-   "era": "Unknown",
-   "note": "Unknown date",
-   "year": null
+   "era": "Modern",
+   "note": "Francis Glass, Washingtonii Vita, published 1835",
+   "year": 1835,
+   "added": "coverage-2026-10-06"
   },
   "godescalcus_saxus": {
    "era": "Carolingian",
@@ -2728,6 +2742,233 @@
    "note": "d. 1536 CE",
    "year": 1536,
    "added": "editorial-2026-08-30-batch3"
+  },
+  "caesar_pseudo": {
+   "era": "Republic",
+   "note": "mid-1st c. BCE (Bellum Africum, Alexandrinum, Hispaniense, by officers of Caesar)",
+   "year": -45,
+   "added": "coverage-2026-10-06"
+  },
+  "censorinus": {
+   "era": "Later Imperial",
+   "note": "wrote De die natali in 238 CE",
+   "year": 238,
+   "added": "coverage-2026-10-06"
+  },
+  "germanicus": {
+   "era": "Early Imperial",
+   "note": "d. 19 CE",
+   "year": 19,
+   "added": "coverage-2026-10-06"
+  },
+  "grattius": {
+   "era": "Augustan",
+   "note": "fl. c. 1 CE (named by Ovid, Pont. 4.16.34)",
+   "year": 1,
+   "added": "coverage-2026-10-06"
+  },
+  "obsequens": {
+   "era": "Late Antique",
+   "note": "c. 4th c. CE",
+   "year": 350,
+   "added": "coverage-2026-10-06"
+  },
+  "solinus": {
+   "era": "Later Imperial",
+   "note": "3rd or 4th c. CE",
+   "year": 250,
+   "added": "coverage-2026-10-06"
+  },
+  "vegetius": {
+   "era": "Late Antique",
+   "note": "wrote c. 383-450 CE",
+   "year": 400,
+   "added": "coverage-2026-10-06"
+  },
+  "anonymi.planctus_de_obitu_Karoli": {
+   "era": "Carolingian",
+   "note": "lament for Charlemagne, after his death in 814",
+   "year": 814,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymous.breviarius_de_hierosolyma": {
+   "era": "Late Antique",
+   "note": "pilgrim's guide to Jerusalem, c. 500 CE",
+   "year": 500,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymous.itinerarium_hierosolymitanum": {
+   "era": "Late Antique",
+   "note": "the Bordeaux pilgrim's itinerary, 333 CE",
+   "year": 333,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymous.laudes_domini": {
+   "era": "Late Antique",
+   "note": "early 4th c. CE, under Constantine",
+   "year": 320,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymous.s_silviae_peregrinatio": {
+   "era": "Late Antique",
+   "note": "Egeria's pilgrimage, c. 381-384 CE",
+   "year": 383,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmen_ad_agobardum": {
+   "era": "Carolingian",
+   "note": "9th c. (to Agobard of Lyon, d. 840)",
+   "year": 830,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmen_ad_ludovicum_pium": {
+   "era": "Carolingian",
+   "note": "9th c. (to Louis the Pious, r. 814-840)",
+   "year": 825,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmen_de_aquilegia": {
+   "era": "Carolingian",
+   "note": "lament for Aquileia, late 8th c.",
+   "year": 790,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmen_de_compoti_ratione": {
+   "era": "Carolingian",
+   "note": "computus poem, 8th-9th c.",
+   "year": 800,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmen_de_conversione_saxonum": {
+   "era": "Carolingian",
+   "note": "c. 777 CE",
+   "year": 777,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmen_de_exordio_francorum": {
+   "era": "Carolingian",
+   "note": "9th c.",
+   "year": 830,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmen_de_nynia_episcopo": {
+   "era": "Early Medieval",
+   "note": "miracles of Nynia (Ninian) of Whithorn, 8th c.",
+   "year": 780,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmen_de_pippino": {
+   "era": "Carolingian",
+   "note": "on Pippin of Italy's victory over the Avars, 796 CE",
+   "year": 796,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmen_de_temporum_ratione": {
+   "era": "Carolingian",
+   "note": "8th-9th c.",
+   "year": 800,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmen_de_timone_comite": {
+   "era": "Carolingian",
+   "note": "9th c.",
+   "year": 830,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmina_augiensia": {
+   "era": "Carolingian",
+   "note": "Reichenau poems, 9th c.",
+   "year": 830,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmina_bibliothecarum_et_psalteriorum": {
+   "era": "Carolingian",
+   "note": "8th-9th c.",
+   "year": 800,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmina_cenomanensia": {
+   "era": "Carolingian",
+   "note": "Le Mans poems, 9th c.",
+   "year": 840,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmina_libris_saec_viii_adiecta": {
+   "era": "Early Medieval",
+   "note": "verses added to 8th-century books",
+   "year": 750,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.carmina_de_ludovico_ii": {
+   "era": "Carolingian",
+   "note": "on Louis II of Italy (r. 850-875)",
+   "year": 870,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.corneli_translationes": {
+   "era": "Carolingian",
+   "note": "9th c.",
+   "year": 850,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.hymnus_nynie_episcopi": {
+   "era": "Early Medieval",
+   "note": "8th c.",
+   "year": 780,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.karolus_magnus_et_leo_papa": {
+   "era": "Carolingian",
+   "note": "c. 800 CE",
+   "year": 800,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.laudes_mediolanensis_civitatis": {
+   "era": "Early Medieval",
+   "note": "c. 739 CE",
+   "year": 739,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.laudes_veronensis_civitatis": {
+   "era": "Carolingian",
+   "note": "c. 796-805 CE",
+   "year": 800,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.tituli_metrici_saeculi_viii": {
+   "era": "Early Medieval",
+   "note": "8th c.",
+   "year": 750,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.translatio_sancti_mercurii": {
+   "era": "Early Medieval",
+   "note": "c. 768 CE (relics brought to Benevento)",
+   "year": 768,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.translatio_xii_martyrum": {
+   "era": "Early Medieval",
+   "note": "c. 760 CE (Benevento)",
+   "year": 760,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.versus_ad_ebonem_remensem": {
+   "era": "Carolingian",
+   "note": "9th c. (to Ebbo of Reims, d. 851)",
+   "year": 830,
+   "added": "coverage-2026-10-07"
+  },
+  "anonymus.versus_de_eversione_monasterii_glonnensis": {
+   "era": "Carolingian",
+   "note": "on the Norse sack of Saint-Florent-le-Vieil, 853",
+   "year": 853,
+   "added": "coverage-2026-10-07"
+  },
+  "pseudo_aurelius_victor": {
+   "era": "Late Antique",
+   "note": "4th century CE (anonymous works transmitted with Aurelius Victor)",
+   "year": 380
   }
  },
  "ur": {
@@ -2823,12 +3064,24 @@
   }
  },
  "gmh": {
-  "nibelungenlied": {"era": "Medieval", "note": "anonymous, c. 1200 CE", "year": 1200}
+  "nibelungenlied": {
+   "era": "Medieval",
+   "note": "anonymous, c. 1200 CE",
+   "year": 1200
+  }
  },
  "fro": {
-  "chanson_de_roland": {"era": "Medieval", "note": "anonymous, c. 1100 CE (Oxford manuscript c. 1150)", "year": 1100}
+  "chanson_de_roland": {
+   "era": "Medieval",
+   "note": "anonymous, c. 1100 CE (Oxford manuscript c. 1150)",
+   "year": 1100
+  }
  },
  "it": {
-  "dante": {"era": "Medieval", "note": "d. 1321", "year": 1321}
+  "dante": {
+   "era": "Medieval",
+   "note": "d. 1321",
+   "year": 1321
+  }
  }
 }

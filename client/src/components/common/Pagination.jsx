@@ -40,7 +40,7 @@ const pageButtonClass = (isActive) =>
  * Presentational pagination controls.
  *
  * Owns no results and performs no data fetching — every interaction is handed
- * back to the caller, which slices an array it already holds in memory.
+ * back to the caller, which supplies its own local or server pagination strategy.
  *
  * @param {number} currentPage    1-based active page.
  * @param {number} totalPages     Total page count (>= 1).
@@ -48,11 +48,14 @@ const pageButtonClass = (isActive) =>
  * @param {number} pageSize       Active page size.
  * @param {Function} onPageChange     Receives a page number.
  * @param {Function} onPageSizeChange Receives a page size as a number.
- * @param {'full'|'nav'} variant  'full' shows selector + summary + navigation;
+ * @param {'full'|'nav'|'more'} variant  'full' shows selector + summary + navigation;
  *                                'nav' shows navigation only (bottom of a list).
+ * 'more' preserves an accumulating list, using loadMore and hasNextPage.
+ * Hook objects can be spread directly; legacy onPageChange props still work.
  * @param {boolean} disabled      Disables every control (e.g. while streaming).
  * @param {string} idPrefix       Keeps label/select ids unique across instances.
  * @param {string} itemLabel      Noun used in the summary line.
+ * @param {number[]} pageSizeOptions Sizes offered; must match what a server-backed caller accepts.
  */
 const Pagination = ({
   currentPage,
@@ -61,31 +64,47 @@ const Pagination = ({
   pageSize,
   onPageChange,
   onPageSizeChange,
+  setPage,
+  setPageSize,
+  pageSizeOptions = PAGE_SIZE_OPTIONS,
+  loading = false,
+  loadMore,
+  hasNextPage,
+  visibleItems = [],
   variant = 'full',
   disabled = false,
   idPrefix = 'pagination',
   itemLabel = 'results',
 }) => {
-  if (!totalResults || totalResults <= 0) return null;
+  if ((!totalResults || totalResults <= 0) && variant !== 'more') return null;
 
+  const changePage = onPageChange || setPage;
+  const changePageSize = onPageSizeChange || setPageSize;
+  const controlsDisabled = disabled || loading;
+  const incremental = variant === 'more';
   const showNavigation = totalResults > pageSize;
 
   // The bottom instance exists only to repeat the navigation controls.
   if (variant === 'nav' && !showNavigation) return null;
 
-  const rangeStart = (currentPage - 1) * pageSize + 1;
-  const rangeEnd = Math.min(currentPage * pageSize, totalResults);
+  const rangeStart = incremental ? (visibleItems.length ? 1 : 0) : (currentPage - 1) * pageSize + 1;
+  const rangeEnd = incremental ? visibleItems.length : Math.min(currentPage * pageSize, totalResults);
   const selectId = `${idPrefix}-page-size`;
 
-  const navigation = showNavigation ? (
+  const navigation = incremental ? (
+    hasNextPage && <button type="button" onClick={loadMore} disabled={controlsDisabled}
+      className={navButtonClass}>
+      {loading ? 'Loading…' : `Show more (${Math.max(0, totalResults - visibleItems.length)} remaining)`}
+    </button>
+  ) : showNavigation ? (
     <nav
       aria-label="Search results pagination"
       className="flex items-center gap-1 flex-wrap justify-center"
     >
       <button
         type="button"
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={disabled || currentPage <= 1}
+        onClick={() => changePage(currentPage - 1)}
+        disabled={controlsDisabled || currentPage <= 1}
         className={navButtonClass}
       >
         Previous
@@ -104,8 +123,8 @@ const Pagination = ({
           <button
             key={slot}
             type="button"
-            onClick={() => onPageChange(slot)}
-            disabled={disabled}
+            onClick={() => changePage(slot)}
+            disabled={controlsDisabled}
             aria-current={slot === currentPage ? 'page' : undefined}
             aria-label={`Go to page ${slot}`}
             className={pageButtonClass(slot === currentPage)}
@@ -117,8 +136,8 @@ const Pagination = ({
 
       <button
         type="button"
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={disabled || currentPage >= totalPages}
+        onClick={() => changePage(currentPage + 1)}
+        disabled={controlsDisabled || currentPage >= totalPages}
         className={navButtonClass}
       >
         Next
@@ -131,7 +150,7 @@ const Pagination = ({
   }
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 py-3 border-t border-b mb-4">
+    <div aria-busy={loading} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 py-3 border-t border-b mb-4">
       <div className="flex items-center gap-2">
         <label htmlFor={selectId} className="text-xs sm:text-sm text-gray-600">
           Show
@@ -139,11 +158,11 @@ const Pagination = ({
         <select
           id={selectId}
           value={pageSize}
-          onChange={(e) => onPageSizeChange(Number(e.target.value))}
-          disabled={disabled}
+          onChange={(e) => changePageSize(Number(e.target.value))}
+          disabled={controlsDisabled}
           className="border rounded px-2 py-1.5 text-xs sm:text-sm disabled:opacity-50"
         >
-          {PAGE_SIZE_OPTIONS.map((size) => (
+          {pageSizeOptions.map((size) => (
             <option key={size} value={size}>
               {size}
             </option>

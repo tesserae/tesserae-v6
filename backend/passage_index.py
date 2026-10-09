@@ -19,7 +19,9 @@ Embeddings are memory-mapped, so the resident cost is the id/description tables
 rather than the matrix. Loading is lazy: nothing touches disk until the first
 query, and a missing index degrades to "unavailable" instead of failing import.
 """
+from collections import Counter
 import json
+import math
 import os
 import re
 import threading
@@ -135,8 +137,25 @@ STRONG_COMBINED = 1.83
 # live index that no longer matches gets told so in its own output rather than
 # reporting a band it has not earned. Refit with
 # evaluation/scripts/calibrate_confidence.py and update both numbers together.
-FITTED_AT_WINDOWS = 603594
+# UPDATED 2026-10-08 to 530,917, the production index size at the HEAD_WEAK
+# refit above (the live bands now in effect; MODERATE_COMBINED/STRONG_COMBINED
+# just above are not used by CONF_MODE == 'head', the shipped default, and
+# are left as a dormant record of the earlier combined-score design). This
+# tracker is shared across whichever band is active, so it now marks the
+# fit this file actually uses.
+FITTED_AT_WINDOWS = 530917
 FITTED_TOLERANCE = 0.15     # beyond 15% drift, stop vouching for the band
+# EVERYTHING BELOW, to the next blank line after "update both constants
+# together", is history about MODERATE_COMBINED/STRONG_COMBINED and the
+# window counts of that now-dormant design (603,594 growing to 610,670 then
+# 617,137). None of those counts describe the live index any more, and
+# FITTED_AT_WINDOWS above has already moved past them to the 2026-10-08
+# HEAD_WEAK refit's own count, 530,917 -- lower than all three despite the
+# word "growth" throughout this paragraph, because corpus consolidation work
+# between the two fits (duplicate-text and dropped-window cleanup) removed
+# more than later imports added. Kept for the reasoning it records (count
+# drift is not the only thing that invalidates a fit), not for its numbers.
+#
 # Growth since the fit, recorded rather than refitted: the Latin import batches
 # and the dual-phrasing pass brought the index to 610,670, and the vernacular
 # pilot (Commedia, Roland, Nibelungenlied) to 617,137 on 2026-09-01. That is
@@ -190,6 +209,24 @@ _LEX_PATH = os.path.join(_DATA_DIR, 'desc_fts.sqlite')
 _lex_lock = threading.Lock()
 _lex_state = {'checked': False, 'ok': False, 'row_by_id': None}
 
+# "Same people and places": a second Similar-Passages grouping, by shared rare
+# proper names rather than by content embedding alone (research/theme_search/
+# names_panel/NOTES.md). The name index (window_names.db, built offline by
+# research/theme_search/names_panel/build_names.py) is optional: when it is
+# absent the feature is simply off and nothing else about Similar Passages
+# changes. Opened once per process and kept open, same convention as
+# _lex_state above for desc_fts.sqlite, except here the connection itself is
+# cached (not reopened per call) because every query needs it.
+_NAMES_PATH = os.path.join(_DATA_DIR, 'window_names.db')
+_names_lock = threading.Lock()
+_names_state = {'checked': False, 'conn': None, 'df': None, 'N': 0, 'N_by_lang': {}}
+NAMES_IDF_THRESHOLD = 4.5   # a name rarer than roughly 1 window in 90 counts
+NAMES_LAMBDA = 0.008        # weight of the shared-name-rarity term in scoring
+NAMES_WEAK_STRENGTH = 2.0   # below this summed rarity, flag the group as weak
+NAMES_COMMENTARY_MARKERS = (
+    'lactantius_placidus', 'servius', 'scholia', 'donatus', 'porphyrio',
+    'pseudo_acro', 'commentar')
+
 _lock = threading.Lock()
 _state = {'loaded': False, 'ok': False, 'error': None}
 _ids = None            # list[str]
@@ -197,6 +234,7 @@ _undescribed = set()   # row indices with no description: excluded from results
 _records = None        # list[dict] in embedding-row order
 _emb = None            # np.memmap (N, D) float16
 _by_work = None        # work -> list[row index]
+_by_language = None    # language code -> np.int64 array of row indices
 _model = None
 
 
@@ -443,7 +481,7 @@ def works_for_language(language):
 
 
 def _ensure_loaded():
-    global _ids, _records, _emb, _by_work
+    global _ids, _records, _emb, _by_work, _by_language
     if _state['loaded']:
         return
     with _lock:
@@ -477,8 +515,15 @@ def _ensure_loaded():
                 logger.error('[PASSAGES] %s', _state['error'])
                 return
             _by_work = {}
+            by_lang_lists = {}
             for i, r in enumerate(_records):
                 _by_work.setdefault(_norm_work(r.get('work')), []).append(i)
+                by_lang_lists.setdefault(r.get('language'), []).append(i)
+            # One language's row indices, for a single-language Theme Search
+            # to measure its OWN score distribution rather than borrowing the
+            # whole, multilingual corpus's (see _language_rows below).
+            _by_language = {lg: np.asarray(rows, dtype=np.int64)
+                            for lg, rows in by_lang_lists.items() if lg}
             _state['ok'] = True
             _apply_index_confidence()
             # WINDOWS WITH NO DESCRIPTION ARE POISON. 128 records were never
@@ -763,6 +808,19 @@ def _result(row, score, strong=None, extra=None):
     return out
 
 
+# Languages whose passage windows are held back from Theme Search and Similar
+# Passages on this server (2026-10-06: Arabic, until a reader has graded it;
+# the windows are indexed so opening it needs no rebuild). A server that serves
+# the language through TESSERAE_LANGUAGES (the preview) shows it regardless.
+# Override with TESSERAE_HELD_LANGUAGES (comma-separated; empty for none).
+def held_languages():
+    from backend.served_languages import allowed_languages
+    raw = os.environ.get('TESSERAE_HELD_LANGUAGES')
+    held = {'ar'} if raw is None else {x.strip() for x in raw.split(',') if x.strip()}
+    served = allowed_languages()
+    return held - served if served else held
+
+
 def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
           dedup=True, baseline=None, strong_at=None, exclude_span=None,
           per_work=None, only_works=None, offset=0):
@@ -797,6 +855,7 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
     floor = baseline + BASELINE_MARGIN
     if strong_at is None:
         strong_at = baseline + STRONG_LIFT
+    held = held_languages()
     order = np.argsort(-scores)
     seen = {}          # work -> [(start, end)] already taken, for overlap dedup
     per_work_count = {}
@@ -821,6 +880,8 @@ def _rank(scores, limit, exclude_work=None, languages=None, scale=None,
         if per_work is not None and per_work_count.get(work, 0) >= per_work:
             continue
         if languages and r.get('language') not in languages:
+            continue
+        if held and r.get('language') in held:
             continue
         if scale and r.get('scale') != scale:
             continue
@@ -917,6 +978,22 @@ def _interleave_languages(heads, pool):
     return out
 
 
+def _coherence_of_rows(rows):
+    """How much a chosen set of windows (given as global row indices) agree
+    with each other. The arithmetic _cluster_coherence runs on the top-k of
+    the whole corpus; factored out so a single-language Theme Search can run
+    the same measure on the top-k of ONE LANGUAGE's rows instead (see
+    _language_rows)."""
+    import numpy as np
+    block = np.asarray(_emb[rows], dtype=np.float32)
+    norms = np.linalg.norm(block, axis=1, keepdims=True)
+    norms[norms == 0] = 1.0
+    block = block / norms
+    sim = block @ block.T
+    n = len(rows)
+    return float((sim.sum() - n) / (n * n - n)) if n > 1 else 0.0
+
+
 def _cluster_coherence(scores, k=COHERENCE_K):
     """How much the top-k results agree with each other.
 
@@ -926,13 +1003,20 @@ def _cluster_coherence(scores, k=COHERENCE_K):
     """
     import numpy as np
     top = np.argsort(-scores)[:k]
-    block = np.asarray(_emb[top], dtype=np.float32)
-    norms = np.linalg.norm(block, axis=1, keepdims=True)
-    norms[norms == 0] = 1.0
-    block = block / norms
-    sim = block @ block.T
-    n = len(top)
-    return float((sim.sum() - n) / (n * n - n)) if n > 1 else 0.0
+    return _coherence_of_rows(top)
+
+
+def _language_rows(languages):
+    """Row indices for ONE selected language, or None when the request does
+    not narrow to exactly one.
+
+    Multi-language and the default "all languages" search keep measuring
+    confidence against the whole corpus, which is what the bands below were
+    fitted against. A single-language search is measured against that one
+    language's own rows instead -- see _is_pervasive for why."""
+    if not languages or len(languages) != 1 or not _by_language:
+        return None
+    return _by_language.get(languages[0])
 
 
 # A description is a sentence. Below this, the confidence signals are not
@@ -978,8 +1062,137 @@ def _cluster_coherence(scores, k=COHERENCE_K):
 # on sentences alone and was unusable on keywords, where it rated "airplanes"
 # above "plague".
 DEGENERATE_COHERENCE = 0.995   # no structure at all: nothing resembles the query
-HEAD_WEAK = 0.0750             # below this, the top ten are not a group
-HEAD_STRONG = 0.1006           # above every absent subject in either probe set
+# HEAD_WEAK REFIT 2026-10-08, against the production index (530,917 windows)
+# and a 178-query probe set: evaluation/probe_sets/theme_confidence_2026-10-08.json,
+# extended that day to carry 30 Latin, 30 Greek, and 30 English queries (was
+# 17 each), plus the original 57-query evaluation/probe_sets/combined_confidence.json
+# kept as a regression check. The 139-query set behind the pervasive-theme fix
+# above had already shown Latin and Greek stuck at 64.7% and English at 47.1%,
+# every miss a false 'low' on an on-topic, non-pervasive scene (a specific
+# passage, not a theme the language is saturated with, so the pervasive
+# promotion below never applies to it: measured excess_baseline for these
+# queries runs slightly NEGATIVE to +0.0046, nowhere near PERVASIVE_EXCESS_BASELINE).
+#
+# evaluation/scripts/calibrate_confidence.py swept HEAD_WEAK from 0.0400 to
+# 0.0800 (HEAD_STRONG does not affect this: it only separates 'moderate' from
+# 'strong', never 'low' from the rest). The absolute ceiling is set by the
+# highest-scoring ABSENT query across every probe set and every language at
+# once -- "a surgeon administers ether before an operation" (unfiltered),
+# head_lift 0.073282 -- because this statistic never depends on which
+# language a search is narrowed to (see the PERVASIVE THEMES comment below):
+# the same number is computed from the whole corpus for a given query text
+# regardless of the `languages` filter, so one query anywhere in the combined
+# set can block a lower threshold everywhere. A single global value stayed
+# the stated preference (ahead of a per-language override) because one was
+# found that clears the constraint: the ONLY flat, zero-false-positive
+# plateau in the swept range is (0.073282, 0.074292], bounded above by three
+# Latin queries ("a banquet with speeches, music, and entertainment"
+# 0.074292, "an old nurse recognizes her former charge by a scar" 0.074418,
+# "a lover complains of a mistress's cruelty" 0.074544) that would otherwise
+# tip back to 'low'. 0.0738 sits in the middle of that plateau:
+#
+#     language        old (0.0750)   new (0.0738)   changed by
+#     Latin (30 q.)        56.7%          66.7%     +3 (the three above)
+#     Greek (30 q.)        63.3%          63.3%     unchanged (see below)
+#     English (30 q.)      43.3%          46.7%     +1 ("a garden described
+#                                                    in loving detail", 0.074782)
+#     Persian/Urdu/Hebrew/Coptic/unfiltered         unchanged on this probe
+#                                                    set (nothing of theirs
+#                                                    sits in the plateau)
+#     extended set, 178 q. (all languages)  73.0%     75.3%
+#     original 57 q. (combined_confidence.json, unfiltered, kept as a
+#       regression check, not touched by this fix's probe design)  66.7%  68.4%
+#
+# Both figures rose and nothing fell: the change can only ever move a query
+# OUT of 'low', never into it, and the 0.073282 ceiling it respects is the
+# highest-scoring absent query across BOTH sets at once, so no regression on
+# either set was possible by construction. Full table, including per-language
+# rows for Persian, Urdu, Hebrew, and Coptic: docs/DECISIONS.md, 2026-10-08.
+#
+# Greek did not move: its present, non-pervasive queries' head_lift jumps
+# straight from 0.0675 to 0.0762, straddling the entire plateau, so no
+# Greek query this probe set contains falls where a lower HEAD_WEAK could
+# reach it without crossing 0.073282 and promoting "a satellite orbits the
+# earth" (Greek's own highest absent score, 0.070457). That is a property of
+# THIS embedding and THIS probe set, not of Greek as a language: a probe
+# that happened to include a Greek scene scoring between 0.0705 and 0.0762
+# would be rescued by the same fix. Per-language bands were measured too
+# (evaluation/scripts/calibrate_confidence.py against each language's own
+# floor and ceiling) and rejected: Greek's floor-to-ceiling gap means no
+# per-language value helps it either, so a language-specific override would
+# have bought nothing beyond what the single global value already gives
+# Latin and English, at the cost of three numbers to maintain instead of one.
+HEAD_WEAK = 0.0738              # below this, the top ten are not a group
+HEAD_STRONG = 0.1006           # above every absent subject in either probe set (unchanged: still clears the 0.073282 ceiling by a wide margin)
+
+# PERVASIVE THEMES, FITTED ON LATIN AND GREEK, MISREAD IN A LYRIC CORPUS
+# (2026-10-08). head_lift and coherence above were measured against the whole,
+# multilingual index, including for a search the caller narrowed to one
+# language. That is backwards for a language where the asked-about theme is
+# common: a Persian search for "passionate love" came back Rumi, Rudaki, and
+# Anvari addressing the beloved -- on topic by any reading -- yet scored LOW
+# (head_lift 0.0522, coherence 0.8996), because the one number the whole
+# measure rests on, the corpus median, was the median of ALL 600,000-plus
+# windows in seven languages, most of which are not love poetry. Every
+# language this was probed against (fa, ur, la, grc, en, he, cop, and "all
+# languages" with no filter) reported the IDENTICAL confidence block for the
+# identical query text, because `languages` never reached the statistics at
+# all, only the results list.
+#
+# THE FIRST FIX TRIED WAS WRONG, AND MEASURING IT SAID SO BEFORE IT SHIPPED.
+# Recomputing head_lift AND coherence from the searched language's own rows
+# (rather than just checking whether its baseline sits above the whole
+# corpus's) was tried first and measured against production
+# (evaluation/scripts/calibrate_confidence.py, the 139-query set in
+# evaluation/probe_sets/theme_confidence_2026-10-08.json, read-only against
+# the live index): it helped Persian, Urdu, Hebrew, and Coptic a great deal,
+# but it made Latin, Greek, and English WORSE than the existing, unfixed
+# rule (la 64.7% -> 52.9%, grc 64.7% -> 52.9%, en 47.1% -> 41.2%), because one
+# language's own windows cluster more tightly in this embedding than the
+# whole, heterogeneous seven-language corpus does, so head_lift measured
+# within a single language reads lower across the board, present subjects
+# and absent ones alike, not only for a genuinely pervasive theme. The
+# absolute thresholds above (HEAD_WEAK, HEAD_STRONG) were fitted on the
+# cross-lingual measure and do not transfer to a same-language one.
+#
+# WHAT SHIPPED INSTEAD, below: head_lift and coherence stay the whole-corpus
+# measure, UNCHANGED, for every search including a single-language one. A
+# single-language search ADDITIONALLY compares that language's own median
+# score for the query (_language_rows) against the whole corpus's median for
+# the SAME query (PERVASIVE_EXCESS_BASELINE). This can only ever promote a
+# 'low' or 'moderate' call to 'pervasive'; it is never asked to produce
+# 'low' or 'moderate' itself, so it cannot make a language's accuracy worse
+# than the unfixed rule already measured for it, only better. Measured on
+# the same 139-query set, at PERVASIVE_EXCESS_BASELINE = 0.005 (the widest
+# flat plateau in a sweep from 0.0 to 0.015; zero absent queries in the set
+# crossed 0.0031, so nothing in this set would have been wrongly promoted
+# anywhere in that plateau):
+#
+#     language   existing rule   this fix   pervasive-labelled
+#     Coptic          52.9%        94.1%       10 of 17
+#     English         47.1%        47.1%        0 of 17
+#     Persian         61.1%        94.4%        9 of 18
+#     Greek           64.7%        64.7%        1 of 17
+#     Hebrew          52.9%       100.0%        9 of 17
+#     Latin           64.7%        64.7%        0 of 17
+#     Urdu            72.2%        88.9%        7 of 18
+#     unfiltered      83.3%        83.3%        0 of 18 (unaffected: see below)
+#     ALL             62.6%        79.9%       36 of 139
+#
+# English and Latin are unchanged because no query tried against them this
+# time sat far enough above the whole corpus's own median to cross the
+# threshold -- not because the mechanism excludes them. Greek promoted once,
+# to 'pervasive' from an already-correct 'moderate', so its accuracy did not
+# move either. A later probe that found a genuinely pervasive Latin or Greek
+# theme (the sea-storm topos is common enough in Latin epic to be a
+# candidate) would be expected to promote more there.
+#
+# PERVASIVE_EXCESS_BASELINE is a property of the CURRENT, roughly 531,000-
+# window index and this probe set; refit it, the same way, after a corpus-
+# wide re-describe or a substantial size change, with
+# evaluation/scripts/calibrate_confidence.py --sweep against this same
+# probe set (or a larger one built the same way).
+PERVASIVE_EXCESS_BASELINE = 0.005
 
 
 def _apply_index_confidence():
@@ -1024,10 +1237,34 @@ COMBINED_WEAK = None
 COMBINED_STRONG = None
 
 
+def _is_pervasive(level, coherence, lang_baseline, global_baseline):
+    """Should a 'low' or 'moderate' call be promoted to 'pervasive' instead?
+
+    `lang_baseline` is the median score within the searched language alone;
+    `global_baseline` is the median across the whole, multilingual corpus for
+    the SAME query. Either missing (no single language narrowed the search)
+    means the question does not apply. A 'strong' call is never promoted (it
+    is already the best outcome), and a degenerate-coherence 'low' is never
+    promoted either: no structure in the results at all is the absence of a
+    match, not a common one, whatever the two baselines say. See
+    PERVASIVE_EXCESS_BASELINE above for the threshold and the measurement
+    behind it."""
+    if level == 'strong' or coherence >= DEGENERATE_COHERENCE:
+        return False
+    if lang_baseline is None or global_baseline is None:
+        return False
+    return (lang_baseline - global_baseline) >= PERVASIVE_EXCESS_BASELINE
+
+
 def _confidence_level(head_lift, coherence):
     """Graded, never certain. Works for one word or for a sentence.
 
-    head_lift is the mean of the top ten scores above the corpus median.
+    head_lift is the mean of the top ten scores above the corpus median,
+    always the WHOLE corpus's median, even for a single-language search (see
+    PERVASIVE THEMES above for why that stayed unchanged). A single-language
+    search's own 'pervasive' promotion is applied afterward, by the caller,
+    with _is_pervasive -- this function only ever returns the three outcomes
+    it always has.
     """
     if coherence >= DEGENERATE_COHERENCE:
         return 'low'
@@ -1067,19 +1304,59 @@ _UNCALIBRATED = (
     'strong/moderate/low label is.')
 
 
-def _confidence_note(level):
+# Names used only to write the pervasive-theme note in plain language (e.g.
+# "the Persian corpus"). Mirrors the code -> name tables already kept in
+# theme_pdf.py and blueprints/scholarship.py; a shared module would be
+# cleaner, but three small, independent copies already exist in this
+# codebase and this note is the only thing in this file that needs one.
+_LANGUAGE_NAME = {
+    'la': 'Latin', 'grc': 'Greek', 'en': 'English', 'cop': 'Coptic',
+    'he': 'Hebrew', 'fa': 'Persian', 'ur': 'Urdu', 'ar': 'Arabic',
+    'it': 'Italian', 'fro': 'Old French', 'gmh': 'Middle High German',
+}
+
+# A query of a few words is answered badly (see QUERY EXPANSION below): the
+# index holds full-sentence descriptions, and a bare noun or two is not on
+# the same footing as a sentence. Measured on probe queries built for this
+# fix, a single word ("love", "wine", "prayer") read 'low' or 'pervasive'
+# where the same subject written as a sentence read 'moderate' or 'strong'.
+# Rather than silently answer a short query worse, say so.
+_SHORT_QUERY_WORDS = 3
+
+
+def _is_short_query(query):
+    return len(re.findall(r'\w+', query or '')) <= _SHORT_QUERY_WORDS
+
+
+_SHORT_QUERY_HINT = (
+    ' This search was only a few words. Theme Search matches a full sentence '
+    'much better than a single word or short phrase: try describing who does '
+    'what, and where.')
+
+
+def _confidence_note(level, query=None, language=None):
     drift = _calibration_drift()
+    base = _confidence_note_fitted(level, language)
     if drift:
         now, _ = drift
         warning = _UNCALIBRATED.format(fitted=FITTED_AT_WINDOWS, now=now)
-        base = _confidence_note_fitted(level)
-        return f'{warning} {base}' if base else warning
-    return _confidence_note_fitted(level)
+        base = f'{warning} {base}' if base else warning
+    # The pervasive note already asks for a description of what happens, so
+    # the short-query hint would repeat it.
+    if base and level not in ('strong', 'pervasive') and query is not None and _is_short_query(query):
+        base += _SHORT_QUERY_HINT
+    return base
 
 
-def _confidence_note_fitted(level):
+def _confidence_note_fitted(level, language=None):
     if level == 'strong':
         return None
+    if level == 'pervasive':
+        name = _LANGUAGE_NAME.get(language) if language else None
+        corpus = f'the {name} corpus' if name else 'this part of the corpus'
+        return (f'This theme runs through much of {corpus}, so these are typical '
+                'examples. To find a particular kind of passage, describe what '
+                'happens in it, such as who does what, and where.')
     if level == 'moderate':
         return ('Moderate confidence: the corpus holds passages of this kind, but the '
                 'match is looser than a clear case. Read the results before relying on them.')
@@ -1380,6 +1657,16 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
     head_lift = float(np.sort(scores)[-k:].mean()) - baseline
     coherence = _cluster_coherence(scores)
     level = _confidence_level(head_lift, coherence)
+    # A search narrowed to ONE language gets an ADDITIONAL check, on top of
+    # the whole-corpus level above, never in place of it: see the PERVASIVE
+    # THEMES comment above HEAD_WEAK/HEAD_STRONG for why head_lift and
+    # coherence themselves stay whole-corpus even here. `lang_rows` is None
+    # for a multi-language or unfiltered ("all languages") search.
+    lang_rows = _language_rows(languages)
+    if lang_rows is not None and len(lang_rows):
+        lang_baseline = float(np.median(scores[lang_rows]))
+        if _is_pervasive(level, coherence, lang_baseline, baseline):
+            level = 'pervasive'
     strong_at = baseline + (STRONG_LIFT if level == 'strong' else 1e9)
     # The confidence figures above describe the embedding alone; the lexical
     # boost then reorders the windows (see LEXICAL_BETA).
@@ -1444,13 +1731,36 @@ def find_by_text(query, limit=25, languages=None, scale=None, expand=False,
                        'head_lift': round(head_lift, 4),
                        'lift': round(lift, 4),
                        'coherence': round(coherence, 4), 'level': level},
-        'note': _confidence_note(level),
+        'note': _confidence_note(level, query=query,
+                                 language=languages[0] if lang_rows is not None else None),
     }
 
 
+# How many results each "in other languages" section holds (find_similar_to_window).
+BY_LANGUAGE_K = 5
+
+
+def _index_languages():
+    """The languages present in the passage index, cached once loaded."""
+    langs = _state.get('languages')
+    if langs is None:
+        langs = sorted({r.get('language') for r in _records if r.get('language')})
+        _state['languages'] = langs
+    return langs
+
+
 def find_similar_to_window(window_id, limit=15, languages=None,
-                           include_same_work=False, suppress_other_versions=True):
-    """Similar Passages, given an index window id."""
+                           include_same_work=False, suppress_other_versions=True,
+                           by_language=False):
+    """Similar Passages, given an index window id.
+
+    by_language (2026-10-07): also return, for every served language with fewer
+    than BY_LANGUAGE_K results in the main list, that language's best matches
+    above the ranking's similarity floor. The main list ranks all languages
+    together, and the largest corpora fill it: an Urdu passage from Mir got 28
+    Persian matches and 2 Urdu ones, because the index holds 220,000 Persian
+    windows and 15,000 Urdu. The same rule serves every language, so a Latin
+    passage shows its Greek and English matches the same way."""
     _ensure_loaded()
     if not _state['ok']:
         return {'error': _state['error'], 'results': []}
@@ -1474,11 +1784,161 @@ def find_similar_to_window(window_id, limit=15, languages=None,
     results = _rank(scores, limit, exclude_work=exclude, languages=languages,
                     baseline=baseline, exclude_span=exclude_span)
     top = results[0]['score'] if results else baseline
+    by_lang = {}
+    if by_language:
+        shown = {r.get('id') for r in results}
+        counts = Counter(r.get('language') for r in results)
+        held = held_languages()
+        for lang in _index_languages():
+            if lang in held or (languages and lang not in languages):
+                continue
+            if counts.get(lang, 0) >= BY_LANGUAGE_K:
+                continue
+            sub = _rank(scores, BY_LANGUAGE_K + counts.get(lang, 0), exclude_work=exclude,
+                        languages=[lang], baseline=baseline, exclude_span=exclude_span)
+            sub = [r for r in sub if r.get('id') not in shown][:BY_LANGUAGE_K]
+            if sub:      # every row _rank returns already clears the similarity floor
+                by_lang[lang] = sub
+    out_extra = {'by_language': by_lang} if by_language else {}
     return {
+        **out_extra,
         'source': _result(row, 1.0, strong=True),
         'results': results,
         'confidence': {'top': round(float(top), 4), 'baseline': round(baseline, 4),
                        'lift': round(float(top) - baseline, 4)},
+    }
+
+
+def _ensure_names_loaded():
+    """Open window_names.db once per process; return the cached connection,
+    or None if the file is absent or unreadable (the feature is simply off).
+
+    Caches the connection itself plus the name_df table (as a dict) and the
+    window count from meta, read once, so every call after the first costs no
+    disk access beyond the per-window lookups the caller itself does."""
+    if _names_state['checked']:
+        return _names_state['conn']
+    with _names_lock:
+        if _names_state['checked']:
+            return _names_state['conn']
+        _names_state['checked'] = True
+        if not os.path.exists(_NAMES_PATH):
+            logger.info('[PASSAGES] no name index at %s; "same people and '
+                       'places" is off', _NAMES_PATH)
+            return None
+        try:
+            import sqlite3
+            conn = sqlite3.connect(f'file:{_NAMES_PATH}?mode=ro', uri=True,
+                                   check_same_thread=False)
+            meta = dict(conn.execute('SELECT key, value FROM meta'))
+            n = int(meta.get('windows') or 0)
+            # Per-script-group totals (windows_he, windows_cop, windows_fa,
+            # windows_ur); a language without one uses 'windows' (Latin, Greek,
+            # English). See scripts/corpus/build_window_names.py.
+            n_by_lang = {k[len('windows_'):]: int(v) for k, v in meta.items()
+                         if k.startswith('windows_') and str(v).isdigit()}
+            df = dict(conn.execute('SELECT k, df FROM name_df'))
+        except Exception as e:  # noqa: BLE001 -- a bad name index must not break Similar Passages
+            logger.warning('[PASSAGES] window_names.db unreadable (%s); "same '
+                           'people and places" is off', e)
+            return None
+        _names_state['conn'] = conn
+        _names_state['df'] = df
+        _names_state['N'] = n
+        _names_state['N_by_lang'] = n_by_lang
+        return conn
+
+
+def _name_idf(k, df, n):
+    return math.log(n / (1 + df.get(k, 0))) if n else 0.0
+
+
+def same_names_for_window(wid, limit=12):
+    """The "same people and places" grouping for a Similar Passages window:
+    other windows that share RARE proper names with this one, scored by
+    content similarity plus a bonus for the rarity of what they share.
+
+    Returns None when the name index is missing or the window itself is not
+    in the passage index (the feature does not apply, nothing else changes).
+    Otherwise a dict: 'results' (up to `limit`, shaped like find_similar_to_
+    window's, each carrying 'shared_names'), 'commentaries' (up to 5 more,
+    for works that comment on a text rather than tell their own story, kept
+    separate so they do not crowd out independent witnesses), 'strength'
+    (summed rarity of the source window's own rare names) and 'weak' (True
+    when that strength is thin -- a famous single name, say -- so the caller
+    can show the group collapsed).
+    """
+    _ensure_loaded()
+    if not _state['ok']:
+        return None
+    conn = _ensure_names_loaded()
+    if conn is None:
+        return None
+    row = _row_of(wid)
+    if row is None:
+        return None
+    import numpy as np
+    src = _records[row]
+    src_work = _norm_work(src.get('work'))
+    qvec = np.asarray(_emb[row], dtype=np.float32)
+
+    src_rows = conn.execute('SELECT k, form FROM window_names WHERE id=?', (wid,)).fetchall()
+    src_form = {}
+    for k, form in src_rows:
+        src_form.setdefault(k, form)
+
+    df = _names_state['df']
+    n = _names_state.get('N_by_lang', {}).get(src.get('language')) or _names_state['N']
+    rare = {k: _name_idf(k, df, n) for k in src_form}
+    rare = {k: v for k, v in rare.items() if v > NAMES_IDF_THRESHOLD}
+    strength = sum(v - NAMES_IDF_THRESHOLD for v in rare.values())
+
+    cand_keys = {}  # row index -> set of shared keys
+    if rare:
+        held = held_languages()
+        marks = ','.join('?' * len(rare))
+        hits = conn.execute(
+            f'SELECT id, k FROM window_names WHERE k IN ({marks})',  # nosec B608 -- marks is a run of '?', values are bound params
+            list(rare.keys())).fetchall()
+        for cwid, k in hits:
+            if cwid == wid:
+                continue
+            crow = _row_of(cwid)
+            if crow is None or crow in _undescribed:
+                continue
+            crec = _records[crow]
+            if (crec.get('scale') or 'fine') != 'fine':
+                continue
+            if _norm_work(crec.get('work')) == src_work:
+                continue
+            if crec.get('language') in held:
+                continue
+            cand_keys.setdefault(crow, set()).add(k)
+
+    scored = []
+    for crow, ks in cand_keys.items():
+        cvec = np.asarray(_emb[crow], dtype=np.float32)
+        score = float(np.dot(qvec, cvec)) + NAMES_LAMBDA * sum(
+            rare[k] - NAMES_IDF_THRESHOLD for k in ks)
+        shared = [src_form[k] for k in sorted(ks, key=lambda k: -rare[k])]
+        scored.append((score, crow, shared))
+    scored.sort(key=lambda x: -x[0])
+
+    def is_commentary(crow):
+        work = str(_records[crow].get('work') or '')
+        return any(marker in work for marker in NAMES_COMMENTARY_MARKERS)
+
+    main = [s for s in scored if not is_commentary(s[1])]
+    commentary = [s for s in scored if is_commentary(s[1])]
+    results = [_result(r, sc, extra={'shared_names': shared})
+              for sc, r, shared in main[:limit]]
+    commentaries = [_result(r, sc, extra={'shared_names': shared})
+                   for sc, r, shared in commentary[:5]]
+    return {
+        'results': results,
+        'commentaries': commentaries,
+        'strength': round(strength, 4),
+        'weak': strength < NAMES_WEAK_STRENGTH,
     }
 
 
@@ -1598,38 +2058,67 @@ def compare_works(work_a, work_b, scale='fine', limit=50, per_window=3):
                        'head_lift': round(head_lift, 4), 'level': level},
     }
 
+def _ref_coords_in(work, ref):
+    """EVERY numeric coordinate of `ref`, with the work name stripped first
+    (as _ref_numbers_in does), for locating a span inside one work."""
+    s = str(ref or '')
+    w = _norm_work(work)
+    for prefix in (str(work or ''), w):
+        if prefix and s.startswith(prefix):
+            s = s[len(prefix):]
+            break
+    nums = re.findall(r'\d+', s)
+    return tuple(int(n) for n in nums) if nums else _ref_coords(ref)
+
+
 def window_for_passage(work, ref_start=None, ref_end=None, prefer='fine'):
     """Map a reader selection to the index window that best covers it.
 
     The Reader hands us a work and a reference span; the index is built on fixed
     overlapping windows, so we choose the window of the requested scale whose
-    reference range covers the most of the selection.
+    reference range covers the selection, starting closest to it.
+
+    2026-10-06: this compared only the LAST TWO numbers of each reference and
+    searched every book of the work, so Curtius 3.1.1-3.1.4 matched the window
+    10.1.1-10.1.12 (both read as 1.1) and the Reader showed Similar Passages for
+    Book 10 under a Book 3 selection. It now compares every coordinate and,
+    when the caller names a book file that has windows of its own, looks only
+    at that book's windows.
     """
     _ensure_loaded()
     if not _state['ok']:
         return None
-    rows = _by_work.get(_norm_work(work)) or []
+    wid_work = work_id(work)
+    group = _by_work.get(_norm_work(work)) or []
+    exact = [row for row in group if _records[row].get('work') == wid_work]
+    rows = exact if (is_part(wid_work) and exact) else group
     if not rows:
         return None
-    want = _ref_numbers_in(work, ref_start) or ()
-    want_end = _ref_numbers_in(work, ref_end) or want
+    want = _ref_coords_in(work, ref_start) or ()
+    want_end = _ref_coords_in(work, ref_end) or want
     best, best_key = None, None
     for row in rows:
         r = _records[row]
         if prefer and r.get('scale') != prefer:
             continue
-        lo = _ref_numbers_in(r.get('work'), r.get('ref_start'))
-        hi = _ref_numbers_in(r.get('work'), r.get('ref_end'))
+        lo = _ref_coords_in(r.get('work'), r.get('ref_start'))
+        hi = _ref_coords_in(r.get('work'), r.get('ref_end'))
         if not (lo and hi):
             continue
         if not want:
             return r.get('id')
-        # same book (or no book component) and the window brackets the selection
-        covers = lo <= want <= hi or (want <= lo <= want_end)
+        # Compare on the depth both references share, from the left (book
+        # before chapter before line), so a work whose references vary in depth
+        # (a preface cited 1.pr, a poem 1.1.3) still finds its window.
+        n = min(len(lo), len(hi), len(want), len(want_end))
+        lo, hi, wn, we = lo[:n], hi[:n], want[:n], want_end[:n]
+        covers = lo <= wn <= hi or (wn <= lo <= we)
         if not covers:
             continue
-        # prefer the window whose start sits closest to the selection start
-        key = abs((lo[-1] if lo else 0) - (want[-1] if want else 0))
+        # prefer the window that starts at or just before the selection start;
+        # a window starting after it (it only overlaps the selection's tail)
+        # ranks below every window that brackets the start
+        key = (0, tuple(-x for x in lo)) if lo <= wn else (1, lo)
         if best_key is None or key < best_key:
             best, best_key = r.get('id'), key
     if best is None and prefer:
@@ -1732,13 +2221,14 @@ def pair_lift(work_a, ref_a, work_b, ref_b, scale='fine'):
 
 def find_similar_to_passage(work, ref_start=None, ref_end=None, limit=15,
                             languages=None, scale='fine',
-                            suppress_other_versions=True):
+                            suppress_other_versions=True, by_language=False):
     """Similar Passages, given a reader selection (work + reference span)."""
     wid = window_for_passage(work, ref_start, ref_end, prefer=scale)
     if not wid:
         return {'error': 'no indexed window covers that passage', 'results': []}
     return find_similar_to_window(wid, limit=limit, languages=languages,
-                                  suppress_other_versions=suppress_other_versions)
+                                  suppress_other_versions=suppress_other_versions,
+                                  by_language=by_language)
 
 
 # UNDER cache/, NOT beside the index.

@@ -62,17 +62,38 @@ beforeEach(() => {
       { code: 'la' }, { code: 'grc' }, { code: 'en' }] }) }));
 });
 
+// Author/Work/Book are now SearchableSelect (type-to-find), not a plain
+// <select>: the visible control is a text input showing the chosen option's
+// LABEL (not its raw value/key), and a `fireEvent.change` on it only types a
+// filter rather than choosing anything. `chooseOption` drives it the way a
+// user does -- focus to open the full list, then click the option carrying
+// the given value (exposed as `data-value` on each option button precisely
+// so tests can find it without matching on label text) -- and `optionValues`
+// reads back what the open list currently offers.
+function chooseOption(labelText, value) {
+  fireEvent.focus(screen.getByLabelText(labelText));
+  const option = screen.getAllByRole('option').find((o) => o.dataset.value === value);
+  fireEvent.pointerDown(option);
+}
+
+function optionValues(labelText) {
+  fireEvent.focus(screen.getByLabelText(labelText));
+  return screen.getAllByRole('option')
+    .filter((o) => o.dataset.value !== undefined)
+    .map((o) => o.dataset.value);
+}
+
 describe('the dropdowns reflect the open text', () => {
   it('shows the author, work and book of the work that is open', () => {
     mount();
-    expect(screen.getByLabelText('Author').value).toBe('ovid');
-    expect(screen.getByLabelText('Work').value).toBe('tristia');
-    expect(screen.getByLabelText('Book').value).toBe('ovid.tristia.part.3.tess');
+    expect(screen.getByLabelText('Author').value).toBe('Ovid');
+    expect(screen.getByLabelText('Work').value).toBe('Tristia');
+    expect(screen.getByLabelText('Book').value).toBe('Book 3');
   });
 
   it('offers every author, not only the current one', () => {
     mount();
-    const opts = [...screen.getByLabelText('Author').options].map((o) => o.value);
+    const opts = optionValues('Author');
     expect(opts).toContain('ovid');
     expect(opts).toContain('vergil');
   });
@@ -81,20 +102,19 @@ describe('the dropdowns reflect the open text', () => {
 describe('the dropdowns actually change something', () => {
   it('choosing another author opens that author', () => {
     const { onWork } = mount();
-    fireEvent.change(screen.getByLabelText('Author'), { target: { value: 'vergil' } });
+    chooseOption('Author', 'vergil');
     expect(onWork).toHaveBeenCalledWith('vergil.aeneid.tess');
   });
 
   it('choosing another work opens that work', () => {
     const { onWork } = mount();
-    fireEvent.change(screen.getByLabelText('Work'), { target: { value: 'amores' } });
+    chooseOption('Work', 'amores');
     expect(onWork).toHaveBeenCalledWith('ovid.amores.tess');
   });
 
   it('choosing another book opens that book', () => {
     const { onWork } = mount();
-    fireEvent.change(screen.getByLabelText('Book'), {
-      target: { value: 'ovid.tristia.part.4.tess' } });
+    chooseOption('Book', 'ovid.tristia.part.4.tess');
     expect(onWork).toHaveBeenCalledWith('ovid.tristia.part.4.tess');
   });
 
@@ -132,14 +152,44 @@ describe('the header does not repeat itself', () => {
     expect(screen.queryByText('Ovid, Tristia, Book 3')).toBeNull();
   });
 
-  it('shows the position, which the dropdowns cannot', () => {
+  it('shows the position, which the dropdowns cannot, as a readable citation', () => {
     mount({ selection: { refStart: 'ov. tr. 3.1', refEnd: 'ov. tr. 3.4' } });
-    expect(screen.getByText(/ov\. tr\. 3\.1/)).toBeTruthy();
+    // Not the raw ref ("ov. tr. 3.1"): the static Latin table resolves the
+    // author (and would resolve the work too, from a fuller abbreviation).
+    expect(screen.queryByText(/ov\. tr\. 3\.1/)).toBeNull();
+    expect(screen.getByText('Ovid 3.1–4')).toBeTruthy();
   });
 
   it('falls back to the line count with nothing selected', () => {
     mount({ units: [{ ref: 'a' }, { ref: 'b' }] });
     expect(screen.getByText('2 lines')).toBeTruthy();
+  });
+});
+
+describe('a selection in a language with no static abbreviation table', () => {
+  // Owner review of the Reader on Iqbal's Asrar-e Khudi (2026-10-08): the
+  // header printed the raw site id ("iqbal.asrar_e_khudi.1.1-5") for
+  // Persian and Urdu, because only Latin/Greek/English have a static
+  // table -- everything else needs the corpus list's own author/title
+  // (what /api/texts?language=<lang> already carries, and what the result
+  // cards already resolve raw ids against).
+  it('resolves a Persian selection against the corpus text map, not the raw id', async () => {
+    global.fetch = vi.fn((url) => {
+      if (String(url).includes('/api/texts')) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve([
+          { id: 'iqbal.asrar_e_khudi.tess', author: 'Iqbal', title: 'Asrar-e Khudi' },
+        ]) });
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({ languages: [{ code: 'fa' }] }) });
+    });
+    mount({
+      language: 'fa',
+      hierarchy: [],
+      work: 'iqbal.asrar_e_khudi.tess',
+      selection: { refStart: 'iqbal.asrar_e_khudi.1.1', refEnd: 'iqbal.asrar_e_khudi.1.5' },
+    });
+    expect(await screen.findByText('Iqbal, Asrar-e Khudi 1.1–5')).toBeTruthy();
+    expect(screen.queryByText(/iqbal\.asrar_e_khudi\.1\.1/)).toBeNull();
   });
 });
 

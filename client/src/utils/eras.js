@@ -28,10 +28,12 @@ export const ERA_ORDER_BY_LANG = {
   // Ilkhanid, Timurid, Safavid, Mughal, Modern). These labels are editorial
   // and want a specialist.") names most of these; the authoritative source is
   // backend/author_dates.json itself, whose fa entries (editorial-2026-08-25,
-  // 19 of the corpus's 20 authors dated, the 20th -- fa/iqbal -- added Phase 3
-  // by identity with fa/iqbal_lahori) use a finer set including two labels the
-  // OVERVIEW.md summary omitted (Khwarazmian, "Seljuk of Rum"). Order below is
-  // chronological by each label's earliest attested author year in that file
+  // 18 of the corpus's 19 authors dated, the 19th -- fa/iqbal -- added Phase 3
+  // by identity with fa/iqbal_lahori, a separately filed diwan work merged
+  // into this same id by the 2026-10-07 rename) use a finer set including two
+  // labels the OVERVIEW.md summary omitted (Khwarazmian, "Seljuk of Rum").
+  // Order below is chronological by each label's earliest attested author
+  // year in that file
   // (Samanid 941 -> Ghaznavid 1020 -> Seljuk 1088 -> Khwarazmian 1221 ->
   // "Seljuk of Rum" 1273 -> Ilkhanid 1292 -> Muzaffarid 1390 -> Timurid 1492 ->
   // Safavid 1676 -> Mughal 1720 -> Modern 1938). Still "editorial and wants a

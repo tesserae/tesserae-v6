@@ -714,3 +714,110 @@ def test_marks_keeps_a_part_only_works_own_part_id(monkeypatch, tmp_path):
     out = json.loads(r.get_data())
     assert out['available'] is True
     assert [row['ref'] for row in out['lines']] == ['partonly. work. 2.1']
+
+
+def test_line_bolds_greek_words_whose_accents_are_separate_marks(monkeypatch, tmp_path):
+    """The Greek corpus stores accents as combining marks after their letters
+    (decomposed), and a word ending in one (kata with a grave accent) never
+    matched a \\b word edge, so Greek reuse lines showed no highlight
+    (Argonautica 1.2 against Plato and Galen, 2026-10-07)."""
+    import unicodedata
+    _reset_reuse_table_state(monkeypatch, tmp_path)
+    nfd = lambda s: unicodedata.normalize('NFD', s)
+    src = [nfd(w) for w in ['μνήσομαι', 'οἳ', 'Πόντοιο', 'κατὰ', 'στόμα', 'καὶ', 'διὰ', 'πέτρας']]
+    _write_lemma_cache_with_tokens(str(tmp_path / 'lemmas'), 'grc', 'apollonius.argonautica', [
+        ('A.R. 1.2', ' '.join(src), [w.lower() for w in src], src),
+    ])
+    quote = [nfd(w) for w in ['ἔστι', 'δὲ', 'κατὰ', 'στόμα', 'καὶ', 'ἄλλο']]
+    quote_text = ' '.join(quote) + '.'
+    _write_lemma_cache_with_tokens(str(tmp_path / 'lemmas'), 'grc', 'plato.timaeus', [
+        ('pl. tim. 79e', quote_text, [w.lower() for w in quote], quote),
+    ])
+    _write_reuse_db(
+        str(tmp_path / 'reuse_pairs'), 'grc',
+        pairs_rows=[('apollonius.argonautica', 'A.R. 1.2', 'plato.timaeus', 'pl. tim. 79e', 1, 0.004, 1)],
+        line_counts_rows=[('apollonius.argonautica', 'A.R. 1.2', 1)],
+        meta_rows=[('corpus_version', '2026-08-16')],
+    )
+    client = app.test_client()
+    r = _get(client, _route('/reuse/line'), work='apollonius.argonautica', ref='A.R. 1.2', language='grc')
+    q = json.loads(r.get_data())['quotations'][0]
+    bolded = [quote_text[a:b] for a, b in q['bold_spans']]
+    assert bolded == [quote[2], quote[3], quote[4]]
+
+
+def test_a_possible_echo_with_too_little_overlap_is_not_shown_or_counted(monkeypatch, tmp_path):
+    """One shared rare triple inside a long prose paragraph (Jaccard below
+    POSSIBLE_MIN_JACCARD) is neither listed nor counted in the gutter; a
+    possible echo above it still is, and strict pairs are untouched."""
+    _reset_reuse_table_state(monkeypatch, tmp_path)
+    _write_lemma_cache(str(tmp_path / 'lemmas'), 'la', 'vergil.aeneid', [
+        ('verg. aen. 1.1', 'Arma virumque cano, Troiae qui primus ab oris')])
+    for work, ref in (('galenus.longus', 'gal. 3.7'), ('seneca.epistulae', 'sen. ep. 1.1'),
+                      ('macrobius.saturnalia', 'macr. 1.1')):
+        _write_lemma_cache(str(tmp_path / 'lemmas'), 'la', work, [(ref, 'arma virumque cano')])
+    _write_reuse_db(
+        str(tmp_path / 'reuse_pairs'), 'la',
+        pairs_rows=[
+            ('vergil.aeneid', 'verg. aen. 1.1', 'galenus.longus', 'gal. 3.7', 1, 0.0003, 1),
+            ('vergil.aeneid', 'verg. aen. 1.1', 'seneca.epistulae', 'sen. ep. 1.1', 1, 0.03, 1),
+            ('vergil.aeneid', 'verg. aen. 1.1', 'macrobius.saturnalia', 'macr. 1.1', 10, 0.0001, 1),
+        ],
+        line_counts_rows=[('vergil.aeneid', 'verg. aen. 1.1', 3)],
+        meta_rows=[('corpus_version', '2026-08-16')],
+    )
+    client = app.test_client()
+    out = json.loads(_get(client, _route('/reuse/line'), work='vergil.aeneid',
+                          ref='verg. aen. 1.1', language='la').get_data())
+    assert sorted(q['work'] for q in out['quotations']) == ['macrobius.saturnalia', 'seneca.epistulae']
+    marks = json.loads(_get(client, _route('/reuse/marks'), work='vergil.aeneid', language='la').get_data())
+    row = next(m for m in marks['lines'] if m['ref'] == 'verg. aen. 1.1')
+    assert row['n_works'] == 1 and row['n_possible_works'] == 1
+
+
+# --- language genericity (Persian/Urdu reuse tables, 2026-10-08) -------
+
+def test_is_available_and_the_routes_work_for_a_language_with_no_static_support(monkeypatch, tmp_path):
+    """Neither the builder (scripts/reuse/build_reuse_table.py) nor this
+    query layer names a language anywhere -- is_available() just checks
+    whether cache/reuse_pairs/<lang>.db exists and opens cleanly (see this
+    module's docstring). Proven here with Persian script and a language
+    code ('fa') that has no entry in backend/synonym_dict.py's stoplists
+    (_stopset_for in the build script falls back to an empty set), so
+    nothing about this path is Latin/Greek/English-specific."""
+    _reset_reuse_table_state(monkeypatch, tmp_path)
+    _write_lemma_cache(str(tmp_path / 'lemmas'), 'fa', 'iqbal.asrar_e_khudi', [
+        ('iqbal.asrar_e_khudi.19.20', 'هر کسی از ظن خود شد یار من از درون من نجست اسرار من'),
+    ])
+    _write_lemma_cache(str(tmp_path / 'lemmas'), 'fa', 'rumi.masnavi.part.1', [
+        ('rumi.masnavi.1.6', 'هر کسی از ظن خود شد یار من از درون من نجست اسرار من'),
+    ])
+    _write_reuse_db(
+        str(tmp_path / 'reuse_pairs'), 'fa',
+        pairs_rows=[
+            ('iqbal.asrar_e_khudi', 'iqbal.asrar_e_khudi.19.20',
+             'rumi.masnavi.part.1', 'rumi.masnavi.1.6', 10, 0.84, 1),
+        ],
+        line_counts_rows=[('iqbal.asrar_e_khudi', 'iqbal.asrar_e_khudi.19.20', 1)],
+        meta_rows=[('corpus_version', '2026-10-08'), ('language', 'fa')],
+    )
+    assert reuse_table.is_available('fa') is True
+    # A language whose table was never built answers False, same as before
+    # any language had one.
+    assert reuse_table.is_available('ur') is False
+
+    client = app.test_client()
+    r = _get(client, _route('/reuse/line'), work='iqbal.asrar_e_khudi',
+              ref='iqbal.asrar_e_khudi.19.20', language='fa')
+    assert r.status_code == 200
+    out = json.loads(r.get_data())
+    assert out['available'] is True
+    quote = out['quotations'][0]
+    assert quote['work'] == 'rumi.masnavi.part.1'
+    assert quote['ref'] == 'rumi.masnavi.1.6'
+    assert quote['text'] == 'هر کسی از ظن خود شد یار من از درون من نجست اسرار من'
+
+    marks = json.loads(_get(client, _route('/reuse/marks'), work='iqbal.asrar_e_khudi',
+                             language='fa').get_data())
+    row = next(m for m in marks['lines'] if m['ref'] == 'iqbal.asrar_e_khudi.19.20')
+    assert row['n_works'] == 1

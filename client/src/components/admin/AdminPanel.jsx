@@ -36,7 +36,6 @@ export default function AdminPanel() {
   const [resetLoading, setResetLoading] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
 
-  const [textRequests, setTextRequests] = useState([]);
   const [feedback, setFeedback] = useState([]);
   const [corpusStats, setCorpusStats] = useState(null);
   const [analytics, setAnalytics] = useState(null);
@@ -190,8 +189,7 @@ export default function AdminPanel() {
     setLoading(true);
     setLoadError(null);
     try {
-      const [requestsRes, feedbackRes, corpusRes, analyticsRes, lemmaCacheRes, searchCacheRes, frequencyCacheRes, bigramRes] = await Promise.all([
-        fetch('/api/admin/requests', { credentials: 'include' }),
+      const [feedbackRes, corpusRes, analyticsRes, lemmaCacheRes, searchCacheRes, frequencyCacheRes, bigramRes] = await Promise.all([
         fetch('/api/admin/feedback', { credentials: 'include' }),
         fetch('/api/corpus-status'),
         fetch('/api/admin/analytics', { credentials: 'include' }),
@@ -201,7 +199,6 @@ export default function AdminPanel() {
         fetch('/api/admin/bigram-cache/stats', { credentials: 'include' })
       ]);
 
-      const requests = await requestsRes.json();
       const feedbackData = feedbackRes.ok ? await feedbackRes.json() : [];
       const corpus = corpusRes.ok ? await corpusRes.json() : null;
       const analyticsData = analyticsRes.ok ? await analyticsRes.json() : null;
@@ -210,7 +207,6 @@ export default function AdminPanel() {
       const frequencyCache = frequencyCacheRes.ok ? await frequencyCacheRes.json() : {};
       const bigramData = bigramRes.ok ? await bigramRes.json() : {};
 
-      setTextRequests(requests.requests || []);
       setFeedback(Array.isArray(feedbackData) ? feedbackData : []);
       setCorpusStats(corpus?.summary?.total_texts || null);
       setAnalytics(analyticsData);
@@ -393,7 +389,6 @@ export default function AdminPanel() {
             {activeTab === 'requests' && (
               <RequestsTab
                 authHeaders={{}}
-                textRequests={textRequests}
                 onRefresh={loadAdminData}
               />
             )}

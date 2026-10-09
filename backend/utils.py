@@ -225,7 +225,12 @@ def enrich_metadata_with_author_dates(metadata, author_dates):
 
     author_key = metadata.get('author_key', '')
     normalized_author_key = normalize_author_date_key(author_key)
-    author_info = (
+    # A work may carry its own date ("anonymus.carmen_de_pippino"), which wins
+    # over its author's: anonymous works share one author key but not one date.
+    from backend.work_names import base_work
+    work_key = base_work(metadata.get('work_key') or '')
+    work_info = author_dates.get(f'{author_key}.{work_key}') if work_key else None
+    author_info = work_info or (
         author_dates.get(author_key)
         or author_dates.get(author_key.lower())
         or author_dates.get(normalized_author_key)
@@ -618,6 +623,17 @@ def detect_text_type(filename, content=None, filepath=None, language=None):
     return 'poetry'
 
 DISPLAY_NAMES = {
+    # Iqbal's titles: the Persian/Urdu connective -e (izafa) is joined to the
+    # word before it and not capitalized ("Zabur-e Ajam", not "Zabur E Ajam").
+    'armaghan_e_hijaz_persian': 'Armaghan-e Hijaz (Persian)',
+    'armaghan_e_hijaz_urdu': 'Armaghan-e Hijaz (Urdu)',
+    'asrar_e_khudi': 'Asrar-e Khudi',
+    'bal_e_jibril': 'Bal-e Jibril',
+    'bang_e_dra': 'Bang-e Dra',
+    'payam_e_mashriq': 'Payam-e Mashriq',
+    'rumuz_e_bekhudi': 'Rumuz-e Bekhudi',
+    'zabur_e_ajam': 'Zabur-e Ajam',
+    'zarb_e_kaleem': 'Zarb-e Kaleem',
     'vergil': 'Vergil',
     'vergil_pseudo': 'Pseudo-Vergil',
     'cicero': 'Cicero',
@@ -830,7 +846,6 @@ def safe_listdir(directory):
 # the title ("Kulliyat Wikisource"). Dropped from the display name; the id is
 # untouched. Where an author has several editions of one work (Ghalib's three
 # diwans) text_metadata_overrides.json gives each a distinguishing label.
-# (NC, 2026-09-07: "Do we need 'Wikisource' in the work title?")
 _SOURCE_SUFFIXES = ('_wikisource', '_pritchett')
 
 

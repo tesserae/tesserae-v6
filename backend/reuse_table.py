@@ -10,8 +10,13 @@ unique within a work; corpus-hygiene duplicate files still surface as
 "reuse" until they are retired -- see the report's "Top 20 work pairs").
 
 Backs GET /api/reuse/line and GET /api/reuse/marks (backend/blueprints/reuse.py).
-Latin only as of 2026-09-19; other languages answer is_available() = False
-until their table is built.
+The builder and this query layer are language-generic (no hardcoded
+language list anywhere in either): is_available() answers False for any
+language whose table has not been built yet, and True once
+cache/reuse_pairs/<lang>.db exists and opens cleanly. Latin shipped first
+(2026-09-19); whichever other languages' tables have actually been run on
+production is a deploy fact, not a code fact -- see CHANGELOG.md for what
+has shipped.
 
 Table schema (written by the build script):
     pairs(work_a, line_a_ref, work_b, line_b_ref, shared, jaccard, span_len)
@@ -37,6 +42,17 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_DIR = os.path.join(BASE_DIR, 'cache', 'reuse_pairs')
 CACHE_LEMMAS_DIR = os.path.join(BASE_DIR, 'cache', 'lemmas')
 AUTHOR_DATES_PATH = os.path.join(BASE_DIR, 'backend', 'author_dates.json')
+
+# A POSSIBLE ECHO (one shared rare word-triple) must also overlap the other
+# passage by at least this much (the pair's stored word-triple Jaccard), or it
+# is not shown in the Reuse tab or counted in the gutter. A long prose
+# paragraph shares some rare triple with almost anything: Argonautica 1.2
+# ("kata stoma kai dia petras") was listed beside a 1,139-word paragraph of
+# Galen on the stomach (Jaccard 0.0003) with nothing visible to connect them
+# (2026-10-07). At 0.002 the rule removes 28% of Latin and 25% of Greek
+# possible echoes and almost no English ones (180 of 113,707), where lines
+# are short; strict pairs are untouched. docs/DECISIONS.md, 2026-10-07.
+POSSIBLE_MIN_JACCARD = 0.002   # the queries' `(shared > 1 OR jaccard >= ?)`
 
 _connections = {}
 _author_dates = None
@@ -368,6 +384,11 @@ def _shared_word_mask(source_tokens, quote_tokens):
     return mask
 
 
+_WORD_CHAR = r'[\w\u0300-\u036f\u1dc0-\u1dff\u20d0-\u20ff]'
+_EDGE_BEFORE = r'(?<!' + _WORD_CHAR + r')'
+_EDGE_AFTER = r'(?!' + _WORD_CHAR + r')'
+
+
 def _bold_spans(text, original_tokens, mask):
     """[start, end) character spans in `text` for the tokens where mask[i]
     is True, for the client to wrap in <b>. Found by scanning
@@ -386,12 +407,17 @@ def _bold_spans(text, original_tokens, mask):
     whole line; a case-insensitive retry covers the ordinary reason a
     plain match fails, a casing difference between the cache and a
     since-corrected text file."""
+    # WORD EDGES COUNT COMBINING MARKS AS PART OF THE WORD (2026-10-07). The
+    # Greek corpus stores accents as separate marks after their letters, and
+    # re's \b treats a mark as a non-letter, so a word ending in one (kata
+    # with its grave accent) never matched and Greek reuse lines showed no
+    # highlight at all.
     spans = []
     pos = 0
     for i, tok in enumerate(original_tokens):
         if not tok:
             continue
-        pattern = r'\b' + re.escape(tok) + r'\b'
+        pattern = _EDGE_BEFORE + re.escape(tok) + _EDGE_AFTER
         m = re.compile(pattern).search(text, pos)
         if m is None:
             m = re.compile(pattern, re.IGNORECASE).search(text, pos)
@@ -442,12 +468,12 @@ def line(language, work, ref):
     try:
         rows = conn.execute(
             """SELECT work_b AS other_work, line_b_ref AS other_ref, shared, jaccard, span_len
-                 FROM pairs WHERE work_a = ? AND line_a_ref = ?
+                 FROM pairs WHERE work_a = ? AND line_a_ref = ? AND (shared > 1 OR jaccard >= ?)
                UNION ALL
                SELECT work_a AS other_work, line_a_ref AS other_ref, shared, jaccard, span_len
-                 FROM pairs WHERE work_b = ? AND line_b_ref = ?
+                 FROM pairs WHERE work_b = ? AND line_b_ref = ? AND (shared > 1 OR jaccard >= ?)
                ORDER BY shared DESC""",
-            (work, ref, work, ref)
+            (work, ref, POSSIBLE_MIN_JACCARD, work, ref, POSSIBLE_MIN_JACCARD)
         ).fetchall()
     except sqlite3.DatabaseError as e:
         logger.error(f"reuse_table.line query failed for {language}/{work}/{ref}: {e}")
@@ -518,10 +544,12 @@ def marks(language, work, ref_start=None, ref_end=None):
     work = _resolve_work(language, work)
     try:
         rows = conn.execute(
-            """SELECT line_a_ref AS ref, work_b AS other, shared FROM pairs WHERE work_a = ?
+            """SELECT line_a_ref AS ref, work_b AS other, shared FROM pairs
+                 WHERE work_a = ? AND (shared > 1 OR jaccard >= ?)
                UNION ALL
-               SELECT line_b_ref AS ref, work_a AS other, shared FROM pairs WHERE work_b = ?""",
-            (work, work)
+               SELECT line_b_ref AS ref, work_a AS other, shared FROM pairs
+                 WHERE work_b = ? AND (shared > 1 OR jaccard >= ?)""",
+            (work, POSSIBLE_MIN_JACCARD, work, POSSIBLE_MIN_JACCARD)
         ).fetchall()
     except sqlite3.DatabaseError as e:
         logger.error(f"reuse_table.marks query failed for {language}/{work}: {e}")

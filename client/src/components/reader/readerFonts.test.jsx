@@ -17,6 +17,9 @@ import path from 'node:path';
 
 const root = path.resolve(__dirname, '../../../..');
 const html = fs.readFileSync(path.join(root, 'client/index.html'), 'utf8');
+const css = fs.readFileSync(path.join(root, 'client/src/index.css'), 'utf8');
+// Families served from our own server (@font-face in index.css), not Google.
+const selfHosted = [...css.matchAll(/font-family:\s*'([^']+)';[^}]*src:\s*url\(/g)].map((m) => m[1]);
 const pane = fs.readFileSync(
   path.join(root, 'client/src/components/reader/TextPane.jsx'), 'utf8');
 
@@ -47,15 +50,20 @@ describe('every font the Reader asks for is actually loaded', () => {
     expect(used.length).toBeGreaterThan(0);
     for (const family of used) {
       // Georgia is a system font and is not fetched; everything else must be.
-      if (family === 'Georgia') continue;
+      if (family === 'Georgia' || selfHosted.includes(family)) continue;
       expect(requested,
         `${family} is used by TextPane but never loaded in index.html`)
         .toContain(family);
     }
   });
 
-  it('loads Gentium Book Plus, which is what covers polytonic Greek', () => {
-    expect(familiesRequested()).toContain('Gentium Book Plus');
+  it('serves the full Gentium Book itself, with the combining accents Google omits', () => {
+    expect(selfHosted).toContain('Gentium Book');
+    for (const f of ['Regular', 'Bold', 'Italic', 'BoldItalic']) {
+      expect(fs.existsSync(path.join(root, `client/public/fonts/gentium-book/GentiumBook-${f}.woff2`))).toBe(true);
+    }
+    expect(fs.existsSync(path.join(root, 'client/public/fonts/gentium-book/OFL.txt'))).toBe(true);
+    expect(familiesRequested()).not.toContain('Gentium Book Plus');
   });
 
   it('covers Hebrew, which Gentium does not', () => {
@@ -69,7 +77,7 @@ describe('every font the Reader asks for is actually loaded', () => {
   });
 
   it('keeps Gentium first, so Latin and Greek get the reading face', () => {
-    expect(familiesUsedByThePane()[0]).toBe('Gentium Book Plus');
+    expect(familiesUsedByThePane()[0]).toBe('Gentium Book');
   });
 });
 

@@ -1,8 +1,16 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
-import { Button, LoadingSpinner, Pagination, CiteButton } from '../common';
-import { usePagination } from '../../hooks/usePagination';
+import { Button, LoadingSpinner, Pagination, CiteButton, InfoBadge } from '../common';
+import { usePagination, useServerPagination, MAX_PAGE_SIZE } from '../../hooks/usePagination';
+import { fetchResultPage, fetchAllResults } from '../../utils/api';
 import { formatReference, formatElapsedTime } from '../../utils/formatting';
 import { languageName } from '../../utils/languageNames';
+import {
+  useCorpusTextMap,
+  resolveDisplayCitation,
+  siteIdFromRef,
+  formatRefrainPopover,
+} from '../../utils/textNames';
+import { channelLabel } from '../../utils/channels';
 import { displayGreekWithFinalSigma } from '../../utils/greekUtils';
 import { normalizeCoptic } from '../../utils/copticUtils';
 import { exportRowsToPDF } from '../../utils/exportResults';
@@ -17,17 +25,47 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 // The server now builds the full "<Author>, <Work title> <locus>" citation
 // itself (issue #566) and attaches it to each side as `citation`, the same
 // way Line Search has always shown it. Use that when a result carries it;
-// fall back to the old tag-parsing formatReference() only for results from
-// before this shipped (cached searches, saved parallels). side is 'source'
-// or 'target'.
-const citationFor = (r, side, language) => {
+// fall back to the old tag-parsing formatReference() for results from
+// before this shipped (cached searches, saved parallels); then, if that
+// still reads as the raw internal id (Persian, Urdu, or any other language
+// without a static abbreviation table -- result card tidy, 2026-10-08),
+// resolve it against the corpus list's own author/title (`corpusMap`, from
+// `useCorpusTextMap`). side is 'source' or 'target'.
+const citationFor = (r, side, language, corpusMap) => {
   const s = r[side];
-  if (s && s.citation) return s.citation;
-  return formatReference(r[`${side}_locus`] || s?.ref, language);
+  const raw = r[`${side}_locus`] || s?.ref;
+  const existing = (s && s.citation) || (raw ? formatReference(raw, language) : '');
+  return resolveDisplayCitation(existing, raw, corpusMap).text;
 };
+
+// Whether the "Matches:" line would say nothing the Refrain badge has not
+// already shown (result card tidy, 2026-10-08): true once every matched
+// word is one of the refrain's own words, so the matched-words line is
+// omitted rather than repeating the yellow badge in plain text.
+const matchedWordsAreRefrain = (r) => {
+  const radif = String(r?.poetics?.radif || '').trim();
+  if (!radif || !r.matched_words || r.matched_words.length === 0) return false;
+  const radifWords = new Set(radif.split(/\s+/).filter(Boolean));
+  return r.matched_words.every((w) => {
+    const word = typeof w === 'object' ? (w.lemma || w.word || w.display || '') : w;
+    return radifWords.has(String(word).trim());
+  });
+};
+
+// Builds an InfoBadge `more` link to the matching label in the Help page's
+// "Reading the results" section (result card tidy, second pass, 2026-10-08).
+const helpMore = (onOpenHelp, anchor) => ({
+  anchor,
+  onClick: () => onOpenHelp && onOpenHelp('reading-results', anchor),
+});
+
+const EMPTY = [];
 
 const SearchResults = ({
   results,
+  // {id, total, firstPage, pageSize, aggregates} when the server holds the
+  // complete list and `results` is only its first page; null otherwise.
+  resultSet = null,
   loading,
   error,
   pageSize,
@@ -35,6 +73,7 @@ const SearchResults = ({
   searchRunId,
   onRegister,
   onCorpusSearch,
+  onOpenHelp,
   onRerunFresh,
   sortBy,
   setSortBy,
@@ -49,6 +88,10 @@ const SearchResults = ({
   isQueued = false,
   queuedMessage = ''
 }) => {
+  // Author/title lookup for citations that fall through the static Latin/
+  // Greek/English tables (Persian, Urdu, ...): loads once per language and
+  // re-renders this list when it arrives (result card tidy, 2026-10-08).
+  const corpusMap = useCorpusTextMap(language);
   const [expandedResults, setExpandedResults] = useState({});
   // Standing chart sidebar: open by default (remembered per session), so a live
   // graph is on the comparison page with no extra clicks. Collapse toggles it.
@@ -73,6 +116,9 @@ const SearchResults = ({
   const [corpusData, setCorpusData] = useState(null);
   const [corpusLoading, setCorpusLoading] = useState(false);
   const [corpusSelectedAuthor, setCorpusSelectedAuthor] = useState(null);
+  // Lines fetched for a clicked author or work whose lines fell outside the
+  // first 500 the chart's search returned: { key, loci } (2026-10-07).
+  const [corpusExtraLoci, setCorpusExtraLoci] = useState(null);
   // Pin the sidebar via inline style (guaranteed to apply) only at the >=lg width
   // where the two-column layout is active; on narrow screens it flows normally.
   const [isWideLayout, setIsWideLayout] = useState(false);
@@ -156,6 +202,25 @@ const SearchResults = ({
   const paginationResetKey = `${searchRunId ?? ''}|${sortBy ?? ''}|` +
     `${chartFilter ? `${chartFilter.mode || 'book'}:${chartFilter.view}:${chartFilter.book ?? chartFilter.label ?? ''}` : ''}`;
 
+  // Server mode: the finished list lives on the server and every page, sort
+  // and chart filter is a request to it. Client mode: fusion's streaming
+  // previews, and any response without a result_id, paged in the browser.
+  const serverMode = Boolean(resultSet) && !loading;
+  const clientPagination = usePagination(serverMode ? EMPTY : filteredResults, {
+    pageSize,
+    onPageSizeChange,
+    resetKey: paginationResetKey,
+    // While fusion streams, the array grows on every intermediate event; hold
+    // page 1 so the pointer can never trail a set that is still being built.
+    pinToFirstPage: loading,
+  });
+  const serverPagination = useServerPagination(serverMode ? resultSet : null, {
+    pageSize,
+    onPageSizeChange,
+    resetKey: paginationResetKey,
+    sort: sortBy,
+    filter: chartFilter,
+  }, fetchResultPage);
   const {
     visibleItems,
     startIndex,
@@ -165,14 +230,24 @@ const SearchResults = ({
     pageSize: activePageSize,
     setPage,
     setPageSize,
-  } = usePagination(filteredResults, {
-    pageSize,
-    onPageSizeChange,
-    resetKey: paginationResetKey,
-    // While fusion streams, the array grows on every intermediate event; hold
-    // page 1 so the pointer can never trail a set that is still being built.
-    pinToFirstPage: loading,
-  });
+  } = serverMode ? serverPagination : clientPagination;
+  // Count of the whole (unfiltered) list, and of the list after the chart filter.
+  const allCount = serverMode ? resultSet.total : activeResults.length;
+  const filteredCount = serverMode ? totalResults : filteredResults.length;
+  // Exports and Tessa read rows the browser may not hold: fetch them on demand.
+  const loadAllRows = useCallback(
+    () => (serverMode ? fetchAllResults(resultSet.id) : Promise.resolve(results || [])),
+    [serverMode, resultSet, results]
+  );
+  const loadTopRows = useCallback(
+    (n) => {
+      if (!serverMode) return Promise.resolve(activeResults.slice(0, n));
+      // A page holds at most 100 rows; "all" beyond that comes from the export.
+      if (n > MAX_PAGE_SIZE) return fetchAllResults(resultSet.id).then(rows => rows.slice(0, n));
+      return fetchResultPage(resultSet.id, { offset: 0, limit: n, sort: sortBy }).then(d => d.results || []);
+    },
+    [serverMode, resultSet, sortBy, activeResults]
+  );
 
   // Theme Comparison's reading of each visible word-level result: one POST
   // per page (not per row) to /api/passages/pair-lift, keyed by position in
@@ -216,7 +291,7 @@ const SearchResults = ({
     pageSize: activePageSize,
     onPageChange: setPage,
     onPageSizeChange: setPageSize,
-    disabled: loading,
+    disabled: loading || serverPagination.pageLoading,
   };
 
   const toggleExpand = (index) => {
@@ -247,7 +322,10 @@ const SearchResults = ({
   // The locus as a citation names it: "verg. aen. 1.1" expanded by
   // formatReference. When a reference starts with the compared text's own id
   // (some corpora tag lines with the file id plus a locus), the author and
-  // title come from the text record and the id is cut away.
+  // title come from the text record and the id is cut away. Anything still
+  // raw after that (Persian, Urdu, ...) goes to the corpus list's own
+  // author/title before this falls back to the bare id (result card tidy,
+  // 2026-10-08).
   const displayLocus = useCallback((ref, info) => {
     const r = String(ref || '').replace(/<\/?.*?>/g, '').trim();
     const base = String(info?.id || '').replace(/\.tess$/, '');
@@ -255,18 +333,20 @@ const SearchResults = ({
       const name = [info.author, info.title || info.work].filter(Boolean).join(', ');
       return `${name} ${r.slice(base.length + 1)}`;
     }
-    return formatReference(r, language);
-  }, [language]);
+    return resolveDisplayCitation(formatReference(r, language), r, corpusMap).text;
+  }, [language, corpusMap]);
 
-  const exportCSV = useCallback(() => {
+  const exportCSV = useCallback(async () => {
     if (!results || results.length === 0) return;
+    let allRows;
+    try { allRows = await loadAllRows(); } catch { return; }
 
     // Sort by fused_score descending — the same score the on-screen list and
     // ranking show. Falls back to score / overall_score for legacy formats.
     // Without this explicit sort the CSV could appear unordered if the API
     // serializes results in some other internal order.
     const scoreOf = (r) => r.fused_score ?? r.score ?? r.overall_score ?? 0;
-    const sorted = [...results].sort((a, b) => scoreOf(b) - scoreOf(a));
+    const sorted = [...allRows].sort((a, b) => scoreOf(b) - scoreOf(a));
     const headers = ['Rank', 'Source Locus', 'Source Text', 'Target Locus', 'Target Text', 'Score', 'Matched Words', 'Channels'];
     const rows = sorted.map((r, idx) => {
       const mw = r.matched_words || [];
@@ -293,10 +373,12 @@ const SearchResults = ({
     a.download = `tesserae_results_${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-  }, [results]);
+  }, [results, loadAllRows, highlightMatchedWords]);
 
-  const exportPDF = useCallback(() => {
+  const exportPDF = useCallback(async () => {
     if (!results || results.length === 0) return;
+    let allRows;
+    try { allRows = await loadAllRows(); } catch { return; }
     const headers = ['#', 'Source Locus', 'Source Text', 'Target Locus', 'Target Text', 'Score', 'Matched Words', 'Channels'];
     // Token-based renderer: split source/target text on whitespace, compare each
     // token against the matched-word set. Robust against any script and avoids
@@ -340,7 +422,7 @@ const SearchResults = ({
     // serialize results in a different internal order; without an explicit
     // sort the PDF could appear out of order.
     const scoreOf = (r) => r.fused_score ?? r.score ?? r.overall_score ?? 0;
-    const sorted = [...results].sort((a, b) => scoreOf(b) - scoreOf(a));
+    const sorted = [...allRows].sort((a, b) => scoreOf(b) - scoreOf(a));
     const rows = sorted.map((r, idx) => {
       const mw = r.matched_words || [];
       const sourceText = (r.source_text || r.source_snippet || r.source?.text || '').replace(/<[^>]*>/g, '');
@@ -372,7 +454,7 @@ const SearchResults = ({
       lang: language || '',
       colWidths,
     });
-  }, [results, sourceTextInfo, targetTextInfo, language]);
+  }, [results, loadAllRows, sourceTextInfo, targetTextInfo, language]);
 
   const exportDistributionChart = () => {
     if (!chartRef.current) return;
@@ -392,6 +474,17 @@ const SearchResults = ({
   const getDistributionData = useCallback(() => {
     if (!results || results.length === 0) return null;
     const isSourceView = distributionChartView === 'source';
+    const color = isSourceView ? 'rgba(185, 28, 28, 0.7)' : 'rgba(217, 119, 6, 0.7)';
+    const border = isSourceView ? 'rgb(185, 28, 28)' : 'rgb(217, 119, 6)';
+    if (serverMode) {
+      // Computed by the server over every row (backend/result_pages.distribution).
+      const d = resultSet.aggregates?.distribution?.[distributionChartView];
+      if (!d) return null;
+      return {
+        _mode: d.mode, _band: d.band, labels: d.labels,
+        datasets: [{ label: 'Parallels', data: d.counts, backgroundColor: color, borderColor: border, borderWidth: 1 }]
+      };
+    }
     // A locus like "1.469" -> book 1, line 469; a flat "469" -> line only.
     const parseLoc = (locus) => {
       const nums = (String(locus).match(/\d+/g) || []).map(Number);
@@ -400,8 +493,6 @@ const SearchResults = ({
     const pts = results.map(r => parseLoc(isSourceView
       ? (r.source_locus || r.source?.ref || '')
       : (r.target_locus || r.target?.ref || '')));
-    const color = isSourceView ? 'rgba(185, 28, 28, 0.7)' : 'rgba(217, 119, 6, 0.7)';
-    const border = isSourceView ? 'rgb(185, 28, 28)' : 'rgb(217, 119, 6)';
     const books = new Set(pts.map(p => p.book).filter(b => b != null));
 
     // Single book (e.g. Aeneid 1 vs Lucan 1): a by-book chart is one useless
@@ -431,7 +522,7 @@ const SearchResults = ({
       labels: sorted,
       datasets: [{ label: 'Parallels', data: sorted.map(k => bookData[k].count), backgroundColor: color, borderColor: border, borderWidth: 1 }]
     };
-  }, [results, distributionChartView]);
+  }, [results, distributionChartView, serverMode, resultSet]);
 
   const distributionData = getDistributionData();
   const distIsLine = distributionData?._mode === 'line';
@@ -445,9 +536,30 @@ const SearchResults = ({
     const raw = (r?.matched_lemmas && r.matched_lemmas.length) ? r.matched_lemmas : (r?.matched_words || []);
     return raw
       .map(w => (typeof w === 'object' ? (w.lemma || w.word || '') : String(w)).trim())
-      .filter(w => /^[\p{L}]+$/u.test(w));
+      // Letters plus combining marks and the zero-width joiner, which Persian
+      // and Urdu words carry (mi-gasht is written with one), and Greek accents.
+      .filter(w => /^[\p{L}\p{M}\u200c]+$/u.test(w));
   };
-  const corpusHit = (results && results.length) ? results[Math.min(corpusHitIdx, results.length - 1)] : null;
+  // The picker offers the rows on screen in server mode (the browser no longer
+  // holds every row), numbered by their place in the whole list.
+  const pickerRows = serverMode ? visibleItems : (results || EMPTY);
+  const pickerOffset = serverMode ? startIndex : 0;
+  const corpusHit = pickerRows.length ? pickerRows[Math.min(corpusHitIdx, pickerRows.length - 1)] : null;
+
+  // OPEN ON A ROW THE CHART CAN DRAW (2026-10-07). The corpus chart needs two
+  // shared words, and Persian and Urdu results lead with refrain-and-rhyme
+  // rows that share one (the refrain), so the chart opened on "shares only one
+  // word" and looked as if it never worked. When a new list arrives, pick the
+  // first row with two or more shared words; the reader can still choose any.
+  const pickerKey = `${pickerOffset}|${pickerRows.length}|${pickerRows[0]?.source_locus || pickerRows[0]?.source?.ref || ''}`;
+  const lastPickerKey = useRef('');
+  useEffect(() => {
+    if (!pickerRows.length || lastPickerKey.current === pickerKey) return;
+    lastPickerKey.current = pickerKey;
+    const first = pickerRows.findIndex((r) => sharedLemmasOf(r).length >= 2);
+    setCorpusHitIdx(first >= 0 ? first : 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pickerKey]);
 
   useEffect(() => {
     if (sidebarMode !== 'corpus' || !showDistributionChart || loading || !corpusHit) return;
@@ -463,24 +575,56 @@ const SearchResults = ({
     })
       .then(res => res.json())
       .then(d => { if (!cancelled) setCorpusData({ query, corpus_version: d.corpus_version,
+        // Every work's count (by_work_all), so the chart covers the whole corpus
+        // even when the line list below stops at 500 (2026-10-07).
+        byWork: d.by_work_all || null, linesAll: d.lines_all ?? null,
         loci: (d.results || []).map(x => ({ era: x.era, year: x.year, author: x.author,
           work: x.work, locus: x.locus, text: x.text, matched_words: x.matched_words || [] })) }); })
       .catch(() => { if (!cancelled) setCorpusData({ query, loci: [], error: true }); })
       .finally(() => { if (!cancelled) setCorpusLoading(false); });
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sidebarMode, corpusHitIdx, showDistributionChart, loading, language, results]);
+  }, [sidebarMode, corpusHitIdx, showDistributionChart, loading, language, pickerRows]);
+
+  // The rows the corpus chart counts: one per work with its full count when the
+  // server sent them, else one per loaded line. A common pair (Persian "man ast")
+  // filled the 500-line list from two or three poets, and the chart left out
+  // the authors being compared.
+  const corpusCountRows = (cd) => (cd?.byWork?.length
+    ? cd.byWork.map(w => ({ author: w.author, work: w.work, era: w.era, year: w.year, n: w.count }))
+    : (cd?.loci || []).map(l => ({ author: l.author, work: l.work, era: l.era, year: l.year, n: 1 })));
+  // A clicked author or work with no line among the 500 loaded: fetch its own
+  // lines, so the list under the chart is never empty for a bar that is drawn.
+  useEffect(() => {
+    if (!corpusSelectedAuthor || !corpusData?.byWork?.length) return;
+    const byWork = corpusGroupBy === 'work';
+    const has = (corpusData.loci || []).some(l => ((byWork ? l.work : l.author) || 'Unknown') === corpusSelectedAuthor);
+    if (has) return;
+    const key = `${byWork ? 'w' : 'a'}|${corpusSelectedAuthor}`;
+    let cancelled = false;
+    fetch('/api/line-search', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: corpusData.query, language, search_type: 'lemma', max_results: 200,
+        ...(byWork ? { work: corpusSelectedAuthor } : { author: corpusSelectedAuthor }) }),
+    })
+      .then(res => res.json())
+      .then(d => { if (!cancelled) setCorpusExtraLoci({ key, loci: (d.results || []).map(x => ({ era: x.era, year: x.year,
+        author: x.author, work: x.work, locus: x.locus, text: x.text, matched_words: x.matched_words || [] })) }); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [corpusSelectedAuthor, corpusData, corpusGroupBy, language]);
 
   const CORPUS_COLOR = { backgroundColor: 'rgba(37, 99, 235, 0.7)', borderColor: 'rgb(37, 99, 235)', borderWidth: 1 };
   const getCorpusChartData = () => {
-    if (!corpusData || !corpusData.loci || !corpusData.loci.length) return null;
+    const countRows = corpusCountRows(corpusData);
+    if (!countRows.length) return null;
     if (corpusGroupBy === 'author' || corpusGroupBy === 'work') {
       const datedYear = (l) => (l.year != null && l.year < 9999 ? l.year : null);
       const agg = {}; // author (or work) -> { count, year }
-      corpusData.loci.forEach(l => {
+      countRows.forEach(l => {
         const a = (corpusGroupBy === 'work' ? l.work : l.author) || 'Unknown';
         if (!agg[a]) agg[a] = { count: 0, year: datedYear(l) };
-        agg[a].count++;
+        agg[a].count += l.n;
         if (agg[a].year == null) { const y = datedYear(l); if (y != null) agg[a].year = y; }
       });
       let authors = Object.keys(agg);
@@ -494,7 +638,7 @@ const SearchResults = ({
         datasets: [{ label: 'Occurrences', data: authors.map(a => agg[a].count), ...CORPUS_COLOR }] };
     }
     const byEra = {};
-    corpusData.loci.forEach(l => { const e = l.era || 'Unknown'; byEra[e] = (byEra[e] || 0) + 1; });
+    countRows.forEach(l => { const e = l.era || 'Unknown'; byEra[e] = (byEra[e] || 0) + l.n; });
     const eras = Object.keys(byEra).sort((a, b) => (ERA_ORDER[a] ?? 50) - (ERA_ORDER[b] ?? 50));
     return { labels: eras, datasets: [{ label: 'Occurrences', data: eras.map(e => byEra[e]), ...CORPUS_COLOR }] };
   };
@@ -542,12 +686,13 @@ const SearchResults = ({
     const host = timelineRef.current;
     if (!host) return;
     host.innerHTML = '';
-    if (!corpusData || !corpusData.loci || !corpusData.loci.length) return;
+    const countRows = corpusCountRows(corpusData);
+    if (!countRows.length) return;
     const datedYear = (l) => (l.year != null && l.year < 9999 ? l.year : null);
     const agg = {};
-    corpusData.loci.forEach(l => {
+    countRows.forEach(l => {
       const a = l.author || 'Unknown';
-      (agg[a] = agg[a] || { count: 0, year: datedYear(l) }).count++;
+      (agg[a] = agg[a] || { count: 0, year: datedYear(l) }).count += l.n;
       if (agg[a].year == null) { const y = datedYear(l); if (y != null) agg[a].year = y; }
     });
     let data = Object.entries(agg).map(([author, v]) => ({ author, count: v.count, year: v.year }))
@@ -1013,11 +1158,11 @@ const SearchResults = ({
               and then fill the page, and nothing said it had finished
               (2026-09-08). "polite" so it waits for a pause in speech. */}
           <h3 className="text-lg font-semibold text-gray-900" role="status" aria-live="polite">
-            {searchStats?.total_matches && searchStats.total_matches > activeResults.length
-              ? `Top ${activeResults.length.toLocaleString()} of ${searchStats.total_matches.toLocaleString()} Parallels`
-              : `${activeResults.length} Parallel${activeResults.length !== 1 ? 's' : ''} Found`}
+            {searchStats?.total_matches && searchStats.total_matches > allCount
+              ? `Top ${allCount.toLocaleString()} of ${searchStats.total_matches.toLocaleString()} Parallels`
+              : `${allCount} Parallel${allCount !== 1 ? 's' : ''} Found`}
             {loading && fusionProgress && (pauseUpdates ? ' (paused)' : ' (partial)')}
-            {chartFilter && ` (${filteredResults.length} ${chartFilter.mode === 'line' ? `at lines ${chartFilter.label}` : `in ${chartFilter.book}`})`}
+            {chartFilter && ` (${filteredCount} ${chartFilter.mode === 'line' ? `at lines ${chartFilter.label}` : `in ${chartFilter.book}`})`}
           </h3>
           {searchStats && (
             <p className="text-sm text-gray-500">
@@ -1029,6 +1174,8 @@ const SearchResults = ({
           {!loading && (
             <ResultsInsight
               results={activeResults}
+              total={allCount}
+              loadResults={loadTopRows}
               source={sourceTextInfo?.display_name || sourceTextInfo?.name}
               target={targetTextInfo?.display_name || targetTextInfo?.name}
               className="mt-2"
@@ -1127,7 +1274,7 @@ const SearchResults = ({
           {chartFilter && (
             <div className="mt-3 flex items-center justify-between bg-amber-50 border border-amber-200 rounded px-3 py-2">
               <span className="text-sm text-amber-800">
-                Filtering to {chartFilter.mode === 'line' ? `lines ${chartFilter.label}` : chartFilter.book} ({filteredResults.length} result{filteredResults.length !== 1 ? 's' : ''})
+                Filtering to {chartFilter.mode === 'line' ? `lines ${chartFilter.label}` : chartFilter.book} ({filteredCount} result{filteredCount !== 1 ? 's' : ''})
               </span>
               <button
                 onClick={() => setChartFilter(null)}
@@ -1148,9 +1295,10 @@ const SearchResults = ({
               onChange={(e) => setCorpusHitIdx(Number(e.target.value))}
               className="w-full border rounded px-2 py-1 text-xs"
             >
-              {(results || []).map((r, i) => (
+              {pickerRows.map((r, i) => (
                 <option key={i} value={i}>
-                  #{i + 1} · {citationFor(r, 'source', language)} ↔ {citationFor(r, 'target', language)}
+                  #{pickerOffset + i + 1} · {citationFor(r, 'source', language, corpusMap)} ↔ {citationFor(r, 'target', language, corpusMap)}
+                  {sharedLemmasOf(r).length < 2 ? ' (one word, no chart)' : ''}
                 </option>
               ))}
             </select>
@@ -1201,7 +1349,9 @@ const SearchResults = ({
             <p className="text-xs text-gray-500 mt-1">Showing the 30 most-cited {corpusIsWork ? 'works' : 'authors, in chronological order'}.</p>
           )}
           {corpusSelectedAuthor && corpusData && corpusData.loci && (() => {
-            const rows = corpusData.loci.filter(l => ((corpusIsWork ? l.work : l.author) || 'Unknown') === corpusSelectedAuthor);
+            const loaded = corpusData.loci.filter(l => ((corpusIsWork ? l.work : l.author) || 'Unknown') === corpusSelectedAuthor);
+            const extra = corpusExtraLoci && corpusExtraLoci.key === `${corpusIsWork ? 'w' : 'a'}|${corpusSelectedAuthor}` ? corpusExtraLoci.loci : null;
+            const rows = loaded.length ? loaded : (extra || []);
             return (
               <div className="mt-2 border-t pt-2">
                 <div className="flex items-center justify-between mb-1">
@@ -1229,7 +1379,10 @@ const SearchResults = ({
           })()}
           {corpusData && corpusData.loci && corpusData.loci.length > 0 && (
             <p className="text-xs text-gray-500 mt-2">
-              These words co-occur in {corpusData.loci.length} corpus lines{corpusData.corpus_version ? ` (corpus version ${corpusData.corpus_version})` : ''}.
+              {corpusData.linesAll != null && corpusData.byWork?.length
+                ? `These words occur together in ${corpusData.linesAll.toLocaleString()} corpus lines across ${corpusData.byWork.length} works; the chart counts them all.`
+                : `These words co-occur in ${corpusData.loci.length} corpus lines.`}
+              {corpusData.corpus_version ? ` Corpus version ${corpusData.corpus_version}.` : ''}
             </p>
           )}
           </>)}
@@ -1238,15 +1391,34 @@ const SearchResults = ({
 
       <div className="flex-1 min-w-0 w-full">
       <Pagination {...paginationProps} variant="full" idPrefix="parallels-top" />
-      {/* Colour legend for the poetic languages (2026-09-06): yellow is a word
-          shared by both lines, rose is each line's rhyme word, which is
-          usually a different word on the two sides. */}
-      {['fa', 'ur', 'ar'].includes(language) && visibleItems.some(r => r.poetics) && (
-        <p className="text-xs text-gray-600 mb-2 flex flex-wrap items-center gap-x-3 gap-y-1">
-          <span className="font-medium">Colours:</span>
-          <span><mark className="bg-yellow-200 px-1 rounded">yellow</mark> a word both lines share (the refrain, or a matched word)</span>
-          <span><mark className="bg-rose-200 px-1 rounded">rose</mark> each line's rhyme word, the word before the refrain; the same rhyme, usually different words</span>
+      {/* One legend line in place of the old "Colours" and "Badge colours"
+          pair (result card tidy, second pass, 2026-10-08): the highlight
+          colors when a poetic result is on screen, then a single hint that
+          every label opens its own explanation, then a link to the fuller
+          version in Help. */}
+      {visibleItems.length > 0 && (
+        <p className="text-xs text-gray-600 mb-2 flex flex-wrap items-center gap-x-1 gap-y-1">
+          <span className="font-medium">Highlights:</span>
+          {['fa', 'ur', 'ar'].includes(language) && visibleItems.some(r => r.poetics) ? (
+            <>
+              <span><mark className="bg-yellow-200 px-1 rounded">yellow</mark> shared word,</span>
+              <span><mark className="bg-rose-200 px-1 rounded">rose</mark> rhyme word.</span>
+            </>
+          ) : (
+            <span><mark className="bg-yellow-200 px-1 rounded">yellow</mark> shared word.</span>
+          )}
+          <span>Hover over or tap any label for its meaning.</span>
+          <button
+            type="button"
+            onClick={() => onOpenHelp && onOpenHelp('reading-results')}
+            className="text-amber-700 hover:text-amber-900 underline"
+          >
+            Reading the results
+          </button>
         </p>
+      )}
+      {serverMode && serverPagination.pageError && (
+        <p className="text-sm text-red-700" role="alert">{serverPagination.pageError}</p>
       )}
       <div className="space-y-3">
         {visibleItems.map((r, i) => (
@@ -1262,7 +1434,7 @@ const SearchResults = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <div className="text-xs text-gray-500 mb-1 leading-none">Source</div>
-                <div className="font-medium text-gray-900">{citationFor(r, 'source', language)}</div>
+                <div className="font-medium text-gray-900">{citationFor(r, 'source', language, corpusMap)}</div>
                 <div
                   className="text-gray-700 mt-1"
                   dir={dirFor(language)}
@@ -1279,7 +1451,7 @@ const SearchResults = ({
               </div>
               <div>
                 <div className="text-xs text-gray-500 mb-1">Target</div>
-                <div className="font-medium text-gray-900">{citationFor(r, 'target', language)}</div>
+                <div className="font-medium text-gray-900">{citationFor(r, 'target', language, corpusMap)}</div>
                 <div
                   className="text-gray-700 mt-1"
                   dir={dirFor(language)}
@@ -1292,109 +1464,169 @@ const SearchResults = ({
               </div>
             </div>
 
+            {/* Row 1: the score, then the poem's-form badges (refrain, rhyme,
+                meter, refrain lines) -- the group that shares the highlight
+                legend's yellow/rose. Row 2: how-common, then the evidence
+                badges (channels, theme), then the action buttons in their
+                own non-wrapping group at the right, so they shrink the gaps
+                around them before ever dropping to a third row at desktop
+                widths (result card tidy, second pass, 2026-10-08). Every
+                badge's popover is one short sentence with a "More" link into
+                Help; InfoBadge carries no icon, so the badge itself is the
+                trigger. */}
             <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t">
-              <span className="text-sm text-gray-600">
+              <InfoBadge
+                className="bg-white text-gray-600 px-0"
+                explanation="How strong the match is overall; results are ranked by it."
+                more={helpMore(onOpenHelp, 'score')}
+              >
                 Score: <span className="font-medium">{(r.fused_score ?? r.score ?? r.overall_score)?.toFixed(2) || '-'}</span>
-              </span>
-              {pairLifts[i] && typeof pairLifts[i].lift === 'number' && (
-                <span
-                  title="How much this pair's two lines resemble each other in content, above the two works' general resemblance to each other"
-                  className={`text-xs px-2 py-0.5 rounded ${
-                    pairLifts[i].level === 'strong'
-                      ? 'bg-red-50 text-red-800 border border-red-200 font-medium'
-                      : 'bg-gray-100 text-gray-600'}`}
-                >
-                  theme {pairLifts[i].lift >= 0 ? '+' : ''}{pairLifts[i].lift.toFixed(2)}
-                </span>
-              )}
-              {r.channels && r.channels.length > 0 && (
-                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
-                  {r.channels.length} channel{r.channels.length !== 1 ? 's' : ''}
-                </span>
-              )}
-              {r.features?.meter_score > 0 && (
-                <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">
-                  Metrical: {(r.features.meter_score * 100).toFixed(0)}%
-                </span>
-              )}
-              {typeof r.formula_count === 'number' && (
-                <span
-                  className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded"
-                  title="How many works in the corpus share this result's shared wording — a high count marks a recurring formula rather than a one-off echo"
-                >
-                  in {r.formula_count} work{r.formula_count !== 1 ? 's' : ''}
-                </span>
-              )}
+              </InfoBadge>
               {r.poetics && r.poetics.radif && (
-                <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded" title="Shared refrain (radif), highlighted in yellow">
+                <InfoBadge
+                  className="bg-yellow-100 text-yellow-800"
+                  explanation="The refrain (radif) both poems end on."
+                  more={helpMore(onOpenHelp, 'refrain')}
+                >
                   Refrain: <span dir="rtl">{r.poetics.radif}</span>
-                </span>
+                </InfoBadge>
               )}
               {r.poetics && r.poetics.qafia && (
-                <span className="text-xs bg-rose-100 text-rose-800 px-2 py-0.5 rounded" title={r.poetics.rhyme_only ? 'Shared rhyme letter (rawi); the rhyme word is marked in rose' : 'Shared rhyme (qafia); the rhyme word is marked in rose'}>
-                  Rhyme: <span dir="rtl">{r.poetics.rhyme_only ? r.poetics.qafia : '\u2026' + r.poetics.qafia}</span>
-                </span>
+                <InfoBadge
+                  className="bg-rose-100 text-rose-800"
+                  explanation={r.poetics.rhyme_only
+                    ? 'The rhyme letter (rawi) both poems share, weaker evidence than the full rhyme.'
+                    : 'The rhyme (qafiya) both poems share, before the refrain.'}
+                  more={helpMore(onOpenHelp, 'rhyme')}
+                >
+                  Rhyme: <span dir="rtl">{r.poetics.rhyme_only ? r.poetics.qafia : '…' + r.poetics.qafia}</span>
+                </InfoBadge>
               )}
               {r.poetics && r.poetics.meter && (
-                <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded" title="Both poems carry this meter label">
+                <InfoBadge
+                  className="bg-purple-100 text-purple-700"
+                  explanation="Both poems carry this meter label."
+                  more={helpMore(onOpenHelp, 'meter')}
+                >
                   Meter: <span dir="rtl">{r.poetics.meter}</span>
-                </span>
+                </InfoBadge>
               )}
-              {r.matched_words && r.matched_words.length > 0 && (
-                <span className="text-sm text-gray-600">
-                  Matches: <span className="font-medium">
-                    {r.matched_words.map(w => {
-                      const word = typeof w === 'object' ? (w.lemma || w.word || w.display || JSON.stringify(w)) : w;
-                      return displayGreekWithFinalSigma(word);
-                    }).join(', ')}
-                  </span>
-                </span>
+              {r.features?.meter_score > 0 && (
+                <InfoBadge
+                  className="bg-purple-100 text-purple-700"
+                  explanation="How much the two lines' scansion agrees, checked independently of shared words."
+                  more={helpMore(onOpenHelp, 'meter')}
+                >
+                  Metrical: {(r.features.meter_score * 100).toFixed(0)}%
+                </InfoBadge>
               )}
-              {r.channels && r.channels.length > 0 && (
-                <div className="flex flex-wrap gap-1 ml-1">
-                  {r.channels.map(ch => (
-                    <span key={ch} className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
-                      {ch}
+              {r.poetics && r.poetics.radif && (r.poetics.source_lines || []).length + (r.poetics.target_lines || []).length > 2 && (() => {
+                const refrainLines = formatRefrainPopover(r.poetics, corpusMap);
+                return (
+                  <InfoBadge
+                    className="bg-yellow-50 text-yellow-800"
+                    explanation="Every line where the two poems share this refrain; one result stands for the set."
+                    extra={refrainLines.lines.map((line, idx) => <div key={idx}>{line}</div>)}
+                    more={helpMore(onOpenHelp, 'refrain-lines')}
+                  >
+                    {(r.poetics.source_lines || []).length} + {(r.poetics.target_lines || []).length} refrain lines
+                  </InfoBadge>
+                );
+              })()}
+            </div>
+            <div className="flex flex-wrap sm:flex-nowrap items-start sm:items-center gap-2 mt-2">
+              <div className="flex flex-wrap items-center gap-2 flex-1 min-w-0">
+                {(typeof r.formula_count === 'number' || r.poetics?.corpus_poems != null) && (
+                  <span className="text-xs text-gray-500 font-medium">How common:</span>
+                )}
+                {typeof r.formula_count === 'number' && (
+                  <InfoBadge
+                    className="bg-gray-100 text-gray-600"
+                    explanation="How many works in the corpus contain this shared wording; high means common."
+                    more={helpMore(onOpenHelp, 'works-count')}
+                  >
+                    in {r.formula_count} work{r.formula_count !== 1 ? 's' : ''}
+                  </InfoBadge>
+                )}
+                {r.poetics && r.poetics.corpus_poems != null && (
+                  <InfoBadge
+                    className="bg-gray-100 text-gray-600"
+                    explanation="How many poems in the corpus end on this refrain and rhyme."
+                    more={helpMore(onOpenHelp, 'form-count')}
+                  >
+                    form in {r.poetics.corpus_poems} poem{r.poetics.corpus_poems !== 1 ? 's' : ''}
+                  </InfoBadge>
+                )}
+                {r.channels && r.channels.length > 0 && (
+                  <InfoBadge
+                    className="bg-blue-100 text-blue-700"
+                    explanation="Which kinds of evidence found this match."
+                    more={helpMore(onOpenHelp, 'channels')}
+                  >
+                    {r.channels.map((ch) => channelLabel(ch).toLowerCase()).join(' + ')}
+                  </InfoBadge>
+                )}
+                {pairLifts[i] && typeof pairLifts[i].lift === 'number' && (
+                  <InfoBadge
+                    className={`bg-blue-100 text-blue-700 ${pairLifts[i].level === 'strong' ? 'font-semibold' : ''}`}
+                    explanation="How much closer in content these lines are than the two works overall."
+                    more={helpMore(onOpenHelp, 'theme')}
+                  >
+                    theme {pairLifts[i].lift >= 0 ? '+' : ''}{pairLifts[i].lift.toFixed(2)}
+                  </InfoBadge>
+                )}
+                {r.matched_words && r.matched_words.length > 0 && !matchedWordsAreRefrain(r) && (
+                  <span className="text-sm text-gray-600">
+                    Matches: <span className="font-medium">
+                      {r.matched_words.map(w => {
+                        const word = typeof w === 'object' ? (w.lemma || w.word || w.display || JSON.stringify(w)) : w;
+                        return displayGreekWithFinalSigma(word);
+                      }).join(', ')}
                     </span>
-                  ))}
-                </div>
-              )}
-              <div className="flex-1"></div>
-              {r.match_basis !== 'semantic' && onCorpusSearch && (
-                <Button
-                  variant="tertiary"
-                  size="sm"
-                  onClick={() => onCorpusSearch(r)}
-                  title="Find these words together in other texts"
-                >
-                  Search Corpus
-                </Button>
-              )}
-              {onRegister && (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => onRegister(r)}
-                  title="Save this parallel to the Repository"
-                >
-                  Register
-                </Button>
-              )}
-              {/* A parallel is the thing a scholar actually puts in a footnote,
-                  so Cite belongs on the parallel and not only on the page
-                  (interface audit, 2026-09-08). */}
-              <CiteButton
-                finding={{
-                  kind: 'fusion search',
-                  source: displayLocus(r.source_locus || r.source?.ref, sourceTextInfo),
-                  target: displayLocus(r.target_locus || r.target?.ref, targetTextInfo),
-                  language: languageName(language),
-                  score: r.fused_score ?? r.score ?? r.overall_score,
-                  channels: Array.isArray(r.channels) ? r.channels.join(', ') : (r.channels || ''),
-                  corpusVersion: searchStats?.corpus_version,
-                  url: typeof window !== 'undefined' ? window.location.href : '',
-                }}
-              />
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                {r.match_basis !== 'semantic' && onCorpusSearch && (
+                  <Button
+                    variant="tertiary"
+                    size="sm"
+                    onClick={() => onCorpusSearch(r)}
+                    title="Find these words together in other texts"
+                  >
+                    Search Corpus
+                  </Button>
+                )}
+                {onRegister && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => onRegister(r)}
+                    title="Save this parallel to the Repository"
+                  >
+                    Register
+                  </Button>
+                )}
+                {/* A parallel is the thing a scholar actually puts in a footnote,
+                    so Cite belongs on the parallel and not only on the page
+                    (interface audit, 2026-09-08). */}
+                <CiteButton
+                  showReportLink
+                  finding={{
+                    kind: 'fusion search',
+                    source: displayLocus(r.source_locus || r.source?.ref, sourceTextInfo),
+                    target: displayLocus(r.target_locus || r.target?.ref, targetTextInfo),
+                    language: languageName(language),
+                    score: r.fused_score ?? r.score ?? r.overall_score,
+                    channels: Array.isArray(r.channels) ? r.channels.join(', ') : (r.channels || ''),
+                    corpusVersion: searchStats?.corpus_version,
+                    url: typeof window !== 'undefined' ? window.location.href : '',
+                    siteId: [siteIdFromRef(r.source_locus || r.source?.ref),
+                             siteIdFromRef(r.target_locus || r.target?.ref)]
+                      .filter(Boolean).join(' ~ '),
+                  }}
+                />
+              </div>
             </div>
             </div>{/* flex-1 */}
             </div>{/* flex row-number wrapper */}

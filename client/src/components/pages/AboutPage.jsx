@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import SourcesIntro from '../about/SourcesIntro';
 
-export default function AboutPage({ onNavigate }) {
+export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorConsumed }) {
   const [versionInfo, setVersionInfo] = useState({ version: '6.0', last_updated: null });
 
   useEffect(() => {
@@ -9,6 +9,21 @@ export default function AboutPage({ onNavigate }) {
       .then(res => res.json())
       .then(data => setVersionInfo(data))
       .catch(err => console.error('Failed to fetch version info:', err));
+  }, []);
+
+  // Opened at a specific anchor (the Cite popup's "How to cite Tesserae"
+  // link, or the matching Help sentence): scroll to that section once on
+  // mount, then let the parent clear the request (same pattern as
+  // HelpPage's initialSection/initialAnchor, result card tidy, 2026-10-08).
+  useEffect(() => {
+    if (initialAnchor) {
+      if (onAnchorConsumed) onAnchorConsumed();
+      requestAnimationFrame(() => {
+        const target = document.getElementById(initialAnchor);
+        if (target) target.scrollIntoView({ block: 'start' });
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const currentYear = new Date().getFullYear();
@@ -110,7 +125,7 @@ export default function AboutPage({ onNavigate }) {
           </div>
         </section>
 
-        <section>
+        <section id="how-to-cite">
           <h3 className="text-lg font-semibold text-gray-900 mb-3">How to Cite</h3>
           <div className="text-sm text-gray-700 space-y-2">
             <p>

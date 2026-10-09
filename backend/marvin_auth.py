@@ -269,6 +269,7 @@ def create_marvin_auth_blueprint():
         """Log out the current user"""
         if current_user.is_authenticated:
             logger.info(f"User logout user_id={current_user.id} email={current_user.email} ip={_client_ip()}")
+        session.clear()  # also ends any admin session held in the same cookie
         logout_user()
         if request.method == 'POST':
             return jsonify({'success': True})

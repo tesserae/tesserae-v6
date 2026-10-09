@@ -166,34 +166,141 @@ def load_units_cached(filepath, language, text_processor, unit_type='line'):
         pass
     return units
 
-def rebuild_lemma_cache(language, text_processor, progress_callback=None):
-    """Rebuild lemma cache for all texts in a language"""
+def _ends_sentence_grc_fast(text):
+    """Same check `TextProcessor._ends_sentence` uses for 'grc', without
+    needing a TextProcessor instance (the fast path below never loads
+    one)."""
+    text = text.rstrip()
+    return bool(text) and text[-1] in '.;·?!'
+
+
+def _fast_greek_units(filepath, unit_type, lemma_table):
+    """Line or phrase units for one Greek .tess file, lemmatized with the
+    SAME table-only lookup `scripts/build_inverted_index.py`'s --fast mode
+    uses for the index build (`tokenize_greek_fast` + `lemmatize_fast`): no
+    CLTK, no POS tagging. Imported lazily so this function, and the import
+    of `scripts.build_inverted_index` it needs, are only ever reached from
+    `rebuild_lemma_cache`'s `fast_greek=True` path -- never for an
+    existing, unmodified caller.
+
+    Returns the same unit-dict shape `TextProcessor.process_file` returns
+    (ref/text/tokens/original_tokens/lemmas/pos_tags/variant_lemmas/
+    hemistich_breaks, plus line_refs for phrase units), with `pos_tags`,
+    `variant_lemmas`, `hemistich_breaks` always empty (fast mode skips all
+    three, matching the index build's own fast mode) and `original_tokens`
+    set equal to `tokens` (the fast tokenizer does not keep a separate
+    original-case form)."""
+    from scripts.build_inverted_index import (  # local import: see docstring
+        lemmatize_fast, parse_tess_file, tokenize_greek_fast)
+
+    raw_lines = parse_tess_file(filepath)
+
+    def _unit(ref, text, line_refs=None):
+        tokens = tokenize_greek_fast(text)
+        lemmas = lemmatize_fast(tokens, lemma_table, 'grc')
+        unit = {
+            'ref': ref, 'text': text, 'tokens': tokens,
+            'original_tokens': tokens, 'lemmas': lemmas,
+            'pos_tags': [], 'variant_lemmas': [], 'hemistich_breaks': [],
+        }
+        if line_refs is not None:
+            unit['line_refs'] = line_refs
+        return unit
+
+    if unit_type == 'line':
+        return [_unit(ref, text) for ref, text in raw_lines]
+
+    units = []
+    buf_refs, buf_texts = [], []
+    for ref, text in raw_lines:
+        buf_refs.append(ref)
+        buf_texts.append(text)
+        if _ends_sentence_grc_fast(text):
+            combined_ref = buf_refs[0] if len(buf_refs) == 1 else f"{buf_refs[0]}-{buf_refs[-1]}"
+            units.append(_unit(combined_ref, ' '.join(buf_texts), list(buf_refs)))
+            buf_refs, buf_texts = [], []
+    if buf_texts:
+        combined_ref = buf_refs[0] if len(buf_refs) == 1 else f"{buf_refs[0]}-{buf_refs[-1]}"
+        units.append(_unit(combined_ref, ' '.join(buf_texts), list(buf_refs)))
+    return units
+
+
+def rebuild_lemma_cache(language, text_processor, progress_callback=None,
+                         file_filter=None, fast_greek=False,
+                         build_phrase_units=True):
+    """Rebuild lemma cache for all texts in a language.
+
+    `build_phrase_units` (default True, unchanged behavior for every
+    existing caller): when False, `units_phrase` is `[]` for every file
+    and `text_processor.process_file(..., 'phrase')` is never called.
+    Added for the documents build (stage 3b-1 follow-up), measured
+    directly against the documentary corpus's own largest bucket file
+    (`edr__roma__1_ad.tess`, 38,742 lines): that one file alone has a
+    706-LINE run with no sentence-ending punctuation at all (common in
+    epigraphic text, rare in literary text), so `process_file`'s phrase
+    mode accumulates a single ~700-line "sentence" before it ever
+    flushes, measured at 5.24 GB peak RSS for that one file alone (line
+    mode alone on the same file: 1.45 GB). Nothing in this stage reads
+    documents' phrase-mode cache entries (the index and
+    `query_documents_index.py` both work off line-level postings), so
+    skipping it here removes a measured, order-of-magnitude memory risk
+    for zero loss of anything currently used. Literary callers never
+    pass this and keep building phrase units exactly as before.
+
+    `file_filter` (default None, unchanged behavior): an optional
+    iterable of filenames to restrict the rebuild to (everything else in
+    `TEXTS_DIR/language` is left untouched). For sharding a large rebuild
+    across parallel processes, each given a disjoint subset of filenames.
+
+    `fast_greek` (default False, unchanged behavior for every existing
+    caller): when True AND `language == 'grc'`, lemmatizes with
+    `_fast_greek_units` (the index build's own table-only fast-mode
+    lookup) instead of `text_processor.process_file`, for both line and
+    phrase units, so a fast-mode-built documents index and its lemma
+    cache agree on every lemma. Ignored for any language other than
+    'grc'; the import it needs is local to `_fast_greek_units` and is
+    never reached unless this is explicitly True, so a caller that never
+    passes it is byte-for-byte on the same code path as before."""
     lang_dir = os.path.join(TEXTS_DIR, language)
     if not os.path.exists(lang_dir):
         return {'error': f'Language directory not found: {language}'}
-    
+
     text_files = [f for f in os.listdir(lang_dir) if f.endswith('.tess')]
+    if file_filter is not None:
+        allowed = set(file_filter)
+        text_files = [f for f in text_files if f in allowed]
     total = len(text_files)
     processed = 0
     errors = []
-    
+
+    lemma_table = None
+    if fast_greek and language == 'grc':
+        from scripts.build_inverted_index import load_lemma_table
+        lemma_table = load_lemma_table('grc')
+
     for text_file in text_files:
         try:
             filepath = os.path.join(lang_dir, text_file)
             file_hash = get_file_hash(filepath)
-            
-            units_line = text_processor.process_file(filepath, language, 'line')
-            units_phrase = text_processor.process_file(filepath, language, 'phrase')
-            
+
+            if lemma_table is not None:
+                units_line = _fast_greek_units(filepath, 'line', lemma_table)
+                units_phrase = (_fast_greek_units(filepath, 'phrase', lemma_table)
+                                if build_phrase_units else [])
+            else:
+                units_line = text_processor.process_file(filepath, language, 'line')
+                units_phrase = (text_processor.process_file(filepath, language, 'phrase')
+                                if build_phrase_units else [])
+
             save_cached_units(text_file, language, units_line, units_phrase, file_hash)
             processed += 1
-            
+
             if progress_callback:
                 progress_callback(processed, total, text_file)
-                
+
         except Exception as e:
             errors.append(f"{text_file}: {str(e)}")
-    
+
     return {
         'success': True,
         'language': language,
