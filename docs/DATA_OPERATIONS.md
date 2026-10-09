@@ -34,6 +34,18 @@ Conventions
   and `scripts/corpus/rebuild_docfreq.py` already follow the convention by
   hand and are the models the helper matches.
 
+## Standing rule: every import adds a credits record
+
+Every import of texts, documents or a scholarship source (a commentary
+collection, a citation index, a search service) adds one record to
+`data/sources_credits.json` in the same pull request: collection, name, url,
+licence_name, licence_url, version (commit, DOI or date), retrieved date,
+what we use, notes. The Sources and credits section of the Text Credits page
+(`/text-credits`) is built from that file, so no code change is needed.
+Record only licence wording that was read at the source; say so in `notes`
+where it could not be read. `tests/test_sources_credits.py` checks the
+required fields.
+
 ## Restricted texts: how they are held
 
 Some texts arrive under a licence that allows them to sit in the index and

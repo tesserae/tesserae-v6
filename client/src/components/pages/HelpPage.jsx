@@ -1907,6 +1907,13 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 papyri.info. Each result credits its own source and license. Where EDH and EDR
                 both cover the same inscription, both are shown.
               </p>
+              <p className="text-gray-700 mb-3">
+                EDH is used under CC BY-SA 4.0, I.Sicily and the EDR deposit under CC BY 4.0, and
+                the papyri.info texts and HGV records under CC BY 3.0, with copyright and attribution
+                to the respective projects. Findspots link to Pleiades (CC BY 3.0). The full list,
+                with the version and retrieval date of each, is under{' '}
+                <a href="/text-credits" className="text-red-700 hover:underline">Sources and credits</a>.
+              </p>
             </div>
           )}
 

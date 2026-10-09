@@ -82,6 +82,7 @@ data/la_mqdq_temp/
 !data/text_descriptions.json
 !data/lemma_tables/
 !data/text_genres.csv
+!data/sources_credits.json
 !data/translation_pairs.json
 # data/translations/ holds one aligned-translation JSON per work (built
 # offline, not committed) EXCEPT the small links/ subdirectory: hand-sized

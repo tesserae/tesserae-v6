@@ -145,6 +145,11 @@ MANIFEST = {
                 "only the former is wired in. Folding provenance.json in as a fallback would "
                 "raise describe_text's coverage -- flagged, not done, in the parity report."),
     },
+    '/api/sources-credits': {
+        'site_only': True,
+        'reason': ('Site copy for the Text Credits page (one record per source, licence and '
+                   'version); a connector client reads each text\'s own credit through describe_text.'),
+    },
     '/api/text-credits': {
         'tools': ['describe_text'],
         'note': ("describe_text exposes one text's Sources-page entry from the same "

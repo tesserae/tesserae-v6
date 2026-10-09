@@ -228,7 +228,7 @@ export default function AboutPage({ onNavigate, initialAnchor = null, onAnchorCo
               </svg>
             </div>
             <p className="text-sm text-amber-700 mt-2">
-              View electronic and print sources for every text in our corpus, with links to the original databases and full citation information.
+              View the sources and licences of every collection (texts, translations, inscriptions and papyri, scholarship), and the electronic and print source of every text in our corpus, with links to the original databases.
             </p>
           </button>
         </section>

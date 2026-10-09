@@ -367,6 +367,23 @@ def _restricted_credit_entries():
     return entries
 
 
+SOURCES_CREDITS_FILE = Path(__file__).parent.parent.parent / "data" / "sources_credits.json"
+SOURCES_CREDITS_REQUIRED = ('collection', 'name', 'url', 'licence_name')
+
+
+@corpus_bp.route('/sources-credits')
+def get_sources_credits():
+    """The Sources and credits records for every collection, from
+    data/sources_credits.json (one record per source; each import adds one)."""
+    try:
+        with open(SOURCES_CREDITS_FILE, 'r', encoding='utf-8') as f:
+            records = json.load(f)
+    except (OSError, ValueError):
+        logger.exception('sources_credits.json unreadable')
+        return jsonify({'error': 'Sources list unavailable'}), 500
+    return jsonify({'records': records, 'total': len(records)})
+
+
 @corpus_bp.route('/text-credits')
 def get_text_credits():
     """Get a filtered page of text credits from the static provenance data."""
