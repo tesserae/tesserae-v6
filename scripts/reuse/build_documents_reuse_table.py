@@ -172,6 +172,84 @@ def load_formula_words(language):
     return words
 
 
+def load_function_words(language):
+    """Function-word lemmas (data/documents/function_words_<lang>.txt:
+    CLTK stopword list plus a few frequent pronoun lemmas, see the file's
+    own header) used by the pair quality filter."""
+    path = os.path.join(FORMULA_WORDS_DIR_DEFAULT, f'function_words_{language}.txt')
+    words = set()
+    if not os.path.exists(path):
+        return words
+    with open(path, 'r', encoding='utf-8') as f:
+        for raw_line in f:
+            raw_line = raw_line.split('#', 1)[0].strip()
+            if raw_line:
+                words.add(_fold_simple(raw_line))
+    return words
+
+
+import re  # noqa: E402
+
+# Roman numerals: a valid numeral string (m, then d/c, l/x, v/i groups in
+# order). The lemma table cannot tell a numeral from a word (it lists i, ii,
+# iii, li, dc as entries), so a few real words that happen to be valid
+# numerals are excluded by hand.
+_ROMAN_RE = re.compile(r'^m{0,4}(cm|cd|d?c{0,3})(xc|xl|l?x{0,3})(ix|iv|v?i{0,3})$')
+_ROMAN_REAL_WORDS = {'mi', 'di', 'dii', 'li', 'ci', 'mix'}
+# Greek alphabetic numerals as the caches store them (accents and the
+# keraia are gone, so a token cannot be told from a word by its mark):
+# at most one hundreds letter, then one tens letter, then one units letter,
+# in that order, 1 to 3 letters (ib = 12, lb = 32, rkh = 128). Words that
+# fit the shape (me, se, pe) are function words anyway.
+_GREEK_NUM_RE = re.compile(
+    '^[ρστυφχψωϡ]?[ικλμνξοπϙ]?[αβγδεϛζηθ]?$')
+
+
+def is_numeral_lemma(word, language=None):
+    """True if `word` is a Roman numeral (Latin) or an alphabetic numeral
+    (Greek) rather than an ordinary word. Single letters count (sigla)."""
+    if not word:
+        return False
+    if language == 'la':
+        return word not in _ROMAN_REAL_WORDS and bool(_ROMAN_RE.match(word))
+    if language == 'grc':
+        return len(word) <= 3 and bool(_GREEK_NUM_RE.match(word))
+    return False
+
+
+def longest_shared_run(a, b):
+    """Length of the longest contiguous run of lemmas that appears, in the
+    same order and adjacent, in both lists (longest common substring)."""
+    best = 0
+    prev = [0] * (len(b) + 1)
+    for x in a:
+        cur = [0] * (len(b) + 1)
+        for j, y in enumerate(b, 1):
+            if x == y:
+                cur[j] = prev[j - 1] + 1
+                if cur[j] > best:
+                    best = cur[j]
+        prev = cur
+    return best
+
+
+def pair_quality(lit_lemmas, doc_lemmas, function_words, min_content=2, min_run=2,
+                 language=None):
+    """Quality test for one literary/document line pair. Returns
+    (content_shared, longest_run, fails_content, fails_run): the number of
+    distinct shared lemmas that are not function words, the longest
+    contiguous shared lemma run (function words included), and whether each
+    threshold was missed. A pair that shares only function words (a Greek
+    pair sharing o, kai, en, eis) fails the content test; two content
+    lemmas that are not adjacent fail the run test."""
+    lit_l = [_fold_simple(w) for w in lit_lemmas]
+    doc_l = [_fold_simple(w) for w in doc_lemmas]
+    content = {w for w in set(lit_l) & set(doc_l)
+               if w and w not in function_words and not is_numeral_lemma(w, language)}
+    run = longest_shared_run(lit_l, doc_l)
+    return len(content), run, len(content) < min_content, run < min_run
+
+
 def document_lemma_doc_counts(index_db_path):
     """{lemma: n_distinct_documents} for this language's documents index,
     computed from `postings` (lemma, text_id, ref, positions) by mapping
@@ -264,6 +342,11 @@ def load_sidecar(sidecar_root, language, bucket):
 
 def build_combined_index(lit_cache_data, doc_lines, index_db_path, max_df,
                           formula_words, doc_lemma_counts, language=None):
+    # lit_cache_data: a mapping {basename: cache} or any iterable of
+    # (basename, cache) pairs, so main() can hand over one work at a time.
+    # Formula n-grams are found line by line as the index is written, not in
+    # a second pass over a list of every line: holding every Greek cache
+    # plus that list reached the 12 GB cap and stalled (2026-10-09).
     """Index BOTH collections' lines into one temp SQLite db (lines,
     postings), banality-filtered corpus-wide exactly like
     build_reuse_table.py's build_index -- a trigram common across either
@@ -306,9 +389,27 @@ def build_combined_index(lit_cache_data, doc_lines, index_db_path, max_df,
 
     line_id = 0
     n_lit_lines = n_doc_lines = n_too_short = 0
-    formula_pass_items = []   # (tokens, lemmas) for every line, both collections
+    formula_hashes = set()
 
-    for tess_basename, data in lit_cache_data.items():
+    def note_formulas(tokens, lemmas):
+        # FORMULA n-grams: every word of the triple is a formula word (on
+        # the word list) or a lemma used by more than
+        # DOCUMENT_FORMULA_MAX_DOCS distinct documents -- see this module's
+        # docstring.
+        if len(tokens) < 3:
+            return
+        lemmas = lemmas if len(lemmas) == len(tokens) else tokens
+        for idxs in gen_ngram_indices(len(tokens)):
+            tok_gram = tuple(tokens[i] for i in idxs)
+            if all(
+                _fold_simple(tokens[i]) in formula_words
+                or doc_lemma_counts.get(lemmas[i], 0) > DOCUMENT_FORMULA_MAX_DOCS
+                for i in idxs
+            ):
+                formula_hashes.add(lit.hash_ngram(tok_gram))
+
+    pairs = lit_cache_data.items() if hasattr(lit_cache_data, 'items') else lit_cache_data
+    for tess_basename, data in pairs:
         work_id = data.get('text_id', tess_basename)
         if work_id.endswith('.tess'):
             work_id = work_id[:-len('.tess')]
@@ -317,7 +418,7 @@ def build_combined_index(lit_cache_data, doc_lines, index_db_path, max_df,
             lemmas = lit._line_lemmas(unit)
             ref = unit.get('ref', '')
             n_lit_lines += 1
-            formula_pass_items.append((tokens, lemmas))
+            note_formulas(tokens, lemmas)
             if len(tokens) < 3:
                 n_too_short += 1
                 line_rows.append((line_id, 'lit', work_id, ref, seq, len(tokens)))
@@ -341,7 +442,7 @@ def build_combined_index(lit_cache_data, doc_lines, index_db_path, max_df,
         tokens = unit['tokens']
         lemmas = unit['lemmas'] if len(unit['lemmas']) == len(tokens) else tokens
         n_doc_lines += 1
-        formula_pass_items.append((tokens, lemmas))
+        note_formulas(tokens, lemmas)
         if len(tokens) < 3:
             n_too_short += 1
             line_rows.append((line_id, 'doc', unit['doc_id'], unit['ref'], unit['doc_seq'], len(tokens)))
@@ -368,25 +469,6 @@ def build_combined_index(lit_cache_data, doc_lines, index_db_path, max_df,
     print(f"[build_documents_reuse_table] index: {n_lit_lines} literary lines, "
           f"{n_doc_lines} document lines ({n_too_short} under 3 tokens), "
           f"elapsed {time.time()-t0:.1f}s")
-
-    # FORMULA n-grams: every word of the triple is a formula word (on the
-    # word list) or a lemma used by more than DOCUMENT_FORMULA_MAX_DOCS
-    # distinct documents -- see this module's docstring.
-    formula_hashes = set()
-    for tokens, lemmas in formula_pass_items:
-        if len(tokens) < 3:
-            continue
-        lemmas = lemmas if len(lemmas) == len(tokens) else tokens
-        for idxs in gen_ngram_indices(len(tokens)):
-            tok_gram = tuple(tokens[i] for i in idxs)
-            lem_gram = tuple(lemmas[i] for i in idxs)
-            is_formula = all(
-                _fold_simple(tok) in formula_words
-                or doc_lemma_counts.get(lem, 0) > DOCUMENT_FORMULA_MAX_DOCS
-                for tok, lem in zip(tok_gram, lem_gram)
-            )
-            if is_formula:
-                formula_hashes.add(lit.hash_ngram(tok_gram))
 
     print(f"[build_documents_reuse_table] index: {len(formula_hashes)} n-grams are "
           f"formula-word-only (word list + >{DOCUMENT_FORMULA_MAX_DOCS}-document lemmas), "
@@ -425,7 +507,8 @@ def build_combined_index(lit_cache_data, doc_lines, index_db_path, max_df,
 
 
 def find_cross_pairs(index_db_path, min_shared, min_jaccard, min_shared_override,
-                      min_containment, rare_max_df, rare_min_containment, formula_hashes):
+                      min_containment, rare_max_df, rare_min_containment, formula_hashes,
+                      quality_filter=None):
     """Same scoring as build_reuse_table.py's find_pairs (jaccard rule,
     containment override, rare-single-ngram rule, formula_hashes gate), but
     a pair is only ever formed between a 'lit' line and a 'doc' line -- never
@@ -532,26 +615,44 @@ def find_cross_pairs(index_db_path, min_shared, min_jaccard, min_shared_override
           f"elapsed {time.time()-t0:.1f}s")
 
     # Resolve to (lit_work, lit_ref, lit_seq, doc_id, doc_bucket, doc_ref, doc_seq, shared, jaccard)
-    pair_info = []
-    pair_by_seq = {}
+    resolved = []
     for a, b, shared, jaccard in kept:
         ca, wa, ra, sa = line_meta[a]
         cb, wb, rb, sb = line_meta[b]
         if ca == 'lit':
-            lit_work, lit_ref, lit_seq = wa, ra, sa
-            doc_id, doc_ref, doc_seq = wb, rb, sb
+            resolved.append((wa, ra, sa, wb, rb, sb, shared, jaccard))
         else:
-            lit_work, lit_ref, lit_seq = wb, rb, sb
-            doc_id, doc_ref, doc_seq = wa, ra, sa
+            resolved.append((wb, rb, sb, wa, ra, sa, shared, jaccard))
+
+    n_before_quality = len(resolved)
+    quality_stats = {}
+    content_counts = [None] * len(resolved)
+    if quality_filter is not None:
+        # quality_filter(resolved) -> (verdicts, stats); verdicts[i] is
+        # (content_shared, fails_content, fails_run).
+        verdicts, quality_stats = quality_filter(resolved)
+        kept_resolved = []
+        for r, (n_content, fails_c, fails_r) in zip(resolved, verdicts):
+            if fails_c or fails_r:
+                continue
+            content_counts[len(kept_resolved)] = n_content
+            kept_resolved.append(r)
+        resolved = kept_resolved
+        print(f"[build_documents_reuse_table] quality filter: {quality_stats}", flush=True)
+
+    pair_info = []
+    pair_by_seq = {}
+    for i, (lit_work, lit_ref, lit_seq, doc_id, doc_ref, doc_seq, shared, jaccard) in enumerate(resolved):
         idx = len(pair_info)
-        pair_info.append([lit_work, lit_ref, lit_seq, doc_id, doc_ref, doc_seq, shared, jaccard, 1])
+        pair_info.append([lit_work, lit_ref, lit_seq, doc_id, doc_ref, doc_seq, shared, jaccard, 1,
+                          content_counts[i]])
         pair_by_seq[(lit_work, doc_id, lit_seq, doc_seq)] = idx
 
     # Chain adjacent quoted lines into spans, same rule as the literary
     # table: the literary line advances by 1 AND the document's own local
     # line sequence advances by 1 in the same pair of works.
     visited = set()
-    for idx, (lit_work, lit_ref, lit_seq, doc_id, doc_ref, doc_seq, shared, jaccard, _) in enumerate(pair_info):
+    for idx, (lit_work, lit_ref, lit_seq, doc_id, doc_ref, doc_seq, shared, jaccard, _, _cs) in enumerate(pair_info):
         if idx in visited:
             continue
         chain = [idx]
@@ -573,6 +674,8 @@ def find_cross_pairs(index_db_path, min_shared, min_jaccard, min_shared_override
         'pairs_kept_via_rare_single_ngram': n_kept_via_rare_single,
         'candidates_excluded_all_formula': n_excluded_all_formula,
         'pairs_elapsed_seconds': time.time() - t0,
+        'pairs_before_quality_filter': n_before_quality,
+        'quality_filter': quality_stats,
     }
     return pair_info, stats
 
@@ -604,16 +707,17 @@ def write_output_db(out_db_path, pair_info, doc_sidecars_by_pair_bucket, meta):
     conn.execute("""CREATE TABLE pairs (
         lit_work TEXT, lit_ref TEXT, lit_seq INTEGER,
         doc_id TEXT, doc_bucket TEXT, doc_ref TEXT, doc_seq INTEGER,
-        shared INTEGER, jaccard REAL, span_len INTEGER, doc_restored INTEGER
+        shared INTEGER, jaccard REAL, span_len INTEGER, doc_restored INTEGER,
+        content_shared INTEGER
     )""")
     rows = []
-    for lit_work, lit_ref, lit_seq, doc_id, doc_ref, doc_seq, shared, jaccard, span_len in pair_info:
+    for lit_work, lit_ref, lit_seq, doc_id, doc_ref, doc_seq, shared, jaccard, span_len, content_shared in pair_info:
         doc_bucket = doc_sidecars_by_pair_bucket.get(doc_id, '')
         restored = _pair_restored_flag(
             doc_sidecars_by_pair_bucket.get('__sidecars__', {}), doc_id, doc_ref, doc_bucket)
         rows.append((lit_work, lit_ref, lit_seq, doc_id, doc_bucket, doc_ref, doc_seq,
-                     shared, jaccard, span_len, restored))
-    conn.executemany("INSERT INTO pairs VALUES (?,?,?,?,?,?,?,?,?,?,?)", rows)
+                     shared, jaccard, span_len, restored, content_shared))
+    conn.executemany("INSERT INTO pairs VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", rows)
     conn.execute("CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT)")
     conn.executemany("INSERT INTO meta VALUES (?,?)",
                       [(k, '' if v is None else str(v)) for k, v in meta.items()])
@@ -637,6 +741,12 @@ def main():
     ap.add_argument('--min-containment', type=float, default=0.5)
     ap.add_argument('--rare-max-df', type=int, default=20)
     ap.add_argument('--rare-min-containment', type=float, default=0.06)
+    ap.add_argument('--min-content-lemmas', type=int, default=2,
+                    help='quality filter: minimum distinct shared non-function-word lemmas')
+    ap.add_argument('--min-run', type=int, default=2,
+                    help='quality filter: minimum longest contiguous run of shared lemmas')
+    ap.add_argument('--no-quality-filter', action='store_true',
+                    help='disable the quality filter (keeps the old noisy behaviour)')
     ap.add_argument('--out-db', default=None)
     ap.add_argument('--stats-out', default=None)
     args = ap.parse_args()
@@ -659,13 +769,32 @@ def main():
     lemma_cache_mod.TEXTS_DIR = args.literary_texts_root
     lemma_cache_mod.CACHE_DIR = args.literary_cache_root
     try:
-        lit_cache_data, skipped_parts, missing_cache = lit.discover_corpus(args.language)
+        lit_files, skipped_parts = lit.list_corpus_files(args.language)
     finally:
         lit.TEXTS_DIR, lit.CACHE_DIR = orig_lit
         lemma_cache_mod.TEXTS_DIR, lemma_cache_mod.CACHE_DIR = orig_lcm
+    missing_cache = []
+    loaded_works = []
 
-    print(f"[build_documents_reuse_table] {len(lit_cache_data)} literary works "
-          f"({len(skipped_parts)} .part. skipped, {len(missing_cache)} missing cache)")
+    def iter_literary():
+        # One work's cache in memory at a time (see build_combined_index).
+        saved = ((lit.TEXTS_DIR, lit.CACHE_DIR),
+                 (lemma_cache_mod.TEXTS_DIR, lemma_cache_mod.CACHE_DIR))
+        lit.TEXTS_DIR = lemma_cache_mod.TEXTS_DIR = args.literary_texts_root
+        lit.CACHE_DIR = lemma_cache_mod.CACHE_DIR = args.literary_cache_root
+        try:
+            for fname in lit_files:
+                cached = lit.get_cached_units(fname, args.language)
+                if cached is None:
+                    missing_cache.append(fname)
+                    continue
+                loaded_works.append(fname)
+                yield fname, cached
+        finally:
+            (lit.TEXTS_DIR, lit.CACHE_DIR), (lemma_cache_mod.TEXTS_DIR, lemma_cache_mod.CACHE_DIR) = saved
+
+    print(f"[build_documents_reuse_table] {len(lit_files)} literary works to read "
+          f"({len(skipped_parts)} .part. skipped)", flush=True)
 
     doc_lines, doc_lemma_counts = discover_documents(args.language, args.documents_index_dir)
     print(f"[build_documents_reuse_table] {len(doc_lines)} document lines, "
@@ -679,11 +808,80 @@ def main():
     index_db_path = os.path.join(tmp_dir, f'{args.language}_index.db')
     try:
         index_stats, formula_hashes = build_combined_index(
-            lit_cache_data, doc_lines, index_db_path, args.max_df,
+            iter_literary(), doc_lines, index_db_path, args.max_df,
             formula_words, doc_lemma_counts, language=args.language)
+        function_words = load_function_words(args.language)
+
+        def quality_filter(resolved):
+            # Lemma lists for every kept pair's two lines: document lines
+            # from doc_lines (in memory), literary lines by re-reading only
+            # the caches of works that appear in a kept pair.
+            need_lit = defaultdict(set)
+            need_doc = set()
+            for lw, _lr, ls, di, _dr, ds, _sh, _j in resolved:
+                need_lit[lw].add(ls)
+                need_doc.add((di, ds))
+            doc_lem = {}
+            for u in doc_lines:
+                key = (u['doc_id'], u['doc_seq'])
+                if key in need_doc:
+                    toks = u['tokens']
+                    doc_lem[key] = u['lemmas'] if len(u['lemmas']) == len(toks) else toks
+            lit_lem = {}
+            saved = ((lit.TEXTS_DIR, lit.CACHE_DIR),
+                     (lemma_cache_mod.TEXTS_DIR, lemma_cache_mod.CACHE_DIR))
+            lit.TEXTS_DIR = lemma_cache_mod.TEXTS_DIR = args.literary_texts_root
+            lit.CACHE_DIR = lemma_cache_mod.CACHE_DIR = args.literary_cache_root
+            try:
+                for fname in lit_files:
+                    base = fname[:-len('.tess')] if fname.endswith('.tess') else fname
+                    if base not in need_lit:
+                        continue
+                    data = lit.get_cached_units(fname, args.language)
+                    if data is None:
+                        continue
+                    wanted = need_lit[base]
+                    for seq, unit in enumerate(data.get('units_line', [])):
+                        if seq in wanted:
+                            lit_lem[(base, seq)] = lit._line_lemmas(unit)
+                    del data
+            finally:
+                (lit.TEXTS_DIR, lit.CACHE_DIR), (lemma_cache_mod.TEXTS_DIR, lemma_cache_mod.CACHE_DIR) = saved
+            verdicts = []
+            n_fail_c = n_fail_r = n_fail_both = n_no_lemmas = 0
+            for lw, _lr, ls, di, _dr, ds, _sh, _j in resolved:
+                ll, dl = lit_lem.get((lw, ls)), doc_lem.get((di, ds))
+                if ll is None or dl is None:
+                    # Cannot test: keep the pair rather than silently drop it.
+                    n_no_lemmas += 1
+                    verdicts.append((None, False, False))
+                    continue
+                n_content, _run, fc, fr = pair_quality(
+                    ll, dl, function_words, args.min_content_lemmas, args.min_run,
+                    language=args.language)
+                n_fail_c += fc and not fr
+                n_fail_r += fr and not fc
+                n_fail_both += fc and fr
+                verdicts.append((n_content, fc, fr))
+            stats = {
+                'pairs_tested': len(resolved), 'function_words': len(function_words),
+                'min_content_lemmas': args.min_content_lemmas, 'min_run': args.min_run,
+                'removed_only_content_lemmas_below_min': int(n_fail_c),
+                'removed_only_run_below_min': int(n_fail_r),
+                'removed_both_conditions': int(n_fail_both),
+                'removed_total': int(n_fail_c + n_fail_r + n_fail_both),
+                'removed_by_content_condition': int(n_fail_c + n_fail_both),
+                'removed_by_run_condition': int(n_fail_r + n_fail_both),
+                'untestable_kept_unfiltered': n_no_lemmas,
+            }
+            return verdicts, stats
+
         pair_info, pair_stats = find_cross_pairs(
             index_db_path, args.min_shared, args.min_jaccard, args.min_shared_override,
-            args.min_containment, args.rare_max_df, args.rare_min_containment, formula_hashes)
+            args.min_containment, args.rare_max_df, args.rare_min_containment, formula_hashes,
+            quality_filter=None if args.no_quality_filter else quality_filter)
+        print(f"[build_documents_reuse_table] {len(loaded_works)} literary works read, "
+              f"{len(missing_cache)} missing cache", flush=True)
 
         # doc_id -> bucket filename (for the sidecar lookup) and the loaded
         # sidecar tables themselves, both built only for buckets a kept pair
@@ -700,7 +898,7 @@ def main():
         meta = {
             'built_at': built_at, 'corpus_version': corpus_version,
             'language': args.language,
-            'literary_works': len(lit_cache_data), 'document_lines': len(doc_lines),
+            'literary_works': len(loaded_works), 'document_lines': len(doc_lines),
             'max_df': args.max_df, 'min_shared': args.min_shared,
             'min_jaccard': args.min_jaccard, 'min_shared_override': args.min_shared_override,
             'min_containment': args.min_containment, 'rare_max_df': args.rare_max_df,
@@ -709,6 +907,9 @@ def main():
             'formula_words_count': len(formula_words),
             'formula_ngrams': index_stats['formula_ngrams'],
             'pairs_kept': pair_stats['pairs_kept'],
+            'pairs_before_quality_filter': pair_stats['pairs_before_quality_filter'],
+            'quality_filter': 'off' if args.no_quality_filter else (
+                f'content>={args.min_content_lemmas},run>={args.min_run}'),
         }
         write_output_db(out_db, pair_info, bucket_map, meta)
     finally:

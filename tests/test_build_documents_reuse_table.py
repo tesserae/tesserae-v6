@@ -136,7 +136,7 @@ def test_shared_quotation_is_kept_as_a_strict_pair(tmp_path, monkeypatch):
         formula_hashes=formula_hashes)
 
     assert len(pair_info) == 1
-    lit_work, lit_ref, lit_seq, doc_id, doc_ref, doc_seq, shared, jaccard, span_len = pair_info[0]
+    lit_work, lit_ref, lit_seq, doc_id, doc_ref, doc_seq, shared, jaccard, span_len, _content = pair_info[0]
     assert lit_work == 'vergil.aeneid'
     assert lit_ref == 'verg. aen. 1.1'
     assert doc_id == 'edr:GRAFFITO1'
@@ -304,3 +304,55 @@ def test_adjacent_lines_chain_into_a_span(tmp_path, monkeypatch):
     assert len(pair_info) == 2
     span_lens = {p[8] for p in pair_info}
     assert span_lens == {2}, f"both rows of a chained span must carry span_len=2, got {pair_info}"
+
+
+# ---- pair quality filter (function words, shared content lemmas, run) ----
+
+FUNCTION_WORDS = {'et', 'in', 'est', 'qui'}
+
+
+def test_quality_function_word_only_pair_is_dropped():
+    n, run, fc, fr = bdrt.pair_quality(
+        ['et', 'in', 'est', 'rex'], ['et', 'in', 'est', 'miles'], FUNCTION_WORDS)
+    assert n == 0 and run == 3 and fc and not fr
+
+
+def test_quality_two_adjacent_content_lemmas_are_kept():
+    n, run, fc, fr = bdrt.pair_quality(
+        ['arma', 'uir', 'cano', 'et'], ['hic', 'arma', 'uir', 'iacet'], FUNCTION_WORDS)
+    assert n == 2 and run == 2 and not fc and not fr
+
+
+def test_quality_two_content_lemmas_not_adjacent_are_dropped():
+    n, run, fc, fr = bdrt.pair_quality(
+        ['arma', 'cano', 'uir'], ['arma', 'sepulcrum', 'uir'], FUNCTION_WORDS)
+    assert n == 2 and run == 1 and not fc and fr
+
+
+def test_quality_thresholds_are_adjustable():
+    args = (['arma', 'cano', 'uir'], ['arma', 'sepulcrum', 'uir'], FUNCTION_WORDS)
+    assert bdrt.pair_quality(*args, min_content=2, min_run=1)[2:] == (False, False)
+    assert bdrt.pair_quality(*args, min_content=3, min_run=1)[2] is True
+
+
+def test_function_word_files_load():
+    assert 'et' in bdrt.load_function_words('la')
+    assert 'και' in bdrt.load_function_words('grc')
+
+
+def test_quality_numeral_only_shared_lemmas_are_dropped():
+    # Latin: a spelled-out numeral and a Roman numeral are not content.
+    n, run, fc, fr = bdrt.pair_quality(
+        ['tria', 'mille', 'ducenti', 'xii'], ['tria', 'mille', 'ducenti', 'xii'],
+        bdrt.load_function_words('la'), language='la')
+    assert n == 1 and fc  # only 'tria' (not on the list) remains
+    n, _run, fc, _fr = bdrt.pair_quality(
+        ['mille', 'ducenti', 'xii', 'cl'], ['mille', 'ducenti', 'xii', 'cl'],
+        bdrt.load_function_words('la'), language='la')
+    assert n == 0 and fc
+    # Greek: alphabetic numerals (lb, rkh) are not content; a real word is.
+    n, _run, fc, _fr = bdrt.pair_quality(
+        ['λβ', 'ρκη', 'ξδ'], ['λβ', 'ρκη', 'ξδ'], bdrt.load_function_words('grc'), language='grc')
+    assert n == 0 and fc
+    assert not bdrt.is_numeral_lemma('di', 'la') and not bdrt.is_numeral_lemma('rex', 'la')
+    assert not bdrt.is_numeral_lemma('λογοσ', 'grc')

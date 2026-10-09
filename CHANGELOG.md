@@ -17,6 +17,24 @@ behind each, are in docs/DECISIONS.md.
   both shapes, reads the DOI from the disclaimer, spaces requests at one a
   second with one retry after a 429, and any unexpected answer from one
   full-text source is logged and skipped with a warning in the response.
+### Documentary reuse build reads one literary cache at a time
+- `scripts/reuse/build_documents_reuse_table.py` loaded every literary lemma
+  cache at once, and the Greek build stalled at its 12 GB memory cap. It now
+  lists the corpus files first and loads one cache at a time. The Latin
+  table it builds is identical to the live one (6,769 pairs), with peak
+  memory 1.9 GB.
+- The build now also drops pairs that share fewer than two distinct content
+  lemmas (lemmas not on the new `data/documents/function_words_la.txt` and
+  `function_words_grc.txt`, taken from CLTK's stopword lists) or whose longest
+  contiguous run of shared lemmas is shorter than two. A hand check had found
+  87% of Greek and 70% of Latin pairs were coincidences sharing only function
+  words. Numerals count as non-content (Latin and Greek cardinals, ordinals and
+  distributives on the lists, Roman numerals and Greek alphabetic numerals
+  recognised in code). Pair counts: Greek 11,124 to 1,509, Latin 6,769 to
+  3,412. Options
+  `--min-content-lemmas`, `--min-run` and `--no-quality-filter`. The pairs
+  table gains a `content_shared` column, which the Reader route ignores
+  because it selects columns by name.
 
 ### Scholarship tab: offered by the language of the work, not of the commentary
 - `/api/scholarship/sources` listed the languages commentaries are written

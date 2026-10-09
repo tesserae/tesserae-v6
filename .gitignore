@@ -95,6 +95,7 @@ data/translations/*
 !data/documents/
 data/documents/*
 !data/documents/formula_words_*.txt
+!data/documents/function_words_*.txt
 !data/documents/eagle_labels.csv
 !data/documents/german_label_translations.json
 !data/documents/papyri_nome_map.json
