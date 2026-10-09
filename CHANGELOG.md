@@ -28,7 +28,10 @@ behind each, are in docs/DECISIONS.md.
   `function_words_grc.txt`, taken from CLTK's stopword lists) or whose longest
   contiguous run of shared lemmas is shorter than two. A hand check had found
   87% of Greek and 70% of Latin pairs were coincidences sharing only function
-  words. Pair counts: Greek 11,124 to 1,584, Latin 6,769 to 3,713. Options
+  words. Numerals count as non-content (Latin and Greek cardinals, ordinals and
+  distributives on the lists, Roman numerals and Greek alphabetic numerals
+  recognised in code). Pair counts: Greek 11,124 to 1,509, Latin 6,769 to
+  3,412. Options
   `--min-content-lemmas`, `--min-run` and `--no-quality-filter`. The pairs
   table gains a `content_shared` column, which the Reader route ignores
   because it selects columns by name.

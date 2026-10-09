@@ -338,3 +338,21 @@ def test_quality_thresholds_are_adjustable():
 def test_function_word_files_load():
     assert 'et' in bdrt.load_function_words('la')
     assert 'και' in bdrt.load_function_words('grc')
+
+
+def test_quality_numeral_only_shared_lemmas_are_dropped():
+    # Latin: a spelled-out numeral and a Roman numeral are not content.
+    n, run, fc, fr = bdrt.pair_quality(
+        ['tria', 'mille', 'ducenti', 'xii'], ['tria', 'mille', 'ducenti', 'xii'],
+        bdrt.load_function_words('la'), language='la')
+    assert n == 1 and fc  # only 'tria' (not on the list) remains
+    n, _run, fc, _fr = bdrt.pair_quality(
+        ['mille', 'ducenti', 'xii', 'cl'], ['mille', 'ducenti', 'xii', 'cl'],
+        bdrt.load_function_words('la'), language='la')
+    assert n == 0 and fc
+    # Greek: alphabetic numerals (lb, rkh) are not content; a real word is.
+    n, _run, fc, _fr = bdrt.pair_quality(
+        ['λβ', 'ρκη', 'ξδ'], ['λβ', 'ρκη', 'ξδ'], bdrt.load_function_words('grc'), language='grc')
+    assert n == 0 and fc
+    assert not bdrt.is_numeral_lemma('di', 'la') and not bdrt.is_numeral_lemma('rex', 'la')
+    assert not bdrt.is_numeral_lemma('λογοσ', 'grc')

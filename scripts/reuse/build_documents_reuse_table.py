@@ -188,6 +188,35 @@ def load_function_words(language):
     return words
 
 
+import re  # noqa: E402
+
+# Roman numerals: a valid numeral string (m, then d/c, l/x, v/i groups in
+# order). The lemma table cannot tell a numeral from a word (it lists i, ii,
+# iii, li, dc as entries), so a few real words that happen to be valid
+# numerals are excluded by hand.
+_ROMAN_RE = re.compile(r'^m{0,4}(cm|cd|d?c{0,3})(xc|xl|l?x{0,3})(ix|iv|v?i{0,3})$')
+_ROMAN_REAL_WORDS = {'mi', 'di', 'dii', 'li', 'ci', 'mix'}
+# Greek alphabetic numerals as the caches store them (accents and the
+# keraia are gone, so a token cannot be told from a word by its mark):
+# at most one hundreds letter, then one tens letter, then one units letter,
+# in that order, 1 to 3 letters (ib = 12, lb = 32, rkh = 128). Words that
+# fit the shape (me, se, pe) are function words anyway.
+_GREEK_NUM_RE = re.compile(
+    '^[ρστυφχψωϡ]?[ικλμνξοπϙ]?[αβγδεϛζηθ]?$')
+
+
+def is_numeral_lemma(word, language=None):
+    """True if `word` is a Roman numeral (Latin) or an alphabetic numeral
+    (Greek) rather than an ordinary word. Single letters count (sigla)."""
+    if not word:
+        return False
+    if language == 'la':
+        return word not in _ROMAN_REAL_WORDS and bool(_ROMAN_RE.match(word))
+    if language == 'grc':
+        return len(word) <= 3 and bool(_GREEK_NUM_RE.match(word))
+    return False
+
+
 def longest_shared_run(a, b):
     """Length of the longest contiguous run of lemmas that appears, in the
     same order and adjacent, in both lists (longest common substring)."""
@@ -204,7 +233,8 @@ def longest_shared_run(a, b):
     return best
 
 
-def pair_quality(lit_lemmas, doc_lemmas, function_words, min_content=2, min_run=2):
+def pair_quality(lit_lemmas, doc_lemmas, function_words, min_content=2, min_run=2,
+                 language=None):
     """Quality test for one literary/document line pair. Returns
     (content_shared, longest_run, fails_content, fails_run): the number of
     distinct shared lemmas that are not function words, the longest
@@ -214,7 +244,8 @@ def pair_quality(lit_lemmas, doc_lemmas, function_words, min_content=2, min_run=
     lemmas that are not adjacent fail the run test."""
     lit_l = [_fold_simple(w) for w in lit_lemmas]
     doc_l = [_fold_simple(w) for w in doc_lemmas]
-    content = {w for w in set(lit_l) & set(doc_l) if w and w not in function_words}
+    content = {w for w in set(lit_l) & set(doc_l)
+               if w and w not in function_words and not is_numeral_lemma(w, language)}
     run = longest_shared_run(lit_l, doc_l)
     return len(content), run, len(content) < min_content, run < min_run
 
@@ -826,7 +857,8 @@ def main():
                     verdicts.append((None, False, False))
                     continue
                 n_content, _run, fc, fr = pair_quality(
-                    ll, dl, function_words, args.min_content_lemmas, args.min_run)
+                    ll, dl, function_words, args.min_content_lemmas, args.min_run,
+                    language=args.language)
                 n_fail_c += fc and not fr
                 n_fail_r += fr and not fc
                 n_fail_both += fc and fr
