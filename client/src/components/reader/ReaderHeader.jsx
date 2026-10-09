@@ -133,7 +133,7 @@ export default function ReaderHeader({
 
   const range = (() => {
     if (selection?.refStart) {
-      return formatSelectionRange(selection.refStart, selection.refEnd, corpusMap);
+      return formatSelectionRange(selection.refStart, selection.refEnd, corpusMap, work);
     }
     if (!units?.length) return '';
     return `${units.length} lines`;

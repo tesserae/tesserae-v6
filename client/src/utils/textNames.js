@@ -580,6 +580,75 @@ export function resolveDisplayCitation(existingText, rawRef, corpusMap) {
   return { text: '', siteId };
 }
 
+/** The numeric locus within `ref`: everything from the first digit, with a
+ *  section word kept immediately before it ("ghazal 1.1") exactly the way
+ *  `citationFromCorpusMap`/`_labelledReference` already keep one, once the
+ *  ref's own leading text-id segments (matched the same longest-prefix way
+ *  against `corpusMap`) are stripped first. A classical .tess tag
+ *  abbreviation ("a.r. 1.1" for Apollonius Rhodius) matches no id in
+ *  `corpusMap` at all, so nothing is stripped and nothing before the first
+ *  digit is a section word either -- it is the abbreviation itself, which
+ *  `citationForOpenWork` below does not need, because it already has the
+ *  open work's real name from the work id, not from the ref. */
+function _numericLocus(ref, corpusMap) {
+  const clean = siteIdFromRef(ref);
+  if (!clean) return '';
+  let tail = clean.toLowerCase();
+  if (corpusMap && corpusMap.size) {
+    const segs = tail.split('.');
+    for (let cut = segs.length - 1; cut >= 1; cut--) {
+      if (corpusMap.has(segs.slice(0, cut).join('.'))) {
+        tail = segs.slice(cut).join('.');
+        break;
+      }
+    }
+  }
+  const labelled = _labelledReference(tail);
+  if (labelled !== tail) return labelled;
+  const parts = clean.split(/[\s.]+/).filter(Boolean);
+  const numAt = parts.findIndex((p) => /^\d/.test(p));
+  return numAt === -1 ? clean : parts.slice(numAt).join('.');
+}
+
+/**
+ * The citation for a work the caller already knows is open -- the Reader
+ * header's `work` prop, the selection toolbar's own `work` -- built from
+ * the corpus text map's entry for that exact id (author + title, the
+ * title already carrying a part label, "Argonautica, Book 3", the way
+ * `/api/texts` stores it) plus the numeric locus read off `ref`.
+ *
+ * This is what a ref-based lookup (`citationFromCorpusMap`, and so
+ * `resolveDisplayCitation`) cannot do for a classical .tess tag
+ * abbreviation: "<A.R. 1.1>" for Apollonius Rhodius's Argonautica matches
+ * no entry in `ABBREVIATION_MAP` (A.R. is not a listed abbreviation) and
+ * no id in `corpusMap` either (the tag carries no text id, only the
+ * abbreviation), so `expandLocus`'s fallback read the two leading letters
+ * as an author and a work, "A, R". The Reader never has to guess here: it
+ * already knows which work is open, from `work` itself, independent of
+ * what the ref happens to say.
+ *
+ * Returns null when `workId` is not (yet) in `corpusMap` -- the corpus
+ * list has not loaded, or the id is genuinely unknown -- so a caller can
+ * fall back to the ref-based resolution for that window, same as before
+ * this existed.
+ *
+ * @param {string} workId the open work's own text id (e.g. `work` in
+ *   ReaderHeader/SelectionToolbar), with or without a trailing `.tess`.
+ * @param {string} ref a raw ref/tag within that work.
+ * @param {Map|null} corpusMap from `useCorpusTextMap`/`loadCorpusTextMap`.
+ * @returns {string|null}
+ */
+export function citationForOpenWork(workId, ref, corpusMap) {
+  const id = String(workId || '').replace(/\.tess$/, '').toLowerCase();
+  const meta = id && corpusMap ? corpusMap.get(id) : null;
+  if (!meta) return null;
+  return _joinCitation({
+    author: meta.author || '',
+    work: meta.title || meta.work || '',
+    reference: _numericLocus(ref, corpusMap),
+  });
+}
+
 /**
  * The Reader header and selection toolbar's own range display: a readable
  * citation for `refStart` (the corpus text map or the static tables,
@@ -599,15 +668,23 @@ export function resolveDisplayCitation(existingText, rawRef, corpusMap) {
  * @param {string} refStart
  * @param {string} [refEnd] defaults to `refStart` (a single-ref selection).
  * @param {Map|null} [corpusMap] from `useCorpusTextMap`/`loadCorpusTextMap`.
+ * @param {string} [workId] the open work's own text id (ReaderHeader's
+ *   `work`, SelectionToolbar's `work`) -- when given and `corpusMap` has
+ *   it, `citationForOpenWork` resolves the author and title from the known
+ *   open work itself rather than from the ref, which is the only way a
+ *   classical .tess tag abbreviation ("a.r. 1.1") resolves to a name at
+ *   all. Omitted, this behaves exactly as it did before `workId` existed.
  * @returns {string}
  */
-export function formatSelectionRange(refStart, refEnd, corpusMap) {
+export function formatSelectionRange(refStart, refEnd, corpusMap, workId) {
   const startId = siteIdFromRef(refStart);
   const endId = siteIdFromRef(refEnd || refStart);
   if (!startId) return endId;
-  const start = resolveDisplayCitation('', startId, corpusMap).text || startId;
+  const openStart = workId ? citationForOpenWork(workId, startId, corpusMap) : null;
+  const start = openStart || resolveDisplayCitation('', startId, corpusMap).text || startId;
   if (endId === startId) return start;
-  const end = resolveDisplayCitation('', endId, corpusMap).text || endId;
+  const openEnd = workId ? citationForOpenWork(workId, endId, corpusMap) : null;
+  const end = openEnd || resolveDisplayCitation('', endId, corpusMap).text || endId;
   // Shorten `end` to what differs from `start`: walk both display strings
   // to the first differing character, then back up to the last '.' or ' '
   // boundary before it, so "Iqbal, Asrar-e Khudi 1.1" / "...1.5" yields
