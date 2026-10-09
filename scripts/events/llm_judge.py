@@ -86,10 +86,14 @@ class Judge:
         self.db.execute("CREATE TABLE IF NOT EXISTS requests (model TEXT, event TEXT, n INTEGER, seconds REAL, "
                         "prompt_tokens INTEGER, completion_tokens INTEGER, status TEXT, ts REAL)")
         self.db.commit()
-        self.lock = threading.Lock()
+        self.lock = threading.RLock()
         self.n_requests = self.n_cached = 0
 
     def cached(self, event, wid):
+        with self.lock:
+            return self._cached(event, wid)
+
+    def _cached(self, event, wid):
         r = self.db.execute("SELECT label FROM judgements WHERE model=? AND event=? AND window_id=? AND prompt=?",
                             (self.model, event, wid, PROMPT_VERSION)).fetchone()
         return r[0] if r else None
@@ -119,34 +123,55 @@ class Judge:
                 time.sleep(min(60, 4 * (attempt + 1)))
         return "", {}, 0.0, "failed:" + str(last)
 
-    def judge_event(self, event, ev, passages):
-        """passages: list of dicts with window_id plus passage_block fields. Returns {window_id: label}."""
+    def _run_batch(self, event, header, b):
+        user = header + "\n" + "\n\n".join(passage_block(i + 1, p) for i, p in enumerate(b))
+        try:
+            content, usage, secs, status = self._call(SYSTEM, user)
+        except urllib.error.HTTPError as e:
+            # HTTP 400 (the gateway rejected the request, seen on 3 of 1,485 events): judge the halves
+            # separately; a single passage that is still rejected stays unjudged and sorts last.
+            if e.code != 400:
+                raise
+            if len(b) > 1:
+                self._run_batch(event, header, b[:len(b) // 2])
+                self._run_batch(event, header, b[len(b) // 2:])
+            else:
+                with self.lock:
+                    self.db.execute("INSERT INTO requests VALUES (?,?,?,?,?,?,?,?)", (self.model, event, 1, 0.0, None, None, "rejected:400", time.time()))
+                    self.db.commit()
+            return
+        labels = parse_labels(content, len(b))
+        if any(l is None for l in labels) and status == "ok":  # one retry for a malformed answer
+            content, usage2, secs2, status = self._call(SYSTEM, user)
+            labels = parse_labels(content, len(b))
+            secs += secs2
+        with self.lock:
+            self.n_requests += 1
+            self.db.execute("INSERT INTO requests VALUES (?,?,?,?,?,?,?,?)",
+                            (self.model, event, len(b), secs, usage.get("prompt_tokens"), usage.get("completion_tokens"), status, time.time()))
+            for p, l in zip(b, labels):
+                if l:
+                    self.db.execute("INSERT OR REPLACE INTO judgements VALUES (?,?,?,?,?,?)",
+                                    (self.model, event, p["window_id"], PROMPT_VERSION, l, time.time()))
+            self.db.commit()
+
+    def submit(self, pool, event, ev, passages):
+        """Queue the uncached batches of one event on `pool`; returns the futures. Read the labels
+        with labels_for() once they are done. Lets the caller gather the next event meanwhile."""
         todo = [p for p in passages if self.cached(event, p["window_id"]) is None]
         self.n_cached += len(passages) - len(todo)
-        batches = [todo[i:i + self.batch] for i in range(0, len(todo), self.batch)]
         header = event_header(ev)
+        return [pool.submit(self._run_batch, event, header, todo[i:i + self.batch]) for i in range(0, len(todo), self.batch)]
 
-        def run(b):
-            user = header + "\n" + "\n\n".join(passage_block(i + 1, p) for i, p in enumerate(b))
-            content, usage, secs, status = self._call(SYSTEM, user)
-            labels = parse_labels(content, len(b))
-            if any(l is None for l in labels) and status == "ok":  # one retry for a malformed answer
-                content, usage2, secs2, status = self._call(SYSTEM, user)
-                labels = parse_labels(content, len(b))
-                secs += secs2
-            with self.lock:
-                self.n_requests += 1
-                self.db.execute("INSERT INTO requests VALUES (?,?,?,?,?,?,?,?)",
-                                (self.model, event, len(b), secs, usage.get("prompt_tokens"), usage.get("completion_tokens"), status, time.time()))
-                for p, l in zip(b, labels):
-                    if l:
-                        self.db.execute("INSERT OR REPLACE INTO judgements VALUES (?,?,?,?,?,?)",
-                                        (self.model, event, p["window_id"], PROMPT_VERSION, l, time.time()))
-                self.db.commit()
-
-        with ThreadPoolExecutor(self.workers) as ex:
-            list(ex.map(run, batches))
+    def labels_for(self, event, passages):
         return {p["window_id"]: self.cached(event, p["window_id"]) for p in passages}
+
+    def judge_event(self, event, ev, passages):
+        """passages: list of dicts with window_id plus passage_block fields. Returns {window_id: label}."""
+        with ThreadPoolExecutor(self.workers) as ex:
+            for f in self.submit(ex, event, ev, passages):
+                f.result()
+        return self.labels_for(event, passages)
 
     def stats(self):
         r = self.db.execute("SELECT count(*), sum(seconds), sum(prompt_tokens), sum(completion_tokens), "
