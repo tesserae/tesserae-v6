@@ -1,0 +1,861 @@
+{
+ "note": "Twelve events for the prototype. qid selects the Wikidata record in events.jsonl. passages is the hand list of primary sources (work = Tesserae base work name, ranges are book.chapter[.section], inclusive). Sources not in the Tesserae corpus are listed under missing_from_corpus and excluded from recall. curated_names are people, peoples and places added by hand (Latin and Greek forms): the layer an editor would add where Wikidata lists no commanders.",
+ "events": [
+  {
+   "key": "delium_424",
+   "qid": "Q1424844",
+   "passages": [
+    [
+     "thucydides.peleponnesian_war",
+     "4.89",
+     "4.101"
+    ],
+    [
+     "plutarch.alcibiades",
+     "7.4",
+     "7.6"
+    ]
+   ],
+   "missing_from_corpus": [
+    "Diodorus 12.69-70",
+    "Strabo 9.2.7 (check)"
+   ],
+   "curated_names": [
+    {
+     "role": "participant",
+     "variants": [
+      "Hippocrates",
+      "Ἱπποκράτης"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Pagondas",
+      "Παγώνδας"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Boeoti",
+      "Βοιωτοί"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Athenienses",
+      "Ἀθηναῖοι"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Thebani",
+      "Θηβαῖοι"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "pylos_sphacteria_425",
+   "qid": "Q670128",
+   "passages": [
+    [
+     "thucydides.peleponnesian_war",
+     "4.2",
+     "4.41"
+    ],
+    [
+     "plutarch.nicias",
+     "7.1",
+     "7.5"
+    ]
+   ],
+   "missing_from_corpus": [
+    "Diodorus 12.61-63",
+    "Plutarch Demosthenes 12-14"
+   ],
+   "curated_names": [
+    {
+     "role": "participant",
+     "variants": [
+      "Demosthenes",
+      "Δημοσθένης"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Cleon",
+      "Κλέων"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Brasidas",
+      "Βρασίδας"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Epitadas",
+      "Ἐπιτάδας"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Spartani Lacedaemonii",
+      "Λακεδαιμόνιοι"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Sphacteria",
+      "Σφακτηρία"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Athenienses",
+      "Ἀθηναῖοι"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "aegospotami_405",
+   "qid": "Q866862",
+   "passages": [
+    [
+     "plutarch.alcibiades",
+     "36.1",
+     "37.4"
+    ],
+    [
+     "nepos.vitae",
+     "7.8",
+     "7.8"
+    ]
+   ],
+   "missing_from_corpus": [
+    "Xenophon Hellenica 2.1.20-32",
+    "Plutarch Lysander 9-11",
+    "Diodorus 13.105-106"
+   ],
+   "curated_names": [
+    {
+     "role": "participant",
+     "variants": [
+      "Lysander",
+      "Λύσανδρος"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Conon",
+      "Κόνων"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Philocles",
+      "Φιλοκλῆς"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Lampsacus",
+      "Λάμψακος"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Hellespontus",
+      "Ἑλλήσποντος"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Athenienses",
+      "Ἀθηναῖοι"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "cannae_216",
+   "qid": "Q179591",
+   "passages": [
+    [
+     "polybius.histories",
+     "3.107",
+     "3.118"
+    ],
+    [
+     "livy.ab_urbe_condita",
+     "22.43",
+     "22.52"
+    ],
+    [
+     "plutarch.fabius_maximus",
+     "14.1",
+     "16.9"
+    ],
+    [
+     "silius_italicus.punica",
+     "9.1",
+     "10.658"
+    ]
+   ],
+   "missing_from_corpus": [
+    "Appian Hannibalic War 17-26 (check)"
+   ],
+   "curated_names": [],
+   "curated_centre": [
+    41.3054,
+    16.1325,
+    "Cannae"
+   ]
+  },
+  {
+   "key": "actium_31",
+   "qid": "Q160387",
+   "passages": [
+    [
+     "plutarch.antony",
+     "62.1",
+     "68.5"
+    ],
+    [
+     "velleius_paterculus.historiae_romanae",
+     "2.84",
+     "2.87"
+    ],
+    [
+     "florus.epitome_bellorum_omnium_annorum",
+     "2.21",
+     "2.21"
+    ],
+    [
+     "vergil.aeneid",
+     "8.675",
+     "8.713"
+    ],
+    [
+     "propertius.elegies",
+     "4.6",
+     "4.6"
+    ],
+    [
+     "horace.epodes",
+     "9",
+     "9"
+    ]
+   ],
+   "missing_from_corpus": [
+    "Cassius Dio 50.10-35"
+   ],
+   "curated_names": [
+    {
+     "role": "participant",
+     "variants": [
+      "Octavianus",
+      "Ὀκταουιανός"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Agrippa",
+      "Ἀγρίππας"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Antonius",
+      "Ἀντώνιος"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Cleopatra",
+      "Κλεοπάτρα"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Actium",
+      "Ἄκτιον"
+     ]
+    }
+   ],
+   "curated_centre": [
+    38.9497,
+    20.7633,
+    "Actium (promontory)"
+   ]
+  },
+  {
+   "key": "teutoburg_9",
+   "qid": "Q87779",
+   "passages": [
+    [
+     "tacitus.annales",
+     "1.60",
+     "1.62"
+    ],
+    [
+     "velleius_paterculus.historiae_romanae",
+     "2.117",
+     "2.120"
+    ],
+    [
+     "florus.epitome_bellorum_omnium_annorum",
+     "2.30",
+     "2.30"
+    ],
+    [
+     "suetonius.de_vita_caesarum",
+     "2.23",
+     "2.23"
+    ]
+   ],
+   "missing_from_corpus": [
+    "Cassius Dio 56.18-24"
+   ],
+   "curated_names": [
+    {
+     "role": "participant",
+     "variants": [
+      "Arminius",
+      "Ἀρμίνιος"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Varus",
+      "Οὐάρος"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Germani",
+      "Γερμανοί"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Cherusci",
+      "Χηρούσκοι"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Segestes",
+      "Segestes"
+     ]
+    }
+   ],
+   "curated_centre": [
+    52.4056,
+    8.1303,
+    "Kalkriese (proposed site)"
+   ]
+  },
+  {
+   "key": "marathon_490",
+   "qid": "Q31900",
+   "passages": [
+    [
+     "herodotus.histories",
+     "6.102",
+     "6.117"
+    ],
+    [
+     "pausanias.description_of_greece",
+     "1.32.3",
+     "1.32.5"
+    ],
+    [
+     "plutarch.aristides",
+     "5.1",
+     "5.5"
+    ]
+   ],
+   "missing_from_corpus": [
+    "Nepos Miltiades is in nepos.vitae (checked at run time)"
+   ],
+   "curated_names": [
+    {
+     "role": "participant",
+     "variants": [
+      "Miltiades",
+      "Μιλτιάδης"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Callimachus",
+      "Καλλίμαχος"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Datis",
+      "Δάτις"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Artaphernes",
+      "Ἀρταφέρνης"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Hippias",
+      "Ἱππίας"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Plataeenses",
+      "Πλαταιεῖς"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Athenienses",
+      "Ἀθηναῖοι"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Persae",
+      "Πέρσαι"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "salamis_480",
+   "qid": "Q178850",
+   "passages": [
+    [
+     "herodotus.histories",
+     "8.40",
+     "8.97"
+    ],
+    [
+     "aeschylus.persians",
+     "249",
+     "514"
+    ],
+    [
+     "plutarch.themistocles",
+     "12.1",
+     "15.5"
+    ]
+   ],
+   "missing_from_corpus": [
+    "Diodorus 11.15-19"
+   ],
+   "curated_names": [
+    {
+     "role": "participant",
+     "variants": [
+      "Themistocles",
+      "Θεμιστοκλῆς"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Xerxes",
+      "Ξέρξης"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Eurybiades",
+      "Εὐρυβιάδης"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Artemisia",
+      "Ἀρτεμισία"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Psyttaleia",
+      "Ψυττάλεια"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Persae",
+      "Πέρσαι"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Athenienses",
+      "Ἀθηναῖοι"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "gaugamela_331",
+   "qid": "Q179670",
+   "passages": [
+    [
+     "arrian.anabasis",
+     "3.8",
+     "3.15"
+    ],
+    [
+     "plutarch.alexander",
+     "31.1",
+     "33.11"
+    ],
+    [
+     "curtius_rufus.historiae_alexandri_magni",
+     "4.9",
+     "4.16"
+    ],
+    [
+     "justin.epitome",
+     "11.13",
+     "11.14"
+    ]
+   ],
+   "missing_from_corpus": [
+    "Diodorus 17.53-61"
+   ],
+   "curated_names": [
+    {
+     "role": "participant",
+     "variants": [
+      "Alexander",
+      "Ἀλέξανδρος"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Darius",
+      "Δαρεῖος"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Parmenio",
+      "Παρμενίων"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Bessus",
+      "Βῆσσος"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Mazaeus",
+      "Μαζαῖος"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Arbela",
+      "Ἄρβηλα"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Macedones",
+      "Μακεδόνες"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Persae",
+      "Πέρσαι"
+     ]
+    }
+   ],
+   "curated_centre": [
+    36.4,
+    43.3,
+    "Gaugamela (approx.)"
+   ]
+  },
+  {
+   "key": "zama_202",
+   "qid": "Q200056",
+   "passages": [
+    [
+     "polybius.histories",
+     "15.5",
+     "15.14"
+    ],
+    [
+     "livy.ab_urbe_condita",
+     "30.29",
+     "30.35"
+    ],
+    [
+     "appian.foreign_wars",
+     "39",
+     "48"
+    ]
+   ],
+   "missing_from_corpus": [],
+   "curated_names": [
+    {
+     "role": "participant",
+     "variants": [
+      "Scipio",
+      "Σκιπίων"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Hannibal",
+      "Ἀννίβας"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Masinissa",
+      "Μασσανάσσας"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Carthaginienses",
+      "Καρχηδόνιοι"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Zama",
+      "Ζάμα"
+     ]
+    }
+   ],
+   "curated_centre": [
+    35.85,
+    9.4,
+    "Zama Regia (traditional site)"
+   ]
+  },
+  {
+   "key": "alesia_52",
+   "qid": "Q131386",
+   "passages": [
+    [
+     "caesar.de_bello_gallico",
+     "7.68",
+     "7.90"
+    ],
+    [
+     "plutarch.caesar",
+     "27.1",
+     "27.9"
+    ],
+    [
+     "florus.epitome_bellorum_omnium_annorum",
+     "1.45",
+     "1.45"
+    ],
+    [
+     "velleius_paterculus.historiae_romanae",
+     "2.47",
+     "2.47"
+    ]
+   ],
+   "missing_from_corpus": [
+    "Cassius Dio 40.39-41"
+   ],
+   "curated_names": [
+    {
+     "role": "participant",
+     "variants": [
+      "Caesar",
+      "Καῖσαρ"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Vercingetorix",
+      "Οὐερκιγγετόριξ"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Commius",
+      "Commius"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Vercassivellaunus",
+      "Vercassivellaunus"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Galli",
+      "Γαλάται"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Mandubii",
+      "Mandubii"
+     ]
+    }
+   ]
+  },
+  {
+   "key": "pharsalus_48",
+   "qid": "Q203681",
+   "passages": [
+    [
+     "caesar.de_bello_civili",
+     "3.82",
+     "3.99"
+    ],
+    [
+     "plutarch.pompey",
+     "68.1",
+     "72.6"
+    ],
+    [
+     "plutarch.caesar",
+     "42.1",
+     "46.4"
+    ],
+    [
+     "appian.civil_wars",
+     "2.68",
+     "2.82"
+    ],
+    [
+     "lucan.bellum_civile",
+     "7.1",
+     "7.872"
+    ],
+    [
+     "florus.epitome_bellorum_omnium_annorum",
+     "2.13",
+     "2.13"
+    ]
+   ],
+   "missing_from_corpus": [
+    "Cassius Dio 41.52-62"
+   ],
+   "curated_names": [
+    {
+     "role": "participant",
+     "variants": [
+      "Pompeius",
+      "Πομπήιος"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Caesar",
+      "Καῖσαρ"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Antonius",
+      "Ἀντώνιος"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Labienus",
+      "Λαβιηνός"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Domitius",
+      "Δομίτιος"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Pharsalus Pharsalia",
+      "Φάρσαλος"
+     ]
+    },
+    {
+     "role": "participant",
+     "variants": [
+      "Thessalia",
+      "Θεσσαλία"
+     ]
+    }
+   ]
+  }
+ ]
+}
