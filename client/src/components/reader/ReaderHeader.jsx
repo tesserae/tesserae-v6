@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { LANGUAGE_NAMES as LANG_LABEL } from '../../utils/languageNames';
 import SearchableSelect from '../common/SearchableSelect';
 import { formatSelectionRange, useCorpusTextMap } from '../../utils/textNames';
+import { dateLabel } from '../../utils/chronology';
 
 /**
  * The Reader's header: where you are, and how to go somewhere else.
@@ -63,10 +64,15 @@ export default function ReaderHeader({
   // same lookup that fetches the orientation blurb carries this work's credit
   // line, so one request answers both.
   const [credit, setCredit] = useState(null);
+  // The About panel's right-hand facts (author, date, era, kind, edition):
+  // additive on the same response, rather than a second route (see
+  // backend/blueprints/corpus.py's _work_facts).
+  const [facts, setFacts] = useState(null);
   useEffect(() => {
     setAbout(null);
     setAboutOpen(false);
     setCredit(null);
+    setFacts(null);
     if (!work) return undefined;
     let dead = false;
     const p = new URLSearchParams({ language: language || 'la', work });
@@ -76,10 +82,29 @@ export default function ReaderHeader({
         if (dead) return;
         setAbout(d.description || null);
         setCredit(d.restricted ? d.credit : null);
+        setFacts(d.facts || null);
       })
       .catch(() => {});
     return () => { dead = true; };
   }, [work, language]);
+
+  // The attached translation's attribution, where one exists, for the About
+  // panel's Translation row. Fetched only once the panel is actually opened
+  // (the same route the Translation tab calls for the whole work, /api/
+  // passages/translation-full, but the blocks are not needed here -- only
+  // the attribution it carries).
+  const [translationAttribution, setTranslationAttribution] = useState(null);
+  useEffect(() => {
+    setTranslationAttribution(null);
+    if (!aboutOpen || !work) return undefined;
+    let dead = false;
+    const p = new URLSearchParams({ work, language: language || 'la' });
+    fetch(`/api/passages/translation-full?${p}`)
+      .then((r) => r.json())
+      .then((d) => { if (!dead) setTranslationAttribution(d?.available ? (d.attribution || null) : null); })
+      .catch(() => {});
+    return () => { dead = true; };
+  }, [aboutOpen, work, language]);
 
   useEffect(() => {
     let dead = false;
@@ -138,6 +163,42 @@ export default function ReaderHeader({
     if (!units?.length) return '';
     return `${units.length} lines`;
   })();
+
+  // The About panel's right-hand column: a short definition list of facts,
+  // each row omitted (rather than shown blank) when there is nothing to
+  // put in it. Date reuses the same formatter Theme Search and Similar
+  // Passages use ("19 BCE", "c. 390 CE"), from the same two fields
+  // (year, date_note) author_dates.json already carries.
+  const factRows = useMemo(() => {
+    const workLabel = facts?.work
+      ? (facts.part ? `${facts.work}, ${facts.part}` : facts.work)
+      : null;
+    const date = facts ? dateLabel({ year: facts.year, date_note: facts.date_note }) : null;
+    const kind = facts?.kind === 'poetry' ? 'Poetry' : facts?.kind === 'prose' ? 'Prose' : null;
+    const lineCount = units?.length ? `${units.length} line${units.length === 1 ? '' : 's'}` : null;
+    const edition = facts?.edition || null;
+    const digitalSource = edition?.e_source
+      ? (edition.e_source_url
+        ? <a href={edition.e_source_url} target="_blank" rel="noopener noreferrer"
+             className="text-red-700 hover:underline">{edition.e_source}</a>
+        : edition.e_source)
+      : null;
+    const rows = [
+      ['Author', facts?.author || null],
+      ['Work', workLabel],
+      ['Date', date],
+      ['Era', facts?.era || null],
+      ['Kind', kind],
+      ['Lines', lineCount],
+      ['Print edition', edition?.print_source || null],
+      ['Digital source', digitalSource],
+      ['Translation', translationAttribution],
+    ];
+    return rows.filter(([, value]) => value);
+  }, [facts, units, translationAttribution]);
+  const creditsHref = facts?.author
+    ? `/text-credits?author=${encodeURIComponent(facts.author)}`
+    : '/text-credits';
 
   return (
     <>
@@ -224,14 +285,35 @@ export default function ReaderHeader({
       </span>
     </div>
     {aboutOpen && about && (
-      <div className="border-b border-gray-200 bg-gray-50 px-4 py-3">
+      <div className="border-b border-gray-200 bg-gray-50 px-4 py-3
+                      grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
         {/* A description runs 80 to 130 words. At the header's full width
             that is a two-line slab of 300-character lines. Prose width
             (about 65 characters) and a looser line height let it read as
-            a note (2026-10-03). */}
+            a note (2026-10-03). The right column used to sit empty at
+            this width -- the facts a reader actually asks about this
+            edition (owner review, 2026-10-08). */}
         <p className="max-w-prose text-sm leading-relaxed text-gray-700">
           {about}
         </p>
+        {factRows.length > 0 && (
+          <div>
+            <dl className="grid grid-cols-[auto,1fr] gap-x-3 gap-y-1.5 text-sm">
+              {factRows.map(([label, value]) => (
+                <Fragment key={label}>
+                  <dt className="text-[11px] font-semibold uppercase tracking-wide
+                                 text-gray-500 whitespace-nowrap pt-0.5">
+                    {label}
+                  </dt>
+                  <dd className="text-gray-700">{value}</dd>
+                </Fragment>
+              ))}
+            </dl>
+            <a href={creditsHref} className="mt-2 inline-block text-[11px] text-red-700 hover:underline">
+              Full credits
+            </a>
+          </div>
+        )}
       </div>
     )}
     {credit && (

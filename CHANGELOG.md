@@ -9,6 +9,27 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Reader About panel in two columns, Scholarship tab on one line, documents deep link fixed
+- The Reader's "About this text" panel is now two columns on wide screens
+  (one on phones): the description, and a facts list (author, work, date,
+  era, kind, line count, print and digital edition, attached translation,
+  with a "Full credits" link), each row left out when there is no data for
+  it. `GET /api/text-descriptions` carries the facts additively.
+- The results panel's tab row (Similar, Parallels, Translation, Reuse,
+  Scholarship) now fits one line at the panel's normal width instead of
+  wrapping the fifth tab to a second line; it scrolls horizontally rather
+  than wrapping if a narrower width still will not fit them all.
+- The Scholarship tab (behind the `?scholarship=1` trial switch) now
+  offers itself only for a language the site actually holds secondary
+  scholarship for, read from `GET /api/scholarship/sources`' new
+  `languages` field instead of a fixed list.
+- `/line-search?documents=1` now opens directly in "Input Search Text"
+  mode, where the Literature/Documents/Both control lives, instead of
+  landing on "Find Text to Search". The `documents=1` and `scholarship=1`
+  trial switches are now captured once when the app itself first loads, so
+  either holds for the rest of the visit even from a page other than the
+  one that reads it.
+
 ### Reader "Shared names": a Greek name no longer cut short by a misplaced accent
 - `window_texts.db` stores some accents and breathings as combining marks
   separate from the letter they belong to, and sometimes standing BEFORE

@@ -535,3 +535,24 @@ def test_books_keeps_the_other_author_s_own_passage(shared_title_index, tmp_path
     out = S.books(b)
     titles = {bk['title'] for bk in out['results']}
     assert titles == {'Argonáuticas'}
+
+def test_sources_route_adds_the_languages_field(tmp_path, monkeypatch):
+    """/api/scholarship/sources' additive `languages` field: the Reader's
+    Scholarship tab gates itself on this, derived from the commentaries
+    actually installed rather than a hard-coded list."""
+    from backend.app import app
+    monkeypatch.setattr(S, 'COMMENTARY_DIR', str(tmp_path))
+    S._sources_cache.update(stamp=None, rows=None)
+    (tmp_path / 'servius__vergil.aeneid.json').write_text(json.dumps(
+        {'commentator': 'Servius', 'edition': 'Thilo', 'work': 'vergil.aeneid',
+         'language': 'la', 'units': [{}]}))
+    (tmp_path / 'eustathius__homer.iliad.json').write_text(json.dumps(
+        {'commentator': 'Eustathius', 'edition': 'van der Valk', 'work': 'homer.iliad',
+         'language': 'grc', 'units': [{}]}))
+    c = app.test_client()
+    path = next(str(rule) for rule in app.url_map.iter_rules() if rule.endpoint == 'scholarship.sources')
+    r = c.get(path)
+    assert r.status_code == 200
+    d = r.get_json()
+    assert d['languages'] == ['grc', 'la']
+    assert len(d['commentaries']) == 2

@@ -313,3 +313,22 @@ describe('stage 3b-3: restoration exclusion, formula hiding, and the document vi
     expect(params.get('documents')).toBe('1');
   });
 });
+
+describe('opening /line-search?documents=1 directly', () => {
+  afterEach(() => { window.history.replaceState({}, '', '/'); });
+
+  it('opens already in "Input Search Text" mode, where the collection control lives', async () => {
+    window.history.pushState({}, '', '/line-search?documents=1');
+    mockFetch({ documentsEnabled: true, results: [] });
+    render(<LineSearch language="la" />);
+    // No switchToSearchMode() click: the deep link should land here already.
+    await waitFor(() => expect(screen.getByText('Search in')).toBeTruthy());
+  });
+
+  it('still opens on "Find Text to Search" without the trial param', async () => {
+    mockFetch({ documentsEnabled: true, results: [], trial: false });
+    render(<LineSearch language="la" />);
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledWith('/api/languages'));
+    expect(screen.queryByText('Search in')).toBeNull();
+  });
+});

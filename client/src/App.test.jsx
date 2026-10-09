@@ -61,6 +61,7 @@ beforeEach(() => {
 afterEach(() => {
   vi.unstubAllGlobals();
   window.history.replaceState({}, '', '/');
+  try { window.sessionStorage.clear(); } catch { /* ignore */ }
 });
 
 describe('the /corpus deep link into Browse Corpus', () => {
@@ -89,6 +90,33 @@ describe('the /corpus deep link into Browse Corpus', () => {
 // and once after (2026-08 to 2026-09-21): two docks asked the assistant
 // service for their own status on every page load, shared one sessionStorage
 // key for the conversation, and drew the floating button on top of itself.
+// A trial switch (?documents=1, ?scholarship=1) set on one page's address
+// has to hold for the rest of the visit even once the visitor leaves that
+// page -- LineSearch and ResultsPanel only ever wrote the sessionStorage
+// key when they themselves mounted with the param still on the address.
+describe('trial switches are captured once, at the app\'s own first load', () => {
+  it('remembers ?documents=1 from a page other than Line Search', async () => {
+    window.history.pushState({}, '', '/read?documents=1');
+    render(<App />);
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+    expect(window.sessionStorage.getItem('tesserae_documents_trial')).toBe('1');
+  });
+
+  it('remembers ?scholarship=1 from the homepage', async () => {
+    window.history.pushState({}, '', '/?scholarship=1');
+    render(<App />);
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+    expect(window.sessionStorage.getItem('tesserae_scholarship_tab')).toBe('1');
+  });
+
+  it('sets neither key when neither trial param is present', async () => {
+    render(<App />);
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+    expect(window.sessionStorage.getItem('tesserae_documents_trial')).toBeNull();
+    expect(window.sessionStorage.getItem('tesserae_scholarship_tab')).toBeNull();
+  });
+});
+
 describe('the assistant is mounted once', () => {
   it('asks the assistant service for its status once per page load', async () => {
     render(<App />);

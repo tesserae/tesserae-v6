@@ -70,8 +70,15 @@ def commentary():
 def sources():
     """Every commentary held, grouped by commentator, with edition, source
     and licence, for the credits page: what the site shows must be credited
-    where it came from."""
-    return jsonify({'commentaries': S.commentary_sources()})
+    where it came from.
+
+    `languages` is additive: the distinct languages those commentaries
+    cover, so the Reader's Scholarship tab can offer itself only where
+    there is something to show, derived from data rather than a hard-coded
+    list."""
+    rows = S.commentary_sources()
+    languages = sorted({row['language'] for row in rows if row.get('language')})
+    return jsonify({'commentaries': rows, 'languages': languages})
 
 
 def _held_note(work, ref, text, commentator=None):
