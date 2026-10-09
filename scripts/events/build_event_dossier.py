@@ -172,6 +172,11 @@ def entity_score(roles, idfs=None, scoring=None):
     return sum(ROLE_WEIGHT[r] * (i ** p) for r, i in zip(roles, idfs))
 
 
+def score_of_names(ents, em, prod):
+    eidf = [max(math.log(prod.n_windows / max(1, prod.name_df.get(k, 1))) for k in ks) for ks in em.values()]
+    return entity_score([ents[ei]["role"] for ei in em], eidf)
+
+
 def rank_key(score, idf_sum):
     """Sort key, best first: higher score, then rarer names."""
     return (-score, -idf_sum)
@@ -303,7 +308,69 @@ def localize(prod, wid, text, forms, width=70, max_lines=6):
     return out[:max_lines]
 
 
-def literary(prod, ents, span, limit=100, restrict_authors=True):
+class Theme:
+    """Meaning-based scores of every Latin and Greek fine window against a free-text query,
+    computed the way Theme Search computes them (backend/passage_index.py): the query goes to
+    the encoder service on port 8090 with the e5 'query: ' prefix, is scored against the stored
+    window embeddings, undescribed windows are masked and the lexical boost is applied. The
+    only difference is that the ranking here is flat (no one-head-per-work page composition)."""
+
+    def __init__(self, root=PROD):
+        repo = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        sys.path.insert(0, repo)
+        from backend import passage_index as pi
+        d = os.path.join(root, "data", "passage_index")
+        pi._DATA_DIR, pi._LEX_PATH, pi._NAMES_PATH = d, os.path.join(d, "desc_fts.sqlite"), os.path.join(d, "window_names.db")
+        pi._ensure_loaded()
+        if not pi._state["ok"]:
+            raise SystemExit("passage index not loaded: %s" % pi._state["error"])
+        import numpy as np
+        self.pi, self.np = pi, np
+        self.row = {w: i for i, w in enumerate(pi._ids)}
+        self.eligible = np.array([(":fine:" in w) and (r.get("language") in ("la", "grc")) for w, r in zip(pi._ids, pi._records)])
+        self.scores = None
+
+    def prepare(self, query):
+        pi = self.pi
+        q = pi.embed_query(pi._E5_PREFIX + query.strip()[:1500])
+        sc = pi._mask_undescribed(pi._score_all(q))
+        self.lexical = pi._lexical_boost(query, sc)
+        self.scores = sc
+        return self
+
+    def score_of(self, wid):
+        i = self.row.get(wid)
+        return None if i is None else float(self.scores[i])
+
+    def top(self, n):
+        np = self.np
+        sc = np.where(self.eligible, self.scores, -9.0)
+        idx = np.argpartition(-sc, n)[:n]
+        idx = idx[np.argsort(-sc[idx])]
+        return [(self.pi._ids[i], float(sc[i])) for i in idx]
+
+    def gist(self, wid):
+        d = (self.pi._records[self.row[wid]].get("desc") or {})
+        return d.get("gist") or d.get("setting") or ""
+
+
+THEME_POOL = 3000
+
+
+def literary(prod, ents, span, limit=100, restrict_authors=True, ranking="names", theme=None):
+    """ranking: 'names' (name occurrence), 'theme' (Theme Search score alone), or 'theme_names'
+    (Theme Search score among windows that hold at least one event name), or 'fused' (reciprocal-rank
+    fusion of the name ranking and the Theme Search ranking among windows that hold an event name)."""
+    if ranking == "theme":
+        ranked, dropped_author = [], 0
+        for wid, sc in theme.top(THEME_POOL):
+            work = base_work(wid.split(":", 1)[0])
+            ay = prod.author_year.get(author_of(work))
+            if restrict_authors and span and ay is not None and ay < span[0]:
+                dropped_author += 1
+                continue
+            ranked.append(((-sc, 0.0), wid, {}, {}, ay))
+        return _finish(prod, ents, ranked, limit, dropped_author, len(ranked), theme)
     for e in ents:
         ks = [k for k in e["keys"] if prod.name_df.get(k, 0) > 0]
         rare = [k for k in ks if prod.name_df[k] <= MAX_DF]
@@ -311,7 +378,7 @@ def literary(prod, ents, span, limit=100, restrict_authors=True):
     keys = sorted({k for e in ents for k in e["match_keys"]})
     has_place = any(e["role"] == "place" and e["match_keys"] and min(prod.name_df[k] for k in e["match_keys"]) <= PLACE_RARE_DF for e in ents)
     if not keys:
-        return {"n_raw_windows": 0, "passages": [], "all_ranked": []}
+        return {"n_raw_windows": 0, "n_after_overlap_suppression": 0, "passages": [], "all_ranked": []}
     wkeys = defaultdict(dict)  # window id -> key -> form
     for n in range(0, len(keys), 400):
         chunk = keys[n:n + 400]
@@ -347,10 +414,32 @@ def literary(prod, ents, span, limit=100, restrict_authors=True):
         if restrict_authors and span and ay is not None and ay < span[0]:
             dropped_author += 1  # the author died before the event began
             continue
+        if ranking == "theme_names":
+            ts = theme.score_of(wid)
+            if ts is not None and ts > -1.0:
+                ranked.append(((-ts, 0.0), wid, em, kf, ay))
+            continue
+        if ranking == "fused":
+            ts = theme.score_of(wid)
+            if ts is None or ts <= -1.0:
+                continue
+            ranked.append(((rank_key(score_of_names(ents, em, prod), 0.0)[0], -ts), wid, em, kf, ay))
+            continue
         idf = sum(math.log(prod.n_windows / max(1, prod.name_df.get(k, 1))) for ks in em.values() for k in ks)
         eidf = [max(math.log(prod.n_windows / max(1, prod.name_df.get(k, 1))) for k in ks) for ks in em.values()]
         score = entity_score([ents[ei]["role"] for ei in em], eidf)
         ranked.append((rank_key(score, idf), wid, em, kf, ay))
+    return _finish(prod, ents, ranked, limit, dropped_author, n_matched, theme, fuse=(ranking == "fused"))
+
+
+def _finish(prod, ents, ranked, limit, dropped_author, n_matched, theme, fuse=False):
+    if fuse:
+        # reciprocal-rank fusion (k=60) of the name ranking and the Theme Search ranking
+        by_names = sorted(ranked, key=lambda r: (r[0][0], r[1]))
+        by_theme = sorted(ranked, key=lambda r: (r[0][1], r[1]))
+        rn = {r[1]: i for i, r in enumerate(by_names, 1)}
+        rt = {r[1]: i for i, r in enumerate(by_theme, 1)}
+        ranked = [((-(1 / (60 + rn[r[1]]) + 1 / (60 + rt[r[1]])), 0.0),) + r[1:] for r in ranked]
     ranked.sort(key=lambda r: (r[0], r[1]))
     # fetch refs for every ranked window (needed for overlap suppression)
     info = {}
@@ -374,11 +463,12 @@ def literary(prod, ents, span, limit=100, restrict_authors=True):
         forms = {f for fs in (r[3][k] for ks in r[2].values() for k in ks) for f in fs}
         hit_lines = localize(prod, wid, text, forms)
         out.append({"rank": rank, "window_id": wid, "work": work, "language": prod.lang.get(work) or prod.lang.get(wid.split(":", 1)[0]),
-                    "ref_start": info[wid][0], "ref_end": info[wid][1], "author_year": r[3],
-                    "score": -r[0][0], "n_entities": len(r[2]), "idf_sum": round(-r[0][1], 2),
+                    "ref_start": info[wid][0], "ref_end": info[wid][1], "author_year": r[4],
+                    "score": round(-r[0][0], 4), "n_entities": len(r[2]), "idf_sum": round(-r[0][1], 2),
+                    "gist": theme.gist(wid) if theme is not None and wid in theme.row else None,
                     "matched": sorted({f"{ents[ei]['label']} [{ents[ei]['role']}] = {form}" for ei, ks in r[2].items() for k in ks for form in r[3][k]}),
                     "hit_lines": hit_lines, "text": text[:500]})
-    all_ranked = [{"work": span_of(r)[0], "lo": span_of(r)[1], "hi": span_of(r)[2], "score": -r[0][0]} for r in kept]
+    all_ranked = [{"work": span_of(r)[0], "lo": span_of(r)[1], "hi": span_of(r)[2], "score": round(-r[0][0], 4)} for r in kept]
     return {"n_raw_windows": n_matched, "n_dropped_author_before_event": dropped_author, "n_after_overlap_suppression": len(kept),
             "passages": out, "all_ranked": all_ranked}
 
@@ -502,11 +592,14 @@ def hand_passages(spec):
     return out
 
 
-def build(rec, labels, countries, prod, points, crosswalk, spec=None, limit=100, use_curated=False):
+def build(rec, labels, countries, prod, points, crosswalk, spec=None, limit=100, use_curated=False,
+          ranking="names", theme=None, query=None, restrict_authors=True):
     t0 = time.time()
     span = event_span(rec)
     ents = build_entities(rec, labels, countries, (spec or {}).get("curated_names", []) if use_curated else ())
-    lit = literary(prod, ents, span, limit=limit)
+    if theme is not None:
+        theme.prepare(query)
+    lit = literary(prod, ents, span, limit=limit, restrict_authors=restrict_authors, ranking=ranking, theme=theme)
     t1 = time.time()
     locs = specific_locations(rec, countries)
     centres = []
@@ -553,6 +646,9 @@ def main():
     ap.add_argument("--match", default="any", choices=["any", "all"])
     ap.add_argument("--require-place", action="store_true")
     ap.add_argument("--max-df", type=int, default=1500)
+    ap.add_argument("--ranking", default="names", choices=["names", "theme", "theme_names", "fused"])
+    ap.add_argument("--intros", help="intros.json from fetch_wikipedia_intros.py (the Theme Search queries)")
+    ap.add_argument("--no-author-filter", action="store_true")
     ap.add_argument("--curated", action="store_true", help="add the hand-curated names of the sample file")
     a = ap.parse_args()
     events, labels, countries = load_jsonl(a.events), load_jsonl(a.labels), load_jsonl(a.countries)
@@ -560,6 +656,8 @@ def main():
     global SCORING, MATCH, REQUIRE_PLACE, MAX_DF
     SCORING, MATCH, REQUIRE_PLACE, MAX_DF = a.scoring, a.match, a.require_place, a.max_df
     prod = Prod()
+    theme = Theme() if a.ranking != "names" else None
+    intros = json.load(open(a.intros)) if a.intros else {}
     os.makedirs(a.out, exist_ok=True)
     jobs = []
     if a.sample:
@@ -568,7 +666,8 @@ def main():
     else:
         jobs.append((a.qid, events[a.qid], None))
     for key, rec, spec in jobs:
-        d, ranked = build(rec, labels, countries, prod, points, crosswalk, spec, a.limit, a.curated)
+        d, ranked = build(rec, labels, countries, prod, points, crosswalk, spec, a.limit, a.curated, a.ranking, theme,
+                         intros.get(key, {}).get("query") or rec["description"] or rec["label"], not a.no_author_filter)
         json.dump(d, open(os.path.join(a.out, f"{key}.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1, default=sorted)
         json.dump(ranked, open(os.path.join(a.out, f"{key}.ranked.json"), "w"))
         print(key, rec["label"], "lit", d["literary"]["n_after_overlap_suppression"], "docs", d["documents"]["n"],

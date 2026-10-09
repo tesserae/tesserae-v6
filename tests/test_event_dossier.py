@@ -110,3 +110,15 @@ def test_specific_locations_drop_country_only():
     rec2 = {"qid": "Q3", "locations": [{"qid": "Q41", "label": "Greece"}, {"qid": "Q9", "label": "Farsala"}]}
     cs2 = {"Q3": {"p17": ["Q41"], "p276": ["Q9"]}}
     assert [l["label"] for l in bed.specific_locations(rec2, cs2)] == ["Farsala"]
+
+
+def test_score_of_names_weights_by_role_and_rarity():
+    class P:
+        n_windows = 1000
+        name_df = {"a": 10, "b": 500}
+    ents = [{"role": "place"}, {"role": "context"}]
+    em = {0: {"a"}, 1: {"b"}}
+    # idf2 default: place idf^2 + 0.5 * context idf^2
+    import math
+    expect = math.log(100) ** 2 + 0.5 * math.log(2) ** 2
+    assert abs(bed.score_of_names(ents, em, P) - expect) < 1e-9
