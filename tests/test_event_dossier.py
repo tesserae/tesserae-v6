@@ -154,3 +154,25 @@ def test_name_stems_ius_expansion_is_off_by_default_and_name_side_only():
         assert bed.stem_form(bed.norm_full("Delius")) not in bed.name_stems("delium")
     finally:
         bed.IUS_EXPANSION = False
+
+
+def test_prep_lemmas_uses_lemma_when_known_and_stem_otherwise():
+    ents = [{"names": ["Darius", "Zzyzx"]}]
+    top = {"darius": "darius"}              # normalised surface -> lemma from the caches
+    bed.prep_lemmas(ents, top)
+    assert ents[0]["lemmas"] == ["darius"]
+    assert ents[0]["stems_fb"] == [bed.stem_form("zzuzks")] or ents[0]["stems_fb"] == sorted(bed.name_stems(bed.norm_full("Zzyzx")))
+
+
+def test_cocite_score_excludes_seeds_and_counts_pages():
+    class P:
+        cites = None
+        root = "/nonexistent"
+    cc = bed.CoCite(P(), [("hdt", (6, 102), (6, 117))])
+    cc._add("hdt", (8, 84), (8, 84), ("a", 1))
+    cc._add("hdt", (8, 84), (8, 90), ("b", 2))
+    cc._add("hdt", (6, 110), (6, 110), ("c", 3))
+    assert cc.score("hdt", (8, 80), (8, 91)) == 2             # two pages co-cite a passage inside
+    assert cc.score("hdt", (9, 1), (9, 5)) == 0
+    assert cc.score("hdt", (6, 100), (6, 112)) == 0           # overlaps a seed: never boosted
+    assert cc.score("plut", (8, 80), (8, 91)) == 0

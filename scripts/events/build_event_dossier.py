@@ -210,6 +210,7 @@ ROLE_WEIGHT = {"place": 1.0, "participant": 1.0, "context": 0.5}
 SCORING = "idf2"  # "count" | "idf" | "idf2" | "rareN"
 REQUIRE_PLACE = False  # keep only windows that name one of the event's places (when a rare place name exists)
 PLACE_RARE_DF = 2000
+MATCH = "any"  # "any" | "all"
 MAX_DF = 1500  # keys in more windows than this are too common to identify an event on their own
 
 
@@ -298,14 +299,14 @@ def build_entities(rec, labels, countries, curated=()):
                 stems = sorted({st for n in names for t in label_tokens(n) for st in name_stems(t)})
                 ents.append({"qid": it["qid"], "label": it.get("label"), "role": role,
                              "keys": sorted(set().union(*variants)), "variants": [sorted(v) for v in variants],
-                             "stems": stems, "n_labels": len(names)})
+                             "stems": stems, "names": names, "n_labels": len(names)})
     for c in curated:
         variants = label_variants(c["variants"])
         if variants:
             stems = sorted({st for n in c["variants"] for t in label_tokens(n) for st in name_stems(t)})
             ents.append({"qid": None, "label": c["variants"][0], "role": c.get("role", "participant"),
                          "keys": sorted(set().union(*variants)), "variants": [sorted(v) for v in variants],
-                         "stems": stems, "n_labels": len(c["variants"]), "curated": True})
+                         "stems": stems, "names": list(c["variants"]), "n_labels": len(c["variants"]), "curated": True})
     return ents
 
 
@@ -350,6 +351,21 @@ def _strip_map(t):
                 out.append(c)
                 idx.append(i)
     return "".join(out), idx
+
+
+def localize_ords(prod, wid, ords_by_entity, ents, max_lines=6):
+    """Lines of a window found through the lemma caches: line ref, the entity and the line start."""
+    work, _, start = wid.split(":")
+    ord0 = int(start)
+    allo = sorted({o for os_ in ords_by_entity.values() for o in os_})[:max_lines]
+    rows = {o: (ref, t) for o, ref, t in prod.texts.execute(
+        "SELECT ord, ref, text FROM lines WHERE work=? AND ord>=? AND ord<=?", (work, allo[0], allo[-1]))} if allo else {}
+    out = []
+    for o in allo:
+        if o in rows:
+            names = sorted({ents[ei]["label"] for ei, os_ in ords_by_entity.items() if o in os_})
+            out.append({"ref": rows[o][0], "forms": ["lemma of " + n for n in names], "snippet": rows[o][1][:140].strip()})
+    return out
 
 
 def localize(prod, wid, text, forms, width=70, max_lines=6):
@@ -424,16 +440,68 @@ THEME_POOL = 3000
 MATCHING = "form"  # "form": full normalised form (stem plus ending) | "key": the index's 5-letter key
 
 
-def _match_forms(prod, ents, wkeys):
+LEMMA_CHOICE = "cap"  # lemma of a name: most frequent among capitalised occurrences ("cap") or among all ("all")
+LEMMA_DIR = None   # directory with name_lemmas.json and lemma_hits.pkl (lemma_name_index.py)
+LEMMA_ORDS = {}    # window id -> entity index -> [line ords holding the name's lemma]
+_LEMMA = {}
+
+
+def load_lemma_data(d):
+    if d not in _LEMMA:
+        import pickle
+        j = json.load(open(os.path.join(d, "name_lemmas.json"), encoding="utf-8"))
+        top = j["top_all"] if LEMMA_CHOICE == "all" else j["top"]
+        hits = pickle.load(open(os.path.join(d, "lemma_hits.pkl"), "rb"))
+        _LEMMA[d] = (top, hits)
+    return _LEMMA[d]
+
+
+def prep_lemmas(ents, top):
+    """Per entity: the normalised lemmas of its name tokens (the most frequent lemma of each
+    surface form in the lemma caches) and, for tokens that never occur in the caches, the stems
+    used by form matching."""
+    for e in ents:
+        lems, fb = set(), set()
+        for n in e.get("names", []):
+            for t in label_tokens(n):
+                if t in top:
+                    lems.add(norm_full(top[t]))
+                else:
+                    fb |= name_stems(t)
+        e["lemmas"], e["stems_fb"] = sorted(lems), sorted(fb)
+
+
+def _match_forms(prod, ents, wkeys, lemma=None):
     """Match event names on the window's own token. An entity matches a window if some token of
     the window, normalised like the name index does but without the 5-letter cut and with one
     inflectional ending stripped, equals a normalised, ending-stripped name token of the entity.
     The index key is used only to fetch candidates (all keys that start like the stem)."""
     stem2ents = defaultdict(set)
+    if lemma is not None:
+        prep_lemmas(ents, lemma[0])
     for ei, e in enumerate(ents):
-        for st in e["stems"]:
+        for st in (e["stems"] if lemma is None else e["stems_fb"]):
             stem2ents[st].add(ei)
     seen = defaultdict(set)  # entity -> windows
+    LEMMA_ORDS.clear()
+    if lemma is not None:
+        lem2ents = defaultdict(set)
+        for ei, e in enumerate(ents):
+            for l in e["lemmas"]:
+                lem2ents[l].add(ei)
+        for work, hl in lemma[1].items():
+            if base_work(work) not in prod.lang and work not in prod.lang:
+                continue
+            for o, lems in hl.items():
+                for l in lems:
+                    for ei in lem2ents.get(l, ()):
+                        for st0 in {o // 6 * 6, o // 6 * 6 - 6}:
+                            if st0 < 0:
+                                continue
+                            wid = f"{work}:fine:{st0}"
+                            seen[ei].add(wid)
+                            wkeys[wid].setdefault(f"#{ei}", set()).add("[" + l + "]")
+                            LEMMA_ORDS.setdefault(wid, {}).setdefault(ei, set()).add(o)
     for st in stem2ents:
         if len(st) >= 5:
             sql, arg = "SELECT id, k, form FROM window_names WHERE k = ?", (st[:5],)
@@ -460,7 +528,7 @@ def _match_forms(prod, ents, wkeys):
         e["match_keys"] = [f"#{ei}"] if ei in live else []
 
 
-def literary(prod, ents, span, limit=100, restrict_authors=True, ranking="names", theme=None):
+def literary(prod, ents, span, limit=100, restrict_authors=True, ranking="names", theme=None, seeds=None):
     """ranking: 'names' (name occurrence), 'theme' (Theme Search score alone), or 'theme_names'
     (Theme Search score among windows that hold at least one event name), or 'fused' (reciprocal-rank
     fusion of the name ranking and the Theme Search ranking among windows that hold an event name)."""
@@ -476,8 +544,8 @@ def literary(prod, ents, span, limit=100, restrict_authors=True, ranking="names"
         return _finish(prod, ents, ranked, limit, dropped_author, len(ranked), theme)
     wkeys = defaultdict(dict)  # window id -> key -> forms
     prod.exact_df = {}
-    if MATCHING == "form":
-        _match_forms(prod, ents, wkeys)
+    if MATCHING in ("form", "lemma"):
+        _match_forms(prod, ents, wkeys, load_lemma_data(LEMMA_DIR) if MATCHING == "lemma" else None)
     else:
         for e in ents:
             ks = [k for k in e["keys"] if prod.name_df.get(k, 0) > 0]
@@ -527,7 +595,7 @@ def literary(prod, ents, span, limit=100, restrict_authors=True, ranking="names"
             if ts is not None and ts > -1.0:
                 ranked.append(((-ts, 0.0), wid, em, kf, ay))
             continue
-        if ranking == "fused":
+        if ranking in ("fused", "fused3"):
             ts = theme.score_of(wid)
             if ts is None or ts <= -1.0:
                 continue
@@ -537,19 +605,14 @@ def literary(prod, ents, span, limit=100, restrict_authors=True, ranking="names"
         eidf = [max(math.log(prod.n_windows / max(1, key_df(prod, k))) for k in ks) for ks in em.values()]
         score = entity_score([ents[ei]["role"] for ei in em], eidf)
         ranked.append((rank_key(score, idf), wid, em, kf, ay))
-    return _finish(prod, ents, ranked, limit, dropped_author, n_matched, theme, fuse=(ranking == "fused"))
+    cocite = CoCite(prod, seeds or []) if ranking == "fused3" else None
+    return _finish(prod, ents, ranked, limit, dropped_author, n_matched, theme,
+                   fuse=(ranking if ranking in ("fused", "fused3") else False), cocite=cocite)
 
 
-def _finish(prod, ents, ranked, limit, dropped_author, n_matched, theme, fuse=False):
-    if fuse:
-        # reciprocal-rank fusion (k=60) of the name ranking and the Theme Search ranking
-        by_names = sorted(ranked, key=lambda r: (r[0][0], r[1]))
-        by_theme = sorted(ranked, key=lambda r: (r[0][1], r[1]))
-        rn = {r[1]: i for i, r in enumerate(by_names, 1)}
-        rt = {r[1]: i for i, r in enumerate(by_theme, 1)}
-        ranked = [((-(1 / (60 + rn[r[1]]) + 1 / (60 + rt[r[1]])), 0.0),) + r[1:] for r in ranked]
+def _finish(prod, ents, ranked, limit, dropped_author, n_matched, theme, fuse=False, cocite=None):
     ranked.sort(key=lambda r: (r[0], r[1]))
-    # fetch refs for every ranked window (needed for overlap suppression)
+    # fetch refs for every ranked window (needed for overlap suppression and co-citation)
     info = {}
     ids = [r[1] for r in ranked]
     for n in range(0, len(ids), 500):
@@ -557,6 +620,24 @@ def _finish(prod, ents, ranked, limit, dropped_author, n_matched, theme, fuse=Fa
         q = "SELECT id, ref_start, ref_end FROM window_texts WHERE id IN (%s)" % ",".join("?" * len(chunk))  # nosec B608
         for wid, rs, re_ in prod.texts.execute(q, chunk):
             info[wid] = (rs, re_)
+    if fuse:
+        # reciprocal-rank fusion (k=60) of the name ranking and the Theme Search ranking and, for
+        # 'fused3', the co-citation ranking (only windows co-cited with a seed are in that list)
+        by_names = sorted(ranked, key=lambda r: (r[0][0], r[1]))
+        by_theme = sorted(ranked, key=lambda r: (r[0][1], r[1]))
+        rn = {r[1]: i for i, r in enumerate(by_names, 1)}
+        rt = {r[1]: i for i, r in enumerate(by_theme, 1)}
+        rc = {}
+        if cocite is not None:
+            cs = {}
+            for r in ranked:
+                if r[1] in info:
+                    sc = cocite.score(base_work(r[1].split(":", 1)[0]), parse_ref(info[r[1]][0]), parse_ref(info[r[1]][1]))
+                    if sc > 0:
+                        cs[r[1]] = sc
+            rc = {w: i for i, w in enumerate(sorted(cs, key=lambda w: (-cs[w], w)), 1)}
+        ranked = [((-(1 / (60 + rn[r[1]]) + 1 / (60 + rt[r[1]]) + (1 / (60 + rc[r[1]]) if r[1] in rc else 0.0)), 0.0),) + r[1:] for r in ranked]
+        ranked.sort(key=lambda r: (r[0], r[1]))
 
     def span_of(r):
         rs, re_ = info.get(r[1], (None, None))
@@ -569,7 +650,9 @@ def _finish(prod, ents, ranked, limit, dropped_author, n_matched, theme, fuse=Fa
         text = prod.texts.execute("SELECT text FROM window_texts WHERE id=?", (wid,)).fetchone()[0]
         work = base_work(wid.split(":", 1)[0])
         forms = {f for fs in (r[3][k] for ks in r[2].values() for k in ks) for f in fs}
-        hit_lines = localize(prod, wid, text, forms)
+        hit_lines = localize(prod, wid, text, {f for f in forms if not f.startswith("[")})
+        if wid in LEMMA_ORDS:
+            hit_lines += localize_ords(prod, wid, LEMMA_ORDS[wid], ents)
         out.append({"rank": rank, "window_id": wid, "work": work, "language": prod.lang.get(work) or prod.lang.get(wid.split(":", 1)[0]),
                     "ref_start": info[wid][0], "ref_end": info[wid][1], "author_year": r[4],
                     "score": round(-r[0][0], 4), "n_entities": len(r[2]), "idf_sum": round(-r[0][1], 2),
@@ -636,6 +719,95 @@ def documents(prod, span, centres, points, crosswalk, margin=10, radius_km=100, 
     return {"n": len(items), "n_date_overlap_anywhere": n_dates, "n_by_radius_km": by_radius, "n_dated_within_50_years": narrow, "n_overlapping_but_no_usable_place": n_nodate_place,
             "span_used": [lo, hi], "radius_km": radius_km, "items": items[:sample_cap],
             "findspots": sorted(fs.values(), key=lambda x: -x["n"])}
+
+
+# ----------------------------------------------------------------- co-citation ranker
+
+_ROMAN = {"i": 1, "v": 5, "x": 10, "l": 50, "c": 100}
+_XREF = re.compile(r"\b([ivxlc]{1,6})\.\s?(\d{1,3})(?:\.\s?(\d{1,3}))?")
+
+
+def _roman(t):
+    tot = 0
+    for i, ch in enumerate(t):
+        v = _ROMAN[ch]
+        tot += -v if i + 1 < len(t) and _ROMAN[t[i + 1]] > v else v
+    return tot
+
+
+class CoCite:
+    """Passages cited on the same page as a seed passage.
+
+    seeds: [(work, lo, hi)] primary passages. Every row of the citation index that cites a seed
+    (work_id plus overlapping locus) gives a page (article, page). Every OTHER citation on those
+    pages, in any work, is a co-cited passage, weighted by the number of distinct pages that
+    co-cite it. Commentary units that fall on a seed give the cross-references in their text
+    (for example How and Wells on Herodotus: 'cf. vi. 54') as co-cited passages of the same work.
+    Passages that overlap a seed are not boosted (they are the seeds)."""
+
+    def __init__(self, prod, seeds):
+        self.seeds = seeds
+        self.by_work = defaultdict(lambda: defaultdict(list))  # work -> book -> [(cs, ce, page)]
+        self.pages, self.n_loci = set(), 0
+        if prod.cites is None:
+            return
+        for work, lo, hi in seeds:
+            first = lo[0]
+            for ar, pg, ls, le, oe in prod.cites.execute(
+                    "SELECT article_id, page, locus_start, locus_end, open_ended FROM citations WHERE work_id=? AND (locus_start LIKE ? OR locus_start=?)",
+                    (work, f"{first}.%", str(first))):
+                cs, ce = self._span(ls, le, oe)
+                if loci_overlap(cs, ce, lo, hi):
+                    self.pages.add((ar, pg))
+        for ar, pg in self.pages:
+            for w2, ls, le, oe in prod.cites.execute(
+                    "SELECT work_id, locus_start, locus_end, open_ended FROM citations WHERE article_id=? AND page=?", (ar, pg)):
+                cs, ce = self._span(ls, le, oe)
+                if cs and not any(w2 == w and loci_overlap(cs, ce, lo, hi) for w, lo, hi in seeds):
+                    self._add(w2, cs, ce, (ar, pg))
+        self._commentary(prod)
+
+    @staticmethod
+    def _span(ls, le, oe):
+        cs, ce = parse_ref("x " + (ls or "")), parse_ref("x " + (le or ls or ""))
+        if oe:
+            ce = cs[:-1] + (cs[-1] + 30,) if len(cs) > 1 else (10 ** 6,)
+        return cs, ce
+
+    def _add(self, work, cs, ce, page):
+        self.n_loci += 1
+        for book in range(cs[0], min(ce[0], cs[0] + 3) + 1):
+            self.by_work[work][book].append((cs, ce, page))
+
+    def _commentary(self, prod):
+        d = os.path.join(prod.root, "data", "commentaries")
+        for work, lo, hi in self.seeds:
+            for fn in sorted(os.listdir(d)):
+                if not (fn.endswith(f"__{work}.json") or (f"__{work}.part." in fn and fn.endswith(".json"))):
+                    continue
+                doc = json.load(open(os.path.join(d, fn), encoding="utf-8"))
+                for i, u in enumerate(doc.get("units", [])):
+                    r = parse_ref(u.get("ref"))
+                    if not (r and loci_overlap(r, r, lo, hi)):
+                        continue
+                    for m in _XREF.finditer((u.get("text") or "").lower()):
+                        try:
+                            loc = (_roman(m.group(1)), int(m.group(2))) + ((int(m.group(3)),) if m.group(3) else ())
+                        except KeyError:
+                            continue
+                        if not loci_overlap(loc, loc, lo, hi):
+                            self._add(work, loc, loc, ("commentary", fn, i))
+
+    def score(self, work, lo, hi):
+        """Number of distinct pages that co-cite a passage overlapping the window lo..hi."""
+        if not lo or not hi or any(work == w and loci_overlap(lo, hi, l2, h2) for w, l2, h2 in self.seeds):
+            return 0
+        pages = set()
+        for book in range(lo[0], min(hi[0], lo[0] + 3) + 1):
+            for cs, ce, pg in self.by_work.get(work, {}).get(book, ()):
+                if loci_overlap(cs, ce, lo, hi):
+                    pages.add(pg)
+        return len(pages)
 
 
 # ----------------------------------------------------------------- (c) scholarship
@@ -707,7 +879,8 @@ def build(rec, labels, countries, prod, points, crosswalk, spec=None, limit=100,
     ents = build_entities(rec, labels, countries, (spec or {}).get("curated_names", []) if use_curated else ())
     if theme is not None:
         theme.prepare(query)
-    lit = literary(prod, ents, span, limit=limit, restrict_authors=restrict_authors, ranking=ranking, theme=theme)
+    seeds = [(p["work"], p["lo"], p["hi"]) for p in hand_passages(spec)] if spec else []
+    lit = literary(prod, ents, span, limit=limit, restrict_authors=restrict_authors, ranking=ranking, theme=theme, seeds=seeds)
     t1 = time.time()
     locs = specific_locations(rec, countries)
     centres = []
@@ -753,19 +926,23 @@ def main():
     ap.add_argument("--scoring", default="idf2", choices=["count", "idf", "idf2", "rare5", "rare6", "rare7", "rare8"])
     ap.add_argument("--match", default="any", choices=["any", "all"])
     ap.add_argument("--require-place", action="store_true")
-    ap.add_argument("--matching", default="form", choices=["form", "key"],
-                    help="form: full normalised form plus one ending (default). key: the index's 5-letter key.")
+    ap.add_argument("--matching", default="form", choices=["form", "key", "lemma"],
+                    help="form: full normalised form plus one ending (default). key: the index's 5-letter key. "
+                         "lemma: the dictionary form from the lemma caches (needs --lemma-dir).")
+    ap.add_argument("--lemma-dir", help="output directory of lemma_name_index.py")
+    ap.add_argument("--lemma-choice", default="cap", choices=["cap", "all"])
     ap.add_argument("--ius", action="store_true", help="let a name in -ius accept its oblique forms (Arminii, Pompei, Darium)")
     ap.add_argument("--max-df", type=int, default=1500)
-    ap.add_argument("--ranking", default="names", choices=["names", "theme", "theme_names", "fused"])
+    ap.add_argument("--ranking", default="names", choices=["names", "theme", "theme_names", "fused", "fused3"])
     ap.add_argument("--intros", help="intros.json from fetch_wikipedia_intros.py (the Theme Search queries)")
     ap.add_argument("--no-author-filter", action="store_true")
     ap.add_argument("--curated", action="store_true", help="add the hand-curated names of the sample file")
     a = ap.parse_args()
     events, labels, countries = load_jsonl(a.events), load_jsonl(a.labels), load_jsonl(a.countries)
     points, crosswalk = load_points(a.pleiades), load_crosswalk()
-    global SCORING, MATCH, REQUIRE_PLACE, MAX_DF, MATCHING, IUS_EXPANSION
+    global SCORING, MATCH, REQUIRE_PLACE, MAX_DF, MATCHING, IUS_EXPANSION, LEMMA_DIR, LEMMA_CHOICE
     SCORING, MATCH, REQUIRE_PLACE, MAX_DF, MATCHING = a.scoring, a.match, a.require_place, a.max_df, a.matching
+    LEMMA_DIR, LEMMA_CHOICE = a.lemma_dir, a.lemma_choice
     IUS_EXPANSION = a.ius
     prod = Prod()
     theme = Theme() if a.ranking != "names" else None
