@@ -9,8 +9,10 @@
  * periods and commas and a following range, else the passage's own
  * opening words.
  */
-import { describe, expect, it } from 'vitest';
-import { findMark } from './ScholarshipTab';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import ScholarshipTab, { findMark } from './ScholarshipTab';
 
 const AENEID_1_1 = { work: 'vergil.aeneid', author: 'Vergil', title: 'Aeneid', abbrev: 'Aen.', lo: '1.1', hi: '1.7' };
 
@@ -61,5 +63,65 @@ describe('findMark: tolerant citation bolding', () => {
     const text = 'Aen. 1.1 opens the poem; later scholars return to Aen. 1.1 again.';
     const hit = findMark(text, null, AENEID_1_1);
     expect(hit.start).toBe(text.indexOf('Aen. 1.1'));
+  });
+});
+
+/**
+ * The footer boilerplate (the long "Found by title and abstract in OpenAlex
+ * and Crossref..." paragraph and the HathiTrust explanation underneath it)
+ * is replaced by one short line: a "Where these results come from" link to
+ * the matching Help section, and the existing HathiTrust link on its own
+ * (ScholarshipTab fix, 2026-10-08).
+ */
+const UNITS = [{ ref: '1.1', text: 'arma virumque cano' }];
+const SELECTION = { startIdx: 0, endIdx: 0 };
+
+function respond(data) {
+  return Promise.resolve({ ok: true, json: () => Promise.resolve(data) });
+}
+
+afterEach(() => { delete global.fetch; });
+
+describe('ScholarshipTab \u2014 shortened footer', () => {
+  it('drops the long services paragraph and the separate HathiTrust explanation', async () => {
+    global.fetch = vi.fn(() => respond({
+      commentary: [], results: [], index: { results: [] }, fulltext: { results: [] },
+      books: { results: [], hathitrust_url: 'https://babel.hathitrust.org/cgi/ls?q1=example' },
+    }));
+    render(<ScholarshipTab work="vergil.aeneid" language="la" selection={SELECTION} units={UNITS} />);
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+
+    expect(screen.queryByText(/Found by title and abstract in OpenAlex/)).toBeNull();
+    expect(screen.queryByText(/Sources and licenses are on the Sources page/)).toBeNull();
+    expect(screen.queryByText(/without showing the text/)).toBeNull();
+    expect(screen.getByRole('button', { name: 'Where these results come from' })).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Search HathiTrust\u2019s full text for this passage' })).toBeTruthy();
+  });
+
+  it('hides the HathiTrust link when the lookup gives none, keeping the Help link', async () => {
+    global.fetch = vi.fn(() => respond({
+      commentary: [], results: [], index: { results: [] }, fulltext: { results: [] }, books: { results: [] },
+    }));
+    render(<ScholarshipTab work="vergil.aeneid" language="la" selection={SELECTION} units={UNITS} />);
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+
+    expect(screen.getByRole('button', { name: 'Where these results come from' })).toBeTruthy();
+    expect(screen.queryByRole('link', { name: /HathiTrust/ })).toBeNull();
+  });
+
+  it('"Where these results come from" dispatches tesserae:open-help at the scholarship-sources anchor', async () => {
+    global.fetch = vi.fn(() => respond({
+      commentary: [], results: [], index: { results: [] }, fulltext: { results: [] }, books: { results: [] },
+    }));
+    const handler = vi.fn();
+    window.addEventListener('tesserae:open-help', handler);
+    const user = userEvent.setup();
+    render(<ScholarshipTab work="vergil.aeneid" language="la" selection={SELECTION} units={UNITS} />);
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+
+    await user.click(screen.getByRole('button', { name: 'Where these results come from' }));
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler.mock.calls[0][0].detail).toEqual({ section: 'reader', anchor: 'scholarship-sources' });
+    window.removeEventListener('tesserae:open-help', handler);
   });
 });

@@ -1779,6 +1779,23 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                   line. It comes from a table built once over the whole corpus, not a live
                   search, so it covers only the languages built so far, Latin, Greek and English.
                 </li>
+                <li id="scholarship-sources">
+                  <strong>Scholarship</strong> lists the public-domain commentary notes the site holds,
+                  then the articles, chapters and book pages that cite the passage, newest first. Four
+                  open services supply those results. OpenAlex and Crossref are searched by title and
+                  abstract. Semantic Scholar and CORE are searched in the full text of open-access
+                  papers. The site&rsquo;s own index of citations in journals from before 1923 reads
+                  JSTOR. Google Books finds a citation on a book page. A result marked open access has a
+                  free, legal copy through Unpaywall. A result with only a DOI opens through your own
+                  library instead. Set your library&rsquo;s link-resolver address once, under My library
+                  in this tab. Its link then opens the article or chapter under your institution&rsquo;s
+                  access. Where neither a free copy nor your library resolves it, the result still names what
+                  cites the passage and where. Copy for Zotero puts the reference on your clipboard, read
+                  by Zotero&rsquo;s own File menu, Import from Clipboard. The HathiTrust link in this tab
+                  runs the same search in that library&rsquo;s book scans and tells you which books and
+                  page numbers mention the citation, without showing you the text itself. Every source
+                  and its license are listed on the Sources page under About.
+                </li>
               </ul>
               <p className="text-gray-700 mb-3">
                 Arriving from Theme Search, the Reader opens on the translation, selects the whole

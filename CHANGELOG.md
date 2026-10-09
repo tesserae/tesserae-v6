@@ -9,6 +9,32 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Scholarship tab: titles shared by more than one author, and a shorter footer
+- A citation of a bare work title that more than one author in the corpus
+  uses, such as Argonautica (Apollonius Rhodius and Valerius Flaccus) or
+  Metamorphoses (Ovid and Apuleius), was accepted for either author's
+  passage with no check on which one the citing piece actually names. The
+  Google Books channel has no author check of its own, so the Apollonius
+  Rhodius, Argonautica 1.5-17 tab listed "Valerio Flaco (2016).
+  Argonáuticas" and a Smallwood note on "Valerius Flaccus' Argonautica
+  1.5-21" for exactly this reason. `backend/scholarship.py` now builds the
+  list of shared titles from the corpus file list and, for one of them,
+  requires the right author's name or citation abbreviation near the
+  match (drawn from `data/citations/abbreviations.json` on production)
+  and rejects a match naming a competing author of the same title
+  instead, in the Google Books channel and in the OpenAlex, Crossref and
+  journal-index channels alike. Without that table (every dev and test
+  environment) the check does not run, so an untracked filing quirk in
+  the corpus (a stray "Aeneid"-titled duplicate of Maffeo Veggio's own
+  Supplementum) cannot force ordinary Vergil citations to name "Vergil"
+  outright. Tests added. docs/DECISIONS.md has the before and after
+  counts, measured against production's live data.
+- The long "Found by title and abstract in OpenAlex and Crossref..." and
+  HathiTrust paragraphs under every Scholarship result list are replaced
+  by one short line: "Where these results come from" (a new Help section,
+  `client/src/components/pages/HelpPage.jsx`, under The Reader) and the
+  existing HathiTrust search link on its own. Tests added.
+
 ### A Documents section in Browse Corpus, behind the documents trial
 - Browse Corpus can now show the documentary corpus (inscriptions, papyri)
   as its own section: kind (Inscriptions, Papyri and ostraca), region

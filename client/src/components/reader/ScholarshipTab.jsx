@@ -241,20 +241,23 @@ export default function ScholarshipTab({ work, language, selection, units, secon
               {pieces.map((p) => p.node)}
             </ul>
             <p className="text-[11px] text-gray-500 mt-3 leading-snug">
-              Found by title and abstract in OpenAlex and Crossref (article record), with open copies from
-              Unpaywall; in the full text of open-access papers by Semantic Scholar and CORE (open-access
-              article); in journals from before 1923 by the site&rsquo;s own citation index (journal
-              article, before 1923, JSTOR); and in Google Books (book page). Subscription articles open
-              under your own access. Copy for Zotero puts the reference on the clipboard (in Zotero: File,
-              Import from Clipboard). Sources and licenses are on the Sources page.
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new CustomEvent('tesserae:open-help',
+                  { detail: { section: 'reader', anchor: 'scholarship-sources' } }))}
+                className="text-red-700 hover:underline"
+              >
+                Where these results come from
+              </button>
+              {data.books?.hathitrust_url && (
+                <>
+                  {' · '}
+                  <a className="text-red-700 hover:underline" href={data.books.hathitrust_url} target="_blank" rel="noreferrer">
+                    Search HathiTrust&rsquo;s full text for this passage
+                  </a>
+                </>
+              )}
             </p>
-            {data.books?.hathitrust_url && (
-              <p className="text-[11px] text-gray-500 mt-2 leading-snug">
-                <a className="text-red-700 hover:underline" href={data.books.hathitrust_url} target="_blank" rel="noreferrer">
-                  Search HathiTrust&rsquo;s full text
-                </a> for this passage: it answers with the books and page numbers where the citation occurs, without showing the text.
-              </p>
-            )}
           </section>
 
           {(data.links || []).length > 0 && (

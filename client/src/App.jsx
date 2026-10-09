@@ -438,6 +438,15 @@ function App() {
     return () => window.removeEventListener('tesserae:open-how-to-cite', handleOpenHowToCite);
   }, [openAboutAnchor]);
 
+  // The Reader's Scholarship tab dispatches this for the same reason: it is
+  // mounted several components below this one, with no onOpenHelp prop
+  // threaded down to it (ScholarshipTab fix, 2026-10-08).
+  useEffect(() => {
+    const handleOpenHelp = (e) => openHelpSection(e.detail?.section, e.detail?.anchor ?? null);
+    window.addEventListener('tesserae:open-help', handleOpenHelp);
+    return () => window.removeEventListener('tesserae:open-help', handleOpenHelp);
+  }, [openHelpSection]);
+
   const appLockedToAdmin = adminSessionChecked && adminSessionActive;
 
   const handleAdminSessionLogout = useCallback(async () => {

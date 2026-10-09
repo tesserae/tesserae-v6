@@ -13,6 +13,7 @@ request per distinct query, because the services ask for restraint and the
 literature changes slowly. Every request carries the project's contact
 address, which is what the services ask of a polite client.
 """
+import glob
 import hashlib
 import html
 import json
@@ -254,18 +255,213 @@ def _locus_anchor_names(p):
     author = (p.get('author') or '').strip().lower()
     return {n for n in _names(p) if n != author}
 
+# --------------------------------------------- titles shared by more than
+# one author ("Argonautica": Apollonius Rhodius and Valerius Flaccus;
+# "Metamorphoses": Ovid and Apuleius). A bare title match is not enough for
+# one of these: a citation of "Argonautica 1.5-17" names Apollonius Rhodius
+# only where an Apollonius signal (his name, or "A.R.") sits near the match,
+# and not where a competing author of the same title (Valerius, "Val. Fl.")
+# sits there instead. Built once per process from the corpus file list
+# (texts/, each file's display author and work title after the overrides
+# that give one author one canonical name), never from a per-article guess.
+
+_SHARED_TITLES = None
+
+
+def _load_shared_titles():
+    """{title.lower(): {author_key: {'author': display name, 'work': base_work}}}
+    for every title held by more than one author_key in the corpus."""
+    global _SHARED_TITLES
+    if _SHARED_TITLES is not None:
+        return _SHARED_TITLES
+    groups = {}
+    for fp in glob.glob(os.path.join(ROOT, 'texts', '*', '*.tess')):
+        try:
+            m = get_text_metadata(fp)
+        except Exception:
+            continue
+        title = (m.get('work') or '').strip().lower()
+        akey = m.get('author_key')
+        if not title or not akey or title == 'unknown' or len(title) < 4:
+            continue
+        g = groups.setdefault(title, {})
+        if akey not in g:
+            g[akey] = {'author': (m.get('author') or '').strip(), 'work': base_work(m['id'])}
+    _SHARED_TITLES = {t: g for t, g in groups.items() if len(g) > 1}
+    return _SHARED_TITLES
+
+
+def _fuzzy_name_pattern(name):
+    """A regex fragment for `name` that treats "A.R." and "A. R." (or
+    "Val.Fl." and "Val. Fl.") as the same citation surface: every period may
+    be followed by extra whitespace, every run of whitespace may be none,
+    one, or more characters. The very last period is not allowed to eat the
+    space after it, so the pattern's own end-of-name boundary still lands
+    right after the dot, not past it."""
+    out = []
+    for ch in name:
+        if ch == '.':
+            out.append(r'\.\s*')
+        elif ch.isspace():
+            out.append(r'\s*')
+        else:
+            out.append(re.escape(ch))
+    pat = ''.join(out)
+    if pat.endswith(r'\.\s*'):
+        pat = pat[:-len(r'\s*')]
+    return pat
+
+
+def _signal_regex(names):
+    """One compiled, case-insensitive pattern matching any of `names` as a
+    whole token (not inside a longer word), fuzzy on internal spacing -- or
+    None if `names` is empty."""
+    pats = sorted({_fuzzy_name_pattern(n.strip()) for n in names if n and len(n.strip()) > 1},
+                  key=len, reverse=True)
+    if not pats:
+        return None
+    return re.compile(r'(?<![A-Za-z])(?:' + '|'.join(pats) + r')(?![A-Za-z])', re.I)
+
+
+def _author_signal_names(work, display_author):
+    """Names and abbreviations that identify this work's author specifically:
+    the display name from the filename, plus (where data/citations/
+    abbreviations.json is present -- production, read-only; not every dev or
+    test environment has it) its author_names and author_abbreviations, e.g.
+    "Apollonius Rhodius", "Apollonius", "A. R." for apollonius_rhodius.argonautica."""
+    names = {display_author} if display_author else set()
+    idx = citations.index()
+    if idx is not None:
+        w = idx.works_by_base_id.get(work)
+        if w:
+            names.update(w.get('author_names') or [])
+            names.update(w.get('author_abbreviations') or [])
+    return names
+
+
+def _work_abbrevs(idx, work):
+    """Every citation-style short form data/citations/abbreviations.json
+    carries for this base work: its native tag abbreviation, its combined
+    and single abbreviations, its author abbreviation and its work
+    abbreviation -- e.g. {"A.R.", "A. R."} for apollonius_rhodius.argonautica."""
+    w = idx.works_by_base_id.get(work) if idx else None
+    if not w:
+        return set()
+    out = set(w.get('abbreviations') or []) | set(w.get('author_abbreviations') or []) \
+        | set(w.get('work_abbreviations') or [])
+    if w.get('native_abbreviation'):
+        out.add(w['native_abbreviation'])
+    return {a for a in out if a}
+
+
+_SHARED_TITLE_GUARD_WINDOW = 300
+
+
+def _shared_title_guard(p):
+    """None when p's title is not held by more than one author in the corpus
+    (most works: nothing to guard), OR when data/citations/abbreviations.json
+    is not loaded (dev and test environments, almost always -- the file is
+    large and lives only on production, read-only). Without that table there
+    is no reliable way to tell a real second author of the title from a
+    corpus filing quirk (texts/la/maffeo_veggio.aeneid.tess duplicates his
+    own "Supplementum" under a stray "Aeneid" title, which would otherwise
+    make every plain Vergil citation start demanding "Vergil" by name), so
+    the guard stays off rather than risk that. In production the table's own
+    match_method marks exactly this: an 'unmatched' entry (no author_names,
+    no work_titles -- never resolved to a real catalogue work) does not
+    count as a second author and is dropped before anything else runs.
+
+    Otherwise a dict:
+
+    'disambiguating' -- a regex of citation abbreviations that belong to
+    this work ALONE among the authors sharing the title ("A.R." for
+    Apollonius Rhodius's Argonautica, never "Val. Fl."): a match on one of
+    these already names the right author and needs no further check.
+
+    'own' / 'competing' -- regexes of this author's / the other authors'
+    names and remaining abbreviations, for a match made on the bare,
+    ambiguous title or author name instead: 'own' must be found within
+    _SHARED_TITLE_GUARD_WINDOW characters of that match, 'competing' must
+    not be (a competing author's name there means the piece is about their
+    copy of the title, not this one).
+
+    Scripture passages (no 'author' field; the book/chapter/verse already
+    disambiguates them) are never guarded."""
+    if not p.get('author'):
+        return None
+    idx = citations.index()
+    if idx is None:
+        return None
+    groups = _load_shared_titles().get((p.get('title') or '').strip().lower())
+    if not groups:
+        return None
+    recognized = {k: info for k, info in groups.items()
+                  if (idx.works_by_base_id.get(info['work']) or {}).get('match_method', 'unmatched') != 'unmatched'}
+    if len(recognized) < 2 or p.get('work') not in {info['work'] for info in recognized.values()}:
+        return None
+    own_key = next(k for k, info in recognized.items() if info['work'] == p.get('work'))
+    own_work = recognized[own_key]['work']
+    own_abbrevs = _work_abbrevs(idx, own_work)
+    competing_abbrevs = set()
+    competing_names = set()
+    for k, info in recognized.items():
+        if k == own_key:
+            continue
+        competing_abbrevs |= _work_abbrevs(idx, info['work'])
+        competing_names |= _author_signal_names(info['work'], info['author'])
+    disambiguating = {a for a in own_abbrevs if a.lower() not in {c.lower() for c in competing_abbrevs}}
+    own_names = _author_signal_names(own_work, recognized[own_key]['author']) | (own_abbrevs - disambiguating)
+    return {
+        'disambiguating': _signal_regex(disambiguating),
+        'own': _signal_regex(own_names),
+        'competing': _signal_regex(competing_names - own_names),
+    }
+
+
+def _signal_ok(text, start, end, guard):
+    """True unless `guard` (see _shared_title_guard) says the match at
+    text[start:end] belongs to a different author of the same title: a
+    competing author's name/abbreviation within _SHARED_TITLE_GUARD_WINDOW
+    characters rejects it; otherwise this author's own name/abbreviation
+    within that window, including in the piece's own title field, is
+    required. A piece titled "Apollonius Rhodius, Herodotus and
+    Historiography" names its author in the very field being searched --
+    that counts the same as a name next to the citation itself."""
+    if guard is None:
+        return True
+    lo = max(0, start - _SHARED_TITLE_GUARD_WINDOW)
+    hi = min(len(text), end + _SHARED_TITLE_GUARD_WINDOW)
+    neighborhood = text[lo:hi]
+    competing_re = guard['competing']
+    if competing_re and competing_re.search(neighborhood):
+        return False
+    own_re = guard['own']
+    return bool(own_re and own_re.search(neighborhood))
+
 
 def _mentions_work(text, p):
     # The tag abbreviation ("aen.") counts only before a number: a rat heart
     # study came back for the Aeneid because it abbreviated its nettle extract
     # to "AEN." (2026-09-13).
     abbrev = (p.get('abbrev') or '').lower()
+    guard = _shared_title_guard(p)
+    if guard and guard['disambiguating']:
+        if re.search(guard['disambiguating'].pattern + r'\s*\d', text, re.I):
+            return True
     for n in _names(p):
         if n == abbrev:
-            if re.search(re.escape(n) + r'\s*\d', text):
-                return True
+            for m in re.finditer(re.escape(n) + r'\s*\d', text):
+                if _signal_ok(text, m.start(), m.end(), guard):
+                    return True
         elif n in text:
-            return True
+            start = 0
+            while True:
+                i = text.find(n, start)
+                if i < 0:
+                    break
+                if _signal_ok(text, i, i + len(n), guard):
+                    return True
+                start = i + 1
     return False
 
 
@@ -273,12 +469,25 @@ def _locus_match(text, p):
     """The citation as written, e.g. "Aeneid 1.1-156", or None. The locus counts
     only next to the work's name: "Aen. 1.1", "Aeneid 1.1", "Vergil 1.1". A
     bare "1.1" in an abstract about anything at all is not a citation (a carbon
-    budget and a sinus study came back for Lucan 1.1)."""
+    budget and a sinus study came back for Lucan 1.1). When the title is one
+    shared by more than one author, a citation abbreviation unique to this
+    author ("A.R.") is accepted outright; a match on the bare, ambiguous
+    title or author name also needs that author's own name or abbreviation
+    nearby, and not a competing author of the same title (the Argonautica is
+    Apollonius Rhodius's or Valerius Flaccus's; "Valerius Flaccus'
+    Argonautica 1.5-21" is not a citation of the other one's passage just
+    because it names the same title)."""
     lo = re.escape(p['lo']).replace(r'\:', '[.:]').replace(r'\.', '[.:]')
-    for n in sorted(_locus_anchor_names(p), key=len, reverse=True):
-        m = re.search(re.escape(n) + r'[^.;]{0,40}?\b' + lo + r'\b(?:[-\u2013]\d+(?:[.:]\d+)*)?', text, re.I)
+    guard = _shared_title_guard(p)
+    if guard and guard['disambiguating']:
+        m = re.search(guard['disambiguating'].pattern + r'[^.;]{0,40}?\b' + lo + r'\b(?:[-\u2013]\d+(?:[.:]\d+)*)?',
+                       text, re.I)
         if m:
             return m.group(0)
+    for n in sorted(_locus_anchor_names(p), key=len, reverse=True):
+        for m in re.finditer(re.escape(n) + r'[^.;]{0,40}?\b' + lo + r'\b(?:[-\u2013]\d+(?:[.:]\d+)*)?', text, re.I):
+            if _signal_ok(text, m.start(), m.end(), guard):
+                return m.group(0)
     return None
 
 
@@ -863,7 +1072,20 @@ def books(p, limit=8):
             if b['id'] in seen: continue
             seen.add(b['id']); uniq.append(b)
         return {'available': True, 'results': uniq[:limit]}
-    return _cached('books|' + p['work'] + '|' + p['lo'] + '|' + p['hi'], run)
+    out = _cached('books|' + p['work'] + '|' + p['lo'] + '|' + p['hi'], run)
+    # Filtered on every call, not inside run(): a book already on disk from
+    # before this guard existed (cached up to thirty days) is checked against
+    # the current rule immediately, not only once its cache entry expires.
+    # Google's own search has no author filter at all for a bare title
+    # ("Argonautica" 1.5, no distinction between Apollonius Rhodius and
+    # Valerius Flaccus); this is the only check these results get.
+    if out.get('results'):
+        out = dict(out, results=[b for b in out['results'] if _mentions_work(_book_text(b), p)])
+    return out
+
+
+def _book_text(b):
+    return ' '.join(x for x in (b.get('title'), ' '.join(b.get('authors') or []), b.get('snippet')) if x).lower()
 
 
 # ------------------------------------------------------------ commentary

@@ -341,3 +341,197 @@ def test_commentary_sources_cached_until_a_file_changes(tmp_path, monkeypatch):
     later = _time.time() + 5
     _os.utime(p, (later, later))
     assert S.commentary_sources()[0]['notes'] == 1 and calls == [1]
+
+
+# ---------------------------------------- shared titles, more than one author
+# "Argonautica" belongs to both Apollonius Rhodius and Valerius Flaccus in the
+# corpus. A citation of the bare title must name the right one, or it is not
+# a hit for either passage. See backend/scholarship.py _shared_title_guard.
+
+_ARGONAUTICA_FIXTURE = {
+    'works': [
+        {
+            'base_id': 'apollonius_rhodius.argonautica',
+            'match_method': 'author+work (author_ratio=1.00, work_ratio=1.00)',
+            'author_names': ['Apollonius', 'Apollonius Rhodius', 'Apollonius of Rhodes', 'Apollonius the Rhodian'],
+            'work_titles': ['Argonautica', 'the Argonautica'],
+            'abbreviations': ['A. R.', 'A.R.'],
+            'author_abbreviations': ['A. R.'],
+            'work_abbreviations': [],
+        },
+        {
+            'base_id': 'valerius_flaccus.argonautica',
+            'match_method': 'author+work (author_ratio=1.00, work_ratio=1.00)',
+            'author_names': ['Valerius Flaccus', 'Gaius Valerius Flaccus', 'C. Valerius Flaccus'],
+            'work_titles': ['Argonautica', 'Argonautiche'],
+            'abbreviations': ['V. FL.', 'Val. Fl.'],
+            'author_abbreviations': ['Val. Fl.'],
+            'work_abbreviations': [],
+        },
+        # A corpus filing quirk, not a real second author: maffeo_veggio.aeneid
+        # duplicates his own "Supplementum" under the filename "aeneid" and is
+        # never resolved to a real catalogue work (empty author_names/work_titles,
+        # match_method "unmatched"). It must not force every Vergil citation to
+        # name "Vergil" outright.
+        {
+            'base_id': 'maffeo_veggio.aeneid',
+            'match_method': 'unmatched',
+            'author_names': [],
+            'work_titles': [],
+            'abbreviations': ['vegg. aen.'],
+            'author_abbreviations': [],
+            'work_abbreviations': [],
+        },
+        {
+            'base_id': 'vergil.aeneid',
+            'match_method': 'author+work (author_ratio=1.00, work_ratio=1.00)',
+            'author_names': ['Vergil', 'Virgil', 'P. Vergilius Maro'],
+            'work_titles': ['Aeneid', 'Aeneis'],
+            'abbreviations': ['Aen.', 'Verg.', 'Verg. Aen.'],
+            'author_abbreviations': ['Verg.'],
+            'work_abbreviations': ['Aen.'],
+        },
+    ]
+}
+
+
+@pytest.fixture
+def shared_title_index(tmp_path, monkeypatch):
+    """Point backend.citations at a small, deterministic abbreviations table
+    (the real data/citations/abbreviations.json is production-only, GPL-3.0
+    source data, not shipped) and clear scholarship's shared-title cache
+    before and after so tests never see each other's state."""
+    from backend import scholarship as S
+    path = tmp_path / 'abbreviations.json'
+    path.write_text(json.dumps(_ARGONAUTICA_FIXTURE))
+    monkeypatch.setattr(C, '_DATA', str(path))
+    monkeypatch.setattr(C, '_INDEX', None)
+    S._SHARED_TITLES = None
+    yield
+    monkeypatch.setattr(C, '_INDEX', None)
+    S._SHARED_TITLES = None
+
+
+def test_shared_title_guard_off_without_the_abbreviation_table(monkeypatch):
+    """Without data/citations/abbreviations.json (every dev and test box,
+    almost always) the guard is a no-op: existing behaviour for an ordinary,
+    unshared title is unchanged."""
+    from backend import scholarship as S
+    monkeypatch.setattr(C, '_DATA', '/nonexistent/abbreviations.json')
+    monkeypatch.setattr(C, '_INDEX', None)
+    S._SHARED_TITLES = None
+    a = S.passage_names('apollonius_rhodius.argonautica', '1.5', '1.17')
+    assert S._shared_title_guard(a) is None
+    assert S._mentions_work('a note on the argonautica 1.5f.', a) is True
+
+
+def test_argonautica_apollonius_accepts_only_its_own_author(shared_title_index):
+    """The four reported snippets, checked against Apollonius Rhodius,
+    Argonautica 1.5-17: the bare title or the shared abbreviation style
+    counts only with Apollonius's own name or "A.R." nearby, and a
+    competing author's name nearby (Valerius Flaccus) rejects it outright."""
+    from backend import scholarship as S
+    a = S.passage_names('apollonius_rhodius.argonautica', '1.5', '1.17')
+    assert a['title'] == 'Argonautica' and a['author'] == 'Apollonius Rhodius'
+
+    assert S._mentions_work('(a.r. 1.5-7)', a) is True   # Morrison: kept
+    assert S._mentions_work('(a. r. 1.5-17)', a) is True  # Augoustakis: kept
+    assert S._mentions_work(
+        "e. m. smallwood (1962), «valerius flaccus' argonautica 1.5-21»", a) is False  # rejected
+    assert S._mentions_work(
+        '(argonautica 1.5f.) titus raises a temple to honor the gods of rome.', a) is False  # Tanner: rejected
+
+    assert S._locus_match('(A.R. 1.5-7)', a) == 'A.R. 1.5-7'
+    assert S._locus_match('(A. R. 1.5-17)', a) == 'A. R. 1.5-17'
+    assert S._locus_match("E. M. SMALLWOOD (1962), «Valerius Flaccus' Argonautica 1.5-21»", a) is None
+    assert S._locus_match('(Argonautica 1.5f.) Titus raises a temple to honor the gods of Rome.', a) is None
+
+
+def test_argonautica_valerius_flaccus_accepts_its_own_citations(shared_title_index):
+    """The same title, checked against Valerius Flaccus instead: a citation
+    naming him (or "Val. Fl.") is kept; one naming only Apollonius or "A.R."
+    is not."""
+    from backend import scholarship as S
+    b = S.passage_names('valerius_flaccus.argonautica', '1.1', '1.21')
+    assert b['title'] == 'Argonautica' and b['author'] == 'Valerius Flaccus'
+
+    assert S._mentions_work(
+        "e. m. smallwood (1962), «valerius flaccus' argonautica 1.5-21»", b) is True
+    assert S._mentions_work('(val. fl. 1.1-21) is a close echo', b) is True
+    assert S._mentions_work('(a.r. 1.5-7) names only the other poet', b) is False
+
+
+def test_argonautica_unmatched_veggio_does_not_create_a_third_author(shared_title_index):
+    """maffeo_veggio.aeneid is in the fixture table but 'unmatched' (empty
+    author_names/work_titles): it must not appear as a competing author of
+    Vergil's Aeneid, and a plain Vergil citation needs no Vergil-name guard
+    because of it."""
+    from backend import scholarship as S
+    v = S.passage_names('vergil.aeneid', '1.1', '1.7')
+    assert v['title'] == 'Aeneid'
+    assert S._shared_title_guard(v) is None
+    assert S._mentions_work('reading bellum civile 1.1 against aeneid 1.1.', v) is True
+
+
+def test_load_shared_titles_finds_argonautica_and_metamorphoses():
+    """Built from the actual corpus file list (texts/), not a hand-written
+    table: titles truly held by more than one author's files."""
+    from backend import scholarship as S
+    S._SHARED_TITLES = None
+    shared = S._load_shared_titles()
+    assert 'argonautica' in shared
+    assert {'apollonius_rhodius', 'valerius_flaccus'} <= set(shared['argonautica'])
+    assert 'metamorphoses' in shared
+    assert {'ovid', 'apuleius'} <= set(shared['metamorphoses'])
+
+
+def _google_books_item(book_id, title, author, snippet):
+    return {'id': book_id, 'volumeInfo': {'title': title, 'authors': [author]},
+            'searchInfo': {'textSnippet': snippet}, 'accessInfo': {'viewability': 'PARTIAL'}}
+
+
+def test_books_drops_a_shared_title_s_other_author(shared_title_index, tmp_path, monkeypatch):
+    """The real false match this fix was written for: the production Google
+    Books channel (backend/scholarship.py books()) has no author check at
+    all, so a bare-title query for the Apollonius Rhodius, Argonautica
+    1.5-17 tab also returned books about Valerius Flaccus's Argonautica
+    (confirmed live against production on 2026-10-08: "Valerio Flaco
+    (2016). Argonáuticas" and a Smallwood note were both listed there)."""
+    from backend import scholarship as S
+    monkeypatch.setattr(S, 'GOOGLE_BOOKS_KEY', 'test-key')
+    monkeypatch.setattr(S, 'CACHE_DIR', str(tmp_path))
+    items = [
+        _google_books_item('morrison', 'Apollonius Rhodius, Herodotus and Historiography', 'A. D. Morrison',
+                            '... ( A.R. 1.5-7 ) Such was the oracle Pelias heard ...'),
+        _google_books_item('flaco', 'Argonáuticas', 'Valerio Flaco',
+                            "E. M. SMALLWOOD (1962), «Valerius Flaccus' Argonautica 1.5-21», Mnemosyne 15, 170-172."),
+        _google_books_item('tanner', 'The Last Descendant of Aeneas', 'Marie Tanner',
+                            '... ( Argonautica 1.5f. ) Titus raises a temple to him ...'),
+    ]
+    monkeypatch.setattr(S, '_get', lambda url, params: {'items': items})
+
+    a = S.passage_names('apollonius_rhodius.argonautica', '1.5', '1.17')
+    out = S.books(a)
+    titles = {b['title'] for b in out['results']}
+    assert titles == {'Apollonius Rhodius, Herodotus and Historiography'}
+
+
+def test_books_keeps_the_other_author_s_own_passage(shared_title_index, tmp_path, monkeypatch):
+    """The same Google Books results, looked up instead for Valerius
+    Flaccus's own Argonautica passage: his book is kept, Apollonius
+    Rhodius's is not."""
+    from backend import scholarship as S
+    monkeypatch.setattr(S, 'GOOGLE_BOOKS_KEY', 'test-key')
+    monkeypatch.setattr(S, 'CACHE_DIR', str(tmp_path))
+    items = [
+        _google_books_item('morrison', 'Apollonius Rhodius, Herodotus and Historiography', 'A. D. Morrison',
+                            '... ( A.R. 1.5-7 ) Such was the oracle Pelias heard ...'),
+        _google_books_item('flaco', 'Argonáuticas', 'Valerio Flaco',
+                            "E. M. SMALLWOOD (1962), «Valerius Flaccus' Argonautica 1.5-21», Mnemosyne 15, 170-172."),
+    ]
+    monkeypatch.setattr(S, '_get', lambda url, params: {'items': items})
+
+    b = S.passage_names('valerius_flaccus.argonautica', '1.1', '1.21')
+    out = S.books(b)
+    titles = {bk['title'] for bk in out['results']}
+    assert titles == {'Argonáuticas'}
