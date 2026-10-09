@@ -264,6 +264,11 @@ def load_sidecar(sidecar_root, language, bucket):
 
 def build_combined_index(lit_cache_data, doc_lines, index_db_path, max_df,
                           formula_words, doc_lemma_counts, language=None):
+    # lit_cache_data: a mapping {basename: cache} or any iterable of
+    # (basename, cache) pairs, so main() can hand over one work at a time.
+    # Formula n-grams are found line by line as the index is written, not in
+    # a second pass over a list of every line: holding every Greek cache
+    # plus that list reached the 12 GB cap and stalled (2026-10-09).
     """Index BOTH collections' lines into one temp SQLite db (lines,
     postings), banality-filtered corpus-wide exactly like
     build_reuse_table.py's build_index -- a trigram common across either
@@ -306,9 +311,27 @@ def build_combined_index(lit_cache_data, doc_lines, index_db_path, max_df,
 
     line_id = 0
     n_lit_lines = n_doc_lines = n_too_short = 0
-    formula_pass_items = []   # (tokens, lemmas) for every line, both collections
+    formula_hashes = set()
 
-    for tess_basename, data in lit_cache_data.items():
+    def note_formulas(tokens, lemmas):
+        # FORMULA n-grams: every word of the triple is a formula word (on
+        # the word list) or a lemma used by more than
+        # DOCUMENT_FORMULA_MAX_DOCS distinct documents -- see this module's
+        # docstring.
+        if len(tokens) < 3:
+            return
+        lemmas = lemmas if len(lemmas) == len(tokens) else tokens
+        for idxs in gen_ngram_indices(len(tokens)):
+            tok_gram = tuple(tokens[i] for i in idxs)
+            if all(
+                _fold_simple(tokens[i]) in formula_words
+                or doc_lemma_counts.get(lemmas[i], 0) > DOCUMENT_FORMULA_MAX_DOCS
+                for i in idxs
+            ):
+                formula_hashes.add(lit.hash_ngram(tok_gram))
+
+    pairs = lit_cache_data.items() if hasattr(lit_cache_data, 'items') else lit_cache_data
+    for tess_basename, data in pairs:
         work_id = data.get('text_id', tess_basename)
         if work_id.endswith('.tess'):
             work_id = work_id[:-len('.tess')]
@@ -317,7 +340,7 @@ def build_combined_index(lit_cache_data, doc_lines, index_db_path, max_df,
             lemmas = lit._line_lemmas(unit)
             ref = unit.get('ref', '')
             n_lit_lines += 1
-            formula_pass_items.append((tokens, lemmas))
+            note_formulas(tokens, lemmas)
             if len(tokens) < 3:
                 n_too_short += 1
                 line_rows.append((line_id, 'lit', work_id, ref, seq, len(tokens)))
@@ -341,7 +364,7 @@ def build_combined_index(lit_cache_data, doc_lines, index_db_path, max_df,
         tokens = unit['tokens']
         lemmas = unit['lemmas'] if len(unit['lemmas']) == len(tokens) else tokens
         n_doc_lines += 1
-        formula_pass_items.append((tokens, lemmas))
+        note_formulas(tokens, lemmas)
         if len(tokens) < 3:
             n_too_short += 1
             line_rows.append((line_id, 'doc', unit['doc_id'], unit['ref'], unit['doc_seq'], len(tokens)))
@@ -368,25 +391,6 @@ def build_combined_index(lit_cache_data, doc_lines, index_db_path, max_df,
     print(f"[build_documents_reuse_table] index: {n_lit_lines} literary lines, "
           f"{n_doc_lines} document lines ({n_too_short} under 3 tokens), "
           f"elapsed {time.time()-t0:.1f}s")
-
-    # FORMULA n-grams: every word of the triple is a formula word (on the
-    # word list) or a lemma used by more than DOCUMENT_FORMULA_MAX_DOCS
-    # distinct documents -- see this module's docstring.
-    formula_hashes = set()
-    for tokens, lemmas in formula_pass_items:
-        if len(tokens) < 3:
-            continue
-        lemmas = lemmas if len(lemmas) == len(tokens) else tokens
-        for idxs in gen_ngram_indices(len(tokens)):
-            tok_gram = tuple(tokens[i] for i in idxs)
-            lem_gram = tuple(lemmas[i] for i in idxs)
-            is_formula = all(
-                _fold_simple(tok) in formula_words
-                or doc_lemma_counts.get(lem, 0) > DOCUMENT_FORMULA_MAX_DOCS
-                for tok, lem in zip(tok_gram, lem_gram)
-            )
-            if is_formula:
-                formula_hashes.add(lit.hash_ngram(tok_gram))
 
     print(f"[build_documents_reuse_table] index: {len(formula_hashes)} n-grams are "
           f"formula-word-only (word list + >{DOCUMENT_FORMULA_MAX_DOCS}-document lemmas), "
@@ -659,13 +663,32 @@ def main():
     lemma_cache_mod.TEXTS_DIR = args.literary_texts_root
     lemma_cache_mod.CACHE_DIR = args.literary_cache_root
     try:
-        lit_cache_data, skipped_parts, missing_cache = lit.discover_corpus(args.language)
+        lit_files, skipped_parts = lit.list_corpus_files(args.language)
     finally:
         lit.TEXTS_DIR, lit.CACHE_DIR = orig_lit
         lemma_cache_mod.TEXTS_DIR, lemma_cache_mod.CACHE_DIR = orig_lcm
+    missing_cache = []
+    loaded_works = []
 
-    print(f"[build_documents_reuse_table] {len(lit_cache_data)} literary works "
-          f"({len(skipped_parts)} .part. skipped, {len(missing_cache)} missing cache)")
+    def iter_literary():
+        # One work's cache in memory at a time (see build_combined_index).
+        saved = ((lit.TEXTS_DIR, lit.CACHE_DIR),
+                 (lemma_cache_mod.TEXTS_DIR, lemma_cache_mod.CACHE_DIR))
+        lit.TEXTS_DIR = lemma_cache_mod.TEXTS_DIR = args.literary_texts_root
+        lit.CACHE_DIR = lemma_cache_mod.CACHE_DIR = args.literary_cache_root
+        try:
+            for fname in lit_files:
+                cached = lit.get_cached_units(fname, args.language)
+                if cached is None:
+                    missing_cache.append(fname)
+                    continue
+                loaded_works.append(fname)
+                yield fname, cached
+        finally:
+            (lit.TEXTS_DIR, lit.CACHE_DIR), (lemma_cache_mod.TEXTS_DIR, lemma_cache_mod.CACHE_DIR) = saved
+
+    print(f"[build_documents_reuse_table] {len(lit_files)} literary works to read "
+          f"({len(skipped_parts)} .part. skipped)", flush=True)
 
     doc_lines, doc_lemma_counts = discover_documents(args.language, args.documents_index_dir)
     print(f"[build_documents_reuse_table] {len(doc_lines)} document lines, "
@@ -679,11 +702,13 @@ def main():
     index_db_path = os.path.join(tmp_dir, f'{args.language}_index.db')
     try:
         index_stats, formula_hashes = build_combined_index(
-            lit_cache_data, doc_lines, index_db_path, args.max_df,
+            iter_literary(), doc_lines, index_db_path, args.max_df,
             formula_words, doc_lemma_counts, language=args.language)
         pair_info, pair_stats = find_cross_pairs(
             index_db_path, args.min_shared, args.min_jaccard, args.min_shared_override,
             args.min_containment, args.rare_max_df, args.rare_min_containment, formula_hashes)
+        print(f"[build_documents_reuse_table] {len(loaded_works)} literary works read, "
+              f"{len(missing_cache)} missing cache", flush=True)
 
         # doc_id -> bucket filename (for the sidecar lookup) and the loaded
         # sidecar tables themselves, both built only for buckets a kept pair
@@ -700,7 +725,7 @@ def main():
         meta = {
             'built_at': built_at, 'corpus_version': corpus_version,
             'language': args.language,
-            'literary_works': len(lit_cache_data), 'document_lines': len(doc_lines),
+            'literary_works': len(loaded_works), 'document_lines': len(doc_lines),
             'max_df': args.max_df, 'min_shared': args.min_shared,
             'min_jaccard': args.min_jaccard, 'min_shared_override': args.min_shared_override,
             'min_containment': args.min_containment, 'rare_max_df': args.rare_max_df,
