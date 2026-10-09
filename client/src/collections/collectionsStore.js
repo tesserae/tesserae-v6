@@ -50,8 +50,28 @@ export function captureUrlOverrides() {
   }
 }
 
-function compute() {
+// The URL is parsed once per distinct query string, not on every snapshot
+// read (useSyncExternalStore calls getSnapshot often, and the capture writes
+// to sessionStorage).
+let lastSearch = null;
+function captureOnce() {
+  const search = safe(() => window.location.search);
+  const ss = safe(() => window.sessionStorage);
+  if (search === lastSearch && ss) {
+    // Re-capture only if the session keys the URL calls for have gone
+    // (cleared storage), so a cleared session still honours the link.
+    const params = new URLSearchParams(search || '');
+    const missing = (params.get('documents') === '1' && !ss.getItem('tesserae_documents_trial'))
+      || (params.get('scholarship') === '1' && !ss.getItem('tesserae_scholarship_tab'))
+      || ((params.get('profile') || params.get('collections') !== null) && !ss.getItem(OVERRIDE_KEY));
+    if (!missing) return;
+  }
+  lastSearch = search;
   captureUrlOverrides();
+}
+
+function compute() {
+  captureOnce();
   const ls = safe(() => window.localStorage);
   const ss = safe(() => window.sessionStorage);
   const saved = ls ? readJson(ls, STORAGE_KEY) : null;
