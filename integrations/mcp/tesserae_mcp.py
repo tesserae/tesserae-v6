@@ -462,9 +462,9 @@ def compare_texts(source: str, target: str, language: str = "la") -> dict:
     for sec, kind, key in ((rw, "rare_word", "word"), (rp, "rare_phrase", "bigram")):
         for it in (sec.get("results") or []):
             srefs = {_norm_ref(x.get("ref") if isinstance(x, dict) else str(x))
-                     for x in (it.get("source_locations") or [])}
+                     for x in (it.get("source_locations") or [])} - {""}
             trefs = {_norm_ref(x.get("ref") if isinstance(x, dict) else str(x))
-                     for x in (it.get("target_locations") or [])}
+                     for x in (it.get("target_locations") or [])} - {""}
             if srefs and trefs:
                 rare_idx.append((srefs, trefs, f"{kind}:{it.get(key)}"))
 
