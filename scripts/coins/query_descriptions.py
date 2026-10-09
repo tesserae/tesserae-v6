@@ -44,6 +44,47 @@ PASSAGES = [
 ]
 
 
+# text file -> (translation file, author key in backend/author_dates.json "la")
+TRANSLATION = {'vergil.aeneid.tess': ('la__vergil.aeneid.json', 'vergil'), 'horace.odes.tess': ('la__horace.odes.json', 'horace'), 'caesar_augustus.res_gestae_divi_augusti.tess': ('la__caesar_augustus.res_gestae_divi_augusti.json', 'caesar_augustus'), 'ovid.fasti.part.1.tess': ('la__ovid.fasti.json', 'ovid'), 'vergil.eclogues.tess': ('la__vergil.eclogues.json', 'vergil'), 'horace.carmen_saeculare.tess': ('la__horace.carmen_saeculare.json', 'horace'), 'suetonius.de_vita_caesarum.part.2.augustus.tess': ('la__suetonius.de_vita_caesarum.json', 'suetonius'), 'lucan.bellum_civile.tess': ('la__lucan.bellum_civile.json', 'lucan'), 'tacitus.annales.part.1.tess': ('la__tacitus.annales.json', 'tacitus'), 'pliny_the_younger.letters.tess': ('la__pliny_the_younger.letters.json', 'pliny_the_younger')}
+
+# author_dates.json holds one year per author (the death year or the
+# floruit). The lifetime is taken as the 60 years before it, and the filter
+# window is that lifetime plus 50 years after.
+LIFETIME_BEFORE = 60
+YEARS_AFTER = 50
+
+
+def author_window(authors_json, key):
+    year = json.load(open(authors_json))["la"][key]["year"]
+    return year - LIFETIME_BEFORE, year + YEARS_AFTER
+
+
+def translation_text(trans_dir, tfile, prefix, lo, hi):
+    """The aligned English for the passage's lines: the translation units the
+    lines map to, in order, each once, joined. Units are chunks of the
+    translator's text (about 40 source lines for the Aeneid), so this can run
+    past the passage on either side."""
+    path = os.path.join(trans_dir, tfile)
+    if not os.path.exists(path):
+        return ""
+    t = json.load(open(path, encoding="utf-8"))
+    units, r2u = t.get("units") or [], t.get("ref_to_unit") or {}
+    pat = re.compile(r"^.*?" + re.escape(prefix) + r"(\d+)(?:\.\d+)?$", re.I)
+    seen, out = set(), []
+    for ref, u in r2u.items():
+        m = pat.match(ref)
+        if m and lo <= int(m.group(1)) <= hi and u not in seen:
+            seen.add(u)
+            out.append((u, units[u]))
+    out.sort()
+    return " ".join(x[1].strip() for x in out)
+
+
+def longest_sentence(text):
+    sents = [x.strip() for x in re.split(r"(?<=[.!?;])\s+", text) if x.strip()]
+    return max(sents, key=len) if sents else ""
+
+
 def passage_text(texts, fname, prefix, lo, hi):
     out = []
     pat = re.compile(r"^<[^>]*?" + re.escape(prefix) + r"(\d+)(?:\.\d+)?>\s*(.*)$", re.I)
@@ -62,6 +103,17 @@ def main():
     ap.add_argument("--coins", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--k", type=int, default=5)
+    ap.add_argument("--query-source", choices=["hand", "translation"], default="hand",
+                    help="hand: Latin text and hand paraphrase (original run). "
+                         "translation: the Reader's English translation of the passage, "
+                         "whole and its longest sentence")
+    ap.add_argument("--translations", default="/var/www/tesseraev6_flask/data/translations",
+                    help="read-only folder of la__<work>.json translations")
+    ap.add_argument("--date-filter", action="store_true",
+                    help="keep only coin types whose date range overlaps the author's "
+                         "lifetime plus 50 years (backend/author_dates.json)")
+    ap.add_argument("--authors", default=os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "..", "..", "backend", "author_dates.json"))
     args = ap.parse_args()
 
     vecs = np.load(os.path.join(args.emb, "vectors.npy")).astype(np.float32)
@@ -78,16 +130,43 @@ def main():
                 meta[r["id"]] = (r["authority"] or r["issuer"], r["date_not_before"], r["date_not_after"],
                                  r["obverse_legend"], r["reverse_legend"], r["denomination"])
 
+    # per-row date range (a row shared by several types uses the widest)
+    lo_row = np.full(len(strings), 10**6, dtype=np.int32)
+    hi_row = np.full(len(strings), -10**6, dtype=np.int32)
+    with open(args.coins, encoding="utf-8") as f:
+        for line in f:
+            r = json.loads(line)
+            row = types.get(r["id"])
+            if row is None or r["date_not_before"] is None:
+                continue
+            lo_row[row] = min(lo_row[row], r["date_not_before"])
+            hi_row[row] = max(hi_row[row], r["date_not_after"])
+
     results = []
     for label, fname, prefix, lo, hi, para in PASSAGES:
         text = passage_text(args.texts, fname, prefix, lo, hi)
         entry = {"label": label, "text_chars": len(text), "paraphrase": para, "queries": {}}
-        for kind, q in (("text", text[:1500]), ("paraphrase", para)):
+        mask = None
+        if args.date_filter:
+            w0, w1 = author_window(args.authors, TRANSLATION[fname][1])
+            mask = (hi_row >= w0) & (lo_row <= w1)
+            entry["date_window"] = [w0, w1]
+            entry["rows_kept"] = int(mask.sum())
+        if args.query_source == "translation":
+            tr = translation_text(args.translations, TRANSLATION[fname][0], prefix, lo, hi)
+            entry["translation_chars"] = len(tr)
+            entry["translation_sentence"] = longest_sentence(tr)
+            queries = (("translation", tr[:1500]), ("translation_sentence", entry["translation_sentence"][:1500]))
+        else:
+            queries = (("text", text[:1500]), ("paraphrase", para))
+        for kind, q in queries:
             if not q:
                 entry["queries"][kind] = "NO TEXT FOUND"
                 continue
             qv = embed([q])[0]
             sc = vecs @ qv
+            if mask is not None:
+                sc = np.where(mask, sc, -2.0)
             top = np.argsort(-sc)[:args.k]
             hits = []
             for row in top:
