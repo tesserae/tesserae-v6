@@ -147,6 +147,47 @@ behind each, are in docs/DECISIONS.md.
   century bucketing, facet counts, paging, and the gate. Vitest covers
   the new tab and a filter.
 
+### Documents results: example searches, relevance ranking, uncapped totals, German labels translated
+- The documents trial's results page (behind the existing `?documents=1`
+  trial) gets four one-click example searches, verified against the live
+  documents indexes: "arma virumque cano" (Vergil's opening plus a Pompeii
+  fuller's parody of it, Both), "conticuere omnes" (Aeneid 2.1 scratched
+  into Pompeian walls, Both, exact match), "sit tibi terra levis" (an
+  epitaph wish with its own literary echoes, Both), and a Greek epitaph
+  phrase on the Greek tab (Documents).
+- Document results are ranked by relevance by default: an exact adjacent
+  phrase before matched words scattered across the line, a match on
+  surviving text before one resting on editorially restored text, fewer
+  restorations elsewhere on the line, then earliest date. A sort control
+  adds Oldest first, Newest first, and Region. Computed server side
+  (`backend/app.py`, `backend/documents.py`) from the same index position
+  data `find_co_occurring_lemmas` already returns, so ranking tens of
+  thousands of matches needs no extra line-text fetch.
+- A document hit no longer stops at a fixed 500-row cap. The true total is
+  counted from the documents index the same cheap way the existing
+  stock-formula count works, the list pages 50 rows at a time server side,
+  and a compact chart breaks every match down by century and by region
+  (not just the visible page), reusing the Line Search page's existing
+  chart styling.
+- German placeholder and connector words from EDH/EDCS/Trismegistos
+  metadata ("unbekannt", "bei", "oder", and others) are translated to
+  English for display. A document's place is left off the card when the
+  underlying value is one of these placeholders in German, English, or
+  Latin. The raw metadata value is never changed. The mapping table is
+  `data/documents/german_label_translations.json`, with the counts
+  behind it in `docs/DECISIONS.md`.
+- Tests: `tests/test_documents_stage4_polish.py` covers ranking order,
+  sort modes, uncapped totals, 50-row paging, the German mapping, and
+  place hiding. `client/src/components/search/__tests__/
+  LineSearch.documentsPolish.test.jsx` covers the example buttons, the
+  sort control, and chart rendering. The existing documents-collection
+  parity test and the rest of the vitest suite for the documents trial
+  both still pass unchanged.
+- The "Filter by Text" section of the Line Search page (author/work/line
+  range, which only ever filters the literature half of a search) is
+  hidden entirely when Documents alone is selected, and relabeled "Filter
+  the literature (optional)" under Both.
+
 ### Records: the Rumi translation install and the editorial-prose rule
 - `docs/DATA_OPERATIONS.md` records the installation of the Masnavi opening
   translation. `docs/DECISIONS.md` records which prose inside Persian and

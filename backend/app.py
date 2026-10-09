@@ -36,6 +36,7 @@ import os
 import json
 import re
 import math
+import itertools
 import threading
 from datetime import datetime
 
@@ -1553,6 +1554,175 @@ import unicodedata as _documents_ud
 # them with wide margin on both sides.
 DOCUMENTS_FORMULA_DEFAULT_N = 100
 
+# A plain `None` default for `_document_hit`'s `meta_override` would be
+# indistinguishable from "looked this id up and it is genuinely
+# uncredited" (a real, meaningful value); this sentinel means "the caller
+# passed nothing, look it up yourself".
+_UNSET = object()
+
+
+# Stage 4 (the owner's review of the live documents trial, 2026-10-08):
+# document results no longer come back in storage order. 'relevance'
+# (default) ranks an exact adjacent phrase ahead of one whose matched words
+# are scattered across the line, a match resting on surviving text ahead of
+# one resting on editorially restored text, then fewer restorations
+# elsewhere on the same line, then earliest date. 'oldest'/'newest' sort on
+# date alone; 'region' alphabetically. See _document_sort_key.
+_DOCUMENT_SORT_MODES = ('relevance', 'oldest', 'newest', 'region')
+
+
+def _min_adjacent_span_rank(positions_dict, lemmas):
+    """0 when the matched lemmas' best-case token positions on this line
+    form one unbroken run (an "exact adjacent phrase" per the stage 4
+    ranking spec), 1 when they are scattered, or when position data is not
+    available for one of them. `positions_dict` is find_co_occurring_
+    lemmas' own per-lemma position list for this line (backend.
+    inverted_index's `data['positions']`) -- this never fetches or
+    re-splits the line's text; a documentary phrase query is short (2-4
+    words), and each lemma's own occurrence list on one short epigraphic or
+    papyrus line is almost always length 1, so brute-forcing every
+    combination of "which occurrence of each lemma" is a handful of
+    tuples, never a performance concern even run across tens of thousands
+    of candidates."""
+    lists = [sorted(set(positions_dict.get(l) or [])) for l in lemmas]
+    if not lists:
+        return 1
+    if len(lists) == 1:
+        return 0 if lists[0] else 1
+    if any(not lst for lst in lists):
+        return 1
+    best_span = None
+    for combo in itertools.product(*lists):
+        span = max(combo) - min(combo)
+        if best_span is None or span < best_span:
+            best_span = span
+    return 0 if best_span == len(lists) - 1 else 1
+
+
+def _restored_rank_and_extra(all_positions, restored_set):
+    """(restored_rank, extra_restorations) for the 'relevance' sort.
+    restored_rank: 0 every matched position is on surviving text, 1 some
+    are restored, 2 every matched position is restored (mirrors
+    _restoration_flags' own matched_restored/partly_restored, as a single
+    ordered rank rather than two booleans). extra_restorations: how many
+    OTHER token positions on the same line are restored but are not part
+    of this match -- the spec's "fewer extra restorations" tiebreak,
+    ascending. Both computed from token positions alone (never text)."""
+    if not all_positions:
+        return 0, len(restored_set)
+    restored_matched = sum(1 for p in all_positions if p in restored_set)
+    total = len(all_positions)
+    if restored_matched == 0:
+        rank = 0
+    elif restored_matched == total:
+        rank = 2
+    else:
+        rank = 1
+    return rank, max(0, len(restored_set) - restored_matched)
+
+
+def _date_sort_value(m):
+    """A document hit's own best single year for sorting/century-bucketing:
+    date_not_before, falling back to date_not_after, None when metadata.db
+    has neither (an uncredited or undated hit) -- sorted last by
+    _document_sort_key, never guessed at as "year zero"."""
+    if not m:
+        return None
+    v = m.get('date_not_before')
+    if v is None:
+        v = m.get('date_not_after')
+    return v
+
+
+def _document_sort_key(sort, rank):
+    """The tuple to sort a document hit's own `rank` dict (built in
+    _search_documents_collection: adjacency/restored_rank/
+    extra_restorations/date/region/doc_id) ascending on, for `sort` (one of
+    _DOCUMENT_SORT_MODES; an unrecognized value is treated as
+    'relevance')."""
+    date = rank.get('date')
+    date_known = date is not None
+    if sort == 'oldest':
+        return (date_known is False, date if date_known else 0, rank['doc_id'])
+    if sort == 'newest':
+        return (date_known is False, -date if date_known else 0, rank['doc_id'])
+    if sort == 'region':
+        region = (rank.get('region') or '').lower()
+        return (region == '', region, rank['doc_id'])
+    return (rank['adjacency'], rank['restored_rank'], rank['extra_restorations'],
+            date_known is False, date if date_known else 0, rank['doc_id'])
+
+
+def _century_label(year):
+    """A document's own date_not_before/after (see _date_sort_value) as a
+    century bucket for the distribution chart: classicists' convention, no
+    year 0 (year 1 AD is the 1st century AD; year -1, i.e. 1 BC, is the 1st
+    century BC). 'Unknown' for an undated hit -- shown as its own bar
+    rather than silently dropped."""
+    if year is None:
+        return 'Unknown'
+    if year == 0:
+        # No year 0 in this convention (never a real EDH/EDCS/Trismegistos
+        # date); a stray 0 is folded into 1st c. AD rather than producing
+        # a nonsensical "0th century".
+        n, era = 1, 'AD'
+    elif year >= 1:
+        n, era = (year - 1) // 100 + 1, 'AD'
+    else:
+        n, era = (-year - 1) // 100 + 1, 'BC'
+    if n % 100 in (11, 12, 13):
+        suffix = 'th'
+    else:
+        suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')
+    return f'{n}{suffix} c. {era}'
+
+
+def _century_sort_key(label):
+    """Chronological order for _century_label's own output: BC centuries
+    descending (furthest past first), then AD ascending, 'Unknown' last."""
+    if label == 'Unknown':
+        return (1, 0)
+    n = int(''.join(ch for ch in label.split(' ', 1)[0] if ch.isdigit()))
+    era = label.rsplit(' ', 1)[-1]
+    return (0, -n if era == 'BC' else n + 10000)
+
+
+def _tally_source_region(kept):
+    """[{source, region, count}] sorted by count descending, over every
+    kept candidate's own metadata (not just the page) -- the documents
+    analogue of _count_candidates_by_work's by_work_all. `kept` is a list
+    of the per-candidate dicts _search_documents_collection builds, each
+    carrying a 'meta' key (a backend.documents.meta()-shaped dict, or
+    None). `region` is translated (backend.documents.translate_label) the
+    same way a result row's own 'region' field is, so a chart or table
+    built from this never prints a raw German value either."""
+    import backend.documents as docs
+    tally = {}
+    for k in kept:
+        m = k.get('meta') or {}
+        region = docs.translate_label(m.get('region')) or 'unknown'
+        key = (m.get('source') or 'unknown', region)
+        tally[key] = tally.get(key, 0) + 1
+    out = [{'source': k[0], 'region': k[1], 'count': v} for k, v in tally.items()]
+    out.sort(key=lambda x: -x['count'])
+    return out
+
+
+def _tally_century(kept):
+    """[{century, count}] in chronological order, over every kept
+    candidate (not just the page) -- the distribution-by-century chart the
+    stage 4 spec asks for, computed once per request from metadata already
+    fetched for ranking (see _search_documents_collection), not a second
+    pass over the index."""
+    tally = {}
+    for k in kept:
+        m = k.get('meta') or {}
+        label = _century_label(_date_sort_value(m))
+        tally[label] = tally.get(label, 0) + 1
+    out = [{'century': label, 'count': v} for label, v in tally.items()]
+    out.sort(key=lambda x: _century_sort_key(x['century']))
+    return out
+
 
 def _restoration_flags(matched_positions, restored_set):
     """(matched_restored, partly_restored) for one document hit: whether
@@ -1698,7 +1868,7 @@ def _document_passes_filters(m, date_from, date_to, region, text_type, material,
 
 
 def _document_hit(language, filename, ref, matched_words, matched_lemmas, tokens=None,
-                   matched_positions=None, formula_count=None):
+                   matched_positions=None, formula_count=None, meta_override=_UNSET):
     """One documents-collection result row: credit, date, place, labels and
     restored-word positions from backend.documents, instead of the literary
     author/work/era/year shape. `tokens` (the line's own tokenized form, same
@@ -1717,13 +1887,40 @@ def _document_hit(language, filename, ref, matched_words, matched_lemmas, tokens
     restored-token positions. `formula_count` (stage 3b-3): how many
     documents in this index share the matched lemma pair/phrase -- see
     _documents_formula_count; None when not computed (regex, or an exact
-    hit whose matched_lemmas came back empty)."""
+    hit whose matched_lemmas came back empty).
+
+    `meta_override` (stage 4): the caller's own already-fetched metadata
+    dict (or None, meaning "looked up and genuinely uncredited"), when it
+    has one -- _search_documents_collection's lemma FAST PATH bulk-fetches
+    metadata for every candidate up front (backend.documents.bulk_meta) so
+    ranking thousands of matches never pays for one metadata.db round trip
+    per row; passing the already-known value here avoids looking it up a
+    second time. Left at its default (the `_UNSET` sentinel, not None --
+    None is itself a valid, meaningful override) this calls
+    backend.documents.meta(doc_id) itself, exactly as before stage 4.
+
+    Place/region/material/object/text-type labels are passed through
+    backend.documents.translate_label (a handful of EDH/EDCS/Trismegistos
+    values are German) before going in the row; ancient_place/modern_place
+    are set to None instead when backend.documents.is_unknown_place
+    recognizes the raw value as a "place not known" placeholder (German
+    'unbekannt', English 'unknown', Latin 'ignoratur') -- stage 4: hidden
+    rather than shown translated as the word "unknown", which is no
+    information for a reader. The metadata.db value itself is never
+    modified by any of this."""
     import backend.documents as docs
     doc_id = docs.doc_for(language, filename, ref)
-    m = docs.meta(doc_id) if doc_id else None
+    if meta_override is not _UNSET:
+        m = meta_override
+    else:
+        m = docs.meta(doc_id) if doc_id else None
     restored = docs.restored_indices(language, filename, ref)
     matched_restored, partly_restored = _restoration_flags(
         matched_positions, set(restored.get('restored') or []))
+
+    def _place(value):
+        return None if docs.is_unknown_place(value) else docs.translate_label(value)
+
     row = {
         'collection': 'documents',
         'doc_id': doc_id,
@@ -1737,13 +1934,13 @@ def _document_hit(language, filename, ref, matched_words, matched_lemmas, tokens
         'credit': (m or {}).get('credit'),
         'date_not_before': (m or {}).get('date_not_before'),
         'date_not_after': (m or {}).get('date_not_after'),
-        'ancient_place': (m or {}).get('ancient_place'),
-        'modern_place': (m or {}).get('modern_place'),
-        'region': (m or {}).get('region'),
+        'ancient_place': _place((m or {}).get('ancient_place')),
+        'modern_place': _place((m or {}).get('modern_place')),
+        'region': docs.translate_label((m or {}).get('region')),
         'pleiades_id': (m or {}).get('pleiades_id'),
-        'text_type_label': (m or {}).get('text_type_label'),
-        'object_type_label': (m or {}).get('object_type_label'),
-        'material_label': (m or {}).get('material_label'),
+        'text_type_label': docs.translate_label((m or {}).get('text_type_label')),
+        'object_type_label': docs.translate_label((m or {}).get('object_type_label')),
+        'material_label': docs.translate_label((m or {}).get('material_label')),
         'source': (m or {}).get('source'),
         'restored_indices': restored.get('restored'),
         'fragment_indices': restored.get('fragment'),
@@ -1754,10 +1951,47 @@ def _document_hit(language, filename, ref, matched_words, matched_lemmas, tokens
     return row, m
 
 
+def _lemma_fast_path_matches(language, filtered_query_lemmas, min_matched):
+    """Every (filename, ref, matched_lemmas, positions) the documents index
+    has for `filtered_query_lemmas`, with the distance rule already applied
+    -- the FULL, uncapped candidate set (stage 4: no 500-row ceiling).
+    Cheap: nothing here touches metadata.db, a restored-word sidecar or a
+    line's own text; the distance check reuses the index's own per-lemma
+    position lists (the same ones find_co_occurring_lemmas returns),
+    exactly the way _min_adjacent_span_rank reuses them for ranking,
+    instead of re-fetching and re-splitting the line's text the way
+    backend.distance_filter.calculate_match_distance does for the literary
+    search path."""
+    import backend.documents as docs
+    from backend.distance_filter import get_max_distance
+    out = []
+    if not filtered_query_lemmas:
+        return out
+    candidates = docs.find_co_occurring_lemmas(list(filtered_query_lemmas), language,
+                                                 min_matches=min_matched)
+    for filename, ref, matching_lemmas, positions in candidates:
+        matched_lemmas = set(matching_lemmas) & filtered_query_lemmas
+        if len(matched_lemmas) < min_matched:
+            continue
+        lists = [positions.get(l) or [] for l in matched_lemmas]
+        min_dist = 0
+        if len(lists) >= 2:
+            dists = [abs(pa - pb) for i in range(len(lists)) for j in range(i + 1, len(lists))
+                     for pa in lists[i] for pb in lists[j]]
+            if dists:
+                min_dist = min(dists)
+        if min_dist > 0 and min_dist > get_max_distance(filename, language):
+            continue
+        out.append({'filename': filename, 'ref': ref, 'matched_lemmas': matched_lemmas,
+                    'positions': positions})
+    return out
+
+
 def _search_documents_collection(language, search_type, query, filtered_query_lemmas,
-                                  min_matched, max_results, date_from, date_to,
+                                  min_matched, offset, limit, date_from, date_to,
                                   region, text_type, material, source,
-                                  exclude_restored=False, hide_formulas=None):
+                                  exclude_restored=False, hide_formulas=None,
+                                  sort='relevance'):
     """Document hits for the documents/both collection. Mirrors the FAST PATH
     of line_search()'s literary branch (same index-driven candidate lookup,
     same matched-word shape) against backend.documents's own documents-index
@@ -1768,18 +2002,17 @@ def _search_documents_collection(language, search_type, query, filtered_query_le
     to the DOCUMENTS index's own lemma_doc_freq table, never the literary
     one. This function computes no score at all (same as the literary
     branch -- line_search results are filtered/deduped and sorted by era/
-    year/author, never ranked by score), so the distinction has nowhere to
-    bite here; line_search() below applies rare_focus_filter (which DOES
-    read the LITERARY lemma_doc_freq table) only to literary rows, never to
-    the rows this function returns, for exactly that reason.
+    year/author, never ranked by score) EXCEPT the stage 4 relevance rank
+    added below, which is its own self-contained measure (adjacency/
+    restoration/date, all read off this collection's own index and
+    metadata.db) and never touches the literary lemma_doc_freq table either.
 
     Stage 3b-3, `exclude_restored`: drop a hit whose match rests ENTIRELY on
-    restored tokens (`row['matched_restored']`, set by _document_hit from the
-    matched token positions below). A hit with no position information
-    (regex, or an exact hit _find_exact_phrase_positions could not place) is
-    never dropped by this -- matched_restored is False whenever
-    matched_positions is empty, by _restoration_flags' own contract, so
-    "unknown" and "not restored" are deliberately the same safe outcome here.
+    restored tokens (restored_rank == 2, see _restored_rank_and_extra). A hit
+    with no position information is never dropped by this (restored_rank is
+    0 whenever there are no matched positions, by that function's own
+    contract) -- "unknown" and "not restored" are deliberately the same safe
+    outcome here.
 
     Stage 3b-3, `hide_formulas`: drop a hit whose `formula_count` (documents
     in this SAME index sharing its matched lemmas, see
@@ -1791,166 +2024,245 @@ def _search_documents_collection(language, search_type, query, filtered_query_le
     than the spec asked for.
 
     Formula words (data/documents/formula_words_la.txt/_grc.txt, spec item
-    6): NOT applied as a down-rank here, and deliberately so: per the spec's
-    own condition ("if a score or rank exists ... otherwise state why not"),
-    /api/line-search computes no per-result score or rank for EITHER
-    collection (document hits are appended in candidate-discovery order, not
-    sorted by any merit measure) -- the same absence stage 3b-2 already
-    found and recorded, so there is still no mechanism for a soft penalty to
-    attach to. Recorded in docs/DECISIONS.md and the stage 3b-3 report.
+    6): NOT applied as a down-rank here, and deliberately so: the
+    'relevance' sort above is a document-provenance measure (adjacency/
+    restoration/date), not a word-rarity one, and there is still no
+    mechanism on this path for a soft lexical penalty to attach to.
+    Recorded in docs/DECISIONS.md.
 
-    Returns (results, by_source_region, stats) where by_source_region is
-    [{source, region, count}] sorted by count descending (the documents
-    analogue of _count_candidates_by_work's by_work_all), and stats is
-    {'restored_excluded_count', 'formulas_hidden_count', 'formula_summary'}
-    (formula_summary is None for a non-lemma search or an empty lemma set,
-    where "the documents sharing this query" has no single well-defined
-    lemma pair to count).
+    Stage 4 (owner's review of the live trial, 2026-10-08): no 500-row
+    ceiling. `offset`/`limit` page a SORTED, FULLY-FILTERED candidate list
+    (`sort`, one of _DOCUMENT_SORT_MODES); the per-row cost of building a
+    full result row (a line-text fetch, the restored-word sidecar, label
+    translation) is paid only for the page actually requested, never for
+    the whole candidate set -- see _lemma_fast_path_matches and
+    backend.documents.bulk_meta's own docstrings for how ranking and
+    filtering stay cheap at tens of thousands of candidates ("dis manibus"
+    matches roughly 35,000 of them; measured end-to-end warm latency is in
+    docs/DECISIONS.md).
+
+    Returns (page_results, total, by_source_region, by_century, stats).
+    `total` is the exact count of matches after EVERY filter (date/region/
+    text_type/material/source/exclude_restored/hide_formulas); `by_
+    source_region`/`by_century` ([{source,region,count}]/[{century,count}],
+    the documents analogue of _count_candidates_by_work's by_work_all) are
+    computed over that SAME total, not just the returned page.
+    `page_results` is exactly `limit` rows (fewer on the last page) starting
+    at `offset`. stats is {'restored_excluded_count',
+    'formulas_hidden_count', 'formula_summary'} (formula_summary is None
+    for a non-lemma search or an empty lemma set).
     """
     import backend.documents as docs
-    results = []
-    by_source_region = {}
     stats = {'restored_excluded_count': 0, 'formulas_hidden_count': 0, 'formula_summary': None}
     if language not in docs.SUPPORTED_LANGUAGES or not docs.is_index_available(language):
-        return results, [], stats
+        return [], 0, [], [], stats
     if search_type not in ('lemma', 'exact', 'regex'):
         search_type = 'lemma'
+    if sort not in _DOCUMENT_SORT_MODES:
+        sort = 'relevance'
 
-    seen = set()
     formula_cache = {}
-
-    def _record(filename, ref, text, matched_words, matched_lemmas, tokens=None, matched_positions=None):
-        if (filename, ref) in seen:
-            return False
-        formula_count = _documents_formula_count(language, matched_lemmas, formula_cache)
-        row, m = _document_hit(language, filename, ref, matched_words, matched_lemmas, tokens=tokens,
-                                matched_positions=matched_positions, formula_count=formula_count)
-        if not _document_passes_filters(m, date_from, date_to, region, text_type, material, source):
-            return False
-        if not passes_distance_filter(text, matched_words, filename, language):
-            return False
-        if exclude_restored and row['matched_restored']:
-            stats['restored_excluded_count'] += 1
-            return False
-        if hide_formulas is not None and formula_count is not None and formula_count > hide_formulas:
-            stats['formulas_hidden_count'] += 1
-            return False
-        seen.add((filename, ref))
-        row['text'] = text
-        results.append(row)
-        key = ((m or {}).get('source') or 'unknown', (m or {}).get('region') or 'unknown')
-        by_source_region[key] = by_source_region.get(key, 0) + 1
-        return True
 
     if search_type == 'lemma':
         if not filtered_query_lemmas:
-            return results, [], stats
-        candidates = docs.find_co_occurring_lemmas(list(filtered_query_lemmas), language,
-                                                     min_matches=min_matched)
-        text_candidates = {}
-        for filename, ref, matching_lemmas, _positions in candidates:
-            text_candidates.setdefault(filename, []).append((ref, matching_lemmas))
+            return [], 0, [], [], stats
+        raw_candidates = _lemma_fast_path_matches(language, filtered_query_lemmas, min_matched)
+        for c in raw_candidates:
+            c['doc_id'] = docs.doc_for(language, c['filename'], c['ref'])
+        meta_by_id = docs.bulk_meta([c['doc_id'] for c in raw_candidates if c['doc_id']])
 
-        for filename, matches in text_candidates.items():
-            refs_needed = [ref for ref, _ in matches]
-            lines_data = docs.get_lines_batch(filename, refs_needed, language) or {}
-            for ref, _matching_lemmas in matches:
-                line_info = lines_data.get(ref)
-                if not line_info:
-                    continue
-                text = line_info.get('text', '')
-                indexed_lemmas = set(line_info.get('lemmas') or [])
-                indexed_tokens = line_info.get('tokens') or []
-                matching_query_lemmas = indexed_lemmas & filtered_query_lemmas
-                if not matching_query_lemmas:
-                    continue
-                indexed_lemma_list = line_info.get('lemmas') or []
-                matched_positions = [i for i, lem in enumerate(indexed_lemma_list)
-                                      if lem in matching_query_lemmas and i < len(indexed_tokens)]
-                matched_words = [indexed_tokens[i] for i in matched_positions]
-                if len(set(matched_words)) < min_matched:
-                    continue
-                _record(filename, ref, text, matched_words, matching_query_lemmas, tokens=indexed_tokens,
-                        matched_positions=matched_positions)
-                if len(results) >= max_results:
-                    break
-            if len(results) >= max_results:
-                break
+        # The stock-formula count for the WHOLE query's lemma set is
+        # exactly the distinct-document count this pass already computed,
+        # whenever min_matched asked for every one of filtered_query_
+        # lemmas (true for the common 2-word documentary phrase) --
+        # seeding the cache here saves a second find_co_occurring_lemmas
+        # pass purely to recompute the same number.
+        if min_matched == len(filtered_query_lemmas):
+            stats_doc_ids = {c['doc_id'] for c in raw_candidates if c['doc_id']}
+            formula_cache[frozenset(filtered_query_lemmas)] = len(stats_doc_ids)
+
+        kept = []
+        for c in raw_candidates:
+            m = meta_by_id.get(c['doc_id'])
+            if not _document_passes_filters(m, date_from, date_to, region, text_type,
+                                             material, source):
+                continue
+            all_positions = sorted({p for l in c['matched_lemmas']
+                                     for p in (c['positions'].get(l) or [])})
+            restored = docs.restored_indices(language, c['filename'], c['ref'])
+            restored_set = set(restored.get('restored') or [])
+            restored_rank, extra_restorations = _restored_rank_and_extra(all_positions, restored_set)
+            if exclude_restored and restored_rank == 2:
+                stats['restored_excluded_count'] += 1
+                continue
+            formula_count = _documents_formula_count(language, c['matched_lemmas'], formula_cache)
+            if hide_formulas is not None and formula_count is not None and formula_count > hide_formulas:
+                stats['formulas_hidden_count'] += 1
+                continue
+            adjacency = _min_adjacent_span_rank(c['positions'], c['matched_lemmas'])
+            kept.append({
+                'filename': c['filename'], 'ref': c['ref'], 'doc_id': c['doc_id'],
+                'matched_lemmas': c['matched_lemmas'], 'all_positions': all_positions,
+                'meta': m, 'formula_count': formula_count,
+                'rank': {
+                    'adjacency': adjacency, 'restored_rank': restored_rank,
+                    'extra_restorations': extra_restorations,
+                    'date': _date_sort_value(m), 'region': (m or {}).get('region'),
+                    'doc_id': c['doc_id'] or '',
+                },
+            })
+
+        total = len(kept)
+        by_source_region = _tally_source_region(kept)
+        by_century = _tally_century(kept)
+        kept.sort(key=lambda k: _document_sort_key(sort, k['rank']))
+        page = kept[offset:offset + limit]
+
+        # Only the page's own rows pay for a line-text fetch, grouped by
+        # filename exactly as the pre-stage-4 code did for every
+        # candidate -- one batched get_lines_batch call per filename
+        # touched by this page (almost always far fewer than `limit`
+        # files), never one call per candidate.
+        by_filename = {}
+        for p in page:
+            by_filename.setdefault(p['filename'], []).append(p['ref'])
+        lines_by_filename = {filename: (docs.get_lines_batch(filename, refs, language) or {})
+                              for filename, refs in by_filename.items()}
+
+        page_results = []
+        for p in page:
+            line_info = lines_by_filename.get(p['filename'], {}).get(p['ref']) or {}
+            text = line_info.get('text', '')
+            tokens = line_info.get('tokens') or []
+            matched_positions = sorted(pos for pos in p['all_positions'] if pos < len(tokens))
+            matched_words = [tokens[i] for i in matched_positions]
+            row, _m = _document_hit(language, p['filename'], p['ref'], matched_words,
+                                     p['matched_lemmas'], tokens=tokens,
+                                     matched_positions=matched_positions,
+                                     formula_count=p['formula_count'], meta_override=p['meta'])
+            row['text'] = text
+            page_results.append(row)
+
         if filtered_query_lemmas:
             stats['formula_summary'] = {
                 'query_lemmas': sorted(filtered_query_lemmas),
                 'documents_sharing_all': _documents_formula_count(
                     language, filtered_query_lemmas, formula_cache),
             }
-    else:
-        # exact/regex: no index path exists for these (same as the literary
-        # SLOW PATH), so scan every line of every bucket file for `language`
-        # through the documents index's own `lines` table -- reusing the
-        # SAME connection the lemma path above uses, not a texts_root walk
-        # this module has no path for.
-        conn = docs.get_connection(language)
-        if conn is None:
-            return results, [], stats
-        exact_pattern = exact_phrase_pattern(query) if search_type == 'exact' else None
+        return page_results, total, by_source_region, by_century, stats
+
+    # exact/regex: no index path exists for these (same as the literary
+    # SLOW PATH), so scan every line of every bucket file for `language`
+    # through the documents index's own `lines` table -- reusing the SAME
+    # connection the lemma path above uses. This already had no cheaper
+    # path before stage 4; the only change here is removing the fixed
+    # 500-row ceiling and running the full result set through the same
+    # sort/paginate/distribution pass the lemma path above uses.
+    conn = docs.get_connection(language)
+    if conn is None:
+        return [], 0, [], [], stats
+    exact_pattern = exact_phrase_pattern(query) if search_type == 'exact' else None
+    try:
+        text_rows = conn.execute('SELECT text_id, filename FROM texts').fetchall()
+    except Exception:                                               # noqa: BLE001
+        return [], 0, [], [], stats
+
+    seen = set()
+    kept = []
+    for trow in text_rows:
+        filename = trow['filename']
         try:
-            text_rows = conn.execute('SELECT text_id, filename FROM texts').fetchall()
+            line_rows = conn.execute(
+                'SELECT ref, content, tokens FROM lines WHERE text_id = ?', (trow['text_id'],)
+            ).fetchall()
         except Exception:                                           # noqa: BLE001
-            return results, [], stats
-        for trow in text_rows:
-            filename = trow['filename']
-            try:
-                line_rows = conn.execute(
-                    'SELECT ref, content, tokens FROM lines WHERE text_id = ?', (trow['text_id'],)
-                ).fetchall()
-            except Exception:                                       # noqa: BLE001
+            continue
+        for lrow in line_rows:
+            ref, text = lrow['ref'], (lrow['content'] or '')
+            if (filename, ref) in seen:
                 continue
-            for lrow in line_rows:
-                ref, text = lrow['ref'], (lrow['content'] or '')
-                match_found = False
-                if search_type == 'exact':
-                    if exact_pattern and exact_pattern.search(exact_search_text(text)):
-                        match_found = True
-                else:
-                    try:
-                        if re.search(query, text, re.IGNORECASE):
-                            match_found = True
-                    except re.error:
-                        pass
-                if not match_found:
-                    continue
-                matched_words = query.split() if search_type == 'exact' else []
+            match_found = False
+            if search_type == 'exact':
+                if exact_pattern and exact_pattern.search(exact_search_text(text)):
+                    match_found = True
+            else:
                 try:
-                    row_tokens = json.loads(lrow['tokens']) if lrow['tokens'] else []
-                except Exception:                                    # noqa: BLE001
-                    row_tokens = []
-                # Best-effort token positions for 'exact' only (see
-                # _find_exact_phrase_positions); 'regex' has no well-defined
-                # phrase span to locate, so matched_positions stays [] and
-                # matched_restored/partly_restored both come back False.
-                matched_positions = (_find_exact_phrase_positions(row_tokens, query)
-                                      if search_type == 'exact' else [])
-                _record(filename, ref, text, matched_words, set(), tokens=row_tokens,
-                        matched_positions=matched_positions)
-                if len(results) >= max_results:
-                    break
-            if len(results) >= max_results:
-                break
+                    if re.search(query, text, re.IGNORECASE):
+                        match_found = True
+                except re.error:
+                    pass
+            if not match_found:
+                continue
+            matched_words = query.split() if search_type == 'exact' else []
+            try:
+                row_tokens = json.loads(lrow['tokens']) if lrow['tokens'] else []
+            except Exception:                                        # noqa: BLE001
+                row_tokens = []
+            # Best-effort token positions for 'exact' only (see
+            # _find_exact_phrase_positions); 'regex' has no well-defined
+            # phrase span to locate, so matched_positions stays [] and
+            # matched_restored/partly_restored both come back False.
+            matched_positions = (_find_exact_phrase_positions(row_tokens, query)
+                                  if search_type == 'exact' else [])
+            if not passes_distance_filter(text, matched_words, filename, language):
+                continue
+            doc_id = docs.doc_for(language, filename, ref)
+            m = docs.meta(doc_id) if doc_id else None
+            if not _document_passes_filters(m, date_from, date_to, region, text_type,
+                                             material, source):
+                continue
+            restored = docs.restored_indices(language, filename, ref)
+            restored_set = set(restored.get('restored') or [])
+            restored_rank, extra_restorations = _restored_rank_and_extra(matched_positions, restored_set)
+            if exclude_restored and restored_rank == 2:
+                stats['restored_excluded_count'] += 1
+                continue
+            seen.add((filename, ref))
+            # No per-lemma position dict exists on this SLOW PATH (no
+            # lemma match at all for 'regex'; 'exact' has no co-occurrence
+            # concept to be "scattered" relative to) -- an exact/regex hit
+            # is ranked as an exact adjacent phrase by construction.
+            kept.append({
+                'filename': filename, 'ref': ref, 'doc_id': doc_id, 'text': text,
+                'tokens': row_tokens, 'matched_words': matched_words,
+                'matched_positions': matched_positions, 'meta': m,
+                'rank': {
+                    'adjacency': 0, 'restored_rank': restored_rank,
+                    'extra_restorations': extra_restorations,
+                    'date': _date_sort_value(m), 'region': (m or {}).get('region'),
+                    'doc_id': doc_id or '',
+                },
+            })
 
-    by_list = [{'source': k[0], 'region': k[1], 'count': v} for k, v in by_source_region.items()]
-    by_list.sort(key=lambda x: -x['count'])
-    return results, by_list, stats
+    total = len(kept)
+    by_source_region = _tally_source_region(kept)
+    by_century = _tally_century(kept)
+    kept.sort(key=lambda k: _document_sort_key(sort, k['rank']))
+    page = kept[offset:offset + limit]
+    page_results = []
+    for p in page:
+        row, _m = _document_hit(language, p['filename'], p['ref'], p['matched_words'], set(),
+                                 tokens=p['tokens'], matched_positions=p['matched_positions'],
+                                 formula_count=None, meta_override=p['meta'])
+        row['text'] = p['text']
+        page_results.append(row)
+    return page_results, total, by_source_region, by_century, stats
 
 
-def _line_search_documents_only(query, language, search_type, max_results, count_only,
+def _line_search_documents_only(query, language, search_type, offset, limit, sort, count_only,
                                  date_from, date_to, region, text_type, material, source,
                                  search_start_time, exclude_restored=False, hide_formulas=None):
     """Full /api/line-search response for collection='documents': the
     documentary corpus alone, no literary search run at all. Returns a Flask
-    response directly (line_search() returns this immediately)."""
+    response directly (line_search() returns this immediately).
+
+    Stage 4: `offset`/`limit` page the (now uncapped) result list 50 rows at
+    a time by default, ranked by `sort`; the payload's 'total'/
+    'distinct_loci' are the TRUE total after every filter, never a 500-row
+    lower bound -- see _search_documents_collection's own docstring."""
     import time as time_module
     import backend.documents as docs
 
-    n_query_words = len([w for w in query.split() if w.strip()])
     filtered_query_lemmas = set()
     filtered_common_words = []
     if search_type == 'lemma' and language in docs.SUPPORTED_LANGUAGES:
@@ -1965,30 +2277,30 @@ def _line_search_documents_only(query, language, search_type, max_results, count
 
     min_matched = max(1, min(2, len(filtered_query_lemmas))) if search_type == 'lemma' else 1
 
-    results, by_source_region, doc_stats = _search_documents_collection(
-        language, search_type, query, filtered_query_lemmas, min_matched, max_results,
+    results, total, by_source_region, by_century, doc_stats = _search_documents_collection(
+        language, search_type, query, filtered_query_lemmas, min_matched, offset, limit,
         date_from, date_to, region, text_type, material, source,
-        exclude_restored=exclude_restored, hide_formulas=hide_formulas)
+        exclude_restored=exclude_restored, hide_formulas=hide_formulas, sort=sort)
 
     search_time = round(time_module.time() - search_start_time, 3)
-    capped = len(results) >= max_results
-    distinct_loci = len(results)
     payload = {
         'collection': 'documents',
-        'total': distinct_loci,
-        'distinct_loci': distinct_loci,
+        'total': total,
+        'distinct_loci': total,
         'query': query,
         'search_time': search_time,
-        'capped': capped,
+        'capped': False,
+        'sort': sort,
+        'pagination': {'offset': offset, 'limit': limit, 'total': total},
         'corpus_version': docs.get_corpus_version(language),
     }
-    if capped:
-        payload['total_at_least'] = distinct_loci
     if filtered_common_words:
         payload['filtered_common_words'] = filtered_common_words
     if by_source_region:
         payload['documents_by_source_region'] = by_source_region
         payload['lines_all'] = sum(w['count'] for w in by_source_region)
+    if by_century:
+        payload['documents_by_century'] = by_century
     if exclude_restored:
         payload['restored_excluded_count'] = doc_stats['restored_excluded_count']
     if hide_formulas is not None:
@@ -2200,6 +2512,34 @@ def line_search():
                 except (TypeError, ValueError):
                     doc_hide_formulas = None
 
+        # Stage 4 (owner's review of the live trial, 2026-10-08): document
+        # hits no longer stop at a fixed 500-row ceiling (a stock phrase
+        # like "dis manibus" is in roughly 35,000 of them) -- they are
+        # paged server-side (`doc_offset`/`doc_limit`, 50 rows per page by
+        # default, `doc_limit` clamped to that range so a request cannot
+        # ask this endpoint to build an unbounded page) and ranked by
+        # `doc_sort` (see _DOCUMENT_SORT_MODES/_document_sort_key): default
+        # 'relevance' puts an exact adjacent phrase ahead of scattered
+        # words, a match on surviving text ahead of one resting on restored
+        # words, fewer extra restorations, then earliest date; 'oldest'/
+        # 'newest' sort on date alone; 'region' sorts alphabetically.
+        doc_sort = 'relevance'
+        doc_offset = 0
+        doc_limit = 50
+        if documents_active:
+            doc_sort = (data.get('sort') or 'relevance').strip().lower()
+            if doc_sort not in _DOCUMENT_SORT_MODES:
+                doc_sort = 'relevance'
+            try:
+                doc_offset = max(0, int(data.get('offset', 0)))
+            except (TypeError, ValueError):
+                doc_offset = 0
+            try:
+                doc_limit = int(data.get('limit', 50))
+            except (TypeError, ValueError):
+                doc_limit = 50
+            doc_limit = max(1, min(50, doc_limit))
+
         # Source exclusion - don't include the source line in results
         exclude_text_id = data.get('exclude_text_id', '')
         exclude_locus = data.get('exclude_locus', '')
@@ -2216,7 +2556,7 @@ def line_search():
             # omitted, or 'literature', or the switch off) in any way.
             if collection == 'documents' and documents_active:
                 return _line_search_documents_only(
-                    query, language, search_type, max_results, count_only,
+                    query, language, search_type, doc_offset, doc_limit, doc_sort, count_only,
                     date_from, date_to, doc_region_filter, doc_text_type_filter,
                     doc_material_filter, doc_source_filter, search_start_time,
                     exclude_restored=doc_exclude_restored, hide_formulas=doc_hide_formulas)
@@ -2859,16 +3199,26 @@ def line_search():
                 # rather than assumed to exist.
                 _docs_min_matched = (max(1, min(2, len(filtered_query_lemmas)))
                                       if search_type == 'lemma' else 1)
-                doc_results, doc_by_source_region, doc_stats = _search_documents_collection(
+                (doc_results, doc_total, doc_by_source_region, doc_by_century,
+                 doc_stats) = _search_documents_collection(
                     language, search_type, query, filtered_query_lemmas, _docs_min_matched,
-                    max_results, date_from, date_to, doc_region_filter,
+                    doc_offset, doc_limit, date_from, date_to, doc_region_filter,
                     doc_text_type_filter, doc_material_filter, doc_source_filter,
-                    exclude_restored=doc_exclude_restored, hide_formulas=doc_hide_formulas)
+                    exclude_restored=doc_exclude_restored, hide_formulas=doc_hide_formulas,
+                    sort=doc_sort)
                 payload['collection'] = 'both'
-                payload['documents_total'] = len(doc_results)
+                # Stage 4: 'documents_total' is now the TRUE total (every
+                # match after filters), not a count of a 500-row-capped
+                # list -- see _search_documents_collection's own docstring.
+                payload['documents_total'] = doc_total
+                payload['documents_sort'] = doc_sort
+                payload['documents_pagination'] = {
+                    'offset': doc_offset, 'limit': doc_limit, 'total': doc_total}
                 if doc_by_source_region:
                     payload['documents_by_source_region'] = doc_by_source_region
                     payload['documents_lines_all'] = sum(w['count'] for w in doc_by_source_region)
+                if doc_by_century:
+                    payload['documents_by_century'] = doc_by_century
                 if doc_exclude_restored:
                     payload['restored_excluded_count'] = doc_stats['restored_excluded_count']
                 if doc_hide_formulas is not None:

@@ -96,6 +96,7 @@ data/translations/*
 data/documents/*
 !data/documents/formula_words_*.txt
 !data/documents/eagle_labels.csv
+!data/documents/german_label_translations.json
 !data/commentaries/
 data/commentaries/*
 !data/commentaries/README.md

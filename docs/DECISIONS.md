@@ -175,6 +175,100 @@ in-memory facet cache, built once over `metadata.db`. The route is
 `client/src/components/corpus/DocumentsBrowser.jsx`, a new tab inside
 `CorpusBrowser.jsx`, behind the client's own documents trial.
 
+## 2026-10-08: document results are ranked, a 500-row cap is gone, and German label words are translated
+
+**Question.** A documents-collection search (the `?documents=1` trial)
+returned hits in storage order with no total above 500, and the EDH source
+database's own German placeholder and connector words ("unbekannt", "bei")
+reached the page untranslated. What should rank the list, what should the
+total mean once the 500-row cap is gone, and which values actually need
+translating?
+
+**Ranking.** No score exists anywhere on this path (see the 2026-10-08
+entry below on stage 3b-3 and the 2026-08-25 fusion entries for where
+scoring does live, neither of which this touches). The default sort
+('relevance') is a four-part ordinal rank, not a score: an exact adjacent
+phrase before one whose matched words are scattered on the line, a match
+on surviving text before one resting on an editorially restored word,
+fewer restorations elsewhere on the same line, then earliest date. Every
+part is read from data the documents index already returns for a lemma
+match (the per-lemma token positions `find_co_occurring_lemmas` returns,
+and the restored-word sidecar), not from a second fetch of the line's own
+text. 'Oldest first', 'Newest first', and 'Region' are the three
+alternatives offered on the sort control.
+
+**Totals and paging.** The true total is counted the same way the
+existing stock-formula count already works. Both read the documents
+index's own postings, through `find_co_occurring_lemmas` and `doc_for`,
+never a corpus scan and never an estimate. Measured against the
+production `la_documents_index.db`/metadata.db, "dis manibus"
+(co-occurring on 35,231 documents) now returns 35,231 as its own total,
+counted and ranked in about 1.1 to 1.2 seconds warm end to end
+(candidates 0.3 to 0.7s, `doc_for` 0.12s, a chunked bulk metadata fetch
+0.4 to 0.6s, the restored-word sidecar lookup, once loaded, 0.05s),
+comfortably inside the "about 2 seconds warm" target. The expensive step
+for any one request, a line-text fetch per matched document, now runs
+only for the 50 rows of the page actually requested, grouped by bucket
+file. The one-time cold cost of loading a bucket file's restored-word
+sidecar (about 1.9 seconds the first time any request touches it, 26 MB
+of JSON Lines across 109 Latin bucket files) is paid once per process,
+which is why the 2-second figure above is stated as a warm one.
+
+**German label translation.** Every distinct value of metadata.db's
+region/ancient_place/modern_place/material_label/object_type_label/
+text_type_label fields was scanned for German words (2026-10-08, against
+the production metadata.db, 249,610,240 bytes). Counts are document ROWS
+containing the word, not distinct values (a word like "bei" recurs inside
+thousands of different place strings):
+
+| German word | English | Rows |
+|---|---|---|
+| bei | near | 14,106 |
+| unbekannt | unknown | 11,210 |
+| Ägypten | Egypt | 3,022 |
+| oder | or | 1,453 |
+| aus | from | 627 |
+| Oberägypten | Upper Egypt | 531 |
+| bzw. | or | 269 |
+| und | and | 33 |
+| von | of | 29 |
+| östlich | east | 14 |
+| oase | oasis | 5 |
+| szienit | syenite | 5 |
+| südlich | south | 4 |
+| bezirk | district | 4 |
+| gau | district | 3 |
+| nördlich | north | 2 |
+| unterägypten | Lower Egypt | 2 |
+| sekundär | secondary | 1 |
+| verwendet | used | 1 |
+| nicht | not | 1 |
+| wohl | probably | 1 |
+
+A real place spelled in German (Köln, Mainz, Wien, and every other German
+city EDH names in its own working language) is NOT in this table and is
+never touched. That is the place's own name, the same reason "Roma" is
+never translated to "Rome" anywhere else on the site. Only connector,
+placeholder, and descriptive-geography words are translated. The table is
+committed at `data/documents/german_label_translations.json` and applied
+word by word, case-preserved, on the way out (`backend.documents.
+translate_label`). The value stored in metadata.db is never rewritten.
+
+A place value recognized as a "not known" placeholder (German
+"unbekannt", English "unknown"/"unknown location", or the Latin
+"ignoratur" several principal editions still carry) is left off the
+result row entirely (`backend.documents.is_unknown_place`). The word
+"unknown" printed alone told a reader nothing, so the row carries no
+place value for that hit. The Latin and English markers are the same
+placeholder problem under a different word, so the hiding rule covers
+all three together.
+
+**Decision.** Rank by the four-part relevance order above by default,
+offer the three named alternatives, report the exact total from postings
+with no cap, page 50 rows at a time server side, and translate the words
+in the table above for display while leaving metadata.db untouched.
+
+
 ## 2026-10-08: editors' prose inside a poetry text is removed, the poet's own prose is kept
 
 **Question.** Some Persian and Urdu files, built from complete-works
