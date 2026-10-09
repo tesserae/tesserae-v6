@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-09
 
+### Scholarship tab: an expired CORE key no longer switches CORE off
+- On a 401 or 403 the full-text search retries CORE once without the key, paced to CORE's keyless limit across workers, and says the key needs renewing while results keep coming. A 429 waits and retries once. `scripts/ops/check_scholarship_keys.py` and timer templates in `scripts/ops/systemd/` check both keys weekly.
+
 ### Scholarship tab: Semantic Scholar snippets read in their real shape, one source's failure no longer takes the tab down
 - The snippet endpoint returns authors as name strings and carries no
   year, venue or identifiers, with the DOI only inside the open-access

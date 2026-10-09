@@ -707,7 +707,12 @@ def find(work, ref_start, ref_end=None, work2=None, ref2_start=None, ref2_end=No
             except requests.RequestException as e:
                 logger.warning('scholarship lookup failed (%s): %s', q, e)
                 continue
+            if getattr(_core_state, 'keyless', False) or any(it.get('core_keyless') for it in items):
+                msg = 'The CORE full-text key needs renewing; results are still coming from the slower keyless service.'
+                if msg not in warnings:
+                    warnings.append(msg)
             for it in items:
+                it.pop('core_keyless', None)
                 key = (it.get('doi') or it.get('title', '').lower()[:80])
                 if not key or key in seen:
                     continue
@@ -846,6 +851,70 @@ def _s2_snippets(query):
     return _cached('s2snippet|' + query, run)
 
 
+_CORE_MIN_INTERVAL = 2.5   # keyless limit: one batch or five single requests per 10 s
+_core_lock = threading.Lock()
+_core_state = threading.local()
+_core_keyless_logged = False
+
+
+def _core_pace():
+    """Same file-stamped pace as _s2_pace, with its own stamp file, so the
+    three Apache workers together stay under CORE's keyless limit."""
+    os.makedirs(CACHE_DIR, exist_ok=True)
+    stamp = os.path.join(CACHE_DIR, 'core_last_request')
+    with _core_lock:
+        with open(stamp, 'a+', encoding='utf-8') as fh:
+            fcntl.flock(fh, fcntl.LOCK_EX)
+            try:
+                fh.seek(0)
+                try:
+                    last = float(fh.read().strip() or 0)
+                except ValueError:
+                    last = 0.0
+                wait = _CORE_MIN_INTERVAL - (time.time() - last)
+                if wait > 0:
+                    time.sleep(wait)
+                fh.seek(0)
+                fh.truncate()
+                fh.write(repr(time.time()))
+                fh.flush()
+            finally:
+                fcntl.flock(fh, fcntl.LOCK_UN)
+
+
+def _core_get(params):
+    """One CORE request. With the key; if the key is refused (401/403, CORE's
+    free keys lapse monthly) once more without it, paced to the keyless
+    limit. A 429 waits and retries once. A response that came keyless
+    carries _core_keyless = True."""
+    global _core_keyless_logged
+    base = {'User-Agent': UA, 'Accept': 'application/json'}
+    url = 'https://api.core.ac.uk/v3/search/works/'
+    def go(headers, keyless):
+        for attempt in (0, 1):
+            if keyless:
+                _core_pace()
+            r = requests.get(url, params=params, timeout=TIMEOUT, headers=headers)
+            if getattr(r, 'status_code', 200) == 429 and attempt == 0:
+                time.sleep(_CORE_MIN_INTERVAL * 2)
+                continue
+            return r
+        return r
+    if CORE_API_KEY:
+        r = go(dict(base, Authorization=f'Bearer {CORE_API_KEY}'), False)
+        if getattr(r, 'status_code', 200) not in (401, 403):
+            return r
+        r2 = go(base, True)
+        if getattr(r2, 'status_code', 200) == 200:
+            if not _core_keyless_logged:
+                _core_keyless_logged = True
+                logger.warning('CORE key refused, running keyless')
+            r2._core_keyless = True
+            return r2
+        return r  # keyless failed too: report the refusal of the key
+    return go(base, True)
+
+
 def _core_fulltext(phrase, must, a):
     needles = sorted(_names(a), key=len, reverse=True)
     # CORE's parser rejects a bare quoted phrase and any fullText: field
@@ -853,9 +922,9 @@ def _core_fulltext(phrase, must, a):
     # inside a boolean expression works. Found 2026-09-13.
     query = f'"{phrase}" AND ({must})'
     def run():
-        r = requests.get('https://api.core.ac.uk/v3/search/works/', params={'q': query, 'limit': 10},
-                         timeout=TIMEOUT, headers={'User-Agent': UA, 'Accept': 'application/json', 'Authorization': f'Bearer {CORE_API_KEY}'})
+        r = _core_get({'q': query, 'limit': 10})
         r.raise_for_status()
+        keyless = bool(getattr(r, '_core_keyless', False))
         out = []
         for w in (r.json().get('results') or []):
             text = (w.get('fullText') or w.get('abstract') or '')[:600000]
@@ -866,7 +935,9 @@ def _core_fulltext(phrase, must, a):
                         'url': f"https://core.ac.uk/works/{w.get('id')}" if w.get('id') else None,
                         'oa_url': w.get('downloadUrl'), 'snippet': _cap_words(snip or '', 500), 'has_text': bool(text),
                         'cites': cites, 'cites_note': cites_note,
-                        'abstract': (w.get('abstract') or '')[:2000], 'source': 'core'})
+                        'abstract': (w.get('abstract') or '')[:2000], 'source': 'core', 'core_keyless': keyless})
+        if keyless:
+            _core_state.keyless = True
         return out
     return _cached('core|' + query, run)
 
@@ -916,6 +987,7 @@ def fulltext(a, quote=None, limit=12):
         if CORE_API_KEY:
             sources.append(lambda ph: _core_fulltext(ph, must, a))
         for src in sources:
+            _core_state.keyless = False
             try:
                 items = src(phrase)
             except Exception as e:  # noqa: BLE001  one source's failure must not take the tab down
@@ -928,11 +1000,16 @@ def fulltext(a, quote=None, limit=12):
                     continue
                 # A lapsed key (CORE's expire monthly) must say so, not go quiet.
                 if status in (401, 403):
-                    msg = 'A full-text search key has expired or been refused; that source is off until it is renewed.'
+                    msg = 'A full-text search key has expired or been refused, and the keyless fallback failed; that source is off until the key is renewed.'
                     if msg not in warnings:
                         warnings.append(msg)
                 continue
+            if getattr(_core_state, 'keyless', False) or any(it.get('core_keyless') for it in items):
+                msg = 'The CORE full-text key needs renewing; results are still coming from the slower keyless service.'
+                if msg not in warnings:
+                    warnings.append(msg)
             for it in items:
+                it.pop('core_keyless', None)
                 key = (it.get('doi') or it.get('title', '').lower()[:80])
                 if not key or key in seen:
                     continue

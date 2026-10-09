@@ -608,3 +608,65 @@ def test_s2_pace_spaces_requests_across_calls(monkeypatch, tmp_path):
     import time as _t
     t0 = _t.time(); S._s2_pace(); S._s2_pace(); S._s2_pace()
     assert _t.time() - t0 >= 0.55
+
+
+class _CoreResp:
+    def __init__(self, status, results=None):
+        self.status_code = status
+        self._results = results or []
+    def raise_for_status(self):
+        if self.status_code >= 400:
+            import requests
+            raise requests.HTTPError(response=self)
+    def json(self):
+        return {'results': self._results}
+
+
+def _core_setup(monkeypatch, tmp_path, statuses):
+    from backend import scholarship as S
+    monkeypatch.setattr(S, 'CACHE_DIR', str(tmp_path))
+    monkeypatch.setattr(S, 'S2_API_KEY', '')
+    monkeypatch.setattr(S, 'CORE_API_KEY', 'secret')
+    monkeypatch.setattr(S, '_core_keyless_logged', False)
+    calls = []
+    seq = list(statuses)
+    work = [{'title': 'Storms', 'id': 7, 'doi': '10.1/y', 'fullText': 'The storm of Aeneid 1.81 answers Aen. 1.1.'}]
+    def fake_get(url, params=None, timeout=None, headers=None):
+        calls.append(dict(headers or {}))
+        st = seq.pop(0)
+        return _CoreResp(st, work if st == 200 else None)
+    monkeypatch.setattr(S.requests, 'get', fake_get)
+    return S, calls
+
+
+A = {'author': 'Vergil', 'title': 'Aeneid', 'abbrev': 'Aen.', 'lo': '1.1', 'hi': '1.7'}
+
+
+def test_core_refused_key_falls_back_keyless(monkeypatch, tmp_path):
+    S, calls = _core_setup(monkeypatch, tmp_path, [401, 200, 200, 200])
+    monkeypatch.setattr(S.time, 'sleep', lambda s: None)
+    out = S.fulltext(A)
+    assert out['results'] and out['results'][0]['title'] == 'Storms'
+    assert 'core_keyless' not in out['results'][0]
+    assert 'Authorization' in calls[0] and 'Authorization' not in calls[1]
+    assert any('needs renewing' in w for w in out['warnings'])
+    assert not any('keyless fallback failed' in w for w in out['warnings'])
+
+
+def test_core_refused_key_and_keyless_refused(monkeypatch, tmp_path):
+    S, calls = _core_setup(monkeypatch, tmp_path, [401, 401] * 3)
+    monkeypatch.setattr(S.time, 'sleep', lambda s: None)
+    out = S.fulltext(A)
+    assert out['results'] == []
+    assert any('expired or been refused' in w for w in out['warnings'])
+
+
+def test_core_keyless_pacing_holds(monkeypatch, tmp_path):
+    S, calls = _core_setup(monkeypatch, tmp_path, [200, 200, 200])
+    monkeypatch.setattr(S, 'CORE_API_KEY', '')
+    sleeps = []
+    monkeypatch.setattr(S.time, 'sleep', lambda s: sleeps.append(s))
+    S._core_get({'q': 'a'})
+    S._core_get({'q': 'b'})
+    assert len(calls) == 2 and all('Authorization' not in c for c in calls)
+    assert sleeps and 0 < sleeps[0] <= S._CORE_MIN_INTERVAL
