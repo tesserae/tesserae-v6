@@ -71,8 +71,8 @@
     "url": "https://pleiades.stoa.org/",
     "licence_name": "Creative Commons Attribution 3.0 (CC BY 3.0)",
     "licence_url": "https://creativecommons.org/licenses/by/3.0/",
-    "version": "Pleiades places dump from https://pleiades.stoa.org/downloads (dump date not recorded in the repository)",
-    "retrieved": "Not recorded",
+    "version": "pleiades-places-latest.json.gz, downloaded 2026-10-07 (the current places dump; also EDH's own edhPleiadesGeonames.csv for findspot links)",
+    "retrieved": "2026-10-07",
     "what_we_use": "Place identifiers and names for document findspots, and the link from each document to its Pleiades page. I.Sicily and papyri.info/HGV link to Pleiades directly. The Help page also names the Pleiades gazetteer as one source of the Greek-Latin name pairs.",
     "notes": "The downloads page states: \"Sharing and remixing permitted under terms of the Creative Commons Attribution 3.0 License (cc-by).\""
   },
