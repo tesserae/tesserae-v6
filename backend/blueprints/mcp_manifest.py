@@ -70,6 +70,12 @@ MANIFEST = {
         'reason': ('Document Reader view (stage 3b-3): website trial behind '
                     '?documents=1, not yet exposed to the connector.'),
     },
+    '/api/documents/browse': {
+        'site_only': True,
+        'reason': ('Documents section of Browse Corpus: facet tree (kind, '
+                    'region, century) for the website trial behind '
+                    '?documents=1, not yet exposed to the connector.'),
+    },
     '/api/wildcard-search': {
         'tools': ['string_search'],
     },

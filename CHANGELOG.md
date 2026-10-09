@@ -9,6 +9,30 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### A Documents section in Browse Corpus, behind the documents trial
+- Browse Corpus can now show the documentary corpus (inscriptions, papyri)
+  as its own section: kind (Inscriptions, Papyri and ostraca), region
+  under each kind (Roman province, or for Italy the Augustan region,
+  nome or findspot for papyri), and century under each region, every
+  level carrying its own count. Filters for text type, material, object,
+  and language narrow the same selection down to a paged list of
+  documents that open the existing document Reader view.
+- New read-only `GET /api/documents/browse` route, gated behind
+  `TESSERAE_DOCUMENTS=1` like the rest of this feature. The switch off
+  returns 404, the same as the rest of this feature.
+  `backend/documents_browse.py` builds an in-memory, normalized facet
+  index over `metadata.db` once per process and rebuilds it only if the
+  file changes. Added to `backend/blueprints/mcp_manifest.py` as
+  site-only.
+- The section itself is behind the client's own documents trial
+  (`?documents=1`, remembered for the visit), the same gate
+  `LineSearch.jsx` already uses, and lives entirely inside
+  `CorpusBrowser.jsx` as a new tab backed by
+  `client/src/components/corpus/DocumentsBrowser.jsx`.
+- Tests: `tests/test_documents_browse.py` covers region normalization,
+  century bucketing, facet counts, paging, and the gate. Vitest covers
+  the new tab and a filter.
+
 ### Records: the Rumi translation install and the editorial-prose rule
 - `docs/DATA_OPERATIONS.md` records the installation of the Masnavi opening
   translation. `docs/DECISIONS.md` records which prose inside Persian and
