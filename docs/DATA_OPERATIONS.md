@@ -79,6 +79,92 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-09 Xenophon's Hellenica and Cassius Dio, books 36 to 55: steps for production (drafted with the import, NOT yet run)
+- What: `xenophon.hellenica` (1,146 lines, 7 book files) and
+  `cassius_dio.roman_history` (4,403 lines, 20 book files, books 36 to 55),
+  29 `.tess` files in `texts/grc/` that arrive with the merge, each with an
+  English translation file under `data/translations/` that does not.
+- Sources and rights: Greek from PerseusDL/canonical-greekLit
+  `tlg0032.tlg001.perseus-grc2` (Marchant, OCT 1900) and
+  `tlg0385.tlg001.perseus-grc2` (Cary, Loeb Greek 1914 to 1917), both CC BY-SA
+  4.0 per the TEI headers, downloaded 2026-10-09 into
+  `~/tesserae-backups/sources/historians/`. English for the Hellenica from
+  the same repository (`tlg0032.tlg001.perseus-eng2`, Brownson, Loeb
+  1918 to 1921, US public domain by date). English for Dio from Bill
+  Thayer's LacusCurtius transcription of Cary's Loeb (1914 to 1927), pages
+  `penelope.uchicago.edu/Thayer/E/Roman/Texts/Cassius_Dio/<book>*.html`. The
+  home page states the volumes are in the public domain (earlier copyright
+  lapsed, later not renewed), and the volumes the Greek comes from (1914 to
+  1917) are public domain by date anyway. No licence doubt found. The credits
+  page needs no new record. The existing "Literary texts" and "Translations"
+  records cover them and the per-work rows are in `backend/text_sources.json`.
+- Measured before production (all in a worktree, dev copies only):
+  - conversion: the Greek letters in the TEI body and in the `.tess` lines
+    agree (Dio 967,986 of 967,986, Hellenica 352,370 of 352,445 with the
+    remainder being headings), all 29 files pass
+    `scripts/corpus/validate_tess.py`.
+  - Hellenica translation: 1,146 of 1,146 lines, one unit per line, proper
+    names 0.964 of 500, length correlation 0.964, confidence high.
+  - Dio translation: 4,384 of 4,403 lines (0.9957). 49 Greek sections whose
+    number Thayer's page does not mark share the English of the preceding
+    section in their chapter. The 19 uncovered lines are the book tables of
+    contents (37.0.0 to 55.0.0). Proper names 0.914 of 500, length
+    correlation 0.772, confidence high. Cary's English for 36.1 to 36.17 and
+    55.9.5 to 55.34, which Perseus's Greek lacks, is dropped.
+  - lemma caches built in the worktree: 29 files, 2 seconds.
+  - index extension tried on a copy of `grc_index.db`: 1,268 to 1,297 texts,
+    489,109 lines, lemma_doc_freq rebuilt, no errors.
+  - reference tests through a dev server on the worktree (Latin index
+    untouched): lemma "arma virum" 371 distinct loci with Vergil 24, Ovid
+    14, Livy 42, Quintilian 1, Seneca 3, and the exact search 21.
+- Steps on production, each under `~/bin/tess-job` with the caps shown:
+  1. After the merge, pull on production (the `.tess` files, descriptions,
+     provenance rows and Dio's date entry arrive). Run
+     `scripts/keep_old_bundles.sh save` first only if the pull changes
+     `client/`, which this one does not.
+  2. Translations: copy the two files into `data/translations/` (they are not
+     in git). They were made by `python scripts/translations/align_hellenica.py
+     <tlg0032.tlg001.perseus-eng2.xml> texts/grc/xenophon.hellenica.tess <dir>`
+     and `python scripts/translations/align_dio.py <dir of the 20 Thayer
+     pages named 36.html to 55.html> texts/grc/cassius_dio.roman_history.tess
+     <dir>`, and kept with these checksums in
+     `~/tesserae-backups/sources/historians/translations_out/`:
+     `grc__xenophon.hellenica.json` sha256
+     `e3b9b4896e60e79eac54d836b8bda3c29e456f4b0ab968723ede227aed114970`,
+     `grc__cassius_dio.roman_history.json` sha256
+     `6c9707a2976c212b67104fcc9a13bb5e6c5c62d861d76950a92070ad5279909d`.
+     The whole-work file serves the book files. Reloaded with the next
+     `touch tesseraev6_flask.wsgi`.
+  3. Lemma caches with `scripts/batch_lemma_cache.py grc` (cap 8G). Only the 29
+     new files are computed.
+  4. Extend the Greek index on a copy with `scripts/corpus/add_texts_to_index.py
+     --db <copy of grc_index.db> --language grc --cache-dir
+     <production>/cache/lemmas --add` with the 29 filenames (whole work and
+     book files, as for Herodotus and Thucydides), check integrity, swap in,
+     `touch tesseraev6_flask.wsgi`. Keep `grc_index.db.bak-historians-20261009`.
+  5. Rare-bigram table: `scripts/corpus/rebuild_bigrams.py grc`.
+  6. Passage windows, descriptions, vectors: `scripts/corpus/build_batch_windows.py
+     --upsert-db`, `scripts/corpus/describe_windows.py` on the gateway,
+     `scripts/corpus/apply_passage_rows.py --mode append`, then
+     `scripts/build_desc_fts.py`, and the window names index
+     (`scripts/corpus/build_window_names.py`). Follow the 2026-10-08 Victor
+     entry and the lockstep check (counts in
+     step, then one Similar Passages and one Theme Search request). The line
+     vectors for the semantic channel were made for earlier imports by an
+     encoding run with bowphs/SPhilBerta that has no committed script.
+  7. Connection map: `scripts/build_connections_map.py` (cap 10G, about 50
+     minutes), after step 6.
+  8. The Greek phrase and quotation tables and the Greek literary reuse table
+     are separate builds. Rebuild them only if the earlier entries do so for
+     a Greek import of this size (the reuse table build for Greek has not
+     finished within 12 GB before).
+  9. Check: `scripts/corpus/verify_text_coverage.py --root <production>
+     --language grc xenophon.hellenica cassius_dio.roman_history`, the
+     reference search, and a Greek line search that returns the new works
+     (for example the lemmas of "Pompeius" and "Mithridates" together).
+- Backups to keep: each file replaced in steps 4 to 7, tagged
+  `bak-historians-20261009`.
+
 ## 2026-10-09 Documentary reuse tables installed on production, then replaced by filtered builds (about 01:27 and 16:45 EDT)
 - What: `cache/reuse_pairs/la_documents.db` (Latin literature against the
   inscriptions and papyri) installed about 01:27 from a build on production's
