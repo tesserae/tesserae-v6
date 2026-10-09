@@ -16,7 +16,7 @@ behind each, are in docs/DECISIONS.md.
   scripture commentaries counting for every language that holds a Bible
   version. On current data: Latin, Greek, Hebrew, English and Coptic.
 
-### Inscriptions & Papyri: a page of its own, papyri grouped by nome, impossible dates excluded from the century facet
+### Inscriptions & Papyri: a page of its own, papyri grouped by nome, impossible dates excluded from the century facet (#724)
 - New route `/inscriptions-papyri`, shown in the main navigation beside
   Theme Search only when the documents trial is active (server
   `TESSERAE_DOCUMENTS=1` and the client's `documents_trial` session flag,
