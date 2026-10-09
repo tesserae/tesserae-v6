@@ -9,6 +9,9 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-09
 
+### Scholarship Theme Search prototype (measurement only, nothing deployed)
+- `scripts/scholarship/build_scholarship_theme_index.py` cuts the public-domain commentary notes and the EJC citation-index sentences into passage-sized windows, embeds them with the live encoder, and writes a passage-index-shaped collection (ids.json, embeddings.npy, descriptions.jsonl, window_texts.db) to a scratch directory. `scripts/scholarship/eval_scholarship_theme.py` compares it with FTS5 keyword search on 15 scholar queries. Production data is only read.
+
 ### Scholarship tab: Semantic Scholar snippets read in their real shape, one source's failure no longer takes the tab down
 - The snippet endpoint returns authors as name strings and carries no
   year, venue or identifiers, with the DOI only inside the open-access
