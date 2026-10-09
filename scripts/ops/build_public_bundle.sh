@@ -112,6 +112,8 @@ DEST=$OUT/tesserae-public-$MODE-$STAMP.tar.zst
 echo "== writing $DEST"
 heavy 4 public-bundle-tar nice -n 19 ionice -c3 "$SELF" --_tar "$WORK" "$PROD" "$DEST" || { echo "archive step failed" >&2; exit 1; }
 
+"$PY" -I "$HERE/public_bundle_lib.py" recheck --prod "$PROD" --work "$WORK" || { echo "production changed during the build, archive discarded" >&2; rm -f "$DEST"; exit 1; }
+cp "$WORK/COMMIT.txt" "$OUT/COMMIT-$MODE-$STAMP.txt"
 cp "$WORK/stage/MANIFEST.tsv" "$OUT/MANIFEST-$MODE-$STAMP.tsv"
 cp "$WORK/stage/LICENSES.md" "$OUT/LICENSES-$MODE-$STAMP.md"
 ( cd "$OUT" && sha256sum "$(basename "$DEST")" > "$(basename "$DEST").sha256" )

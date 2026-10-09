@@ -259,6 +259,16 @@ def filtered_text_descriptions(prod, excl, restricted_ids):
     return out
 
 
+def prod_commit(prod):
+    """The git commit the production checkout is on, or 'unknown'."""
+    import subprocess
+    try:
+        out = subprocess.run(['git', '-C', prod, 'rev-parse', 'HEAD'], capture_output=True, text=True, timeout=30)
+        return out.stdout.strip() or 'unknown'
+    except (OSError, subprocess.SubprocessError):
+        return 'unknown'
+
+
 def sha256_file(path, block=1 << 22):
     h = hashlib.sha256()
     with open(path, 'rb') as f:
@@ -459,8 +469,12 @@ def cmd_plan(args):
               'excluded': notes}
     with open(os.path.join(stage, 'LICENSES.md'), 'w', encoding='utf-8') as f:
         f.write(licences_md(items, excl, prod, counts))
+    commit = prod_commit(prod)
+    with open(os.path.join(work, 'COMMIT.txt'), 'w', encoding='utf-8') as f:
+        f.write(commit + '\n')
     with open(os.path.join(stage, 'README_BUNDLE.txt'), 'w', encoding='utf-8') as f:
-        f.write(f'Tesserae public data bundle ({args.mode}).\n'
+        f.write(f'Tesserae public data bundle ({args.mode}), built from production code commit {commit}.\n'
+                f'Check out that commit of the repository before unpacking: git checkout {commit}\n'
                 'Unpack at the root of a Tesserae checkout: tar --zstd -xf <bundle> -C <checkout>.\n'
                 'Steps: docs/RUN_YOUR_OWN.md in the repository. Licences: LICENSES.md. '
                 'File list with hashes: MANIFEST.tsv.\n')
@@ -484,6 +498,10 @@ def cmd_plan(args):
              ('README_BUNDLE.txt', os.path.join(stage, 'README_BUNDLE.txt'), 'This bundle')]
     n, total = write_manifest(rows, os.path.join(stage, 'MANIFEST.tsv'))
 
+    with open(os.path.join(work, 'snapshot.tsv'), 'w', encoding='utf-8') as f:
+        for it in prod_items:
+            st = os.stat(it.abs)
+            f.write(f'{it.rel}\t{st.st_size}\t{st.st_mtime_ns}\n')
     with open(os.path.join(work, 'files.prod.null'), 'wb') as f:
         for it in prod_items:
             f.write(it.rel.encode('utf-8') + b'\0')
@@ -500,15 +518,38 @@ def cmd_plan(args):
     return 0
 
 
+def cmd_recheck(args):
+    """Fail if any production file changed size or modification time after the plan was made."""
+    changed = []
+    with open(os.path.join(args.work, 'snapshot.tsv'), encoding='utf-8') as f:
+        for line in f:
+            rel, size, mtime = line.rstrip('\n').split('\t')
+            try:
+                st = os.stat(os.path.join(args.prod, rel))
+            except OSError:
+                changed.append(rel)
+                continue
+            if st.st_size != int(size) or st.st_mtime_ns != int(mtime):
+                changed.append(rel)
+    if changed:
+        print(f'{len(changed)} production file(s) changed while the bundle was being built, so the archive and '
+              f'its manifest disagree. Run the build again. First few: {changed[:5]}', file=sys.stderr)
+        return 5
+    print('no production file changed during the build')
+    return 0
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split('\n\n')[0])
     sub = ap.add_subparsers(dest='cmd', required=True)
-    for name, fn in (('plan', cmd_plan), ('measure', cmd_measure)):
+    for name, fn in (('plan', cmd_plan), ('measure', cmd_measure), ('recheck', cmd_recheck)):
         p = sub.add_parser(name)
-        p.add_argument('--mode', choices=('core', 'full'), required=True)
+        if name != 'recheck':
+            p.add_argument('--mode', choices=('core', 'full'), required=True)
         p.add_argument('--prod', default=DEFAULT_PROD)
-        if name == 'plan':
+        if name in ('plan', 'recheck'):
             p.add_argument('--work', required=True)
+        if name == 'plan':
             p.add_argument('--extra', action='append', help='REL[=group] of a file already in WORK/stage')
         p.set_defaults(fn=fn)
     args = ap.parse_args(argv)

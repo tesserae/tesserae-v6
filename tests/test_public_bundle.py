@@ -269,3 +269,16 @@ def test_connections_map_filter_recomputes_pair_tables(tmp_path):
     assert d.execute('SELECT count FROM genre_pairs').fetchall() == [(4,)]
     assert d.execute('SELECT SUM(count) FROM author_pairs').fetchone()[0] == 4
     assert json.loads(d.execute("SELECT value FROM meta WHERE key='index_fingerprint'").fetchone()[0]) == '1.2'
+
+
+def test_recheck_catches_a_production_file_that_changed_during_the_build(tmp_path):
+    prod, work = tmp_path / 'prod', tmp_path / 'work'
+    prod.mkdir(); work.mkdir()
+    f = prod / 'a.txt'
+    f.write_text('one')
+    st = f.stat()
+    (work / 'snapshot.tsv').write_text(f'a.txt\t{st.st_size}\t{st.st_mtime_ns}\n')
+    args = type('A', (), {'prod': str(prod), 'work': str(work)})
+    assert lib.cmd_recheck(args) == 0
+    f.write_text('two, longer')
+    assert lib.cmd_recheck(args) == 5

@@ -34,7 +34,10 @@ The core bundle holds the texts, the lemma caches, the search indexes, the word-
    ```
    git clone https://github.com/tesserae/tesserae-v6.git
    cd tesserae-v6
+   git checkout <COMMIT>
    ```
+
+   The Downloads page names the commit next to the bundle. The data was built for that version of the code, and a newer checkout may hold texts the bundle does not match.
 
 4. Make a Python environment and install the web application's packages. The list leaves out the two machine-learning packages (sentence-transformers and stanza) because the web application does not use them. Only the encoder service in Part 2 does.
 
@@ -45,7 +48,7 @@ The core bundle holds the texts, the lemma caches, the search indexes, the word-
    venv/bin/pip install -r /tmp/requirements-web.txt
    ```
 
-5. Download the core bundle and its checksum file from the address given on the Tesserae Downloads page. Replace the placeholder below with that address.
+5. Download the core bundle and its checksum file from the address given on the Tesserae Downloads page. Replace the placeholders with the address and the date in the file name.
 
    ```
    curl -L -O "<BUNDLE_ADDRESS>/tesserae-public-core-<DATE>.tar.zst"
