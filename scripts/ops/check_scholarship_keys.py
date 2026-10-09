@@ -60,8 +60,10 @@ def main(argv):
     get = lambda k: os.environ.get(k) or env.get(k, '')
     ok = True
     core, s2 = get('CORE_API_KEY'), get('S2_API_KEY')
+    # CORE's parser returns 500 for a bare quoted phrase (backend/scholarship.py,
+    # 2026-09-13), so the probe is a plain boolean query.
     if core:
-        ok &= check('core', 'https://api.core.ac.uk/v3/search/works/', {'q': '"Aeneid"', 'limit': 1},
+        ok &= check('core', 'https://api.core.ac.uk/v3/search/works/', {'q': 'Aeneid AND Vergil', 'limit': 1},
                     {'Authorization': f'Bearer {core}'})
     else:
         print('core: no key set')
