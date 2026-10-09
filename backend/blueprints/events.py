@@ -134,16 +134,15 @@ def list_events():
             where.append('date_start <= ? AND COALESCE(date_end, date_start) >= ?')
             args += [hi, lo]
         clause = ('WHERE ' + ' AND '.join(where)) if where else ''
-        total = c.execute(f'SELECT COUNT(*) FROM events {clause}', args).fetchone()[0]
-        rows = c.execute(
-            f'''SELECT e.*,
+        total = c.execute(f'SELECT COUNT(*) FROM events {clause}', args).fetchone()[0]  # nosec B608 -- clause is fixed fragments with ? placeholders; values are bound in args
+        counts = '''SELECT e.*,
                    (SELECT COUNT(*) FROM passages p WHERE p.event_id = e.id
                         AND COALESCE(p.llm_label, '') IN ('yes', 'mention')) AS n_passages,
                    (SELECT COUNT(*) FROM documents d WHERE d.event_id = e.id) AS n_documents,
                    (SELECT COUNT(*) FROM scholarship s WHERE s.event_id = e.id) AS n_scholarship
-                FROM (SELECT * FROM events {clause}) e
-                ORDER BY e.date_start, e.label LIMIT ? OFFSET ?''',
-            args + [per_page, (page - 1) * per_page]).fetchall()
+                FROM (SELECT * FROM events '''
+        sql = counts + clause + ') e ORDER BY e.date_start, e.label LIMIT ? OFFSET ?'  # nosec B608 -- clause is fixed fragments with ? placeholders; values are bound
+        rows = c.execute(sql, args + [per_page, (page - 1) * per_page]).fetchall()
         events = []
         for r in rows:
             d = _event_row(r)
