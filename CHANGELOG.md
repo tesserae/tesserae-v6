@@ -16,6 +16,39 @@ behind each, are in docs/DECISIONS.md.
   scripture commentaries counting for every language that holds a Bible
   version. On current data: Latin, Greek, Hebrew, English and Coptic.
 
+### Inscriptions & Papyri: a page of its own, papyri grouped by nome, impossible dates excluded from the century facet (#724)
+- New route `/inscriptions-papyri`, shown in the main navigation beside
+  Theme Search only when the documents trial is active (server
+  `TESSERAE_DOCUMENTS=1` and the client's `documents_trial` session flag,
+  set by `?documents=1`). The page redirects to the main search when the
+  flag is not set. It combines the documents-collection search (filters,
+  restoration/formula options, ranking, totals, paging, the century/region
+  chart) with the browse-by-facet view on one page. The search logic moved
+  out of `LineSearch.jsx` into shared code under
+  `client/src/components/documents/` so Lines search's own "Documents"/
+  "Both" option (kept as a secondary route) and the new page share one
+  implementation. Help & Support gained a short section on the page and
+  its sources.
+- Browse Corpus's Documents section now groups papyri by nome (the
+  Egyptian administrative district, e.g. "Arsinoites"), with the town or
+  village a document names (the findspot, e.g. "Karanis") nested under it.
+  The old flat region level put a document naming only a town and one
+  naming only its nome in two unrelated top-level buckets (checked
+  2026-10-09: Oxyrhynchos the town and Oxyrhynchites the nome, 4,440 and
+  1,637 documents, now one "Oxyrhynchites" group of 6,081). The nome comes
+  from HGV's own structured field where the raw papyri.info corpus records
+  it (`data/documents/papyri_nome_map.json`), with a fallback to the
+  document's own text when that names the nome directly. See
+  `docs/DECISIONS.md` for the full before/after top-20 counts.
+- The century facet's earliest buckets ("31st century BC", "16th century
+  BC", "13th century BC") are gone. All 8 documents behind them were
+  source-data errors, not genuine early material: one EDR epitaph and 7
+  `O.Trim.` ostraca from an otherwise correctly Roman/Late-Antique-dated
+  series. A `date_not_before` earlier than 1000 BC now files under a new
+  "Date uncertain" bucket. Genuinely early 7th/8th-century-BC inscriptions
+  keep their own bucket. See
+  `docs/DECISIONS.md`.
+
 ## 2026-10-08
 
 ### Reader About panel in two columns, Scholarship tab on one line, documents deep link fixed

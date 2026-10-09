@@ -2391,7 +2391,8 @@ def get_document(doc_id):
 @api_route('/documents/browse', methods=['GET'])
 def browse_documents():
     """The Documents section of Browse Corpus: a normalized facet tree
-    (kind -> region -> century, each with counts) plus the flat filters
+    (kind -> region -> century, each with counts; for papyri, region ->
+    findspot -> century -- see `findspot_counts`) plus the flat filters
     (text type, material, object type, language) and one page of matching
     documents. Behind TESSERAE_DOCUMENTS=1 (404 otherwise, same as the rest
     of this feature); see backend/documents_browse.py for the normalization
@@ -2416,7 +2417,7 @@ def browse_documents():
         page_size = browse_mod.DEFAULT_PAGE_SIZE
 
     result = browse_mod.browse(
-        kind=_arg('kind'), region=_arg('region'), century=_arg('century'),
+        kind=_arg('kind'), region=_arg('region'), findspot=_arg('findspot'), century=_arg('century'),
         text_type=_arg('text_type'), material=_arg('material'),
         object_type=_arg('object'), language=_arg('language'),
         page=page, page_size=page_size)

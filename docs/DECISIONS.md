@@ -8,6 +8,89 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-09: Inscriptions & Papyri as its own main-menu page
+- Scope: a new route, `/inscriptions-papyri`, with its own component under
+  `client/src/components/documents/`. It combines the documents-collection
+  search (filters, restoration/formula options, ranking, totals, paging,
+  the century/region chart) with the browse-by-facet view (kind, then
+  region, then century, with a findspot level added for papyri, see the
+  entry below) on one page. Before this, the documents collection was
+  reachable only as a secondary option inside Lines search and a section
+  of Browse Corpus. The search logic is factored out of `LineSearch.jsx`
+  into shared code under `client/src/components/documents/`, so the new
+  page and Lines search's own "Documents"/"Both" option (kept as a
+  secondary route, not removed) share one implementation.
+- Placement: shown in the main navigation beside Theme Search, only when
+  the documents trial is active (server `TESSERAE_DOCUMENTS=1` and the
+  client's `documents_trial` session flag, set by `?documents=1`, the
+  same gate the Lines-search documents option and Browse Corpus's
+  Documents section already use). The page itself redirects to the main
+  search when the flag is not set, so the route is never a back door to a
+  trial feature for a visitor who never opted in. It is reviewed, like
+  the rest of the documents trial, before being offered to every visitor.
+- The documents collection (inscriptions and papyri) is a different kind
+  of material from the literary corpus Lines search is built around: no
+  author/work/line-range browsing, credit/license per result, restoration
+  markup, its own facet tree. Inside Lines search it
+  read as a secondary, easy-to-miss option on a page named for something
+  else. A named page in the main menu makes it a first-class part of the
+  site for a reader who came specifically for the epigraphic or
+  papyrological material, with the existing Lines-search route left in
+  place, not duplicated or removed.
+
+## 2026-10-09: papyri grouped by nome, with the findspot nested under it
+- Scope: `backend/documents_browse.py`'s Browse Corpus facet tree grouped
+  papyri by a single flat `region` field derived from HGV's free-text
+  findspot column. A document naming only a town (e.g. "Oxyrhynchos") and
+  one naming only its administrative nome (e.g. "Oxyrhynchites") landed in
+  two unrelated top-level buckets, checked against metadata.db 2026-10-09:
+  4,440 and 1,637 documents, split, with no link between them, the same
+  pattern for Thebes/Peri Thebas, Hermopolis/Hermopolites, Elephantine/
+  Katarraktes Mikros. HGV records the nome as its own structured field in
+  the source XML (`<placeName subtype="nome">`, separate from the town's
+  own `placeName`), but the metadata extraction
+  (`scripts/documents/epidoc_convert.py`) never read it.
+- Fix: parsed the raw HGV_meta_EpiDoc XML corpus directly (68,022 files,
+  dev workspace, not production) for every (town, nome) pair HGV's own
+  structured field records anywhere in the corpus. 573 towns had at least
+  one such pair, resolved by majority vote where a town's nome varies
+  across documents (39 towns, almost always one dominant nome). Written to
+  `data/documents/papyri_nome_map.json`, a small, whitelisted reference
+  file alongside `eagle_labels.csv` and `german_label_translations.json`,
+  not the full HGV corpus. `normalize_papyri_region` now returns
+  `(nome, findspot)`. The nome comes from a document's own parenthetical
+  when it has one, else from the map for the town it names, else
+  "Unknown nome" when neither resolves (a town outside the nome system
+  entirely, or no place recorded at all). The facet tree gained a
+  `findspot` level between region (nome) and century. The browse UI labels
+  the first level "Nome" for papyri, with a new "Findspot" facet under it.
+  Full before/after top-20 counts are in this PR's description and
+  `CHANGELOG.md`.
+
+## 2026-10-09: century facet's earliest buckets, source errors excluded
+- Scope: checked every document behind the century facet's earliest
+  buckets ("31st century BC", "16th century BC", "13th century BC")
+  against the real stored date fields. All 8 are source-data errors, not
+  early material. One is an EDR epitaph (CIL 09, 03008, an ordinary
+  1st-century cinerary urn with `date_not_before` stuck at -3030). The
+  other 7 are `O.Trim. 3` ostraca from a documented 3rd/4th-century-AD
+  excavation series where 1,043 of the other 1,050 entries carry sane
+  Roman/Late Antique dates and these 7 alone carry a Bronze Age
+  `date_not_before`. Checked and left alone: the genuinely early
+  7th/8th-century-BC EDH/EDR entries, archaic Italic and Sicilian-Greek
+  epigraphy (Gabii, Praeneste, Veii, Selinus, Satricum), which are real,
+  narrowly-dated finds, not errors.
+- Fix: `century_bucket` (`backend/documents_browse.py`) now gives a
+  document with a `date_not_before` earlier than 1000 BC
+  (`_IMPOSSIBLE_DATE_FLOOR`) its own "Date uncertain" bucket, outside the
+  century facet. No
+  Latin or Greek alphabetic inscription, and no Greek/Demotic/Coptic
+  documentary papyrus in this corpus, is genuine before that floor, and
+  it sits safely below the real 7th/8th-century-BC material, which keeps
+  its own bucket. The document's own displayed date (`date_label`) is
+  unchanged. Only the century facet bucket moves, so a document's page
+  still shows what the source actually recorded.
+
 ## 2026-10-08: documentary reuse table, formula exclusion threshold and tiers
 - Scope: a cross-collection table per language (`cache/reuse_pairs/<lang>_documents.db`,
   `scripts/reuse/build_documents_reuse_table.py`) pairing each literary

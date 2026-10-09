@@ -391,6 +391,7 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
     { id: 'theme-search', label: 'Theme Search', group: 'Reading & content' },
     { id: 'reader', label: 'The Reader', group: 'Reading & content' },
     { id: 'tessa', label: 'Tessa, the assistant', group: 'Reading & content' },
+    { id: 'documents', label: 'Inscriptions & Papyri', group: 'Reading & content' },
 
     { id: 'languages', label: 'Languages overview', group: 'Languages' },
     { id: 'coptic', label: 'Coptic', group: 'Languages' },
@@ -1860,6 +1861,51 @@ export default function HelpPage({ initialSection = null, initialAnchor = null, 
                 itself. The instructions are on the{' '}
                 <button onClick={() => setActiveSection('ai-guide')} className="text-red-600 hover:underline">Use with your AI</button>{' '}
                 page, and Tessa can walk you through the setup.
+              </p>
+            </div>
+          )}
+
+          {activeSection === 'documents' && (
+            <div className="prose max-w-none">
+              <h3 className="text-2xl font-bold text-gray-900 pb-2 border-b border-gray-200 mb-4">Inscriptions &amp; Papyri</h3>
+              <p className="text-gray-700 mb-4">
+                A trial, not yet offered to every visitor. It is a page for the documentary
+                corpus, Latin and Greek inscriptions and papyri, searched the same way as the
+                literary texts but shown with the markup and credit a documentary source needs. It opens
+                already set to search the documents collection, with an option to search
+                literature and documents together so a borrowing between the two shows up in one
+                pass (an epitaph&rsquo;s &ldquo;sit tibi terra levis&rdquo; and its own literary
+                echoes, for example).
+              </p>
+
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Filters and results</h4>
+              <p className="text-gray-700 mb-3">
+                A date range, region, text type, material and source narrow a search, and two
+                checkboxes leave out a match resting only on an editorially restored word, or
+                hide stock formulas (phrases such as &ldquo;dis manibus&rdquo; that recur in
+                thousands of documents and would otherwise crowd out a genuine echo). Results
+                carry their own date, place and credit line, with charts of how many came back
+                by century and by region. Restored text (filled in by an editor where the stone
+                or papyrus is damaged) is marked with a light dotted underline. A surviving
+                fragment of a damaged word is set in gray italic.
+              </p>
+
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Browsing without a search term</h4>
+              <p className="text-gray-700 mb-3">
+                Below the search sits a facet tree for exploring the collection without already
+                knowing a word to look for, by kind (inscriptions or papyri and ostraca), then
+                region (for papyri, the Egyptian nome, with the findspot, the town or village,
+                e.g. &ldquo;Karanis&rdquo;, nested under it), then century, with text type,
+                material, object and language as flat filters at any level.
+              </p>
+
+              <h4 className="text-lg font-semibold text-gray-900 mt-6 mb-2">Sources</h4>
+              <p className="text-gray-700 mb-3">
+                Inscriptions come from the Epigraphic Database Heidelberg (EDH), the Epigraphic
+                Database Roma (EDR), and I.Sicily. Papyri and ostraca come from the Heidelberg
+                Gesamtverzeichnis der griechischen Papyrusurkunden Ägyptens (HGV), via
+                papyri.info. Each result credits its own source and license. Where EDH and EDR
+                both cover the same inscription, both are shown.
               </p>
             </div>
           )}

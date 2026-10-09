@@ -142,6 +142,50 @@ describe('DocumentView', () => {
     expect(params.get('documents')).toBe('1');
   });
 
+  // Opened from the Inscriptions & Papyri page's own documentViewUrl
+  // (from=inscriptions-papyri): the back link returns there instead of
+  // to Line Search, with every query param that page sent carried along
+  // verbatim (minus doc/from, the two fields specific to opening this
+  // view) rather than a hand-picked subset.
+  describe('opened with from=inscriptions-papyri', () => {
+    it('the back link points at /inscriptions-papyri, not /line-search', async () => {
+      setUrl('?doc=edh:HD047322&lang=la&q=dis+manibus&type=lemma&from=inscriptions-papyri&documents=1');
+      mockFetchOk(documentPayload);
+      render(<DocumentView />);
+      await waitFor(() => expect(screen.getByText('AE 2001, 2169.')).toBeTruthy());
+      const back = screen.getByRole('link', { name: /back to search results/ });
+      expect(back.getAttribute('href').split('?')[0]).toBe('/inscriptions-papyri');
+    });
+
+    it('carries every filter param from the opening URL, minus doc and from', async () => {
+      setUrl('?doc=edh:HD047322&lang=la&q=dis+manibus&type=lemma&collection=both&sort=oldest'
+        + '&region=Roma&date_from=100&date_to=300&from=inscriptions-papyri&documents=1');
+      mockFetchOk(documentPayload);
+      render(<DocumentView />);
+      await waitFor(() => expect(screen.getByText('AE 2001, 2169.')).toBeTruthy());
+      const back = screen.getByRole('link', { name: /back to search results/ });
+      const params = new URLSearchParams(back.getAttribute('href').split('?')[1]);
+      expect(params.get('q')).toBe('dis manibus');
+      expect(params.get('collection')).toBe('both');
+      expect(params.get('sort')).toBe('oldest');
+      expect(params.get('region')).toBe('Roma');
+      expect(params.get('date_from')).toBe('100');
+      expect(params.get('date_to')).toBe('300');
+      expect(params.get('documents')).toBe('1');
+      expect(params.has('doc')).toBe(false);
+      expect(params.has('from')).toBe(false);
+    });
+
+    it('without from, still returns to /line-search (every link predating this field)', async () => {
+      setUrl('?doc=edh:HD047322&lang=la&q=dis+manibus&type=lemma');
+      mockFetchOk(documentPayload);
+      render(<DocumentView />);
+      await waitFor(() => expect(screen.getByText('AE 2001, 2169.')).toBeTruthy());
+      const back = screen.getByRole('link', { name: /back to search results/ });
+      expect(back.getAttribute('href').split('?')[0]).toBe('/line-search');
+    });
+  });
+
   it('shows a not-found message on a 404 without throwing', async () => {
     setUrl('?doc=edh:NOPE&lang=la&q=x&type=lemma');
     global.fetch = vi.fn(async () => ({ ok: false, status: 404, json: async () => ({ error: 'not found' }) }));
