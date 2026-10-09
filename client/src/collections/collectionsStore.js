@@ -75,6 +75,17 @@ function compute() {
 }
 
 /** Snapshot with a stable identity while nothing changed (for useSyncExternalStore). */
+// True once a visitor has chosen collections (saved or for this visit) or
+// arrived through a trial link. Until then the public site shows no
+// Collections control, so nothing changes for today's visitors (2026-10-09).
+export function hasExplicitChoice() {
+  const ls = safe(() => window.localStorage);
+  const ss = safe(() => window.sessionStorage);
+  if (ls && ls.getItem(STORAGE_KEY)) return true;
+  if (ss && (ss.getItem(OVERRIDE_KEY) || ss.getItem('tesserae_documents_trial') || ss.getItem('tesserae_scholarship_tab'))) return true;
+  return false;
+}
+
 export function getSnapshot() {
   const next = compute();
   const key = JSON.stringify(next);
