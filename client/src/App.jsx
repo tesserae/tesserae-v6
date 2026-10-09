@@ -120,6 +120,19 @@ function App() {
     window.addEventListener('tesserae:open-suggest', open);
     return () => window.removeEventListener('tesserae:open-suggest', open);
   }, []);
+  // Trial switches (?documents=1, ?scholarship=1) are remembered for the
+  // rest of the visit in sessionStorage, but LineSearch and ResultsPanel
+  // only wrote that key when THEY mounted with the query string still on
+  // the address -- so a link that set the flag on some other page (/read,
+  // the homepage) lost it the moment the visitor navigated to Line Search
+  // or the Reader without carrying the param along. Captured here once, at
+  // the app's own first load, the flag holds for the visit regardless of
+  // which page set it or which page is opened next.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('documents') === '1') setSessionValue('documents_trial', '1');
+    if (params.get('scholarship') === '1') setSessionValue('scholarship_tab', '1');
+  }, []);
   const [adminSessionActive, setAdminSessionActive] = useState(false);
   const [adminSessionChecked, setAdminSessionChecked] = useState(false);
   const [pageType, setPageType] = useState(() => {

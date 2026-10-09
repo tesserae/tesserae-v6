@@ -222,3 +222,97 @@ describe('a restricted text (data/restricted_texts.json)', () => {
     expect(screen.queryByText(/^Source: /)).not.toBeInTheDocument();
   });
 });
+
+describe('the About panel facts column', () => {
+  function mockFetch({ facts, translation } = {}) {
+    global.fetch = vi.fn((url) => {
+      const u = String(url);
+      if (u.includes('/api/text-descriptions')) {
+        return Promise.resolve({ json: () => Promise.resolve({
+          description: 'An orientation blurb.',
+          ...(facts ? { facts } : {}),
+        }) });
+      }
+      if (u.includes('/api/passages/translation-full')) {
+        return Promise.resolve({ json: () => Promise.resolve(
+          translation || { available: false, reason: 'none' }) });
+      }
+      return Promise.resolve({ json: () => Promise.resolve({ languages: [{ code: 'la' }] }) });
+    });
+  }
+
+  // Author/work names here are deliberately NOT "Ovid"/"Vergil"/"Tristia"/
+  // "Aeneid": those already sit in HIERARCHY's hidden native <select>
+  // options (rendered for phones regardless of viewport in a test
+  // environment), so asserting on them would match two elements.
+  it('lists the facts the server sent, and links to the filtered credits page', async () => {
+    mockFetch({
+      facts: {
+        author: 'Seneca', work: 'Thyestes', part: 'Act 3', year: -19, era: 'Augustan',
+        date_note: null, kind: 'poetry',
+        edition: { print_source: 'Teubner, 1900', e_source: 'Perseus',
+                   e_source_url: 'https://perseus.example/thyestes' },
+      },
+    });
+    mount({ units: [{ ref: 'a' }, { ref: 'b' }, { ref: 'c' }] });
+    fireEvent.click(await screen.findByLabelText('About this text'));
+
+    expect(await screen.findByText('Seneca')).toBeInTheDocument();
+    expect(screen.getByText('Thyestes, Act 3')).toBeInTheDocument();
+    expect(screen.getByText('19 BCE')).toBeInTheDocument();
+    expect(screen.getByText('Augustan')).toBeInTheDocument();
+    expect(screen.getByText('Poetry')).toBeInTheDocument();
+    // "3 lines" also appears in the header's own position indicator (top
+    // right), unrelated to the facts row -- two matches is correct here.
+    expect(screen.getAllByText('3 lines')).toHaveLength(2);
+    expect(screen.getByText('Teubner, 1900')).toBeInTheDocument();
+    const source = screen.getByRole('link', { name: 'Perseus' });
+    expect(source).toHaveAttribute('href', 'https://perseus.example/thyestes');
+
+    const credits = screen.getByRole('link', { name: 'Full credits' });
+    expect(credits).toHaveAttribute('href', '/text-credits?author=Seneca');
+  });
+
+  it('omits a row with no data rather than showing it blank', async () => {
+    mockFetch({ facts: { author: 'Anonymous', work: null, year: null, era: null, kind: null } });
+    mount({ units: [] });
+    fireEvent.click(await screen.findByLabelText('About this text'));
+
+    expect(await screen.findByText('Anonymous')).toBeInTheDocument();
+    expect(screen.queryByText('Work')).not.toBeInTheDocument();
+    expect(screen.queryByText('Date')).not.toBeInTheDocument();
+    expect(screen.queryByText('Era')).not.toBeInTheDocument();
+    expect(screen.queryByText('Kind')).not.toBeInTheDocument();
+    expect(screen.queryByText('Lines')).not.toBeInTheDocument();
+  });
+
+  it('drops the whole facts column, including the credits link, when there are no facts at all', async () => {
+    mockFetch({});
+    mount({ units: [] });
+    fireEvent.click(await screen.findByLabelText('About this text'));
+
+    await screen.findByText('An orientation blurb.');
+    expect(screen.queryByText('Full credits')).not.toBeInTheDocument();
+  });
+
+  it('shows the attached translation\'s attribution once the panel is open', async () => {
+    mockFetch({
+      facts: { author: 'Seneca', work: 'Thyestes' },
+      translation: { available: true, attribution: 'A. S. Kline (2003)' },
+    });
+    mount();
+    fireEvent.click(await screen.findByLabelText('About this text'));
+
+    expect(await screen.findByText('A. S. Kline (2003)')).toBeInTheDocument();
+  });
+
+  it('omits the Translation row when no aligned translation exists', async () => {
+    mockFetch({ facts: { author: 'Seneca', work: 'Thyestes' },
+                translation: { available: false, reason: 'none' } });
+    mount();
+    fireEvent.click(await screen.findByLabelText('About this text'));
+
+    await screen.findByText('Seneca');
+    expect(screen.queryByText('Translation')).not.toBeInTheDocument();
+  });
+});

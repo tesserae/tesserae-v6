@@ -31,8 +31,17 @@ function displayLocus(locus, textId) {
     : (locus || '');
 }
 
+// ?documents=1 sets the documents trial switch, but the page used to open
+// on "Find Text to Search" regardless, where the Literature/Documents/Both
+// control is not shown -- it is under "Input Search Text". The query string
+// is the one signal both this and the trial-switch check below need, read
+// the same way in both places.
+function documentsFromUrl() {
+  return new URLSearchParams(window.location.search).get('documents') === '1';
+}
+
 export default function LineSearch({ language }) {
-  const [mode, setMode] = useState('browse');
+  const [mode, setMode] = useState(() => (documentsFromUrl() ? 'search' : 'browse'));
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
   // Documents-collection hits are shaped completely differently (credit/
@@ -62,7 +71,7 @@ export default function LineSearch({ language }) {
   // visit, as the Scholarship tab does, and the control appears only once
   // /api/languages also confirms the server has it on.
   const [documentsTrial] = useState(() => {
-    const fromUrl = new URLSearchParams(window.location.search).get('documents') === '1';
+    const fromUrl = documentsFromUrl();
     if (fromUrl) setSessionValue('documents_trial', '1');
     return fromUrl || getSessionValue('documents_trial', '0') === '1';
   });

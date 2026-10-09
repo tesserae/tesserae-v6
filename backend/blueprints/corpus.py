@@ -230,14 +230,76 @@ def get_provenance():
     })
 
 
+def _work_facts(language, work, restricted):
+    """Author/date/era/kind facts, and the edition's print and digital
+    source, for the Reader's About panel -- one additive field on this
+    lookup rather than a second route, since the client already calls this
+    one for the orientation blurb. Matches against text_sources.json the
+    same way the Sources page itself keys an entry (lowercased author +
+    work display strings; there is no id the two files share). Returns
+    None when the file cannot be read, so the caller can leave the key off
+    rather than send a mostly-empty object.
+    """
+    if not _texts_dir:
+        return None
+    filename = work if str(work).endswith('.tess') else f'{work}.tess'
+    filepath = os.path.join(_texts_dir, language, filename)
+    if not os.path.exists(filepath):
+        return None
+    metadata = get_text_metadata(filepath)
+    author_dates = get_author_dates().get(language, {})
+
+    author_key = metadata.get('author_key', '')
+    normalized_author_key = normalize_author_date_key(author_key)
+    work_key = base_work(metadata.get('work_key') or '')
+    info = (
+        (author_dates.get(f'{author_key}.{work_key}') if work_key else None)
+        or author_dates.get(author_key)
+        or author_dates.get(author_key.lower())
+        or author_dates.get(normalized_author_key)
+        or {}
+    )
+    enrich_metadata_with_author_dates(metadata, author_dates)
+
+    facts = {
+        'author': metadata.get('author'),
+        'work': metadata.get('work'),
+        'part': metadata.get('part'),
+        'year': metadata.get('year'),
+        'era': metadata.get('era'),
+        'date_note': info.get('note'),
+        'kind': metadata.get('text_type'),
+    }
+
+    # A restricted work's print/e-text sourcing is not public information
+    # (see _restricted_credit_entries above); its credit line already came
+    # back as the top-level `credit` field, so no edition lookup here.
+    if not restricted:
+        author = (metadata.get('author') or '').strip().lower()
+        title = (metadata.get('work') or metadata.get('title') or '').strip().lower()
+        if author and title:
+            for entry in get_text_sources():
+                if (entry.get('author') or '').strip().lower() == author \
+                        and (entry.get('work') or '').strip().lower() == title:
+                    facts['edition'] = {
+                        'print_source': entry.get('print_source'),
+                        'e_source': entry.get('e_source'),
+                        'e_source_url': entry.get('e_source_url'),
+                    }
+                    break
+    return facts
+
+
 @corpus_bp.route('/text-descriptions')
 def get_text_descriptions():
     """Orientation blurbs for a language's works, or one work's blurb -- also
     the Reader header's text-metadata lookup, so a restricted work's credit
-    line is exposed here too (?language=la&work=x -> restricted, credit).
+    line is exposed here too (?language=la&work=x -> restricted, credit),
+    and (for the About panel) the author/date/era/kind facts and edition --
+    see _work_facts above.
 
     ?language=la           -> {"descriptions": {work_id: blurb, ...}}
-    ?language=la&work=x    -> {"description": blurb or null}
+    ?language=la&work=x    -> {"description": blurb or null, "facts": {...}}
     The work key is the base id: no language directory, no .tess, no .part.
     """
     language = request.args.get('language', 'la')
@@ -248,10 +310,14 @@ def get_text_descriptions():
         # label after the number (pindar.odes.part.2.nemeans) uncollapsed, so
         # their work's description was never found.
         base = base_work(work)
+        restricted = restricted_texts.is_restricted(base)
         result = {'description': by_lang.get(base)}
-        if restricted_texts.is_restricted(base):
+        if restricted:
             result['restricted'] = True
             result['credit'] = restricted_texts.credit_for(base)
+        facts = _work_facts(language, work, restricted)
+        if facts:
+            result['facts'] = facts
         return jsonify(result)
     return jsonify({'descriptions': by_lang})
 

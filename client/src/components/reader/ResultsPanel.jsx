@@ -6,6 +6,7 @@ import { ResultsInsight } from '../assistant';
 import { displayRef } from './refId';
 import { LANGUAGE_NAMES as LANG_LABEL } from '../../utils/languageNames';
 import { getSessionValue, setSessionValue } from '../../utils/storage';
+import { scholarshipLanguages } from '../../utils/scholarshipLanguages';
 import ScholarshipTab from './ScholarshipTab';
 
 /** Parse a response as JSON, failing with a message a reader can act on.
@@ -107,6 +108,18 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
     if (fromUrl) setSessionValue('scholarship_tab', '1');
     return fromUrl || getSessionValue('scholarship_tab', '0') === '1';
   });
+  // Offer the tab only where the site holds scholarship for THIS language
+  // (/api/scholarship/sources' own languages field, not a guess): Persian
+  // and Urdu have none installed, so the trial switch alone must not show
+  // a tab with nothing behind it.
+  const [scholarshipLangs, setScholarshipLangs] = useState(null);
+  useEffect(() => {
+    if (!scholarshipFlag) return;
+    let dead = false;
+    scholarshipLanguages().then((langs) => { if (!dead) setScholarshipLangs(langs); });
+    return () => { dead = true; };
+  }, [scholarshipFlag]);
+  const scholarshipAvailable = scholarshipFlag && !!scholarshipLangs?.has(language);
   useEffect(() => {
     if (!selection || tab !== 'reuse') return;
     const picked = (units || []).slice(selection.startIdx, selection.endIdx + 1);
@@ -301,7 +314,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
     ['translation', focus === 'english' ? 'Original' : 'Translation',
      focus === 'english' ? 'The original text' : 'Translation'],
     ['reuse', 'Reuse', 'Reuse'],
-    ...(scholarshipFlag
+    ...(scholarshipAvailable
       ? [['scholarship', 'Scholarship', 'Commentators, articles and books on the selection']]
       : []),
   ];
@@ -320,11 +333,14 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                       lg:static lg:shadow-none lg:sticky lg:top-0 lg:self-start lg:h-screen lg:max-h-none
                       ${(selection || sheetOpen) ? 'max-h-[55vh]' : 'max-h-[2.75rem] overflow-hidden'}`}>
       {/* Room on the right for the Tessa button, which floats over the sheet
-          on a phone. The strip WRAPS to a second line rather than scrolling
-          when the tabs do not all fit one row: a scrollbar here was easy to
-          miss entirely, so a reader could open the Reader and never learn
-          the Reuse tab existed (2026-09-19). */}
-      <div className="flex items-center flex-wrap shrink-0 border-b border-gray-200 text-sm pr-20 lg:pr-0">
+          on a phone. With five tabs (Scholarship added), WRAPPING put the
+          fifth on a second line, where it no longer read as one of the tabs
+          (2026-10-08). Tighter padding keeps every tab in one row at the
+          panel's normal width; if a narrower width still will not fit them
+          all, the strip scrolls horizontally rather than wrapping -- a
+          scrollbar is at least visibly a strip that continues, where a
+          dropped second line looked like a different, smaller tab bar. */}
+      <div className="flex items-center flex-nowrap overflow-x-auto scrollbar-hide shrink-0 border-b border-gray-200 text-sm pr-20 lg:pr-0">
         {(selection || sheetOpen) && (
           <button
             onClick={() => { setSheetOpen(false); onClose?.(); }}
@@ -340,7 +356,7 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
             key={id}
             title={full || label}
             onClick={() => { setTab(id); setSheetOpen(true); }}
-            className={`px-2.5 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
+            className={`px-2 py-2 font-semibold border-b-2 transition-colors whitespace-nowrap ${
               tab === id
                 ? 'text-red-700 border-red-700'
                 : 'text-gray-500 border-transparent hover:text-gray-700'
@@ -833,10 +849,10 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
           </>
         )}
 
-        {scholarshipFlag && selection && tab === 'scholarship' && (
+        {scholarshipAvailable && selection && tab === 'scholarship' && (
           <ScholarshipTab work={work} language={language} selection={selection} units={units} />
         )}
-        {scholarshipFlag && !selection && tab === 'scholarship' && (
+        {scholarshipAvailable && !selection && tab === 'scholarship' && (
           <p className="text-sm text-gray-500">Select a line or a span to see the scholarship on it.</p>
         )}
       </div>

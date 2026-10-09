@@ -3,9 +3,21 @@ import useIncrementalPagination, { BATCH_PAGE_SIZE_OPTIONS } from '../../hooks/u
 import { useState, useEffect, useCallback } from 'react';
 import { languageName } from '../../utils/languageNames';
 
+// A deep link from the Reader's About panel ("Full credits"), filtered to
+// the work's author: /text-credits?author=Name. Read once at mount, same
+// as any other page's own query-string params; the filter box then behaves
+// exactly as if the visitor had typed it.
+function authorFromUrl() {
+  try {
+    return new URLSearchParams(window.location.search).get('author') || '';
+  } catch {
+    return '';
+  }
+}
+
 export default function TextCredits() {
-  const [filter, setFilter] = useState('');
-  const [query, setQuery] = useState('');
+  const [filter, setFilter] = useState(authorFromUrl);
+  const [query, setQuery] = useState(authorFromUrl);
   // Translators (2026-09-20): Kline was named only where his translation
   // appeared; the credits page named no translator at all. Every aligned
   // translation is now listed here as well, per language.
