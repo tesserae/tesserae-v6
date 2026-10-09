@@ -79,6 +79,41 @@ removal procedure: dry run by default, reporting what it would take out of
 the texts, the lemma cache, the inverted index and the passage index before
 anything is deleted, with a dated backup kept of each file it removes.
 
+## 2026-10-09 Documentary reuse tables installed on production, then replaced by filtered builds (about 01:27 and 16:45 EDT)
+- What: `cache/reuse_pairs/la_documents.db` (Latin literature against the
+  inscriptions and papyri) installed about 01:27 from a build on production's
+  own lemma caches and documents index: 6,769 pairs. Read by
+  `backend/reuse_documents.py` for the Reader's Reuse tab under the
+  documents trial (`?documents=1`).
+- A hand check of a random sample found most pairs to be coincidences
+  sharing only function words or numerals, kept by the rare-single-ngram
+  rule. The build script gained a quality filter (#725): a pair is kept
+  only if it shares at least two distinct content lemmas, in a contiguous
+  run of at least two, with function words and numerals (spelled out, Roman,
+  Greek alphabetic) not counting as content. Lists:
+  `data/documents/function_words_la.txt` and `function_words_grc.txt`, from
+  CLTK's stopword lists plus numeral blocks, sources in the file headers.
+- Rebuilt with the filter (each under `~/bin/tess-job` with a 12G cap, peak
+  under 3 GB, 11 to 16 minutes) and installed about 16:45:
+  - Latin `la_documents.db`: 3,412 pairs (from 6,769). The unfiltered table
+    and its stats are kept at
+    `~/tesserae-backups/reuse_pairs/la_documents.db.bak-unfiltered-20261009`.
+  - Greek `grc_documents.db`: 1,509 pairs (new on production; the earlier
+    Greek build stalled at the memory cap until the one-cache-at-a-time
+    change in #725). In the labelled sample every real quotation survived
+    (Lord's Prayer, Ephesians 5.16, the Orphic gold-tablet verses, Greek
+    Anthology epigrams inscribed at Pompeii, Hesiod Theogony 305 in a papyrus).
+- Residual noise is shared technical vocabulary (medical, astronomical,
+  accounting) and stock phrases. A discount for phrases common across the
+  literature is the next step.
+- Reload by touching the WSGI file; no index or frontend change was needed
+  for the tables themselves.
+
+## 2026-10-09 Names index rebuilt with Greek forms (morning)
+- What: `cache/window_names.db` rebuilt so Greek names keep their full
+  forms in the Names panel (#721: a misplaced accent no longer cuts a name
+  short). Backup `~/tesserae-backups/window_names.db.bak-greekforms-20261009`.
+
 ## 2026-10-08 Documentary reuse table built in dev; not yet installed on production
 - What: `scripts/reuse/build_documents_reuse_table.py` is new (feat/reuse-documents),
   pairing every literary line against the documents collection (inscriptions,
