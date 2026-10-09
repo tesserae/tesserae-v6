@@ -14,6 +14,7 @@ literature changes slowly. Every request carries the project's contact
 address, which is what the services ask of a polite client.
 """
 import glob
+import fcntl
 import hashlib
 import html
 import json
@@ -784,26 +785,50 @@ def _s2_item(it):
     return {'title': paper.get('title') or '', 'authors': authors[:6],
             'year': paper.get('year'), 'venue': paper.get('venue'), 'doi': doi,
             'url': f'https://www.semanticscholar.org/p/{cid}' if cid else None,
-            'oa_url': pdf.get('url') if isinstance(pdf, dict) else (f'https://doi.org/{doi}' if doi and oa.get('status') else None),
+            'oa_url': pdf.get('url') if isinstance(pdf, dict) else (f'https://doi.org/{doi}' if doi and str(oa.get('status') or '').upper() in _S2_OPEN_STATUSES else None),
             'snippet': _cap_words(snip, 500), 'source': 'semantic_scholar'}
 
 
 _S2_MIN_INTERVAL = 1.1   # the key allows one request a second across all endpoints
 _s2_lock = threading.Lock()
-_s2_last = [0.0]
+_S2_OPEN_STATUSES = {'GOLD', 'GREEN', 'HYBRID', 'BRONZE'}
+
+
+def _s2_pace():
+    """Wait until a full _S2_MIN_INTERVAL has passed since the last Semantic
+    Scholar request from ANY process of this site. The limit is per key, and
+    Apache runs three workers, so the timestamp lives in a file under
+    CACHE_DIR and is read and advanced under an exclusive file lock. The
+    thread lock keeps one process's threads from racing for the file."""
+    os.makedirs(CACHE_DIR, exist_ok=True)
+    stamp = os.path.join(CACHE_DIR, 's2_last_request')
+    with _s2_lock:
+        with open(stamp, 'a+', encoding='utf-8') as fh:
+            fcntl.flock(fh, fcntl.LOCK_EX)
+            try:
+                fh.seek(0)
+                try:
+                    last = float(fh.read().strip() or 0)
+                except ValueError:
+                    last = 0.0
+                wait = _S2_MIN_INTERVAL - (time.time() - last)
+                if wait > 0:
+                    time.sleep(wait)
+                fh.seek(0)
+                fh.truncate()
+                fh.write(repr(time.time()))
+                fh.flush()
+            finally:
+                fcntl.flock(fh, fcntl.LOCK_UN)
 
 
 def _s2_get(params):
-    """One Semantic Scholar request, at most one every _S2_MIN_INTERVAL
-    seconds in this process, with one retry after a 429. The tab asks for
-    several phrases per passage, and without the pause the second phrase
-    was refused (429) on 2026-10-09."""
+    """One Semantic Scholar request, paced across processes by _s2_pace,
+    with one retry after a 429. The tab asks for several phrases per
+    passage, and without the pause the second phrase was refused (429) on
+    2026-10-09."""
     for attempt in (0, 1):
-        with _s2_lock:
-            wait = _S2_MIN_INTERVAL - (time.monotonic() - _s2_last[0])
-            if wait > 0:
-                time.sleep(wait)
-            _s2_last[0] = time.monotonic()
+        _s2_pace()
         r = requests.get('https://api.semanticscholar.org/graph/v1/snippet/search', params=params, timeout=TIMEOUT,
                          headers={'User-Agent': UA, 'Accept': 'application/json', 'x-api-key': S2_API_KEY})
         if getattr(r, 'status_code', 200) == 429 and attempt == 0:

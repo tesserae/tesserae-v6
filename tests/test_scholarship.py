@@ -577,3 +577,34 @@ def test_s2_item_still_accepts_dict_authors():
                     'externalIds': {'DOI': '10.1/x'}}, 'snippet': {'text': 's'}}
     row = S._s2_item(it)
     assert row['authors'] == ['A. Author'] and row['doi'] == '10.1/x'
+
+
+def test_s2_item_links_doi_only_for_open_statuses():
+    base = {'paper': {'corpusId': '2', 'title': 'T', 'authors': [],
+                      'openAccessInfo': {'status': 'CLOSED', 'disclaimer': 'see https://doi.org/10.1000/closed, which'}},
+            'snippet': {'text': 's'}}
+    assert S._s2_item(base)['oa_url'] is None
+    base['paper']['openAccessInfo']['status'] = 'GREEN'
+    assert S._s2_item(base)['oa_url'] == 'https://doi.org/10.1000/closed'
+
+
+def test_fulltext_skips_a_source_that_raises_and_warns(monkeypatch, tmp_path):
+    monkeypatch.setattr(S, 'CACHE_DIR', str(tmp_path))
+    monkeypatch.setattr(S, 'S2_API_KEY', 'k')
+    monkeypatch.setattr(S, 'CORE_API_KEY', '')
+
+    def boom(*a, **k):
+        raise AttributeError("'str' object has no attribute 'get'")
+    monkeypatch.setattr(S, '_s2_snippets', boom)
+    a = {'author': 'Vergil', 'title': 'Aeneid', 'abbrev': 'Aen.', 'lo': '1.1', 'hi': '1.7'}
+    out = S.fulltext(a)
+    assert out['results'] == []
+    assert any('skipped' in w for w in out.get('warnings', []))
+
+
+def test_s2_pace_spaces_requests_across_calls(monkeypatch, tmp_path):
+    monkeypatch.setattr(S, 'CACHE_DIR', str(tmp_path))
+    monkeypatch.setattr(S, '_S2_MIN_INTERVAL', 0.3)
+    import time as _t
+    t0 = _t.time(); S._s2_pace(); S._s2_pace(); S._s2_pace()
+    assert _t.time() - t0 >= 0.55
