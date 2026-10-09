@@ -24,6 +24,7 @@ import requests
 from flask import Blueprint, jsonify, request
 
 from backend import scholarship as S
+from backend.work_names import base_work
 from backend.logging_config import get_logger
 
 logger = get_logger('scholarship')
@@ -89,7 +90,7 @@ def sources():
                 continue
             for fn in os.listdir(d):
                 if fn.endswith('.tess'):
-                    work_lang.setdefault(fn[:-5].split('.part.')[0], set()).add(lang)
+                    work_lang.setdefault(base_work(fn[:-5]), set()).add(lang)
     except OSError:
         pass
     langs_present = set(os.listdir(texts_root)) if os.path.isdir(texts_root) else set()
