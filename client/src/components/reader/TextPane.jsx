@@ -12,7 +12,7 @@ import { RTL_LANGS as RTL } from '../../utils/rtl';
  * editions, so the margin stays quiet while remaining navigable.
  */
 export default function TextPane({ units, language, selection, onSelect, total, onMore,
-                                    reuseMarks, onReuseClick }) {
+                                    reuseMarks, onReuseClick, documentsTrial }) {
   // LONG TEXTS ARRIVE IN STRETCHES. Hafez's diwan is 9,502 lines and Anvari's
   // 26,616; drawing every line and gutter tile at once froze a phone and
   // crashed its tab (2026-09-07). The page draws what it has been given
@@ -215,7 +215,7 @@ export default function TextPane({ units, language, selection, onSelect, total, 
                   gets the solid mark (unchanged); only a line with NO
                   strict pair but at least one possible one gets a lighter,
                   dashed-outline mark instead -- never both at once. */}
-              <span className="pt-[0.3em]">
+              <span className="pt-[0.3em] flex items-center gap-0.5">
                 {reuseMarks?.[u.ref] && (() => {
                   const strict = reuseMarks[u.ref].n_works || 0;
                   const possible = reuseMarks[u.ref].n_possible_works || 0;
@@ -248,6 +248,56 @@ export default function TextPane({ units, language, selection, onSelect, total, 
                                    hover:bg-gray-50 hover:border-gray-400"
                       >
                         {possible}
+                      </button>
+                    );
+                  }
+                  return null;
+                })()}
+                {/* DOCUMENTARY REUSE (2026-10-08): a separate badge, not
+                    merged into the strict/possible "quoted in N works"
+                    count above -- a document (an inscription or papyrus)
+                    is a different kind of witness from another literary
+                    work, and folding its count into the same number would
+                    silently change what an already-shipped number means.
+                    Shown only behind the documents_trial flag (the
+                    server sends n_documents/n_possible_documents whenever
+                    TESSERAE_DOCUMENTS=1 server-side, regardless of this
+                    flag -- see ReaderPage.jsx's reuseMarks fetch). Amber,
+                    matching the documents collection's own highlight color
+                    elsewhere in the Reader (LineSearch.jsx's matched-word
+                    mark). */}
+                {documentsTrial && reuseMarks?.[u.ref] && (() => {
+                  const nDocs = reuseMarks[u.ref].n_documents || 0;
+                  const nPossibleDocs = reuseMarks[u.ref].n_possible_documents || 0;
+                  if (nDocs > 0) {
+                    return (
+                      <button
+                        type="button"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => { e.stopPropagation(); onReuseClick?.(u); }}
+                        title={`Quoted in ${nDocs} inscription${nDocs === 1 ? '' : 's'} or papyrus${nDocs === 1 ? '' : 'es'}`}
+                        aria-label={`quoted in ${nDocs} document${nDocs === 1 ? '' : 's'}`}
+                        className="inline-flex items-center justify-center text-[9px] font-bold leading-none
+                                   text-amber-800 bg-amber-50 border border-amber-300 rounded px-1 py-[2px]
+                                   hover:bg-amber-100"
+                      >
+                        {nDocs}
+                      </button>
+                    );
+                  }
+                  if (nPossibleDocs > 0) {
+                    return (
+                      <button
+                        type="button"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => { e.stopPropagation(); onReuseClick?.(u); }}
+                        title={`Possible echo in ${nPossibleDocs} inscription${nPossibleDocs === 1 ? '' : 's'} or papyrus${nPossibleDocs === 1 ? '' : 'es'} (one rare shared phrase)`}
+                        aria-label={`possible echo in ${nPossibleDocs} document${nPossibleDocs === 1 ? '' : 's'}`}
+                        className="inline-flex items-center justify-center text-[9px] font-bold leading-none
+                                   text-amber-700 bg-white border border-dashed border-amber-300 rounded px-1 py-[2px]
+                                   hover:bg-amber-50"
+                      >
+                        {nPossibleDocs}
                       </button>
                     );
                   }

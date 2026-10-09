@@ -82,6 +82,22 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
   const [possibleOpen, setPossibleOpen] = useState(false);
   useEffect(() => { setPossibleOpen(false); }, [selection]);
 
+  // DOCUMENTARY REUSE (2026-10-08): inscriptions/papyri that quote or
+  // near-quote the selection, from the cross-collection table
+  // (backend/reuse_documents.py). A trial, same pattern as `documents_trial`
+  // in client/src/components/search/LineSearch.jsx: ?documents=1 switches it
+  // on and remembers that for the rest of the visit; the server already
+  // gates the data behind TESSERAE_DOCUMENTS=1 (backend/blueprints/reuse.py),
+  // so this flag only controls whether the Reader SHOWS what the server
+  // already sent, not whether the server sends it.
+  const [documentsTrial] = useState(() => {
+    const fromUrl = new URLSearchParams(window.location.search).get('documents') === '1';
+    if (fromUrl) setSessionValue('documents_trial', '1');
+    return fromUrl || getSessionValue('documents_trial', '0') === '1';
+  });
+  const [possibleDocumentsOpen, setPossibleDocumentsOpen] = useState(false);
+  useEffect(() => { setPossibleDocumentsOpen(false); }, [selection]);
+
   // SCHOLARSHIP: a trial tab (commentators, articles and books on the
   // selection), not yet shown to every reader. ?scholarship=1 switches it on
   // and remembers that for the rest of the visit in sessionStorage, the same
@@ -106,7 +122,14 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
         if (cancelled) return;
         const available = results.some((r) => r.available);
         const quotations = results.flatMap((r) => r.quotations || []);
-        setReuse({ available, quotations, meta: results.find((r) => r.meta)?.meta });
+        // `documents` is only present on a response when TESSERAE_DOCUMENTS=1
+        // on the server AND a cross-collection table exists for this language
+        // (backend/blueprints/reuse.py's _documents_for_line) -- a response
+        // with no documents field at all flatMaps to nothing, same as one
+        // with an empty list, so this needs no separate "is the trial even
+        // live server-side" check.
+        const documents = results.flatMap((r) => r.documents || []);
+        setReuse({ available, quotations, documents, meta: results.find((r) => r.meta)?.meta });
       })
       .catch((e) => { if (!cancelled) setReuseError(e.message); })
       .finally(() => { if (!cancelled) setReuseLoading(false); });
@@ -765,6 +788,48 @@ export default function ResultsPanel({ selection, focus, language, work, units, 
                 </>
               );
             })()}
+            {/* DOCUMENTARY REUSE: inscriptions and papyri quoting or
+                near-quoting the selection, after the literary groups --
+                a separate group, not merged into them, since a document hit
+                carries edition/date/place fields a literary quotation does
+                not and reads oddly interleaved with "work, year". Only
+                rendered behind the documents_trial flag (?documents=1,
+                same session flag LineSearch.jsx's documents collection
+                uses) even though the server may have sent the data
+                regardless -- see the documentsTrial state above. */}
+            {documentsTrial && !reuseLoading && reuse?.documents?.length > 0 && (() => {
+              const strictDocs = reuse.documents.filter((d) => d.tier !== 'possible');
+              const possibleDocs = reuse.documents.filter((d) => d.tier === 'possible');
+              return (
+                <div className={(reuse.quotations?.length > 0) ? 'mt-4 pt-3 border-t border-gray-200' : ''}>
+                  <h3 className="text-xs font-bold uppercase tracking-wide text-gray-500 mb-2">
+                    In inscriptions and papyri
+                  </h3>
+                  {strictDocs.length > 0 && (
+                    <DocumentReuseGroups documents={strictDocs} language={language} />
+                  )}
+                  {possibleDocs.length > 0 && (
+                    <div className={strictDocs.length > 0 ? 'mt-3' : ''}>
+                      <button
+                        onClick={() => setPossibleDocumentsOpen((o) => !o)}
+                        className="w-full flex items-center justify-between text-xs font-semibold
+                                   text-gray-600 border border-gray-200 rounded-lg px-2.5 py-1.5
+                                   hover:bg-gray-100"
+                        aria-expanded={possibleDocumentsOpen}
+                      >
+                        <span>Possible echoes (one rare shared phrase) &middot; {possibleDocs.length}</span>
+                        <span aria-hidden="true">{possibleDocumentsOpen ? '−' : '+'}</span>
+                      </button>
+                      {possibleDocumentsOpen && (
+                        <div className="mt-2">
+                          <DocumentReuseGroups documents={possibleDocs} language={language} />
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </>
         )}
 
@@ -994,6 +1059,80 @@ function groupReuseByWork(quotations) {
     return b.year - a.year;
   });
   return groups;
+}
+
+/** "Date · place · region" or "" -- the label line a documents-collection
+ *  card already shows (client/src/components/search/LineSearch.jsx's own
+ *  documentDateLabel), reused here so the Reuse tab's documentary cards
+ *  read the same way everywhere a document is cited. */
+function documentDateLabel(d) {
+  const nb = d.date_not_before, na = d.date_not_after;
+  if (nb == null && na == null) return null;
+  const fmt = (y) => (y < 0 ? `${-y} BC` : `${y} AD`);
+  if (nb != null && na != null && nb !== na) return `${fmt(nb)}–${fmt(na)}`;
+  return fmt(nb != null ? nb : na);
+}
+
+/** The Reuse tab's documentary group ("In inscriptions and papyri"): one
+ *  card per document hit, each showing its edition, date, place and text
+ *  type, the document's own text with the shared words bold (same
+ *  BoldSpans component the literary cards use, from the character spans
+ *  backend/reuse_documents.py computes), a "match on restored text" note
+ *  when the hit's `restored` flag is set, and a link to the full /document
+ *  page (the same Reader-adjacent view LineSearch.jsx's documentViewUrl
+ *  opens from a documents-collection search hit). Not grouped by work --
+ *  each hit IS its own document, so there is no "work" to group under the
+ *  way literary quotations group by the quoting work. */
+function DocumentReuseGroups({ documents, language }) {
+  const sorted = [...documents].sort((a, b) => (b.span_len - a.span_len) || (b.shared - a.shared));
+  return (
+    <div className="space-y-1.5">
+      {sorted.map((d) => {
+        const labels = [d.text_type_label, d.object_type_label, d.material_label].filter(Boolean);
+        const place = d.ancient_place || d.modern_place;
+        const dateLabel = documentDateLabel(d);
+        const docUrl = `/document?doc=${encodeURIComponent(d.doc_id)}&lang=${encodeURIComponent(language)}&documents=1`;
+        return (
+          <a
+            key={`${d.doc_id}-${d.ref}`}
+            href={docUrl}
+            className="group block bg-white border border-gray-200 rounded-lg p-2.5
+                       hover:border-red-400 hover:bg-red-50/40 transition-colors
+                       focus:outline-none focus:ring-2 focus:ring-red-400"
+          >
+            <div className="flex items-baseline gap-2 flex-wrap">
+              <span className="text-sm font-bold text-red-800 group-hover:underline">
+                {d.credit?.principal_edition || d.doc_id}
+              </span>
+              {(dateLabel || place) && (
+                <span className="text-[11px] text-gray-500">
+                  {[dateLabel, place].filter(Boolean).join(' · ')}
+                </span>
+              )}
+              {d.span_len > 1 && (
+                <span className="text-[10px] font-semibold bg-gray-100 text-gray-600 rounded px-1">
+                  {d.span_len} lines
+                </span>
+              )}
+            </div>
+            {labels.length > 0 && (
+              <div className="flex gap-1 flex-wrap mt-1">
+                {labels.map((lab) => (
+                  <span key={lab} className="text-[10px] bg-gray-100 text-gray-600 rounded px-1">{lab}</span>
+                ))}
+              </div>
+            )}
+            <p className="text-sm text-gray-800 mt-1 leading-snug">
+              <BoldSpans text={d.text} spans={d.bold_spans} />
+            </p>
+            {d.restored && (
+              <p className="mt-1 text-[11px] text-sky-700">match on restored text</p>
+            )}
+          </a>
+        );
+      })}
+    </div>
+  );
 }
 
 /** "verg. aen. 6.1" -> "6.1". The Reader's refs carry the work's short tag and

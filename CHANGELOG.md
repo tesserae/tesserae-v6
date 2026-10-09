@@ -9,6 +9,37 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-08
 
+### Documentary reuse in the Reuse tab
+- When a literary line is quoted or near-quoted in an inscription or
+  papyrus, the Reader's Reuse tab now shows those documents in a separate
+  group, "In inscriptions and papyri", below the literary groups, and the
+  margin gutter carries a separate "quoted in N inscriptions or papyri"
+  mark alongside the existing "quoted in N works" one (shown as its own
+  badge, not merged into that count, so an already-shipped number keeps
+  its meaning).
+- New cross-collection table per language, `cache/reuse_pairs/<lang>_documents.db`
+  (`scripts/reuse/build_documents_reuse_table.py`), built with the same
+  word-triple containment logic and strict/possible tiers as the literary
+  table (`scripts/reuse/build_reuse_table.py`), scored between literary
+  lines and documentary lines only. A shared n-gram made entirely of
+  documentary formula words (`data/documents/formula_words_<lang>.txt`,
+  or a lemma used by more than 100 individual documents) is excluded, the
+  documentary equivalent of the literary table's commonplace-word
+  exclusion; see `docs/DECISIONS.md`.
+- `GET /api/reuse/line` and `GET /api/reuse/marks` (`backend/blueprints/reuse.py`,
+  `backend/reuse_documents.py`) carry the documentary hits/counts
+  additionally, only when `TESSERAE_DOCUMENTS=1`; the existing literary
+  response is unchanged otherwise. No new route, so no connector manifest
+  change.
+- Client: behind the `documents_trial` session flag (`?documents=1`, the
+  same flag the documents collection search already uses) -- without it
+  the Reader is unchanged. Tests added for the builder, the route, and
+  the Reuse tab's new group.
+- Validation build against the dev checkout's own data (not yet on
+  production): Latin, 453,830 literary lines against 411,466 documentary
+  lines, 5,414 pairs kept, peak 11.0 GB, 9m8s; Greek figures and the
+  production install steps are in `docs/DATA_OPERATIONS.md`.
+
 ### Scholarship tab: titles shared by more than one author, and a shorter footer
 - A citation of a bare work title that more than one author in the corpus
   uses, such as Argonautica (Apollonius Rhodius and Valerius Flaccus) or
