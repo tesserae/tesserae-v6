@@ -146,10 +146,9 @@ MANIFEST = {
                 "raise describe_text's coverage -- flagged, not done, in the parity report."),
     },
     '/api/sources-credits': {
-        'tools': SITE_ONLY,
-        'note': ("The Sources and credits list (one record per source collection, licence "
-                 "and version) is site copy for the Text Credits page; a connector client "
-                 "reads each text's own credit through describe_text."),
+        'site_only': True,
+        'reason': ('Site copy for the Text Credits page (one record per source, licence and '
+                   'version); a connector client reads each text\'s own credit through describe_text.'),
     },
     '/api/text-credits': {
         'tools': ['describe_text'],
