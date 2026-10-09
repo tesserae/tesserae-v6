@@ -8,6 +8,23 @@ history (index builds, cache rebuilds, corpus changes) is in
 `DATA_OPERATIONS.md`; per-release changes are in `../CHANGELOG.md`.
 
 
+## 2026-10-08: editors' prose inside a poetry text is removed, the poet's own prose is kept
+
+**Question.** Some Persian and Urdu files, built from complete-works
+collections, contain long prose. Which of it belongs in the corpus?
+
+**Check.** Every Persian and Urdu file was scanned for lines over 40 words
+and each range was read. Khayyam's Diwan held a signed 1934 introduction by
+a modern editor (142 lines, with page references and footnotes), and
+Ghalib's Wikisource Diwan held two variant-reading footnotes. The long
+prose in Attar (Tazkirat al-Awliya), Saadi (the Gulistan), Naser Khosrow
+(the Safarnama) and Sanai is the poets' own.
+
+**Decision.** Remove text written by modern editors, keep prose written by
+the author, and keep the remaining lines' references unchanged so the gap
+shows where material was taken out. Removal runs through
+`scripts/corpus/drop_lines_from_work.py`, which keeps every store in step.
+
 ## 2026-10-08: Ghalib's Translation tab shows a Pritchett link, not copied English
 
 **Decision.** For Ghalib (`ghalib.diwan_wikisource`), the Reader's
