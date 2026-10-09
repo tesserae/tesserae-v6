@@ -267,7 +267,7 @@ def download_info():
         'embeddings': {}
     }
     
-    for lang in ['la', 'grc', 'en']:
+    for lang in ['la', 'grc', 'en', 'cop', 'he']:
         lang_dir = os.path.join(TEXTS_DIR, lang)
         if os.path.exists(lang_dir):
             files = [f for f in os.listdir(lang_dir) if f.endswith('.tess')]
