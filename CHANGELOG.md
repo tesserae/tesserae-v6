@@ -9,6 +9,8 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-09
 
+### Events page (in testing): a focus view for a battle, siege or treaty
+- New `/events` list and `/events/<id>` focus view with Passages, Inscriptions & Papyri, Scholarship and Map tabs, read-only `GET /api/events` and `/api/events/<id>` over an offline dossier SQLite (`TESSERAE_EVENTS_DB`, default `data/events/event_dossiers.sqlite`, built by `scripts/events/load_dossiers_sqlite.py`). Shown when Collections has Inscriptions, Papyri or Scholarship on (`PAGE_NEEDS.events`). The Reader shows a link back to the event when opened from it. Help gains a paragraph.
 ### Scholarship tab: an expired CORE key no longer switches CORE off
 - On a 401 or 403 the full-text search retries CORE once without the key, paced to CORE's keyless limit across workers, and says the key needs renewing while results keep coming. A 429 waits and retries once. `scripts/ops/check_scholarship_keys.py` and timer templates in `scripts/ops/systemd/` check both keys weekly.
 ### Xenophon, Hellenica and Cassius Dio, Roman History 36 to 55, added with English translations

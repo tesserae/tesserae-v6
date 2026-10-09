@@ -54,6 +54,9 @@ const mainTabs = [
   // (beside Theme Search) does not depend on where a conditional push
   // would land it.
   { code: 'inscriptions-papyri', label: 'Inscriptions & Papyri', beta: true, trial: true },
+  // Events (battles, sieges, treaties): shown when inscriptions, papyri or
+  // scholarship is on (PAGE_NEEDS.events).
+  { code: 'events', label: 'Events', beta: true, needs: 'events' },
   { code: 'browse', label: 'Browse Corpus' },
   { code: 'repository', label: 'Repository' },
   // DISABLED FOR PRODUCTION - Uncomment to restore Visualizations
@@ -160,6 +163,7 @@ const Navigation = ({
             {mainTabs
               .filter(tab => tab.code !== 'admin')
               .filter(tab => !tab.trial || showInscriptionsPapyri)
+              .filter(tab => !tab.needs || anyOn(PAGE_NEEDS[tab.needs]))
               .map(tab => (
               <button
                 key={tab.code}

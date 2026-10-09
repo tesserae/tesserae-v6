@@ -118,6 +118,9 @@ export default function ReaderPage() {
   // Arrival from the Similarity Map: the other side of the connection that
   // was clicked, shown in the banner, with a link back to the map tab.
   const [mapFrom, setMapFrom] = useState(() => paramOr('map', ''));
+  // Arrival from an Event page: its id and name, for a link back to the event.
+  const [eventFrom, setEventFrom] = useState(() => (
+    paramOr('event', '') ? { id: paramOr('event', ''), label: paramOr('eventLabel', '') } : null));
   const [units, setUnits] = useState([]);
   // How many lines are drawn; grows as the reader scrolls (see TextPane).
   const [visibleCount, setVisibleCount] = useState(READER_STEP);
@@ -251,7 +254,7 @@ export default function ReaderPage() {
     // had been found by a search the reader had long since left. They are read
     // into state at mount, so dropping them from the URL here costs nothing and
     // `at` carries the position instead.
-    ['ref', 'refEnd', 'tab', 'q', 'map'].forEach((k) => p.delete(k));
+    ['ref', 'refEnd', 'tab', 'q', 'map', 'event', 'eventLabel'].forEach((k) => p.delete(k));
     const url = `${window.location.pathname}?${p}`;
     const key = `${work}|${language}`;
     const movedToAnotherText = lastKeyRef.current !== null && lastKeyRef.current !== key;
@@ -555,6 +558,22 @@ export default function ReaderPage() {
                 The first time a text is opened this takes a few minutes, because
                 every passage in it is compared with the whole corpus. After that
                 it is instant, and the text itself is readable now.
+              </p>
+            )}
+            {eventFrom && !cameFrom && !mapFrom && (
+              <p data-testid="reader-event-banner"
+                 className="px-3 py-2 text-xs text-gray-700 border-b border-gray-200 bg-red-50 flex items-center gap-2">
+                <span className="min-w-0">
+                  From the event{' '}
+                  <span className="font-medium">{eventFrom.label || eventFrom.id}</span>
+                  <a href={`/events/${encodeURIComponent(eventFrom.id)}`} className="ml-2 text-red-700 hover:underline">
+                    back to the event
+                  </a>
+                </span>
+                <button onClick={() => setEventFrom(null)} aria-label="Dismiss"
+                        className="ml-auto shrink-0 text-gray-500 hover:text-gray-700 text-base leading-none px-1">
+                  ×
+                </button>
               </p>
             )}
             {mapFrom && !cameFrom && (
