@@ -556,3 +556,24 @@ def test_sources_route_adds_the_languages_field(tmp_path, monkeypatch):
     d = r.get_json()
     assert d['languages'] == ['grc', 'la']
     assert len(d['commentaries']) == 2
+
+
+def test_s2_item_reads_string_authors_and_doi_from_disclaimer():
+    # The snippet endpoint's real shape (2026-10-09): authors are name
+    # strings, no externalIds, DOI only inside the disclaimer.
+    it = {'paper': {'corpusId': '128847696', 'title': 'The Poetics of Alliance', 'authors': ['Bill Gladhill'],
+                    'openAccessInfo': {'status': 'GOLD', 'disclaimer': 'available at https://doi.org/10.4000/dictynna.260, which is'}},
+          'snippet': {'text': 'Fama per urbes'}}
+    row = S._s2_item(it)
+    assert row['authors'] == ['Bill Gladhill']
+    assert row['doi'] == '10.4000/dictynna.260'
+    assert row['url'] == 'https://www.semanticscholar.org/p/128847696'
+    assert row['oa_url'] == 'https://doi.org/10.4000/dictynna.260'
+    assert row['source'] == 'semantic_scholar'
+
+
+def test_s2_item_still_accepts_dict_authors():
+    it = {'paper': {'corpusId': '1', 'title': 'T', 'authors': [{'name': 'A. Author'}, {'name': ''}],
+                    'externalIds': {'DOI': '10.1/x'}}, 'snippet': {'text': 's'}}
+    row = S._s2_item(it)
+    assert row['authors'] == ['A. Author'] and row['doi'] == '10.1/x'

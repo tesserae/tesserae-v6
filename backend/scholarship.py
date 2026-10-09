@@ -21,6 +21,7 @@ import logging
 import math
 import os
 import re
+import threading
 import time
 
 import requests
@@ -755,24 +756,68 @@ S2_API_KEY = os.environ.get('S2_API_KEY', '')
 CORE_API_KEY = os.environ.get('CORE_API_KEY', '')
 
 
+_S2_DOI_RE = re.compile(r'https?://doi\.org/(10\.\d{4,9}/[^\s,)]+)')
+
+
+def _s2_item(it):
+    """One snippet-search hit as the tab's row. The snippet endpoint returns
+    paper.authors as a list of NAME STRINGS (the paper endpoints return dicts),
+    carries no year, venue or externalIds, and names the DOI only inside
+    openAccessInfo.disclaimer. Found 2026-10-09, the day the key arrived:
+    the dict-shaped reading raised AttributeError and took the whole route
+    down (500) for every passage."""
+    paper = it.get('paper') or {}
+    snip = (it.get('snippet') or {}).get('text') or ''
+    authors = []
+    for a in (paper.get('authors') or []):
+        name = a.get('name') if isinstance(a, dict) else a
+        if isinstance(name, str) and name.strip():
+            authors.append(name.strip())
+    ids = paper.get('externalIds') or {}
+    doi = ids.get('DOI') if isinstance(ids, dict) else None
+    oa = paper.get('openAccessInfo') if isinstance(paper.get('openAccessInfo'), dict) else {}
+    if not doi:
+        m = _S2_DOI_RE.search(oa.get('disclaimer') or '')
+        doi = m.group(1) if m else None
+    cid = paper.get('corpusId')
+    pdf = paper.get('openAccessPdf')
+    return {'title': paper.get('title') or '', 'authors': authors[:6],
+            'year': paper.get('year'), 'venue': paper.get('venue'), 'doi': doi,
+            'url': f'https://www.semanticscholar.org/p/{cid}' if cid else None,
+            'oa_url': pdf.get('url') if isinstance(pdf, dict) else (f'https://doi.org/{doi}' if doi and oa.get('status') else None),
+            'snippet': _cap_words(snip, 500), 'source': 'semantic_scholar'}
+
+
+_S2_MIN_INTERVAL = 1.1   # the key allows one request a second across all endpoints
+_s2_lock = threading.Lock()
+_s2_last = [0.0]
+
+
+def _s2_get(params):
+    """One Semantic Scholar request, at most one every _S2_MIN_INTERVAL
+    seconds in this process, with one retry after a 429. The tab asks for
+    several phrases per passage, and without the pause the second phrase
+    was refused (429) on 2026-10-09."""
+    for attempt in (0, 1):
+        with _s2_lock:
+            wait = _S2_MIN_INTERVAL - (time.monotonic() - _s2_last[0])
+            if wait > 0:
+                time.sleep(wait)
+            _s2_last[0] = time.monotonic()
+        r = requests.get('https://api.semanticscholar.org/graph/v1/snippet/search', params=params, timeout=TIMEOUT,
+                         headers={'User-Agent': UA, 'Accept': 'application/json', 'x-api-key': S2_API_KEY})
+        if getattr(r, 'status_code', 200) == 429 and attempt == 0:
+            time.sleep(_S2_MIN_INTERVAL)
+            continue
+        return r
+    return r
+
+
 def _s2_snippets(query):
     def run():
-        r = requests.get('https://api.semanticscholar.org/graph/v1/snippet/search',
-                         params={'query': query, 'limit': 10}, timeout=TIMEOUT,
-                         headers={'User-Agent': UA, 'Accept': 'application/json', 'x-api-key': S2_API_KEY})
+        r = _s2_get({'query': query, 'limit': 10})
         r.raise_for_status()
-        out = []
-        for it in (r.json().get('data') or []):
-            paper = it.get('paper') or {}
-            snip = (it.get('snippet') or {}).get('text') or ''
-            ids = paper.get('externalIds') or {}
-            cid = paper.get('corpusId')
-            out.append({'title': paper.get('title') or '', 'authors': [a.get('name') for a in (paper.get('authors') or []) if a.get('name')][:6],
-                        'year': paper.get('year'), 'venue': paper.get('venue'), 'doi': ids.get('DOI'),
-                        'url': f'https://www.semanticscholar.org/p/{cid}' if cid else None,
-                        'oa_url': (paper.get('openAccessPdf') or {}).get('url') if isinstance(paper.get('openAccessPdf'), dict) else None,
-                        'snippet': _cap_words(snip, 500), 'source': 'semantic_scholar'})
-        return out
+        return [_s2_item(it) for it in (r.json().get('data') or []) if isinstance(it, dict)]
     return _cached('s2snippet|' + query, run)
 
 
@@ -848,9 +893,14 @@ def fulltext(a, quote=None, limit=12):
         for src in sources:
             try:
                 items = src(phrase)
-            except requests.RequestException as e:
+            except Exception as e:  # noqa: BLE001  one source's failure must not take the tab down
                 status = getattr(getattr(e, 'response', None), 'status_code', '')
                 logger.warning('full-text lookup failed: %s %s', type(e).__name__, status)
+                if not isinstance(e, requests.RequestException):
+                    msg = 'One full-text source returned an unexpected answer and was skipped.'
+                    if msg not in warnings:
+                        warnings.append(msg)
+                    continue
                 # A lapsed key (CORE's expire monthly) must say so, not go quiet.
                 if status in (401, 403):
                     msg = 'A full-text search key has expired or been refused; that source is off until it is renewed.'

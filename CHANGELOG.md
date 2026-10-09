@@ -9,6 +9,15 @@ behind each, are in docs/DECISIONS.md.
 
 ## 2026-10-09
 
+### Scholarship tab: Semantic Scholar snippets read in their real shape, one source's failure no longer takes the tab down
+- The snippet endpoint returns authors as name strings and carries no
+  year, venue or identifiers, with the DOI only inside the open-access
+  disclaimer. The reader expected dicts and raised, and the whole
+  `/api/scholarship` route answered 500 while a key was set. It now accepts
+  both shapes, reads the DOI from the disclaimer, spaces requests at one a
+  second with one retry after a 429, and any unexpected answer from one
+  full-text source is logged and skipped with a warning in the response.
+
 ### Scholarship tab: offered by the language of the work, not of the commentary
 - `/api/scholarship/sources` listed the languages commentaries are written
   in (mostly English), so the Reader hid the tab on Greek works annotated in
