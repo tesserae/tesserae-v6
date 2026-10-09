@@ -99,6 +99,39 @@ behind each, are in docs/DECISIONS.md.
   keep their own bucket. See
   `docs/DECISIONS.md`.
 
+### Diodorus Siculus (books 1 to 5, 18 to 20), Procopius' Wars, Zosimus and four Plutarch Lives added with English translations
+- `diodorus_siculus.bibliotheca_historica` (4,166 lines, books 1 to 5 and
+  18 to 20), `procopius.wars` (7,240 lines, eight books), `zosimus.historia_nova`
+  (1,071 lines, six books), each as a whole-work file plus one file per book,
+  and `plutarch.lysander` (155), `plutarch.dion` (388), `plutarch.eumenes` (98)
+  and `plutarch.demosthenes` (130) as one file each: 29 `.tess` files. The
+  Greek is the Perseus canonical-greekLit TEI for Diodorus (tlg0060.tlg001
+  grc5 and grc6, the Teubner texts), Procopius (tlg4029.tlg001, Dewing's Loeb
+  Greek) and Plutarch (tlg0007, Perrin's Loeb Greek), and First1KGreek for
+  Zosimus (tlg4084.tlg001, Mendelssohn's Teubner of 1887). All are CC BY-SA
+  4.0. Diodorus books 11 to 17 are left out. `scripts/corpus/perseus_greek_history_to_tess.py`
+  gained `--no-book` for the Plutarch Lives, drops an English source label
+  (the "Unknown" Perseus puts after two quoted lines of the Lysander) and
+  removes three stray question marks inside Greek words.
+- The Zosimus Greek is an OCR of the Teubner scan and has 20 places where a
+  letter was lost ("??" in the file). `scripts/corpus/repair_zosimus_procopius_text.py`
+  restores 18 words and drops 2 unreadable consular numerals (6.2.1), and
+  puts a space back at two places in Procopius where a combining breathing
+  joined two words.
+- Translations: Oldfather (books 1 to 5) and Geer (books 18 to 20), Loeb, from
+  LacusCurtius, exact by book.chapter.section, 4,158 of 4,166 lines
+  (`scripts/translations/align_diodorus.py`). Dewing's Loeb of the Wars from
+  LacusCurtius, exact, 7,240 of 7,240 (`align_procopius.py`). Perrin's Loeb for
+  the four Lives, from the Perseus TEI, exact by chapter.section, 771 of 771
+  lines (`align_plutarch.py`). Zosimus from the Green and Chaplin translation
+  of 1814 (Internet Archive scan, OCR), which has no chapter numbers, so each
+  Greek line is mapped to an English paragraph by dynamic programming and the
+  file is marked approximate: 1,071 of 1,071 lines in 314 blocks
+  (`align_zosimus.py`).
+- Descriptions, provenance rows and dates (Diodorus, Procopius, Zosimus) added.
+  Production steps are in docs/DATA_OPERATIONS.md under the 2026-10-09 entry for
+  these works. Nothing has been run on production.
+
 ## 2026-10-08
 
 ### Reader About panel in two columns, Scholarship tab on one line, documents deep link fixed

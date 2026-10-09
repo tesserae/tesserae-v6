@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """A Perseus canonical-greekLit TEI edition (book / chapter / section) into .tess.
 
+A Plutarch Life (tlg0007, Perrin's Loeb Greek) has no book level: pass
+--no-book and the references run chapter.section.
+
 Used for Xenophon's Hellenica (tlg0032.tlg001.perseus-grc2, Marchant, OCT
 1900) and Cassius Dio, Roman History 36 to 55 (tlg0385.tlg001.perseus-grc2,
 Cary, Loeb 1914 to 1917), both CC BY-SA 4.0. It follows
@@ -32,12 +35,18 @@ ap.add_argument('source')
 ap.add_argument('out')
 ap.add_argument('--tag', required=True, help="reference prefix, e.g. 'xen. hell.'")
 ap.add_argument('--parts-dir')
+ap.add_argument('--no-book', action='store_true',
+                help='the edition has chapter / section only (a Plutarch Life): '
+                     'references are chapter.section')
 args = ap.parse_args()
 
 xml = open(args.source, encoding='utf-8').read()
 body = xml[xml.index('<text'):]
 body = re.sub(r'<note\b.*?</note>', ' ', body, flags=re.S)
 body = re.sub(r'<app\b.*?</app>', ' ', body, flags=re.S)
+# A source label for a quoted line ("Unknown", in Plutarch's Lysander) is
+# English metadata, not Greek text.
+body = re.sub(r'<bibl\b[^>]*xml:lang="eng"[^>]*>.*?</bibl>', ' ', body, flags=re.S)
 # A word broken across a printed page ("ἐκακούργη- <pb/> σαν", eleven times in
 # Dio) is rejoined; one case also carries a stray footnote digit ("προς1-").
 body = re.sub(r'\d*-\s*<pb\b[^>]*/>\s*', '', body)
@@ -51,6 +60,9 @@ TAG = re.compile(r'<[^>]+>')
 def clean(chunk):
     text = html.unescape(TAG.sub(' ', chunk))
     text = unicodedata.normalize('NFC', re.sub(r'\s+', ' ', text)).strip()
+    # a question mark between two Greek letters is a stray byte of the source
+    # ("με?τὰ", "μ?ὲν": three in Plutarch), never a Greek question mark (;)
+    text = re.sub(r'(?<=[\u0370-\u03ff\u1f00-\u1fff])\?(?=[\u0370-\u03ff\u1f00-\u1fff])', '', text)
     return (text.replace('ʼ', "'").replace('’', "'")
                 .replace('᾽', "'").replace('·', ':'))
 
@@ -65,8 +77,9 @@ for m in DIV.finditer(body):
     else:
         nxt = ANYDIV.search(body, m.end())
         text = clean(body[m.end(): nxt.start() if nxt else len(body)])
-        if text and book and chapter is not None:
-            lines.append((f'{args.tag} {book}.{chapter}.{n}', text))
+        if text and chapter is not None and (book or args.no_book):
+            cite = f'{chapter}.{n}' if args.no_book else f'{book}.{chapter}.{n}'
+            lines.append((f'{args.tag} {cite}', text))
 
 
 def greek_letters(s):
@@ -84,7 +97,7 @@ with open(args.out, 'w', encoding='utf-8', newline='') as fh:
     for ref, text in lines:
         fh.write(f'<{ref}>\t{text}\n')
 
-if args.parts_dir:
+if args.parts_dir and not args.no_book:
     by_book = collections.OrderedDict()
     for ref, text in lines:
         by_book.setdefault(ref.split()[-1].split('.')[0], []).append((ref, text))
