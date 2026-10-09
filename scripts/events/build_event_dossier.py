@@ -27,6 +27,8 @@ import sqlite3
 import sys
 import time
 import unicodedata
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # llm_judge, with python -I
 from collections import defaultdict
 
 PROD = os.environ.get("TESSERAE_PROD", "/var/www/tesseraev6_flask")
@@ -810,6 +812,67 @@ class CoCite:
         return len(pages)
 
 
+# ----------------------------------------------------------------- LLM rerank (fused_llm)
+
+def fmt_year(y):
+    return f"{-y} BC" if y < 0 else f"AD {y}"
+
+
+def llm_context(rec, ents, span, intro, countries):
+    """The event description the judge sees: name, date, place, participants, encyclopedia summary."""
+    places = [l["label"] for l in specific_locations(rec, countries) if l.get("label")]
+    people = [e["label"] for e in ents if e["role"] in ("participant",) and e.get("label")]
+    date = fmt_year(span[0]) if span and span[0] == span[1] else (f"{fmt_year(span[0])} to {fmt_year(span[1])}" if span else "unknown")
+    return {"name": rec["label"], "date": date, "place": ", ".join(places) or "unknown",
+            "participants": ", ".join(dict.fromkeys(people)) or "not recorded", "intro": intro}
+
+
+def llm_passage(prod, p, translations_mod):
+    """What the judge sees of one dossier passage: reference, index description, the lines that
+    hold the event names (original language) and the aligned English translation when there is one."""
+    work = p["window_id"].split(":", 1)[0]
+    lines, refs = [], []
+    for h in p.get("hit_lines", [])[:3]:
+        if not h.get("ref"):
+            continue
+        r = prod.texts.execute("SELECT text FROM lines WHERE work=? AND ref=? LIMIT 1", (work, h["ref"])).fetchone()
+        lines.append((h["ref"], (r[0] if r else h["snippet"]).strip()[:350]))
+        refs.append(h["ref"])
+    if not lines:
+        lines = [(p["ref_start"], p["text"].strip()[:350])]
+        refs = [p["ref_start"]]
+    tr = ""
+    try:
+        info = translations_mod.for_passage(base_work(work), refs)
+        if info and info.get("available"):
+            tr = (info.get("text") or "")[:450]
+    except Exception:  # noqa: BLE001 - a missing translation is normal
+        tr = ""
+    return {"window_id": p["window_id"], "ref": f"{p['ref_start']} to {p['ref_end']}", "language": p["language"],
+            "gist": p.get("gist"), "lines": lines, "translation": tr}
+
+
+def llm_rerank(prod, lit, ctx, event_key, judge, top=100):
+    """Reorder the first `top` passages of a fused dossier: yes, then mention, then no, with the
+    fused rank as the tie-break. Passages after `top` keep their order."""
+    from backend import translations as tmod
+    tmod._DIR = os.path.join(prod.root, "data", "translations")
+    tmod._index = None
+    tmod._cache.clear()
+    head = lit["passages"][:top]
+    labels = judge.judge_event(event_key, ctx, [llm_passage(prod, p, tmod) for p in head])
+    import llm_judge
+    new = llm_judge.rerank(head, labels)
+    order = {p["window_id"]: i for i, p in enumerate(new)}
+    ar = lit["all_ranked"]
+    lit["all_ranked"] = [ar[i] for i in sorted(range(len(head)), key=lambda i: order[head[i]["window_id"]])] + ar[len(head):]
+    for i, p in enumerate(new, 1):
+        p["rank"], p["llm_label"] = i, labels.get(p["window_id"])
+    lit["passages"] = new + lit["passages"][top:]
+    lit["llm"] = {"model": judge.model, "counts": {k: sum(1 for v in labels.values() if v == k) for k in ("yes", "mention", "no", None)}}
+    return lit
+
+
 # ----------------------------------------------------------------- (c) scholarship
 
 def citing(prod, work, lo, hi, limit=25):
@@ -873,14 +936,18 @@ def hand_passages(spec):
 
 
 def build(rec, labels, countries, prod, points, crosswalk, spec=None, limit=100, use_curated=False,
-          ranking="names", theme=None, query=None, restrict_authors=True):
+          ranking="names", theme=None, query=None, restrict_authors=True, judge=None, event_key=None):
     t0 = time.time()
     span = event_span(rec)
     ents = build_entities(rec, labels, countries, (spec or {}).get("curated_names", []) if use_curated else ())
     if theme is not None:
         theme.prepare(query)
     seeds = [(p["work"], p["lo"], p["hi"]) for p in hand_passages(spec)] if spec else []
-    lit = literary(prod, ents, span, limit=limit, restrict_authors=restrict_authors, ranking=ranking, theme=theme, seeds=seeds)
+    llm = ranking == "fused_llm"
+    lit = literary(prod, ents, span, limit=max(limit, 100) if llm else limit, restrict_authors=restrict_authors,
+                   ranking="fused" if llm else ranking, theme=theme, seeds=seeds)
+    if llm:
+        lit = llm_rerank(prod, lit, llm_context(rec, ents, span, query, countries), event_key, judge)
     t1 = time.time()
     locs = specific_locations(rec, countries)
     centres = []
@@ -933,8 +1000,11 @@ def main():
     ap.add_argument("--lemma-choice", default="cap", choices=["cap", "all"])
     ap.add_argument("--ius", action="store_true", help="let a name in -ius accept its oblique forms (Arminii, Pompei, Darium)")
     ap.add_argument("--max-df", type=int, default=1500)
-    ap.add_argument("--ranking", default="names", choices=["names", "theme", "theme_names", "fused", "fused3"])
+    ap.add_argument("--ranking", default="names", choices=["names", "theme", "theme_names", "fused", "fused3", "fused_llm"])
     ap.add_argument("--intros", help="intros.json from fetch_wikipedia_intros.py (the Theme Search queries)")
+    ap.add_argument("--llm-model", default="Qwen/Qwen3.8-27B-FP8", help="BullsAI model for --ranking fused_llm")
+    ap.add_argument("--llm-cache", help="SQLite file of cached judgements (default: llm_judgements.sqlite in --out)")
+    ap.add_argument("--llm-workers", type=int, default=8, help="requests in flight")
     ap.add_argument("--no-author-filter", action="store_true")
     ap.add_argument("--curated", action="store_true", help="add the hand-curated names of the sample file")
     a = ap.parse_args()
@@ -946,6 +1016,11 @@ def main():
     IUS_EXPANSION = a.ius
     prod = Prod()
     theme = Theme() if a.ranking != "names" else None
+    judge = None
+    if a.ranking == "fused_llm":
+        import llm_judge
+        os.makedirs(a.out, exist_ok=True)
+        judge = llm_judge.Judge(a.llm_model, a.llm_cache or os.path.join(a.out, "llm_judgements.sqlite"), a.llm_workers)
     intros = json.load(open(a.intros)) if a.intros else {}
     os.makedirs(a.out, exist_ok=True)
     jobs = []
@@ -956,7 +1031,8 @@ def main():
         jobs.append((a.qid, events[a.qid], None))
     for key, rec, spec in jobs:
         d, ranked = build(rec, labels, countries, prod, points, crosswalk, spec, a.limit, a.curated, a.ranking, theme,
-                         intros.get(key, {}).get("query") or rec["description"] or rec["label"], not a.no_author_filter)
+                         intros.get(key, {}).get("query") or rec["description"] or rec["label"], not a.no_author_filter,
+                         judge, key)
         json.dump(d, open(os.path.join(a.out, f"{key}.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1, default=sorted)
         json.dump(ranked, open(os.path.join(a.out, f"{key}.ranked.json"), "w"))
         print(key, rec["label"], "lit", d["literary"]["n_after_overlap_suppression"], "docs", d["documents"]["n"],

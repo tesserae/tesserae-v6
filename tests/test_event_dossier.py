@@ -2,9 +2,11 @@
 production data: date conversion and overlap, distance, reference parsing and overlap,
 ranking, overlap suppression, name keys. Loaded via importlib, as scripts/ is not a package."""
 import importlib.util
+import sys
 import os
 
 _P = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "scripts", "events", "build_event_dossier.py")
+sys.path.insert(0, os.path.dirname(_P))
 _spec = importlib.util.spec_from_file_location("build_event_dossier", _P)
 bed = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(bed)
@@ -176,3 +178,14 @@ def test_cocite_score_excludes_seeds_and_counts_pages():
     assert cc.score("hdt", (9, 1), (9, 5)) == 0
     assert cc.score("hdt", (6, 100), (6, 112)) == 0           # overlaps a seed: never boosted
     assert cc.score("plut", (8, 80), (8, 91)) == 0
+
+
+def test_llm_judge_parse_and_rerank():
+    import llm_judge as lj
+    content = '[{"n": 1, "label": "no"}, {"n": 2, "label": "Yes"}, {"n": 3, "label": "mention"}]'
+    assert lj.parse_labels(content, 3) == ["no", "yes", "mention"]
+    assert lj.parse_labels('[{"n": 1, "label": "yes"}]', 2) == ["yes", None]       # a missing answer stays None
+    ps = [{"window_id": w} for w in ("a", "b", "c", "d", "e")]
+    labels = {"a": "no", "b": "mention", "c": "yes", "d": "yes", "e": None}
+    assert [p["window_id"] for p in lj.rerank(ps, labels)] == ["c", "d", "b", "a", "e"]   # fused order breaks ties
+    assert bed.fmt_year(-424) == "424 BC" and bed.fmt_year(9) == "AD 9"
