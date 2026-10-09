@@ -7,6 +7,15 @@ so the state of the live site can be reconstructed from this file and
 docs/DATA_OPERATIONS.md. Method and scoring decisions, with the measurement
 behind each, are in docs/DECISIONS.md.
 
+## 2026-10-09
+
+### Scholarship tab: offered by the language of the work, not of the commentary
+- `/api/scholarship/sources` listed the languages commentaries are written
+  in (mostly English), so the Reader hid the tab on Greek works annotated in
+  English. It now lists the languages of the works commented on, with
+  scripture commentaries counting for every language that holds a Bible
+  version. On current data: Latin, Greek, Hebrew, English and Coptic.
+
 ## 2026-10-08
 
 ### Reader About panel in two columns, Scholarship tab on one line, documents deep link fixed
