@@ -17,6 +17,12 @@ behind each, are in docs/DECISIONS.md.
   both shapes, reads the DOI from the disclaimer, spaces requests at one a
   second with one retry after a 429, and any unexpected answer from one
   full-text source is logged and skipped with a warning in the response.
+### Documentary reuse build reads one literary cache at a time
+- `scripts/reuse/build_documents_reuse_table.py` loaded every literary lemma
+  cache at once, and the Greek build stalled at its 12 GB memory cap. It now
+  lists the corpus files first and loads one cache at a time. The Latin
+  table it builds is identical to the live one (6,769 pairs), with peak
+  memory 1.9 GB.
 
 ### Scholarship tab: offered by the language of the work, not of the commentary
 - `/api/scholarship/sources` listed the languages commentaries are written
