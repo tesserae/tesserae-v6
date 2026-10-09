@@ -1133,6 +1133,19 @@ def _hebrew_unpointed_fallbacks(query, query_lemmas, stopwords):
     return (fallbacks or None), lemmas
 
 
+def _line_lemmas_matching_query(line_lemmas, query_lemmas, fallback_forms=None):
+    """The lemmas of an indexed line that answer the query: the query lemmas
+    themselves and their fallback readings. The index lookup counts a hit on
+    מלך² as a hit on מלך, so a line must be judged the same way here; testing
+    the line against the query lemmas alone dropped every line that held only
+    another reading (bare מלך found "king" but never "he reigned"). The line's
+    own readings are returned, so each result names the word it has."""
+    accepted = set(query_lemmas)
+    for lemma in query_lemmas:
+        accepted.update((fallback_forms or {}).get(lemma, ()))
+    return set(line_lemmas) & accepted
+
+
 def _normalize_lemma(lem, language='la'):
     """Normalize a lemma for index lookup. Handles Latin u/v/j/i and Greek diacritics.
 
@@ -2861,8 +2874,10 @@ def line_search():
 
                         # Use indexed data if available, otherwise fallback to quick token matching
                         if indexed_lemmas:
-                            # Match query lemmas against indexed lemmas
-                            matching_query_lemmas = indexed_lemmas & filtered_query_lemmas
+                            # Match query lemmas (and a bare Hebrew word's
+                            # other readings) against indexed lemmas
+                            matching_query_lemmas = _line_lemmas_matching_query(
+                                indexed_lemmas, filtered_query_lemmas, query_fallback_forms)
                             if matching_query_lemmas:
                                 matched_lemma_set = set(matching_query_lemmas)
                                 # Find the actual words that correspond to matching lemmas
