@@ -85,6 +85,76 @@ def longest_sentence(text):
     return max(sents, key=len) if sents else ""
 
 
+# passage -> (work key in the passage index, first ref numbers, last ref numbers)
+WINDOW_WORK = {
+    "vergil.aeneid.tess": ("vergil.aeneid.part.8", (8, 675), (8, 713)),
+    "horace.odes.tess": ("horace.odes.part.1", (1, 37), (1, 37)),
+    "caesar_augustus.res_gestae_divi_augusti.tess": ("caesar_augustus.res_gestae_divi_augusti", (1, 34), (1, 34)),
+    "ovid.fasti.part.1.tess": ("ovid.fasti.part.1", (1, 709), (1, 722)),
+    "vergil.eclogues.tess": ("vergil.eclogues.part.4", (4, 1), (4, 63)),
+    "horace.carmen_saeculare.tess": ("horace.carmen_saeculare", (1,), (76,)),
+    "suetonius.de_vita_caesarum.part.2.augustus.tess": ("suetonius.de_vita_caesarum.part.2.augustus", (94,), (94,)),
+    "lucan.bellum_civile.tess": ("lucan.bellum_civile.part.1", (1, 183), (1, 227)),
+    "tacitus.annales.part.1.tess": ("tacitus.annales.part.1", (1, 60), (1, 62)),
+    "pliny_the_younger.letters.tess": ("pliny_the_younger.letters.part.6", (6, 31), (6, 31)),
+}
+DESC_KEYS = ("mode", "setting", "participants", "action_steps", "props",
+             "themes", "imagery_tone", "gist")
+
+
+def ref_nums(ref):
+    return tuple(int(x) for x in re.findall(r"\d+", (ref or "").rsplit(" ", 1)[-1]))
+
+
+def description_blob(desc):
+    """The text the passage index embeds for a window (scripts/corpus/apply_passage_rows.py
+    blob_for), without the query prefix."""
+    parts = []
+    for k in DESC_KEYS:
+        v = desc.get(k)
+        if isinstance(v, list):
+            v = ", ".join(str(x) for x in v)
+        if v:
+            parts.append(f"{k}: {v}")
+    return " | ".join(parts)
+
+
+def concreteness(desc):
+    """Count of named things: props, participants, and setting words."""
+    n = len(desc.get("props") or [])
+    part = desc.get("participants") or ""
+    n += len([x for x in re.split(r",| and ", part if isinstance(part, str) else ", ".join(part)) if x.strip()])
+    n += len((desc.get("setting") or "").split()) // 3
+    return n
+
+
+def covering_windows(path, cache=None):
+    """Fine windows whose ref range overlaps each passage. Streams the big
+    descriptions file once and keeps only the ten works needed."""
+    if cache and os.path.exists(cache):
+        return json.load(open(cache))
+    wanted = {v[0]: k for k, v in WINDOW_WORK.items()}
+    needles = {w: f'"work": "{w}"' for w in wanted}
+    found = {k: [] for k in WINDOW_WORK}
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            for w, needle in needles.items():
+                if needle in line[:400]:
+                    rec = json.loads(line)
+                    if rec.get("scale") != "fine" or rec["work"] != w:
+                        break
+                    _, a, b = WINDOW_WORK[wanted[w]]
+                    n = len(a)
+                    s0, e0 = ref_nums(rec["ref_start"])[:n], ref_nums(rec["ref_end"])[:n]
+                    if s0 <= b and e0 >= a:
+                        found[wanted[w]].append({"id": rec["id"], "ref_start": rec["ref_start"],
+                                                 "ref_end": rec["ref_end"], "desc": rec["desc"]})
+                    break
+    if cache:
+        json.dump(found, open(cache, "w"))
+    return found
+
+
 def passage_text(texts, fname, prefix, lo, hi):
     out = []
     pat = re.compile(r"^<[^>]*?" + re.escape(prefix) + r"(\d+)(?:\.\d+)?>\s*(.*)$", re.I)
@@ -103,10 +173,16 @@ def main():
     ap.add_argument("--coins", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--k", type=int, default=5)
-    ap.add_argument("--query-source", choices=["hand", "translation"], default="hand",
+    ap.add_argument("--query-source", choices=["hand", "translation", "window-description"], default="hand",
                     help="hand: Latin text and hand paraphrase (original run). "
                          "translation: the Reader's English translation of the passage, "
-                         "whole and its longest sentence")
+                         "whole and its longest sentence. "
+                         "window-description: the model-written English description of "
+                         "the passage index's fine windows that cover the passage")
+    ap.add_argument("--descriptions", default="/var/www/tesseraev6_flask/data/passage_index/descriptions.jsonl",
+                    help="read-only passage index descriptions")
+    ap.add_argument("--window-cache", default=None,
+                    help="JSON cache of the covering windows (written if absent)")
     ap.add_argument("--translations", default="/var/www/tesseraev6_flask/data/translations",
                     help="read-only folder of la__<work>.json translations")
     ap.add_argument("--date-filter", action="store_true",
@@ -142,6 +218,8 @@ def main():
             lo_row[row] = min(lo_row[row], r["date_not_before"])
             hi_row[row] = max(hi_row[row], r["date_not_after"])
 
+    windows_all = (covering_windows(args.descriptions, args.window_cache)
+                   if args.query_source == "window-description" else None)
     results = []
     for label, fname, prefix, lo, hi, para in PASSAGES:
         text = passage_text(args.texts, fname, prefix, lo, hi)
@@ -152,7 +230,21 @@ def main():
             mask = (hi_row >= w0) & (lo_row <= w1)
             entry["date_window"] = [w0, w1]
             entry["rows_kept"] = int(mask.sum())
-        if args.query_source == "translation":
+        if args.query_source == "window-description":
+            wins = windows_all[fname]
+            entry["windows"] = [{"id": w["id"], "refs": [w["ref_start"], w["ref_end"]],
+                                 "gist": w["desc"].get("gist")} for w in wins]
+            queries = []
+            if wins:
+                blobs = [description_blob(w["desc"]) for w in wins]
+                queries.append(("window_concat", " ".join(blobs)[:1500]))
+                best = max(wins, key=lambda w: concreteness(w["desc"]))
+                entry["best_window"] = best["id"]
+                queries.append(("window_single", description_blob(best["desc"])[:1500]))
+                queries.append(("window_single_gist", (best["desc"].get("gist") or "")[:1500]))
+            else:
+                queries = [("window_concat", ""), ("window_single", ""), ("window_single_gist", "")]
+        elif args.query_source == "translation":
             tr = translation_text(args.translations, TRANSLATION[fname][0], prefix, lo, hi)
             entry["translation_chars"] = len(tr)
             entry["translation_sentence"] = longest_sentence(tr)
